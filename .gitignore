@@ -1,0 +1,35 @@
+# Dependencias
+node_modules/
+package-lock.json
+
+# Builds
+dist/
+build/
+*.tsbuildinfo
+
+# Entorno
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Cobertura de tests
+coverage/
+
+# Docker
+docker-compose.override.yml
+
+# Claude Code (local, no subir)
+CLAUDE.md

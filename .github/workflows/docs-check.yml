@@ -1,0 +1,32 @@
+name: Docs Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'docs/**'
+      - '*.md'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Check README exists
+        run: |
+          if [ ! -f README.md ]; then
+            echo "❌ README.md no encontrado"
+            exit 1
+          fi
+          echo "✅ README.md encontrado"
+
+      - name: Check CLAUDE.md exists
+        run: |
+          if [ ! -f CLAUDE.md ]; then
+            echo "❌ CLAUDE.md no encontrado"
+            exit 1
+          fi
+          echo "✅ CLAUDE.md encontrado"

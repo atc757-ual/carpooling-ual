@@ -1,0 +1,72 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_USER: carpooling
+          POSTGRES_PASSWORD: carpooling_test
+          POSTGRES_DB: carpooling_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Check if package.json exists
+        id: check-package
+        run: |
+          if [ -f backend/package.json ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install dependencies
+        if: steps.check-package.outputs.exists == 'true'
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run linter
+        if: steps.check-package.outputs.exists == 'true'
+        working-directory: ./backend
+        run: npm run lint --if-present
+
+      - name: Run tests
+        if: steps.check-package.outputs.exists == 'true'
+        working-directory: ./backend
+        run: npm test --if-present
+        env:
+          DATABASE_URL: postgresql://carpooling:carpooling_test@localhost:5432/carpooling_test
+
+      - name: Build
+        if: steps.check-package.outputs.exists == 'true'
+        working-directory: ./backend
+        run: npm run build --if-present
