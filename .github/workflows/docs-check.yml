@@ -2,7 +2,7 @@ name: Docs Check
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main, dev]
     paths:
       - 'docs/**'
       - '*.md'
@@ -23,10 +23,10 @@ jobs:
           fi
           echo "✅ README.md encontrado"
 
-      - name: Check CLAUDE.md exists
+      - name: Check CONTRIBUTING.md exists
         run: |
-          if [ ! -f CLAUDE.md ]; then
-            echo "❌ CLAUDE.md no encontrado"
+          if [ ! -f CONTRIBUTING.md ]; then
+            echo "❌ CONTRIBUTING.md no encontrado"
             exit 1
           fi
-          echo "✅ CLAUDE.md encontrado"
+          echo "✅ CONTRIBUTING.md encontrado"
