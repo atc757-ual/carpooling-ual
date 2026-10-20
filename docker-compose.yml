@@ -1,19 +1,22 @@
-version: '3.8'
-
 services:
   postgres:
-    image: postgis/postgis:15-3.3
+    image: postgis/postgis:18-3.6
     container_name: carpooling-db
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: carpooling
-      POSTGRES_PASSWORD: carpooling_dev
-      POSTGRES_DB: carpooling
+      POSTGRES_USER: ${POSTGRES_USER:-carpooling}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-carpooling_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-carpooling}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # Desde PostgreSQL 18 los datos van en /var/lib/postgresql/<versión>
+      - postgres_data:/var/lib/postgresql
+      # Solo se ejecutan al crear el volumen (ver database/README.md)
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/20-schema.sql:ro
+      - ./database/seeds/dev-seed.sql:/docker-entrypoint-initdb.d/30-dev-seed.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U carpooling"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
