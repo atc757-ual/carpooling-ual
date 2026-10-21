@@ -54,6 +54,11 @@ jobs:
         working-directory: ./backend
         run: npm install
 
+      - name: Audit dependencies
+        if: steps.check-package.outputs.exists == 'true'
+        working-directory: ./backend
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Run linter
         if: steps.check-package.outputs.exists == 'true'
         working-directory: ./backend
@@ -72,7 +77,7 @@ jobs:
       - name: Run tests
         if: steps.check-package.outputs.exists == 'true'
         working-directory: ./backend
-        run: npm test --if-present
+        run: npm run test:cov
         env:
           DATABASE_URL: postgresql://carpooling:carpooling_test@localhost:5432/carpooling_test
 
