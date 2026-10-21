@@ -8,16 +8,43 @@
 export interface AppConfig {
   port: number;
   databaseUrl: string;
-  jwt: { secret: string; accessTtlMinutes: number };
+  jwt: { secret: string; accessTtlMinutes: number } & SessionLifetime;
   allowedEmailDomains: string[];
+  apiDocsEnabled: boolean;
+}
+
+// Duración de la sesión (token de renovación), en días
+export interface SessionLifetime {
+  refreshTtlDays: number;
+  sessionMaxDays: number;
+}
+
+// Variable de entorno numérica: entero entre 1 y max, con valor por defecto
+interface IntegerSetting {
+  name: string;
+  defaultValue: number;
+  max: number;
 }
 
 const DEFAULT_PORT = 3000;
 const MAX_PORT = 65535;
 const POSTGRES_PROTOCOLS = ['postgres:', 'postgresql:'];
 const MIN_JWT_SECRET_LENGTH = 32;
-const DEFAULT_ACCESS_TTL_MINUTES = 15;
-const MAX_ACCESS_TTL_MINUTES = 24 * 60;
+const ACCESS_TTL_MINUTES: IntegerSetting = {
+  name: 'JWT_ACCESS_TTL_MINUTES',
+  defaultValue: 15,
+  max: 24 * 60,
+};
+const REFRESH_TTL_DAYS: IntegerSetting = {
+  name: 'JWT_REFRESH_TTL_DAYS',
+  defaultValue: 7,
+  max: 90,
+};
+const SESSION_MAX_DAYS: IntegerSetting = {
+  name: 'JWT_SESSION_MAX_DAYS',
+  defaultValue: 30,
+  max: 365,
+};
 const DEFAULT_EMAIL_DOMAINS = 'ual.es,inlumine.ual.es';
 // Al menos dos partes separadas por puntos: "ual.es", "inlumine.ual.es"
 const DOMAIN_PATTERN = /^[a-z0-9-]+(\.[a-z0-9-]+)+$/;
@@ -71,21 +98,43 @@ export function parseJwtSecret(rawSecret: string | undefined): string {
 // Duración del token de acceso en minutos (por defecto 15). Es corta a
 // propósito: la sesión se mantiene con el token de renovación.
 export function parseAccessTokenTtl(rawMinutes: string | undefined): number {
-  if (rawMinutes === undefined || rawMinutes === '') {
-    return DEFAULT_ACCESS_TTL_MINUTES;
-  }
+  return parseIntegerSetting(rawMinutes, ACCESS_TTL_MINUTES);
+}
 
-  const minutes = Number(rawMinutes);
-  if (
-    !Number.isInteger(minutes) ||
-    minutes < 1 ||
-    minutes > MAX_ACCESS_TTL_MINUTES
-  ) {
+// Duración de la sesión, deslizante y con tope:
+// - JWT_REFRESH_TTL_DAYS (por defecto 7): cada renovación da estos días más;
+//   si no se usa la app en ese tiempo, hay que volver a iniciar sesión.
+// - JWT_SESSION_MAX_DAYS (por defecto 30): máximo desde el login, aunque se
+//   use a diario; así un token robado no se puede mantener vivo para siempre.
+export function parseSessionLifetime(
+  rawRefreshDays: string | undefined,
+  rawMaxDays: string | undefined,
+): SessionLifetime {
+  const refreshTtlDays = parseIntegerSetting(rawRefreshDays, REFRESH_TTL_DAYS);
+  const sessionMaxDays = parseIntegerSetting(rawMaxDays, SESSION_MAX_DAYS);
+  if (sessionMaxDays < refreshTtlDays) {
     throw new Error(
-      `Invalid JWT_ACCESS_TTL_MINUTES "${rawMinutes}": expected 1-${MAX_ACCESS_TTL_MINUTES}`,
+      `Invalid JWT_SESSION_MAX_DAYS "${rawMaxDays}": must be at least JWT_REFRESH_TTL_DAYS (${refreshTtlDays})`,
     );
   }
-  return minutes;
+  return { refreshTtlDays, sessionMaxDays };
+}
+
+function parseIntegerSetting(
+  rawValue: string | undefined,
+  setting: IntegerSetting,
+): number {
+  if (rawValue === undefined || rawValue === '') {
+    return setting.defaultValue;
+  }
+
+  const value = Number(rawValue);
+  if (!Number.isInteger(value) || value < 1 || value > setting.max) {
+    throw new Error(
+      `Invalid ${setting.name} "${rawValue}": expected 1-${setting.max}`,
+    );
+  }
+  return value;
 }
 
 // Dominios de correo con los que se permite registrarse (separados por comas).
@@ -105,6 +154,20 @@ export function parseEmailDomains(rawDomains: string | undefined): string[] {
   return domains;
 }
 
+// API_DOCS_ENABLED: publica la documentación interactiva (Swagger UI) en
+// /api/docs. Activada por defecto; se puede apagar en producción con "false"
+export function parseApiDocsEnabled(rawValue: string | undefined): boolean {
+  if (rawValue === undefined || rawValue === '') {
+    return true;
+  }
+  if (rawValue !== 'true' && rawValue !== 'false') {
+    throw new Error(
+      `Invalid API_DOCS_ENABLED "${rawValue}": expected true or false`,
+    );
+  }
+  return rawValue === 'true';
+}
+
 // La llama ConfigModule (en app.module.ts) una vez al arrancar.
 export function loadConfiguration(): AppConfig {
   return {
@@ -113,7 +176,12 @@ export function loadConfiguration(): AppConfig {
     jwt: {
       secret: parseJwtSecret(process.env.JWT_SECRET),
       accessTtlMinutes: parseAccessTokenTtl(process.env.JWT_ACCESS_TTL_MINUTES),
+      ...parseSessionLifetime(
+        process.env.JWT_REFRESH_TTL_DAYS,
+        process.env.JWT_SESSION_MAX_DAYS,
+      ),
     },
     allowedEmailDomains: parseEmailDomains(process.env.ALLOWED_EMAIL_DOMAINS),
+    apiDocsEnabled: parseApiDocsEnabled(process.env.API_DOCS_ENABLED),
   };
 }

@@ -9,6 +9,11 @@ import { UsersService } from '../users/users.service';
 import { EmailDomainNotAllowedError } from './errors/email-domain-not-allowed.error';
 import { InvalidAccessTokenError } from './errors/invalid-access-token.error';
 import { InvalidCredentialsError } from './errors/invalid-credentials.error';
+import { InvalidRefreshTokenError } from './errors/invalid-refresh-token.error';
+import {
+  IssuedRefreshToken,
+  RefreshTokensService,
+} from './refresh-tokens.service';
 
 export interface RegisterInput {
   name: string;
@@ -25,9 +30,13 @@ export interface AuthenticatedUser {
   profiles: ProfileType[];
 }
 
-export interface LoginResult {
+// Resultado del login y de cada renovación: un token de acceso nuevo (15 min)
+// y un token de renovación nuevo (7 días, sin pasar del tope de la sesión)
+export interface AuthSession {
   accessToken: string;
   expiresInSeconds: number;
+  refreshToken: string;
+  refreshTokenExpiresAt: Date;
   user: AuthenticatedUser;
 }
 
@@ -57,6 +66,7 @@ export class AuthService {
 
   constructor(
     private readonly usersService: UsersService,
+    private readonly refreshTokensService: RefreshTokensService,
     private readonly jwtService: JwtService,
     configService: ConfigService,
   ) {
@@ -82,8 +92,8 @@ export class AuthService {
     return this.toAuthenticatedUser(user);
   }
 
-  // Inicio de sesión (RF-02): comprueba la contraseña y firma el token de acceso
-  async login(email: string, password: string): Promise<LoginResult> {
+  // Inicio de sesión (RF-02): comprueba la contraseña y abre una sesión nueva
+  async login(email: string, password: string): Promise<AuthSession> {
     const user = await this.usersService.findByEmailWithPassword(email);
     const isPasswordValid = await compare(
       password,
@@ -93,16 +103,30 @@ export class AuthService {
       throw new InvalidCredentialsError();
     }
 
-    const authenticatedUser = this.toAuthenticatedUser(user);
-    const payload: AccessTokenPayload = {
-      sub: user.id,
-      profiles: authenticatedUser.profiles,
-    };
-    return {
-      accessToken: await this.jwtService.signAsync(payload),
-      expiresInSeconds: this.accessTtlSeconds,
-      user: authenticatedUser,
-    };
+    return this.buildSession(
+      user,
+      await this.refreshTokensService.issue(user.id),
+    );
+  }
+
+  // Renovación (RF-02, "mantener sesiones activas"): cambia el token de
+  // renovación por uno nuevo y firma un token de acceso con los perfiles
+  // ACTUALES del usuario (si pierde un perfil, se nota en la siguiente
+  // renovación)
+  async refresh(refreshToken: string): Promise<AuthSession> {
+    const rotated = await this.refreshTokensService.rotate(refreshToken);
+    // Al borrar un usuario se borran sus tokens (ON DELETE CASCADE), así que
+    // no debería ocurrir; se comprueba por seguridad
+    const user = await this.usersService.findById(rotated.userId);
+    if (user === null) {
+      throw new InvalidRefreshTokenError();
+    }
+    return this.buildSession(user, rotated.refreshToken);
+  }
+
+  // Cierre de sesión: anula la sesión de ese dispositivo
+  async logout(refreshToken: string): Promise<void> {
+    await this.refreshTokensService.revoke(refreshToken);
   }
 
   // Usuario del token (GET /api/auth/me). Si ya no existe, el token no sirve
@@ -121,6 +145,25 @@ export class AuthService {
     if (!this.allowedEmailDomains.includes(domain)) {
       throw new EmailDomainNotAllowedError(domain);
     }
+  }
+
+  // Firma el token de acceso y lo junta con el de renovación
+  private async buildSession(
+    user: User,
+    refreshToken: IssuedRefreshToken,
+  ): Promise<AuthSession> {
+    const authenticatedUser = this.toAuthenticatedUser(user);
+    const payload: AccessTokenPayload = {
+      sub: user.id,
+      profiles: authenticatedUser.profiles,
+    };
+    return {
+      accessToken: await this.jwtService.signAsync(payload),
+      expiresInSeconds: this.accessTtlSeconds,
+      refreshToken: refreshToken.token,
+      refreshTokenExpiresAt: refreshToken.expiresAt,
+      user: authenticatedUser,
+    };
   }
 
   private toAuthenticatedUser(user: User): AuthenticatedUser {

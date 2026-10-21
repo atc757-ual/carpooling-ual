@@ -1,10 +1,12 @@
 import {
   loadConfiguration,
   parseAccessTokenTtl,
+  parseApiDocsEnabled,
   parseDatabaseUrl,
   parseEmailDomains,
   parseJwtSecret,
   parsePort,
+  parseSessionLifetime,
 } from './configuration';
 
 const DEV_DATABASE_URL =
@@ -86,6 +88,50 @@ describe('parseAccessTokenTtl', () => {
   );
 });
 
+describe('parseSessionLifetime', () => {
+  it('uses 7 days (sliding) and 30 days (maximum) by default', () => {
+    expect(parseSessionLifetime(undefined, '')).toEqual({
+      refreshTtlDays: 7,
+      sessionMaxDays: 30,
+    });
+  });
+
+  it('parses valid values, also with both durations equal', () => {
+    expect(parseSessionLifetime('14', '60')).toEqual({
+      refreshTtlDays: 14,
+      sessionMaxDays: 60,
+    });
+    expect(parseSessionLifetime('30', '30')).toEqual({
+      refreshTtlDays: 30,
+      sessionMaxDays: 30,
+    });
+  });
+
+  it.each(['abc', '0', '91', '1.5'])(
+    'rejects the invalid JWT_REFRESH_TTL_DAYS "%s"',
+    (rawDays) => {
+      expect(() => parseSessionLifetime(rawDays, '90')).toThrow(
+        'Invalid JWT_REFRESH_TTL_DAYS',
+      );
+    },
+  );
+
+  it.each(['abc', '0', '366'])(
+    'rejects the invalid JWT_SESSION_MAX_DAYS "%s"',
+    (rawDays) => {
+      expect(() => parseSessionLifetime('7', rawDays)).toThrow(
+        'Invalid JWT_SESSION_MAX_DAYS',
+      );
+    },
+  );
+
+  it('rejects a maximum shorter than the sliding duration', () => {
+    expect(() => parseSessionLifetime('10', '5')).toThrow(
+      'must be at least JWT_REFRESH_TTL_DAYS (10)',
+    );
+  });
+});
+
 describe('parseEmailDomains', () => {
   it('allows the UAL domains by default', () => {
     expect(parseEmailDomains(undefined)).toEqual(['ual.es', 'inlumine.ual.es']);
@@ -108,6 +154,22 @@ describe('parseEmailDomains', () => {
   );
 });
 
+describe('parseApiDocsEnabled', () => {
+  it('publishes the API docs by default', () => {
+    expect(parseApiDocsEnabled(undefined)).toBe(true);
+    expect(parseApiDocsEnabled('')).toBe(true);
+  });
+
+  it('reads true and false', () => {
+    expect(parseApiDocsEnabled('true')).toBe(true);
+    expect(parseApiDocsEnabled('false')).toBe(false);
+  });
+
+  it.each(['yes', '0', 'FALSE'])('rejects the invalid value "%s"', (raw) => {
+    expect(() => parseApiDocsEnabled(raw)).toThrow('Invalid API_DOCS_ENABLED');
+  });
+});
+
 describe('loadConfiguration', () => {
   // Se guardan las variables reales para restaurarlas tras cada test,
   // de modo que un test no afecte a los demás
@@ -116,7 +178,10 @@ describe('loadConfiguration', () => {
     'DATABASE_URL',
     'JWT_SECRET',
     'JWT_ACCESS_TTL_MINUTES',
+    'JWT_REFRESH_TTL_DAYS',
+    'JWT_SESSION_MAX_DAYS',
     'ALLOWED_EMAIL_DOMAINS',
+    'API_DOCS_ENABLED',
   ];
   const originalEnv = ENV_KEYS.map((key) => [key, process.env[key]] as const);
 
@@ -132,13 +197,22 @@ describe('loadConfiguration', () => {
   it('reads the whole configuration from the environment', () => {
     process.env.PORT = '4000';
     process.env.JWT_ACCESS_TTL_MINUTES = '20';
+    process.env.JWT_REFRESH_TTL_DAYS = '10';
+    process.env.JWT_SESSION_MAX_DAYS = '40';
     process.env.ALLOWED_EMAIL_DOMAINS = 'ual.es';
+    process.env.API_DOCS_ENABLED = 'false';
 
     expect(loadConfiguration()).toEqual({
       port: 4000,
       databaseUrl: DEV_DATABASE_URL,
-      jwt: { secret: DEV_JWT_SECRET, accessTtlMinutes: 20 },
+      jwt: {
+        secret: DEV_JWT_SECRET,
+        accessTtlMinutes: 20,
+        refreshTtlDays: 10,
+        sessionMaxDays: 40,
+      },
       allowedEmailDomains: ['ual.es'],
+      apiDocsEnabled: false,
     });
   });
 

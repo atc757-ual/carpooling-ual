@@ -24,6 +24,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Inicio de sesión con token de acceso JWT de 15 minutos (`POST /api/auth/login`) y consulta del usuario autenticado (`GET /api/auth/me`) (#13)
 - Formato de respuesta TMF630 en todas las APIs: errores con el objeto `Error`, validación con `ValidationError` y cabecera `X-Request-Id`; catálogo de códigos en `docs/api/errors.md` (#13)
 - Variables de entorno `JWT_SECRET`, `JWT_ACCESS_TTL_MINUTES` y `ALLOWED_EMAIL_DOMAINS` (#13)
+- Sesiones con token de renovación: `POST /api/auth/refresh` (rotación con detección de reutilización) y `POST /api/auth/logout`; duración de 7 días deslizantes con un máximo de 30 desde el login (#14)
+- Tabla `refresh_tokens` (migración `AddRefreshTokens`) (#14)
+- Documentación OpenAPI de la API: Swagger UI en `/api/docs` y especificación en `docs/api/openapi.json` (`npm run openapi`) (#14)
+- Variables de entorno `JWT_REFRESH_TTL_DAYS`, `JWT_SESSION_MAX_DAYS` y `API_DOCS_ENABLED` (#14)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
@@ -33,6 +37,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - `package-lock.json` pasa a versionarse para fijar las versiones exactas de las dependencias (#4)
 - El esquema pasa de `database/schema.sql` a la migración inicial de TypeORM; el contenedor de la base de datos arranca vacío (#7)
 - `GET /api/health` responde con el recurso TMF630 `Health`, y con un `Error` `SERVICE_UNAVAILABLE` si la base de datos no responde (#13)
+- `POST /api/auth/login` devuelve también el token de renovación (`refreshToken`, `refreshTokenExpiresAt`) (#14)
+
+### Security
+- El backend ya no envía la cabecera `X-Powered-By: Express`, que revelaba la tecnología del servidor (#14)
 
 ### Removed
 - Carpeta `database/` de la raíz: las migraciones y los datos de prueba viven ahora en `backend/src/database/` (#7)

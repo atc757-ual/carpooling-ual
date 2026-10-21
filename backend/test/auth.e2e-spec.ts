@@ -167,4 +167,106 @@ describe('Auth API (e2e)', () => {
       expect(response.body).toMatchObject({ code: 'INVALID_ACCESS_TOKEN' });
     });
   });
+
+  describe('POST /api/auth/refresh and POST /api/auth/logout', () => {
+    function refresh(refreshToken: unknown): request.Test {
+      return request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken });
+    }
+
+    function logout(refreshToken: string): request.Test {
+      return request(app.getHttpServer())
+        .post('/api/auth/logout')
+        .send({ refreshToken });
+    }
+
+    async function loginRefreshToken(): Promise<string> {
+      await register().expect(201);
+      const response = await login(
+        `${EMAIL_PREFIX}ana@ual.es`,
+        PASSWORD,
+      ).expect(200);
+      const { refreshToken } = response.body as { refreshToken: string };
+      return refreshToken;
+    }
+
+    it('login returns a refresh token valid for 7 days', async () => {
+      await register().expect(201);
+
+      const response = await login(
+        `${EMAIL_PREFIX}ana@ual.es`,
+        PASSWORD,
+      ).expect(200);
+
+      const body = response.body as { refreshTokenExpiresAt: string };
+      expect(response.body).toMatchObject({
+        refreshToken: expect.stringMatching(/^[\w-]{43}$/) as string,
+      });
+      const daysLeft =
+        (Date.parse(body.refreshTokenExpiresAt) - Date.now()) /
+        (24 * 60 * 60 * 1000);
+      expect(daysLeft).toBeCloseTo(7, 1);
+    });
+
+    it('renews the session with new tokens', async () => {
+      const refreshToken = await loginRefreshToken();
+
+      const response = await refresh(refreshToken).expect(200);
+
+      const body = response.body as {
+        accessToken: string;
+        refreshToken: string;
+      };
+      expect(response.body).toMatchObject({
+        '@type': 'AccessToken',
+        user: { email: `${EMAIL_PREFIX}ana@ual.es` },
+      });
+      expect(body.refreshToken).not.toBe(refreshToken);
+      await request(app.getHttpServer())
+        .get('/api/auth/me')
+        .set('Authorization', `Bearer ${body.accessToken}`)
+        .expect(200);
+    });
+
+    it('closes the session when an already used refresh token comes back', async () => {
+      const stolen = await loginRefreshToken();
+      const response = await refresh(stolen).expect(200);
+      const { refreshToken: current } = response.body as {
+        refreshToken: string;
+      };
+
+      const reuse = await refresh(stolen).expect(401);
+
+      expect(reuse.body).toMatchObject({ code: 'INVALID_REFRESH_TOKEN' });
+      await refresh(current).expect(401);
+    });
+
+    it('logs out with 204 and the refresh token stops working', async () => {
+      const refreshToken = await loginRefreshToken();
+
+      const logoutResponse = await logout(refreshToken).expect(204);
+
+      expect(logoutResponse.body).toEqual({});
+      const response = await refresh(refreshToken).expect(401);
+      expect(response.body).toMatchObject({ code: 'INVALID_REFRESH_TOKEN' });
+    });
+
+    it('answers 204 to a logout with an unknown token', async () => {
+      const response = await logout('not-a-real-token').expect(204);
+
+      expect(response.body).toEqual({});
+    });
+
+    it('validates the body: refreshToken is required', async () => {
+      const response = await refresh(undefined).expect(400);
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_FAILED',
+        fields: expect.arrayContaining([
+          expect.objectContaining({ field: 'refreshToken' }),
+        ]) as unknown,
+      });
+    });
+  });
 });

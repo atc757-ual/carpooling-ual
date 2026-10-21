@@ -17,6 +17,7 @@ API REST en **NestJS 12** sobre Node.js 24 y TypeScript 6.
     npm run test:cov      # Tests con cobertura (mínimo 80 % de líneas)
     npm run lint          # ESLint (sin any, sin imports sin usar, sin console.log)
     npm run format        # Formatear con Prettier
+    npm run openapi       # Regenerar docs/api/openapi.json (obligatorio al cambiar la API)
 
 La configuración se lee de `backend/.env` o, si no existe, del `.env` de la raíz (ver `.env.example`):
 
@@ -25,6 +26,9 @@ La configuración se lee de `backend/.env` o, si no existe, del `.env` de la ra�
 | `DATABASE_URL` | Sí | | Conexión con PostgreSQL |
 | `JWT_SECRET` | Sí | | Firma de los tokens de acceso (mínimo 32 caracteres; distinto en cada entorno y nunca en el repositorio) |
 | `JWT_ACCESS_TTL_MINUTES` | No | `15` | Duración del token de acceso (1-1440) |
+| `JWT_REFRESH_TTL_DAYS` | No | `7` | Cada renovación de la sesión da estos días más (1-90) |
+| `JWT_SESSION_MAX_DAYS` | No | `30` | Duración máxima de una sesión desde el login (1-365; no menor que `JWT_REFRESH_TTL_DAYS`) |
+| `API_DOCS_ENABLED` | No | `true` | Publica Swagger UI en `/api/docs` (`false` para apagarlo en producción) |
 | `ALLOWED_EMAIL_DOMAINS` | No | `ual.es,inlumine.ual.es` | Dominios de correo que pueden registrarse |
 | `PORT` | No | `3000` | Puerto HTTP |
 
@@ -36,8 +40,14 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 | --- | --- | --- |
 | `GET /api/health` | No | `200` `Health` / `503` si la base de datos no responde |
 | `POST /api/auth/register` | No | `201` `User`. Solo correos de los dominios permitidos; perfiles `driver` y/o `passenger` |
-| `POST /api/auth/login` | No | `200` `AccessToken` (`accessToken`, `tokenType`, `expiresIn` en segundos, `user`) |
+| `POST /api/auth/login` | No | `200` `AccessToken` (`accessToken`, `tokenType`, `expiresIn` en segundos, `refreshToken`, `refreshTokenExpiresAt`, `user`) |
+| `POST /api/auth/refresh` | `refreshToken` en el cuerpo | `200` `AccessToken` con los dos tokens nuevos (cada `refreshToken` sirve una sola vez) |
+| `POST /api/auth/logout` | `refreshToken` en el cuerpo | `204`: cierra la sesión de ese dispositivo |
 | `GET /api/auth/me` | `Authorization: Bearer <token>` | `200` `User` |
+
+**Documentación interactiva (Swagger UI):** http://localhost:3000/api/docs, con el botón *Authorize* para pegar el `accessToken`. La especificación OpenAPI está en [`docs/api/openapi.json`](../docs/api/openapi.json); se genera a partir del código con `npm run openapi` y un test comprueba que está al día. Todo endpoint nuevo se documenta con los decoradores de `@nestjs/swagger` y `@ApiErrorResponses`.
+
+**Sesiones:** el token de acceso dura 15 minutos; el de renovación, 7 días deslizantes (cada renovación da 7 más) con un máximo de 30 días desde el login. Cada dispositivo tiene su propia sesión. El cliente debe hacer **una sola renovación a la vez**: si llegan dos con el mismo `refreshToken`, la segunda se trata como un robo y cierra la sesión.
 
 Ejemplo con un usuario del seed:
 

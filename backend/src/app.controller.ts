@@ -1,14 +1,34 @@
-import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  ServiceUnavailableException,
+} from '@nestjs/common';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger';
 import { DataSource } from 'typeorm';
+import { ApiErrorResponses } from './shared/http/api-error-responses.decorator';
 
 // Recurso TMF630: lleva @type con el nombre del tipo de recurso
-export interface Health {
+export class Health {
+  @ApiProperty({ enum: ['Health'] })
   '@type': 'Health';
+
+  @ApiProperty({ enum: ['ok'] })
   status: 'ok';
+
+  @ApiProperty({ enum: ['up'] })
   database: 'up';
+
+  @ApiProperty({ format: 'date-time' })
   timestamp: string;
 }
 
+@ApiTags('health')
 @Controller()
 export class AppController {
   // NestJS inyecta la conexión de TypeORM creada en app.module.ts
@@ -20,6 +40,11 @@ export class AppController {
   // enviar tráfico a esta instancia. El filtro TMF630 lo convierte en un
   // Error con el código SERVICE_UNAVAILABLE.
   @Get('health')
+  @ApiOperation({ summary: 'Check that the API and the database are up' })
+  @ApiOkResponse({ type: Health })
+  @ApiErrorResponses({
+    [HttpStatus.SERVICE_UNAVAILABLE]: ['SERVICE_UNAVAILABLE'],
+  })
   async getHealth(): Promise<Health> {
     if (!(await this.checkDatabase())) {
       throw new ServiceUnavailableException('Database unavailable');

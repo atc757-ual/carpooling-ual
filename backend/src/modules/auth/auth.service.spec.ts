@@ -9,6 +9,8 @@ import { AccessTokenPayload, AuthService } from './auth.service';
 import { EmailDomainNotAllowedError } from './errors/email-domain-not-allowed.error';
 import { InvalidAccessTokenError } from './errors/invalid-access-token.error';
 import { InvalidCredentialsError } from './errors/invalid-credentials.error';
+import { InvalidRefreshTokenError } from './errors/invalid-refresh-token.error';
+import { RefreshTokensService } from './refresh-tokens.service';
 
 const JWT_SECRET = 'test-only-secret-with-at-least-32-chars';
 const CONFIG: Record<string, unknown> = {
@@ -27,6 +29,15 @@ describe('AuthService', () => {
     findById: jest.fn(),
     getActiveProfiles: jest.fn(),
   };
+  const refreshTokensService = {
+    issue: jest.fn(),
+    rotate: jest.fn(),
+    revoke: jest.fn(),
+  };
+  const ISSUED_REFRESH_TOKEN = {
+    token: 'refresh-token-1',
+    expiresAt: new Date('2030-01-08T00:00:00Z'),
+  };
 
   function storedUser(passwordHash?: string): User {
     return Object.assign(new User(), {
@@ -44,6 +55,7 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: UsersService, useValue: usersService },
+        { provide: RefreshTokensService, useValue: refreshTokensService },
         { provide: JwtService, useValue: jwtService },
         {
           provide: ConfigService,
@@ -118,6 +130,7 @@ describe('AuthService', () => {
       usersService.findByEmailWithPassword.mockResolvedValue(
         storedUser(passwordHash),
       );
+      refreshTokensService.issue.mockResolvedValue(ISSUED_REFRESH_TOKEN);
 
       const result = await authService.login('ana@ual.es', 'secret-password');
 
@@ -127,6 +140,33 @@ describe('AuthService', () => {
       expect(payload).toMatchObject({ sub: 'user-1', profiles: ['driver'] });
       expect(result.expiresInSeconds).toBe(15 * 60);
       expect(result.user).toMatchObject({ id: 'user-1', profiles: ['driver'] });
+    });
+
+    it('opens a new session with a refresh token', async () => {
+      const passwordHash = await hash('secret-password', 4);
+      usersService.findByEmailWithPassword.mockResolvedValue(
+        storedUser(passwordHash),
+      );
+      refreshTokensService.issue.mockResolvedValue(ISSUED_REFRESH_TOKEN);
+
+      const result = await authService.login('ana@ual.es', 'secret-password');
+
+      expect(refreshTokensService.issue).toHaveBeenCalledWith('user-1');
+      expect(result).toMatchObject({
+        refreshToken: 'refresh-token-1',
+        refreshTokenExpiresAt: ISSUED_REFRESH_TOKEN.expiresAt,
+      });
+    });
+
+    it('does not open a session when the password is wrong', async () => {
+      usersService.findByEmailWithPassword.mockResolvedValue(
+        storedUser(await hash('secret-password', 4)),
+      );
+
+      await expect(
+        authService.login('ana@ual.es', 'wrong-password'),
+      ).rejects.toBeInstanceOf(InvalidCredentialsError);
+      expect(refreshTokensService.issue).not.toHaveBeenCalled();
     });
 
     it('rejects a wrong password', async () => {
@@ -146,6 +186,61 @@ describe('AuthService', () => {
       await expect(
         authService.login('nobody@ual.es', 'secret-password'),
       ).rejects.toBeInstanceOf(InvalidCredentialsError);
+    });
+  });
+
+  describe('refresh', () => {
+    it('rotates the refresh token and signs an access token with the current profiles', async () => {
+      refreshTokensService.rotate.mockResolvedValue({
+        userId: 'user-1',
+        refreshToken: ISSUED_REFRESH_TOKEN,
+      });
+      usersService.findById.mockResolvedValue(storedUser());
+      usersService.getActiveProfiles.mockReturnValue(['driver', 'passenger']);
+
+      const result = await authService.refresh('old-refresh-token');
+
+      const payload = await jwtService.verifyAsync<AccessTokenPayload>(
+        result.accessToken,
+      );
+      expect(refreshTokensService.rotate).toHaveBeenCalledWith(
+        'old-refresh-token',
+      );
+      expect(payload).toMatchObject({
+        sub: 'user-1',
+        profiles: ['driver', 'passenger'],
+      });
+      expect(result.refreshToken).toBe('refresh-token-1');
+    });
+
+    it('lets the "invalid refresh token" error through', async () => {
+      refreshTokensService.rotate.mockRejectedValue(
+        new InvalidRefreshTokenError(),
+      );
+
+      await expect(authService.refresh('stolen-token')).rejects.toBeInstanceOf(
+        InvalidRefreshTokenError,
+      );
+    });
+
+    it('rejects the refresh when the user no longer exists', async () => {
+      refreshTokensService.rotate.mockResolvedValue({
+        userId: 'deleted-user',
+        refreshToken: ISSUED_REFRESH_TOKEN,
+      });
+      usersService.findById.mockResolvedValue(null);
+
+      await expect(authService.refresh('refresh-token')).rejects.toBeInstanceOf(
+        InvalidRefreshTokenError,
+      );
+    });
+  });
+
+  describe('logout', () => {
+    it('revokes the session of the refresh token', async () => {
+      await authService.logout('refresh-token');
+
+      expect(refreshTokensService.revoke).toHaveBeenCalledWith('refresh-token');
     });
   });
 
