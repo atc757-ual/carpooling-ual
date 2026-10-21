@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # Dependencias npm de cada proyecto del repositorio
+  - package-ecosystem: npm
+    directories:
+      - /backend
+      # - /frontend         (activar al crear el frontend)
+      # - /services/*       (activar al crear matching, gemelo digital y simulación)
+    schedule:
+      interval: weekly
+    target-branch: dev
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  # Acciones usadas en los workflows de GitHub (comunes a todo el repositorio)
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: dev
+    commit-message:
+      prefix: ci
+      include: scope

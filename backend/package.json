@@ -82,6 +82,17 @@
       "!src/database/**"
     ],
     "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "clover",
+      "json",
+      [
+        "lcov",
+        {
+          "projectRoot": ".."
+        }
+      ]
+    ],
     "coverageThreshold": {
       "global": {
         "lines": 80

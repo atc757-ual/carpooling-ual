@@ -39,6 +39,11 @@ jobs:
         working-directory: ./frontend
         run: npm install
 
+      - name: Audit dependencies
+        if: steps.check-package.outputs.exists == 'true'
+        working-directory: ./frontend
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Run linter
         if: steps.check-package.outputs.exists == 'true'
         working-directory: ./frontend

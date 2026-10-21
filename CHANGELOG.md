@@ -16,6 +16,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Carga de datos de prueba con `npm run seed` (#7)
 - `GET /api/health` comprueba la base de datos y responde 503 si no está disponible (#7)
 - El CI aplica, revierte y vuelve a aplicar las migraciones en cada PR (#7)
+- Control de calidad y seguridad en cada PR: CodeQL, SonarCloud (Quality Gate), `npm audit` de dependencias de producción y cobertura mínima del 80 % en el CI (#8)
+- Dependabot: revisión semanal de dependencias npm y de GitHub Actions (#8)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
