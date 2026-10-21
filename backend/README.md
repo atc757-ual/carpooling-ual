@@ -29,7 +29,7 @@ La configuración se lee de `backend/.env` o, si no existe, del `.env` de la ra�
     ├── app.setup.ts       # Configuración común (prefijo /api)
     ├── config/            # Lectura y validación de variables de entorno
     ├── modules/           # Un módulo por bloque del Core
-    │   ├── auth/  users/  trips/  requests/
+    │   ├── auth/  users/  trips/  requests/  incidents/  notifications/
     │   └── matching/  digital-twin/  simulation/  metrics/
     ├── shared/            # Código común entre módulos
     └── events/            # Eventos hacia el Gemelo Digital
