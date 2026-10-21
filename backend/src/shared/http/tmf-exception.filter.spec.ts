@@ -41,6 +41,7 @@ describe('TmfExceptionFilter', () => {
   it.each([
     ['invalid', 400],
     ['unauthorized', 401],
+    ['forbidden', 403],
     ['not_found', 404],
     ['conflict', 409],
   ] as const)('maps a "%s" business error to HTTP %i', (kind, httpStatus) => {

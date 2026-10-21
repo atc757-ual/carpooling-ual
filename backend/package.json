@@ -21,6 +21,7 @@
     "migration:revert": "npm run typeorm -- migration:revert",
     "migration:show": "npm run typeorm -- migration:show",
     "migration:create": "typeorm-ts-node-commonjs migration:create",
+    "create-admin": "ts-node src/create-admin.ts",
     "openapi": "ts-node src/generate-openapi.ts",
     "seed": "ts-node src/database/seed.ts",
     "test:watch": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --watch",
@@ -85,6 +86,7 @@
       "src/**/*.ts",
       "!src/main.ts",
       "!src/generate-openapi.ts",
+      "!src/create-admin.ts",
       "!src/**/*.spec.ts",
       "!src/database/**"
     ],

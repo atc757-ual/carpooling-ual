@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { compare, hash, hashSync } from 'bcryptjs';
+import { AccessTokenPayload } from '../../shared/auth/access-token-payload';
 import { User } from '../users/entities/user.entity';
-import { ProfileType, RegistrableProfile } from '../users/profile-type';
+import { RegistrableProfile } from '../users/profile-type';
+import { UserSummary } from '../users/user-summary';
 import { UsersService } from '../users/users.service';
+import { AdminAlreadyExistsError } from './errors/admin-already-exists.error';
 import { EmailDomainNotAllowedError } from './errors/email-domain-not-allowed.error';
 import { InvalidAccessTokenError } from './errors/invalid-access-token.error';
 import { InvalidCredentialsError } from './errors/invalid-credentials.error';
@@ -22,13 +25,21 @@ export interface RegisterInput {
   profiles: RegistrableProfile[];
 }
 
-// Datos públicos del usuario autenticado (nunca incluye el hash)
-export interface AuthenticatedUser {
-  id: string;
+export interface CreateAdminInput {
   name: string;
   email: string;
-  profiles: ProfileType[];
 }
+
+// Resultado de create-admin: la contraseña generada solo se conoce aquí (en la
+// base de datos queda su hash), así que el comando la muestra una única vez
+export interface CreatedAdmin {
+  user: AuthenticatedUser;
+  password: string;
+}
+
+// Datos públicos del usuario autenticado (nunca incluye el hash): los mismos
+// que los de cualquier usuario
+export type AuthenticatedUser = UserSummary;
 
 // Resultado del login y de cada renovación: un token de acceso nuevo (15 min)
 // y un token de renovación nuevo (7 días, sin pasar del tope de la sesión)
@@ -38,12 +49,6 @@ export interface AuthSession {
   refreshToken: string;
   refreshTokenExpiresAt: Date;
   user: AuthenticatedUser;
-}
-
-// Contenido del token: sub (subject) es el estándar JWT para el id del usuario
-export interface AccessTokenPayload {
-  sub: string;
-  profiles: ProfileType[];
 }
 
 // Coste de bcrypt: 2^10 iteraciones (~130 ms por contraseña con bcryptjs).
@@ -56,6 +61,10 @@ const BCRYPT_COST = 10;
 // Se genera al arrancar (una vez, ~130 ms) para no guardar ningún hash en el
 // código, y cambia en cada arranque
 const DUMMY_PASSWORD_HASH = hashSync(randomUUID(), BCRYPT_COST);
+
+// Contraseña generada para el primer administrador: 15 bytes aleatorios en
+// base64url = 20 caracteres (unos 120 bits, imposible de adivinar)
+const ADMIN_PASSWORD_BYTES = 15;
 
 // Capa de negocio de la autenticación: las reglas del registro público y del
 // inicio de sesión. Usa UsersService para guardar y buscar usuarios.
@@ -90,6 +99,26 @@ export class AuthService {
       profiles: input.profiles,
     });
     return this.toAuthenticatedUser(user);
+  }
+
+  // Primer administrador (RF-01: "el primero se crea en el despliegue"). Lo usa
+  // el comando npm run create-admin. Solo funciona si no hay ningún
+  // administrador activo; los siguientes los asigna un administrador (RF-25).
+  // La contraseña se genera aquí, aleatoria, y se devuelve una única vez
+  async createFirstAdmin(input: CreateAdminInput): Promise<CreatedAdmin> {
+    if (await this.usersService.hasActiveAdmin()) {
+      throw new AdminAlreadyExistsError();
+    }
+    this.assertAllowedEmailDomain(input.email);
+
+    const password = randomBytes(ADMIN_PASSWORD_BYTES).toString('base64url');
+    const user = await this.usersService.createWithProfiles({
+      name: input.name,
+      email: input.email,
+      passwordHash: await hash(password, BCRYPT_COST),
+      profiles: ['admin'],
+    });
+    return { user: this.toAuthenticatedUser(user), password };
   }
 
   // Inicio de sesión (RF-02): comprueba la contraseña y abre una sesión nueva

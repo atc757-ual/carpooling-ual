@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ParseUUIDPipe, ValidationPipe } from '@nestjs/common';
 import type { ValidationError } from 'class-validator';
 import { TmfFieldError } from './tmf-error';
 
@@ -22,6 +22,18 @@ export function createValidationPipe(): ValidationPipe {
     transform: true,
     exceptionFactory: (errors) =>
       new RequestValidationError(toFieldErrors(errors)),
+  });
+}
+
+// Valida que un parámetro de la ruta sea un UUID (p. ej. /users/:id). Si no
+// lo es, responde 400 VALIDATION_FAILED como el resto de la validación, en vez
+// del error genérico de NestJS
+export function uuidParam(field: string): ParseUUIDPipe {
+  return new ParseUUIDPipe({
+    exceptionFactory: () =>
+      new RequestValidationError([
+        { field, reason: `${field} must be a UUID` },
+      ]),
   });
 }
 

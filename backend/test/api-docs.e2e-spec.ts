@@ -57,6 +57,7 @@ describe('API docs (e2e)', () => {
       '/api/auth/refresh',
       '/api/auth/register',
       '/api/health',
+      '/api/users/{id}',
     ]);
   });
 

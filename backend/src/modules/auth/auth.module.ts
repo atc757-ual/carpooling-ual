@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
@@ -7,6 +8,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { ProfilesGuard } from './guards/profiles.guard';
 import { RefreshTokensService } from './refresh-tokens.service';
 
 @Module({
@@ -28,6 +30,13 @@ import { RefreshTokensService } from './refresh-tokens.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, RefreshTokensService, JwtAuthGuard],
+  providers: [
+    AuthService,
+    RefreshTokensService,
+    // Guards globales (se aplican a toda la API, en este orden): primero el
+    // token (salvo @Public) y después los perfiles (@Profiles)
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: ProfilesGuard },
+  ],
 })
 export class AuthModule {}

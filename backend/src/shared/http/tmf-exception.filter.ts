@@ -15,6 +15,7 @@ import { RequestValidationError } from './validation';
 const STATUS_BY_KIND: Record<BusinessErrorKind, HttpStatus> = {
   invalid: HttpStatus.BAD_REQUEST,
   unauthorized: HttpStatus.UNAUTHORIZED,
+  forbidden: HttpStatus.FORBIDDEN,
   not_found: HttpStatus.NOT_FOUND,
   conflict: HttpStatus.CONFLICT,
 };
