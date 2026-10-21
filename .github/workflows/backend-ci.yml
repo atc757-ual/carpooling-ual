@@ -80,6 +80,7 @@ jobs:
         run: npm run test:cov
         env:
           DATABASE_URL: postgresql://carpooling:carpooling_test@localhost:5432/carpooling_test
+          JWT_SECRET: ci-test-only-secret-not-used-anywhere-else
 
       - name: Build
         if: steps.check-package.outputs.exists == 'true'

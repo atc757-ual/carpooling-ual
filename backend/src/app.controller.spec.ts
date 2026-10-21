@@ -24,7 +24,11 @@ describe('AppController', () => {
 
     const health = await appController.getHealth();
 
-    expect(health).toMatchObject({ status: 'ok', database: 'up' });
+    expect(health).toMatchObject({
+      '@type': 'Health',
+      status: 'ok',
+      database: 'up',
+    });
     expect(new Date(health.timestamp).toISOString()).toBe(health.timestamp);
     expect(query).toHaveBeenCalledWith('SELECT 1');
   });
@@ -35,9 +39,8 @@ describe('AppController', () => {
     const error = await appController.getHealth().catch((e: unknown) => e);
 
     expect(error).toBeInstanceOf(ServiceUnavailableException);
-    expect((error as ServiceUnavailableException).getResponse()).toMatchObject({
-      status: 'error',
-      database: 'down',
-    });
+    expect((error as ServiceUnavailableException).message).toBe(
+      'Database unavailable',
+    );
   });
 });

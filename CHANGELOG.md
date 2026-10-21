@@ -20,6 +20,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Dependabot: revisión semanal de dependencias npm y de GitHub Actions (#8)
 - `.nvmrc` como única fuente de la versión de Node, leída por todos los workflows (#12)
 - Aviso mensual automático (issue) cuando a la versión de Node le quedan menos de 6 meses de soporte (#12)
+- Registro de usuarios con correo de la UAL (`POST /api/auth/register`) eligiendo los perfiles de conductor y/o pasajero (#13)
+- Inicio de sesión con token de acceso JWT de 15 minutos (`POST /api/auth/login`) y consulta del usuario autenticado (`GET /api/auth/me`) (#13)
+- Formato de respuesta TMF630 en todas las APIs: errores con el objeto `Error`, validación con `ValidationError` y cabecera `X-Request-Id`; catálogo de códigos en `docs/api/errors.md` (#13)
+- Variables de entorno `JWT_SECRET`, `JWT_ACCESS_TTL_MINUTES` y `ALLOWED_EMAIL_DOMAINS` (#13)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
@@ -28,6 +32,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - `CHANGELOG.md` movido a la raíz del repositorio (#4)
 - `package-lock.json` pasa a versionarse para fijar las versiones exactas de las dependencias (#4)
 - El esquema pasa de `database/schema.sql` a la migración inicial de TypeORM; el contenedor de la base de datos arranca vacío (#7)
+- `GET /api/health` responde con el recurso TMF630 `Health`, y con un `Error` `SERVICE_UNAVAILABLE` si la base de datos no responde (#13)
 
 ### Removed
 - Carpeta `database/` de la raíz: las migraciones y los datos de prueba viven ahora en `backend/src/database/` (#7)
