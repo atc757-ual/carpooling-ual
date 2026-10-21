@@ -10,11 +10,11 @@
   },
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "dev": "nest start --watch",
-    "start:prod": "node dist/index",
-    "lint": "eslint \"{src,tests}/**/*.ts\"",
+    "start:prod": "node dist/main",
+    "lint": "eslint \"{src,test}/**/*.ts\"",
     "test": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --watch",
     "test:cov": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --coverage"
@@ -54,12 +54,12 @@
   "jest": {
     "moduleFileExtensions": ["js", "json", "ts"],
     "rootDir": ".",
-    "roots": ["<rootDir>/tests"],
-    "testRegex": ".*\\.test\\.ts$",
+    "roots": ["<rootDir>/src", "<rootDir>/test"],
+    "testRegex": ".*\\.(spec|e2e-spec)\\.ts$",
     "transform": {
       "^.+\\.ts$": "ts-jest"
     },
-    "collectCoverageFrom": ["src/**/*.ts", "!src/index.ts"],
+    "collectCoverageFrom": ["src/**/*.ts", "!src/main.ts", "!src/**/*.spec.ts"],
     "coverageDirectory": "coverage",
     "coverageThreshold": {
       "global": {

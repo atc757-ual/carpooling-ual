@@ -1,4 +1,4 @@
-import { loadConfiguration, parsePort } from '../../src/config/configuration';
+import { loadConfiguration, parsePort } from './configuration';
 
 describe('parsePort', () => {
   it('returns 3000 when PORT is not set', () => {

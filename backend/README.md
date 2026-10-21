@@ -23,7 +23,7 @@ La configuración se lee de `backend/.env` o, si no existe, del `.env` de la ra�
 ## Estructura
 
     src/
-    ├── index.ts           # Punto de entrada
+    ├── main.ts            # Punto de entrada
     ├── app.module.ts      # Módulo raíz
     ├── app.controller.ts  # GET /api/health
     ├── app.setup.ts       # Configuración común (prefijo /api)
@@ -33,7 +33,9 @@ La configuración se lee de `backend/.env` o, si no existe, del `.env` de la ra�
     │   └── matching/  digital-twin/  simulation/  metrics/
     ├── shared/            # Código común entre módulos
     └── events/            # Eventos hacia el Gemelo Digital
-    tests/                 # Tests (*.test.ts), con la misma estructura que src/
+    test/                  # Tests end-to-end (*.e2e-spec.ts)
+
+Los tests unitarios van junto al fichero que prueban (`app.controller.spec.ts` al lado de `app.controller.ts`), como propone NestJS.
 
 ## Notas técnicas
 
