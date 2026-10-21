@@ -55,6 +55,7 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `INVALID_CREDENTIALS` | 401 | Login con correo o contraseña incorrectos (el mismo error en los dos casos) |
 | `INVALID_ACCESS_TOKEN` | 401 | Ruta protegida sin `Authorization: Bearer <token>`, con un token mal formado o de firma no válida, o cuyo usuario ya no existe |
 | `ACCESS_TOKEN_EXPIRED` | 401 | El token de acceso ha caducado: hay que renovarlo, no volver a pedir la contraseña |
+| `INVALID_REFRESH_TOKEN` | 401 | Renovación con un token de renovación inexistente, caducado, anulado (logout) o ya usado. Reutilizar uno ya usado cierra además toda la sesión. Hay que volver a iniciar sesión |
 
 ## Cómo añadir un código
 

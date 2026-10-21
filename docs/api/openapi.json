@@ -1,0 +1,656 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "AppController_getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "TMF630 error: SERVICE_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check that the API and the database are up",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "description": "Public registration (RF-01). Only emails from the allowed UAL domains; the user chooses the driver and/or passenger profiles.",
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED, EMAIL_DOMAIN_NOT_ALLOWED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: EMAIL_ALREADY_REGISTERED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Register a new user",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "description": "Opens a new session (RF-02): returns an access token (15 min) and a refresh token (7 days, at most 30 days since login).",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_CREDENTIALS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Log in",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "description": "Exchanges the refresh token for a new access token and a new refresh token. Each refresh token works once: reusing it closes the session. Clients must not send two refreshes at the same time.",
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_REFRESH_TOKEN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Renew the session",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "description": "Closes the session of this device. Does not require the access token, and also answers 204 for an unknown refresh token.",
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Session closed"
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Log out",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "AuthController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the authenticated user",
+        "tags": [
+          "auth"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Carpooling UAL API",
+    "description": "API REST del core-api (TFM, Universidad de Almería). Sigue TMF630: recursos con @type, errores con el objeto Error (códigos en docs/api/errors.md) y cabecera X-Request-Id en todas las respuestas.",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "TmfError": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "Error"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "description": "Stable code; see docs/api/errors.md",
+            "example": "EMAIL_ALREADY_REGISTERED"
+          },
+          "reason": {
+            "type": "string",
+            "example": "Email already registered"
+          },
+          "message": {
+            "type": "string",
+            "example": "The email ana@ual.es is already registered"
+          },
+          "status": {
+            "type": "string",
+            "description": "HTTP status as text",
+            "example": "409"
+          }
+        },
+        "required": [
+          "@type",
+          "code",
+          "reason",
+          "message",
+          "status"
+        ]
+      },
+      "TmfFieldError": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "example": "email"
+          },
+          "reason": {
+            "type": "string",
+            "example": "email must be an email"
+          }
+        },
+        "required": [
+          "field",
+          "reason"
+        ]
+      },
+      "TmfValidationError": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "ValidationError"
+            ]
+          },
+          "@baseType": {
+            "type": "string",
+            "enum": [
+              "Error"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "example": "VALIDATION_FAILED"
+          },
+          "reason": {
+            "type": "string",
+            "example": "Validation failed"
+          },
+          "message": {
+            "type": "string",
+            "example": "The request has invalid fields"
+          },
+          "status": {
+            "type": "string",
+            "example": "400"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TmfFieldError"
+            }
+          }
+        },
+        "required": [
+          "@type",
+          "@baseType",
+          "code",
+          "reason",
+          "message",
+          "status",
+          "fields"
+        ]
+      },
+      "Health": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "Health"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ]
+          },
+          "database": {
+            "type": "string",
+            "enum": [
+              "up"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "@type",
+          "status",
+          "database",
+          "timestamp"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ana García"
+          },
+          "email": {
+            "type": "string",
+            "description": "Only emails from the allowed domains (ual.es, inlumine.ual.es)",
+            "maxLength": 254,
+            "example": "ana@ual.es"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 72,
+            "example": "secret-password"
+          },
+          "profiles": {
+            "type": "array",
+            "description": "At least one; the admin profile cannot be requested",
+            "example": [
+              "driver",
+              "passenger"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "driver",
+                "passenger"
+              ]
+            }
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "profiles"
+        ]
+      },
+      "UserResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "User"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Ana García"
+          },
+          "email": {
+            "type": "string",
+            "example": "ana@ual.es"
+          },
+          "profiles": {
+            "type": "array",
+            "example": [
+              "driver",
+              "passenger"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "driver",
+                "passenger",
+                "admin"
+              ]
+            }
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "name",
+          "email",
+          "profiles"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "lucia@ual.es"
+          },
+          "password": {
+            "type": "string",
+            "example": "carpooling"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "AccessTokenResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "AccessToken"
+            ]
+          },
+          "accessToken": {
+            "type": "string",
+            "description": "JWT to send as Authorization: Bearer <accessToken>"
+          },
+          "tokenType": {
+            "type": "string",
+            "enum": [
+              "Bearer"
+            ]
+          },
+          "expiresIn": {
+            "type": "number",
+            "description": "Lifetime of the access token in seconds",
+            "example": 900
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Send it only to /api/auth/refresh and /api/auth/logout. Single use: each refresh returns a new one",
+            "example": "kX9_2LqZ3vH7mN1pR8sT4uW6yA0bC5dE7fG9hJ2kL4n"
+          },
+          "refreshTokenExpiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The session can be renewed until this moment"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResource"
+          }
+        },
+        "required": [
+          "@type",
+          "accessToken",
+          "tokenType",
+          "expiresIn",
+          "refreshToken",
+          "refreshTokenExpiresAt",
+          "user"
+        ]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "The refreshToken returned by login or by the last refresh",
+            "maxLength": 128,
+            "example": "kX9_2LqZ3vH7mN1pR8sT4uW6yA0bC5dE7fG9hJ2kL4n"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      }
+    }
+  }
+}

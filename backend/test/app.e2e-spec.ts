@@ -36,8 +36,20 @@ describe('App (e2e)', () => {
     });
   });
 
+  // Fuera de /api no hay API: responde el 404 por defecto de Express (HTML),
+  // no un Error TMF. En producción, Nginx solo reenviará /api al backend
   it('serves routes only under the /api prefix', async () => {
-    await request(app.getHttpServer()).get('/health').expect(404);
+    const response = await request(app.getHttpServer())
+      .get('/health')
+      .expect(404);
+
+    expect(response.headers['content-type']).toContain('text/html');
+  });
+
+  it('does not reveal the server technology (no X-Powered-By)', async () => {
+    const response = await request(app.getHttpServer()).get('/api/health');
+
+    expect(response.headers['x-powered-by']).toBeUndefined();
   });
 
   describe('TMF630', () => {

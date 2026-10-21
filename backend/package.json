@@ -21,6 +21,7 @@
     "migration:revert": "npm run typeorm -- migration:revert",
     "migration:show": "npm run typeorm -- migration:show",
     "migration:create": "typeorm-ts-node-commonjs migration:create",
+    "openapi": "ts-node src/generate-openapi.ts",
     "seed": "ts-node src/database/seed.ts",
     "test:watch": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --watch",
     "test:cov": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --coverage"
@@ -31,6 +32,7 @@
     "@nestjs/core": "^12.0.1",
     "@nestjs/jwt": "^12.0.3",
     "@nestjs/platform-express": "^12.0.1",
+    "@nestjs/swagger": "^12.0.2",
     "@nestjs/typeorm": "^12.0.2",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
@@ -82,6 +84,7 @@
     "collectCoverageFrom": [
       "src/**/*.ts",
       "!src/main.ts",
+      "!src/generate-openapi.ts",
       "!src/**/*.spec.ts",
       "!src/database/**"
     ],
