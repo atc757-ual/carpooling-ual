@@ -1,11 +1,15 @@
 import {
   loadConfiguration,
+  parseAccessTokenTtl,
   parseDatabaseUrl,
+  parseEmailDomains,
+  parseJwtSecret,
   parsePort,
 } from './configuration';
 
 const DEV_DATABASE_URL =
   'postgresql://carpooling:carpooling_dev@localhost:5432/carpooling';
+const DEV_JWT_SECRET = 'test-only-secret-with-at-least-32-chars';
 
 describe('parsePort', () => {
   it('returns 3000 when PORT is not set', () => {
@@ -46,25 +50,102 @@ describe('parseDatabaseUrl', () => {
   );
 });
 
+describe('parseJwtSecret', () => {
+  it.each([undefined, ''])('requires JWT_SECRET (%p)', (rawSecret) => {
+    expect(() => parseJwtSecret(rawSecret)).toThrow('JWT_SECRET is required');
+  });
+
+  it('rejects a secret shorter than 32 characters', () => {
+    expect(() => parseJwtSecret('short-secret')).toThrow(
+      'JWT_SECRET is too short',
+    );
+  });
+
+  it('accepts a secret of 32 characters or more', () => {
+    expect(parseJwtSecret(DEV_JWT_SECRET)).toBe(DEV_JWT_SECRET);
+  });
+});
+
+describe('parseAccessTokenTtl', () => {
+  it('returns 15 minutes when JWT_ACCESS_TTL_MINUTES is not set', () => {
+    expect(parseAccessTokenTtl(undefined)).toBe(15);
+    expect(parseAccessTokenTtl('')).toBe(15);
+  });
+
+  it('parses a valid number of minutes', () => {
+    expect(parseAccessTokenTtl('30')).toBe(30);
+  });
+
+  it.each(['abc', '0', '-5', '1441', '7.5'])(
+    'rejects the invalid duration "%s"',
+    (rawMinutes) => {
+      expect(() => parseAccessTokenTtl(rawMinutes)).toThrow(
+        'Invalid JWT_ACCESS_TTL_MINUTES',
+      );
+    },
+  );
+});
+
+describe('parseEmailDomains', () => {
+  it('allows the UAL domains by default', () => {
+    expect(parseEmailDomains(undefined)).toEqual(['ual.es', 'inlumine.ual.es']);
+  });
+
+  it('normalizes a custom list (spaces and capital letters)', () => {
+    expect(parseEmailDomains(' UAL.es , Other.Example.org ')).toEqual([
+      'ual.es',
+      'other.example.org',
+    ]);
+  });
+
+  it.each(['ual', 'ual.es,@inlumine', ',,', 'ual es'])(
+    'rejects the invalid list "%s"',
+    (rawDomains) => {
+      expect(() => parseEmailDomains(rawDomains)).toThrow(
+        'Invalid ALLOWED_EMAIL_DOMAINS',
+      );
+    },
+  );
+});
+
 describe('loadConfiguration', () => {
   // Se guardan las variables reales para restaurarlas tras cada test,
   // de modo que un test no afecte a los demás
-  const originalPort = process.env.PORT;
-  const originalDatabaseUrl = process.env.DATABASE_URL;
+  const ENV_KEYS = [
+    'PORT',
+    'DATABASE_URL',
+    'JWT_SECRET',
+    'JWT_ACCESS_TTL_MINUTES',
+    'ALLOWED_EMAIL_DOMAINS',
+  ];
+  const originalEnv = ENV_KEYS.map((key) => [key, process.env[key]] as const);
 
-  afterEach(() => {
-    restoreEnv('PORT', originalPort);
-    restoreEnv('DATABASE_URL', originalDatabaseUrl);
+  beforeEach(() => {
+    process.env.DATABASE_URL = DEV_DATABASE_URL;
+    process.env.JWT_SECRET = DEV_JWT_SECRET;
   });
 
-  it('reads the port and the database URL from the environment', () => {
+  afterEach(() => {
+    originalEnv.forEach(([key, value]) => restoreEnv(key, value));
+  });
+
+  it('reads the whole configuration from the environment', () => {
     process.env.PORT = '4000';
-    process.env.DATABASE_URL = DEV_DATABASE_URL;
+    process.env.JWT_ACCESS_TTL_MINUTES = '20';
+    process.env.ALLOWED_EMAIL_DOMAINS = 'ual.es';
 
     expect(loadConfiguration()).toEqual({
       port: 4000,
       databaseUrl: DEV_DATABASE_URL,
+      jwt: { secret: DEV_JWT_SECRET, accessTtlMinutes: 20 },
+      allowedEmailDomains: ['ual.es'],
     });
+  });
+
+  it('fails at startup when JWT_SECRET is missing', () => {
+    delete process.env.JWT_SECRET;
+
+    expect(() => loadConfiguration()).toThrow('JWT_SECRET is required');
   });
 
   it('fails at startup when DATABASE_URL is missing', () => {

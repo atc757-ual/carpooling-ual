@@ -18,7 +18,32 @@ API REST en **NestJS 12** sobre Node.js 24 y TypeScript 6.
     npm run lint          # ESLint (sin any, sin imports sin usar, sin console.log)
     npm run format        # Formatear con Prettier
 
-La configuración se lee de `backend/.env` o, si no existe, del `.env` de la raíz (ver `.env.example`). `DATABASE_URL` es obligatoria.
+La configuración se lee de `backend/.env` o, si no existe, del `.env` de la raíz (ver `.env.example`):
+
+| Variable | Obligatoria | Por defecto | Uso |
+| --- | --- | --- | --- |
+| `DATABASE_URL` | Sí | | Conexión con PostgreSQL |
+| `JWT_SECRET` | Sí | | Firma de los tokens de acceso (mínimo 32 caracteres; distinto en cada entorno y nunca en el repositorio) |
+| `JWT_ACCESS_TTL_MINUTES` | No | `15` | Duración del token de acceso (1-1440) |
+| `ALLOWED_EMAIL_DOMAINS` | No | `ual.es,inlumine.ual.es` | Dominios de correo que pueden registrarse |
+| `PORT` | No | `3000` | Puerto HTTP |
+
+## API
+
+Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos llevan `@type`, los errores usan el objeto `Error` (catálogo de códigos en [`docs/api/errors.md`](../docs/api/errors.md)) y todas las respuestas llevan la cabecera `X-Request-Id`.
+
+| Método y ruta | Autenticación | Respuesta |
+| --- | --- | --- |
+| `GET /api/health` | No | `200` `Health` / `503` si la base de datos no responde |
+| `POST /api/auth/register` | No | `201` `User`. Solo correos de los dominios permitidos; perfiles `driver` y/o `passenger` |
+| `POST /api/auth/login` | No | `200` `AccessToken` (`accessToken`, `tokenType`, `expiresIn` en segundos, `user`) |
+| `GET /api/auth/me` | `Authorization: Bearer <token>` | `200` `User` |
+
+Ejemplo con un usuario del seed:
+
+    curl -X POST http://localhost:3000/api/auth/login \
+      -H "Content-Type: application/json" \
+      -d '{"email":"lucia@ual.es","password":"carpooling"}'
 
 ## Base de datos
 
@@ -73,17 +98,19 @@ Los estados de las enumeraciones siguen los diagramas de estados del viaje y de 
     ├── main.ts            # Punto de entrada
     ├── app.module.ts      # Módulo raíz
     ├── app.controller.ts  # GET /api/health
-    ├── app.setup.ts       # Configuración común (prefijo /api)
+    ├── app.setup.ts       # Configuración común (prefijo /api, X-Request-Id, errores TMF630, validación)
     ├── config/            # Lectura y validación de variables de entorno y de la conexión
     ├── database/          # data-source.ts (CLI de TypeORM), migrations/, seeds/ y seed.ts
     ├── modules/           # Un módulo por bloque del Core
     │   ├── auth/  users/  trips/  requests/  incidents/  notifications/
     │   └── matching/  digital-twin/  simulation/  metrics/
-    ├── shared/            # Código común entre módulos
+    ├── shared/            # Código común: errores de negocio, filtro TMF630, validación, utilidades de TypeORM
     └── events/            # Eventos hacia el Gemelo Digital
     test/                  # Tests end-to-end (*.e2e-spec.ts)
 
-Los tests unitarios van junto al fichero que prueban (`app.controller.spec.ts` al lado de `app.controller.ts`), como propone NestJS.
+Cada módulo se organiza en capas: **controller** (HTTP y DTOs) → **service** (reglas de negocio) → **entidades** (TypeORM). Un módulo solo usa lo que otro exporta (p. ej. `auth` usa `UsersService`, nunca las tablas de `users`). Los services lanzan errores de negocio (`BusinessError`) y nunca errores HTTP.
+
+Los tests unitarios van junto al fichero que prueban (`app.controller.spec.ts` al lado de `app.controller.ts`), como propone NestJS. Los e2e usan la base de datos real (requiere `npm run migrate`) y borran los datos que crean.
 
 ## Notas técnicas
 
