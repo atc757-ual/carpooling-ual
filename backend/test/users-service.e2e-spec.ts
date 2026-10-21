@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { EmailAlreadyRegisteredError } from '../src/modules/users/errors/email-already-registered.error';
+import { ProfileType } from '../src/modules/users/profile-type';
 import { UsersService } from '../src/modules/users/users.service';
 
 // Pruebas de UsersService contra PostgreSQL (requiere npm run migrate): la
@@ -38,7 +39,7 @@ describe('UsersService (e2e)', () => {
     await app.close();
   });
 
-  function newUser(email: string, profiles: ('driver' | 'passenger')[]) {
+  function newUser(email: string, profiles: ProfileType[]) {
     return usersService.createWithProfiles({
       name: 'Ana',
       email: `${TEST_PREFIX}${email}`,
@@ -62,6 +63,14 @@ describe('UsersService (e2e)', () => {
       'driver',
       'passenger',
     ]);
+  });
+
+  it('creates an administrator (only from inside the backend: create-admin)', async () => {
+    const user = await newUser('admin@ual.es', ['admin']);
+
+    expect(user.adminProfile).toMatchObject({ isActive: true });
+    expect(usersService.getActiveProfiles(user)).toEqual(['admin']);
+    await expect(usersService.hasActiveAdmin()).resolves.toBe(true);
   });
 
   it('rejects an email already registered, regardless of capital letters', async () => {

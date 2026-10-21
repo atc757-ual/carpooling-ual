@@ -18,6 +18,9 @@ API REST en **NestJS 12** sobre Node.js 24 y TypeScript 6.
     npm run lint          # ESLint (sin any, sin imports sin usar, sin console.log)
     npm run format        # Formatear con Prettier
     npm run openapi       # Regenerar docs/api/openapi.json (obligatorio al cambiar la API)
+    npm run create-admin -- --email=ana@ual.es --name="Ana García"   # Primer administrador (despliegue)
+
+Para poner en marcha un entorno nuevo (variables, migraciones y primer administrador), seguir [`docs/despliegue.md`](../docs/despliegue.md).
 
 La configuración se lee de `backend/.env` o, si no existe, del `.env` de la raíz (ver `.env.example`):
 
@@ -44,6 +47,9 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 | `POST /api/auth/refresh` | `refreshToken` en el cuerpo | `200` `AccessToken` con los dos tokens nuevos (cada `refreshToken` sirve una sola vez) |
 | `POST /api/auth/logout` | `refreshToken` en el cuerpo | `204`: cierra la sesión de ese dispositivo |
 | `GET /api/auth/me` | `Authorization: Bearer <token>` | `200` `User` |
+| `GET /api/users/{id}` | `Authorization: Bearer <token>` | `200` `User`: el propio usuario, o cualquiera si se tiene el perfil de administrador (`403` si no) |
+
+**Protección por defecto:** toda la API exige `Authorization: Bearer <token>`; las rutas abiertas se marcan con `@Public()`. Los permisos por perfil se declaran con `@Profiles('admin')` (basta con uno de los perfiles indicados) y se comprueban con los perfiles del token. El registro (`POST /api/auth/register`) responde con la cabecera `Location` del usuario creado.
 
 **Documentación interactiva (Swagger UI):** http://localhost:3000/api/docs, con el botón *Authorize* para pegar el `accessToken`. La especificación OpenAPI está en [`docs/api/openapi.json`](../docs/api/openapi.json); se genera a partir del código con `npm run openapi` y un test comprueba que está al día. Todo endpoint nuevo se documenta con los decoradores de `@nestjs/swagger` y `@ApiErrorResponses`.
 

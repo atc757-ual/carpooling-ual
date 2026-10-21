@@ -1,23 +1,35 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import type { Request } from 'express';
-import { AccessTokenPayload } from '../auth.service';
+import {
+  AccessTokenPayload,
+  AuthenticatedRequest,
+} from '../../../shared/auth/access-token-payload';
+import { IS_PUBLIC_KEY } from '../../../shared/auth/public.decorator';
 import { AccessTokenExpiredError } from '../errors/access-token-expired.error';
 import { InvalidAccessTokenError } from '../errors/invalid-access-token.error';
 
-// Petición ya autenticada: el guard deja en "user" el contenido del token
-export interface AuthenticatedRequest extends Request {
-  user: AccessTokenPayload;
-}
-
-// Protege una ruta con @UseGuards(JwtAuthGuard): exige la cabecera
+// Guard global (APP_GUARD en AuthModule): TODA la API exige la cabecera
 // "Authorization: Bearer <token>" con un token firmado por este servidor y sin
-// caducar. No consulta la base de datos (backend sin estado)
+// caducar, salvo las rutas marcadas con @Public(). No consulta la base de
+// datos (backend sin estado)
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly reflector: Reflector,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // @Public() puede estar en el método o en todo el controller
+    const isPublic = this.reflector.getAllAndOverride<boolean | undefined>(
+      IS_PUBLIC_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+    if (isPublic === true) {
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const token = extractBearerToken(request.get('Authorization'));
     if (token === null) {

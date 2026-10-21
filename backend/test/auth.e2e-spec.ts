@@ -55,19 +55,20 @@ describe('Auth API (e2e)', () => {
   }
 
   describe('POST /api/auth/register', () => {
-    it('creates the user: 201 and the TMF User resource', async () => {
+    it('creates the user: 201, Location and the TMF User resource', async () => {
       const response = await register().expect(201);
 
       const body = response.body as { id: string };
       expect(response.body).toEqual({
         '@type': 'User',
         id: body.id,
+        href: `/api/users/${body.id}`,
         name: 'Ana',
         email: `${EMAIL_PREFIX}ana@ual.es`,
         profiles: ['driver', 'passenger'],
       });
       expect(body.id).toMatch(/^[0-9a-f-]{36}$/);
-      expect(response.headers.location).toBeUndefined();
+      expect(response.headers.location).toBe(`/api/users/${body.id}`);
       expect(JSON.stringify(response.body)).not.toContain('password');
     });
 

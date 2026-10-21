@@ -11,6 +11,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { DataSource } from 'typeorm';
+import { Public } from './shared/auth/public.decorator';
 import { ApiErrorResponses } from './shared/http/api-error-responses.decorator';
 
 // Recurso TMF630: lleva @type con el nombre del tipo de recurso
@@ -40,6 +41,7 @@ export class AppController {
   // enviar tráfico a esta instancia. El filtro TMF630 lo convierte en un
   // Error con el código SERVICE_UNAVAILABLE.
   @Get('health')
+  @Public()
   @ApiOperation({ summary: 'Check that the API and the database are up' })
   @ApiOkResponse({ type: Health })
   @ApiErrorResponses({

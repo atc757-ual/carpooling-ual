@@ -1,16 +1,30 @@
 import { ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { AuthenticatedRequest } from '../../../shared/auth/access-token-payload';
+import { Public } from '../../../shared/auth/public.decorator';
 import { AccessTokenExpiredError } from '../errors/access-token-expired.error';
 import { InvalidAccessTokenError } from '../errors/invalid-access-token.error';
-import { AuthenticatedRequest, JwtAuthGuard } from './jwt-auth.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
+
+// Controller de ejemplo: sus métodos llevan las mismas etiquetas que los reales
+class SampleController {
+  @Public()
+  open(this: void): void {}
+
+  closed(this: void): void {}
+}
 
 describe('JwtAuthGuard', () => {
   const jwtService = new JwtService({
     secret: 'test-only-secret-with-at-least-32-chars',
   });
-  const guard = new JwtAuthGuard(jwtService);
+  const guard = new JwtAuthGuard(jwtService, new Reflector());
 
-  function contextWith(authorization?: string): {
+  function contextWith(
+    authorization?: string,
+    handler: keyof SampleController = 'closed',
+  ): {
     context: ExecutionContext;
     request: AuthenticatedRequest;
   } {
@@ -19,9 +33,17 @@ describe('JwtAuthGuard', () => {
     } as unknown as AuthenticatedRequest;
     const context = {
       switchToHttp: () => ({ getRequest: () => request }),
+      getHandler: () => SampleController.prototype[handler],
+      getClass: () => SampleController,
     } as unknown as ExecutionContext;
     return { context, request };
   }
+
+  it('lets a @Public route through without a token', async () => {
+    const { context } = contextWith(undefined, 'open');
+
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+  });
 
   it('accepts a valid token and leaves its content in request.user', async () => {
     const token = await jwtService.signAsync({

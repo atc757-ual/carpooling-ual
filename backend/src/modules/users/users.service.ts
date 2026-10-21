@@ -2,18 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
+import { AdminProfile } from './entities/admin-profile.entity';
 import { DriverProfile } from './entities/driver-profile.entity';
 import { PassengerProfile } from './entities/passenger-profile.entity';
 import { User } from './entities/user.entity';
 import { EmailAlreadyRegisteredError } from './errors/email-already-registered.error';
-import { ProfileType, RegistrableProfile } from './profile-type';
+import { UserNotFoundError } from './errors/user-not-found.error';
+import { ProfileType } from './profile-type';
+import { UserSummary } from './user-summary';
 
 export interface CreateUserInput {
   name: string;
   email: string;
   // Llega ya convertida en hash: este service nunca ve contraseñas en claro
   passwordHash: string;
-  profiles: RegistrableProfile[];
+  // El registro público solo permite driver y passenger (lo valida auth); admin
+  // solo se crea desde dentro del backend (comando create-admin)
+  profiles: ProfileType[];
 }
 
 // Relaciones que se cargan junto con el usuario
@@ -21,6 +26,13 @@ const PROFILE_RELATIONS = {
   driverProfile: true,
   passengerProfile: true,
   adminProfile: true,
+};
+
+// Entidad (tabla) de cada perfil
+const PROFILE_ENTITIES = {
+  driver: DriverProfile,
+  passenger: PassengerProfile,
+  admin: AdminProfile,
 };
 
 // Restricción UNIQUE del correo en la tabla users (migración InitialSchema)
@@ -92,8 +104,30 @@ export class UsersService {
     });
   }
 
-  // Perfiles activos del usuario, p. ej. ['driver', 'passenger']. Se usan en el
-  // token y, en el PR B, para los permisos por perfil (RNF-04)
+  // ¿Hay algún administrador activo? (comando create-admin, RF-01)
+  hasActiveAdmin(): Promise<boolean> {
+    return this.dataSource
+      .getRepository(AdminProfile)
+      .existsBy({ isActive: true });
+  }
+
+  // Datos públicos de un usuario (GET /api/users/{id}). Si no existe, lanza
+  // UserNotFoundError
+  async getSummary(id: string): Promise<UserSummary> {
+    const user = await this.findById(id);
+    if (user === null) {
+      throw new UserNotFoundError(id);
+    }
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      profiles: this.getActiveProfiles(user),
+    };
+  }
+
+  // Perfiles activos del usuario, p. ej. ['driver', 'passenger']. Van en el
+  // token y con ellos se comprueban los permisos por perfil (RNF-04)
   getActiveProfiles(user: User): ProfileType[] {
     const profiles: [ProfileType, { isActive: boolean } | null | undefined][] =
       [
@@ -109,9 +143,8 @@ export class UsersService {
   private async createProfile(
     manager: EntityManager,
     userId: string,
-    profile: RegistrableProfile,
+    profile: ProfileType,
   ): Promise<void> {
-    const entity = profile === 'driver' ? DriverProfile : PassengerProfile;
-    await manager.save(manager.create(entity, { userId }));
+    await manager.save(manager.create(PROFILE_ENTITIES[profile], { userId }));
   }
 }

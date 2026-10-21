@@ -28,6 +28,9 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Tabla `refresh_tokens` (migración `AddRefreshTokens`) (#14)
 - Documentación OpenAPI de la API: Swagger UI en `/api/docs` y especificación en `docs/api/openapi.json` (`npm run openapi`) (#14)
 - Variables de entorno `JWT_REFRESH_TTL_DAYS`, `JWT_SESSION_MAX_DAYS` y `API_DOCS_ENABLED` (#14)
+- Permisos por perfil: toda la API exige token salvo las rutas marcadas como públicas, y `@Profiles(...)` restringe una ruta a ciertos perfiles (`403 PROFILE_REQUIRED`) (#15)
+- `GET /api/users/{id}`: datos del propio usuario, o de cualquiera para un administrador (#15)
+- Comando `npm run create-admin` para crear el primer administrador en el despliegue, y guía de despliegue en `docs/despliegue.md` (#15)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
@@ -38,6 +41,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - El esquema pasa de `database/schema.sql` a la migración inicial de TypeORM; el contenedor de la base de datos arranca vacío (#7)
 - `GET /api/health` responde con el recurso TMF630 `Health`, y con un `Error` `SERVICE_UNAVAILABLE` si la base de datos no responde (#13)
 - `POST /api/auth/login` devuelve también el token de renovación (`refreshToken`, `refreshTokenExpiresAt`) (#14)
+- El recurso `User` incluye su `href` y el registro responde con la cabecera `Location` (#15)
 
 ### Security
 - El backend ya no envía la cabecera `X-Powered-By: Express`, que revelaba la tecnología del servidor (#14)

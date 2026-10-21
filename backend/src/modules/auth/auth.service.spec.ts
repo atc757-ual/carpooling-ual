@@ -5,7 +5,9 @@ import { compare, hash } from 'bcryptjs';
 import { User } from '../users/entities/user.entity';
 import { EmailAlreadyRegisteredError } from '../users/errors/email-already-registered.error';
 import { UsersService } from '../users/users.service';
-import { AccessTokenPayload, AuthService } from './auth.service';
+import { AccessTokenPayload } from '../../shared/auth/access-token-payload';
+import { AuthService } from './auth.service';
+import { AdminAlreadyExistsError } from './errors/admin-already-exists.error';
 import { EmailDomainNotAllowedError } from './errors/email-domain-not-allowed.error';
 import { InvalidAccessTokenError } from './errors/invalid-access-token.error';
 import { InvalidCredentialsError } from './errors/invalid-credentials.error';
@@ -28,6 +30,7 @@ describe('AuthService', () => {
     findByEmailWithPassword: jest.fn(),
     findById: jest.fn(),
     getActiveProfiles: jest.fn(),
+    hasActiveAdmin: jest.fn(),
   };
   const refreshTokensService = {
     issue: jest.fn(),
@@ -121,6 +124,55 @@ describe('AuthService', () => {
       await expect(authService.register(input)).rejects.toBeInstanceOf(
         EmailAlreadyRegisteredError,
       );
+    });
+  });
+
+  describe('createFirstAdmin', () => {
+    const input = { name: 'Ana', email: 'ana@ual.es' };
+
+    it('creates the admin with a random password, stored only as a hash', async () => {
+      usersService.hasActiveAdmin.mockResolvedValue(false);
+      usersService.createWithProfiles.mockResolvedValue(storedUser());
+      usersService.getActiveProfiles.mockReturnValue(['admin']);
+
+      const { user, password } = await authService.createFirstAdmin(input);
+
+      const [created] = usersService.createWithProfiles.mock.calls[0] as [
+        { passwordHash: string; profiles: string[] },
+      ];
+      expect(created.profiles).toEqual(['admin']);
+      expect(password).toMatch(/^[\w-]{20}$/);
+      expect(created.passwordHash).not.toBe(password);
+      expect(await compare(password, created.passwordHash)).toBe(true);
+      expect(user.profiles).toEqual(['admin']);
+    });
+
+    it('generates a different password each time', async () => {
+      usersService.hasActiveAdmin.mockResolvedValue(false);
+      usersService.createWithProfiles.mockResolvedValue(storedUser());
+
+      const first = await authService.createFirstAdmin(input);
+      const second = await authService.createFirstAdmin(input);
+
+      expect(first.password).not.toBe(second.password);
+    });
+
+    it('does nothing when an administrator already exists', async () => {
+      usersService.hasActiveAdmin.mockResolvedValue(true);
+
+      await expect(authService.createFirstAdmin(input)).rejects.toBeInstanceOf(
+        AdminAlreadyExistsError,
+      );
+      expect(usersService.createWithProfiles).not.toHaveBeenCalled();
+    });
+
+    it('applies the same email domain rule as the registration', async () => {
+      usersService.hasActiveAdmin.mockResolvedValue(false);
+
+      await expect(
+        authService.createFirstAdmin({ ...input, email: 'ana@gmail.com' }),
+      ).rejects.toBeInstanceOf(EmailDomainNotAllowedError);
+      expect(usersService.createWithProfiles).not.toHaveBeenCalled();
     });
   });
 
