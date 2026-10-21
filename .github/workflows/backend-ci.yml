@@ -59,6 +59,16 @@ jobs:
         working-directory: ./backend
         run: npm run lint --if-present
 
+      - name: Run migrations (up, down, up)
+        if: steps.check-package.outputs.exists == 'true'
+        working-directory: ./backend
+        run: |
+          npm run migrate
+          npm run migration:revert
+          npm run migrate
+        env:
+          DATABASE_URL: postgresql://carpooling:carpooling_test@localhost:5432/carpooling_test
+
       - name: Run tests
         if: steps.check-package.outputs.exists == 'true'
         working-directory: ./backend

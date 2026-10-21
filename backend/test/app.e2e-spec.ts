@@ -22,12 +22,14 @@ describe('App (e2e)', () => {
     await app.close();
   });
 
-  it('GET /api/health responds 200 with status ok', async () => {
+  // Usa la base de datos real: requiere docker compose up -d (en el CI, el
+  // servicio postgres del workflow)
+  it('GET /api/health responds 200 with the database up', async () => {
     const response = await request(app.getHttpServer())
       .get('/api/health')
       .expect(200);
 
-    expect(response.body).toMatchObject({ status: 'ok' });
+    expect(response.body).toMatchObject({ status: 'ok', database: 'up' });
   });
 
   it('serves routes only under the /api prefix', async () => {
