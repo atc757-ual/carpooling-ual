@@ -4,7 +4,7 @@ API REST en **NestJS 12** sobre Node.js 24 y TypeScript 6.
 
 ## Requisitos
 
-- Node.js 24 (LTS)
+- Node.js en la versión indicada en `.nvmrc` (raíz del repositorio), la misma que usa el CI
 - Base de datos levantada y migrada (ver [Base de datos](#base-de-datos))
 
 ## Uso

@@ -18,9 +18,12 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - El CI aplica, revierte y vuelve a aplicar las migraciones en cada PR (#7)
 - Control de calidad y seguridad en cada PR: CodeQL, SonarCloud (Quality Gate), `npm audit` de dependencias de producción y cobertura mínima del 80 % en el CI (#8)
 - Dependabot: revisión semanal de dependencias npm y de GitHub Actions (#8)
+- `.nvmrc` como única fuente de la versión de Node, leída por todos los workflows (#12)
+- Aviso mensual automático (issue) cuando a la versión de Node le quedan menos de 6 meses de soporte (#12)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
+- Dependabot no propone saltos de versión mayor de `@types/node`: se actualizan junto con Node (#12)
 - Plantilla de PR en blanco en lugar de un ejemplo rellenado (#3)
 - `CHANGELOG.md` movido a la raíz del repositorio (#4)
 - `package-lock.json` pasa a versionarse para fijar las versiones exactas de las dependencias (#4)

@@ -1,0 +1,53 @@
+name: Node EOL Check
+
+# Avisa con antelación de que la versión de Node del proyecto (.nvmrc) se queda
+# sin soporte: si le quedan menos de WARNING_DAYS días, abre un issue para
+# planificar la actualización a la siguiente versión LTS.
+on:
+  schedule:
+    - cron: '0 7 1 * *' # el día 1 de cada mes a las 07:00 UTC
+  workflow_dispatch: # permite lanzarlo a mano desde la pestaña Actions
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  WARNING_DAYS: 183 # unos 6 meses
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Check end of life of the Node version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          major=$(cut -d. -f1 .nvmrc | tr -d '[:space:]v')
+          eol=$(curl -fsS "https://endoflife.date/api/v1/products/nodejs/releases/${major}" | jq -r '.result.eolFrom')
+          days_left=$(( ($(date -d "$eol" +%s) - $(date +%s)) / 86400 ))
+          echo "Node ${major}: fin de soporte el ${eol} (quedan ${days_left} días)"
+
+          if [ "$days_left" -ge "$WARNING_DAYS" ]; then
+            echo "Sin aviso: quedan más de ${WARNING_DAYS} días"
+            exit 0
+          fi
+
+          title="Node ${major} deja de tener soporte el ${eol}: planificar la actualización"
+          if gh issue list --state open --search "in:title \"Node ${major} deja de tener soporte\"" --json number --jq 'length' | grep -qv '^0$'; then
+            echo "Ya hay un issue abierto para Node ${major}"
+            exit 0
+          fi
+
+          gh issue create --title "$title" --body "La versión de Node del proyecto (\`.nvmrc\`: ${major}) deja de tener soporte el **${eol}** (quedan ${days_left} días).
+
+          Pasos para actualizar a la siguiente versión LTS (solo versiones pares):
+          - [ ] Cambiar la versión en \`.nvmrc\` (la leen todos los workflows).
+          - [ ] Actualizar \`engines.node\` y \`@types/node\` en cada \`package.json\`.
+          - [ ] Instalar la nueva versión en local y comprobar lint, tests, migraciones y build.
+
+          Calendario oficial: https://endoflife.date/nodejs"

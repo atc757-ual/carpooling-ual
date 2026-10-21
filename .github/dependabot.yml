@@ -16,6 +16,11 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # Los tipos de Node deben coincidir con la versión de Node en uso (.nvmrc).
+      # Se suben a mano, junto con Node, en el PR que cambie de versión.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
 
   # Acciones usadas en los workflows de GitHub (comunes a todo el repositorio)
   - package-ecosystem: github-actions

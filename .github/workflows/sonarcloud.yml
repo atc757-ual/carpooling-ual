@@ -36,7 +36,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '24'
+          node-version-file: '.nvmrc'
 
       # Un paso de cobertura por proyecto. Añadir el del frontend y los servicios cuando existan
       - name: Backend coverage
