@@ -12,9 +12,6 @@ services:
     volumes:
       # Desde PostgreSQL 18 los datos van en /var/lib/postgresql/<versión>
       - postgres_data:/var/lib/postgresql
-      # Solo se ejecutan al crear el volumen (ver database/README.md)
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/20-schema.sql:ro
-      - ./database/seeds/dev-seed.sql:/docker-entrypoint-initdb.d/30-dev-seed.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
