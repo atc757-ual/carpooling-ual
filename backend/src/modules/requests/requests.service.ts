@@ -1,7 +1,6 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, In, Repository } from 'typeorm';
-import type { DomainEventType } from '../../events/domain-event-type';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { Page, PageRequest } from '../../shared/pagination/page';
@@ -9,6 +8,7 @@ import { Trip } from '../trips/entities/trip.entity';
 import { NotTripDriverError } from '../trips/errors/not-trip-driver.error';
 import { TripAlreadyStartedError } from '../trips/errors/trip-already-started.error';
 import { TripFullError } from '../trips/errors/trip-full.error';
+import { TripStatusService } from '../trips/trip-status.service';
 import { TripsService } from '../trips/trips.service';
 import { UsersService } from '../users/users.service';
 import { SeatRequest } from './entities/seat-request.entity';
@@ -17,10 +17,8 @@ import { NotRequestPassengerError } from './errors/not-request-passenger.error';
 import { RequestAlreadyExistsError } from './errors/request-already-exists.error';
 import { RequestNotFoundError } from './errors/request-not-found.error';
 import { RequestView, RequestViewsService } from './request-views.service';
-import {
-  assertRequestTransition,
-  LIVE_REQUEST_STATUSES,
-} from './request-status';
+import { recordRequestEvent } from './request-events';
+import { assertRequestTransition } from './request-status';
 
 // Restricción de la base de datos: una sola solicitud viva por pasajero y viaje
 const ACTIVE_PER_TRIP_INDEX = 'requests_active_per_trip_idx';
@@ -29,24 +27,17 @@ const ACTIVE_PER_TRIP_INDEX = 'requests_active_per_trip_idx';
 // (deadlock), TODAS las operaciones bloquean en el mismo orden: primero el
 // viaje y después la solicitud, igual que la cancelación de un viaje
 @Injectable()
-export class RequestsService implements OnModuleInit {
+export class RequestsService {
   constructor(
     private readonly dataSource: DataSource,
     @InjectRepository(SeatRequest)
     private readonly requestsRepository: Repository<SeatRequest>,
     private readonly tripsService: TripsService,
+    private readonly tripStatus: TripStatusService,
     private readonly usersService: UsersService,
     private readonly views: RequestViewsService,
     private readonly eventsService: EventsService,
   ) {}
-
-  // Patrón observador: al cancelarse un viaje, se cancelan sus solicitudes
-  // vivas dentro de la misma transacción (trips no conoce este módulo)
-  onModuleInit(): void {
-    this.tripsService.onTripCancelled((manager, trip) =>
-      this.cancelLiveRequestsOfTrip(manager, trip.id),
-    );
-  }
 
   // --- Pasajero
 
@@ -55,8 +46,8 @@ export class RequestsService implements OnModuleInit {
     const isPriority =
       await this.usersService.getPassengerPriority(passengerId);
     const request = await this.dataSource.transaction(async (manager) => {
-      const trip = await this.tripsService.lockTrip(manager, tripId);
-      this.tripsService.assertOpenForRequests(trip);
+      const trip = await this.tripStatus.lockTrip(manager, tripId);
+      this.tripStatus.assertOpenForRequests(trip);
       if (trip.driverId === passengerId) {
         throw new CannotRequestOwnTripError(tripId);
       }
@@ -68,7 +59,12 @@ export class RequestsService implements OnModuleInit {
         passengerId,
         isPriority,
       });
-      await this.recordEvent(manager, 'request.created', created);
+      await recordRequestEvent(
+        this.eventsService,
+        manager,
+        'request.created',
+        created,
+      );
       return created;
     });
     return this.views.toView(request);
@@ -95,9 +91,14 @@ export class RequestsService implements OnModuleInit {
       request.status = 'cancelled';
       const cancelled = await manager.save(request);
       if (wasAccepted) {
-        await this.tripsService.releaseSeat(manager, trip);
+        await this.tripStatus.releaseSeat(manager, trip);
       }
-      await this.recordEvent(manager, 'request.cancelled', cancelled);
+      await recordRequestEvent(
+        this.eventsService,
+        manager,
+        'request.cancelled',
+        cancelled,
+      );
       return cancelled;
     });
     return this.views.toView(request);
@@ -130,12 +131,17 @@ export class RequestsService implements OnModuleInit {
       );
       this.assertIsTripDriver(driverId, trip);
       assertRequestTransition(request.status, 'accepted');
-      this.tripsService.assertOpenForRequests(trip);
+      this.tripStatus.assertOpenForRequests(trip);
 
-      await this.tripsService.reserveSeat(manager, trip);
+      await this.tripStatus.reserveSeat(manager, trip);
       request.status = 'accepted';
       const accepted = await manager.save(request);
-      await this.recordEvent(manager, 'request.accepted', accepted);
+      await recordRequestEvent(
+        this.eventsService,
+        manager,
+        'request.accepted',
+        accepted,
+      );
       return accepted;
     });
     return this.views.toView(request);
@@ -154,7 +160,12 @@ export class RequestsService implements OnModuleInit {
 
       request.status = 'rejected';
       const rejected = await manager.save(request);
-      await this.recordEvent(manager, 'request.rejected', rejected);
+      await recordRequestEvent(
+        this.eventsService,
+        manager,
+        'request.rejected',
+        rejected,
+      );
       return rejected;
     });
     return this.views.toView(request);
@@ -193,24 +204,6 @@ export class RequestsService implements OnModuleInit {
 
   // --- Internos
 
-  // Suscriptor de la cancelación de un viaje: cancela sus solicitudes vivas
-  // (las plazas no importan: el viaje ya está cancelado)
-  private async cancelLiveRequestsOfTrip(
-    manager: EntityManager,
-    tripId: string,
-  ): Promise<void> {
-    const liveRequests = await manager.find(SeatRequest, {
-      where: { tripId, status: In([...LIVE_REQUEST_STATUSES]) },
-    });
-    await Promise.all(
-      liveRequests.map(async (request) => {
-        request.status = 'cancelled';
-        const cancelled = await manager.save(request);
-        await this.recordEvent(manager, 'request.cancelled', cancelled);
-      }),
-    );
-  }
-
   // Bloquea primero el viaje y después la solicitud (el orden de siempre).
   // Quien no es ni su pasajero ni el conductor no puede saber que existe
   private async lockTripAndRequest(
@@ -222,7 +215,7 @@ export class RequestsService implements OnModuleInit {
     if (found === null) {
       throw new RequestNotFoundError(requestId);
     }
-    const trip = await this.tripsService.lockTrip(manager, found.tripId);
+    const trip = await this.tripStatus.lockTrip(manager, found.tripId);
     const request = await manager.findOneOrFail(SeatRequest, {
       where: { id: requestId },
       lock: { mode: 'pessimistic_write' },
@@ -255,23 +248,5 @@ export class RequestsService implements OnModuleInit {
       }
       throw error;
     }
-  }
-
-  private async recordEvent(
-    manager: EntityManager,
-    type: DomainEventType,
-    request: SeatRequest,
-  ): Promise<void> {
-    await this.eventsService.record(manager, {
-      type,
-      sourceEntityId: request.id,
-      payload: {
-        tripId: request.tripId,
-        passengerId: request.passengerId,
-        isPriority: request.isPriority,
-        requestedAt: request.requestedAt.toISOString(),
-        status: request.status,
-      },
-    });
   }
 }

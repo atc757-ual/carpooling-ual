@@ -7,6 +7,8 @@ export type DomainEventType =
   | 'trip.updated'
   | 'trip.confirmed'
   | 'trip.reopened'
+  | 'trip.started'
+  | 'trip.finished'
   | 'trip.cancelled'
   // Solicitudes de plaza
   | 'request.created'

@@ -178,4 +178,56 @@ export class TripsController {
   ): Promise<TripResource> {
     return toTripResource(await this.tripsService.cancel(driver.sub, id));
   }
+
+  // RF-11: iniciar y finalizar, operaciones de tarea como cancelar
+  @Post('trips/:id/start')
+  @Profiles('driver')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Start a confirmed trip',
+    description:
+      'RF-11. Only its driver, from 30 minutes before the departure. The vehicle goes on trip and the pending seat requests are rejected.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiOkResponse({ type: TripResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', 'NOT_TRIP_DRIVER'],
+    [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND', 'VEHICLE_NOT_FOUND'],
+    [HttpStatus.CONFLICT]: [
+      'TRIP_NOT_STARTABLE_YET',
+      'VEHICLE_IN_USE',
+      'INVALID_TRIP_TRANSITION',
+    ],
+  })
+  async start(
+    @CurrentUser() driver: AccessTokenPayload,
+    @Param('id', uuidParam('id')) id: string,
+  ): Promise<TripResource> {
+    return toTripResource(await this.tripsService.start(driver.sub, id));
+  }
+
+  @Post('trips/:id/finish')
+  @Profiles('driver')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Finish a trip in progress',
+    description: 'RF-11. Only its driver. The vehicle is available again.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiOkResponse({ type: TripResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', 'NOT_TRIP_DRIVER'],
+    [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND'],
+    [HttpStatus.CONFLICT]: ['INVALID_TRIP_TRANSITION'],
+  })
+  async finish(
+    @CurrentUser() driver: AccessTokenPayload,
+    @Param('id', uuidParam('id')) id: string,
+  ): Promise<TripResource> {
+    return toTripResource(await this.tripsService.finish(driver.sub, id));
+  }
 }

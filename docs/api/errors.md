@@ -70,7 +70,7 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 |---|---|---|
 | `VEHICLE_ALREADY_REGISTERED` | 409 | La matrícula ya está registrada por otro conductor, o activa por el mismo. Si el mismo conductor la había dado de baja, se reactiva en vez de dar error |
 | `VEHICLE_NOT_FOUND` | 404 | El vehículo no existe, está dado de baja o es de otro conductor (no se distingue, para no revelar qué ids existen) |
-| `VEHICLE_IN_USE` | 409 | Baja de un vehículo que está en un viaje en curso |
+| `VEHICLE_IN_USE` | 409 | El vehículo está en un viaje en curso: no se puede dar de baja ni iniciar otro viaje con él hasta que termine |
 
 ## Viajes (`trips`)
 
@@ -86,6 +86,7 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `INVALID_TRIP_TRANSITION` | 409 | Cambio de estado que el diagrama de estados del viaje no permite (p. ej. cancelar un viaje ya cancelado o finalizado) |
 | `TRIP_FULL` | 409 | No quedan plazas: al solicitar plaza o al aceptar una solicitud (dos aceptaciones simultáneas nunca venden la misma plaza) |
 | `TRIP_NOT_OPEN` | 409 | El viaje ya no admite solicitudes: está en curso, finalizado o cancelado, o su hora de salida ya ha pasado |
+| `TRIP_NOT_STARTABLE_YET` | 409 | Iniciar un viaje más de 30 minutos antes de su hora de salida (RF-11) |
 
 ## Solicitudes de plaza (`requests`)
 

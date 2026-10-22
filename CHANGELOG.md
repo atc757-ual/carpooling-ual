@@ -40,6 +40,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Solicitudes de plaza (RF-08 a RF-10): solicitar, aceptar, rechazar y cancelar, con actualización automática de plazas, confirmación y reapertura del viaje y prioridad del pasajero (RF-24) (#18)
 - Máquina de estados de la solicitud según el diagrama de estados (RNF-10) (#18)
 - Al cancelar un viaje se cancelan sus solicitudes en la misma transacción (#18)
+- Inicio y fin del viaje (RF-11): el vehículo pasa a en viaje y vuelve a disponible, y las solicitudes pendientes se rechazan al iniciar (#19)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)

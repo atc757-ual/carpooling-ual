@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { EntityManager, Not, Repository } from 'typeorm';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { Vehicle } from './entities/vehicle.entity';
@@ -90,6 +90,35 @@ export class VehiclesService {
       throw new VehicleNotFoundError(vehicleId);
     }
     return vehicle;
+  }
+
+  // RF-11: al iniciar un viaje, el vehículo pasa a "en viaje". Recibe el
+  // manager de la transacción del viaje y bloquea la fila del vehículo, así
+  // un mismo coche no puede estar en dos viajes en curso a la vez
+  async markOnTrip(manager: EntityManager, vehicleId: string): Promise<void> {
+    const vehicle = await manager.findOne(Vehicle, {
+      where: { id: vehicleId },
+      lock: { mode: 'pessimistic_write' },
+    });
+    if (vehicle === null || vehicle.status === 'inactive') {
+      throw new VehicleNotFoundError(vehicleId);
+    }
+    if (vehicle.status === 'on_trip') {
+      throw new VehicleInUseError(vehicleId);
+    }
+    await manager.update(Vehicle, vehicleId, { status: 'on_trip' });
+  }
+
+  // RF-11: al finalizar el viaje, el vehículo vuelve a estar disponible
+  async markAvailable(
+    manager: EntityManager,
+    vehicleId: string,
+  ): Promise<void> {
+    await manager.update(
+      Vehicle,
+      { id: vehicleId, status: 'on_trip' },
+      { status: 'available' },
+    );
   }
 
   // Matrícula de un vehículo, aunque esté dado de baja (los viajes pasados lo
