@@ -337,6 +337,122 @@
         ]
       }
     },
+    "/api/users/me/driver-status": {
+      "get": {
+        "description": "Whether the driver can publish trips (RF-21): responsible declaration accepted and at least one active vehicle.",
+        "operationId": "UsersController_getDriverStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DriverStatusResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get my driver status",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/me/driver-declaration": {
+      "put": {
+        "description": "Declares having a valid driving licence and roadworthy vehicles (RF-21). Idempotent: the date of the first declaration is kept.",
+        "operationId": "UsersController_declareDriverLicense",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DriverStatusResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Accept the driver responsible declaration",
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/api/users/{id}": {
       "get": {
         "description": "Users can get their own data; administrators can get any user.",
@@ -422,6 +538,381 @@
         "summary": "Get a user",
         "tags": [
           "users"
+        ]
+      }
+    },
+    "/api/vehicles": {
+      "post": {
+        "description": "Registers a vehicle of the authenticated driver. Registering again a plate the driver had deactivated reactivates it.",
+        "operationId": "VehiclesController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterVehicleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "headers": {
+              "Location": {
+                "description": "Link to the new vehicle"
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: VEHICLE_ALREADY_REGISTERED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Register a vehicle",
+        "tags": [
+          "vehicles"
+        ]
+      },
+      "get": {
+        "operationId": "VehiclesController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VehicleResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List my active vehicles",
+        "tags": [
+          "vehicles"
+        ]
+      }
+    },
+    "/api/vehicles/{id}": {
+      "get": {
+        "operationId": "VehiclesController_getOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: VEHICLE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get one of my vehicles",
+        "tags": [
+          "vehicles"
+        ]
+      },
+      "delete": {
+        "description": "The vehicle can no longer be used in new trips, but past trips keep it.",
+        "operationId": "VehiclesController_deactivate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Vehicle deactivated"
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: VEHICLE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: VEHICLE_IN_USE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Deactivate one of my vehicles",
+        "tags": [
+          "vehicles"
         ]
       }
     }
@@ -747,6 +1238,108 @@
         },
         "required": [
           "refreshToken"
+        ]
+      },
+      "DriverStatusResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "DriverStatus"
+            ]
+          },
+          "hasLicenseDeclared": {
+            "type": "boolean",
+            "description": "Has accepted the responsible declaration (RF-21)"
+          },
+          "licenseDeclaredAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Date of the first declaration"
+          },
+          "activeVehicles": {
+            "type": "number",
+            "example": 1
+          },
+          "isReady": {
+            "type": "boolean",
+            "description": "Can publish trips: declaration accepted and at least one vehicle"
+          }
+        },
+        "required": [
+          "@type",
+          "hasLicenseDeclared",
+          "licenseDeclaredAt",
+          "activeVehicles",
+          "isReady"
+        ]
+      },
+      "RegisterVehicleDto": {
+        "type": "object",
+        "properties": {
+          "plate": {
+            "type": "string",
+            "description": "Spanish plate: current (1234BCD) or old provincial (AL1234AB) format; spaces and hyphens are ignored",
+            "example": "1234BCD"
+          },
+          "capacity": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 8,
+            "description": "Total seats of the vehicle",
+            "example": 4
+          }
+        },
+        "required": [
+          "plate",
+          "capacity"
+        ]
+      },
+      "VehicleResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "Vehicle"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/vehicles/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "plate": {
+            "type": "string",
+            "example": "1234BCD"
+          },
+          "capacity": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 8,
+            "example": 4
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "on_trip",
+              "inactive"
+            ]
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "plate",
+          "capacity",
+          "status"
         ]
       }
     }

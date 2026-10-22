@@ -57,7 +57,11 @@ describe('API docs (e2e)', () => {
       '/api/auth/refresh',
       '/api/auth/register',
       '/api/health',
+      '/api/users/me/driver-declaration',
+      '/api/users/me/driver-status',
       '/api/users/{id}',
+      '/api/vehicles',
+      '/api/vehicles/{id}',
     ]);
   });
 
