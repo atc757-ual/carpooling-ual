@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsModule } from '../../events/events.module';
 import { UsersModule } from '../users/users.module';
 import { Trip } from './entities/trip.entity';
+import { TripStatusService } from './trip-status.service';
 import { TripsController } from './trips.controller';
 import { TripsService } from './trips.service';
 
@@ -12,8 +13,8 @@ import { TripsService } from './trips.service';
 @Module({
   imports: [TypeOrmModule.forFeature([Trip]), UsersModule, EventsModule],
   controllers: [TripsController],
-  providers: [TripsService],
-  // Lo usan las solicitudes de plaza (requests)
-  exports: [TripsService],
+  providers: [TripsService, TripStatusService],
+  // Los usan las solicitudes de plaza (requests)
+  exports: [TripsService, TripStatusService],
 })
 export class TripsModule {}

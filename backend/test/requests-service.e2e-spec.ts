@@ -84,6 +84,7 @@ describe('RequestsService (e2e)', () => {
   async function publishedTrip(
     offeredSeats = 2,
     driverName = 'dan',
+    minutesToDeparture = 24 * 60,
   ): Promise<{ driverId: string; tripId: string; plate: string }> {
     const driverId = await createUser(driverName, ['driver', 'passenger']);
     await usersService.declareDriverLicense(driverId);
@@ -96,7 +97,7 @@ describe('RequestsService (e2e)', () => {
       vehicleId: vehicle.id,
       origin: ALMERIA_CENTRE,
       destination: UAL_CAMPUS,
-      departureAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      departureAt: new Date(Date.now() + minutesToDeparture * 60 * 1000),
       offeredSeats,
     });
     return { driverId, tripId: trip.id, plate };
@@ -312,6 +313,26 @@ describe('RequestsService (e2e)', () => {
       await expect(
         requestsService.cancel(pia, request.id),
       ).rejects.toBeInstanceOf(TripAlreadyStartedError);
+    });
+
+    it('starting the trip rejects the pending requests and keeps the accepted ones (observer)', async () => {
+      const { driverId, tripId } = await publishedTrip(2, 'dan', 10);
+      const pia = await createUser('pia', ['passenger']);
+      const leo = await createUser('leo', ['passenger']);
+      const accepted = await requestsService.request(pia, tripId);
+      await requestsService.accept(driverId, accepted.request.id);
+      const pending = await requestsService.request(leo, tripId);
+
+      await tripsService.start(driverId, tripId);
+
+      const stillAccepted = await requestsService.get(pia, accepted.request.id);
+      const rejected = await requestsService.get(leo, pending.request.id);
+      expect(stillAccepted.request.status).toBe('accepted');
+      expect(rejected.request.status).toBe('rejected');
+      expect(await eventTypesOf(pending.request.id)).toEqual([
+        'request.created',
+        'request.rejected',
+      ]);
     });
 
     it('cancelling the trip cancels all its live requests (observer)', async () => {

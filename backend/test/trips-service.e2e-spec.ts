@@ -14,9 +14,12 @@ import { SeatsExceedCapacityError } from '../src/modules/trips/errors/seats-exce
 import { TripAlreadyStartedError } from '../src/modules/trips/errors/trip-already-started.error';
 import { TripNotEditableError } from '../src/modules/trips/errors/trip-not-editable.error';
 import { TripFullError } from '../src/modules/trips/errors/trip-full.error';
+import { TripNotStartableYetError } from '../src/modules/trips/errors/trip-not-startable-yet.error';
+import { VehicleInUseError } from '../src/modules/users/errors/vehicle-in-use.error';
 import { TripNotFoundError } from '../src/modules/trips/errors/trip-not-found.error';
 import { TripNotOpenError } from '../src/modules/trips/errors/trip-not-open.error';
 import { Trip } from '../src/modules/trips/entities/trip.entity';
+import { TripStatusService } from '../src/modules/trips/trip-status.service';
 import { TripInput, TripsService } from '../src/modules/trips/trips.service';
 
 // TripsService contra la base de datos real (requiere npm run migrate). Los
@@ -35,6 +38,7 @@ describe('TripsService (e2e)', () => {
   let app: INestApplication;
   let dataSource: DataSource;
   let tripsService: TripsService;
+  let tripStatus: TripStatusService;
   let usersService: UsersService;
   let vehiclesService: VehiclesService;
   let plateNumber = 9400;
@@ -47,6 +51,7 @@ describe('TripsService (e2e)', () => {
     await app.init();
     dataSource = app.get(DataSource);
     tripsService = app.get(TripsService);
+    tripStatus = app.get(TripStatusService);
     usersService = app.get(UsersService);
     vehiclesService = app.get(VehiclesService);
   });
@@ -360,15 +365,15 @@ describe('TripsService (e2e)', () => {
   describe('seat operations for seat requests (RF-10)', () => {
     // Suscriptor de prueba del patrón observador (se registra una vez: el
     // service es el mismo para todos los tests de este fichero)
-    const cancelledListener = jest.fn();
+    const statusListener = jest.fn();
 
     beforeAll(() => {
-      tripsService.onTripCancelled(cancelledListener);
+      tripStatus.onTripStatusChanged(statusListener);
     });
 
     beforeEach(() => {
-      cancelledListener.mockReset();
-      cancelledListener.mockResolvedValue(undefined);
+      statusListener.mockReset();
+      statusListener.mockResolvedValue(undefined);
     });
 
     async function publishedTrip(offeredSeats = 2) {
@@ -390,9 +395,9 @@ describe('TripsService (e2e)', () => {
       const { trip } = await publishedTrip(2);
 
       const reserved = await inTransaction(async (manager) =>
-        tripsService.reserveSeat(
+        tripStatus.reserveSeat(
           manager,
-          await tripsService.lockTrip(manager, trip.id),
+          await tripStatus.lockTrip(manager, trip.id),
         ),
       );
 
@@ -406,13 +411,30 @@ describe('TripsService (e2e)', () => {
       ]);
     });
 
+    it('notifies published → confirmed when the first seat is reserved', async () => {
+      const { trip } = await publishedTrip(2);
+
+      await inTransaction(async (manager) =>
+        tripStatus.reserveSeat(
+          manager,
+          await tripStatus.lockTrip(manager, trip.id),
+        ),
+      );
+
+      expect(statusListener).toHaveBeenCalledWith(expect.anything(), {
+        trip: expect.objectContaining({ id: trip.id }) as unknown,
+        from: 'published',
+        to: 'confirmed',
+      });
+    });
+
     it('rejects reserving a seat when there are none left (TRIP_FULL)', async () => {
       const { trip } = await publishedTrip(1);
       const reserve = () =>
         inTransaction(async (manager) =>
-          tripsService.reserveSeat(
+          tripStatus.reserveSeat(
             manager,
-            await tripsService.lockTrip(manager, trip.id),
+            await tripStatus.lockTrip(manager, trip.id),
           ),
         );
       await reserve();
@@ -426,9 +448,9 @@ describe('TripsService (e2e)', () => {
         operation: 'reserveSeat' | 'releaseSeat',
       ): Promise<Trip> =>
         inTransaction(async (manager) =>
-          tripsService[operation](
+          tripStatus[operation](
             manager,
-            await tripsService.lockTrip(manager, trip.id),
+            await tripStatus.lockTrip(manager, trip.id),
           ),
         );
       await lockAnd('reserveSeat');
@@ -449,13 +471,13 @@ describe('TripsService (e2e)', () => {
     it('only accepts requests for published or confirmed trips not yet departed', async () => {
       const { driverId, trip } = await publishedTrip();
 
-      expect(() => tripsService.assertOpenForRequests(trip)).not.toThrow();
+      expect(() => tripStatus.assertOpenForRequests(trip)).not.toThrow();
       const { trip: cancelled } = await tripsService.cancel(driverId, trip.id);
-      expect(() => tripsService.assertOpenForRequests(cancelled)).toThrow(
+      expect(() => tripStatus.assertOpenForRequests(cancelled)).toThrow(
         TripNotOpenError,
       );
       const departed = { ...trip, departureAt: new Date(Date.now() - HOUR_MS) };
-      expect(() => tripsService.assertOpenForRequests(departed)).toThrow(
+      expect(() => tripStatus.assertOpenForRequests(departed)).toThrow(
         TripNotOpenError,
       );
     });
@@ -465,16 +487,17 @@ describe('TripsService (e2e)', () => {
 
       await tripsService.cancel(driverId, trip.id);
 
-      expect(cancelledListener).toHaveBeenCalledTimes(1);
-      expect(cancelledListener).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({ id: trip.id, status: 'cancelled' }),
-      );
+      expect(statusListener).toHaveBeenCalledTimes(1);
+      expect(statusListener).toHaveBeenCalledWith(expect.anything(), {
+        trip: expect.objectContaining({ id: trip.id }) as unknown,
+        from: 'published',
+        to: 'cancelled',
+      });
     });
 
     it('undoes the whole cancellation if a subscriber fails', async () => {
       const { driverId, trip } = await publishedTrip();
-      cancelledListener.mockRejectedValueOnce(new Error('subscriber failed'));
+      statusListener.mockRejectedValueOnce(new Error('subscriber failed'));
 
       await expect(tripsService.cancel(driverId, trip.id)).rejects.toThrow(
         'subscriber failed',
@@ -483,6 +506,114 @@ describe('TripsService (e2e)', () => {
       const { trip: unchanged } = await tripsService.getById(trip.id);
       expect(unchanged.status).toBe('published');
       expect(await eventsOf(trip.id)).toHaveLength(1);
+    });
+  });
+
+  describe('start and finish (RF-11)', () => {
+    const MINUTE_MS = 60 * 1000;
+
+    // Viaje confirmado (con pasajeros) que sale dentro de esos minutos. Se
+    // confirma con SQL: las solicitudes se prueban en su propio módulo
+    async function confirmedTrip(
+      minutesToDeparture: number,
+      driver?: { driverId: string; vehicleId: string },
+    ) {
+      const { driverId, vehicleId } = driver ?? (await readyDriver('ana'));
+      const { trip } = await tripsService.publish(
+        driverId,
+        tripInput(vehicleId, {
+          departureAt: new Date(Date.now() + minutesToDeparture * MINUTE_MS),
+        }),
+      );
+      await dataSource.query(
+        "UPDATE trips SET status = 'confirmed' WHERE id = $1",
+        [trip.id],
+      );
+      return { driverId, vehicleId, tripId: trip.id };
+    }
+
+    async function vehicleStatus(vehicleId: string): Promise<string> {
+      const [row] = await dataSource.query<{ status: string }[]>(
+        'SELECT status FROM vehicles WHERE id = $1',
+        [vehicleId],
+      );
+      return row.status;
+    }
+
+    it('starts a confirmed trip: in progress, vehicle on trip, trip.started', async () => {
+      const { driverId, vehicleId, tripId } = await confirmedTrip(10);
+
+      const { trip } = await tripsService.start(driverId, tripId);
+
+      expect(trip.status).toBe('in_progress');
+      expect(await vehicleStatus(vehicleId)).toBe('on_trip');
+      expect((await eventsOf(tripId)).map(({ type }) => type)).toContain(
+        'trip.started',
+      );
+    });
+
+    it('can be started up to 30 minutes before the departure, not earlier', async () => {
+      const { driverId, tripId } = await confirmedTrip(60);
+
+      await expect(tripsService.start(driverId, tripId)).rejects.toBeInstanceOf(
+        TripNotStartableYetError,
+      );
+    });
+
+    it('only starts confirmed trips (state machine)', async () => {
+      const { driverId, vehicleId } = await readyDriver('ana');
+      const { trip } = await tripsService.publish(
+        driverId,
+        tripInput(vehicleId, {
+          departureAt: new Date(Date.now() + 10 * MINUTE_MS),
+        }),
+      );
+
+      await expect(
+        tripsService.start(driverId, trip.id),
+      ).rejects.toBeInstanceOf(InvalidTripTransitionError);
+      expect(await vehicleStatus(vehicleId)).toBe('available');
+    });
+
+    it('does not start two trips with the same vehicle at once', async () => {
+      const driver = await readyDriver('ana');
+      const first = await confirmedTrip(10, driver);
+      const second = await confirmedTrip(20, driver);
+      await tripsService.start(driver.driverId, first.tripId);
+
+      await expect(
+        tripsService.start(driver.driverId, second.tripId),
+      ).rejects.toBeInstanceOf(VehicleInUseError);
+    });
+
+    it('does not start a trip whose vehicle was deactivated meanwhile', async () => {
+      const { driverId, vehicleId, tripId } = await confirmedTrip(10);
+      await vehiclesService.deactivate(driverId, vehicleId);
+
+      await expect(tripsService.start(driverId, tripId)).rejects.toBeInstanceOf(
+        VehicleNotFoundError,
+      );
+    });
+
+    it('finishes a trip in progress: the vehicle is available again', async () => {
+      const { driverId, vehicleId, tripId } = await confirmedTrip(10);
+      await tripsService.start(driverId, tripId);
+
+      const { trip } = await tripsService.finish(driverId, tripId);
+
+      expect(trip.status).toBe('finished');
+      expect(await vehicleStatus(vehicleId)).toBe('available');
+      expect((await eventsOf(tripId)).map(({ type }) => type)).toContain(
+        'trip.finished',
+      );
+    });
+
+    it('does not finish a trip that has not started (state machine)', async () => {
+      const { driverId, tripId } = await confirmedTrip(10);
+
+      await expect(
+        tripsService.finish(driverId, tripId),
+      ).rejects.toBeInstanceOf(InvalidTripTransitionError);
     });
   });
 });

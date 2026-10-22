@@ -7,6 +7,7 @@ import { SeatRequest } from './entities/seat-request.entity';
 import { RequestsController } from './requests.controller';
 import { RequestViewsService } from './request-views.service';
 import { RequestsService } from './requests.service';
+import { TripChangesListener } from './trip-changes.listener';
 
 // Solicitudes de plaza (RF-08 a RF-10). Depende de trips (plazas y estado del
 // viaje) y de users (nombres, prioridad y matrícula); trips NO depende de
@@ -19,6 +20,6 @@ import { RequestsService } from './requests.service';
     EventsModule,
   ],
   controllers: [RequestsController],
-  providers: [RequestsService, RequestViewsService],
+  providers: [RequestsService, RequestViewsService, TripChangesListener],
 })
 export class RequestsModule {}
