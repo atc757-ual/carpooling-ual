@@ -47,6 +47,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Consulta de una incidencia (solo quien la registró o un administrador) y lista de mis incidencias (#21)
 - Gestión de usuarios por el administrador (RF-25, CU-13): lista con búsqueda y activación o desactivación de perfiles, incluida la asignación y retirada del perfil de administrador; desactivar un perfil cierra las sesiones del usuario (#22)
 - Eventos de usuario para el Gemelo Digital: alta y cambios de perfil (#22)
+- Avisos dentro de la aplicación (RF-19, CU-11) de solicitudes, aceptaciones, rechazos, cancelaciones e incidencias nuevas para los administradores, con su lista y su marcado como leídos; migración `AddNotifications` (#23)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)

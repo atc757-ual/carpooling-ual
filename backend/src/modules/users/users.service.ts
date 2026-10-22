@@ -197,6 +197,22 @@ export class UsersService {
       .existsBy({ isActive: true });
   }
 
+  // Ids de los administradores activos (p. ej. para avisarles de una
+  // incidencia nueva, RF-19). Recibe el manager de la transacción del cambio.
+  // Sus usuarios quedan bloqueados con FOR KEY SHARE (el mismo bloqueo que
+  // toma una clave foránea) hasta el final de la transacción: si alguien borra
+  // a uno a la vez, espera, y un usuario ya borrado no se devuelve. Así el
+  // aviso nunca apunta a un usuario que ya no existe
+  async getActiveAdminIds(manager: EntityManager): Promise<string[]> {
+    const admins = await manager
+      .createQueryBuilder(User, 'u')
+      .select('u.id', 'id')
+      .innerJoin('u.adminProfile', 'admin', 'admin.isActive = true')
+      .setLock('for_key_share', undefined, ['u'])
+      .getRawMany<{ id: string }>();
+    return admins.map(({ id }) => id);
+  }
+
   // Datos públicos de un usuario (GET /api/users/{id}). Si no existe, lanza
   // UserNotFoundError
   async getSummary(id: string): Promise<UserSummary> {
