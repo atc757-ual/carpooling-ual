@@ -13,5 +13,7 @@ import { TripsService } from './trips.service';
   imports: [TypeOrmModule.forFeature([Trip]), UsersModule, EventsModule],
   controllers: [TripsController],
   providers: [TripsService],
+  // Lo usan las solicitudes de plaza (requests)
+  exports: [TripsService],
 })
 export class TripsModule {}

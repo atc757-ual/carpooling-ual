@@ -37,6 +37,9 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Viajes (RF-04, RF-05): publicar, consultar, listar los propios, modificar mientras están publicados y cancelar antes del inicio, con ubicaciones en GeoJSON (#17)
 - Máquina de estados del viaje según el diagrama de estados (RNF-10) (#17)
 - Registro de eventos para el Gemelo Digital en la misma transacción que cada cambio (patrón outbox, RNF-08) (#17)
+- Solicitudes de plaza (RF-08 a RF-10): solicitar, aceptar, rechazar y cancelar, con actualización automática de plazas, confirmación y reapertura del viaje y prioridad del pasajero (RF-24) (#18)
+- Máquina de estados de la solicitud según el diagrama de estados (RNF-10) (#18)
+- Al cancelar un viaje se cancelan sus solicitudes en la misma transacción (#18)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)

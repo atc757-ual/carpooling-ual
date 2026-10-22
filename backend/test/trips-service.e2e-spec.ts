@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { DataSource } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { DomainEvent } from '../src/events/entities/domain-event.entity';
 import { VehicleNotFoundError } from '../src/modules/users/errors/vehicle-not-found.error';
@@ -13,7 +13,10 @@ import { NotTripDriverError } from '../src/modules/trips/errors/not-trip-driver.
 import { SeatsExceedCapacityError } from '../src/modules/trips/errors/seats-exceed-capacity.error';
 import { TripAlreadyStartedError } from '../src/modules/trips/errors/trip-already-started.error';
 import { TripNotEditableError } from '../src/modules/trips/errors/trip-not-editable.error';
+import { TripFullError } from '../src/modules/trips/errors/trip-full.error';
 import { TripNotFoundError } from '../src/modules/trips/errors/trip-not-found.error';
+import { TripNotOpenError } from '../src/modules/trips/errors/trip-not-open.error';
+import { Trip } from '../src/modules/trips/entities/trip.entity';
 import { TripInput, TripsService } from '../src/modules/trips/trips.service';
 
 // TripsService contra la base de datos real (requiere npm run migrate). Los
@@ -349,6 +352,137 @@ describe('TripsService (e2e)', () => {
         tripsService.cancel(driverId, trip.id),
       ).rejects.toBeInstanceOf(InvalidTripTransitionError);
       expect(await eventsOf(trip.id)).toHaveLength(2);
+    });
+  });
+
+  // Lo que trips ofrece a las solicitudes de plaza: todo dentro de una
+  // transacción de quien llama
+  describe('seat operations for seat requests (RF-10)', () => {
+    // Suscriptor de prueba del patrón observador (se registra una vez: el
+    // service es el mismo para todos los tests de este fichero)
+    const cancelledListener = jest.fn();
+
+    beforeAll(() => {
+      tripsService.onTripCancelled(cancelledListener);
+    });
+
+    beforeEach(() => {
+      cancelledListener.mockReset();
+      cancelledListener.mockResolvedValue(undefined);
+    });
+
+    async function publishedTrip(offeredSeats = 2) {
+      const { driverId, vehicleId } = await readyDriver('ana');
+      const { trip } = await tripsService.publish(
+        driverId,
+        tripInput(vehicleId, { offeredSeats }),
+      );
+      return { driverId, trip };
+    }
+
+    function inTransaction<T>(
+      work: (manager: EntityManager) => Promise<T>,
+    ): Promise<T> {
+      return dataSource.transaction(work);
+    }
+
+    it('reserving the first seat confirms the trip (trip.confirmed)', async () => {
+      const { trip } = await publishedTrip(2);
+
+      const reserved = await inTransaction(async (manager) =>
+        tripsService.reserveSeat(
+          manager,
+          await tripsService.lockTrip(manager, trip.id),
+        ),
+      );
+
+      expect(reserved).toMatchObject({
+        availableSeats: 1,
+        status: 'confirmed',
+      });
+      expect((await eventsOf(trip.id)).map(({ type }) => type)).toEqual([
+        'trip.published',
+        'trip.confirmed',
+      ]);
+    });
+
+    it('rejects reserving a seat when there are none left (TRIP_FULL)', async () => {
+      const { trip } = await publishedTrip(1);
+      const reserve = () =>
+        inTransaction(async (manager) =>
+          tripsService.reserveSeat(
+            manager,
+            await tripsService.lockTrip(manager, trip.id),
+          ),
+        );
+      await reserve();
+
+      await expect(reserve()).rejects.toBeInstanceOf(TripFullError);
+    });
+
+    it('releasing the last taken seat reopens the trip (trip.reopened)', async () => {
+      const { trip } = await publishedTrip(2);
+      const lockAnd = (
+        operation: 'reserveSeat' | 'releaseSeat',
+      ): Promise<Trip> =>
+        inTransaction(async (manager) =>
+          tripsService[operation](
+            manager,
+            await tripsService.lockTrip(manager, trip.id),
+          ),
+        );
+      await lockAnd('reserveSeat');
+
+      const released = await lockAnd('releaseSeat');
+
+      expect(released).toMatchObject({
+        availableSeats: 2,
+        status: 'published',
+      });
+      expect((await eventsOf(trip.id)).map(({ type }) => type)).toEqual([
+        'trip.published',
+        'trip.confirmed',
+        'trip.reopened',
+      ]);
+    });
+
+    it('only accepts requests for published or confirmed trips not yet departed', async () => {
+      const { driverId, trip } = await publishedTrip();
+
+      expect(() => tripsService.assertOpenForRequests(trip)).not.toThrow();
+      const { trip: cancelled } = await tripsService.cancel(driverId, trip.id);
+      expect(() => tripsService.assertOpenForRequests(cancelled)).toThrow(
+        TripNotOpenError,
+      );
+      const departed = { ...trip, departureAt: new Date(Date.now() - HOUR_MS) };
+      expect(() => tripsService.assertOpenForRequests(departed)).toThrow(
+        TripNotOpenError,
+      );
+    });
+
+    it('notifies the subscribers when a trip is cancelled (observer)', async () => {
+      const { driverId, trip } = await publishedTrip();
+
+      await tripsService.cancel(driverId, trip.id);
+
+      expect(cancelledListener).toHaveBeenCalledTimes(1);
+      expect(cancelledListener).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ id: trip.id, status: 'cancelled' }),
+      );
+    });
+
+    it('undoes the whole cancellation if a subscriber fails', async () => {
+      const { driverId, trip } = await publishedTrip();
+      cancelledListener.mockRejectedValueOnce(new Error('subscriber failed'));
+
+      await expect(tripsService.cancel(driverId, trip.id)).rejects.toThrow(
+        'subscriber failed',
+      );
+
+      const { trip: unchanged } = await tripsService.getById(trip.id);
+      expect(unchanged.status).toBe('published');
+      expect(await eventsOf(trip.id)).toHaveLength(1);
     });
   });
 });
