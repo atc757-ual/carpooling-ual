@@ -1,4 +1,4 @@
-import { ParseUUIDPipe, ValidationPipe } from '@nestjs/common';
+import { ParseUUIDPipe, PipeTransform, ValidationPipe } from '@nestjs/common';
 import type { ValidationError } from 'class-validator';
 import { TmfFieldError } from './tmf-error';
 
@@ -35,6 +35,25 @@ export function uuidParam(field: string): ParseUUIDPipe {
         { field, reason: `${field} must be a UUID` },
       ]),
   });
+}
+
+// Valida que un parámetro de la ruta sea uno de los valores permitidos (p. ej.
+// /users/:id/profiles/:profile). Si no, 400 VALIDATION_FAILED
+export function allowedParam<T extends string>(
+  field: string,
+  allowed: readonly T[],
+): PipeTransform<string, T> {
+  return {
+    transform(value: string): T {
+      const match = allowed.find((option) => option === value);
+      if (match === undefined) {
+        throw new RequestValidationError([
+          { field, reason: `${field} must be one of: ${allowed.join(', ')}` },
+        ]);
+      }
+      return match;
+    },
+  };
 }
 
 // Aplana los errores de class-validator: un elemento por regla incumplida,

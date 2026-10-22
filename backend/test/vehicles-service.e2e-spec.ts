@@ -7,6 +7,7 @@ import { VehicleInUseError } from '../src/modules/users/errors/vehicle-in-use.er
 import { VehicleNotFoundError } from '../src/modules/users/errors/vehicle-not-found.error';
 import { UsersService } from '../src/modules/users/users.service';
 import { VehiclesService } from '../src/modules/users/vehicles.service';
+import { deleteTestUsers } from './support/cleanup';
 
 // VehiclesService contra la base de datos real (requiere npm run migrate). Los
 // conductores llevan el prefijo EMAIL_PREFIX; al borrarlos en afterEach, sus
@@ -32,9 +33,7 @@ describe('VehiclesService (e2e)', () => {
   });
 
   afterEach(async () => {
-    await dataSource.query('DELETE FROM users WHERE email LIKE $1', [
-      `${EMAIL_PREFIX}%`,
-    ]);
+    await deleteTestUsers(dataSource, EMAIL_PREFIX);
   });
 
   afterAll(async () => {

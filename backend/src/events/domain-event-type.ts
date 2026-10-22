@@ -1,6 +1,10 @@
 // Tipos de evento que la plataforma registra para el Gemelo Digital (RNF-08).
 // Formato "entidad.acción", en pasado: cuentan algo que YA ha ocurrido
 export type DomainEventType =
+  // Usuarios (tabla de entidades del Gemelo Digital: registro y perfiles)
+  | 'user.registered'
+  | 'user.profile_activated'
+  | 'user.profile_deactivated'
   // Viajes. confirmed: primera solicitud aceptada; reopened: vuelve a
   // publicado porque se han cancelado todas las aceptadas
   | 'trip.published'

@@ -5,6 +5,7 @@ import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { deleteTestUsers } from './support/cleanup';
 
 // Prueba la API de auth de punta a punta: HTTP → validación → AuthService →
 // base de datos real. Los usuarios llevan el prefijo EMAIL_PREFIX y se borran
@@ -27,9 +28,7 @@ describe('Auth API (e2e)', () => {
   });
 
   afterEach(async () => {
-    await dataSource.query('DELETE FROM users WHERE email LIKE $1', [
-      `${EMAIL_PREFIX}%`,
-    ]);
+    await deleteTestUsers(dataSource, EMAIL_PREFIX);
   });
 
   afterAll(async () => {

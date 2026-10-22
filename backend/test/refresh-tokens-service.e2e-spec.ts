@@ -5,6 +5,7 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { InvalidRefreshTokenError } from '../src/modules/auth/errors/invalid-refresh-token.error';
 import { RefreshTokensService } from '../src/modules/auth/refresh-tokens.service';
+import { deleteTestUsers } from './support/cleanup';
 
 // Prueba las sesiones contra la base de datos real (requiere npm run migrate).
 // Cada test crea su usuario con el prefijo EMAIL_PREFIX; al borrarlo en
@@ -47,9 +48,7 @@ describe('RefreshTokensService (e2e)', () => {
   });
 
   afterEach(async () => {
-    await dataSource.query('DELETE FROM users WHERE email LIKE $1', [
-      `${EMAIL_PREFIX}%`,
-    ]);
+    await deleteTestUsers(dataSource, EMAIL_PREFIX);
   });
 
   afterAll(async () => {

@@ -47,7 +47,9 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 | `POST /api/auth/refresh` | `refreshToken` en el cuerpo | `200` `AccessToken` con los dos tokens nuevos (cada `refreshToken` sirve una sola vez) |
 | `POST /api/auth/logout` | `refreshToken` en el cuerpo | `204`: cierra la sesión de ese dispositivo |
 | `GET /api/auth/me` | `Authorization: Bearer <token>` | `200` `User` |
-| `GET /api/users/{id}` | `Authorization: Bearer <token>` | `200` `User`: el propio usuario, o cualquiera si se tiene el perfil de administrador (`403` si no) |
+| `GET /api/users/{id}` | `Authorization: Bearer <token>` | `200` `User` del propio usuario; un administrador obtiene `UserAdmin` (con todos sus perfiles, activos o no) de cualquiera (`403` si no) |
+| `GET /api/users?search=&offset=&limit=` | Perfil administrador | `200` lista paginada de `UserAdmin` por nombre; `search` busca en el nombre o el correo (RF-25) |
+| `PUT /api/users/{id}/profiles/{profile}` | Perfil administrador | `200` `UserAdmin`: `{ "isActive": true \| false }` activa o desactiva un perfil; para `admin`, lo asigna o lo retira. No se puede retirar el último administrador ni retirarse a uno mismo. Desactivar un perfil cierra todas las sesiones del usuario (RF-25) |
 
 | `POST /api/vehicles` | Perfil conductor | `201` `Vehicle` + `Location`. Matrícula española (se normaliza: `1234 bcd` → `1234BCD`) y capacidad de 1 a 8 |
 | `GET /api/vehicles?offset=&limit=` | Perfil conductor | `200` lista de mis vehículos activos, con `X-Total-Count` y `X-Result-Count` |
@@ -78,7 +80,7 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 
 **Ubicaciones:** puntos GeoJSON (RFC 7946), `{ "type": "Point", "coordinates": [longitud, latitud] }`.
 
-**Eventos para el Gemelo Digital:** cada cambio de estado de un viaje (`trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.started`, `trip.finished`, `trip.cancelled`) o de una solicitud (`request.created`, `request.accepted`, `request.rejected`, `request.cancelled`), y cada incidencia (`incident.reported`, sin la descripción libre), se guarda en la tabla `events` en la misma transacción que el cambio (patrón *outbox*), con el estado completo de la entidad.
+**Eventos para el Gemelo Digital:** el alta de un usuario y los cambios de sus perfiles (`user.registered`, `user.profile_activated`, `user.profile_deactivated`, sin nombre ni correo), cada cambio de estado de un viaje (`trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.started`, `trip.finished`, `trip.cancelled`) o de una solicitud (`request.created`, `request.accepted`, `request.rejected`, `request.cancelled`), y cada incidencia (`incident.reported`, sin la descripción libre), se guarda en la tabla `events` en la misma transacción que el cambio (patrón *outbox*), con el estado completo de la entidad.
 
 **Concurrencia:** aceptar solicitudes bloquea la fila del viaje, así que dos aceptaciones simultáneas nunca venden la misma plaza. Todas las operaciones bloquean en el mismo orden (primero el viaje y después la solicitud) para evitar bloqueos mutuos.
 

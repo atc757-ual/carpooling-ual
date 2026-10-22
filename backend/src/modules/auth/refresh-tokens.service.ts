@@ -1,8 +1,9 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, IsNull, Repository } from 'typeorm';
+import { UserProfilesService } from '../users/user-profiles.service';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { InvalidRefreshTokenError } from './errors/invalid-refresh-token.error';
 
@@ -31,7 +32,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // Sesiones con token de renovación: emitir (login), rotar (refresh) y anular
 // (logout). Es interno del módulo auth: solo lo usa AuthService.
 @Injectable()
-export class RefreshTokensService {
+export class RefreshTokensService implements OnModuleInit {
   private readonly refreshTtlMs: number;
   private readonly sessionMaxMs: number;
 
@@ -39,12 +40,25 @@ export class RefreshTokensService {
     private readonly dataSource: DataSource,
     @InjectRepository(RefreshToken)
     private readonly refreshTokensRepository: Repository<RefreshToken>,
+    private readonly userProfiles: UserProfilesService,
     configService: ConfigService,
   ) {
     this.refreshTtlMs =
       configService.getOrThrow<number>('jwt.refreshTtlDays') * DAY_MS;
     this.sessionMaxMs =
       configService.getOrThrow<number>('jwt.sessionMaxDays') * DAY_MS;
+  }
+
+  // Patrón observador: al desactivarse un perfil de un usuario (RF-25), se
+  // cierran todas sus sesiones en la misma transacción. Su token de acceso
+  // caduca en como mucho 15 minutos y ya no podrá renovarlo: tendrá que
+  // iniciar sesión, y el token nuevo ya no llevará ese perfil
+  onModuleInit(): void {
+    this.userProfiles.onProfileChanged(async (manager, change) => {
+      if (!change.isActive) {
+        await this.revokeAllOfUser(manager, change.userId);
+      }
+    });
   }
 
   // Login: abre una sesión nueva (familia nueva) con su tope
@@ -102,6 +116,18 @@ export class RefreshTokensService {
         current.familyId,
       );
     }
+  }
+
+  // Anula todas las sesiones vivas del usuario (todas sus familias)
+  private async revokeAllOfUser(
+    manager: EntityManager,
+    userId: string,
+  ): Promise<void> {
+    await manager.update(
+      RefreshToken,
+      { userId, revokedAt: IsNull() },
+      { revokedAt: new Date() },
+    );
   }
 
   // Caducidad deslizante (JWT_REFRESH_TTL_DAYS desde ahora) sin pasar nunca

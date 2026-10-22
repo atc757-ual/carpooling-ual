@@ -5,6 +5,7 @@ import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { deleteTestUsers } from './support/cleanup';
 
 // Viajes (RF-04, RF-05) de punta a punta. Los usuarios llevan el prefijo
 // EMAIL_PREFIX; sus viajes y eventos se borran antes que ellos
@@ -30,17 +31,7 @@ describe('Trips API (e2e)', () => {
   });
 
   afterEach(async () => {
-    const testUsers = `SELECT id FROM users WHERE email LIKE '${EMAIL_PREFIX}%'`;
-    await dataSource.query(
-      `DELETE FROM events WHERE source_entity_id IN
-         (SELECT id FROM trips WHERE driver_id IN (${testUsers}))`,
-    );
-    await dataSource.query(
-      `DELETE FROM trips WHERE driver_id IN (${testUsers})`,
-    );
-    await dataSource.query('DELETE FROM users WHERE email LIKE $1', [
-      `${EMAIL_PREFIX}%`,
-    ]);
+    await deleteTestUsers(dataSource, EMAIL_PREFIX);
   });
 
   afterAll(async () => {

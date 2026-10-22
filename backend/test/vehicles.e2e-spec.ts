@@ -5,6 +5,7 @@ import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { deleteTestUsers } from './support/cleanup';
 
 // Vehículos y estado del conductor (RF-21) de punta a punta. Los usuarios
 // llevan el prefijo EMAIL_PREFIX; al borrarlos, sus vehículos se borran en
@@ -27,9 +28,7 @@ describe('Vehicles API (e2e)', () => {
   });
 
   afterEach(async () => {
-    await dataSource.query('DELETE FROM users WHERE email LIKE $1', [
-      `${EMAIL_PREFIX}%`,
-    ]);
+    await deleteTestUsers(dataSource, EMAIL_PREFIX);
   });
 
   afterAll(async () => {

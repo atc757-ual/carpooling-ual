@@ -7,6 +7,7 @@ import { ProfileType } from '../src/modules/users/profile-type';
 import { ProfileRequiredError } from '../src/shared/auth/profile-required.error';
 import { UsersService } from '../src/modules/users/users.service';
 import { VehiclesService } from '../src/modules/users/vehicles.service';
+import { deleteTestUsers } from './support/cleanup';
 
 // Pruebas de UsersService contra PostgreSQL (requiere npm run migrate): la
 // transacción, la restricción UNIQUE y citext solo se pueden comprobar de
@@ -32,9 +33,7 @@ describe('UsersService (e2e)', () => {
 
   afterEach(async () => {
     jest.restoreAllMocks();
-    await dataSource.query('DELETE FROM users WHERE email LIKE $1', [
-      `${TEST_PREFIX}%`,
-    ]);
+    await deleteTestUsers(dataSource, TEST_PREFIX);
   });
 
   afterAll(async () => {
