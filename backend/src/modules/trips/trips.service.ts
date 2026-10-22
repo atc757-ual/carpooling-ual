@@ -13,8 +13,10 @@ import { DriverNotReadyError } from './errors/driver-not-ready.error';
 import { NotTripDriverError } from './errors/not-trip-driver.error';
 import { SeatsExceedCapacityError } from './errors/seats-exceed-capacity.error';
 import { TripAlreadyStartedError } from './errors/trip-already-started.error';
+import { TripFullError } from './errors/trip-full.error';
 import { TripNotEditableError } from './errors/trip-not-editable.error';
 import { TripNotFoundError } from './errors/trip-not-found.error';
+import { TripNotOpenError } from './errors/trip-not-open.error';
 import { assertTransition } from './trip-status';
 
 export interface TripInput {
@@ -35,12 +37,21 @@ export interface TripView {
   driverName: string;
 }
 
+// Suscriptor de la cancelación de un viaje (patrón observador). Se ejecuta
+// DENTRO de la transacción de la cancelación: si falla, se deshace todo
+export type TripCancelledListener = (
+  manager: EntityManager,
+  trip: Trip,
+) => Promise<void>;
+
 const DEFAULT_MAX_DETOUR_MIN = 10;
 
 // Viajes (RF-04, RF-05). Cada cambio de estado se guarda junto con su evento
 // para el Gemelo Digital en una misma transacción (outbox, RNF-08)
 @Injectable()
 export class TripsService {
+  private readonly tripCancelledListeners: TripCancelledListener[] = [];
+
   constructor(
     private readonly dataSource: DataSource,
     @InjectRepository(Trip)
@@ -137,9 +148,86 @@ export class TripsService {
       current.status = 'cancelled';
       const cancelled = await manager.save(current);
       await this.recordEvent(manager, 'trip.cancelled', cancelled);
+      // Avisa a los suscriptores (p. ej. las solicitudes de plaza, que se
+      // cancelan con el viaje) sin saber quiénes son: trips no depende de ellos
+      await Promise.all(
+        this.tripCancelledListeners.map((listener) =>
+          listener(manager, cancelled),
+        ),
+      );
       return cancelled;
     });
     return this.toView(trip);
+  }
+
+  // --- Operaciones para las solicitudes de plaza (módulo requests). Reciben
+  // el manager de la transacción de quien llama: aceptar una solicitud,
+  // restar la plaza, confirmar el viaje y los eventos van todos juntos
+
+  // Patrón observador: quien se suscribe recibe cada viaje cancelado
+  onTripCancelled(listener: TripCancelledListener): void {
+    this.tripCancelledListeners.push(listener);
+  }
+
+  // El viaje bloqueado (FOR UPDATE) hasta el final de la transacción: dos
+  // aceptaciones simultáneas no pueden vender la misma plaza
+  async lockTrip(manager: EntityManager, tripId: string): Promise<Trip> {
+    const trip = await manager.findOne(Trip, {
+      where: { id: tripId },
+      lock: { mode: 'pessimistic_write' },
+    });
+    if (trip === null) {
+      throw new TripNotFoundError(tripId);
+    }
+    return trip;
+  }
+
+  // Solo se admiten solicitudes en un viaje publicado o confirmado que aún no
+  // ha salido
+  assertOpenForRequests(trip: Trip): void {
+    const isOpen = trip.status === 'published' || trip.status === 'confirmed';
+    if (!isOpen || trip.departureAt.getTime() <= Date.now()) {
+      throw new TripNotOpenError(trip.id, trip.status);
+    }
+  }
+
+  // RF-10: resta una plaza. La primera aceptación confirma el viaje
+  async reserveSeat(manager: EntityManager, trip: Trip): Promise<Trip> {
+    if (trip.availableSeats === 0) {
+      throw new TripFullError(trip.id);
+    }
+    const isFirstPassenger = trip.status === 'published';
+    if (isFirstPassenger) {
+      assertTransition(trip.status, 'confirmed');
+      trip.status = 'confirmed';
+    }
+    trip.availableSeats -= 1;
+    const saved = await manager.save(trip);
+    await this.recordEvent(
+      manager,
+      isFirstPassenger ? 'trip.confirmed' : 'trip.updated',
+      saved,
+    );
+    return saved;
+  }
+
+  // RF-10: devuelve una plaza. Si ya no queda ningún pasajero aceptado
+  // (plazas disponibles = ofertadas), el viaje vuelve a publicado
+  async releaseSeat(manager: EntityManager, trip: Trip): Promise<Trip> {
+    trip.availableSeats += 1;
+    const hasNoPassengers = trip.availableSeats === trip.offeredSeats;
+    const reopens = hasNoPassengers && trip.status === 'confirmed';
+    if (reopens) {
+      assertTransition(trip.status, 'published');
+      trip.status = 'published';
+    }
+    const saved = await manager.save(trip);
+    await this.recordEvent(
+      manager,
+      reopens ? 'trip.reopened' : 'trip.updated',
+      saved,
+    );
+    return saved;
   }
 
   // El viaje con el nombre de su conductor
@@ -155,13 +243,7 @@ export class TripsService {
     driverId: string,
     tripId: string,
   ): Promise<Trip> {
-    const trip = await manager.findOne(Trip, {
-      where: { id: tripId },
-      lock: { mode: 'pessimistic_write' },
-    });
-    if (trip === null) {
-      throw new TripNotFoundError(tripId);
-    }
+    const trip = await this.lockTrip(manager, tripId);
     if (trip.driverId !== driverId) {
       throw new NotTripDriverError(tripId);
     }

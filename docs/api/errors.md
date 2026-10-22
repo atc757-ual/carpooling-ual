@@ -84,6 +84,20 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `TRIP_NOT_EDITABLE` | 409 | Modificar un viaje que ya no está publicado (con pasajeros aceptados solo se puede cancelar) |
 | `TRIP_ALREADY_STARTED` | 409 | Cancelar un viaje en curso: requiere registrar una incidencia (RF-23) |
 | `INVALID_TRIP_TRANSITION` | 409 | Cambio de estado que el diagrama de estados del viaje no permite (p. ej. cancelar un viaje ya cancelado o finalizado) |
+| `TRIP_FULL` | 409 | No quedan plazas: al solicitar plaza o al aceptar una solicitud (dos aceptaciones simultáneas nunca venden la misma plaza) |
+| `TRIP_NOT_OPEN` | 409 | El viaje ya no admite solicitudes: está en curso, finalizado o cancelado, o su hora de salida ya ha pasado |
+
+## Solicitudes de plaza (`requests`)
+
+| `code` | HTTP | Cuándo |
+|---|---|---|
+| `CANNOT_REQUEST_OWN_TRIP` | 409 | Pedir plaza en un viaje propio (usuario con perfil de conductor y de pasajero) |
+| `REQUEST_ALREADY_EXISTS` | 409 | El pasajero ya tiene una solicitud pendiente o aceptada en ese viaje |
+| `REQUEST_NOT_FOUND` | 404 | La solicitud no existe o el usuario no es ni su pasajero ni el conductor del viaje (es privada: no se revela que existe) |
+| `NOT_REQUEST_PASSENGER` | 403 | Cancelar una solicitud sin ser su pasajero (el conductor la rechaza o cancela el viaje) |
+| `INVALID_REQUEST_TRANSITION` | 409 | Cambio de estado que el diagrama de estados de la solicitud no permite (p. ej. aceptar una solicitud rechazada) |
+
+Además, aceptar o cancelar pueden responder `TRIP_FULL`, `TRIP_NOT_OPEN`, `TRIP_ALREADY_STARTED` o `NOT_TRIP_DRIVER` (ver *Viajes*).
 
 ## Cómo añadir un código
 

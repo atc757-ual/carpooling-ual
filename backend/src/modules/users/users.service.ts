@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import { ProfileRequiredError } from '../../shared/auth/profile-required.error';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { DriverReadiness } from './driver-readiness';
@@ -133,6 +133,28 @@ export class UsersService {
       activeVehicles,
       isReady: profile.hasLicenseDeclared && activeVehicles > 0,
     };
+  }
+
+  // RF-24: prioridad del pasajero (afectado por la cancelación de un viaje en
+  // curso). Sin perfil de pasajero activo, la acción requiere ese perfil
+  async getPassengerPriority(userId: string): Promise<boolean> {
+    const profile = await this.dataSource
+      .getRepository(PassengerProfile)
+      .findOneBy({ userId, isActive: true });
+    if (profile === null) {
+      throw new ProfileRequiredError(['passenger']);
+    }
+    return profile.hasHighPriority;
+  }
+
+  // Nombres de varios usuarios en UNA consulta (para las listas: evita una
+  // consulta por cada fila)
+  async getNames(userIds: string[]): Promise<Map<string, string>> {
+    const users = await this.usersRepository.find({
+      select: { id: true, name: true },
+      where: { id: In([...new Set(userIds)]) },
+    });
+    return new Map(users.map(({ id, name }) => [id, name]));
   }
 
   // ¿Hay algún administrador activo? (comando create-admin, RF-01)

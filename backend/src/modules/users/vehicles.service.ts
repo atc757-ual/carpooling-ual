@@ -92,6 +92,16 @@ export class VehiclesService {
     return vehicle;
   }
 
+  // Matrícula de un vehículo, aunque esté dado de baja (los viajes pasados lo
+  // siguen referenciando). La ven los pasajeros con la solicitud aceptada
+  async getPlate(vehicleId: string): Promise<string> {
+    const vehicle = await this.vehiclesRepository.findOneBy({ id: vehicleId });
+    if (vehicle === null) {
+      throw new VehicleNotFoundError(vehicleId);
+    }
+    return vehicle.plate;
+  }
+
   // Número de vehículos activos del conductor (RF-21)
   countActive(driverId: string): Promise<number> {
     return this.vehiclesRepository.countBy({

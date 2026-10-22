@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { QueryFailedError } from 'typeorm';
 import { Vehicle } from './entities/vehicle.entity';
 import { VehicleAlreadyRegisteredError } from './errors/vehicle-already-registered.error';
+import { VehicleNotFoundError } from './errors/vehicle-not-found.error';
 import { VehiclesService } from './vehicles.service';
 
 // Tests unitarios de lo que no se puede provocar fácilmente contra la base de
@@ -50,5 +51,11 @@ describe('VehiclesService', () => {
     await expect(
       vehiclesService.register('driver-1', { plate: '9001BCD', capacity: 4 }),
     ).rejects.toBe(connectionLost);
+  });
+
+  it('answers VEHICLE_NOT_FOUND for the plate of an unknown vehicle', async () => {
+    await expect(vehiclesService.getPlate('unknown')).rejects.toBeInstanceOf(
+      VehicleNotFoundError,
+    );
   });
 });

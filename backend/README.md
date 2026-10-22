@@ -60,11 +60,20 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 | `GET /api/trips/{id}` | `Authorization: Bearer <token>` | `200` `Trip` (con el nombre del conductor, sin la matrícula) |
 | `GET /api/users/me/trips?offset=&limit=` | Perfil conductor | `200` lista paginada de mis viajes, por fecha de salida |
 | `PATCH /api/trips/{id}` | Su conductor | `200` `Trip`: modifica los campos enviados, solo mientras está publicado |
-| `POST /api/trips/{id}/cancel` | Su conductor | `200` `Trip` cancelado (antes del inicio) |
+| `POST /api/trips/{id}/cancel` | Su conductor | `200` `Trip` cancelado (antes del inicio); sus solicitudes vivas se cancelan con él |
+| `POST /api/trips/{tripId}/requests` | Perfil pasajero | `201` `SeatRequest` + `Location`: pide plaza en un viaje abierto, con plazas y que no sea el suyo |
+| `GET /api/trips/{tripId}/requests` | Su conductor | `200` lista paginada de las solicitudes del viaje (prioritarias primero, RF-24) |
+| `GET /api/users/me/requests` | Perfil pasajero | `200` lista paginada de mis solicitudes |
+| `GET /api/requests/{id}` | Su pasajero o el conductor | `200` `SeatRequest` (la matrícula del vehículo solo si está aceptada); a cualquier otro, `404` |
+| `POST /api/requests/{id}/accept` | Su conductor | `200`: resta una plaza; la primera aceptación confirma el viaje |
+| `POST /api/requests/{id}/reject` | Su conductor | `200`: rechaza una solicitud pendiente |
+| `POST /api/requests/{id}/cancel` | Su pasajero | `200`: cancela antes del inicio; si estaba aceptada devuelve la plaza y, si era la última, el viaje vuelve a publicado |
 
 **Ubicaciones:** puntos GeoJSON (RFC 7946), `{ "type": "Point", "coordinates": [longitud, latitud] }`.
 
-**Eventos para el Gemelo Digital:** cada cambio de estado de un viaje (`trip.published`, `trip.updated`, `trip.cancelled`) se guarda en la tabla `events` en la misma transacción que el cambio (patrón *outbox*), con el estado completo del viaje.
+**Eventos para el Gemelo Digital:** cada cambio de estado de un viaje (`trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.cancelled`) o de una solicitud (`request.created`, `request.accepted`, `request.rejected`, `request.cancelled`) se guarda en la tabla `events` en la misma transacción que el cambio (patrón *outbox*), con el estado completo de la entidad.
+
+**Concurrencia:** aceptar solicitudes bloquea la fila del viaje, así que dos aceptaciones simultáneas nunca venden la misma plaza. Todas las operaciones bloquean en el mismo orden (primero el viaje y después la solicitud) para evitar bloqueos mutuos.
 
 **Listas (TMF630):** `?offset=` (por defecto 0) y `?limit=` (por defecto 20, máximo 100); el cuerpo es el array de recursos y las cabeceras `X-Total-Count` y `X-Result-Count` indican el total y cuántos van en la respuesta.
 
