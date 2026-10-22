@@ -147,6 +147,35 @@ export class UsersService {
     return profile.hasHighPriority;
   }
 
+  // RF-24: prioridad alta para los pasajeros afectados por la cancelación de
+  // un viaje en curso. Recibe el manager de la transacción de la cancelación
+  async grantPassengerPriority(
+    manager: EntityManager,
+    passengerIds: string[],
+  ): Promise<void> {
+    if (passengerIds.length === 0) {
+      return;
+    }
+    await manager.update(
+      PassengerProfile,
+      { userId: In(passengerIds) },
+      { hasHighPriority: true },
+    );
+  }
+
+  // La prioridad se pierde cuando ya ha cumplido su función: al aceptarse su
+  // siguiente solicitud prioritaria
+  async clearPassengerPriority(
+    manager: EntityManager,
+    passengerId: string,
+  ): Promise<void> {
+    await manager.update(
+      PassengerProfile,
+      { userId: passengerId },
+      { hasHighPriority: false },
+    );
+  }
+
   // Nombres de varios usuarios en UNA consulta (para las listas: evita una
   // consulta por cada fila)
   async getNames(userIds: string[]): Promise<Map<string, string>> {

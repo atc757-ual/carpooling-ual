@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import type { Point } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { UsersService } from '../users/users.service';
@@ -12,6 +12,7 @@ import { SeatsExceedCapacityError } from './errors/seats-exceed-capacity.error';
 import { TripAlreadyStartedError } from './errors/trip-already-started.error';
 import { TripNotEditableError } from './errors/trip-not-editable.error';
 import { TripNotFoundError } from './errors/trip-not-found.error';
+import { TripNotInProgressError } from './errors/trip-not-in-progress.error';
 import { TripNotStartableYetError } from './errors/trip-not-startable-yet.error';
 import { TripStatusService } from './trip-status.service';
 
@@ -190,6 +191,28 @@ export class TripsService {
       return finished;
     });
     return this.toView(trip);
+  }
+
+  // RF-23: el conductor cancela DURANTE el viaje (con una incidencia, que
+  // registra el módulo incidents en la misma transacción: por eso recibe el
+  // manager). El vehículo vuelve a estar disponible, para que pueda publicar
+  // otros viajes; las solicitudes reaccionan al aviso de cambio de estado
+  async cancelInProgress(
+    manager: EntityManager,
+    driverId: string,
+    tripId: string,
+  ): Promise<Trip> {
+    const trip = await this.tripStatus.lockOwnTrip(manager, driverId, tripId);
+    if (trip.status !== 'in_progress') {
+      throw new TripNotInProgressError(trip.id, trip.status);
+    }
+    const cancelled = await this.tripStatus.changeStatus(
+      manager,
+      trip,
+      'cancelled',
+    );
+    await this.vehiclesService.markAvailable(manager, trip.vehicleId);
+    return cancelled;
   }
 
   // El viaje con el nombre de su conductor

@@ -6,12 +6,14 @@ import { DomainEvent } from '../src/events/entities/domain-event.entity';
 import { CannotRequestOwnTripError } from '../src/modules/requests/errors/cannot-request-own-trip.error';
 import { InvalidRequestTransitionError } from '../src/modules/requests/errors/invalid-request-transition.error';
 import { NotRequestPassengerError } from '../src/modules/requests/errors/not-request-passenger.error';
+import { NotTripPassengerError } from '../src/modules/requests/errors/not-trip-passenger.error';
 import { RequestAlreadyExistsError } from '../src/modules/requests/errors/request-already-exists.error';
 import { RequestNotFoundError } from '../src/modules/requests/errors/request-not-found.error';
 import { RequestsService } from '../src/modules/requests/requests.service';
 import { NotTripDriverError } from '../src/modules/trips/errors/not-trip-driver.error';
 import { TripAlreadyStartedError } from '../src/modules/trips/errors/trip-already-started.error';
 import { TripFullError } from '../src/modules/trips/errors/trip-full.error';
+import { TripNotInProgressError } from '../src/modules/trips/errors/trip-not-in-progress.error';
 import { TripNotOpenError } from '../src/modules/trips/errors/trip-not-open.error';
 import { TripsService } from '../src/modules/trips/trips.service';
 import { UsersService } from '../src/modules/users/users.service';
@@ -381,6 +383,98 @@ describe('RequestsService (e2e)', () => {
       await expect(
         requestsService.accept(pia, unknownId),
       ).rejects.toBeInstanceOf(RequestNotFoundError);
+    });
+  });
+
+  // RF-23/RF-24: cancelaciones durante el viaje y prioridad
+  describe('during the trip (incidents) and priority', () => {
+    async function hasPriority(passengerId: string): Promise<boolean> {
+      return usersService.getPassengerPriority(passengerId);
+    }
+
+    // Viaje en curso con un pasajero aceptado (pia) y otro pendiente que el
+    // inicio rechaza (leo)
+    async function tripInProgress() {
+      const { driverId, tripId } = await publishedTrip(2, 'dan', 10);
+      const pia = await createUser('pia', ['passenger']);
+      const { request } = await requestsService.request(pia, tripId);
+      await requestsService.accept(driverId, request.id);
+      await tripsService.start(driverId, tripId);
+      return { driverId, tripId, pia, requestId: request.id };
+    }
+
+    it('gives priority to the accepted passengers when the driver cancels during the trip', async () => {
+      const { driverId, tripId, pia, requestId } = await tripInProgress();
+
+      await dataSource.transaction((manager) =>
+        tripsService.cancelInProgress(manager, driverId, tripId),
+      );
+
+      expect(await hasPriority(pia)).toBe(true);
+      const { request } = await requestsService.get(pia, requestId);
+      expect(request.status).toBe('cancelled');
+    });
+
+    it('gives no priority when the trip is cancelled before it starts', async () => {
+      const { driverId, tripId } = await publishedTrip(2);
+      const pia = await createUser('pia', ['passenger']);
+      const { request } = await requestsService.request(pia, tripId);
+      await requestsService.accept(driverId, request.id);
+
+      await tripsService.cancel(driverId, tripId);
+
+      expect(await hasPriority(pia)).toBe(false);
+    });
+
+    it('lets a passenger leave a trip in progress: frees the seat, the trip goes on', async () => {
+      const { tripId, pia } = await tripInProgress();
+
+      const cancelled = await dataSource.transaction((manager) =>
+        requestsService.leaveInProgressTrip(manager, pia, tripId),
+      );
+
+      expect(cancelled.status).toBe('cancelled');
+      expect(await seatsOf(tripId)).toEqual({
+        available: 2,
+        status: 'in_progress',
+      });
+      expect(await hasPriority(pia)).toBe(false);
+    });
+
+    it('only lets accepted passengers leave a trip in progress', async () => {
+      const { tripId } = await tripInProgress();
+      const stranger = await createUser('sam', ['passenger']);
+
+      await expect(
+        dataSource.transaction((manager) =>
+          requestsService.leaveInProgressTrip(manager, stranger, tripId),
+        ),
+      ).rejects.toBeInstanceOf(NotTripPassengerError);
+    });
+
+    it('only lets passengers leave a trip that is in progress', async () => {
+      const { tripId } = await publishedTrip(2);
+      const pia = await createUser('pia', ['passenger']);
+
+      await expect(
+        dataSource.transaction((manager) =>
+          requestsService.leaveInProgressTrip(manager, pia, tripId),
+        ),
+      ).rejects.toBeInstanceOf(TripNotInProgressError);
+    });
+
+    it('removes the priority once a priority request is accepted', async () => {
+      const { driverId, tripId } = await publishedTrip(2);
+      const pia = await createUser('pia', ['passenger']);
+      await dataSource.transaction((manager) =>
+        usersService.grantPassengerPriority(manager, [pia]),
+      );
+      const { request } = await requestsService.request(pia, tripId);
+      expect(request.isPriority).toBe(true);
+
+      await requestsService.accept(driverId, request.id);
+
+      expect(await hasPriority(pia)).toBe(false);
     });
   });
 

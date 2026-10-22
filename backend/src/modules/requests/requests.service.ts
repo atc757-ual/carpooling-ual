@@ -8,12 +8,14 @@ import { Trip } from '../trips/entities/trip.entity';
 import { NotTripDriverError } from '../trips/errors/not-trip-driver.error';
 import { TripAlreadyStartedError } from '../trips/errors/trip-already-started.error';
 import { TripFullError } from '../trips/errors/trip-full.error';
+import { TripNotInProgressError } from '../trips/errors/trip-not-in-progress.error';
 import { TripStatusService } from '../trips/trip-status.service';
 import { TripsService } from '../trips/trips.service';
 import { UsersService } from '../users/users.service';
 import { SeatRequest } from './entities/seat-request.entity';
 import { CannotRequestOwnTripError } from './errors/cannot-request-own-trip.error';
 import { NotRequestPassengerError } from './errors/not-request-passenger.error';
+import { NotTripPassengerError } from './errors/not-trip-passenger.error';
 import { RequestAlreadyExistsError } from './errors/request-already-exists.error';
 import { RequestNotFoundError } from './errors/request-not-found.error';
 import { RequestView, RequestViewsService } from './request-views.service';
@@ -118,6 +120,39 @@ export class RequestsService {
     return { items: await this.views.toViews(requests), total };
   }
 
+  // RF-23: el pasajero abandona un viaje EN CURSO (con una incidencia, que
+  // registra el módulo incidents en la misma transacción: por eso recibe el
+  // manager). Se cancela su solicitud aceptada y se libera su plaza; el viaje
+  // sigue en curso para los demás
+  async leaveInProgressTrip(
+    manager: EntityManager,
+    passengerId: string,
+    tripId: string,
+  ): Promise<SeatRequest> {
+    const trip = await this.tripStatus.lockTrip(manager, tripId);
+    if (trip.status !== 'in_progress') {
+      throw new TripNotInProgressError(trip.id, trip.status);
+    }
+    const request = await manager.findOne(SeatRequest, {
+      where: { tripId, passengerId, status: 'accepted' },
+      lock: { mode: 'pessimistic_write' },
+    });
+    if (request === null) {
+      throw new NotTripPassengerError(tripId);
+    }
+    assertRequestTransition(request.status, 'cancelled');
+    request.status = 'cancelled';
+    const cancelled = await manager.save(request);
+    await this.tripStatus.releaseSeat(manager, trip);
+    await recordRequestEvent(
+      this.eventsService,
+      manager,
+      'request.cancelled',
+      cancelled,
+    );
+    return cancelled;
+  }
+
   // --- Conductor
 
   // RF-09/RF-10: aceptar resta una plaza; la primera aceptación confirma el
@@ -136,6 +171,13 @@ export class RequestsService {
       await this.tripStatus.reserveSeat(manager, trip);
       request.status = 'accepted';
       const accepted = await manager.save(request);
+      // RF-24: la prioridad ya ha cumplido su función (tiene otro viaje)
+      if (accepted.isPriority) {
+        await this.usersService.clearPassengerPriority(
+          manager,
+          accepted.passengerId,
+        );
+      }
       await recordRequestEvent(
         this.eventsService,
         manager,

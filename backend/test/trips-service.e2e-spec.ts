@@ -14,6 +14,7 @@ import { SeatsExceedCapacityError } from '../src/modules/trips/errors/seats-exce
 import { TripAlreadyStartedError } from '../src/modules/trips/errors/trip-already-started.error';
 import { TripNotEditableError } from '../src/modules/trips/errors/trip-not-editable.error';
 import { TripFullError } from '../src/modules/trips/errors/trip-full.error';
+import { TripNotInProgressError } from '../src/modules/trips/errors/trip-not-in-progress.error';
 import { TripNotStartableYetError } from '../src/modules/trips/errors/trip-not-startable-yet.error';
 import { VehicleInUseError } from '../src/modules/users/errors/vehicle-in-use.error';
 import { TripNotFoundError } from '../src/modules/trips/errors/trip-not-found.error';
@@ -614,6 +615,30 @@ describe('TripsService (e2e)', () => {
       await expect(
         tripsService.finish(driverId, tripId),
       ).rejects.toBeInstanceOf(InvalidTripTransitionError);
+    });
+
+    // RF-23: cancelar DURANTE el viaje (lo usa el módulo de incidencias, en su
+    // propia transacción)
+    it('cancels a trip in progress: the vehicle is available again', async () => {
+      const { driverId, vehicleId, tripId } = await confirmedTrip(10);
+      await tripsService.start(driverId, tripId);
+
+      const cancelled = await dataSource.transaction((manager) =>
+        tripsService.cancelInProgress(manager, driverId, tripId),
+      );
+
+      expect(cancelled.status).toBe('cancelled');
+      expect(await vehicleStatus(vehicleId)).toBe('available');
+    });
+
+    it('only cancels with an incident a trip that is in progress', async () => {
+      const { driverId, tripId } = await confirmedTrip(10);
+
+      await expect(
+        dataSource.transaction((manager) =>
+          tripsService.cancelInProgress(manager, driverId, tripId),
+        ),
+      ).rejects.toBeInstanceOf(TripNotInProgressError);
     });
   });
 });

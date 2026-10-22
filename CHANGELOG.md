@@ -41,6 +41,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Máquina de estados de la solicitud según el diagrama de estados (RNF-10) (#18)
 - Al cancelar un viaje se cancelan sus solicitudes en la misma transacción (#18)
 - Inicio y fin del viaje (RF-11): el vehículo pasa a en viaje y vuelve a disponible, y las solicitudes pendientes se rechazan al iniciar (#19)
+- Incidencias (RF-23): cancelar durante un viaje en curso registrando una incidencia, por el conductor (cancela el viaje) o por un pasajero (abandona el viaje y libera su plaza) (#20)
+- Prioridad del pasajero afectado por la cancelación de un viaje en curso (RF-24), que se pierde al aceptarse su siguiente solicitud prioritaria (#20)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
