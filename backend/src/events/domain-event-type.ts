@@ -15,5 +15,6 @@ export type DomainEventType =
   | 'request.accepted'
   | 'request.rejected'
   | 'request.cancelled'
-  // Incidencias (RF-23)
-  | 'incident.reported';
+  // Incidencias (RF-23, CU-12)
+  | 'incident.reported'
+  | 'incident.reviewed';

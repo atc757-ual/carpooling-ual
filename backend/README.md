@@ -63,7 +63,11 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 | `POST /api/trips/{id}/cancel` | Su conductor | `200` `Trip` cancelado (antes del inicio); sus solicitudes vivas se cancelan con él |
 | `POST /api/trips/{id}/start` | Su conductor | `200` `Trip` en curso (RF-11): solo confirmado y desde 30 minutos antes de la salida; el vehículo pasa a `on_trip` y las solicitudes pendientes se rechazan |
 | `POST /api/trips/{id}/finish` | Su conductor | `200` `Trip` finalizado (RF-11); el vehículo vuelve a `available` |
-| `POST /api/trips/{tripId}/incidents` | Su conductor o un pasajero aceptado | `201` `Incident` (RF-23): cancela durante un viaje en curso. Si la registra el conductor, se cancela el viaje y sus pasajeros aceptados reciben prioridad (RF-24); si la registra un pasajero, solo se cancela su solicitud y se libera su plaza |
+| `POST /api/trips/{tripId}/incidents` | Su conductor o un pasajero aceptado | `201` `Incident` (RF-23): cancela durante un viaje en curso. Si la registra el conductor, se cancela el viaje y sus pasajeros aceptados reciben prioridad (RF-24); si la registra un pasajero, solo se cancela su solicitud y se libera su plaza. Responde con la cabecera `Location` |
+| `GET /api/users/me/incidents` | `Authorization: Bearer <token>` | `200` lista paginada de las incidencias que he registrado |
+| `GET /api/incidents/{id}` | Quien la registró o un administrador | `200` `Incident` con su revisión; a cualquier otro, `404` (protege a quien informa de un problema con otra persona) |
+| `GET /api/incidents?status=open` | Perfil administrador | `200` lista paginada para revisar (CU-12), de la más antigua a la más reciente |
+| `POST /api/incidents/{id}/review` | Perfil administrador | `200` `Incident` revisada y cerrada con su resolución (definitiva) |
 | `POST /api/trips/{tripId}/requests` | Perfil pasajero | `201` `SeatRequest` + `Location`: pide plaza en un viaje abierto, con plazas y que no sea el suyo |
 | `GET /api/trips/{tripId}/requests` | Su conductor | `200` lista paginada de las solicitudes del viaje (prioritarias primero, RF-24) |
 | `GET /api/users/me/requests` | Perfil pasajero | `200` lista paginada de mis solicitudes |

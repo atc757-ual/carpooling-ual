@@ -103,6 +103,15 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 
 Además, aceptar o cancelar pueden responder `TRIP_FULL`, `TRIP_NOT_OPEN`, `TRIP_ALREADY_STARTED` o `NOT_TRIP_DRIVER` (ver *Viajes*).
 
+## Incidencias (`incidents`)
+
+| `code` | HTTP | Cuándo |
+|---|---|---|
+| `INCIDENT_NOT_FOUND` | 404 | La incidencia no existe, o el usuario no es ni quien la registró ni administrador (es privada: protege a quien informa de un problema con otra persona) |
+| `INCIDENT_ALREADY_REVIEWED` | 409 | Revisar una incidencia ya revisada: la revisión es definitiva (CU-12) |
+
+Registrar una incidencia puede responder además `TRIP_NOT_IN_PROGRESS` (ver *Viajes*) o `NOT_TRIP_PASSENGER` (ver *Solicitudes de plaza*).
+
 ## Cómo añadir un código
 
 1. Crea el error de negocio extendiendo `BusinessError` (`backend/src/shared/errors/business-error.ts`) con su `code` y su tipo de fallo: `invalid` (400), `unauthorized` (401), `forbidden` (403), `not_found` (404) o `conflict` (409).
