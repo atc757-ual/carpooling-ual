@@ -120,15 +120,20 @@ describe('Incidents API (e2e)', () => {
       .send({ category: 'technical', description: `  ${BREAKDOWN}  ` })
       .expect(201);
 
+    const incident = reported.body as { id: string; reporter: { id: string } };
     expect(reported.body).toEqual({
       '@type': 'Incident',
-      id: expect.any(String) as string,
+      id: incident.id,
+      href: `/api/incidents/${incident.id}`,
       trip: { id: tripId, href: `/api/trips/${tripId}` },
+      reporter: { id: incident.reporter.id, name: 'dan', role: 'driver' },
       category: 'technical',
       description: BREAKDOWN,
       reportedAt: expect.any(String) as string,
+      status: 'open',
+      review: null,
     });
-    expect(reported.headers.location).toBeUndefined();
+    expect(reported.headers.location).toBe(`/api/incidents/${incident.id}`);
     const cancelledTrip = await api('get', `/trips/${tripId}`, pia).expect(200);
     expect(cancelledTrip.body).toMatchObject({ status: 'cancelled' });
 
@@ -198,5 +203,131 @@ describe('Incidents API (e2e)', () => {
       .expect(403);
 
     expect(response.body).toMatchObject({ code: 'NOT_TRIP_PASSENGER' });
+  });
+
+  // CU-12: revisión por el administrador y quién ve cada incidencia
+  describe('review by the administrator (CU-12)', () => {
+    const RESOLUTION = 'The driver was contacted and the car repaired';
+
+    // Administrador: el registro público no permite pedir ese perfil, así que
+    // se le da en la base de datos antes de iniciar sesión
+    async function adminToken(): Promise<string> {
+      const email = `${EMAIL_PREFIX}ada@ual.es`;
+      const registered = await request(app.getHttpServer())
+        .post('/api/auth/register')
+        .send({
+          name: 'ada',
+          email,
+          password: PASSWORD,
+          profiles: ['passenger'],
+        })
+        .expect(201);
+      await dataSource.query(
+        'INSERT INTO admin_profiles (user_id) VALUES ($1)',
+        [(registered.body as { id: string }).id],
+      );
+      const login = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email, password: PASSWORD })
+        .expect(200);
+      return (login.body as { accessToken: string }).accessToken;
+    }
+
+    // Incidencia del conductor (dan) en un viaje en curso con una pasajera
+    // aceptada (pia)
+    async function reportedIncident() {
+      const { driver, tripId } = await driverWithTrip('dan');
+      const pia = await tokenFor('pia', ['passenger']);
+      await acceptedRequest(driver, pia, tripId);
+      await api('post', `/trips/${tripId}/start`, driver).expect(200);
+      const reported = await api('post', `/trips/${tripId}/incidents`, driver)
+        .send({ category: 'technical', description: BREAKDOWN })
+        .expect(201);
+      return {
+        driver,
+        pia,
+        location: reported.headers.location,
+        id: (reported.body as { id: string }).id,
+      };
+    }
+
+    it('only the reporter and the administrators can see an incident', async () => {
+      const { driver, pia, location } = await reportedIncident();
+      const admin = await adminToken();
+      const path = location.replace('/api', '');
+
+      await api('get', path, driver).expect(200);
+      await api('get', path, admin).expect(200);
+      const hidden = await api('get', path, pia).expect(404);
+      expect(hidden.body).toMatchObject({ code: 'INCIDENT_NOT_FOUND' });
+    });
+
+    it('lists my incidents', async () => {
+      const { driver, id } = await reportedIncident();
+
+      const response = await api('get', '/users/me/incidents', driver).expect(
+        200,
+      );
+
+      expect(response.headers['x-total-count']).toBe('1');
+      expect(response.body).toMatchObject([{ id, status: 'open' }]);
+    });
+
+    it('lets only the administrator list the incidents by status', async () => {
+      const { driver, id } = await reportedIncident();
+      const admin = await adminToken();
+
+      const open = await api('get', '/incidents?status=open', admin).expect(
+        200,
+      );
+      const forbidden = await api('get', '/incidents', driver).expect(403);
+
+      expect((open.body as { id: string }[]).map((i) => i.id)).toContain(id);
+      expect(forbidden.body).toMatchObject({ code: 'PROFILE_REQUIRED' });
+      await api('get', '/incidents?status=closed', admin).expect(400);
+    });
+
+    it('reviews an incident; the reporter sees the resolution; it cannot be reviewed again', async () => {
+      const { driver, location, id } = await reportedIncident();
+      const admin = await adminToken();
+
+      const reviewed = await api('post', `/incidents/${id}/review`, admin)
+        .send({ resolution: RESOLUTION })
+        .expect(200);
+      expect(reviewed.body).toMatchObject({
+        status: 'reviewed',
+        review: { resolution: RESOLUTION },
+      });
+
+      const seenByReporter = await api(
+        'get',
+        location.replace('/api', ''),
+        driver,
+      ).expect(200);
+      expect(seenByReporter.body).toMatchObject({
+        status: 'reviewed',
+        review: { resolution: RESOLUTION },
+      });
+
+      const again = await api('post', `/incidents/${id}/review`, admin)
+        .send({ resolution: RESOLUTION })
+        .expect(409);
+      expect(again.body).toMatchObject({ code: 'INCIDENT_ALREADY_REVIEWED' });
+    });
+
+    it('only an administrator reviews, with a resolution of 10 to 1000 characters', async () => {
+      const { driver, id } = await reportedIncident();
+      const admin = await adminToken();
+
+      await api('post', `/incidents/${id}/review`, driver)
+        .send({ resolution: RESOLUTION })
+        .expect(403);
+      const invalid = await api('post', `/incidents/${id}/review`, admin)
+        .send({ resolution: 'ok' })
+        .expect(400);
+      expect(invalid.body).toMatchObject({
+        fields: [{ field: 'resolution' }],
+      });
+    });
   });
 });

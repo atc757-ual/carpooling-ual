@@ -43,6 +43,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Inicio y fin del viaje (RF-11): el vehículo pasa a en viaje y vuelve a disponible, y las solicitudes pendientes se rechazan al iniciar (#19)
 - Incidencias (RF-23): cancelar durante un viaje en curso registrando una incidencia, por el conductor (cancela el viaje) o por un pasajero (abandona el viaje y libera su plaza) (#20)
 - Prioridad del pasajero afectado por la cancelación de un viaje en curso (RF-24), que se pierde al aceptarse su siguiente solicitud prioritaria (#20)
+- Revisión de incidencias por el administrador (CU-12): lista por estado y revisión definitiva con su resolución; migración `AddIncidentReview` (#21)
+- Consulta de una incidencia (solo quien la registró o un administrador) y lista de mis incidencias (#21)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
@@ -55,6 +57,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - `POST /api/auth/login` devuelve también el token de renovación (`refreshToken`, `refreshTokenExpiresAt`) (#14)
 - El recurso `User` incluye su `href` y el registro responde con la cabecera `Location` (#15)
 - Matrículas de los vehículos de prueba del seed con formato español válido (#16)
+- El recurso `Incident` incluye su `href`, quién la registró y su revisión, y registrar una incidencia responde con la cabecera `Location` (#21)
 
 ### Security
 - El backend ya no envía la cabecera `X-Powered-By: Express`, que revelaba la tecnología del servidor (#14)
