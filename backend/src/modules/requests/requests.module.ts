@@ -21,5 +21,7 @@ import { TripChangesListener } from './trip-changes.listener';
   ],
   controllers: [RequestsController],
   providers: [RequestsService, RequestViewsService, TripChangesListener],
+  // Lo usan las incidencias (el pasajero abandona un viaje en curso)
+  exports: [RequestsService],
 })
 export class RequestsModule {}

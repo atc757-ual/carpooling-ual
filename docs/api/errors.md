@@ -87,6 +87,7 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `TRIP_FULL` | 409 | No quedan plazas: al solicitar plaza o al aceptar una solicitud (dos aceptaciones simultáneas nunca venden la misma plaza) |
 | `TRIP_NOT_OPEN` | 409 | El viaje ya no admite solicitudes: está en curso, finalizado o cancelado, o su hora de salida ya ha pasado |
 | `TRIP_NOT_STARTABLE_YET` | 409 | Iniciar un viaje más de 30 minutos antes de su hora de salida (RF-11) |
+| `TRIP_NOT_IN_PROGRESS` | 409 | Registrar una incidencia (cancelar durante el viaje, RF-23) en un viaje que no está en curso |
 
 ## Solicitudes de plaza (`requests`)
 
@@ -97,6 +98,8 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `REQUEST_NOT_FOUND` | 404 | La solicitud no existe o el usuario no es ni su pasajero ni el conductor del viaje (es privada: no se revela que existe) |
 | `NOT_REQUEST_PASSENGER` | 403 | Cancelar una solicitud sin ser su pasajero (el conductor la rechaza o cancela el viaje) |
 | `INVALID_REQUEST_TRANSITION` | 409 | Cambio de estado que el diagrama de estados de la solicitud no permite (p. ej. aceptar una solicitud rechazada) |
+
+| `NOT_TRIP_PASSENGER` | 403 | Registrar una incidencia en un viaje sin ser su conductor ni un pasajero aceptado |
 
 Además, aceptar o cancelar pueden responder `TRIP_FULL`, `TRIP_NOT_OPEN`, `TRIP_ALREADY_STARTED` o `NOT_TRIP_DRIVER` (ver *Viajes*).
 

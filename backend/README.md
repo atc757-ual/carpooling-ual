@@ -63,6 +63,7 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 | `POST /api/trips/{id}/cancel` | Su conductor | `200` `Trip` cancelado (antes del inicio); sus solicitudes vivas se cancelan con él |
 | `POST /api/trips/{id}/start` | Su conductor | `200` `Trip` en curso (RF-11): solo confirmado y desde 30 minutos antes de la salida; el vehículo pasa a `on_trip` y las solicitudes pendientes se rechazan |
 | `POST /api/trips/{id}/finish` | Su conductor | `200` `Trip` finalizado (RF-11); el vehículo vuelve a `available` |
+| `POST /api/trips/{tripId}/incidents` | Su conductor o un pasajero aceptado | `201` `Incident` (RF-23): cancela durante un viaje en curso. Si la registra el conductor, se cancela el viaje y sus pasajeros aceptados reciben prioridad (RF-24); si la registra un pasajero, solo se cancela su solicitud y se libera su plaza |
 | `POST /api/trips/{tripId}/requests` | Perfil pasajero | `201` `SeatRequest` + `Location`: pide plaza en un viaje abierto, con plazas y que no sea el suyo |
 | `GET /api/trips/{tripId}/requests` | Su conductor | `200` lista paginada de las solicitudes del viaje (prioritarias primero, RF-24) |
 | `GET /api/users/me/requests` | Perfil pasajero | `200` lista paginada de mis solicitudes |
@@ -73,7 +74,7 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 
 **Ubicaciones:** puntos GeoJSON (RFC 7946), `{ "type": "Point", "coordinates": [longitud, latitud] }`.
 
-**Eventos para el Gemelo Digital:** cada cambio de estado de un viaje (`trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.started`, `trip.finished`, `trip.cancelled`) o de una solicitud (`request.created`, `request.accepted`, `request.rejected`, `request.cancelled`) se guarda en la tabla `events` en la misma transacción que el cambio (patrón *outbox*), con el estado completo de la entidad.
+**Eventos para el Gemelo Digital:** cada cambio de estado de un viaje (`trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.started`, `trip.finished`, `trip.cancelled`) o de una solicitud (`request.created`, `request.accepted`, `request.rejected`, `request.cancelled`), y cada incidencia (`incident.reported`, sin la descripción libre), se guarda en la tabla `events` en la misma transacción que el cambio (patrón *outbox*), con el estado completo de la entidad.
 
 **Concurrencia:** aceptar solicitudes bloquea la fila del viaje, así que dos aceptaciones simultáneas nunca venden la misma plaza. Todas las operaciones bloquean en el mismo orden (primero el viaje y después la solicitud) para evitar bloqueos mutuos.
 

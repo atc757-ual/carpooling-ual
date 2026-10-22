@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { EntityManager, In } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { TripStatusService } from '../trips/trip-status.service';
+import { UsersService } from '../users/users.service';
 import { SeatRequest } from './entities/seat-request.entity';
 import { recordRequestEvent } from './request-events';
 import {
@@ -13,24 +14,35 @@ import type { RequestStatus } from './request-status';
 // Qué les pasa a las solicitudes cuando cambia su viaje. Patrón observador:
 // se suscribe a los cambios de estado de los viajes y reacciona dentro de su
 // misma transacción (trips no conoce este módulo):
-// - viaje cancelado: se cancelan sus solicitudes vivas
+// - viaje cancelado: se cancelan sus solicitudes vivas; si estaba EN CURSO,
+//   sus pasajeros aceptados reciben prioridad (RF-24: perdieron el viaje sin
+//   elegirlo)
 // - viaje iniciado: se rechazan las pendientes (ya nadie podrá aceptarlas, y
 //   así el pasajero sabe al momento que debe buscar otro viaje)
 @Injectable()
 export class TripChangesListener implements OnModuleInit {
   constructor(
     private readonly tripStatus: TripStatusService,
+    private readonly usersService: UsersService,
     private readonly eventsService: EventsService,
   ) {}
 
   onModuleInit(): void {
-    this.tripStatus.onTripStatusChanged(async (manager, { trip, to }) => {
+    this.tripStatus.onTripStatusChanged(async (manager, { trip, from, to }) => {
       if (to === 'cancelled') {
+        const affectedPassengers =
+          from === 'in_progress'
+            ? await this.acceptedPassengersOf(manager, trip.id)
+            : [];
         await this.closeRequestsOfTrip(
           manager,
           trip.id,
           LIVE_REQUEST_STATUSES,
           'cancelled',
+        );
+        await this.usersService.grantPassengerPriority(
+          manager,
+          affectedPassengers,
         );
       }
       if (to === 'in_progress') {
@@ -42,6 +54,17 @@ export class TripChangesListener implements OnModuleInit {
         );
       }
     });
+  }
+
+  // Pasajeros con la solicitud aceptada en el viaje
+  private async acceptedPassengersOf(
+    manager: EntityManager,
+    tripId: string,
+  ): Promise<string[]> {
+    const accepted = await manager.find(SeatRequest, {
+      where: { tripId, status: 'accepted' },
+    });
+    return accepted.map(({ passengerId }) => passengerId);
   }
 
   // Cierra de golpe las solicitudes del viaje que estén en esos estados, cada

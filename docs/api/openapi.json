@@ -2316,6 +2316,114 @@
           "seat requests"
         ]
       }
+    },
+    "/api/trips/{tripId}/incidents": {
+      "post": {
+        "description": "RF-23. If the driver reports it, the trip is cancelled and its accepted passengers get priority (RF-24). If an accepted passenger reports it, only their seat request is cancelled and the trip goes on.",
+        "operationId": "IncidentsController_report",
+        "parameters": [
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportIncidentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: NOT_TRIP_PASSENGER",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: TRIP_NOT_IN_PROGRESS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Report an incident and cancel during a trip in progress",
+        "tags": [
+          "incidents"
+        ]
+      }
     }
   },
   "info": {
@@ -3073,6 +3181,90 @@
           "isPriority",
           "requestedAt",
           "vehiclePlate"
+        ]
+      },
+      "ReportIncidentDto": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "technical",
+              "driver",
+              "passenger",
+              "other"
+            ],
+            "description": "technical problem, with the driver, with the passenger or other"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 1000,
+            "example": "The car broke down on the way to the campus"
+          }
+        },
+        "required": [
+          "category",
+          "description"
+        ]
+      },
+      "IncidentTripResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          }
+        },
+        "required": [
+          "id",
+          "href"
+        ]
+      },
+      "IncidentResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "Incident"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "trip": {
+            "$ref": "#/components/schemas/IncidentTripResource"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "technical",
+              "driver",
+              "passenger",
+              "other"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "reportedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "trip",
+          "category",
+          "description",
+          "reportedAt"
         ]
       }
     }
