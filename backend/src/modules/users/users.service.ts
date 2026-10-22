@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
+import { ProfileRequiredError } from '../../shared/auth/profile-required.error';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
+import { DriverReadiness } from './driver-readiness';
 import { AdminProfile } from './entities/admin-profile.entity';
 import { DriverProfile } from './entities/driver-profile.entity';
 import { PassengerProfile } from './entities/passenger-profile.entity';
@@ -10,6 +12,7 @@ import { EmailAlreadyRegisteredError } from './errors/email-already-registered.e
 import { UserNotFoundError } from './errors/user-not-found.error';
 import { ProfileType } from './profile-type';
 import { UserSummary } from './user-summary';
+import { VehiclesService } from './vehicles.service';
 
 export interface CreateUserInput {
   name: string;
@@ -47,6 +50,7 @@ export class UsersService {
     private readonly dataSource: DataSource,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    private readonly vehiclesService: VehiclesService,
   ) {}
 
   // Crea el usuario y sus perfiles en una transacción: o se guarda todo o nada,
@@ -104,6 +108,33 @@ export class UsersService {
     });
   }
 
+  // Declaración responsable del conductor (RF-21): tiene licencia en vigor y sus
+  // vehículos son aptos. Es idempotente: si ya la había aceptado, conserva la
+  // fecha de la primera, que es la que tiene valor legal
+  async declareDriverLicense(userId: string): Promise<DriverReadiness> {
+    const profile = await this.findActiveDriverProfile(userId);
+    if (!profile.hasLicenseDeclared) {
+      await this.dataSource.getRepository(DriverProfile).update(userId, {
+        hasLicenseDeclared: true,
+        licenseDeclaredAt: new Date(),
+      });
+    }
+    return this.getDriverReadiness(userId);
+  }
+
+  // ¿Puede publicar viajes? (RF-21). Lo usan los viajes y el frontend, para
+  // saber qué le falta al conductor
+  async getDriverReadiness(userId: string): Promise<DriverReadiness> {
+    const profile = await this.findActiveDriverProfile(userId);
+    const activeVehicles = await this.vehiclesService.countActive(userId);
+    return {
+      hasLicenseDeclared: profile.hasLicenseDeclared,
+      licenseDeclaredAt: profile.licenseDeclaredAt,
+      activeVehicles,
+      isReady: profile.hasLicenseDeclared && activeVehicles > 0,
+    };
+  }
+
   // ¿Hay algún administrador activo? (comando create-admin, RF-01)
   hasActiveAdmin(): Promise<boolean> {
     return this.dataSource
@@ -138,6 +169,20 @@ export class UsersService {
     return profiles
       .filter(([, profile]) => profile?.isActive === true)
       .map(([type]) => type);
+  }
+
+  // El perfil de conductor activo del usuario; si no lo tiene, la acción
+  // requiere el perfil de conductor
+  private async findActiveDriverProfile(
+    userId: string,
+  ): Promise<DriverProfile> {
+    const profile = await this.dataSource
+      .getRepository(DriverProfile)
+      .findOneBy({ userId, isActive: true });
+    if (profile === null) {
+      throw new ProfileRequiredError(['driver']);
+    }
+    return profile;
   }
 
   private async createProfile(

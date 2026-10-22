@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UserNotFoundError } from './errors/user-not-found.error';
 import { UsersService } from './users.service';
+import { VehiclesService } from './vehicles.service';
 
 // Tests unitarios de la lógica que no depende de la base de datos. Lo que sí
 // depende de ella (transacción, UNIQUE, citext) se prueba en
@@ -19,6 +20,7 @@ describe('UsersService', () => {
         UsersService,
         { provide: DataSource, useValue: {} },
         { provide: getRepositoryToken(User), useValue: usersRepository },
+        { provide: VehiclesService, useValue: {} },
       ],
     }).compile();
 

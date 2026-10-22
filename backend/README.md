@@ -49,6 +49,15 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 | `GET /api/auth/me` | `Authorization: Bearer <token>` | `200` `User` |
 | `GET /api/users/{id}` | `Authorization: Bearer <token>` | `200` `User`: el propio usuario, o cualquiera si se tiene el perfil de administrador (`403` si no) |
 
+| `POST /api/vehicles` | Perfil conductor | `201` `Vehicle` + `Location`. Matrícula española (se normaliza: `1234 bcd` → `1234BCD`) y capacidad de 1 a 8 |
+| `GET /api/vehicles?offset=&limit=` | Perfil conductor | `200` lista de mis vehículos activos, con `X-Total-Count` y `X-Result-Count` |
+| `GET /api/vehicles/{id}` | Perfil conductor | `200` `Vehicle` (solo uno de los míos; si no, `404`) |
+| `DELETE /api/vehicles/{id}` | Perfil conductor | `204`: baja del vehículo (pasa a `inactive`; los viajes pasados lo conservan) |
+| `GET /api/users/me/driver-status` | Perfil conductor | `200` `DriverStatus`: si puede publicar viajes (RF-21: declaración responsable y al menos un vehículo) |
+| `PUT /api/users/me/driver-declaration` | Perfil conductor | `200` `DriverStatus`: acepta la declaración responsable (idempotente; se conserva la fecha de la primera) |
+
+**Listas (TMF630):** `?offset=` (por defecto 0) y `?limit=` (por defecto 20, máximo 100); el cuerpo es el array de recursos y las cabeceras `X-Total-Count` y `X-Result-Count` indican el total y cuántos van en la respuesta.
+
 **Protección por defecto:** toda la API exige `Authorization: Bearer <token>`; las rutas abiertas se marcan con `@Public()`. Los permisos por perfil se declaran con `@Profiles('admin')` (basta con uno de los perfiles indicados) y se comprueban con los perfiles del token. El registro (`POST /api/auth/register`) responde con la cabecera `Location` del usuario creado.
 
 **Documentación interactiva (Swagger UI):** http://localhost:3000/api/docs, con el botón *Authorize* para pegar el `accessToken`. La especificación OpenAPI está en [`docs/api/openapi.json`](../docs/api/openapi.json); se genera a partir del código con `npm run openapi` y un test comprueba que está al día. Todo endpoint nuevo se documenta con los decoradores de `@nestjs/swagger` y `@ApiErrorResponses`.

@@ -31,6 +31,9 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Permisos por perfil: toda la API exige token salvo las rutas marcadas como públicas, y `@Profiles(...)` restringe una ruta a ciertos perfiles (`403 PROFILE_REQUIRED`) (#15)
 - `GET /api/users/{id}`: datos del propio usuario, o de cualquiera para un administrador (#15)
 - Comando `npm run create-admin` para crear el primer administrador en el despliegue, y guía de despliegue en `docs/despliegue.md` (#15)
+- Vehículos de los conductores (RF-21): alta, consulta, lista paginada y baja en `/api/vehicles` (#16)
+- Declaración responsable del conductor y su estado para publicar viajes: `PUT /api/users/me/driver-declaration` y `GET /api/users/me/driver-status` (#16)
+- Paginación TMF630 de listas (`offset`, `limit`, `X-Total-Count`, `X-Result-Count`) (#16)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
@@ -42,6 +45,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - `GET /api/health` responde con el recurso TMF630 `Health`, y con un `Error` `SERVICE_UNAVAILABLE` si la base de datos no responde (#13)
 - `POST /api/auth/login` devuelve también el token de renovación (`refreshToken`, `refreshTokenExpiresAt`) (#14)
 - El recurso `User` incluye su `href` y el registro responde con la cabecera `Location` (#15)
+- Matrículas de los vehículos de prueba del seed con formato español válido (#16)
 
 ### Security
 - El backend ya no envía la cabecera `X-Powered-By: Express`, que revelaba la tecnología del servidor (#14)

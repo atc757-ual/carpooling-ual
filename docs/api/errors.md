@@ -64,6 +64,14 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `PROFILE_REQUIRED` | 403 | El usuario está autenticado pero no tiene el perfil que exige la acción (p. ej. consultar otro usuario sin ser administrador). `message` indica los perfiles necesarios |
 | `USER_NOT_FOUND` | 404 | `GET /api/users/{id}` de un administrador con un id que no existe. A quien no es administrador se le responde `PROFILE_REQUIRED`, para no revelar qué ids existen |
 
+## Vehículos (`users`)
+
+| `code` | HTTP | Cuándo |
+|---|---|---|
+| `VEHICLE_ALREADY_REGISTERED` | 409 | La matrícula ya está registrada por otro conductor, o activa por el mismo. Si el mismo conductor la había dado de baja, se reactiva en vez de dar error |
+| `VEHICLE_NOT_FOUND` | 404 | El vehículo no existe, está dado de baja o es de otro conductor (no se distingue, para no revelar qué ids existen) |
+| `VEHICLE_IN_USE` | 409 | Baja de un vehículo que está en un viaje en curso |
+
 ## Cómo añadir un código
 
 1. Crea el error de negocio extendiendo `BusinessError` (`backend/src/shared/errors/business-error.ts`) con su `code` y su tipo de fallo: `invalid` (400), `unauthorized` (401), `forbidden` (403), `not_found` (404) o `conflict` (409).

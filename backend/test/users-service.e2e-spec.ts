@@ -4,7 +4,9 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { EmailAlreadyRegisteredError } from '../src/modules/users/errors/email-already-registered.error';
 import { ProfileType } from '../src/modules/users/profile-type';
+import { ProfileRequiredError } from '../src/shared/auth/profile-required.error';
 import { UsersService } from '../src/modules/users/users.service';
+import { VehiclesService } from '../src/modules/users/vehicles.service';
 
 // Pruebas de UsersService contra PostgreSQL (requiere npm run migrate): la
 // transacción, la restricción UNIQUE y citext solo se pueden comprobar de
@@ -118,5 +120,54 @@ describe('UsersService (e2e)', () => {
 
     expect(user?.passengerProfile).toMatchObject({ isActive: true });
     expect(user?.passwordHash).toBeUndefined();
+  });
+
+  describe('driver declaration and readiness (RF-21)', () => {
+    it('is not ready until the declaration and one vehicle exist', async () => {
+      const driver = await newUser('ana@ual.es', ['driver']);
+
+      await expect(usersService.getDriverReadiness(driver.id)).resolves.toEqual(
+        {
+          hasLicenseDeclared: false,
+          licenseDeclaredAt: null,
+          activeVehicles: 0,
+          isReady: false,
+        },
+      );
+
+      await usersService.declareDriverLicense(driver.id);
+      await app
+        .get(VehiclesService)
+        .register(driver.id, { plate: '9101BCD', capacity: 4 });
+
+      await expect(
+        usersService.getDriverReadiness(driver.id),
+      ).resolves.toMatchObject({
+        hasLicenseDeclared: true,
+        activeVehicles: 1,
+        isReady: true,
+      });
+    });
+
+    it('keeps the date of the first declaration when declaring again', async () => {
+      const driver = await newUser('ana@ual.es', ['driver']);
+
+      const first = await usersService.declareDriverLicense(driver.id);
+      const second = await usersService.declareDriverLicense(driver.id);
+
+      expect(first.licenseDeclaredAt).toBeInstanceOf(Date);
+      expect(second.licenseDeclaredAt).toEqual(first.licenseDeclaredAt);
+    });
+
+    it('requires the driver profile', async () => {
+      const passenger = await newUser('ana@ual.es', ['passenger']);
+
+      await expect(
+        usersService.declareDriverLicense(passenger.id),
+      ).rejects.toBeInstanceOf(ProfileRequiredError);
+      await expect(
+        usersService.getDriverReadiness(passenger.id),
+      ).rejects.toBeInstanceOf(ProfileRequiredError);
+    });
   });
 });
