@@ -56,6 +56,16 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 | `GET /api/users/me/driver-status` | Perfil conductor | `200` `DriverStatus`: si puede publicar viajes (RF-21: declaración responsable y al menos un vehículo) |
 | `PUT /api/users/me/driver-declaration` | Perfil conductor | `200` `DriverStatus`: acepta la declaración responsable (idempotente; se conserva la fecha de la primera) |
 
+| `POST /api/trips` | Perfil conductor, listo (RF-21) | `201` `Trip` + `Location`: publica un viaje con uno de mis vehículos activos, salida futura y plazas ≤ capacidad |
+| `GET /api/trips/{id}` | `Authorization: Bearer <token>` | `200` `Trip` (con el nombre del conductor, sin la matrícula) |
+| `GET /api/users/me/trips?offset=&limit=` | Perfil conductor | `200` lista paginada de mis viajes, por fecha de salida |
+| `PATCH /api/trips/{id}` | Su conductor | `200` `Trip`: modifica los campos enviados, solo mientras está publicado |
+| `POST /api/trips/{id}/cancel` | Su conductor | `200` `Trip` cancelado (antes del inicio) |
+
+**Ubicaciones:** puntos GeoJSON (RFC 7946), `{ "type": "Point", "coordinates": [longitud, latitud] }`.
+
+**Eventos para el Gemelo Digital:** cada cambio de estado de un viaje (`trip.published`, `trip.updated`, `trip.cancelled`) se guarda en la tabla `events` en la misma transacción que el cambio (patrón *outbox*), con el estado completo del viaje.
+
 **Listas (TMF630):** `?offset=` (por defecto 0) y `?limit=` (por defecto 20, máximo 100); el cuerpo es el array de recursos y las cabeceras `X-Total-Count` y `X-Result-Count` indican el total y cuántos van en la respuesta.
 
 **Protección por defecto:** toda la API exige `Authorization: Bearer <token>`; las rutas abiertas se marcan con `@Public()`. Los permisos por perfil se declaran con `@Profiles('admin')` (basta con uno de los perfiles indicados) y se comprueban con los perfiles del token. El registro (`POST /api/auth/register`) responde con la cabecera `Location` del usuario creado.

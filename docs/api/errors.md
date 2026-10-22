@@ -72,6 +72,19 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `VEHICLE_NOT_FOUND` | 404 | El vehículo no existe, está dado de baja o es de otro conductor (no se distingue, para no revelar qué ids existen) |
 | `VEHICLE_IN_USE` | 409 | Baja de un vehículo que está en un viaje en curso |
 
+## Viajes (`trips`)
+
+| `code` | HTTP | Cuándo |
+|---|---|---|
+| `DRIVER_NOT_READY` | 403 | Publicar sin cumplir RF-21: falta la declaración responsable o un vehículo activo (`message` indica qué falta) |
+| `SEATS_EXCEED_CAPACITY` | 400 | Las plazas ofertadas superan la capacidad del vehículo (plazas para pasajeros) |
+| `DEPARTURE_IN_THE_PAST` | 400 | La hora de salida no es futura |
+| `TRIP_NOT_FOUND` | 404 | No existe un viaje con ese id |
+| `NOT_TRIP_DRIVER` | 403 | Modificar o cancelar un viaje de otro conductor |
+| `TRIP_NOT_EDITABLE` | 409 | Modificar un viaje que ya no está publicado (con pasajeros aceptados solo se puede cancelar) |
+| `TRIP_ALREADY_STARTED` | 409 | Cancelar un viaje en curso: requiere registrar una incidencia (RF-23) |
+| `INVALID_TRIP_TRANSITION` | 409 | Cambio de estado que el diagrama de estados del viaje no permite (p. ej. cancelar un viaje ya cancelado o finalizado) |
+
 ## Cómo añadir un código
 
 1. Crea el error de negocio extendiendo `BusinessError` (`backend/src/shared/errors/business-error.ts`) con su `code` y su tipo de fallo: `invalid` (400), `unauthorized` (401), `forbidden` (403), `not_found` (404) o `conflict` (409).

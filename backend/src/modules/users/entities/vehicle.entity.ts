@@ -28,7 +28,8 @@ export class Vehicle {
   @Column({ type: 'varchar', length: 15, unique: true })
   plate: string;
 
-  // Plazas totales, de 1 a 8 (CHECK en la base de datos)
+  // Plazas para pasajeros (sin contar al conductor), de 1 a 8 (CHECK en la
+  // base de datos). Las plazas ofertadas de un viaje no pueden superarla
   @Column({ type: 'smallint' })
   capacity: number;
 
