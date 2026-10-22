@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
-import { EventsService } from '../../events/events.service';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { Trip } from '../trips/entities/trip.entity';
@@ -19,7 +18,7 @@ import { NotTripPassengerError } from './errors/not-trip-passenger.error';
 import { RequestAlreadyExistsError } from './errors/request-already-exists.error';
 import { RequestNotFoundError } from './errors/request-not-found.error';
 import { RequestView, RequestViewsService } from './request-views.service';
-import { recordRequestEvent } from './request-events';
+import { RequestChangesRecorder } from './request-changes';
 import { assertRequestTransition } from './request-status';
 
 // Restricción de la base de datos: una sola solicitud viva por pasajero y viaje
@@ -38,7 +37,7 @@ export class RequestsService {
     private readonly tripStatus: TripStatusService,
     private readonly usersService: UsersService,
     private readonly views: RequestViewsService,
-    private readonly eventsService: EventsService,
+    private readonly changes: RequestChangesRecorder,
   ) {}
 
   // --- Pasajero
@@ -61,12 +60,7 @@ export class RequestsService {
         passengerId,
         isPriority,
       });
-      await recordRequestEvent(
-        this.eventsService,
-        manager,
-        'request.created',
-        created,
-      );
+      await this.changes.record(manager, 'request.created', created, trip);
       return created;
     });
     return this.views.toView(request);
@@ -95,12 +89,7 @@ export class RequestsService {
       if (wasAccepted) {
         await this.tripStatus.releaseSeat(manager, trip);
       }
-      await recordRequestEvent(
-        this.eventsService,
-        manager,
-        'request.cancelled',
-        cancelled,
-      );
+      await this.changes.record(manager, 'request.cancelled', cancelled, trip);
       return cancelled;
     });
     return this.views.toView(request);
@@ -144,12 +133,7 @@ export class RequestsService {
     request.status = 'cancelled';
     const cancelled = await manager.save(request);
     await this.tripStatus.releaseSeat(manager, trip);
-    await recordRequestEvent(
-      this.eventsService,
-      manager,
-      'request.cancelled',
-      cancelled,
-    );
+    await this.changes.record(manager, 'request.cancelled', cancelled, trip);
     return cancelled;
   }
 
@@ -178,12 +162,7 @@ export class RequestsService {
           accepted.passengerId,
         );
       }
-      await recordRequestEvent(
-        this.eventsService,
-        manager,
-        'request.accepted',
-        accepted,
-      );
+      await this.changes.record(manager, 'request.accepted', accepted, trip);
       return accepted;
     });
     return this.views.toView(request);
@@ -202,12 +181,7 @@ export class RequestsService {
 
       request.status = 'rejected';
       const rejected = await manager.save(request);
-      await recordRequestEvent(
-        this.eventsService,
-        manager,
-        'request.rejected',
-        rejected,
-      );
+      await this.changes.record(manager, 'request.rejected', rejected, trip);
       return rejected;
     });
     return this.views.toView(request);

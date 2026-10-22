@@ -1,10 +1,10 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { EntityManager, In } from 'typeorm';
-import { EventsService } from '../../events/events.service';
+import { Trip } from '../trips/entities/trip.entity';
 import { TripStatusService } from '../trips/trip-status.service';
 import { UsersService } from '../users/users.service';
 import { SeatRequest } from './entities/seat-request.entity';
-import { recordRequestEvent } from './request-events';
+import { RequestChangesRecorder } from './request-changes';
 import {
   assertRequestTransition,
   LIVE_REQUEST_STATUSES,
@@ -24,7 +24,7 @@ export class TripChangesListener implements OnModuleInit {
   constructor(
     private readonly tripStatus: TripStatusService,
     private readonly usersService: UsersService,
-    private readonly eventsService: EventsService,
+    private readonly changes: RequestChangesRecorder,
   ) {}
 
   onModuleInit(): void {
@@ -36,7 +36,7 @@ export class TripChangesListener implements OnModuleInit {
             : [];
         await this.closeRequestsOfTrip(
           manager,
-          trip.id,
+          trip,
           LIVE_REQUEST_STATUSES,
           'cancelled',
         );
@@ -46,12 +46,7 @@ export class TripChangesListener implements OnModuleInit {
         );
       }
       if (to === 'in_progress') {
-        await this.closeRequestsOfTrip(
-          manager,
-          trip.id,
-          ['pending'],
-          'rejected',
-        );
+        await this.closeRequestsOfTrip(manager, trip, ['pending'], 'rejected');
       }
     });
   }
@@ -68,27 +63,27 @@ export class TripChangesListener implements OnModuleInit {
   }
 
   // Cierra de golpe las solicitudes del viaje que estén en esos estados, cada
-  // una por su máquina de estados y con su evento. Las plazas no se tocan: el
-  // viaje ya está cancelado o en curso
+  // una por su máquina de estados, con su evento y el aviso a su pasajero. Las
+  // plazas no se tocan: el viaje ya está cancelado o en curso
   private async closeRequestsOfTrip(
     manager: EntityManager,
-    tripId: string,
+    trip: Trip,
     statuses: readonly RequestStatus[],
     to: 'cancelled' | 'rejected',
   ): Promise<void> {
     const requests = await manager.find(SeatRequest, {
-      where: { tripId, status: In([...statuses]) },
+      where: { tripId: trip.id, status: In([...statuses]) },
     });
     await Promise.all(
       requests.map(async (request) => {
         assertRequestTransition(request.status, to);
         request.status = to;
         const closed = await manager.save(request);
-        await recordRequestEvent(
-          this.eventsService,
+        await this.changes.record(
           manager,
           to === 'cancelled' ? 'request.cancelled' : 'request.rejected',
           closed,
+          trip,
         );
       }),
     );

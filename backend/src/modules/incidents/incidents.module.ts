@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsModule } from '../../events/events.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { RequestsModule } from '../requests/requests.module';
 import { TripsModule } from '../trips/trips.module';
 import { UsersModule } from '../users/users.module';
@@ -10,7 +11,7 @@ import { IncidentsService } from './incidents.service';
 
 // Incidencias (RF-23, CU-12). Usa trips (cancelar un viaje en curso) y
 // requests (el pasajero abandona el viaje); ninguno de los dos depende de este
-// módulo
+// módulo. Avisa de cada incidencia nueva a los administradores (RF-19)
 @Module({
   imports: [
     TypeOrmModule.forFeature([Incident]),
@@ -18,6 +19,7 @@ import { IncidentsService } from './incidents.service';
     RequestsModule,
     UsersModule,
     EventsModule,
+    NotificationsModule,
   ],
   controllers: [IncidentsController],
   providers: [IncidentsService],

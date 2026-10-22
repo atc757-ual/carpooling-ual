@@ -115,6 +115,12 @@ Además, aceptar o cancelar pueden responder `TRIP_FULL`, `TRIP_NOT_OPEN`, `TRIP
 
 Registrar una incidencia puede responder además `TRIP_NOT_IN_PROGRESS` (ver *Viajes*) o `NOT_TRIP_PASSENGER` (ver *Solicitudes de plaza*).
 
+## Avisos (`notifications`)
+
+| `code` | HTTP | Cuándo |
+|---|---|---|
+| `NOTIFICATION_NOT_FOUND` | 404 | Marcar como leído un aviso que no existe o que es de otro usuario (no se distingue: no se revela que existe) |
+
 ## Cómo añadir un código
 
 1. Crea el error de negocio extendiendo `BusinessError` (`backend/src/shared/errors/business-error.ts`) con su `code` y su tipo de fallo: `invalid` (400), `unauthorized` (401), `forbidden` (403), `not_found` (404) o `conflict` (409).

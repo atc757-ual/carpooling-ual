@@ -70,6 +70,9 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 | `GET /api/incidents/{id}` | Quien la registró o un administrador | `200` `Incident` con su revisión; a cualquier otro, `404` (protege a quien informa de un problema con otra persona) |
 | `GET /api/incidents?status=open` | Perfil administrador | `200` lista paginada para revisar (CU-12), de la más antigua a la más reciente |
 | `POST /api/incidents/{id}/review` | Perfil administrador | `200` `Incident` revisada y cerrada con su resolución (definitiva) |
+| `GET /api/users/me/notifications?isRead=` | `Authorization: Bearer <token>` | `200` lista paginada de mis avisos (RF-19), los más recientes primero; con `isRead=false`, `X-Total-Count` es el número de no leídos |
+| `POST /api/notifications/{id}/read` | Su destinatario | `200` `Notification` marcado como leído (conserva la fecha de la primera lectura); de otro usuario, `404` |
+| `POST /api/users/me/notifications/read` | `Authorization: Bearer <token>` | `204`: marca como leídos todos mis avisos |
 | `POST /api/trips/{tripId}/requests` | Perfil pasajero | `201` `SeatRequest` + `Location`: pide plaza en un viaje abierto, con plazas y que no sea el suyo |
 | `GET /api/trips/{tripId}/requests` | Su conductor | `200` lista paginada de las solicitudes del viaje (prioritarias primero, RF-24) |
 | `GET /api/users/me/requests` | Perfil pasajero | `200` lista paginada de mis solicitudes |
@@ -81,6 +84,8 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 **Ubicaciones:** puntos GeoJSON (RFC 7946), `{ "type": "Point", "coordinates": [longitud, latitud] }`.
 
 **Eventos para el Gemelo Digital:** el alta de un usuario y los cambios de sus perfiles (`user.registered`, `user.profile_activated`, `user.profile_deactivated`, sin nombre ni correo), cada cambio de estado de un viaje (`trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.started`, `trip.finished`, `trip.cancelled`) o de una solicitud (`request.created`, `request.accepted`, `request.rejected`, `request.cancelled`), y cada incidencia (`incident.reported`, sin la descripción libre), se guarda en la tabla `events` en la misma transacción que el cambio (patrón *outbox*), con el estado completo de la entidad.
+
+**Avisos dentro de la aplicación (RF-19):** reglas fijas; se avisa a la otra parte, nunca a quien hizo el cambio: solicitud recibida (`request_received`, al conductor), aceptada, rechazada (también al iniciarse el viaje) o viaje cancelado (`request_accepted`, `request_rejected`, `trip_cancelled`, al pasajero), solicitud cancelada o pasajero que abandona el viaje en curso (`request_cancelled`, `passenger_left`, al conductor) e incidencia nueva (`incident_reported`, a los administradores activos). Se crean en la misma transacción que el cambio. No llevan texto: el frontend compone la frase a partir del tipo y los enlaces (`trip`, `request`, `incident`).
 
 **Concurrencia:** aceptar solicitudes bloquea la fila del viaje, así que dos aceptaciones simultáneas nunca venden la misma plaza. Todas las operaciones bloquean en el mismo orden (primero el viaje y después la solicitud) para evitar bloqueos mutuos.
 
@@ -138,6 +143,7 @@ Otros comandos útiles (desde la raíz):
 | RUTA                  | `routes`              |
 | SOLICITUD             | `requests`            |
 | INCIDENCIA            | `incidents`           |
+| NOTIFICACIÓN (nueva)  | `notifications`       |
 | EVENTO                | `events`              |
 | ESCENARIO             | `scenarios`           |
 | AGENTE_SIMULADO       | `simulated_agents`    |

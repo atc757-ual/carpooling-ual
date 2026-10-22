@@ -4,6 +4,7 @@ import { DataSource, EntityManager, Repository } from 'typeorm';
 import type { DomainEventType } from '../../events/domain-event-type';
 import { EventsService } from '../../events/events.service';
 import { Page, PageRequest } from '../../shared/pagination/page';
+import { NotificationsService } from '../notifications/notifications.service';
 import { RequestsService } from '../requests/requests.service';
 import { Trip } from '../trips/entities/trip.entity';
 import { TripsService } from '../trips/trips.service';
@@ -44,6 +45,7 @@ export class IncidentsService {
     private readonly requestsService: RequestsService,
     private readonly usersService: UsersService,
     private readonly eventsService: EventsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   // --- Registrar (RF-23)
@@ -76,6 +78,7 @@ export class IncidentsService {
         }),
       );
       await this.recordEvent(manager, 'incident.reported', created);
+      await this.notifyAdmins(manager, created);
       return created;
     });
     return this.toView(incident);
@@ -174,6 +177,24 @@ export class IncidentsService {
       trip.id,
     );
     return request.id;
+  }
+
+  // RF-19: aviso a los administradores activos de cada incidencia nueva,
+  // salvo a quien la registró (si también es administrador)
+  private async notifyAdmins(
+    manager: EntityManager,
+    incident: Incident,
+  ): Promise<void> {
+    const adminIds = await this.usersService.getActiveAdminIds(manager);
+    await this.notificationsService.notify(
+      manager,
+      adminIds.filter((id) => id !== incident.reporterId),
+      {
+        type: 'incident_reported',
+        tripId: incident.tripId,
+        incidentId: incident.id,
+      },
+    );
   }
 
   private async toView(incident: Incident): Promise<IncidentView> {
