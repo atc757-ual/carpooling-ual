@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, In, Repository } from 'typeorm';
+import { EventsService } from '../../events/events.service';
 import { ProfileRequiredError } from '../../shared/auth/profile-required.error';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { DriverReadiness } from './driver-readiness';
@@ -10,6 +11,7 @@ import { PassengerProfile } from './entities/passenger-profile.entity';
 import { User } from './entities/user.entity';
 import { EmailAlreadyRegisteredError } from './errors/email-already-registered.error';
 import { UserNotFoundError } from './errors/user-not-found.error';
+import { PROFILE_ENTITIES } from './profile-entities';
 import { ProfileType } from './profile-type';
 import { UserSummary } from './user-summary';
 import { VehiclesService } from './vehicles.service';
@@ -31,13 +33,6 @@ const PROFILE_RELATIONS = {
   adminProfile: true,
 };
 
-// Entidad (tabla) de cada perfil
-const PROFILE_ENTITIES = {
-  driver: DriverProfile,
-  passenger: PassengerProfile,
-  admin: AdminProfile,
-};
-
 // Restricción UNIQUE del correo en la tabla users (migración InitialSchema)
 const EMAIL_UNIQUE_CONSTRAINT = 'users_email_key';
 
@@ -51,6 +46,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private readonly vehiclesService: VehiclesService,
+    private readonly eventsService: EventsService,
   ) {}
 
   // Crea el usuario y sus perfiles en una transacción: o se guarda todo o nada,
@@ -69,11 +65,19 @@ export class UsersService {
         );
         // Los perfiles no dependen unos de otros. Si falla uno, la transacción
         // deshace también el usuario y el resto de perfiles
+        const profiles = [...new Set(input.profiles)];
         await Promise.all(
-          [...new Set(input.profiles)].map((profile) =>
+          profiles.map((profile) =>
             this.createProfile(manager, user.id, profile),
           ),
         );
+        // Evento para el Gemelo Digital: solo los perfiles (ni el nombre ni el
+        // correo, que no necesita: minimización)
+        await this.eventsService.record(manager, {
+          type: 'user.registered',
+          sourceEntityId: user.id,
+          payload: { profiles },
+        });
         return manager.findOneOrFail(User, {
           where: { id: user.id },
           relations: PROFILE_RELATIONS,

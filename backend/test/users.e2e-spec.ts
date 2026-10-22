@@ -5,6 +5,7 @@ import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { deleteTestUsers } from './support/cleanup';
 
 // GET /api/users/{id} de punta a punta, con permisos por perfil (RNF-04).
 // Los usuarios llevan el prefijo EMAIL_PREFIX y se borran después de cada test
@@ -32,9 +33,7 @@ describe('Users API (e2e)', () => {
   });
 
   afterEach(async () => {
-    await dataSource.query('DELETE FROM users WHERE email LIKE $1', [
-      `${EMAIL_PREFIX}%`,
-    ]);
+    await deleteTestUsers(dataSource, EMAIL_PREFIX);
   });
 
   afterAll(async () => {

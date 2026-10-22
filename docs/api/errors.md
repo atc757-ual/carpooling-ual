@@ -63,6 +63,9 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 |---|---|---|
 | `PROFILE_REQUIRED` | 403 | El usuario está autenticado pero no tiene el perfil que exige la acción (p. ej. consultar otro usuario sin ser administrador). `message` indica los perfiles necesarios |
 | `USER_NOT_FOUND` | 404 | `GET /api/users/{id}` de un administrador con un id que no existe. A quien no es administrador se le responde `PROFILE_REQUIRED`, para no revelar qué ids existen |
+| `PROFILE_NOT_FOUND` | 404 | El administrador activa un perfil de conductor o pasajero que el usuario nunca tuvo (crearlo es decisión del propio usuario; el de administrador sí se asigna) |
+| `LAST_ADMIN` | 409 | Retirar el perfil del último administrador activo: nadie podría volver a gestionar la plataforma |
+| `CANNOT_CHANGE_OWN_ADMIN` | 409 | Un administrador intenta retirarse su propio perfil de administrador (lo hace otro administrador) |
 
 ## Vehículos (`users`)
 

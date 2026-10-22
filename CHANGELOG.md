@@ -45,6 +45,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Prioridad del pasajero afectado por la cancelación de un viaje en curso (RF-24), que se pierde al aceptarse su siguiente solicitud prioritaria (#20)
 - Revisión de incidencias por el administrador (CU-12): lista por estado y revisión definitiva con su resolución; migración `AddIncidentReview` (#21)
 - Consulta de una incidencia (solo quien la registró o un administrador) y lista de mis incidencias (#21)
+- Gestión de usuarios por el administrador (RF-25, CU-13): lista con búsqueda y activación o desactivación de perfiles, incluida la asignación y retirada del perfil de administrador; desactivar un perfil cierra las sesiones del usuario (#22)
+- Eventos de usuario para el Gemelo Digital: alta y cambios de perfil (#22)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)

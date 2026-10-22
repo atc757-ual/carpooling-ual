@@ -453,9 +453,250 @@
         ]
       }
     },
+    "/api/users": {
+      "get": {
+        "description": "RF-25. With all their profiles, active or not; ordered by name. search looks in the name or the email.",
+        "operationId": "UsersController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Text to search in the name or the email, ignoring case",
+            "schema": {
+              "maxLength": 100,
+              "example": "ana",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserAdminResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List users",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/{id}/profiles/{profile}": {
+      "put": {
+        "description": "RF-25. For the admin profile, activating assigns it and deactivating removes it. The last active administrator cannot be removed, nor can administrators remove themselves. Deactivating a profile closes all the sessions of the user.",
+        "operationId": "UsersController_setProfileActive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "profile",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "driver",
+                "passenger",
+                "admin"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetProfileActiveDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAdminResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND, PROFILE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: LAST_ADMIN, CANNOT_CHANGE_OWN_ADMIN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Activate or deactivate a profile of a user",
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/api/users/{id}": {
       "get": {
-        "description": "Users can get their own data; administrators can get any user.",
+        "description": "Users get their own data (User); administrators get any user with all their profiles (UserAdmin).",
         "operationId": "UsersController_getUser",
         "parameters": [
           {
@@ -474,7 +715,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResource"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/UserResource"
+                    },
+                    {
+                      "$ref": "#/components/schemas/UserAdminResource"
+                    }
+                  ]
                 }
               }
             }
@@ -3159,6 +3407,72 @@
           "refreshToken"
         ]
       },
+      "ProfileStatusResource": {
+        "type": "object",
+        "properties": {
+          "profile": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "passenger",
+              "admin"
+            ]
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "profile",
+          "isActive"
+        ]
+      },
+      "UserAdminResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "UserAdmin"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/users/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "name": {
+            "type": "string",
+            "example": "Ana García"
+          },
+          "email": {
+            "type": "string",
+            "example": "ana@ual.es"
+          },
+          "profiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProfileStatusResource"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "name",
+          "email",
+          "profiles",
+          "createdAt"
+        ]
+      },
       "DriverStatusResource": {
         "type": "object",
         "properties": {
@@ -3193,6 +3507,18 @@
           "licenseDeclaredAt",
           "activeVehicles",
           "isReady"
+        ]
+      },
+      "SetProfileActiveDto": {
+        "type": "object",
+        "properties": {
+          "isActive": {
+            "type": "boolean",
+            "description": "Activate or deactivate the profile. For the admin profile, true assigns it and false removes it"
+          }
+        },
+        "required": [
+          "isActive"
         ]
       },
       "RegisterVehicleDto": {

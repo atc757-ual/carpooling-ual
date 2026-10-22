@@ -14,6 +14,7 @@ import { TripNotInProgressError } from '../src/modules/trips/errors/trip-not-in-
 import { TripsService } from '../src/modules/trips/trips.service';
 import { UsersService } from '../src/modules/users/users.service';
 import { VehiclesService } from '../src/modules/users/vehicles.service';
+import { deleteTestUsers } from './support/cleanup';
 
 // IncidentsService contra la base de datos real (RF-23). Los usuarios llevan
 // el prefijo EMAIL_PREFIX; en afterEach se borran los eventos de sus viajes,
@@ -49,19 +50,7 @@ describe('IncidentsService (e2e)', () => {
   });
 
   afterEach(async () => {
-    const testUsers = `SELECT id FROM users WHERE email LIKE '${EMAIL_PREFIX}%'`;
-    const testTrips = `SELECT id FROM trips WHERE driver_id IN (${testUsers})`;
-    await dataSource.query(
-      `DELETE FROM events WHERE source_entity_id IN (${testTrips})
-         OR source_entity_id IN
-           (SELECT id FROM requests WHERE trip_id IN (${testTrips}))
-         OR source_entity_id IN
-           (SELECT id FROM incidents WHERE trip_id IN (${testTrips}))`,
-    );
-    await dataSource.query(`DELETE FROM trips WHERE id IN (${testTrips})`);
-    await dataSource.query('DELETE FROM users WHERE email LIKE $1', [
-      `${EMAIL_PREFIX}%`,
-    ]);
+    await deleteTestUsers(dataSource, EMAIL_PREFIX);
   });
 
   afterAll(async () => {

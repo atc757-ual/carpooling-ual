@@ -1,4 +1,5 @@
 import { Test } from '@nestjs/testing';
+import { EventsService } from '../../events/events.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -21,6 +22,7 @@ describe('UsersService', () => {
         { provide: DataSource, useValue: {} },
         { provide: getRepositoryToken(User), useValue: usersRepository },
         { provide: VehiclesService, useValue: {} },
+        { provide: EventsService, useValue: {} },
       ],
     }).compile();
 

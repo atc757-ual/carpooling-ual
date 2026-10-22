@@ -22,6 +22,7 @@ import { TripNotOpenError } from '../src/modules/trips/errors/trip-not-open.erro
 import { Trip } from '../src/modules/trips/entities/trip.entity';
 import { TripStatusService } from '../src/modules/trips/trip-status.service';
 import { TripInput, TripsService } from '../src/modules/trips/trips.service';
+import { deleteTestUsers } from './support/cleanup';
 
 // TripsService contra la base de datos real (requiere npm run migrate). Los
 // usuarios llevan el prefijo EMAIL_PREFIX. Los viajes y sus eventos no se
@@ -58,17 +59,7 @@ describe('TripsService (e2e)', () => {
   });
 
   afterEach(async () => {
-    const testDrivers = `SELECT id FROM users WHERE email LIKE '${EMAIL_PREFIX}%'`;
-    await dataSource.query(
-      `DELETE FROM events WHERE source_entity_id IN
-         (SELECT id FROM trips WHERE driver_id IN (${testDrivers}))`,
-    );
-    await dataSource.query(
-      `DELETE FROM trips WHERE driver_id IN (${testDrivers})`,
-    );
-    await dataSource.query('DELETE FROM users WHERE email LIKE $1', [
-      `${EMAIL_PREFIX}%`,
-    ]);
+    await deleteTestUsers(dataSource, EMAIL_PREFIX);
   });
 
   afterAll(async () => {
