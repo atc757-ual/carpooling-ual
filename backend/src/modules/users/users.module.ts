@@ -24,8 +24,8 @@ import { VehiclesService } from './vehicles.service';
   ],
   controllers: [UsersController, VehiclesController],
   providers: [UsersService, VehiclesService],
-  // Lo único visible desde otros módulos (p. ej. auth): las fronteras entre
+  // Lo único visible desde otros módulos (p. ej. auth, trips): las fronteras entre
   // módulos se respetan porque nadie más puede usar sus repositorios
-  exports: [UsersService],
+  exports: [UsersService, VehiclesService],
 })
 export class UsersModule {}

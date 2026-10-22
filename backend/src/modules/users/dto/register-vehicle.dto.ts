@@ -23,7 +23,7 @@ export class RegisterVehicleDto {
   @ApiProperty({
     minimum: 1,
     maximum: 8,
-    description: 'Total seats of the vehicle',
+    description: 'Seats for passengers, not counting the driver',
     example: 4,
   })
   @IsInt()

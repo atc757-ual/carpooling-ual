@@ -915,6 +915,503 @@
           "vehicles"
         ]
       }
+    },
+    "/api/trips": {
+      "post": {
+        "description": "RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle.",
+        "operationId": "TripsController_publish",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishTripDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "headers": {
+              "Location": {
+                "description": "Link to the new trip"
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY, DEPARTURE_IN_THE_PAST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED, DRIVER_NOT_READY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: VEHICLE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Publish a trip",
+        "tags": [
+          "trips"
+        ]
+      }
+    },
+    "/api/trips/{id}": {
+      "get": {
+        "operationId": "TripsController_getOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a trip",
+        "tags": [
+          "trips"
+        ]
+      },
+      "patch": {
+        "description": "RF-05. Only its driver, and only while it is published (no accepted passengers). Send only the fields that change.",
+        "operationId": "TripsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTripDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY, DEPARTURE_IN_THE_PAST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED, NOT_TRIP_DRIVER",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND, VEHICLE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: TRIP_NOT_EDITABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change a published trip",
+        "tags": [
+          "trips"
+        ]
+      }
+    },
+    "/api/users/me/trips": {
+      "get": {
+        "description": "Ordered by departure time, the soonest first.",
+        "operationId": "TripsController_listMine",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TripResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List my trips as a driver",
+        "tags": [
+          "trips"
+        ]
+      }
+    },
+    "/api/trips/{id}/cancel": {
+      "post": {
+        "description": "RF-05. Only its driver. Once started, cancelling requires an incident (RF-23).",
+        "operationId": "TripsController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED, NOT_TRIP_DRIVER",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: TRIP_ALREADY_STARTED, INVALID_TRIP_TRANSITION",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel a trip before it starts",
+        "tags": [
+          "trips"
+        ]
+      }
     }
   },
   "info": {
@@ -1288,7 +1785,7 @@
             "type": "number",
             "minimum": 1,
             "maximum": 8,
-            "description": "Total seats of the vehicle",
+            "description": "Seats for passengers, not counting the driver",
             "example": 4
           }
         },
@@ -1341,6 +1838,245 @@
           "capacity",
           "status"
         ]
+      },
+      "GeoPointDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Point"
+            ]
+          },
+          "coordinates": {
+            "minItems": 2,
+            "maxItems": 2,
+            "description": "[longitude, latitude] (RFC 7946)",
+            "example": [
+              -2.4058,
+              36.8297
+            ],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "type",
+          "coordinates"
+        ]
+      },
+      "PublishTripDto": {
+        "type": "object",
+        "properties": {
+          "vehicleId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "One of my active vehicles"
+          },
+          "origin": {
+            "example": {
+              "type": "Point",
+              "coordinates": [
+                -2.4637,
+                36.8381
+              ]
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "destination": {
+            "example": {
+              "type": "Point",
+              "coordinates": [
+                -2.4058,
+                36.8297
+              ]
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "departureAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2026-11-03T07:30:00Z"
+          },
+          "offeredSeats": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 8,
+            "description": "Seats offered to passengers (at most the vehicle capacity)",
+            "example": 3
+          },
+          "maxDetourMin": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 60,
+            "default": 10,
+            "description": "Maximum detour to pick up passengers, in minutes"
+          }
+        },
+        "required": [
+          "vehicleId",
+          "origin",
+          "destination",
+          "departureAt",
+          "offeredSeats"
+        ]
+      },
+      "TripDriverResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Lucía Martínez"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "TripResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "Trip"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "driver": {
+            "$ref": "#/components/schemas/TripDriverResource"
+          },
+          "vehicleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/GeoPointDto"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/GeoPointDto"
+          },
+          "departureAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "offeredSeats": {
+            "type": "number",
+            "example": 3
+          },
+          "availableSeats": {
+            "type": "number",
+            "example": 3
+          },
+          "maxDetourMin": {
+            "type": "number",
+            "example": 10,
+            "description": "Minutes"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "published",
+              "confirmed",
+              "in_progress",
+              "finished",
+              "cancelled"
+            ]
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "driver",
+          "vehicleId",
+          "origin",
+          "destination",
+          "departureAt",
+          "offeredSeats",
+          "availableSeats",
+          "maxDetourMin",
+          "status"
+        ]
+      },
+      "UpdateTripDto": {
+        "type": "object",
+        "properties": {
+          "vehicleId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "One of my active vehicles"
+          },
+          "origin": {
+            "example": {
+              "type": "Point",
+              "coordinates": [
+                -2.4637,
+                36.8381
+              ]
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "destination": {
+            "example": {
+              "type": "Point",
+              "coordinates": [
+                -2.4058,
+                36.8297
+              ]
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "departureAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2026-11-03T07:30:00Z"
+          },
+          "offeredSeats": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 8,
+            "description": "Seats offered to passengers (at most the vehicle capacity)",
+            "example": 3
+          },
+          "maxDetourMin": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 60,
+            "default": 10,
+            "description": "Maximum detour to pick up passengers, in minutes"
+          }
+        }
       }
     }
   }

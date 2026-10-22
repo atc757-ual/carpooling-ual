@@ -1,4 +1,17 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { EventsModule } from '../../events/events.module';
+import { UsersModule } from '../users/users.module';
+import { Trip } from './entities/trip.entity';
+import { TripsController } from './trips.controller';
+import { TripsService } from './trips.service';
 
-@Module({})
+// Viajes (RF-04, RF-05, RF-11). Usa los services que exporta users (estado del
+// conductor y sus vehículos) y registra sus cambios de estado como eventos
+// para el Gemelo Digital (EventsModule)
+@Module({
+  imports: [TypeOrmModule.forFeature([Trip]), UsersModule, EventsModule],
+  controllers: [TripsController],
+  providers: [TripsService],
+})
 export class TripsModule {}
