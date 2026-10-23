@@ -33,6 +33,10 @@ import {
 } from '../../shared/pagination/paginated';
 import { PaginationQueryDto } from '../../shared/pagination/pagination-query.dto';
 import { PublishTripDto } from './dto/publish-trip.dto';
+import {
+  toTripRouteResource,
+  TripRouteResource,
+} from './dto/trip-route.resource';
 import { toTripResource, TripResource } from './dto/trip.resource';
 import { UpdateTripDto } from './dto/update-trip.dto';
 import { TripsService } from './trips.service';
@@ -98,6 +102,25 @@ export class TripsController {
     @Param('id', uuidParam('id')) id: string,
   ): Promise<TripResource> {
     return toTripResource(await this.tripsService.getById(id));
+  }
+
+  @Get('trips/:id/route')
+  @ApiOperation({
+    summary: 'Get the route of a trip and its estimated arrival',
+    description:
+      'RF-12, CU-08. The road route calculated with OSRM (or estimated if OSRM did not answer), with the trip status.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiOkResponse({ type: TripRouteResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND', 'ROUTE_NOT_FOUND'],
+  })
+  async getRoute(
+    @Param('id', uuidParam('id')) id: string,
+  ): Promise<TripRouteResource> {
+    return toTripRouteResource(await this.tripsService.getRoute(id));
   }
 
   @Get('users/me/trips')

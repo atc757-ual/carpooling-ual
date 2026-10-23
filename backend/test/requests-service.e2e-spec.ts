@@ -299,7 +299,7 @@ describe('RequestsService (e2e)', () => {
       const pia = await createUser('pia', ['passenger']);
       const { request } = await requestsService.request(pia, tripId);
       await dataSource.query(
-        "UPDATE trips SET status = 'in_progress' WHERE id = $1",
+        "UPDATE trips SET status = 'in_progress', started_at = now() WHERE id = $1",
         [tripId],
       );
 

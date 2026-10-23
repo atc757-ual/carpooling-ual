@@ -5,6 +5,7 @@ import type { Point } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { UsersService } from '../users/users.service';
 import { VehiclesService } from '../users/vehicles.service';
+import { TripRoute } from './entities/trip-route.entity';
 import { Trip } from './entities/trip.entity';
 import { DepartureInThePastError } from './errors/departure-in-the-past.error';
 import { DriverNotReadyError } from './errors/driver-not-ready.error';
@@ -14,6 +15,8 @@ import { TripNotEditableError } from './errors/trip-not-editable.error';
 import { TripNotFoundError } from './errors/trip-not-found.error';
 import { TripNotInProgressError } from './errors/trip-not-in-progress.error';
 import { TripNotStartableYetError } from './errors/trip-not-startable-yet.error';
+import type { RoutePlan } from './route-plan';
+import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
 
 export interface TripInput {
@@ -34,6 +37,12 @@ export interface TripView {
   driverName: string;
 }
 
+// Un viaje con su ruta (RF-12)
+export interface TripRouteView {
+  trip: Trip;
+  route: TripRoute;
+}
+
 const DEFAULT_MAX_DETOUR_MIN = 10;
 
 // RF-11: un viaje se puede iniciar desde estos minutos antes de su salida (el
@@ -52,6 +61,7 @@ export class TripsService {
     private readonly usersService: UsersService,
     private readonly vehiclesService: VehiclesService,
     private readonly tripStatus: TripStatusService,
+    private readonly tripRoutes: TripRoutesService,
   ) {}
 
   // RF-04: publicar un viaje. Antes, RF-21: el conductor debe estar listo
@@ -61,6 +71,9 @@ export class TripsService {
       throw new DriverNotReadyError(readiness);
     }
     await this.assertValidTrip(driverId, input);
+    // RF-12: la ruta se calcula antes de la transacción (sin bloquear filas
+    // mientras se espera a OSRM) y se guarda con el viaje
+    const route = await this.tripRoutes.plan(input.origin, input.destination);
 
     const trip = await this.dataSource.transaction(async (manager) => {
       const saved = await manager.save(
@@ -71,6 +84,7 @@ export class TripsService {
           availableSeats: input.offeredSeats,
         }),
       );
+      await this.tripRoutes.save(manager, saved.id, route);
       await this.tripStatus.recordEvent(manager, 'trip.published', saved);
       return saved;
     });
@@ -85,6 +99,14 @@ export class TripsService {
       throw new TripNotFoundError(tripId);
     }
     return this.toView(trip);
+  }
+
+  // RF-12: la ruta de un viaje, con el viaje (para el estado y la llegada
+  // estimada). La ve quien puede ver el viaje
+  async getRoute(tripId: string): Promise<TripRouteView> {
+    const { trip } = await this.getById(tripId);
+    const route = await this.tripRoutes.getForTrip(tripId);
+    return { trip, route };
   }
 
   // Viajes del conductor, del de salida más próxima al más lejano
@@ -112,6 +134,7 @@ export class TripsService {
     tripId: string,
     changes: TripChanges,
   ): Promise<TripView> {
+    const route = await this.planChangedRoute(tripId, changes);
     const trip = await this.dataSource.transaction(async (manager) => {
       const current = await this.tripStatus.lockOwnTrip(
         manager,
@@ -125,6 +148,9 @@ export class TripsService {
 
       Object.assign(current, changes);
       current.availableSeats = current.offeredSeats;
+      if (route !== null) {
+        await this.tripRoutes.save(manager, current.id, route);
+      }
       return this.tripStatus.saveWithEvent(manager, current);
     });
     return this.toView(trip);
@@ -213,6 +239,22 @@ export class TripsService {
     );
     await this.vehiclesService.markAvailable(manager, trip.vehicleId);
     return cancelled;
+  }
+
+  // RF-12: si cambia el origen o el destino, la nueva ruta (antes de la
+  // transacción, como al publicar); si no, null y se conserva la que tenía
+  private async planChangedRoute(
+    tripId: string,
+    changes: TripChanges,
+  ): Promise<RoutePlan | null> {
+    if (changes.origin === undefined && changes.destination === undefined) {
+      return null;
+    }
+    const { trip } = await this.getById(tripId);
+    return this.tripRoutes.plan(
+      changes.origin ?? trip.origin,
+      changes.destination ?? trip.destination,
+    );
   }
 
   // El viaje con el nombre de su conductor

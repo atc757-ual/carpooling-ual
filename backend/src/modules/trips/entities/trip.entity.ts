@@ -55,6 +55,11 @@ export class Trip {
   })
   status: TripStatus;
 
+  // Cuándo empezó (RF-11); null hasta que se inicia. Con la duración de la
+  // ruta da la llegada estimada (RF-12)
+  @Column({ name: 'started_at', type: 'timestamptz', nullable: true })
+  startedAt: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

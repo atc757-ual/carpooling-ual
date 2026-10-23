@@ -87,6 +87,9 @@ export class TripStatusService {
     const from = trip.status;
     assertTransition(from, to);
     trip.status = to;
+    if (to === 'in_progress') {
+      trip.startedAt = new Date();
+    }
     const saved = await manager.save(trip);
     await this.recordEvent(manager, EVENT_BY_STATUS[to], saved);
     await Promise.all(
@@ -153,6 +156,7 @@ export class TripStatusService {
         availableSeats: trip.availableSeats,
         maxDetourMin: trip.maxDetourMin,
         status: trip.status,
+        startedAt: trip.startedAt?.toISOString() ?? null,
       },
     });
   }

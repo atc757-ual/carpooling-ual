@@ -18,5 +18,19 @@ services:
       timeout: 5s
       retries: 5
 
+  # Motor de rutas OSRM (DP-02, RNF-16) con el mapa de Andalucía de
+  # OpenStreetMap. Necesita el mapa ya preparado (scripts/osrm-prepare.sh), por
+  # eso va en el perfil "routing": docker compose --profile routing up -d
+  osrm:
+    image: ghcr.io/project-osrm/osrm-backend:v26.10.0-debian
+    container_name: carpooling-osrm
+    restart: unless-stopped
+    profiles: [routing]
+    command: osrm-routed --algorithm mld /data/andalucia-latest.osrm
+    ports:
+      - "${OSRM_PORT:-5000}:5000"
+    volumes:
+      - ./osrm-data:/data:ro
+
 volumes:
   postgres_data:

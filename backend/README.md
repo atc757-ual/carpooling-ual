@@ -60,6 +60,7 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 
 | `POST /api/trips` | Perfil conductor, listo (RF-21) | `201` `Trip` + `Location`: publica un viaje con uno de mis vehículos activos, salida futura y plazas ≤ capacidad |
 | `GET /api/trips/{id}` | `Authorization: Bearer <token>` | `200` `Trip` (con el nombre del conductor, sin la matrícula) |
+| `GET /api/trips/{id}/route` | `Authorization: Bearer <token>` | `200` `TripRoute` (RF-12, CU-08): distancia, duración y geometría GeoJSON de la ruta por carretera (`source: osrm`) o estimada si OSRM no respondió (`estimated`), con el estado del viaje y la llegada estimada. Se calcula al publicar y al cambiar el origen o el destino |
 | `GET /api/users/me/trips?offset=&limit=` | Perfil conductor | `200` lista paginada de mis viajes, por fecha de salida |
 | `PATCH /api/trips/{id}` | Su conductor | `200` `Trip`: modifica los campos enviados, solo mientras está publicado |
 | `POST /api/trips/{id}/cancel` | Su conductor | `200` `Trip` cancelado (antes del inicio); sus solicitudes vivas se cancelan con él |
@@ -129,6 +130,21 @@ Otros comandos útiles (desde la raíz):
     docker compose down                   # Detener la base de datos (conserva los datos)
     docker compose down -v                # Detenerla y BORRAR los datos
     docker exec -it carpooling-db psql -U carpooling -d carpooling   # Consola SQL
+
+## Motor de rutas (OSRM)
+
+OSRM (DP-02, RNF-16) calcula las rutas por carretera con el mapa de Andalucía de OpenStreetMap, en local y sin servicios de pago. Va en el perfil `routing` de Docker Compose, porque antes hay que preparar el mapa.
+
+Primera vez, desde la raíz (descarga ~200 MB y tarda unos minutos):
+
+    bash scripts/osrm-prepare.sh              # Descargar y preparar el mapa en osrm-data/
+    docker compose --profile routing up -d    # Levantar PostgreSQL y OSRM (puerto OSRM_PORT, 5000)
+
+Para actualizar el mapa, borrar `osrm-data/` y volver a ejecutar el script. El backend usa `OSRM_URL`. Si OSRM no está levantado o no responde, la ruta se estima en línea recta (plan B del análisis de riesgos), así que el backend funciona también sin él.
+
+Comprobar que responde (de Almería al campus de la UAL):
+
+    curl "http://localhost:5000/route/v1/driving/-2.4637,36.8381;-2.4058,36.8297?overview=false"
 
 ### Correspondencia con la memoria
 

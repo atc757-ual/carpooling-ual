@@ -119,6 +119,7 @@ describe('Trips API (e2e)', () => {
         availableSeats: 3,
         maxDetourMin: 10,
         status: 'published',
+        startedAt: null,
       });
       expect(response.headers.location).toBe(`/api/trips/${trip.id}`);
       expect(JSON.stringify(response.body)).not.toContain('BCD');
