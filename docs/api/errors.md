@@ -116,6 +116,15 @@ Además, aceptar o cancelar pueden responder `TRIP_FULL`, `TRIP_NOT_OPEN`, `TRIP
 
 Registrar una incidencia puede responder además `TRIP_NOT_IN_PROGRESS` (ver *Viajes*) o `NOT_TRIP_PASSENGER` (ver *Solicitudes de plaza*).
 
+## Seguimiento del viaje (`tracking`)
+
+| `code` | HTTP | Cuándo |
+|---|---|---|
+| `POSITION_TOO_FREQUENT` | 409 | El conductor envía una posición antes de que pasen `POSITION_MIN_INTERVAL_SECONDS` (10 por defecto) desde la anterior: el móvil puede ignorarlo y enviar la siguiente |
+| `POSITION_NOT_FOUND` | 404 | El viaje no tiene posición: aún no ha empezado, el conductor no ha enviado ninguna o ya terminó (al terminar se borra el recorrido) |
+
+Enviar una posición puede responder además `NOT_TRIP_DRIVER` o `TRIP_NOT_IN_PROGRESS` (ver *Viajes*); consultarla, `NOT_TRIP_PASSENGER` a quien no es su conductor ni un pasajero aceptado (ver *Solicitudes de plaza*).
+
 ## Avisos (`notifications`)
 
 | `code` | HTTP | Cuándo |

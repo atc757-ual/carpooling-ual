@@ -6,6 +6,7 @@ import {
   parseEmailDomains,
   parseJwtSecret,
   parseOsrmUrl,
+  parsePositionMinInterval,
   parsePort,
   parseSessionLifetime,
 } from './configuration';
@@ -171,6 +172,22 @@ describe('parseApiDocsEnabled', () => {
   });
 });
 
+describe('parsePositionMinInterval', () => {
+  it('allows one position every 10 seconds by default', () => {
+    expect(parsePositionMinInterval(undefined)).toBe(10);
+  });
+
+  it('reads 1-300 seconds and rejects anything else', () => {
+    expect(parsePositionMinInterval('30')).toBe(30);
+    expect(() => parsePositionMinInterval('0')).toThrow(
+      'Invalid POSITION_MIN_INTERVAL_SECONDS',
+    );
+    expect(() => parsePositionMinInterval('301')).toThrow(
+      'Invalid POSITION_MIN_INTERVAL_SECONDS',
+    );
+  });
+});
+
 describe('parseOsrmUrl', () => {
   it('uses the local OSRM of Docker Compose by default', () => {
     expect(parseOsrmUrl(undefined)).toBe('http://localhost:5000');
@@ -204,6 +221,7 @@ describe('loadConfiguration', () => {
     'ALLOWED_EMAIL_DOMAINS',
     'API_DOCS_ENABLED',
     'OSRM_URL',
+    'POSITION_MIN_INTERVAL_SECONDS',
   ];
   const originalEnv = ENV_KEYS.map((key) => [key, process.env[key]] as const);
 
@@ -224,6 +242,7 @@ describe('loadConfiguration', () => {
     process.env.ALLOWED_EMAIL_DOMAINS = 'ual.es';
     process.env.API_DOCS_ENABLED = 'false';
     process.env.OSRM_URL = 'http://osrm:5000';
+    process.env.POSITION_MIN_INTERVAL_SECONDS = '15';
 
     expect(loadConfiguration()).toEqual({
       port: 4000,
@@ -237,6 +256,7 @@ describe('loadConfiguration', () => {
       allowedEmailDomains: ['ual.es'],
       apiDocsEnabled: false,
       osrmUrl: 'http://osrm:5000',
+      positionMinIntervalSeconds: 15,
     });
   });
 

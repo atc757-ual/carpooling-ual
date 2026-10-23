@@ -22,7 +22,8 @@ import { TripsService } from './trips.service';
   ],
   controllers: [TripsController],
   providers: [TripsService, TripStatusService, TripRoutesService, OsrmClient],
-  // Los usan las solicitudes de plaza (requests)
-  exports: [TripsService, TripStatusService],
+  // Los usan las solicitudes de plaza (requests) y el seguimiento (tracking:
+  // lo que queda hasta el destino)
+  exports: [TripsService, TripStatusService, TripRoutesService],
 })
 export class TripsModule {}

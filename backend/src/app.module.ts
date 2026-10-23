@@ -12,6 +12,7 @@ import { MetricsModule } from './modules/metrics/metrics.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { RequestsModule } from './modules/requests/requests.module';
 import { SimulationModule } from './modules/simulation/simulation.module';
+import { TrackingModule } from './modules/tracking/tracking.module';
 import { TripsModule } from './modules/trips/trips.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -33,6 +34,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     UsersModule,
     TripsModule,
+    TrackingModule,
     RequestsModule,
     IncidentsModule,
     NotificationsModule,

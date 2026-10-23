@@ -12,6 +12,7 @@ export interface AppConfig {
   allowedEmailDomains: string[];
   apiDocsEnabled: boolean;
   osrmUrl: string;
+  positionMinIntervalSeconds: number;
 }
 
 // Duración de la sesión (token de renovación), en días
@@ -45,6 +46,11 @@ const SESSION_MAX_DAYS: IntegerSetting = {
   name: 'JWT_SESSION_MAX_DAYS',
   defaultValue: 30,
   max: 365,
+};
+const POSITION_MIN_INTERVAL_SECONDS: IntegerSetting = {
+  name: 'POSITION_MIN_INTERVAL_SECONDS',
+  defaultValue: 10,
+  max: 300,
 };
 const DEFAULT_EMAIL_DOMAINS = 'ual.es,inlumine.ual.es';
 const DEFAULT_OSRM_URL = 'http://localhost:5000';
@@ -186,6 +192,15 @@ export function parseOsrmUrl(rawUrl: string | undefined): string {
   return rawUrl;
 }
 
+// POSITION_MIN_INTERVAL_SECONDS (por defecto 10): segundos mínimos entre dos
+// posiciones del conductor durante el viaje. Fija la frecuencia con la que se
+// actualiza el Gemelo Digital (DP-04, aún abierta: por eso es configurable)
+export function parsePositionMinInterval(
+  rawSeconds: string | undefined,
+): number {
+  return parseIntegerSetting(rawSeconds, POSITION_MIN_INTERVAL_SECONDS);
+}
+
 // La llama ConfigModule (en app.module.ts) una vez al arrancar.
 export function loadConfiguration(): AppConfig {
   return {
@@ -202,5 +217,8 @@ export function loadConfiguration(): AppConfig {
     allowedEmailDomains: parseEmailDomains(process.env.ALLOWED_EMAIL_DOMAINS),
     apiDocsEnabled: parseApiDocsEnabled(process.env.API_DOCS_ENABLED),
     osrmUrl: parseOsrmUrl(process.env.OSRM_URL),
+    positionMinIntervalSeconds: parsePositionMinInterval(
+      process.env.POSITION_MIN_INTERVAL_SECONDS,
+    ),
   };
 }

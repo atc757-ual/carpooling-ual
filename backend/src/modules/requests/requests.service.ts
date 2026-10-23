@@ -205,6 +205,16 @@ export class RequestsService {
     return { items: await this.views.toViews(requests), total };
   }
 
+  // ¿Es pasajero aceptado del viaje? (p. ej. para ver la posición del
+  // conductor durante el viaje, RF-12)
+  isAcceptedPassenger(tripId: string, passengerId: string): Promise<boolean> {
+    return this.requestsRepository.existsBy({
+      tripId,
+      passengerId,
+      status: 'accepted',
+    });
+  }
+
   // --- Pasajero o conductor
 
   // Una solicitud: solo la ven su pasajero y el conductor del viaje
