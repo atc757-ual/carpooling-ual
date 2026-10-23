@@ -146,7 +146,7 @@ describe('AuthService', () => {
     it('does not call the server when there is no session', async () => {
       await auth.logout();
 
-      http.expectNone('/api/auth/logout');
+      expect(http.match('/api/auth/logout')).toHaveLength(0);
     });
   });
 
@@ -154,7 +154,7 @@ describe('AuthService', () => {
     it('does nothing when no refresh token is stored', async () => {
       await auth.restoreSession();
 
-      http.expectNone('/api/auth/refresh');
+      expect(http.match('/api/auth/refresh')).toHaveLength(0);
       expect(auth.isLoggedIn()).toBe(false);
     });
 
@@ -208,7 +208,7 @@ describe('AuthService', () => {
 
     it('fails with INVALID_REFRESH_TOKEN when there is no stored session', async () => {
       await expect(auth.refreshAccessToken()).rejects.toMatchObject({ code: 'INVALID_REFRESH_TOKEN' });
-      http.expectNone('/api/auth/refresh');
+      expect(http.match('/api/auth/refresh')).toHaveLength(0);
     });
 
     it('rejects with an ApiError when the server cannot be reached', async () => {
