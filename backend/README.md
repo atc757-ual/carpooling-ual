@@ -61,6 +61,8 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 | `POST /api/trips` | Perfil conductor, listo (RF-21) | `201` `Trip` + `Location`: publica un viaje con uno de mis vehículos activos, salida futura y plazas ≤ capacidad |
 | `GET /api/trips/{id}` | `Authorization: Bearer <token>` | `200` `Trip` (con el nombre del conductor, sin la matrícula) |
 | `GET /api/trips/{id}/route` | `Authorization: Bearer <token>` | `200` `TripRoute` (RF-12, CU-08): distancia, duración y geometría GeoJSON de la ruta por carretera (`source: osrm`) o estimada si OSRM no respondió (`estimated`), con el estado del viaje y la llegada estimada. Se calcula al publicar y al cambiar el origen o el destino |
+| `POST /api/trips/{id}/positions` | Su conductor, con el viaje en curso | `201` `TripPosition` + `Location` (RF-12): `{ "position": <punto GeoJSON> }`, como mucho una cada `POSITION_MIN_INTERVAL_SECONDS` (10 s). Calcula con OSRM lo que queda hasta el destino |
+| `GET /api/trips/{id}/position` | Su conductor o un pasajero aceptado | `200` `TripPosition`: la posición actual, lo que queda y la llegada estimada. Al finalizar o cancelar el viaje se borra el recorrido (`404`) |
 | `GET /api/users/me/trips?offset=&limit=` | Perfil conductor | `200` lista paginada de mis viajes, por fecha de salida |
 | `PATCH /api/trips/{id}` | Su conductor | `200` `Trip`: modifica los campos enviados, solo mientras está publicado |
 | `POST /api/trips/{id}/cancel` | Su conductor | `200` `Trip` cancelado (antes del inicio); sus solicitudes vivas se cancelan con él |
@@ -84,7 +86,7 @@ Todas las rutas cuelgan de `/api` y siguen la guía **TMF630**: los recursos lle
 
 **Ubicaciones:** puntos GeoJSON (RFC 7946), `{ "type": "Point", "coordinates": [longitud, latitud] }`.
 
-**Eventos para el Gemelo Digital:** el alta de un usuario y los cambios de sus perfiles (`user.registered`, `user.profile_activated`, `user.profile_deactivated`, sin nombre ni correo), cada cambio de estado de un viaje (`trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.started`, `trip.finished`, `trip.cancelled`) o de una solicitud (`request.created`, `request.accepted`, `request.rejected`, `request.cancelled`), y cada incidencia (`incident.reported`, sin la descripción libre), se guarda en la tabla `events` en la misma transacción que el cambio (patrón *outbox*), con el estado completo de la entidad.
+**Eventos para el Gemelo Digital:** el alta de un usuario y los cambios de sus perfiles (`user.registered`, `user.profile_activated`, `user.profile_deactivated`, sin nombre ni correo), cada cambio de estado de un viaje (`trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.started`, `trip.finished`, `trip.cancelled`) y cada posición del conductor durante el viaje (`trip.position_updated`) o de una solicitud (`request.created`, `request.accepted`, `request.rejected`, `request.cancelled`), y cada incidencia (`incident.reported`, sin la descripción libre), se guarda en la tabla `events` en la misma transacción que el cambio (patrón *outbox*), con el estado completo de la entidad.
 
 **Avisos dentro de la aplicación (RF-19):** reglas fijas; se avisa a la otra parte, nunca a quien hizo el cambio: solicitud recibida (`request_received`, al conductor), aceptada, rechazada (también al iniciarse el viaje) o viaje cancelado (`request_accepted`, `request_rejected`, `trip_cancelled`, al pasajero), solicitud cancelada o pasajero que abandona el viaje en curso (`request_cancelled`, `passenger_left`, al conductor) e incidencia nueva (`incident_reported`, a los administradores activos). Se crean en la misma transacción que el cambio. No llevan texto: el frontend compone la frase a partir del tipo y los enlaces (`trip`, `request`, `incident`).
 
@@ -177,7 +179,7 @@ Los estados de las enumeraciones siguen los diagramas de estados del viaje y de 
     ├── config/            # Lectura y validación de variables de entorno y de la conexión
     ├── database/          # data-source.ts (CLI de TypeORM), migrations/, seeds/ y seed.ts
     ├── modules/           # Un módulo por bloque del Core
-    │   ├── auth/  users/  trips/  requests/  incidents/  notifications/
+    │   ├── auth/  users/  trips/  tracking/  requests/  incidents/  notifications/
     │   └── matching/  digital-twin/  simulation/  metrics/
     ├── shared/            # Código común: errores de negocio, filtro TMF630, validación, utilidades de TypeORM
     └── events/            # Eventos hacia el Gemelo Digital

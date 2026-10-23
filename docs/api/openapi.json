@@ -1935,6 +1935,207 @@
         ]
       }
     },
+    "/api/trips/{tripId}/positions": {
+      "post": {
+        "description": "Only the driver of the trip, while it is in progress, at most once every POSITION_MIN_INTERVAL_SECONDS (10 by default). The remaining distance and time are calculated with OSRM.",
+        "operationId": "TrackingController_report",
+        "parameters": [
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportPositionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "headers": {
+              "Location": {
+                "description": "Link to the current position"
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripPositionResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED, NOT_TRIP_DRIVER",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: TRIP_NOT_IN_PROGRESS, POSITION_TOO_FREQUENT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Report my position during a trip in progress",
+        "tags": [
+          "tracking"
+        ]
+      }
+    },
+    "/api/trips/{tripId}/position": {
+      "get": {
+        "description": "Only the driver and the accepted passengers of the trip. It exists while the trip is in progress; it is deleted when the trip ends.",
+        "operationId": "TrackingController_getLatest",
+        "parameters": [
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripPositionResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: NOT_TRIP_PASSENGER",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND, POSITION_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the current position of the driver",
+        "tags": [
+          "tracking"
+        ]
+      }
+    },
     "/api/trips/{tripId}/requests": {
       "post": {
         "description": "RF-08. The trip must be published or confirmed, not yet departed, with seats left and not your own.",
@@ -4241,6 +4442,86 @@
             "description": "Maximum detour to pick up passengers, in minutes"
           }
         }
+      },
+      "ReportPositionDto": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "example": {
+              "type": "Point",
+              "coordinates": [
+                -2.43,
+                36.833
+              ]
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "position"
+        ]
+      },
+      "TripPositionResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "TripPosition"
+            ]
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/position"
+          },
+          "tripId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "position": {
+            "$ref": "#/components/schemas/GeoPointDto"
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "remainingKm": {
+            "type": "number",
+            "example": 3.2
+          },
+          "remainingMin": {
+            "type": "number",
+            "example": 5
+          },
+          "remainingSource": {
+            "type": "string",
+            "enum": [
+              "osrm",
+              "estimated"
+            ],
+            "description": "osrm: by road; estimated: a straight-line estimate, used when OSRM did not answer"
+          },
+          "estimatedArrivalAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "recordedAt plus the remaining minutes"
+          }
+        },
+        "required": [
+          "@type",
+          "href",
+          "tripId",
+          "position",
+          "recordedAt",
+          "remainingKm",
+          "remainingMin",
+          "remainingSource",
+          "estimatedArrivalAt"
+        ]
       },
       "SeatRequestTripResource": {
         "type": "object",
