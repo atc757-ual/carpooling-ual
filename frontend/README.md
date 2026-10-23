@@ -24,13 +24,14 @@ Aplicación web y móvil en **Angular 22 + Ionic 9** (componentes *standalone*, 
     src/
     ├── app/
     │   ├── core/            Lo transversal, una sola instancia
-    │   │   ├── guards/          Protección de rutas (sesión, perfiles)
-    │   │   ├── interceptors/    Token de acceso, errores TMF630
-    │   │   ├── models/          Recursos de la API (Trip, SeatRequest...)
-    │   │   └── services/        Acceso a la API y estado de la sesión
+    │   │   ├── guards/          Protección de rutas (*.guard.ts: sesión, perfiles)
+    │   │   ├── interceptors/    Token de acceso y su renovación (*.interceptor.ts)
+    │   │   ├── models/          Recursos de la API y errores (*.model.ts)
+    │   │   ├── plugins/         Envoltorios de los plugins de Capacitor (*-plugin.ts)
+    │   │   └── services/        Una subcarpeta por dominio: auth/, system/, ui/...
     │   ├── shared/          Reutilizable entre pantallas
-    │   │   ├── components/      Layouts y componentes de interfaz
-    │   │   └── utils/
+    │   │   ├── components/      layout/, modals/, ui/
+    │   │   └── utils/           Funciones puras (*.util.ts)
     │   ├── features/        Una carpeta por área, con sus pantallas (*.page.ts)
     │   │   └── auth/  trips/  requests/  matching/  admin/
     │   ├── app.config.ts    Proveedores globales (Ionic, router, HttpClient)
@@ -40,6 +41,16 @@ Aplicación web y móvil en **Angular 22 + Ionic 9** (componentes *standalone*, 
     ├── theme/           Tema: colores, tipografía, tokens (entrada: variables.scss)
     └── styles.scss      Estilos globales
     public/              Ficheros estáticos (favicon, imágenes, fonts/)
+
+## Sesión
+
+`AuthService` (`core/services/auth/`) gestiona el registro, el login, el logout y la sesión contra `/api/auth`; su estado va en *signals* (`currentUser`, `isLoggedIn`, `hasProfile()`).
+
+- **Tokens:** el de acceso (15 min) solo en memoria; el de renovación se guarda con Capacitor Preferences (almacenamiento nativo en el móvil, `localStorage` en la web) para recuperar la sesión al abrir la app (`provideAppInitializer`).
+- **Renovación:** `authInterceptor` añade `Authorization: Bearer` a las peticiones a `/api` y, si el token ha caducado (`ACCESS_TOKEN_EXPIRED`), lo renueva y repite la petición una vez. Si la sesión ya no se puede renovar, lleva al login.
+- **Una renovación a la vez:** el token de renovación es de un solo uso y el backend cierra la sesión si se reutiliza. Las peticiones simultáneas comparten la misma renovación y, en la web, las pestañas se turnan con la Web Locks API.
+- **Guards:** `authGuard` (exige sesión; vuelve después a la página pedida con `?returnUrl=`), `profileGuard('driver')` (exige un perfil) y `guestGuard` (bienvenida, login y registro solo sin sesión).
+- **Errores:** los services lanzan `ApiError` (código TMF630 de `docs/api/errors.md`, estado y campos); `getErrorMessage()` (`shared/utils/`) da el mensaje en español para el usuario.
 
 ## Tema
 
