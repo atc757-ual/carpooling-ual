@@ -16,6 +16,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./frontend
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -24,37 +28,21 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version-file: '.nvmrc'
-
-      - name: Check if package.json exists
-        id: check-package
-        run: |
-          if [ -f frontend/package.json ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        if: steps.check-package.outputs.exists == 'true'
-        working-directory: ./frontend
-        run: npm install
+        run: npm ci
 
       - name: Audit dependencies
-        if: steps.check-package.outputs.exists == 'true'
-        working-directory: ./frontend
         run: npm audit --omit=dev --audit-level=high
 
       - name: Run linter
-        if: steps.check-package.outputs.exists == 'true'
-        working-directory: ./frontend
-        run: npm run lint --if-present
+        run: npm run lint
 
-      - name: Run tests
-        if: steps.check-package.outputs.exists == 'true'
-        working-directory: ./frontend
-        run: npm test -- --watch=false --browsers=ChromeHeadless --if-present
+      # Vitest (sin navegador); falla si la cobertura de líneas baja del 80 %
+      - name: Run tests with coverage
+        run: npm run test:cov
 
       - name: Build
-        if: steps.check-package.outputs.exists == 'true'
-        working-directory: ./frontend
-        run: npm run build --if-present
+        run: npm run build

@@ -1,0 +1,7 @@
+{
+  "name": "carpooling-ual-frontend",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

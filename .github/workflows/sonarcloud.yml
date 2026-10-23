@@ -38,7 +38,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
 
-      # Un paso de cobertura por proyecto. Añadir el del frontend y los servicios cuando existan
+      # Un paso de cobertura por proyecto. Añadir el de los servicios cuando existan
       - name: Backend coverage
         if: hashFiles('backend/package.json') != ''
         working-directory: ./backend
@@ -49,6 +49,13 @@ jobs:
         env:
           DATABASE_URL: postgresql://carpooling:carpooling_test@localhost:5432/carpooling_test
           JWT_SECRET: ci-test-only-secret-not-used-anywhere-else
+
+      - name: Frontend coverage
+        if: hashFiles('frontend/package.json') != ''
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run test:cov
 
       - name: SonarCloud scan
         uses: SonarSource/sonarqube-scan-action@v8.3.0
