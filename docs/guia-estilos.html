@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de estilos Carpooling UAL</title>
+<!--
+  Guía de estilos del frontend (tema en frontend/src/theme/). Se abre
+  directamente en el navegador; no forma parte de la app. Si cambia el tema,
+  actualizar también los valores de este fichero.
+-->
+<style>
+  /* ---------- Fuentes (los mismos ficheros que usa la app) ---------- */
+  @font-face { font-family: 'Barlow'; font-weight: 300; font-display: swap; src: url('../frontend/public/fonts/barlow-300-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Barlow'; font-weight: 400; font-display: swap; src: url('../frontend/public/fonts/barlow-400-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Barlow'; font-weight: 500; font-display: swap; src: url('../frontend/public/fonts/barlow-500-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Barlow'; font-weight: 600; font-display: swap; src: url('../frontend/public/fonts/barlow-600-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Barlow'; font-weight: 700; font-display: swap; src: url('../frontend/public/fonts/barlow-700-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Inter'; font-weight: 300 700; font-display: swap; src: url('../frontend/public/fonts/inter-variable-latin.woff2') format('woff2'); }
+
+  /* ---------- Tokens (lo que irá en src/theme) ---------- */
+  :root {
+    --font-family-heading: 'Barlow', sans-serif;
+    --font-family-body: 'Inter', sans-serif;
+
+    --font-weight-light: 300;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --font-size-display: clamp(2.25rem, 1.929rem + 1.429vw, 3rem);
+    --font-size-title: clamp(1.5rem, 1.393rem + 0.476vw, 1.75rem);
+    --font-size-subtitle: clamp(1.25rem, 1.196rem + 0.238vw, 1.375rem);
+    --line-height-display: 1.2;
+    --line-height-title: 1.3;
+    --line-height-subtitle: 1.4;
+    --line-height-body: 1.5rem;
+    --line-height-body-s: 1.25rem;
+    --line-height-label: 1.25rem;
+    --line-height-caption: 1rem;
+    --line-height-eyebrow: 1rem;
+    --letter-spacing-tight: -0.01em;
+    --letter-spacing-wide: 0.06em;
+    --border-width-s: 1px;
+    --border-width-m: 2px;
+    --border-width-l: 3px;
+    --control-height-s: 2.75rem;
+    --control-height-base: 3rem;
+    --control-height-l: 3.5rem;
+    --motion-duration-fast: 150ms;
+    --motion-duration-base: 250ms;
+    --font-size-body: 1rem;
+    --font-size-body-s: 0.875rem;
+    --font-size-label: 0.875rem;
+    --font-size-caption: 0.75rem;
+    --font-size-eyebrow: 0.75rem;
+
+    --space-xs: 0.25rem;
+    --space-s: 0.5rem;
+    --space-base: 1rem;
+    --space-l: 1.5rem;
+    --space-xl: 2rem;
+    --space-xxl: 2.5rem;
+    --space-xxxl: 3rem;
+
+    --radius-xs: 0.25rem;
+    --radius-s: 0.5rem;
+    --radius-base: 1rem;
+    --radius-l: 1.5rem;
+    --radius-xl: 2rem;
+    --radius-full: 9999px;
+
+    --shadow-s: 0 1px 2px rgb(12 12 12 / 8%);
+    --shadow-base: 0 4px 12px rgb(12 12 12 / 10%);
+    --shadow-l: 0 12px 32px rgb(12 12 12 / 14%);
+
+    --gradient-brand: linear-gradient(103deg, #002eff 45%, #42e8b4 120%);
+    --gradient-highlight: linear-gradient(110deg, #002eff 0%, #4062ff 70%, #71eec7 100%);
+
+    /* Roles: modo claro */
+    --color-bg: #ffffff;
+    --color-surface: #ffffff;
+    --color-surface-subtle: #f7f7f7;
+    --color-surface-raised: #ffffff;
+    --color-text: #0c0c0c;
+    --color-text-muted: #66686c;
+    --color-text-disabled: #a4a4a6;
+    --color-border: #d7d7d7;
+    --color-border-subtle: #e9e9e9;
+    --color-border-strong: #66686c;
+    --color-primary: #002eff;
+    --color-primary-hover: #4062ff;
+    --color-primary-pressed: #0022bf;
+    --color-on-primary: #ffffff;
+    --color-primary-subtle: #f3f5ff;
+    --color-link: #002eff;
+    --color-focus: #002eff;
+    --color-focus-ring: rgba(128, 151, 255, 0.5);
+    --color-backdrop: rgba(5, 2, 47, 0.7);
+    --color-accent: #ff3d00;
+    --color-on-accent: #0c0c0c;
+    --color-eco: #42e8b4;
+    --color-on-eco: #0c0c0c;
+    --color-eco-text: #21745a;
+    --color-admin: #10069f;
+    --color-on-admin: #ffffff;
+    --color-danger: #db110a;
+    --color-on-danger: #ffffff;
+    --color-danger-subtle: #fef4f3;
+    --color-success: #137e5d;
+    --color-on-success: #ffffff;
+    --color-success-subtle: #e6fffa;
+    --color-warning: #f5b207;
+    --color-on-warning: #0c0c0c;
+    --color-warning-text: #916802;
+    --color-warning-subtle: #fef9ec;
+  }
+
+  /* Roles: modo oscuro */
+  :root.theme-dark {
+    --color-bg: #141414;
+    --color-surface: #212121;
+    --color-surface-subtle: #303030;
+    --color-surface-raised: #343537;
+    --color-text: #ffffff;
+    --color-text-muted: #a4a4a6;
+    --color-text-disabled: #66686c;
+    --color-border: #66686c;
+    --color-border-subtle: #303030;
+    --color-border-strong: #a4a4a6;
+    --color-primary: #f3f5ff;
+    --color-primary-hover: #bfcbff;
+    --color-primary-pressed: #8097ff;
+    --color-on-primary: #0c0c0c;
+    --color-primary-subtle: #000e4d;
+    --color-link: #bfcbff;
+    --color-focus: #bfcbff;
+    --color-focus-ring: rgba(191, 203, 255, 0.5);
+    --color-backdrop: rgba(5, 2, 47, 0.8);
+    --color-accent: #ff9e80;
+    --color-on-accent: #0c0c0c;
+    --color-eco: #42e8b4;
+    --color-on-eco: #0c0c0c;
+    --color-eco-text: #71eec7;
+    --color-admin: #8783cf;
+    --color-on-admin: #0c0c0c;
+    --color-danger: #f1675a;
+    --color-on-danger: #0c0c0c;
+    --color-danger-subtle: #5e0603;
+    --color-success: #93ebcf;
+    --color-on-success: #0c0c0c;
+    --color-success-subtle: #093f2f;
+    --color-warning: #fbeabb;
+    --color-on-warning: #0c0c0c;
+    --color-warning-text: #fbeabb;
+    --color-warning-subtle: #453101;
+    --shadow-s: 0 1px 2px rgb(0 0 0 / 40%);
+    --shadow-base: 0 4px 12px rgb(0 0 0 / 50%);
+    --shadow-l: 0 12px 32px rgb(0 0 0 / 60%);
+  }
+
+  /* ---------- Página de la guía ---------- */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-bg); color: var(--color-text); font-family: var(--font-family-body); font-size: var(--font-size-body); line-height: 1.5; }
+  main { max-width: 1100px; margin: 0 auto; padding: var(--space-l) var(--space-base) var(--space-xxxl); }
+  header.top { display: flex; justify-content: space-between; align-items: center; gap: var(--space-base); flex-wrap: wrap; }
+  section { margin-top: var(--space-xxl); }
+  h2 { font-family: var(--font-family-heading); font-size: var(--font-size-title); font-weight: 700; margin: 0 0 var(--space-s); }
+  h3 { font-family: var(--font-family-heading); font-size: var(--font-size-subtitle); font-weight: 600; margin: var(--space-l) 0 var(--space-s); }
+  p.note { color: var(--color-text-muted); font-size: var(--font-size-body-s); margin: 0 0 var(--space-base); }
+  code { font-size: 0.8125rem; }
+  table { border-collapse: collapse; width: 100%; font-size: var(--font-size-body-s); }
+  th, td { text-align: left; padding: var(--space-s); border-bottom: 1px solid var(--color-border-subtle); vertical-align: middle; }
+  th { color: var(--color-text-muted); font-weight: 500; }
+  .scroll { overflow-x: auto; }
+
+  .text-display { font-family: var(--font-family-heading); font-size: var(--font-size-display); font-weight: 700; line-height: var(--line-height-display); letter-spacing: var(--letter-spacing-tight); }
+  .text-title { font-family: var(--font-family-heading); font-size: var(--font-size-title); font-weight: 700; line-height: var(--line-height-title); letter-spacing: var(--letter-spacing-tight); }
+  .text-subtitle { font-family: var(--font-family-heading); font-size: var(--font-size-subtitle); font-weight: 600; line-height: var(--line-height-subtitle); }
+  .text-body { font-size: var(--font-size-body); font-weight: 400; line-height: var(--line-height-body); }
+  .text-body-s { font-size: var(--font-size-body-s); font-weight: 400; line-height: var(--line-height-body-s); }
+  .text-label { font-size: var(--font-size-label); font-weight: 500; line-height: var(--line-height-label); }
+  .text-caption { font-size: var(--font-size-caption); font-weight: 400; line-height: var(--line-height-caption); color: var(--color-text-muted); }
+  .text-eyebrow { font-size: var(--font-size-eyebrow); font-weight: 600; line-height: var(--line-height-eyebrow); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); color: var(--color-primary); }
+
+  .scale { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
+  .step { border-radius: var(--radius-s); padding: 8px; font-size: 12px; line-height: 1.35; min-height: 64px; }
+  .step b { display: block; font-size: 13px; }
+  .ref { outline: 3px solid var(--color-text); outline-offset: 2px; }
+  .swatch { display: inline-block; width: 28px; height: 28px; border-radius: var(--radius-s); border: 1px solid var(--color-border); vertical-align: middle; }
+  .ok { color: var(--color-success); font-weight: 600; }
+  .ko { color: var(--color-danger); font-weight: 600; }
+
+  .btn { font-family: var(--font-family-heading); font-size: 1rem; font-weight: 600; border: 0; border-radius: var(--radius-s); padding: 0.875rem var(--space-l); cursor: pointer; }
+  .btn:focus-visible { outline: var(--border-width-l) solid var(--color-focus); outline-offset: 2px; box-shadow: 0 0 0 6px var(--color-focus-ring); }
+  .btn--primary { background: var(--color-primary); color: var(--color-on-primary); }
+  .btn--primary:hover { background: var(--color-primary-hover); }
+  .btn--primary:active { background: var(--color-primary-pressed); }
+  .btn--outline { background: transparent; color: var(--color-link); box-shadow: inset 0 0 0 1px var(--color-border); }
+  .btn--accent { background: var(--color-accent); color: var(--color-on-accent); }
+  .btn--eco { background: var(--color-eco); color: var(--color-on-eco); }
+  .btn--danger { background: var(--color-danger); color: var(--color-on-danger); }
+  .btn--highlight { border: 2px solid transparent; background: linear-gradient(var(--color-surface), var(--color-surface)) padding-box, var(--gradient-highlight) border-box; color: var(--color-text); }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-s); align-items: center; }
+
+  .field { display: flex; flex-direction: column; gap: var(--space-xs); max-width: 320px; }
+  .field input { font: inherit; padding: 0.75rem var(--space-base); border-radius: var(--radius-s); border: 1px solid var(--color-border-strong); background: var(--color-surface); color: var(--color-text); }
+  .field input::placeholder { color: var(--color-text-muted); }
+  .field input:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 1px; border-color: var(--color-primary); }
+  .field--error input { border-color: var(--color-danger); }
+  .field__error { color: var(--color-danger); font-size: var(--font-size-caption); }
+
+  .alert { border-radius: var(--radius-s); padding: var(--space-s) var(--space-base); font-size: var(--font-size-body-s); }
+  .card { background: var(--color-surface); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-base); padding: var(--space-base); }
+  .chip { display: inline-block; border-radius: var(--radius-full); padding: 2px 10px; font-size: var(--font-size-caption); font-weight: 600; }
+
+  .box { background: var(--color-primary-subtle); border-radius: var(--radius-xs); }
+  .space-demo { display: flex; align-items: center; gap: var(--space-base); margin: 4px 0; }
+  .space-demo .bar { background: var(--color-primary); height: 12px; border-radius: 2px; }
+  .radius-demo, .shadow-demo { width: 96px; height: 64px; background: var(--color-surface-subtle); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .shadow-demo { background: var(--color-surface-raised); border: 0; border-radius: var(--radius-s); }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-l); }
+  .hero { background: var(--gradient-brand); color: #ffffff; border-radius: var(--radius-l); padding: var(--space-l); }
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div>
+      <p class="text-eyebrow">Carpooling UAL · Guía de estilos</p>
+      <h1 class="text-display" style="margin:0">Tu campus, menos coches.</h1>
+    </div>
+    <button class="btn btn--outline" id="theme-toggle" type="button">Cambiar a modo oscuro</button>
+  </header>
+  <p class="note">Los contrastes se calculan en vivo (WCAG; AA ≥ 4,5:1 para texto normal, ≥ 3:1 para texto grande y bordes).</p>
+
+  <section>
+    <h2>1. Colores: roles</h2>
+    <p class="note">Lo que usan las pantallas. Cambian con el modo (prueba el botón de arriba).</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Uso</th><th>Muestra</th><th>Primer plano</th><th>Fondo</th><th>Contraste</th></tr></thead>
+      <tbody id="roles-body"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>2. Colores: paleta base</h2>
+    <p class="note">Solo para definir los roles. Casilla: escalón, valor y contraste con texto blanco (B) y negro (N). Con borde: color de referencia (500). * = interpolado.</p>
+    <div id="scales"></div>
+    <h3>Degradados</h3>
+    <div class="grid-3">
+      <div class="hero"><b>Marca</b><br><small>azul 500 → menta 500</small></div>
+      <div class="hero" style="background:var(--gradient-highlight)"><b>Destacado</b><br><small>p. ej. viaje recomendado</small></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>3. Tipografía</h2>
+    <table>
+      <tr><th>Familia</th><th>Uso</th><th>Pesos</th></tr>
+      <tr><td style="font-family:var(--font-family-heading);font-size:1.25rem">Barlow</td><td>Títulos, botones, cifras destacadas</td><td>300 · 400 · 500 · 600 · 700</td></tr>
+      <tr><td style="font-family:var(--font-family-body);font-size:1.25rem">Inter</td><td>Texto corrido, formularios, etiquetas</td><td>300–700 (fuente variable)</td></tr>
+    </table>
+    <h3>Pesos</h3>
+    <div class="row" style="gap:var(--space-l)">
+      <span style="font-weight:300">Light 300</span><span style="font-weight:400">Regular 400</span><span style="font-weight:500">Medium 500</span><span style="font-weight:600">SemiBold 600</span><span style="font-weight:700">Bold 700</span>
+    </div>
+    <h3>Estilos de texto</h3>
+    <p class="note">Los títulos usan <code>clamp()</code>: crecen con el ancho entre su mínimo y su máximo. Cambia el ancho de la ventana para verlo.</p>
+    <div class="scroll"><table>
+      <tr><th>Clase</th><th>Ejemplo</th><th>Tamaño (móvil → escritorio)</th><th>Familia / peso</th><th>Interlineado</th></tr>
+      <tr><td><code>.text-display</code></td><td class="text-display">Tu campus</td><td>2.25rem (36px) → 3rem (48px)</td><td>Barlow 700, −0.01em</td><td>1.2</td></tr>
+      <tr><td><code>.text-title</code></td><td class="text-title">Mis viajes</td><td>1.5rem (24px) → 1.75rem (28px)</td><td>Barlow 700, −0.01em</td><td>1.3</td></tr>
+      <tr><td><code>.text-subtitle</code></td><td class="text-subtitle">Próxima salida</td><td>1.25rem (20px) → 1.375rem (22px)</td><td>Barlow 600</td><td>1.4</td></tr>
+      <tr><td><code>.text-body</code></td><td class="text-body">Comparte trayecto con la comunidad UAL.</td><td>1rem (16px)</td><td>Inter 400</td><td>1.5rem (24px)</td></tr>
+      <tr><td><code>.text-body-s</code></td><td class="text-body-s">Salida desde Aguadulce a las 8:15.</td><td>0.875rem (14px)</td><td>Inter 400</td><td>1.25rem (20px)</td></tr>
+      <tr><td><code>.text-label</code></td><td class="text-label">Correo de la UAL</td><td>0.875rem (14px)</td><td>Inter 500</td><td>1.25rem (20px)</td></tr>
+      <tr><td><code>.text-caption</code></td><td class="text-caption">Hace 5 minutos</td><td>0.75rem (12px)</td><td>Inter 400</td><td>1rem (16px)</td></tr>
+      <tr><td><code>.text-eyebrow</code></td><td class="text-eyebrow">Cada viaje cuenta</td><td>0.75rem (12px), mayúsculas</td><td>Inter 600, +0.06em</td><td>1rem (16px)</td></tr>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>4. Espaciado</h2>
+    <p class="note">Para <code>padding</code>, <code>margin</code> y <code>gap</code>.</p>
+    <div id="spaces"></div>
+  </section>
+
+  <section>
+    <h2>5. Esquinas</h2>
+    <p class="note">Por defecto <code>--radius-s</code> (8px): botones, campos, avisos.</p>
+    <div class="grid-3" id="radii"></div>
+  </section>
+
+  <section>
+    <h2>6. Sombras</h2>
+    <div class="grid-3">
+      <div><div class="shadow-demo" style="box-shadow:var(--shadow-s)">s</div><p class="text-caption">--shadow-s · elementos sobre la página</p></div>
+      <div><div class="shadow-demo" style="box-shadow:var(--shadow-base)">base</div><p class="text-caption">--shadow-base · tarjetas, menús</p></div>
+      <div><div class="shadow-demo" style="box-shadow:var(--shadow-l)">l</div><p class="text-caption">--shadow-l · modales, hojas inferiores</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>7. Bordes, alturas y movimiento</h2>
+    <h3>Grosor de borde</h3>
+    <div class="grid-3">
+      <div><div class="radius-demo" style="border-radius:var(--radius-s);border-width:var(--border-width-s)">s</div><p class="text-caption"><code>--border-width-s</code> · 1px · campos, tarjetas</p></div>
+      <div><div class="radius-demo" style="border-radius:var(--radius-s);border:var(--border-width-m) solid var(--color-border-strong)">m</div><p class="text-caption"><code>--border-width-m</code> · 2px · seleccionado</p></div>
+      <div><div class="radius-demo" style="border-radius:var(--radius-s);outline:var(--border-width-l) solid var(--color-focus);outline-offset:2px;box-shadow:0 0 0 6px var(--color-focus-ring)">l</div><p class="text-caption"><code>--border-width-l</code> · 3px · foco (con halo <code>--color-focus-ring</code>)</p></div>
+    </div>
+    <h3>Altura de botones y campos</h3>
+    <p class="note">Mínimo táctil recomendado: 44–48px.</p>
+    <div class="row" style="align-items:flex-end">
+      <button class="btn btn--primary" style="height:var(--control-height-s);padding-block:0">s · 44px</button>
+      <button class="btn btn--primary" style="height:var(--control-height-base);padding-block:0">base · 48px</button>
+      <button class="btn btn--primary" style="height:var(--control-height-l);padding-block:0">l · 56px</button>
+    </div>
+    <h3>Fondo de modales</h3>
+    <div style="position:relative;height:120px;border-radius:var(--radius-base);overflow:hidden;background:var(--color-surface-subtle)">
+      <p class="text-body-s" style="margin:var(--space-base)">Contenido de la página detrás del modal…</p>
+      <div style="position:absolute;inset:0;background:var(--color-backdrop);display:flex;align-items:center;justify-content:center">
+        <div class="card" style="box-shadow:var(--shadow-l)">Modal sobre <code>--color-backdrop</code></div>
+      </div>
+    </div>
+    <h3>Movimiento</h3>
+    <p class="note"><code>--motion-duration-fast</code> 150ms (hover, foco) · <code>--motion-duration-base</code> 250ms (abrir/cerrar) · ambos pasan a 0ms si el sistema pide reducir el movimiento.</p>
+  </section>
+
+  <section>
+    <h2>8. Componentes de ejemplo</h2>
+    <p class="note">Solo para ver el tema aplicado; los componentes reales se harán con Ionic. Usa el tabulador para ver el foco.</p>
+    <h3>Botones</h3>
+    <div class="row">
+      <button class="btn btn--primary">Crear mi cuenta</button>
+      <button class="btn btn--outline">Ya tengo cuenta</button>
+      <button class="btn btn--highlight">Viaje recomendado</button>
+      <button class="btn btn--accent">Últimas plazas</button>
+      <button class="btn btn--eco">Ver mi impacto</button>
+      <button class="btn btn--danger">Cancelar viaje</button>
+    </div>
+    <h3>Campos</h3>
+    <div class="row" style="align-items:flex-start;gap:var(--space-l)">
+      <label class="field"><span class="text-label">Correo de la UAL</span><input placeholder="nombre@inlumine.ual.es"></label>
+      <label class="field field--error"><span class="text-label">Contraseña</span><input type="password" value="1234"><span class="field__error">Mínimo 8 caracteres.</span></label>
+    </div>
+    <h3>Avisos</h3>
+    <div style="display:grid;gap:var(--space-s);max-width:480px">
+      <div class="alert" style="background:var(--color-danger-subtle);color:var(--color-danger)">No se ha podido publicar el viaje.</div>
+      <div class="alert" style="background:var(--color-warning-subtle);color:var(--color-warning-text)">Quedan pocas plazas libres.</div>
+      <div class="alert" style="background:var(--color-success-subtle);color:var(--color-success)">Solicitud aceptada.</div>
+      <div class="alert" style="background:var(--color-primary-subtle);color:var(--color-link)">El viaje empieza en 10 minutos.</div>
+    </div>
+    <h3>Tarjeta</h3>
+    <div class="card" style="max-width:360px;box-shadow:var(--shadow-base)">
+      <p class="text-eyebrow" style="margin:0">Mañana · 8:15</p>
+      <p class="text-subtitle" style="margin:var(--space-xs) 0">Aguadulce → Campus UAL</p>
+      <p class="text-body-s" style="margin:0 0 var(--space-s);color:var(--color-text-muted)">Conductora: Lucía · 3 plazas libres</p>
+      <span class="chip" style="background:var(--color-eco);color:var(--color-on-eco)">−1 coche</span>
+      <span class="chip" style="background:var(--color-accent);color:var(--color-on-accent)">Prioridad</span>
+      <span class="chip" style="background:var(--color-admin);color:var(--color-on-admin)">Admin</span>
+    </div>
+  </section>
+</main>
+
+<script>
+  const scales = {
+    'Neutros': { 0: '#ffffff', 50: '#f7f7f7', 100: '#e9e9e9', 200: '#d7d7d7', '300*': '#bbbbbb', 400: '#a4a4a6', 500: '#66686c', 600: '#3b3d3f', 700: '#343537', 750: '#303030', 800: '#212121', 900: '#141414', 950: '#0c0c0c' },
+    'Azul · marca y acción': { 50: '#f3f5ff', '100*': '#dae0ff', 200: '#bfcbff', 300: '#8097ff', 400: '#4062ff', 500: '#002eff', 600: '#0022bf', '700*': '#001ca0', 800: '#001780', 900: '#000e4d' },
+    'Naranjo · acento': { '50*': '#fff5f2', '100*': '#ffe2d9', 200: '#ffcfbf', 300: '#ff9e80', 400: '#ff6e40', 500: '#ff3d00', 600: '#bf2e00', '700*': '#a02600', 800: '#801e00', '900*': '#4d1200' },
+    'Menta · sostenibilidad': { '50*': '#effdf8', '100*': '#e0fbf2', 200: '#d0f9ec', 300: '#a0f3d9', 400: '#71eec7', 500: '#42e8b4', 600: '#31ae87', '700*': '#299170', 800: '#21745a', '900*': '#154a3a' },
+    'Índigo · administración': { '50*': '#f3f2fa', '100*': '#dbdaf1', 200: '#c3c1e7', 300: '#8783cf', 400: '#4c44b7', 500: '#10069f', 600: '#0c0477', '700*': '#0a0463', 800: '#08034f', '900*': '#05022f' },
+    'Rojo · error': { 50: '#fef4f3', '100*': '#fbdcd9', 200: '#f9c6c1', 300: '#f1665a', '400*': '#e63c32', 500: '#db110a', '600*': '#c80e08', 700: '#b40c06', 800: '#940a05', '900*': '#5e0603' },
+    'Amarillo · aviso': { 50: '#fef9ec', '100*': '#fdf2d4', 200: '#fbeabb', '300*': '#f9d77a', '400*': '#f7c440', 500: '#f5b207', '600*': '#c38d05', 700: '#916802', '800*': '#6b4d02', '900*': '#453101' },
+    'Verde · éxito': { 50: '#e6fffa', '100*': '#c4f5e6', 200: '#93ebcf', '300*': '#5fd4ad', '400*': '#3bbd92', 500: '#1ea67b', '600*': '#188f6b', 700: '#137e5d', '800*': '#0e5e46', '900*': '#093f2f' },
+    'Ilustración y gráficas': { azul: '#29abe2', verde: '#8dc440', naranja: '#f8941c', morado: '#662c91', amarillo: '#feed22' },
+  };
+  const roles = [
+    ['Texto', '--color-text', '--color-bg'],
+    ['Texto secundario', '--color-text-muted', '--color-bg'],
+    ['Texto deshabilitado (exento de AA)', '--color-text-disabled', '--color-bg'],
+    ['Texto sobre superficie', '--color-text', '--color-surface'],
+    ['Borde decorativo: tarjetas, separadores (exento)', '--color-border', '--color-surface'],
+    ['Borde de campo (≥ 3:1)', '--color-border-strong', '--color-surface'],
+    ['Enlace', '--color-link', '--color-bg'],
+    ['Botón principal', '--color-on-primary', '--color-primary'],
+    ['Botón principal (hover)', '--color-on-primary', '--color-primary-hover'],
+    ['Acento', '--color-on-accent', '--color-accent'],
+    ['Sostenibilidad', '--color-on-eco', '--color-eco'],
+    ['Texto de sostenibilidad', '--color-eco-text', '--color-bg'],
+    ['Administración', '--color-on-admin', '--color-admin'],
+    ['Error (botón)', '--color-on-danger', '--color-danger'],
+    ['Error (texto en aviso)', '--color-danger', '--color-danger-subtle'],
+    ['Éxito (botón)', '--color-on-success', '--color-success'],
+    ['Éxito (texto en aviso)', '--color-success', '--color-success-subtle'],
+    ['Aviso (relleno)', '--color-on-warning', '--color-warning'],
+    ['Aviso (texto en aviso)', '--color-warning-text', '--color-warning-subtle'],
+    ['Información (texto en aviso)', '--color-link', '--color-primary-subtle'],
+  ];
+  const spaces = [['xs', '0.25rem', 4], ['s', '0.5rem', 8], ['base', '1rem', 16], ['l', '1.5rem', 24], ['xl', '2rem', 32], ['xxl', '2.5rem', 40], ['xxxl', '3rem', 48]];
+  const radii = [['xs', '0.25rem', 4, 'etiquetas pequeñas'], ['s', '0.5rem', 8, 'por defecto: botones, campos'], ['base', '1rem', 16, 'tarjetas'], ['l', '1.5rem', 24, 'tarjetas grandes, hojas'], ['xl', '2rem', 32, 'bloques destacados'], ['full', '9999px', null, 'chips, avatares']];
+
+  const lum = hex => {
+    const c = [1, 3, 5].map(i => Number.parseInt(hex.slice(i, i + 2), 16) / 255)
+      .map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const ratio = (a, b) => {
+    const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
+    return (x + 0.05) / (y + 0.05);
+  };
+  const fmt = r => r.toFixed(1).replace('.', ',');
+  const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+  function renderStep(step, hex) {
+    const onWhite = ratio(hex, '#ffffff');
+    const onBlack = ratio(hex, '#0c0c0c');
+    const text = onWhite >= onBlack ? '#ffffff' : '#0c0c0c';
+    const className = step === '500' ? 'step ref' : 'step';
+    return `<div class="${className}" style="background:${hex};color:${text}">
+      <b>${step}</b>${hex}<br>B ${fmt(onWhite)}<br>N ${fmt(onBlack)}</div>`;
+  }
+
+  function renderScale(name, steps) {
+    const cells = Object.entries(steps).map(([step, hex]) => renderStep(step, hex)).join('');
+    return `<h3>${name}</h3><div class="scale">${cells}</div>`;
+  }
+
+  function renderScales() {
+    document.getElementById('scales').innerHTML = Object.entries(scales)
+      .map(([name, steps]) => renderScale(name, steps)).join('');
+  }
+
+  function renderVerdict(name, r) {
+    if (name.includes('exento')) {
+      return `${fmt(r)}:1`;
+    }
+    const minimum = name.includes('Borde') ? 3 : 4.5;
+    const passes = r >= minimum;
+    const className = passes ? 'ok' : 'ko';
+    const label = passes ? 'AA' : 'no AA';
+    return `<span class="${className}">${fmt(r)}:1 ${label}</span>`;
+  }
+
+  function renderRole(name, fg, bg) {
+    const fgHex = cssVar(fg);
+    const bgHex = cssVar(bg);
+    return `<tr>
+      <td>${name}</td>
+      <td><span style="display:inline-block;padding:6px 12px;border-radius:8px;background:${bgHex};color:${fgHex};border:1px solid var(--color-border-subtle)">Aa Texto</span></td>
+      <td><span class="swatch" style="background:${fgHex}"></span> <code>${fg}</code> ${fgHex}</td>
+      <td><span class="swatch" style="background:${bgHex}"></span> <code>${bg}</code> ${bgHex}</td>
+      <td>${renderVerdict(name, ratio(fgHex, bgHex))}</td></tr>`;
+  }
+
+  function renderRoles() {
+    document.getElementById('roles-body').innerHTML = roles.map(([name, fg, bg]) => renderRole(name, fg, bg)).join('');
+  }
+
+  function renderRadius(name, rem, px, use) {
+    const size = px ? `${rem} (${px}px)` : rem;
+    return `<div><div class="radius-demo" style="border-radius:var(--radius-${name})">${name}</div><p class="text-caption"><code>--radius-${name}</code> · ${size}<br>${use}</p></div>`;
+  }
+
+  document.getElementById('spaces').innerHTML = spaces.map(([name, rem, px]) =>
+    `<div class="space-demo"><code style="width:120px">--space-${name}</code><div class="bar" style="width:${rem}"></div><span class="text-caption">${rem} (${px}px)</span></div>`).join('');
+  document.getElementById('radii').innerHTML = radii.map(([name, rem, px, use]) => renderRadius(name, rem, px, use)).join('');
+
+  // Misma clase que usa la app para forzar el modo (ver _color-scheme.scss)
+  const toggle = document.getElementById('theme-toggle');
+  toggle.addEventListener('click', () => {
+    const isDark = document.documentElement.classList.toggle('theme-dark');
+    toggle.textContent = isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+    renderRoles();
+  });
+
+  renderScales();
+  renderRoles();
+</script>
+</body>
+</html>

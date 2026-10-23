@@ -1,0 +1,132 @@
+// Roles de color: lo que usan las pantallas (nunca la paleta directamente).
+// Cada rol tiene un valor en modo claro y otro en oscuro; el modo oscuro
+// aclara los colores en vez de mantenerlos, para conservar el contraste.
+//
+// Contraste comprobado (WCAG 2.2, nivel AA) en los dos modos:
+// - Texto: ≥ 4,5:1 sobre su fondo (--color-on-x sobre --color-x, y los textos
+//   de estado sobre su fondo suave --color-x-subtle).
+// - Bordes de campos y foco: ≥ 3:1 (--color-border-strong, --color-focus).
+// - Exentos: --color-text-disabled y --color-border (decorativo).
+@use 'palette' as *;
+@use 'color-scheme';
+
+:root {
+  color-scheme: light;
+
+  // Fondos y superficies
+  --color-bg: #{$neutral-0};
+  --color-surface: #{$neutral-0};
+  --color-surface-subtle: #{$neutral-50};
+  --color-surface-raised: #{$neutral-0};
+
+  // Texto
+  --color-text: #{$neutral-950};
+  --color-text-muted: #{$neutral-500};
+  --color-text-disabled: #{$neutral-400};
+
+  // Bordes
+  --color-border: #{$neutral-200}; // tarjetas y separadores
+  --color-border-subtle: #{$neutral-100};
+  --color-border-strong: #{$neutral-500}; // campos de formulario
+
+  // Marca y acción principal
+  --color-primary: #{$blue-500};
+  --color-primary-hover: #{$blue-400};
+  --color-primary-pressed: #{$blue-600};
+  --color-primary-subtle: #{$blue-50};
+  --color-on-primary: #{$neutral-0};
+  --color-link: #{$blue-500};
+  --color-focus: #{$blue-500};
+  --color-focus-ring: #{rgba($blue-300, 0.5)}; // halo alrededor del foco
+
+  // Fondo semitransparente detrás de modales y hojas inferiores
+  --color-backdrop: #{rgba($indigo-900, 0.7)}; // azul muy oscuro, tirando a morado
+
+  // Acento (contadores, «Prioridad», «Últimas plazas»)
+  --color-accent: #{$orange-500};
+  --color-on-accent: #{$neutral-950}; // blanco solo daría 3,5:1
+
+  // Sostenibilidad (vehículos evitados, CO₂, Gemelo Digital)
+  --color-eco: #{$mint-500};
+  --color-on-eco: #{$neutral-950};
+  --color-eco-text: #{$mint-800};
+
+  // Panel de administración
+  --color-admin: #{$indigo-500};
+  --color-on-admin: #{$neutral-0};
+
+  // Estados
+  --color-danger: #{$red-500};
+  --color-danger-subtle: #{$red-50};
+  --color-on-danger: #{$neutral-0};
+  --color-success: #{$green-700};
+  --color-success-subtle: #{$green-50};
+  --color-on-success: #{$neutral-0};
+  --color-warning: #{$yellow-500};
+  --color-warning-subtle: #{$yellow-50};
+  --color-warning-text: #{$yellow-700};
+  --color-on-warning: #{$neutral-950};
+
+  // Degradados
+  --gradient-brand: #{$gradient-brand};
+  --gradient-highlight: #{$gradient-highlight};
+
+  // Sombras (en oscuro necesitan más opacidad para notarse)
+  --shadow-s: 0 1px 2px rgb(12 12 12 / 8%);
+  --shadow-base: 0 4px 12px rgb(12 12 12 / 10%);
+  --shadow-l: 0 12px 32px rgb(12 12 12 / 14%);
+}
+
+@include color-scheme.dark {
+  color-scheme: dark;
+
+  --color-bg: #{$neutral-900};
+  --color-surface: #{$neutral-800};
+  --color-surface-subtle: #{$neutral-750};
+  --color-surface-raised: #{$neutral-700};
+
+  --color-text: #{$neutral-0};
+  --color-text-muted: #{$neutral-400};
+  --color-text-disabled: #{$neutral-500};
+
+  --color-border: #{$neutral-500};
+  --color-border-subtle: #{$neutral-750};
+  --color-border-strong: #{$neutral-400};
+
+  // El botón principal se invierte: fondo claro y texto oscuro
+  --color-primary: #{$blue-50};
+  --color-primary-hover: #{$blue-200};
+  --color-primary-pressed: #{$blue-300};
+  --color-primary-subtle: #{$blue-900};
+  --color-on-primary: #{$neutral-950};
+  --color-link: #{$blue-200};
+  --color-focus: #{$blue-200};
+  --color-focus-ring: #{rgba($blue-200, 0.5)};
+
+  --color-backdrop: #{rgba($indigo-900, 0.8)};
+
+  --color-accent: #{$orange-300};
+  --color-on-accent: #{$neutral-950};
+
+  --color-eco: #{$mint-500};
+  --color-on-eco: #{$neutral-950};
+  --color-eco-text: #{$mint-400};
+
+  --color-admin: #{$indigo-300};
+  --color-on-admin: #{$neutral-950};
+
+  --color-danger: #{$red-300};
+  --color-danger-subtle: #{$red-900};
+  --color-on-danger: #{$neutral-950};
+  --color-success: #{$green-200};
+  --color-success-subtle: #{$green-900};
+  --color-on-success: #{$neutral-950};
+  --color-warning: #{$yellow-200};
+  --color-warning-subtle: #{$yellow-900};
+  --color-warning-text: #{$yellow-200};
+  --color-on-warning: #{$neutral-950};
+
+  --shadow-s: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-base: 0 4px 12px rgb(0 0 0 / 50%);
+  --shadow-l: 0 12px 32px rgb(0 0 0 / 60%);
+}

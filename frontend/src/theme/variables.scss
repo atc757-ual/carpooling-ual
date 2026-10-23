@@ -1,4 +1,20 @@
-// Tema de Ionic: colores y variables (--ion-color-primary, etc.). Se
-// definirán con el diseño de las pantallas. Modo oscuro según la preferencia
-// del sistema: https://ionicframework.com/docs/theming/dark-mode
-@import '@ionic/angular/css/palettes/dark.system.css';
+// Punto de entrada del tema (lo carga angular.json después de los CSS de
+// Ionic, para que nuestras variables tengan prioridad). Cada fichero tiene una
+// sola responsabilidad:
+//
+// - _palette.scss: todos los colores, sin significado de uso (solo Sass).
+// - _fonts.scss: @font-face de Barlow e Inter (public/fonts/).
+// - _tokens.scss: espaciado, esquinas, bordes, alturas, tipografía, movimiento.
+// - _roles.scss: roles de color y sombras, en modo claro y oscuro.
+// - _ionic.scss: variables de Ionic (--ion-*) a partir de la paleta.
+// - _typography.scss: estilos de texto (.text-display, .text-body…).
+// - _utilities.scss: utilidades que Ionic no trae (.visually-hidden…).
+// - _color-scheme.scss: cuándo se aplica el modo oscuro (sistema o clase).
+//
+// Las pantallas usan los tokens, los roles y las clases, nunca la paleta.
+@use 'fonts';
+@use 'tokens';
+@use 'roles';
+@use 'ionic';
+@use 'typography';
+@use 'utilities';

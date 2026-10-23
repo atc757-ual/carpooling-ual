@@ -1,0 +1,108 @@
+// Conexión del tema con Ionic: sus variables (--ion-*) toman los valores de
+// nuestra paleta, con los mismos tonos que los roles de _roles.scss. Sustituye
+// a las paletas de Ionic (dark.system.css…), que ya no se importan.
+//
+// Ionic necesita cada color en hexadecimal y en «r, g, b» (para sus rgba()),
+// por eso se calculan aquí con Sass a partir de la paleta y no con var().
+@use 'sass:color';
+@use 'sass:math';
+@use 'palette' as *;
+@use 'color-scheme';
+
+@function rgb-channels($value) {
+  $red: math.round(color.channel($value, 'red', $space: rgb));
+  $green: math.round(color.channel($value, 'green', $space: rgb));
+  $blue: math.round(color.channel($value, 'blue', $space: rgb));
+  @return #{$red}, #{$green}, #{$blue};
+}
+
+// Mezcla dos colores y redondea el resultado (para que salga en hexadecimal).
+@function mix-colors($first, $second, $weight) {
+  $mixed: color.mix($first, $second, $weight);
+  @return rgb(
+    math.round(color.channel($mixed, 'red', $space: rgb)),
+    math.round(color.channel($mixed, 'green', $space: rgb)),
+    math.round(color.channel($mixed, 'blue', $space: rgb))
+  );
+}
+
+// Un color con nombre de Ionic (color="primary"…) con sus 6 variantes.
+// Ionic usa el tinte (tint) al pasar el ratón y la sombra (shade) al pulsar;
+// por defecto, como Ionic: tint = 10 % de blanco y shade = 12 % de negro.
+@mixin ion-color($name, $base, $contrast, $shade: null, $tint: null) {
+  @if not $shade {
+    $shade: mix-colors(#000000, $base, 12%);
+  }
+  @if not $tint {
+    $tint: mix-colors(#ffffff, $base, 10%);
+  }
+
+  --ion-color-#{$name}: #{$base};
+  --ion-color-#{$name}-rgb: #{rgb-channels($base)};
+  --ion-color-#{$name}-contrast: #{$contrast};
+  --ion-color-#{$name}-contrast-rgb: #{rgb-channels($contrast)};
+  --ion-color-#{$name}-shade: #{$shade};
+  --ion-color-#{$name}-tint: #{$tint};
+}
+
+// Fondo, texto y los 19 tonos intermedios entre ambos (step-50 … step-950)
+// que Ionic usa en bordes, placeholders, estados y separadores.
+@mixin ion-surfaces($background, $text) {
+  --ion-background-color: #{$background};
+  --ion-background-color-rgb: #{rgb-channels($background)};
+  --ion-text-color: #{$text};
+  --ion-text-color-rgb: #{rgb-channels($text)};
+
+  @for $i from 1 through 19 {
+    $step: $i * 50;
+    $weight: math.percentage(math.div($step, 1000));
+    --ion-background-color-step-#{$step}: #{mix-colors($text, $background, $weight)};
+    --ion-text-color-step-#{$step}: #{mix-colors($background, $text, $weight)};
+  }
+}
+
+// Modo claro (y variables que no cambian con el modo)
+:root {
+  @include ion-surfaces($neutral-0, $neutral-950);
+
+  --ion-font-family: var(--font-family-body);
+  --ion-backdrop-color: #{$indigo-900};
+  --ion-placeholder-color: var(--color-text-muted);
+  --ion-border-color: var(--color-border);
+  --ion-item-background: var(--color-surface);
+  --ion-card-background: var(--color-surface);
+  --ion-toolbar-background: var(--color-surface);
+  --ion-toolbar-border-color: var(--color-border-subtle);
+  --ion-tab-bar-background: var(--color-surface);
+  --ion-tab-bar-background-focused: var(--color-surface-subtle);
+  --ion-overlay-background-color: var(--color-surface-raised);
+  --ion-backdrop-opacity: 0.7;
+
+  @include ion-color(primary, $blue-500, $neutral-0, $shade: $blue-600, $tint: $blue-400);
+  @include ion-color(secondary, $orange-500, $neutral-950); // acento
+  @include ion-color(tertiary, $mint-500, $neutral-950); // sostenibilidad
+  @include ion-color(success, $green-700, $neutral-0);
+  @include ion-color(warning, $yellow-500, $neutral-950);
+  @include ion-color(danger, $red-500, $neutral-0);
+  @include ion-color(light, $neutral-50, $neutral-950);
+  @include ion-color(medium, $neutral-500, $neutral-0);
+  @include ion-color(dark, $neutral-800, $neutral-0);
+}
+
+// Modo oscuro: colores más claros y con texto oscuro encima; light y dark se
+// intercambian, como en las paletas de Ionic
+@include color-scheme.dark {
+  @include ion-surfaces($neutral-900, $neutral-0);
+
+  --ion-backdrop-opacity: 0.8;
+
+  @include ion-color(primary, $blue-50, $neutral-950, $shade: $blue-300, $tint: $blue-200);
+  @include ion-color(secondary, $orange-300, $neutral-950);
+  @include ion-color(tertiary, $mint-500, $neutral-950);
+  @include ion-color(success, $green-200, $neutral-950);
+  @include ion-color(warning, $yellow-200, $neutral-950);
+  @include ion-color(danger, $red-300, $neutral-950);
+  @include ion-color(light, $neutral-800, $neutral-0);
+  @include ion-color(medium, $neutral-400, $neutral-950);
+  @include ion-color(dark, $neutral-50, $neutral-950);
+}

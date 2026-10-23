@@ -53,6 +53,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Seguimiento real del viaje (RF-12): el conductor envía su posición durante el viaje en curso y la ven él y sus pasajeros aceptados, con lo que queda hasta el destino y la llegada estimada; cada posición genera el evento `trip.position_updated` para el Gemelo Digital y el recorrido se borra al terminar el viaje (RGPD). Variable `POSITION_MIN_INTERVAL_SECONDS`; migración `AddTripPositions` (#25)
 - Esqueleto del frontend en Angular 22 + Ionic 9 (componentes standalone, sin Zone.js) con Capacitor 8, sin pantallas: estructura `core/`, `shared/` y `features/`, entornos con la API en `/api` y proxy al backend en desarrollo (#26)
 - CI del frontend (lint, tests con cobertura en Vitest, `npm audit` y build), frontend en Dependabot y en SonarCloud (#26)
+- Tema del frontend: paleta de colores, roles de color en modo claro y oscuro (según el sistema o forzado con `theme-dark`/`theme-light`), tokens de espaciado, esquinas, bordes, alturas y tipografía, variables de Ionic, fuentes Barlow e Inter servidas desde la app, clases de texto y utilidades básicas; contraste WCAG AA en todos los pares de texto (#31)
+- Guía de estilos visual en `docs/guia-estilos.html` (#31)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)

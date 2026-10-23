@@ -1,0 +1,120 @@
+// Paleta base: todos los colores del producto, sin significado de uso.
+//
+// Son variables de Sass (no CSS) a propósito: las pantallas no deben usarlas
+// directamente, sino los roles de _roles.scss (--color-text, --color-surface…),
+// que son los que cambian en modo oscuro.
+//
+// Los valores marcados con «*» son interpolados para completar la escala.
+// Escala de cada tono: 50 (más claro)
+// → 900 (más oscuro); el 500 es el color de referencia. El contraste AA como
+// texto (≥ 4,5:1) no depende del escalón: se comprueba en _roles.scss.
+
+// Neutros (grises)
+$neutral-0: #ffffff;
+$neutral-50: #f7f7f7;
+$neutral-100: #e9e9e9;
+$neutral-200: #d7d7d7;
+$neutral-300: #bbbbbb; // *
+$neutral-400: #a4a4a6;
+$neutral-500: #66686c;
+$neutral-600: #3b3d3f;
+$neutral-700: #343537;
+$neutral-750: #303030;
+$neutral-800: #212121;
+$neutral-900: #141414;
+$neutral-950: #0c0c0c;
+
+// Azul: marca y acción principal
+$blue-50: #f3f5ff;
+$blue-100: #dae0ff; // *
+$blue-200: #bfcbff;
+$blue-300: #8097ff;
+$blue-400: #4062ff;
+$blue-500: #002eff;
+$blue-600: #0022bf;
+$blue-700: #001ca0; // *
+$blue-800: #001780;
+$blue-900: #000e4d;
+
+// Naranjo: acento (como texto sobre blanco solo da 3,5:1)
+$orange-50: #fff5f2; // *
+$orange-100: #ffe2d9; // *
+$orange-200: #ffcfbf;
+$orange-300: #ff9e80;
+$orange-400: #ff6e40;
+$orange-500: #ff3d00;
+$orange-600: #bf2e00;
+$orange-700: #a02600; // *
+$orange-800: #801e00;
+$orange-900: #4d1200; // *
+
+// Menta: sostenibilidad e impacto
+$mint-50: #effdf8; // *
+$mint-100: #e0fbf2; // *
+$mint-200: #d0f9ec;
+$mint-300: #a0f3d9;
+$mint-400: #71eec7;
+$mint-500: #42e8b4;
+$mint-600: #31ae87;
+$mint-700: #299170; // *
+$mint-800: #21745a;
+$mint-900: #154a3a; // *
+
+// Índigo: panel de administración
+$indigo-50: #f3f2fa; // *
+$indigo-100: #dbdaf1; // *
+$indigo-200: #c3c1e7;
+$indigo-300: #8783cf;
+$indigo-400: #4c44b7;
+$indigo-500: #10069f;
+$indigo-600: #0c0477;
+$indigo-700: #0a0463; // *
+$indigo-800: #08034f;
+$indigo-900: #05022f; // *
+
+// Rojo: error
+$red-50: #fef4f3;
+$red-100: #fbdcd9; // *
+$red-200: #f9c6c1;
+$red-300: #f1665a;
+$red-400: #e63c32; // *
+$red-500: #db110a;
+$red-600: #c80e08; // *
+$red-700: #b40c06;
+$red-800: #940a05;
+$red-900: #5e0603; // *
+
+// Amarillo: aviso (con texto oscuro encima)
+$yellow-50: #fef9ec;
+$yellow-100: #fdf2d4; // *
+$yellow-200: #fbeabb;
+$yellow-300: #f9d77a; // *
+$yellow-400: #f7c440; // *
+$yellow-500: #f5b207;
+$yellow-600: #c38d05; // *
+$yellow-700: #916802;
+$yellow-800: #6b4d02; // *
+$yellow-900: #453101; // *
+
+// Verde: éxito
+$green-50: #e6fffa;
+$green-100: #c4f5e6; // *
+$green-200: #93ebcf;
+$green-300: #5fd4ad; // *
+$green-400: #3bbd92; // *
+$green-500: #1ea67b;
+$green-600: #188f6b; // *
+$green-700: #137e5d;
+$green-800: #0e5e46; // *
+$green-900: #093f2f; // *
+
+// Ilustración y gráficas (p. ej. escenarios S0-S5); comprobar daltonismo
+$illustration-blue: #29abe2;
+$illustration-green: #8dc440;
+$illustration-orange: #f8941c;
+$illustration-purple: #662c91;
+$illustration-yellow: #feed22;
+
+// Degradados
+$gradient-brand: linear-gradient(103deg, $blue-500 45%, $mint-500 120%);
+$gradient-highlight: linear-gradient(110deg, $blue-500 0%, $blue-400 70%, $mint-400 100%);

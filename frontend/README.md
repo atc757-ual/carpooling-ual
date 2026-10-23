@@ -37,9 +37,20 @@ Aplicación web y móvil en **Angular 22 + Ionic 9** (componentes *standalone*, 
     │   ├── app.routes.ts    Rutas: cada pantalla se carga bajo demanda (loadComponent)
     │   └── app.ts           Raíz: <ion-app> + <ion-router-outlet>
     ├── environments/    Configuración por entorno (apiUrl)
-    ├── theme/           Tema de Ionic (variables.scss)
+    ├── theme/           Tema: colores, tipografía, tokens (entrada: variables.scss)
     └── styles.scss      Estilos globales
-    public/              Ficheros estáticos (favicon, imágenes)
+    public/              Ficheros estáticos (favicon, imágenes, fonts/)
+
+## Tema
+
+Guía visual con todos los valores: [docs/guia-estilos.html](../docs/guia-estilos.html) (se abre en el navegador).
+
+- **Capas:** paleta (`_palette.scss`, solo Sass) → roles de color en claro y oscuro (`_roles.scss`: `--color-text`, `--color-primary`…) → variables de Ionic (`_ionic.scss`). Las pantallas usan los **roles y los tokens**, nunca la paleta: así el modo oscuro funciona sin tocarlas.
+- **Modo oscuro:** sigue la preferencia del sistema; se puede forzar con la clase `theme-dark` o `theme-light` en `<html>`.
+- **Tokens** (`_tokens.scss`): espaciado `--space-xs…xxxl`, esquinas `--radius-xs…xl` (por defecto `--radius-s`, 8px), bordes, alturas de controles (mínimo táctil 44px), tipografía y movimiento. Tamaños en `rem`.
+- **Texto:** clases por papel (`.text-display`, `.text-title`, `.text-body`…, variante `--strong`); los títulos crecen con `clamp()`. Barlow para títulos y botones, Inter para el texto (`public/fonts/`, licencia OFL).
+- **Contraste:** todos los pares de texto cumplen WCAG AA (≥ 4,5:1) en los dos modos.
+- **Personalizar componentes de Ionic:** con sus variables CSS y `::part()`, sin `!important`.
 
 ## Notas técnicas
 

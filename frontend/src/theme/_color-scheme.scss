@@ -1,0 +1,17 @@
+// Cuándo se aplica el modo oscuro. Lo usan todos los ficheros del tema que
+// cambian con el modo (_roles.scss, _ionic.scss), para que lo hagan a la vez.
+//
+// - Por defecto sigue la preferencia del sistema (prefers-color-scheme).
+// - La app puede forzar un modo con una clase en <html>: .theme-dark o
+//   .theme-light (p. ej. desde un ajuste del usuario).
+@mixin dark {
+  @media (prefers-color-scheme: dark) {
+    :root:not(.theme-light) {
+      @content;
+    }
+  }
+
+  :root.theme-dark {
+    @content;
+  }
+}
