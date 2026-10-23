@@ -1,0 +1,91 @@
+// Tokens de diseño que no dependen del modo claro/oscuro (los colores y las
+// sombras están en _roles.scss). Tamaños en rem, con su equivalente en px.
+
+// Puntos de corte (los de Ionic). Son de Sass porque @media no admite var().
+$breakpoints: (
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+);
+
+:root {
+  // Espaciado: padding, margin y gap
+  --space-xs: 0.25rem; // 4px
+  --space-s: 0.5rem; // 8px
+  --space-base: 1rem; // 16px
+  --space-l: 1.5rem; // 24px
+  --space-xl: 2rem; // 32px
+  --space-xxl: 2.5rem; // 40px
+  --space-xxxl: 3rem; // 48px
+
+  // Esquinas (por defecto --radius-s)
+  --radius-xs: 0.25rem; // 4px
+  --radius-s: 0.5rem; // 8px
+  --radius-base: 1rem; // 16px
+  --radius-l: 1.5rem; // 24px
+  --radius-xl: 2rem; // 32px
+  --radius-full: 9999px;
+
+  // Grosor de borde
+  --border-width-s: 1px;
+  --border-width-m: 2px;
+  --border-width-l: 3px; // foco
+
+  // Altura de botones y campos (mínimo táctil recomendado: 44-48px)
+  --control-height-s: 2.75rem; // 44px
+  --control-height-base: 3rem; // 48px
+  --control-height-l: 3.5rem; // 56px
+
+  // Tipografía: familias
+  --font-family-heading: 'Barlow', system-ui, sans-serif; // títulos y botones
+  --font-family-body: 'Inter', system-ui, sans-serif; // texto corrido
+
+  // Tipografía: pesos
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  // Tipografía: tamaños. Los títulos son fluidos con clamp(): crecen de
+  // forma continua entre 360px y 1200px de ancho. La parte en rem hace que
+  // también respeten el zoom del navegador (WCAG 1.4.4).
+  --font-size-display: clamp(2.25rem, 1.929rem + 1.429vw, 3rem); // 36 → 48px
+  --font-size-title: clamp(1.5rem, 1.393rem + 0.476vw, 1.75rem); // 24 → 28px
+  --font-size-subtitle: clamp(1.25rem, 1.196rem + 0.238vw, 1.375rem); // 20 → 22px
+  --font-size-body: 1rem; // 16px
+  --font-size-body-s: 0.875rem; // 14px
+  --font-size-label: 0.875rem; // 14px
+  --font-size-caption: 0.75rem; // 12px
+  --font-size-eyebrow: 0.75rem; // 12px
+
+  // Tipografía: interlineado. Sin unidad en los tamaños fluidos; en rem
+  // (múltiplos de 4px) en los fijos, para encajar en la rejilla de espaciado.
+  --line-height-display: 1.2;
+  --line-height-title: 1.3;
+  --line-height-subtitle: 1.4;
+  --line-height-body: 1.5rem; // 24px
+  --line-height-body-s: 1.25rem; // 20px
+  --line-height-label: 1.25rem; // 20px
+  --line-height-caption: 1rem; // 16px
+  --line-height-eyebrow: 1rem; // 16px
+
+  // Tipografía: espaciado entre letras
+  --letter-spacing-tight: -0.01em; // títulos grandes
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.06em; // textos en mayúsculas
+
+  // Movimiento
+  --motion-duration-fast: 150ms;
+  --motion-duration-base: 250ms;
+  --motion-easing: cubic-bezier(0.2, 0, 0, 1);
+}
+
+// Sin animaciones para quien lo pide en su sistema (WCAG 2.3.3)
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-fast: 0ms;
+    --motion-duration-base: 0ms;
+  }
+}
