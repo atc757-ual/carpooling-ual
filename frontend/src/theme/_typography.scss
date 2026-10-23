@@ -1,0 +1,73 @@
+// Estilos de texto por papel (no por tamaño): una sola clase para móvil y
+// escritorio; los títulos crecen solos con clamp() (ver _tokens.scss).
+// No fijan el color: para eso, los roles o las utilidades .text-color-*.
+//
+// Variante destacada (seminegrita) de los textos corridos con el
+// modificador --strong: <p class="text-body text-body--strong">.
+
+.text-display {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-display);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.text-title {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-title);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.text-subtitle {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-subtitle);
+}
+
+.text-body {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+}
+
+.text-body-s {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body-s);
+}
+
+.text-label {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-label);
+}
+
+.text-caption {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-caption);
+}
+
+// Rótulo pequeño en mayúsculas sobre un título («CADA VIAJE CUENTA»)
+.text-eyebrow {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-eyebrow);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-eyebrow);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+@each $style in (body, body-s, caption) {
+  .text-#{$style}--strong {
+    font-weight: var(--font-weight-semibold);
+  }
+}

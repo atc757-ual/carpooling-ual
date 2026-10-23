@@ -1,0 +1,46 @@
+// Utilidades básicas: solo lo que Ionic no trae. Ionic ya incluye espaciado
+// (.ion-padding, .ion-margin), alineación de texto, flex y ocultar por punto de
+// corte (ver los CSS de Ionic en angular.json). Los colores salen de los
+// roles, así que cambian solos en modo oscuro.
+
+// Oculta un elemento a la vista pero no a los lectores de pantalla
+// (p. ej. el texto de un botón que solo muestra un icono).
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Corta el texto en N líneas con «…» (por defecto 2):
+// <p class="line-clamp" style="--line-clamp: 3">
+.line-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--line-clamp, 2);
+  line-clamp: var(--line-clamp, 2);
+  overflow: hidden;
+}
+
+// Color del texto según su papel
+$text-colors: (
+  default: --color-text,
+  muted: --color-text-muted,
+  primary: --color-primary,
+  link: --color-link,
+  eco: --color-eco-text,
+  danger: --color-danger,
+  success: --color-success,
+  warning: --color-warning-text,
+);
+
+@each $name, $role in $text-colors {
+  .text-color-#{$name} {
+    color: var(#{$role});
+  }
+}
