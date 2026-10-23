@@ -21,6 +21,10 @@ updates:
       # Se suben a mano, junto con Node, en el PR que cambie de versión.
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
+      # Un salto mayor de TypeScript exige que lo soporten Angular, ts-jest y
+      # typescript-eslint. Se sube a mano, en un PR propio, cuando lo hagan
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
 
   # Acciones usadas en los workflows de GitHub (comunes a todo el repositorio)
   - package-ecosystem: github-actions

@@ -57,6 +57,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
 - Dependabot no propone saltos de versión mayor de `@types/node`: se actualizan junto con Node (#12)
+- Dependabot no propone saltos de versión mayor de `typescript`: se suben a mano cuando los soporten Angular, `ts-jest` y `typescript-eslint` (#30)
 - Plantilla de PR en blanco en lugar de un ejemplo rellenado (#3)
 - `CHANGELOG.md` movido a la raíz del repositorio (#4)
 - `package-lock.json` pasa a versionarse para fijar las versiones exactas de las dependencias (#4)
