@@ -320,7 +320,7 @@ describe('TripsService (e2e)', () => {
         tripInput(vehicleId),
       );
       await dataSource.query(
-        "UPDATE trips SET status = 'in_progress' WHERE id = $1",
+        "UPDATE trips SET status = 'in_progress', started_at = now() WHERE id = $1",
         [trip.id],
       );
 

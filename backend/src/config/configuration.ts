@@ -11,6 +11,7 @@ export interface AppConfig {
   jwt: { secret: string; accessTtlMinutes: number } & SessionLifetime;
   allowedEmailDomains: string[];
   apiDocsEnabled: boolean;
+  osrmUrl: string;
 }
 
 // Duración de la sesión (token de renovación), en días
@@ -28,7 +29,7 @@ interface IntegerSetting {
 
 const DEFAULT_PORT = 3000;
 const MAX_PORT = 65535;
-const POSTGRES_PROTOCOLS = ['postgres:', 'postgresql:'];
+const POSTGRES_PROTOCOLS = new Set(['postgres:', 'postgresql:']);
 const MIN_JWT_SECRET_LENGTH = 32;
 const ACCESS_TTL_MINUTES: IntegerSetting = {
   name: 'JWT_ACCESS_TTL_MINUTES',
@@ -46,6 +47,8 @@ const SESSION_MAX_DAYS: IntegerSetting = {
   max: 365,
 };
 const DEFAULT_EMAIL_DOMAINS = 'ual.es,inlumine.ual.es';
+const DEFAULT_OSRM_URL = 'http://localhost:5000';
+const HTTP_PROTOCOLS = new Set(['http:', 'https:']);
 // Al menos dos partes separadas por puntos: "ual.es", "inlumine.ual.es"
 const DOMAIN_PATTERN = /^[a-z0-9-]+(\.[a-z0-9-]+)+$/;
 
@@ -72,7 +75,7 @@ export function parseDatabaseUrl(rawUrl: string | undefined): string {
 
   // URL.canParse evita que new URL() lance su propio error con textos que no son URL
   const url = URL.canParse(rawUrl) ? new URL(rawUrl) : undefined;
-  if (url === undefined || !POSTGRES_PROTOCOLS.includes(url.protocol)) {
+  if (url === undefined || !POSTGRES_PROTOCOLS.has(url.protocol)) {
     throw new Error(
       'Invalid DATABASE_URL: expected postgresql://user:password@host:port/database',
     );
@@ -168,6 +171,21 @@ export function parseApiDocsEnabled(rawValue: string | undefined): boolean {
   return rawValue === 'true';
 }
 
+// OSRM_URL: dirección del motor de rutas OSRM (DP-02). Por defecto, el de
+// Docker Compose en local. Si no responde, el backend estima las rutas
+export function parseOsrmUrl(rawUrl: string | undefined): string {
+  if (rawUrl === undefined || rawUrl === '') {
+    return DEFAULT_OSRM_URL;
+  }
+  const url = URL.canParse(rawUrl) ? new URL(rawUrl) : undefined;
+  if (url === undefined || !HTTP_PROTOCOLS.has(url.protocol)) {
+    throw new Error(
+      `Invalid OSRM_URL "${rawUrl}": expected e.g. http://localhost:5000`,
+    );
+  }
+  return rawUrl;
+}
+
 // La llama ConfigModule (en app.module.ts) una vez al arrancar.
 export function loadConfiguration(): AppConfig {
   return {
@@ -183,5 +201,6 @@ export function loadConfiguration(): AppConfig {
     },
     allowedEmailDomains: parseEmailDomains(process.env.ALLOWED_EMAIL_DOMAINS),
     apiDocsEnabled: parseApiDocsEnabled(process.env.API_DOCS_ENABLED),
+    osrmUrl: parseOsrmUrl(process.env.OSRM_URL),
   };
 }

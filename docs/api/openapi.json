@@ -1454,6 +1454,84 @@
         ]
       }
     },
+    "/api/trips/{id}/route": {
+      "get": {
+        "description": "RF-12, CU-08. The road route calculated with OSRM (or estimated if OSRM did not answer), with the trip status.",
+        "operationId": "TripsController_getRoute",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripRouteResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND, ROUTE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the route of a trip and its estimated arrival",
+        "tags": [
+          "trips"
+        ]
+      }
+    },
     "/api/users/me/trips": {
       "get": {
         "description": "Ordered by departure time, the soonest first.",
@@ -3978,6 +4056,12 @@
               "finished",
               "cancelled"
             ]
+          },
+          "startedAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the trip started; null until then"
           }
         },
         "required": [
@@ -3992,7 +4076,113 @@
           "offeredSeats",
           "availableSeats",
           "maxDetourMin",
-          "status"
+          "status",
+          "startedAt"
+        ]
+      },
+      "GeoLineStringResource": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "LineString"
+            ]
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "example": [
+              [
+                -2.4597,
+                36.8381
+              ],
+              [
+                -2.4048,
+                36.8295
+              ]
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "coordinates"
+        ]
+      },
+      "TripRouteResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "TripRoute"
+            ]
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/route"
+          },
+          "tripId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "distanceKm": {
+            "type": "number",
+            "example": 7.76
+          },
+          "durationMin": {
+            "type": "number",
+            "example": 11
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/GeoLineStringResource"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "osrm",
+              "estimated"
+            ],
+            "description": "osrm: the road route; estimated: a straight-line estimate, used when OSRM did not answer"
+          },
+          "tripStatus": {
+            "type": "string",
+            "enum": [
+              "published",
+              "confirmed",
+              "in_progress",
+              "finished",
+              "cancelled"
+            ]
+          },
+          "startedAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true
+          },
+          "estimatedArrivalAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Start (or departure, if it has not started) plus the route duration; null once finished or cancelled"
+          }
+        },
+        "required": [
+          "@type",
+          "href",
+          "tripId",
+          "distanceKm",
+          "durationMin",
+          "geometry",
+          "source",
+          "tripStatus",
+          "startedAt",
+          "estimatedArrivalAt"
         ]
       },
       "UpdateTripDto": {

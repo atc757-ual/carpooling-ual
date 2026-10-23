@@ -30,5 +30,8 @@ coverage/
 # Docker
 docker-compose.override.yml
 
+# Mapa de OSRM (se descarga y prepara con scripts/osrm-prepare.sh)
+osrm-data/
+
 # Claude Code (local, no subir)
 CLAUDE.md

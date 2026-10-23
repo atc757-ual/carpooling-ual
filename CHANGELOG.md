@@ -48,6 +48,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Gestión de usuarios por el administrador (RF-25, CU-13): lista con búsqueda y activación o desactivación de perfiles, incluida la asignación y retirada del perfil de administrador; desactivar un perfil cierra las sesiones del usuario (#22)
 - Eventos de usuario para el Gemelo Digital: alta y cambios de perfil (#22)
 - Avisos dentro de la aplicación (RF-19, CU-11) de solicitudes, aceptaciones, rechazos, cancelaciones e incidencias nuevas para los administradores, con su lista y su marcado como leídos; migración `AddNotifications` (#23)
+- Motor de rutas OSRM en local (DP-02, RNF-16) en el perfil `routing` de Docker Compose, con el mapa de Andalucía de OpenStreetMap preparado por `scripts/osrm-prepare.sh`, y variable `OSRM_URL` (#24)
+- Ruta del viaje (RF-12, CU-08): se calcula con OSRM al publicar y al cambiar el origen o el destino, con una estimación en línea recta si OSRM no responde; `GET /api/trips/{id}/route` con la llegada estimada; migración `AddRouteSourceAndTripStart` (#24)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
@@ -61,6 +63,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - El recurso `User` incluye su `href` y el registro responde con la cabecera `Location` (#15)
 - Matrículas de los vehículos de prueba del seed con formato español válido (#16)
 - El recurso `Incident` incluye su `href`, quién la registró y su revisión, y registrar una incidencia responde con la cabecera `Location` (#21)
+- El recurso `Trip` y los eventos del viaje incluyen cuándo empezó (`startedAt`) (#24)
+- Las rutas del seed se marcan como estimadas, y el segundo viaje tiene también la suya (#24)
 
 ### Security
 - El backend ya no envía la cabecera `X-Powered-By: Express`, que revelaba la tecnología del servidor (#14)

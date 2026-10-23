@@ -52,6 +52,13 @@ export class TripResource {
 
   @ApiProperty({ enum: TRIP_STATUSES })
   status: TripStatus;
+
+  @ApiProperty({
+    format: 'date-time',
+    nullable: true,
+    description: 'When the trip started; null until then',
+  })
+  startedAt: string | null;
 }
 
 export function tripHref(id: string): string {
@@ -72,5 +79,6 @@ export function toTripResource({ trip, driverName }: TripView): TripResource {
     availableSeats: trip.availableSeats,
     maxDetourMin: trip.maxDetourMin,
     status: trip.status,
+    startedAt: trip.startedAt?.toISOString() ?? null,
   };
 }

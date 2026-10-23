@@ -56,10 +56,16 @@ INSERT INTO trips (id, driver_id, vehicle_id, origin, destination, departure_at,
    (current_date + 1 + time '09:30') AT TIME ZONE 'Europe/Madrid',
    3, 3, 5, 'published');
 
--- Ruta aproximada del primer viaje (en la app la calculará OSRM)
-INSERT INTO routes (trip_id, distance_km, duration_min, geometry) VALUES
-  ('00000000-0000-4000-8000-000000000201', 27.40, 26,
-   ST_GeogFromText('SRID=4326;LINESTRING(-2.6147 36.7642, -2.5480 36.8010, -2.4700 36.8330, -2.4048 36.8295)'));
+-- Rutas de los viajes. En la app las calcula OSRM al publicar; aquí se
+-- estiman como el plan B del backend (route-plan.ts): línea recta entre el
+-- origen y el destino por un factor de rodeo de 1,3, a 50 km/h
+INSERT INTO routes (trip_id, distance_km, duration_min, geometry, source)
+SELECT id,
+       round((ST_Distance(origin, destination) / 1000 * 1.3)::numeric, 2),
+       greatest(1, round(ST_Distance(origin, destination) / 1000 * 1.3 / 50 * 60)),
+       ST_MakeLine(origin::geometry, destination::geometry)::geography,
+       'estimated'
+FROM trips;
 
 -- -----------------------------------------------------------------------------
 -- Solicitudes

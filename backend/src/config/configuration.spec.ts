@@ -5,6 +5,7 @@ import {
   parseDatabaseUrl,
   parseEmailDomains,
   parseJwtSecret,
+  parseOsrmUrl,
   parsePort,
   parseSessionLifetime,
 } from './configuration';
@@ -170,6 +171,26 @@ describe('parseApiDocsEnabled', () => {
   });
 });
 
+describe('parseOsrmUrl', () => {
+  it('uses the local OSRM of Docker Compose by default', () => {
+    expect(parseOsrmUrl(undefined)).toBe('http://localhost:5000');
+    expect(parseOsrmUrl('')).toBe('http://localhost:5000');
+  });
+
+  it('accepts an http or https URL', () => {
+    expect(parseOsrmUrl('https://osrm.example.org')).toBe(
+      'https://osrm.example.org',
+    );
+  });
+
+  it.each(['localhost:5000', 'ftp://osrm.example.org', 'osrm'])(
+    'rejects the invalid value "%s"',
+    (raw) => {
+      expect(() => parseOsrmUrl(raw)).toThrow('Invalid OSRM_URL');
+    },
+  );
+});
+
 describe('loadConfiguration', () => {
   // Se guardan las variables reales para restaurarlas tras cada test,
   // de modo que un test no afecte a los demás
@@ -182,6 +203,7 @@ describe('loadConfiguration', () => {
     'JWT_SESSION_MAX_DAYS',
     'ALLOWED_EMAIL_DOMAINS',
     'API_DOCS_ENABLED',
+    'OSRM_URL',
   ];
   const originalEnv = ENV_KEYS.map((key) => [key, process.env[key]] as const);
 
@@ -201,6 +223,7 @@ describe('loadConfiguration', () => {
     process.env.JWT_SESSION_MAX_DAYS = '40';
     process.env.ALLOWED_EMAIL_DOMAINS = 'ual.es';
     process.env.API_DOCS_ENABLED = 'false';
+    process.env.OSRM_URL = 'http://osrm:5000';
 
     expect(loadConfiguration()).toEqual({
       port: 4000,
@@ -213,6 +236,7 @@ describe('loadConfiguration', () => {
       },
       allowedEmailDomains: ['ual.es'],
       apiDocsEnabled: false,
+      osrmUrl: 'http://osrm:5000',
     });
   });
 
