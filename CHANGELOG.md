@@ -55,8 +55,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - CI del frontend (lint, tests con cobertura en Vitest, `npm audit` y build), frontend en Dependabot y en SonarCloud (#26)
 - Tema del frontend: paleta de colores, roles de color en modo claro y oscuro (según el sistema o forzado con `theme-dark`/`theme-light`), tokens de espaciado, esquinas, bordes, alturas y tipografía, variables de Ionic, fuentes Barlow e Inter servidas desde la app, clases de texto y utilidades básicas; contraste WCAG AA en todos los pares de texto (#31)
 - Guía de estilos visual en `docs/guia-estilos.html` (#31)
+- Sesión en el frontend (sin pantallas): registro, login, logout y recuperación de la sesión al abrir la app; renovación automática del token de acceso (una sola a la vez, también entre pestañas); guards de sesión, de perfil y de invitado; errores TMF630 traducidos a mensajes en español. Token de renovación guardado con Capacitor Preferences (#32)
 
 ### Changed
+- Estructura del frontend como en el proyecto de referencia: servicios en subcarpetas por dominio (`core/services/auth/`…), `core/plugins/` para Capacitor y sufijos `.model.ts` y `.util.ts` (#32)
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
 - Dependabot no propone saltos de versión mayor de `@types/node`: se actualizan junto con Node (#12)
 - Dependabot no propone saltos de versión mayor de `typescript`: se suben a mano cuando los soporten Angular, `ts-jest` y `typescript-eslint` (#30)
