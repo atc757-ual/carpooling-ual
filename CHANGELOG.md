@@ -51,6 +51,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Motor de rutas OSRM en local (DP-02, RNF-16) en el perfil `routing` de Docker Compose, con el mapa de Andalucía de OpenStreetMap preparado por `scripts/osrm-prepare.sh`, y variable `OSRM_URL` (#24)
 - Ruta del viaje (RF-12, CU-08): se calcula con OSRM al publicar y al cambiar el origen o el destino, con una estimación en línea recta si OSRM no responde; `GET /api/trips/{id}/route` con la llegada estimada; migración `AddRouteSourceAndTripStart` (#24)
 - Seguimiento real del viaje (RF-12): el conductor envía su posición durante el viaje en curso y la ven él y sus pasajeros aceptados, con lo que queda hasta el destino y la llegada estimada; cada posición genera el evento `trip.position_updated` para el Gemelo Digital y el recorrido se borra al terminar el viaje (RGPD). Variable `POSITION_MIN_INTERVAL_SECONDS`; migración `AddTripPositions` (#25)
+- Esqueleto del frontend en Angular 22 + Ionic 9 (componentes standalone, sin Zone.js) con Capacitor 8, sin pantallas: estructura `core/`, `shared/` y `features/`, entornos con la API en `/api` y proxy al backend en desarrollo (#26)
+- CI del frontend (lint, tests con cobertura en Vitest, `npm audit` y build), frontend en Dependabot y en SonarCloud (#26)
 
 ### Changed
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)

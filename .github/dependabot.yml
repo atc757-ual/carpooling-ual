@@ -4,7 +4,7 @@ updates:
   - package-ecosystem: npm
     directories:
       - /backend
-      # - /frontend         (activar al crear el frontend)
+      - /frontend
       # - /services/*       (activar al crear matching, gemelo digital y simulación)
     schedule:
       interval: weekly
