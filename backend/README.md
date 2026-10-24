@@ -193,3 +193,4 @@ Los tests unitarios van junto al fichero que prueban (`app.controller.spec.ts` a
 
 - **Tests con `--experimental-vm-modules`:** los paquetes de NestJS 12 se publican solo como ESM. Jest los carga mediante `require(esm)`, que necesita ese flag de Node. Los scripts `npm test` ya lo incluyen.
 - **TypeScript 6.0:** TypeScript 7 aún no es compatible con `ts-jest` ni con `typescript-eslint`.
+- **`overrides` de `multer` en `package.json`:** `@nestjs/platform-express` 12.2.0 fija `multer` 2.4.0, que tiene una vulnerabilidad alta ([GHSA-q7qp-rjg7-q26m](https://github.com/advisories/GHSA-q7qp-rjg7-q26m)); se fuerza la 2.5.0, que la corrige. **Quitarlo** cuando una versión de NestJS ya traiga `multer` 2.5.0 o superior (comprobar con `npm ls multer`).
