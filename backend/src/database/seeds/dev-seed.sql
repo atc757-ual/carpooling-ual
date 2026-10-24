@@ -12,12 +12,17 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- -----------------------------------------------------------------------------
 -- Usuarios y perfiles
 -- -----------------------------------------------------------------------------
--- Con el correo ya verificado: pueden iniciar sesión sin código
-INSERT INTO users (id, name, email, password_hash, time_tolerance_min, email_verified_at) VALUES
-  ('00000000-0000-4000-8000-000000000001', 'Admin UAL',      'admin@ual.es',    crypt('carpooling', gen_salt('bf', 10)), 15, now()),
-  ('00000000-0000-4000-8000-000000000002', 'Lucía Conductora', 'lucia@ual.es',  crypt('carpooling', gen_salt('bf', 10)), 10, now()),
-  ('00000000-0000-4000-8000-000000000003', 'Mario Pasajero', 'mario@ual.es',    crypt('carpooling', gen_salt('bf', 10)), 20, now()),
-  ('00000000-0000-4000-8000-000000000004', 'Sara Mixta',     'sara@ual.es',     crypt('carpooling', gen_salt('bf', 10)), 15, now());
+-- Todos con la misma contraseña (carpooling, hash bcrypt) y con el correo ya
+-- verificado (pueden iniciar sesión sin código): se escriben una sola vez
+INSERT INTO users (id, name, email, password_hash, time_tolerance_min, email_verified_at)
+SELECT seed.id::uuid, seed.name, seed.email,
+       crypt('carpooling', gen_salt('bf', 10)), seed.tolerance, now()
+  FROM (VALUES
+    ('00000000-0000-4000-8000-000000000001', 'Admin UAL',        'admin@ual.es', 15),
+    ('00000000-0000-4000-8000-000000000002', 'Lucía Conductora', 'lucia@ual.es', 10),
+    ('00000000-0000-4000-8000-000000000003', 'Mario Pasajero',   'mario@ual.es', 20),
+    ('00000000-0000-4000-8000-000000000004', 'Sara Mixta',       'sara@ual.es',  15)
+  ) AS seed (id, name, email, tolerance);
 
 INSERT INTO admin_profiles (user_id) VALUES
   ('00000000-0000-4000-8000-000000000001');
