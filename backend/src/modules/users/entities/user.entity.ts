@@ -32,6 +32,16 @@ export class User {
   @Column({ name: 'password_hash', type: 'text', select: false })
   passwordHash: string;
 
+  // Formato internacional E.164 (+34600123456). NULL solo en el administrador
+  // inicial y el seed: el registro público lo exige
+  @Column({ type: 'varchar', length: 16, nullable: true })
+  phone: string | null;
+
+  // Prueba del consentimiento (RGPD): cuándo aceptó las normas y la política
+  // de privacidad al registrarse. NULL en quien no pasó por el registro
+  @Column({ name: 'terms_accepted_at', type: 'timestamptz', nullable: true })
+  termsAcceptedAt: Date | null;
+
   @Column({ name: 'time_tolerance_min', type: 'smallint', default: 15 })
   timeToleranceMin: number;
 

@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { deleteTestUsers } from './support/cleanup';
+import { registerUser } from './support/accounts';
 
 // Vehículos y estado del conductor (RF-21) de punta a punta. Los usuarios
 // llevan el prefijo EMAIL_PREFIX; al borrarlos, sus vehículos se borran en
@@ -41,10 +42,12 @@ describe('Vehicles API (e2e)', () => {
     profiles: string[] = ['driver'],
   ): Promise<string> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await request(app.getHttpServer())
-      .post('/api/auth/register')
-      .send({ name, email, password: PASSWORD, profiles })
-      .expect(201);
+    await registerUser(app.getHttpServer(), {
+      name,
+      email,
+      password: PASSWORD,
+      profiles,
+    });
     const login = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email, password: PASSWORD })

@@ -1,14 +1,19 @@
 // Peticiones y respuestas de /api/auth (ver docs/api/openapi.json)
 import { Profile, User } from './user.model';
 
-// El perfil de administrador no se puede pedir al registrarse
+// Perfiles que elige el propio usuario después de registrarse (su modo); el de
+// administrador solo lo asigna otro administrador
 export type RegisterProfile = Exclude<Profile, 'admin'>;
 
+// El registro no lleva perfiles: se eligen después de verificar el correo
 export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
-  profiles: RegisterProfile[];
+  // Formato internacional, p. ej. +34600123456
+  phone: string;
+  // Aceptación de las normas y la política de privacidad (obligatoria)
+  acceptedTerms: true;
 }
 
 export interface LoginRequest {

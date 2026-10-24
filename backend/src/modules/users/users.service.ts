@@ -21,9 +21,13 @@ export interface CreateUserInput {
   email: string;
   // Llega ya convertida en hash: este service nunca ve contraseñas en claro
   passwordHash: string;
-  // El registro público solo permite driver y passenger (lo valida auth); admin
-  // solo se crea desde dentro del backend (comando create-admin)
+  // El registro público crea el usuario sin perfiles (los elige después de
+  // verificar el correo); admin solo se crea desde dentro del backend
+  // (comando create-admin)
   profiles: ProfileType[];
+  // Solo los da el registro público
+  phone?: string;
+  termsAcceptedAt?: Date;
 }
 
 // Relaciones que se cargan junto con el usuario
@@ -49,8 +53,8 @@ export class UsersService {
     private readonly eventsService: EventsService,
   ) {}
 
-  // Crea el usuario y sus perfiles en una transacción: o se guarda todo o nada,
-  // así nunca queda un usuario sin perfiles. El correo repetido lo detecta la
+  // Crea el usuario y sus perfiles (si los hay) en una transacción: o se
+  // guarda todo o nada. El correo repetido lo detecta la
   // restricción UNIQUE de la base de datos (también si dos registros llegan a
   // la vez), en lugar de comprobarlo antes con una consulta.
   async createWithProfiles(input: CreateUserInput): Promise<User> {
@@ -61,6 +65,8 @@ export class UsersService {
             name: input.name,
             email: input.email,
             passwordHash: input.passwordHash,
+            phone: input.phone ?? null,
+            termsAcceptedAt: input.termsAcceptedAt ?? null,
           }),
         );
         // Los perfiles no dependen unos de otros. Si falla uno, la transacción
@@ -71,8 +77,8 @@ export class UsersService {
             this.createProfile(manager, user.id, profile),
           ),
         );
-        // Evento para el Gemelo Digital: solo los perfiles (ni el nombre ni el
-        // correo, que no necesita: minimización)
+        // Evento para el Gemelo Digital: solo los perfiles (ni el nombre, ni el
+        // correo, ni el teléfono, que no necesita: minimización)
         await this.eventsService.record(manager, {
           type: 'user.registered',
           sourceEntityId: user.id,
@@ -224,6 +230,7 @@ export class UsersService {
       id: user.id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
       profiles: this.getActiveProfiles(user),
     };
   }

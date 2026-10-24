@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { deleteTestUsers } from './support/cleanup';
+import { registerUser } from './support/accounts';
 
 // Incidencias (RF-23, RF-24) de punta a punta por HTTP. Los usuarios llevan el
 // prefijo EMAIL_PREFIX; se borran con sus viajes, solicitudes, incidencias y
@@ -51,10 +52,12 @@ describe('Incidents API (e2e)', () => {
 
   async function tokenFor(name: string, profiles: string[]): Promise<string> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await request(app.getHttpServer())
-      .post('/api/auth/register')
-      .send({ name, email, password: PASSWORD, profiles })
-      .expect(201);
+    await registerUser(app.getHttpServer(), {
+      name,
+      email,
+      password: PASSWORD,
+      profiles,
+    });
     const login = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email, password: PASSWORD })
@@ -202,18 +205,15 @@ describe('Incidents API (e2e)', () => {
     // se le da en la base de datos antes de iniciar sesión
     async function adminToken(): Promise<string> {
       const email = `${EMAIL_PREFIX}ada@ual.es`;
-      const registered = await request(app.getHttpServer())
-        .post('/api/auth/register')
-        .send({
-          name: 'ada',
-          email,
-          password: PASSWORD,
-          profiles: ['passenger'],
-        })
-        .expect(201);
+      const id = await registerUser(app.getHttpServer(), {
+        name: 'ada',
+        email,
+        password: PASSWORD,
+        profiles: ['passenger'],
+      });
       await dataSource.query(
         'INSERT INTO admin_profiles (user_id) VALUES ($1)',
-        [(registered.body as { id: string }).id],
+        [id],
       );
       const login = await request(app.getHttpServer())
         .post('/api/auth/login')

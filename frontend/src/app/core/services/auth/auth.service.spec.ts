@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting, TestRequest } from '@a
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { ApiError, NETWORK_ERROR } from '../../models/api-error.model';
-import { AccessToken } from '../../models/auth.model';
+import { AccessToken, RegisterRequest } from '../../models/auth.model';
 import { User } from '../../models/user.model';
 import { PreferencesPlugin } from '../../plugins/preferences-plugin';
 import { AuthService } from './auth.service';
@@ -16,6 +16,7 @@ const USER: User = {
   href: '/api/users/user-1',
   name: 'Ana García',
   email: 'ana@ual.es',
+  phone: '+34600123456',
   profiles: ['passenger'],
 };
 
@@ -95,7 +96,13 @@ describe('AuthService', () => {
   });
 
   it('registers the account without starting a session', async () => {
-    const request = { name: 'Ana García', email: 'ana@ual.es', password: 'secret', profiles: ['passenger' as const] };
+    const request: RegisterRequest = {
+      name: 'Ana García',
+      email: 'ana@ual.es',
+      password: 'secret',
+      phone: '+34600123456',
+      acceptedTerms: true,
+    };
     const register = auth.register(request);
     const httpRequest = await expectRequest('/api/auth/register');
     expect(httpRequest.request.body).toEqual(request);

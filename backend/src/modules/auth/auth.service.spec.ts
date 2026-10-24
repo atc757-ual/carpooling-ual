@@ -75,8 +75,24 @@ describe('AuthService', () => {
       name: 'Ana',
       email: 'ana@ual.es',
       password: 'secret-password',
-      profiles: ['driver' as const],
+      phone: '+34600123456',
     };
+
+    it('creates the user without profiles, with the phone and the terms acceptance date', async () => {
+      usersService.createWithProfiles.mockResolvedValue(storedUser());
+      const before = new Date();
+
+      await authService.register(input);
+
+      const [created] = usersService.createWithProfiles.mock.calls[0] as [
+        { profiles: string[]; phone: string; termsAcceptedAt: Date },
+      ];
+      expect(created.profiles).toEqual([]);
+      expect(created.phone).toBe('+34600123456');
+      expect(created.termsAcceptedAt.getTime()).toBeGreaterThanOrEqual(
+        before.getTime(),
+      );
+    });
 
     it('creates the user with a bcrypt hash, never the plain password', async () => {
       usersService.createWithProfiles.mockResolvedValue(storedUser());

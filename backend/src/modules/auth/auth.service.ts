@@ -5,7 +5,6 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { compare, hash, hashSync } from 'bcryptjs';
 import { AccessTokenPayload } from '../../shared/auth/access-token-payload';
 import { User } from '../users/entities/user.entity';
-import { RegistrableProfile } from '../users/profile-type';
 import { UserSummary } from '../users/user-summary';
 import { UsersService } from '../users/users.service';
 import { AdminAlreadyExistsError } from './errors/admin-already-exists.error';
@@ -22,7 +21,7 @@ export interface RegisterInput {
   name: string;
   email: string;
   password: string;
-  profiles: RegistrableProfile[];
+  phone: string;
 }
 
 export interface CreateAdminInput {
@@ -87,7 +86,9 @@ export class AuthService {
   }
 
   // Registro público (RF-01): solo correos de la UAL; la contraseña se guarda
-  // como hash, nunca en claro
+  // como hash, nunca en claro. El usuario se crea sin perfiles (los elige
+  // después de verificar el correo) y con la fecha de aceptación de las
+  // normas (el DTO ya exige que las acepte)
   async register(input: RegisterInput): Promise<AuthenticatedUser> {
     this.assertAllowedEmailDomain(input.email);
 
@@ -96,7 +97,9 @@ export class AuthService {
       name: input.name,
       email: input.email,
       passwordHash,
-      profiles: input.profiles,
+      phone: input.phone,
+      termsAcceptedAt: new Date(),
+      profiles: [],
     });
     return this.toAuthenticatedUser(user);
   }
@@ -200,6 +203,7 @@ export class AuthService {
       id: user.id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
       profiles: this.usersService.getActiveProfiles(user),
     };
   }

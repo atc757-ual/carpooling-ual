@@ -47,7 +47,9 @@ export class AuthController {
     summary: 'Register a new user',
     description:
       'Public registration (RF-01). Only emails from the allowed UAL ' +
-      'domains; the user chooses the driver and/or passenger profiles.',
+      'domains, with phone and acceptance of the rules and privacy policy. ' +
+      'The user is created without profiles: the driver and/or passenger ' +
+      'profiles are chosen afterwards (PUT /api/users/me/profiles/{profile}).',
   })
   @ApiCreatedResponse({
     type: UserResource,

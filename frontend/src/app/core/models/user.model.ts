@@ -8,5 +8,8 @@ export interface User {
   href: string;
   name: string;
   email: string;
+  // Formato internacional (+34600123456); null en quien no pasó por el
+  // registro (administrador inicial)
+  phone: string | null;
   profiles: Profile[];
 }

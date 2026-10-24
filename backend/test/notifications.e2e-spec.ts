@@ -10,6 +10,7 @@ import { TripsService } from '../src/modules/trips/trips.service';
 import { UsersService } from '../src/modules/users/users.service';
 import { VehiclesService } from '../src/modules/users/vehicles.service';
 import { deleteTestUsers } from './support/cleanup';
+import { registerUser } from './support/accounts';
 
 // Avisos dentro de la aplicación (RF-19) de punta a punta. Los usuarios
 // llevan el prefijo EMAIL_PREFIX y se borran con todo lo suyo
@@ -59,10 +60,12 @@ describe('Notifications API (e2e)', () => {
     profiles: string[] = ['passenger'],
   ): Promise<Session> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await request(app.getHttpServer())
-      .post('/api/auth/register')
-      .send({ name, email, password: PASSWORD, profiles })
-      .expect(201);
+    await registerUser(app.getHttpServer(), {
+      name,
+      email,
+      password: PASSWORD,
+      profiles,
+    });
     const response = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email, password: PASSWORD })
