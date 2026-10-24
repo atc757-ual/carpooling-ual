@@ -344,7 +344,11 @@ describe('Auth API (e2e)', () => {
       const code = lastCodeSentTo(app, ANA);
       await verify(code).expect(200);
 
-      await verify(code).expect(400);
+      const response = await verify(code).expect(400);
+
+      expect(response.body).toMatchObject({
+        code: 'INVALID_VERIFICATION_CODE',
+      });
     });
 
     it('answers an unknown email like a wrong code', async () => {
@@ -390,10 +394,13 @@ describe('Auth API (e2e)', () => {
       await resend().expect(202);
       const newCode = lastCodeSentTo(app, ANA);
 
-      if (newCode !== oldCode) {
-        await verify(oldCode).expect(400);
-      }
-      await verify(newCode).expect(200);
+      // El anterior ya no vale y el nuevo sí (que coincidan por azar es 1
+      // entre un millón)
+      const old = await verify(oldCode).expect(400);
+      const session = await verify(newCode).expect(200);
+
+      expect(old.body).toMatchObject({ code: 'INVALID_VERIFICATION_CODE' });
+      expect(session.body).toMatchObject({ '@type': 'AccessToken' });
     });
 
     it('answers 202 to an unknown email without sending anything', async () => {
@@ -414,7 +421,12 @@ describe('Auth API (e2e)', () => {
       // Puede pedir otro código pasado el minuto
       await backdateCode();
       await resend().expect(202);
-      await verify(lastCodeSentTo(app, ANA)).expect(200);
+      const session = await verify(lastCodeSentTo(app, ANA)).expect(200);
+
+      expect(session.body).toMatchObject({
+        '@type': 'AccessToken',
+        user: { email: ANA },
+      });
     });
 
     it('does not let in an unverified user with the right password (403)', async () => {

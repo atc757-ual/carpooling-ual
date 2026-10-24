@@ -49,7 +49,8 @@ export class EmailVerificationService {
   // correos están registrados
   async resendCode(email: string): Promise<void> {
     const user = await this.usersService.findByEmail(email);
-    if (user === null || user.emailVerifiedAt !== null) {
+    // Sin usuario (undefined) o ya verificado (fecha): en los dos casos, fuera
+    if (user?.emailVerifiedAt !== null) {
       return;
     }
     await this.sendCode(user);
@@ -60,7 +61,8 @@ export class EmailVerificationService {
   // existe o ya verificado da el mismo error que un código incorrecto
   async verify(email: string, code: string): Promise<User> {
     const user = await this.usersService.findByEmail(email);
-    if (user === null || user.emailVerifiedAt !== null) {
+    // Sin usuario (undefined) o ya verificado (fecha): en los dos casos, fuera
+    if (user?.emailVerifiedAt !== null) {
       throw new InvalidVerificationCodeError();
     }
     await this.emailCodes.consume(

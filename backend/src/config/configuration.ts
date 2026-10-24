@@ -76,7 +76,7 @@ export function parsePort(rawPort: string | undefined): number {
 
 // DATABASE_URL es obligatoria y no tiene valor por defecto: así el backend nunca
 // se conecta en silencio a una base de datos equivocada ni hay credenciales en
-// el código. Formato: postgresql://usuario:contraseña@servidor:puerto/base_de_datos
+// el código. Formato: postgresql://<usuario>:<contraseña>@<servidor>:<puerto>/<base_de_datos>
 export function parseDatabaseUrl(rawUrl: string | undefined): string {
   if (rawUrl === undefined || rawUrl === '') {
     throw new Error('DATABASE_URL is required');
