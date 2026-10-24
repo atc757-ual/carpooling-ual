@@ -31,6 +31,15 @@ export class UserAdminResource {
   @ApiProperty({ example: 'ana@ual.es' })
   email: string;
 
+  // El administrador lo necesita para actuar ante una incidencia (seguridad)
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'International format (E.164); null if never registered',
+    example: '+34600123456',
+  })
+  phone: string | null;
+
   @ApiProperty({ type: [ProfileStatusResource] })
   profiles: ProfileStatusResource[];
 
@@ -48,6 +57,7 @@ export function toUserAdminResource({
     href: userHref(user.id),
     name: user.name,
     email: user.email,
+    phone: user.phone,
     profiles,
     createdAt: user.createdAt.toISOString(),
   };

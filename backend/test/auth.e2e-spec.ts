@@ -5,6 +5,7 @@ import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { TEST_PHONE } from './support/accounts';
 import { deleteTestUsers } from './support/cleanup';
 
 // Prueba la API de auth de punta a punta: HTTP → validación → AuthService →
@@ -42,7 +43,8 @@ describe('Auth API (e2e)', () => {
         name: 'Ana',
         email: `${EMAIL_PREFIX}ana@ual.es`,
         password: PASSWORD,
-        profiles: ['driver', 'passenger'],
+        phone: TEST_PHONE,
+        acceptedTerms: true,
         ...overrides,
       });
   }
@@ -54,7 +56,7 @@ describe('Auth API (e2e)', () => {
   }
 
   describe('POST /api/auth/register', () => {
-    it('creates the user: 201, Location and the TMF User resource', async () => {
+    it('creates the user without profiles: 201, Location and the TMF User resource', async () => {
       const response = await register().expect(201);
 
       const body = response.body as { id: string };
@@ -64,11 +66,82 @@ describe('Auth API (e2e)', () => {
         href: `/api/users/${body.id}`,
         name: 'Ana',
         email: `${EMAIL_PREFIX}ana@ual.es`,
-        profiles: ['driver', 'passenger'],
+        phone: TEST_PHONE,
+        profiles: [],
       });
       expect(body.id).toMatch(/^[0-9a-f-]{36}$/);
       expect(response.headers.location).toBe(`/api/users/${body.id}`);
       expect(JSON.stringify(response.body)).not.toContain('password');
+    });
+
+    it('stores when the terms were accepted (proof of consent)', async () => {
+      const before = Date.now();
+      const response = await register().expect(201);
+
+      const [row] = await dataSource.query<{ terms_accepted_at: Date }[]>(
+        'SELECT terms_accepted_at FROM users WHERE id = $1',
+        [(response.body as { id: string }).id],
+      );
+      expect(row.terms_accepted_at.getTime()).toBeGreaterThanOrEqual(
+        before - 1000,
+      );
+    });
+
+    it('stores the phone without spaces, dashes or parentheses', async () => {
+      const response = await register({ phone: '+34 (600) 12-34-56' }).expect(
+        201,
+      );
+
+      expect(response.body).toMatchObject({ phone: '+34600123456' });
+    });
+
+    it('does not put the phone in the user.registered event (minimisation)', async () => {
+      const response = await register().expect(201);
+
+      const [event] = await dataSource.query<{ payload: object }[]>(
+        `SELECT payload FROM events
+          WHERE type = 'user.registered' AND source_entity_id = $1`,
+        [(response.body as { id: string }).id],
+      );
+      expect(event.payload).toEqual({ profiles: [] });
+    });
+
+    it.each([
+      ['without the country code', '600123456'],
+      ['too short', '+34123'],
+      ['with letters', '+34abc123456'],
+      ['missing', undefined],
+    ])('rejects a phone %s with 400', async (_case, phone) => {
+      const response = await register({ phone }).expect(400);
+
+      // Solo falla el teléfono (sin él, con varios motivos a la vez)
+      const body = response.body as {
+        code: string;
+        fields: { field: string }[];
+      };
+      expect(body.code).toBe('VALIDATION_FAILED');
+      expect(new Set(body.fields.map(({ field }) => field))).toEqual(
+        new Set(['phone']),
+      );
+    });
+
+    it.each([
+      ['not accepted', false],
+      ['missing', undefined],
+      ['not a boolean', 'yes'],
+    ])('rejects terms %s with 400', async (_case, acceptedTerms) => {
+      const response = await register({ acceptedTerms }).expect(400);
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_FAILED',
+        fields: [{ field: 'acceptedTerms' }],
+      });
+    });
+
+    it('no longer accepts profiles: they are chosen after registering', async () => {
+      const response = await register({ profiles: ['passenger'] }).expect(400);
+
+      expect(response.body).toMatchObject({ fields: [{ field: 'profiles' }] });
     });
 
     it('rejects an already registered email with 409', async () => {
@@ -100,7 +173,7 @@ describe('Auth API (e2e)', () => {
         name: '   ',
         email: 'not-an-email',
         password: 'short',
-        profiles: ['admin'],
+        phone: '123',
       }).expect(400);
 
       const body = response.body as { fields: { field: string }[] };
@@ -109,7 +182,7 @@ describe('Auth API (e2e)', () => {
         code: 'VALIDATION_FAILED',
       });
       expect(new Set(body.fields.map(({ field }) => field))).toEqual(
-        new Set(['name', 'email', 'password', 'profiles']),
+        new Set(['name', 'email', 'password', 'phone']),
       );
     });
 
@@ -135,7 +208,7 @@ describe('Auth API (e2e)', () => {
         '@type': 'AccessToken',
         tokenType: 'Bearer',
         expiresIn: 900,
-        user: { '@type': 'User', profiles: ['driver', 'passenger'] },
+        user: { '@type': 'User', phone: TEST_PHONE, profiles: [] },
       });
 
       const meResponse = await request(app.getHttpServer())
@@ -145,6 +218,7 @@ describe('Auth API (e2e)', () => {
       expect(meResponse.body).toMatchObject({
         '@type': 'User',
         email: `${EMAIL_PREFIX}ana@ual.es`,
+        phone: TEST_PHONE,
       });
     });
 

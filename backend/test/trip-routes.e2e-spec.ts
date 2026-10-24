@@ -16,6 +16,7 @@ import { TripsService } from '../src/modules/trips/trips.service';
 import { UsersService } from '../src/modules/users/users.service';
 import { VehiclesService } from '../src/modules/users/vehicles.service';
 import { deleteTestUsers } from './support/cleanup';
+import { registerUser } from './support/accounts';
 
 // Ruta del viaje (RF-12, CU-08) de punta a punta. OSRM se sustituye por uno
 // falso: el resultado no depende de que OSRM esté levantado (en el CI no lo
@@ -76,10 +77,12 @@ describe('Trip routes (e2e)', () => {
 
   async function sessionFor(name: string, profiles: string[]) {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await request(app.getHttpServer())
-      .post('/api/auth/register')
-      .send({ name, email, password: PASSWORD, profiles })
-      .expect(201);
+    await registerUser(app.getHttpServer(), {
+      name,
+      email,
+      password: PASSWORD,
+      profiles,
+    });
     const response = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email, password: PASSWORD })

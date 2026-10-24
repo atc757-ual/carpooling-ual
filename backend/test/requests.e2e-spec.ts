@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { deleteTestUsers } from './support/cleanup';
+import { registerUser } from './support/accounts';
 
 // Solicitudes de plaza (RF-08 a RF-10) de punta a punta por HTTP. Los usuarios
 // llevan el prefijo EMAIL_PREFIX; en afterEach se borran sus eventos, viajes
@@ -49,10 +50,12 @@ describe('Seat requests API (e2e)', () => {
 
   async function tokenFor(name: string, profiles: string[]): Promise<string> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await request(app.getHttpServer())
-      .post('/api/auth/register')
-      .send({ name, email, password: PASSWORD, profiles })
-      .expect(201);
+    await registerUser(app.getHttpServer(), {
+      name,
+      email,
+      password: PASSWORD,
+      profiles,
+    });
     const login = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email, password: PASSWORD })

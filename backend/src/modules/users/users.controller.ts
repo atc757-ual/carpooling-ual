@@ -39,8 +39,8 @@ import {
   UserAdminResource,
 } from './dto/user-admin.resource';
 import { toUserResource, UserResource } from './dto/user.resource';
-import { PROFILE_TYPES } from './profile-type';
-import type { ProfileType } from './profile-type';
+import { PROFILE_TYPES, REGISTRABLE_PROFILES } from './profile-type';
+import type { ProfileType, RegistrableProfile } from './profile-type';
 import { UserProfilesService } from './user-profiles.service';
 import { UsersService } from './users.service';
 
@@ -101,6 +101,33 @@ export class UsersController {
     return toDriverStatusResource(
       await this.usersService.declareDriverLicense(currentUser.sub),
     );
+  }
+
+  // Elegir modo después de registrarse: el propio usuario activa el perfil de
+  // conductor o de pasajero (sin @Profiles: aún no tiene ninguno). PUT porque
+  // es idempotente. El token de acceso lleva los perfiles: el cliente debe
+  // renovarlo (POST /api/auth/refresh) para recibir uno con el perfil nuevo
+  @Put('me/profiles/:profile')
+  @ApiOperation({
+    summary: 'Choose my mode (activate my driver or passenger profile)',
+    description:
+      'After registering, users activate the driver and/or passenger profile themselves. Idempotent. A profile deactivated by an administrator cannot be reactivated by the user (RF-25). Refresh the access token afterwards to get the new profile in it.',
+  })
+  @ApiParam({ name: 'profile', enum: REGISTRABLE_PROFILES })
+  @ApiOkResponse({ type: UserResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
+    [HttpStatus.CONFLICT]: ['PROFILE_DEACTIVATED_BY_ADMIN'],
+  })
+  async activateOwnProfile(
+    @CurrentUser() currentUser: AccessTokenPayload,
+    @Param('profile', allowedParam('profile', REGISTRABLE_PROFILES))
+    profile: RegistrableProfile,
+  ): Promise<UserResource> {
+    await this.userProfiles.activateOwnProfile(currentUser.sub, profile);
+    return toUserResource(await this.usersService.getSummary(currentUser.sub));
   }
 
   // --- Administrador (RF-25, CU-13)

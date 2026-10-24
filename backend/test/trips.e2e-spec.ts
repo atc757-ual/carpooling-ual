@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { deleteTestUsers } from './support/cleanup';
+import { registerUser } from './support/accounts';
 
 // Viajes (RF-04, RF-05) de punta a punta. Los usuarios llevan el prefijo
 // EMAIL_PREFIX; sus viajes y eventos se borran antes que ellos
@@ -51,10 +52,12 @@ describe('Trips API (e2e)', () => {
   // Registra un usuario y devuelve su token de acceso
   async function tokenFor(name: string, profiles: string[]): Promise<string> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await request(app.getHttpServer())
-      .post('/api/auth/register')
-      .send({ name, email, password: PASSWORD, profiles })
-      .expect(201);
+    await registerUser(app.getHttpServer(), {
+      name,
+      email,
+      password: PASSWORD,
+      profiles,
+    });
     const login = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email, password: PASSWORD })

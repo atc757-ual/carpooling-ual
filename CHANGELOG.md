@@ -56,8 +56,12 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Tema del frontend: paleta de colores, roles de color en modo claro y oscuro (según el sistema o forzado con `theme-dark`/`theme-light`), tokens de espaciado, esquinas, bordes, alturas y tipografía, variables de Ionic, fuentes Barlow e Inter servidas desde la app, clases de texto y utilidades básicas; contraste WCAG AA en todos los pares de texto (#31)
 - Guía de estilos visual en `docs/guia-estilos.html` (#31)
 - Sesión en el frontend (sin pantallas): registro, login, logout y recuperación de la sesión al abrir la app; renovación automática del token de acceso (una sola a la vez, también entre pestañas); guards de sesión, de perfil y de invitado; errores TMF630 traducidos a mensajes en español. Token de renovación guardado con Capacitor Preferences (#32)
+- Elegir modo después de registrarse: `PUT /api/users/me/profiles/{profile}` activa el perfil de conductor o de pasajero del propio usuario; un perfil desactivado por un administrador no se puede reactivar (`409 PROFILE_DEACTIVATED_BY_ADMIN`) (#33)
+- Columnas `phone` y `terms_accepted_at` en `users` (migración `AddUserPhoneAndTerms`) (#33)
 
 ### Changed
+- **(breaking)** `POST /api/auth/register` exige el teléfono en formato internacional (`phone`) y la aceptación de las normas y la política de privacidad (`acceptedTerms`, se guarda la fecha), y ya no admite `profiles`: el usuario se crea sin perfiles y los elige después (#33)
+- Los recursos `User` y `UserAdmin` incluyen el teléfono (`phone`); `User` solo se devuelve al propio usuario (#33)
 - Estructura del frontend como en el proyecto de referencia: servicios en subcarpetas por dominio (`core/services/auth/`…), `core/plugins/` para Capacitor y sufijos `.model.ts` y `.util.ts` (#32)
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
 - Dependabot no propone saltos de versión mayor de `@types/node`: se actualizan junto con Node (#12)

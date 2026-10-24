@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { deleteTestUsers } from './support/cleanup';
+import { registerUser, TEST_PHONE } from './support/accounts';
 
 // Gestión de usuarios por el administrador (RF-25, CU-13) de punta a punta.
 // Los usuarios llevan el prefijo EMAIL_PREFIX y se borran con todo lo suyo
@@ -75,14 +76,16 @@ describe('User administration API (e2e)', () => {
     isAdmin = false,
   ): Promise<Session> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    const registered = await request(app.getHttpServer())
-      .post('/api/auth/register')
-      .send({ name, email, password: PASSWORD, profiles })
-      .expect(201);
+    const id = await registerUser(app.getHttpServer(), {
+      name,
+      email,
+      password: PASSWORD,
+      profiles,
+    });
     if (isAdmin) {
       await dataSource.query(
         'INSERT INTO admin_profiles (user_id) VALUES ($1)',
-        [(registered.body as { id: string }).id],
+        [id],
       );
     }
     return login(email);
@@ -120,6 +123,7 @@ describe('User administration API (e2e)', () => {
         href: `/api/users/${pia.id}`,
         name: 'pia',
         email: `${EMAIL_PREFIX}pia@ual.es`,
+        phone: TEST_PHONE,
         profiles: [
           { profile: 'driver', isActive: true },
           { profile: 'passenger', isActive: true },
