@@ -76,7 +76,7 @@ describe('User administration API (e2e)', () => {
     isAdmin = false,
   ): Promise<Session> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    const id = await registerUser(app.getHttpServer(), {
+    const id = await registerUser(app, {
       name,
       email,
       password: PASSWORD,

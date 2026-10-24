@@ -3,6 +3,8 @@
 // y se validan al arrancar, para que un valor erróneo falle con un mensaje claro
 // en lugar de provocar errores confusos más tarde.
 
+import { MailConfig, parseMailConfig } from './mail.config';
+
 // Forma de la configuración que usa el resto de la aplicación
 // (se lee con ConfigService, p. ej. configService.get('port')).
 export interface AppConfig {
@@ -13,6 +15,7 @@ export interface AppConfig {
   apiDocsEnabled: boolean;
   osrmUrl: string;
   positionMinIntervalSeconds: number;
+  mail: MailConfig;
 }
 
 // Duración de la sesión (token de renovación), en días
@@ -220,5 +223,6 @@ export function loadConfiguration(): AppConfig {
     positionMinIntervalSeconds: parsePositionMinInterval(
       process.env.POSITION_MIN_INTERVAL_SECONDS,
     ),
+    mail: parseMailConfig(process.env),
   };
 }

@@ -51,7 +51,7 @@ describe('Trip lifecycle API (e2e)', () => {
 
   async function tokenFor(name: string, profiles: string[]): Promise<string> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await registerUser(app.getHttpServer(), {
+    await registerUser(app, {
       name,
       email,
       password: PASSWORD,

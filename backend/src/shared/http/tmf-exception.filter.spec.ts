@@ -44,6 +44,7 @@ describe('TmfExceptionFilter', () => {
     ['forbidden', 403],
     ['not_found', 404],
     ['conflict', 409],
+    ['too_many_requests', 429],
   ] as const)('maps a "%s" business error to HTTP %i', (kind, httpStatus) => {
     filter.catch(new SampleBusinessError(kind), host);
 

@@ -8,6 +8,7 @@ import {
   Res,
 } from '@nestjs/common';
 import {
+  ApiAcceptedResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -29,6 +30,10 @@ import {
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
+import {
+  ResendVerificationCodeDto,
+  VerifyEmailDto,
+} from './dto/verify-email.dto';
 
 // Capa API de auth: recibe el JSON ya validado (DTO), llama a AuthService y
 // devuelve recursos TMF630. Los errores los traduce el filtro global.
@@ -49,7 +54,8 @@ export class AuthController {
       'Public registration (RF-01). Only emails from the allowed UAL ' +
       'domains, with phone and acceptance of the rules and privacy policy. ' +
       'The user is created without profiles: the driver and/or passenger ' +
-      'profiles are chosen afterwards (PUT /api/users/me/profiles/{profile}).',
+      'profiles are chosen afterwards (PUT /api/users/me/profiles/{profile}). ' +
+      'A 6-digit code is sent to the email to verify it (POST /api/auth/verify-email).',
   })
   @ApiCreatedResponse({
     type: UserResource,
@@ -70,6 +76,50 @@ export class AuthController {
     return user;
   }
 
+  // Verificación del correo con el código: si es correcto, abre la sesión
+  // (200 con los tokens, como el login)
+  @Post('verify-email')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Verify the email with the code and log in',
+    description:
+      'Checks the 6-digit code sent by email when registering (valid for 15 minutes). If it is right, the email is verified and a session is opened. After 3 wrong attempts the code is cancelled and a new one must be requested.',
+  })
+  @ApiOkResponse({ type: AccessTokenResource })
+  @ApiErrorResponses({
+    [HttpStatus.BAD_REQUEST]: [
+      'VALIDATION_FAILED',
+      'INVALID_VERIFICATION_CODE',
+    ],
+    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS'],
+  })
+  async verifyEmail(@Body() dto: VerifyEmailDto): Promise<AccessTokenResource> {
+    return toAccessTokenResource(
+      await this.authService.verifyEmail(dto.email, dto.code),
+    );
+  }
+
+  // Reenvío del código. 202 siempre (exista o no el correo, esté o no ya
+  // verificado, haya pasado o no el minuto): la respuesta no revela nada
+  @Post('verify-email/resend')
+  @Public()
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({
+    summary: 'Send a new verification code',
+    description:
+      'Sends a new code and cancels the previous one, at most once a minute. Always answers 202, so it does not reveal which emails are registered.',
+  })
+  @ApiAcceptedResponse({ description: 'Request accepted' })
+  @ApiErrorResponses({
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+  })
+  async resendVerificationCode(
+    @Body() dto: ResendVerificationCodeDto,
+  ): Promise<void> {
+    await this.authService.resendVerificationCode(dto.email);
+  }
+
   // RF-02: inicio de sesión. Es 200 (no crea ningún recurso)
   @Post('login')
   @Public()
@@ -78,12 +128,14 @@ export class AuthController {
     summary: 'Log in',
     description:
       'Opens a new session (RF-02): returns an access token (15 min) and a ' +
-      'refresh token (7 days, at most 30 days since login).',
+      'refresh token (7 days, at most 30 days since login). Only users ' +
+      'with a verified email can log in.',
   })
   @ApiOkResponse({ type: AccessTokenResource })
   @ApiErrorResponses({
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
     [HttpStatus.UNAUTHORIZED]: ['INVALID_CREDENTIALS'],
+    [HttpStatus.FORBIDDEN]: ['EMAIL_NOT_VERIFIED'],
   })
   async login(@Body() dto: LoginDto): Promise<AccessTokenResource> {
     return toAccessTokenResource(

@@ -45,7 +45,7 @@
     },
     "/api/auth/register": {
       "post": {
-        "description": "Public registration (RF-01). Only emails from the allowed UAL domains, with phone and acceptance of the rules and privacy policy. The user is created without profiles: the driver and/or passenger profiles are chosen afterwards (PUT /api/users/me/profiles/{profile}).",
+        "description": "Public registration (RF-01). Only emails from the allowed UAL domains, with phone and acceptance of the rules and privacy policy. The user is created without profiles: the driver and/or passenger profiles are chosen afterwards (PUT /api/users/me/profiles/{profile}). A 6-digit code is sent to the email to verify it (POST /api/auth/verify-email).",
         "operationId": "AuthController_register",
         "parameters": [],
         "requestBody": {
@@ -118,9 +118,125 @@
         ]
       }
     },
+    "/api/auth/verify-email": {
+      "post": {
+        "description": "Checks the 6-digit code sent by email when registering (valid for 15 minutes). If it is right, the email is verified and a session is opened. After 3 wrong attempts the code is cancelled and a new one must be requested.",
+        "operationId": "AuthController_verifyEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED, INVALID_VERIFICATION_CODE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TMF630 error: TOO_MANY_ATTEMPTS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Verify the email with the code and log in",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/verify-email/resend": {
+      "post": {
+        "description": "Sends a new code and cancels the previous one, at most once a minute. Always answers 202, so it does not reveal which emails are registered.",
+        "operationId": "AuthController_resendVerificationCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendVerificationCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Request accepted"
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Send a new verification code",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/auth/login": {
       "post": {
-        "description": "Opens a new session (RF-02): returns an access token (15 min) and a refresh token (7 days, at most 30 days since login).",
+        "description": "Opens a new session (RF-02): returns an access token (15 min) and a refresh token (7 days, at most 30 days since login). Only users with a verified email can log in.",
         "operationId": "AuthController_login",
         "parameters": [],
         "requestBody": {
@@ -156,6 +272,16 @@
           },
           "401": {
             "description": "TMF630 error: INVALID_CREDENTIALS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: EMAIL_NOT_VERIFIED",
             "content": {
               "application/json": {
                 "schema": {
@@ -3931,21 +4057,24 @@
           "profiles"
         ]
       },
-      "LoginDto": {
+      "VerifyEmailDto": {
         "type": "object",
         "properties": {
           "email": {
             "type": "string",
-            "example": "lucia@ual.es"
+            "maxLength": 254,
+            "example": "ana@ual.es"
           },
-          "password": {
+          "code": {
             "type": "string",
-            "example": "carpooling"
+            "description": "The 6-digit code sent by email",
+            "pattern": "^[0-9]{6}$",
+            "example": "042137"
           }
         },
         "required": [
           "email",
-          "password"
+          "code"
         ]
       },
       "AccessTokenResource": {
@@ -3994,6 +4123,36 @@
           "refreshToken",
           "refreshTokenExpiresAt",
           "user"
+        ]
+      },
+      "ResendVerificationCodeDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "example": "ana@ual.es"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "lucia@ual.es"
+          },
+          "password": {
+            "type": "string",
+            "example": "carpooling"
+          }
+        },
+        "required": [
+          "email",
+          "password"
         ]
       },
       "RefreshTokenDto": {

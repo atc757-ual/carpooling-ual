@@ -3,6 +3,7 @@
 export type DomainEventType =
   // Usuarios (tabla de entidades del Gemelo Digital: registro y perfiles)
   | 'user.registered'
+  | 'user.email_verified'
   | 'user.profile_activated'
   | 'user.profile_deactivated'
   // Viajes. confirmed: primera solicitud aceptada; reopened: vuelve a
