@@ -42,7 +42,7 @@ describe('Vehicles API (e2e)', () => {
     profiles: string[] = ['driver'],
   ): Promise<string> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await registerUser(app.getHttpServer(), {
+    await registerUser(app, {
       name,
       email,
       password: PASSWORD,

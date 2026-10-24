@@ -52,7 +52,7 @@ describe('Incidents API (e2e)', () => {
 
   async function tokenFor(name: string, profiles: string[]): Promise<string> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await registerUser(app.getHttpServer(), {
+    await registerUser(app, {
       name,
       email,
       password: PASSWORD,
@@ -205,7 +205,7 @@ describe('Incidents API (e2e)', () => {
     // se le da en la base de datos antes de iniciar sesión
     async function adminToken(): Promise<string> {
       const email = `${EMAIL_PREFIX}ada@ual.es`;
-      const id = await registerUser(app.getHttpServer(), {
+      const id = await registerUser(app, {
         name: 'ada',
         email,
         password: PASSWORD,

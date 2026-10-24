@@ -1,8 +1,13 @@
 // Tipo de fallo en lenguaje de negocio (no HTTP). El filtro TMF630 de la capa
 // API lo traduce al status HTTP: invalid → 400, unauthorized → 401,
-// forbidden → 403, not_found → 404, conflict → 409
+// forbidden → 403, not_found → 404, conflict → 409, too_many_requests → 429
 export type BusinessErrorKind =
-  'invalid' | 'unauthorized' | 'forbidden' | 'not_found' | 'conflict';
+  | 'invalid'
+  | 'unauthorized'
+  | 'forbidden'
+  | 'not_found'
+  | 'conflict'
+  | 'too_many_requests';
 
 // Base de todos los errores de negocio de los services. Cada error declara su
 // código (el "code" de TMF630, documentado en docs/api/errors.md) y su tipo de

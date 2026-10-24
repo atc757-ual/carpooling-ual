@@ -60,7 +60,7 @@ describe('Notifications API (e2e)', () => {
     profiles: string[] = ['passenger'],
   ): Promise<Session> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await registerUser(app.getHttpServer(), {
+    await registerUser(app, {
       name,
       email,
       password: PASSWORD,

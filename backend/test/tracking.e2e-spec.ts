@@ -82,7 +82,7 @@ describe('Trip tracking (e2e)', () => {
     profiles: string[],
   ): Promise<Session> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await registerUser(app.getHttpServer(), {
+    await registerUser(app, {
       name,
       email,
       password: PASSWORD,

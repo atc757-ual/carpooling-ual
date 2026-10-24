@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, In, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, IsNull, Repository } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { ProfileRequiredError } from '../../shared/auth/profile-required.error';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
@@ -28,6 +28,9 @@ export interface CreateUserInput {
   // Solo los da el registro público
   phone?: string;
   termsAcceptedAt?: Date;
+  // El registro público crea el usuario sin verificar (verifica el correo con
+  // un código); el administrador inicial (create-admin) se crea verificado
+  isEmailVerified?: boolean;
 }
 
 // Relaciones que se cargan junto con el usuario
@@ -67,6 +70,7 @@ export class UsersService {
             passwordHash: input.passwordHash,
             phone: input.phone ?? null,
             termsAcceptedAt: input.termsAcceptedAt ?? null,
+            emailVerifiedAt: input.isEmailVerified ? new Date() : null,
           }),
         );
         // Los perfiles no dependen unos de otros. Si falla uno, la transacción
@@ -108,6 +112,37 @@ export class UsersService {
       .leftJoinAndSelect('user.adminProfile', 'adminProfile')
       .where('user.email = :email', { email })
       .getOne();
+  }
+
+  // Usuario por su correo, sin el hash (verificación del correo). citext: no
+  // distingue mayúsculas
+  findByEmail(email: string): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { email },
+      relations: PROFILE_RELATIONS,
+    });
+  }
+
+  // Marca el correo como verificado, en la transacción de quien llama (la que
+  // consume el código), y registra el evento para el Gemelo Digital (sin datos
+  // personales). Solo si no lo estaba: así el evento no se repite
+  async markEmailVerified(
+    manager: EntityManager,
+    userId: string,
+  ): Promise<void> {
+    const result = await manager.update(
+      User,
+      { id: userId, emailVerifiedAt: IsNull() },
+      { emailVerifiedAt: new Date() },
+    );
+    if (result.affected === 0) {
+      return;
+    }
+    await this.eventsService.record(manager, {
+      type: 'user.email_verified',
+      sourceEntityId: userId,
+      payload: {},
+    });
   }
 
   // Usuario con sus perfiles, sin el hash (p. ej. para GET /api/auth/me)

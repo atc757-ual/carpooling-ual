@@ -42,6 +42,11 @@ export class User {
   @Column({ name: 'terms_accepted_at', type: 'timestamptz', nullable: true })
   termsAcceptedAt: Date | null;
 
+  // Cuándo verificó el correo con el código; solo los verificados pueden
+  // iniciar sesión. El administrador inicial se crea ya verificado
+  @Column({ name: 'email_verified_at', type: 'timestamptz', nullable: true })
+  emailVerifiedAt: Date | null;
+
   @Column({ name: 'time_tolerance_min', type: 'smallint', default: 15 })
   timeToleranceMin: number;
 
