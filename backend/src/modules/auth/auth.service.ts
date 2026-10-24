@@ -7,10 +7,8 @@ import { AccessTokenPayload } from '../../shared/auth/access-token-payload';
 import { User } from '../users/entities/user.entity';
 import { UserSummary } from '../users/user-summary';
 import { UsersService } from '../users/users.service';
-import { EmailVerificationService } from './email-verification.service';
 import { AdminAlreadyExistsError } from './errors/admin-already-exists.error';
 import { EmailDomainNotAllowedError } from './errors/email-domain-not-allowed.error';
-import { EmailNotVerifiedError } from './errors/email-not-verified.error';
 import { InvalidAccessTokenError } from './errors/invalid-access-token.error';
 import { InvalidCredentialsError } from './errors/invalid-credentials.error';
 import { InvalidRefreshTokenError } from './errors/invalid-refresh-token.error';
@@ -77,7 +75,6 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly refreshTokensService: RefreshTokensService,
-    private readonly emailVerification: EmailVerificationService,
     private readonly jwtService: JwtService,
     configService: ConfigService,
   ) {
@@ -91,8 +88,7 @@ export class AuthService {
   // Registro público (RF-01): solo correos de la UAL; la contraseña se guarda
   // como hash, nunca en claro. El usuario se crea sin perfiles (los elige
   // después de verificar el correo) y con la fecha de aceptación de las
-  // normas (el DTO ya exige que las acepte). Queda sin verificar: se le envía
-  // un código al correo
+  // normas (el DTO ya exige que las acepte)
   async register(input: RegisterInput): Promise<AuthenticatedUser> {
     this.assertAllowedEmailDomain(input.email);
 
@@ -105,23 +101,7 @@ export class AuthService {
       termsAcceptedAt: new Date(),
       profiles: [],
     });
-    await this.emailVerification.sendCode(user);
     return this.toAuthenticatedUser(user);
-  }
-
-  // Verificación del correo con el código: si es correcto, abre la sesión
-  // directamente (acaba de demostrar que el correo es suyo), así pasa a
-  // elegir su modo sin volver a escribir la contraseña
-  async verifyEmail(email: string, code: string): Promise<AuthSession> {
-    const user = await this.emailVerification.verify(email, code);
-    return this.buildSession(
-      user,
-      await this.refreshTokensService.issue(user.id),
-    );
-  }
-
-  resendVerificationCode(email: string): Promise<void> {
-    return this.emailVerification.resendCode(email);
   }
 
   // Primer administrador (RF-01: "el primero se crea en el despliegue"). Lo usa
@@ -140,8 +120,6 @@ export class AuthService {
       email: input.email,
       passwordHash: await hash(password, BCRYPT_COST),
       profiles: ['admin'],
-      // Lo crea quien despliega, con su correo: no necesita código
-      isEmailVerified: true,
     });
     return { user: this.toAuthenticatedUser(user), password };
   }
@@ -155,11 +133,6 @@ export class AuthService {
     );
     if (user === null || !isPasswordValid) {
       throw new InvalidCredentialsError();
-    }
-    // Después de la contraseña: a quien no la sabe no se le dice si el correo
-    // existe ni si está verificado
-    if (user.emailVerifiedAt === null) {
-      throw new EmailNotVerifiedError();
     }
 
     return this.buildSession(

@@ -50,7 +50,7 @@ describe('Seat requests API (e2e)', () => {
 
   async function tokenFor(name: string, profiles: string[]): Promise<string> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await registerUser(app, {
+    await registerUser(app.getHttpServer(), {
       name,
       email,
       password: PASSWORD,

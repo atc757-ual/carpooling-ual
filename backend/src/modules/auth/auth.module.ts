@@ -6,10 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { MailModule } from '../../shared/mail/mail.module';
-import { EmailCodesService } from './email-codes.service';
-import { EmailVerificationService } from './email-verification.service';
-import { EmailCode } from './entities/email-code.entity';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ProfilesGuard } from './guards/profiles.guard';
@@ -19,10 +15,8 @@ import { RefreshTokensService } from './refresh-tokens.service';
   imports: [
     // Da acceso a UsersService, lo único que exporta el módulo users
     UsersModule,
-    // Envío de correos (códigos de verificación)
-    MailModule,
-    // Tablas propias de este módulo: sesiones y códigos enviados por correo
-    TypeOrmModule.forFeature([RefreshToken, EmailCode]),
+    // Repositorio de la tabla refresh_tokens, propia de este módulo
+    TypeOrmModule.forFeature([RefreshToken]),
     // Configura el JwtService con el secreto y la duración del token del .env
     JwtModule.registerAsync({
       inject: [ConfigService],
@@ -39,8 +33,6 @@ import { RefreshTokensService } from './refresh-tokens.service';
   providers: [
     AuthService,
     RefreshTokensService,
-    EmailCodesService,
-    EmailVerificationService,
     // Guards globales (se aplican a toda la API, en este orden): primero el
     // token (salvo @Public) y después los perfiles (@Profiles)
     { provide: APP_GUARD, useClass: JwtAuthGuard },

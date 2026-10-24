@@ -56,8 +56,6 @@ describe('API docs (e2e)', () => {
       '/api/auth/me',
       '/api/auth/refresh',
       '/api/auth/register',
-      '/api/auth/verify-email',
-      '/api/auth/verify-email/resend',
       '/api/health',
       '/api/incidents',
       '/api/incidents/{id}',

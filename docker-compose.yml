@@ -32,17 +32,5 @@ services:
     volumes:
       - ./osrm-data:/data:ro
 
-  # Buzón de pruebas para desarrollo: captura todos los correos que envía el
-  # backend (códigos de verificación) y los muestra en http://localhost:8025.
-  # Ningún correo sale a Internet. No se despliega: en producción se usa un
-  # servidor SMTP real (docs/despliegue.md)
-  mailpit:
-    image: axllent/mailpit:v1.32.0
-    container_name: carpooling-mailpit
-    restart: unless-stopped
-    ports:
-      - "${SMTP_PORT:-1025}:1025"
-      - "${MAILPIT_UI_PORT:-8025}:8025"
-
 volumes:
   postgres_data:

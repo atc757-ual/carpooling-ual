@@ -133,17 +133,6 @@ Otros comandos útiles (desde la raíz):
     docker compose down -v                # Detenerla y BORRAR los datos
     docker exec -it carpooling-db psql -U carpooling -d carpooling   # Consola SQL
 
-## Correo (códigos de verificación)
-
-Al registrarse, el usuario recibe un código de 6 cifras para verificar el correo (caduca a los 15 minutos, 3 intentos, un reenvío por minuto); solo los usuarios verificados pueden iniciar sesión. Los del seed y el administrador de `create-admin` ya están verificados.
-
-En desarrollo, los correos van a **Mailpit** (`carpooling-mailpit`), un buzón de pruebas que los captura sin enviarlos a Internet:
-
-    docker compose up -d                  # Desde la raíz: levanta también Mailpit
-    # Bandeja: http://localhost:8025
-
-En los tests (Jest pone `NODE_ENV=test`) los correos se quedan en memoria (`MAIL_TRANSPORT=memory`) y los tests leen el código de ahí; el CI no necesita servidor de correo. En producción, un servidor SMTP real: ver [`docs/despliegue.md`](../docs/despliegue.md).
-
 ## Motor de rutas (OSRM)
 
 OSRM (DP-02, RNF-16) calcula las rutas por carretera con el mapa de Andalucía de OpenStreetMap, en local y sin servicios de pago. Va en el perfil `routing` de Docker Compose, porque antes hay que preparar el mapa.

@@ -77,7 +77,7 @@ describe('Trip routes (e2e)', () => {
 
   async function sessionFor(name: string, profiles: string[]) {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await registerUser(app, {
+    await registerUser(app.getHttpServer(), {
       name,
       email,
       password: PASSWORD,

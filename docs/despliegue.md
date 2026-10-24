@@ -12,14 +12,8 @@ Partir de [`.env.example`](../.env.example) y revisar en especial:
 | `JWT_SECRET` | Un valor **aleatorio y distinto en cada entorno**, de al menos 32 caracteres. Nunca el de `.env.example` ni uno del repositorio. Para generarlo: `node -e "console.log(require('node:crypto').randomBytes(48).toString('base64url'))"` |
 | `API_DOCS_ENABLED` | `false` en producción si la documentación interactiva no debe ser pública; `true` en desarrollo y en la demo |
 | `ALLOWED_EMAIL_DOMAINS` | Los dominios de la UAL (`ual.es,inlumine.ual.es`) |
-| `MAIL_TRANSPORT` | `smtp` (envío real). `memory` solo en los tests: no envía nada |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE` | El servidor de correo de ese entorno (p. ej. el de la UAL o un proveedor): `SMTP_PORT=465` con `SMTP_SECURE=true`, o `587` con `false` (STARTTLS). **Nunca** el Mailpit de desarrollo (`localhost:1025`): los usuarios no recibirían el código |
-| `SMTP_USER`, `SMTP_PASSWORD` | Las credenciales del servidor SMTP (los dos o ninguno). Son secretos: solo en el `.env` del servidor, nunca en el repositorio |
-| `MAIL_FROM` | Un remitente del dominio del servidor SMTP, p. ej. `Carpooling UAL <no-reply@ual.es>`; si no, muchos servidores rechazan o marcan como spam los correos |
 
-Si `JWT_SECRET` o `DATABASE_URL` faltan o no son válidas, el servidor no arranca y explica por qué. Lo mismo con una configuración de correo incompleta (p. ej. `SMTP_USER` sin `SMTP_PASSWORD`).
-
-Sin un servidor SMTP que funcione, el registro sigue funcionando pero **nadie recibe el código** y no puede iniciar sesión: comprobarlo en el paso 4.
+Si `JWT_SECRET` o `DATABASE_URL` faltan o no son válidas, el servidor no arranca y explica por qué.
 
 ## 2. Base de datos
 
@@ -43,5 +37,4 @@ El perfil de administrador no se puede pedir en el registro (RF-01): el primero 
     npm run start:prod
 
 - `GET /api/health` debe responder `200` con `"database": "up"`.
-- Iniciar sesión con el administrador del paso 3 (`POST /api/auth/login`). Se crea con el correo ya verificado: no necesita código.
-- Registrar una cuenta de prueba (`POST /api/auth/register`) y comprobar que **llega el correo con el código**. Si no llega, revisar las variables `SMTP_*` y el log del servidor (`Could not send the verification code`). Después, borrar esa cuenta.
+- Iniciar sesión con el administrador del paso 3 (`POST /api/auth/login`).

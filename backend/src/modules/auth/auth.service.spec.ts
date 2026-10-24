@@ -7,8 +7,6 @@ import { EmailAlreadyRegisteredError } from '../users/errors/email-already-regis
 import { UsersService } from '../users/users.service';
 import { AccessTokenPayload } from '../../shared/auth/access-token-payload';
 import { AuthService } from './auth.service';
-import { EmailVerificationService } from './email-verification.service';
-import { EmailNotVerifiedError } from './errors/email-not-verified.error';
 import { AdminAlreadyExistsError } from './errors/admin-already-exists.error';
 import { EmailDomainNotAllowedError } from './errors/email-domain-not-allowed.error';
 import { InvalidAccessTokenError } from './errors/invalid-access-token.error';
@@ -39,28 +37,17 @@ describe('AuthService', () => {
     rotate: jest.fn(),
     revoke: jest.fn(),
   };
-  const emailVerification = {
-    sendCode: jest.fn(),
-    resendCode: jest.fn(),
-    verify: jest.fn(),
-  };
   const ISSUED_REFRESH_TOKEN = {
     token: 'refresh-token-1',
     expiresAt: new Date('2030-01-08T00:00:00Z'),
   };
 
-  // Por defecto con el correo verificado (los tests del login sin verificar
-  // pasan null)
-  function storedUser(
-    passwordHash?: string,
-    emailVerifiedAt: Date | null = new Date('2026-10-24T10:00:00Z'),
-  ): User {
+  function storedUser(passwordHash?: string): User {
     return Object.assign(new User(), {
       id: 'user-1',
       name: 'Ana',
       email: 'ana@ual.es',
       passwordHash,
-      emailVerifiedAt,
     });
   }
 
@@ -72,7 +59,6 @@ describe('AuthService', () => {
         AuthService,
         { provide: UsersService, useValue: usersService },
         { provide: RefreshTokensService, useValue: refreshTokensService },
-        { provide: EmailVerificationService, useValue: emailVerification },
         { provide: JwtService, useValue: jwtService },
         {
           provide: ConfigService,
@@ -157,54 +143,6 @@ describe('AuthService', () => {
     });
   });
 
-  describe('email verification', () => {
-    it('sends the code to the new user after registering', async () => {
-      const created = storedUser(undefined, null);
-      usersService.createWithProfiles.mockResolvedValue(created);
-
-      await authService.register({
-        name: 'Ana',
-        email: 'ana@ual.es',
-        password: 'secret-password',
-        phone: '+34600123456',
-      });
-
-      expect(emailVerification.sendCode).toHaveBeenCalledWith(created);
-    });
-
-    it('opens a session when the code is right', async () => {
-      emailVerification.verify.mockResolvedValue(storedUser());
-      refreshTokensService.issue.mockResolvedValue(ISSUED_REFRESH_TOKEN);
-
-      const session = await authService.verifyEmail('ana@ual.es', '042137');
-
-      expect(emailVerification.verify).toHaveBeenCalledWith(
-        'ana@ual.es',
-        '042137',
-      );
-      expect(refreshTokensService.issue).toHaveBeenCalledWith('user-1');
-      expect(session).toMatchObject({
-        refreshToken: 'refresh-token-1',
-        user: { id: 'user-1' },
-      });
-    });
-
-    it('does not open a session when the code is wrong', async () => {
-      emailVerification.verify.mockRejectedValue(new Error('wrong code'));
-
-      await expect(
-        authService.verifyEmail('ana@ual.es', '000000'),
-      ).rejects.toThrow('wrong code');
-      expect(refreshTokensService.issue).not.toHaveBeenCalled();
-    });
-
-    it('delegates the resend', async () => {
-      await authService.resendVerificationCode('ana@ual.es');
-
-      expect(emailVerification.resendCode).toHaveBeenCalledWith('ana@ual.es');
-    });
-  });
-
   describe('createFirstAdmin', () => {
     const input = { name: 'Ana', email: 'ana@ual.es' };
 
@@ -216,12 +154,9 @@ describe('AuthService', () => {
       const { user, password } = await authService.createFirstAdmin(input);
 
       const [created] = usersService.createWithProfiles.mock.calls[0] as [
-        { passwordHash: string; profiles: string[]; isEmailVerified: boolean },
+        { passwordHash: string; profiles: string[] },
       ];
       expect(created.profiles).toEqual(['admin']);
-      // Lo crea quien despliega: entra sin código
-      expect(created.isEmailVerified).toBe(true);
-      expect(emailVerification.sendCode).not.toHaveBeenCalled();
       expect(password).toMatch(/^[\w-]{20}$/);
       expect(created.passwordHash).not.toBe(password);
       expect(await compare(password, created.passwordHash)).toBe(true);
@@ -300,27 +235,6 @@ describe('AuthService', () => {
         authService.login('ana@ual.es', 'wrong-password'),
       ).rejects.toBeInstanceOf(InvalidCredentialsError);
       expect(refreshTokensService.issue).not.toHaveBeenCalled();
-    });
-
-    it('does not let in a user whose email is not verified (403)', async () => {
-      usersService.findByEmailWithPassword.mockResolvedValue(
-        storedUser(await hash('secret-password', 4), null),
-      );
-
-      await expect(
-        authService.login('ana@ual.es', 'secret-password'),
-      ).rejects.toBeInstanceOf(EmailNotVerifiedError);
-      expect(refreshTokensService.issue).not.toHaveBeenCalled();
-    });
-
-    it('answers a wrong password with 401 even if the email is not verified', async () => {
-      usersService.findByEmailWithPassword.mockResolvedValue(
-        storedUser(await hash('secret-password', 4), null),
-      );
-
-      await expect(
-        authService.login('ana@ual.es', 'wrong-password'),
-      ).rejects.toBeInstanceOf(InvalidCredentialsError);
     });
 
     it('rejects a wrong password', async () => {

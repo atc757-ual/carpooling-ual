@@ -12,12 +12,11 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- -----------------------------------------------------------------------------
 -- Usuarios y perfiles
 -- -----------------------------------------------------------------------------
--- Con el correo ya verificado: pueden iniciar sesión sin código
-INSERT INTO users (id, name, email, password_hash, time_tolerance_min, email_verified_at) VALUES
-  ('00000000-0000-4000-8000-000000000001', 'Admin UAL',      'admin@ual.es',    crypt('carpooling', gen_salt('bf', 10)), 15, now()),
-  ('00000000-0000-4000-8000-000000000002', 'Lucía Conductora', 'lucia@ual.es',  crypt('carpooling', gen_salt('bf', 10)), 10, now()),
-  ('00000000-0000-4000-8000-000000000003', 'Mario Pasajero', 'mario@ual.es',    crypt('carpooling', gen_salt('bf', 10)), 20, now()),
-  ('00000000-0000-4000-8000-000000000004', 'Sara Mixta',     'sara@ual.es',     crypt('carpooling', gen_salt('bf', 10)), 15, now());
+INSERT INTO users (id, name, email, password_hash, time_tolerance_min) VALUES
+  ('00000000-0000-4000-8000-000000000001', 'Admin UAL',      'admin@ual.es',    crypt('carpooling', gen_salt('bf', 10)), 15),
+  ('00000000-0000-4000-8000-000000000002', 'Lucía Conductora', 'lucia@ual.es',  crypt('carpooling', gen_salt('bf', 10)), 10),
+  ('00000000-0000-4000-8000-000000000003', 'Mario Pasajero', 'mario@ual.es',    crypt('carpooling', gen_salt('bf', 10)), 20),
+  ('00000000-0000-4000-8000-000000000004', 'Sara Mixta',     'sara@ual.es',     crypt('carpooling', gen_salt('bf', 10)), 15);
 
 INSERT INTO admin_profiles (user_id) VALUES
   ('00000000-0000-4000-8000-000000000001');

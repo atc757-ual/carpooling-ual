@@ -18,7 +18,6 @@ const STATUS_BY_KIND: Record<BusinessErrorKind, HttpStatus> = {
   forbidden: HttpStatus.FORBIDDEN,
   not_found: HttpStatus.NOT_FOUND,
   conflict: HttpStatus.CONFLICT,
-  too_many_requests: HttpStatus.TOO_MANY_REQUESTS,
 };
 
 const INTERNAL_ERROR_CODE = 'INTERNAL_ERROR';

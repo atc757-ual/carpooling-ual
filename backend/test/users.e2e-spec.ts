@@ -46,7 +46,7 @@ describe('Users API (e2e)', () => {
   // después inicia sesión para que el token incluya sus perfiles
   async function createUser(name: string, isAdmin = false): Promise<TestUser> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    const id = await registerUser(app, {
+    const id = await registerUser(app.getHttpServer(), {
       name,
       email,
       password: PASSWORD,
@@ -159,7 +159,7 @@ describe('Users API (e2e)', () => {
     // Recién registrado: sin perfiles, con una sesión abierta
     async function newcomer(name: string): Promise<Newcomer> {
       const email = `${EMAIL_PREFIX}${name}@ual.es`;
-      const id = await registerUser(app, {
+      const id = await registerUser(app.getHttpServer(), {
         name,
         email,
         password: PASSWORD,

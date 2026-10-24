@@ -52,7 +52,7 @@ describe('Trips API (e2e)', () => {
   // Registra un usuario y devuelve su token de acceso
   async function tokenFor(name: string, profiles: string[]): Promise<string> {
     const email = `${EMAIL_PREFIX}${name}@ual.es`;
-    await registerUser(app, {
+    await registerUser(app.getHttpServer(), {
       name,
       email,
       password: PASSWORD,
