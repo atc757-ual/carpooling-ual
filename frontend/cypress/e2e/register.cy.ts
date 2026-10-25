@@ -53,13 +53,28 @@ for (const viewport of VIEWPORTS) {
         .and('contain', 'Ya hay una cuenta con este correo.');
     });
 
-    it('does not call the API until the terms are accepted', () => {
-      cy.intercept('POST', REGISTER_URL, cy.spy().as('register'));
+    it('enables the button only when every field is right and the terms are accepted', () => {
+      const submit = () => cy.contains('ion-button', 'Crear cuenta y verificar correo');
+      submit().should('have.attr', 'disabled');
 
-      cy.contains('ion-button', 'Crear cuenta y verificar correo').click();
+      fillForm('mario.perez@ual.es');
+      submit().should('not.have.attr', 'disabled');
 
-      cy.contains('Tienes que aceptarlas para crear la cuenta.').should('be.visible');
-      cy.get('@register').should('not.have.been.called');
+      cy.get('ion-checkbox[formControlName="acceptedTerms"]').click();
+      submit().should('have.attr', 'disabled');
+    });
+
+    it('opens the privacy policy without checking the box', () => {
+      cy.contains('button', 'política de privacidad').click();
+
+      cy.get('ion-modal').contains('ion-title', 'Política de privacidad').should('be.visible');
+      cy.get('ion-modal').contains('h2', 'Tus derechos').should('exist');
+      cy.get('ion-modal ion-buttons ion-button').click();
+      cy.get('ion-modal').should('not.exist');
+      cy.get('ion-checkbox[formControlName="acceptedTerms"]').should(
+        'not.have.class',
+        'checkbox-checked',
+      );
     });
 
     it('goes back to the welcome screen', () => {

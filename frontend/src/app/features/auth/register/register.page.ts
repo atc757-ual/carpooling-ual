@@ -15,6 +15,7 @@ import {
   IonText,
   IonTitle,
   IonToolbar,
+  ModalController,
 } from '@ionic/angular';
 import {
   arrowBackOutline,
@@ -28,6 +29,10 @@ import {
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
+import {
+  LegalDocument,
+  LegalModal,
+} from '../../../shared/components/modals/legal-modal/legal-modal';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { normalizePhone, phoneValidator } from '../../../shared/utils/phone.util';
@@ -68,6 +73,7 @@ const PASSWORD_MAX_LENGTH = 72;
 export class RegisterPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly modalController = inject(ModalController);
 
   readonly form = inject(NonNullableFormBuilder).group({
     name: ['', [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
@@ -103,6 +109,15 @@ export class RegisterPage {
   isTermsErrorVisible(): boolean {
     const terms = this.form.controls.acceptedTerms;
     return terms.touched && terms.invalid;
+  }
+
+  // Abre las condiciones de uso o la política de privacidad sin salir del formulario
+  async openLegal(document: LegalDocument): Promise<void> {
+    const modal = await this.modalController.create({
+      component: LegalModal,
+      componentProps: { document },
+    });
+    await modal.present();
   }
 
   async handleSubmit(): Promise<void> {

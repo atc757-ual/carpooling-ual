@@ -1,0 +1,25 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()" aria-label="Cerrar">
+        <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (content(); as text) {
+    <!-- Angular limpia el HTML (sin scripts ni estilos) antes de mostrarlo -->
+    <article class="legal" [innerHTML]="text"></article>
+  } @else if (hasError()) {
+    <p class="text-body" role="alert">
+      No hemos podido cargar el texto. Comprueba tu conexión e inténtalo de nuevo.
+    </p>
+  } @else {
+    <div class="legal__loading">
+      <ion-spinner name="crescent" aria-label="Cargando el texto" />
+    </div>
+  }
+</ion-content>

@@ -65,6 +65,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Tests e2e del frontend con Cypress (móvil y escritorio, API simulada) y su paso en el CI
 - Clases del tema para los componentes de Ionic: botones, barras superiores y flecha atrás
 - Pantalla de registro (RF-01, RF-27): nombre, teléfono (español por defecto o internacional con su prefijo), correo de la UAL, contraseña y aceptación de las condiciones de uso y la política de privacidad (#40)
+- Condiciones de uso y política de privacidad (textos provisionales en `frontend/public/legal/`), que se abren en un modal desde la casilla del registro sin salir del formulario
 
 ### Changed
 - Guía de estilos (`docs/guia-estilos.html`) rehecha con los diseños de Figma del 25/10/2026: color, tipografía, ritmo, componentes, patrones, estados, navegación, pantallas de acceso, modo oscuro, accesibilidad y textos
