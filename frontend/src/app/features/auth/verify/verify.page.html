@@ -46,9 +46,9 @@
           >Código de verificación</span
         >
         <!-- Seis casillas; pegar el código del correo lo reparte entre ellas.
-             Texto (con teclado numérico) y no type="number": así el valor es
-             un texto y un código que empieza por 0 conserva ese 0. Sin el atributo
-             pattern: Angular lo usaría como validador del código entero -->
+             De tipo texto con teclado numérico (no de tipo número): así un
+             código que empieza por cero conserva ese cero. Sin patrón propio:
+             Angular lo aplicaría como validador del código entero -->
         <ion-input-otp
           class="verify__code"
           formControlName="code"
@@ -97,10 +97,13 @@
     </form>
 
     <div class="auth-notice" role="note">
-      <p class="text-body-s text-body-s--strong text-color-primary">¿No llega? Revisa spam.</p>
+      <p class="text-body-s text-body-s--strong text-color-primary">Importante</p>
       <p class="text-caption">
-        El reenvío se habilitará al terminar la cuenta atrás. El código de verificación caduca a los
-        {{ verificationTimeout }} minutos. Si no lo recibes, puedes solicitar uno nuevo.
+          <ul>
+            <li>Comprueba que el correo electrónico es correcto.</li>
+            <li>Comprueba la carpeta de correo no deseado o spam.</li>
+            <li>Si no lo recibes, solicita un nuevo código.</li>
+          </ul>
       </p>
     </div>
   </app-auth-layout>
