@@ -67,25 +67,25 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/auth/login');
     });
 
-    it('does not call the API while the form is invalid', () => {
-      cy.intercept('POST', LOGIN_URL, cy.spy().as('login'));
+    it('enables the button only with a UAL email and a password of 8 or more', () => {
+      const submit = () => cy.contains('ion-button', 'Iniciar sesión');
+      submit().should('have.attr', 'disabled');
 
-      cy.get('ion-input[formControlName="email"] input').type('no-es-un-correo');
-      cy.contains('ion-button', 'Iniciar sesión').click();
+      fillForm('ana@ual.es', 'corta');
+      cy.get('ion-input[formControlName="password"] input').blur();
+      cy.contains('Introduce tu contraseña (al menos 8 caracteres).').should('be.visible');
+      submit().should('have.attr', 'disabled');
 
-      cy.contains('Introduce un correo válido.').should('be.visible');
-      cy.contains('Introduce tu contraseña.').should('be.visible');
-      cy.get('@login').should('not.have.been.called');
+      cy.get('ion-input[formControlName="password"] input').clear().type('secreta123');
+      submit().should('not.have.attr', 'disabled');
     });
 
-    it('does not call the API with an email from outside the UAL', () => {
-      cy.intercept('POST', LOGIN_URL, cy.spy().as('login'));
-
+    it('explains an email from outside the UAL and keeps the button disabled', () => {
       fillForm('ana@gmail.com', 'secreta123');
-      cy.contains('ion-button', 'Iniciar sesión').click();
+      cy.get('ion-input[formControlName="email"] input').focus().blur();
 
       cy.contains('Usa tu correo de la Universidad de Almería.').should('be.visible');
-      cy.get('@login').should('not.have.been.called');
+      cy.contains('ion-button', 'Iniciar sesión').should('have.attr', 'disabled');
     });
 
     it('shows the password on demand', () => {

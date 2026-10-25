@@ -30,6 +30,8 @@ import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.di
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/ual-email.util';
 
+const PASSWORD_MIN_LENGTH = 8;
+
 // Iniciar sesión (P·03) con el correo de la UAL y la contraseña. Al entrar,
 // vuelve a la página que se pedía (?returnUrl=, ver authGuard) o al inicio
 @Component({
@@ -65,7 +67,8 @@ export class LoginPage {
   readonly form = inject(NonNullableFormBuilder).group({
     // Con el dominio también aquí: un correo de fuera no llega al servidor
     email: ['', [Validators.required, Validators.email, ualEmailValidator()]],
-    password: ['', Validators.required],
+    // Mínimo de 8 como en el registro: una más corta no puede ser correcta
+    password: ['', [Validators.required, Validators.minLength(PASSWORD_MIN_LENGTH)]],
   });
   readonly isSubmitting = signal(false);
   readonly errorMessage = signal<string | null>(null);

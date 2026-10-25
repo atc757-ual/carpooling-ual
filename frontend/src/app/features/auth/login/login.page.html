@@ -63,7 +63,7 @@
           aria-label="Contraseña"
           placeholder="••••••••"
           fill="outline"
-          errorText="Introduce tu contraseña."
+          errorText="Introduce tu contraseña (al menos 8 caracteres)."
         >
           <ion-icon slot="start" [icon]="lockIcon" aria-hidden="true" />
           <!-- Botón nativo y no ion-input-password-toggle: ese trae su nombre
@@ -93,7 +93,8 @@
         ¿Olvidaste tu contraseña?
       </ion-button>
 
-      <ion-button type="submit" expand="block" [disabled]="isSubmitting()">
+      <!-- Activo solo con un correo de la UAL y una contraseña de 8 o más -->
+      <ion-button type="submit" expand="block" [disabled]="form.invalid || isSubmitting()">
         @if (isSubmitting()) {
           <ion-spinner name="crescent" aria-label="Entrando" />
         } @else {
