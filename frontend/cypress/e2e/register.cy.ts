@@ -30,6 +30,9 @@ for (const viewport of VIEWPORTS) {
         password: 'secreta123',
         acceptedTerms: true,
       });
+      cy.location('pathname').should('eq', '/auth/verify');
+      cy.contains('h1', 'Mira tu bandeja de entrada.').should('be.visible');
+      cy.location('search').should('eq', '');
     });
 
     it('shows the API error when the email is already registered', () => {

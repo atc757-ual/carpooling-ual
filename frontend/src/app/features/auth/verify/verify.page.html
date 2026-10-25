@@ -98,13 +98,12 @@
 
     <div class="auth-notice" role="note">
       <p class="text-body-s text-body-s--strong text-color-primary">Importante</p>
-      <p class="text-caption">
-          <ul>
-            <li>Comprueba que el correo electrónico es correcto.</li>
-            <li>Comprueba la carpeta de correo no deseado o spam.</li>
-            <li>Si no lo recibes, solicita un nuevo código.</li>
-          </ul>
-      </p>
+      <!-- Lista y no párrafo: un <p> no puede contener una lista -->
+      <ul class="verify__tips text-caption">
+        <li>Comprueba que el correo electrónico es correcto.</li>
+        <li>Comprueba la carpeta de correo no deseado o spam.</li>
+        <li>Si no lo recibes, solicita un nuevo código.</li>
+      </ul>
     </div>
   </app-auth-layout>
 </ion-content>

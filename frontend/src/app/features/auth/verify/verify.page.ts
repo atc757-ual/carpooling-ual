@@ -26,8 +26,6 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 const CODE_LENGTH = 6;
 // La API envía como mucho un código por minuto
 const RESEND_WAIT_SECONDS = 60;
-// Minutos que vale un código (los mismos que en la API)
-const CODE_TTL_MINUTES = 15;
 
 // Verificar el correo con el código de 6 cifras que se envía al registrarse
 // (o al entrar sin haberlo verificado). Si es correcto, la API abre la sesión.
@@ -79,7 +77,6 @@ export class VerifyPage implements OnInit {
   });
 
   protected readonly codeLength = CODE_LENGTH;
-  protected readonly verificationTimeout = CODE_TTL_MINUTES;
   protected readonly backIcon = arrowBackOutline;
   protected readonly mailIcon = mailUnreadOutline;
 

@@ -44,6 +44,12 @@ ion-input-otp.verify__code.input-otp-size-medium {
   font-weight: var(--font-weight-medium);
 }
 
+// Consejos del aviso inferior
+.verify__tips {
+  margin: 0;
+  padding-inline-start: var(--space-l);
+}
+
 // «Verificar correo», «Reenviar código» y «Editar correo», a 16px
 .verify__actions {
   display: flex;
