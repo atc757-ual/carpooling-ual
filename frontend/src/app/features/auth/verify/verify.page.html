@@ -1,0 +1,109 @@
+<!-- Solo en el móvil: la barra con la vuelta al registro y el título -->
+<ion-header class="ion-hide-md-up ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button
+        class="back-button"
+        defaultHref="/auth/register"
+        text=""
+        [icon]="backIcon"
+        aria-label="Volver"
+      />
+    </ion-buttons>
+    <ion-title>Verifica tu correo</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <app-auth-layout>
+    <!-- En escritorio, sin barra: la flecha y el título sobre el logotipo -->
+    <div class="top-bar ion-hide-md-down" authLayoutTop>
+      <ion-back-button
+        class="back-button"
+        defaultHref="/auth/register"
+        text=""
+        [icon]="backIcon"
+        aria-label="Volver"
+      />
+      <span class="top-bar__title">Verifica tu correo</span>
+    </div>
+
+    <div class="auth-intro">
+      <span class="verify__icon" aria-hidden="true">
+        <ion-icon [icon]="mailIcon" />
+      </span>
+      <h1 class="text-heading">Mira tu bandeja de entrada.</h1>
+      <p class="text-body text-color-muted">
+        Hemos enviado un código de 6 dígitos a
+        <span class="verify__email text-color-default">{{ email() }}</span
+        >.
+      </p>
+    </div>
+
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+      <div class="auth-field">
+        <span id="verify-code-label" class="text-label text-label--strong"
+          >Código de verificación</span
+        >
+        <!-- Seis casillas; pegar el código del correo lo reparte entre ellas.
+             Texto (con teclado numérico) y no type="number": así el valor es
+             un texto y un código que empieza por 0 conserva ese 0. Sin el atributo
+             pattern: Angular lo usaría como validador del código entero -->
+        <ion-input-otp
+          class="verify__code"
+          formControlName="code"
+          [length]="codeLength"
+          type="text"
+          inputmode="numeric"
+          fill="outline"
+          shape="soft"
+          aria-labelledby="verify-code-label"
+        />
+      </div>
+
+      @if (errorMessage(); as message) {
+        <ion-text color="danger" class="auth-error text-body-s" role="alert">
+          {{ message }}
+        </ion-text>
+      }
+      @if (hasResent()) {
+        <ion-text class="text-body-s text-color-muted" role="status">
+          Si el correo está registrado, te hemos enviado un código nuevo.
+        </ion-text>
+      }
+
+      <!-- 16px entre los botones -->
+      <div class="verify__actions">
+        <ion-button type="submit" expand="block" [disabled]="form.invalid || isSubmitting()">
+          @if (isSubmitting()) {
+            <ion-spinner name="crescent" aria-label="Verificando" />
+          } @else {
+            Verificar correo
+          }
+        </ion-button>
+        <ion-button
+          type="button"
+          expand="block"
+          fill="outline"
+          [disabled]="secondsToResend() > 0"
+          (click)="handleResend()"
+        >
+          {{ resendLabel() }}
+        </ion-button>
+        <ion-button class="verify__edit" type="button" fill="clear" routerLink="/auth/register">
+          Editar correo electrónico
+        </ion-button>
+      </div>
+    </form>
+
+    <div class="auth-notice" role="note">
+      <p class="text-body-s text-body-s--strong text-color-primary">
+        Qué significa «UAL verificado»
+      </p>
+      <p class="text-caption">
+        Confirma el acceso a un correo de la UAL. No acredita la identidad, la titularidad del coche
+        ni el permiso de conducir.
+      </p>
+    </div>
+  </app-auth-layout>
+</ion-content>

@@ -1,0 +1,81 @@
+import { VIEWPORTS } from '../support/e2e';
+
+const VERIFY_URL = '/api/auth/verify-email';
+const EMAIL = 'mario.perez@ual.es';
+
+const ACCESS_TOKEN = {
+  '@type': 'AccessToken',
+  accessToken: 'access-1',
+  tokenType: 'Bearer',
+  expiresIn: 900,
+  refreshToken: 'refresh-1',
+  refreshTokenExpiresAt: '2026-11-01T00:00:00.000Z',
+  user: {
+    '@type': 'User',
+    id: 'user-1',
+    href: '/api/users/user-1',
+    name: 'Mario Pérez',
+    email: EMAIL,
+    phone: '+34612345678',
+    profiles: [],
+  },
+};
+
+// Una cifra en cada casilla, como al escribirlo a mano
+function typeCode(code: string): void {
+  cy.get('ion-input-otp input').each(($input, index) => {
+    cy.wrap($input).type(code[index]);
+  });
+}
+
+for (const viewport of VIEWPORTS) {
+  describe(`Verify email (${viewport.name})`, () => {
+    beforeEach(() => {
+      cy.viewport(viewport.width, viewport.height);
+      // El correo pendiente lo deja el registro (o el login) en sessionStorage
+      cy.visit('/auth/verify', {
+        onBeforeLoad: (win) => win.sessionStorage.setItem('auth.pending-verification-email', EMAIL),
+      });
+    });
+
+    it('shows where the code was sent, without the email in the URL', () => {
+      cy.contains(EMAIL).should('be.visible');
+      cy.location('search').should('eq', '');
+      cy.contains('ion-button', 'Reenviar código en 00:').should('have.attr', 'disabled');
+    });
+
+    it('verifies the code and opens the session', () => {
+      cy.intercept('POST', VERIFY_URL, ACCESS_TOKEN).as('verify');
+
+      typeCode('042619');
+      cy.contains('ion-button', 'Verificar correo').click();
+
+      cy.wait('@verify').its('request.body').should('deep.equal', { email: EMAIL, code: '042619' });
+      cy.location('pathname').should('eq', '/');
+    });
+
+    it('explains a wrong code', () => {
+      cy.intercept('POST', VERIFY_URL, {
+        statusCode: 400,
+        body: {
+          '@type': 'Error',
+          code: 'INVALID_VERIFICATION_CODE',
+          reason: 'Invalid verification code',
+          message: 'The code is not valid',
+          status: '400',
+        },
+      }).as('verify');
+
+      typeCode('284610');
+      cy.contains('ion-button', 'Verificar correo').click();
+
+      cy.wait('@verify');
+      cy.get('.auth-error').should('contain', 'Ese código no es válido.');
+    });
+
+    it('goes back to the register to change the email', () => {
+      cy.contains('ion-button', 'Editar correo electrónico').click();
+      cy.location('pathname').should('eq', '/auth/register');
+    });
+  });
+}

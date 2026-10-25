@@ -1,7 +1,7 @@
 // Estilos comunes de las pantallas de acceso con formulario (login, registro,
 // verificar el correo…). Cada pantalla los incluye en styleUrls junto a los
-// suyos. Espaciado: 4px entre un título y su texto y entre una etiqueta y su
-// campo; 20px dentro del formulario (entre bloques, 24px: ver auth-layout)
+// suyos. Espaciado: 4px entre un título y su texto, 8px entre una etiqueta y
+// su campo y 20px dentro del formulario (entre bloques, 24px: ver auth-layout)
 
 .auth-intro {
   display: flex;
@@ -28,7 +28,7 @@
 .auth-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-s);
 
   ion-icon {
     margin-inline-end: var(--space-s);

@@ -16,6 +16,12 @@ export interface RegisterRequest {
   acceptedTerms: true;
 }
 
+// El código de 6 cifras que se envía al correo al registrarse
+export interface VerifyEmailRequest {
+  email: string;
+  code: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;

@@ -3,13 +3,17 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
-import { AccessToken, LoginRequest, RegisterRequest } from '../../models/auth.model';
+import { AccessToken, LoginRequest, RegisterRequest, VerifyEmailRequest } from '../../models/auth.model';
 import { Profile, User } from '../../models/user.model';
 import { PreferencesPlugin } from '../../plugins/preferences-plugin';
 
 const REFRESH_TOKEN_KEY = 'auth.refresh-token';
 const REFRESH_LOCK_NAME = 'carpooling-ual.auth-refresh';
 const SESSION_ENDED_CODE = 'INVALID_REFRESH_TOKEN';
+// Correo pendiente de verificar, entre el registro (o el login) y la pantalla
+// del código. En sessionStorage y no en la URL: es un dato personal y la URL
+// queda en el historial y en los registros. Dura lo que la pestaña
+const PENDING_EMAIL_KEY = 'auth.pending-verification-email';
 
 // Sesión del usuario contra /api/auth.
 // - El token de acceso (15 min) solo vive en memoria; el de renovación se
@@ -40,9 +44,33 @@ export class AuthService {
     return this.accessToken;
   }
 
-  // Crea la cuenta; no inicia sesión (la pantalla decide qué hacer después)
-  register(request: RegisterRequest): Promise<User> {
-    return this.send(this.http.post<User>(`${this.authUrl}/register`, request));
+  // Crea la cuenta; no inicia sesión: queda el correo pendiente de verificar
+  async register(request: RegisterRequest): Promise<User> {
+    const user = await this.send(this.http.post<User>(`${this.authUrl}/register`, request));
+    this.setPendingVerificationEmail(request.email);
+    return user;
+  }
+
+  // Verifica el correo con el código enviado; si es correcto, abre la sesión
+  async verifyEmail(request: VerifyEmailRequest): Promise<User> {
+    const token = await this.send(this.http.post<AccessToken>(`${this.authUrl}/verify-email`, request));
+    await this.startSession(token);
+    sessionStorage.removeItem(PENDING_EMAIL_KEY);
+    return token.user;
+  }
+
+  getPendingVerificationEmail(): string | null {
+    return sessionStorage.getItem(PENDING_EMAIL_KEY);
+  }
+
+  setPendingVerificationEmail(email: string): void {
+    sessionStorage.setItem(PENDING_EMAIL_KEY, email);
+  }
+
+  // Pide un código nuevo (anula el anterior). La API responde lo mismo exista o
+  // no el correo y como mucho envía uno por minuto
+  resendVerificationCode(email: string): Promise<void> {
+    return this.send(this.http.post<void>(`${this.authUrl}/verify-email/resend`, { email }));
   }
 
   async login(request: LoginRequest): Promise<User> {

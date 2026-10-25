@@ -39,6 +39,7 @@ import { normalizePhone, phoneValidator } from '../../../shared/utils/phone.util
 import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/ual-email.util';
 
 // Mismos límites que la API (POST /api/auth/register)
+const VERIFY_PATH = '/auth/verify';
 const NAME_MAX_LENGTH = 100;
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_MAX_LENGTH = 72;
@@ -136,7 +137,8 @@ export class RegisterPage {
         password,
         acceptedTerms: true,
       });
-      await this.router.navigate(['/auth/verify'], { queryParams: { email } });
+      // El correo no va en la URL: lo guarda AuthService al registrar
+      await this.router.navigateByUrl(VERIFY_PATH);
     } catch (error) {
       this.errorMessage.set(getErrorMessage(ApiError.fromHttpError(error)));
     } finally {
