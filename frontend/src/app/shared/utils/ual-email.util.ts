@@ -19,3 +19,11 @@ export function ualEmailValidator(
     return allowedDomains.includes(domain) ? null : { ualEmail: true };
   };
 }
+
+// Mensaje de error de un campo de correo de la UAL según lo que falle: el
+// dominio (ualEmailValidator) o el formato
+export function getUalEmailErrorText(control: AbstractControl): string {
+  return control.hasError('ualEmail')
+    ? 'Usa tu correo de la Universidad de Almería.'
+    : 'Introduce un correo válido.';
+}

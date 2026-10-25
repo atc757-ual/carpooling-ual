@@ -63,9 +63,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains('ion-button', 'Iniciar sesión').click();
 
       cy.wait('@login');
-      cy.get('.login__error')
-        .should('be.visible')
-        .and('contain', 'Correo o contraseña incorrectos.');
+      cy.get('.auth-error').should('be.visible').and('contain', 'Correo o contraseña incorrectos.');
       cy.location('pathname').should('eq', '/auth/login');
     });
 
@@ -92,7 +90,7 @@ for (const viewport of VIEWPORTS) {
 
     it('shows the password on demand', () => {
       cy.get('ion-input[formControlName="password"] input').should('have.attr', 'type', 'password');
-      cy.get('.login__password-toggle').click();
+      cy.get('.auth-password-toggle').click();
       cy.get('ion-input[formControlName="password"] input').should('have.attr', 'type', 'text');
     });
 

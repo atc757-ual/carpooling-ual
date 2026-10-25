@@ -40,9 +40,7 @@ describe('LoginPage', () => {
   }
 
   function shownError(): string | undefined {
-    return (fixture.nativeElement as HTMLElement)
-      .querySelector('.login__error')
-      ?.textContent?.trim();
+    return (fixture.nativeElement as HTMLElement).querySelector('.auth-error')?.textContent?.trim();
   }
 
   it('does not send an invalid form and marks its fields', async () => {
@@ -108,7 +106,7 @@ describe('LoginPage', () => {
     const password = root.querySelector<HTMLIonInputElement>(
       'ion-input[formControlName="password"]',
     );
-    const toggle = root.querySelector<HTMLElement>('.login__password-toggle');
+    const toggle = root.querySelector<HTMLElement>('.auth-password-toggle');
     expect(password?.type).toBe('password');
     expect(toggle?.getAttribute('aria-label')).toBe('Mostrar contraseña');
 

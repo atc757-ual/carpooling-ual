@@ -28,7 +28,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { ualEmailValidator } from '../../../shared/utils/ual-email.util';
+import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/ual-email.util';
 
 // Iniciar sesión (P·03) con el correo de la UAL y la contraseña. Al entrar,
 // vuelve a la página que se pedía (?returnUrl=, ver authGuard) o al inicio
@@ -53,7 +53,7 @@ import { ualEmailValidator } from '../../../shared/utils/ual-email.util';
     IonicFormStatus,
   ],
   templateUrl: './login.page.html',
-  styleUrl: './login.page.scss',
+  styleUrls: ['../auth-form.scss', './login.page.scss'],
 })
 export class LoginPage {
   private readonly auth = inject(AuthService);
@@ -77,11 +77,8 @@ export class LoginPage {
   protected readonly eyeIcon = eyeOutline;
   protected readonly eyeOffIcon = eyeOffOutline;
 
-  // El error del correo según lo que falle: el formato o el dominio
   emailErrorText(): string {
-    return this.form.controls.email.hasError('ualEmail')
-      ? 'Usa tu correo de la Universidad de Almería.'
-      : 'Introduce un correo válido.';
+    return getUalEmailErrorText(this.form.controls.email);
   }
 
   async handleSubmit(): Promise<void> {

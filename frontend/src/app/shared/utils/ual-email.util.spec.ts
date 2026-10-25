@@ -1,5 +1,5 @@
 import { FormControl } from '@angular/forms';
-import { ualEmailValidator } from './ual-email.util';
+import { getUalEmailErrorText, ualEmailValidator } from './ual-email.util';
 
 describe('ualEmailValidator', () => {
   const validate = (email: string) =>
@@ -26,5 +26,16 @@ describe('ualEmailValidator', () => {
 
   it('uses the domains of the environment by default', () => {
     expect(ualEmailValidator()(new FormControl('ana@inlumine.ual.es'))).toBeNull();
+  });
+});
+
+describe('getUalEmailErrorText', () => {
+  it('explains the domain or the format', () => {
+    expect(
+      getUalEmailErrorText(new FormControl('ana@gmail.com', ualEmailValidator(['ual.es']))),
+    ).toBe('Usa tu correo de la Universidad de Almería.');
+    expect(getUalEmailErrorText(new FormControl('no-es-un-correo'))).toBe(
+      'Introduce un correo válido.',
+    );
   });
 });

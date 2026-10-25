@@ -1,0 +1,82 @@
+// Estilos comunes de las pantallas de acceso con formulario (login, registro,
+// verificar el correo…). Cada pantalla los incluye en styleUrls junto a los
+// suyos. Espaciado: 4px entre un título y su texto y entre una etiqueta y su
+// campo; 20px dentro del formulario (entre bloques, 24px: ver auth-layout)
+
+.auth-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  h1,
+  p {
+    margin: 0;
+  }
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem; // 20px
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+// Etiqueta encima del campo (como en el diseño) e icono gris delante
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  ion-icon {
+    margin-inline-end: var(--space-s);
+    color: var(--color-text-muted);
+  }
+}
+
+// El ojo para mostrar la contraseña, dentro del campo: gris, con el área
+// táctil mínima y foco visible
+.auth-password-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-s);
+  height: var(--control-height-s);
+  margin-inline-end: calc(-1 * var(--space-s));
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  ion-icon {
+    margin: 0;
+    font-size: 1.25rem; // 20px
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// Error de la API, debajo del formulario
+.auth-error {
+  display: block;
+}
+
+// Recuadro informativo azul claro («Tu acceso, protegido»…)
+.auth-notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-s) var(--space-base);
+  border-radius: var(--radius-s);
+  background: var(--color-primary-subtle);
+
+  p {
+    margin: 0;
+  }
+}
