@@ -17,7 +17,7 @@ describe('LoginPage', () => {
   let navigateByUrl: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
-    login = vi.fn().mockResolvedValue({});
+    login = vi.fn().mockResolvedValue({ profiles: ['passenger'] });
     resendVerificationCode = vi.fn().mockResolvedValue(undefined);
     setPendingVerificationEmail = vi.fn();
     TestBed.configureTestingModule({
@@ -76,6 +76,14 @@ describe('LoginPage', () => {
     expect(login).toHaveBeenCalledWith(CREDENTIALS);
     expect(navigateByUrl).toHaveBeenCalledWith('/');
     expect(page.isSubmitting()).toBe(false);
+  });
+
+  it('goes to choose the mode when the user has no profile yet', async () => {
+    login.mockResolvedValue({ profiles: [] });
+
+    await submit('/trips/new');
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/modes');
   });
 
   it('goes back to the page that was requested', async () => {

@@ -3,6 +3,8 @@
 export const LOGIN_PATH = '/auth/login';
 export const WELCOME_PATH = '/auth/welcome';
 export const HOME_PATH = '/';
+// Elegir modo (pasajero, conductor o ambos) tras verificar el correo
+export const MODES_PATH = '/modes';
 
 // Parámetro con la página que se pedía, para volver a ella tras el login
 export const RETURN_URL_PARAM = 'returnUrl';

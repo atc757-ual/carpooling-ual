@@ -1,0 +1,53 @@
+// Lo común a las pantallas de acceso está en ../auth-form.scss
+
+.auth-intro .text-eyebrow {
+  margin-bottom: var(--space-s);
+}
+
+// Tarjetas de opción, a 16px entre ellas
+.modes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.modes__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+  padding: var(--space-l) var(--space-base);
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: border-color var(--motion-duration-fast);
+
+  // Foco del teclado en el radio oculto: se ve en la tarjeta
+  &:has(input:focus-visible) {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
+
+// Elegida: borde azul más grueso y fondo azul claro (sin depender solo del color:
+// también cambia el grosor del borde)
+.modes__option--selected {
+  border: var(--border-width-m) solid var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+
+.modes__icon {
+  flex-shrink: 0;
+  font-size: 1.5rem; // 24px
+  color: var(--color-primary);
+}
+
+.modes__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+ion-button {
+  margin: 0;
+}

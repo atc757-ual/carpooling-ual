@@ -22,7 +22,7 @@ import {
   lockClosedOutline,
   mailOutline,
 } from 'ionicons/icons';
-import { HOME_PATH } from '../../../core/guards/redirect-paths';
+import { HOME_PATH, MODES_PATH } from '../../../core/guards/redirect-paths';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
@@ -94,8 +94,10 @@ export class LoginPage {
     this.errorMessage.set(null);
     const { email, password } = this.form.getRawValue();
     try {
-      await this.auth.login({ email, password });
-      await this.router.navigateByUrl(this.getSafeReturnUrl());
+      const user = await this.auth.login({ email, password });
+      // Quien aún no ha elegido modo (ni es administrador) lo elige primero
+      const target = user.profiles.length === 0 ? MODES_PATH : this.getSafeReturnUrl();
+      await this.router.navigateByUrl(target);
     } catch (error) {
       const apiError = ApiError.fromHttpError(error);
       if (apiError.code === EMAIL_NOT_VERIFIED) {

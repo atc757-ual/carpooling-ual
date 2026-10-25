@@ -88,6 +88,14 @@ ion-back-button.back-button {
   }
 }
 
+// Sin flecha (p. ej. tras verificar el correo no hay a dónde volver): solo el
+// título, centrado y con el mismo alto
+.top-bar--title-only {
+  grid-template-columns: 1fr;
+  min-height: 3.25rem; // 52px, el de la flecha
+  margin-inline: 0;
+}
+
 .top-bar__title {
   font-family: var(--font-family-heading);
   font-size: var(--font-size-subtitle);

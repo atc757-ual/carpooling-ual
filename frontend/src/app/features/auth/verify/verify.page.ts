@@ -16,7 +16,7 @@ import {
   IonToolbar,
 } from '@ionic/angular';
 import { arrowBackOutline, mailUnreadOutline } from 'ionicons/icons';
-import { HOME_PATH } from '../../../core/guards/redirect-paths';
+import { MODES_PATH } from '../../../core/guards/redirect-paths';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
@@ -26,6 +26,8 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 const CODE_LENGTH = 6;
 // La API envía como mucho un código por minuto
 const RESEND_WAIT_SECONDS = 60;
+// Minutos que vale un código (los mismos que en la API)
+const CODE_TTL_MINUTES = 15;
 
 // Verificar el correo con el código de 6 cifras que se envía al registrarse
 // (o al entrar sin haberlo verificado). Si es correcto, la API abre la sesión.
@@ -77,6 +79,7 @@ export class VerifyPage implements OnInit {
   });
 
   protected readonly codeLength = CODE_LENGTH;
+  protected readonly verificationTimeout = CODE_TTL_MINUTES;
   protected readonly backIcon = arrowBackOutline;
   protected readonly mailIcon = mailUnreadOutline;
 
@@ -100,7 +103,7 @@ export class VerifyPage implements OnInit {
     this.errorMessage.set(null);
     try {
       await this.auth.verifyEmail({ email: this.email(), code: this.form.getRawValue().code });
-      await this.router.navigateByUrl(HOME_PATH);
+      await this.router.navigateByUrl(MODES_PATH);
     } catch (error) {
       this.errorMessage.set(getErrorMessage(ApiError.fromHttpError(error)));
       this.form.reset();

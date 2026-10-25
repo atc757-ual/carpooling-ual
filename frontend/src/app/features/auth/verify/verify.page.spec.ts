@@ -51,14 +51,14 @@ describe('VerifyPage', () => {
     expect(navigateByUrl).toHaveBeenCalledWith('/auth/login');
   });
 
-  it('verifies the code and goes to the home page', async () => {
+  it('verifies the code and goes to choose the mode', async () => {
     open('mario.perez@ual.es');
     page.form.setValue({ code: '284619' });
 
     await page.handleSubmit();
 
     expect(verifyEmail).toHaveBeenCalledWith({ email: 'mario.perez@ual.es', code: '284619' });
-    expect(navigateByUrl).toHaveBeenCalledWith('/');
+    expect(navigateByUrl).toHaveBeenCalledWith('/modes');
   });
 
   it('explains a wrong code and empties the boxes', async () => {

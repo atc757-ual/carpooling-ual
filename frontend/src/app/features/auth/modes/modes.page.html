@@ -1,0 +1,73 @@
+<!-- Solo en el móvil: la barra con el título. Sin flecha: la cuenta ya está
+     creada y verificada, no hay a dónde volver -->
+<ion-header class="ion-hide-md-up ion-no-border">
+  <ion-toolbar>
+    <ion-title>Correo verificado</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <app-auth-layout>
+    <div class="top-bar top-bar--title-only ion-hide-md-down" authLayoutTop>
+      <span class="top-bar__title">Correo verificado</span>
+    </div>
+
+    <div class="auth-intro">
+      <p class="text-eyebrow text-color-primary">Tu cuenta está lista</p>
+      <h1 class="text-heading">¿Cómo quieres compartir camino?</h1>
+      <p class="text-body text-color-muted">
+        Elige los perfiles que necesitas. Puedes cambiarlos después desde Perfil.
+      </p>
+    </div>
+
+    <!-- Tarjetas que funcionan como botones de opción (radio nativos ocultos):
+         se eligen con el ratón, el dedo o las flechas del teclado -->
+    <div class="modes" role="radiogroup" aria-label="Modo">
+      @for (option of options; track option.value) {
+        <label class="modes__option" [class.modes__option--selected]="choice() === option.value">
+          <input
+            class="visually-hidden"
+            type="radio"
+            name="mode"
+            [value]="option.value"
+            [checked]="choice() === option.value"
+            (change)="choice.set(option.value)"
+          />
+          <ion-icon class="modes__icon" [icon]="option.icon" aria-hidden="true" />
+          <span class="modes__text">
+            <span class="text-subtitle">{{ option.title }}</span>
+            <span class="text-body-s text-color-muted">{{ option.description }}</span>
+          </span>
+        </label>
+      }
+    </div>
+
+    @if (choice() === 'both') {
+      <div class="auth-notice" role="status">
+        <p class="text-body-s text-body-s--strong">Empezarás en modo pasajero</p>
+        <p class="text-caption">
+          Ambos perfiles estarán habilitados, pero solo uno estará activo. Cambia entre pasajero y
+          conductor desde Inicio.
+        </p>
+      </div>
+    }
+
+    @if (errorMessage(); as message) {
+      <ion-text color="danger" class="auth-error text-body-s" role="alert">
+        {{ message }}
+      </ion-text>
+    }
+
+    <ion-button
+      expand="block"
+      [disabled]="choice() === null || isSubmitting()"
+      (click)="handleSubmit()"
+    >
+      @if (isSubmitting()) {
+        <ion-spinner name="crescent" aria-label="Guardando" />
+      } @else {
+        {{ submitLabel() }}
+      }
+    </ion-button>
+  </app-auth-layout>
+</ion-content>

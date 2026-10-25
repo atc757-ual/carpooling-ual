@@ -32,6 +32,12 @@ export const routes: Routes = [
     ],
   },
   {
+    // Elegir modo: con la sesión ya abierta (tras verificar el correo)
+    path: 'modes',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/auth/modes/modes.page').then((m) => m.ModesPage),
+  },
+  {
     // Inicio con sesión (sin ella, authGuard lleva a la bienvenida)
     path: '',
     pathMatch: 'full',

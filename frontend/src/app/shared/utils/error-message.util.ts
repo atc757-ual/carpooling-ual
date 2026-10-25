@@ -18,6 +18,8 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   ACCESS_TOKEN_EXPIRED: 'Tu sesión ha caducado. Vuelve a iniciar sesión.',
   INVALID_REFRESH_TOKEN: 'Tu sesión ha caducado. Vuelve a iniciar sesión.',
   PROFILE_REQUIRED: 'Tu perfil no permite hacer esta acción.',
+  PROFILE_DEACTIVATED_BY_ADMIN:
+    'La administración ha desactivado este perfil. Escríbele si crees que es un error.',
 };
 
 export function getErrorMessage(error: ApiError): string {
