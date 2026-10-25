@@ -30,15 +30,15 @@
       <span class="top-bar__title">Accede a tu cuenta</span>
     </div>
 
-    <div class="login__intro">
+    <div class="auth-intro">
       <h1 class="text-heading">Qué bueno verte por aquí.</h1>
       <p class="text-body text-color-muted">Entra con tu correo de la Universidad de Almería.</p>
     </div>
 
-    <form class="login__form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
       <!-- La etiqueta va encima del campo, como en el diseño; el campo lleva el
            mismo nombre para los lectores de pantalla -->
-      <div class="login__field">
+      <div class="auth-field">
         <span class="text-label text-label--strong" aria-hidden="true">Correo UAL</span>
         <ion-input
           formControlName="email"
@@ -54,7 +54,7 @@
         </ion-input>
       </div>
 
-      <div class="login__field">
+      <div class="auth-field">
         <span class="text-label text-label--strong" aria-hidden="true">Contraseña</span>
         <ion-input
           formControlName="password"
@@ -71,7 +71,7 @@
           <button
             slot="end"
             type="button"
-            class="login__password-toggle"
+            class="auth-password-toggle"
             [attr.aria-label]="isPasswordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
             [attr.aria-pressed]="isPasswordVisible()"
             (click)="isPasswordVisible.set(!isPasswordVisible())"
@@ -87,7 +87,7 @@
       </ion-button>
 
       @if (errorMessage(); as message) {
-        <ion-text color="danger" class="login__error text-body-s" role="alert">
+        <ion-text color="danger" class="auth-error text-body-s" role="alert">
           {{ message }}
         </ion-text>
       }
@@ -108,7 +108,7 @@
       >
     </div>
 
-    <div class="login__notice" role="note">
+    <div class="auth-notice" role="note">
       <p class="text-body-s text-body-s--strong text-color-primary">Tu acceso, protegido</p>
       <p class="text-caption">
         Nunca compartas tu contraseña ni el código de verificación. No te los pediremos por chat.
