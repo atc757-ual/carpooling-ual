@@ -81,16 +81,17 @@
         </ion-input>
       </div>
 
-      <!-- Sin destino hasta que exista la recuperación de la contraseña (PR 4) -->
-      <ion-button type="button" fill="clear" class="login__forgot">
-        ¿Olvidaste tu contraseña?
-      </ion-button>
-
+      <!-- El error de la API, justo bajo los campos a los que se refiere -->
       @if (errorMessage(); as message) {
         <ion-text color="danger" class="auth-error text-body-s" role="alert">
           {{ message }}
         </ion-text>
       }
+
+      <!-- Sin destino hasta que exista la recuperación de la contraseña (PR 4) -->
+      <ion-button type="button" fill="clear" class="login__forgot">
+        ¿Olvidaste tu contraseña?
+      </ion-button>
 
       <ion-button type="submit" expand="block" [disabled]="isSubmitting()">
         @if (isSubmitting()) {
