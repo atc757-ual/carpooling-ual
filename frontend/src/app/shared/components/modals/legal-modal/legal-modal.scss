@@ -1,0 +1,40 @@
+.legal {
+  max-width: 40rem; // 640px: ancho cómodo de lectura
+  margin: 0 auto;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-s);
+  line-height: var(--line-height-body-s);
+}
+
+// El texto llega por innerHTML: sus etiquetas no llevan los atributos de la
+// encapsulación de Angular, así que se estilan con ::ng-deep, limitado a .legal
+// dentro de este componente (:host)
+:host ::ng-deep .legal {
+  h2 {
+    margin: var(--space-l) 0 var(--space-xs);
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-body);
+  }
+
+  p,
+  ul {
+    margin: 0 0 var(--space-s);
+  }
+
+  // Aviso de texto provisional
+  .legal__draft {
+    padding: var(--space-s) var(--space-base);
+    border-radius: var(--radius-s);
+    background: var(--color-warning-subtle);
+    color: var(--color-warning-text);
+    font-size: var(--font-size-body-s);
+  }
+}
+
+.legal__loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-xl);
+}

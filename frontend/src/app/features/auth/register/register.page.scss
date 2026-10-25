@@ -5,14 +5,45 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
+}
+
+// Casilla y texto en una fila; la casilla, alineada con la primera línea
+.register__terms-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
 
   ion-checkbox {
-    min-height: var(--control-height-s);
+    flex-shrink: 0;
+    margin-top: 0.125rem; // 2px
   }
 }
 
-// «Ya tengo cuenta», centrado bajo el aviso
+// Enlaces del texto de la casilla: botones con aspecto de enlace (abren el
+// modal del texto legal sin marcar la casilla)
+.register__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-link);
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
+
+// «Crear cuenta y verificar correo» y «Ya tengo cuenta», a 16px
+.register__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
 .register__login {
   align-self: center;
-  margin: 0;
 }

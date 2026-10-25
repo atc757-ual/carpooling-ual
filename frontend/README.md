@@ -64,6 +64,7 @@ Bienvenida (`/auth/welcome`) y login (`/auth/login`), solo sin sesión (`guestGu
 - **Estilos comunes de los formularios** (título y texto, campo con su etiqueta, ojo de la contraseña, error y aviso): `features/auth/auth-form.scss`, que cada pantalla incluye en `styleUrls` junto a los suyos (clases `auth-intro`, `auth-form`, `auth-field`, `auth-password-toggle`, `auth-error`, `auth-notice`).
 - **Formularios:** Reactive Forms con `ion-input`. La directiva `IonicFormStatus` (`shared/directives/`) copia el estado del control (`ion-invalid`, `ion-touched`…) a cada render: sin Zone.js, la copia que hace Ionic llega tarde y los errores no se ven. `ualEmailValidator()` (`shared/utils/ual-email.util.ts`) rechaza los correos de fuera de `environment.allowedEmailDomains` (los mismos que `ALLOWED_EMAIL_DOMAINS` del backend), para no llamar a la API con ellos.
 - **Iconos:** `ionicons` (versión *outline*), pasando el icono importado: `[icon]="mailIcon"`.
+- **Textos legales:** las condiciones de uso y la política de privacidad son fragmentos HTML en `public/legal/` (se editan ahí; ahora son provisionales). `LegalModal` (`shared/components/modals/`) los carga y los muestra; Angular limpia el HTML antes de mostrarlo.
 
 ## Tema
 

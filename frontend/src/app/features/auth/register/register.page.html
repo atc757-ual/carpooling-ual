@@ -111,11 +111,21 @@
       </div>
 
       <div class="register__terms">
-        <ion-checkbox formControlName="acceptedTerms" labelPlacement="end" justify="start">
-          <span class="ion-text-wrap text-body-s"
-            >He leído y acepto las condiciones de uso y la política de privacidad.</span
-          >
-        </ion-checkbox>
+        <!-- La casilla sin etiqueta propia: si los enlaces fueran parte de la
+             etiqueta de ion-checkbox, al pulsarlos también se marcaría -->
+        <div class="register__terms-row">
+          <ion-checkbox formControlName="acceptedTerms" aria-labelledby="register-terms-label" />
+          <span id="register-terms-label" class="text-body-s">
+            He leído y acepto las
+            <button type="button" class="register__link" (click)="openLegal('terms')">
+              condiciones de uso
+            </button>
+            y la
+            <button type="button" class="register__link" (click)="openLegal('privacy')">
+              política de privacidad</button
+            >.
+          </span>
+        </div>
         @if (isTermsErrorVisible()) {
           <ion-text color="danger" class="text-caption" role="alert">
             Tienes que aceptarlas para crear la cuenta.
@@ -129,25 +139,20 @@
         </ion-text>
       }
 
-      <ion-button type="submit" expand="block" [disabled]="isSubmitting()">
-        @if (isSubmitting()) {
-          <ion-spinner name="crescent" aria-label="Creando la cuenta" />
-        } @else {
-          Crear cuenta y verificar correo
-        }
-      </ion-button>
+      <!-- 16px entre los dos botones -->
+      <div class="register__actions">
+        <!-- Activo solo con los campos correctos y la casilla marcada -->
+        <ion-button type="submit" expand="block" [disabled]="form.invalid || isSubmitting()">
+          @if (isSubmitting()) {
+            <ion-spinner name="crescent" aria-label="Creando la cuenta" />
+          } @else {
+            Crear cuenta y verificar correo
+          }
+        </ion-button>
+        <ion-button class="register__login" fill="clear" routerLink="/auth/login">
+          Ya tengo cuenta
+        </ion-button>
+      </div>
     </form>
-
-    <div class="auth-notice" role="note">
-      <p class="text-body-s text-body-s--strong">Una cuenta, varios perfiles</p>
-      <p class="text-caption">
-        Podrás habilitar pasajero y conductor a la vez tras verificar tu correo. Administración
-        requiere autorización; no se solicita al registrarse.
-      </p>
-    </div>
-
-    <ion-button class="register__login" fill="clear" routerLink="/auth/login">
-      Ya tengo cuenta
-    </ion-button>
   </app-auth-layout>
 </ion-content>

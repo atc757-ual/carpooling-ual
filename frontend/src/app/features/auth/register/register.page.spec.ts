@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { LegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { RegisterPage } from './register.page';
 
 const FORM = {
@@ -19,15 +20,18 @@ describe('RegisterPage', () => {
   let page: RegisterPage;
   let register: ReturnType<typeof vi.fn>;
   let navigate: ReturnType<typeof vi.spyOn>;
+  let createModal: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     register = vi.fn().mockResolvedValue({});
+    createModal = vi.fn().mockResolvedValue({ present: vi.fn().mockResolvedValue(undefined) });
     TestBed.configureTestingModule({
       imports: [RegisterPage],
       providers: [
         provideIonicAngular(),
         provideRouter([]),
         { provide: AuthService, useValue: { register } },
+        { provide: ModalController, useValue: { create: createModal } },
       ],
     });
     navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
@@ -81,6 +85,16 @@ describe('RegisterPage', () => {
       queryParams: { email: 'mario.perez@ual.es' },
     });
     expect(page.isSubmitting()).toBe(false);
+  });
+
+  it('opens the privacy policy in a modal without checking the box', async () => {
+    await page.openLegal('privacy');
+
+    expect(createModal).toHaveBeenCalledWith({
+      component: LegalModal,
+      componentProps: { document: 'privacy' },
+    });
+    expect(page.form.controls.acceptedTerms.value).toBe(false);
   });
 
   it('shows the API error when the email is already registered', async () => {

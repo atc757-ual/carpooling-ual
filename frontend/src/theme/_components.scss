@@ -108,3 +108,13 @@ ion-button {
   text-transform: none;
   letter-spacing: var(--letter-spacing-normal);
 }
+
+// Campos rellenados por el autocompletado del navegador: Chrome pinta de azul
+// solo el <input> interno, más pequeño que el recuadro de ion-input (deja
+// fuera el icono y el ojo). Una sombra interior del color de la superficie
+// tapa ese azul y el texto mantiene su color, también en modo oscuro
+ion-input input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 100vmax var(--color-surface) inset;
+  -webkit-text-fill-color: var(--color-text);
+  caret-color: var(--color-text);
+}

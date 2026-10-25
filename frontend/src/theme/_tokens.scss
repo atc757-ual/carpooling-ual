@@ -52,8 +52,8 @@ $breakpoints: (
   // forma continua entre 360px y 1200px de ancho. La parte en rem hace que
   // también respeten el zoom del navegador (WCAG 1.4.4).
   --font-size-display: clamp(2.25rem, 1.929rem + 1.429vw, 3rem); // 36 → 48px
-  // Título principal de una pantalla: 36 → 40px
-  --font-size-heading: clamp(2.25rem, 2.143rem + 0.476vw, 2.5rem);
+  // Título principal de una pantalla: 28 → 40px
+  --font-size-heading: clamp(1.75rem, 1.429rem + 1.429vw, 2.5rem);
   --font-size-title: clamp(1.5rem, 1.393rem + 0.476vw, 1.75rem); // 24 → 28px
   --font-size-subtitle: clamp(1.25rem, 1.196rem + 0.238vw, 1.375rem); // 20 → 22px
   --font-size-body: 1rem; // 16px
