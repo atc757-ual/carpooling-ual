@@ -68,16 +68,16 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('enables the button only with a UAL email and a password of 8 or more', () => {
-      const submit = () => cy.contains('ion-button', 'Iniciar sesión');
-      submit().should('have.attr', 'disabled');
+      const submit = 'ion-button[type="submit"]';
+      cy.get(submit).should('have.attr', 'disabled');
 
       fillForm('ana@ual.es', 'corta');
       cy.get('ion-input[formControlName="password"] input').blur();
       cy.contains('Introduce tu contraseña (al menos 8 caracteres).').should('be.visible');
-      submit().should('have.attr', 'disabled');
+      cy.get(submit).should('have.attr', 'disabled');
 
       cy.get('ion-input[formControlName="password"] input').clear().type('secreta123');
-      submit().should('not.have.attr', 'disabled');
+      cy.get(submit).should('not.have.attr', 'disabled');
     });
 
     it('explains an email from outside the UAL and keeps the button disabled', () => {

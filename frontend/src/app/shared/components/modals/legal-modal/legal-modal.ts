@@ -60,16 +60,21 @@ export class LegalModal implements OnInit {
     return LEGAL_DOCUMENTS[this.document].title;
   }
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
+    void this.loadContent();
+  }
+
+  close(): Promise<boolean> {
+    return this.modalController.dismiss();
+  }
+
+  // Si no se puede cargar (p. ej. sin conexión), se muestra un aviso
+  private async loadContent(): Promise<void> {
     try {
       const url = LEGAL_DOCUMENTS[this.document].url;
       this.content.set(await firstValueFrom(this.http.get(url, { responseType: 'text' })));
     } catch {
       this.hasError.set(true);
     }
-  }
-
-  close(): Promise<boolean> {
-    return this.modalController.dismiss();
   }
 }

@@ -54,14 +54,14 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('enables the button only when every field is right and the terms are accepted', () => {
-      const submit = () => cy.contains('ion-button', 'Crear cuenta y verificar correo');
-      submit().should('have.attr', 'disabled');
+      const submit = 'ion-button[type="submit"]';
+      cy.get(submit).should('have.attr', 'disabled');
 
       fillForm('mario.perez@ual.es');
-      submit().should('not.have.attr', 'disabled');
+      cy.get(submit).should('not.have.attr', 'disabled');
 
       cy.get('ion-checkbox[formControlName="acceptedTerms"]').click();
-      submit().should('have.attr', 'disabled');
+      cy.get(submit).should('have.attr', 'disabled');
     });
 
     it('opens the privacy policy without checking the box', () => {
