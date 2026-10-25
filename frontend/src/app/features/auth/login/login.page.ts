@@ -1,0 +1,110 @@
+import { Component, inject, input, signal } from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import {
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonRouterLink,
+  IonSpinner,
+  IonText,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular';
+import {
+  arrowBackOutline,
+  eyeOffOutline,
+  eyeOutline,
+  lockClosedOutline,
+  mailOutline,
+} from 'ionicons/icons';
+import { HOME_PATH } from '../../../core/guards/redirect-paths';
+import { ApiError } from '../../../core/models/api-error.model';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
+import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
+import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { ualEmailValidator } from '../../../shared/utils/ual-email.util';
+
+// Iniciar sesión (P·03) con el correo de la UAL y la contraseña. Al entrar,
+// vuelve a la página que se pedía (?returnUrl=, ver authGuard) o al inicio
+@Component({
+  selector: 'app-login',
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonInput,
+    IonRouterLink,
+    IonSpinner,
+    IonText,
+    IonTitle,
+    IonToolbar,
+    AuthLayout,
+    IonicFormStatus,
+  ],
+  templateUrl: './login.page.html',
+  styleUrl: './login.page.scss',
+})
+export class LoginPage {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
+  // Parámetro ?returnUrl= de la ruta (withComponentInputBinding)
+  readonly returnUrl = input<string>();
+
+  readonly form = inject(NonNullableFormBuilder).group({
+    // Con el dominio también aquí: un correo de fuera no llega al servidor
+    email: ['', [Validators.required, Validators.email, ualEmailValidator()]],
+    password: ['', Validators.required],
+  });
+  readonly isSubmitting = signal(false);
+  readonly errorMessage = signal<string | null>(null);
+  readonly isPasswordVisible = signal(false);
+
+  protected readonly backIcon = arrowBackOutline;
+  protected readonly mailIcon = mailOutline;
+  protected readonly lockIcon = lockClosedOutline;
+  protected readonly eyeIcon = eyeOutline;
+  protected readonly eyeOffIcon = eyeOffOutline;
+
+  // El error del correo según lo que falle: el formato o el dominio
+  emailErrorText(): string {
+    return this.form.controls.email.hasError('ualEmail')
+      ? 'Usa tu correo de la Universidad de Almería.'
+      : 'Introduce un correo válido.';
+  }
+
+  async handleSubmit(): Promise<void> {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    this.isSubmitting.set(true);
+    this.errorMessage.set(null);
+    try {
+      await this.auth.login(this.form.getRawValue());
+      await this.router.navigateByUrl(this.getSafeReturnUrl());
+    } catch (error) {
+      this.errorMessage.set(getErrorMessage(ApiError.fromHttpError(error)));
+    } finally {
+      this.isSubmitting.set(false);
+    }
+  }
+
+  // Solo rutas de la propia app («/trips», nunca «//otro-sitio.com»), para que
+  // un enlace manipulado no lleve a otra web después del login
+  private getSafeReturnUrl(): string {
+    const url = this.returnUrl();
+    return url?.startsWith('/') && !url.startsWith('//') ? url : HOME_PATH;
+  }
+}

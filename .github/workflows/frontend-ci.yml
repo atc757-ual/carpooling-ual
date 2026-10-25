@@ -46,3 +46,14 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # Tests e2e (Cypress) contra la app con ng serve; la API se simula con
+      # cy.intercept, así que no hacen falta backend ni base de datos
+      - name: Run e2e tests
+        run: |
+          npm start &
+          for attempt in $(seq 1 60); do
+            curl -sf http://localhost:4200 > /dev/null && break
+            sleep 2
+          done
+          npm run e2e -- --browser chrome

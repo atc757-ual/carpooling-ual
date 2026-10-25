@@ -1,0 +1,55 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-subtitle);
+}
+
+.brand-logo__badge {
+  padding: var(--space-xs) var(--space-s);
+  border-radius: var(--radius-s);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.brand-logo__text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-logo__name {
+  color: var(--color-text);
+}
+
+// Variante tile
+:host(.brand-logo--tile) {
+  gap: var(--space-s);
+
+  .brand-logo__badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem; // 44px
+    height: 2.75rem;
+    padding: 0;
+    font-size: var(--font-size-caption);
+    line-height: var(--line-height-caption);
+  }
+
+  .brand-logo__name {
+    font-size: 1.125rem; // 18px
+    line-height: var(--line-height-body);
+    color: var(--color-primary);
+  }
+}
+
+.brand-logo__tagline {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-caption);
+  color: var(--color-text-muted);
+}

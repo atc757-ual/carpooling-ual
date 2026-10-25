@@ -7,6 +7,7 @@
 // - _tokens.scss: espaciado, esquinas, bordes, alturas, tipografía, movimiento.
 // - _roles.scss: roles de color y sombras, en modo claro y oscuro.
 // - _ionic.scss: variables de Ionic (--ion-*) a partir de la paleta.
+// - _components.scss: aspecto por defecto de los componentes de Ionic.
 // - _typography.scss: estilos de texto (.text-display, .text-body…).
 // - _utilities.scss: utilidades que Ionic no trae (.visually-hidden…).
 // - _color-scheme.scss: cuándo se aplica el modo oscuro (sistema o clase).
@@ -16,5 +17,6 @@
 @use 'tokens';
 @use 'roles';
 @use 'ionic';
+@use 'components';
 @use 'typography';
 @use 'utilities';

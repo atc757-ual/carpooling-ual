@@ -13,10 +13,19 @@
   letter-spacing: var(--letter-spacing-tight);
 }
 
+// Título principal de una pantalla («Qué bueno verte por aquí.»)
+.text-heading {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-heading);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
 .text-title {
   font-family: var(--font-family-heading);
   font-size: var(--font-size-title);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
   letter-spacing: var(--letter-spacing-tight);
 }
