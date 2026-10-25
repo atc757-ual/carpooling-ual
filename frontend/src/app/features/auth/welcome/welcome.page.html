@@ -1,0 +1,19 @@
+<ion-content>
+  <!-- En el móvil, el layout pone el logotipo y la ilustración encima y el
+       pie de confianza debajo -->
+  <app-auth-layout variant="welcome">
+    <div class="welcome__intro">
+      <h1 class="text-heading">Te damos la bienvenida</h1>
+      <p class="text-body text-color-muted">
+        Comparte camino con tu comunidad. Entra con tu correo de la UAL o crea tu cuenta en un
+        minuto.
+      </p>
+    </div>
+    <div class="welcome__actions">
+      <ion-button expand="block" routerLink="/auth/register">Crear mi cuenta</ion-button>
+      <ion-button expand="block" fill="outline" routerLink="/auth/login"
+        >Ya tengo cuenta</ion-button
+      >
+    </div>
+  </app-auth-layout>
+</ion-content>

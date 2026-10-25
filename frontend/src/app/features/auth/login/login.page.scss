@@ -1,0 +1,101 @@
+// Flecha atrás de escritorio, solo icono (con aria-label): algo más grande que
+// la de la barra del móvil y alineada con el contenido
+.login__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  h1,
+  p {
+    margin: 0;
+  }
+}
+
+// Dentro del formulario, 20px entre campos y acciones (entre bloques de la
+// pantalla son 24px, ver auth-layout)
+.login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem; // 20px
+
+  ion-button[type='submit'] {
+    margin: 0;
+  }
+}
+
+.login__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  ion-icon {
+    margin-inline-end: var(--space-s);
+    color: var(--color-text-muted);
+  }
+}
+
+// El ojo dentro del campo: gris, con el área táctil mínima y foco visible
+.login__password-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-s);
+  height: var(--control-height-s);
+  margin-inline-end: calc(-1 * var(--space-s));
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 1.25rem; // 20px
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// «¿Has olvidado tu contraseña?», centrado entre el campo y el botón principal
+.login__forgot {
+  align-self: center;
+  min-height: var(--control-height-s);
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-s);
+}
+
+.login__error {
+  display: block;
+}
+
+.login__register {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding-top: var(--space-l);
+  border-top: var(--border-width-s) solid var(--color-border);
+
+  p {
+    margin: 0;
+  }
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+.login__notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-s) var(--space-base);
+  border-radius: var(--radius-s);
+  background: var(--color-primary-subtle);
+
+  p {
+    margin: 0;
+  }
+}

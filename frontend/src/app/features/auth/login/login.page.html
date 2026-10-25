@@ -1,0 +1,118 @@
+<!-- Solo en el móvil (lo único que cambia frente a escritorio): la barra con
+     la vuelta a la bienvenida y el título de la pantalla -->
+<ion-header class="ion-hide-md-up ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button
+        class="back-button"
+        defaultHref="/auth/welcome"
+        text=""
+        [icon]="backIcon"
+        aria-label="Volver"
+      />
+    </ion-buttons>
+    <ion-title>Accede a tu cuenta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <app-auth-layout>
+    <!-- En escritorio no hay barra: la flecha y el título de la pantalla, como
+         en la barra del móvil, van sobre el logotipo -->
+    <div class="top-bar ion-hide-md-down" authLayoutTop>
+      <ion-back-button
+        class="back-button"
+        defaultHref="/auth/welcome"
+        text=""
+        [icon]="backIcon"
+        aria-label="Volver"
+      />
+      <span class="top-bar__title">Accede a tu cuenta</span>
+    </div>
+
+    <div class="login__intro">
+      <h1 class="text-heading">Qué bueno verte por aquí.</h1>
+      <p class="text-body text-color-muted">Entra con tu correo de la Universidad de Almería.</p>
+    </div>
+
+    <form class="login__form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+      <!-- La etiqueta va encima del campo, como en el diseño; el campo lleva el
+           mismo nombre para los lectores de pantalla -->
+      <div class="login__field">
+        <span class="text-label text-label--strong" aria-hidden="true">Correo UAL</span>
+        <ion-input
+          formControlName="email"
+          type="email"
+          inputmode="email"
+          autocomplete="email"
+          aria-label="Correo UAL"
+          fill="outline"
+          placeholder="nombre@inlumine.ual.es"
+          [errorText]="emailErrorText()"
+        >
+          <ion-icon slot="start" [icon]="mailIcon" aria-hidden="true" />
+        </ion-input>
+      </div>
+
+      <div class="login__field">
+        <span class="text-label text-label--strong" aria-hidden="true">Contraseña</span>
+        <ion-input
+          formControlName="password"
+          [type]="isPasswordVisible() ? 'text' : 'password'"
+          autocomplete="current-password"
+          aria-label="Contraseña"
+          placeholder="••••••••"
+          fill="outline"
+          errorText="Introduce tu contraseña."
+        >
+          <ion-icon slot="start" [icon]="lockIcon" aria-hidden="true" />
+          <!-- Botón nativo y no ion-input-password-toggle: ese trae su nombre
+               para lectores de pantalla fijo en inglés («Show password») -->
+          <button
+            slot="end"
+            type="button"
+            class="login__password-toggle"
+            [attr.aria-label]="isPasswordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            [attr.aria-pressed]="isPasswordVisible()"
+            (click)="isPasswordVisible.set(!isPasswordVisible())"
+          >
+            <ion-icon [icon]="isPasswordVisible() ? eyeOffIcon : eyeIcon" aria-hidden="true" />
+          </button>
+        </ion-input>
+      </div>
+
+      <!-- Sin destino hasta que exista la recuperación de la contraseña (PR 4) -->
+      <ion-button type="button" fill="clear" class="login__forgot">
+        ¿Olvidaste tu contraseña?
+      </ion-button>
+
+      @if (errorMessage(); as message) {
+        <ion-text color="danger" class="login__error text-body-s" role="alert">
+          {{ message }}
+        </ion-text>
+      }
+
+      <ion-button type="submit" expand="block" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <ion-spinner name="crescent" aria-label="Entrando" />
+        } @else {
+          Iniciar sesión
+        }
+      </ion-button>
+    </form>
+
+    <div class="login__register">
+      <p class="text-body-s text-color-muted">¿Es tu primera vez en UAL Carpool?</p>
+      <ion-button expand="block" fill="outline" routerLink="/auth/register"
+        >Crear cuenta</ion-button
+      >
+    </div>
+
+    <div class="login__notice" role="note">
+      <p class="text-body-s text-body-s--strong text-color-primary">Tu acceso, protegido</p>
+      <p class="text-caption">
+        Nunca compartas tu contraseña ni el código de verificación. No te los pediremos por chat.
+      </p>
+    </div>
+  </app-auth-layout>
+</ion-content>

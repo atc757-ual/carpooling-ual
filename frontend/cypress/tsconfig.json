@@ -1,0 +1,8 @@
+/* Tipos de Cypress (cy, describe…) solo en esta carpeta: no se mezclan con los de Vitest */
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["cypress"]
+  },
+  "include": ["**/*.ts"]
+}

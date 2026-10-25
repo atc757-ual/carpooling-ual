@@ -1,0 +1,21 @@
+.welcome__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  h1,
+  p {
+    margin: 0;
+  }
+}
+
+// 16px entre botones seguidos, como en todas las pantallas de acceso
+.welcome__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  ion-button {
+    margin: 0;
+  }
+}

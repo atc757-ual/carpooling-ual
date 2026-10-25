@@ -17,4 +17,8 @@ describe('authGuard', () => {
   it('sends a guest to the login, remembering the requested page', () => {
     expect(guard.run(authGuard)).toBe('/auth/login?returnUrl=%2Ftrips%2Fnew');
   });
+
+  it('sends a guest opening the app to the welcome screen', () => {
+    expect(guard.run(authGuard, '/')).toBe('/auth/welcome');
+  });
 });

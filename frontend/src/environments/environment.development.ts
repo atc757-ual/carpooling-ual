@@ -4,4 +4,5 @@
 export const environment = {
   production: false,
   apiUrl: '/api',
+  allowedEmailDomains: ['ual.es', 'inlumine.ual.es'],
 };

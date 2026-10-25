@@ -1,0 +1,63 @@
+<div class="auth-layout" [class.auth-layout--welcome]="isWelcome()">
+  <main class="auth-layout__panel">
+    <div class="auth-layout__content">
+      <!-- Lo que la pantalla marque con authLayoutTop (p. ej. «Volver» en
+           escritorio) va encima del logotipo -->
+      <ng-content select="[authLayoutTop]" />
+
+      <div class="auth-layout__brand">
+        @if (isWelcome()) {
+          <app-brand-logo />
+          <img
+            class="auth-layout__illustration ion-hide-md-up"
+            src="images/welcome-illustration.svg"
+            alt=""
+          />
+        } @else {
+          <!-- En los formularios, el logotipo con el lema (igual en móvil y escritorio) -->
+          <app-brand-logo variant="tile" />
+        }
+      </div>
+
+      <ng-content />
+
+      <!-- En los formularios, solo en escritorio y tras una línea (en el móvil
+           ya son largos) -->
+      <footer
+        class="auth-layout__footer"
+        [class.auth-layout__footer--separated]="!isWelcome()"
+        [class.ion-hide-md-down]="!isWelcome()"
+      >
+        <div class="auth-layout__footer-title">
+          <ion-icon [icon]="shieldIcon" class="text-color-eco" aria-hidden="true" />
+          <p class="text-caption text-caption--strong text-color-eco">
+            Comunidad UAL · Perfiles verificados
+          </p>
+        </div>
+        <p class="text-caption text-color-muted">
+          @if (isWelcome()) {
+            Verificamos tu correo UAL para conectar con tu comunidad.
+          } @else {
+            Verificamos tu correo institucional &#64;ual.es o &#64;inlumine.ual.es con la finalidad
+            de que este sea un espacio seguro para la comunidad universitaria.
+          }
+        </p>
+      </footer>
+    </div>
+  </main>
+
+  <!-- Solo en escritorio, a la izquierda y igual en todas las pantallas de
+       acceso: la ilustración y el lema debajo -->
+  <aside class="auth-layout__visual ion-hide-md-down">
+    <div class="auth-layout__visual-art">
+      <img class="auth-layout__visual-image" src="images/welcome-illustration.svg" alt="" />
+    </div>
+    <div class="auth-layout__message">
+      <p class="text-eyebrow text-color-primary auth-layout__eyebrow">Cada viaje cuenta</p>
+      <p class="text-display">Tu campus, mejor conectado.</p>
+      <p class="text-body text-color-muted">
+        De casa al campus, comparte camino con personas que van en tu misma dirección.
+      </p>
+    </div>
+  </aside>
+</div>

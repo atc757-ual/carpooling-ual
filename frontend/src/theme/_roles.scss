@@ -41,6 +41,8 @@
 
   // Fondo semitransparente detrás de modales y hojas inferiores
   --color-backdrop: #{rgba($indigo-900, 0.7)}; // azul muy oscuro, tirando a morado
+  // Texto sobre ese fondo o sobre una foto oscurecida con él (igual en los dos modos)
+  --color-on-backdrop: #{$neutral-0};
 
   // Acento (contadores, «Prioridad», «Últimas plazas»)
   --color-accent: #{$orange-500};

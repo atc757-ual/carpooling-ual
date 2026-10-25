@@ -61,6 +61,9 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Verificación del correo con un código de 6 cifras enviado al registrarse (caduca a los 15 minutos, 3 intentos, un reenvío por minuto): `POST /api/auth/verify-email` (abre la sesión) y `POST /api/auth/verify-email/resend`. El código se guarda como HMAC-SHA256, nunca en claro (#35)
 - Envío de correos con nodemailer por SMTP (variables `MAIL_TRANSPORT`, `MAIL_FROM`, `SMTP_*`) y buzón de pruebas Mailpit en Docker Compose para desarrollo (`http://localhost:8025`) (#35)
 - Columna `email_verified_at` en `users` y tabla `email_codes` (migración `AddEmailVerification`); evento `user.email_verified` (#35)
+- Pantallas de bienvenida y de inicio de sesión (RF-02) en móvil y escritorio, con su layout de acceso (ilustración y lema a la izquierda en escritorio), validación del correo de la UAL antes de llamar a la API e inicio provisional con cierre de sesión
+- Tests e2e del frontend con Cypress (móvil y escritorio, API simulada) y su paso en el CI
+- Clases del tema para los componentes de Ionic: botones, barras superiores y flecha atrás
 
 ### Changed
 - **(breaking)** `POST /api/auth/register` exige el teléfono en formato internacional (`phone`) y la aceptación de las normas y la política de privacidad (`acceptedTerms`, se guarda la fecha), y ya no admite `profiles`: el usuario se crea sin perfiles y los elige después (#33)

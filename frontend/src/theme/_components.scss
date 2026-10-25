@@ -1,0 +1,110 @@
+// Aspecto por defecto de los componentes de Ionic con los tokens del tema.
+// Solo con sus variables CSS y ::part(), sin !important (ver CLAUDE.md).
+
+// Título de las barras superiores: tipografía de títulos y centrado en la
+// barra en Android e iOS. Ocupa toda la barra (como hace Ionic en iOS) para
+// quedar en el centro aunque solo haya botones a un lado; el relleno lateral
+// deja sitio a esos botones
+ion-title {
+  position: absolute;
+  inset: 0;
+  padding-inline: var(--space-xxxl);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  pointer-events: none;
+}
+
+// Cabecera separada del contenido por una línea suave, igual en md e ios (con
+// ion-no-border, sin la sombra de Material ni la línea propia de iOS)
+ion-header {
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+}
+
+// Barras superiores: 56px de alto también en iOS (que trae 44px) y el mismo
+// margen lateral que el contenido del móvil
+ion-toolbar {
+  --min-height: var(--control-height-l);
+  --padding-start: var(--space-base);
+  --padding-end: var(--space-base);
+}
+
+// Sin el margen que Ionic pone a los botones de la barra: así la flecha
+// (.back-button) queda alineada con el margen del contenido
+ion-toolbar ion-buttons[slot='start'] {
+  margin-inline-start: 0;
+}
+
+ion-back-button {
+  --color: var(--color-text);
+}
+
+// Flecha atrás, igual en la barra del móvil y sobre el logotipo en escritorio
+// y en los modos md e ios: <ion-back-button class="back-button" text=""
+// aria-label="Volver" …>. Cuadrado de 52px (la altura de los controles) con el
+// icono de 28px en el centro, también por dentro (::part(native)), para que el
+// círculo de hover y foco quede centrado. Se desplaza hacia fuera
+// (52 − 28) / 2 = 12px para que el icono empiece en el margen del contenido
+ion-back-button.back-button {
+  --padding-start: 0;
+  --padding-end: 0;
+  --margin-start: 0;
+  --margin-end: 0;
+  --icon-margin-start: 0;
+  --icon-margin-end: 0;
+  --icon-font-size: 1.75rem; // 28px
+  --min-width: 3.25rem;
+  --min-height: 3.25rem;
+
+  align-self: flex-start;
+  width: 3.25rem; // 52px
+  height: 3.25rem;
+  margin-inline-start: -0.75rem; // 12px
+
+  &::part(native) {
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+}
+
+// Cabecera sin barra (escritorio): la flecha a la izquierda y el título de la
+// pantalla centrado, con el mismo estilo que el ion-title del móvil
+// (<div class="top-bar"><ion-back-button class="back-button" …>
+// <span class="top-bar__title">…</span></div>). La tercera columna, vacía y
+// del ancho de la flecha, mantiene el título en el centro
+.top-bar {
+  display: grid;
+  grid-template-columns: 3.25rem 1fr 3.25rem; // 52px: la flecha
+  align-items: center;
+  // Sale 12px por cada lado (lo que se desplaza la flecha): el icono empieza
+  // en el margen y el título queda en el centro del contenido
+  margin-inline: -0.75rem;
+
+  .back-button {
+    margin-inline-start: 0;
+  }
+}
+
+.top-bar__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-subtitle);
+  text-align: center;
+}
+
+// Botones: altura táctil, esquinas de 0,5rem, planos (sin la sombra de
+// Material) y tipografía de títulos, sin mayúsculas (Ionic las pone en Android)
+ion-button {
+  --border-radius: var(--radius-s);
+  --box-shadow: none;
+
+  min-height: var(--control-height-base);
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-semibold);
+  text-transform: none;
+  letter-spacing: var(--letter-spacing-normal);
+}

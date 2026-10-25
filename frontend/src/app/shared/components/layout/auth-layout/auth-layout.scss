@@ -1,0 +1,145 @@
+// Punto de corte md (768px, el de Ionic y el de .ion-hide-md-down)
+$desktop: 768px;
+
+.auth-layout {
+  display: flex;
+  min-height: 100%;
+}
+
+// Columna del contenido. En el móvil, los formularios empiezan arriba (abajo
+// sale el teclado) y la bienvenida va centrada; en escritorio, todo centrado
+.auth-layout__panel {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 0;
+  padding: var(--space-l) var(--space-base);
+}
+
+// Centrado «seguro» (margin auto y no align-items: center): si el contenido no
+// cabe en el alto, empieza arriba y se desplaza, en vez de cortarse por arriba
+.auth-layout--welcome .auth-layout__content {
+  margin-block: auto;
+}
+
+// 24px entre bloques: logotipo, título, formulario, botones, avisos y pie
+.auth-layout__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-l);
+  width: 100%;
+  max-width: 26rem; // 416px
+}
+
+.auth-layout__brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-l);
+}
+
+// Ilustración del móvil (solo en la bienvenida), dentro de su caja azul clara
+// (el mismo color que el fondo de la ilustración)
+.auth-layout__illustration {
+  width: 100%;
+  max-height: 36vh;
+  aspect-ratio: 342 / 232; // proporción de la caja en el diseño móvil
+  object-fit: contain;
+  border-radius: var(--radius-base);
+  background: var(--color-primary-subtle);
+}
+
+.auth-layout__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin-top: var(--space-xs);
+
+  p {
+    margin: 0;
+  }
+}
+
+// «Comunidad UAL · Perfiles verificados» con el escudo delante
+.auth-layout__footer-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+// En los formularios, una línea lo separa del contenido
+.auth-layout__footer--separated {
+  gap: var(--space-xs);
+  margin-top: var(--space-s);
+  padding-top: var(--space-l);
+  border-top: var(--border-width-s) solid var(--color-border);
+}
+
+// Mitad visual del escritorio: fondo azul claro y, centrados en vertical, la
+// ilustración y debajo el lema en texto oscuro (sin texto encima de la imagen)
+.auth-layout__visual {
+  display: flex;
+  flex: 1.3;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-l);
+  order: -1; // a la izquierda, aunque en el HTML vaya después del contenido
+  min-width: 0;
+  padding: var(--space-xxxl) var(--space-xl);
+  background: var(--color-primary-subtle);
+}
+
+.auth-layout__visual-art {
+  min-height: 0;
+}
+
+// La ilustración trae su fondo y sus esquinas redondeadas; si la pantalla es
+// baja, encoge sin deformarse para dejar sitio al lema
+// La caja mide lo mismo que el dibujo (sin huecos encima del lema). Si la
+// pantalla es baja, encoge en proporción: como mucho el 60 % del alto
+.auth-layout__visual-image {
+  display: block;
+  width: 100%;
+  max-width: calc(60vh * 384 / 260); // proporción de la ilustración (384 × 260)
+  height: auto;
+}
+
+.auth-layout__message {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  p {
+    margin: 0;
+  }
+}
+
+// Epígrafe del panel más grande que el del tema: 14px en lugar de 12px
+.auth-layout__eyebrow {
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-label);
+}
+
+@media (min-width: $desktop) {
+  // El panel visual se queda fijo con el alto de la pantalla mientras, si el
+  // formulario no cabe, ion-content lo desplaza
+  .auth-layout__visual {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    box-sizing: border-box;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .auth-layout__panel {
+    padding: var(--space-xxxl);
+  }
+
+  // Centrado seguro también en escritorio, y más ancho que en el móvil para
+  // aprovechar la pantalla
+  .auth-layout__content {
+    max-width: 30rem; // 480px
+    margin-block: auto;
+  }
+}
