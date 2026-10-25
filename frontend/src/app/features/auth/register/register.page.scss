@@ -1,0 +1,18 @@
+// Lo común a los formularios de acceso está en ../auth-form.scss
+
+// Casilla de las normas, con su aviso debajo
+.register__terms {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  ion-checkbox {
+    min-height: var(--control-height-s);
+  }
+}
+
+// «Ya tengo cuenta», centrado bajo el aviso
+.register__login {
+  align-self: center;
+  margin: 0;
+}

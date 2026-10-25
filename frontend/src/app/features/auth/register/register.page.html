@@ -1,0 +1,153 @@
+<!-- Solo en el móvil: la barra con la vuelta a la bienvenida y el título -->
+<ion-header class="ion-hide-md-up ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button
+        class="back-button"
+        defaultHref="/auth/welcome"
+        text=""
+        [icon]="backIcon"
+        aria-label="Volver"
+      />
+    </ion-buttons>
+    <ion-title>Crear mi cuenta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <app-auth-layout>
+    <!-- En escritorio, sin barra: la flecha y el título sobre el logotipo -->
+    <div class="top-bar ion-hide-md-down" authLayoutTop>
+      <ion-back-button
+        class="back-button"
+        defaultHref="/auth/welcome"
+        text=""
+        [icon]="backIcon"
+        aria-label="Volver"
+      />
+      <span class="top-bar__title">Crear mi cuenta</span>
+    </div>
+
+    <div class="auth-intro">
+      <h1 class="text-heading">Tu comunidad empieza aquí.</h1>
+      <p class="text-body text-color-muted">
+        Usa tu correo institucional. Después te enviaremos un código para verificarlo.
+      </p>
+    </div>
+
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+      <div class="auth-field">
+        <span class="text-label text-label--strong" aria-hidden="true">Nombre y apellidos</span>
+        <ion-input
+          formControlName="name"
+          autocomplete="name"
+          aria-label="Nombre y apellidos"
+          fill="outline"
+          placeholder="Mario Pérez"
+          errorText="Escribe tu nombre y apellidos."
+        >
+          <ion-icon slot="start" [icon]="personIcon" aria-hidden="true" />
+        </ion-input>
+      </div>
+
+      <div class="auth-field">
+        <span class="text-label text-label--strong" aria-hidden="true">Teléfono</span>
+        <ion-input
+          formControlName="phone"
+          type="tel"
+          inputmode="tel"
+          autocomplete="tel"
+          aria-label="Teléfono"
+          fill="outline"
+          placeholder="612 345 678"
+          helperText="Si no es español, empieza por + y el prefijo del país."
+          errorText="Escribe un móvil español o, si es de otro país, empieza por + y el prefijo."
+        >
+          <ion-icon slot="start" [icon]="phoneIcon" aria-hidden="true" />
+        </ion-input>
+      </div>
+
+      <div class="auth-field">
+        <span class="text-label text-label--strong" aria-hidden="true">Correo UAL</span>
+        <ion-input
+          formControlName="email"
+          type="email"
+          inputmode="email"
+          autocomplete="email"
+          aria-label="Correo UAL"
+          fill="outline"
+          placeholder="nombre@inlumine.ual.es"
+          helperText="Usa tu correo de la UAL. Lo verificarás después."
+          [errorText]="emailErrorText()"
+        >
+          <ion-icon slot="start" [icon]="mailIcon" aria-hidden="true" />
+        </ion-input>
+      </div>
+
+      <div class="auth-field">
+        <span class="text-label text-label--strong" aria-hidden="true">Contraseña</span>
+        <ion-input
+          formControlName="password"
+          [type]="isPasswordVisible() ? 'text' : 'password'"
+          autocomplete="new-password"
+          aria-label="Contraseña"
+          placeholder="••••••••"
+          fill="outline"
+          helperText="Al menos 8 caracteres. No compartas tu contraseña."
+          errorText="Usa entre 8 y 72 caracteres."
+        >
+          <ion-icon slot="start" [icon]="lockIcon" aria-hidden="true" />
+          <button
+            slot="end"
+            type="button"
+            class="auth-password-toggle"
+            [attr.aria-label]="isPasswordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            [attr.aria-pressed]="isPasswordVisible()"
+            (click)="isPasswordVisible.set(!isPasswordVisible())"
+          >
+            <ion-icon [icon]="isPasswordVisible() ? eyeOffIcon : eyeIcon" aria-hidden="true" />
+          </button>
+        </ion-input>
+      </div>
+
+      <div class="register__terms">
+        <ion-checkbox formControlName="acceptedTerms" labelPlacement="end" justify="start">
+          <span class="ion-text-wrap text-body-s"
+            >He leído y acepto las condiciones de uso y la política de privacidad.</span
+          >
+        </ion-checkbox>
+        @if (isTermsErrorVisible()) {
+          <ion-text color="danger" class="text-caption" role="alert">
+            Tienes que aceptarlas para crear la cuenta.
+          </ion-text>
+        }
+      </div>
+
+      @if (errorMessage(); as message) {
+        <ion-text color="danger" class="auth-error text-body-s" role="alert">
+          {{ message }}
+        </ion-text>
+      }
+
+      <ion-button type="submit" expand="block" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <ion-spinner name="crescent" aria-label="Creando la cuenta" />
+        } @else {
+          Crear cuenta y verificar correo
+        }
+      </ion-button>
+    </form>
+
+    <div class="auth-notice" role="note">
+      <p class="text-body-s text-body-s--strong">Una cuenta, varios perfiles</p>
+      <p class="text-caption">
+        Podrás habilitar pasajero y conductor a la vez tras verificar tu correo. Administración
+        requiere autorización; no se solicita al registrarse.
+      </p>
+    </div>
+
+    <ion-button class="register__login" fill="clear" routerLink="/auth/login">
+      Ya tengo cuenta
+    </ion-button>
+  </app-auth-layout>
+</ion-content>
