@@ -16,9 +16,27 @@
 
 // Sin el relleno de 16px que Ionic pone arriba y abajo de las casillas: así
 // quedan a 4px de su etiqueta y el error, a la distancia normal del formulario
-ion-input-otp {
+// Casillas de 60px de alto con la cifra a 28px, como un código fácil de leer.
+// Con la clase del tamaño de Ionic en el selector: su regla
+// :host(.input-otp-size-medium) fija el alto y tiene más prioridad que solo
+// ion-input-otp
+ion-input-otp.verify__code.input-otp-size-medium {
   --padding-top: 0;
   --padding-bottom: 0;
+  --height: 3.75rem; // 60px
+  --border-radius: var(--radius-s);
+
+  justify-content: flex-start;
+  font-family: var(--font-family-heading);
+  font-size: 1.75rem; // 28px
+  font-weight: var(--font-weight-semibold);
+}
+
+// Casillas alineadas a la izquierda, con la etiqueta y el resto del formulario
+// (Ionic las centra). Su grupo es HTML interno del componente: ::ng-deep,
+// limitado a esta pantalla
+:host ::ng-deep ion-input-otp .input-otp-group {
+  justify-content: flex-start;
 }
 
 // «Verificar correo», «Reenviar código» y «Editar correo», a 16px
