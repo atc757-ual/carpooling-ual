@@ -3,101 +3,79 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Guía de estilos Carpooling UAL</title>
+<title>Guía de estilos UAL Carpool</title>
 <!--
-  Guía de estilos del frontend (tema en frontend/src/theme/). Se abre
-  directamente en el navegador; no forma parte de la app. Si cambia el tema,
-  actualizar también los valores de este fichero.
+  Guía de estilos del frontend: la referencia visual y de interacción de la app.
+  Sale de los diseños del 25/10/2026 (01 Entrada y acceso, 02 Sistema visual,
+  03 Estados compartidos, 04 Arquitectura Angular + Ionic, 05 Acceso web y
+  01 Modo oscuro). El tema de la app (frontend/src/theme/) implementa estos
+  valores: si cambia uno, se cambian los dos.
+  Se abre directamente en el navegador; no forma parte de la app.
 -->
 <style>
   /* ---------- Fuentes (los mismos ficheros que usa la app) ---------- */
-  @font-face { font-family: 'Barlow'; font-weight: 300; font-display: swap; src: url('../frontend/public/fonts/barlow-300-latin.woff2') format('woff2'); }
   @font-face { font-family: 'Barlow'; font-weight: 400; font-display: swap; src: url('../frontend/public/fonts/barlow-400-latin.woff2') format('woff2'); }
   @font-face { font-family: 'Barlow'; font-weight: 500; font-display: swap; src: url('../frontend/public/fonts/barlow-500-latin.woff2') format('woff2'); }
   @font-face { font-family: 'Barlow'; font-weight: 600; font-display: swap; src: url('../frontend/public/fonts/barlow-600-latin.woff2') format('woff2'); }
   @font-face { font-family: 'Barlow'; font-weight: 700; font-display: swap; src: url('../frontend/public/fonts/barlow-700-latin.woff2') format('woff2'); }
   @font-face { font-family: 'Inter'; font-weight: 300 700; font-display: swap; src: url('../frontend/public/fonts/inter-variable-latin.woff2') format('woff2'); }
 
-  /* ---------- Tokens (lo que irá en src/theme) ---------- */
+  /* ---------- Tokens ---------- */
   :root {
-    --font-family-heading: 'Barlow', sans-serif;
-    --font-family-body: 'Inter', sans-serif;
+    --font-family-heading: 'Barlow', system-ui, sans-serif;
+    --font-family-body: 'Inter', system-ui, sans-serif;
 
-    --font-weight-light: 300;
-    --font-weight-regular: 400;
-    --font-weight-medium: 500;
-    --font-weight-semibold: 600;
-    --font-weight-bold: 700;
-
-    --font-size-display: clamp(2.25rem, 1.929rem + 1.429vw, 3rem);
-    --font-size-title: clamp(1.5rem, 1.393rem + 0.476vw, 1.75rem);
-    --font-size-subtitle: clamp(1.25rem, 1.196rem + 0.238vw, 1.375rem);
-    --line-height-display: 1.2;
-    --line-height-title: 1.3;
-    --line-height-subtitle: 1.4;
-    --line-height-body: 1.5rem;
-    --line-height-body-s: 1.25rem;
-    --line-height-label: 1.25rem;
-    --line-height-caption: 1rem;
-    --line-height-eyebrow: 1rem;
-    --letter-spacing-tight: -0.01em;
+    /* Tipografía por papel (tamaño / interlineado) */
+    --font-size-display: 2.75rem;   --line-height-display: 3.025rem;
+    --font-size-heading: clamp(2.25rem, 2.143rem + 0.476vw, 2.5rem); --line-height-heading: 1.1;
+    --font-size-title: 1.5rem;      --line-height-title: 1.65rem;
+    --font-size-lead: 1.125rem;     --line-height-lead: 1.6875rem;
+    --font-size-body: 1rem;         --line-height-body: 1.5rem;
+    --font-size-label: 0.875rem;    --line-height-label: 1.3125rem;
+    --font-size-meta: 0.75rem;      --line-height-meta: 1.125rem;
     --letter-spacing-wide: 0.06em;
-    --border-width-s: 1px;
-    --border-width-m: 2px;
-    --border-width-l: 3px;
-    --control-height-s: 2.75rem;
-    --control-height-base: 3rem;
-    --control-height-l: 3.5rem;
-    --motion-duration-fast: 150ms;
-    --motion-duration-base: 250ms;
-    --font-size-body: 1rem;
-    --font-size-body-s: 0.875rem;
-    --font-size-label: 0.875rem;
-    --font-size-caption: 0.75rem;
-    --font-size-eyebrow: 0.75rem;
 
-    --space-xs: 0.25rem;
-    --space-s: 0.5rem;
-    --space-base: 1rem;
-    --space-l: 1.5rem;
-    --space-xl: 2rem;
-    --space-xxl: 2.5rem;
-    --space-xxxl: 3rem;
+    /* Espaciado (retícula de 0,25rem) */
+    --space-xs: 0.25rem; --space-s: 0.5rem; --space-m: 0.75rem; --space-base: 1rem;
+    --space-l: 1.5rem; --space-xl: 2rem; --space-xxl: 3rem; --space-xxxl: 4rem;
 
-    --radius-xs: 0.25rem;
-    --radius-s: 0.5rem;
-    --radius-base: 1rem;
-    --radius-l: 1.5rem;
-    --radius-xl: 2rem;
-    --radius-full: 9999px;
+    /* Esquinas */
+    --radius-none: 0; --radius-xs: 0.25rem; --radius-s: 0.375rem; --radius-base: 0.5rem;
+    --radius-l: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
 
-    --shadow-s: 0 1px 2px rgb(12 12 12 / 8%);
-    --shadow-base: 0 4px 12px rgb(12 12 12 / 10%);
-    --shadow-l: 0 12px 32px rgb(12 12 12 / 14%);
+    /* Tamaños */
+    --touch-target-min: 2.75rem; --control-height: 3.25rem; --control-height-s: 2.75rem;
+    --tab-bar-height: 4.75rem; --tab-icon-size: 1.625rem; --icon-size: 1.25rem;
 
-    --gradient-brand: linear-gradient(103deg, #002eff 45%, #42e8b4 120%);
-    --gradient-highlight: linear-gradient(110deg, #002eff 0%, #4062ff 70%, #71eec7 100%);
+    /* Trazos y foco */
+    --border-width: 0.0625rem; --focus-width: 0.125rem; --focus-width-button: 0.1875rem;
+
+    --motion-duration-fast: 150ms; --motion-duration-base: 250ms;
 
     /* Roles: modo claro */
     --color-bg: #ffffff;
+    --color-canvas: #f7f7f7;
     --color-surface: #ffffff;
     --color-surface-subtle: #f7f7f7;
     --color-surface-raised: #ffffff;
     --color-text: #0c0c0c;
     --color-text-muted: #66686c;
-    --color-text-disabled: #a4a4a6;
+    --color-text-disabled: #87919f;
     --color-border: #d7d7d7;
-    --color-border-subtle: #e9e9e9;
+    --color-border-subtle: #eef0f3;
     --color-border-strong: #66686c;
+    --color-border-interactive: #87919f;
     --color-primary: #002eff;
-    --color-primary-hover: #4062ff;
-    --color-primary-pressed: #0022bf;
-    --color-on-primary: #ffffff;
+    --color-primary-hover: #0022bf;
+    --color-primary-pressed: #001ca0;
     --color-primary-subtle: #f3f5ff;
+    --color-on-primary: #ffffff;
+    --color-secondary: #243b53;
+    --color-on-secondary: #ffffff;
     --color-link: #002eff;
     --color-focus: #002eff;
-    --color-focus-ring: rgba(128, 151, 255, 0.5);
-    --color-backdrop: rgba(5, 2, 47, 0.7);
+    --color-disabled-bg: #eef0f3;
+    --color-backdrop: rgba(12, 12, 12, 0.48);
     --color-accent: #ff3d00;
     --color-on-accent: #0c0c0c;
     --color-eco: #42e8b4;
@@ -105,39 +83,50 @@
     --color-eco-text: #21745a;
     --color-admin: #10069f;
     --color-on-admin: #ffffff;
-    --color-danger: #db110a;
-    --color-on-danger: #ffffff;
-    --color-danger-subtle: #fef4f3;
+    --color-info: #002eff;
+    --color-info-subtle: #f3f5ff;
     --color-success: #137e5d;
-    --color-on-success: #ffffff;
     --color-success-subtle: #e6fffa;
-    --color-warning: #f5b207;
-    --color-on-warning: #0c0c0c;
-    --color-warning-text: #916802;
+    --color-on-success: #ffffff;
+    --color-warning: #916802;
     --color-warning-subtle: #fef9ec;
+    --color-on-warning: #ffffff;
+    --color-danger: #db110a;
+    --color-danger-subtle: #fef4f3;
+    --color-on-danger: #ffffff;
+    --color-toast: #243b53;
+    --color-on-toast: #ffffff;
+
+    --shadow-s: 0 0.0625rem 0.125rem rgb(12 12 12 / 8%);
+    --shadow-base: 0 0.25rem 0.75rem rgb(12 12 12 / 10%);
+    --shadow-l: 0 0.75rem 2rem rgb(12 12 12 / 14%);
   }
 
-  /* Roles: modo oscuro */
+  /* Roles: modo oscuro (la misma clase que usa la app, ver _color-scheme.scss) */
   :root.theme-dark {
     --color-bg: #141414;
-    --color-surface: #212121;
-    --color-surface-subtle: #303030;
-    --color-surface-raised: #343537;
+    --color-canvas: #0c0c0c;
+    --color-surface: #1f1f1f;
+    --color-surface-subtle: #262626;
+    --color-surface-raised: #2c2c2c;
     --color-text: #ffffff;
-    --color-text-muted: #a4a4a6;
-    --color-text-disabled: #66686c;
-    --color-border: #66686c;
-    --color-border-subtle: #303030;
-    --color-border-strong: #a4a4a6;
+    --color-text-muted: #b6bec9;
+    --color-text-disabled: #87919f;
+    --color-border: #46505e;
+    --color-border-subtle: #2c3541;
+    --color-border-strong: #b6bec9;
+    --color-border-interactive: #87919f;
     --color-primary: #f3f5ff;
-    --color-primary-hover: #bfcbff;
-    --color-primary-pressed: #8097ff;
-    --color-on-primary: #0c0c0c;
+    --color-primary-hover: #dae0ff;
+    --color-primary-pressed: #bfcbff;
     --color-primary-subtle: #000e4d;
+    --color-on-primary: #0c0c0c;
+    --color-secondary: #d7d7d7;
+    --color-on-secondary: #0c0c0c;
     --color-link: #bfcbff;
     --color-focus: #bfcbff;
-    --color-focus-ring: rgba(191, 203, 255, 0.5);
-    --color-backdrop: rgba(5, 2, 47, 0.8);
+    --color-disabled-bg: #2c3541;
+    --color-backdrop: rgba(0, 0, 0, 0.64);
     --color-accent: #ff9e80;
     --color-on-accent: #0c0c0c;
     --color-eco: #42e8b4;
@@ -145,329 +134,872 @@
     --color-eco-text: #71eec7;
     --color-admin: #8783cf;
     --color-on-admin: #0c0c0c;
-    --color-danger: #f1675a;
-    --color-on-danger: #0c0c0c;
-    --color-danger-subtle: #5e0603;
+    --color-info: #bfcbff;
+    --color-info-subtle: #000e4d;
     --color-success: #93ebcf;
-    --color-on-success: #0c0c0c;
     --color-success-subtle: #093f2f;
+    --color-on-success: #0c0c0c;
     --color-warning: #fbeabb;
-    --color-on-warning: #0c0c0c;
-    --color-warning-text: #fbeabb;
     --color-warning-subtle: #453101;
-    --shadow-s: 0 1px 2px rgb(0 0 0 / 40%);
-    --shadow-base: 0 4px 12px rgb(0 0 0 / 50%);
-    --shadow-l: 0 12px 32px rgb(0 0 0 / 60%);
+    --color-on-warning: #0c0c0c;
+    --color-danger: #f1665a;
+    --color-danger-subtle: #5e0603;
+    --color-on-danger: #0c0c0c;
+    --color-toast: #eef0f3;
+    --color-on-toast: #0c0c0c;
+    --shadow-s: 0 0.0625rem 0.125rem rgb(0 0 0 / 40%);
+    --shadow-base: 0 0.25rem 0.75rem rgb(0 0 0 / 50%);
+    --shadow-l: 0 0.75rem 2rem rgb(0 0 0 / 60%);
   }
 
   /* ---------- Página de la guía ---------- */
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--color-bg); color: var(--color-text); font-family: var(--font-family-body); font-size: var(--font-size-body); line-height: 1.5; }
-  main { max-width: 1100px; margin: 0 auto; padding: var(--space-l) var(--space-base) var(--space-xxxl); }
-  header.top { display: flex; justify-content: space-between; align-items: center; gap: var(--space-base); flex-wrap: wrap; }
-  section { margin-top: var(--space-xxl); }
-  h2 { font-family: var(--font-family-heading); font-size: var(--font-size-title); font-weight: 700; margin: 0 0 var(--space-s); }
-  h3 { font-family: var(--font-family-heading); font-size: var(--font-size-subtitle); font-weight: 600; margin: var(--space-l) 0 var(--space-s); }
-  p.note { color: var(--color-text-muted); font-size: var(--font-size-body-s); margin: 0 0 var(--space-base); }
+  body { margin: 0; background: var(--color-canvas); color: var(--color-text); font-family: var(--font-family-body); font-size: var(--font-size-body); line-height: var(--line-height-body); }
+  main { max-width: 72rem; margin: 0 auto; padding: var(--space-l) var(--space-base) var(--space-xxxl); }
+  header.top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-base); flex-wrap: wrap; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-base); margin: var(--space-l) 0 0; font-size: var(--font-size-label); }
+  nav.toc a { color: var(--color-link); }
+  section { margin-top: var(--space-xxl); padding: var(--space-l); background: var(--color-surface); border: var(--border-width) solid var(--color-border-subtle); border-radius: var(--radius-xl); }
+  h2 { font-family: var(--font-family-heading); font-size: var(--font-size-heading); line-height: var(--line-height-heading); font-weight: 600; margin: 0 0 var(--space-s); }
+  h3 { font-family: var(--font-family-heading); font-size: var(--font-size-title); line-height: var(--line-height-title); font-weight: 600; margin: var(--space-xl) 0 var(--space-s); }
+  h4 { font-family: var(--font-family-body); font-size: var(--font-size-label); font-weight: 700; margin: var(--space-base) 0 var(--space-xs); }
+  p { margin: 0 0 var(--space-s); }
+  p.note, li.note { color: var(--color-text-muted); font-size: var(--font-size-label); line-height: var(--line-height-label); }
+  ul.rules { margin: 0; padding-left: var(--space-l); font-size: var(--font-size-label); line-height: var(--line-height-label); }
+  ul.rules li { margin-bottom: var(--space-xs); }
   code { font-size: 0.8125rem; }
-  table { border-collapse: collapse; width: 100%; font-size: var(--font-size-body-s); }
-  th, td { text-align: left; padding: var(--space-s); border-bottom: 1px solid var(--color-border-subtle); vertical-align: middle; }
+  table { border-collapse: collapse; width: 100%; font-size: var(--font-size-label); line-height: var(--line-height-label); }
+  th, td { text-align: left; padding: var(--space-s); border-bottom: var(--border-width) solid var(--color-border-subtle); vertical-align: top; }
   th { color: var(--color-text-muted); font-weight: 500; }
   .scroll { overflow-x: auto; }
-
-  .text-display { font-family: var(--font-family-heading); font-size: var(--font-size-display); font-weight: 700; line-height: var(--line-height-display); letter-spacing: var(--letter-spacing-tight); }
-  .text-title { font-family: var(--font-family-heading); font-size: var(--font-size-title); font-weight: 700; line-height: var(--line-height-title); letter-spacing: var(--letter-spacing-tight); }
-  .text-subtitle { font-family: var(--font-family-heading); font-size: var(--font-size-subtitle); font-weight: 600; line-height: var(--line-height-subtitle); }
-  .text-body { font-size: var(--font-size-body); font-weight: 400; line-height: var(--line-height-body); }
-  .text-body-s { font-size: var(--font-size-body-s); font-weight: 400; line-height: var(--line-height-body-s); }
-  .text-label { font-size: var(--font-size-label); font-weight: 500; line-height: var(--line-height-label); }
-  .text-caption { font-size: var(--font-size-caption); font-weight: 400; line-height: var(--line-height-caption); color: var(--color-text-muted); }
-  .text-eyebrow { font-size: var(--font-size-eyebrow); font-weight: 600; line-height: var(--line-height-eyebrow); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); color: var(--color-primary); }
-
-  .scale { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
-  .step { border-radius: var(--radius-s); padding: 8px; font-size: 12px; line-height: 1.35; min-height: 64px; }
-  .step b { display: block; font-size: 13px; }
-  .ref { outline: 3px solid var(--color-text); outline-offset: 2px; }
-  .swatch { display: inline-block; width: 28px; height: 28px; border-radius: var(--radius-s); border: 1px solid var(--color-border); vertical-align: middle; }
+  .grid { display: grid; gap: var(--space-l); grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
+  .grid-s { display: grid; gap: var(--space-base); grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-s); align-items: center; }
+  .stack { display: flex; flex-direction: column; gap: var(--space-s); }
   .ok { color: var(--color-success); font-weight: 600; }
   .ko { color: var(--color-danger); font-weight: 600; }
+  .demo { padding: var(--space-base); border: var(--border-width) dashed var(--color-border); border-radius: var(--radius-l); background: var(--color-bg); }
+  .tag { display: inline-block; padding: 0 var(--space-s); border-radius: var(--radius-full); background: var(--color-surface-subtle); color: var(--color-text-muted); font-size: var(--font-size-meta); line-height: var(--line-height-meta); font-weight: 600; }
+  svg.i { width: var(--icon-size); height: var(--icon-size); fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
-  .btn { font-family: var(--font-family-heading); font-size: 1rem; font-weight: 600; border: 0; border-radius: var(--radius-s); padding: 0.875rem var(--space-l); cursor: pointer; }
-  .btn:focus-visible { outline: var(--border-width-l) solid var(--color-focus); outline-offset: 2px; box-shadow: 0 0 0 6px var(--color-focus-ring); }
+  /* Estilos de texto (los mismos nombres que en la app) */
+  .text-display { font-family: var(--font-family-heading); font-size: var(--font-size-display); line-height: var(--line-height-display); font-weight: 600; }
+  .text-heading { font-family: var(--font-family-heading); font-size: var(--font-size-heading); line-height: var(--line-height-heading); font-weight: 700; }
+  .text-title { font-family: var(--font-family-heading); font-size: var(--font-size-title); line-height: var(--line-height-title); font-weight: 600; }
+  .text-lead { font-size: var(--font-size-lead); line-height: var(--line-height-lead); font-weight: 400; }
+  .text-body { font-size: var(--font-size-body); line-height: var(--line-height-body); font-weight: 400; }
+  .text-body--strong { font-weight: 600; }
+  .text-label { font-size: var(--font-size-label); line-height: var(--line-height-label); font-weight: 400; }
+  .text-label--strong { font-weight: 600; }
+  .text-meta { font-size: var(--font-size-meta); line-height: var(--line-height-meta); font-weight: 400; color: var(--color-text-muted); }
+  .text-eyebrow { font-size: var(--font-size-meta); line-height: var(--line-height-meta); font-weight: 700; letter-spacing: var(--letter-spacing-wide); text-transform: uppercase; color: var(--color-primary); }
+  .muted { color: var(--color-text-muted); }
+
+  /* Muestras de color */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: var(--space-xs); }
+  .swatch { border-radius: var(--radius-base); padding: var(--space-s); min-height: 5rem; font-size: var(--font-size-meta); line-height: var(--line-height-meta); border: var(--border-width) solid var(--color-border-subtle); }
+  .swatch b { display: block; }
+  .chip-color { display: inline-block; width: 1.5rem; height: 1.5rem; border-radius: var(--radius-xs); border: var(--border-width) solid var(--color-border); vertical-align: middle; }
+  .func { display: flex; gap: var(--space-s); align-items: flex-start; }
+  .func .chip-color { width: 2.25rem; height: 2.25rem; border-radius: var(--radius-base); flex-shrink: 0; }
+
+  /* ---------- Componentes de ejemplo (la app usa los de Ionic) ---------- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-s); min-height: var(--control-height); padding: 0 var(--space-l); border: var(--border-width) solid transparent; border-radius: var(--radius-base); font-family: var(--font-family-heading); font-size: var(--font-size-body); font-weight: 600; cursor: pointer; transition: background var(--motion-duration-fast); }
+  .btn:focus-visible { outline: var(--focus-width-button) solid var(--color-focus); outline-offset: var(--focus-width); }
   .btn--primary { background: var(--color-primary); color: var(--color-on-primary); }
   .btn--primary:hover { background: var(--color-primary-hover); }
-  .btn--primary:active { background: var(--color-primary-pressed); }
-  .btn--outline { background: transparent; color: var(--color-link); box-shadow: inset 0 0 0 1px var(--color-border); }
-  .btn--accent { background: var(--color-accent); color: var(--color-on-accent); }
-  .btn--eco { background: var(--color-eco); color: var(--color-on-eco); }
+  .btn--primary:active, .btn--pressed { background: var(--color-primary-pressed); color: var(--color-on-primary); }
+  .btn--secondary { background: var(--color-secondary); color: var(--color-on-secondary); }
+  .btn--outline { background: var(--color-surface); color: var(--color-link); border-color: var(--color-primary); }
+  .btn--outline-neutral { background: var(--color-surface); color: var(--color-link); border-color: var(--color-border-interactive); }
+  .btn--clear { background: transparent; color: var(--color-link); padding-inline: var(--space-s); }
   .btn--danger { background: var(--color-danger); color: var(--color-on-danger); }
-  .btn--highlight { border: 2px solid transparent; background: linear-gradient(var(--color-surface), var(--color-surface)) padding-box, var(--gradient-highlight) border-box; color: var(--color-text); }
-  .row { display: flex; flex-wrap: wrap; gap: var(--space-s); align-items: center; }
+  .btn--danger-outline { background: var(--color-surface); color: var(--color-danger); border-color: var(--color-danger); }
+  .btn--focus { outline: var(--focus-width-button) solid var(--color-focus); outline-offset: var(--focus-width); }
+  .btn:disabled { background: var(--color-disabled-bg); color: var(--color-text-disabled); border-color: transparent; cursor: not-allowed; }
+  .btn--s { min-height: var(--control-height-s); padding: 0 var(--space-base); font-size: var(--font-size-label); }
+  .btn--block { width: 100%; }
+  .btn--icon { width: var(--touch-target-min); min-height: var(--touch-target-min); padding: 0; background: transparent; color: var(--color-text); }
+  .spinner { width: 1rem; height: 1rem; border: 0.125rem solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
 
-  .field { display: flex; flex-direction: column; gap: var(--space-xs); max-width: 320px; }
-  .field input { font: inherit; padding: 0.75rem var(--space-base); border-radius: var(--radius-s); border: 1px solid var(--color-border-strong); background: var(--color-surface); color: var(--color-text); }
-  .field input::placeholder { color: var(--color-text-muted); }
-  .field input:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 1px; border-color: var(--color-primary); }
-  .field--error input { border-color: var(--color-danger); }
-  .field__error { color: var(--color-danger); font-size: var(--font-size-caption); }
+  .field { display: flex; flex-direction: column; gap: var(--space-xs); min-width: 0; }
+  .field__label { font-size: var(--font-size-label); line-height: var(--line-height-label); font-weight: 600; }
+  .field__control { display: flex; align-items: center; gap: var(--space-s); min-height: var(--control-height); padding: 0 var(--space-m); border: var(--border-width) solid var(--color-border-strong); border-radius: var(--radius-base); background: var(--color-surface); color: var(--color-text-muted); }
+  .field__control input, .field__control select { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--color-text); font: inherit; outline: none; }
+  .field__help { font-size: var(--font-size-meta); line-height: var(--line-height-meta); color: var(--color-text-muted); }
+  .field--focus .field__control { border-color: var(--color-primary); box-shadow: 0 0 0 calc(var(--focus-width) - var(--border-width)) var(--color-primary); }
+  .field--valid .field__control { border-color: var(--color-success); }
+  .field--valid .field__control .end { color: var(--color-success); }
+  .field--error .field__control { border-color: var(--color-danger); }
+  .field--error .field__help { color: var(--color-danger); }
+  .field--readonly .field__control { background: var(--color-surface-subtle); border-color: var(--color-border); }
 
-  .alert { border-radius: var(--radius-s); padding: var(--space-s) var(--space-base); font-size: var(--font-size-body-s); }
-  .card { background: var(--color-surface); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-base); padding: var(--space-base); }
-  .chip { display: inline-block; border-radius: var(--radius-full); padding: 2px 10px; font-size: var(--font-size-caption); font-weight: 600; }
+  .otp { display: flex; gap: var(--space-s); }
+  .otp span { display: flex; align-items: center; justify-content: center; width: 2.75rem; height: var(--control-height); border: var(--border-width) solid var(--color-border-strong); border-radius: var(--radius-base); font-family: var(--font-family-heading); font-size: var(--font-size-title); font-weight: 600; background: var(--color-surface); }
+  .otp span.focus { border-color: var(--color-primary); box-shadow: 0 0 0 calc(var(--focus-width) - var(--border-width)) var(--color-primary); }
+  .otp--error span { border-color: var(--color-danger); }
 
-  .box { background: var(--color-primary-subtle); border-radius: var(--radius-xs); }
-  .space-demo { display: flex; align-items: center; gap: var(--space-base); margin: 4px 0; }
-  .space-demo .bar { background: var(--color-primary); height: 12px; border-radius: 2px; }
-  .radius-demo, .shadow-demo { width: 96px; height: 64px; background: var(--color-surface-subtle); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; font-size: 12px; }
-  .shadow-demo { background: var(--color-surface-raised); border: 0; border-radius: var(--radius-s); }
-  .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-l); }
-  .hero { background: var(--gradient-brand); color: #ffffff; border-radius: var(--radius-l); padding: var(--space-l); }
+  .toggle { display: inline-flex; align-items: center; gap: var(--space-s); min-height: var(--touch-target-min); font-size: var(--font-size-label); }
+  .toggle__track { position: relative; width: 2.75rem; height: 1.5rem; border-radius: var(--radius-full); background: var(--color-text-muted); }
+  .toggle__track::after { content: ''; position: absolute; top: 0.1875rem; left: 0.1875rem; width: 1.125rem; height: 1.125rem; border-radius: 50%; background: #ffffff; }
+  .toggle--on .toggle__track { background: var(--color-primary); }
+  .toggle--on .toggle__track::after { left: auto; right: 0.1875rem; background: var(--color-on-primary); }
+  .check { display: inline-flex; align-items: flex-start; gap: var(--space-s); min-height: var(--touch-target-min); font-size: var(--font-size-label); line-height: var(--line-height-label); }
+  .check__box { width: 1.25rem; height: 1.25rem; margin-top: 0.0625rem; border: var(--focus-width) solid var(--color-border-strong); border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--color-on-primary); }
+  .check--on .check__box { background: var(--color-primary); border-color: var(--color-primary); }
+  .check__box svg { width: 0.875rem; height: 0.875rem; stroke-width: 3; }
+
+  .segment { display: inline-flex; padding: var(--space-xs); border-radius: var(--radius-base); background: var(--color-surface-subtle); }
+  .segment span { display: flex; align-items: center; min-height: 2.25rem; padding: 0 var(--space-base); border-radius: var(--radius-s); font-size: var(--font-size-label); color: var(--color-text-muted); }
+  .segment span.on { background: var(--color-surface); color: var(--color-link); font-weight: 600; box-shadow: var(--shadow-s); }
+
+  .stepper { display: inline-flex; align-items: center; gap: var(--space-m); }
+  .stepper button { width: var(--touch-target-min); height: var(--touch-target-min); border: var(--border-width) solid var(--color-primary); border-radius: var(--radius-base); background: var(--color-surface); color: var(--color-link); font-size: var(--font-size-title); cursor: pointer; }
+  .stepper button:disabled { border-color: var(--color-border); color: var(--color-text-disabled); }
+  .stepper output { min-width: 1.5rem; text-align: center; font-family: var(--font-family-heading); font-size: var(--font-size-title); font-weight: 600; }
+
+  .tabbar { display: grid; grid-template-columns: repeat(5, 1fr); height: var(--tab-bar-height); border-top: var(--border-width) solid var(--color-border-subtle); background: var(--color-surface); max-width: 27rem; }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-xs); color: var(--color-text-muted); text-decoration: none; font-size: var(--font-size-meta); line-height: var(--line-height-meta); position: relative; }
+  .tabbar a svg { width: var(--tab-icon-size); height: var(--tab-icon-size); }
+  .tabbar a.on { color: var(--color-link); font-weight: 600; }
+
+  .badge-verified { display: inline-flex; align-items: center; gap: var(--space-xs); padding: 0.125rem var(--space-s); border-radius: var(--radius-full); background: var(--color-success-subtle); color: var(--color-success); font-size: var(--font-size-meta); line-height: var(--line-height-meta); font-weight: 600; }
+  .badge-verified svg { width: 0.875rem; height: 0.875rem; }
+  .status { display: inline-flex; align-items: center; gap: var(--space-xs); padding: 0.125rem var(--space-s); border-radius: var(--radius-full); font-size: var(--font-size-meta); line-height: var(--line-height-meta); font-weight: 600; }
+  .status--pending { background: var(--color-warning-subtle); color: var(--color-warning); }
+  .status--accepted { background: var(--color-success-subtle); color: var(--color-success); }
+  .status--rejected { background: var(--color-info-subtle); color: var(--color-info); }
+  .status--cancelled { background: var(--color-surface-subtle); color: var(--color-text); }
+  .status--info { background: var(--color-info-subtle); color: var(--color-info); }
+
+  .person { display: flex; align-items: center; gap: var(--space-m); }
+  .avatar { width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--color-warning-subtle); color: var(--color-text); font-weight: 600; font-size: var(--font-size-label); flex-shrink: 0; }
+  .person__body { flex: 1; min-width: 0; }
+  .rating { font-size: var(--font-size-label); font-weight: 600; white-space: nowrap; }
+
+  .timeline { display: grid; grid-template-columns: auto auto 1fr; column-gap: var(--space-m); row-gap: var(--space-base); align-items: start; }
+  .timeline__time { font-family: var(--font-family-heading); font-size: var(--font-size-title); line-height: var(--line-height-title); font-weight: 600; }
+  .timeline__dot { width: 0.625rem; height: 0.625rem; margin-top: 0.5rem; border-radius: 50%; border: 0.125rem solid var(--color-primary); background: var(--color-surface); position: relative; }
+  .timeline__dot--end { background: var(--color-primary); }
+  .timeline__dot--start::after { content: ''; position: absolute; left: 50%; top: 0.5rem; width: 0.125rem; height: 2.75rem; transform: translateX(-50%); background: var(--color-primary); }
+
+  .trip-row { display: flex; flex-direction: column; gap: var(--space-s); padding: var(--space-base) 0; border-bottom: var(--border-width) solid var(--color-border-subtle); }
+  .trip-row__head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-s); }
+  .trip-row__times { font-family: var(--font-family-heading); font-size: var(--font-size-title); line-height: var(--line-height-title); font-weight: 600; }
+
+  .notice { display: flex; gap: var(--space-s); padding: var(--space-m) var(--space-base); border-radius: var(--radius-base); font-size: var(--font-size-label); line-height: var(--line-height-label); }
+  .notice b { display: block; }
+  .notice--info { background: var(--color-info-subtle); color: var(--color-text); }
+  .notice--info b { color: var(--color-info); }
+  .notice--success { background: var(--color-success-subtle); }
+  .notice--success b { color: var(--color-success); }
+  .notice--warning { background: var(--color-warning-subtle); }
+  .notice--warning b { color: var(--color-warning); }
+  .notice--danger { background: var(--color-danger-subtle); }
+  .notice--danger b { color: var(--color-danger); }
+
+  .state-card { display: flex; flex-direction: column; gap: var(--space-s); padding: var(--space-l); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-l); background: var(--color-surface); }
+  .state-card .text-meta { color: var(--color-primary); font-weight: 600; }
+  .skeleton { height: 0.75rem; border-radius: var(--radius-full); background: var(--color-border-subtle); }
+
+  .sheet-demo { padding: var(--space-xl) var(--space-base) 0; border-radius: var(--radius-l); background: var(--color-backdrop); }
+  .sheet { padding: var(--space-s) var(--space-l) var(--space-l); border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: var(--color-surface-raised); box-shadow: var(--shadow-l); }
+  .sheet__handle { width: 2.25rem; height: 0.25rem; margin: 0 auto var(--space-base); border-radius: var(--radius-full); background: var(--color-border); }
+
+  .toast { display: flex; align-items: center; gap: var(--space-s); padding: var(--space-m) var(--space-base); border-radius: var(--radius-base); background: var(--color-toast); color: var(--color-on-toast); font-size: var(--font-size-label); box-shadow: var(--shadow-base); max-width: 26rem; }
+
+  .flow { display: flex; flex-wrap: wrap; gap: var(--space-s); align-items: center; }
+  .flow span { padding: var(--space-s) var(--space-base); border-radius: var(--radius-base); background: var(--color-surface-subtle); font-size: var(--font-size-label); font-weight: 600; }
+  .flow span.on { background: var(--color-primary-subtle); color: var(--color-link); }
+  .tab-card { padding: var(--space-base); border-radius: var(--radius-l); background: var(--color-primary-subtle); }
+  .tab-card svg { color: var(--color-link); }
+  .tab-card code { color: var(--color-link); }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); }
+  .kpi { display: flex; flex-direction: column; gap: var(--space-xs); padding: 0 var(--space-l); border-left: var(--border-width) solid var(--color-border); }
+  .kpi:first-child { padding-left: 0; border-left: 0; }
+  .kpi__value { font-family: var(--font-family-heading); font-size: var(--font-size-heading); line-height: var(--line-height-heading); font-weight: 600; }
+  .bar-row { display: grid; grid-template-columns: 6.5rem 1fr 2rem; align-items: center; gap: var(--space-m); }
+  .bar-row__track { height: 0.5rem; border-radius: var(--radius-full); background: var(--color-border-subtle); overflow: hidden; }
+  .bar-row__track span { display: block; height: 100%; border-radius: var(--radius-full); background: var(--color-primary); }
+
+  .decision { padding: var(--space-base); border-left: 0.25rem solid var(--color-warning); background: var(--color-warning-subtle); border-radius: 0 var(--radius-base) var(--radius-base) 0; font-size: var(--font-size-label); line-height: var(--line-height-label); }
 </style>
 </head>
 <body>
+<!-- Iconos (los mismos dibujos de ionicons, versión outline) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 6.1A9.7 9.7 0 0 1 12 6c5 0 9 6 9 6a17 17 0 0 1-2.6 3.2M6.5 7.6C4.4 9.1 3 12 3 12s4 6 9 6c1.4 0 2.7-.4 3.9-1"/><path d="M9.9 10a3 3 0 0 0 4.1 4.1"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-time" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.4 3 8.4 7 9.5 4-1.1 7-5.1 7-9.5V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H16a3 3 0 0 0 0-6H8a3 3 0 0 1 0-6h7.5"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M5 16V11l2-5h10l2 5v5"/><path d="M3 16h18v3H3z"/><circle cx="7.5" cy="13" r="1"/><circle cx="16.5" cy="13" r="1"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M7 18h10.5M6.6 9.1A5 5 0 0 0 7 18M10 6.3A6 6 0 0 1 17.7 10 4 4 0 0 1 20 17"/></symbol>
+</svg>
+
 <main>
   <header class="top">
     <div>
-      <p class="text-eyebrow">Carpooling UAL · Guía de estilos</p>
-      <h1 class="text-display" style="margin:0">Tu campus, menos coches.</h1>
+      <p class="text-eyebrow">UAL Carpool · Guía de estilos</p>
+      <h1 class="text-display" style="margin:0">Mediterráneo, no decorativo.</h1>
+      <p class="text-lead muted" style="max-width:46rem">Señalética de campus, números seguros y una línea que conecta. Blanco para respirar; azul para actuar; verde bosque para la confianza. Sin sombras en las listas.</p>
     </div>
     <button class="btn btn--outline" id="theme-toggle" type="button">Cambiar a modo oscuro</button>
   </header>
-  <p class="note">Los contrastes se calculan en vivo (WCAG; AA ≥ 4,5:1 para texto normal, ≥ 3:1 para texto grande y bordes).</p>
+  <nav class="toc" aria-label="Contenido">
+    <a href="#principios">1. Principios</a><a href="#color">2. Color</a><a href="#tipografia">3. Tipografía</a>
+    <a href="#ritmo">4. Ritmo y tamaños</a><a href="#iconos">5. Iconos</a><a href="#componentes">6. Componentes</a>
+    <a href="#patrones">7. Patrones del dominio</a><a href="#estados">8. Estados</a><a href="#overlays">9. Modales y avisos</a>
+    <a href="#navegacion">10. Navegación</a><a href="#acceso">11. Pantallas de acceso</a><a href="#oscuro">12. Modo oscuro</a>
+    <a href="#accesibilidad">13. Accesibilidad</a><a href="#textos">14. Textos</a><a href="#implementacion">15. Implementación</a>
+    <a href="#pendiente">16. Por decidir</a>
+  </nav>
 
-  <section>
-    <h2>1. Colores: roles</h2>
-    <p class="note">Lo que usan las pantallas. Cambian con el modo (prueba el botón de arriba).</p>
+  <!-- 1 -->
+  <section id="principios">
+    <h2>1. Principios</h2>
+    <div class="grid">
+      <div><h4>La ruta es la protagonista</h4><p class="note">La interfaz se aparta. Barlow aporta carácter a rutas y horas; Inter sostiene formularios y lectura. El hilo azul de la ilustración continúa en las paradas y los estados.</p></div>
+      <div><h4>Una función por color</h4><p class="note">Azul para actuar, verde bosque para la confianza, naranja como acento puntual. Ningún estado se comunica solo con color: siempre lleva texto o símbolo.</p></div>
+      <div><h4>Cada estado dice qué pasa después</h4><p class="note">Vacío no es error. Cargando no es desactivado. Una solicitud no es una reserva. Mensajes humanos, acciones recuperables y la respuesta cerca de la acción.</p></div>
+      <div><h4>Plano y ordenado</h4><p class="note">Sin sombras en las listas (nivel 0). La elevación se reserva para menús, modales y avisos flotantes. Las tarjetas solo agrupan algo excepcional, no cada viaje.</p></div>
+      <div><h4>Confianza explicada, no prometida</h4><p class="note">«Correo UAL verificado» confirma el acceso a un correo de la UAL; no acredita la identidad, el coche ni el permiso de conducir. Nunca se promete una plaza o una recolocación.</p></div>
+      <div><h4>Una app, dos contextos</h4><p class="note">Usuario y Administración comparten identidad y se separan por el selector de modo y los permisos de la cuenta. El índigo identifica la administración.</p></div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section id="color">
+    <h2>2. Color</h2>
+    <p class="note">Las pantallas usan solo los <b>roles</b> (<code>--color-text</code>, <code>--color-surface</code>…), que se redefinen en modo oscuro; la paleta solo sirve para definirlos. Los contrastes se calculan en vivo (WCAG 2.1: texto ≥ 4,5:1; texto grande, iconos y bordes de controles ≥ 3:1).</p>
+
+    <h3>Once neutros: de la luz a la tinta</h3>
+    <div class="swatches" id="neutrals"></div>
+
+    <h3>Colores funcionales</h3>
+    <div class="grid" id="functional"></div>
+    <p class="note">Tintes para fondos de avisos: info <code>#F3F5FF</code> · éxito <code>#E6FFFA</code> · atención <code>#FEF9EC</code> · error <code>#FEF4F3</code>.</p>
+
+    <h3>Marca y contexto</h3>
+    <div class="grid" id="brand"></div>
+
+    <h3>Roles (cambian con el modo)</h3>
     <div class="scroll"><table>
       <thead><tr><th>Uso</th><th>Muestra</th><th>Primer plano</th><th>Fondo</th><th>Contraste</th></tr></thead>
       <tbody id="roles-body"></tbody>
     </table></div>
   </section>
 
-  <section>
-    <h2>2. Colores: paleta base</h2>
-    <p class="note">Solo para definir los roles. Casilla: escalón, valor y contraste con texto blanco (B) y negro (N). Con borde: color de referencia (500). * = interpolado.</p>
-    <div id="scales"></div>
-    <h3>Degradados</h3>
-    <div class="grid-3">
-      <div class="hero"><b>Marca</b><br><small>azul 500 → menta 500</small></div>
-      <div class="hero" style="background:var(--gradient-highlight)"><b>Destacado</b><br><small>p. ej. viaje recomendado</small></div>
+  <!-- 3 -->
+  <section id="tipografia">
+    <h2>3. Tipografía</h2>
+    <p class="note">Barlow 600 para títulos, horas y cifras (interlineado ×1,1); Inter para leer y rellenar. Tamaños en rem sobre la raíz del navegador (1rem = 16px por defecto, sin fijar el tamaño de <code>html</code>), así que respetan el texto ampliado.</p>
+    <p class="text-display" style="margin:var(--space-base) 0">07:40 → 08:12</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Clase</th><th>Ejemplo</th><th>Tamaño / interlineado</th><th>Familia y peso</th><th>Uso</th></tr></thead>
+      <tbody>
+        <tr><td><code>.text-display</code></td><td class="text-display">07:40</td><td>2,75rem (44px) / 3,025rem</td><td>Barlow 600</td><td>Horas destacadas, lema del acceso</td></tr>
+        <tr><td><code>.text-heading</code></td><td class="text-heading">¿A dónde vas?</td><td>2,25rem (36px, móvil) → 2,5rem (40px, escritorio) / ×1,1</td><td>Barlow 700</td><td>Título principal de pantalla («Qué bueno verte por aquí.»)</td></tr>
+        <tr><td><code>.text-title</code></td><td class="text-title">Una comunidad en movimiento</td><td>1,5rem (24px) / 1,65rem</td><td>Barlow 600</td><td>Título de sección, horas de un viaje</td></tr>
+        <tr><td><code>.text-lead</code></td><td class="text-lead">Comparte el camino al campus.</td><td>1,125rem (18px) / 1,6875rem</td><td>Inter 400</td><td>Entradilla bajo el título</td></tr>
+        <tr><td><code>.text-body</code></td><td class="text-body">La solicitud necesita la aceptación de Lucía.</td><td>1rem (16px) / 1,5rem</td><td>Inter 400 · 600 con <code>--strong</code></td><td>Texto corrido</td></tr>
+        <tr><td><code>.text-label</code></td><td class="text-label">Ayuda, etiquetas y metadatos secundarios</td><td>0,875rem (14px) / 1,3125rem</td><td>Inter 400 · 600 con <code>--strong</code></td><td>Etiquetas de campo (600), ayudas</td></tr>
+        <tr><td><code>.text-meta</code></td><td class="text-meta">42 viajes · Correo UAL verificado</td><td>0,75rem (12px) / 1,125rem</td><td>Inter 400</td><td>Metadatos, pie de confianza</td></tr>
+        <tr><td><code>.text-eyebrow</code></td><td class="text-eyebrow">Cada viaje cuenta</td><td>0,75rem (12px), mayúsculas, +0,06em</td><td>Inter 700</td><td>Epígrafe sobre un título</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">Títulos auxiliares (Barlow 600, ×1,1): 2,25rem y 2,5rem; panel de escritorio 3,5rem; splash 4rem.</p>
+  </section>
+
+  <!-- 4 -->
+  <section id="ritmo">
+    <h2>4. Ritmo y tamaños</h2>
+    <div class="grid">
+      <div>
+        <h4>Espaciado (retícula de 0,25rem)</h4>
+        <div id="spaces" class="stack"></div>
+        <p class="note">Margen lateral en el móvil: 1,5rem (<code>--space-l</code>).</p>
+      </div>
+      <div>
+        <h4>Esquinas</h4>
+        <div id="radii" class="grid-s"></div>
+        <p class="note">Controles (botones, campos, avisos): 0,5rem. Píldora (chips, estados) = la mitad de su altura.</p>
+      </div>
+      <div>
+        <h4>Tamaños</h4>
+        <table>
+          <tr><th>Elemento</th><th>Token</th><th>Valor</th></tr>
+          <tr><td>Área táctil mínima</td><td><code>--touch-target-min</code></td><td>2,75rem (44px)</td></tr>
+          <tr><td>Campo</td><td><code>--control-height</code></td><td>3,25rem (52px)</td></tr>
+          <tr><td>Botón</td><td><code>--control-height</code></td><td>3,25rem (52px)</td></tr>
+          <tr><td>Botón pequeño</td><td><code>--control-height-s</code></td><td>2,75rem (44px)</td></tr>
+          <tr><td>Barra de pestañas</td><td><code>--tab-bar-height</code></td><td>4,75rem (76px)</td></tr>
+          <tr><td>Icono de pestaña</td><td><code>--tab-icon-size</code></td><td>1,625rem (26px)</td></tr>
+          <tr><td>Superficie móvil de diseño</td><td colspan="2">27rem × 63,5rem; adaptable desde 20rem</td></tr>
+        </table>
+      </div>
+      <div>
+        <h4>Trazos, foco y elevación</h4>
+        <ul class="rules">
+          <li>Reglas y bordes: 0,0625rem (1px). Bordes suaves (<code>--color-border-subtle</code>) solo para separar listas; los campos llevan contorno contrastado (<code>--color-border-strong</code>, ≥ 3:1).</li>
+          <li>Foco visible: 0,125rem (2px); en botones, 0,1875rem (3px) separado del borde.</li>
+          <li>Contorno interactivo neutro (botón secundario con borde): neutral-5 <code>#87919F</code>.</li>
+          <li>Elevación: nivel 0 en listas; sombras <code>s</code> / <code>base</code> / <code>l</code> solo para segmentos activos, menús, modales y avisos flotantes.</li>
+        </ul>
+        <div class="row" style="margin-top:var(--space-base)">
+          <div class="demo" style="box-shadow:var(--shadow-s);border-style:solid">s</div>
+          <div class="demo" style="box-shadow:var(--shadow-base);border-style:solid">base</div>
+          <div class="demo" style="box-shadow:var(--shadow-l);border-style:solid">l</div>
+        </div>
+      </div>
+    </div>
+    <h4>Movimiento</h4>
+    <p class="note"><code>--motion-duration-fast</code> 150ms (hover, foco) · <code>--motion-duration-base</code> 250ms (abrir y cerrar). Con «reducir movimiento» en el sistema pasan a 0ms; nada informa solo con movimiento.</p>
+  </section>
+
+  <!-- 5 -->
+  <section id="iconos">
+    <h2>5. Iconos</h2>
+    <p class="note"><b>ionicons</b>, versión <i>outline</i>, con <code>ion-icon</code>. 1,25rem dentro de campos y botones; 1,625rem en las pestañas, siempre con su etiqueta. Un botón que solo tiene icono lleva <code>aria-label</code> y un área táctil de 2,75rem; los iconos decorativos, <code>aria-hidden="true"</code>.</p>
+    <div class="row" style="gap:var(--space-l)">
+      <span class="row"><svg class="i"><use href="#i-mail"/></svg><code>mail-outline</code></span>
+      <span class="row"><svg class="i"><use href="#i-lock"/></svg><code>lock-closed-outline</code></span>
+      <span class="row"><svg class="i"><use href="#i-eye-off"/></svg><code>eye-off-outline</code></span>
+      <span class="row"><svg class="i"><use href="#i-search"/></svg><code>search-outline</code></span>
+      <span class="row"><svg class="i"><use href="#i-calendar"/></svg><code>calendar-outline</code></span>
+      <span class="row"><svg class="i"><use href="#i-time"/></svg><code>time-outline</code></span>
+      <span class="row"><svg class="i"><use href="#i-car"/></svg><code>car-outline</code></span>
+      <span class="row"><svg class="i"><use href="#i-pin"/></svg><code>location-outline</code></span>
+      <span class="row"><svg class="i"><use href="#i-shield"/></svg><code>shield-checkmark-outline</code></span>
+      <span class="row"><svg class="i"><use href="#i-back"/></svg><code>arrow-back-outline</code></span>
+      <span class="row"><svg class="i"><use href="#i-send"/></svg><code>navigate-outline</code></span>
+      <span class="row"><svg class="i"><use href="#i-help"/></svg><code>help-circle-outline</code></span>
     </div>
   </section>
 
-  <section>
-    <h2>3. Tipografía</h2>
-    <table>
-      <tr><th>Familia</th><th>Uso</th><th>Pesos</th></tr>
-      <tr><td style="font-family:var(--font-family-heading);font-size:1.25rem">Barlow</td><td>Títulos, botones, cifras destacadas</td><td>300 · 400 · 500 · 600 · 700</td></tr>
-      <tr><td style="font-family:var(--font-family-body);font-size:1.25rem">Inter</td><td>Texto corrido, formularios, etiquetas</td><td>300–700 (fuente variable)</td></tr>
-    </table>
-    <h3>Pesos</h3>
-    <div class="row" style="gap:var(--space-l)">
-      <span style="font-weight:300">Light 300</span><span style="font-weight:400">Regular 400</span><span style="font-weight:500">Medium 500</span><span style="font-weight:600">SemiBold 600</span><span style="font-weight:700">Bold 700</span>
-    </div>
-    <h3>Estilos de texto</h3>
-    <p class="note">Los títulos usan <code>clamp()</code>: crecen con el ancho entre su mínimo y su máximo. Cambia el ancho de la ventana para verlo.</p>
+  <!-- 6 -->
+  <section id="componentes">
+    <h2>6. Componentes</h2>
+    <p class="note">Ejemplos para ver el sistema aplicado; en la app se construyen con los componentes de Ionic (<code>ion-button</code>, <code>ion-input</code>, <code>ion-input-otp</code>, <code>ion-select</code>, <code>ion-toggle</code>, <code>ion-checkbox</code>, <code>ion-segment</code>, <code>ion-tabs</code>), personalizados con sus variables CSS y <code>::part()</code>. Usa el tabulador para ver el foco.</p>
+
+    <h3>Botones</h3>
+    <p class="note">Altura 3,25rem, esquinas 0,5rem, Barlow 600 sin mayúsculas. Un solo botón principal por pantalla; el destructivo, en rojo y con confirmación.</p>
     <div class="scroll"><table>
-      <tr><th>Clase</th><th>Ejemplo</th><th>Tamaño (móvil → escritorio)</th><th>Familia / peso</th><th>Interlineado</th></tr>
-      <tr><td><code>.text-display</code></td><td class="text-display">Tu campus</td><td>2.25rem (36px) → 3rem (48px)</td><td>Barlow 700, −0.01em</td><td>1.2</td></tr>
-      <tr><td><code>.text-title</code></td><td class="text-title">Mis viajes</td><td>1.5rem (24px) → 1.75rem (28px)</td><td>Barlow 700, −0.01em</td><td>1.3</td></tr>
-      <tr><td><code>.text-subtitle</code></td><td class="text-subtitle">Próxima salida</td><td>1.25rem (20px) → 1.375rem (22px)</td><td>Barlow 600</td><td>1.4</td></tr>
-      <tr><td><code>.text-body</code></td><td class="text-body">Comparte trayecto con la comunidad UAL.</td><td>1rem (16px)</td><td>Inter 400</td><td>1.5rem (24px)</td></tr>
-      <tr><td><code>.text-body-s</code></td><td class="text-body-s">Salida desde Aguadulce a las 8:15.</td><td>0.875rem (14px)</td><td>Inter 400</td><td>1.25rem (20px)</td></tr>
-      <tr><td><code>.text-label</code></td><td class="text-label">Correo de la UAL</td><td>0.875rem (14px)</td><td>Inter 500</td><td>1.25rem (20px)</td></tr>
-      <tr><td><code>.text-caption</code></td><td class="text-caption">Hace 5 minutos</td><td>0.75rem (12px)</td><td>Inter 400</td><td>1rem (16px)</td></tr>
-      <tr><td><code>.text-eyebrow</code></td><td class="text-eyebrow">Cada viaje cuenta</td><td>0.75rem (12px), mayúsculas</td><td>Inter 600, +0.06em</td><td>1rem (16px)</td></tr>
+      <thead><tr><th>Variante</th><th>Ejemplo</th><th>Uso</th></tr></thead>
+      <tbody>
+        <tr><td>Principal</td><td><button class="btn btn--primary" type="button">Solicitar plaza</button></td><td>La acción principal de la pantalla</td></tr>
+        <tr><td>Secundario</td><td><button class="btn btn--secondary" type="button">Solicitar plaza</button></td><td>Acción de apoyo con peso (p. ej. en administración)</td></tr>
+        <tr><td>Contorno</td><td><button class="btn btn--outline" type="button">Ya tengo cuenta</button></td><td>Alternativa a la principal</td></tr>
+        <tr><td>Contorno neutro</td><td><button class="btn btn--outline-neutral" type="button">Volver a iniciar sesión</button></td><td>Acciones de navegación o recuperación</td></tr>
+        <tr><td>Texto</td><td><button class="btn btn--clear" type="button">Editar correo</button></td><td>Acción terciaria, enlaces dentro de un flujo</td></tr>
+        <tr><td>Destructivo</td><td><button class="btn btn--danger" type="button">Confirmar desactivación</button> <button class="btn btn--danger-outline" type="button">Cancelar solicitud</button></td><td>Desactivar, cancelar, borrar (siempre con confirmación)</td></tr>
+        <tr><td>Pulsado</td><td><button class="btn btn--pressed" type="button">Solicitar plaza</button></td><td>Estado <code>:active</code></td></tr>
+        <tr><td>Foco</td><td><button class="btn btn--outline btn--focus" type="button">Solicitar plaza</button></td><td>Anillo de 0,1875rem separado</td></tr>
+        <tr><td>Desactivado</td><td><button class="btn btn--primary" type="button" disabled>Solicitar plaza</button></td><td>Solo si la acción no es posible; explicar por qué cerca</td></tr>
+        <tr><td>Cargando</td><td><button class="btn btn--primary" type="button" aria-busy="true"><span class="spinner" aria-hidden="true"></span>Solicitar plaza</button></td><td>Mantiene el texto; no es lo mismo que desactivado</td></tr>
+        <tr><td>Pequeño</td><td><button class="btn btn--primary btn--s" type="button">Ver resultados</button></td><td>Dentro de filas y tablas (2,75rem)</td></tr>
+        <tr><td>Icono</td><td><button class="btn btn--icon" type="button" aria-label="Volver"><svg class="i"><use href="#i-back"/></svg></button><button class="btn btn--icon" type="button" aria-label="Navegar"><svg class="i"><use href="#i-send"/></svg></button><button class="btn btn--icon" type="button" aria-label="Ayuda"><svg class="i"><use href="#i-help"/></svg></button></td><td>Con <code>aria-label</code>; 2,75rem</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Campos</h3>
+    <p class="note">Etiqueta encima (Inter 600, 0,875rem), campo de 3,25rem con contorno <code>--color-border-strong</code>, icono a la izquierda si ayuda a reconocerlo y la ayuda o el error debajo. Las sugerencias van en una lista, nunca dentro del <i>placeholder</i>.</p>
+    <div class="grid">
+      <div class="field field--valid"><span class="field__label">Correo UAL</span><div class="field__control"><svg class="i"><use href="#i-mail"/></svg><input value="mario.perez@ual.es" aria-label="Correo UAL"><svg class="i end"><use href="#i-check-circle"/></svg></div><span class="field__help">Correo UAL verificado.</span></div>
+      <div class="field"><span class="field__label">Contraseña</span><div class="field__control"><svg class="i"><use href="#i-lock"/></svg><input type="password" value="contraseña" aria-label="Contraseña"><svg class="i"><use href="#i-eye-off"/></svg></div><span class="field__help">Mostrar contraseña es una acción accesible (botón con <code>aria-label</code>).</span></div>
+      <div class="field field--focus"><span class="field__label">Buscar origen o destino</span><div class="field__control"><svg class="i"><use href="#i-search"/></svg><input value="Campus UAL · La Cañada" aria-label="Buscar origen o destino"></div><span class="field__help">Foco de 0,125rem. Sugerencias en lista, no en el placeholder.</span></div>
+      <div class="field field--error"><span class="field__label">Correo UAL</span><div class="field__control"><svg class="i"><use href="#i-mail"/></svg><input value="mario@gmail.com" aria-label="Correo UAL" aria-invalid="true"></div><span class="field__help" role="alert">Usa un correo @ual.es para continuar.</span></div>
+      <div class="field"><span class="field__label">Fecha del viaje</span><div class="field__control"><svg class="i"><use href="#i-calendar"/></svg><input value="27 oct" aria-label="Fecha del viaje"></div><span class="field__help">Selector modal nativo (<code>ion-datetime</code>) en español.</span></div>
+      <div class="field"><span class="field__label">Hora de llegada</span><div class="field__control"><svg class="i"><use href="#i-time"/></svg><input value="08:00" aria-label="Hora de llegada"></div><span class="field__help">Formato de 24 horas. Distinguir «salir» de «llegar».</span></div>
+      <div class="field"><span class="field__label">Vehículo</span><div class="field__control"><svg class="i"><use href="#i-car"/></svg><select aria-label="Vehículo"><option>Seat Ibiza · 1234 BCD</option></select></div><span class="field__help"><code>ion-select</code> para vehículo y tolerancia.</span></div>
+      <div class="field field--readonly"><span class="field__label">Plazas disponibles</span><div class="field__control"><input value="2 plazas" readonly aria-label="Plazas disponibles"></div><span class="field__help">Se calcula al elegir un vehículo registrado.</span></div>
+      <div class="field"><span class="field__label">Tolerancia horaria</span><div class="field__control"><svg class="i"><use href="#i-time"/></svg><select aria-label="Tolerancia horaria"><option>±20 min</option></select></div><span class="field__help">Viene del Perfil; se puede cambiar en cada búsqueda.</span></div>
+    </div>
+
+    <h3>Código de verificación</h3>
+    <p class="note">Seis casillas (<code>ion-input-otp</code>, <code>length="6"</code>), con <code>inputmode="numeric"</code> y <code>autocomplete="one-time-code"</code>; pegar los 6 dígitos de una vez los reparte. Se usa igual para verificar el correo y para recuperar la contraseña.</p>
+    <div class="grid">
+      <div class="stack"><span class="field__label">Código de verificación</span><div class="otp"><span>2</span><span>8</span><span>4</span><span>6</span><span>1</span><span class="focus">9</span></div><span class="field__help">Puedes pegarlo completo desde el correo.</span></div>
+      <div class="stack"><span class="field__label">Código de verificación</span><div class="otp otp--error"><span>2</span><span>8</span><span>4</span><span>6</span><span>1</span><span>0</span></div><span class="field__help" style="color:var(--color-danger)" role="alert">Ese código no es válido. Revisa los 6 dígitos o solicita un código nuevo.</span></div>
+    </div>
+
+    <h3>Selección</h3>
+    <div class="grid">
+      <div class="stack">
+        <h4>Interruptor (<code>ion-toggle</code>): preferencias</h4>
+        <span class="toggle toggle--on"><span class="toggle__track" aria-hidden="true"></span>Música suave · activada</span>
+        <span class="toggle"><span class="toggle__track" aria-hidden="true"></span>Compartir ubicación · desactivado</span>
+      </div>
+      <div class="stack">
+        <h4>Casilla (<code>ion-checkbox</code>): consentimiento</h4>
+        <span class="check check--on"><span class="check__box" aria-hidden="true"><svg class="i"><use href="#i-check"/></svg></span>Acepto las condiciones de uso y la política de privacidad.</span>
+        <span class="check"><span class="check__box" aria-hidden="true"></span>Recibir novedades de la comunidad (opcional).</span>
+      </div>
+      <div class="stack">
+        <h4>Segmento (<code>ion-segment</code>): historial y rol</h4>
+        <div class="segment"><span class="on">Próximos</span><span>Realizados</span><span>Cancelados</span></div>
+        <div class="segment"><span class="on">Pasajero</span><span>Conductor</span></div>
+      </div>
+      <div class="stack">
+        <h4>Contador de plazas (SeatStepper)</h4>
+        <div class="stepper"><button type="button" aria-label="Una plaza menos" disabled>−</button><output aria-live="polite">1</output><button type="button" aria-label="Una plaza más">+</button></div>
+        <p class="note">Mínimo 1; máximo, la capacidad del vehículo menos el conductor.</p>
+      </div>
+    </div>
+
+    <h3>Barra de pestañas</h3>
+    <p class="note">Cinco destinos en el móvil; desde 48rem (768px), menú superior. La tercera pestaña es contextual: Buscar como pasajero y Publicar como conductor (no hay sexta pestaña).</p>
+    <nav class="tabbar" aria-label="Ejemplo de pestañas">
+      <a href="#iconos" class="on" aria-current="page"><svg class="i"><use href="#i-home"/></svg>Inicio</a>
+      <a href="#iconos"><svg class="i"><use href="#i-route"/></svg>Mis viajes</a>
+      <a href="#iconos"><svg class="i"><use href="#i-search"/></svg>Buscar</a>
+      <a href="#iconos"><svg class="i"><use href="#i-bell"/></svg>Avisos</a>
+      <a href="#iconos"><svg class="i"><use href="#i-person"/></svg>Perfil</a>
+    </nav>
+  </section>
+
+  <!-- 7 -->
+  <section id="patrones">
+    <h2>7. Patrones del dominio</h2>
+    <p class="note">Componentes propios que se repiten; se extraen a <code>shared/components/ui/</code>.</p>
+    <div class="grid">
+      <div class="stack">
+        <h4>VerifiedUalBadge</h4>
+        <span class="badge-verified"><svg class="i"><use href="#i-check-circle"/></svg>Correo UAL verificado</span>
+        <p class="note">Siempre con este texto exacto: verifica el correo, nada más.</p>
+      </div>
+      <div class="stack">
+        <h4>Fila de persona</h4>
+        <div class="person"><span class="avatar" aria-hidden="true">LC</span><div class="person__body"><div class="text-body text-body--strong">Lucía Cortés</div><div class="text-meta">42 viajes · Correo UAL verificado</div></div><span class="rating" aria-label="Valoración 4,8 de 5">★ 4,8</span></div>
+        <p class="note">Iniciales como avatar; la valoración con <code>aria-label</code>.</p>
+      </div>
+      <div class="stack">
+        <h4>RouteTimeline</h4>
+        <div class="timeline">
+          <span class="timeline__time">07:40</span><span class="timeline__dot timeline__dot--start" aria-hidden="true"></span><div><div class="text-body text-body--strong">Roquetas de Mar</div><div class="text-meta">Av. Carlos III, 112 · recogida</div></div>
+          <span class="timeline__time">08:12</span><span class="timeline__dot timeline__dot--end" aria-hidden="true"></span><div><div class="text-body text-body--strong">Campus UAL</div><div class="text-meta">La Cañada · acceso principal</div></div>
+        </div>
+      </div>
+      <div class="stack">
+        <h4>TripRow (resultados y Mis viajes)</h4>
+        <div class="trip-row">
+          <div class="trip-row__head"><span class="trip-row__times">07:40 → 08:12</span><span class="text-label text-label--strong" style="color:var(--color-eco-text)">2 plazas</span></div>
+          <span class="text-label text-label--strong">Roquetas de Mar → Campus UAL · La Cañada</span>
+          <div class="person"><span class="avatar" aria-hidden="true">LC</span><div class="person__body"><div class="text-label text-label--strong">Lucía Cortés</div><div class="text-meta">42 viajes · Correo UAL verificado</div></div><span class="rating">★ 4,8</span></div>
+          <span class="text-meta">Desvío de recogida: 3 min · Av. Carlos III, 112</span>
+        </div>
+        <p class="note">Filas separadas por una línea, sin tarjeta ni sombra. «Última plaza» en naranja; «Fuera de tu margen» como grupo aparte.</p>
+      </div>
+    </div>
+
+    <h3>Lista de resultados</h3>
+    <p class="note">Cabecera del grupo con el recuento y el orden; los viajes que llegan fuera del margen, en un grupo propio al final. Debajo, el aviso fijo de lo que no se promete y una sola acción principal.</p>
+    <div class="demo" style="max-width:27rem">
+      <div class="row" style="justify-content:space-between"><span class="text-eyebrow" style="color:var(--color-text-muted)">2 en tu margen</span><button class="btn btn--clear btn--s" type="button">Compatibilidad ⌄</button></div>
+      <div class="trip-row">
+        <div class="trip-row__head"><span class="trip-row__times">07:25 → 07:58</span><span class="status" style="background:var(--color-accent);color:var(--color-on-accent)">Última plaza</span></div>
+        <span class="text-label text-label--strong">Roquetas de Mar → Campus UAL · La Cañada</span>
+        <div class="person"><span class="avatar" aria-hidden="true">JP</span><div class="person__body"><div class="text-label text-label--strong">Javier Pardo</div><div class="text-meta">28 viajes · Correo UAL verificado</div></div><span class="rating">★ 4,6</span></div>
+        <span class="text-meta">Desvío de recogida: 7 min</span>
+      </div>
+      <span class="text-eyebrow" style="display:block;margin-top:var(--space-base);color:var(--color-text-muted)">Fuera de tu margen</span>
+      <div class="trip-row">
+        <div class="trip-row__head"><span class="trip-row__times">08:05 → 08:40</span><span class="text-label muted">2 plazas</span></div>
+        <span class="text-meta">Sara Gil · Desvío de recogida: 5 min · Llega fuera del margen</span>
+      </div>
+      <p class="text-meta" style="margin:var(--space-base) 0">La hora de llegada es estimada. Correo UAL verificado no significa permiso de conducir verificado. La plaza solo se confirma al aceptar el conductor.</p>
+      <button class="btn btn--primary btn--block" type="button">Ver viaje de Lucía</button>
+    </div>
+    <p class="note" style="margin-top:var(--space-s)">El acento sobre blanco solo da 3,5:1: nunca como color de texto pequeño. «Última plaza» va como chip naranja con texto negro.</p>
+
+    <h3>Administración</h3>
+    <p class="note">Panel de escritorio con la cabecera índigo. Las cifras son el protagonista (Barlow 600); las tarjetas solo agrupan bloques. Los datos de ejemplo se marcan como tales.</p>
+    <div class="kpis">
+      <div class="kpi"><span class="text-label muted">Usuarios activos</span><span class="kpi__value">108</span><span class="text-meta">120 en total · 8 sin verificar · 4 con perfil desactivado</span></div>
+      <div class="kpi"><span class="text-label muted">Viajes hoy</span><span class="kpi__value">64</span><span class="text-meta">24 publicados · 8 en curso · 28 completados · 4 cancelados</span></div>
+      <div class="kpi"><span class="text-label muted">Solicitudes pendientes</span><span class="kpi__value">12</span><span class="text-meta">No ocupan plaza hasta su aceptación</span></div>
+      <div class="kpi"><span class="text-label muted">Incidencias sin revisar</span><span class="kpi__value">3</span><span class="text-meta">8 registradas · 5 revisadas</span></div>
+    </div>
+    <div class="grid" style="margin-top:var(--space-l)">
+      <div class="state-card">
+        <span class="text-title">Viajes por estado</span>
+        <div class="bar-row"><span class="text-label">Publicados</span><span class="bar-row__track"><span style="width:86%"></span></span><b>24</b></div>
+        <div class="bar-row"><span class="text-label">En curso</span><span class="bar-row__track"><span style="width:29%"></span></span><b>8</b></div>
+        <div class="bar-row"><span class="text-label">Completados</span><span class="bar-row__track"><span style="width:100%"></span></span><b>28</b></div>
+        <div class="bar-row"><span class="text-label">Cancelados</span><span class="bar-row__track"><span style="width:14%;background:var(--color-accent)"></span></span><b>4</b></div>
+      </div>
+      <div class="stack">
+        <div class="scroll"><table>
+          <thead><tr><th>Escenario</th><th>Fecha</th><th>Réplicas</th><th>Estado</th><th>Acción</th></tr></thead>
+          <tbody><tr><td>S1 · Carpool básico</td><td>25 oct · 18:42</td><td>30 / 30</td><td>Completada</td><td><a href="#estados">Ver resultados</a></td></tr></tbody>
+        </table></div>
+        <div class="notice notice--info"><span><b>Revisada no significa resuelta</b>La revisión conserva el informe original. La prioridad de búsqueda no garantiza una nueva plaza.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section id="estados">
+    <h2>8. Estados</h2>
+    <p class="note">El estado se comunica con texto, no solo con color. Cada uno dice qué ha pasado y cómo seguir, sin perder lo que el usuario había escrito o filtrado.</p>
+    <div class="grid">
+      <div class="state-card">
+        <span class="text-meta">Vacío · búsqueda</span>
+        <span class="text-title">Aún no hay viajes para esa hora</span>
+        <span class="text-label muted">Roquetas → Campus UAL · 27 oct · llegada 08:00 ±20 min · 1 plaza</span>
+        <span class="text-label">Prueba con otro horario o amplía el margen de llegada. No cambiaremos tu búsqueda sin avisarte.</span>
+        <button class="btn btn--primary btn--block" type="button">Modificar hora</button>
+        <button class="btn btn--outline btn--block" type="button">Ampliar margen</button>
+      </div>
+      <div class="state-card">
+        <span class="text-meta">Error · código</span>
+        <span class="text-title">Ese código no es válido.</span>
+        <div class="otp otp--error"><span>2</span><span>8</span><span>4</span><span>6</span><span>1</span><span>0</span></div>
+        <span class="text-label muted">Enviado a mario.perez@ual.es. Puedes pegarlo completo desde el correo.</span>
+        <button class="btn btn--primary btn--block" type="button">Corregir código</button>
+        <button class="btn btn--outline btn--block" type="button">Reenviar código</button>
+        <button class="btn btn--clear btn--block" type="button">Editar correo</button>
+      </div>
+      <div class="state-card">
+        <span class="text-meta">Pendiente · solicitud</span>
+        <span class="text-title">Solicitud enviada. Falta la respuesta de Lucía.</span>
+        <span class="status status--pending" style="align-self:flex-start">Pendiente · no confirmada</span>
+        <span class="text-label">Has solicitado 1 plaza para el 27 oct a las 07:40. Todavía no tienes una plaza confirmada. Te avisaremos cuando Lucía acepte o rechace. No envíes otra solicitud para este viaje.</span>
+        <button class="btn btn--primary btn--block" type="button">Ver en Mis viajes</button>
+        <button class="btn btn--clear btn--block" type="button">Cancelar solicitud</button>
+      </div>
+    </div>
+
+    <h3>Solicitud de plaza: el backend decide, la interfaz refleja</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>Estado (API)</th><th>Etiqueta</th><th>Qué se muestra</th></tr></thead>
+      <tbody>
+        <tr><td><code>pending</code></td><td><span class="status status--pending">Pendiente</span></td><td>Solicitud registrada. Sin check ni «reserva confirmada». La disponibilidad se vuelve a comprobar al aceptar.</td></tr>
+        <tr><td><code>accepted</code></td><td><span class="status status--accepted">Confirmada</span></td><td>«Lucía ha aceptado tu solicitud.» Plazas que quedan. Ahora sí, check. Solo tras recibir <code>accepted</code> del backend.</td></tr>
+        <tr><td><code>rejected</code></td><td><span class="status status--rejected">No aceptada</span></td><td>No hay plaza reservada. Acción: Buscar otro viaje, sin prometer disponibilidad.</td></tr>
+        <tr><td><code>cancelled</code></td><td><span class="status status--cancelled">Cancelada</span></td><td>Quién canceló y el motivo, si existe. Recuperación: nueva búsqueda; nunca recolocación garantizada.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Estados transversales</h3>
+    <div class="grid">
+      <div class="state-card"><span class="text-body text-body--strong">Cargando incidencias…</span><span class="text-label muted">Conservamos tus filtros mientras llega la información.</span><div class="skeleton"></div><div class="skeleton" style="width:60%"></div><div class="skeleton"></div><span class="text-meta" style="color:var(--color-text-muted);font-weight:400">Anuncio accesible: «cargando, espera» (<code>aria-busy</code>).</span></div>
+      <div class="state-card"><span class="text-body text-body--strong">No hay incidencias pendientes</span><span class="text-label muted">No encontramos informes con Estado: Pendiente y Fecha: 27 oct. Puedes ampliar la consulta.</span><button class="btn btn--outline-neutral btn--block" type="button">Quitar filtros</button></div>
+      <div class="state-card"><span class="text-body text-body--strong">No se pudo conectar</span><span class="text-label muted">Tus filtros siguen guardados: Pendiente · Problema técnico · 27 oct. No hemos perdido tu consulta.</span><button class="btn btn--primary btn--block" type="button">Reintentar sin perder filtros</button></div>
+      <div class="state-card"><span class="text-body text-body--strong">403 · No tienes permiso</span><span class="text-label muted">No se muestra ningún dato sensible. Cambiar de modo no concede permisos.</span><button class="btn btn--primary btn--block" type="button">Volver al modo pasajero autorizado</button></div>
+      <div class="state-card"><span class="text-body text-body--strong">Datos antiguos</span><span class="text-label muted">Simulación: progreso sin actualizar desde 07:41. Reconectar no lanza una ejecución nueva.</span><button class="btn btn--outline-neutral btn--block" type="button">Actualizar estado</button><div class="notice notice--success"><span><b>CSV exportado · s1-20261025.csv</b>Si falla: «No se pudo exportar. Reintentar»; los resultados se conservan.</span></div></div>
+    </div>
+
+    <h3>Cobertura por área</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>Área</th><th>Cargando</th><th>Vacío</th><th>Error de red / recuperación</th><th>403 / recuperación autorizada</th></tr></thead>
+      <tbody>
+        <tr><td>Acceso</td><td>Verificando correo…</td><td>Sin código vigente. Solicitar otro.</td><td>No pudimos enviar el código. Reintentar sin borrar el correo.</td><td>Sesión no autorizada. Volver a iniciar sesión.</td></tr>
+        <tr><td>Búsqueda</td><td>Buscando viajes compatibles…</td><td>No hay viajes en tu margen. Cambiar hora.</td><td>No pudimos buscar. Reintentar con la ruta y los filtros guardados.</td><td>Sesión caducada. Iniciar sesión; no mostrar viajeros.</td></tr>
+        <tr><td>Viajes</td><td>Actualizando solicitudes…</td><td>No tienes próximos viajes. Buscar o publicar.</td><td>No se confirmó la aceptación. Consultar el estado antes de repetir.</td><td>No puedes gestionar este viaje. Volver a Mis viajes.</td></tr>
+        <tr><td>Perfil</td><td>Cargando preferencias…</td><td>Sin vehículos. Registrar vehículo.</td><td>No se guardó. Reintentar conserva los cambios.</td><td>No puedes ver este perfil. Volver a tu cuenta.</td></tr>
+        <tr><td>Usuarios (admin)</td><td>Cargando usuarios…</td><td>Sin coincidencias. Quitar filtros.</td><td>Tabla no disponible. Reintentar mantiene página y filtros.</td><td>Ocultar tabla y detalles. Volver al modo autorizado.</td></tr>
+        <tr><td>Incidencias</td><td>Cargando informes…</td><td>No hay incidencias pendientes. Ver revisadas.</td><td>No se guardó la nota. Conservar el texto y reintentar.</td><td>Ocultar informe y afectados. Volver al modo autorizado.</td></tr>
+        <tr><td>Simulación</td><td>Consultando ejecución…</td><td>Sin ejecuciones. Configurar en escritorio.</td><td>Progreso desactualizado. Reconectar; no duplicar el lanzamiento.</td><td>Sin rol admin o en móvil: no lanzar ni modificar; volver a consulta.</td></tr>
+        <tr><td>Resultados</td><td>Preparando métricas…</td><td>Sin réplicas terminadas. Ver ejecución.</td><td>No se pudo exportar. Reintentar sin perder resultados.</td><td>Ocultar métricas restringidas. Volver al modo autorizado.</td></tr>
+        <tr><td>Gemelo digital</td><td>Cargando instantánea…</td><td>Sin viajes en esta ventana. Ampliar consulta.</td><td>Sin conexión. Mostrar la hora antigua; actualizar, no «en directo».</td><td>Ocultar mapa y ubicaciones. Volver al modo autorizado.</td></tr>
+      </tbody>
     </table></div>
   </section>
 
-  <section>
-    <h2>4. Espaciado</h2>
-    <p class="note">Para <code>padding</code>, <code>margin</code> y <code>gap</code>.</p>
-    <div id="spaces"></div>
+  <!-- 9 -->
+  <section id="overlays">
+    <h2>9. Modales y avisos</h2>
+    <p class="note"><code>ion-modal</code> para decidir con contexto: elegir fecha y plazas, revisar antes de publicar y dar un consentimiento. Foco dentro del diálogo, Escape cancela y el foco vuelve al control de origen. El borrador no cambia hasta pulsar la acción principal.</p>
+    <div class="grid">
+      <div class="sheet-demo"><div class="sheet stack">
+        <div class="sheet__handle"></div>
+        <div class="row" style="justify-content:space-between"><span class="text-title">Cuándo y cuántas</span><button class="btn btn--icon" type="button" aria-label="Cerrar"><svg class="i"><use href="#i-close"/></svg></button></div>
+        <span class="text-label muted">Octubre · selecciona una fecha</span>
+        <div class="row"><button class="btn btn--outline btn--s" type="button">26 oct</button><button class="btn btn--primary btn--s" type="button">27 oct</button><button class="btn btn--outline btn--s" type="button">28 oct</button></div>
+        <div class="field"><span class="field__label">Hora de llegada</span><div class="field__control"><svg class="i"><use href="#i-time"/></svg><input value="08:00" aria-label="Hora de llegada"></div></div>
+        <div class="row" style="justify-content:space-between"><span class="text-label text-label--strong">Plazas</span><div class="stepper"><button type="button" aria-label="Una plaza menos" disabled>−</button><output>1</output><button type="button" aria-label="Una plaza más">+</button></div></div>
+        <button class="btn btn--primary btn--block" type="button">Aplicar selección</button>
+      </div></div>
+      <div class="sheet-demo"><div class="sheet stack">
+        <div class="sheet__handle"></div>
+        <span class="text-title">¿Publicar este viaje?</span>
+        <span class="text-body text-body--strong">Roquetas de Mar → Campus UAL<br>27 oct · salida 07:40</span>
+        <span class="text-label muted">2 plazas ofrecidas · máximo 3<br>Seat Ibiza · 1234 BCD<br>Desvío de recogida: hasta 10 min</span>
+        <span class="badge-verified" style="align-self:flex-start"><svg class="i"><use href="#i-check-circle"/></svg>Declaración del conductor aceptada</span>
+        <span class="text-meta">Recibirás solicitudes y tendrás que aceptar cada plaza.</span>
+        <button class="btn btn--primary btn--block" type="button">Publicar viaje</button>
+        <button class="btn btn--clear btn--block" type="button">Seguir editando</button>
+      </div></div>
+      <div class="sheet-demo"><div class="sheet stack">
+        <div class="sheet__handle"></div>
+        <svg class="i" style="color:var(--color-link)"><use href="#i-pin"/></svg>
+        <span class="text-title">Tu ubicación, solo si tú quieres.</span>
+        <span class="text-label muted">Quien tenga el enlace podrá ver tu ubicación durante este viaje. Evita publicarlo en grupos abiertos.</span>
+        <span class="check"><span class="check__box" aria-hidden="true"></span>Autorizo compartir mi ubicación temporalmente con quien reciba el enlace.</span>
+        <span class="text-meta">Caduca al finalizar el viaje o en 1 h, lo que ocurra antes. Puedes dejar de compartir en cualquier momento.</span>
+        <button class="btn btn--primary btn--block" type="button" disabled>Crear enlace temporal</button>
+        <button class="btn btn--clear btn--block" type="button">No compartir</button>
+      </div></div>
+    </div>
+
+    <h3>Confirmación destructiva</h3>
+    <div class="state-card" style="max-width:26rem">
+      <span class="text-title">¿Desactivar Conductor?</span>
+      <span class="text-label muted">Pasajero y cuenta seguirán activos. El motivo se conserva.</span>
+      <div class="field field--focus"><span class="field__label">Motivo obligatorio</span><div class="field__control"><input value="Revisión de documentación." aria-label="Motivo obligatorio"></div></div>
+      <button class="btn btn--danger btn--block" type="button">Confirmar desactivación</button>
+      <button class="btn btn--outline-neutral btn--block" type="button">Cancelar</button>
+    </div>
+
+    <h3>Avisos en la página</h3>
+    <div class="grid">
+      <div class="notice notice--info"><span><b>Tu acceso, protegido</b>Nunca compartas tu contraseña ni el código de verificación. No te los pediremos por chat.</span></div>
+      <div class="notice notice--success"><span><b>Contraseña actualizada</b>Ya puedes iniciar sesión con tu nueva contraseña.</span></div>
+      <div class="notice notice--warning"><span><b>Prioridad alta · viaje anterior cancelado</b>Tienes prioridad de búsqueda. Ninguna alternativa está confirmada ni garantizada.</span></div>
+      <div class="notice notice--danger"><span><b>No se pudo publicar el viaje</b>Revisa la conexión y vuelve a intentarlo; no hemos perdido tus datos.</span></div>
+      <div class="notice notice--warning"><span><b>Ubicación sin actualizar desde hace 4 min</b>La llegada 08:12 es la última estimación, no una posición en directo. No extrapolar el movimiento.</span></div>
+    </div>
+
+    <h3>Toast (<code>ion-toast</code>)</h3>
+    <output class="toast"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span style="flex:1">Preferencias guardadas.</span><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></output>
+    <p class="note" style="margin-top:var(--space-s)">Solo para respuestas no críticas: <code>aria-live="polite"</code>, sin robar el foco. Nunca es el único aviso de una aceptación, una cancelación o un error de formulario.</p>
   </section>
 
-  <section>
-    <h2>5. Esquinas</h2>
-    <p class="note">Por defecto <code>--radius-s</code> (8px): botones, campos, avisos.</p>
-    <div class="grid-3" id="radii"></div>
+  <!-- 10 -->
+  <section id="navegacion">
+    <h2>10. Navegación</h2>
+    <h4>Fuera de las pestañas</h4>
+    <div class="flow"><span>Splash</span>→<span>Iniciar sesión / Registro</span>→<span>Verificar correo</span>→<span>Elegir modos</span>→<span class="on">Área autenticada</span></div>
+    <p class="note" style="margin-top:var(--space-s)">Recuperar la contraseña sale de Iniciar sesión y vuelve al acceso. La sesión y el correo verificado controlan la entrada al área autenticada.</p>
+    <h4>Cinco destinos</h4>
+    <div class="grid-s">
+      <div class="tab-card stack"><svg class="i"><use href="#i-home"/></svg><b>Inicio</b><code>/tabs/inicio</code><span class="text-meta">Modo activo, próximo viaje. Ofrecer plaza → revisión → publicar.</span></div>
+      <div class="tab-card stack"><svg class="i"><use href="#i-route"/></svg><b>Mis viajes</b><code>/tabs/mis-viajes</code><span class="text-meta">Reserva → en curso → valoración. Próximos / Realizados / Cancelados; filtro pasajero / conductor.</span></div>
+      <div class="tab-card stack"><svg class="i"><use href="#i-search"/></svg><b>Buscar · Publicar</b><code>/tabs/buscar</code><code>/tabs/publicar</code><span class="text-meta">Búsqueda → compatibilidad → detalle → solicitud. Conserva consulta y scroll al volver.</span></div>
+      <div class="tab-card stack"><svg class="i"><use href="#i-bell"/></svg><b>Avisos</b><code>/tabs/avisos</code><span class="text-meta">Aceptación, rechazo, cancelación. La recuperación no garantiza otra plaza.</span></div>
+      <div class="tab-card stack"><svg class="i"><use href="#i-person"/></svg><b>Perfil</b><code>/tabs/perfil</code><span class="text-meta">Cuenta → tolerancia → vehículos → perfiles → privacidad.</span></div>
+    </div>
+    <ul class="rules" style="margin-top:var(--space-base)">
+      <li>Modo activo: con los dos perfiles se empieza como pasajero y se cambia solo desde Inicio. No es un tercer modo ni da acceso a administración.</li>
+      <li>Escritorio (≥ 48rem): menú superior. Administración: cabecera índigo con Resumen, Usuarios, Incidencias, Simulación, Resultados, Gemelo digital y Avisos; selector de modo a la derecha.</li>
+      <li>En el móvil, la administración es solo de consulta: lanzar simulaciones o cambiar perfiles exige escritorio (y el servidor lo valida también).</li>
+    </ul>
   </section>
 
-  <section>
-    <h2>6. Sombras</h2>
-    <div class="grid-3">
-      <div><div class="shadow-demo" style="box-shadow:var(--shadow-s)">s</div><p class="text-caption">--shadow-s · elementos sobre la página</p></div>
-      <div><div class="shadow-demo" style="box-shadow:var(--shadow-base)">base</div><p class="text-caption">--shadow-base · tarjetas, menús</p></div>
-      <div><div class="shadow-demo" style="box-shadow:var(--shadow-l)">l</div><p class="text-caption">--shadow-l · modales, hojas inferiores</p></div>
+  <!-- 11 -->
+  <section id="acceso">
+    <h2>11. Pantallas de acceso</h2>
+    <ul class="rules">
+      <li><b>Escritorio (≥ 48rem):</b> a la izquierda, igual en todas (bienvenida, login, registro, verificar, modos, recuperar), fondo <code>--color-primary-subtle</code> con la ilustración arriba y el lema debajo: «CADA VIAJE CUENTA» · «Tu campus, mejor conectado.» · «Del mar al campus, comparte camino con personas que van en tu misma dirección.» A la derecha, el logotipo, el contenido y el pie de confianza tras una línea.</li>
+      <li><b>Móvil, bienvenida:</b> logotipo, ilustración en su caja, título, texto, botones y el pie «Comunidad UAL · Perfiles verificados» sin línea.</li>
+      <li><b>Móvil, formularios:</b> cabecera con flecha atrás y título de la pantalla («Accede a tu cuenta»), logotipo cuadrado con «Carpool» en azul y «Sistema de movilidad compartida», sin pie.</li>
+      <li><b>Pie de confianza:</b> escudo (<code>shield-checkmark-outline</code>) y «Comunidad UAL · Perfiles verificados» (meta, verde, 600). Debajo, en la bienvenida, «Verificamos tu correo UAL para conectar con tu comunidad.»; en los formularios, «Verificamos tu correo institucional @ual.es o @inlumine.ual.es con la finalidad de que este sea un espacio seguro para la comunidad universitaria.»</li>
+      <li><b>Espaciado (igual en todas: bienvenida, login, registro, verificar, modos, recuperar):</b> 24px (<code>--space-l</code>) entre bloques: logotipo → título y texto → formulario → botones → avisos → pie; 16px (<code>--space-base</code>) entre botones seguidos; 20px (1,25rem) entre los elementos de un formulario (campos, enlaces y botón de enviar); 4px entre un título y su texto y entre una etiqueta y su campo.</li>
+      <li><b>Cabecera:</b> en el móvil, <code>ion-header</code> con <code>ion-toolbar</code> de 56px (también en iOS), flecha a la izquierda y título centrado (Barlow 600, 1,25rem) y una línea fina debajo. En escritorio, sin barra: <code>.top-bar</code> con la misma flecha y el mismo título sobre el logotipo.</li>
+      <li><b>Flecha atrás:</b> <code>ion-back-button class="back-button"</code>, solo icono (<code>arrow-back-outline</code>, 28px) con <code>aria-label="Volver"</code>; botón de 52px con el icono centrado y alineado con el margen del contenido.</li>
+      <li>Recuadros informativos por pantalla: «Una cuenta, varios perfiles» (registro), «Qué significa UAL verificado» (verificar), «Empezarás en modo pasajero» (modos), «Tu acceso, protegido» (login).</li>
+      <li>Reenviar el código: botón desactivado con cuenta atrás («Reenviar código en 00:42»); después de enviar, «Si existe una cuenta asociada…», sin confirmar si el correo está registrado.</li>
+    </ul>
+  </section>
+
+  <!-- 12 -->
+  <section id="oscuro">
+    <h2>12. Modo oscuro</h2>
+    <p class="note">Misma cuenta, mismo contenido y los mismos roles redefinidos (pulsa «Cambiar a modo oscuro» arriba para ver todos los componentes). Por defecto sigue al sistema; la app puede forzarlo con <code>.theme-dark</code> / <code>.theme-light</code> en <code>&lt;html&gt;</code>.</p>
+    <ul class="rules">
+      <li>Fondo casi negro y superficies algo más claras; texto blanco y secundario gris azulado.</li>
+      <li>El botón principal pasa a azul muy claro con texto oscuro; el enlace, a azul claro.</li>
+      <li>Cabecera de administración en índigo claro (<code>#8783CF</code>) con texto oscuro.</li>
+      <li>Avisos con fondo oscuro tintado (aviso: oliva oscuro con texto amarillo claro; información: azul noche).</li>
+      <li>«2 plazas» y el resto de cifras de sostenibilidad en menta claro; «Cancelados» en salmón.</li>
+    </ul>
+  </section>
+
+  <!-- 13 -->
+  <section id="accesibilidad">
+    <h2>13. Accesibilidad</h2>
+    <p class="note">Intención de diseño WCAG 2.1 AA, sin afirmar una certificación. Se prueba con lector de pantalla, texto ampliado y teclado.</p>
+    <div class="grid">
+      <div><h4>Lectura</h4><ul class="rules"><li>Texto normal ≥ 4,5:1; texto grande y controles con significado ≥ 3:1.</li><li>Los bordes suaves solo separan listas; los campos llevan contorno contrastado.</li></ul></div>
+      <div><h4>Tacto y teclado</h4><ul class="rules"><li>Nunca menos de 2,75rem de área activa: también chips, estrellas e iconos.</li><li>Orden del tabulador: filtros → cabeceras y acciones → paginación.</li><li>Foco visible siempre (0,125rem; 0,1875rem en botones).</li></ul></div>
+      <div><h4>Escala del usuario</h4><ul class="rules"><li>Base 1rem del navegador, sin fijar el tamaño raíz; estilos en rem.</li><li>Respetar el texto ampliado, las áreas seguras del móvil y el teclado de Android/iOS.</li><li>Respetar «reducir movimiento».</li></ul></div>
+      <div><h4>Lectores de pantalla</h4><ul class="rules"><li><code>aria-label</code> en iconos y estrellas; regiones vivas para errores y estados.</li><li>Diálogos con el foco dentro, Escape para cancelar y vuelta del foco al cerrar.</li></ul></div>
     </div>
   </section>
 
-  <section>
-    <h2>7. Bordes, alturas y movimiento</h2>
-    <h3>Grosor de borde</h3>
-    <div class="grid-3">
-      <div><div class="radius-demo" style="border-radius:var(--radius-s);border-width:var(--border-width-s)">s</div><p class="text-caption"><code>--border-width-s</code> · 1px · campos, tarjetas</p></div>
-      <div><div class="radius-demo" style="border-radius:var(--radius-s);border:var(--border-width-m) solid var(--color-border-strong)">m</div><p class="text-caption"><code>--border-width-m</code> · 2px · seleccionado</p></div>
-      <div><div class="radius-demo" style="border-radius:var(--radius-s);outline:var(--border-width-l) solid var(--color-focus);outline-offset:2px;box-shadow:0 0 0 6px var(--color-focus-ring)">l</div><p class="text-caption"><code>--border-width-l</code> · 3px · foco (con halo <code>--color-focus-ring</code>)</p></div>
-    </div>
-    <h3>Altura de botones y campos</h3>
-    <p class="note">Mínimo táctil recomendado: 44–48px.</p>
-    <div class="row" style="align-items:flex-end">
-      <button class="btn btn--primary" style="height:var(--control-height-s);padding-block:0">s · 44px</button>
-      <button class="btn btn--primary" style="height:var(--control-height-base);padding-block:0">base · 48px</button>
-      <button class="btn btn--primary" style="height:var(--control-height-l);padding-block:0">l · 56px</button>
-    </div>
-    <h3>Fondo de modales</h3>
-    <div style="position:relative;height:120px;border-radius:var(--radius-base);overflow:hidden;background:var(--color-surface-subtle)">
-      <p class="text-body-s" style="margin:var(--space-base)">Contenido de la página detrás del modal…</p>
-      <div style="position:absolute;inset:0;background:var(--color-backdrop);display:flex;align-items:center;justify-content:center">
-        <div class="card" style="box-shadow:var(--shadow-l)">Modal sobre <code>--color-backdrop</code></div>
-      </div>
-    </div>
-    <h3>Movimiento</h3>
-    <p class="note"><code>--motion-duration-fast</code> 150ms (hover, foco) · <code>--motion-duration-base</code> 250ms (abrir/cerrar) · ambos pasan a 0ms si el sistema pide reducir el movimiento.</p>
+  <!-- 14 -->
+  <section id="textos">
+    <h2>14. Textos</h2>
+    <ul class="rules">
+      <li>Tono cercano y concreto, de tú: «Qué bueno verte por aquí.», «Mira tu bandeja de entrada.»</li>
+      <li>Explicar la verificación tal cual: «Correo UAL verificado» no significa permiso de conducir verificado.</li>
+      <li>Una solicitud no es una reserva: «Pendiente · no confirmada» hasta que el conductor acepta; nunca «reserva confirmada» antes de <code>accepted</code>.</li>
+      <li>No prometer: «La hora de llegada es estimada», «La prioridad de búsqueda no garantiza una nueva plaza», «Revisada no significa resuelta».</li>
+      <li>Privacidad: no confirmar si un correo está registrado («Si existe una cuenta asociada…»).</li>
+      <li>Errores que dicen cómo seguir y qué se ha conservado («No hemos perdido tu consulta»).</li>
+      <li>Fechas «27 oct», horas en 24 h («07:40 → 08:12»), decimales con coma («★ 4,8»).</li>
+      <li>Escenario de ejemplo común: Roquetas de Mar → Campus UAL, 27 oct, 07:40–08:12, Lucía acepta la solicitud de Mario. Los datos de ejemplo se marcan como tales en administración.</li>
+    </ul>
   </section>
 
-  <section>
-    <h2>8. Componentes de ejemplo</h2>
-    <p class="note">Solo para ver el tema aplicado; los componentes reales se harán con Ionic. Usa el tabulador para ver el foco.</p>
-    <h3>Botones</h3>
-    <div class="row">
-      <button class="btn btn--primary">Crear mi cuenta</button>
-      <button class="btn btn--outline">Ya tengo cuenta</button>
-      <button class="btn btn--highlight">Viaje recomendado</button>
-      <button class="btn btn--accent">Últimas plazas</button>
-      <button class="btn btn--eco">Ver mi impacto</button>
-      <button class="btn btn--danger">Cancelar viaje</button>
+  <!-- 15 -->
+  <section id="implementacion">
+    <h2>15. Implementación (Angular + Ionic)</h2>
+    <div class="grid">
+      <div><h4>01 · Rutas standalone y carga diferida</h4><p class="note"><code>loadComponent</code> por destino; <code>ion-router-outlet</code> dentro de <code>ion-tabs</code> persistente y el acceso fuera de las pestañas. Viaje, chat y valoración bajo Mis viajes; resultados y detalle bajo Buscar. Volver conserva el contexto.</p></div>
+      <div><h4>02 · Tokens semánticos</h4><p class="note">Los roles alimentan las variables de Ionic (<code>--ion-color-primary</code> y su <code>-contrast</code>, <code>-rgb</code>, <code>-shade</code>, <code>-tint</code>; igual para secondary, success, warning, danger e info); <code>--ion-background-color</code> = surface y <code>--ion-text-color</code> = text. Sin valores sueltos en las pantallas.</p></div>
+      <div><h4>03 · rem y patrones reutilizables</h4><p class="note">Solo rem para dimensiones, tipografía, bordes y sombras. Se extraen TripRow, RouteTimeline, VerifiedUalBadge y SeatStepper.</p></div>
+      <div><h4>04 · Capas de interacción</h4><p class="note"><code>ion-button</code>, <code>ion-input</code> e <code>ion-tabs</code> como base; <code>ion-modal</code> para fecha y plazas, revisar la publicación y consentimientos; <code>ion-select</code>, <code>ion-segment</code>, <code>ion-toggle</code>, <code>ion-checkbox</code>; <code>ion-toast</code> solo para lo no crítico.</p></div>
+      <div><h4>05 · Acceso y código, también en el servidor</h4><p class="note">Reactive Forms con nombre, teléfono, correo, contraseña y consentimiento. Código de un solo uso validado en el servidor, con caducidad y límite de intentos.</p></div>
+      <div><h4>06 · La reserva no se confirma al solicitar</h4><p class="note"><code>pending / accepted / rejected / cancelled</code>. Solicitar es idempotente; aceptar y restar la plaza, transaccional. Refrescar las plazas tras cada cambio.</p></div>
+      <div><h4>07 · Móvil nativo y accesible</h4><p class="note"><code>ion-datetime</code> en español y 24 h; áreas seguras, teclado y contenido desplazable.</p></div>
+      <div><h4>08 · Ubicación: consentimiento y vigencia</h4><p class="note">Permiso explícito antes de compartir; caduca al terminar el viaje o en 1 h y se puede revocar al momento. Mostrar la última actualización y el estado antiguo sin inventar la posición.</p></div>
     </div>
-    <h3>Campos</h3>
-    <div class="row" style="align-items:flex-start;gap:var(--space-l)">
-      <label class="field"><span class="text-label">Correo de la UAL</span><input placeholder="nombre@inlumine.ual.es"></label>
-      <label class="field field--error"><span class="text-label">Contraseña</span><input type="password" value="1234"><span class="field__error">Mínimo 8 caracteres.</span></label>
+    <div class="grid" style="margin-top:var(--space-l)">
+      <div class="notice notice--info"><span><b>Antes de implementar una pantalla</b>Revisar esta guía (tokens, componentes, estados y textos); confirmar los puntos de «Por decidir» que le afecten; probar con lector de pantalla, texto ampliado y teclado, en claro y oscuro, a 390 y 1280 px.</span></div>
+      <div class="notice notice--info"><span><b>Escenario de ejemplo común</b>Roquetas de Mar → Campus UAL, 27 oct, 07:40–08:12, y la aceptación de Lucía a la solicitud de Mario: los mismos datos en maquetas, guía y tests.</span></div>
     </div>
-    <h3>Avisos</h3>
-    <div style="display:grid;gap:var(--space-s);max-width:480px">
-      <div class="alert" style="background:var(--color-danger-subtle);color:var(--color-danger)">No se ha podido publicar el viaje.</div>
-      <div class="alert" style="background:var(--color-warning-subtle);color:var(--color-warning-text)">Quedan pocas plazas libres.</div>
-      <div class="alert" style="background:var(--color-success-subtle);color:var(--color-success)">Solicitud aceptada.</div>
-      <div class="alert" style="background:var(--color-primary-subtle);color:var(--color-link)">El viaje empieza en 10 minutos.</div>
-    </div>
-    <h3>Tarjeta</h3>
-    <div class="card" style="max-width:360px;box-shadow:var(--shadow-base)">
-      <p class="text-eyebrow" style="margin:0">Mañana · 8:15</p>
-      <p class="text-subtitle" style="margin:var(--space-xs) 0">Aguadulce → Campus UAL</p>
-      <p class="text-body-s" style="margin:0 0 var(--space-s);color:var(--color-text-muted)">Conductora: Lucía · 3 plazas libres</p>
-      <span class="chip" style="background:var(--color-eco);color:var(--color-on-eco)">−1 coche</span>
-      <span class="chip" style="background:var(--color-accent);color:var(--color-on-accent)">Prioridad</span>
-      <span class="chip" style="background:var(--color-admin);color:var(--color-on-admin)">Admin</span>
+  </section>
+
+  <!-- 16 -->
+  <section id="pendiente">
+    <h2>16. Por decidir</h2>
+    <p class="note">Puntos de los diseños que chocan con decisiones anteriores o con el alcance del TFM. Se resuelven antes de implementar la pantalla afectada.</p>
+    <div class="stack">
+      <div class="decision"><b>Contraseña: 12 caracteres en los diseños, 8 en la API.</b> Decidido el 25/10/2026 mantener 8; los textos dirán «Al menos 8 caracteres».</div>
+      <div class="decision"><b>Código: un campo en la biblioteca, seis casillas en las pantallas.</b> Decidido el 25/10/2026: seis casillas, también en la recuperación de la contraseña (con código, no con enlace).</div>
+      <div class="decision"><b>Dominios de correo admitidos.</b> Los diseños dicen «@ual.es»; la API admite hoy los de la UAL (p. ej. <code>@inlumine.ual.es</code> de los estudiantes). Confirmar qué subdominios se aceptan y unificar los textos.</div>
+      <div class="decision"><b>Chat.</b> Aparece en los diseños («acceso al chat», «Abrir chat»), pero es una funcionalidad recortable («Podría») del TFM. Hasta decidirlo, las pantallas no muestran accesos al chat.</div>
+      <div class="decision"><b>Compartir la ubicación con un enlace.</b> El modal permite enviar un enlace temporal a cualquiera; no está en los requisitos (RF-12 solo muestra la posición al conductor y a los pasajeros aceptados). Decidir si entra.</div>
+      <div class="decision"><b>Preferencias nuevas.</b> «Música suave» y «Recibir novedades de la comunidad» no están en los requisitos; decidir si entran en Perfil.</div>
     </div>
   </section>
 </main>
 
 <script>
-  const scales = {
-    'Neutros': { 0: '#ffffff', 50: '#f7f7f7', 100: '#e9e9e9', 200: '#d7d7d7', '300*': '#bbbbbb', 400: '#a4a4a6', 500: '#66686c', 600: '#3b3d3f', 700: '#343537', 750: '#303030', 800: '#212121', 900: '#141414', 950: '#0c0c0c' },
-    'Azul · marca y acción': { 50: '#f3f5ff', '100*': '#dae0ff', 200: '#bfcbff', 300: '#8097ff', 400: '#4062ff', 500: '#002eff', 600: '#0022bf', '700*': '#001ca0', 800: '#001780', 900: '#000e4d' },
-    'Naranjo · acento': { '50*': '#fff5f2', '100*': '#ffe2d9', 200: '#ffcfbf', 300: '#ff9e80', 400: '#ff6e40', 500: '#ff3d00', 600: '#bf2e00', '700*': '#a02600', 800: '#801e00', '900*': '#4d1200' },
-    'Menta · sostenibilidad': { '50*': '#effdf8', '100*': '#e0fbf2', 200: '#d0f9ec', 300: '#a0f3d9', 400: '#71eec7', 500: '#42e8b4', 600: '#31ae87', '700*': '#299170', 800: '#21745a', '900*': '#154a3a' },
-    'Índigo · administración': { '50*': '#f3f2fa', '100*': '#dbdaf1', 200: '#c3c1e7', 300: '#8783cf', 400: '#4c44b7', 500: '#10069f', 600: '#0c0477', '700*': '#0a0463', 800: '#08034f', '900*': '#05022f' },
-    'Rojo · error': { 50: '#fef4f3', '100*': '#fbdcd9', 200: '#f9c6c1', 300: '#f1665a', '400*': '#e63c32', 500: '#db110a', '600*': '#c80e08', 700: '#b40c06', 800: '#940a05', '900*': '#5e0603' },
-    'Amarillo · aviso': { 50: '#fef9ec', '100*': '#fdf2d4', 200: '#fbeabb', '300*': '#f9d77a', '400*': '#f7c440', 500: '#f5b207', '600*': '#c38d05', 700: '#916802', '800*': '#6b4d02', '900*': '#453101' },
-    'Verde · éxito': { 50: '#e6fffa', '100*': '#c4f5e6', 200: '#93ebcf', '300*': '#5fd4ad', '400*': '#3bbd92', 500: '#1ea67b', '600*': '#188f6b', 700: '#137e5d', '800*': '#0e5e46', '900*': '#093f2f' },
-    'Ilustración y gráficas': { azul: '#29abe2', verde: '#8dc440', naranja: '#f8941c', morado: '#662c91', amarillo: '#feed22' },
-  };
+  const neutrals = [
+    ['neutral-0', '#ffffff'], ['neutral-1', '#f7f7f7'], ['neutral-2', '#eef0f3'], ['neutral-3', '#d7d7d7'],
+    ['neutral-4', '#b6bec9'], ['neutral-5', '#87919f'], ['neutral-6', '#66686c'], ['neutral-7', '#46505e'],
+    ['neutral-8', '#2c3541'], ['neutral-9', '#0c0c0c'], ['neutral-10', '#000000'],
+  ];
+  const functional = [
+    ['primary', '#002eff', 'Acción'], ['secondary', '#243b53', 'Apoyo'], ['success', '#137e5d', 'Confianza'],
+    ['warning', '#916802', 'Atención'], ['danger', '#db110a', 'Error'], ['info', '#002eff', 'Información'],
+    ['surface', '#ffffff', 'Superficie · neutral-0'], ['canvas', '#f7f7f7', 'Lienzo · neutral-1'],
+    ['border', '#d7d7d7', 'Reglas no interactivas · neutral-3'], ['text', '#0c0c0c', 'Lectura · neutral-9'],
+    ['muted', '#66686c', 'Texto secundario · neutral-6'], ['control-border', '#66686c', 'Contorno de campo'],
+  ];
+  const brand = [
+    ['Acento', '#ff3d00', 'Puntual: «Última plaza», avisos sin leer (texto negro encima)'],
+    ['Eco', '#21745a', 'Verde bosque: confianza, sostenibilidad, «Correo UAL verificado»'],
+    ['Menta', '#42e8b4', 'Ilustración y gráficas de impacto'],
+    ['Índigo', '#10069f', 'Administración'],
+  ];
   const roles = [
     ['Texto', '--color-text', '--color-bg'],
     ['Texto secundario', '--color-text-muted', '--color-bg'],
-    ['Texto deshabilitado (exento de AA)', '--color-text-disabled', '--color-bg'],
-    ['Texto sobre superficie', '--color-text', '--color-surface'],
-    ['Borde decorativo: tarjetas, separadores (exento)', '--color-border', '--color-surface'],
+    ['Texto secundario sobre lienzo', '--color-text-muted', '--color-canvas'],
+    ['Texto deshabilitado (exento)', '--color-text-disabled', '--color-disabled-bg'],
+    ['Borde decorativo: separadores (exento)', '--color-border', '--color-surface'],
     ['Borde de campo (≥ 3:1)', '--color-border-strong', '--color-surface'],
+    ['Borde interactivo neutro (≥ 3:1)', '--color-border-interactive', '--color-surface'],
     ['Enlace', '--color-link', '--color-bg'],
     ['Botón principal', '--color-on-primary', '--color-primary'],
     ['Botón principal (hover)', '--color-on-primary', '--color-primary-hover'],
+    ['Botón secundario', '--color-on-secondary', '--color-secondary'],
     ['Acento', '--color-on-accent', '--color-accent'],
-    ['Sostenibilidad', '--color-on-eco', '--color-eco'],
-    ['Texto de sostenibilidad', '--color-eco-text', '--color-bg'],
+    ['Texto eco', '--color-eco-text', '--color-bg'],
     ['Administración', '--color-on-admin', '--color-admin'],
-    ['Error (botón)', '--color-on-danger', '--color-danger'],
-    ['Error (texto en aviso)', '--color-danger', '--color-danger-subtle'],
+    ['Información (texto en aviso)', '--color-info', '--color-info-subtle'],
     ['Éxito (botón)', '--color-on-success', '--color-success'],
     ['Éxito (texto en aviso)', '--color-success', '--color-success-subtle'],
-    ['Aviso (relleno)', '--color-on-warning', '--color-warning'],
-    ['Aviso (texto en aviso)', '--color-warning-text', '--color-warning-subtle'],
-    ['Información (texto en aviso)', '--color-link', '--color-primary-subtle'],
+    ['Atención (relleno)', '--color-on-warning', '--color-warning'],
+    ['Atención (texto en aviso)', '--color-warning', '--color-warning-subtle'],
+    ['Error (botón)', '--color-on-danger', '--color-danger'],
+    ['Error (texto en aviso)', '--color-danger', '--color-danger-subtle'],
+    ['Toast', '--color-on-toast', '--color-toast'],
   ];
-  const spaces = [['xs', '0.25rem', 4], ['s', '0.5rem', 8], ['base', '1rem', 16], ['l', '1.5rem', 24], ['xl', '2rem', 32], ['xxl', '2.5rem', 40], ['xxxl', '3rem', 48]];
-  const radii = [['xs', '0.25rem', 4, 'etiquetas pequeñas'], ['s', '0.5rem', 8, 'por defecto: botones, campos'], ['base', '1rem', 16, 'tarjetas'], ['l', '1.5rem', 24, 'tarjetas grandes, hojas'], ['xl', '2rem', 32, 'bloques destacados'], ['full', '9999px', null, 'chips, avatares']];
+  const spaces = [['xs', '0.25rem', 4], ['s', '0.5rem', 8], ['m', '0.75rem', 12], ['base', '1rem', 16], ['l', '1.5rem', 24], ['xl', '2rem', 32], ['xxl', '3rem', 48], ['xxxl', '4rem', 64]];
+  const radii = [['none', '0', 0, 'tablas, panel visual'], ['xs', '0.25rem', 4, 'casillas'], ['s', '0.375rem', 6, 'segmento activo'], ['base', '0.5rem', 8, 'controles y avisos'], ['l', '0.75rem', 12, 'tarjetas de estado'], ['xl', '1rem', 16, 'hojas y modales'], ['full', '9999px', null, 'chips, avatares']];
 
-  const lum = hex => {
-    const c = [1, 3, 5].map(i => Number.parseInt(hex.slice(i, i + 2), 16) / 255)
-      .map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  const lum = (hex) => {
+    const c = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16) / 255)
+      .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
     return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
   };
   const ratio = (a, b) => {
     const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
     return (x + 0.05) / (y + 0.05);
   };
-  const fmt = r => r.toFixed(1).replace('.', ',');
-  const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const fmt = (r) => r.toFixed(1).replace('.', ',');
+  // Los roles con transparencia no se pueden medir: se pasan a hex opaco
+  const toHex = (value) => {
+    if (value.startsWith('#')) return value;
+    const [r, g, b] = value.match(/\d+(\.\d+)?/g).map(Number);
+    return '#' + [r, g, b].map((n) => Math.round(n).toString(16).padStart(2, '0')).join('');
+  };
+  const cssVar = (name) => toHex(getComputedStyle(document.documentElement).getPropertyValue(name).trim());
+  const bestText = (hex) => (ratio(hex, '#ffffff') >= ratio(hex, '#0c0c0c') ? '#ffffff' : '#0c0c0c');
 
-  function renderStep(step, hex) {
-    const onWhite = ratio(hex, '#ffffff');
-    const onBlack = ratio(hex, '#0c0c0c');
-    const text = onWhite >= onBlack ? '#ffffff' : '#0c0c0c';
-    const className = step === '500' ? 'step ref' : 'step';
-    return `<div class="${className}" style="background:${hex};color:${text}">
-      <b>${step}</b>${hex}<br>B ${fmt(onWhite)}<br>N ${fmt(onBlack)}</div>`;
+  function renderNeutrals() {
+    document.getElementById('neutrals').innerHTML = neutrals.map(([name, hex]) =>
+      `<div class="swatch" style="background:${hex};color:${bestText(hex)}"><b>${name}</b>${hex.toUpperCase()}</div>`).join('');
   }
 
-  function renderScale(name, steps) {
-    const cells = Object.entries(steps).map(([step, hex]) => renderStep(step, hex)).join('');
-    return `<h3>${name}</h3><div class="scale">${cells}</div>`;
-  }
-
-  function renderScales() {
-    document.getElementById('scales').innerHTML = Object.entries(scales)
-      .map(([name, steps]) => renderScale(name, steps)).join('');
+  function renderFunctional() {
+    document.getElementById('functional').innerHTML = functional.map(([name, hex, use]) => {
+      const onWhite = ratio(hex, '#ffffff');
+      const contrast = hex === '#ffffff' || hex === '#f7f7f7' || hex === '#d7d7d7' ? '' : ` · blanco ${fmt(onWhite)}:1`;
+      return `<div class="func"><span class="chip-color" style="background:${hex}"></span><div><b>${name}</b> <code>${hex.toUpperCase()}</code><br><span class="text-meta">${use}${contrast}</span></div></div>`;
+    }).join('');
+    document.getElementById('brand').innerHTML = brand.map(([name, hex, use]) =>
+      `<div class="func"><span class="chip-color" style="background:${hex}"></span><div><b>${name}</b> <code>${hex.toUpperCase()}</code><br><span class="text-meta">${use}</span></div></div>`).join('');
   }
 
   function renderVerdict(name, r) {
-    if (name.includes('exento')) {
-      return `${fmt(r)}:1`;
-    }
-    const minimum = name.includes('Borde') ? 3 : 4.5;
+    if (name.includes('exento')) return `${fmt(r)}:1`;
+    const minimum = name.includes('≥ 3:1') ? 3 : 4.5;
     const passes = r >= minimum;
-    const className = passes ? 'ok' : 'ko';
-    const label = passes ? 'AA' : 'no AA';
-    return `<span class="${className}">${fmt(r)}:1 ${label}</span>`;
-  }
-
-  function renderRole(name, fg, bg) {
-    const fgHex = cssVar(fg);
-    const bgHex = cssVar(bg);
-    return `<tr>
-      <td>${name}</td>
-      <td><span style="display:inline-block;padding:6px 12px;border-radius:8px;background:${bgHex};color:${fgHex};border:1px solid var(--color-border-subtle)">Aa Texto</span></td>
-      <td><span class="swatch" style="background:${fgHex}"></span> <code>${fg}</code> ${fgHex}</td>
-      <td><span class="swatch" style="background:${bgHex}"></span> <code>${bg}</code> ${bgHex}</td>
-      <td>${renderVerdict(name, ratio(fgHex, bgHex))}</td></tr>`;
+    return `<span class="${passes ? 'ok' : 'ko'}">${fmt(r)}:1 ${passes ? 'AA' : 'no AA'}</span>`;
   }
 
   function renderRoles() {
-    document.getElementById('roles-body').innerHTML = roles.map(([name, fg, bg]) => renderRole(name, fg, bg)).join('');
-  }
-
-  function renderRadius(name, rem, px, use) {
-    const size = px ? `${rem} (${px}px)` : rem;
-    return `<div><div class="radius-demo" style="border-radius:var(--radius-${name})">${name}</div><p class="text-caption"><code>--radius-${name}</code> · ${size}<br>${use}</p></div>`;
+    document.getElementById('roles-body').innerHTML = roles.map(([name, fg, bg]) => {
+      const fgHex = cssVar(fg);
+      const bgHex = cssVar(bg);
+      return `<tr><td>${name}</td>
+        <td><span style="display:inline-block;padding:0.375rem 0.75rem;border-radius:0.5rem;background:${bgHex};color:${fgHex};border:1px solid var(--color-border-subtle)">Aa Texto</span></td>
+        <td><span class="chip-color" style="background:${fgHex}"></span> <code>${fg}</code> ${fgHex}</td>
+        <td><span class="chip-color" style="background:${bgHex}"></span> <code>${bg}</code> ${bgHex}</td>
+        <td>${renderVerdict(name, ratio(fgHex, bgHex))}</td></tr>`;
+    }).join('');
   }
 
   document.getElementById('spaces').innerHTML = spaces.map(([name, rem, px]) =>
-    `<div class="space-demo"><code style="width:120px">--space-${name}</code><div class="bar" style="width:${rem}"></div><span class="text-caption">${rem} (${px}px)</span></div>`).join('');
-  document.getElementById('radii').innerHTML = radii.map(([name, rem, px, use]) => renderRadius(name, rem, px, use)).join('');
+    `<div class="row"><code style="width:7.5rem">--space-${name}</code><span style="display:inline-block;height:0.75rem;width:${rem};background:var(--color-primary);border-radius:2px"></span><span class="text-meta">${rem} (${px}px)</span></div>`).join('');
+  document.getElementById('radii').innerHTML = radii.map(([name, rem, px, use]) => {
+    const size = px === null ? rem : rem + ' (' + px + 'px)';
+    return `<div><div class="demo" style="border-style:solid;border-radius:var(--radius-${name});height:3rem"></div><p class="text-meta" style="margin-top:var(--space-xs)"><code>--radius-${name}</code> · ${size}<br>${use}</p></div>`;
+  }).join('');
 
-  // Misma clase que usa la app para forzar el modo (ver _color-scheme.scss)
   const toggle = document.getElementById('theme-toggle');
   toggle.addEventListener('click', () => {
     const isDark = document.documentElement.classList.toggle('theme-dark');
@@ -475,7 +1007,8 @@
     renderRoles();
   });
 
-  renderScales();
+  renderNeutrals();
+  renderFunctional();
   renderRoles();
 </script>
 </body>

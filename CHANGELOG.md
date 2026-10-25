@@ -63,6 +63,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Columna `email_verified_at` en `users` y tabla `email_codes` (migración `AddEmailVerification`); evento `user.email_verified` (#35)
 
 ### Changed
+- Guía de estilos (`docs/guia-estilos.html`) rehecha con los diseños de Figma del 25/10/2026: color, tipografía, ritmo, componentes, patrones, estados, navegación, pantallas de acceso, modo oscuro, accesibilidad y textos
 - **(breaking)** `POST /api/auth/register` exige el teléfono en formato internacional (`phone`) y la aceptación de las normas y la política de privacidad (`acceptedTerms`, se guarda la fecha), y ya no admite `profiles`: el usuario se crea sin perfiles y los elige después (#33)
 - Los recursos `User` y `UserAdmin` incluyen el teléfono (`phone`); `User` solo se devuelve al propio usuario (#33)
 - **(breaking)** Solo los usuarios con el correo verificado pueden iniciar sesión (`403 EMAIL_NOT_VERIFIED`); los usuarios existentes, los del seed y el administrador de `create-admin` quedan verificados (#35)
