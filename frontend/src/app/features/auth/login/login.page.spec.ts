@@ -12,16 +12,23 @@ describe('LoginPage', () => {
   let fixture: ComponentFixture<LoginPage>;
   let page: LoginPage;
   let login: ReturnType<typeof vi.fn>;
+  let resendVerificationCode: ReturnType<typeof vi.fn>;
+  let setPendingVerificationEmail: ReturnType<typeof vi.fn>;
   let navigateByUrl: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     login = vi.fn().mockResolvedValue({});
+    resendVerificationCode = vi.fn().mockResolvedValue(undefined);
+    setPendingVerificationEmail = vi.fn();
     TestBed.configureTestingModule({
       imports: [LoginPage],
       providers: [
         provideIonicAngular(),
         provideRouter([]),
-        { provide: AuthService, useValue: { login } },
+        {
+          provide: AuthService,
+          useValue: { login, resendVerificationCode, setPendingVerificationEmail },
+        },
       ],
     });
     navigateByUrl = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
@@ -93,12 +100,15 @@ describe('LoginPage', () => {
     expect(page.isSubmitting()).toBe(false);
   });
 
-  it('asks to verify the email first', async () => {
+  it('sends a new code and goes to verify the email when it is not verified yet', async () => {
     login.mockRejectedValue(new ApiError('EMAIL_NOT_VERIFIED', 403));
 
     await submit();
 
-    expect(shownError()).toBe('Tienes que verificar tu correo antes de entrar.');
+    expect(setPendingVerificationEmail).toHaveBeenCalledWith('ana@ual.es');
+    expect(resendVerificationCode).toHaveBeenCalledWith('ana@ual.es');
+    expect(navigateByUrl).toHaveBeenCalledWith('/auth/verify');
+    expect(shownError()).toBeUndefined();
   });
 
   it('shows and hides the password, with a Spanish name for screen readers', async () => {

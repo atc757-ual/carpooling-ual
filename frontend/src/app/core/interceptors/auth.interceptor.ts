@@ -8,7 +8,14 @@ import { ApiError } from '../models/api-error.model';
 import { AuthService } from '../services/auth/auth.service';
 
 // Rutas de /api/auth que no llevan token (las demás, incluida /auth/me, sí)
-const PUBLIC_AUTH_PATHS = ['/auth/register', '/auth/login', '/auth/refresh', '/auth/logout'];
+const PUBLIC_AUTH_PATHS = [
+  '/auth/register',
+  '/auth/verify-email',
+  '/auth/verify-email/resend',
+  '/auth/login',
+  '/auth/refresh',
+  '/auth/logout',
+];
 
 function needsToken(request: HttpRequest<unknown>): boolean {
   const { apiUrl } = environment;

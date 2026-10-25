@@ -10,6 +10,8 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   SERVICE_UNAVAILABLE: 'El servicio no está disponible ahora mismo. Inténtalo más tarde.',
   INVALID_CREDENTIALS: 'Correo o contraseña incorrectos.',
   EMAIL_NOT_VERIFIED: 'Tienes que verificar tu correo antes de entrar.',
+  INVALID_VERIFICATION_CODE: 'Ese código no es válido. Revisa los 6 dígitos o pide uno nuevo.',
+  TOO_MANY_ATTEMPTS: 'Has fallado demasiadas veces. Pide un código nuevo.',
   EMAIL_ALREADY_REGISTERED: 'Ya hay una cuenta con este correo.',
   EMAIL_DOMAIN_NOT_ALLOWED: 'Usa tu correo de la Universidad de Almería.',
   INVALID_ACCESS_TOKEN: 'Tu sesión no es válida. Vuelve a iniciar sesión.',

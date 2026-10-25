@@ -1,0 +1,33 @@
+// Lo común a los formularios de acceso está en ../auth-form.scss
+
+// Sobre en una caja azul clara, sobre el título
+.verify__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem; // 56px
+  height: 3.5rem;
+  margin-bottom: var(--space-s);
+  border-radius: var(--radius-base);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-size: 1.75rem; // 28px
+}
+
+// Sin el relleno de 16px que Ionic pone arriba y abajo de las casillas: así
+// quedan a 4px de su etiqueta y el error, a la distancia normal del formulario
+ion-input-otp {
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+// «Verificar correo», «Reenviar código» y «Editar correo», a 16px
+.verify__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.verify__edit {
+  align-self: center;
+}

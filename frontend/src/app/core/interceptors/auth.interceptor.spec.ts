@@ -53,7 +53,14 @@ describe('authInterceptor', () => {
       expect(httpMock.expectOne('/api/auth/me').request.headers.has('Authorization')).toBe(true);
     });
 
-    it.each(['/api/auth/login', '/api/auth/register', '/api/auth/refresh', '/api/auth/logout'])(
+    it.each([
+      '/api/auth/login',
+      '/api/auth/register',
+      '/api/auth/verify-email',
+      '/api/auth/verify-email/resend',
+      '/api/auth/refresh',
+      '/api/auth/logout',
+    ])(
       'is not sent to the public route %s',
       (url) => {
         http.post(url, {}).subscribe();

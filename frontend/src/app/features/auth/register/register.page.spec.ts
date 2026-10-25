@@ -19,7 +19,7 @@ describe('RegisterPage', () => {
   let fixture: ComponentFixture<RegisterPage>;
   let page: RegisterPage;
   let register: ReturnType<typeof vi.fn>;
-  let navigate: ReturnType<typeof vi.spyOn>;
+  let navigateByUrl: ReturnType<typeof vi.spyOn>;
   let createModal: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
@@ -34,7 +34,7 @@ describe('RegisterPage', () => {
         { provide: ModalController, useValue: { create: createModal } },
       ],
     });
-    navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    navigateByUrl = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     fixture = TestBed.createComponent(RegisterPage);
     page = fixture.componentInstance;
     await fixture.whenStable();
@@ -81,9 +81,7 @@ describe('RegisterPage', () => {
       password: 'secreta123',
       acceptedTerms: true,
     });
-    expect(navigate).toHaveBeenCalledWith(['/auth/verify'], {
-      queryParams: { email: 'mario.perez@ual.es' },
-    });
+    expect(navigateByUrl).toHaveBeenCalledWith('/auth/verify');
     expect(page.isSubmitting()).toBe(false);
   });
 
@@ -104,6 +102,6 @@ describe('RegisterPage', () => {
     await submit();
 
     expect(shownError()).toBe('Ya hay una cuenta con este correo.');
-    expect(navigate).not.toHaveBeenCalled();
+    expect(navigateByUrl).not.toHaveBeenCalled();
   });
 });

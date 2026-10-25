@@ -64,6 +64,7 @@ describe('AuthService', () => {
   });
 
   afterEach(() => {
+    sessionStorage.clear();
     http.verify();
     vi.unstubAllGlobals();
   });
@@ -110,6 +111,42 @@ describe('AuthService', () => {
 
     await expect(register).resolves.toEqual(USER);
     expect(auth.isLoggedIn()).toBe(false);
+    expect(auth.getPendingVerificationEmail()).toBe('ana@ual.es');
+  });
+
+  describe('email verification', () => {
+    it('verifies the email, starts the session and forgets the pending email', async () => {
+      auth.setPendingVerificationEmail('ana@ual.es');
+      const verify = auth.verifyEmail({ email: 'ana@ual.es', code: '042137' });
+      const request = await expectRequest('/api/auth/verify-email');
+      expect(request.request.body).toEqual({ email: 'ana@ual.es', code: '042137' });
+      request.flush(accessToken('1'));
+
+      await expect(verify).resolves.toEqual(USER);
+      expect(auth.isLoggedIn()).toBe(true);
+      expect(preferences.values.get(REFRESH_TOKEN_KEY)).toBe('refresh-1');
+      expect(auth.getPendingVerificationEmail()).toBeNull();
+    });
+
+    it('rejects a wrong code without starting a session', async () => {
+      const verify = auth.verifyEmail({ email: 'ana@ual.es', code: '000000' });
+      (await expectRequest('/api/auth/verify-email')).flush(
+        { code: 'INVALID_VERIFICATION_CODE' },
+        { status: 400, statusText: 'Bad Request' },
+      );
+
+      await expect(verify).rejects.toMatchObject({ code: 'INVALID_VERIFICATION_CODE' });
+      expect(auth.isLoggedIn()).toBe(false);
+    });
+
+    it('asks for a new code', async () => {
+      const resend = auth.resendVerificationCode('ana@ual.es');
+      const request = await expectRequest('/api/auth/verify-email/resend');
+      expect(request.request.body).toEqual({ email: 'ana@ual.es' });
+      request.flush(null, { status: 202, statusText: 'Accepted' });
+
+      await expect(resend).resolves.toBeNull();
+    });
   });
 
   describe('hasProfile', () => {

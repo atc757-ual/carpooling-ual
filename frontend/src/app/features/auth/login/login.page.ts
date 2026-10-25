@@ -31,6 +31,7 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/ual-email.util';
 
 const PASSWORD_MIN_LENGTH = 8;
+const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
 
 // Iniciar sesión (P·03) con el correo de la UAL y la contraseña. Al entrar,
 // vuelve a la página que se pedía (?returnUrl=, ver authGuard) o al inicio
@@ -91,14 +92,28 @@ export class LoginPage {
     }
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
+    const { email, password } = this.form.getRawValue();
     try {
-      await this.auth.login(this.form.getRawValue());
+      await this.auth.login({ email, password });
       await this.router.navigateByUrl(this.getSafeReturnUrl());
     } catch (error) {
-      this.errorMessage.set(getErrorMessage(ApiError.fromHttpError(error)));
+      const apiError = ApiError.fromHttpError(error);
+      if (apiError.code === EMAIL_NOT_VERIFIED) {
+        await this.goToVerify(email);
+      } else {
+        this.errorMessage.set(getErrorMessage(apiError));
+      }
     } finally {
       this.isSubmitting.set(false);
     }
+  }
+
+  // Contraseña correcta pero correo sin verificar: se pide un código nuevo (el
+  // del registro puede haber caducado) y se lleva a la pantalla del código
+  private async goToVerify(email: string): Promise<void> {
+    this.auth.setPendingVerificationEmail(email);
+    await this.auth.resendVerificationCode(email).catch(() => undefined);
+    await this.router.navigateByUrl('/auth/verify');
   }
 
   // Solo rutas de la propia app («/trips», nunca «//otro-sitio.com»), para que
