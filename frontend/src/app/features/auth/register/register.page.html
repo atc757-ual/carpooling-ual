@@ -35,6 +35,14 @@
       </p>
     </div>
 
+    <!-- Error de la API: arriba, a la vista, en una alerta roja -->
+    @if (errorMessage(); as message) {
+      <div class="auth-alert auth-alert--danger" role="alert">
+        <ion-icon [icon]="alertIcon" aria-hidden="true" />
+        <span>{{ message }}</span>
+      </div>
+    }
+
     <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
       <div class="auth-field">
         <span class="text-label text-label--strong" aria-hidden="true">Nombre y apellidos</span>
@@ -132,12 +140,6 @@
           </ion-text>
         }
       </div>
-
-      @if (errorMessage(); as message) {
-        <ion-text color="danger" class="auth-error text-body-s" role="alert">
-          {{ message }}
-        </ion-text>
-      }
 
       <!-- 16px entre los dos botones -->
       <div class="register__actions">

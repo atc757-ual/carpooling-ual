@@ -15,7 +15,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
-import { arrowBackOutline, mailUnreadOutline } from 'ionicons/icons';
+import { alertCircleOutline, arrowBackOutline, mailUnreadOutline } from 'ionicons/icons';
 import { MODES_PATH } from '../../../core/guards/redirect-paths';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -77,6 +77,7 @@ export class VerifyPage implements OnInit {
   });
 
   protected readonly codeLength = CODE_LENGTH;
+  protected readonly alertIcon = alertCircleOutline;
   protected readonly backIcon = arrowBackOutline;
   protected readonly mailIcon = mailUnreadOutline;
 

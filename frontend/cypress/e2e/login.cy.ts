@@ -63,7 +63,9 @@ for (const viewport of VIEWPORTS) {
       cy.contains('ion-button', 'Iniciar sesión').click();
 
       cy.wait('@login');
-      cy.get('.auth-error').should('be.visible').and('contain', 'Correo o contraseña incorrectos.');
+      cy.get('.auth-alert--danger')
+        .should('be.visible')
+        .and('contain', 'Correo o contraseña incorrectos.');
       cy.location('pathname').should('eq', '/auth/login');
     });
 

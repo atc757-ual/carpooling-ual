@@ -40,6 +40,14 @@
       </p>
     </div>
 
+    <!-- Error de la API: arriba, a la vista, en una alerta roja -->
+    @if (errorMessage(); as message) {
+      <div class="auth-alert auth-alert--danger" role="alert">
+        <ion-icon [icon]="alertIcon" aria-hidden="true" />
+        <span>{{ message }}</span>
+      </div>
+    }
+
     <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
       <div class="auth-field">
         <span id="verify-code-label" class="text-label text-label--strong"
@@ -61,11 +69,6 @@
         />
       </div>
 
-      @if (errorMessage(); as message) {
-        <ion-text color="danger" class="auth-error text-body-s" role="alert">
-          {{ message }}
-        </ion-text>
-      }
       @if (hasResent()) {
         <ion-text class="text-body-s text-color-muted" role="status">
           Si el correo está registrado, te hemos enviado un código nuevo.
@@ -81,12 +84,13 @@
             Verificar correo
           }
         </ion-button>
+        <!-- Envía el formulario de reenvío (verify-resend), no el del código -->
         <ion-button
-          type="button"
+          type="submit"
+          form="verify-resend"
           expand="block"
           fill="outline"
           [disabled]="secondsToResend() > 0"
-          (click)="handleResend()"
         >
           {{ resendLabel() }}
         </ion-button>
@@ -95,6 +99,7 @@
         </ion-button>
       </div>
     </form>
+    <form id="verify-resend" (submit)="$event.preventDefault(); handleResend()"></form>
 
     <div class="auth-notice" role="note">
       <p class="text-body-s text-body-s--strong text-color-primary">Importante</p>

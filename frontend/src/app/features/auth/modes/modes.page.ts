@@ -6,11 +6,16 @@ import {
   IonHeader,
   IonIcon,
   IonSpinner,
-  IonText,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
-import { carOutline, personOutline, swapHorizontalOutline } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  carOutline,
+  checkmarkCircleOutline,
+  personOutline,
+  swapHorizontalOutline,
+} from 'ionicons/icons';
 import { HOME_PATH } from '../../../core/guards/redirect-paths';
 import { ApiError } from '../../../core/models/api-error.model';
 import { RegisterProfile } from '../../../core/models/auth.model';
@@ -46,7 +51,6 @@ const PROFILES_BY_CHOICE: Readonly<Record<ModeChoice, RegisterProfile[]>> = {
     IonHeader,
     IonIcon,
     IonSpinner,
-    IonText,
     IonTitle,
     IonToolbar,
     AuthLayout,
@@ -79,6 +83,9 @@ export class ModesPage {
       icon: swapHorizontalOutline,
     },
   ];
+
+  protected readonly alertIcon = alertCircleOutline;
+  protected readonly verifiedIcon = checkmarkCircleOutline;
 
   readonly choice = signal<ModeChoice | null>(null);
   readonly isSubmitting = signal(false);

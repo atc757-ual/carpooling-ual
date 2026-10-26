@@ -13,61 +13,66 @@
     </div>
 
     <div class="auth-intro">
+      <span class="verified-badge">
+        <ion-icon [icon]="verifiedIcon" aria-hidden="true" />
+        Correo UAL verificado
+      </span>
       <p class="text-eyebrow text-color-primary">Tu cuenta está lista</p>
       <h1 class="text-heading">¿Cómo quieres compartir camino?</h1>
       <p class="text-body text-color-muted">
-        Elige los perfiles que necesitas. Puedes cambiarlos después desde Perfil.
+        Correo verificado. Elige los perfiles que necesitas. Puedes cambiarlos después desde Perfil.
       </p>
     </div>
 
-    <!-- Tarjetas que funcionan como botones de opción (radio nativos ocultos):
-         se eligen con el ratón, el dedo o las flechas del teclado -->
-    <div class="modes" role="radiogroup" aria-label="Modo">
-      @for (option of options; track option.value) {
-        <label class="modes__option" [class.modes__option--selected]="choice() === option.value">
-          <input
-            class="visually-hidden"
-            type="radio"
-            name="mode"
-            [value]="option.value"
-            [checked]="choice() === option.value"
-            (change)="choice.set(option.value)"
-          />
-          <ion-icon class="modes__icon" [icon]="option.icon" aria-hidden="true" />
-          <span class="modes__text">
-            <span class="text-subtitle">{{ option.title }}</span>
-            <span class="text-body-s text-color-muted">{{ option.description }}</span>
-          </span>
-        </label>
-      }
-    </div>
-
-    @if (choice() === 'both') {
-      <div class="auth-notice" role="status">
-        <p class="text-body-s text-body-s--strong">Empezarás en modo pasajero</p>
-        <p class="text-caption">
-          Ambos perfiles estarán habilitados, pero solo uno estará activo. Cambia entre pasajero y
-          conductor desde Inicio.
-        </p>
+    <!-- Error de la API: arriba, a la vista, en una alerta roja -->
+    @if (errorMessage(); as message) {
+      <div class="auth-alert auth-alert--danger" role="alert">
+        <ion-icon [icon]="alertIcon" aria-hidden="true" />
+        <span>{{ message }}</span>
       </div>
     }
 
-    @if (errorMessage(); as message) {
-      <ion-text color="danger" class="auth-error text-body-s" role="alert">
-        {{ message }}
-      </ion-text>
-    }
+    <!-- Formulario: «Continuar» lo envía (con el ratón, el dedo o Intro) -->
+    <form class="modes__form" (submit)="$event.preventDefault(); handleSubmit()">
+      <!-- Tarjetas que funcionan como botones de opción (radio nativos ocultos):
+           se eligen con el ratón, el dedo o las flechas del teclado -->
+      <div class="modes" role="radiogroup" aria-label="Modo">
+        @for (option of options; track option.value) {
+          <label class="modes__option" [class.modes__option--selected]="choice() === option.value">
+            <input
+              class="visually-hidden"
+              type="radio"
+              name="mode"
+              [value]="option.value"
+              [checked]="choice() === option.value"
+              (change)="choice.set(option.value)"
+            />
+            <ion-icon class="modes__icon" [icon]="option.icon" aria-hidden="true" />
+            <span class="modes__text">
+              <span class="text-subtitle">{{ option.title }}</span>
+              <span class="text-body-s text-color-muted">{{ option.description }}</span>
+            </span>
+          </label>
+        }
+      </div>
 
-    <ion-button
-      expand="block"
-      [disabled]="choice() === null || isSubmitting()"
-      (click)="handleSubmit()"
-    >
-      @if (isSubmitting()) {
-        <ion-spinner name="crescent" aria-label="Guardando" />
-      } @else {
-        {{ submitLabel() }}
+      @if (choice() === 'both') {
+        <output class="auth-notice">
+          <p class="text-body-s text-body-s--strong">Empezarás en modo pasajero</p>
+          <p class="text-caption">
+            Ambos perfiles estarán habilitados, pero solo uno estará activo. Cambia entre pasajero y
+            conductor desde Inicio.
+          </p>
+        </output>
       }
-    </ion-button>
+
+      <ion-button type="submit" expand="block" [disabled]="choice() === null || isSubmitting()">
+        @if (isSubmitting()) {
+          <ion-spinner name="crescent" aria-label="Guardando" />
+        } @else {
+          {{ submitLabel() }}
+        }
+      </ion-button>
+    </form>
   </app-auth-layout>
 </ion-content>

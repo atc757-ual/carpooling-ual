@@ -11,11 +11,11 @@ import {
   IonInput,
   IonRouterLink,
   IonSpinner,
-  IonText,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
 import {
+  alertCircleOutline,
   arrowBackOutline,
   eyeOffOutline,
   eyeOutline,
@@ -49,7 +49,6 @@ const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
     IonInput,
     IonRouterLink,
     IonSpinner,
-    IonText,
     IonTitle,
     IonToolbar,
     AuthLayout,
@@ -75,6 +74,7 @@ export class LoginPage {
   readonly errorMessage = signal<string | null>(null);
   readonly isPasswordVisible = signal(false);
 
+  protected readonly alertIcon = alertCircleOutline;
   protected readonly backIcon = arrowBackOutline;
   protected readonly mailIcon = mailOutline;
   protected readonly lockIcon = lockClosedOutline;

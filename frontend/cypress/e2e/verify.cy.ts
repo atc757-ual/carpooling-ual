@@ -70,7 +70,26 @@ for (const viewport of VIEWPORTS) {
       cy.contains('ion-button', 'Verificar correo').click();
 
       cy.wait('@verify');
-      cy.get('.auth-error').should('contain', 'Ese código no es válido.');
+      cy.get('.auth-alert--danger').should('contain', 'Ese código no es válido.');
+    });
+
+    it('asks for a new code with the resend button', () => {
+      cy.intercept('POST', '/api/auth/verify-email/resend', { statusCode: 202 }).as('resend');
+      // La cuenta atrás de un minuto la prueban los tests unitarios: aquí se
+      // termina ya (ng solo existe en desarrollo) para probar el botón
+      cy.get('app-verify').then(($page) => {
+        const win = $page[0].ownerDocument.defaultView as unknown as {
+          ng: { getComponent: (el: Element) => { secondsToResend: { set: (s: number) => void } } };
+        };
+        win.ng.getComponent($page[0]).secondsToResend.set(0);
+      });
+
+      const resend = 'ion-button[form="verify-resend"]';
+      cy.get(resend).should('not.have.attr', 'disabled');
+      cy.get(resend).click();
+
+      cy.wait('@resend').its('request.body').should('deep.equal', { email: EMAIL });
+      cy.contains('te hemos enviado un código nuevo').should('be.visible');
     });
 
     it('goes back to the register to change the email', () => {

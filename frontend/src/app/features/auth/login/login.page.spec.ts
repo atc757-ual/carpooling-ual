@@ -47,7 +47,9 @@ describe('LoginPage', () => {
   }
 
   function shownError(): string | undefined {
-    return (fixture.nativeElement as HTMLElement).querySelector('.auth-error')?.textContent?.trim();
+    return (fixture.nativeElement as HTMLElement)
+      .querySelector('.auth-alert--danger')
+      ?.textContent?.trim();
   }
 
   it('does not send an invalid form and marks its fields', async () => {

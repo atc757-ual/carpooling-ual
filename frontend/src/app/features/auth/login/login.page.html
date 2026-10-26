@@ -35,6 +35,14 @@
       <p class="text-body text-color-muted">Entra con tu correo de la Universidad de Almería.</p>
     </div>
 
+    <!-- Error de la API: arriba, a la vista, en una alerta roja -->
+    @if (errorMessage(); as message) {
+      <div class="auth-alert auth-alert--danger" role="alert">
+        <ion-icon [icon]="alertIcon" aria-hidden="true" />
+        <span>{{ message }}</span>
+      </div>
+    }
+
     <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
       <!-- La etiqueta va encima del campo, como en el diseño; el campo lleva el
            mismo nombre para los lectores de pantalla -->
@@ -80,13 +88,6 @@
           </button>
         </ion-input>
       </div>
-
-      <!-- El error de la API, justo bajo los campos a los que se refiere -->
-      @if (errorMessage(); as message) {
-        <ion-text color="danger" class="auth-error text-body-s" role="alert">
-          {{ message }}
-        </ion-text>
-      }
 
       <!-- Sin destino hasta que exista la recuperación de la contraseña (PR 4) -->
       <ion-button type="button" fill="clear" class="login__forgot">

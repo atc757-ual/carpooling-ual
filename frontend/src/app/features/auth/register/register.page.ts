@@ -18,6 +18,7 @@ import {
   ModalController,
 } from '@ionic/angular';
 import {
+  alertCircleOutline,
   arrowBackOutline,
   callOutline,
   eyeOffOutline,
@@ -94,6 +95,7 @@ export class RegisterPage {
   readonly errorMessage = signal<string | null>(null);
   readonly isPasswordVisible = signal(false);
 
+  protected readonly alertIcon = alertCircleOutline;
   protected readonly backIcon = arrowBackOutline;
   protected readonly personIcon = personOutline;
   protected readonly phoneIcon = callOutline;

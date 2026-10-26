@@ -51,7 +51,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains('ion-button', 'Crear cuenta y verificar correo').click();
 
       cy.wait('@register');
-      cy.get('.auth-error')
+      cy.get('.auth-alert--danger')
         .should('be.visible')
         .and('contain', 'Ya hay una cuenta con este correo.');
     });
