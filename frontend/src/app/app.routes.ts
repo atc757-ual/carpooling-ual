@@ -30,6 +30,24 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/auth/register/register.page').then((m) => m.RegisterPage),
       },
+      // Recuperar la contraseña: correo → código → contraseña nueva
+      {
+        path: 'forgot-password',
+        loadComponent: () =>
+          import('./features/auth/forgot-password/forgot-password.page').then(
+            (m) => m.ForgotPasswordPage,
+          ),
+      },
+      {
+        path: 'reset-code',
+        loadComponent: () =>
+          import('./features/auth/reset-code/reset-code.page').then((m) => m.ResetCodePage),
+      },
+      {
+        path: 'new-password',
+        loadComponent: () =>
+          import('./features/auth/new-password/new-password.page').then((m) => m.NewPasswordPage),
+      },
     ],
   },
   {

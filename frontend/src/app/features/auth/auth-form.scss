@@ -14,6 +14,21 @@
   }
 }
 
+// Icono en una caja azul clara, sobre el título (p. ej. el sobre de las
+// pantallas del código)
+.auth-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem; // 56px
+  height: 3.5rem;
+  margin-bottom: var(--space-s);
+  border-radius: var(--radius-base);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-size: 1.75rem; // 28px
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -74,4 +89,31 @@
   p {
     margin: 0;
   }
+}
+
+// Variantes del recuadro, como en la guía (notice--success, notice--warning):
+// verde para lo que ha salido bien y ámbar para avisar. El título, del color
+// del aviso; el texto, del normal
+.auth-notice--success {
+  background: var(--color-success-subtle);
+
+  .auth-notice__title {
+    color: var(--color-success);
+  }
+}
+
+.auth-notice--warning {
+  background: var(--color-warning-subtle);
+
+  .auth-notice__title {
+    color: var(--color-warning-text);
+  }
+}
+
+// Línea que separa el formulario de lo que va debajo (24px a cada lado, el
+// espacio entre bloques)
+.auth-divider {
+  margin: 0;
+  border: 0;
+  border-top: var(--border-width-s) solid var(--color-border);
 }

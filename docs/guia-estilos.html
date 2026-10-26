@@ -534,7 +534,7 @@
     </div>
 
     <h3>Código de verificación</h3>
-    <p class="note">Seis casillas (<code>ion-input-otp</code>, <code>length="6"</code>), con <code>inputmode="numeric"</code> y <code>autocomplete="one-time-code"</code>; pegar los 6 dígitos de una vez los reparte. Se usa igual para verificar el correo y para recuperar la contraseña.</p>
+    <p class="note">Seis casillas (<code>ion-input-otp</code>, <code>length="6"</code>), con <code>inputmode="numeric"</code> y <code>autocomplete="one-time-code"</code>; pegar los 6 dígitos de una vez los reparte. Se usa igual para verificar el correo y para recuperar la contraseña: en el código es el componente <code>app-code-input</code> (<code>shared/components/ui/code-input</code>), que se usa como un campo más del formulario (<code>formControlName</code>).</p>
     <div class="grid">
       <div class="stack"><span class="field__label">Código de verificación</span><div class="otp"><span>2</span><span>8</span><span>4</span><span>6</span><span>1</span><span class="focus">9</span></div><span class="field__help">Puedes pegarlo completo desde el correo.</span></div>
       <div class="stack"><span class="field__label">Código de verificación</span><div class="otp otp--error"><span>2</span><span>8</span><span>4</span><span>6</span><span>1</span><span>0</span></div><span class="field__help" style="color:var(--color-danger)" role="alert">Ese código no es válido. Revisa los 6 dígitos o solicita un código nuevo.</span></div>

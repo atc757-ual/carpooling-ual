@@ -70,6 +70,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Pantalla para elegir el modo tras verificar el correo (pasajero, conductor o ambos, empezando como pasajero); el inicio lo ofrece si aún no se ha elegido; salir de ella sin elegir cierra la sesión (#43)
 - Avisos breves (toast) para los errores de la API y las confirmaciones en las pantallas de acceso, y flechas «Volver» con destino fijo (#43)
 - Recuperación de la contraseña con un código de 6 cifras enviado al correo (RF-26): `POST /api/auth/password-reset` (pedir o reenviar el código; siempre `202`), `/verify` (comprobar el código sin gastarlo) y `/confirm` (contraseña nueva, distinta de la actual; cierra todas las sesiones) (#45)
+- Pantallas para recuperar la contraseña desde «¿Has olvidado tu contraseña?» del login: correo, código de 6 cifras (con reenvío y bloqueo tras 3 fallos) y contraseña nueva con confirmación, que termina con el aviso «Contraseña actualizada» y el camino al login (#46)
 
 ### Changed
 - Guía de estilos (`docs/guia-estilos.html`) rehecha con los diseños de Figma del 25/10/2026: color, tipografía, ritmo, componentes, patrones, estados, navegación, pantallas de acceso, modo oscuro, accesibilidad y textos

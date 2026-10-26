@@ -85,9 +85,13 @@
         </ion-input>
       </div>
 
-      <!-- Sin destino hasta que exista la recuperación de la contraseña (PR 4) -->
-      <ion-button type="button" fill="clear" class="login__forgot">
-        ¿Olvidaste tu contraseña?
+      <ion-button
+        type="button"
+        fill="clear"
+        class="login__forgot"
+        routerLink="/auth/forgot-password"
+      >
+        ¿Has olvidado tu contraseña?
       </ion-button>
 
       <!-- Activo solo con un correo de la UAL y una contraseña de 8 o más -->

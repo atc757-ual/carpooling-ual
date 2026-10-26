@@ -21,7 +21,7 @@ const STATUS_CLASSES = [
   // de @angular/forms), por eso el selector no lleva el prefijo «app»
   selector:
     // eslint-disable-next-line @angular-eslint/directive-selector
-    'ion-input[formControlName], ion-textarea[formControlName], ion-checkbox[formControlName], ion-input-otp[formControlName]',
+    'ion-input[formControlName], ion-textarea[formControlName], ion-checkbox[formControlName], ion-input-otp[formControlName], ion-input-otp[formControl]',
 })
 export class IonicFormStatus {
   private readonly control = inject(NgControl, { self: true });
