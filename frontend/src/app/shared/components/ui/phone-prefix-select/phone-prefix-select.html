@@ -1,0 +1,48 @@
+<button
+  type="button"
+  class="prefix-select__trigger"
+  [id]="triggerId"
+  aria-haspopup="true"
+  [attr.aria-expanded]="isOpen()"
+  [attr.aria-label]="'Prefijo del país: ' + value()"
+  [disabled]="isDisabled()"
+>
+  <span class="prefix-select__flag fi fi-{{ country() }}" aria-hidden="true"></span>
+  <span>{{ value() }}</span>
+  <ion-icon class="prefix-select__caret" [icon]="caretIcon" aria-hidden="true" />
+</button>
+
+<!-- Hacia abajo, alineado con el botón; se cierra al elegir -->
+<ion-popover
+  cssClass="phone-prefix-popover"
+  side="bottom"
+  alignment="start"
+  [trigger]="triggerId"
+  [dismissOnSelect]="true"
+  (willPresent)="isOpen.set(true)"
+  (didDismiss)="isOpen.set(false)"
+>
+  <ng-template>
+    <ion-content>
+      <ul class="prefix-select__list" aria-label="Prefijo del país">
+        @for (prefix of prefixes; track prefix) {
+          <li>
+            <button
+              type="button"
+              class="prefix-select__option"
+              [class.prefix-select__option--selected]="prefix === value()"
+              [attr.aria-current]="prefix === value()"
+              (click)="handleChoose(prefix)"
+            >
+              <span
+                class="prefix-select__flag fi fi-{{ getPrefixCountry(prefix) }}"
+                aria-hidden="true"
+              ></span>
+              {{ prefix }}
+            </button>
+          </li>
+        }
+      </ul>
+    </ion-content>
+  </ng-template>
+</ion-popover>

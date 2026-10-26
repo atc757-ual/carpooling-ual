@@ -57,8 +57,8 @@
       <div class="auth-field">
         <span class="text-label text-label--strong" aria-hidden="true">Teléfono</span>
         <!-- Un solo campo: a la izquierda, la bandera y el prefijo del país
-             (España por defecto; al tocarlo, un desplegable con los
-             prefijos); después, el número, solo con cifras (en España, en
+             (España por defecto; al tocarlo, la lista de prefijos con su
+             bandera); después, el número, solo con cifras (en España, en
              grupos de tres) -->
         <ion-input
           formControlName="phone"
@@ -70,23 +70,7 @@
           placeholder="612 345 678"
           errorText="Revisa el número: en España, 9 cifras que empiezan por 6, 7, 8 o 9."
         >
-          <span
-            slot="start"
-            class="register__flag fi fi-{{ prefixCountry() }}"
-            aria-hidden="true"
-          ></span>
-          <ion-select
-            slot="start"
-            class="register__prefix"
-            formControlName="phonePrefix"
-            interface="popover"
-            [interfaceOptions]="{ cssClass: 'phone-prefix-popover' }"
-            aria-label="Prefijo del país"
-          >
-            @for (prefix of phonePrefixes; track prefix) {
-              <ion-select-option [value]="prefix">{{ prefix }}</ion-select-option>
-            }
-          </ion-select>
+          <app-phone-prefix-select slot="start" formControlName="phonePrefix" />
         </ion-input>
       </div>
 

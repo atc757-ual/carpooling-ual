@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -11,8 +11,6 @@ import {
   IonIcon,
   IonInput,
   IonRouterLink,
-  IonSelect,
-  IonSelectOption,
   IonSpinner,
   IonText,
   IonTitle,
@@ -27,12 +25,12 @@ import {
   mailOutline,
   personOutline,
 } from 'ionicons/icons';
-import { map } from 'rxjs';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import { EmailSuggestions } from '../../../shared/components/ui/email-suggestions/email-suggestions';
+import { PhonePrefixSelect } from '../../../shared/components/ui/phone-prefix-select/phone-prefix-select';
 import {
   LegalDocument,
   LegalModal,
@@ -44,11 +42,7 @@ import {
   personNameValidator,
   stripNameSymbols,
 } from '../../../shared/utils/person-name.util';
-import {
-  getPrefixCountry,
-  PHONE_PREFIXES,
-  SPANISH_PREFIX,
-} from '../../../shared/utils/phone-prefixes';
+import { SPANISH_PREFIX } from '../../../shared/utils/phone-prefixes';
 import {
   buildPhone,
   formatPhoneNumber,
@@ -79,14 +73,13 @@ const PASSWORD_MAX_LENGTH = 72;
     IonIcon,
     IonInput,
     IonRouterLink,
-    IonSelect,
-    IonSelectOption,
     IonSpinner,
     IonText,
     IonTitle,
     IonToolbar,
     AuthLayout,
     EmailSuggestions,
+    PhonePrefixSelect,
     IonicFormStatus,
   ],
   templateUrl: './register.page.html',
@@ -123,13 +116,6 @@ export class RegisterPage {
   protected readonly lockIcon = lockClosedOutline;
   protected readonly eyeIcon = eyeOutline;
   protected readonly eyeOffIcon = eyeOffOutline;
-  protected readonly phonePrefixes = PHONE_PREFIXES;
-  // País del prefijo elegido, para su bandera (también si cambia al pegar un
-  // número completo)
-  protected readonly prefixCountry = toSignal(
-    this.form.controls.phonePrefix.valueChanges.pipe(map(getPrefixCountry)),
-    { initialValue: getPrefixCountry(SPANISH_PREFIX) },
-  );
 
   constructor() {
     const { name, phonePrefix, phone, email, password } = this.form.controls;

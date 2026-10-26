@@ -1,0 +1,83 @@
+// Dentro del campo del número: separado de él por una línea fina
+:host {
+  display: flex;
+  flex: 0 0 auto;
+  margin-inline-end: var(--space-s);
+  padding-inline-end: var(--space-s);
+  border-inline-end: var(--border-width-s) solid var(--color-border);
+}
+
+// El botón: la bandera, el prefijo y la flecha, sin aspecto de botón
+.prefix-select__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-height: var(--control-height-s);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+
+  &:focus-visible {
+    border-radius: var(--radius-xs);
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+.prefix-select__caret {
+  color: var(--color-text-muted);
+  font-size: 0.75rem; // 12px
+}
+
+// Bandera de 24×18px con las esquinas un poco redondeadas
+.prefix-select__flag {
+  flex: 0 0 auto;
+  width: 1.5rem; // 24px
+  height: 1.125rem; // 18px
+  border-radius: var(--radius-xs);
+}
+
+.prefix-select__list {
+  margin: 0;
+  padding: var(--space-xs) 0;
+  list-style: none;
+}
+
+// Cada prefijo de la lista: la bandera y el código, con el alto táctil mínimo
+.prefix-select__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  width: 100%;
+  min-height: var(--control-height-s);
+  padding: 0 var(--space-base);
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: calc(-1 * var(--border-width-m));
+  }
+}
+
+// El elegido, marcado (no solo por el color: también en negrita)
+.prefix-select__option--selected {
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+}

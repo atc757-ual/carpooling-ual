@@ -47,29 +47,3 @@
 .register__login {
   align-self: center;
 }
-
-// Teléfono: la bandera del país elegido (flag-icons), delante del prefijo
-.register__flag {
-  flex: 0 0 auto;
-  width: 1.5rem; // 24px
-  height: 1.125rem; // 18px
-  margin-inline-end: var(--space-s);
-  border-radius: var(--radius-xs);
-}
-
-// Teléfono: el prefijo dentro del campo, a la izquierda, ocupando solo lo que
-// mide y separado del número por una línea fina. Sin subrayado ni colores
-// propios (verde, rojo): el estado lo muestra el campo entero
-.register__prefix {
-  --padding-start: 0;
-  --padding-end: var(--space-s);
-  --border-width: 0;
-  --highlight-color-focused: transparent;
-  --highlight-color-valid: transparent;
-  --highlight-color-invalid: transparent;
-
-  flex: 0 0 auto;
-  min-height: auto;
-  margin-inline-end: var(--space-s);
-  border-inline-end: var(--border-width-s) solid var(--color-border);
-}

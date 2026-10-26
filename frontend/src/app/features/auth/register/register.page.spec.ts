@@ -133,7 +133,7 @@ describe('RegisterPage', () => {
   it('shows the flag of the chosen country', () => {
     fixture.detectChanges();
     const flag = (): Element | null =>
-      (fixture.nativeElement as HTMLElement).querySelector('.register__flag');
+      (fixture.nativeElement as HTMLElement).querySelector('app-phone-prefix-select .fi');
     expect(flag()?.classList).toContain('fi-es');
 
     page.form.controls.phonePrefix.setValue('+44');
