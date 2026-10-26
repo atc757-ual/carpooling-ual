@@ -113,8 +113,18 @@ export class UsersService {
     });
   }
 
-  // Solo para el login: es el único lugar donde se pide el hash explícitamente
-  // (la columna tiene select: false en la entidad)
+  // Nueva contraseña (ya cifrada), en la transacción de quien llama (la que
+  // gasta el código de recuperación)
+  async changePassword(
+    manager: EntityManager,
+    userId: string,
+    passwordHash: string,
+  ): Promise<void> {
+    await manager.update(User, { id: userId }, { passwordHash });
+  }
+
+  // Para el login y la recuperación de la contraseña: los únicos lugares donde
+  // se pide el hash explícitamente (la columna tiene select: false)
   findByEmailWithPassword(email: string): Promise<User | null> {
     return this.usersRepository
       .createQueryBuilder('user')

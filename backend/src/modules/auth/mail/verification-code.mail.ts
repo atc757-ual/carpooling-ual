@@ -1,4 +1,5 @@
 import type { MailMessage } from '../../../shared/mail/mail-sender';
+import { escapeHtml } from './escape-html';
 
 export interface VerificationCodeMail {
   to: string;
@@ -37,16 +38,4 @@ export function buildVerificationCodeMail({
   <p style="color: #5c5c5c; font-size: 14px">Si no te has registrado tú, ignora este correo: nadie podrá usar tu dirección sin este código.</p>
 </div>`;
   return { to, subject, text, html };
-}
-
-const HTML_ESCAPES: Record<string, string> = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-};
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char]);
 }

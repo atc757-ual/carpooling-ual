@@ -55,7 +55,7 @@ export interface AuthSession {
 
 // Coste de bcrypt: 2^10 iteraciones (~130 ms por contraseña con bcryptjs).
 // Es el mínimo recomendado por OWASP y el mismo que usa el seed.
-const BCRYPT_COST = 10;
+export const BCRYPT_COST = 10;
 
 // Hash "señuelo" de un texto aleatorio. Si el correo no existe, se compara la
 // contraseña contra él para que el login tarde lo mismo que con un correo

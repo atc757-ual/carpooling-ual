@@ -12,6 +12,8 @@ import { EmailVerificationService } from './email-verification.service';
 import { EmailCode } from './entities/email-code.entity';
 import { PendingRegistration } from './entities/pending-registration.entity';
 import { PendingRegistrationsService } from './pending-registrations.service';
+import { PasswordResetController } from './password-reset.controller';
+import { PasswordResetService } from './password-reset.service';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ProfilesGuard } from './guards/profiles.guard';
@@ -21,7 +23,7 @@ import { RefreshTokensService } from './refresh-tokens.service';
   imports: [
     // Da acceso a UsersService, lo único que exporta el módulo users
     UsersModule,
-    // Envío de correos (códigos de verificación)
+    // Envío de correos (códigos de verificación y de recuperación)
     MailModule,
     // Tablas propias de este módulo: sesiones, códigos enviados por correo y
     // registros pendientes de verificar
@@ -38,13 +40,14 @@ import { RefreshTokensService } from './refresh-tokens.service';
       }),
     }),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, PasswordResetController],
   providers: [
     AuthService,
     PendingRegistrationsService,
     RefreshTokensService,
     EmailCodesService,
     EmailVerificationService,
+    PasswordResetService,
     // Guards globales (se aplican a toda la API, en este orden): primero el
     // token (salvo @Public) y después los perfiles (@Profiles)
     { provide: APP_GUARD, useClass: JwtAuthGuard },
