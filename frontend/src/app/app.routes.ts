@@ -3,6 +3,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { leaveModesGuard } from './core/guards/leave-modes.guard';
 import { profileGuard } from './core/guards/profile.guard';
+import { TabHeading } from './features/tabs/tab-heading';
 
 // Pestaña aún sin pantalla: su título y qué se podrá hacer en ella
 const comingSoon = (title: string, description: string): Pick<Route, 'loadComponent' | 'data'> => ({
@@ -83,10 +84,19 @@ export const routes: Routes = [
         ...comingSoon('Mis viajes', 'Muy pronto verás aquí tus viajes y solicitudes.'),
       },
       {
-        // Como pasajero
+        // Como pasajero. Con su cabecera: el título en la franja fija y, en el
+        // móvil, la flecha de volver a Inicio
         path: 'search',
         canActivate: [profileGuard('passenger')],
-        ...comingSoon('Buscar', 'Muy pronto podrás buscar viajes al campus desde aquí.'),
+        loadComponent: () =>
+          import('./features/matching/trip-search/trip-search.page').then((m) => m.TripSearchPage),
+        data: {
+          heading: {
+            title: 'Buscar viaje',
+            subtitle: 'Viajes de la comunidad UAL que encajan con tu ruta y tu horario.',
+            backHref: '/tabs/home',
+          } satisfies TabHeading,
+        },
       },
       {
         // Como conductor

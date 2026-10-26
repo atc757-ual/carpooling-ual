@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -6,7 +6,13 @@ import { vi } from 'vitest';
 import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
+import { TabHeading } from './tab-heading';
 import { TabsPage } from './tabs.page';
+
+@Component({ template: '' })
+class BlankPage {}
+
+const HEADING: TabHeading = { title: 'Buscar viaje', subtitle: 'Viajes', backHref: '/home' };
 
 describe('TabsPage', () => {
   const mode = signal<TravelMode | null>('passenger');
@@ -17,7 +23,10 @@ describe('TabsPage', () => {
       imports: [TabsPage],
       providers: [
         provideIonicAngular(),
-        provideRouter([]),
+        provideRouter([
+          { path: 'home', component: BlankPage },
+          { path: 'search', component: BlankPage, data: { heading: HEADING } },
+        ]),
         {
           provide: AuthService,
           useValue: { currentUser: signal({ name: 'Mario Pérez' } as User), logout },
@@ -49,6 +58,19 @@ describe('TabsPage', () => {
 
   it('greets the user by the first name', () => {
     expect(render().firstName()).toBe('Mario');
+  });
+
+  it('shows the heading of a tab that has one, and the greeting otherwise', async () => {
+    const page = render();
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/search');
+
+    expect(page.heading()).toEqual(HEADING);
+
+    await router.navigateByUrl('/home');
+
+    expect(page.heading()).toBeNull();
   });
 
   it('logs out and goes back to the welcome screen', async () => {
