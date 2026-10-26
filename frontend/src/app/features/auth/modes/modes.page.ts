@@ -37,8 +37,7 @@ interface ModeOption {
   icon: string;
 }
 
-// Perfiles que activa cada opción (con «Ambos», primero el de pasajero, que es
-// el modo con el que se empieza)
+// Perfiles que activa cada opción (con «Ambos» se empieza como pasajero)
 const PROFILES_BY_CHOICE: Readonly<Record<ModeChoice, RegisterProfile[]>> = {
   passenger: ['passenger'],
   driver: ['driver'],
@@ -113,9 +112,10 @@ export class ModesPage {
     }
     this.isSubmitting.set(true);
     try {
-      for (const profile of PROFILES_BY_CHOICE[choice]) {
-        await this.users.activateProfile(profile);
-      }
+      // A la vez: el backend bloquea la fila del usuario y las aplica por turnos
+      await Promise.all(
+        PROFILES_BY_CHOICE[choice].map((profile) => this.users.activateProfile(profile)),
+      );
       // Los perfiles van en el token: se renueva para que la app los vea
       await this.auth.refreshAccessToken();
       await this.router.navigateByUrl(HOME_PATH);
