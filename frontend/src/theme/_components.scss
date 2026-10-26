@@ -47,19 +47,32 @@ ion-back-button {
 // círculo de hover y foco quede centrado. Se desplaza hacia fuera
 // (52 − 28) / 2 = 12px para que el icono empiece en el margen del contenido
 // Con destino fijo (routerLink) es un ion-button; se aplica a los dos
-ion-button.back-button {
+// Botón cuadrado de 52px con el icono de 28px en el centro (el círculo de
+// hover y foco queda centrado), desplazado 12px hacia fuera para que el icono
+// empiece en el margen del contenido. Sin tocar el tamaño de letra: Ionic
+// calcula el alto y el relleno del botón en em. En la barra (in-buttons) Ionic
+// pone sus propios márgenes y alto, con selectores más fuertes: el segundo
+// selector les gana
+ion-button.back-button,
+ion-toolbar ion-buttons ion-button.back-button.button-has-icon-only.button-clear {
   --padding-start: 0;
   --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
   --border-radius: 50%;
   --color: var(--color-text);
 
   align-self: flex-start;
   width: 3.25rem; // 52px
+  min-width: 3.25rem;
+  max-width: 3.25rem;
   height: 3.25rem;
-  margin: 0 0 0 -0.75rem; // el icono empieza en el margen del contenido
-  font-size: 1.75rem; // 28px, el icono
+  margin: 0;
+  margin-inline-start: -0.75rem; // 12px: (52 − 28) / 2
 
   ion-icon {
+    width: 1.75rem; // 28px
+    height: 1.75rem;
     font-size: 1.75rem;
   }
 }
