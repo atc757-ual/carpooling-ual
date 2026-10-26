@@ -118,11 +118,9 @@ export class RefreshTokensService implements OnModuleInit {
     }
   }
 
-  // Anula todas las sesiones vivas del usuario (todas sus familias)
-  private async revokeAllOfUser(
-    manager: EntityManager,
-    userId: string,
-  ): Promise<void> {
+  // Anula todas las sesiones vivas del usuario (todas sus familias), en la
+  // transacción de quien llama (p. ej. al cambiar la contraseña)
+  async revokeAllOfUser(manager: EntityManager, userId: string): Promise<void> {
     await manager.update(
       RefreshToken,
       { userId, revokedAt: IsNull() },

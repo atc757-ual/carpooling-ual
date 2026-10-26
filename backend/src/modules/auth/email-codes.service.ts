@@ -17,6 +17,12 @@ const CODE_RANGE = 10 ** CODE_DIGITS;
 
 type CodeCheck = 'valid' | 'invalid' | 'locked';
 
+interface CodeToVerify {
+  userId: string;
+  purpose: EmailCodePurpose;
+  code: string;
+}
+
 // Códigos de un solo uso enviados por correo. El código nunca se guarda en
 // claro, sino su HMAC-SHA256 con la clave del servidor: quien lea la base de
 // datos no puede probar el millón de combinaciones sin ella. El HMAC incluye
@@ -64,16 +70,37 @@ export class EmailCodesService {
     return rows.length > 0 ? code : null;
   }
 
+  // Comprueba el código sin gastarlo: para un paso intermedio (la pantalla
+  // avisa en el momento de un código incorrecto). Los fallos cuentan igual
+  check(
+    userId: string,
+    purpose: EmailCodePurpose,
+    code: string,
+  ): Promise<void> {
+    return this.verify({ userId, purpose, code }, () => Promise.resolve());
+  }
+
   // Comprueba el código y, si es correcto, lo gasta y ejecuta onValid en la
-  // MISMA transacción (p. ej. marcar el correo como verificado): o pasan las
-  // dos cosas o ninguna. Si es incorrecto, cuenta el fallo; al llegar a
-  // MAX_FAILED_ATTEMPTS lo anula. Los errores se lanzan fuera de la
-  // transacción para que el fallo contado quede guardado
-  async consume(
+  // MISMA transacción (p. ej. cambiar la contraseña): o pasan las dos cosas o
+  // ninguna. Si onValid lanza un error, el código no se gasta
+  consume(
     userId: string,
     purpose: EmailCodePurpose,
     code: string,
     onValid: (manager: EntityManager) => Promise<void>,
+  ): Promise<void> {
+    return this.verify({ userId, purpose, code }, async (manager, stored) => {
+      await manager.delete(EmailCode, { id: stored.id });
+      await onValid(manager);
+    });
+  }
+
+  // Si el código es incorrecto, cuenta el fallo; al llegar a
+  // MAX_FAILED_ATTEMPTS lo anula. Los errores se lanzan fuera de la
+  // transacción para que el fallo contado quede guardado
+  private async verify(
+    { userId, purpose, code }: CodeToVerify,
+    onValid: (manager: EntityManager, stored: EmailCode) => Promise<void>,
   ): Promise<void> {
     const check = await this.dataSource.transaction(
       async (manager): Promise<CodeCheck> => {
@@ -87,8 +114,7 @@ export class EmailCodesService {
         if (!this.matches(stored, code)) {
           return this.countFailure(manager, stored);
         }
-        await manager.delete(EmailCode, { id: stored.id });
-        await onValid(manager);
+        await onValid(manager, stored);
         return 'valid';
       },
     );

@@ -451,6 +451,178 @@
         ]
       }
     },
+    "/api/auth/password-reset": {
+      "post": {
+        "description": "Sends a 6-digit code (valid for 15 minutes) to the email if it has an account, at most once a minute; also used to resend it. Always answers 202, so it does not reveal which emails are registered.",
+        "operationId": "PasswordResetController_requestCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestPasswordResetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Request accepted"
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Send a password reset code",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/password-reset/verify": {
+      "post": {
+        "description": "Checks the code without using it up, so it must be sent again to set the new password. Wrong codes count as attempts: after 3 the code is cancelled and a new one must be requested.",
+        "operationId": "PasswordResetController_checkCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckPasswordResetCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "The code is right"
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED, INVALID_VERIFICATION_CODE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TMF630 error: TOO_MANY_ATTEMPTS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check a password reset code",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/password-reset/confirm": {
+      "post": {
+        "description": "Uses up the code, sets the new password (it must be different from the current one) and closes every open session of the user.",
+        "operationId": "PasswordResetController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Password changed"
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED, INVALID_VERIFICATION_CODE, PASSWORD_UNCHANGED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TMF630 error: TOO_MANY_ATTEMPTS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Set a new password with the code",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/users/me/driver-status": {
       "get": {
         "description": "Whether the driver can publish trips (RF-21): responsible declaration accepted and at least one active vehicle.",
@@ -4155,6 +4327,66 @@
         },
         "required": [
           "refreshToken"
+        ]
+      },
+      "RequestPasswordResetDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "example": "ana@ual.es"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "CheckPasswordResetCodeDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "example": "ana@ual.es"
+          },
+          "code": {
+            "type": "string",
+            "description": "The 6-digit code sent by email",
+            "pattern": "^[0-9]{6}$",
+            "example": "042137"
+          }
+        },
+        "required": [
+          "email",
+          "code"
+        ]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "example": "ana@ual.es"
+          },
+          "code": {
+            "type": "string",
+            "description": "The 6-digit code sent by email",
+            "pattern": "^[0-9]{6}$",
+            "example": "042137"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 72,
+            "example": "new-secret-password"
+          }
+        },
+        "required": [
+          "email",
+          "code",
+          "password"
         ]
       },
       "ProfileStatusResource": {
