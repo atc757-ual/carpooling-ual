@@ -124,18 +124,18 @@ for (const viewport of VIEWPORTS) {
       logIn(['driver']);
 
       destinationLabels().should('contain', 'Publicar').and('not.contain', 'Buscar');
-      cy.get('app-mode-selector ion-select').should('not.exist');
+      cy.get('app-mode-selector ion-segment').should('not.exist');
     });
 
-    it('starts as a passenger with both profiles and can change to driver', () => {
+    it('starts as a passenger with both profiles and can change to driver from Inicio', () => {
       logIn(['passenger', 'driver']);
       destinationLabels().should('contain', 'Buscar');
+      cy.get('app-home app-trip-search-form').should('exist');
 
-      cy.get('app-mode-selector ion-select').filter(':visible').click();
-      cy.contains('ion-popover ion-radio', 'Conductor').click();
+      cy.contains('app-mode-selector ion-segment-button', 'Conductor').click();
 
-      cy.get('app-mode-selector').filter(':visible').should('contain', 'Modo: Conductor');
       destinationLabels().should('contain', 'Publicar').and('not.contain', 'Buscar');
+      cy.contains('app-home ion-button', 'Ofrecer plaza').should('be.visible');
     });
 
     it('goes from one destination to another', () => {

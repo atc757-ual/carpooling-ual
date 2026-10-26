@@ -1,0 +1,138 @@
+// 16px entre los bloques del formulario
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  p {
+    margin: 0;
+  }
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+// Etiqueta encima del campo, a 8px
+.search-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+}
+
+// Dos campos por fila, en el móvil y en escritorio
+.search-form__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-s);
+}
+
+// Trayecto: en el móvil, origen y destino uno encima del otro, con el botón de
+// cambiarlos a la derecha, entre los dos; en escritorio, los tres en una fila
+.search-form__route {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
+@media (min-width: 768px) {
+  .search-form__route {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+// El botón de cambiar, gris y del alto de los campos. En el móvil, pequeño y
+// redondo, sobre el borde entre los dos campos, con la flecha en vertical
+.search-form__swap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-s);
+  height: var(--control-height-l);
+  padding: 0;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+  font-size: 1.25rem; // 20px
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// Fecha y hora: el botón del selector nativo con el aspecto de un campo, con
+// su icono delante
+.search-form__picker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-height: var(--control-height-l);
+  padding: 0 var(--space-base);
+  // El mismo borde que los campos de texto de Ionic
+  border: var(--border-width-s) solid var(--ion-border-color);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+
+  ion-icon {
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    font-size: 1.25rem; // 20px
+  }
+}
+
+ion-datetime-button {
+  flex: 1;
+  justify-content: flex-start;
+}
+
+ion-datetime-button::part(native) {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--font-size-body);
+}
+
+// El icono de las plazas, gris como en los demás campos
+.search-form ion-input ion-icon {
+  margin-inline-end: var(--space-s);
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 767.98px) {
+  .search-form__swap {
+    position: absolute;
+    top: 50%;
+    right: var(--space-base);
+    z-index: 1;
+    width: var(--control-height-s);
+    height: var(--control-height-s);
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    transform: translateY(-50%);
+
+    ion-icon {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+// Qué llegadas se verán: 12px en el móvil y 14px en escritorio
+.search-form__summary {
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+@media (min-width: 768px) {
+  .search-form__summary {
+    font-size: var(--font-size-body-s);
+    line-height: var(--line-height-body-s);
+  }
+}

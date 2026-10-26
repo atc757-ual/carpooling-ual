@@ -1,16 +1,203 @@
-// Lo común a las pestañas está en ../tabs/tab-page.scss
+// Lo común a las pestañas (fondo y márgenes) está en ../tabs/tab-page.scss y
+// el aspecto de las tarjetas (ion-card), en theme/_components.scss
 
-// Móvil: franja blanca con el modo y el saludo, como la franja fija de
-// escritorio, con 16px por todos los lados (el margen lateral del móvil) y el
-// saludo justo debajo del modo
+// Móvil: franja blanca con el saludo, como la franja fija de escritorio, con
+// 16px por todos los lados (el margen lateral del móvil)
 .home__greeting {
   display: flex;
   flex-direction: column;
+  gap: var(--space-xs);
   padding: var(--space-base) var(--page-gutter);
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
   background: var(--color-surface);
 
-  h1 {
+  h1,
+  p {
     margin: 0;
+  }
+}
+
+// Móvil: una columna con 16px entre tarjetas. La principal y el lateral no
+// cuentan como bloques (display: contents): así el modo, que está en el
+// lateral, sale el primero
+.home {
+  align-items: stretch;
+  gap: var(--space-base);
+}
+
+.home__main,
+.home__aside {
+  display: contents;
+}
+
+.home__mode {
+  order: -1;
+}
+
+.home__art {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-s);
+}
+
+// Búsqueda: el título, el consejo (y, en escritorio, la ilustración debajo) y
+// el formulario
+.home__search-content {
+  gap: var(--space-base);
+}
+
+.home__search-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+// Consejo en un recuadro verde claro, con su icono
+.home__tip {
+  --background: var(--color-success-subtle);
+  --padding-start: var(--space-base);
+  --inner-padding-end: var(--space-base);
+  --min-height: auto;
+
+  border-radius: var(--radius-s);
+
+  ion-icon {
+    margin: var(--space-base) var(--space-s) var(--space-base) 0;
+    color: var(--color-success);
+    font-size: 1.125rem; // 18px
+  }
+
+  // 12px en el móvil y 14px en escritorio, en peso medio, con 16px arriba y
+  // abajo (ion-label trae su propio tamaño y margen)
+  ion-label {
+    margin: var(--space-base) 0;
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-caption);
+  }
+}
+
+@media (min-width: 768px) {
+  .home__tip ion-label {
+    font-size: var(--font-size-body-s);
+    line-height: var(--line-height-body-s);
+  }
+}
+
+// Título de tarjeta con una etiqueta a la derecha
+.home__card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+// «Datos de ejemplo»: que no se confunda con datos reales
+.home__example {
+  --background: var(--color-warning-subtle);
+  --color: var(--color-warning-text);
+  --padding-start: var(--space-s);
+  --padding-end: var(--space-s);
+
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+}
+
+// Las tres cifras de «Tu impacto», una al lado de la otra
+.home__figures {
+  --ion-grid-padding: 0;
+  --ion-grid-column-padding: 0;
+
+  ion-row {
+    flex-wrap: nowrap;
+    gap: var(--space-s);
+  }
+
+  ion-col {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+// Cada cifra con su icono al lado
+.home__figure-value {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+
+  ion-icon {
+    flex: 0 0 auto;
+    color: var(--color-success);
+    font-size: 1.25rem; // 20px
+  }
+}
+
+// Pasos de «Cómo funciona», con su número en un círculo
+// 8px entre los pasos
+.home__steps ion-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: 0;
+  background: transparent;
+}
+
+.home__steps ion-item {
+  --background: transparent;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --min-height: auto;
+
+  align-items: flex-start;
+}
+
+// El texto de cada paso, a 14px y en peso normal (ion-label trae su propio
+// tamaño y margen)
+.home__steps ion-label {
+  margin: 0;
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body-s);
+}
+
+.home__step-number {
+  --background: var(--color-primary-subtle);
+  --color: var(--color-link);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem; // 24px
+  height: 1.5rem;
+  margin: 0 var(--space-s) 0 0;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-caption);
+}
+
+// Escritorio: 8 y 4 de 12 columnas, con 16px entre ellas y entre tarjetas.
+// En la búsqueda, la ilustración y el formulario, uno al lado del otro
+@media (min-width: 768px) {
+  .home {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-base);
+  }
+
+  .home__main,
+  .home__aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-base);
+  }
+
+  .home__search-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-l);
   }
 }

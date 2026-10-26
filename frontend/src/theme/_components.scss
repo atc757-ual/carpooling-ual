@@ -199,3 +199,53 @@ ion-toast.toast--floating {
 .phone-prefix-popover {
   --width: 8rem; // 128px
 }
+
+// Tarjetas (ion-card): blancas, con borde fino y esquinas de 8px, sin la
+// sombra ni los márgenes de Ionic (la separación la pone quien las coloca).
+// Relleno de 16px
+ion-card {
+  --background: var(--color-surface);
+  --color: var(--color-text);
+
+  margin: 0;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+  box-shadow: none;
+}
+
+// El título, con 16px por todos los lados (también debajo, antes del
+// contenido)
+ion-card-header {
+  padding: var(--space-base);
+}
+
+// Títulos de tarjeta: 18px en el móvil y 20px en escritorio
+ion-card-title {
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+@media (min-width: 768px) {
+  ion-card-title {
+    font-size: 1.25rem; // 20px
+  }
+}
+
+ion-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-base);
+  color: var(--color-text);
+
+  p {
+    margin: 0;
+  }
+}
+
+ion-card-header + ion-card-content {
+  padding-top: 0;
+}

@@ -2,51 +2,66 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
-import { Profile, User } from '../../core/models/user.model';
+import { vi } from 'vitest';
+import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { HomePage } from './home.page';
 
 describe('HomePage', () => {
-  async function render(
-    profiles: Profile[] = ['passenger'],
-  ): Promise<{ root: HTMLElement; page: HomePage }> {
+  async function render(mode: TravelMode | null): Promise<HTMLElement> {
     TestBed.configureTestingModule({
       imports: [HomePage],
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        { provide: AuthService, useValue: { currentUser: signal({ name: 'Ana García' } as User) } },
         {
-          provide: AuthService,
-          useValue: {
-            currentUser: signal({ name: 'Ana García' } as User),
-            hasProfile: (profile: Profile) => profiles.includes(profile),
-          },
+          provide: ActiveModeService,
+          useValue: { mode: signal(mode), hasBothModes: signal(false), setMode: vi.fn() },
         },
       ],
     });
     const fixture = TestBed.createComponent(HomePage);
     await fixture.whenStable();
-    return { root: fixture.nativeElement as HTMLElement, page: fixture.componentInstance };
+    return fixture.nativeElement as HTMLElement;
   }
 
-  it('greets the user by the first name', async () => {
-    const { root } = await render();
+  it('greets the user by the first name (on mobile; on desktop, in the fixed bar)', async () => {
+    const root = await render('passenger');
 
-    // En el móvil; en escritorio el saludo está en la franja fija
     expect(root.querySelector('.home__greeting h1')?.textContent).toBe('¡Hola, Ana!');
+    expect(root.querySelector('.home__greeting p')?.textContent).toBe('¿Vamos al campus hoy?');
   });
 
-  it('asks to choose a mode when there is none yet', async () => {
-    const { root } = await render([]);
+  it('offers the trip search to a passenger, with the tip and the illustration', async () => {
+    const root = await render('passenger');
 
-    expect(
-      root.querySelector('ion-button[ng-reflect-router-link], ion-button')?.textContent,
-    ).toContain('Elegir modo');
+    expect(root.querySelector('app-trip-search-form')).not.toBeNull();
+    expect(root.textContent).toContain('Tu camino al campus.');
+    expect(root.querySelector('.home__tip')?.textContent).toContain('mejor encajan');
+    expect(root.querySelector('.home__search img')).not.toBeNull();
   });
 
-  it('does not ask for a mode once there is one', async () => {
-    const { root } = await render(['driver']);
+  it('offers to publish a trip to a driver', async () => {
+    const root = await render('driver');
 
-    expect(root.textContent).not.toContain('Elegir modo');
+    expect(root.querySelector('app-trip-search-form')).toBeNull();
+    expect(root.textContent).toContain('Ofrecer plaza');
+  });
+
+  it('shows the impact (marked as example data) and how it works', async () => {
+    const root = await render('passenger');
+
+    expect(root.querySelector('.home__impact')?.textContent).toContain('Datos de ejemplo');
+    expect(root.querySelectorAll('.home__figures ion-col')).toHaveLength(3);
+    expect(root.querySelectorAll('.home__steps ion-item')).toHaveLength(3);
+  });
+
+  it('asks to choose a mode when there is none yet, without the side column', async () => {
+    const root = await render(null);
+
+    expect(root.textContent).toContain('Elegir modo');
+    expect(root.querySelector('.home__aside')).toBeNull();
   });
 });

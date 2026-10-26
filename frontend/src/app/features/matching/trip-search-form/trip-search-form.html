@@ -1,0 +1,127 @@
+<form class="search-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+  <!-- Trayecto: origen y destino en una fila, con el botón para cambiarlos -->
+  <div class="search-form__field">
+    <span class="text-label text-label--strong">Trayecto</span>
+    <div class="search-form__route">
+      <ion-input
+        formControlName="origin"
+        aria-label="Origen"
+        fill="outline"
+        placeholder="Origen"
+        errorText="Escribe desde dónde sales."
+      />
+      <button
+        class="search-form__swap"
+        type="button"
+        aria-label="Cambiar origen y destino"
+        (click)="handleSwap()"
+      >
+        <ion-icon [icon]="swapIcon" aria-hidden="true" />
+      </button>
+      <ion-input
+        formControlName="destination"
+        aria-label="Destino"
+        fill="outline"
+        placeholder="Destino"
+        errorText="Escribe a dónde vas."
+      />
+    </div>
+  </div>
+
+  <!-- Dos campos por fila: la fecha y la hora de llegada -->
+  <div class="search-form__row">
+    <!-- Fecha, con el selector nativo en español -->
+    <div class="search-form__field">
+      <span id="search-date-label" class="text-label text-label--strong">Fecha</span>
+      <div class="search-form__picker">
+        <ion-icon [icon]="calendarIcon" aria-hidden="true" />
+        <ion-datetime-button datetime="search-date" aria-labelledby="search-date-label" />
+      </div>
+    </div>
+
+    <!-- Hora de llegada, con el selector nativo en 24 h -->
+    <div class="search-form__field">
+      <span id="search-arrival-label" class="text-label text-label--strong">Hora de llegada</span>
+      <div class="search-form__picker">
+        <ion-icon [icon]="clockIcon" aria-hidden="true" />
+        <ion-datetime-button datetime="search-arrival" aria-labelledby="search-arrival-label" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Dos campos por fila: el margen y las plazas -->
+  <div class="search-form__row">
+    <div class="search-form__field">
+      <span class="text-label text-label--strong" aria-hidden="true">Margen horario</span>
+      <ion-select
+        formControlName="margin"
+        interface="popover"
+        fill="outline"
+        aria-label="Margen horario"
+      >
+        @for (margin of margins; track margin) {
+          <ion-select-option [value]="margin">±{{ margin }} min</ion-select-option>
+        }
+      </ion-select>
+    </div>
+
+    <!-- Plazas que se necesitan -->
+    <div class="search-form__field">
+      <span class="text-label text-label--strong" aria-hidden="true">Plazas</span>
+      <ion-input
+        formControlName="seats"
+        type="number"
+        inputmode="numeric"
+        aria-label="Plazas"
+        fill="outline"
+        [min]="minSeats"
+        [max]="maxSeats"
+        errorText="Entre 1 y 4 plazas."
+      >
+        <ion-icon slot="start" [icon]="seatsIcon" aria-hidden="true" />
+      </ion-input>
+    </div>
+  </div>
+
+  <ion-modal [keepContentsMounted]="true">
+    <ng-template>
+      <ion-datetime
+        id="search-date"
+        formControlName="date"
+        presentation="date"
+        [formatOptions]="{ date: { day: 'numeric', month: 'short' } }"
+        locale="es-ES"
+        [firstDayOfWeek]="1"
+        [min]="minDate"
+        [showDefaultButtons]="true"
+        doneText="Aceptar"
+        cancelText="Cancelar"
+      />
+    </ng-template>
+  </ion-modal>
+  <ion-modal [keepContentsMounted]="true">
+    <ng-template>
+      <ion-datetime
+        id="search-arrival"
+        formControlName="arrival"
+        presentation="time"
+        locale="es-ES"
+        hourCycle="h23"
+        [minuteValues]="[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]"
+        [showDefaultButtons]="true"
+        doneText="Aceptar"
+        cancelText="Cancelar"
+      />
+    </ng-template>
+  </ion-modal>
+
+  <ion-button type="submit" expand="block">
+    <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
+    Buscar viaje
+  </ion-button>
+
+  <p class="search-form__summary text-color-muted">
+    Verás llegadas entre las {{ arrivalWindow().from }} y las {{ arrivalWindow().to }}. También
+    mostraremos alternativas fuera del margen.
+  </p>
+</form>

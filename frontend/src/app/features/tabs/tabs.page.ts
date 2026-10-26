@@ -25,7 +25,6 @@ import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ActiveModeService } from '../../core/services/users/active-mode.service';
 import { BrandLogo } from '../../shared/components/ui/brand-logo/brand-logo';
-import { ModeSelector } from '../../shared/components/ui/mode-selector/mode-selector';
 
 interface Tab {
   // Ruta bajo /tabs
@@ -50,7 +49,7 @@ const PROFILE_TAB: Tab = { path: 'profile', label: 'Perfil', icon: personOutline
 // contenido de la pestaña.
 // - Móvil: cabecera con el logotipo y la campana; pestañas abajo.
 // - Escritorio (≥ 768px): menú superior (logotipo, destinos centrados,
-//   campana y cerrar sesión) y debajo una franja fija con el saludo y el modo.
+//   campana y cerrar sesión) y debajo una franja fija con el saludo.
 // La tercera pestaña es contextual: Buscar como pasajero y Publicar como
 // conductor (nunca hay una sexta)
 @Component({
@@ -69,7 +68,6 @@ const PROFILE_TAB: Tab = { path: 'profile', label: 'Perfil', icon: personOutline
     IonTabs,
     IonToolbar,
     BrandLogo,
-    ModeSelector,
   ],
   templateUrl: './tabs.page.html',
   styleUrl: './tabs.page.scss',

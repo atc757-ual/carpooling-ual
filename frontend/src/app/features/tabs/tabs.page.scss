@@ -98,7 +98,8 @@ ion-tab-button {
 }
 
 // Escritorio: franja fija y blanca bajo el menú (sin línea entre los dos) con
-// el saludo y el modo, alineada con el logotipo y el contenido de las pestañas
+// el saludo y, debajo, «¿Vamos al campus hoy?», alineada con el logotipo y el
+// contenido de las pestañas
 .greeting-bar {
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
   background: var(--color-surface);
@@ -106,9 +107,8 @@ ion-tab-button {
 
 .greeting-bar__content {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-base);
+  flex-direction: column;
+  gap: var(--space-xs);
   padding: var(--space-l) var(--page-gutter);
 
   p {
