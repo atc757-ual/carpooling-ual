@@ -60,6 +60,9 @@ describe('authInterceptor', () => {
       '/api/auth/verify-email/resend',
       '/api/auth/refresh',
       '/api/auth/logout',
+      '/api/auth/password-reset',
+      '/api/auth/password-reset/verify',
+      '/api/auth/password-reset/confirm',
     ])(
       'is not sent to the public route %s',
       (url) => {

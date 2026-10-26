@@ -33,7 +33,7 @@
     </div>
 
     <div class="auth-intro">
-      <span class="verify__icon" aria-hidden="true">
+      <span class="auth-icon" aria-hidden="true">
         <ion-icon [icon]="mailIcon" />
       </span>
       <h1 class="text-heading">Mira tu bandeja de entrada.</h1>
@@ -49,20 +49,7 @@
         <span id="verify-code-label" class="text-label text-label--strong"
           >Código de verificación</span
         >
-        <!-- Seis casillas; pegar el código del correo lo reparte entre ellas.
-             De tipo texto con teclado numérico (no de tipo número): así un
-             código que empieza por cero conserva ese cero. Sin patrón propio:
-             Angular lo aplicaría como validador del código entero -->
-        <ion-input-otp
-          class="verify__code"
-          formControlName="code"
-          [length]="codeLength"
-          type="text"
-          inputmode="numeric"
-          fill="outline"
-          shape="soft"
-          aria-labelledby="verify-code-label"
-        />
+        <app-code-input formControlName="code" labelledBy="verify-code-label" />
       </div>
 
       @if (isLocked()) {

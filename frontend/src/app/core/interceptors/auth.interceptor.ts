@@ -15,6 +15,9 @@ const PUBLIC_AUTH_PATHS = [
   '/auth/login',
   '/auth/refresh',
   '/auth/logout',
+  '/auth/password-reset',
+  '/auth/password-reset/verify',
+  '/auth/password-reset/confirm',
 ];
 
 function needsToken(request: HttpRequest<unknown>): boolean {

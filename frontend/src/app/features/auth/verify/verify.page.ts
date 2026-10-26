@@ -7,7 +7,6 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonInputOtp,
   IonRouterLink,
   IonSpinner,
   IonText,
@@ -20,10 +19,10 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
-import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
+import { CodeInput } from '../../../shared/components/ui/code-input/code-input';
+import { createCountdown, getResendLabel } from '../../../shared/utils/countdown.util';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 
-const CODE_LENGTH = 6;
 // La API anula el código al tercer intento fallido
 const TOO_MANY_ATTEMPTS = 'TOO_MANY_ATTEMPTS';
 // La API envía como mucho un código por minuto
@@ -42,14 +41,13 @@ const RESEND_WAIT_SECONDS = 60;
     IonContent,
     IonHeader,
     IonIcon,
-    IonInputOtp,
     IonRouterLink,
     IonSpinner,
     IonText,
     IonTitle,
     IonToolbar,
     AuthLayout,
-    IonicFormStatus,
+    CodeInput,
   ],
   templateUrl: './verify.page.html',
   styleUrls: ['../auth-form.scss', './verify.page.scss'],
@@ -58,7 +56,6 @@ export class VerifyPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
 
   // El correo pendiente de verificar (lo guarda AuthService al registrar o al
   // entrar sin haberlo verificado); nunca en la URL
@@ -72,15 +69,10 @@ export class VerifyPage implements OnInit {
   // Tras 3 fallos el código queda anulado: no se puede escribir otro hasta
   // pedir uno nuevo
   readonly isLocked = signal(false);
-  readonly secondsToResend = signal(RESEND_WAIT_SECONDS);
-  readonly resendLabel = computed(() => {
-    const seconds = this.secondsToResend();
-    return seconds > 0
-      ? `Reenviar código en 00:${String(seconds).padStart(2, '0')}`
-      : 'Reenviar código';
-  });
+  private readonly resendCountdown = createCountdown(RESEND_WAIT_SECONDS, inject(DestroyRef));
+  readonly secondsToResend = this.resendCountdown.seconds;
+  readonly resendLabel = computed(() => getResendLabel(this.secondsToResend()));
 
-  protected readonly codeLength = CODE_LENGTH;
   protected readonly backIcon = arrowBackOutline;
   protected readonly mailIcon = mailUnreadOutline;
 
@@ -92,7 +84,7 @@ export class VerifyPage implements OnInit {
       return;
     }
     this.email.set(email);
-    this.startResendCountdown();
+    this.resendCountdown.restart();
   }
 
   async handleSubmit(): Promise<void> {
@@ -123,7 +115,7 @@ export class VerifyPage implements OnInit {
       this.hasResent.set(true);
       this.form.reset();
       this.unlock();
-      this.startResendCountdown();
+      this.resendCountdown.restart();
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     }
@@ -137,17 +129,5 @@ export class VerifyPage implements OnInit {
   private unlock(): void {
     this.isLocked.set(false);
     this.form.controls.code.enable();
-  }
-
-  // Cuenta atrás hasta poder pedir otro código
-  private startResendCountdown(): void {
-    this.secondsToResend.set(RESEND_WAIT_SECONDS);
-    const timer = setInterval(() => {
-      this.secondsToResend.update((seconds) => seconds - 1);
-      if (this.secondsToResend() <= 0) {
-        clearInterval(timer);
-      }
-    }, 1000);
-    this.destroyRef.onDestroy(() => clearInterval(timer));
   }
 }

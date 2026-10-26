@@ -1,44 +1,5 @@
 // Lo común a los formularios de acceso está en ../auth-form.scss
 
-// Sobre en una caja azul clara, sobre el título
-.verify__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3.5rem; // 56px
-  height: 3.5rem;
-  margin-bottom: var(--space-s);
-  border-radius: var(--radius-base);
-  background: var(--color-primary-subtle);
-  color: var(--color-primary);
-  font-size: 1.75rem; // 28px
-}
-
-// Sin el relleno de 16px que Ionic pone arriba y abajo de las casillas: así
-// quedan a 4px de su etiqueta y el error, a la distancia normal del formulario
-// Casillas de 60px de alto con la cifra a 28px, como un código fácil de leer.
-// Con la clase del tamaño de Ionic en el selector: su regla
-// :host(.input-otp-size-medium) fija el alto y tiene más prioridad que solo
-// ion-input-otp
-ion-input-otp.verify__code.input-otp-size-medium {
-  --padding-top: 0;
-  --padding-bottom: 0;
-  --height: 3.75rem; // 60px
-  --border-radius: var(--radius-s);
-
-  justify-content: flex-start;
-  font-family: var(--font-family-heading);
-  font-size: 1.75rem; // 28px
-  font-weight: var(--font-weight-semibold);
-}
-
-// Casillas alineadas a la izquierda, con la etiqueta y el resto del formulario
-// (Ionic las centra). Su grupo es HTML interno del componente: ::ng-deep,
-// limitado a esta pantalla
-:host ::ng-deep ion-input-otp .input-otp-group {
-  justify-content: flex-start;
-}
-
 // El correo al que se envió el código, algo más marcado que el texto
 .verify__email {
   font-weight: var(--font-weight-medium);

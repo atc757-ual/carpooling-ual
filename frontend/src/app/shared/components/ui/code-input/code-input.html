@@ -1,0 +1,14 @@
+<!-- De tipo texto con teclado numérico (no de tipo número): así un código que
+     empieza por cero conserva ese cero. Sin patrón propio: Angular lo
+     aplicaría como validador del código entero. one-time-code: el móvil
+     ofrece el código recibido -->
+<ion-input-otp
+  [formControl]="code"
+  [length]="codeLength"
+  type="text"
+  inputmode="numeric"
+  autocomplete="one-time-code"
+  fill="outline"
+  shape="soft"
+  [attr.aria-labelledby]="labelledBy()"
+/>

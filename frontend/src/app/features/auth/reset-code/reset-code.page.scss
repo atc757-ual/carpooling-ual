@@ -1,0 +1,13 @@
+// Lo común a los formularios de acceso está en ../auth-form.scss
+
+// El correo al que se envió el código, algo más marcado que el texto
+.reset-code__email {
+  font-weight: var(--font-weight-medium);
+}
+
+// «Continuar» y «Reenviar código», a 16px
+.reset-code__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
