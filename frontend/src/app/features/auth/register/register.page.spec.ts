@@ -116,10 +116,30 @@ describe('RegisterPage', () => {
     expect(phone.touched).toBe(false);
   });
 
-  it('keeps only the digits of the number', () => {
-    page.form.controls.phone.setValue('612-34a5 678');
+  it('keeps only the digits of the number, in groups of three in Spain', () => {
+    page.form.controls.phone.setValue('612-34a5678');
+
+    expect(page.form.controls.phone.value).toBe('612 345 678');
+  });
+
+  it('shows the number without groups for other countries', () => {
+    page.form.controls.phone.setValue('612 345 678');
+
+    page.form.controls.phonePrefix.setValue('+39');
 
     expect(page.form.controls.phone.value).toBe('612345678');
+  });
+
+  it('shows the flag of the chosen country', () => {
+    fixture.detectChanges();
+    const flag = (): Element | null =>
+      (fixture.nativeElement as HTMLElement).querySelector('.register__flag');
+    expect(flag()?.classList).toContain('fi-es');
+
+    page.form.controls.phonePrefix.setValue('+44');
+    fixture.detectChanges();
+
+    expect(flag()?.classList).toContain('fi-gb');
   });
 
   it('moves the prefix of a pasted international number to the country list', () => {

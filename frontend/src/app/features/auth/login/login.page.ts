@@ -25,6 +25,7 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
+import { EmailSuggestions } from '../../../shared/components/ui/email-suggestions/email-suggestions';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/ual-email.util';
@@ -50,6 +51,7 @@ const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
     IonTitle,
     IonToolbar,
     AuthLayout,
+    EmailSuggestions,
     IonicFormStatus,
   ],
   templateUrl: './login.page.html',

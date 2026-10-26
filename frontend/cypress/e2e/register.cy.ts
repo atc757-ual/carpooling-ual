@@ -35,6 +35,17 @@ for (const viewport of VIEWPORTS) {
       cy.location('search').should('eq', '');
     });
 
+    it('shows the flag of the prefix and the Spanish number in groups of three', () => {
+      cy.get('ion-input[formControlName="phone"] .register__flag').should('have.class', 'fi-es');
+
+      cy.get('ion-input[formControlName="phone"] input.native-input').type('612345678');
+
+      cy.get('ion-input[formControlName="phone"] input.native-input').should(
+        'have.value',
+        '612 345 678',
+      );
+    });
+
     it('sends a foreign phone with the prefix chosen in the country list', () => {
       cy.intercept('POST', REGISTER_URL, { statusCode: 202 }).as('register');
       fillForm('mario.perez@ual.es');

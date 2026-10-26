@@ -39,6 +39,14 @@ export function splitPhone(value: string, currentPrefix: string): SplitPhone {
     : { prefix: currentPrefix, number: digits };
 }
 
+// Cómo se ve el número mientras se escribe: en España, en grupos de tres
+// (612 345 678); en otros países, las cifras seguidas (cada uno tiene su
+// formato). Los espacios solo se ven: a la API se envían las cifras
+export function formatPhoneNumber(prefix: string, number: string): string {
+  const digits = toDigits(number);
+  return prefix === SPANISH_PREFIX ? digits.replace(/(\d{3})(?=\d)/g, '$1 ') : digits;
+}
+
 export function buildPhone(prefix: string, number: string): string {
   return prefix + toDigits(number);
 }

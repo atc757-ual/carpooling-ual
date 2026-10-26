@@ -34,6 +34,18 @@ for (const viewport of VIEWPORTS) {
       cy.visit('/auth/login');
     });
 
+    it('completes the email with a suggested UAL domain', () => {
+      cy.get('ion-input[formControlName="email"] input').type('ana.garcia');
+
+      cy.contains('app-email-suggestions button', 'ana.garcia@inlumine.ual.es').click();
+
+      cy.get('ion-input[formControlName="email"] input').should(
+        'have.value',
+        'ana.garcia@inlumine.ual.es',
+      );
+      cy.get('app-email-suggestions ul').should('not.exist');
+    });
+
     it('logs in and goes to the home page', () => {
       cy.intercept('POST', LOGIN_URL, ACCESS_TOKEN).as('login');
 
