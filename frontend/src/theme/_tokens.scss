@@ -1,6 +1,8 @@
 // Tokens de diseño que no dependen del modo claro/oscuro (los colores y las
 // sombras están en _roles.scss). Tamaños en rem, con su equivalente en px.
 
+@use 'sass:map';
+
 // Puntos de corte (los de Ionic). Son de Sass porque @media no admite var().
 $breakpoints: (
   sm: 576px,
@@ -41,8 +43,17 @@ $breakpoints: (
   --tab-bar-height: 4.75rem; // 76px
   --tab-icon-size: 1.625rem; // 26px
 
-  // Ancho máximo del contenido del área con sesión en escritorio
-  --page-max-width: 64rem; // 1024px
+  // Área con sesión: ancho máximo de la cabecera, la franja del saludo y el
+  // contenido, y su margen lateral común: 16px en el móvil (como las pantallas
+  // de acceso) y 24px en escritorio; en pantallas más anchas que el máximo, lo
+  // que sobra se reparte a los lados y todo queda centrado y alineado con el
+  // logotipo. El % es del ancho de quien lo usa
+  --page-max-width: 87.5rem; // 1400px
+  --page-gutter-min: var(--space-base);
+  --page-gutter: max(
+    var(--page-gutter-min),
+    calc((100% - var(--page-max-width)) / 2 + var(--page-gutter-min))
+  );
 
   // Tipografía: familias
   --font-family-heading: 'Barlow', system-ui, sans-serif; // títulos y botones
@@ -90,6 +101,13 @@ $breakpoints: (
   --motion-duration-fast: 150ms;
   --motion-duration-base: 250ms;
   --motion-easing: cubic-bezier(0.2, 0, 0, 1);
+}
+
+// En escritorio, más margen lateral en el área con sesión
+@media (min-width: map.get($breakpoints, md)) {
+  :root {
+    --page-gutter-min: var(--space-l);
+  }
 }
 
 // Sin animaciones para quien lo pide en su sistema (WCAG 2.3.3)

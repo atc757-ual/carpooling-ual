@@ -33,7 +33,7 @@ describe('HomePage', () => {
     const { root } = await render();
 
     // En el móvil; en escritorio el saludo está en la franja fija
-    expect(root.querySelector('h1 .ion-hide-md-up')?.textContent).toBe('Hola, Ana');
+    expect(root.querySelector('.home__greeting h1')?.textContent).toBe('¡Hola, Ana!');
   });
 
   it('asks to choose a mode when there is none yet', async () => {
@@ -49,5 +49,4 @@ describe('HomePage', () => {
 
     expect(root.textContent).not.toContain('Elegir modo');
   });
-
 });

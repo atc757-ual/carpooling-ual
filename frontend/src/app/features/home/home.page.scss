@@ -1,0 +1,16 @@
+// Lo común a las pestañas está en ../tabs/tab-page.scss
+
+// Móvil: franja blanca con el modo y el saludo, como la franja fija de
+// escritorio, con 16px por todos los lados (el margen lateral del móvil) y el
+// saludo justo debajo del modo
+.home__greeting {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-base) var(--page-gutter);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  background: var(--color-surface);
+
+  h1 {
+    margin: 0;
+  }
+}

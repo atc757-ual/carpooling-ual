@@ -12,7 +12,7 @@ import { ModeSelector } from '../../shared/components/ui/mode-selector/mode-sele
   selector: 'app-home',
   imports: [IonContent, IonButton, IonRouterLink, RouterLink, ModeSelector],
   templateUrl: './home.page.html',
-  styleUrl: '../tabs/tab-page.scss',
+  styleUrls: ['../tabs/tab-page.scss', './home.page.scss'],
 })
 export class HomePage {
   private readonly auth = inject(AuthService);

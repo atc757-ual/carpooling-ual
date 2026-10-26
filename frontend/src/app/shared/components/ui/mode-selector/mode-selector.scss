@@ -28,7 +28,8 @@
   font-weight: var(--font-weight-semibold);
 }
 
-// Recuadro del móvil, con borde y los perfiles debajo
+// Recuadro del móvil, blanco sobre el fondo gris, con borde y los perfiles
+// debajo
 :host(.mode-selector--card) {
   width: 100%;
 
@@ -36,6 +37,7 @@
     padding: 0 var(--space-base);
     border: var(--border-width-s) solid var(--color-border);
     border-radius: var(--radius-s);
+    background: var(--color-surface);
   }
 
   p {
