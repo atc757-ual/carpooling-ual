@@ -15,6 +15,11 @@ const EMAIL_PREFIX = 'auth-e2e-';
 const PASSWORD = 'secret-password';
 const ANA = `${EMAIL_PREFIX}ana@ual.es`;
 
+// Un código de 6 cifras distinto del correcto
+function wrongCode(code: string): string {
+  return code === '000000' ? '000001' : '000000';
+}
+
 describe('Auth API (e2e)', () => {
   let app: INestApplication<App>;
   let dataSource: DataSource;
@@ -69,15 +74,45 @@ describe('Auth API (e2e)', () => {
       .send({ email });
   }
 
-  // Un código de 6 cifras distinto del correcto
-  function wrongCode(code: string): string {
-    return code === '000000' ? '000001' : '000000';
-  }
-
   function login(email: string, password: string): request.Test {
     return request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email, password });
+  }
+
+  function sentToAna(): number {
+    return testMailbox(app).sentTo(ANA).length;
+  }
+
+  // Como si el código se hubiera enviado hace más de un minuto
+  async function backdateCode(): Promise<void> {
+    await dataSource.query(
+      `UPDATE pending_registrations
+          SET code_sent_at = now() - interval '2 minutes'
+        WHERE email = $1`,
+      [ANA],
+    );
+  }
+
+  function refresh(refreshToken: unknown): request.Test {
+    return request(app.getHttpServer())
+      .post('/api/auth/refresh')
+      .send({ refreshToken });
+  }
+
+  function logout(refreshToken: string): request.Test {
+    return request(app.getHttpServer())
+      .post('/api/auth/logout')
+      .send({ refreshToken });
+  }
+
+  async function loginRefreshToken(): Promise<string> {
+    await registerVerified();
+    const response = await login(`${EMAIL_PREFIX}ana@ual.es`, PASSWORD).expect(
+      200,
+    );
+    const { refreshToken } = response.body as { refreshToken: string };
+    return refreshToken;
   }
 
   // Fila del registro pendiente de ese correo (o undefined si no hay)
@@ -291,20 +326,6 @@ describe('Auth API (e2e)', () => {
     afterEach(() => {
       jest.restoreAllMocks();
     });
-
-    function sentToAna(): number {
-      return testMailbox(app).sentTo(ANA).length;
-    }
-
-    // Como si el código se hubiera enviado hace más de un minuto
-    async function backdateCode(): Promise<void> {
-      await dataSource.query(
-        `UPDATE pending_registrations
-            SET code_sent_at = now() - interval '2 minutes'
-          WHERE email = $1`,
-        [ANA],
-      );
-    }
 
     it('sends the code by email after registering', async () => {
       const before = sentToAna();
@@ -570,28 +591,6 @@ describe('Auth API (e2e)', () => {
   });
 
   describe('POST /api/auth/refresh and POST /api/auth/logout', () => {
-    function refresh(refreshToken: unknown): request.Test {
-      return request(app.getHttpServer())
-        .post('/api/auth/refresh')
-        .send({ refreshToken });
-    }
-
-    function logout(refreshToken: string): request.Test {
-      return request(app.getHttpServer())
-        .post('/api/auth/logout')
-        .send({ refreshToken });
-    }
-
-    async function loginRefreshToken(): Promise<string> {
-      await registerVerified();
-      const response = await login(
-        `${EMAIL_PREFIX}ana@ual.es`,
-        PASSWORD,
-      ).expect(200);
-      const { refreshToken } = response.body as { refreshToken: string };
-      return refreshToken;
-    }
-
     it('login returns a refresh token valid for 7 days', async () => {
       await registerVerified();
 
