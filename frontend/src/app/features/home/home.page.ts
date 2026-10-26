@@ -7,15 +7,12 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
-  IonCol,
   IonContent,
-  IonGrid,
   IonIcon,
   IonItem,
   IonLabel,
   IonList,
   IonRouterLink,
-  IonRow,
 } from '@ionic/angular';
 import {
   addCircleOutline,
@@ -39,9 +36,9 @@ export interface ImpactFigure {
 // «Tu impacto» con datos de EJEMPLO (la tarjeta lo dice): aún no hay viajes
 // ni el módulo de métricas que los calcule. Se sustituirán por los reales
 export const IMPACT_EXAMPLE: readonly ImpactFigure[] = [
-  { icon: peopleOutline, value: '12', label: 'viajes compartidos' },
-  { icon: carOutline, value: '8', label: 'coches menos hacia el campus' },
-  { icon: leafOutline, value: '46 kg', label: 'de CO₂ evitados' },
+  { icon: peopleOutline, value: '12 viajes', label: 'compartidos este curso' },
+  { icon: carOutline, value: '8 coches', label: 'menos de camino al campus' },
+  { icon: leafOutline, value: '46 kg de CO₂', label: 'que no se han emitido' },
 ];
 
 // «Cómo funciona», para el pasajero
@@ -53,9 +50,8 @@ export const PASSENGER_STEPS: readonly string[] = [
 
 // Pestaña Inicio, en dos columnas en escritorio (8 y 4 de 12) y una en el
 // móvil:
-// - Principal: el pasajero, la búsqueda de viajes (con la ilustración al lado
-//   en escritorio); el conductor, de momento, ofrecer plaza. Cuando haya
-//   viajes, su lista irá primero.
+// - Principal: el pasajero, la búsqueda de viajes; el conductor, de momento,
+//   ofrecer plaza. Cuando haya viajes, su lista irá primero.
 // - Lateral: el modo (con los dos perfiles), «Tu impacto» y «Cómo funciona».
 // El saludo, en el móvil (en escritorio está en la franja fija). A quien aún
 // no tiene modo, el camino para elegirlo
@@ -68,15 +64,12 @@ export const PASSENGER_STEPS: readonly string[] = [
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
-    IonCol,
     IonContent,
-    IonGrid,
     IonIcon,
     IonItem,
     IonLabel,
     IonList,
     IonRouterLink,
-    IonRow,
     RouterLink,
     ModeSelector,
     TripSearchForm,

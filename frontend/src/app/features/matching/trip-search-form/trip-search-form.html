@@ -28,8 +28,9 @@
     </div>
   </div>
 
-  <!-- Dos campos por fila: la fecha y la hora de llegada -->
-  <div class="search-form__row">
+  <!-- Fecha, hora de llegada, margen y plazas: de dos en dos y, en pantallas
+       anchas, los cuatro en una fila -->
+  <div class="search-form__details">
     <!-- Fecha, con el selector nativo en español -->
     <div class="search-form__field">
       <span id="search-date-label" class="text-label text-label--strong">Fecha</span>
@@ -47,10 +48,7 @@
         <ion-datetime-button datetime="search-arrival" aria-labelledby="search-arrival-label" />
       </div>
     </div>
-  </div>
 
-  <!-- Dos campos por fila: el margen y las plazas -->
-  <div class="search-form__row">
     <div class="search-form__field">
       <span class="text-label text-label--strong" aria-hidden="true">Margen horario</span>
       <ion-select

@@ -21,12 +21,19 @@
   min-width: 0;
 }
 
-// Dos campos por fila, en el móvil y en escritorio
-.search-form__row {
+// Fecha, hora, margen y plazas: de dos en dos y, desde 992px (lg), los cuatro
+// en una fila
+.search-form__details {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
-  gap: var(--space-s);
+  gap: var(--space-base) var(--space-s);
+}
+
+@media (min-width: 992px) {
+  .search-form__details {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 // Trayecto: en el móvil, origen y destino uno encima del otro, con el botón de

@@ -33,8 +33,6 @@ function logIn(profiles: string[]): void {
 }
 
 for (const viewport of VIEWPORTS) {
-  const isDesktop = viewport.name === 'desktop';
-
   describe(`Home (${viewport.name})`, () => {
     beforeEach(() => {
       cy.viewport(viewport.width, viewport.height);
@@ -47,7 +45,7 @@ for (const viewport of VIEWPORTS) {
         .filter(':visible')
         .should('contain', '¿Vamos al campus hoy?');
       cy.contains('app-home ion-card-title', 'Tu camino al campus.').should('be.visible');
-      cy.get('app-home .home__art').should(isDesktop ? 'be.visible' : 'not.be.visible');
+      cy.get('app-home .home__search img').should('not.exist');
       cy.contains('app-home', 'Verás llegadas entre las 07:40 y las 08:20.').should('exist');
     });
 

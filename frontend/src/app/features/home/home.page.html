@@ -14,22 +14,16 @@
         <!-- Columna principal (8 de 12 en escritorio) -->
         <div class="home__main">
           <ion-card class="home__search">
-            <ion-card-content class="home__search-content">
-              <!-- El título, el consejo y, debajo, la ilustración (solo en escritorio) -->
-              <div class="home__search-side">
-                <ion-card-title>Tu camino al campus.</ion-card-title>
-                <ion-item class="home__tip" lines="none">
-                  <ion-icon slot="start" [icon]="tipIcon" aria-hidden="true" />
-                  <ion-label class="ion-text-wrap text-body-s">
-                    Te mostramos primero los viajes que mejor encajan con tu ruta y tu horario.
-                  </ion-label>
-                </ion-item>
-                <img
-                  class="home__art ion-hide-md-down"
-                  src="images/welcome-illustration.svg"
-                  alt=""
-                />
-              </div>
+            <ion-card-header>
+              <ion-card-title>Tu camino al campus.</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-item class="home__tip" lines="none">
+                <ion-icon slot="start" [icon]="tipIcon" aria-hidden="true" />
+                <ion-label class="ion-text-wrap">
+                  Te mostramos primero los viajes que mejor encajan con tu ruta y tu horario.
+                </ion-label>
+              </ion-item>
               <app-trip-search-form />
             </ion-card-content>
           </ion-card>
@@ -78,19 +72,19 @@
             <ion-badge class="home__example">Datos de ejemplo</ion-badge>
           </ion-card-header>
           <ion-card-content>
-            <ion-grid class="home__figures">
-              <ion-row>
-                @for (figure of impact; track figure.label) {
-                  <ion-col size="4">
-                    <span class="home__figure-value">
-                      <ion-icon [icon]="figure.icon" aria-hidden="true" />
-                      <span class="text-subtitle">{{ figure.value }}</span>
-                    </span>
-                    <span class="text-caption text-color-muted">{{ figure.label }}</span>
-                  </ion-col>
-                }
-              </ion-row>
-            </ion-grid>
+            <ion-list class="home__figures" lines="none">
+              @for (figure of impact; track figure.label) {
+                <ion-item>
+                  <span slot="start" class="home__figure-icon" aria-hidden="true">
+                    <ion-icon [icon]="figure.icon" />
+                  </span>
+                  <ion-label>
+                    <span class="home__figure-value">{{ figure.value }}</span>
+                    <span class="text-body-s text-color-muted">{{ figure.label }}</span>
+                  </ion-label>
+                </ion-item>
+              }
+            </ion-list>
           </ion-card-content>
         </ion-card>
 

@@ -34,6 +34,7 @@
   order: -1;
 }
 
+// Ilustración (tarjeta del conductor)
 .home__art {
   display: block;
   width: 100%;
@@ -41,15 +42,8 @@
   border-radius: var(--radius-s);
 }
 
-// Búsqueda: el título, el consejo (y, en escritorio, la ilustración debajo) y
-// el formulario
-.home__search-content {
-  gap: var(--space-base);
-}
-
-.home__search-side {
-  display: flex;
-  flex-direction: column;
+// Búsqueda: el consejo y, debajo, el formulario, a 16px
+.home__search ion-card-content {
   gap: var(--space-base);
 }
 
@@ -63,25 +57,18 @@
   border-radius: var(--radius-s);
 
   ion-icon {
-    margin: var(--space-base) var(--space-s) var(--space-base) 0;
+    margin: var(--space-s) var(--space-base) var(--space-s) 0;
     color: var(--color-success);
-    font-size: 1.125rem; // 18px
+    font-size: 1.25rem; // 20px
   }
 
-  // 12px en el móvil y 14px en escritorio, en peso medio, con 16px arriba y
+  // 12px en el móvil y 14px en escritorio, en peso normal, con 8px arriba y
   // abajo (ion-label trae su propio tamaño y margen)
   ion-label {
-    margin: var(--space-base) 0;
+    margin: var(--space-s) 0;
     font-size: var(--font-size-caption);
-    font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-regular);
     line-height: var(--line-height-caption);
-  }
-}
-
-@media (min-width: 768px) {
-  .home__tip ion-label {
-    font-size: var(--font-size-body-s);
-    line-height: var(--line-height-body-s);
   }
 }
 
@@ -106,60 +93,70 @@
   font-weight: var(--font-weight-medium);
 }
 
-// Las tres cifras de «Tu impacto», una al lado de la otra
-.home__figures {
-  --ion-grid-padding: 0;
-  --ion-grid-column-padding: 0;
-
-  ion-row {
-    flex-wrap: nowrap;
-    gap: var(--space-s);
-  }
-
-  ion-col {
-    display: flex;
-    flex-direction: column;
-  }
-}
-
-// Cada cifra con su icono al lado
-.home__figure-value {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-
-  ion-icon {
-    flex: 0 0 auto;
-    color: var(--color-success);
-    font-size: 1.25rem; // 20px
-  }
-}
-
-// Pasos de «Cómo funciona», con su número en un círculo
-// 8px entre los pasos
+// «Tu impacto» y «¿Cómo funciona?»: listas sin fondo ni márgenes propios,
+// con 12px entre filas
+.home__figures,
 .home__steps ion-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-s);
+  gap: 0.75rem; // 12px
   padding: 0;
   background: transparent;
+
+  ion-item {
+    --background: transparent;
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    --min-height: auto;
+  }
+
+  // Texto en peso normal (ion-label trae su propio tamaño y margen)
+  ion-label {
+    margin: 0;
+    font-weight: var(--font-weight-regular);
+  }
+}
+
+// Cada cifra: el icono en un círculo verde claro y, al lado, la cifra en
+// negrita con su frase debajo
+.home__figure-icon {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem; // 40px
+  height: 2.5rem;
+  margin: 0 var(--space-base) 0 0;
+  border-radius: var(--radius-full);
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+  font-size: 1.25rem; // 20px
+}
+
+.home__figures ion-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.home__figure-value {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-subtitle);
+}
+
+// Pasos de «¿Cómo funciona?»: 8px entre ellos, el texto a 14px y el número en
+// un círculo
+.home__steps ion-list {
+  gap: var(--space-s);
 }
 
 .home__steps ion-item {
-  --background: transparent;
-  --padding-start: 0;
-  --inner-padding-end: 0;
-  --min-height: auto;
-
   align-items: flex-start;
 }
 
-// El texto de cada paso, a 14px y en peso normal (ion-label trae su propio
-// tamaño y margen)
 .home__steps ion-label {
-  margin: 0;
   font-size: var(--font-size-body-s);
-  font-weight: var(--font-weight-regular);
   line-height: var(--line-height-body-s);
 }
 
@@ -177,8 +174,8 @@
   font-size: var(--font-size-caption);
 }
 
-// Escritorio: 8 y 4 de 12 columnas, con 16px entre ellas y entre tarjetas.
-// En la búsqueda, la ilustración y el formulario, uno al lado del otro
+// Escritorio: 8 y 4 de 12 columnas, con 16px entre ellas y entre tarjetas. El
+// texto del consejo, a 14px
 @media (min-width: 768px) {
   .home {
     display: grid;
@@ -194,10 +191,8 @@
     gap: var(--space-base);
   }
 
-  .home__search-content {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
-    gap: var(--space-l);
+  .home__tip ion-label {
+    font-size: var(--font-size-body-s);
+    line-height: var(--line-height-body-s);
   }
 }

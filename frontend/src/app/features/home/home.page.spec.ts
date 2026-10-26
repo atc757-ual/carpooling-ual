@@ -34,13 +34,13 @@ describe('HomePage', () => {
     expect(root.querySelector('.home__greeting p')?.textContent).toBe('¿Vamos al campus hoy?');
   });
 
-  it('offers the trip search to a passenger, with the tip and the illustration', async () => {
+  it('offers the trip search to a passenger, with the tip', async () => {
     const root = await render('passenger');
 
     expect(root.querySelector('app-trip-search-form')).not.toBeNull();
     expect(root.textContent).toContain('Tu camino al campus.');
     expect(root.querySelector('.home__tip')?.textContent).toContain('mejor encajan');
-    expect(root.querySelector('.home__search img')).not.toBeNull();
+    expect(root.querySelector('.home__search img')).toBeNull();
   });
 
   it('offers to publish a trip to a driver', async () => {
@@ -54,7 +54,7 @@ describe('HomePage', () => {
     const root = await render('passenger');
 
     expect(root.querySelector('.home__impact')?.textContent).toContain('Datos de ejemplo');
-    expect(root.querySelectorAll('.home__figures ion-col')).toHaveLength(3);
+    expect(root.querySelectorAll('.home__figures ion-item')).toHaveLength(3);
     expect(root.querySelectorAll('.home__steps ion-item')).toHaveLength(3);
   });
 

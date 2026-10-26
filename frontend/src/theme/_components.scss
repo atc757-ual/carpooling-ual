@@ -234,12 +234,17 @@ ion-card-title {
   }
 }
 
-ion-card-content {
+// Dentro de ion-card: así gana a la regla de Ionic (display: block), que si no
+// anula el gap
+ion-card ion-card-content {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
   padding: var(--space-base);
   color: var(--color-text);
+  // El texto, en peso normal (los títulos y las etiquetas de los campos llevan
+  // el suyo)
+  font-weight: var(--font-weight-regular);
 
   p {
     margin: 0;
