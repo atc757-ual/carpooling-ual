@@ -53,7 +53,7 @@ describe('Auth API (e2e)', () => {
   // Registro y verificación del correo con el código recibido (para poder
   // iniciar sesión)
   async function registerVerified(): Promise<void> {
-    await register().expect(201);
+    await register().expect(202);
     await verify(lastCodeSentTo(app, ANA)).expect(200);
   }
 
@@ -80,32 +80,58 @@ describe('Auth API (e2e)', () => {
       .send({ email, password });
   }
 
-  describe('POST /api/auth/register', () => {
-    it('creates the user without profiles: 201, Location and the TMF User resource', async () => {
-      const response = await register().expect(201);
+  // Fila del registro pendiente de ese correo (o undefined si no hay)
+  async function pendingRow<T>(
+    columns: string,
+    email = ANA,
+  ): Promise<T | undefined> {
+    const [row] = await dataSource.query<T[]>(
+      `SELECT ${columns} FROM pending_registrations WHERE email = $1`,
+      [email],
+    );
+    return row;
+  }
 
-      const body = response.body as { id: string };
-      expect(response.body).toEqual({
-        '@type': 'User',
-        id: body.id,
-        href: `/api/users/${body.id}`,
-        name: 'Ana',
-        email: `${EMAIL_PREFIX}ana@ual.es`,
-        phone: TEST_PHONE,
-        profiles: [],
+  async function countUsers(email = ANA): Promise<number> {
+    const [{ count }] = await dataSource.query<{ count: number }[]>(
+      'SELECT count(*)::int AS count FROM users WHERE email = $1',
+      [email],
+    );
+    return count;
+  }
+
+  // La cuenta solo se crea al verificar el correo: hasta entonces, el registro
+  // queda pendiente
+  describe('POST /api/auth/register', () => {
+    it('saves a pending registration without creating the user: 202 and no body', async () => {
+      const response = await register().expect(202);
+
+      expect(response.body).toEqual({});
+      expect(response.headers.location).toBeUndefined();
+      expect(await countUsers()).toBe(0);
+      expect(await pendingRow('name')).toEqual({ name: 'Ana' });
+    });
+
+    it('creates the user without profiles when the code is verified', async () => {
+      await register().expect(202);
+
+      const response = await verify(lastCodeSentTo(app, ANA)).expect(200);
+
+      expect(response.body).toMatchObject({
+        user: { name: 'Ana', email: ANA, phone: TEST_PHONE, profiles: [] },
       });
-      expect(body.id).toMatch(/^[0-9a-f-]{36}$/);
-      expect(response.headers.location).toBe(`/api/users/${body.id}`);
       expect(JSON.stringify(response.body)).not.toContain('password');
+      expect(await countUsers()).toBe(1);
+      expect(await pendingRow('id')).toBeUndefined();
     });
 
     it('stores when the terms were accepted (proof of consent)', async () => {
       const before = Date.now();
-      const response = await register().expect(201);
+      await registerVerified();
 
       const [row] = await dataSource.query<{ terms_accepted_at: Date }[]>(
-        'SELECT terms_accepted_at FROM users WHERE id = $1',
-        [(response.body as { id: string }).id],
+        'SELECT terms_accepted_at FROM users WHERE email = $1',
+        [ANA],
       );
       expect(row.terms_accepted_at.getTime()).toBeGreaterThanOrEqual(
         before - 1000,
@@ -113,20 +139,19 @@ describe('Auth API (e2e)', () => {
     });
 
     it('stores the phone without spaces, dashes or parentheses', async () => {
-      const response = await register({ phone: '+34 (600) 12-34-56' }).expect(
-        201,
-      );
+      await register({ phone: '+34 (600) 12-34-56' }).expect(202);
 
-      expect(response.body).toMatchObject({ phone: '+34600123456' });
+      expect(await pendingRow('phone')).toEqual({ phone: '+34600123456' });
     });
 
     it('does not put the phone in the user.registered event (minimisation)', async () => {
-      const response = await register().expect(201);
+      await registerVerified();
 
       const [event] = await dataSource.query<{ payload: object }[]>(
         `SELECT payload FROM events
-          WHERE type = 'user.registered' AND source_entity_id = $1`,
-        [(response.body as { id: string }).id],
+          WHERE type = 'user.registered'
+            AND source_entity_id = (SELECT id FROM users WHERE email = $1)`,
+        [ANA],
       );
       expect(event.payload).toEqual({ profiles: [] });
     });
@@ -169,8 +194,8 @@ describe('Auth API (e2e)', () => {
       expect(response.body).toMatchObject({ fields: [{ field: 'profiles' }] });
     });
 
-    it('rejects an already registered email with 409', async () => {
-      await register().expect(201);
+    it('rejects the email of an existing account with 409', async () => {
+      await registerVerified();
 
       const response = await register({
         email: `${EMAIL_PREFIX}ANA@UAL.ES`,
@@ -181,6 +206,19 @@ describe('Auth API (e2e)', () => {
         code: 'EMAIL_ALREADY_REGISTERED',
         status: '409',
       });
+    });
+
+    it('lets someone register again while the email is not verified', async () => {
+      await register().expect(202);
+
+      await register({ name: 'Ana María' }).expect(202);
+
+      // Un solo registro pendiente, con los datos nuevos
+      const rows = await dataSource.query<{ name: string }[]>(
+        'SELECT name FROM pending_registrations WHERE email = $1',
+        [ANA],
+      );
+      expect(rows).toEqual([{ name: 'Ana María' }]);
     });
 
     it('rejects a non-UAL email with 400', async () => {
@@ -221,7 +259,7 @@ describe('Auth API (e2e)', () => {
   });
 
   // Verificación del correo con un código de 6 cifras (15 minutos, 3 intentos,
-  // un reenvío por minuto)
+  // un reenvío por minuto; el registro pendiente dura 24 horas)
   describe('email verification', () => {
     afterEach(() => {
       jest.restoreAllMocks();
@@ -234,8 +272,9 @@ describe('Auth API (e2e)', () => {
     // Como si el código se hubiera enviado hace más de un minuto
     async function backdateCode(): Promise<void> {
       await dataSource.query(
-        `UPDATE email_codes SET created_at = now() - interval '2 minutes'
-          WHERE user_id = (SELECT id FROM users WHERE email = $1)`,
+        `UPDATE pending_registrations
+            SET code_sent_at = now() - interval '2 minutes'
+          WHERE email = $1`,
         [ANA],
       );
     }
@@ -243,7 +282,7 @@ describe('Auth API (e2e)', () => {
     it('sends the code by email after registering', async () => {
       const before = sentToAna();
 
-      await register().expect(201);
+      await register().expect(202);
 
       expect(sentToAna()).toBe(before + 1);
       const mail = testMailbox(app).lastSentTo(ANA);
@@ -253,20 +292,16 @@ describe('Auth API (e2e)', () => {
     });
 
     it('never stores the code in clear', async () => {
-      await register().expect(201);
+      await register().expect(202);
       const code = lastCodeSentTo(app, ANA);
 
-      const [row] = await dataSource.query<{ code_hash: string }[]>(
-        `SELECT code_hash FROM email_codes
-          WHERE user_id = (SELECT id FROM users WHERE email = $1)`,
-        [ANA],
-      );
-      expect(row.code_hash).toMatch(/^[0-9a-f]{64}$/);
-      expect(row.code_hash).not.toContain(code);
+      const row = await pendingRow<{ code_hash: string }>('code_hash');
+      expect(row?.code_hash).toMatch(/^[0-9a-f]{64}$/);
+      expect(row?.code_hash).not.toContain(code);
     });
 
     it('verifies the email with the right code and opens a session', async () => {
-      await register().expect(201);
+      await register().expect(202);
 
       const response = await verify(lastCodeSentTo(app, ANA)).expect(200);
 
@@ -276,21 +311,15 @@ describe('Auth API (e2e)', () => {
         user: { email: ANA, profiles: [] },
       });
       const [user] = await dataSource.query<
-        { id: string; email_verified_at: Date | null }[]
-      >('SELECT id, email_verified_at FROM users WHERE email = $1', [ANA]);
+        { email_verified_at: Date | null }[]
+      >('SELECT email_verified_at FROM users WHERE email = $1', [ANA]);
       expect(user.email_verified_at).not.toBeNull();
-      const events = await dataSource.query<unknown[]>(
-        `SELECT 1 FROM events
-          WHERE type = 'user.email_verified' AND source_entity_id = $1`,
-        [user.id],
-      );
-      expect(events).toHaveLength(1);
       // Y a partir de ahora puede iniciar sesión
       await login(ANA, PASSWORD).expect(200);
     });
 
     it('rejects a wrong code with 400 and counts the attempt', async () => {
-      await register().expect(201);
+      await register().expect(202);
 
       const response = await verify(wrongCode(lastCodeSentTo(app, ANA))).expect(
         400,
@@ -300,16 +329,14 @@ describe('Auth API (e2e)', () => {
         '@type': 'Error',
         code: 'INVALID_VERIFICATION_CODE',
       });
-      const [row] = await dataSource.query<{ failed_attempts: number }[]>(
-        `SELECT failed_attempts FROM email_codes
-          WHERE user_id = (SELECT id FROM users WHERE email = $1)`,
-        [ANA],
-      );
-      expect(row.failed_attempts).toBe(1);
+      expect(await pendingRow('failed_attempts')).toEqual({
+        failed_attempts: 1,
+      });
+      expect(await countUsers()).toBe(0);
     });
 
     it('cancels the code after 3 wrong attempts (429)', async () => {
-      await register().expect(201);
+      await register().expect(202);
       const code = lastCodeSentTo(app, ANA);
 
       await verify(wrongCode(code)).expect(400);
@@ -325,10 +352,11 @@ describe('Auth API (e2e)', () => {
     });
 
     it('rejects an expired code', async () => {
-      await register().expect(201);
+      await register().expect(202);
       await dataSource.query(
-        `UPDATE email_codes SET expires_at = now() - interval '1 second'
-          WHERE user_id = (SELECT id FROM users WHERE email = $1)`,
+        `UPDATE pending_registrations
+            SET code_expires_at = now() - interval '1 second'
+          WHERE email = $1`,
         [ANA],
       );
 
@@ -339,8 +367,26 @@ describe('Auth API (e2e)', () => {
       });
     });
 
+    it('forgets a registration not verified within 24 hours', async () => {
+      await register().expect(202);
+      const code = lastCodeSentTo(app, ANA);
+      await dataSource.query(
+        `UPDATE pending_registrations
+            SET created_at = now() - interval '25 hours',
+                code_sent_at = now() - interval '25 hours'
+          WHERE email = $1`,
+        [ANA],
+      );
+      const before = sentToAna();
+
+      await verify(code).expect(400);
+      await resend().expect(202);
+
+      expect(sentToAna()).toBe(before);
+    });
+
     it('does not accept the same code twice', async () => {
-      await register().expect(201);
+      await register().expect(202);
       const code = lastCodeSentTo(app, ANA);
       await verify(code).expect(200);
 
@@ -378,7 +424,7 @@ describe('Auth API (e2e)', () => {
     );
 
     it('resends at most once a minute, always answering 202', async () => {
-      await register().expect(201);
+      await register().expect(202);
       const before = sentToAna();
 
       await resend().expect(202);
@@ -386,8 +432,19 @@ describe('Auth API (e2e)', () => {
       expect(sentToAna()).toBe(before);
     });
 
+    it('registering again within a minute keeps the code already sent', async () => {
+      await register().expect(202);
+      const code = lastCodeSentTo(app, ANA);
+      const before = sentToAna();
+
+      await register().expect(202);
+
+      expect(sentToAna()).toBe(before);
+      await verify(code).expect(200);
+    });
+
     it('resends a new code after a minute and cancels the previous one', async () => {
-      await register().expect(201);
+      await register().expect(202);
       const oldCode = lastCodeSentTo(app, ANA);
       await backdateCode();
 
@@ -416,7 +473,7 @@ describe('Auth API (e2e)', () => {
         .spyOn(testMailbox(app), 'send')
         .mockRejectedValueOnce(new Error('SMTP server down'));
 
-      await register().expect(201);
+      await register().expect(202);
 
       // Puede pedir otro código pasado el minuto
       await backdateCode();
@@ -429,21 +486,10 @@ describe('Auth API (e2e)', () => {
       });
     });
 
-    it('does not let in an unverified user with the right password (403)', async () => {
-      await register().expect(201);
+    it('does not let in a pending registration: there is no account yet (401)', async () => {
+      await register().expect(202);
 
-      const response = await login(ANA, PASSWORD).expect(403);
-
-      expect(response.body).toMatchObject({
-        code: 'EMAIL_NOT_VERIFIED',
-        status: '403',
-      });
-    });
-
-    it('answers 401 to a wrong password, verified or not', async () => {
-      await register().expect(201);
-
-      const response = await login(ANA, 'wrong-password').expect(401);
+      const response = await login(ANA, PASSWORD).expect(401);
 
       expect(response.body).toMatchObject({ code: 'INVALID_CREDENTIALS' });
     });
@@ -480,7 +526,7 @@ describe('Auth API (e2e)', () => {
       ['a wrong password', `${EMAIL_PREFIX}ana@ual.es`, 'wrong-password'],
       ['an unknown email', `${EMAIL_PREFIX}nobody@ual.es`, PASSWORD],
     ])('answers %s with the same 401', async (_case, email, password) => {
-      await register().expect(201);
+      await registerVerified();
 
       const response = await login(email, password).expect(401);
 

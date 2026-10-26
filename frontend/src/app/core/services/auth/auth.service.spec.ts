@@ -96,7 +96,7 @@ describe('AuthService', () => {
     });
   });
 
-  it('registers the account without starting a session', async () => {
+  it('starts the registration without starting a session', async () => {
     const request: RegisterRequest = {
       name: 'Ana García',
       email: 'ana@ual.es',
@@ -107,9 +107,9 @@ describe('AuthService', () => {
     const register = auth.register(request);
     const httpRequest = await expectRequest('/api/auth/register');
     expect(httpRequest.request.body).toEqual(request);
-    httpRequest.flush(USER);
+    httpRequest.flush(null, { status: 202, statusText: 'Accepted' });
 
-    await expect(register).resolves.toEqual(USER);
+    await expect(register).resolves.toBeUndefined();
     expect(auth.isLoggedIn()).toBe(false);
     expect(auth.getPendingVerificationEmail()).toBe('ana@ual.es');
   });

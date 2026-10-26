@@ -18,7 +18,7 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('sends the account data, with a Spanish phone in international format', () => {
-      cy.intercept('POST', REGISTER_URL, { statusCode: 201, body: {} }).as('register');
+      cy.intercept('POST', REGISTER_URL, { statusCode: 202 }).as('register');
 
       fillForm('mario.perez@ual.es');
       cy.contains('ion-button', 'Crear cuenta y verificar correo').click();

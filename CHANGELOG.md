@@ -74,6 +74,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Guía de estilos (`docs/guia-estilos.html`) rehecha con los diseños de Figma del 25/10/2026: color, tipografía, ritmo, componentes, patrones, estados, navegación, pantallas de acceso, modo oscuro, accesibilidad y textos
 - **(breaking)** `POST /api/auth/register` exige el teléfono en formato internacional (`phone`) y la aceptación de las normas y la política de privacidad (`acceptedTerms`, se guarda la fecha), y ya no admite `profiles`: el usuario se crea sin perfiles y los elige después (#33)
 - Los recursos `User` y `UserAdmin` incluyen el teléfono (`phone`); `User` solo se devuelve al propio usuario (#33)
+- **(breaking)** La cuenta se crea al verificar el correo, no al registrarse: `POST /api/auth/register` guarda un registro pendiente (tabla `pending_registrations`, migración `AddPendingRegistrations`) y responde `202` sin cuerpo; registrarse otra vez con el mismo correo lo sustituye, y caduca a las 24 horas. La migración borra los usuarios sin verificar que quedaban de antes (#44)
 - **(breaking)** Solo los usuarios con el correo verificado pueden iniciar sesión (`403 EMAIL_NOT_VERIFIED`); los usuarios existentes, los del seed y el administrador de `create-admin` quedan verificados (#35)
 - Estructura del frontend como en el proyecto de referencia: servicios en subcarpetas por dominio (`core/services/auth/`…), `core/plugins/` para Capacitor y sufijos `.model.ts` y `.util.ts` (#32)
 - Imagen de la base de datos actualizada a PostgreSQL 18 + PostGIS 3.6 (#1)
@@ -99,6 +100,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Carpeta `database/` de la raíz: las migraciones y los datos de prueba viven ahora en `backend/src/database/` (#7)
 
 ### Fixed
+- Tras 3 códigos incorrectos, la pantalla de verificación bloquea las casillas y avisa de que hay que pedir otro código (#44)
 - Los workflows de CI se ejecutan en los PR a `dev` (antes apuntaban a `develop`) (#2)
 - El check de documentación ya no exige `CLAUDE.md`, que no está versionado (#2)
 

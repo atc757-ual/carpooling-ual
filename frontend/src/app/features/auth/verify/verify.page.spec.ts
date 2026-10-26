@@ -80,6 +80,22 @@ describe('VerifyPage', () => {
     expect(page.form.controls.code.value).toBe('');
   });
 
+  it('locks the code after 3 wrong attempts until a new one is requested', async () => {
+    verifyEmail.mockRejectedValue(new ApiError('TOO_MANY_ATTEMPTS', 429));
+    open('mario.perez@ual.es');
+    page.form.setValue({ code: '284610' });
+
+    await page.handleSubmit();
+
+    expect(page.isLocked()).toBe(true);
+    expect(page.form.controls.code.disabled).toBe(true);
+
+    await page.handleResend();
+
+    expect(page.isLocked()).toBe(false);
+    expect(page.form.controls.code.enabled).toBe(true);
+  });
+
   it('lets ask for a new code after a minute and starts counting again', async () => {
     open('mario.perez@ual.es');
     expect(page.resendLabel()).toBe('Reenviar código en 00:60');
