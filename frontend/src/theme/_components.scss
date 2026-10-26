@@ -46,6 +46,37 @@ ion-back-button {
 // icono de 28px en el centro, también por dentro (::part(native)), para que el
 // círculo de hover y foco quede centrado. Se desplaza hacia fuera
 // (52 − 28) / 2 = 12px para que el icono empiece en el margen del contenido
+// Con destino fijo (routerLink) es un ion-button; se aplica a los dos
+// Botón cuadrado de 52px con el icono de 28px en el centro (el círculo de
+// hover y foco queda centrado), desplazado 12px hacia fuera para que el icono
+// empiece en el margen del contenido. Sin tocar el tamaño de letra: Ionic
+// calcula el alto y el relleno del botón en em. En la barra (in-buttons) Ionic
+// pone sus propios márgenes y alto, con selectores más fuertes: el segundo
+// selector les gana
+ion-button.back-button,
+ion-toolbar ion-buttons ion-button.back-button.button-has-icon-only.button-clear {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --border-radius: 50%;
+  --color: var(--color-text);
+
+  align-self: flex-start;
+  width: 3.25rem; // 52px
+  min-width: 3.25rem;
+  max-width: 3.25rem;
+  height: 3.25rem;
+  margin: 0;
+  margin-inline-start: -0.75rem; // 12px: (52 − 28) / 2
+
+  ion-icon {
+    width: 1.75rem; // 28px
+    height: 1.75rem;
+    font-size: 1.75rem;
+  }
+}
+
 ion-back-button.back-button {
   --padding-start: 0;
   --padding-end: 0;
@@ -120,4 +151,44 @@ ion-input input:-webkit-autofill {
   -webkit-text-fill-color: var(--color-text);
   caret-color: var(--color-text);
   clip-path: inset(var(--border-width-m) 0);
+}
+
+// Avisos breves (ToastService), con los colores tintados de la guía: texto e
+// icono del color del estado sobre su fondo claro
+ion-toast {
+  --min-height: var(--control-height-l); // 56px, el alto de la cabecera
+
+  font-size: var(--font-size-body);
+}
+
+ion-toast.toast--danger {
+  --background: var(--color-danger-subtle);
+  --color: var(--color-danger);
+  --border-color: var(--color-danger);
+}
+
+ion-toast.toast--success {
+  --background: var(--color-success-subtle);
+  --color: var(--color-success);
+  --border-color: var(--color-success);
+}
+
+// Barra arriba (móvil y columna del formulario en escritorio): de lado a lado,
+// sin márgenes, borde ni esquinas
+ion-toast.toast--bar {
+  --start: 0;
+  --end: 0;
+  --width: 100%;
+  --max-width: 100%;
+  --border-radius: 0;
+  --box-shadow: none;
+}
+
+// Escritorio: flota arriba, con borde de 1px del color del texto
+ion-toast.toast--floating {
+  --width: 30rem; // 480px
+  --border-radius: var(--radius-s);
+  --border-width: var(--border-width-s);
+  --border-style: solid;
+  --box-shadow: var(--shadow-base);
 }

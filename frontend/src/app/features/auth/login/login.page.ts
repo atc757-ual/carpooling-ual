@@ -2,7 +2,6 @@ import { Component, inject, input, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
-  IonBackButton,
   IonButton,
   IonButtons,
   IonContent,
@@ -11,7 +10,6 @@ import {
   IonInput,
   IonRouterLink,
   IonSpinner,
-  IonText,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
@@ -25,6 +23,7 @@ import {
 import { HOME_PATH } from '../../../core/guards/redirect-paths';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -40,7 +39,6 @@ const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    IonBackButton,
     IonButton,
     IonButtons,
     IonContent,
@@ -49,7 +47,6 @@ const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
     IonInput,
     IonRouterLink,
     IonSpinner,
-    IonText,
     IonTitle,
     IonToolbar,
     AuthLayout,
@@ -61,6 +58,7 @@ const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
 export class LoginPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   // Parámetro ?returnUrl= de la ruta (withComponentInputBinding)
   readonly returnUrl = input<string>();
@@ -72,7 +70,6 @@ export class LoginPage {
     password: ['', [Validators.required, Validators.minLength(PASSWORD_MIN_LENGTH)]],
   });
   readonly isSubmitting = signal(false);
-  readonly errorMessage = signal<string | null>(null);
   readonly isPasswordVisible = signal(false);
 
   protected readonly backIcon = arrowBackOutline;
@@ -91,7 +88,6 @@ export class LoginPage {
       return;
     }
     this.isSubmitting.set(true);
-    this.errorMessage.set(null);
     const { email, password } = this.form.getRawValue();
     try {
       await this.auth.login({ email, password });
@@ -101,7 +97,7 @@ export class LoginPage {
       if (apiError.code === EMAIL_NOT_VERIFIED) {
         await this.goToVerify(email);
       } else {
-        this.errorMessage.set(getErrorMessage(apiError));
+        void this.toast.showError(getErrorMessage(apiError));
       }
     } finally {
       this.isSubmitting.set(false);

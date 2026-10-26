@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
-  IonBackButton,
   IonButton,
   IonButtons,
   IonCheckbox,
@@ -28,6 +27,7 @@ import {
 } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import {
   LegalDocument,
@@ -52,7 +52,6 @@ const PASSWORD_MAX_LENGTH = 72;
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    IonBackButton,
     IonButton,
     IonButtons,
     IonCheckbox,
@@ -74,6 +73,7 @@ const PASSWORD_MAX_LENGTH = 72;
 export class RegisterPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
   private readonly modalController = inject(ModalController);
 
   readonly form = inject(NonNullableFormBuilder).group({
@@ -91,7 +91,6 @@ export class RegisterPage {
     acceptedTerms: [false, Validators.requiredTrue],
   });
   readonly isSubmitting = signal(false);
-  readonly errorMessage = signal<string | null>(null);
   readonly isPasswordVisible = signal(false);
 
   protected readonly backIcon = arrowBackOutline;
@@ -127,7 +126,6 @@ export class RegisterPage {
       return;
     }
     this.isSubmitting.set(true);
-    this.errorMessage.set(null);
     const { name, phone, email, password } = this.form.getRawValue();
     try {
       await this.auth.register({
@@ -140,7 +138,7 @@ export class RegisterPage {
       // El correo no va en la URL: lo guarda AuthService al registrar
       await this.router.navigateByUrl(VERIFY_PATH);
     } catch (error) {
-      this.errorMessage.set(getErrorMessage(ApiError.fromHttpError(error)));
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     } finally {
       this.isSubmitting.set(false);
     }

@@ -1,7 +1,16 @@
 <ion-content class="ion-padding">
   <div class="home">
     <h1 class="text-title">Hola, {{ firstName() }}</h1>
-    <p class="text-body text-color-muted">Muy pronto podrás buscar y publicar viajes desde aquí.</p>
+    @if (hasMode()) {
+      <p class="text-body text-color-muted">
+        Muy pronto podrás buscar y publicar viajes desde aquí.
+      </p>
+    } @else {
+      <p class="text-body text-color-muted">
+        Antes de empezar, elige si viajarás como pasajero, como conductor o de las dos formas.
+      </p>
+      <ion-button expand="block" [routerLink]="modesPath">Elegir modo</ion-button>
+    }
     <ion-button fill="outline" (click)="handleLogout()">Cerrar sesión</ion-button>
   </div>
 </ion-content>

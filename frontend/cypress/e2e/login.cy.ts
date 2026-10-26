@@ -63,8 +63,26 @@ for (const viewport of VIEWPORTS) {
       cy.contains('ion-button', 'Iniciar sesión').click();
 
       cy.wait('@login');
-      cy.get('.auth-error').should('be.visible').and('contain', 'Correo o contraseña incorrectos.');
+      cy.get('ion-toast')
+        .shadow()
+        .find('.toast-message')
+        .should('contain', 'Correo o contraseña incorrectos.');
       cy.location('pathname').should('eq', '/auth/login');
+    });
+
+    it('goes to verify the email when it is not verified yet', () => {
+      cy.intercept('POST', LOGIN_URL, {
+        statusCode: 403,
+        body: { '@type': 'Error', code: 'EMAIL_NOT_VERIFIED', status: '403' },
+      });
+      cy.intercept('POST', '/api/auth/verify-email/resend', { statusCode: 202 }).as('resend');
+
+      fillForm('ana@ual.es', 'secreta123');
+      cy.contains('ion-button', 'Iniciar sesión').click();
+
+      cy.wait('@resend');
+      cy.location('pathname').should('eq', '/auth/verify');
+      cy.contains('ana@ual.es').should('be.visible');
     });
 
     it('enables the button only with a UAL email and a password of 8 or more', () => {
@@ -100,7 +118,7 @@ for (const viewport of VIEWPORTS) {
 
     it('goes back to the welcome screen', () => {
       const backButton =
-        viewport.name === 'mobile' ? 'ion-header ion-back-button' : '.top-bar ion-back-button';
+        viewport.name === 'mobile' ? 'ion-header .back-button' : '.top-bar .back-button';
       cy.get(backButton).click();
       cy.location('pathname').should('eq', '/auth/welcome');
     });

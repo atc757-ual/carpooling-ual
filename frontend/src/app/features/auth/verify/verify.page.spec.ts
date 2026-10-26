@@ -4,11 +4,14 @@ import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { VerifyPage } from './verify.page';
 
 describe('VerifyPage', () => {
   let fixture: ComponentFixture<VerifyPage>;
   let page: VerifyPage;
+  let showError: ReturnType<typeof vi.fn>;
+  let showSuccess: ReturnType<typeof vi.fn>;
   let verifyEmail: ReturnType<typeof vi.fn>;
   let resendVerificationCode: ReturnType<typeof vi.fn>;
   let navigateByUrl: ReturnType<typeof vi.spyOn>;
@@ -16,6 +19,8 @@ describe('VerifyPage', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
+    showError = vi.fn().mockResolvedValue(undefined);
+    showSuccess = vi.fn().mockResolvedValue(undefined);
     verifyEmail = vi.fn().mockResolvedValue({});
     resendVerificationCode = vi.fn().mockResolvedValue(undefined);
     TestBed.configureTestingModule({
@@ -23,6 +28,7 @@ describe('VerifyPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        { provide: ToastService, useValue: { showError, showSuccess } },
         {
           provide: AuthService,
           useValue: {
@@ -51,14 +57,14 @@ describe('VerifyPage', () => {
     expect(navigateByUrl).toHaveBeenCalledWith('/auth/login');
   });
 
-  it('verifies the code and goes to the home page', async () => {
+  it('verifies the code and goes to choose the mode', async () => {
     open('mario.perez@ual.es');
     page.form.setValue({ code: '284619' });
 
     await page.handleSubmit();
 
     expect(verifyEmail).toHaveBeenCalledWith({ email: 'mario.perez@ual.es', code: '284619' });
-    expect(navigateByUrl).toHaveBeenCalledWith('/');
+    expect(navigateByUrl).toHaveBeenCalledWith('/modes');
   });
 
   it('explains a wrong code and empties the boxes', async () => {
@@ -68,7 +74,7 @@ describe('VerifyPage', () => {
 
     await page.handleSubmit();
 
-    expect(page.errorMessage()).toBe(
+    expect(showError).toHaveBeenCalledWith(
       'Ese código no es válido. Revisa los 6 dígitos o pide uno nuevo.',
     );
     expect(page.form.controls.code.value).toBe('');

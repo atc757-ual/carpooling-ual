@@ -1,0 +1,93 @@
+<!-- Solo en el móvil: la barra con la flecha y el título. Volver sin elegir
+     modo cierra la sesión y lleva a la bienvenida (leaveModesGuard) -->
+<ion-header class="ion-hide-md-up ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button
+        class="back-button"
+        fill="clear"
+        routerLink="/auth/welcome"
+        routerDirection="back"
+        aria-label="Volver"
+      >
+        <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Correo verificado</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <app-auth-layout>
+    <div class="top-bar ion-hide-md-down" authLayoutTop>
+      <ion-button
+        class="back-button"
+        fill="clear"
+        routerLink="/auth/welcome"
+        routerDirection="back"
+        aria-label="Volver"
+      >
+        <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+      </ion-button>
+      <span class="top-bar__title">Correo verificado</span>
+    </div>
+
+    <div class="auth-intro">
+      <p class="text-eyebrow text-color-primary">Tu cuenta está lista</p>
+      <h1 class="text-heading">¿Cómo quieres compartir camino?</h1>
+      <p class="text-body text-color-muted">
+        Elige los perfiles que necesitas. Puedes cambiarlos después desde Perfil.
+      </p>
+    </div>
+
+    <!-- Formulario: «Continuar» lo envía (con el ratón, el dedo o Intro) -->
+    <form class="modes__form" (submit)="$event.preventDefault(); handleSubmit()">
+      <!-- Tarjetas que funcionan como botones de opción (radio nativos ocultos),
+           con su selector a la derecha: se eligen con el ratón, el dedo o las
+           flechas del teclado -->
+      <fieldset class="modes">
+        <legend class="visually-hidden">Modo</legend>
+        @for (option of options; track option.value) {
+          <label class="modes__option" [class.modes__option--selected]="choice() === option.value">
+            <input
+              class="visually-hidden"
+              type="radio"
+              name="mode"
+              [value]="option.value"
+              [checked]="choice() === option.value"
+              (change)="choice.set(option.value)"
+            />
+            <ion-icon class="modes__icon" [icon]="option.icon" aria-hidden="true" />
+            <span class="modes__text">
+              <span class="text-body text-body--strong">{{ option.title }}</span>
+              <span class="text-body-s text-color-muted">{{ option.description }}</span>
+            </span>
+            <ion-icon
+              class="modes__check"
+              [icon]="choice() === option.value ? selectedIcon : unselectedIcon"
+              aria-hidden="true"
+            />
+          </label>
+        }
+      </fieldset>
+
+      @if (choice() === 'both') {
+        <output class="auth-notice">
+          <p class="text-body-s text-body-s--strong">Empezarás en modo pasajero</p>
+          <p class="text-caption">
+            Ambos perfiles estarán habilitados, pero solo uno estará activo. Cambia entre pasajero y
+            conductor desde Inicio.
+          </p>
+        </output>
+      }
+
+      <ion-button type="submit" expand="block" [disabled]="choice() === null || isSubmitting()">
+        @if (isSubmitting()) {
+          <ion-spinner name="crescent" aria-label="Guardando" />
+        } @else {
+          {{ submitLabel() }}
+        }
+      </ion-button>
+    </form>
+  </app-auth-layout>
+</ion-content>

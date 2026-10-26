@@ -3,13 +3,15 @@
 <ion-header class="ion-hide-md-up ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button
+      <ion-button
         class="back-button"
-        defaultHref="/auth/welcome"
-        text=""
-        [icon]="backIcon"
+        fill="clear"
+        routerLink="/auth/welcome"
+        routerDirection="back"
         aria-label="Volver"
-      />
+      >
+        <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+      </ion-button>
     </ion-buttons>
     <ion-title>Accede a tu cuenta</ion-title>
   </ion-toolbar>
@@ -20,13 +22,15 @@
     <!-- En escritorio no hay barra: la flecha y el título de la pantalla, como
          en la barra del móvil, van sobre el logotipo -->
     <div class="top-bar ion-hide-md-down" authLayoutTop>
-      <ion-back-button
+      <ion-button
         class="back-button"
-        defaultHref="/auth/welcome"
-        text=""
-        [icon]="backIcon"
+        fill="clear"
+        routerLink="/auth/welcome"
+        routerDirection="back"
         aria-label="Volver"
-      />
+      >
+        <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+      </ion-button>
       <span class="top-bar__title">Accede a tu cuenta</span>
     </div>
 
@@ -80,13 +84,6 @@
           </button>
         </ion-input>
       </div>
-
-      <!-- El error de la API, justo bajo los campos a los que se refiere -->
-      @if (errorMessage(); as message) {
-        <ion-text color="danger" class="auth-error text-body-s" role="alert">
-          {{ message }}
-        </ion-text>
-      }
 
       <!-- Sin destino hasta que exista la recuperación de la contraseña (PR 4) -->
       <ion-button type="button" fill="clear" class="login__forgot">

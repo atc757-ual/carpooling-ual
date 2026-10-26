@@ -2,13 +2,15 @@
 <ion-header class="ion-hide-md-up ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button
+      <ion-button
         class="back-button"
-        defaultHref="/auth/register"
-        text=""
-        [icon]="backIcon"
+        fill="clear"
+        routerLink="/auth/register"
+        routerDirection="back"
         aria-label="Volver"
-      />
+      >
+        <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+      </ion-button>
     </ion-buttons>
     <ion-title>Verifica tu correo</ion-title>
   </ion-toolbar>
@@ -18,13 +20,15 @@
   <app-auth-layout>
     <!-- En escritorio, sin barra: la flecha y el título sobre el logotipo -->
     <div class="top-bar ion-hide-md-down" authLayoutTop>
-      <ion-back-button
+      <ion-button
         class="back-button"
-        defaultHref="/auth/register"
-        text=""
-        [icon]="backIcon"
+        fill="clear"
+        routerLink="/auth/register"
+        routerDirection="back"
         aria-label="Volver"
-      />
+      >
+        <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+      </ion-button>
       <span class="top-bar__title">Verifica tu correo</span>
     </div>
 
@@ -46,9 +50,9 @@
           >Código de verificación</span
         >
         <!-- Seis casillas; pegar el código del correo lo reparte entre ellas.
-             Texto (con teclado numérico) y no type="number": así el valor es
-             un texto y un código que empieza por 0 conserva ese 0. Sin el atributo
-             pattern: Angular lo usaría como validador del código entero -->
+             De tipo texto con teclado numérico (no de tipo número): así un
+             código que empieza por cero conserva ese cero. Sin patrón propio:
+             Angular lo aplicaría como validador del código entero -->
         <ion-input-otp
           class="verify__code"
           formControlName="code"
@@ -61,11 +65,6 @@
         />
       </div>
 
-      @if (errorMessage(); as message) {
-        <ion-text color="danger" class="auth-error text-body-s" role="alert">
-          {{ message }}
-        </ion-text>
-      }
       @if (hasResent()) {
         <ion-text class="text-body-s text-color-muted" role="status">
           Si el correo está registrado, te hemos enviado un código nuevo.
@@ -81,12 +80,13 @@
             Verificar correo
           }
         </ion-button>
+        <!-- Envía el formulario de reenvío (verify-resend), no el del código -->
         <ion-button
-          type="button"
+          type="submit"
+          form="verify-resend"
           expand="block"
           fill="outline"
           [disabled]="secondsToResend() > 0"
-          (click)="handleResend()"
         >
           {{ resendLabel() }}
         </ion-button>
@@ -95,15 +95,16 @@
         </ion-button>
       </div>
     </form>
+    <form id="verify-resend" (submit)="$event.preventDefault(); handleResend()"></form>
 
     <div class="auth-notice" role="note">
-      <p class="text-body-s text-body-s--strong text-color-primary">
-        Qué significa «UAL verificado»
-      </p>
-      <p class="text-caption">
-        Confirma el acceso a un correo de la UAL. No acredita la identidad, la titularidad del coche
-        ni el permiso de conducir.
-      </p>
+      <p class="text-body-s text-body-s--strong text-color-primary">Importante</p>
+      <!-- Lista y no párrafo: un <p> no puede contener una lista -->
+      <ul class="verify__tips text-caption">
+        <li>Comprueba que el correo electrónico es correcto.</li>
+        <li>Comprueba la carpeta de correo no deseado o spam.</li>
+        <li>Si no lo recibes, solicita un nuevo código.</li>
+      </ul>
     </div>
   </app-auth-layout>
 </ion-content>
