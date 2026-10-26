@@ -1,14 +1,17 @@
 // Estilos comunes del contenido de cada pestaña (cada pantalla los incluye en
-// styleUrls junto a los suyos): una columna centrada, del mismo ancho que la
-// franja del saludo de escritorio, con margen de 24px
+// styleUrls junto a los suyos): sobre fondo gris claro (las cabeceras y lo que
+// se ponga encima, en blanco) y con el mismo margen lateral que el menú y la
+// franja del saludo, así todo empieza a la altura del logotipo
+ion-content {
+  --background: var(--color-surface-subtle);
+}
+
 .tab-page {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--space-base);
-  max-width: var(--page-max-width);
-  margin: 0 auto;
-  padding: var(--space-l);
+  gap: var(--space-s);
+  padding: var(--space-l) var(--page-gutter);
 
   h1,
   p {

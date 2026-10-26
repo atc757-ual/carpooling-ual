@@ -107,6 +107,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Carpeta `database/` de la raíz: las migraciones y los datos de prueba viven ahora en `backend/src/database/` (#7)
 
 ### Fixed
+- Área con sesión: el saludo va sobre blanco (en escritorio, en la franja fija, sin línea bajo el menú; en el móvil, al principio de Inicio) y el contenido de las pestañas sobre fondo gris claro; la cabecera, la franja y el contenido miden como mucho 1400px y quedan alineados con el logotipo (16px de margen en el móvil, 24px en escritorio) (#50)
 - Tras 3 códigos incorrectos, la pantalla de verificación bloquea las casillas y avisa de que hay que pedir otro código (#44)
 - Los workflows de CI se ejecutan en los PR a `dev` (antes apuntaban a `develop`) (#2)
 - El check de documentación ya no exige `CLAUDE.md`, que no está versionado (#2)

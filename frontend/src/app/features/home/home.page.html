@@ -1,11 +1,13 @@
 <ion-content>
+  <!-- Solo en el móvil: el modo y el saludo, sobre blanco (en escritorio están
+       en la franja fija de arriba) -->
+  <section class="home__greeting ion-hide-md-up">
+    <app-mode-selector variant="card" />
+    <h1 class="text-title">¡Hola, {{ firstName() }}!</h1>
+  </section>
+
   <section class="tab-page">
-    <!-- En escritorio, el saludo y el modo ya están en la franja fija -->
-    <app-mode-selector variant="card" class="ion-hide-md-up" />
-    <h1 class="text-title">
-      <span class="ion-hide-md-up">Hola, {{ firstName() }}</span>
-      <span class="ion-hide-md-down">Inicio</span>
-    </h1>
+    <h1 class="text-title ion-hide-md-down">Inicio</h1>
     @if (hasMode()) {
       <p class="text-body text-color-muted">
         Muy pronto podrás buscar y publicar viajes desde aquí.

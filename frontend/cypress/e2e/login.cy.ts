@@ -56,7 +56,10 @@ for (const viewport of VIEWPORTS) {
         .its('request.body')
         .should('deep.equal', { email: 'ana@ual.es', password: 'secreta123' });
       cy.location('pathname').should('eq', '/tabs/home');
-      cy.contains('h1', 'Hola, Ana').should('be.visible');
+      // El saludo: en escritorio, en la franja fija; en el móvil, en Inicio
+      cy.get('.greeting-bar p, .home__greeting h1')
+        .filter(':visible')
+        .should('contain', '¡Hola, Ana!');
     });
 
     it('shows the API error when the credentials are wrong', () => {
