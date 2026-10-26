@@ -173,7 +173,8 @@ ion-toast.toast--success {
   --border-color: var(--color-success);
 }
 
-// Móvil: ocupa la cabecera de lado a lado, sin márgenes ni esquinas
+// Barra arriba (móvil y columna del formulario en escritorio): de lado a lado,
+// sin márgenes, borde ni esquinas
 ion-toast.toast--bar {
   --start: 0;
   --end: 0;
@@ -190,13 +191,4 @@ ion-toast.toast--floating {
   --border-width: var(--border-width-s);
   --border-style: solid;
   --box-shadow: var(--shadow-base);
-}
-
-// En las pantallas de acceso de escritorio, el aviso va centrado sobre la
-// columna blanca del formulario y no sobre la ilustración. Las columnas miden
-// 1.2 (ilustración) y 1 (formulario): ver .auth-layout__visual en auth-layout
-ion-app:has(.ion-page:not(.ion-page-hidden) .auth-layout) ion-toast.toast--floating {
-  --width: min(30rem, calc(100% / 2.2 - 4rem));
-  --start: calc(100% * 1.2 / 2.2 + (100% / 2.2 - min(30rem, calc(100% / 2.2 - 4rem))) / 2);
-  --end: auto;
 }

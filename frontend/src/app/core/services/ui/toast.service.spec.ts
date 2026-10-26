@@ -5,12 +5,22 @@ import { ToastService } from './toast.service';
 
 describe('ToastService', () => {
   let create: ReturnType<typeof vi.fn>;
-  let toasts: { present: ReturnType<typeof vi.fn>; dismiss: ReturnType<typeof vi.fn> }[];
+  let toasts: {
+    present: ReturnType<typeof vi.fn>;
+    dismiss: ReturnType<typeof vi.fn>;
+    addEventListener: ReturnType<typeof vi.fn>;
+    style: { setProperty: ReturnType<typeof vi.fn> };
+  }[];
 
   beforeEach(() => {
     toasts = [];
     create = vi.fn().mockImplementation(async () => {
-      const toast = { present: vi.fn(), dismiss: vi.fn() };
+      const toast = {
+        present: vi.fn(),
+        dismiss: vi.fn(),
+        addEventListener: vi.fn(),
+        style: { setProperty: vi.fn() },
+      };
       toasts.push(toast);
       return toast;
     });
@@ -45,6 +55,16 @@ describe('ToastService', () => {
     expect(create.mock.calls[0][0].enterAnimation).toBeTypeOf('function');
     expect(create.mock.calls[1][0].cssClass).toContain('toast--floating');
     expect(create.mock.calls[1][0].enterAnimation).toBeUndefined();
+  });
+
+  it('closes when tapped', async () => {
+    await TestBed.inject(ToastService).showError('Sin conexión.');
+
+    const [event, onTap] = toasts[0].addEventListener.mock.calls[0];
+    onTap();
+
+    expect(event).toBe('click');
+    expect(toasts[0].dismiss).toHaveBeenCalled();
   });
 
   it('shows a success message in green and closes the previous one', async () => {
