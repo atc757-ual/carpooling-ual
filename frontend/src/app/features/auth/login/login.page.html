@@ -3,13 +3,15 @@
 <ion-header class="ion-hide-md-up ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button
+      <ion-button
         class="back-button"
-        defaultHref="/auth/welcome"
-        text=""
-        [icon]="backIcon"
+        fill="clear"
+        routerLink="/auth/welcome"
+        routerDirection="back"
         aria-label="Volver"
-      />
+      >
+        <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+      </ion-button>
     </ion-buttons>
     <ion-title>Accede a tu cuenta</ion-title>
   </ion-toolbar>
@@ -20,13 +22,15 @@
     <!-- En escritorio no hay barra: la flecha y el título de la pantalla, como
          en la barra del móvil, van sobre el logotipo -->
     <div class="top-bar ion-hide-md-down" authLayoutTop>
-      <ion-back-button
+      <ion-button
         class="back-button"
-        defaultHref="/auth/welcome"
-        text=""
-        [icon]="backIcon"
+        fill="clear"
+        routerLink="/auth/welcome"
+        routerDirection="back"
         aria-label="Volver"
-      />
+      >
+        <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+      </ion-button>
       <span class="top-bar__title">Accede a tu cuenta</span>
     </div>
 
@@ -34,14 +38,6 @@
       <h1 class="text-heading">Qué bueno verte por aquí.</h1>
       <p class="text-body text-color-muted">Entra con tu correo de la Universidad de Almería.</p>
     </div>
-
-    <!-- Error de la API: arriba, a la vista, en una alerta roja -->
-    @if (errorMessage(); as message) {
-      <div class="auth-alert auth-alert--danger" role="alert">
-        <ion-icon [icon]="alertIcon" aria-hidden="true" />
-        <span>{{ message }}</span>
-      </div>
-    }
 
     <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
       <!-- La etiqueta va encima del campo, como en el diseño; el campo lleva el

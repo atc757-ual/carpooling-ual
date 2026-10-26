@@ -4,6 +4,7 @@ import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { LoginPage } from './login.page';
 
 const CREDENTIALS = { email: 'ana@ual.es', password: 'una-contraseña' };
@@ -11,12 +12,16 @@ const CREDENTIALS = { email: 'ana@ual.es', password: 'una-contraseña' };
 describe('LoginPage', () => {
   let fixture: ComponentFixture<LoginPage>;
   let page: LoginPage;
+  let showError: ReturnType<typeof vi.fn>;
+  let showSuccess: ReturnType<typeof vi.fn>;
   let login: ReturnType<typeof vi.fn>;
   let resendVerificationCode: ReturnType<typeof vi.fn>;
   let setPendingVerificationEmail: ReturnType<typeof vi.fn>;
   let navigateByUrl: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
+    showError = vi.fn().mockResolvedValue(undefined);
+    showSuccess = vi.fn().mockResolvedValue(undefined);
     login = vi.fn().mockResolvedValue({ profiles: ['passenger'] });
     resendVerificationCode = vi.fn().mockResolvedValue(undefined);
     setPendingVerificationEmail = vi.fn();
@@ -25,6 +30,7 @@ describe('LoginPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        { provide: ToastService, useValue: { showError, showSuccess } },
         {
           provide: AuthService,
           useValue: { login, resendVerificationCode, setPendingVerificationEmail },
@@ -44,12 +50,6 @@ describe('LoginPage', () => {
     page.form.setValue(CREDENTIALS);
     await page.handleSubmit();
     await fixture.whenStable();
-  }
-
-  function shownError(): string | undefined {
-    return (fixture.nativeElement as HTMLElement)
-      .querySelector('.auth-alert--danger')
-      ?.textContent?.trim();
   }
 
   it('does not send an invalid form and marks its fields', async () => {
@@ -80,14 +80,6 @@ describe('LoginPage', () => {
     expect(page.isSubmitting()).toBe(false);
   });
 
-  it('goes to choose the mode when the user has no profile yet', async () => {
-    login.mockResolvedValue({ profiles: [] });
-
-    await submit('/trips/new');
-
-    expect(navigateByUrl).toHaveBeenCalledWith('/modes');
-  });
-
   it('goes back to the page that was requested', async () => {
     await submit('/trips/new');
 
@@ -105,7 +97,7 @@ describe('LoginPage', () => {
 
     await submit();
 
-    expect(shownError()).toBe('Correo o contraseña incorrectos.');
+    expect(showError).toHaveBeenCalledWith('Correo o contraseña incorrectos.');
     expect(navigateByUrl).not.toHaveBeenCalled();
     expect(page.isSubmitting()).toBe(false);
   });
@@ -118,7 +110,7 @@ describe('LoginPage', () => {
     expect(setPendingVerificationEmail).toHaveBeenCalledWith('ana@ual.es');
     expect(resendVerificationCode).toHaveBeenCalledWith('ana@ual.es');
     expect(navigateByUrl).toHaveBeenCalledWith('/auth/verify');
-    expect(shownError()).toBeUndefined();
+    expect(showError).not.toHaveBeenCalled();
   });
 
   it('shows and hides the password, with a Spanish name for screen readers', async () => {
@@ -135,14 +127,5 @@ describe('LoginPage', () => {
 
     expect(password?.type).toBe('text');
     expect(toggle?.getAttribute('aria-label')).toBe('Ocultar contraseña');
-  });
-
-  it('clears the previous error when sending again', async () => {
-    login.mockRejectedValueOnce(new ApiError('INVALID_CREDENTIALS', 401));
-    await submit();
-
-    await submit();
-
-    expect(shownError()).toBeUndefined();
   });
 });

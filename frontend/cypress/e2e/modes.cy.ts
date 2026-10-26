@@ -33,6 +33,10 @@ function verifyEmail(): void {
   });
   cy.contains('ion-button', 'Verificar correo').click();
   cy.location('pathname').should('eq', '/modes');
+  // Esperar a que termine la transición: la verificación queda oculta debajo
+  cy.get('app-verify').should('have.class', 'ion-page-hidden');
+  // Se cierra el aviso «Correo UAL verificado», que en el móvil tapa la cabecera
+  cy.get('ion-toast').then(($toast) => ($toast[0] as HTMLIonToastElement).dismiss());
 }
 
 for (const viewport of VIEWPORTS) {
@@ -46,7 +50,7 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('PUT', '/api/users/me/profiles/*', { statusCode: 200, body: {} }).as('activate');
       cy.intercept('POST', '/api/auth/refresh', accessToken(['passenger', 'driver']));
 
-      cy.get('ion-button').contains('Continuar').should('exist');
+      cy.contains('app-modes ion-button', 'Continuar').should('exist');
       cy.contains('label', 'Ambos').click();
       cy.contains('Empezarás en modo pasajero').should('be.visible');
       cy.contains('ion-button', 'Continuar como pasajero').click();
@@ -56,8 +60,28 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/');
     });
 
+    it('ends the session and goes to the welcome screen with the back arrow', () => {
+      cy.intercept('POST', '/api/auth/logout', { statusCode: 204 }).as('logout');
+      const backButton =
+        viewport.name === 'mobile' ? 'ion-header .back-button' : '.top-bar .back-button';
+
+      cy.get(`app-modes ${backButton}`).click();
+
+      cy.wait('@logout');
+      cy.location('pathname').should('eq', '/auth/welcome');
+    });
+
+    it('ends the session too with the browser back button', () => {
+      cy.intercept('POST', '/api/auth/logout', { statusCode: 204 }).as('logout');
+
+      cy.go('back');
+
+      cy.wait('@logout');
+      cy.location('pathname').should('eq', '/auth/welcome');
+    });
+
     it('keeps the button disabled until a mode is chosen', () => {
-      cy.get('ion-button').should('have.attr', 'disabled');
+      cy.get('app-modes ion-button[type="submit"]').should('have.attr', 'disabled');
       cy.contains('label', 'Conductor').click();
       cy.contains('ion-button', 'Continuar como conductor').should('not.have.attr', 'disabled');
     });

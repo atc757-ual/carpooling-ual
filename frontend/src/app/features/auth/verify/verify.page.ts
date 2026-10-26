@@ -2,7 +2,6 @@ import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angula
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
-  IonBackButton,
   IonButton,
   IonButtons,
   IonContent,
@@ -15,10 +14,11 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
-import { alertCircleOutline, arrowBackOutline, mailUnreadOutline } from 'ionicons/icons';
+import { arrowBackOutline, mailUnreadOutline } from 'ionicons/icons';
 import { MODES_PATH } from '../../../core/guards/redirect-paths';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -35,7 +35,6 @@ const RESEND_WAIT_SECONDS = 60;
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    IonBackButton,
     IonButton,
     IonButtons,
     IonContent,
@@ -56,6 +55,7 @@ const RESEND_WAIT_SECONDS = 60;
 export class VerifyPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   // El correo pendiente de verificar (lo guarda AuthService al registrar o al
@@ -66,7 +66,6 @@ export class VerifyPage implements OnInit {
     code: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
   });
   readonly isSubmitting = signal(false);
-  readonly errorMessage = signal<string | null>(null);
   readonly hasResent = signal(false);
   readonly secondsToResend = signal(RESEND_WAIT_SECONDS);
   readonly resendLabel = computed(() => {
@@ -77,7 +76,6 @@ export class VerifyPage implements OnInit {
   });
 
   protected readonly codeLength = CODE_LENGTH;
-  protected readonly alertIcon = alertCircleOutline;
   protected readonly backIcon = arrowBackOutline;
   protected readonly mailIcon = mailUnreadOutline;
 
@@ -98,12 +96,12 @@ export class VerifyPage implements OnInit {
       return;
     }
     this.isSubmitting.set(true);
-    this.errorMessage.set(null);
     try {
       await this.auth.verifyEmail({ email: this.email(), code: this.form.getRawValue().code });
+      void this.toast.showSuccess('Correo UAL verificado.');
       await this.router.navigateByUrl(MODES_PATH);
     } catch (error) {
-      this.errorMessage.set(getErrorMessage(ApiError.fromHttpError(error)));
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
       this.form.reset();
     } finally {
       this.isSubmitting.set(false);
@@ -111,14 +109,13 @@ export class VerifyPage implements OnInit {
   }
 
   async handleResend(): Promise<void> {
-    this.errorMessage.set(null);
     try {
       await this.auth.resendVerificationCode(this.email());
       this.hasResent.set(true);
       this.form.reset();
       this.startResendCountdown();
     } catch (error) {
-      this.errorMessage.set(getErrorMessage(ApiError.fromHttpError(error)));
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     }
   }
 

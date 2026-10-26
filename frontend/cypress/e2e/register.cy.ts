@@ -51,9 +51,10 @@ for (const viewport of VIEWPORTS) {
       cy.contains('ion-button', 'Crear cuenta y verificar correo').click();
 
       cy.wait('@register');
-      cy.get('.auth-alert--danger')
-        .should('be.visible')
-        .and('contain', 'Ya hay una cuenta con este correo.');
+      cy.get('ion-toast')
+        .shadow()
+        .find('.toast-message')
+        .should('contain', 'Ya hay una cuenta con este correo.');
     });
 
     it('enables the button only when every field is right and the terms are accepted', () => {
@@ -82,7 +83,7 @@ for (const viewport of VIEWPORTS) {
 
     it('goes back to the welcome screen', () => {
       const backButton =
-        viewport.name === 'mobile' ? 'ion-header ion-back-button' : '.top-bar ion-back-button';
+        viewport.name === 'mobile' ? 'ion-header .back-button' : '.top-bar .back-button';
       cy.get(backButton).click();
       cy.location('pathname').should('eq', '/auth/welcome');
     });

@@ -4,6 +4,7 @@ import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { LegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { RegisterPage } from './register.page';
 
@@ -18,11 +19,15 @@ const FORM = {
 describe('RegisterPage', () => {
   let fixture: ComponentFixture<RegisterPage>;
   let page: RegisterPage;
+  let showError: ReturnType<typeof vi.fn>;
+  let showSuccess: ReturnType<typeof vi.fn>;
   let register: ReturnType<typeof vi.fn>;
   let navigateByUrl: ReturnType<typeof vi.spyOn>;
   let createModal: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
+    showError = vi.fn().mockResolvedValue(undefined);
+    showSuccess = vi.fn().mockResolvedValue(undefined);
     register = vi.fn().mockResolvedValue({});
     createModal = vi.fn().mockResolvedValue({ present: vi.fn().mockResolvedValue(undefined) });
     TestBed.configureTestingModule({
@@ -30,6 +35,7 @@ describe('RegisterPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        { provide: ToastService, useValue: { showError, showSuccess } },
         { provide: AuthService, useValue: { register } },
         { provide: ModalController, useValue: { create: createModal } },
       ],
@@ -43,12 +49,6 @@ describe('RegisterPage', () => {
   async function submit(): Promise<void> {
     await page.handleSubmit();
     await fixture.whenStable();
-  }
-
-  function shownError(): string | undefined {
-    return (fixture.nativeElement as HTMLElement)
-      .querySelector('.auth-alert--danger')
-      ?.textContent?.trim();
   }
 
   it('does not send an invalid form and marks its fields', async () => {
@@ -103,7 +103,7 @@ describe('RegisterPage', () => {
 
     await submit();
 
-    expect(shownError()).toBe('Ya hay una cuenta con este correo.');
+    expect(showError).toHaveBeenCalledWith('Ya hay una cuenta con este correo.');
     expect(navigateByUrl).not.toHaveBeenCalled();
   });
 });

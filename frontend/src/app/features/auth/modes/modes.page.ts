@@ -1,7 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
+  IonRouterLink,
+  IonButtons,
   IonContent,
   IonHeader,
   IonIcon,
@@ -10,9 +12,10 @@ import {
   IonToolbar,
 } from '@ionic/angular';
 import {
-  alertCircleOutline,
+  arrowBackOutline,
   carOutline,
-  checkmarkCircleOutline,
+  checkmarkCircle,
+  ellipseOutline,
   personOutline,
   swapHorizontalOutline,
 } from 'ionicons/icons';
@@ -20,6 +23,7 @@ import { HOME_PATH } from '../../../core/guards/redirect-paths';
 import { ApiError } from '../../../core/models/api-error.model';
 import { RegisterProfile } from '../../../core/models/auth.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { UsersService } from '../../../core/services/users/users.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -46,7 +50,10 @@ const PROFILES_BY_CHOICE: Readonly<Record<ModeChoice, RegisterProfile[]>> = {
 @Component({
   selector: 'app-modes',
   imports: [
+    RouterLink,
     IonButton,
+    IonRouterLink,
+    IonButtons,
     IonContent,
     IonHeader,
     IonIcon,
@@ -61,6 +68,7 @@ const PROFILES_BY_CHOICE: Readonly<Record<ModeChoice, RegisterProfile[]>> = {
 export class ModesPage {
   private readonly auth = inject(AuthService);
   private readonly users = inject(UsersService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
 
   protected readonly options: ModeOption[] = [
@@ -83,13 +91,13 @@ export class ModesPage {
       icon: swapHorizontalOutline,
     },
   ];
-
-  protected readonly alertIcon = alertCircleOutline;
-  protected readonly verifiedIcon = checkmarkCircleOutline;
+  protected readonly backIcon = arrowBackOutline;
+  // Selector de cada tarjeta: círculo vacío o marcado
+  protected readonly selectedIcon = checkmarkCircle;
+  protected readonly unselectedIcon = ellipseOutline;
 
   readonly choice = signal<ModeChoice | null>(null);
   readonly isSubmitting = signal(false);
-  readonly errorMessage = signal<string | null>(null);
   readonly submitLabel = computed(() => {
     const choice = this.choice();
     if (choice === null) {
@@ -104,7 +112,6 @@ export class ModesPage {
       return;
     }
     this.isSubmitting.set(true);
-    this.errorMessage.set(null);
     try {
       for (const profile of PROFILES_BY_CHOICE[choice]) {
         await this.users.activateProfile(profile);
@@ -113,7 +120,7 @@ export class ModesPage {
       await this.auth.refreshAccessToken();
       await this.router.navigateByUrl(HOME_PATH);
     } catch (error) {
-      this.errorMessage.set(getErrorMessage(ApiError.fromHttpError(error)));
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     } finally {
       this.isSubmitting.set(false);
     }

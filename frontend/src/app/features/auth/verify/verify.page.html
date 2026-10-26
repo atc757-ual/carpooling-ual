@@ -2,13 +2,15 @@
 <ion-header class="ion-hide-md-up ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button
+      <ion-button
         class="back-button"
-        defaultHref="/auth/register"
-        text=""
-        [icon]="backIcon"
+        fill="clear"
+        routerLink="/auth/register"
+        routerDirection="back"
         aria-label="Volver"
-      />
+      >
+        <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+      </ion-button>
     </ion-buttons>
     <ion-title>Verifica tu correo</ion-title>
   </ion-toolbar>
@@ -18,13 +20,15 @@
   <app-auth-layout>
     <!-- En escritorio, sin barra: la flecha y el título sobre el logotipo -->
     <div class="top-bar ion-hide-md-down" authLayoutTop>
-      <ion-back-button
+      <ion-button
         class="back-button"
-        defaultHref="/auth/register"
-        text=""
-        [icon]="backIcon"
+        fill="clear"
+        routerLink="/auth/register"
+        routerDirection="back"
         aria-label="Volver"
-      />
+      >
+        <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+      </ion-button>
       <span class="top-bar__title">Verifica tu correo</span>
     </div>
 
@@ -39,14 +43,6 @@
         >.
       </p>
     </div>
-
-    <!-- Error de la API: arriba, a la vista, en una alerta roja -->
-    @if (errorMessage(); as message) {
-      <div class="auth-alert auth-alert--danger" role="alert">
-        <ion-icon [icon]="alertIcon" aria-hidden="true" />
-        <span>{{ message }}</span>
-      </div>
-    }
 
     <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
       <div class="auth-field">

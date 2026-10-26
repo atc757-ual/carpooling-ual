@@ -70,7 +70,10 @@ for (const viewport of VIEWPORTS) {
       cy.contains('ion-button', 'Verificar correo').click();
 
       cy.wait('@verify');
-      cy.get('.auth-alert--danger').should('contain', 'Ese código no es válido.');
+      cy.get('ion-toast')
+        .shadow()
+        .find('.toast-message')
+        .should('contain', 'Ese código no es válido.');
     });
 
     it('asks for a new code with the resend button', () => {

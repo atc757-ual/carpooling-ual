@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { leaveModesGuard } from './core/guards/leave-modes.guard';
 
 // Rutas de la aplicación. Cada pantalla se carga bajo demanda
 // (loadComponent) desde features/<área>/, con sus guards
@@ -35,6 +36,8 @@ export const routes: Routes = [
     // Elegir modo: con la sesión ya abierta (tras verificar el correo)
     path: 'modes',
     canActivate: [authGuard],
+    // Salir sin elegir modo cierra la sesión (vuelve a la bienvenida)
+    canDeactivate: [leaveModesGuard],
     loadComponent: () => import('./features/auth/modes/modes.page').then((m) => m.ModesPage),
   },
   {

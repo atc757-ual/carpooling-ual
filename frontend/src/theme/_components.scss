@@ -46,6 +46,24 @@ ion-back-button {
 // icono de 28px en el centro, también por dentro (::part(native)), para que el
 // círculo de hover y foco quede centrado. Se desplaza hacia fuera
 // (52 − 28) / 2 = 12px para que el icono empiece en el margen del contenido
+// Con destino fijo (routerLink) es un ion-button; se aplica a los dos
+ion-button.back-button {
+  --padding-start: 0;
+  --padding-end: 0;
+  --border-radius: 50%;
+  --color: var(--color-text);
+
+  align-self: flex-start;
+  width: 3.25rem; // 52px
+  height: 3.25rem;
+  margin: 0 0 0 -0.75rem; // el icono empieza en el margen del contenido
+  font-size: 1.75rem; // 28px, el icono
+
+  ion-icon {
+    font-size: 1.75rem;
+  }
+}
+
 ion-back-button.back-button {
   --padding-start: 0;
   --padding-end: 0;
@@ -88,14 +106,6 @@ ion-back-button.back-button {
   }
 }
 
-// Sin flecha (p. ej. tras verificar el correo no hay a dónde volver): solo el
-// título, centrado y con el mismo alto
-.top-bar--title-only {
-  grid-template-columns: 1fr;
-  min-height: 3.25rem; // 52px, el de la flecha
-  margin-inline: 0;
-}
-
 .top-bar__title {
   font-family: var(--font-family-heading);
   font-size: var(--font-size-subtitle);
@@ -128,4 +138,52 @@ ion-input input:-webkit-autofill {
   -webkit-text-fill-color: var(--color-text);
   caret-color: var(--color-text);
   clip-path: inset(var(--border-width-m) 0);
+}
+
+// Avisos breves (ToastService), con los colores tintados de la guía: texto e
+// icono del color del estado sobre su fondo claro
+ion-toast {
+  --min-height: var(--control-height-l); // 56px, el alto de la cabecera
+
+  font-size: var(--font-size-body);
+}
+
+ion-toast.toast--danger {
+  --background: var(--color-danger-subtle);
+  --color: var(--color-danger);
+  --border-color: var(--color-danger);
+}
+
+ion-toast.toast--success {
+  --background: var(--color-success-subtle);
+  --color: var(--color-success);
+  --border-color: var(--color-success);
+}
+
+// Móvil: ocupa la cabecera de lado a lado, sin márgenes ni esquinas
+ion-toast.toast--bar {
+  --start: 0;
+  --end: 0;
+  --width: 100%;
+  --max-width: 100%;
+  --border-radius: 0;
+  --box-shadow: none;
+}
+
+// Escritorio: flota arriba, con borde de 1px del color del texto
+ion-toast.toast--floating {
+  --width: 30rem; // 480px
+  --border-radius: var(--radius-s);
+  --border-width: var(--border-width-s);
+  --border-style: solid;
+  --box-shadow: var(--shadow-base);
+}
+
+// En las pantallas de acceso de escritorio, el aviso va centrado sobre la
+// columna blanca del formulario y no sobre la ilustración. Las columnas miden
+// 1.2 (ilustración) y 1 (formulario): ver .auth-layout__visual en auth-layout
+ion-app:has(.ion-page:not(.ion-page-hidden) .auth-layout) ion-toast.toast--floating {
+  --width: min(30rem, calc(100% / 2.2 - 4rem));
+  --start: calc(100% * 1.2 / 2.2 + (100% / 2.2 - min(30rem, calc(100% / 2.2 - 4rem))) / 2);
+  --end: auto;
 }

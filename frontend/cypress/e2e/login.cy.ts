@@ -63,9 +63,10 @@ for (const viewport of VIEWPORTS) {
       cy.contains('ion-button', 'Iniciar sesión').click();
 
       cy.wait('@login');
-      cy.get('.auth-alert--danger')
-        .should('be.visible')
-        .and('contain', 'Correo o contraseña incorrectos.');
+      cy.get('ion-toast')
+        .shadow()
+        .find('.toast-message')
+        .should('contain', 'Correo o contraseña incorrectos.');
       cy.location('pathname').should('eq', '/auth/login');
     });
 
@@ -117,7 +118,7 @@ for (const viewport of VIEWPORTS) {
 
     it('goes back to the welcome screen', () => {
       const backButton =
-        viewport.name === 'mobile' ? 'ion-header ion-back-button' : '.top-bar ion-back-button';
+        viewport.name === 'mobile' ? 'ion-header .back-button' : '.top-bar .back-button';
       cy.get(backButton).click();
       cy.location('pathname').should('eq', '/auth/welcome');
     });

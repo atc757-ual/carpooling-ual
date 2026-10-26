@@ -2,7 +2,6 @@ import { Component, inject, input, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
-  IonBackButton,
   IonButton,
   IonButtons,
   IonContent,
@@ -15,16 +14,16 @@ import {
   IonToolbar,
 } from '@ionic/angular';
 import {
-  alertCircleOutline,
   arrowBackOutline,
   eyeOffOutline,
   eyeOutline,
   lockClosedOutline,
   mailOutline,
 } from 'ionicons/icons';
-import { HOME_PATH, MODES_PATH } from '../../../core/guards/redirect-paths';
+import { HOME_PATH } from '../../../core/guards/redirect-paths';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -40,7 +39,6 @@ const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    IonBackButton,
     IonButton,
     IonButtons,
     IonContent,
@@ -60,6 +58,7 @@ const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
 export class LoginPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   // Parámetro ?returnUrl= de la ruta (withComponentInputBinding)
   readonly returnUrl = input<string>();
@@ -71,10 +70,8 @@ export class LoginPage {
     password: ['', [Validators.required, Validators.minLength(PASSWORD_MIN_LENGTH)]],
   });
   readonly isSubmitting = signal(false);
-  readonly errorMessage = signal<string | null>(null);
   readonly isPasswordVisible = signal(false);
 
-  protected readonly alertIcon = alertCircleOutline;
   protected readonly backIcon = arrowBackOutline;
   protected readonly mailIcon = mailOutline;
   protected readonly lockIcon = lockClosedOutline;
@@ -91,19 +88,16 @@ export class LoginPage {
       return;
     }
     this.isSubmitting.set(true);
-    this.errorMessage.set(null);
     const { email, password } = this.form.getRawValue();
     try {
-      const user = await this.auth.login({ email, password });
-      // Quien aún no ha elegido modo (ni es administrador) lo elige primero
-      const target = user.profiles.length === 0 ? MODES_PATH : this.getSafeReturnUrl();
-      await this.router.navigateByUrl(target);
+      await this.auth.login({ email, password });
+      await this.router.navigateByUrl(this.getSafeReturnUrl());
     } catch (error) {
       const apiError = ApiError.fromHttpError(error);
       if (apiError.code === EMAIL_NOT_VERIFIED) {
         await this.goToVerify(email);
       } else {
-        this.errorMessage.set(getErrorMessage(apiError));
+        void this.toast.showError(getErrorMessage(apiError));
       }
     } finally {
       this.isSubmitting.set(false);

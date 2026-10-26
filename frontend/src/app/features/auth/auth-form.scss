@@ -62,29 +62,6 @@
   }
 }
 
-// Alertas bajo el título (p. ej. el error de la API): fondo tintado, icono y
-// texto del mismo color; el estado se lee también por el icono y el texto
-.auth-alert {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-s);
-  padding: var(--space-s) var(--space-base);
-  border-radius: var(--radius-s);
-  font-size: var(--font-size-body-s);
-  line-height: var(--line-height-body-s);
-
-  ion-icon {
-    flex-shrink: 0;
-    margin-top: 0.125rem; // 2px: alineado con la primera línea
-    font-size: 1rem; // 16px
-  }
-}
-
-.auth-alert--danger {
-  background: var(--color-danger-subtle);
-  color: var(--color-danger);
-}
-
 // Recuadro informativo azul claro («Tu acceso, protegido»…)
 .auth-notice {
   display: flex;

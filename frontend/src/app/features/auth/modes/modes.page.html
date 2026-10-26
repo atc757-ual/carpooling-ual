@@ -1,42 +1,52 @@
-<!-- Solo en el móvil: la barra con el título. Sin flecha: la cuenta ya está
-     creada y verificada, no hay a dónde volver -->
+<!-- Solo en el móvil: la barra con la flecha y el título. Volver sin elegir
+     modo cierra la sesión y lleva a la bienvenida (leaveModesGuard) -->
 <ion-header class="ion-hide-md-up ion-no-border">
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button
+        class="back-button"
+        fill="clear"
+        routerLink="/auth/welcome"
+        routerDirection="back"
+        aria-label="Volver"
+      >
+        <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+      </ion-button>
+    </ion-buttons>
     <ion-title>Correo verificado</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <app-auth-layout>
-    <div class="top-bar top-bar--title-only ion-hide-md-down" authLayoutTop>
+    <div class="top-bar ion-hide-md-down" authLayoutTop>
+      <ion-button
+        class="back-button"
+        fill="clear"
+        routerLink="/auth/welcome"
+        routerDirection="back"
+        aria-label="Volver"
+      >
+        <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+      </ion-button>
       <span class="top-bar__title">Correo verificado</span>
     </div>
 
     <div class="auth-intro">
-      <span class="verified-badge">
-        <ion-icon [icon]="verifiedIcon" aria-hidden="true" />
-        Correo UAL verificado
-      </span>
       <p class="text-eyebrow text-color-primary">Tu cuenta está lista</p>
       <h1 class="text-heading">¿Cómo quieres compartir camino?</h1>
       <p class="text-body text-color-muted">
-        Correo verificado. Elige los perfiles que necesitas. Puedes cambiarlos después desde Perfil.
+        Elige los perfiles que necesitas. Puedes cambiarlos después desde Perfil.
       </p>
     </div>
 
-    <!-- Error de la API: arriba, a la vista, en una alerta roja -->
-    @if (errorMessage(); as message) {
-      <div class="auth-alert auth-alert--danger" role="alert">
-        <ion-icon [icon]="alertIcon" aria-hidden="true" />
-        <span>{{ message }}</span>
-      </div>
-    }
-
     <!-- Formulario: «Continuar» lo envía (con el ratón, el dedo o Intro) -->
     <form class="modes__form" (submit)="$event.preventDefault(); handleSubmit()">
-      <!-- Tarjetas que funcionan como botones de opción (radio nativos ocultos):
-           se eligen con el ratón, el dedo o las flechas del teclado -->
-      <div class="modes" role="radiogroup" aria-label="Modo">
+      <!-- Tarjetas que funcionan como botones de opción (radio nativos ocultos),
+           con su selector a la derecha: se eligen con el ratón, el dedo o las
+           flechas del teclado -->
+      <fieldset class="modes">
+        <legend class="visually-hidden">Modo</legend>
         @for (option of options; track option.value) {
           <label class="modes__option" [class.modes__option--selected]="choice() === option.value">
             <input
@@ -49,12 +59,17 @@
             />
             <ion-icon class="modes__icon" [icon]="option.icon" aria-hidden="true" />
             <span class="modes__text">
-              <span class="text-subtitle">{{ option.title }}</span>
+              <span class="text-body text-body--strong">{{ option.title }}</span>
               <span class="text-body-s text-color-muted">{{ option.description }}</span>
             </span>
+            <ion-icon
+              class="modes__check"
+              [icon]="choice() === option.value ? selectedIcon : unselectedIcon"
+              aria-hidden="true"
+            />
           </label>
         }
-      </div>
+      </fieldset>
 
       @if (choice() === 'both') {
         <output class="auth-notice">
