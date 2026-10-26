@@ -24,6 +24,8 @@ import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.di
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 
 const CODE_LENGTH = 6;
+// La API anula el código al tercer intento fallido
+const TOO_MANY_ATTEMPTS = 'TOO_MANY_ATTEMPTS';
 // La API envía como mucho un código por minuto
 const RESEND_WAIT_SECONDS = 60;
 
@@ -67,6 +69,9 @@ export class VerifyPage implements OnInit {
   });
   readonly isSubmitting = signal(false);
   readonly hasResent = signal(false);
+  // Tras 3 fallos el código queda anulado: no se puede escribir otro hasta
+  // pedir uno nuevo
+  readonly isLocked = signal(false);
   readonly secondsToResend = signal(RESEND_WAIT_SECONDS);
   readonly resendLabel = computed(() => {
     const seconds = this.secondsToResend();
@@ -101,8 +106,12 @@ export class VerifyPage implements OnInit {
       void this.toast.showSuccess('Correo UAL verificado.');
       await this.router.navigateByUrl(MODES_PATH);
     } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      const apiError = ApiError.fromHttpError(error);
+      void this.toast.showError(getErrorMessage(apiError));
       this.form.reset();
+      if (apiError.code === TOO_MANY_ATTEMPTS) {
+        this.lock();
+      }
     } finally {
       this.isSubmitting.set(false);
     }
@@ -113,10 +122,21 @@ export class VerifyPage implements OnInit {
       await this.auth.resendVerificationCode(this.email());
       this.hasResent.set(true);
       this.form.reset();
+      this.unlock();
       this.startResendCountdown();
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     }
+  }
+
+  private lock(): void {
+    this.isLocked.set(true);
+    this.form.controls.code.disable();
+  }
+
+  private unlock(): void {
+    this.isLocked.set(false);
+    this.form.controls.code.enable();
   }
 
   // Cuenta atrás hasta poder pedir otro código

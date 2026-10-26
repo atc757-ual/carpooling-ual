@@ -65,6 +65,11 @@
         />
       </div>
 
+      @if (isLocked()) {
+        <ion-text color="danger" class="text-body-s" role="alert">
+          Has fallado 3 veces y el código ya no vale: pide uno nuevo para seguir.
+        </ion-text>
+      }
       @if (hasResent()) {
         <ion-text class="text-body-s text-color-muted" role="status">
           Si el correo está registrado, te hemos enviado un código nuevo.
@@ -73,7 +78,11 @@
 
       <!-- 16px entre los botones -->
       <div class="verify__actions">
-        <ion-button type="submit" expand="block" [disabled]="form.invalid || isSubmitting()">
+        <ion-button
+          type="submit"
+          expand="block"
+          [disabled]="form.invalid || isLocked() || isSubmitting()"
+        >
           @if (isSubmitting()) {
             <ion-spinner name="crescent" aria-label="Verificando" />
           } @else {
