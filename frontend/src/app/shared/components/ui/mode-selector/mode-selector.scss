@@ -1,0 +1,44 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.mode-selector__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-base);
+}
+
+// «Modo: Pasajero» en una línea; «Cambiar» ocupa solo lo que mide
+.mode-selector__row > .text-label {
+  white-space: nowrap;
+}
+
+// «Cambiar» como un enlace, con su flecha
+.mode-selector__select {
+  flex: 0 0 auto;
+  --padding-start: 0;
+  --padding-end: 0;
+
+  min-height: var(--control-height-s);
+  color: var(--color-link);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+}
+
+// Recuadro del móvil, con borde y los perfiles debajo
+:host(.mode-selector--card) {
+  width: 100%;
+
+  .mode-selector__row {
+    padding: 0 var(--space-base);
+    border: var(--border-width-s) solid var(--color-border);
+    border-radius: var(--radius-s);
+  }
+
+  p {
+    margin: 0;
+  }
+}

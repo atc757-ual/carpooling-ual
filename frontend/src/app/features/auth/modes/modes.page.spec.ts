@@ -50,7 +50,7 @@ describe('ModesPage', () => {
     expect(page.submitLabel()).toBe('Continuar como conductor');
     expect(activateProfile.mock.calls).toEqual([['driver']]);
     expect(refreshAccessToken).toHaveBeenCalled();
-    expect(navigateByUrl).toHaveBeenCalledWith('/');
+    expect(navigateByUrl).toHaveBeenCalledWith('/tabs/home');
   });
 
   it('activates both profiles, passenger first', async () => {

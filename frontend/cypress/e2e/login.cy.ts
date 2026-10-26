@@ -43,7 +43,7 @@ for (const viewport of VIEWPORTS) {
       cy.wait('@login')
         .its('request.body')
         .should('deep.equal', { email: 'ana@ual.es', password: 'secreta123' });
-      cy.location('pathname').should('eq', '/');
+      cy.location('pathname').should('eq', '/tabs/home');
       cy.contains('h1', 'Hola, Ana').should('be.visible');
     });
 

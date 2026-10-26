@@ -1,3 +1,5 @@
 <ion-app>
-  <ion-router-outlet />
+  <!-- Sin animación al pasar del acceso al área con sesión (y al revés): cada
+       una tiene su propio layout. Dentro de cada sección, la transición nativa -->
+  <ion-router-outlet [animated]="false" />
 </ion-app>

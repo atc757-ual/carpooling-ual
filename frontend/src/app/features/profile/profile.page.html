@@ -1,0 +1,18 @@
+<ion-content>
+  <section class="tab-page">
+    <h1 class="text-title">Perfil</h1>
+    @if (user(); as user) {
+      <p class="text-body">
+        {{ user.name }}<br />
+        <span class="text-color-muted">{{ user.email }}</span>
+      </p>
+    }
+    <p class="text-body text-color-muted">
+      Muy pronto podrás gestionar aquí tu cuenta, tus vehículos y tus perfiles.
+    </p>
+    <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
+    <form (submit)="$event.preventDefault(); handleLogout()">
+      <ion-button type="submit" fill="outline">Cerrar sesión</ion-button>
+    </form>
+  </section>
+</ion-content>

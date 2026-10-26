@@ -76,7 +76,7 @@ describe('LoginPage', () => {
     await submit();
 
     expect(login).toHaveBeenCalledWith(CREDENTIALS);
-    expect(navigateByUrl).toHaveBeenCalledWith('/');
+    expect(navigateByUrl).toHaveBeenCalledWith('/tabs/home');
     expect(page.isSubmitting()).toBe(false);
   });
 
@@ -89,7 +89,7 @@ describe('LoginPage', () => {
   it('ignores a return address outside the app', async () => {
     await submit('//malicioso.example.com');
 
-    expect(navigateByUrl).toHaveBeenCalledWith('/');
+    expect(navigateByUrl).toHaveBeenCalledWith('/tabs/home');
   });
 
   it('shows wrong credentials in the form', async () => {

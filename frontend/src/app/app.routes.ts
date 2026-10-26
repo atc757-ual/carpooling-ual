@@ -1,7 +1,15 @@
-import { Routes } from '@angular/router';
+import { Route, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { leaveModesGuard } from './core/guards/leave-modes.guard';
+import { profileGuard } from './core/guards/profile.guard';
+
+// Pestaña aún sin pantalla: su título y qué se podrá hacer en ella
+const comingSoon = (title: string, description: string): Pick<Route, 'loadComponent' | 'data'> => ({
+  loadComponent: () =>
+    import('./features/tabs/coming-soon/coming-soon.page').then((m) => m.ComingSoonPage),
+  data: { title, description },
+});
 
 // Rutas de la aplicación. Cada pantalla se carga bajo demanda
 // (loadComponent) desde features/<área>/, con sus guards
@@ -59,11 +67,43 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/modes/modes.page').then((m) => m.ModesPage),
   },
   {
-    // Inicio con sesión (sin ella, authGuard lleva a la bienvenida)
-    path: '',
-    pathMatch: 'full',
+    // Área con sesión: las cinco pestañas (sin sesión, authGuard lleva a la
+    // bienvenida o al login)
+    path: 'tabs',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/home/home.page').then((m) => m.HomePage),
+    loadComponent: () => import('./features/tabs/tabs.page').then((m) => m.TabsPage),
+    children: [
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      {
+        path: 'home',
+        loadComponent: () => import('./features/home/home.page').then((m) => m.HomePage),
+      },
+      {
+        path: 'trips',
+        ...comingSoon('Mis viajes', 'Muy pronto verás aquí tus viajes y solicitudes.'),
+      },
+      {
+        // Como pasajero
+        path: 'search',
+        canActivate: [profileGuard('passenger')],
+        ...comingSoon('Buscar', 'Muy pronto podrás buscar viajes al campus desde aquí.'),
+      },
+      {
+        // Como conductor
+        path: 'publish',
+        canActivate: [profileGuard('driver')],
+        ...comingSoon('Publicar', 'Muy pronto podrás publicar tus viajes desde aquí.'),
+      },
+      {
+        path: 'notifications',
+        ...comingSoon('Avisos', 'Muy pronto verás aquí los avisos de tus viajes.'),
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile.page').then((m) => m.ProfilePage),
+      },
+    ],
   },
+  { path: '', redirectTo: 'tabs/home', pathMatch: 'full' },
   { path: '**', redirectTo: '' },
 ];

@@ -3,7 +3,9 @@ import { Component, input } from '@angular/core';
 // - default: insignia «UAL» y «Carpool» al lado.
 // - tile: insignia cuadrada, «Carpool» en azul y el lema debajo (cabecera de
 //   los formularios de acceso en el móvil).
-export type BrandLogoVariant = 'default' | 'tile';
+// - compact: insignia cuadrada pequeña y «Carpool» al lado, sin lema
+//   (cabeceras del área con sesión).
+export type BrandLogoVariant = 'default' | 'tile' | 'compact';
 
 // Logotipo de texto de la aplicación («UAL Carpool»). Para los lectores de
 // pantalla es una imagen con su nombre (si no, leerían «UALCarpool»)
@@ -13,6 +15,7 @@ export type BrandLogoVariant = 'default' | 'tile';
     role: 'img',
     'aria-label': 'UAL Carpool',
     '[class.brand-logo--tile]': "variant() === 'tile'",
+    '[class.brand-logo--compact]': "variant() === 'compact'",
   },
   template: `
     <span class="brand-logo__badge" aria-hidden="true">UAL</span>

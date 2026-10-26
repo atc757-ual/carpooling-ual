@@ -25,4 +25,11 @@ describe('BrandLogo', () => {
       'Sistema de movilidad compartida',
     );
   });
+
+  it('has a compact variant without the tagline for the headers with session', async () => {
+    const compact = await render('compact');
+
+    expect(compact.classList).toContain('brand-logo--compact');
+    expect(compact.querySelector('.brand-logo__tagline')).toBeNull();
+  });
 });

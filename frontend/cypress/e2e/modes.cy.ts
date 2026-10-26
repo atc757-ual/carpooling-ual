@@ -57,7 +57,7 @@ for (const viewport of VIEWPORTS) {
 
       cy.wait('@activate').its('request.url').should('contain', '/profiles/passenger');
       cy.wait('@activate').its('request.url').should('contain', '/profiles/driver');
-      cy.location('pathname').should('eq', '/');
+      cy.location('pathname').should('eq', '/tabs/home');
     });
 
     it('ends the session and goes to the welcome screen with the back arrow', () => {
