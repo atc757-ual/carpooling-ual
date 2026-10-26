@@ -44,11 +44,11 @@ export class AuthService {
     return this.accessToken;
   }
 
-  // Crea la cuenta; no inicia sesión: queda el correo pendiente de verificar
-  async register(request: RegisterRequest): Promise<User> {
-    const user = await this.send(this.http.post<User>(`${this.authUrl}/register`, request));
+  // Guarda el registro pendiente y envía el código; la cuenta se crea al
+  // verificar el correo (verifyEmail), que es cuando se inicia la sesión
+  async register(request: RegisterRequest): Promise<void> {
+    await this.send(this.http.post<void>(`${this.authUrl}/register`, request));
     this.setPendingVerificationEmail(request.email);
-    return user;
   }
 
   // Verifica el correo con el código enviado; si es correcto, abre la sesión

@@ -39,7 +39,7 @@ export function lastCodeSentTo(
 
 // Alta de un usuario por la API, como lo hará la app: registro público
 // (teléfono y normas, sin perfiles), verificación del correo con el código
-// recibido (abre la sesión) y elección de cada modo
+// recibido (crea la cuenta y abre la sesión) y elección de cada modo
 // (PUT /api/users/me/profiles/{profile}). Devuelve el id. Para tener un token
 // con los perfiles, hay que iniciar sesión después
 export async function registerUser(
@@ -47,7 +47,7 @@ export async function registerUser(
   account: TestAccount,
 ): Promise<string> {
   const server = app.getHttpServer();
-  const registered = await request(server)
+  await request(server)
     .post('/api/auth/register')
     .send({
       name: account.name,
@@ -56,7 +56,7 @@ export async function registerUser(
       phone: TEST_PHONE,
       acceptedTerms: true,
     })
-    .expect(201);
+    .expect(202);
   const verified = await request(server)
     .post('/api/auth/verify-email')
     .send({
@@ -64,7 +64,10 @@ export async function registerUser(
       code: lastCodeSentTo(app, account.email),
     })
     .expect(200);
-  const { accessToken } = verified.body as { accessToken: string };
+  const { accessToken, user } = verified.body as {
+    accessToken: string;
+    user: { id: string };
+  };
   // A la vez: el backend bloquea la fila del usuario y las hace por turnos
   await Promise.all(
     account.profiles.map((profile) =>
@@ -74,5 +77,5 @@ export async function registerUser(
         .expect(200),
     ),
   );
-  return (registered.body as { id: string }).id;
+  return user.id;
 }

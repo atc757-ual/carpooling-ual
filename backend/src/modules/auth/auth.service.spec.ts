@@ -29,6 +29,7 @@ describe('AuthService', () => {
   const jwtService = new JwtService({ secret: JWT_SECRET });
   const usersService = {
     createWithProfiles: jest.fn(),
+    findByEmail: jest.fn(),
     findByEmailWithPassword: jest.fn(),
     findById: jest.fn(),
     getActiveProfiles: jest.fn(),
@@ -40,7 +41,7 @@ describe('AuthService', () => {
     revoke: jest.fn(),
   };
   const emailVerification = {
-    sendCode: jest.fn(),
+    register: jest.fn(),
     resendCode: jest.fn(),
     verify: jest.fn(),
   };
@@ -92,86 +93,64 @@ describe('AuthService', () => {
       phone: '+34600123456',
     };
 
-    it('creates the user without profiles, with the phone and the terms acceptance date', async () => {
-      usersService.createWithProfiles.mockResolvedValue(storedUser());
-      const before = new Date();
-
-      await authService.register(input);
-
-      const [created] = usersService.createWithProfiles.mock.calls[0] as [
-        { profiles: string[]; phone: string; termsAcceptedAt: Date },
-      ];
-      expect(created.profiles).toEqual([]);
-      expect(created.phone).toBe('+34600123456');
-      expect(created.termsAcceptedAt.getTime()).toBeGreaterThanOrEqual(
-        before.getTime(),
-      );
+    beforeEach(() => {
+      usersService.findByEmail.mockResolvedValue(null);
     });
 
-    it('creates the user with a bcrypt hash, never the plain password', async () => {
-      usersService.createWithProfiles.mockResolvedValue(storedUser());
+    it('saves a pending registration and does not create the user yet', async () => {
+      await authService.register(input);
 
-      const user = await authService.register(input);
-
-      const [{ passwordHash }] = usersService.createWithProfiles.mock
-        .calls[0] as [{ passwordHash: string }];
-      expect(passwordHash).not.toBe(input.password);
-      expect(await compare(input.password, passwordHash)).toBe(true);
-      expect(user).toEqual({
-        id: 'user-1',
+      const [pending] = emailVerification.register.mock.calls[0] as [
+        { name: string; email: string; phone: string },
+      ];
+      expect(pending).toMatchObject({
         name: 'Ana',
         email: 'ana@ual.es',
-        profiles: ['driver'],
+        phone: '+34600123456',
       });
+      expect(usersService.createWithProfiles).not.toHaveBeenCalled();
+    });
+
+    it('keeps a bcrypt hash, never the plain password', async () => {
+      await authService.register(input);
+
+      const [{ passwordHash }] = emailVerification.register.mock.calls[0] as [
+        { passwordHash: string },
+      ];
+      expect(passwordHash).not.toBe(input.password);
+      expect(await compare(input.password, passwordHash)).toBe(true);
     });
 
     it.each(['ana@ual.es', 'ana@inlumine.ual.es', 'ANA@UAL.ES'])(
       'accepts the UAL email "%s"',
       async (email) => {
-        usersService.createWithProfiles.mockResolvedValue(storedUser());
+        await authService.register({ ...input, email });
 
-        await expect(
-          authService.register({ ...input, email }),
-        ).resolves.toBeDefined();
+        expect(emailVerification.register).toHaveBeenCalled();
       },
     );
 
     it.each(['ana@gmail.com', 'ana@fakeual.es', 'ana@ual.es.atacante.com'])(
-      'rejects the non-UAL email "%s" without creating the user',
+      'rejects the non-UAL email "%s" without saving anything',
       async (email) => {
         await expect(
           authService.register({ ...input, email }),
         ).rejects.toBeInstanceOf(EmailDomainNotAllowedError);
-        expect(usersService.createWithProfiles).not.toHaveBeenCalled();
+        expect(emailVerification.register).not.toHaveBeenCalled();
       },
     );
 
-    it('lets the "email already registered" error through', async () => {
-      usersService.createWithProfiles.mockRejectedValue(
-        new EmailAlreadyRegisteredError(input.email),
-      );
+    it('rejects an email that already has an account', async () => {
+      usersService.findByEmail.mockResolvedValue(storedUser());
 
       await expect(authService.register(input)).rejects.toBeInstanceOf(
         EmailAlreadyRegisteredError,
       );
+      expect(emailVerification.register).not.toHaveBeenCalled();
     });
   });
 
   describe('email verification', () => {
-    it('sends the code to the new user after registering', async () => {
-      const created = storedUser(undefined, null);
-      usersService.createWithProfiles.mockResolvedValue(created);
-
-      await authService.register({
-        name: 'Ana',
-        email: 'ana@ual.es',
-        password: 'secret-password',
-        phone: '+34600123456',
-      });
-
-      expect(emailVerification.sendCode).toHaveBeenCalledWith(created);
-    });
-
     it('opens a session when the code is right', async () => {
       emailVerification.verify.mockResolvedValue(storedUser());
       refreshTokensService.issue.mockResolvedValue(ISSUED_REFRESH_TOKEN);
@@ -221,7 +200,7 @@ describe('AuthService', () => {
       expect(created.profiles).toEqual(['admin']);
       // Lo crea quien despliega: entra sin código
       expect(created.isEmailVerified).toBe(true);
-      expect(emailVerification.sendCode).not.toHaveBeenCalled();
+      expect(emailVerification.register).not.toHaveBeenCalled();
       expect(password).toMatch(/^[\w-]{20}$/);
       expect(created.passwordHash).not.toBe(password);
       expect(await compare(password, created.passwordHash)).toBe(true);

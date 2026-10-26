@@ -6,6 +6,7 @@ import { compare, hash, hashSync } from 'bcryptjs';
 import { AccessTokenPayload } from '../../shared/auth/access-token-payload';
 import { User } from '../users/entities/user.entity';
 import { UserSummary } from '../users/user-summary';
+import { EmailAlreadyRegisteredError } from '../users/errors/email-already-registered.error';
 import { UsersService } from '../users/users.service';
 import { EmailVerificationService } from './email-verification.service';
 import { AdminAlreadyExistsError } from './errors/admin-already-exists.error';
@@ -89,24 +90,22 @@ export class AuthService {
   }
 
   // Registro público (RF-01): solo correos de la UAL; la contraseña se guarda
-  // como hash, nunca en claro. El usuario se crea sin perfiles (los elige
-  // después de verificar el correo) y con la fecha de aceptación de las
-  // normas (el DTO ya exige que las acepte). Queda sin verificar: se le envía
-  // un código al correo
-  async register(input: RegisterInput): Promise<AuthenticatedUser> {
+  // como hash, nunca en claro. La cuenta NO se crea aún: los datos esperan
+  // como registro pendiente y se envía un código al correo. Al verificarlo se
+  // crea el usuario, sin perfiles (los elige después) y con la fecha de
+  // aceptación de las normas (el DTO ya exige que las acepte). Un correo de
+  // una cuenta que ya existe da 409; uno con un registro pendiente lo sustituye
+  async register(input: RegisterInput): Promise<void> {
     this.assertAllowedEmailDomain(input.email);
-
-    const passwordHash = await hash(input.password, BCRYPT_COST);
-    const user = await this.usersService.createWithProfiles({
+    if (await this.usersService.findByEmail(input.email)) {
+      throw new EmailAlreadyRegisteredError(input.email);
+    }
+    await this.emailVerification.register({
       name: input.name,
       email: input.email,
-      passwordHash,
       phone: input.phone,
-      termsAcceptedAt: new Date(),
-      profiles: [],
+      passwordHash: await hash(input.password, BCRYPT_COST),
     });
-    await this.emailVerification.sendCode(user);
-    return this.toAuthenticatedUser(user);
   }
 
   // Verificación del correo con el código: si es correcto, abre la sesión

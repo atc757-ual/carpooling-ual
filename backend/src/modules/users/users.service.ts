@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, In, IsNull, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { ProfileRequiredError } from '../../shared/auth/profile-required.error';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
@@ -57,48 +57,60 @@ export class UsersService {
   ) {}
 
   // Crea el usuario y sus perfiles (si los hay) en una transacción: o se
-  // guarda todo o nada. El correo repetido lo detecta la
-  // restricción UNIQUE de la base de datos (también si dos registros llegan a
-  // la vez), en lugar de comprobarlo antes con una consulta.
-  async createWithProfiles(input: CreateUserInput): Promise<User> {
+  // guarda todo o nada. Con el manager de quien llama, dentro de su
+  // transacción (p. ej. al verificar un registro pendiente, que se borra a la
+  // vez). El correo repetido lo detecta la restricción UNIQUE de la base de
+  // datos (también si dos registros llegan a la vez), en lugar de comprobarlo
+  // antes con una consulta.
+  async createWithProfiles(
+    input: CreateUserInput,
+    manager?: EntityManager,
+  ): Promise<User> {
     try {
-      return await this.dataSource.transaction(async (manager) => {
-        const user = await manager.save(
-          manager.create(User, {
-            name: input.name,
-            email: input.email,
-            passwordHash: input.passwordHash,
-            phone: input.phone ?? null,
-            termsAcceptedAt: input.termsAcceptedAt ?? null,
-            emailVerifiedAt: input.isEmailVerified ? new Date() : null,
-          }),
-        );
-        // Los perfiles no dependen unos de otros. Si falla uno, la transacción
-        // deshace también el usuario y el resto de perfiles
-        const profiles = [...new Set(input.profiles)];
-        await Promise.all(
-          profiles.map((profile) =>
-            this.createProfile(manager, user.id, profile),
-          ),
-        );
-        // Evento para el Gemelo Digital: solo los perfiles (ni el nombre, ni el
-        // correo, ni el teléfono, que no necesita: minimización)
-        await this.eventsService.record(manager, {
-          type: 'user.registered',
-          sourceEntityId: user.id,
-          payload: { profiles },
-        });
-        return manager.findOneOrFail(User, {
-          where: { id: user.id },
-          relations: PROFILE_RELATIONS,
-        });
-      });
+      return manager
+        ? await this.insertUser(manager, input)
+        : await this.dataSource.transaction((own) =>
+            this.insertUser(own, input),
+          );
     } catch (error) {
       if (isUniqueViolation(error, EMAIL_UNIQUE_CONSTRAINT)) {
         throw new EmailAlreadyRegisteredError(input.email);
       }
       throw error;
     }
+  }
+
+  private async insertUser(
+    manager: EntityManager,
+    input: CreateUserInput,
+  ): Promise<User> {
+    const user = await manager.save(
+      manager.create(User, {
+        name: input.name,
+        email: input.email,
+        passwordHash: input.passwordHash,
+        phone: input.phone ?? null,
+        termsAcceptedAt: input.termsAcceptedAt ?? null,
+        emailVerifiedAt: input.isEmailVerified ? new Date() : null,
+      }),
+    );
+    // Los perfiles no dependen unos de otros. Si falla uno, la transacción
+    // deshace también el usuario y el resto de perfiles
+    const profiles = [...new Set(input.profiles)];
+    await Promise.all(
+      profiles.map((profile) => this.createProfile(manager, user.id, profile)),
+    );
+    // Evento para el Gemelo Digital: solo los perfiles (ni el nombre, ni el
+    // correo, ni el teléfono, que no necesita: minimización)
+    await this.eventsService.record(manager, {
+      type: 'user.registered',
+      sourceEntityId: user.id,
+      payload: { profiles },
+    });
+    return manager.findOneOrFail(User, {
+      where: { id: user.id },
+      relations: PROFILE_RELATIONS,
+    });
   }
 
   // Solo para el login: es el único lugar donde se pide el hash explícitamente
@@ -120,28 +132,6 @@ export class UsersService {
     return this.usersRepository.findOne({
       where: { email },
       relations: PROFILE_RELATIONS,
-    });
-  }
-
-  // Marca el correo como verificado, en la transacción de quien llama (la que
-  // consume el código), y registra el evento para el Gemelo Digital (sin datos
-  // personales). Solo si no lo estaba: así el evento no se repite
-  async markEmailVerified(
-    manager: EntityManager,
-    userId: string,
-  ): Promise<void> {
-    const result = await manager.update(
-      User,
-      { id: userId, emailVerifiedAt: IsNull() },
-      { emailVerifiedAt: new Date() },
-    );
-    if (result.affected === 0) {
-      return;
-    }
-    await this.eventsService.record(manager, {
-      type: 'user.email_verified',
-      sourceEntityId: userId,
-      payload: {},
     });
   }
 

@@ -10,6 +10,8 @@ import { MailModule } from '../../shared/mail/mail.module';
 import { EmailCodesService } from './email-codes.service';
 import { EmailVerificationService } from './email-verification.service';
 import { EmailCode } from './entities/email-code.entity';
+import { PendingRegistration } from './entities/pending-registration.entity';
+import { PendingRegistrationsService } from './pending-registrations.service';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ProfilesGuard } from './guards/profiles.guard';
@@ -21,8 +23,9 @@ import { RefreshTokensService } from './refresh-tokens.service';
     UsersModule,
     // Envío de correos (códigos de verificación)
     MailModule,
-    // Tablas propias de este módulo: sesiones y códigos enviados por correo
-    TypeOrmModule.forFeature([RefreshToken, EmailCode]),
+    // Tablas propias de este módulo: sesiones, códigos enviados por correo y
+    // registros pendientes de verificar
+    TypeOrmModule.forFeature([RefreshToken, EmailCode, PendingRegistration]),
     // Configura el JwtService con el secreto y la duración del token del .env
     JwtModule.registerAsync({
       inject: [ConfigService],
@@ -38,6 +41,7 @@ import { RefreshTokensService } from './refresh-tokens.service';
   controllers: [AuthController],
   providers: [
     AuthService,
+    PendingRegistrationsService,
     RefreshTokensService,
     EmailCodesService,
     EmailVerificationService,

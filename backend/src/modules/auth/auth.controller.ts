@@ -5,18 +5,15 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Res,
 } from '@nestjs/common';
 import {
   ApiAcceptedResponse,
   ApiBearerAuth,
-  ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import type { Response } from 'express';
 import type { AccessTokenPayload } from '../../shared/auth/access-token-payload';
 import { CurrentUser } from '../../shared/auth/current-user.decorator';
 import { Public } from '../../shared/auth/public.decorator';
@@ -44,36 +41,29 @@ import {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // RF-01: registro público → 201 Created (NestJS lo pone por defecto en los
-  // POST) + cabecera Location con el enlace al usuario creado (TMF630)
+  // RF-01: registro público → 202 Accepted sin cuerpo: aún no hay usuario.
+  // Los datos quedan como registro pendiente y la cuenta se crea al verificar
+  // el correo con el código (POST /api/auth/verify-email)
   @Post('register')
   @Public()
+  @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({
-    summary: 'Register a new user',
+    summary: 'Start a registration',
     description:
       'Public registration (RF-01). Only emails from the allowed UAL ' +
       'domains, with phone and acceptance of the rules and privacy policy. ' +
-      'The user is created without profiles: the driver and/or passenger ' +
-      'profiles are chosen afterwards (PUT /api/users/me/profiles/{profile}). ' +
-      'A 6-digit code is sent to the email to verify it (POST /api/auth/verify-email).',
+      'Nothing is created yet: the data waits as a pending registration and a ' +
+      '6-digit code is sent to the email. The account is created, without ' +
+      'profiles, when the email is verified (POST /api/auth/verify-email). ' +
+      'Registering again with the same email replaces the pending registration.',
   })
-  @ApiCreatedResponse({
-    type: UserResource,
-    headers: {
-      Location: { description: 'Link to the new user: /api/users/{id}' },
-    },
-  })
+  @ApiAcceptedResponse({ description: 'Registration pending verification' })
   @ApiErrorResponses({
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED', 'EMAIL_DOMAIN_NOT_ALLOWED'],
     [HttpStatus.CONFLICT]: ['EMAIL_ALREADY_REGISTERED'],
   })
-  async register(
-    @Body() dto: RegisterDto,
-    @Res({ passthrough: true }) response: Response,
-  ): Promise<UserResource> {
-    const user = toUserResource(await this.authService.register(dto));
-    response.setHeader('Location', user.href);
-    return user;
+  async register(@Body() dto: RegisterDto): Promise<void> {
+    await this.authService.register(dto);
   }
 
   // Verificación del correo con el código: si es correcto, abre la sesión

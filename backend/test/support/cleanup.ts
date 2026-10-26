@@ -7,7 +7,8 @@ import { DataSource } from 'typeorm';
 // 2. Sus viajes (sus solicitudes e incidencias caen en cascada). Antes que las
 //    solicitudes: una incidencia de pasajero apunta a su solicitud
 // 3. Las solicitudes que hicieron como pasajeros en viajes de otros
-// 4. Los usuarios (perfiles, vehículos y sesiones caen en cascada)
+// 4. Los usuarios (perfiles, vehículos y sesiones caen en cascada) y los
+//    registros pendientes de verificar
 export async function deleteTestUsers(
   dataSource: DataSource,
   emailPrefix: string,
@@ -35,4 +36,8 @@ export async function deleteTestUsers(
     [pattern],
   );
   await dataSource.query('DELETE FROM users WHERE email LIKE $1', [pattern]);
+  await dataSource.query(
+    'DELETE FROM pending_registrations WHERE email LIKE $1',
+    [pattern],
+  );
 }

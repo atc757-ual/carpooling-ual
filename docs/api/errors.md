@@ -50,11 +50,11 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 
 | `code` | HTTP | Cuándo |
 |---|---|---|
-| `EMAIL_ALREADY_REGISTERED` | 409 | Registro con un correo que ya existe (sin distinguir mayúsculas) |
+| `EMAIL_ALREADY_REGISTERED` | 409 | Registro con el correo de una cuenta que ya existe (sin distinguir mayúsculas). Un registro pendiente de verificar no cuenta: registrarse otra vez lo sustituye |
 | `EMAIL_DOMAIN_NOT_ALLOWED` | 400 | Registro con un correo que no es de un dominio permitido (`ALLOWED_EMAIL_DOMAINS`) |
 | `INVALID_CREDENTIALS` | 401 | Login con correo o contraseña incorrectos (el mismo error en los dos casos) |
-| `EMAIL_NOT_VERIFIED` | 403 | Login con la contraseña correcta de un usuario que aún no ha verificado el correo: la app lo lleva a la pantalla del código. Con la contraseña incorrecta se responde `INVALID_CREDENTIALS`, para no revelar qué correos existen |
-| `INVALID_VERIFICATION_CODE` | 400 | `POST /api/auth/verify-email` con un código incorrecto, caducado (15 minutos) o ya usado, o de un correo inexistente o ya verificado (el mismo error en todos los casos). Cada código incorrecto cuenta como intento fallido |
+| `EMAIL_NOT_VERIFIED` | 403 | Login con la contraseña correcta de un usuario que no ha verificado el correo. Desde que la cuenta se crea al verificarlo no debería darse (un registro pendiente no tiene cuenta y responde `INVALID_CREDENTIALS`); se mantiene como defensa. Con la contraseña incorrecta se responde `INVALID_CREDENTIALS`, para no revelar qué correos existen |
+| `INVALID_VERIFICATION_CODE` | 400 | `POST /api/auth/verify-email` con un código incorrecto, caducado (15 minutos) o ya usado, o de un correo sin registro pendiente (inexistente, ya verificado o con el registro caducado a las 24 horas; el mismo error en todos los casos). Cada código incorrecto cuenta como intento fallido |
 | `TOO_MANY_ATTEMPTS` | 429 | Tercer código incorrecto seguido: el código queda anulado y hay que pedir otro (`POST /api/auth/verify-email/resend`) |
 | `INVALID_ACCESS_TOKEN` | 401 | Ruta protegida sin `Authorization: Bearer <token>`, con un token mal formado o de firma no válida, o cuyo usuario ya no existe |
 | `ACCESS_TOKEN_EXPIRED` | 401 | El token de acceso ha caducado: hay que renovarlo, no volver a pedir la contraseña |
