@@ -1,5 +1,11 @@
 import { FormControl, FormGroup } from '@angular/forms';
-import { buildPhone, phoneNumberValidator, splitPhone, toDigits } from './phone.util';
+import {
+  buildPhone,
+  formatPhoneNumber,
+  phoneNumberValidator,
+  splitPhone,
+  toDigits,
+} from './phone.util';
 
 describe('phone util', () => {
   // Como en el registro: el prefijo y el número en el mismo formulario
@@ -36,6 +42,15 @@ describe('phone util', () => {
 
   it('keeps only the digits of the number', () => {
     expect(toDigits('612-34 (56) 78a')).toBe('612345678');
+  });
+
+  it.each([
+    ['+34', '612345678', '612 345 678'],
+    ['+34', '6123', '612 3'],
+    ['+34', '612', '612'],
+    ['+39', '3331234567', '3331234567'],
+  ])('shows %s %s as «%s»', (prefix, number, shown) => {
+    expect(formatPhoneNumber(prefix, number)).toBe(shown);
   });
 
   it('joins the prefix and the number in international format', () => {

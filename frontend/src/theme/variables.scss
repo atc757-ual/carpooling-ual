@@ -11,6 +11,7 @@
 // - _typography.scss: estilos de texto (.text-display, .text-body…).
 // - _utilities.scss: utilidades que Ionic no trae (.visually-hidden…).
 // - _color-scheme.scss: cuándo se aplica el modo oscuro (sistema o clase).
+// - _flags.scss: banderas de los prefijos del teléfono (flag-icons).
 //
 // Las pantallas usan los tokens, los roles y las clases, nunca la paleta.
 @use 'fonts';
@@ -18,5 +19,6 @@
 @use 'roles';
 @use 'ionic';
 @use 'components';
+@use 'flags';
 @use 'typography';
 @use 'utilities';

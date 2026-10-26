@@ -35,13 +35,27 @@ for (const viewport of VIEWPORTS) {
       cy.location('search').should('eq', '');
     });
 
+    it('shows the flag of the prefix and the Spanish number in groups of three', () => {
+      cy.get('app-phone-prefix-select .prefix-select__trigger .fi').should('have.class', 'fi-es');
+
+      cy.get('ion-input[formControlName="phone"] input.native-input').type('612345678');
+
+      cy.get('ion-input[formControlName="phone"] input.native-input').should(
+        'have.value',
+        '612 345 678',
+      );
+    });
+
     it('sends a foreign phone with the prefix chosen in the country list', () => {
       cy.intercept('POST', REGISTER_URL, { statusCode: 202 }).as('register');
       fillForm('mario.perez@ual.es');
 
-      cy.get('ion-select[formControlName="phonePrefix"]').click();
-      cy.contains('ion-popover ion-radio', /^\+39$/).click();
-      cy.get('ion-popover').should('not.exist');
+      cy.get('app-phone-prefix-select .prefix-select__trigger').click();
+      // Cada prefijo con su bandera
+      cy.get('ion-popover .prefix-select__option .fi-it').should('be.visible');
+      cy.contains('ion-popover .prefix-select__option', '+39').click();
+      // Se cierra al elegir (el popover se queda en la página, oculto)
+      cy.get('ion-popover.phone-prefix-popover').should('have.class', 'overlay-hidden');
       cy.get('ion-input[formControlName="phone"] input.native-input').clear();
       cy.get('ion-input[formControlName="phone"] input.native-input').type('333 123 4567');
       cy.contains('ion-button', 'Crear cuenta y verificar correo').click();

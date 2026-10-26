@@ -11,8 +11,6 @@ import {
   IonIcon,
   IonInput,
   IonRouterLink,
-  IonSelect,
-  IonSelectOption,
   IonSpinner,
   IonText,
   IonTitle,
@@ -31,6 +29,8 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
+import { EmailSuggestions } from '../../../shared/components/ui/email-suggestions/email-suggestions';
+import { PhonePrefixSelect } from '../../../shared/components/ui/phone-prefix-select/phone-prefix-select';
 import {
   LegalDocument,
   LegalModal,
@@ -42,8 +42,13 @@ import {
   personNameValidator,
   stripNameSymbols,
 } from '../../../shared/utils/person-name.util';
-import { PHONE_PREFIXES, SPANISH_PREFIX } from '../../../shared/utils/phone-prefixes';
-import { buildPhone, phoneNumberValidator, splitPhone } from '../../../shared/utils/phone.util';
+import { SPANISH_PREFIX } from '../../../shared/utils/phone-prefixes';
+import {
+  buildPhone,
+  formatPhoneNumber,
+  phoneNumberValidator,
+  splitPhone,
+} from '../../../shared/utils/phone.util';
 import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/ual-email.util';
 
 // Mismos límites que la API (POST /api/auth/register)
@@ -68,13 +73,13 @@ const PASSWORD_MAX_LENGTH = 72;
     IonIcon,
     IonInput,
     IonRouterLink,
-    IonSelect,
-    IonSelectOption,
     IonSpinner,
     IonText,
     IonTitle,
     IonToolbar,
     AuthLayout,
+    EmailSuggestions,
+    PhonePrefixSelect,
     IonicFormStatus,
   ],
   templateUrl: './register.page.html',
@@ -111,7 +116,6 @@ export class RegisterPage {
   protected readonly lockIcon = lockClosedOutline;
   protected readonly eyeIcon = eyeOutline;
   protected readonly eyeOffIcon = eyeOffOutline;
-  protected readonly phonePrefixes = PHONE_PREFIXES;
 
   constructor() {
     const { name, phonePrefix, phone, email, password } = this.form.controls;
@@ -122,18 +126,22 @@ export class RegisterPage {
         name.setValue(cleaned, { emitEvent: false });
       }
     });
-    // Al cambiar de país, el número se vuelve a comprobar con sus reglas (el
-    // aviso, al salir del campo)
-    phonePrefix.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+    // Al cambiar de país, el número se muestra y se comprueba con sus reglas
+    // (el aviso, al salir del campo)
+    phonePrefix.valueChanges.pipe(takeUntilDestroyed()).subscribe((prefix) => {
+      phone.setValue(formatPhoneNumber(prefix, phone.value), { emitEvent: false });
       phone.updateValueAndValidity();
       phone.markAsUntouched();
     });
-    // En el número solo quedan cifras; si se pega uno completo (+39…), su
-    // prefijo pasa al desplegable
+    // En el número solo quedan cifras (en España, en grupos de tres); si se
+    // pega uno completo (+39…), su prefijo pasa al desplegable
     phone.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       const split = splitPhone(value, phonePrefix.value);
-      if (split.number !== value) {
-        phone.setValue(split.number, { emitEvent: false });
+      const shown = formatPhoneNumber(split.prefix, split.number);
+      if (shown !== value) {
+        phone.setValue(shown, { emitEvent: false });
+      }
+      if (split.prefix !== phonePrefix.value) {
         phonePrefix.setValue(split.prefix);
       }
     });

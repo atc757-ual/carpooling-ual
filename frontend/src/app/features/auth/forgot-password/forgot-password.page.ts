@@ -18,6 +18,7 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { PasswordResetService } from '../../../core/services/auth/password-reset.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
+import { EmailSuggestions } from '../../../shared/components/ui/email-suggestions/email-suggestions';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/ual-email.util';
@@ -40,6 +41,7 @@ import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/u
     IonTitle,
     IonToolbar,
     AuthLayout,
+    EmailSuggestions,
     IonicFormStatus,
   ],
   templateUrl: './forgot-password.page.html',

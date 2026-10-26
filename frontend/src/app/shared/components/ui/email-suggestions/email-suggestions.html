@@ -1,0 +1,16 @@
+@if (suggestions().length > 0) {
+  <ul class="email-suggestions" aria-label="Sugerencias de correo">
+    @for (suggestion of suggestions(); track suggestion.email) {
+      <li>
+        <button
+          type="button"
+          class="email-suggestions__option"
+          (click)="handleChoose(suggestion.email)"
+        >
+          <span class="email-suggestions__email">{{ suggestion.email }}</span>
+          <span class="text-caption text-color-muted">{{ suggestion.audience }}</span>
+        </button>
+      </li>
+    }
+  </ul>
+}

@@ -1,0 +1,44 @@
+// Lista pegada bajo el campo, con el mismo borde y esquinas
+.email-suggestions {
+  margin: 0;
+  padding: var(--space-xs) 0;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+  list-style: none;
+}
+
+// Cada sugerencia: el correo y, a la derecha, para quién es. Con el alto
+// táctil mínimo y foco visible
+.email-suggestions__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-base);
+  width: 100%;
+  min-height: var(--control-height-s);
+  padding: 0 var(--space-base);
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-body-s);
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: calc(-1 * var(--border-width-m));
+  }
+}
+
+// El correo largo se corta con «…» en vez de romper la fila
+.email-suggestions__email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
