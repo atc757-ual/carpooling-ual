@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, input, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -24,26 +24,23 @@ import {
   swapHorizontalOutline,
   timeOutline,
 } from 'ionicons/icons';
+import { CampusEntranceId, TripSearch } from '../../../core/models/trip-search.model';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
+import { CAMPUS_ENTRANCES, DEFAULT_ENTRANCE } from '../campus-entrances';
 import {
-  CAMPUS_ENTRANCES,
-  CampusEntranceId,
-  DEFAULT_ENTRANCE,
-  getEntranceLabel,
-} from './campus-entrances';
+  MARGINS,
+  MAX_SEATS,
+  MIN_SEATS,
+  PLACE_MAX_LENGTH,
+  toSearchParams,
+} from '../trip-search-params';
 
-const PLACE_MAX_LENGTH = 120;
 // La hora por defecto: dentro de media hora, de 5 en 5 minutos como el
 // selector
 const LEAD_MINUTES = 30;
 const MINUTE_STEP = 5;
 const LAST_TIME = '23:55';
-// Margen sobre la hora de llegada, en minutos
-export const MARGINS = [10, 20, 30] as const;
 const DEFAULT_MARGIN = 20;
-// Plazas que se buscan (un coche lleva como mucho 4 pasajeros)
-const MIN_SEATS = 1;
-const MAX_SEATS = 4;
 const MINUTES_PER_DAY = 24 * 60;
 
 export type TimeType = 'arrival' | 'departure';
@@ -84,8 +81,9 @@ export function shiftTime(time: string, minutes: number): string {
 // la vuelta), fecha (de hoy a dentro de un mes), hora (de llegada al campus o
 // de salida del campus), margen y plazas. Debajo, qué viajes se verán. Al
 // buscar lleva a la pestaña Buscar con los datos en la URL, donde se mostrarán
-// los resultados. El lugar es texto
-// libre: sugerir direcciones necesita un buscador de lugares (pendiente)
+// los resultados; allí sale relleno con la búsqueda hecha (input search). El
+// lugar es texto libre: sugerir direcciones necesita un buscador de lugares
+// (pendiente)
 @Component({
   selector: 'app-trip-search-form',
   imports: [
@@ -104,8 +102,11 @@ export function shiftTime(time: string, minutes: number): string {
   templateUrl: './trip-search-form.html',
   styleUrl: './trip-search-form.scss',
 })
-export class TripSearchForm {
+export class TripSearchForm implements OnInit {
   private readonly router = inject(Router);
+
+  // La búsqueda con la que sale relleno (al editarla en Buscar)
+  readonly search = input<TripSearch | null>(null);
 
   readonly form = inject(NonNullableFormBuilder).group({
     // El lugar de fuera del campus (origen al ir, destino al volver)
@@ -157,6 +158,14 @@ export class TripSearchForm {
   protected readonly searchIcon = searchOutline;
   protected readonly swapIcon = swapHorizontalOutline;
 
+  ngOnInit(): void {
+    const search = this.search();
+    if (search) {
+      const { direction, ...values } = search;
+      this.form.patchValue({ ...values, isToCampus: direction === 'to-campus' });
+    }
+  }
+
   // Cambia el sentido: ir al campus o volver de él
   handleSwap(): void {
     this.form.controls.isToCampus.setValue(!this.form.controls.isToCampus.value);
@@ -174,11 +183,12 @@ export class TripSearchForm {
       this.form.markAllAsTouched();
       return;
     }
-    const { place, entrance, isToCampus, date, margin, time, seats } = this.form.getRawValue();
-    const campus = getEntranceLabel(entrance);
-    const [from, to] = isToCampus ? [place.trim(), campus] : [campus, place.trim()];
-    await this.router.navigate(['/tabs/search'], {
-      queryParams: { from, to, date, time, timeType: this.timeType(), margin, seats },
-    });
+    const { isToCampus, seats, ...values } = this.form.getRawValue();
+    const search: TripSearch = {
+      ...values,
+      direction: isToCampus ? 'to-campus' : 'from-campus',
+      seats: Number(seats),
+    };
+    await this.router.navigate(['/tabs/search'], { queryParams: toSearchParams(search) });
   }
 }

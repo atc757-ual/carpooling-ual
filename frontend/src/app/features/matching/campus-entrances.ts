@@ -1,4 +1,4 @@
-export type CampusEntranceId = 'north' | 'south' | 'east';
+import { CampusEntranceId } from '../../core/models/trip-search.model';
 
 export interface CampusEntrance {
   id: CampusEntranceId;

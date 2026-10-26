@@ -2,10 +2,18 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { TripSearch } from '../../../core/models/trip-search.model';
 import { getDefaultTime, shiftTime, TripSearchForm } from './trip-search-form';
 
-const NORTH = 'Campus UAL · Ingreso norte';
-const SOUTH = 'Campus UAL · Ingreso sur';
+const SEARCH: TripSearch = {
+  place: 'Roquetas de Mar',
+  entrance: 'east',
+  direction: 'from-campus',
+  date: '2026-10-28',
+  time: '14:00',
+  margin: 10,
+  seats: 2,
+};
 
 describe('TripSearchForm', () => {
   let fixture: ComponentFixture<TripSearchForm>;
@@ -130,11 +138,11 @@ describe('TripSearchForm', () => {
 
     expect(navigate).toHaveBeenCalledWith(['/tabs/search'], {
       queryParams: {
-        from: 'Roquetas de Mar',
-        to: NORTH,
+        place: 'Roquetas de Mar',
+        entrance: 'north',
+        direction: 'to-campus',
         date: '2026-10-27',
         time: '08:00',
-        timeType: 'arrival',
         margin: 20,
         seats: 2,
       },
@@ -148,12 +156,25 @@ describe('TripSearchForm', () => {
     await form.handleSubmit();
 
     expect(navigate).toHaveBeenCalledWith(['/tabs/search'], {
-      queryParams: expect.objectContaining({
-        from: SOUTH,
-        to: 'Roquetas de Mar',
-        timeType: 'departure',
-      }),
+      queryParams: expect.objectContaining({ entrance: 'south', direction: 'from-campus' }),
     });
+  });
+
+  it('starts filled in with a search (to edit it in Buscar)', () => {
+    const prefilled = TestBed.createComponent(TripSearchForm);
+    prefilled.componentRef.setInput('search', SEARCH);
+    prefilled.detectChanges();
+
+    expect(prefilled.componentInstance.form.getRawValue()).toEqual({
+      place: 'Roquetas de Mar',
+      entrance: 'east',
+      isToCampus: false,
+      date: '2026-10-28',
+      time: '14:00',
+      margin: 10,
+      seats: 2,
+    });
+    expect(prefilled.componentInstance.timeType()).toBe('departure');
   });
 });
 
