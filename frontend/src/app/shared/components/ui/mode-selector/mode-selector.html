@@ -1,0 +1,25 @@
+@if (isVisible()) {
+  <div class="mode-selector__row">
+    <span class="text-label">
+      Modo: <span class="text-label--strong">{{ modeLabel() }}</span>
+    </span>
+    <!-- Muestra siempre «Cambiar» (no el modo, que ya está al lado); al
+         pulsarlo, un menú con los dos modos -->
+    <ion-select
+      class="mode-selector__select"
+      interface="popover"
+      selectedText="Cambiar"
+      aria-label="Cambiar el modo activo"
+      [value]="mode()"
+      (ionChange)="handleModeChange($event.detail.value)"
+    >
+      <ion-select-option value="passenger">{{ modeLabels.passenger }}</ion-select-option>
+      <ion-select-option value="driver">{{ modeLabels.driver }}</ion-select-option>
+    </ion-select>
+  </div>
+  @if (variant() === 'card') {
+    <p class="text-caption text-color-muted">
+      Perfiles habilitados: pasajero · conductor. Solo uno activo.
+    </p>
+  }
+}

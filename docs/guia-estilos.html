@@ -565,7 +565,7 @@
     </div>
 
     <h3>Barra de pestañas</h3>
-    <p class="note">Cinco destinos en el móvil; desde 48rem (768px), menú superior. La tercera pestaña es contextual: Buscar como pasajero y Publicar como conductor (no hay sexta pestaña).</p>
+    <p class="note">Cinco destinos en el móvil, bajo una cabecera con el logotipo compacto y dos iconos: la campana (lleva a Avisos) y cerrar sesión; desde 48rem (768px), menú superior. La tercera pestaña es contextual: Buscar como pasajero y Publicar como conductor (no hay sexta pestaña).</p>
     <nav class="tabbar" aria-label="Ejemplo de pestañas">
       <a href="#iconos" class="on" aria-current="page"><svg class="i"><use href="#i-home"/></svg>Inicio</a>
       <a href="#iconos"><svg class="i"><use href="#i-route"/></svg>Mis viajes</a>
@@ -791,15 +791,15 @@
     <p class="note" style="margin-top:var(--space-s)">Recuperar la contraseña sale de Iniciar sesión y vuelve al acceso. La sesión y el correo verificado controlan la entrada al área autenticada.</p>
     <h4>Cinco destinos</h4>
     <div class="grid-s">
-      <div class="tab-card stack"><svg class="i"><use href="#i-home"/></svg><b>Inicio</b><code>/tabs/inicio</code><span class="text-meta">Modo activo, próximo viaje. Ofrecer plaza → revisión → publicar.</span></div>
-      <div class="tab-card stack"><svg class="i"><use href="#i-route"/></svg><b>Mis viajes</b><code>/tabs/mis-viajes</code><span class="text-meta">Reserva → en curso → valoración. Próximos / Realizados / Cancelados; filtro pasajero / conductor.</span></div>
-      <div class="tab-card stack"><svg class="i"><use href="#i-search"/></svg><b>Buscar · Publicar</b><code>/tabs/buscar</code><code>/tabs/publicar</code><span class="text-meta">Búsqueda → compatibilidad → detalle → solicitud. Conserva consulta y scroll al volver.</span></div>
-      <div class="tab-card stack"><svg class="i"><use href="#i-bell"/></svg><b>Avisos</b><code>/tabs/avisos</code><span class="text-meta">Aceptación, rechazo, cancelación. La recuperación no garantiza otra plaza.</span></div>
-      <div class="tab-card stack"><svg class="i"><use href="#i-person"/></svg><b>Perfil</b><code>/tabs/perfil</code><span class="text-meta">Cuenta → tolerancia → vehículos → perfiles → privacidad.</span></div>
+      <div class="tab-card stack"><svg class="i"><use href="#i-home"/></svg><b>Inicio</b><code>/tabs/home</code><span class="text-meta">Modo activo, próximo viaje. Ofrecer plaza → revisión → publicar.</span></div>
+      <div class="tab-card stack"><svg class="i"><use href="#i-route"/></svg><b>Mis viajes</b><code>/tabs/trips</code><span class="text-meta">Reserva → en curso → valoración. Próximos / Realizados / Cancelados; filtro pasajero / conductor.</span></div>
+      <div class="tab-card stack"><svg class="i"><use href="#i-search"/></svg><b>Buscar · Publicar</b><code>/tabs/search</code><code>/tabs/publish</code><span class="text-meta">Búsqueda → compatibilidad → detalle → solicitud. Conserva consulta y scroll al volver.</span></div>
+      <div class="tab-card stack"><svg class="i"><use href="#i-bell"/></svg><b>Avisos</b><code>/tabs/notifications</code><span class="text-meta">Aceptación, rechazo, cancelación. La recuperación no garantiza otra plaza.</span></div>
+      <div class="tab-card stack"><svg class="i"><use href="#i-person"/></svg><b>Perfil</b><code>/tabs/profile</code><span class="text-meta">Cuenta → tolerancia → vehículos → perfiles → privacidad.</span></div>
     </div>
     <ul class="rules" style="margin-top:var(--space-base)">
       <li>Modo activo: con los dos perfiles se empieza como pasajero y se cambia solo desde Inicio. No es un tercer modo ni da acceso a administración.</li>
-      <li>Escritorio (≥ 48rem): menú superior. Administración: cabecera índigo con Resumen, Usuarios, Incidencias, Simulación, Resultados, Gemelo digital y Avisos; selector de modo a la derecha.</li>
+      <li>Escritorio (≥ 48rem): menú superior con el logotipo compacto a la izquierda, los cinco destinos centrados (el activo en el color de los enlaces y en negrita) y a la derecha los mismos dos iconos, sin texto: la campana y cerrar sesión (con su nombre para los lectores de pantalla). Debajo, una franja fija con «¡Hola, nombre!» y el selector de modo («Modo: Pasajero · Cambiar»). Solo cambia el contenido de la pestaña: ni el menú ni la franja se vuelven a cargar, y cambiar de pestaña no se anima. En el móvil, el selector de modo va en Inicio, con los perfiles habilitados debajo. Rutas en inglés, como las del acceso. Administración: cabecera índigo con Resumen, Usuarios, Incidencias, Simulación, Resultados, Gemelo digital y Avisos; selector de modo a la derecha.</li>
       <li>En el móvil, la administración es solo de consulta: lanzar simulaciones o cambiar perfiles exige escritorio (y el servidor lo valida también).</li>
     </ul>
   </section>

@@ -23,7 +23,7 @@ describe('profileGuard', () => {
   it('sends a user without the profile to the home page', () => {
     guard.logIn('passenger');
 
-    expect(guard.run(profileGuard('admin'))).toBe('/');
+    expect(guard.run(profileGuard('admin'))).toBe('/tabs/home');
   });
 
   it('sends a guest to the login', () => {

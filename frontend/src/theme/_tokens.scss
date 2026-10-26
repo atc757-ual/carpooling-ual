@@ -37,6 +37,13 @@ $breakpoints: (
   --control-height-base: 3rem; // 48px
   --control-height-l: 3.5rem; // 56px
 
+  // Barra de pestañas (guía, «Ritmo y tamaños»)
+  --tab-bar-height: 4.75rem; // 76px
+  --tab-icon-size: 1.625rem; // 26px
+
+  // Ancho máximo del contenido del área con sesión en escritorio
+  --page-max-width: 64rem; // 1024px
+
   // Tipografía: familias
   --font-family-heading: 'Barlow', system-ui, sans-serif; // títulos y botones
   --font-family-body: 'Inter', system-ui, sans-serif; // texto corrido

@@ -1,0 +1,115 @@
+// La página es una columna: las cabeceras arriba (fijas, no se desplazan) e
+// ion-tabs ocupa el resto. Ionic posiciona ion-tabs sobre toda la página: aquí
+// pasa a ocupar solo el hueco que dejan las cabeceras
+ion-tabs {
+  position: relative;
+  flex: 1;
+  height: auto;
+}
+
+// Móvil: cabecera con el logotipo a la izquierda (con el margen de la página)
+.app-header ion-toolbar {
+  --padding-start: var(--space-l);
+  --padding-end: var(--space-s);
+}
+
+// Móvil: barra de 76px abajo, icono encima del texto. La pestaña activa, en el
+// color de los enlaces y en negrita (no solo por el color)
+.tab-bar {
+  --color: var(--color-text-muted);
+  --color-selected: var(--color-link);
+
+  height: calc(var(--tab-bar-height) + var(--ion-safe-area-bottom, 0px));
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+}
+
+ion-tab-button {
+  font-size: var(--font-size-caption);
+
+  ion-icon {
+    font-size: var(--tab-icon-size);
+  }
+
+  &.tab-selected {
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+// Escritorio: menú de 64px. Tres columnas iguales a los lados para que los
+// destinos queden centrados de verdad, midan lo que midan el logotipo y las
+// acciones
+.top-nav {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: 4rem; // 64px
+  padding-inline: var(--space-l);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  background: var(--color-surface);
+}
+
+.top-nav__links {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.top-nav__link {
+  display: flex;
+  align-items: center;
+  min-height: var(--control-height-s);
+  padding-inline: var(--space-base);
+  border-radius: var(--radius-s);
+  color: var(--color-text);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// El destino activo, en el color de los enlaces y en negrita
+.top-nav__link--active {
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+}
+
+.top-nav__actions {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: var(--space-xs);
+
+  ion-button {
+    --color: var(--color-text);
+
+    margin: 0;
+    font-size: var(--font-size-label);
+  }
+}
+
+// Escritorio: franja fija bajo el menú con el saludo y el modo, alineada con
+// el contenido de las pestañas
+.greeting-bar {
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  background: var(--color-surface-subtle);
+}
+
+.greeting-bar__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-base);
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: var(--space-base) var(--space-l);
+
+  p {
+    margin: 0;
+  }
+}

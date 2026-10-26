@@ -46,6 +46,23 @@
   }
 }
 
+// Variante compact: insignia de 32px con «UAL» pequeño
+:host(.brand-logo--compact) {
+  font-size: 1.125rem; // 18px
+  line-height: var(--line-height-body);
+
+  .brand-logo__badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem; // 32px
+    height: 2rem;
+    padding: 0;
+    font-size: var(--font-size-caption);
+    line-height: var(--line-height-caption);
+  }
+}
+
 .brand-logo__tagline {
   font-family: var(--font-family-body);
   font-size: var(--font-size-caption);
