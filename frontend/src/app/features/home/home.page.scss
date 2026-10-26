@@ -1,16 +1,198 @@
-// Lo común a las pestañas está en ../tabs/tab-page.scss
+// Lo común a las pestañas (fondo y márgenes) está en ../tabs/tab-page.scss y
+// el aspecto de las tarjetas (ion-card), en theme/_components.scss
 
-// Móvil: franja blanca con el modo y el saludo, como la franja fija de
-// escritorio, con 16px por todos los lados (el margen lateral del móvil) y el
-// saludo justo debajo del modo
+// Móvil: franja blanca con el saludo, como la franja fija de escritorio, con
+// 16px por todos los lados (el margen lateral del móvil)
 .home__greeting {
   display: flex;
   flex-direction: column;
+  gap: var(--space-xs);
   padding: var(--space-base) var(--page-gutter);
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
   background: var(--color-surface);
 
-  h1 {
+  h1,
+  p {
     margin: 0;
+  }
+}
+
+// Móvil: una columna con 16px entre tarjetas. La principal y el lateral no
+// cuentan como bloques (display: contents): así el modo, que está en el
+// lateral, sale el primero
+.home {
+  align-items: stretch;
+  gap: var(--space-base);
+}
+
+.home__main,
+.home__aside {
+  display: contents;
+}
+
+.home__mode {
+  order: -1;
+}
+
+// Ilustración (tarjeta del conductor)
+.home__art {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-s);
+}
+
+// Búsqueda: el consejo y, debajo, el formulario, a 16px
+.home__search ion-card-content {
+  gap: var(--space-base);
+}
+
+// Consejo en un recuadro verde claro, con su icono
+.home__tip {
+  --background: var(--color-success-subtle);
+  --padding-start: var(--space-base);
+  --inner-padding-end: var(--space-base);
+  --min-height: auto;
+
+  border-radius: var(--radius-s);
+
+  ion-icon {
+    margin: var(--space-s) var(--space-base) var(--space-s) 0;
+    color: var(--color-success);
+    font-size: 1.25rem; // 20px
+  }
+
+  // 12px en el móvil y 14px en escritorio, en peso normal, con 8px arriba y
+  // abajo (ion-label trae su propio tamaño y margen)
+  ion-label {
+    margin: var(--space-s) 0;
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-caption);
+  }
+}
+
+// Título de tarjeta con una etiqueta a la derecha
+.home__card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+// «Datos de ejemplo»: que no se confunda con datos reales
+.home__example {
+  --background: var(--color-warning-subtle);
+  --color: var(--color-warning-text);
+  --padding-start: var(--space-s);
+  --padding-end: var(--space-s);
+
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+}
+
+// «Tu impacto» y «¿Cómo funciona?»: listas sin fondo ni márgenes propios,
+// con 12px entre filas
+.home__figures,
+.home__steps ion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; // 12px
+  padding: 0;
+  background: transparent;
+
+  ion-item {
+    --background: transparent;
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    --min-height: auto;
+  }
+
+  // Texto en peso normal (ion-label trae su propio tamaño y margen)
+  ion-label {
+    margin: 0;
+    font-weight: var(--font-weight-regular);
+  }
+}
+
+// Cada cifra: el icono en un círculo verde claro y, al lado, la cifra en
+// negrita con su frase debajo
+.home__figure-icon {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem; // 40px
+  height: 2.5rem;
+  margin: 0 var(--space-base) 0 0;
+  border-radius: var(--radius-full);
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+  font-size: 1.25rem; // 20px
+}
+
+.home__figures ion-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.home__figure-value {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-subtitle);
+}
+
+// Pasos de «¿Cómo funciona?»: 8px entre ellos, el texto a 14px y el número en
+// un círculo
+.home__steps ion-list {
+  gap: var(--space-s);
+}
+
+.home__steps ion-item {
+  align-items: flex-start;
+}
+
+.home__steps ion-label {
+  font-size: var(--font-size-body-s);
+  line-height: var(--line-height-body-s);
+}
+
+.home__step-number {
+  --background: var(--color-primary-subtle);
+  --color: var(--color-link);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem; // 24px
+  height: 1.5rem;
+  margin: 0 var(--space-s) 0 0;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-caption);
+}
+
+// Escritorio: 8 y 4 de 12 columnas, con 16px entre ellas y entre tarjetas. El
+// texto del consejo, a 14px
+@media (min-width: 768px) {
+  .home {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-base);
+  }
+
+  .home__main,
+  .home__aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-base);
+  }
+
+  .home__tip ion-label {
+    font-size: var(--font-size-body-s);
+    line-height: var(--line-height-body-s);
   }
 }

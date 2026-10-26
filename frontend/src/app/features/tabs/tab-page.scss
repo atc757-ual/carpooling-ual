@@ -1,7 +1,8 @@
 // Estilos comunes del contenido de cada pestaña (cada pantalla los incluye en
-// styleUrls junto a los suyos): sobre fondo gris claro (las cabeceras y lo que
-// se ponga encima, en blanco) y con el mismo margen lateral que el menú y la
-// franja del saludo, así todo empieza a la altura del logotipo
+// styleUrls junto a los suyos): sobre fondo gris claro, con las tarjetas
+// (ion-card, ver theme/_components.scss) en blanco encima, y con el mismo
+// margen lateral que el menú y la franja del saludo, así todo empieza a la
+// altura del logotipo
 ion-content {
   --background: var(--color-surface-subtle);
 }

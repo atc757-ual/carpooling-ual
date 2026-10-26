@@ -1,25 +1,25 @@
 @if (isVisible()) {
-  <div class="mode-selector__row">
-    <span class="text-label">
-      Modo: <span class="text-label--strong">{{ modeLabel() }}</span>
-    </span>
-    <!-- Muestra siempre «Cambiar» (no el modo, que ya está al lado); al
-         pulsarlo, un menú con los dos modos -->
-    <ion-select
-      class="mode-selector__select"
-      interface="popover"
-      selectedText="Cambiar"
-      aria-label="Cambiar el modo activo"
-      [value]="mode()"
-      (ionChange)="handleModeChange($event.detail.value)"
-    >
-      <ion-select-option value="passenger">{{ modeLabels.passenger }}</ion-select-option>
-      <ion-select-option value="driver">{{ modeLabels.driver }}</ion-select-option>
-    </ion-select>
-  </div>
-  @if (variant() === 'card') {
-    <p class="text-caption text-color-muted">
-      Perfiles habilitados: pasajero · conductor. Solo uno activo.
-    </p>
-  }
+  <ion-card class="mode-selector">
+    <ion-card-header>
+      <ion-card-title>¿Cómo viajas hoy?</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-segment
+        class="mode-selector__segment"
+        aria-label="Modo activo"
+        [value]="mode()"
+        (ionChange)="handleModeChange($event.detail.value)"
+      >
+        <ion-segment-button value="passenger">
+          <ion-label>Pasajero</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="driver">
+          <ion-label>Conductor</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+      <ion-note class="text-caption"
+        >Tienes los dos perfiles; solo uno está activo a la vez.</ion-note
+      >
+    </ion-card-content>
+  </ion-card>
 }

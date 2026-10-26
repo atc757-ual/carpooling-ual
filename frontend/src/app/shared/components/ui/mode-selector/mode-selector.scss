@@ -1,46 +1,32 @@
-:host {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-}
+// La tarjeta (ion-card) tiene el aspecto del tema (theme/_components.scss)
 
-.mode-selector__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-base);
-}
+// Las dos mitades sobre gris; la elegida, como una pastilla blanca y en negrita
+// (sin la raya de Material)
+.mode-selector__segment {
+  --background: var(--color-surface-subtle);
 
-// «Modo: Pasajero» en una línea; «Cambiar» ocupa solo lo que mide
-.mode-selector__row > .text-label {
-  white-space: nowrap;
-}
+  border-radius: var(--radius-s);
 
-// «Cambiar» como un enlace, con su flecha
-.mode-selector__select {
-  flex: 0 0 auto;
-  --padding-start: 0;
-  --padding-end: 0;
+  ion-segment-button {
+    --background-checked: var(--color-surface);
+    --border-radius: var(--radius-s);
+    --color: var(--color-text-muted);
+    --color-checked: var(--color-text);
+    --indicator-height: 0;
 
-  min-height: var(--control-height-s);
-  color: var(--color-link);
-  font-size: var(--font-size-label);
-  font-weight: var(--font-weight-semibold);
-}
-
-// Recuadro del móvil, blanco sobre el fondo gris, con borde y los perfiles
-// debajo
-:host(.mode-selector--card) {
-  width: 100%;
-
-  .mode-selector__row {
-    padding: 0 var(--space-base);
-    border: var(--border-width-s) solid var(--color-border);
-    border-radius: var(--radius-s);
-    background: var(--color-surface);
+    min-height: var(--control-height-s);
+    margin: var(--space-xs);
+    text-transform: none;
+    letter-spacing: normal;
   }
 
-  p {
-    margin: 0;
+  .segment-button-checked {
+    font-weight: var(--font-weight-semibold);
   }
+}
+
+// Con un solo perfil no pinta nada: tampoco ocupa sitio (ni separación) en la
+// pantalla que lo usa
+:host:empty {
+  display: none;
 }

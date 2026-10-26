@@ -10,7 +10,7 @@ describe('ModeSelector', () => {
   const hasBothModes = signal(true);
   const setMode = vi.fn().mockResolvedValue(undefined);
 
-  function render(variant: 'inline' | 'card' = 'inline'): ComponentFixture<ModeSelector> {
+  function render(): ComponentFixture<ModeSelector> {
     TestBed.configureTestingModule({
       imports: [ModeSelector],
       providers: [
@@ -19,13 +19,8 @@ describe('ModeSelector', () => {
       ],
     });
     const fixture = TestBed.createComponent(ModeSelector);
-    fixture.componentRef.setInput('variant', variant);
     fixture.detectChanges();
     return fixture;
-  }
-
-  function text(fixture: ComponentFixture<ModeSelector>): string {
-    return (fixture.nativeElement as HTMLElement).textContent ?? '';
   }
 
   beforeEach(() => {
@@ -34,27 +29,29 @@ describe('ModeSelector', () => {
     setMode.mockClear();
   });
 
-  it('shows the active mode', () => {
-    expect(text(render())).toContain('Modo: Pasajero');
+  it('offers both modes in a card, with the active one selected', () => {
+    const root = render().nativeElement as HTMLElement;
+
+    expect(root.textContent).toContain('¿Cómo viajas hoy?');
+    expect(root.querySelectorAll('ion-segment-button')).toHaveLength(2);
+    expect((root.querySelector('ion-segment') as HTMLIonSegmentElement).value).toBe('passenger');
   });
 
   it('is not shown with a single profile', () => {
     hasBothModes.set(false);
 
-    expect((render().nativeElement as HTMLElement).querySelector('ion-select')).toBeNull();
+    expect((render().nativeElement as HTMLElement).querySelector('ion-segment')).toBeNull();
   });
 
   it('changes the mode', () => {
-    const fixture = render();
-
-    fixture.componentInstance.handleModeChange('driver');
+    render().componentInstance.handleModeChange('driver');
 
     expect(setMode).toHaveBeenCalledWith('driver');
   });
 
-  it('shows the enabled profiles only in the card', () => {
-    expect(text(render('card'))).toContain('Perfiles habilitados');
-    TestBed.resetTestingModule();
-    expect(text(render('inline'))).not.toContain('Perfiles habilitados');
+  it('ignores a value that is not a mode', () => {
+    render().componentInstance.handleModeChange('admin');
+
+    expect(setMode).not.toHaveBeenCalled();
   });
 });

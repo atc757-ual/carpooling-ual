@@ -1,0 +1,198 @@
+// 16px entre los bloques del formulario
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  p {
+    margin: 0;
+  }
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+// Etiqueta encima del campo, a 8px
+.search-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+}
+
+// Fecha, hora, margen y plazas: de dos en dos y, desde 992px (lg), los cuatro
+// en una fila
+.search-form__details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: var(--space-base) var(--space-s);
+}
+
+@media (min-width: 992px) {
+  .search-form__details {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+// Trayecto: en el móvil, origen y destino uno encima del otro y, en su propia
+// columna a la derecha, el botón de cambiarlos, centrado entre los dos; en
+// escritorio, los tres en una fila
+.search-form__route {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-s);
+  align-items: start;
+
+  > :first-child {
+    grid-area: 1 / 1;
+  }
+
+  > :last-child {
+    grid-area: 2 / 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .search-form__route {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+
+    > :first-child,
+    > :last-child {
+      grid-area: auto;
+    }
+  }
+}
+
+// El botón de cambiar, gris y del alto de los campos, igual en el móvil y en
+// escritorio. En el móvil, con la flecha en vertical
+.search-form__swap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-s);
+  height: var(--control-height-l);
+  padding: 0;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+  font-size: 1.25rem; // 20px
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// Fecha y hora: el botón del selector nativo con el aspecto de un campo, con
+// su icono delante
+.search-form__picker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-height: var(--control-height-l);
+  padding: 0 var(--space-base);
+  // El mismo borde que los campos de texto de Ionic
+  border: var(--border-width-s) solid var(--ion-border-color);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+
+  ion-icon {
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    font-size: 1.25rem; // 20px
+  }
+}
+
+ion-datetime-button {
+  flex: 1;
+  justify-content: flex-start;
+}
+
+ion-datetime-button::part(native) {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--font-size-body);
+}
+
+// Entrada del campus y margen: a todo el ancho, con la flecha a la derecha (el
+// texto ocupa el hueco que queda)
+.search-form__select {
+  width: 100%;
+}
+
+.search-form__select::part(container) {
+  flex: 1;
+}
+
+// Los iconos de los campos (origen, destino y plazas), grises como los de la
+// fecha y la hora
+.search-form ion-input > ion-icon,
+.search-form ion-select > ion-icon {
+  margin-inline-end: var(--space-s);
+  color: var(--color-text-muted);
+  font-size: 1.25rem; // 20px
+}
+
+// Plazas: − y + al final del campo, pegados entre sí y estrechos, para que
+// quepa el número en el móvil (el campo mide ~150px). Las flechas del campo
+// numérico del navegador se quitan en el tema
+.search-form__stepper {
+  display: flex;
+  align-items: center;
+  margin-inline-end: calc(-1 * var(--space-s));
+}
+
+.search-form__step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem; // 32px
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--color-text);
+  font-size: 1.25rem; // 20px
+  cursor: pointer;
+
+  &:disabled {
+    color: var(--color-text-disabled);
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// Móvil: el botón, en la columna de la derecha, ocupa las dos filas y se
+// centra entre los dos campos
+@media (max-width: 767.98px) {
+  .search-form__swap {
+    grid-area: 1 / 2 / 3 / 3;
+    align-self: center;
+
+    ion-icon {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+// Qué viajes se verán: 12px en el móvil y 14px en escritorio
+.search-form__summary {
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+@media (min-width: 768px) {
+  .search-form__summary {
+    font-size: var(--font-size-body-s);
+    line-height: var(--line-height-body-s);
+  }
+}
