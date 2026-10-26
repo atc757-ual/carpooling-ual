@@ -140,6 +140,63 @@ ion-button {
   letter-spacing: var(--letter-spacing-normal);
 }
 
+// Calendario y ruedas de la hora (ion-datetime): sobre el fondo de la app (en
+// md, Ionic les pone un gris) y con la franja de la opción elegida en gris
+// claro. Sus botones «Cancelar» y «Aceptar» van en el slot buttons
+// (.datetime-actions), con la letra de los botones de la app: los de Ionic
+// van en mayúsculas y no se pueden cambiar
+ion-datetime {
+  --background: var(--ion-background-color);
+  --background-rgb: var(--ion-background-color-rgb);
+  --wheel-highlight-background: var(--color-surface-subtle);
+}
+
+.datetime-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-base) var(--space-base);
+}
+
+.datetime-actions__button {
+  min-height: var(--control-height-s);
+  padding: 0 var(--space-base);
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--color-link);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+.datetime-actions__button--primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+// Campos numéricos sin las flechas del navegador: llevan sus propios − y +
+// (las flechas no salen en iPhone y en escritorio se verían dos controles)
+ion-input input[type='number'] {
+  appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+}
+
+// Ventana del calendario y la hora, con las esquinas del resto de tarjetas
+ion-modal.datetime-modal {
+  --border-radius: var(--radius-s);
+}
+
 // Campos rellenados por el autocompletado del navegador: Chrome pinta de azul
 // solo el <input> interno (deja fuera el icono y el ojo) y no deja quitar ese
 // color. Se tapa con una sombra interior del color de la superficie y el texto

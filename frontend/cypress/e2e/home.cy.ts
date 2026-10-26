@@ -46,11 +46,14 @@ for (const viewport of VIEWPORTS) {
         .should('contain', '¿Vamos al campus hoy?');
       cy.contains('app-home ion-card-title', 'Tu camino al campus.').should('be.visible');
       cy.get('app-home .home__search img').should('not.exist');
-      cy.contains('app-home', 'Verás llegadas entre las 07:40 y las 08:20.').should('exist');
+      cy.contains(
+        'app-home',
+        /Verás viajes que llegan al campus entre las \d{2}:\d{2} y las \d{2}:\d{2}\./,
+      ).should('exist');
     });
 
     it('searches from the origin to the campus with the chosen data', () => {
-      cy.get('app-trip-search-form ion-input[formControlName="origin"] input').type(
+      cy.get('app-trip-search-form ion-input[formControlName="place"] input').type(
         'Roquetas de Mar',
       );
       cy.get('app-trip-search-form ion-input[formControlName="seats"] input').clear();
@@ -59,24 +62,29 @@ for (const viewport of VIEWPORTS) {
 
       cy.location('pathname').should('eq', '/tabs/search');
       cy.location('search').should('contain', 'from=Roquetas%20de%20Mar');
-      cy.location('search').should('contain', 'to=Campus%20UAL');
+      cy.location('search').should('contain', 'to=Campus%20UAL%20%C2%B7%20Ingreso%20norte');
       cy.location('search').should('contain', 'seats=2');
     });
 
-    it('swaps the origin and the destination', () => {
-      cy.get('app-trip-search-form ion-input[formControlName="origin"] input').type(
+    it('swaps the direction: from the campus entrance to the place', () => {
+      cy.get('app-trip-search-form ion-input[formControlName="place"] input').type(
         'Roquetas de Mar',
       );
 
       cy.get('app-trip-search-form .search-form__swap').click();
 
-      cy.get('app-trip-search-form ion-input[formControlName="origin"] input').should(
-        'have.value',
-        'Campus UAL',
+      cy.get('app-trip-search-form .search-form__route > :first-child').should(
+        'match',
+        'ion-select',
       );
+      cy.contains('app-trip-search-form ion-button', 'Buscar viaje').click();
+
+      cy.location('search').should('contain', 'from=Campus%20UAL');
+      cy.location('search').should('contain', 'to=Roquetas%20de%20Mar');
+      cy.location('search').should('contain', 'timeType=departure');
     });
 
-    it('asks for the origin before searching', () => {
+    it('asks for the place before searching', () => {
       cy.contains('app-trip-search-form ion-button', 'Buscar viaje').click();
 
       cy.location('pathname').should('eq', '/tabs/home');
