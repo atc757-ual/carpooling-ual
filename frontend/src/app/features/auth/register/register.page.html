@@ -48,7 +48,7 @@
           aria-label="Nombre y apellidos"
           fill="outline"
           placeholder="Mario Pérez"
-          errorText="Escribe tu nombre y apellidos."
+          [errorText]="nameErrorText()"
         >
           <ion-icon slot="start" [icon]="personIcon" aria-hidden="true" />
         </ion-input>
@@ -56,18 +56,31 @@
 
       <div class="auth-field">
         <span class="text-label text-label--strong" aria-hidden="true">Teléfono</span>
+        <!-- Un solo campo: a la izquierda, el prefijo del país (España por
+             defecto; al tocarlo, un desplegable con los prefijos);
+             después, el número, solo con cifras -->
         <ion-input
           formControlName="phone"
           type="tel"
-          inputmode="tel"
-          autocomplete="tel"
-          aria-label="Teléfono"
+          inputmode="numeric"
+          autocomplete="tel-national"
+          aria-label="Número de teléfono"
           fill="outline"
           placeholder="612 345 678"
-          helperText="Si no es español, empieza por + y el prefijo del país."
-          errorText="Escribe un móvil español o, si es de otro país, empieza por + y el prefijo."
+          errorText="Revisa el número: en España, 9 cifras que empiezan por 6, 7, 8 o 9."
         >
-          <ion-icon slot="start" [icon]="phoneIcon" aria-hidden="true" />
+          <ion-select
+            slot="start"
+            class="register__prefix"
+            formControlName="phonePrefix"
+            interface="popover"
+            [interfaceOptions]="{ cssClass: 'phone-prefix-popover' }"
+            aria-label="Prefijo del país"
+          >
+            @for (prefix of phonePrefixes; track prefix) {
+              <ion-select-option [value]="prefix">{{ prefix }}</ion-select-option>
+            }
+          </ion-select>
         </ion-input>
       </div>
 

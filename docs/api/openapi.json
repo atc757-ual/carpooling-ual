@@ -4122,6 +4122,7 @@
         "properties": {
           "name": {
             "type": "string",
+            "description": "Letters, with a space, hyphen or apostrophe between them",
             "maxLength": 100,
             "example": "Ana García"
           },

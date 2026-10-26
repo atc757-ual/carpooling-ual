@@ -138,6 +138,33 @@ describe('Auth API (e2e)', () => {
       );
     });
 
+    it.each([
+      ['with accents and ñ', 'María Núñez', 'María Núñez'],
+      ['with a hyphen', 'Ana-María', 'Ana-María'],
+      ['with an apostrophe', "Seán O'Connor", "Seán O'Connor"],
+      ['with extra spaces', '  Ana   García ', 'Ana García'],
+      // «a» + tilde suelta (dos caracteres): se guarda como «á»
+      ['with a separate accent', 'María', 'María'],
+    ])('accepts a name %s', async (_case, name, stored) => {
+      await register({ name }).expect(202);
+
+      expect(await pendingRow('name')).toEqual({ name: stored });
+    });
+
+    it.each([
+      ['with numbers', 'Ana 2'],
+      ['with symbols', 'Ana_García!'],
+      ['starting with a hyphen', '-Ana'],
+      ['with two hyphens in a row', 'Ana--María'],
+    ])('rejects a name %s with 400', async (_case, name) => {
+      const response = await register({ name }).expect(400);
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_FAILED',
+        fields: [{ field: 'name' }],
+      });
+    });
+
     it('stores the phone without spaces, dashes or parentheses', async () => {
       await register({ phone: '+34 (600) 12-34-56' }).expect(202);
 

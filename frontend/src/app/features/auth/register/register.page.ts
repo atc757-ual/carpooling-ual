@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -10,6 +11,8 @@ import {
   IonIcon,
   IonInput,
   IonRouterLink,
+  IonSelect,
+  IonSelectOption,
   IonSpinner,
   IonText,
   IonTitle,
@@ -18,7 +21,6 @@ import {
 } from '@ionic/angular';
 import {
   arrowBackOutline,
-  callOutline,
   eyeOffOutline,
   eyeOutline,
   lockClosedOutline,
@@ -35,7 +37,13 @@ import {
 } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { normalizePhone, phoneValidator } from '../../../shared/utils/phone.util';
+import {
+  normalizePersonName,
+  personNameValidator,
+  stripNameSymbols,
+} from '../../../shared/utils/person-name.util';
+import { PHONE_PREFIXES, SPANISH_PREFIX } from '../../../shared/utils/phone-prefixes';
+import { buildPhone, phoneNumberValidator, splitPhone } from '../../../shared/utils/phone.util';
 import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/ual-email.util';
 
 // Mismos límites que la API (POST /api/auth/register)
@@ -60,6 +68,8 @@ const PASSWORD_MAX_LENGTH = 72;
     IonIcon,
     IonInput,
     IonRouterLink,
+    IonSelect,
+    IonSelectOption,
     IonSpinner,
     IonText,
     IonTitle,
@@ -77,8 +87,10 @@ export class RegisterPage {
   private readonly modalController = inject(ModalController);
 
   readonly form = inject(NonNullableFormBuilder).group({
-    name: ['', [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
-    phone: ['', [Validators.required, phoneValidator()]],
+    name: ['', [Validators.required, Validators.maxLength(NAME_MAX_LENGTH), personNameValidator()]],
+    // El prefijo del país (España por defecto) y el número, solo con cifras
+    phonePrefix: [SPANISH_PREFIX],
+    phone: ['', [Validators.required, phoneNumberValidator('phonePrefix')]],
     email: ['', [Validators.required, Validators.email, ualEmailValidator()]],
     password: [
       '',
@@ -95,11 +107,48 @@ export class RegisterPage {
 
   protected readonly backIcon = arrowBackOutline;
   protected readonly personIcon = personOutline;
-  protected readonly phoneIcon = callOutline;
   protected readonly mailIcon = mailOutline;
   protected readonly lockIcon = lockClosedOutline;
   protected readonly eyeIcon = eyeOutline;
   protected readonly eyeOffIcon = eyeOffOutline;
+  protected readonly phonePrefixes = PHONE_PREFIXES;
+
+  constructor() {
+    const { name, phonePrefix, phone, email, password } = this.form.controls;
+    // En el nombre no se pueden escribir números ni símbolos
+    name.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      const cleaned = stripNameSymbols(value);
+      if (cleaned !== value) {
+        name.setValue(cleaned, { emitEvent: false });
+      }
+    });
+    // Al cambiar de país, el número se vuelve a comprobar con sus reglas (el
+    // aviso, al salir del campo)
+    phonePrefix.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      phone.updateValueAndValidity();
+      phone.markAsUntouched();
+    });
+    // En el número solo quedan cifras; si se pega uno completo (+39…), su
+    // prefijo pasa al desplegable
+    phone.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      const split = splitPhone(value, phonePrefix.value);
+      if (split.number !== value) {
+        phone.setValue(split.number, { emitEvent: false });
+        phonePrefix.setValue(split.prefix);
+      }
+    });
+    // Mientras se corrige un campo, su aviso de error se quita; vuelve a
+    // comprobarse al salir de él (Ionic lo marca como tocado al perder el foco)
+    for (const field of [name, phone, email, password]) {
+      field.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => field.markAsUntouched());
+    }
+  }
+
+  nameErrorText(): string {
+    return this.form.controls.name.hasError('personName')
+      ? 'Usa solo letras; entre palabras, un espacio, un guion o un apóstrofo.'
+      : 'Escribe tu nombre y apellidos.';
+  }
 
   emailErrorText(): string {
     return getUalEmailErrorText(this.form.controls.email);
@@ -126,11 +175,11 @@ export class RegisterPage {
       return;
     }
     this.isSubmitting.set(true);
-    const { name, phone, email, password } = this.form.getRawValue();
+    const { name, phonePrefix, phone, email, password } = this.form.getRawValue();
     try {
       await this.auth.register({
-        name: name.trim(),
-        phone: normalizePhone(phone),
+        name: normalizePersonName(name),
+        phone: buildPhone(phonePrefix, phone),
         email,
         password,
         acceptedTerms: true,

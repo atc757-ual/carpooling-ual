@@ -7,8 +7,15 @@ import {
   IsPhoneNumber,
   IsString,
   Length,
+  Matches,
   MaxLength,
 } from 'class-validator';
+
+// Nombre de persona: letras de cualquier idioma (con tildes, ñ, ç…) y, entre
+// ellas, un espacio, un guion o un apóstrofo (Ana-María, O'Connor). Sin
+// números ni otros símbolos. Las tildes escritas aparte se unen a su letra
+// antes (normalize('NFC') en el @Transform del nombre)
+export const PERSON_NAME_PATTERN = /^\p{L}+(?:[ '’-]\p{L}+)*$/u;
 
 // Cuerpo de POST /api/auth/register. Solo valida la FORMA de los datos; las
 // reglas de negocio (dominio UAL, correo repetido) están en AuthService.
@@ -16,13 +23,24 @@ import {
 // después de verificar el correo (PUT /api/users/me/profiles/{profile}).
 // @ApiProperty lo describe en OpenAPI (Swagger)
 export class RegisterDto {
-  @ApiProperty({ maxLength: 100, example: 'Ana García' })
+  // Sin espacios en los extremos y uno solo entre palabras (PERSON_NAME_PATTERN)
+  @ApiProperty({
+    description: 'Letters, with a space, hyphen or apostrophe between them',
+    maxLength: 100,
+    example: 'Ana García',
+  })
   @Transform(({ value }: { value: unknown }) =>
-    typeof value === 'string' ? value.trim() : value,
+    typeof value === 'string'
+      ? value.normalize('NFC').trim().replace(/\s+/g, ' ')
+      : value,
   )
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
+  @Matches(PERSON_NAME_PATTERN, {
+    message:
+      'name must contain only letters, with a space, hyphen or apostrophe between them',
+  })
   name!: string;
 
   @ApiProperty({
