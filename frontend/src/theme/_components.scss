@@ -192,3 +192,10 @@ ion-toast.toast--floating {
   --border-style: solid;
   --box-shadow: var(--shadow-base);
 }
+
+// Lista del prefijo del teléfono (registro): solo los códigos, así
+// que más estrecha que un desplegable normal. Es global porque Ionic pinta el
+// desplegable fuera de la pantalla que lo abre
+.phone-prefix-popover {
+  --width: 8rem; // 128px
+}

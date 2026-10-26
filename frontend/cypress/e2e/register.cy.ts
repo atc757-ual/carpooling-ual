@@ -4,7 +4,7 @@ const REGISTER_URL = '/api/auth/register';
 
 function fillForm(email: string): void {
   cy.get('ion-input[formControlName="name"] input').type('Mario Pérez');
-  cy.get('ion-input[formControlName="phone"] input').type('612 345 678');
+  cy.get('ion-input[formControlName="phone"] input.native-input').type('612 345 678');
   cy.get('ion-input[formControlName="email"] input').type(email);
   cy.get('ion-input[formControlName="password"] input').type('secreta123');
   cy.get('ion-checkbox[formControlName="acceptedTerms"]').click();
@@ -33,6 +33,35 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/auth/verify');
       cy.contains('h1', 'Mira tu bandeja de entrada.').should('be.visible');
       cy.location('search').should('eq', '');
+    });
+
+    it('sends a foreign phone with the prefix chosen in the country list', () => {
+      cy.intercept('POST', REGISTER_URL, { statusCode: 202 }).as('register');
+      fillForm('mario.perez@ual.es');
+
+      cy.get('ion-select[formControlName="phonePrefix"]').click();
+      cy.contains('ion-popover ion-radio', /^\+39$/).click();
+      cy.get('ion-popover').should('not.exist');
+      cy.get('ion-input[formControlName="phone"] input.native-input').clear();
+      cy.get('ion-input[formControlName="phone"] input.native-input').type('333 123 4567');
+      cy.contains('ion-button', 'Crear cuenta y verificar correo').click();
+
+      cy.wait('@register').its('request.body.phone').should('equal', '+393331234567');
+    });
+
+    it('does not let type digits or symbols in the name', () => {
+      cy.get('ion-input[formControlName="name"] input').type('Mario_2 Pérez!');
+
+      cy.get('ion-input[formControlName="name"] input').should('have.value', 'Mario Pérez');
+    });
+
+    it('explains which names are allowed', () => {
+      cy.get('ion-input[formControlName="name"] input').type('-Mario').blur();
+
+      cy.contains(
+        'ion-input[formControlName="name"]',
+        'Usa solo letras; entre palabras, un espacio, un guion o un apóstrofo.',
+      ).should('be.visible');
     });
 
     it('shows the API error when the email is already registered', () => {

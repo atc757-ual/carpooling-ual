@@ -9,7 +9,8 @@ import { LegalModal } from '../../../shared/components/modals/legal-modal/legal-
 import { RegisterPage } from './register.page';
 
 const FORM = {
-  name: '  Mario Pérez ',
+  name: '  Mario   Pérez ',
+  phonePrefix: '+34',
   phone: '612 345 678',
   email: 'mario.perez@ual.es',
   password: 'secreta123',
@@ -85,6 +86,57 @@ describe('RegisterPage', () => {
     });
     expect(navigateByUrl).toHaveBeenCalledWith('/auth/verify');
     expect(page.isSubmitting()).toBe(false);
+  });
+
+  it('only accepts letters in the name, with a space, hyphen or apostrophe between them', () => {
+    page.form.controls.name.setValue('-Mario');
+
+    expect(page.form.controls.name.hasError('personName')).toBe(true);
+    expect(page.nameErrorText()).toBe(
+      'Usa solo letras; entre palabras, un espacio, un guion o un apóstrofo.',
+    );
+
+    page.form.controls.name.setValue("Ana-María O'Connor");
+    expect(page.form.controls.name.valid).toBe(true);
+  });
+
+  it('does not let type digits or symbols in the name', () => {
+    page.form.controls.name.setValue('Mario_2 Pérez!');
+
+    expect(page.form.controls.name.value).toBe('Mario Pérez');
+  });
+
+  it('hides the error of a field while it is being corrected', () => {
+    const { phone } = page.form.controls;
+    phone.setValue('5');
+    phone.markAsTouched();
+
+    phone.setValue('51');
+
+    expect(phone.touched).toBe(false);
+  });
+
+  it('keeps only the digits of the number', () => {
+    page.form.controls.phone.setValue('612-34a5 678');
+
+    expect(page.form.controls.phone.value).toBe('612345678');
+  });
+
+  it('moves the prefix of a pasted international number to the country list', () => {
+    page.form.controls.phone.setValue('+39 333 123 4567');
+
+    expect(page.form.controls.phonePrefix.value).toBe('+39');
+    expect(page.form.controls.phone.value).toBe('3331234567');
+    expect(page.form.controls.phone.valid).toBe(true);
+  });
+
+  it('checks the number again with the rules of the chosen country', () => {
+    page.form.controls.phone.setValue('3331234567');
+    expect(page.form.controls.phone.hasError('phone')).toBe(true);
+
+    page.form.controls.phonePrefix.setValue('+39');
+
+    expect(page.form.controls.phone.valid).toBe(true);
   });
 
   it('opens the privacy policy in a modal without checking the box', async () => {
