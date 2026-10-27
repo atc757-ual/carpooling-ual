@@ -11,7 +11,7 @@ import {
   IonToolbar,
   ModalController,
 } from '@ionic/angular';
-import { closeOutline } from 'ionicons/icons';
+import { close } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 
 export type LegalDocument = 'terms' | 'privacy';
@@ -54,7 +54,7 @@ export class LegalModal implements OnInit {
   readonly content = signal<string | null>(null);
   readonly hasError = signal(false);
 
-  protected readonly closeIcon = closeOutline;
+  protected readonly closeIcon = close;
 
   get title(): string {
     return LEGAL_DOCUMENTS[this.document].title;

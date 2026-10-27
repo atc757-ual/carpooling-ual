@@ -47,16 +47,18 @@
   gap: var(--space-base);
 }
 
-// Consejo en un recuadro verde claro, con su icono
-// El consejo ocupa lo que queda y «Limpiar» va a su derecha, centrado
-.home__tip-row {
+// Cabecera de la búsqueda: el título y, a la derecha, «Nueva búsqueda»
+.home__search-header {
   display: flex;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-s);
 }
 
-// «Limpiar» como enlace con su icono, como «Editar» en Buscar: sin borde y
-// 32px de alto (el tema da 48px a los botones)
+// «Nueva búsqueda» como enlace con su icono, como «Editar» en Buscar: sin
+// borde, 32px de alto (el tema da 48px a los botones) y pegado a la derecha
+// (el relleno queda dentro del área pulsable)
 .home__clear ion-button {
   --padding-start: var(--space-s);
   --padding-end: var(--space-s);
@@ -65,12 +67,13 @@
   min-height: 2rem; // 32px
   height: 2rem;
   margin: 0;
+  margin-inline-end: calc(-1 * var(--space-s));
   font-size: var(--font-size-body-s);
+  white-space: nowrap;
 }
 
+// Consejo en un recuadro verde claro, con su icono, a todo el ancho
 .home__tip {
-  flex: 1;
-  min-width: 0;
   --background: var(--color-success-subtle);
   --padding-start: var(--space-base);
   --inner-padding-end: var(--space-base);

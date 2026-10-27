@@ -30,6 +30,47 @@
   }
 }
 
+// Tooltip del botón: encima, alineado a la derecha, en el color del texto
+// sobre la superficie (invertido), y solo al pasar el ratón o con el foco del
+// teclado. Aparece con un fundido corto (sin él si se reduce el movimiento)
+.place-field__locate-wrap {
+  position: relative;
+  display: flex;
+}
+
+.place-field__tooltip {
+  position: absolute;
+  z-index: 11;
+  right: calc(-1 * var(--space-s));
+  bottom: calc(100% + var(--space-s));
+  padding: var(--space-xs) var(--space-s);
+  border-radius: var(--radius-s);
+  background: var(--color-text);
+  color: var(--color-surface);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// Al llegar con el teclado, y al pasar el ratón solo si lo hay: en pantallas
+// táctiles el hover se queda «pegado» al tocar y el tooltip no se iría
+.place-field__locate:focus-visible + .place-field__tooltip {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .place-field__locate:hover + .place-field__tooltip {
+    opacity: 1;
+  }
+}
+
 // La lista de sugerencias se coloca sobre el formulario, justo debajo del
 // campo y de su mismo ancho
 .place-field__control {
@@ -111,4 +152,22 @@
   color: var(--color-warning-text);
   font-size: var(--font-size-caption);
   line-height: var(--line-height-caption);
+}
+
+// «Ajustar en el mapa»: enlace pequeño bajo el campo, en el color de los
+// enlaces (como «Editar» en Buscar), con 32px de alto para tocarlo bien
+.place-field__adjust {
+  min-height: 2rem; // 32px
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
 }

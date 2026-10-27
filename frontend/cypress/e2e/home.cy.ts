@@ -1,4 +1,4 @@
-import { choosePlace, UNCOVERED_PLACE, VIEWPORTS } from '../support/e2e';
+import { choosePlace, stubLocation, UNCOVERED_PLACE, VIEWPORTS } from '../support/e2e';
 
 const EMAIL = 'mario.perez@ual.es';
 
@@ -75,30 +75,20 @@ for (const viewport of VIEWPORTS) {
       ).should('be.visible');
       cy.contains('app-trip-search-form ion-button', 'Buscar viaje').click();
       cy.location('pathname').should('eq', '/tabs/home');
-      cy.contains('app-trip-search-form', 'Elige una dirección de la lista.').should('be.visible');
+      // Un aviso basta: el de cobertura, sin el error en rojo
+      cy.get('app-trip-search-form app-place-field ion-input').should(
+        'not.have.class',
+        'ion-invalid',
+      );
     });
 
-    it('fills the address in from the location of the device, on a map', () => {
-      // La ubicación del navegador, simulada (Calle Lachambre, Almería)
-      cy.window().then((win) => {
-        cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake(
-          (onSuccess: PositionCallback) =>
-            onSuccess({
-              coords: { latitude: 36.8381, longitude: -2.4637, accuracy: 5 },
-              timestamp: Date.now(),
-            } as GeolocationPosition),
-        );
-      });
+    it('asks for the permission the first time, then fills the address in', () => {
+      // Aún sin permiso: primero explica para qué se usa
+      stubLocation('prompt');
 
       cy.get('app-trip-search-form .place-field__locate').click();
       cy.contains('app-location-modal', 'Solo la usamos para esta búsqueda').should('be.visible');
       cy.contains('app-location-modal ion-button', 'Buscar mi ubicación').click();
-
-      cy.get('app-location-modal .location__map .map-pin').should('exist');
-      cy.contains('app-location-modal .location__address', 'Calle Lachambre, 4').should(
-        'be.visible',
-      );
-      cy.contains('app-location-modal ion-button', 'Usar esta dirección').click();
 
       cy.get('app-location-modal').should('not.exist');
       cy.get('app-trip-search-form app-place-field input').should(
@@ -107,14 +97,51 @@ for (const viewport of VIEWPORTS) {
       );
     });
 
+    it('fills the address in straight away with the permission, and adjusts it on a map', () => {
+      stubLocation('granted');
+
+      cy.get('app-trip-search-form .place-field__locate').click();
+
+      cy.get('app-location-modal').should('not.exist');
+      cy.get('app-trip-search-form app-place-field input').should(
+        'have.value',
+        'Calle Lachambre, 4',
+      );
+
+      cy.contains('app-trip-search-form .place-field__adjust', 'Ajustar en el mapa').click();
+      cy.get('app-location-modal .location__map .map-pin').should('exist');
+      cy.contains('app-location-modal ion-button', 'Usar esta dirección').click();
+      cy.get('app-location-modal').should('not.exist');
+    });
+
+    it('shows the campus parking on the map', () => {
+      cy.contains('app-trip-search-form .search-form__map-link', 'Ver en el mapa').click();
+
+      cy.contains('app-location-modal ion-title', 'Campus UAL · Parking P1').should('be.visible');
+      cy.get('app-location-modal .location__map .map-pin').should('exist');
+      cy.contains('app-location-modal ion-button', 'Usar esta dirección').should('not.exist');
+    });
+
+    it('offers the location only on the origin', () => {
+      cy.get('app-trip-search-form')
+        .find('.search-form__swap, .search-form__swap-link')
+        .filter(':visible')
+        .click();
+
+      cy.get('app-trip-search-form .place-field__locate').should('not.exist');
+    });
+
     it('swaps the direction: from the campus parking to the place', () => {
       choosePlace('app-trip-search-form', 'Roquetas de Mar');
 
-      cy.get('app-trip-search-form .search-form__swap').click();
+      cy.get('app-trip-search-form')
+        .find('.search-form__swap, .search-form__swap-link')
+        .filter(':visible')
+        .click();
 
       cy.get('app-trip-search-form .search-form__route > :first-child').should(
         'match',
-        'ion-select',
+        '.search-form__parking',
       );
       cy.contains('app-trip-search-form ion-button', 'Buscar viaje').click();
 

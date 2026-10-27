@@ -17,6 +17,7 @@ import {
   IonModal,
   IonSelect,
   IonSelectOption,
+  ModalController,
 } from '@ionic/angular';
 import {
   addOutline,
@@ -33,6 +34,7 @@ import { SearchPlace, TripSearch } from '../../../core/models/trip-search.model'
 import { PlacesService } from '../../../core/services/places/places.service';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { CAMPUS_NAME } from '../campus';
+import { LocationModal } from '../location-modal/location-modal';
 import { PlaceField } from '../place-field/place-field';
 import { MARGINS, MAX_SEATS, MIN_SEATS } from '../trip-search';
 import { TripSearchStateService } from '../trip-search-state.service';
@@ -111,6 +113,7 @@ export class TripSearchForm implements OnInit {
   private readonly router = inject(Router);
   private readonly searchState = inject(TripSearchStateService);
   private readonly places = inject(PlacesService);
+  private readonly modalController = inject(ModalController);
 
   // Avisa de cada búsqueda (en Buscar, para cerrar el formulario aunque se
   // repita la misma)
@@ -137,6 +140,9 @@ export class TripSearchForm implements OnInit {
   });
 
   readonly isToCampus = computed(() => this.value().isToCampus ?? true);
+
+  // Hay una dirección elegida (en Inicio, para ofrecer «Nueva búsqueda»)
+  readonly hasPlace = computed(() => Boolean(this.value().place));
 
   // Lo que importa del horario: al ir, a qué hora se llega; al volver, a qué
   // hora se sale (cuando acaban las clases)
@@ -225,6 +231,23 @@ export class TripSearchForm implements OnInit {
       parking: parking.id,
       isToCampus: direction === 'to-campus',
     });
+  }
+
+  // «Ver en el mapa»: el parking elegido, en el mapa y sin poder moverlo
+  async handleViewParking(): Promise<void> {
+    const parking = this.parkings().find(({ id }) => id === this.form.controls.parking.value);
+    if (!parking) {
+      return;
+    }
+    const modal = await this.modalController.create({
+      component: LocationModal,
+      componentProps: {
+        viewPoint: parking.location.coordinates,
+        viewTitle: `${CAMPUS_NAME} · ${parking.name}`,
+      },
+      cssClass: 'location-dialog',
+    });
+    await modal.present();
   }
 
   // Cambia el sentido: ir al campus o volver de él

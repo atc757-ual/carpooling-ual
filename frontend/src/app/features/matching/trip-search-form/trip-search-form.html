@@ -1,10 +1,18 @@
 <form class="search-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
   <!-- Trayecto: una dirección y un parking del campus. Al ir, la dirección
-       es el origen; al volver (botón de cambiar), el destino. Cada campo
-       lleva el icono de su papel: un círculo el origen y un pin el destino -->
+       es el origen; al volver («Cambiar sentido», a la derecha de la
+       etiqueta), el destino. Cada campo lleva el icono de su papel: un
+       círculo el origen y un pin el destino -->
 
   <div class="search-form__field">
-    <span class="text-label text-label--strong">Trayecto</span>
+    <div class="search-form__route-head">
+      <span class="text-label text-label--strong">Trayecto</span>
+      <!-- En el móvil: enlace pequeño junto a la etiqueta -->
+      <button class="search-form__swap-link" type="button" (click)="handleSwap()">
+        <ion-icon [icon]="swapIcon" aria-hidden="true" />
+        Cambiar sentido
+      </button>
+    </div>
     <div class="search-form__route">
       @if (isToCampus()) {
         <ng-container
@@ -17,6 +25,7 @@
           [ngTemplateOutletContext]="{ role: 'Origen' }"
         />
       }
+      <!-- Con sitio (escritorio): el botón gris entre los dos campos -->
       <button
         class="search-form__swap"
         type="button"
@@ -46,30 +55,39 @@
       [label]="role"
       [placeholder]="role === 'Origen' ? '¿Desde dónde sales?' : '¿A dónde vas?'"
       [icon]="role === 'Origen' ? originIcon : destinationIcon"
+      [canLocate]="role === 'Origen'"
       [showError]="isPlaceInvalid()"
     />
   </ng-template>
 
   <!-- El parking del campus (P1–P5, de la API) -->
   <ng-template #parkingField let-role="role">
-    <ion-select
-      class="search-form__select"
-      formControlName="parking"
-      interface="popover"
-      fill="outline"
-      [attr.aria-label]="role + ': parking del campus'"
-    >
-      <ion-icon
-        slot="start"
-        [icon]="role === 'Origen' ? originIcon : destinationIcon"
-        aria-hidden="true"
-      />
-      @for (parking of parkings(); track parking.id) {
-        <ion-select-option [value]="parking.id">
-          {{ campusName }} · {{ parking.name }}
-        </ion-select-option>
-      }
-    </ion-select>
+    <div class="search-form__parking">
+      <ion-select
+        class="search-form__select"
+        formControlName="parking"
+        interface="popover"
+        fill="outline"
+        [label]="role"
+        labelPlacement="floating"
+      >
+        <ion-icon
+          slot="start"
+          [icon]="role === 'Origen' ? originIcon : destinationIcon"
+          aria-hidden="true"
+        />
+        @for (parking of parkings(); track parking.id) {
+          <ion-select-option [value]="parking.id">
+            {{ campusName }} · {{ parking.name }}
+          </ion-select-option>
+        }
+      </ion-select>
+      <!-- Dónde está el parking (dónde te dejan, o de dónde sales al volver),
+         en el mapa y sin poder moverlo -->
+      <button type="button" class="search-form__map-link" (click)="handleViewParking()">
+        Ver en el mapa
+      </button>
+    </div>
   </ng-template>
 
   <!-- Fecha, hora, margen y plazas: de dos en dos y, en pantallas

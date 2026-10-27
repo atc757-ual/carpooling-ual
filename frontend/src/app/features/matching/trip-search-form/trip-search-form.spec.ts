@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { TripSearch } from '../../../core/models/trip-search.model';
 import { PlacesService } from '../../../core/services/places/places.service';
@@ -91,6 +91,21 @@ describe('TripSearchForm', () => {
       'Campus UAL · Parking P1',
       'Campus UAL · Parking P3',
     ]);
+  });
+
+  it('shows the chosen parking on the map', async () => {
+    const create = vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
+      present: vi.fn(),
+    } as unknown as HTMLIonModalElement);
+    form.form.patchValue({ parking: 'p3' });
+
+    await form.handleViewParking();
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        componentProps: { viewPoint: [-2.4, 36.83], viewTitle: 'Campus UAL · Parking P3' },
+      }),
+    );
   });
 
   it('swaps the direction: to the campus or back from it', () => {

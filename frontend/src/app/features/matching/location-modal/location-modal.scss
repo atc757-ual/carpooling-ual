@@ -1,3 +1,15 @@
+// El cuerpo: 16px de relleno; abajo, como mínimo 24px y, si el sistema
+// reserva una zona (la barra de inicio de iOS), 16px más esa zona. Y su
+// propio scroll si no cabe (la ventana mide como mucho el 90 % de la
+// pantalla, cabecera incluida)
+.location-body {
+  max-height: calc(90vh - 3.5rem); // menos la cabecera (56px)
+  overflow-y: auto;
+  padding: var(--space-base);
+  padding-bottom: max(var(--space-l), calc(var(--space-base) + env(safe-area-inset-bottom, 0px)));
+  background: var(--color-surface);
+}
+
 .location {
   display: flex;
   flex-direction: column;

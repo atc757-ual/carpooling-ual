@@ -1,8 +1,17 @@
-import { Component, ElementRef, effect, inject, OnDestroy, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  effect,
+  inject,
+  Input,
+  OnDestroy,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
 import {
   IonButton,
   IonButtons,
-  IonContent,
   IonHeader,
   IonIcon,
   IonSpinner,
@@ -10,50 +19,58 @@ import {
   IonToolbar,
   ModalController,
 } from '@ionic/angular';
-import { closeOutline, locateOutline } from 'ionicons/icons';
+import { close, locateOutline } from 'ionicons/icons';
 import type * as Leaflet from 'leaflet';
 import { Place } from '../../../core/models/place.model';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 
-// Acercamiento del mapa: el de una calle
+// Acercamiento del mapa: el de una calle al ajustar un punto, y uno menos
+// al ver un lugar (para que se vea lo que tiene alrededor)
 const STREET_ZOOM = 17;
+const CONTEXT_ZOOM = 16;
 const MAX_ZOOM = 19;
 const TILES_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TILES_ATTRIBUTION = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 // Pin de 24px, anclado por su centro
 const PIN_SIZE = 24;
 
-export type LocationStep = 'intro' | 'locating' | 'map' | 'denied' | 'unavailable';
+export type LocationStep =
+  'checking' | 'intro' | 'locating' | 'map' | 'view' | 'denied' | 'unavailable';
 
-// «Usar mi ubicación»: explica para qué se usa y la pide (con el permiso del
-// navegador o del móvil), la muestra en un mapa con un pin que se puede
-// arrastrar (o tocar el mapa para moverlo) y la traduce a la dirección más
-// cercana. «Usar esta dirección» la devuelve (dismiss con la Place) solo si
-// está en la zona de servicio. Se abre con ModalController
+// Lo que devuelve al cerrarse: el punto de la ubicación (role 'located') o
+// la dirección elegida en el mapa (role 'select')
+export type LocationModalResult = [number, number] | Place;
+
+// Ventana de la ubicación, con dos usos (se abre con ModalController):
+// - Pedir la ubicación (sin adjustPoint): explica para qué se usa y pide el
+//   permiso (o, si se denegó, cómo activarlo); la devuelve como punto
+//   (dismiss(punto, 'located')) para que el campo la traduzca a dirección.
+// - Ajustar en el mapa (con adjustPoint): el mapa con un pin que se arrastra
+//   (o se toca el mapa para moverlo) y la dirección más cercana; «Usar esta
+//   dirección» la devuelve (dismiss(Place, 'select')) solo si está en la zona
 @Component({
   selector: 'app-location-modal',
   // ion-page: así Ionic reparte el alto entre la cabecera y el contenido
   host: { class: 'ion-page' },
-  imports: [
-    IonButton,
-    IonButtons,
-    IonContent,
-    IonHeader,
-    IonIcon,
-    IonSpinner,
-    IonTitle,
-    IonToolbar,
-  ],
+  imports: [IonButton, IonButtons, IonHeader, IonIcon, IonSpinner, IonTitle, IonToolbar],
   templateUrl: './location-modal.html',
   styleUrl: './location-modal.scss',
 })
-export class LocationModal implements OnDestroy {
+export class LocationModal implements OnInit, OnDestroy {
   private readonly modalController = inject(ModalController);
   private readonly location = inject(LocationService);
   private readonly places = inject(PlacesService);
 
-  readonly step = signal<LocationStep>('intro');
+  // Con un punto, se abre directamente el mapa para ajustarlo
+  @Input() adjustPoint: [number, number] | null = null;
+  // Solo para ver un lugar (p. ej. el parking del campus): el mapa con el pin
+  // fijo y el nombre del lugar como título
+  @Input() viewPoint: [number, number] | null = null;
+  @Input() viewTitle = '';
+
+  // Mientras se comprueba el permiso no se enseña nada (es inmediato)
+  readonly step = signal<LocationStep>('checking');
   // [longitud, latitud] del pin
   readonly point = signal<[number, number] | null>(null);
   readonly place = signal<Place | null>(null);
@@ -64,8 +81,11 @@ export class LocationModal implements OnDestroy {
   private readonly mapElement = viewChild<ElementRef<HTMLElement>>('map');
   private map: Leaflet.Map | null = null;
   private pin: Leaflet.Marker | null = null;
+  // Recalcula el mapa cuando cambia el tamaño de su caja (p. ej. si se crea
+  // mientras la ventana aún está apareciendo: Leaflet lo mediría a 0)
+  private resizeObserver: ResizeObserver | null = null;
 
-  protected readonly closeIcon = closeOutline;
+  protected readonly closeIcon = close;
   protected readonly locateIcon = locateOutline;
 
   constructor() {
@@ -79,7 +99,37 @@ export class LocationModal implements OnDestroy {
     });
   }
 
+  get title(): string {
+    if (this.viewPoint) {
+      return this.viewTitle;
+    }
+    return this.adjustPoint ? 'Ajustar en el mapa' : 'Usar mi ubicación';
+  }
+
+  // Al ajustar, el mapa. Al pedir la ubicación, la explicación solo si aún no
+  // se ha dado el permiso; con él, se busca directamente; sin él (denegado),
+  // cómo activarlo
+  async ngOnInit(): Promise<void> {
+    if (this.viewPoint) {
+      this.step.set('view');
+      this.point.set(this.viewPoint);
+      return;
+    }
+    if (this.adjustPoint) {
+      this.step.set('map');
+      await this.movePin(this.adjustPoint);
+      return;
+    }
+    const permission = await this.location.checkPermission();
+    if (permission === 'granted') {
+      await this.handleLocate();
+    } else {
+      this.step.set(permission === 'denied' ? 'denied' : 'intro');
+    }
+  }
+
   ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
     this.map?.remove();
   }
 
@@ -87,8 +137,7 @@ export class LocationModal implements OnDestroy {
     this.step.set('locating');
     try {
       const point = await this.location.getCurrentPoint();
-      this.step.set('map');
-      await this.movePin(point);
+      await this.modalController.dismiss(point, 'located');
     } catch (error) {
       this.step.set(
         error instanceof LocationError && error.reason === 'denied' ? 'denied' : 'unavailable',
@@ -136,15 +185,18 @@ export class LocationModal implements OnDestroy {
       default?: typeof Leaflet;
     };
     const leaflet = leafletModule.default ?? leafletModule;
-    this.map = leaflet.map(element, { zoomControl: true }).setView([lat, lon], STREET_ZOOM);
+    this.map = leaflet
+      .map(element, { zoomControl: true })
+      .setView([lat, lon], this.step() === 'view' ? CONTEXT_ZOOM : STREET_ZOOM);
     leaflet
       .tileLayer(TILES_URL, { maxZoom: MAX_ZOOM, attribution: TILES_ATTRIBUTION })
       .addTo(this.map);
+    const isEditable = this.step() !== 'view';
     this.pin = leaflet
       .marker([lat, lon], {
-        draggable: true,
-        keyboard: true,
-        title: 'Tu ubicación (arrástrala para ajustarla)',
+        draggable: isEditable,
+        keyboard: isEditable,
+        title: isEditable ? 'Tu ubicación (arrástrala para ajustarla)' : this.viewTitle,
         icon: leaflet.divIcon({
           className: 'map-pin',
           iconSize: [PIN_SIZE, PIN_SIZE],
@@ -152,6 +204,13 @@ export class LocationModal implements OnDestroy {
         }),
       })
       .addTo(this.map);
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize());
+      this.resizeObserver.observe(element);
+    }
+    if (!isEditable) {
+      return;
+    }
     this.pin.on('dragend', () => {
       const { lat: pinLat, lng: pinLon } = this.pin!.getLatLng();
       void this.movePin([pinLon, pinLat]);

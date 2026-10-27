@@ -204,9 +204,58 @@ ion-input input[type='number'] {
   }
 }
 
-// Ventana del calendario y la hora, con las esquinas del resto de tarjetas
-ion-modal.datetime-modal {
+// Ventanas (también el calendario y la hora, y en el móvil las hojas que
+// suben desde abajo): con las esquinas del resto de tarjetas
+ion-modal {
   --border-radius: var(--radius-s);
+}
+
+// En las ventanas, el título va a la izquierda (como un diálogo, no como una
+// pantalla), con sitio a la derecha para cerrar
+ion-modal ion-title {
+  padding-inline: var(--space-base) var(--space-xxxl);
+  text-align: start;
+}
+
+// Ventana de la ubicación: tan alta como su contenido (como mucho, el 90 % de
+// la pantalla; el contenido lleva su propio scroll). En escritorio, centrada;
+// en el móvil, a todo el ancho y pegada abajo, como una hoja, con las
+// esquinas redondeadas solo arriba. El contenido no usa ion-content: con él,
+// Ionic no podría calcular el alto
+ion-modal.location-dialog {
+  --height: auto;
+  --max-height: 90%;
+
+  .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
+  }
+
+  @media (max-width: 767.98px) {
+    --border-radius: var(--radius-s) var(--radius-s) 0 0;
+
+    align-items: flex-end;
+  }
+}
+
+// La X de cerrar las ventanas: un botón redondo de 40px con el icono de 24px
+// en el color del texto (al pasar el ratón, el velo suave de Ionic). El selector es
+// largo a propósito: ion-buttons fija el tamaño de los iconos con sus clases
+// (sc-ion-buttons-*) y ganaría a uno más corto
+ion-toolbar ion-buttons ion-button.dialog-close {
+  --padding-start: 0;
+  --padding-end: 0;
+  --border-radius: var(--radius-full);
+  --color: var(--color-text);
+
+  width: 2.5rem; // 40px
+  height: 2.5rem;
+  margin: 0;
+
+  ion-icon[slot='icon-only'] {
+    font-size: 1.5rem; // 24px
+  }
 }
 
 // Campos rellenados por el autocompletado del navegador: Chrome pinta de azul
