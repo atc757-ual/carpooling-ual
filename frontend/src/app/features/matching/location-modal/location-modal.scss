@@ -1,0 +1,61 @@
+.location {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  p,
+  form,
+  ion-button {
+    margin: 0;
+  }
+}
+
+// Antes del mapa, o si falla: todo centrado, con el icono de 32px en un
+// círculo azul claro de 64px (como el estado vacío de Buscar)
+.location__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-xl) 0 var(--space-base);
+  text-align: center;
+
+  > ion-icon {
+    box-sizing: content-box;
+    margin-bottom: var(--space-s);
+    padding: var(--space-base);
+    border-radius: var(--radius-full);
+    background: var(--color-primary-subtle);
+    color: var(--color-link);
+    font-size: 2rem; // 32px
+  }
+}
+
+// El mapa: 256px de alto (cabe con la dirección y el botón también en la
+// ventana de escritorio), con el borde y las esquinas de las tarjetas
+.location__map {
+  height: 16rem; // 256px
+  overflow: hidden;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+}
+
+// La dirección encontrada: en negrita y, debajo, la localidad
+.location__address {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-height: 2.75rem; // 44px: no salta al cambiar de estado
+}
+
+.location__name {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body);
+}
+
+.location__error {
+  color: var(--color-warning-text);
+  font-size: var(--font-size-body-s);
+  line-height: var(--line-height-body-s);
+}

@@ -3,6 +3,33 @@
   min-width: 0;
 }
 
+// «Usar mi ubicación» al final del campo, en el color de los enlaces, como
+// los botones − y + de las plazas (32px)
+.place-field__locate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem; // 32px
+  height: 2rem;
+  margin-inline-end: calc(-1 * var(--space-s));
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--color-link);
+  font-size: 1.25rem; // 20px
+  cursor: pointer;
+
+  &:disabled {
+    color: var(--color-text-disabled);
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
 // La lista de sugerencias se coloca sobre el formulario, justo debajo del
 // campo y de su mismo ancho
 .place-field__control {

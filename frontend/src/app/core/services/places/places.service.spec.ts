@@ -56,6 +56,16 @@ describe('PlacesService', () => {
     await expect(suggestions).resolves.toHaveLength(1);
   });
 
+  it('gets the address of a point', async () => {
+    const place = places.reverse([-2.4637, 36.8381]);
+    const request = http.expectOne((req) => req.url === '/api/places/reverse');
+    expect(request.request.params.get('lon')).toBe('-2.4637');
+    expect(request.request.params.get('lat')).toBe('36.8381');
+    request.flush({ id: 'b1', name: 'Calle Lachambre, 4', isCovered: true });
+
+    await expect(place).resolves.toMatchObject({ name: 'Calle Lachambre, 4' });
+  });
+
   it('gets the place of a suggestion', async () => {
     const place = places.getPlace('a1');
     http.expectOne('/api/places/a1').flush({ id: 'a1', isCovered: true });

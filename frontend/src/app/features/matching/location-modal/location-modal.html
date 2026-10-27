@@ -1,0 +1,105 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Usar mi ubicación</ion-title>
+    <ion-buttons slot="end">
+      <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
+      <form (submit)="$event.preventDefault(); close()">
+        <ion-button type="submit" aria-label="Cerrar">
+          <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
+        </ion-button>
+      </form>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="location">
+    @switch (step()) {
+      <!-- Antes de pedirla: para qué se usa -->
+      @case ('intro') {
+        <div class="location__state">
+          <ion-icon [icon]="locateIcon" aria-hidden="true" />
+          <div class="text-subtitle">Rellenamos la dirección con tu ubicación</div>
+          <div class="text-body-s text-color-muted">
+            Solo la usamos para esta búsqueda y no la guardamos. Tu navegador o el móvil te pedirán
+            permiso.
+          </div>
+        </div>
+        <form (submit)="$event.preventDefault(); handleLocate()">
+          <ion-button type="submit" expand="block">Buscar mi ubicación</ion-button>
+        </form>
+      }
+
+      @case ('locating') {
+        <div class="location__state">
+          <ion-spinner name="crescent" aria-hidden="true" />
+          <output class="text-body-s">Buscando tu ubicación…</output>
+        </div>
+      }
+
+      <!-- El mapa con el pin, la dirección más cercana y usarla -->
+      @case ('map') {
+        <div #map class="location__map" aria-label="Mapa con tu ubicación"></div>
+        <p class="text-caption text-color-muted">
+          ¿No es justo tu sitio? Arrastra el punto o toca el mapa.
+        </p>
+
+        <output class="location__address">
+          @if (isResolving()) {
+            <span class="text-body-s text-color-muted">Buscando la dirección…</span>
+          } @else if (place(); as place) {
+            <span class="location__name">{{ place.name }}</span>
+            <span class="text-caption text-color-muted">{{ place.locality }}</span>
+          } @else if (addressError(); as error) {
+            <span class="location__error">{{ error }}</span>
+          }
+        </output>
+
+        @if (place(); as place) {
+          @if (!place.isCovered) {
+            <div class="notice notice--warning">
+              <span>
+                <b>Aún no llegamos a {{ place.municipality }}</b>
+                Esperamos tener cobertura allí pronto. Mientras tanto, puedes elegir un punto más
+                cercano al campus.
+              </span>
+            </div>
+          }
+        }
+
+        <form class="location__actions" (submit)="$event.preventDefault(); handleUse()">
+          <ion-button type="submit" expand="block" [disabled]="!place()?.isCovered">
+            Usar esta dirección
+          </ion-button>
+        </form>
+      }
+
+      <!-- Sin permiso: cómo darlo, o escribir la dirección -->
+      @case ('denied') {
+        <div class="location__state">
+          <ion-icon [icon]="locateIcon" aria-hidden="true" />
+          <div class="text-subtitle">No tenemos permiso para ver tu ubicación</div>
+          <div class="text-body-s text-color-muted">
+            Actívalo en los ajustes del navegador o del móvil, o escribe la dirección.
+          </div>
+        </div>
+        <form (submit)="$event.preventDefault(); close()">
+          <ion-button type="submit" expand="block" fill="outline">Escribir la dirección</ion-button>
+        </form>
+      }
+
+      @case ('unavailable') {
+        <div class="location__state">
+          <ion-icon [icon]="locateIcon" aria-hidden="true" />
+          <div class="text-subtitle">No hemos podido saber dónde estás</div>
+          <div class="text-body-s text-color-muted">
+            Comprueba que la ubicación esté activada e inténtalo de nuevo.
+          </div>
+        </div>
+        <form (submit)="$event.preventDefault(); handleLocate()">
+          <ion-button type="submit" expand="block">Reintentar</ion-button>
+        </form>
+      }
+    }
+  </div>
+</ion-content>

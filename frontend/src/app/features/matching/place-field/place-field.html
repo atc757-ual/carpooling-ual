@@ -18,6 +18,19 @@
     (ionBlur)="handleBlur()"
   >
     <ion-icon slot="start" [icon]="icon()" aria-hidden="true" />
+    <!-- «Usar mi ubicación»: botón nativo dentro del campo, como − y + de
+         las plazas -->
+    <button
+      slot="end"
+      type="button"
+      class="place-field__locate"
+      aria-label="Usar mi ubicación"
+      title="Usar mi ubicación"
+      [disabled]="isDisabled()"
+      (click)="handleUseLocation()"
+    >
+      <ion-icon [icon]="locateIcon" aria-hidden="true" />
+    </button>
   </ion-input>
 
   <!-- Sugerencias bajo el campo, por encima del resto del formulario. Son

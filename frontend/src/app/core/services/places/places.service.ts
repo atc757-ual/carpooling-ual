@@ -44,4 +44,12 @@ export class PlacesService {
   getPlace(id: string): Promise<Place> {
     return firstValueFrom(this.http.get<Place>(`${this.placesUrl}/${id}`));
   }
+
+  // La dirección más cercana a un punto [longitud, latitud] (la ubicación
+  // del dispositivo o el pin del mapa)
+  reverse([lon, lat]: [number, number]): Promise<Place> {
+    return firstValueFrom(
+      this.http.get<Place>(`${this.placesUrl}/reverse`, { params: { lon, lat } }),
+    );
+  }
 }

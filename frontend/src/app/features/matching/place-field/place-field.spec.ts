@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { Place } from '../../../core/models/place.model';
@@ -113,6 +113,30 @@ describe('PlaceField', () => {
     expect(field().text()).toBe('Roquetas de Mar');
 
     field().handleInput('Roquetas');
+
+    expect(fixture.componentInstance.place.value).toBeNull();
+  });
+
+  it('takes the address chosen on the map with «Usar mi ubicación»', async () => {
+    const onDidDismiss = vi.fn().mockResolvedValue({ data: PLACE, role: 'select' });
+    const create = vi
+      .spyOn(TestBed.inject(ModalController), 'create')
+      .mockResolvedValue({ present: vi.fn(), onDidDismiss } as unknown as HTMLIonModalElement);
+
+    await field().handleUseLocation();
+
+    expect(create).toHaveBeenCalled();
+    expect(fixture.componentInstance.place.value).toMatchObject({ id: 'a1' });
+  });
+
+  it('keeps the field as it was when the map is closed', async () => {
+    const onDidDismiss = vi.fn().mockResolvedValue({ data: null, role: 'cancel' });
+    vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
+      present: vi.fn(),
+      onDidDismiss,
+    } as unknown as HTMLIonModalElement);
+
+    await field().handleUseLocation();
 
     expect(fixture.componentInstance.place.value).toBeNull();
   });
