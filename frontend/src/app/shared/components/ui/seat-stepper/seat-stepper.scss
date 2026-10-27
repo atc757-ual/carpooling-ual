@@ -1,0 +1,68 @@
+// Como en la guía (SeatStepper): botones de 44px con borde azul y el número
+// en grande entre ellos; desactivado, borde gris
+:host {
+  display: block;
+  min-width: 0;
+}
+
+// fieldset sin el borde, el margen ni el ancho mínimo del navegador
+.seat-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.seat-stepper legend {
+  // La leyenda no respeta el gap del fieldset: su separación va aquí
+  margin-block-end: var(--space-s);
+  padding: 0;
+}
+
+.seat-stepper__controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-base);
+  min-height: var(--control-height-l);
+}
+
+.seat-stepper__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem; // 44px: objetivo táctil mínimo
+  height: 2.75rem;
+  padding: 0;
+  border: var(--border-width-s) solid var(--color-primary);
+  border-radius: var(--radius-base);
+  background: var(--color-surface);
+  color: var(--color-link);
+  font-size: 1.25rem; // 20px
+  cursor: pointer;
+
+  &:disabled {
+    border-color: var(--color-border);
+    color: var(--color-text-disabled);
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+}
+
+.seat-stepper__value {
+  min-width: 1.5rem; // 24px
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+}
+
+.seat-stepper__hint {
+  margin: 0;
+}

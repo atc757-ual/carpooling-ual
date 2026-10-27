@@ -8,31 +8,17 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { IonButton, IonIcon, IonSelect, IonSelectOption, ModalController } from '@ionic/angular';
 import {
-  IonButton,
-  IonDatetime,
-  IonDatetimeButton,
-  IonIcon,
-  IonInput,
-  IonModal,
-  IonSelect,
-  IonSelectOption,
-  ModalController,
-} from '@ionic/angular';
-import {
-  addOutline,
-  calendarOutline,
   ellipseOutline,
   locationOutline,
-  peopleOutline,
-  removeOutline,
   searchOutline,
   swapHorizontalOutline,
-  timeOutline,
 } from 'ionicons/icons';
 import { SearchPlace, TripSearch } from '../../../core/models/trip-search.model';
 import { PlacesService } from '../../../core/services/places/places.service';
-import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
+import { DatetimeField } from '../../../shared/components/ui/datetime-field/datetime-field';
+import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
 import { CAMPUS_NAME } from '../campus';
 import { LocationModal } from '../location-modal/location-modal';
 import { PlaceField } from '../place-field/place-field';
@@ -45,8 +31,6 @@ const LEAD_MINUTES = 30;
 const MINUTE_STEP = 5;
 const LAST_TIME = '23:55';
 const DEFAULT_MARGIN = 20;
-// Para los id de cada formulario (ver dateId)
-let nextFormId = 0;
 const MINUTES_PER_DAY = 24 * 60;
 
 export type TimeType = 'arrival' | 'departure';
@@ -96,15 +80,12 @@ export function shiftTime(time: string, minutes: number): string {
     NgTemplateOutlet,
     ReactiveFormsModule,
     IonButton,
-    IonDatetime,
-    IonDatetimeButton,
     IonIcon,
-    IonInput,
-    IonModal,
     IonSelect,
     IonSelectOption,
-    IonicFormStatus,
+    DatetimeField,
     PlaceField,
+    SeatStepper,
   ],
   templateUrl: './trip-search-form.html',
   styleUrl: './trip-search-form.scss',
@@ -154,17 +135,6 @@ export class TripSearchForm implements OnInit {
     return { from: shiftTime(time, -margin), to: shiftTime(time, margin) };
   });
 
-  // Plazas con − y +, entre 1 y 4
-  readonly canRemoveSeat = computed(() => Number(this.value().seats) > MIN_SEATS);
-  readonly canAddSeat = computed(() => Number(this.value().seats) < MAX_SEATS);
-
-  // Ids propios de la fecha y la hora: Inicio y Buscar pueden tener cada uno
-  // su formulario a la vez (las pestañas se conservan), y con el mismo id el
-  // botón de uno abriría el selector del otro
-  private readonly formId = ++nextFormId;
-  protected readonly dateId = `search-date-${this.formId}`;
-  protected readonly timeId = `search-time-${this.formId}`;
-
   protected readonly minDate = toIsoDate(new Date());
   protected readonly maxDate = toIsoDate(inOneMonth());
   protected readonly parkings = this.places.parkings;
@@ -174,11 +144,6 @@ export class TripSearchForm implements OnInit {
   protected readonly maxSeats = MAX_SEATS;
   protected readonly originIcon = ellipseOutline;
   protected readonly destinationIcon = locationOutline;
-  protected readonly calendarIcon = calendarOutline;
-  protected readonly clockIcon = timeOutline;
-  protected readonly seatsIcon = peopleOutline;
-  protected readonly removeIcon = removeOutline;
-  protected readonly addIcon = addOutline;
   protected readonly searchIcon = searchOutline;
   protected readonly swapIcon = swapHorizontalOutline;
 
@@ -253,13 +218,6 @@ export class TripSearchForm implements OnInit {
   // Cambia el sentido: ir al campus o volver de él
   handleSwap(): void {
     this.form.controls.isToCampus.setValue(!this.form.controls.isToCampus.value);
-  }
-
-  // Una plaza más o menos, sin salir de 1 a 4 (el campo puede traer texto)
-  changeSeats(delta: number): void {
-    const seats = Number(this.form.controls.seats.value) + delta;
-    this.form.controls.seats.setValue(Math.min(MAX_SEATS, Math.max(MIN_SEATS, seats)));
-    this.form.controls.seats.markAsDirty();
   }
 
   async handleSubmit(): Promise<void> {

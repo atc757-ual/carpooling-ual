@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Vehicle } from '../../../core/models/driver.model';
 import { CampusParking } from '../../../core/models/place.model';
@@ -80,14 +80,34 @@ describe('PublishTripPage', () => {
     expect(driver['registerVehicle']).not.toHaveBeenCalled();
   });
 
-  it('keeps the offered seats between 1 and the vehicle capacity', async () => {
+  it('summarises the trip while it is filled in', async () => {
     await createPage([VEHICLE]);
+    expect(page.stops()).toBeNull();
 
-    page.changeSeats(-1);
+    fillTrip();
+
+    expect(page.stops()).toEqual([
+      { name: 'Roquetas de Mar', detail: 'Roquetas', time: '07:40' },
+      { name: 'Campus UAL', detail: 'Parking P1' },
+    ]);
+    expect(page.dateLabel()).toContain('15');
+    page.handleSwap();
+    expect(page.stops()?.[0]).toEqual({ name: 'Campus UAL', detail: 'Parking P1', time: '07:40' });
+  });
+
+  it('offers up to the capacity of the chosen vehicle', async () => {
+    const small: Vehicle = { ...VEHICLE, id: 'v2', plate: '5678CDF', capacity: 1 };
+    await createPage([VEHICLE, small]);
+
+    expect(page.maxSeats()).toBe(3);
+    expect(page.seatsHint()).toBe('Tu vehículo tiene 3 plazas para pasajeros.');
+    page.tripForm.controls.seats.setValue(3);
+
+    page.tripForm.controls.vehicleId.setValue('v2');
+    TestBed.tick();
+
     expect(page.tripForm.controls.seats.value).toBe(1);
-    page.changeSeats(5);
-    expect(page.tripForm.controls.seats.value).toBe(3);
-    expect(page.canAddSeat()).toBe(false);
+    expect(page.seatsHint()).toBe('Tu vehículo tiene 1 plaza para pasajeros.');
   });
 
   it('publishes to the campus from the chosen place', async () => {
@@ -106,6 +126,20 @@ describe('PublishTripPage', () => {
       maxDetourMin: 10,
     });
     expect(page.published()?.id).toBe('t1');
+  });
+
+  it('ticks the declaration when it is accepted in the window', async () => {
+    await createPage([VEHICLE], false);
+    const present = vi.fn().mockResolvedValue(undefined);
+    const create = vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
+      present,
+      onWillDismiss: () => Promise.resolve({ role: 'accept' }),
+    } as unknown as HTMLIonModalElement);
+
+    await page.handleReadDeclaration();
+
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ cssClass: 'info-dialog' }));
+    expect(page.tripForm.controls.declaration.value).toBe(true);
   });
 
   it('needs the declaration the first time and accepts it before publishing', async () => {

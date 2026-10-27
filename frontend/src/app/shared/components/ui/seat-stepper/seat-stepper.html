@@ -1,0 +1,27 @@
+<fieldset class="seat-stepper">
+  <legend class="text-label text-label--strong">{{ label() }}</legend>
+  <div class="seat-stepper__controls">
+    <button
+      type="button"
+      class="seat-stepper__button"
+      aria-label="Una plaza menos"
+      [disabled]="!canRemove()"
+      (click)="change(-1)"
+    >
+      <ion-icon [icon]="removeIcon" aria-hidden="true" />
+    </button>
+    <output class="seat-stepper__value" aria-live="polite">{{ value() }}</output>
+    <button
+      type="button"
+      class="seat-stepper__button"
+      aria-label="Una plaza más"
+      [disabled]="!canAdd()"
+      (click)="change(1)"
+    >
+      <ion-icon [icon]="addIcon" aria-hidden="true" />
+    </button>
+  </div>
+  @if (hint(); as hint) {
+    <p class="seat-stepper__hint text-caption text-color-muted">{{ hint }}</p>
+  }
+</fieldset>

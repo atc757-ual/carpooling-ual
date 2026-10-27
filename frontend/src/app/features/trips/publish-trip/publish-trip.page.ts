@@ -10,25 +10,14 @@ import {
   IonButton,
   IonCheckbox,
   IonContent,
-  IonDatetime,
-  IonDatetimeButton,
   IonIcon,
   IonInput,
-  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
+  ModalController,
 } from '@ionic/angular';
-import {
-  addOutline,
-  calendarOutline,
-  carOutline,
-  ellipseOutline,
-  locationOutline,
-  removeOutline,
-  swapHorizontalOutline,
-  timeOutline,
-} from 'ionicons/icons';
+import { carOutline, ellipseOutline, locationOutline, swapHorizontalOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { PublishedTrip, Vehicle } from '../../../core/models/driver.model';
 import { SearchPlace } from '../../../core/models/trip-search.model';
@@ -37,12 +26,16 @@ import { PlacesService } from '../../../core/services/places/places.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { DatetimeField } from '../../../shared/components/ui/datetime-field/datetime-field';
 import {
   RouteStop,
   RouteTimeline,
 } from '../../../shared/components/ui/route-timeline/route-timeline';
+import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
 import { CAMPUS_NAME } from '../../matching/campus';
+import { LocationModal } from '../../matching/location-modal/location-modal';
 import { PlaceField } from '../../matching/place-field/place-field';
+import { DeclarationModal } from '../declaration-modal/declaration-modal';
 import { getDefaultTime } from '../../matching/trip-search-form/trip-search-form';
 
 // Matrícula española actual (1234BCD; se admiten espacio y guion al escribirla)
@@ -52,6 +45,11 @@ const MAX_CAPACITY = 8;
 const DEFAULT_CAPACITY = 4;
 export const DETOURS = [5, 10, 15, 20] as const;
 const DEFAULT_DETOUR = 10;
+const DATE_LABEL = new Intl.DateTimeFormat('es-ES', {
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+});
 
 type LoadState = 'loading' | 'error' | 'ready';
 
@@ -80,17 +78,16 @@ export function toDepartureAt(date: string, time: string): string {
     IonButton,
     IonCheckbox,
     IonContent,
-    IonDatetime,
-    IonDatetimeButton,
     IonIcon,
     IonInput,
-    IonModal,
     IonSelect,
     IonSelectOption,
     IonSpinner,
     IonicFormStatus,
+    DatetimeField,
     PlaceField,
     RouteTimeline,
+    SeatStepper,
   ],
   templateUrl: './publish-trip.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './publish-trip.page.scss'],
@@ -100,6 +97,7 @@ export class PublishTripPage implements OnInit {
   private readonly places = inject(PlacesService);
   private readonly toast = inject(ToastService);
   private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly modalController = inject(ModalController);
 
   readonly loadState = signal<LoadState>('loading');
   readonly vehicles = signal<readonly Vehicle[]>([]);
@@ -139,8 +137,10 @@ export class PublishTripPage implements OnInit {
   );
   // Plazas ofrecidas: de 1 a la capacidad del vehículo elegido
   readonly maxSeats = computed(() => this.selectedVehicle()?.capacity ?? 1);
-  readonly canRemoveSeat = computed(() => Number(this.tripValue().seats) > 1);
-  readonly canAddSeat = computed(() => Number(this.tripValue().seats) < this.maxSeats());
+  readonly seatsHint = computed(() => {
+    const max = this.maxSeats();
+    return `Tu vehículo tiene ${max} ${max === 1 ? 'plaza' : 'plazas'} para pasajeros.`;
+  });
 
   protected readonly parkings = this.places.parkings;
   protected readonly campusName = CAMPUS_NAME;
@@ -149,11 +149,7 @@ export class PublishTripPage implements OnInit {
   protected readonly icons = {
     origin: ellipseOutline,
     destination: locationOutline,
-    calendar: calendarOutline,
-    clock: timeOutline,
     car: carOutline,
-    remove: removeOutline,
-    add: addOutline,
     swap: swapHorizontalOutline,
   };
 
@@ -201,11 +197,6 @@ export class PublishTripPage implements OnInit {
   handleSwap(): void {
     const { isToCampus } = this.tripForm.controls;
     isToCampus.setValue(!isToCampus.value);
-  }
-
-  changeSeats(delta: number): void {
-    const { seats } = this.tripForm.controls;
-    seats.setValue(Math.min(this.maxSeats(), Math.max(1, Number(seats.value) + delta)));
   }
 
   protected isPlaceInvalid(): boolean {
@@ -263,19 +254,60 @@ export class PublishTripPage implements OnInit {
   }
 
   // Otro viaje: mismo vehículo y trayecto, nueva hora
+  // «Ver en el mapa»: el parking elegido, en el mapa y sin poder moverlo
+  async handleViewParking(): Promise<void> {
+    const parking = this.parkings().find(({ id }) => id === this.tripForm.controls.parking.value);
+    if (!parking) {
+      return;
+    }
+    const modal = await this.modalController.create({
+      component: LocationModal,
+      componentProps: {
+        viewPoint: parking.location.coordinates,
+        viewTitle: `${CAMPUS_NAME} · ${parking.name}`,
+      },
+      cssClass: 'location-dialog',
+    });
+    await modal.present();
+  }
+
+  // La declaración completa; «Acepto la declaración» marca la casilla
+  async handleReadDeclaration(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: DeclarationModal,
+      cssClass: 'info-dialog',
+    });
+    await modal.present();
+    const { role } = await modal.onWillDismiss();
+    if (role === 'accept') {
+      this.tripForm.controls.declaration.setValue(true);
+    }
+  }
+
   handlePublishAnother(): void {
     this.published.set(null);
     this.tripForm.patchValue({ time: getDefaultTime(new Date()) });
   }
 
-  // Paradas del viaje publicado (RouteTimeline), con la hora de salida
-  protected publishedStops(): RouteStop[] {
-    const { place, parking: parkingId, isToCampus, time } = this.tripForm.getRawValue();
+  // Paradas del viaje (RouteTimeline), con la hora de salida: el resumen
+  // «Tu viaje» mientras se rellena y la confirmación al publicar. Sin
+  // dirección elegida aún no hay recorrido
+  readonly stops = computed<RouteStop[] | null>(() => {
+    const { place, parking: parkingId, isToCampus = true, time = '' } = this.tripValue();
+    if (!place) {
+      return null;
+    }
     const parking = this.parkings().find(({ id }) => id === parkingId);
     const campus: RouteStop = { name: CAMPUS_NAME, detail: parking?.name ?? '' };
-    const outside: RouteStop = { name: place?.name ?? '', detail: place?.locality ?? '' };
+    const outside: RouteStop = { name: place.name, detail: place.locality };
     return isToCampus ? [{ ...outside, time }, campus] : [{ ...campus, time }, outside];
-  }
+  });
+
+  // «mié, 28 oct» para el resumen
+  readonly dateLabel = computed(() => {
+    const { date } = this.tripValue();
+    return date ? DATE_LABEL.format(new Date(`${date}T00:00:00`)) : '';
+  });
 
   private setVehicles(vehicles: readonly Vehicle[]): void {
     this.vehicles.set(vehicles);
