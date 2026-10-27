@@ -4,10 +4,10 @@
 
     @switch (loadState()) {
       @case ('loading') {
-        <div class="publish__status" role="status">
+        <output class="publish__status">
           <ion-spinner name="crescent" aria-hidden="true" />
-          <p class="text-color-muted">Cargando tus vehículos…</p>
-        </div>
+          <span class="text-color-muted">Cargando tus vehículos…</span>
+        </output>
       }
       @case ('error') {
         <div class="notice notice--danger publish__card" role="alert">
@@ -163,7 +163,7 @@
                 <span class="text-label text-label--strong" id="publish-seats-label">
                   Plazas ofrecidas
                 </span>
-                <div class="publish__stepper" role="group" aria-labelledby="publish-seats-label">
+                <fieldset class="publish__stepper" aria-labelledby="publish-seats-label">
                   <button
                     type="button"
                     class="publish__step"
@@ -185,7 +185,7 @@
                   >
                     <ion-icon [icon]="icons.add" aria-hidden="true" />
                   </button>
-                </div>
+                </fieldset>
               </div>
               <ion-select
                 formControlName="maxDetourMin"
