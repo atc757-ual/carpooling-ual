@@ -55,3 +55,18 @@ export function choosePlace(scope: string, place: string): void {
   cy.get(`${scope} app-place-field input`).type(place);
   cy.contains(`${scope} .place-field__suggestion`, place).click();
 }
+
+// La ubicación del navegador simulada (Calle Lachambre, Almería) y el estado
+// de su permiso: 'prompt' (aún no se ha preguntado) o 'granted' (ya se dio)
+export function stubLocation(permission: PermissionState): void {
+  cy.window().then((win) => {
+    cy.stub(win.navigator.permissions, 'query').resolves({ state: permission });
+    cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake(
+      (onSuccess: PositionCallback) =>
+        onSuccess({
+          coords: { latitude: 36.8381, longitude: -2.4637, accuracy: 5 },
+          timestamp: Date.now(),
+        } as GeolocationPosition),
+    );
+  });
+}

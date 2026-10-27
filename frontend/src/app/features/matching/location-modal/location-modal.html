@@ -1,10 +1,10 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title>Usar mi ubicación</ion-title>
+    <ion-title>{{ title }}</ion-title>
     <ion-buttons slot="end">
       <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
       <form (submit)="$event.preventDefault(); close()">
-        <ion-button type="submit" aria-label="Cerrar">
+        <ion-button class="dialog-close" type="submit" aria-label="Cerrar">
           <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
         </ion-button>
       </form>
@@ -12,7 +12,9 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<!-- Sin ion-content: así la ventana toma el alto de su contenido (con su
+     propio scroll si no cabe) -->
+<div class="location-body">
   <div class="location">
     @switch (step()) {
       <!-- Antes de pedirla: para qué se usa -->
@@ -74,6 +76,11 @@
         </form>
       }
 
+      <!-- Solo ver un lugar: el mapa con el pin fijo -->
+      @case ('view') {
+        <div #map class="location__map" [attr.aria-label]="'Mapa: ' + title"></div>
+      }
+
       <!-- Sin permiso: cómo darlo, o escribir la dirección -->
       @case ('denied') {
         <div class="location__state">
@@ -102,4 +109,4 @@
       }
     }
   </div>
-</ion-content>
+</div>

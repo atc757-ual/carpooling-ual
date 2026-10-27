@@ -7,7 +7,11 @@ import { GEOLOCATION, LocationError, LocationService } from './location.service'
 describe('LocationService', () => {
   let location: LocationService;
 
-  const geolocation = { getCurrentPosition: vi.fn(), requestPermissions: vi.fn() };
+  const geolocation = {
+    getCurrentPosition: vi.fn(),
+    requestPermissions: vi.fn(),
+    checkPermissions: vi.fn(),
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -40,6 +44,20 @@ describe('LocationService', () => {
 
     await expect(location.getCurrentPoint()).rejects.toEqual(new LocationError('denied'));
     expect(geolocation.requestPermissions).toHaveBeenCalled();
+  });
+
+  it('knows whether the permission was given, denied or not asked yet', async () => {
+    geolocation.checkPermissions.mockResolvedValueOnce({ location: 'granted' });
+    await expect(location.checkPermission()).resolves.toBe('granted');
+
+    geolocation.checkPermissions.mockResolvedValueOnce({ location: 'denied' });
+    await expect(location.checkPermission()).resolves.toBe('denied');
+
+    geolocation.checkPermissions.mockResolvedValueOnce({ location: 'prompt-with-rationale' });
+    await expect(location.checkPermission()).resolves.toBe('prompt');
+
+    geolocation.checkPermissions.mockRejectedValueOnce(new Error('Not supported'));
+    await expect(location.checkPermission()).resolves.toBe('prompt');
   });
 
   it('tells a denied permission from a location that does not come', async () => {

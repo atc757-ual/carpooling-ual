@@ -10,16 +10,30 @@ const TIMEOUT_MS = 10_000;
 // no la da (sin señal, apagada o tarda demasiado)
 export type LocationFailure = 'denied' | 'unavailable';
 
+export type LocationPermission = 'granted' | 'denied' | 'prompt';
+
 export class LocationError extends Error {
   constructor(readonly reason: LocationFailure) {
     super(`Location ${reason}`);
   }
 }
 
-// El plugin de geolocalización (en los tests se sustituye: es un proxy de
-// Capacitor y no se puede espiar)
-export const GEOLOCATION = new InjectionToken<typeof Geolocation>('Geolocation', {
-  factory: () => Geolocation,
+// Lo que se usa del plugin de geolocalización
+export type GeolocationPlugin = Pick<
+  typeof Geolocation,
+  'checkPermissions' | 'requestPermissions' | 'getCurrentPosition'
+>;
+
+// El plugin, envuelto en un objeto propio (en los tests se sustituye). No se
+// inyecta tal cual: es un proxy de Capacitor que responde a cualquier método,
+// también a ngOnDestroy, y Angular lo llamaría al cerrar el inyector («not
+// implemented on web»)
+export const GEOLOCATION = new InjectionToken<GeolocationPlugin>('Geolocation', {
+  factory: () => ({
+    checkPermissions: () => Geolocation.checkPermissions(),
+    requestPermissions: (permissions) => Geolocation.requestPermissions(permissions),
+    getCurrentPosition: (options) => Geolocation.getCurrentPosition(options),
+  }),
 });
 
 // Código del error de permiso de la API de geolocalización del navegador
@@ -32,6 +46,20 @@ const PERMISSION_DENIED = 1;
 @Injectable({ providedIn: 'root' })
 export class LocationService {
   private readonly geolocation = inject(GEOLOCATION);
+
+  // Si ya se dio el permiso, se denegó o aún no se ha preguntado (también si
+  // el navegador no deja saberlo)
+  async checkPermission(): Promise<LocationPermission> {
+    try {
+      const { location } = await this.geolocation.checkPermissions();
+      if (location === 'granted' || location === 'denied') {
+        return location;
+      }
+      return 'prompt';
+    } catch {
+      return 'prompt';
+    }
+  }
 
   // [longitud, latitud]; lanza LocationError
   async getCurrentPoint(): Promise<[number, number]> {
@@ -48,9 +76,10 @@ export class LocationService {
       });
       return [coords.longitude, coords.latitude];
     } catch (error) {
+      const { code, message } = error as { code?: unknown; message?: unknown };
       const isDenied =
-        (error as { code?: unknown }).code === PERMISSION_DENIED ||
-        /denied|permission/i.test(String((error as { message?: unknown }).message));
+        code === PERMISSION_DENIED ||
+        (typeof message === 'string' && /denied|permission/i.test(message));
       throw new LocationError(isDenied ? 'denied' : 'unavailable');
     }
   }

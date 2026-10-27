@@ -14,26 +14,27 @@
         <!-- Columna principal (8 de 12 en escritorio) -->
         <div class="home__main">
           <ion-card class="home__search">
-            <ion-card-header>
+            <!-- El título y, a la derecha, «Nueva búsqueda» (como en Buscar)
+                 cuando hay algo que borrar. En un formulario: el botón lo
+                 envía, sin click en ion-button -->
+            <ion-card-header class="home__search-header">
               <ion-card-title>Tu camino al campus.</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <!-- El consejo y, a su lado, «Limpiar» (en un formulario: el
-                   botón lo envía, sin click en ion-button) -->
-              <div class="home__tip-row">
-                <ion-item class="home__tip" lines="none">
-                  <ion-icon slot="start" [icon]="tipIcon" aria-hidden="true" />
-                  <ion-label class="ion-text-wrap">
-                    Te mostraremos primero los viajes que mejor encajan con tu ruta y tu horario.
-                  </ion-label>
-                </ion-item>
+              @if (canClearSearch()) {
                 <form class="home__clear" (submit)="$event.preventDefault(); handleClearSearch()">
                   <ion-button type="submit" fill="clear" size="small">
                     <ion-icon slot="start" [icon]="clearIcon" aria-hidden="true" />
-                    Limpiar
+                    Nueva búsqueda
                   </ion-button>
                 </form>
-              </div>
+              }
+            </ion-card-header>
+            <ion-card-content>
+              <ion-item class="home__tip" lines="none">
+                <ion-icon slot="start" [icon]="tipIcon" aria-hidden="true" />
+                <ion-label class="ion-text-wrap">
+                  Te mostraremos primero los viajes que mejor encajan con tu ruta y tu horario.
+                </ion-label>
+              </ion-item>
               <app-trip-search-form />
             </ion-card-content>
           </ion-card>

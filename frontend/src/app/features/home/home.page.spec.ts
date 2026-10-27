@@ -8,8 +8,24 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { TripSearchForm } from '../matching/trip-search-form/trip-search-form';
 import { PlacesService } from '../../core/services/places/places.service';
-import { PLACES_SERVICE_STUB, stubIntersectionObserver } from '../matching/trip-search.testing';
+import { TripSearch } from '../../core/models/trip-search.model';
+import {
+  PARKING_P1,
+  PLACES_SERVICE_STUB,
+  ROQUETAS,
+  stubIntersectionObserver,
+} from '../matching/trip-search.testing';
 import { HomePage } from './home.page';
+
+const SEARCH: TripSearch = {
+  place: ROQUETAS,
+  parking: PARKING_P1,
+  direction: 'to-campus',
+  date: '2026-10-27',
+  time: '08:00',
+  margin: 20,
+  seats: 1,
+};
 
 describe('HomePage', () => {
   async function render(mode: TravelMode | null): Promise<HTMLElement> {
@@ -48,15 +64,24 @@ describe('HomePage', () => {
     expect(root.querySelector('.home__search img')).toBeNull();
   });
 
-  it('clears the search form next to the tip', async () => {
-    const root = await render('passenger');
+  it('offers a new search next to the title only when there is something to clear', async () => {
+    sessionStorage.clear();
+    let root = await render('passenger');
+    expect(root.querySelector('.home__clear')).toBeNull();
+
+    TestBed.resetTestingModule();
+    sessionStorage.setItem('matching.trip-search', JSON.stringify(SEARCH));
+    root = await render('passenger');
     const clear = vi.spyOn(TripSearchForm.prototype, 'clear');
 
-    expect(root.querySelector('.home__clear ion-button')?.textContent?.trim()).toBe('Limpiar');
+    expect(root.querySelector('.home__clear ion-button')?.textContent?.trim()).toBe(
+      'Nueva búsqueda',
+    );
     root.querySelector('.home__clear')?.dispatchEvent(new Event('submit'));
 
     expect(clear).toHaveBeenCalledOnce();
     clear.mockRestore();
+    sessionStorage.clear();
   });
 
   it('offers to publish a trip to a driver', async () => {

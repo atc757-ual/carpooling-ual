@@ -7,30 +7,36 @@
     [value]="text()"
     [placeholder]="placeholder()"
     [disabled]="isDisabled()"
-    [attr.aria-label]="label()"
+    [label]="label()"
+    labelPlacement="floating"
     autocomplete="off"
     errorText="Elige una dirección de la lista."
-    [class.ion-touched]="showError()"
-    [class.ion-invalid]="showError()"
-    [class.ng-touched]="showError()"
-    [class.ng-invalid]="showError()"
+    [class.ion-touched]="hasError()"
+    [class.ion-invalid]="hasError()"
+    [class.ng-touched]="hasError()"
+    [class.ng-invalid]="hasError()"
     (ionInput)="handleInput($event.detail.value ?? '')"
     (ionBlur)="handleBlur()"
   >
     <ion-icon slot="start" [icon]="icon()" aria-hidden="true" />
-    <!-- «Usar mi ubicación»: botón nativo dentro del campo, como − y + de
-         las plazas -->
-    <button
-      slot="end"
-      type="button"
-      class="place-field__locate"
-      aria-label="Usar mi ubicación"
-      title="Usar mi ubicación"
-      [disabled]="isDisabled()"
-      (click)="handleUseLocation()"
-    >
-      <ion-icon [icon]="locateIcon" aria-hidden="true" />
-    </button>
+    <!-- «Usar mi ubicación» (solo en el origen): botón nativo dentro del
+         campo, como − y + de las plazas, con su nombre en un tooltip al pasar
+         el ratón o llegar con el teclado (los lectores de pantalla ya lo leen
+         en aria-label) -->
+    @if (canLocate()) {
+      <span slot="end" class="place-field__locate-wrap">
+        <button
+          type="button"
+          class="place-field__locate"
+          aria-label="Usar mi ubicación"
+          [disabled]="isDisabled()"
+          (click)="handleUseLocation()"
+        >
+          <ion-icon [icon]="locateIcon" aria-hidden="true" />
+        </button>
+        <span class="place-field__tooltip" aria-hidden="true">Usar mi ubicación</span>
+      </span>
+    }
   </ion-input>
 
   <!-- Sugerencias bajo el campo, por encima del resto del formulario. Son
@@ -59,9 +65,17 @@
 
 <!-- output: los lectores de pantalla leen lo que aparece aquí -->
 <output class="place-field__status">
-  @if (isResolving()) {
-    <span class="text-caption text-color-muted">Comprobando la dirección…</span>
+  @if (status(); as status) {
+    <span class="text-caption text-color-muted">{{ status }}</span>
   } @else if (message(); as message) {
     <span class="place-field__message">{{ message }}</span>
   }
 </output>
+
+<!-- Con una dirección elegida: moverla en el mapa (p. ej. para que te
+     recojan, o te dejen, en la esquina) -->
+@if (selected() && !status()) {
+  <button type="button" class="place-field__adjust" (click)="handleAdjust()">
+    Ajustar en el mapa
+  </button>
+}

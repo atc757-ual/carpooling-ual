@@ -45,39 +45,82 @@
   }
 }
 
-// Trayecto: estrecho, origen y destino uno encima del otro y, en su propia
-// columna a la derecha, el botón de cambiarlos, centrado entre los dos; con
-// sitio, los tres en una fila
+// Trayecto: la etiqueta y, debajo, origen y destino. En el móvil (estrecho),
+// uno encima del otro y «Cambiar sentido» como enlace pequeño a la derecha de
+// la etiqueta; con sitio, los tres en una fila con el botón gris en medio
+.search-form__route-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
 .search-form__route {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-s);
   align-items: start;
+}
 
-  > :first-child {
-    grid-area: 1 / 1;
+// Enlace del móvil, en el color de los enlaces (como «Editar» en Buscar), con
+// 32px de alto para tocarlo bien
+.search-form__swap-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 2rem; // 32px
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 1rem; // 16px
+    transform: rotate(90deg);
   }
 
-  > :last-child {
-    grid-area: 2 / 1;
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
   }
 }
 
-@container (min-width: 600px) {
-  .search-form__route {
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-
-    > :first-child,
-    > :last-child {
-      grid-area: auto;
-    }
-  }
-}
-
-// El botón de cambiar, gris y del alto de los campos, igual en el móvil y en
-// escritorio. Estrecho, con la flecha en vertical
-.search-form__swap {
+// El parking y, debajo, «Ver en el mapa»: enlace pequeño como «Ajustar en el
+// mapa» del campo de dirección
+.search-form__parking {
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+
+  ion-select {
+    width: 100%;
+  }
+}
+
+.search-form__map-link {
+  min-height: 2rem; // 32px
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// Botón de escritorio: gris y del alto de los campos, estrecho
+.search-form__swap {
+  display: none;
   align-items: center;
   justify-content: center;
   width: var(--control-height-s);
@@ -92,6 +135,20 @@
 
   &:focus-visible {
     outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+@container (min-width: 600px) {
+  .search-form__route {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .search-form__swap {
+    display: flex;
+  }
+
+  .search-form__swap-link {
+    display: none;
   }
 }
 
@@ -177,19 +234,6 @@ ion-datetime-button::part(native) {
 
   &:focus-visible {
     outline: var(--border-width-m) solid var(--color-focus);
-  }
-}
-
-// Estrecho: el botón, en la columna de la derecha, ocupa las dos filas y se
-// centra entre los dos campos
-@container (max-width: 599.98px) {
-  .search-form__swap {
-    grid-area: 1 / 2 / 3 / 3;
-    align-self: center;
-
-    ion-icon {
-      transform: rotate(90deg);
-    }
   }
 }
 

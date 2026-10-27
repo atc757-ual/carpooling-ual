@@ -18,12 +18,13 @@ const PLACE: Place = {
 describe('LocationModal', () => {
   let fixture: ComponentFixture<LocationModal>;
   let modal: LocationModal;
-  const location = { getCurrentPoint: vi.fn() };
+  const location = { getCurrentPoint: vi.fn(), checkPermission: vi.fn() };
   const places = { reverse: vi.fn() };
   const modalController = { dismiss: vi.fn() };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    location.checkPermission.mockResolvedValue('prompt');
     TestBed.configureTestingModule({
       imports: [LocationModal],
       providers: [
@@ -36,7 +37,19 @@ describe('LocationModal', () => {
     fixture = TestBed.createComponent(LocationModal);
     modal = fixture.componentInstance;
     fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
   });
+
+  // Otra ventana, con el permiso ya dado o denegado
+  async function reopenWith(permission: 'granted' | 'denied'): Promise<void> {
+    location.checkPermission.mockResolvedValue(permission);
+    fixture = TestBed.createComponent(LocationModal);
+    modal = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
 
   const text = (): string => (fixture.nativeElement as HTMLElement).textContent ?? '';
 
@@ -45,13 +58,31 @@ describe('LocationModal', () => {
     expect(location.getCurrentPoint).not.toHaveBeenCalled();
   });
 
-  it('finds the address of the device and returns it', async () => {
+  it('asks for the location and returns its point', async () => {
     location.getCurrentPoint.mockResolvedValue([-2.4637, 36.8381]);
-    places.reverse.mockResolvedValue(PLACE);
 
     await modal.handleLocate();
-    fixture.detectChanges();
 
+    expect(modalController.dismiss).toHaveBeenCalledWith([-2.4637, 36.8381], 'located');
+    expect(places.reverse).not.toHaveBeenCalled();
+  });
+
+  // Otra ventana, para ajustar en el mapa la dirección de ese punto
+  async function openToAdjust(point: [number, number]): Promise<void> {
+    fixture = TestBed.createComponent(LocationModal);
+    modal = fixture.componentInstance;
+    modal.adjustPoint = point;
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  it('adjusts the point on the map and returns its address', async () => {
+    places.reverse.mockResolvedValue(PLACE);
+
+    await openToAdjust([-2.4637, 36.8381]);
+
+    expect(modal.title).toBe('Ajustar en el mapa');
     expect(places.reverse).toHaveBeenCalledWith([-2.4637, 36.8381]);
     expect(text()).toContain('Calle Lachambre, 4');
     await modal.handleUse();
@@ -59,11 +90,9 @@ describe('LocationModal', () => {
   });
 
   it('does not return an address out of the area', async () => {
-    location.getCurrentPoint.mockResolvedValue([-1.86, 37.24]);
     places.reverse.mockResolvedValue({ ...PLACE, municipality: 'Vera', isCovered: false });
 
-    await modal.handleLocate();
-    fixture.detectChanges();
+    await openToAdjust([-1.86, 37.24]);
 
     expect(text()).toContain('Aún no llegamos a Vera');
     await modal.handleUse();
@@ -79,6 +108,34 @@ describe('LocationModal', () => {
     await modal.movePin([-2.46, 36.84]);
     expect(modal.place()).toEqual(PLACE);
     expect(modal.addressError()).toBeNull();
+  });
+
+  it('goes straight to the location when the permission was given before', async () => {
+    location.getCurrentPoint.mockResolvedValue([-2.4637, 36.8381]);
+
+    await reopenWith('granted');
+
+    expect(modalController.dismiss).toHaveBeenCalledWith([-2.4637, 36.8381], 'located');
+  });
+
+  it('shows a place on the map without letting it move', async () => {
+    fixture = TestBed.createComponent(LocationModal);
+    modal = fixture.componentInstance;
+    modal.viewPoint = [-2.4045, 36.8322];
+    modal.viewTitle = 'Campus UAL · Parking P1';
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(modal.title).toBe('Campus UAL · Parking P1');
+    expect(modal.step()).toBe('view');
+    expect(places.reverse).not.toHaveBeenCalled();
+  });
+
+  it('says how to give the permission when it was denied before', async () => {
+    await reopenWith('denied');
+
+    expect(modal.step()).toBe('denied');
+    expect(location.getCurrentPoint).not.toHaveBeenCalled();
   });
 
   it('tells a missing permission from a location that does not come', async () => {

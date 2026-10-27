@@ -27,6 +27,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { ActiveModeService } from '../../core/services/users/active-mode.service';
 import { ModeSelector } from '../../shared/components/ui/mode-selector/mode-selector';
 import { TripSearchForm } from '../matching/trip-search-form/trip-search-form';
+import { TripSearchStateService } from '../matching/trip-search-state.service';
 
 export interface ImpactFigure {
   icon: string;
@@ -81,6 +82,7 @@ export const PASSENGER_STEPS: readonly string[] = [
 export class HomePage {
   private readonly auth = inject(AuthService);
   private readonly activeMode = inject(ActiveModeService);
+  private readonly searchState = inject(TripSearchStateService);
 
   readonly firstName = computed(() => this.auth.currentUser()?.name.split(' ')[0] ?? '');
   // null si aún no tiene modo (p. ej. dejó el registro a medias)
@@ -95,7 +97,14 @@ export class HomePage {
 
   private readonly searchForm = viewChild(TripSearchForm);
 
-  // «Limpiar»: vacía el formulario y olvida la búsqueda (también en Buscar)
+  // «Nueva búsqueda» solo cuando hay algo que borrar: una búsqueda hecha o
+  // una dirección ya elegida
+  readonly canClearSearch = computed(
+    () => this.searchState.search() !== null || (this.searchForm()?.hasPlace() ?? false),
+  );
+
+  // «Nueva búsqueda»: vacía el formulario y olvida la búsqueda (también en
+  // Buscar)
   handleClearSearch(): void {
     this.searchForm()?.clear();
   }

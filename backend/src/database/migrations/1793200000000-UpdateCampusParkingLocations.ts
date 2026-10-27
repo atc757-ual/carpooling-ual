@@ -22,8 +22,6 @@ const PREVIOUS: readonly [id: string, lon: number, lat: number][] = [
   ['p5', -2.4025, 36.8285],
 ];
 
-const POINT = 'ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography';
-
 export class UpdateCampusParkingLocations1793200000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -40,16 +38,24 @@ export class UpdateCampusParkingLocations1793200000000 implements MigrationInter
     await this.centerServiceArea(queryRunner);
   }
 
+  // Todos en una sola consulta: UPDATE … FROM (VALUES ($1, $2, $3), …)
   private async moveParkings(
     queryRunner: QueryRunner,
     parkings: readonly [string, number, number][],
   ): Promise<void> {
-    for (const [id, lon, lat] of parkings) {
-      await queryRunner.query(
-        `UPDATE campus_parkings SET location = ${POINT} WHERE id = $1`,
-        [id, lon, lat],
-      );
-    }
+    const rows = parkings
+      .map((_, index) => {
+        const first = index * 3 + 1;
+        return `($${first}, $${first + 1}::float8, $${first + 2}::float8)`;
+      })
+      .join(', ');
+    await queryRunner.query(
+      `UPDATE campus_parkings AS parking
+       SET location = ST_SetSRID(ST_MakePoint(moved.lon, moved.lat), 4326)::geography
+       FROM (VALUES ${rows}) AS moved (id, lon, lat)
+       WHERE parking.id = moved.id`,
+      parkings.flat(),
+    );
   }
 
   // El centro, en la media de los parkings, y el círculo con su radio
