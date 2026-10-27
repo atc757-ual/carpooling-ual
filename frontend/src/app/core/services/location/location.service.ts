@@ -18,10 +18,22 @@ export class LocationError extends Error {
   }
 }
 
-// El plugin de geolocalización (en los tests se sustituye: es un proxy de
-// Capacitor y no se puede espiar)
-export const GEOLOCATION = new InjectionToken<typeof Geolocation>('Geolocation', {
-  factory: () => Geolocation,
+// Lo que se usa del plugin de geolocalización
+export type GeolocationPlugin = Pick<
+  typeof Geolocation,
+  'checkPermissions' | 'requestPermissions' | 'getCurrentPosition'
+>;
+
+// El plugin, envuelto en un objeto propio (en los tests se sustituye). No se
+// inyecta tal cual: es un proxy de Capacitor que responde a cualquier método,
+// también a ngOnDestroy, y Angular lo llamaría al cerrar el inyector («not
+// implemented on web»)
+export const GEOLOCATION = new InjectionToken<GeolocationPlugin>('Geolocation', {
+  factory: () => ({
+    checkPermissions: () => Geolocation.checkPermissions(),
+    requestPermissions: (permissions) => Geolocation.requestPermissions(permissions),
+    getCurrentPosition: (options) => Geolocation.getCurrentPosition(options),
+  }),
 });
 
 // Código del error de permiso de la API de geolocalización del navegador
