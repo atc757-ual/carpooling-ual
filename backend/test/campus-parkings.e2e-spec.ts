@@ -46,7 +46,7 @@ describe('Campus parkings API (e2e)', () => {
     await app.close();
   });
 
-  it('lists the five parkings in order, as GeoJSON points', async () => {
+  it('lists the six parkings in order, as GeoJSON points', async () => {
     const response = await request(app.getHttpServer())
       .get('/api/campus-parkings')
       .set('Authorization', `Bearer ${token}`)
@@ -63,14 +63,15 @@ describe('Campus parkings API (e2e)', () => {
       'p3',
       'p4',
       'p5',
+      'p6',
     ]);
     expect(parkings[0]).toMatchObject({
       '@type': 'CampusParking',
       href: '/api/campus-parkings/p1',
       name: 'Parking P1',
-      location: { type: 'Point', coordinates: [-2.4045, 36.8322] },
+      location: { type: 'Point', coordinates: [-2.401719, 36.828856] },
     });
-    expect(response.headers['x-total-count']).toBe('5');
+    expect(response.headers['x-total-count']).toBe('6');
   });
 
   it('gets one parking and answers 404 for an unknown one', async () => {
