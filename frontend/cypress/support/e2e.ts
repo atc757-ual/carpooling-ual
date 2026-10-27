@@ -23,6 +23,17 @@ beforeEach(() => {
     const text = String(req.query['q']);
     req.reply([{ id: encodeURIComponent(text), name: text, locality: 'Almería' }]);
   });
+  // La dirección de un punto (ubicación del dispositivo o pin del mapa)
+  cy.intercept('GET', /\/api\/places\/reverse\?/, {
+    id: 'lachambre-4',
+    name: 'Calle Lachambre, 4',
+    locality: 'Almería',
+    municipality: 'Almería',
+    location: { type: 'Point', coordinates: [-2.46381, 36.8381] },
+    isCovered: true,
+  });
+  // Los tiles del mapa, vacíos (sin pedirlos a OpenStreetMap)
+  cy.intercept('GET', 'https://tile.openstreetmap.org/**', { statusCode: 204 });
   cy.intercept('GET', /\/api\/places\/[^?/]+$/, (req) => {
     const name = decodeURIComponent(req.url.split('/').pop() ?? '');
     const isCovered = !name.startsWith(UNCOVERED_PLACE);

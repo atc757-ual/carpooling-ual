@@ -1,0 +1,27 @@
+// Mapas (Leaflet, con los tiles de OpenStreetMap): su CSS, que tiene que ser
+// global (crea sus elementos fuera de los componentes), y el pin del punto
+// elegido
+@use 'leaflet/dist/leaflet';
+@use 'palette' as *;
+
+// El pin: un punto relleno del azul principal con borde blanco, como el
+// destino de la línea de ruta, más grande para poder arrastrarlo (24px). Con
+// colores fijos de la paleta, no los roles: los tiles del mapa son siempre
+// claros, también en modo oscuro
+.map-pin {
+  box-sizing: border-box;
+  border: 0.1875rem solid $neutral-0; // 3px
+  border-radius: var(--radius-full);
+  background: $blue-500;
+  box-shadow: var(--shadow-base);
+  cursor: grab;
+}
+
+// Los controles de Leaflet con la letra de la app
+.leaflet-container {
+  font-family: var(--font-family-body);
+}
+
+.leaflet-control-attribution {
+  font-size: var(--font-size-caption);
+}

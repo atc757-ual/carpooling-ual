@@ -45,3 +45,8 @@ El perfil de administrador no se puede pedir en el registro (RF-01): el primero 
 - `GET /api/health` debe responder `200` con `"database": "up"`.
 - Iniciar sesión con el administrador del paso 3 (`POST /api/auth/login`). Se crea con el correo ya verificado: no necesita código.
 - Registrar una cuenta de prueba (`POST /api/auth/register`) y comprobar que **llega el correo con el código**. Si no llega, revisar las variables `SMTP_*` y el log del servidor (`Could not send the verification code`). Después, borrar esa cuenta.
+
+## 5. Servicios externos de mapas
+
+- **Direcciones (CartoCiudad, IGN):** el backend lo llama directamente, sin clave. Hay que dejar salir el tráfico HTTPS hacia `www.cartociudad.es`. Su licencia exige citar «CartoCiudad cedido por © Instituto Geográfico Nacional» (la app ya lo muestra junto a las sugerencias).
+- **Tiles del mapa (OpenStreetMap):** el navegador los pide a `tile.openstreetmap.org`, cuyo uso está limitado a tráfico moderado y con atribución (ya visible en el mapa). Para una demo vale; para un despliegue con usuarios reales, usar un servidor de tiles propio o un proveedor y cambiar `TILES_URL` en `location-modal.ts`.

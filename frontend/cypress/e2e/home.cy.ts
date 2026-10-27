@@ -78,6 +78,35 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-trip-search-form', 'Elige una dirección de la lista.').should('be.visible');
     });
 
+    it('fills the address in from the location of the device, on a map', () => {
+      // La ubicación del navegador, simulada (Calle Lachambre, Almería)
+      cy.window().then((win) => {
+        cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake(
+          (onSuccess: PositionCallback) =>
+            onSuccess({
+              coords: { latitude: 36.8381, longitude: -2.4637, accuracy: 5 },
+              timestamp: Date.now(),
+            } as GeolocationPosition),
+        );
+      });
+
+      cy.get('app-trip-search-form .place-field__locate').click();
+      cy.contains('app-location-modal', 'Solo la usamos para esta búsqueda').should('be.visible');
+      cy.contains('app-location-modal ion-button', 'Buscar mi ubicación').click();
+
+      cy.get('app-location-modal .location__map .map-pin').should('exist');
+      cy.contains('app-location-modal .location__address', 'Calle Lachambre, 4').should(
+        'be.visible',
+      );
+      cy.contains('app-location-modal ion-button', 'Usar esta dirección').click();
+
+      cy.get('app-location-modal').should('not.exist');
+      cy.get('app-trip-search-form app-place-field input').should(
+        'have.value',
+        'Calle Lachambre, 4',
+      );
+    });
+
     it('swaps the direction: from the campus parking to the place', () => {
       choosePlace('app-trip-search-form', 'Roquetas de Mar');
 
