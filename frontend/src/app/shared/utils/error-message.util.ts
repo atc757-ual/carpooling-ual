@@ -21,6 +21,10 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   PROFILE_REQUIRED: 'Tu perfil no permite hacer esta acción.',
   PROFILE_DEACTIVATED_BY_ADMIN:
     'La administración ha desactivado este perfil. Escríbele si crees que es un error.',
+  VEHICLE_ALREADY_REGISTERED: 'Ya tienes un vehículo con esta matrícula.',
+  DRIVER_NOT_READY: 'Registra un vehículo y acepta la declaración antes de publicar.',
+  SEATS_EXCEED_CAPACITY: 'Ofreces más plazas de las que tiene el vehículo.',
+  DEPARTURE_IN_THE_PAST: 'La hora de salida ya ha pasado. Elige una hora posterior.',
 };
 
 export function getErrorMessage(error: ApiError): string {
