@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
+import { TripSearchForm } from '../matching/trip-search-form/trip-search-form';
 import { HomePage } from './home.page';
 
 describe('HomePage', () => {
@@ -41,6 +42,17 @@ describe('HomePage', () => {
     expect(root.textContent).toContain('Tu camino al campus.');
     expect(root.querySelector('.home__tip')?.textContent).toContain('mejor encajan');
     expect(root.querySelector('.home__search img')).toBeNull();
+  });
+
+  it('clears the search form next to the tip', async () => {
+    const root = await render('passenger');
+    const clear = vi.spyOn(TripSearchForm.prototype, 'clear');
+
+    expect(root.querySelector('.home__clear ion-button')?.textContent?.trim()).toBe('Limpiar');
+    root.querySelector('.home__clear')?.dispatchEvent(new Event('submit'));
+
+    expect(clear).toHaveBeenCalledOnce();
+    clear.mockRestore();
   });
 
   it('offers to publish a trip to a driver', async () => {
