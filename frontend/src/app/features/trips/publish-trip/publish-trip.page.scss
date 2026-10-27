@@ -105,8 +105,12 @@
   }
 }
 
+// Es un fieldset (agrupa los dos botones con su etiqueta): sin el margen ni
+// el ancho mínimo que le da el navegador
 .publish__stepper {
   justify-content: space-between;
+  min-inline-size: 0;
+  margin: 0;
   padding: 0 var(--space-xs);
 }
 
