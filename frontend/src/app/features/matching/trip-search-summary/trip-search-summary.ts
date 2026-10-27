@@ -2,16 +2,14 @@ import { Component, computed, input, output } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular';
 import { createOutline } from 'ionicons/icons';
 import { TripSearch } from '../../../core/models/trip-search.model';
+import {
+  RouteStop,
+  RouteTimeline,
+} from '../../../shared/components/ui/route-timeline/route-timeline';
 import { CAMPUS_NAME, getEntranceName } from '../campus-entrances';
 import { shiftTime } from '../trip-search-form/trip-search-form';
 
 const DATE_FORMAT = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' });
-
-// Una parada del trayecto: el sitio y, debajo, su detalle
-export interface RouteStop {
-  name: string;
-  detail: string;
-}
 
 // «2026-10-27» → «27 oct» (en hora local: new Date('2026-10-27') sería UTC)
 export function formatShortDate(isoDate: string): string {
@@ -25,7 +23,7 @@ export function formatShortDate(isoDate: string): string {
 // llegada: 07:40–08:20» (al volver, de salida)
 @Component({
   selector: 'app-trip-search-summary',
-  imports: [IonButton, IonIcon],
+  imports: [IonButton, IonIcon, RouteTimeline],
   templateUrl: './trip-search-summary.html',
   styleUrl: './trip-search-summary.scss',
 })

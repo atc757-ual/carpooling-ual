@@ -33,7 +33,7 @@ describe('TripSearchSummary', () => {
   it('goes from the place (pick-up) to the campus entrance', () => {
     const root = render(SEARCH);
 
-    expect(texts(root, '.search-summary__stop')).toEqual([
+    expect(texts(root, '.route-timeline__body')).toEqual([
       'Roquetas de MarRecogida',
       'Campus UALIngreso norte',
     ]);
@@ -42,7 +42,7 @@ describe('TripSearchSummary', () => {
   it('comes back from the campus entrance to the place', () => {
     const root = render({ ...SEARCH, direction: 'from-campus', entrance: 'east' });
 
-    expect(texts(root, '.search-summary__stop')).toEqual([
+    expect(texts(root, '.route-timeline__body')).toEqual([
       'Campus UALIngreso este',
       'Roquetas de MarLlegada',
     ]);

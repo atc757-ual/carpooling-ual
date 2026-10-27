@@ -1,0 +1,37 @@
+// Las iniciales en un círculo de 40px, el nombre y los detalles, y la
+// valoración a la derecha
+:host {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; // 12px
+}
+
+.trip-driver__avatar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem; // 40px
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-warning-subtle);
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+}
+
+.trip-driver__person {
+  flex: 1;
+  min-width: 0;
+}
+
+.trip-driver__name {
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body-s);
+}
+
+.trip-driver__rating {
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
