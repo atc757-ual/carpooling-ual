@@ -204,6 +204,12 @@ ion-input input[type='number'] {
   }
 }
 
+// Casillas (consentimiento y declaraciones): de 24px, más fáciles de ver y de
+// tocar que las 18px de Ionic
+ion-checkbox {
+  --size: 1.5rem; // 24px
+}
+
 // Ventanas (también el calendario y la hora, y en el móvil las hojas que
 // suben desde abajo): con las esquinas del resto de tarjetas
 ion-modal {
