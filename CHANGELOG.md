@@ -110,6 +110,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - El recurso `Trip` y los eventos del viaje incluyen cuándo empezó (`startedAt`) (#24)
 - Las rutas del seed se marcan como estimadas, y el segundo viaje tiene también la suya (#24)
 - Buscar y Publicar comparten el selector de fecha y hora (`app-datetime-field`) y el contador de plazas de la guía (`app-seat-stepper`: «−», el número y «+»), que en Buscar sustituye al campo numérico con los botones dentro (#64)
+- Los parkings del campus llevan su zona en el nombre: P1 y P2 (Sur), P3 (Este), P4 y P5 (Norte) y P6 (Oeste) (#65)
 
 ### Security
 - El backend ya no envía la cabecera `X-Powered-By: Express`, que revelaba la tecnología del servidor (#14)

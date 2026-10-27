@@ -14,7 +14,7 @@ export class CampusParkingResource {
   @ApiProperty({ example: '/api/campus-parkings/p1' })
   href: string;
 
-  @ApiProperty({ example: 'Parking P1' })
+  @ApiProperty({ example: 'Parking P1 (Sur)' })
   name: string;
 
   @ApiProperty({

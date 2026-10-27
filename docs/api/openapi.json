@@ -5938,7 +5938,7 @@
           },
           "name": {
             "type": "string",
-            "example": "Parking P1"
+            "example": "Parking P1 (Sur)"
           },
           "location": {
             "example": {
