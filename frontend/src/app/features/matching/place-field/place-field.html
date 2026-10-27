@@ -1,0 +1,54 @@
+<!-- El error lo decide el formulario (showError). Van también las clases
+     ng-*: Ionic recalcula las ion-* a partir de ellas al perder el foco, y sin
+     ellas quitaría el rojo -->
+<div class="place-field__control">
+  <ion-input
+    fill="outline"
+    [value]="text()"
+    [placeholder]="placeholder()"
+    [disabled]="isDisabled()"
+    [attr.aria-label]="label()"
+    autocomplete="off"
+    errorText="Elige una dirección de la lista."
+    [class.ion-touched]="showError()"
+    [class.ion-invalid]="showError()"
+    [class.ng-touched]="showError()"
+    [class.ng-invalid]="showError()"
+    (ionInput)="handleInput($event.detail.value ?? '')"
+    (ionBlur)="handleBlur()"
+  >
+    <ion-icon slot="start" [icon]="icon()" aria-hidden="true" />
+  </ion-input>
+
+  <!-- Sugerencias bajo el campo, por encima del resto del formulario. Son
+     botones: se llega a ellas con el tabulador -->
+  @if (suggestions().length > 0) {
+    <div class="place-field__dropdown">
+      <ul class="place-field__suggestions" [attr.aria-label]="'Direcciones para ' + label()">
+        @for (suggestion of suggestions(); track suggestion.id) {
+          <li>
+            <button
+              type="button"
+              class="place-field__suggestion"
+              (click)="handleSelect(suggestion)"
+            >
+              <span class="place-field__name">{{ suggestion.name }}</span>
+              <span class="text-caption text-color-muted">{{ suggestion.locality }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+      <!-- Lo exige la licencia de los datos de CartoCiudad -->
+      <p class="place-field__credit">CartoCiudad cedido por © Instituto Geográfico Nacional</p>
+    </div>
+  }
+</div>
+
+<!-- output: los lectores de pantalla leen lo que aparece aquí -->
+<output class="place-field__status">
+  @if (isResolving()) {
+    <span class="text-caption text-color-muted">Comprobando la dirección…</span>
+  } @else if (message(); as message) {
+    <span class="place-field__message">{{ message }}</span>
+  }
+</output>

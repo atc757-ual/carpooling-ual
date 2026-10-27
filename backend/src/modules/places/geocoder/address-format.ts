@@ -24,11 +24,17 @@ export function toTitleCase(text: string): string {
 // «MEDITERRANEO (DEL)» → «DEL MEDITERRANEO». Un paréntesis que no es una
 // partícula («SACRAMENTO (CARRETERA)») se deja como está
 function moveParticle(name: string): string {
-  const match = /^(.*\S)\s*\(([^)]+)\)$/.exec(name);
-  if (!match) {
+  // Sin expresión regular: con «(.*)» y «\s*» seguidos, una regex puede
+  // tardar mucho más de lo lineal en textos raros (backtracking)
+  const open = name.lastIndexOf('(');
+  if (!name.endsWith(')') || open <= 0) {
     return name;
   }
-  const [, base, particle] = match;
+  const base = name.slice(0, open).trimEnd();
+  const particle = name.slice(open + 1, -1).trim();
+  if (!base || !particle) {
+    return name;
+  }
   const isParticle = particle
     .toLowerCase()
     .split(/\s+/)

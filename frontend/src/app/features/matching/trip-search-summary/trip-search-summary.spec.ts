@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { TripSearch } from '../../../core/models/trip-search.model';
+import { PARKING_P1, PARKING_P3, ROQUETAS } from '../trip-search.testing';
 import { formatShortDate, TripSearchSummary } from './trip-search-summary';
 
 const SEARCH: TripSearch = {
-  place: 'Roquetas de Mar',
-  entrance: 'north',
+  place: ROQUETAS,
+  parking: PARKING_P1,
   direction: 'to-campus',
   date: '2026-10-27',
   time: '08:00',
@@ -30,20 +31,20 @@ describe('TripSearchSummary', () => {
   const texts = (root: HTMLElement, selector: string): string[] =>
     Array.from(root.querySelectorAll(selector), (element) => element.textContent?.trim() ?? '');
 
-  it('goes from the place (pick-up) to the campus entrance', () => {
+  it('goes from the place (pick-up) to the campus parking', () => {
     const root = render(SEARCH);
 
     expect(texts(root, '.route-timeline__body')).toEqual([
       'Roquetas de MarRecogida',
-      'Campus UALIngreso norte',
+      'Campus UALParking P1',
     ]);
   });
 
-  it('comes back from the campus entrance to the place', () => {
-    const root = render({ ...SEARCH, direction: 'from-campus', entrance: 'east' });
+  it('comes back from the campus parking to the place', () => {
+    const root = render({ ...SEARCH, direction: 'from-campus', parking: PARKING_P3 });
 
     expect(texts(root, '.route-timeline__body')).toEqual([
-      'Campus UALIngreso este',
+      'Campus UALParking P3',
       'Roquetas de MarLlegada',
     ]);
   });

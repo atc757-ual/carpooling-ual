@@ -1,7 +1,12 @@
-import { CampusEntranceId, TripDirection, TripSearch } from '../../core/models/trip-search.model';
-import { CAMPUS_ENTRANCES } from './campus-entrances';
+import {
+  SearchParking,
+  SearchPlace,
+  TripDirection,
+  TripSearch,
+} from '../../core/models/trip-search.model';
 
 export const PLACE_MAX_LENGTH = 120;
+const ID_MAX_LENGTH = 200;
 // Margen sobre la hora, en minutos
 export const MARGINS = [10, 20, 30] as const;
 // Plazas que se buscan (un coche lleva como mucho 4 pasajeros)
@@ -27,8 +32,40 @@ function isTime(value: unknown): value is string {
   return typeof value === 'string' && TIME_PATTERN.test(value);
 }
 
-function isEntrance(value: unknown): value is CampusEntranceId {
-  return CAMPUS_ENTRANCES.some((entrance) => entrance.id === value);
+function isText(value: unknown, maxLength: number): value is string {
+  return typeof value === 'string' && value.trim().length > 0 && value.length <= maxLength;
+}
+
+// [longitud, latitud] dentro de sus rangos
+function isCoordinates(value: unknown): value is [number, number] {
+  return (
+    Array.isArray(value) &&
+    value.length === 2 &&
+    value.every((n) => typeof n === 'number' && Number.isFinite(n)) &&
+    Math.abs(value[0] as number) <= 180 &&
+    Math.abs(value[1] as number) <= 90
+  );
+}
+
+function isPlace(value: unknown): value is SearchPlace {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+  const { id, name, locality, coordinates } = value as Record<string, unknown>;
+  return (
+    isText(id, ID_MAX_LENGTH) &&
+    isText(name, PLACE_MAX_LENGTH) &&
+    isText(locality, PLACE_MAX_LENGTH) &&
+    isCoordinates(coordinates)
+  );
+}
+
+function isParking(value: unknown): value is SearchParking {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+  const { id, name } = value as Record<string, unknown>;
+  return isText(id, ID_MAX_LENGTH) && isText(name, PLACE_MAX_LENGTH);
 }
 
 function isDirection(value: unknown): value is TripDirection {
@@ -46,21 +83,31 @@ export function parseTripSearch(value: unknown): TripSearch | null {
   if (typeof value !== 'object' || value === null) {
     return null;
   }
-  const { place, entrance, direction, date, time, margin, seats } = value as Record<
-    string,
-    unknown
-  >;
-  const trimmedPlace = typeof place === 'string' ? place.trim() : '';
+  const { place, parking, direction, date, time, margin, seats } = value as Record<string, unknown>;
   const isValid =
-    trimmedPlace.length > 0 &&
-    trimmedPlace.length <= PLACE_MAX_LENGTH &&
-    isEntrance(entrance) &&
+    isPlace(place) &&
+    isParking(parking) &&
     isDirection(direction) &&
     isCalendarDate(date) &&
     isTime(time) &&
     MARGIN_VALUES.has(margin) &&
     isSeats(seats);
-  return isValid
-    ? { place: trimmedPlace, entrance, direction, date, time, margin: Number(margin), seats }
-    : null;
+  if (!isValid) {
+    return null;
+  }
+  // Solo los campos conocidos (lo guardado puede traer otros)
+  return {
+    place: {
+      id: place.id,
+      name: place.name,
+      locality: place.locality,
+      coordinates: [place.coordinates[0], place.coordinates[1]],
+    },
+    parking: { id: parking.id, name: parking.name },
+    direction,
+    date,
+    time,
+    margin: Number(margin),
+    seats,
+  };
 }

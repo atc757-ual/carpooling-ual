@@ -3,12 +3,20 @@ import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { TripSearch } from '../../../core/models/trip-search.model';
+import { PlacesService } from '../../../core/services/places/places.service';
 import { TripSearchStateService } from '../trip-search-state.service';
+import {
+  PARKING_P1,
+  PARKING_P3,
+  PLACES_SERVICE_STUB,
+  ROQUETAS,
+  stubIntersectionObserver,
+} from '../trip-search.testing';
 import { getDefaultTime, shiftTime, TripSearchForm } from './trip-search-form';
 
 const SEARCH: TripSearch = {
-  place: 'Roquetas de Mar',
-  entrance: 'east',
+  place: ROQUETAS,
+  parking: PARKING_P3,
   direction: 'from-campus',
   date: '2026-10-28',
   time: '14:00',
@@ -24,9 +32,14 @@ describe('TripSearchForm', () => {
 
   beforeEach(() => {
     sessionStorage.clear();
+    stubIntersectionObserver();
     TestBed.configureTestingModule({
       imports: [TripSearchForm],
-      providers: [provideIonicAngular(), provideRouter([])],
+      providers: [
+        provideIonicAngular(),
+        provideRouter([]),
+        { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
+      ],
     });
     navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     searchState = TestBed.inject(TripSearchStateService);
@@ -35,13 +48,14 @@ describe('TripSearchForm', () => {
     fixture.detectChanges();
   });
 
-  it('goes to the north entrance, today from now with ±20 min and 1 seat, by default', () => {
-    const { entrance, isToCampus, time, margin, seats, date } = form.form.getRawValue();
+  it('goes to the first parking, today from now with ±20 min and 1 seat, by default', () => {
+    const { place, parking, isToCampus, time, margin, seats, date } = form.form.getRawValue();
     const today = new Date();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
 
-    expect(entrance).toBe('north');
+    expect(place).toBeNull();
+    expect(parking).toBe('p1');
     expect(isToCampus).toBe(true);
     expect(form.timeType()).toBe('arrival');
     expect(time).toMatch(/^\d{2}:\d[05]$/);
@@ -50,41 +64,32 @@ describe('TripSearchForm', () => {
     expect(date).toBe(`${today.getFullYear()}-${month}-${day}`);
   });
 
-  it('clears the search and what was typed', () => {
-    searchState.set({
-      place: 'Roquetas de Mar',
-      entrance: 'south',
-      direction: 'from-campus',
-      date: '2026-10-27',
-      time: '14:00',
-      margin: 30,
-      seats: 3,
-    });
+  it('clears the search and what was chosen', () => {
+    searchState.set({ ...SEARCH, margin: 30, seats: 3 });
     fixture.detectChanges();
 
     form.clear();
 
-    const { place, entrance, isToCampus, margin, seats } = form.form.getRawValue();
+    const { place, parking, isToCampus, margin, seats } = form.form.getRawValue();
     expect(searchState.search()).toBeNull();
-    expect({ place, entrance, isToCampus, margin, seats }).toEqual({
-      place: '',
-      entrance: 'north',
+    expect({ place, parking, isToCampus, margin, seats }).toEqual({
+      place: null,
+      parking: 'p1',
       isToCampus: true,
       margin: 20,
       seats: 1,
     });
   });
 
-  it('offers the three campus entrances to everyone', () => {
+  it('offers the campus parkings', () => {
     const root = fixture.nativeElement as HTMLElement;
     const options = root.querySelectorAll(
-      'ion-select[formControlName="entrance"] ion-select-option',
+      'ion-select[formControlName="parking"] ion-select-option',
     );
 
     expect(Array.from(options, (option) => option.textContent?.trim())).toEqual([
-      'Campus UAL · Ingreso norte',
-      'Campus UAL · Ingreso sur',
-      'Campus UAL · Ingreso este',
+      'Campus UAL · Parking P1',
+      'Campus UAL · Parking P3',
     ]);
   });
 
@@ -127,15 +132,17 @@ describe('TripSearchForm', () => {
     expect(summary()).toContain('salen del campus');
   });
 
-  it('asks for the place before searching', async () => {
+  it('asks to choose an address before searching', async () => {
     await form.handleSubmit();
+    fixture.detectChanges();
 
     expect(navigate).not.toHaveBeenCalled();
-    expect(form.form.controls.place.touched).toBe(true);
+    const field = (fixture.nativeElement as HTMLElement).querySelector('app-place-field ion-input');
+    expect(field?.classList).toContain('ion-invalid');
   });
 
   it('does not search for more than 4 seats', async () => {
-    form.form.patchValue({ place: 'Roquetas de Mar', seats: 5 });
+    form.form.patchValue({ place: ROQUETAS, seats: 5 });
 
     await form.handleSubmit();
 
@@ -157,18 +164,13 @@ describe('TripSearchForm', () => {
   });
 
   it('keeps the trip to the campus as the search and goes to Buscar', async () => {
-    form.form.patchValue({
-      place: '  Roquetas de Mar ',
-      date: '2026-10-27',
-      time: '08:00',
-      seats: 2,
-    });
+    form.form.patchValue({ place: ROQUETAS, date: '2026-10-27', time: '08:00', seats: 2 });
 
     await form.handleSubmit();
 
     expect(searchState.search()).toEqual({
-      place: 'Roquetas de Mar',
-      entrance: 'north',
+      place: ROQUETAS,
+      parking: PARKING_P1,
       direction: 'to-campus',
       date: '2026-10-27',
       time: '08:00',
@@ -179,13 +181,13 @@ describe('TripSearchForm', () => {
   });
 
   it('goes from the campus when the direction is swapped', async () => {
-    form.form.patchValue({ place: 'Roquetas de Mar', entrance: 'south' });
+    form.form.patchValue({ place: ROQUETAS, parking: 'p3' });
     form.handleSwap();
 
     await form.handleSubmit();
 
     expect(searchState.search()).toEqual(
-      expect.objectContaining({ entrance: 'south', direction: 'from-campus' }),
+      expect.objectContaining({ parking: PARKING_P3, direction: 'from-campus' }),
     );
   });
 
@@ -194,8 +196,8 @@ describe('TripSearchForm', () => {
     fixture.detectChanges();
 
     expect(form.form.getRawValue()).toEqual({
-      place: 'Roquetas de Mar',
-      entrance: 'east',
+      place: ROQUETAS,
+      parking: 'p3',
       isToCampus: false,
       date: '2026-10-28',
       time: '14:00',
@@ -212,7 +214,7 @@ describe('TripSearchForm', () => {
     searchState.clear();
     fixture.detectChanges();
 
-    expect(form.form.controls.place.value).toBe('');
+    expect(form.form.controls.place.value).toBeNull();
     expect(form.isToCampus()).toBe(true);
   });
 });

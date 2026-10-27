@@ -1,4 +1,4 @@
-import { VIEWPORTS } from '../support/e2e';
+import { choosePlace, VIEWPORTS } from '../support/e2e';
 
 const EMAIL = 'mario.perez@ual.es';
 
@@ -34,7 +34,7 @@ function logIn(profiles: string[]): void {
 
 // Busca desde Inicio: lleva a Buscar, que muestra la misma búsqueda
 function searchFromHome(place: string): void {
-  cy.get('app-home app-trip-search-form ion-input[formControlName="place"] input').type(place);
+  choosePlace('app-home app-trip-search-form', place);
   cy.contains('app-home app-trip-search-form ion-button', 'Buscar viaje').click();
   cy.location('pathname').should('eq', '/tabs/search');
 }
@@ -57,7 +57,7 @@ for (const viewport of VIEWPORTS) {
       searchFromHome('Roquetas de Mar');
 
       cy.get('app-trip-search .route-timeline__stop').first().should('contain', 'Roquetas de Mar');
-      cy.get('app-trip-search .route-timeline__stop').last().should('contain', 'Ingreso norte');
+      cy.get('app-trip-search .route-timeline__stop').last().should('contain', 'Parking P1');
       cy.contains('app-trip-search .search-summary__details', 'plaza').should('be.visible');
       cy.contains('app-trip-search .search-summary__details', 'Margen de llegada').should(
         'be.visible',
@@ -74,7 +74,7 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/tabs/search/trips/example-1');
       // El mismo viaje de la búsqueda, con quien conduce y cómo se pide plaza
       cy.get('app-trip-detail .route-timeline__stop').first().should('contain', 'Roquetas de Mar');
-      cy.get('app-trip-detail .route-timeline__stop').last().should('contain', 'Ingreso norte');
+      cy.get('app-trip-detail .route-timeline__stop').last().should('contain', 'Parking P1');
       cy.contains('app-trip-detail app-trip-driver', 'Lucía Cortés').should('be.visible');
       cy.contains('app-trip-detail .notice', 'Primero solicitas; Lucía decide.').should(
         'be.visible',
@@ -96,10 +96,8 @@ for (const viewport of VIEWPORTS) {
       searchFromHome('Roquetas de Mar');
 
       cy.contains('app-trip-search app-trip-search-summary ion-button', 'Editar').click();
-      cy.get('app-trip-search ion-input[formControlName="place"] input')
-        .should('have.value', 'Roquetas de Mar')
-        .clear();
-      cy.get('app-trip-search ion-input[formControlName="place"] input').type('Huércal de Almería');
+      cy.get('app-trip-search app-place-field input').should('have.value', 'Roquetas de Mar');
+      choosePlace('app-trip-search', 'Huércal de Almería');
       cy.contains('app-trip-search app-trip-search-form ion-button', 'Buscar viaje').click();
 
       cy.get('app-trip-search app-trip-search-form').should('not.exist');
@@ -130,13 +128,12 @@ for (const viewport of VIEWPORTS) {
     it('fills Inicio in with the search made in Buscar', () => {
       searchFromHome('Roquetas de Mar');
       cy.contains('app-trip-search app-trip-search-summary ion-button', 'Editar').click();
-      cy.get('app-trip-search ion-input[formControlName="place"] input').clear();
-      cy.get('app-trip-search ion-input[formControlName="place"] input').type('Vícar');
+      choosePlace('app-trip-search', 'Vícar');
       cy.contains('app-trip-search app-trip-search-form ion-button', 'Buscar viaje').click();
 
       goTo('Inicio');
 
-      cy.get('app-home ion-input[formControlName="place"] input').should('have.value', 'Vícar');
+      cy.get('app-home app-place-field input').should('have.value', 'Vícar');
     });
 
     it('starts a new search with the forms empty', () => {
@@ -146,9 +143,9 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-trip-search ion-button', 'Nueva búsqueda').click();
 
       cy.get('app-trip-search app-trip-search-summary').should('not.exist');
-      cy.get('app-trip-search ion-input[formControlName="place"] input').should('have.value', '');
+      cy.get('app-trip-search app-place-field input').should('have.value', '');
       goTo('Inicio');
-      cy.get('app-home ion-input[formControlName="place"] input').should('have.value', '');
+      cy.get('app-home app-place-field input').should('have.value', '');
     });
 
     it('shows the form when opened without a search', () => {

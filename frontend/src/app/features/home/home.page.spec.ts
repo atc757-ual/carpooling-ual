@@ -7,15 +7,19 @@ import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { TripSearchForm } from '../matching/trip-search-form/trip-search-form';
+import { PlacesService } from '../../core/services/places/places.service';
+import { PLACES_SERVICE_STUB, stubIntersectionObserver } from '../matching/trip-search.testing';
 import { HomePage } from './home.page';
 
 describe('HomePage', () => {
   async function render(mode: TravelMode | null): Promise<HTMLElement> {
+    stubIntersectionObserver();
     TestBed.configureTestingModule({
       imports: [HomePage],
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
         { provide: AuthService, useValue: { currentUser: signal({ name: 'Ana García' } as User) } },
         {
           provide: ActiveModeService,

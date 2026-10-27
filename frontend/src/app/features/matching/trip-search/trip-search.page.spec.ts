@@ -2,12 +2,19 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { TripSearch } from '../../../core/models/trip-search.model';
+import { PlacesService } from '../../../core/services/places/places.service';
+import {
+  PARKING_P1,
+  PLACES_SERVICE_STUB,
+  ROQUETAS,
+  stubIntersectionObserver,
+} from '../trip-search.testing';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { TripSearchPage } from './trip-search.page';
 
 const SEARCH: TripSearch = {
-  place: 'Roquetas de Mar',
-  entrance: 'north',
+  place: ROQUETAS,
+  parking: PARKING_P1,
   direction: 'to-campus',
   date: '2026-10-27',
   time: '08:00',
@@ -22,7 +29,11 @@ describe('TripSearchPage', () => {
     sessionStorage.clear();
     TestBed.configureTestingModule({
       imports: [TripSearchPage],
-      providers: [provideIonicAngular(), provideRouter([])],
+      providers: [
+        provideIonicAngular(),
+        provideRouter([]),
+        { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
+      ],
     });
     searchState = TestBed.inject(TripSearchStateService);
     if (search) {
@@ -34,6 +45,7 @@ describe('TripSearchPage', () => {
   }
 
   async function render(search: TripSearch | null): Promise<HTMLElement> {
+    stubIntersectionObserver();
     return (await setUp(search)).nativeElement as HTMLElement;
   }
 

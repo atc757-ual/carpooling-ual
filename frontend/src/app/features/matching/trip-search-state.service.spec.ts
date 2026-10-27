@@ -1,12 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { TripSearch } from '../../core/models/trip-search.model';
+import { PARKING_P1, ROQUETAS } from './trip-search.testing';
 import { TripSearchStateService } from './trip-search-state.service';
 
 const STORAGE_KEY = 'matching.trip-search';
 
 const SEARCH: TripSearch = {
-  place: 'Roquetas de Mar',
-  entrance: 'north',
+  place: ROQUETAS,
+  parking: PARKING_P1,
   direction: 'to-campus',
   date: '2026-10-27',
   time: '08:00',

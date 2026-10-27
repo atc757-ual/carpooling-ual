@@ -9,7 +9,7 @@ const TRIP: TripResult = {
   departureTime: '07:40',
   arrivalTime: '08:12',
   origin: 'Roquetas de Mar',
-  destination: 'Campus UAL · Ingreso norte',
+  destination: 'Campus UAL · Parking P1',
   driver: { name: 'Lucía Cortés', tripCount: 42, rating: 4.8, isEmailVerified: true },
   freeSeats: 2,
   pickupDetourMinutes: 3,
@@ -35,7 +35,7 @@ describe('TripResultCard', () => {
 
     expect(text(root, '.trip-card__times')).toBe('07:40 → 08:12');
     expect(text(root, '.trip-card__seats')).toBe('2 plazas');
-    expect(text(root, '.trip-card__route')).toBe('Roquetas de Mar → Campus UAL · Ingreso norte');
+    expect(text(root, '.trip-card__route')).toBe('Roquetas de Mar → Campus UAL · Parking P1');
     expect(root.textContent).toContain('Desvío de recogida: 3 min');
   });
 

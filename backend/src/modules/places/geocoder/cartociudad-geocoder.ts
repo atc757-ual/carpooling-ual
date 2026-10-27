@@ -31,8 +31,8 @@ interface CartoCiudadAddress {
   lng: number;
 }
 
-// La vía sin el tipo, el número ni la localidad: en las sugerencias viene
-// todo junto («AVENIDA MEDITERRANEO (DEL) 120, Almería»), al buscarla no
+// La vía sin el tipo, el número ni la localidad: las sugerencias lo traen
+// en un solo texto («AVENIDA MEDITERRANEO (DEL) 120, Almería»), al buscarla no
 function getStreetName(result: CartoCiudadAddress): string {
   let name = result.address.split(',')[0].trim();
   if (result.tip_via && name.startsWith(`${result.tip_via} `)) {

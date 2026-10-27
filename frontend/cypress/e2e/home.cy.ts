@@ -1,4 +1,4 @@
-import { VIEWPORTS } from '../support/e2e';
+import { choosePlace, UNCOVERED_PLACE, VIEWPORTS } from '../support/e2e';
 
 const EMAIL = 'mario.perez@ual.es';
 
@@ -53,9 +53,7 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('searches from the origin to the campus with the chosen data', () => {
-      cy.get('app-trip-search-form ion-input[formControlName="place"] input').type(
-        'Roquetas de Mar',
-      );
+      choosePlace('app-trip-search-form', 'Roquetas de Mar');
       cy.get('app-trip-search-form ion-input[formControlName="seats"] input').clear();
       cy.get('app-trip-search-form ion-input[formControlName="seats"] input').type('2');
       cy.contains('app-trip-search-form ion-button', 'Buscar viaje').click();
@@ -64,14 +62,24 @@ for (const viewport of VIEWPORTS) {
       // La búsqueda no va en la URL: la muestra Buscar
       cy.location('search').should('eq', '');
       cy.get('app-trip-search .route-timeline__stop').first().should('contain', 'Roquetas de Mar');
-      cy.get('app-trip-search .route-timeline__stop').last().should('contain', 'Ingreso norte');
+      cy.get('app-trip-search .route-timeline__stop').last().should('contain', 'Parking P1');
       cy.contains('app-trip-search .search-summary__details', '2 plazas').should('exist');
     });
 
-    it('swaps the direction: from the campus entrance to the place', () => {
-      cy.get('app-trip-search-form ion-input[formControlName="place"] input').type(
-        'Roquetas de Mar',
-      );
+    it('does not search from an address out of the area, and says so', () => {
+      choosePlace('app-trip-search-form', `${UNCOVERED_PLACE} centro`);
+
+      cy.contains(
+        'app-trip-search-form .place-field__message',
+        `Aún no llegamos a ${UNCOVERED_PLACE}.`,
+      ).should('be.visible');
+      cy.contains('app-trip-search-form ion-button', 'Buscar viaje').click();
+      cy.location('pathname').should('eq', '/tabs/home');
+      cy.contains('app-trip-search-form', 'Elige una dirección de la lista.').should('be.visible');
+    });
+
+    it('swaps the direction: from the campus parking to the place', () => {
+      choosePlace('app-trip-search-form', 'Roquetas de Mar');
 
       cy.get('app-trip-search-form .search-form__swap').click();
 
@@ -89,7 +97,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-trip-search-form ion-button', 'Buscar viaje').click();
 
       cy.location('pathname').should('eq', '/tabs/home');
-      cy.contains('app-trip-search-form', 'Escribe desde dónde sales.').should('be.visible');
+      cy.contains('app-trip-search-form', 'Elige una dirección de la lista.').should('be.visible');
     });
 
     it('shows the impact marked as example data and how it works', () => {

@@ -6,7 +6,7 @@ import {
   RouteStop,
   RouteTimeline,
 } from '../../../shared/components/ui/route-timeline/route-timeline';
-import { CAMPUS_NAME, getEntranceName } from '../campus-entrances';
+import { CAMPUS_NAME } from '../campus';
 import { shiftTime } from '../trip-search-form/trip-search-form';
 
 const DATE_FORMAT = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' });
@@ -31,13 +31,13 @@ export class TripSearchSummary {
   readonly search = input.required<TripSearch>();
   readonly edit = output<void>();
 
-  // Origen y destino: el lugar escrito a mano y el campus con su entrada
+  // Origen y destino: la dirección elegida y el campus con su parking
   readonly stops = computed<[RouteStop, RouteStop]>(() => {
-    const { place, entrance, direction } = this.search();
-    const campus: RouteStop = { name: CAMPUS_NAME, detail: getEntranceName(entrance) };
+    const { place, parking, direction } = this.search();
+    const campus: RouteStop = { name: CAMPUS_NAME, detail: parking.name };
     return direction === 'to-campus'
-      ? [{ name: place, detail: 'Recogida' }, campus]
-      : [campus, { name: place, detail: 'Llegada' }];
+      ? [{ name: place.name, detail: 'Recogida' }, campus]
+      : [campus, { name: place.name, detail: 'Llegada' }];
   });
 
   private readonly timeType = computed(() =>
