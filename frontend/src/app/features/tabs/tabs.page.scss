@@ -115,3 +115,27 @@ ion-tab-button {
     margin: 0;
   }
 }
+
+// Rastro de migas debajo del título y el subtítulo: pequeño y gris, la
+// pantalla actual en el color del texto, Inicio como la casa, y el primer paso
+// alineado con el título (sin el relleno de Ionic)
+.greeting-bar__breadcrumbs {
+  margin-top: var(--space-s);
+  padding: 0;
+
+  ion-icon {
+    font-size: 1rem; // 16px
+  }
+
+  ion-breadcrumb {
+    --color: var(--color-text-muted);
+    --color-active: var(--color-text);
+    --color-hover: var(--color-link);
+
+    font-size: var(--font-size-caption);
+  }
+
+  ion-breadcrumb:first-child::part(native) {
+    padding-inline-start: 0;
+  }
+}

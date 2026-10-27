@@ -140,6 +140,18 @@ ion-button {
   letter-spacing: var(--letter-spacing-normal);
 }
 
+// «Datos de ejemplo» (Inicio y Buscar): que no se confunda con datos reales
+ion-badge.example-badge {
+  --background: var(--color-warning-subtle);
+  --color: var(--color-warning-text);
+  --padding-start: var(--space-s);
+  --padding-end: var(--space-s);
+
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+}
+
 // Calendario y ruedas de la hora (ion-datetime): sobre el fondo de la app (en
 // md, Ionic les pone un gris) y con la franja de la opción elegida en gris
 // claro. Sus botones «Cancelar» y «Aceptar» van en el slot buttons

@@ -2,22 +2,34 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { TripSearch } from '../../../core/models/trip-search.model';
+import { TripSearchStateService } from '../trip-search-state.service';
 import { getDefaultTime, shiftTime, TripSearchForm } from './trip-search-form';
 
-const NORTH = 'Campus UAL · Ingreso norte';
-const SOUTH = 'Campus UAL · Ingreso sur';
+const SEARCH: TripSearch = {
+  place: 'Roquetas de Mar',
+  entrance: 'east',
+  direction: 'from-campus',
+  date: '2026-10-28',
+  time: '14:00',
+  margin: 10,
+  seats: 2,
+};
 
 describe('TripSearchForm', () => {
   let fixture: ComponentFixture<TripSearchForm>;
   let form: TripSearchForm;
   let navigate: ReturnType<typeof vi.spyOn>;
+  let searchState: TripSearchStateService;
 
   beforeEach(() => {
+    sessionStorage.clear();
     TestBed.configureTestingModule({
       imports: [TripSearchForm],
       providers: [provideIonicAngular(), provideRouter([])],
     });
     navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    searchState = TestBed.inject(TripSearchStateService);
     fixture = TestBed.createComponent(TripSearchForm);
     form = fixture.componentInstance;
     fixture.detectChanges();
@@ -73,7 +85,8 @@ describe('TripSearchForm', () => {
 
   it('asks for the arrival time going to the campus and the departure time coming back', () => {
     const root = fixture.nativeElement as HTMLElement;
-    const label = () => root.querySelector('#search-time-label')?.textContent?.trim();
+    const label = () =>
+      root.querySelector('[id^="search-time-"][id$="-label"]')?.textContent?.trim();
     const summary = () => root.querySelector('.search-form__summary')?.textContent;
     form.form.patchValue({ time: '08:00' });
     fixture.detectChanges();
@@ -118,7 +131,7 @@ describe('TripSearchForm', () => {
     expect(form.canRemoveSeat()).toBe(true);
   });
 
-  it('goes to Buscar with the trip to the campus in the URL', async () => {
+  it('keeps the trip to the campus as the search and goes to Buscar', async () => {
     form.form.patchValue({
       place: '  Roquetas de Mar ',
       date: '2026-10-27',
@@ -128,17 +141,16 @@ describe('TripSearchForm', () => {
 
     await form.handleSubmit();
 
-    expect(navigate).toHaveBeenCalledWith(['/tabs/search'], {
-      queryParams: {
-        from: 'Roquetas de Mar',
-        to: NORTH,
-        date: '2026-10-27',
-        time: '08:00',
-        timeType: 'arrival',
-        margin: 20,
-        seats: 2,
-      },
+    expect(searchState.search()).toEqual({
+      place: 'Roquetas de Mar',
+      entrance: 'north',
+      direction: 'to-campus',
+      date: '2026-10-27',
+      time: '08:00',
+      margin: 20,
+      seats: 2,
     });
+    expect(navigate).toHaveBeenCalledWith(['/tabs/search']);
   });
 
   it('goes from the campus when the direction is swapped', async () => {
@@ -147,13 +159,36 @@ describe('TripSearchForm', () => {
 
     await form.handleSubmit();
 
-    expect(navigate).toHaveBeenCalledWith(['/tabs/search'], {
-      queryParams: expect.objectContaining({
-        from: SOUTH,
-        to: 'Roquetas de Mar',
-        timeType: 'departure',
-      }),
+    expect(searchState.search()).toEqual(
+      expect.objectContaining({ entrance: 'south', direction: 'from-campus' }),
+    );
+  });
+
+  it('follows the last search, also when it changes elsewhere (Inicio)', () => {
+    searchState.set(SEARCH);
+    fixture.detectChanges();
+
+    expect(form.form.getRawValue()).toEqual({
+      place: 'Roquetas de Mar',
+      entrance: 'east',
+      isToCampus: false,
+      date: '2026-10-28',
+      time: '14:00',
+      margin: 10,
+      seats: 2,
     });
+    expect(form.timeType()).toBe('departure');
+  });
+
+  it('empties again for a new search', () => {
+    searchState.set(SEARCH);
+    fixture.detectChanges();
+
+    searchState.clear();
+    fixture.detectChanges();
+
+    expect(form.form.controls.place.value).toBe('');
+    expect(form.isToCampus()).toBe(true);
   });
 });
 

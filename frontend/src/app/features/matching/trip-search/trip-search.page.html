@@ -1,0 +1,63 @@
+<ion-content>
+  <div class="trip-search">
+    <h1 class="visually-hidden">Buscar viaje</h1>
+
+    <!-- Tu búsqueda: en el móvil, franja blanca arriba (sin título: ya lo
+         lleva la cabecera); en escritorio, tarjeta en la columna de 4. Un solo
+         bloque para los dos, así nunca hay dos formularios a la vez -->
+    <ion-card class="trip-search__criteria">
+      <ion-card-header class="ion-hide-md-down">
+        <ion-card-title>Tu búsqueda</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        @if (search(); as search) {
+          @if (isEditing()) {
+            <app-trip-search-form (searched)="isEditing.set(false)" />
+            <!-- Empezar de cero o dejarla como estaba. En formularios: cada
+                 botón envía el suyo (sin click en ion-button) -->
+            <div class="trip-search__edit-actions">
+              <form (submit)="$event.preventDefault(); handleNewSearch()">
+                <ion-button type="submit" fill="clear">Nueva búsqueda</ion-button>
+              </form>
+              <form (submit)="$event.preventDefault(); isEditing.set(false)">
+                <ion-button type="submit" fill="clear">Cancelar</ion-button>
+              </form>
+            </div>
+          } @else {
+            <app-trip-search-summary [search]="search" (edit)="isEditing.set(true)" />
+          }
+        } @else {
+          <app-trip-search-form />
+        }
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Resultados (columna de 8 en escritorio) -->
+    <div class="trip-search__results">
+      @if (exampleTrip(); as trip) {
+        <!-- Un viaje de ejemplo hasta que haya matching, marcado como tal -->
+        <div class="trip-search__group">
+          <span class="text-eyebrow text-color-muted">1 en tu margen</span>
+          <ion-badge class="example-badge">Datos de ejemplo</ion-badge>
+        </div>
+        <app-trip-result-card [trip]="trip" />
+        <p class="text-caption text-color-muted">
+          La hora de llegada es estimada. Correo UAL verificado no significa permiso de conducir
+          verificado. La plaza solo se confirma al aceptar el conductor.
+        </p>
+      } @else {
+        <!-- Solo en escritorio: en el móvil, el formulario ya ocupa la
+             pantalla -->
+        <ion-card class="ion-hide-md-down">
+          <ion-card-content class="trip-search__state">
+            <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+            <div class="text-subtitle">Aquí verás los resultados de tu búsqueda</div>
+            <div class="text-body-s text-color-muted">
+              Completa el formulario y pulsa «Buscar viaje».
+            </div>
+          </ion-card-content>
+        </ion-card>
+      }
+    </div>
+  </div>
+</ion-content>

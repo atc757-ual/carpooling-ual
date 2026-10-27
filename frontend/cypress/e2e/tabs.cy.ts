@@ -78,6 +78,16 @@ for (const viewport of VIEWPORTS) {
         cy.get('app-tabs ion-tab-bar').should('not.be.visible');
       });
 
+      it('shows the title of Buscar in the fixed bar instead of the greeting', () => {
+        logIn(['passenger']);
+
+        goTo('Buscar');
+
+        cy.contains('app-tabs .greeting-bar', 'Buscar viaje').should('be.visible');
+        cy.contains('app-tabs .greeting-bar', 'encajan con tu ruta').should('be.visible');
+        cy.contains('app-tabs .greeting-bar', '¡Hola, Mario!').should('not.exist');
+      });
+
       it('logs out from the top menu', () => {
         cy.intercept('POST', '/api/auth/logout', { statusCode: 204 }).as('logout');
         logIn(['passenger']);
@@ -95,6 +105,20 @@ for (const viewport of VIEWPORTS) {
         cy.get('app-tabs ion-tab-bar').should('be.visible');
         cy.get('app-tabs .top-nav').should('not.be.visible');
         cy.contains('ion-tab-button', 'Inicio').should('have.class', 'tab-selected');
+      });
+
+      it('shows only the way back and the title in the header of Buscar', () => {
+        logIn(['passenger']);
+
+        goTo('Buscar');
+
+        cy.contains('app-tabs .app-header ion-title', 'Buscar viaje').should('be.visible');
+        cy.get('app-tabs .app-header app-brand-logo').should('not.exist');
+        cy.get('app-tabs .app-header .bell-button').should('not.exist');
+        cy.get('app-tabs .app-header .back-button').click();
+
+        cy.location('pathname').should('eq', '/tabs/home');
+        cy.get('app-tabs .app-header app-brand-logo').should('be.visible');
       });
 
       it('logs out from the header', () => {

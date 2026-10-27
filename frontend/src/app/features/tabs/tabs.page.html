@@ -1,23 +1,42 @@
 <!-- Móvil: el logotipo, la campana (lleva a Avisos) y cerrar sesión. Las
      acciones van en un formulario: el botón de salir lo envía (sin click en
-     ion-button) -->
+     ion-button). Las pestañas con cabecera propia (Buscar) llevan en su lugar
+     solo la flecha de volver y su título: la campana y salir, en Inicio -->
 <ion-header class="app-header ion-hide-md-up ion-no-border">
   <ion-toolbar>
-    <app-brand-logo slot="start" variant="compact" class="app-header__brand" />
-    <form slot="end" (submit)="$event.preventDefault(); handleLogout()">
-      <ion-buttons>
-        <ion-button class="bell-button" routerLink="/tabs/notifications" aria-label="Avisos">
-          <ion-icon slot="icon-only" [icon]="bellIcon" aria-hidden="true" />
-        </ion-button>
-        <ion-button class="logout-button" type="submit" aria-label="Cerrar sesión">
-          <ion-icon slot="icon-only" [icon]="logoutIcon" aria-hidden="true" />
-        </ion-button>
-      </ion-buttons>
-    </form>
+    @if (heading(); as heading) {
+      @if (heading.backHref; as backHref) {
+        <ion-buttons slot="start">
+          <ion-button
+            class="back-button"
+            fill="clear"
+            [routerLink]="backHref"
+            routerDirection="back"
+            aria-label="Volver"
+          >
+            <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+          </ion-button>
+        </ion-buttons>
+      }
+      <ion-title>{{ heading.title }}</ion-title>
+    } @else {
+      <app-brand-logo slot="start" variant="compact" class="app-header__brand" />
+      <form slot="end" (submit)="$event.preventDefault(); handleLogout()">
+        <ion-buttons>
+          <ion-button class="bell-button" routerLink="/tabs/notifications" aria-label="Avisos">
+            <ion-icon slot="icon-only" [icon]="bellIcon" aria-hidden="true" />
+          </ion-button>
+          <ion-button class="logout-button" type="submit" aria-label="Cerrar sesión">
+            <ion-icon slot="icon-only" [icon]="logoutIcon" aria-hidden="true" />
+          </ion-button>
+        </ion-buttons>
+      </form>
+    }
   </ion-toolbar>
 </ion-header>
 
-<!-- Escritorio: el menú superior y, debajo, la franja fija del saludo -->
+<!-- Escritorio: el menú superior y, debajo, la franja fija del saludo (o del
+     título de la pestaña, si tiene cabecera propia) -->
 <header class="top-nav ion-hide-md-down">
   <app-brand-logo variant="compact" />
   <nav class="top-nav__links" aria-label="Principal">
@@ -49,8 +68,28 @@
 </header>
 <div class="greeting-bar ion-hide-md-down">
   <div class="greeting-bar__content">
-    <p class="text-subtitle">¡Hola, {{ firstName() }}!</p>
-    <p class="text-body text-color-muted">¿Vamos al campus hoy?</p>
+    @if (heading(); as heading) {
+      <p class="text-subtitle">{{ heading.title }}</p>
+      <p class="text-body text-color-muted">{{ heading.subtitle }}</p>
+      @if (heading.breadcrumbs; as breadcrumbs) {
+        <ion-breadcrumbs class="greeting-bar__breadcrumbs">
+          @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
+            <ion-breadcrumb [routerLink]="breadcrumb.href" routerDirection="back">
+              @if (breadcrumb.icon) {
+                <ion-icon [icon]="breadcrumb.icon" aria-hidden="true" />
+                <span class="visually-hidden">{{ breadcrumb.label }}</span>
+              } @else {
+                {{ breadcrumb.label }}
+              }
+            </ion-breadcrumb>
+          }
+          <ion-breadcrumb [active]="true">{{ heading.title }}</ion-breadcrumb>
+        </ion-breadcrumbs>
+      }
+    } @else {
+      <p class="text-subtitle">¡Hola, {{ firstName() }}!</p>
+      <p class="text-body text-color-muted">¿Vamos al campus hoy?</p>
+    }
   </div>
 </div>
 

@@ -1,0 +1,32 @@
+<div class="search-summary">
+  <!-- Trayecto: origen y destino unidos por la línea de ruta -->
+  <ol class="search-summary__route" aria-label="Trayecto">
+    @for (stop of stops(); track $index; let isFirst = $first) {
+      <li class="search-summary__stop">
+        <span
+          class="search-summary__dot"
+          [class.search-summary__dot--end]="!isFirst"
+          aria-hidden="true"
+        ></span>
+        <div>
+          <div class="search-summary__name">{{ stop.name }}</div>
+          <div class="text-caption text-color-muted">{{ stop.detail }}</div>
+        </div>
+      </li>
+    }
+  </ol>
+
+  <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
+  <form class="search-summary__edit" (submit)="$event.preventDefault(); edit.emit()">
+    <ion-button type="submit" fill="clear" size="small">
+      <ion-icon slot="start" [icon]="editIcon" aria-hidden="true" />
+      Editar
+    </ion-button>
+  </form>
+
+  <!-- Fecha, hora y plazas y, debajo, el margen -->
+  <div class="search-summary__details">
+    <div class="text-body-s">{{ details() }}</div>
+    <div class="text-caption text-color-muted">{{ window() }}</div>
+  </div>
+</div>
