@@ -42,6 +42,11 @@ const MAX_CAPACITY = 8;
 const DEFAULT_CAPACITY = 4;
 export const DETOURS = [5, 10, 15, 20] as const;
 const DEFAULT_DETOUR = 10;
+const DATE_LABEL = new Intl.DateTimeFormat('es-ES', {
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+});
 
 type LoadState = 'loading' | 'error' | 'ready';
 
@@ -250,14 +255,25 @@ export class PublishTripPage implements OnInit {
     this.tripForm.patchValue({ time: getDefaultTime(new Date()) });
   }
 
-  // Paradas del viaje publicado (RouteTimeline), con la hora de salida
-  protected publishedStops(): RouteStop[] {
-    const { place, parking: parkingId, isToCampus, time } = this.tripForm.getRawValue();
+  // Paradas del viaje (RouteTimeline), con la hora de salida: el resumen
+  // «Tu viaje» mientras se rellena y la confirmación al publicar. Sin
+  // dirección elegida aún no hay recorrido
+  readonly stops = computed<RouteStop[] | null>(() => {
+    const { place, parking: parkingId, isToCampus = true, time = '' } = this.tripValue();
+    if (!place) {
+      return null;
+    }
     const parking = this.parkings().find(({ id }) => id === parkingId);
     const campus: RouteStop = { name: CAMPUS_NAME, detail: parking?.name ?? '' };
-    const outside: RouteStop = { name: place?.name ?? '', detail: place?.locality ?? '' };
+    const outside: RouteStop = { name: place.name, detail: place.locality };
     return isToCampus ? [{ ...outside, time }, campus] : [{ ...campus, time }, outside];
-  }
+  });
+
+  // «mié, 28 oct» para el resumen
+  readonly dateLabel = computed(() => {
+    const { date } = this.tripValue();
+    return date ? DATE_LABEL.format(new Date(`${date}T00:00:00`)) : '';
+  });
 
   private setVehicles(vehicles: readonly Vehicle[]): void {
     this.vehicles.set(vehicles);

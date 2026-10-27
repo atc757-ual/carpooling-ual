@@ -80,6 +80,21 @@ describe('PublishTripPage', () => {
     expect(driver['registerVehicle']).not.toHaveBeenCalled();
   });
 
+  it('summarises the trip while it is filled in', async () => {
+    await createPage([VEHICLE]);
+    expect(page.stops()).toBeNull();
+
+    fillTrip();
+
+    expect(page.stops()).toEqual([
+      { name: 'Roquetas de Mar', detail: 'Roquetas', time: '07:40' },
+      { name: 'Campus UAL', detail: 'Parking P1' },
+    ]);
+    expect(page.dateLabel()).toContain('15');
+    page.handleSwap();
+    expect(page.stops()?.[0]).toEqual({ name: 'Campus UAL', detail: 'Parking P1', time: '07:40' });
+  });
+
   it('offers up to the capacity of the chosen vehicle', async () => {
     const small: Vehicle = { ...VEHICLE, id: 'v2', plate: '5678CDF', capacity: 1 };
     await createPage([VEHICLE, small]);

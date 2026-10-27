@@ -1,12 +1,66 @@
-// Publicar viaje: una tarjeta blanca de hasta 36rem (576px) sobre el fondo
-// gris de la pestaña, con los campos apilados a 16px y, de dos en dos, fecha
-// y hora, plazas y desvío. Mismos controles que el formulario de Buscar
+// Publicar viaje: tarjetas blancas sobre el fondo gris de la pestaña, con los
+// campos apilados a 16px y, de dos en dos, fecha y hora, plazas y desvío.
+// Las pantallas de un solo bloque (registrar el vehículo, viaje publicado)
+// miden como mucho 36rem (576px); el formulario, en escritorio, va en la
+// columna de 8 con «Tu viaje» en la de 4 (como Buscar)
 .publish {
   align-items: stretch;
-  max-width: 36rem; // 576px
 
   p {
     margin: 0;
+  }
+
+  > .publish__card {
+    max-width: 36rem; // 576px
+  }
+}
+
+.publish__layout {
+  display: grid;
+  gap: var(--space-base);
+  align-items: start;
+}
+
+// El formulario se coloca según su propio ancho: con sitio, el trayecto en
+// una fila
+.publish__form {
+  container-type: inline-size;
+}
+
+// Resumen solo en escritorio: en el móvil alargaría la pantalla
+.publish__summary {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .publish__layout {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+
+  .publish__summary {
+    display: flex;
+    position: sticky;
+    top: var(--space-l);
+  }
+}
+
+.publish__facts {
+  display: grid;
+  gap: var(--space-s);
+  margin: 0;
+  padding-block-start: var(--space-base);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+
+  div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-s);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: var(--font-weight-semibold);
+    text-align: end;
   }
 }
 
@@ -45,6 +99,23 @@
 
 .publish__route--reverse {
   flex-direction: column-reverse;
+}
+
+@container (min-width: 37.5rem) {
+  // 600px
+  .publish__route {
+    flex-direction: row;
+    align-items: flex-start;
+
+    > * {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .publish__route--reverse {
+    flex-direction: row-reverse;
+  }
 }
 
 .publish__grid {
