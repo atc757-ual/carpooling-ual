@@ -130,7 +130,12 @@ export class LocationModal implements OnDestroy {
 
   // Leaflet se descarga solo aquí (no va en el paquete inicial)
   private async createMap(element: HTMLElement, [lon, lat]: [number, number]): Promise<void> {
-    const leaflet = await import('leaflet');
+    // Leaflet 1.9 no es ESM: según cómo se empaquete, sus funciones llegan
+    // directamente o dentro de default
+    const leafletModule = (await import('leaflet')) as typeof Leaflet & {
+      default?: typeof Leaflet;
+    };
+    const leaflet = leafletModule.default ?? leafletModule;
     this.map = leaflet.map(element, { zoomControl: true }).setView([lat, lon], STREET_ZOOM);
     leaflet
       .tileLayer(TILES_URL, { maxZoom: MAX_ZOOM, attribution: TILES_ATTRIBUTION })
