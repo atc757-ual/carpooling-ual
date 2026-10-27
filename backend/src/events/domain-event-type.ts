@@ -25,4 +25,5 @@ export type DomainEventType =
   | 'request.cancelled'
   // Incidencias (RF-23, CU-12)
   | 'incident.reported'
-  | 'incident.reviewed';
+  | 'incident.reviewed'
+  | 'coverage.gap_reported';
