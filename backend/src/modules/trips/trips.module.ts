@@ -5,6 +5,7 @@ import { UsersModule } from '../users/users.module';
 import { TripRoute } from './entities/trip-route.entity';
 import { Trip } from './entities/trip.entity';
 import { OsrmClient } from './osrm.client';
+import { TripCandidatesService } from './trip-candidates.service';
 import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
 import { TripsController } from './trips.controller';
@@ -21,9 +22,20 @@ import { TripsService } from './trips.service';
     EventsModule,
   ],
   controllers: [TripsController],
-  providers: [TripsService, TripStatusService, TripRoutesService, OsrmClient],
-  // Los usan las solicitudes de plaza (requests) y el seguimiento (tracking:
-  // lo que queda hasta el destino)
-  exports: [TripsService, TripStatusService, TripRoutesService],
+  providers: [
+    TripsService,
+    TripStatusService,
+    TripRoutesService,
+    TripCandidatesService,
+    OsrmClient,
+  ],
+  // Los usan las solicitudes de plaza (requests), el seguimiento (tracking:
+  // lo que queda hasta el destino) y el matching (los candidatos)
+  exports: [
+    TripsService,
+    TripStatusService,
+    TripRoutesService,
+    TripCandidatesService,
+  ],
 })
 export class TripsModule {}

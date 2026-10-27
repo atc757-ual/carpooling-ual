@@ -45,8 +45,13 @@ export class OsrmClient {
     this.baseUrl = configService.getOrThrow<string>('osrmUrl');
   }
 
-  async route(origin: Point, destination: Point): Promise<RoutePlan> {
-    const coordinates = [origin, destination]
+  // Ruta en coche, pasando por las paradas intermedias (via) en orden
+  async route(
+    origin: Point,
+    destination: Point,
+    via: readonly Point[] = [],
+  ): Promise<RoutePlan> {
+    const coordinates = [origin, ...via, destination]
       .map(
         ({ coordinates: [lon, lat] }) =>
           `${toCoordinate(lon)},${toCoordinate(lat)}`,

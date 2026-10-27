@@ -4418,6 +4418,111 @@
           "places"
         ]
       }
+    },
+    "/api/trips/search": {
+      "post": {
+        "description": "Published trips going the same way, near the address and the campus parking, with enough seats, an acceptable detour for the driver and a time within the margin. Sorted by compatibility (60 % detour, 40 % time); at most 10.",
+        "operationId": "MatchingController_search",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchTripsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TripMatchResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: CAMPUS_PARKING_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Search compatible trips",
+        "tags": [
+          "matching"
+        ]
+      }
     }
   },
   "info": {
@@ -5950,6 +6055,146 @@
           "municipality",
           "location",
           "isCovered"
+        ]
+      },
+      "SearchTripsDto": {
+        "type": "object",
+        "properties": {
+          "place": {
+            "description": "Address outside the campus: where to be picked up (to campus) or dropped off (from campus)",
+            "example": {
+              "type": "Point",
+              "coordinates": [
+                -2.6,
+                36.76
+              ]
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "parkingId": {
+            "type": "string",
+            "description": "Campus parking",
+            "example": "p1"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "to-campus",
+              "from-campus"
+            ],
+            "example": "to-campus"
+          },
+          "desiredAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Desired time: arrival at the campus (to campus) or departure from it (from campus)",
+            "example": "2026-10-28T08:00:00.000Z"
+          },
+          "marginMin": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 60,
+            "default": 20,
+            "description": "Accepted difference with the desired time, in minutes"
+          },
+          "seats": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 8,
+            "default": 1
+          }
+        },
+        "required": [
+          "place",
+          "parkingId",
+          "direction",
+          "desiredAt"
+        ]
+      },
+      "TripMatchDriverResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Lucía Cortés"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "TripMatchResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "TripMatch"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Trip id"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "driver": {
+            "$ref": "#/components/schemas/TripMatchDriverResource"
+          },
+          "departureAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "arrivalAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Arrival with the detour to pick up or drop off the passenger"
+          },
+          "availableSeats": {
+            "type": "number",
+            "example": 2
+          },
+          "detourMin": {
+            "type": "number",
+            "example": 3,
+            "description": "Minutes the passenger adds to the driver route"
+          },
+          "timeDifferenceMin": {
+            "type": "number",
+            "example": -5,
+            "description": "Difference with the desired time in minutes (negative: earlier)"
+          },
+          "score": {
+            "type": "number",
+            "example": 0.85,
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Compatibility: 60 % detour and 40 % time"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "driver",
+          "departureAt",
+          "arrivalAt",
+          "availableSeats",
+          "detourMin",
+          "timeDifferenceMin",
+          "score"
         ]
       }
     }

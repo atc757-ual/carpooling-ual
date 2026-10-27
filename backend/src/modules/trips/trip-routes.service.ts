@@ -34,6 +34,27 @@ export class TripRoutesService {
     }
   }
 
+  // Minutos que tarda la ruta pasando por una parada (recoger o dejar a un
+  // pasajero); sin OSRM, la suma de los dos tramos estimados
+  async planDurationVia(
+    origin: Point,
+    stop: Point,
+    destination: Point,
+  ): Promise<number> {
+    try {
+      const plan = await this.osrmClient.route(origin, destination, [stop]);
+      return plan.durationMin;
+    } catch (error) {
+      this.logger.warn(
+        `Estimating the route via a stop: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return (
+        estimateRoute(origin, stop).durationMin +
+        estimateRoute(stop, destination).durationMin
+      );
+    }
+  }
+
   // Guarda (o sustituye) la ruta del viaje, en la transacción del viaje
   async save(
     manager: EntityManager,
