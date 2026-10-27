@@ -102,24 +102,30 @@
                   [canLocate]="isToCampus()"
                   [showError]="isPlaceInvalid()"
                 />
-                <ion-select
-                  formControlName="parking"
-                  interface="popover"
-                  fill="outline"
-                  [label]="isToCampus() ? 'Destino' : 'Origen'"
-                  labelPlacement="floating"
-                >
-                  <ion-icon
-                    slot="start"
-                    [icon]="isToCampus() ? icons.destination : icons.origin"
-                    aria-hidden="true"
-                  />
-                  @for (parking of parkings(); track parking.id) {
-                    <ion-select-option [value]="parking.id">
-                      {{ campusName }} · {{ parking.name }}
-                    </ion-select-option>
-                  }
-                </ion-select>
+                <!-- El parking y, debajo, dónde está (como en Buscar) -->
+                <div class="publish__parking">
+                  <ion-select
+                    formControlName="parking"
+                    interface="popover"
+                    fill="outline"
+                    [label]="isToCampus() ? 'Destino' : 'Origen'"
+                    labelPlacement="floating"
+                  >
+                    <ion-icon
+                      slot="start"
+                      [icon]="isToCampus() ? icons.destination : icons.origin"
+                      aria-hidden="true"
+                    />
+                    @for (parking of parkings(); track parking.id) {
+                      <ion-select-option [value]="parking.id">
+                        {{ campusName }} · {{ parking.name }}
+                      </ion-select-option>
+                    }
+                  </ion-select>
+                  <button type="button" class="publish__map-link" (click)="handleViewParking()">
+                    Ver en el mapa
+                  </button>
+                </div>
               </div>
 
               <div class="publish__grid">
@@ -131,20 +137,44 @@
                 />
               </div>
 
-              <ion-select
-                formControlName="vehicleId"
-                interface="popover"
-                fill="outline"
-                label="Vehículo"
-                labelPlacement="stacked"
-              >
-                <ion-icon slot="start" [icon]="icons.car" aria-hidden="true" />
-                @for (vehicle of vehicles(); track vehicle.id) {
-                  <ion-select-option [value]="vehicle.id">
-                    {{ vehicle.plate }} · {{ vehicle.capacity }} plazas
-                  </ion-select-option>
+              <!-- El vehículo elegido, como campo de solo lectura; con varios,
+                   «Cambiar» abre la lista (un ion-select oculto) -->
+              <div class="publish__field">
+                <span class="text-label text-label--strong" id="publish-vehicle-label">
+                  Vehículo
+                </span>
+                @if (selectedVehicle(); as vehicle) {
+                  <div class="publish__vehicle-box" aria-labelledby="publish-vehicle-label">
+                    <ion-icon [icon]="icons.car" aria-hidden="true" />
+                    <span class="publish__vehicle-text">
+                      {{ vehicle.plate }} · {{ vehicle.capacity }}
+                      {{ vehicle.capacity === 1 ? 'plaza' : 'plazas' }} para pasajeros
+                    </span>
+                    @if (vehicles().length > 1) {
+                      <button
+                        type="button"
+                        class="publish__map-link"
+                        (click)="vehicleSelect.open($event)"
+                      >
+                        Cambiar
+                      </button>
+                    }
+                  </div>
                 }
-              </ion-select>
+                <ion-select
+                  #vehicleSelect
+                  class="visually-hidden"
+                  formControlName="vehicleId"
+                  interface="popover"
+                  aria-label="Vehículo"
+                >
+                  @for (vehicle of vehicles(); track vehicle.id) {
+                    <ion-select-option [value]="vehicle.id">
+                      {{ vehicle.plate }} · {{ vehicle.capacity }} plazas
+                    </ion-select-option>
+                  }
+                </ion-select>
+              </div>
 
               <div class="publish__grid">
                 <app-seat-stepper
@@ -153,29 +183,43 @@
                   [max]="maxSeats()"
                   [hint]="seatsHint()"
                 />
-                <ion-select
-                  formControlName="maxDetourMin"
-                  interface="popover"
-                  fill="outline"
-                  label="Desvío máximo"
-                  labelPlacement="stacked"
-                >
-                  @for (detour of detours; track detour) {
-                    <ion-select-option [value]="detour">{{ detour }} min</ion-select-option>
-                  }
-                </ion-select>
+                <!-- Etiqueta encima, a la altura de «Plazas ofrecidas», y qué
+                     significa debajo -->
+                <div class="publish__field">
+                  <span class="text-label text-label--strong" aria-hidden="true">
+                    Desvío máximo
+                  </span>
+                  <ion-select
+                    formControlName="maxDetourMin"
+                    interface="popover"
+                    fill="outline"
+                    aria-label="Desvío máximo"
+                  >
+                    @for (detour of detours; track detour) {
+                      <ion-select-option [value]="detour">± {{ detour }} min</ion-select-option>
+                    }
+                  </ion-select>
+                  <p class="text-caption text-color-muted">
+                    Minutos que aceptas añadir a tu ruta para recoger o dejar a un pasajero.
+                  </p>
+                </div>
               </div>
 
               @if (!hasDeclared()) {
-                <ion-checkbox formControlName="declaration" labelPlacement="end" justify="start">
-                  Declaro que tengo permiso de conducir vigente y que el vehículo está autorizado
-                  para circular.
-                </ion-checkbox>
-                @if (tripForm.touched && !tripForm.controls.declaration.value) {
-                  <p class="publish__error" role="alert">
-                    Acepta la declaración para publicar tu primer viaje.
-                  </p>
-                }
+                <div class="publish__declaration">
+                  <ion-checkbox formControlName="declaration" labelPlacement="end" justify="start">
+                    Declaro que tengo el permiso de conducir en vigor y que mi vehículo tiene el
+                    seguro obligatorio y la ITV al día.
+                  </ion-checkbox>
+                  <button type="button" class="publish__map-link" (click)="handleReadDeclaration()">
+                    Leer la declaración completa
+                  </button>
+                  @if (tripForm.touched && !tripForm.controls.declaration.value) {
+                    <p class="publish__error" role="alert">
+                      Acepta la declaración para publicar tu primer viaje.
+                    </p>
+                  }
+                </div>
               }
 
               <ion-button type="submit" expand="block" [disabled]="isSaving()">
@@ -198,27 +242,22 @@
               } @else {
                 <p class="text-color-muted">Elige la dirección para ver el recorrido.</p>
               }
-              <dl class="publish__facts">
-                <div>
-                  <dt class="text-color-muted">Fecha</dt>
-                  <dd>{{ dateLabel() }}</dd>
-                </div>
-                <div>
-                  <dt class="text-color-muted">Plazas</dt>
-                  <dd>{{ tripForm.controls.seats.value }} de {{ maxSeats() }}</dd>
-                </div>
-                <div>
-                  <dt class="text-color-muted">Desvío máximo</dt>
-                  <dd>{{ tripForm.controls.maxDetourMin.value }} min</dd>
-                </div>
-                @if (selectedVehicle(); as vehicle) {
-                  <div>
-                    <dt class="text-color-muted">Vehículo</dt>
-                    <dd>{{ vehicle.plate }}</dd>
-                  </div>
-                }
-              </dl>
-              <p class="text-caption text-color-muted">Tú aceptas o rechazas cada solicitud.</p>
+              <!-- Como la fila de un resultado (TripRow): una línea de datos
+                   y el vehículo debajo -->
+              <p class="publish__meta text-body-s">
+                {{ dateLabel() }} · {{ tripForm.controls.seats.value }}
+                {{ tripForm.controls.seats.value === 1 ? 'plaza' : 'plazas' }} · desvío ±
+                {{ tripForm.controls.maxDetourMin.value }} min
+              </p>
+              @if (selectedVehicle(); as vehicle) {
+                <p class="publish__vehicle text-body-s text-color-muted">
+                  <ion-icon [icon]="icons.car" aria-hidden="true" />
+                  {{ vehicle.plate }}
+                </p>
+              }
+              <div class="notice notice--info">
+                <p>Tú aceptas o rechazas cada solicitud antes de que nadie tenga plaza.</p>
+              </div>
             </aside>
           </div>
         }

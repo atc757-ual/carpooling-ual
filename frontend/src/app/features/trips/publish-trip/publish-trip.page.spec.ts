@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Vehicle } from '../../../core/models/driver.model';
 import { CampusParking } from '../../../core/models/place.model';
@@ -126,6 +126,20 @@ describe('PublishTripPage', () => {
       maxDetourMin: 10,
     });
     expect(page.published()?.id).toBe('t1');
+  });
+
+  it('ticks the declaration when it is accepted in the window', async () => {
+    await createPage([VEHICLE], false);
+    const present = vi.fn().mockResolvedValue(undefined);
+    const create = vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
+      present,
+      onWillDismiss: () => Promise.resolve({ role: 'accept' }),
+    } as unknown as HTMLIonModalElement);
+
+    await page.handleReadDeclaration();
+
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ cssClass: 'info-dialog' }));
+    expect(page.tripForm.controls.declaration.value).toBe(true);
   });
 
   it('needs the declaration the first time and accepts it before publishing', async () => {

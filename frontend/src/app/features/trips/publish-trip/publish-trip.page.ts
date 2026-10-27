@@ -15,6 +15,7 @@ import {
   IonSelect,
   IonSelectOption,
   IonSpinner,
+  ModalController,
 } from '@ionic/angular';
 import { carOutline, ellipseOutline, locationOutline, swapHorizontalOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
@@ -32,7 +33,9 @@ import {
 } from '../../../shared/components/ui/route-timeline/route-timeline';
 import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
 import { CAMPUS_NAME } from '../../matching/campus';
+import { LocationModal } from '../../matching/location-modal/location-modal';
 import { PlaceField } from '../../matching/place-field/place-field';
+import { DeclarationModal } from '../declaration-modal/declaration-modal';
 import { getDefaultTime } from '../../matching/trip-search-form/trip-search-form';
 
 // Matrícula española actual (1234BCD; se admiten espacio y guion al escribirla)
@@ -94,6 +97,7 @@ export class PublishTripPage implements OnInit {
   private readonly places = inject(PlacesService);
   private readonly toast = inject(ToastService);
   private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly modalController = inject(ModalController);
 
   readonly loadState = signal<LoadState>('loading');
   readonly vehicles = signal<readonly Vehicle[]>([]);
@@ -250,6 +254,36 @@ export class PublishTripPage implements OnInit {
   }
 
   // Otro viaje: mismo vehículo y trayecto, nueva hora
+  // «Ver en el mapa»: el parking elegido, en el mapa y sin poder moverlo
+  async handleViewParking(): Promise<void> {
+    const parking = this.parkings().find(({ id }) => id === this.tripForm.controls.parking.value);
+    if (!parking) {
+      return;
+    }
+    const modal = await this.modalController.create({
+      component: LocationModal,
+      componentProps: {
+        viewPoint: parking.location.coordinates,
+        viewTitle: `${CAMPUS_NAME} · ${parking.name}`,
+      },
+      cssClass: 'location-dialog',
+    });
+    await modal.present();
+  }
+
+  // La declaración completa; «Acepto la declaración» marca la casilla
+  async handleReadDeclaration(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: DeclarationModal,
+      cssClass: 'info-dialog',
+    });
+    await modal.present();
+    const { role } = await modal.onWillDismiss();
+    if (role === 'accept') {
+      this.tripForm.controls.declaration.setValue(true);
+    }
+  }
+
   handlePublishAnother(): void {
     this.published.set(null);
     this.tripForm.patchValue({ time: getDefaultTime(new Date()) });

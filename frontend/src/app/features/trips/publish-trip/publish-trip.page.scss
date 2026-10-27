@@ -44,23 +44,17 @@
   }
 }
 
-.publish__facts {
-  display: grid;
-  gap: var(--space-s);
-  margin: 0;
-  padding-block-start: var(--space-base);
-  border-top: var(--border-width-s) solid var(--color-border-subtle);
+.publish__meta {
+  font-weight: var(--font-weight-semibold);
+}
 
-  div {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--space-s);
-  }
+.publish__vehicle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
 
-  dd {
-    margin: 0;
-    font-weight: var(--font-weight-semibold);
-    text-align: end;
+  ion-icon {
+    font-size: 1rem; // 16px
   }
 }
 
@@ -118,11 +112,89 @@
   }
 }
 
+// Las etiquetas de cada pareja, a la misma altura
 .publish__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-base);
-  align-items: end;
+  align-items: start;
+}
+
+// Etiqueta encima del campo, a 8px, y la ayuda debajo
+.publish__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+
+  ion-select {
+    width: 100%;
+  }
+}
+
+// El parking y, debajo, «Ver en el mapa» (como en Buscar)
+.publish__parking {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+
+  ion-select {
+    width: 100%;
+  }
+}
+
+// Enlaces pequeños de apoyo: «Ver en el mapa», «Cambiar» y la declaración
+.publish__map-link {
+  min-height: 2rem; // 32px
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// El vehículo elegido: con el aspecto de un campo, pero de solo lectura
+.publish__vehicle-box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-height: var(--control-height-l);
+  padding: 0 var(--space-base);
+  border: var(--border-width-s) solid var(--ion-border-color);
+  border-radius: var(--radius-s);
+  background: var(--color-surface-subtle);
+
+  ion-icon {
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    font-size: 1.25rem; // 20px
+  }
+}
+
+.publish__vehicle-text {
+  flex: 1;
+  min-width: 0;
+}
+
+// La casilla con su texto en varias líneas si no cabe, y debajo el enlace
+// a la declaración completa
+.publish__declaration {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+
+  ion-checkbox::part(label) {
+    white-space: normal;
+  }
 }
 
 .publish__link {

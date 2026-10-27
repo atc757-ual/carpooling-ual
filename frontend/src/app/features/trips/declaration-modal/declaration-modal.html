@@ -1,0 +1,42 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Declaración responsable</ion-title>
+    <ion-buttons slot="end">
+      <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
+      <form (submit)="$event.preventDefault(); close()">
+        <ion-button class="dialog-close" type="submit" aria-label="Cerrar">
+          <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
+        </ion-button>
+      </form>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Sin ion-content: así la ventana toma el alto de su contenido -->
+<div class="declaration">
+  <p>Antes de ofrecer tu primer viaje, declaras que:</p>
+  <ul class="declaration__list">
+    <li>Tienes el <b>permiso de conducir en vigor</b>, válido en España para tu vehículo.</li>
+    <li>
+      Tu vehículo tiene el <b>seguro obligatorio en vigor</b> y la <b>ITV al día</b>, y está en
+      condiciones de circular.
+    </li>
+    <li>
+      Compartes el viaje que ibas a hacer igualmente: sin ánimo de lucro y sin cobrar más que la
+      parte de los gastos.
+    </li>
+    <li>Respetas las normas de tráfico y eres responsable de la conducción.</li>
+    <li>
+      Si algo de esto deja de cumplirse, dejas de publicar viajes hasta que vuelva a estar en regla.
+    </li>
+  </ul>
+  <div class="notice notice--info">
+    <p>
+      UAL Carpool no comprueba tu permiso ni tu seguro: confía en tu declaración, que queda guardada
+      con su fecha.
+    </p>
+  </div>
+  <form (submit)="$event.preventDefault(); accept()">
+    <ion-button type="submit" expand="block">Acepto la declaración</ion-button>
+  </form>
+</div>

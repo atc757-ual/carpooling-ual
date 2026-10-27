@@ -217,12 +217,14 @@ ion-modal ion-title {
   text-align: start;
 }
 
-// Ventana de la ubicación: tan alta como su contenido (como mucho, el 90 % de
-// la pantalla; el contenido lleva su propio scroll). En escritorio, centrada;
-// en el móvil, a todo el ancho y pegada abajo, como una hoja, con las
-// esquinas redondeadas solo arriba. El contenido no usa ion-content: con él,
-// Ionic no podría calcular el alto
-ion-modal.location-dialog {
+// Ventanas de la ubicación y de texto (p. ej. la declaración responsable):
+// tan altas como su contenido (como mucho, el 90 % de la pantalla; el
+// contenido lleva su propio scroll). En escritorio, centradas; en el móvil, a
+// todo el ancho y pegadas abajo, como una hoja, con las esquinas redondeadas
+// solo arriba. El contenido no usa ion-content: con él, Ionic no podría
+// calcular el alto
+ion-modal.location-dialog,
+ion-modal.info-dialog {
   --height: auto;
   --max-height: 90%;
 
