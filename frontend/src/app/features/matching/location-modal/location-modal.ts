@@ -106,10 +106,15 @@ export class LocationModal implements OnInit, OnDestroy {
     return this.adjustPoint ? 'Ajustar en el mapa' : 'Usar mi ubicación';
   }
 
-  // Al ajustar, el mapa. Al pedir la ubicación, la explicación solo si aún no
-  // se ha dado el permiso; con él, se busca directamente; sin él (denegado),
-  // cómo activarlo
-  async ngOnInit(): Promise<void> {
+  // OnInit espera void: el arranque, asíncrono, va aparte
+  ngOnInit(): void {
+    void this.start();
+  }
+
+  // Al ver, el mapa con el pin fijo; al ajustar, el mapa. Al pedir la
+  // ubicación, la explicación solo si aún no se ha dado el permiso; con él,
+  // se busca directamente; sin él (denegado), cómo activarlo
+  private async start(): Promise<void> {
     if (this.viewPoint) {
       this.step.set('view');
       this.point.set(this.viewPoint);
