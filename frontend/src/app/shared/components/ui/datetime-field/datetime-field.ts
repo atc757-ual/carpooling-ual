@@ -80,11 +80,9 @@ export class DatetimeField implements ControlValueAccessor {
     this.onTouched = onTouched;
   }
 
+  // La firma la impone ControlValueAccessor: el control interno sigue al de fuera
   setDisabledState(isDisabled: boolean): void {
-    if (isDisabled) {
-      this.control.disable({ emitEvent: false });
-    } else {
-      this.control.enable({ emitEvent: false });
-    }
+    const toggle = isDisabled ? 'disable' : 'enable';
+    this.control[toggle]({ emitEvent: false });
   }
 }
