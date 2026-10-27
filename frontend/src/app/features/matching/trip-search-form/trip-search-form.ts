@@ -1,7 +1,12 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, effect, inject, output, untracked } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, output, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   IonButton,
@@ -24,10 +29,12 @@ import {
   swapHorizontalOutline,
   timeOutline,
 } from 'ionicons/icons';
-import { CampusEntranceId, TripSearch } from '../../../core/models/trip-search.model';
+import { SearchPlace, TripSearch } from '../../../core/models/trip-search.model';
+import { PlacesService } from '../../../core/services/places/places.service';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
-import { CAMPUS_ENTRANCES, DEFAULT_ENTRANCE } from '../campus-entrances';
-import { MARGINS, MAX_SEATS, MIN_SEATS, PLACE_MAX_LENGTH } from '../trip-search';
+import { CAMPUS_NAME } from '../campus';
+import { PlaceField } from '../place-field/place-field';
+import { MARGINS, MAX_SEATS, MIN_SEATS } from '../trip-search';
 import { TripSearchStateService } from '../trip-search-state.service';
 
 // La hora por defecto: dentro de media hora, de 5 en 5 minutos como el
@@ -73,15 +80,14 @@ export function shiftTime(time: string, minutes: number): string {
   return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
 
-// Búsqueda de viajes (pasajero): trayecto (un lugar escrito a mano y una
-// entrada del campus; por defecto, hacia el campus, y el botón de cambiar le da
-// la vuelta), fecha (de hoy a dentro de un mes), hora (de llegada al campus o
-// de salida del campus), margen y plazas. Debajo, qué viajes se verán. Al
-// buscar guarda la búsqueda (TripSearchStateService, compartida con Buscar) y
-// lleva a la pestaña Buscar, donde se muestran los resultados. Sale relleno
-// con la última búsqueda y la sigue: en Inicio, aunque la pestaña ya esté
-// abierta, se rellena con lo buscado en Buscar. El lugar es texto libre: sugerir direcciones necesita un buscador de lugares
-// (pendiente)
+// Búsqueda de viajes (pasajero): trayecto (una dirección elegida de las
+// sugerencias y un parking del campus; por defecto, hacia el campus, y el
+// botón de cambiar le da la vuelta), fecha (de hoy a dentro de un mes), hora
+// (de llegada al campus o de salida del campus), margen y plazas. Debajo, qué
+// viajes se verán. Al buscar guarda la búsqueda (TripSearchStateService,
+// compartida con Buscar) y lleva a la pestaña Buscar, donde se muestran los
+// resultados. Sale relleno con la última búsqueda y la sigue: en Inicio,
+// aunque la pestaña ya esté abierta, se rellena con lo buscado en Buscar
 @Component({
   selector: 'app-trip-search-form',
   imports: [
@@ -96,22 +102,26 @@ export function shiftTime(time: string, minutes: number): string {
     IonSelect,
     IonSelectOption,
     IonicFormStatus,
+    PlaceField,
   ],
   templateUrl: './trip-search-form.html',
   styleUrl: './trip-search-form.scss',
 })
-export class TripSearchForm {
+export class TripSearchForm implements OnInit {
   private readonly router = inject(Router);
   private readonly searchState = inject(TripSearchStateService);
+  private readonly places = inject(PlacesService);
 
   // Avisa de cada búsqueda (en Buscar, para cerrar el formulario aunque se
   // repita la misma)
   readonly searched = output<TripSearch>();
 
   readonly form = inject(NonNullableFormBuilder).group({
-    // El lugar de fuera del campus (origen al ir, destino al volver)
-    place: ['', [Validators.required, Validators.maxLength(PLACE_MAX_LENGTH)]],
-    entrance: [DEFAULT_ENTRANCE as CampusEntranceId],
+    // La dirección de fuera del campus (origen al ir, destino al volver),
+    // elegida de las sugerencias; null mientras no se elige
+    place: new FormControl<SearchPlace | null>(null, Validators.required),
+    // Id del parking del campus (el primero, en cuanto llegan)
+    parking: ['', Validators.required],
     isToCampus: [true],
     // Hoy, dentro de media hora
     date: [toIsoDate(new Date())],
@@ -151,7 +161,8 @@ export class TripSearchForm {
 
   protected readonly minDate = toIsoDate(new Date());
   protected readonly maxDate = toIsoDate(inOneMonth());
-  protected readonly entrances = CAMPUS_ENTRANCES;
+  protected readonly parkings = this.places.parkings;
+  protected readonly campusName = CAMPUS_NAME;
   protected readonly margins = MARGINS;
   protected readonly minSeats = MIN_SEATS;
   protected readonly maxSeats = MAX_SEATS;
@@ -171,6 +182,24 @@ export class TripSearchForm {
       const search = this.searchState.search();
       untracked(() => this.fill(search));
     });
+    // Sin parking elegido, el primero en cuanto llegan
+    effect(() => {
+      const [first] = this.parkings();
+      const control = this.form.controls.parking;
+      if (first && !untracked(() => control.value)) {
+        control.setValue(first.id);
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    void this.places.loadParkings();
+  }
+
+  // En rojo con «Elige una dirección de la lista.»
+  protected isPlaceInvalid(): boolean {
+    const { place } = this.form.controls;
+    return place.touched && place.invalid;
   }
 
   // Limpiar: olvida la búsqueda (también en Buscar) y deja el formulario como
@@ -183,11 +212,19 @@ export class TripSearchForm {
   private fill(search: TripSearch | null): void {
     if (!search) {
       this.form.reset();
-      this.form.patchValue({ date: toIsoDate(new Date()), time: getDefaultTime(new Date()) });
+      this.form.patchValue({
+        parking: this.parkings()[0]?.id ?? '',
+        date: toIsoDate(new Date()),
+        time: getDefaultTime(new Date()),
+      });
       return;
     }
-    const { direction, ...values } = search;
-    this.form.patchValue({ ...values, isToCampus: direction === 'to-campus' });
+    const { direction, parking, ...values } = search;
+    this.form.patchValue({
+      ...values,
+      parking: parking.id,
+      isToCampus: direction === 'to-campus',
+    });
   }
 
   // Cambia el sentido: ir al campus o volver de él
@@ -203,17 +240,20 @@ export class TripSearchForm {
   }
 
   async handleSubmit(): Promise<void> {
-    if (this.form.invalid) {
+    const { place, parking: parkingId, isToCampus, seats, ...values } = this.form.getRawValue();
+    const parking = this.parkings().find(({ id }) => id === parkingId);
+    if (this.form.invalid || !place || !parking) {
       this.form.markAllAsTouched();
       return;
     }
-    const { isToCampus, seats, ...values } = this.form.getRawValue();
     const search: TripSearch = {
       ...values,
+      place,
+      parking: { id: parking.id, name: parking.name },
       direction: isToCampus ? 'to-campus' : 'from-campus',
       seats: Number(seats),
     };
-    this.searchState.set({ ...search, place: search.place.trim() });
+    this.searchState.set(search);
     this.searched.emit(search);
     await this.router.navigate(['/tabs/search']);
   }

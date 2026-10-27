@@ -2,12 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { TripSearch } from '../../../core/models/trip-search.model';
+import { PARKING_P1, ROQUETAS } from '../trip-search.testing';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { TripDetailPage } from './trip-detail.page';
 
 const SEARCH: TripSearch = {
-  place: 'Roquetas de Mar',
-  entrance: 'north',
+  place: ROQUETAS,
+  parking: PARKING_P1,
   direction: 'to-campus',
   date: '2026-10-27',
   time: '08:20',
@@ -44,7 +45,7 @@ describe('TripDetailPage', () => {
     );
     expect(texts(root, '.route-timeline__stop')).toEqual([
       '07:40Roquetas de MarRecogida',
-      '08:12Campus UALIngreso norte',
+      '08:12Campus UALParking P1',
     ]);
     expect(texts(root, '.trip-detail__seats')).toEqual(['2 plazas libres']);
     expect(root.textContent).toContain('Datos de ejemplo');

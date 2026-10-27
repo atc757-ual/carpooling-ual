@@ -1,0 +1,87 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+// La lista de sugerencias se coloca sobre el formulario, justo debajo del
+// campo y de su mismo ancho
+.place-field__control {
+  position: relative;
+}
+
+.place-field__dropdown {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + var(--space-xs));
+  right: 0;
+  left: 0;
+  overflow: hidden;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-base);
+}
+
+.place-field__suggestions {
+  margin: 0;
+  padding: var(--space-xs) 0;
+  list-style: none;
+}
+
+// Cada sugerencia: la dirección y, debajo, la localidad. 48px de alto como
+// mínimo (área táctil)
+.place-field__suggestion {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 3rem; // 48px
+  padding: var(--space-s) var(--space-base);
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-primary);
+    outline-offset: calc(-1 * var(--border-width-m));
+  }
+}
+
+.place-field__name {
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body-s);
+}
+
+// Atribución de los datos, pequeña y gris, al pie de la lista
+.place-field__credit {
+  margin: 0;
+  padding: var(--space-xs) var(--space-base) var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+// Debajo del campo: «Comprobando la dirección…» o el aviso
+.place-field__status {
+  display: block;
+}
+
+.place-field__status > span {
+  display: block;
+  padding-top: var(--space-xs);
+}
+
+.place-field__message {
+  color: var(--color-warning-text);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}

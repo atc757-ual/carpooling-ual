@@ -1,6 +1,6 @@
 <form class="search-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
-  <!-- Trayecto: un lugar escrito a mano y una entrada del campus. Al ir, el
-       lugar es el origen; al volver (botón de cambiar), el destino. Cada campo
+  <!-- Trayecto: una dirección y un parking del campus. Al ir, la dirección
+       es el origen; al volver (botón de cambiar), el destino. Cada campo
        lleva el icono de su papel: un círculo el origen y un pin el destino -->
 
   <div class="search-form__field">
@@ -13,7 +13,7 @@
         />
       } @else {
         <ng-container
-          [ngTemplateOutlet]="entranceField"
+          [ngTemplateOutlet]="parkingField"
           [ngTemplateOutletContext]="{ role: 'Origen' }"
         />
       }
@@ -27,7 +27,7 @@
       </button>
       @if (isToCampus()) {
         <ng-container
-          [ngTemplateOutlet]="entranceField"
+          [ngTemplateOutlet]="parkingField"
           [ngTemplateOutletContext]="{ role: 'Destino' }"
         />
       } @else {
@@ -39,39 +39,35 @@
     </div>
   </div>
 
-  <!-- El lugar de fuera del campus, escrito a mano -->
+  <!-- La dirección de fuera del campus, elegida de las sugerencias -->
   <ng-template #placeField let-role="role">
-    <ion-input
+    <app-place-field
       formControlName="place"
-      fill="outline"
-      [attr.aria-label]="role"
+      [label]="role"
       [placeholder]="role === 'Origen' ? '¿Desde dónde sales?' : '¿A dónde vas?'"
-      [errorText]="role === 'Origen' ? 'Escribe desde dónde sales.' : 'Escribe a dónde vas.'"
-    >
-      <ion-icon
-        slot="start"
-        [icon]="role === 'Origen' ? originIcon : destinationIcon"
-        aria-hidden="true"
-      />
-    </ion-input>
+      [icon]="role === 'Origen' ? originIcon : destinationIcon"
+      [showError]="isPlaceInvalid()"
+    />
   </ng-template>
 
-  <!-- La entrada del campus: norte, sur o este -->
-  <ng-template #entranceField let-role="role">
+  <!-- El parking del campus (P1–P5, de la API) -->
+  <ng-template #parkingField let-role="role">
     <ion-select
       class="search-form__select"
-      formControlName="entrance"
+      formControlName="parking"
       interface="popover"
       fill="outline"
-      [attr.aria-label]="role + ': entrada del campus'"
+      [attr.aria-label]="role + ': parking del campus'"
     >
       <ion-icon
         slot="start"
         [icon]="role === 'Origen' ? originIcon : destinationIcon"
         aria-hidden="true"
       />
-      @for (entrance of entrances; track entrance.id) {
-        <ion-select-option [value]="entrance.id">{{ entrance.label }}</ion-select-option>
+      @for (parking of parkings(); track parking.id) {
+        <ion-select-option [value]="parking.id">
+          {{ campusName }} · {{ parking.name }}
+        </ion-select-option>
       }
     </ion-select>
   </ng-template>
