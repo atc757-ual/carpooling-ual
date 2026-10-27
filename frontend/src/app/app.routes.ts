@@ -104,15 +104,13 @@ export const routes: Routes = [
         },
       },
       {
-        // Detalle de un viaje de los resultados (aún sin pantalla). La flecha
+        // Detalle de un viaje de los resultados. La flecha
         // vuelve a Buscar, que sigue con la misma búsqueda
         path: 'search/trips/:id',
         canActivate: [profileGuard('passenger')],
         loadComponent: () =>
-          import('./features/tabs/coming-soon/coming-soon.page').then((m) => m.ComingSoonPage),
+          import('./features/matching/trip-detail/trip-detail.page').then((m) => m.TripDetailPage),
         data: {
-          title: 'Detalle del viaje',
-          description: 'Muy pronto verás aquí el viaje completo y podrás pedir tu plaza.',
           heading: {
             title: 'Detalle del viaje',
             subtitle: 'El recorrido, quién conduce y las plazas libres.',

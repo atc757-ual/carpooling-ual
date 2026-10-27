@@ -1,5 +1,5 @@
 import { TripSearch } from '../../core/models/trip-search.model';
-import { getExampleTrip } from './example-trips';
+import { getExampleTrip, getExampleTripDetail } from './example-trips';
 
 const SEARCH: TripSearch = {
   place: 'Roquetas de Mar',
@@ -26,5 +26,38 @@ describe('getExampleTrip', () => {
     expect(trip.origin).toBe('Campus UAL · Ingreso sur');
     expect(trip.destination).toBe('Roquetas de Mar');
     expect([trip.departureTime, trip.arrivalTime]).toEqual(['14:08', '14:40']);
+  });
+});
+
+describe('getExampleTripDetail', () => {
+  it('is the same trip as in the results, with each stop and its detail', () => {
+    const detail = getExampleTripDetail('example-1', SEARCH);
+
+    expect(detail).toMatchObject({
+      id: 'example-1',
+      date: '2026-10-27',
+      departureTime: '07:40',
+      arrivalTime: '08:12',
+      origin: 'Roquetas de Mar',
+      originDetail: 'Recogida',
+      destination: 'Campus UAL',
+      destinationDetail: 'Ingreso sur',
+    });
+  });
+
+  it('goes from the campus entrance to the place when coming back', () => {
+    const detail = getExampleTripDetail('example-1', { ...SEARCH, direction: 'from-campus' });
+
+    expect(detail).toMatchObject({
+      origin: 'Campus UAL',
+      originDetail: 'Ingreso sur',
+      destination: 'Roquetas de Mar',
+      destinationDetail: 'Llegada',
+    });
+  });
+
+  it('has no trip without a search or with another id', () => {
+    expect(getExampleTripDetail('example-1', null)).toBeNull();
+    expect(getExampleTripDetail('example-2', SEARCH)).toBeNull();
   });
 });
