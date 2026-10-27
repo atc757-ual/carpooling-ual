@@ -10,25 +10,13 @@ import {
   IonButton,
   IonCheckbox,
   IonContent,
-  IonDatetime,
-  IonDatetimeButton,
   IonIcon,
   IonInput,
-  IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular';
-import {
-  addOutline,
-  calendarOutline,
-  carOutline,
-  ellipseOutline,
-  locationOutline,
-  removeOutline,
-  swapHorizontalOutline,
-  timeOutline,
-} from 'ionicons/icons';
+import { carOutline, ellipseOutline, locationOutline, swapHorizontalOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { PublishedTrip, Vehicle } from '../../../core/models/driver.model';
 import { SearchPlace } from '../../../core/models/trip-search.model';
@@ -37,10 +25,12 @@ import { PlacesService } from '../../../core/services/places/places.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { DatetimeField } from '../../../shared/components/ui/datetime-field/datetime-field';
 import {
   RouteStop,
   RouteTimeline,
 } from '../../../shared/components/ui/route-timeline/route-timeline';
+import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
 import { CAMPUS_NAME } from '../../matching/campus';
 import { PlaceField } from '../../matching/place-field/place-field';
 import { getDefaultTime } from '../../matching/trip-search-form/trip-search-form';
@@ -80,17 +70,16 @@ export function toDepartureAt(date: string, time: string): string {
     IonButton,
     IonCheckbox,
     IonContent,
-    IonDatetime,
-    IonDatetimeButton,
     IonIcon,
     IonInput,
-    IonModal,
     IonSelect,
     IonSelectOption,
     IonSpinner,
     IonicFormStatus,
+    DatetimeField,
     PlaceField,
     RouteTimeline,
+    SeatStepper,
   ],
   templateUrl: './publish-trip.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './publish-trip.page.scss'],
@@ -139,8 +128,10 @@ export class PublishTripPage implements OnInit {
   );
   // Plazas ofrecidas: de 1 a la capacidad del vehículo elegido
   readonly maxSeats = computed(() => this.selectedVehicle()?.capacity ?? 1);
-  readonly canRemoveSeat = computed(() => Number(this.tripValue().seats) > 1);
-  readonly canAddSeat = computed(() => Number(this.tripValue().seats) < this.maxSeats());
+  readonly seatsHint = computed(() => {
+    const max = this.maxSeats();
+    return `Tu vehículo tiene ${max} ${max === 1 ? 'plaza' : 'plazas'} para pasajeros.`;
+  });
 
   protected readonly parkings = this.places.parkings;
   protected readonly campusName = CAMPUS_NAME;
@@ -149,11 +140,7 @@ export class PublishTripPage implements OnInit {
   protected readonly icons = {
     origin: ellipseOutline,
     destination: locationOutline,
-    calendar: calendarOutline,
-    clock: timeOutline,
     car: carOutline,
-    remove: removeOutline,
-    add: addOutline,
     swap: swapHorizontalOutline,
   };
 
@@ -201,11 +188,6 @@ export class PublishTripPage implements OnInit {
   handleSwap(): void {
     const { isToCampus } = this.tripForm.controls;
     isToCampus.setValue(!isToCampus.value);
-  }
-
-  changeSeats(delta: number): void {
-    const { seats } = this.tripForm.controls;
-    seats.setValue(Math.min(this.maxSeats(), Math.max(1, Number(seats.value) + delta)));
   }
 
   protected isPlaceInvalid(): boolean {

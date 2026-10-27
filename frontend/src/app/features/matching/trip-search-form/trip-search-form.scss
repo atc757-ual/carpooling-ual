@@ -152,39 +152,6 @@
   }
 }
 
-// Fecha y hora: el botón del selector nativo con el aspecto de un campo, con
-// su icono delante
-.search-form__picker {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-  min-height: var(--control-height-l);
-  padding: 0 var(--space-base);
-  // El mismo borde que los campos de texto de Ionic
-  border: var(--border-width-s) solid var(--ion-border-color);
-  border-radius: var(--radius-s);
-  background: var(--color-surface);
-
-  ion-icon {
-    flex: 0 0 auto;
-    color: var(--color-text-muted);
-    font-size: 1.25rem; // 20px
-  }
-}
-
-ion-datetime-button {
-  flex: 1;
-  justify-content: flex-start;
-}
-
-ion-datetime-button::part(native) {
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--color-text);
-  font-size: var(--font-size-body);
-}
-
 // Entrada del campus y margen: a todo el ancho, con la flecha a la derecha (el
 // texto ocupa el hueco que queda)
 .search-form__select {
@@ -195,46 +162,12 @@ ion-datetime-button::part(native) {
   flex: 1;
 }
 
-// Los iconos de los campos (origen, destino y plazas), grises como los de la
-// fecha y la hora
-.search-form ion-input > ion-icon,
+// Los iconos de los campos (origen y destino), grises como los de la fecha y
+// la hora
 .search-form ion-select > ion-icon {
   margin-inline-end: var(--space-s);
   color: var(--color-text-muted);
   font-size: 1.25rem; // 20px
-}
-
-// Plazas: − y + al final del campo, pegados entre sí y estrechos, para que
-// quepa el número en el móvil (el campo mide ~150px). Las flechas del campo
-// numérico del navegador se quitan en el tema
-.search-form__stepper {
-  display: flex;
-  align-items: center;
-  margin-inline-end: calc(-1 * var(--space-s));
-}
-
-.search-form__step {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem; // 32px
-  height: 2rem;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-s);
-  background: transparent;
-  color: var(--color-text);
-  font-size: 1.25rem; // 20px
-  cursor: pointer;
-
-  &:disabled {
-    color: var(--color-text-disabled);
-    cursor: default;
-  }
-
-  &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-  }
 }
 
 // Qué viajes se verán: 12px en el móvil y 14px en escritorio

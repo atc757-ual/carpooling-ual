@@ -54,13 +54,6 @@
   align-items: end;
 }
 
-.publish__field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-  min-width: 0;
-}
-
 .publish__link {
   display: inline-flex;
   align-items: center;
@@ -79,61 +72,6 @@
   ion-icon {
     font-size: 1rem; // 16px
     transform: rotate(90deg);
-  }
-
-  &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-  }
-}
-
-// Fecha y hora, y el contador de plazas: con el borde de los campos de Ionic
-.publish__picker,
-.publish__stepper {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-  min-height: var(--control-height-l);
-  padding: 0 var(--space-base);
-  border: var(--border-width-s) solid var(--ion-border-color);
-  border-radius: var(--radius-s);
-  background: var(--color-surface);
-
-  ion-icon {
-    flex: 0 0 auto;
-    color: var(--color-text-muted);
-    font-size: 1.25rem; // 20px
-  }
-}
-
-// Es un fieldset (agrupa los dos botones con su etiqueta): sin el margen ni
-// el ancho mínimo que le da el navegador
-.publish__stepper {
-  justify-content: space-between;
-  min-inline-size: 0;
-  margin: 0;
-  padding: 0 var(--space-xs);
-}
-
-.publish__step {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem; // 44px: objetivo táctil mínimo
-  height: 2.75rem;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-s);
-  background: transparent;
-  color: var(--color-text);
-  cursor: pointer;
-
-  ion-icon {
-    color: inherit;
-  }
-
-  &:disabled {
-    color: var(--color-text-disabled);
-    cursor: default;
   }
 
   &:focus-visible {

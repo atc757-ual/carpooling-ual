@@ -54,8 +54,7 @@ for (const viewport of VIEWPORTS) {
 
     it('searches from the origin to the campus with the chosen data', () => {
       choosePlace('app-trip-search-form', 'Roquetas de Mar');
-      cy.get('app-trip-search-form ion-input[formControlName="seats"] input').clear();
-      cy.get('app-trip-search-form ion-input[formControlName="seats"] input').type('2');
+      cy.get('app-trip-search-form app-seat-stepper button[aria-label="Una plaza más"]').click();
       cy.contains('app-trip-search-form ion-button', 'Buscar viaje').click();
 
       cy.location('pathname').should('eq', '/tabs/search');

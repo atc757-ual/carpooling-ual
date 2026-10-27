@@ -80,14 +80,19 @@ describe('PublishTripPage', () => {
     expect(driver['registerVehicle']).not.toHaveBeenCalled();
   });
 
-  it('keeps the offered seats between 1 and the vehicle capacity', async () => {
-    await createPage([VEHICLE]);
+  it('offers up to the capacity of the chosen vehicle', async () => {
+    const small: Vehicle = { ...VEHICLE, id: 'v2', plate: '5678CDF', capacity: 1 };
+    await createPage([VEHICLE, small]);
 
-    page.changeSeats(-1);
+    expect(page.maxSeats()).toBe(3);
+    expect(page.seatsHint()).toBe('Tu vehículo tiene 3 plazas para pasajeros.');
+    page.tripForm.controls.seats.setValue(3);
+
+    page.tripForm.controls.vehicleId.setValue('v2');
+    TestBed.tick();
+
     expect(page.tripForm.controls.seats.value).toBe(1);
-    page.changeSeats(5);
-    expect(page.tripForm.controls.seats.value).toBe(3);
-    expect(page.canAddSeat()).toBe(false);
+    expect(page.seatsHint()).toBe('Tu vehículo tiene 1 plaza para pasajeros.');
   });
 
   it('publishes to the campus from the chosen place', async () => {

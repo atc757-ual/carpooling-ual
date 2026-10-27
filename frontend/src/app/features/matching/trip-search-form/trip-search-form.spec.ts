@@ -131,7 +131,9 @@ describe('TripSearchForm', () => {
   it('asks for the arrival time going to the campus and the departure time coming back', () => {
     const root = fixture.nativeElement as HTMLElement;
     const label = () =>
-      root.querySelector('[id^="search-time-"][id$="-label"]')?.textContent?.trim();
+      root
+        .querySelector('app-datetime-field[presentation="time"] .text-label')
+        ?.textContent?.trim();
     const summary = () => root.querySelector('.search-form__summary')?.textContent;
     form.form.patchValue({ time: '08:00' });
     fixture.detectChanges();
@@ -164,18 +166,16 @@ describe('TripSearchForm', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('adds and removes seats between 1 and 4', () => {
-    expect(form.canRemoveSeat()).toBe(false);
+  it('adds and removes seats between 1 and 4 with the stepper', () => {
+    const root = fixture.nativeElement as HTMLElement;
+    const click = (label: string): void =>
+      (root.querySelector(`app-seat-stepper button[aria-label="${label}"]`) as HTMLElement).click();
 
-    form.changeSeats(-1);
-
+    click('Una plaza menos');
     expect(form.form.controls.seats.value).toBe(1);
 
-    [1, 1, 1, 1].forEach((delta) => form.changeSeats(delta));
-
+    [1, 2, 3, 4].forEach(() => click('Una plaza más'));
     expect(form.form.controls.seats.value).toBe(4);
-    expect(form.canAddSeat()).toBe(false);
-    expect(form.canRemoveSeat()).toBe(true);
   });
 
   it('keeps the trip to the campus as the search and goes to Buscar', async () => {

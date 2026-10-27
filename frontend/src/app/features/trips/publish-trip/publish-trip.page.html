@@ -118,28 +118,12 @@
             </div>
 
             <div class="publish__grid">
-              <div class="publish__field">
-                <span id="publish-date-label" class="text-label text-label--strong">Fecha</span>
-                <div class="publish__picker">
-                  <ion-icon [icon]="icons.calendar" aria-hidden="true" />
-                  <ion-datetime-button
-                    datetime="publish-date"
-                    aria-labelledby="publish-date-label"
-                  />
-                </div>
-              </div>
-              <div class="publish__field">
-                <span id="publish-time-label" class="text-label text-label--strong">
-                  Hora de salida
-                </span>
-                <div class="publish__picker">
-                  <ion-icon [icon]="icons.clock" aria-hidden="true" />
-                  <ion-datetime-button
-                    datetime="publish-time"
-                    aria-labelledby="publish-time-label"
-                  />
-                </div>
-              </div>
+              <app-datetime-field formControlName="date" label="Fecha" [min]="minDate" />
+              <app-datetime-field
+                formControlName="time"
+                presentation="time"
+                label="Hora de salida"
+              />
             </div>
 
             <ion-select
@@ -158,35 +142,12 @@
             </ion-select>
 
             <div class="publish__grid">
-              <!-- Plazas ofrecidas con − y + (SeatStepper de la guía) -->
-              <div class="publish__field">
-                <span class="text-label text-label--strong" id="publish-seats-label">
-                  Plazas ofrecidas
-                </span>
-                <fieldset class="publish__stepper" aria-labelledby="publish-seats-label">
-                  <button
-                    type="button"
-                    class="publish__step"
-                    aria-label="Una plaza menos"
-                    [disabled]="!canRemoveSeat()"
-                    (click)="changeSeats(-1)"
-                  >
-                    <ion-icon [icon]="icons.remove" aria-hidden="true" />
-                  </button>
-                  <output class="text-subtitle" aria-live="polite">
-                    {{ tripForm.controls.seats.value }} de {{ maxSeats() }}
-                  </output>
-                  <button
-                    type="button"
-                    class="publish__step"
-                    aria-label="Una plaza más"
-                    [disabled]="!canAddSeat()"
-                    (click)="changeSeats(1)"
-                  >
-                    <ion-icon [icon]="icons.add" aria-hidden="true" />
-                  </button>
-                </fieldset>
-              </div>
+              <app-seat-stepper
+                formControlName="seats"
+                label="Plazas ofrecidas"
+                [max]="maxSeats()"
+                [hint]="seatsHint()"
+              />
               <ion-select
                 formControlName="maxDetourMin"
                 interface="popover"
@@ -222,71 +183,6 @@
               Publicar requiere un vehículo registrado y la declaración responsable. UAL Carpool no
               valida tu permiso.
             </p>
-
-            <!-- Calendario y hora, con los botones de la app (como en Buscar) -->
-            <ion-modal class="datetime-modal" [keepContentsMounted]="true">
-              <ng-template>
-                <ion-datetime
-                  #dateField
-                  id="publish-date"
-                  formControlName="date"
-                  presentation="date"
-                  [formatOptions]="{ date: { day: 'numeric', month: 'short' } }"
-                  locale="es-ES"
-                  [firstDayOfWeek]="1"
-                  [min]="minDate"
-                  [showDefaultButtons]="true"
-                >
-                  <div slot="buttons" class="datetime-actions">
-                    <button
-                      type="button"
-                      class="datetime-actions__button"
-                      (click)="dateField.cancel(true)"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="button"
-                      class="datetime-actions__button datetime-actions__button--primary"
-                      (click)="dateField.confirm(true)"
-                    >
-                      Aceptar
-                    </button>
-                  </div>
-                </ion-datetime>
-              </ng-template>
-            </ion-modal>
-            <ion-modal class="datetime-modal" [keepContentsMounted]="true">
-              <ng-template>
-                <ion-datetime
-                  #timeField
-                  id="publish-time"
-                  formControlName="time"
-                  presentation="time"
-                  locale="es-ES"
-                  hourCycle="h23"
-                  [minuteValues]="[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]"
-                  [showDefaultButtons]="true"
-                >
-                  <div slot="buttons" class="datetime-actions">
-                    <button
-                      type="button"
-                      class="datetime-actions__button"
-                      (click)="timeField.cancel(true)"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="button"
-                      class="datetime-actions__button datetime-actions__button--primary"
-                      (click)="timeField.confirm(true)"
-                    >
-                      Aceptar
-                    </button>
-                  </div>
-                </ion-datetime>
-              </ng-template>
-            </ion-modal>
           </form>
         }
       }

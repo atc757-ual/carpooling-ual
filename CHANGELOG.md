@@ -109,6 +109,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - El recurso `Incident` incluye su `href`, quién la registró y su revisión, y registrar una incidencia responde con la cabecera `Location` (#21)
 - El recurso `Trip` y los eventos del viaje incluyen cuándo empezó (`startedAt`) (#24)
 - Las rutas del seed se marcan como estimadas, y el segundo viaje tiene también la suya (#24)
+- Buscar y Publicar comparten el selector de fecha y hora (`app-datetime-field`) y el contador de plazas de la guía (`app-seat-stepper`: «−», el número y «+»), que en Buscar sustituye al campo numérico con los botones dentro (#64)
 
 ### Security
 - El backend ya no envía la cabecera `X-Powered-By: Express`, que revelaba la tecnología del servidor (#14)

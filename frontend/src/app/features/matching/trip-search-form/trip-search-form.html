@@ -93,26 +93,14 @@
   <!-- Fecha, hora, margen y plazas: de dos en dos y, en pantallas
        anchas, los cuatro en una fila -->
   <div class="search-form__details">
-    <!-- Fecha, con el selector nativo en español -->
-    <div class="search-form__field">
-      <span [id]="dateId + '-label'" class="text-label text-label--strong">Fecha</span>
-      <div class="search-form__picker">
-        <ion-icon [icon]="calendarIcon" aria-hidden="true" />
-        <ion-datetime-button [datetime]="dateId" [attr.aria-labelledby]="dateId + '-label'" />
-      </div>
-    </div>
+    <app-datetime-field formControlName="date" label="Fecha" [min]="minDate" [max]="maxDate" />
 
-    <!-- Hora de llegada al campus o, al volver, de salida, con el selector
-         nativo en 24 h -->
-    <div class="search-form__field">
-      <span [id]="timeId + '-label'" class="text-label text-label--strong">
-        {{ timeType() === 'arrival' ? 'Hora de llegada' : 'Hora de salida' }}
-      </span>
-      <div class="search-form__picker">
-        <ion-icon [icon]="clockIcon" aria-hidden="true" />
-        <ion-datetime-button [datetime]="timeId" [attr.aria-labelledby]="timeId + '-label'" />
-      </div>
-    </div>
+    <!-- Hora de llegada al campus o, al volver, de salida -->
+    <app-datetime-field
+      formControlName="time"
+      presentation="time"
+      [label]="timeType() === 'arrival' ? 'Hora de llegada' : 'Hora de salida'"
+    />
 
     <div class="search-form__field">
       <span class="text-label text-label--strong" aria-hidden="true">Margen horario</span>
@@ -129,106 +117,9 @@
       </ion-select>
     </div>
 
-    <!-- Plazas que se necesitan, con − y + (las flechas del campo numérico no
-         se ven en iPhone ni en muchos navegadores) -->
-    <div class="search-form__field">
-      <span class="text-label text-label--strong" aria-hidden="true">Plazas</span>
-      <ion-input
-        class="search-form__seats"
-        formControlName="seats"
-        type="number"
-        inputmode="numeric"
-        aria-label="Plazas"
-        fill="outline"
-        [min]="minSeats"
-        [max]="maxSeats"
-        errorText="Entre 1 y 4 plazas."
-      >
-        <ion-icon slot="start" [icon]="seatsIcon" aria-hidden="true" />
-        <!-- Botones nativos, como el de mostrar la contraseña del acceso -->
-        <span slot="end" class="search-form__stepper">
-          <button
-            type="button"
-            class="search-form__step"
-            aria-label="Una plaza menos"
-            [disabled]="!canRemoveSeat()"
-            (click)="changeSeats(-1)"
-          >
-            <ion-icon [icon]="removeIcon" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            class="search-form__step"
-            aria-label="Una plaza más"
-            [disabled]="!canAddSeat()"
-            (click)="changeSeats(1)"
-          >
-            <ion-icon [icon]="addIcon" aria-hidden="true" />
-          </button>
-        </span>
-      </ion-input>
-    </div>
+    <!-- Plazas que se necesitan (SeatStepper de la guía) -->
+    <app-seat-stepper formControlName="seats" label="Plazas" [min]="minSeats" [max]="maxSeats" />
   </div>
-
-  <!-- Calendario y ruedas de la hora, en una ventana, con «Cancelar» y
-       «Aceptar» con el estilo de la app (botones nativos: los de Ionic van en
-       mayúsculas y no se pueden cambiar) -->
-  <ion-modal class="datetime-modal" [keepContentsMounted]="true">
-    <ng-template>
-      <ion-datetime
-        #dateField
-        [id]="dateId"
-        formControlName="date"
-        presentation="date"
-        [formatOptions]="{ date: { day: 'numeric', month: 'short' } }"
-        locale="es-ES"
-        [firstDayOfWeek]="1"
-        [min]="minDate"
-        [max]="maxDate"
-        [showDefaultButtons]="true"
-      >
-        <div slot="buttons" class="datetime-actions">
-          <button type="button" class="datetime-actions__button" (click)="dateField.cancel(true)">
-            Cancelar
-          </button>
-          <button
-            type="button"
-            class="datetime-actions__button datetime-actions__button--primary"
-            (click)="dateField.confirm(true)"
-          >
-            Aceptar
-          </button>
-        </div>
-      </ion-datetime>
-    </ng-template>
-  </ion-modal>
-  <ion-modal class="datetime-modal" [keepContentsMounted]="true">
-    <ng-template>
-      <ion-datetime
-        #timeField
-        [id]="timeId"
-        formControlName="time"
-        presentation="time"
-        locale="es-ES"
-        hourCycle="h23"
-        [minuteValues]="[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]"
-        [showDefaultButtons]="true"
-      >
-        <div slot="buttons" class="datetime-actions">
-          <button type="button" class="datetime-actions__button" (click)="timeField.cancel(true)">
-            Cancelar
-          </button>
-          <button
-            type="button"
-            class="datetime-actions__button datetime-actions__button--primary"
-            (click)="timeField.confirm(true)"
-          >
-            Aceptar
-          </button>
-        </div>
-      </ion-datetime>
-    </ng-template>
-  </ion-modal>
 
   <ion-button type="submit" expand="block">
     <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
