@@ -136,6 +136,12 @@ Enviar una posición puede responder además `NOT_TRIP_DRIVER` o `TRIP_NOT_IN_PR
 |---|---|---|
 | `NOTIFICATION_NOT_FOUND` | 404 | Marcar como leído un aviso que no existe o que es de otro usuario (no se distingue: no se revela que existe) |
 
+## Lugares (`places`)
+
+| `code` | HTTP | Cuándo |
+|---|---|---|
+| `CAMPUS_PARKING_NOT_FOUND` | 404 | El parking del campus no existe o está cerrado |
+
 ## Cómo añadir un código
 
 1. Crea el error de negocio extendiendo `BusinessError` (`backend/src/shared/errors/business-error.ts`) con su `code` y su tipo de fallo: `invalid` (400), `unauthorized` (401), `forbidden` (403), `not_found` (404) o `conflict` (409).

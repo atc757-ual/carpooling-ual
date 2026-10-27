@@ -10,6 +10,7 @@ import { IncidentsModule } from './modules/incidents/incidents.module';
 import { MatchingModule } from './modules/matching/matching.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { PlacesModule } from './modules/places/places.module';
 import { RequestsModule } from './modules/requests/requests.module';
 import { SimulationModule } from './modules/simulation/simulation.module';
 import { TrackingModule } from './modules/tracking/tracking.module';
@@ -38,6 +39,7 @@ import { UsersModule } from './modules/users/users.module';
     RequestsModule,
     IncidentsModule,
     NotificationsModule,
+    PlacesModule,
     MatchingModule,
     DigitalTwinModule,
     SimulationModule,
