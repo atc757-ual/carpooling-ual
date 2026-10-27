@@ -56,8 +56,8 @@ for (const viewport of VIEWPORTS) {
     it('shows the search from Inicio with an example trip', () => {
       searchFromHome('Roquetas de Mar');
 
-      cy.get('app-trip-search .search-summary__stop').first().should('contain', 'Roquetas de Mar');
-      cy.get('app-trip-search .search-summary__stop').last().should('contain', 'Ingreso norte');
+      cy.get('app-trip-search .route-timeline__stop').first().should('contain', 'Roquetas de Mar');
+      cy.get('app-trip-search .route-timeline__stop').last().should('contain', 'Ingreso norte');
       cy.contains('app-trip-search .search-summary__details', 'plaza').should('be.visible');
       cy.contains('app-trip-search .search-summary__details', 'Margen de llegada').should(
         'be.visible',
@@ -72,6 +72,13 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-trip-search app-trip-result-card ion-button', 'Ver viaje de Lucía').click();
 
       cy.location('pathname').should('eq', '/tabs/search/trips/example-1');
+      // El mismo viaje de la búsqueda, con quien conduce y cómo se pide plaza
+      cy.get('app-trip-detail .route-timeline__stop').first().should('contain', 'Roquetas de Mar');
+      cy.get('app-trip-detail .route-timeline__stop').last().should('contain', 'Ingreso norte');
+      cy.contains('app-trip-detail app-trip-driver', 'Lucía Cortés').should('be.visible');
+      cy.contains('app-trip-detail .notice', 'Primero solicitas; Lucía decide.').should(
+        'be.visible',
+      );
       if (isDesktop) {
         // Por los breadcrumbs de la franja: Inicio (la casa) › Buscar viaje › Detalle
         cy.get('app-tabs .greeting-bar ion-breadcrumb').should('have.length', 3);
@@ -82,7 +89,7 @@ for (const viewport of VIEWPORTS) {
       }
 
       cy.location('pathname').should('eq', '/tabs/search');
-      cy.contains('app-trip-search .search-summary__stop', 'Roquetas de Mar').should('be.visible');
+      cy.contains('app-trip-search .route-timeline__stop', 'Roquetas de Mar').should('be.visible');
     });
 
     it('edits the search with the form filled in and shows the new one', () => {
@@ -96,7 +103,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-trip-search app-trip-search-form ion-button', 'Buscar viaje').click();
 
       cy.get('app-trip-search app-trip-search-form').should('not.exist');
-      cy.contains('app-trip-search .search-summary__stop', 'Huércal de Almería').should(
+      cy.contains('app-trip-search .route-timeline__stop', 'Huércal de Almería').should(
         'be.visible',
       );
     });
@@ -108,7 +115,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-trip-search ion-button', 'Cancelar').click();
 
       cy.get('app-trip-search app-trip-search-form').should('not.exist');
-      cy.contains('app-trip-search .search-summary__stop', 'Roquetas de Mar').should('be.visible');
+      cy.contains('app-trip-search .route-timeline__stop', 'Roquetas de Mar').should('be.visible');
     });
 
     it('keeps the search when going to another tab and coming back', () => {
@@ -117,7 +124,7 @@ for (const viewport of VIEWPORTS) {
       goTo('Perfil');
       goTo('Buscar');
 
-      cy.contains('app-trip-search .search-summary__stop', 'Roquetas de Mar').should('be.visible');
+      cy.contains('app-trip-search .route-timeline__stop', 'Roquetas de Mar').should('be.visible');
     });
 
     it('fills Inicio in with the search made in Buscar', () => {

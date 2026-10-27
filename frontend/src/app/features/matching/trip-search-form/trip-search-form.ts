@@ -173,6 +173,13 @@ export class TripSearchForm {
     });
   }
 
+  // Limpiar: olvida la búsqueda (también en Buscar) y deja el formulario como
+  // nuevo (aunque no se hubiera buscado lo escrito)
+  clear(): void {
+    this.searchState.clear();
+    this.fill(null);
+  }
+
   private fill(search: TripSearch | null): void {
     if (!search) {
       this.form.reset();

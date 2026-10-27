@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonBadge,
@@ -20,6 +20,7 @@ import {
   gitCompareOutline,
   leafOutline,
   peopleOutline,
+  refreshOutline,
 } from 'ionicons/icons';
 import { MODES_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -88,6 +89,14 @@ export class HomePage {
   protected readonly modesPath = MODES_PATH;
   protected readonly publishIcon = addCircleOutline;
   protected readonly tipIcon = gitCompareOutline;
+  protected readonly clearIcon = refreshOutline;
   protected readonly impact = IMPACT_EXAMPLE;
   protected readonly steps = PASSENGER_STEPS;
+
+  private readonly searchForm = viewChild(TripSearchForm);
+
+  // «Limpiar»: vacía el formulario y olvida la búsqueda (también en Buscar)
+  handleClearSearch(): void {
+    this.searchForm()?.clear();
+  }
 }

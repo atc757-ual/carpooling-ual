@@ -50,6 +50,31 @@ describe('TripSearchForm', () => {
     expect(date).toBe(`${today.getFullYear()}-${month}-${day}`);
   });
 
+  it('clears the search and what was typed', () => {
+    searchState.set({
+      place: 'Roquetas de Mar',
+      entrance: 'south',
+      direction: 'from-campus',
+      date: '2026-10-27',
+      time: '14:00',
+      margin: 30,
+      seats: 3,
+    });
+    fixture.detectChanges();
+
+    form.clear();
+
+    const { place, entrance, isToCampus, margin, seats } = form.form.getRawValue();
+    expect(searchState.search()).toBeNull();
+    expect({ place, entrance, isToCampus, margin, seats }).toEqual({
+      place: '',
+      entrance: 'north',
+      isToCampus: true,
+      margin: 20,
+      seats: 1,
+    });
+  });
+
   it('offers the three campus entrances to everyone', () => {
     const root = fixture.nativeElement as HTMLElement;
     const options = root.querySelectorAll(

@@ -11,16 +11,7 @@
 
     <div class="trip-card__route">{{ trip().origin }} → {{ trip().destination }}</div>
 
-    <div class="trip-card__driver">
-      <span class="trip-card__avatar" aria-hidden="true">{{ initials() }}</span>
-      <div class="trip-card__person">
-        <div class="trip-card__name">{{ trip().driver.name }}</div>
-        <div class="text-caption text-color-muted">{{ driverDetails() }}</div>
-      </div>
-      <span class="trip-card__rating" [attr.aria-label]="'Valoración ' + rating() + ' de 5'">
-        ★ {{ rating() }}
-      </span>
-    </div>
+    <app-trip-driver [driver]="trip().driver" />
 
     <div class="text-caption text-color-muted">
       Desvío de recogida: {{ trip().pickupDetourMinutes }} min

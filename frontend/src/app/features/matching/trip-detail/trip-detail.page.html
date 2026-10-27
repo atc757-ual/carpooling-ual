@@ -1,0 +1,81 @@
+<ion-content>
+  @if (trip(); as trip) {
+    <div class="trip-detail">
+      <!-- Columna de 8 en escritorio: el viaje, en una sola tarjeta -->
+      <div class="trip-detail__main">
+        <div class="trip-detail__date">
+          <span class="text-body-s text-color-muted">{{ tripDate() }}</span>
+          <ion-badge class="example-badge">Datos de ejemplo</ion-badge>
+        </div>
+
+        <ion-card>
+          <ion-card-content>
+            <!-- Arriba, el recorrido con sus horas (lo principal) y sus datos -->
+            <h2 class="visually-hidden">Recorrido</h2>
+            <app-route-timeline [stops]="stops()" />
+            <div class="trip-detail__facts">
+              @if (trip.freeSeats === 1) {
+                <span class="trip-detail__seats trip-detail__seats--last">Última plaza</span>
+              } @else {
+                <span class="trip-detail__seats">{{ trip.freeSeats }} plazas libres</span>
+              }
+              <span class="text-caption text-color-muted">
+                Desvío de recogida: {{ trip.pickupDetourMinutes }} min · Trayecto de unos
+                {{ trip.tripMinutes }} min
+              </span>
+            </div>
+
+            <!-- Debajo de una línea, quien conduce y su coche -->
+            <div class="trip-detail__driver">
+              <h2 class="visually-hidden">Quién conduce</h2>
+              <app-trip-driver [driver]="trip.driver" />
+              <div class="trip-detail__vehicle">
+                <ion-icon [icon]="carIcon" aria-hidden="true" />
+                <div>
+                  <div class="text-body-s text-body--strong">
+                    {{ trip.vehicle.model }} · {{ trip.vehicle.plate }}
+                  </div>
+                  <div class="text-caption text-color-muted">
+                    {{ trip.vehicle.preferences.join(' · ') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Columna de 4 en escritorio (fija al bajar): cómo funciona y pedir
+           plaza -->
+      <div class="trip-detail__aside">
+        <div class="notice notice--info">
+          <span>
+            <b>Primero solicitas; {{ driverFirstName() }} decide.</b>
+            Tu plaza solo se confirma cuando {{ driverFirstName() }} acepta. Verificamos el correo
+            UAL, no la identidad ni el permiso de conducir.
+          </span>
+        </div>
+        <!-- Aún sin solicitudes: el botón se ve, desactivado, con el aviso debajo -->
+        <ion-button expand="block" [disabled]="true">Solicitar {{ requestedSeats() }}</ion-button>
+        <p class="text-caption text-color-muted">
+          Muy pronto podrás pedir tu plaza desde aquí. Si queda pendiente, podrás cancelarla desde
+          Mis viajes.
+        </p>
+      </div>
+    </div>
+  } @else {
+    <div class="tab-page">
+      <ion-card class="trip-detail__missing">
+        <ion-card-content>
+          <ion-icon [icon]="notFoundIcon" aria-hidden="true" />
+          <div class="text-subtitle">No encontramos este viaje</div>
+          <div class="text-body-s text-color-muted">
+            Puede que ya no esté disponible. Vuelve a Buscar para ver los viajes que encajan con tu
+            ruta.
+          </div>
+          <ion-button routerLink="/tabs/search" routerDirection="back">Volver a Buscar</ion-button>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  }
+</ion-content>

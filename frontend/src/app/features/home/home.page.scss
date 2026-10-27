@@ -48,7 +48,29 @@
 }
 
 // Consejo en un recuadro verde claro, con su icono
+// El consejo ocupa lo que queda y «Limpiar» va a su derecha, centrado
+.home__tip-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+// «Limpiar» como enlace con su icono, como «Editar» en Buscar: sin borde y
+// 32px de alto (el tema da 48px a los botones)
+.home__clear ion-button {
+  --padding-start: var(--space-s);
+  --padding-end: var(--space-s);
+  --color: var(--color-link);
+
+  min-height: 2rem; // 32px
+  height: 2rem;
+  margin: 0;
+  font-size: var(--font-size-body-s);
+}
+
 .home__tip {
+  flex: 1;
+  min-width: 0;
   --background: var(--color-success-subtle);
   --padding-start: var(--space-base);
   --inner-padding-end: var(--space-base);

@@ -1,0 +1,16 @@
+<ol class="route-timeline" [class.route-timeline--timed]="hasTimes()" aria-label="Trayecto">
+  @for (stop of stops(); track $index; let isFirst = $first) {
+    <li class="route-timeline__stop">
+      @if (stop.time; as time) {
+        <span class="route-timeline__time">{{ time }}</span>
+      }
+      <span class="route-timeline__rail" aria-hidden="true">
+        <span class="route-timeline__dot" [class.route-timeline__dot--end]="!isFirst"></span>
+      </span>
+      <div class="route-timeline__body">
+        <div class="route-timeline__name">{{ stop.name }}</div>
+        <div class="text-caption text-color-muted">{{ stop.detail }}</div>
+      </div>
+    </li>
+  }
+</ol>
