@@ -123,7 +123,16 @@ export const routes: Routes = [
         // Como conductor
         path: 'publish',
         canActivate: [profileGuard('driver')],
-        ...comingSoon('Publicar', 'Muy pronto podrás publicar tus viajes desde aquí.'),
+        loadComponent: () =>
+          import('./features/trips/publish-trip/publish-trip.page').then((m) => m.PublishTripPage),
+        data: {
+          heading: {
+            title: 'Publicar viaje',
+            subtitle: 'Comparte tu recorrido con la comunidad. Tú aceptas cada solicitud.',
+            backHref: '/tabs/home',
+            breadcrumbs: [HOME_BREADCRUMB],
+          } satisfies TabHeading,
+        },
       },
       {
         path: 'notifications',

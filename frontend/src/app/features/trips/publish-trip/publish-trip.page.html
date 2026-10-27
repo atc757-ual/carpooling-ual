@@ -1,0 +1,295 @@
+<ion-content>
+  <div class="tab-page publish">
+    <h1 class="visually-hidden">Publicar viaje</h1>
+
+    @switch (loadState()) {
+      @case ('loading') {
+        <div class="publish__status" role="status">
+          <ion-spinner name="crescent" aria-hidden="true" />
+          <p class="text-color-muted">Cargando tus vehículos…</p>
+        </div>
+      }
+      @case ('error') {
+        <div class="notice notice--danger publish__card" role="alert">
+          <p>No hemos podido cargar tus vehículos. Comprueba la conexión e inténtalo de nuevo.</p>
+        </div>
+        <form (submit)="$event.preventDefault(); load()">
+          <ion-button type="submit" fill="outline">Reintentar</ion-button>
+        </form>
+      }
+      @default {
+        @if (published(); as trip) {
+          <!-- Confirmación: el viaje queda publicado y espera solicitudes -->
+          <section class="publish__card publish__done" aria-labelledby="published-title">
+            <h2 id="published-title" class="text-title">Viaje publicado</h2>
+            <app-route-timeline [stops]="publishedStops()" />
+            <div class="notice notice--success">
+              <p>
+                Ofreces
+                <b>{{ trip.offeredSeats }} {{ trip.offeredSeats === 1 ? 'plaza' : 'plazas' }}</b>
+                con un desvío máximo de {{ trip.maxDetourMin }} min. Te avisaremos de cada solicitud
+                para que la aceptes o la rechaces.
+              </p>
+            </div>
+            <form (submit)="$event.preventDefault(); handlePublishAnother()">
+              <ion-button type="submit" fill="outline" expand="block"
+                >Publicar otro viaje</ion-button
+              >
+            </form>
+          </section>
+        } @else if (vehicles().length === 0) {
+          <!-- Antes del primer viaje: registrar el vehículo -->
+          <form
+            class="publish__card publish__form"
+            [formGroup]="vehicleForm"
+            (ngSubmit)="handleRegisterVehicle()"
+            novalidate
+          >
+            <h2 class="text-title">Antes de tu primer viaje</h2>
+            <p class="text-color-muted">Registra el vehículo con el que vas a conducir.</p>
+            <ion-input
+              formControlName="plate"
+              label="Matrícula"
+              labelPlacement="stacked"
+              fill="outline"
+              placeholder="1234 BCD"
+              autocapitalize="characters"
+              errorText="Escribe una matrícula española, como 1234 BCD."
+            />
+            <ion-input
+              formControlName="capacity"
+              type="number"
+              inputmode="numeric"
+              label="Plazas para pasajeros"
+              labelPlacement="stacked"
+              fill="outline"
+              helperText="Sin contarte a ti. Podrás ofrecer menos en cada viaje."
+              errorText="Entre 1 y 8 plazas."
+            />
+            <ion-button type="submit" expand="block" [disabled]="isSaving()">
+              @if (isSaving()) {
+                <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+              }
+              Guardar vehículo y continuar
+            </ion-button>
+          </form>
+        } @else {
+          <form
+            class="publish__card publish__form"
+            [formGroup]="tripForm"
+            (ngSubmit)="handlePublish()"
+            novalidate
+          >
+            <!-- Trayecto: la dirección y el parking, en un sentido u otro -->
+            <div class="publish__route-head">
+              <span class="text-label text-label--strong">Trayecto</span>
+              <button class="publish__link" type="button" (click)="handleSwap()">
+                <ion-icon [icon]="icons.swap" aria-hidden="true" />
+                Cambiar sentido
+              </button>
+            </div>
+            <div class="publish__route" [class.publish__route--reverse]="!isToCampus()">
+              <app-place-field
+                formControlName="place"
+                [label]="isToCampus() ? 'Origen' : 'Destino'"
+                [placeholder]="isToCampus() ? '¿Desde dónde sales?' : '¿A dónde vas?'"
+                [icon]="isToCampus() ? icons.origin : icons.destination"
+                [canLocate]="isToCampus()"
+                [showError]="isPlaceInvalid()"
+              />
+              <ion-select
+                formControlName="parking"
+                interface="popover"
+                fill="outline"
+                [label]="isToCampus() ? 'Destino' : 'Origen'"
+                labelPlacement="floating"
+              >
+                <ion-icon
+                  slot="start"
+                  [icon]="isToCampus() ? icons.destination : icons.origin"
+                  aria-hidden="true"
+                />
+                @for (parking of parkings(); track parking.id) {
+                  <ion-select-option [value]="parking.id">
+                    {{ campusName }} · {{ parking.name }}
+                  </ion-select-option>
+                }
+              </ion-select>
+            </div>
+
+            <div class="publish__grid">
+              <div class="publish__field">
+                <span id="publish-date-label" class="text-label text-label--strong">Fecha</span>
+                <div class="publish__picker">
+                  <ion-icon [icon]="icons.calendar" aria-hidden="true" />
+                  <ion-datetime-button
+                    datetime="publish-date"
+                    aria-labelledby="publish-date-label"
+                  />
+                </div>
+              </div>
+              <div class="publish__field">
+                <span id="publish-time-label" class="text-label text-label--strong">
+                  Hora de salida
+                </span>
+                <div class="publish__picker">
+                  <ion-icon [icon]="icons.clock" aria-hidden="true" />
+                  <ion-datetime-button
+                    datetime="publish-time"
+                    aria-labelledby="publish-time-label"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <ion-select
+              formControlName="vehicleId"
+              interface="popover"
+              fill="outline"
+              label="Vehículo"
+              labelPlacement="stacked"
+            >
+              <ion-icon slot="start" [icon]="icons.car" aria-hidden="true" />
+              @for (vehicle of vehicles(); track vehicle.id) {
+                <ion-select-option [value]="vehicle.id">
+                  {{ vehicle.plate }} · {{ vehicle.capacity }} plazas
+                </ion-select-option>
+              }
+            </ion-select>
+
+            <div class="publish__grid">
+              <!-- Plazas ofrecidas con − y + (SeatStepper de la guía) -->
+              <div class="publish__field">
+                <span class="text-label text-label--strong" id="publish-seats-label">
+                  Plazas ofrecidas
+                </span>
+                <div class="publish__stepper" role="group" aria-labelledby="publish-seats-label">
+                  <button
+                    type="button"
+                    class="publish__step"
+                    aria-label="Una plaza menos"
+                    [disabled]="!canRemoveSeat()"
+                    (click)="changeSeats(-1)"
+                  >
+                    <ion-icon [icon]="icons.remove" aria-hidden="true" />
+                  </button>
+                  <output class="text-subtitle" aria-live="polite">
+                    {{ tripForm.controls.seats.value }} de {{ maxSeats() }}
+                  </output>
+                  <button
+                    type="button"
+                    class="publish__step"
+                    aria-label="Una plaza más"
+                    [disabled]="!canAddSeat()"
+                    (click)="changeSeats(1)"
+                  >
+                    <ion-icon [icon]="icons.add" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+              <ion-select
+                formControlName="maxDetourMin"
+                interface="popover"
+                fill="outline"
+                label="Desvío máximo"
+                labelPlacement="stacked"
+              >
+                @for (detour of detours; track detour) {
+                  <ion-select-option [value]="detour">{{ detour }} min</ion-select-option>
+                }
+              </ion-select>
+            </div>
+
+            @if (!hasDeclared()) {
+              <ion-checkbox formControlName="declaration" labelPlacement="end" justify="start">
+                Declaro que tengo permiso de conducir vigente y que el vehículo está autorizado para
+                circular.
+              </ion-checkbox>
+              @if (tripForm.touched && !tripForm.controls.declaration.value) {
+                <p class="publish__error" role="alert">
+                  Acepta la declaración para publicar tu primer viaje.
+                </p>
+              }
+            }
+
+            <ion-button type="submit" expand="block" [disabled]="isSaving()">
+              @if (isSaving()) {
+                <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+              }
+              Publicar viaje
+            </ion-button>
+            <p class="text-caption text-color-muted">
+              Publicar requiere un vehículo registrado y la declaración responsable. UAL Carpool no
+              valida tu permiso.
+            </p>
+
+            <!-- Calendario y hora, con los botones de la app (como en Buscar) -->
+            <ion-modal class="datetime-modal" [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime
+                  #dateField
+                  id="publish-date"
+                  formControlName="date"
+                  presentation="date"
+                  [formatOptions]="{ date: { day: 'numeric', month: 'short' } }"
+                  locale="es-ES"
+                  [firstDayOfWeek]="1"
+                  [min]="minDate"
+                  [showDefaultButtons]="true"
+                >
+                  <div slot="buttons" class="datetime-actions">
+                    <button
+                      type="button"
+                      class="datetime-actions__button"
+                      (click)="dateField.cancel(true)"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      class="datetime-actions__button datetime-actions__button--primary"
+                      (click)="dateField.confirm(true)"
+                    >
+                      Aceptar
+                    </button>
+                  </div>
+                </ion-datetime>
+              </ng-template>
+            </ion-modal>
+            <ion-modal class="datetime-modal" [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime
+                  #timeField
+                  id="publish-time"
+                  formControlName="time"
+                  presentation="time"
+                  locale="es-ES"
+                  hourCycle="h23"
+                  [minuteValues]="[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]"
+                  [showDefaultButtons]="true"
+                >
+                  <div slot="buttons" class="datetime-actions">
+                    <button
+                      type="button"
+                      class="datetime-actions__button"
+                      (click)="timeField.cancel(true)"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      class="datetime-actions__button datetime-actions__button--primary"
+                      (click)="timeField.confirm(true)"
+                    >
+                      Aceptar
+                    </button>
+                  </div>
+                </ion-datetime>
+              </ng-template>
+            </ion-modal>
+          </form>
+        }
+      }
+    }
+  </div>
+</ion-content>
