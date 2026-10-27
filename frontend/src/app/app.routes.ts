@@ -1,4 +1,5 @@
 import { Route, Routes } from '@angular/router';
+import { homeOutline } from 'ionicons/icons';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { leaveModesGuard } from './core/guards/leave-modes.guard';
@@ -11,6 +12,9 @@ const comingSoon = (title: string, description: string): Pick<Route, 'loadCompon
     import('./features/tabs/coming-soon/coming-soon.page').then((m) => m.ComingSoonPage),
   data: { title, description },
 });
+
+// Primer paso de los breadcrumbs (escritorio): Inicio, con el icono de la casa
+const HOME_BREADCRUMB = { label: 'Inicio', href: '/tabs/home', icon: homeOutline };
 
 // Rutas de la aplicación. Cada pantalla se carga bajo demanda
 // (loadComponent) desde features/<área>/, con sus guards
@@ -95,6 +99,25 @@ export const routes: Routes = [
             title: 'Buscar viaje',
             subtitle: 'Viajes de la comunidad UAL que encajan con tu ruta y tu horario.',
             backHref: '/tabs/home',
+            breadcrumbs: [HOME_BREADCRUMB],
+          } satisfies TabHeading,
+        },
+      },
+      {
+        // Detalle de un viaje de los resultados (aún sin pantalla). La flecha
+        // vuelve a Buscar, que sigue con la misma búsqueda
+        path: 'search/trips/:id',
+        canActivate: [profileGuard('passenger')],
+        loadComponent: () =>
+          import('./features/tabs/coming-soon/coming-soon.page').then((m) => m.ComingSoonPage),
+        data: {
+          title: 'Detalle del viaje',
+          description: 'Muy pronto verás aquí el viaje completo y podrás pedir tu plaza.',
+          heading: {
+            title: 'Detalle del viaje',
+            subtitle: 'El recorrido, quién conduce y las plazas libres.',
+            backHref: '/tabs/search',
+            breadcrumbs: [HOME_BREADCRUMB, { label: 'Buscar viaje', href: '/tabs/search' }],
           } satisfies TabHeading,
         },
       },

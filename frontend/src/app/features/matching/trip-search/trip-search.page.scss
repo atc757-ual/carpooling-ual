@@ -1,0 +1,99 @@
+// El fondo gris y las tarjetas blancas, de ../../tabs/tab-page.scss y
+// theme/_components.scss
+
+// Móvil: una columna. «Tu búsqueda» es una franja blanca de lado a lado, como
+// la del saludo de Inicio, y debajo los resultados con el margen de la página
+.trip-search__criteria {
+  border-width: 0 0 var(--border-width-s);
+  border-color: var(--color-border-subtle);
+  border-radius: 0;
+
+  ion-card-content {
+    padding: var(--space-base) var(--page-gutter);
+  }
+}
+
+.trip-search__results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding: var(--space-l) var(--page-gutter);
+}
+
+// Cabecera del grupo de resultados: el recuento a la izquierda y la marca de
+// datos de ejemplo a la derecha
+.trip-search__group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+// Aviso fijo bajo los resultados: lo que no se promete
+.trip-search__results > p {
+  margin: 0;
+}
+
+// Sin búsqueda (escritorio): tarjeta alta con todo centrado, el icono de 32px
+// en un círculo azul claro de 64px, el título y el texto debajo (en div: Ionic
+// pone 14px a los p de ion-card-content)
+.trip-search__state {
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  min-height: 20rem; // 320px
+  padding: var(--space-xxxl) var(--space-l);
+  text-align: center;
+
+  ion-icon {
+    box-sizing: content-box;
+    margin-bottom: var(--space-s);
+    padding: var(--space-base);
+    border-radius: var(--radius-full);
+    background: var(--color-primary-subtle);
+    color: var(--color-link);
+    font-size: 2rem; // 32px
+  }
+}
+
+// Escritorio: resultados en la columna de 8 y «Tu búsqueda» en la de 4, como
+// tarjeta, con 16px entre las dos y el margen y el ancho máximo de la página
+@media (min-width: 768px) {
+  .trip-search {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-base);
+    padding: var(--space-l) var(--page-gutter);
+  }
+
+  .trip-search__criteria {
+    grid-row: 1;
+    grid-column: 2;
+    border-width: var(--border-width-s);
+    border-color: var(--color-border);
+    border-radius: var(--radius-s);
+
+    // Sin relleno arriba: ya lo da el título
+    ion-card-content {
+      padding: 0 var(--space-base) var(--space-base);
+    }
+  }
+
+  .trip-search__results {
+    grid-row: 1;
+    grid-column: 1;
+    padding: 0;
+  }
+}
+
+// Al editar: «Nueva búsqueda» a la izquierda y «Cancelar» a la derecha
+.trip-search__edit-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-s);
+
+  ion-button {
+    margin: 0;
+  }
+}

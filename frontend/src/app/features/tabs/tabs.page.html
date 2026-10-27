@@ -71,6 +71,21 @@
     @if (heading(); as heading) {
       <p class="text-subtitle">{{ heading.title }}</p>
       <p class="text-body text-color-muted">{{ heading.subtitle }}</p>
+      @if (heading.breadcrumbs; as breadcrumbs) {
+        <ion-breadcrumbs class="greeting-bar__breadcrumbs">
+          @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
+            <ion-breadcrumb [routerLink]="breadcrumb.href" routerDirection="back">
+              @if (breadcrumb.icon) {
+                <ion-icon [icon]="breadcrumb.icon" aria-hidden="true" />
+                <span class="visually-hidden">{{ breadcrumb.label }}</span>
+              } @else {
+                {{ breadcrumb.label }}
+              }
+            </ion-breadcrumb>
+          }
+          <ion-breadcrumb [active]="true">{{ heading.title }}</ion-breadcrumb>
+        </ion-breadcrumbs>
+      }
     } @else {
       <p class="text-subtitle">¡Hola, {{ firstName() }}!</p>
       <p class="text-body text-color-muted">¿Vamos al campus hoy?</p>

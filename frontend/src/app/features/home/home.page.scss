@@ -81,18 +81,6 @@
   gap: var(--space-s);
 }
 
-// «Datos de ejemplo»: que no se confunda con datos reales
-.home__example {
-  --background: var(--color-warning-subtle);
-  --color: var(--color-warning-text);
-  --padding-start: var(--space-s);
-  --padding-end: var(--space-s);
-
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-medium);
-}
-
 // «Tu impacto» y «¿Cómo funciona?»: listas sin fondo ni márgenes propios,
 // con 12px entre filas
 .home__figures,

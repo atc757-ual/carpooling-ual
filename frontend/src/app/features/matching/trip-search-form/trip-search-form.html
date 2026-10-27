@@ -81,22 +81,22 @@
   <div class="search-form__details">
     <!-- Fecha, con el selector nativo en español -->
     <div class="search-form__field">
-      <span id="search-date-label" class="text-label text-label--strong">Fecha</span>
+      <span [id]="dateId + '-label'" class="text-label text-label--strong">Fecha</span>
       <div class="search-form__picker">
         <ion-icon [icon]="calendarIcon" aria-hidden="true" />
-        <ion-datetime-button datetime="search-date" aria-labelledby="search-date-label" />
+        <ion-datetime-button [datetime]="dateId" [attr.aria-labelledby]="dateId + '-label'" />
       </div>
     </div>
 
     <!-- Hora de llegada al campus o, al volver, de salida, con el selector
          nativo en 24 h -->
     <div class="search-form__field">
-      <span id="search-time-label" class="text-label text-label--strong">
+      <span [id]="timeId + '-label'" class="text-label text-label--strong">
         {{ timeType() === 'arrival' ? 'Hora de llegada' : 'Hora de salida' }}
       </span>
       <div class="search-form__picker">
         <ion-icon [icon]="clockIcon" aria-hidden="true" />
-        <ion-datetime-button datetime="search-time" aria-labelledby="search-time-label" />
+        <ion-datetime-button [datetime]="timeId" [attr.aria-labelledby]="timeId + '-label'" />
       </div>
     </div>
 
@@ -163,7 +163,7 @@
     <ng-template>
       <ion-datetime
         #dateField
-        id="search-date"
+        [id]="dateId"
         formControlName="date"
         presentation="date"
         [formatOptions]="{ date: { day: 'numeric', month: 'short' } }"
@@ -192,7 +192,7 @@
     <ng-template>
       <ion-datetime
         #timeField
-        id="search-time"
+        [id]="timeId"
         formControlName="time"
         presentation="time"
         locale="es-ES"

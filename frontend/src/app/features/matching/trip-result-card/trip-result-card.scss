@@ -1,0 +1,84 @@
+// TripRow de la guía, en una tarjeta: 12px entre las partes (el contenido de
+// ion-card ya es una columna, ver theme/_components.scss)
+.trip-card ion-card-content {
+  gap: 0.75rem; // 12px
+
+  ion-button {
+    margin: var(--space-xs) 0 0;
+  }
+}
+
+// Horas a la izquierda, grandes, y las plazas a la derecha
+.trip-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.trip-card__times {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+// Plazas libres en verde; la última, como chip naranja con texto negro (el
+// naranja como texto pequeño no llega al contraste mínimo)
+.trip-card__seats {
+  color: var(--color-eco-text);
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.trip-card__seats--last {
+  padding: 0.125rem var(--space-s); // 2px 8px
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.trip-card__route {
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body-s);
+}
+
+// Conductor: iniciales en un círculo de 40px, nombre y detalles, y la
+// valoración a la derecha
+.trip-card__driver {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; // 12px
+}
+
+.trip-card__avatar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem; // 40px
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-warning-subtle);
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+}
+
+.trip-card__person {
+  flex: 1;
+  min-width: 0;
+}
+
+.trip-card__name {
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body-s);
+}
+
+.trip-card__rating {
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}

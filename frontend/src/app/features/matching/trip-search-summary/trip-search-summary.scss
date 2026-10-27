@@ -1,0 +1,86 @@
+// El trayecto a la izquierda y «Editar» a la derecha, arriba; debajo, a todo
+// el ancho, la fecha, la hora y las plazas
+.search-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-base);
+  align-items: start;
+}
+
+// «Editar» como enlace con su lápiz: sin borde, 32px de alto (el tema da 48px
+// a los botones) y pegado a la derecha (el relleno queda dentro del área
+// pulsable)
+.search-summary__edit ion-button {
+  --padding-start: var(--space-s);
+  --padding-end: var(--space-s);
+  --color: var(--color-link);
+
+  min-height: 2rem; // 32px
+  height: 2rem;
+  margin: 0;
+  margin-inline-end: calc(-1 * var(--space-s));
+  font-size: var(--font-size-body-s);
+}
+
+// Línea de ruta (RouteTimeline de la guía): cada parada con su punto a la
+// izquierda, a 12px del texto, y 12px entre paradas
+.search-summary__route {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; // 12px
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.search-summary__stop {
+  position: relative;
+  display: grid;
+  grid-template-columns: 0.625rem minmax(0, 1fr); // punto de 10px
+  column-gap: 0.75rem; // 12px
+  align-items: start;
+}
+
+// Punto de 10px a la altura de la primera línea del nombre: vacío el origen y
+// relleno el destino
+.search-summary__dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  margin-top: 0.4375rem; // 7px
+  border: var(--border-width-m) solid var(--color-primary);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+}
+
+.search-summary__dot--end {
+  background: var(--color-primary);
+}
+
+// La línea sale del centro del primer punto y llega al centro del segundo,
+// sea cual sea el alto del nombre (12px entre paradas + 12px hasta el centro)
+.search-summary__stop:first-child::after {
+  content: '';
+  position: absolute;
+  top: 0.75rem; // centro del punto: 7px + 5px
+  bottom: -1.5rem; // 24px
+  left: calc(0.3125rem - var(--border-width-m) / 2); // centro del punto
+  width: var(--border-width-m);
+  background: var(--color-primary);
+}
+
+.search-summary__name {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body);
+  overflow-wrap: anywhere;
+}
+
+// Debajo del trayecto, a todo el ancho: la fecha, la hora y las plazas y, a
+// 4px, el margen
+.search-summary__details {
+  display: flex;
+  flex-direction: column;
+  grid-column: 1 / -1;
+  gap: var(--space-xs);
+}

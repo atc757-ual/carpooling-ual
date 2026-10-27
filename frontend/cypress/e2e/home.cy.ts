@@ -61,10 +61,11 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-trip-search-form ion-button', 'Buscar viaje').click();
 
       cy.location('pathname').should('eq', '/tabs/search');
-      cy.location('search').should('contain', 'place=Roquetas%20de%20Mar');
-      cy.location('search').should('contain', 'entrance=north');
-      cy.location('search').should('contain', 'direction=to-campus');
-      cy.location('search').should('contain', 'seats=2');
+      // La búsqueda no va en la URL: la muestra Buscar
+      cy.location('search').should('eq', '');
+      cy.get('app-trip-search .search-summary__stop').first().should('contain', 'Roquetas de Mar');
+      cy.get('app-trip-search .search-summary__stop').last().should('contain', 'Ingreso norte');
+      cy.contains('app-trip-search .search-summary__details', '2 plazas').should('exist');
     });
 
     it('swaps the direction: from the campus entrance to the place', () => {
@@ -80,8 +81,8 @@ for (const viewport of VIEWPORTS) {
       );
       cy.contains('app-trip-search-form ion-button', 'Buscar viaje').click();
 
-      cy.location('search').should('contain', 'place=Roquetas%20de%20Mar');
-      cy.location('search').should('contain', 'direction=from-campus');
+      cy.get('app-trip-search .search-summary__stop').first().should('contain', 'Campus UAL');
+      cy.get('app-trip-search .search-summary__stop').last().should('contain', 'Roquetas de Mar');
     });
 
     it('asks for the place before searching', () => {

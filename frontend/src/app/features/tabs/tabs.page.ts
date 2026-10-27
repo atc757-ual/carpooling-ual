@@ -2,6 +2,8 @@ import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import {
+  IonBreadcrumb,
+  IonBreadcrumbs,
   IonButton,
   IonButtons,
   IonHeader,
@@ -65,6 +67,8 @@ const PROFILE_TAB: Tab = { path: 'profile', label: 'Perfil', icon: personOutline
   imports: [
     RouterLink,
     RouterLinkActive,
+    IonBreadcrumb,
+    IonBreadcrumbs,
     IonButton,
     IonButtons,
     IonHeader,
