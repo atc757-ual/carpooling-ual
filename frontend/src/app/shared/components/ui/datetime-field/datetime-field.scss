@@ -1,0 +1,38 @@
+// Etiqueta encima a 8px y el botón con el borde de los campos de Ionic
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+}
+
+.datetime-field__box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-height: var(--control-height-l);
+  padding: 0 var(--space-base);
+  border: var(--border-width-s) solid var(--ion-border-color);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+
+  ion-icon {
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    font-size: 1.25rem; // 20px
+  }
+}
+
+// El botón del selector, con el aspecto del texto de un campo
+ion-datetime-button {
+  flex: 1;
+  justify-content: flex-start;
+}
+
+ion-datetime-button::part(native) {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--font-size-body);
+}

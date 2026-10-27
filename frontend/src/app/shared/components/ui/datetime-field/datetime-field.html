@@ -1,0 +1,54 @@
+<span [id]="labelId" class="text-label text-label--strong">{{ label() }}</span>
+<div class="datetime-field__box">
+  <ion-icon [icon]="icon()" aria-hidden="true" />
+  <ion-datetime-button [datetime]="pickerId" [attr.aria-labelledby]="labelId" />
+</div>
+
+<ion-modal class="datetime-modal" [keepContentsMounted]="true">
+  <ng-template>
+    @if (presentation() === 'date') {
+      <ion-datetime
+        #picker
+        [id]="pickerId"
+        [formControl]="control"
+        presentation="date"
+        [formatOptions]="{ date: { day: 'numeric', month: 'short' } }"
+        locale="es-ES"
+        [firstDayOfWeek]="1"
+        [min]="min()"
+        [max]="max()"
+        [showDefaultButtons]="true"
+      >
+        <ng-container *ngTemplateOutlet="actions; context: { $implicit: picker }" />
+      </ion-datetime>
+    } @else {
+      <ion-datetime
+        #picker
+        [id]="pickerId"
+        [formControl]="control"
+        presentation="time"
+        locale="es-ES"
+        hourCycle="h23"
+        [minuteValues]="minuteValues"
+        [showDefaultButtons]="true"
+      >
+        <ng-container *ngTemplateOutlet="actions; context: { $implicit: picker }" />
+      </ion-datetime>
+    }
+  </ng-template>
+</ion-modal>
+
+<ng-template #actions let-picker>
+  <div slot="buttons" class="datetime-actions">
+    <button type="button" class="datetime-actions__button" (click)="picker.cancel(true)">
+      Cancelar
+    </button>
+    <button
+      type="button"
+      class="datetime-actions__button datetime-actions__button--primary"
+      (click)="picker.confirm(true)"
+    >
+      Aceptar
+    </button>
+  </div>
+</ng-template>
