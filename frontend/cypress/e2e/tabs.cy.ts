@@ -175,12 +175,14 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('opens Avisos with the bell', () => {
+      cy.intercept('GET', '/api/users/me/notifications*', []);
       logIn(['passenger']);
 
       cy.get('app-tabs .bell-button').filter(':visible').click();
 
       cy.location('pathname').should('eq', '/tabs/notifications');
-      cy.contains('h1', 'Avisos').should('be.visible');
+      cy.get('app-notifications h1').should('contain', 'Avisos');
+      cy.contains('app-notifications', 'No tienes avisos').should('be.visible');
     });
 
     it('sends a guest opening the app to the welcome screen', () => {
