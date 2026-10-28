@@ -1,35 +1,30 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { from } from 'rxjs';
+import { computed, inject, Injectable, linkedSignal } from '@angular/core';
 import { RegisterProfile } from '../../models/auth.model';
-import { PreferencesPlugin } from '../../plugins/preferences-plugin';
 import { AuthService } from '../auth/auth.service';
+import { UsersService } from './users.service';
 
 // Modo con el que se viaja ahora: pasajero o conductor
 export type TravelMode = RegisterProfile;
 
-const ACTIVE_MODE_KEY = 'users.active-mode';
 const TRAVEL_MODES: readonly TravelMode[] = ['passenger', 'driver'];
 
-function isTravelMode(value: string | null | undefined): value is TravelMode {
-  return TRAVEL_MODES.includes(value as TravelMode);
-}
-
 // Modo activo de quien tiene los dos perfiles (con uno solo, es ese). Se
-// empieza como pasajero y se cambia desde Inicio. De momento se guarda solo en
-// este dispositivo (Preferences): en otro se vuelve a empezar como pasajero
+// guarda en el servidor (activeMode del usuario), así que es el mismo en
+// todos sus dispositivos. Mientras no lo ha cambiado nunca, se empieza como
+// pasajero. Se cambia desde Inicio o al abrir un aviso
 @Injectable({ providedIn: 'root' })
 export class ActiveModeService {
   private readonly auth = inject(AuthService);
-  private readonly preferences = inject(PreferencesPlugin);
-  // El elegido la última vez en este dispositivo (llega al leerlo)
-  private readonly stored = toSignal(from(this.preferences.get(ACTIVE_MODE_KEY)));
-  private readonly chosen = signal<TravelMode | null>(null);
+  private readonly users = inject(UsersService);
+  // El del usuario de la sesión; al cambiarlo se ve al momento, antes de que
+  // responda el servidor
+  private readonly chosen = linkedSignal<TravelMode | null>(
+    () => this.auth.currentUser()?.activeMode ?? null,
+  );
 
   // null si aún no tiene perfil de pasajero ni de conductor
   readonly mode = computed<TravelMode | null>(() => {
-    const stored = this.stored();
-    const preferred = this.chosen() ?? (isTravelMode(stored) ? stored : null);
+    const preferred = this.chosen();
     if (preferred && this.auth.hasProfile(preferred)) {
       return preferred;
     }
@@ -39,8 +34,16 @@ export class ActiveModeService {
   // Solo con los dos perfiles hay modo que cambiar
   readonly hasBothModes = computed(() => TRAVEL_MODES.every((mode) => this.auth.hasProfile(mode)));
 
+  // Si el servidor no lo guarda, se vuelve al modo anterior y se lanza su
+  // ApiError
   async setMode(mode: TravelMode): Promise<void> {
+    const previous = this.chosen();
     this.chosen.set(mode);
-    await this.preferences.set(ACTIVE_MODE_KEY, mode);
+    try {
+      await this.users.setActiveMode(mode);
+    } catch (error) {
+      this.chosen.set(previous);
+      throw error;
+    }
   }
 }

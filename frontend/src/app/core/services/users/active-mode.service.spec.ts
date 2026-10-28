@@ -1,89 +1,83 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
-import { Profile } from '../../models/user.model';
-import { PreferencesPlugin } from '../../plugins/preferences-plugin';
+import { Profile, User } from '../../models/user.model';
 import { AuthService } from '../auth/auth.service';
 import { ActiveModeService } from './active-mode.service';
-
-const ACTIVE_MODE_KEY = 'users.active-mode';
+import { UsersService } from './users.service';
 
 describe('ActiveModeService', () => {
-  const profiles = signal<Profile[]>([]);
-  let stored: Map<string, string>;
+  const user = signal<Pick<User, 'profiles' | 'activeMode'> | null>(null);
+  let setActiveMode: ReturnType<typeof vi.fn>;
 
-  function create(storedMode?: string): ActiveModeService {
-    stored = new Map(storedMode ? [[ACTIVE_MODE_KEY, storedMode]] : []);
+  function create(profiles: Profile[], activeMode: User['activeMode'] = null): ActiveModeService {
+    user.set({ profiles, activeMode });
+    setActiveMode = vi.fn().mockResolvedValue({});
     TestBed.configureTestingModule({
       providers: [
         {
           provide: AuthService,
-          useValue: { hasProfile: (profile: Profile) => profiles().includes(profile) },
-        },
-        {
-          provide: PreferencesPlugin,
           useValue: {
-            get: (key: string) => Promise.resolve(stored.get(key) ?? null),
-            set: (key: string, value: string) => Promise.resolve(void stored.set(key, value)),
+            currentUser: user,
+            hasProfile: (profile: Profile) => user()?.profiles.includes(profile) ?? false,
           },
         },
+        { provide: UsersService, useValue: { setActiveMode } },
       ],
     });
     return TestBed.inject(ActiveModeService);
   }
 
-  // Espera a que llegue lo guardado en el dispositivo
-  const settle = (): Promise<void> => vi.waitFor(() => Promise.resolve());
-
   it('has no mode without the passenger or driver profile', () => {
-    profiles.set([]);
-
-    const service = create();
+    const service = create([]);
 
     expect(service.mode()).toBeNull();
     expect(service.hasBothModes()).toBe(false);
   });
 
   it('uses the only profile there is', () => {
-    profiles.set(['driver']);
-
-    expect(create().mode()).toBe('driver');
+    expect(create(['driver']).mode()).toBe('driver');
   });
 
-  it('starts as a passenger with both profiles', () => {
-    profiles.set(['passenger', 'driver']);
-
-    const service = create();
+  it('starts as a passenger with both profiles until one is chosen', () => {
+    const service = create(['passenger', 'driver']);
 
     expect(service.mode()).toBe('passenger');
     expect(service.hasBothModes()).toBe(true);
   });
 
-  it('changes the mode and remembers it on this device', async () => {
-    profiles.set(['passenger', 'driver']);
-    const service = create();
-
-    await service.setMode('driver');
-
-    expect(service.mode()).toBe('driver');
-    expect(stored.get(ACTIVE_MODE_KEY)).toBe('driver');
+  it('uses the mode kept on the server', () => {
+    expect(create(['passenger', 'driver'], 'driver').mode()).toBe('driver');
   });
 
-  it('restores the mode chosen last time', async () => {
-    profiles.set(['passenger', 'driver']);
-
-    const service = create('driver');
-    await settle();
-
-    expect(service.mode()).toBe('driver');
+  it('ignores a kept mode the user no longer has', () => {
+    expect(create(['passenger'], 'driver').mode()).toBe('passenger');
   });
 
-  it('ignores a stored mode the user no longer has', async () => {
-    profiles.set(['passenger']);
+  it('changes the mode at once and keeps it on the server', async () => {
+    const service = create(['passenger', 'driver']);
 
-    const service = create('driver');
-    await settle();
+    const change = service.setMode('driver');
+
+    expect(service.mode()).toBe('driver');
+    await change;
+    expect(setActiveMode).toHaveBeenCalledWith('driver');
+  });
+
+  it('goes back to the previous mode if the server does not keep it', async () => {
+    const service = create(['passenger', 'driver'], 'passenger');
+    setActiveMode.mockRejectedValue(new Error('down'));
+
+    await expect(service.setMode('driver')).rejects.toThrow('down');
 
     expect(service.mode()).toBe('passenger');
+  });
+
+  it('follows the user of a new session', () => {
+    const service = create(['passenger', 'driver'], 'passenger');
+
+    user.set({ profiles: ['passenger', 'driver'], activeMode: 'driver' });
+
+    expect(service.mode()).toBe('driver');
   });
 });

@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -8,7 +9,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { TripsService } from '../../core/services/trips/trips.service';
 import { ToastService } from '../../core/services/ui/toast.service';
-import { ActiveModeService } from '../../core/services/users/active-mode.service';
+import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { NotificationsPage } from './notifications.page';
 
 const TRIP: Trip = {
@@ -41,6 +42,7 @@ describe('NotificationsPage', () => {
   let service: Record<string, ReturnType<typeof vi.fn>>;
   let getTrip: ReturnType<typeof vi.fn>;
   let setMode: ReturnType<typeof vi.fn>;
+  const activeMode = signal<TravelMode | null>('passenger');
   let showError: ReturnType<typeof vi.fn>;
 
   async function render(
@@ -54,6 +56,7 @@ describe('NotificationsPage', () => {
     };
     getTrip = vi.fn().mockResolvedValue(TRIP);
     setMode = vi.fn().mockResolvedValue(undefined);
+    activeMode.set('passenger');
     showError = vi.fn().mockResolvedValue(undefined);
     TestBed.configureTestingModule({
       imports: [NotificationsPage],
@@ -66,7 +69,7 @@ describe('NotificationsPage', () => {
           provide: AuthService,
           useValue: { hasProfile: (profile: string) => profiles.includes(profile) },
         },
-        { provide: ActiveModeService, useValue: { setMode } },
+        { provide: ActiveModeService, useValue: { setMode, mode: activeMode } },
         { provide: ToastService, useValue: { showError } },
       ],
     });
@@ -99,6 +102,16 @@ describe('NotificationsPage', () => {
 
     expect(service['markRead']).toHaveBeenCalledWith('n1');
     expect(setMode).toHaveBeenCalledWith('driver');
+    expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/tabs/trips');
+  });
+
+  it('does not change the mode when it is already the one', async () => {
+    await render(() => Promise.resolve([notification('n1', 'request_received', true)]));
+    activeMode.set('driver');
+
+    await fixture.componentInstance.handleOpen(fixture.componentInstance.all()[0]);
+
+    expect(setMode).not.toHaveBeenCalled();
     expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/tabs/trips');
   });
 

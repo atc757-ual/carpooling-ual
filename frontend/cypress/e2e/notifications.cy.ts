@@ -107,7 +107,7 @@ for (const viewport of VIEWPORTS) {
 
       cy.contains('app-notifications ion-button', 'Marcar todo como leído').click();
 
-      cy.wait('@readAll');
+      cy.wait('@readAll').its('response.statusCode').should('eq', 204);
     });
   });
 }
