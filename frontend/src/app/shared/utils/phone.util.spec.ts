@@ -1,6 +1,7 @@
 import { FormControl, FormGroup } from '@angular/forms';
 import {
   buildPhone,
+  formatPhone,
   formatPhoneNumber,
   phoneNumberValidator,
   splitPhone,
@@ -65,5 +66,10 @@ describe('phone util', () => {
     ['+999 123', '+34', { prefix: '+34', number: '999123' }],
   ])('splits %s pasted with %s selected', (value, currentPrefix, split) => {
     expect(splitPhone(value, currentPrefix)).toEqual(split);
+  });
+
+  it('formats a saved phone to read it', () => {
+    expect(formatPhone('+34612345678')).toBe('+34 612 345 678');
+    expect(formatPhone('+351912345678')).toBe('+351 912345678');
   });
 });

@@ -152,6 +152,14 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile.page').then((m) => m.ProfilePage),
+        data: {
+          heading: {
+            title: 'Perfil',
+            subtitle: 'Tu cuenta y tus perfiles.',
+            backHref: '/tabs/home',
+            breadcrumbs: [HOME_BREADCRUMB],
+          } satisfies TabHeading,
+        },
       },
     ],
   },

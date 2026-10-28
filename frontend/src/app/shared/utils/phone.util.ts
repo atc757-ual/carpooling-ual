@@ -47,6 +47,12 @@ export function formatPhoneNumber(prefix: string, number: string): string {
   return prefix === SPANISH_PREFIX ? digits.replace(/(\d{3})(?=\d)/g, '$1 ') : digits;
 }
 
+// Un teléfono guardado (E.164) para leerlo: «+34 612 345 678»
+export function formatPhone(phone: string): string {
+  const { prefix, number } = splitPhone(phone, SPANISH_PREFIX);
+  return `${prefix} ${formatPhoneNumber(prefix, number)}`;
+}
+
 export function buildPhone(prefix: string, number: string): string {
   return prefix + toDigits(number);
 }

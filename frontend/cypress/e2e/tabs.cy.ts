@@ -140,6 +140,8 @@ for (const viewport of VIEWPORTS) {
         goTo('Perfil');
         cy.contains('app-profile', EMAIL).should('be.visible');
         cy.contains('app-profile ion-button', 'Cerrar sesión').click();
+        // Pide confirmación
+        cy.contains('ion-alert button', 'Cerrar sesión').click();
 
         cy.wait('@logout');
         cy.location('pathname').should('eq', '/auth/welcome');
