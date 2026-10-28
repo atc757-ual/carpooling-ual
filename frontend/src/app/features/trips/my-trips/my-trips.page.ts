@@ -1,4 +1,4 @@
-import { Component, computed, inject, resource } from '@angular/core';
+import { Component, computed, inject, linkedSignal, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonButton,
@@ -7,12 +7,16 @@ import {
   IonContent,
   IonIcon,
   IonRouterLink,
+  IonLabel,
+  IonSegment,
+  IonSegmentButton,
   IonSpinner,
 } from '@ionic/angular';
 import { alertCircleOutline, carOutline } from 'ionicons/icons';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
-import { ActiveModeService } from '../../../core/services/users/active-mode.service';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { ActiveModeService, TravelMode } from '../../../core/services/users/active-mode.service';
 import { DriverTripCard } from '../driver-trip-card/driver-trip-card';
 import { PassengerRequests } from '../passenger-requests/passenger-requests';
 
@@ -32,6 +36,9 @@ const UPCOMING: ReadonlySet<TripStatus> = new Set(['published', 'confirmed', 'in
     IonContent,
     IonIcon,
     IonRouterLink,
+    IonLabel,
+    IonSegment,
+    IonSegmentButton,
     IonSpinner,
     DriverTripCard,
     PassengerRequests,
@@ -42,8 +49,18 @@ const UPCOMING: ReadonlySet<TripStatus> = new Set(['published', 'confirmed', 'in
 export class MyTripsPage {
   private readonly driver = inject(DriverService);
   private readonly activeMode = inject(ActiveModeService);
+  private readonly auth = inject(AuthService);
 
-  readonly isDriver = computed(() => this.activeMode.mode() === 'driver');
+  // Con perfil de conductor, un segmento elige qué se ve; empieza por el
+  // último lado usado (activeMode). Sin él, sus solicitudes
+  readonly canDrive = computed(() => {
+    this.auth.currentUser();
+    return this.auth.hasProfile('driver');
+  });
+  readonly view = linkedSignal<TravelMode>(() =>
+    this.activeMode.mode() === 'driver' && this.canDrive() ? 'driver' : 'passenger',
+  );
+  readonly isDriver = computed(() => this.view() === 'driver');
 
   readonly trips = resource({
     params: () => (this.isDriver() ? true : undefined),
@@ -64,6 +81,13 @@ export class MyTripsPage {
   protected readonly errorIcon = alertCircleOutline;
 
   // Al decidir una solicitud cambian las plazas (y quizá el estado)
+  // El segmento da su valor sin tipo
+  handleViewChange(value: string | number | undefined): void {
+    if (value === 'passenger' || value === 'driver') {
+      this.view.set(value);
+    }
+  }
+
   handleChanged(): void {
     this.trips.reload();
   }

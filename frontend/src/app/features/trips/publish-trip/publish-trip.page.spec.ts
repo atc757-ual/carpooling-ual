@@ -9,6 +9,7 @@ import { DriverService } from '../../../core/services/drivers/driver.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { PublishTripPage, toDepartureAt } from './publish-trip.page';
+import { AuthService } from '../../../core/services/auth/auth.service';
 
 const P1: CampusParking = {
   id: 'p1',
@@ -49,6 +50,10 @@ describe('PublishTripPage', () => {
         provideIonicAngular(),
         provideRouter([]),
         { provide: DriverService, useValue: driver },
+        {
+          provide: AuthService,
+          useValue: { hasProfile: () => true, refreshAccessToken: vi.fn().mockResolvedValue('t') },
+        },
         {
           provide: PlacesService,
           useValue: { parkings: signal([P1]), loadParkings: vi.fn().mockResolvedValue(undefined) },
@@ -203,5 +208,26 @@ describe('PublishTripPage', () => {
     await page.load();
 
     expect(page.loadState()).toBe('error');
+  });
+
+  it('starts by registering the car without the driver profile, and gets it after', async () => {
+    await createPage([VEHICLE]);
+    const auth = TestBed.inject(AuthService) as unknown as {
+      hasProfile: (profile: string) => boolean;
+      refreshAccessToken: ReturnType<typeof vi.fn>;
+    };
+    auth.hasProfile = (profile) => profile !== 'driver';
+    driver['getStatus'].mockClear();
+
+    await page.load();
+
+    expect(driver['getStatus']).not.toHaveBeenCalled();
+    expect(page.vehicles()).toEqual([]);
+    expect(page.loadState()).toBe('ready');
+
+    await page.handleVehicleSaved(VEHICLE);
+
+    expect(auth.refreshAccessToken).toHaveBeenCalled();
+    expect(page.vehicles()).toEqual([VEHICLE]);
   });
 });

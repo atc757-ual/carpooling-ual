@@ -2,6 +2,22 @@
   <div class="tab-page my-trips">
     <h1 class="visually-hidden">Mis viajes</h1>
 
+    @if (canDrive()) {
+      <ion-segment
+        class="my-trips__view"
+        aria-label="Qué viajes ver"
+        [value]="view()"
+        (ionChange)="handleViewChange($event.detail.value)"
+      >
+        <ion-segment-button value="passenger">
+          <ion-label>Como pasajero</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="driver">
+          <ion-label>Como conductor</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    }
+
     @if (isDriver()) {
       @if (trips.isLoading() && !trips.hasValue()) {
         <output class="my-trips__status">

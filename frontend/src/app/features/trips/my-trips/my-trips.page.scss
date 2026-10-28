@@ -47,3 +47,8 @@
     margin: var(--space-s) 0 0;
   }
 }
+
+// Como pasajero | Como conductor: a todo el ancho de la columna
+.my-trips__view {
+  width: 100%;
+}

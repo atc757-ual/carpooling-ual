@@ -157,6 +157,16 @@ ion-badge.example-badge {
 // claro. Sus botones «Cancelar» y «Aceptar» van en el slot buttons
 // (.datetime-actions), con la letra de los botones de la app: los de Ionic
 // van en mayúsculas y no se pueden cambiar
+// La ventana se ajusta al calendario o a las ruedas (Ionic la hace de 600×500
+// en escritorio y de pantalla completa en el móvil, y el calendario, de ancho
+// fijo, quedaba perdido en medio)
+ion-modal.datetime-modal {
+  --width: fit-content;
+  --min-width: 20rem; // 320px
+  --height: fit-content;
+  --border-radius: var(--radius-s);
+}
+
 ion-datetime {
   --background: var(--ion-background-color);
   --background-rgb: var(--ion-background-color-rgb);

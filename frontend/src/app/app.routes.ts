@@ -1,13 +1,10 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
-import { homeOutline } from 'ionicons/icons';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
-import { leaveModesGuard } from './core/guards/leave-modes.guard';
 import { profileGuard } from './core/guards/profile.guard';
+import { ActiveModeService } from './core/services/users/active-mode.service';
 import { TabHeading } from './features/tabs/tab-heading';
-
-// Primer paso de los breadcrumbs (escritorio): Inicio, con el icono de la casa
-const HOME_BREADCRUMB = { label: 'Inicio', href: '/tabs/home', icon: homeOutline };
 
 // Rutas de la aplicación. Cada pantalla se carga bajo demanda
 // (loadComponent) desde features/<área>/, con sus guards
@@ -57,41 +54,22 @@ export const routes: Routes = [
     ],
   },
   {
-    // Elegir modo: con la sesión ya abierta (tras verificar el correo)
-    path: 'modes',
-    canActivate: [authGuard],
-    // Salir sin elegir modo cierra la sesión (vuelve a la bienvenida)
-    canDeactivate: [leaveModesGuard],
-    loadComponent: () => import('./features/auth/modes/modes.page').then((m) => m.ModesPage),
-  },
-  {
-    // Área con sesión: las cinco pestañas (sin sesión, authGuard lleva a la
-    // bienvenida o al login)
+    // Área con sesión: cinco destinos fijos (Buscar, Publicar, Mis viajes,
+    // Mensajes y Perfil; sin sesión, authGuard lleva a la bienvenida o al
+    // login). Avisos se abre con la campana de la cabecera
     path: 'tabs',
     canActivate: [authGuard],
     loadComponent: () => import('./features/tabs/tabs.page').then((m) => m.TabsPage),
     children: [
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
       {
-        path: 'home',
-        loadComponent: () => import('./features/home/home.page').then((m) => m.HomePage),
+        // Al entrar: Buscar, o Publicar si fue lo último que hizo (en
+        // cualquier dispositivo: activeMode del usuario). Una sola redirección:
+        // Angular no encadena dos relativas en el mismo nivel
+        path: '',
+        pathMatch: 'full',
+        redirectTo: () => (inject(ActiveModeService).mode() === 'driver' ? 'publish' : 'search'),
       },
       {
-        path: 'trips',
-        loadComponent: () =>
-          import('./features/trips/my-trips/my-trips.page').then((m) => m.MyTripsPage),
-        data: {
-          heading: {
-            title: 'Mis viajes',
-            subtitle: 'Tus viajes y las solicitudes de plaza.',
-            backHref: '/tabs/home',
-            breadcrumbs: [HOME_BREADCRUMB],
-          } satisfies TabHeading,
-        },
-      },
-      {
-        // Como pasajero. Con su cabecera: el título en la franja fija y, en el
-        // móvil, la flecha de volver a Inicio
         path: 'search',
         canActivate: [profileGuard('passenger')],
         loadComponent: () =>
@@ -100,8 +78,6 @@ export const routes: Routes = [
           heading: {
             title: 'Buscar viaje',
             subtitle: 'Viajes de la comunidad UAL que encajan con tu ruta y tu horario.',
-            backHref: '/tabs/home',
-            breadcrumbs: [HOME_BREADCRUMB],
           } satisfies TabHeading,
         },
       },
@@ -117,35 +93,42 @@ export const routes: Routes = [
             title: 'Detalle del viaje',
             subtitle: 'El recorrido, quién conduce y las plazas libres.',
             backHref: '/tabs/search',
-            breadcrumbs: [HOME_BREADCRUMB, { label: 'Buscar viaje', href: '/tabs/search' }],
+            breadcrumbs: [{ label: 'Buscar viaje', href: '/tabs/search' }],
           } satisfies TabHeading,
         },
       },
       {
-        // Como conductor
+        // Para todos: sin coche, la pantalla empieza por registrarlo (el
+        // primero activa el perfil de conductor)
         path: 'publish',
-        canActivate: [profileGuard('driver')],
         loadComponent: () =>
           import('./features/trips/publish-trip/publish-trip.page').then((m) => m.PublishTripPage),
         data: {
           heading: {
             title: 'Publicar viaje',
             subtitle: 'Comparte tu recorrido con la comunidad. Tú aceptas cada solicitud.',
-            backHref: '/tabs/home',
-            breadcrumbs: [HOME_BREADCRUMB],
           } satisfies TabHeading,
         },
       },
       {
-        path: 'notifications',
+        path: 'trips',
         loadComponent: () =>
-          import('./features/notifications/notifications.page').then((m) => m.NotificationsPage),
+          import('./features/trips/my-trips/my-trips.page').then((m) => m.MyTripsPage),
         data: {
           heading: {
-            title: 'Avisos',
-            subtitle: 'Lo que pasa con tus viajes y tus solicitudes.',
-            backHref: '/tabs/home',
-            breadcrumbs: [HOME_BREADCRUMB],
+            title: 'Mis viajes',
+            subtitle: 'Tus viajes y las solicitudes de plaza.',
+          } satisfies TabHeading,
+        },
+      },
+      {
+        path: 'messages',
+        loadComponent: () =>
+          import('./features/messages/messages.page').then((m) => m.MessagesPage),
+        data: {
+          heading: {
+            title: 'Mensajes',
+            subtitle: 'Habla con quien conduce o viaja contigo.',
           } satisfies TabHeading,
         },
       },
@@ -155,14 +138,24 @@ export const routes: Routes = [
         data: {
           heading: {
             title: 'Perfil',
-            subtitle: 'Tu cuenta, tus vehículos y tus perfiles.',
-            backHref: '/tabs/home',
-            breadcrumbs: [HOME_BREADCRUMB],
+            subtitle: 'Tu cuenta y tus vehículos.',
+          } satisfies TabHeading,
+        },
+      },
+      {
+        // Con la campana de la cabecera
+        path: 'notifications',
+        loadComponent: () =>
+          import('./features/notifications/notifications.page').then((m) => m.NotificationsPage),
+        data: {
+          heading: {
+            title: 'Avisos',
+            subtitle: 'Lo que pasa con tus viajes y tus solicitudes.',
           } satisfies TabHeading,
         },
       },
     ],
   },
-  { path: '', redirectTo: 'tabs/home', pathMatch: 'full' },
-  { path: '**', redirectTo: '' },
+  { path: '', redirectTo: 'tabs', pathMatch: 'full' },
+  { path: '**', redirectTo: 'tabs' },
 ];

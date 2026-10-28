@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ModalController, provideIonicAngular } from '@ionic/angular';
+import { AlertController, ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Vehicle } from '../../../core/models/driver.model';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { ProfileVehicles } from './profile-vehicles';
 
 function vehicle(id: string, status: Vehicle['status'], model: string | null): Vehicle {
@@ -12,12 +14,19 @@ function vehicle(id: string, status: Vehicle['status'], model: string | null): V
 describe('ProfileVehicles', () => {
   let fixture: ComponentFixture<ProfileVehicles>;
   let listVehicles: ReturnType<typeof vi.fn>;
+  const deactivateVehicle = vi.fn().mockResolvedValue(undefined);
+  const showError = vi.fn().mockResolvedValue(undefined);
 
   async function render(list: () => Promise<Vehicle[]>): Promise<HTMLElement> {
     listVehicles = vi.fn().mockImplementation(list);
     TestBed.configureTestingModule({
       imports: [ProfileVehicles],
-      providers: [provideIonicAngular(), { provide: DriverService, useValue: { listVehicles } }],
+      providers: [
+        provideIonicAngular(),
+        { provide: DriverService, useValue: { listVehicles, deactivateVehicle } },
+        { provide: AuthService, useValue: { hasProfile: () => true } },
+        { provide: ToastService, useValue: { showError } },
+      ],
     });
     fixture = TestBed.createComponent(ProfileVehicles);
     await fixture.whenStable();
@@ -74,6 +83,30 @@ describe('ProfileVehicles', () => {
     await fixture.componentInstance.handleOpen(null);
 
     expect(listVehicles).toHaveBeenCalledTimes(1);
+  });
+
+  it('removes a vehicle after confirming it, and shows the API error', async () => {
+    await render(() => Promise.resolve([vehicle('1234', 'available', null)]));
+    const [item] = fixture.componentInstance.activeVehicles();
+    const confirm = (role: string): void => {
+      vi.spyOn(TestBed.inject(AlertController), 'create').mockResolvedValue({
+        present: vi.fn().mockResolvedValue(undefined),
+        onDidDismiss: () => Promise.resolve({ role }),
+      } as unknown as HTMLIonAlertElement);
+    };
+
+    confirm('cancel');
+    await fixture.componentInstance.handleRemove(item);
+    expect(deactivateVehicle).not.toHaveBeenCalled();
+
+    confirm('destructive');
+    await fixture.componentInstance.handleRemove(item);
+    expect(deactivateVehicle).toHaveBeenCalledWith('1234');
+
+    deactivateVehicle.mockRejectedValueOnce(new Error('in use'));
+    confirm('destructive');
+    await fixture.componentInstance.handleRemove(item);
+    expect(showError).toHaveBeenCalled();
   });
 
   it('offers to retry when they cannot be loaded', async () => {

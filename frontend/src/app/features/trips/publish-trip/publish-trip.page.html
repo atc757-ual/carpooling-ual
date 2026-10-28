@@ -210,7 +210,9 @@
                       obligatorio y la ITV al día.
                     </span>
                   </div>
-                  @if (tripForm.touched && !tripForm.controls.declaration.value) {
+                  @if (
+                    tripForm.controls.declaration.touched && !tripForm.controls.declaration.value
+                  ) {
                     <p class="publish__error" role="alert">
                       Acepta la declaración para publicar tu primer viaje.
                     </p>
@@ -240,6 +242,17 @@
 
             <!-- Resumen en vivo de lo que se va a ofrecer -->
             <aside class="publish__card publish__summary" aria-labelledby="summary-title">
+              <!-- Cabecera ilustrada: de momento solo hacia el campus (la de
+                   vuelta llegará después). Decorativa: sin texto alternativo -->
+              @if (tripForm.controls.isToCampus.value) {
+                <img
+                  class="publish__summary-art"
+                  src="images/mapa-viaje.svg"
+                  alt=""
+                  width="352"
+                  height="160"
+                />
+              }
               <h2 id="summary-title" class="text-subtitle">Tu viaje</h2>
               @if (stops(); as stops) {
                 <app-route-timeline [stops]="stops" />

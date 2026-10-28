@@ -17,7 +17,7 @@ const ACCESS_TOKEN = {
     name: 'Mario Pérez',
     email: EMAIL,
     phone: '+34612345678',
-    profiles: [],
+    profiles: ['passenger'],
   },
 };
 
@@ -51,7 +51,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains('ion-button', 'Verificar correo').click();
 
       cy.wait('@verify').its('request.body').should('deep.equal', { email: EMAIL, code: '042619' });
-      cy.location('pathname').should('eq', '/modes');
+      cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
     });
 
     it('explains a wrong code', () => {

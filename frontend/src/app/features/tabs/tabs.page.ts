@@ -21,7 +21,7 @@ import { filter, map } from 'rxjs';
 import {
   addCircleOutline,
   arrowBackOutline,
-  homeOutline,
+  chatbubblesOutline,
   logOutOutline,
   mapOutline,
   notificationsOutline,
@@ -31,7 +31,7 @@ import {
 import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
-import { ActiveModeService } from '../../core/services/users/active-mode.service';
+import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { BrandLogo } from '../../shared/components/ui/brand-logo/brand-logo';
 import { findTabHeading } from './tab-heading';
 
@@ -42,28 +42,27 @@ interface Tab {
   icon: string;
 }
 
-const HOME_TAB: Tab = { path: 'home', label: 'Inicio', icon: homeOutline };
 const TRIPS_TAB: Tab = { path: 'trips', label: 'Mis viajes', icon: mapOutline };
 const SEARCH_TAB: Tab = { path: 'search', label: 'Buscar', icon: searchOutline };
 const PUBLISH_TAB: Tab = { path: 'publish', label: 'Publicar', icon: addCircleOutline };
-const NOTIFICATIONS_TAB: Tab = {
-  path: 'notifications',
-  label: 'Avisos',
-  icon: notificationsOutline,
-};
+const MESSAGES_TAB: Tab = { path: 'messages', label: 'Mensajes', icon: chatbubblesOutline };
 const PROFILE_TAB: Tab = { path: 'profile', label: 'Perfil', icon: personOutline };
 
-// Layout del área con sesión: cinco destinos (guía, «Navegación»). Lo de
-// fuera de ion-tabs no se vuelve a montar al navegar: solo cambia el
-// contenido de la pestaña.
-// - Móvil: cabecera con el logotipo y la campana; pestañas abajo.
+// Qué lado guarda cada pestaña al entrar (y por dónde se abre la próxima vez)
+const SIDES: readonly { path: string; mode: TravelMode }[] = [
+  { path: '/tabs/search', mode: 'passenger' },
+  { path: '/tabs/publish', mode: 'driver' },
+];
+
+// Layout del área con sesión: cinco destinos fijos (guía, «Navegación»):
+// Buscar, Publicar, Mis viajes, Mensajes y Perfil. Lo de fuera de ion-tabs no
+// se vuelve a montar al navegar: solo cambia el contenido de la pestaña.
+// - Móvil: cabecera con el título de la pantalla (y la flecha de volver en las
+//   pantallas de detalle) y la campana de Avisos; pestañas abajo.
 // - Escritorio (≥ 768px): menú superior (logotipo, destinos centrados,
-//   campana y cerrar sesión) y debajo una franja fija con el saludo.
-// Una pestaña con cabecera propia (heading en el data de su ruta, como Buscar)
-// cambia el saludo por su título y, en el móvil, el logotipo por la flecha de
-// volver.
-// La tercera pestaña es contextual: Buscar como pasajero y Publicar como
-// conductor (nunca hay una sexta)
+//   campana y cerrar sesión) y debajo una franja fija con el título.
+// Al entrar en Buscar o Publicar se guarda ese lado (activeMode, en el
+// servidor): la próxima vez la app se abre ahí
 @Component({
   selector: 'app-tabs',
   imports: [
@@ -105,13 +104,7 @@ export class TabsPage implements OnInit {
   );
 
   readonly firstName = computed(() => this.auth.currentUser()?.name.split(' ')[0] ?? '');
-  readonly tabs = computed<Tab[]>(() => [
-    HOME_TAB,
-    TRIPS_TAB,
-    this.activeMode.mode() === 'driver' ? PUBLISH_TAB : SEARCH_TAB,
-    NOTIFICATIONS_TAB,
-    PROFILE_TAB,
-  ]);
+  readonly tabs: readonly Tab[] = [SEARCH_TAB, PUBLISH_TAB, TRIPS_TAB, MESSAGES_TAB, PROFILE_TAB];
 
   // Avisos sin leer, en la campana y en la pestaña Avisos. Se cuentan al
   // entrar y en cada navegación (sin consultar cada pocos segundos)
@@ -132,7 +125,21 @@ export class TabsPage implements OnInit {
         filter((event) => event instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(() => void this.notifications.refreshUnread());
+      .subscribe(() => {
+        void this.notifications.refreshUnread();
+        void this.rememberSide();
+      });
+  }
+
+  // Buscar → pasajero, Publicar → conductor (si ya lo es: sin coche aún no).
+  // Solo si cambia; si falla, no pasa nada: es solo la pestaña de entrada
+  private async rememberSide(): Promise<void> {
+    const url = this.router.url;
+    const side = SIDES.find(({ path }) => url.startsWith(path))?.mode ?? null;
+    if (side === null || side === this.activeMode.mode() || !this.auth.hasProfile(side)) {
+      return;
+    }
+    await this.activeMode.setMode(side).catch(() => undefined);
   }
 
   async handleLogout(): Promise<void> {

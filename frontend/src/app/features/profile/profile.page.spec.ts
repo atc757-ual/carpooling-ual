@@ -59,10 +59,8 @@ describe('ProfilePage', () => {
     expect(root.textContent).toContain('+34 612 345 678');
   });
 
-  it('shows the vehicles only to drivers', () => {
-    expect(render(['passenger']).root.querySelector('app-profile-vehicles')).toBeNull();
-    TestBed.resetTestingModule();
-    expect(render(['driver']).root.querySelector('app-profile-vehicles')).not.toBeNull();
+  it('shows the vehicles to everyone (the first one makes a driver)', () => {
+    expect(render(['passenger']).root.querySelector('app-profile-vehicles')).not.toBeNull();
   });
 
   it('opens the legal texts', async () => {

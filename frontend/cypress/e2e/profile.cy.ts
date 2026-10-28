@@ -39,7 +39,7 @@ function openProfile(profiles: string[]): void {
   cy.get('app-login ion-input[formControlName="email"] input').type(EMAIL);
   cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
   cy.contains('ion-button', 'Iniciar sesión').click();
-  cy.location('pathname').should('eq', '/tabs/home');
+  cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
   cy.contains('app-tabs .top-nav__link:visible, app-tabs ion-tab-button:visible', 'Perfil').click();
   cy.location('pathname').should('eq', '/tabs/profile');
 }
@@ -51,31 +51,23 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('GET', '/api/vehicles*', [VEHICLE]);
     });
 
-    it('shows the account, the vehicles and the profiles of a driver', () => {
+    it('shows the account and the vehicles of a driver', () => {
       openProfile(['driver']);
 
       cy.contains('app-profile', 'Lucía Cortés').should('be.visible');
       cy.contains('app-profile', '+34 612 345 678');
       cy.contains('app-profile-vehicles', '1234BCD');
       cy.contains('app-profile-vehicles', 'Seat León · hasta 3 pasajeros');
-      cy.contains('app-profile-modes .profile-mode', 'Conductor').find('.status--accepted');
-      cy.contains('app-profile-modes .profile-mode', 'Pasajero')
-        .find('ion-button')
-        .should('contain', 'Activar');
     });
 
-    it('activates the passenger profile', () => {
+    it('removes a vehicle after confirming it', () => {
+      cy.intercept('DELETE', '/api/vehicles/v1', { statusCode: 204 }).as('remove');
       openProfile(['driver']);
-      cy.intercept('PUT', '/api/users/me/profiles/passenger', {
-        profiles: ['driver', 'passenger'],
-      }).as('activate');
-      cy.intercept('POST', '/api/auth/refresh', accessToken(['driver', 'passenger'])).as('refresh');
 
-      cy.contains('app-profile-modes ion-button', 'Activar').click();
+      cy.contains('app-profile-vehicles ion-button', 'Eliminar').click();
+      cy.contains('ion-alert button', 'Eliminar').click();
 
-      cy.wait('@activate');
-      cy.wait('@refresh');
-      cy.get('app-profile-modes .status--accepted').should('have.length', 2);
+      cy.wait('@remove');
     });
   });
 }

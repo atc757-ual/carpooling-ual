@@ -15,6 +15,6 @@ describe('guestGuard', () => {
   it('sends a logged-in user to the home page', () => {
     guard.logIn('passenger');
 
-    expect(guard.run(guestGuard)).toBe('/tabs/home');
+    expect(guard.run(guestGuard)).toBe('/tabs');
   });
 });

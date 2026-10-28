@@ -20,10 +20,10 @@ describe('profileGuard', () => {
     expect(guard.run(profileGuard('driver', 'passenger'))).toBe(true);
   });
 
-  it('sends a user without the profile to the home page', () => {
+  it('sends a user without the profile to the profile', () => {
     guard.logIn('passenger');
 
-    expect(guard.run(profileGuard('admin'))).toBe('/tabs/home');
+    expect(guard.run(profileGuard('admin'))).toBe('/tabs/profile');
   });
 
   it('sends a guest to the login', () => {

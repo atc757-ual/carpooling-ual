@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
-import { User } from '../../core/models/user.model';
+import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
@@ -13,10 +13,12 @@ import { TabsPage } from './tabs.page';
 @Component({ template: '' })
 class BlankPage {}
 
-const HEADING: TabHeading = { title: 'Buscar viaje', subtitle: 'Viajes', backHref: '/home' };
+const HEADING: TabHeading = { title: 'Buscar viaje', subtitle: 'Viajes' };
 
 describe('TabsPage', () => {
   const mode = signal<TravelMode | null>('passenger');
+  const profiles = signal<Profile[]>(['passenger', 'driver']);
+  const setMode = vi.fn().mockResolvedValue(undefined);
   const logout = vi.fn().mockResolvedValue(undefined);
   const unread = signal(0);
   const refreshUnread = vi.fn().mockResolvedValue(undefined);
@@ -27,37 +29,50 @@ describe('TabsPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([
-          { path: 'home', component: BlankPage },
-          { path: 'search', component: BlankPage, data: { heading: HEADING } },
+          { path: 'tabs/search', component: BlankPage, data: { heading: HEADING } },
+          { path: 'tabs/publish', component: BlankPage },
+          { path: 'tabs/profile', component: BlankPage },
         ]),
         {
           provide: AuthService,
-          useValue: { currentUser: signal({ name: 'Mario Pérez' } as User), logout },
+          useValue: {
+            currentUser: signal({ name: 'Mario Pérez' } as User),
+            hasProfile: (profile: Profile) => profiles().includes(profile),
+            logout,
+          },
         },
-        {
-          provide: ActiveModeService,
-          useValue: { mode, hasBothModes: signal(false), setMode: vi.fn() },
-        },
+        { provide: ActiveModeService, useValue: { mode, setMode } },
         { provide: NotificationsService, useValue: { unreadCount: unread, refreshUnread } },
       ],
     });
-    return TestBed.createComponent(TabsPage).componentInstance;
+    const page = TestBed.createComponent(TabsPage).componentInstance;
+    page.ngOnInit();
+    return page;
   }
-
-  const labels = (page: TabsPage): string[] => page.tabs().map(({ label }) => label);
 
   beforeEach(() => {
     mode.set('passenger');
+    profiles.set(['passenger', 'driver']);
     unread.set(0);
     refreshUnread.mockClear();
+    setMode.mockClear();
+  });
+
+  it('has five fixed destinations', () => {
+    expect(render().tabs.map(({ label }) => label)).toEqual([
+      'Buscar',
+      'Publicar',
+      'Mis viajes',
+      'Mensajes',
+      'Perfil',
+    ]);
   });
 
   it('counts the unread notifications when it opens and on each navigation', async () => {
     const page = render();
-    page.ngOnInit();
     expect(refreshUnread).toHaveBeenCalledTimes(1);
 
-    await TestBed.inject(Router).navigateByUrl('/home');
+    await TestBed.inject(Router).navigateByUrl('/tabs/profile');
 
     expect(refreshUnread).toHaveBeenCalledTimes(2);
     expect(page.bellLabel()).toBe('Avisos');
@@ -68,33 +83,32 @@ describe('TabsPage', () => {
     expect(page.unreadBadge()).toBe('3');
   });
 
-  it('has five destinations, with Buscar as a passenger', () => {
-    expect(labels(render())).toEqual(['Inicio', 'Mis viajes', 'Buscar', 'Avisos', 'Perfil']);
-  });
-
-  it('shows Publicar instead of Buscar as a driver', () => {
-    const page = render();
-
-    mode.set('driver');
-
-    expect(labels(page)).toEqual(['Inicio', 'Mis viajes', 'Publicar', 'Avisos', 'Perfil']);
-  });
-
-  it('greets the user by the first name', () => {
-    expect(render().firstName()).toBe('Mario');
-  });
-
-  it('shows the heading of a tab that has one, and the greeting otherwise', async () => {
-    const page = render();
+  it('remembers the side when entering Buscar or Publicar, only if it changes', async () => {
+    render();
     const router = TestBed.inject(Router);
 
-    await router.navigateByUrl('/search');
+    await router.navigateByUrl('/tabs/search');
+    expect(setMode).not.toHaveBeenCalled();
+
+    await router.navigateByUrl('/tabs/publish');
+    expect(setMode).toHaveBeenCalledWith('driver');
+  });
+
+  it('does not remember Publicar without a car yet (no driver profile)', async () => {
+    profiles.set(['passenger']);
+    render();
+
+    await TestBed.inject(Router).navigateByUrl('/tabs/publish');
+
+    expect(setMode).not.toHaveBeenCalled();
+  });
+
+  it('shows the heading of the tab', async () => {
+    const page = render();
+
+    await TestBed.inject(Router).navigateByUrl('/tabs/search');
 
     expect(page.heading()).toEqual(HEADING);
-
-    await router.navigateByUrl('/home');
-
-    expect(page.heading()).toBeNull();
   });
 
   it('logs out and goes back to the welcome screen', async () => {

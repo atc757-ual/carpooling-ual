@@ -30,6 +30,15 @@ describe('DriverService', () => {
 
   afterEach(() => http.verify());
 
+  it('deactivates a vehicle with DELETE', async () => {
+    const removal = driver.deactivateVehicle('v1');
+    const request = http.expectOne('/api/vehicles/v1');
+    expect(request.request.method).toBe('DELETE');
+    request.flush(null, { status: 204, statusText: 'No Content' });
+
+    await expect(removal).resolves.toBeUndefined();
+  });
+
   it('gets the driver status and the vehicles', async () => {
     const status = driver.getStatus();
     http.expectOne('/api/users/me/driver-status').flush({ isReady: false });

@@ -76,7 +76,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('ion-input[formControlName="email"]').should('not.have.class', 'ion-invalid');
     });
 
-    it('logs in and goes to the home page', () => {
+    it('logs in and opens Buscar or Publicar', () => {
       cy.intercept('POST', LOGIN_URL, ACCESS_TOKEN).as('login');
 
       fillForm('ana@ual.es', 'secreta123');
@@ -85,11 +85,11 @@ for (const viewport of VIEWPORTS) {
       cy.wait('@login')
         .its('request.body')
         .should('deep.equal', { email: 'ana@ual.es', password: 'secreta123' });
-      cy.location('pathname').should('eq', '/tabs/home');
-      // El saludo: en escritorio, en la franja fija; en el móvil, en Inicio
-      cy.get('.greeting-bar p, .home__greeting h1')
+      cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
+      // El título de la pestaña: en escritorio, en la franja fija; en el móvil, en la cabecera
+      cy.get('app-tabs .greeting-bar p, app-tabs .app-header ion-title')
         .filter(':visible')
-        .should('contain', '¡Hola, Ana!');
+        .should('contain', 'viaje');
     });
 
     it('shows the API error when the credentials are wrong', () => {

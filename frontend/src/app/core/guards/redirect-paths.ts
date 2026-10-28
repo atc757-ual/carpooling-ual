@@ -2,10 +2,11 @@
 // añaden en features/ (p. ej. features/auth/login/login.page.ts)
 export const LOGIN_PATH = '/auth/login';
 export const WELCOME_PATH = '/auth/welcome';
-// Inicio: la primera pestaña del área con sesión
-export const HOME_PATH = '/tabs/home';
-// Elegir modo (pasajero, conductor o ambos) tras verificar el correo
-export const MODES_PATH = '/modes';
+// Área con sesión: abre Buscar o Publicar (lo último que se hizo)
+export const HOME_PATH = '/tabs';
+// Adonde lleva HOME_PATH sin modo guardado (p. ej. al abrir la app sin sesión)
+export const SEARCH_PATH = '/tabs/search';
+export const PROFILE_PATH = '/tabs/profile';
 
 // Parámetro con la página que se pedía, para volver a ella tras el login
 export const RETURN_URL_PARAM = 'returnUrl';
