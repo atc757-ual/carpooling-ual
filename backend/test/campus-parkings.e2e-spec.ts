@@ -68,7 +68,7 @@ describe('Campus parkings API (e2e)', () => {
     expect(parkings[0]).toMatchObject({
       '@type': 'CampusParking',
       href: '/api/campus-parkings/p1',
-      name: 'Parking P1',
+      name: 'Parking P1 (Sur)',
       location: { type: 'Point', coordinates: [-2.401719, 36.828856] },
     });
     expect(response.headers['x-total-count']).toBe('6');
