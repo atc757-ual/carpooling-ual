@@ -1,10 +1,12 @@
 import { GeoPoint } from './place.model';
 
 // Vehículo del conductor (GET /api/vehicles). La capacidad son las plazas
-// para pasajeros, sin contar al conductor
+// para pasajeros, sin contar al conductor; el modelo («Seat Ibiza») es null
+// en los registrados antes de pedirlo
 export interface Vehicle {
   id: string;
   plate: string;
+  model: string | null;
   capacity: number;
   status: 'available' | 'on_trip' | 'inactive';
 }
@@ -12,7 +14,11 @@ export interface Vehicle {
 export interface RegisterVehicleRequest {
   plate: string;
   capacity: number;
+  model: string;
 }
+
+// PATCH /api/vehicles/{id}: la matrícula no se cambia
+export type UpdateVehicleRequest = Partial<Omit<RegisterVehicleRequest, 'plate'>>;
 
 // Si puede publicar: declaración responsable aceptada y algún vehículo
 export interface DriverStatus {

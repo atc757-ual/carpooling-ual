@@ -39,7 +39,7 @@ describe('DriverService', () => {
   });
 
   it('registers a vehicle and accepts the declaration', async () => {
-    const vehicle = driver.registerVehicle({ plate: '1234BCD', capacity: 3 });
+    const vehicle = driver.registerVehicle({ plate: '1234BCD', capacity: 3, model: 'Seat Ibiza' });
     const request = http.expectOne('/api/vehicles');
     expect(request.request.method).toBe('POST');
     request.flush({ id: 'v1' });
@@ -50,6 +50,16 @@ describe('DriverService', () => {
 
     expect(await vehicle).toEqual({ id: 'v1' });
     expect(await declaration).toEqual({ hasLicenseDeclared: true });
+  });
+
+  it('edits a vehicle with PATCH', async () => {
+    const updated = driver.updateVehicle('v1', { model: 'Seat León' });
+    const request = http.expectOne('/api/vehicles/v1');
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ model: 'Seat León' });
+    request.flush({ id: 'v1', model: 'Seat León' });
+
+    expect(await updated).toEqual({ id: 'v1', model: 'Seat León' });
   });
 
   it('publishes a trip and turns API errors into ApiError', async () => {

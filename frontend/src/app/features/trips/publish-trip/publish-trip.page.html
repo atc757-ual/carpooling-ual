@@ -40,41 +40,15 @@
             </form>
           </section>
         } @else if (vehicles().length === 0) {
-          <!-- Antes del primer viaje: registrar el vehículo -->
-          <form
-            class="publish__card publish__form"
-            [formGroup]="vehicleForm"
-            (ngSubmit)="handleRegisterVehicle()"
-            novalidate
-          >
-            <h2 class="text-title">Antes de tu primer viaje</h2>
+          <!-- Antes del primer viaje: registrar el vehículo (captura 13) -->
+          <section class="publish__card" aria-labelledby="first-vehicle-title">
+            <h2 id="first-vehicle-title" class="text-title">Antes de tu primer viaje</h2>
             <p class="text-color-muted">Registra el vehículo con el que vas a conducir.</p>
-            <ion-input
-              formControlName="plate"
-              label="Matrícula"
-              labelPlacement="stacked"
-              fill="outline"
-              placeholder="1234 BCD"
-              autocapitalize="characters"
-              errorText="Escribe una matrícula española, como 1234 BCD."
+            <app-vehicle-form
+              submitLabel="Guardar vehículo y continuar"
+              (saved)="handleVehicleSaved($event)"
             />
-            <ion-input
-              formControlName="capacity"
-              type="number"
-              inputmode="numeric"
-              label="Plazas para pasajeros"
-              labelPlacement="stacked"
-              fill="outline"
-              helperText="Sin contarte a ti. Podrás ofrecer menos en cada viaje."
-              errorText="Entre 1 y 8 plazas."
-            />
-            <ion-button type="submit" expand="block" [disabled]="isSaving()">
-              @if (isSaving()) {
-                <ion-spinner slot="start" name="crescent" aria-hidden="true" />
-              }
-              Guardar vehículo y continuar
-            </ion-button>
-          </form>
+          </section>
         } @else {
           <!-- Escritorio: el formulario en la columna de 8 y «Tu viaje» en la
                de 4; en el móvil, solo el formulario -->
@@ -137,8 +111,9 @@
                 />
               </div>
 
-              <!-- El vehículo elegido, como campo de solo lectura; con varios,
-                   «Cambiar» abre la lista (un ion-select oculto) -->
+              <!-- El vehículo elegido, como campo de solo lectura: «Editar»
+                   abre sus datos en una ventana y, con varios, «Cambiar» abre
+                   la lista (un ion-select oculto) -->
               <div class="publish__field">
                 <span class="text-label text-label--strong" id="publish-vehicle-label">
                   Vehículo
@@ -147,9 +122,16 @@
                   <div class="publish__vehicle-box" aria-labelledby="publish-vehicle-label">
                     <ion-icon [icon]="icons.car" aria-hidden="true" />
                     <span class="publish__vehicle-text">
-                      {{ vehicle.plate }} · {{ vehicle.capacity }}
-                      {{ vehicle.capacity === 1 ? 'plaza' : 'plazas' }} para pasajeros
+                      {{ vehicleLabel(vehicle) }} · {{ vehicle.capacity }}
+                      {{ vehicle.capacity === 1 ? 'plaza' : 'plazas' }}
                     </span>
+                    <button
+                      type="button"
+                      class="publish__map-link"
+                      (click)="handleEditVehicle(vehicle)"
+                    >
+                      Editar
+                    </button>
                     @if (vehicles().length > 1) {
                       <button
                         type="button"
@@ -170,7 +152,7 @@
                 >
                   @for (vehicle of vehicles(); track vehicle.id) {
                     <ion-select-option [value]="vehicle.id">
-                      {{ vehicle.plate }} · {{ vehicle.capacity }} plazas
+                      {{ vehicleLabel(vehicle) }} · {{ vehicle.capacity }} plazas
                     </ion-select-option>
                   }
                 </ion-select>
@@ -252,7 +234,7 @@
               @if (selectedVehicle(); as vehicle) {
                 <p class="publish__vehicle text-body-s text-color-muted">
                   <ion-icon [icon]="icons.car" aria-hidden="true" />
-                  {{ vehicle.plate }}
+                  {{ vehicleLabel(vehicle) }}
                 </p>
               }
               <div class="notice notice--info">

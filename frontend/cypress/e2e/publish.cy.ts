@@ -6,6 +6,7 @@ const VEHICLE = {
   id: 'v1',
   href: '/api/vehicles/v1',
   plate: '1234BCD',
+  model: 'Seat Ibiza',
   capacity: 3,
   status: 'available',
 };
@@ -67,12 +68,18 @@ for (const viewport of VIEWPORTS) {
 
     it('registers the first vehicle, accepts the declaration and publishes', () => {
       cy.contains('app-publish-trip', 'Antes de tu primer viaje');
+      cy.get('app-publish-trip ion-input[formControlName="model"] input').type('Seat Ibiza');
       cy.get('app-publish-trip ion-input[formControlName="plate"] input').type('1234 bcd');
+      // 5 asientos por defecto; uno menos: 4 = 1 conductor + 3 pasajeros
+      cy.get('app-publish-trip app-seat-stepper button[aria-label="Una plaza menos"]').click();
+      cy.contains('app-publish-trip', '4 asientos = 1 conductor + hasta 3 pasajeros');
       cy.contains('app-publish-trip ion-button', 'Guardar vehículo y continuar').click();
       cy.wait('@registerVehicle').its('request.body').should('deep.equal', {
+        model: 'Seat Ibiza',
         plate: '1234BCD',
-        capacity: 4,
+        capacity: 3,
       });
+      cy.contains('app-publish-trip .publish__vehicle-box', 'Seat Ibiza · 1234BCD');
 
       choosePlace('app-publish-trip', 'Roquetas de Mar');
       cy.contains('app-publish-trip ion-button', 'Publicar viaje').click();

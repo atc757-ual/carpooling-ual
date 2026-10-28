@@ -1,0 +1,22 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Editar vehículo</ion-title>
+    <ion-buttons slot="end">
+      <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
+      <form (submit)="$event.preventDefault(); close()">
+        <ion-button class="dialog-close" type="submit" aria-label="Cerrar">
+          <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
+        </ion-button>
+      </form>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Sin ion-content: así la ventana toma el alto de su contenido -->
+<div class="vehicle-modal">
+  <app-vehicle-form
+    [vehicle]="vehicle"
+    submitLabel="Guardar cambios"
+    (saved)="handleSaved($event)"
+  />
+</div>

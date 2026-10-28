@@ -1,0 +1,9 @@
+// Con su propio scroll si no cabe (90 % de la pantalla menos la cabecera de
+// 56px), como las otras ventanas de texto
+.vehicle-modal {
+  max-height: calc(90vh - 3.5rem);
+  overflow-y: auto;
+  padding: var(--space-base);
+  padding-bottom: max(var(--space-l), calc(var(--space-base) + env(safe-area-inset-bottom, 0px)));
+  background: var(--color-surface);
+}

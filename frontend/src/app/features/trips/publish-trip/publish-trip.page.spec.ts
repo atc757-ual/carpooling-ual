@@ -15,7 +15,13 @@ const P1: CampusParking = {
   name: 'Parking P1',
   location: { type: 'Point', coordinates: [-2.4045, 36.8322] },
 };
-const VEHICLE: Vehicle = { id: 'v1', plate: '1234BCD', capacity: 3, status: 'available' };
+const VEHICLE: Vehicle = {
+  id: 'v1',
+  plate: '1234BCD',
+  model: 'Seat Ibiza',
+  capacity: 3,
+  status: 'available',
+};
 const PLACE = {
   id: 'roq',
   name: 'Roquetas de Mar',
@@ -62,22 +68,28 @@ describe('PublishTripPage', () => {
   it('asks for a vehicle first and continues with it', async () => {
     await createPage([]);
     expect(page.loadState()).toBe('ready');
-    page.vehicleForm.setValue({ plate: '1234 bcd', capacity: 3 });
 
-    await page.handleRegisterVehicle();
+    page.handleVehicleSaved(VEHICLE);
 
-    expect(driver['registerVehicle']).toHaveBeenCalledWith({ plate: '1234BCD', capacity: 3 });
     expect(page.vehicles()).toEqual([VEHICLE]);
     expect(page.tripForm.controls.vehicleId.value).toBe('v1');
   });
 
-  it('rejects a plate that is not Spanish', async () => {
-    await createPage([]);
-    page.vehicleForm.setValue({ plate: 'ABC', capacity: 3 });
+  it('edits the chosen vehicle in a window and keeps the change', async () => {
+    await createPage([VEHICLE]);
+    const edited: Vehicle = { ...VEHICLE, model: 'Seat León', capacity: 2 };
+    const create = vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
+      present: vi.fn().mockResolvedValue(undefined),
+      onWillDismiss: () => Promise.resolve({ data: edited, role: 'saved' }),
+    } as unknown as HTMLIonModalElement);
 
-    await page.handleRegisterVehicle();
+    await page.handleEditVehicle(VEHICLE);
 
-    expect(driver['registerVehicle']).not.toHaveBeenCalled();
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({ componentProps: { vehicle: VEHICLE }, cssClass: 'info-dialog' }),
+    );
+    expect(page.selectedVehicle()).toEqual(edited);
+    expect(page.maxSeats()).toBe(2);
   });
 
   it('summarises the trip while it is filled in', async () => {
