@@ -71,6 +71,8 @@ for (const viewport of VIEWPORTS) {
     beforeEach(() => {
       cy.viewport(viewport.width, viewport.height);
       cy.intercept('POST', '/api/trips/search', [tripMatch()]).as('search');
+      // Aún sin solicitudes de plaza
+      cy.intercept('GET', '/api/users/me/requests*', []);
       logIn(['passenger']);
     });
 
@@ -87,6 +89,31 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-trip-search', '1 en tu margen').should('be.visible');
       cy.contains('app-trip-search app-trip-result-card', 'Lucía Cortés').should('be.visible');
       cy.contains('app-trip-search app-trip-result-card', '07:20 → 07:52').should('be.visible');
+    });
+
+    it('requests a seat from the trip and shows it pending', () => {
+      cy.intercept('POST', '/api/trips/t1/requests', {
+        statusCode: 201,
+        body: {
+          '@type': 'SeatRequest',
+          id: 'r1',
+          trip: { id: 't1' },
+          status: 'pending',
+          seats: 1,
+          requestedAt: new Date().toISOString(),
+          vehiclePlate: null,
+        },
+      }).as('request');
+      searchFromHome('Roquetas de Mar');
+      cy.contains('app-trip-search app-trip-result-card ion-button', 'Ver viaje de Lucía').click();
+
+      cy.contains('app-trip-detail ion-button', 'Solicitar 1 plaza').click();
+
+      cy.wait('@request').its('request.body').should('deep.equal', { seats: 1 });
+      cy.contains('app-trip-detail', 'Solicitud enviada. Falta la respuesta de Lucía.').should(
+        'be.visible',
+      );
+      cy.contains('app-trip-detail ion-button', 'Cancelar solicitud').should('be.visible');
     });
 
     it('opens a trip and comes back to the same search', () => {

@@ -56,12 +56,74 @@
             UAL, no la identidad ni el permiso de conducir.
           </span>
         </div>
-        <!-- Aún sin solicitudes: el botón se ve, desactivado, con el aviso debajo -->
-        <ion-button expand="block" [disabled]="true">Solicitar {{ requestedSeats() }}</ion-button>
-        <p class="text-caption text-color-muted">
-          Muy pronto podrás pedir tu plaza desde aquí. Si queda pendiente, podrás cancelarla desde
-          Mis viajes.
-        </p>
+        <!-- La solicitud, tal como la da el backend (guía, «Solicitud de plaza») -->
+        @switch (request()?.status) {
+          @case ('pending') {
+            <output class="notice notice--warning">
+              <span>
+                <b>Solicitud enviada. Falta la respuesta de {{ driverFirstName() }}.</b>
+                Has pedido {{ formatSeats(request()!.seats) }}. Todavía no tienes plaza confirmada:
+                te avisaremos cuando {{ driverFirstName() }} acepte o rechace. No envíes otra
+                solicitud para este viaje.
+              </span>
+            </output>
+          }
+          @case ('accepted') {
+            <output class="notice notice--success">
+              <span>
+                <b>{{ driverFirstName() }} ha aceptado tu solicitud.</b>
+                Tienes {{ formatSeats(request()!.seats) }} en este viaje.
+                @if (request()!.vehiclePlate; as plate) {
+                  El coche lleva la matrícula {{ plate }}.
+                }
+              </span>
+            </output>
+          }
+          @case ('rejected') {
+            <output class="notice notice--info">
+              <span>
+                <b>Tu solicitud no se aceptó.</b>
+                No tienes plaza en este viaje. Puedes buscar otro o volver a pedir si quedan plazas.
+              </span>
+            </output>
+          }
+          @case ('cancelled') {
+            <output class="notice notice--info">
+              <span><b>Cancelaste tu solicitud.</b> Puedes volver a pedir si quedan plazas.</span>
+            </output>
+          }
+        }
+
+        @if (myRequest.isLoading()) {
+          <output class="trip-detail__loading">
+            <ion-spinner name="crescent" aria-hidden="true" />
+            <span class="text-caption text-color-muted">Comprobando tus solicitudes…</span>
+          </output>
+        } @else if (canRequest()) {
+          <form (submit)="$event.preventDefault(); handleRequest()">
+            <ion-button type="submit" expand="block" [disabled]="isSending()">
+              @if (isSending()) {
+                <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+              }
+              Solicitar {{ requestedSeats() }}
+            </ion-button>
+          </form>
+          <p class="text-caption text-color-muted">
+            Las plazas de tu búsqueda: para ti y quien vaya contigo.
+          </p>
+        } @else {
+          <form (submit)="$event.preventDefault(); handleCancel()">
+            <ion-button
+              type="submit"
+              expand="block"
+              fill="outline"
+              color="danger"
+              [disabled]="isSending()"
+            >
+              Cancelar solicitud
+            </ion-button>
+          </form>
+        }
       </div>
     </div>
   } @else {

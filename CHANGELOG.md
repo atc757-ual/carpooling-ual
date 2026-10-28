@@ -89,6 +89,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Marca y modelo del vehículo (opcional al registrarlo) y `PATCH /api/vehicles/{id}` para editar el modelo y las plazas; la matrícula no cambia y las plazas no se cambian con el vehículo en un viaje en curso. La declaración responsable (RF-21) cubre el permiso de conducir, el seguro obligatorio y la ITV (#66)
 - Buscar muestra los viajes compatibles de la API (*matching*), del más compatible al menos, con los estados de carga, «Aún no hay viajes para esa hora» (con «Modificar hora» y «Ampliar margen») y error con «Reintentar»; el detalle sale del viaje elegido. Se quitan los datos de ejemplo (#68)
 - Una solicitud de plaza puede pedir de 1 a 4 plazas (el pasajero y sus compañeros, `{ "seats": N }`): al aceptarla se restan todas, al cancelarla se devuelven, y si no caben responde `TRIP_FULL` (#72)
+- Pedir plaza desde el detalle del viaje («Solicitar N plazas», las de la búsqueda) y ver el estado de la solicitud tal como lo da el backend: pendiente, aceptada (con la matrícula), no aceptada o cancelada; cancelarla pide confirmación (#73)
 
 ### Changed
 - **(breaking)** El nombre del registro solo admite letras (de cualquier idioma, con tildes) y, entre ellas, un espacio, un guion o un apóstrofo; se guarda sin espacios repetidos. En el formulario, el nombre no deja escribir números ni símbolos; el teléfono lleva dentro el desplegable del prefijo del país (España por defecto) y el número solo admite cifras; y el aviso de error de un campo se quita mientras se corrige (#48)
