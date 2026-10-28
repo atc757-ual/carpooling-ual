@@ -19,6 +19,14 @@ export class VehicleResource {
   @ApiProperty({ example: '1234BCD' })
   plate: string;
 
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'Seat Ibiza',
+    description: 'Make and model; null if it was registered without it',
+  })
+  model: string | null;
+
   @ApiProperty({ minimum: 1, maximum: 8, example: 4 })
   capacity: number;
 
@@ -36,6 +44,7 @@ export function toVehicleResource(vehicle: Vehicle): VehicleResource {
     id: vehicle.id,
     href: vehicleHref(vehicle.id),
     plate: vehicle.plate,
+    model: vehicle.model,
     capacity: vehicle.capacity,
     status: vehicle.status,
   };

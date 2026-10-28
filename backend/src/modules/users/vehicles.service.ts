@@ -12,7 +12,10 @@ import { normalizePlate } from './vehicle-plate';
 export interface RegisterVehicleInput {
   plate: string;
   capacity: number;
+  model?: string;
 }
+
+export type UpdateVehicleInput = Partial<Omit<RegisterVehicleInput, 'plate'>>;
 
 // Restricción UNIQUE de la matrícula (migración InitialSchema)
 const PLATE_UNIQUE_CONSTRAINT = 'vehicles_plate_key';
@@ -42,6 +45,7 @@ export class VehiclesService {
         throw new VehicleAlreadyRegisteredError(plate);
       }
       existing.capacity = input.capacity;
+      existing.model = input.model ?? existing.model;
       existing.status = 'available';
       return this.vehiclesRepository.save(existing);
     }
@@ -52,6 +56,7 @@ export class VehiclesService {
           driverId,
           plate,
           capacity: input.capacity,
+          model: input.model ?? null,
         }),
       );
     } catch (error) {
@@ -90,6 +95,25 @@ export class VehiclesService {
       throw new VehicleNotFoundError(vehicleId);
     }
     return vehicle;
+  }
+
+  // Cambia el modelo o las plazas de un vehículo del conductor. Las plazas no
+  // se cambian mientras está en un viaje en curso; los viajes ya publicados
+  // conservan las plazas que ofrecían (el cambio vale para los siguientes)
+  async update(
+    driverId: string,
+    vehicleId: string,
+    input: UpdateVehicleInput,
+  ): Promise<Vehicle> {
+    const vehicle = await this.getOwn(driverId, vehicleId);
+    const changesCapacity =
+      input.capacity !== undefined && input.capacity !== vehicle.capacity;
+    if (changesCapacity && vehicle.status === 'on_trip') {
+      throw new VehicleInUseError(vehicleId);
+    }
+    vehicle.capacity = input.capacity ?? vehicle.capacity;
+    vehicle.model = input.model ?? vehicle.model;
+    return this.vehiclesRepository.save(vehicle);
   }
 
   // RF-11: al iniciar un viaje, el vehículo pasa a "en viaje". Recibe el

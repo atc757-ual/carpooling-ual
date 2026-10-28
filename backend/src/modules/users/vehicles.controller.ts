@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   Res,
@@ -31,6 +32,7 @@ import {
 } from '../../shared/pagination/paginated';
 import { PaginationQueryDto } from '../../shared/pagination/pagination-query.dto';
 import { RegisterVehicleDto } from './dto/register-vehicle.dto';
+import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { toVehicleResource, VehicleResource } from './dto/vehicle.resource';
 import { VehiclesService } from './vehicles.service';
 
@@ -109,6 +111,30 @@ export class VehiclesController {
     @Param('id', uuidParam('id')) id: string,
   ): Promise<VehicleResource> {
     return toVehicleResource(await this.vehiclesService.getOwn(driver.sub, id));
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Edit one of my vehicles',
+    description:
+      'Changes the make and model and/or the seats; the plate cannot change. The seats cannot change while the vehicle is on a trip, and published trips keep the seats they offered.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiOkResponse({ type: VehicleResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.NOT_FOUND]: ['VEHICLE_NOT_FOUND'],
+    [HttpStatus.CONFLICT]: ['VEHICLE_IN_USE'],
+  })
+  async update(
+    @CurrentUser() driver: AccessTokenPayload,
+    @Param('id', uuidParam('id')) id: string,
+    @Body() changes: UpdateVehicleDto,
+  ): Promise<VehicleResource> {
+    return toVehicleResource(
+      await this.vehiclesService.update(driver.sub, id, changes),
+    );
   }
 
   // Baja: el vehículo pasa a inactive (los viajes pasados lo conservan)
