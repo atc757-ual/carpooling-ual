@@ -28,6 +28,10 @@ export class Vehicle {
   @Column({ type: 'varchar', length: 15, unique: true })
   plate: string;
 
+  // Marca y modelo («Seat Ibiza»); null en los registrados antes de pedirlo
+  @Column({ type: 'varchar', length: 60, nullable: true })
+  model: string | null;
+
   // Plazas para pasajeros (sin contar al conductor), de 1 a 8 (CHECK en la
   // base de datos). Las plazas ofertadas de un viaje no pueden superarla
   @Column({ type: 'smallint' })

@@ -56,7 +56,7 @@ describe('Vehicles API (e2e)', () => {
   }
 
   function api(
-    method: 'get' | 'post' | 'put' | 'delete',
+    method: 'get' | 'post' | 'put' | 'patch' | 'delete',
     path: string,
     token: string,
   ): request.Test {
@@ -85,6 +85,7 @@ describe('Vehicles API (e2e)', () => {
         id: body.id,
         href: `/api/vehicles/${body.id}`,
         plate: '9201BCD',
+        model: null,
         capacity: 4,
         status: 'available',
       });
@@ -121,6 +122,54 @@ describe('Vehicles API (e2e)', () => {
       const response = await registerVehicle(passenger, '9203BCD').expect(403);
 
       expect(response.body).toMatchObject({ code: 'PROFILE_REQUIRED' });
+    });
+  });
+
+  describe('PATCH /api/vehicles/{id}', () => {
+    it('saves the make and model on registration and edits it with the seats', async () => {
+      const ana = await tokenFor('ana');
+      const created = await api('post', '/vehicles', ana)
+        .send({ plate: '9231BCD', capacity: 4, model: '  Seat Ibiza ' })
+        .expect(201);
+      const { id, model } = created.body as { id: string; model: string };
+      expect(model).toBe('Seat Ibiza');
+
+      const response = await api('patch', `/vehicles/${id}`, ana)
+        .send({ model: 'Seat León', capacity: 3 })
+        .expect(200);
+
+      expect(response.body).toMatchObject({
+        plate: '9231BCD',
+        model: 'Seat León',
+        capacity: 3,
+      });
+    });
+
+    it('does not change the plate and validates the rest', async () => {
+      const ana = await tokenFor('ana');
+      const created = await registerVehicle(ana, '9232BCD').expect(201);
+      const { id } = created.body as { id: string };
+
+      await api('patch', `/vehicles/${id}`, ana)
+        .send({ plate: '9999BCD' })
+        .expect(400);
+      await api('patch', `/vehicles/${id}`, ana)
+        .send({ capacity: 9 })
+        .expect(400);
+      await api('patch', `/vehicles/${id}`, ana)
+        .send({ model: 'X' })
+        .expect(400);
+    });
+
+    it("answers 404 for another driver's vehicle", async () => {
+      const ana = await tokenFor('ana');
+      const bob = await tokenFor('bob');
+      const created = await registerVehicle(ana, '9233BCD').expect(201);
+      const { id } = created.body as { id: string };
+
+      await api('patch', `/vehicles/${id}`, bob)
+        .send({ capacity: 2 })
+        .expect(404);
     });
   });
 

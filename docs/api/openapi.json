@@ -683,7 +683,7 @@
     },
     "/api/users/me/driver-declaration": {
       "put": {
-        "description": "Declares having a valid driving licence and roadworthy vehicles (RF-21). Idempotent: the date of the first declaration is kept.",
+        "description": "Declares having a valid driving licence and vehicles with valid compulsory insurance and roadworthiness test (ITV), sharing trips without profit (RF-21). Idempotent: the date of the first declaration is kept.",
         "operationId": "UsersController_declareDriverLicense",
         "parameters": [],
         "responses": {
@@ -1447,6 +1447,112 @@
           }
         ],
         "summary": "Get one of my vehicles",
+        "tags": [
+          "vehicles"
+        ]
+      },
+      "patch": {
+        "description": "Changes the make and model and/or the seats; the plate cannot change. The seats cannot change while the vehicle is on a trip, and published trips keep the seats they offered.",
+        "operationId": "VehiclesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVehicleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: VEHICLE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: VEHICLE_IN_USE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Edit one of my vehicles",
         "tags": [
           "vehicles"
         ]
@@ -5084,6 +5190,13 @@
             "maximum": 8,
             "description": "Seats for passengers, not counting the driver",
             "example": 4
+          },
+          "model": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60,
+            "description": "Make and model, to recognise the car",
+            "example": "Seat Ibiza"
           }
         },
         "required": [
@@ -5112,6 +5225,12 @@
             "type": "string",
             "example": "1234BCD"
           },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "example": "Seat Ibiza",
+            "description": "Make and model; null if it was registered without it"
+          },
           "capacity": {
             "type": "number",
             "minimum": 1,
@@ -5132,9 +5251,29 @@
           "id",
           "href",
           "plate",
+          "model",
           "capacity",
           "status"
         ]
+      },
+      "UpdateVehicleDto": {
+        "type": "object",
+        "properties": {
+          "capacity": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 8,
+            "description": "Seats for passengers, not counting the driver",
+            "example": 4
+          },
+          "model": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60,
+            "description": "Make and model, to recognise the car",
+            "example": "Seat Ibiza"
+          }
+        }
       },
       "GeoPointDto": {
         "type": "object",

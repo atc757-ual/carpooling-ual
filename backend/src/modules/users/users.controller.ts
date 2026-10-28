@@ -88,7 +88,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'Accept the driver responsible declaration',
     description:
-      'Declares having a valid driving licence and roadworthy vehicles (RF-21). Idempotent: the date of the first declaration is kept.',
+      'Declares having a valid driving licence and vehicles with valid compulsory insurance and roadworthiness test (ITV), sharing trips without profit (RF-21). Idempotent: the date of the first declaration is kept.',
   })
   @ApiOkResponse({ type: DriverStatusResource })
   @ApiErrorResponses({

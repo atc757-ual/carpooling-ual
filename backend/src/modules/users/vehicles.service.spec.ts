@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { QueryFailedError } from 'typeorm';
 import { Vehicle } from './entities/vehicle.entity';
 import { VehicleAlreadyRegisteredError } from './errors/vehicle-already-registered.error';
+import { VehicleInUseError } from './errors/vehicle-in-use.error';
 import { VehicleNotFoundError } from './errors/vehicle-not-found.error';
 import { VehiclesService } from './vehicles.service';
 
@@ -57,5 +58,40 @@ describe('VehiclesService', () => {
     await expect(vehiclesService.getPlate('unknown')).rejects.toBeInstanceOf(
       VehicleNotFoundError,
     );
+  });
+
+  describe('update', () => {
+    const onTrip = (): Vehicle =>
+      ({
+        id: 'v1',
+        driverId: 'd1',
+        plate: '1234BCD',
+        model: 'Seat Ibiza',
+        capacity: 4,
+        status: 'on_trip',
+      }) as Vehicle;
+
+    it('does not change the seats of a vehicle on a trip', async () => {
+      vehiclesRepository.findOneBy.mockResolvedValue(onTrip());
+
+      await expect(
+        vehiclesService.update('d1', 'v1', { capacity: 3 }),
+      ).rejects.toBeInstanceOf(VehicleInUseError);
+      expect(vehiclesRepository.save).not.toHaveBeenCalled();
+    });
+
+    it('still changes its model, or the same seats', async () => {
+      vehiclesRepository.findOneBy.mockResolvedValue(onTrip());
+      vehiclesRepository.save.mockImplementation((vehicle: Vehicle) =>
+        Promise.resolve(vehicle),
+      );
+
+      const updated = await vehiclesService.update('d1', 'v1', {
+        model: 'Seat León',
+        capacity: 4,
+      });
+
+      expect(updated).toMatchObject({ model: 'Seat León', capacity: 4 });
+    });
   });
 });

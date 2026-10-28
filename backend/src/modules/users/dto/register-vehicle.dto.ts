@@ -1,6 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsInt, IsString, Matches, Max, Min } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+  Max,
+  Min,
+} from 'class-validator';
 import { normalizePlate, SPANISH_PLATE_PATTERN } from '../vehicle-plate';
 
 // Cuerpo de POST /api/vehicles (RF-21). La matrícula se normaliza ANTES de
@@ -30,4 +38,18 @@ export class RegisterVehicleDto {
   @Min(1)
   @Max(8)
   capacity!: number;
+
+  @ApiPropertyOptional({
+    minLength: 2,
+    maxLength: 60,
+    description: 'Make and model, to recognise the car',
+    example: 'Seat Ibiza',
+  })
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString()
+  @Length(2, 60)
+  model?: string;
 }
