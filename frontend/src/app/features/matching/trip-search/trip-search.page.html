@@ -34,17 +34,64 @@
 
     <!-- Resultados (columna de 8 en escritorio) -->
     <div class="trip-search__results">
-      @if (exampleTrip(); as trip) {
-        <!-- Un viaje de ejemplo hasta que haya matching, marcado como tal -->
-        <div class="trip-search__group">
-          <span class="text-eyebrow text-color-muted">1 en tu margen</span>
-          <ion-badge class="example-badge">Datos de ejemplo</ion-badge>
-        </div>
-        <app-trip-result-card [trip]="trip" />
-        <p class="text-caption text-color-muted">
-          La hora de llegada es estimada. Correo UAL verificado no significa permiso de conducir
-          verificado. La plaza solo se confirma al aceptar el conductor.
-        </p>
+      @if (search(); as search) {
+        @if (results.isLoading()) {
+          <ion-card>
+            <ion-card-content class="trip-search__state" role="status">
+              <ion-spinner name="crescent" aria-hidden="true" />
+              <div class="text-subtitle">Buscando viajes…</div>
+            </ion-card-content>
+          </ion-card>
+        } @else if (results.error()) {
+          <ion-card>
+            <ion-card-content class="trip-search__state" role="alert">
+              <ion-icon [icon]="errorIcon" aria-hidden="true" />
+              <div class="text-subtitle">No hemos podido buscar viajes</div>
+              <div class="text-body-s text-color-muted">{{ errorMessage() }}</div>
+              <form (submit)="$event.preventDefault(); handleRetry()">
+                <ion-button type="submit" fill="outline">Reintentar</ion-button>
+              </form>
+            </ion-card-content>
+          </ion-card>
+        } @else if (trips().length === 0) {
+          <!-- Vacío (guía, «Estados»): qué se ha buscado y cómo seguir, sin
+               cambiar la búsqueda sin avisar -->
+          <ion-card>
+            <ion-card-content class="trip-search__state">
+              <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+              <div class="text-subtitle">Aún no hay viajes para esa hora</div>
+              <div class="text-body-s text-color-muted">
+                Prueba con otro horario o amplía el margen. No cambiaremos tu búsqueda sin avisarte.
+              </div>
+              <div class="trip-search__state-actions">
+                <form (submit)="$event.preventDefault(); isEditing.set(true)">
+                  <ion-button type="submit" fill="outline">Modificar hora</ion-button>
+                </form>
+                @if (widerMargin(); as margin) {
+                  <form (submit)="$event.preventDefault(); handleWidenMargin()">
+                    <ion-button type="submit" fill="outline">
+                      Ampliar margen a ±{{ margin }} min
+                    </ion-button>
+                  </form>
+                }
+              </div>
+            </ion-card-content>
+          </ion-card>
+        } @else {
+          <div class="trip-search__group">
+            <span class="text-eyebrow text-color-muted">
+              {{ trips().length }} en tu margen (±{{ search.margin }} min)
+            </span>
+          </div>
+          @for (trip of trips(); track trip.id) {
+            <app-trip-result-card [trip]="trip" />
+          }
+          <p class="text-caption text-color-muted">
+            Ordenados por compatibilidad: menos desvío y más cerca de tu hora. La hora de llegada es
+            estimada. Correo UAL verificado no significa permiso de conducir verificado. La plaza
+            solo se confirma al aceptar el conductor.
+          </p>
+        }
       } @else {
         <!-- Solo en escritorio: en el móvil, el formulario ya ocupa la
              pantalla -->

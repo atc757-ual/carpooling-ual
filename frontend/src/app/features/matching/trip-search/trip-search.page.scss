@@ -20,8 +20,7 @@
   padding: var(--space-l) var(--page-gutter);
 }
 
-// Cabecera del grupo de resultados: el recuento a la izquierda y la marca de
-// datos de ejemplo a la derecha
+// Cabecera del grupo de resultados: cuántos hay en el margen
 .trip-search__group {
   display: flex;
   align-items: center;
@@ -34,10 +33,13 @@
   margin: 0;
 }
 
-// Sin búsqueda (escritorio): tarjeta alta con todo centrado, el icono de 32px
-// en un círculo azul claro de 64px, el título y el texto debajo (en div: Ionic
-// pone 14px a los p de ion-card-content)
+// Estados de los resultados (sin búsqueda, buscando, ninguno y error):
+// tarjeta alta con todo centrado, el icono de 32px en un círculo azul claro
+// de 64px, el título y el texto debajo (en div: Ionic pone 14px a los p de
+// ion-card-content) y, si los hay, los botones para seguir
 .trip-search__state {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--space-s);
@@ -53,6 +55,18 @@
     background: var(--color-primary-subtle);
     color: var(--color-link);
     font-size: 2rem; // 32px
+  }
+}
+
+.trip-search__state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-s);
+  margin-top: var(--space-s);
+
+  ion-button {
+    margin: 0;
   }
 }
 

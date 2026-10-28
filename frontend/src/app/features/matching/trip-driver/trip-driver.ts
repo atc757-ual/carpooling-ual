@@ -16,6 +16,11 @@ export function getInitials(name: string): string {
     .join('');
 }
 
+// «1 viaje», «42 viajes»
+function formatTripCount(count: number): string {
+  return count === 1 ? '1 viaje' : `${count} viajes`;
+}
+
 // «Lucía Cortés» → «Lucía» («Ver viaje de Lucía», «Lucía decide»)
 export function getFirstName(name: string): string {
   return name.trim().split(/\s+/)[0];
@@ -33,12 +38,19 @@ export class TripDriver {
   readonly driver = input.required<Driver>();
 
   readonly initials = computed(() => getInitials(this.driver().name));
-  readonly rating = computed(() => RATING_FORMAT.format(this.driver().rating));
+  // «4,8», o null si aún no tiene valoración
+  readonly rating = computed(() => {
+    const { rating } = this.driver();
+    return rating === undefined ? null : RATING_FORMAT.format(rating);
+  });
 
-  // «42 viajes · Correo UAL verificado»
+  // «42 viajes · Correo UAL verificado» (cada parte, si se sabe)
   readonly details = computed(() => {
     const { tripCount, isEmailVerified } = this.driver();
-    const trips = tripCount === 1 ? '1 viaje' : `${tripCount} viajes`;
-    return isEmailVerified ? `${trips} · Correo UAL verificado` : trips;
+    const parts = [
+      tripCount === undefined ? null : formatTripCount(tripCount),
+      isEmailVerified ? 'Correo UAL verificado' : null,
+    ];
+    return parts.filter(Boolean).join(' · ');
   });
 }

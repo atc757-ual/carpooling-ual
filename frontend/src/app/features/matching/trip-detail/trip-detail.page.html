@@ -5,7 +5,6 @@
       <div class="trip-detail__main">
         <div class="trip-detail__date">
           <span class="text-body-s text-color-muted">{{ tripDate() }}</span>
-          <ion-badge class="example-badge">Datos de ejemplo</ion-badge>
         </div>
 
         <ion-card>
@@ -29,17 +28,19 @@
             <div class="trip-detail__driver">
               <h2 class="visually-hidden">Quién conduce</h2>
               <app-trip-driver [driver]="trip.driver" />
-              <div class="trip-detail__vehicle">
-                <ion-icon [icon]="carIcon" aria-hidden="true" />
-                <div>
-                  <div class="text-body-s text-body--strong">
-                    {{ trip.vehicle.model }} · {{ trip.vehicle.plate }}
-                  </div>
-                  <div class="text-caption text-color-muted">
-                    {{ trip.vehicle.preferences.join(' · ') }}
+              @if (trip.vehicle; as vehicle) {
+                <div class="trip-detail__vehicle">
+                  <ion-icon [icon]="carIcon" aria-hidden="true" />
+                  <div>
+                    <div class="text-body-s text-body--strong">
+                      {{ vehicle.model }} · {{ vehicle.plate }}
+                    </div>
+                    <div class="text-caption text-color-muted">
+                      {{ vehicle.preferences.join(' · ') }}
+                    </div>
                   </div>
                 </div>
-              </div>
+              }
             </div>
           </ion-card-content>
         </ion-card>
