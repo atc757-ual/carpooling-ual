@@ -1,10 +1,23 @@
 <span [id]="labelId" class="text-label text-label--strong">{{ label() }}</span>
-<div class="datetime-field__box">
+<!-- Botón propio (no ion-datetime-button) para poder leer «Hoy» o «Mañana» -->
+<button
+  type="button"
+  class="datetime-field__box"
+  [attr.aria-labelledby]="labelId + ' ' + pickerId + '-value'"
+  aria-haspopup="dialog"
+  [disabled]="control.disabled"
+  (click)="isOpen.set(true)"
+>
   <ion-icon [icon]="icon()" aria-hidden="true" />
-  <ion-datetime-button [datetime]="pickerId" [attr.aria-labelledby]="labelId" />
-</div>
+  <span [id]="pickerId + '-value'" class="datetime-field__value">{{ displayValue() }}</span>
+</button>
 
-<ion-modal class="datetime-modal" [keepContentsMounted]="true">
+<ion-modal
+  class="datetime-modal"
+  [keepContentsMounted]="true"
+  [isOpen]="isOpen()"
+  (didDismiss)="isOpen.set(false)"
+>
   <ng-template>
     @if (presentation() === 'date') {
       <ion-datetime

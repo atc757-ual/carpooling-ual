@@ -218,12 +218,20 @@
                 </div>
               }
 
-              <ion-button type="submit" expand="block" [disabled]="isSaving()">
+              <!-- El botón se activa al completar los campos; debajo, qué falta -->
+              <ion-button
+                type="submit"
+                expand="block"
+                [disabled]="isSaving() || missingToPublish() !== null"
+              >
                 @if (isSaving()) {
                   <ion-spinner slot="start" name="crescent" aria-hidden="true" />
                 }
                 Publicar viaje
               </ion-button>
+              @if (missingToPublish(); as missing) {
+                <p class="text-caption text-color-muted" aria-live="polite">{{ missing }}</p>
+              }
               <p class="text-caption text-color-muted">
                 Publicar requiere un vehículo registrado y la declaración responsable. UAL Carpool
                 no valida tu permiso.

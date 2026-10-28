@@ -44,6 +44,14 @@ describe('VehicleForm', () => {
     await fixture.whenStable();
   });
 
+  it('can be saved only once the fields are complete', () => {
+    expect(form.isComplete()).toBe(false);
+
+    form.form.setValue({ model: 'Seat Ibiza', plate: '1234BCD', totalSeats: 4 });
+
+    expect(form.isComplete()).toBe(true);
+  });
+
   it('explains how many passengers fit', () => {
     expect(form.seatsNotice()).toBe('5 asientos = 1 conductor + hasta 4 pasajeros');
 

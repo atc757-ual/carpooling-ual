@@ -182,6 +182,18 @@ describe('PublishTripPage', () => {
     expect(page.tripForm.controls.time.value).toBe('07:40');
   });
 
+  it('says what is missing before it can publish', async () => {
+    await createPage([VEHICLE], false);
+
+    expect(page.missingToPublish()).toBe('Elige tu dirección para publicar el viaje.');
+    page.tripForm.patchValue({ place: PLACE as never, vehicleId: '' });
+    expect(page.missingToPublish()).toBe('Elige el parking y el vehículo para publicar el viaje.');
+    page.tripForm.patchValue({ vehicleId: 'v1' });
+    expect(page.missingToPublish()).toBe('Acepta la declaración para publicar tu primer viaje.');
+    page.tripForm.patchValue({ declaration: true });
+    expect(page.missingToPublish()).toBeNull();
+  });
+
   it('offers to retry when the vehicles cannot be loaded', async () => {
     await createPage([VEHICLE]);
     driver['listVehicles'].mockRejectedValue(new Error('down'));

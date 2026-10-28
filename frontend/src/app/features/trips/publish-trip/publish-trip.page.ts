@@ -125,6 +125,22 @@ export class PublishTripPage implements OnInit {
   );
   // Plazas ofrecidas: de 1 a la capacidad del vehículo elegido
   readonly maxSeats = computed(() => this.selectedVehicle()?.capacity ?? 1);
+
+  // Qué falta para poder publicar (el botón sigue desactivado hasta que no
+  // falte nada), o null si está todo
+  readonly missingToPublish = computed(() => {
+    const { place, parking, vehicleId, declaration } = this.tripValue();
+    if (!place) {
+      return 'Elige tu dirección para publicar el viaje.';
+    }
+    if (!parking || !vehicleId) {
+      return 'Elige el parking y el vehículo para publicar el viaje.';
+    }
+    if (!this.hasDeclared() && !declaration) {
+      return 'Acepta la declaración para publicar tu primer viaje.';
+    }
+    return null;
+  });
   readonly seatsHint = computed(() => {
     const max = this.maxSeats();
     return `Tu vehículo tiene ${max} ${max === 1 ? 'plaza' : 'plazas'} para pasajeros.`;
