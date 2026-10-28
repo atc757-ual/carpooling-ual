@@ -64,6 +64,21 @@ describe('DriverService', () => {
     expect(await updated).toEqual({ id: 'v1', model: 'Seat León' });
   });
 
+  it('lists my trips and the requests of one, and decides a request', async () => {
+    const trips = driver.listMyTrips();
+    http.expectOne('/api/users/me/trips?limit=100').flush([{ id: 't1' }]);
+    const requests = driver.listTripRequests('t1');
+    http.expectOne('/api/trips/t1/requests').flush([{ id: 'r1' }]);
+    const accepted = driver.decideRequest('r1', 'accept');
+    const decision = http.expectOne('/api/requests/r1/accept');
+    expect(decision.request.method).toBe('POST');
+    decision.flush({ id: 'r1', status: 'accepted' });
+
+    expect(await trips).toEqual([{ id: 't1' }]);
+    expect(await requests).toEqual([{ id: 'r1' }]);
+    expect(await accepted).toEqual({ id: 'r1', status: 'accepted' });
+  });
+
   it('publishes a trip and turns API errors into ApiError', async () => {
     const published = driver.publishTrip(TRIP);
     const request = http.expectOne('/api/trips');

@@ -1,0 +1,63 @@
+<ion-content>
+  <div class="tab-page my-trips">
+    <h1 class="visually-hidden">Mis viajes</h1>
+
+    @if (isDriver()) {
+      @if (trips.isLoading() && !trips.hasValue()) {
+        <output class="my-trips__status">
+          <ion-spinner name="crescent" aria-hidden="true" />
+          <span class="text-color-muted">Cargando tus viajes…</span>
+        </output>
+      } @else if (trips.error()) {
+        <ion-card>
+          <ion-card-content class="my-trips__state" role="alert">
+            <ion-icon [icon]="errorIcon" aria-hidden="true" />
+            <div class="text-subtitle">No hemos podido cargar tus viajes</div>
+            <form (submit)="$event.preventDefault(); handleChanged()">
+              <ion-button type="submit" fill="outline">Reintentar</ion-button>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      } @else if (upcoming().length === 0 && past().length === 0) {
+        <ion-card>
+          <ion-card-content class="my-trips__state">
+            <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+            <div class="text-subtitle">Aún no has publicado ningún viaje</div>
+            <div class="text-body-s text-color-muted">
+              Publica tu recorrido y aquí verás quién te pide plaza.
+            </div>
+            <ion-button routerLink="/tabs/publish">Publicar viaje</ion-button>
+          </ion-card-content>
+        </ion-card>
+      } @else {
+        @if (upcoming().length > 0) {
+          <section class="my-trips__group" aria-labelledby="upcoming-title">
+            <h2 id="upcoming-title" class="text-eyebrow text-color-muted">Próximos</h2>
+            @for (trip of upcoming(); track trip.id) {
+              <app-driver-trip-card [trip]="trip" (changed)="handleChanged()" />
+            }
+          </section>
+        }
+        @if (past().length > 0) {
+          <section class="my-trips__group" aria-labelledby="past-title">
+            <h2 id="past-title" class="text-eyebrow text-color-muted">Anteriores</h2>
+            @for (trip of past(); track trip.id) {
+              <app-driver-trip-card [trip]="trip" />
+            }
+          </section>
+        }
+      }
+    } @else {
+      <!-- Como pasajero: sus solicitudes llegan en el siguiente paso -->
+      <ion-card>
+        <ion-card-content class="my-trips__state">
+          <ion-icon [icon]="passengerIcon" aria-hidden="true" />
+          <div class="text-subtitle">Muy pronto verás aquí tus solicitudes</div>
+          <div class="text-body-s text-color-muted">
+            Mientras tanto, el estado de cada solicitud está en el detalle de su viaje.
+          </div>
+        </ion-card-content>
+      </ion-card>
+    }
+  </div>
+</ion-content>

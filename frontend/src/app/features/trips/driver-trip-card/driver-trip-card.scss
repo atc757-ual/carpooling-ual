@@ -1,0 +1,84 @@
+// Una tarjeta por viaje: arriba cuándo y su estado, el trayecto y las plazas;
+// debajo de una línea, las solicitudes (filas separadas por una línea, como
+// TripRow de la guía)
+:host {
+  display: block;
+}
+
+.driver-trip {
+  margin: 0;
+
+  ion-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+}
+
+.driver-trip__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.driver-trip__route {
+  font-weight: var(--font-weight-semibold);
+}
+
+.driver-trip__requests {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin-top: var(--space-s);
+  padding-top: var(--space-base);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+
+  h3,
+  p {
+    margin: 0;
+  }
+}
+
+.driver-trip__loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.driver-trip__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.driver-trip__request {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding: var(--space-s) 0;
+
+  & + & {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}
+
+.driver-trip__person {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.driver-trip__name {
+  font-weight: var(--font-weight-semibold);
+}
+
+.driver-trip__actions {
+  display: flex;
+  gap: var(--space-s);
+
+  ion-button {
+    margin: 0;
+  }
+}
