@@ -23,7 +23,9 @@ export interface EmailSuggestion {
 // de antes de la «@», ofrece completarla con cada dominio admitido (solo los
 // que encajan con lo que ya se haya escrito tras la «@»). Al elegir una, o al
 // escribir el correo entero, desaparecen. Se usa en el login, el registro y la
-// recuperación de la contraseña:
+// recuperación de la contraseña. El campo lleva autocomplete="off": el
+// desplegable del navegador se pondría encima de esta lista (y no se puede
+// estilar ni detectar); las contraseñas sí conservan el suyo:
 // <ion-input [appCombobox]="suggestions.combobox" …>
 // <app-email-suggestions #suggestions [control]="form.controls.email" />
 @Component({
