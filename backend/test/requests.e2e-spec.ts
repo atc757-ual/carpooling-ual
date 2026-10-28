@@ -114,6 +114,7 @@ describe('Seat requests API (e2e)', () => {
       trip: { id: tripId, href: `/api/trips/${tripId}` },
       passenger: { id: seatRequest.passenger.id, name: 'pia' },
       status: 'pending',
+      seats: 1,
       isPriority: false,
       requestedAt: expect.any(String) as string,
       vehiclePlate: null,
@@ -141,6 +142,46 @@ describe('Seat requests API (e2e)', () => {
       status: 'published',
       availableSeats: 2,
     });
+  });
+
+  it('requests several seats: they are taken and given back together', async () => {
+    const { driver, tripId } = await driverWithTrip(3);
+    const pia = await tokenFor('pia', ['passenger']);
+    const leo = await tokenFor('leo', ['passenger']);
+
+    const created = await api('post', `/trips/${tripId}/requests`, pia)
+      .send({ seats: 2 })
+      .expect(201);
+    const { id, seats } = created.body as { id: string; seats: number };
+    expect(seats).toBe(2);
+    await api('post', `/requests/${id}/accept`, driver).expect(200);
+    const trip = await api('get', `/trips/${tripId}`, pia).expect(200);
+    expect(trip.body).toMatchObject({ availableSeats: 1 });
+
+    // Quedan 1: otras 2 no caben
+    const full = await api('post', `/trips/${tripId}/requests`, leo)
+      .send({ seats: 2 })
+      .expect(409);
+    expect(full.body).toMatchObject({ code: 'TRIP_FULL' });
+
+    await api('post', `/requests/${id}/cancel`, pia).expect(200);
+    const reopened = await api('get', `/trips/${tripId}`, pia).expect(200);
+    expect(reopened.body).toMatchObject({
+      status: 'published',
+      availableSeats: 3,
+    });
+  });
+
+  it('validates the seats of a request (1 to 4)', async () => {
+    const { tripId } = await driverWithTrip(4);
+    const pia = await tokenFor('pia', ['passenger']);
+
+    await api('post', `/trips/${tripId}/requests`, pia)
+      .send({ seats: 5 })
+      .expect(400);
+    await api('post', `/trips/${tripId}/requests`, pia)
+      .send({ seats: 0 })
+      .expect(400);
   });
 
   it('answers 409 TRIP_FULL when there are no seats left', async () => {

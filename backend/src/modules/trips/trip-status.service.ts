@@ -109,21 +109,31 @@ export class TripStatusService {
     }
   }
 
-  // RF-10: resta una plaza. La primera aceptación confirma el viaje
-  async reserveSeat(manager: EntityManager, trip: Trip): Promise<Trip> {
-    if (trip.availableSeats === 0) {
+  // RF-10: resta las plazas de una solicitud (si caben). La primera
+  // aceptación confirma el viaje
+  async reserveSeat(
+    manager: EntityManager,
+    trip: Trip,
+    seats = 1,
+  ): Promise<Trip> {
+    if (trip.availableSeats < seats) {
       throw new TripFullError(trip.id);
     }
-    trip.availableSeats -= 1;
+    trip.availableSeats -= seats;
     return trip.status === 'published'
       ? this.changeStatus(manager, trip, 'confirmed')
       : this.saveWithEvent(manager, trip);
   }
 
-  // RF-10: devuelve una plaza. Si ya no queda ningún pasajero aceptado
-  // (plazas disponibles = ofertadas), el viaje confirmado vuelve a publicado
-  async releaseSeat(manager: EntityManager, trip: Trip): Promise<Trip> {
-    trip.availableSeats += 1;
+  // RF-10: devuelve las plazas de una solicitud. Si ya no queda ningún
+  // pasajero aceptado (plazas disponibles = ofertadas), el viaje confirmado
+  // vuelve a publicado
+  async releaseSeat(
+    manager: EntityManager,
+    trip: Trip,
+    seats = 1,
+  ): Promise<Trip> {
+    trip.availableSeats += seats;
     const hasNoPassengers = trip.availableSeats === trip.offeredSeats;
     return hasNoPassengers && trip.status === 'confirmed'
       ? this.changeStatus(manager, trip, 'published')

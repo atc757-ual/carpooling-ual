@@ -2621,7 +2621,7 @@
     },
     "/api/trips/{tripId}/requests": {
       "post": {
-        "description": "RF-08. The trip must be published or confirmed, not yet departed, with seats left and not your own.",
+        "description": "RF-08. For the passenger and their companions (1 seat by default, up to 4). The trip must be published or confirmed, not yet departed, with enough seats left and not your own.",
         "operationId": "RequestsController_request",
         "parameters": [
           {
@@ -2634,6 +2634,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestSeatsDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "headers": {
@@ -5706,6 +5716,18 @@
           "estimatedArrivalAt"
         ]
       },
+      "RequestSeatsDto": {
+        "type": "object",
+        "properties": {
+          "seats": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 4,
+            "default": 1,
+            "description": "Seats for the passenger and their companions"
+          }
+        }
+      },
       "SeatRequestTripResource": {
         "type": "object",
         "properties": {
@@ -5772,6 +5794,13 @@
               "cancelled"
             ]
           },
+          "seats": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 4,
+            "example": 1,
+            "description": "Seats for the passenger and their companions"
+          },
           "isPriority": {
             "type": "boolean",
             "description": "RF-24: passenger affected by the cancellation of a trip in progress"
@@ -5794,6 +5823,7 @@
           "trip",
           "passenger",
           "status",
+          "seats",
           "isPriority",
           "requestedAt",
           "vehiclePlate"
