@@ -42,11 +42,13 @@ describe('TripSearchPage', () => {
 
   async function setUp(
     current: TripSearch | null,
-    matches: Promise<TripMatch[]> = Promise.resolve([MATCH]),
+    // Se crea al llamar a la API (una promesa rechazada creada antes quedaría
+    // sin capturar)
+    matches: () => Promise<TripMatch[]> = () => Promise.resolve([MATCH]),
   ): Promise<ComponentFixture<TripSearchPage>> {
     sessionStorage.clear();
     stubIntersectionObserver();
-    search = vi.fn().mockReturnValue(matches);
+    search = vi.fn().mockImplementation(matches);
     TestBed.configureTestingModule({
       imports: [TripSearchPage],
       providers: [
@@ -86,7 +88,7 @@ describe('TripSearchPage', () => {
   });
 
   it('says there are no trips yet and widens the margin', async () => {
-    const fixture = await setUp({ ...SEARCH, margin: 10 }, Promise.resolve([]));
+    const fixture = await setUp({ ...SEARCH, margin: 10 }, () => Promise.resolve([]));
     const root = fixture.nativeElement as HTMLElement;
 
     expect(root.textContent).toContain('Aún no hay viajes para esa hora');
@@ -101,7 +103,7 @@ describe('TripSearchPage', () => {
   });
 
   it('shows the error and searches again', async () => {
-    const fixture = await setUp(SEARCH, Promise.reject(new Error('down')));
+    const fixture = await setUp(SEARCH, () => Promise.reject(new Error('down')));
     const root = fixture.nativeElement as HTMLElement;
 
     expect(root.textContent).toContain('No hemos podido buscar viajes');
