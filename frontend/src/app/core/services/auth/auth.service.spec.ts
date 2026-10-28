@@ -1,5 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting, TestRequest } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+  TestRequest,
+} from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { ApiError, NETWORK_ERROR } from '../../models/api-error.model';
@@ -18,6 +22,7 @@ const USER: User = {
   email: 'ana@ual.es',
   phone: '+34600123456',
   profiles: ['passenger'],
+  activeMode: null,
 };
 
 function accessToken(suffix: string): AccessToken {
@@ -52,12 +57,17 @@ describe('AuthService', () => {
   let preferences: FakePreferences;
 
   // El servicio lee Preferences (asíncrono) antes de hacer la petición
-  const expectRequest = (url: string): Promise<TestRequest> => vi.waitFor(() => http.expectOne(url));
+  const expectRequest = (url: string): Promise<TestRequest> =>
+    vi.waitFor(() => http.expectOne(url));
 
   beforeEach(() => {
     preferences = new FakePreferences();
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: PreferencesPlugin, useValue: preferences }],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: PreferencesPlugin, useValue: preferences },
+      ],
     });
     auth = TestBed.inject(AuthService);
     http = TestBed.inject(HttpTestingController);
@@ -251,7 +261,9 @@ describe('AuthService', () => {
     });
 
     it('fails with INVALID_REFRESH_TOKEN when there is no stored session', async () => {
-      await expect(auth.refreshAccessToken()).rejects.toMatchObject({ code: 'INVALID_REFRESH_TOKEN' });
+      await expect(auth.refreshAccessToken()).rejects.toMatchObject({
+        code: 'INVALID_REFRESH_TOKEN',
+      });
       expect(http.match('/api/auth/refresh')).toHaveLength(0);
     });
 

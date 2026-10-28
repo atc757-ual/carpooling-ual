@@ -2,7 +2,7 @@ import { VIEWPORTS } from '../support/e2e';
 
 const EMAIL = 'mario.perez@ual.es';
 
-function accessToken(profiles: string[]) {
+function accessToken(profiles: string[], activeMode: string | null) {
   return {
     '@type': 'AccessToken',
     accessToken: 'access-1',
@@ -18,13 +18,15 @@ function accessToken(profiles: string[]) {
       email: EMAIL,
       phone: '+34612345678',
       profiles,
+      activeMode,
     },
   };
 }
 
-// Se entra como en la app, por el login, con esos perfiles
-function logIn(profiles: string[]): void {
-  cy.intercept('POST', '/api/auth/login', accessToken(profiles));
+// Se entra como en la app, por el login, con esos perfiles y el modo guardado
+// en el servidor
+function logIn(profiles: string[], activeMode: string | null = null): void {
+  cy.intercept('POST', '/api/auth/login', accessToken(profiles, activeMode));
   cy.visit('/auth/login');
   cy.get('app-login ion-input[formControlName="email"] input').type(EMAIL);
   cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
@@ -156,7 +158,17 @@ for (const viewport of VIEWPORTS) {
       destinationLabels().should('contain', 'Buscar');
       cy.get('app-home app-trip-search-form').should('exist');
 
+      cy.intercept('PUT', '/api/users/me/active-mode', { activeMode: 'driver' }).as('mode');
+
       cy.contains('app-mode-selector ion-segment-button', 'Conductor').click();
+
+      cy.wait('@mode').its('request.body').should('deep.equal', { mode: 'driver' });
+      destinationLabels().should('contain', 'Publicar').and('not.contain', 'Buscar');
+      cy.contains('app-home ion-button', 'Ofrecer plaza').should('be.visible');
+    });
+
+    it('starts with the mode kept on the server', () => {
+      logIn(['passenger', 'driver'], 'driver');
 
       destinationLabels().should('contain', 'Publicar').and('not.contain', 'Buscar');
       cy.contains('app-home ion-button', 'Ofrecer plaza').should('be.visible');

@@ -26,6 +26,16 @@ describe('UsersService', () => {
     await expect(activate).resolves.toMatchObject({ profiles: ['driver'] });
   });
 
+  it('keeps the active mode on the server', async () => {
+    const change = users.setActiveMode('driver');
+    const request = http.expectOne('/api/users/me/active-mode');
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({ mode: 'driver' });
+    request.flush({ id: 'user-1', activeMode: 'driver' });
+
+    await expect(change).resolves.toMatchObject({ activeMode: 'driver' });
+  });
+
   it('rejects with the API error', async () => {
     const activate = users.activateProfile('driver');
     http
