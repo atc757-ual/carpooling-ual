@@ -66,6 +66,12 @@
   border-radius: var(--radius-s);
   background: var(--color-surface);
 
+  // El espacio entre bloques lo da el gap: sin los márgenes del navegador
+  h2,
+  p {
+    margin: 0;
+  }
+
   ion-button {
     margin: 0;
   }

@@ -42,10 +42,9 @@
     font-size: 2rem; // 32px
   }
 }
-
-// El mapa, cuadrado: todo el ancho en el móvil y, en la ventana de
-// escritorio, como mucho 448px (centrado), para que quepa con la dirección y
-// el botón. Con el borde y las esquinas de las tarjetas
+// El mapa: cuadrado y a todo el ancho en el móvil; en la ventana de
+// escritorio, a todo el ancho y con el mismo alto (448px), para que quepa con
+// la dirección y el botón. Con el borde y las esquinas de las tarjetas
 .location__map {
   width: 100%;
   max-width: 28rem; // 448px
@@ -54,6 +53,14 @@
   overflow: hidden;
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s);
+}
+
+@media (min-width: 768px) {
+  .location__map {
+    max-width: none;
+    height: 28rem; // 448px
+    aspect-ratio: auto;
+  }
 }
 
 // La dirección encontrada: en negrita y, debajo, la localidad

@@ -210,7 +210,7 @@
                       obligatorio y la ITV al día.
                     </span>
                   </div>
-                  @if (tripForm.touched && !tripForm.controls.declaration.value) {
+                  @if (tripForm.controls.declaration.touched && !tripForm.controls.declaration.value) {
                     <p class="publish__error" role="alert">
                       Acepta la declaración para publicar tu primer viaje.
                     </p>
