@@ -1,0 +1,39 @@
+<form class="vehicle-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+  <ion-input
+    formControlName="model"
+    label="Marca y modelo"
+    labelPlacement="stacked"
+    fill="outline"
+    placeholder="Seat Ibiza"
+    autocapitalize="words"
+    errorText="Escribe la marca y el modelo, como Seat Ibiza."
+  />
+  <ion-input
+    formControlName="plate"
+    label="Matrícula"
+    labelPlacement="stacked"
+    fill="outline"
+    placeholder="1234 BCD"
+    autocapitalize="characters"
+    [helperText]="isEditing() ? 'La matrícula no se puede cambiar.' : ''"
+    errorText="Escribe una matrícula española, como 1234 BCD."
+  />
+  <app-seat-stepper
+    formControlName="totalSeats"
+    label="Capacidad total (incluye conductor)"
+    [min]="minTotalSeats"
+    [max]="maxTotalSeats"
+  />
+  <div class="notice notice--info">
+    <p>
+      <b>{{ seatsNotice() }}</b
+      >. En cada viaje eliges cuántas ofreces, como mucho esas.
+    </p>
+  </div>
+  <ion-button type="submit" expand="block" [disabled]="isSaving()">
+    @if (isSaving()) {
+      <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+    }
+    {{ submitLabel() }}
+  </ion-button>
+</form>

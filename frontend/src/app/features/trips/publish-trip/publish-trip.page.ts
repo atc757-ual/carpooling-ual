@@ -11,7 +11,6 @@ import {
   IonCheckbox,
   IonContent,
   IonIcon,
-  IonInput,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -36,13 +35,10 @@ import { CAMPUS_NAME } from '../../matching/campus';
 import { LocationModal } from '../../matching/location-modal/location-modal';
 import { PlaceField } from '../../matching/place-field/place-field';
 import { DeclarationModal } from '../declaration-modal/declaration-modal';
+import { VehicleForm } from '../vehicle-form/vehicle-form';
+import { VehicleModal } from '../vehicle-modal/vehicle-modal';
 import { getDefaultTime } from '../../matching/trip-search-form/trip-search-form';
 
-// Matrícula española actual (1234BCD; se admiten espacio y guion al escribirla)
-const PLATE_PATTERN = /^\d{4}[ -]?[B-DF-HJ-NP-TV-Z]{3}$/i;
-const MIN_CAPACITY = 1;
-const MAX_CAPACITY = 8;
-const DEFAULT_CAPACITY = 4;
 export const DETOURS = [5, 10, 15, 20] as const;
 const DEFAULT_DETOUR = 10;
 const DATE_LABEL = new Intl.DateTimeFormat('es-ES', {
@@ -66,7 +62,7 @@ export function toDepartureAt(date: string, time: string): string {
 }
 
 // Publicar viaje (conductor, RF-04). Sin vehículos, primero «Antes de tu
-// primer viaje» (matrícula y plazas); después, el formulario: trayecto (una
+// primer viaje» (marca y modelo, matrícula y capacidad); después, el formulario: trayecto (una
 // dirección y un parking del campus, en un sentido u otro), fecha y hora de
 // salida, vehículo, plazas ofrecidas (hasta la capacidad del vehículo),
 // desvío máximo y, si aún no la ha aceptado, la declaración responsable
@@ -79,7 +75,6 @@ export function toDepartureAt(date: string, time: string): string {
     IonCheckbox,
     IonContent,
     IonIcon,
-    IonInput,
     IonSelect,
     IonSelectOption,
     IonSpinner,
@@ -88,6 +83,7 @@ export function toDepartureAt(date: string, time: string): string {
     PlaceField,
     RouteTimeline,
     SeatStepper,
+    VehicleForm,
   ],
   templateUrl: './publish-trip.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './publish-trip.page.scss'],
@@ -105,14 +101,6 @@ export class PublishTripPage implements OnInit {
   readonly isSaving = signal(false);
   // El viaje recién publicado (pantalla de confirmación)
   readonly published = signal<PublishedTrip | null>(null);
-
-  readonly vehicleForm = this.formBuilder.group({
-    plate: ['', [Validators.required, Validators.pattern(PLATE_PATTERN)]],
-    capacity: [
-      DEFAULT_CAPACITY,
-      [Validators.required, Validators.min(MIN_CAPACITY), Validators.max(MAX_CAPACITY)],
-    ],
-  });
 
   readonly tripForm = this.formBuilder.group({
     // La dirección de fuera del campus (origen al ir, destino al volver)
@@ -204,19 +192,28 @@ export class PublishTripPage implements OnInit {
     return place.touched && place.invalid;
   }
 
-  async handleRegisterVehicle(): Promise<void> {
-    if (this.vehicleForm.invalid) {
-      this.vehicleForm.markAllAsTouched();
-      return;
-    }
-    const { plate, capacity } = this.vehicleForm.getRawValue();
-    await this.save(async () => {
-      const vehicle = await this.driver.registerVehicle({
-        plate: plate.replaceAll(/[ -]/g, '').toUpperCase(),
-        capacity: Number(capacity),
-      });
-      this.setVehicles([...this.vehicles(), vehicle]);
+  // Primer vehículo registrado: pasa a ser el elegido
+  handleVehicleSaved(vehicle: Vehicle): void {
+    this.setVehicles([...this.vehicles(), vehicle]);
+  }
+
+  // «Editar»: sus datos en una ventana; al guardar, se actualiza en la lista
+  async handleEditVehicle(vehicle: Vehicle): Promise<void> {
+    const modal = await this.modalController.create({
+      component: VehicleModal,
+      componentProps: { vehicle },
+      cssClass: 'info-dialog',
     });
+    await modal.present();
+    const { data, role } = await modal.onWillDismiss<Vehicle>();
+    if (role === 'saved' && data) {
+      this.vehicles.set(this.vehicles().map((item) => (item.id === data.id ? data : item)));
+    }
+  }
+
+  // «Seat Ibiza · 1234BCD», o solo la matrícula si no tiene modelo
+  protected vehicleLabel({ model, plate }: Vehicle): string {
+    return model ? `${model} · ${plate}` : plate;
   }
 
   async handlePublish(): Promise<void> {

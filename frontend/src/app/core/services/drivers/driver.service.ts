@@ -8,6 +8,7 @@ import {
   PublishedTrip,
   PublishTripRequest,
   RegisterVehicleRequest,
+  UpdateVehicleRequest,
   Vehicle,
 } from '../../models/driver.model';
 
@@ -29,6 +30,10 @@ export class DriverService {
 
   registerVehicle(vehicle: RegisterVehicleRequest): Promise<Vehicle> {
     return this.request(this.http.post<Vehicle>(`${this.apiUrl}/vehicles`, vehicle));
+  }
+
+  updateVehicle(vehicleId: string, changes: UpdateVehicleRequest): Promise<Vehicle> {
+    return this.request(this.http.patch<Vehicle>(`${this.apiUrl}/vehicles/${vehicleId}`, changes));
   }
 
   // Declaración responsable (RF-21); se puede repetir sin efecto

@@ -1,0 +1,18 @@
+// Campos apilados a 16px, como el formulario de Publicar
+:host {
+  display: block;
+}
+
+.vehicle-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  p {
+    margin: 0;
+  }
+
+  ion-button {
+    margin: 0;
+  }
+}
