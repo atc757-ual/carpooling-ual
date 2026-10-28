@@ -168,7 +168,9 @@ for (const viewport of VIEWPORTS) {
       goTo('Mis viajes');
 
       cy.location('pathname').should('eq', '/tabs/trips');
-      cy.contains('h1', 'Mis viajes').should('be.visible');
+      // El título lo pone la cabecera; el h1 de la página es para lectores
+      cy.get('app-my-trips h1').should('contain', 'Mis viajes');
+      cy.contains('app-my-trips', 'Muy pronto verás aquí tus solicitudes').should('be.visible');
     });
 
     it('opens Avisos with the bell', () => {

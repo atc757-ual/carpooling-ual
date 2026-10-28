@@ -381,6 +381,36 @@ ion-card-header + ion-card-content {
   padding-top: 0;
 }
 
+// Etiqueta de estado (status de la guía): el estado en texto, nunca solo con
+// color, en una píldora del color suave de su tipo (solicitudes y viajes)
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0.125rem var(--space-s); // 2px 8px
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.status--pending {
+  background: var(--color-warning-subtle);
+  color: var(--color-warning);
+}
+
+.status--accepted {
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+}
+
+.status--info {
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+}
+
 // Aviso (notice de la guía): un texto en una caja de color suave con el título
 // en negrita encima, en el color del tipo de aviso. Información en el azul de
 // los enlaces (el tema no tiene un color propio de información)

@@ -48,3 +48,14 @@ export interface PublishedTrip {
   offeredSeats: number;
   maxDetourMin: number;
 }
+
+export type TripStatus = 'published' | 'confirmed' | 'in_progress' | 'finished' | 'cancelled';
+
+// Un viaje del conductor (GET /api/users/me/trips). Los nombres del origen y
+// el destino son null en los publicados antes de guardarlos
+export interface DriverTrip extends PublishedTrip {
+  availableSeats: number;
+  status: TripStatus;
+  originName: string | null;
+  destinationName: string | null;
+}

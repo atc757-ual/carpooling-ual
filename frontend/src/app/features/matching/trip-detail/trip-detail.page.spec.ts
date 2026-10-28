@@ -37,6 +37,8 @@ function seatRequest(status: SeatRequest['status'], plate: string | null = null)
   return {
     id: 'r1',
     trip: { id: 't1' },
+    passenger: { id: 'p1', name: 'Mario Pérez' },
+    isPriority: false,
     status,
     seats: 2,
     requestedAt: '2026-10-27T06:00:00.000Z',

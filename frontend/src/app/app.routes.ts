@@ -85,7 +85,16 @@ export const routes: Routes = [
       },
       {
         path: 'trips',
-        ...comingSoon('Mis viajes', 'Muy pronto verás aquí tus viajes y solicitudes.'),
+        loadComponent: () =>
+          import('./features/trips/my-trips/my-trips.page').then((m) => m.MyTripsPage),
+        data: {
+          heading: {
+            title: 'Mis viajes',
+            subtitle: 'Tus viajes y las solicitudes de plaza.',
+            backHref: '/tabs/home',
+            breadcrumbs: [HOME_BREADCRUMB],
+          } satisfies TabHeading,
+        },
       },
       {
         // Como pasajero. Con su cabecera: el título en la franja fija y, en el
