@@ -43,10 +43,14 @@
   }
 }
 
-// El mapa: 256px de alto (cabe con la dirección y el botón también en la
-// ventana de escritorio), con el borde y las esquinas de las tarjetas
+// El mapa, cuadrado: todo el ancho en el móvil y, en la ventana de
+// escritorio, como mucho 448px (centrado), para que quepa con la dirección y
+// el botón. Con el borde y las esquinas de las tarjetas
 .location__map {
-  height: 16rem; // 256px
+  width: 100%;
+  max-width: 28rem; // 448px
+  aspect-ratio: 1;
+  margin-inline: auto;
   overflow: hidden;
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s);
