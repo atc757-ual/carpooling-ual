@@ -129,14 +129,16 @@ for (const viewport of VIEWPORTS) {
       );
     });
 
-    it('says when there are no trips and offers to widen the margin', () => {
+    it('says when there are no trips and offers to change the time', () => {
       cy.intercept('POST', '/api/trips/search', []).as('empty');
       searchFromHome('Roquetas de Mar');
 
+      cy.wait('@empty').its('request.body').should('include', { marginMin: 20 });
       cy.contains('app-trip-search', 'Aún no hay viajes para esa hora').should('be.visible');
-      cy.contains('app-trip-search ion-button', 'Ampliar margen a ±30 min').click();
-      cy.wait('@empty');
-      cy.wait('@empty').its('request.body').should('include', { marginMin: 30 });
+      // ±20 min ya es el margen mayor: no se ofrece ampliarlo
+      cy.contains('app-trip-search ion-button', 'Ampliar margen').should('not.exist');
+      cy.contains('app-trip-search ion-button', 'Modificar hora').click();
+      cy.get('app-trip-search app-trip-search-form').should('be.visible');
     });
 
     it('closes the form without changing the search', () => {

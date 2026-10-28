@@ -65,7 +65,7 @@ describe('TripSearchForm', () => {
   });
 
   it('clears the search and what was chosen', () => {
-    searchState.set({ ...SEARCH, margin: 30, seats: 3 });
+    searchState.set({ ...SEARCH, margin: 15, seats: 3 });
     fixture.detectChanges();
 
     form.clear();
@@ -123,9 +123,9 @@ describe('TripSearchForm', () => {
 
     expect(form.timeWindow()).toEqual({ from: '07:40', to: '08:20' });
 
-    form.form.patchValue({ time: '09:15', margin: 30 });
+    form.form.patchValue({ time: '09:15', margin: 15 });
 
-    expect(form.timeWindow()).toEqual({ from: '08:45', to: '09:45' });
+    expect(form.timeWindow()).toEqual({ from: '09:00', to: '09:30' });
   });
 
   it('asks for the arrival time going to the campus and the departure time coming back', () => {

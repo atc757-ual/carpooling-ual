@@ -86,18 +86,18 @@ describe('TripSearchPage', () => {
   });
 
   it('says there are no trips yet and widens the margin', async () => {
-    const fixture = await setUp(SEARCH, Promise.resolve([]));
+    const fixture = await setUp({ ...SEARCH, margin: 10 }, Promise.resolve([]));
     const root = fixture.nativeElement as HTMLElement;
 
     expect(root.textContent).toContain('Aún no hay viajes para esa hora');
-    expect(root.textContent).toContain('Ampliar margen a ±30 min');
+    expect(root.textContent).toContain('Ampliar margen a ± 15 min');
 
     fixture.componentInstance.handleWidenMargin();
     await fixture.whenStable();
 
-    expect(searchState.search()?.margin).toBe(30);
+    expect(searchState.search()?.margin).toBe(15);
     expect(search).toHaveBeenCalledTimes(2);
-    expect(fixture.componentInstance.widerMargin()).toBeNull();
+    expect(fixture.componentInstance.widerMargin()).toBe(20);
   });
 
   it('shows the error and searches again', async () => {
