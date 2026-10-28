@@ -121,14 +121,18 @@
     <app-seat-stepper formControlName="seats" label="Plazas" [min]="minSeats" [max]="maxSeats" />
   </div>
 
-  <ion-button type="submit" expand="block">
+  <!-- Se activa al elegir la dirección; mientras, se dice qué falta -->
+  <ion-button type="submit" expand="block" [disabled]="!hasPlace()">
     <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
     Buscar viaje
   </ion-button>
 
-  <p class="search-form__summary text-color-muted">
-    Verás viajes que {{ timeType() === 'arrival' ? 'llegan al' : 'salen del' }} campus entre las
-    {{ timeWindow().from }} y las {{ timeWindow().to }}. También mostraremos alternativas fuera del
-    margen.
+  <p class="search-form__summary text-color-muted" aria-live="polite">
+    @if (hasPlace()) {
+      Verás viajes que {{ timeType() === 'arrival' ? 'llegan al' : 'salen del' }} campus entre las
+      {{ timeWindow().from }} y las {{ timeWindow().to }}.
+    } @else {
+      Elige tu dirección para buscar viajes.
+    }
   </p>
 </form>

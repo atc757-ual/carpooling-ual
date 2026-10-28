@@ -149,10 +149,14 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('asks for the place before searching', () => {
-      cy.contains('app-trip-search-form ion-button', 'Buscar viaje').click();
-
+      cy.contains('app-trip-search-form ion-button', 'Buscar viaje').should(
+        'have.attr',
+        'disabled',
+      );
+      cy.contains('app-trip-search-form', 'Elige tu dirección para buscar viajes.').should(
+        'be.visible',
+      );
       cy.location('pathname').should('eq', '/tabs/home');
-      cy.contains('app-trip-search-form', 'Elige una dirección de la lista.').should('be.visible');
     });
 
     it('shows the impact marked as example data and how it works', () => {

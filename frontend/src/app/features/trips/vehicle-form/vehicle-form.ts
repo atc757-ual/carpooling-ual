@@ -46,6 +46,10 @@ export class VehicleForm {
     totalSeats: [DEFAULT_TOTAL_SEATS],
   });
 
+  // Con todos los campos bien (la matrícula, al editar, no cuenta: no se cambia)
+  private readonly status = toSignal(this.form.statusChanges, { initialValue: this.form.status });
+  readonly isComplete = computed(() => this.status() === 'VALID');
+
   private readonly totalSeats = toSignal(this.form.controls.totalSeats.valueChanges, {
     initialValue: DEFAULT_TOTAL_SEATS,
   });

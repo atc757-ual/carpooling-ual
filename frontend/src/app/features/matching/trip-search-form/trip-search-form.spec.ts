@@ -135,7 +135,13 @@ describe('TripSearchForm', () => {
         .querySelector('app-datetime-field[presentation="time"] .text-label')
         ?.textContent?.trim();
     const summary = () => root.querySelector('.search-form__summary')?.textContent;
-    form.form.patchValue({ time: '08:00' });
+    fixture.detectChanges();
+
+    // Sin dirección, el botón espera y se dice qué falta
+    expect(summary()).toContain('Elige tu dirección para buscar viajes.');
+    expect(root.querySelector('ion-button[type="submit"]')?.hasAttribute('disabled')).toBe(true);
+
+    form.form.patchValue({ place: ROQUETAS, time: '08:00' });
     fixture.detectChanges();
 
     expect(label()).toBe('Hora de llegada');

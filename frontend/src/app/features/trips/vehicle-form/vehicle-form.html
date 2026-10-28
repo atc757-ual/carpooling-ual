@@ -30,10 +30,16 @@
       >. En cada viaje eliges cuántas ofreces, como mucho esas.
     </p>
   </div>
-  <ion-button type="submit" expand="block" [disabled]="isSaving()">
+  <!-- Se activa al completar los campos; mientras, se dice qué falta -->
+  <ion-button type="submit" expand="block" [disabled]="isSaving() || !isComplete()">
     @if (isSaving()) {
       <ion-spinner slot="start" name="crescent" aria-hidden="true" />
     }
     {{ submitLabel() }}
   </ion-button>
+  @if (!isComplete()) {
+    <p class="text-caption text-color-muted" aria-live="polite">
+      Escribe la marca y el modelo y una matrícula válida para continuar.
+    </p>
+  }
 </form>

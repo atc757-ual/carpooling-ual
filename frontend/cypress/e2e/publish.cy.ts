@@ -82,8 +82,9 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-publish-trip .publish__vehicle-box', 'Seat Ibiza · 1234BCD');
 
       choosePlace('app-publish-trip', 'Roquetas de Mar');
-      cy.contains('app-publish-trip ion-button', 'Publicar viaje').click();
-      cy.contains('app-publish-trip', 'Acepta la declaración');
+      // Sin la declaración, el botón espera y se dice qué falta
+      cy.contains('app-publish-trip ion-button', 'Publicar viaje').should('have.attr', 'disabled');
+      cy.contains('app-publish-trip', 'Acepta la declaración para publicar tu primer viaje.');
       cy.get('app-publish-trip ion-checkbox').click();
       cy.contains('app-publish-trip ion-button', 'Publicar viaje').click();
 
