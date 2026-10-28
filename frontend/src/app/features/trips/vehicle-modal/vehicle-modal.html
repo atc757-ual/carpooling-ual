@@ -1,6 +1,6 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title>Editar vehículo</ion-title>
+    <ion-title>{{ vehicle ? 'Editar vehículo' : 'Registrar vehículo' }}</ion-title>
     <ion-buttons slot="end">
       <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
       <form (submit)="$event.preventDefault(); close()">
@@ -16,7 +16,7 @@
 <div class="vehicle-modal">
   <app-vehicle-form
     [vehicle]="vehicle"
-    submitLabel="Guardar cambios"
+    [submitLabel]="vehicle ? 'Guardar cambios' : 'Registrar vehículo'"
     (saved)="handleSaved($event)"
   />
 </div>
