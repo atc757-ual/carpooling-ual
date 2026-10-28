@@ -5,6 +5,7 @@ import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { TabHeading } from './tab-heading';
 import { TabsPage } from './tabs.page';
@@ -17,6 +18,8 @@ const HEADING: TabHeading = { title: 'Buscar viaje', subtitle: 'Viajes', backHre
 describe('TabsPage', () => {
   const mode = signal<TravelMode | null>('passenger');
   const logout = vi.fn().mockResolvedValue(undefined);
+  const unread = signal(0);
+  const refreshUnread = vi.fn().mockResolvedValue(undefined);
 
   function render(): TabsPage {
     TestBed.configureTestingModule({
@@ -35,6 +38,7 @@ describe('TabsPage', () => {
           provide: ActiveModeService,
           useValue: { mode, hasBothModes: signal(false), setMode: vi.fn() },
         },
+        { provide: NotificationsService, useValue: { unreadCount: unread, refreshUnread } },
       ],
     });
     return TestBed.createComponent(TabsPage).componentInstance;
@@ -42,7 +46,27 @@ describe('TabsPage', () => {
 
   const labels = (page: TabsPage): string[] => page.tabs().map(({ label }) => label);
 
-  beforeEach(() => mode.set('passenger'));
+  beforeEach(() => {
+    mode.set('passenger');
+    unread.set(0);
+    refreshUnread.mockClear();
+  });
+
+  it('counts the unread notifications when it opens and on each navigation', async () => {
+    const page = render();
+    page.ngOnInit();
+    expect(refreshUnread).toHaveBeenCalledTimes(1);
+
+    await TestBed.inject(Router).navigateByUrl('/home');
+
+    expect(refreshUnread).toHaveBeenCalledTimes(2);
+    expect(page.bellLabel()).toBe('Avisos');
+    unread.set(12);
+    expect(page.bellLabel()).toBe('Avisos, 12 sin leer');
+    expect(page.unreadBadge()).toBe('9+');
+    unread.set(3);
+    expect(page.unreadBadge()).toBe('3');
+  });
 
   it('has five destinations, with Buscar as a passenger', () => {
     expect(labels(render())).toEqual(['Inicio', 'Mis viajes', 'Buscar', 'Avisos', 'Perfil']);
