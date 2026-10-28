@@ -248,6 +248,7 @@ export class PublishTripPage implements OnInit {
       return;
     }
     const placePoint = { type: 'Point' as const, coordinates: place.coordinates };
+    const campusName = `${CAMPUS_NAME} · ${parking.name}`;
     await this.save(async () => {
       if (!this.hasDeclared()) {
         await this.driver.acceptDeclaration();
@@ -260,6 +261,8 @@ export class PublishTripPage implements OnInit {
         departureAt: toDepartureAt(date, time),
         offeredSeats: Number(values.seats),
         maxDetourMin: values.maxDetourMin,
+        originName: isToCampus ? place.name : campusName,
+        destinationName: isToCampus ? campusName : place.name,
       });
       this.published.set(trip);
       void this.toast.showSuccess('Viaje publicado.');

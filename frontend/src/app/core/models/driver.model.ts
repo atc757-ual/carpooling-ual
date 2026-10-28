@@ -35,6 +35,10 @@ export interface PublishTripRequest {
   departureAt: string;
   offeredSeats: number;
   maxDetourMin: number;
+  // Cómo se muestran después (Mis viajes, avisos): la dirección elegida y el
+  // parking del campus
+  originName: string;
+  destinationName: string;
 }
 
 // Viaje publicado (lo que la pantalla necesita del recurso de la API)

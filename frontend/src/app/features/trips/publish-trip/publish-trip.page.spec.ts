@@ -136,6 +136,8 @@ describe('PublishTripPage', () => {
       departureAt: toDepartureAt('2099-01-15', '07:40'),
       offeredSeats: 1,
       maxDetourMin: 10,
+      originName: 'Roquetas de Mar',
+      destinationName: 'Campus UAL · Parking P1',
     });
     expect(page.published()?.id).toBe('t1');
   });
