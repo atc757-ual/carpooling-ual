@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import {
@@ -88,11 +88,12 @@ const PROFILE_TAB: Tab = { path: 'profile', label: 'Perfil', icon: personOutline
   templateUrl: './tabs.page.html',
   styleUrl: './tabs.page.scss',
 })
-export class TabsPage {
+export class TabsPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly activeMode = inject(ActiveModeService);
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // La cabecera propia de la pestaña que se ve, o null (saludo y logotipo)
   readonly heading = toSignal(
@@ -124,12 +125,12 @@ export class TabsPage {
   protected readonly bellIcon = notificationsOutline;
   protected readonly logoutIcon = logOutOutline;
 
-  constructor() {
+  ngOnInit(): void {
     void this.notifications.refreshUnread();
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => void this.notifications.refreshUnread());
   }

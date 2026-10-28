@@ -54,6 +54,7 @@ describe('TabsPage', () => {
 
   it('counts the unread notifications when it opens and on each navigation', async () => {
     const page = render();
+    page.ngOnInit();
     expect(refreshUnread).toHaveBeenCalledTimes(1);
 
     await TestBed.inject(Router).navigateByUrl('/home');
