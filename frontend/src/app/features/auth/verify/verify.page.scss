@@ -21,3 +21,10 @@
 .verify__edit {
   align-self: center;
 }
+
+// «Comprobando el código…» con su spinner, mientras se envía solo
+.verify__checking {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}

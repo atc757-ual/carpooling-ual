@@ -48,7 +48,6 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('POST', VERIFY_URL, ACCESS_TOKEN).as('verify');
 
       typeCode('042619');
-      cy.contains('ion-button', 'Verificar correo').click();
 
       cy.wait('@verify').its('request.body').should('deep.equal', { email: EMAIL, code: '042619' });
       cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
@@ -67,7 +66,6 @@ for (const viewport of VIEWPORTS) {
       }).as('verify');
 
       typeCode('284610');
-      cy.contains('ion-button', 'Verificar correo').click();
 
       cy.wait('@verify');
       cy.get('ion-toast')

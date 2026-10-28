@@ -1,7 +1,8 @@
 <!-- De tipo texto con teclado numérico (no de tipo número): así un código que
      empieza por cero conserva ese cero. Sin patrón propio: Angular lo
      aplicaría como validador del código entero. one-time-code: el móvil
-     ofrece el código recibido -->
+     ofrece el código recibido. Al rellenar la última casilla (o pegar el
+     código) se envía solo (completed) -->
 <ion-input-otp
   [formControl]="code"
   [length]="codeLength"
@@ -11,4 +12,6 @@
   fill="outline"
   shape="soft"
   [attr.aria-labelledby]="labelledBy()"
+  [class.code-input--shake]="isShaking()"
+  (ionComplete)="completed.emit()"
 />
