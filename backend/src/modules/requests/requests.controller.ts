@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -27,6 +28,7 @@ import {
   setPaginationHeaders,
 } from '../../shared/pagination/paginated';
 import { PaginationQueryDto } from '../../shared/pagination/pagination-query.dto';
+import { RequestSeatsDto } from './dto/request-seats.dto';
 import {
   SeatRequestResource,
   toSeatRequestResource,
@@ -52,7 +54,7 @@ export class RequestsController {
   @ApiOperation({
     summary: 'Request a seat in a trip',
     description:
-      'RF-08. The trip must be published or confirmed, not yet departed, with seats left and not your own.',
+      'RF-08. For the passenger and their companions (1 seat by default, up to 4). The trip must be published or confirmed, not yet departed, with enough seats left and not your own.',
   })
   @ApiParam({ name: 'tripId', format: 'uuid' })
   @ApiCreatedResponse({
@@ -74,10 +76,11 @@ export class RequestsController {
   async request(
     @CurrentUser() passenger: AccessTokenPayload,
     @Param('tripId', uuidParam('tripId')) tripId: string,
+    @Body() body: RequestSeatsDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<SeatRequestResource> {
     const request = toSeatRequestResource(
-      await this.requestsService.request(passenger.sub, tripId),
+      await this.requestsService.request(passenger.sub, tripId, body.seats),
     );
     response.setHeader('Location', request.href);
     return request;

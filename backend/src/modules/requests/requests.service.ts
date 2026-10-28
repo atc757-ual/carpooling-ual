@@ -42,8 +42,13 @@ export class RequestsService {
 
   // --- Pasajero
 
-  // RF-08: pedir plaza en un viaje abierto, con plazas y que no sea el suyo
-  async request(passengerId: string, tripId: string): Promise<RequestView> {
+  // RF-08: pedir plaza (para él y sus compañeros) en un viaje abierto, con
+  // plazas suficientes y que no sea el suyo
+  async request(
+    passengerId: string,
+    tripId: string,
+    seats = 1,
+  ): Promise<RequestView> {
     const isPriority =
       await this.usersService.getPassengerPriority(passengerId);
     const request = await this.dataSource.transaction(async (manager) => {
@@ -52,12 +57,13 @@ export class RequestsService {
       if (trip.driverId === passengerId) {
         throw new CannotRequestOwnTripError(tripId);
       }
-      if (trip.availableSeats === 0) {
+      if (trip.availableSeats < seats) {
         throw new TripFullError(tripId);
       }
       const created = await this.saveNew(manager, {
         tripId,
         passengerId,
+        seats,
         isPriority,
       });
       await this.changes.record(manager, 'request.created', created, trip);
@@ -87,7 +93,7 @@ export class RequestsService {
       request.status = 'cancelled';
       const cancelled = await manager.save(request);
       if (wasAccepted) {
-        await this.tripStatus.releaseSeat(manager, trip);
+        await this.tripStatus.releaseSeat(manager, trip, request.seats);
       }
       await this.changes.record(manager, 'request.cancelled', cancelled, trip);
       return cancelled;
@@ -132,14 +138,14 @@ export class RequestsService {
     assertRequestTransition(request.status, 'cancelled');
     request.status = 'cancelled';
     const cancelled = await manager.save(request);
-    await this.tripStatus.releaseSeat(manager, trip);
+    await this.tripStatus.releaseSeat(manager, trip, request.seats);
     await this.changes.record(manager, 'request.cancelled', cancelled, trip);
     return cancelled;
   }
 
   // --- Conductor
 
-  // RF-09/RF-10: aceptar resta una plaza; la primera aceptación confirma el
+  // RF-09/RF-10: aceptar resta las plazas pedidas; la primera aceptación confirma el
   // viaje. El viaje bloqueado evita vender dos veces la última plaza
   async accept(driverId: string, requestId: string): Promise<RequestView> {
     const request = await this.dataSource.transaction(async (manager) => {
@@ -152,7 +158,7 @@ export class RequestsService {
       assertRequestTransition(request.status, 'accepted');
       this.tripStatus.assertOpenForRequests(trip);
 
-      await this.tripStatus.reserveSeat(manager, trip);
+      await this.tripStatus.reserveSeat(manager, trip, request.seats);
       request.status = 'accepted';
       const accepted = await manager.save(request);
       // RF-24: la prioridad ya ha cumplido su función (tiene otro viaje)
@@ -264,7 +270,10 @@ export class RequestsService {
 
   private async saveNew(
     manager: EntityManager,
-    values: Pick<SeatRequest, 'tripId' | 'passengerId' | 'isPriority'>,
+    values: Pick<
+      SeatRequest,
+      'tripId' | 'passengerId' | 'seats' | 'isPriority'
+    >,
   ): Promise<SeatRequest> {
     try {
       return await manager.save(manager.create(SeatRequest, values));

@@ -30,6 +30,10 @@ export class SeatRequest {
 
   // RF-24: prioridad del pasajero afectado por la cancelación de un viaje en
   // curso; se copia de su perfil al crear la solicitud
+  // Plazas que pide (de 1 a 4): al aceptarla se restan todas del viaje
+  @Column({ type: 'smallint', default: 1 })
+  seats: number;
+
   @Column({ name: 'is_priority', type: 'boolean', default: false })
   isPriority: boolean;
 

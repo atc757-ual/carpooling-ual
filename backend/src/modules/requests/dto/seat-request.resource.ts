@@ -44,6 +44,14 @@ export class SeatRequestResource {
   status: RequestStatus;
 
   @ApiProperty({
+    minimum: 1,
+    maximum: 4,
+    example: 1,
+    description: 'Seats for the passenger and their companions',
+  })
+  seats: number;
+
+  @ApiProperty({
     description:
       'RF-24: passenger affected by the cancellation of a trip in progress',
   })
@@ -78,6 +86,7 @@ export function toSeatRequestResource({
     trip: { id: request.tripId, href: tripHref(request.tripId) },
     passenger: { id: request.passengerId, name: passengerName },
     status: request.status,
+    seats: request.seats,
     isPriority: request.isPriority,
     requestedAt: request.requestedAt.toISOString(),
     vehiclePlate,

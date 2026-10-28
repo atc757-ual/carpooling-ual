@@ -72,6 +72,7 @@ export class RequestChangesRecorder {
       payload: {
         tripId: request.tripId,
         passengerId: request.passengerId,
+        seats: request.seats,
         isPriority: request.isPriority,
         requestedAt: request.requestedAt.toISOString(),
         status: request.status,
