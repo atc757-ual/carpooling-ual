@@ -94,7 +94,8 @@ export class NotificationsPage {
       if (mode === null) {
         return;
       }
-      if (this.auth.hasProfile(mode)) {
+      // Solo si hace falta: cambiar de modo se guarda en el servidor
+      if (this.auth.hasProfile(mode) && this.activeMode.mode() !== mode) {
         await this.activeMode.setMode(mode);
       }
       await this.router.navigateByUrl('/tabs/trips');
