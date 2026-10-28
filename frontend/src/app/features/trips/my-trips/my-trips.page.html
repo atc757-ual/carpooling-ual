@@ -48,16 +48,8 @@
         }
       }
     } @else {
-      <!-- Como pasajero: sus solicitudes llegan en el siguiente paso -->
-      <ion-card>
-        <ion-card-content class="my-trips__state">
-          <ion-icon [icon]="passengerIcon" aria-hidden="true" />
-          <div class="text-subtitle">Muy pronto verás aquí tus solicitudes</div>
-          <div class="text-body-s text-color-muted">
-            Mientras tanto, el estado de cada solicitud está en el detalle de su viaje.
-          </div>
-        </ion-card-content>
-      </ion-card>
+      <!-- Como pasajero: sus solicitudes con su viaje -->
+      <app-passenger-requests />
     }
   </div>
 </ion-content>

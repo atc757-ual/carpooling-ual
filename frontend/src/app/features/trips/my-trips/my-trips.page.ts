@@ -9,18 +9,19 @@ import {
   IonRouterLink,
   IonSpinner,
 } from '@ionic/angular';
-import { alertCircleOutline, carOutline, mapOutline } from 'ionicons/icons';
+import { alertCircleOutline, carOutline } from 'ionicons/icons';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ActiveModeService } from '../../../core/services/users/active-mode.service';
 import { DriverTripCard } from '../driver-trip-card/driver-trip-card';
+import { PassengerRequests } from '../passenger-requests/passenger-requests';
 
 // Viajes que aún no han terminado
 const UPCOMING: ReadonlySet<TripStatus> = new Set(['published', 'confirmed', 'in_progress']);
 
 // Mis viajes. Como conductor: sus viajes, primero los próximos (con sus
 // solicitudes para aceptarlas o rechazarlas) y después los anteriores. Como
-// pasajero, sus solicitudes llegan en el siguiente paso
+// pasajero, sus solicitudes, cada una con su viaje (PassengerRequests)
 @Component({
   selector: 'app-my-trips',
   imports: [
@@ -33,6 +34,7 @@ const UPCOMING: ReadonlySet<TripStatus> = new Set(['published', 'confirmed', 'in
     IonRouterLink,
     IonSpinner,
     DriverTripCard,
+    PassengerRequests,
   ],
   templateUrl: './my-trips.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './my-trips.page.scss'],
@@ -60,7 +62,6 @@ export class MyTripsPage {
 
   protected readonly emptyIcon = carOutline;
   protected readonly errorIcon = alertCircleOutline;
-  protected readonly passengerIcon = mapOutline;
 
   // Al decidir una solicitud cambian las plazas (y quizá el estado)
   handleChanged(): void {

@@ -5,6 +5,7 @@ import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
+import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ActiveModeService } from '../../../core/services/users/active-mode.service';
 import { MyTripsPage } from './my-trips.page';
@@ -40,6 +41,7 @@ describe('MyTripsPage', () => {
           provide: DriverService,
           useValue: { listMyTrips, listTripRequests: vi.fn().mockResolvedValue([]) },
         },
+        { provide: SeatRequestsService, useValue: { listMine: vi.fn().mockResolvedValue([]) } },
         { provide: ActiveModeService, useValue: { mode: signal(mode) } },
         { provide: ToastService, useValue: { showSuccess: vi.fn(), showError: vi.fn() } },
       ],
@@ -79,10 +81,10 @@ describe('MyTripsPage', () => {
     expect(root.querySelectorAll('app-driver-trip-card')).toHaveLength(1);
   });
 
-  it('does not load trips as a passenger', async () => {
+  it('shows the seat requests instead of the trips as a passenger', async () => {
     const root = await render('passenger');
 
     expect(listMyTrips).not.toHaveBeenCalled();
-    expect(root.textContent).toContain('Muy pronto verás aquí tus solicitudes');
+    expect(root.textContent).toContain('Aún no has pedido plaza en ningún viaje');
   });
 });

@@ -164,13 +164,14 @@ for (const viewport of VIEWPORTS) {
 
     it('goes from one destination to another', () => {
       logIn(['passenger']);
+      cy.intercept('GET', '/api/users/me/requests*', []);
 
       goTo('Mis viajes');
 
       cy.location('pathname').should('eq', '/tabs/trips');
       // El título lo pone la cabecera; el h1 de la página es para lectores
       cy.get('app-my-trips h1').should('contain', 'Mis viajes');
-      cy.contains('app-my-trips', 'Muy pronto verás aquí tus solicitudes').should('be.visible');
+      cy.contains('app-my-trips', 'Aún no has pedido plaza en ningún viaje').should('be.visible');
     });
 
     it('opens Avisos with the bell', () => {

@@ -1,0 +1,72 @@
+// Las solicitudes en tarjetas, agrupadas en próximas y anteriores (como los
+// viajes del conductor)
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-l);
+}
+
+ion-card {
+  margin: 0;
+}
+
+.passenger-requests__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.passenger-requests__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.passenger-requests__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-xxl) var(--space-l);
+  text-align: center;
+
+  ion-icon {
+    box-sizing: content-box;
+    padding: var(--space-base);
+    border-radius: var(--radius-full);
+    background: var(--color-primary-subtle);
+    color: var(--color-link);
+    font-size: 2rem; // 32px
+  }
+
+  ion-button {
+    margin: var(--space-s) 0 0;
+  }
+}
+
+.passenger-request ion-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+
+  ion-button {
+    margin: var(--space-s) 0 0;
+  }
+}
+
+.passenger-request__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  width: 100%;
+}
+
+.passenger-request__route {
+  font-weight: var(--font-weight-semibold);
+}
