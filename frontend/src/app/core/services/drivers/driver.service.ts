@@ -41,6 +41,12 @@ export class DriverService {
     return this.request(this.http.patch<Vehicle>(`${this.apiUrl}/vehicles/${vehicleId}`, changes));
   }
 
+  // Dar de baja (deja de salir; registrar otra vez la matrícula la recupera).
+  // Con un viaje pendiente o en curso, VEHICLE_IN_USE
+  async deactivateVehicle(vehicleId: string): Promise<void> {
+    await this.request(this.http.delete<void>(`${this.apiUrl}/vehicles/${vehicleId}`));
+  }
+
   // Declaración responsable (RF-21); se puede repetir sin efecto
   acceptDeclaration(): Promise<DriverStatus> {
     return this.request(

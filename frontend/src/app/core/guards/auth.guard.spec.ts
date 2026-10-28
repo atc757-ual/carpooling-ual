@@ -19,6 +19,6 @@ describe('authGuard', () => {
   });
 
   it('sends a guest opening the app to the welcome screen', () => {
-    expect(guard.run(authGuard, '/tabs/home')).toBe('/auth/welcome');
+    expect(guard.run(authGuard, '/tabs')).toBe('/auth/welcome');
   });
 });

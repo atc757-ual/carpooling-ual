@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
+import { DataSource } from 'typeorm';
 import { MailSender } from '../../src/shared/mail/mail-sender';
 import { MemoryMailSender } from '../../src/shared/mail/memory-mail-sender';
 
@@ -38,8 +39,8 @@ export function lastCodeSentTo(
 }
 
 // Alta de un usuario por la API, como lo hará la app: registro público
-// (teléfono y normas, sin perfiles), verificación del correo con el código
-// recibido (crea la cuenta y abre la sesión) y elección de cada modo
+// (teléfono y normas), verificación del correo con el código recibido (crea
+// la cuenta como pasajero y abre la sesión) y los perfiles que pida la prueba
 // (PUT /api/users/me/profiles/{profile}). Devuelve el id. Para tener un token
 // con los perfiles, hay que iniciar sesión después
 export async function registerUser(
@@ -68,6 +69,13 @@ export async function registerUser(
     accessToken: string;
     user: { id: string };
   };
+  // La cuenta nace como pasajero: para probar los permisos por perfil, se le
+  // quita si la prueba no lo pide (p. ej. un conductor solo)
+  if (!account.profiles.includes('passenger')) {
+    await app
+      .get(DataSource)
+      .query('DELETE FROM passenger_profiles WHERE user_id = $1', [user.id]);
+  }
   // A la vez: el backend bloquea la fila del usuario y las hace por turnos
   await Promise.all(
     account.profiles.map((profile) =>

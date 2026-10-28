@@ -38,6 +38,7 @@ import { DeclarationModal } from '../declaration-modal/declaration-modal';
 import { VehicleForm } from '../vehicle-form/vehicle-form';
 import { VehicleModal } from '../vehicle-modal/vehicle-modal';
 import { getDefaultTime } from '../../matching/trip-search-form/trip-search-form';
+import { AuthService } from '../../../core/services/auth/auth.service';
 
 export const DETOURS = [5, 10, 15, 20] as const;
 const DEFAULT_DETOUR = 10;
@@ -90,6 +91,7 @@ export function toDepartureAt(date: string, time: string): string {
 })
 export class PublishTripPage implements OnInit {
   private readonly driver = inject(DriverService);
+  private readonly auth = inject(AuthService);
   private readonly places = inject(PlacesService);
   private readonly toast = inject(ToastService);
   private readonly formBuilder = inject(NonNullableFormBuilder);
@@ -185,6 +187,15 @@ export class PublishTripPage implements OnInit {
   async load(): Promise<void> {
     this.loadState.set('loading');
     try {
+      // Sin perfil de conductor (aún sin coche) no hay estado ni vehículos que
+      // pedir: la pantalla empieza por registrar el vehículo
+      if (!this.auth.hasProfile('driver')) {
+        await this.places.loadParkings();
+        this.hasDeclared.set(false);
+        this.setVehicles([]);
+        this.loadState.set('ready');
+        return;
+      }
       const [status, vehicles] = await Promise.all([
         this.driver.getStatus(),
         this.driver.listVehicles(),
@@ -208,9 +219,14 @@ export class PublishTripPage implements OnInit {
     return place.touched && place.invalid;
   }
 
-  // Primer vehículo registrado: pasa a ser el elegido
-  handleVehicleSaved(vehicle: Vehicle): void {
+  // Primer vehículo registrado: pasa a ser el elegido. Si era el primero de
+  // todos, el backend acaba de activar el perfil de conductor: se renueva el
+  // token, que es el que lo lleva
+  async handleVehicleSaved(vehicle: Vehicle): Promise<void> {
     this.setVehicles([...this.vehicles(), vehicle]);
+    if (!this.auth.hasProfile('driver')) {
+      await this.auth.refreshAccessToken().catch(() => undefined);
+    }
   }
 
   // «Editar»: sus datos en una ventana; al guardar, se actualiza en la lista

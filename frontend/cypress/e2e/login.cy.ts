@@ -85,7 +85,7 @@ for (const viewport of VIEWPORTS) {
       cy.wait('@login')
         .its('request.body')
         .should('deep.equal', { email: 'ana@ual.es', password: 'secreta123' });
-      cy.location('pathname').should('eq', '/tabs/home');
+      cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
       // El saludo: en escritorio, en la franja fija; en el móvil, en Inicio
       cy.get('.greeting-bar p, .home__greeting h1')
         .filter(':visible')

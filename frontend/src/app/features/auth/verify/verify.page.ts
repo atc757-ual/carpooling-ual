@@ -14,7 +14,7 @@ import {
   IonToolbar,
 } from '@ionic/angular';
 import { arrowBackOutline, mailUnreadOutline } from 'ionicons/icons';
-import { MODES_PATH } from '../../../core/guards/redirect-paths';
+import { HOME_PATH } from '../../../core/guards/redirect-paths';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -96,7 +96,7 @@ export class VerifyPage implements OnInit {
     try {
       await this.auth.verifyEmail({ email: this.email(), code: this.form.getRawValue().code });
       void this.toast.showSuccess('Correo UAL verificado.');
-      await this.router.navigateByUrl(MODES_PATH);
+      await this.router.navigateByUrl(HOME_PATH);
     } catch (error) {
       const apiError = ApiError.fromHttpError(error);
       void this.toast.showError(getErrorMessage(apiError));

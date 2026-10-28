@@ -61,7 +61,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('app-login ion-input[formControlName="email"] input').type(EMAIL);
       cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
       cy.contains('ion-button', 'Iniciar sesión').click();
-      cy.location('pathname').should('eq', '/tabs/home');
+      cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
       cy.contains(isDesktop ? 'app-tabs .top-nav__link' : 'ion-tab-button', 'Publicar').click();
       cy.location('pathname').should('eq', '/tabs/publish');
     });

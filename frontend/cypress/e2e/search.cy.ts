@@ -49,13 +49,13 @@ function logIn(profiles: string[]): void {
   cy.get('app-login ion-input[formControlName="email"] input').type(EMAIL);
   cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
   cy.contains('ion-button', 'Iniciar sesión').click();
-  cy.location('pathname').should('eq', '/tabs/home');
+  cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
 }
 
-// Busca desde Inicio: lleva a Buscar, que muestra la misma búsqueda
-function searchFromHome(place: string): void {
-  choosePlace('app-home app-trip-search-form', place);
-  cy.contains('app-home app-trip-search-form ion-button', 'Buscar viaje').click();
+// Busca desde Buscar (adonde lleva el login de un pasajero)
+function searchTrips(place: string): void {
+  choosePlace('app-trip-search app-trip-search-form', place);
+  cy.contains('app-trip-search app-trip-search-form ion-button', 'Buscar viaje').click();
   cy.location('pathname').should('eq', '/tabs/search');
 }
 
@@ -76,8 +76,8 @@ for (const viewport of VIEWPORTS) {
       logIn(['passenger']);
     });
 
-    it('shows the search from Inicio with the compatible trips', () => {
-      searchFromHome('Roquetas de Mar');
+    it('shows the compatible trips', () => {
+      searchTrips('Roquetas de Mar');
 
       cy.get('app-trip-search .route-timeline__stop').first().should('contain', 'Roquetas de Mar');
       cy.get('app-trip-search .route-timeline__stop').last().should('contain', 'Parking P1');
@@ -104,7 +104,7 @@ for (const viewport of VIEWPORTS) {
           vehiclePlate: null,
         },
       }).as('request');
-      searchFromHome('Roquetas de Mar');
+      searchTrips('Roquetas de Mar');
       cy.contains('app-trip-search app-trip-result-card ion-button', 'Ver viaje de Lucía').click();
 
       cy.contains('app-trip-detail ion-button', 'Solicitar 1 plaza').click();
@@ -117,7 +117,7 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('opens a trip and comes back to the same search', () => {
-      searchFromHome('Roquetas de Mar');
+      searchTrips('Roquetas de Mar');
 
       cy.contains('app-trip-search app-trip-result-card ion-button', 'Ver viaje de Lucía').click();
 
@@ -130,8 +130,8 @@ for (const viewport of VIEWPORTS) {
         'be.visible',
       );
       if (isDesktop) {
-        // Por los breadcrumbs de la franja: Inicio (la casa) › Buscar viaje › Detalle
-        cy.get('app-tabs .greeting-bar ion-breadcrumb').should('have.length', 3);
+        // Por los breadcrumbs de la franja: Buscar viaje › Detalle
+        cy.get('app-tabs .greeting-bar ion-breadcrumb').should('have.length', 2);
         cy.contains('app-tabs .greeting-bar ion-breadcrumb', 'Buscar viaje').click();
       } else {
         cy.contains('app-tabs .app-header ion-title', 'Detalle del viaje').should('be.visible');
@@ -143,7 +143,7 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('edits the search with the form filled in and shows the new one', () => {
-      searchFromHome('Roquetas de Mar');
+      searchTrips('Roquetas de Mar');
 
       cy.contains('app-trip-search app-trip-search-summary ion-button', 'Editar').click();
       cy.get('app-trip-search app-place-field input').should('have.value', 'Roquetas de Mar');
@@ -158,7 +158,7 @@ for (const viewport of VIEWPORTS) {
 
     it('says when there are no trips and offers to change the time', () => {
       cy.intercept('POST', '/api/trips/search', []).as('empty');
-      searchFromHome('Roquetas de Mar');
+      searchTrips('Roquetas de Mar');
 
       cy.wait('@empty').its('request.body').should('include', { marginMin: 20 });
       cy.contains('app-trip-search', 'Aún no hay viajes para esa hora').should('be.visible');
@@ -169,7 +169,7 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('closes the form without changing the search', () => {
-      searchFromHome('Roquetas de Mar');
+      searchTrips('Roquetas de Mar');
 
       cy.contains('app-trip-search app-trip-search-summary ion-button', 'Editar').click();
       cy.contains('app-trip-search ion-button', 'Cancelar').click();
@@ -179,7 +179,7 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('keeps the search when going to another tab and coming back', () => {
-      searchFromHome('Roquetas de Mar');
+      searchTrips('Roquetas de Mar');
 
       goTo('Perfil');
       goTo('Buscar');
@@ -187,27 +187,14 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-trip-search .route-timeline__stop', 'Roquetas de Mar').should('be.visible');
     });
 
-    it('fills Inicio in with the search made in Buscar', () => {
-      searchFromHome('Roquetas de Mar');
-      cy.contains('app-trip-search app-trip-search-summary ion-button', 'Editar').click();
-      choosePlace('app-trip-search', 'Vícar');
-      cy.contains('app-trip-search app-trip-search-form ion-button', 'Buscar viaje').click();
-
-      goTo('Inicio');
-
-      cy.get('app-home app-place-field input').should('have.value', 'Vícar');
-    });
-
-    it('starts a new search with the forms empty', () => {
-      searchFromHome('Roquetas de Mar');
+    it('starts a new search with the form empty', () => {
+      searchTrips('Roquetas de Mar');
 
       cy.contains('app-trip-search app-trip-search-summary ion-button', 'Editar').click();
       cy.contains('app-trip-search ion-button', 'Nueva búsqueda').click();
 
       cy.get('app-trip-search app-trip-search-summary').should('not.exist');
       cy.get('app-trip-search app-place-field input').should('have.value', '');
-      goTo('Inicio');
-      cy.get('app-home app-place-field input').should('have.value', '');
     });
 
     it('shows the form when opened without a search', () => {

@@ -34,6 +34,7 @@ import { PaginationQueryDto } from '../../shared/pagination/pagination-query.dto
 import { RegisterVehicleDto } from './dto/register-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { toVehicleResource, VehicleResource } from './dto/vehicle.resource';
+import { UserProfilesService } from './user-profiles.service';
 import { VehiclesService } from './vehicles.service';
 
 const AUTH_ERRORS = {
@@ -48,13 +49,16 @@ const AUTH_ERRORS = {
 @Profiles('driver')
 @Controller('vehicles')
 export class VehiclesController {
-  constructor(private readonly vehiclesService: VehiclesService) {}
+  constructor(
+    private readonly vehiclesService: VehiclesService,
+    private readonly userProfiles: UserProfilesService,
+  ) {}
 
   @Post()
   @ApiOperation({
     summary: 'Register a vehicle',
     description:
-      'Registers a vehicle of the authenticated driver. Registering again a plate the driver had deactivated reactivates it.',
+      'Registers a vehicle of the authenticated user. The first one also activates the driver profile (refresh the access token afterwards to get it). Registering again a plate the driver had deactivated reactivates it.',
   })
   @ApiCreatedResponse({
     type: VehicleResource,
@@ -63,13 +67,21 @@ export class VehiclesController {
   @ApiErrorResponses({
     ...AUTH_ERRORS,
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
-    [HttpStatus.CONFLICT]: ['VEHICLE_ALREADY_REGISTERED'],
+    [HttpStatus.CONFLICT]: [
+      'VEHICLE_ALREADY_REGISTERED',
+      'PROFILE_DEACTIVATED_BY_ADMIN',
+    ],
   })
+  // También para pasajeros: registrar el primer coche es lo que activa el
+  // perfil de conductor (idempotente; si un administrador se lo desactivó,
+  // PROFILE_DEACTIVATED_BY_ADMIN)
+  @Profiles('driver', 'passenger')
   async register(
     @CurrentUser() driver: AccessTokenPayload,
     @Body() dto: RegisterVehicleDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<VehicleResource> {
+    await this.userProfiles.activateOwnProfile(driver.sub, 'driver');
     const vehicle = toVehicleResource(
       await this.vehiclesService.register(driver.sub, dto),
     );

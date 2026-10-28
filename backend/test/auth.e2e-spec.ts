@@ -147,13 +147,18 @@ describe('Auth API (e2e)', () => {
       expect(await pendingRow('name')).toEqual({ name: 'Ana' });
     });
 
-    it('creates the user without profiles when the code is verified', async () => {
+    it('creates the user as a passenger when the code is verified', async () => {
       await register().expect(202);
 
       const response = await verify(lastCodeSentTo(app, ANA)).expect(200);
 
       expect(response.body).toMatchObject({
-        user: { name: 'Ana', email: ANA, phone: TEST_PHONE, profiles: [] },
+        user: {
+          name: 'Ana',
+          email: ANA,
+          phone: TEST_PHONE,
+          profiles: ['passenger'],
+        },
       });
       expect(JSON.stringify(response.body)).not.toContain('password');
       expect(await countUsers()).toBe(1);
@@ -215,7 +220,7 @@ describe('Auth API (e2e)', () => {
             AND source_entity_id = (SELECT id FROM users WHERE email = $1)`,
         [ANA],
       );
-      expect(event.payload).toEqual({ profiles: [] });
+      expect(event.payload).toEqual({ profiles: ['passenger'] });
     });
 
     it.each([
@@ -356,7 +361,7 @@ describe('Auth API (e2e)', () => {
       expect(response.body).toMatchObject({
         '@type': 'AccessToken',
         tokenType: 'Bearer',
-        user: { email: ANA, profiles: [] },
+        user: { email: ANA, profiles: ['passenger'] },
       });
       const [user] = await dataSource.query<
         { email_verified_at: Date | null }[]
@@ -556,7 +561,7 @@ describe('Auth API (e2e)', () => {
         '@type': 'AccessToken',
         tokenType: 'Bearer',
         expiresIn: 900,
-        user: { '@type': 'User', phone: TEST_PHONE, profiles: [] },
+        user: { '@type': 'User', phone: TEST_PHONE, profiles: ['passenger'] },
       });
 
       const meResponse = await request(app.getHttpServer())

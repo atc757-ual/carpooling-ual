@@ -116,12 +116,18 @@ describe('Vehicles API (e2e)', () => {
       });
     });
 
-    it('is only for drivers (403 for a passenger)', async () => {
+    it('makes a passenger a driver with the first vehicle', async () => {
       const passenger = await tokenFor('pia', ['passenger']);
 
-      const response = await registerVehicle(passenger, '9203BCD').expect(403);
+      await registerVehicle(passenger, '9203BCD').expect(201);
 
-      expect(response.body).toMatchObject({ code: 'PROFILE_REQUIRED' });
+      const profiles = await dataSource.query<{ is_active: boolean }[]>(
+        `SELECT p.is_active FROM driver_profiles p
+           JOIN users u ON u.id = p.user_id
+          WHERE u.email = $1`,
+        [`${EMAIL_PREFIX}pia@ual.es`],
+      );
+      expect(profiles).toEqual([{ is_active: true }]);
     });
   });
 

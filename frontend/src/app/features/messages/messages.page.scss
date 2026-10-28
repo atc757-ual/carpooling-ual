@@ -1,0 +1,28 @@
+// Una columna de hasta 48rem (768px), como Mis viajes y Avisos
+.messages {
+  align-items: stretch;
+  max-width: 48rem; // 768px
+
+  ion-card {
+    margin: 0;
+  }
+}
+
+// Centrado, con el icono en un círculo azul claro (como los estados vacíos)
+.messages__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-xxl) var(--space-l);
+  text-align: center;
+
+  ion-icon {
+    box-sizing: content-box;
+    padding: var(--space-base);
+    border-radius: var(--radius-full);
+    background: var(--color-primary-subtle);
+    color: var(--color-link);
+    font-size: 2rem; // 32px
+  }
+}

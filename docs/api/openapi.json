@@ -1334,7 +1334,7 @@
     },
     "/api/vehicles": {
       "post": {
-        "description": "Registers a vehicle of the authenticated driver. Registering again a plate the driver had deactivated reactivates it.",
+        "description": "Registers a vehicle of the authenticated user. The first one also activates the driver profile (refresh the access token afterwards to get it). Registering again a plate the driver had deactivated reactivates it.",
         "operationId": "VehiclesController_register",
         "parameters": [],
         "requestBody": {
@@ -1394,7 +1394,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: VEHICLE_ALREADY_REGISTERED",
+            "description": "TMF630 error: VEHICLE_ALREADY_REGISTERED, PROFILE_DEACTIVATED_BY_ADMIN",
             "content": {
               "application/json": {
                 "schema": {

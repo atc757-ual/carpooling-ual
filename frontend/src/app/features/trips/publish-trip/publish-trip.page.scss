@@ -267,3 +267,12 @@
   color: var(--color-danger);
   font-size: var(--font-size-caption);
 }
+
+// Ilustración de cabecera de «Tu viaje»: a todo el ancho de la tarjeta, con
+// sus proporciones y las esquinas de las tarjetas
+.publish__summary-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-s);
+}

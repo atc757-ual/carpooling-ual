@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { DriverTrip } from '../../../core/models/driver.model';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -43,6 +44,13 @@ describe('MyTripsPage', () => {
         },
         { provide: SeatRequestsService, useValue: { listMine: vi.fn().mockResolvedValue([]) } },
         { provide: ActiveModeService, useValue: { mode: signal(mode) } },
+        {
+          provide: AuthService,
+          useValue: {
+            currentUser: signal(null),
+            hasProfile: (profile: string) => profile === mode,
+          },
+        },
         { provide: ToastService, useValue: { showSuccess: vi.fn(), showError: vi.fn() } },
       ],
     });
@@ -50,6 +58,17 @@ describe('MyTripsPage', () => {
     await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;
   }
+
+  it('changes between the passenger and the driver side with the segment', async () => {
+    await render('driver');
+
+    fixture.componentInstance.handleViewChange('passenger');
+    expect(fixture.componentInstance.isDriver()).toBe(false);
+    fixture.componentInstance.handleViewChange('admin');
+    expect(fixture.componentInstance.view()).toBe('passenger');
+    fixture.componentInstance.handleViewChange('driver');
+    expect(fixture.componentInstance.isDriver()).toBe(true);
+  });
 
   it('splits the trips of the driver into upcoming and past', async () => {
     const root = await render('driver', () =>

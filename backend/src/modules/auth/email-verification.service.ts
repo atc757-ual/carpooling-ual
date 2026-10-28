@@ -57,7 +57,9 @@ export class EmailVerificationService {
           phone: pending.phone,
           termsAcceptedAt: pending.termsAcceptedAt,
           isEmailVerified: true,
-          profiles: [],
+          // Nace como pasajero; el perfil de conductor se activa al registrar
+          // su primer vehículo (VehiclesService.register)
+          profiles: ['passenger'],
         },
         manager,
       ),
