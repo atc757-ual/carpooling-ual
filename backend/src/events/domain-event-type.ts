@@ -6,6 +6,8 @@ export type DomainEventType =
   | 'user.email_verified'
   | 'user.profile_activated'
   | 'user.profile_deactivated'
+  // Cambia los datos de su cuenta (nombre, teléfono o tolerancia horaria)
+  | 'user.updated'
   // Cambia el modo con el que viaja (pasajero o conductor)
   | 'user.active_mode_changed'
   // Viajes. confirmed: primera solicitud aceptada; reopened: vuelve a

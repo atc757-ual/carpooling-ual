@@ -232,6 +232,7 @@ export class AuthService {
       phone: user.phone,
       profiles: this.usersService.getActiveProfiles(user),
       activeMode: user.activeMode,
+      timeToleranceMin: user.timeToleranceMin,
     };
   }
 }

@@ -4,6 +4,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  Patch,
   Put,
   Query,
   Res,
@@ -34,6 +35,7 @@ import {
 } from './dto/driver-status.resource';
 import { ListUsersQueryDto } from './dto/list-users-query.dto';
 import { SetActiveModeDto } from './dto/set-active-mode.dto';
+import { UpdateMeDto } from './dto/update-me.dto';
 import { SetProfileActiveDto } from './dto/set-profile-active.dto';
 import {
   toUserAdminResource,
@@ -128,6 +130,28 @@ export class UsersController {
     profile: RegistrableProfile,
   ): Promise<UserResource> {
     await this.userProfiles.activateOwnProfile(currentUser.sub, profile);
+    return toUserResource(await this.usersService.getSummary(currentUser.sub));
+  }
+
+  // Cambiar los datos de la propia cuenta: nombre, teléfono y tolerancia
+  // horaria (el correo no se cambia). PATCH: solo los campos que llegan
+  @Patch('me')
+  @ApiOperation({
+    summary: 'Change my account details',
+    description:
+      'Name, phone and default time margin of my searches; only the fields sent change. The email cannot be changed.',
+  })
+  @ApiOkResponse({ type: UserResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
+  })
+  async updateMe(
+    @CurrentUser() currentUser: AccessTokenPayload,
+    @Body() dto: UpdateMeDto,
+  ): Promise<UserResource> {
+    await this.usersService.updateMe(currentUser.sub, dto);
     return toUserResource(await this.usersService.getSummary(currentUser.sub));
   }
 

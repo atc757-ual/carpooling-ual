@@ -50,6 +50,13 @@ export class UserResource {
     example: 'passenger',
   })
   activeMode: RegistrableProfile | null;
+
+  @ApiProperty({
+    description:
+      'Default time margin of my searches, in minutes (± around the time)',
+    example: 15,
+  })
+  timeToleranceMin: number;
 }
 
 export function userHref(id: string): string {
@@ -66,5 +73,6 @@ export function toUserResource(user: UserSummary): UserResource {
     phone: user.phone,
     profiles: user.profiles,
     activeMode: user.activeMode,
+    timeToleranceMin: user.timeToleranceMin,
   };
 }

@@ -16,6 +16,15 @@ import { ProfileType } from './profile-type';
 import { UserSummary } from './user-summary';
 import { VehiclesService } from './vehicles.service';
 
+// Lo que el usuario puede cambiar de su cuenta (PATCH /api/users/me)
+export interface AccountChanges {
+  name?: string;
+  phone?: string;
+  timeToleranceMin?: number;
+}
+
+const ACCOUNT_FIELDS = ['name', 'phone', 'timeToleranceMin'] as const;
+
 export interface CreateUserInput {
   name: string;
   email: string;
@@ -167,6 +176,41 @@ export class UsersService {
     return this.getDriverReadiness(userId);
   }
 
+  // Cambiar los datos de la propia cuenta (nombre, teléfono y tolerancia
+  // horaria). Solo registra evento si algo cambia; el evento no lleva el
+  // nombre ni el teléfono (el Gemelo Digital no los necesita: minimización),
+  // solo qué campos cambiaron y la tolerancia
+  async updateMe(userId: string, changes: AccountChanges): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      const user = await manager.findOne(User, {
+        where: { id: userId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (user === null) {
+        throw new UserNotFoundError(userId);
+      }
+      const changedFields = ACCOUNT_FIELDS.filter(
+        (field) =>
+          changes[field] !== undefined && changes[field] !== user[field],
+      );
+      if (changedFields.length === 0) {
+        return;
+      }
+      const update = Object.fromEntries(
+        changedFields.map((field) => [field, changes[field]]),
+      ) as AccountChanges;
+      await manager.update(User, { id: userId }, update);
+      await this.eventsService.record(manager, {
+        type: 'user.updated',
+        sourceEntityId: userId,
+        payload: {
+          changedFields,
+          timeToleranceMin: update.timeToleranceMin ?? user.timeToleranceMin,
+        },
+      });
+    });
+  }
+
   // ¿Puede publicar viajes? (RF-21). Lo usan los viajes y el frontend, para
   // saber qué le falta al conductor
   async getDriverReadiness(userId: string): Promise<DriverReadiness> {
@@ -268,6 +312,7 @@ export class UsersService {
       phone: user.phone,
       profiles: this.getActiveProfiles(user),
       activeMode: user.activeMode,
+      timeToleranceMin: user.timeToleranceMin,
     };
   }
 

@@ -99,6 +99,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - El frontend usa el modo guardado en el servidor: al entrar se empieza con el último elegido, en cualquier dispositivo; cambiarlo se ve al momento y, si el servidor no lo guarda, vuelve al anterior con un aviso de error (#80)
 - Pantalla Perfil: la cuenta (iniciales, nombre, correo y teléfono), los perfiles (activar el que falta), la privacidad y cerrar sesión con confirmación (#81)
 - Mis vehículos en el Perfil (solo con el perfil de conductor): matrícula, marca y modelo y plazas, con «Editar» y «Registrar vehículo» en la ventana del vehículo (#82)
+- Cambiar los datos de la propia cuenta con `PATCH /api/users/me`: nombre, teléfono y tolerancia horaria (± 5, 10, 15 o 20 min, el margen por defecto de las búsquedas, que sale en el usuario como `timeToleranceMin`); el correo no se cambia. Evento `user.updated` con los campos cambiados, sin datos personales (#83)
 
 ### Changed
 - **(breaking)** El nombre del registro solo admite letras (de cualquier idioma, con tildes) y, entre ellas, un espacio, un guion o un apóstrofo; se guarda sin espacios repetidos. En el formulario, el nombre no deja escribir números ni símbolos; el teléfono lleva dentro el desplegable del prefijo del país (España por defecto) y el número solo admite cifras; y el aviso de error de un campo se quita mientras se corrige (#48)
