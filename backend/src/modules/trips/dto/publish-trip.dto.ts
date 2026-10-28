@@ -5,7 +5,9 @@ import {
   IsDefined,
   IsInt,
   IsOptional,
+  IsString,
   IsUUID,
+  Length,
   Max,
   Min,
   ValidateNested,
@@ -65,4 +67,24 @@ export class PublishTripDto {
   @Min(0)
   @Max(60)
   maxDetourMin?: number;
+
+  @ApiPropertyOptional({
+    maxLength: 160,
+    description: 'Name of the origin as chosen when publishing',
+    example: 'Roquetas de Mar',
+  })
+  @IsOptional()
+  @IsString()
+  @Length(1, 160)
+  originName?: string;
+
+  @ApiPropertyOptional({
+    maxLength: 160,
+    description: 'Name of the destination as chosen when publishing',
+    example: 'Campus UAL · Parking P1 (Sur)',
+  })
+  @IsOptional()
+  @IsString()
+  @Length(1, 160)
+  destinationName?: string;
 }

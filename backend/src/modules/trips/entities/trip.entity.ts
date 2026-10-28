@@ -34,6 +34,18 @@ export class Trip {
   @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326 })
   destination: Point;
 
+  // Cómo los llamó el conductor al publicar; null en los anteriores
+  @Column({ name: 'origin_name', type: 'varchar', length: 160, nullable: true })
+  originName: string | null;
+
+  @Column({
+    name: 'destination_name',
+    type: 'varchar',
+    length: 160,
+    nullable: true,
+  })
+  destinationName: string | null;
+
   @Column({ name: 'departure_at', type: 'timestamptz' })
   departureAt: Date;
 

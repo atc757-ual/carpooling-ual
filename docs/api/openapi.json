@@ -5367,6 +5367,18 @@
             "maximum": 60,
             "default": 10,
             "description": "Maximum detour to pick up passengers, in minutes"
+          },
+          "originName": {
+            "type": "string",
+            "maxLength": 160,
+            "description": "Name of the origin as chosen when publishing",
+            "example": "Roquetas de Mar"
+          },
+          "destinationName": {
+            "type": "string",
+            "maxLength": 160,
+            "description": "Name of the destination as chosen when publishing",
+            "example": "Campus UAL · Parking P1 (Sur)"
           }
         },
         "required": [
@@ -5441,6 +5453,18 @@
             "example": 10,
             "description": "Minutes"
           },
+          "originName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Roquetas de Mar",
+            "description": "Name of the origin as chosen when publishing"
+          },
+          "destinationName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Campus UAL · Parking P1 (Sur)",
+            "description": "Name of the destination as chosen when publishing"
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -5470,6 +5494,8 @@
           "offeredSeats",
           "availableSeats",
           "maxDetourMin",
+          "originName",
+          "destinationName",
           "status",
           "startedAt"
         ]
@@ -5633,6 +5659,18 @@
             "maximum": 60,
             "default": 10,
             "description": "Maximum detour to pick up passengers, in minutes"
+          },
+          "originName": {
+            "type": "string",
+            "maxLength": 160,
+            "description": "Name of the origin as chosen when publishing",
+            "example": "Roquetas de Mar"
+          },
+          "destinationName": {
+            "type": "string",
+            "maxLength": 160,
+            "description": "Name of the destination as chosen when publishing",
+            "example": "Campus UAL · Parking P1 (Sur)"
           }
         }
       },

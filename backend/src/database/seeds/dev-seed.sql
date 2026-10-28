@@ -46,12 +46,13 @@ INSERT INTO vehicles (id, driver_id, plate, model, capacity) VALUES
 -- -----------------------------------------------------------------------------
 -- Viajes hacia el campus de la UAL (La Cañada, Almería)
 -- -----------------------------------------------------------------------------
-INSERT INTO trips (id, driver_id, vehicle_id, origin, destination, departure_at, offered_seats, available_seats, max_detour_min, status) VALUES
+INSERT INTO trips (id, driver_id, vehicle_id, origin, destination, origin_name, destination_name, departure_at, offered_seats, available_seats, max_detour_min, status) VALUES
   -- Roquetas de Mar -> UAL, mañana a las 08:00 (hora peninsular)
   ('00000000-0000-4000-8000-000000000201',
    '00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000101',
    ST_SetSRID(ST_MakePoint(-2.6147, 36.7642), 4326)::geography,
    ST_SetSRID(ST_MakePoint(-2.4048, 36.8295), 4326)::geography,
+   'Roquetas de Mar', 'Campus UAL · Parking P1 (Sur)',
    (current_date + 1 + time '08:00') AT TIME ZONE 'Europe/Madrid',
    3, 2, 10, 'confirmed'),
   -- Almería centro -> UAL, mañana a las 09:30
@@ -59,6 +60,7 @@ INSERT INTO trips (id, driver_id, vehicle_id, origin, destination, departure_at,
    '00000000-0000-4000-8000-000000000004', '00000000-0000-4000-8000-000000000102',
    ST_SetSRID(ST_MakePoint(-2.4597, 36.8381), 4326)::geography,
    ST_SetSRID(ST_MakePoint(-2.4048, 36.8295), 4326)::geography,
+   'Almería centro', 'Campus UAL · Parking P1 (Sur)',
    (current_date + 1 + time '09:30') AT TIME ZONE 'Europe/Madrid',
    3, 3, 5, 'published');
 

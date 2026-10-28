@@ -161,6 +161,8 @@ export class TripStatusService {
         vehicleId: trip.vehicleId,
         origin: trip.origin,
         destination: trip.destination,
+        originName: trip.originName,
+        destinationName: trip.destinationName,
         departureAt: trip.departureAt.toISOString(),
         offeredSeats: trip.offeredSeats,
         availableSeats: trip.availableSeats,

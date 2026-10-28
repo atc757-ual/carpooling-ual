@@ -102,7 +102,11 @@ describe('Trips API (e2e)', () => {
   describe('POST /api/trips (RF-04)', () => {
     it('publishes a trip: 201, Location, GeoJSON and the driver name (no plate)', async () => {
       const { token, vehicleId } = await readyDriver('ana');
-      const body = tripBody(vehicleId) as { departureAt: string };
+      const body = {
+        ...tripBody(vehicleId),
+        originName: 'Almería centro',
+        destinationName: 'Campus UAL · Parking P1 (Sur)',
+      } as { departureAt: string };
 
       const response = await api('post', '/trips', token)
         .send(body)
@@ -121,6 +125,8 @@ describe('Trips API (e2e)', () => {
         offeredSeats: 3,
         availableSeats: 3,
         maxDetourMin: 10,
+        originName: 'Almería centro',
+        destinationName: 'Campus UAL · Parking P1 (Sur)',
         status: 'published',
         startedAt: null,
       });
