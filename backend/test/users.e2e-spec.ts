@@ -66,6 +66,13 @@ describe('Users API (e2e)', () => {
     return { id, accessToken };
   }
 
+  function setMode(mode: string, accessToken: string): request.Test {
+    return request(app.getHttpServer())
+      .put('/api/users/me/active-mode')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ mode });
+  }
+
   function getUser(id: string, accessToken?: string): request.Test {
     const req = request(app.getHttpServer()).get(`/api/users/${id}`);
     return accessToken
@@ -86,6 +93,7 @@ describe('Users API (e2e)', () => {
       email: `${EMAIL_PREFIX}ana@ual.es`,
       phone: TEST_PHONE,
       profiles: ['passenger'],
+      activeMode: null,
     });
   });
 
@@ -305,6 +313,69 @@ describe('Users API (e2e)', () => {
         .get('/api/users/me/driver-status')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
+    });
+  });
+
+  // El modo con el que se viaja, el mismo en todos los dispositivos
+  describe('PUT /api/users/me/active-mode', () => {
+    it('keeps the mode and returns it with the user, also on login', async () => {
+      const ana = await createUser('ana');
+      await request(app.getHttpServer())
+        .put('/api/users/me/profiles/driver')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .expect(200);
+
+      const response = await setMode('driver', ana.accessToken).expect(200);
+
+      expect(response.body).toMatchObject({ id: ana.id, activeMode: 'driver' });
+      const login = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email: `${EMAIL_PREFIX}ana@ual.es`, password: PASSWORD })
+        .expect(200);
+      expect(login.body).toMatchObject({ user: { activeMode: 'driver' } });
+    });
+
+    it('records one event per change, none when it is the same mode', async () => {
+      const ana = await createUser('ana');
+
+      await setMode('passenger', ana.accessToken).expect(200);
+      await setMode('passenger', ana.accessToken).expect(200);
+
+      const events = await dataSource.query<{ payload: object }[]>(
+        `SELECT payload FROM events
+          WHERE type = 'user.active_mode_changed' AND source_entity_id = $1`,
+        [ana.id],
+      );
+      expect(events).toEqual([
+        { payload: { activeMode: 'passenger', previousMode: null } },
+      ]);
+    });
+
+    it('rejects a mode without that active profile', async () => {
+      const ana = await createUser('ana');
+
+      const response = await setMode('driver', ana.accessToken).expect(403);
+
+      expect(response.body).toMatchObject({ code: 'PROFILE_REQUIRED' });
+    });
+
+    it('rejects an unknown mode', async () => {
+      const ana = await createUser('ana');
+
+      const response = await setMode('admin', ana.accessToken).expect(400);
+
+      expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+    });
+
+    it('starts with no mode', async () => {
+      const ana = await createUser('ana');
+
+      const response = await request(app.getHttpServer())
+        .get('/api/auth/me')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .expect(200);
+
+      expect(response.body).toMatchObject({ activeMode: null });
     });
   });
 });

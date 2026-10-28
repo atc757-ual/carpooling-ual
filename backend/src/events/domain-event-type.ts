@@ -6,6 +6,8 @@ export type DomainEventType =
   | 'user.email_verified'
   | 'user.profile_activated'
   | 'user.profile_deactivated'
+  // Cambia el modo con el que viaja (pasajero o conductor)
+  | 'user.active_mode_changed'
   // Viajes. confirmed: primera solicitud aceptada; reopened: vuelve a
   // publicado porque se han cancelado todas las aceptadas
   | 'trip.published'

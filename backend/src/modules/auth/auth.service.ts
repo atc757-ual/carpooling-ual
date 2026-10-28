@@ -231,6 +231,7 @@ export class AuthService {
       email: user.email,
       phone: user.phone,
       profiles: this.usersService.getActiveProfiles(user),
+      activeMode: user.activeMode,
     };
   }
 }
