@@ -26,6 +26,8 @@ export interface TripInput {
   departureAt: Date;
   offeredSeats: number;
   maxDetourMin?: number;
+  originName?: string;
+  destinationName?: string;
 }
 
 // Modificación parcial: solo los campos que cambian

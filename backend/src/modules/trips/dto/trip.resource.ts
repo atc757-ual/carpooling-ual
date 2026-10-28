@@ -50,6 +50,22 @@ export class TripResource {
   @ApiProperty({ example: 10, description: 'Minutes' })
   maxDetourMin: number;
 
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'Roquetas de Mar',
+    description: 'Name of the origin as chosen when publishing',
+  })
+  originName: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'Campus UAL · Parking P1 (Sur)',
+    description: 'Name of the destination as chosen when publishing',
+  })
+  destinationName: string | null;
+
   @ApiProperty({ enum: TRIP_STATUSES })
   status: TripStatus;
 
@@ -78,6 +94,8 @@ export function toTripResource({ trip, driverName }: TripView): TripResource {
     offeredSeats: trip.offeredSeats,
     availableSeats: trip.availableSeats,
     maxDetourMin: trip.maxDetourMin,
+    originName: trip.originName,
+    destinationName: trip.destinationName,
     status: trip.status,
     startedAt: trip.startedAt?.toISOString() ?? null,
   };
