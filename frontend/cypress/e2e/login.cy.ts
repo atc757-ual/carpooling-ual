@@ -44,6 +44,8 @@ for (const viewport of VIEWPORTS) {
         'ana.garcia@inlumine.ual.es',
       );
       cy.get('app-email-suggestions ul').should('not.exist');
+      // Pulsar la sugerencia no quita el foco: el campo no se marca en rojo
+      cy.get('ion-input[formControlName="email"]').should('not.have.class', 'ion-invalid');
     });
 
     it('logs in and goes to the home page', () => {

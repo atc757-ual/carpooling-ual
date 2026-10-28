@@ -2,9 +2,12 @@
   <ul class="email-suggestions" aria-label="Sugerencias de correo">
     @for (suggestion of suggestions(); track suggestion.email) {
       <li>
+        <!-- mousedown sin acción: el campo no pierde el foco al pulsar (sin
+             blur no se marca como tocado ni enseña el error) -->
         <button
           type="button"
           class="email-suggestions__option"
+          (mousedown)="$event.preventDefault()"
           (click)="handleChoose(suggestion.email)"
         >
           <span class="email-suggestions__email">{{ suggestion.email }}</span>

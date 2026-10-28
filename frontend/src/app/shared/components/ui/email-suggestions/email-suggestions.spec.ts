@@ -50,6 +50,24 @@ describe('EmailSuggestions', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('ul')).toBeNull();
   });
 
+  it('does not take the focus from the field when pressing a suggestion', () => {
+    type('mario');
+    const option = (fixture.nativeElement as HTMLElement).querySelector('button');
+    const mousedown = new MouseEvent('mousedown', { cancelable: true });
+
+    option?.dispatchEvent(mousedown);
+
+    expect(mousedown.defaultPrevented).toBe(true);
+  });
+
+  it('does not show the field as wrong while it suggests', () => {
+    control.markAsTouched();
+
+    type('jc123@inlumin');
+
+    expect(control.touched).toBe(false);
+  });
+
   it('says who each domain is for', () => {
     type('mario');
 

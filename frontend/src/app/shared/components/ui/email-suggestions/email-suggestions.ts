@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, signal } from '@angular/core';
+import { Component, computed, effect, input, signal, untracked } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
 
@@ -56,6 +56,13 @@ export class EmailSuggestions {
       this.email.set(control.value);
       const subscription = control.valueChanges.subscribe((value) => this.email.set(value));
       onCleanup(() => subscription.unsubscribe());
+    });
+    // Con sugerencias, el correo está a medio escribir: el campo no se marca
+    // en rojo hasta que se complete o se salga de él
+    effect(() => {
+      if (this.suggestions().length > 0) {
+        untracked(() => this.control().markAsUntouched());
+      }
     });
   }
 
