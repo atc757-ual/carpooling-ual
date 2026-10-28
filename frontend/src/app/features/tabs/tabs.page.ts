@@ -1,7 +1,8 @@
 import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import {
+  IonBadge,
   IonBreadcrumb,
   IonBreadcrumbs,
   IonButton,
@@ -29,6 +30,7 @@ import {
 } from 'ionicons/icons';
 import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService } from '../../core/services/users/active-mode.service';
 import { BrandLogo } from '../../shared/components/ui/brand-logo/brand-logo';
 import { findTabHeading } from './tab-heading';
@@ -67,6 +69,7 @@ const PROFILE_TAB: Tab = { path: 'profile', label: 'Perfil', icon: personOutline
   imports: [
     RouterLink,
     RouterLinkActive,
+    IonBadge,
     IonBreadcrumb,
     IonBreadcrumbs,
     IonButton,
@@ -89,6 +92,7 @@ export class TabsPage {
   private readonly auth = inject(AuthService);
   private readonly activeMode = inject(ActiveModeService);
   private readonly router = inject(Router);
+  private readonly notifications = inject(NotificationsService);
 
   // La cabecera propia de la pestaña que se ve, o null (saludo y logotipo)
   readonly heading = toSignal(
@@ -108,9 +112,27 @@ export class TabsPage {
     PROFILE_TAB,
   ]);
 
+  // Avisos sin leer, en la campana y en la pestaña Avisos. Se cuentan al
+  // entrar y en cada navegación (sin consultar cada pocos segundos)
+  readonly unreadCount = this.notifications.unreadCount;
+  readonly unreadBadge = computed(() => (this.unreadCount() > 9 ? '9+' : `${this.unreadCount()}`));
+  readonly bellLabel = computed(() =>
+    this.unreadCount() > 0 ? `Avisos, ${this.unreadCount()} sin leer` : 'Avisos',
+  );
+
   protected readonly backIcon = arrowBackOutline;
   protected readonly bellIcon = notificationsOutline;
   protected readonly logoutIcon = logOutOutline;
+
+  constructor() {
+    void this.notifications.refreshUnread();
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => void this.notifications.refreshUnread());
+  }
 
   async handleLogout(): Promise<void> {
     await this.auth.logout();

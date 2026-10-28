@@ -93,6 +93,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - El viaje guarda el nombre de su origen y su destino tal como se eligieron al publicar (`originName`, `destinationName`), para mostrarlos en Mis viajes y en los avisos sin volver a calcularlos (#74)
 - Mis viajes para el conductor: sus viajes próximos y anteriores, con su estado y plazas libres y, en los abiertos, las solicitudes (las prioritarias primero) con «Aceptar» y «Rechazar» (#75)
 - Mis viajes para el pasajero: sus solicitudes de plaza con su viaje (cuándo, de dónde a dónde, quién conduce y la matrícula al confirmarla) y su estado; las pendientes o confirmadas de viajes que aún no han salido se pueden cancelar (#76)
+- Número de avisos sin leer en la campana y en la pestaña Avisos («9+» a partir de 10), contado al entrar y en cada cambio de pantalla (#77)
 
 ### Changed
 - **(breaking)** El nombre del registro solo admite letras (de cualquier idioma, con tildes) y, entre ellas, un espacio, un guion o un apóstrofo; se guarda sin espacios repetidos. En el formulario, el nombre no deja escribir números ni símbolos; el teléfono lleva dentro el desplegable del prefijo del país (España por defecto) y el número solo admite cifras; y el aviso de error de un campo se quita mientras se corrige (#48)
