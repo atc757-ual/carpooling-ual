@@ -25,6 +25,11 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   DRIVER_NOT_READY: 'Registra un vehículo y acepta la declaración antes de publicar.',
   SEATS_EXCEED_CAPACITY: 'Ofreces más plazas de las que tiene el vehículo.',
   DEPARTURE_IN_THE_PAST: 'La hora de salida ya ha pasado. Elige una hora posterior.',
+  TRIP_FULL: 'Ya no quedan plazas suficientes en este viaje. Busca otro viaje.',
+  TRIP_NOT_OPEN: 'Este viaje ya no admite solicitudes.',
+  REQUEST_ALREADY_EXISTS: 'Ya tienes una solicitud en este viaje.',
+  CANNOT_REQUEST_OWN_TRIP: 'No puedes pedir plaza en tu propio viaje.',
+  TRIP_ALREADY_STARTED: 'El viaje ya ha empezado: ya no se puede cancelar desde aquí.',
 };
 
 export function getErrorMessage(error: ApiError): string {

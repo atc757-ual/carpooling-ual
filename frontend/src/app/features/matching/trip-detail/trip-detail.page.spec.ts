@@ -1,8 +1,12 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { provideIonicAngular } from '@ionic/angular';
+import { AlertController, provideIonicAngular } from '@ionic/angular';
+import { vi } from 'vitest';
+import { SeatRequest } from '../../../core/models/seat-request.model';
 import { TripResult } from '../../../core/models/trip-result.model';
 import { TripSearch } from '../../../core/models/trip-search.model';
+import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { PARKING_P1, ROQUETAS } from '../trip-search.testing';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { TripDetailPage } from './trip-detail.page';
@@ -29,30 +33,60 @@ const RESULT: TripResult = {
   pickupDetourMinutes: 3,
 };
 
+function seatRequest(status: SeatRequest['status'], plate: string | null = null): SeatRequest {
+  return {
+    id: 'r1',
+    trip: { id: 't1' },
+    status,
+    seats: 2,
+    requestedAt: '2026-10-27T06:00:00.000Z',
+    vehiclePlate: plate,
+  };
+}
+
 describe('TripDetailPage', () => {
-  function render(id: string, search: TripSearch | null, results = [RESULT]): HTMLElement {
+  let fixture: ComponentFixture<TripDetailPage>;
+  let requests: Record<string, ReturnType<typeof vi.fn>>;
+  let showError: ReturnType<typeof vi.fn>;
+
+  async function render(
+    id: string,
+    search: TripSearch | null,
+    mine: SeatRequest[] = [],
+  ): Promise<HTMLElement> {
+    requests = {
+      listMine: vi.fn().mockResolvedValue(mine),
+      request: vi.fn().mockResolvedValue(seatRequest('pending')),
+      cancel: vi.fn().mockResolvedValue(seatRequest('cancelled')),
+    };
+    showError = vi.fn().mockResolvedValue(undefined);
     TestBed.configureTestingModule({
       imports: [TripDetailPage],
-      providers: [provideIonicAngular(), provideRouter([])],
+      providers: [
+        provideIonicAngular(),
+        provideRouter([]),
+        { provide: SeatRequestsService, useValue: requests },
+        { provide: ToastService, useValue: { showError } },
+      ],
     });
     const state = TestBed.inject(TripSearchStateService);
     if (search) {
       state.set(search);
-      state.setResults(results);
+      state.setResults([RESULT]);
     } else {
       state.clear();
     }
-    const fixture = TestBed.createComponent(TripDetailPage);
+    fixture = TestBed.createComponent(TripDetailPage);
     fixture.componentRef.setInput('id', id);
-    fixture.detectChanges();
+    await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;
   }
 
   const texts = (root: HTMLElement, selector: string): string[] =>
     Array.from(root.querySelectorAll(selector), (element) => element.textContent?.trim() ?? '');
 
-  it('shows the trip of the results with its times, its stops and its seats', () => {
-    const root = render('t1', SEARCH);
+  it('shows the trip of the results with its times, its stops and its seats', async () => {
+    const root = await render('t1', SEARCH);
 
     expect(root.querySelector('.trip-detail__date span')?.textContent?.trim()).toBe(
       '27 oct, ida al campus',
@@ -63,36 +97,83 @@ describe('TripDetailPage', () => {
     ]);
     expect(texts(root, '.trip-detail__seats')).toEqual(['2 plazas libres']);
     expect(root.textContent).toContain('Trayecto de unos 32 min');
-    expect(root.textContent).not.toContain('Datos de ejemplo');
   });
 
-  it('shows who drives and who decides, without the car until accepted', () => {
-    const root = render('t1', SEARCH);
+  it('shows who drives and who decides, without the car until accepted', async () => {
+    const root = await render('t1', SEARCH);
 
     expect(root.querySelector('app-trip-driver')?.textContent).toContain('Lucía Cortés');
     expect(root.querySelector('.trip-detail__vehicle')).toBeNull();
     expect(root.textContent).toContain('Primero solicitas; Lucía decide.');
   });
 
-  it('keeps the seat request disabled with the seats of the search', () => {
-    const root = render('t1', SEARCH);
+  it('requests the seats of the search and shows it pending', async () => {
+    const root = await render('t1', SEARCH);
     const button = root.querySelector<HTMLIonButtonElement>('.trip-detail__aside ion-button');
-
     expect(button?.textContent?.trim()).toBe('Solicitar 2 plazas');
-    expect(button?.disabled).toBe(true);
+
+    await fixture.componentInstance.handleRequest();
+    await fixture.whenStable();
+
+    expect(requests['request']).toHaveBeenCalledWith('t1', 2);
+    expect(root.textContent).toContain('Solicitud enviada. Falta la respuesta de Lucía.');
+    expect(root.textContent).toContain('Cancelar solicitud');
   });
 
-  it('speaks of coming back from the campus', () => {
-    const root = render('t1', { ...SEARCH, direction: 'from-campus', time: '14:00' });
+  it('shows the accepted request with the plate', async () => {
+    const root = await render('t1', SEARCH, [seatRequest('accepted', '1234BCD')]);
+
+    expect(root.textContent).toContain('Lucía ha aceptado tu solicitud.');
+    expect(root.textContent).toContain('1234BCD');
+    expect(root.textContent).not.toContain('Solicitar 2 plazas');
+  });
+
+  it('lets request again after a rejection', async () => {
+    const root = await render('t1', SEARCH, [seatRequest('rejected')]);
+
+    expect(root.textContent).toContain('Tu solicitud no se aceptó.');
+    expect(fixture.componentInstance.canRequest()).toBe(true);
+  });
+
+  it('cancels only after confirming it', async () => {
+    await render('t1', SEARCH, [seatRequest('pending')]);
+    const alert = vi.spyOn(TestBed.inject(AlertController), 'create');
+    const dismiss = vi.fn().mockResolvedValueOnce({ role: 'cancel' });
+    alert.mockResolvedValue({
+      present: vi.fn().mockResolvedValue(undefined),
+      onDidDismiss: dismiss,
+    } as unknown as HTMLIonAlertElement);
+
+    await fixture.componentInstance.handleCancel();
+    expect(requests['cancel']).not.toHaveBeenCalled();
+
+    dismiss.mockResolvedValueOnce({ role: 'destructive' });
+    await fixture.componentInstance.handleCancel();
+    expect(requests['cancel']).toHaveBeenCalledWith('r1');
+    expect(fixture.componentInstance.request()?.status).toBe('cancelled');
+  });
+
+  it('shows the API error when the request fails', async () => {
+    await render('t1', SEARCH);
+    requests['request'].mockRejectedValue(new Error('down'));
+
+    await fixture.componentInstance.handleRequest();
+
+    expect(showError).toHaveBeenCalled();
+    expect(fixture.componentInstance.isSending()).toBe(false);
+  });
+
+  it('speaks of coming back from the campus', async () => {
+    const root = await render('t1', { ...SEARCH, direction: 'from-campus', time: '14:00' });
 
     expect(root.querySelector('.trip-detail__date span')?.textContent?.trim()).toBe(
       '27 oct, vuelta del campus',
     );
   });
 
-  it('does not find the trip without a search or when it is not in the results', () => {
-    expect(render('t1', null).textContent).toContain('No encontramos este viaje');
+  it('does not find the trip without a search or when it is not in the results', async () => {
+    expect((await render('t1', null)).textContent).toContain('No encontramos este viaje');
     TestBed.resetTestingModule();
-    expect(render('t2', SEARCH).textContent).toContain('No encontramos este viaje');
+    expect((await render('t2', SEARCH)).textContent).toContain('No encontramos este viaje');
   });
 });

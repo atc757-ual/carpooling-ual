@@ -128,3 +128,10 @@
     margin: var(--space-s) 0 0;
   }
 }
+
+// Mientras se comprueba si ya hay una solicitud en este viaje
+.trip-detail__loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
