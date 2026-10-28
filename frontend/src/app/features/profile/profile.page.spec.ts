@@ -5,6 +5,7 @@ import { AlertController, ModalController, provideIonicAngular } from '@ionic/an
 import { vi } from 'vitest';
 import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { DriverService } from '../../core/services/drivers/driver.service';
 import { UsersService } from '../../core/services/users/users.service';
 import { ProfilePage } from './profile.page';
 
@@ -31,6 +32,7 @@ describe('ProfilePage', () => {
             logout,
           },
         },
+        { provide: DriverService, useValue: { listVehicles: vi.fn().mockResolvedValue([]) } },
         { provide: UsersService, useValue: {} },
       ],
     });
@@ -55,6 +57,12 @@ describe('ProfilePage', () => {
     expect(root.textContent).toContain('Ana García');
     expect(root.textContent).toContain('ana@ual.es');
     expect(root.textContent).toContain('+34 612 345 678');
+  });
+
+  it('shows the vehicles only to drivers', () => {
+    expect(render(['passenger']).root.querySelector('app-profile-vehicles')).toBeNull();
+    TestBed.resetTestingModule();
+    expect(render(['driver']).root.querySelector('app-profile-vehicles')).not.toBeNull();
   });
 
   it('opens the legal texts', async () => {

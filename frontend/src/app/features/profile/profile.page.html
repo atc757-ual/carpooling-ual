@@ -18,6 +18,9 @@
             </ion-card-content>
           </ion-card>
         }
+        @if (isDriver()) {
+          <app-profile-vehicles />
+        }
         <app-profile-modes />
       </div>
 

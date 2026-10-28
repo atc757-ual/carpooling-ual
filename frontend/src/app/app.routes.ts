@@ -155,7 +155,7 @@ export const routes: Routes = [
         data: {
           heading: {
             title: 'Perfil',
-            subtitle: 'Tu cuenta y tus perfiles.',
+            subtitle: 'Tu cuenta, tus vehículos y tus perfiles.',
             backHref: '/tabs/home',
             breadcrumbs: [HOME_BREADCRUMB],
           } satisfies TabHeading,

@@ -1,0 +1,51 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>Mis vehículos</ion-card-title>
+  </ion-card-header>
+  <ion-card-content class="profile-vehicles">
+    @if (vehicles.isLoading() && !vehicles.hasValue()) {
+      <output class="profile-vehicles__status">
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="text-color-muted">Cargando tus vehículos…</span>
+      </output>
+    } @else if (vehicles.error()) {
+      <p class="text-body-s text-color-muted" role="alert">No hemos podido cargar tus vehículos.</p>
+      <form (submit)="$event.preventDefault(); vehicles.reload()">
+        <ion-button type="submit" size="small" fill="outline">Reintentar</ion-button>
+      </form>
+    } @else {
+      @if (activeVehicles().length === 0) {
+        <p class="text-body-s text-color-muted">
+          Aún no tienes vehículos. Registra uno para publicar viajes.
+        </p>
+      }
+      <ul class="profile-vehicles__list">
+        @for (vehicle of activeVehicles(); track vehicle.id) {
+          <li class="profile-vehicle">
+            <ion-icon [icon]="carIcon" aria-hidden="true" />
+            <span class="profile-vehicle__body">
+              <span class="profile-vehicle__plate">{{ vehicle.plate }}</span>
+              <span class="text-caption text-color-muted">{{ details(vehicle) }}</span>
+            </span>
+            <form (submit)="$event.preventDefault(); handleOpen(vehicle)">
+              <ion-button
+                type="submit"
+                size="small"
+                fill="clear"
+                [attr.aria-label]="'Editar ' + vehicle.plate"
+              >
+                Editar
+              </ion-button>
+            </form>
+          </li>
+        }
+      </ul>
+      <form (submit)="$event.preventDefault(); handleOpen(null)">
+        <ion-button type="submit" size="small" fill="outline">
+          <ion-icon slot="start" [icon]="addIcon" aria-hidden="true" />
+          Registrar vehículo
+        </ion-button>
+      </form>
+    }
+  </ion-card-content>
+</ion-card>

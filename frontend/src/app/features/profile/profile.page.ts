@@ -16,10 +16,12 @@ import { LegalDocument, LegalModal } from '../../shared/components/modals/legal-
 import { formatPhone } from '../../shared/utils/phone.util';
 import { getInitials } from '../matching/trip-driver/trip-driver';
 import { ProfileModes } from './profile-modes/profile-modes';
+import { ProfileVehicles } from './profile-vehicles/profile-vehicles';
 
-// Pestaña Perfil, en el orden de la guía: la cuenta y los perfiles; en
-// escritorio, a la derecha, la privacidad y cerrar sesión. Los vehículos, la
-// tolerancia horaria y editar la cuenta llegarán en sus PR
+// Pestaña Perfil, en el orden de la guía: la cuenta, los vehículos (solo con
+// el perfil de conductor) y los perfiles; en escritorio, a la derecha, la
+// privacidad y cerrar sesión. La tolerancia horaria y editar la cuenta
+// llegarán con su API
 @Component({
   selector: 'app-profile',
   imports: [
@@ -30,6 +32,7 @@ import { ProfileModes } from './profile-modes/profile-modes';
     IonCardTitle,
     IonContent,
     ProfileModes,
+    ProfileVehicles,
   ],
   templateUrl: './profile.page.html',
   styleUrls: ['../tabs/tab-page.scss', './profile.page.scss'],
@@ -45,6 +48,11 @@ export class ProfilePage {
   readonly phone = computed(() => {
     const phone = this.user()?.phone;
     return phone ? formatPhone(phone) : null;
+  });
+  readonly isDriver = computed(() => {
+    // Se recalcula al renovar el token (p. ej. al activar el perfil)
+    this.user();
+    return this.auth.hasProfile('driver');
   });
 
   async handleOpenLegal(document: LegalDocument): Promise<void> {

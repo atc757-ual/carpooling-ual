@@ -23,6 +23,15 @@ function accessToken(profiles: string[]) {
   };
 }
 
+const VEHICLE = {
+  '@type': 'Vehicle',
+  id: 'v1',
+  plate: '1234BCD',
+  model: 'Seat León',
+  capacity: 3,
+  status: 'available',
+};
+
 // Se entra por el login con esos perfiles y se abre el Perfil
 function openProfile(profiles: string[]): void {
   cy.intercept('POST', '/api/auth/login', accessToken(profiles));
@@ -39,13 +48,16 @@ for (const viewport of VIEWPORTS) {
   describe(`Profile (${viewport.name})`, () => {
     beforeEach(() => {
       cy.viewport(viewport.width, viewport.height);
+      cy.intercept('GET', '/api/vehicles*', [VEHICLE]);
     });
 
-    it('shows the account and the profiles of a driver', () => {
+    it('shows the account, the vehicles and the profiles of a driver', () => {
       openProfile(['driver']);
 
       cy.contains('app-profile', 'Lucía Cortés').should('be.visible');
       cy.contains('app-profile', '+34 612 345 678');
+      cy.contains('app-profile-vehicles', '1234BCD');
+      cy.contains('app-profile-vehicles', 'Seat León · hasta 3 pasajeros');
       cy.contains('app-profile-modes .profile-mode', 'Conductor').find('.status--accepted');
       cy.contains('app-profile-modes .profile-mode', 'Pasajero')
         .find('ion-button')
