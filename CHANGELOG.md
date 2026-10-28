@@ -114,6 +114,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Buscar y Publicar comparten el selector de fecha y hora (`app-datetime-field`) y el contador de plazas de la guía (`app-seat-stepper`: «−», el número y «+»), que en Buscar sustituye al campo numérico con los botones dentro (#64)
 - Los parkings del campus llevan su zona en el nombre: P1 y P2 (Sur), P3 (Este), P4 y P5 (Norte) y P6 (Oeste) (#65)
 - Publicar: la declaración es un solo texto con el enlace a la declaración completa dentro, y el desvío se llama «Tiempo máximo de desvío», con la flecha del desplegable a la derecha (#69)
+- Las sugerencias del correo UAL (acceso, registro y recuperar la contraseña) se despliegan pegadas al campo, por encima del formulario; elegir una ya no dispara el error del campo, y mientras sugieren no se marca en rojo (#70)
 - El vehículo se registra con marca y modelo, matrícula y capacidad total contando al conductor («4 asientos = 1 conductor + hasta 3 pasajeros»), y en Publicar se muestra con su modelo y se puede editar en una ventana (#67)
 
 ### Security
