@@ -46,6 +46,7 @@
         <span class="text-label text-label--strong" aria-hidden="true">Correo UAL</span>
         <ion-input
           formControlName="email"
+          [appCombobox]="emailSuggestions.combobox"
           type="email"
           inputmode="email"
           autocomplete="email"
@@ -56,7 +57,7 @@
         >
           <ion-icon slot="start" [icon]="mailIcon" aria-hidden="true" />
         </ion-input>
-        <app-email-suggestions [control]="form.controls.email" />
+        <app-email-suggestions #emailSuggestions [control]="form.controls.email" />
       </div>
 
       <div class="auth-field">

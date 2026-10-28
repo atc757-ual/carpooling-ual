@@ -44,6 +44,7 @@
     background: var(--color-surface-subtle);
   }
 
+  &--active,
   &:focus-visible {
     outline: var(--border-width-m) solid var(--color-focus);
     outline-offset: calc(-1 * var(--border-width-m));

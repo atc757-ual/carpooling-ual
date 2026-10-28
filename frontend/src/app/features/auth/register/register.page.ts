@@ -29,6 +29,7 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
+import { Combobox } from '../../../shared/components/ui/combobox/combobox';
 import { EmailSuggestions } from '../../../shared/components/ui/email-suggestions/email-suggestions';
 import { PhonePrefixSelect } from '../../../shared/components/ui/phone-prefix-select/phone-prefix-select';
 import {
@@ -78,6 +79,7 @@ const PASSWORD_MAX_LENGTH = 72;
     IonTitle,
     IonToolbar,
     AuthLayout,
+    Combobox,
     EmailSuggestions,
     PhonePrefixSelect,
     IonicFormStatus,

@@ -9,6 +9,7 @@ import { SearchPlace } from '../../../core/models/trip-search.model';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { LocationModal, LocationModalResult } from '../location-modal/location-modal';
+import { Combobox, ComboboxState } from '../../../shared/components/ui/combobox/combobox';
 
 // Letras a partir de las que se sugieren direcciones, y la espera tras la
 // última tecla (para no pedir una búsqueda por letra)
@@ -41,7 +42,7 @@ function toSearchPlace(place: Place): SearchPlace {
 // dirección elegida (en los dos), «Ajustar en el mapa» (LocationModal)
 @Component({
   selector: 'app-place-field',
-  imports: [IonIcon, IonInput],
+  imports: [IonIcon, IonInput, Combobox],
   templateUrl: './place-field.html',
   styleUrl: './place-field.scss',
   providers: [
@@ -65,6 +66,11 @@ export class PlaceField implements ControlValueAccessor {
 
   readonly text = signal('');
   readonly suggestions = signal<readonly PlaceSuggestion[]>([]);
+  // Para el campo (appCombobox): elegir la dirección con el teclado
+  readonly combobox = new ComboboxState(
+    () => this.suggestions().length,
+    (index) => void this.handleSelect(this.suggestions()[index]),
+  );
   readonly selected = signal<SearchPlace | null>(null);
   // Bajo el campo: lo que se está haciendo («Buscando tu ubicación…»)…
   readonly status = signal<string | null>(null);
