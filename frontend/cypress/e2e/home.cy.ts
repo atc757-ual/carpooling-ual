@@ -46,6 +46,9 @@ for (const viewport of VIEWPORTS) {
         .should('contain', '¿Vamos al campus hoy?');
       cy.contains('app-home ion-card-title', 'Tu camino al campus.').should('be.visible');
       cy.get('app-home .home__search img').should('not.exist');
+      // Sin dirección se dice qué falta; con ella, qué viajes se verán
+      cy.contains('app-home', 'Elige tu dirección para buscar viajes.').should('exist');
+      choosePlace('app-trip-search-form', 'Roquetas de Mar');
       cy.contains(
         'app-home',
         /Verás viajes que llegan al campus entre las \d{2}:\d{2} y las \d{2}:\d{2}\./,
@@ -72,7 +75,11 @@ for (const viewport of VIEWPORTS) {
         'app-trip-search-form .place-field__message',
         `Aún no llegamos a ${UNCOVERED_PLACE}.`,
       ).should('be.visible');
-      cy.contains('app-trip-search-form ion-button', 'Buscar viaje').click();
+      // Fuera de la zona no hay dirección elegida: el botón sigue desactivado
+      cy.contains('app-trip-search-form ion-button', 'Buscar viaje').should(
+        'have.attr',
+        'disabled',
+      );
       cy.location('pathname').should('eq', '/tabs/home');
       // Un aviso basta: el de cobertura, sin el error en rojo
       cy.get('app-trip-search-form app-place-field ion-input').should(

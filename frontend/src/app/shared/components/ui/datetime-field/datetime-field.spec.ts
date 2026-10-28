@@ -45,6 +45,17 @@ describe('DatetimeField', () => {
     expect((root.querySelector('ion-modal') as HTMLIonModalElement).isOpen).toBe(true);
   });
 
+  it('shows the time as it is, and nothing without a value', () => {
+    host.presentation.set('time');
+    host.value.setValue('07:40');
+    TestBed.tick();
+    expect(root.querySelector('.datetime-field__value')?.textContent?.trim()).toBe('07:40');
+
+    host.value.setValue('');
+    TestBed.tick();
+    expect(root.querySelector('.datetime-field__value')?.textContent?.trim()).toBe('');
+  });
+
   it('reads today and tomorrow, and the date from the third day', () => {
     const today = new Date('2026-10-28T10:00:00');
 
