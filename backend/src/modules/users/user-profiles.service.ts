@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, EntityManager, ILike } from 'typeorm';
 import { EventsService } from '../../events/events.service';
+import { ProfileRequiredError } from '../../shared/auth/profile-required.error';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { AdminProfile } from './entities/admin-profile.entity';
 import { User } from './entities/user.entity';
@@ -166,6 +167,36 @@ export class UserProfilesService {
         userId,
         profile,
         isActive: true,
+      });
+    });
+  }
+
+  // El modo con el que viaja ahora, el mismo en todos sus dispositivos: solo
+  // uno de sus perfiles activos. Idempotente: con el mismo modo no cambia nada
+  // ni registra evento
+  async setActiveMode(userId: string, mode: RegistrableProfile): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      const user = await manager.findOne(User, {
+        where: { id: userId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (user === null) {
+        throw new UserNotFoundError(userId);
+      }
+      const profile = await manager.findOneBy(PROFILE_ENTITIES[mode], {
+        userId,
+      });
+      if (!profile?.isActive) {
+        throw new ProfileRequiredError([mode]);
+      }
+      if (user.activeMode === mode) {
+        return;
+      }
+      await manager.update(User, { id: userId }, { activeMode: mode });
+      await this.eventsService.record(manager, {
+        type: 'user.active_mode_changed',
+        sourceEntityId: userId,
+        payload: { activeMode: mode, previousMode: user.activeMode },
       });
     });
   }

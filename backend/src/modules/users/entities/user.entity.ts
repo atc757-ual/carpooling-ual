@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
+import type { RegistrableProfile } from '../profile-type';
 import { AdminProfile } from './admin-profile.entity';
 import { DriverProfile } from './driver-profile.entity';
 import { PassengerProfile } from './passenger-profile.entity';
@@ -49,6 +50,11 @@ export class User {
 
   @Column({ name: 'time_tolerance_min', type: 'smallint', default: 15 })
   timeToleranceMin: number;
+
+  // Modo con el que viaja ahora (el mismo en todos sus dispositivos). NULL
+  // hasta que lo elige: el cliente usa su modo por defecto
+  @Column({ name: 'active_mode', type: 'varchar', length: 10, nullable: true })
+  activeMode: RegistrableProfile | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

@@ -1,6 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { API_PREFIX } from '../../../app.setup';
-import { ProfileType } from '../profile-type';
+import {
+  ProfileType,
+  REGISTRABLE_PROFILES,
+  RegistrableProfile,
+} from '../profile-type';
 import { UserSummary } from '../user-summary';
 
 // Recurso TMF630 User: con @type, id y href (enlace al propio recurso,
@@ -37,6 +41,15 @@ export class UserResource {
     example: ['driver', 'passenger'],
   })
   profiles: ProfileType[];
+
+  @ApiProperty({
+    enum: REGISTRABLE_PROFILES,
+    nullable: true,
+    description:
+      'The mode the user travels with now, the same on every device; null until chosen',
+    example: 'passenger',
+  })
+  activeMode: RegistrableProfile | null;
 }
 
 export function userHref(id: string): string {
@@ -52,5 +65,6 @@ export function toUserResource(user: UserSummary): UserResource {
     email: user.email,
     phone: user.phone,
     profiles: user.profiles,
+    activeMode: user.activeMode,
   };
 }

@@ -1,4 +1,4 @@
-import { ProfileType } from './profile-type';
+import { ProfileType, RegistrableProfile } from './profile-type';
 
 // Datos de la cuenta de un usuario (nunca el hash de la contraseña). Solo se
 // devuelven al propio usuario (registro, login, /me, su GET /api/users/{id});
@@ -10,4 +10,6 @@ export interface UserSummary {
   // NULL en quien no pasó por el registro público (administrador inicial, seed)
   phone: string | null;
   profiles: ProfileType[];
+  // NULL hasta que elige con qué modo viaja (ver User.activeMode)
+  activeMode: RegistrableProfile | null;
 }

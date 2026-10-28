@@ -267,6 +267,7 @@ export class UsersService {
       email: user.email,
       phone: user.phone,
       profiles: this.getActiveProfiles(user),
+      activeMode: user.activeMode,
     };
   }
 

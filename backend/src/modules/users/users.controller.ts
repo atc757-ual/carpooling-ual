@@ -33,6 +33,7 @@ import {
   toDriverStatusResource,
 } from './dto/driver-status.resource';
 import { ListUsersQueryDto } from './dto/list-users-query.dto';
+import { SetActiveModeDto } from './dto/set-active-mode.dto';
 import { SetProfileActiveDto } from './dto/set-profile-active.dto';
 import {
   toUserAdminResource,
@@ -127,6 +128,29 @@ export class UsersController {
     profile: RegistrableProfile,
   ): Promise<UserResource> {
     await this.userProfiles.activateOwnProfile(currentUser.sub, profile);
+    return toUserResource(await this.usersService.getSummary(currentUser.sub));
+  }
+
+  // Cambiar el modo con el que se viaja (quien tiene los dos perfiles). Se
+  // guarda en el servidor para que sea el mismo en todos sus dispositivos
+  @Put('me/active-mode')
+  @ApiOperation({
+    summary: 'Change the mode I travel with',
+    description:
+      'Passenger or driver, among my active profiles. Kept on the server so that it is the same on every device. Idempotent.',
+  })
+  @ApiOkResponse({ type: UserResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
+    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
+  })
+  async setActiveMode(
+    @CurrentUser() currentUser: AccessTokenPayload,
+    @Body() dto: SetActiveModeDto,
+  ): Promise<UserResource> {
+    await this.userProfiles.setActiveMode(currentUser.sub, dto.mode);
     return toUserResource(await this.usersService.getSummary(currentUser.sub));
   }
 
