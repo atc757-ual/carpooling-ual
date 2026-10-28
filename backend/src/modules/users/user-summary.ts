@@ -12,4 +12,6 @@ export interface UserSummary {
   profiles: ProfileType[];
   // NULL hasta que elige con qué modo viaja (ver User.activeMode)
   activeMode: RegistrableProfile | null;
+  // Margen horario por defecto de sus búsquedas, en minutos
+  timeToleranceMin: number;
 }

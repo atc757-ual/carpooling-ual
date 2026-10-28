@@ -87,6 +87,7 @@ describe('API docs (e2e)', () => {
       '/api/trips/{tripId}/positions',
       '/api/trips/{tripId}/requests',
       '/api/users',
+      '/api/users/me',
       '/api/users/me/active-mode',
       '/api/users/me/driver-declaration',
       '/api/users/me/driver-status',

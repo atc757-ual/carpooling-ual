@@ -66,6 +66,13 @@ describe('Users API (e2e)', () => {
     return { id, accessToken };
   }
 
+  function updateMe(body: object, accessToken: string): request.Test {
+    return request(app.getHttpServer())
+      .patch('/api/users/me')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send(body);
+  }
+
   function setMode(mode: string, accessToken: string): request.Test {
     return request(app.getHttpServer())
       .put('/api/users/me/active-mode')
@@ -94,6 +101,7 @@ describe('Users API (e2e)', () => {
       phone: TEST_PHONE,
       profiles: ['passenger'],
       activeMode: null,
+      timeToleranceMin: 15,
     });
   });
 
@@ -376,6 +384,69 @@ describe('Users API (e2e)', () => {
         .expect(200);
 
       expect(response.body).toMatchObject({ activeMode: null });
+    });
+  });
+
+  // Cambiar los datos de la propia cuenta
+  describe('PATCH /api/users/me', () => {
+    it('changes only the fields sent and records which ones', async () => {
+      const ana = await createUser('ana');
+
+      const response = await updateMe(
+        {
+          name: '  Ana   María ',
+          phone: '+34 611 22 33 44',
+          timeToleranceMin: 10,
+        },
+        ana.accessToken,
+      ).expect(200);
+
+      expect(response.body).toMatchObject({
+        name: 'Ana María',
+        email: `${EMAIL_PREFIX}ana@ual.es`,
+        phone: '+34611223344',
+        timeToleranceMin: 10,
+      });
+      const events = await dataSource.query<{ payload: object }[]>(
+        `SELECT payload FROM events
+          WHERE type = 'user.updated' AND source_entity_id = $1`,
+        [ana.id],
+      );
+      // Sin el nombre ni el teléfono: solo qué cambió y la tolerancia
+      expect(events).toEqual([
+        {
+          payload: {
+            changedFields: ['name', 'phone', 'timeToleranceMin'],
+            timeToleranceMin: 10,
+          },
+        },
+      ]);
+    });
+
+    it('records nothing when nothing changes', async () => {
+      const ana = await createUser('ana');
+
+      await updateMe({ timeToleranceMin: 15 }, ana.accessToken).expect(200);
+
+      const events = await dataSource.query<unknown[]>(
+        `SELECT id FROM events
+          WHERE type = 'user.updated' AND source_entity_id = $1`,
+        [ana.id],
+      );
+      expect(events).toHaveLength(0);
+    });
+
+    it.each([
+      [{ timeToleranceMin: 7 }],
+      [{ name: 'Ana 2' }],
+      [{ phone: '123' }],
+      [{ email: 'otra@ual.es' }],
+    ])('rejects %j', async (body) => {
+      const ana = await createUser('ana');
+
+      const response = await updateMe(body, ana.accessToken).expect(400);
+
+      expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED' });
     });
   });
 });

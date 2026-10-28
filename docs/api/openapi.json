@@ -830,6 +830,84 @@
         ]
       }
     },
+    "/api/users/me": {
+      "patch": {
+        "description": "Name, phone and default time margin of my searches; only the fields sent change. The email cannot be changed.",
+        "operationId": "UsersController_updateMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change my account details",
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/api/users/me/active-mode": {
       "put": {
         "description": "Passenger or driver, among my active profiles. Kept on the server so that it is the same on every device. Idempotent.",
@@ -4999,6 +5077,11 @@
             "nullable": true,
             "description": "The mode the user travels with now, the same on every device; null until chosen",
             "example": "passenger"
+          },
+          "timeToleranceMin": {
+            "type": "number",
+            "description": "Default time margin of my searches, in minutes (± around the time)",
+            "example": 15
           }
         },
         "required": [
@@ -5009,7 +5092,8 @@
           "email",
           "phone",
           "profiles",
-          "activeMode"
+          "activeMode",
+          "timeToleranceMin"
         ]
       },
       "AccessTokenResource": {
@@ -5272,6 +5356,34 @@
           "activeVehicles",
           "isReady"
         ]
+      },
+      "UpdateMeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Letters, with a space, hyphen or apostrophe between them",
+            "maxLength": 100,
+            "example": "Ana García"
+          },
+          "phone": {
+            "type": "string",
+            "description": "International format with country code; spaces, dashes and parentheses are ignored",
+            "maxLength": 16,
+            "example": "+34600123456"
+          },
+          "timeToleranceMin": {
+            "type": "number",
+            "enum": [
+              5,
+              10,
+              15,
+              20
+            ],
+            "description": "Default time margin of my searches, in minutes (± around the time)",
+            "example": 15
+          }
+        }
       },
       "SetActiveModeDto": {
         "type": "object",
