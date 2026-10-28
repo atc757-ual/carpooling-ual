@@ -26,3 +26,32 @@ ion-input-otp.input-otp-size-medium {
 :host ::ng-deep ion-input-otp .input-otp-group {
   justify-content: flex-start;
 }
+
+// Código incorrecto: un tintineo corto de lado a lado (además del aviso). Sin
+// movimiento para quien lo ha pedido en el sistema
+.code-input--shake {
+  animation: code-input-shake 0.4s ease-in-out;
+}
+
+@keyframes code-input-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20%,
+  60% {
+    transform: translateX(-0.5rem); // 8px
+  }
+
+  40%,
+  80% {
+    transform: translateX(0.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .code-input--shake {
+    animation: none;
+  }
+}

@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { provideIonicAngular } from '@ionic/angular';
+import { vi } from 'vitest';
 import { CodeInput } from './code-input';
 
 // Un formulario cualquiera que usa el campo, como las pantallas
@@ -10,11 +11,16 @@ import { CodeInput } from './code-input';
   imports: [ReactiveFormsModule, CodeInput],
   template: `
     <span id="code-label">Código</span>
-    <app-code-input [formControl]="code" labelledBy="code-label" />
+    <app-code-input
+      [formControl]="code"
+      labelledBy="code-label"
+      (completed)="completions = completions + 1"
+    />
   `,
 })
 class HostForm {
   readonly code = new FormControl('', { nonNullable: true, validators: Validators.required });
+  completions = 0;
 }
 
 describe('CodeInput', () => {
@@ -69,5 +75,31 @@ describe('CodeInput', () => {
 
     host.code.enable();
     expect(boxes().enabled).toBe(true);
+  });
+
+  it('tells when the six boxes are filled, to send the code without a button', () => {
+    const otp = fixture.nativeElement.querySelector('ion-input-otp') as HTMLElement;
+
+    otp.dispatchEvent(new CustomEvent('ionComplete', { detail: { value: '042619' } }));
+
+    expect(host.completions).toBe(1);
+  });
+
+  it('shakes, vibrates and goes back to the first box when the code is wrong', () => {
+    vi.useFakeTimers();
+    const vibrate = vi.fn();
+    Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((step) => {
+      step(0);
+      return 0;
+    });
+
+    input.shake();
+
+    expect(input.isShaking()).toBe(true);
+    expect(vibrate).toHaveBeenCalledWith(400);
+    vi.advanceTimersByTime(400);
+    expect(input.isShaking()).toBe(false);
+    vi.useRealTimers();
   });
 });

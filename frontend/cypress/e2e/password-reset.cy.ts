@@ -38,7 +38,6 @@ function requestCode(): void {
 function checkCode(): void {
   cy.intercept('POST', `${RESET_URL}/verify`, { statusCode: 204 }).as('check');
   typeCode('042619');
-  cy.contains('ion-button', 'Continuar').click();
   cy.wait('@check').its('request.body').should('deep.equal', { email: EMAIL, code: '042619' });
   cy.location('pathname').should('eq', '/auth/new-password');
 }
@@ -90,7 +89,6 @@ for (const viewport of VIEWPORTS) {
       );
 
       typeCode('284610');
-      cy.contains('ion-button', 'Continuar').click();
 
       cy.wait('@check');
       toastMessage().should('contain', 'Ese código no es válido.');

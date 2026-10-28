@@ -49,7 +49,11 @@
         <span id="reset-code-label" class="text-label text-label--strong"
           >Código de recuperación</span
         >
-        <app-code-input formControlName="code" labelledBy="reset-code-label" />
+        <app-code-input
+          formControlName="code"
+          labelledBy="reset-code-label"
+          (completed)="handleSubmit()"
+        />
       </div>
 
       @if (isLocked()) {
@@ -58,19 +62,16 @@
         </ion-text>
       }
 
+      <!-- Sin botón de continuar: el código se envía solo al completarlo -->
+      @if (isSubmitting()) {
+        <output class="reset-code__checking text-body-s text-color-muted">
+          <ion-spinner name="crescent" aria-hidden="true" />
+          Comprobando el código…
+        </output>
+      }
+
       <!-- 16px entre los botones -->
       <div class="reset-code__actions">
-        <ion-button
-          type="submit"
-          expand="block"
-          [disabled]="form.invalid || isLocked() || isSubmitting()"
-        >
-          @if (isSubmitting()) {
-            <ion-spinner name="crescent" aria-label="Comprobando" />
-          } @else {
-            Continuar
-          }
-        </ion-button>
         <!-- Envía el formulario de reenvío (reset-code-resend), no el del código -->
         <ion-button
           type="submit"

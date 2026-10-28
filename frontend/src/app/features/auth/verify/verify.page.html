@@ -49,7 +49,11 @@
         <span id="verify-code-label" class="text-label text-label--strong"
           >Código de verificación</span
         >
-        <app-code-input formControlName="code" labelledBy="verify-code-label" />
+        <app-code-input
+          formControlName="code"
+          labelledBy="verify-code-label"
+          (completed)="handleSubmit()"
+        />
       </div>
 
       @if (isLocked()) {
@@ -63,19 +67,16 @@
         </ion-text>
       }
 
+      <!-- Sin botón de verificar: el código se envía solo al completarlo -->
+      @if (isSubmitting()) {
+        <output class="verify__checking text-body-s text-color-muted">
+          <ion-spinner name="crescent" aria-hidden="true" />
+          Comprobando el código…
+        </output>
+      }
+
       <!-- 16px entre los botones -->
       <div class="verify__actions">
-        <ion-button
-          type="submit"
-          expand="block"
-          [disabled]="form.invalid || isLocked() || isSubmitting()"
-        >
-          @if (isSubmitting()) {
-            <ion-spinner name="crescent" aria-label="Verificando" />
-          } @else {
-            Verificar correo
-          }
-        </ion-button>
         <!-- Envía el formulario de reenvío (verify-resend), no el del código -->
         <ion-button
           type="submit"

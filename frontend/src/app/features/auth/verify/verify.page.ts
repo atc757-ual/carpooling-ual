@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal, viewChild } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -69,6 +69,7 @@ export class VerifyPage implements OnInit {
   // Tras 3 fallos el código queda anulado: no se puede escribir otro hasta
   // pedir uno nuevo
   readonly isLocked = signal(false);
+  private readonly codeInput = viewChild(CodeInput);
   private readonly resendCountdown = createCountdown(RESEND_WAIT_SECONDS, inject(DestroyRef));
   readonly secondsToResend = this.resendCountdown.seconds;
   readonly resendLabel = computed(() => getResendLabel(this.secondsToResend()));
@@ -87,7 +88,11 @@ export class VerifyPage implements OnInit {
     this.resendCountdown.restart();
   }
 
+  // Lo lanza el propio campo al completar las seis cifras (o Enter)
   async handleSubmit(): Promise<void> {
+    if (this.isLocked() || this.isSubmitting()) {
+      return;
+    }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -101,6 +106,7 @@ export class VerifyPage implements OnInit {
       const apiError = ApiError.fromHttpError(error);
       void this.toast.showError(getErrorMessage(apiError));
       this.form.reset();
+      this.codeInput()?.shake();
       if (apiError.code === TOO_MANY_ATTEMPTS) {
         this.lock();
       }
