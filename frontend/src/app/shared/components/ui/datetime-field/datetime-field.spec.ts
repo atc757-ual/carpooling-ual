@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { provideIonicAngular } from '@ionic/angular';
-import { DatetimeField, DatetimePresentation } from './datetime-field';
+import { DatetimeField, DatetimePresentation, formatDateLabel } from './datetime-field';
 
 @Component({
   imports: [ReactiveFormsModule, DatetimeField],
@@ -30,15 +30,27 @@ describe('DatetimeField', () => {
     field = fixture.debugElement.children[0].componentInstance as DatetimeField;
   });
 
-  it('labels the picker button with its own ids', () => {
+  it('names the button with its label and its value, and opens the picker', () => {
     const label = root.querySelector('.text-label');
-    const button = root.querySelector('ion-datetime-button');
+    const button = root.querySelector<HTMLButtonElement>('button.datetime-field__box');
+    const value = root.querySelector('.datetime-field__value');
 
     expect(label?.textContent?.trim()).toBe('Fecha');
-    expect(button?.getAttribute('aria-labelledby')).toBe(label?.id);
-    const { datetime } = button as HTMLElement & { datetime?: string };
-    expect(datetime).toMatch(/^datetime-field-\d+-picker$/);
-    expect(root.querySelector('ion-datetime')?.id).toBe(datetime);
+    expect(value?.textContent?.trim()).toBe('mar, 27 oct');
+    expect(button?.getAttribute('aria-labelledby')).toBe(`${label?.id} ${value?.id}`);
+
+    button?.click();
+    TestBed.tick();
+
+    expect((root.querySelector('ion-modal') as HTMLIonModalElement).isOpen).toBe(true);
+  });
+
+  it('reads today and tomorrow, and the date from the third day', () => {
+    const today = new Date('2026-10-28T10:00:00');
+
+    expect(formatDateLabel('2026-10-28', today)).toBe('Hoy');
+    expect(formatDateLabel('2026-10-29', today)).toBe('Mañana');
+    expect(formatDateLabel('2026-10-30', today)).toBe('vie, 30 oct');
   });
 
   it('passes the value both ways', () => {

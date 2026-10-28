@@ -6,33 +6,43 @@
   min-width: 0;
 }
 
+// El botón que abre el selector, con el aspecto de un campo: su icono y el
+// valor («Hoy», «jue, 30 oct», «07:40») a la izquierda
 .datetime-field__box {
   display: flex;
   align-items: center;
   gap: var(--space-s);
+  width: 100%;
   min-height: var(--control-height-l);
   padding: 0 var(--space-base);
   border: var(--border-width-s) solid var(--ion-border-color);
   border-radius: var(--radius-s);
   background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-body);
+  text-align: start;
+  cursor: pointer;
 
   ion-icon {
     flex: 0 0 auto;
     color: var(--color-text-muted);
     font-size: 1.25rem; // 20px
   }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+
+  &:disabled {
+    color: var(--color-text-disabled);
+    cursor: default;
+  }
 }
 
-// El botón del selector, con el aspecto del texto de un campo
-ion-datetime-button {
-  flex: 1;
-  justify-content: flex-start;
-}
-
-ion-datetime-button::part(native) {
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--color-text);
-  font-size: var(--font-size-body);
+.datetime-field__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
