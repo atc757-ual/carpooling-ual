@@ -77,6 +77,27 @@ describe('Combobox', () => {
     expect(host.combobox.activeIndex()).toBe(0);
   });
 
+  it('chooses the highlighted one with Tab, without stopping the focus', () => {
+    press('ArrowDown');
+
+    expect(press('Tab').defaultPrevented).toBe(false);
+    expect(host.choose).toHaveBeenCalledWith('a');
+  });
+
+  it('leaves with Tab without choosing when none is highlighted', () => {
+    press('Tab');
+
+    expect(host.choose).not.toHaveBeenCalled();
+  });
+
+  it('closes when leaving the field and opens again when coming back', () => {
+    ionInput.dispatchEvent(new CustomEvent('ionBlur'));
+    expect(host.combobox.isOpen()).toBe(false);
+
+    ionInput.dispatchEvent(new CustomEvent('ionFocus'));
+    expect(host.combobox.isOpen()).toBe(true);
+  });
+
   it('does nothing without options', () => {
     host.options.set([]);
 

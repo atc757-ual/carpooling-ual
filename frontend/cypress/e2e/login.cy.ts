@@ -63,6 +63,19 @@ for (const viewport of VIEWPORTS) {
         .and('have.focus');
     });
 
+    it('chooses the highlighted suggestion with Tab and moves on', () => {
+      cy.get('ion-input[formControlName="email"] input').type('ana.garcia{downArrow}');
+
+      cy.get('ion-input[formControlName="email"] input').trigger('keydown', { key: 'Tab' }).blur();
+
+      cy.get('ion-input[formControlName="email"] input').should(
+        'have.value',
+        'ana.garcia@inlumine.ual.es',
+      );
+      cy.get('app-email-suggestions [role="listbox"]').should('not.exist');
+      cy.get('ion-input[formControlName="email"]').should('not.have.class', 'ion-invalid');
+    });
+
     it('logs in and goes to the home page', () => {
       cy.intercept('POST', LOGIN_URL, ACCESS_TOKEN).as('login');
 

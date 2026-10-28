@@ -55,12 +55,19 @@ export class ComboboxState {
 
 // En el ion-input que tiene sugerencias debajo: le pone al campo de verdad
 // (el input de dentro de ion-input) el rol y los atributos ARIA del combobox,
-// y atiende el teclado: ↓/↑ recorren las sugerencias, Enter elige la
-// resaltada y Escape cierra la lista. Tab sale del campo sin elegir.
+// y atiende el teclado: ↓/↑ recorren las sugerencias, Enter (o Tab) elige la
+// resaltada y Escape cierra la lista. Al salir del campo, la lista se cierra.
 // <ion-input [appCombobox]="suggestions.combobox" …>
 @Directive({
   selector: 'ion-input[appCombobox]',
-  host: { '(keydown)': 'handleKeydown($event)', '(ionInput)': 'appCombobox().reset()' },
+  host: {
+    '(keydown)': 'handleKeydown($event)',
+    '(ionInput)': 'appCombobox().reset()',
+    // Fuera del campo, la lista se cierra (el ratón no lo saca: mousedown);
+    // al volver, se abre
+    '(ionBlur)': 'appCombobox().dismiss()',
+    '(ionFocus)': 'appCombobox().reset()',
+  },
 })
 export class Combobox {
   readonly appCombobox = input.required<ComboboxState>();
@@ -91,6 +98,9 @@ export class Combobox {
     } else if (event.key === 'Enter' && combobox.activeId() !== null) {
       // Sin enviar el formulario: Enter elige la sugerencia
       event.preventDefault();
+      combobox.chooseActive();
+    } else if (event.key === 'Tab' && combobox.activeId() !== null) {
+      // Tab elige la resaltada y sigue al campo siguiente (sin preventDefault)
       combobox.chooseActive();
     } else if (event.key === 'Escape') {
       event.preventDefault();
