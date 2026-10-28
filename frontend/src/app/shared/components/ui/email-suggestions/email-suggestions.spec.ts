@@ -40,7 +40,7 @@ describe('EmailSuggestions', () => {
 
   it('fills the field with the chosen suggestion', () => {
     type('mario');
-    const options = (fixture.nativeElement as HTMLElement).querySelectorAll('button');
+    const options = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[role="option"]');
 
     options[1].click();
     fixture.detectChanges();
@@ -52,7 +52,7 @@ describe('EmailSuggestions', () => {
 
   it('does not take the focus from the field when pressing a suggestion', () => {
     type('mario');
-    const option = (fixture.nativeElement as HTMLElement).querySelector('button');
+    const option = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="option"]');
     const mousedown = new MouseEvent('mousedown', { cancelable: true });
 
     option?.dispatchEvent(mousedown);

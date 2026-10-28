@@ -18,6 +18,7 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { PasswordResetService } from '../../../core/services/auth/password-reset.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
+import { Combobox } from '../../../shared/components/ui/combobox/combobox';
 import { EmailSuggestions } from '../../../shared/components/ui/email-suggestions/email-suggestions';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -41,6 +42,7 @@ import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/u
     IonTitle,
     IonToolbar,
     AuthLayout,
+    Combobox,
     EmailSuggestions,
     IonicFormStatus,
   ],

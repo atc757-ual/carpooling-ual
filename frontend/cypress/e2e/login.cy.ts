@@ -37,14 +37,42 @@ for (const viewport of VIEWPORTS) {
     it('completes the email with a suggested UAL domain', () => {
       cy.get('ion-input[formControlName="email"] input').type('ana.garcia');
 
-      cy.contains('app-email-suggestions button', 'ana.garcia@inlumine.ual.es').click();
+      cy.contains('app-email-suggestions [role="option"]', 'ana.garcia@inlumine.ual.es').click();
 
       cy.get('ion-input[formControlName="email"] input').should(
         'have.value',
         'ana.garcia@inlumine.ual.es',
       );
-      cy.get('app-email-suggestions ul').should('not.exist');
+      cy.get('app-email-suggestions [role="listbox"]').should('not.exist');
       // Pulsar la sugerencia no quita el foco: el campo no se marca en rojo
+      cy.get('ion-input[formControlName="email"]').should('not.have.class', 'ion-invalid');
+    });
+
+    it('chooses a suggestion with the keyboard, without leaving the field', () => {
+      cy.get('ion-input[formControlName="email"] input')
+        .type('ana.garcia')
+        .should('have.attr', 'role', 'combobox')
+        .type('{downArrow}')
+        .should('have.attr', 'aria-activedescendant')
+        .and('match', /option-1$/);
+
+      cy.get('ion-input[formControlName="email"] input').type('{enter}');
+
+      cy.get('ion-input[formControlName="email"] input')
+        .should('have.value', 'ana.garcia@ual.es')
+        .and('have.focus');
+    });
+
+    it('chooses the first suggestion with Tab and moves on', () => {
+      cy.get('ion-input[formControlName="email"] input').type('ana.garcia');
+
+      cy.get('ion-input[formControlName="email"] input').trigger('keydown', { key: 'Tab' }).blur();
+
+      cy.get('ion-input[formControlName="email"] input').should(
+        'have.value',
+        'ana.garcia@inlumine.ual.es',
+      );
+      cy.get('app-email-suggestions [role="listbox"]').should('not.exist');
       cy.get('ion-input[formControlName="email"]').should('not.have.class', 'ion-invalid');
     });
 

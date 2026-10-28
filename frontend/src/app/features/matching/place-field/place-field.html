@@ -4,6 +4,7 @@
 <div class="place-field__control">
   <ion-input
     fill="outline"
+    [appCombobox]="combobox"
     [value]="text()"
     [placeholder]="placeholder()"
     [disabled]="isDisabled()"
@@ -39,24 +40,34 @@
     }
   </ion-input>
 
-  <!-- Sugerencias bajo el campo, por encima del resto del formulario. Son
-     botones: se llega a ellas con el tabulador -->
-  @if (suggestions().length > 0) {
+  <!-- Sugerencias bajo el campo, por encima del resto del formulario. Es la
+     lista del combobox (appCombobox): el foco se queda en el campo y ↓/↑
+     resaltan la dirección; mousedown sin acción para no perder el foco -->
+  @if (combobox.isOpen()) {
     <div class="place-field__dropdown">
-      <ul class="place-field__suggestions" [attr.aria-label]="'Direcciones para ' + label()">
-        @for (suggestion of suggestions(); track suggestion.id) {
-          <li>
-            <button
-              type="button"
-              class="place-field__suggestion"
-              (click)="handleSelect(suggestion)"
-            >
-              <span class="place-field__name">{{ suggestion.name }}</span>
-              <span class="text-caption text-color-muted">{{ suggestion.locality }}</span>
-            </button>
-          </li>
+      <div
+        class="place-field__suggestions"
+        role="listbox"
+        [id]="combobox.listId"
+        [attr.aria-label]="'Direcciones para ' + label()"
+      >
+        @for (suggestion of suggestions(); track suggestion.id; let index = $index) {
+          <div
+            class="place-field__suggestion"
+            role="option"
+            [id]="combobox.optionId(index)"
+            [class.place-field__suggestion--active]="combobox.activeIndex() === index"
+            [attr.aria-selected]="combobox.activeIndex() === index"
+            (mousedown)="$event.preventDefault()"
+            tabindex="-1"
+            (click)="handleSelect(suggestion)"
+            (keydown.enter)="handleSelect(suggestion)"
+          >
+            <span class="place-field__name">{{ suggestion.name }}</span>
+            <span class="text-caption text-color-muted">{{ suggestion.locality }}</span>
+          </div>
         }
-      </ul>
+      </div>
       <!-- Lo exige la licencia de los datos de CartoCiudad -->
       <p class="place-field__credit">CartoCiudad cedido por © Instituto Geográfico Nacional</p>
     </div>

@@ -1,6 +1,7 @@
 import { Component, computed, effect, input, signal, untracked } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
+import { ComboboxState } from '../combobox/combobox';
 
 // Para quién es cada dominio (se muestra al lado de la sugerencia)
 const DOMAIN_AUDIENCES: Readonly<Record<string, string>> = {
@@ -22,8 +23,12 @@ export interface EmailSuggestion {
 // de antes de la «@», ofrece completarla con cada dominio admitido (solo los
 // que encajan con lo que ya se haya escrito tras la «@»). Al elegir una, o al
 // escribir el correo entero, desaparecen. Se usa en el login, el registro y la
-// recuperación de la contraseña:
-// <app-email-suggestions [control]="form.controls.email" />
+// recuperación de la contraseña. El campo lleva autocomplete="off" por
+// accesibilidad: el desplegable del navegador se pondría encima de esta lista,
+// se quedaría con las flechas y el lector de pantalla anunciaría dos listas a
+// la vez (no se puede estilar ni detectar). Las contraseñas conservan el suyo:
+// <ion-input [appCombobox]="suggestions.combobox" …>
+// <app-email-suggestions #suggestions [control]="form.controls.email" />
 @Component({
   selector: 'app-email-suggestions',
   templateUrl: './email-suggestions.html',
@@ -65,6 +70,12 @@ export class EmailSuggestions {
       }
     });
   }
+
+  // Para el campo (appCombobox): elegir con el teclado
+  readonly combobox = new ComboboxState(
+    () => this.suggestions().length,
+    (index) => this.handleChoose(this.suggestions()[index].email),
+  );
 
   handleChoose(email: string): void {
     const control = this.control();

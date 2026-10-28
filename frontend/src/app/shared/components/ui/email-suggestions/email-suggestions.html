@@ -1,19 +1,29 @@
-@if (suggestions().length > 0) {
-  <ul class="email-suggestions" aria-label="Sugerencias de correo">
-    @for (suggestion of suggestions(); track suggestion.email) {
-      <li>
-        <!-- mousedown sin acción: el campo no pierde el foco al pulsar (sin
-             blur no se marca como tocado ni enseña el error) -->
-        <button
-          type="button"
-          class="email-suggestions__option"
-          (mousedown)="$event.preventDefault()"
-          (click)="handleChoose(suggestion.email)"
-        >
-          <span class="email-suggestions__email">{{ suggestion.email }}</span>
-          <span class="text-caption text-color-muted">{{ suggestion.audience }}</span>
-        </button>
-      </li>
+@if (combobox.isOpen()) {
+  <!-- Lista del combobox del campo (appCombobox): el foco se queda en el
+       campo y las flechas resaltan la opción. mousedown sin acción: al pulsar
+       con el ratón el campo no pierde el foco (sin blur no se marca como
+       tocado ni enseña el error) -->
+  <div
+    class="email-suggestions"
+    role="listbox"
+    aria-label="Sugerencias de correo"
+    [id]="combobox.listId"
+  >
+    @for (suggestion of suggestions(); track suggestion.email; let index = $index) {
+      <div
+        class="email-suggestions__option"
+        role="option"
+        [id]="combobox.optionId(index)"
+        [class.email-suggestions__option--active]="combobox.activeIndex() === index"
+        [attr.aria-selected]="combobox.activeIndex() === index"
+        (mousedown)="$event.preventDefault()"
+        tabindex="-1"
+        (click)="handleChoose(suggestion.email)"
+        (keydown.enter)="handleChoose(suggestion.email)"
+      >
+        <span class="email-suggestions__email">{{ suggestion.email }}</span>
+        <span class="text-caption text-color-muted">{{ suggestion.audience }}</span>
+      </div>
     }
-  </ul>
+  </div>
 }

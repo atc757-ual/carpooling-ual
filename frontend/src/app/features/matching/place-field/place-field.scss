@@ -116,6 +116,11 @@
     background: var(--color-surface-subtle);
   }
 
+  // La resaltada con el teclado (o la primera, al abrirse): celeste claro
+  &--active {
+    background: var(--color-primary-subtle);
+  }
+
   &:focus-visible {
     outline: var(--border-width-m) solid var(--color-primary);
     outline-offset: calc(-1 * var(--border-width-m));
