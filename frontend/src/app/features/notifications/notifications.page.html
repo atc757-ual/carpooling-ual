@@ -1,0 +1,71 @@
+<ion-content>
+  <div class="tab-page notifications">
+    <h1 class="visually-hidden">Avisos</h1>
+
+    @if (items.isLoading() && !items.hasValue()) {
+      <output class="notifications__status">
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="text-color-muted">Cargando tus avisos…</span>
+      </output>
+    } @else if (items.error()) {
+      <ion-card>
+        <ion-card-content class="notifications__state" role="alert">
+          <ion-icon [icon]="errorIcon" aria-hidden="true" />
+          <div class="text-subtitle">No hemos podido cargar tus avisos</div>
+          <form (submit)="$event.preventDefault(); handleRetry()">
+            <ion-button type="submit" fill="outline">Reintentar</ion-button>
+          </form>
+        </ion-card-content>
+      </ion-card>
+    } @else if (all().length === 0) {
+      <ion-card>
+        <ion-card-content class="notifications__state">
+          <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+          <div class="text-subtitle">No tienes avisos</div>
+          <div class="text-body-s text-color-muted">
+            Aquí te contaremos cuándo te piden plaza, te aceptan o cambia un viaje.
+          </div>
+        </ion-card-content>
+      </ion-card>
+    } @else {
+      @if (hasUnread()) {
+        <form
+          class="notifications__actions"
+          (submit)="$event.preventDefault(); handleMarkAllRead()"
+        >
+          <ion-button type="submit" fill="clear" size="small" [disabled]="isMarkingAll()">
+            Marcar todo como leído
+          </ion-button>
+        </form>
+      }
+      <ion-card>
+        <ul class="notifications__list">
+          @for (item of all(); track item.notification.id) {
+            <li>
+              <button
+                type="button"
+                class="notification"
+                [class.notification--unread]="!item.notification.isRead"
+                (click)="handleOpen(item)"
+              >
+                <span class="notification__dot" aria-hidden="true"></span>
+                <span class="notification__body">
+                  <span class="notification__message">
+                    {{ message(item.notification.type) }}
+                    @if (!item.notification.isRead) {
+                      <span class="visually-hidden">(sin leer)</span>
+                    }
+                  </span>
+                  <span class="text-caption text-color-muted">{{ tripLine(item.trip) }}</span>
+                </span>
+                <span class="notification__time text-caption text-color-muted">
+                  {{ elapsed(item.notification) }}
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+      </ion-card>
+    }
+  </div>
+</ion-content>

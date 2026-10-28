@@ -1,0 +1,115 @@
+// Una columna de hasta 48rem (768px), como Mis viajes: los avisos en una sola
+// tarjeta, separados por una línea fina (lista, sin una tarjeta por aviso)
+.notifications {
+  align-items: stretch;
+  max-width: 48rem; // 768px
+
+  ion-card {
+    margin: 0;
+  }
+}
+
+.notifications__actions {
+  display: flex;
+  justify-content: flex-end;
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+.notifications__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li + li {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}
+
+// Todo el aviso se toca: el punto, la frase con su viaje y cuándo llegó
+.notification {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
+  width: 100%;
+  min-height: 3rem; // 48px
+  padding: var(--space-base);
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: calc(-1 * var(--border-width-m));
+  }
+}
+
+// Sin leer: el punto en el color de acento (guía, «avisos sin leer») y la
+// frase en negrita (no solo por el color)
+.notification__dot {
+  flex: none;
+  width: 0.5rem; // 8px
+  height: 0.5rem;
+  margin-top: 0.5rem; // centrado con la primera línea
+  border-radius: var(--radius-full);
+}
+
+.notification--unread {
+  .notification__dot {
+    background: var(--color-accent);
+  }
+
+  .notification__message {
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+.notification__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.notification__time {
+  flex: none;
+}
+
+.notifications__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+// Vacío y error: centrado, con el icono en un círculo azul claro (como Mis viajes)
+.notifications__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-xxl) var(--space-l);
+  text-align: center;
+
+  ion-icon {
+    box-sizing: content-box;
+    padding: var(--space-base);
+    border-radius: var(--radius-full);
+    background: var(--color-primary-subtle);
+    color: var(--color-link);
+    font-size: 2rem; // 32px
+  }
+
+  ion-button {
+    margin: var(--space-s) 0 0;
+  }
+}

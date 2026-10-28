@@ -1,17 +1,10 @@
-import { Route, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { homeOutline } from 'ionicons/icons';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { leaveModesGuard } from './core/guards/leave-modes.guard';
 import { profileGuard } from './core/guards/profile.guard';
 import { TabHeading } from './features/tabs/tab-heading';
-
-// Pestaña aún sin pantalla: su título y qué se podrá hacer en ella
-const comingSoon = (title: string, description: string): Pick<Route, 'loadComponent' | 'data'> => ({
-  loadComponent: () =>
-    import('./features/tabs/coming-soon/coming-soon.page').then((m) => m.ComingSoonPage),
-  data: { title, description },
-});
 
 // Primer paso de los breadcrumbs (escritorio): Inicio, con el icono de la casa
 const HOME_BREADCRUMB = { label: 'Inicio', href: '/tabs/home', icon: homeOutline };
@@ -145,7 +138,16 @@ export const routes: Routes = [
       },
       {
         path: 'notifications',
-        ...comingSoon('Avisos', 'Muy pronto verás aquí los avisos de tus viajes.'),
+        loadComponent: () =>
+          import('./features/notifications/notifications.page').then((m) => m.NotificationsPage),
+        data: {
+          heading: {
+            title: 'Avisos',
+            subtitle: 'Lo que pasa con tus viajes y tus solicitudes.',
+            backHref: '/tabs/home',
+            breadcrumbs: [HOME_BREADCRUMB],
+          } satisfies TabHeading,
+        },
       },
       {
         path: 'profile',
