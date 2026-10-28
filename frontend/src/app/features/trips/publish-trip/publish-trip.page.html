@@ -169,13 +169,14 @@
                      significa debajo -->
                 <div class="publish__field">
                   <span class="text-label text-label--strong" aria-hidden="true">
-                    Desvío máximo
+                    Tiempo máximo de desvío
                   </span>
                   <ion-select
+                    class="publish__select"
                     formControlName="maxDetourMin"
                     interface="popover"
                     fill="outline"
-                    aria-label="Desvío máximo"
+                    aria-label="Tiempo máximo de desvío"
                   >
                     @for (detour of detours; track detour) {
                       <ion-select-option [value]="detour">± {{ detour }} min</ion-select-option>
@@ -188,14 +189,27 @@
               </div>
 
               @if (!hasDeclared()) {
+                <!-- Un solo texto con el enlace dentro (como las condiciones del
+                     registro): el texto va fuera de la etiqueta de la casilla
+                     para que pulsar el enlace no la marque -->
                 <div class="publish__declaration">
-                  <ion-checkbox formControlName="declaration" labelPlacement="end" justify="start">
-                    Declaro que tengo el permiso de conducir en vigor y que mi vehículo tiene el
-                    seguro obligatorio y la ITV al día.
-                  </ion-checkbox>
-                  <button type="button" class="publish__map-link" (click)="handleReadDeclaration()">
-                    Leer la declaración completa
-                  </button>
+                  <div class="publish__declaration-row">
+                    <ion-checkbox
+                      formControlName="declaration"
+                      aria-labelledby="publish-declaration-label"
+                    />
+                    <span id="publish-declaration-label" class="text-body-s">
+                      Declaro haber leído la
+                      <button
+                        type="button"
+                        class="publish__inline-link"
+                        (click)="handleReadDeclaration()"
+                      >
+                        declaración completa</button
+                      >, que tengo el permiso de conducir en vigor y que mi vehículo tiene el seguro
+                      obligatorio y la ITV al día.
+                    </span>
+                  </div>
                   @if (tripForm.touched && !tripForm.controls.declaration.value) {
                     <p class="publish__error" role="alert">
                       Acepta la declaración para publicar tu primer viaje.
