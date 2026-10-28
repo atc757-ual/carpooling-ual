@@ -101,6 +101,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Mis vehículos en el Perfil (solo con el perfil de conductor): matrícula, marca y modelo y plazas, con «Editar» y «Registrar vehículo» en la ventana del vehículo (#82)
 
 ### Changed
+- Las plazas se eligen en un campo como los demás, a todo el ancho, con − y + dentro y el número centrado (antes, dos botones sueltos a la izquierda) (#84)
 - **(breaking)** El nombre del registro solo admite letras (de cualquier idioma, con tildes) y, entre ellas, un espacio, un guion o un apóstrofo; se guarda sin espacios repetidos. En el formulario, el nombre no deja escribir números ni símbolos; el teléfono lleva dentro el desplegable del prefijo del país (España por defecto) y el número solo admite cifras; y el aviso de error de un campo se quita mientras se corrige (#48)
 - Guía de estilos (`docs/guia-estilos.html`) rehecha con los diseños de Figma del 25/10/2026: color, tipografía, ritmo, componentes, patrones, estados, navegación, pantallas de acceso, modo oscuro, accesibilidad y textos
 - **(breaking)** `POST /api/auth/register` exige el teléfono en formato internacional (`phone`) y la aceptación de las normas y la política de privacidad (`acceptedTerms`, se guarda la fecha), y ya no admite `profiles`: el usuario se crea sin perfiles y los elige después (#33)

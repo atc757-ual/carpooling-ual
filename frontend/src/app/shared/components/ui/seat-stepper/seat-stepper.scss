@@ -1,5 +1,5 @@
-// Como en la guía (SeatStepper): botones de 44px con borde azul y el número
-// en grande entre ellos; desactivado, borde gris
+// Como en la guía (SeatStepper): un campo con − y + dentro, de 44px, y el número
+// en grande entre ellos; desactivado, el botón en gris
 :host {
   display: block;
   min-width: 0;
@@ -22,29 +22,42 @@
   padding: 0;
 }
 
+// Como un campo más (el borde, las esquinas y el alto de los de al lado), a
+// todo el ancho: − a la izquierda, el número en el centro y + a la derecha
 .seat-stepper__controls {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: var(--space-base);
+  justify-content: space-between;
+  gap: var(--space-s);
+  box-sizing: border-box;
+  width: 100%;
   min-height: var(--control-height-l);
+  padding-inline: var(--space-xs);
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
 }
 
 .seat-stepper__button {
   display: flex;
+  flex: none;
   align-items: center;
   justify-content: center;
   width: 2.75rem; // 44px: objetivo táctil mínimo
   height: 2.75rem;
   padding: 0;
-  border: var(--border-width-s) solid var(--color-primary);
-  border-radius: var(--radius-base);
-  background: var(--color-surface);
+  border: 0;
+  border-radius: var(--radius-s);
+  background: none;
   color: var(--color-link);
-  font-size: 1.25rem; // 20px
+  font-size: 1.5rem; // 24px
   cursor: pointer;
 
+  &:hover:not(:disabled) {
+    background: var(--color-primary-subtle);
+  }
+
   &:disabled {
-    border-color: var(--color-border);
     color: var(--color-text-disabled);
     cursor: default;
   }
@@ -57,6 +70,7 @@
 
 .seat-stepper__value {
   min-width: 1.5rem; // 24px
+  flex: 1;
   font-family: var(--font-family-heading);
   font-size: var(--font-size-title);
   font-weight: var(--font-weight-semibold);
