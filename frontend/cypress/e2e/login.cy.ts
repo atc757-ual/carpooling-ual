@@ -52,7 +52,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('ion-input[formControlName="email"] input')
         .type('ana.garcia')
         .should('have.attr', 'role', 'combobox')
-        .type('{downArrow}{downArrow}')
+        .type('{downArrow}')
         .should('have.attr', 'aria-activedescendant')
         .and('match', /option-1$/);
 
@@ -63,8 +63,8 @@ for (const viewport of VIEWPORTS) {
         .and('have.focus');
     });
 
-    it('chooses the highlighted suggestion with Tab and moves on', () => {
-      cy.get('ion-input[formControlName="email"] input').type('ana.garcia{downArrow}');
+    it('chooses the first suggestion with Tab and moves on', () => {
+      cy.get('ion-input[formControlName="email"] input').type('ana.garcia');
 
       cy.get('ion-input[formControlName="email"] input').trigger('keydown', { key: 'Tab' }).blur();
 

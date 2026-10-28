@@ -8,7 +8,8 @@ let nextId = 0;
 // appCombobox. Las opciones no reciben el foco: se queda siempre en el campo
 export class ComboboxState {
   readonly listId = `combobox-${nextId++}`;
-  readonly activeIndex = signal(-1);
+  // La primera sale resaltada (selección automática): Tab o Enter la eligen
+  readonly activeIndex = signal(0);
   private readonly isDismissed = signal(false);
 
   readonly isOpen = computed(() => this.count() > 0 && !this.isDismissed());
@@ -46,10 +47,11 @@ export class ComboboxState {
     this.activeIndex.set(-1);
   }
 
-  // Al escribir: la lista vuelve a abrirse, sin ninguna resaltada
+  // Al escribir o al volver al campo: la lista vuelve a abrirse, con la
+  // primera resaltada
   reset(): void {
     this.isDismissed.set(false);
-    this.activeIndex.set(-1);
+    this.activeIndex.set(0);
   }
 }
 

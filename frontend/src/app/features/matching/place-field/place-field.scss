@@ -112,9 +112,13 @@
   cursor: pointer;
 
   &:hover,
-  &--active,
   &:focus-visible {
     background: var(--color-surface-subtle);
+  }
+
+  // La resaltada con el teclado (o la primera, al abrirse): celeste claro
+  &--active {
+    background: var(--color-primary-subtle);
   }
 
   &:focus-visible {

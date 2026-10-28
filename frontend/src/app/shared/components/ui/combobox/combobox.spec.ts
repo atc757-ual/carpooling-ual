@@ -41,15 +41,16 @@ describe('Combobox', () => {
     return event;
   }
 
-  it('makes the real field a combobox that controls the list', () => {
+  it('makes the real field a combobox with the first option highlighted', () => {
     expect(field.getAttribute('role')).toBe('combobox');
     expect(field.getAttribute('aria-controls')).toBe(host.combobox.listId);
     expect(field.getAttribute('aria-expanded')).toBe('true');
-    expect(field.hasAttribute('aria-activedescendant')).toBe(false);
+    expect(field.getAttribute('aria-activedescendant')).toBe(host.combobox.optionId(0));
   });
 
   it('moves with the arrows, going round, and chooses with Enter', async () => {
     expect(press('ArrowDown').defaultPrevented).toBe(true);
+    press('ArrowUp');
     press('ArrowUp');
     await fixture.whenStable();
 
@@ -59,15 +60,22 @@ describe('Combobox', () => {
     expect(host.choose).toHaveBeenCalledWith('c');
   });
 
-  it('lets Enter submit the form when no option is highlighted', () => {
+  it('chooses the first one with Tab, without stopping the focus', () => {
+    expect(press('Tab').defaultPrevented).toBe(false);
+    expect(host.choose).toHaveBeenCalledWith('a');
+  });
+
+  it('lets Enter submit and Tab leave without choosing once closed with Escape', () => {
+    press('Escape');
+
+    expect(host.combobox.isOpen()).toBe(false);
     expect(press('Enter').defaultPrevented).toBe(false);
+    press('Tab');
     expect(host.choose).not.toHaveBeenCalled();
   });
 
-  it('closes with Escape and opens again when typing or with ↓', () => {
+  it('opens again when typing or with ↓', () => {
     press('Escape');
-    expect(host.combobox.isOpen()).toBe(false);
-
     ionInput.dispatchEvent(new CustomEvent('ionInput'));
     expect(host.combobox.isOpen()).toBe(true);
 
@@ -75,19 +83,6 @@ describe('Combobox', () => {
     press('ArrowDown');
     expect(host.combobox.isOpen()).toBe(true);
     expect(host.combobox.activeIndex()).toBe(0);
-  });
-
-  it('chooses the highlighted one with Tab, without stopping the focus', () => {
-    press('ArrowDown');
-
-    expect(press('Tab').defaultPrevented).toBe(false);
-    expect(host.choose).toHaveBeenCalledWith('a');
-  });
-
-  it('leaves with Tab without choosing when none is highlighted', () => {
-    press('Tab');
-
-    expect(host.choose).not.toHaveBeenCalled();
   });
 
   it('closes when leaving the field and opens again when coming back', () => {
@@ -102,7 +97,9 @@ describe('Combobox', () => {
     host.options.set([]);
 
     expect(press('ArrowDown').defaultPrevented).toBe(true);
-    expect(host.combobox.activeIndex()).toBe(-1);
+    press('Tab');
     expect(host.combobox.isOpen()).toBe(false);
+    expect(host.combobox.activeId()).toBeNull();
+    expect(host.choose).not.toHaveBeenCalled();
   });
 });
