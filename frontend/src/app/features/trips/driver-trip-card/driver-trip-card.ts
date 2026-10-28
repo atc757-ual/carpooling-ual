@@ -24,7 +24,7 @@ const REQUEST_STATUS_LABELS: Record<SeatRequestStatus, string> = {
   cancelled: 'Cancelada',
 };
 // Solo en estos se piden y deciden plazas
-const OPEN_STATUSES: readonly TripStatus[] = ['published', 'confirmed'];
+const OPEN_STATUSES: ReadonlySet<TripStatus> = new Set(['published', 'confirmed']);
 
 export function formatSeats(seats: number): string {
   return seats === 1 ? '1 plaza' : `${seats} plazas`;
@@ -47,7 +47,7 @@ export class DriverTripCard {
   readonly trip = input.required<DriverTrip>();
   readonly changed = output<void>();
 
-  readonly isOpen = computed(() => OPEN_STATUSES.includes(this.trip().status));
+  readonly isOpen = computed(() => OPEN_STATUSES.has(this.trip().status));
   // «Hoy · 07:40», «jue, 30 oct · 07:40»
   readonly when = computed(() => {
     const departureAt = new Date(this.trip().departureAt);

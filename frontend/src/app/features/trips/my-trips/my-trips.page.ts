@@ -16,7 +16,7 @@ import { ActiveModeService } from '../../../core/services/users/active-mode.serv
 import { DriverTripCard } from '../driver-trip-card/driver-trip-card';
 
 // Viajes que aún no han terminado
-const UPCOMING: readonly TripStatus[] = ['published', 'confirmed', 'in_progress'];
+const UPCOMING: ReadonlySet<TripStatus> = new Set(['published', 'confirmed', 'in_progress']);
 
 // Mis viajes. Como conductor: sus viajes, primero los próximos (con sus
 // solicitudes para aceptarlas o rechazarlas) y después los anteriores. Como
@@ -50,13 +50,11 @@ export class MyTripsPage {
   private readonly allTrips = computed<readonly DriverTrip[]>(() =>
     this.trips.hasValue() ? this.trips.value() : [],
   );
-  readonly upcoming = computed(() =>
-    this.allTrips().filter(({ status }) => UPCOMING.includes(status)),
-  );
+  readonly upcoming = computed(() => this.allTrips().filter(({ status }) => UPCOMING.has(status)));
   // Los anteriores, del más reciente al más antiguo
   readonly past = computed(() =>
     this.allTrips()
-      .filter(({ status }) => !UPCOMING.includes(status))
+      .filter(({ status }) => !UPCOMING.has(status))
       .reverse(),
   );
 
