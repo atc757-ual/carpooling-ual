@@ -1,10 +1,12 @@
 // Un viaje que encaja con la búsqueda del pasajero (resultados de Buscar)
 
+// Los viajes hechos y la valoración aún no los da la API (reputación,
+// RF-22): sin ellos no se muestran
 export interface TripDriver {
   name: string;
-  tripCount: number;
+  tripCount?: number;
   // De 0 a 5
-  rating: number;
+  rating?: number;
   isEmailVerified: boolean;
 }
 

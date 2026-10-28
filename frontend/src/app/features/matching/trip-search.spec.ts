@@ -42,7 +42,7 @@ describe('parseTripSearch', () => {
     ['date', '2026-02-30'],
     ['time', '8:00'],
     ['time', '24:00'],
-    ['margin', 15],
+    ['margin', 30],
     ['margin', '20'],
     ['seats', 0],
     ['seats', 5],

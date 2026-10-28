@@ -2,6 +2,26 @@ import { choosePlace, VIEWPORTS } from '../support/e2e';
 
 const EMAIL = 'mario.perez@ual.es';
 
+// Un viaje compatible (matching): sale 32 min antes y llega a las 07:52
+// de mañana, con 3 min de desvío
+function tripMatch() {
+  const arrival = new Date();
+  arrival.setDate(arrival.getDate() + 1);
+  arrival.setHours(7, 52, 0, 0);
+  return {
+    '@type': 'TripMatch',
+    id: 't1',
+    href: '/api/trips/t1',
+    driver: { id: 'd1', name: 'Lucía Cortés' },
+    departureAt: new Date(arrival.getTime() - 32 * 60_000).toISOString(),
+    arrivalAt: arrival.toISOString(),
+    availableSeats: 2,
+    detourMin: 3,
+    timeDifferenceMin: -8,
+    score: 0.86,
+  };
+}
+
 function accessToken(profiles: string[]) {
   return {
     '@type': 'AccessToken',
@@ -50,10 +70,11 @@ for (const viewport of VIEWPORTS) {
   describe(`Search (${viewport.name})`, () => {
     beforeEach(() => {
       cy.viewport(viewport.width, viewport.height);
+      cy.intercept('POST', '/api/trips/search', [tripMatch()]).as('search');
       logIn(['passenger']);
     });
 
-    it('shows the search from Inicio with an example trip', () => {
+    it('shows the search from Inicio with the compatible trips', () => {
       searchFromHome('Roquetas de Mar');
 
       cy.get('app-trip-search .route-timeline__stop').first().should('contain', 'Roquetas de Mar');
@@ -62,8 +83,10 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-trip-search .search-summary__details', 'Margen de llegada').should(
         'be.visible',
       );
+      cy.wait('@search').its('request.body').should('include', { parkingId: 'p1', seats: 1 });
+      cy.contains('app-trip-search', '1 en tu margen').should('be.visible');
       cy.contains('app-trip-search app-trip-result-card', 'Lucía Cortés').should('be.visible');
-      cy.contains('app-trip-search', 'Datos de ejemplo').should('be.visible');
+      cy.contains('app-trip-search app-trip-result-card', '07:20 → 07:52').should('be.visible');
     });
 
     it('opens a trip and comes back to the same search', () => {
@@ -71,7 +94,7 @@ for (const viewport of VIEWPORTS) {
 
       cy.contains('app-trip-search app-trip-result-card ion-button', 'Ver viaje de Lucía').click();
 
-      cy.location('pathname').should('eq', '/tabs/search/trips/example-1');
+      cy.location('pathname').should('eq', '/tabs/search/trips/t1');
       // El mismo viaje de la búsqueda, con quien conduce y cómo se pide plaza
       cy.get('app-trip-detail .route-timeline__stop').first().should('contain', 'Roquetas de Mar');
       cy.get('app-trip-detail .route-timeline__stop').last().should('contain', 'Parking P1');
@@ -104,6 +127,18 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-trip-search .route-timeline__stop', 'Huércal de Almería').should(
         'be.visible',
       );
+    });
+
+    it('says when there are no trips and offers to change the time', () => {
+      cy.intercept('POST', '/api/trips/search', []).as('empty');
+      searchFromHome('Roquetas de Mar');
+
+      cy.wait('@empty').its('request.body').should('include', { marginMin: 20 });
+      cy.contains('app-trip-search', 'Aún no hay viajes para esa hora').should('be.visible');
+      // ±20 min ya es el margen mayor: no se ofrece ampliarlo
+      cy.contains('app-trip-search ion-button', 'Ampliar margen').should('not.exist');
+      cy.contains('app-trip-search ion-button', 'Modificar hora').click();
+      cy.get('app-trip-search app-trip-search-form').should('be.visible');
     });
 
     it('closes the form without changing the search', () => {

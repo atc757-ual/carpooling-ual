@@ -18,5 +18,7 @@ export interface TripDetail extends TripResult {
   originDetail: string;
   destinationDetail: string;
   tripMinutes: number;
-  vehicle: TripVehicle;
+  // El coche solo lo ve el pasajero con la plaza aceptada: en los resultados
+  // aún no se conoce
+  vehicle?: TripVehicle;
 }

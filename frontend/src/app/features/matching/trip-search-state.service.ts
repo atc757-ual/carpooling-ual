@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { TripResult } from '../../core/models/trip-result.model';
 import { TripSearch } from '../../core/models/trip-search.model';
 import { parseTripSearch } from './trip-search';
 
@@ -39,14 +40,30 @@ export class TripSearchStateService {
 
   readonly search = this.current.asReadonly();
 
+  // Los viajes encontrados para la búsqueda actual (los pone Buscar al
+  // recibirlos): el detalle de un viaje sale de aquí. Solo en memoria
+  private readonly found = signal<readonly TripResult[]>([]);
+  readonly results = this.found.asReadonly();
+
   set(search: TripSearch): void {
+    this.found.set([]);
     this.current.set(search);
     writeStoredSearch(search);
   }
 
   // Nueva búsqueda: se vuelve al formulario vacío
   clear(): void {
+    this.found.set([]);
     this.current.set(null);
     writeStoredSearch(null);
+  }
+
+  setResults(results: readonly TripResult[]): void {
+    this.found.set(results);
+  }
+
+  // Un viaje de los resultados, o null si no está (p. ej. tras recargar)
+  findResult(id: string): TripResult | null {
+    return this.found().find((result) => result.id === id) ?? null;
   }
 }

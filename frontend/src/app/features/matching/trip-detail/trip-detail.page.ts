@@ -1,7 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  IonBadge,
   IonButton,
   IonCard,
   IonCardContent,
@@ -14,20 +13,20 @@ import {
   RouteStop,
   RouteTimeline,
 } from '../../../shared/components/ui/route-timeline/route-timeline';
-import { getExampleTripDetail } from '../example-trips';
+import { toTripDetail } from '../trip-results';
 import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
 import { formatShortDate } from '../trip-search-summary/trip-search-summary';
 import { TripSearchStateService } from '../trip-search-state.service';
 
 // Detalle de un viaje de los resultados de Buscar: el recorrido con sus horas,
-// quien conduce y su coche, y cómo funciona la solicitud. De momento es el
-// viaje de ejemplo, con los datos de la búsqueda; sin búsqueda (o con otro
-// id), «No encontramos este viaje». Pedir plaza llega en el PR de solicitudes
+// quien conduce (y su coche, cuando se conozca) y cómo funciona la solicitud.
+// Sale de los resultados de la búsqueda (TripSearchStateService); si el viaje
+// no está entre ellos (p. ej. tras recargar la página), «No encontramos este
+// viaje». Pedir plaza llega en el PR de solicitudes
 @Component({
   selector: 'app-trip-detail',
   imports: [
     RouterLink,
-    IonBadge,
     IonButton,
     IonCard,
     IonCardContent,
@@ -46,7 +45,11 @@ export class TripDetailPage {
   // :id de la ruta (withComponentInputBinding)
   readonly id = input.required<string>();
 
-  readonly trip = computed(() => getExampleTripDetail(this.id(), this.searchState.search()));
+  readonly trip = computed(() => {
+    const search = this.searchState.search();
+    const result = this.searchState.results().find(({ id }) => id === this.id());
+    return search && result ? toTripDetail(result, search) : null;
+  });
 
   // «27 oct, ida al campus»
   readonly tripDate = computed(() => {

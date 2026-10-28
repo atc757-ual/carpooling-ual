@@ -7,8 +7,9 @@ import {
 
 export const PLACE_MAX_LENGTH = 120;
 const ID_MAX_LENGTH = 200;
-// Margen sobre la hora, en minutos
-export const MARGINS = [10, 20, 30] as const;
+// Margen sobre la hora, en minutos: las mismas opciones que el desvío de
+// Publicar
+export const MARGINS = [5, 10, 15, 20] as const;
 // Plazas que se buscan (un coche lleva como mucho 4 pasajeros)
 export const MIN_SEATS = 1;
 export const MAX_SEATS = 4;
