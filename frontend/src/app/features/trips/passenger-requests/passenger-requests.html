@@ -1,0 +1,68 @@
+@if (items.isLoading() && !items.hasValue()) {
+  <output class="passenger-requests__status">
+    <ion-spinner name="crescent" aria-hidden="true" />
+    <span class="text-color-muted">Cargando tus solicitudes…</span>
+  </output>
+} @else if (items.error()) {
+  <ion-card>
+    <ion-card-content class="passenger-requests__state" role="alert">
+      <ion-icon [icon]="errorIcon" aria-hidden="true" />
+      <div class="text-subtitle">No hemos podido cargar tus solicitudes</div>
+      <form (submit)="$event.preventDefault(); handleRetry()">
+        <ion-button type="submit" fill="outline">Reintentar</ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+} @else if (upcoming().length === 0 && past().length === 0) {
+  <ion-card>
+    <ion-card-content class="passenger-requests__state">
+      <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+      <div class="text-subtitle">Aún no has pedido plaza en ningún viaje</div>
+      <div class="text-body-s text-color-muted">
+        Busca un viaje que encaje con tu ruta y pide plaza desde su detalle.
+      </div>
+      <ion-button routerLink="/tabs/search">Buscar viaje</ion-button>
+    </ion-card-content>
+  </ion-card>
+} @else {
+  @for (group of [upcoming(), past()]; track $index) {
+    @if (group.length > 0) {
+      <section class="passenger-requests__group">
+        <h2 class="text-eyebrow text-color-muted">
+          {{ $index === 0 ? 'Próximos' : 'Anteriores' }}
+        </h2>
+        @for (item of group; track item.request.id) {
+          <ion-card class="passenger-request">
+            <ion-card-content>
+              <div class="passenger-request__head">
+                <div class="text-subtitle">{{ when(item.trip) }}</div>
+                <span
+                  class="status"
+                  [class.status--pending]="item.request.status === 'pending'"
+                  [class.status--accepted]="item.request.status === 'accepted'"
+                >
+                  {{ statusLabel(item.request.status) }}
+                </span>
+              </div>
+              <div class="passenger-request__route">{{ route(item.trip) }}</div>
+              <div class="text-caption text-color-muted">{{ details(item) }}</div>
+              @if (canCancel(item)) {
+                <form (submit)="$event.preventDefault(); handleCancel(item)">
+                  <ion-button
+                    type="submit"
+                    size="small"
+                    fill="outline"
+                    color="danger"
+                    [disabled]="cancelling() !== null"
+                  >
+                    Cancelar solicitud
+                  </ion-button>
+                </form>
+              }
+            </ion-card-content>
+          </ion-card>
+        }
+      </section>
+    }
+  }
+}
