@@ -15,6 +15,7 @@
   [attr.aria-labelledby]="labelledBy()"
   [class.code-input--shake]="isShaking()"
   [class.code-input--wrong]="isWrong()"
-  (ionFocus)="isWrong.set(false)"
+  (focusin)="isWrong.set(false)"
+  (ionInput)="isWrong.set(false)"
   (ionComplete)="completed.emit()"
 />

@@ -102,7 +102,9 @@ describe('CodeInput', () => {
     expect(input.isShaking()).toBe(false);
     // Sigue en rojo hasta que se pincha para escribir
     expect(input.isWrong()).toBe(true);
-    fixture.nativeElement.querySelector('ion-input-otp').dispatchEvent(new CustomEvent('ionFocus'));
+    fixture.nativeElement
+      .querySelector('ion-input-otp')
+      .dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
     expect(input.isWrong()).toBe(false);
     vi.useRealTimers();
   });
