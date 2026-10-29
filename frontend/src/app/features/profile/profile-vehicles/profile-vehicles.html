@@ -51,12 +51,14 @@
           </li>
         }
       </ul>
-      <form (submit)="$event.preventDefault(); handleOpen(null)">
-        <ion-button type="submit" size="small" fill="outline">
-          <ion-icon slot="start" [icon]="addIcon" aria-hidden="true" />
-          Registrar vehículo
-        </ion-button>
-      </form>
+      @if (canAdd()) {
+        <form (submit)="$event.preventDefault(); handleOpen(null)">
+          <ion-button type="submit" size="small" fill="outline">
+            <ion-icon slot="start" [icon]="addIcon" aria-hidden="true" />
+            Registrar vehículo
+          </ion-button>
+        </form>
+      }
     }
   </ion-card-content>
 </ion-card>

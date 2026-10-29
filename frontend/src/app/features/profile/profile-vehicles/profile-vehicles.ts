@@ -17,6 +17,7 @@ import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { VehicleModal } from '../../trips/vehicle-modal/vehicle-modal';
+import { MAX_VEHICLES } from '../../trips/vehicle-picker/vehicle-picker';
 import { CONFIRM_ICONS, ConfirmService } from '../../../core/services/ui/confirm.service';
 
 // «Mis vehículos» del Perfil: cada uno con su matrícula, marca y modelo y
@@ -46,6 +47,8 @@ export class ProfileVehicles {
       ? this.vehicles.value().filter(({ status }) => status !== 'inactive')
       : [],
   );
+  // Hasta 3 a la vez (VEHICLE_LIMIT_REACHED)
+  readonly canAdd = computed(() => this.activeVehicles().length < MAX_VEHICLES);
 
   protected readonly carIcon = carOutline;
   protected readonly addIcon = addOutline;
@@ -90,6 +93,8 @@ export class ProfileVehicles {
       if (!this.auth.hasProfile('driver')) {
         await this.auth.refreshAccessToken().catch(() => undefined);
       }
+      this.vehicles.reload();
+    } else if (role === 'removed') {
       this.vehicles.reload();
     }
   }

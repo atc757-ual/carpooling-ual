@@ -1,0 +1,77 @@
+<div class="vehicle-picker">
+  <!-- Una tarjeta por vehículo: pulsarla lo elige (un radio nativo, oculto);
+       el lápiz, aparte -->
+  <fieldset class="vehicle-picker__group">
+    <legend class="text-label text-label--strong">Vehículo</legend>
+    <div class="vehicle-picker__grid">
+      @for (vehicle of vehicles(); track vehicle.id) {
+        @let isSelected = vehicle.id === selectedId();
+        <div class="vehicle-card" [class.vehicle-card--selected]="isSelected">
+          <label class="vehicle-card__choice">
+            <input
+              class="visually-hidden"
+              type="radio"
+              name="publish-vehicle"
+              [checked]="isSelected"
+              (change)="handleSelect(vehicle)"
+            />
+            <ion-icon class="vehicle-card__car" [icon]="icons.car" aria-hidden="true" />
+            <span class="vehicle-card__body">
+              <span class="vehicle-card__name">{{ vehicleName(vehicle) }}</span>
+              <span class="text-caption text-color-muted">
+                {{ vehicle.plate }} · hasta {{ plural(vehicle.capacity, 'pasajero', 'pasajeros') }}
+              </span>
+            </span>
+            <ion-icon
+              class="vehicle-card__check"
+              [icon]="isSelected ? icons.checked : icons.unchecked"
+              aria-hidden="true"
+            />
+          </label>
+          <button
+            class="vehicle-card__edit"
+            type="button"
+            [attr.aria-label]="'Editar ' + vehicle.plate"
+            (click)="handleEdit(vehicle)"
+          >
+            <ion-icon [icon]="icons.edit" aria-hidden="true" />
+          </button>
+        </div>
+      }
+      @if (canAdd()) {
+        <button class="vehicle-card vehicle-card--add" type="button" (click)="handleAdd()">
+          <ion-icon [icon]="icons.add" aria-hidden="true" />
+          {{ vehicles().length === 0 ? 'Registrar vehículo' : 'Añadir vehículo' }}
+        </button>
+      }
+    </div>
+  </fieldset>
+
+  @if (selectedVehicle(); as vehicle) {
+    <!-- Cuántos caben y cuántas plazas se ofrecen en este viaje -->
+    <div class="notice notice--info vehicle-picker__notice" aria-live="polite">
+      <ion-icon [icon]="icons.info" aria-hidden="true" />
+      <div>
+        <b>Tu vehículo</b>
+        <p>
+          {{ vehicle.capacity + 1 }} asientos = 1 conductor + hasta
+          {{ plural(vehicle.capacity, 'pasajero', 'pasajeros') }}
+        </p>
+        <p>
+          En este viaje ofreces {{ plural(seats(), 'plaza', 'plazas') }}. No se permite ofrecer más
+          de {{ plural(vehicle.capacity, 'plaza', 'plazas') }} con este vehículo.
+        </p>
+      </div>
+    </div>
+
+    <!-- Las plazas y, a la derecha, el botón para seguir -->
+    <div class="vehicle-picker__row">
+      <app-seat-stepper
+        [formControl]="controls().seats"
+        label="Plazas ofrecidas"
+        [max]="maxSeats()"
+      />
+      <ng-content />
+    </div>
+  }
+</div>

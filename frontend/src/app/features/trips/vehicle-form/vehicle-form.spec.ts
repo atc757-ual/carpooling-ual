@@ -25,7 +25,7 @@ describe('VehicleForm', () => {
   beforeEach(async () => {
     driver = {
       registerVehicle: vi.fn().mockResolvedValue(VEHICLE),
-      updateVehicle: vi.fn().mockResolvedValue({ ...VEHICLE, model: 'Seat León' }),
+      updateVehicle: vi.fn().mockResolvedValue({ ...VEHICLE, capacity: 4 }),
     };
     showError = vi.fn().mockResolvedValue(undefined);
     TestBed.configureTestingModule({
@@ -47,7 +47,7 @@ describe('VehicleForm', () => {
   it('can be saved only once the fields are complete', () => {
     expect(form.isComplete()).toBe(false);
 
-    form.form.setValue({ model: 'Seat Ibiza', plate: '1234BCD', totalSeats: 4 });
+    form.form.setValue({ brand: 'Seat', model: 'Ibiza', plate: '1234BCD', totalSeats: 4 });
 
     expect(form.isComplete()).toBe(true);
   });
@@ -60,8 +60,8 @@ describe('VehicleForm', () => {
     expect(form.seatsNotice()).toBe('2 asientos = 1 conductor + hasta 1 pasajero');
   });
 
-  it('registers the vehicle with the passenger seats (total minus the driver)', async () => {
-    form.form.setValue({ model: ' Seat Ibiza ', plate: '1234 bcd', totalSeats: 4 });
+  it('registers the vehicle with brand and model together and the passenger seats', async () => {
+    form.form.setValue({ brand: ' Seat ', model: ' Ibiza ', plate: '1234 bcd', totalSeats: 4 });
 
     await form.handleSubmit();
 
@@ -73,42 +73,45 @@ describe('VehicleForm', () => {
     expect(saved).toEqual([VEHICLE]);
   });
 
-  it('does not save without the model or with a plate that is not Spanish', async () => {
-    form.form.setValue({ model: '', plate: 'ABC', totalSeats: 4 });
+  it('does not save without brand and model or with a plate that is not Spanish', async () => {
+    form.form.setValue({ brand: '', model: '', plate: 'ABC', totalSeats: 4 });
 
     await form.handleSubmit();
 
     expect(driver['registerVehicle']).not.toHaveBeenCalled();
-    expect(form.form.controls.model.touched).toBe(true);
+    expect(form.form.controls.brand.touched).toBe(true);
   });
 
-  it('edits a vehicle without changing its plate', async () => {
+  it('edits only the seats: brand, model and plate cannot change', async () => {
     ref.setInput('vehicle', VEHICLE);
     TestBed.tick();
 
     expect(form.form.getRawValue()).toEqual({
-      model: 'Seat Ibiza',
+      brand: 'Seat',
+      model: 'Ibiza',
       plate: '1234BCD',
       totalSeats: 4,
     });
+    expect(form.form.controls.brand.disabled).toBe(true);
+    expect(form.form.controls.model.disabled).toBe(true);
     expect(form.form.controls.plate.disabled).toBe(true);
 
-    form.form.controls.model.setValue('Seat León');
+    form.form.controls.totalSeats.setValue(5);
     await form.handleSubmit();
 
-    expect(driver['updateVehicle']).toHaveBeenCalledWith('v1', { model: 'Seat León', capacity: 3 });
-    expect(saved[0].model).toBe('Seat León');
+    expect(driver['updateVehicle']).toHaveBeenCalledWith('v1', { capacity: 4 });
+    expect(saved).toHaveLength(1);
   });
 
   it('shows the API error and keeps what was written', async () => {
     driver['registerVehicle'].mockRejectedValue(new Error('down'));
-    form.form.setValue({ model: 'Seat Ibiza', plate: '1234BCD', totalSeats: 4 });
+    form.form.setValue({ brand: 'Seat', model: 'Ibiza', plate: '1234BCD', totalSeats: 4 });
 
     await form.handleSubmit();
 
     expect(showError).toHaveBeenCalled();
     expect(saved).toEqual([]);
     expect(form.isSaving()).toBe(false);
-    expect(form.form.controls.model.value).toBe('Seat Ibiza');
+    expect(form.form.controls.brand.value).toBe('Seat');
   });
 });

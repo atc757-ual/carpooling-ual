@@ -1,45 +1,62 @@
 <form class="vehicle-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
-  <ion-input
-    formControlName="model"
-    label="Marca y modelo"
-    labelPlacement="stacked"
-    fill="outline"
-    placeholder="Seat Ibiza"
-    autocapitalize="words"
-    errorText="Escribe la marca y el modelo, como Seat Ibiza."
-  />
-  <ion-input
-    formControlName="plate"
-    label="Matrícula"
-    labelPlacement="stacked"
-    fill="outline"
-    placeholder="1234 BCD"
-    autocapitalize="characters"
-    [helperText]="isEditing() ? 'La matrícula no se puede cambiar.' : ''"
-    errorText="Escribe una matrícula española, como 1234 BCD."
-  />
-  <app-seat-stepper
-    formControlName="totalSeats"
-    label="Capacidad total (incluye conductor)"
-    [min]="minTotalSeats"
-    [max]="maxTotalSeats"
-  />
+  <!-- Cada campo con su etiqueta encima (como la de los asientos), para que
+       los de una fila queden a la misma altura. Marca y modelo, en una fila -->
+  <div class="vehicle-form__row">
+    <div class="vehicle-form__field">
+      <span class="text-label text-label--strong" aria-hidden="true">Marca</span>
+      <ion-input
+        formControlName="brand"
+        aria-label="Marca"
+        fill="outline"
+        placeholder="Seat"
+        autocapitalize="words"
+        errorText="Escribe la marca, como Seat."
+      />
+    </div>
+    <div class="vehicle-form__field">
+      <span class="text-label text-label--strong" aria-hidden="true">Modelo</span>
+      <ion-input
+        formControlName="model"
+        aria-label="Modelo"
+        fill="outline"
+        placeholder="Ibiza"
+        autocapitalize="words"
+        errorText="Escribe el modelo, como Ibiza."
+      />
+    </div>
+  </div>
+  <!-- Matrícula (con su ayuda justo debajo) y asientos, en una fila -->
+  <div class="vehicle-form__row">
+    <div class="vehicle-form__field">
+      <span class="text-label text-label--strong" aria-hidden="true">Matrícula</span>
+      <ion-input
+        formControlName="plate"
+        aria-label="Matrícula"
+        fill="outline"
+        placeholder="1234 BCD"
+        autocapitalize="characters"
+        helperText="Matrícula española, como 1234 BCD."
+        errorText="Escribe una matrícula española, como 1234 BCD."
+      />
+    </div>
+    <app-seat-stepper
+      formControlName="totalSeats"
+      label="Asientos (con conductor)"
+      [min]="minTotalSeats"
+      [max]="maxTotalSeats"
+    />
+  </div>
   <div class="notice notice--info">
     <p>
       <b>{{ seatsNotice() }}</b
       >. En cada viaje eliges cuántas ofreces, como mucho esas.
     </p>
   </div>
-  <!-- Se activa al completar los campos; mientras, se dice qué falta -->
+  <!-- Se activa al completar los campos (cada uno dice lo que le falta) -->
   <ion-button type="submit" expand="block" [disabled]="isSaving() || !isComplete()">
     @if (isSaving()) {
       <ion-spinner slot="start" name="crescent" aria-hidden="true" />
     }
     {{ submitLabel() }}
   </ion-button>
-  @if (!isComplete()) {
-    <p class="text-caption text-color-muted" aria-live="polite">
-      Escribe la marca y el modelo y una matrícula válida para continuar.
-    </p>
-  }
 </form>

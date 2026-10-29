@@ -260,6 +260,26 @@
   .stepper button:disabled { border-color: var(--color-border); color: var(--color-text-disabled); }
   .stepper output { min-width: 1.5rem; text-align: center; font-family: var(--font-family-heading); font-size: var(--font-size-title); font-weight: 600; }
 
+  /* Pasos de un formulario largo (StepIndicator) */
+  .steps { display: flex; margin: 0; padding: 0; list-style: none; }
+  .steps li { display: flex; flex: 1; align-items: center; gap: var(--space-s); color: var(--color-text-muted); font-size: var(--font-size-label); }
+  .steps li:not(:last-child)::after { content: ''; flex: 1; min-width: var(--space-s); height: 2px; border-radius: var(--radius-full); background: var(--color-border); }
+  .steps .steps__n { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border: 2px solid var(--color-border-strong); border-radius: var(--radius-full); font-size: var(--font-size-meta); font-weight: 600; }
+  .steps li.done { color: var(--color-link); }
+  .steps li.done::after { background: var(--color-link); }
+  .steps li.done .steps__n { border-color: var(--color-primary-subtle); background: var(--color-primary-subtle); }
+  .steps li.on { color: var(--color-text); font-weight: 600; }
+  .steps li.on .steps__n { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); }
+
+  /* Tarjetas de elección (VehiclePicker): radio nativo oculto en la tarjeta */
+  .choice-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--space-s); }
+  .choice-card { display: flex; align-items: center; gap: var(--space-s); min-height: 4rem; padding: var(--space-s) var(--space-base); border: 1px solid var(--color-border); border-radius: var(--radius-base); background: var(--color-surface); }
+  .choice-card.on { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); background: var(--color-primary-subtle); }
+  .choice-card b { display: block; }
+  .choice-card .check { margin-inline-start: auto; width: 1.25rem; height: 1.25rem; border: 2px solid var(--color-border-strong); border-radius: var(--radius-full); }
+  .choice-card.on .check { border-color: var(--color-primary); background: var(--color-primary); }
+  .choice-card--add { justify-content: center; border: 2px dashed var(--color-border-strong); color: var(--color-link); font-weight: 600; }
+
   .tabbar { display: grid; grid-template-columns: repeat(5, 1fr); height: var(--tab-bar-height); border-top: var(--border-width) solid var(--color-border-subtle); background: var(--color-surface); max-width: 27rem; }
   .tabbar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-xs); color: var(--color-text-muted); text-decoration: none; font-size: var(--font-size-meta); line-height: var(--line-height-meta); position: relative; }
   .tabbar a svg { width: var(--tab-icon-size); height: var(--tab-icon-size); }
@@ -563,6 +583,30 @@
         <p class="note">Mínimo 1; máximo, la capacidad del vehículo menos el conductor.</p>
       </div>
     </div>
+
+    <h3>Formularios por pasos</h3>
+    <p class="note">Para formularios largos (Publicar: Trayecto · Vehículo · Revisión · Publicado). El paso actual, en azul relleno y negrita; los hechos, azul claro con ✓ y se puede volver a ellos pulsándolos; los siguientes, en gris. El paso va en la URL (<code>?step=2</code>) para que «Atrás» del navegador vuelva al anterior. Abajo, el botón de seguir a la derecha y, a su izquierda, «Volver a …» con el nombre del paso anterior (contorno azul, sin icono); en el móvil, los dos a todo el ancho y el de volver debajo. El título de la sección va dentro de la tarjeta, encima de los pasos. El último («Publicado») es la confirmación: todos los pasos con ✓, sin poder volver, y los botones «Publicar otro viaje» (contorno) y «Ver mis viajes» (principal).</p>
+    <div class="grid">
+      <div class="stack">
+        <h4>Indicador de pasos (StepIndicator)</h4>
+        <ol class="steps" aria-label="Ejemplo de pasos">
+          <li class="done"><span class="steps__n">✓</span>Trayecto</li>
+          <li class="on" aria-current="step"><span class="steps__n">2</span>Vehículo</li>
+          <li><span class="steps__n">3</span>Revisión</li>
+          <li><span class="steps__n">4</span>Publicado</li>
+        </ol>
+        <div class="row" style="justify-content:flex-end"><button class="btn btn--outline" type="button">Volver a Trayecto</button><button class="btn btn--primary" type="button">Revisar detalle</button></div>
+      </div>
+      <div class="stack">
+        <h4>Tarjetas de elección (VehiclePicker)</h4>
+        <div class="choice-cards">
+          <div class="choice-card on"><span><b>Seat Ibiza</b><span class="note">1234 BCD · hasta 4 pasajeros</span></span><span class="check" aria-hidden="true"></span></div>
+          <div class="choice-card choice-card--add">+ Añadir vehículo</div>
+        </div>
+        <p class="note">Toda la tarjeta elige (radio nativo oculto dentro de un <code>label</code>, no <code>role="radio"</code>); el lápiz, aparte, edita. Elegida: borde azul de 2px y fondo azul claro. «Añadir», con borde discontinuo; desaparece al llegar al máximo (3 vehículos).</p>
+      </div>
+    </div>
+    <p class="note"><b>Preguntas frecuentes (FaqCard):</b> acordeón de Ionic en una tarjeta, una abierta a la vez; si la respuesta tiene varios casos (p. ej. cancelar según el momento), van en una lista con viñetas. Solo se afirma lo que la plataforma ya hace.</p>
 
     <h3>Barra de pestañas</h3>
     <p class="note">Cinco destinos fijos, en este orden: Buscar · Publicar · Mis viajes · Mensajes · Perfil (abajo en el móvil; desde 48rem (768px), menú superior). Sin Inicio ni selector de modo: la cuenta nace como pasajera y es conductora al registrar su primer coche (Publicar, sin coche, empieza por registrarlo). Al entrar se abre Buscar, o Publicar si fue lo último que se usó. La cabecera del móvil lleva el logotipo (en los detalles, la flecha de volver y su título) y la campana de Avisos. En escritorio, el menú va en dos niveles: arriba el logotipo (36px) a la izquierda y la campana y salir a la derecha; debajo, los destinos centrados, el activo en azul, en negrita y con una barra de 4px, y 16px de aire hasta el borde. Ancho útil de 1312px, centrado. En los detalles de escritorio, una franja fina con las migas (4px arriba, 16px abajo). El título y el subtítulo de cada sección van al principio de su contenido (app-section-title), salvo Buscar, la pantalla de inicio: «¡Hola, nombre!» (22px, negrita), el aviso de solicitudes en espera, la tarjeta «¿A dónde vamos hoy?» con el formulario siempre desplegado y el ahorro aproximado (aviso verde), y en la columna de 4 «¿Tienes coche?» y las preguntas frecuentes (acordeón). Los resultados van en «Tu búsqueda» (/tabs/search/results): resumen con la línea de ruta y el lápiz (fijo arriba en el móvil; tarjeta «Tu trayecto» en la columna de 4 en escritorio), puntos de carga (ion-spinner dots) y la búsqueda editable en una ventana. Las tarjetas llevan borde azul muy claro y una sombra azulada suave; lo pulsable se tiñe de azul al pasar el ratón; cerrar sesión, en el Perfil (y en el menú superior en escritorio). Mis viajes, con perfil de conductor, lleva el segmento «Como pasajero / Como conductor».</p>

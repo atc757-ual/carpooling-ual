@@ -18,7 +18,7 @@ export const MIN_TOTAL_SEATS = 2;
 export const MAX_TOTAL_SEATS = 9;
 const DEFAULT_TOTAL_SEATS = 5;
 
-// Datos del vehículo (captura 13 del diseño): marca y modelo, matrícula y
+// Datos del vehículo (captura 13 del diseño): marca, modelo, matrícula y
 // capacidad total con el conductor incluido, con el aviso de cuántos
 // pasajeros caben. Registra uno nuevo o, si recibe un vehículo, lo edita (la
 // matrícula no se cambia). Avisa con «saved» al guardar
@@ -38,10 +38,11 @@ export class VehicleForm {
   readonly saved = output<Vehicle>();
 
   readonly isSaving = signal(false);
-  readonly isEditing = computed(() => this.vehicle() !== null);
 
   readonly form = inject(NonNullableFormBuilder).group({
-    model: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(60)]],
+    // La API guarda las dos juntas («Seat Ibiza», hasta 60 caracteres)
+    brand: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(29)]],
+    model: ['', [Validators.required, Validators.maxLength(30)]],
     plate: ['', [Validators.required, Validators.pattern(PLATE_PATTERN)]],
     totalSeats: [DEFAULT_TOTAL_SEATS],
   });
@@ -64,17 +65,23 @@ export class VehicleForm {
   protected readonly maxTotalSeats = MAX_TOTAL_SEATS;
 
   constructor() {
-    // Al editar: sus datos, y la matrícula sin poder cambiarla
+    // Al editar: sus datos; la marca y el modelo y la matrícula, sin poder
+    // cambiarlos (si están mal, se elimina y se registra de nuevo)
     effect(() => {
       const vehicle = this.vehicle();
       if (!vehicle) {
         return;
       }
+      // «Seat Ibiza»: la marca hasta el primer espacio y el resto, el modelo
+      const [brand = '', ...model] = (vehicle.model ?? '').split(' ');
       this.form.setValue({
-        model: vehicle.model ?? '',
+        brand,
+        model: model.join(' '),
         plate: vehicle.plate,
         totalSeats: vehicle.capacity + 1,
       });
+      this.form.controls.brand.disable();
+      this.form.controls.model.disable();
       this.form.controls.plate.disable();
     });
   }
@@ -84,15 +91,17 @@ export class VehicleForm {
       this.form.markAllAsTouched();
       return;
     }
-    const { model, plate, totalSeats } = this.form.getRawValue();
-    const changes = { model: model.trim(), capacity: totalSeats - 1 };
+    const { brand, model, plate, totalSeats } = this.form.getRawValue();
+    const capacity = totalSeats - 1;
     const vehicle = this.vehicle();
     this.isSaving.set(true);
     try {
+      // Al editar solo cambian los asientos
       const saved = vehicle
-        ? await this.driver.updateVehicle(vehicle.id, changes)
+        ? await this.driver.updateVehicle(vehicle.id, { capacity })
         : await this.driver.registerVehicle({
-            ...changes,
+            model: `${brand.trim()} ${model.trim()}`,
+            capacity,
             plate: plate.replaceAll(/[ -]/g, '').toUpperCase(),
           });
       this.saved.emit(saved);

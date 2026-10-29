@@ -7,3 +7,23 @@
   padding-bottom: max(var(--space-l), calc(var(--space-base) + env(safe-area-inset-bottom, 0px)));
   background: var(--color-surface);
 }
+
+// Separado del formulario por una línea: el texto y «Eliminar vehículo»
+.vehicle-modal__remove {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  margin-top: var(--space-base);
+  padding-top: var(--space-base);
+  border-top: var(--border-width-s) solid var(--color-border);
+
+  p {
+    margin: 0;
+  }
+
+  ion-button {
+    margin: 0;
+    --padding-start: 0;
+  }
+}

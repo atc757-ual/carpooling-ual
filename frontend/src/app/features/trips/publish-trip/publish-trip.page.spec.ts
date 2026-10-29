@@ -1,15 +1,19 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { ModalController, provideIonicAngular } from '@ionic/angular';
+import { provideRouter, Router } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
+import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Vehicle } from '../../../core/models/driver.model';
 import { CampusParking } from '../../../core/models/place.model';
-import { DriverService } from '../../../core/services/drivers/driver.service';
-import { PlacesService } from '../../../core/services/places/places.service';
-import { ToastService } from '../../../core/services/ui/toast.service';
-import { PublishTripPage, toDepartureAt } from './publish-trip.page';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { DriverService } from '../../../core/services/drivers/driver.service';
+import { LocationService } from '../../../core/services/location/location.service';
+import { PlacesService } from '../../../core/services/places/places.service';
+import { CelebrationService } from '../../../core/services/ui/celebration.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
+import { stubIntersectionObserver } from '../../matching/trip-search.testing';
+import { PublishTripPage } from './publish-trip.page';
 
 const P1: CampusParking = {
   id: 'p1',
@@ -27,28 +31,34 @@ const PLACE = {
   id: 'roq',
   name: 'Roquetas de Mar',
   locality: 'Roquetas',
-  coordinates: [-2.6, 36.76],
+  coordinates: [-2.6, 36.76] as [number, number],
 };
 
 describe('PublishTripPage', () => {
+  let harness: RouterTestingHarness;
   let page: PublishTripPage;
+  let router: Router;
   let driver: Record<string, ReturnType<typeof vi.fn>>;
   let showError: ReturnType<typeof vi.fn>;
+  let celebrate: ReturnType<typeof vi.fn>;
 
-  async function createPage(vehicles: Vehicle[], hasLicenseDeclared = true): Promise<void> {
+  async function openPage(
+    url = '/publish',
+    { vehicles = [VEHICLE], hasLicenseDeclared = true } = {},
+  ): Promise<void> {
+    stubIntersectionObserver();
     driver = {
       getStatus: vi.fn().mockResolvedValue({ hasLicenseDeclared }),
       listVehicles: vi.fn().mockResolvedValue(vehicles),
-      registerVehicle: vi.fn().mockResolvedValue(VEHICLE),
       acceptDeclaration: vi.fn().mockResolvedValue({ hasLicenseDeclared: true }),
       publishTrip: vi.fn().mockResolvedValue({ id: 't1', offeredSeats: 2, maxDetourMin: 10 }),
     };
     showError = vi.fn().mockResolvedValue(undefined);
+    celebrate = vi.fn().mockResolvedValue(undefined);
     TestBed.configureTestingModule({
-      imports: [PublishTripPage],
       providers: [
         provideIonicAngular(),
-        provideRouter([]),
+        provideRouter([{ path: 'publish', component: PublishTripPage }]),
         { provide: DriverService, useValue: driver },
         {
           provide: AuthService,
@@ -58,151 +68,149 @@ describe('PublishTripPage', () => {
           provide: PlacesService,
           useValue: { parkings: signal([P1]), loadParkings: vi.fn().mockResolvedValue(undefined) },
         },
+        {
+          provide: LocationService,
+          useValue: { checkPermission: () => Promise.resolve('prompt') },
+        },
+        { provide: CelebrationService, useValue: { celebrate } },
         { provide: ToastService, useValue: { showError, showSuccess: vi.fn() } },
       ],
     });
-    const fixture = TestBed.createComponent(PublishTripPage);
-    page = fixture.componentInstance;
-    await fixture.whenStable();
+    harness = await RouterTestingHarness.create();
+    page = await harness.navigateByUrl(url, PublishTripPage);
+    router = TestBed.inject(Router);
+    await harness.fixture.whenStable();
   }
 
-  function fillTrip(): void {
-    page.tripForm.patchValue({ place: PLACE as never, date: '2099-01-15', time: '07:40' });
-  }
-
-  it('asks for a vehicle first and continues with it', async () => {
-    await createPage([]);
-    expect(page.loadState()).toBe('ready');
-
-    page.handleVehicleSaved(VEHICLE);
-
-    expect(page.vehicles()).toEqual([VEHICLE]);
-    expect(page.tripForm.controls.vehicleId.value).toBe('v1');
-  });
-
-  it('edits the chosen vehicle in a window and keeps the change', async () => {
-    await createPage([VEHICLE]);
-    const edited: Vehicle = { ...VEHICLE, model: 'Seat León', capacity: 2 };
-    const create = vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
-      present: vi.fn().mockResolvedValue(undefined),
-      onWillDismiss: () => Promise.resolve({ data: edited, role: 'saved' }),
-    } as unknown as HTMLIonModalElement);
-
-    await page.handleEditVehicle(VEHICLE);
-
-    expect(create).toHaveBeenCalledWith(
-      expect.objectContaining({ componentProps: { vehicle: VEHICLE }, cssClass: 'info-dialog' }),
-    );
-    expect(page.selectedVehicle()).toEqual(edited);
-    expect(page.maxSeats()).toBe(2);
-  });
-
-  it('summarises the trip while it is filled in', async () => {
-    await createPage([VEHICLE]);
-    expect(page.stops()).toBeNull();
-
-    fillTrip();
-
-    expect(page.stops()).toEqual([
-      { name: 'Roquetas de Mar', detail: 'Roquetas', time: '07:40' },
-      { name: 'Campus UAL', detail: 'Parking P1' },
-    ]);
-    expect(page.dateLabel()).toContain('15');
-    page.handleSwap();
-    expect(page.stops()?.[0]).toEqual({ name: 'Campus UAL', detail: 'Parking P1', time: '07:40' });
-  });
-
-  it('offers up to the capacity of the chosen vehicle', async () => {
-    const small: Vehicle = { ...VEHICLE, id: 'v2', plate: '5678CDF', capacity: 1 };
-    await createPage([VEHICLE, small]);
-
-    expect(page.maxSeats()).toBe(3);
-    expect(page.seatsHint()).toBe('Tu vehículo tiene 3 plazas para pasajeros.');
-    page.tripForm.controls.seats.setValue(3);
-
-    page.tripForm.controls.vehicleId.setValue('v2');
-    TestBed.tick();
-
-    expect(page.tripForm.controls.seats.value).toBe(1);
-    expect(page.seatsHint()).toBe('Tu vehículo tiene 1 plaza para pasajeros.');
-  });
-
-  it('publishes to the campus from the chosen place', async () => {
-    await createPage([VEHICLE]);
-    fillTrip();
-
-    await page.handlePublish();
-
-    expect(driver['acceptDeclaration']).not.toHaveBeenCalled();
-    expect(driver['publishTrip']).toHaveBeenCalledWith({
-      vehicleId: 'v1',
-      origin: { type: 'Point', coordinates: PLACE.coordinates },
-      destination: P1.location,
-      departureAt: toDepartureAt('2099-01-15', '07:40'),
-      offeredSeats: 1,
-      maxDetourMin: 10,
-      originName: 'Roquetas de Mar',
-      destinationName: 'Campus UAL · Parking P1',
+  // Trayecto completo (y, si se pide, el vehículo) sin pasar por la interfaz
+  function fillTrip({ withVehicle = false } = {}): void {
+    page.tripForm.patchValue({
+      place: PLACE,
+      parking: 'p1',
+      date: '2099-01-15',
+      time: '07:40',
+      seats: 2,
+      ...(withVehicle ? { vehicleId: 'v1' } : {}),
     });
-    expect(page.published()?.id).toBe('t1');
-  });
+  }
 
-  it('ticks the declaration when it is accepted in the window', async () => {
-    await createPage([VEHICLE], false);
-    const present = vi.fn().mockResolvedValue(undefined);
-    const create = vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
-      present,
-      onWillDismiss: () => Promise.resolve({ role: 'accept' }),
-    } as unknown as HTMLIonModalElement);
+  async function submit(): Promise<void> {
+    await page.handleSubmit();
+    await harness.fixture.whenStable();
+  }
 
-    await page.handleReadDeclaration();
+  it('starts on Trayecto, with «Siguiente» waiting for the address and the parking', async () => {
+    await openPage();
 
-    expect(create).toHaveBeenCalledWith(expect.objectContaining({ cssClass: 'info-dialog' }));
-    expect(page.tripForm.controls.declaration.value).toBe(true);
-  });
+    expect(page.loadState()).toBe('ready');
+    expect(page.step()).toBe(1);
+    expect(page.isRouteComplete()).toBe(false);
 
-  it('needs the declaration the first time and accepts it before publishing', async () => {
-    await createPage([VEHICLE], false);
     fillTrip();
 
-    await page.handlePublish();
-    expect(driver['publishTrip']).not.toHaveBeenCalled();
+    expect(page.isRouteComplete()).toBe(true);
+  });
+
+  it('goes back to the first step on reload and never jumps ahead by itself', async () => {
+    await openPage('/publish?step=3');
+
+    expect(router.url).toBe('/publish');
+    expect(page.step()).toBe(1);
+
+    // El origen y el vehículo se rellenan solos: sigue en el paso 1
+    fillTrip({ withVehicle: true });
+    expect(page.step()).toBe(1);
+  });
+
+  it('moves forward with the buttons and back to the previous step by its name', async () => {
+    await openPage();
+    fillTrip();
+
+    await submit();
+
+    expect(router.url).toBe('/publish?step=2');
+    expect(page.step()).toBe(2);
+    expect(page.previousStep()).toEqual({ number: 1, name: 'Trayecto' });
+
+    page.tripForm.controls.vehicleId.setValue('v1');
+    await submit();
+
+    expect(page.step()).toBe(3);
+    expect(page.previousStep()).toEqual({ number: 2, name: 'Vehículo' });
+  });
+
+  it('marks the address in red instead of moving on without it', async () => {
+    await openPage();
+
+    await submit();
+
+    expect(page.step()).toBe(1);
+    expect(page.tripForm.controls.place.touched).toBe(true);
+  });
+
+  it('reviews the trip with the approximate arrival and what passengers save', async () => {
+    await openPage();
+    fillTrip({ withVehicle: true });
+
+    expect(page.stops()?.[1]).toEqual(
+      expect.objectContaining({ name: 'Campus UAL', detail: 'Parking P1' }),
+    );
+    expect(page.stops()?.[1].time).not.toBe('07:40');
+    expect(page.impact()?.seats).toBe(2);
+    expect(page.dateLabel()).toContain('15');
+  });
+
+  it('needs the declaration the first time, publishes and celebrates in step 4', async () => {
+    await openPage('/publish', { hasLicenseDeclared: false });
+    fillTrip({ withVehicle: true });
+    await page.goToStep(2);
+    await page.goToStep(3);
+
+    expect(page.needsDeclaration()).toBe(true);
 
     page.tripForm.controls.declaration.setValue(true);
-    page.handleSwap();
-    await page.handlePublish();
+    await submit();
 
     expect(driver['acceptDeclaration']).toHaveBeenCalled();
-    expect(driver['publishTrip'].mock.calls[0][0].origin).toEqual(P1.location);
-    expect(page.hasDeclared()).toBe(true);
+    expect(driver['publishTrip']).toHaveBeenCalledWith(
+      expect.objectContaining({ vehicleId: 'v1', offeredSeats: 2, originName: 'Roquetas de Mar' }),
+    );
+    expect(page.step()).toBe(4);
+    expect(page.previousStep()).toBeNull();
+    expect(celebrate).toHaveBeenCalled();
   });
 
-  it('shows the API error and keeps the form', async () => {
-    await createPage([VEHICLE]);
-    fillTrip();
+  it('shows the API error and stays in the review', async () => {
+    await openPage();
     driver['publishTrip'].mockRejectedValue(new Error('down'));
+    fillTrip({ withVehicle: true });
+    await page.goToStep(2);
+    await page.goToStep(3);
 
-    await page.handlePublish();
+    await submit();
 
     expect(showError).toHaveBeenCalled();
-    expect(page.published()).toBeNull();
-    expect(page.tripForm.controls.time.value).toBe('07:40');
+    expect(page.step()).toBe(3);
+    expect(page.isSaving()).toBe(false);
   });
 
-  it('says what is missing before it can publish', async () => {
-    await createPage([VEHICLE], false);
+  it('publishes another trip from the first step', async () => {
+    await openPage();
+    fillTrip({ withVehicle: true });
+    await page.goToStep(2);
+    await page.goToStep(3);
+    await submit();
 
-    expect(page.missingToPublish()).toBe('Elige tu dirección para publicar el viaje.');
-    page.tripForm.patchValue({ place: PLACE as never, vehicleId: '' });
-    expect(page.missingToPublish()).toBe('Elige el parking y el vehículo para publicar el viaje.');
-    page.tripForm.patchValue({ vehicleId: 'v1' });
-    expect(page.missingToPublish()).toBe('Acepta la declaración para publicar tu primer viaje.');
-    page.tripForm.patchValue({ declaration: true });
-    expect(page.missingToPublish()).toBeNull();
+    await page.handlePublishAnother();
+    await harness.fixture.whenStable();
+
+    expect(page.published()).toBeNull();
+    expect(page.step()).toBe(1);
+    expect(page.tripForm.controls.place.value).toEqual(PLACE);
   });
 
   it('offers to retry when the vehicles cannot be loaded', async () => {
-    await createPage([VEHICLE]);
+    await openPage();
     driver['listVehicles'].mockRejectedValue(new Error('down'));
 
     await page.load();
@@ -210,11 +218,10 @@ describe('PublishTripPage', () => {
     expect(page.loadState()).toBe('error');
   });
 
-  it('starts by registering the car without the driver profile, and gets it after', async () => {
-    await createPage([VEHICLE]);
+  it('asks for nothing without the driver profile: step 2 starts by registering the car', async () => {
+    await openPage();
     const auth = TestBed.inject(AuthService) as unknown as {
       hasProfile: (profile: string) => boolean;
-      refreshAccessToken: ReturnType<typeof vi.fn>;
     };
     auth.hasProfile = (profile) => profile !== 'driver';
     driver['getStatus'].mockClear();
@@ -224,10 +231,5 @@ describe('PublishTripPage', () => {
     expect(driver['getStatus']).not.toHaveBeenCalled();
     expect(page.vehicles()).toEqual([]);
     expect(page.loadState()).toBe('ready');
-
-    await page.handleVehicleSaved(VEHICLE);
-
-    expect(auth.refreshAccessToken).toHaveBeenCalled();
-    expect(page.vehicles()).toEqual([VEHICLE]);
   });
 });

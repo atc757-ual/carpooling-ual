@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+// La casilla y, a su lado, el texto con el enlace (en varias líneas si no
+// cabe), como las condiciones del registro
+.declaration-field {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
+
+  ion-checkbox {
+    flex-shrink: 0;
+    margin-top: 0.125rem; // 2px
+  }
+}
+
+// El enlace a la declaración, dentro del texto
+.declaration-field__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-link);
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}

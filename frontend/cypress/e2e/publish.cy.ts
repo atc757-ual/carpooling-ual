@@ -66,34 +66,58 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/tabs/publish');
     });
 
-    it('registers the first vehicle, accepts the declaration and publishes', () => {
-      cy.contains('app-publish-trip', 'Antes de tu primer viaje');
-      cy.get('app-publish-trip ion-input[formControlName="model"] input').type('Seat Ibiza');
-      cy.get('app-publish-trip ion-input[formControlName="plate"] input').type('1234 bcd');
+    it('goes through the steps: route, first vehicle, review with the declaration and published', () => {
+      // 1 · Trayecto: «Siguiente» espera a la dirección y al parking (vacío
+      // y sin «Ver en el mapa» hasta elegirlo)
+      cy.get('app-publish-trip [aria-current="step"]').should('contain', 'Trayecto');
+      cy.contains('app-publish-trip ion-button', 'Siguiente').should('have.attr', 'disabled');
+      choosePlace('app-publish-trip', 'Roquetas de Mar');
+      cy.get('app-publish-trip .route-fields__map-link').should('not.exist');
+      cy.contains('app-publish-trip ion-button', 'Siguiente').should('have.attr', 'disabled');
+      cy.get('app-publish-trip .route-fields__parking ion-select').click();
+      cy.contains('ion-select-popover ion-radio', 'Parking P1').click();
+      cy.contains('app-publish-trip ion-button', 'Siguiente').should('not.have.attr', 'disabled');
+      cy.contains('app-publish-trip ion-button', 'Siguiente').click();
+
+      // 2 · Vehículo: sin ninguno, se registra en una ventana y queda elegido
+      cy.location('search').should('eq', '?step=2');
+      cy.contains('app-publish-trip .vehicle-card--add', 'Registrar vehículo').click();
+      cy.get('app-vehicle-modal ion-input[formControlName="brand"] input').type('Seat');
+      cy.get('app-vehicle-modal ion-input[formControlName="model"] input').type('Ibiza');
+      cy.get('app-vehicle-modal ion-input[formControlName="plate"] input').type('1234 bcd');
       // 5 asientos por defecto; uno menos: 4 = 1 conductor + 3 pasajeros
-      cy.get('app-publish-trip app-seat-stepper button[aria-label="Una plaza menos"]').click();
-      cy.contains('app-publish-trip', '4 asientos = 1 conductor + hasta 3 pasajeros');
-      cy.contains('app-publish-trip ion-button', 'Guardar vehículo y continuar').click();
+      cy.get('app-vehicle-modal button[aria-label="Una plaza menos"]').click();
+      cy.contains('app-vehicle-modal', '4 asientos = 1 conductor + hasta 3 pasajeros');
+      cy.contains('app-vehicle-modal ion-button', 'Registrar vehículo').click();
       cy.wait('@registerVehicle').its('request.body').should('deep.equal', {
         model: 'Seat Ibiza',
         plate: '1234BCD',
         capacity: 3,
       });
-      cy.contains('app-publish-trip .publish__vehicle-box', 'Seat Ibiza · 1234BCD');
+      cy.get('app-publish-trip .vehicle-card--selected').should('contain', 'Seat Ibiza');
+      cy.contains('app-publish-trip .vehicle-picker__notice', 'hasta 3 pasajeros');
+      cy.contains('app-publish-trip ion-button', 'Revisar detalle').click();
 
-      choosePlace('app-publish-trip', 'Roquetas de Mar');
-      // Sin la declaración, el botón espera y se dice qué falta
+      // 3 · Revisión: el resumen y, la primera vez, la declaración
+      cy.get('app-publish-trip [aria-current="step"]').should('contain', 'Revisión');
+      cy.get('app-publish-trip .route-timeline__stop').first().should('contain', 'Roquetas de Mar');
+      cy.contains('app-publish-trip button', 'Volver a Vehículo');
       cy.contains('app-publish-trip ion-button', 'Publicar viaje').should('have.attr', 'disabled');
-      cy.contains('app-publish-trip', 'Acepta la declaración para publicar tu primer viaje.');
-      cy.get('app-publish-trip ion-checkbox').click();
+      cy.get('app-publish-trip app-declaration-field ion-checkbox').click();
       cy.contains('app-publish-trip ion-button', 'Publicar viaje').click();
 
       cy.wait('@declare');
       cy.wait('@publish')
         .its('request.body')
         .should('include', { vehicleId: 'v1', offeredSeats: 1 });
-      cy.contains('app-publish-trip h2', 'Viaje publicado');
-      cy.get('app-publish-trip .route-timeline__stop').first().should('contain', 'Roquetas de Mar');
+
+      // 4 · Publicado: la enhorabuena, sin volver atrás, y qué hacer ahora
+      cy.contains('app-publish-trip', '¡Enhorabuena! Has publicado un viaje.');
+      cy.contains('app-publish-trip', 'Gracias por compartir tu coche');
+      cy.contains('app-publish-trip button', 'Volver a').should('not.exist');
+      cy.contains('app-publish-trip ion-button', 'Ver mis viajes');
+      cy.contains('app-publish-trip button', 'Publicar otro viaje').click();
+      cy.get('app-publish-trip [aria-current="step"]').should('contain', 'Trayecto');
     });
   });
 }

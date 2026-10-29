@@ -85,12 +85,12 @@ for (const viewport of VIEWPORTS) {
       cy.wait('@mode').its('request.body').should('deep.equal', { mode: 'driver' });
     });
 
-    it('asks a passenger without a car to register one in Publicar', () => {
+    it('lets a passenger without a car start publishing (the car comes in step 2)', () => {
       logIn(['passenger']);
 
       goTo('Publicar');
 
-      cy.contains('app-publish-trip', 'Antes de tu primer viaje').should('be.visible');
+      cy.get('app-publish-trip [aria-current="step"]').should('contain', 'Trayecto');
     });
 
     it('opens Avisos with the bell', () => {

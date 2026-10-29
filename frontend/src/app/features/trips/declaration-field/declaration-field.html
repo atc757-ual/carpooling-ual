@@ -1,0 +1,13 @@
+<!-- Un solo texto con el enlace dentro (como las condiciones del registro): el
+     texto va fuera de la etiqueta de la casilla para que pulsar el enlace no
+     la marque -->
+<div class="declaration-field">
+  <ion-checkbox [formControl]="control()" aria-labelledby="declaration-field-label" />
+  <span id="declaration-field-label" class="text-body-s">
+    Declaro haber leído la
+    <button type="button" class="declaration-field__link" (click)="handleRead()">
+      declaración completa</button
+    >, que tengo el permiso de conducir en vigor y que mi vehículo tiene el seguro obligatorio y la
+    ITV al día.
+  </span>
+</div>
