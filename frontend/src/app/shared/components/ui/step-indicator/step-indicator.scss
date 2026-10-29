@@ -1,11 +1,28 @@
-// Según su propio ancho: si no caben los nombres, solo el del paso actual
+// Según su propio ancho: si no caben los nombres (móvil), «Paso 2 de 4 ·
+// Vehículo» encima y solo los círculos, a todo el ancho
 :host {
   display: block;
   container-type: inline-size;
 }
 
+.steps__caption {
+  display: none;
+  margin: 0 0 var(--space-s);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-s);
+
+  b {
+    color: var(--color-text);
+  }
+}
+
 @container (max-width: 479px) {
-  .steps__item:not(.steps__item--current) .steps__label {
+  .steps__caption {
+    display: block;
+  }
+
+  // Los nombres, solo para los lectores de pantalla (el título ya lo dice)
+  .steps__label {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -30,6 +47,12 @@
   gap: var(--space-s);
   min-width: 0;
   color: var(--color-text-muted);
+
+  // El último, sin línea detrás: solo su círculo (así los pasos llegan al
+  // borde derecho)
+  &:last-child {
+    flex: none;
+  }
 
   // La línea hasta el siguiente paso (azul si este ya está hecho)
   &:not(:last-child)::after {

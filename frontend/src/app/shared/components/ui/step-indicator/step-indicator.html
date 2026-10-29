@@ -1,4 +1,9 @@
 <nav aria-label="Pasos">
+  <!-- En el móvil, el paso actual encima de los círculos (los lectores de
+       pantalla ya lo leen en la lista: aria-hidden) -->
+  <p class="steps__caption" aria-hidden="true">
+    Paso {{ current() }} de {{ steps().length }} · <b>{{ steps()[current() - 1] }}</b>
+  </p>
   <ol class="steps">
     @for (step of steps(); track step; let index = $index) {
       @let number = index + 1;
