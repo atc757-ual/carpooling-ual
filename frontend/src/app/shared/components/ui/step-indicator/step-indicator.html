@@ -1,0 +1,40 @@
+<nav aria-label="Pasos">
+  <!-- En el móvil, el paso actual encima de los círculos (los lectores de
+       pantalla ya lo leen en la lista: aria-hidden) -->
+  <p class="steps__caption" aria-hidden="true">
+    Paso {{ current() }} de {{ steps().length }} · <b>{{ steps()[current() - 1] }}</b>
+  </p>
+  <ol class="steps">
+    @for (step of steps(); track step; let index = $index) {
+      @let number = index + 1;
+      @let isDone = number < current() || isComplete();
+      <li
+        class="steps__item"
+        [class.steps__item--done]="isDone"
+        [class.steps__item--current]="number === current()"
+        [attr.aria-current]="number === current() ? 'step' : null"
+      >
+        @if (isDone && !isComplete()) {
+          <!-- Hecho: se puede volver a él -->
+          <button class="steps__button" type="button" (click)="selected.emit(number)">
+            <span class="steps__number">
+              <ion-icon [icon]="doneIcon" aria-hidden="true" />
+            </span>
+            <span class="steps__label">{{ step }}</span>
+          </button>
+        } @else {
+          <span class="steps__button">
+            <span class="steps__number">
+              @if (isDone) {
+                <ion-icon [icon]="doneIcon" aria-hidden="true" />
+              } @else {
+                {{ number }}
+              }
+            </span>
+            <span class="steps__label">{{ step }}</span>
+          </span>
+        }
+      </li>
+    }
+  </ol>
+</nav>

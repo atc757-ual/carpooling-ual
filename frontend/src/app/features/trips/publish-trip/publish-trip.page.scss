@@ -1,8 +1,7 @@
 // Publicar viaje: tarjetas blancas sobre el fondo gris de la pestaña, con los
-// campos apilados a 16px y, de dos en dos, fecha y hora, plazas y desvío.
-// Las pantallas de un solo bloque (registrar el vehículo, viaje publicado)
-// miden como mucho 36rem (576px); el formulario, en escritorio, va en la
-// columna de 8 con «Tu viaje» en la de 4 (como Buscar)
+// campos apilados a 16px. La confirmación mide como mucho 36rem (576px); los
+// pasos, en escritorio, van en la columna de 8 con la de 4 al lado (como
+// Buscar)
 .publish {
   align-items: stretch;
 
@@ -21,40 +20,68 @@
   align-items: start;
 }
 
-// El formulario se coloca según su propio ancho: con sitio, el trayecto en
-// una fila
+// Los pasos se colocan según su propio ancho
 .publish__form {
   container-type: inline-size;
 }
 
-// Resumen solo en escritorio: en el móvil alargaría la pantalla
-.publish__summary {
-  display: none;
-}
-
+// En escritorio, la ayuda (preguntas o qué pasa después) a la derecha, fija
+// al bajar
 @media (min-width: 768px) {
   .publish__layout {
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  }
 
-  .publish__summary {
-    display: flex;
-    position: sticky;
-    top: var(--space-l);
+    > app-faq-card,
+    > app-publish-next-steps {
+      position: sticky;
+      top: var(--space-l);
+    }
   }
 }
 
-.publish__meta {
-  font-weight: var(--font-weight-semibold);
-}
-
-.publish__vehicle {
+// El botón de seguir y, a su izquierda, «Volver a…»; en el móvil estrecho,
+// los dos a todo el ancho, el de volver debajo
+.publish__actions {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
+  justify-content: flex-end;
+  gap: var(--space-s);
 
-  ion-icon {
-    font-size: 1rem; // 16px
+  .publish__next {
+    min-width: 10rem; // 160px
+  }
+}
+
+@container (max-width: 419px) {
+  .publish__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}
+
+// Botón secundario («Volver a Trayecto», «Publicar otro viaje»): borde azul, como
+// los de Ionic en contorno (mismo
+// alto, radio y letra que el de seguir). Nativo: dentro del formulario no
+// debe enviarlo
+.publish__secondary {
+  min-height: var(--control-height-base);
+  padding: 0 var(--space-base);
+  border: var(--border-width-s) solid var(--color-primary);
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--color-link);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-primary-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
   }
 }
 
@@ -83,41 +110,6 @@
   gap: var(--space-s);
 }
 
-.publish__route-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-block-end: calc(-1 * var(--space-s));
-}
-
-// Al volver del campus, el parking (origen) va primero
-.publish__route {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-base);
-}
-
-.publish__route--reverse {
-  flex-direction: column-reverse;
-}
-
-@container (min-width: 37.5rem) {
-  // 600px
-  .publish__route {
-    flex-direction: row;
-    align-items: flex-start;
-
-    > * {
-      flex: 1;
-      min-width: 0;
-    }
-  }
-
-  .publish__route--reverse {
-    flex-direction: row-reverse;
-  }
-}
-
 // Las etiquetas de cada pareja, a la misma altura
 .publish__grid {
   display: grid;
@@ -126,105 +118,38 @@
   align-items: start;
 }
 
-// Etiqueta encima del campo, a 8px, y la ayuda debajo
-.publish__field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-  min-width: 0;
-
-  ion-select {
-    width: 100%;
-  }
-}
-
-// El parking y, debajo, «Ver en el mapa» (como en Buscar)
-.publish__parking {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 0;
-
-  ion-select {
-    width: 100%;
-  }
-}
-
-// Enlaces pequeños de apoyo: «Ver en el mapa», «Cambiar» y la declaración
-.publish__map-link {
-  min-height: 2rem; // 32px
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--color-link);
-  font: inherit;
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-  }
-}
-
-// El vehículo elegido: con el aspecto de un campo, pero de solo lectura
-.publish__vehicle-box {
-  display: flex;
+// El desvío: la etiqueta, el campo con «Siguiente» a su derecha (llena el
+// hueco de la columna) y la ayuda debajo del campo, con su ancho. En el móvil
+// estrecho, todo apilado y el botón al final
+.publish__grid--action {
+  grid-template-areas:
+    'label .'
+    'field action'
+    'hint .';
+  row-gap: var(--space-s);
   align-items: center;
-  gap: var(--space-s);
-  min-height: var(--control-height-l);
-  padding: 0 var(--space-base);
-  border: var(--border-width-s) solid var(--ion-border-color);
-  border-radius: var(--radius-s);
-  background: var(--color-surface-subtle);
-
-  ion-icon {
-    flex: 0 0 auto;
-    color: var(--color-text-muted);
-    font-size: 1.25rem; // 20px
-  }
 }
 
-.publish__vehicle-text {
-  flex: 1;
-  min-width: 0;
+.publish__action-label {
+  grid-area: label;
 }
 
-// La casilla con su texto en varias líneas si no cabe, y debajo el enlace
-// a la declaración completa
-.publish__declaration {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-xs);
+.publish__action-field {
+  grid-area: field;
 }
 
-// La casilla y, a su lado, el texto con el enlace (en varias líneas si no
-// cabe), como las condiciones del registro
-.publish__declaration-row {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-s);
-
-  ion-checkbox {
-    flex-shrink: 0;
-    margin-top: 0.125rem; // 2px
-  }
+.publish__action-hint {
+  grid-area: hint;
 }
 
-// El enlace a la declaración, dentro del texto
-.publish__inline-link {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--color-link);
-  font: inherit;
-  font-weight: var(--font-weight-semibold);
-  text-decoration: underline;
-  cursor: pointer;
+.publish__grid--action .publish__next {
+  grid-area: action;
+}
 
-  &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
+@container (max-width: 419px) {
+  .publish__grid--action {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'label' 'field' 'hint' 'action';
   }
 }
 
@@ -238,41 +163,49 @@
   flex: 1;
 }
 
-.publish__link {
-  display: inline-flex;
+// Ahorro aproximado: aviso verde claro con la hoja y las cifras en negrita
+.publish__impact {
+  align-items: flex-start;
+
+  ion-icon {
+    flex: none;
+    margin-top: 0.125rem; // 2px: a la altura de la primera línea
+    color: var(--color-success);
+    font-size: 1.25rem; // 20px
+  }
+
+  // Las cifras en negrita, seguidas del texto (el tema las pone en su línea)
+  b {
+    display: inline;
+  }
+
+  p,
+  > span {
+    font-size: var(--font-size-body-s);
+    line-height: var(--line-height-body-s);
+  }
+}
+
+// Resumen del último paso: como «Tu viaje», dentro de la tarjeta
+.publish__summary-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-base);
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+}
+
+.publish__meta {
+  font-weight: var(--font-weight-semibold);
+}
+
+.publish__vehicle {
+  display: flex;
   align-items: center;
   gap: var(--space-xs);
-  min-height: 2rem; // 32px
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-s);
-  background: transparent;
-  color: var(--color-link);
-  font: inherit;
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
 
   ion-icon {
     font-size: 1rem; // 16px
-    transform: rotate(90deg);
   }
-
-  &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-  }
-}
-
-.publish__error {
-  color: var(--color-danger);
-  font-size: var(--font-size-caption);
-}
-
-// Ilustración de cabecera de «Tu viaje»: a todo el ancho de la tarjeta, con
-// sus proporciones y las esquinas de las tarjetas
-.publish__summary-art {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-s);
 }

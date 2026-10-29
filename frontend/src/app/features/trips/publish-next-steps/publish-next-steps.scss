@@ -1,0 +1,107 @@
+// Una tarjeta encima de otra (en el móvil, al final de la página)
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+// Tarjeta blanca, como las de Publicar
+.next-steps__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding: var(--space-l) var(--space-base);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+// «Qué pasa después»: cada paso con su número en un círculo azul claro, el
+// título y la explicación en gris
+.next-steps__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-s);
+  }
+
+  li > span:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+}
+
+.next-steps__number {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem; // 28px
+  height: 1.75rem; // 28px
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+}
+
+// «Gracias por compartir tu coche»: blanca como las demás, con un borde
+// inferior verde de 4px que la cierra
+.next-steps__card--community {
+  border-bottom: 0.25rem solid var(--color-eco); // 4px
+}
+
+// El icono en un círculo verde claro y el título a su lado
+.next-steps__community-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.next-steps__community-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem; // 40px
+  height: 2.5rem; // 40px
+  border-radius: var(--radius-full);
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+  font-size: 1.25rem; // 20px
+}
+
+// Cada punto con su ✓ verde, sin viñeta
+.next-steps__community-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-s);
+  }
+
+  ion-icon {
+    flex: none;
+    margin-top: 0.125rem; // 2px: a la altura de la primera línea
+    color: var(--color-success);
+    font-size: 1rem; // 16px
+  }
+}

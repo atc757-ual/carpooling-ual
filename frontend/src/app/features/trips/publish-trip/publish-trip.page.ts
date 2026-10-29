@@ -1,4 +1,5 @@
-import { Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   FormControl,
@@ -6,87 +7,87 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   IonButton,
-  IonCheckbox,
   IonContent,
   IonIcon,
   IonSelect,
   IonSelectOption,
   IonSpinner,
-  ModalController,
 } from '@ionic/angular';
-import { carOutline, ellipseOutline, locationOutline, swapHorizontalOutline } from 'ionicons/icons';
+import { carOutline, checkmarkCircleOutline, leafOutline } from 'ionicons/icons';
+import { map } from 'rxjs';
 import { ApiError } from '../../../core/models/api-error.model';
 import { PublishedTrip, Vehicle } from '../../../core/models/driver.model';
 import { SearchPlace } from '../../../core/models/trip-search.model';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { PlacesService } from '../../../core/services/places/places.service';
+import { CelebrationService } from '../../../core/services/ui/celebration.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { DatetimeField } from '../../../shared/components/ui/datetime-field/datetime-field';
-import {
-  RouteStop,
-  RouteTimeline,
-} from '../../../shared/components/ui/route-timeline/route-timeline';
-import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
-import { CAMPUS_NAME } from '../../matching/campus';
-import { LocationModal } from '../../matching/location-modal/location-modal';
-import { PlaceField } from '../../matching/place-field/place-field';
-import { DeclarationModal } from '../declaration-modal/declaration-modal';
-import { VehicleForm } from '../vehicle-form/vehicle-form';
-import { VehicleModal } from '../vehicle-modal/vehicle-modal';
+import { RouteTimeline } from '../../../shared/components/ui/route-timeline/route-timeline';
+import { FaqCard } from '../../../shared/components/ui/faq-card/faq-card';
+import { StepIndicator } from '../../../shared/components/ui/step-indicator/step-indicator';
+import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { RouteFields } from '../../matching/route-fields/route-fields';
+
 import { getDefaultTime } from '../../matching/trip-search-form/trip-search-form';
-import { AuthService } from '../../../core/services/auth/auth.service';
 import { SectionTitle } from '../../tabs/section-title/section-title';
+import { DeclarationField } from '../declaration-field/declaration-field';
+import { PublishNextSteps } from '../publish-next-steps/publish-next-steps';
+import { VehiclePicker } from '../vehicle-picker/vehicle-picker';
+import { PUBLISH_FAQS } from './publish-help';
+import {
+  buildStops,
+  estimateDriverImpact,
+  formatDateLabel,
+  toPublishTripRequest,
+  toIsoDate,
+} from './publish-trip.utils';
 
 export const DETOURS = [5, 10, 15, 20] as const;
 const DEFAULT_DETOUR = 10;
-const DATE_LABEL = new Intl.DateTimeFormat('es-ES', {
-  weekday: 'short',
-  day: 'numeric',
-  month: 'short',
-});
+// La salida por defecto, dentro de una hora: así queda margen para cancelar
+// sin penalización (hasta 30 minutos antes)
+const PUBLISH_LEAD_MINUTES = 60;
+export const STEPS = ['Trayecto', 'Vehículo', 'Revisión', 'Publicado'] as const;
+const PUBLISHED_STEP = STEPS.length;
 
 type LoadState = 'loading' | 'error' | 'ready';
 
-// Fecha local en formato ISO (2026-10-27), la que espera ion-datetime
-function toIsoDate(date: Date): string {
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
-}
-
-// Fecha y hora locales («2026-10-27», «07:40») en ISO UTC para la API
-export function toDepartureAt(date: string, time: string): string {
-  return new Date(`${date}T${time}:00`).toISOString();
-}
-
-// Publicar viaje (conductor, RF-04). Sin vehículos, primero «Antes de tu
-// primer viaje» (marca y modelo, matrícula y capacidad); después, el formulario: trayecto (una
-// dirección y un parking del campus, en un sentido u otro), fecha y hora de
-// salida, vehículo, plazas ofrecidas (hasta la capacidad del vehículo),
-// desvío máximo y, si aún no la ha aceptado, la declaración responsable
-// (RF-21). Al publicar, el resumen del viaje y «Publicar otro»
+// Publicar viaje (conductor, RF-04) en cuatro pasos (el actual, en la URL:
+// ?step=2, para que «Atrás» del navegador vuelva al anterior):
+// 1. Trayecto: RouteFields (como en Buscar), fecha, hora y desvío.
+// 2. Vehículo: el vehículo (VehiclePicker) y las plazas ofrecidas.
+// 3. Revisión: lo que se ahorra, el resumen, la declaración responsable si
+//    aún no la ha aceptado (RF-21) y «Publicar viaje».
+// 4. Publicado: la enhorabuena, el resumen, «Publicar otro viaje» y «Ver mis
+//    viajes» (sin volver a los pasos anteriores).
+// A la derecha (en el móvil, al final), las preguntas frecuentes en los pasos
+// 1 y 2 y qué pasa después en el 3 y el 4
 @Component({
   selector: 'app-publish-trip',
   imports: [
     SectionTitle,
+    NgTemplateOutlet,
     ReactiveFormsModule,
+    RouterLink,
     IonButton,
-    IonCheckbox,
     IonContent,
     IonIcon,
     IonSelect,
     IonSelectOption,
     IonSpinner,
-    IonicFormStatus,
     DatetimeField,
-    PlaceField,
+    DeclarationField,
+    FaqCard,
+    RouteFields,
     RouteTimeline,
-    SeatStepper,
-    VehicleForm,
+    StepIndicator,
+    PublishNextSteps,
+    VehiclePicker,
   ],
   templateUrl: './publish-trip.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './publish-trip.page.scss'],
@@ -96,8 +97,9 @@ export class PublishTripPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly places = inject(PlacesService);
   private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
   private readonly formBuilder = inject(NonNullableFormBuilder);
-  private readonly modalController = inject(ModalController);
+  private readonly celebration = inject(CelebrationService);
 
   readonly loadState = signal<LoadState>('loading');
   readonly vehicles = signal<readonly Vehicle[]>([]);
@@ -112,7 +114,7 @@ export class PublishTripPage implements OnInit {
     parking: ['', Validators.required],
     isToCampus: [true],
     date: [toIsoDate(new Date())],
-    time: [getDefaultTime(new Date())],
+    time: [getDefaultTime(new Date(), PUBLISH_LEAD_MINUTES)],
     vehicleId: ['', Validators.required],
     seats: [1, [Validators.required, Validators.min(1)]],
     maxDetourMin: [DEFAULT_DETOUR],
@@ -123,66 +125,80 @@ export class PublishTripPage implements OnInit {
     initialValue: this.tripForm.getRawValue(),
   });
 
-  readonly isToCampus = computed(() => this.tripValue().isToCampus ?? true);
+  // El paso pedido en la URL, sin pasar del más lejano al que se ha llegado
+  // con los botones (rellenar solo el origen o el vehículo no hace avanzar) ni
+  // del último posible: sin trayecto no hay paso 2 y sin vehículo no hay 3
+  private readonly requestedStep = toSignal(
+    inject(ActivatedRoute).queryParamMap.pipe(map((params) => Number(params.get('step')) || 1)),
+    { initialValue: 1 },
+  );
+  private readonly furthestStep = signal(1);
+  readonly step = computed(() => {
+    if (this.published()) {
+      return PUBLISHED_STEP;
+    }
+    let reachable = 1;
+    if (this.isRouteComplete()) {
+      reachable = this.tripValue().vehicleId ? 3 : 2;
+    }
+    return Math.min(this.requestedStep(), this.furthestStep(), reachable);
+  });
+
+  // Con el origen (o destino) y el parking elegidos, «Siguiente» se activa
+  readonly isRouteComplete = computed(() => {
+    const { place, parking } = this.tripValue();
+    return Boolean(place && parking);
+  });
+
   readonly selectedVehicle = computed(() =>
     this.vehicles().find(({ id }) => id === this.tripValue().vehicleId),
   );
-  // Plazas ofrecidas: de 1 a la capacidad del vehículo elegido
-  readonly maxSeats = computed(() => this.selectedVehicle()?.capacity ?? 1);
+  readonly needsDeclaration = computed(() => !this.hasDeclared() && !this.tripValue().declaration);
 
-  // Qué falta para poder publicar (el botón sigue desactivado hasta que no
-  // falte nada), o null si está todo
-  readonly missingToPublish = computed(() => {
-    const { place, parking, vehicleId, declaration } = this.tripValue();
-    if (!place) {
-      return 'Elige tu dirección para publicar el viaje.';
-    }
-    if (!parking || !vehicleId) {
-      return 'Elige el parking y el vehículo para publicar el viaje.';
-    }
-    if (!this.hasDeclared() && !declaration) {
-      return 'Acepta la declaración para publicar tu primer viaje.';
-    }
-    return null;
+  // Lo que se ahorra si se llenan las plazas: cada pasajero deja su coche en
+  // casa (aproximado: ver trip-impact.ts)
+  readonly impact = computed(() => {
+    const { place, seats = 1 } = this.tripValue();
+    const parking = this.selectedParking();
+    return place && parking ? estimateDriverImpact(place, parking, seats) : null;
   });
-  readonly seatsHint = computed(() => {
-    const max = this.maxSeats();
-    return `Tu vehículo tiene ${max} ${max === 1 ? 'plaza' : 'plazas'} para pasajeros.`;
+
+  // Paradas del viaje, con la llegada aproximada: para la revisión y al
+  // publicar
+  readonly stops = computed(() => {
+    const { place, isToCampus = true, time = '' } = this.tripValue();
+    const parking = this.selectedParking();
+    return place && parking ? buildStops(place, parking, { isToCampus, time }) : null;
   });
+
+  readonly dateLabel = computed(() => formatDateLabel(this.tripValue().date ?? ''));
+
+  // «Volver a Trayecto»: el paso anterior, por su nombre (al publicar, no hay)
+  readonly previousStep = computed(() => {
+    const step = this.step();
+    return step > 1 && step < PUBLISHED_STEP ? { number: step - 1, name: STEPS[step - 2] } : null;
+  });
+
+  private readonly selectedParking = computed(() =>
+    this.parkings().find(({ id }) => id === this.tripValue().parking),
+  );
 
   protected readonly parkings = this.places.parkings;
-  protected readonly campusName = CAMPUS_NAME;
   protected readonly detours = DETOURS;
+  protected readonly steps = STEPS;
+  protected readonly faqs = PUBLISH_FAQS;
   protected readonly minDate = toIsoDate(new Date());
   protected readonly icons = {
-    origin: ellipseOutline,
-    destination: locationOutline,
     car: carOutline,
-    swap: swapHorizontalOutline,
+    impact: leafOutline,
+    published: checkmarkCircleOutline,
   };
 
-  constructor() {
-    // El primer parking en cuanto llegan
-    effect(() => {
-      const [first] = this.parkings();
-      const control = this.tripForm.controls.parking;
-      if (first && !untracked(() => control.value)) {
-        control.setValue(first.id);
-      }
-    });
-    // Al cambiar de vehículo, las plazas no pasan de su capacidad
-    effect(() => {
-      const max = this.maxSeats();
-      const control = this.tripForm.controls.seats;
-      control.setValidators([Validators.required, Validators.min(1), Validators.max(max)]);
-      if (untracked(() => Number(control.value)) > max) {
-        control.setValue(max);
-      }
-      control.updateValueAndValidity({ emitEvent: false });
-    });
-  }
-
   ngOnInit(): void {
+    // Al recargar, lo escrito se pierde: se empieza por el primer paso
+    if (this.requestedStep() > 1) {
+      void this.goToStep(1, { replaceUrl: true });
+    }
     void this.load();
   }
 
@@ -190,11 +206,11 @@ export class PublishTripPage implements OnInit {
     this.loadState.set('loading');
     try {
       // Sin perfil de conductor (aún sin coche) no hay estado ni vehículos que
-      // pedir: la pantalla empieza por registrar el vehículo
+      // pedir: el paso 2 empieza por registrar el vehículo
       if (!this.auth.hasProfile('driver')) {
         await this.places.loadParkings();
         this.hasDeclared.set(false);
-        this.setVehicles([]);
+        this.vehicles.set([]);
         this.loadState.set('ready');
         return;
       }
@@ -204,45 +220,38 @@ export class PublishTripPage implements OnInit {
         this.places.loadParkings(),
       ]);
       this.hasDeclared.set(status.hasLicenseDeclared);
-      this.setVehicles(vehicles);
+      this.vehicles.set(vehicles);
       this.loadState.set('ready');
     } catch {
       this.loadState.set('error');
     }
   }
 
-  handleSwap(): void {
-    const { isToCampus } = this.tripForm.controls;
-    isToCampus.setValue(!isToCampus.value);
-  }
-
-  protected isPlaceInvalid(): boolean {
-    const { place } = this.tripForm.controls;
-    return place.touched && place.invalid;
-  }
-
-  // Primer vehículo registrado: pasa a ser el elegido. Si era el primero de
-  // todos, el backend acaba de activar el perfil de conductor: se renueva el
-  // token, que es el que lo lleva
-  async handleVehicleSaved(vehicle: Vehicle): Promise<void> {
-    this.setVehicles([...this.vehicles(), vehicle]);
-    if (!this.auth.hasProfile('driver')) {
-      await this.auth.refreshAccessToken().catch(() => undefined);
-    }
-  }
-
-  // «Editar»: sus datos en una ventana; al guardar, se actualiza en la lista
-  async handleEditVehicle(vehicle: Vehicle): Promise<void> {
-    const modal = await this.modalController.create({
-      component: VehicleModal,
-      componentProps: { vehicle },
-      cssClass: 'info-dialog',
+  // Al paso indicado (1 deja la URL limpia); llegar a él lo deja accesible
+  // (también con «Adelante» del navegador)
+  goToStep(step: number, { replaceUrl = false } = {}): Promise<boolean> {
+    this.furthestStep.update((furthest) => Math.max(furthest, step));
+    return this.router.navigate([], {
+      queryParams: { step: step > 1 ? step : null },
+      queryParamsHandling: 'merge',
+      replaceUrl,
     });
-    await modal.present();
-    const { data, role } = await modal.onWillDismiss<Vehicle>();
-    if (role === 'saved' && data) {
-      this.vehicles.set(this.vehicles().map((item) => (item.id === data.id ? data : item)));
+  }
+
+  // El botón de cada paso envía el formulario: «Siguiente» (sin trayecto, lo
+  // marca en rojo), «Revisar detalle» y, en el último, «Publicar viaje»
+  async handleSubmit(): Promise<void> {
+    const step = this.step();
+    if (step === 3) {
+      await this.handlePublish();
+      return;
     }
+    const { place, parking } = this.tripForm.controls;
+    if (step === 1 && (place.invalid || parking.invalid)) {
+      place.markAsTouched();
+      return;
+    }
+    await this.goToStep(step + 1);
   }
 
   // «Seat Ibiza · 1234BCD», o solo la matrícula si no tiene modelo
@@ -250,105 +259,35 @@ export class PublishTripPage implements OnInit {
     return model ? `${model} · ${plate}` : plate;
   }
 
-  async handlePublish(): Promise<void> {
-    const {
-      place,
-      parking: parkingId,
-      isToCampus,
-      date,
-      time,
-      ...values
-    } = this.tripForm.getRawValue();
-    const parking = this.parkings().find(({ id }) => id === parkingId);
-    const needsDeclaration = !this.hasDeclared() && !values.declaration;
-    if (this.tripForm.invalid || !place || !parking || needsDeclaration) {
+  // «0,7»: con coma decimal, en español
+  protected formatDecimal(value: number): string {
+    return value.toLocaleString('es-ES');
+  }
+
+  private async handlePublish(): Promise<void> {
+    const { place, ...offer } = this.tripForm.getRawValue();
+    const parking = this.selectedParking();
+    if (this.tripForm.invalid || !place || !parking || this.needsDeclaration()) {
       this.tripForm.markAllAsTouched();
       return;
     }
-    const placePoint = { type: 'Point' as const, coordinates: place.coordinates };
-    const campusName = `${CAMPUS_NAME} · ${parking.name}`;
     await this.save(async () => {
       if (!this.hasDeclared()) {
         await this.driver.acceptDeclaration();
         this.hasDeclared.set(true);
       }
-      const trip = await this.driver.publishTrip({
-        vehicleId: values.vehicleId,
-        origin: isToCampus ? placePoint : parking.location,
-        destination: isToCampus ? parking.location : placePoint,
-        departureAt: toDepartureAt(date, time),
-        offeredSeats: Number(values.seats),
-        maxDetourMin: values.maxDetourMin,
-        originName: isToCampus ? place.name : campusName,
-        destinationName: isToCampus ? campusName : place.name,
-      });
+      const trip = await this.driver.publishTrip(toPublishTripRequest(place, parking, offer));
       this.published.set(trip);
+      void this.celebration.celebrate().catch(() => undefined);
       void this.toast.showSuccess('Viaje publicado.');
     });
   }
 
-  // Otro viaje: mismo vehículo y trayecto, nueva hora
-  // «Ver en el mapa»: el parking elegido, en el mapa y sin poder moverlo
-  async handleViewParking(): Promise<void> {
-    const parking = this.parkings().find(({ id }) => id === this.tripForm.controls.parking.value);
-    if (!parking) {
-      return;
-    }
-    const modal = await this.modalController.create({
-      component: LocationModal,
-      componentProps: {
-        viewPoint: parking.location.coordinates,
-        viewTitle: `${CAMPUS_NAME} · ${parking.name}`,
-      },
-      cssClass: 'location-dialog',
-    });
-    await modal.present();
-  }
-
-  // La declaración completa; «Acepto la declaración» marca la casilla
-  async handleReadDeclaration(): Promise<void> {
-    const modal = await this.modalController.create({
-      component: DeclarationModal,
-      cssClass: 'info-dialog',
-    });
-    await modal.present();
-    const { role } = await modal.onWillDismiss();
-    if (role === 'accept') {
-      this.tripForm.controls.declaration.setValue(true);
-    }
-  }
-
-  handlePublishAnother(): void {
+  // Otro viaje: mismo vehículo y trayecto, nueva hora, desde el primer paso
+  async handlePublishAnother(): Promise<void> {
     this.published.set(null);
-    this.tripForm.patchValue({ time: getDefaultTime(new Date()) });
-  }
-
-  // Paradas del viaje (RouteTimeline), con la hora de salida: el resumen
-  // «Tu viaje» mientras se rellena y la confirmación al publicar. Sin
-  // dirección elegida aún no hay recorrido
-  readonly stops = computed<RouteStop[] | null>(() => {
-    const { place, parking: parkingId, isToCampus = true, time = '' } = this.tripValue();
-    if (!place) {
-      return null;
-    }
-    const parking = this.parkings().find(({ id }) => id === parkingId);
-    const campus: RouteStop = { name: CAMPUS_NAME, detail: parking?.name ?? '' };
-    const outside: RouteStop = { name: place.name, detail: place.locality };
-    return isToCampus ? [{ ...outside, time }, campus] : [{ ...campus, time }, outside];
-  });
-
-  // «mié, 28 oct» para el resumen
-  readonly dateLabel = computed(() => {
-    const { date } = this.tripValue();
-    return date ? DATE_LABEL.format(new Date(`${date}T00:00:00`)) : '';
-  });
-
-  private setVehicles(vehicles: readonly Vehicle[]): void {
-    this.vehicles.set(vehicles);
-    const { vehicleId } = this.tripForm.controls;
-    if (!vehicles.some(({ id }) => id === vehicleId.value) && vehicles[0]) {
-      vehicleId.setValue(vehicles[0].id);
-    }
+    this.tripForm.patchValue({ time: getDefaultTime(new Date(), PUBLISH_LEAD_MINUTES) });
+    await this.goToStep(1);
   }
 
   // Guarda con el botón cargando; los errores, en un aviso, sin perder lo escrito

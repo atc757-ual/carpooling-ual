@@ -45,114 +45,7 @@
   }
 }
 
-// Trayecto: la etiqueta y, debajo, origen y destino. En el móvil (estrecho),
-// uno encima del otro y «Cambiar sentido» como enlace pequeño a la derecha de
-// la etiqueta; con sitio, los tres en una fila con el botón gris en medio
-.search-form__route-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-s);
-}
-
-.search-form__route {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-s);
-  align-items: start;
-}
-
-// Enlace del móvil, en el color de los enlaces (como «Editar» en Buscar), con
-// 32px de alto para tocarlo bien
-.search-form__swap-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  min-height: 2rem; // 32px
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-s);
-  background: transparent;
-  color: var(--color-link);
-  font: inherit;
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-
-  ion-icon {
-    font-size: 1rem; // 16px
-    transform: rotate(90deg);
-  }
-
-  &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-  }
-}
-
-// El parking y, debajo, «Ver en el mapa»: enlace pequeño como «Ajustar en el
-// mapa» del campo de dirección
-.search-form__parking {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 0;
-
-  ion-select {
-    width: 100%;
-  }
-}
-
-.search-form__map-link {
-  min-height: 2rem; // 32px
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--color-link);
-  font: inherit;
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-  }
-}
-
-// Botón de escritorio: gris y del alto de los campos, estrecho
-.search-form__swap {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-height-s);
-  height: var(--control-height-l);
-  padding: 0;
-  border: var(--border-width-s) solid var(--color-border);
-  border-radius: var(--radius-s);
-  background: var(--color-surface-subtle);
-  color: var(--color-text);
-  font-size: 1.25rem; // 20px
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-  }
-}
-
-@container (min-width: 600px) {
-  .search-form__route {
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  }
-
-  .search-form__swap {
-    display: flex;
-  }
-
-  .search-form__swap-link {
-    display: none;
-  }
-}
-
-// Entrada del campus y margen: a todo el ancho, con la flecha a la derecha (el
+// Margen: a todo el ancho, con la flecha a la derecha (el
 // texto ocupa el hueco que queda)
 .search-form__select {
   width: 100%;
@@ -160,14 +53,6 @@
 
 .search-form__select::part(container) {
   flex: 1;
-}
-
-// Los iconos de los campos (origen y destino), grises como los de la fecha y
-// la hora
-.search-form ion-select > ion-icon {
-  margin-inline-end: var(--space-s);
-  color: var(--color-text-muted);
-  font-size: 1.25rem; // 20px
 }
 
 // Ahorro aproximado del trayecto: aviso verde claro con la hoja y las cifras
@@ -193,40 +78,5 @@
     margin: 0;
     font-size: var(--font-size-body-s);
     line-height: var(--line-height-body-s);
-  }
-}
-
-// «Estás en el campus. ¿Vuelves a casa?»: el texto y, a la derecha, el botón
-.search-form__go-home {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-s);
-
-  p {
-    margin: 0;
-    font-size: var(--font-size-body-s);
-  }
-
-  ion-button {
-    margin: 0;
-  }
-}
-
-// «Cambiar sentido» del aviso del campus: con aspecto de enlace
-.search-form__go-home-button {
-  flex: none;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--color-link);
-  font: inherit;
-  font-size: var(--font-size-body-s);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
   }
 }

@@ -1,0 +1,27 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>Preguntas frecuentes</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-accordion-group>
+      @for (faq of faqs(); track faq.question; let index = $index) {
+        <ion-accordion [value]="'faq-' + index">
+          <ion-item slot="header" lines="full">
+            <ion-label class="faq-card__question">{{ faq.question }}</ion-label>
+          </ion-item>
+          <!-- La respuesta y, si la tiene, su lista (p. ej. cada momento) -->
+          <div slot="content" class="faq-card__answer text-body-s text-color-muted">
+            <p>{{ faq.answer }}</p>
+            @if (faq.points; as points) {
+              <ul class="faq-card__points">
+                @for (point of points; track point) {
+                  <li>{{ point }}</li>
+                }
+              </ul>
+            }
+          </div>
+        </ion-accordion>
+      }
+    </ion-accordion-group>
+  </ion-card-content>
+</ion-card>

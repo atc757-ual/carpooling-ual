@@ -1,0 +1,141 @@
+// Según su propio ancho: si no caben los nombres (móvil), «Paso 2 de 4 ·
+// Vehículo» encima y solo los círculos, a todo el ancho
+:host {
+  display: block;
+  container-type: inline-size;
+}
+
+.steps__caption {
+  display: none;
+  margin: 0 0 var(--space-s);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-s);
+
+  b {
+    color: var(--color-text);
+  }
+}
+
+@container (max-width: 479px) {
+  .steps__caption {
+    display: block;
+  }
+
+  // Los nombres, solo para los lectores de pantalla (el título ya lo dice)
+  .steps__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+// Los pasos en una fila, unidos por una línea; cada uno ocupa lo mismo
+.steps {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps__item {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-s);
+  min-width: 0;
+  color: var(--color-text-muted);
+
+  // El último, sin línea detrás: solo su círculo (así los pasos llegan al
+  // borde derecho)
+  &:last-child {
+    flex: none;
+  }
+
+  // La línea hasta el siguiente paso (azul si este ya está hecho)
+  &:not(:last-child)::after {
+    content: '';
+    flex: 1;
+    min-width: var(--space-s);
+    height: var(--border-width-m);
+    border-radius: var(--radius-full);
+    background: var(--color-border);
+  }
+}
+
+.steps__item--done {
+  color: var(--color-link);
+
+  &::after {
+    background: var(--color-link);
+  }
+}
+
+.steps__item--current {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+.steps__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-height: 2.75rem; // 44px: se puede tocar
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+button.steps__button {
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+    border-radius: var(--radius-s);
+  }
+}
+
+// El número en un círculo: borde gris en los siguientes, relleno azul en el
+// actual y azul claro con ✓ en los hechos
+.steps__number {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem; // 28px
+  height: 1.75rem; // 28px
+  border: var(--border-width-m) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+
+  .steps__item--done & {
+    border-color: var(--color-primary-subtle);
+    background: var(--color-primary-subtle);
+    color: var(--color-link);
+  }
+
+  // Después de «hecho»: al terminar, el último es a la vez hecho y actual, y
+  // se ve relleno con ✓
+  .steps__item--current & {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+
+  ion-icon {
+    font-size: 1rem; // 16px
+  }
+}
+
+.steps__label {
+  overflow: hidden;
+  font-size: var(--font-size-body-s);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

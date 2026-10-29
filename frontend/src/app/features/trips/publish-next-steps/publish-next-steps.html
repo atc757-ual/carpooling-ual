@@ -1,0 +1,35 @@
+@if (isPublished()) {
+  <!-- Blanca con el borde inferior verde: el icono y el título en una fila y
+       cada punto con su ✓ verde -->
+  <aside class="next-steps__card next-steps__card--community" aria-labelledby="community-title">
+    <div class="next-steps__community-head">
+      <span class="next-steps__community-icon" aria-hidden="true">
+        <ion-icon [icon]="communityIcon" />
+      </span>
+      <h2 id="community-title" class="text-subtitle">Gracias por compartir tu coche</h2>
+    </div>
+    <p class="text-body-s text-color-muted">Cada viaje que publicas suma para toda la UAL:</p>
+    <ul class="next-steps__community-list text-body-s">
+      @for (point of communityPoints; track point) {
+        <li>
+          <ion-icon [icon]="checkIcon" aria-hidden="true" />
+          <span>{{ point }}</span>
+        </li>
+      }
+    </ul>
+  </aside>
+}
+<aside class="next-steps__card" aria-labelledby="next-title">
+  <h2 id="next-title" class="text-subtitle">¿Qué pasa después?</h2>
+  <ol class="next-steps__list">
+    @for (item of nextSteps; track item.title; let index = $index) {
+      <li>
+        <span class="next-steps__number" aria-hidden="true">{{ index + 1 }}</span>
+        <span>
+          <b class="text-body-s">{{ item.title }}</b>
+          <span class="text-body-s text-color-muted">{{ item.text }}</span>
+        </span>
+      </li>
+    }
+  </ol>
+</aside>

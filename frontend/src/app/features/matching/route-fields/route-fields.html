@@ -1,0 +1,101 @@
+<div class="route-fields">
+  <!-- Está en el campus: lo más seguro es que vuelva a casa -->
+  @if (isAtCampus() && isToCampus()) {
+    <div class="notice notice--info route-fields__go-home">
+      <p>Estás en el campus. ¿Vuelves a casa?</p>
+      <button type="button" class="route-fields__go-home-button" (click)="handleGoHome()">
+        Cambiar sentido
+      </button>
+    </div>
+  }
+
+  <!-- Cada campo lleva el icono de su papel: un círculo el origen y un pin
+       el destino -->
+  <div class="route-fields__field">
+    <div class="route-fields__head">
+      <span class="text-label text-label--strong">Trayecto</span>
+      <!-- En el móvil: enlace pequeño junto a la etiqueta -->
+      <button class="route-fields__swap-link" type="button" (click)="handleSwap()">
+        <ion-icon [icon]="swapIcon" aria-hidden="true" />
+        Cambiar sentido
+      </button>
+    </div>
+    <div class="route-fields__route">
+      @if (isToCampus()) {
+        <ng-container
+          [ngTemplateOutlet]="placeField"
+          [ngTemplateOutletContext]="{ role: 'Origen' }"
+        />
+      } @else {
+        <ng-container
+          [ngTemplateOutlet]="parkingField"
+          [ngTemplateOutletContext]="{ role: 'Origen' }"
+        />
+      }
+      <!-- Con sitio (escritorio): el botón gris entre los dos campos -->
+      <button
+        class="route-fields__swap"
+        type="button"
+        aria-label="Cambiar el sentido del viaje"
+        (click)="handleSwap()"
+      >
+        <ion-icon [icon]="swapIcon" aria-hidden="true" />
+      </button>
+      @if (isToCampus()) {
+        <ng-container
+          [ngTemplateOutlet]="parkingField"
+          [ngTemplateOutletContext]="{ role: 'Destino' }"
+        />
+      } @else {
+        <ng-container
+          [ngTemplateOutlet]="placeField"
+          [ngTemplateOutletContext]="{ role: 'Destino' }"
+        />
+      }
+    </div>
+  </div>
+
+  <!-- La dirección de fuera del campus, elegida de las sugerencias -->
+  <ng-template #placeField let-role="role">
+    <app-place-field
+      [formControl]="controls().place"
+      [label]="role"
+      [placeholder]="role === 'Origen' ? '¿Desde dónde sales?' : '¿A dónde vas?'"
+      [icon]="role === 'Origen' ? originIcon : destinationIcon"
+      [canLocate]="role === 'Origen'"
+      [showError]="isPlaceInvalid()"
+    />
+  </ng-template>
+
+  <!-- El parking del campus (P1–P5, de la API) -->
+  <ng-template #parkingField let-role="role">
+    <div class="route-fields__parking">
+      <ion-select
+        [formControl]="controls().parking"
+        interface="popover"
+        fill="outline"
+        [label]="role"
+        labelPlacement="floating"
+        placeholder="Elige un parking del campus"
+      >
+        <ion-icon
+          slot="start"
+          [icon]="role === 'Origen' ? originIcon : destinationIcon"
+          aria-hidden="true"
+        />
+        @for (parking of parkings(); track parking.id) {
+          <ion-select-option [value]="parking.id">
+            {{ campusName }} · {{ parking.name }}
+          </ion-select-option>
+        }
+      </ion-select>
+      <!-- Dónde está el parking (dónde te dejan, o de dónde sales al volver),
+         en el mapa y sin poder moverlo -->
+      @if (hasParking()) {
+        <button type="button" class="route-fields__map-link" (click)="handleViewParking()">
+          Ver en el mapa
+        </button>
+      }
+    </div>
+  </ng-template>
+</div>

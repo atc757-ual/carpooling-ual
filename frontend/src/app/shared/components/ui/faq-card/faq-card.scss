@@ -14,12 +14,27 @@ ion-accordion ion-item {
   --background: transparent;
 }
 
-.search-faq__question {
+.faq-card__question {
   font-weight: var(--font-weight-medium);
   white-space: normal;
 }
 
-.search-faq__answer {
-  margin: 0;
+.faq-card__answer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
   padding: var(--space-s) 0 var(--space-base);
+
+  p {
+    margin: 0;
+  }
+}
+
+// Los casos, con viñeta y a 4px entre ellos
+.faq-card__points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding-inline-start: var(--space-l);
 }

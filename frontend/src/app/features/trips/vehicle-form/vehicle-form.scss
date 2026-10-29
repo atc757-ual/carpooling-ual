@@ -16,3 +16,26 @@
     margin: 0;
   }
 }
+
+// Dos campos por fila a partes iguales (marca y modelo, matrícula y asientos),
+// alineados por arriba; en pantallas muy estrechas, apilados
+.vehicle-form__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-base);
+  align-items: start;
+}
+
+@media (max-width: 359px) {
+  .vehicle-form__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// Etiqueta encima del campo, a 8px
+.vehicle-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+}
