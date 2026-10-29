@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { VehicleAlreadyRegisteredError } from '../src/modules/users/errors/vehicle-already-registered.error';
 import { VehicleInUseError } from '../src/modules/users/errors/vehicle-in-use.error';
+import { VehicleLimitReachedError } from '../src/modules/users/errors/vehicle-limit-reached.error';
 import { VehicleNotFoundError } from '../src/modules/users/errors/vehicle-not-found.error';
 import { UsersService } from '../src/modules/users/users.service';
 import { VehiclesService } from '../src/modules/users/vehicles.service';
@@ -103,6 +104,25 @@ describe('VehiclesService (e2e)', () => {
       capacity: 5,
       status: 'available',
     });
+  });
+
+  it('allows at most 3 active vehicles; a deactivated one frees its place', async () => {
+    const ana = await createDriver('ana');
+    const first = await vehiclesService.register(ana, {
+      plate: '9041BCD',
+      capacity: 4,
+    });
+    await vehiclesService.register(ana, { plate: '9042BCD', capacity: 4 });
+    await vehiclesService.register(ana, { plate: '9043BCD', capacity: 4 });
+
+    await expect(
+      vehiclesService.register(ana, { plate: '9044BCD', capacity: 4 }),
+    ).rejects.toBeInstanceOf(VehicleLimitReachedError);
+
+    await vehiclesService.deactivate(ana, first.id);
+    await expect(
+      vehiclesService.register(ana, { plate: '9044BCD', capacity: 4 }),
+    ).resolves.toMatchObject({ plate: '9044BCD' });
   });
 
   it('lists only the active vehicles of the driver, with the total', async () => {

@@ -6,6 +6,7 @@ import { Page, PageRequest } from '../../shared/pagination/page';
 import { Vehicle } from './entities/vehicle.entity';
 import { VehicleAlreadyRegisteredError } from './errors/vehicle-already-registered.error';
 import { VehicleInUseError } from './errors/vehicle-in-use.error';
+import { VehicleLimitReachedError } from './errors/vehicle-limit-reached.error';
 import { VehicleNotFoundError } from './errors/vehicle-not-found.error';
 import { normalizePlate } from './vehicle-plate';
 
@@ -20,6 +21,9 @@ export type UpdateVehicleInput = Partial<Omit<RegisterVehicleInput, 'plate'>>;
 // Restricción UNIQUE de la matrícula (migración InitialSchema)
 const PLATE_UNIQUE_CONSTRAINT = 'vehicles_plate_key';
 
+// Vehículos activos que puede tener a la vez un conductor
+export const MAX_VEHICLES_PER_DRIVER = 3;
+
 // Vehículos de los conductores (RF-21). Siempre trabaja con los vehículos de UN
 // conductor: nunca devuelve ni modifica los de otro
 @Injectable()
@@ -30,11 +34,20 @@ export class VehiclesService {
   ) {}
 
   // Registra un vehículo. Si el mismo conductor lo había dado de baja, se
-  // reactiva con la nueva capacidad (la matrícula es única en toda la tabla)
+  // reactiva con la nueva capacidad (la matrícula es única en toda la tabla).
+  // Con MAX_VEHICLES_PER_DRIVER activos, no admite ninguno más
   async register(
     driverId: string,
     input: RegisterVehicleInput,
   ): Promise<Vehicle> {
+    const activeCount = await this.vehiclesRepository.countBy({
+      driverId,
+      status: Not('inactive'),
+    });
+    if (activeCount >= MAX_VEHICLES_PER_DRIVER) {
+      throw new VehicleLimitReachedError(MAX_VEHICLES_PER_DRIVER);
+    }
+
     const plate = normalizePlate(input.plate);
     const existing = await this.vehiclesRepository.findOneBy({ plate });
 

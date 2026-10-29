@@ -69,6 +69,7 @@ export class VehiclesController {
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
     [HttpStatus.CONFLICT]: [
       'VEHICLE_ALREADY_REGISTERED',
+      'VEHICLE_LIMIT_REACHED',
       'PROFILE_DEACTIVATED_BY_ADMIN',
     ],
   })
