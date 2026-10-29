@@ -44,6 +44,7 @@
         <span class="text-label text-label--strong" aria-hidden="true">Nombre y apellidos</span>
         <ion-input
           formControlName="name"
+          (keydown.tab)="handleNameTab($event)"
           autocomplete="name"
           aria-label="Nombre y apellidos"
           fill="outline"
@@ -61,6 +62,7 @@
              bandera); después, el número, solo con cifras (en España, en
              grupos de tres) -->
         <ion-input
+          #phoneInput
           formControlName="phone"
           type="tel"
           inputmode="numeric"

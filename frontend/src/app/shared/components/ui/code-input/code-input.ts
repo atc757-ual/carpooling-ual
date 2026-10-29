@@ -62,11 +62,14 @@ export class CodeInput implements ControlValueAccessor {
   private onTouched: () => void = () => undefined;
 
   constructor() {
-    // Solo cifras en cada casilla (ver code-input.html)
+    // Solo cifras en cada casilla (ver code-input.html) y el foco en la primera
     afterNextRender(() => {
       const element = this.otpElement()?.nativeElement as HTMLIonInputOtpElement | undefined;
       if (element) {
         element.pattern = DIGIT_PATTERN;
+        // Al entrar en la pantalla, listo para escribir (tras un error, no:
+        // ver shake)
+        void element.setFocus(0);
       }
     });
     this.code.valueChanges.pipe(takeUntilDestroyed(inject(DestroyRef))).subscribe((code) => {
