@@ -1,0 +1,180 @@
+// Se coloca según su propio ancho (container queries), no el de la pantalla:
+// va en la tarjeta ancha de Inicio, en la columna estrecha de Buscar y en
+// Publicar. Desde 600px de ancho, origen y destino en una fila
+:host {
+  display: block;
+  container-type: inline-size;
+}
+
+.route-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  p {
+    margin: 0;
+  }
+}
+
+// Etiqueta encima del campo, a 8px
+.route-fields__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+}
+
+// La etiqueta y, debajo, origen y destino. En el móvil (estrecho), uno
+// encima del otro y «Cambiar sentido» como enlace pequeño a la derecha de la
+// etiqueta; con sitio, los tres en una fila con el botón gris en medio
+.route-fields__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.route-fields__route {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-s);
+  align-items: start;
+}
+
+// Enlace del móvil, en el color de los enlaces (como «Editar» en Buscar), con
+// 32px de alto para tocarlo bien
+.route-fields__swap-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 2rem; // 32px
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 1rem; // 16px
+    transform: rotate(90deg);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// El parking y, debajo, «Ver en el mapa»: enlace pequeño como «Ajustar en el
+// mapa» del campo de dirección
+.route-fields__parking {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+
+  // Sin rojo ni verde: al abrir la lista cuenta como tocado y aún vacío, pero
+  // no es un error (el botón de seguir espera a que se elija); en azul, como
+  // el foco de los demás campos
+  ion-select {
+    --highlight-color-invalid: var(--color-link);
+    --highlight-color-valid: var(--color-link);
+
+    width: 100%;
+  }
+
+  // El texto ocupa el hueco y la flecha queda a la derecha
+  ion-select::part(container) {
+    flex: 1;
+  }
+
+  // El icono del campo (origen o destino), gris como los de la fecha y la hora
+  ion-select > ion-icon {
+    margin-inline-end: var(--space-s);
+    color: var(--color-text-muted);
+    font-size: 1.25rem; // 20px
+  }
+}
+
+.route-fields__map-link {
+  min-height: 2rem; // 32px
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// Botón de escritorio: gris y del alto de los campos, estrecho
+.route-fields__swap {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-s);
+  height: var(--control-height-l);
+  padding: 0;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+  font-size: 1.25rem; // 20px
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+@container (min-width: 600px) {
+  .route-fields__route {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .route-fields__swap {
+    display: flex;
+  }
+
+  .route-fields__swap-link {
+    display: none;
+  }
+}
+
+// «Estás en el campus. ¿Vuelves a casa?»: el texto y, a la derecha, el botón
+.route-fields__go-home {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+
+  p {
+    font-size: var(--font-size-body-s);
+  }
+}
+
+// «Cambiar sentido» del aviso del campus: con aspecto de enlace
+.route-fields__go-home-button {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+}

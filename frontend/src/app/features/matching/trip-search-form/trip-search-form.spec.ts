@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { ModalController, provideIonicAngular } from '@ionic/angular';
+import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { TripSearch } from '../../../core/models/trip-search.model';
-import { LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { TripSearchStateService } from '../trip-search-state.service';
 import {
@@ -82,43 +81,6 @@ describe('TripSearchForm', () => {
     });
   });
 
-  it('offers the campus parkings', () => {
-    const root = fixture.nativeElement as HTMLElement;
-    const options = root.querySelectorAll(
-      'ion-select[formControlName="parking"] ion-select-option',
-    );
-
-    expect(Array.from(options, (option) => option.textContent?.trim())).toEqual([
-      'Campus UAL · Parking P1',
-      'Campus UAL · Parking P3',
-    ]);
-  });
-
-  it('shows the chosen parking on the map', async () => {
-    const create = vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
-      present: vi.fn(),
-    } as unknown as HTMLIonModalElement);
-    form.form.patchValue({ parking: 'p3' });
-
-    await form.handleViewParking();
-
-    expect(create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        componentProps: { viewPoint: [-2.4, 36.83], viewTitle: 'Campus UAL · Parking P3' },
-      }),
-    );
-  });
-
-  it('swaps the direction: to the campus or back from it', () => {
-    form.handleSwap();
-
-    expect(form.isToCampus()).toBe(false);
-
-    form.handleSwap();
-
-    expect(form.isToCampus()).toBe(true);
-  });
-
   it('asks for the arrival time going to the campus and the departure time coming back', () => {
     const root = fixture.nativeElement as HTMLElement;
     const label = () =>
@@ -139,7 +101,7 @@ describe('TripSearchForm', () => {
     // Con dirección y parking, lo que se ahorra (aproximado)
     expect(impact()).toContain('ahorras aproximadamente');
 
-    form.handleSwap();
+    form.form.controls.isToCampus.setValue(false);
     fixture.detectChanges();
 
     expect(form.timeType()).toBe('departure');
@@ -194,7 +156,7 @@ describe('TripSearchForm', () => {
 
   it('goes from the campus when the direction is swapped', async () => {
     form.form.patchValue({ place: ROQUETAS, parking: 'p3' });
-    form.handleSwap();
+    form.form.controls.isToCampus.setValue(false);
 
     await form.handleSubmit();
 
@@ -243,6 +205,10 @@ describe('getDefaultTime', () => {
 
     expect(getDefaultTime(new Date(2026, 9, 27, hours, minutes))).toBe(proposed);
   });
+
+  it('uses another lead when given (Publicar: one hour)', () => {
+    expect(getDefaultTime(new Date(2026, 9, 27, 10, 52), 60)).toBe('11:55');
+  });
 });
 
 describe('shiftTime', () => {
@@ -253,90 +219,5 @@ describe('shiftTime', () => {
     ['23:50', 30, '00:20'],
   ])('moves %s by %i minutes to %s', (time, minutes, shifted) => {
     expect(shiftTime(time, minutes)).toBe(shifted);
-  });
-});
-
-describe('TripSearchForm with the location already allowed', () => {
-  const PARKING_POINT: [number, number] = [-2.4, 36.83];
-  const reverse = vi.fn();
-
-  async function render(
-    point: [number, number],
-    permission = 'granted',
-    saved: TripSearch | null = null,
-  ): Promise<TripSearchForm> {
-    sessionStorage.clear();
-    stubIntersectionObserver();
-    reverse.mockReset().mockResolvedValue({
-      id: 'a1',
-      name: 'Avenida del Mediterraneo, 120',
-      municipality: 'Almería',
-      locality: 'Almería',
-      location: { type: 'Point', coordinates: point },
-      isCovered: true,
-    });
-    TestBed.configureTestingModule({
-      imports: [TripSearchForm],
-      providers: [
-        provideIonicAngular(),
-        provideRouter([]),
-        { provide: PlacesService, useValue: { ...PLACES_SERVICE_STUB, reverse } },
-        {
-          provide: LocationService,
-          useValue: {
-            checkPermission: () => Promise.resolve(permission),
-            getCurrentPoint: () => Promise.resolve(point),
-          },
-        },
-      ],
-    });
-    if (saved) {
-      TestBed.inject(TripSearchStateService).set(saved);
-    }
-    const fixture = TestBed.createComponent(TripSearchForm);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    return fixture.componentInstance;
-  }
-
-  it('fills the origin in with the current place', async () => {
-    const form = await render(ROQUETAS.coordinates);
-
-    await vi.waitFor(() => expect(reverse).toHaveBeenCalledWith(ROQUETAS.coordinates));
-    expect(form.isAtCampus()).toBe(false);
-  });
-
-  it('does not ask for the location when it is not allowed yet', async () => {
-    await render(ROQUETAS.coordinates, 'prompt');
-
-    expect(reverse).not.toHaveBeenCalled();
-  });
-
-  it('suggests going home when it is at the campus, and swaps the direction', async () => {
-    const form = await render(PARKING_POINT);
-
-    expect(reverse).not.toHaveBeenCalled();
-    await vi.waitFor(() => expect(form.isAtCampus()).toBe(true));
-
-    form.handleGoHome();
-
-    expect(form.isAtCampus()).toBe(false);
-    expect(form.isToCampus()).toBe(false);
-  });
-
-  it('shows the saved address as the current location when they are the same place', async () => {
-    const form = await render(ROQUETAS.coordinates, 'granted', {
-      place: ROQUETAS,
-      parking: PARKING_P1,
-      direction: 'to-campus',
-      date: '2026-10-28',
-      time: '08:00',
-      margin: 20,
-      seats: 1,
-    });
-    const field = form['placeField']();
-
-    await vi.waitFor(() => expect(field?.isFromLocation()).toBe(true));
-    expect(reverse).not.toHaveBeenCalled();
   });
 });

@@ -1,0 +1,40 @@
+// Cada pregunta, una fila del acordeón a todo el ancho de la tarjeta (sin el
+// relleno lateral de Ionic) y la respuesta debajo, en gris
+:host {
+  display: block;
+}
+
+ion-card {
+  margin: 0;
+}
+
+ion-accordion ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --background: transparent;
+}
+
+.faq-card__question {
+  font-weight: var(--font-weight-medium);
+  white-space: normal;
+}
+
+.faq-card__answer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-s) 0 var(--space-base);
+
+  p {
+    margin: 0;
+  }
+}
+
+// Los casos, con viñeta y a 4px entre ellos
+.faq-card__points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding-inline-start: var(--space-l);
+}
