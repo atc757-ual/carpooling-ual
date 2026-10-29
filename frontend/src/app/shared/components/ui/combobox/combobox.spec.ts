@@ -6,7 +6,8 @@ import { Combobox, ComboboxState } from './combobox';
 // Un ion-input de mentira: solo lo que usa la directiva
 @Component({
   imports: [Combobox],
-  template: `<ion-input [appCombobox]="combobox"></ion-input>`,
+  template: `<ion-input [appCombobox]="combobox"></ion-input
+    ><button type="button">Siguiente</button>`,
 })
 class HostComponent {
   readonly options = signal(['a', 'b', 'c']);
@@ -60,9 +61,12 @@ describe('Combobox', () => {
     expect(host.choose).toHaveBeenCalledWith('c');
   });
 
-  it('chooses the first one with Tab, without stopping the focus', () => {
-    expect(press('Tab').defaultPrevented).toBe(false);
+  it('chooses the first one with Tab and moves the focus to what comes next', async () => {
+    expect(press('Tab').defaultPrevented).toBe(true);
     expect(host.choose).toHaveBeenCalledWith('a');
+
+    await new Promise((resolve) => setTimeout(resolve));
+    expect(document.activeElement?.textContent).toBe('Siguiente');
   });
 
   it('lets Enter submit and Tab leave without choosing once closed with Escape', () => {

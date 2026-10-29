@@ -9,6 +9,9 @@
 // :host(.input-otp-size-medium) fija el alto y tiene más prioridad que solo
 // ion-input-otp
 ion-input-otp.input-otp-size-medium {
+  // Al escribir, siempre el azul del foco: el código no se valida aquí y
+  // Ionic pondría el verde de «válido» (el error, con .code-input--wrong)
+  --highlight-color-valid: var(--color-link);
   --padding-top: 0;
   --padding-bottom: 0;
   --height: 3.75rem; // 60px
@@ -26,13 +29,25 @@ ion-input-otp.input-otp-size-medium {
 :host ::ng-deep ion-input-otp .input-otp-group {
   justify-content: flex-start;
 }
+// Cada casilla: borde gris de 1px; solo la que tiene el foco, azul y de 2px
+// (Ionic pintaría todas con el color del estado del campo). Su input es HTML
+// interno del componente: ::ng-deep, limitado a este componente
+:host ::ng-deep ion-input-otp .native-input {
+  border-width: var(--border-width-s);
+  border-color: var(--color-border-strong);
+
+  &:focus {
+    border-width: 0.125rem; // 2px
+    border-color: var(--color-link);
+  }
+}
 
 // Código incorrecto: borde rojo de 2px hasta que se pincha en una casilla
 // para escribir (entonces vuelve el azul del foco) y, además, un tintineo
 // corto de lado a lado. Sin movimiento para quien lo ha pedido en el sistema
-.code-input--wrong {
-  --border-color: var(--color-danger);
-  --border-width: 0.125rem; // 2px
+:host ::ng-deep ion-input-otp.code-input--wrong .native-input {
+  border-width: 0.125rem; // 2px
+  border-color: var(--color-danger);
 }
 
 .code-input--shake {

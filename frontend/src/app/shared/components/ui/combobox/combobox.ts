@@ -58,7 +58,8 @@ export class ComboboxState {
 // En el ion-input que tiene sugerencias debajo: le pone al campo de verdad
 // (el input de dentro de ion-input) el rol y los atributos ARIA del combobox,
 // y atiende el teclado: ↓/↑ recorren las sugerencias, Enter (o Tab) elige la
-// resaltada y Escape cierra la lista. Al salir del campo, la lista se cierra.
+// resaltada y pasa al siguiente) y Escape cierra la lista. Al salir del
+// campo, la lista se cierra.
 // <ion-input [appCombobox]="suggestions.combobox" …>
 @Directive({
   selector: 'ion-input[appCombobox]',
@@ -101,9 +102,13 @@ export class Combobox {
       // Sin enviar el formulario: Enter elige la sugerencia
       event.preventDefault();
       combobox.chooseActive();
-    } else if (event.key === 'Tab' && combobox.activeId() !== null) {
-      // Tab elige la resaltada y sigue al campo siguiente (sin preventDefault)
+    } else if (event.key === 'Tab' && !event.shiftKey && combobox.activeId() !== null) {
+      // Tab elige la resaltada y pasa al elemento siguiente. Se hace a mano,
+      // tras actualizarse la pantalla: elegir puede activar el botón de
+      // enviar, que el navegador se saltaría por estar aún desactivado
+      event.preventDefault();
       combobox.chooseActive();
+      setTimeout(() => focusNextAfter(this.host.nativeElement));
     } else if (event.key === 'Escape') {
       event.preventDefault();
       combobox.dismiss();
@@ -125,4 +130,21 @@ export class Combobox {
       }
     }
   }
+}
+
+// Lo que puede recibir el foco con el tabulador (ion-button pasa el foco a su
+// botón interno)
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), ' +
+  'textarea:not([disabled]), ion-button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+// Pone el foco en el primer elemento enfocable que va después de element en la
+// página (lo que haría el tabulador)
+function focusNextAfter(element: HTMLElement): void {
+  const next = [...document.querySelectorAll<HTMLElement>(FOCUSABLE)].find(
+    (candidate) =>
+      !element.contains(candidate) &&
+      Boolean(element.compareDocumentPosition(candidate) & Node.DOCUMENT_POSITION_FOLLOWING),
+  );
+  next?.focus();
 }

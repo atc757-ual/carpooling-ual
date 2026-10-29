@@ -16,10 +16,8 @@ import {
   FormControl,
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
-  Validators,
 } from '@angular/forms';
 import { IonInputOtp } from '@ionic/angular';
-import { IonicFormStatus } from '../../../directives/ionic-form-status.directive';
 
 const CODE_LENGTH = 6;
 // Lo que dura el tintineo (el de code-input.scss)
@@ -36,7 +34,7 @@ const DIGIT_PATTERN = '[0-9]';
 // código es incorrecto, quien lo usa llama a shake()
 @Component({
   selector: 'app-code-input',
-  imports: [ReactiveFormsModule, IonInputOtp, IonicFormStatus],
+  imports: [ReactiveFormsModule, IonInputOtp],
   templateUrl: './code-input.html',
   styleUrl: './code-input.scss',
   providers: [
@@ -54,12 +52,10 @@ export class CodeInput implements ControlValueAccessor {
   private readonly otpElement = viewChild(IonInputOtp, { read: ElementRef });
 
   // Las casillas trabajan con su propio control (el de Ionic); este componente
-  // lo mantiene igual que el del formulario que lo usa. Con sus validadores
-  // para que las casillas se vean en rojo si el código está incompleto
-  protected readonly code = new FormControl('', {
-    nonNullable: true,
-    validators: [Validators.required, Validators.pattern(/^\d{6}$/)],
-  });
+  // lo mantiene igual que el del formulario que lo usa. Sin validadores: el
+  // código se envía solo al completarlo y el error se ve con el rojo de 2px
+  // (shake); con ellos, Ionic pintaba en rojo el código a medio escribir
+  protected readonly code = new FormControl('', { nonNullable: true });
   protected readonly codeLength = CODE_LENGTH;
 
   private onChange: (code: string) => void = () => undefined;
