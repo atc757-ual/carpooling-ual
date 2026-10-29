@@ -49,7 +49,8 @@ export class CodeInput implements ControlValueAccessor {
   // Las seis casillas rellenas (escritas o pegadas): se puede enviar
   readonly completed = output<void>();
   readonly isShaking = signal(false);
-  private readonly otp = viewChild(IonInputOtp);
+  // Código incorrecto: borde rojo hasta que se vuelve a escribir (foco)
+  readonly isWrong = signal(false);
   private readonly otpElement = viewChild(IonInputOtp, { read: ElementRef });
 
   // Las casillas trabajan con su propio control (el de Ionic); este componente
@@ -99,13 +100,13 @@ export class CodeInput implements ControlValueAccessor {
   }
 
   // Código incorrecto: las casillas tintinean (y el móvil vibra, si puede) y
-  // el foco vuelve a la primera para escribirlo de nuevo
+  // se quedan en rojo hasta que se pincha en una para escribirlo de nuevo
   shake(): void {
     this.isShaking.set(false);
     // En el siguiente fotograma, para que la animación vuelva a empezar
     requestAnimationFrame(() => this.isShaking.set(true));
     setTimeout(() => this.isShaking.set(false), SHAKE_MS);
     navigator.vibrate?.(SHAKE_MS);
-    void this.otp()?.setFocus(0);
+    this.isWrong.set(true);
   }
 }

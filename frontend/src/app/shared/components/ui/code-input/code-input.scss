@@ -27,13 +27,15 @@ ion-input-otp.input-otp-size-medium {
   justify-content: flex-start;
 }
 
-// Código incorrecto: un tintineo corto de lado a lado con el borde rojo de 2px
-// (además del aviso). Sin
-// movimiento para quien lo ha pedido en el sistema
-.code-input--shake {
+// Código incorrecto: borde rojo de 2px hasta que se pincha en una casilla
+// para escribir (entonces vuelve el azul del foco) y, además, un tintineo
+// corto de lado a lado. Sin movimiento para quien lo ha pedido en el sistema
+.code-input--wrong {
   --border-color: var(--color-danger);
   --border-width: 0.125rem; // 2px
+}
 
+.code-input--shake {
   animation: code-input-shake 0.4s ease-in-out;
 }
 

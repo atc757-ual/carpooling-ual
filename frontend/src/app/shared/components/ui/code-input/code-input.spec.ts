@@ -85,7 +85,7 @@ describe('CodeInput', () => {
     expect(host.completions).toBe(1);
   });
 
-  it('shakes, vibrates and goes back to the first box when the code is wrong', () => {
+  it('shakes, vibrates and stays red until a box gets the focus when the code is wrong', () => {
     vi.useFakeTimers();
     const vibrate = vi.fn();
     Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
@@ -100,6 +100,10 @@ describe('CodeInput', () => {
     expect(vibrate).toHaveBeenCalledWith(400);
     vi.advanceTimersByTime(400);
     expect(input.isShaking()).toBe(false);
+    // Sigue en rojo hasta que se pincha para escribir
+    expect(input.isWrong()).toBe(true);
+    fixture.nativeElement.querySelector('ion-input-otp').dispatchEvent(new CustomEvent('ionFocus'));
+    expect(input.isWrong()).toBe(false);
     vi.useRealTimers();
   });
 });
