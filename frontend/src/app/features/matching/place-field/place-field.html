@@ -29,13 +29,16 @@
         <button
           type="button"
           class="place-field__locate"
-          aria-label="Usar mi ubicación"
+          [class.place-field__locate--active]="isFromLocation()"
+          [attr.aria-label]="isFromLocation() ? 'Usando tu ubicación actual' : 'Usar mi ubicación'"
           [disabled]="isDisabled()"
           (click)="handleUseLocation()"
         >
-          <ion-icon [icon]="locateIcon" aria-hidden="true" />
+          <ion-icon [icon]="isFromLocation() ? locatedIcon : locateIcon" aria-hidden="true" />
         </button>
-        <span class="place-field__tooltip" aria-hidden="true">Usar mi ubicación</span>
+        <span class="place-field__tooltip" aria-hidden="true">{{
+          isFromLocation() ? 'Usando tu ubicación actual' : 'Usar mi ubicación'
+        }}</span>
       </span>
     }
   </ion-input>
@@ -74,19 +77,22 @@
   }
 </div>
 
-<!-- output: los lectores de pantalla leen lo que aparece aquí -->
-<output class="place-field__status">
-  @if (status(); as status) {
-    <span class="text-caption text-color-muted">{{ status }}</span>
-  } @else if (message(); as message) {
-    <span class="place-field__message">{{ message }}</span>
-  }
-</output>
+<!-- Bajo el campo, en una fila: «Ajustar en el mapa» a la izquierda y, a su
+     lado, el estado (el output lo leen los lectores de pantalla) -->
+<div class="place-field__below">
+  <output class="place-field__status">
+    @if (status(); as status) {
+      <span class="text-caption text-color-muted">{{ status }}</span>
+    } @else if (message(); as message) {
+      <span class="place-field__message">{{ message }}</span>
+    }
+  </output>
 
-<!-- Con una dirección elegida: moverla en el mapa (p. ej. para que te
+  <!-- Con una dirección elegida: moverla en el mapa (p. ej. para que te
      recojan, o te dejen, en la esquina) -->
-@if (selected() && !status()) {
-  <button type="button" class="place-field__adjust" (click)="handleAdjust()">
-    Ajustar en el mapa
-  </button>
-}
+  @if (selected() && !status()) {
+    <button type="button" class="place-field__adjust" (click)="handleAdjust()">
+      Ajustar en el mapa
+    </button>
+  }
+</div>

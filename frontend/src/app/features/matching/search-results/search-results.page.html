@@ -1,0 +1,143 @@
+<!-- Móvil: fijo arriba, el resumen de la búsqueda (origen y destino en una
+     línea de ruta, y cuándo y cuántas plazas) y, a la derecha, el lápiz para
+     editarla (vuelve al formulario relleno). En escritorio va en la columna
+     de 4 -->
+@if (search()) {
+  <ion-header class="search-results__header ion-no-border ion-hide-md-up">
+    <div class="search-results__summary">
+      <div class="search-results__summary-text">
+        <app-route-timeline [stops]="stops()" />
+        <p class="text-body-s text-color-muted">{{ details() }}</p>
+      </div>
+      <button
+        class="search-results__edit-icon"
+        type="button"
+        (click)="isEditing.set(true)"
+        aria-label="Editar búsqueda"
+      >
+        <ion-icon [icon]="editIcon" aria-hidden="true" />
+      </button>
+    </div>
+  </ion-header>
+}
+
+<ion-content>
+  <div class="tab-page search-results">
+    <h1 class="visually-hidden">Tu búsqueda</h1>
+
+    <!-- Escritorio: la búsqueda en una tarjeta de la columna de 4, con el
+         lápiz a la derecha del título, como en el móvil -->
+    @if (search()) {
+      <ion-card class="search-results__aside ion-hide-md-down">
+        <ion-card-header class="search-results__aside-header">
+          <ion-card-title>Tu trayecto</ion-card-title>
+          <button
+            class="search-results__edit-icon"
+            type="button"
+            (click)="isEditing.set(true)"
+            aria-label="Editar búsqueda"
+          >
+            <ion-icon [icon]="editIcon" aria-hidden="true" />
+          </button>
+        </ion-card-header>
+        <ion-card-content>
+          <app-route-timeline [stops]="stops()" />
+          <p class="text-body-s text-color-muted">{{ details() }}</p>
+        </ion-card-content>
+      </ion-card>
+    }
+
+    <div class="search-results__list">
+      @if (search(); as search) {
+        @if (results.isLoading()) {
+          <!-- Buscando: los puntos que suben y bajan, y qué se busca -->
+          <ion-card>
+            <ion-card-content class="search-results__state" role="status">
+              <ion-spinner name="dots" aria-hidden="true" />
+              <div class="text-subtitle">Buscando viajes…</div>
+              <div class="text-body-s text-color-muted">
+                Estamos buscando coincidencias con tu búsqueda.
+              </div>
+            </ion-card-content>
+          </ion-card>
+        } @else if (results.error()) {
+          <ion-card>
+            <ion-card-content class="search-results__state" role="alert">
+              <ion-icon [icon]="errorIcon" aria-hidden="true" />
+              <div class="text-subtitle">No hemos podido buscar viajes</div>
+              <div class="text-body-s text-color-muted">{{ errorMessage() }}</div>
+              <form (submit)="$event.preventDefault(); handleRetry()">
+                <ion-button type="submit" fill="outline">Reintentar</ion-button>
+              </form>
+            </ion-card-content>
+          </ion-card>
+        } @else if (trips().length === 0) {
+          <!-- Vacío (guía, «Estados»): cómo seguir, sin cambiar la búsqueda sin
+             avisar -->
+          <ion-card>
+            <ion-card-content class="search-results__state">
+              <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+              <div class="text-subtitle">Aún no hay viajes para esa hora</div>
+              <div class="text-body-s text-color-muted">
+                Prueba con otro horario o amplía el margen. No cambiaremos tu búsqueda sin avisarte.
+              </div>
+              @if (widerMargin(); as margin) {
+                <form (submit)="$event.preventDefault(); handleWidenMargin()">
+                  <ion-button type="submit" fill="outline">
+                    Ampliar margen a ± {{ margin }} min
+                  </ion-button>
+                </form>
+              }
+            </ion-card-content>
+          </ion-card>
+        } @else {
+          <span class="text-eyebrow text-color-muted">
+            {{ trips().length }} en tu margen (± {{ search.margin }} min)
+          </span>
+          @for (trip of trips(); track trip.id) {
+            <app-trip-result-card [trip]="trip" />
+          }
+          <p class="text-caption text-color-muted">
+            Ordenados por compatibilidad: menos desvío y más cerca de tu hora. La hora de llegada es
+            estimada. Correo UAL verificado no significa permiso de conducir verificado. La plaza
+            solo se confirma al aceptar el conductor.
+          </p>
+        }
+      } @else {
+        <!-- Se ha llegado sin buscar (p. ej. recargando la página) -->
+        <ion-card>
+          <ion-card-content class="search-results__state">
+            <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+            <div class="text-subtitle">Aún no has buscado ningún viaje</div>
+            <ion-button routerLink="/tabs/search" routerDirection="back">Buscar viaje</ion-button>
+          </ion-card-content>
+        </ion-card>
+      }
+    </div>
+  </div>
+</ion-content>
+
+<!-- Editar la búsqueda sin salir de los resultados: el formulario relleno en
+     una ventana (en el móvil, desde abajo; en escritorio, centrada). Al buscar
+     se cierra y los resultados se vuelven a cargar ahí mismo -->
+<ion-modal class="location-dialog" [isOpen]="isEditing()" (didDismiss)="isEditing.set(false)">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title>Editar búsqueda</ion-title>
+        <ion-buttons slot="end">
+          <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
+          <form (submit)="$event.preventDefault(); isEditing.set(false)">
+            <ion-button class="dialog-close" type="submit" aria-label="Cerrar">
+              <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
+            </ion-button>
+          </form>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <!-- Sin ion-content: así la ventana toma el alto de su contenido -->
+    <div class="search-results__edit-form">
+      <app-trip-search-form (searched)="isEditing.set(false)" />
+    </div>
+  </ng-template>
+</ion-modal>

@@ -9,6 +9,7 @@ import { SearchPlace } from '../../../core/models/trip-search.model';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { ROQUETAS } from '../trip-search.testing';
+import { By } from '@angular/platform-browser';
 import { PlaceField } from './place-field';
 
 const SUGGESTION = { id: 'a1', name: 'Avenida del Mediterraneo, 120', locality: 'Almería' };
@@ -203,5 +204,54 @@ describe('PlaceField', () => {
     fixture.detectChanges();
 
     expect(root().querySelector('ion-input')?.classList).toContain('ion-invalid');
+  });
+
+  it('fills in quietly with the current location and shows it on the button', async () => {
+    const field = fixture.debugElement.query(By.directive(PlaceField))
+      .componentInstance as PlaceField;
+    places.reverse.mockResolvedValue(PLACE);
+
+    await field.fillQuietly([-2.4, 36.83]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.place.value).toMatchObject({ id: 'a1' });
+    expect(field.isFromLocation()).toBe(true);
+    expect(root().querySelector('.place-field__locate--active')?.getAttribute('aria-label')).toBe(
+      'Usando tu ubicación actual',
+    );
+
+    field.handleInput('Otra');
+    expect(field.isFromLocation()).toBe(false);
+  });
+
+  it('leaves the field empty, without warnings, outside the service area or on errors', async () => {
+    const field = fixture.debugElement.query(By.directive(PlaceField))
+      .componentInstance as PlaceField;
+    places.reverse.mockResolvedValueOnce({ ...PLACE, municipality: 'Vera', isCovered: false });
+
+    await field.fillQuietly([-1.8, 37.2]);
+    places.reverse.mockRejectedValueOnce(new Error('down'));
+    await field.fillQuietly([-1.8, 37.2]);
+
+    expect(fixture.componentInstance.place.value).toBeNull();
+    expect(field.message()).toBeNull();
+    expect(field.isFromLocation()).toBe(false);
+  });
+
+  it('marks the address it has as the current location, only if it has one', () => {
+    const field = fixture.debugElement.query(By.directive(PlaceField))
+      .componentInstance as PlaceField;
+
+    field.markFromLocation();
+    expect(field.isFromLocation()).toBe(false);
+
+    fixture.componentInstance.place.setValue({
+      id: 'a1',
+      name: 'Avenida del Mediterraneo, 120',
+      locality: 'Almería',
+      coordinates: [-2.4, 36.83],
+    });
+    field.markFromLocation();
+    expect(field.isFromLocation()).toBe(true);
   });
 });

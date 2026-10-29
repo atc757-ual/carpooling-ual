@@ -1,113 +1,115 @@
 // El fondo gris y las tarjetas blancas, de ../../tabs/tab-page.scss y
 // theme/_components.scss
 
-// Móvil: una columna. «Tu búsqueda» es una franja blanca de lado a lado, como
-// la del saludo de Inicio, y debajo los resultados con el margen de la página
-.trip-search__criteria {
-  border-width: 0 0 var(--border-width-s);
-  border-color: var(--color-border-subtle);
-  border-radius: 0;
-
-  ion-card-content {
-    padding: var(--space-base) var(--page-gutter);
-  }
-}
-
-.trip-search__results {
+// Móvil: una columna con el margen de la página: el título de la sección, a
+// 16px la tarjeta de la búsqueda y debajo los resultados
+.trip-search {
   display: flex;
   flex-direction: column;
   gap: var(--space-base);
   padding: var(--space-l) var(--page-gutter);
-}
 
-// Cabecera del grupo de resultados: cuántos hay en el margen
-.trip-search__group {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-s);
-}
-
-// Aviso fijo bajo los resultados: lo que no se promete
-.trip-search__results > p {
-  margin: 0;
-}
-
-// Estados de los resultados (sin búsqueda, buscando, ninguno y error):
-// tarjeta alta con todo centrado, el icono de 32px en un círculo azul claro
-// de 64px, el título y el texto debajo (en div: Ionic pone 14px a los p de
-// ion-card-content) y, si los hay, los botones para seguir
-.trip-search__state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-s);
-  min-height: 20rem; // 320px
-  padding: var(--space-xxxl) var(--space-l);
-  text-align: center;
-
-  ion-icon {
-    box-sizing: content-box;
-    margin-bottom: var(--space-s);
-    padding: var(--space-base);
-    border-radius: var(--radius-full);
-    background: var(--color-primary-subtle);
-    color: var(--color-link);
-    font-size: 2rem; // 32px
+  ion-card {
+    margin: 0;
   }
 }
 
-.trip-search__state-actions {
+// «Nueva búsqueda», bajo el formulario, centrado
+.trip-search__edit-actions {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
   gap: var(--space-s);
-  margin-top: var(--space-s);
 
   ion-button {
     margin: 0;
   }
 }
 
-// Escritorio: resultados en la columna de 8 y «Tu búsqueda» en la de 4, como
-// tarjeta, con 16px entre las dos y el margen y el ancho máximo de la página
+// Escritorio: el saludo arriba; la búsqueda en la columna de 8 y, en la de
+// 4, la invitación a publicar y las preguntas frecuentes
 @media (min-width: 768px) {
   .trip-search {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     align-items: start;
-    gap: var(--space-base);
-    padding: var(--space-l) var(--page-gutter);
+  }
+
+  .trip-search__hello {
+    grid-column: 1 / -1;
   }
 
   .trip-search__criteria {
-    grid-row: 1;
-    grid-column: 2;
-    border-width: var(--border-width-s);
-    border-color: var(--color-border);
-    border-radius: var(--radius-s);
-
-    // Sin relleno arriba: ya lo da el título
-    ion-card-content {
-      padding: 0 var(--space-base) var(--space-base);
-    }
+    grid-column: 1;
   }
 
-  .trip-search__results {
-    grid-row: 1;
-    grid-column: 1;
-    padding: 0;
+  .trip-search__aside {
+    grid-row: 2 / span 2;
+    grid-column: 2;
   }
 }
 
-// Al editar: «Nueva búsqueda» a la izquierda y «Cancelar» a la derecha
-.trip-search__edit-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-s);
-
-  ion-button {
-    margin: 0;
+// Móvil: la columna lateral, al final
+@media (max-width: 767.98px) {
+  .trip-search__aside {
+    order: 1;
   }
+}
+
+// El saludo de la pantalla de inicio, encima de la tarjeta: 22px, en negrita
+.trip-search__hello {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.375rem; // 22px
+  font-weight: var(--font-weight-bold);
+}
+
+// La invitación a publicar y las preguntas, una encima de la otra
+.trip-search__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+// Aviso de solicitudes en espera: todo él lleva a Mis viajes
+.trip-search__pending {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  text-decoration: none;
+
+  ion-icon {
+    flex: none;
+    font-size: 1.25rem; // 20px
+  }
+}
+
+.trip-search__pending-link {
+  margin-inline-start: var(--space-xs);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+}
+
+// «¿Tienes coche?»: una fila con su icono, el texto y la flecha de Ionic
+.trip-search__car ion-item {
+  --padding-start: var(--space-base);
+  --inner-padding-end: var(--space-base);
+  --min-height: 4rem; // 64px
+
+  ion-icon {
+    color: var(--color-link);
+    font-size: 1.5rem; // 24px
+    // 16px hasta el texto (Ionic pone 32px)
+    margin-inline-end: var(--space-base);
+  }
+
+  p {
+    margin: var(--space-xs) 0 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-body-s);
+    white-space: normal;
+  }
+}
+
+.trip-search__car-title {
+  font-weight: var(--font-weight-semibold);
 }

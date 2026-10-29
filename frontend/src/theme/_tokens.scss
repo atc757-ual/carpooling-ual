@@ -48,7 +48,7 @@ $breakpoints: (
   // de acceso) y 24px en escritorio; en pantallas más anchas que el máximo, lo
   // que sobra se reparte a los lados y todo queda centrado y alineado con el
   // logotipo. El % es del ancho de quien lo usa
-  --page-max-width: 87.5rem; // 1400px
+  --page-max-width: 85rem; // 1360px: 1312px de contenido + 24px a cada lado
   --page-gutter-min: var(--space-base);
   --page-gutter: max(
     var(--page-gutter-min),

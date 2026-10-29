@@ -1,110 +1,63 @@
 <ion-content>
   <div class="trip-search">
-    <h1 class="visually-hidden">Buscar viaje</h1>
+    <!-- La pantalla de inicio saluda; el título de la sección va en la tarjeta -->
+    <h1 class="trip-search__hello">¡Hola, {{ firstName() }}!</h1>
 
-    <!-- Tu búsqueda: en el móvil, franja blanca arriba (sin título: ya lo
-         lleva la cabecera); en escritorio, tarjeta en la columna de 4. Un solo
-         bloque para los dos, así nunca hay dos formularios a la vez -->
+    <!-- Solicitudes que esperan respuesta: aviso encima de la búsqueda -->
+    @if (pendingRequests(); as pending) {
+      <a class="trip-search__pending notice notice--info" routerLink="/tabs/trips">
+        <ion-icon [icon]="pendingIcon" aria-hidden="true" />
+        <span>
+          {{
+            pending === 1
+              ? 'Tienes 1 solicitud esperando respuesta.'
+              : 'Tienes ' + pending + ' solicitudes esperando respuesta.'
+          }}
+          <span class="trip-search__pending-link">Ver en Mis viajes</span>
+        </span>
+      </a>
+    }
+
+    <!-- La búsqueda, en una tarjeta con su título y siempre desplegada
+         (rellena con la última, que se cambia ahí mismo) -->
     <ion-card class="trip-search__criteria">
-      <ion-card-header class="ion-hide-md-down">
-        <ion-card-title>Tu búsqueda</ion-card-title>
+      <ion-card-header>
+        <ion-card-title>¿A dónde vamos hoy?</ion-card-title>
+        <ion-card-subtitle>
+          Encuentra a alguien de la UAL que haga tu mismo trayecto.
+        </ion-card-subtitle>
       </ion-card-header>
       <ion-card-content>
-        @if (search(); as search) {
-          @if (isEditing()) {
-            <app-trip-search-form (searched)="isEditing.set(false)" />
-            <!-- Empezar de cero o dejarla como estaba. En formularios: cada
-                 botón envía el suyo (sin click en ion-button) -->
-            <div class="trip-search__edit-actions">
-              <form (submit)="$event.preventDefault(); handleNewSearch()">
-                <ion-button type="submit" fill="clear">Nueva búsqueda</ion-button>
-              </form>
-              <form (submit)="$event.preventDefault(); isEditing.set(false)">
-                <ion-button type="submit" fill="clear">Cancelar</ion-button>
-              </form>
-            </div>
-          } @else {
-            <app-trip-search-summary [search]="search" (edit)="isEditing.set(true)" />
-          }
-        } @else {
-          <app-trip-search-form />
+        <app-trip-search-form />
+        @if (search()) {
+          <!-- Empezar de cero. En un formulario: el botón lo envía (sin click
+               en ion-button) -->
+          <form
+            class="trip-search__edit-actions"
+            (submit)="$event.preventDefault(); handleNewSearch()"
+          >
+            <ion-button type="submit" fill="clear">Nueva búsqueda</ion-button>
+          </form>
         }
       </ion-card-content>
     </ion-card>
 
-    <!-- Resultados (columna de 8 en escritorio) -->
-    <div class="trip-search__results">
-      @if (search(); as search) {
-        @if (results.isLoading()) {
-          <ion-card>
-            <ion-card-content class="trip-search__state" role="status">
-              <ion-spinner name="crescent" aria-hidden="true" />
-              <div class="text-subtitle">Buscando viajes…</div>
-            </ion-card-content>
-          </ion-card>
-        } @else if (results.error()) {
-          <ion-card>
-            <ion-card-content class="trip-search__state" role="alert">
-              <ion-icon [icon]="errorIcon" aria-hidden="true" />
-              <div class="text-subtitle">No hemos podido buscar viajes</div>
-              <div class="text-body-s text-color-muted">{{ errorMessage() }}</div>
-              <form (submit)="$event.preventDefault(); handleRetry()">
-                <ion-button type="submit" fill="outline">Reintentar</ion-button>
-              </form>
-            </ion-card-content>
-          </ion-card>
-        } @else if (trips().length === 0) {
-          <!-- Vacío (guía, «Estados»): qué se ha buscado y cómo seguir, sin
-               cambiar la búsqueda sin avisar -->
-          <ion-card>
-            <ion-card-content class="trip-search__state">
-              <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-              <div class="text-subtitle">Aún no hay viajes para esa hora</div>
-              <div class="text-body-s text-color-muted">
-                Prueba con otro horario o amplía el margen. No cambiaremos tu búsqueda sin avisarte.
-              </div>
-              <div class="trip-search__state-actions">
-                <form (submit)="$event.preventDefault(); isEditing.set(true)">
-                  <ion-button type="submit" fill="outline">Modificar hora</ion-button>
-                </form>
-                @if (widerMargin(); as margin) {
-                  <form (submit)="$event.preventDefault(); handleWidenMargin()">
-                    <ion-button type="submit" fill="outline">
-                      Ampliar margen a ± {{ margin }} min
-                    </ion-button>
-                  </form>
-                }
-              </div>
-            </ion-card-content>
-          </ion-card>
-        } @else {
-          <div class="trip-search__group">
-            <span class="text-eyebrow text-color-muted">
-              {{ trips().length }} en tu margen (±{{ search.margin }} min)
-            </span>
-          </div>
-          @for (trip of trips(); track trip.id) {
-            <app-trip-result-card [trip]="trip" />
-          }
-          <p class="text-caption text-color-muted">
-            Ordenados por compatibilidad: menos desvío y más cerca de tu hora. La hora de llegada es
-            estimada. Correo UAL verificado no significa permiso de conducir verificado. La plaza
-            solo se confirma al aceptar el conductor.
-          </p>
-        }
-      } @else {
-        <!-- Solo en escritorio: en el móvil, el formulario ya ocupa la
-             pantalla -->
-        <ion-card class="ion-hide-md-down">
-          <ion-card-content class="trip-search__state">
-            <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-            <div class="text-subtitle">Aquí verás los resultados de tu búsqueda</div>
-            <div class="text-body-s text-color-muted">
-              Completa el formulario y pulsa «Buscar viaje».
-            </div>
-          </ion-card-content>
+    <!-- Al lado de la búsqueda en escritorio, al final en el móvil: la
+         invitación a publicar (solo sin coche registrado) y las preguntas
+         frecuentes -->
+    <aside class="trip-search__aside">
+      @if (!isDriver()) {
+        <ion-card class="trip-search__car">
+          <ion-item button detail routerLink="/tabs/publish" lines="none">
+            <ion-icon slot="start" [icon]="carIcon" aria-hidden="true" />
+            <ion-label>
+              <span class="trip-search__car-title">¿Tienes coche?</span>
+              <p>Publica tu trayecto y comparte tu coche.</p>
+            </ion-label>
+          </ion-item>
         </ion-card>
       }
-    </div>
+      <app-search-faq />
+    </aside>
   </div>
 </ion-content>

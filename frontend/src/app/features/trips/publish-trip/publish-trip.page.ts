@@ -39,6 +39,7 @@ import { VehicleForm } from '../vehicle-form/vehicle-form';
 import { VehicleModal } from '../vehicle-modal/vehicle-modal';
 import { getDefaultTime } from '../../matching/trip-search-form/trip-search-form';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { SectionTitle } from '../../tabs/section-title/section-title';
 
 export const DETOURS = [5, 10, 15, 20] as const;
 const DEFAULT_DETOUR = 10;
@@ -71,6 +72,7 @@ export function toDepartureAt(date: string, time: string): string {
 @Component({
   selector: 'app-publish-trip',
   imports: [
+    SectionTitle,
     ReactiveFormsModule,
     IonButton,
     IonCheckbox,

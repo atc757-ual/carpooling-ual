@@ -16,6 +16,7 @@ import { LegalDocument, LegalModal } from '../../shared/components/modals/legal-
 import { formatPhone } from '../../shared/utils/phone.util';
 import { getInitials } from '../matching/trip-driver/trip-driver';
 import { ProfileVehicles } from './profile-vehicles/profile-vehicles';
+import { SectionTitle } from '../tabs/section-title/section-title';
 
 // Pestaña Perfil, en el orden de la guía: la cuenta y los vehículos (el
 // primero hace conductor); en escritorio, a la derecha, la
@@ -24,6 +25,7 @@ import { ProfileVehicles } from './profile-vehicles/profile-vehicles';
 @Component({
   selector: 'app-profile',
   imports: [
+    SectionTitle,
     IonButton,
     IonCard,
     IonCardContent,

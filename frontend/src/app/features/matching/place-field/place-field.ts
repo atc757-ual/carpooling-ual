@@ -2,7 +2,7 @@ import { Component, computed, DestroyRef, forwardRef, inject, input, signal } fr
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IonIcon, IonInput, ModalController } from '@ionic/angular';
-import { locateOutline } from 'ionicons/icons';
+import { locateOutline, navigateCircleOutline } from 'ionicons/icons';
 import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
 import { Place, PlaceSuggestion } from '../../../core/models/place.model';
 import { SearchPlace } from '../../../core/models/trip-search.model';
@@ -72,6 +72,8 @@ export class PlaceField implements ControlValueAccessor {
     (index) => void this.handleSelect(this.suggestions()[index]),
   );
   readonly selected = signal<SearchPlace | null>(null);
+  // Rellenada sola con la ubicación del momento (fillQuietly)
+  readonly isFromLocation = signal(false);
   // Bajo el campo: lo que se está haciendo («Buscando tu ubicación…»)…
   readonly status = signal<string | null>(null);
   // …o un aviso: sin cobertura, sin permiso o el servicio caído
@@ -86,6 +88,7 @@ export class PlaceField implements ControlValueAccessor {
   );
 
   protected readonly locateIcon = locateOutline;
+  protected readonly locatedIcon = navigateCircleOutline;
 
   private readonly queries = new Subject<string>();
   private onChange: (value: SearchPlace | null) => void = () => undefined;
@@ -135,6 +138,7 @@ export class PlaceField implements ControlValueAccessor {
   handleInput(text: string): void {
     this.text.set(text);
     this.message.set(null);
+    this.isFromLocation.set(false);
     if (this.selected()) {
       this.selected.set(null);
       this.onChange(null);
@@ -188,11 +192,35 @@ export class PlaceField implements ControlValueAccessor {
     }
   }
 
+  // Al abrir Buscar con el permiso ya dado: la dirección de ese punto, sin
+  // avisos (si cae fuera de la zona de servicio o falla, el campo se queda
+  // vacío). Debajo se ve «Desde tu ubicación actual»
+  async fillQuietly(point: [number, number]): Promise<void> {
+    try {
+      const place = await this.places.reverse(point);
+      if (place.isCovered && !this.selected() && this.text() === '') {
+        this.applyPlace(place);
+        this.isFromLocation.set(true);
+      }
+    } catch {
+      // Sin dirección: se escribe a mano
+    }
+  }
+
+  // La dirección que ya tiene el campo es la de la ubicación del momento
+  markFromLocation(): void {
+    if (this.selected()) {
+      this.isFromLocation.set(true);
+    }
+  }
+
   private async fillFromPoint(point: [number, number]): Promise<void> {
     this.suggestions.set([]);
     await this.resolve('Buscando la dirección…', async () =>
       this.applyPlace(await this.places.reverse(point)),
     );
+    // El botón pasa a «Usando tu ubicación actual» (si la dirección valió)
+    this.isFromLocation.set(this.selected() !== null);
   }
 
   // Tan alta como su contenido: en el móvil, pegada abajo; en escritorio,

@@ -24,7 +24,8 @@
   --color-text-muted: #{$neutral-500};
   --color-text-disabled: #{$neutral-400};
 
-  // Bordes
+  --color-border: #{$neutral-200}; // separadores
+  --color-card-border: #{$blue-100}; // tarjetas: azul muy claro sobre el fondo gris
   --color-border: #{$neutral-200}; // tarjetas y separadores
   --color-border-subtle: #{$neutral-100};
   --color-border-strong: #{$neutral-500}; // campos de formulario
@@ -77,6 +78,8 @@
   --shadow-s: 0 1px 2px rgb(12 12 12 / 8%);
   --shadow-base: 0 4px 12px rgb(12 12 12 / 10%);
   --shadow-l: 0 12px 32px rgb(12 12 12 / 14%);
+  // Tarjetas: un halo azulado muy suave, para separarlas del fondo gris
+  --shadow-card: 0 2px 8px rgb(0 46 255 / 6%);
 }
 
 @include color-scheme.dark {
@@ -92,6 +95,7 @@
   --color-text-disabled: #{$neutral-500};
 
   --color-border: #{$neutral-500};
+  --color-card-border: #{$blue-800};
   --color-border-subtle: #{$neutral-750};
   --color-border-strong: #{$neutral-400};
 
@@ -131,4 +135,5 @@
   --shadow-s: 0 1px 2px rgb(0 0 0 / 40%);
   --shadow-base: 0 4px 12px rgb(0 0 0 / 50%);
   --shadow-l: 0 12px 32px rgb(0 0 0 / 60%);
+  --shadow-card: none;
 }
