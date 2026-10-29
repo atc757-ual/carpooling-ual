@@ -108,5 +108,8 @@ export class CodeInput implements ControlValueAccessor {
     setTimeout(() => this.isShaking.set(false), SHAKE_MS);
     navigator.vibrate?.(SHAKE_MS);
     this.isWrong.set(true);
+    // Sin foco (se quedaba en la última casilla): al pinchar, Ionic lo lleva a
+    // la primera vacía y el borde vuelve al azul
+    (document.activeElement as HTMLElement | null)?.blur();
   }
 }
