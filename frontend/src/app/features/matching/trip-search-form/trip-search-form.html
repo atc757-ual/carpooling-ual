@@ -4,6 +4,16 @@
        etiqueta), el destino. Cada campo lleva el icono de su papel: un
        círculo el origen y un pin el destino -->
 
+  <!-- Está en el campus: lo más seguro es que vuelva a casa -->
+  @if (isAtCampus() && isToCampus()) {
+    <div class="notice notice--info search-form__go-home">
+      <p>Estás en el campus. ¿Vuelves a casa?</p>
+      <button type="button" class="search-form__go-home-button" (click)="handleGoHome()">
+        Cambiar sentido
+      </button>
+    </div>
+  }
+
   <div class="search-form__field">
     <div class="search-form__route-head">
       <span class="text-label text-label--strong">Trayecto</span>
@@ -121,18 +131,24 @@
     <app-seat-stepper formControlName="seats" label="Plazas" [min]="minSeats" [max]="maxSeats" />
   </div>
 
-  <!-- Se activa al elegir la dirección; mientras, se dice qué falta -->
+  <!-- Lo que se ahorra en este trayecto dejando el coche en casa (estimación
+       de ejemplo, con la dirección y el parking elegidos; antes, qué se verá) -->
+  <div class="notice notice--success search-form__impact" aria-live="polite">
+    <ion-icon [icon]="impactIcon" aria-hidden="true" />
+    @if (impact(); as impact) {
+      <p>
+        Compartiendo este trayecto ahorras aproximadamente <b>{{ impact.km }} km</b> al volante,
+        <b>{{ formatDecimal(impact.co2Kg) }} kg de CO₂</b> y
+        <b>{{ formatDecimal(impact.fuelEuros) }} €</b> de gasolina.
+      </p>
+    } @else {
+      <p>Elige de dónde sales y te decimos cuánto ahorras compartiendo el trayecto.</p>
+    }
+  </div>
+
+  <!-- Se activa al elegir la dirección -->
   <ion-button type="submit" expand="block" [disabled]="!hasPlace()">
     <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
     Buscar viaje
   </ion-button>
-
-  <p class="search-form__summary text-color-muted" aria-live="polite">
-    @if (hasPlace()) {
-      Verás viajes que {{ timeType() === 'arrival' ? 'llegan al' : 'salen del' }} campus entre las
-      {{ timeWindow().from }} y las {{ timeWindow().to }}.
-    } @else {
-      Elige tu dirección para buscar viajes.
-    }
-  </p>
 </form>

@@ -2,6 +2,7 @@ import { TripMatch } from '../../core/models/trip-match.model';
 import { TripSearch } from '../../core/models/trip-search.model';
 import { PARKING_P1, ROQUETAS } from './trip-search.testing';
 import {
+  formatShortDate,
   formatTime,
   minutesBetween,
   toSearchRequest,
@@ -81,5 +82,11 @@ describe('trip results', () => {
   it('counts minutes and formats times', () => {
     expect(minutesBetween('23:50', '00:10')).toBe(20);
     expect(formatTime(new Date('2026-10-27T09:05:00').toISOString())).toBe('09:05');
+  });
+});
+
+describe('formatShortDate', () => {
+  it('reads a day in local time', () => {
+    expect(formatShortDate('2026-10-27')).toBe('27 oct');
   });
 });

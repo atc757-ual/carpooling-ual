@@ -19,6 +19,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { ActiveModeService, TravelMode } from '../../../core/services/users/active-mode.service';
 import { DriverTripCard } from '../driver-trip-card/driver-trip-card';
 import { PassengerRequests } from '../passenger-requests/passenger-requests';
+import { SectionTitle } from '../../tabs/section-title/section-title';
 
 // Viajes que aún no han terminado
 const UPCOMING: ReadonlySet<TripStatus> = new Set(['published', 'confirmed', 'in_progress']);
@@ -29,6 +30,7 @@ const UPCOMING: ReadonlySet<TripStatus> = new Set(['published', 'confirmed', 'in
 @Component({
   selector: 'app-my-trips',
   imports: [
+    SectionTitle,
     RouterLink,
     IonButton,
     IonCard,

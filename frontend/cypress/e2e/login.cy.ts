@@ -86,10 +86,8 @@ for (const viewport of VIEWPORTS) {
         .its('request.body')
         .should('deep.equal', { email: 'ana@ual.es', password: 'secreta123' });
       cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
-      // El título de la pestaña: en escritorio, en la franja fija; en el móvil, en la cabecera
-      cy.get('app-tabs .greeting-bar p, app-tabs .app-header ion-title')
-        .filter(':visible')
-        .should('contain', 'viaje');
+      // El saludo de Buscar, la pantalla de inicio
+      cy.get('h1').filter(':visible').should('contain', '¡Hola, Ana!');
     });
 
     it('shows the API error when the credentials are wrong', () => {

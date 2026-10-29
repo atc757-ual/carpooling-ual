@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -110,6 +110,7 @@ export class RegisterPage {
     acceptedTerms: [false, Validators.requiredTrue],
   });
   readonly isSubmitting = signal(false);
+  private readonly phoneInput = viewChild<IonInput>('phoneInput');
   readonly isPasswordVisible = signal(false);
 
   protected readonly backIcon = arrowBackOutline;
@@ -177,6 +178,13 @@ export class RegisterPage {
       componentProps: { document },
     });
     await modal.present();
+  }
+
+  // Tab desde el nombre: al número del teléfono, no a su prefijo (el +34
+  // casi nunca se cambia; se llega con Shift+Tab desde el número)
+  handleNameTab(event: Event): void {
+    event.preventDefault();
+    void this.phoneInput()?.setFocus();
   }
 
   async handleSubmit(): Promise<void> {

@@ -119,16 +119,24 @@ export class TabsPage implements OnInit {
   protected readonly logoutIcon = logOutOutline;
 
   ngOnInit(): void {
-    void this.notifications.refreshUnread();
+    this.countUnread();
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
-        void this.notifications.refreshUnread();
+        this.countUnread();
         void this.rememberSide();
       });
+  }
+
+  // Solo con la sesión abierta: al cerrarla (o caducar) también se navega, y
+  // sin token la API respondería 401
+  private countUnread(): void {
+    if (this.auth.isLoggedIn()) {
+      void this.notifications.refreshUnread();
+    }
   }
 
   // Buscar → pasajero, Publicar → conductor (si ya lo es: sin coche aún no).

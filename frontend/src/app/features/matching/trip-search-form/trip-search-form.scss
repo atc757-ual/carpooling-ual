@@ -170,15 +170,63 @@
   font-size: 1.25rem; // 20px
 }
 
-// Qué viajes se verán: 12px en el móvil y 14px en escritorio
-.search-form__summary {
-  font-size: var(--font-size-caption);
-  line-height: var(--line-height-caption);
-}
+// Ahorro aproximado del trayecto: aviso verde claro con la hoja y las cifras
+// en negrita
+.search-form__impact {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
 
-@media (min-width: 768px) {
-  .search-form__summary {
+  ion-icon {
+    flex: none;
+    margin-top: 0.125rem; // 2px: a la altura de la primera línea
+    color: var(--color-success);
+    font-size: 1.25rem; // 20px
+  }
+
+  // Las cifras en negrita, seguidas del texto (el tema las pone en su línea)
+  b {
+    display: inline;
+  }
+
+  p {
+    margin: 0;
     font-size: var(--font-size-body-s);
     line-height: var(--line-height-body-s);
+  }
+}
+
+// «Estás en el campus. ¿Vuelves a casa?»: el texto y, a la derecha, el botón
+.search-form__go-home {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+
+  p {
+    margin: 0;
+    font-size: var(--font-size-body-s);
+  }
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+// «Cambiar sentido» del aviso del campus: con aspecto de enlace
+.search-form__go-home-button {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
   }
 }

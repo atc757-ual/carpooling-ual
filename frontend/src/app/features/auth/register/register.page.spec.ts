@@ -178,4 +178,17 @@ describe('RegisterPage', () => {
     expect(showError).toHaveBeenCalledWith('Ya hay una cuenta con este correo.');
     expect(navigateByUrl).not.toHaveBeenCalled();
   });
+
+  it('jumps from the name to the phone number, not to its prefix', () => {
+    const setFocus = vi.fn().mockResolvedValue(undefined);
+    vi.spyOn(page as unknown as { phoneInput: () => unknown }, 'phoneInput').mockReturnValue({
+      setFocus,
+    });
+    const event = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true });
+
+    page.handleNameTab(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(setFocus).toHaveBeenCalled();
+  });
 });

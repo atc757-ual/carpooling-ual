@@ -150,7 +150,7 @@
 
 .place-field__status > span {
   display: block;
-  padding-top: var(--space-xs);
+  padding-block: var(--space-xs);
 }
 
 .place-field__message {
@@ -174,5 +174,55 @@
 
   &:focus-visible {
     outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// «Ajustar en el mapa» a la izquierda (como «Ver en el mapa» del parking) y,
+// a su lado, el estado si lo hay. Subida 5px: Ionic deja ese hueco bajo el
+// campo para el texto de error aunque no se vea, y así queda a la altura de
+// «Ver en el mapa»
+.place-field__below {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-base);
+  margin-top: -0.3125rem; // -5px
+
+  .place-field__adjust {
+    flex: none;
+    order: -1;
+  }
+
+  .place-field__status {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// Rellenado con la ubicación del momento: la flecha de navegación en un
+// círculo azul muy claro que late suave (sin animación con «reducir
+// movimiento»)
+.place-field__locate--active {
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  animation: place-field-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes place-field-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    background: var(--color-primary-subtle);
+  }
+
+  50% {
+    transform: scale(1.15);
+    background: color-mix(in srgb, var(--color-link) 10%, var(--color-primary-subtle));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .place-field__locate--active {
+    animation: none;
   }
 }

@@ -56,7 +56,7 @@ function logIn(profiles: string[]): void {
 function searchTrips(place: string): void {
   choosePlace('app-trip-search app-trip-search-form', place);
   cy.contains('app-trip-search app-trip-search-form ion-button', 'Buscar viaje').click();
-  cy.location('pathname').should('eq', '/tabs/search');
+  cy.location('pathname').should('eq', '/tabs/search/results');
 }
 
 for (const viewport of VIEWPORTS) {
@@ -79,16 +79,12 @@ for (const viewport of VIEWPORTS) {
     it('shows the compatible trips', () => {
       searchTrips('Roquetas de Mar');
 
-      cy.get('app-trip-search .route-timeline__stop').first().should('contain', 'Roquetas de Mar');
-      cy.get('app-trip-search .route-timeline__stop').last().should('contain', 'Parking P1');
-      cy.contains('app-trip-search .search-summary__details', 'plaza').should('be.visible');
-      cy.contains('app-trip-search .search-summary__details', 'Margen de llegada').should(
-        'be.visible',
-      );
+      // El resumen de la búsqueda, con el trayecto
+      cy.contains('app-search-results app-route-timeline', 'Roquetas de Mar');
       cy.wait('@search').its('request.body').should('include', { parkingId: 'p1', seats: 1 });
-      cy.contains('app-trip-search', '1 en tu margen').should('be.visible');
-      cy.contains('app-trip-search app-trip-result-card', 'Lucía Cortés').should('be.visible');
-      cy.contains('app-trip-search app-trip-result-card', '07:20 → 07:52').should('be.visible');
+      cy.contains('app-search-results', '1 en tu margen').should('be.visible');
+      cy.contains('app-search-results app-trip-result-card', 'Lucía Cortés').should('be.visible');
+      cy.contains('app-search-results app-trip-result-card', '07:20 → 07:52').should('be.visible');
     });
 
     it('requests a seat from the trip and shows it pending', () => {
@@ -105,7 +101,10 @@ for (const viewport of VIEWPORTS) {
         },
       }).as('request');
       searchTrips('Roquetas de Mar');
-      cy.contains('app-trip-search app-trip-result-card ion-button', 'Ver viaje de Lucía').click();
+      cy.contains(
+        'app-search-results app-trip-result-card ion-button',
+        'Ver viaje de Lucía',
+      ).click();
 
       cy.contains('app-trip-detail ion-button', 'Solicitar 1 plaza').click();
 
@@ -119,7 +118,10 @@ for (const viewport of VIEWPORTS) {
     it('opens a trip and comes back to the same search', () => {
       searchTrips('Roquetas de Mar');
 
-      cy.contains('app-trip-search app-trip-result-card ion-button', 'Ver viaje de Lucía').click();
+      cy.contains(
+        'app-search-results app-trip-result-card ion-button',
+        'Ver viaje de Lucía',
+      ).click();
 
       cy.location('pathname').should('eq', '/tabs/search/trips/t1');
       // El mismo viaje de la búsqueda, con quien conduce y cómo se pide plaza
@@ -130,83 +132,65 @@ for (const viewport of VIEWPORTS) {
         'be.visible',
       );
       if (isDesktop) {
-        // Por los breadcrumbs de la franja: Buscar viaje › Detalle
-        cy.get('app-tabs .greeting-bar ion-breadcrumb').should('have.length', 2);
-        cy.contains('app-tabs .greeting-bar ion-breadcrumb', 'Buscar viaje').click();
+        // Por los breadcrumbs: Buscar viaje › Tu búsqueda › Detalle
+        cy.get('app-tabs .greeting-bar ion-breadcrumb').should('have.length', 3);
+        cy.contains('app-tabs .greeting-bar ion-breadcrumb', 'Tu búsqueda').click();
       } else {
         cy.contains('app-tabs .app-header ion-title', 'Detalle del viaje').should('be.visible');
         cy.get('app-tabs .app-header .back-button').click();
       }
 
-      cy.location('pathname').should('eq', '/tabs/search');
-      cy.contains('app-trip-search .route-timeline__stop', 'Roquetas de Mar').should('be.visible');
+      cy.location('pathname').should('eq', '/tabs/search/results');
+      cy.contains('app-search-results app-trip-result-card', 'Lucía Cortés').should('be.visible');
     });
 
-    it('edits the search with the form filled in and shows the new one', () => {
+    it('edits the search in a window and shows the new results', () => {
       searchTrips('Roquetas de Mar');
 
-      cy.contains('app-trip-search app-trip-search-summary ion-button', 'Editar').click();
-      cy.get('app-trip-search app-place-field input').should('have.value', 'Roquetas de Mar');
-      choosePlace('app-trip-search', 'Huércal de Almería');
-      cy.contains('app-trip-search app-trip-search-form ion-button', 'Buscar viaje').click();
+      cy.get('app-search-results .search-results__edit-icon').filter(':visible').click();
+      choosePlace('ion-modal', 'Huércal de Almería');
+      cy.contains('ion-modal app-trip-search-form ion-button', 'Buscar viaje').click();
 
-      cy.get('app-trip-search app-trip-search-form').should('not.exist');
-      cy.contains('app-trip-search .route-timeline__stop', 'Huércal de Almería').should(
-        'be.visible',
-      );
+      cy.get('ion-modal app-trip-search-form').should('not.exist');
+      cy.location('pathname').should('eq', '/tabs/search/results');
+      cy.contains('app-search-results app-route-timeline', 'Huércal de Almería');
     });
 
-    it('says when there are no trips and offers to change the time', () => {
+    it('says when there are no trips', () => {
       cy.intercept('POST', '/api/trips/search', []).as('empty');
       searchTrips('Roquetas de Mar');
 
       cy.wait('@empty').its('request.body').should('include', { marginMin: 20 });
-      cy.contains('app-trip-search', 'Aún no hay viajes para esa hora').should('be.visible');
+      cy.contains('app-search-results', 'Aún no hay viajes para esa hora').should('be.visible');
       // ±20 min ya es el margen mayor: no se ofrece ampliarlo
-      cy.contains('app-trip-search ion-button', 'Ampliar margen').should('not.exist');
-      cy.contains('app-trip-search ion-button', 'Modificar hora').click();
-      cy.get('app-trip-search app-trip-search-form').should('be.visible');
+      cy.contains('app-search-results ion-button', 'Ampliar margen').should('not.exist');
     });
 
-    it('closes the form without changing the search', () => {
+    it('keeps the search in Buscar and starts a new one with the form empty', () => {
       searchTrips('Roquetas de Mar');
 
-      cy.contains('app-trip-search app-trip-search-summary ion-button', 'Editar').click();
-      cy.contains('app-trip-search ion-button', 'Cancelar').click();
+      // De vuelta a Buscar (la pestaña recordaría Tu búsqueda): la flecha en
+      // el móvil, las migas en escritorio
+      if (isDesktop) {
+        cy.contains('app-tabs .greeting-bar ion-breadcrumb', 'Buscar viaje').click();
+      } else {
+        cy.get('app-tabs .app-header .back-button').click();
+      }
+      cy.location('pathname').should('eq', '/tabs/search');
+      cy.get('app-trip-search app-place-field input').should('have.value', 'Roquetas de Mar');
 
-      cy.get('app-trip-search app-trip-search-form').should('not.exist');
-      cy.contains('app-trip-search .route-timeline__stop', 'Roquetas de Mar').should('be.visible');
-    });
-
-    it('keeps the search when going to another tab and coming back', () => {
-      searchTrips('Roquetas de Mar');
-
-      goTo('Perfil');
-      goTo('Buscar');
-
-      cy.contains('app-trip-search .route-timeline__stop', 'Roquetas de Mar').should('be.visible');
-    });
-
-    it('starts a new search with the form empty', () => {
-      searchTrips('Roquetas de Mar');
-
-      cy.contains('app-trip-search app-trip-search-summary ion-button', 'Editar').click();
       cy.contains('app-trip-search ion-button', 'Nueva búsqueda').click();
 
-      cy.get('app-trip-search app-trip-search-summary').should('not.exist');
       cy.get('app-trip-search app-place-field input').should('have.value', '');
+      cy.contains('app-trip-search ion-button', 'Nueva búsqueda').should('not.exist');
     });
 
-    it('shows the form when opened without a search', () => {
+    it('greets and shows the search card with the questions', () => {
       goTo('Buscar');
 
+      cy.contains('app-trip-search h1', '¡Hola, Mario!').should('be.visible');
       cy.get('app-trip-search app-trip-search-form').should('be.visible');
-      cy.get('app-trip-search app-trip-search-summary').should('not.exist');
-      if (isDesktop) {
-        cy.contains('app-trip-search', 'Aquí verás los resultados de tu búsqueda').should(
-          'be.visible',
-        );
-      }
+      cy.contains('app-trip-search', 'Preguntas frecuentes').should('be.visible');
     });
   });
 }

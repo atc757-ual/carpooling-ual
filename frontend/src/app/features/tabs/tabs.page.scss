@@ -40,29 +40,40 @@ ion-tab-button {
   }
 }
 
-// Escritorio: menú de 64px. Tres columnas iguales a los lados para que los
-// destinos queden centrados de verdad, midan lo que midan el logotipo y las
-// acciones
+// Escritorio: dos niveles. Arriba, el logotipo a la izquierda y la campana y
+// cerrar sesión a la derecha (64px); debajo, los destinos, centrados
 .top-nav {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas:
+    'brand actions'
+    'links links';
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 4rem auto; // 64px
   align-items: center;
-  height: 4rem; // 64px
   padding-inline: var(--page-gutter);
+  // 16px bajo los destinos, para que no queden pegados al borde
+  padding-bottom: var(--space-base);
   background: var(--color-surface);
+
+  app-brand-logo {
+    grid-area: brand;
+  }
 }
 
 .top-nav__links {
   display: flex;
+  grid-area: links;
+  justify-content: center;
   gap: var(--space-xs);
 }
 
 .top-nav__link {
   display: flex;
   align-items: center;
-  min-height: var(--control-height-s);
+  // 48px: la barra del activo va en su borde inferior
+  min-height: var(--control-height-base);
   padding-inline: var(--space-base);
-  border-radius: var(--radius-s);
+  border-radius: var(--radius-s) var(--radius-s) 0 0;
   color: var(--color-text);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
@@ -78,14 +89,29 @@ ion-tab-button {
 }
 
 // El destino activo, en el color de los enlaces y en negrita
+// El destino activo: en el color de los enlaces, en negrita y con una barra de
+// 4px debajo, del ancho de su texto
 .top-nav__link--active {
+  position: relative;
   color: var(--color-link);
   font-weight: var(--font-weight-semibold);
+
+  &::after {
+    position: absolute;
+    right: var(--space-base);
+    bottom: 0;
+    left: var(--space-base);
+    height: 0.25rem; // 4px
+    border-radius: 0.25rem 0.25rem 0 0;
+    background: var(--color-link);
+    content: '';
+  }
 }
 
 .top-nav__actions {
   display: flex;
   align-items: center;
+  grid-area: actions;
   justify-self: end;
   gap: var(--space-xs);
 
@@ -109,7 +135,8 @@ ion-tab-button {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  padding: var(--space-l) var(--page-gutter);
+  // Solo lleva las migas: 4px arriba y 16px abajo
+  padding: var(--space-xs) var(--page-gutter) var(--space-base);
 
   p {
     margin: 0;
@@ -120,7 +147,7 @@ ion-tab-button {
 // pantalla actual en el color del texto, Inicio como la casa, y el primer paso
 // alineado con el título (sin el relleno de Ionic)
 .greeting-bar__breadcrumbs {
-  margin-top: var(--space-s);
+  margin-top: 0;
   padding: 0;
 
   ion-icon {

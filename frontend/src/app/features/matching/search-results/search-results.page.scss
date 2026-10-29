@@ -1,0 +1,142 @@
+// Móvil: los resultados en una columna (el resumen va en la cabecera fija).
+// Escritorio: los resultados en la columna de 8 y la búsqueda en la de 4
+.search-results {
+  align-items: stretch;
+
+  ion-card {
+    margin: 0;
+  }
+}
+
+.search-results__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  > p {
+    margin: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .search-results {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-base);
+  }
+
+  .search-results__list {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .search-results__aside {
+    position: sticky;
+    top: var(--space-l);
+    grid-row: 1;
+    grid-column: 2;
+  }
+}
+
+// La tarjeta de la búsqueda (escritorio): el título y el lápiz a la derecha
+.search-results__aside-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.search-results__aside ion-card-content p {
+  margin: 0;
+}
+
+// La línea de ruta y los detalles a la izquierda (en el móvil) y el lápiz a la
+// derecha, un botón de 44px (en el móvil y en la tarjeta de escritorio)
+.search-results__summary-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+}
+
+.search-results__edit-icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem; // 44px
+  height: 2.75rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-size: 1.25rem; // 20px
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+}
+
+// Cabecera fija de la página: blanca, con una línea fina debajo
+.search-results__header {
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  background: var(--color-surface);
+}
+
+// Buscando, vacío y error: tarjeta alta con todo centrado; el icono de 32px en
+// un círculo azul claro (los puntos de carga, en el color de los enlaces)
+.search-results__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  min-height: 20rem; // 320px
+  padding: var(--space-xxxl) var(--space-l);
+  text-align: center;
+
+  ion-icon {
+    box-sizing: content-box;
+    margin-bottom: var(--space-s);
+    padding: var(--space-base);
+    border-radius: var(--radius-full);
+    background: var(--color-primary-subtle);
+    color: var(--color-link);
+    font-size: 2rem; // 32px
+  }
+
+  ion-spinner {
+    width: 3rem; // 48px
+    height: 3rem;
+    color: var(--color-link);
+  }
+
+  ion-button {
+    margin: var(--space-s) 0 0;
+  }
+}
+
+// Resumen fijo (móvil): blanco, con el margen de la página
+.search-results__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+  padding: var(--space-base) var(--page-gutter);
+
+  p {
+    margin: 0;
+  }
+}
+
+// El formulario de la ventana «Editar búsqueda»: con su propio scroll si no
+// cabe (como mucho, el 90 % de la pantalla menos la cabecera)
+.search-results__edit-form {
+  max-height: calc(90vh - 3.5rem);
+  overflow-y: auto;
+  padding: var(--space-base);
+  padding-bottom: max(var(--space-l), calc(var(--space-base) + env(safe-area-inset-bottom, 0px)));
+  background: var(--color-surface);
+}

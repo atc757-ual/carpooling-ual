@@ -1,25 +1,24 @@
-import { Component, computed, effect, inject, linkedSignal, resource } from '@angular/core';
+import { Component, computed, inject, resource } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonCardHeader,
+  IonCardSubtitle,
   IonCardTitle,
   IonContent,
   IonIcon,
-  IonSpinner,
+  IonItem,
+  IonLabel,
+  IonRouterLink,
 } from '@ionic/angular';
-import { alertCircleOutline, searchOutline } from 'ionicons/icons';
-import { ApiError } from '../../../core/models/api-error.model';
-import { TripSearch } from '../../../core/models/trip-search.model';
-import { MatchingService } from '../../../core/services/matching/matching.service';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { TripResultCard } from '../trip-result-card/trip-result-card';
-import { toSearchRequest, toTripResult } from '../trip-results';
-import { MARGINS } from '../trip-search';
+import { carOutline, timeOutline } from 'ionicons/icons';
 import { TripSearchForm } from '../trip-search-form/trip-search-form';
 import { TripSearchStateService } from '../trip-search-state.service';
-import { TripSearchSummary } from '../trip-search-summary/trip-search-summary';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { SearchFaq } from '../search-faq/search-faq';
+import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 
 // Buscar (pasajero). La búsqueda es la última hecha, en Inicio o aquí
 // (TripSearchStateService, no va en la URL). Arriba en el móvil y en la
@@ -32,76 +31,57 @@ import { TripSearchSummary } from '../trip-search-summary/trip-search-summary';
 @Component({
   selector: 'app-trip-search',
   imports: [
+    RouterLink,
+    IonRouterLink,
+    IonItem,
+    IonLabel,
+    SearchFaq,
     IonButton,
     IonCard,
     IonCardContent,
     IonCardHeader,
+    IonCardSubtitle,
     IonCardTitle,
     IonContent,
     IonIcon,
-    IonSpinner,
-    TripResultCard,
     TripSearchForm,
-    TripSearchSummary,
   ],
   templateUrl: './trip-search.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './trip-search.page.scss'],
 })
 export class TripSearchPage {
+  private readonly auth = inject(AuthService);
+  private readonly seatRequests = inject(SeatRequestsService);
   private readonly searchState = inject(TripSearchStateService);
-  private readonly matching = inject(MatchingService);
+
+  // «¡Hola, Jimena!»: el nombre de pila
+  readonly firstName = computed(() => this.auth.currentUser()?.name.split(' ')[0] ?? '');
+
+  // Sin coche registrado aún: se le invita a publicar
+  readonly isDriver = computed(() => {
+    this.auth.currentUser();
+    return this.auth.hasProfile('driver');
+  });
+
+  // Cuántas de sus solicitudes esperan respuesta (0: sin aviso). Si no se
+  // pueden cargar, no se avisa: no es motivo para un error
+  private readonly myRequests = resource({
+    loader: () => this.seatRequests.listMine().catch(() => []),
+  });
+  readonly pendingRequests = computed(() =>
+    this.myRequests.hasValue()
+      ? this.myRequests.value().filter(({ status }) => status === 'pending').length
+      : 0,
+  );
 
   // La última búsqueda, o null si aún no se ha buscado
   readonly search = this.searchState.search;
 
-  // Editando la búsqueda: se cierra al buscar y con cada búsqueda nueva (la
-  // pestaña se conserva al buscar desde Inicio)
-  readonly isEditing = linkedSignal({ source: this.search, computation: () => false });
+  protected readonly pendingIcon = timeOutline;
+  protected readonly carIcon = carOutline;
 
-  // Los viajes de la búsqueda; se vuelven a pedir con cada búsqueda nueva
-  readonly results = resource({
-    params: () => this.search() ?? undefined,
-    loader: async ({ params }) =>
-      (await this.matching.search(toSearchRequest(params))).map((match) =>
-        toTripResult(match, params),
-      ),
-  });
-
-  readonly trips = computed(() => (this.results.hasValue() ? this.results.value() : []));
-  // «Hemos tenido un problema…», con la referencia si es un error del servidor
-  readonly errorMessage = computed(() => {
-    const error = this.results.error();
-    return error ? getErrorMessage(ApiError.fromHttpError(error)) : '';
-  });
-  // El margen siguiente (para «Ampliar margen»), o null si ya es el mayor
-  readonly widerMargin = computed(() => {
-    const margin = this.search()?.margin ?? 0;
-    return MARGINS.find((value) => value > margin) ?? null;
-  });
-
-  protected readonly emptyIcon = searchOutline;
-  protected readonly errorIcon = alertCircleOutline;
-
-  constructor() {
-    // El detalle de cada viaje sale de los resultados
-    effect(() => this.searchState.setResults(this.trips()));
-  }
-
-  // Empezar de cero: sin búsqueda, el formulario vacío (también el de Inicio)
+  // Empezar de cero: sin búsqueda, el formulario vacío
   handleNewSearch(): void {
     this.searchState.clear();
-  }
-
-  // «Ampliar margen»: la misma búsqueda con el margen siguiente
-  handleWidenMargin(): void {
-    const search = this.search();
-    const margin = this.widerMargin();
-    if (search && margin) {
-      this.searchState.set({ ...search, margin } satisfies TripSearch);
-    }
-  }
-
-  handleRetry(): void {
-    this.results.reload();
   }
 }

@@ -92,7 +92,7 @@ describe('ResetCodePage', () => {
 
   it('lets ask for a new code after a minute', () => {
     open('mario.perez@ual.es');
-    expect(page.resendLabel()).toBe('Reenviar código en 00:60');
+    expect(page.resendLabel()).toBe('Reenviar código en 01:00');
 
     vi.advanceTimersByTime(60_000);
 

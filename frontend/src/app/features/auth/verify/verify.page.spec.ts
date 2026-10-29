@@ -98,7 +98,7 @@ describe('VerifyPage', () => {
 
   it('lets ask for a new code after a minute and starts counting again', async () => {
     open('mario.perez@ual.es');
-    expect(page.resendLabel()).toBe('Reenviar código en 00:60');
+    expect(page.resendLabel()).toBe('Reenviar código en 01:00');
 
     vi.advanceTimersByTime(18_000);
     expect(page.resendLabel()).toBe('Reenviar código en 00:42');

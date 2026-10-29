@@ -18,6 +18,7 @@ const HEADING: TabHeading = { title: 'Buscar viaje', subtitle: 'Viajes' };
 describe('TabsPage', () => {
   const mode = signal<TravelMode | null>('passenger');
   const profiles = signal<Profile[]>(['passenger', 'driver']);
+  const loggedIn = signal(true);
   const setMode = vi.fn().mockResolvedValue(undefined);
   const logout = vi.fn().mockResolvedValue(undefined);
   const unread = signal(0);
@@ -38,6 +39,7 @@ describe('TabsPage', () => {
           useValue: {
             currentUser: signal({ name: 'Mario Pérez' } as User),
             hasProfile: (profile: Profile) => profiles().includes(profile),
+            isLoggedIn: () => loggedIn(),
             logout,
           },
         },
@@ -53,6 +55,7 @@ describe('TabsPage', () => {
   beforeEach(() => {
     mode.set('passenger');
     profiles.set(['passenger', 'driver']);
+    loggedIn.set(true);
     unread.set(0);
     refreshUnread.mockClear();
     setMode.mockClear();
@@ -81,6 +84,16 @@ describe('TabsPage', () => {
     expect(page.unreadBadge()).toBe('9+');
     unread.set(3);
     expect(page.unreadBadge()).toBe('3');
+  });
+
+  it('does not count the notifications without a session (e.g. when logging out)', async () => {
+    render();
+    refreshUnread.mockClear();
+    loggedIn.set(false);
+
+    await TestBed.inject(Router).navigateByUrl('/tabs/profile');
+
+    expect(refreshUnread).not.toHaveBeenCalled();
   });
 
   it('remembers the side when entering Buscar or Publicar, only if it changes', async () => {

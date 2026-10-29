@@ -1,5 +1,15 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, effect, inject, OnInit, output, untracked } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  OnInit,
+  output,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   FormControl,
@@ -11,6 +21,7 @@ import { Router } from '@angular/router';
 import { IonButton, IonIcon, IonSelect, IonSelectOption, ModalController } from '@ionic/angular';
 import {
   ellipseOutline,
+  leafOutline,
   locationOutline,
   searchOutline,
   swapHorizontalOutline,
@@ -24,9 +35,16 @@ import { LocationModal } from '../location-modal/location-modal';
 import { PlaceField } from '../place-field/place-field';
 import { MARGINS, MAX_SEATS, MIN_SEATS } from '../trip-search';
 import { TripSearchStateService } from '../trip-search-state.service';
+import { distanceKm, estimateTripImpact } from '../trip-impact';
+import { LocationService } from '../../../core/services/location/location.service';
 
 // La hora por defecto: dentro de media hora, de 5 en 5 minutos como el
 // selector
+// A menos de esta distancia de un parking, se está en el campus
+const AT_CAMPUS_KM = 1;
+// A menos de esta distancia, la dirección guardada es donde se está ahora
+const SAME_PLACE_KM = 0.3;
+
 const LEAD_MINUTES = 30;
 const MINUTE_STEP = 5;
 const LAST_TIME = '23:55';
@@ -94,6 +112,12 @@ export class TripSearchForm implements OnInit {
   private readonly router = inject(Router);
   private readonly searchState = inject(TripSearchStateService);
   private readonly places = inject(PlacesService);
+  private readonly location = inject(LocationService);
+  private readonly placeField = viewChild(PlaceField);
+
+  // La ubicación del momento está en el campus: lo más seguro es que vuelva a
+  // casa, y se le propone cambiar el sentido
+  readonly isAtCampus = signal(false);
   private readonly modalController = inject(ModalController);
 
   // Avisa de cada búsqueda (en Buscar, para cerrar el formulario aunque se
@@ -129,21 +153,31 @@ export class TripSearchForm implements OnInit {
   // hora se sale (cuando acaban las clases)
   readonly timeType = computed<TimeType>(() => (this.isToCampus() ? 'arrival' : 'departure'));
 
-  // «Verás viajes que llegan al campus entre las 07:40 y las 08:20»
-  readonly timeWindow = computed(() => {
-    const { time = this.form.controls.time.value, margin = DEFAULT_MARGIN } = this.value();
-    return { from: shiftTime(time, -margin), to: shiftTime(time, margin) };
-  });
+  // «0,7»: con coma decimal, en español
+  protected formatDecimal(value: number): string {
+    return value.toLocaleString('es-ES');
+  }
 
   protected readonly minDate = toIsoDate(new Date());
   protected readonly maxDate = toIsoDate(inOneMonth());
   protected readonly parkings = this.places.parkings;
+
+  // Lo que se ahorra dejando el coche en casa en este trayecto (aproximado:
+  // ver trip-impact.ts). Con la dirección y el parking elegidos
+  readonly impact = computed(() => {
+    const { place, parking } = this.value();
+    const campus = this.parkings().find(({ id }) => id === parking);
+    return place && campus
+      ? estimateTripImpact(place.coordinates, campus.location.coordinates)
+      : null;
+  });
   protected readonly campusName = CAMPUS_NAME;
   protected readonly margins = MARGINS;
   protected readonly minSeats = MIN_SEATS;
   protected readonly maxSeats = MAX_SEATS;
   protected readonly originIcon = ellipseOutline;
   protected readonly destinationIcon = locationOutline;
+  protected readonly impactIcon = leafOutline;
   protected readonly searchIcon = searchOutline;
   protected readonly swapIcon = swapHorizontalOutline;
 
@@ -164,7 +198,46 @@ export class TripSearchForm implements OnInit {
   }
 
   ngOnInit(): void {
-    void this.places.loadParkings();
+    void this.prefillOrigin();
+  }
+
+  // Ahorra escribir el origen: con el permiso de ubicación YA concedido (no se
+  // pide al abrir), sin dirección elegida y yendo al campus, rellena el campo
+  // con la dirección del momento. Si está en el campus (a menos de 1 km de un
+  // parking), no lo rellena: propone volver a casa. La ubicación no se guarda
+  private async prefillOrigin(): Promise<void> {
+    await this.places.loadParkings();
+    const saved = this.value().place;
+    // Con una búsqueda guardada solo se mira si es donde está ahora; sin ella,
+    // solo al ir al campus
+    if ((!saved && !this.isToCampus()) || (await this.location.checkPermission()) !== 'granted') {
+      return;
+    }
+    const point = await this.location.getCurrentPoint().catch(() => null);
+    if (!point) {
+      return;
+    }
+    if (saved) {
+      // La dirección guardada es la de aquí: el botón lo muestra (late)
+      if (distanceKm(point, saved.coordinates) < SAME_PLACE_KM) {
+        this.placeField()?.markFromLocation();
+      }
+      return;
+    }
+    const isAtCampus = this.parkings().some(
+      ({ location }) => distanceKm(point, location.coordinates) < AT_CAMPUS_KM,
+    );
+    if (isAtCampus) {
+      this.isAtCampus.set(true);
+      return;
+    }
+    await this.placeField()?.fillQuietly(point);
+  }
+
+  // «¿Vuelves a casa?»: cambia el sentido y deja de proponerlo
+  handleGoHome(): void {
+    this.isAtCampus.set(false);
+    this.handleSwap();
   }
 
   // En rojo con «Elige una dirección de la lista.»
@@ -236,6 +309,6 @@ export class TripSearchForm implements OnInit {
     };
     this.searchState.set(search);
     this.searched.emit(search);
-    await this.router.navigate(['/tabs/search']);
+    await this.router.navigate(['/tabs/search/results']);
   }
 }

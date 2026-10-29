@@ -77,13 +77,32 @@ export const routes: Routes = [
         data: {
           heading: {
             title: 'Buscar viaje',
-            subtitle: 'Viajes de la comunidad UAL que encajan con tu ruta y tu horario.',
+            subtitle:
+              'Dinos de dónde sales y a qué hora quieres llegar: te enseñamos quién va hacia allí.',
           } satisfies TabHeading,
         },
       },
       {
-        // Detalle de un viaje de los resultados. La flecha
-        // vuelve a Buscar, que sigue con la misma búsqueda
+        // Tu búsqueda: los viajes que encajan con la búsqueda hecha en Buscar.
+        // La flecha (y «Editar búsqueda») vuelven al formulario relleno
+        path: 'search/results',
+        canActivate: [profileGuard('passenger')],
+        loadComponent: () =>
+          import('./features/matching/search-results/search-results.page').then(
+            (m) => m.SearchResultsPage,
+          ),
+        data: {
+          heading: {
+            title: 'Tu búsqueda',
+            subtitle: 'Los viajes que encajan con tu ruta y tu horario.',
+            backHref: '/tabs/search',
+            breadcrumbs: [{ label: 'Buscar viaje', href: '/tabs/search' }],
+          } satisfies TabHeading,
+        },
+      },
+      {
+        // Detalle de un viaje de los resultados. La flecha vuelve a Tu
+        // búsqueda, con los mismos resultados
         path: 'search/trips/:id',
         canActivate: [profileGuard('passenger')],
         loadComponent: () =>
@@ -92,8 +111,11 @@ export const routes: Routes = [
           heading: {
             title: 'Detalle del viaje',
             subtitle: 'El recorrido, quién conduce y las plazas libres.',
-            backHref: '/tabs/search',
-            breadcrumbs: [{ label: 'Buscar viaje', href: '/tabs/search' }],
+            backHref: '/tabs/search/results',
+            breadcrumbs: [
+              { label: 'Buscar viaje', href: '/tabs/search' },
+              { label: 'Tu búsqueda', href: '/tabs/search/results' },
+            ],
           } satisfies TabHeading,
         },
       },

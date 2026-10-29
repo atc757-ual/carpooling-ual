@@ -19,9 +19,8 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { toTripDetail } from '../trip-results';
+import { formatShortDate, toTripDetail } from '../trip-results';
 import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
-import { formatShortDate } from '../trip-search-summary/trip-search-summary';
 import { TripSearchStateService } from '../trip-search-state.service';
 
 // Detalle de un viaje de los resultados de Buscar: el recorrido con sus horas,

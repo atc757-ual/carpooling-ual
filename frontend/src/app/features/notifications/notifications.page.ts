@@ -21,6 +21,7 @@ import { formatDateLabel } from '../../shared/components/ui/datetime-field/datet
 import { getErrorMessage } from '../../shared/utils/error-message.util';
 import { formatTime } from '../matching/trip-results';
 import { formatElapsed, notificationMessage, notificationMode } from './notification-texts';
+import { SectionTitle } from '../tabs/section-title/section-title';
 
 export interface NotificationItem {
   notification: AppNotification;
@@ -33,7 +34,7 @@ export interface NotificationItem {
 // decide las solicitudes; el pasajero ve las suyas)
 @Component({
   selector: 'app-notifications',
-  imports: [IonButton, IonCard, IonCardContent, IonContent, IonIcon, IonSpinner],
+  imports: [SectionTitle, IonButton, IonCard, IonCardContent, IonContent, IonIcon, IonSpinner],
   templateUrl: './notifications.page.html',
   styleUrls: ['../tabs/tab-page.scss', './notifications.page.scss'],
 })

@@ -3,6 +3,7 @@ import { provideRouter, Router } from '@angular/router';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { TripSearch } from '../../../core/models/trip-search.model';
+import { LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { TripSearchStateService } from '../trip-search-state.service';
 import {
@@ -118,41 +119,31 @@ describe('TripSearchForm', () => {
     expect(form.isToCampus()).toBe(true);
   });
 
-  it('shows the times that the margin covers', () => {
-    form.form.patchValue({ time: '08:00' });
-
-    expect(form.timeWindow()).toEqual({ from: '07:40', to: '08:20' });
-
-    form.form.patchValue({ time: '09:15', margin: 15 });
-
-    expect(form.timeWindow()).toEqual({ from: '09:00', to: '09:30' });
-  });
-
   it('asks for the arrival time going to the campus and the departure time coming back', () => {
     const root = fixture.nativeElement as HTMLElement;
     const label = () =>
       root
         .querySelector('app-datetime-field[presentation="time"] .text-label')
         ?.textContent?.trim();
-    const summary = () => root.querySelector('.search-form__summary')?.textContent;
+    const impact = () => root.querySelector('.search-form__impact')?.textContent;
     fixture.detectChanges();
 
-    // Sin dirección, el botón espera y se dice qué falta
-    expect(summary()).toContain('Elige tu dirección para buscar viajes.');
+    // Sin dirección, el botón espera y el aviso dice qué se verá
+    expect(impact()).toContain('Elige de dónde sales');
     expect(root.querySelector('ion-button[type="submit"]')?.hasAttribute('disabled')).toBe(true);
 
     form.form.patchValue({ place: ROQUETAS, time: '08:00' });
     fixture.detectChanges();
 
     expect(label()).toBe('Hora de llegada');
-    expect(summary()).toContain('llegan al campus entre las 07:40 y las 08:20');
+    // Con dirección y parking, lo que se ahorra (aproximado)
+    expect(impact()).toContain('ahorras aproximadamente');
 
     form.handleSwap();
     fixture.detectChanges();
 
     expect(form.timeType()).toBe('departure');
     expect(label()).toBe('Hora de salida');
-    expect(summary()).toContain('salen del campus');
   });
 
   it('asks to choose an address before searching', async () => {
@@ -184,7 +175,7 @@ describe('TripSearchForm', () => {
     expect(form.form.controls.seats.value).toBe(4);
   });
 
-  it('keeps the trip to the campus as the search and goes to Buscar', async () => {
+  it('keeps the trip to the campus as the search and goes to Tu búsqueda', async () => {
     form.form.patchValue({ place: ROQUETAS, date: '2026-10-27', time: '08:00', seats: 2 });
 
     await form.handleSubmit();
@@ -198,7 +189,7 @@ describe('TripSearchForm', () => {
       margin: 20,
       seats: 2,
     });
-    expect(navigate).toHaveBeenCalledWith(['/tabs/search']);
+    expect(navigate).toHaveBeenCalledWith(['/tabs/search/results']);
   });
 
   it('goes from the campus when the direction is swapped', async () => {
@@ -262,5 +253,90 @@ describe('shiftTime', () => {
     ['23:50', 30, '00:20'],
   ])('moves %s by %i minutes to %s', (time, minutes, shifted) => {
     expect(shiftTime(time, minutes)).toBe(shifted);
+  });
+});
+
+describe('TripSearchForm with the location already allowed', () => {
+  const PARKING_POINT: [number, number] = [-2.4, 36.83];
+  const reverse = vi.fn();
+
+  async function render(
+    point: [number, number],
+    permission = 'granted',
+    saved: TripSearch | null = null,
+  ): Promise<TripSearchForm> {
+    sessionStorage.clear();
+    stubIntersectionObserver();
+    reverse.mockReset().mockResolvedValue({
+      id: 'a1',
+      name: 'Avenida del Mediterraneo, 120',
+      municipality: 'Almería',
+      locality: 'Almería',
+      location: { type: 'Point', coordinates: point },
+      isCovered: true,
+    });
+    TestBed.configureTestingModule({
+      imports: [TripSearchForm],
+      providers: [
+        provideIonicAngular(),
+        provideRouter([]),
+        { provide: PlacesService, useValue: { ...PLACES_SERVICE_STUB, reverse } },
+        {
+          provide: LocationService,
+          useValue: {
+            checkPermission: () => Promise.resolve(permission),
+            getCurrentPoint: () => Promise.resolve(point),
+          },
+        },
+      ],
+    });
+    if (saved) {
+      TestBed.inject(TripSearchStateService).set(saved);
+    }
+    const fixture = TestBed.createComponent(TripSearchForm);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    return fixture.componentInstance;
+  }
+
+  it('fills the origin in with the current place', async () => {
+    const form = await render(ROQUETAS.coordinates);
+
+    await vi.waitFor(() => expect(reverse).toHaveBeenCalledWith(ROQUETAS.coordinates));
+    expect(form.isAtCampus()).toBe(false);
+  });
+
+  it('does not ask for the location when it is not allowed yet', async () => {
+    await render(ROQUETAS.coordinates, 'prompt');
+
+    expect(reverse).not.toHaveBeenCalled();
+  });
+
+  it('suggests going home when it is at the campus, and swaps the direction', async () => {
+    const form = await render(PARKING_POINT);
+
+    expect(reverse).not.toHaveBeenCalled();
+    await vi.waitFor(() => expect(form.isAtCampus()).toBe(true));
+
+    form.handleGoHome();
+
+    expect(form.isAtCampus()).toBe(false);
+    expect(form.isToCampus()).toBe(false);
+  });
+
+  it('shows the saved address as the current location when they are the same place', async () => {
+    const form = await render(ROQUETAS.coordinates, 'granted', {
+      place: ROQUETAS,
+      parking: PARKING_P1,
+      direction: 'to-campus',
+      date: '2026-10-28',
+      time: '08:00',
+      margin: 20,
+      seats: 1,
+    });
+    const field = form['placeField']();
+
+    await vi.waitFor(() => expect(field?.isFromLocation()).toBe(true));
+    expect(reverse).not.toHaveBeenCalled();
   });
 });

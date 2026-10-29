@@ -1,23 +1,23 @@
-<!-- Móvil: el título de la pantalla (con la flecha de volver en las de
-     detalle) y, a la derecha, la campana de Avisos. Cerrar sesión, en el
-     Perfil -->
+<!-- Móvil: en las secciones, el logotipo (su título va en el contenido); en
+     las pantallas de detalle, la flecha de volver y su título. Siempre, a la
+     derecha, la campana de Avisos. Cerrar sesión, en el Perfil -->
 <ion-header class="app-header ion-hide-md-up ion-no-border">
   <ion-toolbar>
-    @if (heading(); as heading) {
-      @if (heading.backHref; as backHref) {
-        <ion-buttons slot="start">
-          <ion-button
-            class="back-button"
-            fill="clear"
-            [routerLink]="backHref"
-            routerDirection="back"
-            aria-label="Volver"
-          >
-            <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
-          </ion-button>
-        </ion-buttons>
-      }
-      <ion-title>{{ heading.title }}</ion-title>
+    @if (heading()?.backHref; as backHref) {
+      <ion-buttons slot="start">
+        <ion-button
+          class="back-button"
+          fill="clear"
+          [routerLink]="backHref"
+          routerDirection="back"
+          aria-label="Volver"
+        >
+          <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+        </ion-button>
+      </ion-buttons>
+      <ion-title>{{ heading()?.title }}</ion-title>
+    } @else {
+      <app-brand-logo slot="start" variant="compact" class="app-header__brand" />
     }
     <ion-buttons slot="end">
       <ion-button
@@ -34,8 +34,8 @@
   </ion-toolbar>
 </ion-header>
 
-<!-- Escritorio: el menú superior y, debajo, la franja fija del saludo (o del
-     título de la pestaña, si tiene cabecera propia) -->
+<!-- Escritorio: el menú superior y, debajo, la franja fija con el saludo (en
+     las pantallas de detalle, su título y las migas de pan) -->
 <header class="top-nav ion-hide-md-down">
   <app-brand-logo variant="compact" />
   <nav class="top-nav__links" aria-label="Principal">
@@ -68,32 +68,22 @@
     </form>
   </div>
 </header>
-<div class="greeting-bar ion-hide-md-down">
-  <div class="greeting-bar__content">
-    @if (heading(); as heading) {
-      <p class="text-subtitle">{{ heading.title }}</p>
-      <p class="text-body text-color-muted">{{ heading.subtitle }}</p>
-      @if (heading.breadcrumbs; as breadcrumbs) {
-        <ion-breadcrumbs class="greeting-bar__breadcrumbs">
-          @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
-            <ion-breadcrumb [routerLink]="breadcrumb.href" routerDirection="back">
-              @if (breadcrumb.icon) {
-                <ion-icon [icon]="breadcrumb.icon" aria-hidden="true" />
-                <span class="visually-hidden">{{ breadcrumb.label }}</span>
-              } @else {
-                {{ breadcrumb.label }}
-              }
-            </ion-breadcrumb>
-          }
-          <ion-breadcrumb [active]="true">{{ heading.title }}</ion-breadcrumb>
-        </ion-breadcrumbs>
-      }
-    } @else {
-      <p class="text-subtitle">¡Hola, {{ firstName() }}!</p>
-      <p class="text-body text-color-muted">¿Vamos al campus hoy?</p>
-    }
+<!-- Escritorio: en las pantallas de detalle, una franja fija con sus migas de
+     pan para volver -->
+@if (heading()?.breadcrumbs; as breadcrumbs) {
+  <div class="greeting-bar ion-hide-md-down">
+    <div class="greeting-bar__content">
+      <ion-breadcrumbs class="greeting-bar__breadcrumbs">
+        @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
+          <ion-breadcrumb [routerLink]="breadcrumb.href" routerDirection="back">
+            {{ breadcrumb.label }}
+          </ion-breadcrumb>
+        }
+        <ion-breadcrumb [active]="true">{{ heading()?.title }}</ion-breadcrumb>
+      </ion-breadcrumbs>
+    </div>
   </div>
-</div>
+}
 
 <!-- Solo cambia lo de dentro. La barra de pestañas, solo en el móvil (en
      escritorio está oculta, pero sigue marcando la pestaña activa) -->

@@ -123,7 +123,7 @@ for (const viewport of VIEWPORTS) {
     });
 
     if (isDesktop) {
-      it('has the top menu and, below, the title of the tab', () => {
+      it('has the top menu and, below, the greeting', () => {
         logIn(['passenger']);
 
         cy.get('app-tabs .top-nav app-brand-logo').should('be.visible');
@@ -132,14 +132,15 @@ for (const viewport of VIEWPORTS) {
           'aria-current',
           'page',
         );
-        cy.contains('app-tabs .greeting-bar', 'Buscar viaje').should('be.visible');
+        cy.contains('app-trip-search h1', '¡Hola, Mario!').should('be.visible');
         cy.get('app-tabs ion-tab-bar').should('not.be.visible');
       });
     } else {
-      it('has the header with the title and the bell, and the tabs at the bottom', () => {
+      it('has the header with the logo and the bell, and the tabs at the bottom', () => {
         logIn(['passenger']);
 
-        cy.contains('app-tabs .app-header ion-title', 'Buscar viaje').should('be.visible');
+        cy.get('app-tabs .app-header app-brand-logo').should('be.visible');
+        cy.contains('app-trip-search h1', '¡Hola, Mario!').should('be.visible');
         cy.get('app-tabs .app-header .bell-button').should('be.visible');
         cy.get('app-tabs .app-header .back-button').should('not.exist');
         cy.contains('ion-tab-button', 'Buscar').should('have.class', 'tab-selected');

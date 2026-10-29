@@ -75,3 +75,11 @@ export function toTripResult(match: TripMatch, search: TripSearch): TripResult {
     pickupDetourMinutes: match.detourMin,
   };
 }
+
+const SHORT_DATE_FORMAT = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' });
+
+// «2026-10-27» → «27 oct» (en hora local: new Date('2026-10-27') sería UTC)
+export function formatShortDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  return SHORT_DATE_FORMAT.format(new Date(year, month - 1, day));
+}
