@@ -136,6 +136,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Las sugerencias del correo UAL (acceso, registro y recuperar la contraseña) se despliegan pegadas al campo, por encima del formulario; elegir una ya no dispara el error del campo, y mientras sugieren no se marca en rojo (#70)
 - Los botones de Buscar, Publicar y del vehículo se activan al completar los campos y, mientras, dicen qué falta; las fechas se leen «Hoy», «Mañana» o «jue, 30 oct»; el mapa de las ventanas es cuadrado (#71)
 - El vehículo se registra con marca y modelo, matrícula y capacidad total contando al conductor («4 asientos = 1 conductor + hasta 3 pasajeros»), y en Publicar se muestra con su modelo y se puede editar en una ventana (#67)
+- Guía de estilos: la navegación reescrita y al día (acceso, cinco destinos y la campana, estructura en móvil y escritorio, reglas), los detalles del trayecto y la dirección en los patrones, la barra de pestañas con los iconos reales de Ionicons y los patrones de Publicar (pasos en el móvil, tarjeta de agradecimiento, formularios en ventana) (#94)
 
 ### Security
 - El backend ya no envía la cabecera `X-Powered-By: Express`, que revelaba la tecnología del servidor (#14)
