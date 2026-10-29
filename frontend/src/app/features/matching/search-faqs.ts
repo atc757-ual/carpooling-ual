@@ -1,22 +1,7 @@
-import { Component } from '@angular/core';
-import {
-  IonAccordion,
-  IonAccordionGroup,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonItem,
-  IonLabel,
-} from '@ionic/angular';
-
-interface Faq {
-  question: string;
-  answer: string;
-}
+import { Faq } from '../../shared/components/ui/faq-card/faq-card';
 
 // Las dudas de quien busca por primera vez, junto al formulario de Buscar
-const FAQS: readonly Faq[] = [
+export const SEARCH_FAQS: readonly Faq[] = [
   {
     question: '¿Por qué hora de llegada o de salida?',
     answer:
@@ -48,25 +33,3 @@ const FAQS: readonly Faq[] = [
       'Prueba con otra hora o amplía el margen. Cada día se publican viajes nuevos: vuelve a mirar más tarde.',
   },
 ];
-
-// Preguntas frecuentes de Buscar, en un acordeón de Ionic (una abierta a la
-// vez). En escritorio, en la columna de 4 junto a la búsqueda; en el móvil, al
-// final
-@Component({
-  selector: 'app-search-faq',
-  imports: [
-    IonAccordion,
-    IonAccordionGroup,
-    IonCard,
-    IonCardContent,
-    IonCardHeader,
-    IonCardTitle,
-    IonItem,
-    IonLabel,
-  ],
-  templateUrl: './search-faq.html',
-  styleUrl: './search-faq.scss',
-})
-export class SearchFaq {
-  protected readonly faqs = FAQS;
-}

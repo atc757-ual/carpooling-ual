@@ -80,7 +80,7 @@ describe('TripSearchPage', () => {
     expect(root.querySelector('h1')?.textContent).toContain('¡Hola, Jimena!');
     expect(root.textContent).toContain('¿A dónde vamos hoy?');
     expect(root.querySelector('app-trip-search-form')).not.toBeNull();
-    expect(root.querySelector('app-search-faq')).not.toBeNull();
+    expect(root.querySelector('app-faq-card')).not.toBeNull();
     expect(root.textContent).not.toContain('Nueva búsqueda');
   });
 

@@ -17,7 +17,8 @@ import { carOutline, timeOutline } from 'ionicons/icons';
 import { TripSearchForm } from '../trip-search-form/trip-search-form';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { SearchFaq } from '../search-faq/search-faq';
+import { FaqCard } from '../../../shared/components/ui/faq-card/faq-card';
+import { SEARCH_FAQS } from '../search-faqs';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 
 // Buscar (pasajero). La búsqueda es la última hecha, en Inicio o aquí
@@ -35,7 +36,7 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
     IonRouterLink,
     IonItem,
     IonLabel,
-    SearchFaq,
+    FaqCard,
     IonButton,
     IonCard,
     IonCardContent,
@@ -79,6 +80,7 @@ export class TripSearchPage {
 
   protected readonly pendingIcon = timeOutline;
   protected readonly carIcon = carOutline;
+  protected readonly faqs = SEARCH_FAQS;
 
   // Empezar de cero: sin búsqueda, el formulario vacío
   handleNewSearch(): void {
