@@ -143,15 +143,15 @@
               @case (4) {
                 <!-- Publicado: la enhorabuena, el detalle y qué hacer ahora -->
                 @if (published(); as trip) {
-                  <div class="notice notice--success publish__impact" role="status">
+                  <output class="notice notice--success publish__impact">
                     <ion-icon [icon]="icons.published" aria-hidden="true" />
-                    <p>
+                    <span>
                       <b>¡Enhorabuena! Has publicado un viaje.</b> Ofreces {{ trip.offeredSeats }}
                       {{ trip.offeredSeats === 1 ? 'plaza' : 'plazas' }} con un desvío máximo de
                       {{ trip.maxDetourMin }} min. Te avisaremos de cada solicitud para que la
                       aceptes o la rechaces.
-                    </p>
-                  </div>
+                    </span>
+                  </output>
                 }
                 <ng-container [ngTemplateOutlet]="summary" />
                 <div class="publish__actions">

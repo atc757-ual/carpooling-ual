@@ -179,7 +179,8 @@
     display: inline;
   }
 
-  p {
+  p,
+  > span {
     font-size: var(--font-size-body-s);
     line-height: var(--line-height-body-s);
   }

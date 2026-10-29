@@ -123,8 +123,8 @@ export class VehiclePicker implements OnInit {
     });
   }
 
-  async ngOnInit(): Promise<void> {
-    this.defaultId.set(await this.preferences.get(DEFAULT_VEHICLE_KEY).catch(() => null));
+  ngOnInit(): void {
+    void this.loadDefault();
   }
 
   // Elegir un vehículo lo deja como predeterminado
@@ -165,6 +165,11 @@ export class VehiclePicker implements OnInit {
 
   protected plural(count: number, singular: string, pluralForm: string): string {
     return `${count} ${count === 1 ? singular : pluralForm}`;
+  }
+
+  // El predeterminado de este dispositivo (null si no hay o no se puede leer)
+  private async loadDefault(): Promise<void> {
+    this.defaultId.set(await this.preferences.get(DEFAULT_VEHICLE_KEY).catch(() => null));
   }
 
   private async openModal(vehicle: Vehicle | null) {
