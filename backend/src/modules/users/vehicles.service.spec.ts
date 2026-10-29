@@ -14,6 +14,7 @@ describe('VehiclesService', () => {
   let vehiclesService: VehiclesService;
   const vehiclesRepository = {
     findOneBy: jest.fn(),
+    countBy: jest.fn(),
     create: jest.fn((values: Partial<Vehicle>) => values),
     save: jest.fn(),
   };
@@ -21,6 +22,7 @@ describe('VehiclesService', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     vehiclesRepository.findOneBy.mockResolvedValue(null);
+    vehiclesRepository.countBy.mockResolvedValue(0);
     const moduleRef = await Test.createTestingModule({
       providers: [
         VehiclesService,

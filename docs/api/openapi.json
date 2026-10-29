@@ -1394,7 +1394,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: VEHICLE_ALREADY_REGISTERED, PROFILE_DEACTIVATED_BY_ADMIN",
+            "description": "TMF630 error: VEHICLE_ALREADY_REGISTERED, VEHICLE_LIMIT_REACHED, PROFILE_DEACTIVATED_BY_ADMIN",
             "content": {
               "application/json": {
                 "schema": {

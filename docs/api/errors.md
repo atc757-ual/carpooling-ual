@@ -77,6 +77,7 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `code` | HTTP | Cuándo |
 |---|---|---|
 | `VEHICLE_ALREADY_REGISTERED` | 409 | La matrícula ya está registrada por otro conductor, o activa por el mismo. Si el mismo conductor la había dado de baja, se reactiva en vez de dar error |
+| `VEHICLE_LIMIT_REACHED` | 409 | El conductor ya tiene 3 vehículos activos: para registrar otro, debe dar de baja uno |
 | `VEHICLE_NOT_FOUND` | 404 | El vehículo no existe, está dado de baja o es de otro conductor (no se distingue, para no revelar qué ids existen) |
 | `VEHICLE_IN_USE` | 409 | El vehículo está en un viaje en curso: no se puede dar de baja ni iniciar otro viaje con él hasta que termine |
 

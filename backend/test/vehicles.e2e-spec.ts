@@ -180,6 +180,17 @@ describe('Vehicles API (e2e)', () => {
   });
 
   describe('GET /api/vehicles', () => {
+    it('answers 409 VEHICLE_LIMIT_REACHED with the 4th active vehicle', async () => {
+      const ana = await tokenFor('ana');
+      await registerVehicle(ana, '9221BCD').expect(201);
+      await registerVehicle(ana, '9222BCD').expect(201);
+      await registerVehicle(ana, '9223BCD').expect(201);
+
+      const response = await registerVehicle(ana, '9224BCD').expect(409);
+
+      expect(response.body).toMatchObject({ code: 'VEHICLE_LIMIT_REACHED' });
+    });
+
     it('paginates with offset/limit and the TMF count headers', async () => {
       const ana = await tokenFor('ana');
       await registerVehicle(ana, '9211BCD').expect(201);
