@@ -1,6 +1,8 @@
 import {
   Component,
+  afterNextRender,
   DestroyRef,
+  ElementRef,
   forwardRef,
   inject,
   input,
@@ -22,6 +24,8 @@ import { IonicFormStatus } from '../../../directives/ionic-form-status.directive
 const CODE_LENGTH = 6;
 // Lo que dura el tintineo (el de code-input.scss)
 const SHAKE_MS = 400;
+// Lo que admite cada casilla: una cifra
+const DIGIT_PATTERN = '[0-9]';
 
 // Código de 6 cifras enviado por correo (verificar el correo, recuperar la
 // contraseña): seis casillas, y pegar el código del correo lo reparte entre
@@ -46,6 +50,7 @@ export class CodeInput implements ControlValueAccessor {
   readonly completed = output<void>();
   readonly isShaking = signal(false);
   private readonly otp = viewChild(IonInputOtp);
+  private readonly otpElement = viewChild(IonInputOtp, { read: ElementRef });
 
   // Las casillas trabajan con su propio control (el de Ionic); este componente
   // lo mantiene igual que el del formulario que lo usa. Con sus validadores
@@ -60,6 +65,13 @@ export class CodeInput implements ControlValueAccessor {
   private onTouched: () => void = () => undefined;
 
   constructor() {
+    // Solo cifras en cada casilla (ver code-input.html)
+    afterNextRender(() => {
+      const element = this.otpElement()?.nativeElement as HTMLIonInputOtpElement | undefined;
+      if (element) {
+        element.pattern = DIGIT_PATTERN;
+      }
+    });
     this.code.valueChanges.pipe(takeUntilDestroyed(inject(DestroyRef))).subscribe((code) => {
       this.onChange(code);
       this.onTouched();

@@ -1,12 +1,13 @@
-<!-- Solo cifras (type number de ion-input-otp: el valor sigue siendo texto,
-     así un código que empieza por cero conserva ese cero). Sin patrón propio:
-     Angular lo aplicaría como validador del código entero. one-time-code: el móvil
-     ofrece el código recibido. Al rellenar la última casilla (o pegar el
-     código) se envía solo (completed) -->
+<!-- De tipo texto con teclado numérico (no de tipo número, que deja de
+     enviar el código): así un código que empieza por cero conserva ese cero.
+     Solo cifras con el pattern de Ionic, puesto desde el código (en la
+     plantilla, Angular lo aplicaría como validador del código entero).
+     one-time-code: el móvil ofrece el código recibido. Al rellenar la última
+     casilla (o pegar el código) se envía solo (completed) -->
 <ion-input-otp
   [formControl]="code"
   [length]="codeLength"
-  type="number"
+  type="text"
   inputmode="numeric"
   autocomplete="one-time-code"
   fill="outline"

@@ -169,8 +169,14 @@ for (const viewport of VIEWPORTS) {
     it('keeps the search in Buscar and starts a new one with the form empty', () => {
       searchTrips('Roquetas de Mar');
 
-      goTo('Perfil');
-      goTo('Buscar');
+      // De vuelta a Buscar (la pestaña recordaría Tu búsqueda): la flecha en
+      // el móvil, las migas en escritorio
+      if (isDesktop) {
+        cy.contains('app-tabs .greeting-bar ion-breadcrumb', 'Buscar viaje').click();
+      } else {
+        cy.get('app-tabs .app-header .back-button').click();
+      }
+      cy.location('pathname').should('eq', '/tabs/search');
       cy.get('app-trip-search app-place-field input').should('have.value', 'Roquetas de Mar');
 
       cy.contains('app-trip-search ion-button', 'Nueva búsqueda').click();
