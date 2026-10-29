@@ -1,13 +1,14 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { AlertController, ModalController, provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { DriverService } from '../../core/services/drivers/driver.service';
 import { UsersService } from '../../core/services/users/users.service';
 import { ProfilePage } from './profile.page';
+import { ConfirmService } from '../../core/services/ui/confirm.service';
 
 describe('ProfilePage', () => {
   const logout = vi.fn().mockResolvedValue(undefined);
@@ -42,10 +43,7 @@ describe('ProfilePage', () => {
   }
 
   function confirmWith(role: string): void {
-    vi.spyOn(TestBed.inject(AlertController), 'create').mockResolvedValue({
-      present: vi.fn().mockResolvedValue(undefined),
-      onDidDismiss: () => Promise.resolve({ role }),
-    } as unknown as HTMLIonAlertElement);
+    vi.spyOn(TestBed.inject(ConfirmService), 'ask').mockResolvedValue(role === 'destructive');
   }
 
   beforeEach(() => logout.mockClear());

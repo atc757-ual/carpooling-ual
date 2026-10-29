@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { AlertController, provideIonicAngular } from '@ionic/angular';
+import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { TripResult } from '../../../core/models/trip-result.model';
@@ -10,6 +10,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { PARKING_P1, ROQUETAS } from '../trip-search.testing';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { TripDetailPage } from './trip-detail.page';
+import { ConfirmService } from '../../../core/services/ui/confirm.service';
 
 const SEARCH: TripSearch = {
   place: ROQUETAS,
@@ -139,17 +140,12 @@ describe('TripDetailPage', () => {
 
   it('cancels only after confirming it', async () => {
     await render('t1', SEARCH, [seatRequest('pending')]);
-    const alert = vi.spyOn(TestBed.inject(AlertController), 'create');
-    const dismiss = vi.fn().mockResolvedValueOnce({ role: 'cancel' });
-    alert.mockResolvedValue({
-      present: vi.fn().mockResolvedValue(undefined),
-      onDidDismiss: dismiss,
-    } as unknown as HTMLIonAlertElement);
+    const ask = vi.spyOn(TestBed.inject(ConfirmService), 'ask').mockResolvedValueOnce(false);
 
     await fixture.componentInstance.handleCancel();
     expect(requests['cancel']).not.toHaveBeenCalled();
 
-    dismiss.mockResolvedValueOnce({ role: 'destructive' });
+    ask.mockResolvedValueOnce(true);
     await fixture.componentInstance.handleCancel();
     expect(requests['cancel']).toHaveBeenCalledWith('r1');
     expect(fixture.componentInstance.request()?.status).toBe('cancelled');

@@ -116,7 +116,7 @@ for (const viewport of VIEWPORTS) {
 
       goTo('Perfil');
       cy.contains('app-profile ion-button', 'Cerrar sesión').click();
-      cy.contains('ion-alert button', 'Cerrar sesión').click();
+      cy.contains('app-confirm-modal ion-button', 'Cerrar sesión').click();
 
       cy.wait('@logout');
       cy.location('pathname').should('eq', '/auth/welcome');

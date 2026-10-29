@@ -70,3 +70,10 @@ export function stubLocation(permission: PermissionState): void {
     );
   });
 }
+
+// La ventana que ofrece la ubicación al entrar taparía lo que prueba cada
+// pantalla: se da por descartada («Ahora no»), como en el dispositivo de quien
+// ya la vio (clave de Preferences en el navegador: CapacitorStorage.*)
+Cypress.on('window:before:load', (win) => {
+  win.localStorage.setItem('CapacitorStorage.location.offer-dismissed', 'later');
+});

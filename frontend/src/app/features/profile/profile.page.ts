@@ -1,7 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  AlertController,
   IonButton,
   IonCard,
   IonCardContent,
@@ -17,6 +16,8 @@ import { formatPhone } from '../../shared/utils/phone.util';
 import { getInitials } from '../matching/trip-driver/trip-driver';
 import { ProfileVehicles } from './profile-vehicles/profile-vehicles';
 import { SectionTitle } from '../tabs/section-title/section-title';
+import { confirmLogout } from '../../core/services/auth/confirm-logout';
+import { ConfirmService } from '../../core/services/ui/confirm.service';
 
 // Pestaña Perfil, en el orden de la guía: la cuenta y los vehículos (el
 // primero hace conductor); en escritorio, a la derecha, la
@@ -40,7 +41,7 @@ import { SectionTitle } from '../tabs/section-title/section-title';
 export class ProfilePage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly alerts = inject(AlertController);
+  private readonly confirm = inject(ConfirmService);
   private readonly modalController = inject(ModalController);
 
   readonly user = this.auth.currentUser;
@@ -60,17 +61,7 @@ export class ProfilePage {
 
   // Cerrar sesión, tras confirmarlo
   async handleLogout(): Promise<void> {
-    const alert = await this.alerts.create({
-      header: '¿Cerrar sesión?',
-      message: 'Para volver a entrar necesitarás tu correo y tu contraseña.',
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        { text: 'Cerrar sesión', role: 'destructive' },
-      ],
-    });
-    await alert.present();
-    const { role } = await alert.onDidDismiss();
-    if (role !== 'destructive') {
+    if (!(await confirmLogout(this.confirm))) {
       return;
     }
     await this.auth.logout();

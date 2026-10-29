@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AlertController, ModalController, provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Vehicle } from '../../../core/models/driver.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ProfileVehicles } from './profile-vehicles';
+import { ConfirmService } from '../../../core/services/ui/confirm.service';
 
 function vehicle(id: string, status: Vehicle['status'], model: string | null): Vehicle {
   return { id, plate: `${id}BCD`, model, capacity: 3, status };
@@ -89,10 +90,7 @@ describe('ProfileVehicles', () => {
     await render(() => Promise.resolve([vehicle('1234', 'available', null)]));
     const [item] = fixture.componentInstance.activeVehicles();
     const confirm = (role: string): void => {
-      vi.spyOn(TestBed.inject(AlertController), 'create').mockResolvedValue({
-        present: vi.fn().mockResolvedValue(undefined),
-        onDidDismiss: () => Promise.resolve({ role }),
-      } as unknown as HTMLIonAlertElement);
+      vi.spyOn(TestBed.inject(ConfirmService), 'ask').mockResolvedValue(role === 'destructive');
     };
 
     confirm('cancel');

@@ -8,7 +8,6 @@ import {
   IonIcon,
   IonRouterLink,
   IonSpinner,
-  AlertController,
 } from '@ionic/angular';
 import { carOutline, mapOutline } from 'ionicons/icons';
 import {
@@ -22,6 +21,7 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatShortDate, toTripDetail } from '../trip-results';
 import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
 import { TripSearchStateService } from '../trip-search-state.service';
+import { ConfirmService } from '../../../core/services/ui/confirm.service';
 
 // Detalle de un viaje de los resultados de Buscar: el recorrido con sus horas,
 // quien conduce (y su coche, cuando se conozca) y cómo funciona la solicitud.
@@ -49,7 +49,7 @@ import { TripSearchStateService } from '../trip-search-state.service';
 export class TripDetailPage {
   private readonly searchState = inject(TripSearchStateService);
   private readonly seatRequests = inject(SeatRequestsService);
-  private readonly alerts = inject(AlertController);
+  private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
 
   // :id de la ruta (withComponentInputBinding)
@@ -130,17 +130,14 @@ export class TripDetailPage {
     if (!request) {
       return;
     }
-    const alert = await this.alerts.create({
+    const isConfirmed = await this.confirm.ask({
       header: '¿Cancelar tu solicitud?',
       message: `Dejarás de tener ${formatSeats(request.seats)} en este viaje. Podrás volver a pedirla mientras queden plazas.`,
-      buttons: [
-        { text: 'Mantener solicitud', role: 'cancel' },
-        { text: 'Cancelar solicitud', role: 'destructive' },
-      ],
+      confirmText: 'Cancelar solicitud',
+      cancelText: 'Mantener solicitud',
+      isDestructive: true,
     });
-    await alert.present();
-    const { role } = await alert.onDidDismiss();
-    if (role !== 'destructive') {
+    if (!isConfirmed) {
       return;
     }
     await this.send(async () => {

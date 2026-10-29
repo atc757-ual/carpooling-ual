@@ -97,3 +97,32 @@
     }
   </ion-tab-bar>
 </ion-tabs>
+
+<!-- Escritorio: pie con el nombre y los derechos a la izquierda y, a la
+     derecha, los perfiles y el nombre del autor. Con el ancho de la página -->
+<footer class="app-footer ion-hide-md-down">
+  <p class="text-caption text-color-muted">
+    © {{ year }} Carpooling UAL. Todos los derechos reservados.
+  </p>
+  <div class="app-footer__links">
+    <a
+      class="app-footer__link"
+      href="https://github.com/atc757-ual"
+      target="_blank"
+      rel="noopener"
+      aria-label="GitHub del autor"
+    >
+      <ion-icon [icon]="githubIcon" aria-hidden="true" />
+    </a>
+    <a
+      class="app-footer__link"
+      href="https://www.linkedin.com/in/alextaquilacamasca/"
+      target="_blank"
+      rel="noopener"
+      aria-label="LinkedIn del autor"
+    >
+      <ion-icon [icon]="linkedinIcon" aria-hidden="true" />
+    </a>
+    <span class="text-caption text-color-muted">Developed by Alex Taquila</span>
+  </div>
+</footer>
