@@ -25,6 +25,7 @@ import {
   chatbubblesOutline,
   logOutOutline,
   logoGithub,
+  logoLinkedin,
   mapOutline,
   notificationsOutline,
   personOutline,
@@ -132,6 +133,7 @@ export class TabsPage implements OnInit {
   protected readonly bellIcon = notificationsOutline;
   protected readonly logoutIcon = logOutOutline;
   protected readonly githubIcon = logoGithub;
+  protected readonly linkedinIcon = logoLinkedin;
   protected readonly year = new Date().getFullYear();
 
   ngOnInit(): void {
