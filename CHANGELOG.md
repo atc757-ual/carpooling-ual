@@ -142,6 +142,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - El backend ya no envía la cabecera `X-Powered-By: Express`, que revelaba la tecnología del servidor (#14)
 - Dependencias del backend sin vulnerabilidades altas: `body-parser` 2.4.0 ([GHSA-27r3-jxmh-p828](https://github.com/advisories/GHSA-27r3-jxmh-p828)) y `multer` 2.5.0 forzado con `overrides` ([GHSA-q7qp-rjg7-q26m](https://github.com/advisories/GHSA-q7qp-rjg7-q26m)) (#34)
 - Dependencias de desarrollo del frontend sin vulnerabilidades: `@angular/build` y `@angular/cli` 22.2.5 (Vite 8.3.5, que corrige las de Vite y `launch-editor` del servidor de desarrollo) y Capacitor 8.6.0 (`xcode` 4, sin el `uuid` afectado) (#93)
+- `deepmerge` fijado a 4.1.2 en el backend (`overrides`): la vulnerabilidad de `mergeObject()` (GHSA-gcqx-w48m-w2h4) afecta de la 4.2.0 a la 4.3.1 y aún no tiene arreglo; Jest solo usa `deepmerge()` y `deepmerge.all()`, que ya existían en la 4.1.2. Quitar el `overrides` cuando salga una versión corregida (#95)
 
 ### Removed
 - Carpeta `database/` de la raíz: las migraciones y los datos de prueba viven ahora en `backend/src/database/` (#7)
