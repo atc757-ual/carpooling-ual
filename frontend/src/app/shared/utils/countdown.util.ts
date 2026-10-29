@@ -32,10 +32,16 @@ export function createCountdown(totalSeconds: number, destroyRef: DestroyRef): C
   };
 }
 
-// Texto del botón de reenviar: «Reenviar código en 00:42» o, al terminar la
+// Texto del botón de reenviar: «Reenviar código en 01:00», «00:42»… (minutos y
+// segundos) o, al terminar la
 // cuenta atrás, «Reenviar código»
 export function getResendLabel(seconds: number): string {
-  return seconds > 0
-    ? `Reenviar código en 00:${String(seconds).padStart(2, '0')}`
-    : 'Reenviar código';
+  return seconds > 0 ? `Reenviar código en ${formatMinutesSeconds(seconds)}` : 'Reenviar código';
+}
+
+// 60 → «01:00», 42 → «00:42»
+function formatMinutesSeconds(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }

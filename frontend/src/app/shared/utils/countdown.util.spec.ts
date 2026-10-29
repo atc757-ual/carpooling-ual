@@ -55,6 +55,7 @@ describe('createCountdown', () => {
 
 describe('getResendLabel', () => {
   it('shows the time left, or that the code can be resent', () => {
+    expect(getResendLabel(60)).toBe('Reenviar código en 01:00');
     expect(getResendLabel(42)).toBe('Reenviar código en 00:42');
     expect(getResendLabel(5)).toBe('Reenviar código en 00:05');
     expect(getResendLabel(0)).toBe('Reenviar código');
