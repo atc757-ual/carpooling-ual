@@ -1,6 +1,6 @@
 # Backend - Carpooling UAL
 
-API REST en **NestJS 12** sobre Node.js 24 y TypeScript 6.
+API REST en **NestJS 12** sobre Node.js 26 (LTS) y TypeScript 6.
 
 ## Requisitos
 
