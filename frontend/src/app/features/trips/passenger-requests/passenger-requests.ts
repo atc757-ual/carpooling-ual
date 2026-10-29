@@ -1,7 +1,6 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  AlertController,
   IonButton,
   IonCard,
   IonCardContent,
@@ -20,6 +19,7 @@ import { formatDateLabel } from '../../../shared/components/ui/datetime-field/da
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatTime } from '../../matching/trip-results';
 import { formatSeats } from '../driver-trip-card/driver-trip-card';
+import { ConfirmService } from '../../../core/services/ui/confirm.service';
 
 // El estado en texto, con el vocabulario de la guía para el pasajero
 const STATUS_LABELS: Record<SeatRequestStatus, string> = {
@@ -47,7 +47,7 @@ export interface PassengerTrip {
 export class PassengerRequests {
   private readonly seatRequests = inject(SeatRequestsService);
   private readonly trips = inject(TripsService);
-  private readonly alerts = inject(AlertController);
+  private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
 
   // Cada solicitud con su viaje (uno por solicitud: un pasajero tiene pocas)
@@ -106,17 +106,14 @@ export class PassengerRequests {
 
   // Cancelar una solicitud pendiente o confirmada, tras confirmarlo
   async handleCancel({ request, trip }: PassengerTrip): Promise<void> {
-    const alert = await this.alerts.create({
+    const isConfirmed = await this.confirm.ask({
       header: '¿Cancelar tu solicitud?',
       message: `Dejarás de tener ${formatSeats(request.seats)} en el viaje de ${trip.driver.name}.`,
-      buttons: [
-        { text: 'Mantener solicitud', role: 'cancel' },
-        { text: 'Cancelar solicitud', role: 'destructive' },
-      ],
+      confirmText: 'Cancelar solicitud',
+      cancelText: 'Mantener solicitud',
+      isDestructive: true,
     });
-    await alert.present();
-    const { role } = await alert.onDidDismiss();
-    if (role !== 'destructive') {
+    if (!isConfirmed) {
       return;
     }
     this.cancelling.set(request.id);

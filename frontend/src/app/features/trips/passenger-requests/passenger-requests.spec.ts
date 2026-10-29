@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { AlertController, provideIonicAngular } from '@ionic/angular';
+import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Trip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
@@ -8,6 +8,7 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { PassengerRequests } from './passenger-requests';
+import { ConfirmService } from '../../../core/services/ui/confirm.service';
 
 function trip(id: string, status: Trip['status']): Trip {
   return {
@@ -68,10 +69,7 @@ describe('PassengerRequests', () => {
   }
 
   function confirmWith(role: string): void {
-    vi.spyOn(TestBed.inject(AlertController), 'create').mockResolvedValue({
-      present: vi.fn().mockResolvedValue(undefined),
-      onDidDismiss: () => Promise.resolve({ role }),
-    } as unknown as HTMLIonAlertElement);
+    vi.spyOn(TestBed.inject(ConfirmService), 'ask').mockResolvedValue(role === 'destructive');
   }
 
   it('shows each request with its trip, upcoming first', async () => {

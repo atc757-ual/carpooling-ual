@@ -9,6 +9,10 @@ import { NotificationsService } from '../../core/services/notifications/notifica
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { TabHeading } from './tab-heading';
 import { TabsPage } from './tabs.page';
+import { ConfirmService } from '../../core/services/ui/confirm.service';
+import { LocationService } from '../../core/services/location/location.service';
+import { PreferencesPlugin } from '../../core/plugins/preferences-plugin';
+import { ModalController } from '@ionic/angular';
 
 @Component({ template: '' })
 class BlankPage {}
@@ -23,6 +27,11 @@ describe('TabsPage', () => {
   const logout = vi.fn().mockResolvedValue(undefined);
   const unread = signal(0);
   const refreshUnread = vi.fn().mockResolvedValue(undefined);
+  let permission = 'granted';
+  const preferences = {
+    get: vi.fn().mockResolvedValue(null),
+    set: vi.fn().mockResolvedValue(undefined),
+  };
 
   function render(): TabsPage {
     TestBed.configureTestingModule({
@@ -45,6 +54,11 @@ describe('TabsPage', () => {
         },
         { provide: ActiveModeService, useValue: { mode, setMode } },
         { provide: NotificationsService, useValue: { unreadCount: unread, refreshUnread } },
+        {
+          provide: LocationService,
+          useValue: { checkPermission: () => Promise.resolve(permission) },
+        },
+        { provide: PreferencesPlugin, useValue: preferences },
       ],
     });
     const page = TestBed.createComponent(TabsPage).componentInstance;
@@ -56,6 +70,9 @@ describe('TabsPage', () => {
     mode.set('passenger');
     profiles.set(['passenger', 'driver']);
     loggedIn.set(true);
+    permission = 'granted';
+    preferences.get.mockClear();
+    preferences.set.mockClear();
     unread.set(0);
     refreshUnread.mockClear();
     setMode.mockClear();
@@ -124,13 +141,51 @@ describe('TabsPage', () => {
     expect(page.heading()).toEqual(HEADING);
   });
 
-  it('logs out and goes back to the welcome screen', async () => {
+  it('logs out after confirming it and goes back to the welcome screen', async () => {
     const page = render();
     const navigateByUrl = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const ask = vi.spyOn(TestBed.inject(ConfirmService), 'ask').mockResolvedValueOnce(false);
+
+    await page.handleLogout();
+    expect(logout).not.toHaveBeenCalled();
+
+    ask.mockResolvedValueOnce(true);
 
     await page.handleLogout();
 
     expect(logout).toHaveBeenCalled();
     expect(navigateByUrl).toHaveBeenCalledWith('/auth/welcome');
+  });
+
+  function modalClosingWith(role: string): ReturnType<typeof vi.fn> {
+    const create = vi.fn().mockResolvedValue({
+      present: vi.fn().mockResolvedValue(undefined),
+      onDidDismiss: () => Promise.resolve({ role }),
+    });
+    vi.spyOn(TestBed.inject(ModalController), 'create').mockImplementation(create);
+    return create;
+  }
+
+  it('offers the location once, when it has not been decided yet', async () => {
+    permission = 'prompt';
+    const page = render();
+    const create = modalClosingWith('later');
+
+    await page['offerLocation']();
+
+    expect(create).toHaveBeenCalled();
+    expect(preferences.set).toHaveBeenCalledWith('location.offer-dismissed', 'later');
+  });
+
+  it('does not offer the location when it is already allowed or was put off', async () => {
+    const page = render();
+    const create = modalClosingWith('later');
+
+    await page['offerLocation']();
+    permission = 'prompt';
+    preferences.get.mockResolvedValueOnce('later');
+    await page['offerLocation']();
+
+    expect(create).not.toHaveBeenCalled();
   });
 });

@@ -65,7 +65,7 @@ for (const viewport of VIEWPORTS) {
       openProfile(['driver']);
 
       cy.contains('app-profile-vehicles ion-button', 'Eliminar').click();
-      cy.contains('ion-alert button', 'Eliminar').click();
+      cy.contains('app-confirm-modal ion-button', 'Eliminar').click();
 
       cy.wait('@remove');
     });

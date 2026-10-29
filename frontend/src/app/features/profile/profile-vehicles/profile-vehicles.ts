@@ -1,6 +1,5 @@
 import { Component, computed, inject, resource } from '@angular/core';
 import {
-  AlertController,
   IonButton,
   IonCard,
   IonCardContent,
@@ -18,6 +17,7 @@ import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { VehicleModal } from '../../trips/vehicle-modal/vehicle-modal';
+import { CONFIRM_ICONS, ConfirmService } from '../../../core/services/ui/confirm.service';
 
 // «Mis vehículos» del Perfil: cada uno con su matrícula, marca y modelo y
 // plazas, y «Editar»; al final, «Registrar vehículo». Los dos abren la ventana
@@ -32,7 +32,7 @@ import { VehicleModal } from '../../trips/vehicle-modal/vehicle-modal';
 export class ProfileVehicles {
   private readonly driver = inject(DriverService);
   private readonly auth = inject(AuthService);
-  private readonly alerts = inject(AlertController);
+  private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
   private readonly modalController = inject(ModalController);
 
@@ -58,17 +58,14 @@ export class ProfileVehicles {
 
   // Eliminar (darlo de baja), tras confirmarlo
   async handleRemove(vehicle: Vehicle): Promise<void> {
-    const alert = await this.alerts.create({
+    const isConfirmed = await this.confirm.ask({
       header: `¿Eliminar ${vehicle.plate}?`,
       message: 'Dejará de salir en tus vehículos y no podrás publicar viajes con él.',
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        { text: 'Eliminar', role: 'destructive' },
-      ],
+      confirmText: 'Eliminar',
+      isDestructive: true,
+      icon: CONFIRM_ICONS.remove,
     });
-    await alert.present();
-    const { role } = await alert.onDidDismiss();
-    if (role !== 'destructive') {
+    if (!isConfirmed) {
       return;
     }
     try {

@@ -190,3 +190,41 @@ ion-tab-button {
     pointer-events: none;
   }
 }
+
+// Pie de escritorio: una franja gris de 56px con la línea arriba; el contenido,
+// con el mismo ancho y margen que la cabecera y la página
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-base);
+  min-height: 3.5rem; // 56px
+  padding: var(--space-base) var(--page-gutter);
+  border-top: var(--border-width-s) solid var(--color-border);
+  background: var(--color-border-subtle);
+
+  p {
+    margin: 0;
+  }
+}
+
+.app-footer__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+}
+
+.app-footer__link {
+  display: flex;
+  color: var(--color-text-muted);
+  font-size: 1.25rem; // 20px
+
+  &:hover {
+    color: var(--color-link);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+}
