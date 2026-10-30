@@ -19,6 +19,9 @@ export type DomainEventType =
   | 'trip.started'
   | 'trip.finished'
   | 'trip.cancelled'
+  // Cancelación tardía (con pasajeros, a menos de 30 min de la salida): para
+  // medir la fiabilidad de los conductores (escenario S5)
+  | 'trip.cancelled_late'
   // Posición del conductor durante el viaje (seguimiento real, RF-12): el
   // "cambio de posición" con el que se sincroniza el Gemelo Digital (RNF-07)
   | 'trip.position_updated'

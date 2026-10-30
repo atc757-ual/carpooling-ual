@@ -8,6 +8,7 @@ import { VehiclesService } from '../users/vehicles.service';
 import { TripRoute } from './entities/trip-route.entity';
 import { Trip } from './entities/trip.entity';
 import { DepartureInThePastError } from './errors/departure-in-the-past.error';
+import { DepartureTooSoonError } from './errors/departure-too-soon.error';
 import { DriverNotReadyError } from './errors/driver-not-ready.error';
 import { SeatsExceedCapacityError } from './errors/seats-exceed-capacity.error';
 import { TripAlreadyStartedError } from './errors/trip-already-started.error';
@@ -15,9 +16,26 @@ import { TripNotEditableError } from './errors/trip-not-editable.error';
 import { TripNotFoundError } from './errors/trip-not-found.error';
 import { TripNotInProgressError } from './errors/trip-not-in-progress.error';
 import { TripNotStartableYetError } from './errors/trip-not-startable-yet.error';
+import {
+  isLateDriverCancellation,
+  LateCancellationsService,
+} from './late-cancellations.service';
 import type { RoutePlan } from './route-plan';
 import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
+import {
+  MIN_DEPARTURE_LEAD_MIN,
+  MINUTE_MS,
+  START_WINDOW_MIN,
+} from './trip-timing';
+
+// La salida, con al menos una hora de antelación (si ya pasó, manda
+// DEPARTURE_IN_THE_PAST, que se comprueba antes)
+function assertDepartureLead(departureAt: Date): void {
+  if (departureAt.getTime() - Date.now() < MIN_DEPARTURE_LEAD_MIN * MINUTE_MS) {
+    throw new DepartureTooSoonError(departureAt, MIN_DEPARTURE_LEAD_MIN);
+  }
+}
 
 export interface TripInput {
   vehicleId: string;
@@ -47,11 +65,6 @@ export interface TripRouteView {
 
 const DEFAULT_MAX_DETOUR_MIN = 10;
 
-// RF-11: un viaje se puede iniciar desde estos minutos antes de su salida (el
-// conductor suele recoger a los pasajeros un poco antes), sin límite después
-const START_WINDOW_MIN = 30;
-const MINUTE_MS = 60 * 1000;
-
 // Viajes (RF-04, RF-05, RF-11): las operaciones del usuario. Los cambios de
 // estado, los eventos (outbox, RNF-08) y las plazas los hace TripStatusService
 @Injectable()
@@ -64,15 +77,20 @@ export class TripsService {
     private readonly vehiclesService: VehiclesService,
     private readonly tripStatus: TripStatusService,
     private readonly tripRoutes: TripRoutesService,
+    private readonly lateCancellations: LateCancellationsService,
   ) {}
 
-  // RF-04: publicar un viaje. Antes, RF-21: el conductor debe estar listo
+  // RF-04: publicar un viaje. Antes, RF-21: el conductor debe estar listo y
+  // no tener la publicación suspendida por cancelaciones tardías; la salida,
+  // con al menos una hora de antelación
   async publish(driverId: string, input: TripInput): Promise<TripView> {
     const readiness = await this.usersService.getDriverReadiness(driverId);
     if (!readiness.isReady) {
       throw new DriverNotReadyError(readiness);
     }
+    await this.lateCancellations.assertCanPublish(driverId);
     await this.assertValidTrip(driverId, input);
+    assertDepartureLead(input.departureAt);
     // RF-12: la ruta se calcula antes de la transacción (sin bloquear filas
     // mientras se espera a OSRM) y se guarda con el viaje
     const route = await this.tripRoutes.plan(input.origin, input.destination);
@@ -147,6 +165,11 @@ export class TripsService {
         throw new TripNotEditableError(current.id, current.status);
       }
       await this.assertValidTrip(driverId, { ...current, ...changes });
+      // La antelación solo cuenta si se mueve la salida: cambiar las plazas de
+      // un viaje que sale pronto sigue permitido
+      if (changes.departureAt !== undefined) {
+        assertDepartureLead(changes.departureAt);
+      }
 
       Object.assign(current, changes);
       current.availableSeats = current.offeredSeats;
@@ -170,8 +193,22 @@ export class TripsService {
       if (current.status === 'in_progress') {
         throw new TripAlreadyStartedError(current.id);
       }
+      // Con pasajeros y a menos de 30 minutos, se registra como tardía (cuenta
+      // para suspender la publicación)
+      const isLate = isLateDriverCancellation(current, new Date());
       // Avisa a los suscriptores: las solicitudes se cancelan con el viaje
-      return this.tripStatus.changeStatus(manager, current, 'cancelled');
+      const cancelled = await this.tripStatus.changeStatus(
+        manager,
+        current,
+        'cancelled',
+      );
+      if (isLate) {
+        await this.lateCancellations.recordDriverCancellation(
+          manager,
+          cancelled,
+        );
+      }
+      return cancelled;
     });
     return this.toView(trip);
   }
