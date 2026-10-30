@@ -5,7 +5,6 @@ import {
   estimateDriverImpact,
   formatDateLabel,
   toDepartureAt,
-  toIsoDate,
   toPublishTripRequest,
 } from './publish-trip.utils';
 
@@ -22,8 +21,7 @@ const ROQUETAS = {
 } as SearchPlace;
 
 describe('publish-trip utils', () => {
-  it('formats the dates for ion-datetime, the API and the summary', () => {
-    expect(toIsoDate(new Date(2026, 9, 7))).toBe('2026-10-07');
+  it('formats the dates for the API and the summary', () => {
     expect(toDepartureAt('2099-01-15', '07:40')).toBe(new Date(2099, 0, 15, 7, 40).toISOString());
     expect(formatDateLabel('2099-01-15')).toContain('15');
     expect(formatDateLabel('')).toBe('');

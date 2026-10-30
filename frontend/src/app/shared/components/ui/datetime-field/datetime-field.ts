@@ -11,6 +11,7 @@ import {
 } from '@angular/forms';
 import { IonDatetime, IonIcon, IonModal } from '@ionic/angular';
 import { calendarOutline, timeOutline } from 'ionicons/icons';
+import { toIsoDate } from '../../../utils/date.util';
 
 export type DatetimePresentation = 'date' | 'time';
 
@@ -27,13 +28,6 @@ const DATE_LABEL = new Intl.DateTimeFormat('es-ES', {
   day: 'numeric',
   month: 'short',
 });
-
-// Fecha local en ISO (2026-10-27)
-function toIsoDate(date: Date): string {
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
-}
 
 // «Hoy», «Mañana» o, desde el tercer día, «jue, 30 oct»
 export function formatDateLabel(isoDate: string, today = new Date()): string {

@@ -159,6 +159,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Tras 3 códigos incorrectos, la pantalla de verificación bloquea las casillas y avisa de que hay que pedir otro código (#44)
 - El aviso (toast) ya se ve siempre: del segundo en adelante se pintaba con 0px de ancho, porque se cogía la primera columna de formulario del DOM y, al cambiar de pantalla, esa se queda sin tamaño (#102)
 - El ojo de las contraseñas sale del orden de tabulación: con el teclado se pasa del campo de la contraseña al control siguiente, sin pararse en él (sigue funcionando con ratón y tacto) (#102)
+- La búsqueda guardada de un día que ya pasó se abre en el día de hoy (y se corrige lo guardado): antes el campo de la fecha avisaba de que estaba fuera de rango y la búsqueda no se podía hacer (#103)
 - Los workflows de CI se ejecutan en los PR a `dev` (antes apuntaban a `develop`) (#2)
 - El check de documentación ya no exige `CLAUDE.md`, que no está versionado (#2)
 

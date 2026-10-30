@@ -19,13 +19,6 @@ export interface DriverImpact {
   co2Kg: number;
 }
 
-// Fecha local en formato ISO (2026-10-27), la que espera ion-datetime
-export function toIsoDate(date: Date): string {
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
-}
-
 // Fecha y hora locales («2026-10-27», «07:40») en ISO UTC para la API
 export function toDepartureAt(date: string, time: string): string {
   return new Date(`${date}T${time}:00`).toISOString();
