@@ -46,3 +46,20 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+// Escritorio: el campo nativo, con el borde, el alto y la letra de los demás;
+// su icono del calendario o del reloj, en gris como los de los campos
+.datetime-field__native {
+  cursor: text;
+
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--color-link);
+    box-shadow: 0 0 0 var(--border-width-s) var(--color-link);
+  }
+}
