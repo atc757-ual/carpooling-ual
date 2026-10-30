@@ -67,6 +67,35 @@ describe('ToastService', () => {
     expect(toasts[0].dismiss).toHaveBeenCalled();
   });
 
+  // Al cambiar de pantalla quedan páginas en el DOM cuyo panel mide 0: si se
+  // coge esa, el aviso sale con ancho 0 (invisible)
+  it('takes the form column that has size, not one left from another screen', async () => {
+    const stalePanel = document.createElement('main');
+    stalePanel.className = 'auth-layout__panel';
+    const stalePage = document.createElement('section');
+    stalePage.className = 'ion-page';
+    stalePage.append(stalePanel);
+
+    const visiblePanel = document.createElement('main');
+    visiblePanel.className = 'auth-layout__panel';
+    const visiblePage = document.createElement('section');
+    visiblePage.className = 'ion-page';
+    visiblePage.append(visiblePanel);
+
+    document.body.append(stalePage, visiblePage);
+    vi.spyOn(stalePanel, 'getBoundingClientRect').mockReturnValue({ left: 0, width: 0 } as DOMRect);
+    vi.spyOn(visiblePanel, 'getBoundingClientRect').mockReturnValue({
+      left: 120,
+      width: 480,
+    } as DOMRect);
+
+    await TestBed.inject(ToastService).showError('Sin conexión.');
+    document.body.replaceChildren();
+
+    expect(toasts[0].style.setProperty).toHaveBeenCalledWith('--start', '120px');
+    expect(toasts[0].style.setProperty).toHaveBeenCalledWith('--width', '480px');
+  });
+
   it('shows a success message in green and closes the previous one', async () => {
     const toast = TestBed.inject(ToastService);
     await toast.showError('Algo ha salido mal.');

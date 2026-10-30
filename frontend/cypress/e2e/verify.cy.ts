@@ -44,13 +44,13 @@ for (const viewport of VIEWPORTS) {
       cy.contains('ion-button', 'Reenviar código en 00:').should('have.attr', 'disabled');
     });
 
-    it('verifies the code, opens the session and goes to choose the mode', () => {
+    it('verifies the code, opens the session and ends in the account screen', () => {
       cy.intercept('POST', VERIFY_URL, ACCESS_TOKEN).as('verify');
 
       typeCode('042619');
 
       cy.wait('@verify').its('request.body').should('deep.equal', { email: EMAIL, code: '042619' });
-      cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
+      cy.location('pathname').should('eq', '/account-created');
     });
 
     it('explains a wrong code', () => {

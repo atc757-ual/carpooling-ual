@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { IonButton, IonContent, IonIcon } from '@ionic/angular';
 import { checkmarkCircleOutline } from 'ionicons/icons';
-import { SEARCH_PATH, WELCOME_PATH } from '../../../core/guards/redirect-paths';
+import { WELCOME_PATH } from '../../../core/guards/redirect-paths';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 
@@ -32,7 +32,6 @@ export class AccountCreatedPage {
   );
 
   protected readonly checkIcon = checkmarkCircleOutline;
-  protected readonly searchPath = SEARCH_PATH;
 
   // «Entrar más tarde»: se cierra la sesión del todo (también en el servidor) y
   // se vuelve a la bienvenida, para no dejar una sesión abierta en el móvil
