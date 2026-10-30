@@ -1,6 +1,6 @@
 <!-- Móvil: en las secciones, el logotipo (su título va en el contenido); en
      las pantallas de detalle, la flecha de volver y su título. Siempre, a la
-     derecha, la campana de Avisos. Cerrar sesión, en el Perfil -->
+     derecha, la campana de Avisos y cerrar sesión -->
 <ion-header class="app-header ion-hide-md-up ion-no-border">
   <ion-toolbar>
     @if (heading()?.backHref; as backHref) {
@@ -30,6 +30,12 @@
           <ion-badge class="unread-badge" aria-hidden="true">{{ unreadBadge() }}</ion-badge>
         }
       </ion-button>
+      <!-- La misma confirmación que en el Perfil y en el menú de escritorio -->
+      <form (submit)="$event.preventDefault(); handleLogout()">
+        <ion-button class="logout-button" type="submit" fill="clear" aria-label="Cerrar sesión">
+          <ion-icon slot="icon-only" [icon]="logoutIcon" aria-hidden="true" />
+        </ion-button>
+      </form>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
