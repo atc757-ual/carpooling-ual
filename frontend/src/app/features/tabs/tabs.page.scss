@@ -19,7 +19,8 @@ ion-tabs {
 }
 
 // Móvil: barra de 76px abajo, icono encima del texto. La pestaña activa, en el
-// color de los enlaces, en negrita y con fondo (no solo por el color)
+// color de los enlaces, en negrita y sobre una pastilla azul muy clara (no solo
+// por el color)
 .tab-bar {
   --color: var(--color-text-muted);
   --color-selected: var(--color-link);
@@ -29,28 +30,39 @@ ion-tabs {
 }
 
 ion-tab-button {
+  // El fondo y la onda los pinta la propia pestaña (abajo): la onda de Ionic es
+  // lo que la oscurecía al pulsar, y con --background se pintaba también por
+  // dentro. El foco del teclado, en el mismo azul que la pastilla
+  --background: transparent;
+  --background-focused: var(--color-primary-subtle);
+  --ripple-color: transparent;
+
   font-size: var(--font-size-caption);
+
+  // La pestaña mide lo que mide su contenido y la barra la centra, así que la
+  // pastilla deja aire arriba y abajo. Con el alto al 100% que pone Ionic, el
+  // fondo llegaba de borde a borde de la barra
+  height: auto;
+  margin: var(--space-xs); // 4px
+  border-radius: var(--radius-s);
 
   ion-icon {
     font-size: var(--tab-icon-size);
   }
 
-  // Un poco separadas de los bordes de la barra, para que el fondo de la
-  // activa se vea como una pastilla
-  margin: var(--space-xs) 0.125rem; // 4px 2px
-
-  &::part(native) {
-    border-radius: var(--radius-s);
-  }
-
-  // La activa, además, con el fondo azul muy claro y esquinas de 8px. En el
-  // interior del botón (::part): es lo que pinta Ionic, y lo de fuera no se ve
-  &.tab-selected {
-    font-weight: var(--font-weight-semibold);
-
-    &::part(native) {
+  // Al pasar el ratón, la misma pastilla azul muy clara (solo donde hay ratón:
+  // en el móvil el hover se queda pegado al tocar)
+  @media (any-hover: hover) {
+    &:hover {
       background: var(--color-primary-subtle);
     }
+  }
+
+  // La activa: la pastilla, el texto y el icono en el color de los enlaces y en
+  // negrita
+  &.tab-selected {
+    background: var(--color-primary-subtle);
+    font-weight: var(--font-weight-semibold);
   }
 }
 
@@ -87,21 +99,25 @@ ion-tab-button {
   // 48px de alto, como los botones
   min-height: var(--control-height-base);
   padding-inline: var(--space-base);
-  border-radius: var(--radius-s);
   color: var(--color-text);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
+  // Los 4px del borde inferior van transparentes en todas y solo los pinta la
+  // activa: así todas miden lo mismo y el menú no se mueve al cambiar de una a
+  // otra. Al pasar el ratón no cambia nada
+  border-bottom: 0.25rem solid transparent; // 4px
 
   &:focus-visible {
     outline: var(--border-width-m) solid var(--color-focus);
   }
 }
 
-// El destino activo: en el color de los enlaces, en negrita y sobre un fondo
-// azul muy claro con esquinas de 8px (igual que la pestaña activa del móvil)
+// El destino activo: en el color de los enlaces, en negrita y con la raya de
+// marca de 4px abajo (sin fondo ni esquinas, a diferencia de la pestaña del
+// móvil)
 .top-nav__link--active {
-  background: var(--color-primary-subtle);
+  border-bottom-color: var(--color-primary);
   color: var(--color-link);
   font-weight: var(--font-weight-semibold);
 }
