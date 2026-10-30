@@ -15,6 +15,7 @@ import { TripsService } from '../src/modules/trips/trips.service';
 import { UsersService } from '../src/modules/users/users.service';
 import { VehiclesService } from '../src/modules/users/vehicles.service';
 import { deleteTestUsers } from './support/cleanup';
+import { publishableDeparture, setDepartureIn } from './support/trips';
 
 // IncidentsService contra la base de datos real (RF-23). Los usuarios llevan
 // el prefijo EMAIL_PREFIX; en afterEach se borran los eventos de sus viajes,
@@ -82,9 +83,11 @@ describe('IncidentsService (e2e)', () => {
       vehicleId: vehicle.id,
       origin: ALMERIA_CENTRE,
       destination: UAL_CAMPUS,
-      departureAt: new Date(Date.now() + 10 * 60 * 1000),
+      departureAt: publishableDeparture(),
       offeredSeats: 2,
     });
+    // Sale en 10 minutos (publicado con la antelación mínima y movido)
+    trip.departureAt = await setDepartureIn(dataSource, trip.id, 10);
     const pia = await createUser('pia', ['passenger']);
     const { request } = await requestsService.request(pia, trip.id);
     await requestsService.accept(driverId, request.id);

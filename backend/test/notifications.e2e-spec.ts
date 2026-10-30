@@ -10,6 +10,7 @@ import { TripsService } from '../src/modules/trips/trips.service';
 import { UsersService } from '../src/modules/users/users.service';
 import { VehiclesService } from '../src/modules/users/vehicles.service';
 import { deleteTestUsers } from './support/cleanup';
+import { publishableDeparture } from './support/trips';
 import { registerUser } from './support/accounts';
 
 // Avisos dentro de la aplicación (RF-19) de punta a punta. Los usuarios
@@ -86,7 +87,7 @@ describe('Notifications API (e2e)', () => {
       vehicleId: vehicle.id,
       origin: ALMERIA_CENTRE,
       destination: UAL_CAMPUS,
-      departureAt: new Date(Date.now() + 60 * 60 * 1000),
+      departureAt: publishableDeparture(),
       offeredSeats: 2,
     });
     const pia = await sessionFor('pia');

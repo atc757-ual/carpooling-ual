@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { deleteTestUsers } from './support/cleanup';
+import { publishableDeparture, setDepartureIn } from './support/trips';
 import { registerUser } from './support/accounts';
 
 // El ciclo completo de un viaje compartido por HTTP (RF-04 a RF-11):
@@ -15,7 +16,6 @@ const EMAIL_PREFIX = 'lifecycle-e2e-';
 const PASSWORD = 'secret-password';
 const UAL_CAMPUS = { type: 'Point', coordinates: [-2.4058, 36.8297] };
 const ALMERIA_CENTRE = { type: 'Point', coordinates: [-2.4637, 36.8381] };
-const MINUTE_MS = 60 * 1000;
 
 describe('Trip lifecycle API (e2e)', () => {
   let app: INestApplication<App>;
@@ -79,13 +79,14 @@ describe('Trip lifecycle API (e2e)', () => {
         vehicleId,
         origin: ALMERIA_CENTRE,
         destination: UAL_CAMPUS,
-        departureAt: new Date(
-          Date.now() + minutesToDeparture * MINUTE_MS,
-        ).toISOString(),
+        departureAt: publishableDeparture().toISOString(),
         offeredSeats: 2,
       })
       .expect(201);
-    return { driver, tripId: (trip.body as { id: string }).id, vehicleId };
+    const tripId = (trip.body as { id: string }).id;
+    // Publicado con la antelación mínima y movido a la salida pedida
+    await setDepartureIn(dataSource, tripId, minutesToDeparture);
+    return { driver, tripId, vehicleId };
   }
 
   it('full cycle: publish → request → accept → start → finish', async () => {

@@ -20,6 +20,7 @@ import { UsersService } from '../src/modules/users/users.service';
 import { VehiclesService } from '../src/modules/users/vehicles.service';
 import { ProfileRequiredError } from '../src/shared/auth/profile-required.error';
 import { deleteTestUsers } from './support/cleanup';
+import { publishableDeparture, setDepartureIn } from './support/trips';
 
 // RequestsService contra la base de datos real (requiere npm run migrate). Los
 // usuarios llevan el prefijo EMAIL_PREFIX; en afterEach se borran sus eventos,
@@ -90,9 +91,11 @@ describe('RequestsService (e2e)', () => {
       vehicleId: vehicle.id,
       origin: ALMERIA_CENTRE,
       destination: UAL_CAMPUS,
-      departureAt: new Date(Date.now() + minutesToDeparture * 60 * 1000),
+      departureAt: publishableDeparture(),
       offeredSeats,
     });
+    // Publicado con la antelación mínima y movido a la salida pedida
+    await setDepartureIn(dataSource, trip.id, minutesToDeparture);
     return { driverId, tripId: trip.id, plate };
   }
 

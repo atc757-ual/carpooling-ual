@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { deleteTestUsers } from './support/cleanup';
+import { publishableDeparture, setDepartureIn } from './support/trips';
 import { registerUser } from './support/accounts';
 
 // Incidencias (RF-23, RF-24) de punta a punta por HTTP. Los usuarios llevan el
@@ -80,11 +81,14 @@ describe('Incidents API (e2e)', () => {
         vehicleId: (vehicle.body as { id: string }).id,
         origin: ALMERIA_CENTRE,
         destination: UAL_CAMPUS,
-        departureAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+        departureAt: publishableDeparture().toISOString(),
         offeredSeats: 2,
       })
       .expect(201);
-    return { driver, tripId: (trip.body as { id: string }).id };
+    const tripId = (trip.body as { id: string }).id;
+    // Sale en 10 minutos (publicado con la antelación mínima y movido)
+    await setDepartureIn(dataSource, tripId, 10);
+    return { driver, tripId };
   }
 
   async function acceptedRequest(
