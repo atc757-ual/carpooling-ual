@@ -1,55 +1,74 @@
 <span [id]="labelId" class="text-label text-label--strong">{{ label() }}</span>
-<!-- Botón propio (no ion-datetime-button) para poder leer «Hoy» o «Mañana» -->
-<button
-  type="button"
-  class="datetime-field__box"
-  [attr.aria-labelledby]="labelId + ' ' + pickerId + '-value'"
-  aria-haspopup="dialog"
-  [disabled]="control.disabled"
-  (click)="isOpen.set(true)"
->
-  <ion-icon [icon]="icon()" aria-hidden="true" />
-  <span [id]="pickerId + '-value'" class="datetime-field__value">{{ displayValue() }}</span>
-</button>
+@if (isDesktop()) {
+  <!-- Escritorio: el campo nativo del navegador (se escribe o se elige en su
+       calendario), con el aspecto de los demás campos -->
+  <input
+    class="datetime-field__box datetime-field__native"
+    [type]="presentation()"
+    [formControl]="control"
+    [min]="min() ?? null"
+    [max]="max() ?? null"
+    [step]="presentation() === 'time' ? timeStepSeconds : null"
+    [attr.aria-labelledby]="labelId"
+  />
+} @else {
+  <!-- Móvil: botón propio (no ion-datetime-button) para poder leer «Hoy» o
+       «Mañana», y la hoja que sube desde abajo, con la muesca (estilos del tema) -->
+  <button
+    type="button"
+    class="datetime-field__box"
+    [attr.aria-labelledby]="labelId + ' ' + pickerId + '-value'"
+    aria-haspopup="dialog"
+    [disabled]="control.disabled"
+    (click)="isOpen.set(true)"
+  >
+    <ion-icon [icon]="icon()" aria-hidden="true" />
+    <span [id]="pickerId + '-value'" class="datetime-field__value">{{ displayValue() }}</span>
+  </button>
+  <ion-modal
+    class="datetime-modal"
+    [keepContentsMounted]="true"
+    [isOpen]="isOpen()"
+    (didDismiss)="isOpen.set(false)"
+  >
+    <ng-template>
+      <ng-container [ngTemplateOutlet]="pickerContent" />
+    </ng-template>
+  </ion-modal>
+}
 
-<ion-modal
-  class="datetime-modal"
-  [keepContentsMounted]="true"
-  [isOpen]="isOpen()"
-  (didDismiss)="isOpen.set(false)"
->
-  <ng-template>
-    @if (presentation() === 'date') {
-      <ion-datetime
-        #picker
-        [id]="pickerId"
-        [formControl]="control"
-        presentation="date"
-        [formatOptions]="{ date: { day: 'numeric', month: 'short' } }"
-        locale="es-ES"
-        [firstDayOfWeek]="1"
-        [min]="min()"
-        [max]="max()"
-        [showDefaultButtons]="true"
-      >
-        <ng-container *ngTemplateOutlet="actions; context: { $implicit: picker }" />
-      </ion-datetime>
-    } @else {
-      <ion-datetime
-        #picker
-        [id]="pickerId"
-        [formControl]="control"
-        presentation="time"
-        locale="es-ES"
-        hourCycle="h23"
-        [minuteValues]="minuteValues"
-        [showDefaultButtons]="true"
-      >
-        <ng-container *ngTemplateOutlet="actions; context: { $implicit: picker }" />
-      </ion-datetime>
-    }
-  </ng-template>
-</ion-modal>
+<!-- El calendario o las ruedas de la hora de Ionic (móvil) -->
+<ng-template #pickerContent>
+  @if (presentation() === 'date') {
+    <ion-datetime
+      #picker
+      [id]="pickerId"
+      [formControl]="control"
+      presentation="date"
+      [formatOptions]="{ date: { day: 'numeric', month: 'short' } }"
+      locale="es-ES"
+      [firstDayOfWeek]="1"
+      [min]="min()"
+      [max]="max()"
+      [showDefaultButtons]="true"
+    >
+      <ng-container *ngTemplateOutlet="actions; context: { $implicit: picker }" />
+    </ion-datetime>
+  } @else {
+    <ion-datetime
+      #picker
+      [id]="pickerId"
+      [formControl]="control"
+      presentation="time"
+      locale="es-ES"
+      hourCycle="h23"
+      [minuteValues]="minuteValues"
+      [showDefaultButtons]="true"
+    >
+      <ng-container *ngTemplateOutlet="actions; context: { $implicit: picker }" />
+    </ion-datetime>
+  }
+</ng-template>
 
 <ng-template #actions let-picker>
   <div slot="buttons" class="datetime-actions">

@@ -264,11 +264,44 @@ ion-modal.info-dialog {
     display: block;
     contain: content;
   }
+}
 
-  @media (max-width: 767.98px) {
+// En el móvil, las ventanas son hojas que suben desde abajo: a todo el ancho,
+// con las esquinas redondeadas solo arriba y la muesca (una barrita gris
+// centrada) que indica que se pueden cerrar. El calendario y la hora, igual,
+// y con sitio abajo para la barra del sistema (las demás ya lo dejan en su
+// contenido)
+@media (max-width: 767.98px) {
+  ion-modal.location-dialog,
+  ion-modal.info-dialog,
+  ion-modal.datetime-modal {
     --border-radius: var(--radius-s) var(--radius-s) 0 0;
 
     align-items: flex-end;
+
+    .ion-page::before {
+      display: block;
+      flex: none;
+      width: 2.25rem; // 36px
+      height: 0.25rem; // 4px
+      margin: var(--space-s) auto 0;
+      border-radius: var(--radius-full);
+      background: var(--color-border);
+      content: '';
+    }
+  }
+
+  ion-modal.datetime-modal {
+    --width: 100%;
+
+    .ion-page {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    ion-datetime {
+      width: 100%;
+      max-width: none;
+    }
   }
 }
 
@@ -385,17 +418,17 @@ ion-card-title {
   }
 }
 
-// Filas pulsables (ion-item con button o enlace, las preguntas frecuentes):
-// al pasar el ratón o con el foco, un azul muy suave en vez del gris de
-// Ionic; al pulsar, algo más
+// Filas pulsables (ion-item con button o enlace): al pasar el ratón y al
+// pulsar, el mismo azul muy suave (sin la onda de Ionic, que lo oscurecía);
+// con el foco del teclado, algo más para que se vea
 ion-item {
   --background-hover: var(--color-link);
   --background-hover-opacity: 0.06;
   --background-focused: var(--color-link);
   --background-focused-opacity: 0.1;
   --background-activated: var(--color-link);
-  --background-activated-opacity: 0.12;
-  --ripple-color: var(--color-link);
+  --background-activated-opacity: 0.06;
+  --ripple-color: transparent;
 }
 
 // Subtítulo de una tarjeta: texto secundario (14px, peso normal, gris y la

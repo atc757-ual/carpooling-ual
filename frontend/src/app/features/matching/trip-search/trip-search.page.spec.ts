@@ -28,6 +28,10 @@ const SEARCH: TripSearch = {
   seats: 1,
 };
 
+// El primer test de la página la monta en frío (todos sus componentes): con
+// la máquina cargada pasa de los 5 s por defecto
+const COLD_START_TIMEOUT_MS = 15_000;
+
 describe('TripSearchPage', () => {
   let searchState: TripSearchStateService;
 
@@ -74,15 +78,19 @@ describe('TripSearchPage', () => {
     return fixture;
   }
 
-  it('greets by the first name and shows the search card with the questions', async () => {
-    const root = (await setUp(null)).nativeElement as HTMLElement;
+  it(
+    'greets by the first name and shows the search card with the questions',
+    async () => {
+      const root = (await setUp(null)).nativeElement as HTMLElement;
 
-    expect(root.querySelector('h1')?.textContent).toContain('¡Hola, Jimena!');
-    expect(root.textContent).toContain('¿A dónde vamos hoy?');
-    expect(root.querySelector('app-trip-search-form')).not.toBeNull();
-    expect(root.querySelector('app-faq-card')).not.toBeNull();
-    expect(root.textContent).not.toContain('Nueva búsqueda');
-  });
+      expect(root.querySelector('h1')?.textContent).toContain('¡Hola, Jimena!');
+      expect(root.textContent).toContain('¿A dónde vamos hoy?');
+      expect(root.querySelector('app-trip-search-form')).not.toBeNull();
+      expect(root.querySelector('app-faq-card')).not.toBeNull();
+      expect(root.textContent).not.toContain('Nueva búsqueda');
+    },
+    COLD_START_TIMEOUT_MS,
+  );
 
   it('tells how many requests wait for an answer', async () => {
     const root = (await setUp(null, { pending: 2 })).nativeElement as HTMLElement;

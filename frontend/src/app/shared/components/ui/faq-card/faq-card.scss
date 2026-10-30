@@ -8,10 +8,13 @@ ion-card {
   margin: 0;
 }
 
+// Sin fondo al pasar el ratón ni al pulsar: la flecha ya dice que se abre
 ion-accordion ion-item {
   --padding-start: 0;
   --inner-padding-end: 0;
   --background: transparent;
+  --background-hover-opacity: 0;
+  --background-activated-opacity: 0;
 }
 
 .faq-card__question {

@@ -1,7 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Capacitor } from '@capacitor/core';
 import { provideIonicAngular } from '@ionic/angular';
+import { vi } from 'vitest';
 import { DatetimeField, DatetimePresentation, formatDateLabel } from './datetime-field';
 
 @Component({
@@ -87,5 +89,43 @@ describe('DatetimeField', () => {
     expect(control.disabled).toBe(true);
     host.value.enable();
     expect(control.disabled).toBe(false);
+  });
+});
+
+describe('DatetimeField on a desktop browser', () => {
+  // El ancho de escritorio (desde 768px), simulado
+  function render(isNativeApp: boolean): HTMLElement {
+    // jsdom no tiene matchMedia: se pone uno que responde «escritorio»
+    vi.stubGlobal('matchMedia', () => ({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(isNativeApp);
+    TestBed.configureTestingModule({ imports: [Host], providers: [provideIonicAngular()] });
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it('uses the native field of the browser, with its value and limits', () => {
+    const root = render(false);
+    const input = root.querySelector<HTMLInputElement>('input.datetime-field__native');
+
+    expect(input?.type).toBe('date');
+    expect(input?.value).toBe('2026-10-27');
+    expect(root.querySelector('ion-modal')).toBeNull();
+  });
+
+  it('keeps the Ionic picker in the installed app, whatever the width', () => {
+    const root = render(true);
+
+    expect(root.querySelector('input.datetime-field__native')).toBeNull();
+    expect(root.querySelector('button.datetime-field__box')).not.toBeNull();
   });
 });

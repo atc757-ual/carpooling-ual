@@ -34,6 +34,10 @@ const PLACE = {
   coordinates: [-2.6, 36.76] as [number, number],
 };
 
+// El primer test de la página la monta en frío (todos sus componentes): con
+// la máquina cargada pasa de los 5 s por defecto
+const COLD_START_TIMEOUT_MS = 15_000;
+
 describe('PublishTripPage', () => {
   let harness: RouterTestingHarness;
   let page: PublishTripPage;
@@ -117,16 +121,20 @@ describe('PublishTripPage', () => {
     expect(page.isRouteComplete()).toBe(true);
   });
 
-  it('goes back to the first step on reload and never jumps ahead by itself', async () => {
-    await openPage('/publish?step=3');
+  it(
+    'goes back to the first step on reload and never jumps ahead by itself',
+    async () => {
+      await openPage('/publish?step=3');
 
-    expect(router.url).toBe('/publish');
-    expect(page.step()).toBe(1);
+      expect(router.url).toBe('/publish');
+      expect(page.step()).toBe(1);
 
-    // El origen y el vehículo se rellenan solos: sigue en el paso 1
-    fillTrip({ withVehicle: true });
-    expect(page.step()).toBe(1);
-  });
+      // El origen y el vehículo se rellenan solos: sigue en el paso 1
+      fillTrip({ withVehicle: true });
+      expect(page.step()).toBe(1);
+    },
+    COLD_START_TIMEOUT_MS,
+  );
 
   it('moves forward with the buttons and back to the previous step by its name', async () => {
     await openPage();
