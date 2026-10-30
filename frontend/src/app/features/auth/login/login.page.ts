@@ -111,7 +111,7 @@ export class LoginPage {
   // Contraseña correcta pero correo sin verificar: se pide un código nuevo (el
   // del registro puede haber caducado) y se lleva a la pantalla del código
   private async goToVerify(email: string): Promise<void> {
-    this.auth.setPendingVerificationEmail(email);
+    this.auth.setPendingVerificationEmail(email, false);
     await this.auth.resendVerificationCode(email).catch(() => undefined);
     await this.router.navigateByUrl('/auth/verify');
   }

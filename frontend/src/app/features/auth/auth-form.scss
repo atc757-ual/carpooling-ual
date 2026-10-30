@@ -29,6 +29,12 @@
   font-size: 1.75rem; // 28px
 }
 
+// La misma caja, en verde, para lo que ha salido bien (p. ej. la cuenta creada)
+.auth-icon--success {
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;

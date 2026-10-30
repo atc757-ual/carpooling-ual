@@ -107,7 +107,7 @@ describe('LoginPage', () => {
 
     await submit();
 
-    expect(setPendingVerificationEmail).toHaveBeenCalledWith('ana@ual.es');
+    expect(setPendingVerificationEmail).toHaveBeenCalledWith('ana@ual.es', false);
     expect(resendVerificationCode).toHaveBeenCalledWith('ana@ual.es');
     expect(navigateByUrl).toHaveBeenCalledWith('/auth/verify');
     expect(showError).not.toHaveBeenCalled();
@@ -121,6 +121,8 @@ describe('LoginPage', () => {
     const toggle = root.querySelector<HTMLElement>('.auth-password-toggle');
     expect(password?.type).toBe('password');
     expect(toggle?.getAttribute('aria-label')).toBe('Mostrar contraseña');
+    // Fuera del orden de tabulación: del campo se pasa al control siguiente
+    expect(toggle?.getAttribute('tabindex')).toBe('-1');
 
     toggle?.click();
     await fixture.whenStable();

@@ -125,8 +125,16 @@ describe('AuthService', () => {
   });
 
   describe('email verification', () => {
+    it('remembers whether the pending code comes from a new account', () => {
+      auth.setPendingVerificationEmail('ana@ual.es', true);
+      expect(auth.isNewAccount()).toBe(true);
+
+      auth.setPendingVerificationEmail('ana@ual.es', false);
+      expect(auth.isNewAccount()).toBe(false);
+    });
+
     it('verifies the email, starts the session and forgets the pending email', async () => {
-      auth.setPendingVerificationEmail('ana@ual.es');
+      auth.setPendingVerificationEmail('ana@ual.es', false);
       const verify = auth.verifyEmail({ email: 'ana@ual.es', code: '042137' });
       const request = await expectRequest('/api/auth/verify-email');
       expect(request.request.body).toEqual({ email: 'ana@ual.es', code: '042137' });

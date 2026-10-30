@@ -3,7 +3,12 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
-import { AccessToken, LoginRequest, RegisterRequest, VerifyEmailRequest } from '../../models/auth.model';
+import {
+  AccessToken,
+  LoginRequest,
+  RegisterRequest,
+  VerifyEmailRequest,
+} from '../../models/auth.model';
 import { Profile, User } from '../../models/user.model';
 import { PreferencesPlugin } from '../../plugins/preferences-plugin';
 
@@ -14,6 +19,9 @@ const SESSION_ENDED_CODE = 'INVALID_REFRESH_TOKEN';
 // del código. En sessionStorage y no en la URL: es un dato personal y la URL
 // queda en el historial y en los registros. Dura lo que la pestaña
 const PENDING_EMAIL_KEY = 'auth.pending-verification-email';
+// Si ese código viene del registro (cuenta nueva) o de un login de una cuenta
+// sin verificar: la pantalla del final cambia el mensaje
+const NEW_ACCOUNT_KEY = 'auth.pending-verification-is-new-account';
 
 // Sesión del usuario contra /api/auth.
 // - El token de acceso (15 min) solo vive en memoria; el de renovación se
@@ -48,12 +56,16 @@ export class AuthService {
   // verificar el correo (verifyEmail), que es cuando se inicia la sesión
   async register(request: RegisterRequest): Promise<void> {
     await this.send(this.http.post<void>(`${this.authUrl}/register`, request));
-    this.setPendingVerificationEmail(request.email);
+    this.setPendingVerificationEmail(request.email, true);
   }
 
-  // Verifica el correo con el código enviado; si es correcto, abre la sesión
+  // Verifica el correo con el código enviado; si es correcto, abre la sesión.
+  // El correo se borra y el motivo (cuenta nueva o cuenta ya existente) se
+  // queda para la pantalla del final del registro
   async verifyEmail(request: VerifyEmailRequest): Promise<User> {
-    const token = await this.send(this.http.post<AccessToken>(`${this.authUrl}/verify-email`, request));
+    const token = await this.send(
+      this.http.post<AccessToken>(`${this.authUrl}/verify-email`, request),
+    );
     await this.startSession(token);
     sessionStorage.removeItem(PENDING_EMAIL_KEY);
     return token.user;
@@ -63,8 +75,14 @@ export class AuthService {
     return sessionStorage.getItem(PENDING_EMAIL_KEY);
   }
 
-  setPendingVerificationEmail(email: string): void {
+  setPendingVerificationEmail(email: string, isNewAccount: boolean): void {
     sessionStorage.setItem(PENDING_EMAIL_KEY, email);
+    sessionStorage.setItem(NEW_ACCOUNT_KEY, String(isNewAccount));
+  }
+
+  // Lo lee la pantalla del final del registro. Se borra al cerrar la sesión
+  isNewAccount(): boolean {
+    return sessionStorage.getItem(NEW_ACCOUNT_KEY) === 'true';
   }
 
   // Pide un código nuevo (anula el anterior). La API responde lo mismo exista o
@@ -85,7 +103,9 @@ export class AuthService {
     const refreshToken = await this.preferences.get(REFRESH_TOKEN_KEY);
     await this.endSession();
     if (refreshToken) {
-      await this.send(this.http.post<void>(`${this.authUrl}/logout`, { refreshToken })).catch(() => undefined);
+      await this.send(this.http.post<void>(`${this.authUrl}/logout`, { refreshToken })).catch(
+        () => undefined,
+      );
     }
   }
 
@@ -119,7 +139,9 @@ export class AuthService {
       throw new ApiError(SESSION_ENDED_CODE, 401);
     }
     try {
-      const token = await this.send(this.http.post<AccessToken>(`${this.authUrl}/refresh`, { refreshToken }));
+      const token = await this.send(
+        this.http.post<AccessToken>(`${this.authUrl}/refresh`, { refreshToken }),
+      );
       await this.startSession(token);
       return token.accessToken;
     } catch (error) {
@@ -142,6 +164,10 @@ export class AuthService {
     this.accessToken = null;
     this.user.set(null);
     await this.preferences.remove(REFRESH_TOKEN_KEY);
+    // Sin sesión no queda registro a medias: al volver, la pantalla del final
+    // del registro no se abre con un estado viejo
+    sessionStorage.removeItem(PENDING_EMAIL_KEY);
+    sessionStorage.removeItem(NEW_ACCOUNT_KEY);
   }
 
   private async send<T>(request: Observable<T>): Promise<T> {

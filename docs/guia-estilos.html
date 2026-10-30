@@ -912,6 +912,8 @@
       <li><b>Flecha atrás:</b> <code>ion-back-button class="back-button"</code>, solo icono (<code>arrow-back-outline</code>, 28px) con <code>aria-label="Volver"</code>; botón de 52px con el icono centrado y alineado con el margen del contenido.</li>
       <li>Recuadros informativos por pantalla: «Una cuenta, varios perfiles» (registro), «Qué significa UAL verificado» (verificar), «Empezarás en modo pasajero» (modos), «Tu acceso, protegido» (login).</li>
       <li>Reenviar el código: botón desactivado con cuenta atrás («Reenviar código en 00:42»); después de enviar, «Si existe una cuenta asociada…», sin confirmar si el correo está registrado.</li>
+      <li><b>Ojo de la contraseña:</b> botón nativo dentro del campo, con <code>aria-label</code> en español («Mostrar contraseña» / «Ocultar contraseña») y <code>aria-pressed</code>. Va fuera del orden de tabulación (<code>tabindex="-1"</code>): al tabular se pasa del campo de la contraseña al control siguiente. Es una excepción consciente a WCAG 2.1.1: el ojo es un atajo (ratón o tacto) y el campo sigue siendo operable con el teclado.</li>
+      <li><b>Final del registro:</b> tras verificar el correo, «¡Cuenta creada!» con el check en la caja verde (<code>--color-success-subtle</code>), «Entrar a la app» (siempre a Buscar) y «Entrar más tarde», que cierra la sesión y vuelve a la bienvenida. Si el código venía de un login de una cuenta sin verificar, el título es «¡Correo verificado!», porque la cuenta ya existía. Sin flecha atrás: la cuenta ya está creada.</li>
     </ul>
   </section>
 
@@ -934,7 +936,7 @@
     <p class="note">Intención de diseño WCAG 2.1 AA, sin afirmar una certificación. Se prueba con lector de pantalla, texto ampliado y teclado.</p>
     <div class="grid">
       <div><h4>Lectura</h4><ul class="rules"><li>Texto normal ≥ 4,5:1; texto grande y controles con significado ≥ 3:1.</li><li>Los bordes suaves solo separan listas; los campos llevan contorno contrastado.</li></ul></div>
-      <div><h4>Tacto y teclado</h4><ul class="rules"><li>Nunca menos de 2,75rem de área activa: también chips, estrellas e iconos.</li><li>Orden del tabulador: filtros → cabeceras y acciones → paginación.</li><li>Foco visible siempre (0,125rem; 0,1875rem en botones).</li></ul></div>
+      <div><h4>Tacto y teclado</h4><ul class="rules"><li>Nunca menos de 2,75rem de área activa: también chips, estrellas e iconos.</li><li>Orden del tabulador: filtros → cabeceras y acciones → paginación.</li><li>Excepción: el ojo de la contraseña queda fuera del tabulador (<code>tabindex="-1"</code>), como atajo de ratón y tacto.</li><li>Foco visible siempre (0,125rem; 0,1875rem en botones).</li></ul></div>
       <div><h4>Escala del usuario</h4><ul class="rules"><li>Base 1rem del navegador, sin fijar el tamaño raíz; estilos en rem.</li><li>Respetar el texto ampliado, las áreas seguras del móvil y el teclado de Android/iOS.</li><li>Respetar «reducir movimiento».</li></ul></div>
       <div><h4>Lectores de pantalla</h4><ul class="rules"><li><code>aria-label</code> en iconos y estrellas; regiones vivas para errores y estados.</li><li>Diálogos con el foco dentro, Escape para cancelar y vuelta del foco al cerrar.</li></ul></div>
     </div>

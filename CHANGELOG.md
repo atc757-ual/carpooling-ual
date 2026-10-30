@@ -101,6 +101,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Mis vehículos en el Perfil (solo con el perfil de conductor): matrícula, marca y modelo y plazas, con «Editar» y «Registrar vehículo» en la ventana del vehículo (#82)
 - Cambiar los datos de la propia cuenta con `PATCH /api/users/me`: nombre, teléfono y tolerancia horaria (± 5, 10, 15 o 20 min, el margen por defecto de las búsquedas, que sale en el usuario como `timeToleranceMin`); el correo no se cambia. Evento `user.updated` con los campos cambiados, sin datos personales (#83)
 - Cancelaciones tardías del conductor: cancelar con pasajeros aceptados a menos de 30 minutos de la salida queda registrado (tabla `late_cancellations`, evento `trip.cancelled_late`); con 3 en 30 días no puede publicar en 7 días (409 `PUBLISHING_SUSPENDED`), y `GET /api/users/me/publishing-status` dice cuántas lleva y hasta cuándo. Publicar o mover la salida exige al menos una hora de antelación (400 `DEPARTURE_TOO_SOON`) (#98)
+- Pantalla del final del registro: tras verificar el correo, «¡Cuenta creada!» con «Entrar a la app» (siempre a Buscar) y «Entrar más tarde» (cierra la sesión y vuelve a la bienvenida); si el código venía de un login de una cuenta sin verificar, dice «¡Correo verificado!» (#102)
 
 ### Changed
 - El código de 6 cifras (verificar el correo y recuperar la contraseña) se envía solo al completar la última casilla, sin botón; si es incorrecto, además del aviso, las casillas tintinean (sin animación con «reducir movimiento»), el móvil vibra y el foco vuelve a la primera (#87)
@@ -156,6 +157,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Las sugerencias del correo y de la dirección se pueden usar con el teclado sin salir del campo: ↓/↑ resaltan una, Enter la elige y Escape cierra la lista; el lector de pantalla anuncia la lista y la opción resaltada (combobox de WAI-ARIA). La primera sale resaltada (Tab o Enter la eligen) y, por accesibilidad, el campo del correo ya no muestra el desplegable del navegador: se ponía encima, se quedaba con las flechas y el lector de pantalla anunciaba dos listas a la vez. Antes, Tab sacaba el foco del campo y lo marcaba en rojo (#85)
 - Área con sesión: el saludo va sobre blanco (en escritorio, en la franja fija, sin línea bajo el menú; en el móvil, al principio de Inicio) y el contenido de las pestañas sobre fondo gris claro; la cabecera, la franja y el contenido miden como mucho 1400px y quedan alineados con el logotipo (16px de margen en el móvil, 24px en escritorio) (#50)
 - Tras 3 códigos incorrectos, la pantalla de verificación bloquea las casillas y avisa de que hay que pedir otro código (#44)
+- El aviso (toast) ya se ve siempre: del segundo en adelante se pintaba con 0px de ancho, porque se cogía la primera columna de formulario del DOM y, al cambiar de pantalla, esa se queda sin tamaño (#102)
+- El ojo de las contraseñas sale del orden de tabulación: con el teclado se pasa del campo de la contraseña al control siguiente, sin pararse en él (sigue funcionando con ratón y tacto) (#102)
 - Los workflows de CI se ejecutan en los PR a `dev` (antes apuntaban a `develop`) (#2)
 - El check de documentación ya no exige `CLAUDE.md`, que no está versionado (#2)
 
