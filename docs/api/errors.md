@@ -88,10 +88,12 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `DRIVER_NOT_READY` | 403 | Publicar sin cumplir RF-21: falta la declaración responsable o un vehículo activo (`message` indica qué falta) |
 | `SEATS_EXCEED_CAPACITY` | 400 | Las plazas ofertadas superan la capacidad del vehículo (plazas para pasajeros) |
 | `DEPARTURE_IN_THE_PAST` | 400 | La hora de salida no es futura |
+| `DEPARTURE_TOO_SOON` | 400 | La salida está a menos de una hora: se publica (o se mueve) con al menos una hora de antelación, para que quede margen de cancelar sin penalización |
 | `TRIP_NOT_FOUND` | 404 | No existe un viaje con ese id |
 | `NOT_TRIP_DRIVER` | 403 | Modificar o cancelar un viaje de otro conductor |
 | `TRIP_NOT_EDITABLE` | 409 | Modificar un viaje que ya no está publicado (con pasajeros aceptados solo se puede cancelar) |
 | `TRIP_ALREADY_STARTED` | 409 | Cancelar un viaje en curso: requiere registrar una incidencia (RF-23) |
+| `PUBLISHING_SUSPENDED` | 409 | El conductor tiene 3 cancelaciones tardías (con pasajeros aceptados y a menos de 30 minutos de la salida) en 30 días: no puede publicar en 7 días desde la última. La fecha de fin está en `GET /api/users/me/publishing-status` |
 | `INVALID_TRIP_TRANSITION` | 409 | Cambio de estado que el diagrama de estados del viaje no permite (p. ej. cancelar un viaje ya cancelado o finalizado) |
 | `TRIP_FULL` | 409 | No quedan plazas: al solicitar plaza o al aceptar una solicitud (dos aceptaciones simultáneas nunca venden la misma plaza) |
 | `TRIP_NOT_OPEN` | 409 | El viaje ya no admite solicitudes: está en curso, finalizado o cancelado, o su hora de salida ya ha pasado |

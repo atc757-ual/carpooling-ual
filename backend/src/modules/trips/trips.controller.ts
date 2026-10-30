@@ -34,11 +34,16 @@ import {
 import { PaginationQueryDto } from '../../shared/pagination/pagination-query.dto';
 import { PublishTripDto } from './dto/publish-trip.dto';
 import {
+  PublishingStatusResource,
+  toPublishingStatusResource,
+} from './dto/publishing-status.resource';
+import {
   toTripRouteResource,
   TripRouteResource,
 } from './dto/trip-route.resource';
 import { toTripResource, TripResource } from './dto/trip.resource';
 import { UpdateTripDto } from './dto/update-trip.dto';
+import { LateCancellationsService } from './late-cancellations.service';
 import { TripsService } from './trips.service';
 
 const AUTH_ERRORS = {
@@ -50,6 +55,7 @@ const TRIP_RULE_ERRORS = [
   'VALIDATION_FAILED',
   'SEATS_EXCEED_CAPACITY',
   'DEPARTURE_IN_THE_PAST',
+  'DEPARTURE_TOO_SOON',
 ];
 
 // Viajes (RF-04, RF-05). Cualquier usuario autenticado puede ver un viaje;
@@ -58,14 +64,17 @@ const TRIP_RULE_ERRORS = [
 @ApiBearerAuth()
 @Controller()
 export class TripsController {
-  constructor(private readonly tripsService: TripsService) {}
+  constructor(
+    private readonly tripsService: TripsService,
+    private readonly lateCancellations: LateCancellationsService,
+  ) {}
 
   @Post('trips')
   @Profiles('driver')
   @ApiOperation({
     summary: 'Publish a trip',
     description:
-      'RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle.',
+      'RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days.',
   })
   @ApiCreatedResponse({
     type: TripResource,
@@ -76,6 +85,7 @@ export class TripsController {
     [HttpStatus.BAD_REQUEST]: TRIP_RULE_ERRORS,
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', 'DRIVER_NOT_READY'],
     [HttpStatus.NOT_FOUND]: ['VEHICLE_NOT_FOUND'],
+    [HttpStatus.CONFLICT]: ['PUBLISHING_SUSPENDED'],
   })
   async publish(
     @CurrentUser() driver: AccessTokenPayload,
@@ -145,6 +155,28 @@ export class TripsController {
     return page.items.map(toTripResource);
   }
 
+  // Cancelaciones tardías del conductor y si puede publicar (Publicar avisa
+  // antes de rellenar nada; Mis viajes, al cancelar)
+  @Get('users/me/publishing-status')
+  @Profiles('driver')
+  @ApiOperation({
+    summary: 'Get my publishing status',
+    description:
+      'Late cancellations in the last 30 days and, after 3, until when publishing is suspended (7 days from the last one).',
+  })
+  @ApiOkResponse({ type: PublishingStatusResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
+  })
+  async getPublishingStatus(
+    @CurrentUser() driver: AccessTokenPayload,
+  ): Promise<PublishingStatusResource> {
+    return toPublishingStatusResource(
+      await this.lateCancellations.getPublishingStatus(driver.sub),
+    );
+  }
+
   @Patch('trips/:id')
   @Profiles('driver')
   @ApiOperation({
@@ -184,7 +216,7 @@ export class TripsController {
   @ApiOperation({
     summary: 'Cancel a trip before it starts',
     description:
-      'RF-05. Only its driver. Once started, cancelling requires an incident (RF-23).',
+      'RF-05. Only its driver. With accepted passengers and less than 30 minutes before the departure, it counts as a late cancellation (see GET /users/me/publishing-status). Once started, cancelling requires an incident (RF-23).',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: TripResource })

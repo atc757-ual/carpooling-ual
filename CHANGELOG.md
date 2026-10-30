@@ -100,6 +100,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Pantalla Perfil: la cuenta (iniciales, nombre, correo y teléfono), los perfiles (activar el que falta), la privacidad y cerrar sesión con confirmación (#81)
 - Mis vehículos en el Perfil (solo con el perfil de conductor): matrícula, marca y modelo y plazas, con «Editar» y «Registrar vehículo» en la ventana del vehículo (#82)
 - Cambiar los datos de la propia cuenta con `PATCH /api/users/me`: nombre, teléfono y tolerancia horaria (± 5, 10, 15 o 20 min, el margen por defecto de las búsquedas, que sale en el usuario como `timeToleranceMin`); el correo no se cambia. Evento `user.updated` con los campos cambiados, sin datos personales (#83)
+- Cancelaciones tardías del conductor: cancelar con pasajeros aceptados a menos de 30 minutos de la salida queda registrado (tabla `late_cancellations`, evento `trip.cancelled_late`); con 3 en 30 días no puede publicar en 7 días (409 `PUBLISHING_SUSPENDED`), y `GET /api/users/me/publishing-status` dice cuántas lleva y hasta cuándo. Publicar o mover la salida exige al menos una hora de antelación (400 `DEPARTURE_TOO_SOON`) (#98)
 
 ### Changed
 - El código de 6 cifras (verificar el correo y recuperar la contraseña) se envía solo al completar la última casilla, sin botón; si es incorrecto, además del aviso, las casillas tintinean (sin animación con «reducir movimiento»), el móvil vibra y el foco vuelve a la primera (#87)
