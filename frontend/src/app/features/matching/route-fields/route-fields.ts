@@ -3,7 +3,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { IonIcon, IonSelect, IonSelectOption, ModalController } from '@ionic/angular';
-import { ellipseOutline, locationOutline, swapHorizontalOutline } from 'ionicons/icons';
+import { ellipseOutline, locationOutline, swapHorizontal } from 'ionicons/icons';
 import { map, startWith, switchMap } from 'rxjs';
 import { SearchPlace } from '../../../core/models/trip-search.model';
 import { LocationService } from '../../../core/services/location/location.service';
@@ -74,7 +74,7 @@ export class RouteFields implements OnInit {
   protected readonly campusName = CAMPUS_NAME;
   protected readonly originIcon = ellipseOutline;
   protected readonly destinationIcon = locationOutline;
-  protected readonly swapIcon = swapHorizontalOutline;
+  protected readonly swapIcon = swapHorizontal;
 
   ngOnInit(): void {
     void this.prefillOrigin();
@@ -150,3 +150,4 @@ export class RouteFields implements OnInit {
     await modal.present();
   }
 }
+

@@ -83,8 +83,8 @@ describe('TripSearchPage', () => {
     async () => {
       const root = (await setUp(null)).nativeElement as HTMLElement;
 
-      expect(root.querySelector('h1')?.textContent).toContain('¡Hola, Jimena!');
-      expect(root.textContent).toContain('¿A dónde vamos hoy?');
+      // El saludo va en el contenido; el título de la pantalla, en la franja fija
+      expect(root.querySelector('.trip-search__hello')?.textContent).toContain('¡Hola, Jimena!');
       expect(root.querySelector('app-trip-search-form')).not.toBeNull();
       expect(root.querySelector('app-faq-card')).not.toBeNull();
       expect(root.textContent).not.toContain('Nueva búsqueda');

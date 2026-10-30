@@ -189,7 +189,7 @@ for (const viewport of VIEWPORTS) {
     it('greets and shows the search card with the questions', () => {
       goTo('Buscar');
 
-      cy.contains('app-trip-search h1', '¡Hola, Mario!').should('be.visible');
+      cy.contains('app-trip-search .trip-search__hello', '¡Hola, Mario!').should('be.visible');
       cy.get('app-trip-search app-trip-search-form').should('be.visible');
       cy.contains('app-trip-search', 'Preguntas frecuentes').should('be.visible');
     });

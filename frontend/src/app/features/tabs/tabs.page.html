@@ -1,6 +1,28 @@
+<!-- La campana de Avisos y cerrar sesión: los mismos en la cabecera del móvil y
+     en el menú de escritorio (se escriben una vez y se colocan en los dos) -->
+<ng-template #headerActions>
+  <ion-button
+    class="bell-button"
+    fill="clear"
+    routerLink="/tabs/notifications"
+    [attr.aria-label]="bellLabel()"
+  >
+    <ion-icon slot="icon-only" [icon]="bellIcon" aria-hidden="true" />
+    @if (unreadCount() > 0) {
+      <ion-badge class="unread-badge" aria-hidden="true">{{ unreadBadge() }}</ion-badge>
+    }
+  </ion-button>
+  <!-- La misma confirmación que en el Perfil -->
+  <form (submit)="$event.preventDefault(); handleLogout()">
+    <ion-button class="logout-button" type="submit" fill="clear" aria-label="Cerrar sesión">
+      <ion-icon slot="icon-only" [icon]="logoutIcon" aria-hidden="true" />
+    </ion-button>
+  </form>
+</ng-template>
+
 <!-- Móvil: en las secciones, el logotipo (su título va en el contenido); en
      las pantallas de detalle, la flecha de volver y su título. Siempre, a la
-     derecha, la campana de Avisos. Cerrar sesión, en el Perfil -->
+     derecha, la campana de Avisos y cerrar sesión -->
 <ion-header class="app-header ion-hide-md-up ion-no-border">
   <ion-toolbar>
     @if (heading()?.backHref; as backHref) {
@@ -20,22 +42,13 @@
       <app-brand-logo slot="start" variant="compact" class="app-header__brand" />
     }
     <ion-buttons slot="end">
-      <ion-button
-        class="bell-button"
-        routerLink="/tabs/notifications"
-        [attr.aria-label]="bellLabel()"
-      >
-        <ion-icon slot="icon-only" [icon]="bellIcon" aria-hidden="true" />
-        @if (unreadCount() > 0) {
-          <ion-badge class="unread-badge" aria-hidden="true">{{ unreadBadge() }}</ion-badge>
-        }
-      </ion-button>
+      <ng-container [ngTemplateOutlet]="headerActions" />
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<!-- Escritorio: el menú superior y, debajo, la franja fija con el saludo (en
-     las pantallas de detalle, su título y las migas de pan) -->
+<!-- Escritorio: el menú superior y, debajo, la franja fija con el título y el
+     subtítulo de la pantalla -->
 <header class="top-nav ion-hide-md-down">
   <app-brand-logo variant="compact" />
   <nav class="top-nav__links" aria-label="Principal">
@@ -50,37 +63,29 @@
     }
   </nav>
   <div class="top-nav__actions">
-    <ion-button
-      class="bell-button"
-      fill="clear"
-      routerLink="/tabs/notifications"
-      [attr.aria-label]="bellLabel()"
-    >
-      <ion-icon slot="icon-only" [icon]="bellIcon" aria-hidden="true" />
-      @if (unreadCount() > 0) {
-        <ion-badge class="unread-badge" aria-hidden="true">{{ unreadBadge() }}</ion-badge>
-      }
-    </ion-button>
-    <form (submit)="$event.preventDefault(); handleLogout()">
-      <ion-button class="logout-button" type="submit" fill="clear" aria-label="Cerrar sesión">
-        <ion-icon slot="icon-only" [icon]="logoutIcon" aria-hidden="true" />
-      </ion-button>
-    </form>
+    <ng-container [ngTemplateOutlet]="headerActions" />
   </div>
 </header>
-<!-- Escritorio: en las pantallas de detalle, una franja fija con sus migas de
-     pan para volver -->
-@if (heading()?.breadcrumbs; as breadcrumbs) {
-  <div class="greeting-bar ion-hide-md-down">
+<!-- Franja fija con el título y el subtítulo de la pantalla. En el móvil se ve
+     en las secciones (la cabecera lleva el logotipo); en los detalles no, porque
+     ahí el título ya va en la barra con la flecha de volver -->
+@if (heading(); as heading) {
+  <div class="greeting-bar" [class.ion-hide-md-down]="heading.breadcrumbs">
     <div class="greeting-bar__content">
-      <ion-breadcrumbs class="greeting-bar__breadcrumbs">
-        @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
-          <ion-breadcrumb [routerLink]="breadcrumb.href" routerDirection="back">
-            {{ breadcrumb.label }}
-          </ion-breadcrumb>
-        }
-        <ion-breadcrumb [active]="true">{{ heading()?.title }}</ion-breadcrumb>
-      </ion-breadcrumbs>
+      @if (heading.breadcrumbs; as breadcrumbs) {
+        <ion-breadcrumbs class="greeting-bar__breadcrumbs">
+          @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
+            <ion-breadcrumb [routerLink]="breadcrumb.href" routerDirection="back">
+              {{ breadcrumb.label }}
+            </ion-breadcrumb>
+          }
+          <ion-breadcrumb [active]="true">{{ heading.title }}</ion-breadcrumb>
+        </ion-breadcrumbs>
+      }
+      <h1 class="greeting-bar__title">{{ heading.title }}</h1>
+      @if (heading.subtitle) {
+        <p class="greeting-bar__subtitle text-body-s text-color-muted">{{ heading.subtitle }}</p>
+      }
     </div>
   </div>
 }

@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -79,6 +80,7 @@ const SIDES: readonly { path: string; mode: TravelMode }[] = [
   imports: [
     RouterLink,
     RouterLinkActive,
+    NgTemplateOutlet,
     IonBadge,
     IonBreadcrumb,
     IonBreadcrumbs,

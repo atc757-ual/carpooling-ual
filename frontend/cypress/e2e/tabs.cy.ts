@@ -132,7 +132,7 @@ for (const viewport of VIEWPORTS) {
           'aria-current',
           'page',
         );
-        cy.contains('app-trip-search h1', '¡Hola, Mario!').should('be.visible');
+        cy.contains('app-trip-search .trip-search__hello', '¡Hola, Mario!').should('be.visible');
         cy.get('app-tabs ion-tab-bar').should('not.be.visible');
       });
     } else {
@@ -140,7 +140,7 @@ for (const viewport of VIEWPORTS) {
         logIn(['passenger']);
 
         cy.get('app-tabs .app-header app-brand-logo').should('be.visible');
-        cy.contains('app-trip-search h1', '¡Hola, Mario!').should('be.visible');
+        cy.contains('app-trip-search .trip-search__hello', '¡Hola, Mario!').should('be.visible');
         cy.get('app-tabs .app-header .bell-button').should('be.visible');
         cy.get('app-tabs .app-header .back-button').should('not.exist');
         cy.contains('ion-tab-button', 'Buscar').should('have.class', 'tab-selected');
