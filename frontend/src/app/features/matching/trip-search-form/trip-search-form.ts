@@ -13,6 +13,7 @@ import { SearchPlace, TripSearch } from '../../../core/models/trip-search.model'
 import { PlacesService } from '../../../core/services/places/places.service';
 import { DatetimeField } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
+import { toIsoDate } from '../../../shared/utils/date.util';
 import { RouteFields } from '../route-fields/route-fields';
 import { MARGINS, MAX_SEATS, MIN_SEATS } from '../trip-search';
 import { TripSearchStateService } from '../trip-search-state.service';
@@ -27,13 +28,6 @@ const DEFAULT_MARGIN = 20;
 const MINUTES_PER_DAY = 24 * 60;
 
 export type TimeType = 'arrival' | 'departure';
-
-// Fecha local en formato ISO (2026-10-27), la que espera ion-datetime
-function toIsoDate(date: Date): string {
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
-}
 
 // Dentro de media hora (o de los minutos indicados), redondeada hacia arriba a
 // los 5 minutos (a las 10:52, las 11:25); a última hora del día se queda en

@@ -50,8 +50,8 @@ import {
   estimateDriverImpact,
   formatDateLabel,
   toPublishTripRequest,
-  toIsoDate,
 } from './publish-trip.utils';
+import { toIsoDate } from '../../../shared/utils/date.util';
 
 export const DETOURS = [5, 10, 15, 20] as const;
 const DEFAULT_DETOUR = 10;

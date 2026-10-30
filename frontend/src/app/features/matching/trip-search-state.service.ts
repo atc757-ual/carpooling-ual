@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { TripResult } from '../../core/models/trip-result.model';
 import { TripSearch } from '../../core/models/trip-search.model';
+import { toIsoDate } from '../../shared/utils/date.util';
 import { parseTripSearch } from './trip-search';
 
 const STORAGE_KEY = 'matching.trip-search';
@@ -11,7 +12,20 @@ const STORAGE_KEY = 'matching.trip-search';
 function readStoredSearch(): TripSearch | null {
   try {
     const stored = sessionStorage.getItem(STORAGE_KEY);
-    return stored ? parseTripSearch(JSON.parse(stored)) : null;
+    if (!stored) {
+      return null;
+    }
+    const search = parseTripSearch(JSON.parse(stored));
+    const today = toIsoDate(new Date());
+    // Una búsqueda de un día que ya pasó pasa a hoy: el campo de la fecha no
+    // admite días pasados (ion-datetime avisa) y buscar en el pasado no lleva a
+    // ningún sitio. Se corrige también lo guardado
+    if (search === null || search.date >= today) {
+      return search;
+    }
+    const updated: TripSearch = { ...search, date: today };
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    return updated;
   } catch {
     return null;
   }
