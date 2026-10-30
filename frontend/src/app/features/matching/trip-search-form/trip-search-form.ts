@@ -113,8 +113,9 @@ export class TripSearchForm {
 
   readonly isToCampus = computed(() => this.value().isToCampus ?? true);
 
-  // Hay una dirección elegida (en Inicio, para ofrecer «Nueva búsqueda»)
-  readonly hasPlace = computed(() => Boolean(this.value().place));
+  // Con la dirección y el parking elegidos se puede buscar (el parking no
+  // viene elegido: cada uno sabe a cuál va)
+  readonly isRouteComplete = computed(() => Boolean(this.value().place && this.value().parking));
 
   // Lo que importa del horario: al ir, a qué hora se llega; al volver, a qué
   // hora se sale (cuando acaban las clases)
@@ -163,7 +164,6 @@ export class TripSearchForm {
     if (!search) {
       this.form.reset();
       this.form.patchValue({
-        parking: this.parkings()[0]?.id ?? '',
         date: toIsoDate(new Date()),
         time: getDefaultTime(new Date()),
       });

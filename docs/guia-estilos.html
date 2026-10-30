@@ -546,7 +546,7 @@
     </table></div>
 
     <h3>Campos</h3>
-    <p class="note">Etiqueta encima (Inter 600, 0,875rem), campo de 3,25rem con contorno <code>--color-border-strong</code>, icono a la izquierda si ayuda a reconocerlo y la ayuda o el error debajo. Las sugerencias van en una lista, nunca dentro del <i>placeholder</i>.</p>
+    <p class="note">Etiqueta encima (Inter 600, 0,875rem), campo de 3,25rem con contorno <code>--color-border-strong</code>, icono a la izquierda si ayuda a reconocerlo y la ayuda o el error debajo. Las sugerencias van en una lista, nunca dentro del <i>placeholder</i>. Ningún campo se pone verde al ser válido: el foco y lo válido, en azul (<code>--highlight-color-*</code> en el tema); el rojo, solo con un texto de error.</p>
     <p class="note"><b>Formularios en ventana (p. ej. el vehículo):</b> dos campos por fila a partes iguales cuando son cortos (marca y modelo, matrícula y asientos), con la etiqueta fuera del campo y del mismo estilo que la del contador para que queden a la misma altura; la ayuda de cada campo justo debajo de él, en lugar de un texto general bajo el botón. <b>Desplegables obligatorios sin elegir</b> (p. ej. el parking en Publicar): vacíos con «Elige …» y en azul, no en rojo, mientras se elige; el botón de seguir espera. Los enlaces de apoyo («Ver en el mapa», «Ajustar en el mapa») solo aparecen cuando hay algo que ver.</p>
     <div class="grid">
       <div class="field field--valid"><span class="field__label">Correo UAL</span><div class="field__control"><svg class="i"><use href="#i-mail"/></svg><input value="mario.perez@ual.es" aria-label="Correo UAL"><svg class="i end"><use href="#i-check-circle"/></svg></div><span class="field__help">Correo UAL verificado.</span></div>
@@ -617,7 +617,7 @@
     <p class="note"><b>Tarjeta de agradecimiento (al terminar un flujo, p. ej. «Gracias por compartir tu coche»):</b> blanca como las demás, con un borde inferior verde (<code>--color-eco</code>) de 0,25rem; en la cabecera, el icono en un círculo verde claro de 2,5rem y el título a su lado; debajo, una frase en gris y los puntos con un ✓ verde en vez de viñeta. Acompaña a un confeti verde (<code>canvas-confetti</code>, solo al publicar y sin él si el sistema pide menos movimiento). Una sola por pantalla.</p>
 
     <h3>Barra de pestañas</h3>
-    <p class="note">Cinco destinos fijos, en este orden: Buscar · Publicar · Mis viajes · Mensajes · Perfil. En el móvil, abajo, con icono y nombre; desde 48rem, en el menú superior (el activo en azul, en negrita y con una barra de 4px debajo). Al entrar se abre Buscar. La estructura de cada pantalla, en <a href="#navegacion">10. Navegación</a>.</p>
+    <p class="note">Cinco destinos fijos, en este orden: Buscar · Publicar · Mis viajes · Mensajes · Perfil. En el móvil, abajo, con icono y nombre; desde 48rem, en el menú superior. La activa, en azul y en negrita, sobre un fondo azul muy claro (<code>--color-primary-subtle</code>, #f3f5ff) con esquinas de 8px (pastilla); sin fondo al pasar el ratón por las demás. Al entrar se abre Buscar. La estructura de cada pantalla, en <a href="#navegacion">10. Navegación</a>.</p>
     <nav class="tabbar" aria-label="Ejemplo de pestañas">
       <a href="#iconos" class="on" aria-current="page"><svg class="i"><use href="#ion-search"/></svg>Buscar</a>
       <a href="#iconos"><svg class="i"><use href="#ion-add-circle"/></svg>Publicar</a>
@@ -663,7 +663,7 @@
 
     <h3>Trayecto y dirección (Buscar y Publicar)</h3>
     <ul class="rules">
-      <li><b>Trayecto (RouteFields):</b> una dirección y un parking del campus («Campus UAL · Parking P1»). Al ir, la dirección es el origen; al volver, el destino. Cada campo lleva el icono de su papel (círculo el origen, pin el destino) y su etiqueta flotante en el borde.</li>
+      <li><b>Trayecto (RouteFields):</b> una dirección y un parking del campus («Campus UAL · Parking P1»). Al ir, la dirección es el origen; al volver, el destino. Cada campo lleva el icono de su papel (círculo el origen, pin el destino) y su etiqueta flotante en el borde. El parking empieza vacío («Elige un parking del campus») en Buscar y en Publicar, y el botón de seguir espera a la dirección y al parking.</li>
       <li><b>Cambiar sentido:</b> en escritorio, un botón gris entre los dos campos, en una fila; en el móvil, campos apilados y el enlace «Cambiar sentido» a la derecha de la etiqueta «Trayecto». En Buscar cambia también la hora: «Hora de llegada» al ir y «Hora de salida» al volver.</li>
       <li><b>Sugerencias de dirección:</b> desde 3 letras y 300 ms después de la última tecla, en una lista blanca bajo el campo (dirección en negrita y localidad en gris, 48px de alto como mínimo) con la atribución «CartoCiudad cedido por © Instituto Geográfico Nacional». Con el teclado, patrón combobox de WAI-ARIA: ↓ ↑ resaltan, Enter elige y Escape cierra. Hasta elegir una no hay dirección; sin ella, «Elige una dirección de la lista.» en rojo.</li>
       <li><b>Zona de servicio</b> (30 km alrededor del campus): fuera, aviso naranja «Aún no llegamos a Vera…» (sin el rojo); si el servicio falla, «Ahora no podemos buscar direcciones…».</li>
@@ -889,7 +889,7 @@
 
     <h4 style="margin-top:var(--space-l)">Reglas</h4>
     <ul class="rules">
-      <li><b>Fondo y tarjetas:</b> el contenido va sobre gris claro (<code>--color-surface-subtle</code>) y las tarjetas en blanco. El título y el subtítulo de cada sección, al principio de su contenido (<code>app-section-title</code>).</li>
+      <li><b>Fondo y tarjetas:</b> el contenido va sobre gris claro (<code>--color-surface-subtle</code>) y las tarjetas en blanco con borde gris muy claro (<code>--color-card-border</code>, neutro 100) y la sombra suave; las de las pantallas son <code>ion-card</code> (Buscar y Publicar iguales: título, márgenes y tamaño de texto). El título y el subtítulo de cada sección, al principio de su contenido (<code>app-section-title</code>).</li>
       <li><b>Ancho:</b> como mucho 1312px de contenido, centrado (<code>--page-max-width</code>), con el margen lateral compartido (<code>--page-gutter</code>: 16px en el móvil y 24px en escritorio).</li>
       <li><b>Al cambiar de pestaña</b> solo cambia el contenido: el menú no se recarga y no hay animación. Cada pestaña recuerda su última pantalla.</li>
       <li><b>Transiciones:</b> las nativas de Ionic dentro de una pestaña (en iPhone, también el gesto de volver).</li>

@@ -48,8 +48,8 @@
     }
   </div>
 
-  <!-- Se activa al elegir la dirección -->
-  <ion-button type="submit" expand="block" [disabled]="!hasPlace()">
+  <!-- Se activa al elegir la dirección y el parking -->
+  <ion-button type="submit" expand="block" [disabled]="!isRouteComplete()">
     <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
     Buscar viaje
   </ion-button>

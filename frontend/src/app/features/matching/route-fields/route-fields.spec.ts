@@ -14,7 +14,6 @@ interface RenderOptions {
   point?: [number, number];
   permission?: string;
   place?: SearchPlace | null;
-  shouldPickFirstParking?: boolean;
 }
 
 describe('RouteFields', () => {
@@ -27,7 +26,6 @@ describe('RouteFields', () => {
     point = ROQUETAS.coordinates,
     permission = 'prompt',
     place = null,
-    shouldPickFirstParking = true,
   }: RenderOptions = {}): Promise<HTMLElement> {
     stubIntersectionObserver();
     reverse.mockReset().mockResolvedValue({
@@ -59,7 +57,6 @@ describe('RouteFields', () => {
     };
     fixture = TestBed.createComponent(RouteFields);
     fixture.componentRef.setInput('controls', controls);
-    fixture.componentRef.setInput('shouldPickFirstParking', shouldPickFirstParking);
     fields = fixture.componentInstance;
     fixture.detectChanges();
     await fixture.whenStable();
@@ -67,7 +64,7 @@ describe('RouteFields', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  it('offers the campus parkings and picks the first one', async () => {
+  it('offers the campus parkings, none chosen until one is picked', async () => {
     const root = await render();
     const options = root.querySelectorAll('.route-fields__parking ion-select-option');
 
@@ -75,11 +72,11 @@ describe('RouteFields', () => {
       'Campus UAL · Parking P1',
       'Campus UAL · Parking P3',
     ]);
-    expect(controls.parking.value).toBe('p1');
+    expect(controls.parking.value).toBe('');
   });
 
-  it('leaves the parking to choose (Publicar), without «Ver en el mapa» until there is one', async () => {
-    const root = await render({ shouldPickFirstParking: false });
+  it('shows «Ver en el mapa» only once a parking is chosen', async () => {
+    const root = await render();
 
     expect(controls.parking.value).toBe('');
     expect(root.querySelector('.route-fields__map-link')).toBeNull();

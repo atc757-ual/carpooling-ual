@@ -139,6 +139,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - El vehículo se registra con marca y modelo, matrícula y capacidad total contando al conductor («4 asientos = 1 conductor + hasta 3 pasajeros»), y en Publicar se muestra con su modelo y se puede editar en una ventana (#67)
 - Guía de estilos: la navegación reescrita y al día (acceso, cinco destinos y la campana, estructura en móvil y escritorio, reglas), los detalles del trayecto y la dirección en los patrones, la barra de pestañas con los iconos reales de Ionicons y los patrones de Publicar (pasos en el móvil, tarjeta de agradecimiento, formularios en ventana) (#94)
 - Node.js 26 LTS (`.nvmrc`, `engines.node` `>=26` en backend y frontend, `@types/node` 26): es LTS desde el 28/10/2026 y tiene soporte hasta el 30/04/2029, así que el proyecto no tendrá que cambiar de versión durante el TFM (#96)
+- Interfaz más homogénea: los campos ya no se ponen verdes (foco y válido en azul), las tarjetas llevan borde gris muy claro, Publicar va en una `ion-card` como Buscar, Buscar y Publicar empiezan sin parking elegido (y sin «Ver en el mapa» hasta elegirlo), la pestaña activa lleva un fondo azul muy claro con esquinas de 8px y se quita la explicación bajo «Tiempo máximo de desvío» (#99)
 
 ### Security
 - El backend ya no envía la cabecera `X-Powered-By: Express`, que revelaba la tecnología del servidor (#14)

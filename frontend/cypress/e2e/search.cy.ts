@@ -1,4 +1,4 @@
-import { choosePlace, VIEWPORTS } from '../support/e2e';
+import { chooseParking, choosePlace, VIEWPORTS } from '../support/e2e';
 
 const EMAIL = 'mario.perez@ual.es';
 
@@ -55,6 +55,7 @@ function logIn(profiles: string[]): void {
 // Busca desde Buscar (adonde lleva el login de un pasajero)
 function searchTrips(place: string): void {
   choosePlace('app-trip-search app-trip-search-form', place);
+  chooseParking('app-trip-search app-trip-search-form', 'Parking P1');
   cy.contains('app-trip-search app-trip-search-form ion-button', 'Buscar viaje').click();
   cy.location('pathname').should('eq', '/tabs/search/results');
 }

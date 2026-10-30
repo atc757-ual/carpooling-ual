@@ -19,7 +19,7 @@ ion-tabs {
 }
 
 // Móvil: barra de 76px abajo, icono encima del texto. La pestaña activa, en el
-// color de los enlaces y en negrita (no solo por el color)
+// color de los enlaces, en negrita y con fondo (no solo por el color)
 .tab-bar {
   --color: var(--color-text-muted);
   --color-selected: var(--color-link);
@@ -35,8 +35,22 @@ ion-tab-button {
     font-size: var(--tab-icon-size);
   }
 
+  // Un poco separadas de los bordes de la barra, para que el fondo de la
+  // activa se vea como una pastilla
+  margin: var(--space-xs) 0.125rem; // 4px 2px
+
+  &::part(native) {
+    border-radius: var(--radius-s);
+  }
+
+  // La activa, además, con el fondo azul muy claro y esquinas de 8px. En el
+  // interior del botón (::part): es lo que pinta Ionic, y lo de fuera no se ve
   &.tab-selected {
     font-weight: var(--font-weight-semibold);
+
+    &::part(native) {
+      background: var(--color-primary-subtle);
+    }
   }
 }
 
@@ -70,42 +84,26 @@ ion-tab-button {
 .top-nav__link {
   display: flex;
   align-items: center;
-  // 48px: la barra del activo va en su borde inferior
+  // 48px de alto, como los botones
   min-height: var(--control-height-base);
   padding-inline: var(--space-base);
-  border-radius: var(--radius-s) var(--radius-s) 0 0;
+  border-radius: var(--radius-s);
   color: var(--color-text);
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
-
-  &:hover {
-    background: var(--color-surface-subtle);
-  }
 
   &:focus-visible {
     outline: var(--border-width-m) solid var(--color-focus);
   }
 }
 
-// El destino activo, en el color de los enlaces y en negrita
-// El destino activo: en el color de los enlaces, en negrita y con una barra de
-// 4px debajo, del ancho de su texto
+// El destino activo: en el color de los enlaces, en negrita y sobre un fondo
+// azul muy claro con esquinas de 8px (igual que la pestaña activa del móvil)
 .top-nav__link--active {
-  position: relative;
+  background: var(--color-primary-subtle);
   color: var(--color-link);
   font-weight: var(--font-weight-semibold);
-
-  &::after {
-    position: absolute;
-    right: var(--space-base);
-    bottom: 0;
-    left: var(--space-base);
-    height: 0.25rem; // 4px
-    border-radius: 0.25rem 0.25rem 0 0;
-    background: var(--color-link);
-    content: '';
-  }
 }
 
 .top-nav__actions {

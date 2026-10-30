@@ -24,9 +24,8 @@
   --color-text-muted: #{$neutral-500};
   --color-text-disabled: #{$neutral-400};
 
+  --color-card-border: #{$neutral-100}; // tarjetas: gris muy claro sobre el fondo gris
   --color-border: #{$neutral-200}; // separadores
-  --color-card-border: #{$blue-100}; // tarjetas: azul muy claro sobre el fondo gris
-  --color-border: #{$neutral-200}; // tarjetas y separadores
   --color-border-subtle: #{$neutral-100};
   --color-border-strong: #{$neutral-500}; // campos de formulario
 
@@ -95,7 +94,7 @@
   --color-text-disabled: #{$neutral-500};
 
   --color-border: #{$neutral-500};
-  --color-card-border: #{$blue-800};
+  --color-card-border: #{$neutral-750};
   --color-border-subtle: #{$neutral-750};
   --color-border-strong: #{$neutral-400};
 

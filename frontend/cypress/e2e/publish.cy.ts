@@ -1,4 +1,4 @@
-import { choosePlace, VIEWPORTS } from '../support/e2e';
+import { chooseParking, choosePlace, VIEWPORTS } from '../support/e2e';
 
 const EMAIL = 'lucia.cortes@ual.es';
 const VEHICLE = {
@@ -74,8 +74,7 @@ for (const viewport of VIEWPORTS) {
       choosePlace('app-publish-trip', 'Roquetas de Mar');
       cy.get('app-publish-trip .route-fields__map-link').should('not.exist');
       cy.contains('app-publish-trip ion-button', 'Siguiente').should('have.attr', 'disabled');
-      cy.get('app-publish-trip .route-fields__parking ion-select').click();
-      cy.contains('ion-select-popover ion-radio', 'Parking P1').click();
+      chooseParking('app-publish-trip', 'Parking P1');
       cy.contains('app-publish-trip ion-button', 'Siguiente').should('not.have.attr', 'disabled');
       cy.contains('app-publish-trip ion-button', 'Siguiente').click();
 

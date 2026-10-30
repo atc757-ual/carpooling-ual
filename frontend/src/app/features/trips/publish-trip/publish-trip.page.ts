@@ -10,6 +10,11 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
   IonContent,
   IonIcon,
   IonSelect,
@@ -35,6 +40,7 @@ import { RouteFields } from '../../matching/route-fields/route-fields';
 
 import { getDefaultTime } from '../../matching/trip-search-form/trip-search-form';
 import { SectionTitle } from '../../tabs/section-title/section-title';
+import { TabHeading } from '../../tabs/tab-heading';
 import { DeclarationField } from '../declaration-field/declaration-field';
 import { PublishNextSteps } from '../publish-next-steps/publish-next-steps';
 import { VehiclePicker } from '../vehicle-picker/vehicle-picker';
@@ -75,6 +81,11 @@ type LoadState = 'loading' | 'error' | 'ready';
     ReactiveFormsModule,
     RouterLink,
     IonButton,
+    IonCard,
+    IonCardContent,
+    IonCardHeader,
+    IonCardSubtitle,
+    IonCardTitle,
     IonContent,
     IonIcon,
     IonSelect,
@@ -98,6 +109,8 @@ export class PublishTripPage implements OnInit {
   private readonly places = inject(PlacesService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  // Título y subtítulo de la sección (de su ruta), en la cabecera de la tarjeta
+  protected readonly heading = inject(ActivatedRoute).snapshot.data['heading'] as TabHeading;
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly celebration = inject(CelebrationService);
 
