@@ -23,6 +23,7 @@ import { Trip } from '../src/modules/trips/entities/trip.entity';
 import { TripStatusService } from '../src/modules/trips/trip-status.service';
 import { TripInput, TripsService } from '../src/modules/trips/trips.service';
 import { deleteTestUsers } from './support/cleanup';
+import { setDepartureIn } from './support/trips';
 
 // TripsService contra la base de datos real (requiere npm run migrate). Los
 // usuarios llevan el prefijo EMAIL_PREFIX. Los viajes y sus eventos no se
@@ -502,8 +503,6 @@ describe('TripsService (e2e)', () => {
   });
 
   describe('start and finish (RF-11)', () => {
-    const MINUTE_MS = 60 * 1000;
-
     // Viaje confirmado (con pasajeros) que sale dentro de esos minutos. Se
     // confirma con SQL: las solicitudes se prueban en su propio módulo
     async function confirmedTrip(
@@ -511,12 +510,12 @@ describe('TripsService (e2e)', () => {
       driver?: { driverId: string; vehicleId: string },
     ) {
       const { driverId, vehicleId } = driver ?? (await readyDriver('ana'));
+      // Publicado con la antelación mínima y movido a la salida pedida
       const { trip } = await tripsService.publish(
         driverId,
-        tripInput(vehicleId, {
-          departureAt: new Date(Date.now() + minutesToDeparture * MINUTE_MS),
-        }),
+        tripInput(vehicleId),
       );
+      await setDepartureIn(dataSource, trip.id, minutesToDeparture);
       await dataSource.query(
         "UPDATE trips SET status = 'confirmed' WHERE id = $1",
         [trip.id],
@@ -556,10 +555,9 @@ describe('TripsService (e2e)', () => {
       const { driverId, vehicleId } = await readyDriver('ana');
       const { trip } = await tripsService.publish(
         driverId,
-        tripInput(vehicleId, {
-          departureAt: new Date(Date.now() + 10 * MINUTE_MS),
-        }),
+        tripInput(vehicleId),
       );
+      await setDepartureIn(dataSource, trip.id, 10);
 
       await expect(
         tripsService.start(driverId, trip.id),
