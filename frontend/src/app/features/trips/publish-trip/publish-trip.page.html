@@ -1,10 +1,5 @@
 <ion-content>
   <div class="tab-page publish">
-    <!-- Con los pasos, el título va dentro de su tarjeta -->
-    @if (loadState() !== 'ready') {
-      <app-section-title />
-    }
-
     @switch (loadState()) {
       @case ('loading') {
         <output class="publish__status">
@@ -99,18 +94,41 @@
                     </div>
                   }
                   @case (2) {
-                    <!-- Vehículo y plazas; a la derecha de las plazas, seguir -->
-                    <app-vehicle-picker [(vehicles)]="vehicles" [controls]="tripForm.controls">
-                      <div class="publish__actions">
-                        <ng-container [ngTemplateOutlet]="back" />
-                        <ion-button
-                          class="publish__next"
-                          type="submit"
-                          [disabled]="!selectedVehicle()"
-                          >Revisar detalle</ion-button
-                        >
-                      </div>
-                    </app-vehicle-picker>
+                    <!-- Vehículo y plazas; a la derecha de las plazas, seguir.
+                         La lista se pide al llegar aquí: mientras viene, el
+                         cargando; si falla, el aviso con «Reintentar» -->
+                    @switch (vehiclesState()) {
+                      @case ('loading') {
+                        <output class="publish__status">
+                          <ion-spinner name="crescent" aria-hidden="true" />
+                          <span class="text-color-muted">Cargando tus vehículos…</span>
+                        </output>
+                      }
+                      @case ('error') {
+                        <div class="notice notice--danger" role="alert">
+                          <p>
+                            No hemos podido cargar tus vehículos. Comprueba la conexión e inténtalo de
+                            nuevo.
+                          </p>
+                        </div>
+                        <form (submit)="$event.preventDefault(); loadVehicles()">
+                          <ion-button type="submit" fill="outline">Reintentar</ion-button>
+                        </form>
+                      }
+                      @default {
+                        <app-vehicle-picker [(vehicles)]="vehicles" [controls]="tripForm.controls">
+                          <div class="publish__actions">
+                            <ng-container [ngTemplateOutlet]="back" />
+                            <ion-button
+                              class="publish__next"
+                              type="submit"
+                              [disabled]="!selectedVehicle()"
+                              >Revisar detalle</ion-button
+                            >
+                          </div>
+                        </app-vehicle-picker>
+                      }
+                    }
                   }
                   @case (3) {
                     <!-- Lo que se ahorra si se llenan las plazas -->
