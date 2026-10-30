@@ -1,13 +1,4 @@
-import {
-  Component,
-  effect,
-  inject,
-  input,
-  OnInit,
-  signal,
-  untracked,
-  viewChild,
-} from '@angular/core';
+import { Component, inject, input, OnInit, signal, viewChild } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
@@ -32,7 +23,8 @@ export interface RouteControls {
   // La dirección de fuera del campus (origen al ir, destino al volver),
   // elegida de las sugerencias; null mientras no se elige
   place: FormControl<SearchPlace | null>;
-  // Id del parking del campus (el primero, en cuanto llegan)
+  // Id del parking del campus (vacío hasta que se elige: cada uno sabe a
+  // cuál va)
   parking: FormControl<string>;
   isToCampus: FormControl<boolean>;
 }
@@ -57,9 +49,6 @@ export class RouteFields implements OnInit {
 
   // Los controles del formulario de quien lo usa (form.controls)
   readonly controls = input.required<RouteControls>();
-  // Elegir el primer parking en cuanto llegan (Buscar) o dejarlo vacío para
-  // que se elija (Publicar: el conductor sabe dónde aparca)
-  readonly shouldPickFirstParking = input(true);
 
   // La ubicación del momento está en el campus: lo más seguro es que vuelva a
   // casa, y se le propone cambiar el sentido
@@ -86,17 +75,6 @@ export class RouteFields implements OnInit {
   protected readonly originIcon = ellipseOutline;
   protected readonly destinationIcon = locationOutline;
   protected readonly swapIcon = swapHorizontalOutline;
-
-  constructor() {
-    // Sin parking elegido, el primero en cuanto llegan (si se pide)
-    effect(() => {
-      const [first] = this.parkings();
-      const control = this.controls().parking;
-      if (first && this.shouldPickFirstParking() && !untracked(() => control.value)) {
-        control.setValue(first.id);
-      }
-    });
-  }
 
   ngOnInit(): void {
     void this.prefillOrigin();

@@ -58,7 +58,13 @@ describe('PublishTripPage', () => {
     TestBed.configureTestingModule({
       providers: [
         provideIonicAngular(),
-        provideRouter([{ path: 'publish', component: PublishTripPage }]),
+        provideRouter([
+          {
+            path: 'publish',
+            component: PublishTripPage,
+            data: { heading: { title: 'Publicar viaje', subtitle: 'Comparte tu recorrido.' } },
+          },
+        ]),
         { provide: DriverService, useValue: driver },
         {
           provide: AuthService,

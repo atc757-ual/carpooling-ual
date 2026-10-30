@@ -76,13 +76,8 @@
   align-items: flex-start;
   min-width: 0;
 
-  // Sin rojo ni verde: al abrir la lista cuenta como tocado y aún vacío, pero
-  // no es un error (el botón de seguir espera a que se elija); en azul, como
-  // el foco de los demás campos
+  // Sin rojo ni verde al elegir: lo pone el tema (_components.scss)
   ion-select {
-    --highlight-color-invalid: var(--color-link);
-    --highlight-color-valid: var(--color-link);
-
     width: 100%;
   }
 

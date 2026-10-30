@@ -48,14 +48,14 @@ describe('TripSearchForm', () => {
     fixture.detectChanges();
   });
 
-  it('goes to the first parking, today from now with ±20 min and 1 seat, by default', () => {
+  it('starts without a parking, today from now with ±20 min and 1 seat, by default', () => {
     const { place, parking, isToCampus, time, margin, seats, date } = form.form.getRawValue();
     const today = new Date();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
 
     expect(place).toBeNull();
-    expect(parking).toBe('p1');
+    expect(parking).toBe('');
     expect(isToCampus).toBe(true);
     expect(form.timeType()).toBe('arrival');
     expect(time).toMatch(/^\d{2}:\d[05]$/);
@@ -74,7 +74,7 @@ describe('TripSearchForm', () => {
     expect(searchState.search()).toBeNull();
     expect({ place, parking, isToCampus, margin, seats }).toEqual({
       place: null,
-      parking: 'p1',
+      parking: '',
       isToCampus: true,
       margin: 20,
       seats: 1,
@@ -94,7 +94,7 @@ describe('TripSearchForm', () => {
     expect(impact()).toContain('Elige de dónde sales');
     expect(root.querySelector('ion-button[type="submit"]')?.hasAttribute('disabled')).toBe(true);
 
-    form.form.patchValue({ place: ROQUETAS, time: '08:00' });
+    form.form.patchValue({ place: ROQUETAS, parking: 'p1', time: '08:00' });
     fixture.detectChanges();
 
     expect(label()).toBe('Hora de llegada');
@@ -138,7 +138,13 @@ describe('TripSearchForm', () => {
   });
 
   it('keeps the trip to the campus as the search and goes to Tu búsqueda', async () => {
-    form.form.patchValue({ place: ROQUETAS, date: '2026-10-27', time: '08:00', seats: 2 });
+    form.form.patchValue({
+      place: ROQUETAS,
+      parking: 'p1',
+      date: '2026-10-27',
+      time: '08:00',
+      seats: 2,
+    });
 
     await form.handleSubmit();
 

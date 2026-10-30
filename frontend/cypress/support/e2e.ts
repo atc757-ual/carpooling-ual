@@ -56,6 +56,12 @@ export function choosePlace(scope: string, place: string): void {
   cy.contains(`${scope} .place-field__suggestion`, place).click();
 }
 
+// Elige el parking del campus (empieza vacío en Buscar y en Publicar)
+export function chooseParking(scope: string, parking: string): void {
+  cy.get(`${scope} .route-fields__parking ion-select`).click();
+  cy.contains('ion-select-popover ion-radio', parking).click();
+}
+
 // La ubicación del navegador simulada (Calle Lachambre, Almería) y el estado
 // de su permiso: 'prompt' (aún no se ha preguntado) o 'granted' (ya se dio)
 export function stubLocation(permission: PermissionState): void {

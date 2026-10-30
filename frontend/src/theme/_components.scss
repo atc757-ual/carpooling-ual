@@ -202,6 +202,21 @@ ion-datetime {
   color: var(--color-on-primary);
 }
 
+// Campos sin verde: un valor válido no es un aviso, y el borde del foco es
+// azul en todos (homogéneos). El rojo de error se mantiene donde se muestra
+// un texto de error; los desplegables obligatorios aún sin elegir tampoco se
+// ponen rojos al abrirlos (no es un error: el botón de seguir espera)
+ion-input,
+ion-textarea,
+ion-select {
+  --highlight-color-valid: var(--color-link);
+  --highlight-color-focused: var(--color-link);
+}
+
+ion-select {
+  --highlight-color-invalid: var(--color-link);
+}
+
 // Campos numéricos sin las flechas del navegador: llevan sus propios − y +
 // (las flechas no salen en iPhone y en escritorio se verían dos controles)
 ion-input input[type='number'] {

@@ -24,147 +24,168 @@
         <!-- Escritorio: los pasos en la columna de 8 y, en la de 4, «Tu
                las preguntas (pasos 1 y 2) o qué pasa después (3 y 4) -->
         <div class="publish__layout">
-          <form
-            class="publish__card publish__form"
-            [formGroup]="tripForm"
-            (ngSubmit)="handleSubmit()"
-            novalidate
-          >
-            <app-section-title />
-            <app-step-indicator
-              [steps]="steps"
-              [current]="step()"
-              (selected)="goToStep($event)"
-              [isComplete]="published() !== null"
-            />
-            <!-- Volver al paso anterior, por su nombre, junto al botón de
+          <!-- En una tarjeta de Ionic, como la búsqueda de Buscar: mismo título,
+               márgenes y tamaño de texto -->
+          <ion-card class="publish__form">
+            <ion-card-header>
+              <ion-card-title>{{ heading.title }}</ion-card-title>
+              <ion-card-subtitle>{{ heading.subtitle }}</ion-card-subtitle>
+            </ion-card-header>
+            <ion-card-content>
+              <form
+                class="publish__steps"
+                [formGroup]="tripForm"
+                (ngSubmit)="handleSubmit()"
+                novalidate
+              >
+                <app-step-indicator
+                  [steps]="steps"
+                  [current]="step()"
+                  (selected)="goToStep($event)"
+                  [isComplete]="published() !== null"
+                />
+                <!-- Volver al paso anterior, por su nombre, junto al botón de
                    seguir (también se puede desde los pasos hechos o con
                    «Atrás» del navegador) -->
-            <ng-template #back>
-              @if (previousStep(); as previous) {
-                <button
-                  class="publish__secondary"
-                  type="button"
-                  (click)="goToStep(previous.number)"
-                >
-                  Volver a {{ previous.name }}
-                </button>
-              }
-            </ng-template>
-
-            @switch (step()) {
-              @case (1) {
-                <!-- Ruta: trayecto, fecha y hora y, a la derecha del desvío,
-                       «Siguiente» -->
-                <app-route-fields [controls]="tripForm.controls" [shouldPickFirstParking]="false" />
-                <div class="publish__grid">
-                  <app-datetime-field formControlName="date" label="Fecha" [min]="minDate" />
-                  <app-datetime-field
-                    formControlName="time"
-                    presentation="time"
-                    label="Hora de salida"
-                  />
-                </div>
-                <!-- Desvío y, a la derecha del campo, «Siguiente»; la ayuda,
-                       debajo del campo y con su ancho -->
-                <div class="publish__grid publish__grid--action">
-                  <span
-                    class="publish__action-label text-label text-label--strong"
-                    aria-hidden="true"
-                  >
-                    Tiempo máximo de desvío
-                  </span>
-                  <ion-select
-                    class="publish__select publish__action-field"
-                    formControlName="maxDetourMin"
-                    interface="popover"
-                    fill="outline"
-                    aria-label="Tiempo máximo de desvío"
-                  >
-                    @for (detour of detours; track detour) {
-                      <ion-select-option [value]="detour">± {{ detour }} min</ion-select-option>
-                    }
-                  </ion-select>
-                  <ion-button class="publish__next" type="submit" [disabled]="!isRouteComplete()">
-                    Siguiente
-                  </ion-button>
-                  <p class="publish__action-hint text-caption text-color-muted">
-                    Minutos que aceptas añadir a tu ruta para recoger o dejar a un pasajero.
-                  </p>
-                </div>
-              }
-              @case (2) {
-                <!-- Vehículo y plazas; a la derecha de las plazas, seguir -->
-                <app-vehicle-picker [(vehicles)]="vehicles" [controls]="tripForm.controls">
-                  <div class="publish__actions">
-                    <ng-container [ngTemplateOutlet]="back" />
-                    <ion-button class="publish__next" type="submit" [disabled]="!selectedVehicle()"
-                      >Revisar detalle</ion-button
+                <ng-template #back>
+                  @if (previousStep(); as previous) {
+                    <button
+                      class="publish__secondary"
+                      type="button"
+                      (click)="goToStep(previous.number)"
                     >
-                  </div>
-                </app-vehicle-picker>
-              }
-              @case (3) {
-                <!-- Lo que se ahorra si se llenan las plazas -->
-                @if (impact(); as impact) {
-                  <div class="notice notice--success publish__impact">
-                    <ion-icon [icon]="icons.impact" aria-hidden="true" />
-                    <p>
-                      Llevando a
-                      <b>{{ impact.seats }} {{ impact.seats === 1 ? 'pasajero' : 'pasajeros' }}</b>
-                      evitáis hasta {{ impact.seats }}
-                      {{ impact.seats === 1 ? 'coche' : 'coches' }}: aproximadamente
-                      <b>{{ impact.km }} km</b> al volante y
-                      <b>{{ formatDecimal(impact.co2Kg) }} kg de CO₂</b> menos.
-                    </p>
-                  </div>
-                }
+                      Volver a {{ previous.name }}
+                    </button>
+                  }
+                </ng-template>
 
-                <ng-container [ngTemplateOutlet]="summary" />
-
-                @if (!hasDeclared()) {
-                  <app-declaration-field [control]="tripForm.controls.declaration" />
-                }
-
-                <div class="publish__actions">
-                  <ng-container [ngTemplateOutlet]="back" />
-                  <ion-button
-                    class="publish__next"
-                    type="submit"
-                    [disabled]="isSaving() || needsDeclaration()"
-                  >
-                    @if (isSaving()) {
-                      <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+                @switch (step()) {
+                  @case (1) {
+                    <!-- Ruta: trayecto, fecha y hora y, a la derecha del desvío,
+                       «Siguiente» -->
+                    <app-route-fields [controls]="tripForm.controls" />
+                    <div class="publish__grid">
+                      <app-datetime-field formControlName="date" label="Fecha" [min]="minDate" />
+                      <app-datetime-field
+                        formControlName="time"
+                        presentation="time"
+                        label="Hora de salida"
+                      />
+                    </div>
+                    <!-- Desvío y, a la derecha del campo, «Siguiente» (qué es el
+                     desvío, en las preguntas frecuentes) -->
+                    <div class="publish__grid publish__grid--action">
+                      <span
+                        class="publish__action-label text-label text-label--strong"
+                        aria-hidden="true"
+                      >
+                        Tiempo máximo de desvío
+                      </span>
+                      <ion-select
+                        class="publish__select publish__action-field"
+                        formControlName="maxDetourMin"
+                        interface="popover"
+                        fill="outline"
+                        aria-label="Tiempo máximo de desvío"
+                      >
+                        @for (detour of detours; track detour) {
+                          <ion-select-option [value]="detour">± {{ detour }} min</ion-select-option>
+                        }
+                      </ion-select>
+                      <ion-button
+                        class="publish__next"
+                        type="submit"
+                        [disabled]="!isRouteComplete()"
+                      >
+                        Siguiente
+                      </ion-button>
+                    </div>
+                  }
+                  @case (2) {
+                    <!-- Vehículo y plazas; a la derecha de las plazas, seguir -->
+                    <app-vehicle-picker [(vehicles)]="vehicles" [controls]="tripForm.controls">
+                      <div class="publish__actions">
+                        <ng-container [ngTemplateOutlet]="back" />
+                        <ion-button
+                          class="publish__next"
+                          type="submit"
+                          [disabled]="!selectedVehicle()"
+                          >Revisar detalle</ion-button
+                        >
+                      </div>
+                    </app-vehicle-picker>
+                  }
+                  @case (3) {
+                    <!-- Lo que se ahorra si se llenan las plazas -->
+                    @if (impact(); as impact) {
+                      <div class="notice notice--success publish__impact">
+                        <ion-icon [icon]="icons.impact" aria-hidden="true" />
+                        <p>
+                          Llevando a
+                          <b
+                            >{{ impact.seats }}
+                            {{ impact.seats === 1 ? 'pasajero' : 'pasajeros' }}</b
+                          >
+                          evitáis hasta {{ impact.seats }}
+                          {{ impact.seats === 1 ? 'coche' : 'coches' }}: aproximadamente
+                          <b>{{ impact.km }} km</b> al volante y
+                          <b>{{ formatDecimal(impact.co2Kg) }} kg de CO₂</b> menos.
+                        </p>
+                      </div>
                     }
-                    Publicar viaje
-                  </ion-button>
-                </div>
-              }
-              @case (4) {
-                <!-- Publicado: la enhorabuena, el detalle y qué hacer ahora -->
-                @if (published(); as trip) {
-                  <output class="notice notice--success publish__impact">
-                    <ion-icon [icon]="icons.published" aria-hidden="true" />
-                    <span>
-                      <b>¡Enhorabuena! Has publicado un viaje.</b> Ofreces {{ trip.offeredSeats }}
-                      {{ trip.offeredSeats === 1 ? 'plaza' : 'plazas' }} con un desvío máximo de
-                      {{ trip.maxDetourMin }} min. Te avisaremos de cada solicitud para que la
-                      aceptes o la rechaces.
-                    </span>
-                  </output>
+
+                    <ng-container [ngTemplateOutlet]="summary" />
+
+                    @if (!hasDeclared()) {
+                      <app-declaration-field [control]="tripForm.controls.declaration" />
+                    }
+
+                    <div class="publish__actions">
+                      <ng-container [ngTemplateOutlet]="back" />
+                      <ion-button
+                        class="publish__next"
+                        type="submit"
+                        [disabled]="isSaving() || needsDeclaration()"
+                      >
+                        @if (isSaving()) {
+                          <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+                        }
+                        Publicar viaje
+                      </ion-button>
+                    </div>
+                  }
+                  @case (4) {
+                    <!-- Publicado: la enhorabuena, el detalle y qué hacer ahora -->
+                    @if (published(); as trip) {
+                      <output class="notice notice--success publish__impact">
+                        <ion-icon [icon]="icons.published" aria-hidden="true" />
+                        <span>
+                          <b>¡Enhorabuena! Has publicado un viaje.</b> Ofreces
+                          {{ trip.offeredSeats }}
+                          {{ trip.offeredSeats === 1 ? 'plaza' : 'plazas' }} con un desvío máximo de
+                          {{ trip.maxDetourMin }} min. Te avisaremos de cada solicitud para que la
+                          aceptes o la rechaces.
+                        </span>
+                      </output>
+                    }
+                    <ng-container [ngTemplateOutlet]="summary" />
+                    <div class="publish__actions">
+                      <button
+                        class="publish__secondary"
+                        type="button"
+                        (click)="handlePublishAnother()"
+                      >
+                        Publicar otro viaje
+                      </button>
+                      <ion-button class="publish__next" routerLink="/tabs/trips">
+                        Ver mis viajes
+                      </ion-button>
+                    </div>
+                  }
                 }
-                <ng-container [ngTemplateOutlet]="summary" />
-                <div class="publish__actions">
-                  <button class="publish__secondary" type="button" (click)="handlePublishAnother()">
-                    Publicar otro viaje
-                  </button>
-                  <ion-button class="publish__next" routerLink="/tabs/trips">
-                    Ver mis viajes
-                  </ion-button>
-                </div>
-              }
-            }
-          </form>
+              </form>
+            </ion-card-content>
+          </ion-card>
 
           @if (step() < 3) {
             <!-- Las dudas de quien conduce (en el móvil, al final) -->

@@ -25,6 +25,22 @@
   container-type: inline-size;
 }
 
+// Dentro de la tarjeta: los pasos y sus campos apilados a 16px
+.publish__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  ion-button {
+    margin: 0;
+  }
+}
+
 // En escritorio, la ayuda (preguntas o qué pasa después) a la derecha, fija
 // al bajar
 @media (min-width: 768px) {
@@ -118,14 +134,13 @@
   align-items: start;
 }
 
-// El desvío: la etiqueta, el campo con «Siguiente» a su derecha (llena el
-// hueco de la columna) y la ayuda debajo del campo, con su ancho. En el móvil
-// estrecho, todo apilado y el botón al final
+// El desvío: la etiqueta y el campo con «Siguiente» a su derecha (llena el
+// hueco de la columna; qué es el desvío, en las preguntas). En el móvil
+// estrecho, apilados y el botón al final
 .publish__grid--action {
   grid-template-areas:
     'label .'
-    'field action'
-    'hint .';
+    'field action';
   row-gap: var(--space-s);
   align-items: center;
 }
@@ -138,10 +153,6 @@
   grid-area: field;
 }
 
-.publish__action-hint {
-  grid-area: hint;
-}
-
 .publish__grid--action .publish__next {
   grid-area: action;
 }
@@ -149,7 +160,7 @@
 @container (max-width: 419px) {
   .publish__grid--action {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'label' 'field' 'hint' 'action';
+    grid-template-areas: 'label' 'field' 'action';
   }
 }
 
