@@ -84,9 +84,9 @@ export const routes: Routes = [
           import('./features/matching/trip-search/trip-search.page').then((m) => m.TripSearchPage),
         data: {
           heading: {
-            title: 'Buscar viaje',
-            subtitle:
-              'Dinos de dónde sales y a qué hora quieres llegar: te enseñamos quién va hacia allí.',
+            // Lo que se ve en la franja fija (escritorio) y en la tarjeta (móvil)
+            title: '¿A dónde vamos hoy?',
+            subtitle: 'Encuentra a alguien de la UAL que haga tu mismo trayecto.',
           } satisfies TabHeading,
         },
       },

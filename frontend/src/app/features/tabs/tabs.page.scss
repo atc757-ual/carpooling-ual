@@ -138,8 +138,8 @@ ion-tab-button {
 }
 
 // Escritorio: franja fija y blanca bajo el menú (sin línea entre los dos) con
-// el saludo y, debajo, «¿Vamos al campus hoy?», alineada con el logotipo y el
-// contenido de las pestañas
+// el título y el subtítulo de la pantalla (en los detalles, antes, las migas),
+// alineada con el logotipo y el contenido de las pestañas
 .greeting-bar {
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
   background: var(--color-surface);
@@ -149,12 +149,32 @@ ion-tab-button {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  // Solo lleva las migas: 4px arriba y 16px abajo
-  padding: var(--space-xs) var(--page-gutter) var(--space-base);
+  padding: var(--space-s) var(--page-gutter) var(--space-base);
 
   p {
     margin: 0;
   }
+}
+
+// El título de la pantalla: como el de una tarjeta, un poco mayor. En el móvil
+// va más ajustado para que la cabecera no coma pantalla
+.greeting-bar__title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem; // 20px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+@media (min-width: 768px) {
+  .greeting-bar__title {
+    font-size: 1.5rem; // 24px
+  }
+}
+
+// El subtítulo no se estira de lado a lado en pantallas anchas
+.greeting-bar__subtitle {
+  max-width: 70ch;
 }
 
 // Rastro de migas debajo del título y el subtítulo: pequeño y gris, la

@@ -87,7 +87,7 @@ for (const viewport of VIEWPORTS) {
         .should('deep.equal', { email: 'ana@ual.es', password: 'secreta123' });
       cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
       // El saludo de Buscar, la pantalla de inicio
-      cy.get('h1').filter(':visible').should('contain', '¡Hola, Ana!');
+      cy.contains('.trip-search__hello', '¡Hola, Ana!').should('be.visible');
     });
 
     it('shows the API error when the credentials are wrong', () => {

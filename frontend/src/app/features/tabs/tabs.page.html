@@ -74,19 +74,26 @@
     </form>
   </div>
 </header>
-<!-- Escritorio: en las pantallas de detalle, una franja fija con sus migas de
-     pan para volver -->
-@if (heading()?.breadcrumbs; as breadcrumbs) {
-  <div class="greeting-bar ion-hide-md-down">
+<!-- Franja fija con el título y el subtítulo de la pantalla. En el móvil se ve
+     en las secciones (la cabecera lleva el logotipo); en los detalles no, porque
+     ahí el título ya va en la barra con la flecha de volver -->
+@if (heading(); as heading) {
+  <div class="greeting-bar" [class.ion-hide-md-down]="heading.breadcrumbs">
     <div class="greeting-bar__content">
-      <ion-breadcrumbs class="greeting-bar__breadcrumbs">
-        @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
-          <ion-breadcrumb [routerLink]="breadcrumb.href" routerDirection="back">
-            {{ breadcrumb.label }}
-          </ion-breadcrumb>
-        }
-        <ion-breadcrumb [active]="true">{{ heading()?.title }}</ion-breadcrumb>
-      </ion-breadcrumbs>
+      @if (heading.breadcrumbs; as breadcrumbs) {
+        <ion-breadcrumbs class="greeting-bar__breadcrumbs">
+          @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
+            <ion-breadcrumb [routerLink]="breadcrumb.href" routerDirection="back">
+              {{ breadcrumb.label }}
+            </ion-breadcrumb>
+          }
+          <ion-breadcrumb [active]="true">{{ heading.title }}</ion-breadcrumb>
+        </ion-breadcrumbs>
+      }
+      <h1 class="greeting-bar__title">{{ heading.title }}</h1>
+      @if (heading.subtitle) {
+        <p class="greeting-bar__subtitle text-body-s text-color-muted">{{ heading.subtitle }}</p>
+      }
     </div>
   </div>
 }
