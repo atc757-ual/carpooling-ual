@@ -24,9 +24,13 @@ function enterAsBar(baseEl: HTMLElement): Animation {
   return createAnimation().addElement(wrapper).duration(200).fromTo('opacity', 0.01, 1);
 }
 
-// Columna blanca del formulario en las pantallas de acceso de escritorio
+// Columna blanca del formulario en las pantallas de acceso de escritorio. Solo
+// vale la que tiene tamaño: al ir de una pantalla a otra quedan páginas en el
+// DOM (o a medio salir) cuyo panel mide 0, y el aviso salía con ancho 0, es
+// decir, invisible a partir del segundo aviso
 function findFormColumn(): Element | null {
-  return document.querySelector('.ion-page:not(.ion-page-hidden) .auth-layout__panel');
+  const panels = document.querySelectorAll('.ion-page:not(.ion-page-hidden) .auth-layout__panel');
+  return Array.from(panels).find((panel) => panel.getBoundingClientRect().width > 0) ?? null;
 }
 
 // El aviso ocupa esa columna de lado a lado (y no toda la ventana, que incluye
