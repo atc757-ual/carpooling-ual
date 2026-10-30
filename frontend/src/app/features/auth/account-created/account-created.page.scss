@@ -1,0 +1,15 @@
+// 16px entre botones seguidos, como en todas las pantallas de acceso
+.account-created__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+// Qué pasa al elegir «Entrar más tarde», en pequeño y en gris
+.account-created__note {
+  margin: 0;
+}

@@ -1,10 +1,18 @@
 import { inject } from '@angular/core';
-import { Routes } from '@angular/router';
+import { CanActivateFn, Router, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { profileGuard } from './core/guards/profile.guard';
+import { WELCOME_PATH } from './core/guards/redirect-paths';
+import { AuthService } from './core/services/auth/auth.service';
 import { ActiveModeService } from './core/services/users/active-mode.service';
 import { TabHeading } from './features/tabs/tab-heading';
+
+// La pantalla del final del registro la abre la verificación del correo, que ya
+// ha iniciado la sesión. Sin sesión (una URL escrita a mano) no hay nada que
+// celebrar: a la bienvenida
+const sessionOnly: CanActivateFn = () =>
+  inject(AuthService).isLoggedIn() || inject(Router).createUrlTree([WELCOME_PATH]);
 
 // Rutas de la aplicación. Cada pantalla se carga bajo demanda
 // (loadComponent) desde features/<área>/, con sus guards
@@ -177,6 +185,16 @@ export const routes: Routes = [
         },
       },
     ],
+  },
+  {
+    // Final del registro: fuera de las dos áreas porque la sesión ya está
+    // abierta (no entra en las pantallas de invitado) y no es una pestaña
+    path: 'account-created',
+    canActivate: [sessionOnly],
+    loadComponent: () =>
+      import('./features/auth/account-created/account-created.page').then(
+        (m) => m.AccountCreatedPage,
+      ),
   },
   { path: '', redirectTo: 'tabs', pathMatch: 'full' },
   { path: '**', redirectTo: 'tabs' },
