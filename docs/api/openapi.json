@@ -1815,7 +1815,7 @@
     },
     "/api/trips": {
       "post": {
-        "description": "RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle.",
+        "description": "RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days.",
         "operationId": "TripsController_publish",
         "parameters": [],
         "requestBody": {
@@ -1845,7 +1845,7 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY, DEPARTURE_IN_THE_PAST",
+            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY, DEPARTURE_IN_THE_PAST, DEPARTURE_TOO_SOON",
             "content": {
               "application/json": {
                 "schema": {
@@ -1883,6 +1883,16 @@
           },
           "404": {
             "description": "TMF630 error: VEHICLE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: PUBLISHING_SUSPENDED",
             "content": {
               "application/json": {
                 "schema": {
@@ -2025,7 +2035,7 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY, DEPARTURE_IN_THE_PAST",
+            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY, DEPARTURE_IN_THE_PAST, DEPARTURE_TOO_SOON",
             "content": {
               "application/json": {
                 "schema": {
@@ -2290,9 +2300,67 @@
         ]
       }
     },
+    "/api/users/me/publishing-status": {
+      "get": {
+        "description": "Late cancellations in the last 30 days and, after 3, until when publishing is suspended (7 days from the last one).",
+        "operationId": "TripsController_getPublishingStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingStatusResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get my publishing status",
+        "tags": [
+          "trips"
+        ]
+      }
+    },
     "/api/trips/{id}/cancel": {
       "post": {
-        "description": "RF-05. Only its driver. Once started, cancelling requires an incident (RF-23).",
+        "description": "RF-05. Only its driver. With accepted passengers and less than 30 minutes before the departure, it counts as a late cancellation (see GET /users/me/publishing-status). Once started, cancelling requires an incident (RF-23).",
         "operationId": "TripsController_cancel",
         "parameters": [
           {
@@ -5830,6 +5898,33 @@
           "tripStatus",
           "startedAt",
           "estimatedArrivalAt"
+        ]
+      },
+      "PublishingStatusResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "PublishingStatus"
+            ]
+          },
+          "lateCancellations": {
+            "type": "number",
+            "example": 1,
+            "description": "Late cancellations in the last 30 days (with accepted passengers, less than 30 minutes before departure)"
+          },
+          "publishingSuspendedUntil": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Until when the driver cannot publish (3 late cancellations in 30 days: 7 days from the last one), or null"
+          }
+        },
+        "required": [
+          "@type",
+          "lateCancellations",
+          "publishingSuspendedUntil"
         ]
       },
       "UpdateTripDto": {
