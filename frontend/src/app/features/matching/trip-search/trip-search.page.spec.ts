@@ -79,12 +79,11 @@ describe('TripSearchPage', () => {
   }
 
   it(
-    'greets by the first name and shows the search card with the questions',
+    'shows the search card with the questions',
     async () => {
       const root = (await setUp(null)).nativeElement as HTMLElement;
 
-      // El saludo va en el contenido; el título de la pantalla, en la franja fija
-      expect(root.querySelector('.trip-search__hello')?.textContent).toContain('¡Hola, Jimena!');
+      // El saludo con el nombre va en la cabecera del layout, no en la pantalla
       expect(root.querySelector('app-trip-search-form')).not.toBeNull();
       expect(root.querySelector('app-faq-card')).not.toBeNull();
       expect(root.textContent).not.toContain('Nueva búsqueda');

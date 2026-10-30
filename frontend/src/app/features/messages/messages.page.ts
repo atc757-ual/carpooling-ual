@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
 import { IonCard, IonCardContent, IonContent, IonIcon } from '@ionic/angular';
 import { chatbubblesOutline } from 'ionicons/icons';
-import { SectionTitle } from '../tabs/section-title/section-title';
 
 // Mensajes entre quien conduce y quien viaja en el mismo viaje. De momento,
 // solo el destino del menú: la mensajería llegará en su PR (requisito por
 // validar, ver pendientes-memoria.md)
 @Component({
   selector: 'app-messages',
-  imports: [SectionTitle, IonCard, IonCardContent, IonContent, IonIcon],
+  imports: [IonCard, IonCardContent, IonContent, IonIcon],
   templateUrl: './messages.page.html',
   styleUrls: ['../tabs/tab-page.scss', './messages.page.scss'],
 })

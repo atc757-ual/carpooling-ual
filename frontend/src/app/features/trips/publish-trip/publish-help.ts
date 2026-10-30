@@ -26,7 +26,7 @@ export const PUBLISH_FAQS: readonly Faq[] = [
   },
   {
     question: '¿Qué pasa si cancelo?',
-    answer: 'Se cancela desde Mis viajes y depende del momento:',
+    answer: 'Se cancela desde Tus viajes y depende del momento:',
     points: [
       'Sin pasajeros aceptados: las solicitudes pendientes se cancelan y avisamos a quien las hizo.',
       'Con pasajeros, hasta 30 minutos antes de salir: sin penalización; les avisamos al momento para que busquen otro viaje.',
@@ -57,7 +57,7 @@ export const NEXT_STEPS: readonly NextStep[] = [
   },
   {
     title: 'El día del viaje',
-    text: 'Sal a tu hora y recoge a tus pasajeros. Si no puedes ir, cancélalo en Mis viajes hasta 30 minutos antes.',
+    text: 'Sal a tu hora y recoge a tus pasajeros. Si no puedes ir, cancélalo en Tus viajes hasta 30 minutos antes.',
   },
 ];
 

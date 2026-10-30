@@ -1,0 +1,16 @@
+<span class="brand-greeting">
+  <!-- La insignia «UAL» no se mueve: solo cambia el texto de su lado -->
+  <app-brand-logo variant="compact" [showText]="false" />
+  <span class="brand-greeting__words">
+    <span
+      class="brand-greeting__word brand-greeting__word--brand"
+      [class.brand-greeting__word--out]="isGreeting()"
+      >Carpool</span
+    >
+    <span
+      class="brand-greeting__word brand-greeting__word--hello"
+      [class.brand-greeting__word--out]="!isGreeting()"
+      >¡Hola, {{ name() }}!</span
+    >
+  </span>
+</span>

@@ -82,9 +82,9 @@ describe('TabsPage', () => {
     expect(render().tabs.map(({ label }) => label)).toEqual([
       'Buscar',
       'Publicar',
-      'Mis viajes',
+      'Tus viajes',
       'Mensajes',
-      'Perfil',
+      'Mi perfil',
     ]);
   });
 

@@ -15,7 +15,6 @@ import { LegalDocument, LegalModal } from '../../shared/components/modals/legal-
 import { formatPhone } from '../../shared/utils/phone.util';
 import { getInitials } from '../matching/trip-driver/trip-driver';
 import { ProfileVehicles } from './profile-vehicles/profile-vehicles';
-import { SectionTitle } from '../tabs/section-title/section-title';
 import { confirmLogout } from '../../core/services/auth/confirm-logout';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
 
@@ -26,7 +25,6 @@ import { ConfirmService } from '../../core/services/ui/confirm.service';
 @Component({
   selector: 'app-profile',
   imports: [
-    SectionTitle,
     IonButton,
     IonCard,
     IonCardContent,

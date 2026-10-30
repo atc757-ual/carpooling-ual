@@ -503,7 +503,7 @@
   <!-- 5 -->
   <section id="iconos">
     <h2>5. Iconos</h2>
-    <p class="note"><b>ionicons</b>, versión <i>outline</i>, con <code>ion-icon</code>. 1,25rem dentro de campos y botones; 1,625rem en las pestañas, siempre con su etiqueta. Un botón que solo tiene icono lleva <code>aria-label</code> y un área táctil de 2,75rem; los iconos decorativos, <code>aria-hidden="true"</code>. Pestañas: <code>search-outline</code> (Buscar), <code>add-circle-outline</code> (Publicar), <code>map-outline</code> (Mis viajes), <code>chatbubbles-outline</code> (Mensajes), <code>person-outline</code> (Perfil) y <code>notifications-outline</code> (la campana); en esta guía son los SVG de Ionicons tal cual. El resto de los iconos de la guía son bocetos propios para ilustrar: en la app se usa siempre el de Ionicons con el mismo nombre.</p>
+    <p class="note"><b>ionicons</b>, versión <i>outline</i>, con <code>ion-icon</code>. 1,25rem dentro de campos y botones; 1,625rem en las pestañas, siempre con su etiqueta. Un botón que solo tiene icono lleva <code>aria-label</code> y un área táctil de 2,75rem; los iconos decorativos, <code>aria-hidden="true"</code>. Pestañas: <code>search-outline</code> (Buscar), <code>add-circle-outline</code> (Publicar), <code>map-outline</code> (Tus viajes), <code>chatbubbles-outline</code> (Mensajes), <code>person-outline</code> (Perfil) y <code>notifications-outline</code> (la campana); en esta guía son los SVG de Ionicons tal cual. El resto de los iconos de la guía son bocetos propios para ilustrar: en la app se usa siempre el de Ionicons con el mismo nombre.</p>
     <div class="row" style="gap:var(--space-l)">
       <span class="row"><svg class="i"><use href="#i-mail"/></svg><code>mail-outline</code></span>
       <span class="row"><svg class="i"><use href="#i-lock"/></svg><code>lock-closed-outline</code></span>
@@ -617,13 +617,13 @@
     <p class="note"><b>Tarjeta de agradecimiento (al terminar un flujo, p. ej. «Gracias por compartir tu coche»):</b> blanca como las demás, con un borde inferior verde (<code>--color-eco</code>) de 0,25rem; en la cabecera, el icono en un círculo verde claro de 2,5rem y el título a su lado; debajo, una frase en gris y los puntos con un ✓ verde en vez de viñeta. Acompaña a un confeti verde (<code>canvas-confetti</code>, solo al publicar y sin él si el sistema pide menos movimiento). Una sola por pantalla.</p>
 
     <h3>Barra de pestañas</h3>
-    <p class="note">Cinco destinos fijos, en este orden: Buscar · Publicar · Mis viajes · Mensajes · Perfil. En el móvil, abajo, con icono y nombre; desde 48rem, en el menú superior. La activa, en azul y en negrita, sobre un fondo azul muy claro (<code>--color-primary-subtle</code>, #f3f5ff) con esquinas de 8px (pastilla). En el menú superior no hay fondo ni esquinas: la activa va en azul, en negrita y con una raya de marca de 4px en el borde inferior; al pasar el ratón por las demás no cambia nada. Al entrar se abre Buscar. La estructura de cada pantalla, en <a href="#navegacion">10. Navegación</a>.</p>
+    <p class="note">Cinco destinos fijos, en este orden: Buscar · Publicar · Tus viajes · Mensajes · Perfil. En el móvil, abajo, con icono y nombre; desde 48rem, en el menú superior. La activa, en azul y en negrita, sobre un fondo azul muy claro (<code>--color-primary-subtle</code>, #f3f5ff) con esquinas de 8px (pastilla). En el menú superior no hay fondo ni esquinas: la activa va en azul, en negrita y con una raya de marca de 4px en el borde inferior; al pasar el ratón por las demás no cambia nada. Al entrar se abre Buscar. La estructura de cada pantalla, en <a href="#navegacion">10. Navegación</a>.</p>
     <nav class="tabbar" aria-label="Ejemplo de pestañas">
       <a href="#iconos" class="on" aria-current="page"><svg class="i"><use href="#ion-search"/></svg>Buscar</a>
       <a href="#iconos"><svg class="i"><use href="#ion-add-circle"/></svg>Publicar</a>
-      <a href="#iconos"><svg class="i"><use href="#ion-map"/></svg>Mis viajes</a>
+      <a href="#iconos"><svg class="i"><use href="#ion-map"/></svg>Tus viajes</a>
       <a href="#iconos"><svg class="i"><use href="#ion-chatbubbles"/></svg>Mensajes</a>
-      <a href="#iconos"><svg class="i"><use href="#ion-person"/></svg>Perfil</a>
+      <a href="#iconos"><svg class="i"><use href="#ion-person"/></svg>Mi perfil</a>
     </nav>
   </section>
 
@@ -650,7 +650,7 @@
         </div>
       </div>
       <div class="stack">
-        <h4>TripRow (resultados y Mis viajes)</h4>
+        <h4>TripRow (resultados y Tus viajes)</h4>
         <div class="trip-row">
           <div class="trip-row__head"><span class="trip-row__times">07:40 → 08:12</span><span class="text-label text-label--strong" style="color:var(--color-eco-text)">2 plazas</span></div>
           <span class="text-label text-label--strong">Roquetas de Mar → Campus UAL · La Cañada</span>
@@ -747,7 +747,7 @@
         <span class="text-title">Solicitud enviada. Falta la respuesta de Lucía.</span>
         <span class="status status--pending" style="align-self:flex-start">Pendiente · no confirmada</span>
         <span class="text-label">Has solicitado 1 plaza para el 27 oct a las 07:40. Todavía no tienes una plaza confirmada. Te avisaremos cuando Lucía acepte o rechace. No envíes otra solicitud para este viaje.</span>
-        <button class="btn btn--primary btn--block" type="button">Ver en Mis viajes</button>
+        <button class="btn btn--primary btn--block" type="button">Ver en Tus viajes</button>
         <button class="btn btn--clear btn--block" type="button">Cancelar solicitud</button>
       </div>
     </div>
@@ -778,7 +778,7 @@
       <tbody>
         <tr><td>Acceso</td><td>Verificando correo…</td><td>Sin código vigente. Solicitar otro.</td><td>No pudimos enviar el código. Reintentar sin borrar el correo.</td><td>Sesión no autorizada. Volver a iniciar sesión.</td></tr>
         <tr><td>Búsqueda</td><td>Buscando viajes compatibles…</td><td>No hay viajes en tu margen. Cambiar hora.</td><td>No pudimos buscar. Reintentar con la ruta y los filtros guardados.</td><td>Sesión caducada. Iniciar sesión; no mostrar viajeros.</td></tr>
-        <tr><td>Viajes</td><td>Actualizando solicitudes…</td><td>No tienes próximos viajes. Buscar o publicar.</td><td>No se confirmó la aceptación. Consultar el estado antes de repetir.</td><td>No puedes gestionar este viaje. Volver a Mis viajes.</td></tr>
+        <tr><td>Viajes</td><td>Actualizando solicitudes…</td><td>No tienes próximos viajes. Buscar o publicar.</td><td>No se confirmó la aceptación. Consultar el estado antes de repetir.</td><td>No puedes gestionar este viaje. Volver a Tus viajes.</td></tr>
         <tr><td>Perfil</td><td>Cargando preferencias…</td><td>Sin vehículos. Registrar vehículo.</td><td>No se guardó. Reintentar conserva los cambios.</td><td>No puedes ver este perfil. Volver a tu cuenta.</td></tr>
         <tr><td>Usuarios (admin)</td><td>Cargando usuarios…</td><td>Sin coincidencias. Quitar filtros.</td><td>Tabla no disponible. Reintentar mantiene página y filtros.</td><td>Ocultar tabla y detalles. Volver al modo autorizado.</td></tr>
         <tr><td>Incidencias</td><td>Cargando informes…</td><td>No hay incidencias pendientes. Ver revisadas.</td><td>No se guardó la nota. Conservar el texto y reintentar.</td><td>Ocultar informe y afectados. Volver al modo autorizado.</td></tr>
@@ -860,9 +860,9 @@
     <div class="grid-s">
       <div class="tab-card stack"><svg class="i"><use href="#ion-search"/></svg><b>Buscar</b><code>/tabs/search</code><span class="text-meta">La pantalla de inicio: saludo, búsqueda y preguntas. Resultados en <code>/search/results</code> y detalle en <code>/search/trips/:id</code>.</span></div>
       <div class="tab-card stack"><svg class="i"><use href="#ion-add-circle"/></svg><b>Publicar</b><code>/tabs/publish</code><span class="text-meta">Cuatro pasos (Trayecto · Vehículo · Revisión · Publicado), el actual en <code>?step=</code>.</span></div>
-      <div class="tab-card stack"><svg class="i"><use href="#ion-map"/></svg><b>Mis viajes</b><code>/tabs/trips</code><span class="text-meta">Tus solicitudes y, con coche, tus viajes: segmento «Como pasajero / Como conductor».</span></div>
+      <div class="tab-card stack"><svg class="i"><use href="#ion-map"/></svg><b>Tus viajes</b><code>/tabs/trips</code><span class="text-meta">Tus solicitudes y, con coche, tus viajes: segmento «Como pasajero / Como conductor».</span></div>
       <div class="tab-card stack"><svg class="i"><use href="#ion-chatbubbles"/></svg><b>Mensajes</b><code>/tabs/messages</code><span class="text-meta">Con quien conduce o viaja contigo. De momento, «Muy pronto».</span></div>
-      <div class="tab-card stack"><svg class="i"><use href="#ion-person"/></svg><b>Perfil</b><code>/tabs/profile</code><span class="text-meta">Cuenta, mis vehículos (hasta 3), privacidad y cerrar sesión.</span></div>
+      <div class="tab-card stack"><svg class="i"><use href="#ion-person"/></svg><b>Mi perfil</b><code>/tabs/profile</code><span class="text-meta">Cuenta, mis vehículos (hasta 3), privacidad y cerrar sesión.</span></div>
       <div class="tab-card stack"><svg class="i"><use href="#ion-notifications"/></svg><b>Avisos (campana)</b><code>/tabs/notifications</code><span class="text-meta">No es una pestaña: la campana de la cabecera, con el número de no leídos.</span></div>
     </div>
 
@@ -871,7 +871,7 @@
       <div class="stack">
         <b>Móvil (menos de 48rem)</b>
         <ul class="rules">
-          <li>Cabecera: el logotipo, la campana y cerrar sesión (con la misma confirmación que en el Perfil); en los detalles, la flecha de volver y su título.</li>
+          <li>Cabecera: el logotipo y el saludo con el nombre se turnan cada 3 segundos (sin animación si el sistema pide reducir el movimiento), la campana y cerrar sesión (con la misma confirmación que en Mi perfil); en los detalles, la flecha de volver y su título.</li>
           <li>Abajo, la barra de pestañas (ver <a href="#componentes">6. Componentes</a>).</li>
           <li>Todo en una columna; la ayuda (preguntas, «¿Qué pasa después?») al final.</li>
         </ul>
@@ -879,8 +879,8 @@
       <div class="stack">
         <b>Escritorio (desde 48rem)</b>
         <ul class="rules">
-          <li>Menú en dos niveles: arriba el logotipo a la izquierda y la campana y salir a la derecha; debajo, los destinos centrados.</li>
-          <li>Franja fija bajo el menú con el título y el subtítulo de la pantalla; en los detalles, además, las migas encima (la casa › Buscar viaje › Detalle del viaje). El saludo de Inicio («¡Hola, nombre!») va en el contenido, debajo.</li>
+          <li>Menú en dos niveles: arriba, a la izquierda, el logotipo con el saludo al lado (en semibold) y, a la derecha, la campana y salir; debajo, los destinos centrados.</li>
+          <li>Franja fija bajo el menú con el título y el subtítulo de la pantalla; en los detalles, además, las migas encima (la casa › Buscar viaje › Detalle del viaje).</li>
           <li>Columnas de 8 y 4 (de 12): el contenido a la izquierda y la ayuda a la derecha, fija al bajar.</li>
           <li>Pie de página con el ancho de la página.</li>
         </ul>
@@ -961,7 +961,7 @@
   <section id="implementacion">
     <h2>15. Implementación (Angular + Ionic)</h2>
     <div class="grid">
-      <div><h4>01 · Rutas standalone y carga diferida</h4><p class="note"><code>loadComponent</code> por destino; <code>ion-router-outlet</code> dentro de <code>ion-tabs</code> persistente y el acceso fuera de las pestañas. Viaje, chat y valoración bajo Mis viajes; resultados y detalle bajo Buscar. Volver conserva el contexto.</p></div>
+      <div><h4>01 · Rutas standalone y carga diferida</h4><p class="note"><code>loadComponent</code> por destino; <code>ion-router-outlet</code> dentro de <code>ion-tabs</code> persistente y el acceso fuera de las pestañas. Viaje, chat y valoración bajo Tus viajes; resultados y detalle bajo Buscar. Volver conserva el contexto.</p></div>
       <div><h4>02 · Tokens semánticos</h4><p class="note">Los roles alimentan las variables de Ionic (<code>--ion-color-primary</code> y su <code>-contrast</code>, <code>-rgb</code>, <code>-shade</code>, <code>-tint</code>; igual para secondary, success, warning, danger e info); <code>--ion-background-color</code> = surface y <code>--ion-text-color</code> = text. Sin valores sueltos en las pantallas.</p></div>
       <div><h4>03 · rem y patrones reutilizables</h4><p class="note">Solo rem para dimensiones, tipografía, bordes y sombras. Se extraen TripRow, RouteTimeline, VerifiedUalBadge y SeatStepper. En el código, <code>shared/components/ui/</code>: <code>app-seat-stepper</code> (plazas) y <code>app-datetime-field</code> (fecha u hora con su ventana), los mismos en Buscar y en Publicar, con <code>formControlName</code>.</p></div>
       <div><h4>04 · Capas de interacción</h4><p class="note"><code>ion-button</code>, <code>ion-input</code> e <code>ion-tabs</code> como base; <code>ion-modal</code> para fecha y plazas, revisar la publicación y consentimientos; <code>ion-select</code>, <code>ion-segment</code>, <code>ion-toggle</code>, <code>ion-checkbox</code>; <code>ion-toast</code> solo para lo no crítico.</p></div>

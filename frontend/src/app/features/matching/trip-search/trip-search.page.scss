@@ -34,16 +34,12 @@
     align-items: start;
   }
 
-  .trip-search__hello {
-    grid-column: 1 / -1;
-  }
-
   .trip-search__criteria {
     grid-column: 1;
   }
 
   .trip-search__aside {
-    grid-row: 2 / span 2;
+    grid-row: 1 / span 2;
     grid-column: 2;
   }
 }
@@ -55,14 +51,6 @@
   }
 }
 
-// El saludo de la pantalla de inicio, encima de la tarjeta: 22px, en negrita
-.trip-search__hello {
-  margin: 0;
-  font-family: var(--font-family-heading);
-  font-size: 1.375rem; // 22px
-  font-weight: var(--font-weight-bold);
-}
-
 // La invitación a publicar y las preguntas, una encima de la otra
 .trip-search__aside {
   display: flex;
@@ -70,7 +58,7 @@
   gap: var(--space-base);
 }
 
-// Aviso de solicitudes en espera: todo él lleva a Mis viajes
+// Aviso de solicitudes en espera: todo él lleva a Tus viajes
 .trip-search__pending {
   display: flex;
   align-items: center;

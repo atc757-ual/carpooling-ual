@@ -114,7 +114,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-publish-trip', '¡Enhorabuena! Has publicado un viaje.');
       cy.contains('app-publish-trip', 'Gracias por compartir tu coche');
       cy.contains('app-publish-trip button', 'Volver a').should('not.exist');
-      cy.contains('app-publish-trip ion-button', 'Ver mis viajes');
+      cy.contains('app-publish-trip ion-button', 'Ver tus viajes');
       cy.contains('app-publish-trip button', 'Publicar otro viaje').click();
       cy.get('app-publish-trip [aria-current="step"]').should('contain', 'Trayecto');
     });

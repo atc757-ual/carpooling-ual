@@ -39,7 +39,8 @@
       </ion-buttons>
       <ion-title>{{ heading()?.title }}</ion-title>
     } @else {
-      <app-brand-logo slot="start" variant="compact" class="app-header__brand" />
+      <!-- El logotipo y, cada 3 segundos, el saludo con el nombre -->
+      <app-brand-greeting slot="start" class="app-header__brand" [name]="firstName()" />
     }
     <ion-buttons slot="end">
       <ng-container [ngTemplateOutlet]="headerActions" />
@@ -63,6 +64,8 @@
     }
   </nav>
   <div class="top-nav__actions">
+    <!-- El saludo, pegado a la izquierda de las acciones (campana y salir) -->
+    <span class="top-nav__hello">¡Hola, {{ firstName() }}!</span>
     <ng-container [ngTemplateOutlet]="headerActions" />
   </div>
 </header>

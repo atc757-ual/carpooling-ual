@@ -1,10 +1,7 @@
 <ion-content>
   <div class="trip-search">
-    <!-- La pantalla de inicio saluda; el título de la sección va en la franja
-         fija de escritorio (y en la cabecera de la tarjeta, en el móvil) -->
-    <p class="trip-search__hello text-heading">¡Hola, {{ firstName() }}!</p>
-
-    <!-- Solicitudes que esperan respuesta: aviso encima de la búsqueda -->
+    <!-- Solicitudes que esperan respuesta: aviso encima de la búsqueda. El
+         saludo con el nombre va en la cabecera del layout -->
     @if (pendingRequests(); as pending) {
       <a class="trip-search__pending notice notice--info" routerLink="/tabs/trips">
         <ion-icon [icon]="pendingIcon" aria-hidden="true" />
@@ -14,7 +11,7 @@
               ? 'Tienes 1 solicitud esperando respuesta.'
               : 'Tienes ' + pending + ' solicitudes esperando respuesta.'
           }}
-          <span class="trip-search__pending-link">Ver en Mis viajes</span>
+          <span class="trip-search__pending-link">Ver en Tus viajes</span>
         </span>
       </a>
     }

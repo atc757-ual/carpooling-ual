@@ -4,9 +4,6 @@ import {
   IonButton,
   IonCard,
   IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
   IonContent,
   IonIcon,
   IonItem,
@@ -40,9 +37,6 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
     IonButton,
     IonCard,
     IonCardContent,
-    IonCardHeader,
-    IonCardSubtitle,
-    IonCardTitle,
     IonContent,
     IonIcon,
     TripSearchForm,
@@ -54,9 +48,6 @@ export class TripSearchPage {
   private readonly auth = inject(AuthService);
   private readonly seatRequests = inject(SeatRequestsService);
   private readonly searchState = inject(TripSearchStateService);
-
-  // «¡Hola, Jimena!»: el nombre de pila
-  readonly firstName = computed(() => this.auth.currentUser()?.name.split(' ')[0] ?? '');
 
   // Sin coche registrado aún: se le invita a publicar
   readonly isDriver = computed(() => {

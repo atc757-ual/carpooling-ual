@@ -69,7 +69,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
       cy.contains('ion-button', 'Iniciar sesión').click();
       cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
-      cy.contains(isDesktop ? 'app-tabs .top-nav__link' : 'ion-tab-button', 'Mis viajes').click();
+      cy.contains(isDesktop ? 'app-tabs .top-nav__link' : 'ion-tab-button', 'Tus viajes').click();
     });
 
     it('accepts a pending request of an upcoming trip', () => {
