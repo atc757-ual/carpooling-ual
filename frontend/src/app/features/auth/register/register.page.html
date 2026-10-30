@@ -108,9 +108,12 @@
           errorText="Usa entre 8 y 72 caracteres."
         >
           <ion-icon slot="start" [icon]="lockIcon" aria-hidden="true" />
+          <!-- Fuera del orden de tabulación (tabindex=-1): con el teclado se
+               pasa del campo de la contraseña al control siguiente -->
           <button
             slot="end"
             type="button"
+            tabindex="-1"
             class="auth-password-toggle"
             [attr.aria-label]="isPasswordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
             [attr.aria-pressed]="isPasswordVisible()"
