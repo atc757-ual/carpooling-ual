@@ -91,16 +91,30 @@
             </ion-card-content>
           </ion-card>
         } @else {
-          <span class="text-eyebrow text-color-muted">
-            {{ trips().length }} en tu margen (± {{ search.margin }} min)
-          </span>
-          @for (trip of trips(); track trip.id) {
+          <div class="search-results__results-header">
+            <span class="text-eyebrow text-color-muted">
+              {{ trips().length }} en tu margen (± {{ search.margin }} min)
+            </span>
+            <ion-segment
+              class="search-results__sort"
+              [value]="sortOrder()"
+              (ionChange)="handleSortChange($event.detail.value)"
+              aria-label="Ordenar viajes"
+            >
+              <ion-segment-button value="arrival">
+                <ion-label>Llegada más temprana</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="detour">
+                <ion-label>Menos desvío</ion-label>
+              </ion-segment-button>
+            </ion-segment>
+          </div>
+          @for (trip of sortedTrips(); track trip.id) {
             <app-trip-result-card [trip]="trip" />
           }
           <p class="text-caption text-color-muted">
-            Ordenados por compatibilidad: menos desvío y más cerca de tu hora. La hora de llegada es
-            estimada. Correo UAL verificado no significa permiso de conducir verificado. La plaza
-            solo se confirma al aceptar el conductor.
+            La hora de llegada es estimada. Verificamos el correo UAL, no la identidad ni el permiso
+            de conducir. La plaza solo se confirma cuando el conductor acepta.
           </p>
         }
       } @else {

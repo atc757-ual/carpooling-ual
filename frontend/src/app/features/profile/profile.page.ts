@@ -15,6 +15,7 @@ import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { LegalDocument, LegalModal } from '../../shared/components/modals/legal-modal/legal-modal';
 import { formatPhone } from '../../shared/utils/phone.util';
+import { formatPersonName } from '../../shared/utils/person-name.util';
 import { getInitials } from '../matching/trip-driver/trip-driver';
 import { ProfileVehicles } from './profile-vehicles/profile-vehicles';
 import { confirmLogout } from '../../core/services/auth/confirm-logout';
@@ -48,6 +49,7 @@ export class ProfilePage {
   protected readonly logoutIcon = logOutOutline;
   readonly user = this.auth.currentUser;
   readonly initials = computed(() => getInitials(this.user()?.name ?? ''));
+  readonly displayName = computed(() => formatPersonName(this.user()?.name ?? ''));
   readonly phone = computed(() => {
     const phone = this.user()?.phone;
     return phone ? formatPhone(phone) : null;

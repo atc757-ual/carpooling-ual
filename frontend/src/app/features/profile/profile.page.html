@@ -1,6 +1,5 @@
 <ion-content>
   <div class="tab-page profile">
-
     <div class="profile__layout">
       <div class="profile__main">
         @if (user(); as user) {
@@ -8,7 +7,7 @@
             <ion-card-content class="profile__account">
               <span class="profile__avatar" aria-hidden="true">{{ initials() }}</span>
               <span class="profile__identity">
-                <span class="text-subtitle">{{ user.name }}</span>
+                <span class="text-subtitle">{{ displayName() }}</span>
                 <span class="text-body-s text-color-muted">{{ user.email }}</span>
                 @if (phone(); as phone) {
                   <span class="text-body-s text-color-muted">{{ phone }}</span>

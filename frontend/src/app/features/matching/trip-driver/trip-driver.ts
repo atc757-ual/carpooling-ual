@@ -1,5 +1,6 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input, resource } from '@angular/core';
 import { TripDriver as Driver } from '../../../core/models/trip-result.model';
+import { AvatarsService } from '../../../core/services/users/avatars.service';
 
 const RATING_FORMAT = new Intl.NumberFormat('es-ES', {
   minimumFractionDigits: 1,
@@ -36,8 +37,13 @@ export function getFirstName(name: string): string {
 })
 export class TripDriver {
   readonly driver = input.required<Driver>();
+  private readonly avatars = inject(AvatarsService);
 
   readonly initials = computed(() => getInitials(this.driver().name));
+  readonly avatarSvg = resource({
+    params: () => this.driver().avatarKey ?? undefined,
+    loader: ({ params }) => this.avatars.getGraphic(params),
+  });
   // «4,8», o null si aún no tiene valoración
   readonly rating = computed(() => {
     const { rating } = this.driver();
@@ -46,11 +52,16 @@ export class TripDriver {
 
   // «42 viajes · Correo UAL verificado» (cada parte, si se sabe)
   readonly details = computed(() => {
-    const { tripCount, isEmailVerified } = this.driver();
-    const parts = [
-      tripCount === undefined ? null : formatTripCount(tripCount),
-      isEmailVerified ? 'Correo UAL verificado' : null,
-    ];
+    const { tripCount, rating, isEmailVerified } = this.driver();
+    let tripDetails: string | null;
+    if (rating === undefined) {
+      tripDetails = 'Nuevo conductor';
+    } else if (tripCount === undefined) {
+      tripDetails = null;
+    } else {
+      tripDetails = formatTripCount(tripCount);
+    }
+    const parts = [tripDetails, isEmailVerified ? 'Correo UAL verificado' : null];
     return parts.filter(Boolean).join(' · ');
   });
 }

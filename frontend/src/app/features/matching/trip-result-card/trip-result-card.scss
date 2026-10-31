@@ -1,14 +1,29 @@
-// TripRow de la guía, en una tarjeta: 12px entre las partes (el contenido de
-// ion-card ya es una columna, ver theme/_components.scss)
-.trip-card ion-card-content {
-  gap: 0.75rem; // 12px
+.trip-card__link {
+  display: block;
+  border-radius: var(--radius-s);
+  color: inherit;
+  text-decoration: none;
 
-  ion-button {
-    margin: var(--space-xs) 0 0;
+  &:focus-visible {
+    outline: var(--border-width-l) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+
+  &:hover .trip-card {
+    --background: var(--color-surface-subtle);
   }
 }
 
-// Horas a la izquierda, grandes, y las plazas a la derecha
+.trip-card {
+  width: 100%;
+  margin: 0;
+}
+
+.trip-card ion-card-content {
+  gap: var(--space-base);
+}
+
+// Horas a la izquierda y plazas a la derecha
 .trip-card__head {
   display: flex;
   align-items: center;
@@ -21,10 +36,10 @@
   font-size: var(--font-size-title);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
+  white-space: nowrap;
 }
 
-// Plazas libres en verde; la última, como chip naranja con texto negro (el
-// naranja como texto pequeño no llega al contraste mínimo)
+// Plazas libres en verde; la última, como chip naranja con texto negro
 .trip-card__seats {
   color: var(--color-eco-text);
   font-size: var(--font-size-body-s);
@@ -40,7 +55,24 @@
 }
 
 .trip-card__route {
+  overflow: hidden;
   font-size: var(--font-size-body-s);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-body-s);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trip-card__pickup {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+
+  ion-icon {
+    flex: 0 0 auto;
+    font-size: 1rem; // 16px
+  }
 }

@@ -12,6 +12,9 @@ import {
   IonIcon,
   IonModal,
   IonRouterLink,
+  IonLabel,
+  IonSegment,
+  IonSegmentButton,
   IonSpinner,
   IonTitle,
   IonToolbar,
@@ -33,6 +36,8 @@ import { MARGINS } from '../trip-search';
 import { TripSearchForm } from '../trip-search-form/trip-search-form';
 import { TripSearchStateService } from '../trip-search-state.service';
 
+type SearchSortOrder = 'arrival' | 'detour';
+
 // «Tu búsqueda»: los viajes que encajan con la búsqueda hecha en Buscar. Arriba,
 // fija, el resumen (de dónde a dónde, cuándo y cuántas plazas) con «Editar
 // búsqueda», que vuelve al formulario relleno. Mientras busca, los puntos de
@@ -53,6 +58,9 @@ import { TripSearchStateService } from '../trip-search-state.service';
     IonIcon,
     IonModal,
     IonRouterLink,
+    IonLabel,
+    IonSegment,
+    IonSegmentButton,
     IonSpinner,
     IonTitle,
     IonToolbar,
@@ -80,6 +88,18 @@ export class SearchResultsPage {
   });
 
   readonly trips = computed(() => (this.results.hasValue() ? this.results.value() : []));
+  readonly sortOrder = signal<SearchSortOrder>('arrival');
+  readonly sortedTrips = computed(() => {
+    const trips = [...this.trips()];
+    if (this.sortOrder() === 'detour') {
+      return trips.sort(
+        (left, right) =>
+          left.pickupDetourMinutes - right.pickupDetourMinutes ||
+          Date.parse(left.arrivalAt) - Date.parse(right.arrivalAt),
+      );
+    }
+    return trips.sort((left, right) => Date.parse(left.arrivalAt) - Date.parse(right.arrivalAt));
+  });
   // «Hemos tenido un problema…», con la referencia si es un error del servidor
   readonly errorMessage = computed(() => {
     const error = this.results.error();
@@ -137,5 +157,11 @@ export class SearchResultsPage {
 
   handleRetry(): void {
     this.results.reload();
+  }
+
+  handleSortChange(value: string | number | undefined): void {
+    if (value === 'arrival' || value === 'detour') {
+      this.sortOrder.set(value);
+    }
   }
 }

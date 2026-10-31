@@ -66,13 +66,20 @@ export function toTripResult(match: TripMatch, search: TripSearch): TripResult {
   const isToCampus = search.direction === 'to-campus';
   return {
     id: match.id,
+    direction: search.direction,
+    arrivalAt: match.arrivalAt,
     departureTime: formatTime(match.departureAt),
     arrivalTime: formatTime(match.arrivalAt),
     origin: isToCampus ? search.place.name : campus,
     destination: isToCampus ? campus : search.place.name,
-    driver: { name: match.driver.name, isEmailVerified: true },
+    driver: {
+      name: match.driver.name,
+      avatarKey: match.driver.avatarKey,
+      isEmailVerified: true,
+    },
     freeSeats: match.availableSeats,
     pickupDetourMinutes: match.detourMin,
+    passengerStop: search.place.name,
     vehicle: match.vehicle,
   };
 }

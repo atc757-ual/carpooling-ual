@@ -11,6 +11,7 @@ import { PARKING_P1, ROQUETAS } from '../trip-search.testing';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { TripDetailPage } from './trip-detail.page';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
+import { AvatarsService } from '../../../core/services/users/avatars.service';
 
 const SEARCH: TripSearch = {
   place: ROQUETAS,
@@ -25,13 +26,16 @@ const SEARCH: TripSearch = {
 // Un viaje de los resultados de esa búsqueda
 const RESULT: TripResult = {
   id: 't1',
+  direction: 'to-campus',
+  arrivalAt: '2026-10-27T08:12:00.000Z',
   departureTime: '07:40',
   arrivalTime: '08:12',
   origin: 'Roquetas de Mar',
   destination: 'Campus UAL · Parking P1',
-  driver: { name: 'Lucía Cortés', isEmailVerified: true },
+  driver: { name: 'Lucía Cortés', avatarKey: null, isEmailVerified: true },
   freeSeats: 2,
   pickupDetourMinutes: 3,
+  passengerStop: ROQUETAS.name,
   vehicle: { brand: 'Seat', model: 'Ibiza', color: 'white' },
 };
 
@@ -71,6 +75,7 @@ describe('TripDetailPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
         { provide: SeatRequestsService, useValue: requests },
         { provide: ToastService, useValue: { showError } },
       ],

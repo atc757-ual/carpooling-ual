@@ -308,6 +308,10 @@
   .trip-row { display: flex; flex-direction: column; gap: var(--space-s); padding: var(--space-base) 0; border-bottom: var(--border-width) solid var(--color-border-subtle); }
   .trip-row__head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-s); }
   .trip-row__times { font-family: var(--font-family-heading); font-size: var(--font-size-title); line-height: var(--line-height-title); font-weight: 600; }
+  .search-trip-card { display: flex; flex-direction: column; gap: var(--space-base); padding: var(--space-base); border: var(--border-width) solid var(--color-border-subtle); border-radius: var(--radius-l); background: var(--color-surface); color: var(--color-text); text-decoration: none; }
+  .search-trip-card__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-s); }
+  .search-trip-card__route { overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+  .search-trip-card__pickup { color: var(--color-text-muted); font-size: var(--font-size-meta); }
 
   .notice { display: flex; gap: var(--space-s); padding: var(--space-m) var(--space-base); border-radius: var(--radius-base); font-size: var(--font-size-label); line-height: var(--line-height-label); }
   .notice b { display: block; }
@@ -662,14 +666,24 @@
         </div>
       </div>
       <div class="stack">
-        <h4>TripRow (resultados y Tus viajes)</h4>
+        <h4>TripRow (Tus viajes)</h4>
         <div class="trip-row">
           <div class="trip-row__head"><span class="trip-row__times">07:40 → 08:12</span><span class="text-label text-label--strong" style="color:var(--color-eco-text)">2 plazas</span></div>
           <span class="text-label text-label--strong">Roquetas de Mar → Campus UAL · La Cañada</span>
           <div class="person"><span class="avatar" aria-hidden="true">LC</span><div class="person__body"><div class="text-label text-label--strong">Lucía Cortés</div><div class="text-meta">42 viajes · Correo UAL verificado</div></div><span class="rating">★ 4,8</span></div>
           <span class="text-meta">Desvío de recogida: 3 min · Av. Carlos III, 112</span>
         </div>
-        <p class="note">Filas separadas por una línea, sin tarjeta ni sombra. «Última plaza» en naranja; «Fuera de tu margen» como grupo aparte.</p>
+        <p class="note">En Tus viajes, filas separadas por una línea. «Última plaza» en naranja; «Fuera de tu margen» como grupo aparte.</p>
+      </div>
+      <div class="stack">
+        <h4>SearchTripCard (resultados de Buscar)</h4>
+        <a class="search-trip-card" href="#resultados" aria-label="Ver viaje de Lucía">
+          <div class="search-trip-card__head"><span class="trip-row__times">07:40 → 08:25</span><span class="text-label text-label--strong" style="color:var(--color-eco-text)">2 plazas</span></div>
+          <span class="search-trip-card__route">Roquetas de Mar → Campus UAL · Parking P1</span>
+          <div class="person"><span class="avatar" aria-hidden="true">LC</span><div class="person__body"><div class="text-label text-label--strong">Lucía Cortés</div><div class="text-meta">Nuevo conductor · Correo UAL verificado</div></div></div>
+          <span class="search-trip-card__pickup">⌖ Desvío de 3 min para recogerte · Av. Carlos III, 12</span>
+        </a>
+        <p class="note">La tarjeta completa lleva al detalle. El orden se cambia con un <code>ion-segment</code> pequeño; por defecto, llegada más temprana. «Menos desvío» ordena por el desvío y usa la llegada para desempatar.</p>
       </div>
     </div>
 

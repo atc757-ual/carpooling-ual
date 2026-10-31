@@ -12,7 +12,7 @@ function tripMatch() {
     '@type': 'TripMatch',
     id: 't1',
     href: '/api/trips/t1',
-    driver: { id: 'd1', name: 'Lucía Cortés' },
+    driver: { id: 'd1', name: 'Lucía Cortés', avatarKey: 'sun' },
     departureAt: new Date(arrival.getTime() - 32 * 60_000).toISOString(),
     arrivalAt: arrival.toISOString(),
     availableSeats: 2,
@@ -72,6 +72,15 @@ for (const viewport of VIEWPORTS) {
     beforeEach(() => {
       cy.viewport(viewport.width, viewport.height);
       cy.intercept('POST', '/api/trips/search', [tripMatch()]).as('search');
+      cy.intercept('GET', '/api/avatars', [
+        {
+          '@type': 'Avatar',
+          id: 'sun',
+          href: '/api/avatars/sun',
+          name: 'Sol',
+          svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="20" /></svg>',
+        },
+      ]);
       // Aún sin solicitudes de plaza
       cy.intercept('GET', '/api/users/me/requests*', []);
       logIn(['passenger']);
@@ -86,6 +95,13 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-search-results', '1 en tu margen').should('be.visible');
       cy.contains('app-search-results app-trip-result-card', 'Lucía Cortés').should('be.visible');
       cy.contains('app-search-results app-trip-result-card', '07:20 → 07:52').should('be.visible');
+      cy.contains('app-search-results app-trip-result-card', 'Nuevo conductor').should(
+        'be.visible',
+      );
+      cy.contains(
+        'app-search-results app-trip-result-card',
+        'Desvío de 3 min para recogerte',
+      ).should('be.visible');
     });
 
     it('requests a seat from the trip and shows it pending', () => {
@@ -102,10 +118,7 @@ for (const viewport of VIEWPORTS) {
         },
       }).as('request');
       searchTrips('Roquetas de Mar');
-      cy.contains(
-        'app-search-results app-trip-result-card ion-button',
-        'Ver viaje de Lucía',
-      ).click();
+      cy.get('app-search-results app-trip-result-card .trip-card__link').click();
 
       cy.contains('app-trip-detail ion-button', 'Solicitar 1 plaza').click();
 
@@ -119,10 +132,7 @@ for (const viewport of VIEWPORTS) {
     it('opens a trip and comes back to the same search', () => {
       searchTrips('Roquetas de Mar');
 
-      cy.contains(
-        'app-search-results app-trip-result-card ion-button',
-        'Ver viaje de Lucía',
-      ).click();
+      cy.get('app-search-results app-trip-result-card .trip-card__link').click();
 
       cy.location('pathname').should('eq', '/tabs/search/trips/t1');
       // El mismo viaje de la búsqueda, con quien conduce y cómo se pide plaza
