@@ -150,7 +150,14 @@ for (const viewport of VIEWPORTS) {
 
       cy.contains('app-trip-detail ion-button', 'Solicitar 1 plaza').click();
 
-      cy.wait('@request').its('request.body').should('deep.equal', { seats: 1 });
+      cy.wait('@request')
+        .its('request.body')
+        .should('deep.equal', {
+          seats: 1,
+          direction: 'to-campus',
+          pickupLocation: { type: 'Point', coordinates: [-2.46, 36.84] },
+          pickupName: 'Roquetas de Mar',
+        });
       cy.contains('app-trip-detail', 'Solicitud enviada. Falta la respuesta de Lucía.').should(
         'be.visible',
       );
