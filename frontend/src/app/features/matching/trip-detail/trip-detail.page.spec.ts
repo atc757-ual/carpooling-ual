@@ -44,6 +44,8 @@ function seatRequest(status: SeatRequest['status'], plate: string | null = null)
     status,
     seats: 2,
     requestedAt: '2026-10-27T06:00:00.000Z',
+    answeredAt: null,
+    cancelledAt: null,
     vehiclePlate: plate,
   };
 }

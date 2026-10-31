@@ -62,7 +62,7 @@ export class RequestsController {
   @ApiOperation({
     summary: 'Request a seat in a trip',
     description:
-      'RF-08. For the passenger and their companions (1 seat by default, up to 4). The trip must be published or confirmed, not yet departed, with enough seats left and not your own.',
+      'RF-08. For the passenger and their companions (1 seat by default, up to 4). A passenger may have at most three pending requests whose trip schedules overlap. The trip must be published or confirmed, not yet departed, with enough seats left and not your own.',
   })
   @ApiParam({ name: 'tripId', format: 'uuid' })
   @ApiCreatedResponse({
@@ -79,6 +79,7 @@ export class RequestsController {
       'TRIP_FULL',
       'CANNOT_REQUEST_OWN_TRIP',
       'REQUEST_ALREADY_EXISTS',
+      'TOO_MANY_PENDING_REQUESTS',
       'REQUESTING_SUSPENDED',
     ],
   })

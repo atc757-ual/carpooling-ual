@@ -45,6 +45,12 @@ export class SeatRequest {
   })
   status: RequestStatus;
 
+  @Column({ name: 'answered_at', type: 'timestamptz', nullable: true })
+  answeredAt: Date | null;
+
+  @Column({ name: 'cancelled_at', type: 'timestamptz', nullable: true })
+  cancelledAt: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

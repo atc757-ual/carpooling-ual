@@ -30,7 +30,7 @@ export class NotificationResource {
   @ApiProperty({
     enum: NOTIFICATION_TYPES,
     description:
-      'request_received (to the driver), request_accepted, request_rejected and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), incident_reported (to the administrators)',
+      'request_received (to the driver), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), incident_reported (to the administrators)',
   })
   type: NotificationType;
 

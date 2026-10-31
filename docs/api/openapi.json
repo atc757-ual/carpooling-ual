@@ -2855,7 +2855,7 @@
     },
     "/api/trips/{tripId}/requests": {
       "post": {
-        "description": "RF-08. For the passenger and their companions (1 seat by default, up to 4). The trip must be published or confirmed, not yet departed, with enough seats left and not your own.",
+        "description": "RF-08. For the passenger and their companions (1 seat by default, up to 4). A passenger may have at most three pending requests whose trip schedules overlap. The trip must be published or confirmed, not yet departed, with enough seats left and not your own.",
         "operationId": "RequestsController_request",
         "parameters": [
           {
@@ -2935,7 +2935,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: TRIP_NOT_OPEN, TRIP_FULL, CANNOT_REQUEST_OWN_TRIP, REQUEST_ALREADY_EXISTS, REQUESTING_SUSPENDED",
+            "description": "TMF630 error: TRIP_NOT_OPEN, TRIP_FULL, CANNOT_REQUEST_OWN_TRIP, REQUEST_ALREADY_EXISTS, TOO_MANY_PENDING_REQUESTS, REQUESTING_SUSPENDED",
             "content": {
               "application/json": {
                 "schema": {
@@ -6311,6 +6311,18 @@
             "type": "string",
             "format": "date-time"
           },
+          "answeredAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the driver accepted or rejected the request"
+          },
+          "cancelledAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the request was cancelled"
+          },
           "vehiclePlate": {
             "type": "string",
             "nullable": true,
@@ -6328,6 +6340,8 @@
           "seats",
           "isPriority",
           "requestedAt",
+          "answeredAt",
+          "cancelledAt",
           "vehiclePlate"
         ]
       },
@@ -6395,12 +6409,13 @@
               "request_accepted",
               "request_rejected",
               "request_cancelled",
+              "request_conflict_cancelled",
               "trip_cancelled",
               "passenger_left",
               "trip_started",
               "incident_reported"
             ],
-            "description": "request_received (to the driver), request_accepted, request_rejected and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), incident_reported (to the administrators)"
+            "description": "request_received (to the driver), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), incident_reported (to the administrators)"
           },
           "trip": {
             "$ref": "#/components/schemas/NotificationLinkResource"

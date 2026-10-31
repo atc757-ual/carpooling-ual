@@ -6,6 +6,8 @@ import { TripsModule } from '../trips/trips.module';
 import { UsersModule } from '../users/users.module';
 import { SeatRequest } from './entities/seat-request.entity';
 import { RequestChangesRecorder } from './request-changes';
+import { RequestAcceptanceListener } from './request-acceptance.listener';
+import { RequestOverlapService } from './request-overlap.service';
 import { RequestsController } from './requests.controller';
 import { RequestViewsService } from './request-views.service';
 import { RequestsService } from './requests.service';
@@ -28,6 +30,8 @@ import { TripChangesListener } from './trip-changes.listener';
     RequestsService,
     RequestViewsService,
     RequestChangesRecorder,
+    RequestOverlapService,
+    RequestAcceptanceListener,
     TripChangesListener,
   ],
   // Lo usan las incidencias (el pasajero abandona un viaje en curso)

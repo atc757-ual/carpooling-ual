@@ -5,6 +5,7 @@ export type NotificationType =
   | 'request_accepted'
   | 'request_rejected'
   | 'request_cancelled'
+  | 'request_conflict_cancelled'
   | 'trip_cancelled'
   | 'passenger_left'
   | 'trip_started'

@@ -14,6 +14,17 @@ export interface RequestNotice {
   type: NotificationType;
 }
 
+export interface RequestChange {
+  type: RequestEventType;
+  request: SeatRequest;
+  trip: Trip;
+}
+
+export type RequestChangeListener = (
+  manager: EntityManager,
+  change: RequestChange,
+) => Promise<void>;
+
 // Reglas fijas de aviso (RF-19) para cada cambio de una solicitud: se avisa a
 // la otra parte, nunca a quien hizo el cambio. Una cancelación se distingue
 // por el estado del viaje:
@@ -55,10 +66,16 @@ export function noticeFor(
 // otra parte. Lo comparten RequestsService y TripChangesListener
 @Injectable()
 export class RequestChangesRecorder {
+  private readonly listeners: RequestChangeListener[] = [];
+
   constructor(
     private readonly eventsService: EventsService,
     private readonly notificationsService: NotificationsService,
   ) {}
+
+  onRequestChanged(listener: RequestChangeListener): void {
+    this.listeners.push(listener);
+  }
 
   async record(
     manager: EntityManager,
@@ -76,6 +93,8 @@ export class RequestChangesRecorder {
         isPriority: request.isPriority,
         requestedAt: request.requestedAt.toISOString(),
         status: request.status,
+        answeredAt: request.answeredAt?.toISOString() ?? null,
+        cancelledAt: request.cancelledAt?.toISOString() ?? null,
       },
     });
     const notice = noticeFor(type, request, trip);
@@ -84,5 +103,43 @@ export class RequestChangesRecorder {
       tripId: trip.id,
       requestId: request.id,
     });
+    await Promise.all(
+      this.listeners.map((listener) =>
+        listener(manager, { type, request, trip }),
+      ),
+    );
+  }
+
+  async recordOverlapCancellation(
+    manager: EntityManager,
+    request: SeatRequest,
+    trip: Trip,
+  ): Promise<void> {
+    await this.eventsService.record(manager, {
+      type: 'request.cancelled',
+      sourceEntityId: request.id,
+      payload: {
+        tripId: request.tripId,
+        passengerId: request.passengerId,
+        seats: request.seats,
+        isPriority: request.isPriority,
+        requestedAt: request.requestedAt.toISOString(),
+        status: request.status,
+        answeredAt: request.answeredAt?.toISOString() ?? null,
+        cancelledAt: request.cancelledAt?.toISOString() ?? null,
+      },
+    });
+    await Promise.all([
+      this.notificationsService.notify(manager, [request.passengerId], {
+        type: 'request_conflict_cancelled',
+        tripId: trip.id,
+        requestId: request.id,
+      }),
+      this.notificationsService.notify(manager, [trip.driverId], {
+        type: 'request_cancelled',
+        tripId: trip.id,
+        requestId: request.id,
+      }),
+    ]);
   }
 }

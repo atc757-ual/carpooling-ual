@@ -66,12 +66,14 @@ describe('Seat requests API (e2e)', () => {
   // Conductor listo con un viaje publicado de offeredSeats plazas
   async function driverWithTrip(
     offeredSeats = 2,
+    driverName = 'dan',
+    plate = '9801BCD',
   ): Promise<{ driver: string; tripId: string }> {
-    const driver = await tokenFor('dan', ['driver']);
+    const driver = await tokenFor(driverName, ['driver']);
     await api('put', '/users/me/driver-declaration', driver).expect(200);
     const vehicle = await api('post', '/vehicles', driver)
       .send({
-        plate: '9801BCD',
+        plate,
         capacity: 4,
         brand: 'Seat',
         model: 'Ibiza',
@@ -124,6 +126,8 @@ describe('Seat requests API (e2e)', () => {
       seats: 1,
       isPriority: false,
       requestedAt: expect.any(String) as string,
+      answeredAt: null,
+      cancelledAt: null,
       vehiclePlate: null,
     });
     expect(created.headers.location).toBe(`/api/requests/${seatRequest.id}`);
@@ -149,6 +153,26 @@ describe('Seat requests API (e2e)', () => {
       status: 'published',
       availableSeats: 2,
     });
+  });
+
+  it('returns 409 TOO_MANY_PENDING_REQUESTS after three overlapping requests', async () => {
+    const passenger = await tokenFor('pia', ['passenger']);
+    const trips = await Promise.all(
+      ['dan-a', 'dan-b', 'dan-c', 'dan-d'].map((name, index) =>
+        driverWithTrip(2, name, `98${index}1BCD`),
+      ),
+    );
+    for (const { tripId } of trips.slice(0, 3)) {
+      await requestSeat(passenger, tripId);
+    }
+
+    const response = await api(
+      'post',
+      `/trips/${trips[3].tripId}/requests`,
+      passenger,
+    ).expect(409);
+
+    expect(response.body).toMatchObject({ code: 'TOO_MANY_PENDING_REQUESTS' });
   });
 
   it('requests several seats: they are taken and given back together', async () => {
