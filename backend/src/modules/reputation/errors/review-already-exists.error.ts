@@ -15,4 +15,3 @@ export class ReviewAlreadyExistsError extends BusinessError {
     );
   }
 }
-

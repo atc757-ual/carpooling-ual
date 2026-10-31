@@ -28,4 +28,3 @@ export class ListReviewsQueryDto extends PaginationQueryDto {
   @IsIn(REVIEW_TARGET_ROLES)
   role?: ReviewTargetRole;
 }
-

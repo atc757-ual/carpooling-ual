@@ -110,4 +110,3 @@ export function toReviewResource({
     publishedAt: review.publishedAt?.toISOString() ?? null,
   };
 }
-

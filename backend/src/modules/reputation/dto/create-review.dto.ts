@@ -53,4 +53,3 @@ export class CreateReviewDto {
   @MaxLength(MAX_REVIEW_COMMENT_LENGTH)
   comment?: string | null;
 }
-

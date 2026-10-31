@@ -113,4 +113,3 @@ export class ReputationController {
     return pending.map(toPendingReviewTripResource);
   }
 }
-

@@ -109,4 +109,3 @@ export class AddReviews1794700000000 implements MigrationInterface {
     `);
   }
 }
-
