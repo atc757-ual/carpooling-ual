@@ -180,10 +180,10 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/tabs/search');
       cy.get('app-trip-search app-place-field input').should('have.value', 'Roquetas de Mar');
 
-      cy.contains('app-trip-search ion-button', 'Nueva búsqueda').click();
+      cy.contains('app-trip-search .search-form__new', 'Nueva búsqueda').click();
 
       cy.get('app-trip-search app-place-field input').should('have.value', '');
-      cy.contains('app-trip-search ion-button', 'Nueva búsqueda').should('not.exist');
+      cy.contains('app-trip-search .search-form__new', 'Nueva búsqueda').should('not.exist');
     });
 
     it('shows the search card with the questions', () => {

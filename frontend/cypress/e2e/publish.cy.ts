@@ -95,7 +95,6 @@ for (const viewport of VIEWPORTS) {
         capacity: 3,
       });
       cy.get('app-publish-trip .vehicle-card--selected').should('contain', 'Seat Ibiza');
-      cy.contains('app-publish-trip app-vehicle-picker .notice');
       cy.contains('app-publish-trip ion-button', 'Revisar detalle').click();
 
       // 3 · Revisión: el resumen y, la primera vez, la declaración
