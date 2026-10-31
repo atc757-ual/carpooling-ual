@@ -1,15 +1,22 @@
-import { Component, computed, forwardRef, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  ElementRef,
+  forwardRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IonIcon, IonInput } from '@ionic/angular';
 import { searchOutline } from 'ionicons/icons';
-import { Combobox, ComboboxState } from '../combobox/combobox';
 import { VEHICLE_BRANDS } from '../../../utils/vehicle-brands';
 
 const OTHER_BRAND = 'Otra';
 
 @Component({
   selector: 'app-brand-field',
-  imports: [Combobox, IonIcon, IonInput],
+  imports: [IonIcon, IonInput],
   templateUrl: './brand-field.html',
   styleUrl: './brand-field.scss',
   providers: [
@@ -21,10 +28,11 @@ const OTHER_BRAND = 'Otra';
   ],
 })
 export class BrandField implements ControlValueAccessor {
+  private readonly inputHost = inject<ElementRef<HTMLElement>>(ElementRef);
+  protected readonly brandListId = `vehicle-brand-list-${nextListId++}`;
   protected readonly searchIcon = searchOutline;
   protected readonly value = signal('');
   protected readonly query = signal('');
-  protected readonly searchActive = signal(false);
   protected readonly otherMode = signal(false);
   protected readonly disabled = signal(false);
   protected readonly filteredBrands = computed(() => {
@@ -32,15 +40,14 @@ export class BrandField implements ControlValueAccessor {
     const matches = VEHICLE_BRANDS.filter((brand) => normalize(brand).includes(search));
     return [...matches, OTHER_BRAND];
   });
-  protected readonly combobox = new ComboboxState(
-    () => this.filteredBrands().length,
-    (index) => this.chooseBrand(this.filteredBrands()[index]),
-  );
-
   private onChange: (value: string) => void = () => undefined;
   protected onTouched: () => void = () => undefined;
 
-  writeValue(value: string | null): void {
+  constructor() {
+    afterNextRender(() => void this.setNativeInputList(this.brandListId));
+  }
+
+  writeValue(value: string | null = ''): void {
     const brand = value ?? '';
     this.value.set(brand);
     this.query.set(brand);
@@ -59,47 +66,31 @@ export class BrandField implements ControlValueAccessor {
     this.disabled.set(disabled);
   }
 
-  protected activateSearch(): void {
-    if (!this.disabled() && !this.otherMode()) {
-      this.searchActive.set(true);
-      this.combobox.reset();
-    }
-  }
-
   protected updateQuery(value: string | number | null | undefined): void {
     const query = String(value ?? '').trimStart();
-    this.query.set(query);
+    const selectedBrand = findKnownBrand(query);
     if (this.otherMode()) {
+      this.query.set(query);
       this.value.set(query);
       this.onChange(query);
-    } else {
-      this.value.set('');
-      this.onChange('');
-      this.searchActive.set(true);
-      this.combobox.reset();
-    }
-  }
-
-  protected chooseBrand(brand: string): void {
-    this.searchActive.set(false);
-    if (brand === OTHER_BRAND) {
-      this.otherMode.set(true);
-      this.value.set('');
-      this.query.set('');
-      this.onChange('');
-    } else {
+    } else if (selectedBrand) {
       this.otherMode.set(false);
-      this.value.set(brand);
-      this.query.set(brand);
-      this.onChange(brand);
+      this.query.set(selectedBrand);
+      this.value.set(selectedBrand);
+      this.onChange(selectedBrand);
+    } else if (normalize(query) === normalize(OTHER_BRAND)) {
+      this.otherMode.set(true);
+      this.query.set('');
+      this.value.set('');
+      this.onChange('');
+    } else {
+      this.query.set(query);
+      this.value.set('');
+      this.onChange('');
     }
-    this.combobox.dismiss();
-    this.onTouched();
   }
 
   protected handleBlur(): void {
-    this.searchActive.set(false);
-    this.combobox.dismiss();
     this.onTouched();
   }
 
@@ -108,13 +99,27 @@ export class BrandField implements ControlValueAccessor {
     this.value.set('');
     this.query.set('');
     this.onChange('');
-    this.searchActive.set(true);
-    this.combobox.reset();
+  }
+
+  private async setNativeInputList(listId: string): Promise<void> {
+    const ionInput = this.inputHost.nativeElement.querySelector('ion-input');
+    if (!ionInput) {
+      return;
+    }
+    const inputElement = ionInput as HTMLIonInputElement;
+    const input = await inputElement.getInputElement();
+    input.setAttribute('list', listId);
   }
 }
 
+let nextListId = 0;
+
 function isKnownBrand(brand: string): boolean {
-  return VEHICLE_BRANDS.some((knownBrand) => normalize(knownBrand) === normalize(brand));
+  return findKnownBrand(brand) !== undefined;
+}
+
+function findKnownBrand(brand: string): string | undefined {
+  return VEHICLE_BRANDS.find((knownBrand) => normalize(knownBrand) === normalize(brand));
 }
 
 function normalize(value: string): string {

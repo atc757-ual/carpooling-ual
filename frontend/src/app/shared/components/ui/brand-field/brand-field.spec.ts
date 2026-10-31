@@ -15,34 +15,29 @@ describe('BrandField', () => {
     await fixture.whenStable();
   });
 
-  it('starts closed and shows the local brand options when the search is activated', async () => {
+  it('starts closed and exposes the local brands through a native datalist', async () => {
     expect(fixture.nativeElement.querySelector('.brand-field__dropdown')).toBeNull();
-
-    input().click();
-    fixture.detectChanges();
+    const datalist = fixture.nativeElement.querySelector('datalist') as HTMLDataListElement;
+    expect(datalist.options.length).toBeGreaterThan(50);
+    expect(datalist.options.item(datalist.options.length - 1)?.value).toBe('Otra');
     await fixture.whenStable();
-
-    const options = Array.from(
-      fixture.nativeElement.querySelectorAll('[role="option"]'),
-    ) as HTMLElement[];
-    expect(options.length).toBeGreaterThan(50);
-    expect(options.at(-1)?.textContent?.trim()).toBe('Otra');
+    await new Promise((resolve) => setTimeout(resolve));
+    expect((await input().getInputElement()).getAttribute('list')).toBe(datalist.id);
   });
 
   it('filters brands and sends the selected brand through ControlValueAccessor', async () => {
     const changes: string[] = [];
     const change = vi.fn((value: string) => changes.push(value));
     component.registerOnChange(change);
-    input().click();
-    sendInput('seat');
+    sendInput('sea');
     fixture.detectChanges();
     await fixture.whenStable();
 
     const options = Array.from(
-      fixture.nativeElement.querySelectorAll('[role="option"]'),
-    ) as HTMLElement[];
-    expect(options.map((option) => option.textContent?.trim())).toEqual(['SEAT', 'Otra']);
-    options[0].click();
+      fixture.nativeElement.querySelectorAll('datalist option'),
+    ) as HTMLOptionElement[];
+    expect(options.map((option) => option.value)).toEqual(['SEAT', 'Otra']);
+    sendInput('SEAT');
     fixture.detectChanges();
 
     expect(changes).toEqual(['', 'SEAT']);
@@ -53,13 +48,7 @@ describe('BrandField', () => {
   it('allows a free-text brand after choosing Otra', async () => {
     const changes: string[] = [];
     component.registerOnChange((value) => changes.push(value));
-    input().click();
-    fixture.detectChanges();
-    const options = Array.from(
-      fixture.nativeElement.querySelectorAll('[role="option"]'),
-    ) as HTMLElement[];
-    options.at(-1)?.click();
-    fixture.detectChanges();
+    sendInput('Otra');
 
     expect(input().placeholder).toBe('Escribe la marca');
     sendInput('Rivian');
