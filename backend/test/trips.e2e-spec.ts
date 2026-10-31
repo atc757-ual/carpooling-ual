@@ -7,6 +7,7 @@ import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { deleteTestUsers } from './support/cleanup';
 import { registerUser } from './support/accounts';
+import { publishableDeparture } from './support/trips';
 
 // Viajes (RF-04, RF-05) de punta a punta. Los usuarios llevan el prefijo
 // EMAIL_PREFIX; sus viajes y eventos se borran antes que ellos
@@ -78,12 +79,17 @@ describe('Trips API (e2e)', () => {
     return { token, vehicleId: (vehicle.body as { id: string }).id };
   }
 
-  function tripBody(vehicleId: string, overrides: object = {}): object {
+  function tripBody(
+    vehicleId: string,
+    overrides: { departureAt?: Date | string } & Record<string, unknown> = {},
+  ): object {
     return {
       vehicleId,
       origin: ALMERIA_CENTRE,
       destination: UAL_CAMPUS,
-      departureAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      departureAt:
+        overrides.departureAt?.toString() ??
+        new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       offeredSeats: 3,
       ...overrides,
     };
@@ -92,9 +98,15 @@ describe('Trips API (e2e)', () => {
   async function publishTrip(
     token: string,
     vehicleId: string,
+    departureAt?: Date,
   ): Promise<{ id: string; href: string }> {
     const response = await api('post', '/trips', token)
-      .send(tripBody(vehicleId))
+      .send(
+        tripBody(
+          vehicleId,
+          departureAt ? { departureAt: departureAt.toISOString() } : {},
+        ),
+      )
       .expect(201);
     return response.body as { id: string; href: string };
   }
@@ -177,6 +189,66 @@ describe('Trips API (e2e)', () => {
 
       expect(response.body).toMatchObject({ code: 'PROFILE_REQUIRED' });
     });
+
+    it('rejects overlapping trips and allows a trip whose interval starts at the previous end', async () => {
+      const { token, vehicleId } = await readyDriver('overlap');
+      const departureAt = publishableDeparture();
+      const first = await publishTrip(token, vehicleId, departureAt);
+      const overlap = await api('post', '/trips', token)
+        .send(
+          tripBody(vehicleId, {
+            departureAt: new Date(
+              departureAt.getTime() + 5 * 60_000,
+            ).toISOString(),
+          }),
+        )
+        .expect(409);
+      expect(overlap.body).toMatchObject({ code: 'TRIP_OVERLAPS' });
+
+      const [{ duration_min: durationMin }] = await dataSource.query<
+        { duration_min: number }[]
+      >('SELECT duration_min FROM routes WHERE trip_id = $1', [first.id]);
+      const nextDeparture = new Date(
+        departureAt.getTime() + (durationMin + 10) * 60_000,
+      );
+      const nextTrip = await publishTrip(token, vehicleId, nextDeparture);
+      expect(nextTrip.id).toMatch(/^[0-9a-f-]{36}$/i);
+    });
+
+    it('limits a driver to four non-cancelled trips per Madrid calendar day', async () => {
+      const { token, vehicleId } = await readyDriver('daily-limit');
+      const base = publishableDeparture();
+      base.setDate(base.getDate() + 1);
+      base.setHours(8, 0, 0, 0);
+      const trips = [];
+      for (let index = 0; index < 4; index += 1) {
+        trips.push(
+          await publishTrip(
+            token,
+            vehicleId,
+            new Date(base.getTime() + index * 60 * 60_000),
+          ),
+        );
+      }
+      const fifth = await api('post', '/trips', token)
+        .send(
+          tripBody(vehicleId, {
+            departureAt: new Date(
+              base.getTime() + 4 * 60 * 60_000,
+            ).toISOString(),
+          }),
+        )
+        .expect(409);
+      expect(fifth.body).toMatchObject({ code: 'DAILY_TRIP_LIMIT' });
+
+      await api('post', `/trips/${trips[0].id}/cancel`, token).expect(200);
+      const replacementTrip = await publishTrip(
+        token,
+        vehicleId,
+        new Date(base.getTime() + 4 * 60 * 60_000),
+      );
+      expect(replacementTrip.id).toMatch(/^[0-9a-f-]{36}$/i);
+    });
   });
 
   describe('GET /api/trips/{id} and /api/users/me/trips', () => {
@@ -208,8 +280,13 @@ describe('Trips API (e2e)', () => {
 
     it('lists my trips with the TMF pagination headers', async () => {
       const { token, vehicleId } = await readyDriver('ana');
-      await publishTrip(token, vehicleId);
-      await publishTrip(token, vehicleId);
+      const firstDeparture = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      await publishTrip(token, vehicleId, firstDeparture);
+      await publishTrip(
+        token,
+        vehicleId,
+        new Date(firstDeparture.getTime() + 60 * 60 * 1000),
+      );
 
       const response = await api(
         'get',

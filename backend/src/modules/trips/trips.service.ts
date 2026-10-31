@@ -17,7 +17,7 @@ import { DailyTripLimitError } from './errors/daily-trip-limit.error';
 import { TripNotFoundError } from './errors/trip-not-found.error';
 import { TripNotInProgressError } from './errors/trip-not-in-progress.error';
 import { TripNotStartableYetError } from './errors/trip-not-startable-yet.error';
-import { assertNoOverlap, DAILY_TRIP_LIMIT } from './publishing-limits';
+import { assertNoOverlap, MAX_TRIPS_PER_DAY } from './publishing-limits';
 import {
   isLateDriverCancellation,
   LateCancellationsService,
@@ -100,44 +100,15 @@ export class TripsService {
     const trip = await this.dataSource.transaction(async (manager) => {
       // Serializa las publicaciones del conductor: sin este bloqueo, dos
       // peticiones simultáneas podrían superar tanto el límite como el cruce.
-      await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [driverId]);
-      const dayStart = new Date(input.departureAt);
-      dayStart.setUTCHours(0, 0, 0, 0);
-      const dayEnd = new Date(dayStart);
-      dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
-      const dailyCount = await manager
-        .createQueryBuilder(Trip, 'trip')
-        .where('trip.driverId = :driverId', { driverId })
-        .andWhere('trip.status != :cancelled', { cancelled: 'cancelled' })
-        .andWhere('trip.departureAt >= :dayStart AND trip.departureAt < :dayEnd', {
-          dayStart,
-          dayEnd,
-        })
-        .getCount();
-      if (dailyCount >= DAILY_TRIP_LIMIT) {
-        throw new DailyTripLimitError(DAILY_TRIP_LIMIT);
-      }
-      const existing = await manager
-        .createQueryBuilder(Trip, 'trip')
-        .innerJoin('routes', 'route', 'route.trip_id = trip.id')
-        .select(['trip.id AS id', 'trip.departure_at AS "departureAt"',
-          'trip.max_detour_min AS "maxDetourMin"', 'route.duration_min AS "durationMin"'])
-        .where('trip.driverId = :driverId', { driverId })
-        .andWhere('trip.status != :cancelled', { cancelled: 'cancelled' })
-        .getRawMany<{
-          id: string;
-          departureAt: Date;
-          maxDetourMin: number;
-          durationMin: number;
-        }>();
-      assertNoOverlap(
-        {
-          id: '',
-          departureAt: input.departureAt,
-          durationMin: route.durationMin,
-          maxDetourMin: input.maxDetourMin ?? DEFAULT_MAX_DETOUR_MIN,
-        },
-        existing,
+      await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
+        driverId,
+      ]);
+      await this.assertPublishingLimits(
+        manager,
+        driverId,
+        input.departureAt,
+        route.durationMin,
+        input.maxDetourMin ?? DEFAULT_MAX_DETOUR_MIN,
       );
       const saved = await manager.save(
         manager.create(Trip, {
@@ -199,6 +170,9 @@ export class TripsService {
   ): Promise<TripView> {
     const route = await this.planChangedRoute(tripId, changes);
     const trip = await this.dataSource.transaction(async (manager) => {
+      await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [
+        driverId,
+      ]);
       const current = await this.tripStatus.lockOwnTrip(
         manager,
         driverId,
@@ -212,6 +186,16 @@ export class TripsService {
       // un viaje que sale pronto sigue permitido
       if (changes.departureAt !== undefined) {
         assertDepartureLead(changes.departureAt);
+        const currentRoute =
+          route ?? (await this.tripRoutes.getForTrip(current.id));
+        await this.assertPublishingLimits(
+          manager,
+          driverId,
+          changes.departureAt,
+          currentRoute.durationMin,
+          changes.maxDetourMin ?? current.maxDetourMin,
+          current.id,
+        );
       }
 
       Object.assign(current, changes);
@@ -358,5 +342,62 @@ export class TripsService {
     if (trip.departureAt.getTime() <= Date.now()) {
       throw new DepartureInThePastError(trip.departureAt);
     }
+  }
+
+  private async assertPublishingLimits(
+    manager: EntityManager,
+    driverId: string,
+    departureAt: Date,
+    durationMin: number,
+    maxDetourMin: number,
+    excludeTripId?: string,
+  ): Promise<void> {
+    const dailyCountQuery = manager
+      .createQueryBuilder(Trip, 'trip')
+      .where('trip.driverId = :driverId', { driverId })
+      .andWhere('trip.status != :cancelled', { cancelled: 'cancelled' })
+      .andWhere(
+        "DATE(trip.departure_at AT TIME ZONE 'Europe/Madrid') = DATE(CAST(:departureAt AS timestamptz) AT TIME ZONE 'Europe/Madrid')",
+        { departureAt },
+      );
+    const activeTripsQuery = manager
+      .createQueryBuilder(Trip, 'trip')
+      .innerJoin('routes', 'route', 'route.trip_id = trip.id')
+      .select([
+        'trip.id AS id',
+        'trip.departure_at AS "departureAt"',
+        'trip.max_detour_min AS "maxDetourMin"',
+        'route.duration_min AS "durationMin"',
+        'trip.status AS status',
+      ])
+      .where('trip.driverId = :driverId', { driverId })
+      .andWhere('trip.status IN (:...activeStatuses)', {
+        activeStatuses: ['published', 'confirmed', 'in_progress'],
+      });
+    if (excludeTripId) {
+      dailyCountQuery.andWhere('trip.id != :excludeTripId', { excludeTripId });
+      activeTripsQuery.andWhere('trip.id != :excludeTripId', { excludeTripId });
+    }
+    const dailyCount = await dailyCountQuery.getCount();
+    if (dailyCount >= MAX_TRIPS_PER_DAY) {
+      throw new DailyTripLimitError(MAX_TRIPS_PER_DAY);
+    }
+    const activeTrips = await activeTripsQuery.getRawMany<{
+      id: string;
+      departureAt: Date;
+      maxDetourMin: number;
+      durationMin: number;
+      status: 'published' | 'confirmed' | 'in_progress';
+    }>();
+    assertNoOverlap(
+      {
+        id: excludeTripId ?? '',
+        departureAt,
+        durationMin,
+        maxDetourMin,
+        status: 'published',
+      },
+      activeTrips,
+    );
   }
 }

@@ -10,6 +10,9 @@ export const START_WINDOW_MIN = 30;
 // Publicar por defecto): deja margen para cancelar sin penalización
 export const MIN_DEPARTURE_LEAD_MIN = 60;
 
+// Máximo de viajes no cancelados por conductor y día natural de Europa/Madrid
+export const MAX_TRIPS_PER_DAY = 4;
+
 // Cancelaciones tardías del conductor: con 3 en 30 días, 7 días sin publicar
 export const LATE_CANCELLATION_WINDOW_DAYS = 30;
 export const LATE_CANCELLATIONS_TO_SUSPEND = 3;

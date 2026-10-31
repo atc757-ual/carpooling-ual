@@ -1892,7 +1892,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: PUBLISHING_SUSPENDED",
+            "description": "TMF630 error: PUBLISHING_SUSPENDED, TRIP_OVERLAPS, DAILY_TRIP_LIMIT",
             "content": {
               "application/json": {
                 "schema": {
@@ -2082,7 +2082,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: TRIP_NOT_EDITABLE",
+            "description": "TMF630 error: TRIP_NOT_EDITABLE, TRIP_OVERLAPS, DAILY_TRIP_LIMIT",
             "content": {
               "application/json": {
                 "schema": {
