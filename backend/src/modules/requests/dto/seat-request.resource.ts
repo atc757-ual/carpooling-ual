@@ -62,6 +62,22 @@ export class SeatRequestResource {
 
   @ApiProperty({
     type: String,
+    format: 'date-time',
+    nullable: true,
+    description: 'When the driver accepted or rejected the request',
+  })
+  answeredAt: string | null;
+
+  @ApiProperty({
+    type: String,
+    format: 'date-time',
+    nullable: true,
+    description: 'When the request was cancelled',
+  })
+  cancelledAt: string | null;
+
+  @ApiProperty({
+    type: String,
     nullable: true,
     example: '1234BCD',
     description:
@@ -89,6 +105,8 @@ export function toSeatRequestResource({
     seats: request.seats,
     isPriority: request.isPriority,
     requestedAt: request.requestedAt.toISOString(),
+    answeredAt: request.answeredAt?.toISOString() ?? null,
+    cancelledAt: request.cancelledAt?.toISOString() ?? null,
     vehiclePlate,
   };
 }

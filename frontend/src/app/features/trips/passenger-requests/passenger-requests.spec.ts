@@ -33,6 +33,8 @@ function request(id: string, tripId: string, status: SeatRequest['status']): Sea
     isPriority: false,
     seats: 2,
     requestedAt: '2099-01-14T10:00:00.000Z',
+    answeredAt: null,
+    cancelledAt: null,
     vehiclePlate: status === 'accepted' ? '1234BCD' : null,
   };
 }

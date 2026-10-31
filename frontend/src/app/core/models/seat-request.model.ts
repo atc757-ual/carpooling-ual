@@ -13,6 +13,8 @@ export interface SeatRequest {
   // Plazas para el pasajero y sus compañeros (1-4)
   seats: number;
   requestedAt: string;
+  answeredAt: string | null;
+  cancelledAt: string | null;
   // La matrícula, solo con la solicitud aceptada
   vehiclePlate: string | null;
 }

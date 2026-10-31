@@ -22,8 +22,11 @@ import { NotTripPassengerError } from './errors/not-trip-passenger.error';
 import { RequestAlreadyExistsError } from './errors/request-already-exists.error';
 import { RequestNotFoundError } from './errors/request-not-found.error';
 import { RequestingSuspendedError } from './errors/requesting-suspended.error';
+import { TooManyPendingRequestsError } from './errors/too-many-pending-requests.error';
 import { RequestView, RequestViewsService } from './request-views.service';
 import { RequestChangesRecorder } from './request-changes';
+import { RequestOverlapService } from './request-overlap.service';
+import { MAX_OVERLAPPING_PENDING_REQUESTS } from './request-schedule';
 import { assertRequestTransition } from './request-status';
 
 // Restricción de la base de datos: una sola solicitud viva por pasajero y viaje
@@ -44,6 +47,7 @@ export class RequestsService {
     private readonly views: RequestViewsService,
     private readonly changes: RequestChangesRecorder,
     private readonly lateCancellations: LateCancellationsService,
+    private readonly overlaps: RequestOverlapService,
   ) {}
 
   // --- Pasajero
@@ -63,6 +67,7 @@ export class RequestsService {
     const isPriority =
       await this.usersService.getPassengerPriority(passengerId);
     const request = await this.dataSource.transaction(async (manager) => {
+      await this.overlaps.lockPassenger(manager, passengerId);
       const trip = await this.tripStatus.lockTrip(manager, tripId);
       this.tripStatus.assertOpenForRequests(trip);
       if (trip.driverId === passengerId) {
@@ -70,6 +75,15 @@ export class RequestsService {
       }
       if (trip.availableSeats < seats) {
         throw new TripFullError(tripId);
+      }
+      const schedule = await this.overlaps.scheduleForTrip(manager, trip);
+      const overlapping = await this.overlaps.overlappingPendingRequests(
+        manager,
+        passengerId,
+        schedule,
+      );
+      if (overlapping.length >= MAX_OVERLAPPING_PENDING_REQUESTS) {
+        throw new TooManyPendingRequestsError();
       }
       const created = await this.saveNew(manager, {
         tripId,
@@ -103,6 +117,7 @@ export class RequestsService {
 
       const wasAccepted = request.status === 'accepted';
       request.status = 'cancelled';
+      request.cancelledAt = new Date();
       const cancelled = await manager.save(request);
       if (wasAccepted) {
         await this.tripStatus.releaseSeat(manager, trip, request.seats);
@@ -157,6 +172,7 @@ export class RequestsService {
     }
     assertRequestTransition(request.status, 'cancelled');
     request.status = 'cancelled';
+    request.cancelledAt = new Date();
     const cancelled = await manager.save(request);
     await this.tripStatus.releaseSeat(manager, trip, request.seats);
     await this.changes.record(manager, 'request.cancelled', cancelled, trip);
@@ -175,17 +191,54 @@ export class RequestsService {
   // viaje. El viaje bloqueado evita vender dos veces la última plaza
   async accept(driverId: string, requestId: string): Promise<RequestView> {
     const request = await this.dataSource.transaction(async (manager) => {
-      const { trip, request } = await this.lockTripAndRequest(
+      const found = await manager.findOneBy(SeatRequest, { id: requestId });
+      if (found === null) {
+        throw new RequestNotFoundError(requestId);
+      }
+      await this.overlaps.lockPassenger(manager, found.passengerId);
+      const candidateTrip = await manager.findOneBy(Trip, { id: found.tripId });
+      if (candidateTrip === null) {
+        throw new RequestNotFoundError(requestId);
+      }
+      const schedule = await this.overlaps.scheduleForTrip(
         manager,
-        driverId,
+        candidateTrip,
+      );
+      const candidates = await this.overlaps.overlappingPendingRequests(
+        manager,
+        found.passengerId,
+        schedule,
         requestId,
       );
+      const trips = await this.overlaps.lockTripsInOrder(manager, [
+        candidateTrip.id,
+        ...candidates.map(({ tripId }) => tripId),
+      ]);
+      const trip = trips.get(candidateTrip.id);
+      if (trip === undefined) {
+        throw new RequestNotFoundError(requestId);
+      }
+      const currentOverlaps = await this.overlaps.overlappingPendingRequests(
+        manager,
+        found.passengerId,
+        await this.overlaps.scheduleForTrip(manager, trip),
+        requestId,
+      );
+      const requests = await this.overlaps.lockRequestsById(manager, [
+        requestId,
+        ...currentOverlaps.map(({ requestId: overlappingId }) => overlappingId),
+      ]);
+      const request = requests.find(({ id }) => id === requestId);
+      if (request === undefined) {
+        throw new RequestNotFoundError(requestId);
+      }
       this.assertIsTripDriver(driverId, trip);
       assertRequestTransition(request.status, 'accepted');
       this.tripStatus.assertOpenForRequests(trip);
 
       await this.tripStatus.reserveSeat(manager, trip, request.seats);
       request.status = 'accepted';
+      request.answeredAt = new Date();
       const accepted = await manager.save(request);
       // RF-24: la prioridad ya ha cumplido su función (tiene otro viaje)
       if (accepted.isPriority) {
@@ -212,6 +265,7 @@ export class RequestsService {
       assertRequestTransition(request.status, 'rejected');
 
       request.status = 'rejected';
+      request.answeredAt = new Date();
       const rejected = await manager.save(request);
       await this.changes.record(manager, 'request.rejected', rejected, trip);
       return rejected;

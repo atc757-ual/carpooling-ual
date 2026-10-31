@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
+import { Notification } from '../src/modules/notifications/entities/notification.entity';
 import { AppModule } from '../src/app.module';
 import { DomainEvent } from '../src/events/entities/domain-event.entity';
 import { CannotRequestOwnTripError } from '../src/modules/requests/errors/cannot-request-own-trip.error';
@@ -8,6 +9,7 @@ import { InvalidRequestTransitionError } from '../src/modules/requests/errors/in
 import { NotRequestPassengerError } from '../src/modules/requests/errors/not-request-passenger.error';
 import { NotTripPassengerError } from '../src/modules/requests/errors/not-trip-passenger.error';
 import { RequestAlreadyExistsError } from '../src/modules/requests/errors/request-already-exists.error';
+import { TooManyPendingRequestsError } from '../src/modules/requests/errors/too-many-pending-requests.error';
 import { RequestNotFoundError } from '../src/modules/requests/errors/request-not-found.error';
 import { RequestsService } from '../src/modules/requests/requests.service';
 import { NotTripDriverError } from '../src/modules/trips/errors/not-trip-driver.error';
@@ -156,6 +158,46 @@ describe('RequestsService (e2e)', () => {
       );
     });
 
+    it('limits a passenger to three pending requests with overlapping trips', async () => {
+      const passenger = await createUser('pia', ['passenger']);
+      const trips = await Promise.all(
+        ['dan-a', 'dan-b', 'dan-c', 'dan-d'].map((driver) =>
+          publishedTrip(2, driver),
+        ),
+      );
+
+      for (const { tripId } of trips.slice(0, 3)) {
+        await requestsService.request(passenger, tripId);
+      }
+
+      await expect(
+        requestsService.request(passenger, trips[3].tripId),
+      ).rejects.toBeInstanceOf(TooManyPendingRequestsError);
+    });
+
+    it('serializes simultaneous requests so the overlap limit cannot be exceeded', async () => {
+      const passenger = await createUser('pia', ['passenger']);
+      const trips = await Promise.all(
+        ['dan-a', 'dan-b', 'dan-c', 'dan-d'].map((driver) =>
+          publishedTrip(2, driver),
+        ),
+      );
+
+      const results = await Promise.allSettled(
+        trips.map(({ tripId }) => requestsService.request(passenger, tripId)),
+      );
+
+      expect(
+        results.filter(({ status }) => status === 'fulfilled'),
+      ).toHaveLength(3);
+      const rejected = results.filter(
+        (result): result is PromiseRejectedResult =>
+          result.status === 'rejected',
+      );
+      expect(rejected).toHaveLength(1);
+      expect(rejected[0].reason).toBeInstanceOf(TooManyPendingRequestsError);
+    });
+
     it("rejects a request for the passenger's own trip", async () => {
       const { driverId, tripId } = await publishedTrip();
 
@@ -199,6 +241,7 @@ describe('RequestsService (e2e)', () => {
       const view = await requestsService.accept(driverId, request.id);
 
       expect(view.request.status).toBe('accepted');
+      expect(view.request.answeredAt).toBeInstanceOf(Date);
       expect(view.vehiclePlate).toBe(plate);
       expect(await seatsOf(tripId)).toEqual({
         available: 1,
@@ -207,6 +250,40 @@ describe('RequestsService (e2e)', () => {
       expect(await eventTypesOf(request.id)).toEqual([
         'request.created',
         'request.accepted',
+      ]);
+    });
+
+    it('cancels overlapping pending requests and notifies both sides', async () => {
+      const firstTrip = await publishedTrip(2, 'driver-a');
+      const secondTrip = await publishedTrip(2, 'driver-b');
+      const passenger = await createUser('pia', ['passenger']);
+      const first = await requestsService.request(passenger, firstTrip.tripId);
+      const second = await requestsService.request(
+        passenger,
+        secondTrip.tripId,
+      );
+
+      await requestsService.accept(firstTrip.driverId, first.request.id);
+
+      const cancelled = await requestsService.get(passenger, second.request.id);
+      expect(cancelled.request).toMatchObject({
+        status: 'cancelled',
+        cancelledAt: expect.any(Date) as Date,
+      });
+      expect(await eventTypesOf(second.request.id)).toEqual([
+        'request.created',
+        'request.cancelled',
+      ]);
+      const notices = await dataSource.manager.find(Notification, {
+        where: [
+          { requestId: second.request.id, userId: passenger },
+          { requestId: second.request.id, userId: secondTrip.driverId },
+        ],
+      });
+      expect(notices.map(({ type }) => type).sort()).toEqual([
+        'request_cancelled',
+        'request_conflict_cancelled',
+        'request_received',
       ]);
     });
 
@@ -241,6 +318,7 @@ describe('RequestsService (e2e)', () => {
       const view = await requestsService.reject(driverId, request.id);
 
       expect(view.request.status).toBe('rejected');
+      expect(view.request.answeredAt).toBeInstanceOf(Date);
       expect(await seatsOf(tripId)).toEqual({
         available: 2,
         status: 'published',
@@ -279,6 +357,7 @@ describe('RequestsService (e2e)', () => {
       const view = await requestsService.cancel(pia, request.id);
 
       expect(view.request.status).toBe('cancelled');
+      expect(view.request.cancelledAt).toBeInstanceOf(Date);
       expect(await seatsOf(tripId)).toEqual({
         available: 2,
         status: 'published',

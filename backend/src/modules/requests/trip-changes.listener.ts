@@ -101,6 +101,11 @@ export class TripChangesListener implements OnModuleInit {
       requests.map(async (request) => {
         assertRequestTransition(request.status, to);
         request.status = to;
+        if (to === 'cancelled') {
+          request.cancelledAt = new Date();
+        } else {
+          request.answeredAt = new Date();
+        }
         const closed = await manager.save(request);
         await this.changes.record(
           manager,

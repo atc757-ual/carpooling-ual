@@ -27,6 +27,8 @@ function request(status: SeatRequest['status'], isPriority = false): SeatRequest
     isPriority,
     seats: 2,
     requestedAt: '2099-01-14T10:00:00.000Z',
+    answeredAt: null,
+    cancelledAt: null,
     vehiclePlate: null,
   };
 }

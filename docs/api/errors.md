@@ -107,6 +107,7 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 |---|---|---|
 | `CANNOT_REQUEST_OWN_TRIP` | 409 | Pedir plaza en un viaje propio (usuario con perfil de conductor y de pasajero) |
 | `REQUEST_ALREADY_EXISTS` | 409 | El pasajero ya tiene una solicitud pendiente o aceptada en ese viaje |
+| `TOO_MANY_PENDING_REQUESTS` | 409 | El pasajero ya tiene tres solicitudes pendientes de viajes que se solapan en horario |
 | `REQUESTING_SUSPENDED` | 409 | El pasajero tiene 3 cancelaciones tardías (una plaza aceptada que suelta a menos de 30 minutos de la salida) en 30 días: no puede pedir plaza en 7 días desde la última, la misma regla que el conductor al publicar. La fecha de fin está en `GET /api/users/me/requesting-status` |
 | `REQUEST_NOT_FOUND` | 404 | La solicitud no existe o el usuario no es ni su pasajero ni el conductor del viaje (es privada: no se revela que existe) |
 | `NOT_REQUEST_PASSENGER` | 403 | Cancelar una solicitud sin ser su pasajero (el conductor la rechaza o cancela el viaje) |
