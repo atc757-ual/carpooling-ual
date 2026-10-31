@@ -98,11 +98,15 @@ for (const viewport of VIEWPORTS) {
       vehicleModal()
         .find('ion-select[formControlName="color"]', { includeShadowDom: true })
         .click();
-      cy.contains('ion-select-popover ion-radio', 'Azul').click();
+      cy.get('ion-select-popover ion-radio', { includeShadowDom: true })
+        .contains('Azul')
+        .click();
       vehicleModal()
         .find('ion-select[formControlName="engine"]', { includeShadowDom: true })
         .click();
-      cy.contains('ion-select-popover ion-radio', 'Híbrido').click();
+      cy.get('ion-select-popover ion-radio', { includeShadowDom: true })
+        .contains('Híbrido')
+        .click();
       vehicleModal()
         .find('ion-input[formControlName="plate"] input', { includeShadowDom: true })
         .type('1234 bcd');
