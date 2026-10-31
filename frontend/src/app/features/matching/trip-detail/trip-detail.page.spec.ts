@@ -12,6 +12,8 @@ import { TripSearchStateService } from '../trip-search-state.service';
 import { TripDetailPage } from './trip-detail.page';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
+import { TripsService } from '../../../core/services/trips/trips.service';
+import { formatTime } from '../trip-results';
 
 const SEARCH: TripSearch = {
   place: ROQUETAS,
@@ -57,6 +59,7 @@ function seatRequest(status: SeatRequest['status'], plate: string | null = null)
 describe('TripDetailPage', () => {
   let fixture: ComponentFixture<TripDetailPage>;
   let requests: Record<string, ReturnType<typeof vi.fn>>;
+  let trips: Record<string, ReturnType<typeof vi.fn>>;
   let showError: ReturnType<typeof vi.fn>;
 
   async function render(
@@ -69,6 +72,32 @@ describe('TripDetailPage', () => {
       request: vi.fn().mockResolvedValue(seatRequest('pending')),
       cancel: vi.fn().mockResolvedValue(seatRequest('cancelled')),
     };
+    trips = {
+      getTrip: vi.fn().mockResolvedValue({
+        id: 't1',
+        departureAt: '2026-10-27T07:40:00.000Z',
+        origin: { type: 'Point', coordinates: [-2.5, 36.8] },
+        destination: { type: 'Point', coordinates: [-2.4, 36.83] },
+        originName: 'Roquetas de Mar',
+        destinationName: 'Campus UAL · Parking P1',
+      }),
+      getRoute: vi.fn().mockResolvedValue({
+        tripId: 't1',
+        distanceKm: 12,
+        durationMin: 32,
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [-2.5, 36.8],
+            [-2.4, 36.83],
+          ],
+        },
+        source: 'osrm',
+        tripStatus: 'published',
+        startedAt: null,
+        estimatedArrivalAt: '2026-10-27T08:12:00.000Z',
+      }),
+    };
     showError = vi.fn().mockResolvedValue(undefined);
     TestBed.configureTestingModule({
       imports: [TripDetailPage],
@@ -77,6 +106,7 @@ describe('TripDetailPage', () => {
         provideRouter([]),
         { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
         { provide: SeatRequestsService, useValue: requests },
+        { provide: TripsService, useValue: trips },
         { provide: ToastService, useValue: { showError } },
       ],
     });
@@ -103,9 +133,12 @@ describe('TripDetailPage', () => {
       '27 oct, ida al campus',
     );
     expect(texts(root, '.route-timeline__stop')).toEqual([
-      `07:40Roquetas de Mar${ROQUETAS.locality}`,
-      '08:12Campus UALParking P1',
+      `${formatTime('2026-10-27T07:40:00.000Z')}Roquetas de MarPunto de salida del conductor`,
+      'Roquetas de MarTu punto de recogida',
+      '08:12Campus UAL · Parking P1Parking P1',
     ]);
+    expect(root.querySelector('app-trip-route-map')).not.toBeNull();
+    expect(trips['getRoute']).toHaveBeenCalledWith('t1');
     expect(texts(root, '.trip-detail__seats')).toEqual(['2 plazas libres']);
     expect(root.textContent).toContain('Trayecto de unos 32 min');
   });

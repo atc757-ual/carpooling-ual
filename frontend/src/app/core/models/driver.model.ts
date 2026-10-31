@@ -75,4 +75,9 @@ export interface DriverTrip extends PublishedTrip {
 // Un viaje visto por cualquiera (GET /api/trips/{id}): con quien conduce
 export interface Trip extends DriverTrip {
   driver: { id: string; name: string };
+  origin: GeoPoint;
+  destination: GeoPoint;
+  originName: string | null;
+  destinationName: string | null;
+  vehicle: Pick<Vehicle, 'brand' | 'model' | 'color'> | null;
 }

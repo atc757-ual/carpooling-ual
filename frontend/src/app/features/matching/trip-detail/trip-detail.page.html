@@ -9,6 +9,29 @@
 
         <ion-card>
           <ion-card-content>
+            @if (tripData.value(); as data) {
+              @if (pickup(); as pickup) {
+                <app-trip-route-map
+                  [route]="data.route"
+                  [origin]="{
+                    coordinates: data.trip.origin.coordinates,
+                    label: data.trip.originName ?? 'Salida del conductor',
+                  }"
+                  [pickup]="pickup"
+                  [destination]="{
+                    coordinates: data.trip.destination.coordinates,
+                    label: data.trip.destinationName ?? 'Destino del viaje',
+                  }"
+                />
+              }
+            } @else if (tripData.isLoading()) {
+              <output class="trip-detail__loading" aria-live="polite">
+                <ion-spinner name="crescent" aria-hidden="true" />
+                <span class="text-caption text-color-muted">Cargando el mapa del viaje…</span>
+              </output>
+            } @else if (tripData.error()) {
+              <p class="text-caption text-color-muted">No pudimos cargar el mapa de la ruta.</p>
+            }
             <!-- Arriba, el recorrido con sus horas (lo principal) y sus datos -->
             <h2 class="visually-hidden">Recorrido</h2>
             <app-route-timeline [stops]="stops()" />

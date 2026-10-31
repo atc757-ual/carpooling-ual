@@ -72,6 +72,33 @@ for (const viewport of VIEWPORTS) {
     beforeEach(() => {
       cy.viewport(viewport.width, viewport.height);
       cy.intercept('POST', '/api/trips/search', [tripMatch()]).as('search');
+      cy.intercept('GET', '/api/trips/t1', {
+        '@type': 'Trip',
+        id: 't1',
+        departureAt: tripMatch().departureAt,
+        origin: { type: 'Point', coordinates: [-2.6146, 36.7642] },
+        destination: { type: 'Point', coordinates: [-2.4, 36.83] },
+        originName: 'Roquetas de Mar',
+        destinationName: 'Campus UAL · Parking P1',
+        status: 'published',
+      });
+      cy.intercept('GET', '/api/trips/t1/route', {
+        '@type': 'TripRoute',
+        tripId: 't1',
+        distanceKm: 12,
+        durationMin: 32,
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [-2.6146, 36.7642],
+            [-2.4, 36.83],
+          ],
+        },
+        source: 'osrm',
+        tripStatus: 'published',
+        startedAt: null,
+        estimatedArrivalAt: tripMatch().arrivalAt,
+      });
       cy.intercept('GET', '/api/avatars', [
         {
           '@type': 'Avatar',
@@ -139,6 +166,8 @@ for (const viewport of VIEWPORTS) {
       // El mismo viaje de la búsqueda, con quien conduce y cómo se pide plaza
       cy.get('app-trip-detail .route-timeline__stop').first().should('contain', 'Roquetas de Mar');
       cy.get('app-trip-detail .route-timeline__stop').last().should('contain', 'Parking P1');
+      cy.get('app-trip-detail app-trip-route-map').should('be.visible');
+      cy.get('app-trip-detail .trip-route-map__canvas').should('have.attr', 'role', 'img');
       cy.contains('app-trip-detail app-trip-driver', 'Lucía Cortés').should('be.visible');
       cy.contains('app-trip-detail .notice', 'Primero solicitas; Lucía decide.').should(
         'be.visible',

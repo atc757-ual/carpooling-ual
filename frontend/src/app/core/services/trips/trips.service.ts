@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
 import { Trip } from '../../models/driver.model';
+import { TripRoute } from '../../models/trip-route.model';
 
 // Viajes vistos por cualquier usuario (p. ej. el de cada solicitud del
 // pasajero). Lanza ApiError (ver shared/utils/error-message.util.ts)
@@ -14,6 +15,16 @@ export class TripsService {
   async getTrip(tripId: string): Promise<Trip> {
     try {
       return await firstValueFrom(this.http.get<Trip>(`${environment.apiUrl}/trips/${tripId}`));
+    } catch (error) {
+      throw ApiError.fromHttpError(error);
+    }
+  }
+
+  async getRoute(tripId: string): Promise<TripRoute> {
+    try {
+      return await firstValueFrom(
+        this.http.get<TripRoute>(`${environment.apiUrl}/trips/${tripId}/route`),
+      );
     } catch (error) {
       throw ApiError.fromHttpError(error);
     }

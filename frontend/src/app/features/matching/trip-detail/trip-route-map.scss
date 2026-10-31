@@ -1,0 +1,24 @@
+:host {
+  display: block;
+}
+
+.trip-route-map__canvas {
+  width: 100%;
+  height: 12rem; // 192px
+  overflow: hidden;
+  border-radius: var(--radius-s);
+  background: var(--color-surface-subtle);
+}
+
+.trip-route-map__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-base);
+  margin: var(--space-xs) 0 0;
+}
+
+.trip-route-map__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
