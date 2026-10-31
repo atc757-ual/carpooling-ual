@@ -215,52 +215,31 @@ export class ReputationService implements OnModuleInit {
     const reviewedKeys = new Set(
       existingReviews.map(({ tripId, targetId }) => `${tripId}:${targetId}`),
     );
-    const allTargetIds = new Set<string>();
-    for (const trip of candidateTrips) {
-      if (trip.driverId === userId) {
-        for (const passengerId of passengersByTrip.get(trip.id) ?? []) {
-          allTargetIds.add(passengerId);
-        }
-      } else {
-        allTargetIds.add(trip.driverId);
-      }
-    }
+    const remainingByTrip = new Map(
+      candidateTrips.map((trip) => [
+        trip.id,
+        reviewTargetIds(trip, userId, passengersByTrip).filter(
+          (targetId) => !reviewedKeys.has(`${trip.id}:${targetId}`),
+        ),
+      ]),
+    );
     const profiles = await this.usersService.getPublicProfiles([
-      ...allTargetIds,
+      ...new Set([...remainingByTrip.values()].flat()),
     ]);
 
-    const pending: PendingReviewTripView[] = [];
-    for (const trip of candidateTrips) {
-      const isDriver = trip.driverId === userId;
-      const myRole: ReviewTargetRole = isDriver ? 'driver' : 'passenger';
-      const targetRole: ReviewTargetRole = isDriver ? 'passenger' : 'driver';
-      const candidateTargetIds = isDriver
-        ? (passengersByTrip.get(trip.id) ?? [])
-        : [trip.driverId];
-      const remainingTargetIds = candidateTargetIds.filter(
-        (targetId) => !reviewedKeys.has(`${trip.id}:${targetId}`),
-      );
-      if (remainingTargetIds.length === 0) {
-        continue;
-      }
-      const finishedAt = tripFinishedAt(trip);
-      pending.push({
-        trip,
-        finishedAt,
-        myRole,
-        expiresAt: new Date(finishedAt.getTime() + REVIEW_WINDOW_MS),
-        targets: remainingTargetIds.map((targetId) => {
-          const profile = profiles.get(targetId);
-          return {
+    return candidateTrips
+      .filter((trip) => (remainingByTrip.get(trip.id) ?? []).length > 0)
+      .map((trip) =>
+        toPendingTrip(
+          trip,
+          trip.driverId === userId,
+          (remainingByTrip.get(trip.id) ?? []).map((targetId) => ({
             id: targetId,
-            name: profile?.name ?? '',
-            avatarKey: profile?.avatarKey ?? null,
-            role: targetRole,
-          };
-        }),
-      });
-    }
-    return pending;
+            name: profiles.get(targetId)?.name ?? '',
+            avatarKey: profiles.get(targetId)?.avatarKey ?? null,
+          })),
+        ),
+      );
   }
 
   // Publicación diferida al consultar: publica las reseñas pendientes cuyas
@@ -478,6 +457,35 @@ export class ReputationService implements OnModuleInit {
 
 function tripFinishedAt(trip: Pick<Trip, 'finishedAt' | 'updatedAt'>): Date {
   return trip.finishedAt ?? trip.updatedAt;
+}
+
+// A quién puede valorar en un viaje: el conductor, a sus pasajeros aceptados;
+// un pasajero, al conductor
+function reviewTargetIds(
+  trip: Pick<Trip, 'id' | 'driverId'>,
+  userId: string,
+  passengersByTrip: ReadonlyMap<string, readonly string[]>,
+): string[] {
+  return trip.driverId === userId
+    ? [...(passengersByTrip.get(trip.id) ?? [])]
+    : [trip.driverId];
+}
+
+// Un viaje con valoraciones pendientes, con el rol de cada parte
+function toPendingTrip(
+  trip: Trip,
+  isDriver: boolean,
+  targets: ReviewParticipantSummary[],
+): PendingReviewTripView {
+  const finishedAt = tripFinishedAt(trip);
+  const targetRole: ReviewTargetRole = isDriver ? 'passenger' : 'driver';
+  return {
+    trip,
+    finishedAt,
+    myRole: isDriver ? 'driver' : 'passenger',
+    expiresAt: new Date(finishedAt.getTime() + REVIEW_WINDOW_MS),
+    targets: targets.map((target) => ({ ...target, role: targetRole })),
+  };
 }
 
 async function runSequentially<T>(
