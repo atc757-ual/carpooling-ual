@@ -3,15 +3,8 @@
        los de una fila queden a la misma altura. Marca y modelo, en una fila -->
   <div class="vehicle-form__row">
     <div class="vehicle-form__field">
-      <span class="text-label text-label--strong" aria-hidden="true">Marca</span>
-      <ion-input
-        formControlName="brand"
-        aria-label="Marca"
-        fill="outline"
-        placeholder="Seat"
-        autocapitalize="words"
-        errorText="Escribe la marca, como Seat."
-      />
+      <label class="text-label text-label--strong" for="vehicle-brand">Marca</label>
+      <app-brand-field id="vehicle-brand" formControlName="brand" />
     </div>
     <div class="vehicle-form__field">
       <span class="text-label text-label--strong" aria-hidden="true">Modelo</span>
@@ -25,6 +18,36 @@
       />
     </div>
   </div>
+  <!-- Color y motor, a la vista y de un toque (sin desplegables: nada flota
+       fuera de la ventana). Botones de opción nativos, con teclado -->
+  <fieldset class="vehicle-form__choices">
+    <legend class="text-label text-label--strong">Color</legend>
+    <div class="vehicle-form__colors">
+      @for (color of colors; track color.value) {
+        <label class="vehicle-form__color">
+          <input type="radio" formControlName="color" [value]="color.value" />
+          <span
+            class="vehicle-form__swatch"
+            [style.--swatch-color]="color.hex"
+            aria-hidden="true"
+          ></span>
+          {{ color.label }}
+        </label>
+      }
+    </div>
+  </fieldset>
+  <fieldset class="vehicle-form__choices">
+    <legend class="text-label text-label--strong">Motor</legend>
+    <div class="vehicle-form__engines">
+      @for (engine of engines; track engine.value) {
+        <label class="vehicle-form__engine">
+          <input type="radio" formControlName="engine" [value]="engine.value" />
+          <ion-icon [icon]="engine.icon" aria-hidden="true" />
+          {{ engine.label }}
+        </label>
+      }
+    </div>
+  </fieldset>
   <!-- Matrícula (con su ayuda justo debajo) y asientos, en una fila -->
   <div class="vehicle-form__row">
     <div class="vehicle-form__field">

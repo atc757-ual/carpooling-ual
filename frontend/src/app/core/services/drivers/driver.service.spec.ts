@@ -50,7 +50,14 @@ describe('DriverService', () => {
   });
 
   it('registers a vehicle and accepts the declaration', async () => {
-    const vehicle = driver.registerVehicle({ plate: '1234BCD', capacity: 3, model: 'Seat Ibiza' });
+    const vehicle = driver.registerVehicle({
+      plate: '1234BCD',
+      capacity: 3,
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
+    });
     const request = http.expectOne('/api/vehicles');
     expect(request.request.method).toBe('POST');
     request.flush({ id: 'v1' });
@@ -64,13 +71,13 @@ describe('DriverService', () => {
   });
 
   it('edits a vehicle with PATCH', async () => {
-    const updated = driver.updateVehicle('v1', { model: 'Seat León' });
+    const updated = driver.updateVehicle('v1', { color: 'red' });
     const request = http.expectOne('/api/vehicles/v1');
     expect(request.request.method).toBe('PATCH');
-    expect(request.request.body).toEqual({ model: 'Seat León' });
-    request.flush({ id: 'v1', model: 'Seat León' });
+    expect(request.request.body).toEqual({ color: 'red' });
+    request.flush({ id: 'v1', color: 'red' });
 
-    expect(await updated).toEqual({ id: 'v1', model: 'Seat León' });
+    expect(await updated).toEqual({ id: 'v1', color: 'red' });
   });
 
   it('lists my trips and the requests of one, and decides a request', async () => {

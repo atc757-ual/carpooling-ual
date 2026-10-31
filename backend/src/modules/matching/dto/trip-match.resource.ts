@@ -25,9 +25,6 @@ export class TripMatchVehicleResource {
     example: 'blue',
   })
   color: string | null;
-
-  @ApiProperty({ example: '1234BCD' })
-  plate: string;
 }
 
 // Un viaje compatible con la búsqueda, con lo que hace falta para elegirlo

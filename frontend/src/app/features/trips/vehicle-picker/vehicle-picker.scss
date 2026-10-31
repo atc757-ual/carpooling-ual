@@ -89,6 +89,17 @@
   white-space: nowrap;
 }
 
+.vehicle-picker__swatch {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-inline-end: var(--space-xs);
+  border: var(--border-width-s) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--swatch-color);
+  vertical-align: -0.05rem;
+}
+
 // El check: círculo gris vacío o azul con ✓
 .vehicle-card__check {
   flex: none;

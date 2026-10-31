@@ -11,7 +11,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { DEFAULT_VEHICLE_KEY, VehiclePicker, VehiclePickerControls } from './vehicle-picker';
 
 function vehicle(id: string, capacity = 3): Vehicle {
-  return { id, plate: `${id}BCD`, model: 'Seat Ibiza', capacity, status: 'available' };
+  return { id, plate: `${id}BCD`, brand: 'Seat', model: 'Ibiza', color: 'white', engine: 'hybrid', capacity, status: 'available' };
 }
 
 describe('VehiclePicker', () => {

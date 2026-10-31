@@ -101,6 +101,17 @@
   }
 }
 
+.trip-detail__vehicle-swatch {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-inline-end: var(--space-xs);
+  border: var(--border-width-s) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--swatch-color);
+  vertical-align: -0.05rem;
+}
+
 // Viaje no encontrado: tarjeta con todo centrado, como el estado vacío de
 // Buscar (en div: Ionic pone 14px a los p de ion-card-content)
 .trip-detail__missing {

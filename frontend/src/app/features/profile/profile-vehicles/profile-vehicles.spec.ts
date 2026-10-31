@@ -9,7 +9,17 @@ import { ProfileVehicles } from './profile-vehicles';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 
 function vehicle(id: string, status: Vehicle['status'], model: string | null): Vehicle {
-  return { id, plate: `${id}BCD`, model, capacity: 3, status };
+  const [brand = null, ...modelWords] = model?.split(' ') ?? [];
+  return {
+    id,
+    plate: `${id}BCD`,
+    brand,
+    model: modelWords.join(' ') || null,
+    color: 'white',
+    engine: 'hybrid',
+    capacity: 3,
+    status,
+  };
 }
 
 describe('ProfileVehicles', () => {
@@ -51,7 +61,7 @@ describe('ProfileVehicles', () => {
     );
 
     expect(root.querySelectorAll('.profile-vehicle')).toHaveLength(2);
-    expect(root.textContent).toContain('Seat León · hasta 3 pasajeros');
+    expect(root.textContent).toContain('Seat León · Blanco · hasta 3 pasajeros');
     expect(root.textContent).not.toContain('9999BCD');
   });
 

@@ -60,6 +60,17 @@ ion-card {
   min-width: 0;
 }
 
+.profile-vehicles__swatch {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-inline-end: var(--space-xs);
+  border: var(--border-width-s) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--swatch-color);
+  vertical-align: -0.05rem;
+}
+
 .profile-vehicle__plate {
   color: var(--color-text);
   font-weight: var(--font-weight-semibold);

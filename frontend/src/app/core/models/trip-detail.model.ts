@@ -1,14 +1,6 @@
 import { TripResult } from './trip-result.model';
 import { TripDirection } from './trip-search.model';
 
-// El coche de quien conduce
-export interface TripVehicle {
-  model: string;
-  plate: string;
-  // Lo que acuerda quien conduce («no fumar», «música suave»…)
-  preferences: readonly string[];
-}
-
 // Un viaje completo (pantalla de detalle): lo de los resultados y, además, la
 // fecha, el sentido, el detalle de cada parada, la duración y el coche
 export interface TripDetail extends TripResult {
@@ -18,7 +10,4 @@ export interface TripDetail extends TripResult {
   originDetail: string;
   destinationDetail: string;
   tripMinutes: number;
-  // El coche solo lo ve el pasajero con la plaza aceptada: en los resultados
-  // aún no se conoce
-  vehicle?: TripVehicle;
 }

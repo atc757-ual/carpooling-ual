@@ -6858,17 +6858,12 @@
             ],
             "nullable": true,
             "example": "blue"
-          },
-          "plate": {
-            "type": "string",
-            "example": "1234BCD"
           }
         },
         "required": [
           "brand",
           "model",
-          "color",
-          "plate"
+          "color"
         ]
       },
       "TripMatchResource": {

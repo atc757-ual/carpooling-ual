@@ -19,6 +19,11 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { VehicleModal } from '../../trips/vehicle-modal/vehicle-modal';
 import { MAX_VEHICLES } from '../../trips/vehicle-picker/vehicle-picker';
 import { CONFIRM_ICONS, ConfirmService } from '../../../core/services/ui/confirm.service';
+import {
+  vehicleColorLabel,
+  vehicleColorSwatch,
+  vehicleDisplayName,
+} from '../../../shared/utils/vehicle-display.util';
 
 // «Mis vehículos» del Perfil: cada uno con su matrícula, marca y modelo y
 // plazas, y «Editar»; al final, «Registrar vehículo». Los dos abren la ventana
@@ -53,10 +58,14 @@ export class ProfileVehicles {
   protected readonly carIcon = carOutline;
   protected readonly addIcon = addOutline;
 
-  // «Seat León · hasta 3 pasajeros» (la API cuenta las plazas sin el conductor)
+  // La API cuenta las plazas sin el conductor
   protected details(vehicle: Vehicle): string {
     const seats = `hasta ${vehicle.capacity} ${vehicle.capacity === 1 ? 'pasajero' : 'pasajeros'}`;
-    return vehicle.model ? `${vehicle.model} · ${seats}` : seats;
+    return `${vehicleDisplayName(vehicle)} · ${vehicleColorLabel(vehicle.color)} · ${seats}`;
+  }
+
+  protected colorSwatch(vehicle: Vehicle): string {
+    return vehicleColorSwatch(vehicle.color);
   }
 
   // Eliminar (darlo de baja), tras confirmarlo

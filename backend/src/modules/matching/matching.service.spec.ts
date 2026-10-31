@@ -47,12 +47,7 @@ describe('MatchingService', () => {
     getActive.mockResolvedValue({ id: 'p1', location: PARKING_LOCATION });
     getNames.mockResolvedValue(new Map([['d1', 'Lucía Cortés']]));
     getRecognitionDetails.mockResolvedValue(
-      new Map([
-        [
-          'v1',
-          { plate: '1234BCD', brand: 'Seat', model: 'Ibiza', color: 'blue' },
-        ],
-      ]),
+      new Map([['v1', { brand: 'Seat', model: 'Ibiza', color: 'blue' }]]),
     );
   });
 
@@ -72,7 +67,6 @@ describe('MatchingService', () => {
     });
     expect(result.driverName).toBe('Lucía Cortés');
     expect(result.vehicle).toEqual({
-      plate: '1234BCD',
       brand: 'Seat',
       model: 'Ibiza',
       color: 'blue',

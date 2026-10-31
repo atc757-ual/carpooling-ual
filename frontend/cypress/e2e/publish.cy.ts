@@ -6,10 +6,17 @@ const VEHICLE = {
   id: 'v1',
   href: '/api/vehicles/v1',
   plate: '1234BCD',
-  model: 'Seat Ibiza',
+  brand: 'SEAT',
+  model: 'Ibiza',
+  color: 'blue',
+  engine: 'hybrid',
   capacity: 3,
   status: 'available',
 };
+
+function vehicleModal() {
+  return cy.get('app-vehicle-modal', { includeShadowDom: true });
+}
 
 function accessToken() {
   return {
@@ -82,19 +89,38 @@ for (const viewport of VIEWPORTS) {
       cy.location('search').should('eq', '?step=2');
       cy.contains('app-publish-trip', 'Aún no tienes vehículos');
       cy.contains('app-publish-trip .vehicle-picker__add', 'Añadir vehículo').click();
-      cy.get('app-vehicle-modal ion-input[formControlName="brand"] input').type('Seat');
-      cy.get('app-vehicle-modal ion-input[formControlName="model"] input').type('Ibiza');
-      cy.get('app-vehicle-modal ion-input[formControlName="plate"] input').type('1234 bcd');
+      vehicleModal()
+        .find('app-brand-field ion-input input', { includeShadowDom: true })
+        .type('sea');
+      // La marca se elige de la lista que filtra lo escrito
+      vehicleModal().contains('.brand-field__option', 'SEAT').click();
+      vehicleModal()
+        .find('ion-input[formControlName="model"] input', { includeShadowDom: true })
+        .type('Ibiza');
+      // Color y motor, a la vista: un toque en la opción
+      vehicleModal().contains('.vehicle-form__color', 'Azul').click();
+      vehicleModal().contains('.vehicle-form__engine', 'Híbrido').click();
+      vehicleModal()
+        .find('ion-input[formControlName="plate"] input', { includeShadowDom: true })
+        .type('1234 bcd');
       // 5 asientos por defecto; uno menos: 4 (3 plazas para pasajeros)
-      cy.get('app-vehicle-modal button[aria-label="Una plaza menos"]').click();
-      cy.contains('app-vehicle-modal', 'Asientos totales del vehículo.');
-      cy.contains('app-vehicle-modal ion-button', 'Registrar vehículo').click();
+      vehicleModal()
+        .find('button[aria-label="Una plaza menos"]', { includeShadowDom: true })
+        .click();
+      vehicleModal().should('contain', 'Asientos totales del vehículo.');
+      vehicleModal()
+        .contains('ion-button', 'Registrar vehículo', { includeShadowDom: true })
+        .click();
       cy.wait('@registerVehicle').its('request.body').should('deep.equal', {
-        model: 'Seat Ibiza',
+        brand: 'SEAT',
+        model: 'Ibiza',
+        color: 'blue',
+        engine: 'hybrid',
         plate: '1234BCD',
         capacity: 3,
       });
-      cy.get('app-publish-trip .vehicle-card--selected').should('contain', 'Seat Ibiza');
+      cy.get('app-publish-trip .vehicle-card--selected').should('contain', 'SEAT Ibiza');
+      cy.get('app-publish-trip .vehicle-card--selected').should('contain', 'Azul');
       cy.contains('app-publish-trip ion-button', 'Revisar detalle').click();
 
       // 3 · Revisión: el resumen y, la primera vez, la declaración
