@@ -3,7 +3,6 @@ import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import {
-  IonBadge,
   IonBreadcrumb,
   IonBreadcrumbs,
   IonButton,
@@ -84,7 +83,6 @@ const SIDES: readonly { path: string; mode: TravelMode }[] = [
     RouterLink,
     RouterLinkActive,
     NgTemplateOutlet,
-    IonBadge,
     IonBreadcrumb,
     IonBreadcrumbs,
     IonButton,
@@ -131,7 +129,6 @@ export class TabsPage implements OnInit {
   // Avisos sin leer, en la campana y en la pestaña Avisos. Se cuentan al
   // entrar y en cada navegación (sin consultar cada pocos segundos)
   readonly unreadCount = this.notifications.unreadCount;
-  readonly unreadBadge = computed(() => (this.unreadCount() > 9 ? '9+' : `${this.unreadCount()}`));
   readonly bellLabel = computed(() =>
     this.unreadCount() > 0 ? `Avisos, ${this.unreadCount()} sin leer` : 'Avisos',
   );

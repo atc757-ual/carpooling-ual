@@ -219,28 +219,34 @@ ion-tab-button {
   }
 }
 
-// Avisos sin leer: el número en el color de acento con texto negro (guía,
-// «Acento»), en la esquina de la campana y de la pestaña Avisos
-.unread-badge {
-  --background: var(--color-accent);
-  --color: var(--color-on-accent);
-  --padding-start: var(--space-xs);
-  --padding-end: var(--space-xs);
-
-  min-width: 1.125rem; // 18px
-  font-size: var(--font-size-caption);
-}
-
+// Avisos sin leer: punto naranja pequeño en la esquina de la campana
 .bell-button {
   position: relative;
   overflow: visible;
 
-  .unread-badge {
+  ion-icon {
+    font-size: 1.75rem; // 28px
+  }
+
+  .bell-button__unread-dot {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: -0.125rem; // -2px
+    right: -0.125rem; // -2px
+    width: 0.625rem; // 10px
+    height: 0.625rem; // 10px
+    border: var(--border-width-s) solid var(--color-surface);
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
     pointer-events: none;
   }
+}
+
+.logout-button ion-icon {
+  font-size: 1.75rem; // 28px
+}
+
+.logout-button {
+  --padding-end: 0;
 }
 
 // Pie de escritorio: una franja gris de 56px con la línea arriba; el contenido,
