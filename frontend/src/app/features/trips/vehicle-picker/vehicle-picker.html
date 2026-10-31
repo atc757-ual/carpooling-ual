@@ -48,18 +48,14 @@
   </fieldset>
 
   @if (selectedVehicle(); as vehicle) {
-    <!-- Cuántos caben y cuántas plazas se ofrecen en este viaje -->
+    <!-- Cuántas plazas se pueden ofrecer con este vehículo -->
     <div class="notice notice--info vehicle-picker__notice" aria-live="polite">
       <ion-icon [icon]="icons.info" aria-hidden="true" />
       <div>
-        <b>Tu vehículo</b>
+        <b>Importante</b>
         <p>
-          {{ vehicle.capacity + 1 }} asientos = 1 conductor + hasta
-          {{ plural(vehicle.capacity, 'pasajero', 'pasajeros') }}
-        </p>
-        <p>
-          En este viaje ofreces {{ plural(seats(), 'plaza', 'plazas') }}. No se permite ofrecer más
-          de {{ plural(vehicle.capacity, 'plaza', 'plazas') }} con este vehículo.
+          En este viaje puedes ofrecer un máximo de
+          {{ plural(vehicle.capacity, 'plaza', 'plazas') }}.
         </p>
       </div>
     </div>
