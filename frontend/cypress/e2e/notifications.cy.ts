@@ -75,12 +75,13 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
     });
 
+    // El total va en el nombre accesible; a la vista, solo un punto
     it('counts the unread ones on the bell', () => {
       cy.get('app-tabs .bell-button')
         .filter(':visible')
         .should('have.attr', 'aria-label', 'Avisos, 1 sin leer')
-        .find('.unread-badge')
-        .should('have.text', '1');
+        .find('.bell-button__unread-dot')
+        .should('exist');
     });
 
     it('opens one: marks it as read and goes to my trips', () => {
