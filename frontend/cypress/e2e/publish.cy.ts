@@ -90,14 +90,10 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-publish-trip', 'Aún no tienes vehículos');
       cy.contains('app-publish-trip .vehicle-picker__add', 'Añadir vehículo').click();
       vehicleModal()
-        .find('app-brand-field ion-input', { includeShadowDom: true })
-        .shadow()
-        .find('input', { includeShadowDom: true })
+        .find('app-brand-field ion-input input', { includeShadowDom: true })
         .type('SEAT');
       vehicleModal()
-        .find('ion-input[formControlName="model"]', { includeShadowDom: true })
-        .shadow()
-        .find('input', { includeShadowDom: true })
+        .find('ion-input[formControlName="model"] input', { includeShadowDom: true })
         .type('Ibiza');
       vehicleModal()
         .find('ion-select[formControlName="color"]', { includeShadowDom: true })
@@ -108,9 +104,7 @@ for (const viewport of VIEWPORTS) {
         .click();
       cy.contains('ion-select-popover ion-radio', 'Híbrido').click();
       vehicleModal()
-        .find('ion-input[formControlName="plate"]', { includeShadowDom: true })
-        .shadow()
-        .find('input', { includeShadowDom: true })
+        .find('ion-input[formControlName="plate"] input', { includeShadowDom: true })
         .type('1234 bcd');
       // 5 asientos por defecto; uno menos: 4 (3 plazas para pasajeros)
       vehicleModal()
