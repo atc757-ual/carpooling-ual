@@ -25,6 +25,12 @@
   }
 }
 
+// Cerrar sesión no es destructivo: en azul sobre la superficie, como las
+// tarjetas, en vez de en rojo
+.profile__logout {
+  --background: var(--color-surface);
+}
+
 @media (min-width: 768px) {
   .profile__layout {
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);

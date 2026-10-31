@@ -32,7 +32,10 @@ describe('ConfirmService', () => {
     expect(await confirmLogout(confirm)).toBe(true);
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({
-        componentProps: expect.objectContaining({ header: '¿Cerrar sesión?', isDestructive: true }),
+        componentProps: expect.objectContaining({
+          header: '¿Cerrar sesión?',
+          isDestructive: false,
+        }),
       }),
     );
   });

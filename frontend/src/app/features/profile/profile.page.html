@@ -38,7 +38,8 @@
         </ion-card>
         <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
         <form (submit)="$event.preventDefault(); handleLogout()">
-          <ion-button type="submit" fill="outline" color="danger" expand="block">
+          <ion-button class="profile__logout" type="submit" fill="outline" expand="block">
+            <ion-icon slot="start" [icon]="logoutIcon" aria-hidden="true" />
             Cerrar sesión
           </ion-button>
         </form>

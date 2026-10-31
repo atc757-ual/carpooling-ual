@@ -7,8 +7,10 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonContent,
+  IonIcon,
   ModalController,
 } from '@ionic/angular';
+import { logOutOutline } from 'ionicons/icons';
 import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { LegalDocument, LegalModal } from '../../shared/components/modals/legal-modal/legal-modal';
@@ -31,6 +33,7 @@ import { ConfirmService } from '../../core/services/ui/confirm.service';
     IonCardHeader,
     IonCardTitle,
     IonContent,
+    IonIcon,
     ProfileVehicles,
   ],
   templateUrl: './profile.page.html',
@@ -42,6 +45,7 @@ export class ProfilePage {
   private readonly confirm = inject(ConfirmService);
   private readonly modalController = inject(ModalController);
 
+  protected readonly logoutIcon = logOutOutline;
   readonly user = this.auth.currentUser;
   readonly initials = computed(() => getInitials(this.user()?.name ?? ''));
   readonly phone = computed(() => {
