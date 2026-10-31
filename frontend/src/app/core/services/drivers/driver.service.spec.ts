@@ -55,8 +55,8 @@ describe('DriverService', () => {
       capacity: 3,
       brand: 'Seat',
       model: 'Ibiza',
-      color: 'azul',
-      engine: 'gasolina',
+      color: 'blue',
+      engine: 'hybrid',
     });
     const request = http.expectOne('/api/vehicles');
     expect(request.request.method).toBe('POST');
@@ -71,13 +71,13 @@ describe('DriverService', () => {
   });
 
   it('edits a vehicle with PATCH', async () => {
-    const updated = driver.updateVehicle('v1', { color: 'rojo' });
+    const updated = driver.updateVehicle('v1', { color: 'red' });
     const request = http.expectOne('/api/vehicles/v1');
     expect(request.request.method).toBe('PATCH');
-    expect(request.request.body).toEqual({ color: 'rojo' });
-    request.flush({ id: 'v1', color: 'rojo' });
+    expect(request.request.body).toEqual({ color: 'red' });
+    request.flush({ id: 'v1', color: 'red' });
 
-    expect(await updated).toEqual({ id: 'v1', color: 'rojo' });
+    expect(await updated).toEqual({ id: 'v1', color: 'red' });
   });
 
   it('lists my trips and the requests of one, and decides a request', async () => {
