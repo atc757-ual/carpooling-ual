@@ -67,7 +67,12 @@ export class RequestAcceptanceListener implements OnModuleInit {
       const trip = tripsById.get(request.tripId);
       if (trip !== undefined) {
         // Las escrituras usan la misma conexión y transacción.
-        await this.changes.recordOverlapCancellation(manager, request, trip); // NOSONAR: la conexión transaccional requiere escrituras secuenciales
+        const recordPromise = this.changes.recordOverlapCancellation(
+          manager,
+          request,
+          trip,
+        );
+        await recordPromise; // NOSONAR: la conexión transaccional requiere escrituras secuenciales
       }
     }
   }

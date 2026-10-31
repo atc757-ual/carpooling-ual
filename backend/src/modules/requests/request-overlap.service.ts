@@ -72,7 +72,8 @@ export class RequestOverlapService {
     for (const tripId of [...new Set(tripIds)].sort((a, b) =>
       a.localeCompare(b),
     )) {
-      const trip = await this.tripStatus.lockTrip(manager, tripId); // NOSONAR: el bloqueo secuencial evita interbloqueos
+      const tripPromise = this.tripStatus.lockTrip(manager, tripId);
+      const trip = await tripPromise; // NOSONAR: el bloqueo secuencial evita interbloqueos
       lockedTrips.set(tripId, trip);
     }
     return lockedTrips;
@@ -102,10 +103,11 @@ export class RequestOverlapService {
     for (const requestId of [...new Set(requestIds)].sort((a, b) =>
       a.localeCompare(b),
     )) {
-      const request = await manager.findOne(SeatRequest, { // NOSONAR: el bloqueo secuencial evita interbloqueos
+      const requestPromise = manager.findOne(SeatRequest, {
         where: { id: requestId },
         lock: { mode: 'pessimistic_write' },
       });
+      const request = await requestPromise; // NOSONAR: el bloqueo secuencial evita interbloqueos
       if (request !== null) {
         locked.push(request);
       }
