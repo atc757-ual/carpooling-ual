@@ -4,6 +4,7 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
 import { SeatRequest, SeatRequestStatus } from '../../../core/models/seat-request.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
+import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -43,6 +44,7 @@ export function formatSeats(seats: number): string {
 export class DriverTripCard {
   private readonly driver = inject(DriverService);
   private readonly toast = inject(ToastService);
+  private readonly confirm = inject(ConfirmService);
 
   readonly trip = input.required<DriverTrip>();
   readonly changed = output<void>();
@@ -76,8 +78,17 @@ export class DriverTripCard {
   );
   // La solicitud que se está decidiendo
   readonly deciding = signal<string | null>(null);
+  readonly isCancelling = signal(false);
 
   protected readonly formatSeats = formatSeats;
+
+  readonly cancellationIsLate = computed(() => {
+    const trip = this.trip();
+    return (
+      trip.status === 'confirmed' &&
+      new Date(trip.departureAt).getTime() - Date.now() < 30 * 60 * 1000
+    );
+  });
 
   protected requestLabel(status: SeatRequestStatus): string {
     return REQUEST_STATUS_LABELS[status];
@@ -95,6 +106,37 @@ export class DriverTripCard {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     } finally {
       this.deciding.set(null);
+    }
+  }
+
+  async handleCancel(): Promise<void> {
+    const trip = this.trip();
+    if (!this.isOpen()) {
+      return;
+    }
+    const isLate = this.cancellationIsLate();
+    const message = isLate
+      ? 'La salida está a menos de 30 minutos (o ya pasó) y hay pasajeros aceptados. Esta cancelación contará como tardía y puede suspender tus publicaciones al llegar a 3 en 30 días. Avisaremos a los pasajeros.'
+      : 'Se avisará a los pasajeros y dejarán de tener sus plazas. Puedes publicar otro viaje cuando quieras.';
+    const accepted = await this.confirm.ask({
+      header: '¿Cancelar este viaje?',
+      message,
+      confirmText: 'Cancelar viaje',
+      cancelText: 'Mantener viaje',
+      isDestructive: true,
+    });
+    if (!accepted) {
+      return;
+    }
+    this.isCancelling.set(true);
+    try {
+      await this.driver.cancelTrip(trip.id);
+      void this.toast.showSuccess('Viaje cancelado. Hemos avisado a los pasajeros.');
+      this.changed.emit();
+    } catch (error) {
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+    } finally {
+      this.isCancelling.set(false);
     }
   }
 }

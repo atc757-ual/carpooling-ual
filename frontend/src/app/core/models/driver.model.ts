@@ -39,6 +39,11 @@ export interface DriverStatus {
   isReady: boolean;
 }
 
+export interface PublishingStatus {
+  lateCancellations: number;
+  publishingSuspendedUntil: string | null;
+}
+
 export interface PublishTripRequest {
   vehicleId: string;
   origin: GeoPoint;

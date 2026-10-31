@@ -23,6 +23,9 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
     'La administración ha desactivado este perfil. Escríbele si crees que es un error.',
   VEHICLE_ALREADY_REGISTERED: 'Ya tienes un vehículo con esta matrícula.',
   DRIVER_NOT_READY: 'Registra un vehículo y acepta la declaración antes de publicar.',
+  PUBLISHING_SUSPENDED:
+    'No puedes publicar temporalmente por cancelaciones tardías. Revisa el aviso en Publicar.',
+  DEPARTURE_TOO_SOON: 'El viaje debe salir al menos dentro de una hora.',
   SEATS_EXCEED_CAPACITY: 'Ofreces más plazas de las que tiene el vehículo.',
   DEPARTURE_IN_THE_PAST: 'La hora de salida ya ha pasado. Elige una hora posterior.',
   TRIP_FULL: 'Ya no quedan plazas suficientes en este viaje. Busca otro viaje.',

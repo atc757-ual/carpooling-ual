@@ -5,6 +5,7 @@ import { DriverTrip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { DriverTripCard } from './driver-trip-card';
 
 const TRIP: DriverTrip = {
@@ -37,20 +38,24 @@ describe('DriverTripCard', () => {
   let fixture: ComponentFixture<DriverTripCard>;
   let driver: Record<string, ReturnType<typeof vi.fn>>;
   let toast: Record<string, ReturnType<typeof vi.fn>>;
+  let ask: ReturnType<typeof vi.fn>;
   let changed: number;
 
   async function render(trip: DriverTrip, requests: SeatRequest[] = []): Promise<HTMLElement> {
     driver = {
       listTripRequests: vi.fn().mockResolvedValue(requests),
       decideRequest: vi.fn().mockResolvedValue(request('accepted')),
+      cancelTrip: vi.fn().mockResolvedValue({ ...TRIP, status: 'cancelled' }),
     };
     toast = { showSuccess: vi.fn(), showError: vi.fn() };
+    ask = vi.fn().mockResolvedValue(true);
     TestBed.configureTestingModule({
       imports: [DriverTripCard],
       providers: [
         provideIonicAngular(),
         { provide: DriverService, useValue: driver },
         { provide: ToastService, useValue: toast },
+        { provide: ConfirmService, useValue: { ask } },
       ],
     });
     fixture = TestBed.createComponent(DriverTripCard);
@@ -109,6 +114,35 @@ describe('DriverTripCard', () => {
     await fixture.componentInstance.handleDecide(request('pending'), 'reject');
 
     expect(toast['showError']).toHaveBeenCalled();
+    expect(changed).toBe(0);
+  });
+
+  it('confirms cancellation, cancels the trip and refreshes the list', async () => {
+    await render(TRIP);
+
+    await fixture.componentInstance.handleCancel();
+
+    expect(ask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        header: '¿Cancelar este viaje?',
+        confirmText: 'Cancelar viaje',
+        cancelText: 'Mantener viaje',
+      }),
+    );
+    expect(driver['cancelTrip']).toHaveBeenCalledWith('t1');
+    expect(toast['showSuccess']).toHaveBeenCalledWith(
+      'Viaje cancelado. Hemos avisado a los pasajeros.',
+    );
+    expect(changed).toBe(1);
+  });
+
+  it('does not cancel when the confirmation is dismissed', async () => {
+    await render(TRIP);
+    ask.mockResolvedValue(false);
+
+    await fixture.componentInstance.handleCancel();
+
+    expect(driver['cancelTrip']).not.toHaveBeenCalled();
     expect(changed).toBe(0);
   });
 

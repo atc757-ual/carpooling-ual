@@ -40,6 +40,10 @@ function accessToken() {
 
 // Conductora nueva: sin vehículos ni declaración
 function stubNewDriver(): void {
+  cy.intercept('GET', '/api/users/me/publishing-status', {
+    lateCancellations: 0,
+    publishingSuspendedUntil: null,
+  });
   cy.intercept('GET', '/api/users/me/driver-status', {
     hasLicenseDeclared: false,
     licenseDeclaredAt: null,

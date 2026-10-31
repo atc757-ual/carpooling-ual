@@ -10,6 +10,20 @@
     <div class="text-caption text-color-muted">{{ seatsLabel() }}</div>
 
     @if (isOpen()) {
+      <div class="driver-trip__cancel">
+        <ion-button
+          type="button"
+          fill="outline"
+          color="danger"
+          [disabled]="isCancelling()"
+          (click)="handleCancel()"
+        >
+          {{ isCancelling() ? 'Cancelando…' : 'Cancelar viaje' }}
+        </ion-button>
+      </div>
+    }
+
+    @if (isOpen()) {
       <div class="driver-trip__requests">
         <h3 class="text-label text-label--strong">Solicitudes</h3>
         @if (requests.isLoading()) {
