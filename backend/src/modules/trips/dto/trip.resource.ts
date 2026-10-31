@@ -2,6 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import type { Point } from 'typeorm';
 import { API_PREFIX } from '../../../app.setup';
 import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
+import { TravelPreferencesResource } from '../../users/dto/travel-preferences.resource';
+import { AVATAR_KEYS, type AvatarKey } from '../../users/travel-preferences';
 import { TripView } from '../trips.service';
 import { TRIP_STATUSES } from '../trip-status';
 import type { TripStatus } from '../trip-status';
@@ -12,6 +14,12 @@ export class TripDriverResource {
 
   @ApiProperty({ example: 'Lucía Martínez' })
   name: string;
+
+  @ApiProperty({ enum: AVATAR_KEYS, nullable: true, example: 'sun' })
+  avatarKey: AvatarKey | null;
+
+  @ApiProperty({ type: TravelPreferencesResource })
+  preferences: TravelPreferencesResource;
 }
 
 // Recurso TMF630 Trip. Del conductor solo se muestra el nombre, no la
@@ -81,12 +89,22 @@ export function tripHref(id: string): string {
   return `/${API_PREFIX}/trips/${id}`;
 }
 
-export function toTripResource({ trip, driverName }: TripView): TripResource {
+export function toTripResource({
+  trip,
+  driverName,
+  driverAvatarKey,
+  driverPreferences,
+}: TripView): TripResource {
   return {
     '@type': 'Trip',
     id: trip.id,
     href: tripHref(trip.id),
-    driver: { id: trip.driverId, name: driverName },
+    driver: {
+      id: trip.driverId,
+      name: driverName,
+      avatarKey: driverAvatarKey,
+      preferences: driverPreferences,
+    },
     vehicleId: trip.vehicleId,
     origin: trip.origin,
     destination: trip.destination,

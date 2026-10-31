@@ -233,6 +233,14 @@ export class AuthService {
       profiles: this.usersService.getActiveProfiles(user),
       activeMode: user.activeMode,
       timeToleranceMin: user.timeToleranceMin,
+      avatarKey: user.avatarKey,
+      bio: user.bio,
+      preferences: {
+        conversation: user.conversationPreference ?? null,
+        music: user.musicPreference ?? null,
+        smoking: user.smokingPreference ?? null,
+        pets: user.petsPreference ?? null,
+      },
     };
   }
 }

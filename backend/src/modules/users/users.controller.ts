@@ -133,19 +133,38 @@ export class UsersController {
     return toUserResource(await this.usersService.getSummary(currentUser.sub));
   }
 
-  // Cambiar los datos de la propia cuenta: nombre, teléfono y tolerancia
-  // horaria (el correo no se cambia). PATCH: solo los campos que llegan
+  // Mi propia cuenta y perfil público
+  @Get('me')
+  @ApiOperation({
+    summary: 'Get my account and public profile',
+    description:
+      'Account details, public profile (avatar, bio and travel preferences) and active profiles of the authenticated user.',
+  })
+  @ApiOkResponse({ type: UserResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
+  })
+  async getMe(
+    @CurrentUser() currentUser: AccessTokenPayload,
+  ): Promise<UserResource> {
+    return toUserResource(await this.usersService.getSummary(currentUser.sub));
+  }
+
+  // Cambiar los datos de la propia cuenta y del perfil público: nombre,
+  // teléfono, tolerancia horaria, avatar, «Sobre mí» y preferencias de viaje
+  // (el correo no se cambia). PATCH: solo los campos que llegan
   @Patch('me')
   @ApiOperation({
     summary: 'Change my account details',
     description:
-      'Name, phone and default time margin of my searches; only the fields sent change. The email cannot be changed.',
+      'Name, phone, default time margin of my searches, avatar, bio and travel preferences; only the fields sent change. The email cannot be changed.',
   })
   @ApiOkResponse({ type: UserResource })
   @ApiErrorResponses({
     ...AUTH_ERRORS,
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
-    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
+    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND', 'AVATAR_NOT_FOUND'],
   })
   async updateMe(
     @CurrentUser() currentUser: AccessTokenPayload,

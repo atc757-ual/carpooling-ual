@@ -125,7 +125,16 @@ describe('Matching API (e2e)', () => {
     expect(match).toMatchObject({
       '@type': 'TripMatch',
       href: `/api/trips/${tripId}`,
-      driver: { name: 'lucia' },
+      driver: {
+        name: 'lucia',
+        avatarKey: null,
+        preferences: {
+          conversation: null,
+          music: null,
+          smoking: null,
+          pets: null,
+        },
+      },
       vehicle: {
         brand: 'Toyota',
         model: 'Yaris',

@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { TravelPreferencesResource } from '../../users/dto/travel-preferences.resource';
 import { VEHICLE_COLORS } from '../../users/entities/vehicle.entity';
+import { AVATAR_KEYS, type AvatarKey } from '../../users/travel-preferences';
 import { tripHref } from '../../trips/dto/trip.resource';
-import type { TripCandidate } from '../candidate-source';
-import type { ScoredMatch } from '../compatibility';
+import type { TripMatch } from '../matching.service';
 
 class TripMatchDriverResource {
   @ApiProperty({ format: 'uuid' })
@@ -10,6 +11,12 @@ class TripMatchDriverResource {
 
   @ApiProperty({ example: 'Lucía Cortés' })
   name: string;
+
+  @ApiProperty({ enum: AVATAR_KEYS, nullable: true, example: 'sun' })
+  avatarKey: AvatarKey | null;
+
+  @ApiProperty({ type: TravelPreferencesResource })
+  preferences: TravelPreferencesResource;
 }
 
 export class TripMatchVehicleResource {
@@ -80,17 +87,24 @@ export class TripMatchResource {
 
 const MS_PER_MINUTE = 60_000;
 
-export function toTripMatchResource(
-  { candidate, timeDifferenceMin, score }: ScoredMatch<TripCandidate>,
-  driverName: string,
-  vehicle: TripMatchVehicleResource,
-): TripMatchResource {
+export function toTripMatchResource({
+  match: { candidate, timeDifferenceMin, score },
+  driverName,
+  driverAvatarKey,
+  driverPreferences,
+  vehicle,
+}: TripMatch): TripMatchResource {
   const travelMin = candidate.durationMin + candidate.detourMin;
   return {
     '@type': 'TripMatch',
     id: candidate.tripId,
     href: tripHref(candidate.tripId),
-    driver: { id: candidate.driverId, name: driverName },
+    driver: {
+      id: candidate.driverId,
+      name: driverName,
+      avatarKey: driverAvatarKey,
+      preferences: driverPreferences,
+    },
     vehicle,
     departureAt: candidate.departureAt.toISOString(),
     arrivalAt: new Date(

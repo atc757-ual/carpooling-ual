@@ -14,15 +14,20 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- -----------------------------------------------------------------------------
 -- Todos con la misma contraseña (carpooling, hash bcrypt) y con el correo ya
 -- verificado (pueden iniciar sesión sin código): se escriben una sola vez
-INSERT INTO users (id, name, email, password_hash, time_tolerance_min, email_verified_at)
+INSERT INTO users (id, name, email, password_hash, time_tolerance_min, email_verified_at, avatar_key, bio, pref_conversation, pref_music, pref_smoking, pref_pets)
 SELECT seed.id::uuid, seed.name, seed.email,
-       crypt('carpooling', gen_salt('bf', 10)), seed.tolerance, now()
+       crypt('carpooling', gen_salt('bf', 10)), seed.tolerance, now(),
+       seed.avatar_key, seed.bio,
+       seed.pref_conversation::conversation_preference,
+       seed.pref_music::music_preference,
+       seed.pref_smoking::smoking_preference,
+       seed.pref_pets::pets_preference
   FROM (VALUES
-    ('00000000-0000-4000-8000-000000000001', 'Admin UAL',        'admin@ual.es', 15),
-    ('00000000-0000-4000-8000-000000000002', 'Lucía Conductora', 'lucia@ual.es', 10),
-    ('00000000-0000-4000-8000-000000000003', 'Mario Pasajero',   'mario@ual.es', 20),
-    ('00000000-0000-4000-8000-000000000004', 'Sara Mixta',       'sara@ual.es',  15)
-  ) AS seed (id, name, email, tolerance);
+    ('00000000-0000-4000-8000-000000000001', 'Admin UAL',        'admin@ual.es', 15, NULL,         NULL,                                                                NULL,      NULL,   NULL, NULL),
+    ('00000000-0000-4000-8000-000000000002', 'Lucía Conductora', 'lucia@ual.es', 10, 'sun',        'Conductora habitual desde Roquetas de Mar al campus de La Cañada.', 'chatty',  'soft', 'no', 'small_carrier'),
+    ('00000000-0000-4000-8000-000000000003', 'Mario Pasajero',   'mario@ual.es', 20, 'headphones', 'Estudiante en el campus de la UAL. Puntual en las paradas.',        'quiet',   'any',  'no', 'none'),
+    ('00000000-0000-4000-8000-000000000004', 'Sara Mixta',       'sara@ual.es',  15, NULL,         NULL,                                                                'depends', 'soft', 'no', NULL)
+  ) AS seed (id, name, email, tolerance, avatar_key, bio, pref_conversation, pref_music, pref_smoking, pref_pets);
 
 INSERT INTO admin_profiles (user_id) VALUES
   ('00000000-0000-4000-8000-000000000001');

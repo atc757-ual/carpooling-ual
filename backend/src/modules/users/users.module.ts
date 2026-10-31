@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsModule } from '../../events/events.module';
+import { AvatarsController } from './avatars.controller';
+import { AvatarsService } from './avatars.service';
 import { AdminProfile } from './entities/admin-profile.entity';
+import { Avatar } from './entities/avatar.entity';
 import { DriverProfile } from './entities/driver-profile.entity';
 import { PassengerProfile } from './entities/passenger-profile.entity';
 import { User } from './entities/user.entity';
@@ -22,11 +25,17 @@ import { VehiclesService } from './vehicles.service';
       PassengerProfile,
       AdminProfile,
       Vehicle,
+      Avatar,
     ]),
     EventsModule,
   ],
-  controllers: [UsersController, VehiclesController],
-  providers: [UsersService, VehiclesService, UserProfilesService],
+  controllers: [UsersController, VehiclesController, AvatarsController],
+  providers: [
+    UsersService,
+    VehiclesService,
+    UserProfilesService,
+    AvatarsService,
+  ],
   // Lo único visible desde otros módulos (p. ej. auth, trips): las fronteras entre
   // módulos se respetan porque nadie más puede usar sus repositorios
   exports: [UsersService, VehiclesService, UserProfilesService],

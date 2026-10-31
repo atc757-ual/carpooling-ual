@@ -124,7 +124,17 @@ describe('Trips API (e2e)', () => {
         '@type': 'Trip',
         id: trip.id,
         href: `/api/trips/${trip.id}`,
-        driver: { id: trip.driver.id, name: 'ana' },
+        driver: {
+          id: trip.driver.id,
+          name: 'ana',
+          avatarKey: null,
+          preferences: {
+            conversation: null,
+            music: null,
+            smoking: null,
+            pets: null,
+          },
+        },
         vehicleId,
         origin: ALMERIA_CENTRE,
         destination: UAL_CAMPUS,

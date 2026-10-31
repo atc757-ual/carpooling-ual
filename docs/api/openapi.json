@@ -831,8 +831,64 @@
       }
     },
     "/api/users/me": {
+      "get": {
+        "description": "Account details, public profile (avatar, bio and travel preferences) and active profiles of the authenticated user.",
+        "operationId": "UsersController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get my account and public profile",
+        "tags": [
+          "users"
+        ]
+      },
       "patch": {
-        "description": "Name, phone and default time margin of my searches; only the fields sent change. The email cannot be changed.",
+        "description": "Name, phone, default time margin of my searches, avatar, bio and travel preferences; only the fields sent change. The email cannot be changed.",
         "operationId": "UsersController_updateMe",
         "parameters": [],
         "requestBody": {
@@ -877,7 +933,7 @@
             }
           },
           "404": {
-            "description": "TMF630 error: USER_NOT_FOUND",
+            "description": "TMF630 error: USER_NOT_FOUND, AVATAR_NOT_FOUND",
             "content": {
               "application/json": {
                 "schema": {
@@ -1810,6 +1866,186 @@
         "summary": "Deactivate one of my vehicles",
         "tags": [
           "vehicles"
+        ]
+      }
+    },
+    "/api/avatars": {
+      "get": {
+        "description": "The active SVG avatars, in display order.",
+        "operationId": "AvatarsController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AvatarResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the available avatars",
+        "tags": [
+          "avatars"
+        ]
+      }
+    },
+    "/api/avatars/{id}": {
+      "get": {
+        "operationId": "AvatarsController_getOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "sun",
+                "wave",
+                "cactus",
+                "palm",
+                "compass",
+                "car",
+                "leaf",
+                "book",
+                "coffee",
+                "headphones",
+                "cat",
+                "owl"
+              ],
+              "type": "string",
+              "example": "sun"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvatarResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: AVATAR_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get an avatar",
+        "tags": [
+          "avatars"
         ]
       }
     },
@@ -5148,6 +5384,57 @@
           "code"
         ]
       },
+      "TravelPreferencesResource": {
+        "type": "object",
+        "properties": {
+          "conversation": {
+            "type": "string",
+            "enum": [
+              "chatty",
+              "depends",
+              "quiet"
+            ],
+            "nullable": true,
+            "example": "chatty"
+          },
+          "music": {
+            "type": "string",
+            "enum": [
+              "any",
+              "soft",
+              "none"
+            ],
+            "nullable": true,
+            "example": "soft"
+          },
+          "smoking": {
+            "type": "string",
+            "enum": [
+              "no",
+              "stops_only",
+              "allowed"
+            ],
+            "nullable": true,
+            "example": "no"
+          },
+          "pets": {
+            "type": "string",
+            "enum": [
+              "none",
+              "small_carrier",
+              "pet_friendly"
+            ],
+            "nullable": true,
+            "example": "small_carrier"
+          }
+        },
+        "required": [
+          "conversation",
+          "music",
+          "smoking",
+          "pets"
+        ]
+      },
       "UserResource": {
         "type": "object",
         "properties": {
@@ -5208,6 +5495,35 @@
             "type": "number",
             "description": "Default time margin of my searches, in minutes (± around the time)",
             "example": 15
+          },
+          "avatarKey": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "wave",
+              "cactus",
+              "palm",
+              "compass",
+              "car",
+              "leaf",
+              "book",
+              "coffee",
+              "headphones",
+              "cat",
+              "owl"
+            ],
+            "nullable": true,
+            "description": "Chosen avatar from the platform catalogue; null shows initials",
+            "example": "sun"
+          },
+          "bio": {
+            "type": "string",
+            "nullable": true,
+            "description": "Public \"About me\" (20–500 characters when filled); null if empty",
+            "example": "Conductora habitual desde Roquetas de Mar al campus de La Cañada."
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/TravelPreferencesResource"
           }
         },
         "required": [
@@ -5219,7 +5535,10 @@
           "phone",
           "profiles",
           "activeMode",
-          "timeToleranceMin"
+          "timeToleranceMin",
+          "avatarKey",
+          "bio",
+          "preferences"
         ]
       },
       "AccessTokenResource": {
@@ -5483,6 +5802,51 @@
           "isReady"
         ]
       },
+      "UpdateTravelPreferencesDto": {
+        "type": "object",
+        "properties": {
+          "conversation": {
+            "type": "string",
+            "enum": [
+              "chatty",
+              "depends",
+              "quiet"
+            ],
+            "nullable": true,
+            "example": "chatty"
+          },
+          "music": {
+            "type": "string",
+            "enum": [
+              "any",
+              "soft",
+              "none"
+            ],
+            "nullable": true,
+            "example": "soft"
+          },
+          "smoking": {
+            "type": "string",
+            "enum": [
+              "no",
+              "stops_only",
+              "allowed"
+            ],
+            "nullable": true,
+            "example": "no"
+          },
+          "pets": {
+            "type": "string",
+            "enum": [
+              "none",
+              "small_carrier",
+              "pet_friendly"
+            ],
+            "nullable": true,
+            "example": "small_carrier"
+          }
+        }
+      },
       "UpdateMeDto": {
         "type": "object",
         "properties": {
@@ -5508,6 +5872,42 @@
             ],
             "description": "Default time margin of my searches, in minutes (± around the time)",
             "example": 15
+          },
+          "avatarKey": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "wave",
+              "cactus",
+              "palm",
+              "compass",
+              "car",
+              "leaf",
+              "book",
+              "coffee",
+              "headphones",
+              "cat",
+              "owl"
+            ],
+            "nullable": true,
+            "description": "Chosen avatar from the platform catalogue; null resets to initials",
+            "example": "sun"
+          },
+          "bio": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 20,
+            "maxLength": 500,
+            "description": "Public \"About me\": 20–500 characters when filled; empty string or null clears it",
+            "example": "Conductora habitual desde Roquetas de Mar al campus de La Cañada."
+          },
+          "preferences": {
+            "description": "Travel preferences as driver and passenger",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpdateTravelPreferencesDto"
+              }
+            ]
           }
         }
       },
@@ -5722,6 +6122,55 @@
           }
         }
       },
+      "AvatarResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "Avatar"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "wave",
+              "cactus",
+              "palm",
+              "compass",
+              "car",
+              "leaf",
+              "book",
+              "coffee",
+              "headphones",
+              "cat",
+              "owl"
+            ],
+            "example": "sun"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/avatars/sun"
+          },
+          "name": {
+            "type": "string",
+            "example": "Sol de Almería"
+          },
+          "svg": {
+            "type": "string",
+            "description": "Neutral SVG illustration compatible with light and dark mode",
+            "example": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\">...</svg>"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "name",
+          "svg"
+        ]
+      },
       "GeoPointDto": {
         "type": "object",
         "properties": {
@@ -5836,11 +6285,35 @@
           "name": {
             "type": "string",
             "example": "Lucía Martínez"
+          },
+          "avatarKey": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "wave",
+              "cactus",
+              "palm",
+              "compass",
+              "car",
+              "leaf",
+              "book",
+              "coffee",
+              "headphones",
+              "cat",
+              "owl"
+            ],
+            "nullable": true,
+            "example": "sun"
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/TravelPreferencesResource"
           }
         },
         "required": [
           "id",
-          "name"
+          "name",
+          "avatarKey",
+          "preferences"
         ]
       },
       "TripResource": {
@@ -6257,11 +6730,35 @@
           "name": {
             "type": "string",
             "example": "Mario López"
+          },
+          "avatarKey": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "wave",
+              "cactus",
+              "palm",
+              "compass",
+              "car",
+              "leaf",
+              "book",
+              "coffee",
+              "headphones",
+              "cat",
+              "owl"
+            ],
+            "nullable": true,
+            "example": "headphones"
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/TravelPreferencesResource"
           }
         },
         "required": [
           "id",
-          "name"
+          "name",
+          "avatarKey",
+          "preferences"
         ]
       },
       "SeatRequestResource": {
@@ -6839,11 +7336,35 @@
           "name": {
             "type": "string",
             "example": "Lucía Cortés"
+          },
+          "avatarKey": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "wave",
+              "cactus",
+              "palm",
+              "compass",
+              "car",
+              "leaf",
+              "book",
+              "coffee",
+              "headphones",
+              "cat",
+              "owl"
+            ],
+            "nullable": true,
+            "example": "sun"
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/TravelPreferencesResource"
           }
         },
         "required": [
           "id",
-          "name"
+          "name",
+          "avatarKey",
+          "preferences"
         ]
       },
       "TripMatchVehicleResource": {

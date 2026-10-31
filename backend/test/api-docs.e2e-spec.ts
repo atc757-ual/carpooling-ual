@@ -61,6 +61,8 @@ describe('API docs (e2e)', () => {
       '/api/auth/register',
       '/api/auth/verify-email',
       '/api/auth/verify-email/resend',
+      '/api/avatars',
+      '/api/avatars/{id}',
       '/api/campus-parkings',
       '/api/campus-parkings/{id}',
       '/api/health',

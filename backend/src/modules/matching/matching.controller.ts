@@ -53,8 +53,6 @@ export class MatchingController {
   ): Promise<TripMatchResource[]> {
     const matches = await this.matchingService.search(passenger.sub, search);
     setPaginationHeaders(response, { items: matches, total: matches.length });
-    return matches.map(({ match, driverName, vehicle }) =>
-      toTripMatchResource(match, driverName, vehicle),
-    );
+    return matches.map(toTripMatchResource);
   }
 }

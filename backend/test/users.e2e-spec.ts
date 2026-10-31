@@ -102,6 +102,72 @@ describe('Users API (e2e)', () => {
       profiles: ['passenger'],
       activeMode: null,
       timeToleranceMin: 15,
+      avatarKey: null,
+      bio: null,
+      preferences: {
+        conversation: null,
+        music: null,
+        smoking: null,
+        pets: null,
+      },
+    });
+  });
+
+  it('lets users get their own account and public profile at GET /api/users/me', async () => {
+    const ana = await createUser('ana');
+
+    const response = await request(app.getHttpServer())
+      .get('/api/users/me')
+      .set('Authorization', `Bearer ${ana.accessToken}`)
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      '@type': 'User',
+      id: ana.id,
+      avatarKey: null,
+      bio: null,
+      preferences: {
+        conversation: null,
+        music: null,
+        smoking: null,
+        pets: null,
+      },
+    });
+  });
+
+  describe('GET /api/avatars', () => {
+    it('lists the 12 SVG avatars in display order and gets one by key', async () => {
+      const ana = await createUser('ana');
+
+      const list = await request(app.getHttpServer())
+        .get('/api/avatars')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .expect(200);
+
+      const avatars = list.body as { id: string; svg: string }[];
+      expect(avatars).toHaveLength(12);
+      expect(avatars[0]).toMatchObject({
+        '@type': 'Avatar',
+        id: 'sun',
+        href: '/api/avatars/sun',
+        name: 'Sol de Almería',
+      });
+      expect(avatars[0].svg).toContain('<svg');
+      expect(list.headers['x-total-count']).toBe('12');
+
+      await request(app.getHttpServer())
+        .get('/api/avatars/cactus')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .expect(200)
+        .expect(({ body }) => expect(body).toMatchObject({ id: 'cactus' }));
+
+      await request(app.getHttpServer())
+        .get('/api/avatars/unknown')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .expect(404)
+        .expect(({ body }) =>
+          expect(body).toMatchObject({ code: 'AVATAR_NOT_FOUND' }),
+        );
     });
   });
 
@@ -436,11 +502,76 @@ describe('Users API (e2e)', () => {
       expect(events).toHaveLength(0);
     });
 
+    it('updates avatar, bio and travel preferences without storing bio text in the event', async () => {
+      const ana = await createUser('ana');
+      const bio =
+        'Viajo todos los días desde Roquetas de Mar al campus de la UAL.';
+
+      const response = await updateMe(
+        {
+          avatarKey: 'sun',
+          bio: `  ${bio}  `,
+          preferences: {
+            conversation: 'chatty',
+            music: 'soft',
+            smoking: 'no',
+            pets: 'small_carrier',
+          },
+        },
+        ana.accessToken,
+      ).expect(200);
+
+      expect(response.body).toMatchObject({
+        avatarKey: 'sun',
+        bio,
+        preferences: {
+          conversation: 'chatty',
+          music: 'soft',
+          smoking: 'no',
+          pets: 'small_carrier',
+        },
+      });
+      const events = await dataSource.query<{ payload: object }[]>(
+        `SELECT payload FROM events
+          WHERE type = 'user.updated' AND source_entity_id = $1`,
+        [ana.id],
+      );
+      expect(events).toEqual([
+        {
+          payload: {
+            changedFields: ['avatarKey', 'bio', 'preferences'],
+            timeToleranceMin: 15,
+          },
+        },
+      ]);
+      expect(JSON.stringify(events)).not.toContain('Roquetas');
+
+      // Vaciar «Sobre mí» con cadena vacía y quitar el avatar con null
+      const cleared = await updateMe(
+        { avatarKey: null, bio: '   ', preferences: { pets: null } },
+        ana.accessToken,
+      ).expect(200);
+      expect(cleared.body).toMatchObject({
+        avatarKey: null,
+        bio: null,
+        preferences: {
+          conversation: 'chatty',
+          music: 'soft',
+          smoking: 'no',
+          pets: null,
+        },
+      });
+    });
+
     it.each([
       [{ timeToleranceMin: 7 }],
       [{ name: 'Ana 2' }],
       [{ phone: '123' }],
       [{ email: 'otra@ual.es' }],
+      [{ avatarKey: 'dragon' }],
+      [{ bio: 'Demasiado corto' }],
+      [{ bio: 'a'.repeat(501) }],
+      [{ preferences: { conversation: 'loud' } }],
     ])('rejects %j', async (body) => {
       const ana = await createUser('ana');
 

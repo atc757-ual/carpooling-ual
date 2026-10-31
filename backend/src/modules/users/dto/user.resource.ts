@@ -5,7 +5,9 @@ import {
   REGISTRABLE_PROFILES,
   RegistrableProfile,
 } from '../profile-type';
+import { AVATAR_KEYS, type AvatarKey } from '../travel-preferences';
 import { UserSummary } from '../user-summary';
+import { TravelPreferencesResource } from './travel-preferences.resource';
 
 // Recurso TMF630 User: con @type, id y href (enlace al propio recurso,
 // GET /api/users/{id}). Pertenece al módulo users; auth lo reutiliza en el
@@ -57,6 +59,28 @@ export class UserResource {
     example: 15,
   })
   timeToleranceMin: number;
+
+  @ApiProperty({
+    enum: AVATAR_KEYS,
+    nullable: true,
+    description:
+      'Chosen avatar from the platform catalogue; null shows initials',
+    example: 'sun',
+  })
+  avatarKey: AvatarKey | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description:
+      'Public "About me" (20–500 characters when filled); null if empty',
+    example:
+      'Conductora habitual desde Roquetas de Mar al campus de La Cañada.',
+  })
+  bio: string | null;
+
+  @ApiProperty({ type: TravelPreferencesResource })
+  preferences: TravelPreferencesResource;
 }
 
 export function userHref(id: string): string {
@@ -74,5 +98,8 @@ export function toUserResource(user: UserSummary): UserResource {
     profiles: user.profiles,
     activeMode: user.activeMode,
     timeToleranceMin: user.timeToleranceMin,
+    avatarKey: user.avatarKey,
+    bio: user.bio,
+    preferences: user.preferences,
   };
 }

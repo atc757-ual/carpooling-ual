@@ -1,5 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CampusParkingsService } from '../places/campus-parkings.service';
+import {
+  EMPTY_TRAVEL_PREFERENCES,
+  type AvatarKey,
+  type TravelPreferences,
+} from '../users/travel-preferences';
 import { UsersService } from '../users/users.service';
 import { VehiclesService } from '../users/vehicles.service';
 import type { VehicleRecognitionDetails } from '../users/vehicles.service';
@@ -20,6 +25,8 @@ const MS_PER_MINUTE = 60_000;
 export interface TripMatch {
   match: ScoredMatch<TripCandidate>;
   driverName: string;
+  driverAvatarKey: AvatarKey | null;
+  driverPreferences: TravelPreferences;
   vehicle: VehicleRecognitionDetails;
 }
 
@@ -64,8 +71,8 @@ export class MatchingService {
       marginMin,
       seats,
     });
-    const [names, vehicles] = await Promise.all([
-      this.usersService.getNames([
+    const [drivers, vehicles] = await Promise.all([
+      this.usersService.getPublicProfiles([
         ...new Set(matches.map(({ candidate }) => candidate.driverId)),
       ]),
       this.vehiclesService.getRecognitionDetails(
@@ -77,9 +84,12 @@ export class MatchingService {
       if (vehicle === undefined) {
         throw new VehicleNotFoundError(match.candidate.vehicleId);
       }
+      const driver = drivers.get(match.candidate.driverId);
       return {
         match,
-        driverName: names.get(match.candidate.driverId) ?? '',
+        driverName: driver?.name ?? '',
+        driverAvatarKey: driver?.avatarKey ?? null,
+        driverPreferences: driver?.preferences ?? EMPTY_TRAVEL_PREFERENCES,
         vehicle,
       };
     });
