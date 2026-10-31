@@ -104,6 +104,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Pantalla del final del registro: tras verificar el correo, Â«Â¡Cuenta creada!Â» con Â«Entrar a la appÂ» (siempre a Buscar) y Â«Entrar mÃ¡s tardeÂ» (cierra la sesiÃ³n y vuelve a la bienvenida); si el cÃ³digo venÃ­a de un login de una cuenta sin verificar, dice Â«Â¡Correo verificado!Â» (#102)
 
 ### Changed
+- La cabecera del móvil conserva la insignia «UAL» y su texto se da la vuelta cada 5 segundos entre «Carpool» y «¡Hola, nombre!»; en escritorio el nombre va junto a la campana, en semibold (#105)
+- Los destinos pasan a llamarse «Tus viajes» y «Mi perfil», también en el título de la franja y en las ayudas (#105)
+- Publicar ya no espera a los vehículos para pintarse: el formulario sale al momento y la lista se pide al entrar en el paso 2, con su propia carga y un «Reintentar» si falla; las pantallas dejan de repetir el título, que va en la franja fija (#105)
+- El botón «Añadir vehículo» lleva borde liso azul en vez de discontinuo (#105)
 - El tÃ­tulo y el subtÃ­tulo de cada pantalla pasan a la franja fija (tambiÃ©n en el mÃ³vil, bajo la cabecera) y el saludo de Inicio queda debajo, en el contenido; las tarjetas de Buscar y Publicar empiezan por su formulario (#104)
 - El botÃ³n de cambiar el sentido del trayecto lleva el fondo azul muy claro y el icono en el color de los enlaces, con las flechas rellenas (#104)
 - El cÃ³digo de 6 cifras (verificar el correo y recuperar la contraseÃ±a) se envÃ­a solo al completar la Ãºltima casilla, sin botÃ³n; si es incorrecto, ademÃ¡s del aviso, las casillas tintinean (sin animaciÃ³n con Â«reducir movimientoÂ»), el mÃ³vil vibra y el foco vuelve a la primera (#87)
