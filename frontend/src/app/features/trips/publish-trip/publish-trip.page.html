@@ -1,15 +1,12 @@
 <ion-content>
   <div class="tab-page publish">
+    <!-- Mientras se preparan los parkings y el estado del conductor, nada (es
+         un instante); más adelante, un esqueleto de la pantalla -->
     @switch (loadState()) {
-      @case ('loading') {
-        <output class="publish__status">
-          <ion-spinner name="crescent" aria-hidden="true" />
-          <span class="text-color-muted">Cargando tus vehículos…</span>
-        </output>
-      }
+      @case ('loading') {}
       @case ('error') {
         <div class="notice notice--danger publish__card" role="alert">
-          <p>No hemos podido cargar tus vehículos. Comprueba la conexión e inténtalo de nuevo.</p>
+          <p>No hemos podido preparar el formulario. Comprueba la conexión e inténtalo de nuevo.</p>
         </div>
         <form (submit)="$event.preventDefault(); load()">
           <ion-button type="submit" fill="outline">Reintentar</ion-button>
