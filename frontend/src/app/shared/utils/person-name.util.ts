@@ -29,3 +29,12 @@ export function personNameValidator(): ValidatorFn {
     return name === '' || PERSON_NAME_PATTERN.test(name) ? null : { personName: true };
   };
 }
+
+// Normaliza solo la presentación; el nombre original se conserva en la cuenta.
+export function formatPersonName(name: string): string {
+  return name
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLocaleLowerCase('es-ES')
+    .replace(/(^|[\s-])\p{L}/gu, (letter) => letter.toLocaleUpperCase('es-ES'));
+}

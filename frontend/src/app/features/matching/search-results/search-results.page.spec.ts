@@ -7,6 +7,7 @@ import { TripSearch } from '../../../core/models/trip-search.model';
 import { LocationService } from '../../../core/services/location/location.service';
 import { MatchingService } from '../../../core/services/matching/matching.service';
 import { PlacesService } from '../../../core/services/places/places.service';
+import { AvatarsService } from '../../../core/services/users/avatars.service';
 import {
   PARKING_P1,
   PLACES_SERVICE_STUB,
@@ -28,7 +29,7 @@ const SEARCH: TripSearch = {
 
 const MATCH: TripMatch = {
   id: 't1',
-  driver: { id: 'd1', name: 'Lucía Cortés' },
+  driver: { id: 'd1', name: 'Lucía Cortés', avatarKey: 'sun' },
   departureAt: '2026-10-27T06:30:00.000Z',
   arrivalAt: '2026-10-27T07:02:00.000Z',
   availableSeats: 2,
@@ -36,6 +37,22 @@ const MATCH: TripMatch = {
   timeDifferenceMin: -2,
   score: 0.9,
   vehicle: { brand: 'Seat', model: 'Ibiza', color: 'white' },
+};
+
+const EARLIER_MATCH: TripMatch = {
+  ...MATCH,
+  id: 'earlier',
+  departureAt: '2026-10-27T06:20:00.000Z',
+  arrivalAt: '2026-10-27T06:58:00.000Z',
+  detourMin: 10,
+};
+
+const LOWER_DETOUR_MATCH: TripMatch = {
+  ...MATCH,
+  id: 'lower-detour',
+  departureAt: '2026-10-27T06:35:00.000Z',
+  arrivalAt: '2026-10-27T07:10:00.000Z',
+  detourMin: 1,
 };
 
 describe('SearchResultsPage', () => {
@@ -56,6 +73,7 @@ describe('SearchResultsPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        { provide: AvatarsService, useValue: { getSvg: () => Promise.resolve(null) } },
         { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
         { provide: MatchingService, useValue: { search } },
         {
@@ -82,10 +100,29 @@ describe('SearchResultsPage', () => {
       expect.objectContaining({ parkingId: 'p1', direction: 'to-campus', marginMin: 20, seats: 1 }),
     );
     expect(root.querySelector('app-trip-result-card')?.textContent).toContain('Lucía Cortés');
+    expect(root.querySelector('app-trip-result-card')?.textContent).toContain('Nuevo conductor');
     expect(root.textContent).toContain('1 en tu margen (± 20 min)');
+    expect(root.textContent).toContain('Llegada más temprana');
+    expect(root.textContent).toContain('Menos desvío');
+    expect(root.textContent).toContain(
+      'La hora de llegada es estimada. Verificamos el correo UAL, no la identidad ni el permiso de conducir.',
+    );
     expect(searchState.results().map(({ id }) => id)).toEqual(['t1']);
     expect(page.stops().map(({ name }) => name)).toEqual([ROQUETAS.name, 'Campus UAL']);
     expect(page.details()).toContain('llegada 08:00 ± 20 min · 1 plaza');
+  });
+
+  it('sorts by earliest arrival by default and by detour on request', async () => {
+    const fixture = await setUp(SEARCH, () =>
+      Promise.resolve([MATCH, LOWER_DETOUR_MATCH, EARLIER_MATCH]),
+    );
+    const page = fixture.componentInstance;
+
+    expect(page.sortedTrips().map(({ id }) => id)).toEqual(['earlier', 't1', 'lower-detour']);
+
+    page.handleSortChange('detour');
+
+    expect(page.sortedTrips().map(({ id }) => id)).toEqual(['lower-detour', 't1', 'earlier']);
   });
 
   it('reverses the route when coming back from the campus', async () => {

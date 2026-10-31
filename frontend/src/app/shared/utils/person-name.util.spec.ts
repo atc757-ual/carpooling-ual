@@ -1,5 +1,10 @@
 import { FormControl } from '@angular/forms';
-import { normalizePersonName, personNameValidator, stripNameSymbols } from './person-name.util';
+import {
+  formatPersonName,
+  normalizePersonName,
+  personNameValidator,
+  stripNameSymbols,
+} from './person-name.util';
 
 describe('person name util', () => {
   const validate = (name: string) => personNameValidator()(new FormControl(name));
@@ -25,5 +30,13 @@ describe('person name util', () => {
 
   it('joins separate accents and extra spaces like the API', () => {
     expect(normalizePersonName('  María   Pérez ')).toBe('María Pérez');
+  });
+
+  it('capitalizes each part and preserves accents for display', () => {
+    expect(formatPersonName('  ANA  GARCÍA pérez ')).toBe('Ana García Pérez');
+  });
+
+  it('capitalizes hyphenated names for display', () => {
+    expect(formatPersonName('MARÍA-JOSÉ')).toBe('María-José');
   });
 });

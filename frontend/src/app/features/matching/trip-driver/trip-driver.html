@@ -1,4 +1,10 @@
-<span class="trip-driver__avatar" aria-hidden="true">{{ initials() }}</span>
+<span class="trip-driver__avatar" aria-hidden="true">
+  @if (avatarSvg.value(); as svg) {
+    <span class="trip-driver__avatar-art" [innerHTML]="svg"></span>
+  } @else {
+    {{ initials() }}
+  }
+</span>
 <div class="trip-driver__person">
   <div class="trip-driver__name">{{ driver().name }}</div>
   <div class="text-caption text-color-muted">{{ details() }}</div>

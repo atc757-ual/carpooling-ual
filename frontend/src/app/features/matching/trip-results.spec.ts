@@ -22,7 +22,7 @@ const SEARCH: TripSearch = {
 
 const MATCH: TripMatch = {
   id: 't1',
-  driver: { id: 'd1', name: 'Lucía Cortés' },
+  driver: { id: 'd1', name: 'Lucía Cortés', avatarKey: 'sun' },
   departureAt: new Date('2026-10-27T07:40:00').toISOString(),
   arrivalAt: new Date('2026-10-27T08:12:00').toISOString(),
   availableSeats: 1,
@@ -47,13 +47,16 @@ describe('trip results', () => {
   it('turns a trip of the API into a result row', () => {
     expect(toTripResult(MATCH, SEARCH)).toEqual({
       id: 't1',
+      direction: 'to-campus',
+      arrivalAt: MATCH.arrivalAt,
       departureTime: '07:40',
       arrivalTime: '08:12',
       origin: 'Roquetas de Mar',
       destination: 'Campus UAL · Parking P1',
-      driver: { name: 'Lucía Cortés', isEmailVerified: true },
+      driver: { name: 'Lucía Cortés', avatarKey: 'sun', isEmailVerified: true },
       freeSeats: 1,
       pickupDetourMinutes: 4,
+      passengerStop: ROQUETAS.name,
       vehicle: MATCH.vehicle,
     });
   });

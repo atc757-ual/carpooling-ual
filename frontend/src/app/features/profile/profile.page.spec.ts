@@ -13,9 +13,12 @@ import { ConfirmService } from '../../core/services/ui/confirm.service';
 describe('ProfilePage', () => {
   const logout = vi.fn().mockResolvedValue(undefined);
 
-  function render(profiles: Profile[] = ['passenger']): { root: HTMLElement; page: ProfilePage } {
+  function render(
+    profiles: Profile[] = ['passenger'],
+    name = 'Ana García',
+  ): { root: HTMLElement; page: ProfilePage } {
     const user = signal({
-      name: 'Ana García',
+      name,
       email: 'ana@ual.es',
       phone: '+34612345678',
       profiles,
@@ -55,6 +58,15 @@ describe('ProfilePage', () => {
     expect(root.textContent).toContain('Ana García');
     expect(root.textContent).toContain('ana@ual.es');
     expect(root.textContent).toContain('+34 612 345 678');
+  });
+
+  it('formats the name for display without changing the account value', () => {
+    const { root, page } = render(['passenger'], 'ANA GARCÍA');
+
+    expect(root.querySelector('.profile__identity .text-subtitle')?.textContent?.trim()).toBe(
+      'Ana García',
+    );
+    expect(page.user()?.name).toBe('ANA GARCÍA');
   });
 
   it('shows the vehicles to everyone (the first one makes a driver)', () => {

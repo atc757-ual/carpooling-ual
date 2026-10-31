@@ -19,6 +19,12 @@
   font-weight: var(--font-weight-semibold);
 }
 
+.trip-driver__avatar-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .trip-driver__person {
   flex: 1;
   min-width: 0;

@@ -1,6 +1,7 @@
 import { GeoPoint } from './place.model';
 import { TripDirection } from './trip-search.model';
 import { VehicleColor } from './driver.model';
+import { AvatarKey } from './avatar.model';
 
 // Cuerpo de POST /api/trips/search (matching)
 export interface TripSearchRequest {
@@ -17,7 +18,7 @@ export interface TripSearchRequest {
 // menos
 export interface TripMatch {
   id: string;
-  driver: { id: string; name: string };
+  driver: { id: string; name: string; avatarKey: AvatarKey | null };
   departureAt: string;
   // Llegada con el desvío para recoger o dejar al pasajero
   arrivalAt: string;
