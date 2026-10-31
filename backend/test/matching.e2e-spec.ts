@@ -171,7 +171,11 @@ describe('Matching API (e2e)', () => {
 
   it('returns offered seats and the driver completed-trip count', async () => {
     await dataSource.query(
-      "UPDATE trips SET status = 'finished', departure_at = now() - interval '1 hour' WHERE id = $1",
+      `UPDATE trips
+       SET status = 'finished',
+           departure_at = now() - interval '1 hour',
+           started_at = now() - interval '1 hour'
+       WHERE id = $1`,
       [tripId],
     );
     const nextTrip = await api('post', '/trips', driverToken)
