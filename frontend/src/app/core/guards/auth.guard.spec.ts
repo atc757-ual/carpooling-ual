@@ -21,4 +21,9 @@ describe('authGuard', () => {
   it('sends a guest opening the app to the welcome screen', () => {
     expect(guard.run(authGuard, '/tabs')).toBe('/auth/welcome');
   });
+
+  // /tabs redirige a Publicar antes de pasar por el guard
+  it('sends a guest landing on Publicar to the welcome screen', () => {
+    expect(guard.run(authGuard, '/tabs/publish')).toBe('/auth/welcome');
+  });
 });

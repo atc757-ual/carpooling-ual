@@ -6,6 +6,8 @@ export const WELCOME_PATH = '/auth/welcome';
 export const ACCOUNT_CREATED_PATH = '/account-created';
 // Área con sesión: abre Publicar al entrar
 export const HOME_PATH = '/tabs';
+// Adonde lleva HOME_PATH: la pestaña Publicar
+export const PUBLISH_PATH = '/tabs/publish';
 // Ruta de la pestaña Buscar, usada por sus enlaces directos
 export const SEARCH_PATH = '/tabs/search';
 export const PROFILE_PATH = '/tabs/profile';
