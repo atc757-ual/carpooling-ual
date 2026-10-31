@@ -17,6 +17,9 @@ class TripMatchDriverResource {
 
   @ApiProperty({ type: TravelPreferencesResource })
   preferences: TravelPreferencesResource;
+
+  @ApiProperty({ example: 12, description: 'Number of completed trips' })
+  tripCount: number;
 }
 
 export class TripMatchVehicleResource {
@@ -63,6 +66,9 @@ export class TripMatchResource {
   @ApiProperty({ example: 2 })
   availableSeats: number;
 
+  @ApiProperty({ example: 3, description: 'Seats offered for this trip' })
+  offeredSeats: number;
+
   @ApiProperty({
     example: 3,
     description: 'Minutes the passenger adds to the driver route',
@@ -104,6 +110,7 @@ export function toTripMatchResource({
       name: driverName,
       avatarKey: driverAvatarKey,
       preferences: driverPreferences,
+      tripCount: candidate.driverTripCount,
     },
     vehicle,
     departureAt: candidate.departureAt.toISOString(),
@@ -111,6 +118,7 @@ export function toTripMatchResource({
       candidate.departureAt.getTime() + travelMin * MS_PER_MINUTE,
     ).toISOString(),
     availableSeats: candidate.availableSeats,
+    offeredSeats: candidate.offeredSeats,
     detourMin: candidate.detourMin,
     timeDifferenceMin,
     score,

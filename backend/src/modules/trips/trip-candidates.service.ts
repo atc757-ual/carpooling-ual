@@ -22,7 +22,9 @@ interface CandidateRow {
   driver_id: string;
   vehicle_id: string;
   departure_at: Date;
+  offered_seats: number;
   available_seats: number;
+  driver_trip_count: number;
   max_detour_min: number;
   duration_min: number;
   origin: Point;
@@ -55,6 +57,8 @@ export class TripCandidatesService implements CandidateSource {
           tripId: row.id,
           driverId: row.driver_id,
           vehicleId: row.vehicle_id,
+          offeredSeats: row.offered_seats,
+          driverTripCount: row.driver_trip_count,
           departureAt: new Date(row.departure_at),
           durationMin: row.duration_min,
           detourMin: Math.max(0, durationVia - row.duration_min),
@@ -76,7 +80,11 @@ export class TripCandidatesService implements CandidateSource {
          SELECT ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography AS place,
                 ST_SetSRID(ST_MakePoint($3, $4), 4326)::geography AS campus
        )
-       SELECT t.id, t.driver_id, t.vehicle_id, t.departure_at, t.available_seats,
+       SELECT t.id, t.driver_id, t.vehicle_id, t.departure_at,
+              t.offered_seats, t.available_seats,
+              (SELECT COUNT(*)::int FROM trips completed
+               WHERE completed.driver_id = t.driver_id AND completed.status = 'finished')
+                AS driver_trip_count,
               t.max_detour_min, r.duration_min,
               ST_AsGeoJSON(t.origin)::json AS origin,
               ST_AsGeoJSON(t.destination)::json AS destination,

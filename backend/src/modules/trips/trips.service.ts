@@ -6,6 +6,7 @@ import { Page, PageRequest } from '../../shared/pagination/page';
 import type { AvatarKey, TravelPreferences } from '../users/travel-preferences';
 import { UsersService } from '../users/users.service';
 import { VehiclesService } from '../users/vehicles.service';
+import type { VehicleRecognitionDetails } from '../users/vehicles.service';
 import { TripRoute } from './entities/trip-route.entity';
 import { Trip } from './entities/trip.entity';
 import { DepartureInThePastError } from './errors/departure-in-the-past.error';
@@ -58,6 +59,8 @@ export interface TripView {
   driverName: string;
   driverAvatarKey: AvatarKey | null;
   driverPreferences: TravelPreferences;
+  driverTripCount: number;
+  vehicle: VehicleRecognitionDetails | null;
 }
 
 // Un viaje con su ruta (RF-12)
@@ -145,13 +148,22 @@ export class TripsService {
     });
     const { name, avatarKey, preferences } =
       await this.usersService.getSummary(driverId);
+    const [driverTripCount, vehicles] = await Promise.all([
+      this.getDriverTripCount(driverId),
+      this.vehiclesService.getRecognitionDetails(
+        trips.map(({ vehicleId }) => vehicleId),
+      ),
+    ]);
     return {
-      items: trips.map((trip) => ({
-        trip,
-        driverName: name,
-        driverAvatarKey: avatarKey,
-        driverPreferences: preferences,
-      })),
+      items: trips.map((trip) =>
+        this.toViewWithProfile(trip, {
+          driverName: name,
+          driverAvatarKey: avatarKey,
+          driverPreferences: preferences,
+          driverTripCount,
+          vehicle: vehicles.get(trip.vehicleId) ?? null,
+        }),
+      ),
       total,
     };
   }
@@ -323,15 +335,30 @@ export class TripsService {
 
   // El viaje con el perfil público de su conductor
   private async toView(trip: Trip): Promise<TripView> {
-    const { name, avatarKey, preferences } = await this.usersService.getSummary(
-      trip.driverId,
-    );
+    const [profile, driverTripCount, vehicles] = await Promise.all([
+      this.usersService.getSummary(trip.driverId),
+      this.getDriverTripCount(trip.driverId),
+      this.vehiclesService.getRecognitionDetails([trip.vehicleId]),
+    ]);
     return {
       trip,
-      driverName: name,
-      driverAvatarKey: avatarKey,
-      driverPreferences: preferences,
+      driverName: profile.name,
+      driverAvatarKey: profile.avatarKey,
+      driverPreferences: profile.preferences,
+      driverTripCount,
+      vehicle: vehicles.get(trip.vehicleId) ?? null,
     };
+  }
+
+  private getDriverTripCount(driverId: string): Promise<number> {
+    return this.tripsRepository.countBy({ driverId, status: 'finished' });
+  }
+
+  private toViewWithProfile(
+    trip: Trip,
+    profile: Omit<TripView, 'trip'>,
+  ): TripView {
+    return { trip, ...profile };
   }
 
   // Reglas comunes de publicar y modificar: vehículo suyo y activo, plazas

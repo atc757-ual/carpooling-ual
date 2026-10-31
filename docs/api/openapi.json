@@ -6763,13 +6763,54 @@
           },
           "preferences": {
             "$ref": "#/components/schemas/TravelPreferencesResource"
+          },
+          "tripCount": {
+            "type": "number",
+            "example": 12,
+            "description": "Number of completed trips"
           }
         },
         "required": [
           "id",
           "name",
           "avatarKey",
-          "preferences"
+          "preferences",
+          "tripCount"
+        ]
+      },
+      "TripVehicleResource": {
+        "type": "object",
+        "properties": {
+          "brand": {
+            "type": "string",
+            "nullable": true,
+            "example": "Seat"
+          },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "example": "Ibiza"
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "white",
+              "black",
+              "grey",
+              "silver",
+              "blue",
+              "red",
+              "green",
+              "other"
+            ],
+            "nullable": true,
+            "example": "blue"
+          }
+        },
+        "required": [
+          "brand",
+          "model",
+          "color"
         ]
       },
       "TripResource": {
@@ -6795,6 +6836,15 @@
           "vehicleId": {
             "type": "string",
             "format": "uuid"
+          },
+          "vehicle": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TripVehicleResource"
+              }
+            ]
           },
           "origin": {
             "$ref": "#/components/schemas/GeoPointDto"
@@ -6854,6 +6904,7 @@
           "href",
           "driver",
           "vehicleId",
+          "vehicle",
           "origin",
           "destination",
           "departureAt",
@@ -7814,13 +7865,19 @@
           },
           "preferences": {
             "$ref": "#/components/schemas/TravelPreferencesResource"
+          },
+          "tripCount": {
+            "type": "number",
+            "example": 12,
+            "description": "Number of completed trips"
           }
         },
         "required": [
           "id",
           "name",
           "avatarKey",
-          "preferences"
+          "preferences",
+          "tripCount"
         ]
       },
       "TripMatchVehicleResource": {
@@ -7895,6 +7952,11 @@
             "type": "number",
             "example": 2
           },
+          "offeredSeats": {
+            "type": "number",
+            "example": 3,
+            "description": "Seats offered for this trip"
+          },
           "detourMin": {
             "type": "number",
             "example": 3,
@@ -7922,6 +7984,7 @@
           "departureAt",
           "arrivalAt",
           "availableSeats",
+          "offeredSeats",
           "detourMin",
           "timeDifferenceMin",
           "score"

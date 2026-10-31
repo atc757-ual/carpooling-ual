@@ -22,8 +22,10 @@ const MINUTES = 60_000;
 
 interface TripMatchBody {
   id: string;
-  driver: { name: string };
+  driver: { name: string; tripCount: number };
   vehicle: { brand: string; model: string; color: string };
+  offeredSeats: number;
+  availableSeats: number;
   detourMin: number;
   score: number;
 }
@@ -34,6 +36,9 @@ describe('Matching API (e2e)', () => {
   let tripId: string;
   let departureAt: Date;
   let passengerToken: string;
+  let driverToken: string;
+  let vehicleId: string;
+  let campusLocation: unknown;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -46,7 +51,7 @@ describe('Matching API (e2e)', () => {
   });
 
   beforeEach(async () => {
-    const driverToken = await tokenFor('lucia', ['driver']);
+    driverToken = await tokenFor('lucia', ['driver']);
     await api('put', '/users/me/driver-declaration', driverToken).expect(200);
     const vehicle = await api('post', '/vehicles', driverToken)
       .send({
@@ -58,14 +63,16 @@ describe('Matching API (e2e)', () => {
         engine: 'hybrid',
       })
       .expect(201);
+    vehicleId = (vehicle.body as { id: string }).id;
     const parking = await api('get', '/campus-parkings/p1', driverToken).expect(
       200,
     );
+    campusLocation = (parking.body as { location: unknown }).location;
     // Mañana a la misma hora: siempre en el futuro
     departureAt = new Date(Date.now() + 24 * 60 * MINUTES);
     const trip = await api('post', '/trips', driverToken)
       .send({
-        vehicleId: (vehicle.body as { id: string }).id,
+        vehicleId,
         origin: ALMERIA_CENTRE,
         destination: (parking.body as { location: unknown }).location,
         departureAt,
@@ -128,6 +135,7 @@ describe('Matching API (e2e)', () => {
       driver: {
         name: 'lucia',
         avatarKey: null,
+        tripCount: 0,
         preferences: {
           conversation: null,
           music: null,
@@ -141,6 +149,7 @@ describe('Matching API (e2e)', () => {
         color: 'red',
       },
       availableSeats: 2,
+      offeredSeats: 2,
     });
     // La matrícula solo la ve el pasajero con la plaza aceptada
     expect(match?.vehicle).not.toHaveProperty('plate');
@@ -158,6 +167,38 @@ describe('Matching API (e2e)', () => {
     expect(await ids({ place: FAR_AWAY })).not.toContain(tripId);
     expect(await ids({ direction: 'from-campus' })).not.toContain(tripId);
     expect(await ids({ seats: 3 })).not.toContain(tripId);
+  });
+
+  it('returns offered seats and the driver completed-trip count', async () => {
+    await dataSource.query(
+      `UPDATE trips
+       SET status = 'finished',
+           departure_at = now() - interval '1 hour',
+           started_at = now() - interval '1 hour'
+       WHERE id = $1`,
+      [tripId],
+    );
+    const nextTrip = await api('post', '/trips', driverToken)
+      .send({
+        vehicleId,
+        origin: ALMERIA_CENTRE,
+        destination: campusLocation,
+        departureAt: new Date(Date.now() + 24 * 60 * MINUTES),
+        offeredSeats: 3,
+        maxDetourMin: 15,
+      })
+      .expect(201);
+
+    const response = await search().expect(200);
+    const match = (response.body as TripMatchBody[]).find(
+      ({ id }) => id === (nextTrip.body as { id: string }).id,
+    );
+
+    expect(match).toMatchObject({
+      driver: { tripCount: 1 },
+      availableSeats: 3,
+      offeredSeats: 3,
+    });
   });
 
   it('rejects an unknown parking and invalid searches', async () => {
