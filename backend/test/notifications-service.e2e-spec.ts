@@ -70,9 +70,14 @@ describe('NotificationsService (e2e)', () => {
   async function publishTrip() {
     const driverId = await createUser('dan', ['driver']);
     await usersService.declareDriverLicense(driverId);
-    const vehicle = await app
-      .get(VehiclesService)
-      .register(driverId, { plate: '9922BCD', capacity: 4 });
+    const vehicle = await app.get(VehiclesService).register(driverId, {
+      plate: '9922BCD',
+      capacity: 4,
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
+    });
     const { trip } = await tripsService.publish(driverId, {
       vehicleId: vehicle.id,
       origin: ALMERIA_CENTRE,

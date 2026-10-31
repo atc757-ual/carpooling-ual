@@ -14,6 +14,7 @@ describe('VehiclesService', () => {
   let vehiclesService: VehiclesService;
   const vehiclesRepository = {
     findOneBy: jest.fn(),
+    findBy: jest.fn(),
     countBy: jest.fn(),
     create: jest.fn((values: Partial<Vehicle>) => values),
     save: jest.fn(),
@@ -22,6 +23,7 @@ describe('VehiclesService', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     vehiclesRepository.findOneBy.mockResolvedValue(null);
+    vehiclesRepository.findBy.mockResolvedValue([]);
     vehiclesRepository.countBy.mockResolvedValue(0);
     const moduleRef = await Test.createTestingModule({
       providers: [
@@ -43,7 +45,14 @@ describe('VehiclesService', () => {
     );
 
     await expect(
-      vehiclesService.register('driver-1', { plate: '9001BCD', capacity: 4 }),
+      vehiclesService.register('driver-1', {
+        plate: '9001BCD',
+        capacity: 4,
+        brand: 'Seat',
+        model: 'Ibiza',
+        color: 'blue',
+        engine: 'hybrid',
+      }),
     ).rejects.toBeInstanceOf(VehicleAlreadyRegisteredError);
   });
 
@@ -52,7 +61,14 @@ describe('VehiclesService', () => {
     vehiclesRepository.save.mockRejectedValue(connectionLost);
 
     await expect(
-      vehiclesService.register('driver-1', { plate: '9001BCD', capacity: 4 }),
+      vehiclesService.register('driver-1', {
+        plate: '9001BCD',
+        capacity: 4,
+        brand: 'Seat',
+        model: 'Ibiza',
+        color: 'blue',
+        engine: 'hybrid',
+      }),
     ).rejects.toBe(connectionLost);
   });
 
@@ -68,7 +84,10 @@ describe('VehiclesService', () => {
         id: 'v1',
         driverId: 'd1',
         plate: '1234BCD',
-        model: 'Seat Ibiza',
+        brand: 'Seat',
+        model: 'Ibiza',
+        color: 'blue',
+        engine: 'hybrid',
         capacity: 4,
         status: 'on_trip',
       }) as Vehicle;
@@ -82,18 +101,68 @@ describe('VehiclesService', () => {
       expect(vehiclesRepository.save).not.toHaveBeenCalled();
     });
 
-    it('still changes its model, or the same seats', async () => {
+    it('still changes color and engine, or the same seats', async () => {
       vehiclesRepository.findOneBy.mockResolvedValue(onTrip());
       vehiclesRepository.save.mockImplementation((vehicle: Vehicle) =>
         Promise.resolve(vehicle),
       );
 
       const updated = await vehiclesService.update('d1', 'v1', {
-        model: 'Seat León',
+        color: 'red',
+        engine: 'electric',
         capacity: 4,
       });
 
-      expect(updated).toMatchObject({ model: 'Seat León', capacity: 4 });
+      expect(updated).toMatchObject({
+        color: 'red',
+        engine: 'electric',
+        capacity: 4,
+      });
     });
+  });
+
+  it('registers the make, model, color and engine separately', async () => {
+    vehiclesRepository.save.mockImplementation((vehicle: Vehicle) =>
+      Promise.resolve(vehicle),
+    );
+
+    const created = await vehiclesService.register('driver-1', {
+      plate: '9001BCD',
+      capacity: 4,
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
+    });
+
+    expect(created).toMatchObject({
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
+    });
+  });
+
+  it('returns recognition details for a list of vehicle ids', async () => {
+    vehiclesRepository.findBy.mockResolvedValue([
+      {
+        id: 'v1',
+        plate: '1234BCD',
+        brand: 'Seat',
+        model: 'Ibiza',
+        color: 'blue',
+      },
+    ]);
+
+    await expect(
+      vehiclesService.getRecognitionDetails(['v1']),
+    ).resolves.toEqual(
+      new Map([
+        [
+          'v1',
+          { plate: '1234BCD', brand: 'Seat', model: 'Ibiza', color: 'blue' },
+        ],
+      ]),
+    );
   });
 });

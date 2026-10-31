@@ -70,11 +70,18 @@ describe('Vehicles API (e2e)', () => {
     plate: string,
     capacity = 4,
   ): request.Test {
-    return api('post', '/vehicles', token).send({ plate, capacity });
+    return api('post', '/vehicles', token).send({
+      plate,
+      capacity,
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
+    });
   }
 
   describe('POST /api/vehicles', () => {
-    it('registers a vehicle: 201, Location and the plate normalized', async () => {
+    it('registers a vehicle with its details and normalizes the plate', async () => {
       const ana = await tokenFor('ana');
 
       const response = await registerVehicle(ana, '9201 bcd').expect(201);
@@ -85,7 +92,10 @@ describe('Vehicles API (e2e)', () => {
         id: body.id,
         href: `/api/vehicles/${body.id}`,
         plate: '9201BCD',
-        model: null,
+        brand: 'Seat',
+        model: 'Ibiza',
+        color: 'blue',
+        engine: 'hybrid',
         capacity: 4,
         status: 'available',
       });
@@ -101,6 +111,26 @@ describe('Vehicles API (e2e)', () => {
       expect(fields.map(({ field }) => field).sort()).toEqual([
         'capacity',
         'plate',
+      ]);
+    });
+
+    it('requires a valid color and engine', async () => {
+      const ana = await tokenFor('ana');
+      const response = await api('post', '/vehicles', ana)
+        .send({
+          plate: '9204BCD',
+          capacity: 4,
+          brand: 'Seat',
+          model: 'Ibiza',
+          color: 'purple',
+          engine: 'diesel',
+        })
+        .expect(400);
+
+      const { fields } = response.body as { fields: { field: string }[] };
+      expect(fields.map(({ field }) => field).sort()).toEqual([
+        'color',
+        'engine',
       ]);
     });
 
@@ -132,21 +162,31 @@ describe('Vehicles API (e2e)', () => {
   });
 
   describe('PATCH /api/vehicles/{id}', () => {
-    it('saves the make and model on registration and edits it with the seats', async () => {
+    it('edits the color, engine and seats without changing make or model', async () => {
       const ana = await tokenFor('ana');
       const created = await api('post', '/vehicles', ana)
-        .send({ plate: '9231BCD', capacity: 4, model: '  Seat Ibiza ' })
+        .send({
+          plate: '9231BCD',
+          capacity: 4,
+          brand: ' Seat ',
+          model: ' Ibiza ',
+          color: 'blue',
+          engine: 'hybrid',
+        })
         .expect(201);
-      const { id, model } = created.body as { id: string; model: string };
-      expect(model).toBe('Seat Ibiza');
+      const { id } = created.body as { id: string };
+      expect(created.body).toMatchObject({ brand: 'Seat', model: 'Ibiza' });
 
       const response = await api('patch', `/vehicles/${id}`, ana)
-        .send({ model: 'Seat León', capacity: 3 })
+        .send({ color: 'green', engine: 'electric', capacity: 3 })
         .expect(200);
 
       expect(response.body).toMatchObject({
         plate: '9231BCD',
-        model: 'Seat León',
+        brand: 'Seat',
+        model: 'Ibiza',
+        color: 'green',
+        engine: 'electric',
         capacity: 3,
       });
     });
@@ -163,7 +203,10 @@ describe('Vehicles API (e2e)', () => {
         .send({ capacity: 9 })
         .expect(400);
       await api('patch', `/vehicles/${id}`, ana)
-        .send({ model: 'X' })
+        .send({ brand: 'Toyota' })
+        .expect(400);
+      await api('patch', `/vehicles/${id}`, ana)
+        .send({ engine: 'diesel' })
         .expect(400);
     });
 

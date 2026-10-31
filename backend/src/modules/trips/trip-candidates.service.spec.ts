@@ -20,6 +20,7 @@ const QUERY: CandidateQuery = {
 const ROW = {
   id: 't1',
   driver_id: 'd1',
+  vehicle_id: 'v1',
   departure_at: new Date('2026-10-28T07:40:00Z'),
   available_seats: 2,
   max_detour_min: 10,
@@ -68,6 +69,7 @@ describe('TripCandidatesService', () => {
     expect(candidate).toMatchObject({
       tripId: 't1',
       driverId: 'd1',
+      vehicleId: 'v1',
       durationMin: 25,
       detourMin: 4,
       distanceKm: 0.46,

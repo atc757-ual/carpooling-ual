@@ -1,6 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CampusParkingsService } from '../places/campus-parkings.service';
 import { UsersService } from '../users/users.service';
+import { VehiclesService } from '../users/vehicles.service';
+import type { VehicleRecognitionDetails } from '../users/vehicles.service';
+import { VehicleNotFoundError } from '../users/errors/vehicle-not-found.error';
 import {
   CANDIDATE_SOURCE,
   type CandidateSource,
@@ -17,6 +20,7 @@ const MS_PER_MINUTE = 60_000;
 export interface TripMatch {
   match: ScoredMatch<TripCandidate>;
   driverName: string;
+  vehicle: VehicleRecognitionDetails;
 }
 
 // Matching (RF-06, RF-07): pide los candidatos a la fuente (CandidateSource)
@@ -29,6 +33,7 @@ export class MatchingService {
     private readonly candidateSource: CandidateSource,
     private readonly campusParkingsService: CampusParkingsService,
     private readonly usersService: UsersService,
+    private readonly vehiclesService: VehiclesService,
   ) {}
 
   async search(
@@ -59,12 +64,24 @@ export class MatchingService {
       marginMin,
       seats,
     });
-    const names = await this.usersService.getNames([
-      ...new Set(matches.map(({ candidate }) => candidate.driverId)),
+    const [names, vehicles] = await Promise.all([
+      this.usersService.getNames([
+        ...new Set(matches.map(({ candidate }) => candidate.driverId)),
+      ]),
+      this.vehiclesService.getRecognitionDetails(
+        matches.map(({ candidate }) => candidate.vehicleId),
+      ),
     ]);
-    return matches.map((match) => ({
-      match,
-      driverName: names.get(match.candidate.driverId) ?? '',
-    }));
+    return matches.map((match) => {
+      const vehicle = vehicles.get(match.candidate.vehicleId);
+      if (vehicle === undefined) {
+        throw new VehicleNotFoundError(match.candidate.vehicleId);
+      }
+      return {
+        match,
+        driverName: names.get(match.candidate.driverId) ?? '',
+        vehicle,
+      };
+    });
   }
 }

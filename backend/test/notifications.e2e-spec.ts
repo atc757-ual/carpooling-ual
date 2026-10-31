@@ -80,9 +80,14 @@ describe('Notifications API (e2e)', () => {
     const dan = await sessionFor('dan', ['driver']);
     const usersService = app.get(UsersService);
     await usersService.declareDriverLicense(dan.id);
-    const vehicle = await app
-      .get(VehiclesService)
-      .register(dan.id, { plate: '9923BCD', capacity: 4 });
+    const vehicle = await app.get(VehiclesService).register(dan.id, {
+      plate: '9923BCD',
+      capacity: 4,
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
+    });
     const { trip } = await app.get(TripsService).publish(dan.id, {
       vehicleId: vehicle.id,
       origin: ALMERIA_CENTRE,

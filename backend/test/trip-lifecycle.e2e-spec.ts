@@ -71,7 +71,14 @@ describe('Trip lifecycle API (e2e)', () => {
     const driver = await tokenFor('dan', ['driver']);
     await api('put', '/users/me/driver-declaration', driver).expect(200);
     const vehicle = await api('post', '/vehicles', driver)
-      .send({ plate: '9901BCD', capacity: 4 })
+      .send({
+        plate: '9901BCD',
+        capacity: 4,
+        brand: 'Seat',
+        model: 'Ibiza',
+        color: 'blue',
+        engine: 'hybrid',
+      })
       .expect(201);
     const vehicleId = (vehicle.body as { id: string }).id;
     const trip = await api('post', '/trips', driver)

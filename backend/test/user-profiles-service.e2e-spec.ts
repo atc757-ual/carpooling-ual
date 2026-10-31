@@ -225,9 +225,14 @@ describe('UserProfilesService (e2e)', () => {
     const ada = await createUser('ada', ['admin']);
     const dan = await createUser('dan', ['driver']);
     await usersService.declareDriverLicense(dan);
-    const vehicle = await app
-      .get(VehiclesService)
-      .register(dan, { plate: '9961BCD', capacity: 4 });
+    const vehicle = await app.get(VehiclesService).register(dan, {
+      plate: '9961BCD',
+      capacity: 4,
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
+    });
     const tripsService = app.get(TripsService);
     const tripInput = {
       vehicleId: vehicle.id,

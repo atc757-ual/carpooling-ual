@@ -23,6 +23,7 @@ const MINUTES = 60_000;
 interface TripMatchBody {
   id: string;
   driver: { name: string };
+  vehicle: { brand: string; model: string; color: string; plate: string };
   detourMin: number;
   score: number;
 }
@@ -48,7 +49,14 @@ describe('Matching API (e2e)', () => {
     const driverToken = await tokenFor('lucia', ['driver']);
     await api('put', '/users/me/driver-declaration', driverToken).expect(200);
     const vehicle = await api('post', '/vehicles', driverToken)
-      .send({ plate: '9900BCD', capacity: 3 })
+      .send({
+        plate: '9900BCD',
+        capacity: 3,
+        brand: 'Toyota',
+        model: 'Yaris',
+        color: 'red',
+        engine: 'hybrid',
+      })
       .expect(201);
     const parking = await api('get', '/campus-parkings/p1', driverToken).expect(
       200,
@@ -118,6 +126,12 @@ describe('Matching API (e2e)', () => {
       '@type': 'TripMatch',
       href: `/api/trips/${tripId}`,
       driver: { name: 'lucia' },
+      vehicle: {
+        brand: 'Toyota',
+        model: 'Yaris',
+        color: 'red',
+        plate: '9900BCD',
+      },
       availableSeats: 2,
     });
     expect(match?.detourMin).toBeLessThanOrEqual(15);

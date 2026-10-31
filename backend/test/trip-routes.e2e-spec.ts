@@ -96,9 +96,14 @@ describe('Trip routes (e2e)', () => {
   async function publishTrip() {
     const dan = await sessionFor('dan', ['driver']);
     await app.get(UsersService).declareDriverLicense(dan.id);
-    const vehicle = await app
-      .get(VehiclesService)
-      .register(dan.id, { plate: '9925BCD', capacity: 4 });
+    const vehicle = await app.get(VehiclesService).register(dan.id, {
+      plate: '9925BCD',
+      capacity: 4,
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
+    });
     const { trip } = await tripsService.publish(dan.id, {
       vehicleId: vehicle.id,
       origin: ALMERIA_CENTRE,

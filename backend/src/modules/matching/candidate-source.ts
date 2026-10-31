@@ -24,6 +24,7 @@ export interface CandidateQuery {
 
 export interface TripCandidate extends MatchCandidate {
   driverId: string;
+  vehicleId: string;
   origin: Point;
   destination: Point;
   // Distancia de la ruta del conductor a la dirección del pasajero

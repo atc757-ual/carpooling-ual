@@ -51,10 +51,23 @@ describe('VehiclesService (e2e)', () => {
     return user.id;
   }
 
+  function registerVehicle(
+    driverId: string,
+    input: { plate: string; capacity: number },
+  ) {
+    return vehiclesService.register(driverId, {
+      ...input,
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
+    });
+  }
+
   it('registers a vehicle with the plate normalized', async () => {
     const ana = await createDriver('ana');
 
-    const vehicle = await vehiclesService.register(ana, {
+    const vehicle = await registerVehicle(ana, {
       plate: '9001 bcd',
       capacity: 4,
     });
@@ -70,31 +83,31 @@ describe('VehiclesService (e2e)', () => {
   it('rejects a plate already registered by another driver', async () => {
     const ana = await createDriver('ana');
     const bob = await createDriver('bob');
-    await vehiclesService.register(ana, { plate: '9002BCD', capacity: 4 });
+    await registerVehicle(ana, { plate: '9002BCD', capacity: 4 });
 
     await expect(
-      vehiclesService.register(bob, { plate: '9002-bcd', capacity: 3 }),
+      registerVehicle(bob, { plate: '9002-bcd', capacity: 3 }),
     ).rejects.toBeInstanceOf(VehicleAlreadyRegisteredError);
   });
 
   it('rejects registering again an active vehicle of the same driver', async () => {
     const ana = await createDriver('ana');
-    await vehiclesService.register(ana, { plate: '9003BCD', capacity: 4 });
+    await registerVehicle(ana, { plate: '9003BCD', capacity: 4 });
 
     await expect(
-      vehiclesService.register(ana, { plate: '9003BCD', capacity: 4 }),
+      registerVehicle(ana, { plate: '9003BCD', capacity: 4 }),
     ).rejects.toBeInstanceOf(VehicleAlreadyRegisteredError);
   });
 
   it('reactivates a vehicle the same driver had deactivated', async () => {
     const ana = await createDriver('ana');
-    const first = await vehiclesService.register(ana, {
+    const first = await registerVehicle(ana, {
       plate: '9004BCD',
       capacity: 4,
     });
     await vehiclesService.deactivate(ana, first.id);
 
-    const again = await vehiclesService.register(ana, {
+    const again = await registerVehicle(ana, {
       plate: '9004BCD',
       capacity: 5,
     });
@@ -108,33 +121,33 @@ describe('VehiclesService (e2e)', () => {
 
   it('allows at most 3 active vehicles; a deactivated one frees its place', async () => {
     const ana = await createDriver('ana');
-    const first = await vehiclesService.register(ana, {
+    const first = await registerVehicle(ana, {
       plate: '9041BCD',
       capacity: 4,
     });
-    await vehiclesService.register(ana, { plate: '9042BCD', capacity: 4 });
-    await vehiclesService.register(ana, { plate: '9043BCD', capacity: 4 });
+    await registerVehicle(ana, { plate: '9042BCD', capacity: 4 });
+    await registerVehicle(ana, { plate: '9043BCD', capacity: 4 });
 
     await expect(
-      vehiclesService.register(ana, { plate: '9044BCD', capacity: 4 }),
+      registerVehicle(ana, { plate: '9044BCD', capacity: 4 }),
     ).rejects.toBeInstanceOf(VehicleLimitReachedError);
 
     await vehiclesService.deactivate(ana, first.id);
     await expect(
-      vehiclesService.register(ana, { plate: '9044BCD', capacity: 4 }),
+      registerVehicle(ana, { plate: '9044BCD', capacity: 4 }),
     ).resolves.toMatchObject({ plate: '9044BCD' });
   });
 
   it('lists only the active vehicles of the driver, with the total', async () => {
     const ana = await createDriver('ana');
     const bob = await createDriver('bob');
-    const car = await vehiclesService.register(ana, {
+    const car = await registerVehicle(ana, {
       plate: '9005BCD',
       capacity: 4,
     });
-    await vehiclesService.register(ana, { plate: '9006BCD', capacity: 2 });
-    await vehiclesService.register(ana, { plate: '9007BCD', capacity: 3 });
-    await vehiclesService.register(bob, { plate: '9008BCD', capacity: 4 });
+    await registerVehicle(ana, { plate: '9006BCD', capacity: 2 });
+    await registerVehicle(ana, { plate: '9007BCD', capacity: 3 });
+    await registerVehicle(bob, { plate: '9008BCD', capacity: 4 });
     await vehiclesService.deactivate(ana, car.id);
 
     const page = await vehiclesService.listByDriver(ana, {
@@ -148,7 +161,7 @@ describe('VehiclesService (e2e)', () => {
 
   it('deactivates a vehicle: it disappears from the list but still exists', async () => {
     const ana = await createDriver('ana');
-    const car = await vehiclesService.register(ana, {
+    const car = await registerVehicle(ana, {
       plate: '9009BCD',
       capacity: 4,
     });
@@ -169,7 +182,7 @@ describe('VehiclesService (e2e)', () => {
   it("answers VEHICLE_NOT_FOUND for another driver's vehicle", async () => {
     const ana = await createDriver('ana');
     const bob = await createDriver('bob');
-    const car = await vehiclesService.register(ana, {
+    const car = await registerVehicle(ana, {
       plate: '9010BCD',
       capacity: 4,
     });
@@ -181,7 +194,7 @@ describe('VehiclesService (e2e)', () => {
 
   it('answers VEHICLE_NOT_FOUND when deactivating twice', async () => {
     const ana = await createDriver('ana');
-    const car = await vehiclesService.register(ana, {
+    const car = await registerVehicle(ana, {
       plate: '9011BCD',
       capacity: 4,
     });
@@ -194,7 +207,7 @@ describe('VehiclesService (e2e)', () => {
 
   it('does not deactivate a vehicle that is on a trip', async () => {
     const ana = await createDriver('ana');
-    const car = await vehiclesService.register(ana, {
+    const car = await registerVehicle(ana, {
       plate: '9012BCD',
       capacity: 4,
     });

@@ -39,9 +39,9 @@ INSERT INTO passenger_profiles (user_id, average_rating, has_high_priority) VALU
 -- -----------------------------------------------------------------------------
 -- Vehículos
 -- -----------------------------------------------------------------------------
-INSERT INTO vehicles (id, driver_id, plate, model, capacity) VALUES
-  ('00000000-0000-4000-8000-000000000101', '00000000-0000-4000-8000-000000000002', '1234BCD', 'Seat Ibiza', 4),
-  ('00000000-0000-4000-8000-000000000102', '00000000-0000-4000-8000-000000000004', '5678DFG', 'Renault Clio', 3);
+INSERT INTO vehicles (id, driver_id, plate, brand, model, color, engine, capacity) VALUES
+  ('00000000-0000-4000-8000-000000000101', '00000000-0000-4000-8000-000000000002', '1234BCD', 'Seat', 'Ibiza', 'blue', 'hybrid', 4),
+  ('00000000-0000-4000-8000-000000000102', '00000000-0000-4000-8000-000000000004', '5678DFG', 'Renault', 'Clio', 'grey', 'other', 3);
 
 -- -----------------------------------------------------------------------------
 -- Viajes hacia el campus de la UAL (La Cañada, Almería)

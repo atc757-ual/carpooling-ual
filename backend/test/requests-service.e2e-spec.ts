@@ -84,9 +84,14 @@ describe('RequestsService (e2e)', () => {
     await usersService.declareDriverLicense(driverId);
     plateNumber += 1;
     const plate = `${plateNumber}BCD`;
-    const vehicle = await app
-      .get(VehiclesService)
-      .register(driverId, { plate, capacity: 4 });
+    const vehicle = await app.get(VehiclesService).register(driverId, {
+      plate,
+      capacity: 4,
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
+    });
     const { trip } = await tripsService.publish(driverId, {
       vehicleId: vehicle.id,
       origin: ALMERIA_CENTRE,

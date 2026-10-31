@@ -1,14 +1,15 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsInt,
-  IsOptional,
+  IsIn,
   IsString,
   Length,
   Matches,
   Max,
   Min,
 } from 'class-validator';
+import { VEHICLE_COLORS, VEHICLE_ENGINES } from '../entities/vehicle.entity';
 import { normalizePlate, SPANISH_PLATE_PATTERN } from '../vehicle-plate';
 
 // Cuerpo de POST /api/vehicles (RF-21). La matrícula se normaliza ANTES de
@@ -39,17 +40,37 @@ export class RegisterVehicleDto {
   @Max(8)
   capacity!: number;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     minLength: 2,
-    maxLength: 60,
-    description: 'Make and model, to recognise the car',
-    example: 'Seat Ibiza',
+    maxLength: 29,
+    description: 'Vehicle make',
+    example: 'Seat',
   })
-  @IsOptional()
   @Transform(({ value }: { value: unknown }) =>
     typeof value === 'string' ? value.trim() : value,
   )
   @IsString()
-  @Length(2, 60)
-  model?: string;
+  @Length(2, 29)
+  brand!: string;
+
+  @ApiProperty({
+    minLength: 1,
+    maxLength: 30,
+    description: 'Vehicle model',
+    example: 'Ibiza',
+  })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString()
+  @Length(1, 30)
+  model!: string;
+
+  @ApiProperty({ enum: VEHICLE_COLORS, example: 'blue' })
+  @IsIn([...VEHICLE_COLORS])
+  color!: (typeof VEHICLE_COLORS)[number];
+
+  @ApiProperty({ enum: VEHICLE_ENGINES, example: 'hybrid' })
+  @IsIn([...VEHICLE_ENGINES])
+  engine!: (typeof VEHICLE_ENGINES)[number];
 }

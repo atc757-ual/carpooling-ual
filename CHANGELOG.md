@@ -32,6 +32,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - `GET /api/users/{id}`: datos del propio usuario, o de cualquiera para un administrador (#15)
 - Comando `npm run create-admin` para crear el primer administrador en el despliegue, y gu√≠a de despliegue en `docs/despliegue.md` (#15)
 - Veh√≠culos de los conductores (RF-21): alta, consulta, lista paginada y baja en `/api/vehicles` (#16)
+- AmpliaciÛn de los datos del vehÌculo (marca, modelo, color y motor), migraciÛn de los datos existentes y detalles para reconocer el coche en los resultados del matching (#107)
 - Declaraci√≥n responsable del conductor y su estado para publicar viajes: `PUT /api/users/me/driver-declaration` y `GET /api/users/me/driver-status` (#16)
 - Paginaci√≥n TMF630 de listas (`offset`, `limit`, `X-Total-Count`, `X-Result-Count`) (#16)
 - Viajes (RF-04, RF-05): publicar, consultar, listar los propios, modificar mientras est√°n publicados y cancelar antes del inicio, con ubicaciones en GeoJSON (#17)

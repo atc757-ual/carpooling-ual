@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Not, Repository } from 'typeorm';
+import { EntityManager, In, Not, Repository } from 'typeorm';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { Vehicle } from './entities/vehicle.entity';
+import type { VehicleColor, VehicleEngine } from './entities/vehicle.entity';
 import { VehicleAlreadyRegisteredError } from './errors/vehicle-already-registered.error';
 import { VehicleInUseError } from './errors/vehicle-in-use.error';
 import { VehicleLimitReachedError } from './errors/vehicle-limit-reached.error';
@@ -13,10 +14,22 @@ import { normalizePlate } from './vehicle-plate';
 export interface RegisterVehicleInput {
   plate: string;
   capacity: number;
-  model?: string;
+  brand: string;
+  model: string;
+  color: VehicleColor;
+  engine: VehicleEngine;
 }
 
-export type UpdateVehicleInput = Partial<Omit<RegisterVehicleInput, 'plate'>>;
+export type UpdateVehicleInput = Partial<
+  Pick<RegisterVehicleInput, 'capacity' | 'color' | 'engine'>
+>;
+
+export interface VehicleRecognitionDetails {
+  plate: string;
+  brand: string | null;
+  model: string | null;
+  color: VehicleColor | null;
+}
 
 // Restricción UNIQUE de la matrícula (migración InitialSchema)
 const PLATE_UNIQUE_CONSTRAINT = 'vehicles_plate_key';
@@ -58,7 +71,10 @@ export class VehiclesService {
         throw new VehicleAlreadyRegisteredError(plate);
       }
       existing.capacity = input.capacity;
-      existing.model = input.model ?? existing.model;
+      existing.brand = input.brand;
+      existing.model = input.model;
+      existing.color = input.color;
+      existing.engine = input.engine;
       existing.status = 'available';
       return this.vehiclesRepository.save(existing);
     }
@@ -69,7 +85,10 @@ export class VehiclesService {
           driverId,
           plate,
           capacity: input.capacity,
-          model: input.model ?? null,
+          brand: input.brand,
+          model: input.model,
+          color: input.color,
+          engine: input.engine,
         }),
       );
     } catch (error) {
@@ -110,7 +129,7 @@ export class VehiclesService {
     return vehicle;
   }
 
-  // Cambia el modelo o las plazas de un vehículo del conductor. Las plazas no
+  // Cambia color, motor o plazas. Las plazas no
   // se cambian mientras está en un viaje en curso; los viajes ya publicados
   // conservan las plazas que ofrecían (el cambio vale para los siguientes)
   async update(
@@ -125,8 +144,33 @@ export class VehiclesService {
       throw new VehicleInUseError(vehicleId);
     }
     vehicle.capacity = input.capacity ?? vehicle.capacity;
-    vehicle.model = input.model ?? vehicle.model;
+    vehicle.color = input.color ?? vehicle.color;
+    vehicle.engine = input.engine ?? vehicle.engine;
     return this.vehiclesRepository.save(vehicle);
+  }
+
+  // Datos para reconocer el coche en los resultados del matching. La matrícula
+  // se muestra en los viajes publicados; el motor no hace falta al pasajero
+  async getRecognitionDetails(
+    vehicleIds: readonly string[],
+  ): Promise<Map<string, VehicleRecognitionDetails>> {
+    if (vehicleIds.length === 0) {
+      return new Map();
+    }
+    const vehicles = await this.vehiclesRepository.findBy({
+      id: In([...new Set(vehicleIds)]),
+    });
+    return new Map(
+      vehicles.map((vehicle) => [
+        vehicle.id,
+        {
+          plate: vehicle.plate,
+          brand: vehicle.brand,
+          model: vehicle.model,
+          color: vehicle.color,
+        },
+      ]),
+    );
   }
 
   // RF-11: al iniciar un viaje, el vehículo pasa a "en viaje". Recibe el
