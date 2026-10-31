@@ -86,8 +86,8 @@ for (const viewport of VIEWPORTS) {
         .its('request.body')
         .should('deep.equal', { email: 'ana@ual.es', password: 'secreta123' });
       cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
-      // El saludo de Buscar, la pantalla de inicio
-      cy.contains('.trip-search__hello', '¡Hola, Ana!').should('be.visible');
+      // La pantalla de inicio, con su formulario de búsqueda
+      cy.get('app-trip-search app-trip-search-form').should('be.visible');
     });
 
     it('shows the API error when the credentials are wrong', () => {

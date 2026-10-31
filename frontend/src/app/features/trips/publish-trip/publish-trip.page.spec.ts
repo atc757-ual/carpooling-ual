@@ -227,9 +227,9 @@ describe('PublishTripPage', () => {
     await openPage();
     driver['listVehicles'].mockRejectedValue(new Error('down'));
 
-    await page.load();
+    await page.loadVehicles();
 
-    expect(page.loadState()).toBe('error');
+    expect(page.vehiclesState()).toBe('error');
   });
 
   it('asks for nothing without the driver profile: step 2 starts by registering the car', async () => {

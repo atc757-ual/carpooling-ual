@@ -37,6 +37,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { BrandLogo } from '../../shared/components/ui/brand-logo/brand-logo';
+import { BrandGreeting } from '../../shared/components/ui/brand-greeting/brand-greeting';
 import { findTabHeading } from './tab-heading';
 import { LocationService } from '../../core/services/location/location.service';
 import { PreferencesPlugin } from '../../core/plugins/preferences-plugin';
@@ -51,11 +52,11 @@ interface Tab {
   icon: string;
 }
 
-const TRIPS_TAB: Tab = { path: 'trips', label: 'Mis viajes', icon: mapOutline };
+const TRIPS_TAB: Tab = { path: 'trips', label: 'Tus viajes', icon: mapOutline };
 const SEARCH_TAB: Tab = { path: 'search', label: 'Buscar', icon: searchOutline };
 const PUBLISH_TAB: Tab = { path: 'publish', label: 'Publicar', icon: addCircleOutline };
 const MESSAGES_TAB: Tab = { path: 'messages', label: 'Mensajes', icon: chatbubblesOutline };
-const PROFILE_TAB: Tab = { path: 'profile', label: 'Perfil', icon: personOutline };
+const PROFILE_TAB: Tab = { path: 'profile', label: 'Mi perfil', icon: personOutline };
 
 // Qué lado guarda cada pestaña al entrar (y por dónde se abre la próxima vez)
 // Se dijo «Ahora no» a la ventana de la ubicación (en este dispositivo)
@@ -67,11 +68,12 @@ const SIDES: readonly { path: string; mode: TravelMode }[] = [
 ];
 
 // Layout del área con sesión: cinco destinos fijos (guía, «Navegación»):
-// Buscar, Publicar, Mis viajes, Mensajes y Perfil. Lo de fuera de ion-tabs no
-// se vuelve a montar al navegar: solo cambia el contenido de la pestaña.
+// Buscar, Publicar, Tus viajes, Mensajes y Mi perfil. Lo de fuera de ion-tabs
+// no se vuelve a montar al navegar: solo cambia el contenido de la pestaña.
 // - Móvil: cabecera con el título de la pantalla (y la flecha de volver en las
-//   pantallas de detalle) y la campana de Avisos; pestañas abajo.
-// - Escritorio (≥ 768px): menú superior (logotipo, destinos centrados,
+//   pantallas de detalle) y la campana de Avisos; pestañas abajo. El logotipo y
+//   el saludo se turnan (BrandGreeting).
+// - Escritorio (≥ 768px): menú superior (logotipo y saludo, destinos centrados,
 //   campana y cerrar sesión) y debajo una franja fija con el título.
 // Al entrar en Buscar o Publicar se guarda ese lado (activeMode, en el
 // servidor): la próxima vez la app se abre ahí
@@ -96,6 +98,7 @@ const SIDES: readonly { path: string; mode: TravelMode }[] = [
     IonTitle,
     IonToolbar,
     BrandLogo,
+    BrandGreeting,
   ],
   templateUrl: './tabs.page.html',
   styleUrl: './tabs.page.scss',

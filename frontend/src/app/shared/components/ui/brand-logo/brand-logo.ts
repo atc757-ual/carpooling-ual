@@ -19,15 +19,20 @@ export type BrandLogoVariant = 'default' | 'tile' | 'compact';
   },
   template: `
     <span class="brand-logo__badge" aria-hidden="true">UAL</span>
-    <span class="brand-logo__text" aria-hidden="true">
-      <span class="brand-logo__name">Carpool</span>
-      @if (variant() === 'tile') {
-        <span class="brand-logo__tagline">Sistema de movilidad compartida</span>
-      }
-    </span>
+    @if (showText()) {
+      <span class="brand-logo__text" aria-hidden="true">
+        <span class="brand-logo__name">Carpool</span>
+        @if (variant() === 'tile') {
+          <span class="brand-logo__tagline">Sistema de movilidad compartida</span>
+        }
+      </span>
+    }
   `,
   styleUrl: './brand-logo.scss',
 })
 export class BrandLogo {
   readonly variant = input<BrandLogoVariant>('default');
+  // Sin el texto, solo la insignia: lo usa la cabecera animada del móvil, que
+  // cambia el texto por el saludo
+  readonly showText = input(true);
 }

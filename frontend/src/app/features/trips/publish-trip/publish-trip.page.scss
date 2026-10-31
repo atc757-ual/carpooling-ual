@@ -162,6 +162,11 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'label' 'field' 'action';
   }
+
+  // «Siguiente», separado del desplegable del desvío (8px más)
+  .publish__grid--action .publish__next {
+    margin-top: var(--space-s);
+  }
 }
 
 // Desplegables a todo el ancho, con la flecha a la derecha (el texto ocupa el

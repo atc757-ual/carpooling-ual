@@ -130,13 +130,14 @@
   }
 }
 
-// «Añadir vehículo»: borde discontinuo azul y el + delante
+// «Añadir vehículo»: borde azul liso y el + delante (antes discontinuo, que
+// parecía un hueco sin terminar)
 .vehicle-card--add {
   align-items: center;
   justify-content: center;
   gap: var(--space-s);
   min-height: 4rem; // 64px
-  border: var(--border-width-m) dashed var(--color-border-strong);
+  border: var(--border-width-s) solid var(--color-link);
   color: var(--color-link);
   font: inherit;
   font-weight: var(--font-weight-semibold);

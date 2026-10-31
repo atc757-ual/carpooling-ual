@@ -146,7 +146,7 @@ export const routes: Routes = [
           import('./features/trips/my-trips/my-trips.page').then((m) => m.MyTripsPage),
         data: {
           heading: {
-            title: 'Mis viajes',
+            title: 'Tus viajes',
             subtitle: 'Tus viajes y las solicitudes de plaza.',
           } satisfies TabHeading,
         },
@@ -167,7 +167,7 @@ export const routes: Routes = [
         loadComponent: () => import('./features/profile/profile.page').then((m) => m.ProfilePage),
         data: {
           heading: {
-            title: 'Perfil',
+            title: 'Mi perfil',
             subtitle: 'Tu cuenta y tus vehículos.',
           } satisfies TabHeading,
         },

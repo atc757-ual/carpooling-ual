@@ -1,0 +1,60 @@
+// La insignia «UAL» y, a su lado, el texto que se da la vuelta: «Carpool» o el
+// saludo con el nombre
+.brand-greeting {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+// Los dos textos comparten hueco (el ancho es el del más largo, así no salta
+// nada al cambiar) y la perspectiva es lo que da el efecto de giro
+.brand-greeting__words {
+  display: grid;
+  perspective: 40rem; // 640px
+}
+
+.brand-greeting__word {
+  grid-area: 1 / 1;
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem; // 20px, el mismo que el logotipo compacto
+  line-height: var(--line-height-body);
+  white-space: nowrap;
+  backface-visibility: hidden;
+  transform-origin: center;
+  // Lento y con una curva suave: el giro se nota, pero no da un salto
+  transition:
+    opacity 520ms ease-in-out,
+    transform 650ms cubic-bezier(0.33, 0, 0.2, 1),
+    visibility 650ms;
+}
+
+// «Carpool», en negrita, como el logotipo
+.brand-greeting__word--brand {
+  color: var(--color-text);
+  font-weight: var(--font-weight-bold);
+}
+
+// El saludo, un punto menos de peso
+.brand-greeting__word--hello {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+// Se da la vuelta sobre su eje vertical hasta desaparecer (sin llegar a los 90
+// grados, que es lo que lo hacía tan brusco)
+.brand-greeting__word--out {
+  opacity: 0;
+  visibility: hidden;
+  transform: rotateY(72deg);
+}
+
+// Sin movimiento no hay giro ni cambio: se queda «Carpool»
+@media (prefers-reduced-motion: reduce) {
+  .brand-greeting__word {
+    transition: none;
+  }
+
+  .brand-greeting__word--hello {
+    display: none;
+  }
+}

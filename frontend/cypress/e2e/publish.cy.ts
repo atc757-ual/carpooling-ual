@@ -94,7 +94,7 @@ for (const viewport of VIEWPORTS) {
         capacity: 3,
       });
       cy.get('app-publish-trip .vehicle-card--selected').should('contain', 'Seat Ibiza');
-      cy.contains('app-publish-trip .vehicle-picker__notice', 'hasta 3 pasajeros');
+      cy.contains('app-publish-trip .vehicle-picker__notice', 'un máximo de 3 plazas');
       cy.contains('app-publish-trip ion-button', 'Revisar detalle').click();
 
       // 3 · Revisión: el resumen y, la primera vez, la declaración
@@ -114,7 +114,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-publish-trip', '¡Enhorabuena! Has publicado un viaje.');
       cy.contains('app-publish-trip', 'Gracias por compartir tu coche');
       cy.contains('app-publish-trip button', 'Volver a').should('not.exist');
-      cy.contains('app-publish-trip ion-button', 'Ver mis viajes');
+      cy.contains('app-publish-trip ion-button', 'Ver tus viajes');
       cy.contains('app-publish-trip button', 'Publicar otro viaje').click();
       cy.get('app-publish-trip [aria-current="step"]').should('contain', 'Trayecto');
     });

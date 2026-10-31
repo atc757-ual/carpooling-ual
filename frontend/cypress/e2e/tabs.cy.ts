@@ -62,9 +62,9 @@ for (const viewport of VIEWPORTS) {
       destinationLabels().should('deep.equal', [
         'Buscar',
         'Publicar',
-        'Mis viajes',
+        'Tus viajes',
         'Mensajes',
-        'Perfil',
+        'Mi perfil',
       ]);
     });
 
@@ -110,11 +110,11 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-messages', 'Muy pronto podrás escribir aquí').should('be.visible');
     });
 
-    it('logs out from Perfil after confirming it', () => {
+    it('logs out from Mi perfil after confirming it', () => {
       cy.intercept('POST', '/api/auth/logout', { statusCode: 204 }).as('logout');
       logIn(['passenger']);
 
-      goTo('Perfil');
+      goTo('Mi perfil');
       cy.contains('app-profile ion-button', 'Cerrar sesión').click();
       cy.contains('app-confirm-modal ion-button', 'Cerrar sesión').click();
 
@@ -123,25 +123,28 @@ for (const viewport of VIEWPORTS) {
     });
 
     if (isDesktop) {
-      it('has the top menu and, below, the greeting', () => {
+      it('has the top menu with the greeting and the strip below', () => {
         logIn(['passenger']);
 
         cy.get('app-tabs .top-nav app-brand-logo').should('be.visible');
+        cy.contains('app-tabs .top-nav__hello', '¡Hola, Mario!').should('be.visible');
         cy.contains('app-tabs .top-nav__link', 'Buscar').should(
           'have.attr',
           'aria-current',
           'page',
         );
-        cy.contains('app-trip-search .trip-search__hello', '¡Hola, Mario!').should('be.visible');
+        cy.contains('app-tabs .greeting-bar', '¿A dónde vamos hoy?').should('be.visible');
         cy.get('app-tabs ion-tab-bar').should('not.be.visible');
       });
     } else {
-      it('has the header with the logo and the bell, and the tabs at the bottom', () => {
+      it('has the header with the logo and the greeting, and the tabs at the bottom', () => {
         logIn(['passenger']);
 
-        cy.get('app-tabs .app-header app-brand-logo').should('be.visible');
-        cy.contains('app-trip-search .trip-search__hello', '¡Hola, Mario!').should('be.visible');
+        // El logotipo y el saludo se turnan: los dos están en la cabecera
+        cy.get('app-tabs .app-header app-brand-greeting').should('be.visible');
+        cy.contains('app-tabs .app-header app-brand-greeting', '¡Hola, Mario!').should('exist');
         cy.get('app-tabs .app-header .bell-button').should('be.visible');
+        cy.get('app-tabs .app-header .logout-button').should('be.visible');
         cy.get('app-tabs .app-header .back-button').should('not.exist');
         cy.contains('ion-tab-button', 'Buscar').should('have.class', 'tab-selected');
       });

@@ -66,8 +66,9 @@ ion-tab-button {
   }
 }
 
-// Escritorio: dos niveles. Arriba, el logotipo a la izquierda y la campana y
-// cerrar sesión a la derecha (64px); debajo, los destinos, centrados
+// Escritorio: dos niveles. Arriba, el logotipo a la izquierda y, a la derecha,
+// el saludo y las acciones (campana y cerrar sesión); debajo, los destinos,
+// centrados
 .top-nav {
   display: grid;
   grid-template-areas:
@@ -84,6 +85,14 @@ ion-tab-button {
   app-brand-logo {
     grid-area: brand;
   }
+}
+
+// El saludo con el nombre, pegado a la izquierda de la campana y el salir
+.top-nav__hello {
+  margin-inline-end: var(--space-xs);
+  color: var(--color-text);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
 }
 
 .top-nav__links {

@@ -186,10 +186,13 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-trip-search ion-button', 'Nueva búsqueda').should('not.exist');
     });
 
-    it('greets and shows the search card with the questions', () => {
+    it('shows the search card with the questions', () => {
       goTo('Buscar');
 
-      cy.contains('app-trip-search .trip-search__hello', '¡Hola, Mario!').should('be.visible');
+      // El saludo con el nombre va en la cabecera del layout (BrandGreeting)
+      cy.contains('app-tabs app-brand-greeting, app-tabs .top-nav__hello', '¡Hola, Mario!').should(
+        'exist',
+      );
       cy.get('app-trip-search app-trip-search-form').should('be.visible');
       cy.contains('app-trip-search', 'Preguntas frecuentes').should('be.visible');
     });

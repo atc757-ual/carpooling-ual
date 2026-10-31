@@ -12,9 +12,6 @@ import {
   IonButton,
   IonCard,
   IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
   IonContent,
   IonIcon,
   IonSelect,
@@ -39,7 +36,6 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { RouteFields } from '../../matching/route-fields/route-fields';
 
 import { getDefaultTime } from '../../matching/trip-search-form/trip-search-form';
-import { SectionTitle } from '../../tabs/section-title/section-title';
 import { DeclarationField } from '../declaration-field/declaration-field';
 import { PublishNextSteps } from '../publish-next-steps/publish-next-steps';
 import { VehiclePicker } from '../vehicle-picker/vehicle-picker';
@@ -75,16 +71,12 @@ type LoadState = 'loading' | 'error' | 'ready';
 @Component({
   selector: 'app-publish-trip',
   imports: [
-    SectionTitle,
     NgTemplateOutlet,
     ReactiveFormsModule,
     RouterLink,
     IonButton,
     IonCard,
     IonCardContent,
-    IonCardHeader,
-    IonCardSubtitle,
-    IonCardTitle,
     IonContent,
     IonIcon,
     IonSelect,
@@ -112,6 +104,9 @@ export class PublishTripPage implements OnInit {
   private readonly celebration = inject(CelebrationService);
 
   readonly loadState = signal<LoadState>('loading');
+  // Los vehículos se piden al llegar al paso 2, no antes: el 1 no los necesita
+  readonly vehiclesState = signal<LoadState>('loading');
+  private isLoadingVehicles = false;
   readonly vehicles = signal<readonly Vehicle[]>([]);
   readonly hasDeclared = signal(false);
   readonly isSaving = signal(false);
@@ -212,35 +207,55 @@ export class PublishTripPage implements OnInit {
     void this.load();
   }
 
+  // Lo que necesita el paso 1 (los parkings) y el estado del conductor (paso 3).
+  // La lista de vehículos se pide al entrar en el paso 2 (loadVehicles)
   async load(): Promise<void> {
     this.loadState.set('loading');
     try {
-      // Sin perfil de conductor (aún sin coche) no hay estado ni vehículos que
-      // pedir: el paso 2 empieza por registrar el vehículo
+      // Sin perfil de conductor (aún sin coche) no hay estado que pedir: el
+      // paso 2 empieza por registrar el vehículo
       if (!this.auth.hasProfile('driver')) {
         await this.places.loadParkings();
         this.hasDeclared.set(false);
         this.vehicles.set([]);
+        this.vehiclesState.set('ready');
         this.loadState.set('ready');
         return;
       }
-      const [status, vehicles] = await Promise.all([
-        this.driver.getStatus(),
-        this.driver.listVehicles(),
-        this.places.loadParkings(),
-      ]);
+      const [status] = await Promise.all([this.driver.getStatus(), this.places.loadParkings()]);
       this.hasDeclared.set(status.hasLicenseDeclared);
-      this.vehicles.set(vehicles);
       this.loadState.set('ready');
     } catch {
       this.loadState.set('error');
     }
   }
 
+  // La lista de vehículos, al llegar al paso 2. Si falla, la pantalla da un
+  // aviso con «Reintentar» en vez de quedarse cargando
+  async loadVehicles(): Promise<void> {
+    if (this.isLoadingVehicles || this.vehiclesState() === 'ready') {
+      return;
+    }
+    this.isLoadingVehicles = true;
+    this.vehiclesState.set('loading');
+    try {
+      this.vehicles.set(await this.driver.listVehicles());
+      this.vehiclesState.set('ready');
+    } catch {
+      this.vehiclesState.set('error');
+    } finally {
+      this.isLoadingVehicles = false;
+    }
+  }
+
   // Al paso indicado (1 deja la URL limpia); llegar a él lo deja accesible
-  // (también con «Adelante» del navegador)
+  // (también con «Adelante» del navegador). La lista de vehículos se pide al
+  // llegar al paso 2, que es el único que la necesita
   goToStep(step: number, { replaceUrl = false } = {}): Promise<boolean> {
     this.furthestStep.update((furthest) => Math.max(furthest, step));
+    if (step === 2) {
+      void this.loadVehicles();
+    }
     return this.router.navigate([], {
       queryParams: { step: step > 1 ? step : null },
       queryParamsHandling: 'merge',
