@@ -37,4 +37,3 @@ export class AvatarsService {
     return avatar;
   }
 }
-

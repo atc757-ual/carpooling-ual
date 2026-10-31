@@ -42,4 +42,3 @@ export class TravelPreferencesResource implements TravelPreferences {
   })
   pets: PetsPreference | null;
 }
-

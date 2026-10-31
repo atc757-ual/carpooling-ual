@@ -11,4 +11,3 @@ export class AvatarNotFoundError extends BusinessError {
     );
   }
 }
-

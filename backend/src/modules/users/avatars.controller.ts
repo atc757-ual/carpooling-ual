@@ -59,4 +59,3 @@ export class AvatarsController {
     return toAvatarResource(await this.avatarsService.getActive(id));
   }
 }
-

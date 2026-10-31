@@ -48,4 +48,3 @@ export const EMPTY_TRAVEL_PREFERENCES: TravelPreferences = {
   smoking: null,
   pets: null,
 };
-

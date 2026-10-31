@@ -24,4 +24,3 @@ export class Avatar {
   @Column({ name: 'sort_order', type: 'smallint' })
   sortOrder: number;
 }
-
