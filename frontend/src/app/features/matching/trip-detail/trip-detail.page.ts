@@ -18,11 +18,10 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { formatShortDate, toTripDetail } from '../trip-results';
+import { formatShortDate, formatTime, toTripDetail } from '../trip-results';
 import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
-import { formatTime } from '../trip-results';
 import { TripRouteMap } from './trip-route-map';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import {
