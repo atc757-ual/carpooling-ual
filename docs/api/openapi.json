@@ -2458,7 +2458,7 @@
     },
     "/api/trips/{id}/start": {
       "post": {
-        "description": "RF-11. Only its driver, from 30 minutes before the departure. The vehicle goes on trip and the pending seat requests are rejected.",
+        "description": "RF-11. Only its driver, from 10 minutes before the departure. The vehicle goes on trip, the pending seat requests are rejected and the accepted passengers are told the driver is on the way.",
         "operationId": "TripsController_start",
         "parameters": [
           {
@@ -6397,6 +6397,7 @@
               "request_cancelled",
               "trip_cancelled",
               "passenger_left",
+              "trip_started",
               "incident_reported"
             ],
             "description": "request_received (to the driver), request_accepted, request_rejected and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), incident_reported (to the administrators)"

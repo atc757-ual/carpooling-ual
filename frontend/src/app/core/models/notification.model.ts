@@ -7,6 +7,7 @@ export type NotificationType =
   | 'request_cancelled'
   | 'trip_cancelled'
   | 'passenger_left'
+  | 'trip_started'
   | 'incident_reported';
 
 interface NotificationLink {

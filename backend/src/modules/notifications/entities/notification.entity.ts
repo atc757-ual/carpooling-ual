@@ -5,7 +5,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-// Tipos de aviso (tipo notification_type de la migración AddNotifications).
+// Tipos de aviso (tipo notification_type de las migraciones AddNotifications y
+// AddTripStartedNotification).
 // Las reglas son fijas (RF-19): quién recibe cada uno lo decide el módulo
 // donde ocurre el cambio
 export const NOTIFICATION_TYPES = [
@@ -15,6 +16,7 @@ export const NOTIFICATION_TYPES = [
   'request_cancelled',
   'trip_cancelled',
   'passenger_left',
+  'trip_started',
   'incident_reported',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];

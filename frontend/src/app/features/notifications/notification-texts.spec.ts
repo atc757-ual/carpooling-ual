@@ -7,6 +7,7 @@ describe('notification texts', () => {
   it('has a sentence for each type', () => {
     expect(notificationMessage('request_received')).toBe('Te han pedido plaza');
     expect(notificationMessage('request_accepted')).toBe('Han aceptado tu solicitud');
+    expect(notificationMessage('trip_started')).toBe('Tu conductor va de camino');
     expect(notificationMessage('incident_reported')).toBe('Hay una incidencia nueva');
   });
 
@@ -15,6 +16,7 @@ describe('notification texts', () => {
     expect(notificationMode('passenger_left')).toBe('driver');
     expect(notificationMode('request_rejected')).toBe('passenger');
     expect(notificationMode('trip_cancelled')).toBe('passenger');
+    expect(notificationMode('trip_started')).toBe('passenger');
     expect(notificationMode('incident_reported')).toBeNull();
   });
 

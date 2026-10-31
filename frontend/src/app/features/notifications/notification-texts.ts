@@ -15,6 +15,7 @@ const MESSAGES: Record<NotificationType, string> = {
   request_cancelled: 'Han cancelado una solicitud',
   trip_cancelled: 'Han cancelado el viaje',
   passenger_left: 'Un pasajero ha dejado el viaje',
+  trip_started: 'Tu conductor va de camino',
   incident_reported: 'Hay una incidencia nueva',
 };
 
@@ -26,6 +27,7 @@ const MODES: Record<NotificationType, TravelMode | null> = {
   request_cancelled: 'driver',
   trip_cancelled: 'passenger',
   passenger_left: 'driver',
+  trip_started: 'passenger',
   incident_reported: null,
 };
 
