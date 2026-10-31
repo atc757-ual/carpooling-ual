@@ -11,6 +11,7 @@ import {
   IonHeader,
   IonIcon,
   IonLabel,
+  NavController,
   IonRouterLink,
   IonTabBar,
   IonTabButton,
@@ -107,6 +108,7 @@ export class TabsPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly activeMode = inject(ActiveModeService);
   private readonly router = inject(Router);
+  private readonly navController = inject(NavController);
   private readonly notifications = inject(NotificationsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly location = inject(LocationService);
@@ -202,6 +204,6 @@ export class TabsPage implements OnInit {
       return;
     }
     await this.auth.logout();
-    await this.router.navigateByUrl(WELCOME_PATH);
+    await this.navController.navigateRoot(WELCOME_PATH);
   }
 }

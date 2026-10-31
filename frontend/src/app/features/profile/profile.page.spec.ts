@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
-import { ModalController, provideIonicAngular } from '@ionic/angular';
+import { provideRouter } from '@angular/router';
+import { ModalController, NavController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -90,7 +90,9 @@ describe('ProfilePage', () => {
 
   it('logs out after confirming it and goes back to the welcome screen', async () => {
     const { page } = render();
-    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const navigate = vi
+      .spyOn(TestBed.inject(NavController), 'navigateRoot')
+      .mockResolvedValue(true);
 
     confirmWith('cancel');
     await page.handleLogout();

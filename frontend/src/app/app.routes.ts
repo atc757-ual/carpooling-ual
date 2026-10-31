@@ -5,7 +5,6 @@ import { guestGuard } from './core/guards/guest.guard';
 import { profileGuard } from './core/guards/profile.guard';
 import { WELCOME_PATH } from './core/guards/redirect-paths';
 import { AuthService } from './core/services/auth/auth.service';
-import { ActiveModeService } from './core/services/users/active-mode.service';
 import { TabHeading } from './features/tabs/tab-heading';
 
 // La pantalla del final del registro la abre la verificación del correo, que ya
@@ -70,12 +69,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/tabs/tabs.page').then((m) => m.TabsPage),
     children: [
       {
-        // Al entrar: Buscar, o Publicar si fue lo último que hizo (en
-        // cualquier dispositivo: activeMode del usuario). Una sola redirección:
-        // Angular no encadena dos relativas en el mismo nivel
+        // Al entrar en la app, abrir Publicar para cualquier perfil. Una sola
+        // redirección: Angular no encadena dos relativas en el mismo nivel
         path: '',
         pathMatch: 'full',
-        redirectTo: () => (inject(ActiveModeService).mode() === 'driver' ? 'publish' : 'search'),
+        redirectTo: 'publish',
       },
       {
         path: 'search',

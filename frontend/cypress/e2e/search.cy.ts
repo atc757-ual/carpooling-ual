@@ -49,10 +49,10 @@ function logIn(profiles: string[]): void {
   cy.get('app-login ion-input[formControlName="email"] input').type(EMAIL);
   cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
   cy.contains('ion-button', 'Iniciar sesión').click();
-  cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
+  cy.location('pathname').should('eq', '/tabs/publish');
 }
 
-// Busca desde Buscar (adonde lleva el login de un pasajero)
+// Busca desde Buscar (el login lleva a Publicar: antes hay que ir a Buscar)
 function searchTrips(place: string): void {
   choosePlace('app-trip-search app-trip-search-form', place);
   chooseParking('app-trip-search app-trip-search-form', 'Parking P1');
@@ -84,6 +84,7 @@ for (const viewport of VIEWPORTS) {
       // Aún sin solicitudes de plaza
       cy.intercept('GET', '/api/users/me/requests*', []);
       logIn(['passenger']);
+      goTo('Buscar');
     });
 
     it('shows the compatible trips', () => {

@@ -7,6 +7,9 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+- **Frontend:** cerrar sesión descarta las pantallas de la cuenta anterior y Publicar abre limpio para cualquier perfil (#120).
+
 ### Added
 - **Backend:** la búsqueda y el detalle del viaje incluyen los viajes terminados del conductor, las plazas ofertadas y marca, modelo y color del vehículo; nunca se expone la matrícula (#117).
 - **Backend:** verificación del teléfono por SMS con `SmsSender` (transportes `mailpit` con etiqueta `X-Tags: SMS` y `memory`), plantilla GSM-7 sin tildes y línea opcional WebOTP (`SMS_OTP_DOMAIN`), columna `users.phone_verified_at` (`phoneVerified` en `User`), endpoints `POST /api/users/me/phone-verification` y `/confirm` y evento `user.phone_verified` (#116).

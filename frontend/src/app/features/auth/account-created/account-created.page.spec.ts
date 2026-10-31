@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
-import { provideIonicAngular } from '@ionic/angular';
+import { provideRouter } from '@angular/router';
+import { NavController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { AccountCreatedPage } from './account-created.page';
 
 describe('AccountCreatedPage', () => {
   let logout: ReturnType<typeof vi.fn>;
-  let navigateByUrl: ReturnType<typeof vi.spyOn>;
+  let navigateRoot: ReturnType<typeof vi.spyOn>;
 
   async function createPage(isNewAccount: boolean): Promise<HTMLElement> {
     logout = vi.fn().mockResolvedValue(undefined);
@@ -19,7 +19,7 @@ describe('AccountCreatedPage', () => {
         { provide: AuthService, useValue: { isNewAccount: () => isNewAccount, logout } },
       ],
     });
-    navigateByUrl = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    navigateRoot = vi.spyOn(TestBed.inject(NavController), 'navigateRoot').mockResolvedValue(true);
     const fixture = TestBed.createComponent(AccountCreatedPage);
     await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;
@@ -50,7 +50,7 @@ describe('AccountCreatedPage', () => {
     ]);
 
     expect(buttons).toEqual([
-      ['Entrar a la app', '/tabs/search'],
+      ['Entrar a la app', '/tabs/publish'],
       ['Entrar más tarde', 'submit'],
     ]);
   });
@@ -61,6 +61,6 @@ describe('AccountCreatedPage', () => {
     root.querySelector('form')?.dispatchEvent(new Event('submit'));
     await vi.waitFor(() => expect(logout).toHaveBeenCalled());
 
-    expect(navigateByUrl).toHaveBeenCalledWith('/auth/welcome');
+    expect(navigateRoot).toHaveBeenCalledWith('/auth/welcome');
   });
 });

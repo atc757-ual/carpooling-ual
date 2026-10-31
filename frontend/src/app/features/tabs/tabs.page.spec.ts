@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { provideIonicAngular } from '@ionic/angular';
+import { NavController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -164,7 +164,9 @@ describe('TabsPage', () => {
 
   it('logs out after confirming it and goes back to the welcome screen', async () => {
     const page = render();
-    const navigateByUrl = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const navigateRoot = vi
+      .spyOn(TestBed.inject(NavController), 'navigateRoot')
+      .mockResolvedValue(true);
     const ask = vi.spyOn(TestBed.inject(ConfirmService), 'ask').mockResolvedValueOnce(false);
 
     await page.handleLogout();
@@ -175,7 +177,7 @@ describe('TabsPage', () => {
     await page.handleLogout();
 
     expect(logout).toHaveBeenCalled();
-    expect(navigateByUrl).toHaveBeenCalledWith('/auth/welcome');
+    expect(navigateRoot).toHaveBeenCalledWith('/auth/welcome');
   });
 
   function modalClosingWith(role: string): ReturnType<typeof vi.fn> {

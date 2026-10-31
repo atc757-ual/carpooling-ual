@@ -46,12 +46,12 @@ for (const viewport of VIEWPORTS) {
       cy.viewport(viewport.width, viewport.height);
     });
 
-    it('says the account is ready and enters the app by Search', () => {
+    it('says the account is ready and enters the app by Publish', () => {
       verifyAndReach(true);
 
       cy.contains('h1', '¡Cuenta creada!').should('be.visible');
       cy.contains('ion-button', 'Entrar a la app').click();
-      cy.location('pathname').should('eq', '/tabs/search');
+      cy.location('pathname').should('eq', '/tabs/publish');
     });
 
     it('closes the session and goes back to the welcome screen', () => {
