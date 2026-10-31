@@ -80,13 +80,14 @@ for (const viewport of VIEWPORTS) {
 
       // 2 · Vehículo: sin ninguno, se registra en una ventana y queda elegido
       cy.location('search').should('eq', '?step=2');
-      cy.contains('app-publish-trip .vehicle-card--add', 'Registrar vehículo').click();
+      cy.contains('app-publish-trip', 'Aún no tienes vehículos');
+      cy.contains('app-publish-trip .vehicle-picker__add', 'Añadir vehículo').click();
       cy.get('app-vehicle-modal ion-input[formControlName="brand"] input').type('Seat');
       cy.get('app-vehicle-modal ion-input[formControlName="model"] input').type('Ibiza');
       cy.get('app-vehicle-modal ion-input[formControlName="plate"] input').type('1234 bcd');
-      // 5 asientos por defecto; uno menos: 4 = 1 conductor + 3 pasajeros
+      // 5 asientos por defecto; uno menos: 4 (3 plazas para pasajeros)
       cy.get('app-vehicle-modal button[aria-label="Una plaza menos"]').click();
-      cy.contains('app-vehicle-modal', '4 asientos = 1 conductor + hasta 3 pasajeros');
+      cy.contains('app-vehicle-modal', 'Asientos totales del vehículo.');
       cy.contains('app-vehicle-modal ion-button', 'Registrar vehículo').click();
       cy.wait('@registerVehicle').its('request.body').should('deep.equal', {
         model: 'Seat Ibiza',
@@ -94,7 +95,6 @@ for (const viewport of VIEWPORTS) {
         capacity: 3,
       });
       cy.get('app-publish-trip .vehicle-card--selected').should('contain', 'Seat Ibiza');
-      cy.contains('app-publish-trip .vehicle-picker__notice', 'un máximo de 3 plazas');
       cy.contains('app-publish-trip ion-button', 'Revisar detalle').click();
 
       // 3 · Revisión: el resumen y, la primera vez, la declaración

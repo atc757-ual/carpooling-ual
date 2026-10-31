@@ -77,16 +77,6 @@ describe('ProfileVehicles', () => {
     expect(listVehicles).toHaveBeenCalledTimes(2);
   });
 
-  it('reloads the list when the vehicle is removed from its window', async () => {
-    await render(() => Promise.resolve([vehicle('1234', 'available', null)]));
-    dismissWith('removed');
-
-    await fixture.componentInstance.handleOpen(fixture.componentInstance.activeVehicles()[0]);
-    await fixture.whenStable();
-
-    expect(listVehicles).toHaveBeenCalledTimes(2);
-  });
-
   it('stops offering to register more at 3 vehicles', async () => {
     const root = await render(() =>
       Promise.resolve(['1111', '2222', '3333'].map((id) => vehicle(id, 'available', null))),

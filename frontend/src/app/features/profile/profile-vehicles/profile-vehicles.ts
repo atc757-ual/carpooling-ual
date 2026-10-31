@@ -94,8 +94,6 @@ export class ProfileVehicles {
         await this.auth.refreshAccessToken().catch(() => undefined);
       }
       this.vehicles.reload();
-    } else if (role === 'removed') {
-      this.vehicles.reload();
     }
   }
 }

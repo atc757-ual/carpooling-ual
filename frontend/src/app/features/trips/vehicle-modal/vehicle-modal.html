@@ -19,18 +19,4 @@
     [submitLabel]="vehicle ? 'Guardar cambios' : 'Registrar vehículo'"
     (saved)="handleSaved($event)"
   />
-  @if (vehicle; as current) {
-    <!-- Solo se cambian los asientos: si el resto está mal, se elimina -->
-    <div class="vehicle-modal__remove">
-      <p class="text-body-s text-color-muted">
-        ¿Algún dato mal? Elimina el vehículo y regístralo de nuevo.
-      </p>
-      <form (submit)="$event.preventDefault(); handleRemove(current)">
-        <ion-button type="submit" fill="clear" color="danger" size="small">
-          <ion-icon slot="start" [icon]="removeIcon" aria-hidden="true" />
-          Eliminar vehículo
-        </ion-button>
-      </form>
-    </div>
-  }
 </div>

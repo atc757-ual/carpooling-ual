@@ -49,6 +49,8 @@ export class RouteFields implements OnInit {
 
   // Los controles del formulario de quien lo usa (form.controls)
   readonly controls = input.required<RouteControls>();
+  // La etiqueta «Trayecto»: sin ella cuando el paso ya se llama así (Publicar)
+  readonly showLabel = input(true);
 
   // La ubicación del momento está en el campus: lo más seguro es que vuelva a
   // casa, y se le propone cambiar el sentido
@@ -150,4 +152,3 @@ export class RouteFields implements OnInit {
     await modal.present();
   }
 }
-

@@ -217,6 +217,31 @@ ion-select {
   --highlight-color-invalid: var(--color-link);
 }
 
+// La ayuda y el error de debajo de los campos, alineados con el borde
+// izquierdo del campo (Ionic los mete con el margen interior del texto), en
+// 12px y gris como el resto de ayudas de la app (.field-hint), a 8px del
+// campo (la de .field-hint, por el gap de su columna)
+// (la clase repetida sube la especificidad sin !important: Ionic usa
+// «.input-bottom.sc-ion-input-md» para el margen y cuatro clases para el
+// color de la ayuda)
+ion-input .input-bottom.input-bottom.input-bottom,
+ion-textarea .textarea-bottom.textarea-bottom.textarea-bottom {
+  padding-inline: 0;
+  padding-top: var(--space-s);
+}
+
+ion-input .input-bottom.input-bottom .helper-text.helper-text.helper-text,
+ion-textarea .textarea-bottom.textarea-bottom .helper-text.helper-text.helper-text,
+.field-hint {
+  color: var(--color-text-muted);
+  font-size: 0.75rem; // 12px
+  line-height: 1.4;
+}
+
+.field-hint {
+  margin: 0;
+}
+
 // Campos numéricos sin las flechas del navegador: llevan sus propios − y +
 // (las flechas no salen en iPhone y en escritorio se verían dos controles)
 ion-input input[type='number'] {
@@ -444,9 +469,11 @@ ion-card-subtitle {
   text-transform: none;
   letter-spacing: normal;
 }
-// Dentro de ion-card: así gana a la regla de Ionic (display: block), que si no
-// anula el gap
-ion-card ion-card-content {
+
+// Dentro de ion-card y con [class]: así gana a las reglas de Ionic
+// (.card-content-md: display block, que anula el gap, y 13px 16px de relleno);
+// 16px por todos los lados
+ion-card ion-card-content[class] {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
@@ -461,7 +488,7 @@ ion-card ion-card-content {
   }
 }
 
-ion-card-header + ion-card-content {
+ion-card-header + ion-card-content[class] {
   padding-top: 0;
 }
 

@@ -80,3 +80,46 @@
     line-height: var(--line-height-body-s);
   }
 }
+
+// «Nueva búsqueda» a la izquierda y «Buscar viaje» a la derecha, centrados en
+// vertical y del mismo alto; en el móvil (estrecho), uno debajo del otro a
+// todo el ancho, «Buscar viaje» primero
+.search-form__actions {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-s);
+}
+
+.search-form__new {
+  min-height: var(--control-height-base);
+  padding: 0 var(--space-base);
+  border: 0;
+  border-radius: var(--radius-s);
+  background: none;
+  color: var(--color-link);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-primary-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+@container (min-width: 600px) {
+  // Con sitio, en una fila y a partes iguales (los dos a la mitad de la
+  // tarjeta; sin «Nueva búsqueda», «Buscar viaje» a todo el ancho)
+  .search-form__actions {
+    flex-direction: row;
+    align-items: center;
+
+    > * {
+      flex: 1 1 0;
+    }
+  }
+}

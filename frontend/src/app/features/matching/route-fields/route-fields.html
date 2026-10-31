@@ -13,7 +13,9 @@
        el destino -->
   <div class="route-fields__field">
     <div class="route-fields__head">
-      <span class="text-label text-label--strong">Trayecto</span>
+      @if (showLabel()) {
+        <span class="text-label text-label--strong">Trayecto</span>
+      }
       <!-- En el móvil: enlace pequeño junto a la etiqueta -->
       <button class="route-fields__swap-link" type="button" (click)="handleSwap()">
         <ion-icon [icon]="swapIcon" aria-hidden="true" />

@@ -39,18 +39,15 @@
         errorText="Escribe una matrícula española, como 1234 BCD."
       />
     </div>
-    <app-seat-stepper
-      formControlName="totalSeats"
-      label="Asientos (con conductor)"
-      [min]="minTotalSeats"
-      [max]="maxTotalSeats"
-    />
-  </div>
-  <div class="notice notice--info">
-    <p>
-      <b>{{ seatsNotice() }}</b
-      >. En cada viaje eliges cuántas ofreces, como mucho esas.
-    </p>
+    <div class="vehicle-form__field">
+      <app-seat-stepper
+        formControlName="totalSeats"
+        label="Asientos"
+        [min]="minTotalSeats"
+        [max]="maxTotalSeats"
+      />
+      <p class="field-hint">Asientos totales del vehículo.</p>
+    </div>
   </div>
   <!-- Se activa al completar los campos (cada uno dice lo que le falta) -->
   <ion-button type="submit" expand="block" [disabled]="isSaving() || !isComplete()">
