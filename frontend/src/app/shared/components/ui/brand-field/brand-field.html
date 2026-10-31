@@ -1,5 +1,6 @@
 <div class="brand-field__control">
   <ion-input
+    [appCombobox]="combobox"
     aria-label="Marca del vehículo"
     fill="outline"
     [placeholder]="otherMode() ? 'Escribe la marca' : 'Buscar marca'"
@@ -7,17 +8,37 @@
     autocomplete="off"
     [value]="query()"
     [disabled]="disabled()"
+    (click)="activateSearch()"
     (ionInput)="updateQuery($event.detail.value)"
     (ionBlur)="handleBlur()"
   >
     <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
   </ion-input>
 
-  <datalist [id]="brandListId" aria-label="Marcas disponibles">
-    @for (brand of filteredBrands(); track brand) {
-      <option [value]="brand"></option>
-    }
-  </datalist>
+  @if (searchActive() && combobox.isOpen() && !otherMode()) {
+    <div
+      class="brand-field__dropdown"
+      role="listbox"
+      [id]="combobox.listId"
+      aria-label="Marcas disponibles"
+    >
+      @for (brand of filteredBrands(); track brand; let index = $index) {
+        <button
+          class="brand-field__option"
+          type="button"
+          role="option"
+          [id]="combobox.optionId(index)"
+          [class.brand-field__option--active]="combobox.activeIndex() === index"
+          [attr.aria-selected]="combobox.activeIndex() === index"
+          tabindex="-1"
+          (mousedown)="$event.preventDefault()"
+          (click)="chooseBrand(brand)"
+        >
+          {{ brand }}
+        </button>
+      }
+    </div>
+  }
 
   @if (otherMode()) {
     <button
