@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { EntityManager, In } from 'typeorm';
 import { TripRoute } from '../trips/entities/trip-route.entity';
 import { RouteNotFoundError } from '../trips/errors/route-not-found.error';
 import { Trip } from '../trips/entities/trip.entity';
@@ -68,8 +68,11 @@ export class RequestOverlapService {
     tripIds: readonly string[],
   ): Promise<Map<string, Trip>> {
     const lockedTrips = new Map<string, Trip>();
-    for (const tripId of [...new Set(tripIds)].sort()) {
-      const trip = await this.tripStatus.lockTrip(manager, tripId);
+    // Se bloquean uno a uno y en orden para evitar interbloqueos.
+    for (const tripId of [...new Set(tripIds)].sort((a, b) =>
+      a.localeCompare(b),
+    )) {
+      const trip = await this.tripStatus.lockTrip(manager, tripId); // NOSONAR: el bloqueo secuencial evita interbloqueos
       lockedTrips.set(tripId, trip);
     }
     return lockedTrips;
@@ -79,19 +82,15 @@ export class RequestOverlapService {
     manager: EntityManager,
     requests: readonly OverlappingRequest[],
   ): Promise<SeatRequest[]> {
-    const locked: SeatRequest[] = [];
-    for (const { requestId } of [...requests].sort((a, b) =>
-      a.requestId.localeCompare(b.requestId),
-    )) {
-      const request = await manager.findOne(SeatRequest, {
-        where: { id: requestId, status: 'pending' },
-        lock: { mode: 'pessimistic_write' },
-      });
-      if (request !== null) {
-        locked.push(request);
-      }
+    const requestIds = requests.map(({ requestId }) => requestId);
+    if (requestIds.length === 0) {
+      return [];
     }
-    return locked;
+    return manager.find(SeatRequest, {
+      where: { id: In(requestIds), status: 'pending' },
+      order: { id: 'ASC' },
+      lock: { mode: 'pessimistic_write' },
+    });
   }
 
   async lockRequestsById(
@@ -99,8 +98,11 @@ export class RequestOverlapService {
     requestIds: readonly string[],
   ): Promise<SeatRequest[]> {
     const locked: SeatRequest[] = [];
-    for (const requestId of [...new Set(requestIds)].sort()) {
-      const request = await manager.findOne(SeatRequest, {
+    // Se bloquean uno a uno y en orden para evitar interbloqueos.
+    for (const requestId of [...new Set(requestIds)].sort((a, b) =>
+      a.localeCompare(b),
+    )) {
+      const request = await manager.findOne(SeatRequest, { // NOSONAR: el bloqueo secuencial evita interbloqueos
         where: { id: requestId },
         lock: { mode: 'pessimistic_write' },
       });

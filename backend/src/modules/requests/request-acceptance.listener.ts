@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { EntityManager, In } from 'typeorm';
 import { Trip } from '../trips/entities/trip.entity';
 import { SeatRequest } from './entities/seat-request.entity';
 import { RequestChangesRecorder } from './request-changes';
@@ -41,17 +41,34 @@ export class RequestAcceptanceListener implements OnModuleInit {
       manager,
       candidates,
     );
+    const tripIds = [...new Set(pending.map(({ tripId }) => tripId))];
+    const trips = await manager.find(Trip, { where: { id: In(tripIds) } });
+    const tripsById = new Map(trips.map((trip) => [trip.id, trip]));
+    const cancelledRequests: Array<{ request: SeatRequest; trip: Trip }> = [];
 
     for (const request of pending) {
-      const trip = await manager.findOneBy(Trip, { id: request.tripId });
-      if (trip === null) {
+      const trip = tripsById.get(request.tripId);
+      if (trip === undefined) {
         continue;
       }
       assertRequestTransition(request.status, 'cancelled');
       request.status = 'cancelled';
       request.cancelledAt = new Date();
-      const cancelled = await manager.save(request);
-      await this.changes.recordOverlapCancellation(manager, cancelled, trip);
+      cancelledRequests.push({ request, trip });
+    }
+
+    if (cancelledRequests.length === 0) {
+      return;
+    }
+    const savedRequests = await manager.save(
+      cancelledRequests.map(({ request }) => request),
+    );
+    for (const request of savedRequests) {
+      const trip = tripsById.get(request.tripId);
+      if (trip !== undefined) {
+        // Las escrituras usan la misma conexión y transacción.
+        await this.changes.recordOverlapCancellation(manager, request, trip); // NOSONAR: la conexión transaccional requiere escrituras secuenciales
+      }
     }
   }
 }
