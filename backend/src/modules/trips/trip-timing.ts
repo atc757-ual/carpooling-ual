@@ -10,7 +10,8 @@ export const START_WINDOW_MIN = 30;
 // Publicar por defecto): deja margen para cancelar sin penalización
 export const MIN_DEPARTURE_LEAD_MIN = 60;
 
-// Cancelaciones tardías del conductor: con 3 en 30 días, 7 días sin publicar
+// Cancelaciones tardías (conductor y pasajero, la misma regla): con 3 en 30
+// días, 7 días sin publicar (conductor) o sin pedir plaza (pasajero)
 export const LATE_CANCELLATION_WINDOW_DAYS = 30;
 export const LATE_CANCELLATIONS_TO_SUSPEND = 3;
 export const PUBLISHING_SUSPENSION_DAYS = 7;

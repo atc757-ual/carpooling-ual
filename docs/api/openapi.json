@@ -2935,7 +2935,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: TRIP_NOT_OPEN, TRIP_FULL, CANNOT_REQUEST_OWN_TRIP, REQUEST_ALREADY_EXISTS",
+            "description": "TMF630 error: TRIP_NOT_OPEN, TRIP_FULL, CANNOT_REQUEST_OWN_TRIP, REQUEST_ALREADY_EXISTS, REQUESTING_SUSPENDED",
             "content": {
               "application/json": {
                 "schema": {
@@ -3195,6 +3195,64 @@
           }
         ],
         "summary": "List my seat requests, the newest first",
+        "tags": [
+          "seat requests"
+        ]
+      }
+    },
+    "/api/users/me/requesting-status": {
+      "get": {
+        "description": "Late cancellations in the last 30 days and, after 3, until when requesting seats is suspended (7 days from the last one).",
+        "operationId": "RequestsController_getRequestingStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestingStatusResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get my requesting status",
         "tags": [
           "seat requests"
         ]
@@ -6271,6 +6329,33 @@
           "isPriority",
           "requestedAt",
           "vehiclePlate"
+        ]
+      },
+      "RequestingStatusResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "RequestingStatus"
+            ]
+          },
+          "lateCancellations": {
+            "type": "number",
+            "example": 1,
+            "description": "Late cancellations in the last 30 days (an accepted seat released less than 30 minutes before departure)"
+          },
+          "requestingSuspendedUntil": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Until when the passenger cannot request seats (3 late cancellations in 30 days: 7 days from the last one), or null"
+          }
+        },
+        "required": [
+          "@type",
+          "lateCancellations",
+          "requestingSuspendedUntil"
         ]
       },
       "NotificationLinkResource": {

@@ -9,9 +9,9 @@ import { registerUser } from './support/accounts';
 import { deleteTestUsers } from './support/cleanup';
 import { publishableDeparture, setDepartureIn } from './support/trips';
 
-// Cancelaciones tardías del conductor y antelación mínima para publicar, de
-// punta a punta. Los usuarios llevan el prefijo EMAIL_PREFIX; sus viajes,
-// solicitudes, eventos y cancelaciones tardías se borran con ellos
+// Cancelaciones tardías del conductor y del pasajero y antelación mínima para
+// publicar, de punta a punta. Los usuarios llevan el prefijo EMAIL_PREFIX; sus
+// viajes, solicitudes, eventos y cancelaciones tardías se borran con ellos
 const EMAIL_PREFIX = 'late-cancel-e2e-';
 const PASSWORD = 'secret-password';
 const UAL_CAMPUS = { type: 'Point', coordinates: [-2.4058, 36.8297] };
@@ -198,5 +198,89 @@ describe('Late cancellations (e2e)', () => {
     await api('patch', `/trips/${tripId}`, driver.token)
       .send({ offeredSeats: 1 })
       .expect(200);
+  });
+
+  describe('passenger', () => {
+    // La solicitud de la pasajera en un viaje que sale en estos minutos:
+    // aceptada (por defecto) o pendiente
+    async function requestLeavingIn(
+      driver: { token: string; vehicleId: string },
+      passenger: string,
+      { minutes, isAccepted = true }: { minutes: number; isAccepted?: boolean },
+    ): Promise<string> {
+      const tripId = await tripLeavingIn(driver, 120);
+      const created = await api('post', `/trips/${tripId}/requests`, passenger)
+        .send({ seats: 1 })
+        .expect(201);
+      const requestId = (created.body as { id: string }).id;
+      if (isAccepted) {
+        await api('post', `/requests/${requestId}/accept`, driver.token).expect(
+          200,
+        );
+      }
+      await setDepartureIn(dataSource, tripId, minutes);
+      return requestId;
+    }
+
+    async function requestingStatus(token: string): Promise<object> {
+      const response = await api(
+        'get',
+        '/users/me/requesting-status',
+        token,
+      ).expect(200);
+      return response.body as object;
+    }
+
+    it('counts releasing an accepted seat less than 30 minutes before as late', async () => {
+      const driver = await readyDriver();
+      const pia = await tokenFor('pia', ['passenger']);
+      const requestId = await requestLeavingIn(driver, pia, { minutes: 20 });
+
+      await api('post', `/requests/${requestId}/cancel`, pia).expect(200);
+
+      expect(await requestingStatus(pia)).toEqual({
+        '@type': 'RequestingStatus',
+        lateCancellations: 1,
+        requestingSuspendedUntil: null,
+      });
+      // El conductor no queda penalizado
+      expect((await publishingStatus(driver.token)).lateCancellations).toBe(0);
+    });
+
+    it('does not count it with time left or for a pending request', async () => {
+      const driver = await readyDriver();
+      const pia = await tokenFor('pia', ['passenger']);
+      const withTime = await requestLeavingIn(driver, pia, { minutes: 40 });
+      const pending = await requestLeavingIn(driver, pia, {
+        minutes: 10,
+        isAccepted: false,
+      });
+
+      await api('post', `/requests/${withTime}/cancel`, pia).expect(200);
+      await api('post', `/requests/${pending}/cancel`, pia).expect(200);
+
+      expect(await requestingStatus(pia)).toMatchObject({
+        lateCancellations: 0,
+      });
+    });
+
+    it('suspends requesting seats for 7 days after 3 late cancellations', async () => {
+      const driver = await readyDriver();
+      const pia = await tokenFor('pia', ['passenger']);
+      for (let index = 0; index < 3; index += 1) {
+        const requestId = await requestLeavingIn(driver, pia, { minutes: 10 });
+        await api('post', `/requests/${requestId}/cancel`, pia).expect(200);
+      }
+
+      expect(await requestingStatus(pia)).toMatchObject({
+        lateCancellations: 3,
+        requestingSuspendedUntil: expect.any(String) as unknown,
+      });
+      const tripId = await tripLeavingIn(driver, 120);
+      const refused = await api('post', `/trips/${tripId}/requests`, pia)
+        .send({ seats: 1 })
+        .expect(409);
+      expect(refused.body).toMatchObject({ code: 'REQUESTING_SUSPENDED' });
+    });
   });
 });

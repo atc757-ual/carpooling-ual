@@ -2,6 +2,7 @@ import { Trip } from './entities/trip.entity';
 import {
   findSuspensionEnd,
   isLateDriverCancellation,
+  isLatePassengerCancellation,
 } from './late-cancellations.service';
 
 const MINUTE_MS = 60 * 1000;
@@ -34,6 +35,26 @@ describe('late cancellations', () => {
 
     it('is never late without accepted passengers', () => {
       expect(isLateDriverCancellation(trip('published', 5), NOW)).toBe(false);
+    });
+  });
+
+  describe('isLatePassengerCancellation', () => {
+    it('is late releasing an accepted seat less than 30 minutes before', () => {
+      expect(
+        isLatePassengerCancellation(trip('confirmed', 29), true, NOW),
+      ).toBe(true);
+    });
+
+    it('is not late from 30 minutes on', () => {
+      expect(
+        isLatePassengerCancellation(trip('confirmed', 30), true, NOW),
+      ).toBe(false);
+    });
+
+    it('is never late cancelling a pending request', () => {
+      expect(
+        isLatePassengerCancellation(trip('confirmed', 5), false, NOW),
+      ).toBe(false);
     });
   });
 

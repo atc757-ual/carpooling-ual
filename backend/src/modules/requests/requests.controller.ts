@@ -28,7 +28,12 @@ import {
   setPaginationHeaders,
 } from '../../shared/pagination/paginated';
 import { PaginationQueryDto } from '../../shared/pagination/pagination-query.dto';
+import { LateCancellationsService } from '../trips/late-cancellations.service';
 import { RequestSeatsDto } from './dto/request-seats.dto';
+import {
+  RequestingStatusResource,
+  toRequestingStatusResource,
+} from './dto/requesting-status.resource';
 import {
   SeatRequestResource,
   toSeatRequestResource,
@@ -45,7 +50,10 @@ const AUTH_ERRORS = {
 @ApiBearerAuth()
 @Controller()
 export class RequestsController {
-  constructor(private readonly requestsService: RequestsService) {}
+  constructor(
+    private readonly requestsService: RequestsService,
+    private readonly lateCancellations: LateCancellationsService,
+  ) {}
 
   // --- Pasajero
 
@@ -71,6 +79,7 @@ export class RequestsController {
       'TRIP_FULL',
       'CANNOT_REQUEST_OWN_TRIP',
       'REQUEST_ALREADY_EXISTS',
+      'REQUESTING_SUSPENDED',
     ],
   })
   async request(
@@ -106,6 +115,28 @@ export class RequestsController {
     );
     setPaginationHeaders(response, page);
     return page.items.map(toSeatRequestResource);
+  }
+
+  // Cancelaciones tardías del pasajero y si puede pedir plaza (el detalle del
+  // viaje avisa antes de solicitar)
+  @Get('users/me/requesting-status')
+  @Profiles('passenger')
+  @ApiOperation({
+    summary: 'Get my requesting status',
+    description:
+      'Late cancellations in the last 30 days and, after 3, until when requesting seats is suspended (7 days from the last one).',
+  })
+  @ApiOkResponse({ type: RequestingStatusResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
+  })
+  async getRequestingStatus(
+    @CurrentUser() passenger: AccessTokenPayload,
+  ): Promise<RequestingStatusResource> {
+    return toRequestingStatusResource(
+      await this.lateCancellations.getRequestingStatus(passenger.sub),
+    );
   }
 
   @Post('requests/:id/cancel')
