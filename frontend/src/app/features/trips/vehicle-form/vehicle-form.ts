@@ -1,14 +1,7 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  IonButton,
-  IonIcon,
-  IonInput,
-  IonSelect,
-  IonSelectOption,
-  IonSpinner,
-} from '@ionic/angular';
+import { IonButton, IonIcon, IonInput, IonSpinner } from '@ionic/angular';
 import { ellipsisHorizontalCircleOutline, flashOutline, leafOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { Vehicle, VehicleColor, VehicleEngine } from '../../../core/models/driver.model';
@@ -38,8 +31,6 @@ const DEFAULT_TOTAL_SEATS = 5;
     IonButton,
     IonIcon,
     IonInput,
-    IonSelect,
-    IonSelectOption,
     IonSpinner,
     IonicFormStatus,
     SeatStepper,
@@ -77,13 +68,6 @@ export class VehicleForm {
     { value: 'hybrid', label: 'Híbrido', icon: leafOutline },
     { value: 'other', label: 'Otro', icon: ellipsisHorizontalCircleOutline },
   ];
-  protected readonly selectPopoverOptions = {
-    cssClass: 'vehicle-select-popover',
-    side: 'bottom' as const,
-    alignment: 'start' as const,
-    size: 'cover' as const,
-    showBackdrop: false,
-  };
   readonly form = inject(NonNullableFormBuilder).group({
     brand: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(29)]],
     model: ['', [Validators.required, Validators.maxLength(30)]],
@@ -92,18 +76,6 @@ export class VehicleForm {
     color: ['', Validators.required],
     engine: ['', Validators.required],
   });
-  private readonly selectedColorValue = toSignal(this.form.controls.color.valueChanges, {
-    initialValue: this.form.controls.color.value,
-  });
-  private readonly selectedEngineValue = toSignal(this.form.controls.engine.valueChanges, {
-    initialValue: this.form.controls.engine.value,
-  });
-  protected readonly selectedColor = computed(() =>
-    this.colors.find(({ value }) => value === this.selectedColorValue()),
-  );
-  protected readonly selectedEngine = computed(() =>
-    this.engines.find(({ value }) => value === this.selectedEngineValue()),
-  );
 
   // Con todos los campos bien (la matrícula, al editar, no cuenta: no se cambia)
   private readonly status = toSignal(this.form.statusChanges, { initialValue: this.form.status });

@@ -91,24 +91,15 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-publish-trip .vehicle-picker__add', 'Añadir vehículo').click();
       vehicleModal()
         .find('app-brand-field ion-input input', { includeShadowDom: true })
-        .type('SEAT');
+        .type('sea');
+      // La marca se elige de la lista que filtra lo escrito
+      vehicleModal().contains('.brand-field__option', 'SEAT').click();
       vehicleModal()
         .find('ion-input[formControlName="model"] input', { includeShadowDom: true })
         .type('Ibiza');
-      vehicleModal()
-        .find('ion-select[formControlName="color"]', { includeShadowDom: true })
-        .click();
-      cy.get('ion-select-popover ion-radio', { includeShadowDom: true })
-        .contains('Azul')
-        .click();
-      cy.get('ion-popover').should('not.exist');
-      vehicleModal()
-        .find('ion-select[formControlName="engine"]', { includeShadowDom: true })
-        .click();
-      cy.get('ion-select-popover ion-radio', { includeShadowDom: true })
-        .contains('Híbrido')
-        .click();
-      cy.get('ion-popover').should('not.exist');
+      // Color y motor, a la vista: un toque en la opción
+      vehicleModal().contains('.vehicle-form__color', 'Azul').click();
+      vehicleModal().contains('.vehicle-form__engine', 'Híbrido').click();
       vehicleModal()
         .find('ion-input[formControlName="plate"] input', { includeShadowDom: true })
         .type('1234 bcd');

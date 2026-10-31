@@ -61,16 +61,17 @@ describe('VehicleForm', () => {
     expect(form.isComplete()).toBe(true);
   });
 
-  it('keeps color and engine select placeholders short', () => {
-    const color = fixture.nativeElement.querySelector(
-      'ion-select[formControlName="color"]',
-    ) as HTMLIonSelectElement;
-    const engine = fixture.nativeElement.querySelector(
-      'ion-select[formControlName="engine"]',
-    ) as HTMLIonSelectElement;
+  it('shows the 8 colors and 3 engines as options, chosen with one tap', () => {
+    const root = fixture.nativeElement as HTMLElement;
+    const colors = root.querySelectorAll<HTMLInputElement>('input[formControlName="color"]');
+    const engines = root.querySelectorAll<HTMLInputElement>('input[formControlName="engine"]');
 
-    expect(color.placeholder).toBe('Elige');
-    expect(engine.placeholder).toBe('Elige');
+    colors[4].click();
+    engines[1].click();
+
+    expect(colors).toHaveLength(8);
+    expect(engines).toHaveLength(3);
+    expect(form.form.getRawValue()).toMatchObject({ color: 'blue', engine: 'hybrid' });
   });
 
   it('registers the separated details and passenger seats', async () => {

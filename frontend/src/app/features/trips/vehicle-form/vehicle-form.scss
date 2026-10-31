@@ -40,23 +40,78 @@
   min-width: 0;
 }
 
-.vehicle-form ion-input,
-.vehicle-form ion-select {
-  --highlight-color-focused: var(--color-primary);
-  --highlight-color-valid: var(--color-primary);
+// Color y motor: la etiqueta encima a 8px y las opciones debajo, sin el borde
+// ni el relleno del fieldset
+.vehicle-form__choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: var(--space-s);
+    padding: 0;
+  }
 }
 
-.vehicle-form ion-select {
-  width: 100%;
+// Los colores: pastillas de 40px que bajan de línea; los motores, tres a
+// partes iguales
+.vehicle-form__colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
 }
 
-.vehicle-form ion-select::part(container) {
-  flex: 1;
+.vehicle-form__engines {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-s);
 }
 
-.vehicle-form ion-select > ion-icon {
-  color: var(--color-link);
-  font-size: 1.25rem; // 20px
+// Cada opción: el botón de opción nativo, oculto pero accesible, y la pastilla
+// con borde gris; la elegida, en azul claro con el borde azul
+.vehicle-form__color,
+.vehicle-form__engine {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  min-height: var(--control-height-s);
+  padding: 0 var(--space-base);
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-body-s);
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  &:has(input:checked) {
+    border-color: var(--color-link);
+    background: var(--color-primary-subtle);
+    color: var(--color-link);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  &:has(input:focus-visible) {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+
+  ion-icon {
+    font-size: 1.125rem; // 18px
+  }
 }
 
 .vehicle-form__swatch {

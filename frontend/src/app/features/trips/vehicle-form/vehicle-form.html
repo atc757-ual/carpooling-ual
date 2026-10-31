@@ -18,53 +18,36 @@
       />
     </div>
   </div>
-  <div class="vehicle-form__row">
-    <div class="vehicle-form__field">
-      <label class="text-label text-label--strong" for="vehicle-color">Color</label>
-      <ion-select
-        id="vehicle-color"
-        formControlName="color"
-        interface="popover"
-        fill="outline"
-        justify="space-between"
-        [interfaceOptions]="selectPopoverOptions"
-        aria-label="Color"
-        placeholder="Elige"
-      >
-        @if (selectedColor(); as color) {
+  <!-- Color y motor, a la vista y de un toque (sin desplegables: nada flota
+       fuera de la ventana). Botones de opción nativos, con teclado -->
+  <fieldset class="vehicle-form__choices">
+    <legend class="text-label text-label--strong">Color</legend>
+    <div class="vehicle-form__colors">
+      @for (color of colors; track color.value) {
+        <label class="vehicle-form__color">
+          <input type="radio" formControlName="color" [value]="color.value" />
           <span
-            slot="start"
             class="vehicle-form__swatch"
             [style.--swatch-color]="color.hex"
             aria-hidden="true"
           ></span>
-        }
-        @for (color of colors; track color.value) {
-          <ion-select-option [value]="color.value">{{ color.label }}</ion-select-option>
-        }
-      </ion-select>
+          {{ color.label }}
+        </label>
+      }
     </div>
-    <div class="vehicle-form__field">
-      <label class="text-label text-label--strong" for="vehicle-engine">Motor</label>
-      <ion-select
-        id="vehicle-engine"
-        formControlName="engine"
-        interface="popover"
-        fill="outline"
-        justify="space-between"
-        [interfaceOptions]="selectPopoverOptions"
-        aria-label="Motor"
-        placeholder="Elige"
-      >
-        @if (selectedEngine(); as engine) {
-          <ion-icon slot="start" [icon]="engine.icon" aria-hidden="true" />
-        }
-        @for (engine of engines; track engine.value) {
-          <ion-select-option [value]="engine.value">{{ engine.label }}</ion-select-option>
-        }
-      </ion-select>
+  </fieldset>
+  <fieldset class="vehicle-form__choices">
+    <legend class="text-label text-label--strong">Motor</legend>
+    <div class="vehicle-form__engines">
+      @for (engine of engines; track engine.value) {
+        <label class="vehicle-form__engine">
+          <input type="radio" formControlName="engine" [value]="engine.value" />
+          <ion-icon [icon]="engine.icon" aria-hidden="true" />
+          {{ engine.label }}
+        </label>
+      }
     </div>
-  </div>
+  </fieldset>
   <!-- Matrícula (con su ayuda justo debajo) y asientos, en una fila -->
   <div class="vehicle-form__row">
     <div class="vehicle-form__field">
