@@ -733,6 +733,46 @@ describe('Users API (e2e)', () => {
     });
 
     it('migrates terms_accepted_at into user_consents with valid SHA-256 fingerprints', async () => {
+      const ana = await createUser('ana');
+      await dataSource.query('DELETE FROM user_consents WHERE user_id = $1', [
+        ana.id,
+      ]);
+
+      await dataSource.query(
+        String.raw`
+          INSERT INTO user_consents (
+            user_id, type, document_version, action, source, recorded_at, fingerprint
+          )
+          SELECT u.id,
+                 c.type,
+                 '1.0',
+                 'granted',
+                 'registration',
+                 date_trunc('milliseconds', u.terms_accepted_at),
+                 encode(
+                   sha256(
+                     convert_to(
+                       u.id::text
+                       || '|' || c.type::text
+                       || '|1.0|granted|'
+                       || to_char(
+                            date_trunc('milliseconds', u.terms_accepted_at) AT TIME ZONE 'UTC',
+                            'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
+                          ),
+                       'UTF8'
+                     )
+                   ),
+                   'hex'
+                 )
+            FROM users u
+           CROSS JOIN (
+             VALUES ('terms'::consent_type), ('privacy'::consent_type)
+           ) AS c(type)
+           WHERE u.id = $1
+        `,
+        [ana.id],
+      );
+
       const rows = await dataSource.query<
         {
           user_id: string;
@@ -746,8 +786,9 @@ describe('Users API (e2e)', () => {
       >(
         `SELECT user_id, type, document_version, action, source, recorded_at, fingerprint
            FROM user_consents
-          WHERE user_id = '00000000-0000-4000-8000-000000000002'
+          WHERE user_id = $1
           ORDER BY type`,
+        [ana.id],
       );
 
       expect(rows).toHaveLength(2);
