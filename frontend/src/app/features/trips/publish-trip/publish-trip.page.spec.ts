@@ -276,4 +276,103 @@ describe('PublishTripPage', () => {
     expect(page.vehiclesState()).toBe('ready');
     expect(driver['listVehicles']).toHaveBeenCalledTimes(1);
   });
+
+  // Cambia de cuenta y deja que el efecto reinicie la pantalla
+  async function switchAccount(user: { id: string; profiles: string[] } | null): Promise<void> {
+    currentUser.set(user);
+    harness.fixture.detectChanges();
+    await harness.fixture.whenStable();
+  }
+
+  it('resets the screen without loading anything when the session closes', async () => {
+    await openPage();
+    fillTrip();
+
+    await switchAccount(null);
+
+    expect(page.loadState()).toBe('ready');
+    expect(page.tripForm.controls.place.value).toBeNull();
+    expect(driver['getStatus']).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['vehicles', (late: Promise<never>) => driver['listVehicles'].mockReturnValueOnce(late)],
+    ['driver status', (late: Promise<never>) => driver['getStatus'].mockReturnValueOnce(late)],
+  ])('ignores the %s of the previous account that arrive late', async (_name, delay) => {
+    await openPage();
+    let failLate: (error: Error) => void = () => undefined;
+    delay(
+      new Promise<never>((_resolve, reject) => {
+        failLate = reject;
+      }),
+    );
+    fillTrip();
+    // Pide lo retrasado (los vehículos en el paso 2, el estado al cambiar de cuenta)
+    await page.goToStep(2);
+    await switchAccount({ id: 'user-2', profiles: ['driver'] });
+    await switchAccount({ id: 'user-3', profiles: ['driver'] });
+
+    failLate(new Error('late'));
+    await harness.fixture.whenStable();
+
+    expect(page.loadState()).toBe('ready');
+    expect(page.vehiclesState()).not.toBe('error');
+  });
+
+  it('keeps the driver status of the current account when an old one arrives', async () => {
+    await openPage();
+    let answerLate: (status: { hasLicenseDeclared: boolean }) => void = () => undefined;
+    driver['getStatus'].mockReturnValueOnce(
+      new Promise((resolve) => {
+        answerLate = resolve;
+      }),
+    );
+    await switchAccount({ id: 'user-2', profiles: ['driver'] });
+    await switchAccount({ id: 'user-3', profiles: ['driver'] });
+
+    answerLate({ hasLicenseDeclared: false });
+    await harness.fixture.whenStable();
+
+    expect(page.hasDeclared()).toBe(true);
+  });
+
+  it('ignores the parkings of a previous passenger account that arrive late', async () => {
+    await openPage();
+    let finishLate: () => void = () => undefined;
+    vi.mocked(TestBed.inject(PlacesService).loadParkings).mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        finishLate = resolve;
+      }),
+    );
+    await switchAccount({ id: 'user-2', profiles: ['passenger'] });
+    await switchAccount({ id: 'user-3', profiles: ['driver'] });
+
+    finishLate();
+    await harness.fixture.whenStable();
+
+    expect(page.hasDeclared()).toBe(true);
+  });
+
+  it('has no vehicles to list for a passenger', async () => {
+    await openPage();
+    await switchAccount({ id: 'user-2', profiles: ['passenger'] });
+
+    await page.loadVehicles();
+
+    expect(page.vehicles()).toEqual([]);
+    expect(page.vehiclesState()).toBe('ready');
+  });
+
+  it('retries on step 2 and shows the error if the status fails again', async () => {
+    await openPage();
+    fillTrip();
+    await page.goToStep(2);
+    driver['getStatus'].mockRejectedValueOnce(new Error('offline'));
+
+    await page.load();
+    expect(page.loadState()).toBe('error');
+
+    await page.load();
+    expect(page.loadState()).toBe('ready');
+  });
 });
