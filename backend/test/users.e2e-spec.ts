@@ -5,6 +5,7 @@ import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { computeConsentFingerprint } from '../src/modules/users/user-consent';
 import { deleteTestUsers } from './support/cleanup';
 import { registerUser, TEST_PHONE } from './support/accounts';
 
@@ -578,6 +579,207 @@ describe('Users API (e2e)', () => {
       const response = await updateMe(body, ana.accessToken).expect(400);
 
       expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+    });
+  });
+
+  // Prueba del consentimiento (RGPD): condiciones, privacidad y ubicación
+  describe('GET /api/users/me/consents and PUT /api/users/me/consents/location', () => {
+    it('records initial terms and privacy consents on registration with verifiable SHA-256 fingerprints', async () => {
+      const ana = await createUser('ana');
+
+      const response = await request(app.getHttpServer())
+        .get('/api/users/me/consents')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .expect(200);
+
+      const body = response.body as {
+        '@type': string;
+        current: {
+          terms: {
+            id: string;
+            type: 'terms';
+            documentVersion: string;
+            action: 'granted';
+            source: string;
+            recordedAt: string;
+            fingerprint: string;
+          } | null;
+          privacy: {
+            id: string;
+            type: 'privacy';
+            documentVersion: string;
+            action: 'granted';
+            source: string;
+            recordedAt: string;
+            fingerprint: string;
+          } | null;
+          location: unknown;
+        };
+        history: { id: string; type: string }[];
+      };
+
+      expect(body['@type']).toBe('UserConsents');
+      expect(body.current.location).toBeNull();
+      expect(body.current.terms).toMatchObject({
+        type: 'terms',
+        documentVersion: '1.0',
+        action: 'granted',
+        source: 'registration',
+      });
+      expect(body.current.privacy).toMatchObject({
+        type: 'privacy',
+        documentVersion: '1.0',
+        action: 'granted',
+        source: 'registration',
+      });
+      expect(body.current.terms?.fingerprint).toBe(
+        computeConsentFingerprint({
+          userId: ana.id,
+          type: 'terms',
+          documentVersion: '1.0',
+          action: 'granted',
+          recordedAt: new Date(body.current.terms!.recordedAt),
+        }),
+      );
+      expect(body.current.privacy?.fingerprint).toBe(
+        computeConsentFingerprint({
+          userId: ana.id,
+          type: 'privacy',
+          documentVersion: '1.0',
+          action: 'granted',
+          recordedAt: new Date(body.current.privacy!.recordedAt),
+        }),
+      );
+      expect(body.history).toHaveLength(2);
+
+      const events = await dataSource.query<{ payload: { type: string } }[]>(
+        `SELECT payload FROM events
+          WHERE type = 'consent.granted' AND source_entity_id = $1`,
+        [ana.id],
+      );
+      expect(new Set(events.map((e) => e.payload.type))).toEqual(
+        new Set(['terms', 'privacy']),
+      );
+    });
+
+    it('appends location consent transitions (granted and revoked) and keeps the full audit history', async () => {
+      const ana = await createUser('ana');
+
+      const granted = await request(app.getHttpServer())
+        .put('/api/users/me/consents/location')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .send({ action: 'granted' })
+        .expect(200);
+
+      expect(granted.body).toMatchObject({
+        '@type': 'UserConsents',
+        current: {
+          location: {
+            type: 'location',
+            documentVersion: '1.0',
+            action: 'granted',
+            source: 'settings',
+          },
+        },
+      });
+      expect((granted.body as { history: unknown[] }).history).toHaveLength(3);
+
+      // Idempotente si se vuelve a enviar el mismo estado seguido
+      const repeated = await request(app.getHttpServer())
+        .put('/api/users/me/consents/location')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .send({ action: 'granted' })
+        .expect(200);
+      expect((repeated.body as { history: unknown[] }).history).toHaveLength(3);
+
+      const revoked = await request(app.getHttpServer())
+        .put('/api/users/me/consents/location')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .send({ action: 'revoked' })
+        .expect(200);
+
+      const revokedBody = revoked.body as {
+        current: {
+          location: { action: string; fingerprint: string; recordedAt: string };
+        };
+        history: { type: string; action: string }[];
+      };
+      expect(revokedBody.current.location.action).toBe('revoked');
+      expect(revokedBody.current.location.fingerprint).toBe(
+        computeConsentFingerprint({
+          userId: ana.id,
+          type: 'location',
+          documentVersion: '1.0',
+          action: 'revoked',
+          recordedAt: new Date(revokedBody.current.location.recordedAt),
+        }),
+      );
+      expect(revokedBody.history).toHaveLength(4);
+      expect(revokedBody.history.slice(0, 2)).toEqual([
+        expect.objectContaining({ type: 'location', action: 'revoked' }),
+        expect.objectContaining({ type: 'location', action: 'granted' }),
+      ]);
+
+      const revokedEvents = await dataSource.query<
+        { payload: { type: string } }[]
+      >(
+        `SELECT payload FROM events
+          WHERE type = 'consent.revoked' AND source_entity_id = $1`,
+        [ana.id],
+      );
+      expect(revokedEvents).toEqual([
+        { payload: expect.objectContaining({ type: 'location' }) as unknown },
+      ]);
+    });
+
+    it('migrates terms_accepted_at into user_consents with valid SHA-256 fingerprints', async () => {
+      const rows = await dataSource.query<
+        {
+          user_id: string;
+          type: 'terms' | 'privacy';
+          document_version: string;
+          action: 'granted';
+          source: string;
+          recorded_at: Date;
+          fingerprint: string;
+        }[]
+      >(
+        `SELECT user_id, type, document_version, action, source, recorded_at, fingerprint
+           FROM user_consents
+          WHERE user_id = '00000000-0000-4000-8000-000000000002'
+          ORDER BY type`,
+      );
+
+      expect(rows).toHaveLength(2);
+      for (const row of rows) {
+        expect(row.source).toBe('registration');
+        expect(row.fingerprint).toBe(
+          computeConsentFingerprint({
+            userId: row.user_id,
+            type: row.type,
+            documentVersion: row.document_version,
+            action: row.action,
+            recordedAt: row.recorded_at,
+          }),
+        );
+      }
+    });
+
+    it('rejects an invalid location consent action with 400 and requires a token', async () => {
+      const ana = await createUser('ana');
+
+      await request(app.getHttpServer())
+        .put('/api/users/me/consents/location')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .send({ action: 'maybe' })
+        .expect(400)
+        .expect(({ body }) =>
+          expect(body).toMatchObject({ code: 'VALIDATION_FAILED' }),
+        );
+
+      await request(app.getHttpServer())
+        .get('/api/users/me/consents')
+        .expect(401);
     });
   });
 });

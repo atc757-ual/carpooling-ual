@@ -32,7 +32,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - `GET /api/users/{id}`: datos del propio usuario, o de cualquiera para un administrador (#15)
 - Comando `npm run create-admin` para crear el primer administrador en el despliegue, y guÃ­a de despliegue en `docs/despliegue.md` (#15)
 - VehÃ­culos de los conductores (RF-21): alta, consulta, lista paginada y baja en `/api/vehicles` (#16)
-- Ampliación de los datos del vehículo (marca, modelo, color y motor), migración de los datos existentes y detalles para reconocer el coche en los resultados del matching (#107)
+- Ampliaciï¿½n de los datos del vehï¿½culo (marca, modelo, color y motor), migraciï¿½n de los datos existentes y detalles para reconocer el coche en los resultados del matching (#107)
 - Formulario del vehÃ­culo ampliado: la marca con buscador (lista local de marcas vendidas en EspaÃ±a, generada desde la NHTSA, y Â«OtraÂ»), el color en 8 opciones a la vista y el motor (elÃ©ctrico, hÃ­brido u otro); el coche se muestra con su color en Publicar, en el perfil y en el detalle del viaje, sin la matrÃ­cula hasta tener la plaza aceptada (la bÃºsqueda de la API ya no la envÃ­a) (#109)
 - DeclaraciÃ³n responsable del conductor y su estado para publicar viajes: `PUT /api/users/me/driver-declaration` y `GET /api/users/me/driver-status` (#16)
 - PaginaciÃ³n TMF630 de listas (`offset`, `limit`, `X-Total-Count`, `X-Result-Count`) (#16)
@@ -107,10 +107,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Cancelaciones tardÃ­as del pasajero, con la misma regla que el conductor: soltar una plaza aceptada a menos de 30 minutos de la salida queda registrado (evento `trip.cancelled_late` con `role: passenger`); con 3 en 30 dÃ­as no puede pedir plaza en 7 dÃ­as (409 `REQUESTING_SUSPENDED`), y `GET /api/users/me/requesting-status` dice cuÃ¡ntas lleva y hasta cuÃ¡ndo. Si el Ãºltimo pasajero se baja de un viaje en curso, el viaje termina y el coche queda libre (#108)
 
 ### Changed
-- La cabecera del móvil conserva la insignia «UAL» y su texto se da la vuelta cada 5 segundos entre «Carpool» y «¡Hola, nombre!»; en escritorio el nombre va junto a la campana, en semibold (#105)
-- Los destinos pasan a llamarse «Tus viajes» y «Mi perfil», también en el título de la franja y en las ayudas (#105)
-- Publicar ya no espera a los vehículos para pintarse: el formulario sale al momento y la lista se pide al entrar en el paso 2, con su propia carga y un «Reintentar» si falla; las pantallas dejan de repetir el título, que va en la franja fija (#105)
-- El botón «Añadir vehículo» lleva borde liso azul en vez de discontinuo (#105)
+- La cabecera del mï¿½vil conserva la insignia ï¿½UALï¿½ y su texto se da la vuelta cada 5 segundos entre ï¿½Carpoolï¿½ y ï¿½ï¿½Hola, nombre!ï¿½; en escritorio el nombre va junto a la campana, en semibold (#105)
+- Los destinos pasan a llamarse ï¿½Tus viajesï¿½ y ï¿½Mi perfilï¿½, tambiï¿½n en el tï¿½tulo de la franja y en las ayudas (#105)
+- Publicar ya no espera a los vehï¿½culos para pintarse: el formulario sale al momento y la lista se pide al entrar en el paso 2, con su propia carga y un ï¿½Reintentarï¿½ si falla; las pantallas dejan de repetir el tï¿½tulo, que va en la franja fija (#105)
+- El botï¿½n ï¿½Aï¿½adir vehï¿½culoï¿½ lleva borde liso azul en vez de discontinuo (#105)
 - El tÃ­tulo y el subtÃ­tulo de cada pantalla pasan a la franja fija (tambiÃ©n en el mÃ³vil, bajo la cabecera) y el saludo de Inicio queda debajo, en el contenido; las tarjetas de Buscar y Publicar empiezan por su formulario (#104)
 - El botÃ³n de cambiar el sentido del trayecto lleva el fondo azul muy claro y el icono en el color de los enlaces, con las flechas rellenas (#104)
 - El cÃ³digo de 6 cifras (verificar el correo y recuperar la contraseÃ±a) se envÃ­a solo al completar la Ãºltima casilla, sin botÃ³n; si es incorrecto, ademÃ¡s del aviso, las casillas tintinean (sin animaciÃ³n con Â«reducir movimientoÂ»), el mÃ³vil vibra y el foco vuelve a la primera (#87)

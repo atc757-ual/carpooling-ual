@@ -35,13 +35,19 @@ import {
 } from './dto/driver-status.resource';
 import { ListUsersQueryDto } from './dto/list-users-query.dto';
 import { SetActiveModeDto } from './dto/set-active-mode.dto';
+import { SetLocationConsentDto } from './dto/set-location-consent.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
 import { SetProfileActiveDto } from './dto/set-profile-active.dto';
 import {
   toUserAdminResource,
   UserAdminResource,
 } from './dto/user-admin.resource';
+import {
+  toUserConsentsResource,
+  UserConsentsResource,
+} from './dto/user-consents.resource';
 import { toUserResource, UserResource } from './dto/user.resource';
+import { ConsentsService } from './consents.service';
 import { PROFILE_TYPES, REGISTRABLE_PROFILES } from './profile-type';
 import type { ProfileType, RegistrableProfile } from './profile-type';
 import { UserProfilesService } from './user-profiles.service';
@@ -60,6 +66,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly userProfiles: UserProfilesService,
+    private readonly consentsService: ConsentsService,
   ) {}
 
   // RF-21: qué le falta al conductor para poder publicar viajes
@@ -195,6 +202,54 @@ export class UsersController {
   ): Promise<UserResource> {
     await this.userProfiles.setActiveMode(currentUser.sub, dto.mode);
     return toUserResource(await this.usersService.getSummary(currentUser.sub));
+  }
+
+  // RGPD: estado actual de cada consentimiento (condiciones, privacidad y
+  // ubicación) y su historial completo con huella SHA-256
+  @Get('me/consents')
+  @ApiOperation({
+    summary: 'Get my consents and their audit history',
+    description:
+      'GDPR proof of consent: current state of each consent type (terms, privacy and location) and the append-only history of granted and revoked records with their SHA-256 fingerprint.',
+  })
+  @ApiOkResponse({ type: UserConsentsResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
+  })
+  async getMyConsents(
+    @CurrentUser() currentUser: AccessTokenPayload,
+  ): Promise<UserConsentsResource> {
+    return toUserConsentsResource(
+      await this.consentsService.getMyConsents(currentUser.sub),
+    );
+  }
+
+  // RGPD: registrar que el usuario ha concedido o retirado el permiso de
+  // ubicación desde la app. PUT porque repetir el mismo estado no añade otra
+  // fila idéntica seguida
+  @Put('me/consents/location')
+  @ApiOperation({
+    summary: 'Record my location consent (granted or revoked)',
+    description:
+      'Appends a location consent record (granted or revoked, source settings) when the state changes and returns the updated consents view.',
+  })
+  @ApiOkResponse({ type: UserConsentsResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
+  })
+  async setLocationConsent(
+    @CurrentUser() currentUser: AccessTokenPayload,
+    @Body() dto: SetLocationConsentDto,
+  ): Promise<UserConsentsResource> {
+    return toUserConsentsResource(
+      await this.consentsService.recordLocationConsent(
+        currentUser.sub,
+        dto.action,
+      ),
+    );
   }
 
   // --- Administrador (RF-25, CU-13)
