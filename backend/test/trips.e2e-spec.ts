@@ -204,6 +204,9 @@ describe('Trips API (e2e)', () => {
         )
         .expect(409);
       expect(overlap.body).toMatchObject({ code: 'TRIP_OVERLAPS' });
+      expect((overlap.body as { message: string }).message).toMatch(
+        /departing at \d{4}-\d{2}-\d{2}T/,
+      );
 
       const [{ duration_min: durationMin }] = await dataSource.query<
         { duration_min: number }[]
@@ -248,6 +251,42 @@ describe('Trips API (e2e)', () => {
         new Date(base.getTime() + 4 * 60 * 60_000),
       );
       expect(replacementTrip.id).toMatch(/^[0-9a-f-]{36}$/i);
+    });
+
+    it('serializes concurrent publications before counting the daily limit', async () => {
+      const { token, vehicleId } = await readyDriver('parallel-limit');
+      const base = publishableDeparture();
+      base.setDate(base.getDate() + 1);
+      base.setHours(8, 0, 0, 0);
+      for (let index = 0; index < 3; index += 1) {
+        await publishTrip(
+          token,
+          vehicleId,
+          new Date(base.getTime() + index * 60 * 60_000),
+        );
+      }
+      const concurrent = await Promise.all([
+        api('post', '/trips', token).send(
+          tripBody(vehicleId, {
+            departureAt: new Date(
+              base.getTime() + 3 * 60 * 60_000,
+            ).toISOString(),
+          }),
+        ),
+        api('post', '/trips', token).send(
+          tripBody(vehicleId, {
+            departureAt: new Date(
+              base.getTime() + 4 * 60 * 60_000,
+            ).toISOString(),
+          }),
+        ),
+      ]);
+      expect(concurrent.map(({ status }) => status).sort()).toEqual([201, 409]);
+      expect(
+        concurrent.find(({ status }) => status === 409)?.body,
+      ).toMatchObject({
+        code: 'DAILY_TRIP_LIMIT',
+      });
     });
   });
 
@@ -328,6 +367,27 @@ describe('Trips API (e2e)', () => {
         code: 'VALIDATION_FAILED',
         fields: [{ field: 'body' }],
       });
+    });
+
+    it('applies overlap checks when changing the departure time', async () => {
+      const { token, vehicleId } = await readyDriver('edit-overlap');
+      const departureAt = publishableDeparture();
+      const trip = await publishTrip(token, vehicleId, departureAt);
+      await publishTrip(
+        token,
+        vehicleId,
+        new Date(departureAt.getTime() + 60 * 60_000),
+      );
+
+      const response = await api('patch', `/trips/${trip.id}`, token)
+        .send({
+          departureAt: new Date(
+            departureAt.getTime() + 65 * 60_000,
+          ).toISOString(),
+        })
+        .expect(409);
+
+      expect(response.body).toMatchObject({ code: 'TRIP_OVERLAPS' });
     });
 
     it('only lets the driver of the trip change it (403 NOT_TRIP_DRIVER)', async () => {
