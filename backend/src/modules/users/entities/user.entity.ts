@@ -8,6 +8,17 @@ import {
 } from 'typeorm';
 import type { Relation } from 'typeorm';
 import type { RegistrableProfile } from '../profile-type';
+import {
+  CONVERSATION_PREFERENCES,
+  type AvatarKey,
+  type ConversationPreference,
+  MUSIC_PREFERENCES,
+  type MusicPreference,
+  PETS_PREFERENCES,
+  type PetsPreference,
+  SMOKING_PREFERENCES,
+  type SmokingPreference,
+} from '../travel-preferences';
 import { AdminProfile } from './admin-profile.entity';
 import { DriverProfile } from './driver-profile.entity';
 import { PassengerProfile } from './passenger-profile.entity';
@@ -55,6 +66,61 @@ export class User {
   // hasta que lo elige: el cliente usa su modo por defecto
   @Column({ name: 'active_mode', type: 'varchar', length: 10, nullable: true })
   activeMode: RegistrableProfile | null;
+
+  // Clave del catálogo cerrado de avatares (tabla avatars); NULL muestra las
+  // iniciales del nombre
+  @Column({
+    name: 'avatar_key',
+    type: 'varchar',
+    length: 30,
+    nullable: true,
+    default: null,
+  })
+  avatarKey: AvatarKey | null = null;
+
+  // «Sobre mí» público, de 20 a 500 caracteres cuando se rellena
+  @Column({ type: 'varchar', length: 500, nullable: true, default: null })
+  bio: string | null = null;
+
+  @Column({
+    name: 'pref_conversation',
+    type: 'enum',
+    enum: CONVERSATION_PREFERENCES,
+    enumName: 'conversation_preference',
+    nullable: true,
+    default: null,
+  })
+  conversationPreference: ConversationPreference | null = null;
+
+  @Column({
+    name: 'pref_music',
+    type: 'enum',
+    enum: MUSIC_PREFERENCES,
+    enumName: 'music_preference',
+    nullable: true,
+    default: null,
+  })
+  musicPreference: MusicPreference | null = null;
+
+  @Column({
+    name: 'pref_smoking',
+    type: 'enum',
+    enum: SMOKING_PREFERENCES,
+    enumName: 'smoking_preference',
+    nullable: true,
+    default: null,
+  })
+  smokingPreference: SmokingPreference | null = null;
+
+  @Column({
+    name: 'pref_pets',
+    type: 'enum',
+    enum: PETS_PREFERENCES,
+    enumName: 'pets_preference',
+    nullable: true,
+    default: null,
+  })
+  petsPreference: PetsPreference | null = null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

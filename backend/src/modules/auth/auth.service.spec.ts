@@ -387,6 +387,14 @@ describe('AuthService', () => {
           name: 'Ana',
           email: 'ana@ual.es',
           profiles: ['driver'],
+          avatarKey: null,
+          bio: null,
+          preferences: {
+            conversation: null,
+            music: null,
+            smoking: null,
+            pets: null,
+          },
         },
       );
     });

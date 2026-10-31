@@ -1,9 +1,11 @@
 import { Test } from '@nestjs/testing';
-import { EventsService } from '../../events/events.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { EventsService } from '../../events/events.service';
+import { AvatarsService } from './avatars.service';
 import { User } from './entities/user.entity';
 import { UserNotFoundError } from './errors/user-not-found.error';
+import { EMPTY_TRAVEL_PREFERENCES } from './travel-preferences';
 import { UsersService } from './users.service';
 import { VehiclesService } from './vehicles.service';
 
@@ -12,16 +14,18 @@ import { VehiclesService } from './vehicles.service';
 // test/users-service.e2e-spec.ts contra PostgreSQL
 describe('UsersService', () => {
   let usersService: UsersService;
-  const usersRepository = { findOne: jest.fn() };
+  const usersRepository = { findOne: jest.fn(), find: jest.fn() };
 
   beforeEach(async () => {
     usersRepository.findOne.mockReset();
+    usersRepository.find.mockReset();
     const moduleRef = await Test.createTestingModule({
       providers: [
         UsersService,
         { provide: DataSource, useValue: {} },
         { provide: getRepositoryToken(User), useValue: usersRepository },
         { provide: VehiclesService, useValue: {} },
+        { provide: AvatarsService, useValue: {} },
         { provide: EventsService, useValue: {} },
       ],
     }).compile();
@@ -72,6 +76,9 @@ describe('UsersService', () => {
           name: 'Ana',
           email: 'ana@ual.es',
           passwordHash: 'hash',
+          avatarKey: 'sun',
+          bio: 'Conductora desde Roquetas al campus de la UAL.',
+          conversationPreference: 'chatty',
           passengerProfile: { isActive: true } as User['passengerProfile'],
         }),
       );
@@ -81,6 +88,12 @@ describe('UsersService', () => {
         name: 'Ana',
         email: 'ana@ual.es',
         profiles: ['passenger'],
+        avatarKey: 'sun',
+        bio: 'Conductora desde Roquetas al campus de la UAL.',
+        preferences: {
+          ...EMPTY_TRAVEL_PREFERENCES,
+          conversation: 'chatty',
+        },
       });
     });
 
@@ -90,6 +103,41 @@ describe('UsersService', () => {
       await expect(usersService.getSummary('missing')).rejects.toBeInstanceOf(
         UserNotFoundError,
       );
+    });
+  });
+
+  describe('getPublicProfiles', () => {
+    it('returns an empty map without querying when given no ids', async () => {
+      await expect(usersService.getPublicProfiles([])).resolves.toEqual(
+        new Map(),
+      );
+      expect(usersRepository.find).not.toHaveBeenCalled();
+    });
+
+    it('loads the name, avatar and preferences in a single query', async () => {
+      usersRepository.find.mockResolvedValue([
+        userWith({
+          id: 'u1',
+          name: 'Lucía',
+          avatarKey: 'sun',
+          conversationPreference: 'chatty',
+          smokingPreference: 'no',
+        }),
+      ]);
+
+      const profiles = await usersService.getPublicProfiles(['u1', 'u1']);
+
+      expect(profiles.get('u1')).toEqual({
+        id: 'u1',
+        name: 'Lucía',
+        avatarKey: 'sun',
+        preferences: {
+          conversation: 'chatty',
+          music: null,
+          smoking: 'no',
+          pets: null,
+        },
+      });
     });
   });
 });

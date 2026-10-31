@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import type { Point } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
+import type { AvatarKey, TravelPreferences } from '../users/travel-preferences';
 import { UsersService } from '../users/users.service';
 import { VehiclesService } from '../users/vehicles.service';
 import { TripRoute } from './entities/trip-route.entity';
@@ -51,10 +52,12 @@ export interface TripInput {
 // Modificación parcial: solo los campos que cambian
 export type TripChanges = Partial<TripInput>;
 
-// Un viaje con el nombre de su conductor (lo que ve un pasajero)
+// Un viaje con el perfil público de su conductor (lo que ve un pasajero)
 export interface TripView {
   trip: Trip;
   driverName: string;
+  driverAvatarKey: AvatarKey | null;
+  driverPreferences: TravelPreferences;
 }
 
 // Un viaje con su ruta (RF-12)
@@ -140,9 +143,15 @@ export class TripsService {
       skip: page.offset,
       take: page.limit,
     });
-    const { name } = await this.usersService.getSummary(driverId);
+    const { name, avatarKey, preferences } =
+      await this.usersService.getSummary(driverId);
     return {
-      items: trips.map((trip) => ({ trip, driverName: name })),
+      items: trips.map((trip) => ({
+        trip,
+        driverName: name,
+        driverAvatarKey: avatarKey,
+        driverPreferences: preferences,
+      })),
       total,
     };
   }
@@ -312,10 +321,17 @@ export class TripsService {
     );
   }
 
-  // El viaje con el nombre de su conductor
+  // El viaje con el perfil público de su conductor
   private async toView(trip: Trip): Promise<TripView> {
-    const { name } = await this.usersService.getSummary(trip.driverId);
-    return { trip, driverName: name };
+    const { name, avatarKey, preferences } = await this.usersService.getSummary(
+      trip.driverId,
+    );
+    return {
+      trip,
+      driverName: name,
+      driverAvatarKey: avatarKey,
+      driverPreferences: preferences,
+    };
   }
 
   // Reglas comunes de publicar y modificar: vehículo suyo y activo, plazas

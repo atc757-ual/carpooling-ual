@@ -33,19 +33,36 @@ const CANDIDATE: TripCandidate = {
 describe('MatchingService', () => {
   const findCandidates = jest.fn();
   const getActive = jest.fn();
-  const getNames = jest.fn();
+  const getPublicProfiles = jest.fn();
   const getRecognitionDetails = jest.fn();
   const service = new MatchingService(
     { findCandidates },
     { getActive } as unknown as CampusParkingsService,
-    { getNames } as unknown as UsersService,
+    { getPublicProfiles } as unknown as UsersService,
     { getRecognitionDetails } as unknown as VehiclesService,
   );
 
   beforeEach(() => {
     jest.clearAllMocks();
     getActive.mockResolvedValue({ id: 'p1', location: PARKING_LOCATION });
-    getNames.mockResolvedValue(new Map([['d1', 'Lucía Cortés']]));
+    getPublicProfiles.mockResolvedValue(
+      new Map([
+        [
+          'd1',
+          {
+            id: 'd1',
+            name: 'Lucía Cortés',
+            avatarKey: 'sun',
+            preferences: {
+              conversation: 'chatty',
+              music: 'soft',
+              smoking: 'no',
+              pets: null,
+            },
+          },
+        ],
+      ]),
+    );
     getRecognitionDetails.mockResolvedValue(
       new Map([['v1', { brand: 'Seat', model: 'Ibiza', color: 'blue' }]]),
     );
@@ -66,6 +83,13 @@ describe('MatchingService', () => {
       seats: 1,
     });
     expect(result.driverName).toBe('Lucía Cortés');
+    expect(result.driverAvatarKey).toBe('sun');
+    expect(result.driverPreferences).toEqual({
+      conversation: 'chatty',
+      music: 'soft',
+      smoking: 'no',
+      pets: null,
+    });
     expect(result.vehicle).toEqual({
       brand: 'Seat',
       model: 'Ibiza',
@@ -98,7 +122,7 @@ describe('MatchingService', () => {
     findCandidates.mockResolvedValue([{ ...CANDIDATE, detourMin: 15 }]);
 
     expect(await service.search('passenger-1', SEARCH)).toEqual([]);
-    expect(getNames).toHaveBeenCalledWith([]);
+    expect(getPublicProfiles).toHaveBeenCalledWith([]);
     expect(getRecognitionDetails).toHaveBeenCalledWith([]);
   });
 });

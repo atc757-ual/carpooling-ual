@@ -121,7 +121,17 @@ describe('Seat requests API (e2e)', () => {
       id: seatRequest.id,
       href: `/api/requests/${seatRequest.id}`,
       trip: { id: tripId, href: `/api/trips/${tripId}` },
-      passenger: { id: seatRequest.passenger.id, name: 'pia' },
+      passenger: {
+        id: seatRequest.passenger.id,
+        name: 'pia',
+        avatarKey: null,
+        preferences: {
+          conversation: null,
+          music: null,
+          smoking: null,
+          pets: null,
+        },
+      },
       status: 'pending',
       seats: 1,
       isPriority: false,

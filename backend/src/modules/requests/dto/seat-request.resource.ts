@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { API_PREFIX } from '../../../app.setup';
 import { tripHref } from '../../trips/dto/trip.resource';
+import { TravelPreferencesResource } from '../../users/dto/travel-preferences.resource';
+import { AVATAR_KEYS, type AvatarKey } from '../../users/travel-preferences';
 import type { RequestView } from '../request-views.service';
 import { REQUEST_STATUSES } from '../request-status';
 import type { RequestStatus } from '../request-status';
@@ -19,6 +21,12 @@ export class SeatRequestPassengerResource {
 
   @ApiProperty({ example: 'Mario López' })
   name: string;
+
+  @ApiProperty({ enum: AVATAR_KEYS, nullable: true, example: 'headphones' })
+  avatarKey: AvatarKey | null;
+
+  @ApiProperty({ type: TravelPreferencesResource })
+  preferences: TravelPreferencesResource;
 }
 
 // Recurso TMF630 SeatRequest. Es una clase para que OpenAPI pueda describirlo
@@ -93,6 +101,8 @@ export function requestHref(id: string): string {
 export function toSeatRequestResource({
   request,
   passengerName,
+  passengerAvatarKey,
+  passengerPreferences,
   vehiclePlate,
 }: RequestView): SeatRequestResource {
   return {
@@ -100,7 +110,12 @@ export function toSeatRequestResource({
     id: request.id,
     href: requestHref(request.id),
     trip: { id: request.tripId, href: tripHref(request.tripId) },
-    passenger: { id: request.passengerId, name: passengerName },
+    passenger: {
+      id: request.passengerId,
+      name: passengerName,
+      avatarKey: passengerAvatarKey,
+      preferences: passengerPreferences,
+    },
     status: request.status,
     seats: request.seats,
     isPriority: request.isPriority,

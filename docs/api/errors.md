@@ -71,6 +71,7 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `LAST_ADMIN` | 409 | Retirar el perfil del último administrador activo: nadie podría volver a gestionar la plataforma |
 | `CANNOT_CHANGE_OWN_ADMIN` | 409 | Un administrador intenta retirarse su propio perfil de administrador (lo hace otro administrador) |
 | `PROFILE_DEACTIVATED_BY_ADMIN` | 409 | El usuario elige un modo (`PUT /api/users/me/profiles/{profile}`) cuyo perfil le desactivó un administrador: solo un administrador puede reactivarlo |
+| `AVATAR_NOT_FOUND` | 404 | El avatar (`GET /api/avatars/{id}` o `PATCH /api/users/me`) no existe o está retirado |
 
 ## Vehículos (`users`)
 
