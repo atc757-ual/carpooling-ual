@@ -547,7 +547,7 @@ describe('TripsService (e2e)', () => {
       );
     });
 
-    it('can be started up to 30 minutes before the departure, not earlier', async () => {
+    it('can be started up to 10 minutes before the departure, not earlier', async () => {
       const { driverId, tripId } = await confirmedTrip(60);
 
       await expect(tripsService.start(driverId, tripId)).rejects.toBeInstanceOf(
@@ -572,7 +572,7 @@ describe('TripsService (e2e)', () => {
     it('does not start two trips with the same vehicle at once', async () => {
       const driver = await readyDriver('ana');
       const first = await confirmedTrip(10, driver);
-      const second = await confirmedTrip(20, driver);
+      const second = await confirmedTrip(8, driver);
       await tripsService.start(driver.driverId, first.tripId);
 
       await expect(

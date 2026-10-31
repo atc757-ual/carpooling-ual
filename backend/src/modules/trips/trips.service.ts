@@ -213,7 +213,7 @@ export class TripsService {
     return this.toView(trip);
   }
 
-  // RF-11: iniciar. Solo un viaje confirmado (con pasajeros), desde 30 minutos
+  // RF-11: iniciar. Solo un viaje confirmado (con pasajeros), desde 10 minutos
   // antes de su salida. El vehículo pasa a "en viaje" y las solicitudes
   // pendientes se rechazan (las rechaza su módulo al recibir el aviso)
   async start(driverId: string, tripId: string): Promise<TripView> {
