@@ -40,6 +40,16 @@
   }
 }
 
+.driver-trip__cancel {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-s);
+
+  ion-button {
+    margin: 0;
+  }
+}
+
 .driver-trip__loading {
   display: flex;
   align-items: center;

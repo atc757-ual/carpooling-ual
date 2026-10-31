@@ -6,6 +6,7 @@ import { ApiError } from '../../models/api-error.model';
 import {
   DriverStatus,
   DriverTrip,
+  PublishingStatus,
   PublishedTrip,
   PublishTripRequest,
   RegisterVehicleRequest,
@@ -27,6 +28,12 @@ export class DriverService {
 
   getStatus(): Promise<DriverStatus> {
     return this.request(this.http.get<DriverStatus>(`${this.apiUrl}/users/me/driver-status`));
+  }
+
+  getPublishingStatus(): Promise<PublishingStatus> {
+    return this.request(
+      this.http.get<PublishingStatus>(`${this.apiUrl}/users/me/publishing-status`),
+    );
   }
 
   listVehicles(): Promise<Vehicle[]> {
@@ -77,6 +84,10 @@ export class DriverService {
 
   publishTrip(trip: PublishTripRequest): Promise<PublishedTrip> {
     return this.request(this.http.post<PublishedTrip>(`${this.apiUrl}/trips`, trip));
+  }
+
+  cancelTrip(tripId: string): Promise<DriverTrip> {
+    return this.request(this.http.post<DriverTrip>(`${this.apiUrl}/trips/${tripId}/cancel`, null));
   }
 
   private async request<T>(response: Observable<T>): Promise<T> {

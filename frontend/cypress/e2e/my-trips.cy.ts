@@ -92,5 +92,22 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-my-trips', '1 de 3 libres');
       cy.contains('app-my-trips .driver-trip__request', 'Aceptada');
     });
+
+    it('confirms and cancels an upcoming trip', () => {
+      cy.intercept('POST', '/api/trips/t1/cancel', {
+        statusCode: 200,
+        body: trip(3, 'cancelled'),
+      }).as('cancelTrip');
+
+      cy.contains('app-driver-trip-card ion-button', 'Cancelar viaje').click();
+      cy.contains('app-confirm-modal', '¿Cancelar este viaje?').should('be.visible');
+      cy.contains('app-confirm-modal ion-button', 'Cancelar viaje').click();
+
+      cy.wait('@cancelTrip').its('request.method').should('eq', 'POST');
+      cy.get('ion-toast')
+        .shadow()
+        .find('.toast-message')
+        .should('contain', 'Viaje cancelado. Hemos avisado a los pasajeros.');
+    });
   });
 }

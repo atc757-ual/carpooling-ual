@@ -12,6 +12,14 @@
           <ion-button type="submit" fill="outline">Reintentar</ion-button>
         </form>
       }
+      @case ('suspended') {
+        <div class="notice notice--danger publish__card" role="alert">
+          <p>
+            No puedes publicar viajes hasta el
+            {{ publishingSuspendedUntilLabel() }} por cancelaciones tardías.
+          </p>
+        </div>
+      }
       @default {
         <!-- Escritorio: los pasos en la columna de 8 y, en la de 4, «Tu
                las preguntas (pasos 1 y 2) o qué pasa después (3 y 4) -->
@@ -61,6 +69,11 @@
                         label="Hora de salida"
                       />
                     </div>
+                    @if (departureTooSoon()) {
+                      <p class="text-caption text-color-danger" role="alert">
+                        El viaje debe salir al menos dentro de una hora.
+                      </p>
+                    }
                     <!-- Desvío y, a la derecha del campo, «Siguiente» (qué es el
                      desvío, en las preguntas frecuentes) -->
                     <div class="publish__grid publish__grid--action">
@@ -84,7 +97,7 @@
                       <ion-button
                         class="publish__next"
                         type="submit"
-                        [disabled]="!isRouteComplete()"
+                        [disabled]="!isRouteComplete() || departureTooSoon()"
                       >
                         Siguiente
                       </ion-button>

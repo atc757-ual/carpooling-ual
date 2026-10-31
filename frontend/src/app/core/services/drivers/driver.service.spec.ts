@@ -49,6 +49,25 @@ describe('DriverService', () => {
     expect(await vehicles).toEqual([]);
   });
 
+  it('gets publishing status and cancels a trip', async () => {
+    const status = driver.getPublishingStatus();
+    const statusRequest = http.expectOne('/api/users/me/publishing-status');
+    expect(statusRequest.request.method).toBe('GET');
+    statusRequest.flush({ lateCancellations: 2, publishingSuspendedUntil: null });
+
+    const cancellation = driver.cancelTrip('t1');
+    const cancelRequest = http.expectOne('/api/trips/t1/cancel');
+    expect(cancelRequest.request.method).toBe('POST');
+    expect(cancelRequest.request.body).toBeNull();
+    cancelRequest.flush({ id: 't1', status: 'cancelled' });
+
+    await expect(status).resolves.toEqual({
+      lateCancellations: 2,
+      publishingSuspendedUntil: null,
+    });
+    await expect(cancellation).resolves.toEqual({ id: 't1', status: 'cancelled' });
+  });
+
   it('registers a vehicle and accepts the declaration', async () => {
     const vehicle = driver.registerVehicle({
       plate: '1234BCD',

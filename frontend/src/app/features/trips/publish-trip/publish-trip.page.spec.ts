@@ -52,11 +52,23 @@ describe('PublishTripPage', () => {
 
   async function openPage(
     url = '/publish',
-    { vehicles = [VEHICLE], hasLicenseDeclared = true } = {},
+    {
+      vehicles = [VEHICLE],
+      hasLicenseDeclared = true,
+      publishingSuspendedUntil = null,
+    }: {
+      vehicles?: Vehicle[];
+      hasLicenseDeclared?: boolean;
+      publishingSuspendedUntil?: string | null;
+    } = {},
   ): Promise<void> {
     stubIntersectionObserver();
     driver = {
       getStatus: vi.fn().mockResolvedValue({ hasLicenseDeclared }),
+      getPublishingStatus: vi.fn().mockResolvedValue({
+        lateCancellations: 0,
+        publishingSuspendedUntil,
+      }),
       listVehicles: vi.fn().mockResolvedValue(vehicles),
       acceptDeclaration: vi.fn().mockResolvedValue({ hasLicenseDeclared: true }),
       publishTrip: vi.fn().mockResolvedValue({ id: 't1', offeredSeats: 2, maxDetourMin: 10 }),
@@ -124,6 +136,7 @@ describe('PublishTripPage', () => {
     expect(page.loadState()).toBe('ready');
     expect(page.step()).toBe(1);
     expect(page.isRouteComplete()).toBe(false);
+    expect(page.departureTooSoon()).toBe(false);
 
     fillTrip();
 
@@ -169,6 +182,38 @@ describe('PublishTripPage', () => {
 
     expect(page.step()).toBe(1);
     expect(page.tripForm.controls.place.touched).toBe(true);
+  });
+
+  it('requires the trip to depart at least one hour from now', async () => {
+    await openPage();
+    fillTrip();
+    const departure = new Date(Date.now() + 30 * 60_000);
+    const localDate = [
+      departure.getFullYear(),
+      String(departure.getMonth() + 1).padStart(2, '0'),
+      String(departure.getDate()).padStart(2, '0'),
+    ].join('-');
+    const localTime = `${String(departure.getHours()).padStart(2, '0')}:${String(departure.getMinutes()).padStart(2, '0')}`;
+    page.tripForm.patchValue({ date: localDate, time: localTime });
+
+    expect(page.departureTooSoon()).toBe(true);
+    await submit();
+
+    expect(page.step()).toBe(1);
+  });
+
+  it('blocks publishing until the suspension date', async () => {
+    await openPage('/publish', {
+      publishingSuspendedUntil: '2099-01-20T10:00:00.000Z',
+    });
+    harness.fixture.detectChanges();
+
+    expect(page.loadState()).toBe('suspended');
+    expect(page.publishingSuspendedUntil()).toBe('2099-01-20T10:00:00.000Z');
+    expect(harness.fixture.nativeElement.textContent).toContain(
+      'No puedes publicar viajes hasta el',
+    );
+    expect(harness.fixture.nativeElement.querySelector('app-step-indicator')).toBeNull();
   });
 
   it('reviews the trip with the approximate arrival and what passengers save', async () => {

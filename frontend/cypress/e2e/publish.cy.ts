@@ -40,6 +40,10 @@ function accessToken() {
 
 // Conductora nueva: sin vehículos ni declaración
 function stubNewDriver(): void {
+  cy.intercept('GET', '/api/users/me/publishing-status', {
+    lateCancellations: 0,
+    publishingSuspendedUntil: null,
+  });
   cy.intercept('GET', '/api/users/me/driver-status', {
     hasLicenseDeclared: false,
     licenseDeclaredAt: null,
@@ -143,6 +147,17 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-publish-trip ion-button', 'Ver tus viajes');
       cy.contains('app-publish-trip button', 'Publicar otro viaje').click();
       cy.get('app-publish-trip [aria-current="step"]').should('contain', 'Trayecto');
+    });
+
+    it('blocks publishing while the late-cancellation suspension is active', () => {
+      cy.intercept('GET', '/api/users/me/publishing-status', {
+        lateCancellations: 3,
+        publishingSuspendedUntil: '2099-01-20T10:00:00.000Z',
+      });
+      cy.reload();
+
+      cy.contains('app-publish-trip', 'No puedes publicar viajes hasta el').should('be.visible');
+      cy.get('app-publish-trip app-step-indicator').should('not.exist');
     });
   });
 }
