@@ -1,5 +1,6 @@
 import type { CampusParkingsService } from '../places/campus-parkings.service';
 import type { UsersService } from '../users/users.service';
+import type { VehiclesService } from '../users/vehicles.service';
 import type { CandidateQuery, TripCandidate } from './candidate-source';
 import { SearchTripsDto } from './dto/search-trips.dto';
 import { MatchingService } from './matching.service';
@@ -18,6 +19,7 @@ const SEARCH: SearchTripsDto = {
 const CANDIDATE: TripCandidate = {
   tripId: 't1',
   driverId: 'd1',
+  vehicleId: 'v1',
   departureAt: new Date('2026-10-28T07:40:00Z'),
   durationMin: 25,
   detourMin: 5,
@@ -32,16 +34,26 @@ describe('MatchingService', () => {
   const findCandidates = jest.fn();
   const getActive = jest.fn();
   const getNames = jest.fn();
+  const getRecognitionDetails = jest.fn();
   const service = new MatchingService(
     { findCandidates },
     { getActive } as unknown as CampusParkingsService,
     { getNames } as unknown as UsersService,
+    { getRecognitionDetails } as unknown as VehiclesService,
   );
 
   beforeEach(() => {
     jest.clearAllMocks();
     getActive.mockResolvedValue({ id: 'p1', location: PARKING_LOCATION });
     getNames.mockResolvedValue(new Map([['d1', 'Lucía Cortés']]));
+    getRecognitionDetails.mockResolvedValue(
+      new Map([
+        [
+          'v1',
+          { plate: '1234BCD', brand: 'Seat', model: 'Ibiza', color: 'blue' },
+        ],
+      ]),
+    );
   });
 
   it('asks for departures up to 2 h before the arrival when going to campus', async () => {
@@ -59,6 +71,12 @@ describe('MatchingService', () => {
       seats: 1,
     });
     expect(result.driverName).toBe('Lucía Cortés');
+    expect(result.vehicle).toEqual({
+      plate: '1234BCD',
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+    });
     expect(result.match).toMatchObject({ score: 0.7, timeDifferenceMin: 0 });
   });
 
@@ -87,5 +105,6 @@ describe('MatchingService', () => {
 
     expect(await service.search('passenger-1', SEARCH)).toEqual([]);
     expect(getNames).toHaveBeenCalledWith([]);
+    expect(getRecognitionDetails).toHaveBeenCalledWith([]);
   });
 });

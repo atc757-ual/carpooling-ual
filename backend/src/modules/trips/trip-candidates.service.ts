@@ -20,6 +20,7 @@ export const MAX_CANDIDATES = 10;
 interface CandidateRow {
   id: string;
   driver_id: string;
+  vehicle_id: string;
   departure_at: Date;
   available_seats: number;
   max_detour_min: number;
@@ -53,6 +54,7 @@ export class TripCandidatesService implements CandidateSource {
         return {
           tripId: row.id,
           driverId: row.driver_id,
+          vehicleId: row.vehicle_id,
           departureAt: new Date(row.departure_at),
           durationMin: row.duration_min,
           detourMin: Math.max(0, durationVia - row.duration_min),
@@ -74,7 +76,7 @@ export class TripCandidatesService implements CandidateSource {
          SELECT ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography AS place,
                 ST_SetSRID(ST_MakePoint($3, $4), 4326)::geography AS campus
        )
-       SELECT t.id, t.driver_id, t.departure_at, t.available_seats,
+       SELECT t.id, t.driver_id, t.vehicle_id, t.departure_at, t.available_seats,
               t.max_detour_min, r.duration_min,
               ST_AsGeoJSON(t.origin)::json AS origin,
               ST_AsGeoJSON(t.destination)::json AS destination,

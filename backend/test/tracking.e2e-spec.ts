@@ -101,9 +101,14 @@ describe('Trip tracking (e2e)', () => {
   async function tripWithPassenger(started = true) {
     const dan = await sessionFor('dan', ['driver']);
     await app.get(UsersService).declareDriverLicense(dan.id);
-    const vehicle = await app
-      .get(VehiclesService)
-      .register(dan.id, { plate: '9926BCD', capacity: 4 });
+    const vehicle = await app.get(VehiclesService).register(dan.id, {
+      plate: '9926BCD',
+      capacity: 4,
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
+    });
     const { trip } = await tripsService.publish(dan.id, {
       vehicleId: vehicle.id,
       origin: ALMERIA_CENTRE,

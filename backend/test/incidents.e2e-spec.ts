@@ -74,7 +74,14 @@ describe('Incidents API (e2e)', () => {
     await api('put', '/users/me/driver-declaration', driver).expect(200);
     plateNumber += 1;
     const vehicle = await api('post', '/vehicles', driver)
-      .send({ plate: `${plateNumber}BCD`, capacity: 4 })
+      .send({
+        plate: `${plateNumber}BCD`,
+        capacity: 4,
+        brand: 'Seat',
+        model: 'Ibiza',
+        color: 'blue',
+        engine: 'hybrid',
+      })
       .expect(201);
     const trip = await api('post', '/trips', driver)
       .send({

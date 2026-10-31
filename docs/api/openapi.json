@@ -5496,17 +5496,51 @@
             "description": "Seats for passengers, not counting the driver",
             "example": 4
           },
-          "model": {
+          "brand": {
             "type": "string",
             "minLength": 2,
-            "maxLength": 60,
-            "description": "Make and model, to recognise the car",
-            "example": "Seat Ibiza"
+            "maxLength": 29,
+            "description": "Vehicle make",
+            "example": "Seat"
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30,
+            "description": "Vehicle model",
+            "example": "Ibiza"
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "white",
+              "black",
+              "grey",
+              "silver",
+              "blue",
+              "red",
+              "green",
+              "other"
+            ],
+            "example": "blue"
+          },
+          "engine": {
+            "type": "string",
+            "enum": [
+              "electric",
+              "hybrid",
+              "other"
+            ],
+            "example": "hybrid"
           }
         },
         "required": [
           "plate",
-          "capacity"
+          "capacity",
+          "brand",
+          "model",
+          "color",
+          "engine"
         ]
       },
       "VehicleResource": {
@@ -5530,11 +5564,42 @@
             "type": "string",
             "example": "1234BCD"
           },
+          "brand": {
+            "type": "string",
+            "nullable": true,
+            "example": "Seat",
+            "description": "Vehicle make; null for vehicles registered before this field existed"
+          },
           "model": {
             "type": "string",
             "nullable": true,
-            "example": "Seat Ibiza",
-            "description": "Make and model; null if it was registered without it"
+            "example": "Ibiza",
+            "description": "Vehicle model; null for vehicles registered before this field existed"
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "white",
+              "black",
+              "grey",
+              "silver",
+              "blue",
+              "red",
+              "green",
+              "other"
+            ],
+            "nullable": true,
+            "example": "blue"
+          },
+          "engine": {
+            "type": "string",
+            "enum": [
+              "electric",
+              "hybrid",
+              "other"
+            ],
+            "nullable": true,
+            "example": "hybrid"
           },
           "capacity": {
             "type": "number",
@@ -5556,7 +5621,10 @@
           "id",
           "href",
           "plate",
+          "brand",
           "model",
+          "color",
+          "engine",
           "capacity",
           "status"
         ]
@@ -5571,12 +5639,28 @@
             "description": "Seats for passengers, not counting the driver",
             "example": 4
           },
-          "model": {
+          "color": {
             "type": "string",
-            "minLength": 2,
-            "maxLength": 60,
-            "description": "Make and model, to recognise the car",
-            "example": "Seat Ibiza"
+            "enum": [
+              "white",
+              "black",
+              "grey",
+              "silver",
+              "blue",
+              "red",
+              "green",
+              "other"
+            ],
+            "example": "blue"
+          },
+          "engine": {
+            "type": "string",
+            "enum": [
+              "electric",
+              "hybrid",
+              "other"
+            ],
+            "example": "hybrid"
           }
         }
       },
@@ -6661,6 +6745,46 @@
           "name"
         ]
       },
+      "TripMatchVehicleResource": {
+        "type": "object",
+        "properties": {
+          "brand": {
+            "type": "string",
+            "nullable": true,
+            "example": "Seat"
+          },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "example": "Ibiza"
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "white",
+              "black",
+              "grey",
+              "silver",
+              "blue",
+              "red",
+              "green",
+              "other"
+            ],
+            "nullable": true,
+            "example": "blue"
+          },
+          "plate": {
+            "type": "string",
+            "example": "1234BCD"
+          }
+        },
+        "required": [
+          "brand",
+          "model",
+          "color",
+          "plate"
+        ]
+      },
       "TripMatchResource": {
         "type": "object",
         "properties": {
@@ -6681,6 +6805,9 @@
           },
           "driver": {
             "$ref": "#/components/schemas/TripMatchDriverResource"
+          },
+          "vehicle": {
+            "$ref": "#/components/schemas/TripMatchVehicleResource"
           },
           "departureAt": {
             "type": "string",
@@ -6718,6 +6845,7 @@
           "id",
           "href",
           "driver",
+          "vehicle",
           "departureAt",
           "arrivalAt",
           "availableSeats",

@@ -71,7 +71,14 @@ describe('Late cancellations (e2e)', () => {
     await api('put', '/users/me/driver-declaration', token).expect(200);
     plateNumber += 1;
     const vehicle = await api('post', '/vehicles', token)
-      .send({ plate: `${plateNumber}BCD`, capacity: 4 })
+      .send({
+        plate: `${plateNumber}BCD`,
+        capacity: 4,
+        brand: 'Seat',
+        model: 'Ibiza',
+        color: 'blue',
+        engine: 'hybrid',
+      })
       .expect(201);
     return { token, vehicleId: (vehicle.body as { id: string }).id };
   }

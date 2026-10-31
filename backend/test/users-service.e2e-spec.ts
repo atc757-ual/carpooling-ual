@@ -135,9 +135,14 @@ describe('UsersService (e2e)', () => {
       );
 
       await usersService.declareDriverLicense(driver.id);
-      await app
-        .get(VehiclesService)
-        .register(driver.id, { plate: '9101BCD', capacity: 4 });
+      await app.get(VehiclesService).register(driver.id, {
+        plate: '9101BCD',
+        capacity: 4,
+        brand: 'Seat',
+        model: 'Ibiza',
+        color: 'blue',
+        engine: 'hybrid',
+      });
 
       await expect(
         usersService.getDriverReadiness(driver.id),

@@ -83,6 +83,10 @@ describe('TripsService (e2e)', () => {
     const vehicle = await vehiclesService.register(user.id, {
       plate: `${plateNumber}BCD`,
       capacity: 4,
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
     });
     return { driverId: user.id, vehicleId: vehicle.id };
   }
