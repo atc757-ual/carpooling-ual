@@ -29,7 +29,7 @@ export class PhoneVerificationService {
 
   async requestCode(userId: string): Promise<void> {
     const user = await this.usersService.findById(userId);
-    if (user === null) {
+    if (user?.deactivatedAt !== null) {
       throw new UserNotFoundError(userId);
     }
     if (user.phone === null) {
@@ -43,7 +43,7 @@ export class PhoneVerificationService {
 
   async verifyCode(userId: string, code: string): Promise<UserSummary> {
     const user = await this.usersService.findById(userId);
-    if (user === null) {
+    if (user?.deactivatedAt !== null) {
       throw new UserNotFoundError(userId);
     }
     if (user.phone === null) {

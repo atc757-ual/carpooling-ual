@@ -5,6 +5,7 @@ export type DomainEventType =
   | 'user.registered'
   | 'user.email_verified'
   | 'user.phone_verified'
+  | 'user.deactivated'
   | 'user.profile_activated'
   | 'user.profile_deactivated'
   // Cambia los datos de su cuenta (nombre, teléfono o tolerancia horaria)

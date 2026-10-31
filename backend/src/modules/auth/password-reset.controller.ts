@@ -65,8 +65,8 @@ export class PasswordResetController {
     await this.passwordReset.checkCode(dto.email, dto.code);
   }
 
-  // Cambia la contraseña y cierra todas las sesiones. No abre una nueva: la
-  // app lleva al login
+  // Cambia la contraseña y cierra las sesiones abiertas (o todas salvo la
+  // actual cuando llega refreshToken desde Perfil)
   @Post('confirm')
   @Public()
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -74,7 +74,8 @@ export class PasswordResetController {
     summary: 'Set a new password with the code',
     description:
       'Uses up the code, sets the new password (it must be different from ' +
-      'the current one) and closes every open session of the user.',
+      'the current one) and closes every open session of the user (or every ' +
+      'other session when refreshToken is provided).',
   })
   @ApiNoContentResponse({ description: 'Password changed' })
   @ApiErrorResponses({

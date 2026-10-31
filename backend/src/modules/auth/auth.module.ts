@@ -4,6 +4,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
+import { AccountDeletionController } from './account-deletion.controller';
+import { AccountDeletionService } from './account-deletion.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { MailModule } from '../../shared/mail/mail.module';
@@ -48,6 +50,7 @@ import { RefreshTokensService } from './refresh-tokens.service';
     AuthController,
     PasswordResetController,
     PhoneVerificationController,
+    AccountDeletionController,
   ],
   providers: [
     AuthService,
@@ -57,6 +60,7 @@ import { RefreshTokensService } from './refresh-tokens.service';
     EmailVerificationService,
     PasswordResetService,
     PhoneVerificationService,
+    AccountDeletionService,
     // Guards globales (se aplican a toda la API, en este orden): primero el
     // token (salvo @Public) y después los perfiles (@Profiles)
     { provide: APP_GUARD, useClass: JwtAuthGuard },

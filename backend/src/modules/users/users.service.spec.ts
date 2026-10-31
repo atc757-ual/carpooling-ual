@@ -100,10 +100,18 @@ describe('UsersService', () => {
       });
     });
 
-    it('throws USER_NOT_FOUND when the user does not exist', async () => {
-      usersRepository.findOne.mockResolvedValue(null);
+    it('throws USER_NOT_FOUND when the user does not exist or is deactivated', async () => {
+      usersRepository.findOne.mockResolvedValueOnce(null);
 
       await expect(usersService.getSummary('missing')).rejects.toBeInstanceOf(
+        UserNotFoundError,
+      );
+
+      usersRepository.findOne.mockResolvedValueOnce(
+        userWith({ id: 'user-1', deactivatedAt: new Date() }),
+      );
+
+      await expect(usersService.getSummary('user-1')).rejects.toBeInstanceOf(
         UserNotFoundError,
       );
     });

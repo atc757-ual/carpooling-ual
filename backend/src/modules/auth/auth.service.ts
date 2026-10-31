@@ -145,14 +145,16 @@ export class AuthService {
     return { user: this.toAuthenticatedUser(user), password };
   }
 
-  // Inicio de sesión (RF-02): comprueba la contraseña y abre una sesión nueva
+  // Inicio de sesión (RF-02): comprueba la contraseña y abre una sesión nueva.
+  // Una cuenta desactivada responde como credenciales incorrectas para no
+  // revelar que existió
   async login(email: string, password: string): Promise<AuthSession> {
     const user = await this.usersService.findByEmailWithPassword(email);
     const isPasswordValid = await compare(
       password,
       user?.passwordHash ?? DUMMY_PASSWORD_HASH,
     );
-    if (user === null || !isPasswordValid) {
+    if (user?.deactivatedAt !== null || !isPasswordValid) {
       throw new InvalidCredentialsError();
     }
     // Después de la contraseña: a quien no la sabe no se le dice si el correo
@@ -173,10 +175,9 @@ export class AuthService {
   // renovación)
   async refresh(refreshToken: string): Promise<AuthSession> {
     const rotated = await this.refreshTokensService.rotate(refreshToken);
-    // Al borrar un usuario se borran sus tokens (ON DELETE CASCADE), así que
-    // no debería ocurrir; se comprueba por seguridad
+    // Si la cuenta ya no existe o ha sido desactivada, el token no sirve
     const user = await this.usersService.findById(rotated.userId);
-    if (user === null) {
+    if (user?.deactivatedAt !== null) {
       throw new InvalidRefreshTokenError();
     }
     return this.buildSession(user, rotated.refreshToken);
@@ -187,10 +188,11 @@ export class AuthService {
     await this.refreshTokensService.revoke(refreshToken);
   }
 
-  // Usuario del token (GET /api/auth/me). Si ya no existe, el token no sirve
+  // Usuario del token (GET /api/auth/me). Si ya no existe o está desactivado,
+  // el token no sirve
   async getAuthenticatedUser(userId: string): Promise<AuthenticatedUser> {
     const user = await this.usersService.findById(userId);
-    if (user === null) {
+    if (user?.deactivatedAt !== null) {
       throw new InvalidAccessTokenError();
     }
     return this.toAuthenticatedUser(user);

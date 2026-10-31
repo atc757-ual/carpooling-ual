@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, IsNull, Repository } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { UserConsent } from './entities/user-consent.entity';
 import { User } from './entities/user.entity';
@@ -69,7 +69,7 @@ export class ConsentsService {
         where: { id: userId },
         lock: { mode: 'pessimistic_write' },
       });
-      if (user === null) {
+      if (user?.deactivatedAt !== null) {
         throw new UserNotFoundError(userId);
       }
       const latest = await manager.findOne(UserConsent, {
@@ -91,10 +91,37 @@ export class ConsentsService {
     return this.getMyConsents(userId);
   }
 
+  // Al eliminar la cuenta, registra en user_consents la retirada de cada
+  // consentimiento que estuviera concedido (source account_deletion)
+  async revokeGrantedOnAccountDeletion(
+    manager: EntityManager,
+    userId: string,
+    recordedAt = new Date(),
+  ): Promise<void> {
+    await Promise.all(
+      CONSENT_TYPES.map(async (type) => {
+        const latest = await manager.findOne(UserConsent, {
+          where: { userId, type },
+          order: { recordedAt: 'DESC', id: 'DESC' },
+        });
+        if (latest?.action === 'granted') {
+          await this.insertConsent(manager, {
+            userId,
+            type,
+            documentVersion: latest.documentVersion,
+            action: 'revoked',
+            source: 'account_deletion',
+            recordedAt,
+          });
+        }
+      }),
+    );
+  }
+
   async getMyConsents(userId: string): Promise<UserConsentsView> {
     const exists = await this.dataSource
       .getRepository(User)
-      .existsBy({ id: userId });
+      .existsBy({ id: userId, deactivatedAt: IsNull() });
     if (!exists) {
       throw new UserNotFoundError(userId);
     }
