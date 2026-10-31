@@ -8,6 +8,7 @@ import { configureApp } from '../src/app.setup';
 import { computeConsentFingerprint } from '../src/modules/users/user-consent';
 import { deleteTestUsers } from './support/cleanup';
 import {
+  lastCodeSentTo,
   lastSmsCodeSentTo,
   registerUser,
   TEST_PHONE,
@@ -911,6 +912,188 @@ describe('Users API (e2e)', () => {
 
       expect(res.body).toMatchObject({ code: 'PHONE_REQUIRED' });
       expect(testSmsBox(app).sentTo(TEST_PHONE)).toHaveLength(countBefore);
+    });
+  });
+
+  // Eliminación (desactivación) de la cuenta con código enviado al correo
+  describe('POST /api/users/me/account-deletion and /confirm', () => {
+    async function insertDriverWithTrip(
+      driverId: string,
+      status: 'published' | 'confirmed' | 'in_progress' | 'finished',
+    ): Promise<string> {
+      await dataSource.query(
+        `INSERT INTO driver_profiles (user_id, is_active, has_license_declared, license_declared_at)
+         VALUES ($1, true, true, now())
+         ON CONFLICT (user_id) DO UPDATE SET is_active = true`,
+        [driverId],
+      );
+      const [vehicle] = await dataSource.query<{ id: string }[]>(
+        `INSERT INTO vehicles (driver_id, plate, capacity)
+         VALUES ($1, $2, 4)
+         RETURNING id`,
+        [driverId, `${driverId.slice(0, 4)}BCD`.toUpperCase()],
+      );
+      const [trip] = await dataSource.query<{ id: string }[]>(
+        `INSERT INTO trips (
+           driver_id, vehicle_id, origin, destination, origin_name, destination_name,
+           departure_at, offered_seats, available_seats, max_detour_min, status
+         ) VALUES (
+           $1, $2,
+           ST_SetSRID(ST_MakePoint(-2.4637, 36.834), 4326)::geography,
+           ST_SetSRID(ST_MakePoint(-2.4046, 36.8295), 4326)::geography,
+           'Almería Centro', 'Campus UAL',
+           now() + interval '2 days', 3, 3, 15, $3
+         ) RETURNING id`,
+        [driverId, vehicle.id, status],
+      );
+      await dataSource.query(
+        `INSERT INTO routes (trip_id, distance_km, duration_min, geometry, source)
+         VALUES ($1, 8.5, 15, ST_GeogFromText('LINESTRING(-2.4637 36.834, -2.4046 36.8295)'), 'estimated')`,
+        [trip.id],
+      );
+      return trip.id;
+    }
+
+    it('deactivates the account, cancels pending requests, revokes sessions and consents, and makes login return 401 INVALID_CREDENTIALS', async () => {
+      const ana = await createUser('ana');
+      const driver = await createUser('driver');
+      const tripId = await insertDriverWithTrip(driver.id, 'published');
+
+      // Ana tiene una solicitud pendiente en el viaje de driver y ha concedido
+      // el permiso de ubicación
+      const [pendingReq] = await dataSource.query<{ id: string }[]>(
+        `INSERT INTO requests (trip_id, passenger_id, seats, is_priority, status)
+         VALUES ($1, $2, 1, false, 'pending')
+         RETURNING id`,
+        [tripId, ana.id],
+      );
+      await request(app.getHttpServer())
+        .put('/api/users/me/consents/location')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .send({ action: 'granted' })
+        .expect(200);
+
+      const anaEmail = `${EMAIL_PREFIX}ana@ual.es`;
+      await request(app.getHttpServer())
+        .post('/api/users/me/account-deletion')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .expect(202);
+      const code = lastCodeSentTo(app, anaEmail);
+
+      await request(app.getHttpServer())
+        .post('/api/users/me/account-deletion/confirm')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .send({ code })
+        .expect(204);
+
+      // 1) Solicitud pendiente cancelada + evento request.cancelled + aviso al conductor
+      const [reqRow] = await dataSource.query<
+        { status: string; cancelled_at: Date | null }[]
+      >('SELECT status, cancelled_at FROM requests WHERE id = $1', [
+        pendingReq.id,
+      ]);
+      expect(reqRow.status).toBe('cancelled');
+      expect(reqRow.cancelled_at).not.toBeNull();
+
+      const driverNotifs = await dataSource.query<{ type: string }[]>(
+        `SELECT type FROM notifications WHERE user_id = $1 AND request_id = $2`,
+        [driver.id, pendingReq.id],
+      );
+      expect(driverNotifs).toEqual([{ type: 'request_cancelled' }]);
+
+      // 2) Todos sus tokens de renovación quedan revocados
+      const activeTokens = await dataSource.query<{ id: string }[]>(
+        `SELECT id FROM refresh_tokens WHERE user_id = $1 AND revoked_at IS NULL`,
+        [ana.id],
+      );
+      expect(activeTokens).toHaveLength(0);
+
+      // 3) Retirada de cada consentimiento concedido (terms, privacy y location) con source account_deletion
+      const revokedConsents = await dataSource.query<
+        { type: string; action: string; source: string }[]
+      >(
+        `SELECT type, action, source FROM user_consents
+          WHERE user_id = $1 AND source = 'account_deletion'
+          ORDER BY type`,
+        [ana.id],
+      );
+      expect(revokedConsents).toEqual([
+        { type: 'terms', action: 'revoked', source: 'account_deletion' },
+        { type: 'privacy', action: 'revoked', source: 'account_deletion' },
+        { type: 'location', action: 'revoked', source: 'account_deletion' },
+      ]);
+
+      // 4) Evento user.deactivated registrado
+      const deactivatedEvents = await dataSource.query<{ payload: object }[]>(
+        `SELECT payload FROM events WHERE type = 'user.deactivated' AND source_entity_id = $1`,
+        [ana.id],
+      );
+      expect(deactivatedEvents).toEqual([{ payload: {} }]);
+
+      // 5) El login de una cuenta desactivada responde 401 INVALID_CREDENTIALS
+      await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email: anaEmail, password: PASSWORD })
+        .expect(401)
+        .expect(({ body }) =>
+          expect(body).toMatchObject({ code: 'INVALID_CREDENTIALS' }),
+        );
+    });
+
+    it('blocks account deletion with 409 ACCOUNT_HAS_ACTIVE_TRIPS when the user has an active trip as driver or an accepted seat as passenger', async () => {
+      const driver = await createUser('driver');
+      const passenger = await createUser('passenger');
+      const tripId = await insertDriverWithTrip(driver.id, 'confirmed');
+      await dataSource.query(
+        `INSERT INTO requests (trip_id, passenger_id, seats, is_priority, status, answered_at)
+         VALUES ($1, $2, 1, false, 'accepted', now())`,
+        [tripId, passenger.id],
+      );
+
+      // El conductor no puede eliminar su cuenta mientras el viaje no haya terminado
+      const driverEmail = `${EMAIL_PREFIX}driver@ual.es`;
+      await request(app.getHttpServer())
+        .post('/api/users/me/account-deletion')
+        .set('Authorization', `Bearer ${driver.accessToken}`)
+        .expect(202);
+      const driverCode = lastCodeSentTo(app, driverEmail);
+
+      await request(app.getHttpServer())
+        .post('/api/users/me/account-deletion/confirm')
+        .set('Authorization', `Bearer ${driver.accessToken}`)
+        .send({ code: driverCode })
+        .expect(409)
+        .expect(({ body }) =>
+          expect(body).toMatchObject({ code: 'ACCOUNT_HAS_ACTIVE_TRIPS' }),
+        );
+
+      // El pasajero con plaza aceptada tampoco puede eliminar su cuenta
+      const passengerEmail = `${EMAIL_PREFIX}passenger@ual.es`;
+      await request(app.getHttpServer())
+        .post('/api/users/me/account-deletion')
+        .set('Authorization', `Bearer ${passenger.accessToken}`)
+        .expect(202);
+      const passengerCode = lastCodeSentTo(app, passengerEmail);
+
+      await request(app.getHttpServer())
+        .post('/api/users/me/account-deletion/confirm')
+        .set('Authorization', `Bearer ${passenger.accessToken}`)
+        .send({ code: passengerCode })
+        .expect(409)
+        .expect(({ body }) =>
+          expect(body).toMatchObject({ code: 'ACCOUNT_HAS_ACTIVE_TRIPS' }),
+        );
+
+      // El código no se ha gastado: una vez finalizado el viaje, el mismo código funciona
+      await dataSource.query(
+        `UPDATE trips SET status = 'finished', started_at = now() WHERE id = $1`,
+        [tripId],
+      );
+      await request(app.getHttpServer())
+        .post('/api/users/me/account-deletion/confirm')
+        .set('Authorization', `Bearer ${passenger.accessToken}`)
+        .send({ code: passengerCode })
+        .expect(204);
     });
   });
 });

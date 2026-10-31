@@ -2,7 +2,7 @@ import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, IsNull, Repository } from 'typeorm';
+import { DataSource, EntityManager, IsNull, Not, Repository } from 'typeorm';
 import { UserProfilesService } from '../users/user-profiles.service';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { InvalidRefreshTokenError } from './errors/invalid-refresh-token.error';
@@ -119,11 +119,35 @@ export class RefreshTokensService implements OnModuleInit {
   }
 
   // Anula todas las sesiones vivas del usuario (todas sus familias), en la
-  // transacción de quien llama (p. ej. al cambiar la contraseña)
+  // transacción de quien llama (p. ej. al recuperar la contraseña o eliminar
+  // la cuenta)
   async revokeAllOfUser(manager: EntityManager, userId: string): Promise<void> {
     await manager.update(
       RefreshToken,
       { userId, revokedAt: IsNull() },
+      { revokedAt: new Date() },
+    );
+  }
+
+  // Al cambiar la contraseña desde una sesión abierta, conserva esa familia
+  // (para no cerrar la sesión del dispositivo donde la cambia) y anula todas
+  // las demás sesiones vivas del usuario
+  async revokeOtherSessionsOfUser(
+    manager: EntityManager,
+    userId: string,
+    currentRefreshToken: string,
+  ): Promise<void> {
+    const current = await manager.findOneBy(RefreshToken, {
+      userId,
+      tokenHash: hashToken(currentRefreshToken),
+    });
+    if (!isUsable(current) || current.usedAt !== null) {
+      await this.revokeAllOfUser(manager, userId);
+      return;
+    }
+    await manager.update(
+      RefreshToken,
+      { userId, familyId: Not(current.familyId), revokedAt: IsNull() },
       { revokedAt: new Date() },
     );
   }

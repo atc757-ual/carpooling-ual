@@ -14,6 +14,7 @@ export interface PasswordReset {
   email: string;
   code: string;
   password: string;
+  refreshToken?: string;
 }
 
 // Recuperación de la contraseña (RF-26) con un código de 6 cifras enviado al
@@ -31,11 +32,12 @@ export class PasswordResetService {
     private readonly mailSender: MailSender,
   ) {}
 
-  // Envía el código si el correo tiene cuenta y no se envió otro hace menos
-  // de un minuto. Si no, no hace nada, sin decirlo. Sirve también de reenvío
+  // Envía el código si el correo tiene cuenta activa y no se envió otro hace
+  // menos de un minuto. Si no, no hace nada, sin decirlo. Sirve también de
+  // reenvío
   async requestCode(email: string): Promise<void> {
     const user = await this.usersService.findByEmail(email);
-    if (user === null) {
+    if (user?.deactivatedAt !== null) {
       return;
     }
     const code = await this.emailCodes.issue(user.id, 'password_reset');
@@ -53,11 +55,17 @@ export class PasswordResetService {
     await this.emailCodes.check(user.id, 'password_reset', code);
   }
 
-  // Con el código correcto, cambia la contraseña y cierra todas las sesiones
-  // abiertas, en la misma transacción que gasta el código. Que la nueva sea
-  // igual a la actual se comprueba después del código, para que nadie pueda
-  // probar contraseñas sin él; en ese caso el código no se gasta
-  async resetPassword({ email, code, password }: PasswordReset): Promise<void> {
+  // Con el código correcto, cambia la contraseña y cierra las sesiones
+  // abiertas (o todas salvo la actual si se indica refreshToken), en la misma
+  // transacción que gasta el código. Que la nueva sea igual a la actual se
+  // comprueba después del código, para que nadie pueda probar contraseñas sin
+  // él; en ese caso el código no se gasta
+  async resetPassword({
+    email,
+    code,
+    password,
+    refreshToken,
+  }: PasswordReset): Promise<void> {
     const user = await this.findUser(email);
     const passwordHash = await hash(password, BCRYPT_COST);
     await this.emailCodes.consume(
@@ -69,14 +77,22 @@ export class PasswordResetService {
           throw new PasswordUnchangedError();
         }
         await this.usersService.changePassword(manager, user.id, passwordHash);
-        await this.refreshTokens.revokeAllOfUser(manager, user.id);
+        if (refreshToken) {
+          await this.refreshTokens.revokeOtherSessionsOfUser(
+            manager,
+            user.id,
+            refreshToken,
+          );
+        } else {
+          await this.refreshTokens.revokeAllOfUser(manager, user.id);
+        }
       },
     );
   }
 
   private async findUser(email: string): Promise<User> {
     const user = await this.usersService.findByEmailWithPassword(email);
-    if (user === null) {
+    if (user?.deactivatedAt !== null) {
       throw new InvalidVerificationCodeError();
     }
     return user;

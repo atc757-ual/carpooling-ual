@@ -7,7 +7,6 @@ import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { AvatarsService } from './avatars.service';
 import { ConsentsService } from './consents.service';
 import { DriverReadiness } from './driver-readiness';
-import { AdminProfile } from './entities/admin-profile.entity';
 import { DriverProfile } from './entities/driver-profile.entity';
 import { PassengerProfile } from './entities/passenger-profile.entity';
 import { User } from './entities/user.entity';
@@ -56,6 +55,11 @@ export interface CreateUserInput {
   isEmailVerified?: boolean;
 }
 
+export type UserDeactivatingListener = (
+  manager: EntityManager,
+  userId: string,
+) => Promise<void>;
+
 const PROFILE_RELATIONS = {
   driverProfile: true,
   passengerProfile: true,
@@ -69,6 +73,8 @@ const EMAIL_UNIQUE_CONSTRAINT = 'users_email_key';
 // ni sus repositorios directamente.
 @Injectable()
 export class UsersService {
+  private readonly deactivatingListeners: UserDeactivatingListener[] = [];
+
   constructor(
     private readonly dataSource: DataSource,
     @InjectRepository(User)
@@ -78,6 +84,12 @@ export class UsersService {
     private readonly consentsService: ConsentsService,
     private readonly eventsService: EventsService,
   ) {}
+
+  // Patrón observador: otros módulos (p. ej. requests) reaccionan en la misma
+  // transacción cuando un usuario elimina su cuenta, sin acoplar users a ellos
+  onUserDeactivating(listener: UserDeactivatingListener): void {
+    this.deactivatingListeners.push(listener);
+  }
 
   async createWithProfiles(
     input: CreateUserInput,
@@ -157,6 +169,39 @@ export class UsersService {
     });
   }
 
+  // Elimina (desactiva) la cuenta en una sola transacción: avisa antes a los
+  // suscriptores (que bloquean si tiene viajes activos y cancelan sus
+  // solicitudes pendientes), marca deactivated_at, retira los consentimientos
+  // concedidos y registra user.deactivated
+  async deactivateAccount(
+    manager: EntityManager,
+    userId: string,
+  ): Promise<void> {
+    const user = await manager.findOne(User, {
+      where: { id: userId },
+      lock: { mode: 'pessimistic_write' },
+    });
+    if (user?.deactivatedAt !== null) {
+      throw new UserNotFoundError(userId);
+    }
+    for (const listener of this.deactivatingListeners) {
+      const step = listener(manager, userId);
+      await step; // NOSONAR: ejecución secuencial dentro de la misma transacción
+    }
+    const deactivatedAt = new Date();
+    await manager.update(User, { id: userId }, { deactivatedAt });
+    await this.consentsService.revokeGrantedOnAccountDeletion(
+      manager,
+      userId,
+      deactivatedAt,
+    );
+    await this.eventsService.record(manager, {
+      type: 'user.deactivated',
+      sourceEntityId: userId,
+      payload: {},
+    });
+  }
+
   findByEmailWithPassword(email: string): Promise<User | null> {
     return this.usersRepository
       .createQueryBuilder('user')
@@ -205,7 +250,7 @@ export class UsersService {
         where: { id: userId },
         lock: { mode: 'pessimistic_write' },
       });
-      if (user === null) {
+      if (user?.deactivatedAt !== null) {
         throw new UserNotFoundError(userId);
       }
       const { update, changedFields } = buildAccountUpdate(user, changes);
@@ -313,8 +358,11 @@ export class UsersService {
 
   hasActiveAdmin(): Promise<boolean> {
     return this.dataSource
-      .getRepository(AdminProfile)
-      .existsBy({ isActive: true });
+      .getRepository(User)
+      .createQueryBuilder('u')
+      .innerJoin('u.adminProfile', 'admin', 'admin.isActive = true')
+      .where('u.deactivatedAt IS NULL')
+      .getExists();
   }
 
   async getActiveAdminIds(manager: EntityManager): Promise<string[]> {
@@ -322,6 +370,7 @@ export class UsersService {
       .createQueryBuilder(User, 'u')
       .select('u.id', 'id')
       .innerJoin('u.adminProfile', 'admin', 'admin.isActive = true')
+      .where('u.deactivatedAt IS NULL')
       .setLock('for_key_share', undefined, ['u'])
       .getRawMany<{ id: string }>();
     return admins.map(({ id }) => id);
@@ -330,7 +379,7 @@ export class UsersService {
   // Datos de la cuenta de un usuario (GET /api/users/me, GET /api/users/{id})
   async getSummary(id: string): Promise<UserSummary> {
     const user = await this.findById(id);
-    if (user === null) {
+    if (user?.deactivatedAt !== null) {
       throw new UserNotFoundError(id);
     }
     return {

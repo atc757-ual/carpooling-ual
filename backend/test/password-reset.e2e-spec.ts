@@ -61,10 +61,19 @@ describe('Password reset API (e2e)', () => {
       .send({ email, code });
   }
 
-  function confirm(code: string, password = NEW_PASSWORD): request.Test {
+  function confirm(
+    code: string,
+    password = NEW_PASSWORD,
+    refreshToken?: string,
+  ): request.Test {
     return request(app.getHttpServer())
       .post('/api/auth/password-reset/confirm')
-      .send({ email: ANA, code, password });
+      .send({
+        email: ANA,
+        code,
+        password,
+        ...(refreshToken ? { refreshToken } : {}),
+      });
   }
 
   function login(password: string): request.Test {
@@ -216,6 +225,33 @@ describe('Password reset API (e2e)', () => {
         .send({ refreshToken })
         .expect(401);
       expect(response.body).toMatchObject({ code: 'INVALID_REFRESH_TOKEN' });
+    });
+
+    it('keeps the current session and closes every other session when refreshToken is provided', async () => {
+      const currentSession = await login(PASSWORD).expect(200);
+      const otherSession = await login(PASSWORD).expect(200);
+      const { refreshToken: currentRefreshToken } = currentSession.body as {
+        refreshToken: string;
+      };
+      const { refreshToken: otherRefreshToken } = otherSession.body as {
+        refreshToken: string;
+      };
+      const code = await requestAndReadCode();
+
+      await confirm(code, NEW_PASSWORD, currentRefreshToken).expect(204);
+
+      await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: otherRefreshToken })
+        .expect(401)
+        .expect(({ body }) =>
+          expect(body).toMatchObject({ code: 'INVALID_REFRESH_TOKEN' }),
+        );
+
+      await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: currentRefreshToken })
+        .expect(200);
     });
 
     it('does not accept the same code twice', async () => {

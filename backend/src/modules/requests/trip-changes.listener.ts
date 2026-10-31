@@ -3,24 +3,32 @@ import { EntityManager, In } from 'typeorm';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Trip } from '../trips/entities/trip.entity';
 import { TripStatusService } from '../trips/trip-status.service';
+import { AccountHasActiveTripsError } from '../users/errors/account-has-active-trips.error';
 import { UsersService } from '../users/users.service';
 import { SeatRequest } from './entities/seat-request.entity';
 import { RequestChangesRecorder } from './request-changes';
+import { RequestOverlapService } from './request-overlap.service';
 import {
   assertRequestTransition,
   LIVE_REQUEST_STATUSES,
 } from './request-status';
 import type { RequestStatus } from './request-status';
 
-// Qué les pasa a las solicitudes cuando cambia su viaje. Patrón observador:
-// se suscribe a los cambios de estado de los viajes y reacciona dentro de su
-// misma transacción (trips no conoce este módulo):
+const ACTIVE_TRIP_STATUSES = ['published', 'confirmed', 'in_progress'] as const;
+
+// Qué les pasa a las solicitudes cuando cambia su viaje o cuando un usuario
+// elimina su cuenta. Patrón observador: se suscribe a los cambios de estado de
+// los viajes y a la desactivación de usuarios, y reacciona dentro de su misma
+// transacción (trips y users no conocen este módulo):
 // - viaje cancelado: se cancelan sus solicitudes vivas; si estaba EN CURSO,
 //   sus pasajeros aceptados reciben prioridad (RF-24: perdieron el viaje sin
 //   elegirlo)
 // - viaje iniciado: se rechazan las pendientes (ya nadie podrá aceptarlas, y
 //   así el pasajero sabe al momento que debe buscar otro viaje) y los
 //   aceptados reciben el aviso de que el conductor va de camino
+// - cuenta eliminada: bloquea si tiene viajes sin terminar como conductor o
+//   plazas aceptadas como pasajero, y cancela sus solicitudes pendientes con
+//   sus eventos y avisos
 @Injectable()
 export class TripChangesListener implements OnModuleInit {
   constructor(
@@ -28,6 +36,7 @@ export class TripChangesListener implements OnModuleInit {
     private readonly usersService: UsersService,
     private readonly changes: RequestChangesRecorder,
     private readonly notificationsService: NotificationsService,
+    private readonly overlaps: RequestOverlapService,
   ) {}
 
   onModuleInit(): void {
@@ -53,6 +62,77 @@ export class TripChangesListener implements OnModuleInit {
         await this.notifyDriverOnTheWay(manager, trip);
       }
     });
+
+    this.usersService.onUserDeactivating((manager, userId) =>
+      this.handleUserDeactivating(manager, userId),
+    );
+  }
+
+  private async handleUserDeactivating(
+    manager: EntityManager,
+    userId: string,
+  ): Promise<void> {
+    await this.overlaps.lockPassenger(manager, userId);
+
+    const hasActiveDriverTrip = await manager.existsBy(Trip, {
+      driverId: userId,
+      status: In([...ACTIVE_TRIP_STATUSES]),
+    });
+    if (hasActiveDriverTrip) {
+      throw new AccountHasActiveTripsError();
+    }
+
+    const hasActiveAcceptedRequest = await manager
+      .createQueryBuilder(SeatRequest, 'request')
+      .innerJoin(Trip, 'trip', 'trip.id = request.tripId')
+      .where('request.passengerId = :userId', { userId })
+      .andWhere('request.status = :status', { status: 'accepted' })
+      .andWhere('trip.status IN (:...tripStatuses)', {
+        tripStatuses: [...ACTIVE_TRIP_STATUSES],
+      })
+      .getExists();
+    if (hasActiveAcceptedRequest) {
+      throw new AccountHasActiveTripsError();
+    }
+
+    const pending = await manager.find(SeatRequest, {
+      where: { passengerId: userId, status: 'pending' },
+      order: { id: 'ASC' },
+    });
+    if (pending.length === 0) {
+      return;
+    }
+
+    const trips = await this.overlaps.lockTripsInOrder(
+      manager,
+      pending.map(({ tripId }) => tripId),
+    );
+    const lockedRequests = await this.overlaps.lockRequestsById(
+      manager,
+      pending.map(({ id }) => id),
+    );
+
+    for (const request of lockedRequests) {
+      if (request.status !== 'pending') {
+        continue;
+      }
+      const trip = trips.get(request.tripId);
+      if (trip === undefined) {
+        continue;
+      }
+      assertRequestTransition(request.status, 'cancelled');
+      request.status = 'cancelled';
+      request.cancelledAt = new Date();
+      const savePromise = manager.save(request);
+      const closed = await savePromise; // NOSONAR: dentro de la misma transacción
+      const recordPromise = this.changes.record(
+        manager,
+        'request.cancelled',
+        closed,
+        trip,
+      );
+      await recordPromise; // NOSONAR: dentro de la misma transacción
+    }
   }
 
   // Un aviso por pasajero aceptado, con su solicitud (para abrirla desde Avisos)

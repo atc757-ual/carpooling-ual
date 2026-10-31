@@ -132,6 +132,17 @@ export class User {
   })
   petsPreference: PetsPreference | null = null;
 
+  // Cuándo eliminó (desactivó) su cuenta. Una cuenta desactivada no puede
+  // iniciar sesión ni renovar tokens; la anonimización definitiva se aplica
+  // pasado el plazo de conservación legal
+  @Column({
+    name: 'deactivated_at',
+    type: 'timestamptz',
+    nullable: true,
+    default: null,
+  })
+  deactivatedAt: Date | null = null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

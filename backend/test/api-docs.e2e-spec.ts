@@ -90,6 +90,8 @@ describe('API docs (e2e)', () => {
       '/api/trips/{tripId}/requests',
       '/api/users',
       '/api/users/me',
+      '/api/users/me/account-deletion',
+      '/api/users/me/account-deletion/confirm',
       '/api/users/me/active-mode',
       '/api/users/me/consents',
       '/api/users/me/consents/location',

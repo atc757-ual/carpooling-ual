@@ -5,11 +5,14 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-// Para qué sirve el código: verificar el correo, verificar el teléfono por SMS
-// o recuperar la contraseña. Cada uno es independiente (un código de un tipo
-// no sirve para otro)
+// Para qué sirve el código: verificar el correo, verificar el teléfono por SMS,
+// recuperar la contraseña o confirmar la eliminación de la cuenta. Cada uno es
+// independiente (un código de un tipo no sirve para otro)
 export type EmailCodePurpose =
-  'email_verification' | 'password_reset' | 'phone_verification';
+  | 'email_verification'
+  | 'password_reset'
+  | 'phone_verification'
+  | 'account_deletion';
 
 // Tabla email_codes: el código de un solo uso que se envía por correo o SMS.
 // Pertenece al módulo auth, como refresh_tokens
@@ -25,7 +28,12 @@ export class EmailCode {
 
   @Column({
     type: 'enum',
-    enum: ['email_verification', 'password_reset', 'phone_verification'],
+    enum: [
+      'email_verification',
+      'password_reset',
+      'phone_verification',
+      'account_deletion',
+    ],
     enumName: 'email_code_purpose',
   })
   purpose: EmailCodePurpose;
