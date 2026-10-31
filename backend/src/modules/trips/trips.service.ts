@@ -258,6 +258,22 @@ export class TripsService {
     return this.toView(trip);
   }
 
+  // RF-23: el último pasajero se ha bajado de un viaje EN CURSO (con su
+  // incidencia, en la misma transacción): el viaje termina y el conductor
+  // queda libre, como al finalizarlo. Quien llama ya tiene el viaje bloqueado
+  async finishWithoutPassengers(
+    manager: EntityManager,
+    trip: Trip,
+  ): Promise<Trip> {
+    const finished = await this.tripStatus.changeStatus(
+      manager,
+      trip,
+      'finished',
+    );
+    await this.vehiclesService.markAvailable(manager, trip.vehicleId);
+    return finished;
+  }
+
   // RF-23: el conductor cancela DURANTE el viaje (con una incidencia, que
   // registra el módulo incidents en la misma transacción: por eso recibe el
   // manager). El vehículo vuelve a estar disponible, para que pueda publicar

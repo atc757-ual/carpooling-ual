@@ -96,6 +96,7 @@ describe('API docs (e2e)', () => {
       '/api/users/me/notifications/read',
       '/api/users/me/profiles/{profile}',
       '/api/users/me/publishing-status',
+      '/api/users/me/requesting-status',
       '/api/users/me/requests',
       '/api/users/me/trips',
       '/api/users/{id}',

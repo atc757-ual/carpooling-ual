@@ -149,10 +149,12 @@ describe('Incidents API (e2e)', () => {
     expect(next.body).toMatchObject({ isPriority: true });
   });
 
-  it('lets an accepted passenger leave the trip: it goes on with her seat free', async () => {
+  it('lets an accepted passenger leave the trip: it goes on for the others with her seat free', async () => {
     const { driver, tripId } = await driverWithTrip('dan');
     const pia = await tokenFor('pia', ['passenger']);
     const requestId = await acceptedRequest(driver, pia, tripId);
+    const leo = await tokenFor('leo', ['passenger']);
+    await acceptedRequest(driver, leo, tripId);
     await api('post', `/trips/${tripId}/start`, driver).expect(200);
 
     await api('post', `/trips/${tripId}/incidents`, pia)
@@ -162,7 +164,7 @@ describe('Incidents API (e2e)', () => {
     const trip = await api('get', `/trips/${tripId}`, driver).expect(200);
     expect(trip.body).toMatchObject({
       status: 'in_progress',
-      availableSeats: 2,
+      availableSeats: 1,
     });
     const seatRequest = await api('get', `/requests/${requestId}`, pia).expect(
       200,

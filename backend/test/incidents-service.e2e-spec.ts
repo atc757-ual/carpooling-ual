@@ -148,7 +148,7 @@ describe('IncidentsService (e2e)', () => {
     expect(JSON.stringify(event.payload)).not.toContain(DESCRIPTION);
   });
 
-  it('a passenger reports: only their request is cancelled, the trip goes on', async () => {
+  it('a passenger reports: only their request is cancelled; as the last one, the trip finishes', async () => {
     const { tripId, pia, requestId } = await tripWithPassenger();
 
     const { incident } = await incidentsService.report(pia, tripId, {
@@ -158,7 +158,7 @@ describe('IncidentsService (e2e)', () => {
 
     expect(incident).toMatchObject({ requestId, reporterId: pia });
     const { trip } = await tripsService.getById(tripId);
-    expect(trip).toMatchObject({ status: 'in_progress', availableSeats: 2 });
+    expect(trip).toMatchObject({ status: 'finished', availableSeats: 2 });
     expect(await usersService.getPassengerPriority(pia)).toBe(false);
   });
 

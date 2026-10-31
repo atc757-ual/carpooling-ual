@@ -393,13 +393,31 @@ describe('RequestsService (e2e)', () => {
 
     // Viaje en curso con un pasajero aceptado (pia) y otro pendiente que el
     // inicio rechaza (leo)
-    async function tripInProgress() {
+    // Viaje en curso con pia aceptada (con estas plazas) y, si se pide, leo
+    async function tripInProgress({ piaSeats = 1, withLeo = false } = {}) {
       const { driverId, tripId } = await publishedTrip(2, 'dan', 10);
       const pia = await createUser('pia', ['passenger']);
-      const { request } = await requestsService.request(pia, tripId);
+      const { request } = await requestsService.request(pia, tripId, piaSeats);
       await requestsService.accept(driverId, request.id);
+      if (withLeo) {
+        const leo = await createUser('leo', ['passenger']);
+        const { request: leoRequest } = await requestsService.request(
+          leo,
+          tripId,
+        );
+        await requestsService.accept(driverId, leoRequest.id);
+      }
       await tripsService.start(driverId, tripId);
       return { driverId, tripId, pia, requestId: request.id };
+    }
+
+    async function vehicleStatusOf(tripId: string): Promise<string> {
+      const [row] = await dataSource.query<{ status: string }[]>(
+        `SELECT v.status FROM vehicles v JOIN trips t ON t.vehicle_id = v.id
+          WHERE t.id = $1`,
+        [tripId],
+      );
+      return row.status;
     }
 
     it('gives priority to the accepted passengers when the driver cancels during the trip', async () => {
@@ -426,7 +444,7 @@ describe('RequestsService (e2e)', () => {
     });
 
     it('lets a passenger leave a trip in progress: frees the seat, the trip goes on', async () => {
-      const { tripId, pia } = await tripInProgress();
+      const { tripId, pia } = await tripInProgress({ withLeo: true });
 
       const cancelled = await dataSource.transaction((manager) =>
         requestsService.leaveInProgressTrip(manager, pia, tripId),
@@ -434,10 +452,35 @@ describe('RequestsService (e2e)', () => {
 
       expect(cancelled.status).toBe('cancelled');
       expect(await seatsOf(tripId)).toEqual({
-        available: 2,
+        available: 1,
         status: 'in_progress',
       });
       expect(await hasPriority(pia)).toBe(false);
+    });
+
+    it('finishes the trip and frees the car when the last passenger leaves', async () => {
+      const { tripId, pia } = await tripInProgress();
+
+      await dataSource.transaction((manager) =>
+        requestsService.leaveInProgressTrip(manager, pia, tripId),
+      );
+
+      expect(await seatsOf(tripId)).toEqual({
+        available: 2,
+        status: 'finished',
+      });
+      expect(await vehicleStatusOf(tripId)).toBe('available');
+      expect(await eventTypesOf(tripId)).toContain('trip.finished');
+    });
+
+    it('also finishes it when one passenger had booked every seat', async () => {
+      const { tripId, pia } = await tripInProgress({ piaSeats: 2 });
+
+      await dataSource.transaction((manager) =>
+        requestsService.leaveInProgressTrip(manager, pia, tripId),
+      );
+
+      expect((await seatsOf(tripId)).status).toBe('finished');
     });
 
     it('only lets accepted passengers leave a trip in progress', async () => {

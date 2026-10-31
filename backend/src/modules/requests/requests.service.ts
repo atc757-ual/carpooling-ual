@@ -8,6 +8,10 @@ import { NotTripDriverError } from '../trips/errors/not-trip-driver.error';
 import { TripAlreadyStartedError } from '../trips/errors/trip-already-started.error';
 import { TripFullError } from '../trips/errors/trip-full.error';
 import { TripNotInProgressError } from '../trips/errors/trip-not-in-progress.error';
+import {
+  isLatePassengerCancellation,
+  LateCancellationsService,
+} from '../trips/late-cancellations.service';
 import { TripStatusService } from '../trips/trip-status.service';
 import { TripsService } from '../trips/trips.service';
 import { UsersService } from '../users/users.service';
@@ -17,6 +21,7 @@ import { NotRequestPassengerError } from './errors/not-request-passenger.error';
 import { NotTripPassengerError } from './errors/not-trip-passenger.error';
 import { RequestAlreadyExistsError } from './errors/request-already-exists.error';
 import { RequestNotFoundError } from './errors/request-not-found.error';
+import { RequestingSuspendedError } from './errors/requesting-suspended.error';
 import { RequestView, RequestViewsService } from './request-views.service';
 import { RequestChangesRecorder } from './request-changes';
 import { assertRequestTransition } from './request-status';
@@ -38,6 +43,7 @@ export class RequestsService {
     private readonly usersService: UsersService,
     private readonly views: RequestViewsService,
     private readonly changes: RequestChangesRecorder,
+    private readonly lateCancellations: LateCancellationsService,
   ) {}
 
   // --- Pasajero
@@ -49,6 +55,11 @@ export class RequestsService {
     tripId: string,
     seats = 1,
   ): Promise<RequestView> {
+    const { requestingSuspendedUntil } =
+      await this.lateCancellations.getRequestingStatus(passengerId);
+    if (requestingSuspendedUntil !== null) {
+      throw new RequestingSuspendedError(requestingSuspendedUntil);
+    }
     const isPriority =
       await this.usersService.getPassengerPriority(passengerId);
     const request = await this.dataSource.transaction(async (manager) => {
@@ -73,7 +84,8 @@ export class RequestsService {
   }
 
   // El pasajero cancela antes del inicio del viaje. Si estaba aceptada,
-  // devuelve la plaza (RF-10)
+  // devuelve la plaza (RF-10) y, a menos de 30 minutos de la salida, cuenta
+  // como cancelación tardía
   async cancel(passengerId: string, requestId: string): Promise<RequestView> {
     const request = await this.dataSource.transaction(async (manager) => {
       const { trip, request } = await this.lockTripAndRequest(
@@ -96,6 +108,13 @@ export class RequestsService {
         await this.tripStatus.releaseSeat(manager, trip, request.seats);
       }
       await this.changes.record(manager, 'request.cancelled', cancelled, trip);
+      if (isLatePassengerCancellation(trip, wasAccepted, new Date())) {
+        await this.lateCancellations.recordPassengerCancellation(
+          manager,
+          trip,
+          passengerId,
+        );
+      }
       return cancelled;
     });
     return this.views.toView(request);
@@ -118,7 +137,8 @@ export class RequestsService {
   // RF-23: el pasajero abandona un viaje EN CURSO (con una incidencia, que
   // registra el módulo incidents en la misma transacción: por eso recibe el
   // manager). Se cancela su solicitud aceptada y se libera su plaza; el viaje
-  // sigue en curso para los demás
+  // sigue en curso para los demás y, si no queda ninguno (también cuando uno
+  // solo había reservado todas las plazas), termina
   async leaveInProgressTrip(
     manager: EntityManager,
     passengerId: string,
@@ -140,6 +160,12 @@ export class RequestsService {
     const cancelled = await manager.save(request);
     await this.tripStatus.releaseSeat(manager, trip, request.seats);
     await this.changes.record(manager, 'request.cancelled', cancelled, trip);
+    const remaining = await manager.count(SeatRequest, {
+      where: { tripId, status: 'accepted' },
+    });
+    if (remaining === 0) {
+      await this.tripsService.finishWithoutPassengers(manager, trip);
+    }
     return cancelled;
   }
 

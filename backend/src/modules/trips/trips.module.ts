@@ -34,12 +34,14 @@ import { TripsService } from './trips.service';
     LateCancellationsService,
   ],
   // Los usan las solicitudes de plaza (requests), el seguimiento (tracking:
-  // lo que queda hasta el destino) y el matching (los candidatos)
+  // lo que queda hasta el destino) y el matching (los candidatos); las
+  // solicitudes también, las cancelaciones tardías del pasajero
   exports: [
     TripsService,
     TripStatusService,
     TripRoutesService,
     TripCandidatesService,
+    LateCancellationsService,
   ],
 })
 export class TripsModule {}
