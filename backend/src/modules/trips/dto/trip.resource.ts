@@ -3,7 +3,9 @@ import type { Point } from 'typeorm';
 import { API_PREFIX } from '../../../app.setup';
 import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
 import { TravelPreferencesResource } from '../../users/dto/travel-preferences.resource';
+import { VEHICLE_COLORS } from '../../users/entities/vehicle.entity';
 import { AVATAR_KEYS, type AvatarKey } from '../../users/travel-preferences';
+import type { VehicleRecognitionDetails } from '../../users/vehicles.service';
 import { TripView } from '../trips.service';
 import { TRIP_STATUSES } from '../trip-status';
 import type { TripStatus } from '../trip-status';
@@ -20,6 +22,20 @@ export class TripDriverResource {
 
   @ApiProperty({ type: TravelPreferencesResource })
   preferences: TravelPreferencesResource;
+
+  @ApiProperty({ example: 12, description: 'Number of completed trips' })
+  tripCount: number;
+}
+
+class TripVehicleResource {
+  @ApiProperty({ type: String, nullable: true, example: 'Seat' })
+  brand: string | null;
+
+  @ApiProperty({ type: String, nullable: true, example: 'Ibiza' })
+  model: string | null;
+
+  @ApiProperty({ enum: VEHICLE_COLORS, nullable: true, example: 'blue' })
+  color: VehicleRecognitionDetails['color'];
 }
 
 // Recurso TMF630 Trip. Del conductor solo se muestra el nombre, no la
@@ -39,6 +55,9 @@ export class TripResource {
 
   @ApiProperty({ format: 'uuid' })
   vehicleId: string;
+
+  @ApiProperty({ type: TripVehicleResource, nullable: true })
+  vehicle: VehicleRecognitionDetails | null;
 
   @ApiProperty({ type: GeoPointDto })
   origin: Point;
@@ -94,6 +113,8 @@ export function toTripResource({
   driverName,
   driverAvatarKey,
   driverPreferences,
+  driverTripCount,
+  vehicle,
 }: TripView): TripResource {
   return {
     '@type': 'Trip',
@@ -104,8 +125,10 @@ export function toTripResource({
       name: driverName,
       avatarKey: driverAvatarKey,
       preferences: driverPreferences,
+      tripCount: driverTripCount,
     },
     vehicleId: trip.vehicleId,
+    vehicle,
     origin: trip.origin,
     destination: trip.destination,
     departureAt: trip.departureAt.toISOString(),

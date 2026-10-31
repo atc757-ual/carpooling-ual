@@ -107,7 +107,7 @@ describe('Trips API (e2e)', () => {
   }
 
   describe('POST /api/trips (RF-04)', () => {
-    it('publishes a trip: 201, Location, GeoJSON and the driver name (no plate)', async () => {
+    it('publishes a trip with public vehicle details and no plate', async () => {
       const { token, vehicleId } = await readyDriver('ana');
       const body = {
         ...tripBody(vehicleId),
@@ -128,6 +128,7 @@ describe('Trips API (e2e)', () => {
           id: trip.driver.id,
           name: 'ana',
           avatarKey: null,
+          tripCount: 0,
           preferences: {
             conversation: null,
             music: null,
@@ -136,6 +137,7 @@ describe('Trips API (e2e)', () => {
           },
         },
         vehicleId,
+        vehicle: { brand: 'Seat', model: 'Ibiza', color: 'blue' },
         origin: ALMERIA_CENTRE,
         destination: UAL_CAMPUS,
         departureAt: body.departureAt,
@@ -208,7 +210,15 @@ describe('Trips API (e2e)', () => {
         passenger,
       ).expect(200);
 
-      expect(response.body).toMatchObject({ id: trip.id, status: 'published' });
+      expect(response.body).toMatchObject({
+        id: trip.id,
+        status: 'published',
+        driver: { tripCount: 0 },
+        vehicle: { brand: 'Seat', model: 'Ibiza', color: 'blue' },
+        offeredSeats: 3,
+        availableSeats: 3,
+      });
+      expect(JSON.stringify(response.body)).not.toContain('BCD');
     });
 
     it('answers 404 TRIP_NOT_FOUND for an unknown trip', async () => {
