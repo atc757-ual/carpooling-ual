@@ -13,6 +13,7 @@ import { TripDetailPage } from './trip-detail.page';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
+import { formatTime } from '../trip-results';
 
 const SEARCH: TripSearch = {
   place: ROQUETAS,
@@ -132,7 +133,7 @@ describe('TripDetailPage', () => {
       '27 oct, ida al campus',
     );
     expect(texts(root, '.route-timeline__stop')).toEqual([
-      '08:40Roquetas de MarPunto de salida del conductor',
+      `${formatTime('2026-10-27T07:40:00.000Z')}Roquetas de MarPunto de salida del conductor`,
       'Roquetas de MarTu punto de recogida',
       '08:12Campus UAL · Parking P1Parking P1',
     ]);
