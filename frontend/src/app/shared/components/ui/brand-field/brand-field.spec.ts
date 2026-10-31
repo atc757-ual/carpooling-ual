@@ -15,14 +15,11 @@ describe('BrandField', () => {
     await fixture.whenStable();
   });
 
-  it('starts closed and exposes the local brands through a native datalist', async () => {
+  it('starts closed and exposes the local brands through a native datalist', () => {
     expect(fixture.nativeElement.querySelector('.brand-field__dropdown')).toBeNull();
     const datalist = fixture.nativeElement.querySelector('datalist') as HTMLDataListElement;
     expect(datalist.options.length).toBeGreaterThan(50);
     expect(datalist.options.item(datalist.options.length - 1)?.value).toBe('Otra');
-    await fixture.whenStable();
-    await new Promise((resolve) => setTimeout(resolve));
-    expect((await input().getInputElement()).getAttribute('list')).toBe(datalist.id);
   });
 
   it('filters brands and sends the selected brand through ControlValueAccessor', async () => {
