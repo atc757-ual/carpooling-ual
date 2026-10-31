@@ -27,7 +27,13 @@
             <span class="vehicle-card__body">
               <span class="vehicle-card__name">{{ vehicleName(vehicle) }}</span>
               <span class="text-caption text-color-muted">
-                {{ vehicle.plate }} · hasta {{ plural(vehicle.capacity, 'pasajero', 'pasajeros') }}
+                <span
+                  class="vehicle-picker__swatch"
+                  [style.--swatch-color]="colorSwatch(vehicle)"
+                  aria-hidden="true"
+                ></span>
+                {{ colorLabel(vehicle) }} · {{ vehicle.plate }} · hasta
+                {{ plural(vehicle.capacity, 'pasajero', 'pasajeros') }}
               </span>
             </span>
             <ion-icon

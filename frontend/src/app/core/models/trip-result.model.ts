@@ -2,6 +2,8 @@
 
 // Los viajes hechos y la valoración aún no los da la API (reputación,
 // RF-22): sin ellos no se muestran
+import { VehicleColor } from './driver.model';
+
 export interface TripDriver {
   name: string;
   tripCount?: number;
@@ -21,4 +23,5 @@ export interface TripResult {
   freeSeats: number;
   // Minutos que se desvía el conductor para recoger al pasajero
   pickupDetourMinutes: number;
+  vehicle?: { brand: string | null; model: string | null; color: VehicleColor | null; plate: string };
 }

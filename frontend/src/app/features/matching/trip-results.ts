@@ -73,6 +73,7 @@ export function toTripResult(match: TripMatch, search: TripSearch): TripResult {
     driver: { name: match.driver.name, isEmailVerified: true },
     freeSeats: match.availableSeats,
     pickupDetourMinutes: match.detourMin,
+    vehicle: match.vehicle,
   };
 }
 

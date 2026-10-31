@@ -47,6 +47,7 @@ import {
   toPublishTripRequest,
 } from './publish-trip.utils';
 import { toIsoDate } from '../../../shared/utils/date.util';
+import { vehicleColorLabel, vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
 
 export const DETOURS = [5, 10, 15, 20] as const;
 const DEFAULT_DETOUR = 10;
@@ -280,8 +281,8 @@ export class PublishTripPage implements OnInit {
   }
 
   // «Seat Ibiza · 1234BCD», o solo la matrícula si no tiene modelo
-  protected vehicleLabel({ model, plate }: Vehicle): string {
-    return model ? `${model} · ${plate}` : plate;
+  protected vehicleLabel(vehicle: Vehicle): string {
+    return `${vehicleDisplayName(vehicle)} · ${vehicleColorLabel(vehicle.color)} · ${vehicle.plate}`;
   }
 
   // «0,7»: con coma decimal, en español

@@ -35,6 +35,7 @@ const MATCH: TripMatch = {
   detourMin: 3,
   timeDifferenceMin: -2,
   score: 0.9,
+  vehicle: { brand: 'Seat', model: 'Ibiza', color: 'white', plate: '1234BCD' },
 };
 
 describe('SearchResultsPage', () => {

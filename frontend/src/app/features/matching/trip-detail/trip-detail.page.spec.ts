@@ -32,6 +32,7 @@ const RESULT: TripResult = {
   driver: { name: 'Lucía Cortés', isEmailVerified: true },
   freeSeats: 2,
   pickupDetourMinutes: 3,
+  vehicle: { brand: 'Seat', model: 'Ibiza', color: 'white', plate: '1234BCD' },
 };
 
 function seatRequest(status: SeatRequest['status'], plate: string | null = null): SeatRequest {
@@ -102,11 +103,13 @@ describe('TripDetailPage', () => {
     expect(root.textContent).toContain('Trayecto de unos 32 min');
   });
 
-  it('shows who drives and who decides, without the car until accepted', async () => {
+  it('shows who drives, who decides, and the vehicle for recognition', async () => {
     const root = await render('t1', SEARCH);
 
     expect(root.querySelector('app-trip-driver')?.textContent).toContain('Lucía Cortés');
-    expect(root.querySelector('.trip-detail__vehicle')).toBeNull();
+    expect(root.querySelector('.trip-detail__vehicle')?.textContent).toContain(
+      'Seat Ibiza · Blanco · 1234BCD',
+    );
     expect(root.textContent).toContain('Primero solicitas; Lucía decide.');
   });
 

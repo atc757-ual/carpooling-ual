@@ -209,12 +209,12 @@ ion-datetime {
 ion-input,
 ion-textarea,
 ion-select {
-  --highlight-color-valid: var(--color-link);
-  --highlight-color-focused: var(--color-link);
+  --highlight-color-valid: var(--color-primary);
+  --highlight-color-focused: var(--color-primary);
 }
 
 ion-select {
-  --highlight-color-invalid: var(--color-link);
+  --highlight-color-invalid: var(--color-primary);
 }
 
 // La ayuda y el error de debajo de los campos, alineados con el borde
@@ -291,6 +291,10 @@ ion-modal.info-dialog {
   }
 }
 
+ion-modal.brand-field-modal {
+  --width: 30rem;
+}
+
 // En el móvil, las ventanas son hojas que suben desde abajo: a todo el ancho,
 // con las esquinas redondeadas solo arriba y la muesca (una barrita gris
 // centrada) que indica que se pueden cerrar. El calendario y la hora, igual,
@@ -299,6 +303,7 @@ ion-modal.info-dialog {
 @media (max-width: 767.98px) {
   ion-modal.location-dialog,
   ion-modal.info-dialog,
+  ion-modal.brand-field-modal,
   ion-modal.datetime-modal {
     --border-radius: var(--radius-s) var(--radius-s) 0 0;
 
@@ -326,6 +331,14 @@ ion-modal.info-dialog {
     ion-datetime {
       width: 100%;
       max-width: none;
+    }
+  }
+
+  ion-modal.brand-field-modal {
+    --width: 100%;
+
+    .ion-page {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
   }
 }
@@ -407,6 +420,16 @@ ion-toast.toast--floating {
 // desplegable fuera de la pantalla que lo abre
 .phone-prefix-popover {
   --width: 8rem; // 128px
+}
+
+// Color y motor usan el popover de ion-select. Su alto se limita al espacio
+// disponible en el modal de vehÃ­culo, y su superficie no deja ver el formulario.
+ion-popover.vehicle-select-popover {
+  --max-height: min(14rem, 38vh);
+  --max-width: calc(100vw - 2rem);
+  --background: var(--color-surface);
+  --border-radius: var(--radius-s);
+  --box-shadow: var(--shadow-base);
 }
 
 // Tarjetas (ion-card): blancas, con borde fino y esquinas de 8px, sin la

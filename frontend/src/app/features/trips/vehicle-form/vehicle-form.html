@@ -3,15 +3,8 @@
        los de una fila queden a la misma altura. Marca y modelo, en una fila -->
   <div class="vehicle-form__row">
     <div class="vehicle-form__field">
-      <span class="text-label text-label--strong" aria-hidden="true">Marca</span>
-      <ion-input
-        formControlName="brand"
-        aria-label="Marca"
-        fill="outline"
-        placeholder="Seat"
-        autocapitalize="words"
-        errorText="Escribe la marca, como Seat."
-      />
+      <label class="text-label text-label--strong" for="vehicle-brand">Marca</label>
+      <app-brand-field id="vehicle-brand" formControlName="brand" />
     </div>
     <div class="vehicle-form__field">
       <span class="text-label text-label--strong" aria-hidden="true">Modelo</span>
@@ -23,6 +16,53 @@
         autocapitalize="words"
         errorText="Escribe el modelo, como Ibiza."
       />
+    </div>
+  </div>
+  <div class="vehicle-form__row">
+    <div class="vehicle-form__field">
+      <label class="text-label text-label--strong" for="vehicle-color">Color</label>
+      <ion-select
+        id="vehicle-color"
+        formControlName="color"
+        interface="popover"
+        fill="outline"
+        justify="space-between"
+        [interfaceOptions]="selectPopoverOptions"
+        aria-label="Color"
+        placeholder="Elige"
+      >
+        @if (selectedColor(); as color) {
+          <span
+            slot="start"
+            class="vehicle-form__swatch"
+            [style.--swatch-color]="color.hex"
+            aria-hidden="true"
+          ></span>
+        }
+        @for (color of colors; track color.value) {
+          <ion-select-option [value]="color.value">{{ color.label }}</ion-select-option>
+        }
+      </ion-select>
+    </div>
+    <div class="vehicle-form__field">
+      <label class="text-label text-label--strong" for="vehicle-engine">Motor</label>
+      <ion-select
+        id="vehicle-engine"
+        formControlName="engine"
+        interface="popover"
+        fill="outline"
+        justify="space-between"
+        [interfaceOptions]="selectPopoverOptions"
+        aria-label="Motor"
+        placeholder="Elige"
+      >
+        @if (selectedEngine(); as engine) {
+          <ion-icon slot="start" [icon]="engine.icon" aria-hidden="true" />
+        }
+        @for (engine of engines; track engine.value) {
+          <ion-select-option [value]="engine.value">{{ engine.label }}</ion-select-option>
+        }
+      </ion-select>
     </div>
   </div>
   <!-- Matrícula (con su ayuda justo debajo) y asientos, en una fila -->

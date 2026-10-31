@@ -22,6 +22,12 @@ import { formatShortDate, toTripDetail } from '../trip-results';
 import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
+import {
+  vehicleColorLabel,
+  vehicleColorSwatch,
+  vehicleDisplayName,
+} from '../../../shared/utils/vehicle-display.util';
+import { VehicleColor } from '../../../core/models/driver.model';
 
 // Detalle de un viaje de los resultados de Buscar: el recorrido con sus horas,
 // quien conduce (y su coche, cuando se conozca) y cómo funciona la solicitud.
@@ -111,6 +117,11 @@ export class TripDetailPage {
   protected readonly carIcon = carOutline;
   protected readonly notFoundIcon = mapOutline;
   protected readonly formatSeats = formatSeats;
+  protected readonly vehicleName = vehicleDisplayName;
+  protected readonly vehicleColor = (vehicle: { color: VehicleColor | null }) =>
+    vehicleColorLabel(vehicle.color);
+  protected readonly vehicleSwatch = (vehicle: { color: VehicleColor | null }) =>
+    vehicleColorSwatch(vehicle.color);
 
   // RF-08: pedir las plazas de la búsqueda. Queda pendiente hasta que el
   // conductor decide

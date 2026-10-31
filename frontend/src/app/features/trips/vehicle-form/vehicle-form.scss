@@ -39,3 +39,30 @@
   gap: var(--space-s);
   min-width: 0;
 }
+
+.vehicle-form ion-input,
+.vehicle-form ion-select {
+  --highlight-color-focused: var(--color-primary);
+  --highlight-color-valid: var(--color-primary);
+}
+
+.vehicle-form ion-select {
+  width: 100%;
+}
+
+.vehicle-form ion-select::part(container) {
+  flex: 1;
+}
+
+.vehicle-form ion-select > ion-icon {
+  color: var(--color-link);
+  font-size: 1.25rem; // 20px
+}
+
+.vehicle-form__swatch {
+  width: 1rem;
+  height: 1rem;
+  border: var(--border-width-s) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--swatch-color);
+}

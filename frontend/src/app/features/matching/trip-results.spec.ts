@@ -29,6 +29,7 @@ const MATCH: TripMatch = {
   detourMin: 4,
   timeDifferenceMin: 12,
   score: 0.7,
+  vehicle: { brand: 'Seat', model: 'Ibiza', color: 'white', plate: '1234BCD' },
 };
 
 describe('trip results', () => {
@@ -53,6 +54,7 @@ describe('trip results', () => {
       driver: { name: 'Lucía Cortés', isEmailVerified: true },
       freeSeats: 1,
       pickupDetourMinutes: 4,
+      vehicle: MATCH.vehicle,
     });
   });
 
@@ -76,7 +78,7 @@ describe('trip results', () => {
       date: '2026-10-27',
       tripMinutes: 32,
     });
-    expect(detail.vehicle).toBeUndefined();
+    expect(detail.vehicle).toEqual(MATCH.vehicle);
   });
 
   it('counts minutes and formats times', () => {

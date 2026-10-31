@@ -23,7 +23,10 @@ const P1: CampusParking = {
 const VEHICLE: Vehicle = {
   id: 'v1',
   plate: '1234BCD',
-  model: 'Seat Ibiza',
+  brand: 'Seat',
+  model: 'Ibiza',
+  color: 'white',
+  engine: 'hybrid',
   capacity: 3,
   status: 'available',
 };

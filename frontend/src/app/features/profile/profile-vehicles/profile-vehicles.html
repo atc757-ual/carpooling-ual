@@ -25,7 +25,10 @@
             <ion-icon [icon]="carIcon" aria-hidden="true" />
             <span class="profile-vehicle__body">
               <span class="profile-vehicle__plate">{{ vehicle.plate }}</span>
-              <span class="text-caption text-color-muted">{{ details(vehicle) }}</span>
+              <span class="text-caption text-color-muted">
+                <span class="profile-vehicles__swatch" [style.--swatch-color]="colorSwatch(vehicle)" aria-hidden="true"></span>
+                {{ details(vehicle) }}
+              </span>
             </span>
             <form (submit)="$event.preventDefault(); handleOpen(vehicle)">
               <ion-button
