@@ -5,6 +5,7 @@ import { EventsService } from '../../events/events.service';
 import { ProfileRequiredError } from '../../shared/auth/profile-required.error';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { AvatarsService } from './avatars.service';
+import { ConsentsService } from './consents.service';
 import { DriverReadiness } from './driver-readiness';
 import { AdminProfile } from './entities/admin-profile.entity';
 import { DriverProfile } from './entities/driver-profile.entity';
@@ -74,6 +75,7 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
     private readonly vehiclesService: VehiclesService,
     private readonly avatarsService: AvatarsService,
+    private readonly consentsService: ConsentsService,
     private readonly eventsService: EventsService,
   ) {}
 
@@ -99,13 +101,16 @@ export class UsersService {
     manager: EntityManager,
     input: CreateUserInput,
   ): Promise<User> {
+    const termsAcceptedAt = input.termsAcceptedAt
+      ? new Date(input.termsAcceptedAt.getTime())
+      : null;
     const user = await manager.save(
       manager.create(User, {
         name: input.name,
         email: input.email,
         passwordHash: input.passwordHash,
         phone: input.phone ?? null,
-        termsAcceptedAt: input.termsAcceptedAt ?? null,
+        termsAcceptedAt,
         emailVerifiedAt: input.isEmailVerified ? new Date() : null,
       }),
     );
@@ -118,6 +123,13 @@ export class UsersService {
       sourceEntityId: user.id,
       payload: { profiles },
     });
+    if (termsAcceptedAt !== null) {
+      await this.consentsService.recordInitialConsents(
+        manager,
+        user.id,
+        termsAcceptedAt,
+      );
+    }
     return manager.findOneOrFail(User, {
       where: { id: user.id },
       relations: PROFILE_RELATIONS,

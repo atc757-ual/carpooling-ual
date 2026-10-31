@@ -1052,6 +1052,142 @@
         ]
       }
     },
+    "/api/users/me/consents": {
+      "get": {
+        "description": "GDPR proof of consent: current state of each consent type (terms, privacy and location) and the append-only history of granted and revoked records with their SHA-256 fingerprint.",
+        "operationId": "UsersController_getMyConsents",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConsentsResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get my consents and their audit history",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/me/consents/location": {
+      "put": {
+        "description": "Appends a location consent record (granted or revoked, source settings) when the state changes and returns the updated consents view.",
+        "operationId": "UsersController_setLocationConsent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetLocationConsentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserConsentsResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Record my location consent (granted or revoked)",
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/api/users": {
       "get": {
         "description": "RF-25. With all their profiles, active or not; ordered by name. search looks in the name or the email.",
@@ -5925,6 +6061,141 @@
         },
         "required": [
           "mode"
+        ]
+      },
+      "ConsentRecordResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "91e78052-415d-4a8e-9b7a-7d98b0cf4902"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "terms",
+              "privacy",
+              "location"
+            ],
+            "example": "terms"
+          },
+          "documentVersion": {
+            "type": "string",
+            "example": "1.0"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "granted",
+              "revoked"
+            ],
+            "example": "granted"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "registration",
+              "settings",
+              "account_deletion"
+            ],
+            "example": "registration"
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-21T09:15:00.000Z"
+          },
+          "fingerprint": {
+            "type": "string",
+            "description": "SHA-256 hex digest of user_id|type|document_version|action|recorded_at.",
+            "example": "a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "documentVersion",
+          "action",
+          "source",
+          "recordedAt",
+          "fingerprint"
+        ]
+      },
+      "CurrentConsentsResource": {
+        "type": "object",
+        "properties": {
+          "terms": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConsentRecordResource"
+              }
+            ]
+          },
+          "privacy": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConsentRecordResource"
+              }
+            ]
+          },
+          "location": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConsentRecordResource"
+              }
+            ]
+          }
+        },
+        "required": [
+          "terms",
+          "privacy",
+          "location"
+        ]
+      },
+      "UserConsentsResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "example": "UserConsents"
+          },
+          "current": {
+            "$ref": "#/components/schemas/CurrentConsentsResource"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConsentRecordResource"
+            }
+          }
+        },
+        "required": [
+          "@type",
+          "current",
+          "history"
+        ]
+      },
+      "SetLocationConsentDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "granted",
+              "revoked"
+            ],
+            "example": "granted"
+          }
+        },
+        "required": [
+          "action"
         ]
       },
       "SetProfileActiveDto": {

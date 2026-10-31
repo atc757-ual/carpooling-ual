@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { AvatarsService } from './avatars.service';
+import { ConsentsService } from './consents.service';
 import { User } from './entities/user.entity';
 import { UserNotFoundError } from './errors/user-not-found.error';
 import { EMPTY_TRAVEL_PREFERENCES } from './travel-preferences';
@@ -26,6 +27,7 @@ describe('UsersService', () => {
         { provide: getRepositoryToken(User), useValue: usersRepository },
         { provide: VehiclesService, useValue: {} },
         { provide: AvatarsService, useValue: {} },
+        { provide: ConsentsService, useValue: {} },
         { provide: EventsService, useValue: {} },
       ],
     }).compile();

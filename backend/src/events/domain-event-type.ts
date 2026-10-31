@@ -10,6 +10,9 @@ export type DomainEventType =
   | 'user.updated'
   // Cambia el modo con el que viaja (pasajero o conductor)
   | 'user.active_mode_changed'
+  // Consentimientos (RGPD: condiciones, privacidad y ubicación)
+  | 'consent.granted'
+  | 'consent.revoked'
   // Viajes. confirmed: primera solicitud aceptada; reopened: vuelve a
   // publicado porque se han cancelado todas las aceptadas
   | 'trip.published'

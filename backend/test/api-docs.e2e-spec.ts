@@ -91,6 +91,8 @@ describe('API docs (e2e)', () => {
       '/api/users',
       '/api/users/me',
       '/api/users/me/active-mode',
+      '/api/users/me/consents',
+      '/api/users/me/consents/location',
       '/api/users/me/driver-declaration',
       '/api/users/me/driver-status',
       '/api/users/me/incidents',
