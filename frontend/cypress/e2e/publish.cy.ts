@@ -101,12 +101,14 @@ for (const viewport of VIEWPORTS) {
       cy.get('ion-select-popover ion-radio', { includeShadowDom: true })
         .contains('Azul')
         .click();
+      cy.get('ion-popover').should('not.exist');
       vehicleModal()
         .find('ion-select[formControlName="engine"]', { includeShadowDom: true })
         .click();
       cy.get('ion-select-popover ion-radio', { includeShadowDom: true })
         .contains('Híbrido')
         .click();
+      cy.get('ion-popover').should('not.exist');
       vehicleModal()
         .find('ion-input[formControlName="plate"] input', { includeShadowDom: true })
         .type('1234 bcd');
