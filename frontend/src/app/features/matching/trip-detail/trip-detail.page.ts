@@ -21,6 +21,9 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatShortDate, toTripDetail } from '../trip-results';
 import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
 import { TripSearchStateService } from '../trip-search-state.service';
+import { TripsService } from '../../../core/services/trips/trips.service';
+import { formatTime } from '../trip-results';
+import { TripRouteMap } from './trip-route-map';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import {
   vehicleColorLabel,
@@ -48,6 +51,7 @@ import { VehicleColor } from '../../../core/models/driver.model';
     IonSpinner,
     RouteTimeline,
     TripDriver,
+    TripRouteMap,
   ],
   templateUrl: './trip-detail.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './trip-detail.page.scss'],
@@ -55,6 +59,7 @@ import { VehicleColor } from '../../../core/models/driver.model';
 export class TripDetailPage {
   private readonly searchState = inject(TripSearchStateService);
   private readonly seatRequests = inject(SeatRequestsService);
+  private readonly tripsService = inject(TripsService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
 
@@ -79,13 +84,49 @@ export class TripDetailPage {
 
   readonly stops = computed<RouteStop[]>(() => {
     const trip = this.trip();
-    if (!trip) {
+    const data = this.tripData.value();
+    const search = this.searchState.search();
+    if (!trip || !data || !search) {
       return [];
     }
     return [
-      { name: trip.origin, detail: trip.originDetail, time: trip.departureTime },
-      { name: trip.destination, detail: trip.destinationDetail, time: trip.arrivalTime },
+      {
+        name: data.trip.originName ?? 'Salida del conductor',
+        detail: 'Punto de salida del conductor',
+        time: formatTime(data.trip.departureAt),
+      },
+      {
+        name: search.direction === 'to-campus' ? search.place.name : search.parking.name,
+        detail: 'Tu punto de recogida',
+      },
+      {
+        name: data.trip.destinationName ?? trip.destination,
+        detail: search.direction === 'to-campus' ? search.parking.name : search.place.locality,
+        time: trip.arrivalTime,
+      },
     ];
+  });
+
+  readonly tripData = resource({
+    params: () => this.trip()?.id,
+    loader: async ({ params: tripId }) => {
+      const [trip, route] = await Promise.all([
+        this.tripsService.getTrip(tripId),
+        this.tripsService.getRoute(tripId),
+      ]);
+      return { trip, route };
+    },
+  });
+
+  readonly pickup = computed(() => {
+    const search = this.searchState.search();
+    const trip = this.tripData.value()?.trip;
+    if (!search || !trip) {
+      return null;
+    }
+    return search.direction === 'to-campus'
+      ? { coordinates: search.place.coordinates, label: search.place.name }
+      : { coordinates: trip.origin.coordinates, label: search.parking.name };
   });
 
   readonly driverFirstName = computed(() => {

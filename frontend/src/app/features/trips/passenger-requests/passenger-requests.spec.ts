@@ -18,8 +18,11 @@ function trip(id: string, status: Trip['status']): Trip {
     availableSeats: 1,
     maxDetourMin: 10,
     status,
+    origin: { type: 'Point', coordinates: [-2.6146, 36.7642] },
+    destination: { type: 'Point', coordinates: [-2.4, 36.83] },
     originName: 'Roquetas de Mar',
     destinationName: 'Campus UAL · Parking P1 (Sur)',
+    vehicle: null,
     driver: { id: 'd1', name: 'Lucía Cortés' },
   };
 }
