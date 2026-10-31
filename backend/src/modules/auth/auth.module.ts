@@ -7,6 +7,7 @@ import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { MailModule } from '../../shared/mail/mail.module';
+import { SmsModule } from '../../shared/sms/sms.module';
 import { EmailCodesService } from './email-codes.service';
 import { EmailVerificationService } from './email-verification.service';
 import { EmailCode } from './entities/email-code.entity';
@@ -14,6 +15,8 @@ import { PendingRegistration } from './entities/pending-registration.entity';
 import { PendingRegistrationsService } from './pending-registrations.service';
 import { PasswordResetController } from './password-reset.controller';
 import { PasswordResetService } from './password-reset.service';
+import { PhoneVerificationController } from './phone-verification.controller';
+import { PhoneVerificationService } from './phone-verification.service';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ProfilesGuard } from './guards/profiles.guard';
@@ -23,8 +26,9 @@ import { RefreshTokensService } from './refresh-tokens.service';
   imports: [
     // Da acceso a UsersService, lo único que exporta el módulo users
     UsersModule,
-    // Envío de correos (códigos de verificación y de recuperación)
+    // Envío de correos y SMS (códigos de verificación y de recuperación)
     MailModule,
+    SmsModule,
     // Tablas propias de este módulo: sesiones, códigos enviados por correo y
     // registros pendientes de verificar
     TypeOrmModule.forFeature([RefreshToken, EmailCode, PendingRegistration]),
@@ -40,7 +44,11 @@ import { RefreshTokensService } from './refresh-tokens.service';
       }),
     }),
   ],
-  controllers: [AuthController, PasswordResetController],
+  controllers: [
+    AuthController,
+    PasswordResetController,
+    PhoneVerificationController,
+  ],
   providers: [
     AuthService,
     PendingRegistrationsService,
@@ -48,6 +56,7 @@ import { RefreshTokensService } from './refresh-tokens.service';
     EmailCodesService,
     EmailVerificationService,
     PasswordResetService,
+    PhoneVerificationService,
     // Guards globales (se aplican a toda la API, en este orden): primero el
     // token (salvo @Public) y después los perfiles (@Profiles)
     { provide: APP_GUARD, useClass: JwtAuthGuard },

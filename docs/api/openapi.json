@@ -623,6 +623,172 @@
         ]
       }
     },
+    "/api/users/me/phone-verification": {
+      "post": {
+        "description": "Sends a 6-digit verification code by SMS to the phone number saved on my account (valid for 15 minutes, at most one code per minute). Requires having a phone number saved first (PATCH /api/users/me).",
+        "operationId": "PhoneVerificationController_requestCode",
+        "parameters": [],
+        "responses": {
+          "202": {
+            "description": "SMS verification code queued"
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: PHONE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send a 6-digit SMS code to verify my phone number",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/me/phone-verification/confirm": {
+      "post": {
+        "description": "Checks the 6-digit SMS code (up to 3 attempts, 15 minutes TTL), marks the phone as verified, records user.phone_verified without the phone number and returns the updated User resource.",
+        "operationId": "PhoneVerificationController_confirm",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyPhoneDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED, INVALID_VERIFICATION_CODE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: PHONE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TMF630 error: TOO_MANY_ATTEMPTS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Verify my phone number with the 6-digit SMS code",
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/api/users/me/driver-status": {
       "get": {
         "description": "Whether the driver can publish trips (RF-21): responsible declaration accepted and at least one active vehicle.",
@@ -5602,6 +5768,11 @@
             "description": "International format (E.164); null if never registered",
             "example": "+34600123456"
           },
+          "phoneVerified": {
+            "type": "boolean",
+            "description": "Whether the current phone number has been verified by SMS (false if unverified or if the user has no phone)",
+            "example": false
+          },
           "profiles": {
             "type": "array",
             "example": [
@@ -5669,6 +5840,7 @@
           "name",
           "email",
           "phone",
+          "phoneVerified",
           "profiles",
           "activeMode",
           "timeToleranceMin",
@@ -5827,6 +5999,19 @@
           "email",
           "code",
           "password"
+        ]
+      },
+      "VerifyPhoneDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^\\d{6}$",
+            "example": "123456"
+          }
+        },
+        "required": [
+          "code"
         ]
       },
       "ProfileStatusResource": {

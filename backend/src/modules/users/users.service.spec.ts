@@ -89,6 +89,7 @@ describe('UsersService', () => {
         id: 'user-1',
         name: 'Ana',
         email: 'ana@ual.es',
+        phoneVerified: false,
         profiles: ['passenger'],
         avatarKey: 'sun',
         bio: 'Conductora desde Roquetas al campus de la UAL.',

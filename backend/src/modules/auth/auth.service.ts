@@ -230,6 +230,7 @@ export class AuthService {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      phoneVerified: user.phoneVerifiedAt !== null,
       profiles: this.usersService.getActiveProfiles(user),
       activeMode: user.activeMode,
       timeToleranceMin: user.timeToleranceMin,

@@ -7,7 +7,12 @@ import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { computeConsentFingerprint } from '../src/modules/users/user-consent';
 import { deleteTestUsers } from './support/cleanup';
-import { registerUser, TEST_PHONE } from './support/accounts';
+import {
+  lastSmsCodeSentTo,
+  registerUser,
+  TEST_PHONE,
+  testSmsBox,
+} from './support/accounts';
 
 // GET /api/users/{id} de punta a punta, con permisos por perfil (RNF-04).
 // Los usuarios llevan el prefijo EMAIL_PREFIX y se borran después de cada test
@@ -100,6 +105,7 @@ describe('Users API (e2e)', () => {
       name: 'ana',
       email: `${EMAIL_PREFIX}ana@ual.es`,
       phone: TEST_PHONE,
+      phoneVerified: false,
       profiles: ['passenger'],
       activeMode: null,
       timeToleranceMin: 15,
@@ -821,6 +827,90 @@ describe('Users API (e2e)', () => {
       await request(app.getHttpServer())
         .get('/api/users/me/consents')
         .expect(401);
+    });
+  });
+
+  // Verificación del teléfono por SMS (OTP de 6 cifras)
+  describe('POST /api/users/me/phone-verification and /confirm', () => {
+    it('sends a 6-digit SMS code, verifies the phone, records user.phone_verified without the phone and resets when the phone changes', async () => {
+      const ana = await createUser('ana');
+
+      await request(app.getHttpServer())
+        .post('/api/users/me/phone-verification')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .expect(202);
+
+      const code = lastSmsCodeSentTo(app, TEST_PHONE);
+      const verified = await request(app.getHttpServer())
+        .post('/api/users/me/phone-verification/confirm')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .send({ code })
+        .expect(200);
+
+      expect(verified.body).toMatchObject({
+        '@type': 'User',
+        id: ana.id,
+        phone: TEST_PHONE,
+        phoneVerified: true,
+      });
+
+      const events = await dataSource.query<{ payload: object }[]>(
+        `SELECT payload FROM events
+          WHERE type = 'user.phone_verified' AND source_entity_id = $1`,
+        [ana.id],
+      );
+      expect(events).toEqual([{ payload: {} }]);
+      expect(JSON.stringify(events)).not.toContain(TEST_PHONE);
+
+      // Cambiar el número en PATCH /api/users/me pone phoneVerified a false
+      const changed = await updateMe(
+        { phone: '+34611223344' },
+        ana.accessToken,
+      ).expect(200);
+      expect(changed.body).toMatchObject({
+        phone: '+34611223344',
+        phoneVerified: false,
+      });
+    });
+
+    it('cancels the code after 3 wrong attempts (429 TOO_MANY_ATTEMPTS)', async () => {
+      const ana = await createUser('ana');
+      await request(app.getHttpServer())
+        .post('/api/users/me/phone-verification')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .expect(202);
+      const code = lastSmsCodeSentTo(app, TEST_PHONE);
+      const wrong = code === '000000' ? '000001' : '000000';
+
+      for (const expectedStatus of [400, 400, 429]) {
+        const res = await request(app.getHttpServer())
+          .post('/api/users/me/phone-verification/confirm')
+          .set('Authorization', `Bearer ${ana.accessToken}`)
+          .send({ code: wrong })
+          .expect(expectedStatus);
+        expect(res.body).toMatchObject({
+          code:
+            expectedStatus === 429
+              ? 'TOO_MANY_ATTEMPTS'
+              : 'INVALID_VERIFICATION_CODE',
+        });
+      }
+    });
+
+    it('rejects verifying when the user has no phone saved (409 PHONE_REQUIRED)', async () => {
+      const ana = await createUser('ana');
+      await dataSource.query('UPDATE users SET phone = NULL WHERE id = $1', [
+        ana.id,
+      ]);
+
+      const countBefore = testSmsBox(app).sentTo(TEST_PHONE).length;
+      const res = await request(app.getHttpServer())
+        .post('/api/users/me/phone-verification')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .expect(409);
+
+      expect(res.body).toMatchObject({ code: 'PHONE_REQUIRED' });
+      expect(testSmsBox(app).sentTo(TEST_PHONE)).toHaveLength(countBefore);
     });
   });
 });

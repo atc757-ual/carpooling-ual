@@ -4,6 +4,7 @@ export type DomainEventType =
   // Usuarios (tabla de entidades del Gemelo Digital: registro y perfiles)
   | 'user.registered'
   | 'user.email_verified'
+  | 'user.phone_verified'
   | 'user.profile_activated'
   | 'user.profile_deactivated'
   // Cambia los datos de su cuenta (nombre, teléfono o tolerancia horaria)

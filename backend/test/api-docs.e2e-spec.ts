@@ -98,6 +98,8 @@ describe('API docs (e2e)', () => {
       '/api/users/me/incidents',
       '/api/users/me/notifications',
       '/api/users/me/notifications/read',
+      '/api/users/me/phone-verification',
+      '/api/users/me/phone-verification/confirm',
       '/api/users/me/profiles/{profile}',
       '/api/users/me/publishing-status',
       '/api/users/me/requesting-status',

@@ -38,6 +38,13 @@ export class UserResource {
   phone: string | null;
 
   @ApiProperty({
+    description:
+      'Whether the current phone number has been verified by SMS (false if unverified or if the user has no phone)',
+    example: false,
+  })
+  phoneVerified: boolean;
+
+  @ApiProperty({
     enum: ['driver', 'passenger', 'admin'],
     isArray: true,
     example: ['driver', 'passenger'],
@@ -95,6 +102,7 @@ export function toUserResource(user: UserSummary): UserResource {
     name: user.name,
     email: user.email,
     phone: user.phone,
+    phoneVerified: user.phoneVerified,
     profiles: user.profiles,
     activeMode: user.activeMode,
     timeToleranceMin: user.timeToleranceMin,
