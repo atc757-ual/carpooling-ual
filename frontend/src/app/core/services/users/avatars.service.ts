@@ -63,35 +63,16 @@ export class AvatarsService {
 
   // Traduce el catÃ¡logo a geometrÃ­a validada; la plantilla crea los nodos SVG.
   private parseGraphic(svg: string): AvatarGraphic | null {
-    if (/<!DOCTYPE|<!ENTITY/i.test(svg)) {
-      return null;
-    }
-    const root = new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement;
-    if (root.localName !== 'svg' || root.namespaceURI !== 'http://www.w3.org/2000/svg') {
-      return null;
-    }
+    const root = this.parseRoot(svg);
+    if (!root) return null;
+
     const viewBox = root.getAttribute('viewBox');
     if (!viewBox || !/^\s*\d+(?:\.\d+)?(?:\s+\d+(?:\.\d+)?){3}\s*$/.test(viewBox)) {
       return null;
     }
-    if ([...root.attributes].some(({ name }) => !ROOT_ATTRIBUTES.has(name))) {
-      return null;
-    }
-
-    const shapes: AvatarShape[] = [];
-    for (const node of [...root.childNodes]) {
-      if (node.nodeType === Node.TEXT_NODE && !node.textContent?.trim()) {
-        continue;
-      }
-      if (node.nodeType !== Node.ELEMENT_NODE) {
-        return null;
-      }
-      const shape = this.parseShape(node as Element);
-      if (!shape) {
-        return null;
-      }
-      shapes.push(shape);
-    }
+    if (!this.hasOnlyRootAttributes(root)) return null;
+    const shapes = this.parseShapes(root);
+    if (!shapes) return null;
 
     return {
       viewBox,
@@ -113,10 +94,41 @@ export class AvatarsService {
     };
   }
 
+  private parseRoot(svg: string): Element | null {
+    if (/<!DOCTYPE|<!ENTITY/i.test(svg)) return null;
+    const root = new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement;
+    return root.localName === 'svg' && root.namespaceURI === 'http://www.w3.org/2000/svg'
+      ? root
+      : null;
+  }
+
+  private hasOnlyRootAttributes(root: Element): boolean {
+    for (const attribute of root.attributes) {
+      if (!ROOT_ATTRIBUTES.has(attribute.name)) return false;
+    }
+    return true;
+  }
+
+  private parseShapes(root: Element): AvatarShape[] | null {
+    const shapes: AvatarShape[] = [];
+    for (const node of root.childNodes) {
+      if (node.nodeType === Node.TEXT_NODE && !node.textContent?.trim()) continue;
+      if (node.nodeType !== Node.ELEMENT_NODE) return null;
+      const shape = this.parseShape(node as Element);
+      if (!shape) return null;
+      shapes.push(shape);
+    }
+    return shapes;
+  }
+
   private parseShape(element: Element): AvatarShape | null {
     const number = (name: string): string | null => this.safeNumber(element.getAttribute(name));
-    const onlyAttributes = (...names: string[]): boolean =>
-      [...element.attributes].every(({ name }) => names.includes(name));
+    const onlyAttributes = (...names: string[]): boolean => {
+      for (const attribute of element.attributes) {
+        if (!names.includes(attribute.name)) return false;
+      }
+      return true;
+    };
 
     if (element.localName === 'path' && onlyAttributes('d')) {
       const d = element.getAttribute('d');

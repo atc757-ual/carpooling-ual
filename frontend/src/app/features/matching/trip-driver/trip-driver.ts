@@ -53,14 +53,15 @@ export class TripDriver {
   // «42 viajes · Correo UAL verificado» (cada parte, si se sabe)
   readonly details = computed(() => {
     const { tripCount, rating, isEmailVerified } = this.driver();
-    const parts = [
-      rating === undefined
-        ? 'Nuevo conductor'
-        : tripCount === undefined
-          ? null
-          : formatTripCount(tripCount),
-      isEmailVerified ? 'Correo UAL verificado' : null,
-    ];
+    let tripDetails: string | null;
+    if (rating === undefined) {
+      tripDetails = 'Nuevo conductor';
+    } else if (tripCount === undefined) {
+      tripDetails = null;
+    } else {
+      tripDetails = formatTripCount(tripCount);
+    }
+    const parts = [tripDetails, isEmailVerified ? 'Correo UAL verificado' : null];
     return parts.filter(Boolean).join(' · ');
   });
 }
