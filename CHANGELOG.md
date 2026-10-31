@@ -33,7 +33,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Comando `npm run create-admin` para crear el primer administrador en el despliegue, y guía de despliegue en `docs/despliegue.md` (#15)
 - Vehículos de los conductores (RF-21): alta, consulta, lista paginada y baja en `/api/vehicles` (#16)
 - Ampliaci�n de los datos del veh�culo (marca, modelo, color y motor), migraci�n de los datos existentes y detalles para reconocer el coche en los resultados del matching (#107)
-- Formulario del vehículo ampliado: la marca con buscador (lista local de marcas vendidas en España, generada desde la NHTSA, y «Otra»), el color en 8 opciones a la vista y el motor (eléctrico, híbrido u otro); el coche se muestra con su color en Publicar, en el perfil y en el detalle del viaje (#109)
+- Formulario del vehículo ampliado: la marca con buscador (lista local de marcas vendidas en España, generada desde la NHTSA, y «Otra»), el color en 8 opciones a la vista y el motor (eléctrico, híbrido u otro); el coche se muestra con su color en Publicar, en el perfil y en el detalle del viaje, sin la matrícula hasta tener la plaza aceptada (la búsqueda de la API ya no la envía) (#109)
 - Declaración responsable del conductor y su estado para publicar viajes: `PUT /api/users/me/driver-declaration` y `GET /api/users/me/driver-status` (#16)
 - Paginación TMF630 de listas (`offset`, `limit`, `X-Total-Count`, `X-Result-Count`) (#16)
 - Viajes (RF-04, RF-05): publicar, consultar, listar los propios, modificar mientras están publicados y cancelar antes del inicio, con ubicaciones en GeoJSON (#17)

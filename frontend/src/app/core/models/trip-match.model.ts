@@ -27,5 +27,5 @@ export interface TripMatch {
   timeDifferenceMin: number;
   // De 0 a 1
   score: number;
-  vehicle: { brand: string | null; model: string | null; color: VehicleColor | null; plate: string };
+  vehicle: { brand: string | null; model: string | null; color: VehicleColor | null };
 }

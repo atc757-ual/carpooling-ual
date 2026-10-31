@@ -22,8 +22,10 @@ const COLOR_SWATCHES: Readonly<Record<VehicleColor, string>> = {
   other: '#8b6f9b',
 };
 
-export function vehicleDisplayName(vehicle: Pick<Vehicle, 'brand' | 'model' | 'plate'>): string {
-  return [vehicle.brand, vehicle.model].filter(Boolean).join(' ') || vehicle.plate;
+export function vehicleDisplayName(
+  vehicle: Pick<Vehicle, 'brand' | 'model'> & Partial<Pick<Vehicle, 'plate'>>,
+): string {
+  return [vehicle.brand, vehicle.model].filter(Boolean).join(' ') || (vehicle.plate ?? 'Coche');
 }
 
 export function vehicleColorLabel(color: VehicleColor | null): string {

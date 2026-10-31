@@ -23,5 +23,6 @@ export interface TripResult {
   freeSeats: number;
   // Minutos que se desvía el conductor para recoger al pasajero
   pickupDetourMinutes: number;
-  vehicle?: { brand: string | null; model: string | null; color: VehicleColor | null; plate: string };
+  // Sin la matrícula: solo la ve quien tiene la plaza aceptada (en su solicitud)
+  vehicle?: { brand: string | null; model: string | null; color: VehicleColor | null };
 }
