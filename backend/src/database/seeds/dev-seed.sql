@@ -14,21 +14,23 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- -----------------------------------------------------------------------------
 -- Todos con la misma contraseña (carpooling, hash bcrypt) y con el correo ya
 -- verificado (pueden iniciar sesión sin código): se escriben una sola vez
-INSERT INTO users (id, name, email, password_hash, time_tolerance_min, email_verified_at, terms_accepted_at, avatar_key, bio, pref_conversation, pref_music, pref_smoking, pref_pets)
+INSERT INTO users (id, name, email, password_hash, time_tolerance_min, email_verified_at, terms_accepted_at, phone, phone_verified_at, avatar_key, bio, pref_conversation, pref_music, pref_smoking, pref_pets)
 SELECT seed.id::uuid, seed.name, seed.email,
        crypt('carpooling', gen_salt('bf', 10)), seed.tolerance, now(),
        CASE WHEN seed.accepted_terms THEN date_trunc('milliseconds', now()) ELSE NULL END,
+       seed.phone,
+       CASE WHEN seed.phone_verified THEN now() ELSE NULL END,
        seed.avatar_key, seed.bio,
        seed.pref_conversation::conversation_preference,
        seed.pref_music::music_preference,
        seed.pref_smoking::smoking_preference,
        seed.pref_pets::pets_preference
   FROM (VALUES
-    ('00000000-0000-4000-8000-000000000001', 'Admin UAL',        'admin@ual.es', 15, false, NULL,         NULL,                                                                NULL,      NULL,   NULL, NULL),
-    ('00000000-0000-4000-8000-000000000002', 'Lucía Conductora', 'lucia@ual.es', 10, true,  'sun',        'Conductora habitual desde Roquetas de Mar al campus de La Cañada.', 'chatty',  'soft', 'no', 'small_carrier'),
-    ('00000000-0000-4000-8000-000000000003', 'Mario Pasajero',   'mario@ual.es', 20, true,  'headphones', 'Estudiante en el campus de la UAL. Puntual en las paradas.',        'quiet',   'any',  'no', 'none'),
-    ('00000000-0000-4000-8000-000000000004', 'Sara Mixta',       'sara@ual.es',  15, true,  NULL,         NULL,                                                                'depends', 'soft', 'no', NULL)
-  ) AS seed (id, name, email, tolerance, accepted_terms, avatar_key, bio, pref_conversation, pref_music, pref_smoking, pref_pets);
+    ('00000000-0000-4000-8000-000000000001', 'Admin UAL',        'admin@ual.es', 15, false, NULL,           false, NULL,         NULL,                                                                NULL,      NULL,   NULL, NULL),
+    ('00000000-0000-4000-8000-000000000002', 'Lucía Conductora', 'lucia@ual.es', 10, true,  '+34600111222', true,  'sun',        'Conductora habitual desde Roquetas de Mar al campus de La Cañada.', 'chatty',  'soft', 'no', 'small_carrier'),
+    ('00000000-0000-4000-8000-000000000003', 'Mario Pasajero',   'mario@ual.es', 20, true,  '+34600333444', false, 'headphones', 'Estudiante en el campus de la UAL. Puntual en las paradas.',        'quiet',   'any',  'no', 'none'),
+    ('00000000-0000-4000-8000-000000000004', 'Sara Mixta',       'sara@ual.es',  15, true,  NULL,           false, NULL,         NULL,                                                                'depends', 'soft', 'no', NULL)
+  ) AS seed (id, name, email, tolerance, accepted_terms, phone, phone_verified, avatar_key, bio, pref_conversation, pref_music, pref_smoking, pref_pets);
 
 INSERT INTO user_consents (user_id, type, document_version, action, source, recorded_at, fingerprint)
 SELECT u.id,

@@ -4,6 +4,8 @@ import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { MailSender } from '../../src/shared/mail/mail-sender';
 import { MemoryMailSender } from '../../src/shared/mail/memory-mail-sender';
+import { MemorySmsSender } from '../../src/shared/sms/memory-sms-sender';
+import { SmsSender } from '../../src/shared/sms/sms-sender';
 
 // Teléfono válido para los registros de prueba (formato internacional E.164)
 export const TEST_PHONE = '+34600123456';
@@ -34,6 +36,25 @@ export function lastCodeSentTo(
   const code = /\b\d{6}\b/.exec(testMailbox(app).lastSentTo(email)?.text ?? '');
   if (code === null) {
     throw new Error(`No verification code was sent to ${email}`);
+  }
+  return code[0];
+}
+
+export function testSmsBox(app: INestApplication<App>): MemorySmsSender {
+  const smsSender = app.get(SmsSender);
+  if (!(smsSender instanceof MemorySmsSender)) {
+    throw new Error('The tests need SMS_TRANSPORT=memory');
+  }
+  return smsSender;
+}
+
+export function lastSmsCodeSentTo(
+  app: INestApplication<App>,
+  phone: string,
+): string {
+  const code = /\b\d{6}\b/.exec(testSmsBox(app).lastSentTo(phone)?.text ?? '');
+  if (code === null) {
+    throw new Error(`No SMS verification code was sent to ${phone}`);
   }
   return code[0];
 }

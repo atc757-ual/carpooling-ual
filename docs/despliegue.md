@@ -16,6 +16,8 @@ Partir de [`.env.example`](../.env.example) y revisar en especial:
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE` | El servidor de correo de ese entorno (p. ej. el de la UAL o un proveedor): `SMTP_PORT=465` con `SMTP_SECURE=true`, o `587` con `false` (STARTTLS). **Nunca** el Mailpit de desarrollo (`localhost:1025`): los usuarios no recibirían el código |
 | `SMTP_USER`, `SMTP_PASSWORD` | Las credenciales del servidor SMTP (los dos o ninguno). Son secretos: solo en el `.env` del servidor, nunca en el repositorio |
 | `MAIL_FROM` | Un remitente del dominio del servidor SMTP, p. ej. `Carpooling UAL <no-reply@ual.es>`; si no, muchos servidores rechazan o marcan como spam los correos |
+| `SMS_TRANSPORT` | En desarrollo y demo sin coste, `mailpit` (guarda el SMS en Mailpit con `X-Tags: SMS`); en tests, `memory`. **Pendiente para producción:** conectar el transporte del proveedor real de SMS cuando se contrate |
+| `SMS_OTP_DOMAIN` | El dominio público de la app (p. ej. `carpooling.ual.es`) para que el móvil rellene el código por WebOTP (`@<dominio> #123456`); dejar vacío si no aplica |
 
 Si `JWT_SECRET` o `DATABASE_URL` faltan o no son válidas, el servidor no arranca y explica por qué. Lo mismo con una configuración de correo incompleta (p. ej. `SMTP_USER` sin `SMTP_PASSWORD`).
 

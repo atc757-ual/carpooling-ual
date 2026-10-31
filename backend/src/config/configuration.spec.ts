@@ -257,8 +257,9 @@ describe('loadConfiguration', () => {
       apiDocsEnabled: false,
       osrmUrl: 'http://osrm:5000',
       positionMinIntervalSeconds: 15,
-      // Con Jest (NODE_ENV=test) los correos se quedan en memoria
+      // Con Jest (NODE_ENV=test) los correos y los SMS se quedan en memoria
       mail: expect.objectContaining({ transport: 'memory' }) as unknown,
+      sms: expect.objectContaining({ transport: 'memory' }) as unknown,
     });
   });
 

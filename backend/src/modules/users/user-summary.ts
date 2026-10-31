@@ -18,6 +18,7 @@ export interface UserSummary {
   email: string;
   // NULL en quien no pasó por el registro público (administrador inicial, seed)
   phone: string | null;
+  phoneVerified: boolean;
   profiles: ProfileType[];
   // NULL hasta que elige con qué modo viaja (ver User.activeMode)
   activeMode: RegistrableProfile | null;

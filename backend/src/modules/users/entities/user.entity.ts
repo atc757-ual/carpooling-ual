@@ -49,6 +49,16 @@ export class User {
   @Column({ type: 'varchar', length: 16, nullable: true })
   phone: string | null;
 
+  // Cuándo verificó su teléfono con el código de 6 cifras por SMS. Cambiar el
+  // número de teléfono lo pone a NULL
+  @Column({
+    name: 'phone_verified_at',
+    type: 'timestamptz',
+    nullable: true,
+    default: null,
+  })
+  phoneVerifiedAt: Date | null = null;
+
   // Prueba del consentimiento (RGPD): cuándo aceptó las normas y la política
   // de privacidad al registrarse. NULL en quien no pasó por el registro
   @Column({ name: 'terms_accepted_at', type: 'timestamptz', nullable: true })

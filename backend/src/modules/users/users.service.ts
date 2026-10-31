@@ -144,6 +144,19 @@ export class UsersService {
     await manager.update(User, { id: userId }, { passwordHash });
   }
 
+  async markPhoneVerified(
+    manager: EntityManager,
+    userId: string,
+    phoneVerifiedAt = new Date(),
+  ): Promise<void> {
+    await manager.update(User, { id: userId }, { phoneVerifiedAt });
+    await this.eventsService.record(manager, {
+      type: 'user.phone_verified',
+      sourceEntityId: userId,
+      payload: {},
+    });
+  }
+
   findByEmailWithPassword(email: string): Promise<User | null> {
     return this.usersRepository
       .createQueryBuilder('user')
@@ -200,6 +213,13 @@ export class UsersService {
         return;
       }
       await manager.update(User, { id: userId }, update);
+      if (changedFields.includes('phone')) {
+        await manager.query(
+          `DELETE FROM email_codes
+            WHERE user_id = $1 AND purpose = 'phone_verification'`,
+          [userId],
+        );
+      }
       await this.eventsService.record(manager, {
         type: 'user.updated',
         sourceEntityId: userId,
@@ -318,6 +338,7 @@ export class UsersService {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      phoneVerified: user.phoneVerifiedAt !== null,
       profiles: this.getActiveProfiles(user),
       activeMode: user.activeMode,
       timeToleranceMin: user.timeToleranceMin,
@@ -388,6 +409,9 @@ function buildAccountUpdate(
   const update: Partial<User> = Object.fromEntries(
     changedDirect.map((field) => [field, changes[field]]),
   );
+  if (changedDirect.includes('phone')) {
+    update.phoneVerifiedAt = null;
+  }
   const changedFields: string[] = [...changedDirect];
 
   if (changes.preferences !== undefined) {

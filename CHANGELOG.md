@@ -8,6 +8,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Added
+- **Backend:** verificación del teléfono por SMS con `SmsSender` (transportes `mailpit` con etiqueta `X-Tags: SMS` y `memory`), plantilla GSM-7 sin tildes y línea opcional WebOTP (`SMS_OTP_DOMAIN`), columna `users.phone_verified_at` (`phoneVerified` en `User`), endpoints `POST /api/users/me/phone-verification` y `/confirm` y evento `user.phone_verified` (#116).
 - Esquema provisional de la base de datos (PostgreSQL + PostGIS) traducido del modelo entidad-relación, con datos de desarrollo (#1)
 - Plantilla de variables de entorno `.env.example` (#1)
 - Esqueleto del backend en NestJS 12 con los 8 módulos del sistema, configuración desde `.env` y endpoint `GET /api/health` (#5)

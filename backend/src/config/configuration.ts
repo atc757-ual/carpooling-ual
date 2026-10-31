@@ -4,6 +4,7 @@
 // en lugar de provocar errores confusos más tarde.
 
 import { MailConfig, parseMailConfig } from './mail.config';
+import { parseSmsConfig, SmsConfig } from './sms.config';
 
 // Forma de la configuración que usa el resto de la aplicación
 // (se lee con ConfigService, p. ej. configService.get('port')).
@@ -16,6 +17,7 @@ export interface AppConfig {
   osrmUrl: string;
   positionMinIntervalSeconds: number;
   mail: MailConfig;
+  sms: SmsConfig;
 }
 
 // Duración de la sesión (token de renovación), en días
@@ -224,5 +226,6 @@ export function loadConfiguration(): AppConfig {
       process.env.POSITION_MIN_INTERVAL_SECONDS,
     ),
     mail: parseMailConfig(process.env),
+    sms: parseSmsConfig(process.env),
   };
 }
