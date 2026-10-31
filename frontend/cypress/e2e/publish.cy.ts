@@ -14,6 +14,10 @@ const VEHICLE = {
   status: 'available',
 };
 
+function vehicleModal() {
+  return cy.get('ion-modal').shadow().find('app-vehicle-modal');
+}
+
 function accessToken() {
   return {
     '@type': 'AccessToken',
@@ -85,20 +89,29 @@ for (const viewport of VIEWPORTS) {
       cy.location('search').should('eq', '?step=2');
       cy.contains('app-publish-trip', 'Aún no tienes vehículos');
       cy.contains('app-publish-trip .vehicle-picker__add', 'Añadir vehículo').click();
-      cy.get(
-        'app-vehicle-modal app-brand-field ion-input[aria-label="Marca del vehículo"]',
-      ).click();
-      cy.contains('app-vehicle-modal app-brand-field [role="option"]', 'SEAT').click();
-      cy.get('app-vehicle-modal ion-input[formControlName="model"] input').type('Ibiza');
-      cy.get('app-vehicle-modal ion-select[formControlName="color"]').click();
+      vehicleModal()
+        .find('app-brand-field ion-input')
+        .shadow()
+        .find('input')
+        .type('SEAT');
+      vehicleModal()
+        .find('ion-input[formControlName="model"]')
+        .shadow()
+        .find('input')
+        .type('Ibiza');
+      vehicleModal().find('ion-select[formControlName="color"]').click();
       cy.contains('ion-select-popover ion-radio', 'Azul').click();
-      cy.get('app-vehicle-modal ion-select[formControlName="engine"]').click();
+      vehicleModal().find('ion-select[formControlName="engine"]').click();
       cy.contains('ion-select-popover ion-radio', 'Híbrido').click();
-      cy.get('app-vehicle-modal ion-input[formControlName="plate"] input').type('1234 bcd');
+      vehicleModal()
+        .find('ion-input[formControlName="plate"]')
+        .shadow()
+        .find('input')
+        .type('1234 bcd');
       // 5 asientos por defecto; uno menos: 4 (3 plazas para pasajeros)
-      cy.get('app-vehicle-modal button[aria-label="Una plaza menos"]').click();
-      cy.contains('app-vehicle-modal', 'Asientos totales del vehículo.');
-      cy.contains('app-vehicle-modal ion-button', 'Registrar vehículo').click();
+      vehicleModal().find('button[aria-label="Una plaza menos"]').click();
+      vehicleModal().should('contain', 'Asientos totales del vehículo.');
+      vehicleModal().contains('ion-button', 'Registrar vehículo').click();
       cy.wait('@registerVehicle').its('request.body').should('deep.equal', {
         brand: 'SEAT',
         model: 'Ibiza',
