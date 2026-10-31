@@ -1,5 +1,4 @@
 import { Component, computed, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import {
   IonButton,
   IonCard,
@@ -9,6 +8,7 @@ import {
   IonContent,
   IonIcon,
   ModalController,
+  NavController,
 } from '@ionic/angular';
 import { logOutOutline } from 'ionicons/icons';
 import { WELCOME_PATH } from '../../core/guards/redirect-paths';
@@ -42,7 +42,7 @@ import { ConfirmService } from '../../core/services/ui/confirm.service';
 })
 export class ProfilePage {
   private readonly auth = inject(AuthService);
-  private readonly router = inject(Router);
+  private readonly navController = inject(NavController);
   private readonly confirm = inject(ConfirmService);
   private readonly modalController = inject(ModalController);
 
@@ -69,6 +69,6 @@ export class ProfilePage {
       return;
     }
     await this.auth.logout();
-    await this.router.navigateByUrl(WELCOME_PATH);
+    await this.navController.navigateRoot(WELCOME_PATH);
   }
 }

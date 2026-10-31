@@ -1,13 +1,13 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { IonButton, IonContent, IonIcon } from '@ionic/angular';
+import { RouterLink } from '@angular/router';
+import { IonButton, IonContent, IonIcon, NavController } from '@ionic/angular';
 import { checkmarkCircleOutline } from 'ionicons/icons';
 import { WELCOME_PATH } from '../../../core/guards/redirect-paths';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 
 // Final del registro: el correo ya está verificado y la sesión abierta (la abre
-// la verificación). Desde aquí se entra en la app, siempre por Buscar, o se
+// la verificación). Desde aquí se entra en la app, siempre por Publicar, o se
 // cierra la sesión y se vuelve a la bienvenida (decisión del 30/10/2026).
 // Si el código venía de un login de una cuenta sin verificar, el mensaje habla
 // de correo verificado y no de cuenta creada
@@ -19,7 +19,7 @@ import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-l
 })
 export class AccountCreatedPage {
   private readonly auth = inject(AuthService);
-  private readonly router = inject(Router);
+  private readonly navController = inject(NavController);
 
   private readonly isNewAccount = this.auth.isNewAccount();
   readonly isLeaving = signal(false);
@@ -42,7 +42,7 @@ export class AccountCreatedPage {
     this.isLeaving.set(true);
     try {
       await this.auth.logout();
-      await this.router.navigateByUrl(WELCOME_PATH);
+      await this.navController.navigateRoot(WELCOME_PATH);
     } finally {
       this.isLeaving.set(false);
     }

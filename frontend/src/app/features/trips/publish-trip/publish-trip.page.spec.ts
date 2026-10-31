@@ -48,6 +48,7 @@ describe('PublishTripPage', () => {
   let driver: Record<string, ReturnType<typeof vi.fn>>;
   let showError: ReturnType<typeof vi.fn>;
   let celebrate: ReturnType<typeof vi.fn>;
+  let currentUser: ReturnType<typeof signal<{ id: string; profiles: string[] } | null>>;
 
   async function openPage(
     url = '/publish',
@@ -62,6 +63,7 @@ describe('PublishTripPage', () => {
     };
     showError = vi.fn().mockResolvedValue(undefined);
     celebrate = vi.fn().mockResolvedValue(undefined);
+    currentUser = signal({ id: 'user-1', profiles: ['driver'] });
     TestBed.configureTestingModule({
       providers: [
         provideIonicAngular(),
@@ -75,7 +77,11 @@ describe('PublishTripPage', () => {
         { provide: DriverService, useValue: driver },
         {
           provide: AuthService,
-          useValue: { hasProfile: () => true, refreshAccessToken: vi.fn().mockResolvedValue('t') },
+          useValue: {
+            currentUser,
+            hasProfile: (profile: string) => currentUser()?.profiles.includes(profile) ?? false,
+            refreshAccessToken: vi.fn().mockResolvedValue('t'),
+          },
         },
         {
           provide: PlacesService,
@@ -248,5 +254,26 @@ describe('PublishTripPage', () => {
     expect(driver['getStatus']).not.toHaveBeenCalled();
     expect(page.vehicles()).toEqual([]);
     expect(page.loadState()).toBe('ready');
+  });
+
+  it('clears the previous account vehicle when a passenger signs in', async () => {
+    await openPage();
+    fillTrip();
+    await page.goToStep(2);
+
+    expect(page.vehicles()).toEqual([VEHICLE]);
+    page.tripForm.controls.vehicleId.setValue('v1');
+    expect(page.tripForm.controls.vehicleId.value).toBe('v1');
+
+    currentUser.set({ id: 'user-2', profiles: ['passenger'] });
+    harness.fixture.detectChanges();
+    await harness.fixture.whenStable();
+
+    expect(page.vehicles()).toEqual([]);
+    expect(page.tripForm.controls.vehicleId.value).toBe('');
+    expect(page.tripForm.controls.place.value).toBeNull();
+    expect(page.tripForm.controls.parking.value).toBe('');
+    expect(page.vehiclesState()).toBe('ready');
+    expect(driver['listVehicles']).toHaveBeenCalledTimes(1);
   });
 });

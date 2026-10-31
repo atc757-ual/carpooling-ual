@@ -100,7 +100,7 @@ export class VerifyPage implements OnInit {
     this.isSubmitting.set(true);
     try {
       await this.auth.verifyEmail({ email: this.email(), code: this.form.getRawValue().code });
-      // Final del registro: desde ahí se entra (siempre a Buscar) o se deja para
+      // Final del registro: desde ahí se entra (siempre a Publicar) o se deja para
       // luego; el aviso de correo verificado lo da esa pantalla
       await this.router.navigateByUrl(ACCOUNT_CREATED_PATH);
     } catch (error) {

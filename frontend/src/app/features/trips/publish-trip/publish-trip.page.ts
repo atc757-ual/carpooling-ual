@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   FormControl,
@@ -107,10 +107,12 @@ export class PublishTripPage implements OnInit {
   readonly loadState = signal<LoadState>('loading');
   // Los vehículos se piden al llegar al paso 2, no antes: el 1 no los necesita
   readonly vehiclesState = signal<LoadState>('loading');
-  private isLoadingVehicles = false;
   readonly vehicles = signal<readonly Vehicle[]>([]);
   readonly hasDeclared = signal(false);
   readonly isSaving = signal(false);
+  private accountId = this.auth.currentUser()?.id ?? null;
+  private accountGeneration = 0;
+  private loadingVehiclesGeneration: number | null = null;
   // El viaje recién publicado (pantalla de confirmación)
   readonly published = signal<PublishedTrip | null>(null);
 
@@ -185,6 +187,39 @@ export class PublishTripPage implements OnInit {
     return step > 1 && step < PUBLISHED_STEP ? { number: step - 1, name: STEPS[step - 2] } : null;
   });
 
+  constructor() {
+    effect(() => {
+      const userId = this.auth.currentUser()?.id ?? null;
+      if (userId === this.accountId) {
+        return;
+      }
+      this.accountId = userId;
+      this.accountGeneration += 1;
+      this.loadingVehiclesGeneration = null;
+      this.vehicles.set([]);
+      this.tripForm.reset({
+        place: null,
+        parking: '',
+        isToCampus: true,
+        date: toIsoDate(new Date()),
+        time: getDefaultTime(new Date(), PUBLISH_LEAD_MINUTES),
+        vehicleId: '',
+        seats: 1,
+        maxDetourMin: DEFAULT_DETOUR,
+        declaration: false,
+      });
+      this.furthestStep.set(1);
+      this.hasDeclared.set(false);
+      this.published.set(null);
+      this.isSaving.set(false);
+      this.vehiclesState.set('loading');
+      this.loadState.set(userId === null ? 'ready' : 'loading');
+      if (userId !== null) {
+        void this.load();
+      }
+    });
+  }
+
   private readonly selectedParking = computed(() =>
     this.parkings().find(({ id }) => id === this.tripValue().parking),
   );
@@ -211,12 +246,16 @@ export class PublishTripPage implements OnInit {
   // Lo que necesita el paso 1 (los parkings) y el estado del conductor (paso 3).
   // La lista de vehículos se pide al entrar en el paso 2 (loadVehicles)
   async load(): Promise<void> {
+    const generation = this.accountGeneration;
     this.loadState.set('loading');
     try {
       // Sin perfil de conductor (aún sin coche) no hay estado que pedir: el
       // paso 2 empieza por registrar el vehículo
       if (!this.auth.hasProfile('driver')) {
         await this.places.loadParkings();
+        if (generation !== this.accountGeneration) {
+          return;
+        }
         this.hasDeclared.set(false);
         this.vehicles.set([]);
         this.vehiclesState.set('ready');
@@ -224,28 +263,52 @@ export class PublishTripPage implements OnInit {
         return;
       }
       const [status] = await Promise.all([this.driver.getStatus(), this.places.loadParkings()]);
+      if (generation !== this.accountGeneration) {
+        return;
+      }
       this.hasDeclared.set(status.hasLicenseDeclared);
       this.loadState.set('ready');
+      if (this.step() === 2) {
+        await this.loadVehicles();
+      }
     } catch {
-      this.loadState.set('error');
+      if (generation === this.accountGeneration) {
+        this.loadState.set('error');
+      }
     }
   }
 
   // La lista de vehículos, al llegar al paso 2. Si falla, la pantalla da un
   // aviso con «Reintentar» en vez de quedarse cargando
   async loadVehicles(): Promise<void> {
-    if (this.isLoadingVehicles || this.vehiclesState() === 'ready') {
+    const generation = this.accountGeneration;
+    if (
+      this.loadingVehiclesGeneration === generation ||
+      this.vehiclesState() === 'ready' ||
+      !this.auth.hasProfile('driver')
+    ) {
+      if (!this.auth.hasProfile('driver')) {
+        this.vehicles.set([]);
+        this.vehiclesState.set('ready');
+      }
       return;
     }
-    this.isLoadingVehicles = true;
+    this.loadingVehiclesGeneration = generation;
     this.vehiclesState.set('loading');
     try {
-      this.vehicles.set(await this.driver.listVehicles());
-      this.vehiclesState.set('ready');
+      const vehicles = await this.driver.listVehicles();
+      if (generation === this.accountGeneration) {
+        this.vehicles.set(vehicles);
+        this.vehiclesState.set('ready');
+      }
     } catch {
-      this.vehiclesState.set('error');
+      if (generation === this.accountGeneration) {
+        this.vehiclesState.set('error');
+      }
     } finally {
-      this.isLoadingVehicles = false;
+      if (this.loadingVehiclesGeneration === generation) {
+        this.loadingVehiclesGeneration = null;
+      }
     }
   }
 
