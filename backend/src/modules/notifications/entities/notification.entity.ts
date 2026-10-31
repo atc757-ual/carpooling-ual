@@ -19,6 +19,7 @@ export const NOTIFICATION_TYPES = [
   'passenger_left',
   'trip_started',
   'incident_reported',
+  'review_requested',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 

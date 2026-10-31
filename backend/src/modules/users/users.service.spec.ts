@@ -97,6 +97,37 @@ describe('UsersService', () => {
           ...EMPTY_TRAVEL_PREFERENCES,
           conversation: 'chatty',
         },
+        ratings: {
+          driver: { averageRating: null, ratingCount: 0 },
+          passenger: { averageRating: null, ratingCount: 0 },
+        },
+      });
+    });
+
+    it('exposes the role average rating only once the user has at least 3 reviews', async () => {
+      usersRepository.findOne.mockResolvedValue(
+        userWith({
+          id: 'user-1',
+          name: 'Ana',
+          email: 'ana@ual.es',
+          driverProfile: {
+            isActive: true,
+            averageRating: 4.8,
+            ratingCount: 3,
+          } as User['driverProfile'],
+          passengerProfile: {
+            isActive: true,
+            averageRating: 4.5,
+            ratingCount: 2,
+          } as User['passengerProfile'],
+        }),
+      );
+
+      const summary = await usersService.getSummary('user-1');
+
+      expect(summary.ratings).toEqual({
+        driver: { averageRating: 4.8, ratingCount: 3 },
+        passenger: { averageRating: null, ratingCount: 2 },
       });
     });
 

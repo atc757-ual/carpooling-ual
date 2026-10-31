@@ -118,6 +118,10 @@ describe('Users API (e2e)', () => {
         smoking: null,
         pets: null,
       },
+      ratings: {
+        driver: { averageRating: null, ratingCount: 0 },
+        passenger: { averageRating: null, ratingCount: 0 },
+      },
     });
   });
 
@@ -139,6 +143,10 @@ describe('Users API (e2e)', () => {
         music: null,
         smoking: null,
         pets: null,
+      },
+      ratings: {
+        driver: { averageRating: null, ratingCount: 0 },
+        passenger: { averageRating: null, ratingCount: 0 },
       },
     });
   });

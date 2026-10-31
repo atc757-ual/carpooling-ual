@@ -22,6 +22,9 @@ export class DriverProfile extends BaseProfile {
   })
   averageRating: number | null;
 
+  @Column({ name: 'rating_count', type: 'int', default: 0 })
+  ratingCount: number;
+
   // RF-21: declaración responsable de licencia en vigor y vehículo apto
   @Column({ name: 'has_license_declared', type: 'boolean', default: false })
   hasLicenseDeclared: boolean;

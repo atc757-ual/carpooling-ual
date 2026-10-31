@@ -61,6 +61,9 @@ export class TripChangesListener implements OnModuleInit {
         await this.closeRequestsOfTrip(manager, trip, ['pending'], 'rejected');
         await this.notifyDriverOnTheWay(manager, trip);
       }
+      if (to === 'finished') {
+        await this.notifyReviewRequested(manager, trip);
+      }
     });
 
     this.usersService.onUserDeactivating((manager, userId) =>
@@ -154,6 +157,30 @@ export class TripChangesListener implements OnModuleInit {
     );
   }
 
+  // Al terminar un viaje con pasajeros aceptados, avisa al conductor y a cada
+  // pasajero aceptado para que puedan valorarse mutuamente (RF-22)
+  private async notifyReviewRequested(
+    manager: EntityManager,
+    trip: Trip,
+  ): Promise<void> {
+    const accepted = await manager.find(SeatRequest, {
+      where: { tripId: trip.id, status: 'accepted' },
+    });
+    if (accepted.length === 0) {
+      return;
+    }
+    await this.notificationsService.notify(manager, [trip.driverId], {
+      type: 'review_requested',
+      tripId: trip.id,
+    });
+    await notifyPassengersSequentially(
+      this.notificationsService,
+      manager,
+      trip.id,
+      accepted,
+    );
+  }
+
   // Pasajeros con la solicitud aceptada en el viaje
   private async acceptedPassengersOf(
     manager: EntityManager,
@@ -196,4 +223,29 @@ export class TripChangesListener implements OnModuleInit {
       }),
     );
   }
+}
+
+async function notifyPassengersSequentially(
+  notificationsService: NotificationsService,
+  manager: EntityManager,
+  tripId: string,
+  requests: readonly SeatRequest[],
+  index = 0,
+): Promise<void> {
+  if (index >= requests.length) {
+    return;
+  }
+  const request = requests[index];
+  await notificationsService.notify(manager, [request.passengerId], {
+    type: 'review_requested',
+    tripId,
+    requestId: request.id,
+  });
+  await notifyPassengersSequentially(
+    notificationsService,
+    manager,
+    tripId,
+    requests,
+    index + 1,
+  );
 }

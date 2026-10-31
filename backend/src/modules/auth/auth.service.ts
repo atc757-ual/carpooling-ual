@@ -5,7 +5,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { compare, hash, hashSync } from 'bcryptjs';
 import { AccessTokenPayload } from '../../shared/auth/access-token-payload';
 import { User } from '../users/entities/user.entity';
-import { UserSummary } from '../users/user-summary';
+import { toUserRatingsSummary, UserSummary } from '../users/user-summary';
 import { EmailAlreadyRegisteredError } from '../users/errors/email-already-registered.error';
 import { UsersService } from '../users/users.service';
 import { EmailVerificationService } from './email-verification.service';
@@ -244,6 +244,7 @@ export class AuthService {
         smoking: user.smokingPreference ?? null,
         pets: user.petsPreference ?? null,
       },
+      ratings: toUserRatingsSummary(user),
     };
   }
 }

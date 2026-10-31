@@ -15,7 +15,12 @@ import { UserNotFoundError } from './errors/user-not-found.error';
 import { PROFILE_ENTITIES } from './profile-entities';
 import { ProfileType } from './profile-type';
 import type { AvatarKey, TravelPreferences } from './travel-preferences';
-import { PublicUserProfile, UserSummary } from './user-summary';
+import {
+  PublicUserProfile,
+  RoleRatingSummary,
+  toUserRatingsSummary,
+  UserSummary,
+} from './user-summary';
 import { VehiclesService } from './vehicles.service';
 
 // Lo que el usuario puede cambiar de su cuenta y su perfil público
@@ -60,6 +65,8 @@ export type UserDeactivatingListener = (
   userId: string,
 ) => Promise<void>;
 
+export type BeforeUserSummaryListener = (userId: string) => Promise<void>;
+
 const PROFILE_RELATIONS = {
   driverProfile: true,
   passengerProfile: true,
@@ -74,6 +81,7 @@ const EMAIL_UNIQUE_CONSTRAINT = 'users_email_key';
 @Injectable()
 export class UsersService {
   private readonly deactivatingListeners: UserDeactivatingListener[] = [];
+  private readonly beforeSummaryListeners: BeforeUserSummaryListener[] = [];
 
   constructor(
     private readonly dataSource: DataSource,
@@ -89,6 +97,12 @@ export class UsersService {
   // transacción cuando un usuario elimina su cuenta, sin acoplar users a ellos
   onUserDeactivating(listener: UserDeactivatingListener): void {
     this.deactivatingListeners.push(listener);
+  }
+
+  // Patrón observador: p. ej. reputation publica las reseñas cuyo plazo de 7
+  // días ya ha vencido antes de leer las medias del usuario
+  onBeforeUserSummary(listener: BeforeUserSummaryListener): void {
+    this.beforeSummaryListeners.push(listener);
   }
 
   async createWithProfiles(
@@ -322,6 +336,25 @@ export class UsersService {
     );
   }
 
+  // RF-22: actualiza la media y el número de reseñas publicadas del perfil de
+  // conductor o de pasajero en la misma transacción en que se publica una reseña
+  async setRoleRating(
+    manager: EntityManager,
+    userId: string,
+    role: 'driver' | 'passenger',
+    rating: RoleRatingSummary,
+  ): Promise<void> {
+    const entity = role === 'driver' ? DriverProfile : PassengerProfile;
+    await manager.update(
+      entity,
+      { userId },
+      {
+        averageRating: rating.averageRating,
+        ratingCount: rating.ratingCount,
+      },
+    );
+  }
+
   // Nombres de varios usuarios en UNA consulta (para las listas: evita una
   // consulta por cada fila)
   async getNames(userIds: string[]): Promise<Map<string, string>> {
@@ -378,6 +411,9 @@ export class UsersService {
 
   // Datos de la cuenta de un usuario (GET /api/users/me, GET /api/users/{id})
   async getSummary(id: string): Promise<UserSummary> {
+    await Promise.all(
+      this.beforeSummaryListeners.map((listener) => listener(id)),
+    );
     const user = await this.findById(id);
     if (user?.deactivatedAt !== null) {
       throw new UserNotFoundError(id);
@@ -394,6 +430,7 @@ export class UsersService {
       avatarKey: user.avatarKey,
       bio: user.bio,
       preferences: toTravelPreferences(user),
+      ratings: toUserRatingsSummary(user),
     };
   }
 

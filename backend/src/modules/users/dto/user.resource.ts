@@ -9,6 +9,34 @@ import { AVATAR_KEYS, type AvatarKey } from '../travel-preferences';
 import { UserSummary } from '../user-summary';
 import { TravelPreferencesResource } from './travel-preferences.resource';
 
+export class RoleRatingResource {
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    minimum: 1,
+    maximum: 5,
+    example: 4.8,
+    description:
+      'Average rating (1–5) when the user has at least 3 published reviews in this role; null otherwise ("New driver" / "New passenger")',
+  })
+  averageRating: number | null;
+
+  @ApiProperty({
+    minimum: 0,
+    example: 5,
+    description: 'Number of published reviews received in this role',
+  })
+  ratingCount: number;
+}
+
+export class UserRatingsResource {
+  @ApiProperty({ type: RoleRatingResource })
+  driver: RoleRatingResource;
+
+  @ApiProperty({ type: RoleRatingResource })
+  passenger: RoleRatingResource;
+}
+
 // Recurso TMF630 User: con @type, id y href (enlace al propio recurso,
 // GET /api/users/{id}). Pertenece al módulo users; auth lo reutiliza en el
 // registro y en /me. Es una clase para que OpenAPI pueda describirlo
@@ -88,6 +116,9 @@ export class UserResource {
 
   @ApiProperty({ type: TravelPreferencesResource })
   preferences: TravelPreferencesResource;
+
+  @ApiProperty({ type: UserRatingsResource })
+  ratings: UserRatingsResource;
 }
 
 export function userHref(id: string): string {
@@ -109,5 +140,6 @@ export function toUserResource(user: UserSummary): UserResource {
     avatarKey: user.avatarKey,
     bio: user.bio,
     preferences: user.preferences,
+    ratings: user.ratings,
   };
 }

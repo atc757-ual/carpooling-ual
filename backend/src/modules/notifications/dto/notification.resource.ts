@@ -30,7 +30,7 @@ export class NotificationResource {
   @ApiProperty({
     enum: NOTIFICATION_TYPES,
     description:
-      'request_received (to the driver), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), incident_reported (to the administrators)',
+      'request_received (to the driver), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver and accepted passengers when the trip finishes), incident_reported (to the administrators)',
   })
   type: NotificationType;
 
@@ -40,7 +40,8 @@ export class NotificationResource {
   @ApiProperty({
     type: NotificationLinkResource,
     nullable: true,
-    description: 'The seat request; null in incident_reported',
+    description:
+      'The seat request; null in incident_reported and in review_requested for the driver',
   })
   request: NotificationLinkResource | null;
 

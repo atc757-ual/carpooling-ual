@@ -77,8 +77,6 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `AVATAR_NOT_FOUND`             | 404  | El avatar (`GET /api/avatars/{id}` o `PATCH /api/users/me`) no existe o está retirado                                                                                                                                                      |
 | `PHONE_REQUIRED`               | 409  | Pedir o confirmar el código de verificación del teléfono (`POST /api/users/me/phone-verification` y `/confirm`) sin tener antes un número guardado en `PATCH /api/users/me`                                                                |
 | `ACCOUNT_HAS_ACTIVE_TRIPS`     | 409  | Confirmar la eliminación de la cuenta (`POST /api/users/me/account-deletion/confirm`) teniendo viajes sin terminar como conductor (`published`, `confirmed` o `in_progress`) o plazas aceptadas como pasajero en viajes aún no finalizados |
-| `PHONE_REQUIRED` | 409 | Pedir o confirmar el código de verificación del teléfono (`POST /api/users/me/phone-verification` y `/confirm`) sin tener antes un número guardado en `PATCH /api/users/me` |
-| `ACCOUNT_HAS_ACTIVE_TRIPS` | 409 | Confirmar la eliminación de la cuenta (`POST /api/users/me/account-deletion/confirm`) teniendo viajes sin terminar como conductor (`published`, `confirmed` o `in_progress`) o plazas aceptadas como pasajero en viajes aún no finalizados |
 
 ## Vehículos (`users`)
 
@@ -133,6 +131,16 @@ Además, aceptar o cancelar pueden responder `TRIP_FULL`, `TRIP_NOT_OPEN`, `TRIP
 | `INCIDENT_ALREADY_REVIEWED` | 409  | Revisar una incidencia ya revisada: la revisión es definitiva (CU-12)                                                                                   |
 
 Registrar una incidencia puede responder además `TRIP_NOT_IN_PROGRESS` (ver _Viajes_) o `NOT_TRIP_PASSENGER` (ver _Solicitudes de plaza_).
+
+## Reseñas y reputación (`reputation`)
+
+| `code`                  | HTTP | Cuándo                                                                                                                                                                        |
+| ----------------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `REVIEW_NOT_ALLOWED`    | 403  | `POST /api/trips/{tripId}/reviews` en un viaje que no ha terminado (`finished`), valorándose a sí mismo o sin que autor y destinatario sean el conductor y un pasajero aceptado |
+| `REVIEW_WINDOW_CLOSED`  | 409  | Han pasado más de 7 días desde que finalizó el viaje (`finished_at`)                                                                                                          |
+| `REVIEW_ALREADY_EXISTS` | 409  | El autor ya valoró a ese destinatario en el viaje (una reseña no se edita ni se borra)                                                                                        |
+
+Crear una reseña puede responder además `TRIP_NOT_FOUND` (ver _Viajes_).
 
 ## Seguimiento del viaje (`tracking`)
 

@@ -8,6 +8,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Added
+- **Backend:** módulo `reputation` de reseñas por rol (RF-22) con doble ciego y ventana de 7 días (`reviews`, `trips.finished_at`, `rating_count` en `driver_profiles` y `passenger_profiles`, `ratings` en `User` visible a partir de 3 reseñas), endpoints `POST /api/trips/:tripId/reviews`, `GET /api/users/me/reviews` y `GET /api/users/me/pending-reviews`, aviso `review_requested` al terminar un viaje con pasajeros aceptados y eventos `review.created` y `review.published` (#122).
 - **Backend:** la búsqueda y el detalle del viaje incluyen los viajes terminados del conductor, las plazas ofertadas y marca, modelo y color del vehículo; nunca se expone la matrícula (#117).
 - **Backend:** verificación del teléfono por SMS con `SmsSender` (transportes `mailpit` con etiqueta `X-Tags: SMS` y `memory`), plantilla GSM-7 sin tildes y línea opcional WebOTP (`SMS_OTP_DOMAIN`), columna `users.phone_verified_at` (`phoneVerified` en `User`), endpoints `POST /api/users/me/phone-verification` y `/confirm` y evento `user.phone_verified` (#116).
 - Esquema provisional de la base de datos (PostgreSQL + PostGIS) traducido del modelo entidad-relación, con datos de desarrollo (#1)

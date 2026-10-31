@@ -23,6 +23,9 @@ export class PassengerProfile extends BaseProfile {
   })
   averageRating: number | null;
 
+  @Column({ name: 'rating_count', type: 'int', default: 0 })
+  ratingCount: number;
+
   // RF-24: prioridad alta en el matching tras sufrir una cancelación
   @Column({ name: 'has_high_priority', type: 'boolean', default: false })
   hasHighPriority: boolean;

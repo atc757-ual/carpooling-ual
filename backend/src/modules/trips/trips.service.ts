@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import type { Point } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import type { AvatarKey, TravelPreferences } from '../users/travel-preferences';
@@ -352,6 +352,45 @@ export class TripsService {
 
   private getDriverTripCount(driverId: string): Promise<number> {
     return this.tripsRepository.countBy({ driverId, status: 'finished' });
+  }
+
+  // Varios viajes por id en una sola consulta (para las listas de reseñas, RF-22)
+  async getByIds(tripIds: string[]): Promise<Map<string, Trip>> {
+    const uniqueIds = [...new Set(tripIds)];
+    if (uniqueIds.length === 0) {
+      return new Map();
+    }
+    const trips = await this.tripsRepository.find({
+      where: { id: In(uniqueIds) },
+    });
+    return new Map(trips.map((trip) => [trip.id, trip]));
+  }
+
+  // Viajes terminados dentro de la ventana de reseñas en los que el usuario
+  // participó como conductor o como pasajero aceptado (RF-22)
+  async findFinishedSinceForParticipant(
+    userId: string,
+    acceptedTripIds: string[],
+    finishedSince: Date,
+  ): Promise<Trip[]> {
+    const qb = this.tripsRepository
+      .createQueryBuilder('trip')
+      .where('trip.status = :status', { status: 'finished' })
+      .andWhere('COALESCE(trip.finishedAt, trip.updatedAt) > :finishedSince', {
+        finishedSince,
+      });
+    if (acceptedTripIds.length > 0) {
+      qb.andWhere(
+        '(trip.driverId = :userId OR trip.id IN (:...acceptedTripIds))',
+        { userId, acceptedTripIds },
+      );
+    } else {
+      qb.andWhere('trip.driverId = :userId', { userId });
+    }
+    return qb
+      .orderBy('COALESCE(trip.finishedAt, trip.updatedAt)', 'DESC')
+      .addOrderBy('trip.id', 'ASC')
+      .getMany();
   }
 
   private toViewWithProfile(
