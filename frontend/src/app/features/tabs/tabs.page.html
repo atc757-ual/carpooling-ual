@@ -9,7 +9,7 @@
   >
     <ion-icon slot="icon-only" [icon]="bellIcon" aria-hidden="true" />
     @if (unreadCount() > 0) {
-      <ion-badge class="unread-badge" aria-hidden="true">{{ unreadBadge() }}</ion-badge>
+      <span class="bell-button__unread-dot" aria-hidden="true"></span>
     }
   </ion-button>
   <!-- La misma confirmación que en el Perfil -->

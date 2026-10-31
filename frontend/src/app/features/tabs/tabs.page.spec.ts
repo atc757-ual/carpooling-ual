@@ -105,9 +105,21 @@ describe('TabsPage', () => {
     expect(page.bellLabel()).toBe('Avisos');
     unread.set(12);
     expect(page.bellLabel()).toBe('Avisos, 12 sin leer');
-    expect(page.unreadBadge()).toBe('9+');
-    unread.set(3);
-    expect(page.unreadBadge()).toBe('3');
+  });
+
+  it('shows a compact unread dot without a number', async () => {
+    render();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.bell-button__unread-dot')).toBeNull();
+
+    unread.set(2);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const bell = fixture.nativeElement.querySelector('.bell-button');
+    expect(bell?.getAttribute('aria-label')).toBe('Avisos, 2 sin leer');
+    expect(bell?.querySelector('.bell-button__unread-dot')).not.toBeNull();
+    expect(bell?.querySelector('ion-badge')).toBeNull();
   });
 
   it('does not count the notifications without a session (e.g. when logging out)', async () => {
