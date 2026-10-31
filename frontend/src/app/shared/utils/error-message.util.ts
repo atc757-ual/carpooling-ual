@@ -26,7 +26,7 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   SEATS_EXCEED_CAPACITY: 'Ofreces más plazas de las que tiene el vehículo.',
   DEPARTURE_IN_THE_PAST: 'La hora de salida ya ha pasado. Elige una hora posterior.',
   TRIP_OVERLAPS: 'Este horario se cruza con otro de tus viajes. Elige otra hora.',
-  DAILY_TRIP_LIMIT: 'Ya tienes 4 viajes publicados para ese día.',
+  DAILY_TRIP_LIMIT: 'Ya tienes 4 viajes ese día. Elige otro día.',
   TRIP_FULL: 'Ya no quedan plazas suficientes en este viaje. Busca otro viaje.',
   TRIP_NOT_OPEN: 'Este viaje ya no admite solicitudes.',
   REQUEST_ALREADY_EXISTS: 'Ya tienes una solicitud en este viaje.',
@@ -39,5 +39,24 @@ export function getErrorMessage(error: ApiError): string {
     const reference = error.requestId ? ` (referencia: ${error.requestId})` : '';
     return `Ha ocurrido un error en el servidor${reference}. Inténtalo de nuevo.`;
   }
+  if (error.code === 'TRIP_OVERLAPS') {
+    const departure = error.apiMessage?.match(/departing at (\S+)/)?.[1];
+    const time = departure ? formatTripTime(departure) : null;
+    return time
+      ? `Ya tienes un viaje a esa hora (sale a las ${time}). Elige otra hora.`
+      : 'Ya tienes un viaje a esa hora. Elige otra hora.';
+  }
   return ERROR_MESSAGES[error.code] ?? ERROR_MESSAGES[UNKNOWN_ERROR];
+}
+
+function formatTripTime(isoDate: string): string | null {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+  return new Intl.DateTimeFormat('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(date);
 }

@@ -19,14 +19,16 @@ interface TmfErrorBody {
 }
 
 function isTmfErrorBody(body: unknown): body is TmfErrorBody {
-  return typeof body === 'object' && body !== null && typeof (body as TmfErrorBody).code === 'string';
+  return (
+    typeof body === 'object' && body !== null && typeof (body as TmfErrorBody).code === 'string'
+  );
 }
 
 export class ApiError extends Error {
   constructor(
     readonly code: string,
     readonly status: number,
-    readonly details: { fields?: ApiFieldError[]; requestId?: string } = {},
+    readonly details: { fields?: ApiFieldError[]; requestId?: string; message?: string } = {},
   ) {
     super(code);
     this.name = 'ApiError';
@@ -39,6 +41,10 @@ export class ApiError extends Error {
   // Referencia del error para soporte (cabecera X-Request-Id de la respuesta)
   get requestId(): string | undefined {
     return this.details.requestId;
+  }
+
+  get apiMessage(): string | undefined {
+    return this.details.message;
   }
 
   static fromHttpError(error: unknown): ApiError {
@@ -54,7 +60,11 @@ export class ApiError extends Error {
     }
     const requestId = error.headers?.get('X-Request-Id') ?? undefined;
     if (isTmfErrorBody(error.error)) {
-      return new ApiError(error.error.code, error.status, { fields: error.error.fields, requestId });
+      return new ApiError(error.error.code, error.status, {
+        fields: error.error.fields,
+        requestId,
+        message: error.error.message,
+      });
     }
     return new ApiError(UNKNOWN_ERROR, error.status, { requestId });
   }
