@@ -1,0 +1,4 @@
+# La guía de estilos se escribe a mano con un elemento por línea; Prettier la
+# triplicaría de tamaño (de ~1 100 a ~4 000 líneas) y se leería peor. El CI no
+# la revisa: se edita respetando su formato actual
+docs/guia-estilos.html
