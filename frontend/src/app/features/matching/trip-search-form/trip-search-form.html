@@ -1,6 +1,21 @@
 <form class="search-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+  <!-- Lo que se ahorra en este trayecto dejando el coche en casa (estimación
+       de ejemplo, con la dirección y el parking elegidos; antes, qué se verá) -->
+  <div class="notice notice--success search-form__impact" aria-live="polite">
+    <ion-icon [icon]="impactIcon" aria-hidden="true" />
+    @if (impact(); as impact) {
+      <p>
+        Compartiendo este trayecto ahorras aproximadamente <b>{{ impact.km }} km</b> al volante,
+        <b>{{ formatDecimal(impact.co2Kg) }} kg de CO₂</b> y
+        <b>{{ formatDecimal(impact.fuelEuros) }} €</b> de gasolina.
+      </p>
+    } @else {
+      <p>Elige de dónde sales y te decimos cuánto ahorras compartiendo el trayecto.</p>
+    }
+  </div>
+
   <!-- Trayecto: una dirección y un parking del campus (RouteFields) -->
-  <app-route-fields [controls]="form.controls" />
+  <app-route-fields [controls]="form.controls" [showLabel]="false" />
 
   <!-- Fecha, hora, margen y plazas: de dos en dos y, en pantallas
        anchas, los cuatro en una fila -->
@@ -33,24 +48,16 @@
     <app-seat-stepper formControlName="seats" label="Plazas" [min]="minSeats" [max]="maxSeats" />
   </div>
 
-  <!-- Lo que se ahorra en este trayecto dejando el coche en casa (estimación
-       de ejemplo, con la dirección y el parking elegidos; antes, qué se verá) -->
-  <div class="notice notice--success search-form__impact" aria-live="polite">
-    <ion-icon [icon]="impactIcon" aria-hidden="true" />
-    @if (impact(); as impact) {
-      <p>
-        Compartiendo este trayecto ahorras aproximadamente <b>{{ impact.km }} km</b> al volante,
-        <b>{{ formatDecimal(impact.co2Kg) }} kg de CO₂</b> y
-        <b>{{ formatDecimal(impact.fuelEuros) }} €</b> de gasolina.
-      </p>
-    } @else {
-      <p>Elige de dónde sales y te decimos cuánto ahorras compartiendo el trayecto.</p>
+  <!-- «Nueva búsqueda» (solo en Buscar y con algo que borrar) a la izquierda
+       y «Buscar viaje» a la derecha; en el móvil, uno debajo del otro -->
+  <div class="search-form__actions">
+    @if (canStartOver()) {
+      <button class="search-form__new" type="button" (click)="clear()">Nueva búsqueda</button>
     }
+    <!-- Se activa al elegir la dirección y el parking -->
+    <ion-button type="submit" [disabled]="!isRouteComplete()">
+      <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
+      Buscar viaje
+    </ion-button>
   </div>
-
-  <!-- Se activa al elegir la dirección y el parking -->
-  <ion-button type="submit" expand="block" [disabled]="!isRouteComplete()">
-    <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
-    Buscar viaje
-  </ion-button>
 </form>

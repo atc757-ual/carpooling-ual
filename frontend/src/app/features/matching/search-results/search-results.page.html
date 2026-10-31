@@ -54,7 +54,7 @@
           <ion-card>
             <ion-card-content class="search-results__state" role="status">
               <ion-spinner name="dots" aria-hidden="true" />
-              <div class="text-subtitle">Buscando viajes…</div>
+              <div class="search-results__state-title">Buscando viajes…</div>
               <div class="text-body-s text-color-muted">
                 Estamos buscando coincidencias con tu búsqueda.
               </div>
@@ -64,7 +64,7 @@
           <ion-card>
             <ion-card-content class="search-results__state" role="alert">
               <ion-icon [icon]="errorIcon" aria-hidden="true" />
-              <div class="text-subtitle">No hemos podido buscar viajes</div>
+              <div class="search-results__state-title">No hemos podido buscar viajes</div>
               <div class="text-body-s text-color-muted">{{ errorMessage() }}</div>
               <form (submit)="$event.preventDefault(); handleRetry()">
                 <ion-button type="submit" fill="outline">Reintentar</ion-button>
@@ -77,7 +77,7 @@
           <ion-card>
             <ion-card-content class="search-results__state">
               <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-              <div class="text-subtitle">Aún no hay viajes para esa hora</div>
+              <div class="search-results__state-title">Aún no hay viajes para esa hora</div>
               <div class="text-body-s text-color-muted">
                 Prueba con otro horario o amplía el margen. No cambiaremos tu búsqueda sin avisarte.
               </div>
@@ -108,7 +108,7 @@
         <ion-card>
           <ion-card-content class="search-results__state">
             <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-            <div class="text-subtitle">Aún no has buscado ningún viaje</div>
+            <div class="search-results__state-title">Aún no has buscado ningún viaje</div>
             <ion-button routerLink="/tabs/search" routerDirection="back">Buscar viaje</ion-button>
           </ion-card-content>
         </ion-card>

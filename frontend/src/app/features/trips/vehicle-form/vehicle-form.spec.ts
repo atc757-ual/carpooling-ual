@@ -52,14 +52,6 @@ describe('VehicleForm', () => {
     expect(form.isComplete()).toBe(true);
   });
 
-  it('explains how many passengers fit', () => {
-    expect(form.seatsNotice()).toBe('5 asientos = 1 conductor + hasta 4 pasajeros');
-
-    form.form.controls.totalSeats.setValue(2);
-
-    expect(form.seatsNotice()).toBe('2 asientos = 1 conductor + hasta 1 pasajero');
-  });
-
   it('registers the vehicle with brand and model together and the passenger seats', async () => {
     form.form.setValue({ brand: ' Seat ', model: ' Ibiza ', plate: '1234 bcd', totalSeats: 4 });
 

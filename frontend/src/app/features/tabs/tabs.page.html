@@ -75,6 +75,10 @@
 @if (heading(); as heading) {
   <div class="greeting-bar" [class.ion-hide-md-down]="heading.breadcrumbs">
     <div class="greeting-bar__content">
+      <h1 class="greeting-bar__title">{{ heading.title }}</h1>
+      @if (heading.subtitle) {
+        <p class="greeting-bar__subtitle text-body-s text-color-muted">{{ heading.subtitle }}</p>
+      }
       @if (heading.breadcrumbs; as breadcrumbs) {
         <ion-breadcrumbs class="greeting-bar__breadcrumbs">
           @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
@@ -84,10 +88,6 @@
           }
           <ion-breadcrumb [active]="true">{{ heading.title }}</ion-breadcrumb>
         </ion-breadcrumbs>
-      }
-      <h1 class="greeting-bar__title">{{ heading.title }}</h1>
-      @if (heading.subtitle) {
-        <p class="greeting-bar__subtitle text-body-s text-color-muted">{{ heading.subtitle }}</p>
       }
     </div>
   </div>

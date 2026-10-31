@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, output, untracked } from '@angular/core';
+import { Component, computed, effect, inject, input, output, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   FormControl,
@@ -84,6 +84,13 @@ export class TripSearchForm {
   // Avisa de cada búsqueda (en Buscar, para cerrar el formulario aunque se
   // repita la misma)
   readonly searched = output<TripSearch>();
+
+  // «Nueva búsqueda» junto a «Buscar viaje»: solo donde se pide (Buscar) y
+  // con una búsqueda guardada que borrar
+  readonly showNewSearch = input(false);
+  readonly canStartOver = computed(
+    () => this.showNewSearch() && this.searchState.search() !== null,
+  );
 
   readonly form = inject(NonNullableFormBuilder).group({
     // La dirección de fuera del campus (origen al ir, destino al volver),

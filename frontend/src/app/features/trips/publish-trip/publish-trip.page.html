@@ -55,7 +55,7 @@
                   @case (1) {
                     <!-- Ruta: trayecto, fecha y hora y, a la derecha del desvío,
                        «Siguiente» -->
-                    <app-route-fields [controls]="tripForm.controls" />
+                    <app-route-fields [controls]="tripForm.controls" [showLabel]="false" />
                     <div class="publish__grid">
                       <app-datetime-field formControlName="date" label="Fecha" [min]="minDate" />
                       <app-datetime-field
@@ -107,8 +107,8 @@
                       @case ('error') {
                         <div class="notice notice--danger" role="alert">
                           <p>
-                            No hemos podido cargar tus vehículos. Comprueba la conexión e inténtalo de
-                            nuevo.
+                            No hemos podido cargar tus vehículos. Comprueba la conexión e inténtalo
+                            de nuevo.
                           </p>
                         </div>
                         <form (submit)="$event.preventDefault(); loadVehicles()">

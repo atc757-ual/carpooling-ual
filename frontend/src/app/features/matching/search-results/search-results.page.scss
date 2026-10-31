@@ -86,26 +86,29 @@
   background: var(--color-surface);
 }
 
-// Buscando, vacío y error: tarjeta alta con todo centrado; el icono de 32px en
-// un círculo azul claro (los puntos de carga, en el color de los enlaces)
-.search-results__state {
+// Buscando, vacío y error: tarjeta alta con todo centrado; el icono de 24px en
+// un círculo azul claro, como el de los estados de Publicar (los puntos de
+// carga, en el color de los enlaces)
+ion-card-content.search-results__state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--space-s);
-  min-height: 20rem; // 320px
-  padding: var(--space-xxxl) var(--space-l);
+  min-height: 23.4375rem; // 375px, como las tarjetas de Buscar y Publicar
+  // 16px por todos los lados (con el elemento en el selector, gana al 13px
+  // 16px de Ionic)
+  padding: var(--space-base);
   text-align: center;
 
   ion-icon {
     box-sizing: content-box;
-    margin-bottom: var(--space-s);
-    padding: var(--space-base);
+    margin-bottom: var(--space-xs);
+    padding: var(--space-s);
     border-radius: var(--radius-full);
     background: var(--color-primary-subtle);
     color: var(--color-link);
-    font-size: 2rem; // 32px
+    font-size: 1.5rem; // 24px
   }
 
   ion-spinner {
@@ -139,4 +142,9 @@
   padding: var(--space-base);
   padding-bottom: max(var(--space-l), calc(var(--space-base) + env(safe-area-inset-bottom, 0px)));
   background: var(--color-surface);
+}
+
+// El título del estado, como el de «Aún no tienes vehículos» de Publicar
+.search-results__state-title {
+  font-weight: var(--font-weight-semibold);
 }

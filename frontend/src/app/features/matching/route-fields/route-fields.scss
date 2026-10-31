@@ -45,6 +45,8 @@
 // 32px de alto para tocarlo bien
 .route-fields__swap-link {
   display: inline-flex;
+  // A la derecha, también cuando no hay etiqueta (Publicar)
+  margin-inline-start: auto;
   align-items: center;
   gap: var(--space-xs);
   min-height: 2rem; // 32px

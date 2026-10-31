@@ -5,6 +5,9 @@ import { vi } from 'vitest';
 import { Vehicle } from '../../../core/models/driver.model';
 import { PreferencesPlugin } from '../../../core/plugins/preferences-plugin';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { DriverService } from '../../../core/services/drivers/driver.service';
+import { ConfirmService } from '../../../core/services/ui/confirm.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { DEFAULT_VEHICLE_KEY, VehiclePicker, VehiclePickerControls } from './vehicle-picker';
 
 function vehicle(id: string, capacity = 3): Vehicle {
@@ -17,6 +20,9 @@ describe('VehiclePicker', () => {
   let controls: VehiclePickerControls;
   let preferences: { get: ReturnType<typeof vi.fn>; set: ReturnType<typeof vi.fn> };
   let refreshAccessToken: ReturnType<typeof vi.fn>;
+  let isConfirmed: boolean;
+  const deactivateVehicle = vi.fn().mockResolvedValue(undefined);
+  const showSuccess = vi.fn().mockResolvedValue(undefined);
 
   async function render(vehicles: Vehicle[], defaultId: string | null = null): Promise<void> {
     preferences = {
@@ -24,12 +30,17 @@ describe('VehiclePicker', () => {
       set: vi.fn().mockResolvedValue(undefined),
     };
     refreshAccessToken = vi.fn().mockResolvedValue('t');
+    isConfirmed = true;
+    deactivateVehicle.mockClear();
     TestBed.configureTestingModule({
       imports: [VehiclePicker],
       providers: [
         provideIonicAngular(),
         { provide: PreferencesPlugin, useValue: preferences },
         { provide: AuthService, useValue: { hasProfile: () => false, refreshAccessToken } },
+        { provide: DriverService, useValue: { deactivateVehicle } },
+        { provide: ConfirmService, useValue: { ask: () => Promise.resolve(isConfirmed) } },
+        { provide: ToastService, useValue: { showSuccess, showError: vi.fn() } },
       ],
     });
     controls = {
@@ -90,20 +101,35 @@ describe('VehiclePicker', () => {
     expect(controls.vehicleId.value).toBe('3333');
   });
 
-  it('updates the seats of an edited vehicle and drops a removed one', async () => {
+  it('updates the seats of an edited vehicle', async () => {
     await render([vehicle('1111'), vehicle('2222')]);
     dismissWith('saved', vehicle('1111', 2));
 
     await picker.handleEdit(vehicle('1111'));
 
     expect(picker.vehicles()[0].capacity).toBe(2);
+  });
 
-    dismissWith('removed');
-    await picker.handleEdit(vehicle('1111'));
+  it('removes a vehicle from its card after confirming it, and chooses another', async () => {
+    await render([vehicle('1111'), vehicle('2222')]);
+
+    await picker.handleRemove(vehicle('1111'));
     TestBed.tick();
 
+    expect(deactivateVehicle).toHaveBeenCalledWith('1111');
+    expect(showSuccess).toHaveBeenCalledWith('Vehículo eliminado.');
     expect(picker.vehicles().map(({ id }) => id)).toEqual(['2222']);
     expect(controls.vehicleId.value).toBe('2222');
+  });
+
+  it('keeps the vehicle when the removal is not confirmed', async () => {
+    await render([vehicle('1111')]);
+    isConfirmed = false;
+
+    await picker.handleRemove(vehicle('1111'));
+
+    expect(deactivateVehicle).not.toHaveBeenCalled();
+    expect(picker.vehicles()).toHaveLength(1);
   });
 
   it('stops offering to add vehicles at 3', async () => {
@@ -112,6 +138,6 @@ describe('VehiclePicker', () => {
     fixture.detectChanges();
 
     expect(picker.canAdd()).toBe(false);
-    expect(root.querySelector('.vehicle-card--add')).toBeNull();
+    expect(root.querySelector('.vehicle-picker__add')).toBeNull();
   });
 });

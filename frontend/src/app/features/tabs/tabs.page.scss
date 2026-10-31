@@ -8,14 +8,17 @@ ion-tabs {
 }
 
 // Móvil: cabecera con el logotipo a la izquierda, con el margen de la página
-// (16px), y sin línea debajo: sigue la franja blanca del saludo de Inicio
+// (16px), separada del contenido por una línea gris muy clara
 .app-header {
-  border-bottom: 0;
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 }
 
+// 16px por todos los lados
 .app-header ion-toolbar {
-  --padding-start: var(--page-gutter);
-  --padding-end: var(--space-s);
+  --padding-top: var(--space-base);
+  --padding-bottom: var(--space-base);
+  --padding-start: var(--space-base);
+  --padding-end: var(--space-base);
 }
 
 // Móvil: barra de 76px abajo, icono encima del texto. La pestaña activa, en el
@@ -158,7 +161,9 @@ ion-tab-button {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  padding: var(--space-s) var(--page-gutter) var(--space-base);
+  // 16px arriba y abajo; a los lados, el margen de la página (16px en el
+  // móvil, 24px en escritorio)
+  padding: var(--space-base) var(--page-gutter);
 
   p {
     margin: 0;
@@ -191,7 +196,11 @@ ion-tab-button {
 // alineado con el título (sin el relleno de Ionic)
 .greeting-bar__breadcrumbs {
   margin-top: 0;
-  padding: 0;
+  // 16px bajo el subtítulo
+  padding-top: var(--space-base);
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 0;
 
   ion-icon {
     font-size: 1rem; // 16px

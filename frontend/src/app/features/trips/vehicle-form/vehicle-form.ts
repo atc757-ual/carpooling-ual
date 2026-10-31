@@ -51,16 +51,6 @@ export class VehicleForm {
   private readonly status = toSignal(this.form.statusChanges, { initialValue: this.form.status });
   readonly isComplete = computed(() => this.status() === 'VALID');
 
-  private readonly totalSeats = toSignal(this.form.controls.totalSeats.valueChanges, {
-    initialValue: DEFAULT_TOTAL_SEATS,
-  });
-  // «5 asientos = 1 conductor + hasta 4 pasajeros»
-  readonly seatsNotice = computed(() => {
-    const total = this.totalSeats();
-    const passengers = total - 1;
-    return `${total} asientos = 1 conductor + hasta ${passengers} ${passengers === 1 ? 'pasajero' : 'pasajeros'}`;
-  });
-
   protected readonly minTotalSeats = MIN_TOTAL_SEATS;
   protected readonly maxTotalSeats = MAX_TOTAL_SEATS;
 

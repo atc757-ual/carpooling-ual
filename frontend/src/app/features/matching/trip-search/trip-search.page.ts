@@ -1,7 +1,6 @@
 import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  IonButton,
   IonCard,
   IonCardContent,
   IonContent,
@@ -12,7 +11,6 @@ import {
 } from '@ionic/angular';
 import { carOutline, timeOutline } from 'ionicons/icons';
 import { TripSearchForm } from '../trip-search-form/trip-search-form';
-import { TripSearchStateService } from '../trip-search-state.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { FaqCard } from '../../../shared/components/ui/faq-card/faq-card';
 import { SEARCH_FAQS } from '../search-faqs';
@@ -34,7 +32,6 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
     IonItem,
     IonLabel,
     FaqCard,
-    IonButton,
     IonCard,
     IonCardContent,
     IonContent,
@@ -47,7 +44,6 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
 export class TripSearchPage {
   private readonly auth = inject(AuthService);
   private readonly seatRequests = inject(SeatRequestsService);
-  private readonly searchState = inject(TripSearchStateService);
 
   // Sin coche registrado aún: se le invita a publicar
   readonly isDriver = computed(() => {
@@ -66,15 +62,7 @@ export class TripSearchPage {
       : 0,
   );
 
-  // La última búsqueda, o null si aún no se ha buscado
-  readonly search = this.searchState.search;
-
   protected readonly pendingIcon = timeOutline;
   protected readonly carIcon = carOutline;
   protected readonly faqs = SEARCH_FAQS;
-
-  // Empezar de cero: sin búsqueda, el formulario vacío
-  handleNewSearch(): void {
-    this.searchState.clear();
-  }
 }

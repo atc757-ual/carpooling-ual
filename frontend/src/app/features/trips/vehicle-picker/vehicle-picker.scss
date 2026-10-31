@@ -1,4 +1,4 @@
-// Se coloca según su propio ancho: desde 600px, las tarjetas de tres en tres
+// Se coloca según su propio ancho: desde 600px, las tarjetas de dos en dos
 // y las plazas con el botón al lado; por debajo, apiladas
 :host {
   display: block;
@@ -15,17 +15,12 @@
   }
 }
 
-// Sin el borde ni el relleno del fieldset; la etiqueta, a 8px de las tarjetas
+// Sin el borde ni el relleno del fieldset (la etiqueta, solo para lectores)
 .vehicle-picker__group {
   min-width: 0;
   margin: 0;
   padding: 0;
   border: 0;
-
-  legend {
-    margin-bottom: var(--space-s);
-    padding: 0;
-  }
 }
 
 .vehicle-picker__grid {
@@ -105,8 +100,9 @@
   }
 }
 
-// El lápiz, a la derecha y separado del check
-.vehicle-card__edit {
+// El lápiz y la papelera, a la derecha y separados del check; la papelera,
+// en rojo y con las esquinas de la tarjeta
+.vehicle-card__action {
   display: flex;
   flex: none;
   align-items: center;
@@ -115,7 +111,6 @@
   padding: 0;
   border: 0;
   border-inline-start: var(--border-width-s) solid var(--color-border);
-  border-radius: 0 var(--radius-base) var(--radius-base) 0;
   background: none;
   color: var(--color-link);
   font-size: 1.25rem; // 20px
@@ -130,26 +125,33 @@
   }
 }
 
-// «Añadir vehículo»: borde azul liso y el + delante (antes discontinuo, que
-// parecía un hueco sin terminar)
-.vehicle-card--add {
+.vehicle-card__action--danger {
+  border-radius: 0 var(--radius-base) var(--radius-base) 0;
+  color: var(--color-danger);
+
+  &:hover {
+    background: var(--color-danger-subtle);
+  }
+}
+
+// «Añadir vehículo»: enlace arriba a la derecha (el paso ya lleva el nombre)
+.vehicle-picker__add {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-s);
-  min-height: 4rem; // 64px
-  border: var(--border-width-s) solid var(--color-link);
+  align-self: flex-end;
+  gap: var(--space-xs);
+  min-height: 2rem; // 32px
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--color-link);
   font: inherit;
+  font-size: var(--font-size-body-s);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
 
   ion-icon {
-    font-size: 1.25rem; // 20px
-  }
-
-  &:hover {
-    border-color: var(--color-primary);
-    background: var(--color-primary-subtle);
+    font-size: 1.125rem; // 18px
   }
 
   &:focus-visible {
@@ -157,22 +159,32 @@
   }
 }
 
-// Aviso azul con el icono de información a la izquierda
-.vehicle-picker__notice {
-  align-items: flex-start;
+// Sin vehículos: el coche en un círculo azul claro, qué falta y cómo seguir,
+// centrado y a todo el ancho de la rejilla
+.vehicle-picker__empty {
+  display: flex;
+  flex-direction: column;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-l) var(--space-base);
+  border: var(--border-width-s) solid var(--color-border-subtle);
+  border-radius: var(--radius-base);
+  text-align: center;
+}
 
-  > ion-icon {
-    flex: none;
-    margin-top: 0.125rem; // 2px: a la altura de la primera línea
-    color: var(--color-link);
-    font-size: 1.25rem; // 20px
-  }
+.vehicle-picker__empty-icon {
+  box-sizing: content-box;
+  margin-bottom: var(--space-xs);
+  padding: var(--space-s);
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-size: 1.5rem; // 24px
+}
 
-  > div {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
-  }
+.vehicle-picker__empty-title {
+  font-weight: var(--font-weight-semibold);
 }
 
 // Plazas y el botón para seguir: apilados y, con sitio, en una fila con el
@@ -185,7 +197,7 @@
 
 @container (min-width: 600px) {
   .vehicle-picker__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .vehicle-picker__row {

@@ -22,6 +22,8 @@
 
 // Los pasos se colocan según su propio ancho
 .publish__form {
+  // 375px, como las tarjetas de Buscar y de los resultados
+  min-height: 23.4375rem;
   container-type: inline-size;
 }
 

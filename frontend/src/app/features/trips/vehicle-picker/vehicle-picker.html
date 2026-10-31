@@ -1,8 +1,16 @@
 <div class="vehicle-picker">
+  <!-- El paso ya se llama «Vehículo»: la etiqueta, solo para los lectores de
+       pantalla. Arriba a la derecha, «Añadir vehículo» (hasta 3) -->
+  @if (canAdd()) {
+    <button class="vehicle-picker__add" type="button" (click)="handleAdd()">
+      <ion-icon [icon]="icons.add" aria-hidden="true" />
+      Añadir vehículo
+    </button>
+  }
   <!-- Una tarjeta por vehículo: pulsarla lo elige (un radio nativo, oculto);
-       el lápiz, aparte -->
+       el lápiz (asientos) y la papelera, aparte -->
   <fieldset class="vehicle-picker__group">
-    <legend class="text-label text-label--strong">Vehículo</legend>
+    <legend class="visually-hidden">Vehículo</legend>
     <div class="vehicle-picker__grid">
       @for (vehicle of vehicles(); track vehicle.id) {
         @let isSelected = vehicle.id === selectedId();
@@ -29,37 +37,35 @@
             />
           </label>
           <button
-            class="vehicle-card__edit"
+            class="vehicle-card__action"
             type="button"
             [attr.aria-label]="'Editar ' + vehicle.plate"
             (click)="handleEdit(vehicle)"
           >
             <ion-icon [icon]="icons.edit" aria-hidden="true" />
           </button>
+          <button
+            class="vehicle-card__action vehicle-card__action--danger"
+            type="button"
+            [attr.aria-label]="'Eliminar ' + vehicle.plate"
+            (click)="handleRemove(vehicle)"
+          >
+            <ion-icon [icon]="icons.remove" aria-hidden="true" />
+          </button>
         </div>
       }
-      @if (canAdd()) {
-        <button class="vehicle-card vehicle-card--add" type="button" (click)="handleAdd()">
-          <ion-icon [icon]="icons.add" aria-hidden="true" />
-          {{ vehicles().length === 0 ? 'Registrar vehículo' : 'Añadir vehículo' }}
-        </button>
+      @if (vehicles().length === 0) {
+        <!-- Sin vehículos: qué falta y, arriba a la derecha, «Añadir vehículo» -->
+        <div class="vehicle-picker__empty">
+          <ion-icon class="vehicle-picker__empty-icon" [icon]="icons.car" aria-hidden="true" />
+          <p class="vehicle-picker__empty-title">Aún no tienes vehículos</p>
+          <p class="text-body-s text-color-muted">Añade el tuyo para poder publicar el viaje.</p>
+        </div>
       }
     </div>
   </fieldset>
 
-  @if (selectedVehicle(); as vehicle) {
-    <!-- Cuántas plazas se pueden ofrecer con este vehículo -->
-    <div class="notice notice--info vehicle-picker__notice" aria-live="polite">
-      <ion-icon [icon]="icons.info" aria-hidden="true" />
-      <div>
-        <b>Importante</b>
-        <p>
-          En este viaje puedes ofrecer un máximo de
-          {{ plural(vehicle.capacity, 'plaza', 'plazas') }}.
-        </p>
-      </div>
-    </div>
-
+  @if (selectedVehicle()) {
     <!-- Las plazas y, a la derecha, el botón para seguir -->
     <div class="vehicle-picker__row">
       <app-seat-stepper

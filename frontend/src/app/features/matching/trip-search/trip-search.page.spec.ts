@@ -112,7 +112,7 @@ describe('TripSearchPage', () => {
     const root = fixture.nativeElement as HTMLElement;
     expect(root.textContent).toContain('Nueva búsqueda');
 
-    fixture.componentInstance.handleNewSearch();
+    root.querySelector<HTMLButtonElement>('.search-form__new')?.click();
     await fixture.whenStable();
 
     expect(searchState.search()).toBeNull();

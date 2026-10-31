@@ -17,13 +17,18 @@ import {
   carOutline,
   checkmarkCircle,
   ellipseOutline,
-  informationCircleOutline,
   pencilOutline,
+  trashOutline,
 } from 'ionicons/icons';
 import { startWith, switchMap } from 'rxjs';
 import { Vehicle } from '../../../core/models/driver.model';
 import { PreferencesPlugin } from '../../../core/plugins/preferences-plugin';
+import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { DriverService } from '../../../core/services/drivers/driver.service';
+import { CONFIRM_ICONS, ConfirmService } from '../../../core/services/ui/confirm.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
+import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
 import { VehicleModal } from '../vehicle-modal/vehicle-modal';
 
@@ -38,8 +43,9 @@ export interface VehiclePickerControls {
 }
 
 // Paso «Vehículo» de Publicar: una tarjeta por vehículo (se elige pulsándola;
-// el lápiz abre sus datos, donde solo se cambian los asientos), la tarjeta
-// «Añadir vehículo» (hasta 3; sin ninguno, «Registrar vehículo») y, debajo,
+// el lápiz abre sus datos, donde solo se cambian los asientos; la papelera lo
+// elimina tras confirmarlo), «Añadir vehículo» arriba a la derecha (hasta 3;
+// sin ninguno, la tarjeta «Registrar vehículo») y, debajo,
 // cuántos asientos tiene el elegido y las plazas que se ofrecen. Al entrar
 // sale elegido el predeterminado (el último elegido o registrado en este
 // dispositivo) o, sin él, el primero. A la derecha de las plazas, lo que se
@@ -54,6 +60,9 @@ export class VehiclePicker implements OnInit {
   private readonly modalController = inject(ModalController);
   private readonly preferences = inject(PreferencesPlugin);
   private readonly auth = inject(AuthService);
+  private readonly driver = inject(DriverService);
+  private readonly confirm = inject(ConfirmService);
+  private readonly toast = inject(ToastService);
 
   readonly vehicles = model.required<readonly Vehicle[]>();
   // Los controles del formulario de Publicar (form.controls)
@@ -89,7 +98,7 @@ export class VehiclePicker implements OnInit {
     checked: checkmarkCircle,
     unchecked: ellipseOutline,
     edit: pencilOutline,
-    info: informationCircleOutline,
+    remove: trashOutline,
   };
 
   constructor() {
@@ -148,13 +157,33 @@ export class VehiclePicker implements OnInit {
     this.handleSelect(data);
   }
 
-  // El lápiz: sus datos (solo los asientos se cambian) o eliminarlo
+  // El lápiz: sus datos (solo los asientos se cambian)
   async handleEdit(vehicle: Vehicle): Promise<void> {
     const { data, role } = await this.openModal(vehicle);
     if (role === 'saved' && data) {
       this.vehicles.set(this.vehicles().map((item) => (item.id === data.id ? data : item)));
-    } else if (role === 'removed') {
+    }
+  }
+
+  // La papelera: tras confirmarlo, lo da de baja, avisa en verde y lo quita
+  // de la lista (si era el elegido, se elige otro)
+  async handleRemove(vehicle: Vehicle): Promise<void> {
+    const isConfirmed = await this.confirm.ask({
+      header: `¿Eliminar ${vehicle.plate}?`,
+      message: 'Dejará de salir en tus vehículos y no podrás publicar viajes con él.',
+      confirmText: 'Eliminar',
+      isDestructive: true,
+      icon: CONFIRM_ICONS.remove,
+    });
+    if (!isConfirmed) {
+      return;
+    }
+    try {
+      await this.driver.deactivateVehicle(vehicle.id);
+      void this.toast.showSuccess('Vehículo eliminado.');
       this.vehicles.set(this.vehicles().filter(({ id }) => id !== vehicle.id));
+    } catch (error) {
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     }
   }
 

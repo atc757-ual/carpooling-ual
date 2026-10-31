@@ -20,17 +20,7 @@
          que se cambia ahí mismo). El título de la pantalla va en la franja fija -->
     <ion-card class="trip-search__criteria">
       <ion-card-content>
-        <app-trip-search-form />
-        @if (search()) {
-          <!-- Empezar de cero. En un formulario: el botón lo envía (sin click
-               en ion-button) -->
-          <form
-            class="trip-search__edit-actions"
-            (submit)="$event.preventDefault(); handleNewSearch()"
-          >
-            <ion-button type="submit" fill="clear">Nueva búsqueda</ion-button>
-          </form>
-        }
+        <app-trip-search-form [showNewSearch]="true" />
       </ion-card-content>
     </ion-card>
 
