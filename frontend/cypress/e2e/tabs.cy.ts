@@ -31,7 +31,7 @@ function logIn(profiles: string[], activeMode: string | null = null): void {
   cy.get('app-login ion-input[formControlName="email"] input').type(EMAIL);
   cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
   cy.contains('ion-button', 'Iniciar sesión').click();
-  cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
+  cy.location('pathname').should('eq', '/tabs/publish');
 }
 
 for (const viewport of VIEWPORTS) {
@@ -55,10 +55,10 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('GET', '/api/users/me/notifications*', []);
     });
 
-    it('shows the five fixed destinations and opens Buscar', () => {
+    it('shows the five fixed destinations and opens Publicar by default', () => {
       logIn(['passenger']);
 
-      cy.location('pathname').should('eq', '/tabs/search');
+      cy.location('pathname').should('eq', '/tabs/publish');
       destinationLabels().should('deep.equal', [
         'Buscar',
         'Publicar',
@@ -68,8 +68,8 @@ for (const viewport of VIEWPORTS) {
       ]);
     });
 
-    it('opens Publicar when that was the last side used', () => {
-      logIn(['passenger', 'driver'], 'driver');
+    it('opens Publicar even when the passenger side was last used', () => {
+      logIn(['passenger'], 'passenger');
 
       cy.location('pathname').should('eq', '/tabs/publish');
     });
@@ -128,12 +128,12 @@ for (const viewport of VIEWPORTS) {
 
         cy.get('app-tabs .top-nav app-brand-logo').should('be.visible');
         cy.contains('app-tabs .top-nav__hello', '¡Hola, Mario!').should('be.visible');
-        cy.contains('app-tabs .top-nav__link', 'Buscar').should(
+        cy.contains('app-tabs .top-nav__link', 'Publicar').should(
           'have.attr',
           'aria-current',
           'page',
         );
-        cy.contains('app-tabs .greeting-bar', '¿A dónde vamos hoy?').should('be.visible');
+        cy.contains('app-tabs .greeting-bar', 'Publicar viaje').should('be.visible');
         cy.get('app-tabs ion-tab-bar').should('not.be.visible');
       });
     } else {
@@ -146,7 +146,7 @@ for (const viewport of VIEWPORTS) {
         cy.get('app-tabs .app-header .bell-button').should('be.visible');
         cy.get('app-tabs .app-header .logout-button').should('be.visible');
         cy.get('app-tabs .app-header .back-button').should('not.exist');
-        cy.contains('ion-tab-button', 'Buscar').should('have.class', 'tab-selected');
+        cy.contains('ion-tab-button', 'Publicar').should('have.class', 'tab-selected');
       });
     }
 

@@ -76,7 +76,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('ion-input[formControlName="email"]').should('not.have.class', 'ion-invalid');
     });
 
-    it('logs in and opens Buscar or Publicar', () => {
+    it('logs in and opens Publicar by default', () => {
       cy.intercept('POST', LOGIN_URL, ACCESS_TOKEN).as('login');
 
       fillForm('ana@ual.es', 'secreta123');
@@ -85,9 +85,8 @@ for (const viewport of VIEWPORTS) {
       cy.wait('@login')
         .its('request.body')
         .should('deep.equal', { email: 'ana@ual.es', password: 'secreta123' });
-      cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
-      // La pantalla de inicio, con su formulario de búsqueda
-      cy.get('app-trip-search app-trip-search-form').should('be.visible');
+      cy.location('pathname').should('eq', '/tabs/publish');
+      cy.get('app-publish-trip').should('be.visible');
     });
 
     it('shows the API error when the credentials are wrong', () => {
