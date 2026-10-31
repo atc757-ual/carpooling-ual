@@ -37,14 +37,15 @@
           <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
         </ion-button>
       </ion-buttons>
+      <!-- Pantalla interna: solo volver y el título, sin campana ni salir -->
       <ion-title>{{ heading()?.title }}</ion-title>
     } @else {
       <!-- El logotipo y, cada 3 segundos, el saludo con el nombre -->
       <app-brand-greeting slot="start" class="app-header__brand" [name]="firstName()" />
+      <ion-buttons slot="end">
+        <ng-container [ngTemplateOutlet]="headerActions" />
+      </ion-buttons>
     }
-    <ion-buttons slot="end">
-      <ng-container [ngTemplateOutlet]="headerActions" />
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 

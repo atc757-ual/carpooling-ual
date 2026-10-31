@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
@@ -28,6 +28,7 @@ describe('TabsPage', () => {
   const unread = signal(0);
   const refreshUnread = vi.fn().mockResolvedValue(undefined);
   let permission = 'granted';
+  let fixture: ComponentFixture<TabsPage>;
   const preferences = {
     get: vi.fn().mockResolvedValue(null),
     set: vi.fn().mockResolvedValue(undefined),
@@ -40,6 +41,11 @@ describe('TabsPage', () => {
         provideIonicAngular(),
         provideRouter([
           { path: 'tabs/search', component: BlankPage, data: { heading: HEADING } },
+          {
+            path: 'tabs/search/results',
+            component: BlankPage,
+            data: { heading: { title: 'Tu búsqueda', backHref: '/tabs/search' } },
+          },
           { path: 'tabs/publish', component: BlankPage },
           { path: 'tabs/profile', component: BlankPage },
         ]),
@@ -61,7 +67,8 @@ describe('TabsPage', () => {
         { provide: PreferencesPlugin, useValue: preferences },
       ],
     });
-    const page = TestBed.createComponent(TabsPage).componentInstance;
+    fixture = TestBed.createComponent(TabsPage);
+    const page = fixture.componentInstance;
     page.ngOnInit();
     return page;
   }
@@ -139,6 +146,20 @@ describe('TabsPage', () => {
     await TestBed.inject(Router).navigateByUrl('/tabs/search');
 
     expect(page.heading()).toEqual(HEADING);
+  });
+
+  it('hides the bell and log out in the mobile header of an inner screen', async () => {
+    render();
+    const header = (): HTMLElement => fixture.nativeElement.querySelector('.app-header');
+
+    await TestBed.inject(Router).navigateByUrl('/tabs/search');
+    await fixture.whenStable();
+    expect(header().querySelector('.bell-button')).not.toBeNull();
+
+    await TestBed.inject(Router).navigateByUrl('/tabs/search/results');
+    await fixture.whenStable();
+    expect(header().querySelector('.back-button')).not.toBeNull();
+    expect(header().querySelector('.bell-button')).toBeNull();
   });
 
   it('logs out after confirming it and goes back to the welcome screen', async () => {
