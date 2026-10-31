@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { EntityManager, In } from 'typeorm';
+import { NotificationsService } from '../notifications/notifications.service';
 import { Trip } from '../trips/entities/trip.entity';
 import { TripStatusService } from '../trips/trip-status.service';
 import { UsersService } from '../users/users.service';
@@ -18,13 +19,15 @@ import type { RequestStatus } from './request-status';
 //   sus pasajeros aceptados reciben prioridad (RF-24: perdieron el viaje sin
 //   elegirlo)
 // - viaje iniciado: se rechazan las pendientes (ya nadie podrá aceptarlas, y
-//   así el pasajero sabe al momento que debe buscar otro viaje)
+//   así el pasajero sabe al momento que debe buscar otro viaje) y los
+//   aceptados reciben el aviso de que el conductor va de camino
 @Injectable()
 export class TripChangesListener implements OnModuleInit {
   constructor(
     private readonly tripStatus: TripStatusService,
     private readonly usersService: UsersService,
     private readonly changes: RequestChangesRecorder,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   onModuleInit(): void {
@@ -47,8 +50,28 @@ export class TripChangesListener implements OnModuleInit {
       }
       if (to === 'in_progress') {
         await this.closeRequestsOfTrip(manager, trip, ['pending'], 'rejected');
+        await this.notifyDriverOnTheWay(manager, trip);
       }
     });
+  }
+
+  // Un aviso por pasajero aceptado, con su solicitud (para abrirla desde Avisos)
+  private async notifyDriverOnTheWay(
+    manager: EntityManager,
+    trip: Trip,
+  ): Promise<void> {
+    const accepted = await manager.find(SeatRequest, {
+      where: { tripId: trip.id, status: 'accepted' },
+    });
+    await Promise.all(
+      accepted.map((request) =>
+        this.notificationsService.notify(manager, [request.passengerId], {
+          type: 'trip_started',
+          tripId: trip.id,
+          requestId: request.id,
+        }),
+      ),
+    );
   }
 
   // Pasajeros con la solicitud aceptada en el viaje

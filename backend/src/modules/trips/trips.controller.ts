@@ -241,7 +241,7 @@ export class TripsController {
   @ApiOperation({
     summary: 'Start a confirmed trip',
     description:
-      'RF-11. Only its driver, from 30 minutes before the departure. The vehicle goes on trip and the pending seat requests are rejected.',
+      'RF-11. Only its driver, from 10 minutes before the departure. The vehicle goes on trip, the pending seat requests are rejected and the accepted passengers are told the driver is on the way.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: TripResource })

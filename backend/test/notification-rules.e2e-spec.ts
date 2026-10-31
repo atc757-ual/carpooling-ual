@@ -175,7 +175,7 @@ describe('Notification rules (e2e)', () => {
       ]);
     });
 
-    it('starting the trip notifies the pending passengers that they were rejected', async () => {
+    it('starting the trip rejects the pending passengers and tells the accepted ones the driver is on the way', async () => {
       const { driverId, tripId } = await publishTrip();
       const pia = await requestSeat('pia', tripId);
       const leo = await requestSeat('leo', tripId);
@@ -187,6 +187,7 @@ describe('Notification rules (e2e)', () => {
         { type: 'request_rejected', requestId: leo.requestId },
       ]);
       expect(await noticesOf(pia.passengerId)).toMatchObject([
+        { type: 'trip_started', requestId: pia.requestId },
         { type: 'request_accepted' },
       ]);
     });
@@ -219,6 +220,7 @@ describe('Notification rules (e2e)', () => {
         },
       ]);
       expect(await noticesOf(pia.passengerId)).toMatchObject([
+        { type: 'trip_started', requestId: pia.requestId },
         { type: 'request_accepted' },
       ]);
       expect(await noticesOf(driverId)).toMatchObject([
@@ -240,6 +242,7 @@ describe('Notification rules (e2e)', () => {
 
       expect(await noticesOf(pia.passengerId)).toMatchObject([
         { type: 'trip_cancelled', requestId: pia.requestId },
+        { type: 'trip_started', requestId: pia.requestId },
         { type: 'request_accepted' },
       ]);
     });

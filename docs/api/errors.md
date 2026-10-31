@@ -97,7 +97,7 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `INVALID_TRIP_TRANSITION` | 409 | Cambio de estado que el diagrama de estados del viaje no permite (p. ej. cancelar un viaje ya cancelado o finalizado) |
 | `TRIP_FULL` | 409 | No quedan plazas: al solicitar plaza o al aceptar una solicitud (dos aceptaciones simultáneas nunca venden la misma plaza) |
 | `TRIP_NOT_OPEN` | 409 | El viaje ya no admite solicitudes: está en curso, finalizado o cancelado, o su hora de salida ya ha pasado |
-| `TRIP_NOT_STARTABLE_YET` | 409 | Iniciar un viaje más de 30 minutos antes de su hora de salida (RF-11) |
+| `TRIP_NOT_STARTABLE_YET` | 409 | Iniciar un viaje más de 10 minutos antes de su hora de salida (RF-11) |
 | `TRIP_NOT_IN_PROGRESS` | 409 | Registrar una incidencia (cancelar durante el viaje, RF-23) en un viaje que no está en curso |
 | `ROUTE_NOT_FOUND` | 404 | `GET /api/trips/{id}/route` de un viaje sin ruta (solo viajes anteriores al cálculo de rutas: hoy cada viaje la calcula al publicarse, con OSRM o estimada) |
 

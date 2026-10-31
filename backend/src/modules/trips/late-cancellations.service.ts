@@ -14,7 +14,7 @@ import {
   LATE_CANCELLATIONS_TO_SUSPEND,
   MINUTE_MS,
   PUBLISHING_SUSPENSION_DAYS,
-  START_WINDOW_MIN,
+  LATE_CANCELLATION_LEAD_MIN,
 } from './trip-timing';
 
 // Cancelaciones tardías del conductor en los últimos 30 días y, si las hay
@@ -68,7 +68,7 @@ function minutesToDeparture(trip: Trip, now: Date): number {
 export function isLateDriverCancellation(trip: Trip, now: Date): boolean {
   return (
     trip.status === 'confirmed' &&
-    minutesToDeparture(trip, now) < START_WINDOW_MIN
+    minutesToDeparture(trip, now) < LATE_CANCELLATION_LEAD_MIN
   );
 }
 
@@ -80,7 +80,9 @@ export function isLatePassengerCancellation(
   wasAccepted: boolean,
   now: Date,
 ): boolean {
-  return wasAccepted && minutesToDeparture(trip, now) < START_WINDOW_MIN;
+  return (
+    wasAccepted && minutesToDeparture(trip, now) < LATE_CANCELLATION_LEAD_MIN
+  );
 }
 
 // Cancelaciones tardías (RF de cancelación) del conductor y del pasajero: las
