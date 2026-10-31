@@ -12,6 +12,10 @@ export interface SeatRequest {
   isPriority: boolean;
   // Plazas para el pasajero y sus compañeros (1-4)
   seats: number;
+  direction?: 'to-campus' | 'from-campus' | null;
+  pickupLocation?: { type: 'Point'; coordinates: [number, number] } | null;
+  pickupName?: string | null;
+  pickupAt?: string | null;
   requestedAt: string;
   answeredAt: string | null;
   cancelledAt: string | null;

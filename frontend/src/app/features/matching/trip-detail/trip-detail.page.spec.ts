@@ -161,7 +161,11 @@ describe('TripDetailPage', () => {
     await fixture.componentInstance.handleRequest();
     await fixture.whenStable();
 
-    expect(requests['request']).toHaveBeenCalledWith('t1', 2);
+    expect(requests['request']).toHaveBeenCalledWith('t1', 2, {
+      direction: 'to-campus',
+      location: { type: 'Point', coordinates: ROQUETAS.coordinates },
+      name: ROQUETAS.name,
+    });
     expect(root.textContent).toContain('Solicitud enviada. Falta la respuesta de Lucía.');
     expect(root.textContent).toContain('Cancelar solicitud');
   });

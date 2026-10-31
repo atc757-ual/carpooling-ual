@@ -71,7 +71,7 @@ export class RequestsController {
   })
   @ApiErrorResponses({
     ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED', 'INVALID_REQUEST_PICKUP'],
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
     [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND'],
     [HttpStatus.CONFLICT]: [
@@ -81,6 +81,7 @@ export class RequestsController {
       'REQUEST_ALREADY_EXISTS',
       'TOO_MANY_PENDING_REQUESTS',
       'REQUESTING_SUSPENDED',
+      'TRIP_CHANGED_RETRY',
     ],
   })
   async request(
@@ -90,7 +91,18 @@ export class RequestsController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<SeatRequestResource> {
     const request = toSeatRequestResource(
-      await this.requestsService.request(passenger.sub, tripId, body.seats),
+      await this.requestsService.request(
+        passenger.sub,
+        tripId,
+        body.seats,
+        body.direction
+          ? {
+              direction: body.direction,
+              pickupLocation: body.pickupLocation,
+              pickupName: body.pickupName,
+            }
+          : undefined,
+      ),
     );
     response.setHeader('Location', request.href);
     return request;
@@ -102,7 +114,7 @@ export class RequestsController {
   @ApiPaginatedResponse(SeatRequestResource)
   @ApiErrorResponses({
     ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED', 'INVALID_REQUEST_PICKUP'],
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
   })
   async listMine(

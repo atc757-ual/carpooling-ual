@@ -3582,11 +3582,18 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
+            "description": "TMF630 error: VALIDATION_FAILED, INVALID_REQUEST_PICKUP",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
                 }
               }
             }
@@ -3622,7 +3629,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: TRIP_NOT_OPEN, TRIP_FULL, CANNOT_REQUEST_OWN_TRIP, REQUEST_ALREADY_EXISTS, TOO_MANY_PENDING_REQUESTS, REQUESTING_SUSPENDED",
+            "description": "TMF630 error: TRIP_NOT_OPEN, TRIP_FULL, CANNOT_REQUEST_OWN_TRIP, REQUEST_ALREADY_EXISTS, TOO_MANY_PENDING_REQUESTS, REQUESTING_SUSPENDED, TRIP_CHANGED_RETRY",
             "content": {
               "application/json": {
                 "schema": {
@@ -3836,11 +3843,18 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
+            "description": "TMF630 error: VALIDATION_FAILED, INVALID_REQUEST_PICKUP",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
                 }
               }
             }
@@ -7700,6 +7714,35 @@
             "maximum": 4,
             "default": 1,
             "description": "Seats for the passenger and their companions"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "to-campus",
+              "from-campus"
+            ],
+            "description": "Passenger direction chosen in search"
+          },
+          "pickupLocation": {
+            "description": "Passenger pickup point for a trip to campus; ignored for the return trip",
+            "example": {
+              "type": "Point",
+              "coordinates": [
+                -2.6,
+                36.76
+              ]
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "pickupName": {
+            "type": "string",
+            "maxLength": 160,
+            "description": "Label of the passenger pickup point",
+            "example": "Calle Profesor Mulián, 29"
           }
         }
       },
@@ -7800,6 +7843,34 @@
             "example": 1,
             "description": "Seats for the passenger and their companions"
           },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "to-campus",
+              "from-campus"
+            ],
+            "nullable": true
+          },
+          "pickupLocation": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "pickupName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Calle Profesor Mulián, 29"
+          },
+          "pickupAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Approximate pickup time estimated from the origin and pickup point"
+          },
           "isPriority": {
             "type": "boolean",
             "description": "RF-24: passenger affected by the cancellation of a trip in progress"
@@ -7835,6 +7906,10 @@
           "passenger",
           "status",
           "seats",
+          "direction",
+          "pickupLocation",
+          "pickupName",
+          "pickupAt",
           "isPriority",
           "requestedAt",
           "answeredAt",
