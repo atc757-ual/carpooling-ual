@@ -6,7 +6,10 @@ import { GeoPoint } from './place.model';
 export interface Vehicle {
   id: string;
   plate: string;
+  brand: string | null;
   model: string | null;
+  color: VehicleColor | null;
+  engine: VehicleEngine | null;
   capacity: number;
   status: 'available' | 'on_trip' | 'inactive';
 }
@@ -14,11 +17,20 @@ export interface Vehicle {
 export interface RegisterVehicleRequest {
   plate: string;
   capacity: number;
+  brand: string;
   model: string;
+  color: VehicleColor;
+  engine: VehicleEngine;
 }
 
-// PATCH /api/vehicles/{id}: la matrícula no se cambia
-export type UpdateVehicleRequest = Partial<Omit<RegisterVehicleRequest, 'plate'>>;
+export type VehicleColor =
+  'white' | 'black' | 'grey' | 'silver' | 'blue' | 'red' | 'green' | 'other';
+export type VehicleEngine = 'electric' | 'hybrid' | 'other';
+
+// PATCH /api/vehicles/{id}: marca, modelo y matrícula no se cambian
+export type UpdateVehicleRequest = Partial<
+  Pick<RegisterVehicleRequest, 'capacity' | 'color' | 'engine'>
+>;
 
 // Si puede publicar: declaración responsable aceptada y algún vehículo
 export interface DriverStatus {

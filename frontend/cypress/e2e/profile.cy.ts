@@ -27,7 +27,10 @@ const VEHICLE = {
   '@type': 'Vehicle',
   id: 'v1',
   plate: '1234BCD',
-  model: 'Seat León',
+  brand: 'SEAT',
+  model: 'León',
+  color: 'white',
+  engine: 'hybrid',
   capacity: 3,
   status: 'available',
 };
@@ -57,7 +60,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-profile', 'Lucía Cortés').should('be.visible');
       cy.contains('app-profile', '+34 612 345 678');
       cy.contains('app-profile-vehicles', '1234BCD');
-      cy.contains('app-profile-vehicles', 'Seat León · hasta 3 pasajeros');
+      cy.contains('app-profile-vehicles', 'SEAT León · Blanco · hasta 3 pasajeros');
     });
 
     it('removes a vehicle after confirming it', () => {

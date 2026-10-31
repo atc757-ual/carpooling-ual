@@ -31,6 +31,11 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
 import { VehicleModal } from '../vehicle-modal/vehicle-modal';
+import {
+  vehicleColorLabel,
+  vehicleColorSwatch,
+  vehicleDisplayName,
+} from '../../../shared/utils/vehicle-display.util';
 
 // Vehículos activos que puede tener un conductor (VEHICLE_LIMIT_REACHED)
 export const MAX_VEHICLES = 3;
@@ -187,9 +192,16 @@ export class VehiclePicker implements OnInit {
     }
   }
 
-  // «Seat Ibiza», o la matrícula si no tiene modelo
-  protected vehicleName({ model, plate }: Vehicle): string {
-    return model || plate;
+  protected vehicleName(vehicle: Vehicle): string {
+    return vehicleDisplayName(vehicle);
+  }
+
+  protected colorLabel(vehicle: Vehicle): string {
+    return vehicleColorLabel(vehicle.color);
+  }
+
+  protected colorSwatch(vehicle: Vehicle): string {
+    return vehicleColorSwatch(vehicle.color);
   }
 
   protected plural(count: number, singular: string, pluralForm: string): string {

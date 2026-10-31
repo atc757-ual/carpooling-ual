@@ -33,10 +33,15 @@
                   <ion-icon [icon]="carIcon" aria-hidden="true" />
                   <div>
                     <div class="text-body-s text-body--strong">
-                      {{ vehicle.model }} · {{ vehicle.plate }}
+                      {{ vehicleName(vehicle) }}
                     </div>
                     <div class="text-caption text-color-muted">
-                      {{ vehicle.preferences.join(' · ') }}
+                      <span
+                        class="trip-detail__vehicle-swatch"
+                        [style.--swatch-color]="vehicleSwatch(vehicle)"
+                        aria-hidden="true"
+                      ></span>
+                      {{ vehicleColor(vehicle) }}
                     </div>
                   </div>
                 </div>

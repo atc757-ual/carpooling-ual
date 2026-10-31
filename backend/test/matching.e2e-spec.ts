@@ -23,7 +23,7 @@ const MINUTES = 60_000;
 interface TripMatchBody {
   id: string;
   driver: { name: string };
-  vehicle: { brand: string; model: string; color: string; plate: string };
+  vehicle: { brand: string; model: string; color: string };
   detourMin: number;
   score: number;
 }
@@ -130,10 +130,11 @@ describe('Matching API (e2e)', () => {
         brand: 'Toyota',
         model: 'Yaris',
         color: 'red',
-        plate: '9900BCD',
       },
       availableSeats: 2,
     });
+    // La matrícula solo la ve el pasajero con la plaza aceptada
+    expect(match?.vehicle).not.toHaveProperty('plate');
     expect(match?.detourMin).toBeLessThanOrEqual(15);
     expect(match?.score).toBeGreaterThan(0);
     expect(response.headers['x-result-count']).toBe(String(matches.length));

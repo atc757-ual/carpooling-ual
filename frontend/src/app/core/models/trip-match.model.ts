@@ -1,5 +1,6 @@
 import { GeoPoint } from './place.model';
 import { TripDirection } from './trip-search.model';
+import { VehicleColor } from './driver.model';
 
 // Cuerpo de POST /api/trips/search (matching)
 export interface TripSearchRequest {
@@ -26,4 +27,5 @@ export interface TripMatch {
   timeDifferenceMin: number;
   // De 0 a 1
   score: number;
+  vehicle: { brand: string | null; model: string | null; color: VehicleColor | null };
 }

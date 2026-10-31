@@ -1,5 +1,5 @@
 import { ComponentRef } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Vehicle } from '../../../core/models/driver.model';
@@ -10,12 +10,16 @@ import { VehicleForm } from './vehicle-form';
 const VEHICLE: Vehicle = {
   id: 'v1',
   plate: '1234BCD',
-  model: 'Seat Ibiza',
+  brand: 'Seat',
+  model: 'Ibiza',
+  color: 'blue',
+  engine: 'hybrid',
   capacity: 3,
   status: 'available',
 };
 
 describe('VehicleForm', () => {
+  let fixture: ComponentFixture<VehicleForm>;
   let form: VehicleForm;
   let ref: ComponentRef<VehicleForm>;
   let driver: Record<string, ReturnType<typeof vi.fn>>;
@@ -36,7 +40,7 @@ describe('VehicleForm', () => {
         { provide: ToastService, useValue: { showError } },
       ],
     });
-    const fixture = TestBed.createComponent(VehicleForm);
+    fixture = TestBed.createComponent(VehicleForm);
     form = fixture.componentInstance;
     ref = fixture.componentRef;
     saved = [];
@@ -44,63 +48,113 @@ describe('VehicleForm', () => {
     await fixture.whenStable();
   });
 
-  it('can be saved only once the fields are complete', () => {
+  it('requires all vehicle fields before saving', () => {
     expect(form.isComplete()).toBe(false);
-
-    form.form.setValue({ brand: 'Seat', model: 'Ibiza', plate: '1234BCD', totalSeats: 4 });
-
+    form.form.setValue({
+      brand: 'Seat',
+      model: 'Ibiza',
+      plate: '1234BCD',
+      totalSeats: 4,
+      color: 'blue',
+      engine: 'hybrid',
+    });
     expect(form.isComplete()).toBe(true);
   });
 
-  it('registers the vehicle with brand and model together and the passenger seats', async () => {
-    form.form.setValue({ brand: ' Seat ', model: ' Ibiza ', plate: '1234 bcd', totalSeats: 4 });
+  it('shows the 8 colors and 3 engines as options, chosen with one tap', () => {
+    const root = fixture.nativeElement as HTMLElement;
+    const colors = root.querySelectorAll<HTMLInputElement>('input[formControlName="color"]');
+    const engines = root.querySelectorAll<HTMLInputElement>('input[formControlName="engine"]');
 
+    colors[4].click();
+    engines[1].click();
+
+    expect(colors).toHaveLength(8);
+    expect(engines).toHaveLength(3);
+    expect(form.form.getRawValue()).toMatchObject({ color: 'blue', engine: 'hybrid' });
+  });
+
+  it('registers the separated details and passenger seats', async () => {
+    form.form.setValue({
+      brand: ' Seat ',
+      model: ' Ibiza ',
+      plate: '1234 bcd',
+      totalSeats: 4,
+      color: 'blue',
+      engine: 'hybrid',
+    });
     await form.handleSubmit();
-
     expect(driver['registerVehicle']).toHaveBeenCalledWith({
-      model: 'Seat Ibiza',
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid',
       plate: '1234BCD',
       capacity: 3,
     });
     expect(saved).toEqual([VEHICLE]);
   });
 
-  it('does not save without brand and model or with a plate that is not Spanish', async () => {
-    form.form.setValue({ brand: '', model: '', plate: 'ABC', totalSeats: 4 });
-
+  it('does not save incomplete or invalid data', async () => {
+    form.form.setValue({
+      brand: '',
+      model: '',
+      plate: 'ABC',
+      totalSeats: 4,
+      color: '',
+      engine: '',
+    });
     await form.handleSubmit();
-
     expect(driver['registerVehicle']).not.toHaveBeenCalled();
     expect(form.form.controls.brand.touched).toBe(true);
   });
 
-  it('edits only the seats: brand, model and plate cannot change', async () => {
+  it('edits color and engine but keeps brand, model and plate fixed', async () => {
     ref.setInput('vehicle', VEHICLE);
     TestBed.tick();
-
     expect(form.form.getRawValue()).toEqual({
       brand: 'Seat',
       model: 'Ibiza',
       plate: '1234BCD',
       totalSeats: 4,
+      color: 'blue',
+      engine: 'hybrid',
     });
     expect(form.form.controls.brand.disabled).toBe(true);
     expect(form.form.controls.model.disabled).toBe(true);
     expect(form.form.controls.plate.disabled).toBe(true);
-
     form.form.controls.totalSeats.setValue(5);
+    form.form.controls.color.setValue('red');
+    form.form.controls.engine.setValue('electric');
     await form.handleSubmit();
-
-    expect(driver['updateVehicle']).toHaveBeenCalledWith('v1', { capacity: 4 });
+    expect(driver['updateVehicle']).toHaveBeenCalledWith('v1', {
+      capacity: 4,
+      color: 'red',
+      engine: 'electric',
+    });
     expect(saved).toHaveLength(1);
   });
 
-  it('shows the API error and keeps what was written', async () => {
+  it('requires color and engine for legacy vehicles with null values', async () => {
+    ref.setInput('vehicle', { ...VEHICLE, color: null, engine: null });
+    TestBed.tick();
+    expect(form.isComplete()).toBe(false);
+    form.form.controls.color.setValue('white');
+    form.form.controls.engine.setValue('other');
+    expect(form.isComplete()).toBe(true);
+  });
+
+  it('shows API errors and preserves entered data', async () => {
     driver['registerVehicle'].mockRejectedValue(new Error('down'));
-    form.form.setValue({ brand: 'Seat', model: 'Ibiza', plate: '1234BCD', totalSeats: 4 });
-
+    form.form.setValue({
+      brand: 'Seat',
+      model: 'Ibiza',
+      plate: '1234BCD',
+      totalSeats: 4,
+      color: 'blue',
+      engine: 'hybrid',
+    });
     await form.handleSubmit();
-
     expect(showError).toHaveBeenCalled();
     expect(saved).toEqual([]);
     expect(form.isSaving()).toBe(false);

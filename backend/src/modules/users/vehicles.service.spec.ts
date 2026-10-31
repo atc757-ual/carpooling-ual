@@ -157,12 +157,7 @@ describe('VehiclesService', () => {
     await expect(
       vehiclesService.getRecognitionDetails(['v1']),
     ).resolves.toEqual(
-      new Map([
-        [
-          'v1',
-          { plate: '1234BCD', brand: 'Seat', model: 'Ibiza', color: 'blue' },
-        ],
-      ]),
+      new Map([['v1', { brand: 'Seat', model: 'Ibiza', color: 'blue' }]]),
     );
   });
 });

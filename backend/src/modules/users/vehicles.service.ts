@@ -25,7 +25,6 @@ export type UpdateVehicleInput = Partial<
 >;
 
 export interface VehicleRecognitionDetails {
-  plate: string;
   brand: string | null;
   model: string | null;
   color: VehicleColor | null;
@@ -149,8 +148,9 @@ export class VehiclesService {
     return this.vehiclesRepository.save(vehicle);
   }
 
-  // Datos para reconocer el coche en los resultados del matching. La matrícula
-  // se muestra en los viajes publicados; el motor no hace falta al pasajero
+  // Datos para reconocer el coche en los resultados del matching. Sin la
+  // matrícula: solo la ve el pasajero con la plaza aceptada, en su solicitud
+  // (minimización de datos); el motor no hace falta al pasajero
   async getRecognitionDetails(
     vehicleIds: readonly string[],
   ): Promise<Map<string, VehicleRecognitionDetails>> {
@@ -164,7 +164,6 @@ export class VehiclesService {
       vehicles.map((vehicle) => [
         vehicle.id,
         {
-          plate: vehicle.plate,
           brand: vehicle.brand,
           model: vehicle.model,
           color: vehicle.color,
