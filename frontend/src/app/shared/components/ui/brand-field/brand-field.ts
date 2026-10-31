@@ -40,11 +40,12 @@ export class BrandField implements ControlValueAccessor {
   private onChange: (value: string) => void = () => undefined;
   protected onTouched: () => void = () => undefined;
 
+  // Angular escribe null al vaciar el formulario: entonces, sin marca
   writeValue(value: string | null): void {
-    const brand = value ?? '';
+    const brand = typeof value === 'string' ? value : '';
     this.value.set(brand);
     this.query.set(brand);
-    this.otherMode.set(Boolean(brand) && !isKnownBrand(brand));
+    this.otherMode.set(brand !== '' && !isKnownBrand(brand));
   }
 
   registerOnChange(fn: (value: string) => void): void {
