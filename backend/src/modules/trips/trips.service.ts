@@ -13,9 +13,11 @@ import { DriverNotReadyError } from './errors/driver-not-ready.error';
 import { SeatsExceedCapacityError } from './errors/seats-exceed-capacity.error';
 import { TripAlreadyStartedError } from './errors/trip-already-started.error';
 import { TripNotEditableError } from './errors/trip-not-editable.error';
+import { DailyTripLimitError } from './errors/daily-trip-limit.error';
 import { TripNotFoundError } from './errors/trip-not-found.error';
 import { TripNotInProgressError } from './errors/trip-not-in-progress.error';
 import { TripNotStartableYetError } from './errors/trip-not-startable-yet.error';
+import { assertNoOverlap, DAILY_TRIP_LIMIT } from './publishing-limits';
 import {
   isLateDriverCancellation,
   LateCancellationsService,
@@ -96,6 +98,47 @@ export class TripsService {
     const route = await this.tripRoutes.plan(input.origin, input.destination);
 
     const trip = await this.dataSource.transaction(async (manager) => {
+      // Serializa las publicaciones del conductor: sin este bloqueo, dos
+      // peticiones simultáneas podrían superar tanto el límite como el cruce.
+      await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [driverId]);
+      const dayStart = new Date(input.departureAt);
+      dayStart.setUTCHours(0, 0, 0, 0);
+      const dayEnd = new Date(dayStart);
+      dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+      const dailyCount = await manager
+        .createQueryBuilder(Trip, 'trip')
+        .where('trip.driverId = :driverId', { driverId })
+        .andWhere('trip.status != :cancelled', { cancelled: 'cancelled' })
+        .andWhere('trip.departureAt >= :dayStart AND trip.departureAt < :dayEnd', {
+          dayStart,
+          dayEnd,
+        })
+        .getCount();
+      if (dailyCount >= DAILY_TRIP_LIMIT) {
+        throw new DailyTripLimitError(DAILY_TRIP_LIMIT);
+      }
+      const existing = await manager
+        .createQueryBuilder(Trip, 'trip')
+        .innerJoin('routes', 'route', 'route.trip_id = trip.id')
+        .select(['trip.id AS id', 'trip.departure_at AS "departureAt"',
+          'trip.max_detour_min AS "maxDetourMin"', 'route.duration_min AS "durationMin"'])
+        .where('trip.driverId = :driverId', { driverId })
+        .andWhere('trip.status != :cancelled', { cancelled: 'cancelled' })
+        .getRawMany<{
+          id: string;
+          departureAt: Date;
+          maxDetourMin: number;
+          durationMin: number;
+        }>();
+      assertNoOverlap(
+        {
+          id: '',
+          departureAt: input.departureAt,
+          durationMin: route.durationMin,
+          maxDetourMin: input.maxDetourMin ?? DEFAULT_MAX_DETOUR_MIN,
+        },
+        existing,
+      );
       const saved = await manager.save(
         manager.create(Trip, {
           ...input,

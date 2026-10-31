@@ -25,6 +25,8 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   DRIVER_NOT_READY: 'Registra un vehículo y acepta la declaración antes de publicar.',
   SEATS_EXCEED_CAPACITY: 'Ofreces más plazas de las que tiene el vehículo.',
   DEPARTURE_IN_THE_PAST: 'La hora de salida ya ha pasado. Elige una hora posterior.',
+  TRIP_OVERLAPS: 'Este horario se cruza con otro de tus viajes. Elige otra hora.',
+  DAILY_TRIP_LIMIT: 'Ya tienes 4 viajes publicados para ese día.',
   TRIP_FULL: 'Ya no quedan plazas suficientes en este viaje. Busca otro viaje.',
   TRIP_NOT_OPEN: 'Este viaje ya no admite solicitudes.',
   REQUEST_ALREADY_EXISTS: 'Ya tienes una solicitud en este viaje.',

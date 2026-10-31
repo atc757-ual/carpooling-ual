@@ -85,7 +85,11 @@ export class TripsController {
     [HttpStatus.BAD_REQUEST]: TRIP_RULE_ERRORS,
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', 'DRIVER_NOT_READY'],
     [HttpStatus.NOT_FOUND]: ['VEHICLE_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: ['PUBLISHING_SUSPENDED'],
+    [HttpStatus.CONFLICT]: [
+      'PUBLISHING_SUSPENDED',
+      'TRIP_OVERLAPS',
+      'DAILY_TRIP_LIMIT',
+    ],
   })
   async publish(
     @CurrentUser() driver: AccessTokenPayload,
