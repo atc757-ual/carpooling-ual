@@ -72,6 +72,11 @@ export class Trip {
   @Column({ name: 'started_at', type: 'timestamptz', nullable: true })
   startedAt: Date | null;
 
+  // Cuándo terminó (RF-11); null mientras no ha finalizado. Marca el inicio de
+  // la ventana de 7 días para las reseñas (RF-22)
+  @Column({ name: 'finished_at', type: 'timestamptz', nullable: true })
+  finishedAt: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

@@ -90,6 +90,9 @@ export class TripStatusService {
     if (to === 'in_progress') {
       trip.startedAt = new Date();
     }
+    if (to === 'finished') {
+      trip.finishedAt = new Date();
+    }
     const saved = await manager.save(trip);
     await this.recordEvent(manager, EVENT_BY_STATUS[to], saved);
     await Promise.all(

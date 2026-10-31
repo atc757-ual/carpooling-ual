@@ -38,7 +38,9 @@
           }
         },
         "summary": "Check that the API and the database are up",
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/api/auth/register": {
@@ -99,7 +101,9 @@
           }
         },
         "summary": "Start a registration",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/verify-email": {
@@ -167,7 +171,9 @@
           }
         },
         "summary": "Verify the email with the code and log in",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/verify-email/resend": {
@@ -211,7 +217,9 @@
           }
         },
         "summary": "Send a new verification code",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/login": {
@@ -282,7 +290,9 @@
           }
         },
         "summary": "Log in",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/refresh": {
@@ -343,7 +353,9 @@
           }
         },
         "summary": "Renew the session",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/logout": {
@@ -387,7 +399,9 @@
           }
         },
         "summary": "Log out",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/me": {
@@ -432,7 +446,9 @@
           }
         ],
         "summary": "Get the authenticated user",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/password-reset": {
@@ -476,7 +492,9 @@
           }
         },
         "summary": "Send a password reset code",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/password-reset/verify": {
@@ -537,7 +555,9 @@
           }
         },
         "summary": "Check a password reset code",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/auth/password-reset/confirm": {
@@ -598,7 +618,9 @@
           }
         },
         "summary": "Set a new password with the code",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/users/me/phone-verification": {
@@ -657,7 +679,9 @@
           }
         ],
         "summary": "Send a 6-digit SMS code to verify my phone number",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/me/phone-verification/confirm": {
@@ -760,7 +784,9 @@
           }
         ],
         "summary": "Verify my phone number with the 6-digit SMS code",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/me/account-deletion": {
@@ -809,7 +835,9 @@
           }
         ],
         "summary": "Send a 6-digit email code to delete my account",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/me/account-deletion/confirm": {
@@ -905,7 +933,9 @@
           }
         ],
         "summary": "Delete (deactivate) my account with the 6-digit email code",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/me/driver-status": {
@@ -961,7 +991,9 @@
           }
         ],
         "summary": "Get my driver status",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/me/driver-declaration": {
@@ -1017,7 +1049,9 @@
           }
         ],
         "summary": "Accept the driver responsible declaration",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/me/profiles/{profile}": {
@@ -1030,7 +1064,10 @@
             "required": true,
             "in": "path",
             "schema": {
-              "enum": ["driver", "passenger"],
+              "enum": [
+                "driver",
+                "passenger"
+              ],
               "type": "string"
             }
           }
@@ -1103,7 +1140,9 @@
           }
         ],
         "summary": "Choose my mode (activate my driver or passenger profile)",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/me": {
@@ -1159,7 +1198,9 @@
           }
         ],
         "summary": "Get my account and public profile",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       },
       "patch": {
         "description": "Name, phone, default time margin of my searches, avatar, bio and travel preferences; only the fields sent change. The email cannot be changed.",
@@ -1233,7 +1274,9 @@
           }
         ],
         "summary": "Change my account details",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/me/active-mode": {
@@ -1319,7 +1362,9 @@
           }
         ],
         "summary": "Change the mode I travel with",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/me/consents": {
@@ -1375,7 +1420,9 @@
           }
         ],
         "summary": "Get my consents and their audit history",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/me/consents/location": {
@@ -1451,7 +1498,9 @@
           }
         ],
         "summary": "Record my location consent (granted or revoked)",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users": {
@@ -1569,7 +1618,9 @@
           }
         ],
         "summary": "List users",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/{id}/profiles/{profile}": {
@@ -1591,7 +1642,11 @@
             "required": true,
             "in": "path",
             "schema": {
-              "enum": ["driver", "passenger", "admin"],
+              "enum": [
+                "driver",
+                "passenger",
+                "admin"
+              ],
               "type": "string"
             }
           }
@@ -1684,7 +1739,9 @@
           }
         ],
         "summary": "Activate or deactivate a profile of a user",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/{id}": {
@@ -1777,7 +1834,9 @@
           }
         ],
         "summary": "Get a user",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/vehicles": {
@@ -1868,7 +1927,9 @@
           }
         ],
         "summary": "Register a vehicle",
-        "tags": ["vehicles"]
+        "tags": [
+          "vehicles"
+        ]
       },
       "get": {
         "operationId": "VehiclesController_list",
@@ -1972,7 +2033,9 @@
           }
         ],
         "summary": "List my active vehicles",
-        "tags": ["vehicles"]
+        "tags": [
+          "vehicles"
+        ]
       }
     },
     "/api/vehicles/{id}": {
@@ -2057,7 +2120,9 @@
           }
         ],
         "summary": "Get one of my vehicles",
-        "tags": ["vehicles"]
+        "tags": [
+          "vehicles"
+        ]
       },
       "patch": {
         "description": "Changes the make and model and/or the seats; the plate cannot change. The seats cannot change while the vehicle is on a trip, and published trips keep the seats they offered.",
@@ -2161,7 +2226,9 @@
           }
         ],
         "summary": "Edit one of my vehicles",
-        "tags": ["vehicles"]
+        "tags": [
+          "vehicles"
+        ]
       },
       "delete": {
         "description": "The vehicle can no longer be used in new trips, but past trips keep it.",
@@ -2248,7 +2315,9 @@
           }
         ],
         "summary": "Deactivate one of my vehicles",
-        "tags": ["vehicles"]
+        "tags": [
+          "vehicles"
+        ]
       }
     },
     "/api/avatars": {
@@ -2345,7 +2414,9 @@
           }
         ],
         "summary": "List the available avatars",
-        "tags": ["avatars"]
+        "tags": [
+          "avatars"
+        ]
       }
     },
     "/api/avatars/{id}": {
@@ -2424,7 +2495,9 @@
           }
         ],
         "summary": "Get an avatar",
-        "tags": ["avatars"]
+        "tags": [
+          "avatars"
+        ]
       }
     },
     "/api/trips": {
@@ -2532,7 +2605,9 @@
           }
         ],
         "summary": "Publish a trip",
-        "tags": ["trips"]
+        "tags": [
+          "trips"
+        ]
       }
     },
     "/api/trips/{id}": {
@@ -2607,7 +2682,9 @@
           }
         ],
         "summary": "Get a trip",
-        "tags": ["trips"]
+        "tags": [
+          "trips"
+        ]
       },
       "patch": {
         "description": "RF-05. Only its driver, and only while it is published (no accepted passengers). Send only the fields that change.",
@@ -2718,7 +2795,9 @@
           }
         ],
         "summary": "Change a published trip",
-        "tags": ["trips"]
+        "tags": [
+          "trips"
+        ]
       }
     },
     "/api/trips/{id}/route": {
@@ -2794,7 +2873,9 @@
           }
         ],
         "summary": "Get the route of a trip and its estimated arrival",
-        "tags": ["trips"]
+        "tags": [
+          "trips"
+        ]
       }
     },
     "/api/users/me/trips": {
@@ -2901,7 +2982,9 @@
           }
         ],
         "summary": "List my trips as a driver",
-        "tags": ["trips"]
+        "tags": [
+          "trips"
+        ]
       }
     },
     "/api/users/me/publishing-status": {
@@ -2957,7 +3040,9 @@
           }
         ],
         "summary": "Get my publishing status",
-        "tags": ["trips"]
+        "tags": [
+          "trips"
+        ]
       }
     },
     "/api/trips/{id}/cancel": {
@@ -3053,7 +3138,9 @@
           }
         ],
         "summary": "Cancel a trip before it starts",
-        "tags": ["trips"]
+        "tags": [
+          "trips"
+        ]
       }
     },
     "/api/trips/{id}/start": {
@@ -3149,7 +3236,9 @@
           }
         ],
         "summary": "Start a confirmed trip",
-        "tags": ["trips"]
+        "tags": [
+          "trips"
+        ]
       }
     },
     "/api/trips/{id}/finish": {
@@ -3245,7 +3334,9 @@
           }
         ],
         "summary": "Finish a trip in progress",
-        "tags": ["trips"]
+        "tags": [
+          "trips"
+        ]
       }
     },
     "/api/trips/{tripId}/positions": {
@@ -3356,7 +3447,9 @@
           }
         ],
         "summary": "Report my position during a trip in progress",
-        "tags": ["tracking"]
+        "tags": [
+          "tracking"
+        ]
       }
     },
     "/api/trips/{tripId}/position": {
@@ -3442,7 +3535,9 @@
           }
         ],
         "summary": "Get the current position of the driver",
-        "tags": ["tracking"]
+        "tags": [
+          "tracking"
+        ]
       }
     },
     "/api/trips/{tripId}/requests": {
@@ -3553,7 +3648,9 @@
           }
         ],
         "summary": "Request a seat in a trip",
-        "tags": ["seat requests"]
+        "tags": [
+          "seat requests"
+        ]
       },
       "get": {
         "description": "Priority requests first (RF-24), then by arrival.",
@@ -3677,7 +3774,9 @@
           }
         ],
         "summary": "List the seat requests of my trip",
-        "tags": ["seat requests"]
+        "tags": [
+          "seat requests"
+        ]
       }
     },
     "/api/users/me/requests": {
@@ -3783,7 +3882,9 @@
           }
         ],
         "summary": "List my seat requests, the newest first",
-        "tags": ["seat requests"]
+        "tags": [
+          "seat requests"
+        ]
       }
     },
     "/api/users/me/requesting-status": {
@@ -3839,7 +3940,9 @@
           }
         ],
         "summary": "Get my requesting status",
-        "tags": ["seat requests"]
+        "tags": [
+          "seat requests"
+        ]
       }
     },
     "/api/requests/{id}/cancel": {
@@ -3935,7 +4038,9 @@
           }
         ],
         "summary": "Cancel my seat request",
-        "tags": ["seat requests"]
+        "tags": [
+          "seat requests"
+        ]
       }
     },
     "/api/requests/{id}/accept": {
@@ -4031,7 +4136,9 @@
           }
         ],
         "summary": "Accept a seat request",
-        "tags": ["seat requests"]
+        "tags": [
+          "seat requests"
+        ]
       }
     },
     "/api/requests/{id}/reject": {
@@ -4126,7 +4233,9 @@
           }
         ],
         "summary": "Reject a seat request (RF-09)",
-        "tags": ["seat requests"]
+        "tags": [
+          "seat requests"
+        ]
       }
     },
     "/api/requests/{id}": {
@@ -4202,7 +4311,9 @@
           }
         ],
         "summary": "Get a seat request",
-        "tags": ["seat requests"]
+        "tags": [
+          "seat requests"
+        ]
       }
     },
     "/api/users/me/notifications": {
@@ -4308,7 +4419,9 @@
           }
         ],
         "summary": "List my notifications, the newest first",
-        "tags": ["notifications"]
+        "tags": [
+          "notifications"
+        ]
       }
     },
     "/api/users/me/notifications/read": {
@@ -4346,7 +4459,9 @@
           }
         ],
         "summary": "Mark all my notifications as read",
-        "tags": ["notifications"]
+        "tags": [
+          "notifications"
+        ]
       }
     },
     "/api/notifications/{id}/read": {
@@ -4422,7 +4537,294 @@
           }
         ],
         "summary": "Mark one of my notifications as read",
-        "tags": ["notifications"]
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/trips/{tripId}/reviews": {
+      "post": {
+        "description": "RF-22: after a trip finishes, the driver can review each accepted passenger and each accepted passenger can review the driver within 7 days. Double-blind: the review is published once the other side also reviews or when the 7-day window closes.",
+        "operationId": "ReputationController_create",
+        "parameters": [
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: REVIEW_NOT_ALLOWED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: REVIEW_WINDOW_CLOSED, REVIEW_ALREADY_EXISTS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Review a participant of a finished trip",
+        "tags": [
+          "reputation"
+        ]
+      }
+    },
+    "/api/users/me/reviews": {
+      "get": {
+        "description": "RF-22: received returns only published reviews targeting me (newest publication first); given returns all reviews I authored (newest creation first). Optional role filters by target role (driver or passenger). Expired unpublished reviews are published before querying.",
+        "operationId": "ReputationController_listMine",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "direction",
+            "required": false,
+            "in": "query",
+            "description": "received (published reviews targeting me; default) or given (reviews I authored)",
+            "schema": {
+              "default": "received",
+              "type": "string",
+              "enum": [
+                "received",
+                "given"
+              ]
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "description": "Filter by the target role (driver or passenger)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "driver",
+                "passenger"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReviewResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List my reviews (received or given)",
+        "tags": [
+          "reputation"
+        ]
+      }
+    },
+    "/api/users/me/pending-reviews": {
+      "get": {
+        "description": "RF-22: finished trips within the 7-day window where I participated as driver or accepted passenger and still have at least one participant left to review.",
+        "operationId": "ReputationController_listPending",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PendingReviewTripResource"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List finished trips I can still review",
+        "tags": [
+          "reputation"
+        ]
       }
     },
     "/api/trips/{tripId}/incidents": {
@@ -4533,7 +4935,9 @@
           }
         ],
         "summary": "Report an incident and cancel during a trip in progress",
-        "tags": ["incidents"]
+        "tags": [
+          "incidents"
+        ]
       }
     },
     "/api/users/me/incidents": {
@@ -4629,7 +5033,9 @@
           }
         ],
         "summary": "List the incidents I reported, the newest first",
-        "tags": ["incidents"]
+        "tags": [
+          "incidents"
+        ]
       }
     },
     "/api/incidents/{id}": {
@@ -4705,7 +5111,9 @@
           }
         ],
         "summary": "Get an incident",
-        "tags": ["incidents"]
+        "tags": [
+          "incidents"
+        ]
       }
     },
     "/api/incidents": {
@@ -4742,7 +5150,10 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "enum": ["open", "reviewed"]
+              "enum": [
+                "open",
+                "reviewed"
+              ]
             }
           }
         ],
@@ -4821,7 +5232,9 @@
           }
         ],
         "summary": "List incidents to review",
-        "tags": ["incidents"]
+        "tags": [
+          "incidents"
+        ]
       }
     },
     "/api/incidents/{id}/review": {
@@ -4927,7 +5340,9 @@
           }
         ],
         "summary": "Review an incident",
-        "tags": ["incidents"]
+        "tags": [
+          "incidents"
+        ]
       }
     },
     "/api/campus-parkings": {
@@ -5024,7 +5439,9 @@
           }
         ],
         "summary": "List the campus parkings",
-        "tags": ["campus-parkings"]
+        "tags": [
+          "campus-parkings"
+        ]
       }
     },
     "/api/campus-parkings/{id}": {
@@ -5089,7 +5506,9 @@
           }
         ],
         "summary": "Get a campus parking",
-        "tags": ["campus-parkings"]
+        "tags": [
+          "campus-parkings"
+        ]
       }
     },
     "/api/places": {
@@ -5196,7 +5615,9 @@
           }
         ],
         "summary": "Suggest addresses",
-        "tags": ["places"]
+        "tags": [
+          "places"
+        ]
       }
     },
     "/api/places/reverse": {
@@ -5295,7 +5716,9 @@
           }
         ],
         "summary": "Get the address of a point",
-        "tags": ["places"]
+        "tags": [
+          "places"
+        ]
       }
     },
     "/api/places/{id}": {
@@ -5371,7 +5794,9 @@
           }
         ],
         "summary": "Get an address",
-        "tags": ["places"]
+        "tags": [
+          "places"
+        ]
       }
     },
     "/api/trips/search": {
@@ -5474,7 +5899,9 @@
           }
         ],
         "summary": "Search compatible trips",
-        "tags": ["matching"]
+        "tags": [
+          "matching"
+        ]
       }
     }
   },
@@ -5500,7 +5927,9 @@
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["Error"]
+            "enum": [
+              "Error"
+            ]
           },
           "code": {
             "type": "string",
@@ -5521,7 +5950,13 @@
             "example": "409"
           }
         },
-        "required": ["@type", "code", "reason", "message", "status"]
+        "required": [
+          "@type",
+          "code",
+          "reason",
+          "message",
+          "status"
+        ]
       },
       "TmfFieldError": {
         "type": "object",
@@ -5535,18 +5970,25 @@
             "example": "email must be an email"
           }
         },
-        "required": ["field", "reason"]
+        "required": [
+          "field",
+          "reason"
+        ]
       },
       "TmfValidationError": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["ValidationError"]
+            "enum": [
+              "ValidationError"
+            ]
           },
           "@baseType": {
             "type": "string",
-            "enum": ["Error"]
+            "enum": [
+              "Error"
+            ]
           },
           "code": {
             "type": "string",
@@ -5586,22 +6028,33 @@
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["Health"]
+            "enum": [
+              "Health"
+            ]
           },
           "status": {
             "type": "string",
-            "enum": ["ok"]
+            "enum": [
+              "ok"
+            ]
           },
           "database": {
             "type": "string",
-            "enum": ["up"]
+            "enum": [
+              "up"
+            ]
           },
           "timestamp": {
             "type": "string",
             "format": "date-time"
           }
         },
-        "required": ["@type", "status", "database", "timestamp"]
+        "required": [
+          "@type",
+          "status",
+          "database",
+          "timestamp"
+        ]
       },
       "RegisterDto": {
         "type": "object",
@@ -5633,11 +6086,19 @@
           "acceptedTerms": {
             "type": "boolean",
             "description": "Acceptance of the community rules and privacy policy",
-            "enum": [true],
+            "enum": [
+              true
+            ],
             "example": true
           }
         },
-        "required": ["name", "email", "password", "phone", "acceptedTerms"]
+        "required": [
+          "name",
+          "email",
+          "password",
+          "phone",
+          "acceptedTerms"
+        ]
       },
       "VerifyEmailDto": {
         "type": "object",
@@ -5654,44 +6115,108 @@
             "example": "042137"
           }
         },
-        "required": ["email", "code"]
+        "required": [
+          "email",
+          "code"
+        ]
       },
       "TravelPreferencesResource": {
         "type": "object",
         "properties": {
           "conversation": {
             "type": "string",
-            "enum": ["chatty", "depends", "quiet"],
+            "enum": [
+              "chatty",
+              "depends",
+              "quiet"
+            ],
             "nullable": true,
             "example": "chatty"
           },
           "music": {
             "type": "string",
-            "enum": ["any", "soft", "none"],
+            "enum": [
+              "any",
+              "soft",
+              "none"
+            ],
             "nullable": true,
             "example": "soft"
           },
           "smoking": {
             "type": "string",
-            "enum": ["no", "stops_only", "allowed"],
+            "enum": [
+              "no",
+              "stops_only",
+              "allowed"
+            ],
             "nullable": true,
             "example": "no"
           },
           "pets": {
             "type": "string",
-            "enum": ["none", "small_carrier", "pet_friendly"],
+            "enum": [
+              "none",
+              "small_carrier",
+              "pet_friendly"
+            ],
             "nullable": true,
             "example": "small_carrier"
           }
         },
-        "required": ["conversation", "music", "smoking", "pets"]
+        "required": [
+          "conversation",
+          "music",
+          "smoking",
+          "pets"
+        ]
+      },
+      "RoleRatingResource": {
+        "type": "object",
+        "properties": {
+          "averageRating": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 5,
+            "example": 4.8,
+            "description": "Average rating (1–5) when the user has at least 3 published reviews in this role; null otherwise (\"New driver\" / \"New passenger\")"
+          },
+          "ratingCount": {
+            "type": "number",
+            "minimum": 0,
+            "example": 5,
+            "description": "Number of published reviews received in this role"
+          }
+        },
+        "required": [
+          "averageRating",
+          "ratingCount"
+        ]
+      },
+      "UserRatingsResource": {
+        "type": "object",
+        "properties": {
+          "driver": {
+            "$ref": "#/components/schemas/RoleRatingResource"
+          },
+          "passenger": {
+            "$ref": "#/components/schemas/RoleRatingResource"
+          }
+        },
+        "required": [
+          "driver",
+          "passenger"
+        ]
       },
       "UserResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["User"]
+            "enum": [
+              "User"
+            ]
           },
           "id": {
             "type": "string",
@@ -5722,15 +6247,25 @@
           },
           "profiles": {
             "type": "array",
-            "example": ["driver", "passenger"],
+            "example": [
+              "driver",
+              "passenger"
+            ],
             "items": {
               "type": "string",
-              "enum": ["driver", "passenger", "admin"]
+              "enum": [
+                "driver",
+                "passenger",
+                "admin"
+              ]
             }
           },
           "activeMode": {
             "type": "string",
-            "enum": ["driver", "passenger"],
+            "enum": [
+              "driver",
+              "passenger"
+            ],
             "nullable": true,
             "description": "The mode the user travels with now, the same on every device; null until chosen",
             "example": "passenger"
@@ -5768,6 +6303,9 @@
           },
           "preferences": {
             "$ref": "#/components/schemas/TravelPreferencesResource"
+          },
+          "ratings": {
+            "$ref": "#/components/schemas/UserRatingsResource"
           }
         },
         "required": [
@@ -5783,7 +6321,8 @@
           "timeToleranceMin",
           "avatarKey",
           "bio",
-          "preferences"
+          "preferences",
+          "ratings"
         ]
       },
       "AccessTokenResource": {
@@ -5791,7 +6330,9 @@
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["AccessToken"]
+            "enum": [
+              "AccessToken"
+            ]
           },
           "accessToken": {
             "type": "string",
@@ -5799,7 +6340,9 @@
           },
           "tokenType": {
             "type": "string",
-            "enum": ["Bearer"]
+            "enum": [
+              "Bearer"
+            ]
           },
           "expiresIn": {
             "type": "number",
@@ -5839,7 +6382,9 @@
             "example": "ana@ual.es"
           }
         },
-        "required": ["email"]
+        "required": [
+          "email"
+        ]
       },
       "LoginDto": {
         "type": "object",
@@ -5853,7 +6398,10 @@
             "example": "carpooling"
           }
         },
-        "required": ["email", "password"]
+        "required": [
+          "email",
+          "password"
+        ]
       },
       "RefreshTokenDto": {
         "type": "object",
@@ -5865,7 +6413,9 @@
             "example": "kX9_2LqZ3vH7mN1pR8sT4uW6yA0bC5dE7fG9hJ2kL4n"
           }
         },
-        "required": ["refreshToken"]
+        "required": [
+          "refreshToken"
+        ]
       },
       "RequestPasswordResetDto": {
         "type": "object",
@@ -5876,7 +6426,9 @@
             "example": "ana@ual.es"
           }
         },
-        "required": ["email"]
+        "required": [
+          "email"
+        ]
       },
       "CheckPasswordResetCodeDto": {
         "type": "object",
@@ -5893,7 +6445,10 @@
             "example": "042137"
           }
         },
-        "required": ["email", "code"]
+        "required": [
+          "email",
+          "code"
+        ]
       },
       "ResetPasswordDto": {
         "type": "object",
@@ -5920,7 +6475,11 @@
             "description": "Refresh token of the current session to keep alive while revoking every other open session"
           }
         },
-        "required": ["email", "code", "password"]
+        "required": [
+          "email",
+          "code",
+          "password"
+        ]
       },
       "VerifyPhoneDto": {
         "type": "object",
@@ -5931,7 +6490,9 @@
             "example": "123456"
           }
         },
-        "required": ["code"]
+        "required": [
+          "code"
+        ]
       },
       "ConfirmAccountDeletionDto": {
         "type": "object",
@@ -5942,27 +6503,38 @@
             "example": "123456"
           }
         },
-        "required": ["code"]
+        "required": [
+          "code"
+        ]
       },
       "ProfileStatusResource": {
         "type": "object",
         "properties": {
           "profile": {
             "type": "string",
-            "enum": ["driver", "passenger", "admin"]
+            "enum": [
+              "driver",
+              "passenger",
+              "admin"
+            ]
           },
           "isActive": {
             "type": "boolean"
           }
         },
-        "required": ["profile", "isActive"]
+        "required": [
+          "profile",
+          "isActive"
+        ]
       },
       "UserAdminResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["UserAdmin"]
+            "enum": [
+              "UserAdmin"
+            ]
           },
           "id": {
             "type": "string",
@@ -6013,7 +6585,9 @@
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["DriverStatus"]
+            "enum": [
+              "DriverStatus"
+            ]
           },
           "hasLicenseDeclared": {
             "type": "boolean",
@@ -6047,25 +6621,41 @@
         "properties": {
           "conversation": {
             "type": "string",
-            "enum": ["chatty", "depends", "quiet"],
+            "enum": [
+              "chatty",
+              "depends",
+              "quiet"
+            ],
             "nullable": true,
             "example": "chatty"
           },
           "music": {
             "type": "string",
-            "enum": ["any", "soft", "none"],
+            "enum": [
+              "any",
+              "soft",
+              "none"
+            ],
             "nullable": true,
             "example": "soft"
           },
           "smoking": {
             "type": "string",
-            "enum": ["no", "stops_only", "allowed"],
+            "enum": [
+              "no",
+              "stops_only",
+              "allowed"
+            ],
             "nullable": true,
             "example": "no"
           },
           "pets": {
             "type": "string",
-            "enum": ["none", "small_carrier", "pet_friendly"],
+            "enum": [
+              "none",
+              "small_carrier",
+              "pet_friendly"
+            ],
             "nullable": true,
             "example": "small_carrier"
           }
@@ -6088,7 +6678,12 @@
           },
           "timeToleranceMin": {
             "type": "number",
-            "enum": [5, 10, 15, 20],
+            "enum": [
+              5,
+              10,
+              15,
+              20
+            ],
             "description": "Default time margin of my searches, in minutes (± around the time)",
             "example": 15
           },
@@ -6135,11 +6730,16 @@
         "properties": {
           "mode": {
             "type": "string",
-            "enum": ["driver", "passenger"],
+            "enum": [
+              "driver",
+              "passenger"
+            ],
             "example": "driver"
           }
         },
-        "required": ["mode"]
+        "required": [
+          "mode"
+        ]
       },
       "ConsentRecordResource": {
         "type": "object",
@@ -6151,7 +6751,11 @@
           },
           "type": {
             "type": "string",
-            "enum": ["terms", "privacy", "location"],
+            "enum": [
+              "terms",
+              "privacy",
+              "location"
+            ],
             "example": "terms"
           },
           "documentVersion": {
@@ -6160,12 +6764,19 @@
           },
           "action": {
             "type": "string",
-            "enum": ["granted", "revoked"],
+            "enum": [
+              "granted",
+              "revoked"
+            ],
             "example": "granted"
           },
           "source": {
             "type": "string",
-            "enum": ["registration", "settings", "account_deletion"],
+            "enum": [
+              "registration",
+              "settings",
+              "account_deletion"
+            ],
             "example": "registration"
           },
           "recordedAt": {
@@ -6220,7 +6831,11 @@
             ]
           }
         },
-        "required": ["terms", "privacy", "location"]
+        "required": [
+          "terms",
+          "privacy",
+          "location"
+        ]
       },
       "UserConsentsResource": {
         "type": "object",
@@ -6239,18 +6854,27 @@
             }
           }
         },
-        "required": ["@type", "current", "history"]
+        "required": [
+          "@type",
+          "current",
+          "history"
+        ]
       },
       "SetLocationConsentDto": {
         "type": "object",
         "properties": {
           "action": {
             "type": "string",
-            "enum": ["granted", "revoked"],
+            "enum": [
+              "granted",
+              "revoked"
+            ],
             "example": "granted"
           }
         },
-        "required": ["action"]
+        "required": [
+          "action"
+        ]
       },
       "SetProfileActiveDto": {
         "type": "object",
@@ -6260,7 +6884,9 @@
             "description": "Activate or deactivate the profile. For the admin profile, true assigns it and false removes it"
           }
         },
-        "required": ["isActive"]
+        "required": [
+          "isActive"
+        ]
       },
       "RegisterVehicleDto": {
         "type": "object",
@@ -6307,18 +6933,31 @@
           },
           "engine": {
             "type": "string",
-            "enum": ["electric", "hybrid", "other"],
+            "enum": [
+              "electric",
+              "hybrid",
+              "other"
+            ],
             "example": "hybrid"
           }
         },
-        "required": ["plate", "capacity", "brand", "model", "color", "engine"]
+        "required": [
+          "plate",
+          "capacity",
+          "brand",
+          "model",
+          "color",
+          "engine"
+        ]
       },
       "VehicleResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["Vehicle"]
+            "enum": [
+              "Vehicle"
+            ]
           },
           "id": {
             "type": "string",
@@ -6361,7 +7000,11 @@
           },
           "engine": {
             "type": "string",
-            "enum": ["electric", "hybrid", "other"],
+            "enum": [
+              "electric",
+              "hybrid",
+              "other"
+            ],
             "nullable": true,
             "example": "hybrid"
           },
@@ -6373,7 +7016,11 @@
           },
           "status": {
             "type": "string",
-            "enum": ["available", "on_trip", "inactive"]
+            "enum": [
+              "available",
+              "on_trip",
+              "inactive"
+            ]
           }
         },
         "required": [
@@ -6415,7 +7062,11 @@
           },
           "engine": {
             "type": "string",
-            "enum": ["electric", "hybrid", "other"],
+            "enum": [
+              "electric",
+              "hybrid",
+              "other"
+            ],
             "example": "hybrid"
           }
         }
@@ -6425,7 +7076,9 @@
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["Avatar"]
+            "enum": [
+              "Avatar"
+            ]
           },
           "id": {
             "type": "string",
@@ -6459,27 +7112,41 @@
             "example": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\">...</svg>"
           }
         },
-        "required": ["@type", "id", "href", "name", "svg"]
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "name",
+          "svg"
+        ]
       },
       "GeoPointDto": {
         "type": "object",
         "properties": {
           "type": {
             "type": "string",
-            "enum": ["Point"]
+            "enum": [
+              "Point"
+            ]
           },
           "coordinates": {
             "minItems": 2,
             "maxItems": 2,
             "description": "[longitude, latitude] (RFC 7946)",
-            "example": [-2.4058, 36.8297],
+            "example": [
+              -2.4058,
+              36.8297
+            ],
             "type": "array",
             "items": {
               "type": "number"
             }
           }
         },
-        "required": ["type", "coordinates"]
+        "required": [
+          "type",
+          "coordinates"
+        ]
       },
       "PublishTripDto": {
         "type": "object",
@@ -6492,7 +7159,10 @@
           "origin": {
             "example": {
               "type": "Point",
-              "coordinates": [-2.4637, 36.8381]
+              "coordinates": [
+                -2.4637,
+                36.8381
+              ]
             },
             "allOf": [
               {
@@ -6503,7 +7173,10 @@
           "destination": {
             "example": {
               "type": "Point",
-              "coordinates": [-2.4058, 36.8297]
+              "coordinates": [
+                -2.4058,
+                36.8297
+              ]
             },
             "allOf": [
               {
@@ -6590,7 +7263,13 @@
             "description": "Number of completed trips"
           }
         },
-        "required": ["id", "name", "avatarKey", "preferences", "tripCount"]
+        "required": [
+          "id",
+          "name",
+          "avatarKey",
+          "preferences",
+          "tripCount"
+        ]
       },
       "TripVehicleResource": {
         "type": "object",
@@ -6621,14 +7300,20 @@
             "example": "blue"
           }
         },
-        "required": ["brand", "model", "color"]
+        "required": [
+          "brand",
+          "model",
+          "color"
+        ]
       },
       "TripResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["Trip"]
+            "enum": [
+              "Trip"
+            ]
           },
           "id": {
             "type": "string",
@@ -6730,7 +7415,9 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": ["LineString"]
+            "enum": [
+              "LineString"
+            ]
           },
           "coordinates": {
             "type": "array",
@@ -6741,19 +7428,30 @@
               }
             },
             "example": [
-              [-2.4597, 36.8381],
-              [-2.4048, 36.8295]
+              [
+                -2.4597,
+                36.8381
+              ],
+              [
+                -2.4048,
+                36.8295
+              ]
             ]
           }
         },
-        "required": ["type", "coordinates"]
+        "required": [
+          "type",
+          "coordinates"
+        ]
       },
       "TripRouteResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["TripRoute"]
+            "enum": [
+              "TripRoute"
+            ]
           },
           "href": {
             "type": "string",
@@ -6776,7 +7474,10 @@
           },
           "source": {
             "type": "string",
-            "enum": ["osrm", "estimated"],
+            "enum": [
+              "osrm",
+              "estimated"
+            ],
             "description": "osrm: the road route; estimated: a straight-line estimate, used when OSRM did not answer"
           },
           "tripStatus": {
@@ -6819,7 +7520,9 @@
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["PublishingStatus"]
+            "enum": [
+              "PublishingStatus"
+            ]
           },
           "lateCancellations": {
             "type": "number",
@@ -6833,7 +7536,11 @@
             "description": "Until when the driver cannot publish (3 late cancellations in 30 days: 7 days from the last one), or null"
           }
         },
-        "required": ["@type", "lateCancellations", "publishingSuspendedUntil"]
+        "required": [
+          "@type",
+          "lateCancellations",
+          "publishingSuspendedUntil"
+        ]
       },
       "UpdateTripDto": {
         "type": "object",
@@ -6846,7 +7553,10 @@
           "origin": {
             "example": {
               "type": "Point",
-              "coordinates": [-2.4637, 36.8381]
+              "coordinates": [
+                -2.4637,
+                36.8381
+              ]
             },
             "allOf": [
               {
@@ -6857,7 +7567,10 @@
           "destination": {
             "example": {
               "type": "Point",
-              "coordinates": [-2.4058, 36.8297]
+              "coordinates": [
+                -2.4058,
+                36.8297
+              ]
             },
             "allOf": [
               {
@@ -6904,7 +7617,10 @@
           "position": {
             "example": {
               "type": "Point",
-              "coordinates": [-2.43, 36.833]
+              "coordinates": [
+                -2.43,
+                36.833
+              ]
             },
             "allOf": [
               {
@@ -6913,14 +7629,18 @@
             ]
           }
         },
-        "required": ["position"]
+        "required": [
+          "position"
+        ]
       },
       "TripPositionResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["TripPosition"]
+            "enum": [
+              "TripPosition"
+            ]
           },
           "href": {
             "type": "string",
@@ -6947,7 +7667,10 @@
           },
           "remainingSource": {
             "type": "string",
-            "enum": ["osrm", "estimated"],
+            "enum": [
+              "osrm",
+              "estimated"
+            ],
             "description": "osrm: by road; estimated: a straight-line estimate, used when OSRM did not answer"
           },
           "estimatedArrivalAt": {
@@ -6992,7 +7715,10 @@
             "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
           }
         },
-        "required": ["id", "href"]
+        "required": [
+          "id",
+          "href"
+        ]
       },
       "SeatRequestPassengerResource": {
         "type": "object",
@@ -7028,14 +7754,21 @@
             "$ref": "#/components/schemas/TravelPreferencesResource"
           }
         },
-        "required": ["id", "name", "avatarKey", "preferences"]
+        "required": [
+          "id",
+          "name",
+          "avatarKey",
+          "preferences"
+        ]
       },
       "SeatRequestResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["SeatRequest"]
+            "enum": [
+              "SeatRequest"
+            ]
           },
           "id": {
             "type": "string",
@@ -7053,7 +7786,12 @@
           },
           "status": {
             "type": "string",
-            "enum": ["pending", "accepted", "rejected", "cancelled"]
+            "enum": [
+              "pending",
+              "accepted",
+              "rejected",
+              "cancelled"
+            ]
           },
           "seats": {
             "type": "number",
@@ -7109,7 +7847,9 @@
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["RequestingStatus"]
+            "enum": [
+              "RequestingStatus"
+            ]
           },
           "lateCancellations": {
             "type": "number",
@@ -7123,7 +7863,11 @@
             "description": "Until when the passenger cannot request seats (3 late cancellations in 30 days: 7 days from the last one), or null"
           }
         },
-        "required": ["@type", "lateCancellations", "requestingSuspendedUntil"]
+        "required": [
+          "@type",
+          "lateCancellations",
+          "requestingSuspendedUntil"
+        ]
       },
       "NotificationLinkResource": {
         "type": "object",
@@ -7137,14 +7881,19 @@
             "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
           }
         },
-        "required": ["id", "href"]
+        "required": [
+          "id",
+          "href"
+        ]
       },
       "NotificationResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["Notification"]
+            "enum": [
+              "Notification"
+            ]
           },
           "id": {
             "type": "string",
@@ -7161,16 +7910,17 @@
               "trip_cancelled",
               "passenger_left",
               "trip_started",
-              "incident_reported"
+              "incident_reported",
+              "review_requested"
             ],
-            "description": "request_received (to the driver), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), incident_reported (to the administrators)"
+            "description": "request_received (to the driver), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver and accepted passengers when the trip finishes), incident_reported (to the administrators)"
           },
           "trip": {
             "$ref": "#/components/schemas/NotificationLinkResource"
           },
           "request": {
             "nullable": true,
-            "description": "The seat request; null in incident_reported",
+            "description": "The seat request; null in incident_reported and in review_requested for the driver",
             "type": "object",
             "allOf": [
               {
@@ -7213,12 +7963,312 @@
           "createdAt"
         ]
       },
+      "CreateReviewDto": {
+        "type": "object",
+        "properties": {
+          "targetId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Recipient of the review (the driver when the author is an accepted passenger, or an accepted passenger when the author is the driver)"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5,
+            "description": "Star rating from 1 to 5"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 300,
+            "example": "Muy puntual y viaje muy agradable.",
+            "description": "Optional comment (up to 300 characters); empty becomes null"
+          }
+        },
+        "required": [
+          "targetId",
+          "rating"
+        ]
+      },
+      "ReviewTripSummaryResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "originName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Roquetas de Mar"
+          },
+          "destinationName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Campus UAL · Parking P1 (Sur)"
+          },
+          "departureAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "href",
+          "originName",
+          "destinationName",
+          "departureAt"
+        ]
+      },
+      "ReviewParticipantResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Lucía Conductora"
+          },
+          "avatarKey": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "wave",
+              "cactus",
+              "palm",
+              "compass",
+              "car",
+              "leaf",
+              "book",
+              "coffee",
+              "headphones",
+              "cat",
+              "owl"
+            ],
+            "nullable": true,
+            "example": "sun"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "avatarKey"
+        ]
+      },
+      "ReviewResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "Review"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "trip": {
+            "$ref": "#/components/schemas/ReviewTripSummaryResource"
+          },
+          "author": {
+            "$ref": "#/components/schemas/ReviewParticipantResource"
+          },
+          "target": {
+            "$ref": "#/components/schemas/ReviewParticipantResource"
+          },
+          "targetRole": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "passenger"
+            ],
+            "example": "driver"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 300,
+            "example": "Muy puntual y viaje muy agradable."
+          },
+          "isPublished": {
+            "type": "boolean",
+            "description": "True once both sides have reviewed or the 7-day window has closed"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "publishedAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "trip",
+          "author",
+          "target",
+          "targetRole",
+          "rating",
+          "comment",
+          "isPublished",
+          "createdAt",
+          "publishedAt"
+        ]
+      },
+      "PendingReviewTripSummaryResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "originName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Roquetas de Mar"
+          },
+          "destinationName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Campus UAL · Parking P1 (Sur)"
+          },
+          "departureAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "href",
+          "originName",
+          "destinationName",
+          "departureAt",
+          "finishedAt"
+        ]
+      },
+      "PendingReviewTargetResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Mario Pasajero"
+          },
+          "avatarKey": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "wave",
+              "cactus",
+              "palm",
+              "compass",
+              "car",
+              "leaf",
+              "book",
+              "coffee",
+              "headphones",
+              "cat",
+              "owl"
+            ],
+            "nullable": true,
+            "example": "headphones"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "passenger"
+            ],
+            "example": "passenger"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "avatarKey",
+          "role"
+        ]
+      },
+      "PendingReviewTripResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "PendingReviewTrip"
+            ]
+          },
+          "trip": {
+            "$ref": "#/components/schemas/PendingReviewTripSummaryResource"
+          },
+          "myRole": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "passenger"
+            ],
+            "description": "Role the current user had in this trip",
+            "example": "driver"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "End of the 7-day review window for this trip"
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PendingReviewTargetResource"
+            }
+          }
+        },
+        "required": [
+          "@type",
+          "trip",
+          "myRole",
+          "expiresAt",
+          "targets"
+        ]
+      },
       "ReportIncidentDto": {
         "type": "object",
         "properties": {
           "category": {
             "type": "string",
-            "enum": ["technical", "driver", "passenger", "other"],
+            "enum": [
+              "technical",
+              "driver",
+              "passenger",
+              "other"
+            ],
             "description": "technical problem, with the driver, with the passenger or other"
           },
           "description": {
@@ -7228,7 +8278,10 @@
             "example": "The car broke down on the way to the campus"
           }
         },
-        "required": ["category", "description"]
+        "required": [
+          "category",
+          "description"
+        ]
       },
       "IncidentTripResource": {
         "type": "object",
@@ -7242,7 +8295,10 @@
             "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
           }
         },
-        "required": ["id", "href"]
+        "required": [
+          "id",
+          "href"
+        ]
       },
       "IncidentReporterResource": {
         "type": "object",
@@ -7257,10 +8313,17 @@
           },
           "role": {
             "type": "string",
-            "enum": ["driver", "passenger"]
+            "enum": [
+              "driver",
+              "passenger"
+            ]
           }
         },
-        "required": ["id", "name", "role"]
+        "required": [
+          "id",
+          "name",
+          "role"
+        ]
       },
       "IncidentReviewResource": {
         "type": "object",
@@ -7274,14 +8337,19 @@
             "example": "The driver was contacted and the car was repaired"
           }
         },
-        "required": ["reviewedAt", "resolution"]
+        "required": [
+          "reviewedAt",
+          "resolution"
+        ]
       },
       "IncidentResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["Incident"]
+            "enum": [
+              "Incident"
+            ]
           },
           "id": {
             "type": "string",
@@ -7299,7 +8367,12 @@
           },
           "category": {
             "type": "string",
-            "enum": ["technical", "driver", "passenger", "other"]
+            "enum": [
+              "technical",
+              "driver",
+              "passenger",
+              "other"
+            ]
           },
           "description": {
             "type": "string"
@@ -7310,7 +8383,10 @@
           },
           "status": {
             "type": "string",
-            "enum": ["open", "reviewed"]
+            "enum": [
+              "open",
+              "reviewed"
+            ]
           },
           "review": {
             "nullable": true,
@@ -7346,14 +8422,18 @@
             "example": "The driver was contacted and the car was repaired"
           }
         },
-        "required": ["resolution"]
+        "required": [
+          "resolution"
+        ]
       },
       "CampusParkingResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["CampusParking"]
+            "enum": [
+              "CampusParking"
+            ]
           },
           "id": {
             "type": "string",
@@ -7370,7 +8450,10 @@
           "location": {
             "example": {
               "type": "Point",
-              "coordinates": [-2.4045, 36.8322]
+              "coordinates": [
+                -2.4045,
+                36.8322
+              ]
             },
             "allOf": [
               {
@@ -7379,14 +8462,22 @@
             ]
           }
         },
-        "required": ["@type", "id", "href", "name", "location"]
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "name",
+          "location"
+        ]
       },
       "PlaceSuggestionResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["PlaceSuggestion"]
+            "enum": [
+              "PlaceSuggestion"
+            ]
           },
           "id": {
             "type": "string",
@@ -7405,14 +8496,22 @@
             "example": "Almería"
           }
         },
-        "required": ["@type", "id", "href", "name", "locality"]
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "name",
+          "locality"
+        ]
       },
       "PlaceResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["Place"]
+            "enum": [
+              "Place"
+            ]
           },
           "id": {
             "type": "string",
@@ -7437,7 +8536,10 @@
           "location": {
             "example": {
               "type": "Point",
-              "coordinates": [-2.44615, 36.83256]
+              "coordinates": [
+                -2.44615,
+                36.83256
+              ]
             },
             "allOf": [
               {
@@ -7469,7 +8571,10 @@
             "description": "Address outside the campus: where to be picked up (to campus) or dropped off (from campus)",
             "example": {
               "type": "Point",
-              "coordinates": [-2.6, 36.76]
+              "coordinates": [
+                -2.6,
+                36.76
+              ]
             },
             "allOf": [
               {
@@ -7484,7 +8589,10 @@
           },
           "direction": {
             "type": "string",
-            "enum": ["to-campus", "from-campus"],
+            "enum": [
+              "to-campus",
+              "from-campus"
+            ],
             "example": "to-campus"
           },
           "desiredAt": {
@@ -7507,7 +8615,12 @@
             "default": 1
           }
         },
-        "required": ["place", "parkingId", "direction", "desiredAt"]
+        "required": [
+          "place",
+          "parkingId",
+          "direction",
+          "desiredAt"
+        ]
       },
       "TripMatchDriverResource": {
         "type": "object",
@@ -7548,7 +8661,13 @@
             "description": "Number of completed trips"
           }
         },
-        "required": ["id", "name", "avatarKey", "preferences", "tripCount"]
+        "required": [
+          "id",
+          "name",
+          "avatarKey",
+          "preferences",
+          "tripCount"
+        ]
       },
       "TripMatchVehicleResource": {
         "type": "object",
@@ -7579,14 +8698,20 @@
             "example": "blue"
           }
         },
-        "required": ["brand", "model", "color"]
+        "required": [
+          "brand",
+          "model",
+          "color"
+        ]
       },
       "TripMatchResource": {
         "type": "object",
         "properties": {
           "@type": {
             "type": "string",
-            "enum": ["TripMatch"]
+            "enum": [
+              "TripMatch"
+            ]
           },
           "id": {
             "type": "string",

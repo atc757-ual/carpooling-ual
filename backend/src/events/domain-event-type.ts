@@ -38,4 +38,7 @@ export type DomainEventType =
   // Incidencias (RF-23, CU-12)
   | 'incident.reported'
   | 'incident.reviewed'
-  | 'coverage.gap_reported';
+  | 'coverage.gap_reported'
+  // Reseñas y reputación (RF-22, doble ciego)
+  | 'review.created'
+  | 'review.published';

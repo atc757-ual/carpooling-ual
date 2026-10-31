@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { Trip } from '../trips/entities/trip.entity';
@@ -292,13 +292,51 @@ export class RequestsService {
   }
 
   // ¿Es pasajero aceptado del viaje? (p. ej. para ver la posición del
-  // conductor durante el viaje, RF-12)
-  isAcceptedPassenger(tripId: string, passengerId: string): Promise<boolean> {
-    return this.requestsRepository.existsBy({
+  // conductor durante el viaje, RF-12, o para dejar una reseña, RF-22)
+  isAcceptedPassenger(
+    tripId: string,
+    passengerId: string,
+    manager?: EntityManager,
+  ): Promise<boolean> {
+    const repo = manager
+      ? manager.getRepository(SeatRequest)
+      : this.requestsRepository;
+    return repo.existsBy({
       tripId,
       passengerId,
       status: 'accepted',
     });
+  }
+
+  // Ids de los viajes donde el usuario tuvo plaza aceptada (RF-22)
+  async acceptedTripIdsOfPassenger(passengerId: string): Promise<string[]> {
+    const rows = await this.requestsRepository.find({
+      select: { tripId: true },
+      where: { passengerId, status: 'accepted' },
+    });
+    return [...new Set(rows.map(({ tripId }) => tripId))];
+  }
+
+  // Pasajeros aceptados de varios viajes en una sola consulta (RF-22)
+  async acceptedPassengersByTrip(
+    tripIds: string[],
+  ): Promise<Map<string, string[]>> {
+    const uniqueTripIds = [...new Set(tripIds)];
+    if (uniqueTripIds.length === 0) {
+      return new Map();
+    }
+    const rows = await this.requestsRepository.find({
+      select: { tripId: true, passengerId: true, requestedAt: true, id: true },
+      where: { tripId: In(uniqueTripIds), status: 'accepted' },
+      order: { requestedAt: 'ASC', id: 'ASC' },
+    });
+    const result = new Map<string, string[]>();
+    for (const { tripId, passengerId } of rows) {
+      const list = result.get(tripId) ?? [];
+      list.push(passengerId);
+      result.set(tripId, list);
+    }
+    return result;
   }
 
   // --- Pasajero o conductor
