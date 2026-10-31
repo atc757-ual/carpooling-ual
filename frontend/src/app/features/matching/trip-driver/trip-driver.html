@@ -1,6 +1,38 @@
 <span class="trip-driver__avatar" aria-hidden="true">
-  @if (avatarSvg.value(); as svg) {
-    <span class="trip-driver__avatar-art" [innerHTML]="svg"></span>
+  @if (avatarSvg.value(); as avatar) {
+    <svg
+      class="trip-driver__avatar-art"
+      [attr.viewBox]="avatar.viewBox"
+      [attr.fill]="avatar.fill"
+      [attr.stroke]="avatar.stroke"
+      [attr.stroke-width]="avatar.strokeWidth"
+      [attr.stroke-linecap]="avatar.strokeLinecap"
+      [attr.stroke-linejoin]="avatar.strokeLinejoin"
+    >
+      @for (shape of avatar.shapes; track $index) {
+        @switch (shape.kind) {
+          @case ('path') {
+            <path [attr.d]="shape.d" />
+          }
+          @case ('circle') {
+            <circle [attr.cx]="shape.cx" [attr.cy]="shape.cy" [attr.r]="shape.r" />
+          }
+          @case ('rect') {
+            <rect
+              [attr.x]="shape.x"
+              [attr.y]="shape.y"
+              [attr.width]="shape.width"
+              [attr.height]="shape.height"
+              [attr.rx]="shape.rx"
+              [attr.ry]="shape.ry"
+            />
+          }
+          @case ('polygon') {
+            <polygon [attr.points]="shape.points" />
+          }
+        }
+      }
+    </svg>
   } @else {
     {{ initials() }}
   }

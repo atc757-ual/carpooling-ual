@@ -75,7 +75,7 @@ describe('TripDetailPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
-        { provide: AvatarsService, useValue: { getSvg: () => Promise.resolve(null) } },
+        { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
         { provide: SeatRequestsService, useValue: requests },
         { provide: ToastService, useValue: { showError } },
       ],

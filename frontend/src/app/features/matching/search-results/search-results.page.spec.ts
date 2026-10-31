@@ -73,7 +73,7 @@ describe('SearchResultsPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
-        { provide: AvatarsService, useValue: { getSvg: () => Promise.resolve(null) } },
+        { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
         { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
         { provide: MatchingService, useValue: { search } },
         {

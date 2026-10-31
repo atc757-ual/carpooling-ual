@@ -32,7 +32,7 @@ describe('TripResultCard', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
-        { provide: AvatarsService, useValue: { getSvg: () => Promise.resolve(null) } },
+        { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
       ],
     });
     const fixture = TestBed.createComponent(TripResultCard);

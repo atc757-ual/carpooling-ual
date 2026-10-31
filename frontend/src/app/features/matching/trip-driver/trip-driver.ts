@@ -42,7 +42,7 @@ export class TripDriver {
   readonly initials = computed(() => getInitials(this.driver().name));
   readonly avatarSvg = resource({
     params: () => this.driver().avatarKey ?? undefined,
-    loader: ({ params }) => this.avatars.getSvg(params),
+    loader: ({ params }) => this.avatars.getGraphic(params),
   });
   // «4,8», o null si aún no tiene valoración
   readonly rating = computed(() => {

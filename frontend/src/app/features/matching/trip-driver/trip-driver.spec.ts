@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { DomSanitizer } from '@angular/platform-browser';
 import { vi } from 'vitest';
 import { TripDriver as Driver } from '../../../core/models/trip-result.model';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
@@ -14,9 +13,9 @@ const DRIVER: Driver = {
 };
 
 describe('TripDriver', () => {
-  function render(driver: Driver, getSvg = vi.fn().mockResolvedValue(null)): HTMLElement {
+  function render(driver: Driver, getGraphic = vi.fn().mockResolvedValue(null)): HTMLElement {
     TestBed.configureTestingModule({
-      providers: [{ provide: AvatarsService, useValue: { getSvg } }],
+      providers: [{ provide: AvatarsService, useValue: { getGraphic } }],
     });
     const fixture = TestBed.createComponent(TripDriver);
     fixture.componentRef.setInput('driver', driver);
@@ -54,30 +53,25 @@ describe('TripDriver', () => {
   });
 
   it('shows the selected catalogue avatar when it loads', async () => {
-    const getSvg = vi.fn();
+    const getGraphic = vi.fn().mockResolvedValue({
+      viewBox: '0 0 64 64',
+      fill: 'none',
+      stroke: 'currentColor',
+      strokeWidth: '3',
+      strokeLinecap: 'round',
+      strokeLinejoin: 'round',
+      shapes: [{ kind: 'circle', cx: '32', cy: '32', r: '20' }],
+    });
     TestBed.configureTestingModule({
-      providers: [
-        {
-          provide: AvatarsService,
-          useFactory: (sanitizer: DomSanitizer) => {
-            getSvg.mockResolvedValue(
-              sanitizer.bypassSecurityTrustHtml(
-                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="20" /></svg>',
-              ),
-            );
-            return { getSvg };
-          },
-          deps: [DomSanitizer],
-        },
-      ],
+      providers: [{ provide: AvatarsService, useValue: { getGraphic } }],
     });
     const fixture = TestBed.createComponent(TripDriver);
     fixture.componentRef.setInput('driver', { ...DRIVER, avatarKey: 'sun' });
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(getSvg).toHaveBeenCalledWith('sun');
-    expect(fixture.nativeElement.querySelector('.trip-driver__avatar-art svg')).not.toBeNull();
+    expect(getGraphic).toHaveBeenCalledWith('sun');
+    expect(fixture.nativeElement.querySelector('.trip-driver__avatar-art circle')).not.toBeNull();
   });
 });
 
