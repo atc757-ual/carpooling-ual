@@ -56,62 +56,6 @@
 
 // Bajo el recorrido: las plazas libres y, a su lado (o debajo si no cabe), el
 // desvío y la duración
-.trip-detail__facts {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: 0.75rem; // 12px
-  row-gap: var(--space-xs);
-}
-
-// Plazas libres en verde; la última, como chip naranja (igual que en TripRow)
-.trip-detail__seats {
-  color: var(--color-eco-text);
-  font-size: var(--font-size-body-s);
-  font-weight: var(--font-weight-semibold);
-  white-space: nowrap;
-}
-
-.trip-detail__seats--last {
-  padding: 0.125rem var(--space-s); // 2px 8px
-  border-radius: var(--radius-full);
-  background: var(--color-accent);
-  color: var(--color-on-accent);
-}
-
-// Quien conduce y su coche, separados del recorrido por una línea
-.trip-detail__driver {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem; // 12px
-  margin-top: var(--space-s);
-  padding-top: var(--space-base);
-  border-top: var(--border-width-s) solid var(--color-border-subtle);
-}
-
-.trip-detail__vehicle {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem; // 12px
-
-  ion-icon {
-    flex: 0 0 auto;
-    color: var(--color-text-muted);
-    font-size: 1.25rem; // 20px
-  }
-}
-
-.trip-detail__vehicle-swatch {
-  display: inline-block;
-  width: 0.7rem;
-  height: 0.7rem;
-  margin-inline-end: var(--space-xs);
-  border: var(--border-width-s) solid var(--color-border-strong);
-  border-radius: var(--radius-full);
-  background: var(--swatch-color);
-  vertical-align: -0.05rem;
-}
-
 // Viaje no encontrado: tarjeta con todo centrado, como el estado vacío de
 // Buscar (en div: Ionic pone 14px a los p de ion-card-content)
 .trip-detail__missing {

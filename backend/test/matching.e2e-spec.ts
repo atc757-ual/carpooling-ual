@@ -22,7 +22,7 @@ const MINUTES = 60_000;
 
 interface TripMatchBody {
   id: string;
-  driver: { name: string; tripCount: number };
+  driver: { name: string; tripCount: number; rating: number | null };
   vehicle: { brand: string; model: string; color: string };
   offeredSeats: number;
   availableSeats: number;
@@ -136,6 +136,7 @@ describe('Matching API (e2e)', () => {
         name: 'lucia',
         avatarKey: null,
         tripCount: 0,
+        rating: null,
         preferences: {
           conversation: null,
           music: null,
@@ -199,6 +200,20 @@ describe('Matching API (e2e)', () => {
       availableSeats: 3,
       offeredSeats: 3,
     });
+  });
+
+  it('includes the driver average after three published reviews', async () => {
+    await dataSource.query(
+      `UPDATE driver_profiles
+       SET average_rating = 4.8, rating_count = 3
+       WHERE user_id = (SELECT id FROM users WHERE email = $1)`,
+      [`${EMAIL_PREFIX}lucia@ual.es`],
+    );
+
+    const matches = (await search().expect(200)).body as TripMatchBody[];
+    const match = matches.find(({ id }) => id === tripId);
+
+    expect(match?.driver.rating).toBe(4.8);
   });
 
   it('rejects an unknown parking and invalid searches', async () => {

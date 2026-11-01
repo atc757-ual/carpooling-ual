@@ -25,6 +25,16 @@ export class TripDriverResource {
 
   @ApiProperty({ example: 12, description: 'Number of completed trips' })
   tripCount: number;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    minimum: 1,
+    maximum: 5,
+    description:
+      'Average rating, available after at least three published reviews',
+  })
+  rating: number | null;
 }
 
 class TripVehicleResource {
@@ -114,6 +124,7 @@ export function toTripResource({
   driverAvatarKey,
   driverPreferences,
   driverTripCount,
+  driverRating,
   vehicle,
 }: TripView): TripResource {
   return {
@@ -126,6 +137,7 @@ export function toTripResource({
       avatarKey: driverAvatarKey,
       preferences: driverPreferences,
       tripCount: driverTripCount,
+      rating: driverRating,
     },
     vehicleId: trip.vehicleId,
     vehicle,

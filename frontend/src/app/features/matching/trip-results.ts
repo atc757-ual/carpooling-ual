@@ -75,6 +75,8 @@ export function toTripResult(match: TripMatch, search: TripSearch): TripResult {
     driver: {
       name: match.driver.name,
       avatarKey: match.driver.avatarKey,
+      tripCount: match.driver.tripCount,
+      rating: match.driver.rating ?? undefined,
       isEmailVerified: true,
     },
     freeSeats: match.availableSeats,

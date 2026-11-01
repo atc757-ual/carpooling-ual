@@ -61,6 +61,7 @@ describe('MatchingService', () => {
               smoking: 'no',
               pets: null,
             },
+            driverRating: 4.8,
           },
         ],
       ]),
@@ -92,6 +93,7 @@ describe('MatchingService', () => {
       smoking: 'no',
       pets: null,
     });
+    expect(result.driverRating).toBe(4.8);
     expect(result.vehicle).toEqual({
       brand: 'Seat',
       model: 'Ibiza',

@@ -46,6 +46,14 @@
               </div>
               <div class="passenger-request__route">{{ route(item.trip) }}</div>
               <div class="text-caption text-color-muted">{{ details(item) }}</div>
+              <ion-button
+                type="button"
+                fill="clear"
+                size="small"
+                [routerLink]="['/tabs/trips/requests', item.request.id]"
+              >
+                Ver solicitud
+              </ion-button>
               @if (canCancel(item)) {
                 <form (submit)="$event.preventDefault(); handleCancel(item)">
                   <ion-button

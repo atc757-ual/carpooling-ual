@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, FindManyOptions } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { AvatarsService } from './avatars.service';
 import { ConsentsService } from './consents.service';
@@ -156,7 +156,7 @@ describe('UsersService', () => {
       expect(usersRepository.find).not.toHaveBeenCalled();
     });
 
-    it('loads the name, avatar and preferences in a single query', async () => {
+    it('loads the public profile and rating in one query', async () => {
       usersRepository.find.mockResolvedValue([
         userWith({
           id: 'u1',
@@ -164,6 +164,10 @@ describe('UsersService', () => {
           avatarKey: 'sun',
           conversationPreference: 'chatty',
           smokingPreference: 'no',
+          driverProfile: {
+            averageRating: 4.8,
+            ratingCount: 3,
+          } as User['driverProfile'],
         }),
       ]);
 
@@ -179,7 +183,32 @@ describe('UsersService', () => {
           smoking: 'no',
           pets: null,
         },
+        driverRating: 4.8,
       });
+      const [query] = usersRepository.find.mock.calls[0] as [
+        FindManyOptions<User>,
+      ];
+      expect(query.select).toMatchObject({
+        driverProfile: { averageRating: true, ratingCount: true },
+      });
+      expect(query.relations).toEqual({ driverProfile: true });
+    });
+
+    it('hides the driver average until three reviews have been published', async () => {
+      usersRepository.find.mockResolvedValue([
+        userWith({
+          id: 'u1',
+          name: 'Lucía',
+          driverProfile: {
+            averageRating: 4.8,
+            ratingCount: 2,
+          } as User['driverProfile'],
+        }),
+      ]);
+
+      const profiles = await usersService.getPublicProfiles(['u1']);
+
+      expect(profiles.get('u1')?.driverRating).toBeNull();
     });
   });
 });

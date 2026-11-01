@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { SeatRequest } from '../../../core/models/seat-request.model';
@@ -75,11 +75,27 @@ describe('TripDetailPage', () => {
     trips = {
       getTrip: vi.fn().mockResolvedValue({
         id: 't1',
+        '@type': 'Trip',
         departureAt: '2026-10-27T07:40:00.000Z',
+        offeredSeats: 3,
+        availableSeats: 2,
+        maxDetourMin: 10,
+        status: 'published',
+        startedAt: null,
         origin: { type: 'Point', coordinates: [-2.5, 36.8] },
         destination: { type: 'Point', coordinates: [-2.4, 36.83] },
         originName: 'Roquetas de Mar',
         destinationName: 'Campus UAL · Parking P1',
+        vehicleId: 'v1',
+        vehicle: { brand: 'Seat', model: 'Ibiza', color: 'white' },
+        driver: {
+          id: 'd1',
+          name: 'Lucía Cortés',
+          avatarKey: null,
+          preferences: { conversation: null, music: null, smoking: null, pets: null },
+          tripCount: 0,
+          rating: null,
+        },
       }),
       getRoute: vi.fn().mockResolvedValue({
         tripId: 't1',
@@ -139,22 +155,25 @@ describe('TripDetailPage', () => {
     ]);
     expect(root.querySelector('app-trip-route-map')).not.toBeNull();
     expect(trips['getRoute']).toHaveBeenCalledWith('t1');
-    expect(texts(root, '.trip-detail__seats')).toEqual(['2 plazas libres']);
+    expect(texts(root, '.trip-summary__seats')).toEqual(['Quedan 2 de 3 plazas']);
     expect(root.textContent).toContain('Trayecto de unos 32 min');
   });
 
   it('shows who drives, who decides, and the vehicle for recognition', async () => {
     const root = await render('t1', SEARCH);
 
-    expect(root.querySelector('app-trip-driver')?.textContent).toContain('Lucía Cortés');
-    expect(root.querySelector('.trip-detail__vehicle')?.textContent).toContain('Seat Ibiza');
+    expect(root.querySelector('app-trip-summary app-trip-driver')?.textContent).toContain(
+      'Lucía Cortés',
+    );
+    expect(root.querySelector('.trip-summary__vehicle')?.textContent).toContain('Seat Ibiza');
     // La matrícula, solo con la plaza aceptada
-    expect(root.querySelector('.trip-detail__vehicle')?.textContent).not.toContain('1234BCD');
+    expect(root.querySelector('.trip-summary__vehicle')?.textContent).not.toContain('1234BCD');
     expect(root.textContent).toContain('Primero solicitas; Lucía decide.');
   });
 
   it('requests the seats of the search and shows it pending', async () => {
     const root = await render('t1', SEARCH);
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     const button = root.querySelector<HTMLIonButtonElement>('.trip-detail__aside ion-button');
     expect(button?.textContent?.trim()).toBe('Solicitar 2 plazas');
 
@@ -166,6 +185,7 @@ describe('TripDetailPage', () => {
       location: { type: 'Point', coordinates: ROQUETAS.coordinates },
       name: ROQUETAS.name,
     });
+    expect(navigate).toHaveBeenCalledWith('/tabs/trips/requests/r1');
     expect(root.textContent).toContain('Solicitud enviada. Falta la respuesta de Lucía.');
     expect(root.textContent).toContain('Cancelar solicitud');
   });

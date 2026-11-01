@@ -7285,6 +7285,13 @@
             "type": "number",
             "example": 12,
             "description": "Number of completed trips"
+          },
+          "rating": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Average rating, available after at least three published reviews"
           }
         },
         "required": [
@@ -7292,7 +7299,8 @@
           "name",
           "avatarKey",
           "preferences",
-          "tripCount"
+          "tripCount",
+          "rating"
         ]
       },
       "TripVehicleResource": {
@@ -8744,6 +8752,13 @@
             "type": "number",
             "example": 12,
             "description": "Number of completed trips"
+          },
+          "rating": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Average rating, available after at least three published reviews"
           }
         },
         "required": [
@@ -8751,7 +8766,8 @@
           "name",
           "avatarKey",
           "preferences",
-          "tripCount"
+          "tripCount",
+          "rating"
         ]
       },
       "TripMatchVehicleResource": {

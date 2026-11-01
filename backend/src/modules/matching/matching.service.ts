@@ -27,6 +27,7 @@ export interface TripMatch {
   driverName: string;
   driverAvatarKey: AvatarKey | null;
   driverPreferences: TravelPreferences;
+  driverRating: number | null;
   vehicle: VehicleRecognitionDetails;
 }
 
@@ -90,6 +91,7 @@ export class MatchingService {
         driverName: driver?.name ?? '',
         driverAvatarKey: driver?.avatarKey ?? null,
         driverPreferences: driver?.preferences ?? EMPTY_TRAVEL_PREFERENCES,
+        driverRating: driver?.driverRating ?? null,
         vehicle,
       };
     });

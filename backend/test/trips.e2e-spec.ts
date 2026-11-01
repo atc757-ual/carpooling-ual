@@ -129,6 +129,7 @@ describe('Trips API (e2e)', () => {
           name: 'ana',
           avatarKey: null,
           tripCount: 0,
+          rating: null,
           preferences: {
             conversation: null,
             music: null,
@@ -213,12 +214,27 @@ describe('Trips API (e2e)', () => {
       expect(response.body).toMatchObject({
         id: trip.id,
         status: 'published',
-        driver: { tripCount: 0 },
+        driver: { tripCount: 0, rating: null },
         vehicle: { brand: 'Seat', model: 'Ibiza', color: 'blue' },
         offeredSeats: 3,
         availableSeats: 3,
       });
       expect(JSON.stringify(response.body)).not.toContain('BCD');
+    });
+
+    it('shows the driver average after three published reviews', async () => {
+      const { token, vehicleId } = await readyDriver('ana');
+      const trip = await publishTrip(token, vehicleId);
+      await dataSource.query(
+        `UPDATE driver_profiles
+         SET average_rating = 4.8, rating_count = 3
+         WHERE user_id = (SELECT id FROM users WHERE email = $1)`,
+        [`${EMAIL_PREFIX}ana@ual.es`],
+      );
+
+      const response = await api('get', `/trips/${trip.id}`, token).expect(200);
+
+      expect(response.body).toMatchObject({ driver: { rating: 4.8 } });
     });
 
     it('answers 404 TRIP_NOT_FOUND for an unknown trip', async () => {

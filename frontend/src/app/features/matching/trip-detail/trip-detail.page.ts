@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, resource, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
   IonCard,
@@ -9,27 +9,20 @@ import {
   IonRouterLink,
   IonSpinner,
 } from '@ionic/angular';
-import { carOutline, mapOutline } from 'ionicons/icons';
-import {
-  RouteStop,
-  RouteTimeline,
-} from '../../../shared/components/ui/route-timeline/route-timeline';
+import { mapOutline } from 'ionicons/icons';
+import { RouteStop } from '../../../shared/components/ui/route-timeline/route-timeline';
+import { TripSummary, TripSummaryData } from '../../../shared/components/ui/trip-summary';
 import { ApiError } from '../../../core/models/api-error.model';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatShortDate, formatTime, toTripDetail } from '../trip-results';
-import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
+import { getFirstName } from '../trip-driver/trip-driver';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { TripRouteMap } from './trip-route-map';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
-import {
-  vehicleColorLabel,
-  vehicleColorSwatch,
-  vehicleDisplayName,
-} from '../../../shared/utils/vehicle-display.util';
-import { VehicleColor } from '../../../core/models/driver.model';
+import { formatTravelPreferences } from '../../../core/models/travel-preferences.model';
 
 // Detalle de un viaje de los resultados de Buscar: el recorrido con sus horas,
 // quien conduce (y su coche, cuando se conozca) y cómo funciona la solicitud.
@@ -48,8 +41,7 @@ import { VehicleColor } from '../../../core/models/driver.model';
     IonIcon,
     IonRouterLink,
     IonSpinner,
-    RouteTimeline,
-    TripDriver,
+    TripSummary,
     TripRouteMap,
   ],
   templateUrl: './trip-detail.page.html',
@@ -61,6 +53,7 @@ export class TripDetailPage {
   private readonly tripsService = inject(TripsService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
 
   // :id de la ruta (withComponentInputBinding)
   readonly id = input.required<string>();
@@ -128,6 +121,28 @@ export class TripDetailPage {
       : { coordinates: trip.origin.coordinates, label: search.parking.name };
   });
 
+  readonly summary = computed<TripSummaryData | null>(() => {
+    const trip = this.trip();
+    if (!trip) {
+      return null;
+    }
+    const apiTrip = this.tripData.value()?.trip;
+    const request = this.request();
+    return {
+      stops: this.stops(),
+      driver: trip.driver,
+      vehicle: trip.vehicle ?? null,
+      seatSummary: apiTrip
+        ? `Quedan ${apiTrip.availableSeats} de ${apiTrip.offeredSeats} plazas`
+        : trip.freeSeats === 1
+          ? 'Última plaza'
+          : `${trip.freeSeats} plazas libres`,
+      vehiclePlate: request?.status === 'accepted' ? request.vehiclePlate : null,
+      facts: `Desvío de recogida: ${trip.pickupDetourMinutes} min · Trayecto de unos ${trip.tripMinutes} min`,
+      preferences: apiTrip ? formatTravelPreferences(apiTrip.driver.preferences) : [],
+    };
+  });
+
   readonly driverFirstName = computed(() => {
     const trip = this.trip();
     return trip ? getFirstName(trip.driver.name) : '';
@@ -154,14 +169,8 @@ export class TripDetailPage {
   });
   readonly isSending = signal(false);
 
-  protected readonly carIcon = carOutline;
   protected readonly notFoundIcon = mapOutline;
   protected readonly formatSeats = formatSeats;
-  protected readonly vehicleName = vehicleDisplayName;
-  protected readonly vehicleColor = (vehicle: { color: VehicleColor | null }) =>
-    vehicleColorLabel(vehicle.color);
-  protected readonly vehicleSwatch = (vehicle: { color: VehicleColor | null }) =>
-    vehicleColorSwatch(vehicle.color);
 
   // RF-08: pedir las plazas de la búsqueda. Queda pendiente hasta que el
   // conductor decide
@@ -172,24 +181,24 @@ export class TripDetailPage {
     }
     await this.send(async () => {
       const search = this.searchState.search();
-      this.myRequest.set(
-        await this.seatRequests.request(
-          trip.id,
-          this.seats(),
-          search
-            ? {
-                direction: search.direction,
-                ...(search.direction === 'to-campus' && {
-                  location: {
-                    type: 'Point',
-                    coordinates: search.place.coordinates,
-                  },
-                  name: search.place.name,
-                }),
-              }
-            : undefined,
-        ),
+      const request = await this.seatRequests.request(
+        trip.id,
+        this.seats(),
+        search
+          ? {
+              direction: search.direction,
+              ...(search.direction === 'to-campus' && {
+                location: {
+                  type: 'Point',
+                  coordinates: search.place.coordinates,
+                },
+                name: search.place.name,
+              }),
+            }
+          : undefined,
       );
+      this.myRequest.set(request);
+      await this.router.navigateByUrl(`/tabs/trips/requests/${request.id}`);
     });
   }
 

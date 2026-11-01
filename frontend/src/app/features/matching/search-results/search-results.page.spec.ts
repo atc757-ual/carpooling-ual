@@ -29,7 +29,13 @@ const SEARCH: TripSearch = {
 
 const MATCH: TripMatch = {
   id: 't1',
-  driver: { id: 'd1', name: 'Lucía Cortés', avatarKey: 'sun' },
+  driver: {
+    id: 'd1',
+    name: 'Lucía Cortés',
+    avatarKey: 'sun',
+    tripCount: 0,
+    rating: null,
+  },
   departureAt: '2026-10-27T06:30:00.000Z',
   arrivalAt: '2026-10-27T07:02:00.000Z',
   availableSeats: 2,

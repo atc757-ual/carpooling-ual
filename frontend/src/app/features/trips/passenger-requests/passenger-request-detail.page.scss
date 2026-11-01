@@ -1,0 +1,74 @@
+.passenger-request-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding: var(--space-l) var(--page-gutter);
+}
+
+.passenger-request-detail ion-card {
+  margin: 0;
+}
+
+.passenger-request-detail__loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.passenger-request-detail__state {
+  display: flex;
+  min-height: 23.4375rem; // 375px
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+}
+
+.passenger-request-detail__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-base);
+}
+
+.passenger-request-detail__seats,
+.passenger-request-detail__history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-base);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+.passenger-request-detail__history ol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-xs) var(--space-base);
+  }
+}
+
+.passenger-request-detail form,
+.passenger-request-detail ion-button {
+  margin: 0;
+}
