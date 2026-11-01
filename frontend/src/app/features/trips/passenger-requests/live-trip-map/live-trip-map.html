@@ -13,7 +13,7 @@
     </ion-button>
   </header>
 
-  <div #map class="trip-live-map__canvas" role="region" [attr.aria-label]="mapLabel()"></div>
+  <section #map class="trip-live-map__canvas" [attr.aria-label]="mapLabel()"></section>
 
   <div class="trip-live-map__status" aria-live="polite">
     @if (isTogether()) {
