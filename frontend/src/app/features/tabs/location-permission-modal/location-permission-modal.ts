@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { IonButton, IonIcon, ModalController } from '@ionic/angular';
 import { navigateCircleOutline } from 'ionicons/icons';
+import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { LocationService } from '../../../core/services/location/location.service';
 
 // Al entrar con sesión y sin haber decidido aún sobre la ubicación: para qué
@@ -17,14 +18,17 @@ import { LocationService } from '../../../core/services/location/location.servic
 export class LocationPermissionModal {
   private readonly modalController = inject(ModalController);
   private readonly location = inject(LocationService);
+  private readonly consent = inject(LocationConsentService);
 
   readonly isAsking = signal(false);
   protected readonly icon = navigateCircleOutline;
 
-  // Pedir la ubicación una vez es lo que hace que se pida el permiso; aunque
+  // Queda registrado el consentimiento (lo que se ve y se retira en Perfil) y
+  // pedir la ubicación una vez es lo que hace que se pida el permiso; aunque
   // se deniegue, la ventana se cierra (la app sigue sin ella)
   async handleAllow(): Promise<void> {
     this.isAsking.set(true);
+    await this.consent.set('granted', 'location_prompt').catch(() => undefined);
     await this.location.getCurrentPoint().catch(() => undefined);
     await this.modalController.dismiss(null, 'allowed');
   }

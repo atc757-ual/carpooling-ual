@@ -98,11 +98,20 @@ describe('UsersService', () => {
     const setPromise = users.setLocationConsent('granted');
     const req = http.expectOne('/api/users/me/consents/location');
     expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual({ action: 'granted' });
+    expect(req.request.body).toEqual({ action: 'granted', source: 'settings' });
     req.flush({ current: { location: { action: 'granted' } }, history: [] });
 
     await expect(setPromise).resolves.toMatchObject({
       current: { location: { action: 'granted' } },
     });
+  });
+
+  it('records where the location consent was given', async () => {
+    const setPromise = users.setLocationConsent('granted', 'location_prompt');
+    const req = http.expectOne('/api/users/me/consents/location');
+    expect(req.request.body).toEqual({ action: 'granted', source: 'location_prompt' });
+    req.flush({ current: { location: { action: 'granted' } }, history: [] });
+
+    await setPromise;
   });
 });

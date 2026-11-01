@@ -23,6 +23,7 @@ import { close, locateOutline } from 'ionicons/icons';
 import type * as Leaflet from 'leaflet';
 import { Place } from '../../../core/models/place.model';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
+import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 
 // Acercamiento del mapa: el de una calle al ajustar un punto, y uno menos
@@ -36,7 +37,7 @@ const TILES_ATTRIBUTION = '© <a href="https://www.openstreetmap.org/copyright">
 const PIN_SIZE = 24;
 
 export type LocationStep =
-  'checking' | 'intro' | 'locating' | 'map' | 'view' | 'denied' | 'unavailable';
+  'checking' | 'intro' | 'locating' | 'map' | 'view' | 'denied' | 'unavailable' | 'revoked';
 
 // Lo que devuelve al cerrarse: el punto de la ubicación (role 'located') o
 // la dirección elegida en el mapa (role 'select')
@@ -60,6 +61,7 @@ export type LocationModalResult = [number, number] | Place;
 export class LocationModal implements OnInit, OnDestroy {
   private readonly modalController = inject(ModalController);
   private readonly location = inject(LocationService);
+  private readonly consent = inject(LocationConsentService);
   private readonly places = inject(PlacesService);
 
   // Con un punto, se abre directamente el mapa para ajustarlo
@@ -129,7 +131,7 @@ export class LocationModal implements OnInit, OnDestroy {
     if (permission === 'granted') {
       await this.handleLocate();
     } else {
-      this.step.set(permission === 'denied' ? 'denied' : 'intro');
+      this.step.set(permission === 'prompt' ? 'intro' : permission);
     }
   }
 
@@ -144,10 +146,21 @@ export class LocationModal implements OnInit, OnDestroy {
       const point = await this.location.getCurrentPoint();
       await this.modalController.dismiss(point, 'located');
     } catch (error) {
-      this.step.set(
-        error instanceof LocationError && error.reason === 'denied' ? 'denied' : 'unavailable',
-      );
+      this.step.set(error instanceof LocationError ? error.reason : 'unavailable');
     }
+  }
+
+  // Tras explicar para qué se usa (o si la había retirado en Perfil): queda
+  // registrado el consentimiento y se busca (el sistema pide su permiso)
+  async handleShare(): Promise<void> {
+    this.step.set('locating');
+    try {
+      await this.consent.set('granted', 'location_prompt');
+    } catch {
+      this.step.set('unavailable');
+      return;
+    }
+    await this.handleLocate();
   }
 
   // El pin en ese punto y su dirección (al llegar la ubicación, al soltar el

@@ -1,16 +1,18 @@
 import { inject, Injectable, InjectionToken } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
+import { LocationConsentService } from './location-consent.service';
 
 // Hasta cuándo se espera a la ubicación, y con qué precisión (la de una
 // calle: para recoger a alguien)
 const TIMEOUT_MS = 10_000;
 
 // Por qué no se ha podido saber la ubicación: sin permiso, o el dispositivo
-// no la da (sin señal, apagada o tarda demasiado)
-export type LocationFailure = 'denied' | 'unavailable';
+// no la da (sin señal, apagada o tarda demasiado), o el usuario dejó de
+// compartirla en Perfil (consentimiento retirado)
+export type LocationFailure = 'denied' | 'unavailable' | 'revoked';
 
-export type LocationPermission = 'granted' | 'denied' | 'prompt';
+export type LocationPermission = 'granted' | 'denied' | 'prompt' | 'revoked';
 
 export class LocationError extends Error {
   constructor(readonly reason: LocationFailure) {
@@ -46,10 +48,38 @@ const PERMISSION_DENIED = 1;
 @Injectable({ providedIn: 'root' })
 export class LocationService {
   private readonly geolocation = inject(GEOLOCATION);
+  private readonly consent = inject(LocationConsentService);
 
   // Si ya se dio el permiso, se denegó o aún no se ha preguntado (también si
-  // el navegador no deja saberlo)
+  // el navegador no deja saberlo); antes que nada, si el usuario dejó de
+  // compartirla en Perfil
   async checkPermission(): Promise<LocationPermission> {
+    const consent = await this.consent.getStatus();
+    if (consent === 'revoked') {
+      return 'revoked';
+    }
+    // Sin consentimiento registrado, como si aún no se hubiera preguntado: la
+    // ventana que explica para qué se usa lo registra antes de usarla
+    if (consent !== 'granted') {
+      return 'prompt';
+    }
+    const device = await this.checkDevicePermission();
+    if (device === 'denied') {
+      await this.recordDeviceWithdrawal();
+    }
+    return device;
+  }
+
+  // Con el consentimiento dado, el usuario quitó el permiso en los ajustes del
+  // sistema: se registra la retirada (origen device) para que el registro
+  // refleje lo que pasó. Si falla, se intentará la próxima vez
+  async recordDeviceWithdrawal(): Promise<void> {
+    await this.consent.set('revoked', 'device').catch(() => undefined);
+  }
+
+  // Solo el permiso del dispositivo o del navegador (en Perfil, junto al
+  // consentimiento): la app no puede quitarlo, solo el usuario en sus ajustes
+  async checkDevicePermission(): Promise<Exclude<LocationPermission, 'revoked'>> {
     try {
       const { location } = await this.geolocation.checkPermissions();
       if (location === 'granted' || location === 'denied') {
@@ -63,6 +93,9 @@ export class LocationService {
 
   // [longitud, latitud]; lanza LocationError
   async getCurrentPoint(): Promise<[number, number]> {
+    if ((await this.consent.getStatus()) !== 'granted') {
+      throw new LocationError('revoked');
+    }
     if (Capacitor.isNativePlatform()) {
       const { location } = await this.geolocation.requestPermissions({ permissions: ['location'] });
       if (location !== 'granted') {

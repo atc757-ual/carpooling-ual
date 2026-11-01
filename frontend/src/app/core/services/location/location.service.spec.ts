@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { vi } from 'vitest';
+import { LocationConsentService } from './location-consent.service';
 import { GEOLOCATION, LocationError, LocationService } from './location.service';
 
 describe('LocationService', () => {
@@ -12,11 +13,17 @@ describe('LocationService', () => {
     requestPermissions: vi.fn(),
     checkPermissions: vi.fn(),
   };
+  const consent = { getStatus: vi.fn(), set: vi.fn() };
 
   beforeEach(() => {
     vi.clearAllMocks();
+    consent.getStatus.mockResolvedValue('granted');
+    consent.set.mockResolvedValue({});
     TestBed.configureTestingModule({
-      providers: [{ provide: GEOLOCATION, useValue: geolocation }],
+      providers: [
+        { provide: GEOLOCATION, useValue: geolocation },
+        { provide: LocationConsentService, useValue: consent },
+      ],
     });
     location = TestBed.inject(LocationService);
     vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(false);
@@ -44,6 +51,24 @@ describe('LocationService', () => {
 
     await expect(location.getCurrentPoint()).rejects.toEqual(new LocationError('denied'));
     expect(geolocation.requestPermissions).toHaveBeenCalled();
+  });
+
+  it('does not use the location without the consent given in the app', async () => {
+    consent.getStatus.mockResolvedValue('none');
+    await expect(location.checkPermission()).resolves.toBe('prompt');
+    await expect(location.getCurrentPoint()).rejects.toEqual(new LocationError('revoked'));
+
+    consent.getStatus.mockResolvedValue('revoked');
+    await expect(location.checkPermission()).resolves.toBe('revoked');
+    expect(geolocation.checkPermissions).not.toHaveBeenCalled();
+    expect(geolocation.getCurrentPosition).not.toHaveBeenCalled();
+  });
+
+  it('records the withdrawal when the system permission was removed', async () => {
+    geolocation.checkPermissions.mockResolvedValueOnce({ location: 'denied' });
+
+    await expect(location.checkPermission()).resolves.toBe('denied');
+    expect(consent.set).toHaveBeenCalledWith('revoked', 'device');
   });
 
   it('knows whether the permission was given, denied or not asked yet', async () => {

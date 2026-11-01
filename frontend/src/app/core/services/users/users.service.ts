@@ -4,7 +4,11 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
 import { RegisterProfile } from '../../models/auth.model';
-import { ConsentAction, UserConsents } from '../../models/user-consent.model';
+import {
+  ConsentAction,
+  LocationConsentSource,
+  UserConsents,
+} from '../../models/user-consent.model';
 import { UpdateMeRequest, User } from '../../models/user.model';
 
 // Datos del propio usuario contra /api/users/me. Los métodos lanzan ApiError
@@ -34,8 +38,13 @@ export class UsersService {
     return this.send(this.http.get<UserConsents>(`${this.meUrl}/consents`));
   }
 
-  setLocationConsent(action: ConsentAction): Promise<UserConsents> {
-    return this.send(this.http.put<UserConsents>(`${this.meUrl}/consents/location`, { action }));
+  setLocationConsent(
+    action: ConsentAction,
+    source: LocationConsentSource = 'settings',
+  ): Promise<UserConsents> {
+    return this.send(
+      this.http.put<UserConsents>(`${this.meUrl}/consents/location`, { action, source }),
+    );
   }
 
   // Activa el perfil de conductor o de pasajero (elegir modo). Los perfiles van

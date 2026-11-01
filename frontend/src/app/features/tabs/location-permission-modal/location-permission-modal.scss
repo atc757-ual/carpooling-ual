@@ -36,4 +36,14 @@
   ion-button {
     margin: 0;
   }
+
+  // En escritorio, uno al lado del otro y del mismo ancho, con el azul (el
+  // primero) a la derecha
+  @media (min-width: 768px) {
+    flex-direction: row-reverse;
+
+    form {
+      flex: 1;
+    }
+  }
 }
