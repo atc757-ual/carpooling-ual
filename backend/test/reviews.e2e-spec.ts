@@ -280,7 +280,12 @@ describe('Reputation & Reviews API (e2e)', () => {
         ORDER BY occurred_at ASC`,
       [(first.body as { id: string }).id, (second.body as { id: string }).id],
     );
-    expect(events.map(({ type }) => type)).toEqual([
+    // La segunda reseña y las dos publicaciones van en la misma transacción,
+    // con el mismo occurred_at: sin columna de secuencia (DP-05) su orden no
+    // está garantizado, así que se comprueban sin orden
+    expect(
+      events.map(({ type }) => type).sort((a, b) => a.localeCompare(b)),
+    ).toEqual([
       'review.created',
       'review.created',
       'review.published',
