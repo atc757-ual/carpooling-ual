@@ -1,51 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TravelPreferencesResource } from '../../users/dto/travel-preferences.resource';
-import { VEHICLE_COLORS } from '../../users/entities/vehicle.entity';
-import { AVATAR_KEYS, type AvatarKey } from '../../users/travel-preferences';
-import { tripHref } from '../../trips/dto/trip.resource';
+import {
+  TripDriverResource,
+  tripHref,
+  TripVehicleResource,
+} from '../../trips/dto/trip.resource';
 import type { TripMatch } from '../matching.service';
-
-class TripMatchDriverResource {
-  @ApiProperty({ format: 'uuid' })
-  id: string;
-
-  @ApiProperty({ example: 'Lucía Cortés' })
-  name: string;
-
-  @ApiProperty({ enum: AVATAR_KEYS, nullable: true, example: 'sun' })
-  avatarKey: AvatarKey | null;
-
-  @ApiProperty({ type: TravelPreferencesResource })
-  preferences: TravelPreferencesResource;
-
-  @ApiProperty({ example: 12, description: 'Number of completed trips' })
-  tripCount: number;
-
-  @ApiProperty({
-    type: Number,
-    nullable: true,
-    minimum: 1,
-    maximum: 5,
-    description:
-      'Average rating, available after at least three published reviews',
-  })
-  rating: number | null;
-}
-
-export class TripMatchVehicleResource {
-  @ApiProperty({ type: String, nullable: true, example: 'Seat' })
-  brand: string | null;
-
-  @ApiProperty({ type: String, nullable: true, example: 'Ibiza' })
-  model: string | null;
-
-  @ApiProperty({
-    enum: VEHICLE_COLORS,
-    nullable: true,
-    example: 'blue',
-  })
-  color: string | null;
-}
 
 // Un viaje compatible con la búsqueda, con lo que hace falta para elegirlo
 export class TripMatchResource {
@@ -58,11 +17,11 @@ export class TripMatchResource {
   @ApiProperty({ example: '/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90' })
   href: string;
 
-  @ApiProperty({ type: TripMatchDriverResource })
-  driver: TripMatchDriverResource;
+  @ApiProperty({ type: TripDriverResource })
+  driver: TripDriverResource;
 
-  @ApiProperty({ type: TripMatchVehicleResource })
-  vehicle: TripMatchVehicleResource;
+  @ApiProperty({ type: TripVehicleResource })
+  vehicle: TripVehicleResource;
 
   @ApiProperty({ format: 'date-time' })
   departureAt: string;

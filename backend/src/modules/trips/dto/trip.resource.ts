@@ -37,7 +37,7 @@ export class TripDriverResource {
   rating: number | null;
 }
 
-class TripVehicleResource {
+export class TripVehicleResource {
   @ApiProperty({ type: String, nullable: true, example: 'Seat' })
   brand: string | null;
 

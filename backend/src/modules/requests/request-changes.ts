@@ -25,6 +25,23 @@ export type RequestChangeListener = (
   change: RequestChange,
 ) => Promise<void>;
 
+// El estado completo de la solicitud en sus eventos (para el Gemelo Digital)
+function requestPayload(request: SeatRequest): Record<string, unknown> {
+  return {
+    tripId: request.tripId,
+    passengerId: request.passengerId,
+    seats: request.seats,
+    isPriority: request.isPriority,
+    direction: request.direction,
+    pickupLocation: request.pickupLocation,
+    pickupAt: request.pickupAt?.toISOString() ?? null,
+    requestedAt: request.requestedAt.toISOString(),
+    status: request.status,
+    answeredAt: request.answeredAt?.toISOString() ?? null,
+    cancelledAt: request.cancelledAt?.toISOString() ?? null,
+  };
+}
+
 // Reglas fijas de aviso (RF-19) para cada cambio de una solicitud: se avisa a
 // la otra parte, nunca a quien hizo el cambio. Una cancelación se distingue
 // por el estado del viaje:
@@ -86,19 +103,7 @@ export class RequestChangesRecorder {
     await this.eventsService.record(manager, {
       type,
       sourceEntityId: request.id,
-      payload: {
-        tripId: request.tripId,
-        passengerId: request.passengerId,
-        seats: request.seats,
-        isPriority: request.isPriority,
-        direction: request.direction,
-        pickupLocation: request.pickupLocation,
-        pickupAt: request.pickupAt?.toISOString() ?? null,
-        requestedAt: request.requestedAt.toISOString(),
-        status: request.status,
-        answeredAt: request.answeredAt?.toISOString() ?? null,
-        cancelledAt: request.cancelledAt?.toISOString() ?? null,
-      },
+      payload: requestPayload(request),
     });
     const notice = noticeFor(type, request, trip);
     await this.notificationsService.notify(manager, [notice.recipientId], {
@@ -121,19 +126,7 @@ export class RequestChangesRecorder {
     await this.eventsService.record(manager, {
       type: 'request.cancelled',
       sourceEntityId: request.id,
-      payload: {
-        tripId: request.tripId,
-        passengerId: request.passengerId,
-        seats: request.seats,
-        isPriority: request.isPriority,
-        direction: request.direction,
-        pickupLocation: request.pickupLocation,
-        pickupAt: request.pickupAt?.toISOString() ?? null,
-        requestedAt: request.requestedAt.toISOString(),
-        status: request.status,
-        answeredAt: request.answeredAt?.toISOString() ?? null,
-        cancelledAt: request.cancelledAt?.toISOString() ?? null,
-      },
+      payload: requestPayload(request),
     });
     await Promise.all([
       this.notificationsService.notify(manager, [request.passengerId], {
