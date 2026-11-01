@@ -246,12 +246,24 @@ describe('Admin users API (e2e)', () => {
 
   it('answers 404 for an unknown user and 400 for a wrong role', async () => {
     const unknown = '0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90';
-    await api('post', `/admin/users/${unknown}/suspensions/driver/lift`)
+    const missing = await api(
+      'post',
+      `/admin/users/${unknown}/suspensions/driver/lift`,
+    )
       .send({ reason: REASON })
       .expect(404);
-    await api('post', `/admin/users/${unknown}/suspensions/pilot/lift`)
+    const badRole = await api(
+      'post',
+      `/admin/users/${unknown}/suspensions/pilot/lift`,
+    )
       .send({ reason: REASON })
       .expect(400);
-    await api('get', `/admin/users?status=sleeping`).expect(400);
+    const badStatus = await api('get', `/admin/users?status=sleeping`).expect(
+      400,
+    );
+
+    expect((missing.body as { code: string }).code).toBe('USER_NOT_FOUND');
+    expect((badRole.body as { code: string }).code).toBe('VALIDATION_FAILED');
+    expect((badStatus.body as { code: string }).code).toBe('VALIDATION_FAILED');
   });
 });
