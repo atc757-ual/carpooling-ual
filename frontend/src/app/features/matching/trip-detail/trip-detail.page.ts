@@ -134,9 +134,7 @@ export class TripDetailPage {
       vehicle: trip.vehicle ?? null,
       seatSummary: apiTrip
         ? `Quedan ${apiTrip.availableSeats} de ${apiTrip.offeredSeats} plazas`
-        : trip.freeSeats === 1
-          ? 'Última plaza'
-          : `${trip.freeSeats} plazas libres`,
+        : formatFreeSeats(trip.freeSeats),
       vehiclePlate: request?.status === 'accepted' ? request.vehiclePlate : null,
       facts: `Desvío de recogida: ${trip.pickupDetourMinutes} min · Trayecto de unos ${trip.tripMinutes} min`,
       preferences: apiTrip ? formatTravelPreferences(apiTrip.driver.preferences) : [],
@@ -237,6 +235,11 @@ export class TripDetailPage {
       this.isSending.set(false);
     }
   }
+}
+
+// «Última plaza», «3 plazas libres»
+function formatFreeSeats(seats: number): string {
+  return seats === 1 ? 'Última plaza' : `${seats} plazas libres`;
 }
 
 // «1 plaza», «2 plazas»
