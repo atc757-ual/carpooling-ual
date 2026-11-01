@@ -115,6 +115,51 @@
       "tooManyAttempts": "Has superado el número de intentos. Solicita un nuevo código para continuar.",
       "confirmCode": "Confirmar código",
       "backToNumber": "← Volver a editar el número"
+    },
+    "account": {
+      "title": "Cuenta",
+      "changePassword": "Cambiar contraseña",
+      "changePasswordDesc": "Al pulsar, te enviaremos un código al correo para continuar",
+      "help": "Ayuda y soporte",
+      "deleteAccount": "Eliminar cuenta",
+      "deleteAccountDesc": "Solicita la baja definitiva de tu cuenta y datos personales"
+    },
+    "passwordModal": {
+      "title": "Cambiar contraseña",
+      "introTitle": "Verifica tu identidad",
+      "introDesc": "Por seguridad, te enviaremos un código de confirmación de 6 dígitos a {{email}} antes de cambiar tu contraseña.",
+      "sendCode": "Enviar código al correo",
+      "codeNotice": "Hemos enviado un código a {{email}}. Introdúcelo junto con tu nueva contraseña.",
+      "codeLabel": "Código de 6 dígitos",
+      "newPasswordLabel": "Nueva contraseña",
+      "passwordHelper": "Mínimo 8 caracteres",
+      "passwordError": "La contraseña debe tener al menos 8 caracteres.",
+      "hidePassword": "Ocultar contraseña",
+      "showPassword": "Ver contraseña",
+      "confirmPasswordLabel": "Confirmar nueva contraseña",
+      "confirmMismatch": "Las contraseñas no coinciden.",
+      "savePassword": "Cambiar contraseña",
+      "codeSentToast": "Código enviado a tu correo.",
+      "successToast": "Contraseña actualizada correctamente.",
+      "verifyCode": "Comprobar código",
+      "backToCode": "← Cambiar código",
+      "stepCodeSubtitle": "Introduce el código de 6 dígitos que hemos enviado a {{email}}.",
+      "stepPasswordSubtitle": "Código verificado. Introduce tu nueva contraseña."
+    },
+    "deleteModal": {
+      "title": "Eliminar cuenta",
+      "warningTitle": "Esta acción es irreversible",
+      "warningDesc": "Se cancelarán tus publicaciones y reservas futuras, y se anonimizarán tus datos conforme al RGPD.",
+      "introHeading": "¿Seguro que quieres darte de baja?",
+      "introDesc": "Te enviaremos un código de confirmación de 6 dígitos a {{email}} para verificar que eres tú.",
+      "conditionTrips": "• No debes tener viajes activos o pendientes como conductor ni como pasajero.",
+      "conditionData": "• Tu historial de viajes anteriores se conservará de forma anónima para estadísticas.",
+      "sendCode": "Enviar código de confirmación",
+      "codeNotice": "Introduce el código de 6 dígitos que hemos enviado a {{email}} para confirmar la baja definitiva.",
+      "codeLabel": "Código de confirmación",
+      "confirmDelete": "Eliminar mi cuenta definitivamente",
+      "codeSentToast": "Código de confirmación enviado.",
+      "successToast": "Tu cuenta ha sido eliminada. Esperamos verte pronto de nuevo."
     }
   }
 }

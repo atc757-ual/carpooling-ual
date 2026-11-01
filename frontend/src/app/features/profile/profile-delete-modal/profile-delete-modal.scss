@@ -1,0 +1,166 @@
+.profile-delete-modal {
+  max-height: calc(90vh - 3.5rem);
+  overflow-y: auto;
+  padding: var(--space-s) var(--space-base) var(--space-base);
+  padding-bottom: max(var(--space-base), calc(var(--space-s) + env(safe-area-inset-bottom, 0px)));
+  background: var(--color-surface);
+}
+
+.modal-close-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 1.25rem;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
+}
+
+.profile-delete-modal__warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-base);
+  border-radius: var(--radius-s);
+  margin-bottom: var(--space-base);
+
+  ion-icon {
+    font-size: 1.5rem;
+    color: var(--color-danger);
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+}
+
+.profile-delete-modal__warning-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  p {
+    margin: 0;
+  }
+}
+
+.profile-delete-modal__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-base);
+  border-radius: var(--radius-s);
+  margin-bottom: var(--space-base);
+
+  ion-icon {
+    font-size: 1.25rem;
+    color: var(--color-danger);
+    flex-shrink: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.profile-delete-modal__step-one {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.profile-delete-modal__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.profile-delete-modal__heading {
+  margin: 0;
+  font-size: var(--font-size-title-s);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.profile-delete-modal__conditions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-s) var(--space-base);
+  border-radius: var(--radius-s);
+  background: var(--color-surface-subtle);
+
+  p {
+    margin: 0;
+  }
+}
+
+.profile-delete-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.profile-delete-modal__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-base);
+  border-radius: var(--radius-s);
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+
+  ion-icon {
+    font-size: 1.25rem;
+    color: var(--color-primary);
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.profile-delete-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.profile-delete-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin-top: var(--space-s);
+}
+
+.resend-code-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: var(--space-xs) var(--space-base);
+  border: none;
+  background: transparent;
+  color: var(--color-link);
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+
+  &:disabled {
+    color: var(--color-text-muted);
+    cursor: default;
+  }
+
+  &:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+}

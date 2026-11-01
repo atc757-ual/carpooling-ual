@@ -26,11 +26,11 @@
   font-size: 2rem; // 32px
 }
 
-// Uno al lado del otro y del mismo ancho (también en el móvil), con el azul
-// (el primero) a la derecha, donde acaba la lectura: «Eliminar · Cancelar»
+// En móvil: un botón encima del otro. En escritorio: uno al lado del otro
+// con el azul a la derecha («Eliminar · Cancelar»)
 .confirm__actions {
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: column;
   gap: var(--space-s);
   width: 100%;
   margin-top: var(--space-s);
@@ -40,7 +40,16 @@
   }
 
   form {
-    flex: 1;
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    flex-direction: row-reverse;
+
+    form {
+      flex: 1;
+      width: auto;
+    }
   }
 }
 

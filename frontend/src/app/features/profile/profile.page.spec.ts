@@ -225,4 +225,27 @@ describe('ProfilePage', () => {
     page.handleToggleTheme();
     expect(themeSpy).toHaveBeenCalled();
   });
+  it('opens the change password modal', async () => {
+    const { page } = render();
+    const present = vi.fn().mockResolvedValue(undefined);
+    const create = vi
+      .spyOn(TestBed.inject(ModalController), 'create')
+      .mockResolvedValue({ present } as unknown as HTMLIonModalElement);
+
+    await page.handleOpenPassword();
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ cssClass: 'info-dialog' }));
+    expect(present).toHaveBeenCalled();
+  });
+
+  it('opens the delete account modal', async () => {
+    const { page } = render();
+    const present = vi.fn().mockResolvedValue(undefined);
+    const create = vi
+      .spyOn(TestBed.inject(ModalController), 'create')
+      .mockResolvedValue({ present } as unknown as HTMLIonModalElement);
+
+    await page.handleOpenDeleteAccount();
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ cssClass: 'info-dialog' }));
+    expect(present).toHaveBeenCalled();
+  });
 });
