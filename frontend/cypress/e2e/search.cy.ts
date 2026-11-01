@@ -12,7 +12,13 @@ function tripMatch() {
     '@type': 'TripMatch',
     id: 't1',
     href: '/api/trips/t1',
-    driver: { id: 'd1', name: 'Lucía Cortés', avatarKey: 'sun' },
+    driver: {
+      id: 'd1',
+      name: 'Lucía Cortés',
+      avatarKey: 'sun',
+      tripCount: 0,
+      rating: null,
+    },
     departureAt: new Date(arrival.getTime() - 32 * 60_000).toISOString(),
     arrivalAt: arrival.toISOString(),
     availableSeats: 2,
@@ -81,6 +87,20 @@ for (const viewport of VIEWPORTS) {
         originName: 'Roquetas de Mar',
         destinationName: 'Campus UAL · Parking P1',
         status: 'published',
+        driver: {
+          id: 'd1',
+          name: 'Lucía Cortés',
+          avatarKey: 'sun',
+          preferences: { conversation: 'quiet', music: 'soft', smoking: 'no', pets: null },
+          tripCount: 0,
+          rating: null,
+        },
+        vehicle: { brand: 'Seat', model: 'Ibiza', color: 'white' },
+        offeredSeats: 3,
+        availableSeats: 2,
+        maxDetourMin: 10,
+        startedAt: null,
+        vehicleId: 'v1',
       });
       cy.intercept('GET', '/api/trips/t1/route', {
         '@type': 'TripRoute',
@@ -133,18 +153,32 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('requests a seat from the trip and shows it pending', () => {
-      cy.intercept('POST', '/api/trips/t1/requests', {
-        statusCode: 201,
-        body: {
-          '@type': 'SeatRequest',
-          id: 'r1',
-          trip: { id: 't1' },
-          status: 'pending',
-          seats: 1,
-          requestedAt: new Date().toISOString(),
-          vehiclePlate: null,
-        },
+      const createdAt = new Date().toISOString();
+      const newRequest = {
+        '@type': 'SeatRequest',
+        id: 'r1',
+        trip: { id: 't1' },
+        passenger: { id: 'p1', name: 'Mario Pérez' },
+        status: 'pending',
+        seats: 1,
+        direction: 'to-campus',
+        pickupLocation: { type: 'Point', coordinates: [-2.46, 36.84] },
+        pickupName: 'Roquetas de Mar',
+        pickupAt: null,
+        requestedAt: createdAt,
+        answeredAt: null,
+        cancelledAt: null,
+        isPriority: false,
+        vehiclePlate: null,
+      };
+      let requests = [] as (typeof newRequest)[];
+      cy.intercept('POST', '/api/trips/t1/requests', (req) => {
+        requests = [newRequest];
+        req.reply({ statusCode: 201, body: newRequest });
       }).as('request');
+      cy.intercept('GET', '/api/users/me/requests*', (req) => {
+        req.reply(requests);
+      });
       searchTrips('Roquetas de Mar');
       cy.get('app-search-results app-trip-result-card .trip-card__link').click();
 
@@ -158,10 +192,14 @@ for (const viewport of VIEWPORTS) {
           pickupLocation: { type: 'Point', coordinates: [-2.46, 36.84] },
           pickupName: 'Roquetas de Mar',
         });
-      cy.contains('app-trip-detail', 'Solicitud enviada. Falta la respuesta de Lucía.').should(
+      cy.location('pathname').should('eq', '/tabs/trips/requests/r1');
+      cy.contains('app-passenger-request-detail', 'Tu solicitud está en manos de Lucía').should(
         'be.visible',
       );
-      cy.contains('app-trip-detail ion-button', 'Cancelar solicitud').should('be.visible');
+      cy.contains('app-passenger-request-detail', 'Has pedido 1 plaza').should('be.visible');
+      cy.contains('app-passenger-request-detail ion-button', 'Cancelar solicitud').should(
+        'be.visible',
+      );
     });
 
     it('opens a trip and comes back to the same search', () => {

@@ -18,6 +18,7 @@ import type { AvatarKey, TravelPreferences } from './travel-preferences';
 import {
   PublicUserProfile,
   RoleRatingSummary,
+  toRoleRatingSummary,
   toUserRatingsSummary,
   UserSummary,
 } from './user-summary';
@@ -383,7 +384,9 @@ export class UsersService {
         musicPreference: true,
         smokingPreference: true,
         petsPreference: true,
+        driverProfile: { averageRating: true, ratingCount: true },
       },
+      relations: { driverProfile: true },
       where: { id: In(uniqueIds) },
     });
     return new Map(users.map((user) => [user.id, toPublicProfile(user)]));
@@ -482,6 +485,7 @@ function toPublicProfile(user: User): PublicUserProfile {
     name: user.name,
     avatarKey: user.avatarKey ?? null,
     preferences: toTravelPreferences(user),
+    driverRating: toRoleRatingSummary(user.driverProfile).averageRating,
   };
 }
 

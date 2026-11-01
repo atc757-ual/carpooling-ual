@@ -1,0 +1,114 @@
+<ion-content>
+  <main class="passenger-request-detail">
+    @if (requestResource.isLoading() && !requestResource.hasValue()) {
+      <output class="passenger-request-detail__loading" aria-live="polite">
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="text-caption text-color-muted">Cargando tu solicitud…</span>
+      </output>
+    } @else if (requestResource.error()) {
+      <ion-card>
+        <ion-card-content class="passenger-request-detail__state">
+          <div class="text-subtitle">No encontramos esta solicitud</div>
+          <p class="text-body-s text-color-muted">
+            Puede que ya no esté disponible. Puedes revisar tus viajes o buscar otro.
+          </p>
+          <ion-button routerLink="/tabs/trips">Volver a Tus viajes</ion-button>
+        </ion-card-content>
+      </ion-card>
+    } @else if (request(); as request) {
+      @if (tripResource.isLoading() && !tripResource.hasValue()) {
+        <output class="passenger-request-detail__loading" aria-live="polite">
+          <ion-spinner name="crescent" aria-hidden="true" />
+          <span class="text-caption text-color-muted">Cargando los datos del viaje…</span>
+        </output>
+      } @else if (tripResource.error()) {
+        <ion-card>
+          <ion-card-content class="passenger-request-detail__state">
+            <div class="text-subtitle">No pudimos cargar el viaje</div>
+            <ion-button routerLink="/tabs/trips">Volver a Tus viajes</ion-button>
+          </ion-card-content>
+        </ion-card>
+      } @else if (trip(); as trip) {
+        <output
+          class="notice"
+          [class.notice--warning]="request.status === 'pending'"
+          [class.notice--success]="request.status === 'accepted'"
+          [class.notice--info]="request.status === 'rejected' || request.status === 'cancelled'"
+        >
+          <span>
+            @switch (request.status) {
+              @case ('pending') {
+                <b>Tu solicitud está en manos de {{ firstName(trip.driver.name) }}.</b>
+                Aún no tienes plaza. Te avisaremos en Avisos cuando responda.
+              }
+              @case ('accepted') {
+                <b>Tienes plaza en el coche de {{ firstName(trip.driver.name) }}.</b>
+                Tu solicitud ha sido aceptada.
+              }
+              @case ('rejected') {
+                <b>{{ firstName(trip.driver.name) }} no pudo aceptar tu solicitud.</b>
+                No tienes plaza en este viaje.
+              }
+              @case ('cancelled') {
+                <b>La solicitud está cancelada.</b>
+                Puedes buscar otro viaje si todavía necesitas plaza.
+              }
+            }
+          </span>
+        </output>
+
+        <header class="passenger-request-detail__heading">
+          <div class="text-subtitle">{{ when(trip) }}</div>
+          <span class="text-caption text-color-muted">{{ directionLabel(request) }}</span>
+        </header>
+
+        @if (summary(); as summary) {
+          <ion-card>
+            <ion-card-content>
+              <app-trip-summary [summary]="summary" />
+            </ion-card-content>
+          </ion-card>
+        }
+
+        <section class="passenger-request-detail__seats" aria-labelledby="requested-seats-title">
+          <h2 id="requested-seats-title" class="text-subtitle">Plazas solicitadas</h2>
+          <p class="text-body-s">
+            Has pedido {{ formatSeats(request.seats) }}.
+            @if (request.status === 'pending') {
+              Una solicitud pendiente no ocupa plaza ni garantiza que quede sitio.
+            } @else if (request.status === 'accepted') {
+              El conductor ha confirmado estas plazas para ti.
+            }
+          </p>
+        </section>
+
+        <section class="passenger-request-detail__history" aria-labelledby="request-history-title">
+          <h2 id="request-history-title" class="text-subtitle">Historial</h2>
+          <ol>
+            @for (entry of history(); track entry.label) {
+              <li>
+                <span>{{ entry.label }}</span>
+                <time class="text-caption text-color-muted" [attr.datetime]="entry.at">
+                  {{ formatDateTime(entry.at) }}
+                </time>
+              </li>
+            }
+          </ol>
+        </section>
+
+        @if (request.status === 'pending') {
+          <form (submit)="$event.preventDefault(); handleCancel()">
+            <ion-button type="submit" fill="outline" color="danger" [disabled]="isCancelling()">
+              @if (isCancelling()) {
+                <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+              }
+              Cancelar solicitud
+            </ion-button>
+          </form>
+        } @else if (request.status === 'rejected' || request.status === 'cancelled') {
+          <ion-button routerLink="/tabs/search">Buscar otro viaje</ion-button>
+        }
+      }
+    }
+  </main>
+</ion-content>

@@ -139,6 +139,22 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'trips/requests/:id',
+        canActivate: [profileGuard('passenger')],
+        loadComponent: () =>
+          import('./features/trips/passenger-requests/passenger-request-detail.page').then(
+            (m) => m.PassengerRequestDetailPage,
+          ),
+        data: {
+          heading: {
+            title: 'Tu solicitud',
+            subtitle: 'Consulta el estado y los datos de tu plaza.',
+            backHref: '/tabs/trips',
+            breadcrumbs: [{ label: 'Tus viajes', href: '/tabs/trips' }],
+          } satisfies TabHeading,
+        },
+      },
+      {
         path: 'trips',
         loadComponent: () =>
           import('./features/trips/my-trips/my-trips.page').then((m) => m.MyTripsPage),

@@ -51,6 +51,7 @@ export interface PublicUserProfile {
   name: string;
   avatarKey: AvatarKey | null;
   preferences: TravelPreferences;
+  driverRating: number | null;
 }
 
 // Datos de la cuenta de un usuario (nunca el hash de la contraseña). Solo se

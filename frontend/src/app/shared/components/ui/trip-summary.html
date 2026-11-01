@@ -1,0 +1,38 @@
+<h2 class="visually-hidden">Recorrido y conductor</h2>
+<app-route-timeline [stops]="summary().stops" />
+<div class="trip-summary__facts">
+  <span class="trip-summary__seats">{{ summary().seatSummary }}</span>
+  @if (summary().facts) {
+    <span class="text-caption text-color-muted">{{ summary().facts }}</span>
+  }
+</div>
+<div class="trip-summary__driver">
+  <h2 class="visually-hidden">Quién conduce</h2>
+  <app-trip-driver [driver]="summary().driver" />
+  @if (summary().vehicle; as vehicle) {
+    <div class="trip-summary__vehicle">
+      <ion-icon [icon]="carIcon" aria-hidden="true" />
+      <div>
+        <div class="text-body-s text-body--strong">{{ vehicleName(vehicle) }}</div>
+        <div class="text-caption text-color-muted">
+          <span
+            class="trip-summary__swatch"
+            [style.--swatch-color]="vehicleSwatch(vehicle.color)"
+            aria-hidden="true"
+          ></span>
+          {{ vehicleColor(vehicle.color) }}
+          @if (summary().vehiclePlate; as plate) {
+            · {{ plate }}
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+@if (summary().preferences?.length) {
+  <section class="trip-summary__preferences" aria-label="Preferencias del conductor">
+    @for (preference of summary().preferences; track preference) {
+      <span class="trip-summary__preference">{{ preference }}</span>
+    }
+  </section>
+}

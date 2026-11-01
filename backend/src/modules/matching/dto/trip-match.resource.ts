@@ -20,6 +20,16 @@ class TripMatchDriverResource {
 
   @ApiProperty({ example: 12, description: 'Number of completed trips' })
   tripCount: number;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    minimum: 1,
+    maximum: 5,
+    description:
+      'Average rating, available after at least three published reviews',
+  })
+  rating: number | null;
 }
 
 export class TripMatchVehicleResource {
@@ -98,6 +108,7 @@ export function toTripMatchResource({
   driverName,
   driverAvatarKey,
   driverPreferences,
+  driverRating,
   vehicle,
 }: TripMatch): TripMatchResource {
   const travelMin = candidate.durationMin + candidate.detourMin;
@@ -111,6 +122,7 @@ export function toTripMatchResource({
       avatarKey: driverAvatarKey,
       preferences: driverPreferences,
       tripCount: candidate.driverTripCount,
+      rating: driverRating,
     },
     vehicle,
     departureAt: candidate.departureAt.toISOString(),

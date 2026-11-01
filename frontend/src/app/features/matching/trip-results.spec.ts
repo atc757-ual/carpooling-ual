@@ -22,7 +22,13 @@ const SEARCH: TripSearch = {
 
 const MATCH: TripMatch = {
   id: 't1',
-  driver: { id: 'd1', name: 'Lucía Cortés', avatarKey: 'sun' },
+  driver: {
+    id: 'd1',
+    name: 'Lucía Cortés',
+    avatarKey: 'sun',
+    tripCount: 12,
+    rating: 4.8,
+  },
   departureAt: new Date('2026-10-27T07:40:00').toISOString(),
   arrivalAt: new Date('2026-10-27T08:12:00').toISOString(),
   availableSeats: 1,
@@ -53,7 +59,13 @@ describe('trip results', () => {
       arrivalTime: '08:12',
       origin: 'Roquetas de Mar',
       destination: 'Campus UAL · Parking P1',
-      driver: { name: 'Lucía Cortés', avatarKey: 'sun', isEmailVerified: true },
+      driver: {
+        name: 'Lucía Cortés',
+        avatarKey: 'sun',
+        tripCount: 12,
+        rating: 4.8,
+        isEmailVerified: true,
+      },
       freeSeats: 1,
       pickupDetourMinutes: 4,
       passengerStop: ROQUETAS.name,

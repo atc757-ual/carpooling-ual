@@ -98,7 +98,11 @@ export class NotificationsPage {
       if (this.auth.hasProfile(mode) && this.activeMode.mode() !== mode) {
         await this.activeMode.setMode(mode);
       }
-      await this.router.navigateByUrl('/tabs/trips');
+      const target =
+        mode === 'passenger' && notification.request
+          ? `/tabs/trips/requests/${notification.request.id}`
+          : '/tabs/trips';
+      await this.router.navigateByUrl(target);
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     }

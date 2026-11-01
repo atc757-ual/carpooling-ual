@@ -23,7 +23,14 @@ function trip(id: string, status: Trip['status']): Trip {
     originName: 'Roquetas de Mar',
     destinationName: 'Campus UAL · Parking P1 (Sur)',
     vehicle: null,
-    driver: { id: 'd1', name: 'Lucía Cortés' },
+    driver: {
+      id: 'd1',
+      name: 'Lucía Cortés',
+      avatarKey: null,
+      preferences: { conversation: null, music: null, smoking: null, pets: null },
+      tripCount: 0,
+      rating: null,
+    },
   };
 }
 

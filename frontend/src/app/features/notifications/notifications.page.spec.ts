@@ -24,15 +24,27 @@ const TRIP: Trip = {
   originName: 'Roquetas de Mar',
   destinationName: 'Campus UAL · Parking P1 (Sur)',
   vehicle: null,
-  driver: { id: 'd1', name: 'Lucía Cortés' },
+  driver: {
+    id: 'd1',
+    name: 'Lucía Cortés',
+    avatarKey: null,
+    preferences: { conversation: null, music: null, smoking: null, pets: null },
+    tripCount: 0,
+    rating: null,
+  },
 };
 
-function notification(id: string, type: NotificationType, isRead = false): AppNotification {
+function notification(
+  id: string,
+  type: NotificationType,
+  isRead = false,
+  requestId: string | null = null,
+): AppNotification {
   return {
     id,
     type,
     trip: { id: 't1', href: '/api/trips/t1' },
-    request: null,
+    request: requestId ? { id: requestId, href: `/api/requests/${requestId}` } : null,
     incident: null,
     isRead,
     readAt: null,
@@ -116,6 +128,17 @@ describe('NotificationsPage', () => {
 
     expect(setMode).not.toHaveBeenCalled();
     expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/tabs/trips');
+  });
+
+  it('opens the passenger request detail from a request notification', async () => {
+    await render(
+      () => Promise.resolve([notification('n1', 'request_accepted', false, 'r1')]),
+      ['passenger'],
+    );
+
+    await fixture.componentInstance.handleOpen(fixture.componentInstance.all()[0]);
+
+    expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/tabs/trips/requests/r1');
   });
 
   it('does not change the mode without that profile, nor open incidents', async () => {

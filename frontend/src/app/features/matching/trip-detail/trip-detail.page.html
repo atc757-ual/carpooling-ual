@@ -32,44 +32,9 @@
             } @else if (tripData.error()) {
               <p class="text-caption text-color-muted">No pudimos cargar el mapa de la ruta.</p>
             }
-            <!-- Arriba, el recorrido con sus horas (lo principal) y sus datos -->
-            <h2 class="visually-hidden">Recorrido</h2>
-            <app-route-timeline [stops]="stops()" />
-            <div class="trip-detail__facts">
-              @if (trip.freeSeats === 1) {
-                <span class="trip-detail__seats trip-detail__seats--last">Última plaza</span>
-              } @else {
-                <span class="trip-detail__seats">{{ trip.freeSeats }} plazas libres</span>
-              }
-              <span class="text-caption text-color-muted">
-                Desvío de recogida: {{ trip.pickupDetourMinutes }} min · Trayecto de unos
-                {{ trip.tripMinutes }} min
-              </span>
-            </div>
-
-            <!-- Debajo de una línea, quien conduce y su coche -->
-            <div class="trip-detail__driver">
-              <h2 class="visually-hidden">Quién conduce</h2>
-              <app-trip-driver [driver]="trip.driver" />
-              @if (trip.vehicle; as vehicle) {
-                <div class="trip-detail__vehicle">
-                  <ion-icon [icon]="carIcon" aria-hidden="true" />
-                  <div>
-                    <div class="text-body-s text-body--strong">
-                      {{ vehicleName(vehicle) }}
-                    </div>
-                    <div class="text-caption text-color-muted">
-                      <span
-                        class="trip-detail__vehicle-swatch"
-                        [style.--swatch-color]="vehicleSwatch(vehicle)"
-                        aria-hidden="true"
-                      ></span>
-                      {{ vehicleColor(vehicle) }}
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
+            @if (summary(); as summary) {
+              <app-trip-summary [summary]="summary" />
+            }
           </ion-card-content>
         </ion-card>
       </div>
@@ -101,9 +66,6 @@
               <span>
                 <b>{{ driverFirstName() }} ha aceptado tu solicitud.</b>
                 Tienes {{ formatSeats(request()!.seats) }} en este viaje.
-                @if (request()!.vehiclePlate; as plate) {
-                  El coche lleva la matrícula {{ plate }}.
-                }
               </span>
             </output>
           }

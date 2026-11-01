@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import type { Point } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
+import { EMPTY_TRAVEL_PREFERENCES } from '../users/travel-preferences';
 import type { AvatarKey, TravelPreferences } from '../users/travel-preferences';
 import { UsersService } from '../users/users.service';
 import { VehiclesService } from '../users/vehicles.service';
@@ -60,6 +61,7 @@ export interface TripView {
   driverAvatarKey: AvatarKey | null;
   driverPreferences: TravelPreferences;
   driverTripCount: number;
+  driverRating: number | null;
   vehicle: VehicleRecognitionDetails | null;
 }
 
@@ -146,7 +148,7 @@ export class TripsService {
       skip: page.offset,
       take: page.limit,
     });
-    const { name, avatarKey, preferences } =
+    const { name, avatarKey, preferences, ratings } =
       await this.usersService.getSummary(driverId);
     const [driverTripCount, vehicles] = await Promise.all([
       this.getDriverTripCount(driverId),
@@ -161,6 +163,7 @@ export class TripsService {
           driverAvatarKey: avatarKey,
           driverPreferences: preferences,
           driverTripCount,
+          driverRating: ratings.driver.averageRating,
           vehicle: vehicles.get(trip.vehicleId) ?? null,
         }),
       ),
@@ -335,17 +338,19 @@ export class TripsService {
 
   // El viaje con el perfil público de su conductor
   private async toView(trip: Trip): Promise<TripView> {
-    const [profile, driverTripCount, vehicles] = await Promise.all([
-      this.usersService.getSummary(trip.driverId),
+    const [profiles, driverTripCount, vehicles] = await Promise.all([
+      this.usersService.getPublicProfiles([trip.driverId]),
       this.getDriverTripCount(trip.driverId),
       this.vehiclesService.getRecognitionDetails([trip.vehicleId]),
     ]);
+    const profile = profiles.get(trip.driverId);
     return {
       trip,
-      driverName: profile.name,
-      driverAvatarKey: profile.avatarKey,
-      driverPreferences: profile.preferences,
+      driverName: profile?.name ?? '',
+      driverAvatarKey: profile?.avatarKey ?? null,
+      driverPreferences: profile?.preferences ?? EMPTY_TRAVEL_PREFERENCES,
       driverTripCount,
+      driverRating: profile?.driverRating ?? null,
       vehicle: vehicles.get(trip.vehicleId) ?? null,
     };
   }
