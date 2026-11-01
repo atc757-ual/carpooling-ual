@@ -61,7 +61,7 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/admin/users');
       cy.contains('.admin-nav__link', 'Usuarios').should('have.attr', 'aria-current', 'page');
       cy.contains('h1', 'Usuarios');
-      cy.contains('[role="status"]', 'Disponible pronto');
+      cy.contains('output.admin-empty', 'Disponible pronto');
     });
 
     it('sends users without the admin profile to their profile', () => {

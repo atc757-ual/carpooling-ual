@@ -15,6 +15,6 @@ describe('AdminSectionPage', () => {
 
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('h1')?.textContent).toBe('Usuarios');
-    expect(element.querySelector('[role="status"]')?.textContent).toContain('Disponible pronto');
+    expect(element.querySelector('output')?.textContent).toContain('Disponible pronto');
   });
 });

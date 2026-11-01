@@ -2,9 +2,15 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { IonButton } from '@ionic/angular';
 
 // Separador de miles con espacio que no se parte (1 284), también con cuatro
-// cifras (Intl en español no separa los números de cuatro cifras)
+// cifras (Intl en español no separa los números de cuatro cifras). Se agrupa
+// de tres en tres desde la derecha, sin expresiones regulares
 export function formatCount(value: number): string {
-  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+  const digits = String(value);
+  const groups: string[] = [];
+  for (let end = digits.length; end > 0; end -= 3) {
+    groups.unshift(digits.slice(Math.max(end - 3, 0), end));
+  }
+  return groups.join('\u00a0');
 }
 
 // Paginación de las listas del panel (TMF630: offset y limit, con el total de
