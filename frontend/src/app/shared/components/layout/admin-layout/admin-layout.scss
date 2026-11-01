@@ -1,0 +1,113 @@
+// Cabecera índigo del panel (guía de estilos, «Administración»): en el móvil,
+// logotipo, cuenta y navegación en una columna; desde 768px, logotipo y cuenta
+// en la primera fila y la navegación debajo, como el menú de la app
+.admin-header {
+  background: var(--color-admin);
+  color: var(--color-on-admin);
+  box-shadow: none;
+}
+
+.admin-header__bar {
+  display: grid;
+  grid-template-areas:
+    'brand'
+    'account'
+    'nav';
+  gap: var(--space-s);
+  padding: var(--space-s) var(--page-gutter);
+
+  @media (min-width: 768px) {
+    grid-template-areas:
+      'brand account'
+      'nav nav';
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    padding-block: var(--space-xs) 0;
+  }
+}
+
+.admin-header__brand {
+  grid-area: brand;
+  color: inherit;
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem; // 20px
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+
+.admin-header__account {
+  display: flex;
+  flex-wrap: wrap;
+  grid-area: account;
+  align-items: center;
+  gap: var(--space-xs);
+
+  @media (min-width: 768px) {
+    justify-self: end;
+  }
+}
+
+.admin-header__email {
+  font-size: var(--font-size-label);
+  overflow-wrap: anywhere;
+}
+
+.admin-header__logout {
+  --color: var(--color-on-admin);
+  --color-hover: var(--color-on-admin);
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  grid-area: nav;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+}
+
+.admin-nav__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  // 48px de alto, como los botones
+  min-height: var(--control-height-base);
+  padding-inline: var(--space-base);
+  border-bottom: 0.1875rem solid transparent; // 3px
+  color: inherit;
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 0.125rem solid var(--color-on-admin); // 2px
+    outline-offset: -0.125rem;
+  }
+}
+
+.admin-nav__link--active {
+  border-bottom-color: var(--color-on-admin);
+  font-weight: var(--font-weight-semibold);
+}
+
+.admin-nav__icon {
+  font-size: 1.25rem; // 20px
+}
+
+.admin-nav__badge {
+  min-width: 1.5rem; // 24px
+  padding: 0 var(--space-xs);
+  border-radius: var(--radius-full);
+  background: var(--color-on-admin);
+  color: var(--color-admin);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+
+.admin-main {
+  padding: var(--space-l) var(--page-gutter) var(--space-xxl);
+}

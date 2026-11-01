@@ -18,6 +18,7 @@ import { formatTime } from '../../matching/trip-results';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { formatSeats } from '../driver-trip-card/driver-trip-card';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { LiveTripMap } from './live-trip-map/live-trip-map';
 
 interface HistoryEntry {
   label: string;
@@ -42,6 +43,7 @@ const HISTORY_DATE_FORMAT = new Intl.DateTimeFormat('es-ES', {
     IonContent,
     IonSpinner,
     TripSummaryComponent,
+    LiveTripMap,
   ],
   templateUrl: './passenger-request-detail.page.html',
   styleUrl: './passenger-request-detail.page.scss',
@@ -97,6 +99,30 @@ export class PassengerRequestDetailPage {
     return entries;
   });
   readonly isCancelling = signal(false);
+  readonly isPageVisible = signal(true);
+
+  ionViewWillEnter(): void {
+    this.isPageVisible.set(true);
+  }
+
+  ionViewDidLeave(): void {
+    this.isPageVisible.set(false);
+  }
+
+  protected pickupLocation(request: SeatRequest, trip: Trip) {
+    if (request.pickupLocation) {
+      return request.pickupLocation;
+    }
+    return request.direction === 'from-campus' ? trip.origin : null;
+  }
+
+  protected pickupName(request: SeatRequest, trip: Trip): string {
+    return (
+      request.pickupName ??
+      (request.direction === 'from-campus' ? trip.originName : 'Tu punto de recogida') ??
+      'Tu punto de recogida'
+    );
+  }
 
   protected readonly formatDateTime = (value: string) =>
     HISTORY_DATE_FORMAT.format(new Date(value));

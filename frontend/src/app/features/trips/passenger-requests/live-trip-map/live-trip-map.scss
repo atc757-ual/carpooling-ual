@@ -1,0 +1,55 @@
+:host {
+  display: block;
+}
+
+.trip-live-map {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-base);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+.trip-live-map__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+
+  h2 {
+    margin: 0;
+  }
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+.trip-live-map__canvas {
+  width: 100%;
+  height: 14rem; // 224px
+  overflow: hidden;
+  border-radius: var(--radius-s);
+  background: var(--color-surface-subtle);
+}
+
+.trip-live-map__status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  p {
+    margin: 0;
+  }
+}
+
+.trip-live-map__status .notice {
+  margin: 0;
+}
+
+@media (min-width: 48rem) {
+  .trip-live-map__canvas {
+    height: 18rem; // 288px
+  }
+}

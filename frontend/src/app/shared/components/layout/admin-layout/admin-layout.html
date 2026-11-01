@@ -1,0 +1,36 @@
+<ion-header class="admin-header">
+  <div class="admin-header__bar">
+    <a class="admin-header__brand" routerLink="/admin">UAL Carpool · Admin</a>
+    <div class="admin-header__account">
+      <span class="admin-header__email">{{ email() }}</span>
+      <ion-button class="admin-header__logout" fill="clear" (click)="handleLogout()">
+        <ion-icon slot="start" [icon]="logoutIcon" aria-hidden="true" />
+        Cerrar sesión
+      </ion-button>
+    </div>
+    <nav class="admin-nav" aria-label="Secciones del panel">
+      @for (section of sections; track section.path) {
+        <a
+          class="admin-nav__link"
+          [routerLink]="section.path"
+          routerLinkActive="admin-nav__link--active"
+          ariaCurrentWhenActive="page"
+        >
+          <ion-icon class="admin-nav__icon" [icon]="section.icon" aria-hidden="true" />
+          {{ section.label }}
+          @if (section.path === incidentsPath && openIncidents() > 0) {
+            <span class="admin-nav__badge">
+              {{ openIncidents() }}<span class="visually-hidden"> abiertas</span>
+            </span>
+          }
+        </a>
+      }
+    </nav>
+  </div>
+</ion-header>
+
+<ion-content>
+  <main class="admin-main">
+    <router-outlet />
+  </main>
+</ion-content>

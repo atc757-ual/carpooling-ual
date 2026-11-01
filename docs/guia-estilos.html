@@ -349,7 +349,21 @@
   .bar-row__track { height: 0.5rem; border-radius: var(--radius-full); background: var(--color-border-subtle); overflow: hidden; }
   .bar-row__track span { display: block; height: 100%; border-radius: var(--radius-full); background: var(--color-primary); }
 
-  .decision { padding: var(--space-base); border-left: 0.25rem solid var(--color-warning); background: var(--color-warning-subtle); border-radius: 0 var(--radius-base) var(--radius-base) 0; font-size: var(--font-size-label); line-height: var(--line-height-label); }
+  /* Panel de administración: cabecera, filtros, tabla con cabecera fija y paginación */
+  .admin-bar { display: grid; grid-template-columns: auto 1fr; gap: var(--space-s); padding: var(--space-s) var(--space-base) 0; border-radius: var(--radius-l); background: var(--color-admin); color: var(--color-on-admin); }
+  .admin-bar__brand { font-family: var(--font-family-heading); font-weight: 700; font-size: 1.25rem; }
+  .admin-bar__account { justify-self: end; font-size: var(--font-size-label); }
+  .admin-bar__nav { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+  .admin-bar__nav a { display: flex; align-items: center; gap: var(--space-xs); min-height: var(--control-height); padding: 0 var(--space-base); border-bottom: 0.1875rem solid transparent; color: inherit; font-size: var(--font-size-label); text-decoration: none; }
+  .admin-bar__nav a.on { border-bottom-color: var(--color-on-admin); font-weight: 600; }
+  .admin-bar__badge { min-width: 1.5rem; padding: 0 var(--space-xs); border-radius: var(--radius-full); background: var(--color-on-admin); color: var(--color-admin); font-size: var(--font-size-meta); font-weight: 700; text-align: center; }
+  .filter-bar { display: grid; gap: var(--space-base); grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); margin: var(--space-l) 0 var(--space-base); }
+  .scroll--sticky { max-height: 16rem; overflow: auto; border: var(--border-width) solid var(--color-border-subtle); border-radius: var(--radius-base); }
+  .scroll--sticky thead th { position: sticky; top: 0; background: var(--color-surface); }
+  .pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-s); padding-block: var(--space-s); }
+  .pager__range { color: var(--color-text-muted); font-size: var(--font-size-label); font-variant-numeric: tabular-nums; }
+
+  .decision {padding: var(--space-base); border-left: 0.25rem solid var(--color-warning); background: var(--color-warning-subtle); border-radius: 0 var(--radius-base) var(--radius-base) 0; font-size: var(--font-size-label); line-height: var(--line-height-label); }
 </style>
 </head>
 <body>
@@ -720,7 +734,7 @@
     </div>
     <p class="note" style="margin-top:var(--space-s)">El acento sobre blanco solo da 3,5:1: nunca como color de texto pequeño. «Última plaza» va como chip naranja con texto negro.</p>
 
-    <h3>Administración</h3>
+    <h3 id="administracion">Administración</h3>
     <p class="note">Panel de escritorio con la cabecera índigo. Las cifras son el protagonista (Barlow 600); las tarjetas solo agrupan bloques. Los datos de ejemplo se marcan como tales.</p>
     <div class="kpis">
       <div class="kpi"><span class="text-label muted">Usuarios activos</span><span class="kpi__value">108</span><span class="text-meta">120 en total · 8 sin verificar · 4 con perfil desactivado</span></div>
@@ -744,6 +758,39 @@
         <div class="notice notice--info"><span><b>Revisada no significa resuelta</b>La revisión conserva el informe original. La prioridad de búsqueda no garantiza una nueva plaza.</span></div>
       </div>
     </div>
+
+    <h3>Patrones del panel</h3>
+    <p class="note">Comunes a todas las secciones del panel (<code>/admin</code>). Escritorio desde 768&nbsp;px; en el móvil, una columna sin romperse.</p>
+    <div class="admin-bar">
+      <span class="admin-bar__brand">UAL Carpool · Admin</span>
+      <span class="admin-bar__account">admin@ual.es · Cerrar sesión</span>
+      <nav class="admin-bar__nav" aria-label="Ejemplo de navegación del panel">
+        <a class="on" href="#administracion">Simulación</a><a href="#administracion">Gemelo digital</a><a href="#administracion">Usuarios</a><a href="#administracion">Incidencias <span class="admin-bar__badge">3</span></a><a href="#administracion">Viajes</a><a href="#administracion">Catálogos</a>
+      </nav>
+    </div>
+    <p class="text-meta">Cabecera: logotipo, cuenta (correo y «Cerrar sesión», con la misma confirmación que la app) y las seis secciones en este orden. La activa se subraya; Incidencias lleva el número de abiertas (y «abiertas» para el lector de pantalla).</p>
+
+    <div class="filter-bar">
+      <label class="field"><span class="field__label">Buscar usuario</span><span class="field__control"><input type="search" placeholder="Nombre o correo"></span></label>
+      <label class="field"><span class="field__label">Perfil</span><span class="field__control"><select><option>Todos</option><option>Conductor</option><option>Pasajero</option><option>Administrador</option></select></span></label>
+      <label class="field"><span class="field__label">Estado</span><span class="field__control"><select><option>Todos</option><option>Activo</option><option>Suspendido</option></select></span></label>
+    </div>
+    <div class="scroll scroll--sticky"><table>
+      <thead><tr><th>Nombre</th><th>Perfil</th><th>Viajes</th><th>Estado</th><th>Acción</th></tr></thead>
+      <tbody>
+        <tr><td>Lucía Cortés<br><span class="text-meta">lcc123@inlumine.ual.es</span></td><td>Conductora y pasajera</td><td>42</td><td><span class="status status--accepted">Activa</span></td><td><a href="#administracion">Ver perfil</a></td></tr>
+        <tr><td>Javier Pardo<br><span class="text-meta">jpr789@inlumine.ual.es</span></td><td>Conductor</td><td>9</td><td><span class="status status--pending">2 incidencias</span></td><td><a href="#administracion">Ver perfil</a></td></tr>
+        <tr><td>Sara Gil<br><span class="text-meta">sgm321@inlumine.ual.es</span></td><td>Conductora</td><td>0</td><td><span class="status status--info">Correo sin verificar</span></td><td><a href="#administracion">Ver perfil</a></td></tr>
+      </tbody>
+    </table></div>
+    <div class="pager"><span class="pager__range">1–20 de 1&nbsp;284</span><span class="row"><button class="btn btn--outline-neutral btn--s" type="button" disabled>Anterior</button><button class="btn btn--outline-neutral btn--s" type="button">Siguiente</button></span></div>
+    <ul class="text-meta">
+      <li><b>Filtros:</b> buscador (<code>ion-searchbar</code>) y <code>ion-select</code> o <code>ion-segment</code>. Cambiar un filtro vuelve a la primera página y no borra los demás.</li>
+      <li><b>Tabla:</b> cabecera fija al desplazar; en pantallas estrechas se desplaza en horizontal dentro de su caja, nunca la página.</li>
+      <li><b>Paginación</b> (<code>app-pagination</code>): «1–20 de 1&nbsp;284» con separador de miles y «Anterior / Siguiente», deshabilitados en los extremos y mientras carga la página.</li>
+      <li><b>Chips de estado:</b> las clases <code>.status</code> (texto siempre, no solo color).</li>
+      <li><b>Estados de cada lista:</b> esqueleto con la forma de las filas al cargar; vacío que dice qué filtro quitar; error con «Reintentar» que mantiene página y filtros. Una sección aún sin contenido muestra «Disponible pronto».</li>
+    </ul>
   </section>
 
   <!-- 8 -->
