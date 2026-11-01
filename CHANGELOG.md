@@ -10,6 +10,9 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ### Fixed
 - **Frontend:** cerrar sesión descarta las pantallas de la cuenta anterior y Publicar abre limpio para cualquier perfil (#120).
 
+### Changed
+- **Backend:** «Sobre mí» de 20 a 200 caracteres (antes 500; los más largos se recortan), Fumar sin «solo en paradas» (pasa a «no se fuma») y el consentimiento de ubicación guarda su origen: `location_prompt` (la ventana que explica para qué se usa) o `device` (se quitó el permiso del sistema), además de `settings` (#128).
+
 ### Added
 - **Frontend:** base de la pantalla de Perfil: modelos de preferencias de viaje, consentimientos y reseñas por rol, `UsersService` con el perfil propio, la verificación del teléfono por SMS y el consentimiento de ubicación, catálogo de los 12 avatares y `ThemeService` para elegir modo claro u oscuro y recordarlo (#127).
 - **Backend:** módulo `reputation` de reseñas por rol (RF-22) con doble ciego y ventana de 7 días (`reviews`, `trips.finished_at`, `rating_count` en `driver_profiles` y `passenger_profiles`, `ratings` en `User` visible a partir de 3 reseñas), endpoints `POST /api/trips/:tripId/reviews`, `GET /api/users/me/reviews` y `GET /api/users/me/pending-reviews`, aviso `review_requested` al terminar un viaje con pasajeros aceptados y eventos `review.created` y `review.published` (#122).
