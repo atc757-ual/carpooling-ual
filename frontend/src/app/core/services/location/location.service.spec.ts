@@ -32,7 +32,7 @@ describe('LocationService', () => {
   afterEach(() => vi.restoreAllMocks());
 
   const position = (longitude: number, latitude: number) =>
-    ({ coords: { longitude, latitude }, timestamp: 0 }) as Awaited<
+    ({ coords: { longitude, latitude, accuracy: 12 }, timestamp: 0 }) as Awaited<
       ReturnType<typeof Geolocation.getCurrentPosition>
     >;
 
@@ -40,6 +40,15 @@ describe('LocationService', () => {
     geolocation.getCurrentPosition.mockResolvedValue(position(-2.46, 36.84));
 
     await expect(location.getCurrentPoint()).resolves.toEqual([-2.46, 36.84]);
+  });
+
+  it('returns the location accuracy for the live map halo', async () => {
+    geolocation.getCurrentPosition.mockResolvedValue(position(-2.46, 36.84));
+
+    await expect(location.getCurrentLocation()).resolves.toEqual({
+      coordinates: [-2.46, 36.84],
+      accuracy: 12,
+    });
   });
 
   it('asks for the permission in the app, and fails without it', async () => {

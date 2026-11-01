@@ -41,6 +41,22 @@
   color: var(--color-on-eco);
 }
 
+.trip-live-map__car-marker {
+  display: grid;
+  border: var(--border-width-m) solid var(--color-surface);
+  border-radius: var(--radius-full);
+  background: var(--color-link);
+  box-shadow: var(--shadow-s);
+  color: var(--color-on-primary);
+  place-items: center;
+
+  svg {
+    width: 1.5rem; // 24px
+    height: 1.5rem; // 24px
+    fill: currentColor;
+  }
+}
+
 // Los controles de Leaflet con la letra de la app
 .leaflet-container {
   font-family: var(--font-family-body);
