@@ -5,10 +5,12 @@
 import { VehicleColor } from './driver.model';
 import { TripDirection } from './trip-search.model';
 import { AvatarKey } from './avatar.model';
+import { TravelPreferences } from './travel-preferences.model';
 
 export interface TripDriver {
   name: string;
   avatarKey: AvatarKey | null;
+  preferences?: TravelPreferences;
   tripCount?: number;
   // De 0 a 5
   rating?: number;

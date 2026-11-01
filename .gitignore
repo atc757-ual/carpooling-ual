@@ -35,3 +35,6 @@ osrm-data/
 
 # Claude Code (local, no subir)
 CLAUDE.md
+
+# Worktrees
+.worktrees/

@@ -1,0 +1,52 @@
+<div
+  class="vehicle-card"
+  [class.vehicle-card--selected]="isSelected()"
+  [style.--swatch-color]="swatch()"
+>
+  <label class="vehicle-card__choice">
+    <input
+      class="visually-hidden"
+      type="radio"
+      [name]="groupName()"
+      [checked]="isSelected()"
+      (change)="selected.emit(vehicle())"
+    />
+    @if (hasIcon()) {
+      <ion-icon class="vehicle-card__car" [icon]="icons.car" aria-hidden="true" />
+    }
+    <span class="vehicle-card__body">
+      <span class="vehicle-card__title">
+        <span class="vehicle-card__name">{{ name() }}</span>
+        <span class="vehicle-card__separator" aria-hidden="true">|</span>
+        <span class="vehicle-card__plate">{{ plate() }}</span>
+      </span>
+      <span class="vehicle-card__specs text-body-s text-color-muted">
+        <span class="vehicle-card__swatch" aria-hidden="true"></span>
+        {{ specs() }}
+      </span>
+    </span>
+    <ion-icon
+      class="vehicle-card__check"
+      [icon]="isSelected() ? icons.checked : icons.unchecked"
+      aria-hidden="true"
+    />
+  </label>
+  @if (hasActions()) {
+    <button
+      class="vehicle-card__action"
+      type="button"
+      [attr.aria-label]="'Editar ' + vehicle().plate"
+      (click)="edit.emit(vehicle())"
+    >
+      <ion-icon [icon]="icons.edit" aria-hidden="true" />
+    </button>
+    <button
+      class="vehicle-card__action vehicle-card__action--danger"
+      type="button"
+      [attr.aria-label]="'Eliminar ' + vehicle().plate"
+      (click)="remove.emit(vehicle())"
+    >
+      <ion-icon [icon]="icons.remove" aria-hidden="true" />
+    </button>
+  }
+</div>

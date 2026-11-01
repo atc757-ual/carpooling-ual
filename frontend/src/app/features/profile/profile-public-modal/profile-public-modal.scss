@@ -1,0 +1,137 @@
+.profile-public-modal {
+  max-height: calc(90vh - 3.5rem);
+  overflow-y: auto;
+  padding: var(--space-base);
+  padding-bottom: max(var(--space-l), calc(var(--space-base) + env(safe-area-inset-bottom, 0px)));
+  background: var(--color-surface);
+}
+
+.profile-public-modal__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-base);
+}
+
+// En el móvil, una fila que se desliza con el dedo, sin barra de
+// desplazamiento a la vista; en escritorio (sin deslizar con el ratón), todos
+// a la vista en varias filas
+.profile-public-modal__carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: var(--space-s);
+  // Sitio para el anillo azul de la elegida (3px), también al desplazarse
+  padding: var(--space-s);
+  scroll-padding-inline: var(--space-s);
+  margin-inline: calc(var(--space-s) * -1); // alineado con la etiqueta «Avatar»
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
+// Solo el dibujo, sin borde: la elegida, con un anillo azul (el nombre va
+// junto a la etiqueta «Avatar»)
+.avatar-option {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: none;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: box-shadow var(--motion-duration-fast);
+
+  &:hover {
+    box-shadow: 0 0 0 2px var(--color-border-strong);
+  }
+
+  &--selected,
+  &--selected:hover {
+    box-shadow: 0 0 0 3px var(--color-primary);
+  }
+
+  &:focus-visible,
+  &:focus-within {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.25rem;
+  }
+}
+
+.avatar-option__preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem; // 56px
+  height: 3.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-body);
+}
+
+.avatar-option--initials .avatar-option__preview {
+  background: var(--color-warning-subtle);
+  color: var(--color-text);
+}
+
+.avatar-option__svg {
+  width: 2rem; // 32px
+  height: 2rem;
+}
+
+.profile-public-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-base);
+}
+
+.profile-public-modal__field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.profile-public-modal__actions {
+  margin-top: var(--space-l);
+}
+
+// Mientras escribe, el borde azul del foco aunque aún no llegue a 20
+// caracteres: el rojo, solo al salir del campo (con su texto de error)
+ion-textarea.has-focus {
+  --highlight-color-invalid: var(--color-link);
+}
+
+// El check de la elegida: una insignia azul abajo a la derecha, sobre el
+// anillo (con un borde del color del fondo para separarla de él)
+.avatar-option__check {
+  position: absolute;
+  right: -0.125rem;
+  bottom: -0.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem; // 20px
+  height: 1.25rem;
+  border: 2px solid var(--color-surface);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+
+  ion-icon {
+    font-size: 0.75rem; // 12px
+  }
+}

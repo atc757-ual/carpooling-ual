@@ -7,58 +7,18 @@
       Añadir vehículo
     </button>
   }
-  <!-- Una tarjeta por vehículo: pulsarla lo elige (un radio nativo, oculto);
-       el lápiz (asientos) y la papelera, aparte -->
+  <!-- Una tarjeta por vehículo: pulsarla lo elige (editarlo o eliminarlo, en
+       Mi perfil) -->
   <fieldset class="vehicle-picker__group">
     <legend class="visually-hidden">Vehículo</legend>
     <div class="vehicle-picker__grid">
       @for (vehicle of vehicles(); track vehicle.id) {
-        @let isSelected = vehicle.id === selectedId();
-        <div class="vehicle-card" [class.vehicle-card--selected]="isSelected">
-          <label class="vehicle-card__choice">
-            <input
-              class="visually-hidden"
-              type="radio"
-              name="publish-vehicle"
-              [checked]="isSelected"
-              (change)="handleSelect(vehicle)"
-            />
-            <ion-icon class="vehicle-card__car" [icon]="icons.car" aria-hidden="true" />
-            <span class="vehicle-card__body">
-              <span class="vehicle-card__name">{{ vehicleName(vehicle) }}</span>
-              <span class="text-caption text-color-muted">
-                <span
-                  class="vehicle-picker__swatch"
-                  [style.--swatch-color]="colorSwatch(vehicle)"
-                  aria-hidden="true"
-                ></span>
-                {{ colorLabel(vehicle) }} · {{ vehicle.plate }} · hasta
-                {{ plural(vehicle.capacity, 'pasajero', 'pasajeros') }}
-              </span>
-            </span>
-            <ion-icon
-              class="vehicle-card__check"
-              [icon]="isSelected ? icons.checked : icons.unchecked"
-              aria-hidden="true"
-            />
-          </label>
-          <button
-            class="vehicle-card__action"
-            type="button"
-            [attr.aria-label]="'Editar ' + vehicle.plate"
-            (click)="handleEdit(vehicle)"
-          >
-            <ion-icon [icon]="icons.edit" aria-hidden="true" />
-          </button>
-          <button
-            class="vehicle-card__action vehicle-card__action--danger"
-            type="button"
-            [attr.aria-label]="'Eliminar ' + vehicle.plate"
-            (click)="handleRemove(vehicle)"
-          >
-            <ion-icon [icon]="icons.remove" aria-hidden="true" />
-          </button>
-        </div>
+        <app-vehicle-card
+          [vehicle]="vehicle"
+          groupName="publish-vehicle"
+          [isSelected]="vehicle.id === selectedId()"
+          (selected)="handleSelect($event)"
+        />
       }
       @if (vehicles().length === 0) {
         <!-- Sin vehículos: qué falta y, arriba a la derecha, «Añadir vehículo» -->

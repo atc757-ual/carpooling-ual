@@ -45,6 +45,9 @@
                   <span class="driver-trip__name">{{ request.passenger.name }}</span>
                   <span class="text-caption text-color-muted">
                     {{ formatSeats(request.seats) }}{{ request.isPriority ? ' · Prioridad' : '' }}
+                    @for (pref of passengerPreferences(request); track pref) {
+                      · {{ pref }}
+                    }
                   </span>
                 </div>
                 @if (request.status === 'pending') {

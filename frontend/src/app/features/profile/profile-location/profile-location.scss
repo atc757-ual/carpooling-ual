@@ -1,0 +1,86 @@
+// «Ubicación» del Perfil: la misma tarjeta que las demás del Perfil
+.profile-location {
+  margin: 0;
+  text-align: left;
+}
+
+// Título a la izquierda (ion-card-header es una columna) y 18px también en
+// escritorio, como en el resto del Perfil
+.profile-location__header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 3.5rem;
+  padding: var(--space-base) var(--space-base) var(--space-s);
+
+  ion-card-title {
+    margin: 0;
+    font-size: 1.125rem; // 18px
+  }
+}
+
+.profile-location__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  form,
+  ion-button {
+    margin: 0;
+  }
+}
+
+// Texto a la izquierda y el interruptor o el estado a la derecha
+.profile-location__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-base);
+}
+
+.profile-location__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+// Fecha y código del registro, debajo del interruptor
+.profile-location__stamp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-s);
+}
+
+.profile-location__granted,
+.profile-location__hash {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.profile-location__granted {
+  color: var(--color-success);
+}
+
+.profile-location__hash {
+  font-family: monospace;
+}
+
+// El permiso del dispositivo, separado del consentimiento por una línea fina
+.profile-location__device {
+  padding-top: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+}
+
+// «Permitir»: botón pequeño azul suave, del alto de las etiquetas de estado
+.profile-location__allow {
+  --background: var(--color-primary-subtle);
+  --background-hover: var(--color-primary-subtle);
+  --color: var(--color-primary);
+  --border-radius: var(--radius-s);
+  --box-shadow: none;
+  height: 2rem; // 32px
+  min-height: 2rem; // el tema da 48px a todos los ion-button
+  font-weight: var(--font-weight-semibold);
+}

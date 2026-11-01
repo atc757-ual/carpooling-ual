@@ -43,7 +43,10 @@ function openProfile(profiles: string[]): void {
   cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
   cy.contains('ion-button', 'Iniciar sesión').click();
   cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
-  cy.contains('app-tabs .top-nav__link:visible, app-tabs ion-tab-button:visible', 'Mi perfil').click();
+  cy.contains(
+    'app-tabs .top-nav__link:visible, app-tabs ion-tab-button:visible',
+    'Mi perfil',
+  ).click();
   cy.location('pathname').should('eq', '/tabs/profile');
 }
 
@@ -59,15 +62,16 @@ for (const viewport of VIEWPORTS) {
 
       cy.contains('app-profile', 'Lucía Cortés').should('be.visible');
       cy.contains('app-profile', '+34 612 345 678');
-      cy.contains('app-profile-vehicles', '1234BCD');
-      cy.contains('app-profile-vehicles', 'SEAT León · Blanco · hasta 3 pasajeros');
+      cy.contains('app-profile-vehicles', '1234 BCD');
+      cy.contains('app-profile-vehicles', 'SEAT León');
+      cy.contains('app-profile-vehicles', 'Blanco · 3 plazas · Híbrido');
     });
 
     it('removes a vehicle after confirming it', () => {
       cy.intercept('DELETE', '/api/vehicles/v1', { statusCode: 204 }).as('remove');
       openProfile(['driver']);
 
-      cy.contains('app-profile-vehicles ion-button', 'Eliminar').click();
+      cy.get('app-profile-vehicles [aria-label*="Eliminar"]').click();
       cy.contains('app-confirm-modal ion-button', 'Eliminar').click();
 
       cy.wait('@remove');

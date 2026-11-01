@@ -1,0 +1,78 @@
+.profile-preferences-modal {
+  max-height: calc(90vh - 3.5rem);
+  overflow-y: auto;
+  padding: var(--space-s) var(--space-base) var(--space-base);
+  padding-bottom: max(var(--space-base), calc(var(--space-s) + env(safe-area-inset-bottom, 0px)));
+  background: var(--color-surface);
+}
+
+// Cada grupo: título con su icono y las opciones en pastillas, separado del
+// siguiente por una línea fina (24px entre grupos, 8px dentro)
+.preferences-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+  padding: var(--space-base) 0;
+  border: none;
+
+  & + & {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}
+
+.preferences-group__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+  font-size: var(--font-size-body); // 16px
+  font-weight: var(--font-weight-semibold);
+
+  ion-icon {
+    font-size: 1.25rem; // 20px
+    color: var(--color-primary);
+  }
+}
+
+.preferences-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+}
+
+.preference-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem; // 36px: todas de la misma altura
+  padding: 0 var(--space-s);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-s);
+  cursor: pointer;
+  transition:
+    background var(--motion-duration-fast),
+    border-color var(--motion-duration-fast);
+
+  &:hover {
+    border-color: var(--color-primary);
+  }
+
+  &--selected {
+    background: var(--color-primary-subtle);
+    border-color: var(--color-primary);
+    color: var(--color-link);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.125rem;
+  }
+}
+
+.profile-preferences-modal__actions {
+  margin-top: var(--space-s);
+}

@@ -9,7 +9,7 @@ describe('formatTravelPreferences', () => {
         smoking: 'no',
         pets: 'pet_friendly',
       }),
-    ).toEqual(['Prefiero ir tranquilo', 'No se fuma en el coche', 'Pet friendly']);
+    ).toEqual(['Ir tranquilo', 'No se fuma', 'Pet friendly']);
   });
 
   it('lists nothing when no preference is chosen', () => {
