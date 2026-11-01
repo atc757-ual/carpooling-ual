@@ -52,6 +52,11 @@ export class AuthService {
     return this.accessToken;
   }
 
+  // Actualiza el usuario actual tras editar el perfil o verificar el teléfono
+  updateUser(user: User): void {
+    this.user.set(user);
+  }
+
   // Guarda el registro pendiente y envía el código; la cuenta se crea al
   // verificar el correo (verifyEmail), que es cuando se inicia la sesión
   async register(request: RegisterRequest): Promise<void> {

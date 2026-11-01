@@ -21,6 +21,8 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   PROFILE_REQUIRED: 'Tu perfil no permite hacer esta acción.',
   PROFILE_DEACTIVATED_BY_ADMIN:
     'La administración ha desactivado este perfil. Escríbele si crees que es un error.',
+  AVATAR_NOT_FOUND: 'El avatar elegido no está disponible. Elige otro de la lista.',
+  PHONE_REQUIRED: 'Añade y guarda un número de teléfono antes de verificarlo.',
   VEHICLE_ALREADY_REGISTERED: 'Ya tienes un vehículo con esta matrícula.',
   DRIVER_NOT_READY: 'Registra un vehículo y acepta la declaración antes de publicar.',
   PUBLISHING_SUSPENDED:

@@ -93,6 +93,16 @@ describe('AuthService', () => {
       expect(preferences.values.get(REFRESH_TOKEN_KEY)).toBe('refresh-1');
     });
 
+    it('replaces the current user after editing the profile', async () => {
+      const login = auth.login({ email: 'ana@ual.es', password: 'secret' });
+      (await expectRequest('/api/auth/login')).flush(accessToken('1'));
+      await login;
+
+      auth.updateUser({ ...USER, bio: 'Voy a la UAL desde Roquetas' });
+
+      expect(auth.currentUser()?.bio).toBe('Voy a la UAL desde Roquetas');
+    });
+
     it('rejects with the API error and does not start a session', async () => {
       const login = auth.login({ email: 'ana@ual.es', password: 'wrong' });
       (await expectRequest('/api/auth/login')).flush(

@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationStart, Router } from '@angular/router';
 import { IonApp, IonRouterOutlet } from '@ionic/angular';
 import { filter } from 'rxjs';
+import { ThemeService } from './core/services/ui/theme.service';
 
 // Raíz de la aplicación: el contenedor de Ionic y el router, donde se cargan
 // las pantallas de cada ruta (app.routes.ts)
@@ -22,5 +23,7 @@ export class App {
         takeUntilDestroyed(),
       )
       .subscribe(() => (document.activeElement as HTMLElement | null)?.blur());
+    // El modo claro u oscuro que eligió el usuario en Perfil, si eligió alguno
+    void inject(ThemeService).restore();
   }
 }

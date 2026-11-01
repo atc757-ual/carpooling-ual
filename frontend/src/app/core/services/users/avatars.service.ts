@@ -2,7 +2,13 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { AvatarGraphic, AvatarKey, AvatarResource, AvatarShape } from '../../models/avatar.model';
+import {
+  AvatarGraphic,
+  AvatarKey,
+  AvatarOption,
+  AvatarResource,
+  AvatarShape,
+} from '../../models/avatar.model';
 
 const AVATAR_PAGE_SIZE = 100;
 const ROOT_ATTRIBUTES = new Set([
@@ -18,19 +24,29 @@ const ROOT_ATTRIBUTES = new Set([
 @Injectable({ providedIn: 'root' })
 export class AvatarsService {
   private readonly http = inject(HttpClient);
-  private catalog: Promise<ReadonlyMap<AvatarKey, AvatarGraphic>> | null = null;
+  private catalog: Promise<ReadonlyMap<AvatarKey, AvatarOption>> | null = null;
 
   async getGraphic(key: AvatarKey): Promise<AvatarGraphic | null> {
+    const entries = await this.loadMap();
+    return entries.get(key)?.graphic ?? null;
+  }
+
+  async listCatalog(): Promise<AvatarOption[]> {
+    const entries = await this.loadMap();
+    return [...entries.values()];
+  }
+
+  private async loadMap(): Promise<ReadonlyMap<AvatarKey, AvatarOption>> {
     this.catalog ??= this.loadCatalog();
     try {
-      return (await this.catalog).get(key) ?? null;
+      return await this.catalog;
     } catch {
       this.catalog = null;
-      return null;
+      return new Map();
     }
   }
 
-  private async loadCatalog(): Promise<ReadonlyMap<AvatarKey, AvatarGraphic>> {
+  private async loadCatalog(): Promise<ReadonlyMap<AvatarKey, AvatarOption>> {
     const avatars: AvatarResource[] = [];
     let offset = 0;
     let total = Number.POSITIVE_INFINITY;
@@ -51,17 +67,17 @@ export class AvatarsService {
       offset += page.length;
     }
 
-    const entries: [AvatarKey, AvatarGraphic][] = [];
-    for (const { id, svg } of avatars) {
+    const entries: [AvatarKey, AvatarOption][] = [];
+    for (const { id, name, svg } of avatars) {
       const graphic = this.parseGraphic(svg);
       if (graphic) {
-        entries.push([id, graphic]);
+        entries.push([id, { id, name, graphic }]);
       }
     }
     return new Map(entries);
   }
 
-  // Traduce el catÃ¡logo a geometrÃ­a validada; la plantilla crea los nodos SVG.
+  // Traduce el catálogo a geometría validada; la plantilla crea los nodos SVG.
   private parseGraphic(svg: string): AvatarGraphic | null {
     const root = this.parseRoot(svg);
     if (!root) return null;
