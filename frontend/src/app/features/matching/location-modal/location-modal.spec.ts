@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Place } from '../../../core/models/place.model';
+import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { LocationModal } from './location-modal';
@@ -19,6 +20,7 @@ describe('LocationModal', () => {
   let fixture: ComponentFixture<LocationModal>;
   let modal: LocationModal;
   const location = { getCurrentPoint: vi.fn(), checkPermission: vi.fn() };
+  const consent = { set: vi.fn() };
   const places = { reverse: vi.fn() };
   const modalController = { dismiss: vi.fn() };
 
@@ -30,6 +32,7 @@ describe('LocationModal', () => {
       providers: [
         provideIonicAngular(),
         { provide: LocationService, useValue: location },
+        { provide: LocationConsentService, useValue: consent },
         { provide: PlacesService, useValue: places },
         { provide: ModalController, useValue: modalController },
       ],
@@ -42,7 +45,7 @@ describe('LocationModal', () => {
   });
 
   // Otra ventana, con el permiso ya dado o denegado
-  async function reopenWith(permission: 'granted' | 'denied'): Promise<void> {
+  async function reopenWith(permission: 'granted' | 'denied' | 'revoked'): Promise<void> {
     location.checkPermission.mockResolvedValue(permission);
     fixture = TestBed.createComponent(LocationModal);
     modal = fixture.componentInstance;
@@ -135,6 +138,33 @@ describe('LocationModal', () => {
     await reopenWith('denied');
 
     expect(modal.step()).toBe('denied');
+    expect(location.getCurrentPoint).not.toHaveBeenCalled();
+  });
+
+  it('records the consent from the explanation before looking for the location', async () => {
+    consent.set.mockResolvedValue({});
+    location.getCurrentPoint.mockResolvedValue([-2.4637, 36.8381]);
+
+    await modal.handleShare();
+
+    expect(consent.set).toHaveBeenCalledWith('granted', 'location_prompt');
+    expect(modalController.dismiss).toHaveBeenCalledWith([-2.4637, 36.8381], 'located');
+  });
+
+  it('offers to share it again when the user stopped sharing it', async () => {
+    await reopenWith('revoked');
+
+    expect(modal.step()).toBe('revoked');
+    expect(text()).toContain('Has dejado de compartir tu ubicación');
+    expect(location.getCurrentPoint).not.toHaveBeenCalled();
+  });
+
+  it('does not look for the location when the consent cannot be recorded', async () => {
+    consent.set.mockRejectedValue(new Error('offline'));
+
+    await modal.handleShare();
+
+    expect(modal.step()).toBe('unavailable');
     expect(location.getCurrentPoint).not.toHaveBeenCalled();
   });
 

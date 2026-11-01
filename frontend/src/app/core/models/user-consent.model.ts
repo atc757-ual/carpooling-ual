@@ -1,6 +1,15 @@
 export type ConsentType = 'terms' | 'privacy' | 'location';
 export type ConsentAction = 'granted' | 'revoked';
-export type ConsentSource = 'registration' | 'settings' | 'account_deletion';
+// location_prompt: la ventana que explica para qué se usa la ubicación;
+// device: el usuario quitó el permiso del sistema y la app lo detectó
+export type ConsentSource =
+  'registration' | 'settings' | 'account_deletion' | 'location_prompt' | 'device';
+
+// Los que puede enviar la app al registrar el consentimiento de ubicación
+export type LocationConsentSource = Extract<
+  ConsentSource,
+  'settings' | 'location_prompt' | 'device'
+>;
 
 export interface ConsentRecord {
   id: string;

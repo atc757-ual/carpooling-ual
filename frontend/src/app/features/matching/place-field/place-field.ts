@@ -21,6 +21,8 @@ const LOCATION_MESSAGES: Readonly<Record<LocationError['reason'], string>> = {
   denied:
     'No tenemos permiso para ver tu ubicación. Actívalo en los ajustes o escribe la dirección.',
   unavailable: 'No hemos podido saber dónde estás. Inténtalo de nuevo o escribe la dirección.',
+  revoked:
+    'Has dejado de compartir tu ubicación. Vuelve a compartirla en Perfil o escribe la dirección.',
 };
 
 function toSearchPlace(place: Place): SearchPlace {
