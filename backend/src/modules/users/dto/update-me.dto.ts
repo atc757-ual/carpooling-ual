@@ -102,9 +102,9 @@ export class UpdateMeDto extends PartialType(
     type: String,
     nullable: true,
     minLength: 20,
-    maxLength: 500,
+    maxLength: 200,
     description:
-      'Public "About me": 20–500 characters when filled; empty string or null clears it',
+      'Public "About me": 20–200 characters when filled; empty string or null clears it',
     example:
       'Conductora habitual desde Roquetas de Mar al campus de La Cañada.',
   })
@@ -113,7 +113,7 @@ export class UpdateMeDto extends PartialType(
   )
   @IsOptional()
   @IsString()
-  @Length(20, 500)
+  @Length(20, 200)
   bio?: string | null;
 
   @ApiProperty({

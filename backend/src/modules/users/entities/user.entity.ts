@@ -88,8 +88,8 @@ export class User {
   })
   avatarKey: AvatarKey | null = null;
 
-  // «Sobre mí» público, de 20 a 500 caracteres cuando se rellena
-  @Column({ type: 'varchar', length: 500, nullable: true, default: null })
+  // «Sobre mí» público, de 20 a 200 caracteres cuando se rellena
+  @Column({ type: 'varchar', length: 200, nullable: true, default: null })
   bio: string | null = null;
 
   @Column({

@@ -108,7 +108,7 @@ export class UserResource {
     type: String,
     nullable: true,
     description:
-      'Public "About me" (20–500 characters when filled); null if empty',
+      'Public "About me" (20–200 characters when filled); null if empty',
     example:
       'Conductora habitual desde Roquetas de Mar al campus de La Cañada.',
   })

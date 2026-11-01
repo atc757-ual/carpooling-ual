@@ -586,7 +586,7 @@ describe('Users API (e2e)', () => {
       [{ email: 'otra@ual.es' }],
       [{ avatarKey: 'dragon' }],
       [{ bio: 'Demasiado corto' }],
-      [{ bio: 'a'.repeat(501) }],
+      [{ bio: 'a'.repeat(201) }],
       [{ preferences: { conversation: 'loud' } }],
     ])('rejects %j', async (body) => {
       const ana = await createUser('ana');
