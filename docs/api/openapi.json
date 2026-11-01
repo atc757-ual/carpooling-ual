@@ -6161,7 +6161,6 @@
             "type": "string",
             "enum": [
               "no",
-              "stops_only",
               "allowed"
             ],
             "nullable": true,
@@ -6312,7 +6311,7 @@
           "bio": {
             "type": "string",
             "nullable": true,
-            "description": "Public \"About me\" (20–500 characters when filled); null if empty",
+            "description": "Public \"About me\" (20–200 characters when filled); null if empty",
             "example": "Conductora habitual desde Roquetas de Mar al campus de La Cañada."
           },
           "preferences": {
@@ -6657,7 +6656,6 @@
             "type": "string",
             "enum": [
               "no",
-              "stops_only",
               "allowed"
             ],
             "nullable": true,
@@ -6725,8 +6723,8 @@
             "type": "string",
             "nullable": true,
             "minLength": 20,
-            "maxLength": 500,
-            "description": "Public \"About me\": 20–500 characters when filled; empty string or null clears it",
+            "maxLength": 200,
+            "description": "Public \"About me\": 20–200 characters when filled; empty string or null clears it",
             "example": "Conductora habitual desde Roquetas de Mar al campus de La Cañada."
           },
           "preferences": {
@@ -6789,7 +6787,9 @@
             "enum": [
               "registration",
               "settings",
-              "account_deletion"
+              "account_deletion",
+              "location_prompt",
+              "device"
             ],
             "example": "registration"
           },
@@ -6884,6 +6884,16 @@
               "revoked"
             ],
             "example": "granted"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "settings",
+              "location_prompt",
+              "device"
+            ],
+            "default": "settings",
+            "description": "Where it was recorded: settings (the profile switch), location_prompt (the window explaining why location is used) or device (the app detected the system permission was removed)"
           }
         },
         "required": [

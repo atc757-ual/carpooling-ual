@@ -248,6 +248,7 @@ export class UsersController {
       await this.consentsService.recordLocationConsent(
         currentUser.sub,
         dto.action,
+        dto.source,
       ),
     );
   }
