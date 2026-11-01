@@ -79,76 +79,16 @@ export const TRAVEL_PREFERENCE_GROUPS: readonly [
   { key: 'pets', title: 'Mascotas', options: PETS_OPTIONS },
 ];
 
-const CONVERSATION_LABELS: Readonly<Record<ConversationPreference, string>> = {
-  chatty: 'Me gusta charlar',
-  depends: 'Según el día',
-  quiet: 'Prefiero ir tranquilo',
-};
-
-const MUSIC_LABELS: Readonly<Record<MusicPreference, string>> = {
-  any: 'Con música',
-  soft: 'Música suave',
-  none: 'Sin música',
-};
-
-const SMOKING_LABELS: Readonly<Record<SmokingPreference, string>> = {
-  no: 'No se fuma en el coche',
-  stops_only: 'Solo en paradas',
-  allowed: 'Se permite fumar',
-};
-
-const PETS_LABELS: Readonly<Record<PetsPreference, string>> = {
-  none: 'Sin mascotas',
-  small_carrier: 'Pequeñas en transportín',
-  pet_friendly: 'Pet friendly',
-};
-
-// Textos visibles de las preferencias elegidas; vacío si no tiene ninguna
-export interface FormattedPreferenceItem {
-  criterion: string;
-  value: string;
-}
-
-export function formatTravelPreferencesStructured(
-  preferences: TravelPreferences | null | undefined,
-): FormattedPreferenceItem[] {
-  if (!preferences) {
-    return [];
-  }
-  const items: FormattedPreferenceItem[] = [];
-  if (preferences.conversation) {
-    items.push({ criterion: 'Conversación', value: CONVERSATION_LABELS[preferences.conversation] });
-  }
-  if (preferences.music) {
-    items.push({ criterion: 'Música', value: MUSIC_LABELS[preferences.music] });
-  }
-  if (preferences.smoking) {
-    items.push({ criterion: 'Fumar', value: SMOKING_LABELS[preferences.smoking] });
-  }
-  if (preferences.pets) {
-    items.push({ criterion: 'Mascotas', value: PETS_LABELS[preferences.pets] });
-  }
-  return items;
-}
-
+// Textos de las preferencias elegidas, en el orden de los grupos; vacío si no
+// tiene ninguna
 export function formatTravelPreferences(
   preferences: TravelPreferences | null | undefined,
 ): string[] {
-  if (!preferences) {
-    return [];
-  }
-  const labels: string[] = [];
-  if (preferences.conversation) {
-    labels.push(CONVERSATION_LABELS[preferences.conversation]);
-  }
-  if (preferences.music) {
-    labels.push(MUSIC_LABELS[preferences.music]);
-  }
-  if (preferences.smoking) {
-    labels.push(SMOKING_LABELS[preferences.smoking]);
-  }
-  if (preferences.pets) {
-    labels.push(PETS_LABELS[preferences.pets]);
-  }
-  return labels;
+  return TRAVEL_PREFERENCE_GROUPS.flatMap(({ key, options }) => {
+    const value = preferences?.[key];
+    const option = (options as readonly TravelPreferenceOption<string>[]).find(
+      (candidate) => candidate.value === value,
+    );
+    return option ? [option.label] : [];
+  });
 }
