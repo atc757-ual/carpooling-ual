@@ -274,6 +274,14 @@
           </ion-card-content>
         </ion-card>
 
+        <!-- Panel de administración (solo con ese perfil) -->
+        @if (isAdmin()) {
+          <ion-button class="profile__admin" fill="outline" expand="block" routerLink="/admin">
+            <ion-icon slot="start" [icon]="adminIcon" aria-hidden="true" />
+            {{ 'profile.adminPanel' | transloco }}
+          </ion-button>
+        }
+
         <!-- Cerrar sesión -->
         <form (submit)="$event.preventDefault(); handleLogout()">
           <ion-button class="profile__logout" type="submit" fill="outline" expand="block">

@@ -52,7 +52,9 @@
   overflow-wrap: anywhere;
 }
 
-.admin-header__logout {
+.admin-header__account-button {
+  text-transform: none;
+
   --color: var(--color-on-admin);
   --color-hover: var(--color-on-admin);
 }

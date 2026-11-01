@@ -20,8 +20,8 @@ import {
   lockClosedOutline,
   mailOutline,
 } from 'ionicons/icons';
-import { HOME_PATH } from '../../../core/guards/redirect-paths';
 import { ApiError } from '../../../core/models/api-error.model';
+import { AppContextService } from '../../../core/services/ui/app-context.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
@@ -63,6 +63,7 @@ export class LoginPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly appContext = inject(AppContextService);
 
   // Parámetro ?returnUrl= de la ruta (withComponentInputBinding)
   readonly returnUrl = input<string>();
@@ -95,7 +96,9 @@ export class LoginPage {
     const { email, password } = this.form.getRawValue();
     try {
       await this.auth.login({ email, password });
-      await this.router.navigateByUrl(this.getSafeReturnUrl());
+      await this.router.navigateByUrl(
+        this.getSafeReturnUrl() ?? (await this.appContext.entryPath()),
+      );
     } catch (error) {
       const apiError = ApiError.fromHttpError(error);
       if (apiError.code === EMAIL_NOT_VERIFIED) {
@@ -117,9 +120,10 @@ export class LoginPage {
   }
 
   // Solo rutas de la propia app («/trips», nunca «//otro-sitio.com»), para que
-  // un enlace manipulado no lleve a otra web después del login
-  private getSafeReturnUrl(): string {
+  // un enlace manipulado no lleve a otra web después del login. Sin ella, la
+  // entrada de la cuenta (la app o el panel, ver AppContextService)
+  private getSafeReturnUrl(): string | null {
     const url = this.returnUrl();
-    return url?.startsWith('/') && !url.startsWith('//') ? url : HOME_PATH;
+    return url?.startsWith('/') && !url.startsWith('//') ? url : null;
   }
 }

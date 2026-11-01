@@ -4,6 +4,7 @@ import { provideRouter, Router } from '@angular/router';
 import { NavController, provideIonicAngular } from '@ionic/angular';
 import { AdminIncidentsService } from '../../../../core/services/admin/admin-incidents.service';
 import { AuthService } from '../../../../core/services/auth/auth.service';
+import { AppContextService } from '../../../../core/services/ui/app-context.service';
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
 import { AdminSectionPage } from '../../../../features/admin/admin-section.page';
 import { ADMIN_SECTIONS } from '../../../../features/admin/admin-sections';
@@ -14,11 +15,15 @@ describe('AdminLayout', () => {
   const openCount = signal(0);
   const refreshOpenCount = vi.fn().mockResolvedValue(undefined);
   const logout = vi.fn().mockResolvedValue(undefined);
+  const remember = vi.fn().mockResolvedValue(undefined);
+  const currentUser = signal({ email: 'admin@ual.es', profiles: ['admin'] });
 
   beforeEach(() => {
     openCount.set(0);
     refreshOpenCount.mockClear();
     logout.mockClear();
+    remember.mockClear();
+    currentUser.set({ email: 'admin@ual.es', profiles: ['admin'] });
     TestBed.configureTestingModule({
       imports: [AdminLayout],
       providers: [
@@ -36,9 +41,10 @@ describe('AdminLayout', () => {
         ]),
         {
           provide: AuthService,
-          useValue: { currentUser: signal({ email: 'admin@ual.es' }), logout },
+          useValue: { currentUser, logout },
         },
         { provide: AdminIncidentsService, useValue: { openCount, refreshOpenCount } },
+        { provide: AppContextService, useValue: { remember } },
       ],
     });
     fixture = TestBed.createComponent(AdminLayout);
@@ -85,6 +91,24 @@ describe('AdminLayout', () => {
     await TestBed.inject(Router).navigateByUrl('/admin/users');
 
     expect(refreshOpenCount).toHaveBeenCalledTimes(2);
+  });
+
+  it('remembers the panel as the last part used', () => {
+    expect(remember).toHaveBeenCalledWith('admin');
+  });
+
+  // «Ir a la app» solo si la cuenta también conduce o viaja
+  it('offers the app only to admins who also travel and goes there', async () => {
+    expect(fixture.componentInstance['canUseApp']()).toBe(false);
+
+    currentUser.set({ email: 'admin@ual.es', profiles: ['passenger', 'admin'] });
+    expect(fixture.componentInstance['canUseApp']()).toBe(true);
+
+    const navigateRoot = vi
+      .spyOn(TestBed.inject(NavController), 'navigateRoot')
+      .mockResolvedValue(true);
+    await fixture.componentInstance.handleGoToApp();
+    expect(navigateRoot).toHaveBeenCalledWith('/tabs');
   });
 
   it('logs out after confirming it and goes back to the welcome screen', async () => {

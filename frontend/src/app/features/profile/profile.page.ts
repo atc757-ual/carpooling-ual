@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, resource, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   IonButton,
   IonCard,
@@ -82,6 +83,7 @@ function toLegalDocRow(
   selector: 'app-profile',
   imports: [
     AvatarArt,
+    RouterLink,
     IonButton,
     IonCard,
     IonCardContent,
@@ -167,6 +169,8 @@ export class ProfilePage implements OnInit {
   readonly isDarkMode = this.theme.isDark;
 
   protected readonly logoutIcon = logOutOutline;
+  protected readonly adminIcon = shieldCheckmarkOutline;
+  protected readonly isAdmin = computed(() => this.auth.hasProfile('admin'));
   protected readonly editIcon = createOutline;
   protected readonly phoneIcon = callOutline;
   protected readonly checkmarkIcon = checkmarkCircle;

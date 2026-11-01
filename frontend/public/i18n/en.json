@@ -40,6 +40,7 @@
     "themeLight": "Light",
     "themeDark": "Dark",
     "logout": "Log out",
+    "adminPanel": "Admin panel",
     "privacy": {
       "title": "Privacy",
       "acceptedOn": "Accepted on {{ date }}",

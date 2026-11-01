@@ -4,6 +4,7 @@ import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { AppContextService } from '../../../core/services/ui/app-context.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { LoginPage } from './login.page';
 
@@ -17,6 +18,7 @@ describe('LoginPage', () => {
   let login: ReturnType<typeof vi.fn>;
   let resendVerificationCode: ReturnType<typeof vi.fn>;
   let setPendingVerificationEmail: ReturnType<typeof vi.fn>;
+  let entryPath: ReturnType<typeof vi.fn>;
   let navigateByUrl: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
@@ -25,12 +27,14 @@ describe('LoginPage', () => {
     login = vi.fn().mockResolvedValue({ profiles: ['passenger'] });
     resendVerificationCode = vi.fn().mockResolvedValue(undefined);
     setPendingVerificationEmail = vi.fn();
+    entryPath = vi.fn().mockResolvedValue('/tabs');
     TestBed.configureTestingModule({
       imports: [LoginPage],
       providers: [
         provideIonicAngular(),
         provideRouter([]),
         { provide: ToastService, useValue: { showError, showSuccess } },
+        { provide: AppContextService, useValue: { entryPath } },
         {
           provide: AuthService,
           useValue: { login, resendVerificationCode, setPendingVerificationEmail },
@@ -78,6 +82,15 @@ describe('LoginPage', () => {
     expect(login).toHaveBeenCalledWith(CREDENTIALS);
     expect(navigateByUrl).toHaveBeenCalledWith('/tabs');
     expect(page.isSubmitting()).toBe(false);
+  });
+
+  // El administrador que solo es administrador entra en el panel
+  it('goes to the entry of the account without a return address', async () => {
+    entryPath.mockResolvedValue('/admin');
+
+    await submit();
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/admin');
   });
 
   it('goes back to the page that was requested', async () => {

@@ -31,9 +31,11 @@ import {
   notificationsOutline,
   personOutline,
   searchOutline,
+  shieldCheckmarkOutline,
 } from 'ionicons/icons';
 import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { AppContextService } from '../../core/services/ui/app-context.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { BrandLogo } from '../../shared/components/ui/brand-logo/brand-logo';
@@ -104,6 +106,7 @@ const SIDES: readonly { path: string; mode: TravelMode }[] = [
 })
 export class TabsPage implements OnInit {
   private readonly auth = inject(AuthService);
+  private readonly appContext = inject(AppContextService);
   private readonly activeMode = inject(ActiveModeService);
   private readonly router = inject(Router);
   private readonly navController = inject(NavController);
@@ -135,12 +138,16 @@ export class TabsPage implements OnInit {
 
   protected readonly backIcon = arrowBackOutline;
   protected readonly bellIcon = notificationsOutline;
+  protected readonly adminIcon = shieldCheckmarkOutline;
+  // Acceso al panel solo con el perfil de administrador
+  protected readonly isAdmin = computed(() => this.auth.hasProfile('admin'));
   protected readonly logoutIcon = logOutOutline;
   protected readonly githubIcon = logoGithub;
   protected readonly linkedinIcon = logoLinkedin;
   protected readonly year = new Date().getFullYear();
 
   ngOnInit(): void {
+    void this.appContext.remember('app');
     this.countUnread();
     void this.offerLocation();
     this.router.events

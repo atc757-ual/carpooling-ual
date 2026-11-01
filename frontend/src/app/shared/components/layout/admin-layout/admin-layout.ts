@@ -8,13 +8,29 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { IonButton, IonContent, IonHeader, IonIcon, NavController } from '@ionic/angular';
-import { logOutOutline } from 'ionicons/icons';
+import {
+  IonButton,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonPopover,
+  NavController,
+} from '@ionic/angular';
+import {
+  chevronDownOutline,
+  logOutOutline,
+  personCircleOutline,
+  phonePortraitOutline,
+} from 'ionicons/icons';
 import { filter } from 'rxjs';
-import { WELCOME_PATH } from '../../../../core/guards/redirect-paths';
+import { HOME_PATH, WELCOME_PATH } from '../../../../core/guards/redirect-paths';
 import { AdminIncidentsService } from '../../../../core/services/admin/admin-incidents.service';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { confirmLogout } from '../../../../core/services/auth/confirm-logout';
+import { AppContextService, canUseApp } from '../../../../core/services/ui/app-context.service';
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
 import { ADMIN_SECTIONS, INCIDENTS_SECTION_PATH } from '../../../../features/admin/admin-sections';
 
@@ -24,7 +40,19 @@ import { ADMIN_SECTIONS, INCIDENTS_SECTION_PATH } from '../../../../features/adm
 // escritorio; en el móvil todo va en una columna
 @Component({
   selector: 'app-admin-layout',
-  imports: [IonHeader, IonContent, IonButton, IonIcon, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [
+    IonHeader,
+    IonContent,
+    IonButton,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonPopover,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+  ],
   templateUrl: './admin-layout.html',
   styleUrl: './admin-layout.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,16 +63,23 @@ export class AdminLayout implements OnInit {
   private readonly confirm = inject(ConfirmService);
   private readonly navController = inject(NavController);
   private readonly router = inject(Router);
+  private readonly appContext = inject(AppContextService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly sections = ADMIN_SECTIONS;
   protected readonly incidentsPath = INCIDENTS_SECTION_PATH;
   protected readonly logoutIcon = logOutOutline;
+  protected readonly accountIcon = personCircleOutline;
+  protected readonly menuIcon = chevronDownOutline;
+  protected readonly appIcon = phonePortraitOutline;
+  // «Ir a la app» solo si la cuenta también conduce o viaja
+  protected readonly canUseApp = computed(() => canUseApp(this.auth.currentUser()?.profiles ?? []));
   protected readonly email = computed(() => this.auth.currentUser()?.email ?? '');
   protected readonly openIncidents = this.incidents.openCount;
 
   // El contador se actualiza al entrar y en cada cambio de sección
   ngOnInit(): void {
+    void this.appContext.remember('admin');
     void this.incidents.refreshOpenCount();
     this.router.events
       .pipe(
@@ -52,6 +87,11 @@ export class AdminLayout implements OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => void this.incidents.refreshOpenCount());
+  }
+
+  // A la app sin cerrar sesión (la app recuerda que se volvió a ella)
+  async handleGoToApp(): Promise<void> {
+    await this.navController.navigateRoot(HOME_PATH);
   }
 
   // Con la misma confirmación que en la app
