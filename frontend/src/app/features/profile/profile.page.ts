@@ -38,6 +38,7 @@ import { TRAVEL_PREFERENCE_GROUPS } from '../../core/models/travel-preferences.m
 import { ConsentRecord, UserConsents } from '../../core/models/user-consent.model';
 import { toConsentStamp } from './consent-stamp';
 import { ProfileLocation } from './profile-location/profile-location';
+import { AvatarArt } from '../../shared/components/ui/avatar-art/avatar-art';
 import { LegalDocument, LegalModal } from '../../shared/components/modals/legal-modal/legal-modal';
 import { formatPersonName } from '../../shared/utils/person-name.util';
 import { formatPhone } from '../../shared/utils/phone.util';
@@ -81,6 +82,7 @@ function toLegalDocRow(
 @Component({
   selector: 'app-profile',
   imports: [
+    AvatarArt,
     RouterLink,
     IonButton,
     IonCard,

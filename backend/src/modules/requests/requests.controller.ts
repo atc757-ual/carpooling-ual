@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   HttpStatus,
   Param,
   Post,
@@ -38,6 +37,7 @@ import {
   SeatRequestResource,
   toSeatRequestResource,
 } from './dto/seat-request.resource';
+import { RequestAction } from './request-action.decorator';
 import { RequestsService } from './requests.service';
 
 const AUTH_ERRORS = {
@@ -152,25 +152,14 @@ export class RequestsController {
     );
   }
 
-  @Post('requests/:id/cancel')
-  @Profiles('passenger')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
+  @RequestAction({
+    action: 'cancel',
+    profile: 'passenger',
     summary: 'Cancel my seat request',
     description:
       'Before the trip starts. An accepted request gives its seat back (RF-10). Once started, it requires an incident (RF-23).',
-  })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiOkResponse({ type: SeatRequestResource })
-  @ApiErrorResponses({
-    ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
-    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', 'NOT_REQUEST_PASSENGER'],
-    [HttpStatus.NOT_FOUND]: ['REQUEST_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: [
-      'TRIP_ALREADY_STARTED',
-      'INVALID_REQUEST_TRANSITION',
-    ],
+    notAllowedCode: 'NOT_REQUEST_PASSENGER',
+    conflictCodes: ['TRIP_ALREADY_STARTED', 'INVALID_REQUEST_TRANSITION'],
   })
   async cancel(
     @CurrentUser() passenger: AccessTokenPayload,
@@ -212,26 +201,14 @@ export class RequestsController {
     return page.items.map(toSeatRequestResource);
   }
 
-  @Post('requests/:id/accept')
-  @Profiles('driver')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
+  @RequestAction({
+    action: 'accept',
+    profile: 'driver',
     summary: 'Accept a seat request',
     description:
       'RF-09/RF-10. Takes a seat; the first acceptance confirms the trip.',
-  })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiOkResponse({ type: SeatRequestResource })
-  @ApiErrorResponses({
-    ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
-    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', 'NOT_TRIP_DRIVER'],
-    [HttpStatus.NOT_FOUND]: ['REQUEST_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: [
-      'TRIP_FULL',
-      'TRIP_NOT_OPEN',
-      'INVALID_REQUEST_TRANSITION',
-    ],
+    notAllowedCode: 'NOT_TRIP_DRIVER',
+    conflictCodes: ['TRIP_FULL', 'TRIP_NOT_OPEN', 'INVALID_REQUEST_TRANSITION'],
   })
   async accept(
     @CurrentUser() driver: AccessTokenPayload,
@@ -242,18 +219,12 @@ export class RequestsController {
     );
   }
 
-  @Post('requests/:id/reject')
-  @Profiles('driver')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Reject a seat request (RF-09)' })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiOkResponse({ type: SeatRequestResource })
-  @ApiErrorResponses({
-    ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
-    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', 'NOT_TRIP_DRIVER'],
-    [HttpStatus.NOT_FOUND]: ['REQUEST_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: ['INVALID_REQUEST_TRANSITION'],
+  @RequestAction({
+    action: 'reject',
+    profile: 'driver',
+    summary: 'Reject a seat request (RF-09)',
+    notAllowedCode: 'NOT_TRIP_DRIVER',
+    conflictCodes: ['INVALID_REQUEST_TRANSITION'],
   })
   async reject(
     @CurrentUser() driver: AccessTokenPayload,

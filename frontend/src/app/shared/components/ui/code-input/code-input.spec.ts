@@ -47,7 +47,7 @@ describe('CodeInput', () => {
   it('renders six boxes that offer the code received', () => {
     const otp = fixture.nativeElement.querySelector('ion-input-otp') as HTMLIonInputOtpElement;
 
-    expect(otp.length).toBe(6);
+    expect(otp).toHaveLength(6);
     expect(otp.getAttribute('autocomplete')).toBe('one-time-code');
   });
 

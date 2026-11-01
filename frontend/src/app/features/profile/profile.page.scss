@@ -145,11 +145,11 @@
   font-weight: 700;
   color: var(--color-primary);
   overflow: hidden;
+}
 
-  svg {
-    width: 2.25rem;
-    height: 2.25rem;
-  }
+.profile__avatar-svg {
+  width: 2.25rem; // 36px
+  height: 2.25rem;
 }
 
 .profile__center-info {

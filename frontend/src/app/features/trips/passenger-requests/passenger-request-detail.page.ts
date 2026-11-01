@@ -1,7 +1,10 @@
 import { Component, computed, inject, input, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonButton, IonCard, IonCardContent, IonContent, IonSpinner } from '@ionic/angular';
-import { TripSummary as TripSummaryComponent } from '../../../shared/components/ui/trip-summary';
+import {
+  TripSummary as TripSummaryComponent,
+  TripSummaryData,
+} from '../../../shared/components/ui/trip-summary';
 import { ApiError } from '../../../core/models/api-error.model';
 import { Trip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
@@ -12,7 +15,6 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { formatTravelPreferences } from '../../../core/models/travel-preferences.model';
 import { RouteStop } from '../../../shared/components/ui/route-timeline/route-timeline';
-import { TripSummaryData } from '../../../shared/components/ui/trip-summary';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { formatTime } from '../../matching/trip-results';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
