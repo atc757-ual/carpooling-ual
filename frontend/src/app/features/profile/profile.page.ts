@@ -15,6 +15,8 @@ import {
   callOutline,
   checkmarkCircle,
   chevronForwardOutline,
+  helpCircleOutline,
+  keyOutline,
   createOutline,
   documentTextOutline,
   lockClosedOutline,
@@ -23,6 +25,7 @@ import {
   shieldCheckmarkOutline,
   star,
   sunnyOutline,
+  trashOutline,
 } from 'ionicons/icons';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { WELCOME_PATH } from '../../core/guards/redirect-paths';
@@ -48,6 +51,8 @@ import { ProfileVehicles } from './profile-vehicles/profile-vehicles';
 import { ProfilePublicModal } from './profile-public-modal/profile-public-modal';
 import { ProfilePreferencesModal } from './profile-preferences-modal/profile-preferences-modal';
 import { ProfilePhoneModal } from './profile-phone-modal/profile-phone-modal';
+import { ProfilePasswordModal } from './profile-password-modal/profile-password-modal';
+import { ProfileDeleteModal } from './profile-delete-modal/profile-delete-modal';
 
 interface PreferenceRow {
   criterion: string;
@@ -182,6 +187,9 @@ export class ProfilePage implements OnInit {
   protected readonly sunIcon = sunnyOutline;
   protected readonly moonIcon = moonOutline;
   protected readonly toleranceIcon = TIME_TOLERANCE_ICON;
+  protected readonly keyIcon = keyOutline;
+  protected readonly helpIcon = helpCircleOutline;
+  protected readonly trashIcon = trashOutline;
 
   ngOnInit(): void {
     void this.refreshData();
@@ -255,6 +263,22 @@ export class ProfilePage implements OnInit {
       componentProps: { document },
       cssClass: 'legal-dialog',
       ...(isMobile && { breakpoints: [0, 0.75, 1], initialBreakpoint: 0.75 }),
+    });
+    await modal.present();
+  }
+
+  async handleOpenPassword(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: ProfilePasswordModal,
+      cssClass: 'info-dialog',
+    });
+    await modal.present();
+  }
+
+  async handleOpenDeleteAccount(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: ProfileDeleteModal,
+      cssClass: 'info-dialog',
     });
     await modal.present();
   }

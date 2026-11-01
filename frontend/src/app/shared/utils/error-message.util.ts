@@ -35,6 +35,8 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   REQUEST_ALREADY_EXISTS: 'Ya tienes una solicitud en este viaje.',
   CANNOT_REQUEST_OWN_TRIP: 'No puedes pedir plaza en tu propio viaje.',
   TRIP_ALREADY_STARTED: 'El viaje ya ha empezado: ya no se puede cancelar desde aquí.',
+  ACCOUNT_HAS_ACTIVE_TRIPS:
+    'No puedes darte de baja con viajes o reservas pendientes. Cancélalos antes de eliminar tu cuenta.',
 };
 
 export function getErrorMessage(error: ApiError): string {

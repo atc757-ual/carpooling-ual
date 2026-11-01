@@ -1,10 +1,10 @@
 <ion-content>
   <div class="tab-page profile">
     <div class="profile__layout">
-      <!-- Columna izquierda: Identidad/Bio, Preferencias, Reseñas y Mis vehículos -->
-      <div class="profile__main">
+      <!-- Columna derecha en escritorio / arriba en móvil (col-4): Mi información, Teléfono y Cuenta -->
+      <div class="profile__aside">
         @if (user(); as user) {
-          <!-- Bloque 1: Identidad (Avatar / Nombre / Editar) -->
+          <!-- Bloque 1: Identidad (Avatar / Nombre / Editar / Sobre mí) -->
           <ion-card class="profile-card profile-card--identity">
             <ion-card-content class="profile-card__content">
               <div class="profile__row-three">
@@ -17,7 +17,7 @@
                   }
                 </div>
 
-                <!-- 2. Nombre, correo y badge en el centro -->
+                <!-- 2. Nombre y correo en el centro -->
                 <div class="profile__center-info">
                   <span class="profile__name">{{ displayName() }}</span>
                   <span class="text-body-s text-color-muted">{{ user.email }}</span>
@@ -54,7 +54,130 @@
               </div>
             </ion-card-content>
           </ion-card>
+        }
 
+        <!-- Bloque: Teléfono de contacto -->
+        <ion-card class="profile-card">
+          <ion-card-header class="profile-card__header">
+            <ion-card-title>{{ 'profile.contactPhone' | transloco }}</ion-card-title>
+            @if (isPhoneVerified()) {
+              <form (submit)="$event.preventDefault(); handleManagePhone()">
+                <ion-button
+                  type="submit"
+                  class="profile__edit"
+                  [attr.aria-label]="'profile.managePhone' | transloco"
+                >
+                  <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
+                </ion-button>
+              </form>
+            } @else {
+              <form (submit)="$event.preventDefault(); handleManagePhone(true)">
+                <ion-button type="submit" class="profile__verify" size="small">
+                  <ion-icon slot="start" [icon]="shieldIcon" aria-hidden="true" />
+                  {{ 'profile.verify' | transloco }}
+                </ion-button>
+              </form>
+            }
+          </ion-card-header>
+          <ion-card-content class="profile-card__content">
+            @if (phone(); as ph) {
+              <div class="profile__phone-row">
+                <span class="profile__phone-value">
+                  <ion-icon [icon]="phoneIcon" aria-hidden="true" />
+                  <span class="text-body text-body--strong">{{ ph }}</span>
+                </span>
+                @if (isPhoneVerified()) {
+                  <span class="status status--accepted">
+                    <ion-icon [icon]="shieldIcon" aria-hidden="true" />
+                    {{ 'profile.phoneVerified' | transloco }}
+                  </span>
+                } @else {
+                  <span class="status status--pending">
+                    <ion-icon [icon]="shieldIcon" aria-hidden="true" />
+                    {{ 'profile.phonePending' | transloco }}
+                  </span>
+                }
+              </div>
+            } @else {
+              <p class="text-body text-color-muted profile__empty-text">
+                {{ 'profile.emptyPhone' | transloco }}
+              </p>
+            }
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Bloque: Cuenta -->
+        <ion-card class="profile-card">
+          <ion-card-header class="profile-card__header">
+            <ion-card-title>{{ 'profile.account.title' | transloco }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content class="profile-card__content">
+            <div class="profile__legal-list">
+              <!-- Cambiar contraseña -->
+              <button type="button" class="profile__legal-row" (click)="handleOpenPassword()">
+                <ion-icon class="profile__legal-icon" [icon]="keyIcon" aria-hidden="true" />
+                <span class="profile__legal-text">
+                  <span class="text-body text-body--strong">{{
+                    'profile.account.changePassword' | transloco
+                  }}</span>
+                  <span class="text-body-s text-color-muted">{{
+                    'profile.account.changePasswordDesc' | transloco
+                  }}</span>
+                </span>
+                <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
+              </button>
+
+              <!-- Ayuda y soporte -->
+              <a
+                href="mailto:soporte@carpooling-ual.es"
+                class="profile__legal-row profile__action-link"
+              >
+                <ion-icon class="profile__legal-icon" [icon]="helpIcon" aria-hidden="true" />
+                <span class="profile__legal-text">
+                  <span class="text-body text-body--strong">{{
+                    'profile.account.help' | transloco
+                  }}</span>
+                  <span class="text-body-s text-color-muted">soporte@carpooling-ual.es</span>
+                </span>
+                <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
+              </a>
+
+              <!-- Darse de baja / Eliminar cuenta -->
+              <button
+                type="button"
+                class="profile__legal-row profile__legal-row--danger"
+                (click)="handleOpenDeleteAccount()"
+              >
+                <ion-icon
+                  class="profile__legal-icon profile__legal-icon--danger"
+                  [icon]="trashIcon"
+                  aria-hidden="true"
+                />
+                <span class="profile__legal-text">
+                  <span class="text-body text-body--strong text-color-danger">{{
+                    'profile.account.deleteAccount' | transloco
+                  }}</span>
+                  <span class="text-body-s text-color-muted">{{
+                    'profile.account.deleteAccountDesc' | transloco
+                  }}</span>
+                </span>
+                <ion-icon
+                  class="profile__legal-chevron profile__legal-chevron--danger"
+                  [icon]="chevronIcon"
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Columna izquierda en escritorio / abajo en móvil (col-8): Vehículos, Preferencias, Reseñas, Ubicación, Privacidad y Configuración -->
+      <div class="profile__main">
+        <!-- Vehículos -->
+        <app-profile-vehicles />
+
+        @if (user()) {
           <!-- Bloque: Preferencias de viaje -->
           <ion-card class="profile-card">
             <ion-card-header class="profile-card__header">
@@ -122,64 +245,6 @@
           </ion-card>
         }
 
-        <!-- Vehículos -->
-        <app-profile-vehicles />
-      </div>
-
-      <!-- Columna derecha: Teléfono, Privacidad y Configuración -->
-      <div class="profile__aside">
-        <!-- Bloque: Teléfono de contacto -->
-        <ion-card class="profile-card">
-          <ion-card-header class="profile-card__header">
-            <ion-card-title>{{ 'profile.contactPhone' | transloco }}</ion-card-title>
-            <!-- Sin verificar, «Verificar» (abre ya en el código SMS); verificado,
-                 editar -->
-            @if (isPhoneVerified()) {
-              <form (submit)="$event.preventDefault(); handleManagePhone()">
-                <ion-button
-                  type="submit"
-                  class="profile__edit"
-                  [attr.aria-label]="'profile.managePhone' | transloco"
-                >
-                  <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
-                </ion-button>
-              </form>
-            } @else {
-              <form (submit)="$event.preventDefault(); handleManagePhone(true)">
-                <ion-button type="submit" class="profile__verify" size="small">
-                  <ion-icon slot="start" [icon]="shieldIcon" aria-hidden="true" />
-                  {{ 'profile.verify' | transloco }}
-                </ion-button>
-              </form>
-            }
-          </ion-card-header>
-          <ion-card-content class="profile-card__content">
-            @if (phone(); as ph) {
-              <div class="profile__phone-row">
-                <span class="profile__phone-value">
-                  <ion-icon [icon]="phoneIcon" aria-hidden="true" />
-                  <span class="text-body text-body--strong">{{ ph }}</span>
-                </span>
-                @if (isPhoneVerified()) {
-                  <span class="status status--accepted">
-                    <ion-icon [icon]="shieldIcon" aria-hidden="true" />
-                    {{ 'profile.phoneVerified' | transloco }}
-                  </span>
-                } @else {
-                  <span class="status status--pending">
-                    <ion-icon [icon]="shieldIcon" aria-hidden="true" />
-                    {{ 'profile.phonePending' | transloco }}
-                  </span>
-                }
-              </div>
-            } @else {
-              <p class="text-body text-color-muted profile__empty-text">
-                {{ 'profile.emptyPhone' | transloco }}
-              </p>
-            }
-          </ion-card-content>
-        </ion-card>
-
         <!-- Bloque: Ubicación (consentimiento y permiso del dispositivo) -->
         <app-profile-location />
 
@@ -189,7 +254,6 @@
             <ion-card-title>{{ 'profile.privacy.title' | transloco }}</ion-card-title>
           </ion-card-header>
           <ion-card-content class="profile-card__content">
-            <!-- Documentos legales: fecha y código de la aceptación -->
             <div class="profile__legal-list">
               @for (doc of legalDocs(); track doc.id) {
                 <button type="button" class="profile__legal-row" (click)="handleOpenLegal(doc.id)">
@@ -273,7 +337,6 @@
             </div>
           </ion-card-content>
         </ion-card>
-
         <!-- Panel de administración (solo con ese perfil) -->
         @if (isAdmin()) {
           <ion-button class="profile__admin" fill="outline" expand="block" routerLink="/admin">
@@ -281,14 +344,6 @@
             {{ 'profile.adminPanel' | transloco }}
           </ion-button>
         }
-
-        <!-- Cerrar sesión -->
-        <form (submit)="$event.preventDefault(); handleLogout()">
-          <ion-button class="profile__logout" type="submit" fill="outline" expand="block">
-            <ion-icon slot="start" [icon]="logoutIcon" aria-hidden="true" />
-            {{ 'profile.logout' | transloco }}
-          </ion-button>
-        </form>
       </div>
     </div>
   </div>

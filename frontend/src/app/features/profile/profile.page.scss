@@ -9,11 +9,23 @@
 .profile__layout {
   display: grid;
   gap: var(--space-base);
+  grid-template-areas:
+    'aside'
+    'main';
 
   @media (min-width: 768px) {
     grid-template-columns: 2fr 1fr;
+    grid-template-areas: 'main aside';
     align-items: start;
   }
+}
+
+.profile__main {
+  grid-area: main;
+}
+
+.profile__aside {
+  grid-area: aside;
 }
 
 .profile__main,
@@ -212,6 +224,22 @@
   &:hover {
     background: var(--color-surface-subtle);
   }
+}
+.profile__legal-row--danger {
+  border-color: var(--color-danger-subtle);
+
+  &:hover {
+    background: var(--color-danger-subtle);
+  }
+}
+
+.profile__legal-icon--danger,
+.profile__legal-chevron--danger {
+  color: var(--color-danger);
+}
+
+.profile__action-link {
+  text-decoration: none;
 }
 
 .profile__legal-icon {

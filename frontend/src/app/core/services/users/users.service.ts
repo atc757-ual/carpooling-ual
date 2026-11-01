@@ -58,6 +58,16 @@ export class UsersService {
     return this.send(this.http.put<User>(`${this.meUrl}/active-mode`, { mode }));
   }
 
+  // Darse de baja en dos pasos: envía un código de 6 cifras al correo y, con
+  // él, desactiva la cuenta (la API cierra todas sus sesiones)
+  requestAccountDeletion(): Promise<void> {
+    return this.send(this.http.post<void>(`${this.meUrl}/account-deletion`, null));
+  }
+
+  confirmAccountDeletion(code: string): Promise<void> {
+    return this.send(this.http.post<void>(`${this.meUrl}/account-deletion/confirm`, { code }));
+  }
+
   private async send<T>(request: Observable<T>): Promise<T> {
     try {
       return await firstValueFrom(request);

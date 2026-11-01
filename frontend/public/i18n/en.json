@@ -115,6 +115,51 @@
       "tooManyAttempts": "Too many attempts. Request a new code to continue.",
       "confirmCode": "Confirm code",
       "backToNumber": "← Back to edit phone number"
+    },
+    "account": {
+      "title": "Account",
+      "changePassword": "Change password",
+      "changePasswordDesc": "When clicked, we will email you a code to continue",
+      "help": "Help & support",
+      "deleteAccount": "Delete account",
+      "deleteAccountDesc": "Permanently close your account and delete personal data"
+    },
+    "passwordModal": {
+      "title": "Change password",
+      "introTitle": "Verify your identity",
+      "introDesc": "For security, we will send a 6-digit confirmation code to {{email}} before changing your password.",
+      "sendCode": "Send code to email",
+      "codeNotice": "We sent a code to {{email}}. Enter it along with your new password.",
+      "codeLabel": "6-digit code",
+      "newPasswordLabel": "New password",
+      "passwordHelper": "At least 8 characters",
+      "passwordError": "Password must be at least 8 characters.",
+      "hidePassword": "Hide password",
+      "showPassword": "Show password",
+      "confirmPasswordLabel": "Confirm new password",
+      "confirmMismatch": "Passwords do not match.",
+      "savePassword": "Change password",
+      "codeSentToast": "Code sent to your email.",
+      "successToast": "Password updated successfully.",
+      "verifyCode": "Verify code",
+      "backToCode": "← Change code",
+      "stepCodeSubtitle": "Enter the 6-digit code sent to {{email}}.",
+      "stepPasswordSubtitle": "Code verified. Enter your new password."
+    },
+    "deleteModal": {
+      "title": "Delete account",
+      "warningTitle": "This action cannot be undone",
+      "warningDesc": "Your future rides and bookings will be cancelled, and your data anonymized in compliance with GDPR.",
+      "introHeading": "Are you sure you want to delete your account?",
+      "introDesc": "We will send a 6-digit confirmation code to {{email}} to verify your identity.",
+      "conditionTrips": "• You must not have any active or pending trips as driver or passenger.",
+      "conditionData": "• Past trip history will be kept anonymously for platform statistics.",
+      "sendCode": "Send confirmation code",
+      "codeNotice": "Enter the 6-digit code sent to {{email}} to confirm permanent account deletion.",
+      "codeLabel": "Confirmation code",
+      "confirmDelete": "Permanently delete my account",
+      "codeSentToast": "Confirmation code sent.",
+      "successToast": "Your account has been deleted. We hope to see you again soon."
     }
   }
 }

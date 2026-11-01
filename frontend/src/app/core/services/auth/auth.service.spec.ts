@@ -312,4 +312,43 @@ describe('AuthService', () => {
       expect(request).toHaveBeenCalledWith('carpooling-ual.auth-refresh', expect.any(Function));
     });
   });
+  describe('change password in profile', () => {
+    it('requests password change code using current user email', async () => {
+      auth.updateUser(USER);
+      const reqPromise = auth.requestPasswordChangeCode();
+      const req = await expectRequest('/api/auth/password-reset');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ email: 'ana@ual.es' });
+      req.flush(null);
+
+      await expect(reqPromise).resolves.toBeNull();
+    });
+    it('verifies password change code using current user email and code', async () => {
+      auth.updateUser(USER);
+      const reqPromise = auth.verifyPasswordChangeCode('123456');
+      const req = await expectRequest('/api/auth/password-reset/verify');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ email: 'ana@ual.es', code: '123456' });
+      req.flush(null);
+
+      await expect(reqPromise).resolves.toBeNull();
+    });
+
+    it('changes password passing email, code, new password and stored refreshToken', async () => {
+      auth.updateUser(USER);
+      preferences.values.set(REFRESH_TOKEN_KEY, 'refresh-stored');
+      const changePromise = auth.changePassword('123456', 'newPassword123');
+      const req = await expectRequest('/api/auth/password-reset/confirm');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({
+        email: 'ana@ual.es',
+        code: '123456',
+        password: 'newPassword123',
+        refreshToken: 'refresh-stored',
+      });
+      req.flush(null);
+
+      await expect(changePromise).resolves.toBeUndefined();
+    });
+  });
 });

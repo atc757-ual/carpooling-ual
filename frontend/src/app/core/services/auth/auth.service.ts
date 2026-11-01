@@ -114,6 +114,33 @@ export class AuthService {
     }
   }
 
+  // Cambiar la contraseña desde Perfil: el mismo código por correo que al
+  // recuperarla, pero con el correo de la sesión. Con el token de renovación
+  // de este dispositivo, la API mantiene esta sesión y cierra las demás
+  requestPasswordChangeCode(): Promise<void> {
+    const email = this.user()?.email ?? '';
+    return this.send(this.http.post<void>(`${this.authUrl}/password-reset`, { email }));
+  }
+  verifyPasswordChangeCode(code: string): Promise<void> {
+    const email = this.user()?.email ?? '';
+    return this.send(
+      this.http.post<void>(`${this.authUrl}/password-reset/verify`, { email, code }),
+    );
+  }
+
+  async changePassword(code: string, password: string): Promise<void> {
+    const email = this.user()?.email ?? '';
+    const refreshToken = (await this.preferences.get(REFRESH_TOKEN_KEY)) ?? undefined;
+    await this.send(
+      this.http.post<void>(`${this.authUrl}/password-reset/confirm`, {
+        email,
+        code,
+        password,
+        refreshToken,
+      }),
+    );
+  }
+
   // Al arrancar la app: si hay un token de renovación guardado, recupera la
   // sesión (la respuesta trae el usuario). Si no se puede, se sigue sin sesión.
   async restoreSession(): Promise<void> {
