@@ -255,9 +255,9 @@ export class SimulationsService implements SimulationRunListener {
       status: In(ACTIVE_RUN_STATUSES),
       updatedAt: LessThan(new Date(Date.now() - STALE_AFTER_MS)),
     });
-    for (const run of stale) {
-      await this.onFailed(run.id, STALE_ERROR_CODE);
-    }
+    await Promise.all(
+      stale.map((run) => this.onFailed(run.id, STALE_ERROR_CODE)),
+    );
   }
 
   private async lockRun(

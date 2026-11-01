@@ -127,6 +127,18 @@ describe('fake simulation runner', () => {
     expect(events.onFailed).toHaveBeenCalledWith('run-s1', 'RUNNER_ERROR');
   });
 
+  it('gives up quietly when the failure cannot be saved either', async () => {
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    const runner = new FakeSimulationRunner(0);
+    const events = listener();
+    events.onStarted.mockRejectedValue(new Error('database down'));
+    events.onFailed.mockRejectedValue(new Error('database down'));
+    runner.start(job('s1'), events);
+    await wait(20);
+    expect(events.onFailed).toHaveBeenCalledTimes(1);
+    runner.cancel('run-s1');
+  });
+
   it('aborts every run on shutdown', async () => {
     const runner = new FakeSimulationRunner(50);
     const events = listener();

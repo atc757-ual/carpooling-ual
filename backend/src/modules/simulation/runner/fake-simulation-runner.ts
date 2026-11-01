@@ -24,17 +24,7 @@ export class FakeSimulationRunner implements SimulationRunner, OnModuleDestroy {
   start(job: SimulationJob, listener: SimulationRunListener): void {
     const controller = new AbortController();
     this.running.set(job.runId, controller);
-    void this.run(job, listener, controller.signal)
-      .catch(async (error: unknown) => {
-        if (controller.signal.aborted) {
-          return;
-        }
-        this.logger.error(`Simulation run ${job.runId} failed`, error);
-        await listener
-          .onFailed(job.runId, 'RUNNER_ERROR')
-          .catch(() => undefined);
-      })
-      .finally(() => this.running.delete(job.runId));
+    void this.execute(job, listener, controller.signal);
   }
 
   cancel(runId: string): void {
@@ -48,21 +38,52 @@ export class FakeSimulationRunner implements SimulationRunner, OnModuleDestroy {
     }
   }
 
-  private async run(
+  // Un fallo (que no sea la cancelación) se notifica como RUNNER_ERROR
+  private async execute(
     job: SimulationJob,
     listener: SimulationRunListener,
     signal: AbortSignal,
   ): Promise<void> {
-    await listener.onStarted(job.runId);
-    const replicas: ReplicaMetrics[] = [];
-    for (let index = 0; index < job.replicas; index++) {
-      await delay(this.tickMs, undefined, { signal });
-      replicas.push(fakeReplica(job, index));
-      await listener.onProgress(job.runId, index + 1);
+    try {
+      await listener.onStarted(job.runId);
+      const replicas = await this.runReplicas(job, listener, signal, []);
+      await listener.onFinished(job.runId, { slots: FAKE_SLOTS, replicas });
+    } catch (error: unknown) {
+      if (!signal.aborted) {
+        this.logger.error(`Simulation run ${job.runId} failed`, error);
+        await this.notifyFailure(job.runId, listener);
+      }
+    } finally {
+      this.running.delete(job.runId);
     }
-    await listener.onFinished(job.runId, {
-      slots: FAKE_SLOTS,
-      replicas,
-    });
+  }
+
+  // Las réplicas van una tras otra (el progreso se informa en orden), así que
+  // se encadenan en vez de lanzarse a la vez
+  private async runReplicas(
+    job: SimulationJob,
+    listener: SimulationRunListener,
+    signal: AbortSignal,
+    done: ReplicaMetrics[],
+  ): Promise<ReplicaMetrics[]> {
+    if (done.length === job.replicas) {
+      return done;
+    }
+    await delay(this.tickMs, undefined, { signal });
+    const replicas = [...done, fakeReplica(job, done.length)];
+    await listener.onProgress(job.runId, replicas.length);
+    return this.runReplicas(job, listener, signal, replicas);
+  }
+
+  private async notifyFailure(
+    runId: string,
+    listener: SimulationRunListener,
+  ): Promise<void> {
+    try {
+      await listener.onFailed(runId, 'RUNNER_ERROR');
+    } catch {
+      // Si tampoco se puede guardar el fallo, la ejecución acabará como
+      // perdida (RUNNER_LOST) cuando se lance la siguiente
+    }
   }
 }
