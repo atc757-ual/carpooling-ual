@@ -14,6 +14,11 @@ export type LocationFailure = 'denied' | 'unavailable' | 'revoked';
 
 export type LocationPermission = 'granted' | 'denied' | 'prompt' | 'revoked';
 
+export interface CurrentLocation {
+  coordinates: [number, number];
+  accuracy: number;
+}
+
 export class LocationError extends Error {
   constructor(readonly reason: LocationFailure) {
     super(`Location ${reason}`);
@@ -93,6 +98,11 @@ export class LocationService {
 
   // [longitud, latitud]; lanza LocationError
   async getCurrentPoint(): Promise<[number, number]> {
+    return (await this.getCurrentLocation()).coordinates;
+  }
+
+  // Coordenadas y precisión para dibujar el halo de ubicación del usuario
+  async getCurrentLocation(): Promise<CurrentLocation> {
     if ((await this.consent.getStatus()) !== 'granted') {
       throw new LocationError('revoked');
     }
@@ -107,7 +117,10 @@ export class LocationService {
         enableHighAccuracy: true,
         timeout: TIMEOUT_MS,
       });
-      return [coords.longitude, coords.latitude];
+      return {
+        coordinates: [coords.longitude, coords.latitude],
+        accuracy: coords.accuracy,
+      };
     } catch (error) {
       const { code, message } = error as { code?: unknown; message?: unknown };
       const isDenied =

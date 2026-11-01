@@ -70,6 +70,20 @@
           </ion-card>
         }
 
+        @if (request.status === 'accepted' && trip.status === 'in_progress') {
+          <app-live-trip-map
+            [tripId]="trip.id"
+            [pickupLocation]="pickupLocation(request, trip)"
+            [pickupName]="pickupName(request, trip)"
+            [initialCenter]="trip.origin"
+            [active]="isPageVisible()"
+          />
+        } @else if (request.status === 'accepted' && trip.status === 'confirmed') {
+          <output class="notice notice--info">
+            El seguimiento empezará cuando {{ firstName(trip.driver.name) }} inicie el viaje.
+          </output>
+        }
+
         <section class="passenger-request-detail__seats" aria-labelledby="requested-seats-title">
           <h2 id="requested-seats-title" class="text-subtitle">Plazas solicitadas</h2>
           <p class="text-body-s">

@@ -4,11 +4,18 @@ import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Trip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
+import { TripPosition } from '../../../core/models/trip-position.model';
+import { LocationService } from '../../../core/services/location/location.service';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
+import { TrackingService } from '../../../core/services/tracking/tracking.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
+import {
+  LIVE_TRIP_MAP_RENDERER_FACTORY,
+  LOAD_LEAFLET,
+} from './live-trip-map/live-trip-map-runtime';
 import { PassengerRequestDetailPage } from './passenger-request-detail.page';
 
 const TRIP: Trip = {
@@ -31,6 +38,16 @@ const TRIP: Trip = {
     tripCount: 12,
     rating: 4.8,
   },
+};
+
+const LIVE_POSITION: TripPosition = {
+  tripId: 't1',
+  position: { type: 'Point', coordinates: [-2.46, 36.84] },
+  recordedAt: '2099-01-15T06:40:00.000Z',
+  remainingKm: 1,
+  remainingMin: 2,
+  remainingSource: 'estimated',
+  estimatedArrivalAt: '2099-01-15T06:42:00.000Z',
 };
 
 function seatRequest(
@@ -91,6 +108,27 @@ describe('PassengerRequestDetailPage', () => {
           },
         },
         { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
+        {
+          provide: TrackingService,
+          useValue: { getLatest: vi.fn().mockResolvedValue(LIVE_POSITION) },
+        },
+        {
+          provide: LocationService,
+          useValue: {
+            checkPermission: vi.fn().mockResolvedValue('prompt'),
+            getCurrentLocation: vi.fn(),
+          },
+        },
+        { provide: LOAD_LEAFLET, useValue: vi.fn().mockResolvedValue({}) },
+        {
+          provide: LIVE_TRIP_MAP_RENDERER_FACTORY,
+          useValue: () => ({
+            initialize: vi.fn(),
+            render: vi.fn(),
+            center: vi.fn(),
+            destroy: vi.fn(),
+          }),
+        },
         { provide: ToastService, useValue: { showError, showSuccess } },
       ],
     });
@@ -126,6 +164,22 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.textContent).toContain('Solicitud aceptada');
     expect(root.textContent).toContain('1234BCD');
     expect(root.textContent).not.toContain('Cancelar solicitud');
+  });
+
+  it('shows the live map for an accepted request when the trip is in progress', async () => {
+    const root = await render(seatRequest('accepted'), { ...TRIP, status: 'in_progress' });
+
+    expect(root.querySelector('app-live-trip-map')).not.toBeNull();
+    expect(root.textContent).toContain('Seguimiento en tiempo real');
+  });
+
+  it('waits until the driver starts before showing the live map', async () => {
+    const root = await render(seatRequest('accepted'), { ...TRIP, status: 'confirmed' });
+
+    expect(root.querySelector('app-live-trip-map')).toBeNull();
+    expect(root.textContent).toContain(
+      'El seguimiento empezar\u00e1 cuando Luc\u00eda inicie el viaje.',
+    );
   });
 
   it('offers another search after rejection', async () => {
