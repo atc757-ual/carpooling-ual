@@ -25,7 +25,8 @@ export type ConversationPreference = (typeof CONVERSATION_PREFERENCES)[number];
 export const MUSIC_PREFERENCES = ['any', 'soft', 'none'] as const;
 export type MusicPreference = (typeof MUSIC_PREFERENCES)[number];
 
-export const SMOKING_PREFERENCES = ['no', 'stops_only', 'allowed'] as const;
+// Sin «solo en paradas»: las paradas de un viaje compartido son muy cortas
+export const SMOKING_PREFERENCES = ['no', 'allowed'] as const;
 export type SmokingPreference = (typeof SMOKING_PREFERENCES)[number];
 
 export const PETS_PREFERENCES = [

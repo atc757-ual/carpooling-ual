@@ -588,6 +588,7 @@ describe('Users API (e2e)', () => {
       [{ bio: 'Demasiado corto' }],
       [{ bio: 'a'.repeat(201) }],
       [{ preferences: { conversation: 'loud' } }],
+      [{ preferences: { smoking: 'stops_only' } }],
     ])('rejects %j', async (body) => {
       const ana = await createUser('ana');
 
