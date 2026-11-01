@@ -18,6 +18,7 @@ describe('ThemeService', () => {
   }
 
   beforeEach(() => {
+    document.documentElement.classList.remove('theme-dark', 'theme-light');
     saved = null;
     preferences = {
       get: vi.fn().mockImplementation(async () => saved),
@@ -25,7 +26,9 @@ describe('ThemeService', () => {
     };
   });
 
-  afterEach(() => root.remove('theme-dark', 'theme-light'));
+  afterEach(() => {
+    document.documentElement.classList.remove('theme-dark', 'theme-light');
+  });
 
   it('follows the system until the user chooses a mode', async () => {
     const theme = createService();

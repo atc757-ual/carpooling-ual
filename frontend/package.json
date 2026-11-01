@@ -29,6 +29,7 @@
     "@capacitor/geolocation": "^8.2.4",
     "@capacitor/preferences": "^8.0.1",
     "@ionic/angular": "^9.0.9",
+    "@jsverse/transloco": "^8.4.0",
     "canvas-confetti": "^1.9.4",
     "flag-icons": "^7.6.0",
     "ionicons": "^8.1.0",

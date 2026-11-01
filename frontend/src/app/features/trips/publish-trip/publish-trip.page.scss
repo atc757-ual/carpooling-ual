@@ -227,3 +227,10 @@
     font-size: 1rem; // 16px
   }
 }
+
+.publish__declared {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-top: var(--space-base);
+}

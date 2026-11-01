@@ -1,72 +1,379 @@
-// Una columna en el móvil; en escritorio, 8/4 (como Inicio y Publicar): la
-// cuenta, los vehículos y los perfiles a la izquierda, y la privacidad y
-// cerrar sesión a la derecha
 .profile {
   align-items: stretch;
-
   ion-card {
     margin: 0;
+    text-align: left;
   }
 }
 
 .profile__layout {
   display: grid;
   gap: var(--space-base);
+
+  @media (min-width: 768px) {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
 }
 
 .profile__main,
-.profile__aside {
+.profile__aside,
+.profile-card__content,
+.profile__reviews-list,
+.profile__center-info,
+.profile__bio-box,
+.profile__pref-list,
+.profile__legal-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-base);
+}
 
+.profile__main,
+.profile__aside,
+.profile-card__content,
+.profile__reviews-list,
+.profile__legal-list {
+  gap: var(--space-base);
   form ion-button {
     margin: 0;
   }
 }
 
-// Cerrar sesión no es destructivo: en azul sobre la superficie, como las
-// tarjetas, en vez de en rojo
-.profile__logout {
-  --background: var(--color-surface);
-}
+// Título a la izquierda y acción a la derecha. ion-card-header es una columna
+// (column-reverse en iOS): sin flex-direction el botón caía debajo del título.
+// El título usa el tamaño común de las tarjetas (18 → 20px, theme/_components)
+.profile-card__header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding: var(--space-base) var(--space-base) var(--space-s);
+  min-height: 3.5rem;
 
-@media (min-width: 768px) {
-  .profile__layout {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    align-items: start;
+  // 18px también en escritorio (el tema sube a 20px): en el Perfil, títulos
+  // de 18px y ningún otro texto por encima de 16px
+  ion-card-title {
+    margin: 0;
+    font-size: 1.125rem; // 18px
+  }
+
+  form {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
   }
 }
 
-.profile__account {
+.profile__row-three,
+.profile__review-row,
+.profile__setting-row,
+.profile__phone-row,
+.profile__pref-row,
+.profile__toggle-item,
+.profile__legal-row {
   display: flex;
   align-items: center;
-  gap: var(--space-base);
 }
 
-// Las iniciales en un círculo, como quien conduce en el detalle del viaje
+.profile__review-row,
+.profile__setting-row,
+.profile__phone-row,
+.profile__pref-row,
+.profile__toggle-item,
+.profile__legal-row {
+  justify-content: space-between;
+}
+
+.profile__review-row,
+.profile__setting-row,
+.profile__pref-row,
+.profile__toggle-item {
+  // Separador a medio camino entre una fila y la siguiente (el hueco del
+  // contenedor es --space-base): antes quedaba pegado al texto de arriba
+  padding-bottom: var(--space-base);
+  border-bottom: 1px solid var(--color-border-subtle);
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.profile__row-three {
+  gap: var(--space-base);
+}
+.profile__phone-row {
+  flex-wrap: wrap;
+  gap: var(--space-s);
+}
+
+.profile__phone-value {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+
+  ion-icon {
+    font-size: 1.125rem;
+    color: var(--color-text-muted);
+  }
+}
+// Preferencias más juntas: 8px por encima y por debajo de cada separador
+.profile__pref-list {
+  gap: var(--space-s);
+
+  .profile__pref-row {
+    padding-bottom: var(--space-s);
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+}
+
 .profile__avatar {
   display: flex;
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 3.5rem; // 56px
-  height: 3.5rem;
+  width: 3.75rem;
+  height: 3.75rem;
   border-radius: var(--radius-full);
-  background: var(--color-warning-subtle);
-  font-size: var(--font-size-subtitle);
-  font-weight: var(--font-weight-semibold);
+  background: var(--color-primary-subtle);
+  border: 1px solid var(--color-border-subtle);
+  font-size: var(--font-size-body); // 16px: ningún texto pasa de 16px
+  font-weight: 700;
+  color: var(--color-primary);
+  overflow: hidden;
+
+  svg {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
 }
 
-.profile__identity {
-  display: flex;
-  flex-direction: column;
+.profile__center-info {
+  flex: 1;
+  gap: 0.125rem;
   min-width: 0;
-  overflow-wrap: anywhere;
 }
 
-.profile__links {
+.profile__name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.profile__bio-box {
+  gap: 0.125rem;
+  padding: var(--space-s) var(--space-base);
+  background: var(--color-surface-subtle);
+  border-radius: var(--radius-base);
+
+  span {
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  p {
+    margin: 0;
+    white-space: pre-line;
+    font-size: var(--font-size-body-s);
+  }
+}
+
+.profile__pref-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-xs) var(--space-s);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+  font-size: var(--font-size-body-s);
+  font-weight: 500;
+  border: 1px solid var(--color-border-subtle);
+}
+
+// Documento legal: icono, título y si está aceptado (check verde y fecha)
+.profile__legal-row {
+  gap: var(--space-s);
+  width: 100%;
+  padding: var(--space-s) var(--space-base);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-base);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--motion-duration-fast);
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
+}
+
+.profile__legal-icon {
+  flex: none;
+  font-size: 1.5rem; // 24px
+  color: var(--color-primary);
+}
+
+.profile__legal-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.profile__legal-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-success);
+
+  ion-icon {
+    flex: none;
+  }
+}
+
+.profile__legal-chevron {
+  flex: none;
+  color: var(--color-text-muted);
+  font-size: 1.125rem;
+}
+
+.profile__star {
+  color: var(--color-accent);
+  vertical-align: -0.125rem;
+}
+
+// Idioma: banderas de España y Reino Unido (flag-icons, ya en el tema)
+.lang-switch {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-s);
+    border: none;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-body-s);
+    font-weight: 600;
+    cursor: pointer;
+
+    &.lang-pill--active {
+      background: var(--color-primary);
+      color: var(--color-on-primary);
+    }
+  }
+
+  .fi {
+    border-radius: 0.125rem;
+  }
+}
+
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0.25rem var(--space-s);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 1.25rem; // 20px
+  }
+  // Sol naranja en claro y luna azul en oscuro; los roles ya se aclaran en el
+  // modo oscuro para mantener el contraste
+  .icon-sun {
+    color: var(--color-accent);
+  }
+  .icon-moon {
+    color: var(--color-primary);
+  }
+}
+
+// Editar: botón cuadrado de 32px con fondo azul suave e icono de 20px
+.profile__edit {
+  --background: var(--color-primary-subtle);
+  --background-hover: var(--color-primary-subtle);
+  --color: var(--color-primary);
+  --border-radius: var(--radius-s);
+  --box-shadow: none;
+  --padding-start: 0;
+  --padding-end: 0;
+  width: 2rem; // 32px: icono de 20px con 6px alrededor
+  min-width: 2rem;
+  height: 2rem;
+  min-height: 2rem; // el tema da 48px a todos los ion-button
+  margin: 0;
+
+  ion-icon {
+    font-size: 1.25rem; // 20px
+  }
+}
+
+.profile__pref-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+
+  ion-icon {
+    flex: none;
+    font-size: 1.25rem; // 20px
+    color: var(--color-primary);
+  }
+}
+
+// El código, con un candado delante en vez de una palabra
+.profile__legal-hash {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: monospace;
+
+  ion-icon {
+    flex: none;
+  }
+}
+
+// Compartir ubicación: el texto en columna y el interruptor a la derecha
+.profile__toggle-item {
+  gap: var(--space-base);
+}
+
+.profile__toggle-info {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  gap: 0.125rem;
+}
+
+.profile__device-permission {
+  margin-top: var(--space-xs);
+}
+
+// Verificar el teléfono: botón ámbar pequeño, a la altura del de editar
+.profile__verify {
+  --background: var(--color-warning-subtle);
+  --background-hover: var(--color-warning-subtle);
+  --color: var(--color-warning-text);
+  --border-radius: var(--radius-s);
+  --box-shadow: none;
+  height: 2rem; // 32px
+  min-height: 2rem; // el tema da 48px a todos los ion-button
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
 }

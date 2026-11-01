@@ -1,0 +1,161 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>{{ 'profile.phoneModal.title' | transloco }}</ion-title>
+    <ion-buttons slot="end">
+      <form (submit)="$event.preventDefault(); close()">
+        <ion-button
+          class="dialog-close"
+          type="submit"
+          [attr.aria-label]="'common.close' | transloco"
+        >
+          <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
+        </ion-button>
+      </form>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<div class="profile-phone-modal">
+  @if (step() === 'number') {
+    <!-- El número actual y su estado; debajo, con quién se comparte -->
+    <div class="profile-phone-modal__current">
+      @if (formattedCurrentPhone(); as phone) {
+        <span class="text-body text-body--strong">{{ phone }}</span>
+        @if (isVerified()) {
+          <span class="status status--accepted">
+            <ion-icon [icon]="verifiedIcon" aria-hidden="true" />
+            {{ 'profile.phoneModal.verifiedBadge' | transloco }}
+          </span>
+        } @else {
+          <span class="status status--pending">{{
+            'profile.phoneModal.pendingBadge' | transloco
+          }}</span>
+        }
+      } @else {
+        <span class="text-body text-color-muted">{{
+          'profile.phoneModal.noPhone' | transloco
+        }}</span>
+      }
+    </div>
+    <p class="profile-phone-modal__note text-body-s text-color-muted">
+      {{ 'profile.phoneModal.note' | transloco }}
+    </p>
+
+    <form
+      class="profile-phone-modal__form"
+      [formGroup]="phoneForm"
+      (ngSubmit)="handleStartVerification()"
+      novalidate
+    >
+      <div class="auth-field">
+        <span class="text-label text-label--strong" aria-hidden="true">{{
+          'profile.phoneModal.phoneLabel' | transloco
+        }}</span>
+        <ion-input
+          formControlName="phone"
+          type="tel"
+          inputmode="numeric"
+          autocomplete="tel-national"
+          [attr.aria-label]="'profile.phoneModal.phoneLabel' | transloco"
+          fill="outline"
+          placeholder="612 345 678"
+          [errorText]="'profile.phoneModal.phoneError' | transloco"
+        >
+          <app-phone-prefix-select slot="start" formControlName="phonePrefix" />
+        </ion-input>
+      </div>
+
+      @if (isVerified()) {
+        <p class="profile-phone-modal__warning text-body-s">
+          {{ 'profile.phoneModal.changeWarning' | transloco }}
+        </p>
+      }
+
+      <!-- Un solo paso: cada número nuevo se verifica (guardar y enviar el
+           código); sin cambios, solo enviar el código si aún no está verificado -->
+      @if (isPhoneChanged() || !isVerified()) {
+        <div class="profile-phone-modal__actions">
+          <ion-button
+            type="submit"
+            expand="block"
+            [disabled]="phoneForm.invalid || isSaving() || isVerifying()"
+          >
+            @if (isSaving() || isVerifying()) {
+              <ion-spinner name="crescent" slot="start" aria-hidden="true" />
+            } @else {
+              <ion-icon slot="start" [icon]="shieldIcon" aria-hidden="true" />
+            }
+            {{
+              (isPhoneChanged()
+                ? 'profile.phoneModal.saveAndVerify'
+                : 'profile.phoneModal.sendSmsCode'
+              ) | transloco
+            }}
+          </ion-button>
+        </div>
+      }
+    </form>
+  } @else {
+    <!-- Paso de verificación con código OTP -->
+    <div class="profile-phone-modal__verify">
+      <div class="profile-phone-modal__verify-header">
+        <h3 class="profile-phone-modal__title">
+          {{ 'profile.phoneModal.verifyTitle' | transloco }}
+        </h3>
+        <p class="text-body-s text-color-muted">
+          {{ 'profile.phoneModal.verifySubtitle' | transloco }}
+        </p>
+      </div>
+
+      <form [formGroup]="codeForm" (ngSubmit)="handleConfirmCode()" novalidate>
+        <div class="auth-field">
+          <span id="phone-otp-label" class="text-label text-label--strong">{{
+            'profile.phoneModal.codeLabel' | transloco
+          }}</span>
+          <app-code-input
+            formControlName="code"
+            labelledBy="phone-otp-label"
+            (completed)="handleConfirmCode()"
+          />
+        </div>
+
+        @if (isLocked()) {
+          <ion-text color="danger" class="text-body-s" role="alert">
+            {{ 'profile.phoneModal.tooManyAttempts' | transloco }}
+          </ion-text>
+        }
+
+        <div class="profile-phone-modal__verify-actions">
+          <ion-button
+            type="submit"
+            expand="block"
+            [disabled]="codeForm.invalid || isVerifying() || isLocked()"
+          >
+            @if (isVerifying()) {
+              <ion-spinner name="crescent" slot="start" aria-hidden="true" />
+            }
+            {{ 'profile.phoneModal.confirmCode' | transloco }}
+          </ion-button>
+
+          <ion-button
+            type="button"
+            fill="clear"
+            expand="block"
+            [disabled]="secondsToResend() > 0"
+            (click)="handleResendCode()"
+          >
+            {{ resendLabel() }}
+          </ion-button>
+
+          <button
+            type="button"
+            class="profile-phone-modal__back text-body-s"
+            (click)="backToNumber()"
+          >
+            {{ 'profile.phoneModal.backToNumber' | transloco }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

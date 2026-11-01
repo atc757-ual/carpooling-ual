@@ -1,0 +1,82 @@
+.profile-phone-modal {
+  max-height: calc(90vh - 3.5rem);
+  overflow-y: auto;
+  padding: var(--space-s) var(--space-base) var(--space-base);
+  padding-bottom: max(var(--space-base), calc(var(--space-s) + env(safe-area-inset-bottom, 0px)));
+  background: var(--color-surface);
+}
+
+// Número y estado en una fila, en una caja suave
+.profile-phone-modal__current {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-base);
+  border-radius: var(--radius-s);
+  background: var(--color-surface-subtle);
+}
+
+.profile-phone-modal__note {
+  margin: var(--space-xs) 0 var(--space-base);
+}
+
+.profile-phone-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
+.profile-phone-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin-top: var(--space-s);
+}
+
+.profile-phone-modal__verify {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.profile-phone-modal__verify-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.profile-phone-modal__verify-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin-top: var(--space-base);
+}
+
+.profile-phone-modal__back {
+  background: none;
+  border: none;
+  color: var(--color-link);
+  cursor: pointer;
+  padding: var(--space-xs);
+  text-align: center;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Al cambiar un número verificado: aviso en ámbar, antes del botón
+.profile-phone-modal__warning {
+  margin: 0;
+  color: var(--color-warning-text);
+}
+
+// Título del paso del código: el tamaño de los títulos de tarjeta (18px)
+.profile-phone-modal__title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
+}
