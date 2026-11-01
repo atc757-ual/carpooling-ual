@@ -822,6 +822,40 @@ describe('Users API (e2e)', () => {
       }
     });
 
+    it('records where the location consent was given or withdrawn', async () => {
+      const ana = await createUser('ana');
+      const put = (body: object) =>
+        request(app.getHttpServer())
+          .put('/api/users/me/consents/location')
+          .set('Authorization', `Bearer ${ana.accessToken}`)
+          .send(body)
+          .expect(200);
+
+      await put({ action: 'granted', source: 'location_prompt' });
+      const revoked = await put({ action: 'revoked', source: 'device' });
+
+      expect(
+        (
+          revoked.body as { history: { type: string; source: string }[] }
+        ).history
+          .filter(({ type }) => type === 'location')
+          .map(({ source }) => source),
+      ).toEqual(['device', 'location_prompt']);
+    });
+
+    it.each([['registration'], ['account_deletion'], ['anywhere']])(
+      'rejects a location consent with the source %s',
+      async (source) => {
+        const ana = await createUser('ana');
+
+        await request(app.getHttpServer())
+          .put('/api/users/me/consents/location')
+          .set('Authorization', `Bearer ${ana.accessToken}`)
+          .send({ action: 'granted', source })
+          .expect(400);
+      },
+    );
+
     it('rejects an invalid location consent action with 400 and requires a token', async () => {
       const ana = await createUser('ana');
 

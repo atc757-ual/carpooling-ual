@@ -6,12 +6,24 @@ export type ConsentType = (typeof CONSENT_TYPES)[number];
 export const CONSENT_ACTIONS = ['granted', 'revoked'] as const;
 export type ConsentAction = (typeof CONSENT_ACTIONS)[number];
 
+// location_prompt: la ventana que explica para qué se usa la ubicación;
+// device: el usuario quitó el permiso del sistema y la app lo detectó
 export const CONSENT_SOURCES = [
   'registration',
   'settings',
   'account_deletion',
+  'location_prompt',
+  'device',
 ] as const;
 export type ConsentSource = (typeof CONSENT_SOURCES)[number];
+
+// Los que puede enviar la app al registrar el consentimiento de ubicación
+export const LOCATION_CONSENT_SOURCES = [
+  'settings',
+  'location_prompt',
+  'device',
+] as const satisfies readonly ConsentSource[];
+export type LocationConsentSource = (typeof LOCATION_CONSENT_SOURCES)[number];
 
 export const CONSENT_DOCUMENT_VERSION = '1.0';
 

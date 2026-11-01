@@ -14,6 +14,7 @@ import type {
   ConsentAction,
   ConsentSource,
   ConsentType,
+  LocationConsentSource,
   UserConsentRecord,
   UserConsentsView,
 } from './user-consent';
@@ -58,11 +59,14 @@ export class ConsentsService {
     }
   }
 
-  // Conceder o retirar el permiso de ubicación desde la app (ajustes/perfil).
-  // Idempotente si el último estado registrado ya coincide con el pedido
+  // Conceder o retirar el permiso de ubicación desde la app: el interruptor
+  // del Perfil (settings), la ventana que explica para qué se usa
+  // (location_prompt) o al detectar que se quitó el permiso del sistema
+  // (device). Idempotente si el último estado registrado ya coincide
   async recordLocationConsent(
     userId: string,
     action: ConsentAction,
+    source: LocationConsentSource = 'settings',
   ): Promise<UserConsentsView> {
     await this.dataSource.transaction(async (manager) => {
       const user = await manager.findOne(User, {
@@ -84,7 +88,7 @@ export class ConsentsService {
         type: 'location',
         documentVersion: CONSENT_DOCUMENT_VERSION,
         action,
-        source: 'settings',
+        source,
         recordedAt: new Date(),
       });
     });
