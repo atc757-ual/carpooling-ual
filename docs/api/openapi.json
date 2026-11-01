@@ -6568,6 +6568,268 @@
           "simulations"
         ]
       }
+    },
+    "/api/admin/users": {
+      "get": {
+        "description": "Search by name or email and filter by profile and status. Each user comes with its statuses, trips, open incidents and suspensions; the most serious status first.",
+        "operationId": "AdminUsersController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Text to search in the name or the email, ignoring case",
+            "schema": {
+              "maxLength": 100,
+              "example": "ana",
+              "type": "string"
+            }
+          },
+          {
+            "name": "profile",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "driver",
+                "passenger",
+                "admin"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "email_unverified",
+                "open_incidents",
+                "suspended",
+                "profile_deactivated",
+                "deleted"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminUserRowResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List users with their status",
+        "tags": [
+          "admin users"
+        ]
+      }
+    },
+    "/api/admin/users/{id}/suspensions/{role}/lift": {
+      "post": {
+        "description": "The late cancellations of that role stop counting. The reason is kept in the audit log.",
+        "operationId": "AdminUsersController_liftSuspension",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "driver",
+                "passenger"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LiftSuspensionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Suspension lifted"
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: USER_NOT_SUSPENDED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lift a suspension before it ends",
+        "tags": [
+          "admin users"
+        ]
+      }
     }
   },
   "info": {
@@ -7557,10 +7819,18 @@
           "isActive": {
             "type": "boolean",
             "description": "Activate or deactivate the profile. For the admin profile, true assigns it and false removes it"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 500,
+            "example": "Several reports of unsafe driving on the same week",
+            "description": "Why the admin makes the change (audit)"
           }
         },
         "required": [
-          "isActive"
+          "isActive",
+          "reason"
         ]
       },
       "RegisterVehicleDto": {
@@ -9978,6 +10248,124 @@
           "criterionMet",
           "summary",
           "series"
+        ]
+      },
+      "SuspensionsResource": {
+        "type": "object",
+        "properties": {
+          "driver": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "passenger": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "driver",
+          "passenger"
+        ]
+      },
+      "AdminUserRowResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "AdminUserRow"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/users/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "name": {
+            "type": "string",
+            "example": "Lucía Cortés"
+          },
+          "email": {
+            "type": "string",
+            "example": "lcc123@inlumine.ual.es"
+          },
+          "profiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProfileStatusResource"
+            }
+          },
+          "statuses": {
+            "type": "array",
+            "description": "From the most to the least serious; active only alone",
+            "items": {
+              "type": "string",
+              "enum": [
+                "active",
+                "email_unverified",
+                "open_incidents",
+                "suspended",
+                "profile_deactivated",
+                "deleted"
+              ]
+            }
+          },
+          "tripCount": {
+            "type": "number",
+            "example": 42,
+            "description": "Trips published (not cancelled) plus seats accepted"
+          },
+          "openIncidents": {
+            "type": "number",
+            "example": 0,
+            "description": "Open incidents reported by the user or on their trips"
+          },
+          "suspensions": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SuspensionsResource"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "name",
+          "email",
+          "profiles",
+          "statuses",
+          "tripCount",
+          "openIncidents",
+          "suspensions",
+          "createdAt"
+        ]
+      },
+      "LiftSuspensionDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 500,
+            "example": "The late cancellations were caused by a strike",
+            "description": "Why the admin lifts the suspension (audit)"
+          }
+        },
+        "required": [
+          "reason"
         ]
       }
     }

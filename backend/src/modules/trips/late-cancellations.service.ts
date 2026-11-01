@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, MoreThan, Repository } from 'typeorm';
+import { EntityManager, In, IsNull, MoreThan, Repository } from 'typeorm';
+import { AuditService } from '../../audit/audit.service';
 import { EventsService } from '../../events/events.service';
 import {
   LateCancellation,
@@ -8,6 +9,7 @@ import {
 } from './entities/late-cancellation.entity';
 import { Trip } from './entities/trip.entity';
 import { PublishingSuspendedError } from './errors/publishing-suspended.error';
+import { UserNotSuspendedError } from './errors/user-not-suspended.error';
 import {
   DAY_MS,
   LATE_CANCELLATION_WINDOW_DAYS,
@@ -28,6 +30,20 @@ export interface PublishingStatus {
 export interface RequestingStatus {
   lateCancellations: number;
   requestingSuspendedUntil: Date | null;
+}
+
+// Suspensiones en curso de un usuario, por papel (null si no tiene)
+export interface UserSuspensions {
+  driver: Date | null;
+  passenger: Date | null;
+}
+
+// Un administrador levanta la suspensión de un papel con su motivo
+export interface WaiveInput {
+  adminId: string;
+  userId: string;
+  role: LateCancellationRole;
+  reason: string;
 }
 
 // Cancelaciones tardías de un papel y hasta cuándo dura su suspensión
@@ -57,6 +73,59 @@ export function findSuspensionEnd(
   }
   const end = new Date(latest.getTime() + PUBLISHING_SUSPENSION_DAYS * DAY_MS);
   return end > now ? end : null;
+}
+
+// Las de los 60 días anteriores bastan: la suspensión mira la última y los
+// 30 días anteriores a ella
+function suspensionLookback(now: Date): Date {
+  return new Date(now.getTime() - 2 * LATE_CANCELLATION_WINDOW_DAYS * DAY_MS);
+}
+
+// Fechas de las cancelaciones que cuentan (sin perdonar), de la más reciente
+// a la más antigua
+async function loadDates(
+  manager: EntityManager,
+  userId: string,
+  role: LateCancellationRole,
+  now: Date,
+): Promise<Date[]> {
+  const rows = await manager.find(LateCancellation, {
+    where: {
+      userId,
+      role,
+      waivedAt: IsNull(),
+      cancelledAt: MoreThan(suspensionLookback(now)),
+    },
+    order: { cancelledAt: 'DESC' },
+    select: { cancelledAt: true },
+  });
+  return rows.map(({ cancelledAt }) => cancelledAt);
+}
+
+// Agrupa por usuario y papel (filas de la más reciente a la más antigua) y se
+// queda con las suspensiones en curso
+export function toSuspensions(
+  rows: readonly Pick<LateCancellation, 'userId' | 'role' | 'cancelledAt'>[],
+  now: Date,
+): Map<string, UserSuspensions> {
+  const dates = new Map<string, Date[]>();
+  for (const { userId, role, cancelledAt } of rows) {
+    const key = userId + ':' + role;
+    dates.set(key, [...(dates.get(key) ?? []), cancelledAt]);
+  }
+  const suspensions = new Map<string, UserSuspensions>();
+  for (const [key, cancelledAt] of dates) {
+    const end = findSuspensionEnd(cancelledAt, now);
+    if (end !== null) {
+      const [userId, role] = key.split(':') as [string, LateCancellationRole];
+      const current = suspensions.get(userId) ?? {
+        driver: null,
+        passenger: null,
+      };
+      suspensions.set(userId, { ...current, [role]: end });
+    }
+  }
+  return suspensions;
 }
 
 function minutesToDeparture(trip: Trip, now: Date): number {
@@ -95,6 +164,7 @@ export class LateCancellationsService {
     @InjectRepository(LateCancellation)
     private readonly lateCancellationsRepository: Repository<LateCancellation>,
     private readonly events: EventsService,
+    private readonly audit: AuditService,
   ) {}
 
   recordDriverCancellation(manager: EntityManager, trip: Trip): Promise<void> {
@@ -141,6 +211,61 @@ export class LateCancellationsService {
     }
   }
 
+  // Suspensiones en curso de varios usuarios (o de todos, sin ids) en una
+  // sola consulta, para el panel. Solo salen los que tienen alguna
+  async findSuspensions(
+    userIds?: readonly string[],
+    now = new Date(),
+  ): Promise<Map<string, UserSuspensions>> {
+    if (userIds?.length === 0) {
+      return new Map();
+    }
+    const rows = await this.lateCancellationsRepository.find({
+      where: {
+        ...(userIds === undefined ? {} : { userId: In(userIds) }),
+        waivedAt: IsNull(),
+        cancelledAt: MoreThan(suspensionLookback(now)),
+      },
+      order: { cancelledAt: 'DESC' },
+      select: { userId: true, role: true, cancelledAt: true },
+    });
+    return toSuspensions(rows, now);
+  }
+
+  // Levanta la suspensión de un papel antes de tiempo: perdona sus
+  // cancelaciones tardías pendientes, con su evento y su auditoría en la misma
+  // transacción. Devuelve cuántas perdonó
+  async waive(input: WaiveInput, now = new Date()): Promise<number> {
+    const { adminId, userId, role, reason } = input;
+    return this.lateCancellationsRepository.manager.transaction(
+      async (manager) => {
+        const dates = await loadDates(manager, userId, role, now);
+        if (findSuspensionEnd(dates, now) === null) {
+          throw new UserNotSuspendedError(userId, role);
+        }
+        const { affected } = await manager.update(
+          LateCancellation,
+          { userId, role, waivedAt: IsNull() },
+          { waivedAt: now, waivedBy: adminId, waivedReason: reason },
+        );
+        const waived = affected ?? 0;
+        await this.events.record(manager, {
+          type: 'late_cancellation.waived',
+          sourceEntityId: userId,
+          payload: { adminId, userId, role, waived },
+        });
+        await this.audit.record(manager, {
+          adminId,
+          action: 'suspension.lifted',
+          targetUserId: userId,
+          details: { role, waived },
+          reason,
+        });
+        return waived;
+      },
+    );
+  }
+
   // El mismo evento para los dos papeles: el payload dice quién canceló
   private async record(
     manager: EntityManager,
@@ -168,17 +293,12 @@ export class LateCancellationsService {
     role: LateCancellationRole,
     now: Date,
   ): Promise<Suspension> {
-    // Las de los 60 días anteriores bastan: la suspensión mira la última y
-    // los 30 días anteriores a ella
-    const since = new Date(
-      now.getTime() - 2 * LATE_CANCELLATION_WINDOW_DAYS * DAY_MS,
+    const dates = await loadDates(
+      this.lateCancellationsRepository.manager,
+      userId,
+      role,
+      now,
     );
-    const rows = await this.lateCancellationsRepository.find({
-      where: { userId, role, cancelledAt: MoreThan(since) },
-      order: { cancelledAt: 'DESC' },
-      select: { cancelledAt: true },
-    });
-    const dates = rows.map(({ cancelledAt }) => cancelledAt);
     const windowStart = now.getTime() - LATE_CANCELLATION_WINDOW_DAYS * DAY_MS;
     return {
       lateCancellations: dates.filter((date) => date.getTime() > windowStart)

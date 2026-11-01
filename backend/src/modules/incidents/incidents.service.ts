@@ -162,6 +162,31 @@ export class IncidentsService {
 
   // Cancela la participación de quien registra la incidencia y devuelve la
   // solicitud afectada (null si es el conductor: se cancela el viaje entero)
+  // Incidencias abiertas en las que aparece cada usuario (quien la registró o
+  // el conductor del viaje), para el panel. Las abiertas son pocas: se cargan
+  // todas de una vez
+  async countOpenByUser(): Promise<Map<string, number>> {
+    const open = await this.incidentsRepository.find({
+      where: { status: 'open' },
+      select: { id: true, tripId: true, reporterId: true },
+    });
+    const trips = await this.tripsService.getByIds(
+      open.map(({ tripId }) => tripId),
+    );
+    const counts = new Map<string, number>();
+    for (const incident of open) {
+      const driverId = trips.get(incident.tripId)?.driverId;
+      const involved = new Set([
+        incident.reporterId,
+        driverId ?? incident.reporterId,
+      ]);
+      for (const userId of involved) {
+        counts.set(userId, (counts.get(userId) ?? 0) + 1);
+      }
+    }
+    return counts;
+  }
+
   private async cancelParticipation(
     manager: EntityManager,
     reporterId: string,

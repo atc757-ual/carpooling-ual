@@ -34,6 +34,11 @@ export async function deleteTestUsers(
     `DELETE FROM simulation_runs WHERE requested_by IN (${testUsers})`,
     [pattern],
   );
+  await dataSource.query(
+    `DELETE FROM admin_actions
+      WHERE admin_id IN (${testUsers}) OR target_user_id IN (${testUsers})`,
+    [pattern],
+  );
   await dataSource.query(`DELETE FROM trips WHERE id IN (${testTrips})`, [
     pattern,
   ]);

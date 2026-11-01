@@ -27,6 +27,8 @@ export type DomainEventType =
   // Cancelación tardía (con pasajeros, a menos de 30 min de la salida): para
   // medir la fiabilidad de los conductores (escenario S5)
   | 'trip.cancelled_late'
+  // Un administrador perdona las cancelaciones tardías (levanta la suspensión)
+  | 'late_cancellation.waived'
   // Posición del conductor durante el viaje (seguimiento real, RF-12): el
   // "cambio de posición" con el que se sincroniza el Gemelo Digital (RNF-07)
   | 'trip.position_updated'

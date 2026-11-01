@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, EntityManager, ILike } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
+import { AuditService } from '../../audit/audit.service';
 import { EventsService } from '../../events/events.service';
 import { ProfileRequiredError } from '../../shared/auth/profile-required.error';
 import { Page, PageRequest } from '../../shared/pagination/page';
+import { AdminUserFilter, applyAdminUserFilter } from './admin-user-filter';
 import { AdminProfile } from './entities/admin-profile.entity';
 import { User } from './entities/user.entity';
 import { CannotChangeOwnAdminError } from './errors/cannot-change-own-admin.error';
@@ -32,6 +34,11 @@ export interface UserAdminView {
   profiles: ProfileStatus[];
 }
 
+// Cambio de perfil pedido por un administrador, con su motivo (auditoría)
+export interface AdminProfileChange extends ProfileChange {
+  reason: string;
+}
+
 // Relaciones que se cargan junto con el usuario
 const PROFILE_RELATIONS = {
   driverProfile: true,
@@ -56,6 +63,7 @@ export class UserProfilesService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly eventsService: EventsService,
+    private readonly audit: AuditService,
   ) {}
 
   // Patrón observador: p. ej. auth cierra las sesiones del usuario cuando se
@@ -64,24 +72,28 @@ export class UserProfilesService {
     this.listeners.push(listener);
   }
 
-  // Usuarios para el panel del administrador, por nombre. search busca en el
-  // nombre o el correo, sin distinguir mayúsculas
+  // Usuarios para el panel del administrador, por nombre, con sus tres
+  // perfiles. search busca en el nombre o el correo, sin distinguir
+  // mayúsculas; el resto de filtros, en admin-user-filter.ts
   async list(
-    search: string | undefined,
+    filter: AdminUserFilter,
     page: PageRequest,
   ): Promise<Page<UserAdminView>> {
-    const pattern = search ? `%${escapeLike(search)}%` : undefined;
-    const [users, total] = await this.dataSource
+    if (filter.userIds?.length === 0) {
+      return { items: [], total: 0 };
+    }
+    const query = this.dataSource
       .getRepository(User)
-      .findAndCount({
-        where: pattern
-          ? [{ name: ILike(pattern) }, { email: ILike(pattern) }]
-          : {},
-        relations: PROFILE_RELATIONS,
-        order: { name: 'ASC', id: 'ASC' },
-        skip: page.offset,
-        take: page.limit,
-      });
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.driverProfile', 'driver')
+      .leftJoinAndSelect('user.passengerProfile', 'passenger')
+      .leftJoinAndSelect('user.adminProfile', 'admin');
+    const [users, total] = await applyAdminUserFilter(query, filter)
+      .orderBy('user.name', 'ASC')
+      .addOrderBy('user.id', 'ASC')
+      .skip(page.offset)
+      .take(page.limit)
+      .getManyAndCount();
     return { items: users.map(toAdminView), total };
   }
 
@@ -102,10 +114,9 @@ export class UserProfilesService {
   // si ya estaba así, no cambia nada
   async setProfileActive(
     adminId: string,
-    userId: string,
-    profile: ProfileType,
-    isActive: boolean,
+    change: AdminProfileChange,
   ): Promise<void> {
+    const { userId, profile, isActive, reason } = change;
     await this.dataSource.transaction(async (manager) => {
       if (!(await manager.existsBy(User, { id: userId }))) {
         throw new UserNotFoundError(userId);
@@ -133,6 +144,13 @@ export class UserProfilesService {
         await manager.update(entity, { userId }, { isActive });
       }
       await this.notify(manager, adminId, { userId, profile, isActive });
+      await this.audit.record(manager, {
+        adminId,
+        action: isActive ? 'profile.activated' : 'profile.deactivated',
+        targetUserId: userId,
+        details: { profile },
+        reason,
+      });
     });
   }
 
@@ -254,10 +272,4 @@ function toAdminView(user: User): UserAdminView {
       entity ? [{ profile, isActive: entity.isActive }] : [],
     ),
   };
-}
-
-// Los comodines de LIKE (% y _) que escriba el administrador se buscan como
-// texto, no como comodines
-function escapeLike(text: string): string {
-  return text.replace(/[\\%_]/g, (char) => `\\${char}`);
 }
