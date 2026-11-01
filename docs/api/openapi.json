@@ -5917,6 +5917,657 @@
           "matching"
         ]
       }
+    },
+    "/api/admin/simulations/scenarios": {
+      "get": {
+        "description": "RF-16: users, adoption, modal split, time window and other parameters of each scenario (S0-S5).",
+        "operationId": "SimulationsController_listScenarios",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScenarioResource"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the predefined scenarios",
+        "tags": [
+          "simulations"
+        ]
+      }
+    },
+    "/api/admin/simulations": {
+      "post": {
+        "description": "RF-15: a scenario against its baseline (S0 by default). Only one run at a time.",
+        "operationId": "SimulationsController_start",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartSimulationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "headers": {
+              "Location": {
+                "description": "Link to the new simulation run"
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationRunResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: SCENARIO_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: SIMULATION_ALREADY_RUNNING",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start a simulation run",
+        "tags": [
+          "simulations"
+        ]
+      },
+      "get": {
+        "description": "The most recent first.",
+        "operationId": "SimulationsController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimulationRunResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List simulation runs",
+        "tags": [
+          "simulations"
+        ]
+      }
+    },
+    "/api/admin/simulations/{id}": {
+      "get": {
+        "operationId": "SimulationsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationRunResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: SIMULATION_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a simulation run with its status and progress",
+        "tags": [
+          "simulations"
+        ]
+      }
+    },
+    "/api/admin/simulations/{id}/results": {
+      "get": {
+        "description": "RF-18: aggregated metrics (mean, SD and 95 % CI), series by time slot and success criterion.",
+        "operationId": "SimulationsController_getResults",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationResultsResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: SIMULATION_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: SIMULATION_NOT_FINISHED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the results of a finished run",
+        "tags": [
+          "simulations"
+        ]
+      }
+    },
+    "/api/admin/simulations/{id}/results.csv": {
+      "get": {
+        "description": "RF-20.",
+        "operationId": "SimulationsController_exportCsv",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One row per replica",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: SIMULATION_NOT_FOUND",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: SIMULATION_NOT_FINISHED",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Export the metrics of each replica as CSV",
+        "tags": [
+          "simulations"
+        ]
+      }
+    },
+    "/api/admin/simulations/{id}/cancel": {
+      "post": {
+        "operationId": "SimulationsController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationRunResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: SIMULATION_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: INVALID_SIMULATION_TRANSITION",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel a queued or running simulation",
+        "tags": [
+          "simulations"
+        ]
+      }
     }
   },
   "info": {
@@ -8878,6 +9529,455 @@
           "detourMin",
           "timeDifferenceMin",
           "score"
+        ]
+      },
+      "ScenarioResource": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "S1"
+          },
+          "name": {
+            "type": "string",
+            "example": "Carpooling básico"
+          },
+          "users": {
+            "type": "number",
+            "example": 200
+          },
+          "adoptionRate": {
+            "type": "number",
+            "example": 0.3,
+            "description": "Share of users willing to share a car"
+          },
+          "modalSplit": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "example": {
+              "own_car": 0.3,
+              "public_transport": 0.5,
+              "other": 0.2
+            }
+          },
+          "timeWindowMin": {
+            "type": "number",
+            "example": 15,
+            "description": "Time tolerance, in minutes"
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": true,
+            "example": {
+              "vehicleCapacities": [
+                2,
+                3,
+                4,
+                6
+              ]
+            },
+            "description": "Other parameters (capacities, cancellation rate...)"
+          },
+          "@type": {
+            "type": "string",
+            "enum": [
+              "SimulationScenario"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "replicas": {
+            "type": "number",
+            "example": 30,
+            "description": "Default replicas"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "users",
+          "adoptionRate",
+          "modalSplit",
+          "timeWindowMin",
+          "parameters",
+          "@type",
+          "id",
+          "replicas"
+        ]
+      },
+      "StartSimulationDto": {
+        "type": "object",
+        "properties": {
+          "scenario": {
+            "type": "string",
+            "example": "S1",
+            "description": "Scenario code"
+          },
+          "baselineScenario": {
+            "type": "string",
+            "example": "S0",
+            "default": "S0",
+            "description": "Scenario to compare with (S0, without carpooling, by default)"
+          },
+          "replicas": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Default: the replicas of the scenario"
+          },
+          "seed": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "example": 20261101,
+            "description": "Initial seed; replica i uses seed + i (paired seeds)"
+          }
+        },
+        "required": [
+          "scenario",
+          "seed"
+        ]
+      },
+      "ScenarioConfigResource": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "S1"
+          },
+          "name": {
+            "type": "string",
+            "example": "Carpooling básico"
+          },
+          "users": {
+            "type": "number",
+            "example": 200
+          },
+          "adoptionRate": {
+            "type": "number",
+            "example": 0.3,
+            "description": "Share of users willing to share a car"
+          },
+          "modalSplit": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "example": {
+              "own_car": 0.3,
+              "public_transport": 0.5,
+              "other": 0.2
+            }
+          },
+          "timeWindowMin": {
+            "type": "number",
+            "example": 15,
+            "description": "Time tolerance, in minutes"
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": true,
+            "example": {
+              "vehicleCapacities": [
+                2,
+                3,
+                4,
+                6
+              ]
+            },
+            "description": "Other parameters (capacities, cancellation rate...)"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "users",
+          "adoptionRate",
+          "modalSplit",
+          "timeWindowMin",
+          "parameters"
+        ]
+      },
+      "RunScenarioConfigResource": {
+        "type": "object",
+        "properties": {
+          "scenario": {
+            "$ref": "#/components/schemas/ScenarioConfigResource"
+          },
+          "baseline": {
+            "$ref": "#/components/schemas/ScenarioConfigResource"
+          }
+        },
+        "required": [
+          "scenario",
+          "baseline"
+        ]
+      },
+      "SimulationRunResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "SimulationRun"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/admin/simulations/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "scenario": {
+            "type": "string",
+            "example": "S1",
+            "description": "Scenario code"
+          },
+          "baselineScenario": {
+            "type": "string",
+            "example": "S0",
+            "description": "Baseline scenario code"
+          },
+          "scenarioConfig": {
+            "description": "Copy of both configurations when the run was requested",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RunScenarioConfigResource"
+              }
+            ]
+          },
+          "replicas": {
+            "type": "number",
+            "example": 30
+          },
+          "seed": {
+            "type": "number",
+            "example": 20261101
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "finished",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "progress": {
+            "type": "number",
+            "example": 12,
+            "description": "Finished replicas"
+          },
+          "requestedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "snapshotAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "errorCode": {
+            "type": "string",
+            "example": null,
+            "nullable": true
+          },
+          "criterionMet": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Success criterion (>= 15 % fewer vehicles and >= 70 % requests covered); null until finished"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "scenario",
+          "baselineScenario",
+          "scenarioConfig",
+          "replicas",
+          "seed",
+          "status",
+          "progress",
+          "requestedBy",
+          "snapshotAt",
+          "requestedAt",
+          "startedAt",
+          "finishedAt",
+          "errorCode",
+          "criterionMet"
+        ]
+      },
+      "MetricStatResource": {
+        "type": "object",
+        "properties": {
+          "mean": {
+            "type": "number",
+            "example": 18.4
+          },
+          "sd": {
+            "type": "number",
+            "example": 1.2,
+            "description": "Standard deviation"
+          },
+          "ciLow": {
+            "type": "number",
+            "example": 17.95,
+            "description": "Lower bound of the 95 % CI"
+          },
+          "ciHigh": {
+            "type": "number",
+            "example": 18.85,
+            "description": "Upper bound of the 95 % CI"
+          }
+        },
+        "required": [
+          "mean",
+          "sd",
+          "ciLow",
+          "ciHigh"
+        ]
+      },
+      "ComparedStatResource": {
+        "type": "object",
+        "properties": {
+          "scenario": {
+            "$ref": "#/components/schemas/MetricStatResource"
+          },
+          "baseline": {
+            "$ref": "#/components/schemas/MetricStatResource"
+          }
+        },
+        "required": [
+          "scenario",
+          "baseline"
+        ]
+      },
+      "SimulationSummaryResource": {
+        "type": "object",
+        "properties": {
+          "vehiclesUsed": {
+            "$ref": "#/components/schemas/ComparedStatResource"
+          },
+          "averageOccupancy": {
+            "description": "People per car",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ComparedStatResource"
+              }
+            ]
+          },
+          "vehiclesAvoidedPct": {
+            "$ref": "#/components/schemas/MetricStatResource"
+          },
+          "requestsCoveredPct": {
+            "$ref": "#/components/schemas/MetricStatResource"
+          },
+          "matchingP95Ms": {
+            "$ref": "#/components/schemas/MetricStatResource"
+          },
+          "recoveryPct": {
+            "nullable": true,
+            "description": "Only in scenarios with incidents (S5)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MetricStatResource"
+              }
+            ]
+          }
+        },
+        "required": [
+          "vehiclesUsed",
+          "averageOccupancy",
+          "vehiclesAvoidedPct",
+          "requestsCoveredPct",
+          "matchingP95Ms",
+          "recoveryPct"
+        ]
+      },
+      "SlotSeriesResource": {
+        "type": "object",
+        "properties": {
+          "slot": {
+            "type": "string",
+            "example": "08:00"
+          },
+          "vehicles": {
+            "type": "number",
+            "example": 42.5,
+            "description": "Mean vehicles arriving in the scenario"
+          },
+          "baselineVehicles": {
+            "type": "number",
+            "example": 51.3,
+            "description": "Mean vehicles arriving in the baseline"
+          }
+        },
+        "required": [
+          "slot",
+          "vehicles",
+          "baselineVehicles"
+        ]
+      },
+      "SimulationResultsResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "SimulationResults"
+            ]
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/admin/simulations/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/results"
+          },
+          "replicas": {
+            "type": "number",
+            "example": 30
+          },
+          "criterionMet": {
+            "type": "boolean"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/SimulationSummaryResource"
+          },
+          "series": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SlotSeriesResource"
+            }
+          }
+        },
+        "required": [
+          "@type",
+          "href",
+          "replicas",
+          "criterionMet",
+          "summary",
+          "series"
         ]
       }
     }

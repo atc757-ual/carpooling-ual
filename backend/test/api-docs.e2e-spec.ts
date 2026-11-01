@@ -51,6 +51,12 @@ describe('API docs (e2e)', () => {
 
     const { paths } = response.body as { paths: Record<string, object> };
     expect(Object.keys(paths).sort()).toEqual([
+      '/api/admin/simulations',
+      '/api/admin/simulations/scenarios',
+      '/api/admin/simulations/{id}',
+      '/api/admin/simulations/{id}/cancel',
+      '/api/admin/simulations/{id}/results',
+      '/api/admin/simulations/{id}/results.csv',
       '/api/auth/login',
       '/api/auth/logout',
       '/api/auth/me',

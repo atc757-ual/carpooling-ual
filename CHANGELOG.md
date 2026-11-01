@@ -1,4 +1,5 @@
-# Changelog
+# Changel- **Backend:** simulación de escenarios desde el panel (RF-15 a RF-18 y RF-20): `simulation_runs` con la copia de la configuración de cada escenario, `simulation_results` como una fila por réplica, máquina de estados de la ejecución, `SimulationRunner` con un motor falso determinista, métricas con media, desviación e IC del 95 % y criterio de éxito calculado en el backend, endpoints `/api/admin/simulations` (escenarios, lanzar, lista, estado, resultados, CSV y cancelar) y eventos `simulation.requested`, `.finished`, `.failed` y `.cancelled` (#131).
+og
 
 Todos los cambios notables de este proyecto se documentan en este archivo.
 

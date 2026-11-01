@@ -41,4 +41,9 @@ export type DomainEventType =
   | 'coverage.gap_reported'
   // Reseñas y reputación (RF-22, doble ciego)
   | 'review.created'
-  | 'review.published';
+  | 'review.published'
+  // Simulación de escenarios (RF-15, CU-09)
+  | 'simulation.requested'
+  | 'simulation.finished'
+  | 'simulation.failed'
+  | 'simulation.cancelled';
