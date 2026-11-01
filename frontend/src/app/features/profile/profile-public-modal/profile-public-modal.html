@@ -75,39 +75,7 @@
               [attr.aria-label]="avatar.name"
             />
             <div class="avatar-option__preview" aria-hidden="true">
-              <svg
-                class="avatar-option__svg"
-                [attr.viewBox]="avatar.graphic.viewBox"
-                [attr.fill]="avatar.graphic.fill"
-                [attr.stroke]="avatar.graphic.stroke"
-                [attr.stroke-width]="avatar.graphic.strokeWidth"
-                [attr.stroke-linecap]="avatar.graphic.strokeLinecap"
-                [attr.stroke-linejoin]="avatar.graphic.strokeLinejoin"
-              >
-                @for (shape of avatar.graphic.shapes; track $index) {
-                  @switch (shape.kind) {
-                    @case ('path') {
-                      <path [attr.d]="shape.d" />
-                    }
-                    @case ('circle') {
-                      <circle [attr.cx]="shape.cx" [attr.cy]="shape.cy" [attr.r]="shape.r" />
-                    }
-                    @case ('rect') {
-                      <rect
-                        [attr.x]="shape.x"
-                        [attr.y]="shape.y"
-                        [attr.width]="shape.width"
-                        [attr.height]="shape.height"
-                        [attr.rx]="shape.rx"
-                        [attr.ry]="shape.ry"
-                      />
-                    }
-                    @case ('polygon') {
-                      <polygon [attr.points]="shape.points" />
-                    }
-                  }
-                }
-              </svg>
+              <app-avatar-art class="avatar-option__svg" [graphic]="avatar.graphic" />
             </div>
             @if (selectedAvatarKey() === avatar.id) {
               <span class="avatar-option__check" aria-hidden="true">

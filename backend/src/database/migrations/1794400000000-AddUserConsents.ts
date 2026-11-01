@@ -9,7 +9,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 //   iniciales (terms y privacy, v1.0, granted, registration).
 export class AddUserConsents1794400000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(String.raw`
+    await queryRunner.query(`
       CREATE TYPE consent_type AS ENUM ('terms', 'privacy', 'location');
       CREATE TYPE consent_action AS ENUM ('granted', 'revoked');
       CREATE TYPE consent_source AS ENUM (

@@ -9636,96 +9636,6 @@
           "desiredAt"
         ]
       },
-      "TripMatchDriverResource": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "example": "Lucía Cortés"
-          },
-          "avatarKey": {
-            "type": "string",
-            "enum": [
-              "sun",
-              "wave",
-              "cactus",
-              "palm",
-              "compass",
-              "car",
-              "leaf",
-              "book",
-              "coffee",
-              "headphones",
-              "cat",
-              "owl"
-            ],
-            "nullable": true,
-            "example": "sun"
-          },
-          "preferences": {
-            "$ref": "#/components/schemas/TravelPreferencesResource"
-          },
-          "tripCount": {
-            "type": "number",
-            "example": 12,
-            "description": "Number of completed trips"
-          },
-          "rating": {
-            "type": "number",
-            "nullable": true,
-            "minimum": 1,
-            "maximum": 5,
-            "description": "Average rating, available after at least three published reviews"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "avatarKey",
-          "preferences",
-          "tripCount",
-          "rating"
-        ]
-      },
-      "TripMatchVehicleResource": {
-        "type": "object",
-        "properties": {
-          "brand": {
-            "type": "string",
-            "nullable": true,
-            "example": "Seat"
-          },
-          "model": {
-            "type": "string",
-            "nullable": true,
-            "example": "Ibiza"
-          },
-          "color": {
-            "type": "string",
-            "enum": [
-              "white",
-              "black",
-              "grey",
-              "silver",
-              "blue",
-              "red",
-              "green",
-              "other"
-            ],
-            "nullable": true,
-            "example": "blue"
-          }
-        },
-        "required": [
-          "brand",
-          "model",
-          "color"
-        ]
-      },
       "TripMatchResource": {
         "type": "object",
         "properties": {
@@ -9745,10 +9655,10 @@
             "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
           },
           "driver": {
-            "$ref": "#/components/schemas/TripMatchDriverResource"
+            "$ref": "#/components/schemas/TripDriverResource"
           },
           "vehicle": {
-            "$ref": "#/components/schemas/TripMatchVehicleResource"
+            "$ref": "#/components/schemas/TripVehicleResource"
           },
           "departureAt": {
             "type": "string",

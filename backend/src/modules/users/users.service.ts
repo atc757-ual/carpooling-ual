@@ -129,7 +129,7 @@ export class UsersService {
     input: CreateUserInput,
   ): Promise<User> {
     const termsAcceptedAt = input.termsAcceptedAt
-      ? new Date(input.termsAcceptedAt.getTime())
+      ? new Date(input.termsAcceptedAt)
       : null;
     const user = await manager.save(
       manager.create(User, {

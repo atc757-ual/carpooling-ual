@@ -46,17 +46,19 @@ export class ConsentsService {
     userId: string,
     acceptedAt: Date,
   ): Promise<void> {
-    const recordedAt = new Date(acceptedAt.getTime());
-    for (const type of INITIAL_CONSENT_TYPES) {
-      await this.insertConsent(manager, {
-        userId,
-        type,
-        documentVersion: CONSENT_DOCUMENT_VERSION,
-        action: 'granted',
-        source: 'registration',
-        recordedAt,
-      });
-    }
+    const recordedAt = new Date(acceptedAt);
+    await Promise.all(
+      INITIAL_CONSENT_TYPES.map((type) =>
+        this.insertConsent(manager, {
+          userId,
+          type,
+          documentVersion: CONSENT_DOCUMENT_VERSION,
+          action: 'granted',
+          source: 'registration',
+          recordedAt,
+        }),
+      ),
+    );
   }
 
   // Conceder o retirar el permiso de ubicación desde la app: el interruptor

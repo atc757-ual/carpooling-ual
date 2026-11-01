@@ -1,0 +1,34 @@
+@let art = graphic();
+<svg
+  aria-hidden="true"
+  [attr.viewBox]="art.viewBox"
+  [attr.fill]="art.fill"
+  [attr.stroke]="art.stroke"
+  [attr.stroke-width]="art.strokeWidth"
+  [attr.stroke-linecap]="art.strokeLinecap"
+  [attr.stroke-linejoin]="art.strokeLinejoin"
+>
+  @for (shape of art.shapes; track $index) {
+    @switch (shape.kind) {
+      @case ('path') {
+        <path [attr.d]="shape.d" />
+      }
+      @case ('circle') {
+        <circle [attr.cx]="shape.cx" [attr.cy]="shape.cy" [attr.r]="shape.r" />
+      }
+      @case ('rect') {
+        <rect
+          [attr.x]="shape.x"
+          [attr.y]="shape.y"
+          [attr.width]="shape.width"
+          [attr.height]="shape.height"
+          [attr.rx]="shape.rx"
+          [attr.ry]="shape.ry"
+        />
+      }
+      @case ('polygon') {
+        <polygon [attr.points]="shape.points" />
+      }
+    }
+  }
+</svg>

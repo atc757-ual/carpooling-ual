@@ -21,6 +21,45 @@ const ROOT_ATTRIBUTES = new Set([
   'stroke-linejoin',
 ]);
 
+function safeNumber(value: string | null): string | null {
+  return value && /^-?\d+(?:\.\d+)?$/.test(value) ? value : null;
+}
+
+function parsePath(element: Element): AvatarShape | null {
+  const d = element.getAttribute('d');
+  return d && /^[MmZzLlHhVvCcSsQqTtAa0-9.,+\-\s]+$/.test(d) ? { kind: 'path', d } : null;
+}
+
+function parseCircle(element: Element): AvatarShape | null {
+  const [cx, cy, r] = ['cx', 'cy', 'r'].map((name) => safeNumber(element.getAttribute(name)));
+  return cx && cy && r ? { kind: 'circle', cx, cy, r } : null;
+}
+
+// x, y, ancho y alto obligatorios; las esquinas (rx, ry), si las tiene
+function parseRect(element: Element): AvatarShape | null {
+  const [x, y, width, height, rx, ry] = ['x', 'y', 'width', 'height', 'rx', 'ry'].map((name) =>
+    safeNumber(element.getAttribute(name)),
+  );
+  if (!x || !y || !width || !height) {
+    return null;
+  }
+  return { kind: 'rect', x, y, width, height, ...(rx && { rx }), ...(ry && { ry }) };
+}
+
+function parsePolygon(element: Element): AvatarShape | null {
+  const points = element.getAttribute('points');
+  return points && /^[0-9.,+\-\s]+$/.test(points) ? { kind: 'polygon', points } : null;
+}
+
+// Las formas del subconjunto de SVG del catálogo: sus atributos permitidos y
+// cómo se leen (un Map: el nombre del nodo viene del SVG recibido)
+const SHAPES = new Map<string, { attributes: ReadonlySet<string>; parse: typeof parsePath }>([
+  ['path', { attributes: new Set(['d']), parse: parsePath }],
+  ['circle', { attributes: new Set(['cx', 'cy', 'r']), parse: parseCircle }],
+  ['rect', { attributes: new Set(['x', 'y', 'width', 'height', 'rx', 'ry']), parse: parseRect }],
+  ['polygon', { attributes: new Set(['points']), parse: parsePolygon }],
+]);
+
 @Injectable({ providedIn: 'root' })
 export class AvatarsService {
   private readonly http = inject(HttpClient);
@@ -94,7 +133,7 @@ export class AvatarsService {
       viewBox,
       fill: this.safeColor(root.getAttribute('fill')),
       stroke: this.safeColor(root.getAttribute('stroke')),
-      strokeWidth: this.safeNumber(root.getAttribute('stroke-width')),
+      strokeWidth: safeNumber(root.getAttribute('stroke-width')),
       strokeLinecap: this.safeEnum(root.getAttribute('stroke-linecap'), [
         'butt',
         'round',
@@ -137,45 +176,13 @@ export class AvatarsService {
     return shapes;
   }
 
+  // Solo las formas del catálogo y con sus atributos: cualquier otro, fuera
   private parseShape(element: Element): AvatarShape | null {
-    const number = (name: string): string | null => this.safeNumber(element.getAttribute(name));
-    const onlyAttributes = (...names: string[]): boolean => {
-      for (const attribute of element.attributes) {
-        if (!names.includes(attribute.name)) return false;
-      }
-      return true;
-    };
-
-    if (element.localName === 'path' && onlyAttributes('d')) {
-      const d = element.getAttribute('d');
-      return d && /^[MmZzLlHhVvCcSsQqTtAa0-9.,+\-\s]+$/.test(d) ? { kind: 'path', d } : null;
-    }
-    if (element.localName === 'circle' && onlyAttributes('cx', 'cy', 'r')) {
-      const cx = number('cx');
-      const cy = number('cy');
-      const r = number('r');
-      return cx && cy && r ? { kind: 'circle', cx, cy, r } : null;
-    }
-    if (element.localName === 'rect' && onlyAttributes('x', 'y', 'width', 'height', 'rx', 'ry')) {
-      const x = number('x');
-      const y = number('y');
-      const width = number('width');
-      const height = number('height');
-      const rx = number('rx');
-      const ry = number('ry');
-      if (x && y && width && height) {
-        return { kind: 'rect', x, y, width, height, ...(rx ? { rx } : {}), ...(ry ? { ry } : {}) };
-      }
-    }
-    if (element.localName === 'polygon' && onlyAttributes('points')) {
-      const points = element.getAttribute('points');
-      return points && /^[0-9.,+\-\s]+$/.test(points) ? { kind: 'polygon', points } : null;
-    }
-    return null;
-  }
-
-  private safeNumber(value: string | null): string | null {
-    return value && /^-?\d+(?:\.\d+)?$/.test(value) ? value : null;
+    const shape = SHAPES.get(element.localName);
+    const hasOnlyItsAttributes = [...element.attributes].every(({ name }) =>
+      shape?.attributes.has(name),
+    );
+    return shape && hasOnlyItsAttributes ? shape.parse(element) : null;
   }
 
   private safeColor(value: string | null): string | null {
