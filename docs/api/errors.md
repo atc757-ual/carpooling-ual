@@ -115,8 +115,8 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `REQUEST_ALREADY_EXISTS`     | 409  | El pasajero ya tiene una solicitud pendiente o aceptada en ese viaje                                                                                                                                                                                                                |
 | `TOO_MANY_PENDING_REQUESTS`  | 409  | El pasajero ya tiene tres solicitudes pendientes de viajes que se solapan en horario                                                                                                                                                                                                |
 | `REQUESTING_SUSPENDED`       | 409  | El pasajero tiene 3 cancelaciones tardías (una plaza aceptada que suelta a menos de 30 minutos de la salida) en 30 días: no puede pedir plaza en 7 días desde la última, la misma regla que el conductor al publicar. La fecha de fin está en `GET /api/users/me/requesting-status` |
-| `INVALID_REQUEST_PICKUP`     | 400  | Una solicitud de ida al campus requiere el punto y el nombre de recogida |
-| `TRIP_CHANGED_RETRY`         | 409  | El viaje cambió mientras se calculaba el contexto de recogida; hay que volver a solicitar |
+| `INVALID_REQUEST_PICKUP`     | 400  | Una solicitud de ida al campus requiere el punto y el nombre de recogida                                                                                                                                                                                                            |
+| `TRIP_CHANGED_RETRY`         | 409  | El viaje cambió mientras se calculaba el contexto de recogida; hay que volver a solicitar                                                                                                                                                                                           |
 | `REQUEST_NOT_FOUND`          | 404  | La solicitud no existe o el usuario no es ni su pasajero ni el conductor del viaje (es privada: no se revela que existe)                                                                                                                                                            |
 | `NOT_REQUEST_PASSENGER`      | 403  | Cancelar una solicitud sin ser su pasajero (el conductor la rechaza o cancela el viaje)                                                                                                                                                                                             |
 | `INVALID_REQUEST_TRANSITION` | 409  | Cambio de estado que el diagrama de estados de la solicitud no permite (p. ej. aceptar una solicitud rechazada)                                                                                                                                                                     |
@@ -136,11 +136,11 @@ Registrar una incidencia puede responder además `TRIP_NOT_IN_PROGRESS` (ver _Vi
 
 ## Reseñas y reputación (`reputation`)
 
-| `code`                  | HTTP | Cuándo                                                                                                                                                                        |
-| ----------------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `code`                  | HTTP | Cuándo                                                                                                                                                                          |
+| ----------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `REVIEW_NOT_ALLOWED`    | 403  | `POST /api/trips/{tripId}/reviews` en un viaje que no ha terminado (`finished`), valorándose a sí mismo o sin que autor y destinatario sean el conductor y un pasajero aceptado |
-| `REVIEW_WINDOW_CLOSED`  | 409  | Han pasado más de 7 días desde que finalizó el viaje (`finished_at`)                                                                                                          |
-| `REVIEW_ALREADY_EXISTS` | 409  | El autor ya valoró a ese destinatario en el viaje (una reseña no se edita ni se borra)                                                                                        |
+| `REVIEW_WINDOW_CLOSED`  | 409  | Han pasado más de 7 días desde que finalizó el viaje (`finished_at`)                                                                                                            |
+| `REVIEW_ALREADY_EXISTS` | 409  | El autor ya valoró a ese destinatario en el viaje (una reseña no se edita ni se borra)                                                                                          |
 
 Crear una reseña puede responder además `TRIP_NOT_FOUND` (ver _Viajes_).
 
@@ -166,6 +166,18 @@ Enviar una posición puede responder además `NOT_TRIP_DRIVER` o `TRIP_NOT_IN_PR
 | `CAMPUS_PARKING_NOT_FOUND` | 404  | El parking del campus no existe o está cerrado                                                                 |
 | `PLACE_NOT_FOUND`          | 404  | La dirección pedida no existe (id que no es nuestro o que ya no lleva a nada) o no hay ninguna cerca del punto |
 | `GEOCODER_UNAVAILABLE`     | 503  | El servicio de direcciones (CartoCiudad) no responde a tiempo o falla; se puede reintentar                     |
+
+## Simulación (`simulations`)
+
+| `code`                          | HTTP | Cuándo                                                                                        |
+| ------------------------------- | ---- | --------------------------------------------------------------------------------------------- |
+| `SCENARIO_NOT_FOUND`            | 404  | No hay ningún escenario con el código pedido (S0-S5)                                          |
+| `SIMULATION_NOT_FOUND`          | 404  | La ejecución de simulación no existe                                                          |
+| `SIMULATION_ALREADY_RUNNING`    | 409  | Lanzar una ejecución con otra en cola o en curso: el simulador atiende una a la vez           |
+| `SIMULATION_NOT_FINISHED`       | 409  | Pedir los resultados o el CSV de una ejecución que no ha terminado (o que falló o se canceló) |
+| `INVALID_SIMULATION_TRANSITION` | 409  | Cambio de estado no permitido, p. ej. cancelar una ejecución ya terminada                     |
+
+Una ejecución que falla guarda en `errorCode` el motivo: `RUNNER_ERROR` (error del motor) o `RUNNER_LOST` (el motor no informó del progreso durante más de un minuto).
 
 ## Cómo añadir un código
 

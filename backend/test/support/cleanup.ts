@@ -25,7 +25,13 @@ export async function deleteTestUsers(
                WHERE trip_id IN (${testTrips})
                   OR passenger_id IN (${testUsers})
        UNION SELECT id FROM incidents WHERE trip_id IN (${testTrips})
+       UNION SELECT id FROM simulation_runs
+               WHERE requested_by IN (${testUsers})
      )`,
+    [pattern],
+  );
+  await dataSource.query(
+    `DELETE FROM simulation_runs WHERE requested_by IN (${testUsers})`,
     [pattern],
   );
   await dataSource.query(`DELETE FROM trips WHERE id IN (${testTrips})`, [
