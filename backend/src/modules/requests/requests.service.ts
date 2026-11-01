@@ -138,10 +138,11 @@ export class RequestsService {
     const name = isToCampus
       ? context.pickupName!
       : (trip.originName ?? 'Punto de salida del conductor');
-    const durationMin = isToCampus
-      ? samePoint(trip.origin, location)
-        ? 0
-        : (await this.tripRoutes.plan(trip.origin, location)).durationMin
+    // Hacia el campus, lo que tarda el conductor desde su salida hasta la
+    // recogida; si recoge en su misma salida (o va desde el campus), sale ya
+    const needsRoute = isToCampus && !samePoint(trip.origin, location);
+    const durationMin = needsRoute
+      ? (await this.tripRoutes.plan(trip.origin, location)).durationMin
       : 0;
     return {
       trip,
