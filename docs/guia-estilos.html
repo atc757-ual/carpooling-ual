@@ -544,7 +544,7 @@
     <p class="note">Ejemplos para ver el sistema aplicado; en la app se construyen con los componentes de Ionic (<code>ion-button</code>, <code>ion-input</code>, <code>ion-input-otp</code>, <code>ion-select</code>, <code>ion-toggle</code>, <code>ion-checkbox</code>, <code>ion-segment</code>, <code>ion-tabs</code>), personalizados con sus variables CSS y <code>::part()</code>. Usa el tabulador para ver el foco.</p>
 
     <h3>Botones</h3>
-    <p class="note">Altura 3,25rem, esquinas 0,5rem, Barlow 600 sin mayúsculas. Un solo botón principal por pantalla; el destructivo, en rojo y con confirmación. Cerrar sesión no es destructivo: su confirmación va en azul y en positivo.</p>
+    <p class="note">Altura 3,25rem, esquinas 0,5rem, Barlow 600 sin mayúsculas. Un solo botón principal por pantalla. Las acciones destructivas (eliminar, cancelar, desactivar) siempre con confirmación y sin rojo: en ella, «Cancelar» es el botón principal azul y la acción va en blanco con borde y letras azules. En las ventanas de confirmación, los dos botones van en fila (también en el móvil) con el azul a la derecha: «Eliminar · Cancelar». Cerrar sesión no es destructivo: su confirmación va en azul y en positivo.</p>
     <div class="scroll"><table>
       <thead><tr><th>Variante</th><th>Ejemplo</th><th>Uso</th></tr></thead>
       <tbody>
@@ -903,8 +903,7 @@
       <span class="text-title">¿Desactivar Conductor?</span>
       <span class="text-label muted">Pasajero y cuenta seguirán activos. El motivo se conserva.</span>
       <div class="field field--focus"><span class="field__label">Motivo obligatorio</span><div class="field__control"><input value="Revisión de documentación." aria-label="Motivo obligatorio"></div></div>
-      <button class="btn btn--danger btn--block" type="button">Confirmar desactivación</button>
-      <button class="btn btn--outline-neutral btn--block" type="button">Cancelar</button>
+      <div style="display:flex;gap:var(--space-s)"><button class="btn btn--outline" style="flex:1" type="button">Desactivar</button><button class="btn btn--primary" style="flex:1" type="button">Cancelar</button></div>
     </div>
 
     <h3>Avisos en la página</h3>

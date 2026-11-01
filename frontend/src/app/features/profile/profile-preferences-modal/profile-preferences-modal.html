@@ -1,0 +1,75 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>{{ 'profile.preferencesModal.title' | transloco }}</ion-title>
+    <ion-buttons slot="end">
+      <form (submit)="$event.preventDefault(); close()">
+        <ion-button
+          class="dialog-close"
+          type="submit"
+          [attr.aria-label]="'common.close' | transloco"
+        >
+          <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
+        </ion-button>
+      </form>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<div class="profile-preferences-modal">
+  <form (submit)="$event.preventDefault(); handleSubmit()" novalidate>
+    <p class="text-body-s text-color-muted">
+      Ayudan a coincidir con personas afines, como conductor y como pasajero.
+    </p>
+
+    @for (group of groups; track group.key) {
+      <fieldset class="preferences-group" [attr.aria-label]="group.title">
+        <span class="preferences-group__title text-label text-label--strong">
+          <ion-icon [icon]="groupIcons[group.key]" aria-hidden="true" />
+          {{ group.title }}
+        </span>
+        <div class="preferences-chips">
+          @for (option of group.options; track option.value) {
+            <button
+              type="button"
+              class="preference-chip"
+              [class.preference-chip--selected]="isSelected(group.key, option.value)"
+              [attr.aria-pressed]="isSelected(group.key, option.value)"
+              (click)="toggleOption(group.key, option.value)"
+            >
+              {{ option.label }}
+            </button>
+          }
+        </div>
+      </fieldset>
+    }
+
+    <fieldset class="preferences-group" aria-label="Margen horario de búsqueda">
+      <span class="preferences-group__title text-label text-label--strong">
+        <ion-icon [icon]="toleranceIcon" aria-hidden="true" />
+        {{ 'profile.preferencesModal.searchTolerance' | transloco }}
+      </span>
+      <div class="preferences-chips">
+        @for (tol of tolerances; track tol) {
+          <button
+            type="button"
+            class="preference-chip"
+            [class.preference-chip--selected]="timeTolerance() === tol"
+            [attr.aria-pressed]="timeTolerance() === tol"
+            (click)="handleSelectTolerance(tol)"
+          >
+            ± {{ tol }} min
+          </button>
+        }
+      </div>
+    </fieldset>
+
+    <div class="profile-preferences-modal__actions">
+      <ion-button type="submit" expand="block" [disabled]="isSaving()">
+        @if (isSaving()) {
+          <ion-spinner name="crescent" slot="start" aria-hidden="true" />
+        }
+        {{ 'common.save' | transloco }}
+      </ion-button>
+    </div>
+  </form>
+</div>

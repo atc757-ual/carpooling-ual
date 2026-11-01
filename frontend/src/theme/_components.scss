@@ -205,15 +205,17 @@ ion-datetime {
 // Campos sin verde: un valor válido no es un aviso, y el borde del foco es
 // azul en todos (homogéneos). El rojo de error se mantiene donde se muestra
 // un texto de error; los desplegables obligatorios aún sin elegir tampoco se
-// ponen rojos al abrirlos (no es un error: el botón de seguir espera)
-ion-input,
-ion-textarea,
-ion-select {
+// ponen rojos al abrirlos (no es un error: el botón de seguir espera).
+// Con [class]: Ionic fija estos colores con una clase (.sc-ion-input-md-h) y
+// con solo la etiqueta ganaba su verde al enfocar un campo válido
+ion-input[class],
+ion-textarea[class],
+ion-select[class] {
   --highlight-color-valid: var(--color-link);
   --highlight-color-focused: var(--color-link);
 }
 
-ion-select {
+ion-select[class] {
   --highlight-color-invalid: var(--color-link);
 }
 
@@ -288,6 +290,17 @@ ion-modal.info-dialog {
     position: relative;
     display: block;
     contain: content;
+  }
+}
+
+// Textos legales (Condiciones, Privacidad) en escritorio: una ventana centrada
+// de 720px y el 80 % del alto, para leer cómodo sin ocupar toda la pantalla
+// (en el móvil, una hoja hasta 3/4 con puntos de anclaje)
+@media (min-width: 768px) {
+  ion-modal.legal-dialog {
+    --width: 45rem; // 720px
+    --height: 80%;
+    --border-radius: var(--radius-s);
   }
 }
 

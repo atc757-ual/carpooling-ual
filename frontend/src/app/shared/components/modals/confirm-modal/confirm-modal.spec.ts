@@ -23,12 +23,14 @@ describe('ConfirmModal', () => {
     return { root: fixture.nativeElement as HTMLElement, modal: fixture.componentInstance };
   }
 
-  it('shows the question with the action in red when it is destructive', () => {
+  it('makes cancelling the main button when it is destructive', () => {
     const { root } = render(true);
 
     expect(root.textContent).toContain('¿Cerrar sesión?');
-    expect(root.querySelector('.confirm--destructive')).not.toBeNull();
-    expect(root.textContent).toContain('Cancelar');
+    const [cancel, action] = [...root.querySelectorAll('ion-button')];
+    expect(cancel.textContent?.trim()).toBe('Cancelar');
+    expect(action.textContent?.trim()).toBe('Cerrar sesión');
+    expect(action.classList).toContain('confirm__secondary');
   });
 
   it('closes confirming or cancelling', async () => {

@@ -1,4 +1,4 @@
-import { Component, computed, inject, resource } from '@angular/core';
+import { Component, computed, inject, OnInit, resource, signal } from '@angular/core';
 import {
   IonButton,
   IonCard,
@@ -9,38 +9,48 @@ import {
   IonSpinner,
   ModalController,
 } from '@ionic/angular';
-import { addOutline, carOutline } from 'ionicons/icons';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { addOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { Vehicle } from '../../../core/models/driver.model';
+import { PreferencesPlugin } from '../../../core/plugins/preferences-plugin';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { VehicleCard } from '../../../shared/components/ui/vehicle-card/vehicle-card';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { VehicleModal } from '../../trips/vehicle-modal/vehicle-modal';
-import { MAX_VEHICLES } from '../../trips/vehicle-picker/vehicle-picker';
+import { DEFAULT_VEHICLE_KEY, MAX_VEHICLES } from '../../trips/vehicle-picker/vehicle-picker';
 import { CONFIRM_ICONS, ConfirmService } from '../../../core/services/ui/confirm.service';
-import {
-  vehicleColorLabel,
-  vehicleColorSwatch,
-  vehicleDisplayName,
-} from '../../../shared/utils/vehicle-display.util';
 
-// «Mis vehículos» del Perfil: cada uno con su matrícula, marca y modelo y
-// plazas, y «Editar»; al final, «Registrar vehículo». Los dos abren la ventana
-// del vehículo de Publicar. Registrar el primero hace conductor (el backend
-// activa el perfil): sin ese perfil aún no hay vehículos que pedir
+// «Mis vehículos» del Perfil: una tarjeta por vehículo (la misma que en
+// Publicar). Pulsarla lo deja como predeterminado (el que sale elegido al
+// publicar, en este dispositivo); a la derecha, editar y eliminar; arriba,
+// «Registrar vehículo». Registrar el primero hace conductor (el backend activa
+// el perfil): sin ese perfil aún no hay vehículos que pedir
 @Component({
   selector: 'app-profile-vehicles',
-  imports: [IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon, IonSpinner],
+  imports: [
+    IonButton,
+    IonCard,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonIcon,
+    IonSpinner,
+    VehicleCard,
+    TranslocoPipe,
+  ],
   templateUrl: './profile-vehicles.html',
   styleUrl: './profile-vehicles.scss',
 })
-export class ProfileVehicles {
+export class ProfileVehicles implements OnInit {
   private readonly driver = inject(DriverService);
   private readonly auth = inject(AuthService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
   private readonly modalController = inject(ModalController);
+  private readonly preferences = inject(PreferencesPlugin);
 
   readonly vehicles = resource({
     loader: () =>
@@ -55,17 +65,26 @@ export class ProfileVehicles {
   // Hasta 3 a la vez (VEHICLE_LIMIT_REACHED)
   readonly canAdd = computed(() => this.activeVehicles().length < MAX_VEHICLES);
 
-  protected readonly carIcon = carOutline;
+  // El predeterminado guardado; sin él (o si ya no está), el primero
+  private readonly savedDefaultId = signal<string | null>(null);
+  readonly defaultId = computed(() => {
+    const vehicles = this.activeVehicles();
+    const saved = this.savedDefaultId();
+    return vehicles.some(({ id }) => id === saved) ? saved : (vehicles[0]?.id ?? null);
+  });
+
   protected readonly addIcon = addOutline;
 
-  // La API cuenta las plazas sin el conductor
-  protected details(vehicle: Vehicle): string {
-    const seats = `hasta ${vehicle.capacity} ${vehicle.capacity === 1 ? 'pasajero' : 'pasajeros'}`;
-    return `${vehicleDisplayName(vehicle)} · ${vehicleColorLabel(vehicle.color)} · ${seats}`;
+  ngOnInit(): void {
+    void this.preferences
+      .get(DEFAULT_VEHICLE_KEY)
+      .then((id) => this.savedDefaultId.set(id))
+      .catch(() => undefined);
   }
 
-  protected colorSwatch(vehicle: Vehicle): string {
-    return vehicleColorSwatch(vehicle.color);
+  handleSetDefault(vehicle: Vehicle): void {
+    this.savedDefaultId.set(vehicle.id);
+    void this.preferences.set(DEFAULT_VEHICLE_KEY, vehicle.id).catch(() => undefined);
   }
 
   // Eliminar (darlo de baja), tras confirmarlo

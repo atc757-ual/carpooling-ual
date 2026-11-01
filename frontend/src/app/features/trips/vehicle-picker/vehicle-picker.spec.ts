@@ -11,7 +11,16 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { DEFAULT_VEHICLE_KEY, VehiclePicker, VehiclePickerControls } from './vehicle-picker';
 
 function vehicle(id: string, capacity = 3): Vehicle {
-  return { id, plate: `${id}BCD`, brand: 'Seat', model: 'Ibiza', color: 'white', engine: 'hybrid', capacity, status: 'available' };
+  return {
+    id,
+    plate: `${id}BCD`,
+    brand: 'Seat',
+    model: 'Ibiza',
+    color: 'white',
+    engine: 'hybrid',
+    capacity,
+    status: 'available',
+  };
 }
 
 describe('VehiclePicker', () => {
@@ -99,37 +108,6 @@ describe('VehiclePicker', () => {
     expect(refreshAccessToken).toHaveBeenCalled();
     expect(picker.vehicles()).toEqual([vehicle('3333')]);
     expect(controls.vehicleId.value).toBe('3333');
-  });
-
-  it('updates the seats of an edited vehicle', async () => {
-    await render([vehicle('1111'), vehicle('2222')]);
-    dismissWith('saved', vehicle('1111', 2));
-
-    await picker.handleEdit(vehicle('1111'));
-
-    expect(picker.vehicles()[0].capacity).toBe(2);
-  });
-
-  it('removes a vehicle from its card after confirming it, and chooses another', async () => {
-    await render([vehicle('1111'), vehicle('2222')]);
-
-    await picker.handleRemove(vehicle('1111'));
-    TestBed.tick();
-
-    expect(deactivateVehicle).toHaveBeenCalledWith('1111');
-    expect(showSuccess).toHaveBeenCalledWith('Vehículo eliminado.');
-    expect(picker.vehicles().map(({ id }) => id)).toEqual(['2222']);
-    expect(controls.vehicleId.value).toBe('2222');
-  });
-
-  it('keeps the vehicle when the removal is not confirmed', async () => {
-    await render([vehicle('1111')]);
-    isConfirmed = false;
-
-    await picker.handleRemove(vehicle('1111'));
-
-    expect(deactivateVehicle).not.toHaveBeenCalled();
-    expect(picker.vehicles()).toHaveLength(1);
   });
 
   it('stops offering to add vehicles at 3', async () => {

@@ -16,13 +16,13 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { formatTravelPreferences } from '../../../core/models/travel-preferences.model';
 import { formatShortDate, formatTime, toTripDetail } from '../trip-results';
 import { getFirstName } from '../trip-driver/trip-driver';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { TripRouteMap } from './trip-route-map';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
-import { formatTravelPreferences } from '../../../core/models/travel-preferences.model';
 
 // Detalle de un viaje de los resultados de Buscar: el recorrido con sus horas,
 // quien conduce (y su coche, cuando se conozca) y cómo funciona la solicitud.
@@ -147,6 +147,10 @@ export class TripDetailPage {
     const trip = this.trip();
     return trip ? getFirstName(trip.driver.name) : '';
   });
+
+  readonly driverPreferences = computed(() =>
+    formatTravelPreferences(this.trip()?.driver.preferences),
+  );
 
   // Las plazas que pide el pasajero, las de su búsqueda
   readonly seats = computed(() => this.searchState.search()?.seats ?? 1);

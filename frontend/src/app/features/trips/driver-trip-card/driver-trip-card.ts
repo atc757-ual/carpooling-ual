@@ -3,6 +3,7 @@ import { IonButton, IonCard, IonCardContent, IonSpinner } from '@ionic/angular';
 import { ApiError } from '../../../core/models/api-error.model';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
 import { SeatRequest, SeatRequestStatus } from '../../../core/models/seat-request.model';
+import { formatTravelPreferences } from '../../../core/models/travel-preferences.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -92,6 +93,10 @@ export class DriverTripCard {
 
   protected requestLabel(status: SeatRequestStatus): string {
     return REQUEST_STATUS_LABELS[status];
+  }
+
+  protected passengerPreferences(request: SeatRequest): string[] {
+    return formatTravelPreferences(request.passenger.preferences);
   }
 
   async handleDecide(request: SeatRequest, decision: 'accept' | 'reject'): Promise<void> {
