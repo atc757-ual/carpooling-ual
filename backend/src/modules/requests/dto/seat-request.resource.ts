@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { API_PREFIX } from '../../../app.setup';
+import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
 import { tripHref } from '../../trips/dto/trip.resource';
 import { TravelPreferencesResource } from '../../users/dto/travel-preferences.resource';
 import { AVATAR_KEYS, type AvatarKey } from '../../users/travel-preferences';
@@ -58,6 +59,28 @@ export class SeatRequestResource {
     description: 'Seats for the passenger and their companions',
   })
   seats: number;
+
+  @ApiProperty({ enum: ['to-campus', 'from-campus'], nullable: true })
+  direction: 'to-campus' | 'from-campus' | null;
+
+  @ApiProperty({ type: GeoPointDto, nullable: true })
+  pickupLocation: GeoPointDto | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'Calle Profesor Mulián, 29',
+  })
+  pickupName: string | null;
+
+  @ApiProperty({
+    type: String,
+    format: 'date-time',
+    nullable: true,
+    description:
+      'Approximate pickup time estimated from the origin and pickup point',
+  })
+  pickupAt: string | null;
 
   @ApiProperty({
     description:
@@ -118,6 +141,18 @@ export function toSeatRequestResource({
     },
     status: request.status,
     seats: request.seats,
+    direction: request.direction,
+    pickupLocation: request.pickupLocation
+      ? {
+          type: 'Point',
+          coordinates: [
+            request.pickupLocation.coordinates[0],
+            request.pickupLocation.coordinates[1],
+          ],
+        }
+      : null,
+    pickupName: request.pickupName,
+    pickupAt: request.pickupAt?.toISOString() ?? null,
     isPriority: request.isPriority,
     requestedAt: request.requestedAt.toISOString(),
     answeredAt: request.answeredAt?.toISOString() ?? null,

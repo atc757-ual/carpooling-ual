@@ -14,6 +14,7 @@ import {
 } from '../trips/late-cancellations.service';
 import { TripStatusService } from '../trips/trip-status.service';
 import { TripsService } from '../trips/trips.service';
+import { TripRoutesService } from '../trips/trip-routes.service';
 import { UsersService } from '../users/users.service';
 import { SeatRequest } from './entities/seat-request.entity';
 import { CannotRequestOwnTripError } from './errors/cannot-request-own-trip.error';
@@ -28,6 +29,15 @@ import { RequestChangesRecorder } from './request-changes';
 import { RequestOverlapService } from './request-overlap.service';
 import { MAX_OVERLAPPING_PENDING_REQUESTS } from './request-schedule';
 import { assertRequestTransition } from './request-status';
+import { TripChangedError } from './errors/trip-changed.error';
+import { InvalidRequestPickupError } from './errors/invalid-request-pickup.error';
+import type { Point } from 'typeorm';
+
+export interface RequestPickupContext {
+  direction: 'to-campus' | 'from-campus';
+  pickupLocation?: Point;
+  pickupName?: string;
+}
 
 // Restricción de la base de datos: una sola solicitud viva por pasajero y viaje
 const ACTIVE_PER_TRIP_INDEX = 'requests_active_per_trip_idx';
@@ -42,6 +52,7 @@ export class RequestsService {
     @InjectRepository(SeatRequest)
     private readonly requestsRepository: Repository<SeatRequest>,
     private readonly tripsService: TripsService,
+    private readonly tripRoutes: TripRoutesService,
     private readonly tripStatus: TripStatusService,
     private readonly usersService: UsersService,
     private readonly views: RequestViewsService,
@@ -58,6 +69,7 @@ export class RequestsService {
     passengerId: string,
     tripId: string,
     seats = 1,
+    pickupContext?: RequestPickupContext,
   ): Promise<RequestView> {
     const { requestingSuspendedUntil } =
       await this.lateCancellations.getRequestingStatus(passengerId);
@@ -66,9 +78,15 @@ export class RequestsService {
     }
     const isPriority =
       await this.usersService.getPassengerPriority(passengerId);
+    const pickup = pickupContext
+      ? await this.preparePickup(tripId, pickupContext)
+      : null;
     const request = await this.dataSource.transaction(async (manager) => {
       await this.overlaps.lockPassenger(manager, passengerId);
       const trip = await this.tripStatus.lockTrip(manager, tripId);
+      if (pickup && !sameTripSchedule(trip, pickup.trip)) {
+        throw new TripChangedError(tripId);
+      }
       this.tripStatus.assertOpenForRequests(trip);
       if (trip.driverId === passengerId) {
         throw new CannotRequestOwnTripError(tripId);
@@ -90,11 +108,48 @@ export class RequestsService {
         passengerId,
         seats,
         isPriority,
+        pickupLocation: pickup?.location ?? null,
+        pickupName: pickup?.name ?? null,
+        direction: pickup?.direction ?? null,
+        pickupAt: pickup?.pickupAt ?? null,
       });
       await this.changes.record(manager, 'request.created', created, trip);
       return created;
     });
     return this.views.toView(request);
+  }
+
+  private async preparePickup(
+    tripId: string,
+    context: RequestPickupContext,
+  ): Promise<{
+    trip: Trip;
+    direction: RequestPickupContext['direction'];
+    location: Point;
+    name: string;
+    pickupAt: Date;
+  }> {
+    const { trip } = await this.tripsService.getById(tripId);
+    const isToCampus = context.direction === 'to-campus';
+    if (isToCampus && (!context.pickupLocation || !context.pickupName)) {
+      throw new InvalidRequestPickupError();
+    }
+    const location = isToCampus ? context.pickupLocation! : trip.origin;
+    const name = isToCampus
+      ? context.pickupName!
+      : (trip.originName ?? 'Punto de salida del conductor');
+    const durationMin = isToCampus
+      ? samePoint(trip.origin, location)
+        ? 0
+        : (await this.tripRoutes.plan(trip.origin, location)).durationMin
+      : 0;
+    return {
+      trip,
+      direction: context.direction,
+      location,
+      name,
+      pickupAt: new Date(trip.departureAt.getTime() + durationMin * 60_000),
+    };
   }
 
   // El pasajero cancela antes del inicio del viaje. Si estaba aceptada,
@@ -390,7 +445,14 @@ export class RequestsService {
     manager: EntityManager,
     values: Pick<
       SeatRequest,
-      'tripId' | 'passengerId' | 'seats' | 'isPriority'
+      | 'tripId'
+      | 'passengerId'
+      | 'seats'
+      | 'isPriority'
+      | 'pickupLocation'
+      | 'pickupName'
+      | 'direction'
+      | 'pickupAt'
     >,
   ): Promise<SeatRequest> {
     try {
@@ -402,4 +464,18 @@ export class RequestsService {
       throw error;
     }
   }
+}
+
+function samePoint(first: Point, second: Point): boolean {
+  return (
+    first.coordinates[0] === second.coordinates[0] &&
+    first.coordinates[1] === second.coordinates[1]
+  );
+}
+
+function sameTripSchedule(first: Trip, second: Trip): boolean {
+  return (
+    first.departureAt.getTime() === second.departureAt.getTime() &&
+    samePoint(first.origin, second.origin)
+  );
 }

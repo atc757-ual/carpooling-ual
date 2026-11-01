@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import type { Point } from 'typeorm';
 import { REQUEST_STATUSES } from '../request-status';
 import type { RequestStatus } from '../request-status';
 
@@ -24,6 +25,26 @@ export class SeatRequest {
 
   @Column({ name: 'passenger_id', type: 'uuid' })
   passengerId: string;
+
+  // Datos de ruta de la persona; null en solicitudes creadas por clientes
+  // anteriores a la pantalla de detalle
+  @Column({
+    name: 'pickup_location',
+    type: 'geography',
+    spatialFeatureType: 'Point',
+    srid: 4326,
+    nullable: true,
+  })
+  pickupLocation: Point | null;
+
+  @Column({ name: 'pickup_name', type: 'varchar', length: 160, nullable: true })
+  pickupName: string | null;
+
+  @Column({ name: 'direction', type: 'varchar', length: 16, nullable: true })
+  direction: 'to-campus' | 'from-campus' | null;
+
+  @Column({ name: 'pickup_at', type: 'timestamptz', nullable: true })
+  pickupAt: Date | null;
 
   @CreateDateColumn({ name: 'requested_at', type: 'timestamptz' })
   requestedAt: Date;

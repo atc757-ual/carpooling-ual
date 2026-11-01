@@ -15,9 +15,24 @@ export class SeatRequestsService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
 
-  request(tripId: string, seats: number): Promise<SeatRequest> {
+  request(
+    tripId: string,
+    seats: number,
+    pickup?: {
+      direction: 'to-campus' | 'from-campus';
+      location?: { type: 'Point'; coordinates: [number, number] };
+      name?: string;
+    },
+  ): Promise<SeatRequest> {
     return this.call(
-      this.http.post<SeatRequest>(`${this.apiUrl}/trips/${tripId}/requests`, { seats }),
+      this.http.post<SeatRequest>(`${this.apiUrl}/trips/${tripId}/requests`, {
+        seats,
+        ...(pickup && {
+          direction: pickup.direction,
+          pickupLocation: pickup.location,
+          pickupName: pickup.name,
+        }),
+      }),
     );
   }
 

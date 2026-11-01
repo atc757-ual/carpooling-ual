@@ -105,6 +105,55 @@ describe('Seat requests API (e2e)', () => {
     return response.body as { id: string; href: string };
   }
 
+  it('persists and returns the passenger pickup context', async () => {
+    const { tripId } = await driverWithTrip();
+    const passenger = await tokenFor('pickup-passenger', ['passenger']);
+    const pickupLocation = {
+      type: 'Point',
+      coordinates: [-2.5, 36.82],
+    };
+
+    const created = await api('post', `/trips/${tripId}/requests`, passenger)
+      .send({
+        direction: 'to-campus',
+        pickupLocation,
+        pickupName: 'Calle Real',
+      })
+      .expect(201);
+
+    expect(created.body).toMatchObject({
+      direction: 'to-campus',
+      pickupLocation,
+      pickupName: 'Calle Real',
+      pickupAt: expect.any(String) as string,
+    });
+    const listed = await api('get', '/users/me/requests', passenger).expect(
+      200,
+    );
+    const [listedRequest] = listed.body as {
+      id: string;
+      direction: string;
+      pickupLocation: typeof pickupLocation;
+      pickupName: string;
+    }[];
+    expect(listedRequest).toMatchObject({
+      id: (created.body as { id: string }).id,
+      direction: 'to-campus',
+      pickupLocation,
+      pickupName: 'Calle Real',
+    });
+  });
+
+  it('requires pickup location data when direction is to campus', async () => {
+    const { tripId } = await driverWithTrip();
+    const passenger = await tokenFor('pickup-missing', ['passenger']);
+    const response = await api('post', `/trips/${tripId}/requests`, passenger)
+      .send({ direction: 'to-campus' })
+      .expect(400);
+
+    expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+  });
+
   it('full flow: request → accept (trip confirmed, plate visible) → cancel (trip reopened)', async () => {
     const { driver, tripId } = await driverWithTrip(2);
     const pia = await tokenFor('pia', ['passenger']);
@@ -135,6 +184,10 @@ describe('Seat requests API (e2e)', () => {
       status: 'pending',
       seats: 1,
       isPriority: false,
+      direction: null,
+      pickupLocation: null,
+      pickupName: null,
+      pickupAt: null,
       requestedAt: expect.any(String) as string,
       answeredAt: null,
       cancelledAt: null,

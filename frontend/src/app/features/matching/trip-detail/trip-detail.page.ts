@@ -171,7 +171,25 @@ export class TripDetailPage {
       return;
     }
     await this.send(async () => {
-      this.myRequest.set(await this.seatRequests.request(trip.id, this.seats()));
+      const search = this.searchState.search();
+      this.myRequest.set(
+        await this.seatRequests.request(
+          trip.id,
+          this.seats(),
+          search
+            ? {
+                direction: search.direction,
+                ...(search.direction === 'to-campus' && {
+                  location: {
+                    type: 'Point',
+                    coordinates: search.place.coordinates,
+                  },
+                  name: search.place.name,
+                }),
+              }
+            : undefined,
+        ),
+      );
     });
   }
 
