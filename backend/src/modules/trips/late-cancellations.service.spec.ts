@@ -3,6 +3,7 @@ import {
   findSuspensionEnd,
   isLateDriverCancellation,
   isLatePassengerCancellation,
+  toSuspensions,
 } from './late-cancellations.service';
 
 const MINUTE_MS = 60 * 1000;
@@ -91,6 +92,37 @@ describe('late cancellations', () => {
       const dates = [daysAgo(1), daysAgo(2), daysAgo(40)];
 
       expect(findSuspensionEnd(dates, NOW)).toBeNull();
+    });
+  });
+
+  describe('toSuspensions', () => {
+    const row = (
+      userId: string,
+      role: 'driver' | 'passenger',
+      days: number,
+    ) => ({
+      userId,
+      role,
+      cancelledAt: daysAgo(days),
+    });
+
+    it('keeps only the users and roles with a suspension in course', () => {
+      const suspensions = toSuspensions(
+        [
+          row('dan', 'driver', 1),
+          row('dan', 'driver', 2),
+          row('dan', 'driver', 3),
+          row('dan', 'passenger', 1),
+          row('pia', 'passenger', 2),
+        ],
+        NOW,
+      );
+
+      expect([...suspensions.keys()]).toEqual(['dan']);
+      expect(suspensions.get('dan')?.driver).toEqual(
+        findSuspensionEnd([daysAgo(1), daysAgo(2), daysAgo(3)], NOW),
+      );
+      expect(suspensions.get('dan')?.passenger).toBeNull();
     });
   });
 });

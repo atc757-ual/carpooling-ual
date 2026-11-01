@@ -272,7 +272,7 @@ export class UsersController {
     @Query() query: ListUsersQueryDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<UserAdminResource[]> {
-    const page = await this.userProfiles.list(query.search, query);
+    const page = await this.userProfiles.list({ search: query.search }, query);
     setPaginationHeaders(response, page);
     return page.items.map(toUserAdminResource);
   }
@@ -302,12 +302,12 @@ export class UsersController {
     profile: ProfileType,
     @Body() dto: SetProfileActiveDto,
   ): Promise<UserAdminResource> {
-    await this.userProfiles.setProfileActive(
-      admin.sub,
-      id,
+    await this.userProfiles.setProfileActive(admin.sub, {
+      userId: id,
       profile,
-      dto.isActive,
-    );
+      isActive: dto.isActive,
+      reason: dto.reason,
+    });
     return toUserAdminResource(await this.userProfiles.getAdminView(id));
   }
 

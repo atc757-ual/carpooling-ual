@@ -93,10 +93,20 @@ describe('UserProfilesService (e2e)', () => {
     const ada = await createUser('ada', ['admin']);
     const pia = await createUser('pia', ['passenger']);
 
-    await userProfiles.setProfileActive(ada, pia, 'admin', true);
+    await userProfiles.setProfileActive(ada, {
+      userId: pia,
+      profile: 'admin',
+      isActive: true,
+      reason: 'Reason given by the admin',
+    });
     expect(await activeProfilesOf(pia)).toEqual(['passenger', 'admin']);
 
-    await userProfiles.setProfileActive(ada, pia, 'admin', false);
+    await userProfiles.setProfileActive(ada, {
+      userId: pia,
+      profile: 'admin',
+      isActive: false,
+      reason: 'Reason given by the admin',
+    });
     expect(await activeProfilesOf(pia)).toEqual(['passenger']);
     expect(await eventTypesOf(pia)).toEqual([
       'user.registered',
@@ -109,10 +119,25 @@ describe('UserProfilesService (e2e)', () => {
     const ada = await createUser('ada', ['admin']);
     const pia = await createUser('pia', ['passenger']);
 
-    await userProfiles.setProfileActive(ada, pia, 'passenger', false);
-    await userProfiles.setProfileActive(ada, pia, 'passenger', false);
+    await userProfiles.setProfileActive(ada, {
+      userId: pia,
+      profile: 'passenger',
+      isActive: false,
+      reason: 'Reason given by the admin',
+    });
+    await userProfiles.setProfileActive(ada, {
+      userId: pia,
+      profile: 'passenger',
+      isActive: false,
+      reason: 'Reason given by the admin',
+    });
     // Retirar un perfil que nunca tuvo tampoco cambia nada
-    await userProfiles.setProfileActive(ada, pia, 'admin', false);
+    await userProfiles.setProfileActive(ada, {
+      userId: pia,
+      profile: 'admin',
+      isActive: false,
+      reason: 'Reason given by the admin',
+    });
 
     expect(await eventTypesOf(pia)).toEqual([
       'user.registered',
@@ -124,7 +149,12 @@ describe('UserProfilesService (e2e)', () => {
     const ada = await createUser('ada', ['admin']);
 
     await expect(
-      userProfiles.setProfileActive(ada, ada, 'admin', false),
+      userProfiles.setProfileActive(ada, {
+        userId: ada,
+        profile: 'admin',
+        isActive: false,
+        reason: 'Reason given by the admin',
+      }),
     ).rejects.toBeInstanceOf(CannotChangeOwnAdminError);
   });
 
@@ -133,15 +163,20 @@ describe('UserProfilesService (e2e)', () => {
     const pia = await createUser('pia', ['passenger']);
 
     await expect(
-      userProfiles.setProfileActive(ada, pia, 'driver', true),
+      userProfiles.setProfileActive(ada, {
+        userId: pia,
+        profile: 'driver',
+        isActive: true,
+        reason: 'Reason given by the admin',
+      }),
     ).rejects.toBeInstanceOf(ProfileNotFoundError);
     await expect(
-      userProfiles.setProfileActive(
-        ada,
-        '00000000-0000-4000-8000-000000000000',
-        'driver',
-        true,
-      ),
+      userProfiles.setProfileActive(ada, {
+        userId: '00000000-0000-4000-8000-000000000000',
+        profile: 'driver',
+        isActive: true,
+        reason: 'Reason given by the admin',
+      }),
     ).rejects.toBeInstanceOf(UserNotFoundError);
   });
 
@@ -152,7 +187,12 @@ describe('UserProfilesService (e2e)', () => {
     const web = await refreshTokens.issue(pia);
     const mobile = await refreshTokens.issue(pia);
 
-    await userProfiles.setProfileActive(ada, pia, 'passenger', false);
+    await userProfiles.setProfileActive(ada, {
+      userId: pia,
+      profile: 'passenger',
+      isActive: false,
+      reason: 'Reason given by the admin',
+    });
 
     await expect(refreshTokens.rotate(web.token)).rejects.toBeInstanceOf(
       InvalidRefreshTokenError,
@@ -168,7 +208,12 @@ describe('UserProfilesService (e2e)', () => {
     it('lists users with ALL their profiles, active or not', async () => {
       const ada = await createUser('ada', ['admin']);
       const pia = await createUser('pia', ['passenger', 'driver']);
-      await userProfiles.setProfileActive(ada, pia, 'driver', false);
+      await userProfiles.setProfileActive(ada, {
+        userId: pia,
+        profile: 'driver',
+        isActive: false,
+        reason: 'Reason given by the admin',
+      });
 
       const view = await userProfiles.getAdminView(pia);
 
@@ -182,8 +227,11 @@ describe('UserProfilesService (e2e)', () => {
       await createUser('pia', ['passenger']);
       await createUser('dan', ['driver']);
 
-      const byEmail = await userProfiles.list(EMAIL_PREFIX.toUpperCase(), ALL);
-      const byName = await userProfiles.list('PI', ALL);
+      const byEmail = await userProfiles.list(
+        { search: EMAIL_PREFIX.toUpperCase() },
+        ALL,
+      );
+      const byName = await userProfiles.list({ search: 'PI' }, ALL);
 
       expect(byEmail.items.map(({ user }) => user.name)).toEqual([
         'dan',
@@ -196,7 +244,7 @@ describe('UserProfilesService (e2e)', () => {
     it('treats % and _ in the search as text, not as wildcards', async () => {
       await createUser('pia', ['passenger']);
 
-      const page = await userProfiles.list(`${EMAIL_PREFIX}%`, ALL);
+      const page = await userProfiles.list({ search: `${EMAIL_PREFIX}%` }, ALL);
 
       expect(page.total).toBe(0);
     });
@@ -205,10 +253,13 @@ describe('UserProfilesService (e2e)', () => {
       await createUser('pia', ['passenger']);
       await createUser('dan', ['driver']);
 
-      const page = await userProfiles.list(EMAIL_PREFIX, {
-        offset: 1,
-        limit: 1,
-      });
+      const page = await userProfiles.list(
+        { search: EMAIL_PREFIX },
+        {
+          offset: 1,
+          limit: 1,
+        },
+      );
 
       expect(page.total).toBe(2);
       expect(page.items.map(({ user }) => user.name)).toEqual(['pia']);
@@ -243,7 +294,12 @@ describe('UserProfilesService (e2e)', () => {
     };
     const { trip } = await tripsService.publish(dan, tripInput);
 
-    await userProfiles.setProfileActive(ada, dan, 'driver', false);
+    await userProfiles.setProfileActive(ada, {
+      userId: dan,
+      profile: 'driver',
+      isActive: false,
+      reason: 'Reason given by the admin',
+    });
 
     await expect(tripsService.publish(dan, tripInput)).rejects.toBeInstanceOf(
       ProfileRequiredError,

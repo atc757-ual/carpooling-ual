@@ -178,6 +178,7 @@ Comprobar que responde (de Almería al campus de la UAL):
 | AGENTE_SIMULADO         | `simulated_agents`   |
 | RESULTADO (por réplica) | `simulation_results` |
 | EJECUCIÓN (nueva)       | `simulation_runs`    |
+| AUDITORÍA (nueva)       | `admin_actions`      |
 
 Los estados de las enumeraciones siguen los diagramas de estados del viaje y de la solicitud (p. ej. `EN_CURSO` → `in_progress`).
 

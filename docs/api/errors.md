@@ -77,6 +77,7 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `AVATAR_NOT_FOUND`             | 404  | El avatar (`GET /api/avatars/{id}` o `PATCH /api/users/me`) no existe o está retirado                                                                                                                                                      |
 | `PHONE_REQUIRED`               | 409  | Pedir o confirmar el código de verificación del teléfono (`POST /api/users/me/phone-verification` y `/confirm`) sin tener antes un número guardado en `PATCH /api/users/me`                                                                |
 | `ACCOUNT_HAS_ACTIVE_TRIPS`     | 409  | Confirmar la eliminación de la cuenta (`POST /api/users/me/account-deletion/confirm`) teniendo viajes sin terminar como conductor (`published`, `confirmed` o `in_progress`) o plazas aceptadas como pasajero en viajes aún no finalizados |
+| `USER_NOT_SUSPENDED`           | 409  | Un administrador levanta una suspensión (`POST /api/admin/users/{id}/suspensions/{role}/lift`) que no está en curso para ese papel                                                                                                         |
 
 ## Vehículos (`users`)
 

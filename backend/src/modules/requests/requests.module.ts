@@ -10,6 +10,7 @@ import { RequestAcceptanceListener } from './request-acceptance.listener';
 import { RequestOverlapService } from './request-overlap.service';
 import { RequestsController } from './requests.controller';
 import { RequestViewsService } from './request-views.service';
+import { RequestStatsService } from './request-stats.service';
 import { RequestsService } from './requests.service';
 import { TripChangesListener } from './trip-changes.listener';
 
@@ -28,13 +29,15 @@ import { TripChangesListener } from './trip-changes.listener';
   controllers: [RequestsController],
   providers: [
     RequestsService,
+    RequestStatsService,
     RequestViewsService,
     RequestChangesRecorder,
     RequestOverlapService,
     RequestAcceptanceListener,
     TripChangesListener,
   ],
-  // Lo usan las incidencias (el pasajero abandona un viaje en curso)
-  exports: [RequestsService],
+  // Lo usan las incidencias (el pasajero abandona un viaje en curso) y el
+  // panel de administración (los recuentos)
+  exports: [RequestsService, RequestStatsService],
 })
 export class RequestsModule {}

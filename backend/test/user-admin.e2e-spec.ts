@@ -101,7 +101,7 @@ describe('User administration API (e2e)', () => {
       'put',
       `/users/${userId}/profiles/${profile}`,
       admin.accessToken,
-    ).send({ isActive });
+    ).send({ isActive, reason: 'Reason given by the admin' });
   }
 
   it('lets only administrators list users, with all their profiles', async () => {

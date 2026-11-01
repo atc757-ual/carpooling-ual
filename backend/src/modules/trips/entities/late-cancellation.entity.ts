@@ -28,4 +28,20 @@ export class LateCancellation {
 
   @CreateDateColumn({ name: 'cancelled_at', type: 'timestamptz' })
   cancelledAt: Date;
+
+  // Perdonada por un administrador (levantar la suspensión antes de tiempo):
+  // ya no cuenta para la suspensión. Migración AddAdminActionsAndWaivers
+  @Column({ name: 'waived_at', type: 'timestamptz', nullable: true })
+  waivedAt: Date | null;
+
+  @Column({ name: 'waived_by', type: 'uuid', nullable: true })
+  waivedBy: string | null;
+
+  @Column({
+    name: 'waived_reason',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
+  waivedReason: string | null;
 }

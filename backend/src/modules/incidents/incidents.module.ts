@@ -23,5 +23,7 @@ import { IncidentsService } from './incidents.service';
   ],
   controllers: [IncidentsController],
   providers: [IncidentsService],
+  // Lo usa el panel de administración (incidencias abiertas por usuario)
+  exports: [IncidentsService],
 })
 export class IncidentsModule {}

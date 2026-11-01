@@ -1,4 +1,5 @@
 import { DataSource, EntityManager } from 'typeorm';
+import { AuditService } from '../../audit/audit.service';
 import { EventsService } from '../../events/events.service';
 import { AdminProfile } from './entities/admin-profile.entity';
 import { LastAdminError } from './errors/last-admin.error';
@@ -19,7 +20,8 @@ describe('UserProfilesService', () => {
       work(manager as unknown as EntityManager),
   } as unknown as DataSource;
   const eventsService = { record: jest.fn() } as unknown as EventsService;
-  const service = new UserProfilesService(dataSource, eventsService);
+  const audit = { record: jest.fn() } as unknown as AuditService;
+  const service = new UserProfilesService(dataSource, eventsService, audit);
 
   function admin(userId: string): AdminProfile {
     return Object.assign(new AdminProfile(), { userId, isActive: true });
@@ -34,7 +36,12 @@ describe('UserProfilesService', () => {
     manager.find.mockResolvedValue([admin('target')]);
 
     await expect(
-      service.setProfileActive('other-admin', 'target', 'admin', false),
+      service.setProfileActive('other-admin', {
+        userId: 'target',
+        profile: 'admin',
+        isActive: false,
+        reason: 'Reason given by the admin',
+      }),
     ).rejects.toBeInstanceOf(LastAdminError);
     expect(manager.update).not.toHaveBeenCalled();
   });
@@ -43,7 +50,12 @@ describe('UserProfilesService', () => {
     manager.find.mockResolvedValue([admin('target'), admin('other-admin')]);
     manager.findOne.mockResolvedValue(admin('target'));
 
-    await service.setProfileActive('other-admin', 'target', 'admin', false);
+    await service.setProfileActive('other-admin', {
+      userId: 'target',
+      profile: 'admin',
+      isActive: false,
+      reason: 'Reason given by the admin',
+    });
 
     expect(manager.update).toHaveBeenCalledWith(
       AdminProfile,

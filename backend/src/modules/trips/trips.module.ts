@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuditModule } from '../../audit/audit.module';
 import { EventsModule } from '../../events/events.module';
 import { UsersModule } from '../users/users.module';
 import { LateCancellation } from './entities/late-cancellation.entity';
@@ -11,6 +12,7 @@ import { TripCandidatesService } from './trip-candidates.service';
 import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
 import { TripsController } from './trips.controller';
+import { TripStatsService } from './trip-stats.service';
 import { TripsService } from './trips.service';
 
 // Viajes (RF-04, RF-05, RF-11), sus rutas (RF-12, con OSRM) y las
@@ -23,6 +25,7 @@ import { TripsService } from './trips.service';
     TypeOrmModule.forFeature([Trip, TripRoute, LateCancellation]),
     UsersModule,
     EventsModule,
+    AuditModule,
   ],
   controllers: [TripsController],
   providers: [
@@ -32,6 +35,7 @@ import { TripsService } from './trips.service';
     TripCandidatesService,
     OsrmClient,
     LateCancellationsService,
+    TripStatsService,
   ],
   // Los usan las solicitudes de plaza (requests), el seguimiento (tracking:
   // lo que queda hasta el destino) y el matching (los candidatos); las
@@ -42,6 +46,7 @@ import { TripsService } from './trips.service';
     TripRoutesService,
     TripCandidatesService,
     LateCancellationsService,
+    TripStatsService,
   ],
 })
 export class TripsModule {}
