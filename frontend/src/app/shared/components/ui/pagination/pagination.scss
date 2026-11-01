@@ -1,0 +1,19 @@
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding-block: var(--space-s);
+}
+
+.pagination__range {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.pagination__actions {
+  display: flex;
+  gap: var(--space-s);
+}

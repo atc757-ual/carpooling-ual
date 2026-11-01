@@ -1,0 +1,19 @@
+<nav class="pagination" aria-label="Paginación">
+  <span class="pagination__range" aria-live="polite">{{ range() }}</span>
+  <div class="pagination__actions">
+    <ion-button
+      fill="outline"
+      size="small"
+      [disabled]="!hasPrevious() || isLoading()"
+      (click)="handlePrevious()"
+      >Anterior</ion-button
+    >
+    <ion-button
+      fill="outline"
+      size="small"
+      [disabled]="!hasNext() || isLoading()"
+      (click)="handleNext()"
+      >Siguiente</ion-button
+    >
+  </div>
+</nav>
