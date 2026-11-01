@@ -85,8 +85,8 @@ for (const viewport of VIEWPORTS) {
       cy.wait('@login')
         .its('request.body')
         .should('deep.equal', { email: 'ana@ual.es', password: 'secreta123' });
-      cy.location('pathname').should('eq', '/tabs/publish');
-      cy.get('app-publish-trip').should('be.visible');
+      cy.location('pathname').should('eq', '/tabs/search');
+      cy.get('app-trip-search').should('be.visible');
     });
 
     it('shows the API error when the credentials are wrong', () => {

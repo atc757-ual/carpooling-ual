@@ -31,7 +31,7 @@ function logIn(profiles: string[], activeMode: string | null = null): void {
   cy.get('app-login ion-input[formControlName="email"] input').type(EMAIL);
   cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
   cy.contains('ion-button', 'Iniciar sesión').click();
-  cy.location('pathname').should('eq', '/tabs/publish');
+  cy.location('pathname').should('eq', '/tabs/search');
 }
 
 for (const viewport of VIEWPORTS) {
@@ -55,10 +55,10 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('GET', '/api/users/me/notifications*', []);
     });
 
-    it('shows the five fixed destinations and opens Publicar by default', () => {
+    it('shows the five fixed destinations and opens Buscar by default', () => {
       logIn(['passenger']);
 
-      cy.location('pathname').should('eq', '/tabs/publish');
+      cy.location('pathname').should('eq', '/tabs/search');
       destinationLabels().should('deep.equal', [
         'Buscar',
         'Publicar',
@@ -68,17 +68,17 @@ for (const viewport of VIEWPORTS) {
       ]);
     });
 
-    it('opens Publicar even when the passenger side was last used', () => {
-      logIn(['passenger'], 'passenger');
+    it('opens Buscar even when the driver side was last used', () => {
+      logIn(['passenger', 'driver'], 'driver');
 
-      cy.location('pathname').should('eq', '/tabs/publish');
+      cy.location('pathname').should('eq', '/tabs/search');
     });
 
     it('remembers the side when going to Publicar', () => {
       cy.intercept('PUT', '/api/users/me/active-mode', { activeMode: 'driver' }).as('mode');
       cy.intercept('GET', '/api/users/me/driver-status', { isReady: false });
       cy.intercept('GET', '/api/vehicles*', []);
-      logIn(['passenger', 'driver']);
+      logIn(['passenger', 'driver'], 'passenger');
 
       goTo('Publicar');
 
@@ -128,12 +128,12 @@ for (const viewport of VIEWPORTS) {
 
         cy.get('app-tabs .top-nav app-brand-logo').should('be.visible');
         cy.contains('app-tabs .top-nav__hello', '¡Hola, Mario!').should('be.visible');
-        cy.contains('app-tabs .top-nav__link', 'Publicar').should(
+        cy.contains('app-tabs .top-nav__link', 'Buscar').should(
           'have.attr',
           'aria-current',
           'page',
         );
-        cy.contains('app-tabs .greeting-bar', 'Publicar viaje').should('be.visible');
+        cy.contains('app-tabs .greeting-bar', '¿A dónde vamos hoy?').should('be.visible');
         cy.get('app-tabs ion-tab-bar').should('not.be.visible');
       });
     } else {
@@ -146,7 +146,7 @@ for (const viewport of VIEWPORTS) {
         cy.get('app-tabs .app-header .bell-button').should('be.visible');
         cy.get('app-tabs .app-header .logout-button').should('be.visible');
         cy.get('app-tabs .app-header .back-button').should('not.exist');
-        cy.contains('ion-tab-button', 'Publicar').should('have.class', 'tab-selected');
+        cy.contains('ion-tab-button', 'Buscar').should('have.class', 'tab-selected');
       });
     }
 

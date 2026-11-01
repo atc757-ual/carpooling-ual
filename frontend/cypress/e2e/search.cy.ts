@@ -55,10 +55,10 @@ function logIn(profiles: string[]): void {
   cy.get('app-login ion-input[formControlName="email"] input').type(EMAIL);
   cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
   cy.contains('ion-button', 'Iniciar sesión').click();
-  cy.location('pathname').should('eq', '/tabs/publish');
+  cy.location('pathname').should('eq', '/tabs/search');
 }
 
-// Busca desde Buscar (el login lleva a Publicar: antes hay que ir a Buscar)
+// Busca desde Buscar, donde deja el login
 function searchTrips(place: string): void {
   choosePlace('app-trip-search app-trip-search-form', place);
   chooseParking('app-trip-search app-trip-search-form', 'Parking P1');
