@@ -10,8 +10,8 @@ import {
   WELCOME_PATH,
 } from './redirect-paths';
 
-// Las entradas a la app: /tabs (la redirección a Publicar se aplica antes del
-// guard, que ya recibe /tabs/publish) y las pestañas principales
+// Las entradas a la app: /tabs (la redirección a Buscar o Publicar se aplica
+// antes del guard, que ya recibe una de las dos) y las pestañas principales
 const ENTRY_PATHS: ReadonlySet<string> = new Set([HOME_PATH, PUBLISH_PATH, SEARCH_PATH]);
 
 // Rutas que exigen sesión: sin ella, al login, recordando la página pedida. Al

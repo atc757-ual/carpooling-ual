@@ -9,6 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Fixed
+- **Frontend:** al entrar en la app (iniciar sesión, abrirla o «Entrar a la app» tras el registro) se abre siempre Buscar; quien solo es conductor entra en Publicar (#139).
 - **Frontend:** cerrar sesión descarta las pantallas de la cuenta anterior y Publicar abre limpio para cualquier perfil (#120).
 
 ### Changed

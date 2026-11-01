@@ -4,7 +4,7 @@ import { appAreaGuard } from './core/guards/app-area.guard';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { profileGuard } from './core/guards/profile.guard';
-import { WELCOME_PATH } from './core/guards/redirect-paths';
+import { PUBLISH_PATH, SEARCH_PATH, WELCOME_PATH } from './core/guards/redirect-paths';
 import { AuthService } from './core/services/auth/auth.service';
 import { ADMIN_SECTIONS } from './features/admin/admin-sections';
 import { TabHeading } from './features/tabs/tab-heading';
@@ -71,11 +71,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/tabs/tabs.page').then((m) => m.TabsPage),
     children: [
       {
-        // Al entrar en la app, abrir Publicar para cualquier perfil. Una sola
-        // redirección: Angular no encadena dos relativas en el mismo nivel
+        // Al entrar en la app, Buscar; quien solo es conductor (Buscar pide el
+        // perfil de pasajero), Publicar. Se aplica antes de authGuard: sin
+        // sesión no hay perfiles y va a Publicar, que el guard manda a la
+        // bienvenida
         path: '',
         pathMatch: 'full',
-        redirectTo: 'publish',
+        redirectTo: () =>
+          inject(AuthService).hasProfile('passenger') ? SEARCH_PATH : PUBLISH_PATH,
       },
       {
         path: 'search',

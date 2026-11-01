@@ -50,7 +50,7 @@ describe('AccountCreatedPage', () => {
     ]);
 
     expect(buttons).toEqual([
-      ['Entrar a la app', '/tabs/publish'],
+      ['Entrar a la app', '/tabs'],
       ['Entrar más tarde', 'submit'],
     ]);
   });
