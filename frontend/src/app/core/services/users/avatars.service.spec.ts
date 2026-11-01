@@ -101,6 +101,38 @@ describe('AvatarsService', () => {
     await expect(load).resolves.toBeTruthy();
   });
 
+  it('lists the catalog with each avatar name for the picker', async () => {
+    const list = avatars.listCatalog();
+    http.expectOne('/api/avatars?offset=0&limit=100').flush(
+      [
+        {
+          '@type': 'Avatar',
+          id: 'sun',
+          href: '/api/avatars/sun',
+          name: 'Sol',
+          svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="20" /></svg>',
+        },
+      ],
+      { headers: { 'X-Total-Count': '1' } },
+    );
+
+    const options = await list;
+    expect(options.map(({ id, name }) => ({ id, name }))).toEqual([{ id: 'sun', name: 'Sol' }]);
+  });
+
+  it('lists no avatars when the catalog cannot be loaded, and retries later', async () => {
+    const list = avatars.listCatalog();
+    http
+      .expectOne('/api/avatars?offset=0&limit=100')
+      .flush(null, { status: 503, statusText: 'Service Unavailable' });
+
+    await expect(list).resolves.toEqual([]);
+    void avatars.listCatalog();
+    http.expectOne('/api/avatars?offset=0&limit=100').flush([], {
+      headers: { 'X-Total-Count': '0' },
+    });
+  });
+
   it('returns null when the selected key is not in the catalog', async () => {
     const load = avatars.getGraphic('sun');
     http.expectOne('/api/avatars?offset=0&limit=100').flush([], {

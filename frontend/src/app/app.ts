@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationStart, Router } from '@angular/router';
 import { IonApp, IonRouterOutlet } from '@ionic/angular';
 import { filter } from 'rxjs';
+import { ThemeService } from './core/services/ui/theme.service';
 
 // Raíz de la aplicación: el contenedor de Ionic y el router, donde se cargan
 // las pantallas de cada ruta (app.routes.ts)
@@ -11,7 +12,9 @@ import { filter } from 'rxjs';
   imports: [IonApp, IonRouterOutlet],
   templateUrl: './app.html',
 })
-export class App {
+export class App implements OnInit {
+  private readonly theme = inject(ThemeService);
+
   constructor() {
     // Al cambiar de pantalla se quita el foco (p. ej. de la flecha «Volver»):
     // Ionic oculta la pantalla que se va con aria-hidden y el navegador avisa
@@ -22,5 +25,10 @@ export class App {
         takeUntilDestroyed(),
       )
       .subscribe(() => (document.activeElement as HTMLElement | null)?.blur());
+  }
+
+  // El modo claro u oscuro que eligió el usuario en Perfil, si eligió alguno
+  ngOnInit(): void {
+    void this.theme.restore();
   }
 }

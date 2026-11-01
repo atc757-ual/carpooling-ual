@@ -38,3 +38,9 @@ export interface AvatarGraphic {
   strokeLinejoin: string | null;
   shapes: AvatarShape[];
 }
+
+export interface AvatarOption {
+  id: AvatarKey;
+  name: string;
+  graphic: AvatarGraphic;
+}
