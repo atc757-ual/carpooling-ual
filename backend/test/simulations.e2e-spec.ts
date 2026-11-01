@@ -16,6 +16,11 @@ import { registerUser } from './support/accounts';
 const EMAIL_PREFIX = 'simulations-e2e-';
 const PASSWORD = 'secret-password';
 const TICK_MS = 20;
+// Escenarios propios del test: el CI no carga el seed. Códigos que el seed
+// no usa; se borran al terminar
+const SCENARIO = 'S91';
+const BASELINE = 'S90';
+const PAIR = { scenario: SCENARIO, baselineScenario: BASELINE };
 
 interface RunBody {
   id: string;
@@ -40,6 +45,10 @@ describe('Simulations API (e2e)', () => {
     configureApp(app);
     await app.init();
     dataSource = app.get(DataSource);
+    await dataSource.query(
+      'INSERT INTO scenarios (code, name, user_count, adoption_rate, modal_split, time_window_min) VALUES ($1, $2, 200, 0, $3, 15), ($4, $5, 1000, 0.3, $3, 15)',
+      [BASELINE, 'Test base', '{"own_car": 0.3}', SCENARIO, 'Test carpooling'],
+    );
   });
 
   beforeEach(async () => {
@@ -55,6 +64,10 @@ describe('Simulations API (e2e)', () => {
   });
 
   afterAll(async () => {
+    await dataSource.query('DELETE FROM scenarios WHERE code IN ($1, $2)', [
+      BASELINE,
+      SCENARIO,
+    ]);
     await app.close();
   });
 
@@ -106,7 +119,9 @@ describe('Simulations API (e2e)', () => {
     const id = '0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90';
     await api('get', '/scenarios', token).expect(403);
     await api('get', '', token).expect(403);
-    await api('post', '', token).send({ scenario: 'S1', seed: 1 }).expect(403);
+    await api('post', '', token)
+      .send({ ...PAIR, seed: 1 })
+      .expect(403);
     await api('get', `/${id}`, token).expect(403);
     await api('get', `/${id}/results`, token).expect(403);
     await api('get', `/${id}/results.csv`, token).expect(403);
@@ -116,31 +131,27 @@ describe('Simulations API (e2e)', () => {
   it('lists the predefined scenarios with their configuration (RF-16)', async () => {
     const response = await api('get', '/scenarios').expect(200);
     const scenarios = response.body as { code: string; users: number }[];
-    expect(scenarios.map((s) => s.code)).toEqual([
-      'S0',
-      'S1',
-      'S2',
-      'S3',
-      'S4',
-      'S5',
+    const own = scenarios.filter((s) => [BASELINE, SCENARIO].includes(s.code));
+    expect(own).toEqual([
+      expect.objectContaining({ code: BASELINE, users: 200 }),
+      expect.objectContaining({ code: SCENARIO, users: 1000 }),
     ]);
-    expect(scenarios[2].users).toBeGreaterThan(scenarios[1].users);
   });
 
   it('answers 404 for an unknown scenario code', async () => {
     const response = await api('post', '')
-      .send({ scenario: 'S9', seed: 1 })
+      .send({ scenario: 'S99', seed: 1 })
       .expect(404);
     expect((response.body as { code: string }).code).toBe('SCENARIO_NOT_FOUND');
   });
 
   it('runs a scenario to the end and serves its results and CSV', async () => {
     const created = await api('post', '')
-      .send({ scenario: 'S1', replicas: 3, seed: 7 })
+      .send({ ...PAIR, replicas: 3, seed: 7 })
       .expect(201);
     const run = created.body as RunBody;
     expect(created.headers.location).toBe(run.href);
-    expect(run.scenarioConfig.scenario.name).toBe('Carpooling básico');
+    expect(run.scenarioConfig.scenario.name).toBe('Test carpooling');
 
     const finished = await waitForStatus(run.id, 'finished');
     expect(finished.progress).toBe(3);
@@ -178,11 +189,11 @@ describe('Simulations API (e2e)', () => {
 
   it('allows one run at a time and cancels it', async () => {
     const created = await api('post', '')
-      .send({ scenario: 'S2', replicas: 100, seed: 1 })
+      .send({ ...PAIR, replicas: 100, seed: 1 })
       .expect(201);
     const run = created.body as RunBody;
     const busy = await api('post', '')
-      .send({ scenario: 'S1', seed: 2 })
+      .send({ ...PAIR, seed: 2 })
       .expect(409);
     expect((busy.body as { code: string }).code).toBe(
       'SIMULATION_ALREADY_RUNNING',
@@ -204,7 +215,7 @@ describe('Simulations API (e2e)', () => {
 
   it('marks as failed a run without news from the engine', async () => {
     const created = await api('post', '')
-      .send({ scenario: 'S1', replicas: 100, seed: 3 })
+      .send({ ...PAIR, replicas: 100, seed: 3 })
       .expect(201);
     const stale = created.body as RunBody;
     // El motor deja de dar noticias (como si se hubiera reiniciado el
@@ -221,7 +232,7 @@ describe('Simulations API (e2e)', () => {
       );
     });
     await api('post', '')
-      .send({ scenario: 'S1', replicas: 1, seed: 4 })
+      .send({ ...PAIR, replicas: 1, seed: 4 })
       .expect(201);
     const failed = await api('get', `/${stale.id}`).expect(200);
     expect(failed.body).toMatchObject({
@@ -233,9 +244,9 @@ describe('Simulations API (e2e)', () => {
   it('validates the input and answers 404 for an unknown run', async () => {
     await api('post', '').send({ scenario: 'X9', seed: 1 }).expect(400);
     await api('post', '')
-      .send({ scenario: 'S1', replicas: 101, seed: 1 })
+      .send({ ...PAIR, replicas: 101, seed: 1 })
       .expect(400);
-    await api('post', '').send({ scenario: 'S1' }).expect(400);
+    await api('post', '').send({ scenario: SCENARIO }).expect(400);
     const missing = await api(
       'get',
       '/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90',
