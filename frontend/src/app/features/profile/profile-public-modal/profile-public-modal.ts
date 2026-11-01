@@ -21,6 +21,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
 import { UsersService } from '../../../core/services/users/users.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { AvatarArt } from '../../../shared/components/ui/avatar-art/avatar-art';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import {
@@ -39,6 +40,7 @@ const NAME_MAX_LENGTH = 100;
 @Component({
   selector: 'app-profile-public-modal',
   imports: [
+    AvatarArt,
     IonicFormStatus,
     ReactiveFormsModule,
     IonButton,

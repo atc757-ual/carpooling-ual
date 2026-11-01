@@ -1,0 +1,10 @@
+// El SVG llena el componente: quien lo usa le da el tamaño
+:host {
+  display: block;
+}
+
+svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
