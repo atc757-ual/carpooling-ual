@@ -2,6 +2,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
   inject,
+  isDevMode,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
@@ -18,9 +19,11 @@ import {
   isPlatform,
   provideIonicAngular,
 } from '@ionic/angular';
+import { provideTransloco } from '@jsverse/transloco';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { AuthService } from './core/services/auth/auth.service';
+import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
 
 const IS_IOS = isPlatform('ios');
 
@@ -51,6 +54,16 @@ export const appConfig: ApplicationConfig = {
     // HttpClient (en Angular 22 usa la API fetch del navegador por defecto),
     // con el token de acceso en cada petición a la API
     provideHttpClient(withInterceptors([authInterceptor])),
+    // Configuración de i18n con Transloco (español por defecto; inglés alternativo)
+    provideTransloco({
+      config: {
+        availableLangs: ['es', 'en'],
+        defaultLang: 'es',
+        reRenderOnLangChange: true,
+        prodMode: !isDevMode(),
+      },
+      loader: TranslocoHttpLoader,
+    }),
     // Antes de mostrar la primera pantalla, recupera la sesión guardada (así
     // los guards ya saben si hay usuario)
     provideAppInitializer(() => inject(AuthService).restoreSession()),

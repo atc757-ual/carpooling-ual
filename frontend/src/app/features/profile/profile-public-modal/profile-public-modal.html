@@ -1,0 +1,155 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>{{ 'profile.editInfo' | transloco }}</ion-title>
+    <ion-buttons slot="end">
+      <form (submit)="$event.preventDefault(); close()">
+        <ion-button
+          class="dialog-close"
+          type="submit"
+          [attr.aria-label]="'common.close' | transloco"
+        >
+          <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
+        </ion-button>
+      </form>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<div class="profile-public-modal">
+  <form [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+    <!-- 1. Nombre y apellidos -->
+    <div class="profile-public-modal__field">
+      <span class="text-label text-label--strong" aria-hidden="true">{{
+        'profile.name' | transloco
+      }}</span>
+      <ion-input
+        formControlName="name"
+        (ionInput)="handleNameInput($event)"
+        fill="outline"
+        [placeholder]="'profile.name' | transloco"
+        [attr.aria-label]="'profile.name' | transloco"
+        errorText="Escribe un nombre válido (solo letras, espacios, guiones o apóstrofos)."
+      />
+    </div>
+
+    <!-- 2. Avatar en carrusel horizontal compacto -->
+    <div class="profile-public-modal__section">
+      <div class="profile-public-modal__field-header">
+        <span class="text-label text-label--strong">{{ 'profile.avatar' | transloco }}</span>
+        <span class="text-body-s text-color-muted">{{ selectedAvatarName() }}</span>
+      </div>
+
+      <div class="profile-public-modal__carousel">
+        <!-- Opción iniciales -->
+        <label
+          class="avatar-option avatar-option--initials"
+          [class.avatar-option--selected]="selectedAvatarKey() === null"
+        >
+          <input
+            type="radio"
+            name="avatarChoice"
+            class="visually-hidden"
+            [checked]="selectedAvatarKey() === null"
+            (change)="chooseAvatar(null)"
+          />
+          <span class="avatar-option__preview">{{ initials() }}</span>
+          @if (selectedAvatarKey() === null) {
+            <span class="avatar-option__check" aria-hidden="true">
+              <ion-icon [icon]="checkIcon" />
+            </span>
+          }
+        </label>
+
+        <!-- 12 avatares SVG en fila horizontal desplazable -->
+        @for (avatar of avatarCatalog(); track avatar.id) {
+          <label
+            class="avatar-option"
+            [class.avatar-option--selected]="selectedAvatarKey() === avatar.id"
+          >
+            <input
+              type="radio"
+              name="avatarChoice"
+              class="visually-hidden"
+              [checked]="selectedAvatarKey() === avatar.id"
+              (change)="chooseAvatar(avatar.id)"
+              [attr.aria-label]="avatar.name"
+            />
+            <div class="avatar-option__preview" aria-hidden="true">
+              <svg
+                class="avatar-option__svg"
+                [attr.viewBox]="avatar.graphic.viewBox"
+                [attr.fill]="avatar.graphic.fill"
+                [attr.stroke]="avatar.graphic.stroke"
+                [attr.stroke-width]="avatar.graphic.strokeWidth"
+                [attr.stroke-linecap]="avatar.graphic.strokeLinecap"
+                [attr.stroke-linejoin]="avatar.graphic.strokeLinejoin"
+              >
+                @for (shape of avatar.graphic.shapes; track $index) {
+                  @switch (shape.kind) {
+                    @case ('path') {
+                      <path [attr.d]="shape.d" />
+                    }
+                    @case ('circle') {
+                      <circle [attr.cx]="shape.cx" [attr.cy]="shape.cy" [attr.r]="shape.r" />
+                    }
+                    @case ('rect') {
+                      <rect
+                        [attr.x]="shape.x"
+                        [attr.y]="shape.y"
+                        [attr.width]="shape.width"
+                        [attr.height]="shape.height"
+                        [attr.rx]="shape.rx"
+                        [attr.ry]="shape.ry"
+                      />
+                    }
+                    @case ('polygon') {
+                      <polygon [attr.points]="shape.points" />
+                    }
+                  }
+                }
+              </svg>
+            </div>
+            @if (selectedAvatarKey() === avatar.id) {
+              <span class="avatar-option__check" aria-hidden="true">
+                <ion-icon [icon]="checkIcon" />
+              </span>
+            }
+          </label>
+        }
+      </div>
+    </div>
+
+    <!-- 3. Sobre mí -->
+    <div class="profile-public-modal__field">
+      <div class="profile-public-modal__field-header">
+        <span class="text-label text-label--strong" aria-hidden="true">{{
+          'profile.aboutMe' | transloco
+        }}</span>
+        <span class="text-caption text-color-muted">{{ bioLength }} / 200</span>
+      </div>
+      <ion-textarea
+        formControlName="bio"
+        fill="outline"
+        rows="3"
+        maxlength="200"
+        [placeholder]="'profile.bioPlaceholder' | transloco"
+        [attr.aria-label]="'profile.aboutMe' | transloco"
+        [errorText]="isBioInvalid ? 'Escribe entre 20 y 200 caracteres, o déjalo vacío.' : ''"
+      />
+      <span class="text-body-s text-color-muted">Opcional: mínimo 20 y máximo 200 caracteres.</span>
+    </div>
+
+    <div class="profile-public-modal__actions">
+      <ion-button
+        type="submit"
+        expand="block"
+        [disabled]="form.invalid || isBioInvalid || isSaving()"
+      >
+        @if (isSaving()) {
+          <ion-spinner name="crescent" slot="start" aria-hidden="true" />
+        }
+        {{ 'common.save' | transloco }}
+      </ion-button>
+    </div>
+  </form>
+</div>

@@ -163,6 +163,17 @@
 
                     @if (!hasDeclared()) {
                       <app-declaration-field [control]="tripForm.controls.declaration" />
+                    } @else {
+                      <div class="publish__declared">
+                        <span class="badge-verified">
+                          <ion-icon [icon]="icons.published" aria-hidden="true" />
+                          Declaración del conductor aceptada
+                        </span>
+                        <p class="text-caption text-color-muted">
+                          Permiso de conducir en vigor, seguro obligatorio e ITV al día sin ánimo de
+                          lucro.
+                        </p>
+                      </div>
                     }
 
                     <div class="publish__actions">
@@ -230,7 +241,7 @@
               <app-route-timeline [stops]="stops" />
             }
             <!-- Como la fila de un resultado (TripRow): una línea de
-                       datos y el vehículo debajo -->
+                        datos y el vehículo debajo -->
             <p class="publish__meta text-body-s">
               {{ dateLabel() }} · {{ tripForm.controls.seats.value }}
               {{ tripForm.controls.seats.value === 1 ? 'plaza' : 'plazas' }} · desvío ±

@@ -59,8 +59,7 @@ export function toTripDetail(result: TripResult, search: TripSearch): TripDetail
 
 // Un viaje de la API como fila de resultados: el trayecto sale de la búsqueda
 // (la dirección del pasajero y el parking elegido). Todos los usuarios han
-// verificado su correo UAL al registrarse; los viajes y la valoración del
-// conductor aún no los da la API
+// verificado su correo UAL al registrarse
 export function toTripResult(match: TripMatch, search: TripSearch): TripResult {
   const campus = `${CAMPUS_NAME} · ${search.parking.name}`;
   const isToCampus = search.direction === 'to-campus';
@@ -75,6 +74,7 @@ export function toTripResult(match: TripMatch, search: TripSearch): TripResult {
     driver: {
       name: match.driver.name,
       avatarKey: match.driver.avatarKey,
+      ...(match.driver.preferences ? { preferences: match.driver.preferences } : {}),
       tripCount: match.driver.tripCount,
       rating: match.driver.rating ?? undefined,
       isEmailVerified: true,

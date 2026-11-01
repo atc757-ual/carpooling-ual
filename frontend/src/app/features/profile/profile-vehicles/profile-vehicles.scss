@@ -1,4 +1,5 @@
-// Los vehículos en una lista sin tarjetas propias, separados por una línea fina
+// Mis vehículos: las tarjetas (shared/components/ui/vehicle-card) dentro de la
+// tarjeta del Perfil
 ion-card {
   margin: 0;
 }
@@ -7,7 +8,7 @@ ion-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--space-s);
+  gap: var(--space-base);
 
   p {
     margin: 0;
@@ -24,7 +25,10 @@ ion-card {
   gap: var(--space-s);
 }
 
+// Una mini tarjeta por vehículo: una por fila en el móvil y dos en escritorio
 .profile-vehicles__list {
+  display: grid;
+  gap: var(--space-s);
   width: 100%;
   margin: 0;
   padding: 0;
@@ -33,45 +37,42 @@ ion-card {
   &:empty {
     display: none;
   }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-.profile-vehicle {
+// Título a la izquierda y botón a la derecha: ion-card-header es una columna
+// (column-reverse en iOS). El título, con el tamaño común de las tarjetas
+.profile-vehicles__header {
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
   gap: var(--space-s);
-  min-height: 3rem; // 48px
-  padding-block: var(--space-xs);
+  padding: var(--space-base) var(--space-base) var(--space-s);
+  min-height: 3.5rem;
 
-  & + & {
-    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  // 18px también en escritorio (el tema sube a 20px): en el Perfil, títulos
+  // de 18px y ningún otro texto por encima de 16px
+  ion-card-title {
+    margin: 0;
+    font-size: 1.125rem; // 18px
   }
 
-  > ion-icon {
-    flex: none;
-    color: var(--color-text-muted);
-    font-size: 1.5rem; // 24px
+  form {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
   }
 }
 
-.profile-vehicle__body {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.profile-vehicles__swatch {
-  display: inline-block;
-  width: 0.7rem;
-  height: 0.7rem;
-  margin-inline-end: var(--space-xs);
-  border: var(--border-width-s) solid var(--color-border-strong);
-  border-radius: var(--radius-full);
-  background: var(--swatch-color);
-  vertical-align: -0.05rem;
-}
-
-.profile-vehicle__plate {
-  color: var(--color-text);
+// Registrar: solo un enlace, sin fondo
+.profile-vehicles__add {
+  --padding-start: var(--space-xs);
+  --padding-end: var(--space-xs);
+  margin: 0;
+  font-size: var(--font-size-body-s);
   font-weight: var(--font-weight-semibold);
 }

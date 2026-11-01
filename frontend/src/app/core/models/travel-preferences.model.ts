@@ -7,7 +7,8 @@ export type ConversationPreference = (typeof CONVERSATION_PREFERENCES)[number];
 export const MUSIC_PREFERENCES = ['any', 'soft', 'none'] as const;
 export type MusicPreference = (typeof MUSIC_PREFERENCES)[number];
 
-export const SMOKING_PREFERENCES = ['no', 'stops_only', 'allowed'] as const;
+// Sin «solo en paradas»: las paradas de un viaje compartido son muy cortas
+export const SMOKING_PREFERENCES = ['no', 'allowed'] as const;
 export type SmokingPreference = (typeof SMOKING_PREFERENCES)[number];
 
 export const PETS_PREFERENCES = ['none', 'small_carrier', 'pet_friendly'] as const;
@@ -44,9 +45,9 @@ export interface TravelPreferenceGroup<
 }
 
 export const CONVERSATION_OPTIONS: readonly TravelPreferenceOption<ConversationPreference>[] = [
-  { value: 'chatty', label: 'Me gusta charlar' },
+  { value: 'chatty', label: 'Charlar' },
   { value: 'depends', label: 'Según el día' },
-  { value: 'quiet', label: 'Prefiero ir tranquilo' },
+  { value: 'quiet', label: 'Ir tranquilo' },
 ];
 
 export const MUSIC_OPTIONS: readonly TravelPreferenceOption<MusicPreference>[] = [
@@ -56,14 +57,13 @@ export const MUSIC_OPTIONS: readonly TravelPreferenceOption<MusicPreference>[] =
 ];
 
 export const SMOKING_OPTIONS: readonly TravelPreferenceOption<SmokingPreference>[] = [
-  { value: 'no', label: 'No se fuma en el coche' },
-  { value: 'stops_only', label: 'Solo en paradas' },
-  { value: 'allowed', label: 'Se permite fumar' },
+  { value: 'no', label: 'No se fuma' },
+  { value: 'allowed', label: 'Se puede fumar' },
 ];
 
 export const PETS_OPTIONS: readonly TravelPreferenceOption<PetsPreference>[] = [
   { value: 'none', label: 'Sin mascotas' },
-  { value: 'small_carrier', label: 'Pequeñas en transportín' },
+  { value: 'small_carrier', label: 'En transportín' },
   { value: 'pet_friendly', label: 'Pet friendly' },
 ];
 

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { provideTestingTransloco } from '../../../core/i18n/testing-transloco';
 import { Vehicle } from '../../../core/models/driver.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
@@ -34,6 +35,21 @@ describe('ProfileVehicles', () => {
       imports: [ProfileVehicles],
       providers: [
         provideIonicAngular(),
+        provideTestingTransloco({
+          es: {
+            common: { retry: 'Reintentar' },
+            profile: {
+              vehicles: {
+                title: 'Mis vehículos',
+                register: 'Registrar vehículo',
+                empty: 'Aún no tienes vehículos. Registra uno para publicar viajes.',
+                multipleNote: 'Marca el que usas normalmente: saldrá elegido al publicar un viaje.',
+                loading: 'Cargando tus vehículos…',
+                error: 'No hemos podido cargar tus vehículos.',
+              },
+            },
+          },
+        }),
         { provide: DriverService, useValue: { listVehicles, deactivateVehicle } },
         { provide: AuthService, useValue: { hasProfile: () => true } },
         { provide: ToastService, useValue: { showError } },
@@ -60,9 +76,10 @@ describe('ProfileVehicles', () => {
       ]),
     );
 
-    expect(root.querySelectorAll('.profile-vehicle')).toHaveLength(2);
-    expect(root.textContent).toContain('Seat León · Blanco · hasta 3 pasajeros');
-    expect(root.textContent).not.toContain('9999BCD');
+    expect(root.querySelectorAll('app-vehicle-card')).toHaveLength(2);
+    expect(root.textContent).toContain('Seat León');
+    expect(root.textContent).toContain('Blanco · 3 plazas · Híbrido');
+    expect(root.textContent).not.toContain('9999 BCD');
   });
 
   it('invites to register one when there are none', async () => {

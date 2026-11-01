@@ -1,45 +1,316 @@
 <ion-content>
   <div class="tab-page profile">
     <div class="profile__layout">
+      <!-- Columna izquierda: Identidad/Bio, Preferencias, Reseñas y Mis vehículos -->
       <div class="profile__main">
         @if (user(); as user) {
-          <ion-card>
-            <ion-card-content class="profile__account">
-              <span class="profile__avatar" aria-hidden="true">{{ initials() }}</span>
-              <span class="profile__identity">
-                <span class="text-subtitle">{{ displayName() }}</span>
-                <span class="text-body-s text-color-muted">{{ user.email }}</span>
-                @if (phone(); as phone) {
-                  <span class="text-body-s text-color-muted">{{ phone }}</span>
+          <!-- Bloque 1: Identidad (Avatar / Nombre / Editar) -->
+          <ion-card class="profile-card profile-card--identity">
+            <ion-card-content class="profile-card__content">
+              <div class="profile__row-three">
+                <!-- 1. Avatar a la izquierda -->
+                <div class="profile__avatar" aria-hidden="true">
+                  @if (avatarGraphic.value(); as avatar) {
+                    <svg
+                      class="profile__avatar-svg"
+                      [attr.viewBox]="avatar.viewBox"
+                      [attr.fill]="avatar.fill"
+                      [attr.stroke]="avatar.stroke"
+                      [attr.stroke-width]="avatar.strokeWidth"
+                      [attr.stroke-linecap]="avatar.strokeLinecap"
+                      [attr.stroke-linejoin]="avatar.strokeLinejoin"
+                    >
+                      @for (shape of avatar.shapes; track $index) {
+                        @switch (shape.kind) {
+                          @case ('path') {
+                            <path [attr.d]="shape.d" />
+                          }
+                          @case ('circle') {
+                            <circle [attr.cx]="shape.cx" [attr.cy]="shape.cy" [attr.r]="shape.r" />
+                          }
+                          @case ('rect') {
+                            <rect
+                              [attr.x]="shape.x"
+                              [attr.y]="shape.y"
+                              [attr.width]="shape.width"
+                              [attr.height]="shape.height"
+                              [attr.rx]="shape.rx"
+                              [attr.ry]="shape.ry"
+                            />
+                          }
+                          @case ('polygon') {
+                            <polygon [attr.points]="shape.points" />
+                          }
+                        }
+                      }
+                    </svg>
+                  } @else {
+                    <span class="profile__avatar-initials">{{ initials() }}</span>
+                  }
+                </div>
+
+                <!-- 2. Nombre, correo y badge en el centro -->
+                <div class="profile__center-info">
+                  <span class="profile__name">{{ displayName() }}</span>
+                  <span class="text-body-s text-color-muted">{{ user.email }}</span>
+                </div>
+
+                <!-- 3. Icono de edición a la derecha -->
+                <div class="profile__edit-action">
+                  <form (submit)="$event.preventDefault(); handleEditPublic()">
+                    <ion-button
+                      type="submit"
+                      class="profile__edit"
+                      [attr.aria-label]="'profile.editInfo' | transloco"
+                    >
+                      <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
+                    </ion-button>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Sobre mí (corto si no hay) -->
+              <div class="profile__bio-section">
+                @if (user.bio) {
+                  <div class="profile__bio-box">
+                    <span class="text-caption text-color-muted profile__bio-title">{{
+                      'profile.aboutMe' | transloco
+                    }}</span>
+                    <p class="profile__bio-text">{{ user.bio }}</p>
+                  </div>
+                } @else {
+                  <p class="profile__bio-empty text-body text-color-muted">
+                    {{ 'profile.emptyBio' | transloco }}
+                  </p>
                 }
-              </span>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <!-- Bloque: Preferencias de viaje -->
+          <ion-card class="profile-card">
+            <ion-card-header class="profile-card__header">
+              <ion-card-title>{{ 'profile.travelPreferences' | transloco }}</ion-card-title>
+              <form (submit)="$event.preventDefault(); handleEditPreferences()">
+                <ion-button
+                  type="submit"
+                  class="profile__edit"
+                  [attr.aria-label]="'profile.editPreferences' | transloco"
+                >
+                  <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
+                </ion-button>
+              </form>
+            </ion-card-header>
+            <ion-card-content class="profile-card__content">
+              <div class="profile__pref-list">
+                @for (item of preferencesItems(); track item.criterion) {
+                  <div class="profile__pref-row">
+                    <span class="profile__pref-label text-body">
+                      <ion-icon [icon]="item.icon" aria-hidden="true" />
+                      {{ item.criterion }}
+                    </span>
+                    @if (item.value) {
+                      <span class="profile__pref-badge">{{ item.value }}</span>
+                    } @else {
+                      <span class="text-body-s text-color-muted">{{
+                        'profile.emptyPreferences' | transloco
+                      }}</span>
+                    }
+                  </div>
+                }
+                <div class="profile__pref-row">
+                  <span class="profile__pref-label text-body">
+                    <ion-icon [icon]="toleranceIcon" aria-hidden="true" />
+                    {{ 'profile.timeTolerance' | transloco }}
+                  </span>
+                  <span class="profile__pref-badge">{{ timeToleranceLabel() }}</span>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <!-- Bloque: Reseñas -->
+          <ion-card class="profile-card">
+            <ion-card-header class="profile-card__header">
+              <ion-card-title>{{ 'profile.reviews' | transloco }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content class="profile-card__content">
+              @for (row of reviewRows(); track row.role) {
+                <div class="profile__review-row">
+                  <span class="text-body text-body--strong">{{ row.role }}</span>
+                  <span class="text-body">
+                    <ion-icon class="profile__star" [icon]="starIcon" aria-hidden="true" />
+                    {{ row.average }}
+                    <span class="text-color-muted">· {{ row.count }}</span>
+                  </span>
+                </div>
+              } @empty {
+                <p class="text-body text-color-muted">
+                  {{ 'profile.emptyReviews' | transloco }}
+                  {{ 'profile.reviewsSubtitle' | transloco }}
+                </p>
+              }
             </ion-card-content>
           </ion-card>
         }
+
+        <!-- Vehículos -->
         <app-profile-vehicles />
       </div>
 
+      <!-- Columna derecha: Teléfono, Privacidad y Configuración -->
       <div class="profile__aside">
-        <ion-card>
-          <ion-card-header>
-            <ion-card-title>Privacidad</ion-card-title>
+        <!-- Bloque: Teléfono de contacto -->
+        <ion-card class="profile-card">
+          <ion-card-header class="profile-card__header">
+            <ion-card-title>{{ 'profile.contactPhone' | transloco }}</ion-card-title>
+            <!-- Sin verificar, «Verificar» (abre ya en el código SMS); verificado,
+                 editar -->
+            @if (isPhoneVerified()) {
+              <form (submit)="$event.preventDefault(); handleManagePhone()">
+                <ion-button
+                  type="submit"
+                  class="profile__edit"
+                  [attr.aria-label]="'profile.managePhone' | transloco"
+                >
+                  <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
+                </ion-button>
+              </form>
+            } @else {
+              <form (submit)="$event.preventDefault(); handleManagePhone(true)">
+                <ion-button type="submit" class="profile__verify" size="small">
+                  <ion-icon slot="start" [icon]="shieldIcon" aria-hidden="true" />
+                  {{ 'profile.verify' | transloco }}
+                </ion-button>
+              </form>
+            }
           </ion-card-header>
-          <ion-card-content class="profile__links">
-            <form (submit)="$event.preventDefault(); handleOpenLegal('terms')">
-              <ion-button type="submit" fill="clear" size="small">Condiciones de uso</ion-button>
-            </form>
-            <form (submit)="$event.preventDefault(); handleOpenLegal('privacy')">
-              <ion-button type="submit" fill="clear" size="small">
-                Política de privacidad
-              </ion-button>
-            </form>
+          <ion-card-content class="profile-card__content">
+            @if (phone(); as ph) {
+              <div class="profile__phone-row">
+                <span class="profile__phone-value">
+                  <ion-icon [icon]="phoneIcon" aria-hidden="true" />
+                  <span class="text-body text-body--strong">{{ ph }}</span>
+                </span>
+                @if (isPhoneVerified()) {
+                  <span class="status status--accepted">
+                    <ion-icon [icon]="shieldIcon" aria-hidden="true" />
+                    {{ 'profile.phoneVerified' | transloco }}
+                  </span>
+                } @else {
+                  <span class="status status--pending">
+                    <ion-icon [icon]="shieldIcon" aria-hidden="true" />
+                    {{ 'profile.phonePending' | transloco }}
+                  </span>
+                }
+              </div>
+            } @else {
+              <p class="text-body text-color-muted profile__empty-text">
+                {{ 'profile.emptyPhone' | transloco }}
+              </p>
+            }
           </ion-card-content>
         </ion-card>
-        <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
+
+        <!-- Bloque: Ubicación (consentimiento y permiso del dispositivo) -->
+        <app-profile-location />
+
+        <!-- Bloque: Privacidad (documentos legales y su aceptación) -->
+        <ion-card class="profile-card">
+          <ion-card-header class="profile-card__header">
+            <ion-card-title>{{ 'profile.privacy.title' | transloco }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content class="profile-card__content">
+            <!-- Documentos legales: fecha y código de la aceptación -->
+            <div class="profile__legal-list">
+              @for (doc of legalDocs(); track doc.id) {
+                <button type="button" class="profile__legal-row" (click)="handleOpenLegal(doc.id)">
+                  <ion-icon class="profile__legal-icon" [icon]="docIcon" aria-hidden="true" />
+                  <span class="profile__legal-text">
+                    <span class="text-body text-body--strong">{{ doc.title }}</span>
+                    @if (doc.acceptedAt) {
+                      <span class="profile__legal-status text-body-s">
+                        <ion-icon [icon]="checkmarkIcon" aria-hidden="true" />
+                        {{ 'profile.privacy.acceptedOn' | transloco: { date: doc.acceptedAt } }}
+                      </span>
+                      <span
+                        class="profile__legal-hash text-body-s text-color-muted"
+                        [title]="'profile.privacy.hashTitle' | transloco"
+                      >
+                        <ion-icon [icon]="lockIcon" aria-hidden="true" />
+                        <span class="visually-hidden">{{
+                          'profile.privacy.hashHidden' | transloco
+                        }}</span>
+                        {{ doc.fingerprint }}
+                      </span>
+                    }
+                  </span>
+                  <ion-icon
+                    class="profile__legal-chevron"
+                    [icon]="chevronIcon"
+                    aria-hidden="true"
+                  />
+                </button>
+              }
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Bloque: Configuración -->
+        <ion-card class="profile-card">
+          <ion-card-header class="profile-card__header">
+            <ion-card-title>{{ 'profile.settings' | transloco }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content class="profile-card__content">
+            <!-- Idioma -->
+            <div class="profile__setting-row">
+              <span class="text-body">{{ 'profile.language' | transloco }}</span>
+              <fieldset class="lang-switch" aria-label="Idioma de la app">
+                @for (lang of languages; track lang.id) {
+                  <button
+                    type="button"
+                    class="lang-pill"
+                    [class.lang-pill--active]="appLanguage() === lang.id"
+                    [attr.aria-pressed]="appLanguage() === lang.id"
+                    [attr.aria-label]="lang.label"
+                    (click)="handleSelectLanguage(lang.id)"
+                  >
+                    {{ lang.code }}
+                  </button>
+                }
+              </fieldset>
+            </div>
+
+            <!-- Tema con icono que cambia de color -->
+            <div class="profile__setting-row">
+              <span class="text-body">{{ 'profile.theme' | transloco }}</span>
+              <button
+                type="button"
+                class="theme-toggle-btn"
+                [attr.aria-label]="
+                  isDarkMode() ? 'Modo oscuro. Cambiar a claro' : 'Modo claro. Cambiar a oscuro'
+                "
+                (click)="handleToggleTheme()"
+              >
+                <ion-icon
+                  [icon]="isDarkMode() ? moonIcon : sunIcon"
+                  [class.icon-sun]="!isDarkMode()"
+                  [class.icon-moon]="isDarkMode()"
+                  aria-hidden="true"
+                />
+                <span class="text-body-s">{{
+                  (isDarkMode() ? 'profile.themeDark' : 'profile.themeLight') | transloco
+                }}</span>
+              </button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Cerrar sesión -->
         <form (submit)="$event.preventDefault(); handleLogout()">
           <ion-button class="profile__logout" type="submit" fill="outline" expand="block">
             <ion-icon slot="start" [icon]="logoutIcon" aria-hidden="true" />
-            Cerrar sesión
+            {{ 'profile.logout' | transloco }}
           </ion-button>
         </form>
       </div>

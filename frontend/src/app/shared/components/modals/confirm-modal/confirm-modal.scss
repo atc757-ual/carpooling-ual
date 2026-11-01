@@ -26,14 +26,11 @@
   font-size: 2rem; // 32px
 }
 
-.confirm--destructive .confirm__icon {
-  background: var(--color-danger-subtle);
-  color: var(--color-danger);
-}
-
+// Uno al lado del otro y del mismo ancho (también en el móvil), con el azul
+// (el primero) a la derecha, donde acaba la lectura: «Eliminar · Cancelar»
 .confirm__actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row-reverse;
   gap: var(--space-s);
   width: 100%;
   margin-top: var(--space-s);
@@ -41,10 +38,23 @@
   ion-button {
     margin: 0;
   }
+
+  form {
+    flex: 1;
+  }
 }
 
-// «Cancelar»: borde gris y texto normal, como en la guía
+// «Cancelar» cuando no es destructiva: borde gris y texto normal, como en la
+// guía
 .confirm__cancel {
   --border-color: var(--color-border-strong);
   --color: var(--color-text);
+}
+
+// La acción destructiva: blanca, con borde y letras azules (sin rojo: la
+// confirmación ya avisa, y lo seguro es el botón principal)
+.confirm__secondary {
+  --background: var(--color-surface);
+  --border-color: var(--color-primary);
+  --color: var(--color-link);
 }
