@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, Routes } from '@angular/router';
+import { appAreaGuard } from './core/guards/app-area.guard';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { profileGuard } from './core/guards/profile.guard';
@@ -66,7 +67,7 @@ export const routes: Routes = [
     // Mensajes y Perfil; sin sesión, authGuard lleva a la bienvenida o al
     // login). Avisos se abre con la campana de la cabecera
     path: 'tabs',
-    canActivate: [authGuard],
+    canActivate: [authGuard, appAreaGuard],
     loadComponent: () => import('./features/tabs/tabs.page').then((m) => m.TabsPage),
     children: [
       {

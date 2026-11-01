@@ -174,6 +174,15 @@ describe('TabsPage', () => {
     expect(header().querySelector('.bell-button')).toBeNull();
   });
 
+  it('shows the admin panel button only with the admin profile', () => {
+    profiles.set(['passenger']);
+    const page = render();
+    expect(page['isAdmin']()).toBe(false);
+
+    profiles.set(['passenger', 'admin']);
+    expect(page['isAdmin']()).toBe(true);
+  });
+
   it('logs out after confirming it and goes back to the welcome screen', async () => {
     const page = render();
     const navigateRoot = vi

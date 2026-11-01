@@ -69,5 +69,28 @@ for (const viewport of VIEWPORTS) {
 
       cy.location('pathname').should('eq', '/tabs/profile');
     });
+
+    it('logs an admin without other profiles into the panel and keeps them there', () => {
+      cy.intercept('POST', '/api/auth/login', accessToken(['admin']));
+      cy.visit('/auth/login');
+      cy.get('app-login ion-input[formControlName="email"] input').type('admin@ual.es');
+      cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
+      cy.contains('ion-button', 'Iniciar sesión').click();
+
+      cy.location('pathname').should('eq', '/admin/simulation');
+      visitWithSession('/tabs/publish', ['admin']);
+      cy.location('pathname').should('eq', '/admin/simulation');
+    });
+
+    it('offers going to the app only to admins who also travel', () => {
+      visitWithSession('/admin', ['admin']);
+      cy.get('#admin-account-trigger').click();
+      cy.get('ion-popover ion-item').should('have.length', 1).and('contain', 'Cerrar sesión');
+
+      visitWithSession('/admin', ['passenger', 'admin']);
+      cy.get('#admin-account-trigger').click();
+      cy.contains('ion-popover ion-item', 'Ir a la app').click();
+      cy.location('pathname').should('match', /^\/tabs/);
+    });
   });
 }

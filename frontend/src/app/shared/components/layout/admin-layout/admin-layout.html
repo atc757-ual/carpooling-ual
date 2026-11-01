@@ -2,11 +2,29 @@
   <div class="admin-header__bar">
     <a class="admin-header__brand" routerLink="/admin">UAL Carpool · Admin</a>
     <div class="admin-header__account">
-      <span class="admin-header__email">{{ email() }}</span>
-      <ion-button class="admin-header__logout" fill="clear" (click)="handleLogout()">
-        <ion-icon slot="start" [icon]="logoutIcon" aria-hidden="true" />
-        Cerrar sesión
+      <!-- Menú de la cuenta: volver a la app (si también conduce o viaja) y
+           cerrar sesión, que cierra las dos partes -->
+      <ion-button id="admin-account-trigger" class="admin-header__account-button" fill="clear">
+        <ion-icon slot="start" [icon]="accountIcon" aria-hidden="true" />
+        <span class="admin-header__email">{{ email() }}</span>
+        <ion-icon slot="end" [icon]="menuIcon" aria-hidden="true" />
       </ion-button>
+      <ion-popover trigger="admin-account-trigger" [dismissOnSelect]="true">
+        <ng-template>
+          <ion-list class="admin-account-menu" lines="none">
+            @if (canUseApp()) {
+              <ion-item button [detail]="false" (click)="handleGoToApp()">
+                <ion-icon slot="start" [icon]="appIcon" aria-hidden="true" />
+                <ion-label>Ir a la app</ion-label>
+              </ion-item>
+            }
+            <ion-item button [detail]="false" (click)="handleLogout()">
+              <ion-icon slot="start" [icon]="logoutIcon" aria-hidden="true" />
+              <ion-label>Cerrar sesión</ion-label>
+            </ion-item>
+          </ion-list>
+        </ng-template>
+      </ion-popover>
     </div>
     <nav class="admin-nav" aria-label="Secciones del panel">
       @for (section of sections; track section.path) {

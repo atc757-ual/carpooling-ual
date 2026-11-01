@@ -11,6 +11,8 @@ export const PUBLISH_PATH = '/tabs/publish';
 // Ruta de la pestaña Buscar, usada por sus enlaces directos
 export const SEARCH_PATH = '/tabs/search';
 export const PROFILE_PATH = '/tabs/profile';
+// Panel de administración (solo con el perfil de administrador)
+export const ADMIN_PATH = '/admin';
 
 // Parámetro con la página que se pedía, para volver a ella tras el login
 export const RETURN_URL_PARAM = 'returnUrl';

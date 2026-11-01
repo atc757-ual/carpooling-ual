@@ -12,6 +12,16 @@
       <span class="bell-button__unread-dot" aria-hidden="true"></span>
     }
   </ion-button>
+  @if (isAdmin()) {
+    <ion-button
+      class="admin-button"
+      fill="clear"
+      routerLink="/admin"
+      aria-label="Panel de administración"
+    >
+      <ion-icon slot="icon-only" [icon]="adminIcon" aria-hidden="true" />
+    </ion-button>
+  }
   <!-- La misma confirmación que en el Perfil -->
   <form (submit)="$event.preventDefault(); handleLogout()">
     <ion-button class="logout-button" type="submit" fill="clear" aria-label="Cerrar sesión">
