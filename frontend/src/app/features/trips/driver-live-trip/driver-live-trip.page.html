@@ -76,10 +76,52 @@
                         <span class="text-caption text-color-muted">
                           {{ formatSeats(request.seats) }}
                         </span>
+                        @if (request.boardedAt) {
+                          <span class="status status--success">En el coche</span>
+                        }
                       </div>
                       <span class="text-body-s">{{ pickupLabel(request) }}</span>
-                      @if (request.id === nextPickup()?.id) {
+                      @if (request.id === nextPickup()?.id && !request.boardedAt) {
                         <span class="status status--info">Siguiente recogida</span>
+                      }
+
+                      @if (!request.boardedAt) {
+                        <div class="driver-live-trip__board-actions">
+                          <input
+                            class="driver-live-trip__code-input"
+                            type="text"
+                            inputmode="numeric"
+                            maxlength="4"
+                            placeholder="Código"
+                            [value]="boardCode(request.id)"
+                            (input)="setBoardCode(request.id, $any($event.target).value)"
+                            aria-label="Código de recogida de 4 cifras"
+                          />
+                          <ion-button
+                            size="small"
+                            [disabled]="boardCode(request.id).length !== 4 || isValidatingBoard(request.id)"
+                            (click)="handleBoard(request.id)"
+                          >
+                            @if (isValidatingBoard(request.id)) {
+                              <ion-spinner name="crescent" slot="start" aria-hidden="true" />
+                            }
+                            Validar
+                          </ion-button>
+                          <ion-button
+                            size="small"
+                            fill="outline"
+                            color="danger"
+                            [disabled]="!canMarkNoShow(request)"
+                            (click)="handleNoShow(request.id)"
+                          >
+                            No se presentó
+                          </ion-button>
+                        </div>
+                        @if (!canMarkNoShow(request)) {
+                          <span class="text-caption text-color-muted">
+                            «No se presentó» disponible tras 5 min de espera ({{ noShowWaitMinutes(request) }} min restantes)
+                          </span>
+                        }
                       }
                     </li>
                   }

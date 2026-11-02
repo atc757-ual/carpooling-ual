@@ -11,11 +11,13 @@ import {
 } from '@ionic/angular';
 import { locationOutline } from 'ionicons/icons';
 import { map } from 'rxjs';
+import { ApiError } from '../../../core/models/api-error.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatTime } from '../../matching/trip-results';
 import { formatSeats } from '../driver-trip-card/driver-trip-card';
 import { finishTrip } from '../finish-trip.util';
@@ -88,7 +90,10 @@ export class DriverLiveTripPage {
   readonly nextPickup = computed(
     () =>
       this.passengers().find(
-        (request) => request.pickupLocation && pickupTime(request) + PICKUP_GRACE_MS >= this.now(),
+        (request) =>
+          request.pickupLocation &&
+          !request.boardedAt &&
+          pickupTime(request) + PICKUP_GRACE_MS >= this.now(),
       ) ?? null,
   );
 
@@ -97,6 +102,10 @@ export class DriverLiveTripPage {
   readonly isPageVisible = signal(true);
   protected readonly locationIcon = locationOutline;
   protected readonly formatSeats = formatSeats;
+
+  // Código de 4 cifras introducido para cada pasajero
+  private readonly boardCodeMap = signal<Record<string, string>>({});
+  private readonly validatingBoardMap = signal<Record<string, boolean>>({});
 
   constructor() {
     const timer = setInterval(() => this.now.set(Date.now()), CLOCK_UPDATE_MS);
@@ -116,6 +125,68 @@ export class DriverLiveTripPage {
 
   ionViewDidLeave(): void {
     this.isPageVisible.set(false);
+  }
+
+  boardCode(requestId: string): string {
+    return this.boardCodeMap()[requestId] ?? '';
+  }
+
+  setBoardCode(requestId: string, value: string): void {
+    const sanitized = value.replace(/\D/g, '').slice(0, 4);
+    this.boardCodeMap.update((current) => ({ ...current, [requestId]: sanitized }));
+  }
+
+  isValidatingBoard(requestId: string): boolean {
+    return !!this.validatingBoardMap()[requestId];
+  }
+
+  canMarkNoShow(request: SeatRequest): boolean {
+    const reference = request.pickupAt ? Date.parse(request.pickupAt) : this.trip() ? Date.parse(this.trip()!.departureAt) : 0;
+    return this.now() >= reference + PICKUP_GRACE_MS;
+  }
+
+  noShowWaitMinutes(request: SeatRequest): number {
+    const reference = request.pickupAt ? Date.parse(request.pickupAt) : this.trip() ? Date.parse(this.trip()!.departureAt) : 0;
+    const remainingMs = reference + PICKUP_GRACE_MS - this.now();
+    return Math.max(1, Math.ceil(remainingMs / 60000));
+  }
+
+  async handleBoard(requestId: string): Promise<void> {
+    const code = this.boardCode(requestId);
+    if (code.length !== 4) {
+      return;
+    }
+    this.validatingBoardMap.update((current) => ({ ...current, [requestId]: true }));
+    try {
+      await this.driver.boardPassenger(requestId, code);
+      void this.toast.showSuccess('¡Recogida validada! Pasajero a bordo.');
+      this.requests.reload();
+    } catch (error) {
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+    } finally {
+      this.validatingBoardMap.update((current) => ({ ...current, [requestId]: false }));
+    }
+  }
+
+  async handleNoShow(requestId: string): Promise<void> {
+    const confirmed = await this.confirm.ask({
+      header: '¿Marcar que no se presentó?',
+      message:
+        'Se liberará la plaza y se registrará como cancelación tardía del pasajero. Esta acción no se puede deshacer.',
+      confirmText: 'Marcar no presentado',
+      cancelText: 'Seguir esperando',
+      isDestructive: true,
+    });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await this.driver.markNoShow(requestId);
+      void this.toast.showSuccess('Pasajero marcado como no presentado.');
+      this.requests.reload();
+    } catch (error) {
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+    }
   }
 
   // «Recoger a las 09:12 · Av. del Mediterráneo»

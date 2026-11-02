@@ -34,7 +34,7 @@
           class="notice"
           [class.notice--warning]="request.status === 'pending'"
           [class.notice--success]="request.status === 'accepted'"
-          [class.notice--info]="request.status === 'rejected' || request.status === 'cancelled'"
+          [class.notice--info]="request.status === 'rejected' || request.status === 'cancelled' || request.status === 'expired'"
         >
           <span>
             @switch (request.status) {
@@ -47,12 +47,26 @@
                 Tu solicitud ha sido aceptada.
               }
               @case ('rejected') {
-                <b>{{ firstName(trip.driver.name) }} no pudo aceptar tu solicitud.</b>
-                No tienes plaza en este viaje.
+                @if (request.rejectionReason === 'trip_full') {
+                  <b>Esta vez no ha podido ser: viaje completo.</b>
+                  El viaje ha completado todas sus plazas disponibles.
+                } @else {
+                  <b>{{ firstName(trip.driver.name) }} no pudo aceptar tu solicitud.</b>
+                  No tienes plaza en este viaje.
+                }
+              }
+              @case ('expired') {
+                <b>Esta vez no ha podido ser: solicitud caducada.</b>
+                El conductor no respondió dentro del plazo de 30 minutos antes de la salida.
               }
               @case ('cancelled') {
-                <b>La solicitud está cancelada.</b>
-                Puedes buscar otro viaje si todavía necesitas plaza.
+                @if (request.rejectionReason === 'no_show') {
+                  <b>Cancelada: no te presentaste a tiempo.</b>
+                  El conductor marcó que no te presentaste en el punto de recogida tras 5 minutos de espera.
+                } @else {
+                  <b>La solicitud está cancelada.</b>
+                  Puedes buscar otro viaje si todavía necesitas plaza.
+                }
               }
             }
           </span>
@@ -78,6 +92,26 @@
               <app-trip-summary [summary]="summary" />
             </ion-card-content>
           </ion-card>
+        }
+
+        <!-- Código de recogida de 4 cifras (sólo para pasajero con plaza aceptada) -->
+        @if (request.status === 'accepted') {
+          <section class="passenger-request-detail__board-code" aria-labelledby="board-code-title">
+            <h2 id="board-code-title" class="text-subtitle">Código de recogida</h2>
+            <div class="passenger-request-detail__code-card">
+              @if (request.boardedAt) {
+                <div class="passenger-request-detail__boarded-badge">
+                  <span class="status status--success">¡Subida confirmada!</span>
+                  <p class="text-caption text-color-muted">Ya estás a bordo del vehículo.</p>
+                </div>
+              } @else if (request.boardCode) {
+                <div class="passenger-request-detail__code-digits">{{ request.boardCode }}</div>
+                <p class="text-caption text-color-muted">
+                  Indica este código de 4 cifras a {{ firstName(trip.driver.name) }} al subir al coche para validar tu recogida.
+                </p>
+              }
+            </div>
+          </section>
         }
 
         <!-- Mapa en tiempo real si el viaje está en curso -->
@@ -183,14 +217,20 @@
             </form>
           }
 
-          <!-- Si fue rechazada o cancelada: búsqueda con prioridad -->
-          @if (request.status === 'rejected' || request.status === 'cancelled') {
+          <!-- Si fue rechazada o cancelada o caducada: búsqueda con prioridad -->
+          @if (request.status === 'rejected' || request.status === 'cancelled' || request.status === 'expired') {
             <div class="passenger-request-detail__priority-search">
               <div class="passenger-request-detail__priority-card notice--info">
                 <ion-icon class="passenger-request-detail__priority-icon" [icon]="sparklesIcon" aria-hidden="true" />
                 <div class="passenger-request-detail__priority-text">
                   <p class="text-body-s text-body--strong">
-                    {{ request.status === 'rejected' ? 'Esta vez no ha podido ser' : 'El viaje ha sido cancelado' }}
+                    @if (request.status === 'expired') {
+                      Solicitud caducada
+                    } @else if (request.status === 'rejected') {
+                      Esta vez no ha podido ser
+                    } @else {
+                      El viaje ha sido cancelado
+                    }
                   </p>
                   <p class="text-caption text-color-muted">
                     No te preocupes. Puedes buscar otra opción manteniendo tus preferencias y tu próxima solicitud tendrá prioridad.

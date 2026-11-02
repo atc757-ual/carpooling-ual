@@ -20,6 +20,7 @@ describe('noticeFor', () => {
     ['request.created', 'published', DRIVER, 'request_received'],
     ['request.accepted', 'confirmed', PASSENGER, 'request_accepted'],
     ['request.rejected', 'published', PASSENGER, 'request_rejected'],
+    ['request.expired', 'published', PASSENGER, 'request_expired'],
     // Rechazada sola al iniciar el viaje
     ['request.rejected', 'in_progress', PASSENGER, 'request_rejected'],
     // El pasajero cancela antes del viaje (el viaje puede haberse reabierto)
@@ -38,4 +39,16 @@ describe('noticeFor', () => {
       });
     },
   );
+
+  it('notifies passenger with passenger_no_show when cancelled due to no_show', () => {
+    const trip = { driverId: DRIVER, status: 'in_progress' } as Trip;
+    const request = {
+      passengerId: PASSENGER,
+      rejectionReason: 'no_show',
+    } as SeatRequest;
+    expect(noticeFor('request.cancelled', request, trip)).toEqual({
+      recipientId: PASSENGER,
+      type: 'passenger_no_show',
+    });
+  });
 });

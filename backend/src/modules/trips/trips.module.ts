@@ -14,6 +14,7 @@ import { TripStatusService } from './trip-status.service';
 import { TripsController } from './trips.controller';
 import { TripStatsService } from './trip-stats.service';
 import { TripsService } from './trips.service';
+import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
 
 // Viajes (RF-04, RF-05, RF-11), sus rutas (RF-12, con OSRM) y las
 // cancelaciones tardías (que suspenden la publicación). Usa los
@@ -36,6 +37,7 @@ import { TripsService } from './trips.service';
     OsrmClient,
     LateCancellationsService,
     TripStatsService,
+    TripLifecycleScheduler,
   ],
   // Los usan las solicitudes de plaza (requests), el seguimiento (tracking:
   // lo que queda hasta el destino) y el matching (los candidatos); las
@@ -47,6 +49,7 @@ import { TripsService } from './trips.service';
     TripCandidatesService,
     LateCancellationsService,
     TripStatsService,
+    TripLifecycleScheduler,
   ],
 })
 export class TripsModule {}

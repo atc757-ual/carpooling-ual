@@ -37,6 +37,8 @@ export type DomainEventType =
   | 'request.accepted'
   | 'request.rejected'
   | 'request.cancelled'
+  | 'request.expired'
+  | 'request.boarded'
   // Incidencias (RF-23, CU-12)
   | 'incident.reported'
   | 'incident.reviewed'

@@ -16,6 +16,17 @@ export const LATE_CANCELLATION_LEAD_MIN = 30;
 // Publicar por defecto): deja margen para cancelar sin penalización
 export const MIN_DEPARTURE_LEAD_MIN = 60;
 
+// Antelación mínima para responder solicitudes antes de la salida (30 min);
+// si el conductor no responde antes, la solicitud caduca automáticamente
+export const REQUEST_RESPONSE_LEAD_MIN = 30;
+
+// Margen tras la hora pactada para cancelar automáticamente viajes que el
+// conductor no inició (15 min)
+export const UNSTARTED_TRIP_CANCEL_WINDOW_MIN = 15;
+
+// Margen de cortesía en el punto de recogida antes de poder marcar «No se presentó» (5 min)
+export const PICKUP_NO_SHOW_WAIT_MIN = 5;
+
 // Cancelaciones tardías (conductor y pasajero, la misma regla): con 3 en 30
 // días, 7 días sin publicar (conductor) o sin pedir plaza (pasajero)
 export const LATE_CANCELLATION_WINDOW_DAYS = 30;

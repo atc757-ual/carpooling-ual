@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { loadConfiguration } from './config/configuration';
@@ -28,6 +29,7 @@ import { UsersModule } from './modules/users/users.module';
       envFilePath: ['.env', '../.env'],
       load: [loadConfiguration],
     }),
+    ScheduleModule.forRoot(),
     // Conexión a PostgreSQL. "Async" porque necesita esperar a que ConfigService
     // haya leído DATABASE_URL del .env; NestJS se lo inyecta a useFactory
     TypeOrmModule.forRootAsync({

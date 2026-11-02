@@ -89,6 +89,29 @@
   gap: var(--space-xs) var(--space-s);
 }
 
+.driver-live-trip__board-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-s);
+  width: 100%;
+  margin-top: var(--space-xs);
+}
+
+.driver-live-trip__code-input {
+  width: 5.5rem;
+  padding: var(--space-xs) var(--space-s);
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.15rem;
+  text-align: center;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
 // Móvil: el botón siempre a la vista, sobre el fondo de la página
 .driver-live-trip__finish {
   position: sticky;

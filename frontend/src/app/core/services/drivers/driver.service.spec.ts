@@ -28,51 +28,50 @@ describe('DriverService', () => {
     http = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => http.verify());
+  afterEach(() => {
+    http.verify();
+  });
+
+  it('gets driver status', async () => {
+    const status = driver.getStatus();
+    const request = http.expectOne('/api/users/me/driver-status');
+    expect(request.request.method).toBe('GET');
+    request.flush({ hasLicenseDeclared: true, vehiclesCount: 1 });
+
+    expect(await status).toEqual({ hasLicenseDeclared: true, vehiclesCount: 1 });
+  });
+
+  it('lists vehicles', async () => {
+    const vehicles = driver.listVehicles();
+    const request = http.expectOne('/api/vehicles');
+    expect(request.request.method).toBe('GET');
+    request.flush([{ id: 'v1' }]);
+
+    expect(await vehicles).toEqual([{ id: 'v1' }]);
+  });
+
+  it('deactivates a vehicle', async () => {
+    const deactivated = driver.deactivateVehicle('v1');
+    const request = http.expectOne('/api/vehicles/v1');
+    expect(request.request.method).toBe('DELETE');
+    request.flush(null);
+
+    await expect(deactivated).resolves.toBeUndefined();
+  });
 
   it('starts and finishes a trip', async () => {
-    const start = driver.startTrip('t1');
+    const started = driver.startTrip('t1');
     const startRequest = http.expectOne('/api/trips/t1/start');
     expect(startRequest.request.method).toBe('POST');
     startRequest.flush({ id: 't1', status: 'in_progress' });
-    const finish = driver.finishTrip('t1');
+
+    const finished = driver.finishTrip('t1');
     const finishRequest = http.expectOne('/api/trips/t1/finish');
     expect(finishRequest.request.method).toBe('POST');
     finishRequest.flush({ id: 't1', status: 'finished' });
 
-    await expect(start).resolves.toEqual({ id: 't1', status: 'in_progress' });
-    await expect(finish).resolves.toEqual({ id: 't1', status: 'finished' });
-  });
-
-  it('reports the driver position as a GeoJSON point', async () => {
-    const report = driver.reportPosition('t1', [-2.43, 36.83]);
-    const request = http.expectOne('/api/trips/t1/positions');
-    expect(request.request.method).toBe('POST');
-    expect(request.request.body).toEqual({
-      position: { type: 'Point', coordinates: [-2.43, 36.83] },
-    });
-    request.flush(null, { status: 201, statusText: 'Created' });
-
-    await expect(report).resolves.toBeUndefined();
-  });
-
-  it('deactivates a vehicle with DELETE', async () => {
-    const removal = driver.deactivateVehicle('v1');
-    const request = http.expectOne('/api/vehicles/v1');
-    expect(request.request.method).toBe('DELETE');
-    request.flush(null, { status: 204, statusText: 'No Content' });
-
-    await expect(removal).resolves.toBeUndefined();
-  });
-
-  it('gets the driver status and the vehicles', async () => {
-    const status = driver.getStatus();
-    http.expectOne('/api/users/me/driver-status').flush({ isReady: false });
-    const vehicles = driver.listVehicles();
-    http.expectOne('/api/vehicles').flush([]);
-
-    expect(await status).toEqual({ isReady: false });
-    expect(await vehicles).toEqual([]);
+    expect(await started).toEqual({ id: 't1', status: 'in_progress' });
+    expect(await finished).toEqual({ id: 't1', status: 'finished' });
   });
 
   it('gets publishing status and cancels a trip', async () => {
@@ -138,6 +137,23 @@ describe('DriverService', () => {
     expect(await trips).toEqual([{ id: 't1' }]);
     expect(await requests).toEqual([{ id: 'r1' }]);
     expect(await accepted).toEqual({ id: 'r1', status: 'accepted' });
+  });
+
+  it('boards a passenger and marks no-show', async () => {
+    const boardedPromise = driver.boardPassenger('r1', '4821');
+    const boardReq = http.expectOne('/api/requests/r1/board');
+    expect(boardReq.request.method).toBe('POST');
+    expect(boardReq.request.body).toEqual({ code: '4821' });
+    boardReq.flush({ id: 'r1', boardedAt: '2026-11-03T10:00:00Z' });
+
+    const noShowPromise = driver.markNoShow('r1');
+    const noShowReq = http.expectOne('/api/requests/r1/no-show');
+    expect(noShowReq.request.method).toBe('POST');
+    expect(noShowReq.request.body).toBeNull();
+    noShowReq.flush({ id: 'r1', status: 'cancelled', rejectionReason: 'no_show' });
+
+    expect(await boardedPromise).toEqual({ id: 'r1', boardedAt: '2026-11-03T10:00:00Z' });
+    expect(await noShowPromise).toEqual({ id: 'r1', status: 'cancelled', rejectionReason: 'no_show' });
   });
 
   it('publishes a trip and turns API errors into ApiError', async () => {

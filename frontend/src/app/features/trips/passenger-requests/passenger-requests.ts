@@ -27,6 +27,7 @@ const STATUS_LABELS: Record<SeatRequestStatus, string> = {
   accepted: 'Confirmada',
   rejected: 'No aceptada',
   cancelled: 'Cancelada',
+  expired: 'Caducada',
 };
 
 export interface PassengerTrip {

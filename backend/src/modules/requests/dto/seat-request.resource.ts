@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString, Length, Matches } from 'class-validator';
 import { API_PREFIX } from '../../../app.setup';
 import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
 import { tripHref } from '../../trips/dto/trip.resource';
@@ -115,19 +116,62 @@ export class SeatRequestResource {
       'Plate of the vehicle, only once the request is accepted (to recognise the car)',
   })
   vehiclePlate: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'trip_full',
+    description:
+      'Explanatory reason when rejected (trip_full, expired) or cancelled (no_show)',
+  })
+  rejectionReason: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: '4821',
+    description:
+      '4-digit boarding code for pickup validation (visible to passenger)',
+  })
+  boardCode: string | null;
+
+  @ApiProperty({
+    type: String,
+    format: 'date-time',
+    nullable: true,
+    description: 'When the passenger boarded the vehicle',
+  })
+  boardedAt: string | null;
+}
+
+export class BoardSeatRequestDto {
+  @ApiProperty({
+    example: '4821',
+    description: 'Código de recogida de 4 cifras proporcionado por el pasajero',
+  })
+  @IsString()
+  @Length(4, 4)
+  @Matches(/^\d{4}$/, {
+    message: 'El código de recogida debe tener 4 cifras numéricas',
+  })
+  code: string;
 }
 
 export function requestHref(id: string): string {
   return `/${API_PREFIX}/requests/${id}`;
 }
 
-export function toSeatRequestResource({
-  request,
-  passengerName,
-  passengerAvatarKey,
-  passengerPreferences,
-  vehiclePlate,
-}: RequestView): SeatRequestResource {
+export function toSeatRequestResource(
+  {
+    request,
+    passengerName,
+    passengerAvatarKey,
+    passengerPreferences,
+    vehiclePlate,
+  }: RequestView,
+  currentUserId?: string,
+): SeatRequestResource {
+  const isPassenger = !currentUserId || currentUserId === request.passengerId;
   return {
     '@type': 'SeatRequest',
     id: request.id,
@@ -158,5 +202,8 @@ export function toSeatRequestResource({
     answeredAt: request.answeredAt?.toISOString() ?? null,
     cancelledAt: request.cancelledAt?.toISOString() ?? null,
     vehiclePlate,
+    rejectionReason: request.rejectionReason ?? null,
+    boardCode: isPassenger ? (request.boardCode ?? null) : null,
+    boardedAt: request.boardedAt?.toISOString() ?? null,
   };
 }

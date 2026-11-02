@@ -40,6 +40,7 @@ const REQUEST_STATUS_LABELS: Record<SeatRequestStatus, string> = {
   accepted: 'Aceptada',
   rejected: 'No aceptada',
   cancelled: 'Cancelada',
+  expired: 'Caducada',
 };
 // Solo en estos se piden y deciden plazas
 const OPEN_STATUSES: ReadonlySet<TripStatus> = new Set(['published', 'confirmed']);

@@ -50,6 +50,8 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `request.accepted`         | El conductor la acepta                                                         | `requests/request-changes.ts`         |
 | `request.rejected`         | La rechaza                                                                     | `requests/request-changes.ts`         |
 | `request.cancelled`        | Se cancela la solicitud                                                        | `requests/request-changes.ts`         |
+| `request.expired`          | Caduca automáticamente al faltar 30 min para la salida                         | `requests/request-changes.ts`         |
+| `request.boarded`          | El conductor valida la subida del pasajero con el código de 4 cifras           | `requests/requests.service.ts`        |
 | `incident.reported`        | Se registra una incidencia (sin su descripción)                                | `incidents/incidents.service.ts`      |
 | `incident.reviewed`        | Un administrador la revisa (sin la resolución)                                 | `incidents/incidents.service.ts`      |
 | `coverage.gap_reported`    | Una búsqueda cae fuera de la zona de servicio                                  | `places/places.service.ts`            |

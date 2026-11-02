@@ -7,6 +7,7 @@ export const REQUEST_STATUSES = [
   'accepted',
   'rejected',
   'cancelled',
+  'expired',
 ] as const;
 export type RequestStatus = (typeof REQUEST_STATUSES)[number];
 
@@ -14,13 +15,14 @@ export type RequestStatus = (typeof REQUEST_STATUSES)[number];
 // memoria, en una única tabla. Cualquier otra se rechaza (RNF-10). Una
 // solicitud aceptada "termina" cuando termina el viaje, sin cambiar de estado
 const ALLOWED_TRANSITIONS: Record<RequestStatus, readonly RequestStatus[]> = {
-  // el conductor acepta | el conductor rechaza | el pasajero cancela
-  pending: ['accepted', 'rejected', 'cancelled'],
-  // el pasajero cancela (devuelve la plaza)
+  // el conductor acepta | el conductor rechaza | el pasajero cancela | caduca por falta de respuesta
+  pending: ['accepted', 'rejected', 'cancelled', 'expired'],
+  // el pasajero cancela (devuelve la plaza) o el conductor marca no presentado
   accepted: ['cancelled'],
   // estados terminales
   rejected: [],
   cancelled: [],
+  expired: [],
 };
 
 // Solicitudes "vivas": ocupan o pueden ocupar una plaza

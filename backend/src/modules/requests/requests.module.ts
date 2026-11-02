@@ -12,6 +12,7 @@ import { RequestsController } from './requests.controller';
 import { RequestViewsService } from './request-views.service';
 import { RequestStatsService } from './request-stats.service';
 import { RequestsService } from './requests.service';
+import { RequestLifecycleScheduler } from './request-lifecycle.scheduler';
 import { TripChangesListener } from './trip-changes.listener';
 
 // Solicitudes de plaza (RF-08 a RF-10). Depende de trips (plazas y estado del
@@ -35,9 +36,10 @@ import { TripChangesListener } from './trip-changes.listener';
     RequestOverlapService,
     RequestAcceptanceListener,
     TripChangesListener,
+    RequestLifecycleScheduler,
   ],
   // Lo usan las incidencias (el pasajero abandona un viaje en curso) y el
   // panel de administración (los recuentos)
-  exports: [RequestsService, RequestStatsService],
+  exports: [RequestsService, RequestStatsService, RequestLifecycleScheduler],
 })
 export class RequestsModule {}
