@@ -10,7 +10,7 @@
       (click)="handleSelect(language.id)"
     >
       <span class="language-switch__flag fi fi-{{ language.flag }}" aria-hidden="true"></span>
-      {{ language.code }}
+      <span class="visually-hidden">{{ language.code }}</span>
     </button>
   }
 </fieldset>

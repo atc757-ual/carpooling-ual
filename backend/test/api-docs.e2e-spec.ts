@@ -105,6 +105,7 @@ describe('API docs (e2e)', () => {
       '/api/users/me',
       '/api/users/me/account-deletion',
       '/api/users/me/account-deletion/confirm',
+      '/api/users/me/account-deletion/verify',
       '/api/users/me/active-mode',
       '/api/users/me/consents',
       '/api/users/me/consents/location',

@@ -9,6 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Fixed
+- **Frontend:** las etiquetas «Pendiente» se leen bien (texto ámbar oscuro, contraste AA) y el teléfono sin verificar lleva un reloj; los textos de eliminar la cuenta ya no prometen borrar los datos ni cancelar los viajes (#154).
 - **Frontend:** el mapa en vivo del pasajero nombra a su conductor (antes ponía siempre «Lucía») (#144).
 - **Frontend:** al entrar en la app (iniciar sesión, abrirla o «Entrar a la app» tras el registro) se abre siempre Buscar; quien solo es conductor entra en Publicar (#139).
 - **Frontend:** cerrar sesión descarta las pantallas de la cuenta anterior y Publicar abre limpio para cualquier perfil (#120).
@@ -20,6 +21,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 - **Backend:** resumen en vivo y eventos para la pantalla del Gemelo Digital del panel: `GET /api/admin/overview` (viajes publicados hoy en la hora del campus, en curso, plazas ofrecidas y ocupadas y solicitudes pendientes) y `GET /api/admin/events` (paginado, con filtro por tipo, sin el payload) y `/{id}` (con el payload), solo para administradores (#155).
+- **Frontend:** confirmar la identidad con un código al correo, igual en «Cambiar contraseña» y «Eliminar cuenta» (`app-identity-check`): enviar el código, comprobarlo al completarlo y reenviarlo; al eliminar, las condiciones en una tarjeta gris, el aviso final en rojo y «Mantener mi cuenta» con aviso verde y confeti. Configuración (idioma y tema) en la columna estrecha del Perfil, con una línea de ayuda (#154).
+- **Backend:** `POST /api/users/me/account-deletion/verify` comprueba el código de baja sin gastarlo, y pedir el código responde ya `409 ACCOUNT_HAS_ACTIVE_TRIPS` si hay viajes activos (antes solo al confirmar) (#154).
 - **Backend:** sobre común de los eventos (DP-05): `events.sequence` (creciente y única, en el orden de guardado; los existentes se numeran por fecha) y `events.version` (versión del contrato de cada tipo, `event-versions.ts`), `EventsService.readAfter` para leerlos en orden y el contrato documentado en `docs/api/events.md`, con un test que lo mantiene al día (#153).
 - **Frontend:** simulación de escenarios en el panel de administración (`/admin/simulation`): configurar y lanzar un escenario frente a S0 (réplicas y semilla), progreso consultado cada 2 s con cancelación, resultados con el criterio de éxito, tarjetas de KPI con su IC del 95 % y gráfica de barras por franja en SVG propio (`app-slot-chart`), exportación a CSV e historial de ejecuciones (#152).
 - **Frontend:** incidencias en el panel de administración (`/admin/incidents`): abiertas por defecto, filtros por estado y categoría en la URL, tarjetas con la gravedad en el borde y «Marcar revisada» con su resolución; detalle (`/admin/incidents/:id`) con el informe, el viaje y enlaces a las fichas de las personas implicadas. `app-reason-confirm-modal` admite otra etiqueta y otro máximo para el campo (#149).

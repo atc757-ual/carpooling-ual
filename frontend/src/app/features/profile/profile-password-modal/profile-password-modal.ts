@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
@@ -18,32 +18,37 @@ import {
   IonToolbar,
   ModalController,
 } from '@ionic/angular';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
-  checkmarkCircle,
+  alertCircleOutline,
+  checkmarkCircleOutline,
   close,
   eyeOffOutline,
   eyeOutline,
   lockClosedOutline,
-  mailOutline,
 } from 'ionicons/icons';
-import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { CodeInput } from '../../../shared/components/ui/code-input/code-input';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
-import { createCountdown, getResendLabel } from '../../../shared/utils/countdown.util';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { IdentityCheck } from '../identity-check/identity-check';
+import { NEW_PASSWORD_VALIDATORS } from '../../../shared/utils/password.util';
 
-const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_MAX_LENGTH = 72;
-const RESEND_WAIT_SECONDS = 60;
+// Si el código caduca o se anula antes de guardar, hay que pedir otro
+const CODE_ERRORS: ReadonlySet<string> = new Set([
+  'INVALID_VERIFICATION_CODE',
+  'TOO_MANY_ATTEMPTS',
+]);
 
 function matchesPassword(confirmation: AbstractControl<string>): ValidationErrors | null {
   const password = confirmation.parent?.get('password')?.value as string | undefined;
   return confirmation.value && confirmation.value !== password ? { passwordMismatch: true } : null;
 }
 
+// Cambiar la contraseña con la sesión abierta: confirmar la identidad con un
+// código al correo (IdentityCheck) y elegir la nueva. Se abre con
+// ModalController; cierra con el rol 'saved' o 'cancel'
 @Component({
   selector: 'app-profile-password-modal',
   imports: [
@@ -57,50 +62,36 @@ function matchesPassword(confirmation: AbstractControl<string>): ValidationError
     IonTitle,
     IonToolbar,
     TranslocoPipe,
-    CodeInput,
     IonicFormStatus,
+    IdentityCheck,
   ],
   templateUrl: './profile-password-modal.html',
   styleUrl: './profile-password-modal.scss',
 })
-export class ProfilePasswordModal implements OnInit {
+export class ProfilePasswordModal {
   private readonly auth = inject(AuthService);
   private readonly modalController = inject(ModalController);
   private readonly toast = inject(ToastService);
-  private readonly fb = inject(NonNullableFormBuilder);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly transloco = inject(TranslocoService);
 
-  readonly user = this.auth.currentUser;
-  readonly email = computed(() => this.user()?.email ?? '');
-
-  readonly step = signal<'code' | 'password'>('code');
-  readonly isSendingCode = signal(false);
-  readonly isVerifyingCode = signal(false);
+  // El código ya comprobado; sin él, se está confirmando la identidad
+  readonly verifiedCode = signal<string | null>(null);
+  readonly errorMessage = signal<string | null>(null);
   readonly isSubmitting = signal(false);
   readonly isPasswordVisible = signal(false);
   readonly isConfirmVisible = signal(false);
 
-  private readonly resendCountdown = createCountdown(RESEND_WAIT_SECONDS, this.destroyRef);
-  readonly secondsToResend = this.resendCountdown.seconds;
-  readonly resendLabel = computed(() => getResendLabel(this.secondsToResend()));
-
-  readonly form = this.fb.group({
-    code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
-    password: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(PASSWORD_MIN_LENGTH),
-        Validators.maxLength(PASSWORD_MAX_LENGTH),
-      ],
-    ],
+  readonly form = inject(NonNullableFormBuilder).group({
+    password: ['', NEW_PASSWORD_VALIDATORS],
     confirmation: ['', [Validators.required, matchesPassword]],
   });
 
+  readonly requestCode = () => this.auth.requestPasswordChangeCode();
+  readonly verifyCode = (code: string) => this.auth.verifyPasswordChangeCode(code);
   protected readonly closeIcon = close;
   protected readonly lockIcon = lockClosedOutline;
-  protected readonly mailIcon = mailOutline;
-  protected readonly checkmarkIcon = checkmarkCircle;
+  protected readonly checkIcon = checkmarkCircleOutline;
+  protected readonly alertIcon = alertCircleOutline;
   protected readonly eyeIcon = eyeOutline;
   protected readonly eyeOffIcon = eyeOffOutline;
 
@@ -110,59 +101,29 @@ export class ProfilePasswordModal implements OnInit {
       .subscribe(() => this.form.controls.confirmation.updateValueAndValidity());
   }
 
-  ngOnInit(): void {
-    void this.handleRequestCode();
-  }
-
-  async handleRequestCode(): Promise<void> {
-    this.isSendingCode.set(true);
-    try {
-      await this.auth.requestPasswordChangeCode();
-      this.resendCountdown.restart();
-    } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
-    } finally {
-      this.isSendingCode.set(false);
-    }
-  }
-
-  async handleResendCode(): Promise<void> {
-    if (this.secondsToResend() > 0 || this.isSendingCode()) {
-      return;
-    }
-    await this.handleRequestCode();
-  }
-
-  async handleVerifyCode(): Promise<void> {
-    const code = this.form.controls.code.value;
-    if (code.length !== 6) {
-      return;
-    }
-    this.isVerifyingCode.set(true);
-    try {
-      await this.auth.verifyPasswordChangeCode(code);
-      this.step.set('password');
-    } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
-    } finally {
-      this.isVerifyingCode.set(false);
-    }
+  handleVerified(code: string): void {
+    this.verifiedCode.set(code);
   }
 
   async handleSubmit(): Promise<void> {
-    if (this.form.invalid) {
-      this.form.controls.password.markAsTouched();
-      this.form.controls.confirmation.markAsTouched();
+    const code = this.verifiedCode();
+    if (this.form.invalid || code === null) {
+      this.form.markAllAsTouched();
       return;
     }
+    this.errorMessage.set(null);
     this.isSubmitting.set(true);
     try {
-      const { code, password } = this.form.getRawValue();
-      await this.auth.changePassword(code, password);
-      void this.toast.showSuccess('Contraseña actualizada.');
+      await this.auth.changePassword(code, this.form.controls.password.value);
+      void this.toast.showSuccess(this.transloco.translate('profile.passwordModal.saved'));
       await this.modalController.dismiss(null, 'saved');
     } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      const apiError = ApiError.fromHttpError(error);
+      this.errorMessage.set(getErrorMessage(apiError));
+      // El código ya no vale: vuelta a pedir otro
+      if (CODE_ERRORS.has(apiError.code)) {
+        this.verifiedCode.set(null);
+      }
     } finally {
       this.isSubmitting.set(false);
     }

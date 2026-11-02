@@ -1,5 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonButton,
@@ -11,22 +10,31 @@ import {
   IonToolbar,
   ModalController,
 } from '@ionic/angular';
-import { alertCircleOutline, close, mailOutline, warningOutline } from 'ionicons/icons';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { alertCircleOutline, close, heartOutline, warningOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { UsersService } from '../../../core/services/users/users.service';
+import { CelebrationService } from '../../../core/services/ui/celebration.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { CodeInput } from '../../../shared/components/ui/code-input/code-input';
-import { createCountdown, getResendLabel } from '../../../shared/utils/countdown.util';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { IdentityCheck } from '../identity-check/identity-check';
 
-const RESEND_WAIT_SECONDS = 60;
+// Si el código caduca o se anula antes de confirmar, hay que pedir otro
+const CODE_ERRORS: ReadonlySet<string> = new Set([
+  'INVALID_VERIFICATION_CODE',
+  'TOO_MANY_ATTEMPTS',
+]);
 
+// Eliminar la cuenta: confirmar la identidad con un código al correo
+// (IdentityCheck; con viajes activos el backend avisa ya al pedirlo) y, en
+// rojo, lo que supone, la despedida y «Eliminar definitivamente» o «Mantener
+// mi cuenta». Al eliminarla, cierra la sesión y vuelve a la bienvenida. Se
+// abre con ModalController; cierra con el rol 'deleted', 'kept' (se queda:
+// aviso y confeti) o 'cancel'
 @Component({
   selector: 'app-profile-delete-modal',
   imports: [
-    ReactiveFormsModule,
     IonButton,
     IonButtons,
     IonHeader,
@@ -35,7 +43,7 @@ const RESEND_WAIT_SECONDS = 60;
     IonTitle,
     IonToolbar,
     TranslocoPipe,
-    CodeInput,
+    IdentityCheck,
   ],
   templateUrl: './profile-delete-modal.html',
   styleUrl: './profile-delete-modal.scss',
@@ -46,74 +54,62 @@ export class ProfileDeleteModal {
   private readonly modalController = inject(ModalController);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
-  private readonly fb = inject(NonNullableFormBuilder);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly transloco = inject(TranslocoService);
+  private readonly celebration = inject(CelebrationService);
 
-  readonly user = this.auth.currentUser;
-  readonly email = computed(() => this.user()?.email ?? '');
-
-  readonly codeSent = signal(false);
-  readonly isSendingCode = signal(false);
-  readonly isConfirming = signal(false);
+  // El código ya comprobado; sin él, se está confirmando la identidad
+  readonly verifiedCode = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
+  readonly isDeleting = signal(false);
 
-  private readonly resendCountdown = createCountdown(RESEND_WAIT_SECONDS, this.destroyRef);
-  readonly secondsToResend = this.resendCountdown.seconds;
-  readonly resendLabel = computed(() => getResendLabel(this.secondsToResend()));
-
-  readonly form = this.fb.group({
-    code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
-  });
-
+  readonly requestCode = () => this.usersService.requestAccountDeletion();
+  readonly verifyCode = (code: string) => this.usersService.verifyAccountDeletionCode(code);
+  // Lo que hay que cumplir para darse de baja (el backend lo comprueba al
+  // pedir el código: ACCOUNT_HAS_ACTIVE_TRIPS)
+  protected readonly requirementKeys = [
+    'profile.deleteModal.requirementDriver',
+    'profile.deleteModal.requirementPassenger',
+    'profile.deleteModal.requirementPending',
+  ];
   protected readonly closeIcon = close;
   protected readonly warningIcon = warningOutline;
+  protected readonly heartIcon = heartOutline;
   protected readonly alertIcon = alertCircleOutline;
-  protected readonly mailIcon = mailOutline;
 
-  async handleRequestCode(): Promise<void> {
-    this.isSendingCode.set(true);
-    this.errorMessage.set(null);
-    try {
-      await this.usersService.requestAccountDeletion();
-      this.codeSent.set(true);
-      this.resendCountdown.restart();
-    } catch (error) {
-      const msg = getErrorMessage(ApiError.fromHttpError(error));
-      this.errorMessage.set(msg);
-      void this.toast.showError(msg);
-    } finally {
-      this.isSendingCode.set(false);
-    }
+  handleVerified(code: string): void {
+    this.verifiedCode.set(code);
   }
 
-  async handleResendCode(): Promise<void> {
-    if (this.secondsToResend() > 0 || this.isSendingCode()) {
+  async handleDelete(): Promise<void> {
+    const code = this.verifiedCode();
+    if (code === null || this.isDeleting()) {
       return;
     }
-    await this.handleRequestCode();
-  }
-
-  async handleConfirmDeletion(): Promise<void> {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-    this.isConfirming.set(true);
     this.errorMessage.set(null);
+    this.isDeleting.set(true);
     try {
-      const { code } = this.form.getRawValue();
       await this.usersService.confirmAccountDeletion(code);
       await this.modalController.dismiss(null, 'deleted');
       await this.auth.logout();
       await this.router.navigateByUrl('/auth/welcome');
-      void this.toast.showSuccess('Cuenta eliminada.');
+      void this.toast.showSuccess(this.transloco.translate('profile.deleteModal.deleted'));
     } catch (error) {
-      const msg = getErrorMessage(ApiError.fromHttpError(error));
-      this.errorMessage.set(msg);
-      void this.toast.showError(msg);
+      const apiError = ApiError.fromHttpError(error);
+      this.errorMessage.set(getErrorMessage(apiError));
+      // El código ya no vale: vuelta a pedir otro
+      if (CODE_ERRORS.has(apiError.code)) {
+        this.verifiedCode.set(null);
+      }
     } finally {
-      this.isConfirming.set(false);
+      this.isDeleting.set(false);
     }
+  }
+
+  // «Mantener mi cuenta»: se celebra que se queda (aviso verde y confeti)
+  async handleKeep(): Promise<void> {
+    await this.modalController.dismiss(null, 'kept');
+    void this.toast.showSuccess(this.transloco.translate('profile.deleteModal.kept'));
+    void this.celebration.celebrate();
   }
 
   close(): void {

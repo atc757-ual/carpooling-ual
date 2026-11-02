@@ -90,6 +90,7 @@
     --color-on-success: #ffffff;
     --color-warning: #916802;
     --color-warning-subtle: #fef9ec;
+    --color-warning-text: #916802; /* texto ámbar legible (AA) sobre el fondo suave */
     --color-on-warning: #ffffff;
     --color-danger: #db110a;
     --color-danger-subtle: #fef4f3;
@@ -141,6 +142,7 @@
     --color-on-success: #0c0c0c;
     --color-warning: #fbeabb;
     --color-warning-subtle: #453101;
+    --color-warning-text: #fbeabb;
     --color-on-warning: #0c0c0c;
     --color-danger: #f1665a;
     --color-danger-subtle: #5e0603;
@@ -288,7 +290,7 @@
   .badge-verified { display: inline-flex; align-items: center; gap: var(--space-xs); padding: 0.125rem var(--space-s); border-radius: var(--radius-full); background: var(--color-success-subtle); color: var(--color-success); font-size: var(--font-size-meta); line-height: var(--line-height-meta); font-weight: 600; }
   .badge-verified svg { width: 0.875rem; height: 0.875rem; }
   .status { display: inline-flex; align-items: center; gap: var(--space-xs); padding: 0.125rem var(--space-s); border-radius: var(--radius-full); font-size: var(--font-size-meta); line-height: var(--line-height-meta); font-weight: 600; }
-  .status--pending { background: var(--color-warning-subtle); color: var(--color-warning); }
+  .status--pending { background: var(--color-warning-subtle); color: var(--color-warning-text); }
   .status--accepted { background: var(--color-success-subtle); color: var(--color-success); }
   .status--rejected { background: var(--color-info-subtle); color: var(--color-info); }
   .status--cancelled { background: var(--color-surface-subtle); color: var(--color-text); }
@@ -644,7 +646,7 @@
         <p class="note">El modelo se escribe a mano. Color y motor usan el ion-select estándar con popover de Ionic, como en Publicar y Buscar. El valor elegido muestra una muestra de color o el icono del motor. El foco se mantiene azul.</p>
       </div>
     </div>
-    <p class="note"><b>Tarjeta de agradecimiento (al terminar un flujo, p. ej. «Gracias por compartir tu coche»):</b> blanca como las demás, con un borde inferior verde (<code>--color-eco</code>) de 0,25rem; en la cabecera, el icono en un círculo verde claro de 2,5rem y el título a su lado; debajo, una frase en gris y los puntos con un ✓ verde en vez de viñeta. Acompaña a un confeti verde (<code>canvas-confetti</code>, solo al publicar y sin él si el sistema pide menos movimiento). Una sola por pantalla.</p>
+    <p class="note"><b>Tarjeta de agradecimiento (al terminar un flujo, p. ej. «Gracias por compartir tu coche»):</b> blanca como las demás, con un borde inferior verde (<code>--color-eco</code>) de 0,25rem; en la cabecera, el icono en un círculo verde claro de 2,5rem y el título a su lado; debajo, una frase en gris y los puntos con un ✓ verde en vez de viñeta. Acompaña a un confeti verde (<code>canvas-confetti</code>, solo al publicar un viaje y al elegir «Mantener mi cuenta» en la baja, con el aviso verde «¡Gracias por seguir con nosotros!»; sin él si el sistema pide menos movimiento). Una sola por pantalla.</p>
 
     <h3>Barra de pestañas</h3>
     <p class="note">Cinco destinos fijos, en este orden: Buscar · Publicar · Tus viajes · Mensajes · Perfil. En el móvil, abajo, con icono y nombre; desde 48rem, en el menú superior. La activa, en azul y en negrita, sobre un fondo azul muy claro (<code>--color-primary-subtle</code>, #f3f5ff) con esquinas de 8px (pastilla). En el menú superior no hay fondo ni esquinas: la activa va en azul, en negrita y con una raya de marca de 4px en el borde inferior; al pasar el ratón por las demás no cambia nada. Al entrar se abre Buscar. La estructura de cada pantalla, en <a href="#navegacion">10. Navegación</a>.</p>
@@ -940,6 +942,9 @@
       <div class="field field--focus"><span class="field__label">Motivo obligatorio</span><div class="field__control"><input value="Revisión de documentación." aria-label="Motivo obligatorio"></div></div>
       <div style="display:flex;gap:var(--space-s)"><button class="btn btn--outline" style="flex:1" type="button">Desactivar</button><button class="btn btn--primary" style="flex:1" type="button">Cancelar</button></div>
     </div>
+
+    <h3>Confirmar la identidad con un código (modales del Perfil)</h3>
+    <p class="note">Cambiar la contraseña y eliminar la cuenta usan los mismos pasos (<code>app-identity-check</code>), separados con <code>--space-base</code>: 1) aviso azul «Confirma que eres tú · Te enviaremos un código a tu correo para comprobar que eres tú.» y «Enviar código» (sin el correo: no aporta); si hay condiciones, debajo en una tarjeta gris con su título («Antes de eliminar tu cuenta») y una lista. 2) Aviso azul «Te hemos enviado un código de 6 dígitos a tu correo.», las 6 casillas centradas con la etiqueta alineada con la primera, se comprueba solo al completarlo, «¿No te llega? Revisa el correo no deseado.» y «Reenviar código en 00:42»; tras 3 fallos, «Enviar un código nuevo». 3) El paso propio de cada modal. Los avisos informativos de los modales van siempre en azul claro y los errores en rojo; el único aviso rojo informativo es el último paso de eliminar la cuenta («Al eliminar tu cuenta…»), con la despedida debajo y «Eliminar definitivamente» (blanco, borde y texto rojos) y «Mantener mi cuenta» (azul).</p>
 
     <h3>Avisos en la página</h3>
     <div class="grid">

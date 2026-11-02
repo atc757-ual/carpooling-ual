@@ -791,7 +791,7 @@
     },
     "/api/users/me/account-deletion": {
       "post": {
-        "description": "Sends a 6-digit confirmation code by email to the authenticated user (purpose account_deletion, valid for 15 minutes, at most one code per minute).",
+        "description": "Sends a 6-digit confirmation code by email to the authenticated user (purpose account_deletion, valid for 15 minutes, at most one code per minute). Fails first if the user has trips in progress or pending (ACCOUNT_HAS_ACTIVE_TRIPS).",
         "operationId": "AccountDeletionController_requestCode",
         "parameters": [],
         "responses": {
@@ -818,6 +818,16 @@
               }
             }
           },
+          "409": {
+            "description": "TMF630 error: ACCOUNT_HAS_ACTIVE_TRIPS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
           "500": {
             "description": "TMF630 error: INTERNAL_ERROR",
             "content": {
@@ -835,6 +845,94 @@
           }
         ],
         "summary": "Send a 6-digit email code to delete my account",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/me/account-deletion/verify": {
+      "post": {
+        "description": "Checks if the 6-digit email code is valid for account deletion without consuming it.",
+        "operationId": "AccountDeletionController_verifyCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmAccountDeletionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Code is valid"
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED, INVALID_VERIFICATION_CODE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TMF630 error: TOO_MANY_ATTEMPTS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Verify a 6-digit email code for account deletion without deleting",
         "tags": [
           "users"
         ]

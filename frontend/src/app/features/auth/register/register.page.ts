@@ -52,12 +52,11 @@ import {
   splitPhone,
 } from '../../../shared/utils/phone.util';
 import { getUalEmailErrorKey, ualEmailValidator } from '../../../shared/utils/ual-email.util';
+import { NEW_PASSWORD_VALIDATORS } from '../../../shared/utils/password.util';
 
 // Mismos límites que la API (POST /api/auth/register)
 const VERIFY_PATH = '/auth/verify';
 const NAME_MAX_LENGTH = 100;
-const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_MAX_LENGTH = 72;
 
 // Crear la cuenta (RF-01, RF-27) con el correo de la UAL, el teléfono y la
 // aceptación de las normas. El registro no abre la sesión: después se
@@ -102,14 +101,7 @@ export class RegisterPage {
     phonePrefix: [SPANISH_PREFIX],
     phone: ['', [Validators.required, phoneNumberValidator('phonePrefix')]],
     email: ['', [Validators.required, Validators.email, ualEmailValidator()]],
-    password: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(PASSWORD_MIN_LENGTH),
-        Validators.maxLength(PASSWORD_MAX_LENGTH),
-      ],
-    ],
+    password: ['', NEW_PASSWORD_VALIDATORS],
     acceptedTerms: [false, Validators.requiredTrue],
   });
   readonly isSubmitting = signal(false);

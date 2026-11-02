@@ -29,6 +29,13 @@ describe('createCountdown', () => {
     expect(countdown.seconds()).toBe(0);
   });
 
+  it('starts ticking from initialSeconds if provided', () => {
+    const countdown = createCountdown(60, fakeDestroyRef().ref, 25);
+    expect(countdown.seconds()).toBe(25);
+    vi.advanceTimersByTime(1000);
+    expect(countdown.seconds()).toBe(24);
+  });
+
   it('starts again from the beginning', () => {
     const countdown = createCountdown(3, fakeDestroyRef().ref);
     countdown.restart();
@@ -59,5 +66,6 @@ describe('getResendLabel', () => {
     expect(getResendLabel(42)).toBe('Reenviar código en 00:42');
     expect(getResendLabel(5)).toBe('Reenviar código en 00:05');
     expect(getResendLabel(0)).toBe('Reenviar código');
+    expect(getResendLabel(-1)).toBe('Reenviar código');
   });
 });

@@ -118,6 +118,10 @@
 .profile__phone-row {
   flex-wrap: wrap;
   gap: var(--space-s);
+
+  .status ion-icon {
+    font-size: 1.125rem; // 18px
+  }
 }
 
 .profile__phone-value {
@@ -219,23 +223,27 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background var(--motion-duration-fast);
+  transition:
+    background var(--motion-duration-fast),
+    border-color var(--motion-duration-fast);
 
   &:hover {
-    background: var(--color-surface-subtle);
+    background: var(--color-primary-subtle);
+    border-color: var(--color-primary-subtle);
   }
 }
+
 .profile__legal-row--danger {
-  border-color: var(--color-danger-subtle);
+  border-color: var(--color-border-subtle);
+
+  .profile__legal-icon {
+    color: var(--color-primary);
+  }
 
   &:hover {
-    background: var(--color-danger-subtle);
+    background: var(--color-primary-subtle);
+    border-color: var(--color-primary-subtle);
   }
-}
-
-.profile__legal-icon--danger,
-.profile__legal-chevron--danger {
-  color: var(--color-danger);
 }
 
 .profile__action-link {
@@ -276,38 +284,6 @@
 .profile__star {
   color: var(--color-accent);
   vertical-align: -0.125rem;
-}
-
-// Idioma: banderas de España y Reino Unido (flag-icons, ya en el tema)
-.lang-switch {
-  display: inline-flex;
-  margin: 0;
-  padding: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-
-  button {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-xs);
-    padding: var(--space-xs) var(--space-s);
-    border: none;
-    background: var(--color-surface);
-    color: var(--color-text-muted);
-    font-size: var(--font-size-body-s);
-    font-weight: 600;
-    cursor: pointer;
-
-    &.lang-pill--active {
-      background: var(--color-primary);
-      color: var(--color-on-primary);
-    }
-  }
-
-  .fi {
-    border-radius: 0.125rem;
-  }
 }
 
 .theme-toggle-btn {
@@ -393,15 +369,82 @@
   margin-top: var(--space-xs);
 }
 
-// Verificar el teléfono: botón ámbar pequeño, a la altura del de editar
+// Verificar el teléfono: botón azul claro pequeño, como el de editar
 .profile__verify {
-  --background: var(--color-warning-subtle);
-  --background-hover: var(--color-warning-subtle);
-  --color: var(--color-warning-text);
+  --background: var(--color-primary-subtle);
+  --background-hover: var(--color-primary-subtle);
+  --color: var(--color-primary);
   --border-radius: var(--radius-s);
   --box-shadow: none;
   height: 2rem; // 32px
   min-height: 2rem; // el tema da 48px a todos los ion-button
   margin: 0;
   font-weight: var(--font-weight-semibold);
+}
+
+// Idioma y tema: el nombre y, debajo, una línea que invita a elegir
+.profile__setting-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+  min-width: 0;
+}
+
+.theme-switch {
+  display: inline-flex;
+  width: 5.75rem; // Exactamente el mismo ancho que el selector de idioma (92px)
+  margin: 0;
+  padding: 0.125rem; // 2px de aire entre el borde y la parte activa
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+}
+
+.theme-switch__option {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem; // 32px, como el selector de idioma
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-easing),
+    color var(--motion-duration-fast) var(--motion-easing);
+
+  ion-icon {
+    font-size: 1.25rem; // 20px
+  }
+
+  // Sin elegir: sol naranja (acento) y luna azul oscuro (el azul pulsado);
+  // los roles se aclaran en el modo oscuro para mantener el contraste
+  .icon-sun {
+    color: var(--color-accent);
+  }
+
+  .icon-moon {
+    color: var(--color-primary-pressed);
+  }
+
+  &:hover:not(.theme-switch__option--active) {
+    background: var(--color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.125rem;
+  }
+}
+
+.theme-switch__option--active {
+  background: var(--color-primary);
+
+  .icon-sun,
+  .icon-moon {
+    color: var(--color-on-primary);
+  }
 }

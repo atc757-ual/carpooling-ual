@@ -28,10 +28,8 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
+import { NEW_PASSWORD_VALIDATORS } from '../../../shared/utils/password.util';
 
-// Mismos límites que la API (y que el registro)
-const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_MAX_LENGTH = 72;
 // El código ha dejado de valer entre la pantalla anterior y esta (caducado o
 // anulado): hay que pedir otro
 const EXPIRED_CODE_ERRORS = new Set(['INVALID_VERIFICATION_CODE', 'TOO_MANY_ATTEMPTS']);
@@ -75,14 +73,7 @@ export class NewPasswordPage implements OnInit {
   private readonly transloco = inject(TranslocoService);
 
   readonly form = inject(NonNullableFormBuilder).group({
-    password: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(PASSWORD_MIN_LENGTH),
-        Validators.maxLength(PASSWORD_MAX_LENGTH),
-      ],
-    ],
+    password: ['', NEW_PASSWORD_VALIDATORS],
     confirmation: ['', [Validators.required, matchesPassword]],
   });
   readonly isSubmitting = signal(false);
