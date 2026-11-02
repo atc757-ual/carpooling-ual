@@ -5,12 +5,14 @@ const USERS_PATH = 'users';
 const INCIDENTS_PATH = 'incidents';
 const SIMULATION_PATH = 'simulation';
 const DIGITAL_TWIN_PATH = 'digital-twin';
+const TRIPS_PATH = 'trips';
 // Secciones que ya tienen su pantalla (las demás muestran «Disponible pronto»)
 const WITH_SCREEN: ReadonlySet<string> = new Set([
   SIMULATION_PATH,
   DIGITAL_TWIN_PATH,
   USERS_PATH,
   INCIDENTS_PATH,
+  TRIPS_PATH,
 ]);
 
 // Una sección aún sin pantalla: su título y «Disponible pronto»
@@ -61,6 +63,11 @@ export const ADMIN_ROUTES: Routes = [
     title: 'Incidencia · Admin',
     loadComponent: () =>
       import('./incidents/admin-incident-detail.page').then((m) => m.AdminIncidentDetailPage),
+  },
+  {
+    path: TRIPS_PATH,
+    title: 'Viajes · Admin',
+    loadComponent: () => import('./trips/admin-trips.page').then((m) => m.AdminTripsPage),
   },
   ...ADMIN_SECTIONS.filter(({ path }) => !WITH_SCREEN.has(path)).map((section) =>
     placeholderRoute(section),
