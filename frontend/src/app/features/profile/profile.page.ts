@@ -38,6 +38,7 @@ import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { confirmLogout } from '../../core/services/auth/confirm-logout';
 import { ThemeService } from '../../core/services/ui/theme.service';
 import { TRAVEL_PREFERENCE_GROUPS } from '../../core/models/travel-preferences.model';
+import { TravelPreferencesStore } from '../../core/services/catalogs/travel-preferences.store';
 import { ConsentRecord, UserConsents } from '../../core/models/user-consent.model';
 import { toConsentStamp } from './consent-stamp';
 import { ProfileLocation } from './profile-location/profile-location';
@@ -106,6 +107,7 @@ function toLegalDocRow(
   styleUrls: ['../tabs/tab-page.scss', './profile.page.scss'],
 })
 export class ProfilePage implements OnInit {
+  private readonly travelPreferences = inject(TravelPreferencesStore);
   private readonly auth = inject(AuthService);
   private readonly usersService = inject(UsersService);
   private readonly avatars = inject(AvatarsService);
@@ -133,11 +135,10 @@ export class ProfilePage implements OnInit {
   readonly preferencesItems = computed<PreferenceRow[]>(() =>
     TRAVEL_PREFERENCE_GROUPS.map((group) => {
       const value = this.user()?.preferences?.[group.key] ?? null;
-      const option = group.options.find((candidate) => candidate.value === value);
       return {
         criterion: group.title,
         icon: PREFERENCE_ICONS[group.key],
-        value: option?.label ?? null,
+        value: this.travelPreferences.label(group.key, value),
       };
     }),
   );

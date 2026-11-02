@@ -14,6 +14,7 @@ import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { formatTime } from '../trip-results';
+import { provideCatalogsForTests } from '../../../core/services/catalogs/catalogs.testing';
 
 const SEARCH: TripSearch = {
   place: ROQUETAS,
@@ -118,6 +119,7 @@ describe('TripDetailPage', () => {
     TestBed.configureTestingModule({
       imports: [TripDetailPage],
       providers: [
+        provideCatalogsForTests(),
         provideIonicAngular(),
         provideRouter([]),
         { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },

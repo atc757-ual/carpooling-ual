@@ -1,3 +1,4 @@
+import { TravelPreferencesService } from '../catalogs/travel-preferences.service';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, EntityManager, FindManyOptions } from 'typeorm';
@@ -33,6 +34,10 @@ describe('UsersService', () => {
         { provide: getRepositoryToken(User), useValue: usersRepository },
         { provide: VehiclesService, useValue: {} },
         { provide: AvatarsService, useValue: {} },
+        {
+          provide: TravelPreferencesService,
+          useValue: { isOffered: jest.fn().mockResolvedValue(true) },
+        },
         { provide: ConsentsService, useValue: {} },
         { provide: EventsService, useValue: {} },
       ],

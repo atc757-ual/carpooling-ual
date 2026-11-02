@@ -22,6 +22,17 @@ export interface VehicleColorItem {
   isActive: boolean;
 }
 
+// Una opción de una preferencia de viaje: todas llegan, para nombrar la de
+// cada usuario; solo las activas se pueden elegir. name, en español
+export interface TravelPreferenceOptionItem {
+  key: string;
+  preference: 'conversation' | 'music' | 'smoking' | 'pets';
+  value: string;
+  name: string;
+  nameEn: string;
+  isActive: boolean;
+}
+
 // Catálogos que gestiona el panel de administración (marcas, colores…). Se
 // piden una vez por sesión y se guardan en memoria; si falla, se vuelve a
 // pedir la siguiente vez. Lanza ApiError
@@ -40,6 +51,11 @@ export class CatalogsService {
   // Todos los colores, en su orden
   vehicleColors(): Promise<VehicleColorItem[]> {
     return this.catalog<VehicleColorItem>('vehicle-colors');
+  }
+
+  // Todas las opciones de las preferencias, en su orden
+  travelPreferenceOptions(): Promise<TravelPreferenceOptionItem[]> {
+    return this.catalog<TravelPreferenceOptionItem>('travel-preferences');
   }
 
   private catalog<T>(path: string): Promise<T[]> {

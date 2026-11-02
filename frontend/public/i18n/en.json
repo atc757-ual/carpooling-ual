@@ -89,21 +89,7 @@
       "music": "Music",
       "smoking": "Smoking",
       "pets": "Pets",
-      "searchTolerance": "Time flexibility in searches",
-      "options": {
-        "chatty": "I like chatting",
-        "depends": "Depends on the day",
-        "quiet": "I prefer quiet trips",
-        "musicAny": "With music",
-        "musicSoft": "Soft music",
-        "musicNone": "No music",
-        "smokingNo": "No smoking in car",
-        "smokingStops": "Only during stops",
-        "smokingAllowed": "Smoking allowed",
-        "petsNone": "No pets",
-        "petsCarrier": "Small pets in carrier",
-        "petsFriendly": "Pet friendly"
-      }
+      "searchTolerance": "Time flexibility in searches"
     },
     "phoneModal": {
       "title": "Phone and verification",

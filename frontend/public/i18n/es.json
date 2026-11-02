@@ -89,21 +89,7 @@
       "music": "Música",
       "smoking": "Fumar",
       "pets": "Mascotas",
-      "searchTolerance": "Margen horario en búsquedas",
-      "options": {
-        "chatty": "Me gusta charlar",
-        "depends": "Según el día",
-        "quiet": "Prefiero ir tranquilo",
-        "musicAny": "Con música",
-        "musicSoft": "Música suave",
-        "musicNone": "Sin música",
-        "smokingNo": "No se fuma en el coche",
-        "smokingStops": "Solo en paradas",
-        "smokingAllowed": "Se permite fumar",
-        "petsNone": "Sin mascotas",
-        "petsCarrier": "Pequeñas en transportín",
-        "petsFriendly": "Pet friendly"
-      }
+      "searchTolerance": "Margen horario en búsquedas"
     },
     "phoneModal": {
       "title": "Teléfono y verificación",
