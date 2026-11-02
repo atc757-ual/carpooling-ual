@@ -39,6 +39,8 @@ function trip(availableSeats: number, status: string, minutesAhead?: number) {
     offeredSeats: 3,
     availableSeats,
     maxDetourMin: 10,
+    origin: { type: 'Point', coordinates: [-2.6, 36.76] },
+    destination: { type: 'Point', coordinates: [-2.4045, 36.8322] },
     status,
     originName: 'Roquetas de Mar',
     destinationName: 'Campus UAL · Parking P1 (Sur)',
@@ -153,14 +155,18 @@ for (const viewport of VIEWPORTS) {
       cy.wait('@position')
         .its('request.body.position.coordinates')
         .should('deep.equal', [-2.4637, 36.8381]);
-      cy.contains('app-driver-trip-card', 'Compartiendo tu ubicación con tus pasajeros');
+      // Directo a la pantalla del viaje en curso
+      cy.location('pathname').should('eq', '/tabs/trips/drive/t1');
+      cy.contains('app-driver-live-trip', 'Compartiendo tu ubicación con tus pasajeros');
+      cy.contains('app-driver-live-trip', 'En curso');
 
       cy.intercept('POST', '/api/trips/t1/finish', trip(1, 'finished', 5)).as('finish');
       cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'finished', 5)]);
-      cy.contains('app-driver-trip-card ion-button', 'Terminar viaje').click();
+      cy.contains('app-driver-live-trip ion-button', 'Terminar viaje').click();
       cy.contains('app-confirm-modal ion-button', 'Terminar').click();
 
       cy.wait('@finish');
+      cy.location('pathname').should('eq', '/tabs/trips');
       cy.contains('app-my-trips', 'Finalizado');
     });
   });

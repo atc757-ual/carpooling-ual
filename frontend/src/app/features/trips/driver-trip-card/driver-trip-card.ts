@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { IonButton, IonCard, IonCardContent, IonIcon, IonSpinner } from '@ionic/angular';
+import { Router, RouterLink } from '@angular/router';
 import { locationOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
@@ -24,6 +25,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatTime } from '../../matching/trip-results';
+import { finishTrip } from '../finish-trip.util';
 
 // El estado en texto (guía, «Estados»: nunca solo con color)
 const TRIP_STATUS_LABELS: Record<TripStatus, string> = {
@@ -56,7 +58,7 @@ export function formatSeats(seats: number): string {
 // posición del conductor con DriverTrackingService)
 @Component({
   selector: 'app-driver-trip-card',
-  imports: [IonButton, IonCard, IonCardContent, IonIcon, IonSpinner],
+  imports: [IonButton, IonCard, IonCardContent, IonIcon, IonSpinner, RouterLink],
   templateUrl: './driver-trip-card.html',
   styleUrl: './driver-trip-card.scss',
 })
@@ -67,6 +69,7 @@ export class DriverTripCard {
   private readonly tracking = inject(DriverTrackingService);
   private readonly location = inject(LocationService);
   private readonly consent = inject(LocationConsentService);
+  private readonly router = inject(Router);
 
   readonly trip = input.required<DriverTrip>();
   readonly changed = output<void>();
@@ -108,6 +111,8 @@ export class DriverTripCard {
   // hora se revisa cada minuto para activar el botón sin recargar
   private readonly now = signal(Date.now());
   readonly isInProgress = computed(() => this.trip().status === 'in_progress');
+  // La pantalla del viaje en curso
+  readonly livePath = computed(() => `/tabs/trips/drive/${this.trip().id}`);
   private readonly startableAt = computed(
     () => new Date(this.trip().departureAt).getTime() - START_WINDOW_MS,
   );
@@ -176,6 +181,8 @@ export class DriverTripCard {
       this.tracking.start(trip.id);
       void this.toast.showSuccess('Viaje iniciado. Tus pasajeros ya ven dónde estás.');
       this.changed.emit();
+      // Directo a la pantalla del viaje en curso
+      void this.router.navigateByUrl(this.livePath());
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     } finally {
@@ -184,28 +191,17 @@ export class DriverTripCard {
   }
 
   async handleFinish(): Promise<void> {
-    const trip = this.trip();
-    const accepted = await this.confirm.ask({
-      header: '¿Terminar el viaje?',
-      message: 'Dejarás de compartir tu ubicación y el viaje pasará a finalizado.',
-      confirmText: 'Terminar',
-      cancelText: 'Seguir en el viaje',
-      icon: this.locationIcon,
-    });
-    if (!accepted) {
-      return;
-    }
     this.isChangingStatus.set(true);
-    try {
-      await this.driver.finishTrip(trip.id);
-      this.tracking.stop();
-      void this.toast.showSuccess('Viaje terminado. Gracias por compartir coche.');
+    const deps = {
+      confirm: this.confirm,
+      driver: this.driver,
+      tracking: this.tracking,
+      toast: this.toast,
+    };
+    if (await finishTrip(deps, this.trip().id, this.locationIcon)) {
       this.changed.emit();
-    } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
-    } finally {
-      this.isChangingStatus.set(false);
     }
+    this.isChangingStatus.set(false);
   }
 
   // Para iniciar el viaje hay que compartir la ubicación: si aún no se
