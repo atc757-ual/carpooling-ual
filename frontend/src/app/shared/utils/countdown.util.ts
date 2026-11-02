@@ -10,24 +10,40 @@ export interface Countdown {
 
 // Cuenta atrás de segundos en un signal (sin Zone.js, la pantalla se actualiza
 // sola), p. ej. hasta poder pedir otro código. Se para al destruir la pantalla
-export function createCountdown(totalSeconds: number, destroyRef: DestroyRef): Countdown {
-  const seconds = signal(totalSeconds);
+export function createCountdown(
+  totalSeconds: number,
+  destroyRef: DestroyRef,
+  initialSeconds?: number,
+): Countdown {
+  const startVal = initialSeconds !== undefined ? initialSeconds : totalSeconds;
+  const seconds = signal(startVal);
   let timer: ReturnType<typeof setInterval> | undefined;
 
   const stop = (): void => clearInterval(timer);
   destroyRef.onDestroy(stop);
 
+  const startTicking = (count: number): void => {
+    stop();
+    seconds.set(count);
+    if (count <= 0) {
+      return;
+    }
+    timer = setInterval(() => {
+      seconds.update((left) => left - 1);
+      if (seconds() <= 0) {
+        stop();
+      }
+    }, 1000);
+  };
+
+  if (initialSeconds !== undefined && initialSeconds > 0) {
+    startTicking(initialSeconds);
+  }
+
   return {
     seconds,
     restart: () => {
-      stop();
-      seconds.set(totalSeconds);
-      timer = setInterval(() => {
-        seconds.update((left) => left - 1);
-        if (seconds() <= 0) {
-          stop();
-        }
-      }, 1000);
+      startTicking(totalSeconds);
     },
   };
 }

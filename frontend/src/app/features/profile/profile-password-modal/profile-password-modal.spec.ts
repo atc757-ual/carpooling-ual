@@ -1,9 +1,9 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { provideTestingTransloco } from '../../../core/i18n/testing-transloco';
 import { ApiError } from '../../../core/models/api-error.model';
-import { User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ProfilePasswordModal } from './profile-password-modal';
@@ -11,176 +11,121 @@ import { ProfilePasswordModal } from './profile-password-modal';
 describe('ProfilePasswordModal', () => {
   let fixture: ComponentFixture<ProfilePasswordModal>;
   let component: ProfilePasswordModal;
+  let auth: Record<string, ReturnType<typeof vi.fn>>;
+  let dismiss: ReturnType<typeof vi.fn>;
+  let showSuccess: ReturnType<typeof vi.fn>;
 
-  const mockUser: User = {
-    '@type': 'User',
-    id: 'user-1',
-    href: '/api/users/user-1',
-    email: 'ana@ual.es',
-    name: 'Ana García',
-    phone: '+34612345678',
-    phoneVerified: true,
-    activeMode: 'passenger',
-    profiles: ['passenger'],
-  };
-
-  const requestPasswordChangeCode = vi.fn().mockResolvedValue(undefined);
-  const verifyPasswordChangeCode = vi.fn().mockResolvedValue(undefined);
-  const changePassword = vi.fn().mockResolvedValue(undefined);
-  const dismiss = vi.fn().mockResolvedValue(true);
-  const showSuccess = vi.fn().mockResolvedValue(undefined);
-  const showError = vi.fn().mockResolvedValue(undefined);
-
-  beforeEach(async () => {
+  beforeEach(() => {
+    auth = {
+      requestPasswordChangeCode: vi.fn().mockResolvedValue(undefined),
+      verifyPasswordChangeCode: vi.fn().mockResolvedValue(undefined),
+      changePassword: vi.fn().mockResolvedValue(undefined),
+    };
+    dismiss = vi.fn().mockResolvedValue(true);
+    showSuccess = vi.fn();
     TestBed.configureTestingModule({
       imports: [ProfilePasswordModal],
       providers: [
         provideIonicAngular(),
         provideTestingTransloco(),
+        { provide: AuthService, useValue: { ...auth, currentUser: signal(null) } },
         { provide: ModalController, useValue: { dismiss } },
-        {
-          provide: AuthService,
-          useValue: {
-            currentUser: () => mockUser,
-            requestPasswordChangeCode,
-            verifyPasswordChangeCode,
-            changePassword,
-          },
-        },
-        { provide: ToastService, useValue: { showSuccess, showError } },
+        { provide: ToastService, useValue: { showSuccess, showError: vi.fn() } },
       ],
     });
-
     fixture = TestBed.createComponent(ProfilePasswordModal);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    await fixture.whenStable();
   });
 
-  afterEach(() => {
-    vi.clearAllMocks();
+  function fillPasswords(password: string, confirmation = password): void {
+    component.form.setValue({ password, confirmation });
+  }
+
+  it('confirms the identity first, with the shared code steps', () => {
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('app-identity-check')).not.toBeNull();
+    expect(root.querySelector('form.profile-password-modal__form')).toBeNull();
   });
 
-  it('initializes in code step and automatically requests code on init', () => {
-    expect(component.email()).toBe('ana@ual.es');
-    expect(component.step()).toBe('code');
-    expect(requestPasswordChangeCode).toHaveBeenCalled();
+  it('sends and checks the code through the auth service', async () => {
+    await component.requestCode();
+    await component.verifyCode('123456');
+
+    expect(auth['requestPasswordChangeCode']).toHaveBeenCalled();
+    expect(auth['verifyPasswordChangeCode']).toHaveBeenCalledWith('123456');
   });
 
-  it('shows error toast when requesting code fails', async () => {
-    requestPasswordChangeCode.mockRejectedValueOnce(new ApiError('SERVICE_UNAVAILABLE', 503));
-    await component.handleRequestCode();
+  it('asks for the new password once the code is right', () => {
+    component.handleVerified('123456');
+    fixture.detectChanges();
 
-    expect(showError).toHaveBeenCalled();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('app-identity-check')).toBeNull();
+    expect(root.querySelector('form.profile-password-modal__form')).not.toBeNull();
   });
 
-  it('resends code when countdown is 0', async () => {
-    requestPasswordChangeCode.mockClear();
-    component.secondsToResend.set(0);
+  it('checks the length and that both passwords match', () => {
+    fillPasswords('short');
+    expect(component.form.controls.password.valid).toBe(false);
 
-    await component.handleResendCode();
-    expect(requestPasswordChangeCode).toHaveBeenCalled();
+    fillPasswords('long-enough', 'different');
+    expect(component.form.controls.confirmation.hasError('passwordMismatch')).toBe(true);
+
+    fillPasswords('long-enough');
+    expect(component.form.valid).toBe(true);
   });
 
-  it('does not resend code when countdown is active or request in progress', async () => {
-    requestPasswordChangeCode.mockClear();
-    component.secondsToResend.set(45);
-    await component.handleResendCode();
-    expect(requestPasswordChangeCode).not.toHaveBeenCalled();
-
-    component.secondsToResend.set(0);
-    component.isSendingCode.set(true);
-    await component.handleResendCode();
-    expect(requestPasswordChangeCode).not.toHaveBeenCalled();
-  });
-
-  it('does not verify code if code is not 6 digits', async () => {
-    component.form.controls.code.setValue('123');
-    await component.handleVerifyCode();
-
-    expect(verifyPasswordChangeCode).not.toHaveBeenCalled();
-    expect(component.step()).toBe('code');
-  });
-
-  it('verifies code and transitions to password step on success', async () => {
-    component.form.controls.code.setValue('123456');
-    await component.handleVerifyCode();
-
-    expect(verifyPasswordChangeCode).toHaveBeenCalledWith('123456');
-    expect(component.step()).toBe('password');
-  });
-
-  it('shows error toast and stays in code step when code verification fails', async () => {
-    verifyPasswordChangeCode.mockRejectedValueOnce(new ApiError('INVALID_VERIFICATION_CODE', 400));
-    component.form.controls.code.setValue('000000');
-    await component.handleVerifyCode();
-
-    expect(showError).toHaveBeenCalled();
-    expect(component.step()).toBe('code');
-  });
-
-  it('validates password confirmation and mismatch in password step', () => {
-    component.step.set('password');
-    component.form.controls.password.setValue('password123');
-    component.form.controls.confirmation.setValue('different123');
-
-    expect(component.form.controls.confirmation.errors?.['passwordMismatch']).toBe(true);
-
-    component.form.controls.confirmation.setValue('password123');
-    expect(component.form.controls.confirmation.errors).toBeNull();
-  });
-
-  it('marks touched and does not submit when form is invalid', async () => {
-    component.step.set('password');
+  it('does not save without a valid form or a checked code', async () => {
+    fillPasswords('short');
+    component.handleVerified('123456');
     await component.handleSubmit();
 
-    expect(component.form.controls.password.touched).toBe(true);
-    expect(changePassword).not.toHaveBeenCalled();
+    fillPasswords('long-enough');
+    component.verifiedCode.set(null);
+    await component.handleSubmit();
+
+    expect(auth['changePassword']).not.toHaveBeenCalled();
   });
 
-  it('submits new password and dismisses modal with saved role on success', async () => {
-    component.step.set('password');
-    component.form.setValue({
-      code: '123456',
-      password: 'newSecretPassword123',
-      confirmation: 'newSecretPassword123',
-    });
+  it('saves the new password with the code and closes', async () => {
+    component.handleVerified('123456');
+    fillPasswords('long-enough');
 
     await component.handleSubmit();
 
-    expect(changePassword).toHaveBeenCalledWith('123456', 'newSecretPassword123');
-    expect(showSuccess).toHaveBeenCalledWith('Contraseña actualizada.');
+    expect(auth['changePassword']).toHaveBeenCalledWith('123456', 'long-enough');
+    expect(showSuccess).toHaveBeenCalledWith('profile.passwordModal.saved');
     expect(dismiss).toHaveBeenCalledWith(null, 'saved');
+    expect(component.isSubmitting()).toBe(false);
   });
 
-  it('shows error toast when changing password fails', async () => {
-    changePassword.mockRejectedValueOnce(new ApiError('PASSWORD_UNCHANGED', 400));
-    component.step.set('password');
-    component.form.setValue({
-      code: '123456',
-      password: 'newSecretPassword123',
-      confirmation: 'newSecretPassword123',
-    });
+  it('goes back to the code when it is no longer valid', async () => {
+    component.handleVerified('123456');
+    fillPasswords('long-enough');
+    auth['changePassword'].mockRejectedValue(new ApiError('INVALID_VERIFICATION_CODE', 400));
 
     await component.handleSubmit();
 
-    expect(showError).toHaveBeenCalled();
-    expect(dismiss).not.toHaveBeenCalled();
+    expect(component.errorMessage()).toBeTruthy();
+    expect(component.verifiedCode()).toBeNull();
   });
 
-  it('toggles password and confirmation visibility', () => {
-    expect(component.isPasswordVisible()).toBe(false);
-    expect(component.isConfirmVisible()).toBe(false);
+  it('keeps the code on other errors', async () => {
+    component.handleVerified('123456');
+    fillPasswords('long-enough');
+    auth['changePassword'].mockRejectedValue(new ApiError('SERVICE_UNAVAILABLE', 503));
 
-    component.isPasswordVisible.set(true);
-    expect(component.isPasswordVisible()).toBe(true);
+    await component.handleSubmit();
 
-    component.isConfirmVisible.set(true);
-    expect(component.isConfirmVisible()).toBe(true);
+    expect(component.errorMessage()).toBeTruthy();
+    expect(component.verifiedCode()).toBe('123456');
   });
 
-  it('dismisses modal with cancel role on close', () => {
+  it('closes without saving', () => {
     component.close();
+
     expect(dismiss).toHaveBeenCalledWith(null, 'cancel');
   });
 });
