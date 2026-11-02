@@ -149,16 +149,16 @@ export class CampusParkingsService {
         neighbor.sortOrder,
         parking.sortOrder,
       ];
-      await manager.save([parking, neighbor]);
-      for (const changed of [parking, neighbor]) {
-        await this.recordChange(
-          manager,
-          adminId,
-          changed,
-          'catalog.item_updated',
-        );
-      }
-      return parking;
+      const [moved, swapped] = await manager.save([parking, neighbor]);
+      // Uno detrás de otro: comparten la conexión de la transacción
+      await this.recordChange(manager, adminId, moved, 'catalog.item_updated');
+      await this.recordChange(
+        manager,
+        adminId,
+        swapped,
+        'catalog.item_updated',
+      );
+      return moved;
     });
   }
 
