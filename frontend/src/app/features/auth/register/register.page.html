@@ -130,11 +130,11 @@
         <div class="register__terms-row">
           <ion-checkbox formControlName="acceptedTerms" aria-labelledby="register-terms-label" />
           <span id="register-terms-label" class="text-body-s">
-            He leído y acepto las
+            Acepto las
             <button type="button" class="register__link" (click)="openLegal('terms')">
               condiciones de uso
             </button>
-            y la
+            y he leído la
             <button type="button" class="register__link" (click)="openLegal('privacy')">
               política de privacidad</button
             >.
@@ -142,7 +142,7 @@
         </div>
         @if (isTermsErrorVisible()) {
           <ion-text color="danger" class="text-caption" role="alert">
-            Tienes que aceptarlas para crear la cuenta.
+            Tienes que aceptar las condiciones para crear la cuenta.
           </ion-text>
         }
       </div>
