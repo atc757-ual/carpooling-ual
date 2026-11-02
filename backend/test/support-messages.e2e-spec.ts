@@ -86,7 +86,15 @@ describe('Support messages API (e2e)', () => {
       );
   });
 
-  it('requires a session', async () => {
-    await send({ topic: 'other', message: MESSAGE }, 'not-a-token').expect(401);
+  it('requires a session and sends nothing without it', async () => {
+    const sentBefore = testMailbox(app).sentTo(supportTo).length;
+
+    const response = await send(
+      { topic: 'other', message: MESSAGE },
+      'not-a-token',
+    );
+
+    expect(response.status).toBe(401);
+    expect(testMailbox(app).sentTo(supportTo)).toHaveLength(sentBefore);
   });
 });
