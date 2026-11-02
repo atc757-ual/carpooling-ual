@@ -6,7 +6,7 @@ import {
   input,
   resource,
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   IonButton,
   IonInput,
@@ -49,6 +49,7 @@ function dayOf(value: string | undefined): string | undefined {
     IonSelectOption,
     IonSkeletonText,
     Pagination,
+    RouterLink,
   ],
   templateUrl: './admin-trips.page.html',
   styleUrl: './admin-trips.page.scss',

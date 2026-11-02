@@ -80,6 +80,12 @@
   font-variant-numeric: tabular-nums;
 }
 
+.admin-trips__link {
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
 .admin-trips__skeleton-row {
   height: 1.5rem; // 24px
   margin: var(--space-base);

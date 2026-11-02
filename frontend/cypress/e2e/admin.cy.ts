@@ -157,6 +157,75 @@ for (const viewport of VIEWPORTS) {
         .and('contain', 'Confirmado');
     });
 
+    it('opens a trip with its requests and timeline, and goes back to the list', () => {
+      cy.intercept('GET', '/api/admin/trips?*', {
+        body: [
+          {
+            id: 't1',
+            href: '/api/admin/trips/t1',
+            status: 'confirmed',
+            departureAt: '2026-11-02T07:30:00.000Z',
+            originName: 'Roquetas de Mar',
+            destinationName: 'Campus UAL',
+            driver: { id: 'u1', name: 'Javier Pardo' },
+            offeredSeats: 3,
+            availableSeats: 2,
+            requests: { pending: 0, accepted: 1 },
+          },
+        ],
+        headers: { 'X-Total-Count': '1', 'Access-Control-Expose-Headers': 'X-Total-Count' },
+      });
+      cy.intercept('GET', '/api/admin/trips/t1', {
+        id: 't1',
+        href: '/api/admin/trips/t1',
+        status: 'confirmed',
+        departureAt: '2026-11-02T07:30:00.000Z',
+        originName: 'Roquetas de Mar',
+        destinationName: 'Campus UAL',
+        driver: { id: 'u1', name: 'Javier Pardo' },
+        offeredSeats: 3,
+        availableSeats: 2,
+        requests: { pending: 0, accepted: 1 },
+        seatRequests: [
+          {
+            id: 'r1',
+            href: '/api/requests/r1',
+            status: 'accepted',
+            passenger: { id: 'u2', name: 'Lucía Cortés' },
+            seats: 1,
+            isPriority: false,
+            pickupName: 'Avenida del Mediterráneo',
+            pickupAt: '2026-11-02T07:42:00.000Z',
+            requestedAt: '2026-11-01T09:00:00.000Z',
+          },
+        ],
+        timeline: [
+          {
+            id: 'e1',
+            href: '/api/admin/events/e1',
+            sequence: 1,
+            type: 'trip.published',
+            version: 1,
+            sourceEntityId: 't1',
+            occurredAt: '2026-11-01T08:00:00.000Z',
+          },
+        ],
+      }).as('trip');
+      visitWithSession('/admin/trips?status=confirmed', ['admin']);
+
+      cy.contains('a', 'Ver detalle').click();
+      cy.wait('@trip');
+      cy.contains('h1', 'Roquetas de Mar → Campus UAL');
+      cy.contains('.trip-detail__request', 'Lucía Cortés').should(
+        'contain',
+        'Recogida: Avenida del Mediterráneo',
+      );
+      cy.contains('.trip-detail__event', 'Viaje publicado');
+
+      cy.contains('ion-button', 'Viajes').click();
+      cy.location('search').should('eq', '?status=confirmed');
+    });
+
     it('opens a user and deactivates a profile with a reason', () => {
       cy.intercept('GET', '/api/admin/users?*', {
         body: [USER_ROW],

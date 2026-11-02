@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { AdminTripQuery, AdminTripRow } from '../../models/admin-trip.model';
+import { AdminTripDetail, AdminTripQuery, AdminTripRow } from '../../models/admin-trip.model';
 import { ApiError } from '../../models/api-error.model';
 
 export interface AdminTripPage {
@@ -31,6 +31,16 @@ export class AdminTripsService {
       );
       const items = response.body ?? [];
       return { items, total: Number(response.headers.get('X-Total-Count') ?? items.length) };
+    } catch (error) {
+      throw ApiError.fromHttpError(error);
+    }
+  }
+
+  // El viaje con sus solicitudes y su línea de tiempo (TRIP_NOT_FOUND si no
+  // existe)
+  async get(tripId: string): Promise<AdminTripDetail> {
+    try {
+      return await firstValueFrom(this.http.get<AdminTripDetail>(`${this.url}/${tripId}`));
     } catch (error) {
       throw ApiError.fromHttpError(error);
     }
