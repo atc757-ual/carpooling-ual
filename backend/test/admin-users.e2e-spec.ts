@@ -121,9 +121,71 @@ describe('Admin users API (e2e)', () => {
     const { id, token } = await account('pia', ['passenger']);
 
     await api('get', '/admin/users', token).expect(403);
+    await api('get', `/admin/users/${id}`, token).expect(403);
     await api('post', `/admin/users/${id}/suspensions/driver/lift`, token)
       .send({ reason: REASON })
       .expect(403);
+  });
+
+  it('shows everything an admin sees of a user', async () => {
+    const dan = await account('dan', ['driver', 'passenger']);
+    const pia = await account('pia', ['driver']);
+    const ownTrip = await insertTrip(dan.id, 'cancelled');
+    const otherTrip = await insertTrip(pia.id, 'published');
+    await dataSource.query(
+      `INSERT INTO requests (trip_id, passenger_id, status)
+       VALUES ($1, $2, 'accepted')`,
+      [otherTrip, dan.id],
+    );
+    await dataSource.query(
+      `INSERT INTO incidents (trip_id, reporter_id, category, description)
+       VALUES ($1, $2, 'technical', 'The car broke down on the way')`,
+      [ownTrip, dan.id],
+    );
+    await dataSource.query(
+      `INSERT INTO late_cancellations (user_id, trip_id, role)
+       VALUES ($1, $2, 'driver')`,
+      [dan.id, ownTrip],
+    );
+
+    const response = await api('get', `/admin/users/${dan.id}`).expect(200);
+    const detail = response.body as {
+      '@type': string;
+      statuses: string[];
+      vehicles: unknown[];
+      trips: { id: string }[];
+      requests: { status: string; trip: { id: string } | null }[];
+      incidents: { role: string }[];
+      lateCancellations: {
+        tripId: string;
+        role: string;
+        waivedAt: string | null;
+      }[];
+      consents: { current: object } | null;
+      ratings: { driver: object | null };
+    };
+
+    expect(detail['@type']).toBe('AdminUserDetail');
+    expect(detail.statuses).toEqual(['open_incidents']);
+    expect(detail.vehicles).toHaveLength(1);
+    expect(detail.trips.map(({ id }) => id)).toEqual([ownTrip]);
+    expect(detail.requests).toHaveLength(1);
+    expect(detail.requests[0].status).toBe('accepted');
+    expect(detail.requests[0].trip?.id).toBe(otherTrip);
+    expect(detail.incidents.map(({ role }) => role)).toEqual(['reporter']);
+    expect(detail.lateCancellations).toHaveLength(1);
+    expect(detail.lateCancellations[0]).toMatchObject({
+      tripId: ownTrip,
+      role: 'driver',
+      waivedAt: null,
+    });
+    expect(detail.consents?.current).toEqual(expect.any(Object));
+    expect(detail.ratings.driver).not.toBeNull();
+    expect(JSON.stringify(detail)).not.toContain('password');
+
+    const unknown = '0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90';
+    const missing = await api('get', `/admin/users/${unknown}`).expect(404);
+    expect((missing.body as { code: string }).code).toBe('USER_NOT_FOUND');
   });
 
   it('lists the users with their trips and filters by profile', async () => {

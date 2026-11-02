@@ -58,6 +58,7 @@ describe('API docs (e2e)', () => {
       '/api/admin/simulations/{id}/results',
       '/api/admin/simulations/{id}/results.csv',
       '/api/admin/users',
+      '/api/admin/users/{id}',
       '/api/admin/users/{id}/suspensions/{role}/lift',
       '/api/auth/login',
       '/api/auth/logout',

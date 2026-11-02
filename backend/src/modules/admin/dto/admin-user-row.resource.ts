@@ -19,7 +19,7 @@ export class SuspensionsResource {
 // /api/users/{id}
 export class AdminUserRowResource {
   @ApiProperty({ enum: ['AdminUserRow'] })
-  '@type': 'AdminUserRow';
+  '@type': string;
 
   @ApiProperty({ format: 'uuid' })
   id: string;

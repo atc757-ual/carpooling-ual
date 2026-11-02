@@ -6718,6 +6718,94 @@
         ]
       }
     },
+    "/api/admin/users/{id}": {
+      "get": {
+        "description": "The account (no password), status, ratings, vehicles, the last trips as driver and requests as passenger, incidents, late cancellations of the last 30 days and the consent history (read only).",
+        "operationId": "AdminUsersController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserDetailResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get everything an admin sees of a user",
+        "tags": [
+          "admin users"
+        ]
+      }
+    },
     "/api/admin/users/{id}/suspensions/{role}/lift": {
       "post": {
         "description": "The late cancellations of that role stop counting. The reason is kept in the audit log.",
@@ -10261,6 +10349,426 @@
           "openIncidents",
           "suspensions",
           "createdAt"
+        ]
+      },
+      "RatingResource": {
+        "type": "object",
+        "properties": {
+          "average": {
+            "type": "number",
+            "example": 4.6,
+            "nullable": true
+          },
+          "count": {
+            "type": "number",
+            "example": 12
+          }
+        },
+        "required": [
+          "average",
+          "count"
+        ]
+      },
+      "RatingsResource": {
+        "type": "object",
+        "properties": {
+          "driver": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RatingResource"
+              }
+            ]
+          },
+          "passenger": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RatingResource"
+              }
+            ]
+          }
+        },
+        "required": [
+          "driver",
+          "passenger"
+        ]
+      },
+      "AdminVehicleResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plate": {
+            "type": "string",
+            "example": "1234BCD"
+          },
+          "brand": {
+            "type": "string",
+            "example": "Seat",
+            "nullable": true
+          },
+          "model": {
+            "type": "string",
+            "example": "Ibiza",
+            "nullable": true
+          },
+          "color": {
+            "type": "string",
+            "example": "white",
+            "nullable": true
+          },
+          "capacity": {
+            "type": "number",
+            "example": 4
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "on_trip",
+              "inactive"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "plate",
+          "brand",
+          "model",
+          "color",
+          "capacity",
+          "status"
+        ]
+      },
+      "AdminTripSummaryResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "departureAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "originName": {
+            "type": "string",
+            "example": "Roquetas de Mar",
+            "nullable": true
+          },
+          "destinationName": {
+            "type": "string",
+            "example": "Campus UAL",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "published",
+              "confirmed",
+              "in_progress",
+              "finished",
+              "cancelled"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "href",
+          "departureAt",
+          "originName",
+          "destinationName",
+          "status"
+        ]
+      },
+      "AdminRequestResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/requests/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "accepted",
+              "rejected",
+              "cancelled"
+            ]
+          },
+          "seats": {
+            "type": "number",
+            "example": 1
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trip": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminTripSummaryResource"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "href",
+          "status",
+          "seats",
+          "requestedAt",
+          "trip"
+        ]
+      },
+      "AdminIncidentResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/incidents/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "technical",
+              "driver",
+              "passenger",
+              "other"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "reviewed"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "reporter",
+              "driver"
+            ],
+            "description": "Whether the user reported it or drove the trip"
+          },
+          "reportedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "href",
+          "category",
+          "status",
+          "role",
+          "reportedAt"
+        ]
+      },
+      "AdminLateCancellationResource": {
+        "type": "object",
+        "properties": {
+          "tripId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "passenger"
+            ]
+          },
+          "cancelledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "waivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Waived by an admin: it no longer counts"
+          }
+        },
+        "required": [
+          "tripId",
+          "role",
+          "cancelledAt",
+          "waivedAt"
+        ]
+      },
+      "AdminUserDetailResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "AdminUserDetail"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/users/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "name": {
+            "type": "string",
+            "example": "Lucía Cortés"
+          },
+          "email": {
+            "type": "string",
+            "example": "lcc123@inlumine.ual.es"
+          },
+          "profiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProfileStatusResource"
+            }
+          },
+          "statuses": {
+            "type": "array",
+            "description": "From the most to the least serious; active only alone",
+            "items": {
+              "type": "string",
+              "enum": [
+                "active",
+                "email_unverified",
+                "open_incidents",
+                "suspended",
+                "profile_deactivated",
+                "deleted"
+              ]
+            }
+          },
+          "tripCount": {
+            "type": "number",
+            "example": 42,
+            "description": "Trips published (not cancelled) plus seats accepted"
+          },
+          "openIncidents": {
+            "type": "number",
+            "example": 0,
+            "description": "Open incidents reported by the user or on their trips"
+          },
+          "suspensions": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SuspensionsResource"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+34600123456",
+            "nullable": true
+          },
+          "isPhoneVerified": {
+            "type": "boolean"
+          },
+          "avatarKey": {
+            "type": "string",
+            "example": "owl",
+            "nullable": true
+          },
+          "ratings": {
+            "$ref": "#/components/schemas/RatingsResource"
+          },
+          "vehicles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminVehicleResource"
+            }
+          },
+          "trips": {
+            "description": "As driver",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminTripSummaryResource"
+            }
+          },
+          "requests": {
+            "description": "As passenger",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminRequestResource"
+            }
+          },
+          "incidents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminIncidentResource"
+            }
+          },
+          "lateCancellations": {
+            "description": "Last 30 days",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminLateCancellationResource"
+            }
+          },
+          "consents": {
+            "nullable": true,
+            "description": "Read only; null for a deleted account",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserConsentsResource"
+              }
+            ]
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "name",
+          "email",
+          "profiles",
+          "statuses",
+          "tripCount",
+          "openIncidents",
+          "suspensions",
+          "createdAt",
+          "phone",
+          "isPhoneVerified",
+          "avatarKey",
+          "ratings",
+          "vehicles",
+          "trips",
+          "requests",
+          "incidents",
+          "lateCancellations",
+          "consents"
         ]
       },
       "LiftSuspensionDto": {

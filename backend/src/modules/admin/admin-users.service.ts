@@ -52,30 +52,45 @@ export class AdminUsersService {
     const openIncidents = await this.incidents.countOpenByUser();
     const filter = await this.toFilter(query, openIncidents);
     const { items, total } = await this.userProfiles.list(filter, page);
-    const ids = items.map(({ user }) => user.id);
+    return { items: await this.toRows(items, openIncidents), total };
+  }
+
+  // Un usuario con su estado, como en la lista (lanza UserNotFoundError)
+  async getRow(userId: string): Promise<AdminUserRow> {
+    const [view, openIncidents] = await Promise.all([
+      this.userProfiles.getAdminView(userId),
+      this.incidents.countOpenByUser(),
+    ]);
+    const [row] = await this.toRows([view], openIncidents);
+    return row;
+  }
+
+  // Lo que dicen los demás módulos de cada usuario: una consulta por dato
+  private async toRows(
+    views: readonly UserAdminView[],
+    openIncidents: Map<string, number>,
+  ): Promise<AdminUserRow[]> {
+    const ids = views.map(({ user }) => user.id);
     const [suspensions, driven, ridden] = await Promise.all([
       this.lateCancellations.findSuspensions(ids),
       this.tripStats.countByDrivers(ids),
       this.requestStats.countAcceptedByPassengers(ids),
     ]);
-    return {
-      items: items.map((view) => {
-        const id = view.user.id;
-        const incidents = openIncidents.get(id) ?? 0;
-        const account = accountStatusOf(
-          view.user,
-          view.profiles.map(({ isActive }) => isActive),
-        );
-        return {
-          ...view,
-          statuses: statusesOf(account, suspensions.has(id), incidents),
-          tripCount: (driven.get(id) ?? 0) + (ridden.get(id) ?? 0),
-          openIncidents: incidents,
-          suspensions: suspensions.get(id) ?? null,
-        };
-      }),
-      total,
-    };
+    return views.map((view) => {
+      const id = view.user.id;
+      const incidents = openIncidents.get(id) ?? 0;
+      const account = accountStatusOf(
+        view.user,
+        view.profiles.map(({ isActive }) => isActive),
+      );
+      return {
+        ...view,
+        statuses: statusesOf(account, suspensions.has(id), incidents),
+        tripCount: (driven.get(id) ?? 0) + (ridden.get(id) ?? 0),
+        openIncidents: incidents,
+        suspensions: suspensions.get(id) ?? null,
+      };
+    });
   }
 
   // Levanta la suspensión de un papel antes de tiempo, con su motivo
