@@ -15,11 +15,8 @@
       <ion-icon class="vehicle-card__car" [icon]="icons.car" aria-hidden="true" />
     }
     <span class="vehicle-card__body">
-      <span class="vehicle-card__title">
-        <span class="vehicle-card__name">{{ name() }}</span>
-        <span class="vehicle-card__separator" aria-hidden="true">|</span>
-        <span class="vehicle-card__plate">{{ plate() }}</span>
-      </span>
+      <span class="vehicle-card__name">{{ name() }}</span>
+      <app-license-plate class="vehicle-card__plate" [plate]="plate()" />
       <span class="vehicle-card__specs text-body-s text-color-muted">
         <span class="vehicle-card__swatch" aria-hidden="true"></span>
         {{ specs() }}

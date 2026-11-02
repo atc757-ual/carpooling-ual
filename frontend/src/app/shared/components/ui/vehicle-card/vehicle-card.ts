@@ -3,10 +3,11 @@ import { IonIcon } from '@ionic/angular';
 import {
   carOutline,
   checkmarkCircle,
+  createOutline,
   ellipseOutline,
-  pencilOutline,
   trashOutline,
 } from 'ionicons/icons';
+import { LicensePlate } from '../license-plate/license-plate';
 import { Vehicle } from '../../../../core/models/driver.model';
 import {
   formatPlate,
@@ -21,7 +22,7 @@ import {
 // Publicar elige el vehículo del viaje; en el Perfil, el predeterminado
 @Component({
   selector: 'app-vehicle-card',
-  imports: [IonIcon],
+  imports: [IonIcon, LicensePlate],
   templateUrl: './vehicle-card.html',
   styleUrl: './vehicle-card.scss',
 })
@@ -46,7 +47,7 @@ export class VehicleCard {
     car: carOutline,
     checked: checkmarkCircle,
     unchecked: ellipseOutline,
-    edit: pencilOutline,
+    edit: createOutline,
     remove: trashOutline,
   };
 }

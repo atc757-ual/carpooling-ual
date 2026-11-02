@@ -1,0 +1,57 @@
+// Los colores de una placa real, fijos (no cambian con el modo oscuro): el
+// azul y el amarillo de la bandera de la UE, fondo blanco y texto negro
+:host {
+  --plate-eu-blue: #039;
+  --plate-eu-yellow: #fc0;
+  --plate-background: #fff;
+  --plate-text: #111;
+
+  display: inline-flex;
+}
+
+.license-plate {
+  display: inline-flex;
+  align-items: stretch;
+  height: 1.625rem; // 26px
+  overflow: hidden;
+  border: var(--border-width-s) solid #2b2b2b;
+  border-radius: 0.25rem; // 4px
+  background: var(--plate-background);
+  box-shadow: 0 1px 0 rgb(0 0 0 / 8%);
+}
+
+// La franja ocupa todo el alto, pegada al borde: 12px de ancho para 24px de
+// alto (la proporción del dibujo) y el fondo azul por si sobra algún píxel
+.license-plate__band {
+  flex: none;
+  width: 0.75rem; // 12px
+  height: 100%;
+  background: var(--plate-eu-blue);
+  fill: var(--plate-eu-blue);
+}
+
+.license-plate__star {
+  fill: var(--plate-eu-yellow);
+}
+
+.license-plate__country {
+  fill: #fff;
+  font-family: var(--font-family-heading);
+  font-size: 6.5px;
+  font-weight: 700;
+}
+
+// Letras de imprenta, algo separadas, como la tipografía de las placas
+.license-plate__number {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.5rem; // 8px
+  color: var(--plate-text);
+  font-family: var(--font-family-heading);
+  font-size: 0.9375rem; // 15px
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
