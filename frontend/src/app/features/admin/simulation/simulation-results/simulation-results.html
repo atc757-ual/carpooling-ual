@@ -1,0 +1,23 @@
+<section class="results" aria-labelledby="results-title">
+  <header class="results__header">
+    <h2 id="results-title" class="text-title">{{ title() }}</h2>
+    <span [class]="'status results__chip--' + criterion().tone">{{ criterion().label }}</span>
+  </header>
+
+  <div class="results__kpis">
+    @for (kpi of kpis(); track kpi.label) {
+      <div class="results__kpi">
+        <span class="text-label results__muted">{{ kpi.label }}</span>
+        <span class="results__value">{{ kpi.value }}</span>
+        <span class="text-body-s results__muted">{{ kpi.hint }}</span>
+        <span class="results__interval">{{ kpi.interval }}</span>
+      </div>
+    }
+  </div>
+
+  <app-slot-chart
+    [series]="results().series"
+    [baselineLabel]="run().baselineScenario"
+    [scenarioLabel]="run().scenario"
+  />
+</section>
