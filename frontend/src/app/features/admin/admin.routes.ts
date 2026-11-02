@@ -4,8 +4,14 @@ import { ADMIN_SECTIONS, AdminSection } from './admin-sections';
 const USERS_PATH = 'users';
 const INCIDENTS_PATH = 'incidents';
 const SIMULATION_PATH = 'simulation';
+const DIGITAL_TWIN_PATH = 'digital-twin';
 // Secciones que ya tienen su pantalla (las demás muestran «Disponible pronto»)
-const WITH_SCREEN: ReadonlySet<string> = new Set([SIMULATION_PATH, USERS_PATH, INCIDENTS_PATH]);
+const WITH_SCREEN: ReadonlySet<string> = new Set([
+  SIMULATION_PATH,
+  DIGITAL_TWIN_PATH,
+  USERS_PATH,
+  INCIDENTS_PATH,
+]);
 
 // Una sección aún sin pantalla: su título y «Disponible pronto»
 function placeholderRoute(section: AdminSection): Routes[number] {
@@ -26,6 +32,12 @@ export const ADMIN_ROUTES: Routes = [
     title: 'Simulación · Admin',
     loadComponent: () =>
       import('./simulation/admin-simulation.page').then((m) => m.AdminSimulationPage),
+  },
+  {
+    path: DIGITAL_TWIN_PATH,
+    title: 'Gemelo digital · Admin',
+    loadComponent: () =>
+      import('./digital-twin/admin-digital-twin.page').then((m) => m.AdminDigitalTwinPage),
   },
   {
     path: USERS_PATH,
