@@ -1,3 +1,4 @@
+import { LegalDocumentsService } from './legal-documents.service';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
@@ -27,6 +28,7 @@ describe('ConsentsService', () => {
           useValue: consentsRepository,
         },
         { provide: EventsService, useValue: { record: jest.fn() } },
+        { provide: LegalDocumentsService, useValue: {} },
       ],
     }).compile();
 

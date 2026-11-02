@@ -83,6 +83,11 @@ const EVENT_ENTITIES: Readonly<Record<string, EventEntity>> = {
       item_deactivated: 'Elemento de catálogo desactivado',
     },
   },
+  legal_document: {
+    group: 'Documentos legales',
+    entity: 'Documento legal',
+    actions: { published: 'Documento legal publicado' },
+  },
   simulation: {
     group: 'Simulación',
     entity: 'Simulación',

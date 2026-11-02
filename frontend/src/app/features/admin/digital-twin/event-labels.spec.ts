@@ -11,7 +11,7 @@ describe('event labels', () => {
   it('names every event type once', () => {
     const types = EVENT_TYPE_GROUPS.flatMap((group) => group.types.map(([type]) => type));
     expect(new Set(types).size).toBe(types.length);
-    expect(types).toHaveLength(36);
+    expect(types).toHaveLength(37);
   });
 
   it('names known types and keeps unknown ones as they are', () => {

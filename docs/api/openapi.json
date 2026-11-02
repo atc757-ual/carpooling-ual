@@ -2645,6 +2645,619 @@
         ]
       }
     },
+    "/api/legal-documents/{type}": {
+      "get": {
+        "operationId": "LegalDocumentsController_getCurrent",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "terms",
+                "privacy"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalDocumentResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: LEGAL_DOCUMENT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the current version of a legal document",
+        "tags": [
+          "legal documents"
+        ]
+      }
+    },
+    "/api/users/me/legal-documents/pending": {
+      "get": {
+        "description": "The current versions I have not accepted (for example after a new one is published). The app asks to accept them before going on.",
+        "operationId": "LegalDocumentsController_listPending",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PendingLegalDocumentResource"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the legal documents I still have to accept",
+        "tags": [
+          "legal documents"
+        ]
+      }
+    },
+    "/api/users/me/legal-acceptances": {
+      "post": {
+        "description": "Recorded in my consent history (source document_update). Accepting it again changes nothing.",
+        "operationId": "LegalDocumentsController_accept",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptLegalDocumentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND, LEGAL_DOCUMENT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: LEGAL_DOCUMENT_OUTDATED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Accept the current version of a legal document",
+        "tags": [
+          "legal documents"
+        ]
+      }
+    },
+    "/api/admin/legal-documents": {
+      "get": {
+        "description": "Drafts included, the newest first within each document.",
+        "operationId": "AdminLegalDocumentsController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "terms",
+                "privacy"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminLegalDocumentResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List every version of the legal documents",
+        "tags": [
+          "admin legal documents"
+        ]
+      }
+    },
+    "/api/admin/legal-documents/{type}/draft": {
+      "get": {
+        "operationId": "AdminLegalDocumentsController_getDraft",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "terms",
+                "privacy"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLegalDocumentResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: LEGAL_DRAFT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the draft of a legal document",
+        "tags": [
+          "admin legal documents"
+        ]
+      },
+      "put": {
+        "description": "A new draft takes the next version (1.0 → 1.1). The HTML is sanitized: only headings, paragraphs, lists, bold, italics, line breaks and safe links remain.",
+        "operationId": "AdminLegalDocumentsController_saveDraft",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "terms",
+                "privacy"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveLegalDraftDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLegalDocumentResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: LEGAL_DOCUMENT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create or replace the draft of a legal document",
+        "tags": [
+          "admin legal documents"
+        ]
+      }
+    },
+    "/api/admin/legal-documents/{type}/draft/publish": {
+      "post": {
+        "description": "It becomes the current version; every user must accept it the next time they sign in.",
+        "operationId": "AdminLegalDocumentsController_publish",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "terms",
+                "privacy"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLegalDocumentResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: LEGAL_DRAFT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Publish the draft of a legal document",
+        "tags": [
+          "admin legal documents"
+        ]
+      }
+    },
     "/api/admin/catalogs/avatars": {
       "get": {
         "description": "Active or not, in display order.",
@@ -9006,7 +9619,8 @@
                 "simulation.cancelled",
                 "catalog.item_created",
                 "catalog.item_updated",
-                "catalog.item_deactivated"
+                "catalog.item_deactivated",
+                "legal_document.published"
               ]
             }
           }
@@ -10264,7 +10878,8 @@
               "settings",
               "account_deletion",
               "location_prompt",
-              "device"
+              "device",
+              "document_update"
             ],
             "example": "registration"
           },
@@ -10592,6 +11207,172 @@
           "name",
           "svg",
           "imageHref"
+        ]
+      },
+      "LegalDocumentResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "LegalDocument"
+            ]
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/legal-documents/privacy"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "terms",
+              "privacy"
+            ]
+          },
+          "version": {
+            "type": "string",
+            "example": "1.1"
+          },
+          "content": {
+            "type": "string",
+            "description": "Sanitized HTML: h2, h3, p, ul, ol, li, strong, b, em, i, br and links (http, https or mailto)",
+            "example": "<h2>1. Qué es UAL Carpool</h2><p>…</p>"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "@type",
+          "href",
+          "type",
+          "version",
+          "content",
+          "publishedAt"
+        ]
+      },
+      "PendingLegalDocumentResource": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "terms",
+              "privacy"
+            ]
+          },
+          "version": {
+            "type": "string",
+            "example": "1.1"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/legal-documents/terms"
+          }
+        },
+        "required": [
+          "type",
+          "version",
+          "href"
+        ]
+      },
+      "AcceptLegalDocumentDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "terms",
+              "privacy"
+            ]
+          },
+          "version": {
+            "type": "string",
+            "example": "1.1",
+            "description": "The version the user read"
+          }
+        },
+        "required": [
+          "type",
+          "version"
+        ]
+      },
+      "AdminLegalDocumentResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "LegalDocument"
+            ]
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/legal-documents/privacy"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "terms",
+              "privacy"
+            ]
+          },
+          "version": {
+            "type": "string",
+            "example": "1.1"
+          },
+          "content": {
+            "type": "string",
+            "description": "Sanitized HTML: h2, h3, p, ul, ol, li, strong, b, em, i, br and links (http, https or mailto)",
+            "example": "<h2>1. Qué es UAL Carpool</h2><p>…</p>"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published"
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "@type",
+          "href",
+          "type",
+          "version",
+          "content",
+          "publishedAt",
+          "id",
+          "status",
+          "updatedAt"
+        ]
+      },
+      "SaveLegalDraftDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "maxLength": 200000,
+            "description": "HTML; it is sanitized before saving",
+            "example": "<h2>1. Qué es UAL Carpool</h2><p>…</p>"
+          }
+        },
+        "required": [
+          "content"
         ]
       },
       "AdminAvatarResource": {
@@ -13706,7 +14487,8 @@
               "simulation.cancelled",
               "catalog.item_created",
               "catalog.item_updated",
-              "catalog.item_deactivated"
+              "catalog.item_deactivated",
+              "legal_document.published"
             ]
           },
           "version": {
@@ -13792,7 +14574,8 @@
               "simulation.cancelled",
               "catalog.item_created",
               "catalog.item_updated",
-              "catalog.item_deactivated"
+              "catalog.item_deactivated",
+              "legal_document.published"
             ]
           },
           "version": {

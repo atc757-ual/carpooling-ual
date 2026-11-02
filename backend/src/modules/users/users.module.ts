@@ -9,6 +9,12 @@ import {
   AvatarsController,
 } from './avatars.controller';
 import { AvatarsService } from './avatars.service';
+import { LegalDocument } from './entities/legal-document.entity';
+import {
+  AdminLegalDocumentsController,
+  LegalDocumentsController,
+} from './legal-documents.controller';
+import { LegalDocumentsService } from './legal-documents.service';
 import { ConsentsService } from './consents.service';
 import { AdminProfile } from './entities/admin-profile.entity';
 import { Avatar } from './entities/avatar.entity';
@@ -35,6 +41,7 @@ import { VehiclesService } from './vehicles.service';
       Vehicle,
       Avatar,
       UserConsent,
+      LegalDocument,
     ]),
     CatalogsModule,
     EventsModule,
@@ -44,6 +51,8 @@ import { VehiclesService } from './vehicles.service';
     UsersController,
     VehiclesController,
     AvatarsController,
+    LegalDocumentsController,
+    AdminLegalDocumentsController,
     AdminAvatarsController,
     AdminAvatarUploadsController,
   ],
@@ -52,6 +61,7 @@ import { VehiclesService } from './vehicles.service';
     VehiclesService,
     UserProfilesService,
     AvatarsService,
+    LegalDocumentsService,
     ConsentsService,
   ],
   // Lo único visible desde otros módulos (p. ej. auth, trips): las fronteras entre

@@ -2,14 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, IsNull, Repository } from 'typeorm';
 import { EventsService } from '../../events/events.service';
+import type { LegalDocumentType } from './entities/legal-document.entity';
 import { UserConsent } from './entities/user-consent.entity';
+import { LegalDocumentOutdatedError } from './errors/legal-document-outdated.error';
+import { LegalDocumentsService } from './legal-documents.service';
 import { User } from './entities/user.entity';
 import { UserNotFoundError } from './errors/user-not-found.error';
-import {
-  computeConsentFingerprint,
-  CONSENT_DOCUMENT_VERSION,
-  CONSENT_TYPES,
-} from './user-consent';
+import { computeConsentFingerprint, CONSENT_TYPES } from './user-consent';
 import type {
   ConsentAction,
   ConsentSource,
@@ -37,6 +36,7 @@ export class ConsentsService {
     @InjectRepository(UserConsent)
     private readonly consentsRepository: Repository<UserConsent>,
     private readonly eventsService: EventsService,
+    private readonly legalDocuments: LegalDocumentsService,
   ) {}
 
   // Al registrarse y aceptar las condiciones y la política de privacidad,
@@ -47,12 +47,13 @@ export class ConsentsService {
     acceptedAt: Date,
   ): Promise<void> {
     const recordedAt = new Date(acceptedAt);
+    const versions = await this.legalDocuments.currentVersions();
     await Promise.all(
       INITIAL_CONSENT_TYPES.map((type) =>
         this.insertConsent(manager, {
           userId,
           type,
-          documentVersion: CONSENT_DOCUMENT_VERSION,
+          documentVersion: versions[type as LegalDocumentType],
           action: 'granted',
           source: 'registration',
           recordedAt,
@@ -70,6 +71,7 @@ export class ConsentsService {
     action: ConsentAction,
     source: LocationConsentSource = 'settings',
   ): Promise<UserConsentsView> {
+    const privacy = await this.legalDocuments.getCurrent('privacy');
     await this.dataSource.transaction(async (manager) => {
       const user = await manager.findOne(User, {
         where: { id: userId },
@@ -88,7 +90,7 @@ export class ConsentsService {
       await this.insertConsent(manager, {
         userId,
         type: 'location',
-        documentVersion: CONSENT_DOCUMENT_VERSION,
+        documentVersion: privacy.version,
         action,
         source,
         recordedAt: new Date(),
@@ -122,6 +124,64 @@ export class ConsentsService {
         }
       }),
     );
+  }
+
+  // Los documentos cuya versión vigente aún no ha aceptado (p. ej. tras
+  // publicar una nueva): la app pide aceptarlos antes de seguir
+  async pendingDocuments(
+    userId: string,
+  ): Promise<{ type: LegalDocumentType; version: string }[]> {
+    const [{ current }, versions] = await Promise.all([
+      this.getMyConsents(userId),
+      this.legalDocuments.currentVersions(),
+    ]);
+    return INITIAL_CONSENT_TYPES.flatMap((type) => {
+      const documentType = type as LegalDocumentType;
+      const accepted = current[type];
+      const isAccepted =
+        accepted?.action === 'granted' &&
+        accepted.documentVersion === versions[documentType];
+      return isAccepted
+        ? []
+        : [{ type: documentType, version: versions[documentType] }];
+    });
+  }
+
+  // Acepta la versión vigente de un documento (document_update). Si no es la
+  // vigente, LegalDocumentOutdatedError; aceptarla otra vez no cambia nada
+  async acceptDocument(
+    userId: string,
+    type: LegalDocumentType,
+    version: string,
+  ): Promise<void> {
+    const current = await this.legalDocuments.getCurrent(type);
+    if (current.version !== version) {
+      throw new LegalDocumentOutdatedError(type);
+    }
+    await this.dataSource.transaction(async (manager) => {
+      const user = await manager.findOne(User, {
+        where: { id: userId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (user?.deactivatedAt !== null) {
+        throw new UserNotFoundError(userId);
+      }
+      const latest = await manager.findOne(UserConsent, {
+        where: { userId, type },
+        order: { recordedAt: 'DESC', id: 'DESC' },
+      });
+      if (latest?.action === 'granted' && latest.documentVersion === version) {
+        return;
+      }
+      await this.insertConsent(manager, {
+        userId,
+        type,
+        documentVersion: version,
+        action: 'granted',
+        source: 'document_update',
+        recordedAt: new Date(),
+      });
+    });
   }
 
   async getMyConsents(userId: string): Promise<UserConsentsView> {
