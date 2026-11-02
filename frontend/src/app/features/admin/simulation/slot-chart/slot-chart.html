@@ -1,0 +1,49 @@
+<figure class="chart">
+  <figcaption class="chart__caption">
+    <span class="text-label chart__title">Vehículos que llegan al campus por franja horaria</span>
+    <span class="chart__legend">
+      <span class="chart__key chart__key--baseline" aria-hidden="true"></span>
+      {{ baselineLabel() }}
+      <span class="chart__key chart__key--scenario" aria-hidden="true"></span>
+      {{ scenarioLabel() }}
+    </span>
+  </figcaption>
+  <svg class="chart__svg" [attr.viewBox]="viewBox" role="img" [attr.aria-label]="description()">
+    @for (tick of layout().ticks; track tick.value) {
+      <line
+        class="chart__grid"
+        [attr.x1]="plot.left"
+        [attr.x2]="plot.right"
+        [attr.y1]="tick.y"
+        [attr.y2]="tick.y"
+      />
+      <text class="chart__axis" [attr.x]="plot.left - 6" [attr.y]="tick.y + 4" text-anchor="end">
+        {{ tick.value }}
+      </text>
+    }
+    @for (group of layout().groups; track group.slot) {
+      <rect
+        class="chart__bar chart__bar--baseline"
+        [attr.x]="group.baseline.x"
+        [attr.y]="group.baseline.y"
+        [attr.width]="group.baseline.width"
+        [attr.height]="group.baseline.height"
+      />
+      <rect
+        class="chart__bar chart__bar--scenario"
+        [attr.x]="group.scenario.x"
+        [attr.y]="group.scenario.y"
+        [attr.width]="group.scenario.width"
+        [attr.height]="group.scenario.height"
+      />
+      <text
+        class="chart__axis"
+        [attr.x]="group.labelX"
+        [attr.y]="plot.bottom + 18"
+        text-anchor="middle"
+      >
+        {{ group.slot }}
+      </text>
+    }
+  </svg>
+</figure>

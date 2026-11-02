@@ -3,8 +3,9 @@ import { ADMIN_SECTIONS, AdminSection } from './admin-sections';
 
 const USERS_PATH = 'users';
 const INCIDENTS_PATH = 'incidents';
+const SIMULATION_PATH = 'simulation';
 // Secciones que ya tienen su pantalla (las demás muestran «Disponible pronto»)
-const WITH_SCREEN: ReadonlySet<string> = new Set([USERS_PATH, INCIDENTS_PATH]);
+const WITH_SCREEN: ReadonlySet<string> = new Set([SIMULATION_PATH, USERS_PATH, INCIDENTS_PATH]);
 
 // Una sección aún sin pantalla: su título y «Disponible pronto»
 function placeholderRoute(section: AdminSection): Routes[number] {
@@ -20,6 +21,12 @@ function placeholderRoute(section: AdminSection): Routes[number] {
 // cada PR del panel sustituye el marcador de su sección por la pantalla real
 export const ADMIN_ROUTES: Routes = [
   { path: '', pathMatch: 'full', redirectTo: ADMIN_SECTIONS[0].path },
+  {
+    path: SIMULATION_PATH,
+    title: 'Simulación · Admin',
+    loadComponent: () =>
+      import('./simulation/admin-simulation.page').then((m) => m.AdminSimulationPage),
+  },
   {
     path: USERS_PATH,
     title: 'Usuarios · Admin',

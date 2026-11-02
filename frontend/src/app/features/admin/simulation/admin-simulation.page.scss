@@ -1,0 +1,108 @@
+.admin-page__header {
+  margin-block-end: var(--space-l);
+
+  h1,
+  p {
+    margin: 0;
+  }
+}
+
+.admin-page__subtitle {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.simulation__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-base);
+}
+
+// Configurar a la izquierda y resultados a la derecha desde 768px
+.simulation__grid {
+  display: grid;
+  gap: var(--space-base);
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(16rem, 1fr) minmax(0, 2fr); // 256px
+    align-items: start;
+  }
+}
+
+.simulation__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-base);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.simulation__scenarios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.simulation__numbers {
+  display: grid;
+  gap: var(--space-s);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.simulation__history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin-block-start: var(--space-l);
+
+  h2 {
+    margin: 0;
+  }
+}
+
+// La tabla se desplaza dentro de su caja, nunca la página
+.simulation__table-wrap {
+  overflow: auto;
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+.simulation__table {
+  width: 100%;
+  min-width: 40rem; // 640px
+  border-collapse: collapse;
+  font-size: var(--font-size-label);
+
+  th,
+  td {
+    padding: var(--space-xs) var(--space-base);
+    border-bottom: var(--border-width) solid var(--color-border-subtle);
+    text-align: left;
+    vertical-align: middle;
+    font-variant-numeric: tabular-nums;
+  }
+
+  th {
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-medium);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+// La ejecución abierta se marca en el historial
+.simulation__row--open td {
+  background: var(--color-surface-subtle);
+  font-weight: var(--font-weight-semibold);
+}

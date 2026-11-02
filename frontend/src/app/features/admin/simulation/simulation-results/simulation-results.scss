@@ -1,0 +1,61 @@
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.results__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.results__chip--success {
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+}
+
+.results__chip--warning {
+  background: var(--color-warning-subtle);
+  color: var(--color-warning);
+}
+
+// Las cifras son las protagonistas (guía, «Administración»)
+.results__kpis {
+  display: grid;
+  gap: var(--space-s);
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); // 160px
+}
+
+.results__kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-base);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+.results__value {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.results__muted {
+  color: var(--color-text-muted);
+}
+
+.results__interval {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  font-variant-numeric: tabular-nums;
+}

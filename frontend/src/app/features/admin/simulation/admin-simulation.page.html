@@ -1,0 +1,150 @@
+<header class="admin-page__header simulation__header">
+  <div>
+    <h1 class="text-heading">Simulación de escenarios</h1>
+    @if (snapshotLabel(); as snapshot) {
+      <p class="text-body admin-page__subtitle">
+        Parte de una copia del estado del gemelo digital tomada el {{ snapshot }}.
+      </p>
+    }
+  </div>
+  <ion-button fill="outline" [disabled]="!results.hasValue()" (click)="handleExport()">
+    Exportar CSV
+  </ion-button>
+</header>
+
+<div class="simulation__grid">
+  <!-- Configurar la ejecución -->
+  <section class="simulation__card" aria-labelledby="simulation-config">
+    <h2 id="simulation-config" class="text-title">Configurar ejecución</h2>
+    <ion-radio-group
+      class="simulation__scenarios"
+      [value]="scenario()"
+      (ionChange)="handleScenario($event.detail.value)"
+    >
+      @for (option of scenarios.value() ?? []; track option.code) {
+        <ion-radio [value]="option.code" labelPlacement="end" justify="start">
+          {{ option.code }} · {{ option.name }}
+        </ion-radio>
+      }
+    </ion-radio-group>
+    @if (selectedScenario(); as selected) {
+      <p class="text-body-s admin-page__subtitle">
+        {{ selected.users }} usuarios · adopción
+        {{ text.formatNumber(selected.adoptionRate * 100, 0) }} % · margen
+        {{ selected.timeWindowMin }} min
+      </p>
+    }
+    <div class="simulation__numbers">
+      <ion-input
+        label="Réplicas"
+        labelPlacement="stacked"
+        fill="outline"
+        type="number"
+        inputmode="numeric"
+        min="1"
+        max="100"
+        [value]="replicas()"
+        [errorText]="isReplicasValid() ? '' : 'Entre 1 y 100.'"
+        [class.ion-invalid]="!isReplicasValid()"
+        [class.ion-touched]="!isReplicasValid()"
+        (ionInput)="handleNumber('replicas', $event)"
+      />
+      <ion-input
+        label="Semilla inicial"
+        labelPlacement="stacked"
+        fill="outline"
+        type="number"
+        inputmode="numeric"
+        min="0"
+        [value]="seed()"
+        [errorText]="isSeedValid() ? '' : 'Un número entero positivo.'"
+        [class.ion-invalid]="!isSeedValid()"
+        [class.ion-touched]="!isSeedValid()"
+        (ionInput)="handleNumber('seed', $event)"
+      />
+    </div>
+    @if (startError(); as error) {
+      <p class="notice notice--danger" role="alert">{{ error }}</p>
+    }
+    <ion-button
+      expand="block"
+      [disabled]="
+        isRunning() || isStarting() || !isReplicasValid() || !isSeedValid() || !scenario()
+      "
+      (click)="handleStart()"
+    >
+      {{ startLabel() }}
+    </ion-button>
+  </section>
+
+  <!-- La ejecución abierta: progreso o resultados -->
+  <section class="simulation__card" aria-live="polite">
+    @if (current(); as run) {
+      @if (isRunning()) {
+        <h2 class="text-title">
+          En curso · {{ run.scenario }} frente a {{ run.baselineScenario }}
+        </h2>
+        <ion-progress-bar [value]="run.progress / run.replicas" />
+        <p class="text-body-s admin-page__subtitle">{{ progressLabel() }}</p>
+        <ion-button fill="outline" (click)="handleCancel()">Cancelar ejecución</ion-button>
+      } @else if (results.value(); as result) {
+        <app-simulation-results [run]="run" [results]="result" />
+      } @else if (run.status === 'finished') {
+        <p class="text-body-s admin-page__subtitle">Cargando los resultados…</p>
+      } @else {
+        <h2 class="text-title">{{ run.scenario }} frente a {{ run.baselineScenario }}</h2>
+        <p class="text-body admin-page__subtitle">
+          {{
+            run.status === 'cancelled'
+              ? 'Se canceló antes de terminar: no tiene resultados.'
+              : 'Falló antes de terminar: no tiene resultados.'
+          }}
+        </p>
+      }
+    } @else {
+      <h2 class="text-title">Resultados</h2>
+      <p class="text-body admin-page__subtitle">
+        Aún no hay ejecuciones. Configura un escenario y ejecútalo.
+      </p>
+    }
+  </section>
+</div>
+
+<!-- Historial: abre los resultados de cada ejecución -->
+@if (historyRows().length > 0) {
+  <section class="simulation__history" aria-labelledby="simulation-history">
+    <h2 id="simulation-history" class="text-title">Historial</h2>
+    <div class="simulation__table-wrap">
+      <table class="simulation__table">
+        <thead>
+          <tr>
+            <th scope="col">Fecha</th>
+            <th scope="col">Escenario</th>
+            <th scope="col">Réplicas</th>
+            <th scope="col">Semilla</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Criterio</th>
+            <th scope="col"><span class="visually-hidden">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of historyRows(); track row.run.id) {
+            <tr [class.simulation__row--open]="row.run.id === current()?.id">
+              <td>{{ row.date }}</td>
+              <td>{{ row.comparison }}</td>
+              <td>{{ row.run.progress }}/{{ row.run.replicas }}</td>
+              <td>{{ row.run.seed }}</td>
+              <td>{{ row.status }}</td>
+              <td>{{ row.criterion }}</td>
+              <td>
+                <ion-button size="small" fill="clear" (click)="openRun(row.run.id)">
+                  Ver resultados
+                </ion-button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

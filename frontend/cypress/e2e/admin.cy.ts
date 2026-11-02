@@ -76,6 +76,17 @@ const INCIDENT = {
   review: null,
 };
 
+// Configuración de S1 de GET /api/admin/simulations/scenarios
+const SCENARIO_S1 = {
+  code: 'S1',
+  name: 'Carpooling básico',
+  users: 200,
+  adoptionRate: 0.3,
+  modalSplit: { own_car: 0.3 },
+  timeWindowMin: 15,
+  parameters: {},
+};
+
 function visitWithSession(path: string, profiles: string[]): void {
   cy.intercept('POST', '/api/auth/refresh', accessToken(profiles));
   cy.visit(path, {
@@ -148,6 +159,87 @@ for (const viewport of VIEWPORTS) {
         .shadow()
         .find('.toast-message')
         .should('contain', 'Perfil de conductor desactivado.');
+    });
+
+    it('runs a scenario, follows its progress and shows its results', () => {
+      const run = {
+        id: 'r1',
+        href: '/api/admin/simulations/r1',
+        scenario: 'S1',
+        baselineScenario: 'S0',
+        scenarioConfig: { scenario: SCENARIO_S1, baseline: { ...SCENARIO_S1, code: 'S0' } },
+        replicas: 3,
+        seed: 20261101,
+        status: 'running',
+        progress: 1,
+        requestedBy: 'admin-1',
+        snapshotAt: '2026-10-25T08:12:00.000Z',
+        requestedAt: '2026-10-25T08:12:00.000Z',
+        startedAt: null,
+        finishedAt: null,
+        errorCode: null,
+        criterionMet: null,
+      };
+      const stat = (mean: number) => ({ mean, sd: 1, ciLow: mean - 1, ciHigh: mean + 1 });
+      let runs: object[] = [];
+      cy.intercept('GET', '/api/admin/simulations/scenarios', [
+        { ...SCENARIO_S1, '@type': 'SimulationScenario', id: 's1', replicas: 3 },
+      ]);
+      cy.intercept('GET', '/api/admin/simulations?*', (request) =>
+        request.reply({
+          body: runs,
+          headers: {
+            'X-Total-Count': String(runs.length),
+            'Access-Control-Expose-Headers': 'X-Total-Count',
+          },
+        }),
+      );
+      cy.intercept('POST', '/api/admin/simulations', (request) => {
+        runs = [run];
+        request.reply(201, run);
+      }).as('start');
+      let polls = 0;
+      cy.intercept('GET', '/api/admin/simulations/r1', (request) => {
+        polls += 1;
+        request.reply(
+          polls < 2 ? run : { ...run, status: 'finished', progress: 3, criterionMet: true },
+        );
+      });
+      cy.intercept('GET', '/api/admin/simulations/r1/results', {
+        href: '/api/admin/simulations/r1/results',
+        replicas: 3,
+        criterionMet: true,
+        summary: {
+          vehiclesUsed: { scenario: stat(42), baseline: stat(50) },
+          averageOccupancy: { scenario: stat(1.4), baseline: stat(1.2) },
+          vehiclesAvoidedPct: stat(16.4),
+          requestsCoveredPct: stat(74.5),
+          matchingP95Ms: stat(171),
+          recoveryPct: null,
+        },
+        series: [
+          { slot: '07:00', vehicles: 8, baselineVehicles: 10 },
+          { slot: '07:30', vehicles: 17, baselineVehicles: 20 },
+        ],
+      });
+      visitWithSession('/admin/simulation', ['admin']);
+
+      cy.contains('Aún no hay ejecuciones');
+      cy.contains('ion-button', 'Ejecutar S1 frente a S0').click();
+      cy.wait('@start').its('request.body').should('deep.equal', {
+        scenario: 'S1',
+        baselineScenario: 'S0',
+        replicas: 3,
+        seed: 20261101,
+      });
+      cy.contains('1/3 réplicas');
+
+      cy.contains('3/3 réplicas · criterio cumplido', { timeout: 6000 });
+      cy.contains('.results__kpi', 'Vehículos evitados').contains('16,4 %');
+      cy.get('svg[role="img"]')
+        .should('have.attr', 'aria-label')
+        .and('contain', '07:30: S0 20, S1 17');
+      cy.contains('.simulation__table', 'S1 frente a S0');
     });
 
     it('lists the open incidents, reviews one and opens another one', () => {

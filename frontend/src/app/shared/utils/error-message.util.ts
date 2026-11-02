@@ -45,6 +45,10 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   USER_NOT_SUSPENDED: 'Este usuario ya no está suspendido.',
   USER_NOT_FOUND: 'No encontramos este usuario.',
   PROFILE_NOT_FOUND: 'Este usuario no tiene ese perfil.',
+  SIMULATION_ALREADY_RUNNING: 'Ya hay una simulación en marcha. Espera a que termine o cancélala.',
+  SIMULATION_NOT_FINISHED: 'Esta simulación aún no tiene resultados.',
+  SCENARIO_NOT_FOUND: 'Ese escenario no existe.',
+  INVALID_SIMULATION_TRANSITION: 'Esta simulación ya ha terminado.',
 };
 
 export function getErrorMessage(error: ApiError): string {
