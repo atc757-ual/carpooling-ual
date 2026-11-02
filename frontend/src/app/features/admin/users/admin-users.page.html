@@ -71,7 +71,7 @@
   </div>
 } @else if (rows().length === 0) {
   <!-- Vacío: con filtros, la salida es quitarlos -->
-  <div class="admin-users__empty admin-users__state" role="status">
+  <output class="admin-users__empty admin-users__state">
     @if (hasFilters()) {
       <p class="text-title">Ningún usuario coincide</p>
       <p class="text-body admin-page__subtitle">Prueba con otra búsqueda o quita los filtros.</p>
@@ -79,7 +79,7 @@
     } @else {
       <p class="text-title">Aún no hay usuarios</p>
     }
-  </div>
+  </output>
 } @else {
   <div class="admin-users__table-wrap">
     <table class="admin-users__table" [attr.aria-busy]="users.isLoading()">

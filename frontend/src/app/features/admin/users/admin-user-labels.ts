@@ -39,9 +39,11 @@ const DATE_FORMAT = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 's
 
 // «Conductor · Pasajero»: solo los perfiles activos, en este orden
 export function rolesLabel(row: Pick<AdminUserRow, 'profiles'>): string {
-  const active = row.profiles.filter(({ isActive }) => isActive).map(({ profile }) => profile);
+  const active = new Set(
+    row.profiles.filter(({ isActive }) => isActive).map(({ profile }) => profile),
+  );
   const ordered = (['driver', 'passenger', 'admin'] as const).filter((profile) =>
-    active.includes(profile),
+    active.has(profile),
   );
   return ordered.length === 0
     ? 'Sin perfil activo'
