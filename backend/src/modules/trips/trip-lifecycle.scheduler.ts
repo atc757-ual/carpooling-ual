@@ -23,4 +23,3 @@ export class TripLifecycleScheduler {
     return this.tripsService.cancelUnstartedTrips(now);
   }
 }
-
