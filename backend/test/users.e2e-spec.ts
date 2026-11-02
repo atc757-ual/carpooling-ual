@@ -1086,31 +1086,8 @@ describe('Users API (e2e)', () => {
     it('blocks account deletion with 409 ACCOUNT_HAS_ACTIVE_TRIPS when the user has an active trip as driver or an accepted seat as passenger', async () => {
       const driver = await createUser('driver');
       const passenger = await createUser('passenger');
-      const tripId = await insertDriverWithTrip(driver.id, 'confirmed');
-      await dataSource.query(
-        `INSERT INTO requests (trip_id, passenger_id, seats, is_priority, status, answered_at)
-         VALUES ($1, $2, 1, false, 'accepted', now())`,
-        [tripId, passenger.id],
-      );
 
-      // El conductor no puede eliminar su cuenta mientras el viaje no haya terminado
-      const driverEmail = `${EMAIL_PREFIX}driver@ual.es`;
-      await request(app.getHttpServer())
-        .post('/api/users/me/account-deletion')
-        .set('Authorization', `Bearer ${driver.accessToken}`)
-        .expect(202);
-      const driverCode = lastCodeSentTo(app, driverEmail);
-
-      await request(app.getHttpServer())
-        .post('/api/users/me/account-deletion/confirm')
-        .set('Authorization', `Bearer ${driver.accessToken}`)
-        .send({ code: driverCode })
-        .expect(409)
-        .expect(({ body }) =>
-          expect(body).toMatchObject({ code: 'ACCOUNT_HAS_ACTIVE_TRIPS' }),
-        );
-
-      // El pasajero con plaza aceptada tampoco puede eliminar su cuenta
+      // El pasajero pide el código cuando aún no tiene plaza
       const passengerEmail = `${EMAIL_PREFIX}passenger@ual.es`;
       await request(app.getHttpServer())
         .post('/api/users/me/account-deletion')
@@ -1118,6 +1095,25 @@ describe('Users API (e2e)', () => {
         .expect(202);
       const passengerCode = lastCodeSentTo(app, passengerEmail);
 
+      const tripId = await insertDriverWithTrip(driver.id, 'confirmed');
+      await dataSource.query(
+        `INSERT INTO requests (trip_id, passenger_id, seats, is_priority, status, answered_at)
+         VALUES ($1, $2, 1, false, 'accepted', now())`,
+        [tripId, passenger.id],
+      );
+
+      // El conductor con el viaje sin terminar ni siquiera recibe el código:
+      // se le avisa al pedirlo
+      await request(app.getHttpServer())
+        .post('/api/users/me/account-deletion')
+        .set('Authorization', `Bearer ${driver.accessToken}`)
+        .expect(409)
+        .expect(({ body }) =>
+          expect(body).toMatchObject({ code: 'ACCOUNT_HAS_ACTIVE_TRIPS' }),
+        );
+
+      // Al confirmar se comprueba otra vez: la plaza se aceptó después de
+      // pedir el código
       await request(app.getHttpServer())
         .post('/api/users/me/account-deletion/confirm')
         .set('Authorization', `Bearer ${passenger.accessToken}`)

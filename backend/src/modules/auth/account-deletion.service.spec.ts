@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import type { EntityManager } from 'typeorm';
 import { MailSender } from '../../shared/mail/mail-sender';
 import { User } from '../users/entities/user.entity';
+import { AccountHasActiveTripsError } from '../users/errors/account-has-active-trips.error';
 import { UserNotFoundError } from '../users/errors/user-not-found.error';
 import { UsersService } from '../users/users.service';
 import { AccountDeletionService } from './account-deletion.service';
@@ -13,9 +14,11 @@ describe('AccountDeletionService', () => {
   const usersService = {
     findById: jest.fn(),
     deactivateAccount: jest.fn(),
+    assertCanDeactivate: jest.fn(),
   };
   const emailCodes = {
     issue: jest.fn(),
+    check: jest.fn(),
     consume: jest.fn(),
   };
   const refreshTokens = {
@@ -79,6 +82,20 @@ describe('AccountDeletionService', () => {
       expect(mailSender.send).not.toHaveBeenCalled();
     });
 
+    it('does not send a code when the user still has active trips', async () => {
+      usersService.findById.mockResolvedValue(activeUser());
+      usersService.assertCanDeactivate.mockRejectedValue(
+        new AccountHasActiveTripsError(),
+      );
+
+      await expect(service.requestCode('user-1')).rejects.toBeInstanceOf(
+        AccountHasActiveTripsError,
+      );
+      expect(usersService.assertCanDeactivate).toHaveBeenCalledWith('user-1');
+      expect(emailCodes.issue).not.toHaveBeenCalled();
+      expect(mailSender.send).not.toHaveBeenCalled();
+    });
+
     it('throws USER_NOT_FOUND when the user does not exist or is already deactivated', async () => {
       usersService.findById.mockResolvedValueOnce(null);
       await expect(service.requestCode('missing')).rejects.toBeInstanceOf(
@@ -91,6 +108,30 @@ describe('AccountDeletionService', () => {
       await expect(service.requestCode('user-1')).rejects.toBeInstanceOf(
         UserNotFoundError,
       );
+    });
+  });
+
+  describe('verifyCode', () => {
+    it('checks the account_deletion code with emailCodes.check without consuming it', async () => {
+      usersService.findById.mockResolvedValue(activeUser());
+      emailCodes.check.mockResolvedValue(undefined);
+
+      await service.verifyCode('user-1', '654321');
+
+      expect(emailCodes.check).toHaveBeenCalledWith(
+        'user-1',
+        'account_deletion',
+        '654321',
+      );
+    });
+
+    it('throws USER_NOT_FOUND when user does not exist or is deactivated', async () => {
+      usersService.findById.mockResolvedValue(null);
+
+      await expect(
+        service.verifyCode('missing', '654321'),
+      ).rejects.toBeInstanceOf(UserNotFoundError);
+      expect(emailCodes.check).not.toHaveBeenCalled();
     });
   });
 

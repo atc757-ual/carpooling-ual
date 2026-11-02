@@ -30,10 +30,20 @@ export class AccountDeletionService {
     if (user?.deactivatedAt !== null) {
       throw new UserNotFoundError(userId);
     }
+    // Con viajes activos no se puede: se avisa ya, no tras el código
+    await this.usersService.assertCanDeactivate(user.id);
     const code = await this.emailCodes.issue(user.id, 'account_deletion');
     if (code !== null) {
       await this.sendCode(user, code);
     }
+  }
+
+  async verifyCode(userId: string, code: string): Promise<void> {
+    const user = await this.usersService.findById(userId);
+    if (user?.deactivatedAt !== null) {
+      throw new UserNotFoundError(userId);
+    }
+    await this.emailCodes.check(user.id, 'account_deletion', code);
   }
 
   async confirmDeletion(userId: string, code: string): Promise<void> {

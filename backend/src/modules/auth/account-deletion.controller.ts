@@ -27,17 +27,43 @@ export class AccountDeletionController {
   @ApiOperation({
     summary: 'Send a 6-digit email code to delete my account',
     description:
-      'Sends a 6-digit confirmation code by email to the authenticated user (purpose account_deletion, valid for 15 minutes, at most one code per minute).',
+      'Sends a 6-digit confirmation code by email to the authenticated user (purpose account_deletion, valid for 15 minutes, at most one code per minute). Fails first if the user has trips in progress or pending (ACCOUNT_HAS_ACTIVE_TRIPS).',
   })
   @ApiAcceptedResponse({ description: 'Account deletion code queued' })
   @ApiErrorResponses({
     ...AUTH_ERRORS,
     [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
+    [HttpStatus.CONFLICT]: ['ACCOUNT_HAS_ACTIVE_TRIPS'],
   })
   async requestCode(
     @CurrentUser() currentUser: AccessTokenPayload,
   ): Promise<void> {
     await this.accountDeletion.requestCode(currentUser.sub);
+  }
+
+  @Post('verify')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary:
+      'Verify a 6-digit email code for account deletion without deleting',
+    description:
+      'Checks if the 6-digit email code is valid for account deletion without consuming it.',
+  })
+  @ApiNoContentResponse({ description: 'Code is valid' })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: [
+      'VALIDATION_FAILED',
+      'INVALID_VERIFICATION_CODE',
+    ],
+    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
+    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS'],
+  })
+  async verifyCode(
+    @CurrentUser() currentUser: AccessTokenPayload,
+    @Body() dto: ConfirmAccountDeletionDto,
+  ): Promise<void> {
+    await this.accountDeletion.verifyCode(currentUser.sub, dto.code);
   }
 
   @Post('confirm')
