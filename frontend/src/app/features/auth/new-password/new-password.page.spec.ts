@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../core/i18n/testing-transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { PasswordResetService } from '../../../core/services/auth/password-reset.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -26,6 +27,7 @@ describe('NewPasswordPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        provideTranslocoTestingSupport(),
         { provide: ToastService, useValue: { showError } },
         {
           provide: PasswordResetService,
@@ -67,7 +69,7 @@ describe('NewPasswordPage', () => {
     await page.handleSubmit();
 
     expect(resetPassword).not.toHaveBeenCalled();
-    expect(page.confirmationErrorText()).toBe('Las contraseñas no coinciden.');
+    expect(page.confirmationErrorKey()).toBe('auth.newPassword.mismatchError');
   });
 
   it('compares again when the password changes after confirming it', () => {

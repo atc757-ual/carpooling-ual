@@ -20,13 +20,14 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { arrowBackOutline, eyeOffOutline, eyeOutline, lockClosedOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { PasswordResetService } from '../../../core/services/auth/password-reset.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
 
 // Mismos límites que la API (y que el registro)
 const PASSWORD_MIN_LENGTH = 8;
@@ -62,6 +63,7 @@ function matchesPassword(confirmation: AbstractControl<string>): ValidationError
     IonToolbar,
     AuthLayout,
     IonicFormStatus,
+    TranslocoPipe,
   ],
   templateUrl: './new-password.page.html',
   styleUrls: ['../auth-form.scss', './new-password.page.scss'],
@@ -70,6 +72,7 @@ export class NewPasswordPage implements OnInit {
   private readonly passwordReset = inject(PasswordResetService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
 
   readonly form = inject(NonNullableFormBuilder).group({
     password: [
@@ -109,10 +112,19 @@ export class NewPasswordPage implements OnInit {
     }
   }
 
-  confirmationErrorText(): string {
+  confirmationErrorKey(): string {
+    if (this.form.controls.confirmation.hasError('required')) {
+      return 'auth.newPassword.confirmRequired';
+    }
     return this.form.controls.confirmation.hasError('passwordMismatch')
-      ? 'Las contraseñas no coinciden.'
-      : 'Repite la contraseña nueva.';
+      ? 'auth.newPassword.mismatchError'
+      : 'auth.newPassword.confirmError';
+  }
+
+  passwordErrorKey(): string {
+    return this.form.controls.password.hasError('required')
+      ? 'auth.validation.passwordRequired'
+      : 'auth.validation.passwordLength';
   }
 
   async handleSubmit(): Promise<void> {
@@ -129,7 +141,7 @@ export class NewPasswordPage implements OnInit {
       if (EXPIRED_CODE_ERRORS.has(apiError.code)) {
         this.isCodeExpired.set(true);
       } else {
-        void this.toast.showError(getErrorMessage(apiError));
+        void this.toast.showError(getAuthErrorMessage(apiError, this.transloco));
       }
     } finally {
       this.isSubmitting.set(false);

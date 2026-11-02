@@ -1,12 +1,13 @@
 import { Component, computed, effect, input, signal, untracked } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { environment } from '../../../../../environments/environment';
 import { ComboboxState } from '../combobox/combobox';
 
 // Para quién es cada dominio (se muestra al lado de la sugerencia)
 const DOMAIN_AUDIENCES: Readonly<Record<string, string>> = {
-  'inlumine.ual.es': 'Estudiantes',
-  'ual.es': 'Personal',
+  'inlumine.ual.es': 'auth.emailSuggestions.students',
+  'ual.es': 'auth.emailSuggestions.staff',
 };
 
 // Primero el de los estudiantes, que son la mayoría
@@ -31,6 +32,7 @@ export interface EmailSuggestion {
 // <app-email-suggestions #suggestions [control]="form.controls.email" />
 @Component({
   selector: 'app-email-suggestions',
+  imports: [TranslocoPipe],
   templateUrl: './email-suggestions.html',
   styleUrl: './email-suggestions.scss',
 })

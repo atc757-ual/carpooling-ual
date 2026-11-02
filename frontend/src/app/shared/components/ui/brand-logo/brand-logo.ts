@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 // - default: insignia «UAL» y «Carpool» al lado.
 // - tile: insignia cuadrada, «Carpool» en azul y el lema debajo (cabecera de
@@ -11,6 +12,7 @@ export type BrandLogoVariant = 'default' | 'tile' | 'compact';
 // pantalla es una imagen con su nombre (si no, leerían «UALCarpool»)
 @Component({
   selector: 'app-brand-logo',
+  imports: [TranslocoPipe],
   host: {
     role: 'img',
     'aria-label': 'UAL Carpool',
@@ -23,7 +25,7 @@ export type BrandLogoVariant = 'default' | 'tile' | 'compact';
       <span class="brand-logo__text" aria-hidden="true">
         <span class="brand-logo__name">Carpool</span>
         @if (variant() === 'tile') {
-          <span class="brand-logo__tagline">Sistema de movilidad compartida</span>
+          <span class="brand-logo__tagline">{{ 'brand.tagline' | transloco }}</span>
         }
       </span>
     }

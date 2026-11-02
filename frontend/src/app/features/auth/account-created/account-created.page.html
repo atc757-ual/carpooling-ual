@@ -5,21 +5,29 @@
       <span class="auth-icon auth-icon--success" aria-hidden="true">
         <ion-icon [icon]="checkIcon" />
       </span>
-      <h1 class="text-heading">{{ title() }}</h1>
-      <p class="text-body text-color-muted">{{ description() }}</p>
+      <h1 class="text-heading">{{ titleKey() | transloco }}</h1>
+      <p class="text-body text-color-muted">{{ descriptionKey() | transloco }}</p>
     </div>
+
+    <ul class="account-created__steps text-body-s">
+      <li>{{ 'auth.accountCreated.stepProfile' | transloco }}</li>
+      <li>{{ 'auth.accountCreated.stepVehicle' | transloco }}</li>
+      <li>{{ 'auth.accountCreated.stepExplore' | transloco }}</li>
+    </ul>
 
     <!-- Entrar (enlace, siempre a Publicar) o salir y dejarlo para luego. El botón
          de salir es type="submit": ni (click) en un ion-button ni un botón suelto -->
     <form class="account-created__actions" (submit)="$event.preventDefault(); handleLater()">
-      <ion-button expand="block" routerLink="/tabs">Entrar a la app</ion-button>
+      <ion-button expand="block" routerLink="/tabs">
+        {{ 'auth.accountCreated.exploreButton' | transloco }}
+      </ion-button>
       <ion-button type="submit" expand="block" fill="outline" [disabled]="isLeaving()">
-        Entrar más tarde
+        {{ 'auth.accountCreated.laterButton' | transloco }}
       </ion-button>
     </form>
 
     <p class="account-created__note text-caption text-color-muted">
-      Si prefieres dejarlo para luego, entra cuando quieras con tu correo de la UAL y tu contraseña.
+      {{ 'auth.accountCreated.laterNote' | transloco }}
     </p>
   </app-auth-layout>
 </ion-content>

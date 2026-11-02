@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../core/i18n/testing-transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -36,6 +37,7 @@ describe('RegisterPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        provideTranslocoTestingSupport(),
         { provide: ToastService, useValue: { showError, showSuccess } },
         { provide: AuthService, useValue: { register } },
         { provide: ModalController, useValue: { create: createModal } },
@@ -69,7 +71,7 @@ describe('RegisterPage', () => {
     await submit();
 
     expect(register).not.toHaveBeenCalled();
-    expect(page.emailErrorText()).toBe('Usa tu correo de la Universidad de Almería.');
+    expect(page.emailErrorKey()).toBe('auth.validation.emailDomain');
   });
 
   it('creates the account with the phone in international format and goes to verify the email', async () => {
@@ -92,9 +94,7 @@ describe('RegisterPage', () => {
     page.form.controls.name.setValue('-Mario');
 
     expect(page.form.controls.name.hasError('personName')).toBe(true);
-    expect(page.nameErrorText()).toBe(
-      'Usa solo letras; entre palabras, un espacio, un guion o un apóstrofo.',
-    );
+    expect(page.nameErrorKey()).toBe('auth.validation.nameInvalid');
 
     page.form.controls.name.setValue("Ana-María O'Connor");
     expect(page.form.controls.name.valid).toBe(true);

@@ -13,14 +13,15 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { arrowBackOutline, mailUnreadOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { PasswordResetService } from '../../../core/services/auth/password-reset.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import { CodeInput } from '../../../shared/components/ui/code-input/code-input';
-import { createCountdown, getResendLabel } from '../../../shared/utils/countdown.util';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { createCountdown, formatMinutesSeconds } from '../../../shared/utils/countdown.util';
+import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
 
 const FORGOT_PASSWORD_PATH = '/auth/forgot-password';
 // La API anula el código al tercer intento fallido
@@ -48,6 +49,7 @@ const RESEND_WAIT_SECONDS = 60;
     IonToolbar,
     AuthLayout,
     CodeInput,
+    TranslocoPipe,
   ],
   templateUrl: './reset-code.page.html',
   styleUrls: ['../auth-form.scss', './reset-code.page.scss'],
@@ -56,6 +58,7 @@ export class ResetCodePage implements OnInit {
   private readonly passwordReset = inject(PasswordResetService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
 
   readonly email = this.passwordReset.email;
   readonly form = inject(NonNullableFormBuilder).group({
@@ -67,7 +70,7 @@ export class ResetCodePage implements OnInit {
   private readonly codeInput = viewChild(CodeInput);
   private readonly resendCountdown = createCountdown(RESEND_WAIT_SECONDS, inject(DestroyRef));
   readonly secondsToResend = this.resendCountdown.seconds;
-  readonly resendLabel = computed(() => getResendLabel(this.secondsToResend()));
+  readonly resendTime = computed(() => formatMinutesSeconds(this.secondsToResend()));
 
   protected readonly backIcon = arrowBackOutline;
   protected readonly mailIcon = mailUnreadOutline;
@@ -96,7 +99,7 @@ export class ResetCodePage implements OnInit {
       await this.router.navigateByUrl('/auth/new-password');
     } catch (error) {
       const apiError = ApiError.fromHttpError(error);
-      void this.toast.showError(getErrorMessage(apiError));
+      void this.toast.showError(getAuthErrorMessage(apiError, this.transloco));
       this.form.reset();
       this.codeInput()?.shake();
       if (apiError.code === TOO_MANY_ATTEMPTS) {
@@ -114,7 +117,7 @@ export class ResetCodePage implements OnInit {
       this.setLocked(false);
       this.resendCountdown.restart();
     } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      void this.toast.showError(getAuthErrorMessage(ApiError.fromHttpError(error), this.transloco));
     }
   }
 

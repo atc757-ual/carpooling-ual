@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl } from '@angular/forms';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { EmailSuggestions } from './email-suggestions';
 
 describe('EmailSuggestions', () => {
@@ -8,7 +9,10 @@ describe('EmailSuggestions', () => {
 
   beforeEach(() => {
     control = new FormControl('', { nonNullable: true });
-    TestBed.configureTestingModule({ imports: [EmailSuggestions] });
+    TestBed.configureTestingModule({
+      imports: [EmailSuggestions],
+      providers: [provideTranslocoTestingSupport()],
+    });
     fixture = TestBed.createComponent(EmailSuggestions);
     fixture.componentRef.setInput('control', control);
     fixture.detectChanges();
@@ -40,7 +44,9 @@ describe('EmailSuggestions', () => {
 
   it('fills the field with the chosen suggestion', () => {
     type('mario');
-    const options = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[role="option"]');
+    const options = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+      '[role="option"]',
+    );
 
     options[1].click();
     fixture.detectChanges();
@@ -52,7 +58,9 @@ describe('EmailSuggestions', () => {
 
   it('does not take the focus from the field when pressing a suggestion', () => {
     type('mario');
-    const option = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[role="option"]');
+    const option = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[role="option"]',
+    );
     const mousedown = new MouseEvent('mousedown', { cancelable: true });
 
     option?.dispatchEvent(mousedown);

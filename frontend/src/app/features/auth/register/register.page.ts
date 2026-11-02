@@ -17,6 +17,7 @@ import {
   IonToolbar,
   ModalController,
 } from '@ionic/angular';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
   arrowBackOutline,
   eyeOffOutline,
@@ -37,7 +38,7 @@ import {
   LegalModal,
 } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
 import {
   normalizePersonName,
   personNameValidator,
@@ -50,7 +51,7 @@ import {
   phoneNumberValidator,
   splitPhone,
 } from '../../../shared/utils/phone.util';
-import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/ual-email.util';
+import { getUalEmailErrorKey, ualEmailValidator } from '../../../shared/utils/ual-email.util';
 
 // Mismos límites que la API (POST /api/auth/register)
 const VERIFY_PATH = '/auth/verify';
@@ -83,6 +84,7 @@ const PASSWORD_MAX_LENGTH = 72;
     EmailSuggestions,
     PhonePrefixSelect,
     IonicFormStatus,
+    TranslocoPipe,
   ],
   templateUrl: './register.page.html',
   styleUrls: ['../auth-form.scss', './register.page.scss'],
@@ -91,6 +93,7 @@ export class RegisterPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
   private readonly modalController = inject(ModalController);
 
   readonly form = inject(NonNullableFormBuilder).group({
@@ -155,14 +158,30 @@ export class RegisterPage {
     }
   }
 
-  nameErrorText(): string {
-    return this.form.controls.name.hasError('personName')
-      ? 'Usa solo letras; entre palabras, un espacio, un guion o un apóstrofo.'
-      : 'Escribe tu nombre y apellidos.';
+  nameErrorKey(): string {
+    const name = this.form.controls.name;
+    if (name.hasError('personName')) {
+      return 'auth.validation.nameInvalid';
+    }
+    return name.hasError('maxlength')
+      ? 'auth.validation.nameLength'
+      : 'auth.validation.nameRequired';
   }
 
-  emailErrorText(): string {
-    return getUalEmailErrorText(this.form.controls.email);
+  phoneErrorKey(): string {
+    return this.form.controls.phone.hasError('required')
+      ? 'auth.validation.phoneRequired'
+      : 'auth.validation.phoneInvalid';
+  }
+
+  emailErrorKey(): string {
+    return getUalEmailErrorKey(this.form.controls.email);
+  }
+
+  passwordErrorKey(): string {
+    return this.form.controls.password.hasError('required')
+      ? 'auth.validation.passwordRequired'
+      : 'auth.validation.passwordLength';
   }
 
   // Aviso de la casilla de las normas: ion-checkbox no tiene errorText
@@ -205,7 +224,7 @@ export class RegisterPage {
       // El correo no va en la URL: lo guarda AuthService al registrar
       await this.router.navigateByUrl(VERIFY_PATH);
     } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      void this.toast.showError(getAuthErrorMessage(ApiError.fromHttpError(error), this.transloco));
     } finally {
       this.isSubmitting.set(false);
     }

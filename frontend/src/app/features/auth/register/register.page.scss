@@ -7,10 +7,10 @@
   gap: var(--space-xs);
 }
 
-// Casilla y texto en una fila; la casilla, alineada con la primera línea
+// Casilla y texto en una fila, centrados verticalmente
 .register__terms-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-s);
 
   ion-checkbox {
