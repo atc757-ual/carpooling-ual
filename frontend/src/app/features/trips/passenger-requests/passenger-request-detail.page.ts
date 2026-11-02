@@ -1,26 +1,39 @@
 import { Component, computed, inject, input, resource, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { IonButton, IonCard, IonCardContent, IonContent, IonSpinner } from '@ionic/angular';
+import { Router, RouterLink } from '@angular/router';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonContent,
+  IonIcon,
+  IonSpinner,
+  ModalController,
+} from '@ionic/angular';
+import { alertCircleOutline, searchOutline, sparklesOutline } from 'ionicons/icons';
+import { ApiError } from '../../../core/models/api-error.model';
+import { Trip } from '../../../core/models/driver.model';
+import { SeatRequest } from '../../../core/models/seat-request.model';
+import { formatTravelPreferences } from '../../../core/models/travel-preferences.model';
+import { TripDriver } from '../../../core/models/trip-result.model';
+import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
+import { TripsService } from '../../../core/services/trips/trips.service';
+import { ConfirmService } from '../../../core/services/ui/confirm.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
+import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
+import { RouteStop } from '../../../shared/components/ui/route-timeline/route-timeline';
 import {
   TripSummary as TripSummaryComponent,
   TripSummaryData,
 } from '../../../shared/components/ui/trip-summary';
-import { ApiError } from '../../../core/models/api-error.model';
-import { Trip } from '../../../core/models/driver.model';
-import { SeatRequest } from '../../../core/models/seat-request.model';
-import { TripDriver } from '../../../core/models/trip-result.model';
-import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
-import { ConfirmService } from '../../../core/services/ui/confirm.service';
-import { ToastService } from '../../../core/services/ui/toast.service';
-import { TripsService } from '../../../core/services/trips/trips.service';
-import { formatTravelPreferences } from '../../../core/models/travel-preferences.model';
-import { RouteStop } from '../../../shared/components/ui/route-timeline/route-timeline';
-import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
+import { toIsoDate } from '../../../shared/utils/date.util';
+import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { TripSearchStateService } from '../../matching/trip-search-state.service';
 import { formatTime } from '../../matching/trip-results';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { formatSeats } from '../driver-trip-card/driver-trip-card';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { TripProgress } from '../trip-progress/trip-progress';
 import { LiveTripMap } from './live-trip-map/live-trip-map';
+import { PassengerIncidentModal } from './passenger-incident-modal/passenger-incident-modal';
 
 interface HistoryEntry {
   label: string;
@@ -43,8 +56,10 @@ const HISTORY_DATE_FORMAT = new Intl.DateTimeFormat('es-ES', {
     IonCard,
     IonCardContent,
     IonContent,
+    IonIcon,
     IonSpinner,
     TripSummaryComponent,
+    TripProgress,
     LiveTripMap,
   ],
   templateUrl: './passenger-request-detail.page.html',
@@ -55,6 +70,9 @@ export class PassengerRequestDetailPage {
   private readonly trips = inject(TripsService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
+  private readonly modalController = inject(ModalController);
+  private readonly router = inject(Router);
+  private readonly searchState = inject(TripSearchStateService);
 
   readonly id = input.required<string>();
   readonly requestResource = resource({
@@ -100,8 +118,39 @@ export class PassengerRequestDetailPage {
     }
     return entries;
   });
+
   readonly isCancelling = signal(false);
   readonly isPageVisible = signal(true);
+
+  protected readonly alertIcon = alertCircleOutline;
+  protected readonly sparklesIcon = sparklesOutline;
+  protected readonly searchIcon = searchOutline;
+
+  readonly canCancel = computed(() => {
+    const request = this.request();
+    const trip = this.trip();
+    if (!request || !trip) {
+      return false;
+    }
+    if (request.status === 'pending') {
+      return true;
+    }
+    if (
+      request.status === 'accepted' &&
+      trip.status !== 'in_progress' &&
+      trip.status !== 'finished' &&
+      trip.status !== 'cancelled'
+    ) {
+      return true;
+    }
+    return false;
+  });
+
+  readonly isTripInProgress = computed(() => {
+    const request = this.request();
+    const trip = this.trip();
+    return request?.status === 'accepted' && trip?.status === 'in_progress';
+  });
 
   ionViewWillEnter(): void {
     this.isPageVisible.set(true);
@@ -148,13 +197,34 @@ export class PassengerRequestDetailPage {
   async handleCancel(): Promise<void> {
     const request = this.request();
     const trip = this.trip();
-    if (!request || !trip || request.status !== 'pending' || this.isCancelling()) {
+    if (!request || !trip || !this.canCancel() || this.isCancelling()) {
       return;
     }
+
+    const isAccepted = request.status === 'accepted';
+    let isLate = false;
+    if (isAccepted) {
+      const departureTime = new Date(trip.departureAt).getTime();
+      const minutesToDeparture = Math.floor((departureTime - Date.now()) / 60000);
+      isLate = minutesToDeparture < 30;
+    }
+
+    const header = isAccepted ? '¿Cancelar tu plaza confirmada?' : '¿Cancelar la solicitud?';
+    const confirmText = isAccepted ? 'Cancelar mi plaza' : 'Cancelar solicitud';
+
+    let message: string;
+    if (isAccepted) {
+      message = isLate
+        ? 'Faltan menos de 30 minutos para la salida. La plaza quedará libre para otra persona, pero contará como cancelación tardía.'
+        : 'La plaza volverá a estar disponible para otra persona. Puedes buscar otro viaje cuando quieras.';
+    } else {
+      message = `${getFirstName(trip.driver.name)} dejará de verla. Puedes volver a solicitar si sigue habiendo plazas.`;
+    }
+
     const confirmed = await this.confirm.ask({
-      header: '¿Cancelar la solicitud?',
-      message: `${getFirstName(trip.driver.name)} dejará de verla. Puedes volver a solicitar si sigue habiendo plazas.`,
-      confirmText: 'Cancelar solicitud',
+      header,
+      message,
+      confirmText,
       cancelText: 'Mantener',
       isDestructive: true,
     });
@@ -164,12 +234,60 @@ export class PassengerRequestDetailPage {
     this.isCancelling.set(true);
     try {
       this.requestOverride.set(await this.requests.cancel(request.id));
-      void this.toast.showSuccess('Solicitud cancelada.');
+      void this.toast.showSuccess(isAccepted ? 'Plaza cancelada.' : 'Solicitud cancelada.');
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     } finally {
       this.isCancelling.set(false);
     }
+  }
+
+  async openIncidentModal(): Promise<void> {
+    const trip = this.trip();
+    if (!trip) {
+      return;
+    }
+    const modal = await this.modalController.create({
+      component: PassengerIncidentModal,
+      componentProps: { tripId: trip.id },
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    if (data?.reported) {
+      void this.toast.showSuccess('Incidencia registrada. Tu plaza ha sido cancelada.');
+      await this.router.navigateByUrl('/tabs/trips');
+    }
+  }
+
+  handlePrioritySearch(): void {
+    const trip = this.trip();
+    const request = this.request();
+    if (trip) {
+      const direction = request?.direction ?? 'to-campus';
+      const coordinates = request?.pickupLocation?.coordinates ?? trip.origin.coordinates;
+      const fallbackAddress = direction === 'from-campus' ? trip.destinationName ?? '' : trip.originName ?? '';
+      const address = request?.pickupName ?? fallbackAddress;
+
+      const departureDate = new Date(trip.departureAt);
+      const isPast = departureDate.getTime() < Date.now();
+      const targetDate = isPast ? new Date() : departureDate;
+
+      this.searchState.set({
+        direction,
+        place: {
+          id: 'priority-place',
+          name: address || 'Almería',
+          locality: 'Almería',
+          coordinates,
+        },
+        parking: { id: 'p1', name: 'Parking Central' },
+        date: toIsoDate(targetDate),
+        time: formatTime(trip.departureAt),
+        margin: 20,
+        seats: request?.seats ?? 1,
+      });
+    }
+    void this.router.navigateByUrl('/tabs/search');
   }
 
   private toSummary(request: SeatRequest, trip: Trip): TripSummaryData {
