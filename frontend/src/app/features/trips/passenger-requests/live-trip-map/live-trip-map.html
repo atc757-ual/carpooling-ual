@@ -16,11 +16,23 @@
   <section #map class="trip-live-map__canvas" [attr.aria-label]="mapLabel()"></section>
 
   <div class="trip-live-map__status" aria-live="polite">
-    @if (isTogether()) {
+    @if (isDriver()) {
+      @if (estimatedPickupMinutes(); as minutes) {
+        <p class="text-body-s text-body--strong">
+          Llegas en ~{{ minutes }} min a {{ pickupName() }}.
+        </p>
+      } @else if (latestPosition(); as position) {
+        <p class="text-body-s text-body--strong">
+          Llegas al destino en ~{{ position.remainingMin }} min.
+        </p>
+      } @else {
+        <p class="text-body-s text-color-muted">Esperando tu primera ubicación…</p>
+      }
+    } @else if (isTogether()) {
       <p class="text-body-s text-body--strong">Estás en el coche.</p>
     } @else if (estimatedPickupMinutes(); as minutes) {
       <p class="text-body-s text-body--strong">
-        Lucía llega en ~{{ minutes }} min a tu punto de recogida.
+        {{ driverName() }} llega en ~{{ minutes }} min a tu punto de recogida.
       </p>
     } @else if (latestPosition()) {
       <p class="text-body-s text-body--strong">El coche está en el mapa.</p>
@@ -34,14 +46,20 @@
       <p class="text-caption text-color-muted">Actualizado hace {{ ageSeconds() }} s</p>
       @if (isStale()) {
         <output class="notice notice--warning">
-          <span>Sin posición reciente del coche.</span>
+          <span>
+            {{
+              isDriver()
+                ? 'No estamos recibiendo tu ubicación. Comprueba que la app sigue abierta y el GPS activo.'
+                : 'Sin posición reciente del coche.'
+            }}
+          </span>
         </output>
       } @else if (refreshFailed()) {
         <p class="text-caption text-color-muted">Mostramos la última ubicación recibida.</p>
       }
     }
 
-    @if (!userLocation() && pickupLocation()) {
+    @if (!isDriver() && !userLocation() && pickupLocation()) {
       <p class="text-caption text-color-muted">
         No podemos mostrar tu ubicación; se ve el coche y tu punto de recogida.
       </p>
