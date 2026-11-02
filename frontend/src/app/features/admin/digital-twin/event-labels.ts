@@ -74,6 +74,15 @@ const EVENT_ENTITIES: Readonly<Record<string, EventEntity>> = {
     entity: 'Búsqueda',
     actions: { gap_reported: 'Zona sin cobertura' },
   },
+  catalog: {
+    group: 'Catálogos',
+    entity: 'Catálogo',
+    actions: {
+      item_created: 'Elemento de catálogo creado',
+      item_updated: 'Elemento de catálogo cambiado',
+      item_deactivated: 'Elemento de catálogo desactivado',
+    },
+  },
   simulation: {
     group: 'Simulación',
     entity: 'Simulación',

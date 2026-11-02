@@ -7,6 +7,7 @@ import { buildTypeOrmOptions } from './config/database.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { DigitalTwinModule } from './modules/digital-twin/digital-twin.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { CatalogsModule } from './modules/catalogs/catalogs.module';
 import { IncidentsModule } from './modules/incidents/incidents.module';
 import { MatchingModule } from './modules/matching/matching.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
@@ -43,6 +44,7 @@ import { UsersModule } from './modules/users/users.module';
     IncidentsModule,
     NotificationsModule,
     PlacesModule,
+    CatalogsModule,
     MatchingModule,
     DigitalTwinModule,
     SimulationModule,

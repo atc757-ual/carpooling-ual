@@ -51,6 +51,9 @@ describe('API docs (e2e)', () => {
 
     const { paths } = response.body as { paths: Record<string, object> };
     expect(Object.keys(paths).sort()).toEqual([
+      '/api/admin/catalogs/vehicle-brands',
+      '/api/admin/catalogs/vehicle-brands/{key}',
+      '/api/admin/catalogs/vehicle-brands/{key}/move',
       '/api/admin/events',
       '/api/admin/events/{id}',
       '/api/admin/overview',
@@ -79,6 +82,7 @@ describe('API docs (e2e)', () => {
       '/api/avatars/{id}',
       '/api/campus-parkings',
       '/api/campus-parkings/{id}',
+      '/api/catalogs/vehicle-brands',
       '/api/health',
       '/api/incidents',
       '/api/incidents/{id}',

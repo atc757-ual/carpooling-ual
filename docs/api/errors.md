@@ -66,18 +66,18 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 
 ## Permisos y usuarios
 
-| `code`                         | HTTP | Cuándo                                                                                                                                                                                                                                     |
-| ------------------------------ | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `PROFILE_REQUIRED`             | 403  | El usuario está autenticado pero no tiene el perfil que exige la acción (p. ej. consultar otro usuario sin ser administrador). `message` indica los perfiles necesarios                                                                    |
-| `USER_NOT_FOUND`               | 404  | `GET /api/users/{id}` de un administrador con un id que no existe. A quien no es administrador se le responde `PROFILE_REQUIRED`, para no revelar qué ids existen                                                                          |
-| `PROFILE_NOT_FOUND`            | 404  | El administrador activa un perfil de conductor o pasajero que el usuario nunca tuvo (crearlo es decisión del propio usuario; el de administrador sí se asigna)                                                                             |
-| `LAST_ADMIN`                   | 409  | Retirar el perfil del último administrador activo: nadie podría volver a gestionar la plataforma                                                                                                                                           |
-| `CANNOT_CHANGE_OWN_ADMIN`      | 409  | Un administrador intenta retirarse su propio perfil de administrador (lo hace otro administrador)                                                                                                                                          |
-| `PROFILE_DEACTIVATED_BY_ADMIN` | 409  | El usuario elige un modo (`PUT /api/users/me/profiles/{profile}`) cuyo perfil le desactivó un administrador: solo un administrador puede reactivarlo                                                                                       |
-| `AVATAR_NOT_FOUND`             | 404  | El avatar (`GET /api/avatars/{id}` o `PATCH /api/users/me`) no existe o está retirado                                                                                                                                                      |
-| `PHONE_REQUIRED`               | 409  | Pedir o confirmar el código de verificación del teléfono (`POST /api/users/me/phone-verification` y `/confirm`) sin tener antes un número guardado en `PATCH /api/users/me`                                                                |
+| `code`                         | HTTP | Cuándo                                                                                                                                                                                                                                                                       |
+| ------------------------------ | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PROFILE_REQUIRED`             | 403  | El usuario está autenticado pero no tiene el perfil que exige la acción (p. ej. consultar otro usuario sin ser administrador). `message` indica los perfiles necesarios                                                                                                      |
+| `USER_NOT_FOUND`               | 404  | `GET /api/users/{id}` de un administrador con un id que no existe. A quien no es administrador se le responde `PROFILE_REQUIRED`, para no revelar qué ids existen                                                                                                            |
+| `PROFILE_NOT_FOUND`            | 404  | El administrador activa un perfil de conductor o pasajero que el usuario nunca tuvo (crearlo es decisión del propio usuario; el de administrador sí se asigna)                                                                                                               |
+| `LAST_ADMIN`                   | 409  | Retirar el perfil del último administrador activo: nadie podría volver a gestionar la plataforma                                                                                                                                                                             |
+| `CANNOT_CHANGE_OWN_ADMIN`      | 409  | Un administrador intenta retirarse su propio perfil de administrador (lo hace otro administrador)                                                                                                                                                                            |
+| `PROFILE_DEACTIVATED_BY_ADMIN` | 409  | El usuario elige un modo (`PUT /api/users/me/profiles/{profile}`) cuyo perfil le desactivó un administrador: solo un administrador puede reactivarlo                                                                                                                         |
+| `AVATAR_NOT_FOUND`             | 404  | El avatar (`GET /api/avatars/{id}` o `PATCH /api/users/me`) no existe o está retirado                                                                                                                                                                                        |
+| `PHONE_REQUIRED`               | 409  | Pedir o confirmar el código de verificación del teléfono (`POST /api/users/me/phone-verification` y `/confirm`) sin tener antes un número guardado en `PATCH /api/users/me`                                                                                                  |
 | `ACCOUNT_HAS_ACTIVE_TRIPS`     | 409  | Pedir el código de baja (`POST /api/users/me/account-deletion`) o confirmar la eliminación de la cuenta (`.../confirm`) teniendo viajes sin terminar como conductor (`published`, `confirmed` o `in_progress`) o plazas aceptadas como pasajero en viajes aún no finalizados |
-| `USER_NOT_SUSPENDED`           | 409  | Un administrador levanta una suspensión (`POST /api/admin/users/{id}/suspensions/{role}/lift`) que no está en curso para ese papel                                                                                                         |
+| `USER_NOT_SUSPENDED`           | 409  | Un administrador levanta una suspensión (`POST /api/admin/users/{id}/suspensions/{role}/lift`) que no está en curso para ese papel                                                                                                                                           |
 
 ## Vehículos (`users`)
 
@@ -185,6 +185,13 @@ Enviar una posición puede responder además `NOT_TRIP_DRIVER` o `TRIP_NOT_IN_PR
 | `INVALID_SIMULATION_TRANSITION` | 409  | Cambio de estado no permitido, p. ej. cancelar una ejecución ya terminada                     |
 
 Una ejecución que falla guarda en `errorCode` el motivo: `RUNNER_ERROR` (error del motor) o `RUNNER_LOST` (el motor no informó del progreso durante más de un minuto).
+
+## Catálogos (`catalogs`)
+
+| `code`                   | HTTP | Cuándo                                                                                         |
+| ------------------------ | ---- | ---------------------------------------------------------------------------------------------- |
+| `CATALOG_ITEM_NOT_FOUND` | 404  | No hay ningún elemento con esa clave en el catálogo                                            |
+| `CATALOG_ITEM_EXISTS`    | 409  | Dar de alta un elemento cuya clave (el nombre sin tildes ni mayúsculas) ya existe, activo o no |
 
 ## Cómo añadir un código
 
