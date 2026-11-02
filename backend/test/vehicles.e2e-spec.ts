@@ -114,24 +114,27 @@ describe('Vehicles API (e2e)', () => {
       ]);
     });
 
-    it('requires a valid color and engine', async () => {
+    it('requires a valid engine and an offered color', async () => {
       const ana = await tokenFor('ana');
-      const response = await api('post', '/vehicles', ana)
-        .send({
-          plate: '9204BCD',
-          capacity: 4,
-          brand: 'Seat',
-          model: 'Ibiza',
-          color: 'purple',
-          engine: 'diesel',
-        })
+      const vehicle = {
+        plate: '9204BCD',
+        capacity: 4,
+        brand: 'Seat',
+        model: 'Ibiza',
+      };
+      const engine = await api('post', '/vehicles', ana)
+        .send({ ...vehicle, color: 'blue', engine: 'diesel' })
         .expect(400);
+      const { fields } = engine.body as { fields: { field: string }[] };
+      expect(fields.map(({ field }) => field)).toEqual(['engine']);
 
-      const { fields } = response.body as { fields: { field: string }[] };
-      expect(fields.map(({ field }) => field).sort()).toEqual([
-        'color',
-        'engine',
-      ]);
+      // El color sale del catálogo (vehicle_colors), no de una lista fija
+      const color = await api('post', '/vehicles', ana)
+        .send({ ...vehicle, color: 'purple', engine: 'hybrid' })
+        .expect(400);
+      expect((color.body as { code: string }).code).toBe(
+        'VEHICLE_COLOR_NOT_OFFERED',
+      );
     });
 
     it('answers 409 when the plate is already registered', async () => {

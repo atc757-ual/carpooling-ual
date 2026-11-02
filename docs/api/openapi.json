@@ -2598,6 +2598,986 @@
         ]
       }
     },
+    "/api/catalogs/vehicle-brands": {
+      "get": {
+        "description": "The active ones, in display order.",
+        "operationId": "VehicleBrandsController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VehicleBrandResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the vehicle brands",
+        "tags": [
+          "catalogs"
+        ]
+      }
+    },
+    "/api/admin/catalogs/vehicle-brands": {
+      "get": {
+        "description": "Active or not, in display order.",
+        "operationId": "AdminVehicleBrandsController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminVehicleBrandResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all the vehicle brands",
+        "tags": [
+          "admin catalogs"
+        ]
+      },
+      "post": {
+        "description": "At the end of the list. Its key comes from the name (no accents, lower case, hyphens) and never changes.",
+        "operationId": "AdminVehicleBrandsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCatalogItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminVehicleBrandResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: CATALOG_ITEM_EXISTS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add a vehicle brand",
+        "tags": [
+          "admin catalogs"
+        ]
+      }
+    },
+    "/api/admin/catalogs/vehicle-brands/{key}": {
+      "patch": {
+        "description": "Only what is sent changes; the key never does.",
+        "operationId": "AdminVehicleBrandsController_update",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "alfa-romeo",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCatalogItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminVehicleBrandResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: CATALOG_ITEM_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change a vehicle brand",
+        "tags": [
+          "admin catalogs"
+        ]
+      }
+    },
+    "/api/admin/catalogs/vehicle-brands/{key}/move": {
+      "post": {
+        "description": "At either end nothing changes.",
+        "operationId": "AdminVehicleBrandsController_move",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "alfa-romeo",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveCatalogItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminVehicleBrandResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: CATALOG_ITEM_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Move a vehicle brand one place up or down",
+        "tags": [
+          "admin catalogs"
+        ]
+      }
+    },
+    "/api/catalogs/vehicle-colors": {
+      "get": {
+        "description": "All of them in display order; only the active ones can be chosen.",
+        "operationId": "VehicleColorsController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VehicleColorResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the vehicle colors",
+        "tags": [
+          "catalogs"
+        ]
+      }
+    },
+    "/api/admin/catalogs/vehicle-colors": {
+      "get": {
+        "description": "Active or not, in display order.",
+        "operationId": "AdminVehicleColorsController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminVehicleColorResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all the vehicle colors",
+        "tags": [
+          "admin catalogs"
+        ]
+      },
+      "post": {
+        "description": "At the end of the list. Its key comes from the name (no accents, lower case, hyphens) and never changes.",
+        "operationId": "AdminVehicleColorsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVehicleColorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminVehicleColorResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: CATALOG_ITEM_EXISTS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add a vehicle color",
+        "tags": [
+          "admin catalogs"
+        ]
+      }
+    },
+    "/api/admin/catalogs/vehicle-colors/{key}": {
+      "patch": {
+        "description": "Only what is sent changes; the key never does.",
+        "operationId": "AdminVehicleColorsController_update",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "blue",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVehicleColorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminVehicleColorResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: CATALOG_ITEM_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change a vehicle color",
+        "tags": [
+          "admin catalogs"
+        ]
+      }
+    },
+    "/api/admin/catalogs/vehicle-colors/{key}/move": {
+      "post": {
+        "description": "At either end nothing changes.",
+        "operationId": "AdminVehicleColorsController_move",
+        "parameters": [
+          {
+            "name": "key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "blue",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveCatalogItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminVehicleColorResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: CATALOG_ITEM_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Move a vehicle color one place up or down",
+        "tags": [
+          "admin catalogs"
+        ]
+      }
+    },
     "/api/trips": {
       "post": {
         "description": "RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days.",
@@ -5925,495 +6905,6 @@
         ]
       }
     },
-    "/api/catalogs/vehicle-brands": {
-      "get": {
-        "description": "The active brands, in display order.",
-        "operationId": "VehicleBrandsController_list",
-        "parameters": [
-          {
-            "name": "offset",
-            "required": false,
-            "in": "query",
-            "description": "Number of items to skip",
-            "schema": {
-              "minimum": 0,
-              "default": 0,
-              "type": "number"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Maximum number of items to return",
-            "schema": {
-              "minimum": 1,
-              "maximum": 100,
-              "default": 20,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "headers": {
-              "X-Total-Count": {
-                "description": "Total number of items",
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Result-Count": {
-                "description": "Number of items in this response",
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            },
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/VehicleBrandResource"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List the vehicle brands",
-        "tags": [
-          "catalogs"
-        ]
-      }
-    },
-    "/api/admin/catalogs/vehicle-brands": {
-      "get": {
-        "description": "Active or not, in display order.",
-        "operationId": "AdminVehicleBrandsController_list",
-        "parameters": [
-          {
-            "name": "offset",
-            "required": false,
-            "in": "query",
-            "description": "Number of items to skip",
-            "schema": {
-              "minimum": 0,
-              "default": 0,
-              "type": "number"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Maximum number of items to return",
-            "schema": {
-              "minimum": 1,
-              "maximum": 100,
-              "default": 20,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "headers": {
-              "X-Total-Count": {
-                "description": "Total number of items",
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Result-Count": {
-                "description": "Number of items in this response",
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            },
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AdminVehicleBrandResource"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "TMF630 error: PROFILE_REQUIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List all the vehicle brands",
-        "tags": [
-          "admin catalogs"
-        ]
-      },
-      "post": {
-        "description": "At the end of the list. Its key comes from the name (no accents, lower case, hyphens) and never changes.",
-        "operationId": "AdminVehicleBrandsController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateVehicleBrandDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminVehicleBrandResource"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "TMF630 error: PROFILE_REQUIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "TMF630 error: CATALOG_ITEM_EXISTS",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Add a vehicle brand",
-        "tags": [
-          "admin catalogs"
-        ]
-      }
-    },
-    "/api/admin/catalogs/vehicle-brands/{key}": {
-      "patch": {
-        "operationId": "AdminVehicleBrandsController_update",
-        "parameters": [
-          {
-            "name": "key",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "example": "alfa-romeo",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateVehicleBrandDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminVehicleBrandResource"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "TMF630 error: PROFILE_REQUIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "TMF630 error: CATALOG_ITEM_NOT_FOUND",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Rename a vehicle brand or change whether it is offered",
-        "tags": [
-          "admin catalogs"
-        ]
-      }
-    },
-    "/api/admin/catalogs/vehicle-brands/{key}/move": {
-      "post": {
-        "description": "At either end nothing changes.",
-        "operationId": "AdminVehicleBrandsController_move",
-        "parameters": [
-          {
-            "name": "key",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "example": "alfa-romeo",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MoveVehicleBrandDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminVehicleBrandResource"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "TMF630 error: PROFILE_REQUIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "TMF630 error: CATALOG_ITEM_NOT_FOUND",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Move a vehicle brand one place up or down",
-        "tags": [
-          "admin catalogs"
-        ]
-      }
-    },
     "/api/trips/search": {
       "post": {
         "description": "Published trips going the same way, near the address and the campus parking, with enough seats, an acceptable detour for the driver and a time within the margin. Sorted by compatibility (60 % detour, 40 % time); at most 10.",
@@ -9096,17 +9587,8 @@
           },
           "color": {
             "type": "string",
-            "enum": [
-              "white",
-              "black",
-              "grey",
-              "silver",
-              "blue",
-              "red",
-              "green",
-              "other"
-            ],
-            "example": "blue"
+            "example": "blue",
+            "maxLength": 60
           },
           "engine": {
             "type": "string",
@@ -9162,18 +9644,9 @@
           },
           "color": {
             "type": "string",
-            "enum": [
-              "white",
-              "black",
-              "grey",
-              "silver",
-              "blue",
-              "red",
-              "green",
-              "other"
-            ],
             "nullable": true,
-            "example": "blue"
+            "example": "blue",
+            "description": "Key of the vehicle color catalog"
           },
           "engine": {
             "type": "string",
@@ -9225,17 +9698,8 @@
           },
           "color": {
             "type": "string",
-            "enum": [
-              "white",
-              "black",
-              "grey",
-              "silver",
-              "blue",
-              "red",
-              "green",
-              "other"
-            ],
-            "example": "blue"
+            "example": "blue",
+            "maxLength": 60
           },
           "engine": {
             "type": "string",
@@ -9296,6 +9760,230 @@
           "name",
           "svg"
         ]
+      },
+      "VehicleBrandResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "example": "VehicleBrand"
+          },
+          "key": {
+            "type": "string",
+            "example": "alfa-romeo"
+          },
+          "name": {
+            "type": "string",
+            "example": "Alfa Romeo"
+          }
+        },
+        "required": [
+          "@type",
+          "key",
+          "name"
+        ]
+      },
+      "AdminVehicleBrandResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "example": "VehicleBrand"
+          },
+          "key": {
+            "type": "string",
+            "example": "alfa-romeo"
+          },
+          "name": {
+            "type": "string",
+            "example": "Alfa Romeo"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "sortOrder": {
+            "type": "number",
+            "example": 2
+          }
+        },
+        "required": [
+          "@type",
+          "key",
+          "name",
+          "isActive",
+          "sortOrder"
+        ]
+      },
+      "CreateCatalogItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Lynk & Co",
+            "maxLength": 60
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateCatalogItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Lynk & Co",
+            "maxLength": 60
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "MoveCatalogItemDto": {
+        "type": "object",
+        "properties": {
+          "direction": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down"
+            ]
+          }
+        },
+        "required": [
+          "direction"
+        ]
+      },
+      "VehicleColorResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "example": "VehicleBrand"
+          },
+          "key": {
+            "type": "string",
+            "example": "alfa-romeo"
+          },
+          "name": {
+            "type": "string",
+            "example": "Alfa Romeo"
+          },
+          "hexLight": {
+            "type": "string",
+            "example": "#2673c9",
+            "description": "Swatch in the light theme"
+          },
+          "hexDark": {
+            "type": "string",
+            "example": "#5b9be0",
+            "description": "Swatch in the dark theme"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "@type",
+          "key",
+          "name",
+          "hexLight",
+          "hexDark",
+          "isActive"
+        ]
+      },
+      "AdminVehicleColorResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "example": "VehicleBrand"
+          },
+          "key": {
+            "type": "string",
+            "example": "alfa-romeo"
+          },
+          "name": {
+            "type": "string",
+            "example": "Alfa Romeo"
+          },
+          "hexLight": {
+            "type": "string",
+            "example": "#2673c9",
+            "description": "Swatch in the light theme"
+          },
+          "hexDark": {
+            "type": "string",
+            "example": "#5b9be0",
+            "description": "Swatch in the dark theme"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "sortOrder": {
+            "type": "number",
+            "example": 4
+          }
+        },
+        "required": [
+          "@type",
+          "key",
+          "name",
+          "hexLight",
+          "hexDark",
+          "isActive",
+          "sortOrder"
+        ]
+      },
+      "CreateVehicleColorDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Lynk & Co",
+            "maxLength": 60
+          },
+          "hexLight": {
+            "type": "string",
+            "example": "#2673c9"
+          },
+          "hexDark": {
+            "type": "string",
+            "example": "#5b9be0"
+          }
+        },
+        "required": [
+          "name",
+          "hexLight",
+          "hexDark"
+        ]
+      },
+      "UpdateVehicleColorDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Lynk & Co",
+            "maxLength": 60
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": false
+          },
+          "hexLight": {
+            "type": "string",
+            "example": "#2673c9"
+          },
+          "hexDark": {
+            "type": "string",
+            "example": "#5b9be0"
+          }
+        }
       },
       "GeoPointDto": {
         "type": "object",
@@ -9471,18 +10159,9 @@
           },
           "color": {
             "type": "string",
-            "enum": [
-              "white",
-              "black",
-              "grey",
-              "silver",
-              "blue",
-              "red",
-              "green",
-              "other"
-            ],
             "nullable": true,
-            "example": "blue"
+            "example": "blue",
+            "description": "Key of the vehicle color catalog"
           }
         },
         "required": [
@@ -10853,106 +11532,6 @@
           "municipality",
           "location",
           "isCovered"
-        ]
-      },
-      "VehicleBrandResource": {
-        "type": "object",
-        "properties": {
-          "@type": {
-            "type": "string",
-            "enum": [
-              "VehicleBrand"
-            ]
-          },
-          "key": {
-            "type": "string",
-            "example": "alfa-romeo"
-          },
-          "name": {
-            "type": "string",
-            "example": "Alfa Romeo"
-          }
-        },
-        "required": [
-          "@type",
-          "key",
-          "name"
-        ]
-      },
-      "AdminVehicleBrandResource": {
-        "type": "object",
-        "properties": {
-          "@type": {
-            "type": "string",
-            "enum": [
-              "VehicleBrand"
-            ]
-          },
-          "key": {
-            "type": "string",
-            "example": "alfa-romeo"
-          },
-          "name": {
-            "type": "string",
-            "example": "Alfa Romeo"
-          },
-          "isActive": {
-            "type": "boolean",
-            "example": true
-          },
-          "sortOrder": {
-            "type": "number",
-            "example": 2
-          }
-        },
-        "required": [
-          "@type",
-          "key",
-          "name",
-          "isActive",
-          "sortOrder"
-        ]
-      },
-      "CreateVehicleBrandDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "Lynk & Co",
-            "maxLength": 60
-          }
-        },
-        "required": [
-          "name"
-        ]
-      },
-      "UpdateVehicleBrandDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "Lynk & Co",
-            "maxLength": 60
-          },
-          "isActive": {
-            "type": "boolean",
-            "example": false
-          }
-        }
-      },
-      "MoveVehicleBrandDto": {
-        "type": "object",
-        "properties": {
-          "direction": {
-            "type": "string",
-            "enum": [
-              "up",
-              "down"
-            ]
-          }
-        },
-        "required": [
-          "direction"
         ]
       },
       "SearchTripsDto": {

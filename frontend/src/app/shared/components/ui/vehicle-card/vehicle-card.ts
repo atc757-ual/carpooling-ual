@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 import {
   carOutline,
@@ -9,12 +9,8 @@ import {
 } from 'ionicons/icons';
 import { LicensePlate } from '../license-plate/license-plate';
 import { Vehicle } from '../../../../core/models/driver.model';
-import {
-  formatPlate,
-  vehicleColorSwatch,
-  vehicleDisplayName,
-  vehicleSpecs,
-} from '../../../utils/vehicle-display.util';
+import { VehicleColorsStore } from '../../../../core/services/catalogs/vehicle-colors.store';
+import { formatPlate, vehicleDisplayName, vehicleSpecs } from '../../../utils/vehicle-display.util';
 
 // Un vehículo en una tarjeta: «Seat Ibiza | 1234 BGG» y debajo «● Gris ·
 // 4 plazas · Híbrido». Se elige pulsándola (un radio nativo, oculto, del
@@ -40,8 +36,11 @@ export class VehicleCard {
 
   readonly name = computed(() => vehicleDisplayName(this.vehicle()));
   readonly plate = computed(() => formatPlate(this.vehicle().plate));
-  readonly specs = computed(() => vehicleSpecs(this.vehicle()));
-  readonly swatch = computed(() => vehicleColorSwatch(this.vehicle().color));
+  private readonly colors = inject(VehicleColorsStore);
+  readonly specs = computed(() =>
+    vehicleSpecs(this.vehicle(), this.colors.label(this.vehicle().color)),
+  );
+  readonly swatch = computed(() => this.colors.swatch(this.vehicle().color));
 
   protected readonly icons = {
     car: carOutline,

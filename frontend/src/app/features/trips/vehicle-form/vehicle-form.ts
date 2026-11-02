@@ -9,7 +9,7 @@ import {
   leafOutline,
 } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
-import { Vehicle, VehicleColor, VehicleEngine } from '../../../core/models/driver.model';
+import { Vehicle, VehicleEngine } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
@@ -17,6 +17,7 @@ import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.di
 import { BrandField } from '../../../shared/components/ui/brand-field/brand-field';
 import { LicensePlate } from '../../../shared/components/ui/license-plate/license-plate';
 import { formatPlate, vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
+import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colors.store';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 
 // Matrícula española actual (1234BCD; se admiten espacio y guion al escribirla)
@@ -64,16 +65,20 @@ export class VehicleForm {
   });
 
   readonly isSaving = signal(false);
-  protected readonly colors: readonly { value: VehicleColor; label: string; hex: string }[] = [
-    { value: 'white', label: 'Blanco', hex: '#ffffff' },
-    { value: 'black', label: 'Negro', hex: '#202124' },
-    { value: 'grey', label: 'Gris', hex: '#808080' },
-    { value: 'silver', label: 'Plata', hex: '#c0c0c0' },
-    { value: 'blue', label: 'Azul', hex: '#2673c9' },
-    { value: 'red', label: 'Rojo', hex: '#d83b3b' },
-    { value: 'green', label: 'Verde', hex: '#31865b' },
-    { value: 'other', label: 'Otro', hex: '#8b6f9b' },
-  ];
+  // Los colores activos del catálogo y, al editar, también el del vehículo
+  // aunque ya no se ofrezca (lo conserva)
+  private readonly colorCatalog = inject(VehicleColorsStore);
+  protected readonly colors = computed(() => {
+    const offered = this.colorCatalog.offered();
+    const current = this.vehicle()?.color ?? null;
+    const keys = offered.map(({ key }) => key);
+    const shown = current === null || keys.includes(current) ? keys : [...keys, current];
+    return shown.map((key) => ({
+      value: key,
+      label: this.colorCatalog.label(key),
+      hex: this.colorCatalog.swatch(key),
+    }));
+  });
   protected readonly engines: readonly {
     value: VehicleEngine;
     label: string;
@@ -99,7 +104,7 @@ export class VehicleForm {
     initialValue: this.form.controls.color.value,
   });
   readonly colorLabel = computed(
-    () => this.colors.find(({ value }) => value === this.color())?.label ?? null,
+    () => this.colors().find(({ value }) => value === this.color())?.label ?? null,
   );
   private readonly engine = toSignal(this.form.controls.engine.valueChanges, {
     initialValue: this.form.controls.engine.value,
@@ -151,13 +156,13 @@ export class VehicleForm {
       const saved = vehicle
         ? await this.driver.updateVehicle(vehicle.id, {
             capacity,
-            color: color as VehicleColor,
+            color,
             engine: engine as VehicleEngine,
           })
         : await this.driver.registerVehicle({
             brand: brand.trim(),
             model: model.trim(),
-            color: color as VehicleColor,
+            color,
             engine: engine as VehicleEngine,
             capacity,
             plate: plate.replaceAll(/[ -]/g, '').toUpperCase(),

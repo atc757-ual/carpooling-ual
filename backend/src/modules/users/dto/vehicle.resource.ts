@@ -2,15 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { API_PREFIX } from '../../../app.setup';
 import {
   Vehicle,
-  VEHICLE_COLORS,
   VEHICLE_ENGINES,
   VEHICLE_STATUSES,
 } from '../entities/vehicle.entity';
-import type {
-  VehicleColor,
-  VehicleEngine,
-  VehicleStatus,
-} from '../entities/vehicle.entity';
+import type { VehicleEngine, VehicleStatus } from '../entities/vehicle.entity';
 
 // Recurso TMF630 Vehicle. Es una clase para que OpenAPI pueda describirlo
 export class VehicleResource {
@@ -46,8 +41,13 @@ export class VehicleResource {
   })
   model: string | null;
 
-  @ApiProperty({ enum: VEHICLE_COLORS, nullable: true, example: 'blue' })
-  color: VehicleColor | null;
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'blue',
+    description: 'Key of the vehicle color catalog',
+  })
+  color: string | null;
 
   @ApiProperty({ enum: VEHICLE_ENGINES, nullable: true, example: 'hybrid' })
   engine: VehicleEngine | null;

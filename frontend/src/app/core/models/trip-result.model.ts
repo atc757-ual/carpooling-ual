@@ -2,7 +2,6 @@
 
 // Los viajes hechos y la valoración aún no los da la API (reputación,
 // RF-22): sin ellos no se muestran
-import { VehicleColor } from './driver.model';
 import { TripDirection } from './trip-search.model';
 import { AvatarKey } from './avatar.model';
 import { TravelPreferences } from './travel-preferences.model';
@@ -34,5 +33,5 @@ export interface TripResult {
   // Dirección elegida por el pasajero; ya forma parte del estado de búsqueda
   passengerStop: string;
   // Sin la matrícula: solo la ve quien tiene la plaza aceptada (en su solicitud)
-  vehicle?: { brand: string | null; model: string | null; color: VehicleColor | null };
+  vehicle?: { brand: string | null; model: string | null; color: string | null };
 }
