@@ -81,10 +81,11 @@ export function tripRoute(trip: Pick<AdminTripSummary, 'originName' | 'destinati
 
 // «4,6 ★ (12)» o «Sin valoraciones»
 export function ratingLabel(rating: { average: number | null; count: number } | null): string {
-  if (rating === null || rating.average === null) {
+  const average = rating?.average;
+  if (average === undefined || average === null) {
     return 'Sin valoraciones';
   }
-  return `${rating.average.toLocaleString('es-ES', { maximumFractionDigits: 1 })} ★ (${rating.count})`;
+  return `${average.toLocaleString('es-ES', { maximumFractionDigits: 1 })} ★ (${rating?.count ?? 0})`;
 }
 
 // Iniciales del nombre (dos como mucho) para el avatar

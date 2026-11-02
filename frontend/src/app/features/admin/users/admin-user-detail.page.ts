@@ -41,7 +41,28 @@ export interface ProfileRow {
   hasProfile: boolean;
   isActive: boolean;
   rating: string | null;
+  // «Activo», «Desactivado» o «No lo tiene»
+  stateText: string;
   actionText: string;
+}
+
+// Textos de la acción: el de administrador se da o se quita; los demás se
+// activan o se desactivan
+const ACTION_TEXTS = {
+  admin: { active: 'Quitar', inactive: 'Dar' },
+  other: { active: 'Desactivar', inactive: 'Activar' },
+} as const;
+
+function stateTextFor(hasProfile: boolean, isActive: boolean): string {
+  if (isActive) {
+    return 'Activo';
+  }
+  return hasProfile ? 'Desactivado' : 'No lo tiene';
+}
+
+function actionTextFor(profile: Profile, isActive: boolean): string {
+  const texts = profile === 'admin' ? ACTION_TEXTS.admin : ACTION_TEXTS.other;
+  return isActive ? texts.active : texts.inactive;
 }
 
 // Lo que se puede hacer con cada perfil: activar o desactivar los de
@@ -59,7 +80,8 @@ export function profileRows(detail: AdminUserDetail): ProfileRow[] {
         hasProfile: byProfile.has(profile),
         isActive,
         rating: isAdmin ? null : ratingLabel(detail.ratings[profile]),
-        actionText: isActive ? (isAdmin ? 'Quitar' : 'Desactivar') : isAdmin ? 'Dar' : 'Activar',
+        stateText: stateTextFor(byProfile.has(profile), isActive),
+        actionText: actionTextFor(profile, isActive),
       };
     });
 }

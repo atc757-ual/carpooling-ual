@@ -33,7 +33,7 @@
             <span>
               <b>{{ row.label }}</b>
               <span class="detail__muted">
-                · {{ row.isActive ? 'Activo' : row.hasProfile ? 'Desactivado' : 'No lo tiene' }}
+                · {{ row.stateText }}
                 @if (row.rating) {
                   · {{ row.rating }}
                 }
