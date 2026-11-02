@@ -3,13 +3,25 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, MoreThan, Repository } from 'typeorm';
 import { LateCancellation } from './entities/late-cancellation.entity';
 import { Trip } from './entities/trip.entity';
+import { Page, PageRequest } from '../../shared/pagination/page';
+import { TripNotFoundError } from './errors/trip-not-found.error';
 import { DAY_MS, LATE_CANCELLATION_WINDOW_DAYS } from './trip-timing';
+import type { TripStatus } from './trip-status';
 
 // Hora del campus: «hoy» empieza a medianoche en Almería
 export const CAMPUS_TIME_ZONE = 'Europe/Madrid';
 
 // Viajes que aún cuentan sus plazas (no han terminado ni se han cancelado)
 const ACTIVE_TRIP_STATUSES = ['published', 'confirmed', 'in_progress'] as const;
+
+// Filtros de la lista del panel. Las fechas, YYYY-MM-DD en la hora del
+// campus (los dos días incluidos); driverIds, los conductores posibles
+export interface AdminTripFilter {
+  status?: TripStatus;
+  from?: string;
+  to?: string;
+  driverIds?: readonly string[];
+}
 
 export interface TripOverview {
   publishedToday: number;
@@ -107,5 +119,52 @@ export class TripStatsService {
       seatsOffered: Number(row.seatsOffered ?? 0),
       seatsTaken: Number(row.seatsTaken ?? 0),
     };
+  }
+
+  // Viajes para el panel, la salida más reciente primero
+  async listForAdmin(
+    filter: AdminTripFilter,
+    page: PageRequest,
+  ): Promise<Page<Trip>> {
+    if (filter.driverIds?.length === 0) {
+      return { items: [], total: 0 };
+    }
+    const query = this.tripsRepository
+      .createQueryBuilder('trip')
+      .orderBy('trip.departureAt', 'DESC')
+      .addOrderBy('trip.id', 'ASC')
+      .skip(page.offset)
+      .take(page.limit);
+    if (filter.status !== undefined) {
+      query.andWhere('trip.status = :status', { status: filter.status });
+    }
+    if (filter.from !== undefined) {
+      query.andWhere(
+        'trip.departureAt >= (CAST(:from AS timestamp) AT TIME ZONE :zone)',
+        { from: filter.from, zone: CAMPUS_TIME_ZONE },
+      );
+    }
+    if (filter.to !== undefined) {
+      query.andWhere(
+        "trip.departureAt < ((CAST(:to AS timestamp) + interval '1 day') AT TIME ZONE :zone)",
+        { to: filter.to, zone: CAMPUS_TIME_ZONE },
+      );
+    }
+    if (filter.driverIds !== undefined) {
+      query.andWhere('trip.driverId IN (:...driverIds)', {
+        driverIds: filter.driverIds,
+      });
+    }
+    const [items, total] = await query.getManyAndCount();
+    return { items, total };
+  }
+
+  // Lanza TripNotFoundError si no existe
+  async get(tripId: string): Promise<Trip> {
+    const trip = await this.tripsRepository.findOneBy({ id: tripId });
+    if (trip === null) {
+      throw new TripNotFoundError(tripId);
+    }
+    return trip;
   }
 }

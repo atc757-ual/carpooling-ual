@@ -40,7 +40,7 @@ const STATUS_CONDITIONS: Record<AccountStatus, string> = {
   active: `${NOT_DELETED} AND user.emailVerifiedAt IS NOT NULL AND ${ALL_PROFILES_ACTIVE}`,
 };
 
-function escapeLike(text: string): string {
+export function escapeLike(text: string): string {
   return text.replace(/[\\%_]/g, (char) => `\\${char}`);
 }
 
