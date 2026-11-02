@@ -83,6 +83,20 @@ export class DriverService {
     );
   }
 
+  // Validar subida del pasajero con su código de recogida de 4 cifras
+  boardPassenger(requestId: string, code: string): Promise<SeatRequest> {
+    return this.request(
+      this.http.post<SeatRequest>(`${this.apiUrl}/requests/${requestId}/board`, { code }),
+    );
+  }
+
+  // Marcar «No se presentó» tras esperar 5 minutos de cortesía
+  markNoShow(requestId: string): Promise<SeatRequest> {
+    return this.request(
+      this.http.post<SeatRequest>(`${this.apiUrl}/requests/${requestId}/no-show`, null),
+    );
+  }
+
   publishTrip(trip: PublishTripRequest): Promise<PublishedTrip> {
     return this.request(this.http.post<PublishedTrip>(`${this.apiUrl}/trips`, trip));
   }

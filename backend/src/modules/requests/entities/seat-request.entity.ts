@@ -72,6 +72,20 @@ export class SeatRequest {
   @Column({ name: 'cancelled_at', type: 'timestamptz', nullable: true })
   cancelledAt: Date | null;
 
+  @Column({
+    name: 'rejection_reason',
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+  })
+  rejectionReason: string | null;
+
+  @Column({ name: 'board_code', type: 'varchar', length: 4, nullable: true })
+  boardCode: string | null;
+
+  @Column({ name: 'boarded_at', type: 'timestamptz', nullable: true })
+  boardedAt: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

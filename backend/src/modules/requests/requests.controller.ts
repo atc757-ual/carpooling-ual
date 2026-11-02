@@ -34,6 +34,7 @@ import {
   toRequestingStatusResource,
 } from './dto/requesting-status.resource';
 import {
+  BoardSeatRequestDto,
   SeatRequestResource,
   toSeatRequestResource,
 } from './dto/seat-request.resource';
@@ -103,6 +104,7 @@ export class RequestsController {
             }
           : undefined,
       ),
+      passenger.sub,
     );
     response.setHeader('Location', request.href);
     return request;
@@ -127,7 +129,7 @@ export class RequestsController {
       pagination,
     );
     setPaginationHeaders(response, page);
-    return page.items.map(toSeatRequestResource);
+    return page.items.map((item) => toSeatRequestResource(item, passenger.sub));
   }
 
   // Cancelaciones tardías del pasajero y si puede pedir plaza (el detalle del
@@ -167,6 +169,7 @@ export class RequestsController {
   ): Promise<SeatRequestResource> {
     return toSeatRequestResource(
       await this.requestsService.cancel(passenger.sub, id),
+      passenger.sub,
     );
   }
 
@@ -198,7 +201,7 @@ export class RequestsController {
       pagination,
     );
     setPaginationHeaders(response, page);
-    return page.items.map(toSeatRequestResource);
+    return page.items.map((item) => toSeatRequestResource(item, driver.sub));
   }
 
   @RequestAction({
@@ -216,6 +219,7 @@ export class RequestsController {
   ): Promise<SeatRequestResource> {
     return toSeatRequestResource(
       await this.requestsService.accept(driver.sub, id),
+      driver.sub,
     );
   }
 
@@ -232,6 +236,50 @@ export class RequestsController {
   ): Promise<SeatRequestResource> {
     return toSeatRequestResource(
       await this.requestsService.reject(driver.sub, id),
+      driver.sub,
+    );
+  }
+
+  @RequestAction({
+    action: 'board',
+    profile: 'driver',
+    summary: 'Validate passenger boarding with 4-digit code',
+    description:
+      'Driver validates that the passenger boarded the vehicle using their 4-digit numeric code.',
+    notAllowedCode: 'NOT_TRIP_DRIVER',
+    conflictCodes: [
+      'INVALID_BOARD_CODE',
+      'ALREADY_BOARDED',
+      'INVALID_REQUEST_TRANSITION',
+    ],
+  })
+  async board(
+    @CurrentUser() driver: AccessTokenPayload,
+    @Param('id', uuidParam('id')) id: string,
+    @Body() body: BoardSeatRequestDto,
+  ): Promise<SeatRequestResource> {
+    return toSeatRequestResource(
+      await this.requestsService.board(driver.sub, id, body.code),
+      driver.sub,
+    );
+  }
+
+  @RequestAction({
+    action: 'no-show',
+    profile: 'driver',
+    summary: 'Mark passenger as no-show after waiting 5 minutes',
+    description:
+      'Driver marks that the passenger did not show up after waiting at least 5 minutes. Cancels the request and records a late cancellation for the passenger.',
+    notAllowedCode: 'NOT_TRIP_DRIVER',
+    conflictCodes: ['PICKUP_GRACE_PERIOD_ACTIVE', 'INVALID_REQUEST_TRANSITION'],
+  })
+  async noShow(
+    @CurrentUser() driver: AccessTokenPayload,
+    @Param('id', uuidParam('id')) id: string,
+  ): Promise<SeatRequestResource> {
+    return toSeatRequestResource(
+      await this.requestsService.noShow(driver.sub, id),
+      driver.sub,
     );
   }
 
@@ -253,6 +301,9 @@ export class RequestsController {
     @CurrentUser() user: AccessTokenPayload,
     @Param('id', uuidParam('id')) id: string,
   ): Promise<SeatRequestResource> {
-    return toSeatRequestResource(await this.requestsService.get(user.sub, id));
+    return toSeatRequestResource(
+      await this.requestsService.get(user.sub, id),
+      user.sub,
+    );
   }
 }

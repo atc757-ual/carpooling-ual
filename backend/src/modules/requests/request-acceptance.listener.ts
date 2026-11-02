@@ -21,6 +21,7 @@ export class RequestAcceptanceListener implements OnModuleInit {
           change.request,
           change.trip,
         );
+        await this.rejectRemainingPendingIfTripFull(manager, change.trip);
       }
     });
   }
@@ -74,6 +75,38 @@ export class RequestAcceptanceListener implements OnModuleInit {
         );
         await recordPromise; // NOSONAR: la conexión transaccional requiere escrituras secuenciales
       }
+    }
+  }
+
+  private async rejectRemainingPendingIfTripFull(
+    manager: EntityManager,
+    acceptedTrip: Trip,
+  ): Promise<void> {
+    if (acceptedTrip.availableSeats > 0) {
+      return;
+    }
+    const pending = await manager.find(SeatRequest, {
+      where: { tripId: acceptedTrip.id, status: 'pending' },
+      lock: { mode: 'pessimistic_write' },
+    });
+    for (const request of pending) {
+      assertRequestTransition(request.status, 'rejected');
+      request.status = 'rejected';
+      request.rejectionReason = 'trip_full';
+      request.answeredAt = new Date();
+    }
+    if (pending.length === 0) {
+      return;
+    }
+    const saved = await manager.save(pending);
+    for (const request of saved) {
+      const recordPromise = this.changes.record(
+        manager,
+        'request.rejected',
+        request,
+        acceptedTrip,
+      );
+      await recordPromise; // NOSONAR: la conexión transaccional requiere escrituras secuenciales
     }
   }
 }

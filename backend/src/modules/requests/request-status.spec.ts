@@ -6,13 +6,14 @@ import {
   RequestStatus,
 } from './request-status';
 
-// RNF-10: se prueban TODAS las combinaciones de estados (4 x 4 = 16). Las
+// RNF-10: se prueban TODAS las combinaciones de estados (5 x 5 = 25). Las
 // permitidas son las del diagrama de estados de la solicitud; el resto se
 // rechaza
 const ALLOWED: [RequestStatus, RequestStatus][] = [
   ['pending', 'accepted'],
   ['pending', 'rejected'],
   ['pending', 'cancelled'],
+  ['pending', 'expired'],
   ['accepted', 'cancelled'],
 ];
 
@@ -23,8 +24,8 @@ const isAllowed = ([from, to]: [RequestStatus, RequestStatus]): boolean =>
   ALLOWED.some(([a, b]) => a === from && b === to);
 
 describe('seat request status machine', () => {
-  it('covers the 16 combinations of states', () => {
-    expect(ALL_PAIRS).toHaveLength(16);
+  it('covers the 25 combinations of states', () => {
+    expect(ALL_PAIRS).toHaveLength(25);
   });
 
   it.each(ALL_PAIRS.filter(isAllowed))('allows %s → %s', (from, to) => {

@@ -47,6 +47,19 @@ const HISTORY_DATE_FORMAT = new Intl.DateTimeFormat('es-ES', {
   minute: '2-digit',
 });
 
+function historyAnsweredLabel(request: SeatRequest): string {
+  if (request.status === 'accepted') {
+    return 'Solicitud aceptada';
+  }
+  if (request.status === 'expired') {
+    return 'Solicitud caducada';
+  }
+  if (request.rejectionReason === 'trip_full') {
+    return 'Viaje completo';
+  }
+  return 'Solicitud rechazada';
+}
+
 // Detalle compartido por Tus viajes, Avisos y el flujo de solicitud desde Buscar.
 @Component({
   selector: 'app-passenger-request-detail',
@@ -110,12 +123,19 @@ export class PassengerRequestDetailPage {
     const entries: HistoryEntry[] = [{ label: 'Solicitud enviada', at: request.requestedAt }];
     if (request.answeredAt) {
       entries.push({
-        label: request.status === 'accepted' ? 'Solicitud aceptada' : 'Solicitud respondida',
+        label: historyAnsweredLabel(request),
         at: request.answeredAt,
       });
     }
+    if (request.boardedAt) {
+      entries.push({ label: 'Subida al vehículo validada', at: request.boardedAt });
+    }
     if (request.cancelledAt) {
-      entries.push({ label: 'Solicitud cancelada', at: request.cancelledAt });
+      const label =
+        request.rejectionReason === 'no_show'
+          ? 'Cancelada por no presentarse'
+          : 'Solicitud cancelada';
+      entries.push({ label, at: request.cancelledAt });
     }
     return entries;
   });

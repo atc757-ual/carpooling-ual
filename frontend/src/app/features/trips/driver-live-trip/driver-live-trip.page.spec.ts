@@ -70,6 +70,8 @@ describe('DriverLiveTripPage', () => {
       listMyTrips: vi.fn().mockResolvedValue(trips),
       listTripRequests: vi.fn().mockResolvedValue(requests),
       finishTrip: vi.fn().mockResolvedValue({ ...TRIP, status: 'finished' }),
+      boardPassenger: vi.fn().mockResolvedValue({ id: 'r1', boardedAt: new Date().toISOString() }),
+      markNoShow: vi.fn().mockResolvedValue({ id: 'r1', status: 'cancelled' }),
     };
     tracking = { tripId: signal<string | null>('t1'), start: vi.fn() };
     ask = vi.fn().mockResolvedValue(true);
@@ -186,5 +188,24 @@ describe('DriverLiveTripPage', () => {
     expect(page.isPageVisible()).toBe(false);
     page.ionViewWillEnter();
     expect(page.isPageVisible()).toBe(true);
+  });
+
+  it('validates boarding when entering 4-digit code', async () => {
+    await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
+
+    page.setBoardCode('r1', '4821');
+    expect(page.boardCode('r1')).toBe('4821');
+
+    await page.handleBoard('r1');
+    expect(driver['boardPassenger']).toHaveBeenCalledWith('r1', '4821');
+  });
+
+  it('marks no-show when confirmed after 5 minutes of grace period', async () => {
+    const latePassenger = passenger('r1', 'Carlos Ruiz', -10);
+    await render([TRIP], [latePassenger]);
+
+    expect(page.canMarkNoShow(latePassenger)).toBe(true);
+    await page.handleNoShow('r1');
+    expect(driver['markNoShow']).toHaveBeenCalledWith('r1');
   });
 });

@@ -6810,6 +6810,212 @@
         ]
       }
     },
+    "/api/requests/{id}/board": {
+      "post": {
+        "description": "Driver validates that the passenger boarded the vehicle using their 4-digit numeric code.",
+        "operationId": "RequestsController_board",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BoardSeatRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeatRequestResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED, NOT_TRIP_DRIVER",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: REQUEST_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: INVALID_BOARD_CODE, ALREADY_BOARDED, INVALID_REQUEST_TRANSITION",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Validate passenger boarding with 4-digit code",
+        "tags": [
+          "seat requests"
+        ]
+      }
+    },
+    "/api/requests/{id}/no-show": {
+      "post": {
+        "description": "Driver marks that the passenger did not show up after waiting at least 5 minutes. Cancels the request and records a late cancellation for the passenger.",
+        "operationId": "RequestsController_noShow",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeatRequestResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED, NOT_TRIP_DRIVER",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: REQUEST_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: PICKUP_GRACE_PERIOD_ACTIVE, INVALID_REQUEST_TRANSITION",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark passenger as no-show after waiting 5 minutes",
+        "tags": [
+          "seat requests"
+        ]
+      }
+    },
     "/api/requests/{id}": {
       "get": {
         "description": "Only its passenger and the driver of the trip can see it.",
@@ -9608,6 +9814,8 @@
                 "request.accepted",
                 "request.rejected",
                 "request.cancelled",
+                "request.expired",
+                "request.boarded",
                 "incident.reported",
                 "incident.reviewed",
                 "coverage.gap_reported",
@@ -12848,7 +13056,8 @@
               "pending",
               "accepted",
               "rejected",
-              "cancelled"
+              "cancelled",
+              "expired"
             ]
           },
           "seats": {
@@ -12911,6 +13120,24 @@
             "nullable": true,
             "example": "1234BCD",
             "description": "Plate of the vehicle, only once the request is accepted (to recognise the car)"
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true,
+            "example": "trip_full",
+            "description": "Explanatory reason when rejected (trip_full, expired) or cancelled (no_show)"
+          },
+          "boardCode": {
+            "type": "string",
+            "nullable": true,
+            "example": "4821",
+            "description": "4-digit boarding code for pickup validation (visible to passenger)"
+          },
+          "boardedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the passenger boarded the vehicle"
           }
         },
         "required": [
@@ -12929,7 +13156,10 @@
           "requestedAt",
           "answeredAt",
           "cancelledAt",
-          "vehiclePlate"
+          "vehiclePlate",
+          "rejectionReason",
+          "boardCode",
+          "boardedAt"
         ]
       },
       "RequestingStatusResource": {
@@ -12957,6 +13187,19 @@
           "@type",
           "lateCancellations",
           "requestingSuspendedUntil"
+        ]
+      },
+      "BoardSeatRequestDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "4821",
+            "description": "Código de recogida de 4 cifras proporcionado por el pasajero"
+          }
+        },
+        "required": [
+          "code"
         ]
       },
       "NotificationLinkResource": {
@@ -13001,7 +13244,9 @@
               "passenger_left",
               "trip_started",
               "incident_reported",
-              "review_requested"
+              "review_requested",
+              "request_expired",
+              "passenger_no_show"
             ],
             "description": "request_received (to the driver), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver and accepted passengers when the trip finishes), incident_reported (to the administrators)"
           },
@@ -14512,7 +14757,8 @@
               "pending",
               "accepted",
               "rejected",
-              "cancelled"
+              "cancelled",
+              "expired"
             ]
           },
           "seats": {
@@ -14881,6 +15127,8 @@
               "request.accepted",
               "request.rejected",
               "request.cancelled",
+              "request.expired",
+              "request.boarded",
               "incident.reported",
               "incident.reviewed",
               "coverage.gap_reported",
@@ -14968,6 +15216,8 @@
               "request.accepted",
               "request.rejected",
               "request.cancelled",
+              "request.expired",
+              "request.boarded",
               "incident.reported",
               "incident.reviewed",
               "coverage.gap_reported",
@@ -15139,7 +15389,8 @@
               "pending",
               "accepted",
               "rejected",
-              "cancelled"
+              "cancelled",
+              "expired"
             ]
           },
           "passenger": {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, In, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, LessThan, Repository } from 'typeorm';
 import type { Point } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { EMPTY_TRAVEL_PREFERENCES } from '../users/travel-preferences';
@@ -30,6 +30,7 @@ import {
   MIN_DEPARTURE_LEAD_MIN,
   MINUTE_MS,
   START_WINDOW_MIN,
+  UNSTARTED_TRIP_CANCEL_WINDOW_MIN,
 } from './trip-timing';
 
 // La salida, con al menos una hora de antelación (si ya pasó, manda
@@ -235,6 +236,59 @@ export class TripsService {
       return cancelled;
     });
     return this.toView(trip);
+  }
+
+  // Cancelar automáticamente viajes no iniciados tras UNSTARTED_TRIP_CANCEL_WINDOW_MIN (15 min)
+  async cancelUnstartedTrips(now = new Date()): Promise<number> {
+    const threshold = new Date(
+      now.getTime() - UNSTARTED_TRIP_CANCEL_WINDOW_MIN * MINUTE_MS,
+    );
+
+    const candidates = await this.tripsRepository.find({
+      where: [
+        { status: 'published', departureAt: LessThan(threshold) },
+        { status: 'confirmed', departureAt: LessThan(threshold) },
+      ],
+      select: { id: true, driverId: true },
+    });
+
+    if (candidates.length === 0) {
+      return 0;
+    }
+
+    let cancelledCount = 0;
+    for (const candidate of candidates) {
+      const cancelPromise = this.dataSource.transaction(async (manager) => {
+        const trip = await manager.findOne(Trip, {
+          where: { id: candidate.id },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (
+          !trip ||
+          (trip.status !== 'published' && trip.status !== 'confirmed') ||
+          trip.departureAt > threshold
+        ) {
+          return;
+        }
+
+        const wasConfirmed = trip.status === 'confirmed';
+        const cancelled = await this.tripStatus.changeStatus(
+          manager,
+          trip,
+          'cancelled',
+        );
+        if (wasConfirmed) {
+          await this.lateCancellations.recordDriverCancellation(
+            manager,
+            cancelled,
+          );
+        }
+        cancelledCount++;
+      });
+      await cancelPromise; // NOSONAR: procesar viajes candidatos de forma secuencial
+    }
+
+    return cancelledCount;
   }
 
   // RF-11: iniciar. Solo un viaje confirmado (con pasajeros), desde 10 minutos

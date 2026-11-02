@@ -2,7 +2,12 @@
 // estado; la interfaz solo lo refleja (guía, «Solicitud de plaza»)
 import { TravelPreferences } from './travel-preferences.model';
 
-export type SeatRequestStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled';
+export type SeatRequestStatus =
+  | 'pending'
+  | 'accepted'
+  | 'rejected'
+  | 'cancelled'
+  | 'expired';
 
 export interface SeatRequest {
   id: string;
@@ -28,4 +33,10 @@ export interface SeatRequest {
   cancelledAt: string | null;
   // La matrícula, solo con la solicitud aceptada
   vehiclePlate: string | null;
+  // Motivo explicativo de rechazo o cancelación (trip_full, expired, no_show)
+  rejectionReason?: string | null;
+  // Código numérico de 4 cifras generado para validación al subir
+  boardCode?: string | null;
+  // Fecha/hora de subida confirmada
+  boardedAt?: string | null;
 }

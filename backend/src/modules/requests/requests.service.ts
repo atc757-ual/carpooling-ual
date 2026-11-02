@@ -17,9 +17,13 @@ import { TripsService } from '../trips/trips.service';
 import { TripRoutesService } from '../trips/trip-routes.service';
 import { UsersService } from '../users/users.service';
 import { SeatRequest } from './entities/seat-request.entity';
+import { AlreadyBoardedError } from './errors/already-boarded.error';
 import { CannotRequestOwnTripError } from './errors/cannot-request-own-trip.error';
+import { InvalidBoardCodeError } from './errors/invalid-board-code.error';
+import { InvalidRequestTransitionError } from './errors/invalid-request-transition.error';
 import { NotRequestPassengerError } from './errors/not-request-passenger.error';
 import { NotTripPassengerError } from './errors/not-trip-passenger.error';
+import { PickupGracePeriodActiveError } from './errors/pickup-grace-period-active.error';
 import { RequestAlreadyExistsError } from './errors/request-already-exists.error';
 import { RequestNotFoundError } from './errors/request-not-found.error';
 import { RequestingSuspendedError } from './errors/requesting-suspended.error';
@@ -31,6 +35,8 @@ import { MAX_OVERLAPPING_PENDING_REQUESTS } from './request-schedule';
 import { assertRequestTransition } from './request-status';
 import { TripChangedError } from './errors/trip-changed.error';
 import { InvalidRequestPickupError } from './errors/invalid-request-pickup.error';
+import { EventsService } from '../../events/events.service';
+import { MINUTE_MS, PICKUP_NO_SHOW_WAIT_MIN } from '../trips/trip-timing';
 import type { Point } from 'typeorm';
 
 export interface RequestPickupContext {
@@ -59,6 +65,7 @@ export class RequestsService {
     private readonly changes: RequestChangesRecorder,
     private readonly lateCancellations: LateCancellationsService,
     private readonly overlaps: RequestOverlapService,
+    private readonly eventsService: EventsService,
   ) {}
 
   // --- Pasajero
@@ -289,12 +296,19 @@ export class RequestsService {
         throw new RequestNotFoundError(requestId);
       }
       this.assertIsTripDriver(driverId, trip);
-      assertRequestTransition(request.status, 'accepted');
       this.tripStatus.assertOpenForRequests(trip);
+      if (
+        trip.availableSeats < request.seats ||
+        request.rejectionReason === 'trip_full'
+      ) {
+        throw new TripFullError(trip.id);
+      }
+      assertRequestTransition(request.status, 'accepted');
 
       await this.tripStatus.reserveSeat(manager, trip, request.seats);
       request.status = 'accepted';
       request.answeredAt = new Date();
+      request.boardCode = Math.floor(1000 + Math.random() * 9000).toString();
       const accepted = await manager.save(request);
       // RF-24: la prioridad ya ha cumplido su función (tiene otro viaje)
       if (accepted.isPriority) {
@@ -325,6 +339,93 @@ export class RequestsService {
       const rejected = await manager.save(request);
       await this.changes.record(manager, 'request.rejected', rejected, trip);
       return rejected;
+    });
+    return this.views.toView(request);
+  }
+
+  // Validar subida del pasajero al vehículo con su código de recogida de 4 cifras
+  async board(
+    driverId: string,
+    requestId: string,
+    code: string,
+  ): Promise<RequestView> {
+    const request = await this.dataSource.transaction(async (manager) => {
+      const { trip, request } = await this.lockTripAndRequest(
+        manager,
+        driverId,
+        requestId,
+      );
+      this.assertIsTripDriver(driverId, trip);
+      if (request.status !== 'accepted') {
+        throw new InvalidRequestTransitionError(request.status, 'accepted');
+      }
+      if (request.boardedAt !== null) {
+        throw new AlreadyBoardedError(requestId);
+      }
+      if (request.boardCode !== code) {
+        throw new InvalidBoardCodeError();
+      }
+      request.boardedAt = new Date();
+      const saved = await manager.save(request);
+      await this.eventsService.record(manager, {
+        type: 'request.boarded',
+        sourceEntityId: saved.id,
+        payload: {
+          tripId: trip.id,
+          requestId: saved.id,
+          passengerId: saved.passengerId,
+          boardedAt: (saved.boardedAt ?? new Date()).toISOString(),
+        },
+      });
+      return saved;
+    });
+    return this.views.toView(request);
+  }
+
+  // Conductor marca «No se presentó» tras esperar al menos 5 min tras la hora de recogida
+  async noShow(
+    driverId: string,
+    requestId: string,
+    now = new Date(),
+  ): Promise<RequestView> {
+    const request = await this.dataSource.transaction(async (manager) => {
+      const { trip, request } = await this.lockTripAndRequest(
+        manager,
+        driverId,
+        requestId,
+      );
+      this.assertIsTripDriver(driverId, trip);
+      if (request.status !== 'accepted') {
+        throw new InvalidRequestTransitionError(request.status, 'cancelled');
+      }
+      const pickupReference = request.pickupAt ?? trip.departureAt;
+      const minWaitTime =
+        pickupReference.getTime() + PICKUP_NO_SHOW_WAIT_MIN * MINUTE_MS;
+      if (now.getTime() < minWaitTime) {
+        const minutesLeft = Math.ceil(
+          (minWaitTime - now.getTime()) / MINUTE_MS,
+        );
+        throw new PickupGracePeriodActiveError(minutesLeft);
+      }
+      assertRequestTransition(request.status, 'cancelled');
+      request.status = 'cancelled';
+      request.rejectionReason = 'no_show';
+      request.cancelledAt = now;
+      const cancelled = await manager.save(request);
+      await this.tripStatus.releaseSeat(manager, trip, request.seats);
+      await this.changes.record(manager, 'request.cancelled', cancelled, trip);
+      await this.lateCancellations.recordPassengerCancellation(
+        manager,
+        trip,
+        request.passengerId,
+      );
+      const remaining = await manager.count(SeatRequest, {
+        where: { tripId: trip.id, status: 'accepted' },
+      });
+      if (remaining === 0 && trip.status === 'in_progress') {
+        await this.tripsService.finishWithoutPassengers(manager, trip);
+      }
+      return cancelled;
     });
     return this.views.toView(request);
   }
