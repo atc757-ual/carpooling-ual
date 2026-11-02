@@ -2,8 +2,10 @@ import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, MoreThan, Repository } from 'typeorm';
+import { Page, PageRequest } from '../shared/pagination/page';
 import type { DomainEventType } from './domain-event-type';
 import { DomainEvent } from './entities/domain-event.entity';
+import { EventNotFoundError } from './errors/event-not-found.error';
 import { EVENT_VERSIONS } from './event-versions';
 
 export interface RecordEventInput {
@@ -55,5 +57,28 @@ export class EventsService {
       order: { sequence: 'ASC' },
       take: Math.min(Math.max(limit, 1), MAX_EVENTS_PER_READ),
     });
+  }
+
+  // Los últimos eventos para el panel (el más reciente primero), con filtro
+  // opcional por tipo
+  async list(
+    filter: { type?: DomainEventType },
+    page: PageRequest,
+  ): Promise<Page<DomainEvent>> {
+    const [items, total] = await this.eventsRepository.findAndCount({
+      where: filter.type === undefined ? {} : { type: filter.type },
+      order: { sequence: 'DESC' },
+      skip: page.offset,
+      take: page.limit,
+    });
+    return { items, total };
+  }
+
+  async get(eventId: string): Promise<DomainEvent> {
+    const event = await this.eventsRepository.findOneBy({ id: eventId });
+    if (event === null) {
+      throw new EventNotFoundError(eventId);
+    }
+    return event;
   }
 }

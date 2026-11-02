@@ -42,4 +42,9 @@ export class RequestStatsService {
       take: limit,
     });
   }
+
+  // Solicitudes que esperan la respuesta del conductor
+  countPending(): Promise<number> {
+    return this.requestsRepository.countBy({ status: 'pending' });
+  }
 }
