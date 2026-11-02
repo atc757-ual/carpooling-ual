@@ -2,7 +2,11 @@
   <ion-card-content>
     <div class="driver-trip__head">
       <div class="driver-trip__when text-subtitle">{{ when() }}</div>
-      <span class="status" [class.status--accepted]="trip().status === 'confirmed'">
+      <span
+        class="status"
+        [class.status--accepted]="trip().status === 'confirmed'"
+        [class.status--info]="isInProgress()"
+      >
         {{ statusLabel() }}
       </span>
     </div>
@@ -10,16 +14,40 @@
     <div class="text-caption text-color-muted">{{ seatsLabel() }}</div>
 
     @if (isOpen()) {
-      <div class="driver-trip__cancel">
+      <div class="driver-trip__actions-row">
         <ion-button
           type="button"
           fill="outline"
           color="danger"
-          [disabled]="isCancelling()"
+          [disabled]="isCancelling() || isChangingStatus()"
           (click)="handleCancel()"
         >
           {{ isCancelling() ? 'Cancelando…' : 'Cancelar viaje' }}
         </ion-button>
+        @if (trip().status === 'confirmed') {
+          <form (submit)="$event.preventDefault(); handleStart()">
+            <ion-button type="submit" [disabled]="!canStart() || isChangingStatus()">
+              {{ isChangingStatus() ? 'Iniciando…' : 'Iniciar viaje' }}
+            </ion-button>
+          </form>
+        }
+      </div>
+      @if (startHint(); as hint) {
+        <p class="driver-trip__hint text-caption text-color-muted">{{ hint }}</p>
+      }
+    }
+
+    @if (isInProgress()) {
+      <div class="notice notice--info driver-trip__sharing">
+        <ion-icon [icon]="locationIcon" aria-hidden="true" />
+        <span>Compartiendo tu ubicación con tus pasajeros</span>
+      </div>
+      <div class="driver-trip__actions-row">
+        <form (submit)="$event.preventDefault(); handleFinish()">
+          <ion-button type="submit" [disabled]="isChangingStatus()">
+            {{ isChangingStatus() ? 'Terminando…' : 'Terminar viaje' }}
+          </ion-button>
+        </form>
       </div>
     }
 
