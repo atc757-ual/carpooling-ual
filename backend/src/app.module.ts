@@ -17,6 +17,7 @@ import { PlacesModule } from './modules/places/places.module';
 import { ReputationModule } from './modules/reputation/reputation.module';
 import { RequestsModule } from './modules/requests/requests.module';
 import { SimulationModule } from './modules/simulation/simulation.module';
+import { SupportModule } from './modules/support/support.module';
 import { TrackingModule } from './modules/tracking/tracking.module';
 import { TripsModule } from './modules/trips/trips.module';
 import { UsersModule } from './modules/users/users.module';
@@ -45,6 +46,7 @@ import { UsersModule } from './modules/users/users.module';
     ReputationModule,
     IncidentsModule,
     NotificationsModule,
+    SupportModule,
     PlacesModule,
     CatalogsModule,
     MatchingModule,

@@ -2,6 +2,8 @@
 // correo muestra el que sabe mostrar)
 export interface MailMessage {
   to: string;
+  // A quién se responde (p. ej. el usuario que escribe a soporte)
+  replyTo?: string;
   subject: string;
   text: string;
   html: string;

@@ -6,6 +6,7 @@ import { SmtpMailSender } from './smtp-mail-sender';
 const CONFIG: MailConfig = {
   transport: 'smtp',
   from: 'Carpooling UAL <no-reply@carpooling-ual.local>',
+  supportTo: 'soporte@carpooling-ual.local',
   smtp: { host: 'localhost', port: 1025, secure: false, auth: null },
 };
 
