@@ -31,8 +31,8 @@ import { EmailSuggestions } from '../../../shared/components/ui/email-suggestion
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
 import { getUalEmailErrorKey, ualEmailValidator } from '../../../shared/utils/ual-email.util';
+import { PASSWORD_MIN_LENGTH } from '../../../shared/utils/password.util';
 
-const PASSWORD_MIN_LENGTH = 8;
 const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
 
 // Iniciar sesión (P·03) con el correo de la UAL y la contraseña. Al entrar,
