@@ -21,7 +21,7 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('POST', REGISTER_URL, { statusCode: 202 }).as('register');
 
       fillForm('mario.perez@ual.es');
-      cy.contains('ion-button', 'Crear cuenta y verificar correo').click();
+      cy.contains('ion-button', 'Crear mi cuenta').click();
 
       cy.wait('@register').its('request.body').should('deep.equal', {
         name: 'Mario Pérez',
@@ -58,7 +58,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('ion-popover.phone-prefix-popover').should('have.class', 'overlay-hidden');
       cy.get('ion-input[formControlName="phone"] input.native-input').clear();
       cy.get('ion-input[formControlName="phone"] input.native-input').type('333 123 4567');
-      cy.contains('ion-button', 'Crear cuenta y verificar correo').click();
+      cy.contains('ion-button', 'Crear mi cuenta').click();
 
       cy.wait('@register').its('request.body.phone').should('equal', '+393331234567');
     });
@@ -91,7 +91,7 @@ for (const viewport of VIEWPORTS) {
       }).as('register');
 
       fillForm('mario.perez@ual.es');
-      cy.contains('ion-button', 'Crear cuenta y verificar correo').click();
+      cy.contains('ion-button', 'Crear mi cuenta').click();
 
       cy.wait('@register');
       cy.get('ion-toast')

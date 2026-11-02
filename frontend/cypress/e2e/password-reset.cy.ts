@@ -45,7 +45,7 @@ function checkCode(): void {
 function typeNewPassword(): void {
   cy.get('app-new-password ion-input[formControlName="password"] input').type(NEW_PASSWORD);
   cy.get('app-new-password ion-input[formControlName="confirmation"] input').type(NEW_PASSWORD);
-  cy.contains('ion-button', 'Guardar nueva contraseña').click();
+  cy.contains('ion-button', 'Actualizar contraseña').click();
 }
 
 for (const viewport of VIEWPORTS) {

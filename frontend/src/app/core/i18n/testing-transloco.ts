@@ -107,6 +107,12 @@ class TestingTranslocoLoader implements TranslocoLoader {
 export function provideTestingTransloco(
   translations: Record<string, Record<string, unknown>> = {},
 ): EnvironmentProviders {
+  try {
+    globalThis.localStorage?.removeItem('carpooling_language');
+  } catch {
+    // El almacenamiento puede no estar disponible en el entorno de pruebas
+  }
+
   const mergedTranslations = { ...DEFAULT_TEST_TRANSLATIONS };
   for (const [language, dictionary] of Object.entries(translations)) {
     mergedTranslations[language] = mergeTranslations(
