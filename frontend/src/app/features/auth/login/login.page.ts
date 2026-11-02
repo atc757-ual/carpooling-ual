@@ -13,6 +13,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
   arrowBackOutline,
   eyeOffOutline,
@@ -28,8 +29,8 @@ import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-l
 import { Combobox } from '../../../shared/components/ui/combobox/combobox';
 import { EmailSuggestions } from '../../../shared/components/ui/email-suggestions/email-suggestions';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/ual-email.util';
+import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
+import { getUalEmailErrorKey, ualEmailValidator } from '../../../shared/utils/ual-email.util';
 
 const PASSWORD_MIN_LENGTH = 8;
 const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
@@ -55,6 +56,7 @@ const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
     Combobox,
     EmailSuggestions,
     IonicFormStatus,
+    TranslocoPipe,
   ],
   templateUrl: './login.page.html',
   styleUrls: ['../auth-form.scss', './login.page.scss'],
@@ -63,6 +65,7 @@ export class LoginPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
   private readonly appContext = inject(AppContextService);
 
   // Parámetro ?returnUrl= de la ruta (withComponentInputBinding)
@@ -83,8 +86,14 @@ export class LoginPage {
   protected readonly eyeIcon = eyeOutline;
   protected readonly eyeOffIcon = eyeOffOutline;
 
-  emailErrorText(): string {
-    return getUalEmailErrorText(this.form.controls.email);
+  emailErrorKey(): string {
+    return getUalEmailErrorKey(this.form.controls.email);
+  }
+
+  passwordErrorKey(): string {
+    return this.form.controls.password.hasError('required')
+      ? 'auth.validation.passwordRequired'
+      : 'auth.validation.passwordLength';
   }
 
   async handleSubmit(): Promise<void> {
@@ -104,7 +113,7 @@ export class LoginPage {
       if (apiError.code === EMAIL_NOT_VERIFIED) {
         await this.goToVerify(email);
       } else {
-        void this.toast.showError(getErrorMessage(apiError));
+        void this.toast.showError(getAuthErrorMessage(apiError, this.transloco));
       }
     } finally {
       this.isSubmitting.set(false);

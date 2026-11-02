@@ -734,6 +734,23 @@
     </div>
     <p class="note" style="margin-top:var(--space-s)">El acento sobre blanco solo da 3,5:1: nunca como color de texto pequeño. «Última plaza» va como chip naranja con texto negro.</p>
 
+    <h3>Viaje en curso (conductor)</h3>
+    <p class="note">Pantalla propia (<code>/tabs/trips/drive/:id</code>) a la que se entra al iniciar el viaje o con «Abrir viaje». Arriba, el aviso de que se comparte la ubicación; el mapa en vivo con la posición del conductor y la siguiente recogida (deja de serlo 5 min después de su hora); el progreso con los pasos de la guía, solo informativo; los pasajeros por hora de recogida, con la siguiente marcada; y «Terminar viaje», fijo abajo en el móvil, con confirmación en azul («Terminar · Seguir en el viaje»). En escritorio, el mapa en la columna de 8 y lo demás en la de 4. Si dejan de llegar posiciones durante más de 1 min, aviso de advertencia: «No estamos recibiendo tu ubicación. Comprueba que la app sigue abierta y el GPS activo.»</p>
+    <div class="demo" style="max-width:27rem">
+      <div class="notice notice--info"><span>Compartiendo tu ubicación con tus pasajeros</span></div>
+      <p class="text-label text-label--strong" style="margin:var(--space-base) 0 var(--space-xs)">Llegas en ~6 min a Av. del Mediterráneo.</p>
+      <span class="text-meta">Publicado ✓ · Confirmado ✓ · <b>En curso</b> · Finalizado</span>
+      <div class="trip-row" style="margin-top:var(--space-base)">
+        <div class="trip-row__head"><span class="text-label text-label--strong">Carlos Ruiz</span><span class="status status--info">Siguiente recogida</span></div>
+        <span class="text-meta">1 plaza · Recoger a las 09:12 · Av. del Mediterráneo</span>
+      </div>
+      <div class="trip-row">
+        <div class="trip-row__head"><span class="text-label text-label--strong">Ana Gómez</span></div>
+        <span class="text-meta">1 plaza · Recoger a las 09:20 · Paseo de Almería</span>
+      </div>
+      <button class="btn btn--primary btn--block" type="button" style="margin-top:var(--space-base)">Terminar viaje</button>
+    </div>
+
     <h3 id="administracion">Administración</h3>
     <p class="note">Panel de escritorio con la cabecera índigo. Las cifras son el protagonista (Barlow 600); las tarjetas solo agrupan bloques. Los datos de ejemplo se marcan como tales.</p>
     <div class="kpis">
@@ -992,6 +1009,7 @@
     <ul class="rules">
       <li><b>Escritorio (≥ 48rem):</b> a la izquierda, igual en todas (bienvenida, login, registro, verificar, modos, recuperar), fondo <code>--color-primary-subtle</code> con la ilustración arriba y el lema debajo: «CADA VIAJE CUENTA» · «Tu campus, mejor conectado.» · «Del mar al campus, comparte camino con personas que van en tu misma dirección.» A la derecha, el logotipo, el contenido y el pie de confianza tras una línea.</li>
       <li><b>Móvil, bienvenida:</b> logotipo, ilustración en su caja, título, texto, botones y el pie «Comunidad UAL · Perfiles verificados» sin línea.</li>
+      <li><b>Idioma en bienvenida:</b> selector «ES / EN» en una píldora junto al logotipo, alineado a la derecha; el activo usa el azul primario con texto blanco. Solo aparece en la bienvenida.</li>
       <li><b>Móvil, formularios:</b> cabecera con flecha atrás y título de la pantalla («Accede a tu cuenta»), logotipo cuadrado con «Carpool» en azul y «Sistema de movilidad compartida», sin pie.</li>
       <li><b>Pie de confianza:</b> escudo (<code>shield-checkmark-outline</code>) y «Comunidad UAL · Perfiles verificados» (meta, verde, 600). Debajo, en la bienvenida, «Verificamos tu correo UAL para conectar con tu comunidad.»; en los formularios, «Verificamos tu correo institucional @ual.es o @inlumine.ual.es con la finalidad de que este sea un espacio seguro para la comunidad universitaria.»</li>
       <li><b>Espaciado (igual en todas: bienvenida, login, registro, verificar, modos, recuperar):</b> 24px (<code>--space-l</code>) entre bloques: logotipo → título y texto → formulario → botones → avisos → pie; 16px (<code>--space-base</code>) entre botones seguidos; 20px (1,25rem) entre los elementos de un formulario (campos, enlaces y botón de enviar); 4px entre un título y su texto; 8px entre una etiqueta y su campo.</li>

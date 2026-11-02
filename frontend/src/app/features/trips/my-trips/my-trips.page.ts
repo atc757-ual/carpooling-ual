@@ -91,4 +91,12 @@ export class MyTripsPage {
   handleChanged(): void {
     this.trips.reload();
   }
+
+  // Al volver a la pestaña (p. ej. tras terminar un viaje en su pantalla), la
+  // lista al día; la primera vez ya se está cargando
+  ionViewWillEnter(): void {
+    if (this.isDriver() && !this.trips.isLoading()) {
+      this.trips.reload();
+    }
+  }
 }

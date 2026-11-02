@@ -13,6 +13,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { arrowBackOutline, mailUnreadOutline } from 'ionicons/icons';
 import { ACCOUNT_CREATED_PATH } from '../../../core/guards/redirect-paths';
 import { ApiError } from '../../../core/models/api-error.model';
@@ -20,8 +21,8 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import { CodeInput } from '../../../shared/components/ui/code-input/code-input';
-import { createCountdown, getResendLabel } from '../../../shared/utils/countdown.util';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { createCountdown, formatMinutesSeconds } from '../../../shared/utils/countdown.util';
+import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
 
 // La API anula el código al tercer intento fallido
 const TOO_MANY_ATTEMPTS = 'TOO_MANY_ATTEMPTS';
@@ -48,6 +49,7 @@ const RESEND_WAIT_SECONDS = 60;
     IonToolbar,
     AuthLayout,
     CodeInput,
+    TranslocoPipe,
   ],
   templateUrl: './verify.page.html',
   styleUrls: ['../auth-form.scss', './verify.page.scss'],
@@ -56,6 +58,7 @@ export class VerifyPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
 
   // El correo pendiente de verificar (lo guarda AuthService al registrar o al
   // entrar sin haberlo verificado); nunca en la URL
@@ -72,7 +75,7 @@ export class VerifyPage implements OnInit {
   private readonly codeInput = viewChild(CodeInput);
   private readonly resendCountdown = createCountdown(RESEND_WAIT_SECONDS, inject(DestroyRef));
   readonly secondsToResend = this.resendCountdown.seconds;
-  readonly resendLabel = computed(() => getResendLabel(this.secondsToResend()));
+  readonly resendTime = computed(() => formatMinutesSeconds(this.secondsToResend()));
 
   protected readonly backIcon = arrowBackOutline;
   protected readonly mailIcon = mailUnreadOutline;
@@ -105,7 +108,7 @@ export class VerifyPage implements OnInit {
       await this.router.navigateByUrl(ACCOUNT_CREATED_PATH);
     } catch (error) {
       const apiError = ApiError.fromHttpError(error);
-      void this.toast.showError(getErrorMessage(apiError));
+      void this.toast.showError(getAuthErrorMessage(apiError, this.transloco));
       this.form.reset();
       this.codeInput()?.shake();
       if (apiError.code === TOO_MANY_ATTEMPTS) {
@@ -124,7 +127,7 @@ export class VerifyPage implements OnInit {
       this.unlock();
       this.resendCountdown.restart();
     } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      void this.toast.showError(getAuthErrorMessage(ApiError.fromHttpError(error), this.transloco));
     }
   }
 

@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../core/i18n/testing-transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { PasswordResetService } from '../../../core/services/auth/password-reset.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -22,6 +23,7 @@ describe('ForgotPasswordPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        provideTranslocoTestingSupport(),
         { provide: ToastService, useValue: { showError } },
         { provide: PasswordResetService, useValue: { requestCode, email: () => '' } },
       ],
@@ -47,7 +49,7 @@ describe('ForgotPasswordPage', () => {
     await page.handleSubmit();
 
     expect(requestCode).not.toHaveBeenCalled();
-    expect(page.emailErrorText()).toContain('Universidad de Almería');
+    expect(page.emailErrorKey()).toBe('auth.validation.emailDomain');
   });
 
   it('explains an API error and stays', async () => {

@@ -4,7 +4,12 @@
     "cancel": "Cancel",
     "retry": "Retry",
     "close": "Close",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "countryPrefixLabel": "Country calling code: {{ prefix }}",
+    "countryPrefixList": "Available phone prefixes"
+  },
+  "brand": {
+    "tagline": "Shared mobility"
   },
   "profile": {
     "verifiedEmail": "Verified UAL email",
@@ -160,6 +165,171 @@
       "confirmDelete": "Permanently delete my account",
       "codeSentToast": "Confirmation code sent.",
       "successToast": "Your account has been deleted. We hope to see you again soon."
+    }
+  },
+  "auth": {
+    "layout": {
+      "verifiedCommunity": "UAL Community · Verified Profiles",
+      "trustNoticeWelcome": "We verify your UAL email so you can ride with your community.",
+      "trustNoticeForm": "We verify your institutional email to help keep our university community safe.",
+      "eyebrow": "Every journey counts",
+      "visualTitle": "Your campus, better connected.",
+      "visualDescription": "From home to campus, share rides with people heading the same way.",
+      "back": "Back",
+      "language": "Language"
+    },
+    "welcome": {
+      "title": "Welcome aboard",
+      "subtitle": "Share rides with your community. Sign in with your UAL email or join in a minute.",
+      "createAccount": "Create an account",
+      "alreadyHaveAccount": "I already have an account"
+    },
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Use your institutional email to access your trips.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "user@ual.es",
+      "emailHelper": "Use your @ual.es or @inlumine.ual.es email address.",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "Forgot your password?",
+      "submit": "Sign in",
+      "submitting": "Signing in",
+      "noAccountPrompt": "Don’t have an account?",
+      "registerLink": "Sign up",
+      "securityTitle": "Your access, protected",
+      "securityDescription": "Never share your password or verification code. We will never ask for them in chat."
+    },
+    "register": {
+      "title": "Create an account",
+      "subtitle": "Join the University of Almería carpooling community.",
+      "nameLabel": "Full name",
+      "namePlaceholder": "Ana Pérez",
+      "phoneLabel": "Contact phone",
+      "phonePlaceholder": "612 345 678",
+      "phoneHelper": "Enter your mobile phone number.",
+      "emailLabel": "UAL email",
+      "emailPlaceholder": "name@inlumine.ual.es",
+      "emailHelper": "Use your UAL email. You will verify it later.",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "passwordHelper": "At least 8 characters. Do not share your password.",
+      "termsPrefix": "I have read and accept the ",
+      "termsLink": "terms of service",
+      "termsAnd": " and the ",
+      "privacyLink": "privacy policy",
+      "termsError": "You must accept the terms to create your account.",
+      "submit": "Create my account",
+      "submitting": "Creating account",
+      "hasAccountPrompt": "Already have an account?",
+      "loginLink": "Sign in"
+    },
+    "verify": {
+      "title": "Verify your email",
+      "introTitle": "Check your inbox.",
+      "subtitle": "We sent a 6-digit code to {{ email }}.",
+      "codeLabel": "Verification code",
+      "locked": "Too many incorrect attempts. Request a new code to continue.",
+      "resent": "If the email is registered, we sent you a new code.",
+      "checking": "Checking the code…",
+      "resendWait": "Resend code in {{ time }}",
+      "resendNow": "Resend code",
+      "editEmail": "Edit email address",
+      "tipsTitle": "Important",
+      "tipAddress": "Check that the email address is correct.",
+      "tipSpam": "Check your junk or spam folder.",
+      "tipResend": "If you do not receive it, request a new code."
+    },
+    "emailSuggestions": {
+      "label": "Email suggestions",
+      "students": "Students",
+      "staff": "Staff"
+    },
+    "forgotPassword": {
+      "title": "Reset password",
+      "subtitle": "Enter your institutional email and we will send you a code to reset your password.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "user@ual.es",
+      "emailHelper": "Use your @ual.es or @inlumine.ual.es email address.",
+      "submit": "Send code",
+      "submitting": "Sending",
+      "backToLogin": "Back to sign in"
+    },
+    "resetCode": {
+      "title": "Enter the code",
+      "introTitle": "Check your inbox.",
+      "subtitle": "Enter the 6-digit code sent to {{ email }}.",
+      "codeLabel": "Reset code",
+      "locked": "Too many incorrect attempts. Request a new code to continue.",
+      "checking": "Checking the code…",
+      "resendWait": "Resend code in {{ time }}",
+      "resendNow": "Resend code",
+      "noticeTitle": "We sent you a code",
+      "noticeDescription": "If an account exists for this email, we’ll send a reset code. Check your spam folder. For privacy, we can’t confirm whether it’s registered."
+    },
+    "newPassword": {
+      "title": "New password",
+      "subtitle": "Choose a new password for your Carpooling UAL account.",
+      "passwordLabel": "New password",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirm password",
+      "passwordHelper": "Use at least 8 characters.",
+      "mismatchError": "Passwords do not match",
+      "confirmError": "Re-enter your new password.",
+      "confirmRequired": "Re-enter your new password.",
+      "updatedTitle": "Password updated",
+      "updatedDescription": "Your password has been updated. Sign in with it now; your other sessions have been signed out for security.",
+      "expiredTitle": "The code has expired",
+      "expiredDescription": "Your password was not changed. Request a new code to continue securely.",
+      "requestAnotherCode": "Request another code",
+      "backToLogin": "Go to sign in",
+      "submit": "Update password",
+      "saving": "Saving"
+    },
+    "accountCreated": {
+      "title": "Account created successfully!",
+      "verifiedTitle": "Email verified!",
+      "subtitle": "You’re part of Carpooling UAL. You’re ready to share rides.",
+      "verifiedSubtitle": "Your email is verified. You can now find or share a ride.",
+      "stepProfile": "Complete your profile with your phone number and travel preferences.",
+      "stepVehicle": "If you are a driver, add your vehicle to publish trips.",
+      "stepExplore": "Find a ride to campus or offer one in seconds.",
+      "exploreButton": "Start exploring",
+      "laterButton": "Come back later",
+      "laterNote": "Come back any time and sign in with your UAL email and password."
+    },
+    "validation": {
+      "emailRequired": "Enter your email address.",
+      "emailInvalid": "Enter a valid email address.",
+      "emailDomain": "Use your University of Almería email address.",
+      "passwordRequired": "Enter your password.",
+      "passwordLength": "Use 8–72 characters.",
+      "nameRequired": "Enter your first and last name.",
+      "nameInvalid": "Use letters, spaces, hyphens or apostrophes only.",
+      "nameLength": "The name must be 100 characters or fewer.",
+      "phoneRequired": "Enter your contact phone number.",
+      "phoneInvalid": "Check the number: in Spain, use 9 digits starting with 6, 7, 8 or 9.",
+      "termsRequired": "You must accept the terms to create your account.",
+      "codeRequired": "Enter the 6-digit code.",
+      "codeInvalid": "The code must contain 6 digits."
+    },
+    "password": {
+      "show": "Show password",
+      "hide": "Hide password"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "network": "Connection problem. Check your network and try again.",
+      "validation": "Check the form details.",
+      "unavailable": "The service is unavailable right now. Please try again later.",
+      "invalidCredentials": "Incorrect email or password.",
+      "invalidCode": "That code is invalid. Check the 6 digits or request a new one.",
+      "passwordUnchanged": "Your new password must be different from the current one.",
+      "tooManyAttempts": "Too many failed attempts. Request a new code.",
+      "emailRegistered": "An account with this email already exists.",
+      "emailDomain": "Use your University of Almería email address.",
+      "internal": "A server error occurred{{ reference }}. Please try again.",
+      "reference": " (reference: {{ requestId }})"
     }
   }
 }

@@ -160,6 +160,22 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'trips/drive/:id',
+        canActivate: [profileGuard('driver')],
+        loadComponent: () =>
+          import('./features/trips/driver-live-trip/driver-live-trip.page').then(
+            (m) => m.DriverLiveTripPage,
+          ),
+        data: {
+          heading: {
+            title: 'Viaje en curso',
+            subtitle: 'Tus pasajeros ven dónde estás hasta que lo termines.',
+            backHref: '/tabs/trips',
+            breadcrumbs: [{ label: 'Tus viajes', href: '/tabs/trips' }],
+          } satisfies TabHeading,
+        },
+      },
+      {
         path: 'trips',
         loadComponent: () =>
           import('./features/trips/my-trips/my-trips.page').then((m) => m.MyTripsPage),

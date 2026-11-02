@@ -1,7 +1,12 @@
 import { TestBed } from '@angular/core/testing';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { BrandLogo, BrandLogoVariant } from './brand-logo';
 
 describe('BrandLogo', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideTranslocoTestingSupport()] });
+  });
+
   async function render(variant: BrandLogoVariant): Promise<HTMLElement> {
     const fixture = TestBed.createComponent(BrandLogo);
     fixture.componentRef.setInput('variant', variant);

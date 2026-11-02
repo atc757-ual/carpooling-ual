@@ -1,6 +1,7 @@
 import { Component, computed, forwardRef, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IonContent, IonIcon, IonPopover } from '@ionic/angular';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { caretDownOutline } from 'ionicons/icons';
 import { getPrefixCountry, PHONE_PREFIXES, SPANISH_PREFIX } from '../../../utils/phone-prefixes';
 
@@ -13,7 +14,7 @@ let nextId = 0;
 // formulario reactivo: <app-phone-prefix-select formControlName="phonePrefix" />
 @Component({
   selector: 'app-phone-prefix-select',
-  imports: [IonPopover, IonContent, IonIcon],
+  imports: [IonPopover, IonContent, IonIcon, TranslocoPipe],
   templateUrl: './phone-prefix-select.html',
   styleUrl: './phone-prefix-select.scss',
   providers: [

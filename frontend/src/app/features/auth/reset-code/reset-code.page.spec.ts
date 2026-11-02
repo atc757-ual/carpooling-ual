@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../core/i18n/testing-transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { PasswordResetService } from '../../../core/services/auth/password-reset.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -27,6 +28,7 @@ describe('ResetCodePage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        provideTranslocoTestingSupport(),
         { provide: ToastService, useValue: { showError } },
         { provide: PasswordResetService, useValue: { checkCode, resendCode, email } },
       ],
@@ -92,10 +94,10 @@ describe('ResetCodePage', () => {
 
   it('lets ask for a new code after a minute', () => {
     open('mario.perez@ual.es');
-    expect(page.resendLabel()).toBe('Reenviar código en 01:00');
+    expect(page.resendTime()).toBe('01:00');
 
     vi.advanceTimersByTime(60_000);
 
-    expect(page.resendLabel()).toBe('Reenviar código');
+    expect(page.resendTime()).toBe('00:00');
   });
 });

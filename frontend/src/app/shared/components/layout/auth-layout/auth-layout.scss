@@ -38,6 +38,14 @@ $desktop: 768px;
   gap: var(--space-l);
 }
 
+.auth-layout__brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-base);
+  width: 100%;
+}
+
 // Ilustración del móvil (solo en la bienvenida), dentro de su caja azul clara
 // (el mismo color que el fondo de la ilustración)
 .auth-layout__illustration {
@@ -132,9 +140,9 @@ $desktop: 768px;
     height: 100dvh;
   }
 
-  // Menos margen a los lados que arriba y abajo: más ancho para el formulario
+  // Margen uniforme para evitar scroll innecesario en el panel
   .auth-layout__panel {
-    padding: var(--space-xxxl) var(--space-xl);
+    padding: var(--space-xl) var(--space-xl);
   }
 
   // Centrado seguro también en escritorio, y más ancho que en el móvil para

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { DriverTrip } from '../../../core/models/driver.model';
@@ -17,6 +18,8 @@ const TRIP: DriverTrip = {
   offeredSeats: 3,
   availableSeats: 3,
   maxDetourMin: 10,
+  origin: { type: 'Point', coordinates: [-2.6, 36.76] },
+  destination: { type: 'Point', coordinates: [-2.4045, 36.8322] },
   status: 'published',
   originName: 'Roquetas de Mar',
   destinationName: 'Campus UAL · Parking P1 (Sur)',
@@ -67,6 +70,7 @@ describe('DriverTripCard', () => {
       imports: [DriverTripCard],
       providers: [
         provideIonicAngular(),
+        provideRouter([{ path: 'tabs/trips/drive/:id', children: [] }]),
         { provide: DriverService, useValue: driver },
         { provide: ToastService, useValue: toast },
         { provide: ConfirmService, useValue: { ask } },
@@ -184,12 +188,15 @@ describe('DriverTripCard', () => {
       const root = await render(SOON);
       expect(root.textContent).not.toContain('Podrás iniciarlo');
 
+      const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+
       await fixture.componentInstance.handleStart();
 
       expect(ask).not.toHaveBeenCalled();
       expect(driver['startTrip']).toHaveBeenCalledWith('t1');
       expect(tracking['start']).toHaveBeenCalledWith('t1');
       expect(changed).toBe(1);
+      expect(navigate).toHaveBeenCalledWith('/tabs/trips/drive/t1');
     });
 
     it('asks to share the location and records the consent', async () => {

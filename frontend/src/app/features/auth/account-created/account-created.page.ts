@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonButton, IonContent, IonIcon, NavController } from '@ionic/angular';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { checkmarkCircleOutline } from 'ionicons/icons';
 import { WELCOME_PATH } from '../../../core/guards/redirect-paths';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -13,7 +14,7 @@ import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-l
 // de correo verificado y no de cuenta creada
 @Component({
   selector: 'app-account-created',
-  imports: [RouterLink, IonButton, IonContent, IonIcon, AuthLayout],
+  imports: [RouterLink, IonButton, IonContent, IonIcon, AuthLayout, TranslocoPipe],
   templateUrl: './account-created.page.html',
   styleUrls: ['../auth-form.scss', './account-created.page.scss'],
 })
@@ -24,11 +25,11 @@ export class AccountCreatedPage {
   private readonly isNewAccount = this.auth.isNewAccount();
   readonly isLeaving = signal(false);
 
-  readonly title = computed(() => (this.isNewAccount ? '¡Cuenta creada!' : '¡Correo verificado!'));
-  readonly description = computed(() =>
-    this.isNewAccount
-      ? 'Tu correo de la UAL ya está verificado y tu cuenta está lista. Busca un viaje o comparte el tuyo con la comunidad.'
-      : 'Ya puedes entrar a buscar un viaje o a compartir el tuyo con la comunidad.',
+  readonly titleKey = computed(() =>
+    this.isNewAccount ? 'auth.accountCreated.title' : 'auth.accountCreated.verifiedTitle',
+  );
+  readonly descriptionKey = computed(() =>
+    this.isNewAccount ? 'auth.accountCreated.subtitle' : 'auth.accountCreated.verifiedSubtitle',
   );
 
   protected readonly checkIcon = checkmarkCircleOutline;

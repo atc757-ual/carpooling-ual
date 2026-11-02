@@ -80,7 +80,7 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('POST', LOGIN_URL, ACCESS_TOKEN).as('login');
 
       fillForm('ana@ual.es', 'secreta123');
-      cy.contains('ion-button', 'Iniciar sesión').click();
+      cy.contains('ion-button', 'Entrar').click();
 
       cy.wait('@login')
         .its('request.body')
@@ -102,7 +102,7 @@ for (const viewport of VIEWPORTS) {
       }).as('login');
 
       fillForm('ana@ual.es', 'incorrecta');
-      cy.contains('ion-button', 'Iniciar sesión').click();
+      cy.contains('ion-button', 'Entrar').click();
 
       cy.wait('@login');
       cy.get('ion-toast')
@@ -120,7 +120,7 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('POST', '/api/auth/verify-email/resend', { statusCode: 202 }).as('resend');
 
       fillForm('ana@ual.es', 'secreta123');
-      cy.contains('ion-button', 'Iniciar sesión').click();
+      cy.contains('ion-button', 'Entrar').click();
 
       cy.wait('@resend');
       cy.location('pathname').should('eq', '/auth/verify');
@@ -133,7 +133,7 @@ for (const viewport of VIEWPORTS) {
 
       fillForm('ana@ual.es', 'corta');
       cy.get('ion-input[formControlName="password"] input').blur();
-      cy.contains('Introduce tu contraseña (al menos 8 caracteres).').should('be.visible');
+      cy.contains('Usa entre 8 y 72 caracteres.').should('be.visible');
       cy.get(submit).should('have.attr', 'disabled');
 
       cy.get('ion-input[formControlName="password"] input').clear().type('secreta123');
@@ -145,7 +145,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('ion-input[formControlName="email"] input').focus().blur();
 
       cy.contains('Usa tu correo de la Universidad de Almería.').should('be.visible');
-      cy.contains('ion-button', 'Iniciar sesión').should('have.attr', 'disabled');
+      cy.contains('ion-button', 'Entrar').should('have.attr', 'disabled');
     });
 
     it('shows the password on demand', () => {
@@ -155,7 +155,7 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('links to the register screen', () => {
-      cy.contains('ion-button', 'Crear cuenta').should('be.visible');
+      cy.contains('ion-button', 'Regístrate').should('be.visible');
     });
 
     it('goes back to the welcome screen', () => {

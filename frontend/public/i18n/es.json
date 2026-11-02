@@ -4,7 +4,12 @@
     "cancel": "Cancelar",
     "retry": "Reintentar",
     "close": "Cerrar",
-    "loading": "Cargando…"
+    "loading": "Cargando…",
+    "countryPrefixLabel": "Prefijo del país: {{ prefix }}",
+    "countryPrefixList": "Prefijos telefónicos disponibles"
+  },
+  "brand": {
+    "tagline": "Sistema de movilidad compartida"
   },
   "profile": {
     "verifiedEmail": "Correo UAL verificado",
@@ -160,6 +165,171 @@
       "confirmDelete": "Eliminar mi cuenta definitivamente",
       "codeSentToast": "Código de confirmación enviado.",
       "successToast": "Tu cuenta ha sido eliminada. Esperamos verte pronto de nuevo."
+    }
+  },
+  "auth": {
+    "layout": {
+      "verifiedCommunity": "Comunidad UAL · Perfiles verificados",
+      "trustNoticeWelcome": "Verificamos tu correo UAL para conectar con tu comunidad.",
+      "trustNoticeForm": "Verificamos tu correo institucional para que este sea un espacio seguro para la comunidad universitaria.",
+      "eyebrow": "Cada viaje cuenta",
+      "visualTitle": "Tu campus, mejor conectado.",
+      "visualDescription": "De casa al campus, comparte camino con personas que van en tu misma dirección.",
+      "back": "Volver",
+      "language": "Idioma"
+    },
+    "welcome": {
+      "title": "Te damos la bienvenida",
+      "subtitle": "Comparte camino con tu comunidad. Entra con tu correo de la UAL o crea tu cuenta en un minuto.",
+      "createAccount": "Crear mi cuenta",
+      "alreadyHaveAccount": "Ya tengo cuenta"
+    },
+    "login": {
+      "title": "Iniciar sesión",
+      "subtitle": "Usa tu correo institucional para acceder a tus viajes.",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "tu_usuario@ual.es",
+      "emailHelper": "Usa tu correo @ual.es o @inlumine.ual.es.",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "¿Has olvidado tu contraseña?",
+      "submit": "Entrar",
+      "submitting": "Entrando",
+      "noAccountPrompt": "¿No tienes cuenta?",
+      "registerLink": "Regístrate",
+      "securityTitle": "Tu acceso, protegido",
+      "securityDescription": "Nunca compartas tu contraseña ni el código de verificación. No te los pediremos por chat."
+    },
+    "register": {
+      "title": "Crear cuenta",
+      "subtitle": "Únete a la red de coche compartido de la Universidad de Almería.",
+      "nameLabel": "Nombre completo",
+      "namePlaceholder": "Ana Pérez",
+      "phoneLabel": "Teléfono de contacto",
+      "phonePlaceholder": "612 345 678",
+      "phoneHelper": "Incluye tu número de teléfono móvil.",
+      "emailLabel": "Correo UAL",
+      "emailPlaceholder": "nombre@inlumine.ual.es",
+      "emailHelper": "Usa tu correo de la UAL. Lo verificarás después.",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "passwordHelper": "Al menos 8 caracteres. No compartas tu contraseña.",
+      "termsPrefix": "He leído y acepto las ",
+      "termsLink": "condiciones de uso",
+      "termsAnd": " y la ",
+      "privacyLink": "política de privacidad",
+      "termsError": "Tienes que aceptar las condiciones para crear la cuenta.",
+      "submit": "Crear mi cuenta",
+      "submitting": "Creando la cuenta",
+      "hasAccountPrompt": "¿Ya tienes cuenta?",
+      "loginLink": "Inicia sesión"
+    },
+    "verify": {
+      "title": "Verifica tu correo",
+      "introTitle": "Mira tu bandeja de entrada.",
+      "subtitle": "Hemos enviado un código de 6 dígitos a {{ email }}.",
+      "codeLabel": "Código de verificación",
+      "locked": "Has fallado 3 veces y el código ya no vale: pide uno nuevo para seguir.",
+      "resent": "Si el correo está registrado, te hemos enviado un código nuevo.",
+      "checking": "Comprobando el código…",
+      "resendWait": "Reenviar código en {{ time }}",
+      "resendNow": "Reenviar código",
+      "editEmail": "Editar correo electrónico",
+      "tipsTitle": "Importante",
+      "tipAddress": "Comprueba que el correo electrónico es correcto.",
+      "tipSpam": "Comprueba la carpeta de correo no deseado o spam.",
+      "tipResend": "Si no lo recibes, solicita un nuevo código."
+    },
+    "emailSuggestions": {
+      "label": "Sugerencias de correo",
+      "students": "Estudiantes",
+      "staff": "Personal"
+    },
+    "forgotPassword": {
+      "title": "Recuperar contraseña",
+      "subtitle": "Introduce tu correo institucional y te enviaremos un código para restablecerla.",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "usuario@ual.es",
+      "emailHelper": "Usa tu correo @ual.es o @inlumine.ual.es.",
+      "submit": "Enviar código",
+      "submitting": "Enviando",
+      "backToLogin": "Volver a iniciar sesión"
+    },
+    "resetCode": {
+      "title": "Introduce el código",
+      "introTitle": "Mira tu bandeja de entrada.",
+      "subtitle": "Introduce el código de 6 dígitos que hemos enviado a {{ email }}.",
+      "codeLabel": "Código de recuperación",
+      "locked": "Has fallado 3 veces y el código ya no vale: pide uno nuevo para seguir.",
+      "checking": "Comprobando el código…",
+      "resendWait": "Reenviar código en {{ time }}",
+      "resendNow": "Reenviar código",
+      "noticeTitle": "Te hemos enviado un código",
+      "noticeDescription": "Si hay una cuenta asociada a ese correo, recibirás un código para cambiar la contraseña. Revisa también la carpeta de spam. Por privacidad, no confirmamos si el correo está registrado."
+    },
+    "newPassword": {
+      "title": "Nueva contraseña",
+      "subtitle": "Introduce tu nueva contraseña para acceder a Carpooling UAL.",
+      "passwordLabel": "Nueva contraseña",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirmar contraseña",
+      "passwordHelper": "Al menos 8 caracteres.",
+      "mismatchError": "Las contraseñas no coinciden",
+      "confirmError": "Repite la contraseña nueva.",
+      "confirmRequired": "Repite tu nueva contraseña.",
+      "updatedTitle": "Contraseña actualizada",
+      "updatedDescription": "¡Listo! Ya puedes entrar con tu nueva contraseña. Por seguridad, hemos cerrado tu sesión en los demás dispositivos.",
+      "expiredTitle": "El código ha caducado",
+      "expiredDescription": "No se ha cambiado tu contraseña. Solicita un código nuevo para continuar de forma segura.",
+      "requestAnotherCode": "Solicitar otro código",
+      "backToLogin": "Ir a iniciar sesión",
+      "submit": "Actualizar contraseña",
+      "saving": "Guardando"
+    },
+    "accountCreated": {
+      "title": "¡Cuenta creada con éxito!",
+      "verifiedTitle": "¡Correo verificado!",
+      "subtitle": "Ya formas parte de Carpooling UAL. Todo listo para empezar a compartir tus trayectos.",
+      "verifiedSubtitle": "Ya puedes buscar un viaje o compartir el tuyo con la comunidad.",
+      "stepProfile": "Completa tu perfil con tu teléfono y preferencias de viaje.",
+      "stepVehicle": "Si eres conductor, añade tu vehículo para publicar tus viajes.",
+      "stepExplore": "Busca viajes hacia el campus o publica el tuyo en segundos.",
+      "exploreButton": "Empezar a explorar",
+      "laterButton": "Entrar más tarde",
+      "laterNote": "Si prefieres dejarlo para luego, entra cuando quieras con tu correo de la UAL y tu contraseña."
+    },
+    "validation": {
+      "emailRequired": "Introduce tu correo electrónico.",
+      "emailInvalid": "Introduce un correo válido.",
+      "emailDomain": "Usa tu correo de la Universidad de Almería.",
+      "passwordRequired": "Introduce tu contraseña.",
+      "passwordLength": "Usa entre 8 y 72 caracteres.",
+      "nameRequired": "Escribe tu nombre y apellidos.",
+      "nameInvalid": "Usa solo letras; entre palabras, un espacio, un guion o un apóstrofo.",
+      "nameLength": "El nombre no puede superar los 100 caracteres.",
+      "phoneRequired": "Introduce tu teléfono de contacto.",
+      "phoneInvalid": "Revisa el número: en España, 9 cifras que empiezan por 6, 7, 8 o 9.",
+      "termsRequired": "Tienes que aceptar las condiciones para crear la cuenta.",
+      "codeRequired": "Introduce el código de 6 dígitos.",
+      "codeInvalid": "El código debe tener 6 dígitos."
+    },
+    "password": {
+      "show": "Mostrar contraseña",
+      "hide": "Ocultar contraseña"
+    },
+    "errors": {
+      "generic": "Algo ha salido mal. Inténtalo de nuevo.",
+      "network": "No hay conexión. Comprueba tu red e inténtalo de nuevo.",
+      "validation": "Revisa los datos del formulario.",
+      "unavailable": "El servicio no está disponible ahora mismo. Inténtalo más tarde.",
+      "invalidCredentials": "Correo o contraseña incorrectos.",
+      "invalidCode": "Ese código no es válido. Revisa los 6 dígitos o pide uno nuevo.",
+      "passwordUnchanged": "La contraseña nueva tiene que ser distinta de la actual.",
+      "tooManyAttempts": "Has fallado demasiadas veces. Pide un código nuevo.",
+      "emailRegistered": "Ya hay una cuenta con este correo.",
+      "emailDomain": "Usa tu correo de la Universidad de Almería.",
+      "internal": "Ha ocurrido un error en el servidor{{ reference }}. Inténtalo de nuevo.",
+      "reference": " (referencia: {{ requestId }})"
     }
   }
 }

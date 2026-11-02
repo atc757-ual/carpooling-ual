@@ -6,7 +6,7 @@
   <div
     class="email-suggestions"
     role="listbox"
-    aria-label="Sugerencias de correo"
+    [attr.aria-label]="'auth.emailSuggestions.label' | transloco"
     [id]="combobox.listId"
   >
     @for (suggestion of suggestions(); track suggestion.email; let index = $index) {
@@ -22,7 +22,7 @@
         (keydown.enter)="handleChoose(suggestion.email)"
       >
         <span class="email-suggestions__email">{{ suggestion.email }}</span>
-        <span class="text-caption text-color-muted">{{ suggestion.audience }}</span>
+        <span class="text-caption text-color-muted">{{ suggestion.audience | transloco }}</span>
       </div>
     }
   </div>

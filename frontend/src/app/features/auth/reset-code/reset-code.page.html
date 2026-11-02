@@ -7,12 +7,12 @@
         fill="clear"
         routerLink="/auth/forgot-password"
         routerDirection="back"
-        aria-label="Volver"
+        [attr.aria-label]="'auth.layout.back' | transloco"
       >
         <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
       </ion-button>
     </ion-buttons>
-    <ion-title>Recuperar contraseña</ion-title>
+    <ion-title>{{ 'auth.resetCode.title' | transloco }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -25,30 +25,28 @@
         fill="clear"
         routerLink="/auth/forgot-password"
         routerDirection="back"
-        aria-label="Volver"
+        [attr.aria-label]="'auth.layout.back' | transloco"
       >
         <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
       </ion-button>
-      <span class="top-bar__title">Recuperar contraseña</span>
+      <span class="top-bar__title">{{ 'auth.resetCode.title' | transloco }}</span>
     </div>
 
     <div class="auth-intro">
       <span class="auth-icon" aria-hidden="true">
         <ion-icon [icon]="mailIcon" />
       </span>
-      <h1 class="text-heading">Mira tu bandeja de entrada.</h1>
+      <h1 class="text-heading">{{ 'auth.resetCode.title' | transloco }}</h1>
       <p class="text-body text-color-muted">
-        Si hay una cuenta con
-        <span class="reset-code__email text-color-default">{{ email() }}</span
-        >, le hemos enviado un código de 6 dígitos.
+        {{ 'auth.resetCode.subtitle' | transloco: { email: email() } }}
       </p>
     </div>
 
     <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
       <div class="auth-field">
-        <span id="reset-code-label" class="text-label text-label--strong"
-          >Código de recuperación</span
-        >
+        <span id="reset-code-label" class="text-label text-label--strong">{{
+          'auth.resetCode.codeLabel' | transloco
+        }}</span>
         <app-code-input
           formControlName="code"
           labelledBy="reset-code-label"
@@ -58,7 +56,7 @@
 
       @if (isLocked()) {
         <ion-text color="danger" class="text-body-s" role="alert">
-          Has fallado 3 veces y el código ya no vale: pide uno nuevo para seguir.
+          {{ 'auth.resetCode.locked' | transloco }}
         </ion-text>
       }
 
@@ -66,7 +64,7 @@
       @if (isSubmitting()) {
         <output class="reset-code__checking text-body-s text-color-muted">
           <ion-spinner name="crescent" aria-hidden="true" />
-          Comprobando el código…
+          {{ 'auth.resetCode.checking' | transloco }}
         </output>
       }
 
@@ -80,19 +78,21 @@
           fill="outline"
           [disabled]="secondsToResend() > 0"
         >
-          {{ resendLabel() }}
+          @if (secondsToResend() > 0) {
+            {{ 'auth.resetCode.resendWait' | transloco: { time: resendTime() } }}
+          } @else {
+            {{ 'auth.resetCode.resendNow' | transloco }}
+          }
         </ion-button>
       </div>
     </form>
     <form id="reset-code-resend" (submit)="$event.preventDefault(); handleResend()"></form>
 
     <div class="auth-notice" role="note">
-      <p class="text-body-s text-body-s--strong text-color-primary">Te hemos enviado un código</p>
-      <p class="text-caption">
-        Si hay una cuenta asociada a ese correo, recibirás un código para cambiar la contraseña.
-        Revisa también la carpeta de spam. Por privacidad, no confirmamos si el correo está
-        registrado.
+      <p class="text-body-s text-body-s--strong text-color-primary">
+        {{ 'auth.resetCode.noticeTitle' | transloco }}
       </p>
+      <p class="text-caption">{{ 'auth.resetCode.noticeDescription' | transloco }}</p>
     </div>
   </app-auth-layout>
 </ion-content>

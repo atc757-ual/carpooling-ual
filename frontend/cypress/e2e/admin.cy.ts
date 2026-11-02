@@ -169,7 +169,7 @@ for (const viewport of VIEWPORTS) {
       cy.visit('/auth/login');
       cy.get('app-login ion-input[formControlName="email"] input').type('admin@ual.es');
       cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
-      cy.contains('ion-button', 'Iniciar sesión').click();
+      cy.contains('ion-button', 'Entrar').click();
 
       cy.location('pathname').should('eq', '/admin/simulation');
       visitWithSession('/tabs/publish', ['admin']);

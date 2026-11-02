@@ -13,3 +13,11 @@
 .account-created__note {
   margin: 0;
 }
+
+.account-created__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+  padding-inline-start: var(--space-l);
+}

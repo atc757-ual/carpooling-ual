@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { AuthLayout, AuthLayoutVariant } from './auth-layout';
 
 @Component({
@@ -16,6 +17,10 @@ class Host {
 }
 
 describe('AuthLayout', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideTranslocoTestingSupport()] });
+  });
+
   async function render(variant: AuthLayoutVariant): Promise<HTMLElement> {
     const fixture = TestBed.createComponent(Host);
     fixture.componentInstance.variant.set(variant);
@@ -61,6 +66,7 @@ describe('AuthLayout', () => {
       const root = await render('welcome');
 
       expect(logoVariants(root)).toEqual(['default']);
+      expect(root.querySelector('app-language-switch')).not.toBeNull();
       expect(root.querySelector('.auth-layout__illustration')).not.toBeNull();
     });
 
@@ -78,6 +84,7 @@ describe('AuthLayout', () => {
       const root = await render('form');
 
       expect(logoVariants(root)).toEqual(['tile']);
+      expect(root.querySelector('app-language-switch')).toBeNull();
       expect(root.querySelector('.auth-layout__illustration')).toBeNull();
     });
 
