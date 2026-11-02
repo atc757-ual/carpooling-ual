@@ -1,0 +1,46 @@
+<!-- Sin ion-content: así la ventana toma el alto de su contenido -->
+<form class="confirm catalog-item" (submit)="$event.preventDefault(); handleConfirm()">
+  <h2 class="text-subtitle">{{ header }}</h2>
+
+  @for (field of fields; track field) {
+    <div class="catalog-item__field">
+      <ion-input
+        [label]="labels[field]"
+        labelPlacement="stacked"
+        fill="outline"
+        [maxlength]="isColor(field) ? 7 : maxLength"
+        [placeholder]="isColor(field) ? '#2673c9' : ''"
+        [value]="values()[field] ?? ''"
+        (ionInput)="handleInput(field, $event.detail.value)"
+      />
+      @if (isColor(field)) {
+        <!-- La muestra del tono escrito (decorativa: el valor ya está en el campo) -->
+        <span
+          class="catalog-item__swatch"
+          [style.background]="values()[field] ?? 'transparent'"
+          aria-hidden="true"
+        ></span>
+      }
+    </div>
+  }
+
+  @if (withImage) {
+    <label class="catalog-item__file text-body-s">
+      Imagen (PNG o WebP)
+      <input type="file" accept="image/png,image/webp" (change)="handleImage($event)" />
+    </label>
+  }
+
+  @if (errorMessage(); as error) {
+    <p class="catalog-item__error text-body-s" role="alert">{{ error }}</p>
+  }
+
+  <div class="confirm__actions">
+    <ion-button type="submit" expand="block" [disabled]="!isValid() || isSaving()">
+      {{ confirmText }}
+    </ion-button>
+    <ion-button type="button" expand="block" fill="outline" (click)="handleCancel()">
+      Cancelar
+    </ion-button>
+  </div>
+</form>

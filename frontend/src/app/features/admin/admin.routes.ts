@@ -1,32 +1,15 @@
 import { Routes } from '@angular/router';
-import { ADMIN_SECTIONS, AdminSection } from './admin-sections';
+import { ADMIN_SECTIONS } from './admin-sections';
 
 const USERS_PATH = 'users';
 const INCIDENTS_PATH = 'incidents';
 const SIMULATION_PATH = 'simulation';
 const DIGITAL_TWIN_PATH = 'digital-twin';
 const TRIPS_PATH = 'trips';
-// Secciones que ya tienen su pantalla (las demás muestran «Disponible pronto»)
-const WITH_SCREEN: ReadonlySet<string> = new Set([
-  SIMULATION_PATH,
-  DIGITAL_TWIN_PATH,
-  USERS_PATH,
-  INCIDENTS_PATH,
-  TRIPS_PATH,
-]);
+const CATALOGS_PATH = 'catalogs';
 
-// Una sección aún sin pantalla: su título y «Disponible pronto»
-function placeholderRoute(section: AdminSection): Routes[number] {
-  return {
-    path: section.path,
-    title: `${section.title} · Admin`,
-    loadComponent: () => import('./admin-section.page').then((m) => m.AdminSectionPage),
-    data: { section },
-  };
-}
-
-// Rutas del panel (hijas de /admin). La primera sección es la de entrada;
-// cada PR del panel sustituye el marcador de su sección por la pantalla real
+// Rutas del panel (hijas de /admin), una pantalla por sección (con su detalle
+// en Usuarios, Incidencias y Viajes). La primera sección es la de entrada
 export const ADMIN_ROUTES: Routes = [
   { path: '', pathMatch: 'full', redirectTo: ADMIN_SECTIONS[0].path },
   {
@@ -75,7 +58,9 @@ export const ADMIN_ROUTES: Routes = [
     loadComponent: () =>
       import('./trips/admin-trip-detail.page').then((m) => m.AdminTripDetailPage),
   },
-  ...ADMIN_SECTIONS.filter(({ path }) => !WITH_SCREEN.has(path)).map((section) =>
-    placeholderRoute(section),
-  ),
+  {
+    path: CATALOGS_PATH,
+    title: 'Catálogos · Admin',
+    loadComponent: () => import('./catalogs/admin-catalogs.page').then((m) => m.AdminCatalogsPage),
+  },
 ];

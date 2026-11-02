@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { NavController, provideIonicAngular } from '@ionic/angular';
@@ -6,9 +6,12 @@ import { AdminIncidentsService } from '../../../../core/services/admin/admin-inc
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { AppContextService } from '../../../../core/services/ui/app-context.service';
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
-import { AdminSectionPage } from '../../../../features/admin/admin-section.page';
 import { ADMIN_SECTIONS } from '../../../../features/admin/admin-sections';
 import { AdminLayout } from './admin-layout';
+
+// Una sección cualquiera: aquí solo cuenta el marco del panel
+@Component({ selector: 'app-section-stub', template: '' })
+class SectionStub {}
 
 describe('AdminLayout', () => {
   let fixture: ComponentFixture<AdminLayout>;
@@ -34,8 +37,7 @@ describe('AdminLayout', () => {
             component: AdminLayout,
             children: ADMIN_SECTIONS.map((section) => ({
               path: section.path,
-              component: AdminSectionPage,
-              data: { section },
+              component: SectionStub,
             })),
           },
         ]),

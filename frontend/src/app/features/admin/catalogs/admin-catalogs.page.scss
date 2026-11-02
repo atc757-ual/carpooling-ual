@@ -1,0 +1,94 @@
+.admin-page__header {
+  margin-block-end: var(--space-l);
+}
+
+.admin-page__subtitle {
+  color: var(--color-text-muted);
+}
+
+.catalogs__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-base);
+}
+
+.catalogs__segment {
+  max-width: 40rem; // 640px
+}
+
+.catalogs__note {
+  margin: var(--space-s) 0 var(--space-base);
+}
+
+.catalogs__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+// Imagen o muestra, nombre, estado y acciones; en el móvil las acciones
+// bajan a su línea
+.catalogs__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-s) var(--space-base);
+  padding: var(--space-s) var(--space-base);
+  border-bottom: var(--border-width) solid var(--color-border-subtle);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+// Desactivado: se sigue viendo, en gris
+.catalogs__row--inactive .catalogs__name {
+  opacity: 0.6;
+}
+
+.catalogs__image,
+.catalogs__swatch {
+  flex: none;
+  width: 2.25rem; // 36px
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+}
+
+.catalogs__image {
+  object-fit: cover;
+}
+
+.catalogs__swatch {
+  border: var(--border-width) solid var(--color-border-strong);
+}
+
+.catalogs__name {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 10rem; // 160px
+}
+
+.catalogs__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.catalogs__empty {
+  display: block;
+  padding: var(--space-xxl) var(--space-l);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  text-align: center;
+}
