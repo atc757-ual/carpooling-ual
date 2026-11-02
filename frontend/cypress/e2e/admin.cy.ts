@@ -122,12 +122,39 @@ for (const viewport of VIEWPORTS) {
     it('moves between sections', () => {
       visitWithSession('/admin', ['admin']);
 
-      cy.contains('.admin-nav__link', 'Viajes').click();
+      cy.contains('.admin-nav__link', 'Catálogos').click();
 
-      cy.location('pathname').should('eq', '/admin/trips');
-      cy.contains('.admin-nav__link', 'Viajes').should('have.attr', 'aria-current', 'page');
-      cy.contains('h1', 'Viajes');
+      cy.location('pathname').should('eq', '/admin/catalogs');
+      cy.contains('.admin-nav__link', 'Catálogos').should('have.attr', 'aria-current', 'page');
+      cy.contains('h1', 'Catálogos');
       cy.contains('output.admin-empty', 'Disponible pronto');
+    });
+
+    it('lists the trips and filters them by status in the URL', () => {
+      cy.intercept('GET', '/api/admin/trips?*', {
+        body: [
+          {
+            id: 't1',
+            href: '/api/admin/trips/t1',
+            status: 'confirmed',
+            departureAt: '2026-11-02T07:30:00.000Z',
+            originName: 'Roquetas de Mar',
+            destinationName: 'Campus UAL',
+            driver: { id: 'u1', name: 'Javier Pardo' },
+            offeredSeats: 3,
+            availableSeats: 2,
+            requests: { pending: 2, accepted: 1 },
+          },
+        ],
+        headers: { 'X-Total-Count': '1', 'Access-Control-Expose-Headers': 'X-Total-Count' },
+      }).as('trips');
+      visitWithSession('/admin/trips?status=confirmed', ['admin']);
+
+      cy.wait('@trips').its('request.url').should('include', 'status=confirmed');
+      cy.contains('tr', 'Roquetas de Mar → Campus UAL')
+        .should('contain', 'Javier Pardo')
+        .and('contain', '1 aceptada · 2 pendientes')
+        .and('contain', 'Confirmado');
     });
 
     it('opens a user and deactivates a profile with a reason', () => {
