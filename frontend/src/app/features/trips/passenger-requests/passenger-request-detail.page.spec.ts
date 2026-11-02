@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { provideIonicAngular } from '@ionic/angular';
+import { provideRouter, Router } from '@angular/router';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Trip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
@@ -12,6 +12,7 @@ import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
+import { TripSearchStateService } from '../../matching/trip-search-state.service';
 import {
   LIVE_TRIP_MAP_RENDERER_FACTORY,
   LOAD_LEAFLET,
@@ -78,6 +79,7 @@ describe('PassengerRequestDetailPage', () => {
   let requests: Record<string, ReturnType<typeof vi.fn>>;
   let showError: ReturnType<typeof vi.fn>;
   let showSuccess: ReturnType<typeof vi.fn>;
+  let modalDismiss: ReturnType<typeof vi.fn>;
 
   async function render(
     request: SeatRequest | null = seatRequest('pending'),
@@ -91,6 +93,8 @@ describe('PassengerRequestDetailPage', () => {
     };
     showError = vi.fn().mockResolvedValue(undefined);
     showSuccess = vi.fn().mockResolvedValue(undefined);
+    modalDismiss = vi.fn().mockResolvedValue(true);
+
     TestBed.configureTestingModule({
       imports: [PassengerRequestDetailPage],
       providers: [
@@ -130,6 +134,16 @@ describe('PassengerRequestDetailPage', () => {
           }),
         },
         { provide: ToastService, useValue: { showError, showSuccess } },
+        {
+          provide: ModalController,
+          useValue: {
+            create: vi.fn().mockResolvedValue({
+              present: vi.fn().mockResolvedValue(undefined),
+              onWillDismiss: vi.fn().mockResolvedValue({ data: { reported: true } }),
+            }),
+            dismiss: modalDismiss,
+          },
+        },
       ],
     });
     fixture = TestBed.createComponent(PassengerRequestDetailPage);
@@ -157,37 +171,79 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.textContent).toContain('Cancelar solicitud');
   });
 
-  it('shows acceptance history and the plate only after acceptance', async () => {
-    const root = await render(seatRequest('accepted', { answeredAt: '2099-01-14T21:30:00.000Z' }));
+  it('shows acceptance history, progress indicator and plate after acceptance', async () => {
+    const root = await render(seatRequest('accepted', { answeredAt: '2099-01-14T21:30:00.000Z' }), {
+      ...TRIP,
+      status: 'confirmed',
+    });
 
     expect(root.textContent).toContain('Tienes plaza en el coche de Lucía.');
     expect(root.textContent).toContain('Solicitud aceptada');
     expect(root.textContent).toContain('1234BCD');
-    expect(root.textContent).not.toContain('Cancelar solicitud');
+    expect(root.querySelector('app-trip-progress')).not.toBeNull();
+    expect(root.textContent).toContain('Cancelar mi plaza');
   });
 
-  it('shows the live map for an accepted request when the trip is in progress', async () => {
+  it('shows live map and incident button for an accepted request when trip is in progress', async () => {
     const root = await render(seatRequest('accepted'), { ...TRIP, status: 'in_progress' });
 
     expect(root.querySelector('app-live-trip-map')).not.toBeNull();
     expect(root.textContent).toContain('Seguimiento en tiempo real');
+    expect(root.textContent).toContain('Bajarme y registrar incidencia');
   });
 
-  it('waits until the driver starts before showing the live map', async () => {
-    const root = await render(seatRequest('accepted'), { ...TRIP, status: 'confirmed' });
+  it('opens incident modal when incident button is clicked', async () => {
+    await render(seatRequest('accepted'), { ...TRIP, status: 'in_progress' });
+    const modalCtrl = TestBed.inject(ModalController);
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
-    expect(root.querySelector('app-live-trip-map')).toBeNull();
-    expect(root.textContent).toContain(
-      'El seguimiento empezar\u00e1 cuando Luc\u00eda inicie el viaje.',
+    await fixture.componentInstance.openIncidentModal();
+
+    expect(modalCtrl.create).toHaveBeenCalled();
+    expect(showSuccess).toHaveBeenCalledWith(
+      'Incidencia registrada. Tu plaza ha sido cancelada.',
     );
+    expect(navigateSpy).toHaveBeenCalledWith('/tabs/trips');
   });
 
-  it('offers another search after rejection', async () => {
+  it('offers search with priority after rejection and sets search state', async () => {
     const root = await render(seatRequest('rejected', { answeredAt: '2099-01-14T21:30:00.000Z' }));
 
     expect(root.textContent).toContain('Lucía no pudo aceptar tu solicitud.');
-    expect(root.textContent).toContain('Buscar otro viaje');
-    expect(root.textContent).toContain('Solicitud respondida');
+    expect(root.textContent).toContain('Esta vez no ha podido ser');
+    expect(root.textContent).toContain('Buscar con prioridad');
+
+    const searchState = TestBed.inject(TripSearchStateService);
+    const setSpy = vi.spyOn(searchState, 'set');
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+    fixture.componentInstance.handlePrioritySearch();
+
+    expect(setSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        direction: 'to-campus',
+        seats: 1,
+      }),
+    );
+    expect(navigateSpy).toHaveBeenCalledWith('/tabs/search');
+  });
+
+  it('cancels an accepted request before departure with confirmation', async () => {
+    await render(seatRequest('accepted'), { ...TRIP, status: 'confirmed' });
+    const ask = vi.spyOn(TestBed.inject(ConfirmService), 'ask').mockResolvedValue(true);
+
+    await fixture.componentInstance.handleCancel();
+
+    expect(ask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        header: '¿Cancelar tu plaza confirmada?',
+        confirmText: 'Cancelar mi plaza',
+      }),
+    );
+    expect(requests['cancel']).toHaveBeenCalledWith('r1');
+    expect(showSuccess).toHaveBeenCalledWith('Plaza cancelada.');
   });
 
   it('cancels a pending request only after confirmation and reports success', async () => {

@@ -37,6 +37,57 @@
   gap: var(--space-xs) var(--space-base);
 }
 
+.passenger-request-detail__progress {
+  padding: var(--space-s) var(--space-base);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+.passenger-request-detail__occupancy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-base);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.passenger-request-detail__occupancy-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-base);
+  border-radius: var(--radius-s);
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.passenger-request-detail__occupancy-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.passenger-request-detail__driver-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.passenger-request-detail__occupancy-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  p {
+    margin: 0;
+  }
+}
+
 .passenger-request-detail__seats,
 .passenger-request-detail__history {
   display: flex;
@@ -65,6 +116,46 @@
     flex-wrap: wrap;
     justify-content: space-between;
     gap: var(--space-xs) var(--space-base);
+  }
+}
+
+.passenger-request-detail__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  margin-top: var(--space-xs);
+}
+
+.passenger-request-detail__priority-search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.passenger-request-detail__priority-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-base);
+  border-radius: var(--radius-s);
+  background: var(--color-primary-subtle);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.passenger-request-detail__priority-icon {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.passenger-request-detail__priority-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  p {
+    margin: 0;
   }
 }
 

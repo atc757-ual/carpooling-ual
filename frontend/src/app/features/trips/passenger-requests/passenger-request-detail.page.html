@@ -29,6 +29,7 @@
           </ion-card-content>
         </ion-card>
       } @else if (trip(); as trip) {
+        <!-- Estado de la solicitud / aviso superior -->
         <output
           class="notice"
           [class.notice--warning]="request.status === 'pending'"
@@ -62,6 +63,15 @@
           <span class="text-caption text-color-muted">{{ directionLabel(request) }}</span>
         </header>
 
+        <!-- Barra de progreso del viaje (publicado -> confirmado -> en curso -> finalizado) -->
+        @if (trip.status !== 'cancelled') {
+          <section class="passenger-request-detail__progress" aria-labelledby="progress-title">
+            <h2 id="progress-title" class="visually-hidden">Progreso del viaje</h2>
+            <app-trip-progress [status]="trip.status" />
+          </section>
+        }
+
+        <!-- Resumen del trayecto -->
         @if (summary(); as summary) {
           <ion-card>
             <ion-card-content>
@@ -70,6 +80,7 @@
           </ion-card>
         }
 
+        <!-- Mapa en tiempo real si el viaje está en curso -->
         @if (request.status === 'accepted' && trip.status === 'in_progress') {
           <app-live-trip-map
             [tripId]="trip.id"
@@ -85,6 +96,37 @@
           </output>
         }
 
+        <!-- En el coche / plazas del vehículo -->
+        <section class="passenger-request-detail__occupancy" aria-labelledby="occupancy-title">
+          <h2 id="occupancy-title" class="text-subtitle">En el coche</h2>
+          <div class="passenger-request-detail__occupancy-card">
+            <div class="passenger-request-detail__occupancy-header">
+              <div class="passenger-request-detail__driver-info">
+                <span class="text-body text-body--strong">{{ trip.driver.name }}</span>
+                <span class="text-caption text-color-muted">Conductor</span>
+              </div>
+              @if (request.status === 'accepted') {
+                <span class="status status--success">Tu plaza confirmada</span>
+              }
+            </div>
+
+            <div class="passenger-request-detail__occupancy-info">
+              <p class="text-body-s">
+                <b>{{ trip.offeredSeats - trip.availableSeats }} de {{ trip.offeredSeats }}</b> plazas ocupadas
+              </p>
+              @if (trip.vehicle; as v) {
+                <p class="text-caption text-color-muted">
+                  {{ v.brand }} {{ v.model }} · {{ v.color }}
+                  @if (request.status === 'accepted' && request.vehiclePlate) {
+                    · Matrícula: <b>{{ request.vehiclePlate }}</b>
+                  }
+                </p>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- Plazas solicitadas -->
         <section class="passenger-request-detail__seats" aria-labelledby="requested-seats-title">
           <h2 id="requested-seats-title" class="text-subtitle">Plazas solicitadas</h2>
           <p class="text-body-s">
@@ -97,6 +139,7 @@
           </p>
         </section>
 
+        <!-- Historial -->
         <section class="passenger-request-detail__history" aria-labelledby="request-history-title">
           <h2 id="request-history-title" class="text-subtitle">Historial</h2>
           <ol>
@@ -111,18 +154,62 @@
           </ol>
         </section>
 
-        @if (request.status === 'pending') {
-          <form (submit)="$event.preventDefault(); handleCancel()">
-            <ion-button type="submit" fill="outline" color="danger" [disabled]="isCancelling()">
-              @if (isCancelling()) {
-                <ion-spinner slot="start" name="crescent" aria-hidden="true" />
-              }
-              Cancelar solicitud
+        <!-- Acciones del pasajero según el estado -->
+        <div class="passenger-request-detail__actions">
+          <!-- Durante el viaje en curso: bajarse y registrar incidencia -->
+          @if (isTripInProgress()) {
+            <ion-button
+              class="passenger-request-detail__incident-btn"
+              type="button"
+              color="danger"
+              fill="outline"
+              expand="block"
+              (click)="openIncidentModal()"
+            >
+              <ion-icon slot="start" [icon]="alertIcon" aria-hidden="true" />
+              Bajarme y registrar incidencia
             </ion-button>
-          </form>
-        } @else if (request.status === 'rejected' || request.status === 'cancelled') {
-          <ion-button routerLink="/tabs/search">Buscar otro viaje</ion-button>
-        }
+          }
+
+          <!-- Antes de salir: cancelar solicitud o cancelar plaza confirmada -->
+          @if (canCancel()) {
+            <form (submit)="$event.preventDefault(); handleCancel()">
+              <ion-button type="submit" fill="outline" color="danger" expand="block" [disabled]="isCancelling()">
+                @if (isCancelling()) {
+                  <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+                }
+                {{ request.status === 'accepted' ? 'Cancelar mi plaza' : 'Cancelar solicitud' }}
+              </ion-button>
+            </form>
+          }
+
+          <!-- Si fue rechazada o cancelada: búsqueda con prioridad -->
+          @if (request.status === 'rejected' || request.status === 'cancelled') {
+            <div class="passenger-request-detail__priority-search">
+              <div class="passenger-request-detail__priority-card notice--info">
+                <ion-icon class="passenger-request-detail__priority-icon" [icon]="sparklesIcon" aria-hidden="true" />
+                <div class="passenger-request-detail__priority-text">
+                  <p class="text-body-s text-body--strong">
+                    {{ request.status === 'rejected' ? 'Esta vez no ha podido ser' : 'El viaje ha sido cancelado' }}
+                  </p>
+                  <p class="text-caption text-color-muted">
+                    No te preocupes. Puedes buscar otra opción manteniendo tus preferencias y tu próxima solicitud tendrá prioridad.
+                  </p>
+                </div>
+              </div>
+
+              <ion-button
+                type="button"
+                expand="block"
+                color="primary"
+                (click)="handlePrioritySearch()"
+              >
+                <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
+                Buscar con prioridad
+              </ion-button>
+            </div>
+          }
+        </div>
       }
     }
   </main>
