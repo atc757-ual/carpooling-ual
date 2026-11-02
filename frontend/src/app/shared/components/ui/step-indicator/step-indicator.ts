@@ -19,6 +19,11 @@ export class StepIndicator {
   readonly current = input.required<number>();
   // Terminado (el último paso hecho): todos con ✓ y sin volver a ninguno
   readonly isComplete = input(false);
+  // Con false, los pasos hechos no se pueden pulsar (p. ej. el progreso de un
+  // viaje, que solo informa)
+  readonly isNavigable = input(true);
+  // Nombre accesible de la lista
+  readonly label = input('Pasos');
   readonly selected = output<number>();
 
   protected readonly doneIcon = checkmark;

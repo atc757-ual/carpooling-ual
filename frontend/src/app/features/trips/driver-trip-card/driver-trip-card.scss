@@ -40,13 +40,31 @@
   }
 }
 
-.driver-trip__cancel {
+// Cancelar a la izquierda e iniciar (o terminar) a la derecha
+.driver-trip__actions-row {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
+  gap: var(--space-s);
   margin-top: var(--space-s);
 
   ion-button {
     margin: 0;
+  }
+}
+
+.driver-trip__hint {
+  margin: 0;
+  text-align: end;
+}
+
+.driver-trip__sharing {
+  align-items: center;
+  margin-top: var(--space-s);
+
+  ion-icon {
+    flex-shrink: 0;
+    color: var(--color-link);
   }
 }
 

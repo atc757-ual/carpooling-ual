@@ -3,7 +3,10 @@ import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
+import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
+import { LocationConsentService } from '../../../core/services/location/location-consent.service';
+import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { DriverTripCard } from './driver-trip-card';
@@ -39,6 +42,9 @@ describe('DriverTripCard', () => {
   let driver: Record<string, ReturnType<typeof vi.fn>>;
   let toast: Record<string, ReturnType<typeof vi.fn>>;
   let ask: ReturnType<typeof vi.fn>;
+  let tracking: Record<string, ReturnType<typeof vi.fn>>;
+  let location: Record<string, ReturnType<typeof vi.fn>>;
+  let setConsent: ReturnType<typeof vi.fn>;
   let changed: number;
 
   async function render(trip: DriverTrip, requests: SeatRequest[] = []): Promise<HTMLElement> {
@@ -46,9 +52,17 @@ describe('DriverTripCard', () => {
       listTripRequests: vi.fn().mockResolvedValue(requests),
       decideRequest: vi.fn().mockResolvedValue(request('accepted')),
       cancelTrip: vi.fn().mockResolvedValue({ ...TRIP, status: 'cancelled' }),
+      startTrip: vi.fn().mockResolvedValue({ ...TRIP, status: 'in_progress' }),
+      finishTrip: vi.fn().mockResolvedValue({ ...TRIP, status: 'finished' }),
     };
     toast = { showSuccess: vi.fn(), showError: vi.fn() };
     ask = vi.fn().mockResolvedValue(true);
+    tracking = { start: vi.fn(), stop: vi.fn() };
+    location = {
+      checkPermission: vi.fn().mockResolvedValue('granted'),
+      getCurrentPoint: vi.fn().mockResolvedValue([-2.43, 36.83]),
+    };
+    setConsent = vi.fn().mockResolvedValue({});
     TestBed.configureTestingModule({
       imports: [DriverTripCard],
       providers: [
@@ -56,6 +70,9 @@ describe('DriverTripCard', () => {
         { provide: DriverService, useValue: driver },
         { provide: ToastService, useValue: toast },
         { provide: ConfirmService, useValue: { ask } },
+        { provide: DriverTrackingService, useValue: tracking },
+        { provide: LocationService, useValue: location },
+        { provide: LocationConsentService, useValue: { set: setConsent } },
       ],
     });
     fixture = TestBed.createComponent(DriverTripCard);
@@ -144,6 +161,114 @@ describe('DriverTripCard', () => {
 
     expect(driver['cancelTrip']).not.toHaveBeenCalled();
     expect(changed).toBe(0);
+  });
+
+  describe('start and finish', () => {
+    // Confirmado y saliendo en 5 min: ya se puede iniciar
+    const SOON: DriverTrip = {
+      ...TRIP,
+      status: 'confirmed',
+      departureAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+    };
+
+    it('waits until 10 minutes before the departure', async () => {
+      const root = await render({ ...TRIP, status: 'confirmed' });
+
+      expect(fixture.componentInstance.canStart()).toBe(false);
+      expect(root.textContent).toContain('Podrás iniciarlo desde las');
+      await fixture.componentInstance.handleStart();
+      expect(driver['startTrip']).not.toHaveBeenCalled();
+    });
+
+    it('starts sharing the location at once when it is already shared', async () => {
+      const root = await render(SOON);
+      expect(root.textContent).not.toContain('Podrás iniciarlo');
+
+      await fixture.componentInstance.handleStart();
+
+      expect(ask).not.toHaveBeenCalled();
+      expect(driver['startTrip']).toHaveBeenCalledWith('t1');
+      expect(tracking['start']).toHaveBeenCalledWith('t1');
+      expect(changed).toBe(1);
+    });
+
+    it('asks to share the location and records the consent', async () => {
+      await render(SOON);
+      location['checkPermission'].mockResolvedValue('prompt');
+
+      await fixture.componentInstance.handleStart();
+
+      expect(ask).toHaveBeenCalledWith(
+        expect.objectContaining({ confirmText: 'Compartir e iniciar', cancelText: 'Ahora no' }),
+      );
+      expect(setConsent).toHaveBeenCalledWith('granted', 'location_prompt');
+      expect(driver['startTrip']).toHaveBeenCalledWith('t1');
+    });
+
+    it('does not start without sharing the location', async () => {
+      await render(SOON);
+      location['checkPermission'].mockResolvedValue('revoked');
+      ask.mockResolvedValue(false);
+
+      await fixture.componentInstance.handleStart();
+
+      expect(setConsent).not.toHaveBeenCalled();
+      expect(driver['startTrip']).not.toHaveBeenCalled();
+    });
+
+    it('explains that the device permission is needed', async () => {
+      await render(SOON);
+      location['checkPermission'].mockResolvedValue('denied');
+      location['getCurrentPoint'].mockRejectedValue(new LocationError('denied'));
+
+      await fixture.componentInstance.handleStart();
+
+      expect(toast['showError']).toHaveBeenCalledWith(
+        'Sin permiso de ubicación no puedes iniciar el viaje. Actívalo en los ajustes del móvil.',
+      );
+      expect(driver['startTrip']).not.toHaveBeenCalled();
+    });
+
+    it('shows the API error when the consent or the start fails', async () => {
+      await render(SOON);
+      location['checkPermission'].mockResolvedValue('prompt');
+      setConsent.mockRejectedValueOnce(new Error('down'));
+      await fixture.componentInstance.handleStart();
+      driver['startTrip'].mockRejectedValue(new Error('down'));
+      location['checkPermission'].mockResolvedValue('granted');
+      await fixture.componentInstance.handleStart();
+
+      expect(toast['showError']).toHaveBeenCalledTimes(2);
+      expect(tracking['start']).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.isChangingStatus()).toBe(false);
+    });
+
+    it('keeps sharing the location of a trip in progress and finishes it', async () => {
+      const root = await render({ ...TRIP, status: 'in_progress' });
+      expect(root.textContent).toContain('Compartiendo tu ubicación con tus pasajeros');
+      expect(tracking['start']).toHaveBeenCalledWith('t1');
+
+      await fixture.componentInstance.handleFinish();
+
+      expect(ask).toHaveBeenCalledWith(
+        expect.objectContaining({ confirmText: 'Terminar', cancelText: 'Seguir en el viaje' }),
+      );
+      expect(driver['finishTrip']).toHaveBeenCalledWith('t1');
+      expect(tracking['stop']).toHaveBeenCalled();
+      expect(changed).toBe(1);
+    });
+
+    it('keeps the trip in progress when finishing is dismissed or fails', async () => {
+      await render({ ...TRIP, status: 'in_progress' });
+      ask.mockResolvedValueOnce(false);
+      await fixture.componentInstance.handleFinish();
+      driver['finishTrip'].mockRejectedValue(new Error('down'));
+      await fixture.componentInstance.handleFinish();
+
+      expect(driver['finishTrip']).toHaveBeenCalledTimes(1);
+      expect(tracking['stop']).not.toHaveBeenCalled();
+      expect(toast['showError']).toHaveBeenCalled();
+    });
   });
 
   it('does not load requests of a finished trip', async () => {

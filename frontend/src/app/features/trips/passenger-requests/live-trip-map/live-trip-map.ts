@@ -45,7 +45,14 @@ export class LiveTripMap {
   readonly pickupName = input('Punto de recogida');
   readonly initialCenter = input.required<GeoPoint>();
   readonly active = input(true);
+  // Quién mira: el pasajero ve el coche, su recogida y su ubicación; el
+  // conductor, su propia posición (la que ven sus pasajeros) y su siguiente
+  // recogida, sin su ubicación aparte (sería el mismo punto que el coche)
+  readonly viewer = input<'passenger' | 'driver'>('passenger');
+  // El nombre del conductor, para el pasajero («Lucía llega en…»)
+  readonly driverName = input('El conductor');
 
+  readonly isDriver = computed(() => this.viewer() === 'driver');
   readonly latestPosition = signal<TripPosition | null>(null);
   readonly userLocation = signal<CurrentLocation | null>(null);
   readonly locationResolved = signal(false);
@@ -77,7 +84,11 @@ export class LiveTripMap {
       ? estimatePickupMinutes(position.position.coordinates, pickup.coordinates)
       : null;
   });
-  readonly mapLabel = computed(() => `Posición actual del coche y ${this.pickupName()}`);
+  readonly mapLabel = computed(() =>
+    this.isDriver()
+      ? `Tu posición y ${this.pickupName()}`
+      : `Posición actual del coche y ${this.pickupName()}`,
+  );
 
   protected readonly centerIcon = locateOutline;
   private readonly mapElement = viewChild<ElementRef<HTMLElement>>('map');
@@ -169,7 +180,7 @@ export class LiveTripMap {
   };
 
   private async readLocalLocation(): Promise<CurrentLocation | null> {
-    if ((await this.location.checkPermission()) !== 'granted') return null;
+    if (this.isDriver() || (await this.location.checkPermission()) !== 'granted') return null;
     return this.location.getCurrentLocation();
   }
 

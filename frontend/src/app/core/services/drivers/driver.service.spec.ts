@@ -30,6 +30,32 @@ describe('DriverService', () => {
 
   afterEach(() => http.verify());
 
+  it('starts and finishes a trip', async () => {
+    const start = driver.startTrip('t1');
+    const startRequest = http.expectOne('/api/trips/t1/start');
+    expect(startRequest.request.method).toBe('POST');
+    startRequest.flush({ id: 't1', status: 'in_progress' });
+    const finish = driver.finishTrip('t1');
+    const finishRequest = http.expectOne('/api/trips/t1/finish');
+    expect(finishRequest.request.method).toBe('POST');
+    finishRequest.flush({ id: 't1', status: 'finished' });
+
+    await expect(start).resolves.toEqual({ id: 't1', status: 'in_progress' });
+    await expect(finish).resolves.toEqual({ id: 't1', status: 'finished' });
+  });
+
+  it('reports the driver position as a GeoJSON point', async () => {
+    const report = driver.reportPosition('t1', [-2.43, 36.83]);
+    const request = http.expectOne('/api/trips/t1/positions');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({
+      position: { type: 'Point', coordinates: [-2.43, 36.83] },
+    });
+    request.flush(null, { status: 201, statusText: 'Created' });
+
+    await expect(report).resolves.toBeUndefined();
+  });
+
   it('deactivates a vehicle with DELETE', async () => {
     const removal = driver.deactivateVehicle('v1');
     const request = http.expectOne('/api/vehicles/v1');

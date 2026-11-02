@@ -5,6 +5,7 @@ import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -52,6 +53,7 @@ describe('MyTripsPage', () => {
           },
         },
         { provide: ToastService, useValue: { showSuccess: vi.fn(), showError: vi.fn() } },
+        { provide: DriverTrackingService, useValue: { start: vi.fn(), stop: vi.fn() } },
       ],
     });
     fixture = TestBed.createComponent(MyTripsPage);

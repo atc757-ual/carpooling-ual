@@ -9,6 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Fixed
+- **Frontend:** el mapa en vivo del pasajero nombra a su conductor (antes ponía siempre «Lucía») (#144).
 - **Frontend:** al entrar en la app (iniciar sesión, abrirla o «Entrar a la app» tras el registro) se abre siempre Buscar; quien solo es conductor entra en Publicar (#139).
 - **Frontend:** cerrar sesión descarta las pantallas de la cuenta anterior y Publicar abre limpio para cualquier perfil (#120).
 
@@ -19,6 +20,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 - **Frontend:** detalle del usuario en el panel de administración (`/admin/users/:id`): cuenta, estado, perfiles con su valoración, suspensión y cancelaciones tardías, vehículos, últimos viajes y solicitudes, incidencias y consentimientos; acciones para activar o desactivar un perfil, dar o quitar el de administrador y levantar una suspensión, cada una con la confirmación con motivo (`app-reason-confirm-modal`) (#145).
+- **Frontend:** progreso del viaje (publicado → confirmado → en curso → finalizado) y vista del conductor en el mapa en vivo, con el tiempo hasta su siguiente recogida o el destino (#144).
+- **Frontend:** iniciar y terminar el viaje desde Mis viajes (para iniciarlo, el conductor comparte su ubicación); mientras está en curso, la app envía su posición cada 15 s y la retoma al abrirla (#143).
 - **Frontend:** lista de usuarios del panel de administración (`/admin/users`): buscador, filtros por perfil y estado guardados en la URL, tabla con rol, viajes y chips de estado, paginación y estados de carga (esqueleto), vacío (quitar filtros) y error (reintentar); las rutas del panel pasan a `features/admin/admin.routes.ts` (#142).
 - **Backend:** detalle del usuario para el panel de administración (RF-25, CU-13): `GET /api/admin/users/{id}` con la cuenta (sin la contraseña), su estado, valoraciones por rol, vehículos, últimos viajes como conductor y solicitudes como pasajero, incidencias en las que aparece, cancelaciones tardías de los últimos 30 días y el historial de consentimientos (#141).
 - **Frontend:** entrada al panel de administración: tras iniciar sesión se entra en la última parte usada (el administrador que solo es administrador, al panel; `appAreaGuard` lo saca de `/tabs`), menú de la cuenta en la cabecera del panel con «Ir a la app» y «Cerrar sesión», y «Panel de administración» en el Perfil y en la cabecera de la app para quien tiene ese perfil (#137).

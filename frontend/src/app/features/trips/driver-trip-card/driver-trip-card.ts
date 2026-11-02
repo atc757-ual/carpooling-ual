@@ -1,10 +1,24 @@
-import { Component, computed, inject, input, output, resource, signal } from '@angular/core';
-import { IonButton, IonCard, IonCardContent, IonSpinner } from '@ionic/angular';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  output,
+  resource,
+  signal,
+} from '@angular/core';
+import { IonButton, IonCard, IonCardContent, IonIcon, IonSpinner } from '@ionic/angular';
+import { locationOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
 import { SeatRequest, SeatRequestStatus } from '../../../core/models/seat-request.model';
 import { formatTravelPreferences } from '../../../core/models/travel-preferences.model';
+import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
+import { LocationConsentService } from '../../../core/services/location/location-consent.service';
+import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
@@ -27,6 +41,8 @@ const REQUEST_STATUS_LABELS: Record<SeatRequestStatus, string> = {
 };
 // Solo en estos se piden y deciden plazas
 const OPEN_STATUSES: ReadonlySet<TripStatus> = new Set(['published', 'confirmed']);
+// Cuánto antes de la salida se puede iniciar (START_WINDOW_MIN del backend)
+const START_WINDOW_MS = 10 * 60 * 1000;
 
 export function formatSeats(seats: number): string {
   return seats === 1 ? '1 plaza' : `${seats} plazas`;
@@ -35,10 +51,12 @@ export function formatSeats(seats: number): string {
 // Un viaje del conductor en Mis viajes: cuándo sale, de dónde a dónde, su
 // estado y sus plazas libres y, si sigue abierto, sus solicitudes (las
 // prioritarias primero) con «Aceptar» y «Rechazar» en las pendientes. Avisa
-// con «changed» al decidir una, porque cambian las plazas y quizá el estado
+// con «changed» al decidir una, porque cambian las plazas y quizá el estado,
+// y al iniciar o terminar el viaje (mientras está en curso se comparte la
+// posición del conductor con DriverTrackingService)
 @Component({
   selector: 'app-driver-trip-card',
-  imports: [IonButton, IonCard, IonCardContent, IonSpinner],
+  imports: [IonButton, IonCard, IonCardContent, IonIcon, IonSpinner],
   templateUrl: './driver-trip-card.html',
   styleUrl: './driver-trip-card.scss',
 })
@@ -46,6 +64,9 @@ export class DriverTripCard {
   private readonly driver = inject(DriverService);
   private readonly toast = inject(ToastService);
   private readonly confirm = inject(ConfirmService);
+  private readonly tracking = inject(DriverTrackingService);
+  private readonly location = inject(LocationService);
+  private readonly consent = inject(LocationConsentService);
 
   readonly trip = input.required<DriverTrip>();
   readonly changed = output<void>();
@@ -83,6 +104,36 @@ export class DriverTripCard {
 
   protected readonly formatSeats = formatSeats;
 
+  // Iniciar: con el viaje confirmado y desde 10 min antes de la salida. La
+  // hora se revisa cada minuto para activar el botón sin recargar
+  private readonly now = signal(Date.now());
+  readonly isInProgress = computed(() => this.trip().status === 'in_progress');
+  private readonly startableAt = computed(
+    () => new Date(this.trip().departureAt).getTime() - START_WINDOW_MS,
+  );
+  readonly canStart = computed(
+    () => this.trip().status === 'confirmed' && this.now() >= this.startableAt(),
+  );
+  // «Podrás iniciarlo desde las 08:50»
+  readonly startHint = computed(() =>
+    this.trip().status === 'confirmed' && !this.canStart()
+      ? `Podrás iniciarlo desde las ${formatTime(new Date(this.startableAt()).toISOString())}`
+      : null,
+  );
+  readonly isChangingStatus = signal(false);
+  protected readonly locationIcon = locationOutline;
+
+  constructor() {
+    const timer = setInterval(() => this.now.set(Date.now()), 60_000);
+    inject(DestroyRef).onDestroy(() => clearInterval(timer));
+    // Si el viaje sigue en curso, su posición se sigue enviando
+    effect(() => {
+      if (this.isInProgress()) {
+        this.tracking.start(this.trip().id);
+      }
+    });
+  }
+
   readonly cancellationIsLate = computed(() => {
     const trip = this.trip();
     return (
@@ -111,6 +162,81 @@ export class DriverTripCard {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     } finally {
       this.deciding.set(null);
+    }
+  }
+
+  async handleStart(): Promise<void> {
+    const trip = this.trip();
+    if (!this.canStart() || !(await this.ensureLocationShared())) {
+      return;
+    }
+    this.isChangingStatus.set(true);
+    try {
+      await this.driver.startTrip(trip.id);
+      this.tracking.start(trip.id);
+      void this.toast.showSuccess('Viaje iniciado. Tus pasajeros ya ven dónde estás.');
+      this.changed.emit();
+    } catch (error) {
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+    } finally {
+      this.isChangingStatus.set(false);
+    }
+  }
+
+  async handleFinish(): Promise<void> {
+    const trip = this.trip();
+    const accepted = await this.confirm.ask({
+      header: '¿Terminar el viaje?',
+      message: 'Dejarás de compartir tu ubicación y el viaje pasará a finalizado.',
+      confirmText: 'Terminar',
+      cancelText: 'Seguir en el viaje',
+      icon: this.locationIcon,
+    });
+    if (!accepted) {
+      return;
+    }
+    this.isChangingStatus.set(true);
+    try {
+      await this.driver.finishTrip(trip.id);
+      this.tracking.stop();
+      void this.toast.showSuccess('Viaje terminado. Gracias por compartir coche.');
+      this.changed.emit();
+    } catch (error) {
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+    } finally {
+      this.isChangingStatus.set(false);
+    }
+  }
+
+  // Para iniciar el viaje hay que compartir la ubicación: si aún no se
+  // comparte, se pide (consentimiento y permiso del dispositivo). false si
+  // no se da
+  private async ensureLocationShared(): Promise<boolean> {
+    if ((await this.location.checkPermission()) === 'granted') {
+      return true;
+    }
+    const accepted = await this.confirm.ask({
+      header: '¿Compartes tu ubicación?',
+      message:
+        'Para iniciar el viaje, tus pasajeros verán dónde estás mientras dura. Dejarás de compartirla al terminarlo.',
+      confirmText: 'Compartir e iniciar',
+      cancelText: 'Ahora no',
+      icon: this.locationIcon,
+    });
+    if (!accepted) {
+      return false;
+    }
+    try {
+      await this.consent.set('granted', 'location_prompt');
+      await this.location.getCurrentPoint();
+      return true;
+    } catch (error) {
+      const message =
+        error instanceof LocationError
+          ? 'Sin permiso de ubicación no puedes iniciar el viaje. Actívalo en los ajustes del móvil.'
+          : getErrorMessage(ApiError.fromHttpError(error));
+      void this.toast.showError(message);
+      return false;
     }
   }
 

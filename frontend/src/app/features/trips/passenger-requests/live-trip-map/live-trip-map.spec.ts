@@ -64,12 +64,17 @@ describe('LiveTripMap', () => {
     vi.restoreAllMocks();
   });
 
-  async function render(active = true): Promise<HTMLElement> {
+  async function render(
+    active = true,
+    inputs: Record<string, unknown> = { pickupLocation: PICKUP },
+  ): Promise<HTMLElement> {
     fixture = TestBed.createComponent(LiveTripMap);
     fixture.componentRef.setInput('tripId', 't1');
-    fixture.componentRef.setInput('pickupLocation', PICKUP);
     fixture.componentRef.setInput('initialCenter', CENTER);
     fixture.componentRef.setInput('active', active);
+    for (const [name, value] of Object.entries(inputs)) {
+      fixture.componentRef.setInput(name, value);
+    }
     fixture.detectChanges();
     await fixture.whenStable();
     for (
@@ -163,6 +168,47 @@ describe('LiveTripMap', () => {
 
     expect(fixture.componentInstance.isStale()).toBe(true);
     expect(root.textContent).toContain('Sin posición reciente del coche.');
+  });
+
+  it('names the driver when telling the passenger the pickup time', async () => {
+    const root = await render(true, { pickupLocation: PICKUP, driverName: 'Carlos' });
+
+    expect(root.textContent).toMatch(/Carlos llega en ~\d+ min a tu punto de recogida/);
+  });
+
+  describe('as the driver', () => {
+    it('shows the time to the next pickup without asking for the location', async () => {
+      const root = await render(true, {
+        viewer: 'driver',
+        pickupLocation: PICKUP,
+        pickupName: 'Av. del Mediterráneo',
+      });
+
+      expect(location.checkPermission).not.toHaveBeenCalled();
+      expect(root.textContent).toMatch(/Llegas en ~\d+ min a Av\. del Mediterráneo/);
+      expect(root.textContent).not.toContain('No podemos mostrar tu ubicación');
+      expect(fixture.componentInstance.mapLabel()).toBe('Tu posición y Av. del Mediterráneo');
+    });
+
+    it('shows the time to the destination when there is no pickup left', async () => {
+      const root = await render(true, { viewer: 'driver' });
+
+      expect(root.textContent).toContain('Llegas al destino en ~2 min.');
+    });
+
+    it('waits for the first position and warns when it stops arriving', async () => {
+      tracking.getLatest.mockRejectedValueOnce(new Error('down'));
+      const waiting = await render(true, { viewer: 'driver' });
+      expect(waiting.textContent).toContain('Esperando tu primera ubicación…');
+      fixture.destroy();
+
+      tracking.getLatest.mockResolvedValue(
+        tripPosition(new Date(Date.now() - 61_000).toISOString()),
+      );
+      const stale = await render(true, { viewer: 'driver' });
+
+      expect(stale.textContent).toContain('No estamos recibiendo tu ubicación.');
+    });
   });
 
   it('destroys the map renderer with the screen', async () => {
