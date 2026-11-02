@@ -1,0 +1,126 @@
+<header class="admin-page__header">
+  <h1 class="text-heading">
+    Usuarios
+    @if (users.hasValue()) {
+      <span class="admin-users__total">· {{ totalLabel() }}</span>
+    }
+  </h1>
+  <p class="text-body admin-page__subtitle">Consulta las cuentas y gestiona sus perfiles.</p>
+</header>
+
+<!-- Buscador y filtros: cambiar uno vuelve a la primera página -->
+<div class="admin-users__filters">
+  <ion-searchbar
+    class="admin-users__search"
+    placeholder="Buscar por nombre o correo"
+    [value]="query().search ?? ''"
+    [debounce]="300"
+    (ionInput)="handleSearch($event)"
+  />
+  <ion-select
+    class="admin-users__select"
+    label="Perfil"
+    labelPlacement="stacked"
+    fill="outline"
+    interface="popover"
+    placeholder="Todos"
+    [value]="query().profile ?? ''"
+    (ionChange)="handleFilter('profile', $event.detail.value)"
+  >
+    <ion-select-option value="">Todos</ion-select-option>
+    @for (option of profileOptions; track option[0]) {
+      <ion-select-option [value]="option[0]">{{ option[1] }}</ion-select-option>
+    }
+  </ion-select>
+  <ion-select
+    class="admin-users__select"
+    label="Estado"
+    labelPlacement="stacked"
+    fill="outline"
+    interface="popover"
+    placeholder="Todos"
+    [value]="query().status ?? ''"
+    (ionChange)="handleFilter('status', $event.detail.value)"
+  >
+    <ion-select-option value="">Todos</ion-select-option>
+    @for (option of statusOptions; track option[0]) {
+      <ion-select-option [value]="option[0]">{{ option[1] }}</ion-select-option>
+    }
+  </ion-select>
+</div>
+
+@if (errorMessage(); as message) {
+  <!-- Error: reintentar mantiene la página y los filtros -->
+  <div class="notice notice--danger admin-users__state" role="alert">
+    <span>
+      <b>No hemos podido cargar los usuarios.</b>
+      {{ message }}
+    </span>
+    <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
+  </div>
+} @else if (users.isLoading() && !users.hasValue()) {
+  <!-- Carga: el esqueleto con la forma de las filas -->
+  <div class="admin-users__table-wrap" aria-busy="true" aria-label="Cargando usuarios">
+    @for (row of skeletonRows; track row) {
+      <div class="admin-users__skeleton-row">
+        <ion-skeleton-text [animated]="true" class="admin-users__skeleton-name" />
+        <ion-skeleton-text [animated]="true" class="admin-users__skeleton-cell" />
+        <ion-skeleton-text [animated]="true" class="admin-users__skeleton-cell" />
+      </div>
+    }
+  </div>
+} @else if (rows().length === 0) {
+  <!-- Vacío: con filtros, la salida es quitarlos -->
+  <output class="admin-users__empty admin-users__state">
+    @if (hasFilters()) {
+      <p class="text-title">Ningún usuario coincide</p>
+      <p class="text-body admin-page__subtitle">Prueba con otra búsqueda o quita los filtros.</p>
+      <ion-button fill="outline" (click)="handleClearFilters()">Quitar filtros</ion-button>
+    } @else {
+      <p class="text-title">Aún no hay usuarios</p>
+    }
+  </output>
+} @else {
+  <div class="admin-users__table-wrap">
+    <table class="admin-users__table" [attr.aria-busy]="users.isLoading()">
+      <thead>
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">Rol</th>
+          <th scope="col" class="admin-users__number">Viajes</th>
+          <th scope="col">Estado</th>
+          <th scope="col"><span class="visually-hidden">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of rows(); track item.row.id) {
+          <tr>
+            <td>
+              <span class="admin-users__name">{{ item.row.name }}</span>
+              <span class="admin-users__email">{{ item.row.email }}</span>
+            </td>
+            <td>{{ item.roles }}</td>
+            <td class="admin-users__number">{{ item.row.tripCount }}</td>
+            <td>
+              <span class="admin-users__chips">
+                @for (chip of item.chips; track chip.label) {
+                  <span [class]="'status admin-users__chip--' + chip.tone">{{ chip.label }}</span>
+                }
+              </span>
+            </td>
+            <td>
+              <a class="admin-users__link" [routerLink]="[item.row.id]">Ver perfil</a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <app-pagination
+    [offset]="query().offset"
+    [limit]="pageSize"
+    [total]="total()"
+    [isLoading]="users.isLoading()"
+    (offsetChange)="handleOffset($event)"
+  />
+}
