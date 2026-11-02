@@ -21,6 +21,12 @@ describe('BrandLogo', () => {
     expect(host.getAttribute('aria-label')).toBe('UAL Carpool');
   });
 
+  it('renders the car-sport icon in the badge', async () => {
+    const host = await render('default');
+    const badge = host.querySelector('.brand-logo__badge');
+    expect(badge?.querySelector('ion-icon')).not.toBeNull();
+  });
+
   it('shows the tagline only in the tile variant', async () => {
     expect((await render('default')).querySelector('.brand-logo__tagline')).toBeNull();
 
