@@ -1,93 +1,107 @@
 import { PlatformOverview } from '../../../core/models/admin-event.model';
 
+interface EventEntity {
+  group: string;
+  entity: string;
+  // Nombre de cada acción (lo que va tras el punto del tipo)
+  actions: Readonly<Record<string, string>>;
+}
+
+// Tipos de evento de la plataforma (backend: events/event-versions.ts) por la
+// entidad que cambia (el prefijo del tipo), con su nombre en español
+const EVENT_ENTITIES: Readonly<Record<string, EventEntity>> = {
+  user: {
+    group: 'Usuarios',
+    entity: 'Usuario',
+    actions: {
+      registered: 'Usuario registrado',
+      email_verified: 'Correo verificado',
+      phone_verified: 'Teléfono verificado',
+      updated: 'Usuario actualizado',
+      active_mode_changed: 'Modo activo cambiado',
+      profile_activated: 'Perfil activado',
+      profile_deactivated: 'Perfil desactivado',
+      deactivated: 'Cuenta desactivada',
+    },
+  },
+  consent: {
+    group: 'Consentimientos',
+    entity: 'Consentimiento',
+    actions: { granted: 'Consentimiento dado', revoked: 'Consentimiento retirado' },
+  },
+  trip: {
+    group: 'Viajes',
+    entity: 'Viaje',
+    actions: {
+      published: 'Viaje publicado',
+      updated: 'Viaje editado',
+      confirmed: 'Viaje confirmado',
+      reopened: 'Viaje reabierto',
+      started: 'Viaje iniciado',
+      position_updated: 'Posición del conductor',
+      finished: 'Viaje finalizado',
+      cancelled: 'Viaje cancelado',
+      cancelled_late: 'Viaje cancelado tarde',
+    },
+  },
+  late_cancellation: {
+    group: 'Cancelaciones tardías',
+    entity: 'Cancelación tardía',
+    actions: { waived: 'Cancelación tardía perdonada' },
+  },
+  request: {
+    group: 'Solicitudes',
+    entity: 'Solicitud',
+    actions: {
+      created: 'Solicitud enviada',
+      accepted: 'Solicitud aceptada',
+      rejected: 'Solicitud rechazada',
+      cancelled: 'Solicitud cancelada',
+    },
+  },
+  incident: {
+    group: 'Incidencias',
+    entity: 'Incidencia',
+    actions: { reported: 'Incidencia registrada', reviewed: 'Incidencia revisada' },
+  },
+  review: {
+    group: 'Valoraciones',
+    entity: 'Valoración',
+    actions: { created: 'Valoración enviada', published: 'Valoración publicada' },
+  },
+  coverage: {
+    group: 'Cobertura',
+    entity: 'Búsqueda',
+    actions: { gap_reported: 'Zona sin cobertura' },
+  },
+  simulation: {
+    group: 'Simulación',
+    entity: 'Simulación',
+    actions: {
+      requested: 'Simulación lanzada',
+      finished: 'Simulación terminada',
+      failed: 'Simulación fallida',
+      cancelled: 'Simulación cancelada',
+    },
+  },
+};
+
 export interface EventTypeGroup {
   label: string;
   types: readonly (readonly [type: string, label: string])[];
 }
 
-// Tipos de evento de la plataforma (backend: events/event-versions.ts),
-// agrupados por la entidad que cambia, con su nombre en español
-export const EVENT_TYPE_GROUPS: readonly EventTypeGroup[] = [
-  {
-    label: 'Usuarios',
-    types: [
-      ['user.registered', 'Usuario registrado'],
-      ['user.email_verified', 'Correo verificado'],
-      ['user.phone_verified', 'Teléfono verificado'],
-      ['user.updated', 'Usuario actualizado'],
-      ['user.active_mode_changed', 'Modo activo cambiado'],
-      ['user.profile_activated', 'Perfil activado'],
-      ['user.profile_deactivated', 'Perfil desactivado'],
-      ['user.deactivated', 'Cuenta desactivada'],
-    ],
-  },
-  {
-    label: 'Consentimientos',
-    types: [
-      ['consent.granted', 'Consentimiento dado'],
-      ['consent.revoked', 'Consentimiento retirado'],
-    ],
-  },
-  {
-    label: 'Viajes',
-    types: [
-      ['trip.published', 'Viaje publicado'],
-      ['trip.updated', 'Viaje editado'],
-      ['trip.confirmed', 'Viaje confirmado'],
-      ['trip.reopened', 'Viaje reabierto'],
-      ['trip.started', 'Viaje iniciado'],
-      ['trip.position_updated', 'Posición del conductor'],
-      ['trip.finished', 'Viaje finalizado'],
-      ['trip.cancelled', 'Viaje cancelado'],
-      ['trip.cancelled_late', 'Viaje cancelado tarde'],
-      ['late_cancellation.waived', 'Cancelación tardía perdonada'],
-    ],
-  },
-  {
-    label: 'Solicitudes',
-    types: [
-      ['request.created', 'Solicitud enviada'],
-      ['request.accepted', 'Solicitud aceptada'],
-      ['request.rejected', 'Solicitud rechazada'],
-      ['request.cancelled', 'Solicitud cancelada'],
-    ],
-  },
-  {
-    label: 'Incidencias y valoraciones',
-    types: [
-      ['incident.reported', 'Incidencia registrada'],
-      ['incident.reviewed', 'Incidencia revisada'],
-      ['review.created', 'Valoración enviada'],
-      ['review.published', 'Valoración publicada'],
-      ['coverage.gap_reported', 'Zona sin cobertura'],
-    ],
-  },
-  {
-    label: 'Simulación',
-    types: [
-      ['simulation.requested', 'Simulación lanzada'],
-      ['simulation.finished', 'Simulación terminada'],
-      ['simulation.failed', 'Simulación fallida'],
-      ['simulation.cancelled', 'Simulación cancelada'],
-    ],
-  },
-];
+// Los grupos del filtro por tipo, en el orden de arriba
+export const EVENT_TYPE_GROUPS: readonly EventTypeGroup[] = Object.entries(EVENT_ENTITIES).map(
+  ([prefix, { group, actions }]) => ({
+    label: group,
+    types: Object.entries(actions).map(
+      ([action, label]) => [`${prefix}.${action}`, label] as const,
+    ),
+  }),
+);
 
 const TYPE_LABELS = new Map(EVENT_TYPE_GROUPS.flatMap(({ types }) => types));
-
-// Entidad de origen por el prefijo del tipo (la de las valoraciones y la
-// cobertura no es una incidencia)
-const ENTITY_LABELS = new Map<string, string>([
-  ['user', 'Usuario'],
-  ['consent', 'Consentimiento'],
-  ['trip', 'Viaje'],
-  ['late_cancellation', 'Cancelación tardía'],
-  ['request', 'Solicitud'],
-  ['incident', 'Incidencia'],
-  ['review', 'Valoración'],
-  ['coverage', 'Búsqueda'],
-  ['simulation', 'Simulación'],
-]);
 
 export function isKnownEventType(type: string): boolean {
   return TYPE_LABELS.has(type);
@@ -100,7 +114,7 @@ export function eventTypeLabel(type: string): string {
 
 // «Viaje · 3f2a9c1e»: la entidad y el principio de su id
 export function eventEntityLabel(type: string, sourceEntityId: string): string {
-  const entity = ENTITY_LABELS.get(type.split('.')[0]) ?? 'Entidad';
+  const entity = EVENT_ENTITIES[type.split('.')[0]]?.entity ?? 'Entidad';
   return `${entity} · ${sourceEntityId.slice(0, 8)}`;
 }
 
