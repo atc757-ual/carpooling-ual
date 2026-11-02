@@ -505,15 +505,23 @@ export class UsersService {
 
   // Solo se eligen opciones que se ofrecen; quien ya tenía una la conserva
   // aunque el panel la desactive (aquí solo llegan las que cambian)
+  // (las cuatro a la vez)
   private async assertPreferencesOffered(update: Partial<User>): Promise<void> {
-    for (const [preference, column] of PREFERENCE_COLUMN_MAP) {
+    const chosen = PREFERENCE_COLUMN_MAP.flatMap(([preference, column]) => {
       const value = update[column];
-      if (
-        typeof value === 'string' &&
-        !(await this.preferenceOptions.isOffered(preference, value))
-      ) {
-        throw new TravelPreferenceNotOfferedError(preference, value);
-      }
+      return typeof value === 'string' ? [{ preference, value }] : [];
+    });
+    const offered = await Promise.all(
+      chosen.map(({ preference, value }) =>
+        this.preferenceOptions.isOffered(preference, value),
+      ),
+    );
+    const rejected = chosen.find((_, index) => !offered[index]);
+    if (rejected !== undefined) {
+      throw new TravelPreferenceNotOfferedError(
+        rejected.preference,
+        rejected.value,
+      );
     }
   }
 }
