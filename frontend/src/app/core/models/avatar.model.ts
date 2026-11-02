@@ -1,26 +1,14 @@
-export const AVATAR_KEYS = [
-  'sun',
-  'wave',
-  'cactus',
-  'palm',
-  'compass',
-  'car',
-  'leaf',
-  'book',
-  'coffee',
-  'headphones',
-  'cat',
-  'owl',
-] as const;
-
-export type AvatarKey = (typeof AVATAR_KEYS)[number];
-
+// Catálogo de avatares (GET /api/avatars): los SVG de la plataforma y las
+// imágenes PNG o WebP que sube el panel. Las claves salen de la API
 export interface AvatarResource {
   '@type': 'Avatar';
-  id: AvatarKey;
+  id: string;
   href: string;
   name: string;
-  svg: string;
+  // El SVG de la plataforma, o null si es una imagen subida
+  svg: string | null;
+  // La imagen subida (/api/avatars/{id}/image), o null si es un SVG
+  imageHref?: string | null;
 }
 
 export type AvatarShape =
@@ -29,7 +17,9 @@ export type AvatarShape =
   | { kind: 'rect'; x: string; y: string; width: string; height: string; rx?: string; ry?: string }
   | { kind: 'polygon'; points: string };
 
-export interface AvatarGraphic {
+// Un SVG del catálogo, ya validado: la plantilla crea sus nodos
+export interface AvatarSvgGraphic {
+  kind: 'svg';
   viewBox: string;
   fill: string | null;
   stroke: string | null;
@@ -39,8 +29,16 @@ export interface AvatarGraphic {
   shapes: AvatarShape[];
 }
 
+// Una imagen subida: se pinta con un <img> (la API la sirve sin sesión)
+export interface AvatarImageGraphic {
+  kind: 'image';
+  src: string;
+}
+
+export type AvatarGraphic = AvatarSvgGraphic | AvatarImageGraphic;
+
 export interface AvatarOption {
-  id: AvatarKey;
+  id: string;
   name: string;
   graphic: AvatarGraphic;
 }

@@ -3,6 +3,7 @@ import { AvatarGraphic } from '../../../../core/models/avatar.model';
 import { AvatarArt } from './avatar-art';
 
 const GRAPHIC: AvatarGraphic = {
+  kind: 'svg',
   viewBox: '0 0 64 64',
   fill: 'none',
   stroke: 'currentColor',
@@ -33,5 +34,17 @@ describe('AvatarArt', () => {
       'polygon',
     ]);
     expect(svg?.querySelector('rect')?.getAttribute('width')).toBe('20');
+  });
+
+  it('shows an uploaded avatar as a decorative image', () => {
+    const fixture = TestBed.createComponent(AvatarArt);
+    fixture.componentRef.setInput('graphic', { kind: 'image', src: '/api/avatars/owl/image' });
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const image = root.querySelector('img');
+    expect(image?.getAttribute('src')).toBe('/api/avatars/owl/image');
+    expect(image?.getAttribute('alt')).toBe('');
+    expect(root.querySelector('svg')).toBeNull();
   });
 });

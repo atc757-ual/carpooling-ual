@@ -59,6 +59,7 @@ describe('AvatarsService', () => {
     );
 
     await expect(first).resolves.toMatchObject({
+      kind: 'svg',
       viewBox: '0 0 64 64',
       fill: 'none',
       stroke: 'currentColor',
@@ -193,5 +194,31 @@ describe('AvatarsService', () => {
     '<!DOCTYPE svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"></svg>',
   ])('rejects unsafe or malformed SVG input', async (svg) => {
     await expect(loadSvg(svg)).resolves.toBeNull();
+  });
+
+  it('shows an uploaded avatar by its image link and skips one without art', async () => {
+    const catalog = avatars.listCatalog();
+    http.expectOne('/api/avatars?offset=0&limit=100').flush(
+      [
+        {
+          '@type': 'Avatar',
+          id: 'owl-photo',
+          href: '/api/avatars/owl-photo',
+          name: 'Búho',
+          svg: null,
+          imageHref: '/api/avatars/owl-photo/image',
+        },
+        { '@type': 'Avatar', id: 'empty', href: '/api/avatars/empty', name: 'Nada', svg: null },
+      ] satisfies AvatarResource[],
+      { headers: { 'X-Total-Count': '2' } },
+    );
+
+    await expect(catalog).resolves.toEqual([
+      {
+        id: 'owl-photo',
+        name: 'Búho',
+        graphic: { kind: 'image', src: '/api/avatars/owl-photo/image' },
+      },
+    ]);
   });
 });

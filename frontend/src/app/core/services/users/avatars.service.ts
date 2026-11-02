@@ -4,10 +4,10 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   AvatarGraphic,
-  AvatarKey,
   AvatarOption,
   AvatarResource,
   AvatarShape,
+  AvatarSvgGraphic,
 } from '../../models/avatar.model';
 
 const AVATAR_PAGE_SIZE = 100;
@@ -60,12 +60,18 @@ const SHAPES = new Map<string, { attributes: ReadonlySet<string>; parse: typeof 
   ['polygon', { attributes: new Set(['points']), parse: parsePolygon }],
 ]);
 
+// El enlace de la API (/api/avatars/…/image) con la URL de la API de este
+// entorno (en la app nativa no es relativa)
+function imageSrc(href: string): string {
+  return `${environment.apiUrl}${href.replace(/^\/api/, '')}`;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AvatarsService {
   private readonly http = inject(HttpClient);
-  private catalog: Promise<ReadonlyMap<AvatarKey, AvatarOption>> | null = null;
+  private catalog: Promise<ReadonlyMap<string, AvatarOption>> | null = null;
 
-  async getGraphic(key: AvatarKey): Promise<AvatarGraphic | null> {
+  async getGraphic(key: string): Promise<AvatarGraphic | null> {
     const entries = await this.loadMap();
     return entries.get(key)?.graphic ?? null;
   }
@@ -75,7 +81,7 @@ export class AvatarsService {
     return [...entries.values()];
   }
 
-  private async loadMap(): Promise<ReadonlyMap<AvatarKey, AvatarOption>> {
+  private async loadMap(): Promise<ReadonlyMap<string, AvatarOption>> {
     this.catalog ??= this.loadCatalog();
     try {
       return await this.catalog;
@@ -85,7 +91,7 @@ export class AvatarsService {
     }
   }
 
-  private async loadCatalog(): Promise<ReadonlyMap<AvatarKey, AvatarOption>> {
+  private async loadCatalog(): Promise<ReadonlyMap<string, AvatarOption>> {
     const avatars: AvatarResource[] = [];
     let offset = 0;
     let total = Number.POSITIVE_INFINITY;
@@ -106,18 +112,26 @@ export class AvatarsService {
       offset += page.length;
     }
 
-    const entries: [AvatarKey, AvatarOption][] = [];
-    for (const { id, name, svg } of avatars) {
-      const graphic = this.parseGraphic(svg);
+    const entries: [string, AvatarOption][] = [];
+    for (const avatar of avatars) {
+      const graphic = this.toGraphic(avatar);
       if (graphic) {
-        entries.push([id, { id, name, graphic }]);
+        entries.push([avatar.id, { id: avatar.id, name: avatar.name, graphic }]);
       }
     }
     return new Map(entries);
   }
 
+  // Un SVG de la plataforma, validado; o una imagen subida, por su enlace
+  private toGraphic({ svg, imageHref }: AvatarResource): AvatarGraphic | null {
+    if (svg) {
+      return this.parseGraphic(svg);
+    }
+    return imageHref ? { kind: 'image', src: imageSrc(imageHref) } : null;
+  }
+
   // Traduce el catálogo a geometría validada; la plantilla crea los nodos SVG.
-  private parseGraphic(svg: string): AvatarGraphic | null {
+  private parseGraphic(svg: string): AvatarSvgGraphic | null {
     const root = this.parseRoot(svg);
     if (!root) return null;
 
@@ -130,6 +144,7 @@ export class AvatarsService {
     if (!shapes) return null;
 
     return {
+      kind: 'svg',
       viewBox,
       fill: this.safeColor(root.getAttribute('fill')),
       stroke: this.safeColor(root.getAttribute('stroke')),

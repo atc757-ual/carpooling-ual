@@ -1,5 +1,4 @@
 import { GeoPoint } from './place.model';
-import { AvatarKey } from './avatar.model';
 import { TravelPreferences } from './travel-preferences.model';
 
 // Vehículo del conductor (GET /api/vehicles). La capacidad son las plazas
@@ -84,7 +83,7 @@ export interface Trip extends DriverTrip {
   driver: {
     id: string;
     name: string;
-    avatarKey: AvatarKey | null;
+    avatarKey: string | null;
     preferences: TravelPreferences;
     tripCount: number;
     rating: number | null;

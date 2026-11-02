@@ -15,7 +15,7 @@ import {
 import { checkmark, close } from 'ionicons/icons';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiError } from '../../../core/models/api-error.model';
-import { AvatarKey, AvatarOption } from '../../../core/models/avatar.model';
+import { AvatarOption } from '../../../core/models/avatar.model';
 import { User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
@@ -71,7 +71,7 @@ export class ProfilePublicModal implements OnInit {
     bio: [''],
   });
 
-  readonly selectedAvatarKey = signal<AvatarKey | null>(null);
+  readonly selectedAvatarKey = signal<string | null>(null);
   readonly avatarCatalog = signal<AvatarOption[]>([]);
   readonly isSaving = signal(false);
 
@@ -113,7 +113,7 @@ export class ProfilePublicModal implements OnInit {
     }
   }
 
-  chooseAvatar(key: AvatarKey | null): void {
+  chooseAvatar(key: string | null): void {
     this.selectedAvatarKey.set(key);
   }
 

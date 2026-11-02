@@ -32,6 +32,7 @@ describe('ProfilePublicModal', () => {
       id: 'sun',
       name: 'Sol',
       graphic: {
+        kind: 'svg',
         viewBox: '0 0 24 24',
         shapes: [{ kind: 'circle', cx: 12, cy: 12, r: 5 }],
       },
@@ -92,10 +93,7 @@ describe('ProfilePublicModal', () => {
       avatarKey: 'sun',
     });
     expect(showSuccess).toHaveBeenCalled();
-    expect(dismiss).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Ana Gomez' }),
-      'saved',
-    );
+    expect(dismiss).toHaveBeenCalledWith(expect.objectContaining({ name: 'Ana Gomez' }), 'saved');
   });
 
   it('dismisses modal on cancel', () => {

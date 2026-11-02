@@ -3,12 +3,11 @@
 // Los viajes hechos y la valoración aún no los da la API (reputación,
 // RF-22): sin ellos no se muestran
 import { TripDirection } from './trip-search.model';
-import { AvatarKey } from './avatar.model';
 import { TravelPreferences } from './travel-preferences.model';
 
 export interface TripDriver {
   name: string;
-  avatarKey: AvatarKey | null;
+  avatarKey: string | null;
   preferences?: TravelPreferences;
   tripCount?: number;
   // De 0 a 5
