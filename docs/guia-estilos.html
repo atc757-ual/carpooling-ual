@@ -791,7 +791,21 @@
       <li><b>Paginación</b> (<code>app-pagination</code>): «1–20 de 1&nbsp;284» con separador de miles y «Anterior / Siguiente», deshabilitados en los extremos y mientras carga la página.</li>
       <li><b>Chips de estado:</b> las clases <code>.status</code> (texto siempre, no solo color).</li>
       <li><b>Estados de cada lista:</b> esqueleto con la forma de las filas al cargar; vacío que dice qué filtro quitar; error con «Reintentar» que mantiene página y filtros. Una sección aún sin contenido muestra «Disponible pronto».</li>
+      <li><b>Detalle:</b> «Usuarios» para volver (con los filtros de la lista), tarjetas en dos columnas desde 768&nbsp;px y una en el móvil, y cada historial con su vacío en una frase («Sin incidencias.»).</li>
+      <li><b>Confirmación con motivo</b> (<code>app-reason-confirm-modal</code>): toda acción del administrador sobre una cuenta (activar o desactivar un perfil, dar o quitar el de administrador, levantar una suspensión) pide un motivo de 10 a 500 caracteres, que queda en la auditoría. Como la confirmación destructiva: «Cancelar» en azul y la acción en blanco, habilitada al llegar al mínimo. Si la acción falla, el error se ve dentro de la ventana, que no se cierra.</li>
     </ul>
+    <div class="sheet-demo">
+      <div class="sheet">
+        <div class="sheet__handle"></div>
+        <div class="stack" style="text-align:center">
+          <span class="text-title">¿Desactivar el perfil de conductor?</span>
+          <span class="text-label muted">Lucía Cortés no podrá usar este perfil y se cerrarán sus sesiones abiertas.</span>
+          <label class="field" style="text-align:left"><span class="field__label">Motivo</span><span class="field__control"><input value="Varias quejas la misma semana"></span><span class="field__help">Mínimo 10 caracteres. Queda registrado.</span></label>
+          <button class="btn btn--primary" type="button">Cancelar</button>
+          <button class="btn btn--outline" type="button">Desactivar perfil</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- 8 -->

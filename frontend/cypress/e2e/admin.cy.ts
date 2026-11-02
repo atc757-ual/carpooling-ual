@@ -39,6 +39,22 @@ const USER_ROW = {
   createdAt: '2026-10-01T10:00:00.000Z',
 };
 
+// GET /api/admin/users/{id} de esa fila
+const USER_DETAIL = {
+  ...USER_ROW,
+  '@type': 'AdminUserDetail',
+  phone: '+34600123456',
+  isPhoneVerified: true,
+  avatarKey: null,
+  ratings: { driver: { average: 4.5, count: 4 }, passenger: null },
+  vehicles: [],
+  trips: [],
+  requests: [],
+  incidents: [],
+  lateCancellations: [],
+  consents: null,
+};
+
 function visitWithSession(path: string, profiles: string[]): void {
   cy.intercept('POST', '/api/auth/refresh', accessToken(profiles));
   cy.visit(path, {
@@ -80,6 +96,37 @@ for (const viewport of VIEWPORTS) {
       cy.contains('.admin-nav__link', 'Viajes').should('have.attr', 'aria-current', 'page');
       cy.contains('h1', 'Viajes');
       cy.contains('output.admin-empty', 'Disponible pronto');
+    });
+
+    it('opens a user and deactivates a profile with a reason', () => {
+      cy.intercept('GET', '/api/admin/users?*', {
+        body: [USER_ROW],
+        headers: { 'X-Total-Count': '1', 'Access-Control-Expose-Headers': 'X-Total-Count' },
+      });
+      cy.intercept('GET', `/api/admin/users/${USER_ROW.id}`, USER_DETAIL).as('detail');
+      cy.intercept('PUT', `/api/users/${USER_ROW.id}/profiles/driver`, {}).as('profile');
+      visitWithSession('/admin/users', ['admin']);
+
+      cy.contains('a', 'Ver perfil').click();
+      cy.wait('@detail');
+      cy.contains('h1', 'Lucía Cortés');
+      cy.contains('li', 'Conductor').contains('ion-button', 'Desactivar').click();
+
+      cy.get('app-reason-confirm-modal').within(() => {
+        cy.contains('¿Desactivar el perfil de conductor?');
+        cy.contains('ion-button', 'Desactivar perfil').should('have.attr', 'disabled');
+        cy.get('ion-textarea textarea').type('Several reports on the same week');
+        cy.contains('ion-button', 'Desactivar perfil').should('not.have.attr', 'disabled');
+        cy.contains('ion-button', 'Desactivar perfil').click();
+      });
+
+      cy.wait('@profile')
+        .its('request.body')
+        .should('deep.equal', { isActive: false, reason: 'Several reports on the same week' });
+      cy.get('ion-toast')
+        .shadow()
+        .find('.toast-message')
+        .should('contain', 'Perfil de conductor desactivado.');
     });
 
     it('lists the users, filters them and keeps the filters in the URL', () => {

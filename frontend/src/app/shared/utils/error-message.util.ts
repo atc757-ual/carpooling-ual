@@ -39,6 +39,12 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   TRIP_NOT_IN_PROGRESS: 'Este viaje ya no está en curso.',
   ACCOUNT_HAS_ACTIVE_TRIPS:
     'No puedes darte de baja con viajes o reservas pendientes. Cancélalos antes de eliminar tu cuenta.',
+  // Panel de administración
+  LAST_ADMIN: 'Es el último administrador: nombra antes a otro.',
+  CANNOT_CHANGE_OWN_ADMIN: 'No puedes quitarte a ti mismo el perfil de administrador.',
+  USER_NOT_SUSPENDED: 'Este usuario ya no está suspendido.',
+  USER_NOT_FOUND: 'No encontramos este usuario.',
+  PROFILE_NOT_FOUND: 'Este usuario no tiene ese perfil.',
 };
 
 export function getErrorMessage(error: ApiError): string {

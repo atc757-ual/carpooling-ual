@@ -1,0 +1,13 @@
+// El campo del motivo ocupa todo el ancho, con el texto alineado a la izquierda
+.reason {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+  text-align: left;
+}
+
+.reason__error {
+  margin: 0;
+  color: var(--color-danger);
+}

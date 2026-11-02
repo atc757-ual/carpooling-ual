@@ -1,0 +1,39 @@
+<!-- Sin ion-content: así la ventana toma el alto de su contenido -->
+<form class="confirm" (submit)="$event.preventDefault(); handleConfirm()">
+  <ion-icon class="confirm__icon" [icon]="icon" aria-hidden="true" />
+  <h2 class="text-subtitle">{{ header }}</h2>
+  <p class="text-body-s text-color-muted">{{ message }}</p>
+
+  <div class="reason">
+    <ion-textarea
+      class="reason__field"
+      label="Motivo"
+      labelPlacement="stacked"
+      fill="outline"
+      rows="3"
+      [maxlength]="maxLength"
+      [counter]="true"
+      [value]="reason()"
+      [helperText]="'Mínimo ' + minLength + ' caracteres. Queda registrado.'"
+      (ionInput)="handleReasonInput($event)"
+    />
+    @if (errorMessage(); as error) {
+      <p class="reason__error text-body-s" role="alert">{{ error }}</p>
+    }
+  </div>
+
+  <!-- El azul (el principal) es cancelar: la acción del administrador va en
+       blanco con letras azules, como en la confirmación destructiva -->
+  <div class="confirm__actions">
+    <ion-button type="button" expand="block" (click)="handleCancel()">Cancelar</ion-button>
+    <ion-button
+      class="confirm__secondary"
+      type="submit"
+      expand="block"
+      fill="outline"
+      [disabled]="!isReasonValid() || isSaving()"
+    >
+      {{ confirmText }}
+    </ion-button>
+  </div>
+</form>

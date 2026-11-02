@@ -1,9 +1,10 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { AdminUserQuery, AdminUserRow } from '../../models/admin-user.model';
+import { AdminUserDetail, AdminUserQuery, AdminUserRow } from '../../models/admin-user.model';
 import { ApiError } from '../../models/api-error.model';
+import { Profile } from '../../models/user.model';
 
 export interface AdminUserPage {
   items: AdminUserRow[];
@@ -32,6 +33,44 @@ export class AdminUsersService {
       );
       const items = response.body ?? [];
       return { items, total: Number(response.headers.get('X-Total-Count') ?? items.length) };
+    } catch (error) {
+      throw ApiError.fromHttpError(error);
+    }
+  }
+
+  // Todo lo que ve el administrador de un usuario
+  get(userId: string): Promise<AdminUserDetail> {
+    return this.call(this.http.get<AdminUserDetail>(`${this.url}/${userId}`));
+  }
+
+  // Activa o desactiva un perfil (para admin: lo da o lo quita), con su motivo
+  async setProfileActive(
+    userId: string,
+    change: { profile: Profile; isActive: boolean; reason: string },
+  ): Promise<void> {
+    await this.call(
+      this.http.put(`${environment.apiUrl}/users/${userId}/profiles/${change.profile}`, {
+        isActive: change.isActive,
+        reason: change.reason,
+      }),
+    );
+  }
+
+  // Levanta antes de tiempo la suspensión de un papel, con su motivo
+  async liftSuspension(
+    userId: string,
+    lift: { role: 'driver' | 'passenger'; reason: string },
+  ): Promise<void> {
+    await this.call(
+      this.http.post<void>(`${this.url}/${userId}/suspensions/${lift.role}/lift`, {
+        reason: lift.reason,
+      }),
+    );
+  }
+
+  private async call<T>(request: Observable<T>): Promise<T> {
+    try {
+      return await firstValueFrom(request);
     } catch (error) {
       throw ApiError.fromHttpError(error);
     }

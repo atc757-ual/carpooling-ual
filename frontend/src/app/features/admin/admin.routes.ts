@@ -3,18 +3,10 @@ import { ADMIN_SECTIONS, AdminSection } from './admin-sections';
 
 const USERS_PATH = 'users';
 
-function usersSection(): AdminSection {
-  const section = ADMIN_SECTIONS.find(({ path }) => path === USERS_PATH);
-  if (section === undefined) {
-    throw new Error('The admin panel has no users section');
-  }
-  return section;
-}
-
 // Una sección aún sin pantalla: su título y «Disponible pronto»
-function placeholderRoute(section: AdminSection, path = section.path): Routes[number] {
+function placeholderRoute(section: AdminSection): Routes[number] {
   return {
-    path,
+    path: section.path,
     title: `${section.title} · Admin`,
     loadComponent: () => import('./admin-section.page').then((m) => m.AdminSectionPage),
     data: { section },
@@ -30,8 +22,12 @@ export const ADMIN_ROUTES: Routes = [
     title: 'Usuarios · Admin',
     loadComponent: () => import('./users/admin-users.page').then((m) => m.AdminUsersPage),
   },
-  // El detalle llega en su propio PR
-  placeholderRoute(usersSection(), `${USERS_PATH}/:id`),
+  {
+    path: `${USERS_PATH}/:id`,
+    title: 'Usuario · Admin',
+    loadComponent: () =>
+      import('./users/admin-user-detail.page').then((m) => m.AdminUserDetailPage),
+  },
   ...ADMIN_SECTIONS.filter(({ path }) => path !== USERS_PATH).map((section) =>
     placeholderRoute(section),
   ),
