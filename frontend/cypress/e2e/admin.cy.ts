@@ -55,6 +55,27 @@ const USER_DETAIL = {
   consents: null,
 };
 
+// Una incidencia abierta de GET /api/incidents
+const INCIDENT = {
+  '@type': 'Incident',
+  id: '5c1e8a52-3c1e-4f7a-9d2b-5e8c1a4f7b91',
+  href: '/api/incidents/5c1e8a52-3c1e-4f7a-9d2b-5e8c1a4f7b91',
+  trip: {
+    id: 't1',
+    href: '/api/trips/t1',
+    originName: 'Roquetas de Mar',
+    destinationName: 'Campus UAL',
+    departureAt: '2026-11-02T07:40:00.000Z',
+    driver: { id: 'd1', name: 'Javier Pardo' },
+  },
+  reporter: { id: 'p1', name: 'Lucía Cortés', role: 'passenger' },
+  category: 'driver',
+  description: 'The driver did not stop at the pickup point',
+  reportedAt: '2026-11-02T08:05:00.000Z',
+  status: 'open',
+  review: null,
+};
+
 function visitWithSession(path: string, profiles: string[]): void {
   cy.intercept('POST', '/api/auth/refresh', accessToken(profiles));
   cy.visit(path, {
@@ -127,6 +148,37 @@ for (const viewport of VIEWPORTS) {
         .shadow()
         .find('.toast-message')
         .should('contain', 'Perfil de conductor desactivado.');
+    });
+
+    it('lists the open incidents, reviews one and opens another one', () => {
+      cy.intercept('GET', '/api/incidents?offset=*', {
+        body: [INCIDENT],
+        headers: { 'X-Total-Count': '1', 'Access-Control-Expose-Headers': 'X-Total-Count' },
+      }).as('incidents');
+      cy.intercept('POST', `/api/incidents/${INCIDENT.id}/review`, {
+        ...INCIDENT,
+        status: 'reviewed',
+      }).as('review');
+      cy.intercept('GET', `/api/incidents/${INCIDENT.id}`, INCIDENT);
+      visitWithSession('/admin/incidents', ['admin']);
+
+      cy.wait('@incidents').its('request.query.status').should('eq', 'open');
+      cy.contains('.incident-card--danger', 'Con el conductor').within(() => {
+        cy.contains('Lucía Cortés (pasajero) · conductor: Javier Pardo');
+        cy.contains('ion-button', 'Marcar revisada').click();
+      });
+      cy.get('app-reason-confirm-modal').within(() => {
+        cy.get('ion-textarea textarea').type('Talked to both of them');
+        cy.contains('ion-button', 'Marcar revisada').click();
+      });
+      cy.wait('@review')
+        .its('request.body')
+        .should('deep.equal', { resolution: 'Talked to both of them' });
+
+      cy.contains('a', 'Ver detalle').click();
+      cy.location('pathname').should('eq', `/admin/incidents/${INCIDENT.id}`);
+      cy.contains('h1', 'Con el conductor');
+      cy.contains('a', 'Javier Pardo').should('have.attr', 'href', '/admin/users/d1');
     });
 
     it('lists the users, filters them and keeps the filters in the URL', () => {

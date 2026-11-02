@@ -25,9 +25,19 @@ describe('application routes', () => {
     const [entry, ...sections] = adminRoute?.children ?? [];
 
     expect(entry.redirectTo).toBe('simulation');
-    // Usuarios ya tiene pantalla, con su detalle; el resto, su marcador
+    // Usuarios e Incidencias ya tienen pantalla, con su detalle; el resto, su
+    // marcador
     expect(sections.map(({ path }) => path).sort()).toEqual(
-      ['simulation', 'digital-twin', 'users', 'users/:id', 'incidents', 'trips', 'catalogs'].sort(),
+      [
+        'simulation',
+        'digital-twin',
+        'users',
+        'users/:id',
+        'incidents',
+        'incidents/:id',
+        'trips',
+        'catalogs',
+      ].sort(),
     );
   });
 });

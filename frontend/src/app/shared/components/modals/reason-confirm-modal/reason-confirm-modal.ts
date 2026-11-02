@@ -14,6 +14,9 @@ export interface ReasonConfirmOptions {
   // La acción con el motivo; si falla, el error se ve en la ventana y no se
   // cierra, para corregir o cancelar
   action: (reason: string) => Promise<void>;
+  // Por defecto «Motivo» y 500 caracteres (p. ej. «Resolución» y 1000)
+  fieldLabel?: string;
+  maxLength?: number;
 }
 
 // Confirmación de una acción del administrador con su motivo obligatorio
@@ -31,18 +34,19 @@ export class ReasonConfirmModal {
   @Input({ required: true }) message!: string;
   @Input({ required: true }) confirmText!: string;
   @Input({ required: true }) action!: (reason: string) => Promise<void>;
+  @Input() fieldLabel = 'Motivo';
+  @Input() maxLength = REASON_MAX_LENGTH;
 
   readonly reason = signal('');
   readonly isSaving = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly reasonLength = computed(() => this.reason().trim().length);
   readonly isReasonValid = computed(
-    () => this.reasonLength() >= REASON_MIN_LENGTH && this.reasonLength() <= REASON_MAX_LENGTH,
+    () => this.reasonLength() >= REASON_MIN_LENGTH && this.reasonLength() <= this.maxLength,
   );
 
   protected readonly icon = alertCircleOutline;
   protected readonly minLength = REASON_MIN_LENGTH;
-  protected readonly maxLength = REASON_MAX_LENGTH;
 
   handleReasonInput(event: CustomEvent<{ value?: string | null }>): void {
     this.reason.set(event.detail.value ?? '');
