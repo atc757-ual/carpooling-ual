@@ -20,6 +20,8 @@ export interface MailConfig {
   transport: MailTransport;
   // Remitente, p. ej. "Carpooling UAL <no-reply@ual.es>"
   from: string;
+  // Buzón que recibe los mensajes de «Ayuda y soporte» (SUPPORT_EMAIL)
+  supportTo: string;
   smtp: SmtpSettings;
 }
 
@@ -34,6 +36,7 @@ export interface MailEnvironment {
   SMTP_SECURE?: string;
   SMTP_USER?: string;
   SMTP_PASSWORD?: string;
+  SUPPORT_EMAIL?: string;
 }
 
 // Por defecto, el Mailpit de Docker Compose
@@ -41,6 +44,8 @@ const DEFAULT_SMTP_HOST = 'localhost';
 const DEFAULT_SMTP_PORT = 1025;
 const MAX_PORT = 65535;
 const DEFAULT_FROM = 'Carpooling UAL <no-reply@carpooling-ual.local>';
+// En desarrollo llega a Mailpit como cualquier otro correo
+const DEFAULT_SUPPORT_TO = 'soporte@carpooling-ual.local';
 
 // MAIL_TRANSPORT es opcional: con los tests (Jest pone NODE_ENV=test) los
 // correos se quedan en memoria, así el CI no necesita un servidor de correo;
@@ -49,6 +54,7 @@ export function parseMailConfig(env: MailEnvironment): MailConfig {
   return {
     transport: parseTransport(env.MAIL_TRANSPORT, env.NODE_ENV),
     from: env.MAIL_FROM || DEFAULT_FROM,
+    supportTo: env.SUPPORT_EMAIL || DEFAULT_SUPPORT_TO,
     smtp: {
       host: env.SMTP_HOST || DEFAULT_SMTP_HOST,
       port: parseSmtpPort(env.SMTP_PORT),

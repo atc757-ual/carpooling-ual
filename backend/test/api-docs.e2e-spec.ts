@@ -116,6 +116,7 @@ describe('API docs (e2e)', () => {
       '/api/requests/{id}/cancel',
       '/api/requests/{id}/no-show',
       '/api/requests/{id}/reject',
+      '/api/support/messages',
       '/api/trips',
       '/api/trips/search',
       '/api/trips/{id}',

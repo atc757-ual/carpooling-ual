@@ -1,5 +1,5 @@
 import type { MailMessage } from '../../../shared/mail/mail-sender';
-import { escapeHtml } from './escape-html';
+import { escapeHtml } from '../../../shared/mail/escape-html';
 import type { VerificationCodeMail } from './verification-code.mail';
 
 // Correo con el código de 6 cifras para confirmar la eliminación de la cuenta

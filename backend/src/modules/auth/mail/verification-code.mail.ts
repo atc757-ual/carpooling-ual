@@ -1,5 +1,5 @@
 import type { MailMessage } from '../../../shared/mail/mail-sender';
-import { escapeHtml } from './escape-html';
+import { escapeHtml } from '../../../shared/mail/escape-html';
 
 export interface VerificationCodeMail {
   to: string;

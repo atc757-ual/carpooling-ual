@@ -1,5 +1,5 @@
 import type { MailMessage } from '../../../shared/mail/mail-sender';
-import { escapeHtml } from './escape-html';
+import { escapeHtml } from '../../../shared/mail/escape-html';
 import type { VerificationCodeMail } from './verification-code.mail';
 
 // Correo con el código para cambiar la contraseña. Mismo formato que el de

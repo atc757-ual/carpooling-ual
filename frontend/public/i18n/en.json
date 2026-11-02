@@ -116,7 +116,7 @@
       "help": "Help & support",
       "deleteAccount": "Delete account",
       "deleteAccountDesc": "Your account and personal data will be permanently deleted",
-      "helpDesc": "Send a support request form to our support team"
+      "helpDesc": "Write to us and we'll reply by email."
     },
     "passwordModal": {
       "title": "Change password",
@@ -157,6 +157,23 @@
       "resend": "Resend code",
       "resendIn": "Resend code in {{time}}",
       "newCode": "Send a new code"
+    },
+    "supportModal": {
+      "title": "Help and support",
+      "intro": "Tell us what happened and we'll reply by email.",
+      "topicLabel": "What's it about?",
+      "topics": {
+        "trip": "A trip",
+        "account": "My account",
+        "bug": "An app error",
+        "suggestion": "Suggestion",
+        "other": "Other"
+      },
+      "messageLabel": "Your message",
+      "messagePlaceholder": "Describe the problem or your idea in as much detail as you can.",
+      "messageError": "Write 20 to 1000 characters.",
+      "send": "Send message",
+      "sent": "We've received your message. We'll reply by email."
     }
   },
   "auth": {

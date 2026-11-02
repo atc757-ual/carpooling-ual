@@ -5,6 +5,7 @@ describe('parseMailConfig', () => {
     expect(parseMailConfig({ NODE_ENV: 'development' })).toEqual({
       transport: 'smtp',
       from: 'Carpooling UAL <no-reply@carpooling-ual.local>',
+      supportTo: 'soporte@carpooling-ual.local',
       smtp: { host: 'localhost', port: 1025, secure: false, auth: null },
     });
   });
@@ -24,10 +25,12 @@ describe('parseMailConfig', () => {
         SMTP_SECURE: 'true',
         SMTP_USER: 'carpooling',
         SMTP_PASSWORD: 'test-only-password',
+        SUPPORT_EMAIL: 'soporte@ual.es',
       }),
     ).toEqual({
       transport: 'smtp',
       from: 'Carpooling UAL <no-reply@ual.es>',
+      supportTo: 'soporte@ual.es',
       smtp: {
         host: 'smtp.ual.es',
         port: 465,

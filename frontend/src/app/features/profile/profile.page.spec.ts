@@ -14,6 +14,7 @@ import { UsersService } from '../../core/services/users/users.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { ThemeService } from '../../core/services/ui/theme.service';
 import { ProfilePage } from './profile.page';
+import { ProfileSupportModal } from './profile-support-modal/profile-support-modal';
 
 describe('ProfilePage', () => {
   const logout = vi.fn().mockResolvedValue(undefined);
@@ -248,8 +249,17 @@ describe('ProfilePage', () => {
     expect(present).toHaveBeenCalled();
   });
 
-  it('triggers support action', () => {
+  it('opens the support form', async () => {
     const { page } = render();
-    expect(() => page.handleOpenSupport()).not.toThrow();
+    const present = vi.fn().mockResolvedValue(undefined);
+    const create = vi
+      .spyOn(TestBed.inject(ModalController), 'create')
+      .mockResolvedValue({ present } as unknown as HTMLIonModalElement);
+
+    await page.handleOpenSupport();
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({ component: ProfileSupportModal, cssClass: 'info-dialog' }),
+    );
+    expect(present).toHaveBeenCalled();
   });
 });

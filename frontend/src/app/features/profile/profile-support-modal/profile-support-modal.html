@@ -1,0 +1,67 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>{{ 'profile.supportModal.title' | transloco }}</ion-title>
+    <ion-buttons slot="end">
+      <button
+        type="button"
+        class="modal-close-button"
+        (click)="close()"
+        [attr.aria-label]="'common.close' | transloco"
+      >
+        <ion-icon [icon]="closeIcon" aria-hidden="true" />
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<form class="profile-support-modal" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+  @if (errorMessage()) {
+    <div class="notice notice--danger profile-support-modal__notice" role="alert">
+      <ion-icon [icon]="alertIcon" aria-hidden="true" />
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <div class="notice notice--info profile-support-modal__notice">
+    <ion-icon [icon]="infoIcon" aria-hidden="true" />
+    <span>{{ 'profile.supportModal.intro' | transloco }}</span>
+  </div>
+
+  <!-- Motivo: pastillas de un toque (botones de opción nativos, con teclado) -->
+  <fieldset class="profile-support-modal__topics">
+    <legend class="text-label text-label--strong">
+      {{ 'profile.supportModal.topicLabel' | transloco }}
+    </legend>
+    <div class="profile-support-modal__options">
+      @for (topic of topics; track topic) {
+        <label class="profile-support-modal__option">
+          <input type="radio" formControlName="topic" [value]="topic" />
+          {{ 'profile.supportModal.topics.' + topic | transloco }}
+        </label>
+      }
+    </div>
+  </fieldset>
+
+  <div class="profile-support-modal__field">
+    <span id="support-message-label" class="text-label text-label--strong">
+      {{ 'profile.supportModal.messageLabel' | transloco }}
+    </span>
+    <ion-textarea
+      formControlName="message"
+      fill="outline"
+      rows="5"
+      [maxlength]="maxLength"
+      [counter]="true"
+      aria-labelledby="support-message-label"
+      [placeholder]="'profile.supportModal.messagePlaceholder' | transloco"
+      [errorText]="'profile.supportModal.messageError' | transloco"
+    />
+  </div>
+
+  <ion-button type="submit" expand="block" [disabled]="form.invalid || isSending()">
+    @if (isSending()) {
+      <ion-spinner name="crescent" slot="start" aria-hidden="true" />
+    }
+    {{ 'profile.supportModal.send' | transloco }}
+  </ion-button>
+</form>

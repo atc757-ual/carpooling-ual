@@ -116,7 +116,7 @@
       "help": "Ayuda y soporte",
       "deleteAccount": "Eliminar cuenta",
       "deleteAccountDesc": "Se eliminará tu cuenta y tus datos personales definitivamente",
-      "helpDesc": "Enviar un formulario de atención al email de soporte"
+      "helpDesc": "Escríbenos y te responderemos por correo."
     },
     "passwordModal": {
       "title": "Cambiar contraseña",
@@ -157,6 +157,23 @@
       "resend": "Reenviar código",
       "resendIn": "Reenviar código en {{time}}",
       "newCode": "Enviar un código nuevo"
+    },
+    "supportModal": {
+      "title": "Ayuda y soporte",
+      "intro": "Cuéntanos qué ha pasado y te responderemos por correo.",
+      "topicLabel": "¿Sobre qué es?",
+      "topics": {
+        "trip": "Un viaje",
+        "account": "Mi cuenta",
+        "bug": "Un error de la app",
+        "suggestion": "Sugerencia",
+        "other": "Otro"
+      },
+      "messageLabel": "Tu mensaje",
+      "messagePlaceholder": "Describe el problema o tu idea con el detalle que puedas.",
+      "messageError": "Escribe entre 20 y 1000 caracteres.",
+      "send": "Enviar mensaje",
+      "sent": "Hemos recibido tu mensaje. Te responderemos por correo."
     }
   },
   "auth": {
