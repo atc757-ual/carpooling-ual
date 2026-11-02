@@ -15,8 +15,7 @@ export function createCountdown(
   destroyRef: DestroyRef,
   initialSeconds?: number,
 ): Countdown {
-  const startVal = initialSeconds !== undefined ? initialSeconds : totalSeconds;
-  const seconds = signal(startVal);
+  const seconds = signal(initialSeconds ?? totalSeconds);
   let timer: ReturnType<typeof setInterval> | undefined;
 
   const stop = (): void => clearInterval(timer);
