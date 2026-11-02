@@ -79,7 +79,8 @@ export class PlacesService {
     return { ...place, id: toId(ref), isCovered };
   }
 
-  private async isCovered({ lon, lat }: GeoPoint): Promise<boolean> {
+  // Si el punto está dentro de alguna zona de servicio activa
+  async isCovered({ lon, lat }: GeoPoint): Promise<boolean> {
     const [row] = await this.dataSource.query<{ covered: boolean }[]>(
       `SELECT EXISTS (
          SELECT 1 FROM service_areas

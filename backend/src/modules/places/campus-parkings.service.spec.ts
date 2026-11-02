@@ -1,11 +1,14 @@
 import { jest } from '@jest/globals';
-import type { Repository } from 'typeorm';
+import type { DataSource, Repository } from 'typeorm';
+import type { EventsService } from '../../events/events.service';
 import { CampusParkingsService } from './campus-parkings.service';
 import { CampusParking } from './entities/campus-parking.entity';
 import { CampusParkingNotFoundError } from './errors/campus-parking-not-found.error';
+import type { PlacesService } from './places.service';
 
 const P1: CampusParking = {
   id: 'p1',
+  entityId: '0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90',
   name: 'Parking P1',
   location: { type: 'Point', coordinates: [-2.4045, 36.8322] },
   isActive: true,
@@ -15,10 +18,15 @@ const P1: CampusParking = {
 describe('CampusParkingsService', () => {
   const findAndCount = jest.fn<Repository<CampusParking>['findAndCount']>();
   const findOneBy = jest.fn<Repository<CampusParking>['findOneBy']>();
-  const service = new CampusParkingsService({
-    findAndCount,
-    findOneBy,
-  } as unknown as Repository<CampusParking>);
+  const service = new CampusParkingsService(
+    {
+      findAndCount,
+      findOneBy,
+    } as unknown as Repository<CampusParking>,
+    {} as DataSource,
+    {} as PlacesService,
+    {} as EventsService,
+  );
 
   beforeEach(() => jest.clearAllMocks());
 

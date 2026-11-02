@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { EventsModule } from '../../events/events.module';
 import { IncidentsModule } from '../incidents/incidents.module';
+import { PlacesModule } from '../places/places.module';
 import { RequestsModule } from '../requests/requests.module';
 import { TripsModule } from '../trips/trips.module';
 import { UsersModule } from '../users/users.module';
 import { AdminOverviewController } from './admin-overview.controller';
+import { AdminParkingsController } from './admin-parkings.controller';
+import { AdminParkingsService } from './admin-parkings.service';
 import { AdminTripsController } from './admin-trips.controller';
 import { AdminTripsService } from './admin-trips.service';
 import { AdminUsersController } from './admin-users.controller';
@@ -21,12 +24,19 @@ import { AdminUsersService } from './admin-users.service';
     RequestsModule,
     IncidentsModule,
     EventsModule,
+    PlacesModule,
   ],
   controllers: [
     AdminUsersController,
     AdminOverviewController,
     AdminTripsController,
+    AdminParkingsController,
   ],
-  providers: [AdminUsersService, AdminUserDetailService, AdminTripsService],
+  providers: [
+    AdminUsersService,
+    AdminUserDetailService,
+    AdminTripsService,
+    AdminParkingsService,
+  ],
 })
 export class AdminModule {}
