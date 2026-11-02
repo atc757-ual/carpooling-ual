@@ -1,0 +1,183 @@
+<ion-button class="detail__back" fill="clear" (click)="handleBack()">
+  <ion-icon slot="start" [icon]="backIcon" aria-hidden="true" />
+  Usuarios
+</ion-button>
+
+@if (user(); as user) {
+  <header class="detail__header">
+    <span class="detail__avatar" aria-hidden="true">{{ text.initialsOf(user.name) }}</span>
+    <div class="detail__identity">
+      <h1 class="text-heading">{{ user.name }}</h1>
+      <p class="text-body detail__muted">
+        {{ user.email }}
+        @if (user.phone) {
+          · {{ user.phone }} {{ user.isPhoneVerified ? '(verificado)' : '(sin verificar)' }}
+        }
+      </p>
+      <p class="text-body-s detail__muted">Alta: {{ text.formatDate(user.createdAt) }}</p>
+      <span class="detail__chips">
+        @for (chip of chips(); track chip.label) {
+          <span [class]="'status detail__chip--' + chip.tone">{{ chip.label }}</span>
+        }
+      </span>
+    </div>
+  </header>
+
+  <div class="detail__grid">
+    <!-- Perfiles: cada acción pide confirmación y motivo -->
+    <section class="detail__card" aria-labelledby="detail-profiles">
+      <h2 id="detail-profiles" class="text-title">Perfiles</h2>
+      <ul class="detail__list">
+        @for (row of profiles(); track row.profile) {
+          <li class="detail__row">
+            <span>
+              <b>{{ row.label }}</b>
+              <span class="detail__muted">
+                · {{ row.isActive ? 'Activo' : row.hasProfile ? 'Desactivado' : 'No lo tiene' }}
+                @if (row.rating) {
+                  · {{ row.rating }}
+                }
+              </span>
+            </span>
+            <ion-button size="small" fill="outline" (click)="handleProfile(row)">
+              {{ row.actionText }}
+            </ion-button>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <!-- Suspensión y cancelaciones tardías de los últimos 30 días -->
+    <section class="detail__card" aria-labelledby="detail-suspension">
+      <h2 id="detail-suspension" class="text-title">Suspensión</h2>
+      @for (suspension of suspensions(); track suspension.role) {
+        <div class="notice notice--warning detail__row">
+          <span
+            >Suspendido como {{ roleLabels[suspension.role] }} hasta el {{ suspension.until }}</span
+          >
+          <ion-button size="small" fill="outline" (click)="handleLiftSuspension(suspension.role)">
+            Levantar suspensión
+          </ion-button>
+        </div>
+      } @empty {
+        <p class="text-body-s detail__muted">No tiene ninguna suspensión en curso.</p>
+      }
+      <h3 class="text-label detail__subheading">Cancelaciones tardías (30 días)</h3>
+      <ul class="detail__list">
+        @for (cancellation of user.lateCancellations; track cancellation.cancelledAt) {
+          <li class="text-body-s">
+            {{ text.formatDateTime(cancellation.cancelledAt) }} · como
+            {{ roleLabels[cancellation.role] }}
+            @if (cancellation.waivedAt) {
+              <span class="detail__muted">· perdonada</span>
+            }
+          </li>
+        } @empty {
+          <li class="text-body-s detail__muted">Ninguna.</li>
+        }
+      </ul>
+    </section>
+
+    <section class="detail__card" aria-labelledby="detail-vehicles">
+      <h2 id="detail-vehicles" class="text-title">Vehículos</h2>
+      <ul class="detail__list">
+        @for (vehicle of user.vehicles; track vehicle.id) {
+          <li class="text-body-s">
+            <b>{{ vehicle.brand ?? 'Vehículo' }} {{ vehicle.model ?? '' }}</b> ·
+            {{ vehicle.plate }} · {{ vehicle.capacity }} plazas
+          </li>
+        } @empty {
+          <li class="text-body-s detail__muted">Sin vehículos.</li>
+        }
+      </ul>
+    </section>
+
+    <section class="detail__card" aria-labelledby="detail-incidents">
+      <h2 id="detail-incidents" class="text-title">Incidencias</h2>
+      <ul class="detail__list">
+        @for (incident of user.incidents; track incident.id) {
+          <li class="text-body-s">
+            {{ text.incidentLabel(incident) }} ·
+            {{ incident.role === 'reporter' ? 'la registró' : 'era el conductor' }} ·
+            {{ text.formatDateTime(incident.reportedAt) }}
+          </li>
+        } @empty {
+          <li class="text-body-s detail__muted">Sin incidencias.</li>
+        }
+      </ul>
+    </section>
+
+    <section class="detail__card" aria-labelledby="detail-trips">
+      <h2 id="detail-trips" class="text-title">Últimos viajes como conductor</h2>
+      <ul class="detail__list">
+        @for (trip of user.trips; track trip.id) {
+          <li class="text-body-s">
+            {{ text.formatDateTime(trip.departureAt) }} · {{ text.tripRoute(trip) }} ·
+            {{ text.tripStatusLabel(trip.status) }}
+          </li>
+        } @empty {
+          <li class="text-body-s detail__muted">No ha publicado viajes.</li>
+        }
+      </ul>
+    </section>
+
+    <section class="detail__card" aria-labelledby="detail-requests">
+      <h2 id="detail-requests" class="text-title">Últimas solicitudes como pasajero</h2>
+      <ul class="detail__list">
+        @for (request of user.requests; track request.id) {
+          <li class="text-body-s">
+            {{ text.formatDateTime(request.requestedAt) }} ·
+            {{ request.trip ? text.tripRoute(request.trip) : 'Viaje' }} ·
+            {{ text.requestStatusLabel(request.status) }}
+          </li>
+        } @empty {
+          <li class="text-body-s detail__muted">No ha pedido plaza.</li>
+        }
+      </ul>
+    </section>
+
+    <!-- Consentimientos: solo de lectura -->
+    <section class="detail__card detail__card--wide" aria-labelledby="detail-consents">
+      <h2 id="detail-consents" class="text-title">Consentimientos</h2>
+      <ul class="detail__list">
+        @for (record of user.consents?.history ?? []; track record.id) {
+          <li class="text-body-s">
+            {{ text.consentLabel(record) }} · v{{ record.documentVersion }} ·
+            {{ text.formatDateTime(record.recordedAt) }}
+            <span class="detail__muted">· {{ record.fingerprint.slice(0, 12) }}</span>
+          </li>
+        } @empty {
+          <li class="text-body-s detail__muted">
+            {{ user.consents ? 'Sin registros.' : 'La cuenta está eliminada.' }}
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+} @else if (errorMessage(); as message) {
+  <div class="notice notice--danger detail__state" role="alert">
+    <span>
+      <b>{{
+        isNotFound() ? 'No encontramos este usuario.' : 'No hemos podido cargar el usuario.'
+      }}</b>
+      @if (!isNotFound()) {
+        {{ message }}
+      }
+    </span>
+    @if (isNotFound()) {
+      <ion-button fill="outline" size="small" [routerLink]="usersPath">Ver la lista</ion-button>
+    } @else {
+      <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
+    }
+  </div>
+} @else {
+  <div class="detail__grid" aria-busy="true" aria-label="Cargando el usuario">
+    @for (card of [1, 2, 3, 4]; track card) {
+      <div class="detail__card">
+        <ion-skeleton-text [animated]="true" class="detail__skeleton-title" />
+        <ion-skeleton-text [animated]="true" />
+        <ion-skeleton-text [animated]="true" />
+      </div>
+    }
+  </div>
+}

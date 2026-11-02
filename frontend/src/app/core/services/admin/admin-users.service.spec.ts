@@ -38,4 +38,27 @@ describe('AdminUsersService', () => {
       .flush({ code: 'PROFILE_REQUIRED' }, { status: 403, statusText: 'Forbidden' });
     await expect(failing).rejects.toBeInstanceOf(ApiError);
   });
+
+  it('gets a user and runs the admin actions with their reason', async () => {
+    const detail = adminUsers.get('u1');
+    http.expectOne('/api/admin/users/u1').flush({ id: 'u1' });
+    expect(await detail).toEqual({ id: 'u1' });
+
+    const change = adminUsers.setProfileActive('u1', {
+      profile: 'driver',
+      isActive: false,
+      reason: 'Reported twice',
+    });
+    const put = http.expectOne('/api/users/u1/profiles/driver');
+    expect(put.request.method).toBe('PUT');
+    expect(put.request.body).toEqual({ isActive: false, reason: 'Reported twice' });
+    put.flush({});
+    await change;
+
+    const lift = adminUsers.liftSuspension('u1', { role: 'passenger', reason: 'Strike day' });
+    const post = http.expectOne('/api/admin/users/u1/suspensions/passenger/lift');
+    expect(post.request.body).toEqual({ reason: 'Strike day' });
+    post.flush(null, { status: 409, statusText: 'Conflict' });
+    await expect(lift).rejects.toBeInstanceOf(ApiError);
+  });
 });

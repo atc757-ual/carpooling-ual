@@ -1,0 +1,126 @@
+.detail__back {
+  margin-inline-start: calc(-1 * var(--space-s));
+  margin-block-end: var(--space-s);
+}
+
+.detail__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-base);
+  margin-block-end: var(--space-l);
+}
+
+// Iniciales en un círculo con el color del panel
+.detail__avatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem; // 56px
+  height: 3.5rem;
+  border-radius: 50%;
+  background: var(--color-admin);
+  color: var(--color-on-admin);
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem; // 20px
+  font-weight: var(--font-weight-bold);
+}
+
+.detail__identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+
+  p {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.detail__muted {
+  color: var(--color-text-muted);
+}
+
+.detail__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.detail__chip--success {
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+}
+
+.detail__chip--info {
+  background: var(--color-info-subtle);
+  color: var(--color-info);
+}
+
+.detail__chip--warning {
+  background: var(--color-warning-subtle);
+  color: var(--color-warning);
+}
+
+// Tarjetas en dos columnas desde 768px; una en el móvil
+.detail__grid {
+  display: grid;
+  gap: var(--space-base);
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.detail__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-base);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+
+  h2,
+  h3 {
+    margin: 0;
+  }
+}
+
+.detail__card--wide {
+  @media (min-width: 768px) {
+    grid-column: 1 / -1;
+  }
+}
+
+.detail__subheading {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+.detail__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.detail__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.detail__state {
+  margin-block-start: var(--space-base);
+}
+
+.detail__skeleton-title {
+  width: 40%;
+  height: 1.25rem; // 20px
+}
