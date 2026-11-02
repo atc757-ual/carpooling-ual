@@ -18,6 +18,7 @@ const STATUS_BY_KIND: Record<BusinessErrorKind, HttpStatus> = {
   forbidden: HttpStatus.FORBIDDEN,
   not_found: HttpStatus.NOT_FOUND,
   conflict: HttpStatus.CONFLICT,
+  unprocessable: HttpStatus.UNPROCESSABLE_ENTITY,
   too_many_requests: HttpStatus.TOO_MANY_REQUESTS,
   unavailable: HttpStatus.SERVICE_UNAVAILABLE,
 };

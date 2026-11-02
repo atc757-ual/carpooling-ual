@@ -4,7 +4,7 @@ import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import type { Point } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { EMPTY_TRAVEL_PREFERENCES } from '../users/travel-preferences';
-import type { AvatarKey, TravelPreferences } from '../users/travel-preferences';
+import type { TravelPreferences } from '../users/travel-preferences';
 import { UsersService } from '../users/users.service';
 import { VehiclesService } from '../users/vehicles.service';
 import type { VehicleRecognitionDetails } from '../users/vehicles.service';
@@ -58,7 +58,7 @@ export type TripChanges = Partial<TripInput>;
 export interface TripView {
   trip: Trip;
   driverName: string;
-  driverAvatarKey: AvatarKey | null;
+  driverAvatarKey: string | null;
   driverPreferences: TravelPreferences;
   driverTripCount: number;
   driverRating: number | null;

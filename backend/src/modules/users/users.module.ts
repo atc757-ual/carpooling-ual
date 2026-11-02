@@ -3,7 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditModule } from '../../audit/audit.module';
 import { EventsModule } from '../../events/events.module';
 import { CatalogsModule } from '../catalogs/catalogs.module';
-import { AvatarsController } from './avatars.controller';
+import {
+  AdminAvatarsController,
+  AdminAvatarUploadsController,
+  AvatarsController,
+} from './avatars.controller';
 import { AvatarsService } from './avatars.service';
 import { ConsentsService } from './consents.service';
 import { AdminProfile } from './entities/admin-profile.entity';
@@ -36,7 +40,13 @@ import { VehiclesService } from './vehicles.service';
     EventsModule,
     AuditModule,
   ],
-  controllers: [UsersController, VehiclesController, AvatarsController],
+  controllers: [
+    UsersController,
+    VehiclesController,
+    AvatarsController,
+    AdminAvatarsController,
+    AdminAvatarUploadsController,
+  ],
   providers: [
     UsersService,
     VehiclesService,

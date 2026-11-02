@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { tripHref } from '../../trips/dto/trip.resource';
-import { AVATAR_KEYS, type AvatarKey } from '../../users/travel-preferences';
 import {
   REVIEW_TARGET_ROLES,
   type ReviewTargetRole,
@@ -38,8 +37,8 @@ export class PendingReviewTargetResource {
   @ApiProperty({ example: 'Mario Pasajero' })
   name: string;
 
-  @ApiProperty({ enum: AVATAR_KEYS, nullable: true, example: 'headphones' })
-  avatarKey: AvatarKey | null;
+  @ApiProperty({ type: String, nullable: true, example: 'headphones' })
+  avatarKey: string | null;
 
   @ApiProperty({ enum: REVIEW_TARGET_ROLES, example: 'passenger' })
   role: ReviewTargetRole;

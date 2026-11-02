@@ -16,7 +16,6 @@ import { RequestsService } from '../requests/requests.service';
 import type { Trip } from '../trips/entities/trip.entity';
 import { TripStatusService } from '../trips/trip-status.service';
 import { TripsService } from '../trips/trips.service';
-import type { AvatarKey } from '../users/travel-preferences';
 import { UsersService } from '../users/users.service';
 import {
   Review,
@@ -44,7 +43,7 @@ export interface ListReviewsFilter {
 export interface ReviewParticipantSummary {
   id: string;
   name: string;
-  avatarKey: AvatarKey | null;
+  avatarKey: string | null;
 }
 
 export interface ReviewView {

@@ -584,7 +584,7 @@ describe('Users API (e2e)', () => {
       [{ name: 'Ana 2' }],
       [{ phone: '123' }],
       [{ email: 'otra@ual.es' }],
-      [{ avatarKey: 'dragon' }],
+      [{ avatarKey: 42 }],
       [{ bio: 'Demasiado corto' }],
       [{ bio: 'a'.repeat(201) }],
       [{ preferences: { conversation: 'loud' } }],
@@ -595,6 +595,18 @@ describe('Users API (e2e)', () => {
       const response = await updateMe(body, ana.accessToken).expect(400);
 
       expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+    });
+
+    // Las claves salen de la tabla avatars, no de una lista fija
+    it('rejects an avatar that is not in the catalog (404)', async () => {
+      const ana = await createUser('ana');
+
+      const response = await updateMe(
+        { avatarKey: 'dragon' },
+        ana.accessToken,
+      ).expect(404);
+
+      expect(response.body).toMatchObject({ code: 'AVATAR_NOT_FOUND' });
     });
   });
 

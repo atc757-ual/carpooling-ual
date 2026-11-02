@@ -5,7 +5,6 @@ import {
   REGISTRABLE_PROFILES,
   RegistrableProfile,
 } from '../profile-type';
-import { AVATAR_KEYS, type AvatarKey } from '../travel-preferences';
 import { UserSummary } from '../user-summary';
 import { TravelPreferencesResource } from './travel-preferences.resource';
 
@@ -96,13 +95,13 @@ export class UserResource {
   timeToleranceMin: number;
 
   @ApiProperty({
-    enum: AVATAR_KEYS,
+    type: String,
     nullable: true,
     description:
       'Chosen avatar from the platform catalogue; null shows initials',
     example: 'sun',
   })
-  avatarKey: AvatarKey | null;
+  avatarKey: string | null;
 
   @ApiProperty({
     type: String,

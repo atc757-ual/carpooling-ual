@@ -1,5 +1,5 @@
 import { ProfileType, RegistrableProfile } from './profile-type';
-import { AvatarKey, TravelPreferences } from './travel-preferences';
+import { TravelPreferences } from './travel-preferences';
 
 // La media por rol solo se muestra a partir de 3 reseñas publicadas; con menos
 // se indica «Nuevo conductor» o «Nuevo pasajero» (RF-22)
@@ -49,7 +49,7 @@ export function toUserRatingsSummary(user: {
 export interface PublicUserProfile {
   id: string;
   name: string;
-  avatarKey: AvatarKey | null;
+  avatarKey: string | null;
   preferences: TravelPreferences;
   driverRating: number | null;
 }
@@ -68,7 +68,7 @@ export interface UserSummary {
   activeMode: RegistrableProfile | null;
   // Margen horario por defecto de sus búsquedas, en minutos
   timeToleranceMin: number;
-  avatarKey: AvatarKey | null;
+  avatarKey: string | null;
   bio: string | null;
   preferences: TravelPreferences;
   ratings: UserRatingsSummary;

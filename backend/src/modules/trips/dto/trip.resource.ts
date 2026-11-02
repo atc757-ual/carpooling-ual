@@ -3,7 +3,6 @@ import type { Point } from 'typeorm';
 import { API_PREFIX } from '../../../app.setup';
 import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
 import { TravelPreferencesResource } from '../../users/dto/travel-preferences.resource';
-import { AVATAR_KEYS, type AvatarKey } from '../../users/travel-preferences';
 import type { VehicleRecognitionDetails } from '../../users/vehicles.service';
 import { TripView } from '../trips.service';
 import { TRIP_STATUSES } from '../trip-status';
@@ -16,8 +15,8 @@ export class TripDriverResource {
   @ApiProperty({ example: 'Lucía Martínez' })
   name: string;
 
-  @ApiProperty({ enum: AVATAR_KEYS, nullable: true, example: 'sun' })
-  avatarKey: AvatarKey | null;
+  @ApiProperty({ type: String, nullable: true, example: 'sun' })
+  avatarKey: string | null;
 
   @ApiProperty({ type: TravelPreferencesResource })
   preferences: TravelPreferencesResource;

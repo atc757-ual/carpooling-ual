@@ -1,13 +1,15 @@
 // Tipo de fallo en lenguaje de negocio (no HTTP). El filtro TMF630 de la capa
 // API lo traduce al status HTTP: invalid → 400, unauthorized → 401,
-// forbidden → 403, not_found → 404, conflict → 409, too_many_requests → 429,
-// unavailable → 503 (un servicio externo del que dependemos no responde)
+// forbidden → 403, not_found → 404, conflict → 409, unprocessable → 422 (bien
+// formado pero no se puede usar, p. ej. una imagen que no cumple),
+// too_many_requests → 429, unavailable → 503 (un servicio externo del que dependemos no responde)
 export type BusinessErrorKind =
   | 'invalid'
   | 'unauthorized'
   | 'forbidden'
   | 'not_found'
   | 'conflict'
+  | 'unprocessable'
   | 'too_many_requests'
   | 'unavailable';
 

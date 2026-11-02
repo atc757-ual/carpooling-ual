@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { tripHref } from '../../trips/dto/trip.resource';
-import { AVATAR_KEYS, type AvatarKey } from '../../users/travel-preferences';
 import {
   MAX_REVIEW_COMMENT_LENGTH,
   REVIEW_TARGET_ROLES,
@@ -36,8 +35,8 @@ export class ReviewParticipantResource {
   @ApiProperty({ example: 'Lucía Conductora' })
   name: string;
 
-  @ApiProperty({ enum: AVATAR_KEYS, nullable: true, example: 'sun' })
-  avatarKey: AvatarKey | null;
+  @ApiProperty({ type: String, nullable: true, example: 'sun' })
+  avatarKey: string | null;
 }
 
 // Recurso TMF630 Review (RF-22)
