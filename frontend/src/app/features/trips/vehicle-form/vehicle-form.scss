@@ -57,8 +57,7 @@
   }
 }
 
-// Los colores: pastillas de 40px que bajan de línea; los motores, tres a
-// partes iguales
+// Los colores y los motores: círculos de 36px que bajan de línea
 .vehicle-form__colors {
   display: flex;
   flex-wrap: wrap;
@@ -66,27 +65,24 @@
 }
 
 .vehicle-form__engines {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-s);
 }
 
-// Cada opción: el botón de opción nativo, oculto pero accesible, y la pastilla
-// con borde gris; la elegida, en azul claro con el borde azul
-.vehicle-form__color,
+// Cada motor: un círculo de 36px con su icono y el radio nativo encima
+// (oculto pero accesible); el elegido, en azul claro con un anillo azul
 .vehicle-form__engine {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-s);
-  min-height: var(--control-height-s);
-  padding: 0 var(--space-base);
-  border: var(--border-width-s) solid var(--color-border);
+  width: 2.25rem; // 36px
+  height: 2.25rem;
+  border: var(--border-width-s) solid var(--color-border-strong);
   border-radius: var(--radius-full);
   background: var(--color-surface);
   color: var(--color-text);
-  font-size: var(--font-size-body-s);
   cursor: pointer;
 
   input {
@@ -99,9 +95,10 @@
 
   &:has(input:checked) {
     border-color: var(--color-link);
+    outline: var(--border-width-m) solid var(--color-link);
+    outline-offset: 0.125rem; // 2px
     background: var(--color-primary-subtle);
     color: var(--color-link);
-    font-weight: var(--font-weight-semibold);
   }
 
   &:has(input:focus-visible) {
@@ -114,10 +111,119 @@
   }
 }
 
-.vehicle-form__swatch {
-  width: 1rem;
-  height: 1rem;
+// Cada color: un círculo de 36px con su color y el radio nativo encima
+// (oculto pero accesible); el elegido, con un anillo azul y un ✓
+.vehicle-form__color {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem; // 36px
+  height: 2.25rem;
   border: var(--border-width-s) solid var(--color-border-strong);
   border-radius: var(--radius-full);
   background: var(--swatch-color);
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  &:has(input:checked) {
+    outline: var(--border-width-m) solid var(--color-link);
+    outline-offset: 0.125rem; // 2px
+  }
+
+  &:has(input:focus-visible) {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+}
+
+// El ✓ del elegido: blanco con una sombra oscura, se ve sobre cualquier color
+.vehicle-form__color-check {
+  display: none;
+  color: #fff;
+  font-size: 1.125rem; // 18px
+  filter: drop-shadow(0 0 1px rgb(0 0 0 / 80%));
+  pointer-events: none;
+
+  .vehicle-form__color:has(input:checked) & {
+    display: block;
+  }
+}
+
+.vehicle-form__choice-name {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+// Al editar: el nombre y la placa en una fila de solo lectura, con una línea
+// debajo que la separa de lo editable
+.vehicle-form__summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-bottom: var(--space-base);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+}
+
+.vehicle-form__summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.vehicle-form__summary-name {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Motor, matrícula y asientos por áreas. Al registrar: el motor en su fila y
+// debajo la matrícula y los asientos (apilados si la pantalla es muy
+// estrecha). Al editar: los asientos debajo del motor. Los asientos ocupan
+// siempre la mitad del ancho
+.vehicle-form__grid {
+  display: grid;
+  grid-template-areas:
+    'engine engine'
+    'plate seats';
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-base);
+  align-items: start;
+}
+
+.vehicle-form__grid--edit {
+  grid-template-areas:
+    'engine engine'
+    'seats .';
+}
+
+.vehicle-form__area-engine {
+  grid-area: engine;
+}
+
+.vehicle-form__area-plate {
+  grid-area: plate;
+}
+
+.vehicle-form__area-seats {
+  grid-area: seats;
+}
+
+@media (max-width: 359px) {
+  .vehicle-form__grid:not(.vehicle-form__grid--edit) {
+    grid-template-areas:
+      'engine engine'
+      'plate plate'
+      'seats .';
+  }
 }

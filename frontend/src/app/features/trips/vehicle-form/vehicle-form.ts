@@ -2,7 +2,12 @@ import { Component, computed, effect, inject, input, output, signal } from '@ang
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonButton, IonIcon, IonInput, IonSpinner } from '@ionic/angular';
-import { ellipsisHorizontalCircleOutline, flashOutline, leafOutline } from 'ionicons/icons';
+import {
+  checkmark,
+  ellipsisHorizontalCircleOutline,
+  flashOutline,
+  leafOutline,
+} from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { Vehicle, VehicleColor, VehicleEngine } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
@@ -10,6 +15,8 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { BrandField } from '../../../shared/components/ui/brand-field/brand-field';
+import { LicensePlate } from '../../../shared/components/ui/license-plate/license-plate';
+import { formatPlate, vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 
 // Matrícula española actual (1234BCD; se admiten espacio y guion al escribirla)
@@ -35,6 +42,7 @@ const DEFAULT_TOTAL_SEATS = 5;
     IonicFormStatus,
     SeatStepper,
     BrandField,
+    LicensePlate,
   ],
   templateUrl: './vehicle-form.html',
   styleUrl: './vehicle-form.scss',
@@ -47,6 +55,13 @@ export class VehicleForm {
   readonly vehicle = input<Vehicle | null>(null);
   readonly submitLabel = input('Guardar vehículo');
   readonly saved = output<Vehicle>();
+  // Al editar: el nombre y la matrícula, de solo lectura (null al registrar)
+  readonly summary = computed(() => {
+    const vehicle = this.vehicle();
+    return vehicle
+      ? { name: vehicleDisplayName(vehicle), plate: formatPlate(vehicle.plate) }
+      : null;
+  });
 
   readonly isSaving = signal(false);
   protected readonly colors: readonly { value: VehicleColor; label: string; hex: string }[] = [
@@ -79,6 +94,20 @@ export class VehicleForm {
 
   // Con todos los campos bien (la matrícula, al editar, no cuenta: no se cambia)
   private readonly status = toSignal(this.form.statusChanges, { initialValue: this.form.status });
+  // El nombre del color elegido, junto a la etiqueta («Color · Azul»)
+  private readonly color = toSignal(this.form.controls.color.valueChanges, {
+    initialValue: this.form.controls.color.value,
+  });
+  readonly colorLabel = computed(
+    () => this.colors.find(({ value }) => value === this.color())?.label ?? null,
+  );
+  private readonly engine = toSignal(this.form.controls.engine.valueChanges, {
+    initialValue: this.form.controls.engine.value,
+  });
+  readonly engineLabel = computed(
+    () => this.engines.find(({ value }) => value === this.engine())?.label ?? null,
+  );
+  protected readonly checkIcon = checkmark;
   readonly isComplete = computed(() => this.status() === 'VALID');
 
   protected readonly minTotalSeats = MIN_TOTAL_SEATS;

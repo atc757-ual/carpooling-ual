@@ -74,6 +74,46 @@ describe('VehicleForm', () => {
     expect(form.form.getRawValue()).toMatchObject({ color: 'blue', engine: 'hybrid' });
   });
 
+  it('names each option for screen readers and the chosen one beside its label', () => {
+    const root = fixture.nativeElement as HTMLElement;
+    expect(form.colorLabel()).toBeNull();
+    expect(form.engineLabel()).toBeNull();
+
+    root.querySelector<HTMLInputElement>('input[aria-label="Azul"]')?.click();
+    root.querySelector<HTMLInputElement>('input[aria-label="Híbrido"]')?.click();
+    fixture.detectChanges();
+
+    expect(form.colorLabel()).toBe('Azul');
+    expect(form.engineLabel()).toBe('Híbrido');
+    const legends = [...root.querySelectorAll('legend')].map((legend) => legend.textContent);
+    expect(legends.join(' ')).toContain('· Azul');
+    expect(legends.join(' ')).toContain('· Híbrido');
+  });
+
+  it('shows the plate field and no summary when registering', () => {
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(form.summary()).toBeNull();
+    expect(root.querySelector('.vehicle-form__summary')).toBeNull();
+    expect(root.querySelector('ion-input[formControlName="plate"]')).not.toBeNull();
+  });
+
+  it('shows the name and plate read-only when editing, without their fields', async () => {
+    ref.setInput('vehicle', VEHICLE);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(form.summary()).toEqual({ name: 'Seat Ibiza', plate: '1234 BCD' });
+    expect(root.querySelector('.vehicle-form__summary-name')?.textContent).toContain('Seat Ibiza');
+    expect(root.querySelector('.vehicle-form__summary app-license-plate')).not.toBeNull();
+    expect(root.querySelector('ion-input[formControlName="plate"]')).toBeNull();
+    expect(root.querySelector('app-brand-field')).toBeNull();
+    expect(root.querySelector('.vehicle-form__grid--edit')).not.toBeNull();
+    expect(form.colorLabel()).toBe('Azul');
+  });
+
   it('registers the separated details and passenger seats', async () => {
     form.form.setValue({
       brand: ' Seat ',

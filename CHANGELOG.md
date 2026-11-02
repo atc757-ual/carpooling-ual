@@ -15,6 +15,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Frontend:** cerrar sesión descarta las pantallas de la cuenta anterior y Publicar abre limpio para cualquier perfil (#120).
 
 ### Changed
+- **Frontend:** formulario del vehículo: al editar, el nombre y la matrícula van en una fila de solo lectura y debajo solo lo editable; el color y el motor se eligen en círculos de 36 px, con el nombre del elegido junto a la etiqueta (#157).
 - **Frontend:** la casilla del registro dice «Acepto las condiciones de uso y he leído la política de privacidad» (la política se lee, no se acepta) y la política añade el perfil público, la ubicación (consentimiento, artículo 6.1.a del RGPD, que se retira en Mi perfil), la verificación del teléfono por SMS y el registro de consentimientos (#140).
 - **Frontend:** la ubicación solo se usa con el consentimiento registrado y el permiso del sistema: `LocationConsentService`, «Permitir» en las ventanas que explican para qué se usa registra el consentimiento (`location_prompt`), si el usuario quitó el permiso del sistema se registra la retirada (`device`) y, si dejó de compartirla, «Usar mi ubicación» ofrece volver a compartirla o escribir la dirección (#129).
 - **Backend:** «Sobre mí» de 20 a 200 caracteres (antes 500; los más largos se recortan), Fumar sin «solo en paradas» (pasa a «no se fuma») y el consentimiento de ubicación guarda su origen: `location_prompt` (la ventana que explica para qué se usa) o `device` (se quitó el permiso del sistema), además de `settings` (#128).
