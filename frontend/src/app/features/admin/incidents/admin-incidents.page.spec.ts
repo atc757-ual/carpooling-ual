@@ -4,7 +4,7 @@ import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminIncidentsService } from '../../../core/services/admin/admin-incidents.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { INCIDENT } from './admin-incident-labels.spec';
+import { INCIDENT } from './admin-incident.testing';
 import { AdminIncidentsPage } from './admin-incidents.page';
 
 describe('AdminIncidentsPage', () => {

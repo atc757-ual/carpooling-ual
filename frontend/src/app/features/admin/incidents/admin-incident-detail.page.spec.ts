@@ -5,7 +5,7 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { AdminIncidentsService } from '../../../core/services/admin/admin-incidents.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AdminIncidentDetailPage } from './admin-incident-detail.page';
-import { INCIDENT } from './admin-incident-labels.spec';
+import { INCIDENT } from './admin-incident.testing';
 
 describe('AdminIncidentDetailPage', () => {
   let fixture: ComponentFixture<AdminIncidentDetailPage>;
