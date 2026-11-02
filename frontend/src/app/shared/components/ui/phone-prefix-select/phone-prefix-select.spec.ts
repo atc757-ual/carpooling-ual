@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { provideIonicAngular } from '@ionic/angular';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { PhonePrefixSelect } from './phone-prefix-select';
 
 // Un formulario cualquiera que usa el campo, como el registro
@@ -22,7 +23,7 @@ describe('PhonePrefixSelect', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HostForm],
-      providers: [provideIonicAngular()],
+      providers: [provideIonicAngular(), provideTranslocoTestingSupport()],
     });
     fixture = TestBed.createComponent(HostForm);
     host = fixture.componentInstance;

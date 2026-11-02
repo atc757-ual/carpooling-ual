@@ -3,17 +3,18 @@
        pie de confianza debajo -->
   <app-auth-layout variant="welcome">
     <div class="welcome__intro">
-      <h1 class="text-heading">Te damos la bienvenida</h1>
+      <h1 class="text-heading">{{ 'auth.welcome.title' | transloco }}</h1>
       <p class="text-body text-color-muted">
-        Comparte camino con tu comunidad. Entra con tu correo de la UAL o crea tu cuenta en un
-        minuto.
+        {{ 'auth.welcome.subtitle' | transloco }}
       </p>
     </div>
     <div class="welcome__actions">
-      <ion-button expand="block" routerLink="/auth/register">Crear mi cuenta</ion-button>
-      <ion-button expand="block" fill="outline" routerLink="/auth/login"
-        >Ya tengo cuenta</ion-button
-      >
+      <ion-button expand="block" routerLink="/auth/register">
+        {{ 'auth.welcome.createAccount' | transloco }}
+      </ion-button>
+      <ion-button expand="block" fill="outline" routerLink="/auth/login">{{
+        'auth.welcome.alreadyHaveAccount' | transloco
+      }}</ion-button>
     </div>
   </app-auth-layout>
 </ion-content>

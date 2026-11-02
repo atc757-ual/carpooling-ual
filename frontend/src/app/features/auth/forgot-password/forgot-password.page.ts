@@ -13,6 +13,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { arrowBackOutline, mailOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { PasswordResetService } from '../../../core/services/auth/password-reset.service';
@@ -21,8 +22,8 @@ import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-l
 import { Combobox } from '../../../shared/components/ui/combobox/combobox';
 import { EmailSuggestions } from '../../../shared/components/ui/email-suggestions/email-suggestions';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/ual-email.util';
+import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
+import { getUalEmailErrorKey, ualEmailValidator } from '../../../shared/utils/ual-email.util';
 
 // Recuperar la contraseña, paso 1 (diseño 06): el correo al que enviar el
 // código. Después, la pantalla del código (reset-code)
@@ -45,6 +46,7 @@ import { getUalEmailErrorText, ualEmailValidator } from '../../../shared/utils/u
     Combobox,
     EmailSuggestions,
     IonicFormStatus,
+    TranslocoPipe,
   ],
   templateUrl: './forgot-password.page.html',
   styleUrls: ['../auth-form.scss', './forgot-password.page.scss'],
@@ -53,6 +55,7 @@ export class ForgotPasswordPage {
   private readonly passwordReset = inject(PasswordResetService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
 
   readonly form = inject(NonNullableFormBuilder).group({
     // Con el dominio también aquí: un correo de fuera no llega al servidor
@@ -66,8 +69,8 @@ export class ForgotPasswordPage {
   protected readonly backIcon = arrowBackOutline;
   protected readonly mailIcon = mailOutline;
 
-  emailErrorText(): string {
-    return getUalEmailErrorText(this.form.controls.email);
+  emailErrorKey(): string {
+    return getUalEmailErrorKey(this.form.controls.email);
   }
 
   async handleSubmit(): Promise<void> {
@@ -80,7 +83,7 @@ export class ForgotPasswordPage {
       await this.passwordReset.requestCode(this.form.getRawValue().email);
       await this.router.navigateByUrl('/auth/reset-code');
     } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      void this.toast.showError(getAuthErrorMessage(ApiError.fromHttpError(error), this.transloco));
     } finally {
       this.isSubmitting.set(false);
     }

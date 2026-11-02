@@ -4,7 +4,7 @@
   [id]="triggerId"
   aria-haspopup="true"
   [attr.aria-expanded]="isOpen()"
-  [attr.aria-label]="'Prefijo del país: ' + value()"
+  [attr.aria-label]="'common.countryPrefixLabel' | transloco: { prefix: value() }"
   [disabled]="isDisabled()"
 >
   <span class="prefix-select__flag fi fi-{{ country() }}" aria-hidden="true"></span>
@@ -24,7 +24,7 @@
 >
   <ng-template>
     <ion-content>
-      <ul class="prefix-select__list" aria-label="Prefijo del país">
+      <ul class="prefix-select__list" [attr.aria-label]="'common.countryPrefixList' | transloco">
         @for (prefix of prefixes; track prefix) {
           <li>
             <button

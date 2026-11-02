@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
+import { provideTranslocoTestingSupport } from '../../../core/i18n/testing-transloco';
 import { WelcomePage } from './welcome.page';
 
 describe('WelcomePage', () => {
@@ -9,7 +10,7 @@ describe('WelcomePage', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       imports: [WelcomePage],
-      providers: [provideIonicAngular(), provideRouter([])],
+      providers: [provideIonicAngular(), provideRouter([]), provideTranslocoTestingSupport()],
     });
     const fixture = TestBed.createComponent(WelcomePage);
     await fixture.whenStable();

@@ -49,8 +49,8 @@ for (const viewport of VIEWPORTS) {
     it('says the account is ready and enters the app by Search', () => {
       verifyAndReach(true);
 
-      cy.contains('h1', '¡Cuenta creada!').should('be.visible');
-      cy.contains('ion-button', 'Entrar a la app').click();
+      cy.contains('h1', '¡Cuenta creada con éxito!').should('be.visible');
+      cy.contains('ion-button', 'Empezar a explorar').click();
       cy.location('pathname').should('eq', '/tabs/search');
     });
 

@@ -1,7 +1,9 @@
 import { Component, computed, input } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { shieldCheckmarkOutline } from 'ionicons/icons';
 import { BrandLogo } from '../../ui/brand-logo/brand-logo';
+import { LanguageSwitch } from '../../ui/language-switch/language-switch';
 
 export type AuthLayoutVariant = 'welcome' | 'form';
 
@@ -15,7 +17,7 @@ export type AuthLayoutVariant = 'welcome' | 'form';
 //   logotipo y el pie; los formularios, el logotipo con su lema y sin pie.
 @Component({
   selector: 'app-auth-layout',
-  imports: [BrandLogo, IonIcon],
+  imports: [BrandLogo, IonIcon, LanguageSwitch, TranslocoPipe],
   templateUrl: './auth-layout.html',
   styleUrl: './auth-layout.scss',
 })

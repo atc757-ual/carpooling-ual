@@ -7,12 +7,12 @@
         fill="clear"
         routerLink="/auth/register"
         routerDirection="back"
-        aria-label="Volver"
+        [attr.aria-label]="'auth.layout.back' | transloco"
       >
         <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
       </ion-button>
     </ion-buttons>
-    <ion-title>Verifica tu correo</ion-title>
+    <ion-title>{{ 'auth.verify.title' | transloco }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -25,30 +25,28 @@
         fill="clear"
         routerLink="/auth/register"
         routerDirection="back"
-        aria-label="Volver"
+        [attr.aria-label]="'auth.layout.back' | transloco"
       >
         <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
       </ion-button>
-      <span class="top-bar__title">Verifica tu correo</span>
+      <span class="top-bar__title">{{ 'auth.verify.title' | transloco }}</span>
     </div>
 
     <div class="auth-intro">
       <span class="auth-icon" aria-hidden="true">
         <ion-icon [icon]="mailIcon" />
       </span>
-      <h1 class="text-heading">Mira tu bandeja de entrada.</h1>
+      <h1 class="text-heading">{{ 'auth.verify.title' | transloco }}</h1>
       <p class="text-body text-color-muted">
-        Hemos enviado un código de 6 dígitos a
-        <span class="verify__email text-color-default">{{ email() }}</span
-        >.
+        {{ 'auth.verify.subtitle' | transloco: { email: email() } }}
       </p>
     </div>
 
     <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
       <div class="auth-field">
-        <span id="verify-code-label" class="text-label text-label--strong"
-          >Código de verificación</span
-        >
+        <span id="verify-code-label" class="text-label text-label--strong">{{
+          'auth.verify.codeLabel' | transloco
+        }}</span>
         <app-code-input
           formControlName="code"
           labelledBy="verify-code-label"
@@ -58,12 +56,12 @@
 
       @if (isLocked()) {
         <ion-text color="danger" class="text-body-s" role="alert">
-          Has fallado 3 veces y el código ya no vale: pide uno nuevo para seguir.
+          {{ 'auth.verify.locked' | transloco }}
         </ion-text>
       }
       @if (hasResent()) {
         <ion-text class="text-body-s text-color-muted" role="status">
-          Si el correo está registrado, te hemos enviado un código nuevo.
+          {{ 'auth.verify.resent' | transloco }}
         </ion-text>
       }
 
@@ -71,7 +69,7 @@
       @if (isSubmitting()) {
         <output class="verify__checking text-body-s text-color-muted">
           <ion-spinner name="crescent" aria-hidden="true" />
-          Comprobando el código…
+          {{ 'auth.verify.checking' | transloco }}
         </output>
       }
 
@@ -85,22 +83,28 @@
           fill="outline"
           [disabled]="secondsToResend() > 0"
         >
-          {{ resendLabel() }}
+          @if (secondsToResend() > 0) {
+            {{ 'auth.verify.resendWait' | transloco: { time: resendTime() } }}
+          } @else {
+            {{ 'auth.verify.resendNow' | transloco }}
+          }
         </ion-button>
         <ion-button class="verify__edit" type="button" fill="clear" routerLink="/auth/register">
-          Editar correo electrónico
+          {{ 'auth.verify.editEmail' | transloco }}
         </ion-button>
       </div>
     </form>
     <form id="verify-resend" (submit)="$event.preventDefault(); handleResend()"></form>
 
     <div class="auth-notice" role="note">
-      <p class="text-body-s text-body-s--strong text-color-primary">Importante</p>
+      <p class="text-body-s text-body-s--strong text-color-primary">
+        {{ 'auth.verify.tipsTitle' | transloco }}
+      </p>
       <!-- Lista y no párrafo: un <p> no puede contener una lista -->
       <ul class="verify__tips text-caption">
-        <li>Comprueba que el correo electrónico es correcto.</li>
-        <li>Comprueba la carpeta de correo no deseado o spam.</li>
-        <li>Si no lo recibes, solicita un nuevo código.</li>
+        <li>{{ 'auth.verify.tipAddress' | transloco }}</li>
+        <li>{{ 'auth.verify.tipSpam' | transloco }}</li>
+        <li>{{ 'auth.verify.tipResend' | transloco }}</li>
       </ul>
     </div>
   </app-auth-layout>

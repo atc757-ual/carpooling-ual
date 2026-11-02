@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../core/i18n/testing-transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { AppContextService } from '../../../core/services/ui/app-context.service';
@@ -33,6 +34,7 @@ describe('LoginPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        provideTranslocoTestingSupport(),
         { provide: ToastService, useValue: { showError, showSuccess } },
         { provide: AppContextService, useValue: { entryPath } },
         {
@@ -73,7 +75,7 @@ describe('LoginPage', () => {
     await page.handleSubmit();
 
     expect(login).not.toHaveBeenCalled();
-    expect(page.emailErrorText()).toBe('Usa tu correo de la Universidad de Almería.');
+    expect(page.emailErrorKey()).toBe('auth.validation.emailDomain');
   });
 
   it('logs in and goes to the home page', async () => {
@@ -113,6 +115,15 @@ describe('LoginPage', () => {
     expect(showError).toHaveBeenCalledWith('Correo o contraseña incorrectos.');
     expect(navigateByUrl).not.toHaveBeenCalled();
     expect(page.isSubmitting()).toBe(false);
+  });
+
+  it('places the sign-in action before the forgot-password link', () => {
+    const buttons = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('form ion-button'),
+    );
+
+    expect(buttons[0].getAttribute('type')).toBe('submit');
+    expect(buttons[1].getAttribute('routerLink')).toBe('/auth/forgot-password');
   });
 
   it('sends a new code and goes to verify the email when it is not verified yet', async () => {

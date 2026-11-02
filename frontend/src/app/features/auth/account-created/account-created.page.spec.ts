@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { NavController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../core/i18n/testing-transloco';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { AccountCreatedPage } from './account-created.page';
 
@@ -16,6 +17,7 @@ describe('AccountCreatedPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        provideTranslocoTestingSupport(),
         { provide: AuthService, useValue: { isNewAccount: () => isNewAccount, logout } },
       ],
     });
@@ -28,8 +30,8 @@ describe('AccountCreatedPage', () => {
   it('says the account is created after registering', async () => {
     const root = await createPage(true);
 
-    expect(root.querySelector('h1')?.textContent).toBe('¡Cuenta creada!');
-    expect(root.textContent).toContain('Tu correo de la UAL ya está verificado');
+    expect(root.querySelector('h1')?.textContent).toBe('¡Cuenta creada con éxito!');
+    expect(root.textContent).toContain('Ya formas parte de Carpooling UAL.');
   });
 
   // Si el código venía de un login de una cuenta sin verificar, la cuenta ya
@@ -50,7 +52,7 @@ describe('AccountCreatedPage', () => {
     ]);
 
     expect(buttons).toEqual([
-      ['Entrar a la app', '/tabs'],
+      ['Empezar a explorar', '/tabs'],
       ['Entrar más tarde', 'submit'],
     ]);
   });

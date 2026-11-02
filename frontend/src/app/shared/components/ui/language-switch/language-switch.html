@@ -1,0 +1,16 @@
+<fieldset class="language-switch" [attr.aria-label]="label()">
+  @for (language of languages; track language.id) {
+    <button
+      type="button"
+      class="language-switch__option"
+      [class.language-switch__option--active]="current() === language.id"
+      [attr.aria-label]="language.name"
+      [attr.aria-pressed]="current() === language.id"
+      [attr.lang]="language.id"
+      (click)="handleSelect(language.id)"
+    >
+      <span class="language-switch__flag fi fi-{{ language.flag }}" aria-hidden="true"></span>
+      {{ language.code }}
+    </button>
+  }
+</fieldset>

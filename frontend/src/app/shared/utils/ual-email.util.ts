@@ -27,3 +27,15 @@ export function getUalEmailErrorText(control: AbstractControl): string {
     ? 'Usa tu correo de la Universidad de Almería.'
     : 'Introduce un correo válido.';
 }
+
+export function getUalEmailErrorKey(control: AbstractControl): string {
+  if (control.hasError('required')) {
+    return 'auth.validation.emailRequired';
+  }
+  if (control.hasError('email')) {
+    return 'auth.validation.emailInvalid';
+  }
+  return control.hasError('ualEmail')
+    ? 'auth.validation.emailDomain'
+    : 'auth.validation.emailInvalid';
+}

@@ -7,12 +7,12 @@
         fill="clear"
         routerLink="/auth/welcome"
         routerDirection="back"
-        aria-label="Volver"
+        [attr.aria-label]="'auth.layout.back' | transloco"
       >
         <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
       </ion-button>
     </ion-buttons>
-    <ion-title>Crear mi cuenta</ion-title>
+    <ion-title>{{ 'auth.register.title' | transloco }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -25,38 +25,40 @@
         fill="clear"
         routerLink="/auth/welcome"
         routerDirection="back"
-        aria-label="Volver"
+        [attr.aria-label]="'auth.layout.back' | transloco"
       >
         <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
       </ion-button>
-      <span class="top-bar__title">Crear mi cuenta</span>
+      <span class="top-bar__title">{{ 'auth.register.title' | transloco }}</span>
     </div>
 
     <div class="auth-intro">
-      <h1 class="text-heading">Tu comunidad empieza aquí.</h1>
-      <p class="text-body text-color-muted">
-        Usa tu correo institucional. Después te enviaremos un código para verificarlo.
-      </p>
+      <h1 class="text-heading">{{ 'auth.register.title' | transloco }}</h1>
+      <p class="text-body text-color-muted">{{ 'auth.register.subtitle' | transloco }}</p>
     </div>
 
     <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
       <div class="auth-field">
-        <span class="text-label text-label--strong" aria-hidden="true">Nombre y apellidos</span>
+        <span class="text-label text-label--strong" aria-hidden="true">
+          {{ 'auth.register.nameLabel' | transloco }}
+        </span>
         <ion-input
           formControlName="name"
           (keydown.tab)="handleNameTab($event)"
           autocomplete="name"
-          aria-label="Nombre y apellidos"
+          [attr.aria-label]="'auth.register.nameLabel' | transloco"
           fill="outline"
-          placeholder="Mario Pérez"
-          [errorText]="nameErrorText()"
+          [placeholder]="'auth.register.namePlaceholder' | transloco"
+          [errorText]="nameErrorKey() | transloco"
         >
           <ion-icon slot="start" [icon]="personIcon" aria-hidden="true" />
         </ion-input>
       </div>
 
       <div class="auth-field">
-        <span class="text-label text-label--strong" aria-hidden="true">Teléfono</span>
+        <span class="text-label text-label--strong" aria-hidden="true">
+          {{ 'auth.register.phoneLabel' | transloco }}
+        </span>
         <!-- Un solo campo: a la izquierda, la bandera y el prefijo del país
              (España por defecto; al tocarlo, la lista de prefijos con su
              bandera); después, el número, solo con cifras (en España, en
@@ -67,28 +69,31 @@
           type="tel"
           inputmode="numeric"
           autocomplete="tel-national"
-          aria-label="Número de teléfono"
+          [attr.aria-label]="'auth.register.phoneLabel' | transloco"
           fill="outline"
-          placeholder="612 345 678"
-          errorText="Revisa el número: en España, 9 cifras que empiezan por 6, 7, 8 o 9."
+          [placeholder]="'auth.register.phonePlaceholder' | transloco"
+          [helperText]="'auth.register.phoneHelper' | transloco"
+          [errorText]="phoneErrorKey() | transloco"
         >
           <app-phone-prefix-select slot="start" formControlName="phonePrefix" />
         </ion-input>
       </div>
 
       <div class="auth-field">
-        <span class="text-label text-label--strong" aria-hidden="true">Correo UAL</span>
+        <span class="text-label text-label--strong" aria-hidden="true">
+          {{ 'auth.register.emailLabel' | transloco }}
+        </span>
         <ion-input
           formControlName="email"
           [appCombobox]="emailSuggestions.combobox"
           type="email"
           inputmode="email"
           autocomplete="off"
-          aria-label="Correo UAL"
+          [attr.aria-label]="'auth.register.emailLabel' | transloco"
           fill="outline"
-          placeholder="nombre@inlumine.ual.es"
-          helperText="Usa tu correo de la UAL. Lo verificarás después."
-          [errorText]="emailErrorText()"
+          [placeholder]="'auth.register.emailPlaceholder' | transloco"
+          [helperText]="'auth.register.emailHelper' | transloco"
+          [errorText]="emailErrorKey() | transloco"
         >
           <ion-icon slot="start" [icon]="mailIcon" aria-hidden="true" />
         </ion-input>
@@ -96,16 +101,18 @@
       </div>
 
       <div class="auth-field">
-        <span class="text-label text-label--strong" aria-hidden="true">Contraseña</span>
+        <span class="text-label text-label--strong" aria-hidden="true">
+          {{ 'auth.register.passwordLabel' | transloco }}
+        </span>
         <ion-input
           formControlName="password"
           [type]="isPasswordVisible() ? 'text' : 'password'"
           autocomplete="new-password"
-          aria-label="Contraseña"
-          placeholder="••••••••"
+          [attr.aria-label]="'auth.register.passwordLabel' | transloco"
+          [placeholder]="'auth.register.passwordPlaceholder' | transloco"
           fill="outline"
-          helperText="Al menos 8 caracteres. No compartas tu contraseña."
-          errorText="Usa entre 8 y 72 caracteres."
+          [helperText]="'auth.register.passwordHelper' | transloco"
+          [errorText]="passwordErrorKey() | transloco"
         >
           <ion-icon slot="start" [icon]="lockIcon" aria-hidden="true" />
           <!-- Fuera del orden de tabulación (tabindex=-1): con el teclado se
@@ -115,7 +122,9 @@
             type="button"
             tabindex="-1"
             class="auth-password-toggle"
-            [attr.aria-label]="isPasswordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            [attr.aria-label]="
+              (isPasswordVisible() ? 'auth.password.hide' : 'auth.password.show') | transloco
+            "
             [attr.aria-pressed]="isPasswordVisible()"
             (click)="isPasswordVisible.set(!isPasswordVisible())"
           >
@@ -130,19 +139,19 @@
         <div class="register__terms-row">
           <ion-checkbox formControlName="acceptedTerms" aria-labelledby="register-terms-label" />
           <span id="register-terms-label" class="text-body-s">
-            Acepto las
+            {{ 'auth.register.termsPrefix' | transloco }}
             <button type="button" class="register__link" (click)="openLegal('terms')">
-              condiciones de uso
+              {{ 'auth.register.termsLink' | transloco }}
             </button>
-            y he leído la
+            {{ 'auth.register.termsAnd' | transloco }}
             <button type="button" class="register__link" (click)="openLegal('privacy')">
-              política de privacidad</button
-            >.
+              {{ 'auth.register.privacyLink' | transloco }}
+            </button>
           </span>
         </div>
         @if (isTermsErrorVisible()) {
           <ion-text color="danger" class="text-caption" role="alert">
-            Tienes que aceptar las condiciones para crear la cuenta.
+            {{ 'auth.register.termsError' | transloco }}
           </ion-text>
         }
       </div>
@@ -152,13 +161,16 @@
         <!-- Activo solo con los campos correctos y la casilla marcada -->
         <ion-button type="submit" expand="block" [disabled]="form.invalid || isSubmitting()">
           @if (isSubmitting()) {
-            <ion-spinner name="crescent" aria-label="Creando la cuenta" />
+            <ion-spinner
+              name="crescent"
+              [attr.aria-label]="'auth.register.submitting' | transloco"
+            />
           } @else {
-            Crear cuenta y verificar correo
+            {{ 'auth.register.submit' | transloco }}
           }
         </ion-button>
         <ion-button class="register__login" fill="clear" routerLink="/auth/login">
-          Ya tengo cuenta
+          {{ 'auth.register.loginLink' | transloco }}
         </ion-button>
       </div>
     </form>

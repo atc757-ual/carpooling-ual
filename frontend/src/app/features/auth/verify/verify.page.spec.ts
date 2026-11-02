@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../core/i18n/testing-transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -28,6 +29,7 @@ describe('VerifyPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
+        provideTranslocoTestingSupport(),
         { provide: ToastService, useValue: { showError, showSuccess } },
         {
           provide: AuthService,
@@ -98,13 +100,13 @@ describe('VerifyPage', () => {
 
   it('lets ask for a new code after a minute and starts counting again', async () => {
     open('mario.perez@ual.es');
-    expect(page.resendLabel()).toBe('Reenviar código en 01:00');
+    expect(page.resendTime()).toBe('01:00');
 
     vi.advanceTimersByTime(18_000);
-    expect(page.resendLabel()).toBe('Reenviar código en 00:42');
+    expect(page.resendTime()).toBe('00:42');
 
     vi.advanceTimersByTime(42_000);
-    expect(page.resendLabel()).toBe('Reenviar código');
+    expect(page.resendTime()).toBe('00:00');
 
     await page.handleResend();
 

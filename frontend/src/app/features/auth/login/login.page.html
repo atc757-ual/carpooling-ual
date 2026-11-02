@@ -8,12 +8,12 @@
         fill="clear"
         routerLink="/auth/welcome"
         routerDirection="back"
-        aria-label="Volver"
+        [attr.aria-label]="'auth.layout.back' | transloco"
       >
         <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
       </ion-button>
     </ion-buttons>
-    <ion-title>Accede a tu cuenta</ion-title>
+    <ion-title>{{ 'auth.login.title' | transloco }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -27,33 +27,36 @@
         fill="clear"
         routerLink="/auth/welcome"
         routerDirection="back"
-        aria-label="Volver"
+        [attr.aria-label]="'auth.layout.back' | transloco"
       >
         <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
       </ion-button>
-      <span class="top-bar__title">Accede a tu cuenta</span>
+      <span class="top-bar__title">{{ 'auth.login.title' | transloco }}</span>
     </div>
 
     <div class="auth-intro">
-      <h1 class="text-heading">Qué bueno verte por aquí.</h1>
-      <p class="text-body text-color-muted">Entra con tu correo de la Universidad de Almería.</p>
+      <h1 class="text-heading">{{ 'auth.login.title' | transloco }}</h1>
+      <p class="text-body text-color-muted">{{ 'auth.login.subtitle' | transloco }}</p>
     </div>
 
     <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
       <!-- La etiqueta va encima del campo, como en el diseño; el campo lleva el
            mismo nombre para los lectores de pantalla -->
       <div class="auth-field">
-        <span class="text-label text-label--strong" aria-hidden="true">Correo UAL</span>
+        <span class="text-label text-label--strong" aria-hidden="true">
+          {{ 'auth.login.emailLabel' | transloco }}
+        </span>
         <ion-input
           formControlName="email"
           [appCombobox]="emailSuggestions.combobox"
           type="email"
           inputmode="email"
           autocomplete="off"
-          aria-label="Correo UAL"
+          [attr.aria-label]="'auth.login.emailLabel' | transloco"
           fill="outline"
-          placeholder="nombre@inlumine.ual.es"
-          [errorText]="emailErrorText()"
+          [placeholder]="'auth.login.emailPlaceholder' | transloco"
+          [helperText]="'auth.login.emailHelper' | transloco"
+          [errorText]="emailErrorKey() | transloco"
         >
           <ion-icon slot="start" [icon]="mailIcon" aria-hidden="true" />
         </ion-input>
@@ -61,15 +64,17 @@
       </div>
 
       <div class="auth-field">
-        <span class="text-label text-label--strong" aria-hidden="true">Contraseña</span>
+        <span class="text-label text-label--strong" aria-hidden="true">
+          {{ 'auth.login.passwordLabel' | transloco }}
+        </span>
         <ion-input
           formControlName="password"
           [type]="isPasswordVisible() ? 'text' : 'password'"
           autocomplete="current-password"
-          aria-label="Contraseña"
-          placeholder="••••••••"
+          [attr.aria-label]="'auth.login.passwordLabel' | transloco"
+          [placeholder]="'auth.login.passwordPlaceholder' | transloco"
           fill="outline"
-          errorText="Introduce tu contraseña (al menos 8 caracteres)."
+          [errorText]="passwordErrorKey() | transloco"
         >
           <ion-icon slot="start" [icon]="lockIcon" aria-hidden="true" />
           <!-- Botón nativo y no ion-input-password-toggle: ese trae su nombre
@@ -81,7 +86,9 @@
             type="button"
             tabindex="-1"
             class="auth-password-toggle"
-            [attr.aria-label]="isPasswordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            [attr.aria-label]="
+              (isPasswordVisible() ? 'auth.password.hide' : 'auth.password.show') | transloco
+            "
             [attr.aria-pressed]="isPasswordVisible()"
             (click)="isPasswordVisible.set(!isPasswordVisible())"
           >
@@ -90,36 +97,38 @@
         </ion-input>
       </div>
 
+      <!-- Activo solo con un correo de la UAL y una contraseña de 8 o más -->
+      <ion-button type="submit" expand="block" [disabled]="form.invalid || isSubmitting()">
+        @if (isSubmitting()) {
+          <ion-spinner name="crescent" [attr.aria-label]="'auth.login.submitting' | transloco" />
+        } @else {
+          {{ 'auth.login.submit' | transloco }}
+        }
+      </ion-button>
+
       <ion-button
         type="button"
         fill="clear"
         class="login__forgot"
         routerLink="/auth/forgot-password"
       >
-        ¿Has olvidado tu contraseña?
-      </ion-button>
-
-      <!-- Activo solo con un correo de la UAL y una contraseña de 8 o más -->
-      <ion-button type="submit" expand="block" [disabled]="form.invalid || isSubmitting()">
-        @if (isSubmitting()) {
-          <ion-spinner name="crescent" aria-label="Entrando" />
-        } @else {
-          Iniciar sesión
-        }
+        {{ 'auth.login.forgotPassword' | transloco }}
       </ion-button>
     </form>
 
     <div class="login__register">
-      <p class="text-body-s text-color-muted">¿Es tu primera vez en UAL Carpool?</p>
-      <ion-button expand="block" fill="outline" routerLink="/auth/register"
-        >Crear cuenta</ion-button
-      >
+      <p class="text-body-s text-color-muted">{{ 'auth.login.noAccountPrompt' | transloco }}</p>
+      <ion-button expand="block" fill="outline" routerLink="/auth/register">{{
+        'auth.login.registerLink' | transloco
+      }}</ion-button>
     </div>
 
     <div class="auth-notice" role="note">
-      <p class="text-body-s text-body-s--strong text-color-primary">Tu acceso, protegido</p>
+      <p class="text-body-s text-body-s--strong text-color-primary">
+        {{ 'auth.login.securityTitle' | transloco }}
+      </p>
       <p class="text-caption">
-        Nunca compartas tu contraseña ni el código de verificación. No te los pediremos por chat.
+        {{ 'auth.login.securityDescription' | transloco }}
       </p>
     </div>
   </app-auth-layout>
