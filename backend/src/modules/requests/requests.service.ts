@@ -296,8 +296,14 @@ export class RequestsService {
         throw new RequestNotFoundError(requestId);
       }
       this.assertIsTripDriver(driverId, trip);
-      assertRequestTransition(request.status, 'accepted');
       this.tripStatus.assertOpenForRequests(trip);
+      if (
+        trip.availableSeats < request.seats ||
+        request.rejectionReason === 'trip_full'
+      ) {
+        throw new TripFullError(trip.id);
+      }
+      assertRequestTransition(request.status, 'accepted');
 
       await this.tripStatus.reserveSeat(manager, trip, request.seats);
       request.status = 'accepted';

@@ -192,6 +192,9 @@ describe('Seat requests API (e2e)', () => {
       answeredAt: null,
       cancelledAt: null,
       vehiclePlate: null,
+      rejectionReason: null,
+      boardCode: null,
+      boardedAt: null,
     });
     expect(created.headers.location).toBe(`/api/requests/${seatRequest.id}`);
 
