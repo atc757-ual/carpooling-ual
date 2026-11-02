@@ -11,12 +11,34 @@ import type {
 } from '../entities/incident.entity';
 import type { IncidentView, ReporterRole } from '../incidents.service';
 
+export class IncidentDriverResource {
+  @ApiProperty({ format: 'uuid' })
+  id: string;
+
+  @ApiProperty({ example: 'Javier Pardo' })
+  name: string;
+}
+
+// El viaje con lo que necesita quien gestiona la incidencia: el trayecto, la
+// hora y el conductor (null si el viaje ya no existe)
 export class IncidentTripResource {
   @ApiProperty({ format: 'uuid' })
   id: string;
 
   @ApiProperty({ example: '/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90' })
   href: string;
+
+  @ApiProperty({ example: 'Roquetas de Mar', type: String, nullable: true })
+  originName: string | null;
+
+  @ApiProperty({ example: 'Campus UAL', type: String, nullable: true })
+  destinationName: string | null;
+
+  @ApiProperty({ format: 'date-time', type: String, nullable: true })
+  departureAt: string | null;
+
+  @ApiProperty({ type: IncidentDriverResource, nullable: true })
+  driver: IncidentDriverResource | null;
 }
 
 export class IncidentReporterResource {
@@ -85,13 +107,21 @@ export function toIncidentResource({
   incident,
   reporterName,
   reporterRole,
+  trip,
 }: IncidentView): IncidentResource {
   const { reviewedAt, resolution } = incident;
   return {
     '@type': 'Incident',
     id: incident.id,
     href: incidentHref(incident.id),
-    trip: { id: incident.tripId, href: tripHref(incident.tripId) },
+    trip: {
+      id: incident.tripId,
+      href: tripHref(incident.tripId),
+      originName: trip?.originName ?? null,
+      destinationName: trip?.destinationName ?? null,
+      departureAt: trip?.departureAt.toISOString() ?? null,
+      driver: trip ? { id: trip.driverId, name: trip.driverName } : null,
+    },
     reporter: {
       id: incident.reporterId,
       name: reporterName,

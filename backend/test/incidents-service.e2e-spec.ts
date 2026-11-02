@@ -251,7 +251,7 @@ describe('IncidentsService (e2e)', () => {
         driverTrip.driverId,
         ALL,
       );
-      const open = await incidentsService.list('open', ALL);
+      const open = await incidentsService.list({ status: 'open' }, ALL);
 
       expect(mine.items.map(({ incident }) => incident.id)).toEqual([
         byDriver.id,
@@ -283,7 +283,7 @@ describe('IncidentsService (e2e)', () => {
       const reviewed = events.find(({ type }) => type === 'incident.reviewed');
       expect(reviewed?.payload).toMatchObject({ status: 'reviewed' });
       expect(JSON.stringify(reviewed?.payload)).not.toContain(RESOLUTION);
-      const open = await incidentsService.list('open', ALL);
+      const open = await incidentsService.list({ status: 'open' }, ALL);
       expect(open.items.map(({ incident: i }) => i.id)).not.toContain(
         byDriver.id,
       );

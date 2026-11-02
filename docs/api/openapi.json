@@ -5132,7 +5132,7 @@
     },
     "/api/incidents": {
       "get": {
-        "description": "CU-12. Filter by status; the oldest first.",
+        "description": "CU-12. Filter by status and category; the oldest first. Each one comes with its trip route and driver.",
         "operationId": "IncidentsController_list",
         "parameters": [
           {
@@ -5167,6 +5167,20 @@
               "enum": [
                 "open",
                 "reviewed"
+              ]
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "technical",
+                "driver",
+                "passenger",
+                "other"
               ]
             }
           }
@@ -9385,6 +9399,23 @@
           "description"
         ]
       },
+      "IncidentDriverResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Javier Pardo"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
       "IncidentTripResource": {
         "type": "object",
         "properties": {
@@ -9395,11 +9426,39 @@
           "href": {
             "type": "string",
             "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "originName": {
+            "type": "string",
+            "example": "Roquetas de Mar",
+            "nullable": true
+          },
+          "destinationName": {
+            "type": "string",
+            "example": "Campus UAL",
+            "nullable": true
+          },
+          "departureAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "driver": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IncidentDriverResource"
+              }
+            ]
           }
         },
         "required": [
           "id",
-          "href"
+          "href",
+          "originName",
+          "destinationName",
+          "departureAt",
+          "driver"
         ]
       },
       "IncidentReporterResource": {

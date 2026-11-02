@@ -19,6 +19,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Backend:** «Sobre mí» de 20 a 200 caracteres (antes 500; los más largos se recortan), Fumar sin «solo en paradas» (pasa a «no se fuma») y el consentimiento de ubicación guarda su origen: `location_prompt` (la ventana que explica para qué se usa) o `device` (se quitó el permiso del sistema), además de `settings` (#128).
 
 ### Added
+- **Backend:** `GET /api/incidents` filtra también por categoría (`?category=`) y cada incidencia trae el trayecto, la hora de salida y el conductor de su viaje, cargados en una consulta para toda la página (#148).
 - **Frontend:** pantalla del viaje en curso del conductor (`/tabs/trips/drive/:id`): mapa con su posición y la siguiente recogida, progreso, pasajeros por hora de recogida y «Terminar viaje»; se entra al iniciar el viaje o con «Abrir viaje» (#147).
 - **Frontend:** detalle del usuario en el panel de administración (`/admin/users/:id`): cuenta, estado, perfiles con su valoración, suspensión y cancelaciones tardías, vehículos, últimos viajes y solicitudes, incidencias y consentimientos; acciones para activar o desactivar un perfil, dar o quitar el de administrador y levantar una suspensión, cada una con la confirmación con motivo (`app-reason-confirm-modal`) (#145).
 - **Frontend:** progreso del viaje (publicado → confirmado → en curso → finalizado) y vista del conductor en el mapa en vivo, con el tiempo hasta su siguiente recogida o el destino (#144).
