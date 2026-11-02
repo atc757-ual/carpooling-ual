@@ -1,26 +1,28 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
-import type { AvatarKey } from '../travel-preferences';
+import { Column, Entity } from 'typeorm';
+import { CatalogItem } from '../../catalogs/entities/catalog-item.entity';
 
-// Tabla avatars: catálogo cerrado de avatares SVG de la plataforma, cargado en
-// la migración. Sin subida de fotos (RGPD, sin moderación externa)
+export const AVATAR_IMAGE_TYPES = ['image/png', 'image/webp'] as const;
+export type AvatarImageType = (typeof AVATAR_IMAGE_TYPES)[number];
+
+// Tabla avatars: catálogo de avatares de la plataforma (no fotos de los
+// usuarios: RGPD, sin moderación externa). Los SVG vienen de las migraciones
+// (de confianza); el panel sube imágenes PNG o WebP. Cada avatar es una cosa
+// u otra. Uno retirado deja de ofrecerse, pero lo conserva quien ya lo tenía
 @Entity('avatars')
-export class Avatar {
-  @PrimaryColumn({ type: 'varchar', length: 30 })
-  key: AvatarKey;
-
-  @Column({ type: 'varchar', length: 60 })
-  name: string;
-
+export class Avatar extends CatalogItem {
   // Ilustración SVG limpia y neutra (animales, objetos, formas)
-  @Column({ type: 'text' })
-  svg: string;
+  @Column({ type: 'text', nullable: true })
+  svg: string | null;
 
-  // Un avatar retirado deja de ofrecerse al editar, pero se conserva para los
-  // usuarios que ya lo tenían elegido
-  @Column({ name: 'is_active', type: 'boolean', default: true })
-  isActive: boolean;
+  // La imagen subida: no se carga en las listas (solo al servirla)
+  @Column({ type: 'bytea', nullable: true, select: false })
+  image?: Buffer | null;
 
-  // Orden en el selector de avatares
-  @Column({ name: 'sort_order', type: 'smallint' })
-  sortOrder: number;
+  @Column({
+    name: 'content_type',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
+  contentType: AvatarImageType | null;
 }

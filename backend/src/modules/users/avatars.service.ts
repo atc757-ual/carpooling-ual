@@ -1,39 +1,69 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Page, PageRequest } from '../../shared/pagination/page';
-import { Avatar } from './entities/avatar.entity';
+import { DataSource } from 'typeorm';
+import { EventsService } from '../../events/events.service';
+import { CatalogItemsService } from '../catalogs/catalog-items.service';
+import { checkAvatarImage } from './avatar-image';
+import { Avatar, AvatarImageType } from './entities/avatar.entity';
 import { AvatarNotFoundError } from './errors/avatar-not-found.error';
-import type { AvatarKey } from './travel-preferences';
 
-// Catálogo de avatares SVG: solo lectura (lo carga la migración)
+export interface AvatarImage {
+  image: Buffer;
+  contentType: AvatarImageType;
+}
+
+// Catálogo de avatares: los SVG de la plataforma (migraciones) y las imágenes
+// PNG o WebP que sube el panel. El panel los renombra, los activa o desactiva
+// y los ordena (catálogo con sus eventos)
 @Injectable()
-export class AvatarsService {
+export class AvatarsService extends CatalogItemsService<Avatar> {
   constructor(
-    @InjectRepository(Avatar)
-    private readonly avatarsRepository: Repository<Avatar>,
-  ) {}
-
-  // Los activos, en su orden de presentación
-  async listActive(page: PageRequest): Promise<Page<Avatar>> {
-    const [items, total] = await this.avatarsRepository.findAndCount({
-      where: { isActive: true },
-      order: { sortOrder: 'ASC', key: 'ASC' },
-      skip: page.offset,
-      take: page.limit,
-    });
-    return { items, total };
+    private readonly avatarsDataSource: DataSource,
+    events: EventsService,
+  ) {
+    super(
+      { name: 'avatars', entity: Avatar, keyConstraint: 'avatars_key_key' },
+      avatarsDataSource,
+      events,
+    );
   }
 
   // Un avatar activo; uno retirado es como si no existiera
   async getActive(key: string): Promise<Avatar> {
-    const avatar = await this.avatarsRepository.findOneBy({
-      key: key as AvatarKey,
+    const avatar = await this.avatarsDataSource.manager.findOneBy(Avatar, {
+      key,
       isActive: true,
     });
     if (!avatar) {
       throw new AvatarNotFoundError(key);
     }
     return avatar;
+  }
+
+  // Sube una imagen como avatar nuevo, al final de la lista. Comprueba antes
+  // su contenido (InvalidAvatarImageError) y su clave (CatalogItemExistsError)
+  async upload(adminId: string, name: string, image: Buffer): Promise<Avatar> {
+    const contentType = checkAvatarImage(image);
+    return this.create(adminId, { name, image, contentType, svg: null });
+  }
+
+  // La imagen de un avatar subido, activo o no (quien ya lo tenía lo sigue
+  // viendo). AvatarNotFoundError si no existe o es un SVG
+  async getImage(key: string): Promise<AvatarImage> {
+    const avatar = await this.avatarsDataSource.manager
+      .createQueryBuilder(Avatar, 'avatar')
+      .addSelect('avatar.image')
+      .where('avatar.key = :key', { key })
+      .getOne();
+    if (!avatar?.image || avatar.contentType === null) {
+      throw new AvatarNotFoundError(key);
+    }
+    return { image: avatar.image, contentType: avatar.contentType };
+  }
+
+  protected override payloadOf(avatar: Avatar): Record<string, unknown> {
+    return {
+      ...super.payloadOf(avatar),
+      kind: avatar.contentType === null ? 'svg' : 'image',
+    };
   }
 }

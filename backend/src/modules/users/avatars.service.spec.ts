@@ -1,53 +1,73 @@
 import { jest } from '@jest/globals';
-import type { Repository } from 'typeorm';
+import type { DataSource } from 'typeorm';
+import type { EventsService } from '../../events/events.service';
+import { pngHeader } from './avatar-image.testing';
 import { AvatarsService } from './avatars.service';
-import { Avatar } from './entities/avatar.entity';
+import type { Avatar } from './entities/avatar.entity';
 import { AvatarNotFoundError } from './errors/avatar-not-found.error';
 
-const SUN: Avatar = {
+const SUN = {
   key: 'sun',
   name: 'Sol de Almería',
   svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"></svg>',
+  contentType: null,
   isActive: true,
   sortOrder: 1,
-};
+} as Avatar;
 
 describe('AvatarsService', () => {
-  const findAndCount = jest.fn<Repository<Avatar>['findAndCount']>();
-  const findOneBy = jest.fn<Repository<Avatar>['findOneBy']>();
-  const service = new AvatarsService({
-    findAndCount,
-    findOneBy,
-  } as unknown as Repository<Avatar>);
+  const findOneBy = jest.fn<(...args: unknown[]) => Promise<Avatar | null>>();
+  const getOne = jest.fn<() => Promise<Avatar | null>>();
+  const transaction = jest.fn();
+  const query = {
+    addSelect: () => query,
+    where: () => query,
+    getOne,
+  };
+  const dataSource = {
+    manager: { findOneBy, createQueryBuilder: () => query },
+    transaction,
+  } as unknown as DataSource;
+  const service = new AvatarsService(dataSource, {} as EventsService);
 
   beforeEach(() => jest.clearAllMocks());
 
-  it('lists the active avatars in display order', async () => {
-    findAndCount.mockResolvedValue([[SUN], 1]);
-
-    const page = await service.listActive({ offset: 0, limit: 20 });
-
-    expect(page).toEqual({ items: [SUN], total: 1 });
-    expect(findAndCount).toHaveBeenCalledWith({
-      where: { isActive: true },
-      order: { sortOrder: 'ASC', key: 'ASC' },
-      skip: 0,
-      take: 20,
-    });
-  });
-
-  it('gets an active avatar', async () => {
-    findOneBy.mockResolvedValue(SUN);
+  it('gets an active avatar and fails for a missing or retired one', async () => {
+    findOneBy.mockResolvedValueOnce(SUN).mockResolvedValueOnce(null);
 
     await expect(service.getActive('sun')).resolves.toBe(SUN);
-    expect(findOneBy).toHaveBeenCalledWith({ key: 'sun', isActive: true });
-  });
-
-  it('fails when the avatar does not exist or is inactive', async () => {
-    findOneBy.mockResolvedValue(null);
-
+    expect(findOneBy).toHaveBeenCalledWith(expect.anything(), {
+      key: 'sun',
+      isActive: true,
+    });
     await expect(service.getActive('unknown')).rejects.toBeInstanceOf(
       AvatarNotFoundError,
     );
+  });
+
+  it('serves the image of an uploaded avatar, never of an SVG one', async () => {
+    const image = pngHeader(256, 256);
+    getOne
+      .mockResolvedValueOnce({ ...SUN, image, contentType: 'image/png' })
+      .mockResolvedValueOnce({ ...SUN, image: null })
+      .mockResolvedValueOnce(null);
+
+    await expect(service.getImage('owl-photo')).resolves.toEqual({
+      image,
+      contentType: 'image/png',
+    });
+    await expect(service.getImage('sun')).rejects.toBeInstanceOf(
+      AvatarNotFoundError,
+    );
+    await expect(service.getImage('nope')).rejects.toBeInstanceOf(
+      AvatarNotFoundError,
+    );
+  });
+
+  it('checks the image before saving anything', async () => {
+    await expect(
+      service.upload('admin-1', 'Búho', Buffer.from('<svg/>')),
+    ).rejects.toMatchObject({ code: 'INVALID_AVATAR_IMAGE' });
+    expect(transaction).not.toHaveBeenCalled();
   });
 });

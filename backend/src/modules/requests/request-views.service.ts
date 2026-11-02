@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { TripsService } from '../trips/trips.service';
 import {
   EMPTY_TRAVEL_PREFERENCES,
-  type AvatarKey,
   type TravelPreferences,
 } from '../users/travel-preferences';
 import { UsersService } from '../users/users.service';
@@ -14,7 +13,7 @@ import { SeatRequest } from './entities/seat-request.entity';
 export interface RequestView {
   request: SeatRequest;
   passengerName: string;
-  passengerAvatarKey: AvatarKey | null;
+  passengerAvatarKey: string | null;
   passengerPreferences: TravelPreferences;
   vehiclePlate: string | null;
 }

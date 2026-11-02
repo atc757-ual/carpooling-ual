@@ -10,7 +10,6 @@ import type { Relation } from 'typeorm';
 import type { RegistrableProfile } from '../profile-type';
 import {
   CONVERSATION_PREFERENCES,
-  type AvatarKey,
   type ConversationPreference,
   MUSIC_PREFERENCES,
   type MusicPreference,
@@ -86,7 +85,7 @@ export class User {
     nullable: true,
     default: null,
   })
-  avatarKey: AvatarKey | null = null;
+  avatarKey: string | null = null;
 
   // «Sobre mí» público, de 20 a 200 caracteres cuando se rellena
   @Column({ type: 'varchar', length: 200, nullable: true, default: null })

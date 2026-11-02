@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CampusParkingsService } from '../places/campus-parkings.service';
 import {
   EMPTY_TRAVEL_PREFERENCES,
-  type AvatarKey,
   type TravelPreferences,
 } from '../users/travel-preferences';
 import { UsersService } from '../users/users.service';
@@ -25,7 +24,7 @@ const MS_PER_MINUTE = 60_000;
 export interface TripMatch {
   match: ScoredMatch<TripCandidate>;
   driverName: string;
-  driverAvatarKey: AvatarKey | null;
+  driverAvatarKey: string | null;
   driverPreferences: TravelPreferences;
   driverRating: number | null;
   vehicle: VehicleRecognitionDetails;

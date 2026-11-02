@@ -3,7 +3,6 @@ import { API_PREFIX } from '../../../app.setup';
 import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
 import { tripHref } from '../../trips/dto/trip.resource';
 import { TravelPreferencesResource } from '../../users/dto/travel-preferences.resource';
-import { AVATAR_KEYS, type AvatarKey } from '../../users/travel-preferences';
 import type { RequestView } from '../request-views.service';
 import { REQUEST_STATUSES } from '../request-status';
 import type { RequestStatus } from '../request-status';
@@ -23,8 +22,8 @@ export class SeatRequestPassengerResource {
   @ApiProperty({ example: 'Mario López' })
   name: string;
 
-  @ApiProperty({ enum: AVATAR_KEYS, nullable: true, example: 'headphones' })
-  avatarKey: AvatarKey | null;
+  @ApiProperty({ type: String, nullable: true, example: 'headphones' })
+  avatarKey: string | null;
 
   @ApiProperty({ type: TravelPreferencesResource })
   preferences: TravelPreferencesResource;

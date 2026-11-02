@@ -1,22 +1,3 @@
-// Catálogo cerrado de avatares de la plataforma (tabla avatars). Sin fotos
-// subidas por el usuario (RGPD, sin moderación externa)
-export const AVATAR_KEYS = [
-  'sun',
-  'wave',
-  'cactus',
-  'palm',
-  'compass',
-  'car',
-  'leaf',
-  'book',
-  'coffee',
-  'headphones',
-  'cat',
-  'owl',
-] as const;
-
-export type AvatarKey = (typeof AVATAR_KEYS)[number];
-
 // Preferencias de viaje del usuario: valen tanto cuando conduce como cuando va
 // de pasajero
 export const CONVERSATION_PREFERENCES = ['chatty', 'depends', 'quiet'] as const;

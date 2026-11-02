@@ -6,12 +6,11 @@ import {
   IsOptional,
   IsString,
   Length,
+  MaxLength,
   ValidateNested,
 } from 'class-validator';
 import { RegisterDto } from '../../auth/dto/register.dto';
 import {
-  AVATAR_KEYS,
-  type AvatarKey,
   CONVERSATION_PREFERENCES,
   type ConversationPreference,
   MUSIC_PREFERENCES,
@@ -87,15 +86,16 @@ export class UpdateMeDto extends PartialType(
 
   @ApiProperty({
     required: false,
-    enum: AVATAR_KEYS,
+    type: String,
     nullable: true,
     description:
-      'Chosen avatar from the platform catalogue; null resets to initials',
+      'Key of an active avatar (GET /api/avatars); null resets to initials',
     example: 'sun',
   })
   @IsOptional()
-  @IsIn(AVATAR_KEYS)
-  avatarKey?: AvatarKey | null;
+  @IsString()
+  @MaxLength(60)
+  avatarKey?: string | null;
 
   @ApiProperty({
     required: false,

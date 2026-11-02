@@ -17,7 +17,7 @@ import { EmailAlreadyRegisteredError } from './errors/email-already-registered.e
 import { UserNotFoundError } from './errors/user-not-found.error';
 import { PROFILE_ENTITIES } from './profile-entities';
 import { ProfileType } from './profile-type';
-import type { AvatarKey, TravelPreferences } from './travel-preferences';
+import type { TravelPreferences } from './travel-preferences';
 import {
   PublicUserProfile,
   RoleRatingSummary,
@@ -33,7 +33,7 @@ export interface AccountChanges {
   name?: string;
   phone?: string;
   timeToleranceMin?: number;
-  avatarKey?: AvatarKey | null;
+  avatarKey?: string | null;
   bio?: string | null;
   preferences?: Partial<TravelPreferences>;
 }
