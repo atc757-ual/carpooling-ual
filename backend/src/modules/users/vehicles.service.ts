@@ -4,7 +4,9 @@ import { EntityManager, In, Not, Repository } from 'typeorm';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { Vehicle } from './entities/vehicle.entity';
-import type { VehicleColor, VehicleEngine } from './entities/vehicle.entity';
+import { VehicleColorsService } from '../catalogs/vehicle-colors.service';
+import type { VehicleEngine } from './entities/vehicle.entity';
+import { VehicleColorNotOfferedError } from './errors/vehicle-color-not-offered.error';
 import { VehicleAlreadyRegisteredError } from './errors/vehicle-already-registered.error';
 import { VehicleInUseError } from './errors/vehicle-in-use.error';
 import { VehicleLimitReachedError } from './errors/vehicle-limit-reached.error';
@@ -16,7 +18,7 @@ export interface RegisterVehicleInput {
   capacity: number;
   brand: string;
   model: string;
-  color: VehicleColor;
+  color: string;
   engine: VehicleEngine;
 }
 
@@ -27,7 +29,7 @@ export type UpdateVehicleInput = Partial<
 export interface VehicleRecognitionDetails {
   brand: string | null;
   model: string | null;
-  color: VehicleColor | null;
+  color: string | null;
 }
 
 // Restricción UNIQUE de la matrícula (migración InitialSchema)
@@ -43,6 +45,7 @@ export class VehiclesService {
   constructor(
     @InjectRepository(Vehicle)
     private readonly vehiclesRepository: Repository<Vehicle>,
+    private readonly colors: VehicleColorsService,
   ) {}
 
   // Registra un vehículo. Si el mismo conductor lo había dado de baja, se
@@ -52,6 +55,7 @@ export class VehiclesService {
     driverId: string,
     input: RegisterVehicleInput,
   ): Promise<Vehicle> {
+    await this.assertColorOffered(input.color);
     const activeCount = await this.vehiclesRepository.countBy({
       driverId,
       status: Not('inactive'),
@@ -137,6 +141,9 @@ export class VehiclesService {
     input: UpdateVehicleInput,
   ): Promise<Vehicle> {
     const vehicle = await this.getOwn(driverId, vehicleId);
+    if (input.color !== undefined && input.color !== vehicle.color) {
+      await this.assertColorOffered(input.color);
+    }
     const changesCapacity =
       input.capacity !== undefined && input.capacity !== vehicle.capacity;
     if (changesCapacity && vehicle.status === 'on_trip') {
@@ -227,5 +234,13 @@ export class VehiclesService {
       throw new VehicleInUseError(vehicleId);
     }
     await this.vehiclesRepository.update(vehicle.id, { status: 'inactive' });
+  }
+
+  // Solo se eligen colores activos del catálogo; un vehículo conserva el suyo
+  // aunque después se desactive
+  private async assertColorOffered(color: string): Promise<void> {
+    if (!(await this.colors.isOffered(color))) {
+      throw new VehicleColorNotOfferedError(color);
+    }
   }
 }

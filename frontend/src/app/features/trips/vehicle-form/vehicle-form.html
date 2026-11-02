@@ -41,7 +41,7 @@
       }
     </legend>
     <div class="vehicle-form__colors">
-      @for (color of colors; track color.value) {
+      @for (color of colors(); track color.value) {
         <label class="vehicle-form__color" [style.--swatch-color]="color.hex">
           <input
             type="radio"

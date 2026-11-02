@@ -3,7 +3,6 @@ import type { Point } from 'typeorm';
 import { API_PREFIX } from '../../../app.setup';
 import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
 import { TravelPreferencesResource } from '../../users/dto/travel-preferences.resource';
-import { VEHICLE_COLORS } from '../../users/entities/vehicle.entity';
 import { AVATAR_KEYS, type AvatarKey } from '../../users/travel-preferences';
 import type { VehicleRecognitionDetails } from '../../users/vehicles.service';
 import { TripView } from '../trips.service';
@@ -44,7 +43,12 @@ export class TripVehicleResource {
   @ApiProperty({ type: String, nullable: true, example: 'Ibiza' })
   model: string | null;
 
-  @ApiProperty({ enum: VEHICLE_COLORS, nullable: true, example: 'blue' })
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'blue',
+    description: 'Key of the vehicle color catalog',
+  })
   color: VehicleRecognitionDetails['color'];
 }
 

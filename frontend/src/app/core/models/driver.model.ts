@@ -25,8 +25,8 @@ export interface RegisterVehicleRequest {
   engine: VehicleEngine;
 }
 
-export type VehicleColor =
-  'white' | 'black' | 'grey' | 'silver' | 'blue' | 'red' | 'green' | 'other';
+// Clave del catálogo de colores (GET /api/catalogs/vehicle-colors)
+export type VehicleColor = string;
 export type VehicleEngine = 'electric' | 'hybrid' | 'other';
 
 // PATCH /api/vehicles/{id}: marca, modelo y matrícula no se cambian

@@ -67,11 +67,6 @@ for (const viewport of VIEWPORTS) {
     beforeEach(() => {
       cy.viewport(viewport.width, viewport.height);
       stubNewDriver();
-      // Las marcas salen del catálogo
-      cy.intercept('GET', '/api/catalogs/vehicle-brands?*', [
-        { '@type': 'VehicleBrand', key: 'seat', name: 'SEAT' },
-        { '@type': 'VehicleBrand', key: 'skoda', name: 'Škoda' },
-      ]);
       cy.intercept('POST', '/api/auth/login', accessToken());
       cy.visit('/auth/login');
       cy.get('app-login ion-input[formControlName="email"] input').type(EMAIL);

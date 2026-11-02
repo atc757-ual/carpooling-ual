@@ -46,7 +46,8 @@ import {
   toPublishTripRequest,
 } from './publish-trip.utils';
 import { toIsoDate } from '../../../shared/utils/date.util';
-import { vehicleColorLabel, vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
+import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
+import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colors.store';
 
 export const DETOURS = [5, 10, 15, 20] as const;
 const DEFAULT_DETOUR = 10;
@@ -108,6 +109,7 @@ function getDefaultDeparture(now = new Date()): { date: string; time: string } {
   styleUrls: ['../../tabs/tab-page.scss', './publish-trip.page.scss'],
 })
 export class PublishTripPage implements OnInit {
+  private readonly vehicleColors = inject(VehicleColorsStore);
   private readonly driver = inject(DriverService);
   private readonly auth = inject(AuthService);
   private readonly places = inject(PlacesService);
@@ -389,7 +391,7 @@ export class PublishTripPage implements OnInit {
 
   // «Seat Ibiza · 1234BCD», o solo la matrícula si no tiene modelo
   protected vehicleLabel(vehicle: Vehicle): string {
-    return `${vehicleDisplayName(vehicle)} · ${vehicleColorLabel(vehicle.color)} · ${vehicle.plate}`;
+    return `${vehicleDisplayName(vehicle)} · ${this.vehicleColors.label(vehicle.color)} · ${vehicle.plate}`;
   }
 
   // «0,7»: con coma decimal, en español

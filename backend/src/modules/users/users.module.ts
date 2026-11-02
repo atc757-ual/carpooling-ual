@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditModule } from '../../audit/audit.module';
 import { EventsModule } from '../../events/events.module';
+import { CatalogsModule } from '../catalogs/catalogs.module';
 import { AvatarsController } from './avatars.controller';
 import { AvatarsService } from './avatars.service';
 import { ConsentsService } from './consents.service';
@@ -31,6 +32,7 @@ import { VehiclesService } from './vehicles.service';
       Avatar,
       UserConsent,
     ]),
+    CatalogsModule,
     EventsModule,
     AuditModule,
   ],

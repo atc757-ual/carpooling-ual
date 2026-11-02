@@ -12,18 +12,6 @@ import {
 export const VEHICLE_STATUSES = ['available', 'on_trip', 'inactive'] as const;
 export type VehicleStatus = (typeof VEHICLE_STATUSES)[number];
 
-export const VEHICLE_COLORS = [
-  'white',
-  'black',
-  'grey',
-  'silver',
-  'blue',
-  'red',
-  'green',
-  'other',
-] as const;
-export type VehicleColor = (typeof VEHICLE_COLORS)[number];
-
 export const VEHICLE_ENGINES = ['electric', 'hybrid', 'other'] as const;
 export type VehicleEngine = (typeof VEHICLE_ENGINES)[number];
 
@@ -50,13 +38,10 @@ export class Vehicle {
   @Column({ type: 'varchar', length: 30, nullable: true })
   model: string | null;
 
-  @Column({
-    type: 'enum',
-    enum: VEHICLE_COLORS,
-    enumName: 'vehicle_color',
-    nullable: true,
-  })
-  color: VehicleColor | null;
+  // Clave del catálogo de colores (vehicle_colors), o null en los vehículos
+  // antiguos que no lo indicaron
+  @Column({ type: 'varchar', length: 60, nullable: true })
+  color: string | null;
 
   @Column({
     type: 'enum',

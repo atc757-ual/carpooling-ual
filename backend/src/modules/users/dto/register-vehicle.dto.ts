@@ -7,9 +7,10 @@ import {
   Length,
   Matches,
   Max,
+  MaxLength,
   Min,
 } from 'class-validator';
-import { VEHICLE_COLORS, VEHICLE_ENGINES } from '../entities/vehicle.entity';
+import { VEHICLE_ENGINES } from '../entities/vehicle.entity';
 import { normalizePlate, SPANISH_PLATE_PATTERN } from '../vehicle-plate';
 
 // Cuerpo de POST /api/vehicles (RF-21). La matrícula se normaliza ANTES de
@@ -66,9 +67,12 @@ export class RegisterVehicleDto {
   @Length(1, 30)
   model!: string;
 
-  @ApiProperty({ enum: VEHICLE_COLORS, example: 'blue' })
-  @IsIn([...VEHICLE_COLORS])
-  color!: (typeof VEHICLE_COLORS)[number];
+  // Clave de un color activo del catálogo (GET /api/catalogs/vehicle-colors);
+  // si no lo es, VEHICLE_COLOR_NOT_OFFERED
+  @ApiProperty({ example: 'blue', maxLength: 60 })
+  @IsString()
+  @MaxLength(60)
+  color!: string;
 
   @ApiProperty({ enum: VEHICLE_ENGINES, example: 'hybrid' })
   @IsIn([...VEHICLE_ENGINES])

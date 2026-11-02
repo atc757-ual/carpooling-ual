@@ -42,4 +42,16 @@ describe('CatalogsService', () => {
     http.expectOne('/api/catalogs/vehicle-brands?limit=100').flush([{ key: 'seat', name: 'SEAT' }]);
     await expect(retry).resolves.toEqual(['SEAT']);
   });
+
+  it('asks for all the vehicle colors once', async () => {
+    const colors = catalogs.vehicleColors();
+    http
+      .expectOne('/api/catalogs/vehicle-colors?limit=100')
+      .flush([
+        { key: 'blue', name: 'Azul', hexLight: '#2673c9', hexDark: '#5b9be0', isActive: true },
+      ]);
+
+    await expect(colors).resolves.toHaveLength(1);
+    await expect(catalogs.vehicleColors()).resolves.toHaveLength(1);
+  });
 });

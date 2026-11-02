@@ -5,6 +5,7 @@ import { vi } from 'vitest';
 import { Vehicle } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { provideCatalogsForTests } from '../../../core/services/catalogs/catalogs.testing';
 import { VehicleForm } from './vehicle-form';
 
 const VEHICLE: Vehicle = {
@@ -36,6 +37,7 @@ describe('VehicleForm', () => {
       imports: [VehicleForm],
       providers: [
         provideIonicAngular(),
+        provideCatalogsForTests(),
         { provide: DriverService, useValue: driver },
         { provide: ToastService, useValue: { showError } },
       ],
@@ -199,5 +201,16 @@ describe('VehicleForm', () => {
     expect(saved).toEqual([]);
     expect(form.isSaving()).toBe(false);
     expect(form.form.controls.brand.value).toBe('Seat');
+  });
+
+  it('keeps showing the color of an edited vehicle that is no longer offered', async () => {
+    ref.setInput('vehicle', { ...VEHICLE, color: 'gold' });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const root = fixture.nativeElement as HTMLElement;
+
+    const colors = root.querySelectorAll<HTMLInputElement>('input[formControlName="color"]');
+    expect(colors).toHaveLength(9);
+    expect(colors[8].checked).toBe(true);
   });
 });

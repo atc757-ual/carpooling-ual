@@ -7,6 +7,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ProfileVehicles } from './profile-vehicles';
+import { provideCatalogsForTests } from '../../../core/services/catalogs/catalogs.testing';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 
 function vehicle(id: string, status: Vehicle['status'], model: string | null): Vehicle {
@@ -35,6 +36,7 @@ describe('ProfileVehicles', () => {
       imports: [ProfileVehicles],
       providers: [
         provideIonicAngular(),
+        provideCatalogsForTests(),
         provideTestingTransloco({
           es: {
             common: { retry: 'Reintentar' },

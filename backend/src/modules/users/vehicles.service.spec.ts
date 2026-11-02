@@ -5,6 +5,7 @@ import { Vehicle } from './entities/vehicle.entity';
 import { VehicleAlreadyRegisteredError } from './errors/vehicle-already-registered.error';
 import { VehicleInUseError } from './errors/vehicle-in-use.error';
 import { VehicleNotFoundError } from './errors/vehicle-not-found.error';
+import { VehicleColorsService } from '../catalogs/vehicle-colors.service';
 import { VehiclesService } from './vehicles.service';
 
 // Tests unitarios de lo que no se puede provocar fácilmente contra la base de
@@ -19,16 +20,19 @@ describe('VehiclesService', () => {
     create: jest.fn((values: Partial<Vehicle>) => values),
     save: jest.fn(),
   };
+  const isOffered = jest.fn();
 
   beforeEach(async () => {
     jest.clearAllMocks();
     vehiclesRepository.findOneBy.mockResolvedValue(null);
     vehiclesRepository.findBy.mockResolvedValue([]);
     vehiclesRepository.countBy.mockResolvedValue(0);
+    isOffered.mockResolvedValue(true);
     const moduleRef = await Test.createTestingModule({
       providers: [
         VehiclesService,
         { provide: getRepositoryToken(Vehicle), useValue: vehiclesRepository },
+        { provide: VehicleColorsService, useValue: { isOffered } },
       ],
     }).compile();
     vehiclesService = moduleRef.get(VehiclesService);
@@ -159,5 +163,37 @@ describe('VehiclesService', () => {
     ).resolves.toEqual(
       new Map([['v1', { brand: 'Seat', model: 'Ibiza', color: 'blue' }]]),
     );
+  });
+
+  it('rejects a color that is not offered and keeps an old one on edit', async () => {
+    isOffered.mockResolvedValue(false);
+    await expect(
+      vehiclesService.register('d1', {
+        plate: '1234BCD',
+        capacity: 3,
+        brand: 'SEAT',
+        model: 'Ibiza',
+        color: 'gold',
+        engine: 'hybrid',
+      }),
+    ).rejects.toMatchObject({ code: 'VEHICLE_COLOR_NOT_OFFERED' });
+
+    const vehicle = {
+      id: 'v1',
+      driverId: 'd1',
+      color: 'gold',
+      status: 'available',
+      capacity: 3,
+    };
+    vehiclesRepository.findOneBy.mockResolvedValue(vehicle);
+    vehiclesRepository.save.mockImplementation((saved: unknown) =>
+      Promise.resolve(saved),
+    );
+    await expect(
+      vehiclesService.update('d1', 'v1', { color: 'gold', capacity: 4 }),
+    ).resolves.toMatchObject({ color: 'gold', capacity: 4 });
+    await expect(
+      vehiclesService.update('d1', 'v1', { color: 'pink' }),
+    ).rejects.toMatchObject({ code: 'VEHICLE_COLOR_NOT_OFFERED' });
   });
 });

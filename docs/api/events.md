@@ -59,8 +59,8 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `simulation.finished`      | Termina con sus resultados                                                     | `simulation/simulations.service.ts`   |
 | `simulation.failed`        | Falla                                                                          | `simulation/simulations.service.ts`   |
 | `simulation.cancelled`     | Se cancela                                                                     | `simulation/simulations.service.ts`   |
-| `catalog.item_created`     | Un administrador da de alta un elemento de un catálogo (p. ej. una marca)      | `catalogs/vehicle-brands.service.ts`  |
-| `catalog.item_updated`     | Cambia su nombre, su orden o lo vuelve a activar                               | `catalogs/vehicle-brands.service.ts`  |
-| `catalog.item_deactivated` | Lo desactiva (deja de ofrecerse; no se borra)                                  | `catalogs/vehicle-brands.service.ts`  |
+| `catalog.item_created`     | Un administrador da de alta un elemento de un catálogo (p. ej. una marca)      | `catalogs/catalog-items.service.ts`   |
+| `catalog.item_updated`     | Cambia su nombre, su orden o lo vuelve a activar                               | `catalogs/catalog-items.service.ts`   |
+| `catalog.item_deactivated` | Lo desactiva (deja de ofrecerse; no se borra)                                  | `catalogs/catalog-items.service.ts`   |
 
 Las rutas son relativas a `backend/src/modules/`. Un test (`events-contract.spec.ts`) comprueba que todo tipo de `domain-event-type.ts` tiene versión y aparece en esta tabla.
