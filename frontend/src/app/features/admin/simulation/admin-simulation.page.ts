@@ -141,7 +141,7 @@ export class AdminSimulationPage {
 
   handleNumber(target: 'replicas' | 'seed', event: CustomEvent<{ value?: string | null }>): void {
     const value = Number(event.detail.value);
-    this[target].set(Number.isFinite(value) ? value : NaN);
+    this[target].set(Number.isFinite(value) ? value : Number.NaN);
   }
 
   async handleStart(): Promise<void> {
