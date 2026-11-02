@@ -13,6 +13,9 @@ export const SEARCH_PATH = '/tabs/search';
 export const PROFILE_PATH = '/tabs/profile';
 // Panel de administración (solo con el perfil de administrador)
 export const ADMIN_PATH = '/admin';
+// Aceptar una versión nueva de las condiciones o de la política (antes de
+// entrar en la app o en el panel)
+export const LEGAL_UPDATE_PATH = '/legal-update';
 
 // Parámetro con la página que se pedía, para volver a ella tras el login
 export const RETURN_URL_PARAM = 'returnUrl';

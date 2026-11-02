@@ -322,6 +322,15 @@
       "emailDomain": "Use your University of Almería email address.",
       "internal": "A server error occurred{{ reference }}. Please try again.",
       "reference": " (reference: {{ requestId }})"
+    },
+    "legalUpdate": {
+      "title": "We have updated our documents",
+      "description": "To keep using UAL Carpool, read the changes and accept them.",
+      "version": "version {{version}}",
+      "accept": "Accept and continue",
+      "loading": "Loading the documents",
+      "logout": "Log out",
+      "deleteAccount": "Delete my account"
     }
   }
 }

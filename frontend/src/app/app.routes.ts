@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router, Routes } from '@angular/router';
 import { appAreaGuard } from './core/guards/app-area.guard';
 import { authGuard } from './core/guards/auth.guard';
+import { legalAcceptanceGuard } from './core/guards/legal-acceptance.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { profileGuard } from './core/guards/profile.guard';
 import { PUBLISH_PATH, SEARCH_PATH, WELCOME_PATH } from './core/guards/redirect-paths';
@@ -67,7 +68,7 @@ export const routes: Routes = [
     // Mensajes y Perfil; sin sesión, authGuard lleva a la bienvenida o al
     // login). Avisos se abre con la campana de la cabecera
     path: 'tabs',
-    canActivate: [authGuard, appAreaGuard],
+    canActivate: [authGuard, legalAcceptanceGuard, appAreaGuard],
     loadComponent: () => import('./features/tabs/tabs.page').then((m) => m.TabsPage),
     children: [
       {
@@ -226,7 +227,7 @@ export const routes: Routes = [
     // (sin él, profileGuard lleva al Perfil). Sus secciones, en
     // features/admin/admin.routes.ts
     path: 'admin',
-    canActivate: [profileGuard('admin')],
+    canActivate: [profileGuard('admin'), legalAcceptanceGuard],
     loadComponent: () =>
       import('./shared/components/layout/admin-layout/admin-layout').then((m) => m.AdminLayout),
     children: ADMIN_ROUTES,
@@ -240,6 +241,15 @@ export const routes: Routes = [
       import('./features/auth/account-created/account-created.page').then(
         (m) => m.AccountCreatedPage,
       ),
+  },
+  {
+    // Una versión nueva de las condiciones o de la política: se acepta antes
+    // de seguir (o se cierra sesión o se elimina la cuenta)
+    path: 'legal-update',
+    canActivate: [sessionOnly],
+    title: 'Documentos actualizados',
+    loadComponent: () =>
+      import('./features/auth/legal-update/legal-update.page').then((m) => m.LegalUpdatePage),
   },
   { path: '', redirectTo: 'tabs', pathMatch: 'full' },
   { path: '**', redirectTo: 'tabs' },
