@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, MoreThan, Repository } from 'typeorm';
+import { EntityManager, In, MoreThan, Repository } from 'typeorm';
 import { Page, PageRequest } from '../shared/pagination/page';
 import type { DomainEventType } from './domain-event-type';
 import { DomainEvent } from './entities/domain-event.entity';
@@ -72,6 +72,16 @@ export class EventsService {
       take: page.limit,
     });
     return { items, total };
+  }
+
+  // Los eventos de varias entidades (p. ej. un viaje y sus solicitudes) en
+  // el orden en que pasaron, como mucho MAX_EVENTS_PER_READ
+  listBySources(sourceEntityIds: readonly string[]): Promise<DomainEvent[]> {
+    return this.eventsRepository.find({
+      where: { sourceEntityId: In([...sourceEntityIds]) },
+      order: { sequence: 'ASC' },
+      take: MAX_EVENTS_PER_READ,
+    });
   }
 
   async get(eventId: string): Promise<DomainEvent> {

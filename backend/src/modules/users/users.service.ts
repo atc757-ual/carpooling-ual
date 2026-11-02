@@ -10,6 +10,7 @@ import { DriverReadiness } from './driver-readiness';
 import { DriverProfile } from './entities/driver-profile.entity';
 import { PassengerProfile } from './entities/passenger-profile.entity';
 import { User } from './entities/user.entity';
+import { escapeLike } from './admin-user-filter';
 import { EmailAlreadyRegisteredError } from './errors/email-already-registered.error';
 import { UserNotFoundError } from './errors/user-not-found.error';
 import { PROFILE_ENTITIES } from './profile-entities';
@@ -379,6 +380,20 @@ export class UsersService {
       where: { id: In([...new Set(userIds)]) },
     });
     return new Map(users.map(({ id, name }) => [id, name]));
+  }
+
+  // Ids de los usuarios cuyo nombre o correo contiene el texto, sin
+  // distinguir mayúsculas (p. ej. para buscar viajes por conductor)
+  async findIdsBySearch(search: string): Promise<string[]> {
+    const pattern = `%${escapeLike(search)}%`;
+    const users = await this.usersRepository
+      .createQueryBuilder('user')
+      .select('user.id', 'id')
+      .where('user.name ILIKE :pattern OR user.email ILIKE :pattern', {
+        pattern,
+      })
+      .getRawMany<{ id: string }>();
+    return users.map(({ id }) => id);
   }
 
   // Perfil público (nombre, avatar y preferencias) de varios usuarios en UNA

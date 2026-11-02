@@ -5,6 +5,8 @@ import { RequestsModule } from '../requests/requests.module';
 import { TripsModule } from '../trips/trips.module';
 import { UsersModule } from '../users/users.module';
 import { AdminOverviewController } from './admin-overview.controller';
+import { AdminTripsController } from './admin-trips.controller';
+import { AdminTripsService } from './admin-trips.service';
 import { AdminUsersController } from './admin-users.controller';
 import { AdminUserDetailService } from './admin-user-detail.service';
 import { AdminUsersService } from './admin-users.service';
@@ -20,7 +22,11 @@ import { AdminUsersService } from './admin-users.service';
     IncidentsModule,
     EventsModule,
   ],
-  controllers: [AdminUsersController, AdminOverviewController],
-  providers: [AdminUsersService, AdminUserDetailService],
+  controllers: [
+    AdminUsersController,
+    AdminOverviewController,
+    AdminTripsController,
+  ],
+  providers: [AdminUsersService, AdminUserDetailService, AdminTripsService],
 })
 export class AdminModule {}
