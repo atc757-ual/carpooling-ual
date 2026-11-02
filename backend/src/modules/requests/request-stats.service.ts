@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { SeatRequest } from './entities/seat-request.entity';
 
 // Lecturas de solicitudes para el panel de administración: recuentos para
@@ -43,8 +43,11 @@ export class RequestStatsService {
     });
   }
 
-  // Solicitudes que esperan la respuesta del conductor
-  countPending(): Promise<number> {
-    return this.requestsRepository.countBy({ status: 'pending' });
+  // Solicitudes que esperan la respuesta del conductor (con el manager de
+  // quien llama si va en su transacción)
+  countPending(
+    manager: EntityManager = this.requestsRepository.manager,
+  ): Promise<number> {
+    return manager.countBy(SeatRequest, { status: 'pending' });
   }
 }

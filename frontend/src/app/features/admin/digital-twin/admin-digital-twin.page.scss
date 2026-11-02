@@ -1,0 +1,151 @@
+.admin-page__header {
+  margin-block-end: var(--space-l);
+}
+
+.admin-page__subtitle {
+  color: var(--color-text-muted);
+}
+
+.twin__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-base);
+}
+
+.twin__notice {
+  margin-block-end: var(--space-l);
+}
+
+.twin__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  margin-block-end: var(--space-xl);
+}
+
+// Las cifras son las protagonistas (guía, «Administración»)
+.twin__kpis {
+  display: grid;
+  gap: var(--space-s);
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); // 160px
+}
+
+.twin__kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-base);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+.twin__value {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.twin__skeleton-label {
+  width: 70%;
+}
+
+.twin__skeleton-value {
+  width: 30%;
+  height: 1.5rem; // 24px
+}
+
+.twin__skeleton-row {
+  height: 1.5rem; // 24px
+  margin: var(--space-s) var(--space-base);
+}
+
+.twin__events-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-base);
+}
+
+.twin__select {
+  width: 100%;
+
+  @media (min-width: 768px) {
+    width: 16rem; // 256px
+  }
+}
+
+.twin__table-wrap {
+  max-height: 70vh;
+  overflow: auto;
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+.twin__table {
+  width: 100%;
+  min-width: 36rem; // 576px
+  border-collapse: collapse;
+  font-size: var(--font-size-label);
+
+  th,
+  td {
+    padding: var(--space-s) var(--space-base);
+    border-bottom: var(--border-width) solid var(--color-border-subtle);
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-medium);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+.twin__row--open td {
+  border-bottom: 0;
+}
+
+// El tipo abre el payload: parece un enlace, con el foco visible del tema
+.twin__toggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-link);
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  text-align: left;
+  cursor: pointer;
+}
+
+.twin__mono,
+.twin__date {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.twin__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xxl) var(--space-l);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+  text-align: center;
+}

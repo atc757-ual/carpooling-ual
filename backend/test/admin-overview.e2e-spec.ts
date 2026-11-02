@@ -7,6 +7,8 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { EventsService } from '../src/events/events.service';
+import { RequestStatsService } from '../src/modules/requests/request-stats.service';
+import { TripStatsService } from '../src/modules/trips/trip-stats.service';
 import { registerUser } from './support/accounts';
 import { deleteTestUsers } from './support/cleanup';
 
@@ -101,38 +103,66 @@ describe('Admin overview API (e2e)', () => {
     await api(`/events/${randomUUID()}`, token).expect(403);
   });
 
+  it('returns the overview as whole counts', async () => {
+    const body = await overview();
+
+    expect(body).toMatchObject({ '@type': 'PlatformOverview' });
+    for (const key of [
+      'tripsPublishedToday',
+      'tripsInProgress',
+      'seatsOffered',
+      'seatsTaken',
+      'pendingRequests',
+    ] as const) {
+      expect(Number.isInteger(body[key]) && body[key] >= 0).toBe(true);
+    }
+  });
+
+  // Las cuentas, dentro de una transacción con una foto fija de la base de
+  // datos (REPEATABLE READ): los viajes que otros tests crean o borran a la
+  // vez no cambian el resultado. Al terminar se deshace
   it('counts the trips of today, the seats and the pending requests', async () => {
-    const before = await overview();
     const dan = await account('dan', ['driver']);
     const pia = await account('pia', ['passenger']);
-    const [vehicle]: { id: string }[] = await dataSource.query(
-      `INSERT INTO vehicles (driver_id, plate, capacity)
-       VALUES ($1, $2, 4) RETURNING id`,
-      [dan.id, `${Math.floor(1000 + Math.random() * 8999)}XYZ`],
-    );
-    const [trip]: { id: string }[] = await dataSource.query(
-      `INSERT INTO trips (driver_id, vehicle_id, origin, destination,
-                          departure_at, offered_seats, available_seats, status)
-       VALUES ($1, $2, 'POINT(-2.4637 36.8381)', 'POINT(-2.4058 36.8297)',
-               now() + interval '1 day', 3, 1, 'confirmed') RETURNING id`,
-      [dan.id, vehicle.id],
-    );
-    await dataSource.query(
-      'INSERT INTO requests (trip_id, passenger_id) VALUES ($1, $2)',
-      [trip.id, pia.id],
-    );
+    const tripStats = app.get(TripStatsService);
+    const requestStats = app.get(RequestStatsService);
+    const runner = dataSource.createQueryRunner();
+    await runner.startTransaction('REPEATABLE READ');
+    try {
+      const { manager } = runner;
+      const count = async () => ({
+        trips: await tripStats.overview(manager),
+        pending: await requestStats.countPending(manager),
+      });
+      const before = await count();
+      const [vehicle]: { id: string }[] = await manager.query(
+        `INSERT INTO vehicles (driver_id, plate, capacity)
+         VALUES ($1, $2, 4) RETURNING id`,
+        [dan.id, `${Math.floor(1000 + Math.random() * 8999)}XYZ`],
+      );
+      const [trip]: { id: string }[] = await manager.query(
+        `INSERT INTO trips (driver_id, vehicle_id, origin, destination,
+                            departure_at, offered_seats, available_seats, status)
+         VALUES ($1, $2, 'POINT(-2.4637 36.8381)', 'POINT(-2.4058 36.8297)',
+                 now() + interval '1 day', 3, 1, 'confirmed') RETURNING id`,
+        [dan.id, vehicle.id],
+      );
+      await manager.query(
+        'INSERT INTO requests (trip_id, passenger_id) VALUES ($1, $2)',
+        [trip.id, pia.id],
+      );
 
-    // Otros tests pueden crear viajes a la vez: al menos lo de este test
-    const after = await overview();
+      const after = await count();
 
-    expect(
-      after.tripsPublishedToday - before.tripsPublishedToday,
-    ).toBeGreaterThanOrEqual(1);
-    expect(after.seatsOffered - before.seatsOffered).toBeGreaterThanOrEqual(3);
-    expect(after.seatsTaken - before.seatsTaken).toBeGreaterThanOrEqual(2);
-    expect(
-      after.pendingRequests - before.pendingRequests,
-    ).toBeGreaterThanOrEqual(1);
+      expect(after.trips.publishedToday - before.trips.publishedToday).toBe(1);
+      expect(after.trips.inProgress - before.trips.inProgress).toBe(0);
+      expect(after.trips.seatsOffered - before.trips.seatsOffered).toBe(3);
+      expect(after.trips.seatsTaken - before.trips.seatsTaken).toBe(2);
+      expect(after.pending - before.pending).toBe(1);
+    } finally {
+      await runner.rollbackTransaction();
+      await runner.release();
+    }
   });
 
   it('lists the latest events by type without payload and shows one with it', async () => {
