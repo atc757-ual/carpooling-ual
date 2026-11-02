@@ -69,6 +69,12 @@ export const ADMIN_ROUTES: Routes = [
     title: 'Viajes · Admin',
     loadComponent: () => import('./trips/admin-trips.page').then((m) => m.AdminTripsPage),
   },
+  {
+    path: `${TRIPS_PATH}/:id`,
+    title: 'Viaje · Admin',
+    loadComponent: () =>
+      import('./trips/admin-trip-detail.page').then((m) => m.AdminTripDetailPage),
+  },
   ...ADMIN_SECTIONS.filter(({ path }) => !WITH_SCREEN.has(path)).map((section) =>
     placeholderRoute(section),
   ),

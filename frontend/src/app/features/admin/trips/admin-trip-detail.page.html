@@ -1,0 +1,101 @@
+<ion-button class="trip-detail__back" fill="clear" (click)="handleBack()">
+  <ion-icon slot="start" [icon]="backIcon" aria-hidden="true" />
+  Viajes
+</ion-button>
+
+@if (trip(); as trip) {
+  <header class="trip-detail__header">
+    <h1 class="text-heading">{{ trip.route }}</h1>
+    <p class="text-body trip-detail__muted">
+      Salida: {{ trip.departure }} · <span [class]="trip.statusClass">{{ trip.status }}</span>
+    </p>
+  </header>
+
+  <div class="trip-detail__grid">
+    <section class="trip-detail__card" aria-labelledby="trip-detail-data">
+      <h2 id="trip-detail-data" class="text-title">Viaje</h2>
+      <dl class="trip-detail__data">
+        <dt>Conductor</dt>
+        <dd>
+          <a class="trip-detail__link" [routerLink]="trip.driver.link">{{ trip.driver.name }}</a>
+        </dd>
+        <dt>Plazas</dt>
+        <dd>{{ trip.seats }}</dd>
+        <dt>Solicitudes</dt>
+        <dd>{{ trip.requests }}</dd>
+      </dl>
+    </section>
+
+    <section class="trip-detail__card" aria-labelledby="trip-detail-requests">
+      <h2 id="trip-detail-requests" class="text-title">Solicitudes</h2>
+      @if (trip.seatRequests.length === 0) {
+        <p class="text-body trip-detail__muted">Sin solicitudes.</p>
+      } @else {
+        <ul class="trip-detail__list">
+          @for (request of trip.seatRequests; track request.id) {
+            <li class="trip-detail__request">
+              <span class="trip-detail__request-head">
+                <a class="trip-detail__link" [routerLink]="request.passengerLink">{{
+                  request.passenger
+                }}</a>
+                <span class="status">{{ request.status }}</span>
+                @if (request.isPriority) {
+                  <span class="status status--info">Prioritaria</span>
+                }
+              </span>
+              <span class="text-body-s trip-detail__muted">
+                {{ request.seats }}
+                @if (request.pickup) {
+                  · {{ request.pickup }}
+                }
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <!-- Línea de tiempo: los eventos del viaje y de sus solicitudes, en orden -->
+    <section
+      class="trip-detail__card trip-detail__card--wide"
+      aria-labelledby="trip-detail-timeline"
+    >
+      <h2 id="trip-detail-timeline" class="text-title">Línea de tiempo</h2>
+      @if (trip.timeline.length === 0) {
+        <p class="text-body trip-detail__muted">Sin eventos.</p>
+      } @else {
+        <ol class="trip-detail__timeline">
+          @for (event of trip.timeline; track event.id) {
+            <li class="trip-detail__event">
+              <time class="text-body-s trip-detail__muted" [attr.datetime]="event.occurredAt">{{
+                event.time
+              }}</time>
+              <span class="text-body">{{ event.label }}</span>
+            </li>
+          }
+        </ol>
+      }
+    </section>
+  </div>
+} @else if (errorMessage(); as message) {
+  <div class="notice notice--danger trip-detail__state" role="alert">
+    <span>
+      <b>{{ isNotFound() ? 'Este viaje no existe.' : 'No hemos podido cargar el viaje.' }}</b>
+      {{ message }}
+    </span>
+    @if (isNotFound()) {
+      <ion-button fill="outline" size="small" [routerLink]="tripsPath">Ver la lista</ion-button>
+    } @else {
+      <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
+    }
+  </div>
+} @else {
+  <div class="trip-detail__grid" aria-busy="true" aria-label="Cargando el viaje">
+    @for (card of [1, 2, 3]; track card) {
+      <div class="trip-detail__card">
+        <ion-skeleton-text [animated]="true" class="trip-detail__skeleton-title" />
+        <ion-skeleton-text [animated]="true" />
+      </div>
+    }
+  </div>
+}

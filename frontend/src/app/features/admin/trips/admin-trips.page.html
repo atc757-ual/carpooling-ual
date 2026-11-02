@@ -88,6 +88,7 @@
           <th scope="col">Plazas</th>
           <th scope="col">Solicitudes</th>
           <th scope="col">Estado</th>
+          <th scope="col"><span class="visually-hidden">Acciones</span></th>
         </tr>
       </thead>
       <tbody>
@@ -100,6 +101,9 @@
             <td>{{ row.requests }}</td>
             <td>
               <span [class]="row.statusClass">{{ row.status }}</span>
+            </td>
+            <td>
+              <a class="admin-trips__link" [routerLink]="[row.id]">Ver detalle</a>
             </td>
           </tr>
         }

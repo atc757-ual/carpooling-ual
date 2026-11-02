@@ -46,4 +46,16 @@ describe('AdminTripsService', () => {
       .flush(null, { status: 500, statusText: 'Server Error' });
     await expect(failing).rejects.toBeInstanceOf(ApiError);
   });
+
+  it('gets a trip and reports a missing one as ApiError', async () => {
+    const found = trips.get('t1');
+    http.expectOne('/api/admin/trips/t1').flush({ id: 't1', seatRequests: [], timeline: [] });
+    await expect(found).resolves.toEqual({ id: 't1', seatRequests: [], timeline: [] });
+
+    const missing = trips.get('t2');
+    http
+      .expectOne('/api/admin/trips/t2')
+      .flush({ code: 'TRIP_NOT_FOUND' }, { status: 404, statusText: 'Not Found' });
+    await expect(missing).rejects.toBeInstanceOf(ApiError);
+  });
 });

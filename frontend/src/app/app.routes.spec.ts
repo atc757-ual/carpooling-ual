@@ -25,8 +25,8 @@ describe('application routes', () => {
     const [entry, ...sections] = adminRoute?.children ?? [];
 
     expect(entry.redirectTo).toBe('simulation');
-    // Usuarios e Incidencias ya tienen pantalla, con su detalle; el resto, su
-    // marcador
+    // Usuarios, Incidencias y Viajes ya tienen pantalla, con su detalle; el
+    // resto, su marcador
     expect(sections.map(({ path }) => path).sort()).toEqual(
       [
         'simulation',
@@ -36,6 +36,7 @@ describe('application routes', () => {
         'incidents',
         'incidents/:id',
         'trips',
+        'trips/:id',
         'catalogs',
       ].sort(),
     );
