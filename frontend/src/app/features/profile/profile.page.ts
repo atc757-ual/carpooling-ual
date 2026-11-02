@@ -12,7 +12,7 @@ import {
   NavController,
 } from '@ionic/angular';
 import {
-  callOutline,
+  phonePortraitOutline,
   checkmarkCircle,
   chevronForwardOutline,
   helpCircleOutline,
@@ -21,10 +21,11 @@ import {
   documentTextOutline,
   lockClosedOutline,
   logOutOutline,
-  moonOutline,
+  moon,
   shieldCheckmarkOutline,
   star,
-  sunnyOutline,
+  sunny,
+  timeOutline,
   trashOutline,
 } from 'ionicons/icons';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -36,12 +37,12 @@ import { UsersService } from '../../core/services/users/users.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { confirmLogout } from '../../core/services/auth/confirm-logout';
 import { ThemeService } from '../../core/services/ui/theme.service';
-import { LanguageService } from '../../core/services/ui/language.service';
 import { TRAVEL_PREFERENCE_GROUPS } from '../../core/models/travel-preferences.model';
 import { ConsentRecord, UserConsents } from '../../core/models/user-consent.model';
 import { toConsentStamp } from './consent-stamp';
 import { ProfileLocation } from './profile-location/profile-location';
 import { AvatarArt } from '../../shared/components/ui/avatar-art/avatar-art';
+import { LanguageSwitch } from '../../shared/components/ui/language-switch/language-switch';
 import { LegalDocument, LegalModal } from '../../shared/components/modals/legal-modal/legal-modal';
 import { formatPersonName } from '../../shared/utils/person-name.util';
 import { formatPhone } from '../../shared/utils/phone.util';
@@ -88,6 +89,7 @@ function toLegalDocRow(
   selector: 'app-profile',
   imports: [
     AvatarArt,
+    LanguageSwitch,
     RouterLink,
     IonButton,
     IonCard,
@@ -112,7 +114,6 @@ export class ProfilePage implements OnInit {
   private readonly confirm = inject(ConfirmService);
   private readonly modalController = inject(ModalController);
   private readonly theme = inject(ThemeService);
-  private readonly languageService = inject(LanguageService);
 
   readonly user = this.auth.currentUser;
   readonly initials = computed(() => getInitials(this.user()?.name ?? ''));
@@ -166,30 +167,27 @@ export class ProfilePage implements OnInit {
     ];
   });
 
-  protected readonly languages = [
-    { id: 'es' as const, code: 'ES', flag: 'es', label: 'Español' },
-    { id: 'en' as const, code: 'EN', flag: 'gb', label: 'English' },
-  ];
-  readonly appLanguage = this.languageService.currentLanguage;
   readonly isDarkMode = this.theme.isDark;
 
   protected readonly logoutIcon = logOutOutline;
   protected readonly adminIcon = shieldCheckmarkOutline;
   protected readonly isAdmin = computed(() => this.auth.hasProfile('admin'));
   protected readonly editIcon = createOutline;
-  protected readonly phoneIcon = callOutline;
+  protected readonly phoneIcon = phonePortraitOutline;
   protected readonly checkmarkIcon = checkmarkCircle;
   protected readonly shieldIcon = shieldCheckmarkOutline;
   protected readonly docIcon = documentTextOutline;
   protected readonly chevronIcon = chevronForwardOutline;
   protected readonly lockIcon = lockClosedOutline;
   protected readonly starIcon = star;
-  protected readonly sunIcon = sunnyOutline;
-  protected readonly moonIcon = moonOutline;
+  protected readonly sunIcon = sunny;
+  protected readonly moonIcon = moon;
   protected readonly toleranceIcon = TIME_TOLERANCE_ICON;
   protected readonly keyIcon = keyOutline;
   protected readonly helpIcon = helpCircleOutline;
   protected readonly trashIcon = trashOutline;
+  // Teléfono sin verificar: un reloj (espera), no el escudo de verificado
+  protected readonly pendingIcon = timeOutline;
 
   ngOnInit(): void {
     void this.refreshData();
@@ -206,12 +204,14 @@ export class ProfilePage implements OnInit {
     this.consents.set(await this.locationConsent.load(true));
   }
 
-  handleSelectLanguage(language: 'es' | 'en'): void {
-    this.languageService.setLanguage(language);
-  }
-
   handleToggleTheme(): void {
     void this.theme.toggle();
+  }
+
+  handleSetTheme(dark: boolean): void {
+    if (this.isDarkMode() !== dark) {
+      void this.theme.toggle();
+    }
   }
 
   async handleEditPublic(): Promise<void> {
@@ -273,6 +273,12 @@ export class ProfilePage implements OnInit {
       cssClass: 'info-dialog',
     });
     await modal.present();
+  }
+
+  handleOpenSupport(): void {
+    // Pendiente: abrir modal con formulario de atención a soporte
+    window.location.href =
+      'mailto:soporte@carpooling-ual.es?subject=Atenci%C3%B3n%20Carpooling%20UAL';
   }
 
   async handleOpenDeleteAccount(): Promise<void> {

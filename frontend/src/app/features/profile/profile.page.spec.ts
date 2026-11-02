@@ -12,7 +12,6 @@ import { LocationService } from '../../core/services/location/location.service';
 import { LocationConsentService } from '../../core/services/location/location-consent.service';
 import { UsersService } from '../../core/services/users/users.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
-import { LanguageService } from '../../core/services/ui/language.service';
 import { ThemeService } from '../../core/services/ui/theme.service';
 import { ProfilePage } from './profile.page';
 
@@ -212,17 +211,17 @@ describe('ProfilePage', () => {
     expect(present).toHaveBeenCalled();
   });
 
-  it('changes language via language service', () => {
-    const { page } = render();
-    const langSpy = vi.spyOn(TestBed.inject(LanguageService), 'setLanguage');
-    page.handleSelectLanguage('en');
-    expect(langSpy).toHaveBeenCalledWith('en');
-  });
-
   it('toggles theme via theme service', () => {
     const { page } = render();
     const themeSpy = vi.spyOn(TestBed.inject(ThemeService), 'toggle').mockResolvedValue();
     page.handleToggleTheme();
+    expect(themeSpy).toHaveBeenCalled();
+  });
+
+  it('sets theme if different from current mode', () => {
+    const { page } = render();
+    const themeSpy = vi.spyOn(TestBed.inject(ThemeService), 'toggle').mockResolvedValue();
+    page.handleSetTheme(true);
     expect(themeSpy).toHaveBeenCalled();
   });
   it('opens the change password modal', async () => {
@@ -247,5 +246,10 @@ describe('ProfilePage', () => {
     await page.handleOpenDeleteAccount();
     expect(create).toHaveBeenCalledWith(expect.objectContaining({ cssClass: 'info-dialog' }));
     expect(present).toHaveBeenCalled();
+  });
+
+  it('triggers support action', () => {
+    const { page } = render();
+    expect(() => page.handleOpenSupport()).not.toThrow();
   });
 });
