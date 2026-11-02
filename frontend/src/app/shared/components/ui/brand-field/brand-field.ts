@@ -1,11 +1,23 @@
-import { Component, computed, forwardRef, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  forwardRef,
+  inject,
+  resource,
+  signal,
+  untracked,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IonIcon, IonInput } from '@ionic/angular';
 import { searchOutline } from 'ionicons/icons';
+import { CatalogsService } from '../../../../core/services/catalogs/catalogs.service';
 import { Combobox, ComboboxState } from '../combobox/combobox';
-import { VEHICLE_BRANDS } from '../../../utils/vehicle-brands';
 
 const OTHER_BRAND = 'Otra';
+
+// Las marcas salen del catálogo (las gestiona el panel). Si no llegan, solo
+// queda «Otra» para escribirla
 
 @Component({
   selector: 'app-brand-field',
@@ -27,9 +39,12 @@ export class BrandField implements ControlValueAccessor {
   protected readonly searchActive = signal(false);
   protected readonly otherMode = signal(false);
   protected readonly disabled = signal(false);
+  private readonly catalogs = inject(CatalogsService);
+  private readonly catalog = resource({ loader: () => this.catalogs.vehicleBrandNames() });
+  private readonly brands = computed(() => (this.catalog.hasValue() ? this.catalog.value() : []));
   protected readonly filteredBrands = computed(() => {
     const search = normalize(this.query());
-    const matches = VEHICLE_BRANDS.filter((brand) => normalize(brand).includes(search));
+    const matches = this.brands().filter((brand) => normalize(brand).includes(search));
     return [...matches, OTHER_BRAND];
   });
   protected readonly combobox = new ComboboxState(
@@ -40,12 +55,24 @@ export class BrandField implements ControlValueAccessor {
   private onChange: (value: string) => void = () => undefined;
   protected onTouched: () => void = () => undefined;
 
+  constructor() {
+    // Las marcas llegan después del valor del formulario: si no está entre
+    // ellas, es una marca escrita a mano («Otra»)
+    effect(() => {
+      const brands = this.brands();
+      const brand = untracked(this.value);
+      if (brand !== '' && brands.length > 0) {
+        this.otherMode.set(!isKnownBrand(brands, brand));
+      }
+    });
+  }
+
   // Angular escribe null al vaciar el formulario: entonces, sin marca
   writeValue(value: string | null): void {
     const brand = typeof value === 'string' ? value : '';
     this.value.set(brand);
     this.query.set(brand);
-    this.otherMode.set(brand !== '' && !isKnownBrand(brand));
+    this.otherMode.set(brand !== '' && !isKnownBrand(this.brands(), brand));
   }
 
   registerOnChange(fn: (value: string) => void): void {
@@ -114,8 +141,8 @@ export class BrandField implements ControlValueAccessor {
   }
 }
 
-function isKnownBrand(brand: string): boolean {
-  return VEHICLE_BRANDS.some((knownBrand) => normalize(knownBrand) === normalize(brand));
+function isKnownBrand(brands: readonly string[], brand: string): boolean {
+  return brands.some((knownBrand) => normalize(knownBrand) === normalize(brand));
 }
 
 function normalize(value: string): string {

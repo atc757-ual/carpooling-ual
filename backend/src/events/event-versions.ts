@@ -38,6 +38,9 @@ export const EVENT_VERSIONS: Readonly<Record<DomainEventType, number>> = {
   'simulation.finished': 1,
   'simulation.failed': 1,
   'simulation.cancelled': 1,
+  'catalog.item_created': 1,
+  'catalog.item_updated': 1,
+  'catalog.item_deactivated': 1,
 };
 
 // Todos los tipos, en el orden de la tabla

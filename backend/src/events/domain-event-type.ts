@@ -48,4 +48,9 @@ export type DomainEventType =
   | 'simulation.requested'
   | 'simulation.finished'
   | 'simulation.failed'
-  | 'simulation.cancelled';
+  | 'simulation.cancelled'
+  // Catálogos del panel (marcas, colores, preferencias…): alta, cambio y baja
+  // de un elemento, con el catálogo, su clave y el administrador
+  | 'catalog.item_created'
+  | 'catalog.item_updated'
+  | 'catalog.item_deactivated';
