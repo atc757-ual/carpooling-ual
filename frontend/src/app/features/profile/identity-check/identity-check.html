@@ -1,0 +1,83 @@
+<div class="identity-check">
+  @if (errorMessage()) {
+    <div class="notice notice--danger identity-check__notice" role="alert">
+      <ion-icon [icon]="alertIcon" aria-hidden="true" />
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  @if (step() === 'request') {
+    <div class="notice notice--info identity-check__notice">
+      <ion-icon [icon]="shieldIcon" aria-hidden="true" />
+      <span>
+        <b>{{ 'profile.identity.title' | transloco }}</b>
+        {{ 'profile.identity.purpose' | transloco }}
+      </span>
+    </div>
+    @if (requirementKeys().length > 0) {
+      <section class="identity-check__requirements" aria-labelledby="identity-requirements-title">
+        @if (requirementsTitleKey(); as titleKey) {
+          <h3 id="identity-requirements-title" class="text-label text-label--strong">
+            {{ titleKey | transloco }}
+          </h3>
+        }
+        <ul class="text-body-s">
+          @for (key of requirementKeys(); track key) {
+            <li>{{ key | transloco }}</li>
+          }
+        </ul>
+      </section>
+    }
+    <form (submit)="$event.preventDefault(); handleSendCode()">
+      <ion-button type="submit" expand="block" [disabled]="isSending()">
+        @if (isSending()) {
+          <ion-spinner name="crescent" slot="start" aria-hidden="true" />
+        }
+        {{ 'profile.identity.sendCode' | transloco }}
+      </ion-button>
+    </form>
+  } @else {
+    <div class="notice notice--info identity-check__notice">
+      <ion-icon [icon]="mailIcon" aria-hidden="true" />
+      <span>{{ 'profile.identity.codeSent' | transloco }}</span>
+    </div>
+
+    <div class="identity-check__field">
+      <span id="identity-code-label" class="text-label text-label--strong">
+        {{ 'profile.identity.codeLabel' | transloco }}
+      </span>
+      <app-code-input
+        [formControl]="code"
+        labelledBy="identity-code-label"
+        (completed)="handleVerify()"
+      />
+    </div>
+
+    @if (isVerifying()) {
+      <output class="identity-check__verifying">
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="text-body-s text-color-muted">
+          {{ 'profile.identity.checking' | transloco }}
+        </span>
+      </output>
+    }
+
+    <p class="identity-check__hint text-caption text-color-muted">
+      {{ 'profile.identity.spamHint' | transloco }}
+    </p>
+    <button
+      type="button"
+      class="identity-check__resend"
+      [disabled]="secondsToResend() > 0 || isSending() || isVerifying()"
+      (click)="handleSendCode()"
+    >
+      @if (needsNewCode()) {
+        {{ 'profile.identity.newCode' | transloco }}
+      } @else if (secondsToResend() > 0) {
+        {{ 'profile.identity.resendIn' | transloco: { time: resendTime() } }}
+      } @else {
+        {{ 'profile.identity.resend' | transloco }}
+      }
+    </button>
+  }
+</div>

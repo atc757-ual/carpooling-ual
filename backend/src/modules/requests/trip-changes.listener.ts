@@ -69,6 +69,10 @@ export class TripChangesListener implements OnModuleInit {
     this.usersService.onUserDeactivating((manager, userId) =>
       this.handleUserDeactivating(manager, userId),
     );
+    // La misma comprobación antes de enviar el código de la baja
+    this.usersService.onDeactivationCheck((manager, userId) =>
+      this.assertNoActiveTrips(manager, userId),
+    );
   }
 
   private async handleUserDeactivating(
@@ -76,7 +80,15 @@ export class TripChangesListener implements OnModuleInit {
     userId: string,
   ): Promise<void> {
     await this.overlaps.lockPassenger(manager, userId);
+    await this.assertNoActiveTrips(manager, userId);
+    await this.cancelPendingRequestsOf(manager, userId);
+  }
 
+  // Sin viajes sin terminar como conductor ni plazas aceptadas como pasajero
+  private async assertNoActiveTrips(
+    manager: EntityManager,
+    userId: string,
+  ): Promise<void> {
     const hasActiveDriverTrip = await manager.existsBy(Trip, {
       driverId: userId,
       status: In([...ACTIVE_TRIP_STATUSES]),
@@ -97,7 +109,12 @@ export class TripChangesListener implements OnModuleInit {
     if (hasActiveAcceptedRequest) {
       throw new AccountHasActiveTripsError();
     }
+  }
 
+  private async cancelPendingRequestsOf(
+    manager: EntityManager,
+    userId: string,
+  ): Promise<void> {
     const pending = await manager.find(SeatRequest, {
       where: { passengerId: userId, status: 'pending' },
       order: { id: 'ASC' },

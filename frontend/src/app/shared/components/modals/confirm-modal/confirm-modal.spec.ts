@@ -27,10 +27,10 @@ describe('ConfirmModal', () => {
     const { root } = render(true);
 
     expect(root.textContent).toContain('¿Cerrar sesión?');
-    const [cancel, action] = [...root.querySelectorAll('ion-button')];
-    expect(cancel.textContent?.trim()).toBe('Cancelar');
+    const [action, cancel] = [...root.querySelectorAll('ion-button')];
     expect(action.textContent?.trim()).toBe('Cerrar sesión');
     expect(action.classList).toContain('confirm__secondary');
+    expect(cancel.textContent?.trim()).toBe('Cancelar');
   });
 
   it('closes confirming or cancelling', async () => {

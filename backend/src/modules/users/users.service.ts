@@ -82,6 +82,7 @@ const EMAIL_UNIQUE_CONSTRAINT = 'users_email_key';
 @Injectable()
 export class UsersService {
   private readonly deactivatingListeners: UserDeactivatingListener[] = [];
+  private readonly deactivationChecks: UserDeactivatingListener[] = [];
   private readonly beforeSummaryListeners: BeforeUserSummaryListener[] = [];
 
   constructor(
@@ -98,6 +99,20 @@ export class UsersService {
   // transacción cuando un usuario elimina su cuenta, sin acoplar users a ellos
   onUserDeactivating(listener: UserDeactivatingListener): void {
     this.deactivatingListeners.push(listener);
+  }
+
+  // Comprobaciones previas a la baja (p. ej. requests: sin viajes activos),
+  // para avisar ANTES de enviar el código y no al final. Solo leen: lanzan un
+  // error de negocio si la baja no es posible
+  onDeactivationCheck(check: UserDeactivatingListener): void {
+    this.deactivationChecks.push(check);
+  }
+
+  async assertCanDeactivate(userId: string): Promise<void> {
+    for (const check of this.deactivationChecks) {
+      const step = check(this.dataSource.manager, userId);
+      await step; // NOSONAR: una comprobación detrás de otra
+    }
   }
 
   // Patrón observador: p. ej. reputation publica las reseñas cuyo plazo de 7

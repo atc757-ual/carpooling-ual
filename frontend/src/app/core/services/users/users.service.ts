@@ -64,6 +64,10 @@ export class UsersService {
     return this.send(this.http.post<void>(`${this.meUrl}/account-deletion`, null));
   }
 
+  verifyAccountDeletionCode(code: string): Promise<void> {
+    return this.send(this.http.post<void>(`${this.meUrl}/account-deletion/verify`, { code }));
+  }
+
   confirmAccountDeletion(code: string): Promise<void> {
     return this.send(this.http.post<void>(`${this.meUrl}/account-deletion/confirm`, { code }));
   }

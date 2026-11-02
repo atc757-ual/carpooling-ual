@@ -518,11 +518,15 @@ ion-card-header + ion-card-content[class] {
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
   white-space: nowrap;
+
+  ion-icon {
+    font-size: 1.05rem;
+  }
 }
 
 .status--pending {
   background: var(--color-warning-subtle);
-  color: var(--color-warning);
+  color: var(--color-warning-text); // ~4,8:1 sobre el fondo (AA); el ámbar puro no llega a 2:1
 }
 
 .status--accepted {

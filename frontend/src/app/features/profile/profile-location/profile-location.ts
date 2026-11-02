@@ -8,7 +8,7 @@ import {
   IonIcon,
   IonToggle,
 } from '@ionic/angular';
-import { checkmarkCircle, lockClosedOutline } from 'ionicons/icons';
+import { checkmarkCircle, locateOutline, lockClosedOutline } from 'ionicons/icons';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { UserConsents } from '../../../core/models/user-consent.model';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
@@ -60,6 +60,7 @@ export class ProfileLocation implements OnInit {
   });
 
   protected readonly checkIcon = checkmarkCircle;
+  protected readonly locateIcon = locateOutline;
   protected readonly lockIcon = lockClosedOutline;
 
   ngOnInit(): void {

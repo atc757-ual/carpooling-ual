@@ -1,14 +1,20 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource, FindManyOptions } from 'typeorm';
+import { DataSource, EntityManager, FindManyOptions } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { AvatarsService } from './avatars.service';
 import { ConsentsService } from './consents.service';
 import { User } from './entities/user.entity';
+import { AccountHasActiveTripsError } from './errors/account-has-active-trips.error';
 import { UserNotFoundError } from './errors/user-not-found.error';
 import { EMPTY_TRAVEL_PREFERENCES } from './travel-preferences';
 import { UsersService } from './users.service';
 import { VehiclesService } from './vehicles.service';
+
+// El manager del DataSource: las comprobaciones previas a la baja solo leen
+const DATA_SOURCE_MANAGER = {
+  name: 'data-source-manager',
+} as unknown as EntityManager;
 
 // Tests unitarios de la lógica que no depende de la base de datos. Lo que sí
 // depende de ella (transacción, UNIQUE, citext) se prueba en
@@ -23,7 +29,7 @@ describe('UsersService', () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         UsersService,
-        { provide: DataSource, useValue: {} },
+        { provide: DataSource, useValue: { manager: DATA_SOURCE_MANAGER } },
         { provide: getRepositoryToken(User), useValue: usersRepository },
         { provide: VehiclesService, useValue: {} },
         { provide: AvatarsService, useValue: {} },
@@ -38,6 +44,39 @@ describe('UsersService', () => {
   function userWith(profiles: Partial<User>): User {
     return Object.assign(new User(), profiles);
   }
+
+  describe('assertCanDeactivate', () => {
+    it('runs every registered check, in order, with the shared manager', async () => {
+      const calls: string[] = [];
+      usersService.onDeactivationCheck((manager, userId) => {
+        calls.push(
+          `first:${userId}:${String(manager === DATA_SOURCE_MANAGER)}`,
+        );
+        return Promise.resolve();
+      });
+      usersService.onDeactivationCheck((_manager, userId) => {
+        calls.push(`second:${userId}`);
+        return Promise.resolve();
+      });
+
+      await usersService.assertCanDeactivate('user-1');
+
+      expect(calls).toEqual(['first:user-1:true', 'second:user-1']);
+    });
+
+    it('stops with the error of the first failing check', async () => {
+      const later = jest.fn();
+      usersService.onDeactivationCheck(() =>
+        Promise.reject(new AccountHasActiveTripsError()),
+      );
+      usersService.onDeactivationCheck(later);
+
+      await expect(
+        usersService.assertCanDeactivate('user-1'),
+      ).rejects.toBeInstanceOf(AccountHasActiveTripsError);
+      expect(later).not.toHaveBeenCalled();
+    });
+  });
 
   describe('getActiveProfiles', () => {
     it('lists the active driver and passenger profiles', () => {

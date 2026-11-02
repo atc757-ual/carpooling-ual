@@ -124,6 +124,16 @@ describe('UsersService', () => {
     await expect(requestPromise).resolves.toBeNull();
   });
 
+  it('verifies account deletion code without consuming it', async () => {
+    const verifyPromise = users.verifyAccountDeletionCode('123456');
+    const req = http.expectOne('/api/users/me/account-deletion/verify');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ code: '123456' });
+    req.flush(null);
+
+    await expect(verifyPromise).resolves.toBeNull();
+  });
+
   it('confirms account deletion with code', async () => {
     const confirmPromise = users.confirmAccountDeletion('123456');
     const req = http.expectOne('/api/users/me/account-deletion/confirm');

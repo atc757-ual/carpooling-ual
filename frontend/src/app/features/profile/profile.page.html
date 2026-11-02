@@ -1,7 +1,7 @@
 <ion-content>
   <div class="tab-page profile">
     <div class="profile__layout">
-      <!-- Columna derecha en escritorio / arriba en móvil (col-4): Mi información, Teléfono y Cuenta -->
+      <!-- Columna lateral en escritorio (col-4): Mi información, Teléfono, Configuración y Cuenta -->
       <div class="profile__aside">
         @if (user(); as user) {
           <!-- Bloque 1: Identidad (Avatar / Nombre / Editar / Sobre mí) -->
@@ -93,7 +93,7 @@
                   </span>
                 } @else {
                   <span class="status status--pending">
-                    <ion-icon [icon]="shieldIcon" aria-hidden="true" />
+                    <ion-icon [icon]="pendingIcon" aria-hidden="true" />
                     {{ 'profile.phonePending' | transloco }}
                   </span>
                 }
@@ -103,6 +103,57 @@
                 {{ 'profile.emptyPhone' | transloco }}
               </p>
             }
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Bloque: Configuración -->
+        <ion-card class="profile-card">
+          <ion-card-header class="profile-card__header">
+            <ion-card-title>{{ 'profile.settings' | transloco }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content class="profile-card__content">
+            <!-- Idioma -->
+            <div class="profile__setting-row">
+              <span class="profile__setting-text">
+                <span class="text-body">{{ 'profile.language' | transloco }}</span>
+                <span class="text-caption text-color-muted">{{
+                  'profile.languageHint' | transloco
+                }}</span>
+              </span>
+              <app-language-switch label="Idioma de la app" />
+            </div>
+
+            <!-- Tema: selector pastilla solo con iconos, sin outline y del mismo ancho que idioma -->
+            <div class="profile__setting-row">
+              <span class="profile__setting-text">
+                <span class="text-body">{{ 'profile.theme' | transloco }}</span>
+                <span class="text-caption text-color-muted">{{
+                  'profile.themeHint' | transloco
+                }}</span>
+              </span>
+              <fieldset class="theme-switch" aria-label="Tema de la app">
+                <button
+                  type="button"
+                  class="theme-switch__option"
+                  [class.theme-switch__option--active]="!isDarkMode()"
+                  [attr.aria-pressed]="!isDarkMode()"
+                  [attr.aria-label]="'profile.themeLight' | transloco"
+                  (click)="handleSetTheme(false)"
+                >
+                  <ion-icon class="icon-sun" [icon]="sunIcon" aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  class="theme-switch__option"
+                  [class.theme-switch__option--active]="isDarkMode()"
+                  [attr.aria-pressed]="isDarkMode()"
+                  [attr.aria-label]="'profile.themeDark' | transloco"
+                  (click)="handleSetTheme(true)"
+                >
+                  <ion-icon class="icon-moon" [icon]="moonIcon" aria-hidden="true" />
+                </button>
+              </fieldset>
+            </div>
           </ion-card-content>
         </ion-card>
 
@@ -128,19 +179,18 @@
               </button>
 
               <!-- Ayuda y soporte -->
-              <a
-                href="mailto:soporte@carpooling-ual.es"
-                class="profile__legal-row profile__action-link"
-              >
+              <button type="button" class="profile__legal-row" (click)="handleOpenSupport()">
                 <ion-icon class="profile__legal-icon" [icon]="helpIcon" aria-hidden="true" />
                 <span class="profile__legal-text">
                   <span class="text-body text-body--strong">{{
                     'profile.account.help' | transloco
                   }}</span>
-                  <span class="text-body-s text-color-muted">soporte@carpooling-ual.es</span>
+                  <span class="text-body-s text-color-muted">{{
+                    'profile.account.helpDesc' | transloco
+                  }}</span>
                 </span>
                 <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
-              </a>
+              </button>
 
               <!-- Darse de baja / Eliminar cuenta -->
               <button
@@ -148,31 +198,23 @@
                 class="profile__legal-row profile__legal-row--danger"
                 (click)="handleOpenDeleteAccount()"
               >
-                <ion-icon
-                  class="profile__legal-icon profile__legal-icon--danger"
-                  [icon]="trashIcon"
-                  aria-hidden="true"
-                />
+                <ion-icon class="profile__legal-icon" [icon]="trashIcon" aria-hidden="true" />
                 <span class="profile__legal-text">
-                  <span class="text-body text-body--strong text-color-danger">{{
+                  <span class="profile__legal-title text-body text-body--strong">{{
                     'profile.account.deleteAccount' | transloco
                   }}</span>
                   <span class="text-body-s text-color-muted">{{
                     'profile.account.deleteAccountDesc' | transloco
                   }}</span>
                 </span>
-                <ion-icon
-                  class="profile__legal-chevron profile__legal-chevron--danger"
-                  [icon]="chevronIcon"
-                  aria-hidden="true"
-                />
+                <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
               </button>
             </div>
           </ion-card-content>
         </ion-card>
       </div>
 
-      <!-- Columna izquierda en escritorio / abajo en móvil (col-8): Vehículos, Preferencias, Reseñas, Ubicación, Privacidad y Configuración -->
+      <!-- Columna principal en escritorio (col-8): Vehículos, Preferencias, Reseñas, Ubicación y Privacidad -->
       <div class="profile__main">
         <!-- Vehículos -->
         <app-profile-vehicles />
@@ -288,55 +330,6 @@
           </ion-card-content>
         </ion-card>
 
-        <!-- Bloque: Configuración -->
-        <ion-card class="profile-card">
-          <ion-card-header class="profile-card__header">
-            <ion-card-title>{{ 'profile.settings' | transloco }}</ion-card-title>
-          </ion-card-header>
-          <ion-card-content class="profile-card__content">
-            <!-- Idioma -->
-            <div class="profile__setting-row">
-              <span class="text-body">{{ 'profile.language' | transloco }}</span>
-              <fieldset class="lang-switch" aria-label="Idioma de la app">
-                @for (lang of languages; track lang.id) {
-                  <button
-                    type="button"
-                    class="lang-pill"
-                    [class.lang-pill--active]="appLanguage() === lang.id"
-                    [attr.aria-pressed]="appLanguage() === lang.id"
-                    [attr.aria-label]="lang.label"
-                    (click)="handleSelectLanguage(lang.id)"
-                  >
-                    {{ lang.code }}
-                  </button>
-                }
-              </fieldset>
-            </div>
-
-            <!-- Tema con icono que cambia de color -->
-            <div class="profile__setting-row">
-              <span class="text-body">{{ 'profile.theme' | transloco }}</span>
-              <button
-                type="button"
-                class="theme-toggle-btn"
-                [attr.aria-label]="
-                  isDarkMode() ? 'Modo oscuro. Cambiar a claro' : 'Modo claro. Cambiar a oscuro'
-                "
-                (click)="handleToggleTheme()"
-              >
-                <ion-icon
-                  [icon]="isDarkMode() ? moonIcon : sunIcon"
-                  [class.icon-sun]="!isDarkMode()"
-                  [class.icon-moon]="isDarkMode()"
-                  aria-hidden="true"
-                />
-                <span class="text-body-s">{{
-                  (isDarkMode() ? 'profile.themeDark' : 'profile.themeLight') | transloco
-                }}</span>
-              </button>
-            </div>
-          </ion-card-content>
-        </ion-card>
         <!-- Panel de administración (solo con ese perfil) -->
         @if (isAdmin()) {
           <ion-button class="profile__admin" fill="outline" expand="block" routerLink="/admin">

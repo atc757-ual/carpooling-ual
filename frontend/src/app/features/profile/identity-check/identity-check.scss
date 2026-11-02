@@ -1,0 +1,107 @@
+// Los dos pasos en una columna; los avisos son los de la guía (azul claro
+// para informar, rojo solo para los errores)
+.identity-check {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  form,
+  ion-button,
+  p {
+    margin: 0;
+  }
+}
+
+.identity-check__notice {
+  align-items: flex-start;
+
+  ion-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem; // 2px
+    font-size: 1.25rem; // 20px
+  }
+
+  &.notice--info ion-icon {
+    color: var(--color-link);
+  }
+
+  &.notice--danger ion-icon {
+    color: var(--color-danger);
+  }
+}
+
+// Condiciones: tarjeta gris, aparte del aviso azul (no es lo mismo informar
+// de para qué es el código que de lo que hay que cumplir)
+.identity-check__requirements {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: 0.75rem var(--space-base); // 12px 16px
+  border: var(--border-width-s) solid var(--color-border-subtle);
+  border-radius: var(--radius-s);
+  background: var(--color-surface-subtle);
+
+  h3 {
+    margin: 0;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin: 0;
+    padding-inline-start: 1.25rem; // 20px
+    color: var(--color-text);
+  }
+}
+
+// Las 6 casillas centradas en el modal y la etiqueta encima, alineada con la
+// primera (el campo toma el ancho de las casillas; en las pantallas de acceso
+// siguen a la izquierda)
+.identity-check__field {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  align-items: flex-start;
+  gap: var(--space-xs);
+}
+
+.identity-check__verifying {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+
+  ion-spinner {
+    width: 1.25rem; // 20px
+    height: 1.25rem;
+    color: var(--color-primary);
+  }
+}
+
+.identity-check__hint {
+  text-align: center;
+}
+
+// Enlace de texto, con 44px de alto táctil
+.identity-check__resend {
+  align-self: center;
+  min-height: 2.75rem; // 44px
+  padding: var(--space-xs) var(--space-base);
+  border: none;
+  background: transparent;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+
+  &:disabled {
+    color: var(--color-text-muted);
+    cursor: default;
+  }
+
+  &:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+}

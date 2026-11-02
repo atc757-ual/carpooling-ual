@@ -15,107 +15,61 @@
 </ion-header>
 
 <div class="profile-delete-modal">
-  <!-- Advertencia destructiva -->
-  <div class="profile-delete-modal__warning notice--danger">
-    <ion-icon [icon]="warningIcon" aria-hidden="true" />
-    <div class="profile-delete-modal__warning-content">
-      <p class="text-body-s text-body-s--strong">
-        {{ 'profile.deleteModal.warningTitle' | transloco }}
-      </p>
-      <p class="text-caption">
-        {{ 'profile.deleteModal.warningDesc' | transloco }}
-      </p>
-    </div>
-  </div>
-
   @if (errorMessage()) {
-    <div class="profile-delete-modal__error notice--danger" role="alert">
+    <div class="notice notice--danger profile-delete-modal__notice" role="alert">
       <ion-icon [icon]="alertIcon" aria-hidden="true" />
-      <p class="text-body-s">{{ errorMessage() }}</p>
+      <span>{{ errorMessage() }}</span>
     </div>
   }
 
-  @if (!codeSent()) {
-    <div class="profile-delete-modal__step-one">
-      <div class="profile-delete-modal__info">
-        <h3 class="profile-delete-modal__heading">
-          {{ 'profile.deleteModal.introHeading' | transloco }}
-        </h3>
-        <p class="text-body text-color-muted">
-          {{ 'profile.deleteModal.introDesc' | transloco: { email: email() } }}
-        </p>
-      </div>
-
-      <div class="profile-delete-modal__conditions text-body-s text-color-muted">
-        <p>{{ 'profile.deleteModal.conditionTrips' | transloco }}</p>
-        <p>{{ 'profile.deleteModal.conditionData' | transloco }}</p>
-      </div>
-
-      <form (submit)="$event.preventDefault(); handleRequestCode()">
+  @if (verifiedCode() === null) {
+    <app-identity-check
+      requirementsTitleKey="profile.deleteModal.requirementsTitle"
+      [requirementKeys]="requirementKeys"
+      [requestCode]="requestCode"
+      [verifyCode]="verifyCode"
+      (verified)="handleVerified($event)"
+    />
+  } @else {
+    <!-- Último paso: lo que supone (en rojo), la despedida y la decisión -->
+    <div class="notice notice--danger profile-delete-modal__notice">
+      <ion-icon [icon]="warningIcon" aria-hidden="true" />
+      <span>
+        <b>{{ 'profile.deleteModal.confirmTitle' | transloco }}</b>
+        {{ 'profile.deleteModal.confirmDesc' | transloco }}
+      </span>
+    </div>
+    <div class="profile-delete-modal__farewell">
+      <span class="profile-delete-modal__farewell-icon" aria-hidden="true">
+        <ion-icon [icon]="heartIcon" />
+      </span>
+      <h3 class="text-subtitle">{{ 'profile.deleteModal.farewellTitle' | transloco }}</h3>
+      <p class="text-body-s text-color-muted">
+        {{ 'profile.deleteModal.farewellDesc' | transloco }}
+      </p>
+    </div>
+    <div class="profile-delete-modal__actions">
+      <form (submit)="$event.preventDefault(); handleDelete()">
+        <!-- Blanco con borde: eliminar -->
         <ion-button
           type="submit"
-          class="profile-delete-modal__send-btn"
-          color="danger"
+          class="profile-delete-modal__delete"
           fill="outline"
           expand="block"
-          [disabled]="isSendingCode()"
+          [disabled]="isDeleting()"
         >
-          @if (isSendingCode()) {
+          @if (isDeleting()) {
             <ion-spinner name="crescent" slot="start" aria-hidden="true" />
           }
-          {{ 'profile.deleteModal.sendCode' | transloco }}
+          {{ 'profile.deleteModal.delete' | transloco }}
+        </ion-button>
+      </form>
+      <!-- Azul: quedarse -->
+      <form (submit)="$event.preventDefault(); handleKeep()">
+        <ion-button type="submit" expand="block" [disabled]="isDeleting()">
+          {{ 'profile.deleteModal.keepAccount' | transloco }}
         </ion-button>
       </form>
     </div>
-  } @else {
-    <form
-      class="profile-delete-modal__form"
-      [formGroup]="form"
-      (ngSubmit)="handleConfirmDeletion()"
-      novalidate
-    >
-      <div class="profile-delete-modal__notice notice--info">
-        <ion-icon [icon]="mailIcon" aria-hidden="true" />
-        <p class="text-body-s">
-          {{ 'profile.deleteModal.codeNotice' | transloco: { email: email() } }}
-        </p>
-      </div>
-
-      <!-- Código OTP de 6 dígitos -->
-      <div class="profile-delete-modal__field">
-        <span id="delete-code-label" class="text-label text-label--strong">
-          {{ 'profile.deleteModal.codeLabel' | transloco }}
-        </span>
-        <app-code-input
-          formControlName="code"
-          labelledBy="delete-code-label"
-          (completed)="handleConfirmDeletion()"
-        />
-      </div>
-
-      <!-- Acciones: Confirmar baja y reenviar código -->
-      <div class="profile-delete-modal__actions">
-        <ion-button
-          type="submit"
-          color="danger"
-          expand="block"
-          [disabled]="form.invalid || isConfirming()"
-        >
-          @if (isConfirming()) {
-            <ion-spinner name="crescent" slot="start" aria-hidden="true" />
-          }
-          {{ 'profile.deleteModal.confirmDelete' | transloco }}
-        </ion-button>
-
-        <button
-          type="button"
-          class="resend-code-btn"
-          [disabled]="secondsToResend() > 0 || isSendingCode()"
-          (click)="handleResendCode()"
-        >
-          {{ resendLabel() }}
-        </button>
-      </div>
-    </form>
   }
 </div>
