@@ -13,6 +13,7 @@ import {
   UpdateVehicleRequest,
   Vehicle,
 } from '../../models/driver.model';
+import { GeoPoint } from '../../models/place.model';
 import { SeatRequest } from '../../models/seat-request.model';
 
 // Como mucho una página: un conductor tiene pocos viajes a la vez
@@ -88,6 +89,23 @@ export class DriverService {
 
   cancelTrip(tripId: string): Promise<DriverTrip> {
     return this.request(this.http.post<DriverTrip>(`${this.apiUrl}/trips/${tripId}/cancel`, null));
+  }
+
+  // RF-11: desde START_WINDOW_MIN (10 min) antes de la salida
+  startTrip(tripId: string): Promise<DriverTrip> {
+    return this.request(this.http.post<DriverTrip>(`${this.apiUrl}/trips/${tripId}/start`, null));
+  }
+
+  finishTrip(tripId: string): Promise<DriverTrip> {
+    return this.request(this.http.post<DriverTrip>(`${this.apiUrl}/trips/${tripId}/finish`, null));
+  }
+
+  // Dónde está ahora el conductor ([longitud, latitud]); la hora la pone el servidor
+  async reportPosition(tripId: string, coordinates: [number, number]): Promise<void> {
+    const position: GeoPoint = { type: 'Point', coordinates };
+    await this.request(
+      this.http.post<void>(`${this.apiUrl}/trips/${tripId}/positions`, { position }),
+    );
   }
 
   private async request<T>(response: Observable<T>): Promise<T> {
