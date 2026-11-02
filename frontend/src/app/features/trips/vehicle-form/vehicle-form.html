@@ -1,68 +1,101 @@
 <form class="vehicle-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
-  <!-- Cada campo con su etiqueta encima (como la de los asientos), para que
-       los de una fila queden a la misma altura. Marca y modelo, en una fila -->
-  <div class="vehicle-form__row">
-    <div class="vehicle-form__field">
-      <label class="text-label text-label--strong" for="vehicle-brand">Marca</label>
-      <app-brand-field id="vehicle-brand" formControlName="brand" />
+  @if (summary(); as summary) {
+    <!-- Al editar: lo que no se puede cambiar, en una fila de solo lectura
+         (como en su tarjeta), y debajo solo lo editable -->
+    <div class="vehicle-form__summary">
+      <div class="vehicle-form__summary-row">
+        <span class="vehicle-form__summary-name">{{ summary.name }}</span>
+        <app-license-plate [plate]="summary.plate" />
+      </div>
     </div>
-    <div class="vehicle-form__field">
-      <span class="text-label text-label--strong" aria-hidden="true">Modelo</span>
-      <ion-input
-        formControlName="model"
-        aria-label="Modelo"
-        fill="outline"
-        placeholder="Ibiza"
-        autocapitalize="words"
-        errorText="Escribe el modelo, como Ibiza."
-      />
+  } @else {
+    <!-- Cada campo con su etiqueta encima (como la de los asientos), para que
+         los de una fila queden a la misma altura. Marca y modelo, en una fila -->
+    <div class="vehicle-form__row">
+      <div class="vehicle-form__field">
+        <label class="text-label text-label--strong" for="vehicle-brand">Marca</label>
+        <app-brand-field id="vehicle-brand" formControlName="brand" />
+      </div>
+      <div class="vehicle-form__field">
+        <span class="text-label text-label--strong" aria-hidden="true">Modelo</span>
+        <ion-input
+          formControlName="model"
+          aria-label="Modelo"
+          fill="outline"
+          placeholder="Ibiza"
+          autocapitalize="words"
+          errorText="Escribe el modelo, como Ibiza."
+        />
+      </div>
     </div>
-  </div>
+  }
   <!-- Color y motor, a la vista y de un toque (sin desplegables: nada flota
        fuera de la ventana). Botones de opción nativos, con teclado -->
+  <!-- Colores: solo círculos; el nombre del elegido, junto a la etiqueta, y el
+       de cada uno, para los lectores de pantalla -->
   <fieldset class="vehicle-form__choices">
-    <legend class="text-label text-label--strong">Color</legend>
+    <legend class="text-label text-label--strong">
+      Color
+      @if (colorLabel(); as label) {
+        <span class="vehicle-form__choice-name">· {{ label }}</span>
+      }
+    </legend>
     <div class="vehicle-form__colors">
       @for (color of colors; track color.value) {
-        <label class="vehicle-form__color">
-          <input type="radio" formControlName="color" [value]="color.value" />
-          <span
-            class="vehicle-form__swatch"
-            [style.--swatch-color]="color.hex"
-            aria-hidden="true"
-          ></span>
-          {{ color.label }}
+        <label class="vehicle-form__color" [style.--swatch-color]="color.hex">
+          <input
+            type="radio"
+            formControlName="color"
+            [value]="color.value"
+            [attr.aria-label]="color.label"
+          />
+          <ion-icon class="vehicle-form__color-check" [icon]="checkIcon" aria-hidden="true" />
         </label>
       }
     </div>
   </fieldset>
-  <fieldset class="vehicle-form__choices">
-    <legend class="text-label text-label--strong">Motor</legend>
-    <div class="vehicle-form__engines">
-      @for (engine of engines; track engine.value) {
-        <label class="vehicle-form__engine">
-          <input type="radio" formControlName="engine" [value]="engine.value" />
-          <ion-icon [icon]="engine.icon" aria-hidden="true" />
-          {{ engine.label }}
-        </label>
-      }
-    </div>
-  </fieldset>
-  <!-- Matrícula (con su ayuda justo debajo) y asientos, en una fila -->
-  <div class="vehicle-form__row">
-    <div class="vehicle-form__field">
-      <span class="text-label text-label--strong" aria-hidden="true">Matrícula</span>
-      <ion-input
-        formControlName="plate"
-        aria-label="Matrícula"
-        fill="outline"
-        placeholder="1234 BCD"
-        autocapitalize="characters"
-        helperText="Matrícula española, como 1234 BCD."
-        errorText="Escribe una matrícula española, como 1234 BCD."
-      />
-    </div>
-    <div class="vehicle-form__field">
+  <!-- Motor, matrícula y asientos. Al registrar: el motor en su fila y debajo
+       la matrícula y los asientos; al editar (sin matrícula), los asientos
+       debajo del motor -->
+  <div class="vehicle-form__grid" [class.vehicle-form__grid--edit]="summary() !== null">
+    <fieldset class="vehicle-form__choices vehicle-form__area-engine">
+      <!-- Como los colores: solo el icono en un círculo; el nombre del elegido,
+           junto a la etiqueta -->
+      <legend class="text-label text-label--strong">
+        Motor
+        @if (engineLabel(); as label) {
+          <span class="vehicle-form__choice-name">· {{ label }}</span>
+        }
+      </legend>
+      <div class="vehicle-form__engines">
+        @for (engine of engines; track engine.value) {
+          <label class="vehicle-form__engine">
+            <input
+              type="radio"
+              formControlName="engine"
+              [value]="engine.value"
+              [attr.aria-label]="engine.label"
+            />
+            <ion-icon [icon]="engine.icon" aria-hidden="true" />
+          </label>
+        }
+      </div>
+    </fieldset>
+    @if (summary() === null) {
+      <div class="vehicle-form__field vehicle-form__area-plate">
+        <span class="text-label text-label--strong" aria-hidden="true">Matrícula</span>
+        <ion-input
+          formControlName="plate"
+          aria-label="Matrícula"
+          fill="outline"
+          placeholder="1234 BCD"
+          autocapitalize="characters"
+          helperText="Matrícula española, como 1234 BCD."
+          errorText="Escribe una matrícula española, como 1234 BCD."
+        />
+      </div>
+    }
+    <div class="vehicle-form__field vehicle-form__area-seats">
       <app-seat-stepper
         formControlName="totalSeats"
         label="Asientos"

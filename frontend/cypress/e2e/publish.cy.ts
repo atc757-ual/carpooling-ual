@@ -101,9 +101,13 @@ for (const viewport of VIEWPORTS) {
       vehicleModal()
         .find('ion-input[formControlName="model"] input', { includeShadowDom: true })
         .type('Ibiza');
-      // Color y motor, a la vista: un toque en la opción
-      vehicleModal().contains('.vehicle-form__color', 'Azul').click();
-      vehicleModal().contains('.vehicle-form__engine', 'Híbrido').click();
+      // Color y motor, a la vista: un toque en su círculo (la label, con el
+      // icono encima del radio; el nombre va en el radio, para los lectores
+      // de pantalla)
+      vehicleModal().find('.vehicle-form__color:has(input[aria-label="Azul"])').click();
+      vehicleModal().find('.vehicle-form__engine:has(input[aria-label="Híbrido"])').click();
+      vehicleModal().contains('legend', 'Color · Azul');
+      vehicleModal().contains('legend', 'Motor · Híbrido');
       vehicleModal()
         .find('ion-input[formControlName="plate"] input', { includeShadowDom: true })
         .type('1234 bcd');
