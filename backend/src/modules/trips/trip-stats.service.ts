@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Repository } from 'typeorm';
+import { EntityManager, MoreThan, Repository } from 'typeorm';
 import { LateCancellation } from './entities/late-cancellation.entity';
 import { Trip } from './entities/trip.entity';
 import { DAY_MS, LATE_CANCELLATION_WINDOW_DAYS } from './trip-timing';
@@ -83,10 +83,13 @@ export class TripStatsService {
 
   // Resumen en vivo para el panel: viajes publicados hoy (en la hora del
   // campus), viajes en curso y plazas ofrecidas y ocupadas de los viajes que
-  // siguen activos. Una sola consulta
-  async overview(): Promise<TripOverview> {
+  // siguen activos. Una sola consulta, con el manager de quien llama si va en
+  // su transacción
+  async overview(
+    manager: EntityManager = this.tripsRepository.manager,
+  ): Promise<TripOverview> {
     const [row]: Record<keyof TripOverview, string | null>[] =
-      await this.tripsRepository.query(
+      await manager.query(
         `SELECT
            count(*) FILTER (
              WHERE created_at >= date_trunc('day', now() AT TIME ZONE $1) AT TIME ZONE $1
