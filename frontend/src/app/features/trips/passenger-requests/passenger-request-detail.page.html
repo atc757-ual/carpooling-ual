@@ -77,6 +77,7 @@
             [pickupName]="pickupName(request, trip)"
             [initialCenter]="trip.origin"
             [active]="isPageVisible()"
+            [driverName]="firstName(trip.driver.name)"
           />
         } @else if (request.status === 'accepted' && trip.status === 'confirmed') {
           <output class="notice notice--info">

@@ -9,6 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Fixed
+- **Frontend:** el mapa en vivo del pasajero nombra a su conductor (antes ponía siempre «Lucía») (#144).
 - **Frontend:** al entrar en la app (iniciar sesión, abrirla o «Entrar a la app» tras el registro) se abre siempre Buscar; quien solo es conductor entra en Publicar (#139).
 - **Frontend:** cerrar sesión descarta las pantallas de la cuenta anterior y Publicar abre limpio para cualquier perfil (#120).
 
@@ -18,6 +19,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Backend:** «Sobre mí» de 20 a 200 caracteres (antes 500; los más largos se recortan), Fumar sin «solo en paradas» (pasa a «no se fuma») y el consentimiento de ubicación guarda su origen: `location_prompt` (la ventana que explica para qué se usa) o `device` (se quitó el permiso del sistema), además de `settings` (#128).
 
 ### Added
+- **Frontend:** progreso del viaje (publicado → confirmado → en curso → finalizado) y vista del conductor en el mapa en vivo, con el tiempo hasta su siguiente recogida o el destino (#144).
 - **Frontend:** iniciar y terminar el viaje desde Mis viajes (para iniciarlo, el conductor comparte su ubicación); mientras está en curso, la app envía su posición cada 15 s y la retoma al abrirla (#143).
 - **Frontend:** lista de usuarios del panel de administración (`/admin/users`): buscador, filtros por perfil y estado guardados en la URL, tabla con rol, viajes y chips de estado, paginación y estados de carga (esqueleto), vacío (quitar filtros) y error (reintentar); las rutas del panel pasan a `features/admin/admin.routes.ts` (#142).
 - **Backend:** detalle del usuario para el panel de administración (RF-25, CU-13): `GET /api/admin/users/{id}` con la cuenta (sin la contraseña), su estado, valoraciones por rol, vehículos, últimos viajes como conductor y solicitudes como pasajero, incidencias en las que aparece, cancelaciones tardías de los últimos 30 días y el historial de consentimientos (#141).
