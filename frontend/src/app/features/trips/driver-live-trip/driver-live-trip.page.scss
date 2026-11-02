@@ -1,0 +1,121 @@
+// Viaje en curso del conductor. En el móvil, una columna con «Terminar viaje»
+// fijo abajo; en escritorio, el mapa a la izquierda (8) y el progreso, los
+// pasajeros y el botón a la derecha (4), fijos al bajar
+.driver-live-trip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding: var(--space-l) var(--page-gutter);
+
+  ion-card {
+    margin: 0;
+  }
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+.driver-live-trip__loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+// No encontrado o no en curso: tarjeta con todo centrado
+.driver-live-trip__state {
+  display: flex;
+  min-height: 23.4375rem; // 375px
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  text-align: center;
+}
+
+.driver-live-trip__layout,
+.driver-live-trip__main,
+.driver-live-trip__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.driver-live-trip__sharing {
+  align-items: center;
+
+  ion-icon {
+    flex-shrink: 0;
+    color: var(--color-link);
+  }
+}
+
+.driver-live-trip__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-base);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+// Una fila por pasajero, separadas por una línea (como TripRow de la guía);
+// la siguiente recogida, con su etiqueta
+.driver-live-trip__passengers {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.driver-live-trip__passenger {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  padding: var(--space-s) 0;
+
+  & + & {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}
+
+.driver-live-trip__person {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-s);
+}
+
+// Móvil: el botón siempre a la vista, sobre el fondo de la página
+.driver-live-trip__finish {
+  position: sticky;
+  bottom: 0;
+  padding: var(--space-s) 0 var(--space-base);
+  background: var(--ion-background-color);
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .driver-live-trip__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .driver-live-trip__side {
+    position: sticky;
+    top: var(--space-l);
+  }
+
+  .driver-live-trip__finish {
+    position: static;
+    padding: 0;
+    background: none;
+  }
+}
