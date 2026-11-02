@@ -140,13 +140,24 @@ export class DriverLiveTripPage {
     return !!this.validatingBoardMap()[requestId];
   }
 
+  private getPickupReferenceMs(request: SeatRequest): number {
+    if (request.pickupAt) {
+      return Date.parse(request.pickupAt);
+    }
+    const currentTrip = this.trip();
+    if (currentTrip?.departureAt) {
+      return Date.parse(currentTrip.departureAt);
+    }
+    return 0;
+  }
+
   canMarkNoShow(request: SeatRequest): boolean {
-    const reference = request.pickupAt ? Date.parse(request.pickupAt) : this.trip() ? Date.parse(this.trip()!.departureAt) : 0;
+    const reference = this.getPickupReferenceMs(request);
     return this.now() >= reference + PICKUP_GRACE_MS;
   }
 
   noShowWaitMinutes(request: SeatRequest): number {
-    const reference = request.pickupAt ? Date.parse(request.pickupAt) : this.trip() ? Date.parse(this.trip()!.departureAt) : 0;
+    const reference = this.getPickupReferenceMs(request);
     const remainingMs = reference + PICKUP_GRACE_MS - this.now();
     return Math.max(1, Math.ceil(remainingMs / 60000));
   }

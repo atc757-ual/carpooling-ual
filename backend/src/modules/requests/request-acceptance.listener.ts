@@ -100,12 +100,13 @@ export class RequestAcceptanceListener implements OnModuleInit {
     }
     const saved = await manager.save(pending);
     for (const request of saved) {
-      await this.changes.record(
+      const recordPromise = this.changes.record(
         manager,
         'request.rejected',
         request,
         acceptedTrip,
       );
+      await recordPromise; // NOSONAR: la conexión transaccional requiere escrituras secuenciales
     }
   }
 }

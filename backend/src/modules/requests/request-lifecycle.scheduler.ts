@@ -62,7 +62,13 @@ export class RequestLifecycleScheduler {
       for (const request of saved) {
         const trip = tripsById.get(request.tripId);
         if (trip) {
-          await this.changes.record(manager, 'request.expired', request, trip);
+          const recordPromise = this.changes.record(
+            manager,
+            'request.expired',
+            request,
+            trip,
+          );
+          await recordPromise; // NOSONAR: la conexión transaccional requiere escrituras secuenciales
         }
       }
 

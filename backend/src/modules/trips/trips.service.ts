@@ -258,7 +258,7 @@ export class TripsService {
 
     let cancelledCount = 0;
     for (const candidate of candidates) {
-      await this.dataSource.transaction(async (manager) => {
+      const cancelPromise = this.dataSource.transaction(async (manager) => {
         const trip = await manager.findOne(Trip, {
           where: { id: candidate.id },
           lock: { mode: 'pessimistic_write' },
@@ -285,6 +285,7 @@ export class TripsService {
         }
         cancelledCount++;
       });
+      await cancelPromise; // NOSONAR: procesar viajes candidatos de forma secuencial
     }
 
     return cancelledCount;
