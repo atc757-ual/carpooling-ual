@@ -1,8 +1,15 @@
+// En una rejilla, todas las tarjetas de una fila miden lo mismo
+:host {
+  display: block;
+  height: 100%;
+}
+
 // Tarjeta de vehículo: borde gris; elegida, borde azul de 2px y fondo azul
 // muy claro (como el foco de los campos)
 .vehicle-card {
   position: relative;
   display: flex;
+  height: 100%;
   align-items: stretch;
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-base);
@@ -48,36 +55,17 @@
   min-width: 0;
 }
 
-// Marca y modelo con la matrícula al lado; si no caben, la matrícula baja
-.vehicle-card__title {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.125rem var(--space-s);
-}
-
+// Marca y modelo en su línea (con «…» si no caben) y la placa debajo
 .vehicle-card__name {
+  overflow: hidden;
   font-weight: var(--font-weight-semibold);
-}
-
-.vehicle-card__separator {
-  color: var(--color-border-strong);
-}
-
-// La matrícula en una etiqueta azul claro (blanca en la tarjeta elegida, que
-// ya es azul claro)
-.vehicle-card__plate {
-  padding: 0.0625rem var(--space-s);
-  border-radius: var(--radius-xs);
-  background: var(--color-primary-subtle);
-  color: var(--color-link);
-  font-size: var(--font-size-body-s);
-  font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
   white-space: nowrap;
+}
 
-  .vehicle-card--selected & {
-    background: var(--color-surface);
-  }
+.vehicle-card__plate {
+  align-self: flex-start;
+  margin: 0.125rem 0; // 2px
 }
 
 // Color, plazas y motor en una línea; si no cabe, se corta con «…»

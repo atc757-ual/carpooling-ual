@@ -1,0 +1,17 @@
+<span class="license-plate">
+  <span class="visually-hidden">Matrícula {{ plate() }}</span>
+  <svg
+    class="license-plate__band"
+    viewBox="0 0 12 24"
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <rect width="12" height="24" />
+    @for (star of stars; track $index) {
+      <circle class="license-plate__star" [attr.cx]="star.x" [attr.cy]="star.y" r="0.55" />
+    }
+    <text class="license-plate__country" x="6" y="20.5" text-anchor="middle">{{ country() }}</text>
+  </svg>
+  <span class="license-plate__number" aria-hidden="true">{{ plate() }}</span>
+</span>

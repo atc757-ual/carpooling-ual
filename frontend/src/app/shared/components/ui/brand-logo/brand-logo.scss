@@ -9,10 +9,18 @@
 }
 
 .brand-logo__badge {
-  padding: var(--space-xs) var(--space-s);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem; // 36px
+  height: 2.25rem;
   border-radius: var(--radius-s);
   background: var(--color-primary);
   color: var(--color-on-primary);
+
+  ion-icon {
+    font-size: 1.375rem; // 22px
+  }
 }
 
 .brand-logo__text {
@@ -29,14 +37,13 @@
   gap: var(--space-s);
 
   .brand-logo__badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 2.75rem; // 44px
     height: 2.75rem;
     padding: 0;
-    font-size: var(--font-size-caption);
-    line-height: var(--line-height-caption);
+
+    ion-icon {
+      font-size: 1.625rem; // 26px
+    }
   }
 
   .brand-logo__name {
@@ -46,20 +53,19 @@
   }
 }
 
-// Variante compact: insignia de 36px con «UAL» pequeño
+// Variante compact: insignia de 36px
 :host(.brand-logo--compact) {
   font-size: 1.25rem; // 20px
   line-height: var(--line-height-body);
 
   .brand-logo__badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 2.25rem; // 36px
     height: 2.25rem;
     padding: 0;
-    font-size: var(--font-size-caption);
-    line-height: var(--line-height-caption);
+
+    ion-icon {
+      font-size: 1.375rem; // 22px
+    }
   }
 }
 
