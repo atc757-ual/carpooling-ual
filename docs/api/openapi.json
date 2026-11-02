@@ -6932,6 +6932,303 @@
           "admin users"
         ]
       }
+    },
+    "/api/admin/overview": {
+      "get": {
+        "description": "Trips published today (campus time), trips in progress, seats offered and taken in active trips and pending requests.",
+        "operationId": "AdminOverviewController_overview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverviewResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the live overview of the platform",
+        "tags": [
+          "admin overview"
+        ]
+      }
+    },
+    "/api/admin/events": {
+      "get": {
+        "description": "The most recent first, optionally of one type. Without the payload: see the detail.",
+        "operationId": "AdminOverviewController_listEvents",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "user.registered",
+                "user.email_verified",
+                "user.phone_verified",
+                "user.deactivated",
+                "user.profile_activated",
+                "user.profile_deactivated",
+                "user.updated",
+                "user.active_mode_changed",
+                "consent.granted",
+                "consent.revoked",
+                "trip.published",
+                "trip.updated",
+                "trip.confirmed",
+                "trip.reopened",
+                "trip.started",
+                "trip.finished",
+                "trip.cancelled",
+                "trip.cancelled_late",
+                "late_cancellation.waived",
+                "trip.position_updated",
+                "request.created",
+                "request.accepted",
+                "request.rejected",
+                "request.cancelled",
+                "incident.reported",
+                "incident.reviewed",
+                "coverage.gap_reported",
+                "review.created",
+                "review.published",
+                "simulation.requested",
+                "simulation.finished",
+                "simulation.failed",
+                "simulation.cancelled"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventSummaryResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the latest events",
+        "tags": [
+          "admin overview"
+        ]
+      }
+    },
+    "/api/admin/events/{id}": {
+      "get": {
+        "operationId": "AdminOverviewController_getEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: EVENT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get an event with its payload",
+        "tags": [
+          "admin overview"
+        ]
+      }
     }
   },
   "info": {
@@ -10843,6 +11140,223 @@
         },
         "required": [
           "reason"
+        ]
+      },
+      "OverviewResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "PlatformOverview"
+            ]
+          },
+          "tripsPublishedToday": {
+            "type": "number",
+            "example": 24,
+            "description": "Trips published today"
+          },
+          "tripsInProgress": {
+            "type": "number",
+            "example": 8
+          },
+          "seatsOffered": {
+            "type": "number",
+            "example": 60,
+            "description": "Seats offered by active trips"
+          },
+          "seatsTaken": {
+            "type": "number",
+            "example": 41,
+            "description": "Seats taken in active trips"
+          },
+          "pendingRequests": {
+            "type": "number",
+            "example": 12
+          }
+        },
+        "required": [
+          "@type",
+          "tripsPublishedToday",
+          "tripsInProgress",
+          "seatsOffered",
+          "seatsTaken",
+          "pendingRequests"
+        ]
+      },
+      "EventSummaryResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "DomainEvent"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/admin/events/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "sequence": {
+            "type": "number",
+            "example": 1042
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "user.registered",
+              "user.email_verified",
+              "user.phone_verified",
+              "user.deactivated",
+              "user.profile_activated",
+              "user.profile_deactivated",
+              "user.updated",
+              "user.active_mode_changed",
+              "consent.granted",
+              "consent.revoked",
+              "trip.published",
+              "trip.updated",
+              "trip.confirmed",
+              "trip.reopened",
+              "trip.started",
+              "trip.finished",
+              "trip.cancelled",
+              "trip.cancelled_late",
+              "late_cancellation.waived",
+              "trip.position_updated",
+              "request.created",
+              "request.accepted",
+              "request.rejected",
+              "request.cancelled",
+              "incident.reported",
+              "incident.reviewed",
+              "coverage.gap_reported",
+              "review.created",
+              "review.published",
+              "simulation.requested",
+              "simulation.finished",
+              "simulation.failed",
+              "simulation.cancelled"
+            ]
+          },
+          "version": {
+            "type": "number",
+            "example": 1
+          },
+          "sourceEntityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "sequence",
+          "type",
+          "version",
+          "sourceEntityId",
+          "occurredAt"
+        ]
+      },
+      "EventResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "DomainEvent"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/admin/events/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "sequence": {
+            "type": "number",
+            "example": 1042
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "user.registered",
+              "user.email_verified",
+              "user.phone_verified",
+              "user.deactivated",
+              "user.profile_activated",
+              "user.profile_deactivated",
+              "user.updated",
+              "user.active_mode_changed",
+              "consent.granted",
+              "consent.revoked",
+              "trip.published",
+              "trip.updated",
+              "trip.confirmed",
+              "trip.reopened",
+              "trip.started",
+              "trip.finished",
+              "trip.cancelled",
+              "trip.cancelled_late",
+              "late_cancellation.waived",
+              "trip.position_updated",
+              "request.created",
+              "request.accepted",
+              "request.rejected",
+              "request.cancelled",
+              "incident.reported",
+              "incident.reviewed",
+              "coverage.gap_reported",
+              "review.created",
+              "review.published",
+              "simulation.requested",
+              "simulation.finished",
+              "simulation.failed",
+              "simulation.cancelled"
+            ]
+          },
+          "version": {
+            "type": "number",
+            "example": 1
+          },
+          "sourceEntityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {
+            "type": "object",
+            "additionalProperties": true,
+            "example": {
+              "status": "published",
+              "offeredSeats": 3
+            }
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "sequence",
+          "type",
+          "version",
+          "sourceEntityId",
+          "occurredAt",
+          "payload"
         ]
       }
     }
