@@ -1,5 +1,4 @@
 // Usuario de la plataforma tal como lo devuelve la API (recurso TMF630 User)
-import { AvatarKey } from './avatar.model';
 import { TimeToleranceMin, TravelPreferences } from './travel-preferences.model';
 
 export type Profile = 'driver' | 'passenger' | 'admin';
@@ -29,7 +28,7 @@ export interface User {
   // hasta que lo cambia por primera vez
   activeMode: 'passenger' | 'driver' | null;
   timeToleranceMin?: number;
-  avatarKey?: AvatarKey | null;
+  avatarKey?: string | null;
   bio?: string | null;
   preferences?: TravelPreferences;
   ratings?: UserRatings;
@@ -40,7 +39,7 @@ export interface UpdateMeRequest {
   name?: string;
   phone?: string;
   timeToleranceMin?: TimeToleranceMin;
-  avatarKey?: AvatarKey | null;
+  avatarKey?: string | null;
   bio?: string | null;
   preferences?: Partial<TravelPreferences>;
 }

@@ -1,6 +1,5 @@
 import { GeoPoint } from './place.model';
 import { TripDirection } from './trip-search.model';
-import { AvatarKey } from './avatar.model';
 import { TravelPreferences } from './travel-preferences.model';
 
 // Cuerpo de POST /api/trips/search (matching)
@@ -21,7 +20,7 @@ export interface TripMatch {
   driver: {
     id: string;
     name: string;
-    avatarKey: AvatarKey | null;
+    avatarKey: string | null;
     preferences?: TravelPreferences;
     tripCount: number;
     rating: number | null;

@@ -1,10 +1,17 @@
-// El SVG llena el componente: quien lo usa le da el tamaño
+// El dibujo llena el componente: quien lo usa le da el tamaño
 :host {
   display: block;
 }
 
-svg {
+svg,
+img {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+// La imagen, recortada en el mismo círculo que su contenedor
+img {
+  border-radius: inherit;
+  object-fit: cover;
 }

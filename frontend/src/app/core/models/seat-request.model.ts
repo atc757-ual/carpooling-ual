@@ -1,6 +1,5 @@
 // Solicitud de plaza (recurso SeatRequest de la API). El backend decide el
 // estado; la interfaz solo lo refleja (guía, «Solicitud de plaza»)
-import { AvatarKey } from './avatar.model';
 import { TravelPreferences } from './travel-preferences.model';
 
 export type SeatRequestStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled';
@@ -12,7 +11,7 @@ export interface SeatRequest {
   passenger: {
     id: string;
     name: string;
-    avatarKey?: AvatarKey | null;
+    avatarKey?: string | null;
     preferences?: TravelPreferences;
   };
   status: SeatRequestStatus;

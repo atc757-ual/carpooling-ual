@@ -54,6 +54,7 @@ describe('TripDriver', () => {
 
   it('shows the selected catalogue avatar when it loads', async () => {
     const getGraphic = vi.fn().mockResolvedValue({
+      kind: 'svg',
       viewBox: '0 0 64 64',
       fill: 'none',
       stroke: 'currentColor',
