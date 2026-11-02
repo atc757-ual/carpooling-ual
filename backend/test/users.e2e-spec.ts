@@ -15,6 +15,10 @@ import {
   testSmsBox,
 } from './support/accounts';
 
+// Versión de un documento legal («1.0», «1.1»…): otro test puede publicar una
+// nueva mientras corre este
+const DOCUMENT_VERSION = /^\d+\.\d+$/;
+
 // GET /api/users/{id} de punta a punta, con permisos por perfil (RNF-04).
 // Los usuarios llevan el prefijo EMAIL_PREFIX y se borran después de cada test
 const EMAIL_PREFIX = 'users-e2e-';
@@ -650,13 +654,13 @@ describe('Users API (e2e)', () => {
       expect(body.current.location).toBeNull();
       expect(body.current.terms).toMatchObject({
         type: 'terms',
-        documentVersion: '1.0',
+        documentVersion: expect.stringMatching(DOCUMENT_VERSION) as string,
         action: 'granted',
         source: 'registration',
       });
       expect(body.current.privacy).toMatchObject({
         type: 'privacy',
-        documentVersion: '1.0',
+        documentVersion: expect.stringMatching(DOCUMENT_VERSION) as string,
         action: 'granted',
         source: 'registration',
       });
@@ -664,7 +668,7 @@ describe('Users API (e2e)', () => {
         computeConsentFingerprint({
           userId: ana.id,
           type: 'terms',
-          documentVersion: '1.0',
+          documentVersion: body.current.terms!.documentVersion,
           action: 'granted',
           recordedAt: new Date(body.current.terms!.recordedAt),
         }),
@@ -673,7 +677,7 @@ describe('Users API (e2e)', () => {
         computeConsentFingerprint({
           userId: ana.id,
           type: 'privacy',
-          documentVersion: '1.0',
+          documentVersion: body.current.privacy!.documentVersion,
           action: 'granted',
           recordedAt: new Date(body.current.privacy!.recordedAt),
         }),
@@ -704,7 +708,7 @@ describe('Users API (e2e)', () => {
         current: {
           location: {
             type: 'location',
-            documentVersion: '1.0',
+            documentVersion: expect.stringMatching(DOCUMENT_VERSION) as string,
             action: 'granted',
             source: 'settings',
           },
@@ -728,7 +732,12 @@ describe('Users API (e2e)', () => {
 
       const revokedBody = revoked.body as {
         current: {
-          location: { action: string; fingerprint: string; recordedAt: string };
+          location: {
+            action: string;
+            documentVersion: string;
+            fingerprint: string;
+            recordedAt: string;
+          };
         };
         history: { type: string; action: string }[];
       };
@@ -737,7 +746,7 @@ describe('Users API (e2e)', () => {
         computeConsentFingerprint({
           userId: ana.id,
           type: 'location',
-          documentVersion: '1.0',
+          documentVersion: revokedBody.current.location.documentVersion,
           action: 'revoked',
           recordedAt: new Date(revokedBody.current.location.recordedAt),
         }),

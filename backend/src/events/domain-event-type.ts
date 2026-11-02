@@ -53,4 +53,6 @@ export type DomainEventType =
   // de un elemento, con el catálogo, su clave y el administrador
   | 'catalog.item_created'
   | 'catalog.item_updated'
-  | 'catalog.item_deactivated';
+  | 'catalog.item_deactivated'
+  // Documentos legales: una versión nueva de las condiciones o la política
+  | 'legal_document.published';
