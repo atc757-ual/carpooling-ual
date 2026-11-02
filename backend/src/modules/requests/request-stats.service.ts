@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SeatRequest } from './entities/seat-request.entity';
 
-// Recuentos de solicitudes para el panel de administración: una consulta para
-// toda una página de usuarios
+// Lecturas de solicitudes para el panel de administración: recuentos para
+// toda una página de usuarios y el historial reciente de uno
 @Injectable()
 export class RequestStatsService {
   constructor(
@@ -29,5 +29,17 @@ export class RequestStatsService {
         .groupBy('request.passengerId')
         .getRawMany();
     return new Map(rows.map((row) => [row.passengerId, Number(row.total)]));
+  }
+
+  // Las últimas solicitudes del pasajero, de la más reciente a la más antigua
+  recentByPassenger(
+    passengerId: string,
+    limit: number,
+  ): Promise<SeatRequest[]> {
+    return this.requestsRepository.find({
+      where: { passengerId },
+      order: { requestedAt: 'DESC', id: 'ASC' },
+      take: limit,
+    });
   }
 }

@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository, In } from 'typeorm';
 import type { DomainEventType } from '../../events/domain-event-type';
 import { EventsService } from '../../events/events.service';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { NotificationsService } from '../notifications/notifications.service';
 import { RequestsService } from '../requests/requests.service';
 import { Trip } from '../trips/entities/trip.entity';
+import { TripStatsService } from '../trips/trip-stats.service';
 import { TripsService } from '../trips/trips.service';
 import { UsersService } from '../users/users.service';
 import { Incident } from './entities/incident.entity';
@@ -42,6 +43,7 @@ export class IncidentsService {
     @InjectRepository(Incident)
     private readonly incidentsRepository: Repository<Incident>,
     private readonly tripsService: TripsService,
+    private readonly tripStats: TripStatsService,
     private readonly requestsService: RequestsService,
     private readonly usersService: UsersService,
     private readonly eventsService: EventsService,
@@ -165,6 +167,20 @@ export class IncidentsService {
   // Incidencias abiertas en las que aparece cada usuario (quien la registró o
   // el conductor del viaje), para el panel. Las abiertas son pocas: se cargan
   // todas de una vez
+  // Las últimas incidencias en las que aparece el usuario (las que registró y
+  // las de los viajes que conduce), para el detalle del panel
+  async listInvolving(userId: string, limit: number): Promise<Incident[]> {
+    const tripIds = await this.tripStats.idsByDriver(userId);
+    return this.incidentsRepository.find({
+      where:
+        tripIds.length === 0
+          ? { reporterId: userId }
+          : [{ reporterId: userId }, { tripId: In(tripIds) }],
+      order: { createdAt: 'DESC', id: 'ASC' },
+      take: limit,
+    });
+  }
+
   async countOpenByUser(): Promise<Map<string, number>> {
     const open = await this.incidentsRepository.find({
       where: { status: 'open' },

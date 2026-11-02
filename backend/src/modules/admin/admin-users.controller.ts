@@ -12,6 +12,7 @@ import {
 import {
   ApiBearerAuth,
   ApiNoContentResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
@@ -28,7 +29,12 @@ import {
 } from '../../shared/pagination/paginated';
 import { LATE_CANCELLATION_ROLES } from '../trips/entities/late-cancellation.entity';
 import type { LateCancellationRole } from '../trips/entities/late-cancellation.entity';
+import { AdminUserDetailService } from './admin-user-detail.service';
 import { AdminUsersService } from './admin-users.service';
+import {
+  AdminUserDetailResource,
+  toAdminUserDetailResource,
+} from './dto/admin-user-detail.resource';
 import {
   AdminUserRowResource,
   toAdminUserRowResource,
@@ -49,7 +55,10 @@ const ADMIN_ERRORS = {
 @Profiles('admin')
 @Controller('admin/users')
 export class AdminUsersController {
-  constructor(private readonly adminUsers: AdminUsersService) {}
+  constructor(
+    private readonly adminUsers: AdminUsersService,
+    private readonly adminUserDetail: AdminUserDetailService,
+  ) {}
 
   @Get()
   @ApiOperation({
@@ -66,6 +75,24 @@ export class AdminUsersController {
     const page = await this.adminUsers.list(query, query);
     setPaginationHeaders(response, page);
     return page.items.map(toAdminUserRowResource);
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get everything an admin sees of a user',
+    description:
+      'The account (no password), status, ratings, vehicles, the last trips as driver and requests as passenger, incidents, late cancellations of the last 30 days and the consent history (read only).',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiOkResponse({ type: AdminUserDetailResource })
+  @ApiErrorResponses({
+    ...ADMIN_ERRORS,
+    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
+  })
+  async get(
+    @Param('id', uuidParam('id')) id: string,
+  ): Promise<AdminUserDetailResource> {
+    return toAdminUserDetailResource(await this.adminUserDetail.get(id));
   }
 
   @Post(':id/suspensions/:role/lift')

@@ -4,6 +4,7 @@ import { RequestsModule } from '../requests/requests.module';
 import { TripsModule } from '../trips/trips.module';
 import { UsersModule } from '../users/users.module';
 import { AdminUsersController } from './admin-users.controller';
+import { AdminUserDetailService } from './admin-user-detail.service';
 import { AdminUsersService } from './admin-users.service';
 
 // Panel de administración (bloque b): sin tablas propias, compone lo que
@@ -12,6 +13,6 @@ import { AdminUsersService } from './admin-users.service';
 @Module({
   imports: [UsersModule, TripsModule, RequestsModule, IncidentsModule],
   controllers: [AdminUsersController],
-  providers: [AdminUsersService],
+  providers: [AdminUsersService, AdminUserDetailService],
 })
 export class AdminModule {}
