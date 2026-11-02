@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -19,9 +19,9 @@ import {
   SmokingPreference,
   TIME_TOLERANCES_MIN,
   TimeToleranceMin,
-  TRAVEL_PREFERENCE_GROUPS,
   TravelPreferences,
 } from '../../../core/models/travel-preferences.model';
+import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { UsersService } from '../../../core/services/users/users.service';
@@ -63,7 +63,10 @@ export class ProfilePreferencesModal implements OnInit {
 
   protected readonly closeIcon = close;
   protected readonly tolerances = TIME_TOLERANCES_MIN;
-  protected readonly groups = TRAVEL_PREFERENCE_GROUPS;
+  private readonly travelPreferences = inject(TravelPreferencesStore);
+  protected readonly groups = computed(() =>
+    this.travelPreferences.groupsFor(this.user?.preferences),
+  );
   protected readonly groupIcons = PREFERENCE_ICONS;
   protected readonly toleranceIcon = TIME_TOLERANCE_ICON;
 

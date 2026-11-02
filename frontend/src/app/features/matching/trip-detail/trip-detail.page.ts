@@ -16,7 +16,7 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { formatTravelPreferences } from '../../../core/models/travel-preferences.model';
+import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { formatShortDate, formatTime, toTripDetail } from '../trip-results';
 import { getFirstName } from '../trip-driver/trip-driver';
 import { TripSearchStateService } from '../trip-search-state.service';
@@ -48,6 +48,7 @@ import { ConfirmService } from '../../../core/services/ui/confirm.service';
   styleUrls: ['../../tabs/tab-page.scss', './trip-detail.page.scss'],
 })
 export class TripDetailPage {
+  private readonly travelPreferences = inject(TravelPreferencesStore);
   private readonly searchState = inject(TripSearchStateService);
   private readonly seatRequests = inject(SeatRequestsService);
   private readonly tripsService = inject(TripsService);
@@ -137,7 +138,7 @@ export class TripDetailPage {
         : formatFreeSeats(trip.freeSeats),
       vehiclePlate: request?.status === 'accepted' ? request.vehiclePlate : null,
       facts: `Desvío de recogida: ${trip.pickupDetourMinutes} min · Trayecto de unos ${trip.tripMinutes} min`,
-      preferences: apiTrip ? formatTravelPreferences(apiTrip.driver.preferences) : [],
+      preferences: apiTrip ? this.travelPreferences.format(apiTrip.driver.preferences) : [],
     };
   });
 
@@ -147,7 +148,7 @@ export class TripDetailPage {
   });
 
   readonly driverPreferences = computed(() =>
-    formatTravelPreferences(this.trip()?.driver.preferences),
+    this.travelPreferences.format(this.trip()?.driver.preferences),
   );
 
   // Las plazas que pide el pasajero, las de su búsqueda

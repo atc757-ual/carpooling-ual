@@ -17,6 +17,14 @@ import {
   UpdateVehicleColorDto,
   VehicleColorResource,
 } from './dto/vehicle-color.resource';
+import {
+  AdminTravelPreferenceOptionResource,
+  toAdminTravelPreferenceOptionResource,
+  toTravelPreferenceOptionResource,
+  TravelPreferenceOptionResource,
+  UpdateTravelPreferenceOptionDto,
+} from './dto/travel-preference-option.resource';
+import { TravelPreferencesService } from './travel-preferences.service';
 import { VehicleBrandsService } from './vehicle-brands.service';
 import { VehicleColorsService } from './vehicle-colors.service';
 
@@ -51,4 +59,21 @@ export const [VehicleColorsController, AdminVehicleColorsController] =
     toAdmin: toAdminVehicleColorResource,
     createDto: CreateVehicleColorDto,
     updateDto: UpdateVehicleColorDto,
+  });
+
+// Opciones de las preferencias de viaje: la app las ve todas (para nombrar
+// la de cada usuario) y solo ofrece las activas. El panel no da de alta
+// opciones: cambia sus textos, su orden dentro de la preferencia y si se ofrecen
+export const [TravelPreferencesController, AdminTravelPreferencesController] =
+  catalogControllers({
+    path: 'travel-preferences',
+    label: 'travel preference option',
+    example: 'music-soft',
+    service: TravelPreferencesService,
+    publicListsAll: true,
+    publicResource: TravelPreferenceOptionResource,
+    toPublic: toTravelPreferenceOptionResource,
+    adminResource: AdminTravelPreferenceOptionResource,
+    toAdmin: toAdminTravelPreferenceOptionResource,
+    updateDto: UpdateTravelPreferenceOptionDto,
   });

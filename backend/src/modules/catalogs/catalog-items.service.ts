@@ -29,6 +29,9 @@ export interface CatalogDefinition<T extends CatalogItem> {
   entity: EntityTarget<T>;
   // Restricción UNIQUE de la clave (vehicle_brands_key_key…)
   keyConstraint: string;
+  // Columna que agrupa los elementos: se ordenan dentro de su grupo (p. ej.
+  // las opciones de cada preferencia)
+  groupedBy?: keyof T & string;
 }
 
 // Lo común a todos los catálogos del panel: la app ve los activos; el
@@ -125,7 +128,7 @@ export abstract class CatalogItemsService<T extends CatalogItem> {
   ): Promise<T> {
     return this.dataSource.transaction(async (manager) => {
       const item = await this.lock(manager, key);
-      const neighbor = await manager
+      const query = manager
         .createQueryBuilder(this.definition.entity, 'item')
         .setLock('pessimistic_write')
         .where(
@@ -134,8 +137,14 @@ export abstract class CatalogItemsService<T extends CatalogItem> {
             : 'item.sortOrder > :order',
           { order: item.sortOrder },
         )
-        .orderBy('item.sortOrder', direction === 'up' ? 'DESC' : 'ASC')
-        .getOne();
+        .orderBy('item.sortOrder', direction === 'up' ? 'DESC' : 'ASC');
+      const { groupedBy } = this.definition;
+      if (groupedBy !== undefined) {
+        query.andWhere(`item.${groupedBy} = :group`, {
+          group: item[groupedBy],
+        });
+      }
+      const neighbor = await query.getOne();
       if (neighbor === null) {
         return item;
       }

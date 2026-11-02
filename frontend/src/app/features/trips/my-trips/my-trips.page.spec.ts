@@ -11,6 +11,7 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ActiveModeService } from '../../../core/services/users/active-mode.service';
 import { MyTripsPage } from './my-trips.page';
+import { provideCatalogsForTests } from '../../../core/services/catalogs/catalogs.testing';
 
 function trip(id: string, status: DriverTrip['status']): DriverTrip {
   return {
@@ -39,6 +40,7 @@ describe('MyTripsPage', () => {
     TestBed.configureTestingModule({
       imports: [MyTripsPage],
       providers: [
+        provideCatalogsForTests(),
         provideIonicAngular(),
         provideRouter([]),
         {

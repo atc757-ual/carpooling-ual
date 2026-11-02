@@ -13,8 +13,8 @@ import { alertCircleOutline, searchOutline, sparklesOutline } from 'ionicons/ico
 import { ApiError } from '../../../core/models/api-error.model';
 import { Trip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
-import { formatTravelPreferences } from '../../../core/models/travel-preferences.model';
 import { TripDriver } from '../../../core/models/trip-result.model';
+import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
@@ -66,6 +66,7 @@ const HISTORY_DATE_FORMAT = new Intl.DateTimeFormat('es-ES', {
   styleUrl: './passenger-request-detail.page.scss',
 })
 export class PassengerRequestDetailPage {
+  private readonly travelPreferences = inject(TravelPreferencesStore);
   private readonly requests = inject(SeatRequestsService);
   private readonly trips = inject(TripsService);
   private readonly confirm = inject(ConfirmService);
@@ -327,7 +328,7 @@ export class PassengerRequestDetailPage {
       vehicle: trip.vehicle,
       seatSummary: `Quedan ${trip.availableSeats} de ${trip.offeredSeats} plazas`,
       vehiclePlate: request.status === 'accepted' ? request.vehiclePlate : null,
-      preferences: formatTravelPreferences(trip.driver.preferences),
+      preferences: this.travelPreferences.format(trip.driver.preferences),
     };
   }
 }

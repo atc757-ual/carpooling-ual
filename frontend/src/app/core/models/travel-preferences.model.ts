@@ -31,64 +31,23 @@ export const EMPTY_TRAVEL_PREFERENCES: TravelPreferences = {
   pets: null,
 };
 
-export interface TravelPreferenceOption<T extends string> {
-  value: T;
+export interface TravelPreferenceOption {
+  value: string;
   label: string;
 }
 
-export interface TravelPreferenceGroup<
-  K extends keyof TravelPreferences = keyof TravelPreferences,
-> {
-  key: K;
+export interface TravelPreferenceGroup {
+  key: keyof TravelPreferences;
   title: string;
-  options: readonly TravelPreferenceOption<NonNullable<TravelPreferences[K]>>[];
+  options: readonly TravelPreferenceOption[];
 }
 
-export const CONVERSATION_OPTIONS: readonly TravelPreferenceOption<ConversationPreference>[] = [
-  { value: 'chatty', label: 'Charlar' },
-  { value: 'depends', label: 'Según el día' },
-  { value: 'quiet', label: 'Ir tranquilo' },
-];
-
-export const MUSIC_OPTIONS: readonly TravelPreferenceOption<MusicPreference>[] = [
-  { value: 'any', label: 'Con música' },
-  { value: 'soft', label: 'Música suave' },
-  { value: 'none', label: 'Sin música' },
-];
-
-export const SMOKING_OPTIONS: readonly TravelPreferenceOption<SmokingPreference>[] = [
-  { value: 'no', label: 'No se fuma' },
-  { value: 'allowed', label: 'Se puede fumar' },
-];
-
-export const PETS_OPTIONS: readonly TravelPreferenceOption<PetsPreference>[] = [
-  { value: 'none', label: 'Sin mascotas' },
-  { value: 'small_carrier', label: 'En transportín' },
-  { value: 'pet_friendly', label: 'Pet friendly' },
-];
-
-export const TRAVEL_PREFERENCE_GROUPS: readonly [
-  TravelPreferenceGroup<'conversation'>,
-  TravelPreferenceGroup<'music'>,
-  TravelPreferenceGroup<'smoking'>,
-  TravelPreferenceGroup<'pets'>,
-] = [
-  { key: 'conversation', title: 'Conversación', options: CONVERSATION_OPTIONS },
-  { key: 'music', title: 'Música', options: MUSIC_OPTIONS },
-  { key: 'smoking', title: 'Fumar', options: SMOKING_OPTIONS },
-  { key: 'pets', title: 'Mascotas', options: PETS_OPTIONS },
-];
-
-// Textos de las preferencias elegidas, en el orden de los grupos; vacío si no
-// tiene ninguna
-export function formatTravelPreferences(
-  preferences: TravelPreferences | null | undefined,
-): string[] {
-  return TRAVEL_PREFERENCE_GROUPS.flatMap(({ key, options }) => {
-    const value = preferences?.[key];
-    const option = (options as readonly TravelPreferenceOption<string>[]).find(
-      (candidate) => candidate.value === value,
-    );
-    return option ? [option.label] : [];
-  });
-}
+// Las cuatro preferencias, en orden. Sus opciones y sus textos salen del
+// catálogo (TravelPreferencesStore)
+export const TRAVEL_PREFERENCE_GROUPS: readonly { key: keyof TravelPreferences; title: string }[] =
+  [
+    { key: 'conversation', title: 'Conversación' },
+    { key: 'music', title: 'Música' },
+    { key: 'smoking', title: 'Fumar' },
+    { key: 'pets', title: 'Mascotas' },
+  ];

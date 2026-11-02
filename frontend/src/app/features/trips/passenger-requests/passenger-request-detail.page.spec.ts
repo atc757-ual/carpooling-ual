@@ -18,6 +18,7 @@ import {
   LOAD_LEAFLET,
 } from './live-trip-map/live-trip-map-runtime';
 import { PassengerRequestDetailPage } from './passenger-request-detail.page';
+import { provideCatalogsForTests } from '../../../core/services/catalogs/catalogs.testing';
 
 const TRIP: Trip = {
   id: 't1',
@@ -98,6 +99,7 @@ describe('PassengerRequestDetailPage', () => {
     TestBed.configureTestingModule({
       imports: [PassengerRequestDetailPage],
       providers: [
+        provideCatalogsForTests(),
         provideIonicAngular(),
         provideRouter([]),
         { provide: SeatRequestsService, useValue: requests },

@@ -14,7 +14,8 @@ export const UNCOVERED_PLACE = 'Vera';
 // - los parkings P1 y P3;
 // - cada texto escrito se sugiere tal cual, como una dirección de Almería;
 // - al elegirla, está en la zona salvo si empieza por UNCOVERED_PLACE
-// Catálogos simulados en todos los tests: unas marcas y los 8 colores
+// Catálogos simulados en todos los tests: unas marcas, los 8 colores y
+// algunas opciones de las preferencias
 const VEHICLE_COLORS = [
   ['white', 'Blanco', '#ffffff'],
   ['black', 'Negro', '#202124'],
@@ -32,6 +33,24 @@ beforeEach(() => {
     { key: 'skoda', name: 'Škoda' },
   ]);
   cy.intercept('GET', '/api/catalogs/vehicle-colors?*', VEHICLE_COLORS);
+  cy.intercept('GET', '/api/catalogs/travel-preferences?*', [
+    {
+      key: 'conversation-chatty',
+      preference: 'conversation',
+      value: 'chatty',
+      name: 'Charlar',
+      nameEn: 'Chatting',
+      isActive: true,
+    },
+    {
+      key: 'music-soft',
+      preference: 'music',
+      value: 'soft',
+      name: 'Música suave',
+      nameEn: 'Soft music',
+      isActive: true,
+    },
+  ]);
   cy.intercept('GET', '/api/campus-parkings*', [
     { id: 'p1', name: 'Parking P1', location: { type: 'Point', coordinates: [-2.4045, 36.8322] } },
     { id: 'p3', name: 'Parking P3', location: { type: 'Point', coordinates: [-2.4068, 36.8291] } },

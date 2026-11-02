@@ -11,6 +11,8 @@ import { DriverProfile } from './entities/driver-profile.entity';
 import { PassengerProfile } from './entities/passenger-profile.entity';
 import { User } from './entities/user.entity';
 import { escapeLike } from './admin-user-filter';
+import { TravelPreferencesService } from '../catalogs/travel-preferences.service';
+import { TravelPreferenceNotOfferedError } from './errors/travel-preference-not-offered.error';
 import { EmailAlreadyRegisteredError } from './errors/email-already-registered.error';
 import { UserNotFoundError } from './errors/user-not-found.error';
 import { PROFILE_ENTITIES } from './profile-entities';
@@ -94,6 +96,7 @@ export class UsersService {
     private readonly avatarsService: AvatarsService,
     private readonly consentsService: ConsentsService,
     private readonly eventsService: EventsService,
+    private readonly preferenceOptions: TravelPreferencesService,
   ) {}
 
   // Patrón observador: otros módulos (p. ej. requests) reaccionan en la misma
@@ -288,6 +291,7 @@ export class UsersService {
       if (changedFields.length === 0) {
         return;
       }
+      await this.assertPreferencesOffered(update);
       await manager.update(User, { id: userId }, update);
       if (changedFields.includes('phone')) {
         await manager.query(
@@ -497,6 +501,20 @@ export class UsersService {
     profile: ProfileType,
   ): Promise<void> {
     await manager.save(manager.create(PROFILE_ENTITIES[profile], { userId }));
+  }
+
+  // Solo se eligen opciones que se ofrecen; quien ya tenía una la conserva
+  // aunque el panel la desactive (aquí solo llegan las que cambian)
+  private async assertPreferencesOffered(update: Partial<User>): Promise<void> {
+    for (const [preference, column] of PREFERENCE_COLUMN_MAP) {
+      const value = update[column];
+      if (
+        typeof value === 'string' &&
+        !(await this.preferenceOptions.isOffered(preference, value))
+      ) {
+        throw new TravelPreferenceNotOfferedError(preference, value);
+      }
+    }
   }
 }
 

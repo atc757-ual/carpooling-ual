@@ -15,7 +15,7 @@ import { locationOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
 import { SeatRequest, SeatRequestStatus } from '../../../core/models/seat-request.model';
-import { formatTravelPreferences } from '../../../core/models/travel-preferences.model';
+import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
@@ -63,6 +63,7 @@ export function formatSeats(seats: number): string {
   styleUrl: './driver-trip-card.scss',
 })
 export class DriverTripCard {
+  private readonly travelPreferences = inject(TravelPreferencesStore);
   private readonly driver = inject(DriverService);
   private readonly toast = inject(ToastService);
   private readonly confirm = inject(ConfirmService);
@@ -152,7 +153,7 @@ export class DriverTripCard {
   }
 
   protected passengerPreferences(request: SeatRequest): string[] {
-    return formatTravelPreferences(request.passenger.preferences);
+    return this.travelPreferences.format(request.passenger.preferences);
   }
 
   async handleDecide(request: SeatRequest, decision: 'accept' | 'reject'): Promise<void> {

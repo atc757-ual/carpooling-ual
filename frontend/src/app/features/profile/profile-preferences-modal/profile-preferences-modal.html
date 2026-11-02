@@ -21,7 +21,7 @@
       Ayudan a coincidir con personas afines, como conductor y como pasajero.
     </p>
 
-    @for (group of groups; track group.key) {
+    @for (group of groups(); track group.key) {
       <fieldset class="preferences-group" [attr.aria-label]="group.title">
         <span class="preferences-group__title text-label text-label--strong">
           <ion-icon [icon]="groupIcons[group.key]" aria-hidden="true" />

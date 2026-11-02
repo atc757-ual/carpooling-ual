@@ -11,6 +11,7 @@ import { LocationError, LocationService } from '../../../core/services/location/
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { DriverTripCard } from './driver-trip-card';
+import { provideCatalogsForTests } from '../../../core/services/catalogs/catalogs.testing';
 
 const TRIP: DriverTrip = {
   id: 't1',
@@ -69,6 +70,7 @@ describe('DriverTripCard', () => {
     TestBed.configureTestingModule({
       imports: [DriverTripCard],
       providers: [
+        provideCatalogsForTests(),
         provideIonicAngular(),
         provideRouter([{ path: 'tabs/trips/drive/:id', children: [] }]),
         { provide: DriverService, useValue: driver },

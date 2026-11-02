@@ -63,7 +63,9 @@ export interface CatalogControllersOptions<T extends CatalogItem> {
   toPublic: (item: T) => unknown;
   adminResource: Type<unknown>;
   toAdmin: (item: T) => unknown;
-  createDto: Type<CatalogItemChanges<T> & { name: string }>;
+  // Sin createDto, el panel no da de alta elementos (p. ej. las opciones de
+  // las preferencias, de las que depende el matching)
+  createDto?: Type<CatalogItemChanges<T> & { name: string }>;
   updateDto: Type<CatalogItemChanges<T>>;
 }
 
@@ -133,7 +135,7 @@ export function catalogControllers<T extends CatalogItem>(
       description:
         'At the end of the list. Its key comes from the name (no accents, lower case, hyphens) and never changes.',
     })
-    @ApiBody({ type: options.createDto })
+    @ApiBody({ type: options.createDto ?? Object })
     @ApiCreatedResponse({ type: options.adminResource })
     @ApiErrorResponses({
       ...ADMIN_ERRORS,
@@ -189,7 +191,12 @@ export function catalogControllers<T extends CatalogItem>(
     Reflect.defineMetadata('design:paramtypes', [options.service], target);
   }
   const { prototype } = AdminCatalogController;
-  setBodyType(prototype, 'create', 1, options.createDto);
+  if (options.createDto === undefined) {
+    // Sin la ruta de alta: Nest y OpenAPI solo ven los métodos del prototipo
+    Reflect.deleteProperty(prototype, 'create');
+  } else {
+    setBodyType(prototype, 'create', 1, options.createDto);
+  }
   setBodyType(prototype, 'update', 2, options.updateDto);
   Object.defineProperty(PublicCatalogController, 'name', {
     value: `${pascalCase(options.path)}Controller`,
