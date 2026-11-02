@@ -128,7 +128,14 @@ describe('Incidents API (e2e)', () => {
       '@type': 'Incident',
       id: incident.id,
       href: `/api/incidents/${incident.id}`,
-      trip: { id: tripId, href: `/api/trips/${tripId}` },
+      trip: {
+        id: tripId,
+        href: `/api/trips/${tripId}`,
+        originName: null,
+        destinationName: null,
+        departureAt: expect.any(String) as string,
+        driver: { id: incident.reporter.id, name: 'dan' },
+      },
       reporter: { id: incident.reporter.id, name: 'dan', role: 'driver' },
       category: 'technical',
       description: BREAKDOWN,
@@ -287,6 +294,34 @@ describe('Incidents API (e2e)', () => {
       expect((open.body as { id: string }[]).map((i) => i.id)).toContain(id);
       expect(forbidden.body).toMatchObject({ code: 'PROFILE_REQUIRED' });
       await api('get', '/incidents?status=closed', admin).expect(400);
+      await api('get', '/incidents?category=weather', admin).expect(400);
+
+      // Filtro por categoría, con el trayecto y el conductor del viaje
+      const technical = await api(
+        'get',
+        '/incidents?status=open&category=technical&limit=100',
+        admin,
+      ).expect(200);
+      const found = (
+        technical.body as {
+          id: string;
+          trip: {
+            originName: string | null;
+            departureAt: string | null;
+            driver: { name: string } | null;
+          };
+        }[]
+      ).find((incident) => incident.id === id);
+      expect(found?.trip.departureAt).toEqual(expect.any(String));
+      expect(found?.trip.driver?.name).toEqual(expect.any(String));
+      const other = await api(
+        'get',
+        '/incidents?category=other&limit=100',
+        admin,
+      ).expect(200);
+      expect((other.body as { id: string }[]).map((i) => i.id)).not.toContain(
+        id,
+      );
     });
 
     it('reviews an incident; the reporter sees the resolution; it cannot be reviewed again', async () => {

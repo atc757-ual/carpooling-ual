@@ -128,7 +128,8 @@ export class IncidentsController {
   @Profiles('admin')
   @ApiOperation({
     summary: 'List incidents to review',
-    description: 'CU-12. Filter by status; the oldest first.',
+    description:
+      'CU-12. Filter by status and category; the oldest first. Each one comes with its trip route and driver.',
   })
   @ApiPaginatedResponse(IncidentResource)
   @ApiErrorResponses({
@@ -140,7 +141,10 @@ export class IncidentsController {
     @Query() query: ListIncidentsQueryDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<IncidentResource[]> {
-    const page = await this.incidentsService.list(query.status, query);
+    const page = await this.incidentsService.list(
+      { status: query.status, category: query.category },
+      query,
+    );
     setPaginationHeaders(response, page);
     return page.items.map(toIncidentResource);
   }

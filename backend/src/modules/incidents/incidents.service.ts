@@ -27,10 +27,27 @@ export interface ReportIncidentInput {
 // abandona). Se deduce de la incidencia: solo la del pasajero tiene solicitud
 export type ReporterRole = 'driver' | 'passenger';
 
+// El viaje de la incidencia como lo ve quien la gestiona: el trayecto, la
+// hora y el conductor
+export interface IncidentTripView {
+  originName: string | null;
+  destinationName: string | null;
+  departureAt: Date;
+  driverId: string;
+  driverName: string;
+}
+
 export interface IncidentView {
   incident: Incident;
   reporterName: string;
   reporterRole: ReporterRole;
+  // null solo si el viaje ya no existe
+  trip: IncidentTripView | null;
+}
+
+export interface IncidentFilter {
+  status?: IncidentStatus;
+  category?: IncidentCategory;
 }
 
 // Incidencias (RF-23) y su revisión por el administrador (CU-12). Una
@@ -119,11 +136,14 @@ export class IncidentsService {
 
   // Incidencias para revisar, por orden de llegada (la más antigua primero)
   async list(
-    status: IncidentStatus | undefined,
+    filter: IncidentFilter,
     page: PageRequest,
   ): Promise<Page<IncidentView>> {
     const [incidents, total] = await this.incidentsRepository.findAndCount({
-      where: status === undefined ? {} : { status },
+      where: {
+        ...(filter.status === undefined ? {} : { status: filter.status }),
+        ...(filter.category === undefined ? {} : { category: filter.category }),
+      },
       order: { createdAt: 'ASC', id: 'ASC' },
       skip: page.offset,
       take: page.limit,
@@ -243,16 +263,32 @@ export class IncidentsService {
     return view;
   }
 
-  // Los nombres en una sola consulta (no una por fila)
+  // Los viajes y los nombres en una consulta cada uno (no una por fila)
   private async toViews(incidents: Incident[]): Promise<IncidentView[]> {
-    const names = await this.usersService.getNames(
-      incidents.map(({ reporterId }) => reporterId),
+    const trips = await this.tripsService.getByIds(
+      incidents.map(({ tripId }) => tripId),
     );
-    return incidents.map((incident) => ({
-      incident,
-      reporterName: names.get(incident.reporterId) ?? '',
-      reporterRole: reporterRoleOf(incident),
-    }));
+    const names = await this.usersService.getNames([
+      ...incidents.map(({ reporterId }) => reporterId),
+      ...[...trips.values()].map(({ driverId }) => driverId),
+    ]);
+    return incidents.map((incident) => {
+      const trip = trips.get(incident.tripId);
+      return {
+        incident,
+        reporterName: names.get(incident.reporterId) ?? '',
+        reporterRole: reporterRoleOf(incident),
+        trip: trip
+          ? {
+              originName: trip.originName,
+              destinationName: trip.destinationName,
+              departureAt: trip.departureAt,
+              driverId: trip.driverId,
+              driverName: names.get(trip.driverId) ?? '',
+            }
+          : null,
+      };
+    });
   }
 
   // Sin la descripción ni la resolución: son texto libre que puede contener
