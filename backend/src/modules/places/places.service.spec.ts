@@ -27,7 +27,7 @@ describe('PlacesService', () => {
   const service = new PlacesService(
     geocoder,
     { query, manager } as unknown as DataSource,
-    { record },
+    { record } as unknown as EventsService,
   );
 
   beforeEach(() => jest.clearAllMocks());
