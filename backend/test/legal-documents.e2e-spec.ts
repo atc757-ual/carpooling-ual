@@ -177,7 +177,8 @@ describe('Legal documents (e2e)', () => {
   });
 
   it('lets only admins manage the documents', async () => {
-    await admin('get', '', userToken).expect(403);
+    const list = await admin('get', '', userToken).expect(403);
+    expect((list.body as { code: string }).code).toBe('PROFILE_REQUIRED');
     await admin('put', '/terms/draft', userToken)
       .send({ content: '<p>Nada</p>' })
       .expect(403);
