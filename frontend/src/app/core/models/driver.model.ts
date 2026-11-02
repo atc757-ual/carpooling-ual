@@ -10,7 +10,7 @@ export interface Vehicle {
   plate: string;
   brand: string | null;
   model: string | null;
-  color: VehicleColor | null;
+  color: string | null;
   engine: VehicleEngine | null;
   capacity: number;
   status: 'available' | 'on_trip' | 'inactive';
@@ -21,12 +21,10 @@ export interface RegisterVehicleRequest {
   capacity: number;
   brand: string;
   model: string;
-  color: VehicleColor;
+  color: string;
   engine: VehicleEngine;
 }
 
-// Clave del catálogo de colores (GET /api/catalogs/vehicle-colors)
-export type VehicleColor = string;
 export type VehicleEngine = 'electric' | 'hybrid' | 'other';
 
 // PATCH /api/vehicles/{id}: marca, modelo y matrícula no se cambian

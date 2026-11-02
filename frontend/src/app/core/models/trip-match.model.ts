@@ -1,6 +1,5 @@
 import { GeoPoint } from './place.model';
 import { TripDirection } from './trip-search.model';
-import { VehicleColor } from './driver.model';
 import { AvatarKey } from './avatar.model';
 import { TravelPreferences } from './travel-preferences.model';
 
@@ -36,5 +35,5 @@ export interface TripMatch {
   timeDifferenceMin: number;
   // De 0 a 1
   score: number;
-  vehicle: { brand: string | null; model: string | null; color: VehicleColor | null };
+  vehicle: { brand: string | null; model: string | null; color: string | null };
 }

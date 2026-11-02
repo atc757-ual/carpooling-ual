@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, resource } from '@angular/core';
 import { ThemeService } from '../ui/theme.service';
 import { CatalogsService, VehicleColorItem } from './catalogs.service';
 
@@ -8,20 +8,18 @@ import { CatalogsService, VehicleColorItem } from './catalogs.service';
 @Injectable({ providedIn: 'root' })
 export class VehicleColorsStore {
   private readonly theme = inject(ThemeService);
-  private readonly colors = signal<readonly VehicleColorItem[]>([]);
+  private readonly catalogs = inject(CatalogsService);
+  // Si fallan, el recurso guarda el error y no hay colores
+  private readonly catalog = resource({ loader: () => this.catalogs.vehicleColors() });
+  private readonly colors = computed<readonly VehicleColorItem[]>(() =>
+    this.catalog.hasValue() ? this.catalog.value() : [],
+  );
   private readonly byKey = computed(
     () => new Map(this.colors().map((color) => [color.key, color])),
   );
 
   // Los que se pueden elegir, en su orden
   readonly offered = computed(() => this.colors().filter(({ isActive }) => isActive));
-
-  constructor() {
-    inject(CatalogsService)
-      .vehicleColors()
-      .then((colors) => this.colors.set(colors))
-      .catch(() => undefined);
-  }
 
   // «Azul»; sin color, «Color sin indicar»; uno que aún no ha llegado, nada
   label(key: string | null): string {

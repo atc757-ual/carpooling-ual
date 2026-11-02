@@ -9,7 +9,7 @@ import {
   leafOutline,
 } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
-import { Vehicle, VehicleColor, VehicleEngine } from '../../../core/models/driver.model';
+import { Vehicle, VehicleEngine } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
@@ -156,13 +156,13 @@ export class VehicleForm {
       const saved = vehicle
         ? await this.driver.updateVehicle(vehicle.id, {
             capacity,
-            color: color as VehicleColor,
+            color,
             engine: engine as VehicleEngine,
           })
         : await this.driver.registerVehicle({
             brand: brand.trim(),
             model: model.trim(),
-            color: color as VehicleColor,
+            color,
             engine: engine as VehicleEngine,
             capacity,
             plate: plate.replaceAll(/[ -]/g, '').toUpperCase(),
