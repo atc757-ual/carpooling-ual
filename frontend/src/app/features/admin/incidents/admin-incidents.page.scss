@@ -1,0 +1,99 @@
+.admin-page__header {
+  margin-block-end: var(--space-l);
+}
+
+.admin-page__subtitle {
+  color: var(--color-text-muted);
+}
+
+// Estado y categoría: en columna en el móvil y en fila desde 768px
+.incidents__filters {
+  display: grid;
+  gap: var(--space-base);
+  margin-block-end: var(--space-base);
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(18rem, 1fr) minmax(12rem, 16rem); // 288px · 192px–256px
+    align-items: end;
+  }
+}
+
+.incidents__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// La gravedad va en el borde izquierdo con el color de su rol (el título dice
+// la categoría: el color solo acompaña)
+.incident-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-base);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-left: 0.25rem solid var(--color-border); // 4px
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+.incident-card--danger {
+  border-left-color: var(--color-danger);
+}
+
+.incident-card--warning {
+  border-left-color: var(--color-warning);
+}
+
+.incident-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.incident-card__title {
+  font-weight: var(--font-weight-semibold);
+}
+
+.incident-card__meta {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.incident-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-base);
+}
+
+.incident-card__link {
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+}
+
+.incidents__skeleton-title {
+  width: 40%;
+  height: 1rem; // 16px
+}
+
+.incidents__state {
+  margin-block-start: var(--space-base);
+}
+
+.incidents__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xxl) var(--space-l);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+  text-align: center;
+}

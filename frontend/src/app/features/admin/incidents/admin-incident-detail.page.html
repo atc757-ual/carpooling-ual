@@ -1,0 +1,86 @@
+<ion-button class="incident__back" fill="clear" (click)="handleBack()">
+  <ion-icon slot="start" [icon]="backIcon" aria-hidden="true" />
+  Incidencias
+</ion-button>
+
+@if (incident(); as incident) {
+  @if (view(); as view) {
+    <article [class]="'incident incident--' + view.severity">
+      <header class="incident__header">
+        <h1 class="text-heading">{{ view.title }}</h1>
+        @if (incident.status === 'open') {
+          <span class="status status--pending">Abierta</span>
+        } @else {
+          <span class="status status--accepted">Revisada</span>
+        }
+      </header>
+      <p class="text-body-s incident__muted">Registrada el {{ view.reportedAt }}</p>
+
+      <section class="incident__section" aria-labelledby="incident-report">
+        <h2 id="incident-report" class="text-title">Informe</h2>
+        <p class="text-body incident__description">{{ incident.description }}</p>
+      </section>
+
+      <section class="incident__section" aria-labelledby="incident-trip">
+        <h2 id="incident-trip" class="text-title">Viaje y personas</h2>
+        <ul class="incident__list">
+          <li class="text-body-s">
+            <b>{{ view.route }}</b>
+            @if (view.departureAt) {
+              · salida {{ view.departureAt }}
+            }
+          </li>
+          <li class="text-body-s">
+            Notificada por
+            <a [routerLink]="['/admin/users', incident.reporter.id]">{{
+              incident.reporter.name
+            }}</a>
+            ({{ incident.reporter.role === 'driver' ? 'conductor' : 'pasajero' }})
+          </li>
+          @if (incident.trip.driver; as driver) {
+            @if (driver.id !== incident.reporter.id) {
+              <li class="text-body-s">
+                Conductor:
+                <a [routerLink]="['/admin/users', driver.id]">{{ driver.name }}</a>
+              </li>
+            }
+          }
+        </ul>
+      </section>
+
+      <section class="incident__section" aria-labelledby="incident-review">
+        <h2 id="incident-review" class="text-title">Revisión</h2>
+        @if (incident.review; as review) {
+          <p class="text-body">{{ review.resolution }}</p>
+          <p class="text-body-s incident__muted">Revisada el {{ view.reviewedAt }}</p>
+        } @else {
+          <p class="text-body-s incident__muted">
+            Revisada no significa resuelta: la revisión conserva el informe original y es
+            definitiva.
+          </p>
+          <ion-button class="incident__review" (click)="handleReview()">Marcar revisada</ion-button>
+        }
+      </section>
+    </article>
+  }
+} @else if (errorMessage(); as message) {
+  <div class="notice notice--danger incident__state" role="alert">
+    <span>
+      <b>{{ isNotFound() ? 'No encontramos esta incidencia.' : 'No hemos podido cargarla.' }}</b>
+      @if (!isNotFound()) {
+        {{ message }}
+      }
+    </span>
+    @if (isNotFound()) {
+      <ion-button fill="outline" size="small" [routerLink]="incidentsPath">Ver la lista</ion-button>
+    } @else {
+      <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
+    }
+  </div>
+} @else {
+  <div class="incident" aria-busy="true" aria-label="Cargando la incidencia">
+    <ion-skeleton-text [animated]="true" class="incident__skeleton-title" />
+    <ion-skeleton-text [animated]="true" />
+    <ion-skeleton-text [animated]="true" />
+  </div>
+}

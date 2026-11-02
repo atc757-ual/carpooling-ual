@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { ApiError } from '../../models/api-error.model';
 import { AdminIncidentsService } from './admin-incidents.service';
 
 describe('AdminIncidentsService', () => {
@@ -38,5 +39,40 @@ describe('AdminIncidentsService', () => {
     http.expectOne('/api/incidents?status=open&limit=1').flush([]);
     await refresh;
     expect(incidents.openCount()).toBe(0);
+  });
+
+  it('lists with the filters in use, gets one and reviews it updating the count', async () => {
+    const page = incidents.list({ status: 'open', category: 'driver', offset: 0, limit: 20 });
+    http
+      .expectOne('/api/incidents?offset=0&limit=20&status=open&category=driver')
+      .flush([{ id: 'i1' }], { headers: { 'X-Total-Count': '7' } });
+    expect(await page).toEqual({ items: [{ id: 'i1' }], total: 7 });
+
+    const all = incidents.list({ offset: 20, limit: 20 });
+    http.expectOne('/api/incidents?offset=20&limit=20').flush([]);
+    expect((await all).total).toBe(0);
+
+    const one = incidents.get('i1');
+    http.expectOne('/api/incidents/i1').flush({ id: 'i1' });
+    expect(await one).toEqual({ id: 'i1' });
+
+    const review = incidents.review('i1', 'Talked to both of them');
+    const post = http.expectOne('/api/incidents/i1/review');
+    expect(post.request.body).toEqual({ resolution: 'Talked to both of them' });
+    post.flush({ id: 'i1', status: 'reviewed' });
+    expect(await review).toEqual({ id: 'i1', status: 'reviewed' });
+    http
+      .expectOne('/api/incidents?status=open&limit=1')
+      .flush([], { headers: { 'X-Total-Count': '2' } });
+    await Promise.resolve();
+    expect(incidents.openCount()).toBe(2);
+  });
+
+  it('throws an ApiError when a request fails', async () => {
+    const one = incidents.get('missing');
+    http
+      .expectOne('/api/incidents/missing')
+      .flush({ code: 'INCIDENT_NOT_FOUND' }, { status: 404, statusText: 'Not Found' });
+    await expect(one).rejects.toBeInstanceOf(ApiError);
   });
 });

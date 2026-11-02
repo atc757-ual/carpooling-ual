@@ -1,0 +1,85 @@
+.incident__back {
+  margin-inline-start: calc(-1 * var(--space-s));
+  margin-block-end: var(--space-s);
+}
+
+// La gravedad, como en la lista: el borde izquierdo con el color de su rol
+.incident {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  max-width: 48rem; // 768px
+  padding: var(--space-l);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-left: 0.25rem solid var(--color-border); // 4px
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+.incident--danger {
+  border-left-color: var(--color-danger);
+}
+
+.incident--warning {
+  border-left-color: var(--color-warning);
+}
+
+.incident__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-s);
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.incident__muted {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.incident__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+// El informe tal como lo escribió (con sus saltos de línea)
+.incident__description {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.incident__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    color: var(--color-link);
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+.incident__review {
+  align-self: flex-start;
+}
+
+.incident__state {
+  margin-block-start: var(--space-base);
+}
+
+.incident__skeleton-title {
+  width: 40%;
+  height: 1.25rem; // 20px
+}
