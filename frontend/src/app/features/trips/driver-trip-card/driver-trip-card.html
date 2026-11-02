@@ -44,10 +44,11 @@
       </div>
       <div class="driver-trip__actions-row">
         <form (submit)="$event.preventDefault(); handleFinish()">
-          <ion-button type="submit" [disabled]="isChangingStatus()">
+          <ion-button type="submit" fill="outline" [disabled]="isChangingStatus()">
             {{ isChangingStatus() ? 'Terminando…' : 'Terminar viaje' }}
           </ion-button>
         </form>
+        <ion-button [routerLink]="livePath()">Abrir viaje</ion-button>
       </div>
     }
 

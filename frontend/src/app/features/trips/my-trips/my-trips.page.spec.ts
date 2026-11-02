@@ -19,6 +19,8 @@ function trip(id: string, status: DriverTrip['status']): DriverTrip {
     offeredSeats: 3,
     availableSeats: 3,
     maxDetourMin: 10,
+    origin: { type: 'Point', coordinates: [-2.6, 36.76] },
+    destination: { type: 'Point', coordinates: [-2.4045, 36.8322] },
     status,
     originName: 'Roquetas de Mar',
     destinationName: 'Campus UAL · Parking P1 (Sur)',
@@ -82,6 +84,16 @@ describe('MyTripsPage', () => {
     expect(root.textContent).toContain('Próximos');
     expect(root.textContent).toContain('Anteriores');
     expect(root.querySelectorAll('app-driver-trip-card')).toHaveLength(3);
+  });
+
+  it('reloads the trips when coming back to the tab', async () => {
+    await render('driver');
+    expect(listMyTrips).toHaveBeenCalledTimes(1);
+
+    fixture.componentInstance.ionViewWillEnter();
+    await fixture.whenStable();
+
+    expect(listMyTrips).toHaveBeenCalledTimes(2);
   });
 
   it('invites to publish when there are no trips', async () => {

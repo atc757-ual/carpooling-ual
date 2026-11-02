@@ -734,6 +734,23 @@
     </div>
     <p class="note" style="margin-top:var(--space-s)">El acento sobre blanco solo da 3,5:1: nunca como color de texto pequeño. «Última plaza» va como chip naranja con texto negro.</p>
 
+    <h3>Viaje en curso (conductor)</h3>
+    <p class="note">Pantalla propia (<code>/tabs/trips/drive/:id</code>) a la que se entra al iniciar el viaje o con «Abrir viaje». Arriba, el aviso de que se comparte la ubicación; el mapa en vivo con la posición del conductor y la siguiente recogida (deja de serlo 5 min después de su hora); el progreso con los pasos de la guía, solo informativo; los pasajeros por hora de recogida, con la siguiente marcada; y «Terminar viaje», fijo abajo en el móvil, con confirmación en azul («Terminar · Seguir en el viaje»). En escritorio, el mapa en la columna de 8 y lo demás en la de 4. Si dejan de llegar posiciones durante más de 1 min, aviso de advertencia: «No estamos recibiendo tu ubicación. Comprueba que la app sigue abierta y el GPS activo.»</p>
+    <div class="demo" style="max-width:27rem">
+      <div class="notice notice--info"><span>Compartiendo tu ubicación con tus pasajeros</span></div>
+      <p class="text-label text-label--strong" style="margin:var(--space-base) 0 var(--space-xs)">Llegas en ~6 min a Av. del Mediterráneo.</p>
+      <span class="text-meta">Publicado ✓ · Confirmado ✓ · <b>En curso</b> · Finalizado</span>
+      <div class="trip-row" style="margin-top:var(--space-base)">
+        <div class="trip-row__head"><span class="text-label text-label--strong">Carlos Ruiz</span><span class="status status--info">Siguiente recogida</span></div>
+        <span class="text-meta">1 plaza · Recoger a las 09:12 · Av. del Mediterráneo</span>
+      </div>
+      <div class="trip-row">
+        <div class="trip-row__head"><span class="text-label text-label--strong">Ana Gómez</span></div>
+        <span class="text-meta">1 plaza · Recoger a las 09:20 · Paseo de Almería</span>
+      </div>
+      <button class="btn btn--primary btn--block" type="button" style="margin-top:var(--space-base)">Terminar viaje</button>
+    </div>
+
     <h3 id="administracion">Administración</h3>
     <p class="note">Panel de escritorio con la cabecera índigo. Las cifras son el protagonista (Barlow 600); las tarjetas solo agrupan bloques. Los datos de ejemplo se marcan como tales.</p>
     <div class="kpis">

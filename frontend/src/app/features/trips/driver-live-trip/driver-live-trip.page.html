@@ -1,0 +1,103 @@
+<ion-content>
+  <main class="driver-live-trip">
+    @if (tripResource.isLoading() && !tripResource.hasValue()) {
+      <output class="driver-live-trip__loading" aria-live="polite">
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="text-caption text-color-muted">Cargando tu viaje…</span>
+      </output>
+    } @else if (tripResource.error()) {
+      <ion-card>
+        <ion-card-content class="driver-live-trip__state">
+          <div class="text-subtitle">No encontramos este viaje</div>
+          <p class="text-body-s text-color-muted">Puede que ya no esté disponible.</p>
+          <ion-button routerLink="/tabs/trips">Volver a Tus viajes</ion-button>
+        </ion-card-content>
+      </ion-card>
+    } @else if (trip(); as trip) {
+      @if (!isInProgress()) {
+        <ion-card>
+          <ion-card-content class="driver-live-trip__state">
+            <div class="text-subtitle">Este viaje no está en curso</div>
+            <p class="text-body-s text-color-muted">
+              Podrás seguirlo aquí cuando lo inicies desde Tus viajes.
+            </p>
+            <ion-button routerLink="/tabs/trips">Volver a Tus viajes</ion-button>
+          </ion-card-content>
+        </ion-card>
+      } @else {
+        <div class="driver-live-trip__layout">
+          <div class="driver-live-trip__main">
+            <header class="driver-live-trip__heading">
+              <div class="text-subtitle">
+                {{ trip.originName ?? 'Origen' }} → {{ trip.destinationName ?? 'Destino' }}
+              </div>
+            </header>
+
+            @if (isSharing()) {
+              <output class="notice notice--info driver-live-trip__sharing">
+                <ion-icon [icon]="locationIcon" aria-hidden="true" />
+                <span>Compartiendo tu ubicación con tus pasajeros</span>
+              </output>
+            }
+
+            <app-live-trip-map
+              viewer="driver"
+              [tripId]="trip.id"
+              [initialCenter]="trip.origin"
+              [pickupLocation]="nextPickup()?.pickupLocation ?? null"
+              [pickupName]="nextPickup()?.pickupName ?? 'la recogida'"
+              [active]="isPageVisible()"
+            />
+          </div>
+
+          <aside class="driver-live-trip__side">
+            <section class="driver-live-trip__panel" aria-labelledby="progress-title">
+              <h2 id="progress-title" class="text-subtitle">Tu viaje</h2>
+              <app-trip-progress status="in_progress" />
+            </section>
+
+            <section class="driver-live-trip__panel" aria-labelledby="passengers-title">
+              <h2 id="passengers-title" class="text-subtitle">En el coche</h2>
+              @if (requests.isLoading() && !requests.hasValue()) {
+                <p class="text-caption text-color-muted">Cargando tus pasajeros…</p>
+              } @else if (passengers().length === 0) {
+                <p class="text-body-s text-color-muted">Viajas sin pasajeros.</p>
+              } @else {
+                <ul class="driver-live-trip__passengers">
+                  @for (request of passengers(); track request.id) {
+                    <li
+                      class="driver-live-trip__passenger"
+                      [class.driver-live-trip__passenger--next]="request.id === nextPickup()?.id"
+                    >
+                      <div class="driver-live-trip__person">
+                        <span class="text-body text-body--strong">
+                          {{ request.passenger.name }}
+                        </span>
+                        <span class="text-caption text-color-muted">
+                          {{ formatSeats(request.seats) }}
+                        </span>
+                      </div>
+                      <span class="text-body-s">{{ pickupLabel(request) }}</span>
+                      @if (request.id === nextPickup()?.id) {
+                        <span class="status status--info">Siguiente recogida</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
+
+            <form
+              class="driver-live-trip__finish"
+              (submit)="$event.preventDefault(); handleFinish()"
+            >
+              <ion-button type="submit" expand="block" [disabled]="isFinishing()">
+                {{ isFinishing() ? 'Terminando…' : 'Terminar viaje' }}
+              </ion-button>
+            </form>
+          </aside>
+        </div>
+      }
+    }
+  </main>
+</ion-content>
