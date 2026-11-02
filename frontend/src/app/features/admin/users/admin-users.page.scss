@@ -1,0 +1,150 @@
+.admin-page__header {
+  margin-block-end: var(--space-l);
+}
+
+.admin-page__subtitle {
+  color: var(--color-text-muted);
+}
+
+.admin-users__total {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+// Buscador y filtros: en una columna en el móvil y en fila desde 768px
+.admin-users__filters {
+  display: grid;
+  gap: var(--space-base);
+  margin-block-end: var(--space-base);
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(16rem, 2fr) repeat(2, minmax(11rem, 1fr)); // 256px · 176px
+    align-items: end;
+  }
+}
+
+.admin-users__search {
+  padding: 0;
+  --border-radius: var(--radius-base);
+}
+
+// La tabla se desplaza dentro de su caja, nunca la página; la cabecera queda
+// fija al desplazar
+.admin-users__table-wrap {
+  max-height: 70vh;
+  overflow: auto;
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+.admin-users__table {
+  width: 100%;
+  min-width: 44rem; // 704px
+  border-collapse: collapse;
+  font-size: var(--font-size-label);
+
+  th,
+  td {
+    padding: var(--space-s) var(--space-base);
+    border-bottom: var(--border-width) solid var(--color-border-subtle);
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-medium);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+.admin-users__number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-users__table th.admin-users__number,
+.admin-users__table td.admin-users__number {
+  text-align: right;
+}
+
+.admin-users__name {
+  display: block;
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+.admin-users__email {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  overflow-wrap: anywhere;
+}
+
+.admin-users__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+// Tonos de los chips (el texto siempre dice el estado; el color acompaña)
+.admin-users__chip--success {
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+}
+
+.admin-users__chip--info {
+  background: var(--color-info-subtle);
+  color: var(--color-info);
+}
+
+.admin-users__chip--warning {
+  background: var(--color-warning-subtle);
+  color: var(--color-warning);
+}
+
+.admin-users__link {
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.admin-users__skeleton-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--space-base);
+  padding: var(--space-base);
+  border-bottom: var(--border-width) solid var(--color-border-subtle);
+}
+
+.admin-users__skeleton-name {
+  height: 1rem; // 16px
+}
+
+.admin-users__skeleton-cell {
+  height: 0.75rem; // 12px
+}
+
+.admin-users__state {
+  margin-block-start: var(--space-base);
+}
+
+.admin-users__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xxl) var(--space-l);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+  text-align: center;
+}

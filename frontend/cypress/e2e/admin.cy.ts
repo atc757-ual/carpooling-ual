@@ -21,6 +21,24 @@ function accessToken(profiles: string[]) {
   };
 }
 
+// Una fila de GET /api/admin/users
+const USER_ROW = {
+  '@type': 'AdminUserRow',
+  id: '0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90',
+  href: '/api/users/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90',
+  name: 'Lucía Cortés',
+  email: 'lcc123@inlumine.ual.es',
+  profiles: [
+    { profile: 'driver', isActive: true },
+    { profile: 'passenger', isActive: true },
+  ],
+  statuses: ['open_incidents'],
+  tripCount: 42,
+  openIncidents: 2,
+  suspensions: null,
+  createdAt: '2026-10-01T10:00:00.000Z',
+};
+
 function visitWithSession(path: string, profiles: string[]): void {
   cy.intercept('POST', '/api/auth/refresh', accessToken(profiles));
   cy.visit(path, {
@@ -56,12 +74,41 @@ for (const viewport of VIEWPORTS) {
     it('moves between sections', () => {
       visitWithSession('/admin', ['admin']);
 
-      cy.contains('.admin-nav__link', 'Usuarios').click();
+      cy.contains('.admin-nav__link', 'Viajes').click();
 
-      cy.location('pathname').should('eq', '/admin/users');
-      cy.contains('.admin-nav__link', 'Usuarios').should('have.attr', 'aria-current', 'page');
-      cy.contains('h1', 'Usuarios');
+      cy.location('pathname').should('eq', '/admin/trips');
+      cy.contains('.admin-nav__link', 'Viajes').should('have.attr', 'aria-current', 'page');
+      cy.contains('h1', 'Viajes');
       cy.contains('output.admin-empty', 'Disponible pronto');
+    });
+
+    it('lists the users, filters them and keeps the filters in the URL', () => {
+      cy.intercept('GET', '/api/admin/users?*', (request) => {
+        const isSuspended = request.query['status'] === 'suspended';
+        request.reply({
+          body: isSuspended ? [] : [USER_ROW],
+          headers: {
+            'X-Total-Count': isSuspended ? '0' : '1284',
+            'Access-Control-Expose-Headers': 'X-Total-Count',
+          },
+        });
+      }).as('users');
+      visitWithSession('/admin/users', ['admin']);
+
+      cy.wait('@users');
+      cy.contains('h1', 'Usuarios · 1');
+      cy.contains('tbody tr', 'Lucía Cortés').within(() => {
+        cy.contains('Conductor · Pasajero');
+        cy.contains('.status', '2 incidencias');
+        cy.contains('a', 'Ver perfil').should('have.attr', 'href', `/admin/users/${USER_ROW.id}`);
+      });
+      cy.contains('.pagination__range', '1–20 de 1');
+
+      visitWithSession('/admin/users?status=suspended', ['admin']);
+      cy.contains('Ningún usuario coincide');
+      cy.contains('ion-button', 'Quitar filtros').click();
+      cy.location('search').should('eq', '');
+      cy.contains('tbody tr', 'Lucía Cortés');
     });
 
     it('sends users without the admin profile to their profile', () => {

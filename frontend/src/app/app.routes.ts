@@ -6,7 +6,7 @@ import { guestGuard } from './core/guards/guest.guard';
 import { profileGuard } from './core/guards/profile.guard';
 import { PUBLISH_PATH, SEARCH_PATH, WELCOME_PATH } from './core/guards/redirect-paths';
 import { AuthService } from './core/services/auth/auth.service';
-import { ADMIN_SECTIONS } from './features/admin/admin-sections';
+import { ADMIN_ROUTES } from './features/admin/admin.routes';
 import { TabHeading } from './features/tabs/tab-heading';
 
 // La pantalla del final del registro la abre la verificación del correo, que ya
@@ -207,22 +207,13 @@ export const routes: Routes = [
   },
   {
     // Panel de administración (bloque b): solo con el perfil de administrador
-    // (sin él, profileGuard lleva al Perfil). Una ruta por sección; la primera
-    // es la de entrada
+    // (sin él, profileGuard lleva al Perfil). Sus secciones, en
+    // features/admin/admin.routes.ts
     path: 'admin',
     canActivate: [profileGuard('admin')],
     loadComponent: () =>
       import('./shared/components/layout/admin-layout/admin-layout').then((m) => m.AdminLayout),
-    children: [
-      { path: '', pathMatch: 'full', redirectTo: ADMIN_SECTIONS[0].path },
-      ...ADMIN_SECTIONS.map((section) => ({
-        path: section.path,
-        title: `${section.title} · Admin`,
-        loadComponent: () =>
-          import('./features/admin/admin-section.page').then((m) => m.AdminSectionPage),
-        data: { section },
-      })),
-    ],
+    children: ADMIN_ROUTES,
   },
   {
     // Final del registro: fuera de las dos áreas porque la sesión ya está

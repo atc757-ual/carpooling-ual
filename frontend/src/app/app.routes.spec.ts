@@ -25,13 +25,9 @@ describe('application routes', () => {
     const [entry, ...sections] = adminRoute?.children ?? [];
 
     expect(entry.redirectTo).toBe('simulation');
-    expect(sections.map(({ path }) => path)).toEqual([
-      'simulation',
-      'digital-twin',
-      'users',
-      'incidents',
-      'trips',
-      'catalogs',
-    ]);
+    // Usuarios ya tiene pantalla, con su detalle; el resto, su marcador
+    expect(sections.map(({ path }) => path).sort()).toEqual(
+      ['simulation', 'digital-twin', 'users', 'users/:id', 'incidents', 'trips', 'catalogs'].sort(),
+    );
   });
 });
