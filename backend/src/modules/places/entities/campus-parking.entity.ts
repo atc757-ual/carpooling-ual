@@ -2,12 +2,16 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 import type { Point } from 'typeorm';
 
 // Tabla campus_parkings: los parkings del campus, destino de los viajes al
-// campus (y origen al volver). Datos de referencia de la migración, con ids
-// estables ('p1'…'p5') que usa el frontend
+// campus (y origen al volver). Ids estables ('p1'…) que usa el frontend; el
+// panel da de alta los siguientes, los renombra, los mueve y los cierra
 @Entity('campus_parkings')
 export class CampusParking {
   @PrimaryColumn({ type: 'varchar', length: 20 })
   id: string;
+
+  // uuid solo para sus eventos de catálogo (source_entity_id es uuid)
+  @Column({ name: 'entity_id', type: 'uuid', insert: false, update: false })
+  entityId: string;
 
   @Column({ type: 'varchar', length: 60 })
   name: string;

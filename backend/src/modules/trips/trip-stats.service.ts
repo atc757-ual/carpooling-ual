@@ -167,4 +167,22 @@ export class TripStatsService {
     }
     return trip;
   }
+
+  // Viajes publicados, confirmados o en curso que empiezan o terminan a menos
+  // de radiusMeters del punto (p. ej. de un parking del campus: los viajes no
+  // guardan qué parking usan, sino su punto)
+  async countActiveNear(
+    point: { lon: number; lat: number },
+    radiusMeters: number,
+  ): Promise<number> {
+    const [row]: { total: string }[] = await this.tripsRepository.query(
+      `SELECT count(*) AS total
+         FROM trips
+        WHERE status IN ($4, $5, $6)
+          AND (ST_DWithin(origin, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography, $3)
+            OR ST_DWithin(destination, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography, $3))`,
+      [point.lon, point.lat, radiusMeters, ...ACTIVE_TRIP_STATUSES],
+    );
+    return Number(row.total);
+  }
 }

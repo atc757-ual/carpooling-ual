@@ -165,11 +165,13 @@ Enviar una posición puede responder además `NOT_TRIP_DRIVER` o `TRIP_NOT_IN_PR
 
 ## Lugares (`places`)
 
-| `code`                     | HTTP | Cuándo                                                                                                         |
-| -------------------------- | ---- | -------------------------------------------------------------------------------------------------------------- |
-| `CAMPUS_PARKING_NOT_FOUND` | 404  | El parking del campus no existe o está cerrado                                                                 |
-| `PLACE_NOT_FOUND`          | 404  | La dirección pedida no existe (id que no es nuestro o que ya no lleva a nada) o no hay ninguna cerca del punto |
-| `GEOCODER_UNAVAILABLE`     | 503  | El servicio de direcciones (CartoCiudad) no responde a tiempo o falla; se puede reintentar                     |
+| `code`                         | HTTP | Cuándo                                                                                                                                         |
+| ------------------------------ | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CAMPUS_PARKING_NOT_FOUND`     | 404  | El parking del campus no existe o está cerrado (en el panel, solo si no existe)                                                                |
+| `PARKING_OUTSIDE_SERVICE_AREA` | 400  | El punto de un parking que da de alta o mueve el panel queda fuera de la zona de servicio                                                      |
+| `PARKING_IN_USE`               | 409  | Cerrar o mover un parking con viajes publicados, confirmados o en curso que empiezan o terminan a menos de 75 m; el nombre sí se puede cambiar |
+| `PLACE_NOT_FOUND`              | 404  | La dirección pedida no existe (id que no es nuestro o que ya no lleva a nada) o no hay ninguna cerca del punto                                 |
+| `GEOCODER_UNAVAILABLE`         | 503  | El servicio de direcciones (CartoCiudad) no responde a tiempo o falla; se puede reintentar                                                     |
 
 ## Eventos (`events`)
 
