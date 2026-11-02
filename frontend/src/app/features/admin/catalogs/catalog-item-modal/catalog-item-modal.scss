@@ -1,0 +1,37 @@
+.catalog-item {
+  text-align: left;
+}
+
+// El campo y, en los colores, la muestra del tono a su derecha
+.catalog-item__field {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-s);
+  width: 100%;
+
+  ion-input {
+    flex: 1;
+  }
+}
+
+.catalog-item__swatch {
+  flex: none;
+  width: 2.25rem; // 36px
+  height: 2.25rem;
+  margin-block-end: var(--space-xs);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+}
+
+.catalog-item__file {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+  color: var(--color-text-muted);
+}
+
+.catalog-item__error {
+  margin: 0;
+  color: var(--color-danger);
+}

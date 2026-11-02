@@ -119,7 +119,14 @@ for (const viewport of VIEWPORTS) {
       cy.contains('h1', 'Simulación de escenarios');
     });
 
-    it('moves between sections', () => {
+    it('moves between sections and manages a catalog', () => {
+      cy.intercept('GET', '/api/admin/catalogs/vehicle-brands?*', [
+        { key: 'seat', name: 'SEAT', isActive: true, sortOrder: 0 },
+        { key: 'skoda', name: 'Škoda', isActive: true, sortOrder: 1 },
+      ]).as('brands');
+      cy.intercept('POST', '/api/admin/catalogs/vehicle-brands/skoda/move', {
+        key: 'skoda',
+      }).as('move');
       visitWithSession('/admin', ['admin']);
 
       cy.contains('.admin-nav__link', 'Catálogos').click();
@@ -127,7 +134,10 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/admin/catalogs');
       cy.contains('.admin-nav__link', 'Catálogos').should('have.attr', 'aria-current', 'page');
       cy.contains('h1', 'Catálogos');
-      cy.contains('output.admin-empty', 'Disponible pronto');
+      cy.wait('@brands');
+      // Ionic pasa el aria-label al botón interno: el primero de la fila es «Subir»
+      cy.contains('.catalogs__row', 'Škoda').find('ion-button').first().click();
+      cy.wait('@move').its('request.body').should('deep.equal', { direction: 'up' });
     });
 
     it('lists the trips and filters them by status in the URL', () => {
