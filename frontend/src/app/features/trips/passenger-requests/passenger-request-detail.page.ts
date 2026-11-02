@@ -210,13 +210,16 @@ export class PassengerRequestDetailPage {
     }
 
     const header = isAccepted ? '¿Cancelar tu plaza confirmada?' : '¿Cancelar la solicitud?';
-    const message = isAccepted
-      ? isLate
-        ? 'Faltan menos de 30 minutos para la salida. La plaza quedará libre para otra persona, pero contará como cancelación tardía.'
-        : 'La plaza volverá a estar disponible para otra persona. Puedes buscar otro viaje cuando quieras.'
-      : `${getFirstName(trip.driver.name)} dejará de verla. Puedes volver a solicitar si sigue habiendo plazas.`;
-
     const confirmText = isAccepted ? 'Cancelar mi plaza' : 'Cancelar solicitud';
+
+    let message: string;
+    if (isAccepted) {
+      message = isLate
+        ? 'Faltan menos de 30 minutos para la salida. La plaza quedará libre para otra persona, pero contará como cancelación tardía.'
+        : 'La plaza volverá a estar disponible para otra persona. Puedes buscar otro viaje cuando quieras.';
+    } else {
+      message = `${getFirstName(trip.driver.name)} dejará de verla. Puedes volver a solicitar si sigue habiendo plazas.`;
+    }
 
     const confirmed = await this.confirm.ask({
       header,
@@ -262,9 +265,8 @@ export class PassengerRequestDetailPage {
     if (trip) {
       const direction = request?.direction ?? 'to-campus';
       const coordinates = request?.pickupLocation?.coordinates ?? trip.origin.coordinates;
-      const address =
-        request?.pickupName ??
-        (direction === 'from-campus' ? trip.destinationName ?? '' : trip.originName ?? '');
+      const fallbackAddress = direction === 'from-campus' ? trip.destinationName ?? '' : trip.originName ?? '';
+      const address = request?.pickupName ?? fallbackAddress;
 
       const departureDate = new Date(trip.departureAt);
       const isPast = departureDate.getTime() < Date.now();
