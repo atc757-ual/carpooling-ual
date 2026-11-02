@@ -5,6 +5,7 @@ import { NavController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { TabHeading } from './tab-heading';
@@ -27,6 +28,7 @@ describe('TabsPage', () => {
   const logout = vi.fn().mockResolvedValue(undefined);
   const unread = signal(0);
   const refreshUnread = vi.fn().mockResolvedValue(undefined);
+  const resume = vi.fn().mockResolvedValue(undefined);
   let permission = 'granted';
   let fixture: ComponentFixture<TabsPage>;
   const preferences = {
@@ -65,6 +67,7 @@ describe('TabsPage', () => {
           useValue: { checkPermission: () => Promise.resolve(permission) },
         },
         { provide: PreferencesPlugin, useValue: preferences },
+        { provide: DriverTrackingService, useValue: { resume } },
       ],
     });
     fixture = TestBed.createComponent(TabsPage);
@@ -83,6 +86,13 @@ describe('TabsPage', () => {
     unread.set(0);
     refreshUnread.mockClear();
     setMode.mockClear();
+  });
+
+  it('resumes sharing the position of a trip in progress', () => {
+    resume.mockClear();
+    render();
+
+    expect(resume).toHaveBeenCalledTimes(1);
   });
 
   it('has five fixed destinations', () => {

@@ -36,6 +36,7 @@ import {
 import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { AppContextService } from '../../core/services/ui/app-context.service';
+import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { BrandLogo } from '../../shared/components/ui/brand-logo/brand-logo';
@@ -111,6 +112,7 @@ export class TabsPage implements OnInit {
   private readonly router = inject(Router);
   private readonly navController = inject(NavController);
   private readonly notifications = inject(NotificationsService);
+  private readonly driverTracking = inject(DriverTrackingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly location = inject(LocationService);
   private readonly preferences = inject(PreferencesPlugin);
@@ -150,6 +152,8 @@ export class TabsPage implements OnInit {
     void this.appContext.remember('app');
     this.countUnread();
     void this.offerLocation();
+    // Un viaje en curso sigue compartiendo la posición al volver a la app
+    void this.driverTracking.resume();
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),

@@ -1,4 +1,4 @@
-import { VIEWPORTS } from '../support/e2e';
+import { stubLocation, VIEWPORTS } from '../support/e2e';
 
 const EMAIL = 'lucia.cortes@ual.es';
 
@@ -22,11 +22,15 @@ function accessToken() {
   };
 }
 
-// Un viaje publicado mañana, con 3 plazas libres
-function trip(availableSeats: number, status: string) {
+// Un viaje mañana a las 7:40 o, con minutesAhead, dentro de esos minutos
+function trip(availableSeats: number, status: string, minutesAhead?: number) {
   const departure = new Date();
-  departure.setDate(departure.getDate() + 1);
-  departure.setHours(7, 40, 0, 0);
+  if (minutesAhead === undefined) {
+    departure.setDate(departure.getDate() + 1);
+    departure.setHours(7, 40, 0, 0);
+  } else {
+    departure.setMinutes(departure.getMinutes() + minutesAhead);
+  }
   return {
     '@type': 'Trip',
     id: 't1',
@@ -59,20 +63,26 @@ for (const viewport of VIEWPORTS) {
   const isDesktop = viewport.width >= 768;
 
   describe(`My trips as a driver (${viewport.name})`, () => {
-    beforeEach(() => {
-      cy.viewport(viewport.width, viewport.height);
-      cy.intercept('GET', '/api/users/me/trips*', [trip(3, 'published')]).as('trips');
+    // Entra como conductora y abre Tus viajes con estos viajes
+    function openMyTrips(trips: object[]): void {
+      cy.intercept('GET', '/api/users/me/trips*', trips).as('trips');
       cy.intercept('GET', '/api/trips/t1/requests', [seatRequest('pending')]).as('requests');
       cy.intercept('POST', '/api/auth/login', accessToken());
       cy.visit('/auth/login');
+      stubLocation('granted');
       cy.get('app-login ion-input[formControlName="email"] input').type(EMAIL);
       cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
       cy.contains('ion-button', 'Iniciar sesión').click();
       cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
       cy.contains(isDesktop ? 'app-tabs .top-nav__link' : 'ion-tab-button', 'Tus viajes').click();
+    }
+
+    beforeEach(() => {
+      cy.viewport(viewport.width, viewport.height);
     });
 
     it('accepts a pending request of an upcoming trip', () => {
+      openMyTrips([trip(3, 'published')]);
       cy.contains('app-my-trips', 'Roquetas de Mar → Campus UAL · Parking P1 (Sur)').should(
         'be.visible',
       );
@@ -94,6 +104,7 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('confirms and cancels an upcoming trip', () => {
+      openMyTrips([trip(3, 'published')]);
       cy.intercept('POST', '/api/trips/t1/cancel', {
         statusCode: 200,
         body: trip(3, 'cancelled'),
@@ -108,6 +119,49 @@ for (const viewport of VIEWPORTS) {
         .shadow()
         .find('.toast-message')
         .should('contain', 'Viaje cancelado. Hemos avisado a los pasajeros.');
+    });
+
+    it('waits until 10 minutes before the departure to start', () => {
+      openMyTrips([trip(1, 'confirmed', 60)]);
+
+      cy.contains('app-driver-trip-card ion-button', 'Iniciar viaje').should(
+        'have.attr',
+        'disabled',
+      );
+      cy.contains('app-driver-trip-card', 'Podrás iniciarlo desde las');
+    });
+
+    it('shares the location to start the trip, and finishes it', () => {
+      openMyTrips([trip(1, 'confirmed', 5)]);
+      cy.intercept('PUT', '/api/users/me/consents/location', {
+        current: { terms: null, privacy: null, location: { action: 'granted' } },
+        history: [],
+      }).as('consent');
+      cy.intercept('POST', '/api/trips/t1/start', trip(1, 'in_progress', 5)).as('start');
+      cy.intercept('POST', '/api/trips/t1/positions', { statusCode: 201 }).as('position');
+      cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'in_progress', 5)]);
+
+      cy.contains('app-driver-trip-card ion-button', 'Iniciar viaje').click();
+      cy.contains('app-confirm-modal', '¿Compartes tu ubicación?').should('be.visible');
+      cy.contains('app-confirm-modal ion-button', 'Compartir e iniciar').click();
+
+      cy.wait('@consent').its('request.body').should('deep.equal', {
+        action: 'granted',
+        source: 'location_prompt',
+      });
+      cy.wait('@start');
+      cy.wait('@position')
+        .its('request.body.position.coordinates')
+        .should('deep.equal', [-2.4637, 36.8381]);
+      cy.contains('app-driver-trip-card', 'Compartiendo tu ubicación con tus pasajeros');
+
+      cy.intercept('POST', '/api/trips/t1/finish', trip(1, 'finished', 5)).as('finish');
+      cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'finished', 5)]);
+      cy.contains('app-driver-trip-card ion-button', 'Terminar viaje').click();
+      cy.contains('app-confirm-modal ion-button', 'Terminar').click();
+
+      cy.wait('@finish');
+      cy.contains('app-my-trips', 'Finalizado');
     });
   });
 }
