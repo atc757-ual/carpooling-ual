@@ -112,6 +112,13 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('opens the privacy policy without checking the box', () => {
+      // La versión vigente sale del backend
+      cy.intercept('GET', '/api/legal-documents/privacy', {
+        type: 'privacy',
+        version: '1.0',
+        content: '<h2>Tus derechos</h2><p>Acceso, rectificación y supresión.</p>',
+        publishedAt: '2026-11-01T10:00:00.000Z',
+      });
       cy.contains('button', 'política de privacidad').click();
 
       cy.get('ion-modal').contains('ion-title', 'Política de privacidad').should('be.visible');

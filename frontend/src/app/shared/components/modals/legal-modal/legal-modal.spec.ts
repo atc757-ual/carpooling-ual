@@ -29,12 +29,15 @@ describe('LegalModal', () => {
 
   afterEach(() => http.verify());
 
-  it('loads the privacy policy from public/legal and shows it', async () => {
+  it('loads the current privacy policy from the API and shows it', async () => {
     const root = await open('privacy');
 
-    http
-      .expectOne('legal/politica-de-privacidad.html')
-      .flush('<h2>Responsable</h2><script>alert(1)</script>');
+    http.expectOne('/api/legal-documents/privacy').flush({
+      type: 'privacy',
+      version: '1.1',
+      content: '<h2>Responsable</h2><script>alert(1)</script>',
+      publishedAt: '2026-11-02T10:00:00.000Z',
+    });
 
     await vi.waitFor(() => {
       fixture.detectChanges();
@@ -47,7 +50,7 @@ describe('LegalModal', () => {
   it('explains when the text cannot be loaded', async () => {
     const root = await open('terms');
 
-    http.expectOne('legal/condiciones-de-uso.html').error(new ProgressEvent('error'));
+    http.expectOne('/api/legal-documents/terms').error(new ProgressEvent('error'));
 
     await vi.waitFor(() => {
       fixture.detectChanges();
@@ -59,7 +62,9 @@ describe('LegalModal', () => {
 
   it('closes itself', async () => {
     await open('terms');
-    http.expectOne('legal/condiciones-de-uso.html').flush('');
+    http
+      .expectOne('/api/legal-documents/terms')
+      .flush({ type: 'terms', version: '1.0', content: '', publishedAt: null });
 
     await fixture.componentInstance.close();
 

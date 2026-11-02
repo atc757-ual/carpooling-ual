@@ -1,0 +1,58 @@
+<ion-content>
+  <app-auth-layout>
+    <div class="auth-intro">
+      <span class="auth-icon" aria-hidden="true">
+        <ion-icon [icon]="documentIcon" />
+      </span>
+      <h1 class="text-heading">{{ 'auth.legalUpdate.title' | transloco }}</h1>
+      <p class="text-body text-color-muted">{{ 'auth.legalUpdate.description' | transloco }}</p>
+    </div>
+
+    @if (loadError(); as message) {
+      <div class="notice notice--danger" role="alert">
+        <span>{{ message }}</span>
+        <ion-button fill="outline" size="small" (click)="handleRetry()">
+          {{ 'common.retry' | transloco }}
+        </ion-button>
+      </div>
+    } @else if (documents.hasValue()) {
+      @for (document of documents.value(); track document.type) {
+        <section class="legal-update__document" [attr.aria-labelledby]="'legal-' + document.type">
+          <h2 [id]="'legal-' + document.type" class="text-title">
+            {{ document.title }}
+            <span class="text-body-s text-color-muted">
+              · {{ 'auth.legalUpdate.version' | transloco: { version: document.version } }}
+            </span>
+          </h2>
+          <!-- El backend ya lo ha saneado; Angular lo limpia otra vez al pintarlo -->
+          <article class="legal legal-update__text" [innerHTML]="document.content"></article>
+        </section>
+      }
+
+      @if (acceptError(); as message) {
+        <p class="text-body-s legal-update__error" role="alert">{{ message }}</p>
+      }
+
+      <!-- type="submit": ni (click) en un ion-button ni un botón suelto -->
+      <form class="legal-update__actions" (submit)="$event.preventDefault(); handleAccept()">
+        <ion-button type="submit" expand="block" [disabled]="isAccepting()">
+          {{ 'auth.legalUpdate.accept' | transloco }}
+        </ion-button>
+      </form>
+    } @else {
+      <div class="legal-update__loading">
+        <ion-spinner name="crescent" [attr.aria-label]="'auth.legalUpdate.loading' | transloco" />
+      </div>
+    }
+
+    <!-- Quien no acepta puede irse, pero no usar la app -->
+    <div class="legal-update__exits">
+      <ion-button fill="clear" size="small" (click)="handleLogout()">
+        {{ 'auth.legalUpdate.logout' | transloco }}
+      </ion-button>
+      <ion-button fill="clear" size="small" color="danger" (click)="handleDeleteAccount()">
+        {{ 'auth.legalUpdate.deleteAccount' | transloco }}
+      </ion-button>
+    </div>
+  </app-auth-layout>
+</ion-content>

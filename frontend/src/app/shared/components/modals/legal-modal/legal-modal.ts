@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import {
   IonButton,
@@ -12,18 +11,16 @@ import {
   ModalController,
 } from '@ionic/angular';
 import { close } from 'ionicons/icons';
-import { firstValueFrom } from 'rxjs';
+import {
+  LEGAL_DOCUMENT_TITLES,
+  LegalDocumentsService,
+  LegalDocumentType,
+} from '../../../../core/services/users/legal-documents.service';
 
-export type LegalDocument = 'terms' | 'privacy';
+export type LegalDocument = LegalDocumentType;
 
-// Cada texto está en public/legal/: se editan ahí y la app los carga tal cual
-const LEGAL_DOCUMENTS: Readonly<Record<LegalDocument, { title: string; url: string }>> = {
-  terms: { title: 'Condiciones de uso', url: 'legal/condiciones-de-uso.html' },
-  privacy: { title: 'Política de privacidad', url: 'legal/politica-de-privacidad.html' },
-};
-
-// Modal con un texto legal (condiciones de uso o política de privacidad), para
-// leerlo sin salir del formulario. Se abre con ModalController:
+// Modal con la versión vigente de un texto legal (condiciones de uso o
+// política de privacidad, del backend), para leerlo sin salir del formulario. Se abre con ModalController:
 // modalController.create({ component: LegalModal, componentProps: { document: 'privacy' } })
 @Component({
   selector: 'app-legal-modal',
@@ -44,7 +41,7 @@ const LEGAL_DOCUMENTS: Readonly<Record<LegalDocument, { title: string; url: stri
   styleUrl: './legal-modal.scss',
 })
 export class LegalModal implements OnInit {
-  private readonly http = inject(HttpClient);
+  private readonly legalDocuments = inject(LegalDocumentsService);
   private readonly modalController = inject(ModalController);
 
   // @Input y no input(): ModalController asigna componentProps como
@@ -57,7 +54,7 @@ export class LegalModal implements OnInit {
   protected readonly closeIcon = close;
 
   get title(): string {
-    return LEGAL_DOCUMENTS[this.document].title;
+    return LEGAL_DOCUMENT_TITLES[this.document];
   }
 
   ngOnInit(): void {
@@ -71,8 +68,8 @@ export class LegalModal implements OnInit {
   // Si no se puede cargar (p. ej. sin conexión), se muestra un aviso
   private async loadContent(): Promise<void> {
     try {
-      const url = LEGAL_DOCUMENTS[this.document].url;
-      this.content.set(await firstValueFrom(this.http.get(url, { responseType: 'text' })));
+      const { content } = await this.legalDocuments.getCurrent(this.document);
+      this.content.set(content);
     } catch {
       this.hasError.set(true);
     }

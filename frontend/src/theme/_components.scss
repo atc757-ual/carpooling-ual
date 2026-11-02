@@ -293,6 +293,35 @@ ion-modal.info-dialog {
   }
 }
 
+// Texto de un documento legal (llega del backend ya saneado, por innerHTML):
+// en el modal y en la pantalla que pide aceptar una versión nueva
+.legal {
+  max-width: 40rem; // 640px: ancho cómodo de lectura
+  margin: 0 auto;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-s);
+  line-height: var(--line-height-body-s);
+
+  h2,
+  h3 {
+    margin: var(--space-l) 0 var(--space-xs);
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-body);
+  }
+
+  p,
+  ul,
+  ol {
+    margin: 0 0 var(--space-s);
+  }
+
+  a {
+    color: var(--color-link);
+  }
+}
+
 // Textos legales (Condiciones, Privacidad) en escritorio: una ventana centrada
 // de 720px y el 80 % del alto, para leer cómodo sin ocupar toda la pantalla
 // (en el móvil, una hoja hasta 3/4 con puntos de anclaje)

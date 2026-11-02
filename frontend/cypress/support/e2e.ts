@@ -33,6 +33,8 @@ beforeEach(() => {
     { key: 'skoda', name: 'Škoda' },
   ]);
   cy.intercept('GET', '/api/catalogs/vehicle-colors?*', VEHICLE_COLORS);
+  // Sin versiones nuevas de los documentos legales por aceptar
+  cy.intercept('GET', '/api/users/me/legal-documents/pending', []);
   cy.intercept('GET', '/api/catalogs/travel-preferences?*', [
     {
       key: 'conversation-chatty',

@@ -1,0 +1,48 @@
+// Cada documento, en su caja con scroll propio: la pantalla no se alarga
+.legal-update__document {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin-block-end: var(--space-l);
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.legal-update__text {
+  max-height: 40vh;
+  overflow-y: auto;
+  padding: var(--space-base);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+.legal-update__actions {
+  display: flex;
+  flex-direction: column;
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+.legal-update__error {
+  margin: 0 0 var(--space-s);
+  color: var(--color-danger);
+}
+
+.legal-update__loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-xl);
+}
+
+.legal-update__exits {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-s);
+  margin-block-start: var(--space-l);
+}
