@@ -52,7 +52,7 @@ const DEFAULT_TEST_TRANSLATIONS: Record<string, Record<string, unknown>> = {
         students: 'Estudiantes',
         staff: 'Personal',
       },
-      login: { emailLabel: 'Correo electrónico', passwordLabel: 'Contraseña' },
+      login: { emailLabel: 'Correo electrónico' },
       password: { show: 'Mostrar contraseña', hide: 'Ocultar contraseña' },
       validation: {
         emailRequired: 'Introduce tu correo electrónico.',

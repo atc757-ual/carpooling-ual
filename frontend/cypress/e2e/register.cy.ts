@@ -31,7 +31,7 @@ for (const viewport of VIEWPORTS) {
         acceptedTerms: true,
       });
       cy.location('pathname').should('eq', '/auth/verify');
-      cy.contains('h1', 'Mira tu bandeja de entrada.').should('be.visible');
+      cy.contains('h1', 'Verifica tu correo').should('be.visible');
       cy.location('search').should('eq', '');
     });
 
@@ -132,7 +132,7 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('links to the login screen', () => {
-      cy.contains('ion-button', 'Ya tengo cuenta').click();
+      cy.contains('ion-button', 'Inicia sesión').click();
       cy.location('pathname').should('eq', '/auth/login');
     });
   });
