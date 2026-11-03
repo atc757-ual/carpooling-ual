@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Capacitor } from '@capacitor/core';
 import { vi } from 'vitest';
 import { ApiError } from '../../models/api-error.model';
 import { AuthService } from '../auth/auth.service';
@@ -70,7 +71,37 @@ describe('DriverTrackingService', () => {
   afterEach(() => {
     tracking.stop();
     setVisibility('visible');
+    vi.restoreAllMocks();
     vi.useRealTimers();
+  });
+
+  it('sends as the positions arrive, at most every interval', async () => {
+    tracking.start('t1');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(driver['reportPosition']).toHaveBeenCalledTimes(1);
+
+    // Recién enviada: la siguiente posición espera
+    onPoint([-2.41, 36.82]);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(driver['reportPosition']).toHaveBeenCalledTimes(1);
+
+    // En segundo plano los temporizadores no saltan (solo pasa la hora): se
+    // envía al llegar la posición
+    vi.setSystemTime(Date.now() + POSITION_INTERVAL_MS);
+    onPoint([-2.4, 36.81]);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(driver['reportPosition']).toHaveBeenCalledTimes(2);
+    expect(driver['reportPosition']).toHaveBeenLastCalledWith('t1', [-2.4, 36.81]);
+  });
+
+  it('does not keep the screen on in the native app', async () => {
+    vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
+
+    tracking.start('t1');
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(wakeLock.keepOn).not.toHaveBeenCalled();
+    expect(watchPoint).toHaveBeenCalled();
   });
 
   it('follows the position with the GPS and keeps the screen on until it stops', async () => {

@@ -9,6 +9,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import { IonButton, IonCard, IonCardContent, IonIcon, IonSpinner } from '@ionic/angular';
 import { Router, RouterLink } from '@angular/router';
 import { locationOutline } from 'ionicons/icons';
@@ -46,6 +47,12 @@ const REQUEST_STATUS_LABELS: Record<SeatRequestStatus, string> = {
 const OPEN_STATUSES: ReadonlySet<TripStatus> = new Set(['published', 'confirmed']);
 // Cuánto antes de la salida se puede iniciar (START_WINDOW_MIN del backend)
 const START_WINDOW_MS = 10 * 60 * 1000;
+
+// Antes de compartir la ubicación al iniciar. En la app nativa sigue con la
+// pantalla bloqueada (servicio en primer plano), y se dice antes de pedirla
+const SHARE_MESSAGE =
+  'Para iniciar el viaje, tus pasajeros verán dónde estás mientras dura. Dejarás de compartirla al terminarlo.';
+const SHARE_MESSAGE_NATIVE = `${SHARE_MESSAGE} Seguirá compartiéndose aunque bloquees la pantalla o uses otra app; lo verás en una notificación.`;
 
 export function formatSeats(seats: number): string {
   return seats === 1 ? '1 plaza' : `${seats} plazas`;
@@ -216,8 +223,7 @@ export class DriverTripCard {
     }
     const accepted = await this.confirm.ask({
       header: '¿Compartes tu ubicación?',
-      message:
-        'Para iniciar el viaje, tus pasajeros verán dónde estás mientras dura. Dejarás de compartirla al terminarlo.',
+      message: Capacitor.isNativePlatform() ? SHARE_MESSAGE_NATIVE : SHARE_MESSAGE,
       confirmText: 'Compartir e iniciar',
       cancelText: 'Ahora no',
       icon: this.locationIcon,

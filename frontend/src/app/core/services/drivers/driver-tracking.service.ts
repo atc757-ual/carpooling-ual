@@ -1,4 +1,5 @@
 import { DOCUMENT, effect, inject, Injectable, signal } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import { ApiError } from '../../models/api-error.model';
 import { AuthService } from '../auth/auth.service';
 import { LocationService } from '../location/location.service';
@@ -8,15 +9,19 @@ import { DriverService } from './driver.service';
 // Cada cuánto se envía la posición: algo más que el mínimo del backend
 // (POSITION_MIN_INTERVAL_SECONDS, 10 s), para no chocar con él
 export const POSITION_INTERVAL_MS = 15_000;
+// Menos que esto desde el último envío, no se envía otra vez (el backend no
+// admite dos posiciones en menos de 10 s)
+const MIN_SEND_GAP_MS = 12_000;
 // Sin enviar más de esto (pantalla bloqueada, otra app delante), se avisa al
 // conductor al volver
 export const SHARING_GAP_MS = 60_000;
 
 // Mientras el viaje del conductor está en curso, envía su posición a los
-// pasajeros (el mapa en vivo la pide cada 10 s). En el navegador solo se puede
-// con la página a la vista: sigue la posición con el GPS, mantiene la pantalla
-// encendida y, al volver a la app, envía al momento y avisa del rato sin
-// compartir. Se para al terminar el viaje, al cerrar sesión o si el backend
+// pasajeros (el mapa en vivo la pide cada 10 s). En la app nativa sigue con la
+// app en segundo plano: envía según llegan las posiciones del GPS (cada 15 s
+// como mucho). En el navegador solo se puede con la página a la vista: sigue
+// la posición con el GPS, mantiene la pantalla encendida y, al volver a la
+// app, envía al momento y avisa del rato sin compartir. Se para al terminar el viaje, al cerrar sesión o si el backend
 // dice que ya no está en curso; un envío que falla (sin señal, demasiado
 // seguido) se salta y sigue el siguiente
 @Injectable({ providedIn: 'root' })
@@ -64,7 +69,9 @@ export class DriverTrackingService {
     this.stop();
     this.tripId.set(tripId);
     void this.watch(tripId);
-    void this.wakeLock.keepOn();
+    if (!Capacitor.isNativePlatform()) {
+      void this.wakeLock.keepOn();
+    }
     this.document.addEventListener('visibilitychange', this.onVisibilityChange);
     void this.send(tripId);
     this.timer = setInterval(() => void this.send(tripId), POSITION_INTERVAL_MS);
@@ -106,7 +113,13 @@ export class DriverTrackingService {
   }
 
   private async watch(tripId: string): Promise<void> {
-    const id = await this.location.watchPoint((point) => (this.lastPoint = point));
+    const id = await this.location.watchPoint((point) => {
+      this.lastPoint = point;
+      // En segundo plano los temporizadores no son de fiar: se envía al llegar
+      if (this.tripId() === tripId && this.isDueToSend(POSITION_INTERVAL_MS)) {
+        void this.send(tripId);
+      }
+    });
     // Si entretanto se paró o cambió de viaje, ya no hace falta
     if (id !== null && this.tripId() !== tripId) {
       void this.location.clearWatch(id);
@@ -125,8 +138,15 @@ export class DriverTrackingService {
     }
   }
 
+  private isDueToSend(gapMs: number): boolean {
+    return this.lastSentAt === null || Date.now() - this.lastSentAt >= gapMs;
+  }
+
   // La última posición que dio el GPS o, si aún no ha dado ninguna, la actual
   private async send(tripId: string): Promise<void> {
+    if (!this.isDueToSend(MIN_SEND_GAP_MS)) {
+      return;
+    }
     try {
       const point = this.lastPoint ?? (await this.location.getCurrentPoint());
       await this.driver.reportPosition(tripId, point);
