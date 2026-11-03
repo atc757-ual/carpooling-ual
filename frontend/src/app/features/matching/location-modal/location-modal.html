@@ -46,32 +46,38 @@
           ¿No es justo tu sitio? Arrastra el punto o toca el mapa.
         </p>
 
-        <output class="location__address">
-          @if (isResolving()) {
-            <span class="text-body-s text-color-muted">Buscando la dirección…</span>
-          } @else if (place(); as place) {
-            <span class="location__name">{{ place.name }}</span>
-            <span class="text-caption text-color-muted">{{ place.locality }}</span>
-          } @else if (addressError(); as error) {
-            <span class="location__error">{{ error }}</span>
-          }
-        </output>
+        @if (!pickPoint) {
+          <output class="location__address">
+            @if (isResolving()) {
+              <span class="text-body-s text-color-muted">Buscando la dirección…</span>
+            } @else if (place(); as place) {
+              <span class="location__name">{{ place.name }}</span>
+              <span class="text-caption text-color-muted">{{ place.locality }}</span>
+            } @else if (addressError(); as error) {
+              <span class="location__error">{{ error }}</span>
+            }
+          </output>
 
-        @if (place(); as place) {
-          @if (!place.isCovered) {
-            <div class="notice notice--warning">
-              <span>
-                <b>Aún no llegamos a {{ place.municipality }}</b>
-                Esperamos tener cobertura allí pronto. Mientras tanto, puedes elegir un punto más
-                cercano al campus.
-              </span>
-            </div>
+          @if (place(); as place) {
+            @if (!place.isCovered) {
+              <div class="notice notice--warning">
+                <span>
+                  <b>Aún no llegamos a {{ place.municipality }}</b>
+                  Esperamos tener cobertura allí pronto. Mientras tanto, puedes elegir un punto más
+                  cercano al campus.
+                </span>
+              </div>
+            }
           }
         }
 
         <form class="location__actions" (submit)="$event.preventDefault(); handleUse()">
-          <ion-button type="submit" expand="block" [disabled]="!place()?.isCovered">
-            Usar esta dirección
+          <ion-button
+            type="submit"
+            expand="block"
+            [disabled]="pickPoint ? !point() : !place()?.isCovered"
+          >
+            {{ pickPoint ? 'Usar este punto' : 'Usar esta dirección' }}
           </ion-button>
         </form>
       }

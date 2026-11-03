@@ -4,11 +4,18 @@ export const ADMIN_CATALOGS = [
   'vehicle-colors',
   'travel-preferences',
   'avatars',
+  'campus-parkings',
 ] as const;
 export type AdminCatalog = (typeof ADMIN_CATALOGS)[number];
 
-// Un elemento, con lo común y lo de cada catálogo (los avatares llegan con
-// id en vez de key: el servicio lo unifica)
+// Un punto en GeoJSON ([longitud, latitud])
+export interface CatalogPoint {
+  type: 'Point';
+  coordinates: [number, number];
+}
+
+// Un elemento, con lo común y lo de cada catálogo (los avatares y los parkings
+// llegan con id en vez de key: el servicio lo unifica)
 export interface AdminCatalogItem {
   key: string;
   name: string;
@@ -24,6 +31,8 @@ export interface AdminCatalogItem {
   // Avatares
   svg?: string | null;
   imageHref?: string | null;
+  // Parkings del campus
+  location?: CatalogPoint;
 }
 
 // Lo que se puede cambiar (solo se envía lo que cambia)
@@ -32,5 +41,6 @@ export interface AdminCatalogChanges {
   nameEn?: string;
   hexLight?: string;
   hexDark?: string;
+  location?: CatalogPoint;
   isActive?: boolean;
 }

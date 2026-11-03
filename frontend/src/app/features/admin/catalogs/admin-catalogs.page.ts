@@ -17,16 +17,27 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { CATALOG_CONFIGS, catalogConfig, itemDetail, itemImage } from './catalog-config';
 import { openCatalogItemModal } from './catalog-item-modal/catalog-item-modal';
+import { LegalDocumentsEditor } from './legal-documents-editor/legal-documents-editor';
 
 const SKELETON_ROWS = [1, 2, 3, 4];
+// La pestaña de los documentos legales: no es un catálogo, tiene su editor
+export const LEGAL_TAB = 'legal-documents';
 
-// Catálogos del panel: marcas, colores, opciones de las preferencias y
-// avatares. Cada uno con su lista en orden, subir y bajar (con teclado),
-// editar y activar o desactivar; nunca se borra nada. El catálogo abierto va
-// en la URL (?catalog=)
+// Catálogos del panel: marcas, colores, opciones de las preferencias,
+// avatares y parkings, y en su pestaña los documentos legales. Cada catálogo
+// con su lista en orden, subir y bajar (con teclado), editar y activar o
+// desactivar; nunca se borra nada. La pestaña abierta va en la URL (?catalog=)
 @Component({
   selector: 'app-admin-catalogs-page',
-  imports: [IonButton, IonIcon, IonLabel, IonSegment, IonSegmentButton, IonSkeletonText],
+  imports: [
+    IonButton,
+    IonIcon,
+    IonLabel,
+    IonSegment,
+    IonSegmentButton,
+    IonSkeletonText,
+    LegalDocumentsEditor,
+  ],
   templateUrl: './admin-catalogs.page.html',
   styleUrl: './admin-catalogs.page.scss',
 })
@@ -40,9 +51,10 @@ export class AdminCatalogsPage {
   // Parámetro de la URL (withComponentInputBinding)
   readonly catalog = input<string>();
 
+  readonly isLegal = computed(() => this.catalog() === LEGAL_TAB);
   readonly config = computed(() => catalogConfig(this.catalog()));
   readonly items = resource({
-    params: () => this.config().id,
+    params: () => (this.isLegal() ? undefined : this.config().id),
     loader: ({ params }) => this.catalogs.list(params),
   });
   readonly rows = computed(() =>
@@ -63,6 +75,9 @@ export class AdminCatalogsPage {
   readonly busyKey = signal<string | null>(null);
 
   protected readonly configs = CATALOG_CONFIGS;
+  protected readonly legalTab = LEGAL_TAB;
+  protected readonly legalNote =
+    'Términos y privacidad. Se edita un borrador y, al publicarlo, cada usuario tiene que aceptar la versión nueva al entrar.';
   protected readonly skeletonRows = SKELETON_ROWS;
   protected readonly upIcon = arrowUpOutline;
   protected readonly downIcon = arrowDownOutline;

@@ -1,0 +1,66 @@
+<ion-segment
+  class="legal-editor__segment"
+  [value]="type()"
+  (ionChange)="handleType($event.detail.value)"
+>
+  @for (option of types; track option.value) {
+    <ion-segment-button [value]="option.value">
+      <ion-label>{{ option.label }}</ion-label>
+    </ion-segment-button>
+  }
+</ion-segment>
+
+@if (errorMessage(); as message) {
+  <div class="notice notice--danger" role="alert">
+    <span>
+      <b>No hemos podido cargar el documento.</b>
+      {{ message }}
+    </span>
+    <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
+  </div>
+} @else if (versions.hasValue()) {
+  <p class="text-body-s legal-editor__status">
+    @if (current(); as current) {
+      Vigente: versión {{ current.version }}.
+    } @else {
+      Aún no hay ninguna versión publicada.
+    }
+    @if (draft(); as draft) {
+      Borrador {{ draft.version }} sin publicar.
+    }
+  </p>
+
+  <div class="legal-editor__panes">
+    <ion-textarea
+      label="Texto (HTML)"
+      label-placement="stacked"
+      fill="outline"
+      [autoGrow]="true"
+      [rows]="14"
+      [value]="content()"
+      (ionInput)="handleInput($event.detail.value)"
+    />
+    <section class="legal-editor__preview" aria-label="Vista previa">
+      <h2 class="text-label legal-editor__preview-title">Vista previa</h2>
+      <div class="legal" [innerHTML]="content()"></div>
+    </section>
+  </div>
+
+  <div class="legal-editor__actions">
+    <ion-button fill="outline" [disabled]="isBusy()" (click)="handleSave()">
+      Guardar borrador
+    </ion-button>
+    <ion-button [disabled]="isBusy() || draft() === null" (click)="handlePublish()">
+      Publicar
+    </ion-button>
+  </div>
+
+  @if (published().length > 0) {
+    <h2 class="text-subtitle legal-editor__history-title">Versiones publicadas</h2>
+    <ul class="legal-editor__history">
+      @for (entry of published(); track entry.version) {
+        <li class="text-body-s">Versión {{ entry.version }} · {{ entry.date }}</li>
+      }
+    </ul>
+  }
+}

@@ -4,8 +4,9 @@ import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { AdminCatalogItem } from '../../../core/models/admin-catalog.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminCatalogsService } from '../../../core/services/admin/admin-catalogs.service';
+import { AdminLegalDocumentsService } from '../../../core/services/admin/admin-legal-documents.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { AdminCatalogsPage } from './admin-catalogs.page';
+import { AdminCatalogsPage, LEGAL_TAB } from './admin-catalogs.page';
 
 const SEAT: AdminCatalogItem = { key: 'seat', name: 'SEAT', isActive: true, sortOrder: 0 };
 const SKODA: AdminCatalogItem = { key: 'skoda', name: 'Škoda', isActive: false, sortOrder: 1 };
@@ -21,6 +22,7 @@ describe('AdminCatalogsPage', () => {
   const showError = vi.fn().mockResolvedValue(undefined);
   const onDidDismiss = vi.fn();
   const modalCreate = vi.fn();
+  const legalVersions = vi.fn().mockResolvedValue([]);
 
   async function render(catalog?: string): Promise<HTMLElement> {
     TestBed.configureTestingModule({
@@ -32,6 +34,7 @@ describe('AdminCatalogsPage', () => {
           provide: AdminCatalogsService,
           useValue: { list, update, move, create, uploadAvatar },
         },
+        { provide: AdminLegalDocumentsService, useValue: { versions: legalVersions } },
         { provide: ToastService, useValue: { showSuccess, showError } },
         { provide: ModalController, useValue: { create: modalCreate } },
       ],
@@ -85,6 +88,16 @@ describe('AdminCatalogsPage', () => {
     expect(list).toHaveBeenCalledWith('travel-preferences');
     expect(root.querySelector('.catalogs__header ion-button')).toBeNull();
     expect(root.textContent).toContain('Música · Soft music');
+  });
+
+  it('opens the legal documents editor in its own tab', async () => {
+    const root = await render(LEGAL_TAB);
+
+    expect(list).not.toHaveBeenCalled();
+    expect(legalVersions).toHaveBeenCalledWith('terms');
+    expect(root.querySelector('app-legal-documents-editor')).not.toBeNull();
+    expect(root.querySelector('.catalogs__header ion-button')).toBeNull();
+    expect(root.textContent).toContain('Términos y privacidad');
   });
 
   it('moves, deactivates and edits an item, then reloads the list', async () => {

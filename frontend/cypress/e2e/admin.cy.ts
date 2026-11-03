@@ -140,6 +140,33 @@ for (const viewport of VIEWPORTS) {
       cy.wait('@move').its('request.body').should('deep.equal', { direction: 'up' });
     });
 
+    it('saves a draft of a legal document with its preview', () => {
+      cy.intercept('GET', '/api/admin/legal-documents?*', [
+        {
+          id: 'p1',
+          type: 'terms',
+          version: '1.0',
+          content: '<p>Texto vigente</p>',
+          status: 'published',
+          publishedAt: '2026-10-30T10:00:00.000Z',
+          updatedAt: '2026-10-30T10:00:00.000Z',
+        },
+      ]).as('versions');
+      cy.intercept('PUT', '/api/admin/legal-documents/terms/draft', {
+        statusCode: 200,
+        body: { id: 'd1', type: 'terms', version: '1.1', status: 'draft' },
+      }).as('save');
+      visitWithSession('/admin/catalogs?catalog=legal-documents', ['admin']);
+
+      cy.wait('@versions');
+      cy.contains('Vigente: versión 1.0.');
+      cy.get('.legal-editor__preview .legal').should('contain', 'Texto vigente');
+      cy.contains('ion-button', 'Guardar borrador').click();
+      cy.wait('@save')
+        .its('request.body')
+        .should('deep.equal', { content: '<p>Texto vigente</p>' });
+    });
+
     it('lists the trips and filters them by status in the URL', () => {
       cy.intercept('GET', '/api/admin/trips?*', {
         body: [
