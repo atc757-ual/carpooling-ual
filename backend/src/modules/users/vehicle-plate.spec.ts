@@ -25,4 +25,28 @@ describe('vehicle plate', () => {
   ])('rejects a plate when %s ("%s")', (_case, plate) => {
     expect(isValidPlate(plate)).toBe(false);
   });
+
+  it.each([
+    ['PT', 'AA00AA'],
+    ['FR', 'AB123CD'],
+    ['DE', 'MAB1234'],
+    ['IT', 'AB123CD'],
+    ['CH', 'ZH123456'],
+  ])('accepts a plate of %s ("%s")', (country, plate) => {
+    expect(isValidPlate(plate, country)).toBe(true);
+  });
+
+  it.each([
+    ['no digits', 'ABCDEF'],
+    ['too short', '1'],
+    ['too long', '12345678901'],
+    ['symbols', 'AB.123'],
+  ])('rejects a foreign plate with %s ("%s")', (_case, plate) => {
+    expect(isValidPlate(plate, 'PT')).toBe(false);
+  });
+
+  it('keeps the Spanish rules for Spain', () => {
+    expect(isValidPlate('1234AEI', 'ES')).toBe(false);
+    expect(isValidPlate('AB123CD', 'ES')).toBe(false);
+  });
 });

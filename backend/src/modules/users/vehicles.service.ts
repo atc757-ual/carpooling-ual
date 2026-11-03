@@ -11,10 +11,16 @@ import { VehicleAlreadyRegisteredError } from './errors/vehicle-already-register
 import { VehicleInUseError } from './errors/vehicle-in-use.error';
 import { VehicleLimitReachedError } from './errors/vehicle-limit-reached.error';
 import { VehicleNotFoundError } from './errors/vehicle-not-found.error';
-import { normalizePlate } from './vehicle-plate';
+import {
+  DEFAULT_PLATE_COUNTRY,
+  normalizePlate,
+  type PlateCountry,
+} from './vehicle-plate';
 
 export interface RegisterVehicleInput {
   plate: string;
+  // España si no se indica
+  plateCountry?: PlateCountry;
   capacity: number;
   brand: string;
   model: string;
@@ -32,8 +38,8 @@ export interface VehicleRecognitionDetails {
   color: string | null;
 }
 
-// Restricción UNIQUE de la matrícula (migración InitialSchema)
-const PLATE_UNIQUE_CONSTRAINT = 'vehicles_plate_key';
+// Restricción UNIQUE del país y la matrícula (migración AddVehiclePlateCountry)
+const PLATE_UNIQUE_CONSTRAINT = 'vehicles_plate_country_plate_key';
 
 // Vehículos activos que puede tener a la vez un conductor
 export const MAX_VEHICLES_PER_DRIVER = 3;
@@ -49,7 +55,7 @@ export class VehiclesService {
   ) {}
 
   // Registra un vehículo. Si el mismo conductor lo había dado de baja, se
-  // reactiva con la nueva capacidad (la matrícula es única en toda la tabla).
+  // reactiva con la nueva capacidad (la matrícula es única con su país).
   // Con MAX_VEHICLES_PER_DRIVER activos, no admite ninguno más
   async register(
     driverId: string,
@@ -65,7 +71,11 @@ export class VehiclesService {
     }
 
     const plate = normalizePlate(input.plate);
-    const existing = await this.vehiclesRepository.findOneBy({ plate });
+    const plateCountry = input.plateCountry ?? DEFAULT_PLATE_COUNTRY;
+    const existing = await this.vehiclesRepository.findOneBy({
+      plate,
+      plateCountry,
+    });
 
     if (existing !== null) {
       const isOwnInactive =
@@ -87,6 +97,7 @@ export class VehiclesService {
         this.vehiclesRepository.create({
           driverId,
           plate,
+          plateCountry,
           capacity: input.capacity,
           brand: input.brand,
           model: input.model,

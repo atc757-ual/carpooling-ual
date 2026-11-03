@@ -15,6 +15,7 @@ import {
   UserConsentsResource,
 } from '../../users/dto/user-consents.resource';
 import { VEHICLE_STATUSES } from '../../users/entities/vehicle.entity';
+import { PLATE_COUNTRIES, type PlateCountry } from '../../users/vehicle-plate';
 import type { AdminUserDetail } from '../admin-user-detail.service';
 import {
   AdminUserRowResource,
@@ -43,6 +44,9 @@ class AdminVehicleResource {
 
   @ApiProperty({ example: '1234BCD' })
   plate: string;
+
+  @ApiProperty({ enum: PLATE_COUNTRIES, example: 'ES' })
+  plateCountry: PlateCountry;
 
   @ApiProperty({ example: 'Seat', type: String, nullable: true })
   brand: string | null;
@@ -227,6 +231,7 @@ export function toAdminUserDetailResource(
     vehicles: detail.vehicles.map((vehicle) => ({
       id: vehicle.id,
       plate: vehicle.plate,
+      plateCountry: vehicle.plateCountry,
       brand: vehicle.brand,
       model: vehicle.model,
       color: vehicle.color,
