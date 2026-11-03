@@ -30,6 +30,41 @@
     }
   </p>
 
+  <!-- Qué tipo de cambio es: decide el número y si hay que volver a aceptarla -->
+  <div class="legal-editor__change">
+    <ion-segment
+      class="legal-editor__segment"
+      aria-label="Tipo de cambio"
+      [value]="changeType()"
+      (ionChange)="handleChangeType($event.detail.value)"
+    >
+      @for (option of changeTypes; track option.value) {
+        <ion-segment-button [value]="option.value">
+          <ion-label>{{ option.label }}</ion-label>
+        </ion-segment-button>
+      }
+    </ion-segment>
+    <p class="text-body-s legal-editor__status">
+      {{ changeNote() }}
+      @if (nextVersion(); as version) {
+        Saldrá como la versión <b>{{ version }}</b
+        >.
+      }
+    </p>
+    <ion-textarea
+      label="Qué ha cambiado"
+      label-placement="stacked"
+      fill="outline"
+      helperText="Se muestra encima del documento. Obligatorio para publicar."
+      [autoGrow]="true"
+      [rows]="2"
+      [counter]="true"
+      [maxlength]="1000"
+      [value]="summary()"
+      (ionInput)="handleSummary($event.detail.value)"
+    />
+  </div>
+
   <div class="legal-editor__panes">
     <ion-textarea
       label="Texto (HTML)"
@@ -50,16 +85,19 @@
     <ion-button fill="outline" [disabled]="isBusy()" (click)="handleSave()">
       Guardar borrador
     </ion-button>
-    <ion-button [disabled]="isBusy() || draft() === null" (click)="handlePublish()">
-      Publicar
-    </ion-button>
+    <ion-button [disabled]="!canPublish()" (click)="handlePublish()">Publicar</ion-button>
   </div>
 
   @if (published().length > 0) {
     <h2 class="text-subtitle legal-editor__history-title">Versiones publicadas</h2>
     <ul class="legal-editor__history">
       @for (entry of published(); track entry.version) {
-        <li class="text-body-s">Versión {{ entry.version }} · {{ entry.date }}</li>
+        <li class="text-body-s">
+          Versión {{ entry.version }} · {{ entry.kind }} · {{ entry.date }}
+          @if (entry.summary) {
+            <br />{{ entry.summary }}
+          }
+        </li>
       }
     </ul>
   }

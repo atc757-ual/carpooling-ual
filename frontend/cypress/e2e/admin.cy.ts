@@ -140,13 +140,15 @@ for (const viewport of VIEWPORTS) {
       cy.wait('@move').its('request.body').should('deep.equal', { direction: 'up' });
     });
 
-    it('saves a draft of a legal document with its preview', () => {
+    it('saves a draft of a legal document with its change type and summary', () => {
       cy.intercept('GET', '/api/admin/legal-documents?*', [
         {
           id: 'p1',
           type: 'terms',
           version: '1.0',
           content: '<p>Texto vigente</p>',
+          changeType: 'major',
+          summary: null,
           status: 'published',
           publishedAt: '2026-10-30T10:00:00.000Z',
           updatedAt: '2026-10-30T10:00:00.000Z',
@@ -154,17 +156,28 @@ for (const viewport of VIEWPORTS) {
       ]).as('versions');
       cy.intercept('PUT', '/api/admin/legal-documents/terms/draft', {
         statusCode: 200,
-        body: { id: 'd1', type: 'terms', version: '1.1', status: 'draft' },
+        body: { id: 'd1', type: 'terms', version: '2.0', status: 'draft' },
       }).as('save');
       visitWithSession('/admin/catalogs?catalog=legal-documents', ['admin']);
 
       cy.wait('@versions');
       cy.contains('Vigente: versión 1.0.');
       cy.get('.legal-editor__preview .legal').should('contain', 'Texto vigente');
+      cy.contains('Saldrá como la versión 1.1');
+      cy.contains('ion-button', 'Publicar').should('have.attr', 'disabled');
+
+      cy.contains('.legal-editor__change ion-segment-button', 'Cambio importante').click();
+      cy.contains('Saldrá como la versión 2.0');
+      cy.get('.legal-editor__change ion-textarea textarea')
+        .should('be.visible')
+        .type('Nuevas normas.');
+      cy.contains('ion-button', 'Publicar').should('not.have.attr', 'disabled');
       cy.contains('ion-button', 'Guardar borrador').click();
-      cy.wait('@save')
-        .its('request.body')
-        .should('deep.equal', { content: '<p>Texto vigente</p>' });
+      cy.wait('@save').its('request.body').should('deep.equal', {
+        content: '<p>Texto vigente</p>',
+        changeType: 'major',
+        summary: 'Nuevas normas.',
+      });
     });
 
     it('lists the trips and filters them by status in the URL', () => {

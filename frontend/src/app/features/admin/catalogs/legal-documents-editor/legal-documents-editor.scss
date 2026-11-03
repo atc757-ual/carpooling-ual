@@ -47,3 +47,15 @@
   padding-inline-start: var(--space-l);
   color: var(--color-text-muted);
 }
+
+// Tipo de cambio, su explicación y «Qué ha cambiado», antes del texto
+.legal-editor__change {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin-bottom: var(--space-base);
+
+  .legal-editor__status {
+    margin: 0;
+  }
+}

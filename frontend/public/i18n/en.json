@@ -50,9 +50,10 @@
     "adminPanel": "Admin panel",
     "privacy": {
       "title": "Privacy",
-      "acceptedOn": "Accepted on {{ date }}",
       "hashTitle": "Code confirming your acceptance",
-      "hashHidden": "Code confirming your acceptance:"
+      "hashHidden": "Code confirming your acceptance:",
+      "acceptedVersion": "Accepted v{{version}} on {{date}}",
+      "currentMinor": "Current: v{{version}} · updated on {{date}} · See what changed"
     },
     "vehicles": {
       "title": "My vehicles",
@@ -347,7 +348,8 @@
       "accept": "Accept and continue",
       "loading": "Loading the documents",
       "logout": "Log out",
-      "deleteAccount": "Delete my account"
+      "deleteAccount": "Delete my account",
+      "changes": "What changed"
     }
   }
 }

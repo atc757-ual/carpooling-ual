@@ -46,16 +46,24 @@ describe('LegalUpdatePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     pending.mockResolvedValue([{ type: 'terms', version: '1.1' }]);
-    getCurrent.mockResolvedValue({ type: 'terms', version: '1.1', content: '<h2>Nuevo</h2>' });
+    getCurrent.mockResolvedValue({
+      type: 'terms',
+      version: '1.1',
+      content: '<h2>Nuevo</h2>',
+      summary: 'Nuevas normas de convivencia.',
+    });
     accept.mockResolvedValue(undefined);
   });
 
-  it('shows each pending document with its new text', async () => {
+  it('shows each pending document with what changed and its new text', async () => {
     const root = await render();
 
     expect(getCurrent).toHaveBeenCalledWith('terms');
     const section = root.querySelector('.legal-update__document');
     expect(section?.textContent).toContain('Condiciones de uso');
+    expect(section?.querySelector('.legal-changes')?.textContent).toContain(
+      'Nuevas normas de convivencia.',
+    );
     expect(section?.querySelector('.legal h2')?.textContent).toBe('Nuevo');
   });
 

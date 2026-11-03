@@ -24,6 +24,10 @@
               · {{ 'auth.legalUpdate.version' | transloco: { version: document.version } }}
             </span>
           </h2>
+          <app-legal-changes
+            [heading]="'auth.legalUpdate.changes' | transloco"
+            [summary]="document.summary"
+          />
           <!-- El backend ya lo ha saneado; Angular lo limpia otra vez al pintarlo -->
           <article class="legal legal-update__text" [innerHTML]="document.content"></article>
         </section>

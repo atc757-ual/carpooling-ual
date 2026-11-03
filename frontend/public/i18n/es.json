@@ -50,9 +50,10 @@
     "adminPanel": "Panel de administración",
     "privacy": {
       "title": "Privacidad",
-      "acceptedOn": "Aceptada el {{ date }}",
       "hashTitle": "Código que acredita tu aceptación",
-      "hashHidden": "Código que acredita tu aceptación:"
+      "hashHidden": "Código que acredita tu aceptación:",
+      "acceptedVersion": "Aceptada la v{{version}} el {{date}}",
+      "currentMinor": "Vigente: v{{version}} · actualizada el {{date}} · Ver novedades"
     },
     "vehicles": {
       "title": "Mis vehículos",
@@ -347,7 +348,8 @@
       "accept": "Aceptar y continuar",
       "loading": "Cargando los documentos",
       "logout": "Cerrar sesión",
-      "deleteAccount": "Eliminar mi cuenta"
+      "deleteAccount": "Eliminar mi cuenta",
+      "changes": "Qué ha cambiado"
     }
   }
 }

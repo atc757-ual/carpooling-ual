@@ -305,8 +305,19 @@
                     @if (doc.acceptedAt) {
                       <span class="profile__legal-status text-body-s">
                         <ion-icon [icon]="checkmarkIcon" aria-hidden="true" />
-                        {{ 'profile.privacy.acceptedOn' | transloco: { date: doc.acceptedAt } }}
+                        {{
+                          'profile.privacy.acceptedVersion'
+                            | transloco: { version: doc.acceptedVersion, date: doc.acceptedAt }
+                        }}
                       </span>
+                      @if (doc.update; as update) {
+                        <span class="profile__legal-update text-body-s">
+                          {{
+                            'profile.privacy.currentMinor'
+                              | transloco: { version: update.version, date: update.date }
+                          }}
+                        </span>
+                      }
                       <span
                         class="profile__legal-hash text-body-s text-color-muted"
                         [title]="'profile.privacy.hashTitle' | transloco"

@@ -36,6 +36,8 @@ describe('LegalModal', () => {
       type: 'privacy',
       version: '1.1',
       content: '<h2>Responsable</h2><script>alert(1)</script>',
+      changeType: 'minor',
+      summary: 'Aclaramos quién es el responsable.',
       publishedAt: '2026-11-02T10:00:00.000Z',
     });
 
@@ -45,6 +47,10 @@ describe('LegalModal', () => {
     });
     expect(root.querySelector('ion-title')?.textContent).toBe('Política de privacidad');
     expect(root.querySelector('.legal script')).toBeNull();
+    // «Qué ha cambiado», encima del texto completo
+    const changes = root.querySelector('.legal-changes')?.textContent ?? '';
+    expect(changes).toContain('Qué ha cambiado en la versión 1.1');
+    expect(changes).toContain('Aclaramos quién es el responsable.');
   });
 
   it('explains when the text cannot be loaded', async () => {
