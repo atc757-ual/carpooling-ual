@@ -17,6 +17,9 @@ describe('catalog config', () => {
       '#2673c9 · #5b9be0',
     );
     expect(itemDetail({ ...base, svg: '<svg/>' })).toBe('SVG de la plataforma');
+    expect(
+      itemDetail({ ...base, location: { type: 'Point', coordinates: [-2.4045, 36.8322] } }),
+    ).toBe('36.83220, -2.40450');
     expect(itemDetail(base)).toBeNull();
   });
 

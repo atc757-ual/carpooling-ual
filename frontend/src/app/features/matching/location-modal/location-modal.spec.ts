@@ -92,6 +92,21 @@ describe('LocationModal', () => {
     expect(modalController.dismiss).toHaveBeenCalledWith(PLACE, 'select');
   });
 
+  it('picks a point on the map without looking for its address', async () => {
+    fixture = TestBed.createComponent(LocationModal);
+    modal = fixture.componentInstance;
+    Object.assign(modal, { adjustPoint: [-2.4045, 36.8322], pickPoint: true });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(modal.title).toBe('Elegir el punto');
+    await modal.movePin([-2.405, 36.83]);
+    await modal.handleUse();
+
+    expect(places.reverse).not.toHaveBeenCalled();
+    expect(modalController.dismiss).toHaveBeenCalledWith([-2.405, 36.83], 'picked');
+  });
+
   it('does not return an address out of the area', async () => {
     places.reverse.mockResolvedValue({ ...PLACE, municipality: 'Vera', isCovered: false });
 

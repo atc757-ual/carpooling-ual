@@ -60,6 +60,47 @@ describe('CatalogItemModal', () => {
     expect(modal.isValid()).toBe(true);
   });
 
+  it('picks the point of a parking on the map and sends it', async () => {
+    const present = vi.fn().mockResolvedValue(undefined);
+    const onDidDismiss = vi.fn().mockResolvedValue({ data: [-2.405, 36.83], role: 'picked' });
+    const create = vi.fn().mockResolvedValue({ present, onDidDismiss });
+    TestBed.overrideProvider(ModalController, { useValue: { dismiss, create } });
+    const modal = render({ fields: ['name', 'location'] });
+    modal.handleInput('name', 'Parking norte');
+    expect(modal.isValid()).toBe(false);
+    expect(modal.pointLabel()).toBe('Sin elegir');
+
+    await modal.handlePickPoint();
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        componentProps: { adjustPoint: [-2.4045, 36.8322], pickPoint: true },
+      }),
+    );
+    expect(modal.pointLabel()).toBe('36.83000, -2.40500');
+    await modal.handleConfirm();
+    expect(action).toHaveBeenCalledWith(
+      { name: 'Parking norte', location: { type: 'Point', coordinates: [-2.405, 36.83] } },
+      null,
+    );
+  });
+
+  it('keeps the point when the map is closed without picking', async () => {
+    const onDidDismiss = vi.fn().mockResolvedValue({ role: 'cancel' });
+    const create = vi.fn().mockResolvedValue({ present: vi.fn(), onDidDismiss });
+    TestBed.overrideProvider(ModalController, { useValue: { dismiss, create } });
+    const modal = render({
+      fields: ['name', 'location'],
+      initial: { name: 'Sur', location: { type: 'Point', coordinates: [-2.4, 36.8] } },
+    });
+    modal.ngOnInit();
+
+    await modal.handlePickPoint();
+
+    expect(modal.point()).toEqual([-2.4, 36.8]);
+    expect(modal.isValid()).toBe(true);
+  });
+
   it('asks for the image when uploading', async () => {
     const modal = render({ fields: ['name'], withImage: true });
     modal.handleInput('name', 'Búho');

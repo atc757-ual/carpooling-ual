@@ -2,7 +2,7 @@
 <form class="confirm catalog-item" (submit)="$event.preventDefault(); handleConfirm()">
   <h2 class="text-subtitle">{{ header }}</h2>
 
-  @for (field of fields; track field) {
+  @for (field of textFields(); track field) {
     <div class="catalog-item__field">
       <ion-input
         [label]="labels[field]"
@@ -21,6 +21,17 @@
           aria-hidden="true"
         ></span>
       }
+    </div>
+  }
+
+  @if (fields.includes('location')) {
+    <div class="catalog-item__point">
+      <span class="text-body-s">
+        {{ labels.location }}: <b>{{ pointLabel() }}</b>
+      </span>
+      <ion-button type="button" fill="outline" size="small" (click)="handlePickPoint()">
+        Elegir en el mapa
+      </ion-button>
     </div>
   }
 

@@ -3,10 +3,13 @@ import { IonButton, IonInput, ModalController } from '@ionic/angular';
 import { AdminCatalogChanges } from '../../../../core/models/admin-catalog.model';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
-import { CatalogField, FIELD_LABELS } from '../catalog-config';
+import { LocationModal } from '../../../matching/location-modal/location-modal';
+import { CatalogField, FIELD_LABELS, formatPoint } from '../catalog-config';
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 const MAX_NAME_LENGTH = 60;
+// Donde se abre el mapa de un parking nuevo: el campus de La Cañada
+const CAMPUS_POINT: [number, number] = [-2.4045, 36.8322];
 
 export interface CatalogItemModalOptions {
   header: string;
@@ -21,7 +24,8 @@ export interface CatalogItemModalOptions {
 }
 
 // Alta o edición de un elemento de un catálogo del panel: sus campos (nombre,
-// nombre en inglés o los dos tonos de un color) y, para un avatar, la imagen
+// nombre en inglés, los dos tonos de un color o el punto de un parking, que
+// se elige en el mapa) y, para un avatar, la imagen
 @Component({
   selector: 'app-catalog-item-modal',
   imports: [IonButton, IonInput],
@@ -43,15 +47,22 @@ export class CatalogItemModal implements OnInit {
 
   readonly values = signal<Partial<Record<CatalogField, string>>>({});
   readonly image = signal<File | null>(null);
+  // [longitud, latitud] del punto elegido (parkings)
+  readonly point = signal<[number, number] | null>(null);
+  readonly pointLabel = computed(() => {
+    const point = this.point();
+    return point ? formatPoint(point) : 'Sin elegir';
+  });
   readonly isSaving = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly isValid = computed(() => {
     const values = this.values();
-    const filled = this.fields.every((field) => (values[field] ?? '').trim().length > 0);
+    const filled = this.textFields().every((field) => (values[field] ?? '').trim().length > 0);
     const colors = (['hexLight', 'hexDark'] as const)
       .filter((field) => this.fields.includes(field))
       .every((field) => HEX_COLOR.test(values[field] ?? ''));
-    return filled && colors && (!this.withImage || this.image() !== null);
+    const located = !this.fields.includes('location') || this.point() !== null;
+    return filled && colors && located && (!this.withImage || this.image() !== null);
   });
 
   protected readonly labels = FIELD_LABELS;
@@ -59,10 +70,16 @@ export class CatalogItemModal implements OnInit {
 
   ngOnInit(): void {
     const initial: Partial<Record<CatalogField, string>> = {};
-    for (const field of this.fields) {
-      initial[field] = this.initial[field] ?? '';
+    for (const field of this.textFields()) {
+      initial[field] = (this.initial[field] as string | undefined) ?? '';
     }
     this.values.set(initial);
+    this.point.set(this.initial.location?.coordinates ?? null);
+  }
+
+  // Los campos que se escriben (el punto se elige en el mapa)
+  textFields(): CatalogField[] {
+    return this.fields.filter((field) => field !== 'location');
   }
 
   isColor(field: CatalogField): boolean {
@@ -79,6 +96,21 @@ export class CatalogItemModal implements OnInit {
     this.errorMessage.set(null);
   }
 
+  // El mapa del proyecto en modo «elegir punto», desde el actual o el campus
+  async handlePickPoint(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: LocationModal,
+      componentProps: { adjustPoint: this.point() ?? CAMPUS_POINT, pickPoint: true },
+      cssClass: 'location-dialog',
+    });
+    await modal.present();
+    const { data, role } = await modal.onDidDismiss<[number, number]>();
+    if (role === 'picked' && data) {
+      this.point.set(data);
+      this.errorMessage.set(null);
+    }
+  }
+
   async handleConfirm(): Promise<void> {
     if (!this.isValid() || this.isSaving()) {
       return;
@@ -86,8 +118,12 @@ export class CatalogItemModal implements OnInit {
     this.isSaving.set(true);
     const values = this.values();
     const changes: AdminCatalogChanges = {};
-    for (const field of this.fields) {
-      changes[field] = (values[field] ?? '').trim();
+    for (const field of this.textFields()) {
+      Object.assign(changes, { [field]: (values[field] ?? '').trim() });
+    }
+    const point = this.point();
+    if (this.fields.includes('location') && point) {
+      changes.location = { type: 'Point', coordinates: point };
     }
     try {
       await this.action(changes, this.image());

@@ -49,6 +49,20 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   SIMULATION_NOT_FINISHED: 'Esta simulación aún no tiene resultados.',
   SCENARIO_NOT_FOUND: 'Ese escenario no existe.',
   INVALID_SIMULATION_TRANSITION: 'Esta simulación ya ha terminado.',
+  // Catálogos y documentos legales (panel de administración)
+  CATALOG_ITEM_EXISTS: 'Ya hay un elemento con ese nombre (aunque esté desactivado).',
+  CATALOG_ITEM_NOT_FOUND: 'Ese elemento ya no existe. Recarga la lista.',
+  INVALID_AVATAR_IMAGE:
+    'La imagen tiene que ser PNG o WebP, cuadrada, de 128 a 512 px y de hasta 100 KB.',
+  VEHICLE_COLOR_NOT_OFFERED: 'Ese color ya no se ofrece. Elige otro.',
+  TRAVEL_PREFERENCE_NOT_OFFERED: 'Esa opción ya no se ofrece. Elige otra.',
+  CAMPUS_PARKING_NOT_FOUND: 'Ese parking no existe o está cerrado.',
+  PARKING_OUTSIDE_SERVICE_AREA: 'El punto queda fuera de la zona de servicio.',
+  PARKING_IN_USE:
+    'Tiene viajes publicados o en curso: no se puede cerrar ni mover hasta que terminen.',
+  LEGAL_DOCUMENT_NOT_FOUND: 'No hay ninguna versión publicada de ese documento.',
+  LEGAL_DRAFT_NOT_FOUND: 'No hay ningún borrador que publicar.',
+  LEGAL_DOCUMENT_OUTDATED: 'Se ha publicado otra versión mientras leías. Revisa la última.',
 };
 
 export function getErrorMessage(error: ApiError): string {

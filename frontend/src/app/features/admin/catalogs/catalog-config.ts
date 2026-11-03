@@ -2,7 +2,7 @@ import { environment } from '../../../../environments/environment';
 import { AdminCatalog, AdminCatalogItem } from '../../../core/models/admin-catalog.model';
 
 // Un campo del formulario de un elemento
-export type CatalogField = 'name' | 'nameEn' | 'hexLight' | 'hexDark';
+export type CatalogField = 'name' | 'nameEn' | 'hexLight' | 'hexDark' | 'location';
 
 export interface CatalogConfig {
   id: AdminCatalog;
@@ -41,6 +41,14 @@ export const CATALOG_CONFIGS: readonly CatalogConfig[] = [
     note: 'Los valores no se crean ni se borran (el matching depende de ellos): solo sus textos, su orden y si se ofrecen.',
   },
   {
+    id: 'campus-parkings',
+    label: 'Parkings',
+    singular: 'parking',
+    fields: ['name', 'location'],
+    creation: 'form',
+    note: 'El punto tiene que estar en la zona de servicio. Un parking con viajes publicados o en curso no se cierra ni se mueve (sí se puede renombrar).',
+  },
+  {
     id: 'avatars',
     label: 'Avatares',
     singular: 'avatar',
@@ -55,6 +63,7 @@ export const FIELD_LABELS: Readonly<Record<CatalogField, string>> = {
   nameEn: 'Nombre en inglés',
   hexLight: 'Color en tema claro',
   hexDark: 'Color en tema oscuro',
+  location: 'Punto en el mapa',
 };
 
 const PREFERENCE_LABELS: Readonly<Record<string, string>> = {
@@ -73,6 +82,9 @@ export function itemDetail(item: AdminCatalogItem): string | null {
   if (item.preference) {
     return `${PREFERENCE_LABELS[item.preference] ?? item.preference} · ${item.nameEn ?? ''}`;
   }
+  if (item.location) {
+    return formatPoint(item.location.coordinates);
+  }
   if (item.hexLight) {
     return `${item.hexLight} · ${item.hexDark ?? ''}`;
   }
@@ -81,7 +93,10 @@ export function itemDetail(item: AdminCatalogItem): string | null {
 
 // La imagen de un avatar subido, con la URL de la API de este entorno
 export function itemImage(item: AdminCatalogItem): string | null {
-  return item.imageHref
-    ? `${environment.apiUrl}${item.imageHref.replace(/^\/api/, '')}`
-    : null;
+  return item.imageHref ? `${environment.apiUrl}${item.imageHref.replace(/^\/api/, '')}` : null;
+}
+
+// «36.83220, -2.40450» (latitud, longitud)
+export function formatPoint([lon, lat]: [number, number]): string {
+  return `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
 }

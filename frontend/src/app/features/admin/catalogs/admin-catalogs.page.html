@@ -5,7 +5,7 @@
       Lo que la app ofrece para elegir. Nada se borra: se desactiva.
     </p>
   </div>
-  @if (config().creation !== 'none') {
+  @if (!isLegal() && config().creation !== 'none') {
     <ion-button (click)="handleCreate()">
       {{ config().creation === 'upload' ? 'Subir' : 'Añadir' }} {{ config().singular }}
     </ion-button>
@@ -14,7 +14,7 @@
 
 <ion-segment
   class="catalogs__segment"
-  [value]="config().id"
+  [value]="isLegal() ? legalTab : config().id"
   (ionChange)="handleCatalog($event.detail.value)"
 >
   @for (option of configs; track option.id) {
@@ -22,11 +22,18 @@
       <ion-label>{{ option.label }}</ion-label>
     </ion-segment-button>
   }
+  <ion-segment-button [value]="legalTab">
+    <ion-label>Documentos legales</ion-label>
+  </ion-segment-button>
 </ion-segment>
 
-<p class="text-body-s admin-page__subtitle catalogs__note">{{ config().note }}</p>
+<p class="text-body-s admin-page__subtitle catalogs__note">
+  {{ isLegal() ? legalNote : config().note }}
+</p>
 
-@if (errorMessage(); as message) {
+@if (isLegal()) {
+  <app-legal-documents-editor />
+} @else if (errorMessage(); as message) {
   <div class="notice notice--danger" role="alert">
     <span>
       <b>No hemos podido cargar el catálogo.</b>

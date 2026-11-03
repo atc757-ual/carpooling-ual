@@ -1,0 +1,49 @@
+.legal-editor__segment {
+  max-width: 24rem; // 384px
+}
+
+.legal-editor__status {
+  margin: var(--space-s) 0 var(--space-base);
+  color: var(--color-text-muted);
+}
+
+// El texto y su vista previa, uno al lado del otro en escritorio
+.legal-editor__panes {
+  display: grid;
+  gap: var(--space-base);
+
+  @media (min-width: 48rem) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.legal-editor__preview {
+  max-height: 32rem; // 512px
+  overflow-y: auto;
+  padding: var(--space-base);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+}
+
+.legal-editor__preview-title {
+  margin: 0 0 var(--space-s);
+  color: var(--color-text-muted);
+}
+
+.legal-editor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  margin-block: var(--space-base) var(--space-l);
+}
+
+.legal-editor__history-title {
+  margin: 0 0 var(--space-s);
+}
+
+.legal-editor__history {
+  margin: 0;
+  padding-inline-start: var(--space-l);
+  color: var(--color-text-muted);
+}

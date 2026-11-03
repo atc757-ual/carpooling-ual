@@ -21,6 +21,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Backend:** «Sobre mí» de 20 a 200 caracteres (antes 500; los más largos se recortan), Fumar sin «solo en paradas» (pasa a «no se fuma») y el consentimiento de ubicación guarda su origen: `location_prompt` (la ventana que explica para qué se usa) o `device` (se quitó el permiso del sistema), además de `settings` (#128).
 
 ### Added
+- **Frontend:** el panel gestiona en Catálogos los parkings del campus (el punto se elige en el mapa) y, en su pestaña, los documentos legales: borrador con vista previa, publicar con confirmación e historial de versiones (#174).
 - **Frontend:** formulario de «Ayuda y soporte» en Mi perfil (motivo y mensaje de 20 a 1000 caracteres) en lugar de abrir el programa de correo (#173).
 - **Backend:** `POST /api/support/messages` envía el mensaje del usuario por correo al buzón de soporte (`SUPPORT_EMAIL`), con respuesta a su correo; no guarda nada (#173).
 - **Frontend:** catálogos en el panel de administración (`/admin/catalogs`): marcas, colores, opciones de las preferencias y avatares, con su orden (subir y bajar), edición, activar o desactivar, alta de marcas y colores y subida de avatares. Ya no queda ninguna sección con «Disponible pronto» (#172).

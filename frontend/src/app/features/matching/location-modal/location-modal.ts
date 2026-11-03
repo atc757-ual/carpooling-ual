@@ -39,8 +39,9 @@ const PIN_SIZE = 24;
 export type LocationStep =
   'checking' | 'intro' | 'locating' | 'map' | 'view' | 'denied' | 'unavailable' | 'revoked';
 
-// Lo que devuelve al cerrarse: el punto de la ubicación (role 'located') o
-// la dirección elegida en el mapa (role 'select')
+// Lo que devuelve al cerrarse: el punto de la ubicación (role 'located'), la
+// dirección elegida en el mapa (role 'select') o el punto elegido (role
+// 'picked', con pickPoint)
 export type LocationModalResult = [number, number] | Place;
 
 // Ventana de la ubicación, con dos usos (se abre con ModalController):
@@ -49,7 +50,9 @@ export type LocationModalResult = [number, number] | Place;
 //   (dismiss(punto, 'located')) para que el campo la traduzca a dirección.
 // - Ajustar en el mapa (con adjustPoint): el mapa con un pin que se arrastra
 //   (o se toca el mapa para moverlo) y la dirección más cercana; «Usar esta
-//   dirección» la devuelve (dismiss(Place, 'select')) solo si está en la zona
+//   dirección» la devuelve (dismiss(Place, 'select')) solo si está en la zona.
+//   Con pickPoint, sin buscar dirección: «Usar este punto» devuelve el punto
+//   del pin (dismiss(punto, 'picked')), p. ej. el de un parking del campus
 @Component({
   selector: 'app-location-modal',
   // ion-page: así Ionic reparte el alto entre la cabecera y el contenido
@@ -70,6 +73,8 @@ export class LocationModal implements OnInit, OnDestroy {
   // fijo y el nombre del lugar como título
   @Input() viewPoint: [number, number] | null = null;
   @Input() viewTitle = '';
+  // Con adjustPoint: elegir un punto (el del pin), no una dirección
+  @Input() pickPoint = false;
 
   // Mientras se comprueba el permiso no se enseña nada (es inmediato)
   readonly step = signal<LocationStep>('checking');
@@ -104,6 +109,9 @@ export class LocationModal implements OnInit, OnDestroy {
   get title(): string {
     if (this.viewPoint) {
       return this.viewTitle;
+    }
+    if (this.pickPoint) {
+      return 'Elegir el punto';
     }
     return this.adjustPoint ? 'Ajustar en el mapa' : 'Usar mi ubicación';
   }
@@ -169,6 +177,9 @@ export class LocationModal implements OnInit, OnDestroy {
     this.point.set(point);
     this.pin?.setLatLng([point[1], point[0]]);
     this.place.set(null);
+    if (this.pickPoint) {
+      return;
+    }
     this.addressError.set(null);
     this.isResolving.set(true);
     try {
@@ -185,6 +196,11 @@ export class LocationModal implements OnInit, OnDestroy {
   }
 
   async handleUse(): Promise<void> {
+    const point = this.point();
+    if (this.pickPoint && point) {
+      await this.modalController.dismiss(point, 'picked');
+      return;
+    }
     const place = this.place();
     if (place?.isCovered) {
       await this.modalController.dismiss(place, 'select');
