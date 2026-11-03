@@ -23,7 +23,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Backend:** «Sobre mí» de 20 a 200 caracteres (antes 500; los más largos se recortan), Fumar sin «solo en paradas» (pasa a «no se fuma») y el consentimiento de ubicación guarda su origen: `location_prompt` (la ventana que explica para qué se usa) o `device` (se quitó el permiso del sistema), además de `settings` (#128).
 
 ### Added
-- **Frontend:** denunciar un mensaje del chat: bandera junto a la hora en los mensajes de los demás, con la confirmación con motivo; llega al administrador como incidencia (#N).
+- **Frontend:** denunciar un mensaje del chat: bandera junto a la hora en los mensajes de los demás, con la confirmación con motivo; llega al administrador como incidencia (#196).
 - **Backend:** denunciar un mensaje del chat del viaje (`POST /api/trips/{id}/messages/{messageId}/report`): crea una incidencia para el administrador que no cancela nada, con una copia del mensaje y el motivo (`incidents.chat_message_id`; cada usuario, una vez por mensaje). El papel de quien registra una incidencia se calcula con el conductor del viaje (#195).
 - **Backend:** los mensajes del chat de un viaje terminado o cancelado se borran a los 30 días (tarea diaria a las 03:00, `ChatRetentionScheduler`), cuando su conversación ya no sale en la lista (#194).
 - **Frontend:** «Chat del viaje» abre la conversación desde la tarjeta del conductor (viaje confirmado o en curso), la pantalla del viaje en curso y el detalle de la solicitud aceptada del pasajero (#193).
