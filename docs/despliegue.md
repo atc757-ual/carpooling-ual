@@ -56,13 +56,18 @@ El perfil de administrador no se puede pedir en el registro (RF-01): el primero 
 
 ## 6. App Android (Capacitor)
 
-La app nativa empaqueta el frontend (`frontend/www`) en `frontend/android/`. Hace falta Android Studio (trae el SDK y Java).
+La app nativa empaqueta el frontend (`frontend/www`) en `frontend/android/`. Hace falta Android Studio (trae el SDK, Java y `adb`).
+
+**Para probarla con el backend del ordenador** (emulador o móvil por USB):
 
     cd frontend
-    npm run build
-    npx cap sync android
-    npx cap open android
+    npm run build:android          # ng build --configuration android + cap sync android
+    adb reverse tcp:3000 tcp:3000  # el localhost:3000 del móvil es el del ordenador
+    npx cap open android           # y lanzarla desde Android Studio
 
-- **API:** en la app, `apiUrl: '/api'` (ruta relativa) no llega al backend: antes de compilarla hay que apuntar a la dirección completa del servidor (pendiente: un `environment` propio para la app).
+- **API:** en la app, `/api` (relativa) no llega al backend. La configuración `android` (`environment.android.ts`) usa `http://localhost:3000/api`, que con `adb reverse` llega al backend en marcha del ordenador (`npm run dev`). Las peticiones salen por CapacitorHttp: sin CORS.
+- **HTTP sin cifrar:** solo la versión de depuración lo permite (`android/app/src/debug/AndroidManifest.xml`); la de publicación exige HTTPS.
+- **Avatares con imagen** (los subidos desde el panel): la WebView (`https://localhost`) no carga imágenes por HTTP, así que con el backend del ordenador no se ven. Con el servidor en HTTPS, sí.
+- **Para publicarla** hará falta otra configuración con la dirección HTTPS del servidor.
 - **Ubicación en segundo plano** (`@capgo/background-geolocation`): mientras el conductor comparte su ubicación, un servicio en primer plano con la notificación «Compartiendo tu ubicación» sigue enviándola con la app minimizada o la pantalla bloqueada. No usa `ACCESS_BACKGROUND_LOCATION` (no hace falta justificarlo en Google Play). `capacitor.config.ts` activa `android.useLegacyBridge` y `CapacitorHttp` para que no se pare a los 5 min en segundo plano.
 - **Comprobar en el móvil o el emulador:** que pide el permiso de ubicación y el de notificaciones, que aparece la notificación al iniciar un viaje y que el mapa del pasajero sigue moviéndose con la pantalla del conductor bloqueada.
