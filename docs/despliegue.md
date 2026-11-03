@@ -53,3 +53,16 @@ El perfil de administrador no se puede pedir en el registro (RF-01): el primero 
 
 - **Direcciones (CartoCiudad, IGN):** el backend lo llama directamente, sin clave. Hay que dejar salir el tráfico HTTPS hacia `www.cartociudad.es`. Su licencia exige citar «CartoCiudad cedido por © Instituto Geográfico Nacional» (la app ya lo muestra junto a las sugerencias).
 - **Tiles del mapa (OpenStreetMap):** el navegador los pide a `tile.openstreetmap.org`, cuyo uso está limitado a tráfico moderado y con atribución (ya visible en el mapa). Para una demo vale; para un despliegue con usuarios reales, usar un servidor de tiles propio o un proveedor y cambiar `TILES_URL` en `location-modal.ts`.
+
+## 6. App Android (Capacitor)
+
+La app nativa empaqueta el frontend (`frontend/www`) en `frontend/android/`. Hace falta Android Studio (trae el SDK y Java).
+
+    cd frontend
+    npm run build
+    npx cap sync android
+    npx cap open android
+
+- **API:** en la app, `apiUrl: '/api'` (ruta relativa) no llega al backend: antes de compilarla hay que apuntar a la dirección completa del servidor (pendiente: un `environment` propio para la app).
+- **Ubicación en segundo plano** (`@capgo/background-geolocation`): mientras el conductor comparte su ubicación, un servicio en primer plano con la notificación «Compartiendo tu ubicación» sigue enviándola con la app minimizada o la pantalla bloqueada. No usa `ACCESS_BACKGROUND_LOCATION` (no hace falta justificarlo en Google Play). `capacitor.config.ts` activa `android.useLegacyBridge` y `CapacitorHttp` para que no se pare a los 5 min en segundo plano.
+- **Comprobar en el móvil o el emulador:** que pide el permiso de ubicación y el de notificaciones, que aparece la notificación al iniciar un viaje y que el mapa del pasajero sigue moviéndose con la pantalla del conductor bloqueada.
