@@ -1,11 +1,15 @@
 import { Component, computed, inject, linkedSignal, resource, signal } from '@angular/core';
 import { IonButton, IonLabel, IonSegment, IonSegmentButton, IonTextarea } from '@ionic/angular';
 import { ApiError } from '../../../../core/models/api-error.model';
-import { AdminLegalDocumentsService } from '../../../../core/services/admin/admin-legal-documents.service';
+import {
+  AdminLegalDocument,
+  AdminLegalDocumentsService,
+} from '../../../../core/services/admin/admin-legal-documents.service';
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../../core/services/ui/toast.service';
 import {
   LEGAL_DOCUMENT_TITLES,
+  LegalChangeType,
   LegalDocumentType,
 } from '../../../../core/services/users/legal-documents.service';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
@@ -13,10 +17,29 @@ import { formatDateTime } from '../../users/admin-user-detail-labels';
 
 const DOCUMENT_TYPES: readonly LegalDocumentType[] = ['terms', 'privacy'];
 
+export const CHANGE_TYPES: readonly { value: LegalChangeType; label: string; note: string }[] = [
+  {
+    value: 'minor',
+    label: 'Cambio menor',
+    note: 'Una aclaración o una corrección: sube la versión menor (1.0 → 1.1) y solo se avisa; nadie tiene que aceptarla.',
+  },
+  {
+    value: 'major',
+    label: 'Cambio importante',
+    note: 'Cambia lo que se acepta: sube la versión mayor (1.x → 2.0) y cada usuario tendrá que leerla y aceptarla para seguir usando la app.',
+  },
+];
+
+// La versión que tendrá el borrador (la misma regla que el backend)
+export function nextLegalVersion(version: string, changeType: LegalChangeType): string {
+  const [major, minor] = version.split('.').map(Number);
+  return changeType === 'major' ? `${major + 1}.0` : `${major}.${minor + 1}`;
+}
+
 // Documentos legales en el panel: la versión vigente, su historial y un
-// borrador (empieza con el texto vigente) que se edita con su vista previa y
-// se publica. El backend sanea el HTML; al publicar, cada usuario tendrá que
-// aceptar la versión nueva al entrar
+// borrador (empieza con el texto vigente) que se edita con su vista previa,
+// su tipo de cambio y «Qué ha cambiado», y se publica. El backend sanea el
+// HTML; tras un cambio importante, cada usuario tendrá que aceptarla al entrar
 @Component({
   selector: 'app-legal-documents-editor',
   imports: [IonButton, IonLabel, IonSegment, IonSegmentButton, IonTextarea],
@@ -44,11 +67,23 @@ export class LegalDocumentsEditor {
       .filter(({ status }) => status === 'published')
       .map((version) => ({
         version: version.version,
+        kind: version.changeType === 'major' ? 'importante' : 'menor',
+        summary: version.summary,
         date: version.publishedAt ? formatDateTime(version.publishedAt) : '',
       })),
   );
   // El texto que se edita: el del borrador o, si no hay, el vigente
   readonly content = linkedSignal(() => this.draft()?.content ?? this.current()?.content ?? '');
+  readonly changeType = linkedSignal<LegalChangeType>(() => this.draft()?.changeType ?? 'minor');
+  readonly summary = linkedSignal(() => this.draft()?.summary ?? '');
+  // La versión con la que saldrá, si hay una vigente
+  readonly nextVersion = computed(() => {
+    const current = this.current();
+    return current ? nextLegalVersion(current.version, this.changeType()) : null;
+  });
+  readonly canPublish = computed(
+    () => this.summary().trim() !== '' && this.content().trim() !== '' && !this.isBusy(),
+  );
   readonly isBusy = signal(false);
   readonly errorMessage = computed(() => {
     const error = this.versions.error();
@@ -59,6 +94,10 @@ export class LegalDocumentsEditor {
     value,
     label: LEGAL_DOCUMENT_TITLES[value],
   }));
+  protected readonly changeTypes = CHANGE_TYPES;
+  protected readonly changeNote = computed(
+    () => CHANGE_TYPES.find(({ value }) => value === this.changeType())?.note ?? '',
+  );
 
   handleType(value: unknown): void {
     if (value === 'terms' || value === 'privacy') {
@@ -66,35 +105,56 @@ export class LegalDocumentsEditor {
     }
   }
 
+  handleChangeType(value: unknown): void {
+    if (value === 'major' || value === 'minor') {
+      this.changeType.set(value);
+    }
+  }
+
   handleInput(value: string | null | undefined): void {
     this.content.set(value ?? '');
   }
 
+  handleSummary(value: string | null | undefined): void {
+    this.summary.set(value ?? '');
+  }
+
   async handleSave(): Promise<void> {
     await this.run(async () => {
-      const saved = await this.documents.saveDraft(this.type(), this.content());
+      const saved = await this.save();
       void this.toast.showSuccess(`Borrador ${saved.version} guardado.`);
     });
   }
 
+  // Guarda lo que hay en pantalla y lo publica, tras confirmarlo
   async handlePublish(): Promise<void> {
-    const draft = this.draft();
-    if (draft === null) {
+    if (!this.canPublish()) {
       return;
     }
+    const isMajor = this.changeType() === 'major';
     const isConfirmed = await this.confirm.ask({
-      header: `¿Publicar la versión ${draft.version}?`,
-      message:
-        'Pasará a ser la vigente y cada usuario tendrá que leerla y aceptarla al entrar en la app.',
+      header: `¿Publicar la versión ${this.nextVersion() ?? ''}?`,
+      message: isMajor
+        ? 'Es un cambio importante: pasará a ser la vigente y cada usuario tendrá que leerla y aceptarla para seguir usando la app.'
+        : 'Es un cambio menor: pasará a ser la vigente y nadie tendrá que aceptarla.',
       confirmText: 'Publicar',
       isDestructive: false,
     });
     if (isConfirmed) {
       await this.run(async () => {
-        await this.documents.publish(this.type());
-        void this.toast.showSuccess(`Versión ${draft.version} publicada.`);
+        await this.save();
+        const published = await this.documents.publish(this.type());
+        void this.toast.showSuccess(`Versión ${published.version} publicada.`);
       });
     }
+  }
+
+  private save(): Promise<AdminLegalDocument> {
+    return this.documents.saveDraft(this.type(), {
+      content: this.content(),
+      changeType: this.changeType(),
+      summary: this.summary(),
+    });
   }
 
   handleRetry(): void {

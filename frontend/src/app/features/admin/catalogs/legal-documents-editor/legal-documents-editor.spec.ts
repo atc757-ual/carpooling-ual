@@ -14,6 +14,8 @@ const PUBLISHED: AdminLegalDocument = {
   type: 'terms',
   version: '1.0',
   content: '<p>Vigente</p>',
+  changeType: 'major',
+  summary: null,
   status: 'published',
   publishedAt: '2026-10-30T10:00:00Z',
   updatedAt: '2026-10-30T10:00:00Z',
@@ -23,6 +25,8 @@ const DRAFT: AdminLegalDocument = {
   id: 'd1',
   version: '1.1',
   content: '<p>Borrador</p>',
+  changeType: 'minor',
+  summary: 'Una aclaración.',
   status: 'draft',
   publishedAt: null,
 };
@@ -65,49 +69,79 @@ describe('LegalDocumentsEditor', () => {
     const root = await render();
 
     expect(versions).toHaveBeenCalledWith('terms');
-    expect(fixture.componentInstance.content()).toBe('<p>Borrador</p>');
+    const editor = fixture.componentInstance;
+    expect(editor.content()).toBe('<p>Borrador</p>');
+    expect(editor.changeType()).toBe('minor');
+    expect(editor.summary()).toBe('Una aclaración.');
     expect(root.textContent).toContain('Vigente: versión 1.0.');
     expect(root.textContent).toContain('Borrador 1.1 sin publicar.');
+    expect(root.textContent).toContain('Saldrá como la versión 1.1');
     expect(root.querySelector('.legal')?.innerHTML).toContain('Borrador');
-    expect(root.querySelectorAll('.legal-editor__history li')).toHaveLength(1);
+    const history = root.querySelectorAll('.legal-editor__history li');
+    expect(history).toHaveLength(1);
+    expect(history[0].textContent).toContain('Versión 1.0 · importante');
   });
 
-  it('starts from the current text when there is no draft and saves it', async () => {
+  it('starts from the current text and saves it with its change type and summary', async () => {
     versions.mockResolvedValue([PUBLISHED]);
     await render();
     const editor = fixture.componentInstance;
     expect(editor.content()).toBe('<p>Vigente</p>');
+    expect(editor.summary()).toBe('');
 
     editor.handleInput('<p>Nuevo</p>');
+    editor.handleChangeType('major');
+    editor.handleChangeType('other');
+    editor.handleSummary('Nuevas normas.');
+    expect(editor.nextVersion()).toBe('2.0');
     await editor.handleSave();
 
-    expect(saveDraft).toHaveBeenCalledWith('terms', '<p>Nuevo</p>');
+    expect(saveDraft).toHaveBeenCalledWith('terms', {
+      content: '<p>Nuevo</p>',
+      changeType: 'major',
+      summary: 'Nuevas normas.',
+    });
     expect(showSuccess).toHaveBeenCalledWith('Borrador 1.1 guardado.');
     await fixture.whenStable();
     expect(versions).toHaveBeenCalledTimes(2);
   });
 
-  it('publishes the draft only after confirming', async () => {
+  it('saves and publishes only after confirming, explaining the kind of change', async () => {
     await render();
     const editor = fixture.componentInstance;
 
     ask.mockResolvedValueOnce(false);
     await editor.handlePublish();
     expect(publish).not.toHaveBeenCalled();
+    expect(ask).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        header: '¿Publicar la versión 1.1?',
+        message: expect.stringContaining('nadie tendrá que aceptarla'),
+      }),
+    );
 
+    editor.handleChangeType('major');
     await editor.handlePublish();
-    expect(ask).toHaveBeenCalledWith(
-      expect.objectContaining({ header: '¿Publicar la versión 1.1?' }),
+    expect(ask).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        header: '¿Publicar la versión 2.0?',
+        message: expect.stringContaining('tendrá que leerla y aceptarla'),
+      }),
+    );
+    expect(saveDraft).toHaveBeenCalledWith(
+      'terms',
+      expect.objectContaining({ changeType: 'major' }),
     );
     expect(publish).toHaveBeenCalledWith('terms');
     expect(showSuccess).toHaveBeenCalledWith('Versión 1.1 publicada.');
   });
 
-  it('does not publish without a draft and changes of document', async () => {
+  it('does not publish without a summary and changes of document', async () => {
     versions.mockResolvedValue([PUBLISHED]);
     await render();
     const editor = fixture.componentInstance;
 
+    expect(editor.canPublish()).toBe(false);
     await editor.handlePublish();
     expect(ask).not.toHaveBeenCalled();
 

@@ -5,19 +5,21 @@ import {
   LEGAL_DOCUMENT_TITLES,
   LegalDocumentsService,
   LegalDocumentType,
+  LegalDocumentView,
 } from '../../../../core/services/users/legal-documents.service';
+import { LegalChanges } from '../../ui/legal-changes/legal-changes';
 
 export type LegalDocument = LegalDocumentType;
 
 // Modal con la versión vigente de un texto legal (condiciones de uso o
-// política de privacidad, del backend), para leerlo sin salir del formulario. Se abre con ModalController:
-// modalController.create({ component: LegalModal, componentProps: { document: 'privacy' } })
+// política de privacidad, del backend), con «Qué ha cambiado» encima, para
+// leerlo sin salir del formulario. Se abre con openLegalModal()
 @Component({
   selector: 'app-legal-modal',
   // ion-page: así Ionic reparte el alto entre la cabecera y el contenido (sin
   // ella, ion-content se queda sin alto y el texto se sale sin fondo)
   host: { class: 'ion-page' },
-  imports: [ModalHeader, IonContent, IonSpinner],
+  imports: [ModalHeader, IonContent, IonSpinner, LegalChanges],
   templateUrl: './legal-modal.html',
   styleUrl: './legal-modal.scss',
 })
@@ -29,7 +31,7 @@ export class LegalModal implements OnInit {
   // propiedades normales, lo que rompería una entrada de tipo signal
   @Input({ required: true }) document!: LegalDocument;
 
-  readonly content = signal<string | null>(null);
+  readonly current = signal<LegalDocumentView | null>(null);
   readonly hasError = signal(false);
 
   get title(): string {
@@ -47,8 +49,7 @@ export class LegalModal implements OnInit {
   // Si no se puede cargar (p. ej. sin conexión), se muestra un aviso
   private async loadContent(): Promise<void> {
     try {
-      const { content } = await this.legalDocuments.getCurrent(this.document);
-      this.content.set(content);
+      this.current.set(await this.legalDocuments.getCurrent(this.document));
     } catch {
       this.hasError.set(true);
     }

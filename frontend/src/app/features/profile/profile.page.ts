@@ -39,8 +39,9 @@ import { confirmLogout } from '../../core/services/auth/confirm-logout';
 import { ThemeService } from '../../core/services/ui/theme.service';
 import { TRAVEL_PREFERENCE_GROUPS } from '../../core/models/travel-preferences.model';
 import { TravelPreferencesStore } from '../../core/services/catalogs/travel-preferences.store';
-import { ConsentRecord, UserConsents } from '../../core/models/user-consent.model';
-import { toConsentStamp } from './consent-stamp';
+import { UserConsents } from '../../core/models/user-consent.model';
+import { LegalDocumentsService } from '../../core/services/users/legal-documents.service';
+import { LegalDocRow, toLegalDocRow } from './privacy-rows';
 import { ProfileLocation } from './profile-location/profile-location';
 import { AvatarArt } from '../../shared/components/ui/avatar-art/avatar-art';
 import { LanguageSwitch } from '../../shared/components/ui/language-switch/language-switch';
@@ -66,28 +67,10 @@ interface PreferenceRow {
   value: string | null;
 }
 
-interface LegalDocRow {
-  id: LegalDocument;
-  title: string;
-  acceptedAt: string | null;
-  fingerprint: string | null;
-}
-
 interface ReviewRow {
   role: string;
   average: string;
   count: string;
-}
-
-// Un documento legal con la fecha de aceptación («12 oct 2026») y el principio
-// de su código (SHA-256 del registro), o sin ellas si no está aceptado
-function toLegalDocRow(
-  id: LegalDocument,
-  title: string,
-  record: ConsentRecord | null | undefined,
-): LegalDocRow {
-  const stamp = record?.action === 'granted' ? toConsentStamp(record) : null;
-  return { id, title, acceptedAt: stamp?.date ?? null, fingerprint: stamp?.fingerprint ?? null };
 }
 
 @Component({
@@ -120,6 +103,7 @@ export class ProfilePage implements OnInit {
   private readonly confirm = inject(ConfirmService);
   private readonly modalController = inject(ModalController);
   private readonly theme = inject(ThemeService);
+  private readonly legalDocuments = inject(LegalDocumentsService);
 
   readonly user = this.auth.currentUser;
   readonly initials = computed(() => getInitials(this.user()?.name ?? ''));
@@ -164,11 +148,23 @@ export class ProfilePage implements OnInit {
   });
 
   readonly consents = signal<UserConsents | null>(null);
+  // La versión vigente de cada documento, para avisar de una más nueva que la
+  // aceptada (si no carga, las filas salen sin ese aviso)
+  private readonly legalVersions = resource({
+    loader: async () => {
+      const [terms, privacy] = await Promise.all([
+        this.legalDocuments.getCurrent('terms'),
+        this.legalDocuments.getCurrent('privacy'),
+      ]);
+      return { terms, privacy };
+    },
+  });
   readonly legalDocs = computed<LegalDocRow[]>(() => {
     const current = this.consents()?.current;
+    const versions = this.legalVersions.hasValue() ? this.legalVersions.value() : undefined;
     return [
-      toLegalDocRow('terms', 'Condiciones de uso', current?.terms),
-      toLegalDocRow('privacy', 'Política de privacidad', current?.privacy),
+      toLegalDocRow('terms', 'Condiciones de uso', current?.terms, versions?.terms),
+      toLegalDocRow('privacy', 'Política de privacidad', current?.privacy, versions?.privacy),
     ];
   });
 

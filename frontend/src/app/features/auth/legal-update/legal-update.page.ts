@@ -20,6 +20,7 @@ import {
   LegalDocumentsService,
 } from '../../../core/services/users/legal-documents.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
+import { LegalChanges } from '../../../shared/components/ui/legal-changes/legal-changes';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { ProfileDeleteModal } from '../../profile/profile-delete-modal/profile-delete-modal';
 
@@ -28,7 +29,7 @@ import { ProfileDeleteModal } from '../../profile/profile-delete-modal/profile-d
 // acepta puede cerrar sesión o eliminar su cuenta, pero no usar la app
 @Component({
   selector: 'app-legal-update',
-  imports: [IonButton, IonContent, IonIcon, IonSpinner, AuthLayout, TranslocoPipe],
+  imports: [IonButton, IonContent, IonIcon, IonSpinner, AuthLayout, LegalChanges, TranslocoPipe],
   templateUrl: './legal-update.page.html',
   styleUrls: ['../auth-form.scss', './legal-update.page.scss'],
 })
@@ -48,11 +49,10 @@ export class LegalUpdatePage {
     loader: async () => {
       const pending = await this.legalDocuments.pending();
       return Promise.all(
-        pending.map(async (document) => ({
-          ...document,
-          title: LEGAL_DOCUMENT_TITLES[document.type],
-          content: (await this.legalDocuments.getCurrent(document.type)).content,
-        })),
+        pending.map(async (document) => {
+          const { content, summary } = await this.legalDocuments.getCurrent(document.type);
+          return { ...document, title: LEGAL_DOCUMENT_TITLES[document.type], content, summary };
+        }),
       );
     },
   });

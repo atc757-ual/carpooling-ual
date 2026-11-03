@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
-import { LegalDocumentType } from '../users/legal-documents.service';
+import { LegalChangeType, LegalDocumentType } from '../users/legal-documents.service';
 
 // Una versión de un documento legal en el panel (borrador o publicada)
 export interface AdminLegalDocument {
@@ -11,9 +11,18 @@ export interface AdminLegalDocument {
   type: LegalDocumentType;
   version: string;
   content: string;
+  changeType: LegalChangeType;
+  summary: string | null;
   status: 'draft' | 'published';
   publishedAt: string | null;
   updatedAt: string;
+}
+
+// Lo que se guarda del borrador (su versión la calcula el backend)
+export interface LegalDraftChanges {
+  content: string;
+  changeType: LegalChangeType;
+  summary: string;
 }
 
 // Documentos legales en el panel: el historial de versiones y un borrador por
@@ -30,8 +39,8 @@ export class AdminLegalDocumentsService {
     );
   }
 
-  saveDraft(type: LegalDocumentType, content: string): Promise<AdminLegalDocument> {
-    return this.call(this.http.put<AdminLegalDocument>(`${this.url}/${type}/draft`, { content }));
+  saveDraft(type: LegalDocumentType, changes: LegalDraftChanges): Promise<AdminLegalDocument> {
+    return this.call(this.http.put<AdminLegalDocument>(`${this.url}/${type}/draft`, changes));
   }
 
   publish(type: LegalDocumentType): Promise<AdminLegalDocument> {

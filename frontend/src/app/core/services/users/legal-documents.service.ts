@@ -6,11 +6,17 @@ import { ApiError } from '../../models/api-error.model';
 
 export type LegalDocumentType = 'terms' | 'privacy';
 
-// La versión vigente de un documento (HTML ya saneado por el backend)
+// major: hay que volver a aceptarla; minor: solo se avisa
+export type LegalChangeType = 'major' | 'minor';
+
+// La versión vigente de un documento (HTML ya saneado por el backend), con
+// su tipo de cambio y «Qué ha cambiado»
 export interface LegalDocumentView {
   type: LegalDocumentType;
   version: string;
   content: string;
+  changeType: LegalChangeType;
+  summary: string | null;
   publishedAt: string | null;
 }
 

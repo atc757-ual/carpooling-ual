@@ -448,3 +448,9 @@
     color: var(--color-on-primary);
   }
 }
+
+// Una versión vigente más nueva que la aceptada (cambio menor): en azul,
+// como un enlace, porque la fila abre el documento con sus novedades
+.profile__legal-update {
+  color: var(--color-link);
+}

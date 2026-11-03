@@ -1,9 +1,15 @@
 <app-modal-header [title]="title" (closed)="close()" />
 
 <ion-content class="ion-padding">
-  @if (content(); as text) {
+  @if (current(); as document) {
+    <div class="legal">
+      <app-legal-changes
+        [heading]="'Qué ha cambiado en la versión ' + document.version"
+        [summary]="document.summary"
+      />
+    </div>
     <!-- Angular limpia el HTML (sin scripts ni estilos) antes de mostrarlo -->
-    <article class="legal" [innerHTML]="text"></article>
+    <article class="legal" [innerHTML]="document.content"></article>
   } @else if (hasError()) {
     <p class="text-body" role="alert">
       No hemos podido cargar el texto. Comprueba tu conexión e inténtalo de nuevo.
