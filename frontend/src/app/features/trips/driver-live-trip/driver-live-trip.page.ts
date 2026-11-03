@@ -131,6 +131,11 @@ export class DriverLiveTripPage {
     return this.boardCodeMap()[requestId] ?? '';
   }
 
+  // Lo que escribe el conductor en la casilla del código (un input nativo)
+  handleBoardCodeInput(requestId: string, event: Event): void {
+    this.setBoardCode(requestId, (event.target as HTMLInputElement).value);
+  }
+
   setBoardCode(requestId: string, value: string): void {
     const sanitized = value.replace(/\D/g, '').slice(0, 4);
     this.boardCodeMap.update((current) => ({ ...current, [requestId]: sanitized }));
