@@ -94,12 +94,14 @@
                             maxlength="4"
                             placeholder="Código"
                             [value]="boardCode(request.id)"
-                            (input)="setBoardCode(request.id, $any($event.target).value)"
+                            (input)="handleBoardCodeInput(request.id, $event)"
                             aria-label="Código de recogida de 4 cifras"
                           />
                           <ion-button
                             size="small"
-                            [disabled]="boardCode(request.id).length !== 4 || isValidatingBoard(request.id)"
+                            [disabled]="
+                              boardCode(request.id).length !== 4 || isValidatingBoard(request.id)
+                            "
                             (click)="handleBoard(request.id)"
                           >
                             @if (isValidatingBoard(request.id)) {
@@ -119,7 +121,10 @@
                         </div>
                         @if (!canMarkNoShow(request)) {
                           <span class="text-caption text-color-muted">
-                            «No se presentó» disponible tras 5 min de espera ({{ noShowWaitMinutes(request) }} min restantes)
+                            «No se presentó» disponible tras 5 min de espera ({{
+                              noShowWaitMinutes(request)
+                            }}
+                            min restantes)
                           </span>
                         }
                       }

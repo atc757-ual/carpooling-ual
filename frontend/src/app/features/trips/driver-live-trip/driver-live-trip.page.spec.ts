@@ -200,6 +200,16 @@ describe('DriverLiveTripPage', () => {
     expect(driver['boardPassenger']).toHaveBeenCalledWith('r1', '4821');
   });
 
+  it('keeps only up to 4 digits of what the driver types in the code field', async () => {
+    const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
+    const input = root.querySelector('.driver-live-trip__code-input') as HTMLInputElement;
+
+    input.value = '48a2 19';
+    input.dispatchEvent(new Event('input'));
+
+    expect(page.boardCode('r1')).toBe('4821');
+  });
+
   it('marks no-show when confirmed after 5 minutes of grace period', async () => {
     const latePassenger = passenger('r1', 'Carlos Ruiz', -10);
     await render([TRIP], [latePassenger]);
