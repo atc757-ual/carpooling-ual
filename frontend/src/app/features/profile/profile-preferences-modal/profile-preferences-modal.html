@@ -1,21 +1,10 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-title>{{ 'profile.preferencesModal.title' | transloco }}</ion-title>
-    <ion-buttons slot="end">
-      <form (submit)="$event.preventDefault(); close()">
-        <ion-button
-          class="dialog-close"
-          type="submit"
-          [attr.aria-label]="'common.close' | transloco"
-        >
-          <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
-        </ion-button>
-      </form>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<app-modal-header
+  [title]="'profile.preferencesModal.title' | transloco"
+  [closeLabel]="'common.close' | transloco"
+  (closed)="close()"
+/>
 
-<div class="profile-preferences-modal">
+<div class="modal-body profile-preferences-modal">
   <form (submit)="$event.preventDefault(); handleSubmit()" novalidate>
     <p class="text-body-s text-color-muted">
       Ayudan a coincidir con personas afines, como conductor y como pasajero.

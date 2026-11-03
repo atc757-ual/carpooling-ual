@@ -1,20 +1,15 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-title>{{ 'profile.supportModal.title' | transloco }}</ion-title>
-    <ion-buttons slot="end">
-      <button
-        type="button"
-        class="modal-close-button"
-        (click)="close()"
-        [attr.aria-label]="'common.close' | transloco"
-      >
-        <ion-icon [icon]="closeIcon" aria-hidden="true" />
-      </button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<app-modal-header
+  [title]="'profile.supportModal.title' | transloco"
+  [closeLabel]="'common.close' | transloco"
+  (closed)="close()"
+/>
 
-<form class="profile-support-modal" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+<form
+  class="modal-body profile-support-modal"
+  [formGroup]="form"
+  (ngSubmit)="handleSubmit()"
+  novalidate
+>
   @if (errorMessage()) {
     <div class="notice notice--danger profile-support-modal__notice" role="alert">
       <ion-icon [icon]="alertIcon" aria-hidden="true" />

@@ -44,7 +44,10 @@ import { toConsentStamp } from './consent-stamp';
 import { ProfileLocation } from './profile-location/profile-location';
 import { AvatarArt } from '../../shared/components/ui/avatar-art/avatar-art';
 import { LanguageSwitch } from '../../shared/components/ui/language-switch/language-switch';
-import { LegalDocument, LegalModal } from '../../shared/components/modals/legal-modal/legal-modal';
+import {
+  LegalDocument,
+  openLegalModal,
+} from '../../shared/components/modals/legal-modal/legal-modal';
 import { formatPersonName } from '../../shared/utils/person-name.util';
 import { formatPhone } from '../../shared/utils/phone.util';
 import { getInitials } from '../matching/trip-driver/trip-driver';
@@ -256,17 +259,8 @@ export class ProfilePage implements OnInit {
     }
   }
 
-  // En el móvil, una hoja que sube hasta 3/4 de la pantalla y se arrastra
-  // para verla entera o cerrarla; en escritorio, una ventana centrada
-  async handleOpenLegal(document: LegalDocument): Promise<void> {
-    const isMobile = globalThis.matchMedia?.('(max-width: 767.98px)').matches ?? false;
-    const modal = await this.modalController.create({
-      component: LegalModal,
-      componentProps: { document },
-      cssClass: 'legal-dialog',
-      ...(isMobile && { breakpoints: [0, 0.75, 1], initialBreakpoint: 0.75 }),
-    });
-    await modal.present();
+  handleOpenLegal(document: LegalDocument): Promise<void> {
+    return openLegalModal(this.modalController, document);
   }
 
   async handleOpenPassword(): Promise<void> {

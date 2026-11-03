@@ -1,21 +1,10 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-title>{{ 'profile.editInfo' | transloco }}</ion-title>
-    <ion-buttons slot="end">
-      <form (submit)="$event.preventDefault(); close()">
-        <ion-button
-          class="dialog-close"
-          type="submit"
-          [attr.aria-label]="'common.close' | transloco"
-        >
-          <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
-        </ion-button>
-      </form>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<app-modal-header
+  [title]="'profile.editInfo' | transloco"
+  [closeLabel]="'common.close' | transloco"
+  (closed)="close()"
+/>
 
-<div class="profile-public-modal">
+<div class="modal-body profile-public-modal">
   <form [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
     <!-- 1. Nombre y apellidos -->
     <div class="profile-public-modal__field">

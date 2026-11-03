@@ -1,13 +1,4 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-title>{{ title }}</ion-title>
-    <ion-buttons slot="end">
-      <ion-button class="dialog-close" (click)="close()" aria-label="Cerrar">
-        <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<app-modal-header [title]="title" (closed)="close()" />
 
 <ion-content class="ion-padding">
   @if (content(); as text) {

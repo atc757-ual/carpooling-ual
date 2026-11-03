@@ -1,20 +1,8 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-title>{{ title }}</ion-title>
-    <ion-buttons slot="end">
-      <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
-      <form (submit)="$event.preventDefault(); close()">
-        <ion-button class="dialog-close" type="submit" aria-label="Cerrar">
-          <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
-        </ion-button>
-      </form>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<app-modal-header [title]="title" (closed)="close()" />
 
 <!-- Sin ion-content: así la ventana toma el alto de su contenido (con su
      propio scroll si no cabe) -->
-<div class="location-body">
+<div class="modal-body location-body">
   <div class="location">
     @switch (step()) {
       <!-- Antes de pedirla: para qué se usa -->

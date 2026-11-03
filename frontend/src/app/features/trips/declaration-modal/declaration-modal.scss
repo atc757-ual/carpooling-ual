@@ -1,14 +1,8 @@
-// El texto con su propio scroll si no cabe (90 % de la pantalla menos la
-// cabecera de 56px), como la ventana de la ubicación
+// El texto y el botón, a 16px (el scroll lo pone .modal-body)
 .declaration {
   display: flex;
   flex-direction: column;
   gap: var(--space-base);
-  max-height: calc(90vh - 3.5rem);
-  overflow-y: auto;
-  padding: var(--space-base);
-  padding-bottom: max(var(--space-l), calc(var(--space-base) + env(safe-area-inset-bottom, 0px)));
-  background: var(--color-surface);
 
   p {
     margin: 0;

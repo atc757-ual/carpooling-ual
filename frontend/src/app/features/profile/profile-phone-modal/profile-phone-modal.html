@@ -1,21 +1,10 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-title>{{ 'profile.phoneModal.title' | transloco }}</ion-title>
-    <ion-buttons slot="end">
-      <form (submit)="$event.preventDefault(); close()">
-        <ion-button
-          class="dialog-close"
-          type="submit"
-          [attr.aria-label]="'common.close' | transloco"
-        >
-          <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
-        </ion-button>
-      </form>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<app-modal-header
+  [title]="'profile.phoneModal.title' | transloco"
+  [closeLabel]="'common.close' | transloco"
+  (closed)="close()"
+/>
 
-<div class="profile-phone-modal">
+<div class="modal-body profile-phone-modal">
   @if (step() === 'number') {
     <!-- El número actual y su estado; debajo, con quién se comparte -->
     <div class="profile-phone-modal__current">

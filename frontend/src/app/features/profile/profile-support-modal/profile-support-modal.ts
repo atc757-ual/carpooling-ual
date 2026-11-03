@@ -1,18 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  IonButton,
-  IonButtons,
-  IonHeader,
-  IonIcon,
-  IonSpinner,
-  IonTextarea,
-  IonTitle,
-  IonToolbar,
-  ModalController,
-} from '@ionic/angular';
+import { IonButton, IonIcon, IonSpinner, IonTextarea, ModalController } from '@ionic/angular';
+import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { alertCircleOutline, chatbubblesOutline, close } from 'ionicons/icons';
+import { alertCircleOutline, chatbubblesOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import {
   SUPPORT_MESSAGE_MAX_LENGTH,
@@ -32,15 +23,12 @@ const TOPICS: readonly SupportTopic[] = ['trip', 'account', 'bug', 'suggestion',
 @Component({
   selector: 'app-profile-support-modal',
   imports: [
+    ModalHeader,
     ReactiveFormsModule,
     IonButton,
-    IonButtons,
-    IonHeader,
     IonIcon,
     IonSpinner,
     IonTextarea,
-    IonTitle,
-    IonToolbar,
     TranslocoPipe,
     IonicFormStatus,
   ],
@@ -69,7 +57,7 @@ export class ProfileSupportModal {
 
   protected readonly topics = TOPICS;
   protected readonly maxLength = SUPPORT_MESSAGE_MAX_LENGTH;
-  protected readonly closeIcon = close;
+
   protected readonly infoIcon = chatbubblesOutline;
   protected readonly alertIcon = alertCircleOutline;
 
