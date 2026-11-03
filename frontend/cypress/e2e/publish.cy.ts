@@ -6,6 +6,7 @@ const VEHICLE = {
   id: 'v1',
   href: '/api/vehicles/v1',
   plate: '1234BCD',
+  plateCountry: 'ES',
   brand: 'SEAT',
   model: 'Ibiza',
   color: 'blue',
@@ -125,6 +126,7 @@ for (const viewport of VIEWPORTS) {
         color: 'blue',
         engine: 'hybrid',
         plate: '1234BCD',
+        plateCountry: 'ES',
         capacity: 3,
       });
       cy.get('app-publish-trip .vehicle-card--selected').should('contain', 'SEAT Ibiza');

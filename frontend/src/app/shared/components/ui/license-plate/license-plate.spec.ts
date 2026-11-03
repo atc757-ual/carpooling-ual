@@ -36,4 +36,15 @@ describe('LicensePlate', () => {
     const country = root.querySelector('.license-plate__country');
     expect(country?.textContent?.trim()).toBe('F');
   });
+
+  it('fits the long country signs to the band', () => {
+    const fixture = TestBed.createComponent(LicensePlate);
+    fixture.componentRef.setInput('plate', 'ABC123');
+    fixture.componentRef.setInput('country', 'EST');
+    fixture.detectChanges();
+
+    const country = (fixture.nativeElement as HTMLElement).querySelector('.license-plate__country');
+    expect(country?.getAttribute('textLength')).toBe('10');
+    expect(country?.getAttribute('lengthAdjust')).toBe('spacingAndGlyphs');
+  });
 });

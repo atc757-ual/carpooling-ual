@@ -15,6 +15,7 @@ function vehicle(id: string, status: Vehicle['status'], model: string | null): V
   return {
     id,
     plate: `${id}BCD`,
+    plateCountry: 'ES',
     brand,
     model: modelWords.join(' ') || null,
     color: 'white',

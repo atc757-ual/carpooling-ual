@@ -14,6 +14,7 @@ function vehicle(id: string, capacity = 3): Vehicle {
   return {
     id,
     plate: `${id}BCD`,
+    plateCountry: 'ES',
     brand: 'Seat',
     model: 'Ibiza',
     color: 'white',

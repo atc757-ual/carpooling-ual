@@ -4,7 +4,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
+import type { PlateCountry } from '../vehicle-plate';
 
 // Estados del vehículo (tipo vehicle_status de la migración inicial).
 // inactive = dado de baja: no se usa en viajes nuevos, pero se conserva porque
@@ -19,6 +21,7 @@ export type VehicleEngine = (typeof VEHICLE_ENGINES)[number];
 // real (current_location) no se mapea todavía: solo la usarán el Gemelo
 // Digital y la simulación
 @Entity('vehicles')
+@Unique('vehicles_plate_country_plate_key', ['plateCountry', 'plate'])
 export class Vehicle {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -27,9 +30,13 @@ export class Vehicle {
   @Column({ name: 'driver_id', type: 'uuid' })
   driverId: string;
 
-  // Normalizada: mayúsculas, sin espacios ni guiones. Única en toda la tabla
-  @Column({ type: 'varchar', length: 15, unique: true })
+  // Normalizada: mayúsculas, sin espacios ni guiones. Única con su país
+  @Column({ type: 'varchar', length: 15 })
   plate: string;
+
+  // País de la matrícula (ISO 3166-1, ver vehicle-plate.ts). No se cambia
+  @Column({ name: 'plate_country', type: 'varchar', length: 2, default: 'ES' })
+  plateCountry: PlateCountry;
 
   // Marca y modelo por separado; null si se registró antes de pedirlos
   @Column({ type: 'varchar', length: 30, nullable: true })

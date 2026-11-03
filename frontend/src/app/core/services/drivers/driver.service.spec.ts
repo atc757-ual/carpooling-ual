@@ -96,6 +96,8 @@ describe('DriverService', () => {
   it('registers a vehicle and accepts the declaration', async () => {
     const vehicle = driver.registerVehicle({
       plate: '1234BCD',
+
+      plateCountry: 'ES',
       capacity: 3,
       brand: 'Seat',
       model: 'Ibiza',
@@ -153,7 +155,11 @@ describe('DriverService', () => {
     noShowReq.flush({ id: 'r1', status: 'cancelled', rejectionReason: 'no_show' });
 
     expect(await boardedPromise).toEqual({ id: 'r1', boardedAt: '2026-11-03T10:00:00Z' });
-    expect(await noShowPromise).toEqual({ id: 'r1', status: 'cancelled', rejectionReason: 'no_show' });
+    expect(await noShowPromise).toEqual({
+      id: 'r1',
+      status: 'cancelled',
+      rejectionReason: 'no_show',
+    });
   });
 
   it('publishes a trip and turns API errors into ApiError', async () => {

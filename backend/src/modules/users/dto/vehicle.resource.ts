@@ -6,6 +6,7 @@ import {
   VEHICLE_STATUSES,
 } from '../entities/vehicle.entity';
 import type { VehicleEngine, VehicleStatus } from '../entities/vehicle.entity';
+import { PLATE_COUNTRIES, type PlateCountry } from '../vehicle-plate';
 
 // Recurso TMF630 Vehicle. Es una clase para que OpenAPI pueda describirlo
 export class VehicleResource {
@@ -22,6 +23,13 @@ export class VehicleResource {
 
   @ApiProperty({ example: '1234BCD' })
   plate: string;
+
+  @ApiProperty({
+    enum: PLATE_COUNTRIES,
+    example: 'ES',
+    description: 'ISO 3166-1 code of the plate country',
+  })
+  plateCountry: PlateCountry;
 
   @ApiProperty({
     type: String,
@@ -69,6 +77,7 @@ export function toVehicleResource(vehicle: Vehicle): VehicleResource {
     id: vehicle.id,
     href: vehicleHref(vehicle.id),
     plate: vehicle.plate,
+    plateCountry: vehicle.plateCountry,
     brand: vehicle.brand,
     model: vehicle.model,
     color: vehicle.color,

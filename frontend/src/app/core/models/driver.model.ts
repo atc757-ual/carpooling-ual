@@ -7,6 +7,8 @@ import { TravelPreferences } from './travel-preferences.model';
 export interface Vehicle {
   id: string;
   plate: string;
+  // País de la matrícula (ISO 3166-1: ES, PT, FR…)
+  plateCountry: string;
   brand: string | null;
   model: string | null;
   color: string | null;
@@ -17,6 +19,7 @@ export interface Vehicle {
 
 export interface RegisterVehicleRequest {
   plate: string;
+  plateCountry: string;
   capacity: number;
   brand: string;
   model: string;

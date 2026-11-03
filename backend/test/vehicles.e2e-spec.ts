@@ -92,6 +92,7 @@ describe('Vehicles API (e2e)', () => {
         id: body.id,
         href: `/api/vehicles/${body.id}`,
         plate: '9201BCD',
+        plateCountry: 'ES',
         brand: 'Seat',
         model: 'Ibiza',
         color: 'blue',
@@ -147,6 +148,65 @@ describe('Vehicles API (e2e)', () => {
       expect(response.body).toMatchObject({
         code: 'VEHICLE_ALREADY_REGISTERED',
       });
+    });
+
+    it('registers a plate of another European country, unique with its country', async () => {
+      const ana = await tokenFor('ana');
+      const bob = await tokenFor('bob');
+      await registerVehicle(ana, '9205BCD').expect(201);
+      const vehicle = {
+        capacity: 4,
+        brand: 'Peugeot',
+        model: '208',
+        color: 'blue',
+        engine: 'other',
+      };
+
+      // La misma matrícula en Portugal es otro coche
+      const portuguese = await api('post', '/vehicles', bob)
+        .send({ ...vehicle, plate: '9205-bcd', plateCountry: 'PT' })
+        .expect(201);
+      expect(portuguese.body).toMatchObject({
+        plate: '9205BCD',
+        plateCountry: 'PT',
+      });
+
+      const french = await api('post', '/vehicles', bob)
+        .send({ ...vehicle, plate: 'AB-123-CD', plateCountry: 'FR' })
+        .expect(201);
+      expect(french.body).toMatchObject({ plate: 'AB123CD' });
+
+      const duplicate = await api('post', '/vehicles', ana)
+        .send({ ...vehicle, plate: '9205BCD', plateCountry: 'PT' })
+        .expect(409);
+      expect(duplicate.body).toMatchObject({
+        code: 'VEHICLE_ALREADY_REGISTERED',
+      });
+    });
+
+    it('rejects a foreign plate without digits and a country outside Europe', async () => {
+      const ana = await tokenFor('ana');
+      const vehicle = {
+        capacity: 4,
+        brand: 'Seat',
+        model: 'Ibiza',
+        color: 'blue',
+        engine: 'hybrid',
+      };
+
+      const noDigits = await api('post', '/vehicles', ana)
+        .send({ ...vehicle, plate: 'ABCDEF', plateCountry: 'DE' })
+        .expect(400);
+      const country = await api('post', '/vehicles', ana)
+        .send({ ...vehicle, plate: '9206BCD', plateCountry: 'US' })
+        .expect(400);
+
+      const fieldsOf = (body: unknown) =>
+        (body as { fields: { field: string }[] }).fields.map(
+          ({ field }) => field,
+        );
+      expect(fieldsOf(noDigits.body)).toEqual(['plate']);
+      expect(fieldsOf(country.body)).toEqual(['plateCountry']);
     });
 
     it('makes a passenger a driver with the first vehicle', async () => {

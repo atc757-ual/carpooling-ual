@@ -84,7 +84,11 @@
         @for (vehicle of user.vehicles; track vehicle.id) {
           <li class="text-body-s">
             <b>{{ vehicle.brand ?? 'Vehículo' }} {{ vehicle.model ?? '' }}</b> ·
-            {{ vehicle.plate }} · {{ vehicle.capacity }} plazas
+            {{ vehicle.plate }}
+            @if (vehicle.plateCountry !== 'ES') {
+              ({{ vehicle.plateCountry }})
+            }
+            · {{ vehicle.capacity }} plazas
           </li>
         } @empty {
           <li class="text-body-s detail__muted">Sin vehículos.</li>

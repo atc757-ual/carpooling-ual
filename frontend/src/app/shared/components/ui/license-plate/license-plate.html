@@ -11,7 +11,17 @@
     @for (star of stars; track $index) {
       <circle class="license-plate__star" [attr.cx]="star.x" [attr.cy]="star.y" r="0.55" />
     }
-    <text class="license-plate__country" x="6" y="20.5" text-anchor="middle">{{ country() }}</text>
+    <!-- Los distintivos de 2 o 3 letras (EST, SLO…) se ajustan al ancho -->
+    <text
+      class="license-plate__country"
+      x="6"
+      y="20.5"
+      text-anchor="middle"
+      [attr.textLength]="country().length > 1 ? 10 : null"
+      [attr.lengthAdjust]="country().length > 1 ? 'spacingAndGlyphs' : null"
+    >
+      {{ country() }}
+    </text>
   </svg>
   <span class="license-plate__number" aria-hidden="true">{{ plate() }}</span>
 </span>

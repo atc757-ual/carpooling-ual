@@ -1,34 +1,69 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsInt,
   IsIn,
+  IsOptional,
   IsString,
   Length,
-  Matches,
   Max,
   MaxLength,
   Min,
+  Validate,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from 'class-validator';
 import { VEHICLE_ENGINES } from '../entities/vehicle.entity';
-import { normalizePlate, SPANISH_PLATE_PATTERN } from '../vehicle-plate';
+import {
+  DEFAULT_PLATE_COUNTRY,
+  isValidPlate,
+  normalizePlate,
+  PLATE_COUNTRIES,
+  type PlateCountry,
+} from '../vehicle-plate';
+
+// La matrícula, con el formato de su país (España, el suyo; el resto, una
+// regla común)
+@ValidatorConstraint({ name: 'plateOfCountry' })
+class PlateOfCountry implements ValidatorConstraintInterface {
+  validate(plate: unknown, { object }: ValidationArguments): boolean {
+    const { plateCountry } = object as RegisterVehicleDto;
+    return typeof plate === 'string' && isValidPlate(plate, plateCountry);
+  }
+
+  defaultMessage({ object }: ValidationArguments): string {
+    const { plateCountry } = object as RegisterVehicleDto;
+    return (plateCountry ?? DEFAULT_PLATE_COUNTRY) === DEFAULT_PLATE_COUNTRY
+      ? 'plate must be a Spanish plate (e.g. 1234BCD)'
+      : 'plate must have 2 to 10 letters and digits, with at least one digit';
+  }
+}
 
 // Cuerpo de POST /api/vehicles (RF-21). La matrícula se normaliza ANTES de
 // validarla: "1234 bcd" y "1234-BCD" son válidas y se guardan como 1234BCD
 export class RegisterVehicleDto {
   @ApiProperty({
     description:
-      'Spanish plate: current (1234BCD) or old provincial (AL1234AB) format; spaces and hyphens are ignored',
+      'Spanish plates: current (1234BCD) or old provincial (AL1234AB) format; other countries: 2 to 10 letters and digits with at least one digit. Spaces and hyphens are ignored',
     example: '1234BCD',
   })
   @Transform(({ value }: { value: unknown }) =>
     typeof value === 'string' ? normalizePlate(value) : value,
   )
   @IsString()
-  @Matches(SPANISH_PLATE_PATTERN, {
-    message: 'plate must be a Spanish plate (e.g. 1234BCD)',
-  })
+  @Validate(PlateOfCountry)
   plate!: string;
+
+  @ApiPropertyOptional({
+    enum: PLATE_COUNTRIES,
+    default: DEFAULT_PLATE_COUNTRY,
+    description:
+      'ISO 3166-1 code of the plate country: EU, EEA or Switzerland. Cannot be changed later',
+  })
+  @IsOptional()
+  @IsIn([...PLATE_COUNTRIES])
+  plateCountry?: PlateCountry;
 
   @ApiProperty({
     minimum: 1,

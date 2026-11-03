@@ -44,7 +44,7 @@ describe('VehiclesService', () => {
     vehiclesRepository.save.mockRejectedValue(
       new QueryFailedError('INSERT ...', [], {
         code: '23505',
-        constraint: 'vehicles_plate_key',
+        constraint: 'vehicles_plate_country_plate_key',
       }),
     );
 
