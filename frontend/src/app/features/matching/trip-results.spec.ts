@@ -60,6 +60,7 @@ describe('trip results', () => {
       origin: 'Roquetas de Mar',
       destination: 'Campus UAL · Parking P1',
       driver: {
+        id: 'd1',
         name: 'Lucía Cortés',
         avatarKey: 'sun',
         tripCount: 12,

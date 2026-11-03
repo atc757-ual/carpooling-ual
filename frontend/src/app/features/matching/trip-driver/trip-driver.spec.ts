@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { TripDriver as Driver } from '../../../core/models/trip-result.model';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
+import { DriverReviewsModal } from '../driver-reviews-modal/driver-reviews-modal';
 import { getFirstName, getInitials, TripDriver } from './trip-driver';
 
 const DRIVER: Driver = {
@@ -15,7 +17,7 @@ const DRIVER: Driver = {
 describe('TripDriver', () => {
   function render(driver: Driver, getGraphic = vi.fn().mockResolvedValue(null)): HTMLElement {
     TestBed.configureTestingModule({
-      providers: [{ provide: AvatarsService, useValue: { getGraphic } }],
+      providers: [provideIonicAngular(), { provide: AvatarsService, useValue: { getGraphic } }],
     });
     const fixture = TestBed.createComponent(TripDriver);
     fixture.componentRef.setInput('driver', driver);
@@ -52,6 +54,42 @@ describe('TripDriver', () => {
     expect(root.querySelector('.trip-driver__rating')).toBeNull();
   });
 
+  it('opens the reviews of the driver when the rating is pressed', async () => {
+    const present = vi.fn().mockResolvedValue(undefined);
+    const create = vi.fn().mockResolvedValue({ present });
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AvatarsService, useValue: { getGraphic: vi.fn().mockResolvedValue(null) } },
+        { provide: ModalController, useValue: { create } },
+      ],
+    });
+    const fixture = TestBed.createComponent(TripDriver);
+    fixture.componentRef.setInput('driver', { ...DRIVER, id: 'driver-1' });
+    fixture.detectChanges();
+    const button = fixture.nativeElement.querySelector(
+      'button.trip-driver__rating',
+    ) as HTMLButtonElement;
+
+    expect(button.getAttribute('aria-label')).toBe('Valoración 4,8 de 5. Ver valoraciones');
+    await fixture.componentInstance.openReviews();
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        component: DriverReviewsModal,
+        cssClass: 'info-dialog',
+        componentProps: { driverId: 'driver-1', driverName: 'Lucía Cortés' },
+      }),
+    );
+    expect(present).toHaveBeenCalled();
+  });
+
+  it('shows the rating as plain text when the driver id is unknown', () => {
+    const root = render(DRIVER);
+
+    expect(root.querySelector('button.trip-driver__rating')).toBeNull();
+    expect(root.querySelector('span.trip-driver__rating')).not.toBeNull();
+  });
+
   it('shows the selected catalogue avatar when it loads', async () => {
     const getGraphic = vi.fn().mockResolvedValue({
       kind: 'svg',
@@ -64,7 +102,7 @@ describe('TripDriver', () => {
       shapes: [{ kind: 'circle', cx: '32', cy: '32', r: '20' }],
     });
     TestBed.configureTestingModule({
-      providers: [{ provide: AvatarsService, useValue: { getGraphic } }],
+      providers: [provideIonicAngular(), { provide: AvatarsService, useValue: { getGraphic } }],
     });
     const fixture = TestBed.createComponent(TripDriver);
     fixture.componentRef.setInput('driver', { ...DRIVER, avatarKey: 'sun' });

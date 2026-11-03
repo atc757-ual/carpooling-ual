@@ -10,7 +10,18 @@
   <div class="text-caption text-color-muted">{{ details() }}</div>
 </div>
 @if (rating(); as rating) {
-  <span class="trip-driver__rating" [attr.aria-label]="'Valoración ' + rating + ' de 5'">
-    ★ {{ rating }}
-  </span>
+  @if (driver().id) {
+    <button
+      class="trip-driver__rating trip-driver__rating--button"
+      type="button"
+      [attr.aria-label]="'Valoración ' + rating + ' de 5. Ver valoraciones'"
+      (click)="openReviews()"
+    >
+      ★ {{ rating }}
+    </button>
+  } @else {
+    <span class="trip-driver__rating" [attr.aria-label]="'Valoración ' + rating + ' de 5'">
+      ★ {{ rating }}
+    </span>
+  }
 }

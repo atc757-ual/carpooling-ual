@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { TripDriver as Driver } from '../../../core/models/trip-result.model';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
+import { ModalController } from '@ionic/angular';
 import { AvatarArt } from '../../../shared/components/ui/avatar-art/avatar-art';
 
 const RATING_FORMAT = new Intl.NumberFormat('es-ES', {
@@ -40,6 +41,7 @@ export function getFirstName(name: string): string {
 export class TripDriver {
   readonly driver = input.required<Driver>();
   private readonly avatars = inject(AvatarsService);
+  private readonly modalController = inject(ModalController);
 
   readonly initials = computed(() => getInitials(this.driver().name));
   readonly avatarSvg = resource({
@@ -66,4 +68,17 @@ export class TripDriver {
     const parts = [tripDetails, isEmailVerified ? 'Correo UAL verificado' : null];
     return parts.filter(Boolean).join(' · ');
   });
+
+  // Sus valoraciones en una ventana (desde los resultados, sin entrar al viaje).
+  // La ventana se carga al pulsar: así no se importan la una a la otra
+  async openReviews(): Promise<void> {
+    const { id, name } = this.driver();
+    const { DriverReviewsModal } = await import('../driver-reviews-modal/driver-reviews-modal');
+    const modal = await this.modalController.create({
+      component: DriverReviewsModal,
+      cssClass: 'info-dialog',
+      componentProps: { driverId: id, driverName: name },
+    });
+    await modal.present();
+  }
 }
