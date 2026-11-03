@@ -26,6 +26,11 @@
   font-size: 2rem; // 32px
 }
 
+.confirm__icon--warning {
+  background: var(--color-warning-subtle);
+  color: var(--color-warning-text);
+}
+
 // En móvil: un botón encima del otro. En escritorio: uno al lado del otro
 // con el azul a la derecha («Eliminar · Cancelar»)
 .confirm__actions {

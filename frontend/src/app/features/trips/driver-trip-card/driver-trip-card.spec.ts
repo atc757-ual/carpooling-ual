@@ -259,10 +259,15 @@ describe('DriverTripCard', () => {
 
       await fixture.componentInstance.handleFinish();
 
+      // A unos 2 km del destino: avisa antes de terminar
       expect(ask).toHaveBeenCalledWith(
-        expect.objectContaining({ confirmText: 'Terminar', cancelText: 'Seguir en el viaje' }),
+        expect.objectContaining({
+          confirmText: 'Terminar igualmente',
+          cancelText: 'Seguir en el viaje',
+          isWarning: true,
+        }),
       );
-      expect(driver['finishTrip']).toHaveBeenCalledWith('t1');
+      expect(driver['finishTrip']).toHaveBeenCalledWith('t1', [-2.43, 36.83]);
       expect(tracking['stop']).toHaveBeenCalled();
       expect(changed).toBe(1);
     });

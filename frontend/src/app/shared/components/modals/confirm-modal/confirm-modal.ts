@@ -2,8 +2,7 @@ import { Component, inject, Input } from '@angular/core';
 import { IonButton, IonIcon, ModalController } from '@ionic/angular';
 
 // Confirmación de una acción, como la «Confirmación destructiva» de la guía:
-// el icono en un círculo (rojo claro si la acción es destructiva, azul claro
-// si no), el título, la explicación en gris y, a todo el ancho, el botón de la
+// el icono en un círculo (azul claro; ámbar claro si es un aviso), el título, la explicación en gris y, a todo el ancho, el botón de la
 // acción (rojo si es destructiva) y debajo «Cancelar» con borde gris. Se abre
 // con ConfirmService.ask; cierra con el rol 'confirm' o 'cancel'
 @Component({
@@ -22,6 +21,8 @@ export class ConfirmModal {
   @Input() cancelText = 'Cancelar';
   @Input({ required: true }) icon!: string;
   @Input() isDestructive = false;
+  // Aviso (ámbar): algo no cuadra, aunque se puede seguir
+  @Input() isWarning = false;
 
   handleConfirm(): Promise<boolean> {
     return this.modalController.dismiss(null, 'confirm');

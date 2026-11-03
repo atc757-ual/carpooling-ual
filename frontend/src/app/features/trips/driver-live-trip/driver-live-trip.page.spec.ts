@@ -165,7 +165,8 @@ describe('DriverLiveTripPage', () => {
 
     await page.handleFinish();
 
-    expect(driver['finishTrip']).toHaveBeenCalledWith('t1');
+    // Sin posición (la prueba no tiene GPS): termina sin ella
+    expect(driver['finishTrip']).toHaveBeenCalledWith('t1', null);
     expect(navigate).toHaveBeenCalledWith('/tabs/trips');
     expect(page.isFinishing()).toBe(false);
   });

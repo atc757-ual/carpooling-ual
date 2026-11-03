@@ -6,7 +6,10 @@ import { ConfirmModal } from './confirm-modal';
 describe('ConfirmModal', () => {
   const dismiss = vi.fn().mockResolvedValue(true);
 
-  function render(isDestructive: boolean): { root: HTMLElement; modal: ConfirmModal } {
+  function render(
+    isDestructive: boolean,
+    isWarning = false,
+  ): { root: HTMLElement; modal: ConfirmModal } {
     TestBed.configureTestingModule({
       imports: [ConfirmModal],
       providers: [provideIonicAngular(), { provide: ModalController, useValue: { dismiss } }],
@@ -18,6 +21,7 @@ describe('ConfirmModal', () => {
       confirmText: 'Cerrar sesión',
       icon: 'log-out-outline',
       isDestructive,
+      isWarning,
     });
     fixture.detectChanges();
     return { root: fixture.nativeElement as HTMLElement, modal: fixture.componentInstance };
@@ -31,6 +35,18 @@ describe('ConfirmModal', () => {
     expect(action.textContent?.trim()).toBe('Cerrar sesión');
     expect(action.classList).toContain('confirm__secondary');
     expect(cancel.textContent?.trim()).toBe('Cancelar');
+  });
+
+  it('shows the icon in amber only for a warning', () => {
+    const { root } = render(true, true);
+
+    expect(root.querySelector('.confirm__icon')?.classList).toContain('confirm__icon--warning');
+  });
+
+  it('keeps the icon blue when it is not a warning', () => {
+    const { root } = render(false);
+
+    expect(root.querySelector('.confirm__icon')?.classList).not.toContain('confirm__icon--warning');
   });
 
   it('closes confirming or cancelling', async () => {

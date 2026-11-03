@@ -1,6 +1,11 @@
 <!-- Sin ion-content: así la ventana toma el alto de su contenido -->
 <div class="modal-body confirm">
-  <ion-icon class="confirm__icon" [icon]="icon" aria-hidden="true" />
+  <ion-icon
+    class="confirm__icon"
+    [class.confirm__icon--warning]="isWarning"
+    [icon]="icon"
+    aria-hidden="true"
+  />
   <h2 class="text-subtitle">{{ header }}</h2>
   <p class="text-body-s text-color-muted">{{ message }}</p>
   <!-- En formularios: cada botón envía el suyo (sin click en ion-button). El

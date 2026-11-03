@@ -110,8 +110,10 @@ export class DriverService {
     return this.request(this.http.post<DriverTrip>(`${this.apiUrl}/trips/${tripId}/start`, null));
   }
 
-  finishTrip(tripId: string): Promise<DriverTrip> {
-    return this.request(this.http.post<DriverTrip>(`${this.apiUrl}/trips/${tripId}/finish`, null));
+  // Con su posición, si se sabe: la API guarda a cuántos metros del destino
+  finishTrip(tripId: string, coordinates: [number, number] | null = null): Promise<DriverTrip> {
+    const body = coordinates ? { position: { type: 'Point', coordinates } } : null;
+    return this.request(this.http.post<DriverTrip>(`${this.apiUrl}/trips/${tripId}/finish`, body));
   }
 
   // Dónde está ahora el conductor ([longitud, latitud]); la hora la pone el servidor
