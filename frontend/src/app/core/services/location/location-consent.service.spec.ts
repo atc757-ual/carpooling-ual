@@ -11,6 +11,7 @@ function consentsWith(action: 'granted' | 'revoked' | null): UserConsents {
     current: {
       terms: null,
       privacy: null,
+      driverDeclaration: null,
       location: action
         ? {
             id: 'c1',

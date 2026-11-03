@@ -18,7 +18,10 @@ function consents(action: 'granted' | 'revoked' | null): UserConsents {
     recordedAt: '2026-10-31T10:00:00.000Z',
     fingerprint: 'a1b2c3d4e5f6',
   };
-  return { current: { terms: null, privacy: null, location }, history: [] };
+  return {
+    current: { terms: null, privacy: null, location, driverDeclaration: null },
+    history: [],
+  };
 }
 
 function toggleEvent(checked: boolean): CustomEvent<{ checked: boolean }> & {

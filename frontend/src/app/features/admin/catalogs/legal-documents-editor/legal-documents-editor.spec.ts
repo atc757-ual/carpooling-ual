@@ -7,7 +7,7 @@ import {
 } from '../../../../core/services/admin/admin-legal-documents.service';
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../../core/services/ui/toast.service';
-import { LegalDocumentsEditor } from './legal-documents-editor';
+import { LegalDocumentsEditor, publishMessage } from './legal-documents-editor';
 
 const PUBLISHED: AdminLegalDocument = {
   id: 'p1',
@@ -167,5 +167,19 @@ describe('LegalDocumentsEditor', () => {
     fixture.componentInstance.handleRetry();
     await fixture.whenStable();
     expect(fixture.componentInstance.errorMessage()).toBeNull();
+  });
+});
+
+describe('publishMessage', () => {
+  it('says who has to accept it again after a major change', () => {
+    expect(publishMessage('terms', 'major')).toContain('para seguir usando la app');
+    expect(publishMessage('driver_declaration', 'major')).toContain(
+      'antes de publicar su próximo viaje',
+    );
+  });
+
+  it('tells about a minor change only for the terms and the privacy policy', () => {
+    expect(publishMessage('privacy', 'minor')).toContain('se avisará a cada usuario');
+    expect(publishMessage('driver_declaration', 'minor')).not.toContain('se avisará');
   });
 });

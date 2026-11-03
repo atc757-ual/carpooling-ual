@@ -58,4 +58,3 @@ describe('IncidentsService', () => {
     await expect(promise).rejects.toBeInstanceOf(ApiError);
   });
 });
-

@@ -77,7 +77,7 @@ export class AdminCatalogsPage {
   protected readonly configs = CATALOG_CONFIGS;
   protected readonly legalTab = LEGAL_TAB;
   protected readonly legalNote =
-    'Términos y privacidad. Se edita un borrador y, al publicarlo, cada usuario tiene que aceptar la versión nueva al entrar.';
+    'Términos, privacidad y la declaración del conductor. Se edita un borrador con su tipo de cambio y «Qué ha cambiado»; tras un cambio importante hay que volver a aceptarlo (la declaración, al publicar el próximo viaje).';
   protected readonly skeletonRows = SKELETON_ROWS;
   protected readonly upIcon = arrowUpOutline;
   protected readonly downIcon = arrowDownOutline;

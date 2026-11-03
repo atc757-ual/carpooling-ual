@@ -261,8 +261,19 @@ export class UsersService {
     });
   }
 
-  async declareDriverLicense(userId: string): Promise<DriverReadiness> {
+  // Acepta la declaración responsable vigente (o la versión indicada, que
+  // tiene que ser la vigente): queda en user_consents con su versión y la
+  // huella de su texto. La fecha de la primera se conserva en el perfil
+  async declareDriverLicense(
+    userId: string,
+    version?: string,
+  ): Promise<DriverReadiness> {
     const profile = await this.findActiveDriverProfile(userId);
+    await this.consentsService.acceptDocument(userId, {
+      type: 'driver_declaration',
+      version,
+      source: 'driver_setup',
+    });
     if (!profile.hasLicenseDeclared) {
       await this.dataSource.getRepository(DriverProfile).update(userId, {
         hasLicenseDeclared: true,
@@ -311,14 +322,19 @@ export class UsersService {
     });
   }
 
+  // Puede publicar con la declaración al día (aceptada la versión de su último
+  // cambio importante; tras uno, hay que volver a aceptarla) y un vehículo
   async getDriverReadiness(userId: string): Promise<DriverReadiness> {
     const profile = await this.findActiveDriverProfile(userId);
-    const activeVehicles = await this.vehiclesService.countActive(userId);
+    const [activeVehicles, isDeclared] = await Promise.all([
+      this.vehiclesService.countActive(userId),
+      this.consentsService.isAccepted(userId, 'driver_declaration'),
+    ]);
     return {
-      hasLicenseDeclared: profile.hasLicenseDeclared,
+      hasLicenseDeclared: isDeclared,
       licenseDeclaredAt: profile.licenseDeclaredAt,
       activeVehicles,
-      isReady: profile.hasLicenseDeclared && activeVehicles > 0,
+      isReady: isDeclared && activeVehicles > 0,
     };
   }
 

@@ -1096,9 +1096,19 @@
     },
     "/api/users/me/driver-declaration": {
       "put": {
-        "description": "Declares having a valid driving licence and vehicles with valid compulsory insurance and roadworthiness test (ITV), sharing trips without profit (RF-21). Idempotent: the date of the first declaration is kept.",
+        "description": "Accepts the current version of the driver responsible declaration (RF-21): a valid driving licence and vehicles with valid compulsory insurance and roadworthiness test (ITV), sharing trips without profit. It is recorded with its version and the hash of its text. After a major change of the declaration the driver must accept it again to publish. Idempotent: the date of the first declaration is kept.",
         "operationId": "UsersController_declareDriverLicense",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptDriverDeclarationDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -1122,6 +1132,16 @@
           },
           "403": {
             "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: LEGAL_DOCUMENT_OUTDATED",
             "content": {
               "application/json": {
                 "schema": {
@@ -2656,7 +2676,8 @@
             "schema": {
               "enum": [
                 "terms",
-                "privacy"
+                "privacy",
+                "driver_declaration"
               ],
               "type": "string"
             }
@@ -2893,7 +2914,8 @@
               "type": "string",
               "enum": [
                 "terms",
-                "privacy"
+                "privacy",
+                "driver_declaration"
               ]
             }
           }
@@ -2989,7 +3011,8 @@
             "schema": {
               "enum": [
                 "terms",
-                "privacy"
+                "privacy",
+                "driver_declaration"
               ],
               "type": "string"
             }
@@ -3078,7 +3101,8 @@
             "schema": {
               "enum": [
                 "terms",
-                "privacy"
+                "privacy",
+                "driver_declaration"
               ],
               "type": "string"
             }
@@ -3179,7 +3203,8 @@
             "schema": {
               "enum": [
                 "terms",
-                "privacy"
+                "privacy",
+                "driver_declaration"
               ],
               "type": "string"
             }
@@ -11632,6 +11657,16 @@
           "isReady"
         ]
       },
+      "AcceptDriverDeclarationDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "example": "1.0",
+            "description": "The version the driver read; it must be the current one (LEGAL_DOCUMENT_OUTDATED otherwise)"
+          }
+        }
+      },
       "UpdateTravelPreferencesDto": {
         "type": "object",
         "properties": {
@@ -11755,7 +11790,8 @@
             "enum": [
               "terms",
               "privacy",
-              "location"
+              "location",
+              "driver_declaration"
             ],
             "example": "terms"
           },
@@ -11779,7 +11815,8 @@
               "account_deletion",
               "location_prompt",
               "device",
-              "document_update"
+              "document_update",
+              "driver_setup"
             ],
             "example": "registration"
           },
@@ -11833,12 +11870,23 @@
                 "$ref": "#/components/schemas/ConsentRecordResource"
               }
             ]
+          },
+          "driverDeclaration": {
+            "nullable": true,
+            "description": "The driver responsible declaration (RF-21)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConsentRecordResource"
+              }
+            ]
           }
         },
         "required": [
           "terms",
           "privacy",
-          "location"
+          "location",
+          "driverDeclaration"
         ]
       },
       "UserConsentsResource": {
@@ -12203,7 +12251,8 @@
             "type": "string",
             "enum": [
               "terms",
-              "privacy"
+              "privacy",
+              "driver_declaration"
             ]
           },
           "version": {
@@ -12253,7 +12302,8 @@
             "type": "string",
             "enum": [
               "terms",
-              "privacy"
+              "privacy",
+              "driver_declaration"
             ]
           },
           "version": {
@@ -12309,7 +12359,8 @@
             "type": "string",
             "enum": [
               "terms",
-              "privacy"
+              "privacy",
+              "driver_declaration"
             ]
           },
           "version": {

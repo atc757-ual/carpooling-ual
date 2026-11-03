@@ -13,10 +13,8 @@
   }
 }
 
-.declaration__list {
+.declaration__loading {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-  margin: 0;
-  padding-inline-start: var(--space-l);
+  justify-content: center;
+  padding: var(--space-xl);
 }

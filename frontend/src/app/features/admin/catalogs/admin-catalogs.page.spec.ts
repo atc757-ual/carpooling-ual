@@ -97,7 +97,7 @@ describe('AdminCatalogsPage', () => {
     expect(legalVersions).toHaveBeenCalledWith('terms');
     expect(root.querySelector('app-legal-documents-editor')).not.toBeNull();
     expect(root.querySelector('.catalogs__header ion-button')).toBeNull();
-    expect(root.textContent).toContain('Términos y privacidad');
+    expect(root.textContent).toContain('Términos, privacidad y la declaración del conductor');
   });
 
   it('moves, deactivates and edits an item, then reloads the list', async () => {

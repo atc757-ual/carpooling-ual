@@ -15,7 +15,7 @@ import {
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
 import { formatDateTime } from '../../users/admin-user-detail-labels';
 
-const DOCUMENT_TYPES: readonly LegalDocumentType[] = ['terms', 'privacy'];
+const DOCUMENT_TYPES: readonly LegalDocumentType[] = ['terms', 'privacy', 'driver_declaration'];
 
 export const CHANGE_TYPES: readonly { value: LegalChangeType; label: string; note: string }[] = [
   {
@@ -100,8 +100,9 @@ export class LegalDocumentsEditor {
   );
 
   handleType(value: unknown): void {
-    if (value === 'terms' || value === 'privacy') {
-      this.type.set(value);
+    const type = DOCUMENT_TYPES.find((option) => option === value);
+    if (type) {
+      this.type.set(type);
     }
   }
 
@@ -131,12 +132,9 @@ export class LegalDocumentsEditor {
     if (!this.canPublish()) {
       return;
     }
-    const isMajor = this.changeType() === 'major';
     const isConfirmed = await this.confirm.ask({
       header: `¿Publicar la versión ${this.nextVersion() ?? ''}?`,
-      message: isMajor
-        ? 'Es un cambio importante: pasará a ser la vigente y cada usuario tendrá que leerla y aceptarla para seguir usando la app.'
-        : 'Es un cambio menor: pasará a ser la vigente y nadie tendrá que aceptarla.',
+      message: publishMessage(this.type(), this.changeType()),
       confirmText: 'Publicar',
       isDestructive: false,
     });
@@ -172,4 +170,18 @@ export class LegalDocumentsEditor {
       this.isBusy.set(false);
     }
   }
+}
+
+// Qué pasará al publicar: tras un cambio importante hay que volver a aceptar
+// las condiciones y la política para usar la app, y la declaración para
+// publicar viajes; los menores de las condiciones y la política se avisan
+export function publishMessage(type: LegalDocumentType, changeType: LegalChangeType): string {
+  if (changeType === 'major') {
+    return type === 'driver_declaration'
+      ? 'Es un cambio importante: pasará a ser la vigente y cada conductor tendrá que leerla y aceptarla antes de publicar su próximo viaje.'
+      : 'Es un cambio importante: pasará a ser la vigente y cada usuario tendrá que leerla y aceptarla para seguir usando la app.';
+  }
+  return type === 'driver_declaration'
+    ? 'Es un cambio menor: pasará a ser la vigente y nadie tendrá que aceptarla.'
+    : 'Es un cambio menor: pasará a ser la vigente, nadie tendrá que aceptarla y se avisará a cada usuario en Avisos.';
 }

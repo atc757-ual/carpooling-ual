@@ -5,6 +5,7 @@ import { EventsService } from '../../events/events.service';
 import type {
   LegalDocument,
   LegalDocumentType,
+  SignupDocumentType,
 } from './entities/legal-document.entity';
 import { UserConsent } from './entities/user-consent.entity';
 import { LegalDocumentOutdatedError } from './errors/legal-document-outdated.error';
@@ -45,6 +46,14 @@ interface InsertConsentInput extends Partial<DocumentReference> {
   recordedAt: Date;
 }
 
+// Qué se acepta: el documento, la versión que vio (si no, la vigente) y desde
+// dónde
+export interface DocumentAcceptance {
+  type: LegalDocumentType;
+  version?: string;
+  source?: Extract<ConsentSource, 'document_update' | 'driver_setup'>;
+}
+
 function referenceTo(document: LegalDocument): DocumentReference {
   return {
     documentId: document.id,
@@ -73,7 +82,7 @@ export class ConsentsService {
     const documents = await this.legalDocuments.currentDocuments();
     await Promise.all(
       INITIAL_CONSENT_TYPES.map((type) => {
-        const document = documents[type as LegalDocumentType];
+        const document = documents[type as SignupDocumentType];
         return this.insertConsent(manager, {
           userId,
           type,
@@ -158,7 +167,7 @@ export class ConsentsService {
   // nada). Se acepta siempre la versión vigente
   async pendingDocuments(
     userId: string,
-  ): Promise<{ type: LegalDocumentType; version: string }[]> {
+  ): Promise<{ type: SignupDocumentType; version: string }[]> {
     const [{ current }, documents, termsRequired, privacyRequired] =
       await Promise.all([
         this.getMyConsents(userId),
@@ -168,7 +177,7 @@ export class ConsentsService {
       ]);
     const required = { terms: termsRequired, privacy: privacyRequired };
     return INITIAL_CONSENT_TYPES.flatMap((type) => {
-      const documentType = type as LegalDocumentType;
+      const documentType = type as SignupDocumentType;
       const accepted = current[type];
       const isAccepted =
         accepted?.action === 'granted' &&
@@ -182,14 +191,17 @@ export class ConsentsService {
     });
   }
 
-  // Acepta la versión vigente de un documento (document_update). Si no es la
-  // vigente, LegalDocumentOutdatedError; aceptarla otra vez no cambia nada
+  // Acepta la versión vigente de un documento: una versión nueva de las
+  // condiciones o la política (document_update) o la declaración del
+  // conductor (driver_setup). Si se indica otra versión que la vigente,
+  // LegalDocumentOutdatedError; aceptarla otra vez no cambia nada
   async acceptDocument(
     userId: string,
-    type: LegalDocumentType,
-    version: string,
+    acceptance: DocumentAcceptance,
   ): Promise<void> {
+    const { type, source = 'document_update' } = acceptance;
     const current = await this.legalDocuments.getCurrent(type);
+    const version = acceptance.version ?? current.version;
     if (current.version !== version) {
       throw new LegalDocumentOutdatedError(type);
     }
@@ -214,10 +226,27 @@ export class ConsentsService {
         documentVersion: version,
         ...referenceTo(current),
         action: 'granted',
-        source: 'document_update',
+        source,
         recordedAt: new Date(),
       });
     });
+  }
+
+  // Si su última aceptación del documento está al día: concedida y no
+  // anterior a su último cambio importante (p. ej. la declaración del
+  // conductor para poder publicar)
+  async isAccepted(userId: string, type: LegalDocumentType): Promise<boolean> {
+    const [latest, required] = await Promise.all([
+      this.consentsRepository.findOne({
+        where: { userId, type },
+        order: { recordedAt: 'DESC', id: 'DESC' },
+      }),
+      this.legalDocuments.requiredVersion(type),
+    ]);
+    return (
+      latest?.action === 'granted' &&
+      compareLegalVersions(latest.documentVersion, required) >= 0
+    );
   }
 
   async getMyConsents(userId: string): Promise<UserConsentsView> {
@@ -236,6 +265,7 @@ export class ConsentsService {
       terms: null,
       privacy: null,
       location: null,
+      driver_declaration: null,
     };
     for (const type of CONSENT_TYPES) {
       current[type] = history.find((item) => item.type === type) ?? null;
