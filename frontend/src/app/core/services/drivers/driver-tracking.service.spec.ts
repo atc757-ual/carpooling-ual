@@ -4,8 +4,13 @@ import { vi } from 'vitest';
 import { ApiError } from '../../models/api-error.model';
 import { AuthService } from '../auth/auth.service';
 import { LocationError, LocationService } from '../location/location.service';
+import { ScreenWakeLockService } from '../ui/screen-wake-lock.service';
 import { DriverService } from './driver.service';
-import { DriverTrackingService, POSITION_INTERVAL_MS } from './driver-tracking.service';
+import {
+  DriverTrackingService,
+  POSITION_INTERVAL_MS,
+  SHARING_GAP_MS,
+} from './driver-tracking.service';
 
 const POINT: [number, number] = [-2.43, 36.83];
 
@@ -14,7 +19,20 @@ describe('DriverTrackingService', () => {
   let isDriver: boolean;
   let driver: Record<string, ReturnType<typeof vi.fn>>;
   let getCurrentPoint: ReturnType<typeof vi.fn>;
+  let watchPoint: ReturnType<typeof vi.fn>;
+  let clearWatch: ReturnType<typeof vi.fn>;
+  let wakeLock: {
+    isActive: ReturnType<typeof signal<boolean>>;
+    keepOn: ReturnType<typeof vi.fn>;
+    release: ReturnType<typeof vi.fn>;
+  };
+  let onPoint: (point: [number, number]) => void;
   let tracking: DriverTrackingService;
+
+  function setVisibility(state: DocumentVisibilityState): void {
+    Object.defineProperty(document, 'visibilityState', { value: state, configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  }
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -25,10 +43,21 @@ describe('DriverTrackingService', () => {
       listMyTrips: vi.fn().mockResolvedValue([]),
     };
     getCurrentPoint = vi.fn().mockResolvedValue(POINT);
+    watchPoint = vi.fn().mockImplementation((callback: (point: [number, number]) => void) => {
+      onPoint = callback;
+      return Promise.resolve('w1');
+    });
+    clearWatch = vi.fn().mockResolvedValue(undefined);
+    wakeLock = {
+      isActive: signal(false),
+      keepOn: vi.fn().mockResolvedValue(undefined),
+      release: vi.fn().mockResolvedValue(undefined),
+    };
     TestBed.configureTestingModule({
       providers: [
         { provide: DriverService, useValue: driver },
-        { provide: LocationService, useValue: { getCurrentPoint } },
+        { provide: LocationService, useValue: { getCurrentPoint, watchPoint, clearWatch } },
+        { provide: ScreenWakeLockService, useValue: wakeLock },
         {
           provide: AuthService,
           useValue: { isLoggedIn: () => loggedIn(), hasProfile: () => isDriver },
@@ -40,7 +69,63 @@ describe('DriverTrackingService', () => {
 
   afterEach(() => {
     tracking.stop();
+    setVisibility('visible');
     vi.useRealTimers();
+  });
+
+  it('follows the position with the GPS and keeps the screen on until it stops', async () => {
+    tracking.start('t1');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(watchPoint).toHaveBeenCalled();
+    expect(wakeLock.keepOn).toHaveBeenCalled();
+
+    onPoint([-2.41, 36.82]);
+    await vi.advanceTimersByTimeAsync(POSITION_INTERVAL_MS);
+    expect(driver['reportPosition']).toHaveBeenLastCalledWith('t1', [-2.41, 36.82]);
+    expect(getCurrentPoint).toHaveBeenCalledTimes(1);
+
+    tracking.stop();
+    expect(clearWatch).toHaveBeenCalledWith('w1');
+    expect(wakeLock.release).toHaveBeenCalled();
+  });
+
+  it('stops following when the trip stopped before the GPS answered', async () => {
+    tracking.start('t1');
+    tracking.stop();
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(clearWatch).toHaveBeenCalledWith('w1');
+  });
+
+  it('sends at once on coming back and warns about the time without sharing', async () => {
+    tracking.start('t1');
+    await vi.advanceTimersByTimeAsync(0);
+    onPoint([-2.41, 36.82]);
+    setVisibility('hidden');
+    // Con la página oculta, el navegador no deja enviar
+    driver['reportPosition'].mockRejectedValue(new Error('frozen'));
+    await vi.advanceTimersByTimeAsync(SHARING_GAP_MS * 3);
+    driver['reportPosition'].mockResolvedValue(undefined);
+
+    setVisibility('visible');
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(tracking.gapMinutes()).toBe(3);
+    // Con la posición actual, no la de antes de ocultarse
+    expect(driver['reportPosition']).toHaveBeenLastCalledWith('t1', POINT);
+    tracking.dismissGap();
+    expect(tracking.gapMinutes()).toBeNull();
+  });
+
+  it('does not warn after a short time away', async () => {
+    tracking.start('t1');
+    await vi.advanceTimersByTimeAsync(0);
+    setVisibility('hidden');
+    await vi.advanceTimersByTimeAsync(10_000);
+    setVisibility('visible');
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(tracking.gapMinutes()).toBeNull();
   });
 
   it('sends the position at once and then every interval', async () => {

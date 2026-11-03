@@ -60,7 +60,10 @@ describe('DriverLiveTripPage', () => {
   let driver: Record<string, ReturnType<typeof vi.fn>>;
   let tracking: {
     tripId: ReturnType<typeof signal<string | null>>;
+    isScreenKeptOn: ReturnType<typeof signal<boolean>>;
+    gapMinutes: ReturnType<typeof signal<number | null>>;
     start: ReturnType<typeof vi.fn>;
+    dismissGap: ReturnType<typeof vi.fn>;
   };
   let ask: ReturnType<typeof vi.fn>;
   let page: DriverLiveTripPage;
@@ -73,7 +76,13 @@ describe('DriverLiveTripPage', () => {
       boardPassenger: vi.fn().mockResolvedValue({ id: 'r1', boardedAt: new Date().toISOString() }),
       markNoShow: vi.fn().mockResolvedValue({ id: 'r1', status: 'cancelled' }),
     };
-    tracking = { tripId: signal<string | null>('t1'), start: vi.fn() };
+    tracking = {
+      tripId: signal<string | null>('t1'),
+      isScreenKeptOn: signal(false),
+      gapMinutes: signal<number | null>(null),
+      start: vi.fn(),
+      dismissGap: vi.fn(),
+    };
     ask = vi.fn().mockResolvedValue(true);
     TestBed.configureTestingModule({
       providers: [
@@ -101,6 +110,23 @@ describe('DriverLiveTripPage', () => {
     harness.detectChanges();
     return harness.routeNativeElement as HTMLElement;
   }
+
+  it('says the screen stays on and warns about a while without sharing', async () => {
+    const root = await render([TRIP]);
+    expect(root.querySelector('.driver-live-trip__sharing-hint')).toBeNull();
+    expect(root.querySelector('.driver-live-trip__gap')).toBeNull();
+
+    tracking.isScreenKeptOn.set(true);
+    tracking.gapMinutes.set(4);
+    TestBed.tick();
+
+    expect(root.textContent).toContain('La pantalla no se apagará hasta que termines.');
+    expect(root.querySelector('.driver-live-trip__gap')?.textContent).toContain(
+      'Estuviste 4 min sin compartir tu ubicación',
+    );
+    page.dismissGap();
+    expect(tracking.dismissGap).toHaveBeenCalled();
+  });
 
   it('shows the trip in progress, sharing the location, with its passengers in order', async () => {
     const root = await render(
