@@ -5,6 +5,9 @@ import type { Trip } from '../trips/entities/trip.entity';
 export const CHAT_OPEN_AFTER_FINISH_MS = 24 * 60 * 60 * 1000;
 // Mensajes por minuto y usuario (evita abusos)
 export const CHAT_MAX_MESSAGES_PER_MINUTE = 20;
+// Los mensajes de un viaje terminado o cancelado se conservan 30 días: hasta
+// entonces su conversación sale en la lista; después se borran (RGPD)
+export const CHAT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
 export type ChatRole = 'driver' | 'passenger';
 

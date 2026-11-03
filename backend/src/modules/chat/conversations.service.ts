@@ -5,14 +5,10 @@ import { Page, PageRequest } from '../../shared/pagination/page';
 import { RequestsService } from '../requests/requests.service';
 import type { Trip } from '../trips/entities/trip.entity';
 import { TripsService } from '../trips/trips.service';
-import { type ChatRole, isChatOpen } from './chat-rules';
+import { CHAT_RETENTION_MS, type ChatRole, isChatOpen } from './chat-rules';
 import { ChatMessageView, ChatService } from './chat.service';
 import { ChatMessage } from './entities/chat-message.entity';
 import { ChatRead } from './entities/chat-read.entity';
-
-// Hasta cuándo sale en la lista un viaje terminado o cancelado (sus mensajes
-// se conservan ese tiempo)
-const LISTED_AFTER_END_MS = 30 * 24 * 60 * 60 * 1000;
 
 export interface ConversationView {
   trip: Trip;
@@ -50,7 +46,7 @@ export class ConversationsService {
     const trips = await this.tripsService.findChatTripsForParticipant(
       userId,
       acceptedTripIds,
-      new Date(Date.now() - LISTED_AFTER_END_MS),
+      new Date(Date.now() - CHAT_RETENTION_MS),
     );
     const tripIds = trips.map(({ id }) => id);
     const [lastMessages, unread] = await Promise.all([
