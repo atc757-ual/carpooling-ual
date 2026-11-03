@@ -170,6 +170,14 @@ Enviar una posición puede responder además `NOT_TRIP_DRIVER` o `TRIP_NOT_IN_PR
 | `CHAT_QUICK_REPLIES_ONLY` | 409  | El conductor escribe texto con el viaje en curso: solo puede enviar respuestas rápidas (seguridad vial)      |
 | `CHAT_RATE_LIMITED`       | 429  | Más de 20 mensajes en un minuto                                                                              |
 
+Al denunciar un mensaje (`POST /api/trips/{id}/messages/{messageId}/report`):
+
+| `code`                     | HTTP | Cuándo                                                      |
+| -------------------------- | ---- | ----------------------------------------------------------- |
+| `CHAT_MESSAGE_NOT_FOUND`   | 404  | El mensaje no existe o no es del chat de ese viaje          |
+| `CHAT_OWN_MESSAGE`         | 409  | Denunciar un mensaje propio                                 |
+| `MESSAGE_ALREADY_REPORTED` | 409  | El usuario ya denunció ese mensaje (cada uno, una sola vez) |
+
 Si el viaje no existe, `TRIP_NOT_FOUND` (ver _Viajes_).
 
 ## Avisos (`notifications`)

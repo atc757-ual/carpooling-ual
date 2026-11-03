@@ -27,6 +27,11 @@ import {
   ApiPaginatedResponse,
   setPaginationHeaders,
 } from '../../shared/pagination/paginated';
+import {
+  IncidentResource,
+  toIncidentResource,
+} from '../incidents/dto/incident.resource';
+import { ChatReportsService } from './chat-reports.service';
 import { type ChatMessageInput, ChatService } from './chat.service';
 import { ConversationsService } from './conversations.service';
 import {
@@ -37,6 +42,7 @@ import {
 } from './dto/chat.resource';
 import { ListConversationsQueryDto } from './dto/list-conversations-query.dto';
 import { ListMessagesQueryDto } from './dto/list-messages-query.dto';
+import { ReportChatMessageDto } from './dto/report-chat-message.dto';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
 import type { QuickReply } from './entities/chat-message.entity';
 
@@ -59,6 +65,7 @@ export class ChatController {
   constructor(
     private readonly chatService: ChatService,
     private readonly conversationsService: ConversationsService,
+    private readonly chatReportsService: ChatReportsService,
   ) {}
 
   @Get('users/me/conversations')
@@ -132,6 +139,43 @@ export class ChatController {
     return toChatMessageResource(
       await this.chatService.send(user.sub, tripId, input),
     );
+  }
+
+  // Las denuncias van al administrador como incidencias (CU-12)
+  @Post('trips/:id/messages/:messageId/report')
+  @ApiOperation({
+    summary: 'Report a message of a trip chat',
+    description:
+      'Creates an incident for the administrator (it cancels nothing) with a copy of the message and the reason. Only messages of others, once each.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiParam({ name: 'messageId', format: 'uuid' })
+  @ApiCreatedResponse({
+    type: IncidentResource,
+    headers: { Location: { description: 'Link to the new incident' } },
+  })
+  @ApiErrorResponses({
+    ...TRIP_CHAT_ERRORS,
+    [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND', 'CHAT_MESSAGE_NOT_FOUND'],
+    [HttpStatus.CONFLICT]: ['CHAT_OWN_MESSAGE', 'MESSAGE_ALREADY_REPORTED'],
+  })
+  async report(
+    @CurrentUser() user: AccessTokenPayload,
+    @Param('id', uuidParam('id')) tripId: string,
+    @Param('messageId', uuidParam('messageId')) messageId: string,
+    @Body() dto: ReportChatMessageDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<IncidentResource> {
+    const incident = toIncidentResource(
+      await this.chatReportsService.report(
+        user.sub,
+        tripId,
+        messageId,
+        dto.reason,
+      ),
+    );
+    response.setHeader('Location', incident.href);
+    return incident;
   }
 
   @Put('trips/:id/messages/read')

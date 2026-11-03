@@ -8208,6 +8208,128 @@
         ]
       }
     },
+    "/api/trips/{id}/messages/{messageId}/report": {
+      "post": {
+        "description": "Creates an incident for the administrator (it cancels nothing) with a copy of the message and the reason. Only messages of others, once each.",
+        "operationId": "ChatController_report",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "messageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportChatMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "headers": {
+              "Location": {
+                "description": "Link to the new incident"
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: CHAT_NOT_ALLOWED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND, CHAT_MESSAGE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: CHAT_OWN_MESSAGE, MESSAGE_ALREADY_REPORTED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Report a message of a trip chat",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
     "/api/trips/{id}/messages/read": {
       "put": {
         "description": "Everything received so far stops counting as unread.",
@@ -14837,29 +14959,18 @@
           }
         }
       },
-      "ReportIncidentDto": {
+      "ReportChatMessageDto": {
         "type": "object",
         "properties": {
-          "category": {
-            "type": "string",
-            "enum": [
-              "technical",
-              "driver",
-              "passenger",
-              "other"
-            ],
-            "description": "technical problem, with the driver, with the passenger or other"
-          },
-          "description": {
+          "reason": {
             "type": "string",
             "minLength": 10,
-            "maxLength": 1000,
-            "example": "The car broke down on the way to the campus"
+            "maxLength": 500,
+            "example": "Insults and threats"
           }
         },
         "required": [
-          "category",
-          "description"
+          "reason"
         ]
       },
       "IncidentDriverResource": {
@@ -15034,6 +15145,31 @@
           "reportedAt",
           "status",
           "review"
+        ]
+      },
+      "ReportIncidentDto": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "technical",
+              "driver",
+              "passenger",
+              "other"
+            ],
+            "description": "technical problem, with the driver, with the passenger or other"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 1000,
+            "example": "The car broke down on the way to the campus"
+          }
+        },
+        "required": [
+          "category",
+          "description"
         ]
       },
       "ReviewIncidentDto": {
