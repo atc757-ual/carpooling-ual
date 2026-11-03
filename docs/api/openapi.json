@@ -9701,6 +9701,64 @@
         ]
       }
     },
+    "/api/admin/digital-twin": {
+      "get": {
+        "description": "Trips and vehicles by status, the last event applied and the lag between an event and the twin (RNF-07).",
+        "operationId": "DigitalTwinController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DigitalTwinResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the state of the live digital twin",
+        "tags": [
+          "digital twin"
+        ]
+      }
+    },
     "/api/admin/simulations/scenarios": {
       "get": {
         "description": "RF-16: users, adoption, modal split, time window and other parameters of each scenario (S0-S5).",
@@ -15662,6 +15720,159 @@
           "detourMin",
           "timeDifferenceMin",
           "score"
+        ]
+      },
+      "TripTwinCountsResource": {
+        "type": "object",
+        "properties": {
+          "published": {
+            "type": "number",
+            "example": 12
+          },
+          "confirmed": {
+            "type": "number",
+            "example": 5
+          },
+          "in_progress": {
+            "type": "number",
+            "example": 3
+          },
+          "finished": {
+            "type": "number",
+            "example": 140
+          },
+          "cancelled": {
+            "type": "number",
+            "example": 9
+          }
+        },
+        "required": [
+          "published",
+          "confirmed",
+          "in_progress",
+          "finished",
+          "cancelled"
+        ]
+      },
+      "VehicleTwinCountsResource": {
+        "type": "object",
+        "properties": {
+          "idle": {
+            "type": "number",
+            "example": 30
+          },
+          "scheduled": {
+            "type": "number",
+            "example": 14
+          },
+          "on_trip": {
+            "type": "number",
+            "example": 3
+          }
+        },
+        "required": [
+          "idle",
+          "scheduled",
+          "on_trip"
+        ]
+      },
+      "SyncLagResource": {
+        "type": "object",
+        "properties": {
+          "samples": {
+            "type": "number",
+            "example": 480,
+            "description": "Live samples measured"
+          },
+          "lastMs": {
+            "type": "number",
+            "example": 140,
+            "nullable": true
+          },
+          "p95Ms": {
+            "type": "number",
+            "example": 310,
+            "nullable": true,
+            "description": "Target: 1000 ms or less (RNF-07)"
+          },
+          "maxMs": {
+            "type": "number",
+            "example": 620,
+            "nullable": true
+          }
+        },
+        "required": [
+          "samples",
+          "lastMs",
+          "p95Ms",
+          "maxMs"
+        ]
+      },
+      "DigitalTwinResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "DigitalTwinState"
+            ]
+          },
+          "trips": {
+            "$ref": "#/components/schemas/TripTwinCountsResource"
+          },
+          "vehicles": {
+            "$ref": "#/components/schemas/VehicleTwinCountsResource"
+          },
+          "isLive": {
+            "type": "boolean",
+            "example": false,
+            "description": "False while replaying the events from the beginning"
+          },
+          "lastSequence": {
+            "type": "number",
+            "example": 1834,
+            "description": "Last event sequence applied"
+          },
+          "appliedEvents": {
+            "type": "number",
+            "example": 1520
+          },
+          "duplicateEvents": {
+            "type": "number",
+            "example": 0,
+            "description": "Discarded as already applied"
+          },
+          "unsupportedEvents": {
+            "type": "number",
+            "example": 0,
+            "description": "Discarded for an unknown version"
+          },
+          "lastEventAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "syncedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lag": {
+            "$ref": "#/components/schemas/SyncLagResource"
+          }
+        },
+        "required": [
+          "@type",
+          "trips",
+          "vehicles",
+          "isLive",
+          "lastSequence",
+          "appliedEvents",
+          "duplicateEvents",
+          "unsupportedEvents",
+          "lastEventAt",
+          "syncedAt",
+          "lag"
         ]
       },
       "ScenarioResource": {
