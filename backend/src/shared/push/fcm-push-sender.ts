@@ -34,25 +34,30 @@ export class FcmPushSender extends PushSender {
     tokens: readonly string[],
     message: PushMessage,
   ): Promise<string[]> {
-    const invalid: string[] = [];
-    for (
-      let start = 0;
-      start < tokens.length;
-      start += MAX_TOKENS_PER_REQUEST
-    ) {
-      const batch = tokens.slice(start, start + MAX_TOKENS_PER_REQUEST);
-      const { responses } = await this.messaging.sendEachForMulticast({
-        tokens: batch,
-        notification: { title: message.title, body: message.body },
-        data: message.data,
-        android: { notification: { channelId: ANDROID_CHANNEL_ID } },
-      });
-      responses.forEach(({ success, error }, index) => {
-        if (!success && error && INVALID_TOKEN_CODES.has(error.code)) {
-          invalid.push(batch[index]);
-        }
-      });
-    }
-    return invalid;
+    // Los lotes van a la vez (son independientes)
+    const invalidByBatch = await Promise.all(
+      toBatches(tokens).map(async (batch) => {
+        const { responses } = await this.messaging.sendEachForMulticast({
+          tokens: batch,
+          notification: { title: message.title, body: message.body },
+          data: message.data,
+          android: { notification: { channelId: ANDROID_CHANNEL_ID } },
+        });
+        return batch.filter((_, index) => {
+          const { success, error } = responses[index];
+          return !success && !!error && INVALID_TOKEN_CODES.has(error.code);
+        });
+      }),
+    );
+    return invalidByBatch.flat();
   }
+}
+
+// Los tokens en lotes de MAX_TOKENS_PER_REQUEST
+function toBatches(tokens: readonly string[]): string[][] {
+  const batches: string[][] = [];
+  for (let start = 0; start < tokens.length; start += MAX_TOKENS_PER_REQUEST) {
+    batches.push(tokens.slice(start, start + MAX_TOKENS_PER_REQUEST));
+  }
+  return batches;
 }
