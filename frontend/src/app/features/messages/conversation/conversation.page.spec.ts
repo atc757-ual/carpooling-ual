@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { ChatMessage, Conversation } from '../../../core/models/chat.model';
@@ -42,6 +42,9 @@ function message(id: string, authorId: string, overrides: Partial<ChatMessage> =
 describe('ConversationPage', () => {
   let chat: Record<string, ReturnType<typeof vi.fn>>;
   let showError: ReturnType<typeof vi.fn>;
+  let showSuccess: ReturnType<typeof vi.fn>;
+  let modalRole: string;
+  let modalProps: { action: (reason: string) => Promise<void> } | null;
   let fixture: ComponentFixture<ConversationPage>;
   let page: ConversationPage;
 
@@ -53,7 +56,19 @@ describe('ConversationPage', () => {
         provideIonicAngular(),
         { provide: ChatService, useValue: chat },
         { provide: AuthService, useValue: { currentUser: signal({ id: 'me' } as User) } },
-        { provide: ToastService, useValue: { showError } },
+        { provide: ToastService, useValue: { showError, showSuccess } },
+        {
+          provide: ModalController,
+          useValue: {
+            create: vi.fn().mockImplementation(({ componentProps }) => {
+              modalProps = componentProps;
+              return Promise.resolve({
+                present: () => Promise.resolve(),
+                onDidDismiss: () => Promise.resolve({ role: modalRole }),
+              });
+            }),
+          },
+        },
         {
           provide: ActivatedRoute,
           useValue: { paramMap: of(convertToParamMap({ tripId: 't1' })) },
@@ -71,6 +86,9 @@ describe('ConversationPage', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     showError = vi.fn();
+    showSuccess = vi.fn();
+    modalRole = 'confirm';
+    modalProps = null;
     chat = {
       listConversations: vi.fn(),
       listMessages: vi.fn().mockResolvedValue([message('m1', 'u2'), message('m2', 'me')]),
@@ -80,6 +98,7 @@ describe('ConversationPage', () => {
           Promise.resolve(message('m3', 'me', { ...input, kind: 'text' })),
         ),
       markRead: vi.fn().mockResolvedValue(undefined),
+      reportMessage: vi.fn().mockResolvedValue(undefined),
     };
   });
 
@@ -186,6 +205,32 @@ describe('ConversationPage', () => {
     expect(root.querySelector('.quick-reply')).toBeNull();
     expect(root.querySelector('ion-textarea')).toBeNull();
     expect(root.querySelectorAll('.bubble')).toHaveLength(2);
+  });
+
+  it('reports the message of someone else with a reason, only once', async () => {
+    const root = await render();
+    const flags = root.querySelectorAll<HTMLButtonElement>('.bubble__report');
+    expect(flags).toHaveLength(1);
+    expect(flags[0].getAttribute('aria-label')).toBe('Denunciar el mensaje de Pía R.');
+
+    await page.handleReport(page.messages()[0]);
+    await modalProps?.action('Me ha insultado');
+    fixture.detectChanges();
+
+    expect(chat['reportMessage']).toHaveBeenCalledWith('t1', 'm1', 'Me ha insultado');
+    expect(showSuccess).toHaveBeenCalledWith('Mensaje denunciado. Lo revisaremos.');
+    expect(root.querySelectorAll('.bubble__report')).toHaveLength(0);
+  });
+
+  it('keeps the flag when the report is cancelled', async () => {
+    const root = await render();
+    modalRole = 'cancel';
+
+    await page.handleReport(page.messages()[0]);
+    fixture.detectChanges();
+
+    expect(showSuccess).not.toHaveBeenCalled();
+    expect(root.querySelectorAll('.bubble__report')).toHaveLength(1);
   });
 
   it('offers to retry when the conversation cannot be loaded', async () => {

@@ -81,6 +81,15 @@ describe('ChatService', () => {
     expectUnreadQuery('0');
   });
 
+  it('reports a message with its reason', async () => {
+    const reporting = chat.reportMessage('t1', 'm1', 'Me ha insultado');
+    const post = http.expectOne('/api/trips/t1/messages/m1/report');
+    expect(post.request.method).toBe('POST');
+    expect(post.request.body).toEqual({ reason: 'Me ha insultado' });
+    post.flush({ id: 'i1' }, { status: 201, statusText: 'Created' });
+    await expect(reporting).resolves.toBeUndefined();
+  });
+
   it('throws an ApiError when a request fails', async () => {
     const sending = chat.send('t1', { text: 'Hola' });
     http

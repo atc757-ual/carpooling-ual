@@ -1,8 +1,16 @@
 import { Component, computed, DestroyRef, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { IonButton, IonContent, IonFooter, IonIcon, IonSpinner, IonTextarea } from '@ionic/angular';
-import { alertCircleOutline, lockClosedOutline, send } from 'ionicons/icons';
+import {
+  IonButton,
+  IonContent,
+  IonFooter,
+  IonIcon,
+  IonSpinner,
+  IonTextarea,
+  ModalController,
+} from '@ionic/angular';
+import { alertCircleOutline, flagOutline, lockClosedOutline, send } from 'ionicons/icons';
 import { map } from 'rxjs';
 import { ApiError } from '../../../core/models/api-error.model';
 import {
@@ -14,6 +22,7 @@ import {
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ChatService } from '../../../core/services/chat/chat.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { confirmWithReason } from '../../../shared/components/modals/reason-confirm-modal/reason-confirm-modal';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { messageText, messageTime, QUICK_REPLIES, QUICK_REPLY_TEXTS } from '../chat-texts';
 
@@ -36,6 +45,7 @@ export class ConversationPage {
   private readonly chat = inject(ChatService);
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
+  private readonly modalController = inject(ModalController);
 
   private readonly tripId = toSignal(
     inject(ActivatedRoute).paramMap.pipe(map((params) => params.get('tripId') ?? '')),
@@ -50,6 +60,8 @@ export class ConversationPage {
   readonly hasError = signal(false);
   readonly isSending = signal(false);
   readonly draft = signal('');
+  // Los que ya he denunciado en esta visita (no se ofrece otra vez)
+  readonly reportedIds = signal<ReadonlySet<string>>(new Set());
 
   readonly isQuickRepliesOnly = computed(() => {
     const conversation = this.conversation();
@@ -65,6 +77,7 @@ export class ConversationPage {
   protected readonly quickReplyText = QUICK_REPLY_TEXTS;
   protected readonly maxLength = MAX_MESSAGE_LENGTH;
   protected readonly sendIcon = send;
+  protected readonly reportIcon = flagOutline;
   protected readonly closedIcon = lockClosedOutline;
   protected readonly errorIcon = alertCircleOutline;
   protected readonly text = messageText;
@@ -110,6 +123,20 @@ export class ConversationPage {
 
   async handleQuickReply(quickReply: QuickReply): Promise<void> {
     await this.sendMessage({ quickReply });
+  }
+
+  // Denunciar el mensaje de otro con su motivo: lo revisa el administrador
+  async handleReport(message: ChatMessage): Promise<void> {
+    const reported = await confirmWithReason(this.modalController, {
+      header: '¿Denunciar este mensaje?',
+      message: `Lo revisará el equipo de Carpooling UAL. ${message.author.name} no sabrá que lo has denunciado.`,
+      confirmText: 'Denunciar',
+      action: (reason) => this.chat.reportMessage(this.tripId(), message.id, reason),
+    });
+    if (reported) {
+      this.reportedIds.update((ids) => new Set([...ids, message.id]));
+      void this.toast.showSuccess('Mensaje denunciado. Lo revisaremos.');
+    }
   }
 
   async handleRetry(): Promise<void> {
