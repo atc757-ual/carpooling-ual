@@ -55,18 +55,30 @@ export class AddChatToPrivacyDraft1797100000000 implements MigrationInterface {
     queryRunner: QueryRunner,
     edits: readonly (readonly [string, string])[],
     [summaryFrom, summaryTo]: readonly [string, string],
-    // Al aplicar, no dos veces: si el texto nuevo ya está, no se toca (al
-    // deshacer no hace falta: el texto nuevo contiene el antiguo)
+    // Al aplicar, no dos veces: si un texto nuevo ya está, ese no se toca
+    // (al deshacer no hace falta: el texto nuevo contiene el antiguo)
     isOnce: boolean,
   ): Promise<void> {
-    const once = isOnce ? 'AND strpos(content, $2) = 0' : '';
+    // Una sola consulta: los reemplazos uno dentro de otro, en orden. Cada uno,
+    // al aplicar, solo si su texto nuevo aún no está
+    let content = 'content';
+    const params: string[] = [];
     for (const [from, to] of edits) {
-      await queryRunner.query(
-        `UPDATE legal_documents SET content = replace(content, $1, $2)
-          WHERE type = 'privacy' AND status = 'draft' ${once}`,
-        [from, to],
-      );
+      params.push(from, to);
+      const [fromParam, toParam] = [
+        `$${params.length - 1}`,
+        `$${params.length}`,
+      ];
+      const replaced = `replace(${content}, ${fromParam}, ${toParam})`;
+      content = isOnce
+        ? `CASE WHEN strpos(${content}, ${toParam}) = 0 THEN ${replaced} ELSE ${content} END`
+        : replaced;
     }
+    await queryRunner.query(
+      `UPDATE legal_documents SET content = ${content}
+        WHERE type = 'privacy' AND status = 'draft'`,
+      params,
+    );
     await queryRunner.query(
       `UPDATE legal_documents SET summary = replace(summary, $1, $2)
         WHERE type = 'privacy' AND status = 'draft'`,
