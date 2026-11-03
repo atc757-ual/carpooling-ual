@@ -58,6 +58,7 @@ export interface AdminUserDetail extends Omit<AdminUserRow, '@type'> {
   vehicles: {
     id: string;
     plate: string;
+    plateCountry: string;
     brand: string | null;
     model: string | null;
     color: string | null;

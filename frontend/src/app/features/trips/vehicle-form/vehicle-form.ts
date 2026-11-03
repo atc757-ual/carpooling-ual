@@ -1,7 +1,20 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { IonButton, IonIcon, IonInput, IonSpinner } from '@ionic/angular';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import {
+  AbstractControl,
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
+import {
+  IonButton,
+  IonIcon,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular';
 import {
   checkmark,
   ellipsisHorizontalCircleOutline,
@@ -19,9 +32,20 @@ import { LicensePlate } from '../../../shared/components/ui/license-plate/licens
 import { formatPlate, vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
 import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colors.store';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import {
+  DEFAULT_PLATE_COUNTRY,
+  isValidPlate,
+  normalizePlate,
+  PLATE_COUNTRY_OPTIONS,
+  plateSign,
+} from '../../../shared/utils/plate-country.util';
 
-// Matrícula española actual (1234BCD; se admiten espacio y guion al escribirla)
-const PLATE_PATTERN = /^\d{4}[ -]?[B-DF-HJ-NP-TV-Z]{3}$/i;
+// La matrícula, con el formato de su país (el del campo «País de la matrícula»)
+const plateOfCountryValidator: ValidatorFn = (control: AbstractControl) => {
+  const country = control.parent?.get('plateCountry')?.value ?? DEFAULT_PLATE_COUNTRY;
+  const plate = String(control.value ?? '');
+  return plate === '' || isValidPlate(plate, country) ? null : { plate: true };
+};
 // Asientos en total, contando al conductor: de 2 (conductor + 1) a 9; la API
 // guarda las plazas para pasajeros (el total menos el conductor)
 export const MIN_TOTAL_SEATS = 2;
@@ -39,6 +63,8 @@ const DEFAULT_TOTAL_SEATS = 5;
     IonButton,
     IonIcon,
     IonInput,
+    IonSelect,
+    IonSelectOption,
     IonSpinner,
     IonicFormStatus,
     SeatStepper,
@@ -60,7 +86,11 @@ export class VehicleForm {
   readonly summary = computed(() => {
     const vehicle = this.vehicle();
     return vehicle
-      ? { name: vehicleDisplayName(vehicle), plate: formatPlate(vehicle.plate) }
+      ? {
+          name: vehicleDisplayName(vehicle),
+          plate: formatPlate(vehicle.plate),
+          sign: plateSign(vehicle.plateCountry),
+        }
       : null;
   });
 
@@ -91,7 +121,8 @@ export class VehicleForm {
   readonly form = inject(NonNullableFormBuilder).group({
     brand: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(29)]],
     model: ['', [Validators.required, Validators.maxLength(30)]],
-    plate: ['', [Validators.required, Validators.pattern(PLATE_PATTERN)]],
+    plateCountry: [DEFAULT_PLATE_COUNTRY],
+    plate: ['', [Validators.required, plateOfCountryValidator]],
     totalSeats: [DEFAULT_TOTAL_SEATS],
     color: ['', Validators.required],
     engine: ['', Validators.required],
@@ -113,6 +144,12 @@ export class VehicleForm {
     () => this.engines.find(({ value }) => value === this.engine())?.label ?? null,
   );
   protected readonly checkIcon = checkmark;
+  protected readonly plateCountries = PLATE_COUNTRY_OPTIONS;
+  // España: su formato; el resto: letras y números, como en la placa
+  private readonly plateCountry = toSignal(this.form.controls.plateCountry.valueChanges, {
+    initialValue: this.form.controls.plateCountry.value,
+  });
+  readonly isSpanishPlate = computed(() => this.plateCountry() === DEFAULT_PLATE_COUNTRY);
   readonly isComplete = computed(() => this.status() === 'VALID');
 
   protected readonly minTotalSeats = MIN_TOTAL_SEATS;
@@ -129,9 +166,11 @@ export class VehicleForm {
       this.form.controls.brand.enable();
       this.form.controls.model.enable();
       this.form.controls.plate.enable();
+      this.form.controls.plateCountry.enable();
       this.form.setValue({
         brand: vehicle.brand ?? '',
         model: vehicle.model ?? '',
+        plateCountry: vehicle.plateCountry,
         plate: vehicle.plate,
         totalSeats: vehicle.capacity + 1,
         color: vehicle.color ?? '',
@@ -140,7 +179,12 @@ export class VehicleForm {
       this.form.controls.brand.disable();
       this.form.controls.model.disable();
       this.form.controls.plate.disable();
+      this.form.controls.plateCountry.disable();
     });
+    // Al cambiar de país, la matrícula se vuelve a comprobar con su formato
+    this.form.controls.plateCountry.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.form.controls.plate.updateValueAndValidity());
   }
 
   async handleSubmit(): Promise<void> {
@@ -148,7 +192,8 @@ export class VehicleForm {
       this.form.markAllAsTouched();
       return;
     }
-    const { brand, model, plate, totalSeats, color, engine } = this.form.getRawValue();
+    const { brand, model, plate, plateCountry, totalSeats, color, engine } =
+      this.form.getRawValue();
     const capacity = totalSeats - 1;
     const vehicle = this.vehicle();
     this.isSaving.set(true);
@@ -165,7 +210,8 @@ export class VehicleForm {
             color,
             engine: engine as VehicleEngine,
             capacity,
-            plate: plate.replaceAll(/[ -]/g, '').toUpperCase(),
+            plate: normalizePlate(plate),
+            plateCountry,
           });
       this.saved.emit(saved);
     } catch (error) {

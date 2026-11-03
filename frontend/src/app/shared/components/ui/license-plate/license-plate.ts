@@ -22,7 +22,7 @@ const STARS = Array.from({ length: 12 }, (_, index) => {
 export class LicensePlate {
   // Ya con el formato de mostrar («1234 BCD»)
   readonly plate = input.required<string>();
-  // La letra del país en la franja (España: E)
+  // El distintivo del país en la franja (España: E; ver plate-country.util)
   readonly country = input('E');
 
   protected readonly stars = STARS;

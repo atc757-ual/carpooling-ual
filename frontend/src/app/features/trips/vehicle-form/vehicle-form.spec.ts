@@ -10,6 +10,8 @@ import { VehicleForm } from './vehicle-form';
 
 const VEHICLE: Vehicle = {
   id: 'v1',
+  plateCountry: 'ES',
+
   plate: '1234BCD',
   brand: 'Seat',
   model: 'Ibiza',
@@ -55,6 +57,8 @@ describe('VehicleForm', () => {
     form.form.setValue({
       brand: 'Seat',
       model: 'Ibiza',
+      plateCountry: 'ES',
+
       plate: '1234BCD',
       totalSeats: 4,
       color: 'blue',
@@ -107,7 +111,7 @@ describe('VehicleForm', () => {
     await fixture.whenStable();
     const root = fixture.nativeElement as HTMLElement;
 
-    expect(form.summary()).toEqual({ name: 'Seat Ibiza', plate: '1234 BCD' });
+    expect(form.summary()).toEqual({ name: 'Seat Ibiza', plate: '1234 BCD', sign: 'E' });
     expect(root.querySelector('.vehicle-form__summary-name')?.textContent).toContain('Seat Ibiza');
     expect(root.querySelector('.vehicle-form__summary app-license-plate')).not.toBeNull();
     expect(root.querySelector('ion-input[formControlName="plate"]')).toBeNull();
@@ -120,6 +124,8 @@ describe('VehicleForm', () => {
     form.form.setValue({
       brand: ' Seat ',
       model: ' Ibiza ',
+      plateCountry: 'ES',
+
       plate: '1234 bcd',
       totalSeats: 4,
       color: 'blue',
@@ -131,16 +137,49 @@ describe('VehicleForm', () => {
       model: 'Ibiza',
       color: 'blue',
       engine: 'hybrid',
+      plateCountry: 'ES',
+
       plate: '1234BCD',
       capacity: 3,
     });
     expect(saved).toEqual([VEHICLE]);
   });
 
+  it('validates the plate with the format of its country and sends the country', async () => {
+    form.form.setValue({
+      brand: 'Peugeot',
+      model: '208',
+      plateCountry: 'ES',
+      plate: 'AA-00-AA',
+      totalSeats: 5,
+      color: 'blue',
+      engine: 'other',
+    });
+    expect(form.form.controls.plate.hasError('plate')).toBe(true);
+    expect(form.isSpanishPlate()).toBe(true);
+
+    form.form.controls.plateCountry.setValue('PT');
+
+    expect(form.form.controls.plate.valid).toBe(true);
+    expect(form.isSpanishPlate()).toBe(false);
+    await form.handleSubmit();
+    expect(driver['registerVehicle']).toHaveBeenCalledWith(
+      expect.objectContaining({ plate: 'AA00AA', plateCountry: 'PT' }),
+    );
+  });
+
+  it('accepts old provincial Spanish plates', () => {
+    form.form.controls.plate.setValue('AL 1234 AB');
+
+    expect(form.form.controls.plate.valid).toBe(true);
+  });
+
   it('does not save incomplete or invalid data', async () => {
     form.form.setValue({
       brand: '',
       model: '',
+      plateCountry: 'ES',
+
       plate: 'ABC',
       totalSeats: 4,
       color: '',
@@ -157,6 +196,8 @@ describe('VehicleForm', () => {
     expect(form.form.getRawValue()).toEqual({
       brand: 'Seat',
       model: 'Ibiza',
+      plateCountry: 'ES',
+
       plate: '1234BCD',
       totalSeats: 4,
       color: 'blue',
@@ -191,6 +232,8 @@ describe('VehicleForm', () => {
     form.form.setValue({
       brand: 'Seat',
       model: 'Ibiza',
+      plateCountry: 'ES',
+
       plate: '1234BCD',
       totalSeats: 4,
       color: 'blue',

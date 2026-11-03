@@ -11,6 +11,7 @@ import { LicensePlate } from '../license-plate/license-plate';
 import { Vehicle } from '../../../../core/models/driver.model';
 import { VehicleColorsStore } from '../../../../core/services/catalogs/vehicle-colors.store';
 import { formatPlate, vehicleDisplayName, vehicleSpecs } from '../../../utils/vehicle-display.util';
+import { plateSign } from '../../../utils/plate-country.util';
 
 // Un vehículo en una tarjeta: «Seat Ibiza | 1234 BGG» y debajo «● Gris ·
 // 4 plazas · Híbrido». Se elige pulsándola (un radio nativo, oculto, del
@@ -36,6 +37,8 @@ export class VehicleCard {
 
   readonly name = computed(() => vehicleDisplayName(this.vehicle()));
   readonly plate = computed(() => formatPlate(this.vehicle().plate));
+  // La letra de su país en la franja azul (España: E)
+  readonly plateSign = computed(() => plateSign(this.vehicle().plateCountry));
   private readonly colors = inject(VehicleColorsStore);
   readonly specs = computed(() =>
     vehicleSpecs(this.vehicle(), this.colors.label(this.vehicle().color)),

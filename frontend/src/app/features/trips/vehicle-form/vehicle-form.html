@@ -5,7 +5,7 @@
     <div class="vehicle-form__summary">
       <div class="vehicle-form__summary-row">
         <span class="vehicle-form__summary-name">{{ summary.name }}</span>
-        <app-license-plate [plate]="summary.plate" />
+        <app-license-plate [plate]="summary.plate" [country]="summary.sign" />
       </div>
     </div>
   } @else {
@@ -82,17 +82,45 @@
       </div>
     </fieldset>
     @if (summary() === null) {
+      <!-- País de la matrícula: España por defecto; el resto de la UE, el EEE
+           y Suiza, que también circulan por España -->
+      <div class="vehicle-form__field vehicle-form__area-country">
+        <span class="text-label text-label--strong" aria-hidden="true">País de la matrícula</span>
+        <ion-select
+          formControlName="plateCountry"
+          aria-label="País de la matrícula"
+          fill="outline"
+          interface="action-sheet"
+          [interfaceOptions]="{ header: 'País de la matrícula' }"
+        >
+          @for (country of plateCountries; track country.code) {
+            <ion-select-option [value]="country.code">{{ country.name }}</ion-select-option>
+          }
+        </ion-select>
+      </div>
       <div class="vehicle-form__field vehicle-form__area-plate">
         <span class="text-label text-label--strong" aria-hidden="true">Matrícula</span>
-        <ion-input
-          formControlName="plate"
-          aria-label="Matrícula"
-          fill="outline"
-          placeholder="1234 BCD"
-          autocapitalize="characters"
-          helperText="Matrícula española, como 1234 BCD."
-          errorText="Escribe una matrícula española, como 1234 BCD."
-        />
+        @if (isSpanishPlate()) {
+          <ion-input
+            formControlName="plate"
+            aria-label="Matrícula"
+            fill="outline"
+            placeholder="1234 BCD"
+            autocapitalize="characters"
+            helperText="Como 1234 BCD."
+            errorText="Escribe una matrícula española, como 1234 BCD."
+          />
+        } @else {
+          <ion-input
+            formControlName="plate"
+            aria-label="Matrícula"
+            fill="outline"
+            placeholder="AB 123 CD"
+            autocapitalize="characters"
+            helperText="Letras y números, como en tu placa."
+            errorText="Escribe de 2 a 10 letras y números, como en tu placa."
+          />
+        }
       </div>
     }
     <div class="vehicle-form__field vehicle-form__area-seats">

@@ -27,6 +27,7 @@ const VEHICLE = {
   '@type': 'Vehicle',
   id: 'v1',
   plate: '1234BCD',
+  plateCountry: 'ES',
   brand: 'SEAT',
   model: 'León',
   color: 'white',

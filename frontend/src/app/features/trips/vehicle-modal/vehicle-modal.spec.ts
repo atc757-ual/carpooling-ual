@@ -8,6 +8,8 @@ import { VehicleModal } from './vehicle-modal';
 const VEHICLE: Vehicle = {
   id: 'v1',
   plate: '1234BCD',
+
+  plateCountry: 'ES',
   brand: 'Seat',
   model: 'Ibiza',
   color: 'blue',
