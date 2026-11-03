@@ -117,10 +117,15 @@ describe('PassengerRequests', () => {
       [request('r1', 't1', 'pending'), request('r2', 't2', 'accepted')],
       [trip('t1', 'published'), trip('t2', 'in_progress')],
     );
-    const [first, second] = fixture.componentInstance.tabItems();
+    const [first] = fixture.componentInstance.tabItems();
+    // La confirmada de un viaje en curso: va destacada arriba, no en Próximos
+    const live = fixture.componentInstance.live();
 
+    expect(fixture.componentInstance.tabItems()).toHaveLength(1);
     expect(fixture.componentInstance['canCancel'](first)).toBe(true);
-    expect(fixture.componentInstance['canCancel'](second)).toBe(false);
+    expect(live?.request.id).toBe('r2');
+    expect(live && fixture.componentInstance['canCancel'](live)).toBe(false);
+    expect(fixture.componentInstance.upcomingCount()).toBe(1);
   });
 
   it('cancels after confirming it and reloads', async () => {

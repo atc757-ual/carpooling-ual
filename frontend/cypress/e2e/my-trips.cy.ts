@@ -105,6 +105,27 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-my-trips .driver-trip__request', 'Aceptada');
     });
 
+    it('highlights the trip in progress at the top', () => {
+      openMyTrips([trip(1, 'in_progress', -10)]);
+
+      cy.contains('app-live-trip-banner', 'Viaje en curso')
+        .should('be.visible')
+        .and('contain', 'Roquetas de Mar → Campus UAL · Parking P1 (Sur)')
+        .and('contain', '2 de 3 plazas ocupadas');
+      cy.contains('app-live-trip-banner ion-button', 'Abrir viaje').should(
+        'have.attr',
+        'href',
+        '/tabs/trips/drive/t1',
+      );
+      // No se repite en Próximos
+      cy.get('app-driver-trip-card').should('not.exist');
+      if (isDesktop) {
+        cy.get('app-my-trips-aside').should('be.visible').and('contain', '1 en curso');
+      } else {
+        cy.get('app-my-trips-aside').should('not.be.visible');
+      }
+    });
+
     it('confirms and cancels an upcoming trip', () => {
       openMyTrips([trip(3, 'published')]);
       cy.intercept('POST', '/api/trips/t1/cancel', {

@@ -1,0 +1,13 @@
+<section class="live-trip-banner" aria-labelledby="live-trip-title">
+  <div class="live-trip-banner__text">
+    <span id="live-trip-title" class="text-eyebrow live-trip-banner__eyebrow">
+      <span class="live-trip-banner__dot" aria-hidden="true"></span>
+      Viaje en curso
+    </span>
+    <span class="text-subtitle">{{ route() }}</span>
+    @if (detail()) {
+      <span class="text-body-s live-trip-banner__detail">{{ detail() }}</span>
+    }
+  </div>
+  <ion-button [routerLink]="link()">Abrir viaje</ion-button>
+</section>

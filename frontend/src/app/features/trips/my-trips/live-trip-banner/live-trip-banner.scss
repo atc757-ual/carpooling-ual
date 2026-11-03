@@ -1,0 +1,63 @@
+// Una tarjeta azul claro con el borde de la marca: el texto a la izquierda y
+// «Abrir viaje» a la derecha (en el móvil, debajo y a todo el ancho)
+.live-trip-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s) var(--space-base);
+  width: 100%;
+  padding: var(--space-base);
+  border: var(--border-width) solid var(--color-primary);
+  border-radius: var(--radius-l);
+  background: var(--color-primary-subtle);
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+.live-trip-banner__text {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+// «Viaje en curso» con un punto verde que late (sin animación si el sistema
+// pide menos movimiento)
+.live-trip-banner__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-link);
+}
+
+.live-trip-banner__dot {
+  width: 0.5rem; // 8px
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  animation: live-trip-pulse 1.6s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.live-trip-banner__detail {
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 479px) {
+  .live-trip-banner ion-button {
+    width: 100%;
+  }
+}
+
+@keyframes live-trip-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}

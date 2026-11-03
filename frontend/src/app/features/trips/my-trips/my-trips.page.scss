@@ -1,11 +1,41 @@
-// Una columna de tarjetas de hasta 48rem (768px): los segmentos y debajo los
-// viajes de la pestaña
+// En el móvil, una columna de tarjetas: los segmentos, el viaje en curso y
+// los viajes de la pestaña. En escritorio, esa columna (8 de 12) y a la
+// derecha la de 4 con los atajos y las cifras, fija al hacer scroll
 .my-trips {
   align-items: stretch;
   max-width: 48rem; // 768px
 
   ion-card {
     margin: 0;
+  }
+}
+
+.my-trips__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .my-trips {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-l);
+    max-width: 72rem; // 1152px
+  }
+
+  .my-trips__main {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .my-trips__aside {
+    position: sticky;
+    top: var(--space-l);
+    grid-row: 1;
+    grid-column: 2;
   }
 }
 

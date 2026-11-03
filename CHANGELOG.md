@@ -23,6 +23,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Backend:** «Sobre mí» de 20 a 200 caracteres (antes 500; los más largos se recortan), Fumar sin «solo en paradas» (pasa a «no se fuma») y el consentimiento de ubicación guarda su origen: `location_prompt` (la ventana que explica para qué se usa) o `device` (se quitó el permiso del sistema), además de `settings` (#128).
 
 ### Added
+- **Frontend:** Mis viajes destaca arriba el viaje en curso, con «Abrir viaje» (la pantalla del conductor o la solicitud del pasajero), y en escritorio añade una columna con «Publicar viaje», «Buscar viaje», el resumen («3 próximos · 1 en curso») y las cifras: viajes hechos, CO₂ ahorrado (estimado) y valoración (#178).
 - **Frontend:** el panel gestiona en Catálogos los parkings del campus (el punto se elige en el mapa) y, en su pestaña, los documentos legales: borrador con vista previa, publicar con confirmación e historial de versiones (#174).
 - **Frontend:** formulario de «Ayuda y soporte» en Mi perfil (motivo y mensaje de 20 a 1000 caracteres) en lugar de abrir el programa de correo (#173).
 - **Backend:** `POST /api/support/messages` envía el mensaje del usuario por correo al buzón de soporte (`SUPPORT_EMAIL`), con respuesta a su correo; no guarda nada (#173).

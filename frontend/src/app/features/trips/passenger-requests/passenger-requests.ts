@@ -25,6 +25,7 @@ import {
   passengerTripTab,
   TripsTab,
 } from '../my-trips/trip-tabs';
+import { formatRoute } from '../my-trips/my-trips-summary';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 
 export interface PassengerTrip {
@@ -62,14 +63,36 @@ export class PassengerRequests {
   });
   readonly tab = input<TripsTab>('upcoming');
   private readonly all = computed(() => (this.items.hasValue() ? this.items.value() : []));
+  // El viaje en curso (su plaza confirmada): Mis viajes lo destaca arriba y
+  // no se repite en Próximos
+  readonly live = computed(
+    () =>
+      this.all().find(
+        ({ request, trip }) => request.status === 'accepted' && trip.status === 'in_progress',
+      ) ?? null,
+  );
+  private readonly byTab = computed(() => {
+    const live = this.live();
+    const groups: Record<TripsTab, PassengerTrip[]> = { upcoming: [], past: [], cancelled: [] };
+    for (const item of this.all()) {
+      if (item !== live) {
+        groups[passengerTripTab(item.request, item.trip)].push(item);
+      }
+    }
+    return groups;
+  });
   // Las de la pestaña: las próximas, de la primera que sale a la última; las
   // demás, de la más reciente a la más antigua
   readonly tabItems = computed(() => {
-    const items = this.all()
-      .filter(({ request, trip }) => passengerTripTab(request, trip) === this.tab())
-      .sort((a, b) => a.trip.departureAt.localeCompare(b.trip.departureAt));
+    const items = [...this.byTab()[this.tab()]].sort((a, b) =>
+      a.trip.departureAt.localeCompare(b.trip.departureAt),
+    );
     return this.tab() === 'upcoming' ? items : items.reverse();
   });
+  readonly upcomingCount = computed(() => this.byTab().upcoming.length);
+  readonly pastTrips = computed(() =>
+    this.byTab().past.map(({ trip }) => ({ ...trip, carsAvoided: 1 })),
+  );
   readonly cancelling = signal<string | null>(null);
 
   protected readonly emptyTexts = EMPTY_TEXTS;
@@ -84,7 +107,7 @@ export class PassengerRequests {
   }
 
   protected route(trip: Trip): string {
-    return `${trip.originName ?? 'Origen'} → ${trip.destinationName ?? 'Destino'}`;
+    return formatRoute(trip);
   }
 
   // «Conduce Lucía Cortés · 2 plazas · Matrícula 1234BCD» (la matrícula, al confirmarla)
