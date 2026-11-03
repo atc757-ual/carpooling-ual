@@ -14,6 +14,14 @@
             Solo la usamos para esta búsqueda y no la guardamos. Tu navegador o el móvil te pedirán
             permiso.
           </div>
+          @if (isOutdated()) {
+            <div class="text-body-s">
+              Hemos actualizado cómo usamos tu ubicación: al buscarla, aceptas el texto nuevo.
+            </div>
+          }
+          <button type="button" class="location__link text-body-s" (click)="handleReadTerms()">
+            Cómo usamos tu ubicación
+          </button>
         </div>
         <form (submit)="$event.preventDefault(); handleShare()">
           <ion-button type="submit" expand="block">Buscar mi ubicación</ion-button>

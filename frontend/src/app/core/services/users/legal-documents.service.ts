@@ -4,7 +4,8 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
 
-export type LegalDocumentType = 'terms' | 'privacy' | 'driver_declaration' | 'vehicle_declaration';
+export type LegalDocumentType =
+  'terms' | 'privacy' | 'driver_declaration' | 'vehicle_declaration' | 'location';
 
 // major: hay que volver a aceptarla; minor: solo se avisa
 export type LegalChangeType = 'major' | 'minor';
@@ -30,6 +31,7 @@ export const LEGAL_DOCUMENT_TITLES: Readonly<Record<LegalDocumentType, string>> 
   privacy: 'Política de privacidad',
   driver_declaration: 'Declaración responsable',
   vehicle_declaration: 'Declaración del vehículo',
+  location: 'Uso de la ubicación',
 };
 
 // Documentos legales con versiones: el texto vigente (también sin sesión, al

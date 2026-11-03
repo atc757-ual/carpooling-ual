@@ -179,6 +179,11 @@ describe('publishMessage', () => {
     );
   });
 
+  it('says the app stops using the location until the new text is accepted', () => {
+    expect(publishMessage('location', 'major')).toContain('no usará la ubicación');
+    expect(publishMessage('location', 'minor')).not.toContain('se avisará');
+  });
+
   it('tells about a minor change only for the terms and the privacy policy', () => {
     expect(publishMessage('privacy', 'minor')).toContain('se avisará a cada usuario');
     expect(publishMessage('driver_declaration', 'minor')).not.toContain('se avisará');

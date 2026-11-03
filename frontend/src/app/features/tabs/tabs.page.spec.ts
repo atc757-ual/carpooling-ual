@@ -12,9 +12,6 @@ import { ActiveModeService, TravelMode } from '../../core/services/users/active-
 import { TabHeading } from './tab-heading';
 import { MESSAGES_REFRESH_MS, TabsPage } from './tabs.page';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
-import { LocationService } from '../../core/services/location/location.service';
-import { PreferencesPlugin } from '../../core/plugins/preferences-plugin';
-import { ModalController } from '@ionic/angular';
 
 @Component({ template: '' })
 class BlankPage {}
@@ -32,12 +29,7 @@ describe('TabsPage', () => {
   const hasUnreadMessages = signal(false);
   const refreshUnreadMessages = vi.fn().mockResolvedValue(undefined);
   const resume = vi.fn().mockResolvedValue(undefined);
-  let permission = 'granted';
   let fixture: ComponentFixture<TabsPage>;
-  const preferences = {
-    get: vi.fn().mockResolvedValue(null),
-    set: vi.fn().mockResolvedValue(undefined),
-  };
 
   function render(): TabsPage {
     TestBed.configureTestingModule({
@@ -69,11 +61,6 @@ describe('TabsPage', () => {
           provide: ChatService,
           useValue: { hasUnread: hasUnreadMessages, refreshUnread: refreshUnreadMessages },
         },
-        {
-          provide: LocationService,
-          useValue: { checkPermission: () => Promise.resolve(permission) },
-        },
-        { provide: PreferencesPlugin, useValue: preferences },
         { provide: DriverTrackingService, useValue: { resume } },
       ],
     });
@@ -87,9 +74,6 @@ describe('TabsPage', () => {
     mode.set('passenger');
     profiles.set(['passenger', 'driver']);
     loggedIn.set(true);
-    permission = 'granted';
-    preferences.get.mockClear();
-    preferences.set.mockClear();
     unread.set(0);
     refreshUnread.mockClear();
     hasUnreadMessages.set(false);
@@ -245,37 +229,5 @@ describe('TabsPage', () => {
 
     expect(logout).toHaveBeenCalled();
     expect(navigateRoot).toHaveBeenCalledWith('/auth/welcome');
-  });
-
-  function modalClosingWith(role: string): ReturnType<typeof vi.fn> {
-    const create = vi.fn().mockResolvedValue({
-      present: vi.fn().mockResolvedValue(undefined),
-      onDidDismiss: () => Promise.resolve({ role }),
-    });
-    vi.spyOn(TestBed.inject(ModalController), 'create').mockImplementation(create);
-    return create;
-  }
-
-  it('offers the location once, when it has not been decided yet', async () => {
-    permission = 'prompt';
-    const page = render();
-    const create = modalClosingWith('later');
-
-    await page['offerLocation']();
-
-    expect(create).toHaveBeenCalled();
-    expect(preferences.set).toHaveBeenCalledWith('location.offer-dismissed', 'later');
-  });
-
-  it('does not offer the location when it is already allowed or was put off', async () => {
-    const page = render();
-    const create = modalClosingWith('later');
-
-    await page['offerLocation']();
-    permission = 'prompt';
-    preferences.get.mockResolvedValueOnce('later');
-    await page['offerLocation']();
-
-    expect(create).not.toHaveBeenCalled();
   });
 });

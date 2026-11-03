@@ -51,6 +51,14 @@ interface InsertConsentInput extends Partial<DocumentReference> {
   recordedAt: Date;
 }
 
+// Conceder o retirar el consentimiento de ubicación; al concederlo, la
+// versión de su documento que vio (si no, la vigente)
+export interface LocationConsentChange {
+  action: ConsentAction;
+  source?: LocationConsentSource;
+  version?: string;
+}
+
 // Qué se acepta: el documento, la versión que vio (si no, la vigente) y desde
 // dónde
 export interface DocumentAcceptance {
@@ -106,16 +114,25 @@ export class ConsentsService {
     );
   }
 
-  // Conceder o retirar el permiso de ubicación desde la app: el interruptor
-  // del Perfil (settings), la ventana que explica para qué se usa
+  // Conceder o retirar el consentimiento de ubicación desde la app: el
+  // interruptor del Perfil (settings), la ventana que explica para qué se usa
   // (location_prompt) o al detectar que se quitó el permiso del sistema
-  // (device). Idempotente si el último estado registrado ya coincide
+  // (device). Se concede la versión vigente de su documento (si se indica otra,
+  // LegalDocumentOutdatedError) y se retira la última concedida. Idempotente
+  // si el último estado registrado ya coincide
   async recordLocationConsent(
     userId: string,
-    action: ConsentAction,
-    source: LocationConsentSource = 'settings',
+    change: LocationConsentChange,
   ): Promise<UserConsentsView> {
-    const privacy = await this.legalDocuments.getCurrent('privacy');
+    const { action, source = 'settings' } = change;
+    const document = await this.legalDocuments.getCurrent('location');
+    if (
+      action === 'granted' &&
+      change.version !== undefined &&
+      change.version !== document.version
+    ) {
+      throw new LegalDocumentOutdatedError('location');
+    }
     await this.dataSource.transaction(async (manager) => {
       const user = await manager.findOne(User, {
         where: { id: userId },
@@ -128,13 +145,27 @@ export class ConsentsService {
         where: { userId, type: 'location' },
         order: { recordedAt: 'DESC', id: 'DESC' },
       });
-      if (latest?.action === action) {
+      const isGranted =
+        latest?.action === 'granted' &&
+        latest.documentVersion === document.version;
+      if (
+        (action === 'granted' && isGranted) ||
+        (action === 'revoked' && latest?.action === 'revoked')
+      ) {
         return;
       }
+      const reference =
+        action === 'granted' || latest === null
+          ? { documentVersion: document.version, ...referenceTo(document) }
+          : {
+              documentVersion: latest.documentVersion,
+              documentId: latest.documentId,
+              contentHash: latest.contentHash,
+            };
       await this.insertConsent(manager, {
         userId,
         type: 'location',
-        documentVersion: privacy.version,
+        ...reference,
         action,
         source,
         recordedAt: new Date(),
@@ -312,7 +343,25 @@ export class ConsentsService {
     for (const type of CURRENT_CONSENT_TYPES) {
       current[type] = history.find((item) => item.type === type) ?? null;
     }
-    return { current, history };
+    return { current, outdated: await this.outdatedTypes(current), history };
+  }
+
+  // De los concedidos, los anteriores al último cambio importante de su
+  // documento
+  private async outdatedTypes(
+    current: Record<CurrentConsentType, UserConsentRecord | null>,
+  ): Promise<CurrentConsentType[]> {
+    const isOutdated = await Promise.all(
+      CURRENT_CONSENT_TYPES.map(async (type) => {
+        const consent = current[type];
+        if (consent?.action !== 'granted') {
+          return false;
+        }
+        const required = await this.legalDocuments.requiredVersion(type);
+        return compareLegalVersions(consent.documentVersion, required) < 0;
+      }),
+    );
+    return CURRENT_CONSENT_TYPES.filter((_, index) => isOutdated[index]);
   }
 
   private async insertConsent(

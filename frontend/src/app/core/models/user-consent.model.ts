@@ -43,5 +43,8 @@ export interface UserConsents {
     // La declaración responsable del conductor (RF-21)
     driverDeclaration: ConsentRecord | null;
   };
+  // Los concedidos anteriores al último cambio importante de su documento:
+  // hay que volver a aceptarlos y, mientras, no cuentan
+  outdated: Exclude<ConsentType, 'vehicle_declaration'>[];
   history: ConsentRecord[];
 }

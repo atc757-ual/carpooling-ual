@@ -69,6 +69,10 @@ export interface UserConsentRecord {
 
 export interface UserConsentsView {
   current: Record<CurrentConsentType, UserConsentRecord | null>;
+  // Los concedidos que son anteriores al último cambio importante de su
+  // documento: hay que volver a aceptarlos y, mientras, no cuentan (p. ej. la
+  // app no usa la ubicación hasta que se acepte la versión nueva)
+  outdated: CurrentConsentType[];
   history: UserConsentRecord[];
 }
 

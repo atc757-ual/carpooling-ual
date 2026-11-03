@@ -3,11 +3,13 @@ import {
   CONSENT_ACTIONS,
   CONSENT_SOURCES,
   CONSENT_TYPES,
+  CURRENT_CONSENT_TYPES,
 } from '../user-consent';
 import type {
   ConsentAction,
   ConsentSource,
   ConsentType,
+  CurrentConsentType,
   UserConsentRecord,
   UserConsentsView,
 } from '../user-consent';
@@ -77,6 +79,15 @@ export class UserConsentsResource {
   @ApiProperty({ type: CurrentConsentsResource })
   current!: CurrentConsentsResource;
 
+  @ApiProperty({
+    enum: CURRENT_CONSENT_TYPES,
+    isArray: true,
+    example: ['location'],
+    description:
+      'Granted consents older than the last major change of their document: they must be accepted again and do not count meanwhile',
+  })
+  outdated!: CurrentConsentType[];
+
   @ApiProperty({ type: [ConsentRecordResource] })
   history!: ConsentRecordResource[];
 }
@@ -107,6 +118,7 @@ export function toUserConsentsResource(
       location: toNullableResource(view.current.location),
       driverDeclaration: toNullableResource(view.current.driver_declaration),
     },
+    outdated: view.outdated,
     history: view.history.map(toConsentRecordResource),
   };
 }

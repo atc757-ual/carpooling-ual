@@ -21,10 +21,12 @@ describe('ProfilePage', () => {
   const getMe = vi.fn();
   const getMyConsents = vi.fn().mockResolvedValue({
     current: { terms: null, privacy: null, location: null },
+    outdated: [],
     history: [],
   });
   const setLocationConsent = vi.fn().mockResolvedValue({
     current: { terms: null, privacy: null, location: { action: 'granted' } },
+    outdated: [],
     history: [],
   });
   const checkPermission = vi.fn().mockResolvedValue('prompt');
@@ -85,6 +87,7 @@ describe('ProfilePage', () => {
           useValue: {
             load: vi.fn().mockResolvedValue({
               current: { terms: null, privacy: null, location: null },
+              outdated: [],
               history: [],
             }),
             set: setLocationConsent,

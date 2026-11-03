@@ -20,6 +20,7 @@ const DOCUMENT_TYPES: readonly LegalDocumentType[] = [
   'privacy',
   'driver_declaration',
   'vehicle_declaration',
+  'location',
 ];
 // Las declaraciones del conductor y de sus vehículos: se aceptan al publicar
 const DECLARATION_TYPES: ReadonlySet<LegalDocumentType> = new Set([
@@ -183,9 +184,15 @@ export class LegalDocumentsEditor {
 }
 
 // Qué pasará al publicar: tras un cambio importante hay que volver a aceptar
-// las condiciones y la política para usar la app, y la declaración para
-// publicar viajes; los menores de las condiciones y la política se avisan
+// las condiciones y la política para usar la app, la declaración para
+// publicar viajes y el texto de la ubicación para que la app la use; los
+// menores de las condiciones y la política se avisan
 export function publishMessage(type: LegalDocumentType, changeType: LegalChangeType): string {
+  if (type === 'location') {
+    return changeType === 'major'
+      ? 'Es un cambio importante: pasará a ser la vigente y la app no usará la ubicación de nadie hasta que la lea y la acepte, la próxima vez que vaya a usarla.'
+      : 'Es un cambio menor: pasará a ser la vigente y nadie tendrá que aceptarla.';
+  }
   if (changeType === 'major') {
     return DECLARATION_TYPES.has(type)
       ? 'Es un cambio importante: pasará a ser la vigente y cada conductor tendrá que leerla y aceptarla antes de publicar su próximo viaje.'

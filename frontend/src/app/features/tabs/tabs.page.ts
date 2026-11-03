@@ -17,7 +17,6 @@ import {
   IonTabs,
   IonTitle,
   IonToolbar,
-  ModalController,
 } from '@ionic/angular';
 import { filter, map } from 'rxjs';
 import {
@@ -43,9 +42,6 @@ import { ActiveModeService, TravelMode } from '../../core/services/users/active-
 import { BrandLogo } from '../../shared/components/ui/brand-logo/brand-logo';
 import { BrandGreeting } from '../../shared/components/ui/brand-greeting/brand-greeting';
 import { findTabHeading } from './tab-heading';
-import { LocationService } from '../../core/services/location/location.service';
-import { PreferencesPlugin } from '../../core/plugins/preferences-plugin';
-import { LocationPermissionModal } from './location-permission-modal/location-permission-modal';
 import { confirmLogout } from '../../core/services/auth/confirm-logout';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
 
@@ -65,9 +61,6 @@ export const MESSAGES_REFRESH_MS = 30_000;
 const PROFILE_TAB: Tab = { path: 'profile', label: 'Mi perfil', icon: personOutline };
 
 // Qué lado guarda cada pestaña al entrar (y por dónde se abre la próxima vez)
-// Se dijo «Ahora no» a la ventana de la ubicación (en este dispositivo)
-const LOCATION_OFFER_KEY = 'location.offer-dismissed';
-
 const SIDES: readonly { path: string; mode: TravelMode }[] = [
   { path: '/tabs/search', mode: 'passenger' },
   { path: '/tabs/publish', mode: 'driver' },
@@ -118,9 +111,6 @@ export class TabsPage implements OnInit {
   private readonly chat = inject(ChatService);
   private readonly driverTracking = inject(DriverTrackingService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly location = inject(LocationService);
-  private readonly preferences = inject(PreferencesPlugin);
-  private readonly modalController = inject(ModalController);
   private readonly confirm = inject(ConfirmService);
 
   // La cabecera propia de la pestaña que se ve, o null (saludo y logotipo)
@@ -165,7 +155,6 @@ export class TabsPage implements OnInit {
       }
     }, MESSAGES_REFRESH_MS);
     this.destroyRef.onDestroy(() => clearInterval(timer));
-    void this.offerLocation();
     // Un viaje en curso sigue compartiendo la posición al volver a la app
     void this.driverTracking.resume();
     this.router.events
@@ -177,28 +166,6 @@ export class TabsPage implements OnInit {
         this.countUnread();
         void this.rememberSide();
       });
-  }
-
-  // Al entrar: si aún no se ha decidido el permiso de ubicación y no se dijo
-  // «Ahora no» en este dispositivo, la ventana que explica para qué se usa.
-  // Con el permiso ya dado (o denegado), no se muestra
-  private async offerLocation(): Promise<void> {
-    if (
-      !this.auth.isLoggedIn() ||
-      (await this.location.checkPermission()) !== 'prompt' ||
-      (await this.preferences.get(LOCATION_OFFER_KEY)) !== null
-    ) {
-      return;
-    }
-    const modal = await this.modalController.create({
-      component: LocationPermissionModal,
-      cssClass: 'info-dialog',
-    });
-    await modal.present();
-    const { role } = await modal.onDidDismiss();
-    if (role === 'later') {
-      await this.preferences.set(LOCATION_OFFER_KEY, 'later');
-    }
   }
 
   // Solo con la sesión abierta: al cerrarla (o caducar) también se navega, y

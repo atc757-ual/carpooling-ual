@@ -86,3 +86,18 @@
     }
   }
 }
+
+// «Cómo usamos tu ubicación»: abre el texto completo, dentro de la explicación
+.location__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}

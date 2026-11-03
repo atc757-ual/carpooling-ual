@@ -38,12 +38,18 @@ export class UsersService {
     return this.send(this.http.get<UserConsents>(`${this.meUrl}/consents`));
   }
 
+  // Al concederlo, version: la del texto de la ubicación que se leyó
   setLocationConsent(
     action: ConsentAction,
     source: LocationConsentSource = 'settings',
+    version?: string,
   ): Promise<UserConsents> {
     return this.send(
-      this.http.put<UserConsents>(`${this.meUrl}/consents/location`, { action, source }),
+      this.http.put<UserConsents>(`${this.meUrl}/consents/location`, {
+        action,
+        source,
+        ...(version ? { version } : {}),
+      }),
     );
   }
 

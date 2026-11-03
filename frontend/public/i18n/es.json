@@ -74,6 +74,8 @@
       "shareDesc": "Para proponerte paradas y desvíos. Si conduces, tu ubicación se comparte con tus pasajeros mientras el viaje está en curso aunque lo desactives: es parte del servicio.",
       "authorizedOn": "Autorizada el {{ date }}",
       "withdrawnOn": "Retirada el {{ date }}",
+      "outdated": "Hemos actualizado cómo usamos tu ubicación: actívala para aceptar el texto nuevo. Mientras, no la usamos.",
+      "readTerms": "Cómo usamos tu ubicación",
       "hashTitle": "Código que acredita el registro",
       "hashHidden": "Código que acredita el registro:",
       "devicePermission": "Permiso del dispositivo",
