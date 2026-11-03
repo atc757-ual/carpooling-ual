@@ -12,7 +12,8 @@ import { withLegalVersionsLock } from './support/legal-versions-lock';
 // Documentos legales con versiones: la vigente sin sesión, el borrador y su
 // publicación desde el panel, y la aceptación de la versión nueva. Los
 // usuarios llevan el prefijo EMAIL_PREFIX. Las versiones que crea el test (y
-// sus eventos) se borran al terminar: solo queda la 1.0 de la migración
+// sus eventos) se borran al terminar: quedan las 1.0 y los borradores que
+// traen las migraciones, tal como estaban
 const EMAIL_PREFIX = 'legal-documents-e2e-';
 const PASSWORD = 'secret-password';
 
@@ -23,11 +24,22 @@ interface Document {
   status?: string;
 }
 
+interface DraftRow {
+  id: string;
+  type: string;
+  version: string;
+  content: string;
+  change_type: string;
+  summary: string | null;
+  created_at: Date;
+}
+
 describe('Legal documents (e2e)', () => {
   let app: INestApplication<App>;
   let dataSource: DataSource;
   let adminToken: string;
   let userToken: string;
+  let originalDrafts: DraftRow[] = [];
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -37,6 +49,12 @@ describe('Legal documents (e2e)', () => {
     configureApp(app);
     await app.init();
     dataSource = app.get(DataSource);
+    // Los borradores que trae la base de datos (p. ej. el de la política que
+    // añade una migración): los tests los cambian y se dejan como estaban
+    originalDrafts = await dataSource.query<DraftRow[]>(
+      `SELECT id, type, version, content, change_type, summary, created_at
+         FROM legal_documents WHERE status = 'draft'`,
+    );
   });
 
   beforeEach(async () => {
@@ -54,8 +72,31 @@ describe('Legal documents (e2e)', () => {
   });
 
   // Las versiones que crean los tests, con las aceptaciones que apuntan a
-  // ellas (de los usuarios de prueba)
+  // ellas (de los usuarios de prueba); los borradores que había se vuelven a
+  // dejar como estaban (un test puede haberlos cambiado o publicado)
   async function removeTestVersions(): Promise<void> {
+    await deleteTestVersions();
+    await Promise.all(
+      originalDrafts.map((draft) =>
+        dataSource.query(
+          `INSERT INTO legal_documents
+             (id, type, version, content, status, change_type, summary, created_at)
+           VALUES ($1, $2, $3, $4, 'draft', $5, $6, $7)`,
+          [
+            draft.id,
+            draft.type,
+            draft.version,
+            draft.content,
+            draft.change_type,
+            draft.summary,
+            draft.created_at,
+          ],
+        ),
+      ),
+    );
+  }
+
+  async function deleteTestVersions(): Promise<void> {
     await dataSource.query(
       `DELETE FROM events WHERE source_entity_id IN (
          SELECT id FROM legal_documents WHERE version <> '1.0')`,
@@ -289,11 +330,32 @@ describe('Legal documents (e2e)', () => {
     expect((list.body as Document[]).map(({ version }) => version)).toContain(
       '1.0',
     );
-    const missing = await admin('post', '/privacy/draft/publish').expect(404);
+    // Las condiciones no tienen borrador (la política sí, de una migración)
+    const missing = await admin('post', '/terms/draft/publish').expect(404);
     expect((missing.body as { code: string }).code).toBe(
       'LEGAL_DRAFT_NOT_FOUND',
     );
-    await admin('get', '/privacy/draft').expect(404);
+    await admin('get', '/terms/draft').expect(404);
+  });
+
+  it('brings the privacy policy 1.1 draft for review, not published', async () => {
+    const draft = await admin('get', '/privacy/draft').expect(200);
+    expect(draft.body).toMatchObject({
+      version: '1.1',
+      status: 'draft',
+      changeType: 'minor',
+    });
+    const { content, summary } = draft.body as {
+      content: string;
+      summary: string;
+    };
+    expect(summary).toContain('parte del servicio');
+    expect(content).toContain('Ubicación del conductor durante el viaje');
+    expect(content).toContain('artículo 6.1.b');
+    await request(app.getHttpServer())
+      .get('/api/legal-documents/privacy')
+      .expect(200)
+      .expect(({ body }) => expect((body as Document).version).toBe('1.0'));
   });
 
   it('lets only admins manage the documents', async () => {
