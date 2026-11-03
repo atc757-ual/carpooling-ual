@@ -712,7 +712,7 @@
       <li><b>Ubicación:</b> en el origen, el botón «Usar mi ubicación» (la mira, 32px, con tooltip). Con el permiso ya dado, la dirección se rellena sola al entrar y el icono late; en el campus (a menos de 1 km de un parking), en vez de rellenarla se propone «Estás en el campus. ¿Vuelves a casa?». La primera vez, la ventana explica para qué se usa; si se denegó, cómo activarlo.</li>
       <li><b>Mapas</b> (OpenStreetMap, 256px, con atribución): «Ajustar en el mapa» (con una dirección elegida) mueve el pin, un punto azul de 24px que se arrastra o se toca, y «Usar esta dirección» solo dentro de la zona; «Ver en el mapa» (con un parking elegido) solo muestra dónde está. En el detalle del viaje, el mapa muestra la ruta del conductor y distingue salida, recogida y destino; mide 12rem (192px) en móvil y no captura gestos de desplazamiento.</li>
       <li><b>Fecha, hora y plazas:</b> la fecha (de hoy a dentro de un mes) y la hora en una ventana blanca con «Cancelar» y «Aceptar»; las plazas, en un campo con − y + de 44px. Hora por defecto: en Buscar, dentro de media hora; en Publicar, dentro de una hora (margen para cancelar).</li>
-      <li><b>Ventanas</b> (<code>ion-modal</code>): tan altas como su contenido (como mucho el 90 % de la pantalla); en el móvil, pegadas abajo y con esquinas solo arriba; en escritorio, centradas. Título a la izquierda y X de 28px. Ionic va en modo md en todas las plataformas.</li>
+      <li><b>Ventanas</b> (<code>ion-modal</code>): todas con el mismo marco (ver «9. Modales y avisos»): como mucho el 85 % de la pantalla; en el móvil, pegadas abajo y con esquinas solo arriba; en escritorio, centradas y de 720px. Título a la izquierda y ✕ de 28px en un botón de 48px. Ionic va en modo md en todas las plataformas.</li>
       <li><b>«Tu búsqueda»</b> (resultados): el resumen con la línea de ruta y el lápiz para editarla en una ventana; arriba en el móvil y en la columna de 4 en escritorio.</li>
     </ul>
 
@@ -939,6 +939,13 @@
         <button class="btn btn--clear btn--block" type="button">No compartir</button>
       </div></div>
     </div>
+
+    <h3>Marco común de las ventanas</h3>
+    <ul class="note">
+      <li><b>Tamaño:</b> como mucho el <b>85 %</b> del alto de la pantalla. Formularios, avisos y confirmaciones (<code>info-dialog</code>) y el mapa (<code>location-dialog</code>) miden lo que su contenido; los textos legales (<code>legal-dialog</code>), siempre el 85 %. En escritorio, centradas y de <b>720px</b> (<code>45rem</code>); en el móvil, una hoja pegada abajo con su muesca.</li>
+      <li><b>Cabecera</b> (<code>app-modal-header</code>, clase <code>.modal-header</code>): fija, con el título a la izquierda y la ✕ (<code>.modal-close-button</code>, botón de 48px con icono de 28px) a la derecha. Ninguna ventana repite su propio botón de cerrar.</li>
+      <li><b>Contenido</b> (<code>.modal-body</code>): 16px de relleno (abajo, como mínimo 24px más la barra del sistema), fondo de superficie y <b>su propio scroll</b> cuando no cabe. Las confirmaciones, sin cabecera, también lo usan.</li>
+    </ul>
 
     <h3>Confirmación destructiva</h3>
     <div class="state-card" style="max-width:26rem">

@@ -7,22 +7,12 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import {
-  IonButton,
-  IonButtons,
-  IonHeader,
-  IonIcon,
-  IonInput,
-  IonSpinner,
-  IonTitle,
-  IonToolbar,
-  ModalController,
-} from '@ionic/angular';
+import { IonButton, IonIcon, IonInput, IonSpinner, ModalController } from '@ionic/angular';
+import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
   alertCircleOutline,
   checkmarkCircleOutline,
-  close,
   eyeOffOutline,
   eyeOutline,
   lockClosedOutline,
@@ -52,15 +42,12 @@ function matchesPassword(confirmation: AbstractControl<string>): ValidationError
 @Component({
   selector: 'app-profile-password-modal',
   imports: [
+    ModalHeader,
     ReactiveFormsModule,
     IonButton,
-    IonButtons,
-    IonHeader,
     IonIcon,
     IonInput,
     IonSpinner,
-    IonTitle,
-    IonToolbar,
     TranslocoPipe,
     IonicFormStatus,
     IdentityCheck,
@@ -88,7 +75,7 @@ export class ProfilePasswordModal {
 
   readonly requestCode = () => this.auth.requestPasswordChangeCode();
   readonly verifyCode = (code: string) => this.auth.verifyPasswordChangeCode(code);
-  protected readonly closeIcon = close;
+
   protected readonly lockIcon = lockClosedOutline;
   protected readonly checkIcon = checkmarkCircleOutline;
   protected readonly alertIcon = alertCircleOutline;

@@ -2,17 +2,14 @@ import { Component, computed, inject, Input, OnInit, signal } from '@angular/cor
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   IonButton,
-  IonButtons,
-  IonHeader,
   IonIcon,
   IonInput,
   IonSpinner,
   IonTextarea,
-  IonTitle,
-  IonToolbar,
   ModalController,
 } from '@ionic/angular';
-import { checkmark, close } from 'ionicons/icons';
+import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
+import { checkmark } from 'ionicons/icons';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AvatarOption } from '../../../core/models/avatar.model';
@@ -40,18 +37,15 @@ const NAME_MAX_LENGTH = 100;
 @Component({
   selector: 'app-profile-public-modal',
   imports: [
+    ModalHeader,
     AvatarArt,
     IonicFormStatus,
     ReactiveFormsModule,
     IonButton,
-    IonButtons,
-    IonHeader,
     IonIcon,
     IonInput,
     IonSpinner,
     IonTextarea,
-    IonTitle,
-    IonToolbar,
     TranslocoPipe,
   ],
   templateUrl: './profile-public-modal.html',
@@ -85,7 +79,6 @@ export class ProfilePublicModal implements OnInit {
     return this.avatarCatalog().find((a) => a.id === key)?.name ?? 'Avatar';
   });
 
-  protected readonly closeIcon = close;
   protected readonly checkIcon = checkmark;
 
   ngOnInit(): void {

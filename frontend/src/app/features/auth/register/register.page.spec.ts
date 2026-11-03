@@ -165,6 +165,7 @@ describe('RegisterPage', () => {
     expect(createModal).toHaveBeenCalledWith({
       component: LegalModal,
       componentProps: { document: 'privacy' },
+      cssClass: 'legal-dialog',
     });
     expect(page.form.controls.acceptedTerms.value).toBe(false);
   });

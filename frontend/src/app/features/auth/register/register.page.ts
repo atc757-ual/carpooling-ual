@@ -35,7 +35,7 @@ import { EmailSuggestions } from '../../../shared/components/ui/email-suggestion
 import { PhonePrefixSelect } from '../../../shared/components/ui/phone-prefix-select/phone-prefix-select';
 import {
   LegalDocument,
-  LegalModal,
+  openLegalModal,
 } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
@@ -183,12 +183,8 @@ export class RegisterPage {
   }
 
   // Abre las condiciones de uso o la política de privacidad sin salir del formulario
-  async openLegal(document: LegalDocument): Promise<void> {
-    const modal = await this.modalController.create({
-      component: LegalModal,
-      componentProps: { document },
-    });
-    await modal.present();
+  openLegal(document: LegalDocument): Promise<void> {
+    return openLegalModal(this.modalController, document);
   }
 
   // Tab desde el nombre: al número del teléfono, no a su prefijo (el +34

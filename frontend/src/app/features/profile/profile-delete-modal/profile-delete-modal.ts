@@ -1,17 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import {
-  IonButton,
-  IonButtons,
-  IonHeader,
-  IonIcon,
-  IonSpinner,
-  IonTitle,
-  IonToolbar,
-  ModalController,
-} from '@ionic/angular';
+import { IonButton, IonIcon, IonSpinner, ModalController } from '@ionic/angular';
+import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { alertCircleOutline, close, heartOutline, warningOutline } from 'ionicons/icons';
+import { alertCircleOutline, heartOutline, warningOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { UsersService } from '../../../core/services/users/users.service';
@@ -34,17 +26,7 @@ const CODE_ERRORS: ReadonlySet<string> = new Set([
 // aviso y confeti) o 'cancel'
 @Component({
   selector: 'app-profile-delete-modal',
-  imports: [
-    IonButton,
-    IonButtons,
-    IonHeader,
-    IonIcon,
-    IonSpinner,
-    IonTitle,
-    IonToolbar,
-    TranslocoPipe,
-    IdentityCheck,
-  ],
+  imports: [ModalHeader, IonButton, IonIcon, IonSpinner, TranslocoPipe, IdentityCheck],
   templateUrl: './profile-delete-modal.html',
   styleUrl: './profile-delete-modal.scss',
 })
@@ -71,7 +53,7 @@ export class ProfileDeleteModal {
     'profile.deleteModal.requirementPassenger',
     'profile.deleteModal.requirementPending',
   ];
-  protected readonly closeIcon = close;
+
   protected readonly warningIcon = warningOutline;
   protected readonly heartIcon = heartOutline;
   protected readonly alertIcon = alertCircleOutline;

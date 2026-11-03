@@ -136,21 +136,9 @@
      se cierra y los resultados se vuelven a cargar ahí mismo -->
 <ion-modal class="location-dialog" [isOpen]="isEditing()" (didDismiss)="isEditing.set(false)">
   <ng-template>
-    <ion-header class="ion-no-border">
-      <ion-toolbar>
-        <ion-title>Editar búsqueda</ion-title>
-        <ion-buttons slot="end">
-          <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
-          <form (submit)="$event.preventDefault(); isEditing.set(false)">
-            <ion-button class="dialog-close" type="submit" aria-label="Cerrar">
-              <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
-            </ion-button>
-          </form>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
+    <app-modal-header title="Editar búsqueda" (closed)="isEditing.set(false)" />
     <!-- Sin ion-content: así la ventana toma el alto de su contenido -->
-    <div class="search-results__edit-form">
+    <div class="modal-body">
       <app-trip-search-form (searched)="isEditing.set(false)" />
     </div>
   </ng-template>

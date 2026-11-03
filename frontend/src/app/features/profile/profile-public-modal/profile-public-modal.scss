@@ -1,11 +1,3 @@
-.profile-public-modal {
-  max-height: calc(90vh - 3.5rem);
-  overflow-y: auto;
-  padding: var(--space-base);
-  padding-bottom: max(var(--space-l), calc(var(--space-base) + env(safe-area-inset-bottom, 0px)));
-  background: var(--color-surface);
-}
-
 .profile-public-modal__section {
   display: flex;
   flex-direction: column;

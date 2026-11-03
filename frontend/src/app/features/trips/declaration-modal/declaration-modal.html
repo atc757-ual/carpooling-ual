@@ -1,19 +1,7 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-title>Declaración responsable</ion-title>
-    <ion-buttons slot="end">
-      <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
-      <form (submit)="$event.preventDefault(); close()">
-        <ion-button class="dialog-close" type="submit" aria-label="Cerrar">
-          <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
-        </ion-button>
-      </form>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<app-modal-header title="Declaración responsable" (closed)="close()" />
 
 <!-- Sin ion-content: así la ventana toma el alto de su contenido -->
-<div class="declaration">
+<div class="modal-body declaration">
   <p>Antes de ofrecer tu primer viaje, declaras que:</p>
   <ul class="declaration__list">
     <li>Tienes el <b>permiso de conducir en vigor</b>, válido en España para tu vehículo.</li>

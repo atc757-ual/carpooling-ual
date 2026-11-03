@@ -1,5 +1,5 @@
 <!-- Sin ion-content: así la ventana toma el alto de su contenido -->
-<form class="confirm" (submit)="$event.preventDefault(); handleConfirm()">
+<form class="modal-body confirm" (submit)="$event.preventDefault(); handleConfirm()">
   <ion-icon class="confirm__icon" [icon]="icon" aria-hidden="true" />
   <h2 class="text-subtitle">{{ header }}</h2>
   <p class="text-body-s text-color-muted">{{ message }}</p>

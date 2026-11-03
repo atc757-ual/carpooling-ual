@@ -1,16 +1,8 @@
 import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
-import {
-  IonButton,
-  IonButtons,
-  IonHeader,
-  IonIcon,
-  IonSpinner,
-  IonTitle,
-  IonToolbar,
-  ModalController,
-} from '@ionic/angular';
+import { IonButton, IonIcon, IonSpinner, ModalController } from '@ionic/angular';
+import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { close } from 'ionicons/icons';
+
 import { ApiError } from '../../../core/models/api-error.model';
 import {
   ConversationPreference,
@@ -32,16 +24,7 @@ import { PREFERENCE_ICONS, TIME_TOLERANCE_ICON } from '../preference-icons';
 // Ventana para editar las preferencias de viaje y el margen de búsqueda
 @Component({
   selector: 'app-profile-preferences-modal',
-  imports: [
-    IonButton,
-    IonButtons,
-    IonHeader,
-    IonIcon,
-    IonSpinner,
-    IonTitle,
-    IonToolbar,
-    TranslocoPipe,
-  ],
+  imports: [ModalHeader, IonButton, IonIcon, IonSpinner, TranslocoPipe],
   templateUrl: './profile-preferences-modal.html',
   styleUrl: './profile-preferences-modal.scss',
 })
@@ -61,7 +44,6 @@ export class ProfilePreferencesModal implements OnInit {
 
   readonly isSaving = signal(false);
 
-  protected readonly closeIcon = close;
   protected readonly tolerances = TIME_TOLERANCES_MIN;
   private readonly travelPreferences = inject(TravelPreferencesStore);
   protected readonly groups = computed(() =>

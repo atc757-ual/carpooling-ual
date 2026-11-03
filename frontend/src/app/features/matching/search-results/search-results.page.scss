@@ -173,16 +173,6 @@ ion-card-content.search-results__state {
   }
 }
 
-// El formulario de la ventana «Editar búsqueda»: con su propio scroll si no
-// cabe (como mucho, el 90 % de la pantalla menos la cabecera)
-.search-results__edit-form {
-  max-height: calc(90vh - 3.5rem);
-  overflow-y: auto;
-  padding: var(--space-base);
-  padding-bottom: max(var(--space-l), calc(var(--space-base) + env(safe-area-inset-bottom, 0px)));
-  background: var(--color-surface);
-}
-
 // El título del estado, como el de «Aún no tienes vehículos» de Publicar
 .search-results__state-title {
   font-weight: var(--font-weight-semibold);

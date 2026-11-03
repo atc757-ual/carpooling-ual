@@ -275,22 +275,52 @@ ion-modal ion-title {
   text-align: start;
 }
 
-// Ventanas de la ubicación y de texto (p. ej. la declaración responsable):
-// tan altas como su contenido (como mucho, el 90 % de la pantalla; el
-// contenido lleva su propio scroll). En escritorio, centradas; en el móvil, a
-// todo el ancho y pegadas abajo, como una hoja, con las esquinas redondeadas
-// solo arriba. El contenido no usa ion-content: con él, Ionic no podría
-// calcular el alto
+// Todas las ventanas tienen el mismo marco: como mucho, el 85 % del alto de
+// la pantalla; en escritorio, centradas y de 720px de ancho; en el móvil, una
+// hoja pegada abajo (más abajo). Las de formularios, avisos y confirmaciones
+// (info-dialog) y la de la ubicación (location-dialog) son tan altas como su
+// contenido; los textos legales (legal-dialog), siempre del 85 %. El
+// contenido de las primeras no usa ion-content (con él, Ionic no podría
+// calcular el alto): va en un .modal-body con su propio scroll
+ion-modal.location-dialog,
+ion-modal.info-dialog,
+ion-modal.legal-dialog {
+  --max-height: 85%;
+}
+
 ion-modal.location-dialog,
 ion-modal.info-dialog {
   --height: auto;
-  --max-height: 90%;
 
   .ion-page {
     position: relative;
     display: block;
     contain: content;
   }
+}
+
+ion-modal.legal-dialog {
+  --height: 85%;
+}
+
+@media (min-width: 768px) {
+  ion-modal.location-dialog,
+  ion-modal.info-dialog,
+  ion-modal.legal-dialog {
+    --width: 45rem; // 720px
+    --border-radius: var(--radius-s);
+  }
+}
+
+// El contenido de una ventana, debajo de su cabecera (app-modal-header, de
+// 56px): el alto que queda hasta el 85 %, con su propio scroll y sitio abajo
+// para la barra del sistema
+.modal-body {
+  max-height: calc(85vh - 3.5rem);
+  overflow-y: auto;
+  padding: var(--space-base);
+  padding-bottom: max(var(--space-l), calc(var(--space-base) + env(safe-area-inset-bottom, 0px)));
+  background: var(--color-surface);
 }
 
 // Texto de un documento legal (llega del backend ya saneado, por innerHTML):
@@ -322,17 +352,6 @@ ion-modal.info-dialog {
   }
 }
 
-// Textos legales (Condiciones, Privacidad) en escritorio: una ventana centrada
-// de 720px y el 80 % del alto, para leer cómodo sin ocupar toda la pantalla
-// (en el móvil, una hoja hasta 3/4 con puntos de anclaje)
-@media (min-width: 768px) {
-  ion-modal.legal-dialog {
-    --width: 45rem; // 720px
-    --height: 80%;
-    --border-radius: var(--radius-s);
-  }
-}
-
 // En el móvil, las ventanas son hojas que suben desde abajo: a todo el ancho,
 // con las esquinas redondeadas solo arriba y la muesca (una barrita gris
 // centrada) que indica que se pueden cerrar. El calendario y la hora, igual,
@@ -341,6 +360,7 @@ ion-modal.info-dialog {
 @media (max-width: 767.98px) {
   ion-modal.location-dialog,
   ion-modal.info-dialog,
+  ion-modal.legal-dialog,
   ion-modal.datetime-modal {
     --border-radius: var(--radius-s) var(--radius-s) 0 0;
 
@@ -372,22 +392,23 @@ ion-modal.info-dialog {
   }
 }
 
-// La X de cerrar las ventanas: un botón redondo de 40px con el icono de 24px
-// en el color del texto (al pasar el ratón, el velo suave de Ionic). El selector es
-// largo a propósito: ion-buttons fija el tamaño de los iconos con sus clases
-// (sc-ion-buttons-*) y ganaría a uno más corto
-ion-toolbar ion-buttons ion-button.dialog-close {
+// La ✕ de cerrar las ventanas (app-modal-header): un botón redondo de 48px
+// con el icono de 28px en el color del texto (al pasar el ratón, el velo
+// suave de Ionic). El selector es largo a propósito: ion-buttons fija el
+// tamaño de los iconos con sus clases (sc-ion-buttons-*) y ganaría a uno más
+// corto
+ion-toolbar ion-buttons ion-button.modal-close-button {
   --padding-start: 0;
   --padding-end: 0;
   --border-radius: var(--radius-full);
   --color: var(--color-text);
 
-  width: 2.5rem; // 40px
-  height: 2.5rem;
+  width: 3rem; // 48px
+  height: 3rem;
   margin: 0;
 
   ion-icon[slot='icon-only'] {
-    font-size: 1.5rem; // 24px
+    font-size: 1.75rem; // 28px
   }
 }
 

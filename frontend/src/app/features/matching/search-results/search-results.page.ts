@@ -2,7 +2,6 @@ import { Component, computed, effect, inject, resource, signal } from '@angular/
 import { RouterLink } from '@angular/router';
 import {
   IonButton,
-  IonButtons,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -16,13 +15,12 @@ import {
   IonSegment,
   IonSegmentButton,
   IonSpinner,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular';
-import { alertCircleOutline, close, createOutline, searchOutline } from 'ionicons/icons';
+import { alertCircleOutline, createOutline, searchOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { TripSearch } from '../../../core/models/trip-search.model';
 import { MatchingService } from '../../../core/services/matching/matching.service';
+import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import {
@@ -48,7 +46,6 @@ type SearchSortOrder = 'arrival' | 'detour';
   imports: [
     RouterLink,
     IonButton,
-    IonButtons,
     IonCard,
     IonCardContent,
     IonCardHeader,
@@ -62,8 +59,7 @@ type SearchSortOrder = 'arrival' | 'detour';
     IonSegment,
     IonSegmentButton,
     IonSpinner,
-    IonTitle,
-    IonToolbar,
+    ModalHeader,
     RouteTimeline,
     TripResultCard,
     TripSearchForm,
@@ -137,7 +133,6 @@ export class SearchResultsPage {
   readonly isEditing = signal(false);
 
   protected readonly editIcon = createOutline;
-  protected readonly closeIcon = close;
   protected readonly emptyIcon = searchOutline;
   protected readonly errorIcon = alertCircleOutline;
 

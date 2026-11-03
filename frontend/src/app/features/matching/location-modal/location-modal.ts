@@ -9,17 +9,9 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import {
-  IonButton,
-  IonButtons,
-  IonHeader,
-  IonIcon,
-  IonSpinner,
-  IonTitle,
-  IonToolbar,
-  ModalController,
-} from '@ionic/angular';
-import { close, locateOutline } from 'ionicons/icons';
+import { IonButton, IonIcon, IonSpinner, ModalController } from '@ionic/angular';
+import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
+import { locateOutline } from 'ionicons/icons';
 import type * as Leaflet from 'leaflet';
 import { Place } from '../../../core/models/place.model';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
@@ -57,7 +49,7 @@ export type LocationModalResult = [number, number] | Place;
   selector: 'app-location-modal',
   // ion-page: así Ionic reparte el alto entre la cabecera y el contenido
   host: { class: 'ion-page' },
-  imports: [IonButton, IonButtons, IonHeader, IonIcon, IonSpinner, IonTitle, IonToolbar],
+  imports: [ModalHeader, IonButton, IonIcon, IonSpinner],
   templateUrl: './location-modal.html',
   styleUrl: './location-modal.scss',
 })
@@ -92,7 +84,6 @@ export class LocationModal implements OnInit, OnDestroy {
   // mientras la ventana aún está apareciendo: Leaflet lo mediría a 0)
   private resizeObserver: ResizeObserver | null = null;
 
-  protected readonly closeIcon = close;
   protected readonly locateIcon = locateOutline;
 
   constructor() {

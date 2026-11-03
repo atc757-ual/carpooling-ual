@@ -1,11 +1,3 @@
-.profile-phone-modal {
-  max-height: calc(90vh - 3.5rem);
-  overflow-y: auto;
-  padding: var(--space-s) var(--space-base) var(--space-base);
-  padding-bottom: max(var(--space-base), calc(var(--space-s) + env(safe-area-inset-bottom, 0px)));
-  background: var(--color-surface);
-}
-
 // Número y estado en una fila, en una caja suave
 .profile-phone-modal__current {
   display: flex;

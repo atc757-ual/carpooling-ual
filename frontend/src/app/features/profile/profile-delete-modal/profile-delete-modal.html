@@ -1,20 +1,10 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-title>{{ 'profile.deleteModal.title' | transloco }}</ion-title>
-    <ion-buttons slot="end">
-      <button
-        type="button"
-        class="modal-close-button"
-        (click)="close()"
-        [attr.aria-label]="'common.close' | transloco"
-      >
-        <ion-icon [icon]="closeIcon" aria-hidden="true" />
-      </button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<app-modal-header
+  [title]="'profile.deleteModal.title' | transloco"
+  [closeLabel]="'common.close' | transloco"
+  (closed)="close()"
+/>
 
-<div class="profile-delete-modal">
+<div class="modal-body profile-delete-modal">
   @if (errorMessage()) {
     <div class="notice notice--danger profile-delete-modal__notice" role="alert">
       <ion-icon [icon]="alertIcon" aria-hidden="true" />

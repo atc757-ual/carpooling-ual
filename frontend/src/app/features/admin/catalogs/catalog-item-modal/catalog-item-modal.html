@@ -1,5 +1,5 @@
 <!-- Sin ion-content: así la ventana toma el alto de su contenido -->
-<form class="confirm catalog-item" (submit)="$event.preventDefault(); handleConfirm()">
+<form class="modal-body confirm catalog-item" (submit)="$event.preventDefault(); handleConfirm()">
   <h2 class="text-subtitle">{{ header }}</h2>
 
   @for (field of textFields(); track field) {

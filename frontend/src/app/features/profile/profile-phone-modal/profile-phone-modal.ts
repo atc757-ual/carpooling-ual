@@ -10,19 +10,9 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  IonButton,
-  IonButtons,
-  IonHeader,
-  IonIcon,
-  IonInput,
-  IonSpinner,
-  IonText,
-  IonTitle,
-  IonToolbar,
-  ModalController,
-} from '@ionic/angular';
-import { checkmarkCircle, close, shieldCheckmarkOutline } from 'ionicons/icons';
+import { IonButton, IonIcon, IonInput, IonSpinner, IonText, ModalController } from '@ionic/angular';
+import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
+import { checkmarkCircle, shieldCheckmarkOutline } from 'ionicons/icons';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { User } from '../../../core/models/user.model';
@@ -50,17 +40,14 @@ const TOO_MANY_ATTEMPTS = 'TOO_MANY_ATTEMPTS';
 @Component({
   selector: 'app-profile-phone-modal',
   imports: [
+    ModalHeader,
     IonicFormStatus,
     ReactiveFormsModule,
     IonButton,
-    IonButtons,
-    IonHeader,
     IonIcon,
     IonInput,
     IonSpinner,
     IonText,
-    IonTitle,
-    IonToolbar,
     PhonePrefixSelect,
     CodeInput,
     TranslocoPipe,
@@ -98,7 +85,6 @@ export class ProfilePhoneModal implements OnInit {
   readonly secondsToResend = this.resendCountdown.seconds;
   readonly resendLabel = computed(() => getResendLabel(this.secondsToResend()));
 
-  protected readonly closeIcon = close;
   protected readonly verifiedIcon = checkmarkCircle;
   protected readonly shieldIcon = shieldCheckmarkOutline;
 
