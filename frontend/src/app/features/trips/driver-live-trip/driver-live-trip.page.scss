@@ -142,3 +142,20 @@
     background: none;
   }
 }
+
+// «La pantalla no se apagará…», debajo y en gris
+.driver-live-trip__sharing-hint {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+}
+
+// El aviso del rato sin compartir, con «Entendido» a la derecha
+.driver-live-trip__gap {
+  align-items: center;
+
+  ion-button {
+    flex-shrink: 0;
+    margin: 0;
+  }
+}

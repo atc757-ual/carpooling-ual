@@ -28,7 +28,7 @@ export class LocationError extends Error {
 // Lo que se usa del plugin de geolocalización
 export type GeolocationPlugin = Pick<
   typeof Geolocation,
-  'checkPermissions' | 'requestPermissions' | 'getCurrentPosition'
+  'checkPermissions' | 'requestPermissions' | 'getCurrentPosition' | 'watchPosition' | 'clearWatch'
 >;
 
 // El plugin, envuelto en un objeto propio (en los tests se sustituye). No se
@@ -40,6 +40,8 @@ export const GEOLOCATION = new InjectionToken<GeolocationPlugin>('Geolocation', 
     checkPermissions: () => Geolocation.checkPermissions(),
     requestPermissions: (permissions) => Geolocation.requestPermissions(permissions),
     getCurrentPosition: (options) => Geolocation.getCurrentPosition(options),
+    watchPosition: (options, callback) => Geolocation.watchPosition(options, callback),
+    clearWatch: (options) => Geolocation.clearWatch(options),
   }),
 });
 
@@ -99,6 +101,31 @@ export class LocationService {
   // [longitud, latitud]; lanza LocationError
   async getCurrentPoint(): Promise<[number, number]> {
     return (await this.getCurrentLocation()).coordinates;
+  }
+
+  // Sigue la posición mientras se mueve (el GPS la da según cambia: más
+  // precisa y con menos gasto que pedirla cada vez). Con el consentimiento
+  // retirado, no empieza. Devuelve el id para dejar de seguirla
+  async watchPoint(onPoint: (point: [number, number]) => void): Promise<string | null> {
+    if ((await this.consent.getStatus()) !== 'granted') {
+      return null;
+    }
+    try {
+      return await this.geolocation.watchPosition(
+        { enableHighAccuracy: true, timeout: TIMEOUT_MS },
+        (position) => {
+          if (position) {
+            onPoint([position.coords.longitude, position.coords.latitude]);
+          }
+        },
+      );
+    } catch {
+      return null;
+    }
+  }
+
+  async clearWatch(id: string): Promise<void> {
+    await this.geolocation.clearWatch({ id }).catch(() => undefined);
   }
 
   // Coordenadas y precisión para dibujar el halo de ubicación del usuario

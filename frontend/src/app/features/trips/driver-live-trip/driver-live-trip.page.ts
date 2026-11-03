@@ -100,6 +100,8 @@ export class DriverLiveTripPage {
   );
 
   readonly isSharing = computed(() => this.tracking.tripId() === this.trip()?.id);
+  readonly isScreenKeptOn = this.tracking.isScreenKeptOn;
+  readonly gapMinutes = this.tracking.gapMinutes;
   readonly isFinishing = signal(false);
   readonly isPageVisible = signal(true);
   protected readonly locationIcon = locationOutline;
@@ -211,6 +213,10 @@ export class DriverLiveTripPage {
   protected pickupLabel(request: SeatRequest): string {
     const at = request.pickupAt ? `Recoger a las ${formatTime(request.pickupAt)}` : 'Recoger';
     return request.pickupName ? `${at} · ${request.pickupName}` : at;
+  }
+
+  dismissGap(): void {
+    this.tracking.dismissGap();
   }
 
   async handleFinish(): Promise<void> {

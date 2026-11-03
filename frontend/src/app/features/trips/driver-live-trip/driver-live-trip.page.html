@@ -36,8 +36,29 @@
             @if (isSharing()) {
               <output class="notice notice--info driver-live-trip__sharing">
                 <ion-icon [icon]="locationIcon" aria-hidden="true" />
-                <span>Compartiendo tu ubicación con tus pasajeros</span>
+                <span>
+                  Compartiendo tu ubicación con tus pasajeros
+                  @if (isScreenKeptOn()) {
+                    <span class="driver-live-trip__sharing-hint">
+                      La pantalla no se apagará hasta que termines.
+                    </span>
+                  }
+                </span>
               </output>
+              <!-- Al volver tras un rato con la pantalla bloqueada o en otra
+                   app (en el navegador no se comparte en segundo plano) -->
+              @if (gapMinutes(); as minutes) {
+                <div class="notice notice--warning driver-live-trip__gap" role="status">
+                  <span>
+                    <b>Estuviste {{ minutes }} min sin compartir tu ubicación</b>
+                    Con la pantalla bloqueada o en otra app, tus pasajeros no ven dónde estás.
+                    Mantén esta pantalla abierta durante el viaje.
+                  </span>
+                  <ion-button fill="clear" size="small" (click)="dismissGap()"
+                    >Entendido</ion-button
+                  >
+                </div>
+              }
             }
 
             <app-live-trip-map

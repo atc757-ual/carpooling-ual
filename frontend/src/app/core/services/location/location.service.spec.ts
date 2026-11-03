@@ -12,6 +12,8 @@ describe('LocationService', () => {
     getCurrentPosition: vi.fn(),
     requestPermissions: vi.fn(),
     checkPermissions: vi.fn(),
+    watchPosition: vi.fn(),
+    clearWatch: vi.fn(),
   };
   const consent = { getStatus: vi.fn(), set: vi.fn() };
 
@@ -60,6 +62,35 @@ describe('LocationService', () => {
 
     await expect(location.getCurrentPoint()).rejects.toEqual(new LocationError('denied'));
     expect(geolocation.requestPermissions).toHaveBeenCalled();
+  });
+
+  it('follows the position as [longitude, latitude] and stops following it', async () => {
+    geolocation.watchPosition.mockImplementation((_options, callback) => {
+      callback(position(-2.46, 36.84));
+      callback(null);
+      return Promise.resolve('w1');
+    });
+    geolocation.clearWatch.mockResolvedValue(undefined);
+    const points: [number, number][] = [];
+
+    await expect(location.watchPoint((point) => points.push(point))).resolves.toBe('w1');
+    await location.clearWatch('w1');
+
+    expect(points).toEqual([[-2.46, 36.84]]);
+    expect(geolocation.clearWatch).toHaveBeenCalledWith({ id: 'w1' });
+  });
+
+  it('does not follow the position without consent or when the device fails', async () => {
+    consent.getStatus.mockResolvedValue('revoked');
+    await expect(location.watchPoint(vi.fn())).resolves.toBeNull();
+    expect(geolocation.watchPosition).not.toHaveBeenCalled();
+
+    consent.getStatus.mockResolvedValue('granted');
+    geolocation.watchPosition.mockRejectedValue(new Error('not available'));
+    await expect(location.watchPoint(vi.fn())).resolves.toBeNull();
+
+    geolocation.clearWatch.mockRejectedValue(new Error('gone'));
+    await expect(location.clearWatch('w1')).resolves.toBeUndefined();
   });
 
   it('does not use the location without the consent given in the app', async () => {
