@@ -11,7 +11,8 @@ import { computeConsentFingerprint } from './user-consent';
 describe('ConsentsService', () => {
   let service: ConsentsService;
   const userRepo = { existsBy: jest.fn() };
-  const consentsRepository = { find: jest.fn() };
+  const consentsRepository = { find: jest.fn(), findOne: jest.fn() };
+  const legalDocuments = { requiredVersion: jest.fn() };
   const dataSource = {
     getRepository: jest.fn(() => userRepo),
   };
@@ -19,6 +20,8 @@ describe('ConsentsService', () => {
   beforeEach(async () => {
     userRepo.existsBy.mockReset();
     consentsRepository.find.mockReset();
+    consentsRepository.findOne.mockReset();
+    legalDocuments.requiredVersion.mockReset();
     const moduleRef = await Test.createTestingModule({
       providers: [
         ConsentsService,
@@ -28,7 +31,7 @@ describe('ConsentsService', () => {
           useValue: consentsRepository,
         },
         { provide: EventsService, useValue: { record: jest.fn() } },
-        { provide: LegalDocumentsService, useValue: {} },
+        { provide: LegalDocumentsService, useValue: legalDocuments },
       ],
     }).compile();
 
@@ -115,6 +118,49 @@ describe('ConsentsService', () => {
       await expect(service.getMyConsents('missing')).rejects.toBeInstanceOf(
         UserNotFoundError,
       );
+    });
+  });
+
+  // P. ej. la declaración del conductor para poder publicar
+  describe('isAccepted', () => {
+    const accepted = (documentVersion: string, action = 'granted') => ({
+      documentVersion,
+      action,
+    });
+
+    it('is up to date with the version of the last major change or a later one', async () => {
+      legalDocuments.requiredVersion.mockResolvedValue('2.0');
+
+      consentsRepository.findOne.mockResolvedValue(accepted('2.0'));
+      await expect(
+        service.isAccepted('u1', 'driver_declaration'),
+      ).resolves.toBe(true);
+      consentsRepository.findOne.mockResolvedValue(accepted('2.1'));
+      await expect(
+        service.isAccepted('u1', 'driver_declaration'),
+      ).resolves.toBe(true);
+      expect(consentsRepository.findOne).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { userId: 'u1', type: 'driver_declaration' },
+        }),
+      );
+    });
+
+    it('asks again after a major change, a withdrawal or without accepting it', async () => {
+      legalDocuments.requiredVersion.mockResolvedValue('2.0');
+
+      consentsRepository.findOne.mockResolvedValue(accepted('1.9'));
+      await expect(
+        service.isAccepted('u1', 'driver_declaration'),
+      ).resolves.toBe(false);
+      consentsRepository.findOne.mockResolvedValue(accepted('2.0', 'revoked'));
+      await expect(
+        service.isAccepted('u1', 'driver_declaration'),
+      ).resolves.toBe(false);
+      consentsRepository.findOne.mockResolvedValue(null);
+      await expect(
+        service.isAccepted('u1', 'driver_declaration'),
+      ).resolves.toBe(false);
     });
   });
 });

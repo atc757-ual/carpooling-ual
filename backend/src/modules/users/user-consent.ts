@@ -1,6 +1,11 @@
 import { createHash } from 'node:crypto';
 
-export const CONSENT_TYPES = ['terms', 'privacy', 'location'] as const;
+export const CONSENT_TYPES = [
+  'terms',
+  'privacy',
+  'location',
+  'driver_declaration',
+] as const;
 export type ConsentType = (typeof CONSENT_TYPES)[number];
 
 export const CONSENT_ACTIONS = ['granted', 'revoked'] as const;
@@ -8,7 +13,8 @@ export type ConsentAction = (typeof CONSENT_ACTIONS)[number];
 
 // location_prompt: la ventana que explica para qué se usa la ubicación;
 // device: el usuario quitó el permiso del sistema y la app lo detectó;
-// document_update: acepta una versión nueva de las condiciones o la política
+// document_update: acepta una versión nueva de las condiciones o la política;
+// driver_setup: acepta la declaración responsable del conductor
 export const CONSENT_SOURCES = [
   'registration',
   'settings',
@@ -16,6 +22,7 @@ export const CONSENT_SOURCES = [
   'location_prompt',
   'device',
   'document_update',
+  'driver_setup',
 ] as const;
 export type ConsentSource = (typeof CONSENT_SOURCES)[number];
 

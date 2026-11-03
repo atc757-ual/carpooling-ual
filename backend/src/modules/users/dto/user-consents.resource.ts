@@ -51,6 +51,13 @@ export class CurrentConsentsResource {
 
   @ApiProperty({ type: ConsentRecordResource, nullable: true })
   location!: ConsentRecordResource | null;
+
+  @ApiProperty({
+    type: ConsentRecordResource,
+    nullable: true,
+    description: 'The driver responsible declaration (RF-21)',
+  })
+  driverDeclaration!: ConsentRecordResource | null;
 }
 
 // Estado actual de cada consentimiento y su historial completo (de solo
@@ -86,16 +93,17 @@ export function toUserConsentsResource(
   return {
     '@type': 'UserConsents',
     current: {
-      terms: view.current.terms
-        ? toConsentRecordResource(view.current.terms)
-        : null,
-      privacy: view.current.privacy
-        ? toConsentRecordResource(view.current.privacy)
-        : null,
-      location: view.current.location
-        ? toConsentRecordResource(view.current.location)
-        : null,
+      terms: toNullableResource(view.current.terms),
+      privacy: toNullableResource(view.current.privacy),
+      location: toNullableResource(view.current.location),
+      driverDeclaration: toNullableResource(view.current.driver_declaration),
     },
     history: view.history.map(toConsentRecordResource),
   };
+}
+
+function toNullableResource(
+  record: UserConsentRecord | null,
+): ConsentRecordResource | null {
+  return record ? toConsentRecordResource(record) : null;
 }

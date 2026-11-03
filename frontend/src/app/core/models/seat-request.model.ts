@@ -2,12 +2,7 @@
 // estado; la interfaz solo lo refleja (guía, «Solicitud de plaza»)
 import { TravelPreferences } from './travel-preferences.model';
 
-export type SeatRequestStatus =
-  | 'pending'
-  | 'accepted'
-  | 'rejected'
-  | 'cancelled'
-  | 'expired';
+export type SeatRequestStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'expired';
 
 export interface SeatRequest {
   id: string;

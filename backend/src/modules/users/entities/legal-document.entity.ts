@@ -6,8 +6,17 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export const LEGAL_DOCUMENT_TYPES = ['terms', 'privacy'] as const;
+export const LEGAL_DOCUMENT_TYPES = [
+  'terms',
+  'privacy',
+  'driver_declaration',
+] as const;
 export type LegalDocumentType = (typeof LEGAL_DOCUMENT_TYPES)[number];
+
+// Los que se aceptan al registrarse y bloquean la app tras un cambio
+// importante; la declaración del conductor se pide en su flujo (al publicar)
+export const SIGNUP_DOCUMENT_TYPES = ['terms', 'privacy'] as const;
+export type SignupDocumentType = (typeof SIGNUP_DOCUMENT_TYPES)[number];
 
 export const LEGAL_DOCUMENT_STATUSES = ['draft', 'published'] as const;
 export type LegalDocumentStatus = (typeof LEGAL_DOCUMENT_STATUSES)[number];

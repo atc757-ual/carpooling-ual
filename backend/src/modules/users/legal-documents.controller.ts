@@ -122,7 +122,10 @@ export class LegalDocumentsController {
     @CurrentUser() user: AccessTokenPayload,
     @Body() body: AcceptLegalDocumentDto,
   ): Promise<void> {
-    await this.consents.acceptDocument(user.sub, body.type, body.version);
+    await this.consents.acceptDocument(user.sub, {
+      type: body.type,
+      version: body.version,
+    });
   }
 }
 

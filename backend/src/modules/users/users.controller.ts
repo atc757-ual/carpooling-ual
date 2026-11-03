@@ -33,6 +33,7 @@ import {
   DriverStatusResource,
   toDriverStatusResource,
 } from './dto/driver-status.resource';
+import { AcceptDriverDeclarationDto } from './dto/accept-driver-declaration.dto';
 import { ListUsersQueryDto } from './dto/list-users-query.dto';
 import { SetActiveModeDto } from './dto/set-active-mode.dto';
 import { SetLocationConsentDto } from './dto/set-location-consent.dto';
@@ -90,7 +91,8 @@ export class UsersController {
     );
   }
 
-  // RF-21: declaración responsable (licencia en vigor y vehículos aptos). PUT
+  // RF-21: declaración responsable (licencia en vigor y vehículos aptos), un
+  // documento versionado (GET /api/legal-documents/driver_declaration). PUT
   // porque es idempotente: repetirla no cambia nada (se conserva la primera
   // fecha)
   @Put('me/driver-declaration')
@@ -98,18 +100,23 @@ export class UsersController {
   @ApiOperation({
     summary: 'Accept the driver responsible declaration',
     description:
-      'Declares having a valid driving licence and vehicles with valid compulsory insurance and roadworthiness test (ITV), sharing trips without profit (RF-21). Idempotent: the date of the first declaration is kept.',
+      'Accepts the current version of the driver responsible declaration (RF-21): a valid driving licence and vehicles with valid compulsory insurance and roadworthiness test (ITV), sharing trips without profit. It is recorded with its version and the hash of its text. After a major change of the declaration the driver must accept it again to publish. Idempotent: the date of the first declaration is kept.',
   })
   @ApiOkResponse({ type: DriverStatusResource })
   @ApiErrorResponses({
     ...AUTH_ERRORS,
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
+    [HttpStatus.CONFLICT]: ['LEGAL_DOCUMENT_OUTDATED'],
   })
   async declareDriverLicense(
     @CurrentUser() currentUser: AccessTokenPayload,
+    @Body() body: AcceptDriverDeclarationDto,
   ): Promise<DriverStatusResource> {
     return toDriverStatusResource(
-      await this.usersService.declareDriverLicense(currentUser.sub),
+      await this.usersService.declareDriverLicense(
+        currentUser.sub,
+        body.version,
+      ),
     );
   }
 

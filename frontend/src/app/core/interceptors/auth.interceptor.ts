@@ -22,7 +22,10 @@ const PUBLIC_AUTH_PATHS = [
 
 function needsToken(request: HttpRequest<unknown>): boolean {
   const { apiUrl } = environment;
-  return request.url.startsWith(apiUrl) && !PUBLIC_AUTH_PATHS.some((path) => request.url === apiUrl + path);
+  return (
+    request.url.startsWith(apiUrl) &&
+    !PUBLIC_AUTH_PATHS.some((path) => request.url === apiUrl + path)
+  );
 }
 
 function withToken(request: HttpRequest<unknown>, token: string | null): HttpRequest<unknown> {
@@ -30,7 +33,11 @@ function withToken(request: HttpRequest<unknown>, token: string | null): HttpReq
 }
 
 function isExpiredToken(error: unknown): boolean {
-  return error instanceof HttpErrorResponse && error.status === 401 && error.error?.code === 'ACCESS_TOKEN_EXPIRED';
+  return (
+    error instanceof HttpErrorResponse &&
+    error.status === 401 &&
+    error.error?.code === 'ACCESS_TOKEN_EXPIRED'
+  );
 }
 
 // Añade el token de acceso a las peticiones a la API. Si ha caducado, lo

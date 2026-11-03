@@ -5,10 +5,11 @@ import { EventsService } from '../../events/events.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import {
-  LEGAL_DOCUMENT_TYPES,
   LegalChangeType,
   LegalDocument,
   LegalDocumentType,
+  SIGNUP_DOCUMENT_TYPES,
+  SignupDocumentType,
 } from './entities/legal-document.entity';
 import { User } from './entities/user.entity';
 import { LegalDocumentNotFoundError } from './errors/legal-document-not-found.error';
@@ -65,9 +66,9 @@ export class LegalDocumentsService {
   }
 
   // La versión vigente de cada documento (para registrar los consentimientos)
-  async currentDocuments(): Promise<Record<LegalDocumentType, LegalDocument>> {
+  async currentDocuments(): Promise<Record<SignupDocumentType, LegalDocument>> {
     const [terms, privacy] = await Promise.all(
-      LEGAL_DOCUMENT_TYPES.map((type) => this.getCurrent(type)),
+      SIGNUP_DOCUMENT_TYPES.map((type) => this.getCurrent(type)),
     );
     return { terms, privacy };
   }
@@ -169,7 +170,12 @@ export class LegalDocumentsService {
           adminId,
         },
       });
-      if (published.changeType === 'minor') {
+      // Solo las condiciones y la política se avisan a todos; la declaración
+      // del conductor se pide en su flujo (al publicar un viaje)
+      if (
+        published.changeType === 'minor' &&
+        published.type !== 'driver_declaration'
+      ) {
         await this.notifyMinorChange(manager, published);
       }
       return published;

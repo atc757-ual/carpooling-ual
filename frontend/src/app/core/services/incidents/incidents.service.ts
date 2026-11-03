@@ -29,14 +29,10 @@ export class IncidentsService {
   ): Promise<CreatedIncident> {
     try {
       return await firstValueFrom(
-        this.http.post<CreatedIncident>(
-          `${this.apiUrl}/trips/${tripId}/incidents`,
-          payload,
-        ),
+        this.http.post<CreatedIncident>(`${this.apiUrl}/trips/${tripId}/incidents`, payload),
       );
     } catch (error) {
       throw ApiError.fromHttpError(error);
     }
   }
 }
-

@@ -19,7 +19,9 @@ interface TmfErrorBody {
 }
 
 function isTmfErrorBody(body: unknown): body is TmfErrorBody {
-  return typeof body === 'object' && body !== null && typeof (body as TmfErrorBody).code === 'string';
+  return (
+    typeof body === 'object' && body !== null && typeof (body as TmfErrorBody).code === 'string'
+  );
 }
 
 export class ApiError extends Error {
@@ -54,7 +56,10 @@ export class ApiError extends Error {
     }
     const requestId = error.headers?.get('X-Request-Id') ?? undefined;
     if (isTmfErrorBody(error.error)) {
-      return new ApiError(error.error.code, error.status, { fields: error.error.fields, requestId });
+      return new ApiError(error.error.code, error.status, {
+        fields: error.error.fields,
+        requestId,
+      });
     }
     return new ApiError(UNKNOWN_ERROR, error.status, { requestId });
   }

@@ -13,10 +13,12 @@ import {
   LEGAL_DOCUMENT_STATUSES,
   LEGAL_DOCUMENT_TYPES,
   LegalDocument,
+  SIGNUP_DOCUMENT_TYPES,
 } from '../entities/legal-document.entity';
 import type {
   LegalChangeType,
   LegalDocumentType,
+  SignupDocumentType,
 } from '../entities/legal-document.entity';
 
 // Un documento legal hasta ~200 KB de HTML
@@ -126,10 +128,12 @@ export class SaveLegalDraftDto {
   summary?: string;
 }
 
+// Solo las condiciones y la política (la declaración del conductor se acepta
+// en PUT /api/users/me/driver-declaration)
 export class AcceptLegalDocumentDto {
-  @ApiProperty({ enum: LEGAL_DOCUMENT_TYPES })
-  @IsIn(LEGAL_DOCUMENT_TYPES)
-  type: LegalDocumentType;
+  @ApiProperty({ enum: SIGNUP_DOCUMENT_TYPES })
+  @IsIn(SIGNUP_DOCUMENT_TYPES)
+  type: SignupDocumentType;
 
   @ApiProperty({ example: '1.1', description: 'The version the user read' })
   @Matches(/^\d+\.\d+$/)
