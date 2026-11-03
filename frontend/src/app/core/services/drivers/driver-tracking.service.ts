@@ -119,7 +119,7 @@ export class DriverTrackingService {
       if (this.tripId() === tripId && this.isDueToSend(POSITION_INTERVAL_MS)) {
         void this.send(tripId);
       }
-    });
+    }, 'driving');
     // Si entretanto se paró o cambió de viaje, ya no hace falta
     if (id !== null && this.tripId() !== tripId) {
       void this.location.clearWatch(id);
@@ -148,7 +148,7 @@ export class DriverTrackingService {
       return;
     }
     try {
-      const point = this.lastPoint ?? (await this.location.getCurrentPoint());
+      const point = this.lastPoint ?? (await this.location.getCurrentPoint('driving'));
       await this.driver.reportPosition(tripId, point);
       this.lastSentAt = Date.now();
     } catch (error) {

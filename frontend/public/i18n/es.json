@@ -71,7 +71,7 @@
     "location": {
       "title": "Ubicación",
       "shareLocation": "Compartir ubicación",
-      "shareDesc": "Para proponerte paradas y desvíos.",
+      "shareDesc": "Para proponerte paradas y desvíos. Si conduces, tu ubicación se comparte con tus pasajeros mientras el viaje está en curso aunque lo desactives: es parte del servicio.",
       "authorizedOn": "Autorizada el {{ date }}",
       "withdrawnOn": "Retirada el {{ date }}",
       "hashTitle": "Código que acredita el registro",

@@ -154,25 +154,20 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-driver-trip-card', 'Podrás iniciarlo desde las');
     });
 
+    // Con el permiso del dispositivo dado, se inicia sin más: compartir la
+    // ubicación con el viaje en curso es parte del servicio (RGPD 6.1.b) y no
+    // se registra ningún consentimiento
     it('shares the location to start the trip, and finishes it', () => {
       openMyTrips([trip(1, 'confirmed', 5)]);
-      cy.intercept('PUT', '/api/users/me/consents/location', {
-        current: { terms: null, privacy: null, location: { action: 'granted' } },
-        history: [],
-      }).as('consent');
+      cy.intercept('PUT', '/api/users/me/consents/location', cy.spy().as('consent'));
       cy.intercept('POST', '/api/trips/t1/start', trip(1, 'in_progress', 5)).as('start');
       cy.intercept('POST', '/api/trips/t1/positions', { statusCode: 201 }).as('position');
       cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'in_progress', 5)]);
 
       cy.contains('app-driver-trip-card ion-button', 'Iniciar viaje').click();
-      cy.contains('app-confirm-modal', '¿Compartes tu ubicación?').should('be.visible');
-      cy.contains('app-confirm-modal ion-button', 'Compartir e iniciar').click();
 
-      cy.wait('@consent').its('request.body').should('deep.equal', {
-        action: 'granted',
-        source: 'location_prompt',
-      });
       cy.wait('@start');
+      cy.get('@consent').should('not.have.been.called');
       cy.wait('@position')
         .its('request.body.position.coordinates')
         .should('deep.equal', [-2.4637, 36.8381]);

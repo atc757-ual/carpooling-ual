@@ -37,7 +37,7 @@ export function formatDistance(meters: number): string {
 // Dónde está el conductor; null si no se sabe (sin permiso, sin GPS…)
 async function currentPoint(location: LocationService): Promise<[number, number] | null> {
   try {
-    return await location.getCurrentPoint();
+    return await location.getCurrentPoint('driving');
   } catch {
     return null;
   }

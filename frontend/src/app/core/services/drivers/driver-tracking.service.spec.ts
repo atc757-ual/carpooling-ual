@@ -101,13 +101,13 @@ describe('DriverTrackingService', () => {
     await vi.advanceTimersByTimeAsync(0);
 
     expect(wakeLock.keepOn).not.toHaveBeenCalled();
-    expect(watchPoint).toHaveBeenCalled();
+    expect(watchPoint).toHaveBeenCalledWith(expect.any(Function), 'driving');
   });
 
   it('follows the position with the GPS and keeps the screen on until it stops', async () => {
     tracking.start('t1');
     await vi.advanceTimersByTimeAsync(0);
-    expect(watchPoint).toHaveBeenCalled();
+    expect(watchPoint).toHaveBeenCalledWith(expect.any(Function), 'driving');
     expect(wakeLock.keepOn).toHaveBeenCalled();
 
     onPoint([-2.41, 36.82]);
