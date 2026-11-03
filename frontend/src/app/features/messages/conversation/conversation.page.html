@@ -56,7 +56,8 @@
       </output>
     } @else {
       <!-- De un toque: útiles con el coche en marcha -->
-      <div class="conversation-footer__quick" role="group" aria-label="Respuestas rápidas">
+      <fieldset class="conversation-footer__quick">
+        <legend class="visually-hidden">Respuestas rápidas</legend>
         @for (quickReply of quickReplies; track quickReply) {
           <button
             type="button"
@@ -67,7 +68,7 @@
             {{ quickReplyText[quickReply] }}
           </button>
         }
-      </div>
+      </fieldset>
       @if (isQuickRepliesOnly()) {
         <p class="conversation-footer__hint text-caption text-color-muted">
           Mientras conduces, solo respuestas rápidas.
