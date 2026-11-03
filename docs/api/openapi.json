@@ -7615,6 +7615,202 @@
         ]
       }
     },
+    "/api/users/{id}/driver-reviews": {
+      "get": {
+        "description": "RF-22: published reviews the user received as a driver, newest first. The author shows only the first name and the initial of the surname.",
+        "operationId": "DriverReviewsController_list",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DriverReviewResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List a driver's published reviews",
+        "tags": [
+          "reputation"
+        ]
+      }
+    },
+    "/api/users/{id}/driver-rating": {
+      "get": {
+        "description": "RF-22: average, number of published reviews as a driver and how many there are per star.",
+        "operationId": "DriverReviewsController_getRating",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DriverRatingResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a driver's rating summary",
+        "tags": [
+          "reputation"
+        ]
+      }
+    },
     "/api/trips/{tripId}/incidents": {
       "post": {
         "description": "RF-23. If the driver reports it, the trip is cancelled and its accepted passengers get priority (RF-24). If an accepted passenger reports it, only their seat request is cancelled and the trip goes on.",
@@ -13690,6 +13886,130 @@
           "myRole",
           "expiresAt",
           "targets"
+        ]
+      },
+      "DriverReviewAuthorResource": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "First name and the initial of the first surname",
+            "example": "Carlos R."
+          },
+          "avatarKey": {
+            "type": "string",
+            "nullable": true,
+            "example": "sun"
+          }
+        },
+        "required": [
+          "name",
+          "avatarKey"
+        ]
+      },
+      "DriverReviewResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "DriverReview"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "author": {
+            "$ref": "#/components/schemas/DriverReviewAuthorResource"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 300,
+            "example": "Muy puntual y viaje muy agradable."
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "author",
+          "rating",
+          "comment",
+          "publishedAt"
+        ]
+      },
+      "RatingCountResource": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "count": {
+            "type": "number",
+            "example": 12
+          }
+        },
+        "required": [
+          "rating",
+          "count"
+        ]
+      },
+      "DriverRatingResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "DriverRating"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The driver id"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/users/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/driver-rating"
+          },
+          "average": {
+            "type": "number",
+            "nullable": true,
+            "example": 4.8
+          },
+          "count": {
+            "type": "number",
+            "example": 15
+          },
+          "distribution": {
+            "description": "Published reviews per star, from 5 to 1",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RatingCountResource"
+            }
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "average",
+          "count",
+          "distribution"
         ]
       },
       "ReportIncidentDto": {

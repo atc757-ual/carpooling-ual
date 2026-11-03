@@ -5,6 +5,8 @@ import { RequestsModule } from '../requests/requests.module';
 import { TripsModule } from '../trips/trips.module';
 import { UsersModule } from '../users/users.module';
 import { Review } from './entities/review.entity';
+import { DriverReviewsController } from './driver-reviews.controller';
+import { DriverReviewsService } from './driver-reviews.service';
 import { ReputationController } from './reputation.controller';
 import { ReputationService } from './reputation.service';
 
@@ -19,8 +21,8 @@ import { ReputationService } from './reputation.service';
     UsersModule,
     EventsModule,
   ],
-  controllers: [ReputationController],
-  providers: [ReputationService],
+  controllers: [ReputationController, DriverReviewsController],
+  providers: [ReputationService, DriverReviewsService],
   exports: [ReputationService],
 })
 export class ReputationModule {}

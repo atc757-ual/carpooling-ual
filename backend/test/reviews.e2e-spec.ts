@@ -389,4 +389,69 @@ describe('Reputation & Reviews API (e2e)', () => {
       .expect(409);
     expect(duplicate.body).toMatchObject({ code: 'REVIEW_ALREADY_EXISTS' });
   });
+
+  it("shows a driver's published reviews and rating to any session, with the author's short name", async () => {
+    const dan = await sessionFor('dan', ['driver']);
+    const pia = await sessionFor('pia', ['passenger']);
+    const leo = await sessionFor('leo', ['passenger']);
+    await dataSource.query(`UPDATE users SET name = $1 WHERE id = $2`, [
+      'Pía Ruiz Gómez',
+      pia.id,
+    ]);
+    const tripId = await createFinishedTrip(dan, [pia, leo]);
+    await api('post', `/trips/${tripId}/reviews`, pia.accessToken)
+      .send({ targetId: dan.id, rating: 5, comment: 'Muy puntual' })
+      .expect(201);
+    await api('post', `/trips/${tripId}/reviews`, leo.accessToken)
+      .send({ targetId: dan.id, rating: 4 })
+      .expect(201);
+
+    const hidden = await api(
+      'get',
+      `/users/${dan.id}/driver-reviews`,
+      leo.accessToken,
+    ).expect(200);
+    expect(hidden.body).toEqual([]);
+
+    await api('post', `/trips/${tripId}/reviews`, dan.accessToken)
+      .send({ targetId: pia.id, rating: 5 })
+      .expect(201);
+    const [reviews, rating] = await Promise.all([
+      api('get', `/users/${dan.id}/driver-reviews`, leo.accessToken).expect(
+        200,
+      ),
+      api('get', `/users/${dan.id}/driver-rating`, leo.accessToken).expect(200),
+    ]);
+
+    expect(reviews.headers['x-total-count']).toBe('1');
+    expect(reviews.body).toEqual([
+      expect.objectContaining({
+        '@type': 'DriverReview',
+        author: { name: 'Pía R.', avatarKey: null },
+        rating: 5,
+        comment: 'Muy puntual',
+      }),
+    ]);
+    expect(rating.body).toEqual({
+      '@type': 'DriverRating',
+      id: dan.id,
+      href: `/api/users/${dan.id}/driver-rating`,
+      average: 5,
+      count: 1,
+      distribution: [
+        { rating: 5, count: 1 },
+        { rating: 4, count: 0 },
+        { rating: 3, count: 0 },
+        { rating: 2, count: 0 },
+        { rating: 1, count: 0 },
+      ],
+    });
+
+    const unknown = await api(
+      'get',
+      '/users/00000000-0000-4000-8000-000000000000/driver-rating',
+      leo.accessToken,
+    ).expect(404);
+    expect(unknown.body).toMatchObject({ code: 'USER_NOT_FOUND' });
+  });
 });
