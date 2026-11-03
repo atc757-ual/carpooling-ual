@@ -184,9 +184,13 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('POST', '/api/trips/t1/finish', trip(1, 'finished', 5)).as('finish');
       cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'finished', 5)]);
       cy.contains('app-driver-live-trip ion-button', 'Terminar viaje').click();
-      cy.contains('app-confirm-modal ion-button', 'Terminar').click();
+      // Aún en Almería centro, a unos 5 km del campus: avisa antes de terminar
+      cy.contains('app-confirm-modal', '¿Terminar lejos del destino?');
+      cy.contains('app-confirm-modal ion-button', 'Terminar igualmente').click();
 
-      cy.wait('@finish');
+      cy.wait('@finish')
+        .its('request.body.position.coordinates')
+        .should('deep.equal', [-2.4637, 36.8381]);
       cy.location('pathname').should('eq', '/tabs/trips');
       // Terminado, pasa a Anteriores
       cy.contains('app-my-trips', 'No tienes viajes programados');

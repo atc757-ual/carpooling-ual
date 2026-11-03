@@ -10,6 +10,8 @@ export interface ConfirmOptions {
   cancelText?: string;
   // Rojo (borra, cancela o cierra algo) o azul
   isDestructive?: boolean;
+  // Icono en ámbar: algo no cuadra, aunque se puede seguir
+  isWarning?: boolean;
   icon?: string;
 }
 

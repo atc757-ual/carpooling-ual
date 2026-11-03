@@ -199,8 +199,9 @@ export class DriverTripCard {
       driver: this.driver,
       tracking: this.tracking,
       toast: this.toast,
+      location: this.location,
     };
-    if (await finishTrip(deps, this.trip().id, this.locationIcon)) {
+    if (await finishTrip(deps, this.trip(), this.locationIcon)) {
       this.changed.emit();
     }
     this.isChangingStatus.set(false);

@@ -32,6 +32,7 @@ import {
   setPaginationHeaders,
 } from '../../shared/pagination/paginated';
 import { PaginationQueryDto } from '../../shared/pagination/pagination-query.dto';
+import { FinishTripDto } from './dto/finish-trip.dto';
 import { PublishTripDto } from './dto/publish-trip.dto';
 import {
   PublishingStatusResource,
@@ -268,7 +269,8 @@ export class TripsController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Finish a trip in progress',
-    description: 'RF-11. Only its driver. The vehicle is available again.',
+    description:
+      'RF-11. Only its driver. The vehicle is available again. With the optional position, stores how many metres from the destination the trip finished (trip.finished v2).',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: TripResource })
@@ -282,7 +284,10 @@ export class TripsController {
   async finish(
     @CurrentUser() driver: AccessTokenPayload,
     @Param('id', uuidParam('id')) id: string,
+    @Body() dto: FinishTripDto,
   ): Promise<TripResource> {
-    return toTripResource(await this.tripsService.finish(driver.sub, id));
+    return toTripResource(
+      await this.tripsService.finish(driver.sub, id, dto.position),
+    );
   }
 }

@@ -172,6 +172,13 @@ export class TripStatusService {
         maxDetourMin: trip.maxDetourMin,
         status: trip.status,
         startedAt: trip.startedAt?.toISOString() ?? null,
+        // v2 de trip.finished: cuándo y a cuántos metros del destino
+        ...(type === 'trip.finished'
+          ? {
+              finishedAt: trip.finishedAt?.toISOString() ?? null,
+              finishDistanceM: trip.finishDistanceM ?? null,
+            }
+          : {}),
       },
     });
   }

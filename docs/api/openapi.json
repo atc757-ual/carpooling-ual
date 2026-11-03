@@ -5811,7 +5811,7 @@
     },
     "/api/trips/{id}/finish": {
       "post": {
-        "description": "RF-11. Only its driver. The vehicle is available again.",
+        "description": "RF-11. Only its driver. The vehicle is available again. With the optional position, stores how many metres from the destination the trip finished (trip.finished v2).",
         "operationId": "TripsController_finish",
         "parameters": [
           {
@@ -5824,6 +5824,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinishTripDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -13259,6 +13269,19 @@
             "maxLength": 160,
             "description": "Name of the destination as chosen when publishing",
             "example": "Campus UAL · Parking P1 (Sur)"
+          }
+        }
+      },
+      "FinishTripDto": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "description": "Where the driver is when finishing; stores the distance to the destination",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
           }
         }
       },

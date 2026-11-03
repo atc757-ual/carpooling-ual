@@ -317,14 +317,22 @@ export class TripsService {
   }
 
   // RF-11: finalizar un viaje en curso. El vehículo vuelve a estar disponible;
-  // las solicitudes aceptadas terminan con el viaje sin cambiar de estado
-  async finish(driverId: string, tripId: string): Promise<TripView> {
+  // las solicitudes aceptadas terminan con el viaje sin cambiar de estado. Con
+  // la posición del conductor, guarda a cuántos metros del destino terminó
+  async finish(
+    driverId: string,
+    tripId: string,
+    position?: Point,
+  ): Promise<TripView> {
     const trip = await this.dataSource.transaction(async (manager) => {
       const current = await this.tripStatus.lockOwnTrip(
         manager,
         driverId,
         tripId,
       );
+      current.finishDistanceM = position
+        ? await distanceToDestination(manager, tripId, position)
+        : null;
       const finished = await this.tripStatus.changeStatus(
         manager,
         current,
@@ -473,4 +481,23 @@ export class TripsService {
       throw new DepartureInThePastError(trip.departureAt);
     }
   }
+}
+
+// Metros (sobre el elipsoide, con PostGIS) entre un punto y el destino del viaje
+async function distanceToDestination(
+  manager: EntityManager,
+  tripId: string,
+  position: Point,
+): Promise<number> {
+  const [longitude, latitude] = position.coordinates;
+  const [row] = await manager.query<{ meters: number }[]>(
+    `SELECT ROUND(ST_Distance(
+              destination,
+              ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography
+            ))::int AS meters
+       FROM trips
+      WHERE id = $1`,
+    [tripId, longitude, latitude],
+  );
+  return row.meters;
 }

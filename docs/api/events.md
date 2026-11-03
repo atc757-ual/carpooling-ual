@@ -41,7 +41,7 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `trip.confirmed`           | Se acepta la primera solicitud                                                 | `trips/trip-status.service.ts`        |
 | `trip.reopened`            | Vuelve a publicado al cancelarse todas las aceptadas                           | `trips/trip-status.service.ts`        |
 | `trip.started`             | Empieza el viaje                                                               | `trips/trip-status.service.ts`        |
-| `trip.finished`            | Termina el viaje                                                               | `trips/trip-status.service.ts`        |
+| `trip.finished` (v2)       | Termina el viaje                                                               | `trips/trip-status.service.ts`        |
 | `trip.cancelled`           | Se cancela el viaje                                                            | `trips/trip-status.service.ts`        |
 | `trip.cancelled_late`      | Cancelación tardía del conductor o de un pasajero (fiabilidad, S5)             | `trips/late-cancellations.service.ts` |
 | `late_cancellation.waived` | Un administrador perdona las cancelaciones tardías de un papel                 | `trips/late-cancellations.service.ts` |
@@ -70,4 +70,5 @@ Las rutas son relativas a `backend/src/modules/`. Un test (`events-contract.spec
 
 ### Cambios de versión
 
+- `trip.finished` **v2**: el `payload` añade `finishedAt` y `finishDistanceM` (metros entre el conductor y el destino al terminar, calculados con PostGIS con la posición que envía la app; `null` si no la envió). La v1 llevaba el mismo estado del viaje sin esos dos campos.
 - `legal_document.published` **v2**: el `payload` añade `changeType` (`major` o `minor`) y `summary` («Qué ha cambiado», el texto que escribe quien publica; no tiene datos personales). La v1 llevaba `type`, `version`, `publishedAt` y `adminId`.

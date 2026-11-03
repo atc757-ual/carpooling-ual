@@ -15,6 +15,7 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
+import { LocationService } from '../../../core/services/location/location.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -55,6 +56,7 @@ export class DriverLiveTripPage {
   private readonly tracking = inject(DriverTrackingService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
+  private readonly location = inject(LocationService);
   private readonly router = inject(Router);
 
   private readonly tripId = toSignal(
@@ -222,8 +224,9 @@ export class DriverLiveTripPage {
       driver: this.driver,
       tracking: this.tracking,
       toast: this.toast,
+      location: this.location,
     };
-    if (await finishTrip(deps, trip.id, this.locationIcon)) {
+    if (await finishTrip(deps, trip, this.locationIcon)) {
       await this.router.navigateByUrl('/tabs/trips');
     }
     this.isFinishing.set(false);
