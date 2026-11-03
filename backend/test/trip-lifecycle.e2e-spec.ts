@@ -143,6 +143,47 @@ describe('Trip lifecycle API (e2e)', () => {
     expect(vehicleBack.body).toMatchObject({ status: 'available' });
   });
 
+  it('stores how far from the destination the driver finished (trip.finished v2)', async () => {
+    const { driver, tripId } = await driverWithTrip(10);
+    const pia = await tokenFor('pia', ['passenger']);
+    const seatRequest = await api(
+      'post',
+      `/trips/${tripId}/requests`,
+      pia,
+    ).expect(201);
+    await api(
+      'post',
+      `/requests/${(seatRequest.body as { id: string }).id}/accept`,
+      driver,
+    ).expect(200);
+    await api('post', `/trips/${tripId}/start`, driver).expect(200);
+
+    const invalid = await api('post', `/trips/${tripId}/finish`, driver)
+      .send({ position: { type: 'Point', coordinates: [200, 36.8] } })
+      .expect(400);
+    expect(invalid.body).toMatchObject({ '@type': 'ValidationError' });
+
+    // Aún en Almería centro: unos 5 km del campus
+    await api('post', `/trips/${tripId}/finish`, driver)
+      .send({ position: ALMERIA_CENTRE })
+      .expect(200);
+
+    const [trip] = await dataSource.query<
+      { finish_distance_m: number | null }[]
+    >(`SELECT finish_distance_m FROM trips WHERE id = $1`, [tripId]);
+    expect(trip.finish_distance_m).toBeGreaterThan(4000);
+    expect(trip.finish_distance_m).toBeLessThan(7000);
+    const [event] = await dataSource.query<
+      { version: number; payload: { finishDistanceM: number } }[]
+    >(
+      `SELECT version, payload FROM events
+        WHERE source_entity_id = $1 AND type = 'trip.finished'`,
+      [tripId],
+    );
+    expect(event.version).toBe(2);
+    expect(event.payload.finishDistanceM).toBe(trip.finish_distance_m);
+  });
+
   it('answers 409 TRIP_NOT_STARTABLE_YET more than 30 minutes before the departure', async () => {
     const { driver, tripId } = await driverWithTrip(60);
 

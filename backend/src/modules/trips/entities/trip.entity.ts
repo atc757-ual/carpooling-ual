@@ -77,6 +77,11 @@ export class Trip {
   @Column({ name: 'finished_at', type: 'timestamptz', nullable: true })
   finishedAt: Date | null;
 
+  // Metros entre el conductor y el destino al terminar; null si la app no
+  // envió su posición o si el viaje terminó de otra forma
+  @Column({ name: 'finish_distance_m', type: 'integer', nullable: true })
+  finishDistanceM: number | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
