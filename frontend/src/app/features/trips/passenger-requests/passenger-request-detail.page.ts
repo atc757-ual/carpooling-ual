@@ -19,6 +19,7 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { TripChatLink } from '../../../shared/components/ui/trip-chat-link/trip-chat-link';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { RouteStop } from '../../../shared/components/ui/route-timeline/route-timeline';
 import {
@@ -65,6 +66,7 @@ function historyAnsweredLabel(request: SeatRequest): string {
   selector: 'app-passenger-request-detail',
   imports: [
     RouterLink,
+    TripChatLink,
     IonButton,
     IonCard,
     IonCardContent,
@@ -286,7 +288,8 @@ export class PassengerRequestDetailPage {
     if (trip) {
       const direction = request?.direction ?? 'to-campus';
       const coordinates = request?.pickupLocation?.coordinates ?? trip.origin.coordinates;
-      const fallbackAddress = direction === 'from-campus' ? trip.destinationName ?? '' : trip.originName ?? '';
+      const fallbackAddress =
+        direction === 'from-campus' ? (trip.destinationName ?? '') : (trip.originName ?? '');
       const address = request?.pickupName ?? fallbackAddress;
 
       const departureDate = new Date(trip.departureAt);

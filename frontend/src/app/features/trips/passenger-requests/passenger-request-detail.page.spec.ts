@@ -163,6 +163,7 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.textContent).toContain('Calle Profesor Mulián, 29');
     expect(root.textContent).toContain('Has pedido 1 plaza.');
     expect(root.textContent).toContain('Una solicitud pendiente no ocupa plaza');
+    expect(root.querySelector('app-trip-chat-link')).toBeNull();
     expect(root.textContent).toContain('12 viajes');
     expect(root.textContent).toContain('★ 4,8');
     expect(root.textContent).toContain('Seat Ibiza');
@@ -184,6 +185,7 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.textContent).toContain('1234BCD');
     expect(root.querySelector('app-trip-progress')).not.toBeNull();
     expect(root.textContent).toContain('Cancelar mi plaza');
+    expect(root.querySelector('app-trip-chat-link')?.textContent).toContain('Chat del viaje');
   });
 
   it('shows live map and incident button for an accepted request when trip is in progress', async () => {
@@ -203,9 +205,7 @@ describe('PassengerRequestDetailPage', () => {
     await fixture.componentInstance.openIncidentModal();
 
     expect(modalCtrl.create).toHaveBeenCalled();
-    expect(showSuccess).toHaveBeenCalledWith(
-      'Incidencia registrada. Tu plaza ha sido cancelada.',
-    );
+    expect(showSuccess).toHaveBeenCalledWith('Incidencia registrada. Tu plaza ha sido cancelada.');
     expect(navigateSpy).toHaveBeenCalledWith('/tabs/trips');
   });
 

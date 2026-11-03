@@ -18,6 +18,7 @@ import { DriverService } from '../../../core/services/drivers/driver.service';
 import { LocationService } from '../../../core/services/location/location.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { TripChatLink } from '../../../shared/components/ui/trip-chat-link/trip-chat-link';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatTime } from '../../matching/trip-results';
 import { formatSeats } from '../driver-trip-card/driver-trip-card';
@@ -46,6 +47,7 @@ const CLOCK_UPDATE_MS = 60_000;
     IonSpinner,
     LiveTripMap,
     RouterLink,
+    TripChatLink,
     TripProgress,
   ],
   templateUrl: './driver-live-trip.page.html',

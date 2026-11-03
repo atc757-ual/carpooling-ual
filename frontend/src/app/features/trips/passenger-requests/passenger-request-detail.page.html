@@ -190,6 +190,10 @@
 
         <!-- Acciones del pasajero según el estado -->
         <div class="passenger-request-detail__actions">
+          <!-- Con la plaza aceptada: hablar con quien conduce y el resto -->
+          @if (request.status === 'accepted') {
+            <app-trip-chat-link [tripId]="request.trip.id" expand="block" />
+          }
           <!-- Durante el viaje en curso: bajarse y registrar incidencia -->
           @if (isTripInProgress()) {
             <ion-button

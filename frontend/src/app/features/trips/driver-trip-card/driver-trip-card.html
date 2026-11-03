@@ -52,6 +52,11 @@
       </div>
     }
 
+    <!-- Con pasajeros (confirmado o en curso): hablar con ellos -->
+    @if (hasChat()) {
+      <app-trip-chat-link [tripId]="trip().id" />
+    }
+
     @if (isOpen()) {
       <div class="driver-trip__requests">
         <h3 class="text-label text-label--strong">Solicitudes</h3>

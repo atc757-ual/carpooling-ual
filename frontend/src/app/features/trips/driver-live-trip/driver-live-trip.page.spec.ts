@@ -140,6 +140,7 @@ describe('DriverLiveTripPage', () => {
 
     expect(root.textContent).toContain('Roquetas de Mar → Campus UAL · Parking P1 (Sur)');
     expect(root.textContent).toContain('Compartiendo tu ubicación con tus pasajeros');
+    expect(root.querySelector('app-trip-chat-link')?.textContent).toContain('Chat del viaje');
     expect(tracking.start).toHaveBeenCalledWith('t1');
     expect(page.passengers().map(({ passenger: { name } }) => name)).toEqual([
       'Carlos Ruiz',

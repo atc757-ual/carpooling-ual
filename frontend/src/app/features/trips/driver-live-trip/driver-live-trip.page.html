@@ -61,6 +61,9 @@
               }
             }
 
+            <!-- Las respuestas rápidas para avisar a los pasajeros sin escribir -->
+            <app-trip-chat-link class="driver-live-trip__chat" [tripId]="trip.id" />
+
             <app-live-trip-map
               viewer="driver"
               [tripId]="trip.id"
