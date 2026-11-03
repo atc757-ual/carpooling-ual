@@ -124,6 +124,7 @@ describe('Notifications API (e2e)', () => {
       trip: { id: tripId, href: `/api/trips/${tripId}` },
       request: { id: piaRequestId, href: `/api/requests/${piaRequestId}` },
       incident: null,
+      legalDocument: null,
       isRead: false,
       readAt: null,
       createdAt: expect.any(String) as string,

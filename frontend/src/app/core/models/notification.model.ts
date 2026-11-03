@@ -9,7 +9,10 @@ export type NotificationType =
   | 'trip_cancelled'
   | 'passenger_left'
   | 'trip_started'
-  | 'incident_reported';
+  | 'incident_reported'
+  // Un cambio menor en las condiciones o la política (no hay que aceptarlo)
+  | 'terms_updated'
+  | 'privacy_updated';
 
 interface NotificationLink {
   id: string;
@@ -19,9 +22,12 @@ interface NotificationLink {
 export interface AppNotification {
   id: string;
   type: NotificationType;
-  trip: NotificationLink;
+  // null en los avisos de un documento legal
+  trip: NotificationLink | null;
   request: NotificationLink | null;
   incident: NotificationLink | null;
+  // La versión publicada: solo en terms_updated y privacy_updated
+  legalDocument: NotificationLink | null;
   isRead: boolean;
   readAt: string | null;
   createdAt: string;

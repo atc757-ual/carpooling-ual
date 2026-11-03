@@ -5068,6 +5068,232 @@
         ]
       }
     },
+    "/api/users/me/notifications": {
+      "get": {
+        "description": "RF-19. With isRead=false, X-Total-Count is the number of unread notifications.",
+        "operationId": "NotificationsController_listMine",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "isRead",
+            "required": false,
+            "in": "query",
+            "description": "Only the read (true) or the unread (false) notifications. With false, X-Total-Count is the number of unread notifications",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List my notifications, the newest first",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/users/me/notifications/read": {
+      "post": {
+        "operationId": "NotificationsController_markAllRead",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "All my notifications are read"
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark all my notifications as read",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications/{id}/read": {
+      "post": {
+        "description": "Idempotent: it keeps the date of the first reading.",
+        "operationId": "NotificationsController_markRead",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: NOTIFICATION_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark one of my notifications as read",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
     "/api/trips": {
       "post": {
         "description": "RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days.",
@@ -7111,232 +7337,6 @@
         "summary": "Get a seat request",
         "tags": [
           "seat requests"
-        ]
-      }
-    },
-    "/api/users/me/notifications": {
-      "get": {
-        "description": "RF-19. With isRead=false, X-Total-Count is the number of unread notifications.",
-        "operationId": "NotificationsController_listMine",
-        "parameters": [
-          {
-            "name": "offset",
-            "required": false,
-            "in": "query",
-            "description": "Number of items to skip",
-            "schema": {
-              "minimum": 0,
-              "default": 0,
-              "type": "number"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Maximum number of items to return",
-            "schema": {
-              "minimum": 1,
-              "maximum": 100,
-              "default": 20,
-              "type": "number"
-            }
-          },
-          {
-            "name": "isRead",
-            "required": false,
-            "in": "query",
-            "description": "Only the read (true) or the unread (false) notifications. With false, X-Total-Count is the number of unread notifications",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "headers": {
-              "X-Total-Count": {
-                "description": "Total number of items",
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Result-Count": {
-                "description": "Number of items in this response",
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            },
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/NotificationResource"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List my notifications, the newest first",
-        "tags": [
-          "notifications"
-        ]
-      }
-    },
-    "/api/users/me/notifications/read": {
-      "post": {
-        "operationId": "NotificationsController_markAllRead",
-        "parameters": [],
-        "responses": {
-          "204": {
-            "description": "All my notifications are read"
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Mark all my notifications as read",
-        "tags": [
-          "notifications"
-        ]
-      }
-    },
-    "/api/notifications/{id}/read": {
-      "post": {
-        "description": "Idempotent: it keeps the date of the first reading.",
-        "operationId": "NotificationsController_markRead",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NotificationResource"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "TMF630 error: NOTIFICATION_NOT_FOUND",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Mark one of my notifications as read",
-        "tags": [
-          "notifications"
         ]
       }
     },
@@ -12796,6 +12796,122 @@
           }
         }
       },
+      "NotificationLinkResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          }
+        },
+        "required": [
+          "id",
+          "href"
+        ]
+      },
+      "NotificationResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "Notification"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "request_received",
+              "request_accepted",
+              "request_rejected",
+              "request_cancelled",
+              "request_conflict_cancelled",
+              "trip_cancelled",
+              "passenger_left",
+              "trip_started",
+              "incident_reported",
+              "review_requested",
+              "request_expired",
+              "passenger_no_show",
+              "terms_updated",
+              "privacy_updated"
+            ],
+            "description": "request_received (to the driver), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver and accepted passengers when the trip finishes), incident_reported (to the administrators), terms_updated and privacy_updated (to every active user after a minor change of a legal document)"
+          },
+          "trip": {
+            "nullable": true,
+            "description": "The trip; null in terms_updated and privacy_updated",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NotificationLinkResource"
+              }
+            ]
+          },
+          "legalDocument": {
+            "nullable": true,
+            "description": "The published version (its href is the current document of that type); only in terms_updated and privacy_updated",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NotificationLinkResource"
+              }
+            ]
+          },
+          "request": {
+            "nullable": true,
+            "description": "The seat request; null in incident_reported and in review_requested for the driver",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NotificationLinkResource"
+              }
+            ]
+          },
+          "incident": {
+            "nullable": true,
+            "description": "The incident; only in incident_reported",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NotificationLinkResource"
+              }
+            ]
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "readAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "type",
+          "trip",
+          "legalDocument",
+          "request",
+          "incident",
+          "isRead",
+          "readAt",
+          "createdAt"
+        ]
+      },
       "GeoPointDto": {
         "type": "object",
         "properties": {
@@ -13623,102 +13739,6 @@
         },
         "required": [
           "code"
-        ]
-      },
-      "NotificationLinkResource": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "href": {
-            "type": "string",
-            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
-          }
-        },
-        "required": [
-          "id",
-          "href"
-        ]
-      },
-      "NotificationResource": {
-        "type": "object",
-        "properties": {
-          "@type": {
-            "type": "string",
-            "enum": [
-              "Notification"
-            ]
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "request_received",
-              "request_accepted",
-              "request_rejected",
-              "request_cancelled",
-              "request_conflict_cancelled",
-              "trip_cancelled",
-              "passenger_left",
-              "trip_started",
-              "incident_reported",
-              "review_requested",
-              "request_expired",
-              "passenger_no_show"
-            ],
-            "description": "request_received (to the driver), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver and accepted passengers when the trip finishes), incident_reported (to the administrators)"
-          },
-          "trip": {
-            "$ref": "#/components/schemas/NotificationLinkResource"
-          },
-          "request": {
-            "nullable": true,
-            "description": "The seat request; null in incident_reported and in review_requested for the driver",
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/NotificationLinkResource"
-              }
-            ]
-          },
-          "incident": {
-            "nullable": true,
-            "description": "The incident; only in incident_reported",
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/NotificationLinkResource"
-              }
-            ]
-          },
-          "isRead": {
-            "type": "boolean"
-          },
-          "readAt": {
-            "type": "object",
-            "format": "date-time",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "@type",
-          "id",
-          "type",
-          "trip",
-          "request",
-          "incident",
-          "isRead",
-          "readAt",
-          "createdAt"
         ]
       },
       "CreateReviewDto": {

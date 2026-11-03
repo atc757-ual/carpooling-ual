@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, IsNull, Repository } from 'typeorm';
 import { EventsService } from '../../events/events.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import {
   LEGAL_DOCUMENT_TYPES,
@@ -9,6 +10,7 @@ import {
   LegalDocument,
   LegalDocumentType,
 } from './entities/legal-document.entity';
+import { User } from './entities/user.entity';
 import { LegalDocumentNotFoundError } from './errors/legal-document-not-found.error';
 import { LegalDraftNotFoundError } from './errors/legal-draft-not-found.error';
 import { LegalSummaryRequiredError } from './errors/legal-summary-required.error';
@@ -47,6 +49,7 @@ export class LegalDocumentsService {
     private readonly documentsRepository: Repository<LegalDocument>,
     private readonly dataSource: DataSource,
     private readonly events: EventsService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   // La versión vigente; LegalDocumentNotFoundError si no hay ninguna
@@ -166,7 +169,33 @@ export class LegalDocumentsService {
           adminId,
         },
       });
+      if (published.changeType === 'minor') {
+        await this.notifyMinorChange(manager, published);
+      }
       return published;
     });
+  }
+
+  // Tras un cambio menor no se pide aceptar nada: se avisa en Avisos a cada
+  // usuario activo (el aviso queda como registro de que se le informó)
+  private async notifyMinorChange(
+    manager: EntityManager,
+    published: LegalDocument,
+  ): Promise<void> {
+    // FOR SHARE: si a la vez se borra un usuario, espera a que se publique
+    // (si no, su aviso apuntaría a un usuario que ya no existe)
+    const users = await manager.find(User, {
+      select: { id: true },
+      where: { deactivatedAt: IsNull() },
+      lock: { mode: 'pessimistic_read' },
+    });
+    await this.notifications.notify(
+      manager,
+      users.map(({ id }) => id),
+      {
+        type: published.type === 'terms' ? 'terms_updated' : 'privacy_updated',
+        legalDocumentId: published.id,
+      },
+    );
   }
 }

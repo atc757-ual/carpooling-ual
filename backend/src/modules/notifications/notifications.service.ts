@@ -4,17 +4,23 @@ import { EntityManager, IsNull, Not, Repository } from 'typeorm';
 import type { FindOptionsWhere } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { Notification } from './entities/notification.entity';
-import type { NotificationType } from './entities/notification.entity';
+import type {
+  LegalNotificationType,
+  TripNotificationType,
+} from './entities/notification.entity';
 import { NotificationNotFoundError } from './errors/notification-not-found.error';
 
-// Qué se avisa: el tipo y a qué se refiere. La base de datos exige la
-// incidencia en incident_reported y la solicitud en los demás
-export interface NotificationContent {
-  type: NotificationType;
-  tripId: string;
-  requestId?: string;
-  incidentId?: string;
-}
+// Qué se avisa: el tipo y a qué se refiere. Los de un viaje llevan el viaje
+// (la base de datos exige la incidencia en incident_reported y la solicitud en
+// los demás); los de un documento legal, solo la versión publicada
+export type NotificationContent =
+  | {
+      type: TripNotificationType;
+      tripId: string;
+      requestId?: string;
+      incidentId?: string;
+    }
+  | { type: LegalNotificationType; legalDocumentId: string };
 
 // Avisos dentro de la aplicación (RF-19, CU-11). Los crean los módulos donde
 // ocurre cada cambio (solicitudes, viajes, incidencias), que son los que saben
@@ -37,14 +43,13 @@ export class NotificationsService {
     if (recipients.length === 0) {
       return;
     }
+    const references = toReferences(content);
     await manager.insert(
       Notification,
       recipients.map((userId) => ({
         userId,
         type: content.type,
-        tripId: content.tripId,
-        requestId: content.requestId ?? null,
-        incidentId: content.incidentId ?? null,
+        ...references,
       })),
     );
   }
@@ -95,4 +100,27 @@ export class NotificationsService {
       { readAt: new Date() },
     );
   }
+}
+
+// Las referencias de cada aviso: las de un viaje o la versión de un documento
+function toReferences(
+  content: NotificationContent,
+): Pick<
+  Notification,
+  'tripId' | 'requestId' | 'incidentId' | 'legalDocumentId'
+> {
+  if ('legalDocumentId' in content) {
+    return {
+      tripId: null,
+      requestId: null,
+      incidentId: null,
+      legalDocumentId: content.legalDocumentId,
+    };
+  }
+  return {
+    tripId: content.tripId,
+    requestId: content.requestId ?? null,
+    incidentId: content.incidentId ?? null,
+    legalDocumentId: null,
+  };
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import type { DomainEventType } from '../../events/domain-event-type';
 import { EventsService } from '../../events/events.service';
-import type { NotificationType } from '../notifications/entities/notification.entity';
+import type { TripNotificationType } from '../notifications/entities/notification.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Trip } from '../trips/entities/trip.entity';
 import { SeatRequest } from './entities/seat-request.entity';
@@ -11,7 +11,7 @@ export type RequestEventType = Extract<DomainEventType, `request.${string}`>;
 
 export interface RequestNotice {
   recipientId: string;
-  type: NotificationType;
+  type: TripNotificationType;
 }
 
 export interface RequestChange {
@@ -55,11 +55,11 @@ export function noticeFor(
   request: SeatRequest,
   trip: Trip,
 ): RequestNotice {
-  const toDriver = (notice: NotificationType): RequestNotice => ({
+  const toDriver = (notice: TripNotificationType): RequestNotice => ({
     recipientId: trip.driverId,
     type: notice,
   });
-  const toPassenger = (notice: NotificationType): RequestNotice => ({
+  const toPassenger = (notice: TripNotificationType): RequestNotice => ({
     recipientId: request.passengerId,
     type: notice,
   });
