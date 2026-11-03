@@ -239,24 +239,21 @@ export class UsersController {
   @ApiOperation({
     summary: 'Record my location consent (granted or revoked)',
     description:
-      'Appends a location consent record (granted or revoked, source settings) when the state changes and returns the updated consents view.',
+      'Appends a location consent record when the state changes and returns the updated consents view. Granting accepts the current version of the location document (LEGAL_DOCUMENT_OUTDATED if another version is sent); revoking withdraws the last granted one.',
   })
   @ApiOkResponse({ type: UserConsentsResource })
   @ApiErrorResponses({
     ...AUTH_ERRORS,
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
     [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
+    [HttpStatus.CONFLICT]: ['LEGAL_DOCUMENT_OUTDATED'],
   })
   async setLocationConsent(
     @CurrentUser() currentUser: AccessTokenPayload,
     @Body() dto: SetLocationConsentDto,
   ): Promise<UserConsentsResource> {
     return toUserConsentsResource(
-      await this.consentsService.recordLocationConsent(
-        currentUser.sub,
-        dto.action,
-        dto.source,
-      ),
+      await this.consentsService.recordLocationConsent(currentUser.sub, dto),
     );
   }
 

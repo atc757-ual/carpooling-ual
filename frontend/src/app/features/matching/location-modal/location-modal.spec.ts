@@ -20,13 +20,14 @@ describe('LocationModal', () => {
   let fixture: ComponentFixture<LocationModal>;
   let modal: LocationModal;
   const location = { getCurrentPoint: vi.fn(), checkPermission: vi.fn() };
-  const consent = { set: vi.fn() };
+  const consent = { set: vi.fn(), isOutdated: vi.fn() };
   const places = { reverse: vi.fn() };
-  const modalController = { dismiss: vi.fn() };
+  const modalController = { dismiss: vi.fn(), create: vi.fn() };
 
   beforeEach(async () => {
     vi.clearAllMocks();
     location.checkPermission.mockResolvedValue('prompt');
+    consent.isOutdated.mockResolvedValue(false);
     TestBed.configureTestingModule({
       imports: [LocationModal],
       providers: [
@@ -59,6 +60,25 @@ describe('LocationModal', () => {
   it('explains what the location is for before asking for it', () => {
     expect(text()).toContain('Solo la usamos para esta búsqueda y no la guardamos.');
     expect(location.getCurrentPoint).not.toHaveBeenCalled();
+  });
+
+  it('says the text changed and opens it from the explanation', async () => {
+    consent.isOutdated.mockResolvedValue(true);
+    modalController.create.mockResolvedValue({ present: vi.fn().mockResolvedValue(undefined) });
+    fixture = TestBed.createComponent(LocationModal);
+    modal = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    await modal.handleReadTerms();
+
+    expect(text()).toContain('Hemos actualizado cómo usamos tu ubicación');
+    expect(text()).toContain('Cómo usamos tu ubicación');
+    expect(modalController.create).toHaveBeenCalledWith(
+      expect.objectContaining({ componentProps: { document: 'location' } }),
+    );
   });
 
   it('asks for the location and returns its point', async () => {

@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsOptional } from 'class-validator';
+import { IsIn, IsOptional, Matches } from 'class-validator';
 import { CONSENT_ACTIONS, LOCATION_CONSENT_SOURCES } from '../user-consent';
 import type { ConsentAction, LocationConsentSource } from '../user-consent';
 
 // Cuerpo de PUT /api/users/me/consents/location: conceder o retirar el
-// consentimiento de ubicación desde la app, y desde dónde (settings si no se
-// indica)
+// consentimiento de ubicación desde la app, desde dónde (settings si no se
+// indica) y, al concederlo, la versión de su documento que se leyó
 export class SetLocationConsentDto {
   @ApiProperty({ enum: CONSENT_ACTIONS, example: 'granted' })
   @IsIn(CONSENT_ACTIONS)
@@ -21,4 +21,14 @@ export class SetLocationConsentDto {
   @IsOptional()
   @IsIn(LOCATION_CONSENT_SOURCES)
   source?: LocationConsentSource;
+
+  @ApiProperty({
+    required: false,
+    example: '1.0',
+    description:
+      'When granting, the version of the location document that was read (the current one if omitted)',
+  })
+  @IsOptional()
+  @Matches(/^\d+\.\d+$/)
+  version?: string;
 }

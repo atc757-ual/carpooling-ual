@@ -97,8 +97,11 @@ describe('ConsentsService', () => {
         terms,
       ]);
 
+      legalDocuments.requiredVersion.mockResolvedValue('1.0');
+
       const view = await service.getMyConsents('u-1');
 
+      expect(view.outdated).toEqual([]);
       expect(view.current.terms?.id).toBe('c-1');
       expect(view.current.privacy).toBeNull();
       expect(view.current.location).toMatchObject({
@@ -110,6 +113,33 @@ describe('ConsentsService', () => {
         'c-2',
         'c-1',
       ]);
+    });
+
+    it('marks as outdated the granted consents older than the last major change', async () => {
+      userRepo.existsBy.mockResolvedValue(true);
+      const consent = (id: string, type: string, version: string) =>
+        Object.assign(new UserConsent(), {
+          id,
+          userId: 'u-1',
+          type,
+          documentVersion: version,
+          action: 'granted',
+          source: 'settings',
+          recordedAt: new Date('2026-10-21T10:00:00.000Z'),
+          fingerprint: 'f'.repeat(64),
+        });
+      consentsRepository.find.mockResolvedValue([
+        consent('c-1', 'location', '1.0'),
+        consent('c-2', 'terms', '1.0'),
+      ]);
+      legalDocuments.requiredVersion.mockImplementation((type: string) =>
+        Promise.resolve(type === 'location' ? '2.0' : '1.0'),
+      );
+
+      const view = await service.getMyConsents('u-1');
+
+      expect(view.outdated).toEqual(['location']);
+      expect(legalDocuments.requiredVersion).toHaveBeenCalledTimes(2);
     });
 
     it('throws USER_NOT_FOUND when the user does not exist', async () => {

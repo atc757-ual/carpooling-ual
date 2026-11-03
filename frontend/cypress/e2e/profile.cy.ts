@@ -81,6 +81,7 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('GET', '/api/users/me/legal-documents/pending', []);
       cy.intercept('GET', '/api/users/me/consents', {
         current: { terms: consent('terms'), privacy: consent('privacy'), location: null },
+        outdated: [],
         history: [],
       });
       cy.intercept('GET', '/api/legal-documents/terms', {

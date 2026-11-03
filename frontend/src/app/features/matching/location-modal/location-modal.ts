@@ -17,6 +17,7 @@ import { Place } from '../../../core/models/place.model';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { PlacesService } from '../../../core/services/places/places.service';
+import { openLegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
 
 // Acercamiento del mapa: el de una calle al ajustar un punto, y uno menos
 // al ver un lugar (para que se vea lo que tiene alrededor)
@@ -70,6 +71,8 @@ export class LocationModal implements OnInit, OnDestroy {
 
   // Mientras se comprueba el permiso no se enseña nada (es inmediato)
   readonly step = signal<LocationStep>('checking');
+  // Ya la había dado, pero el texto cambió de forma importante
+  readonly isOutdated = signal(false);
   // [longitud, latitud] del pin
   readonly point = signal<[number, number] | null>(null);
   readonly place = signal<Place | null>(null);
@@ -129,8 +132,12 @@ export class LocationModal implements OnInit, OnDestroy {
     const permission = await this.location.checkPermission();
     if (permission === 'granted') {
       await this.handleLocate();
-    } else {
-      this.step.set(permission === 'prompt' ? 'intro' : permission);
+      return;
+    }
+    this.step.set(permission === 'prompt' ? 'intro' : permission);
+    if (permission === 'prompt') {
+      // El aviso de que el texto cambió llega después, sin retrasar la ventana
+      void this.consent.isOutdated().then((isOutdated) => this.isOutdated.set(isOutdated));
     }
   }
 
@@ -147,6 +154,11 @@ export class LocationModal implements OnInit, OnDestroy {
     } catch (error) {
       this.step.set(error instanceof LocationError ? error.reason : 'unavailable');
     }
+  }
+
+  // El texto completo de «Uso de la ubicación», el que se acepta al buscarla
+  handleReadTerms(): Promise<void> {
+    return openLegalModal(this.modalController, 'location');
   }
 
   // Tras explicar para qué se usa (o si la había retirado en Perfil): queda

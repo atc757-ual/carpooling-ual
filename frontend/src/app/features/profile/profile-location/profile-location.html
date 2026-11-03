@@ -12,6 +12,16 @@
         <span class="text-body-s text-color-muted">{{
           'profile.location.shareDesc' | transloco
         }}</span>
+        @if (isOutdated()) {
+          <span class="text-body-s">{{ 'profile.location.outdated' | transloco }}</span>
+        }
+        <button
+          type="button"
+          class="profile-location__link text-body-s"
+          (click)="handleReadTerms()"
+        >
+          {{ 'profile.location.readTerms' | transloco }}
+        </button>
       </span>
       <ion-toggle
         mode="ios"
@@ -22,7 +32,8 @@
     </div>
     @if (stamp(); as stamp) {
       <div class="profile-location__stamp text-body-s">
-        @if (isGranted()) {
+        <!-- Desactualizada: se autorizó, aunque ya no cuente -->
+        @if (isGranted() || isOutdated()) {
           <span class="profile-location__granted">
             <ion-icon [icon]="checkIcon" aria-hidden="true" />
             {{ 'profile.location.authorizedOn' | transloco: { date: stamp.date } }}

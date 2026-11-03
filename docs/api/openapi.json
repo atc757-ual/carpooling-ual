@@ -1545,7 +1545,7 @@
     },
     "/api/users/me/consents/location": {
       "put": {
-        "description": "Appends a location consent record (granted or revoked, source settings) when the state changes and returns the updated consents view.",
+        "description": "Appends a location consent record when the state changes and returns the updated consents view. Granting accepts the current version of the location document (LEGAL_DOCUMENT_OUTDATED if another version is sent); revoking withdraws the last granted one.",
         "operationId": "UsersController_setLocationConsent",
         "parameters": [],
         "requestBody": {
@@ -1591,6 +1591,16 @@
           },
           "404": {
             "description": "TMF630 error: USER_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: LEGAL_DOCUMENT_OUTDATED",
             "content": {
               "application/json": {
                 "schema": {
@@ -2786,7 +2796,8 @@
                 "terms",
                 "privacy",
                 "driver_declaration",
-                "vehicle_declaration"
+                "vehicle_declaration",
+                "location"
               ],
               "type": "string"
             }
@@ -3025,7 +3036,8 @@
                 "terms",
                 "privacy",
                 "driver_declaration",
-                "vehicle_declaration"
+                "vehicle_declaration",
+                "location"
               ]
             }
           }
@@ -3123,7 +3135,8 @@
                 "terms",
                 "privacy",
                 "driver_declaration",
-                "vehicle_declaration"
+                "vehicle_declaration",
+                "location"
               ],
               "type": "string"
             }
@@ -3214,7 +3227,8 @@
                 "terms",
                 "privacy",
                 "driver_declaration",
-                "vehicle_declaration"
+                "vehicle_declaration",
+                "location"
               ],
               "type": "string"
             }
@@ -3317,7 +3331,8 @@
                 "terms",
                 "privacy",
                 "driver_declaration",
-                "vehicle_declaration"
+                "vehicle_declaration",
+                "location"
               ],
               "type": "string"
             }
@@ -12587,6 +12602,22 @@
           "current": {
             "$ref": "#/components/schemas/CurrentConsentsResource"
           },
+          "outdated": {
+            "type": "array",
+            "example": [
+              "location"
+            ],
+            "description": "Granted consents older than the last major change of their document: they must be accepted again and do not count meanwhile",
+            "items": {
+              "type": "string",
+              "enum": [
+                "terms",
+                "privacy",
+                "location",
+                "driver_declaration"
+              ]
+            }
+          },
           "history": {
             "type": "array",
             "items": {
@@ -12597,6 +12628,7 @@
         "required": [
           "@type",
           "current",
+          "outdated",
           "history"
         ]
       },
@@ -12620,6 +12652,11 @@
             ],
             "default": "settings",
             "description": "Where it was recorded: settings (the profile switch), location_prompt (the window explaining why location is used) or device (the app detected the system permission was removed)"
+          },
+          "version": {
+            "type": "string",
+            "example": "1.0",
+            "description": "When granting, the version of the location document that was read (the current one if omitted)"
           }
         },
         "required": [
@@ -12957,7 +12994,8 @@
               "terms",
               "privacy",
               "driver_declaration",
-              "vehicle_declaration"
+              "vehicle_declaration",
+              "location"
             ]
           },
           "version": {
@@ -13009,7 +13047,8 @@
               "terms",
               "privacy",
               "driver_declaration",
-              "vehicle_declaration"
+              "vehicle_declaration",
+              "location"
             ]
           },
           "version": {
@@ -13067,7 +13106,8 @@
               "terms",
               "privacy",
               "driver_declaration",
-              "vehicle_declaration"
+              "vehicle_declaration",
+              "location"
             ]
           },
           "version": {

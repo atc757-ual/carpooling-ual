@@ -106,6 +106,19 @@ describe('UsersService', () => {
     });
   });
 
+  it('sends the version of the location text that was accepted', async () => {
+    const setPromise = users.setLocationConsent('granted', 'location_prompt', '2.0');
+    const req = http.expectOne('/api/users/me/consents/location');
+    expect(req.request.body).toEqual({
+      action: 'granted',
+      source: 'location_prompt',
+      version: '2.0',
+    });
+    req.flush({ current: { location: { action: 'granted' } }, outdated: [], history: [] });
+
+    await setPromise;
+  });
+
   it('records where the location consent was given', async () => {
     const setPromise = users.setLocationConsent('granted', 'location_prompt');
     const req = http.expectOne('/api/users/me/consents/location');

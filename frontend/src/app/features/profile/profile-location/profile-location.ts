@@ -7,6 +7,7 @@ import {
   IonCardTitle,
   IonIcon,
   IonToggle,
+  ModalController,
 } from '@ionic/angular';
 import { checkmarkCircle, locateOutline, lockClosedOutline } from 'ionicons/icons';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -18,6 +19,7 @@ import {
 } from '../../../core/services/location/location.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { openLegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { toConsentStamp } from '../consent-stamp';
 
 type DevicePermission = Exclude<LocationPermission, 'revoked'>;
@@ -46,13 +48,17 @@ export class ProfileLocation implements OnInit {
   private readonly location = inject(LocationService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
+  private readonly modalController = inject(ModalController);
 
   readonly consents = signal<UserConsents | null>(null);
   readonly devicePermission = signal<DevicePermission | null>(null);
   readonly isAsking = signal(false);
 
   private readonly record = computed(() => this.consents()?.current.location ?? null);
-  readonly isGranted = computed(() => this.record()?.action === 'granted');
+  // Tras un cambio importante del texto, como si no la hubiera dado: el
+  // interruptor la vuelve a dar, ya con el texto nuevo
+  readonly isOutdated = computed(() => this.consents()?.outdated.includes('location') ?? false);
+  readonly isGranted = computed(() => this.record()?.action === 'granted' && !this.isOutdated());
   // Fecha y código del último registro (autorizado o retirado)
   readonly stamp = computed(() => {
     const record = this.record();
@@ -99,6 +105,11 @@ export class ProfileLocation implements OnInit {
       (event.target as HTMLIonToggleElement).checked = action === 'revoked';
       void this.toast.showError('No hemos podido guardar el cambio. Inténtalo de nuevo.');
     }
+  }
+
+  // El texto completo de «Uso de la ubicación», el que se acepta
+  handleReadTerms(): Promise<void> {
+    return openLegalModal(this.modalController, 'location');
   }
 
   // «Permitir»: pedir la ubicación una vez hace que el sistema pregunte

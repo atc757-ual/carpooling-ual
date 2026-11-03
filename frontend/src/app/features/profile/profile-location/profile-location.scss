@@ -84,3 +84,19 @@
   min-height: 2rem; // el tema da 48px a todos los ion-button
   font-weight: var(--font-weight-semibold);
 }
+
+// «Cómo usamos tu ubicación»: abre el texto que se acepta
+.profile-location__link {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}

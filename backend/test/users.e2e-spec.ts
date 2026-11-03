@@ -769,6 +769,42 @@ describe('Users API (e2e)', () => {
       ]);
     });
 
+    it('grants the location document that was read and rejects an old version', async () => {
+      const ana = await createUser('ana');
+      const [current] = await dataSource.query<
+        { id: string; version: string }[]
+      >(
+        `SELECT id, version FROM legal_documents
+          WHERE type = 'location' AND status = 'published'
+          ORDER BY published_at DESC LIMIT 1`,
+      );
+
+      await request(app.getHttpServer())
+        .put('/api/users/me/consents/location')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .send({ action: 'granted', version: '0.9' })
+        .expect(409)
+        .expect(({ body }) =>
+          expect(body).toMatchObject({ code: 'LEGAL_DOCUMENT_OUTDATED' }),
+        );
+      const granted = await request(app.getHttpServer())
+        .put('/api/users/me/consents/location')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .send({ action: 'granted', version: current.version })
+        .expect(200);
+
+      expect(granted.body).toMatchObject({
+        current: { location: { documentVersion: current.version } },
+        outdated: [],
+      });
+      const [row] = await dataSource.query<{ document_id: string }[]>(
+        `SELECT document_id FROM user_consents
+          WHERE user_id = $1 AND type = 'location'`,
+        [ana.id],
+      );
+      expect(row.document_id).toBe(current.id);
+    });
+
     it('migrates terms_accepted_at into user_consents with valid SHA-256 fingerprints', async () => {
       const ana = await createUser('ana');
       await dataSource.query('DELETE FROM user_consents WHERE user_id = $1', [

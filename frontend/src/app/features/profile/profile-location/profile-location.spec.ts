@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { provideTestingTransloco } from '../../../core/i18n/testing-transloco';
 import { ConsentRecord, UserConsents } from '../../../core/models/user-consent.model';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
@@ -8,7 +8,7 @@ import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ProfileLocation } from './profile-location';
 
-function consents(action: 'granted' | 'revoked' | null): UserConsents {
+function consents(action: 'granted' | 'revoked' | null, isOutdated = false): UserConsents {
   const location: ConsentRecord | null = action && {
     id: 'c1',
     type: 'location',
@@ -21,6 +21,7 @@ function consents(action: 'granted' | 'revoked' | null): UserConsents {
   };
   return {
     current: { terms: null, privacy: null, location, driverDeclaration: null },
+    outdated: isOutdated ? ['location'] : [],
     history: [],
   };
 }
@@ -85,6 +86,29 @@ describe('ProfileLocation', () => {
 
     expect(location.recordDeviceWithdrawal).toHaveBeenCalled();
     expect(fixture.componentInstance.isGranted()).toBe(false);
+  });
+
+  it('shows it off after an important change of the text and opens the text', async () => {
+    consent.load.mockResolvedValue(consents('granted', true));
+    const create = vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
+      present: vi.fn().mockResolvedValue(undefined),
+    } as unknown as HTMLIonModalElement);
+
+    await fixture.componentInstance.refresh();
+    fixture.detectChanges();
+    await fixture.componentInstance.handleReadTerms();
+
+    expect(fixture.componentInstance.isGranted()).toBe(false);
+    expect(fixture.componentInstance.isOutdated()).toBe(true);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'profile.location.authorizedOn',
+    );
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'profile.location.outdated',
+    );
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({ componentProps: { document: 'location' } }),
+    );
   });
 
   it('grants the consent with the toggle', async () => {

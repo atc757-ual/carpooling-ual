@@ -3,10 +3,11 @@ import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { UserConsents } from '../../models/user-consent.model';
 import { AuthService } from '../auth/auth.service';
+import { LegalDocumentsService } from '../users/legal-documents.service';
 import { UsersService } from '../users/users.service';
 import { LocationConsentService } from './location-consent.service';
 
-function consentsWith(action: 'granted' | 'revoked' | null): UserConsents {
+function consentsWith(action: 'granted' | 'revoked' | null, isOutdated = false): UserConsents {
   return {
     current: {
       terms: null,
@@ -25,6 +26,7 @@ function consentsWith(action: 'granted' | 'revoked' | null): UserConsents {
           }
         : null,
     },
+    outdated: isOutdated ? ['location'] : [],
     history: [],
   };
 }
@@ -33,6 +35,7 @@ describe('LocationConsentService', () => {
   let consent: LocationConsentService;
   const currentUser = signal<{ id: string } | null>({ id: 'user-1' });
   const users = { getMyConsents: vi.fn(), setLocationConsent: vi.fn() };
+  const getCurrent = vi.fn().mockResolvedValue({ version: '2.0' });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -41,6 +44,7 @@ describe('LocationConsentService', () => {
       providers: [
         { provide: UsersService, useValue: users },
         { provide: AuthService, useValue: { currentUser } },
+        { provide: LegalDocumentsService, useValue: { getCurrent } },
       ],
     });
     consent = TestBed.inject(LocationConsentService);
@@ -57,6 +61,22 @@ describe('LocationConsentService', () => {
     users.getMyConsents.mockResolvedValueOnce(consentsWith(null));
     await consent.load(true);
     await expect(consent.getStatus()).resolves.toBe('none');
+  });
+
+  it('does not count a consent given to a text that changed in an important way', async () => {
+    users.getMyConsents.mockResolvedValue(consentsWith('granted', true));
+
+    await expect(consent.getStatus()).resolves.toBe('none');
+    await expect(consent.isOutdated()).resolves.toBe(true);
+  });
+
+  it('withdraws it without reading the text', async () => {
+    users.setLocationConsent.mockResolvedValue(consentsWith('revoked'));
+
+    await consent.set('revoked', 'device');
+
+    expect(getCurrent).not.toHaveBeenCalled();
+    expect(users.setLocationConsent).toHaveBeenCalledWith('revoked', 'device', undefined);
   });
 
   it('asks the API once per user and again for another user', async () => {
@@ -89,7 +109,8 @@ describe('LocationConsentService', () => {
 
     await consent.set('granted', 'location_prompt');
 
-    expect(users.setLocationConsent).toHaveBeenCalledWith('granted', 'location_prompt');
+    expect(getCurrent).toHaveBeenCalledWith('location');
+    expect(users.setLocationConsent).toHaveBeenCalledWith('granted', 'location_prompt', '2.0');
     await expect(consent.getStatus()).resolves.toBe('granted');
     expect(users.getMyConsents).not.toHaveBeenCalled();
   });
