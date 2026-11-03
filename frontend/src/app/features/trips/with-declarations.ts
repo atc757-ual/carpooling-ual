@@ -22,25 +22,37 @@ const MAX_RENEWALS = 2;
 // cambió de forma importante), la abre; si el conductor la acepta, la
 // registra y vuelve a intentarlo. Si no la acepta, sigue el error (lo explica
 // el aviso)
-export async function withDeclarations<T>(
+export function withDeclarations<T>(
   deps: DeclarationDeps,
   vehicleId: string,
   action: () => Promise<T>,
 ): Promise<T> {
-  for (let renewals = 0; ; renewals++) {
-    try {
-      return await action();
-    } catch (error) {
-      const document = DECLARATION_BY_CODE.get(ApiError.fromHttpError(error).code);
-      if (
-        !document ||
-        renewals >= MAX_RENEWALS ||
-        !(await openDeclarationModal(deps.modalController, document))
-      ) {
-        throw error;
-      }
-      await acceptDeclaration(deps.driver, document, vehicleId);
+  return attempt(deps, { vehicleId, action, renewals: 0 });
+}
+
+interface Attempt<T> {
+  vehicleId: string;
+  action: () => Promise<T>;
+  // Cuántas declaraciones se han renovado ya en este intento
+  renewals: number;
+}
+
+// Un intento; tras renovar una declaración, el siguiente (cada intento espera
+// al anterior, por eso no es un bucle)
+async function attempt<T>(deps: DeclarationDeps, run: Attempt<T>): Promise<T> {
+  try {
+    return await run.action();
+  } catch (error) {
+    const document = DECLARATION_BY_CODE.get(ApiError.fromHttpError(error).code);
+    if (
+      !document ||
+      run.renewals >= MAX_RENEWALS ||
+      !(await openDeclarationModal(deps.modalController, document))
+    ) {
+      throw error;
     }
+    await acceptDeclaration(deps.driver, document, run.vehicleId);
+    return attempt(deps, { ...run, renewals: run.renewals + 1 });
   }
 }
 
