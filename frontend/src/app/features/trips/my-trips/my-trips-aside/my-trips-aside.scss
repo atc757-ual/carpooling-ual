@@ -1,0 +1,57 @@
+.my-trips-aside {
+  margin: 0;
+
+  ion-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-base);
+  }
+}
+
+.my-trips-aside__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+.my-trips-aside__summary {
+  margin: 0;
+  padding-top: var(--space-base);
+  border-top: var(--border-width) solid var(--color-border-subtle);
+}
+
+// Cada cifra: su nombre en pequeño (con su icono) y el valor debajo
+.my-trips-aside__stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+
+  dt {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+
+  ion-icon {
+    color: var(--color-eco);
+  }
+}
+
+.my-trips-aside .my-trips-aside__star {
+  color: var(--color-warning);
+}
+
+.my-trips-aside__note {
+  margin: 0;
+  color: var(--color-text-muted);
+}

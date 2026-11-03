@@ -1,0 +1,40 @@
+<ion-card class="my-trips-aside">
+  <ion-card-content>
+    <div class="my-trips-aside__actions">
+      <ion-button expand="block" routerLink="/tabs/publish">
+        <ion-icon slot="start" [icon]="publishIcon" aria-hidden="true" />
+        Publicar viaje
+      </ion-button>
+      <ion-button expand="block" fill="outline" routerLink="/tabs/search">
+        <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
+        Buscar viaje
+      </ion-button>
+    </div>
+
+    <p class="text-body text-body--strong my-trips-aside__summary">{{ summary() }}</p>
+
+    <dl class="my-trips-aside__stats">
+      <div>
+        <dt class="text-caption">Viajes hechos</dt>
+        <dd class="text-subtitle">{{ pastCount() }}</dd>
+      </div>
+      <div>
+        <dt class="text-caption">
+          <ion-icon [icon]="co2Icon" aria-hidden="true" />
+          CO₂ ahorrado
+        </dt>
+        <dd class="text-subtitle">{{ co2Text() }}</dd>
+      </div>
+      <div>
+        <dt class="text-caption">
+          <ion-icon class="my-trips-aside__star" [icon]="ratingIcon" aria-hidden="true" />
+          Valoración
+        </dt>
+        <dd class="text-body-s">{{ ratingText() }}</dd>
+      </div>
+    </dl>
+    <p class="text-caption my-trips-aside__note">
+      El CO₂ es una estimación: lo que habría emitido un coche más en cada viaje hecho.
+    </p>
+  </ion-card-content>
+</ion-card>

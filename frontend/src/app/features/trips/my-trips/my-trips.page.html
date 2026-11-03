@@ -1,71 +1,86 @@
 <ion-content>
   <div class="tab-page my-trips">
-    @if (canDrive()) {
+    <!-- Escritorio: la columna de 4 a la derecha, fija al hacer scroll -->
+    <app-my-trips-aside
+      class="my-trips__aside ion-hide-md-down"
+      [summary]="aside().summary"
+      [pastCount]="aside().pastCount"
+      [co2Kg]="aside().co2Kg"
+      [rating]="rating()"
+    />
+
+    <div class="my-trips__main">
+      @if (canDrive()) {
+        <ion-segment
+          class="my-trips__view"
+          aria-label="Qué viajes ver"
+          [value]="view()"
+          (ionChange)="handleViewChange($event.detail.value)"
+        >
+          <ion-segment-button value="passenger">
+            <ion-label>Como pasajero</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="driver">
+            <ion-label>Como conductor</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      }
+
+      @if (liveBanner(); as live) {
+        <app-live-trip-banner [route]="live.route" [detail]="live.detail" [link]="live.link" />
+      }
+
       <ion-segment
-        class="my-trips__view"
-        aria-label="Qué viajes ver"
-        [value]="view()"
-        (ionChange)="handleViewChange($event.detail.value)"
+        class="my-trips__tabs"
+        aria-label="Cuándo"
+        [value]="tab()"
+        (ionChange)="handleTabChange($event.detail.value)"
       >
-        <ion-segment-button value="passenger">
-          <ion-label>Como pasajero</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="driver">
-          <ion-label>Como conductor</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-    }
-
-    <ion-segment
-      class="my-trips__tabs"
-      aria-label="Cuándo"
-      [value]="tab()"
-      (ionChange)="handleTabChange($event.detail.value)"
-    >
-      @for (option of tabs; track option.value) {
-        <ion-segment-button [value]="option.value">
-          <ion-label>{{ option.label }}</ion-label>
-        </ion-segment-button>
-      }
-    </ion-segment>
-
-    @if (isDriver()) {
-      @if (trips.isLoading() && !trips.hasValue()) {
-        <output class="my-trips__status">
-          <ion-spinner name="crescent" aria-hidden="true" />
-          <span class="text-color-muted">Cargando tus viajes…</span>
-        </output>
-      } @else if (trips.error()) {
-        <ion-card>
-          <ion-card-content class="my-trips__state" role="alert">
-            <ion-icon [icon]="errorIcon" aria-hidden="true" />
-            <div class="text-subtitle">No hemos podido cargar tus viajes</div>
-            <form (submit)="$event.preventDefault(); handleChanged()">
-              <ion-button type="submit" fill="outline">Reintentar</ion-button>
-            </form>
-          </ion-card-content>
-        </ion-card>
-      } @else if (tabTrips().length === 0) {
-        <ion-card>
-          <ion-card-content class="my-trips__state">
-            <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-            <div class="text-subtitle">{{ emptyTexts[tab()] }}</div>
-            @if (tab() === 'upcoming') {
-              <div class="text-body-s text-color-muted">
-                Publica tu recorrido y aquí verás quién te pide plaza.
-              </div>
-              <ion-button routerLink="/tabs/publish">Publicar viaje</ion-button>
-            }
-          </ion-card-content>
-        </ion-card>
-      } @else {
-        @for (trip of tabTrips(); track trip.id) {
-          <app-driver-trip-card [trip]="trip" (changed)="handleChanged()" />
+        @for (option of tabs; track option.value) {
+          <ion-segment-button [value]="option.value">
+            <ion-label>{{ option.label }}</ion-label>
+          </ion-segment-button>
         }
+      </ion-segment>
+
+      @if (isDriver()) {
+        @if (trips.isLoading() && !trips.hasValue()) {
+          <output class="my-trips__status">
+            <ion-spinner name="crescent" aria-hidden="true" />
+            <span class="text-color-muted">Cargando tus viajes…</span>
+          </output>
+        } @else if (trips.error()) {
+          <ion-card>
+            <ion-card-content class="my-trips__state" role="alert">
+              <ion-icon [icon]="errorIcon" aria-hidden="true" />
+              <div class="text-subtitle">No hemos podido cargar tus viajes</div>
+              <form (submit)="$event.preventDefault(); handleChanged()">
+                <ion-button type="submit" fill="outline">Reintentar</ion-button>
+              </form>
+            </ion-card-content>
+          </ion-card>
+        } @else if (tabTrips().length === 0) {
+          <ion-card>
+            <ion-card-content class="my-trips__state">
+              <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+              <div class="text-subtitle">{{ emptyTexts[tab()] }}</div>
+              @if (tab() === 'upcoming') {
+                <div class="text-body-s text-color-muted">
+                  Publica tu recorrido y aquí verás quién te pide plaza.
+                </div>
+                <ion-button routerLink="/tabs/publish">Publicar viaje</ion-button>
+              }
+            </ion-card-content>
+          </ion-card>
+        } @else {
+          @for (trip of tabTrips(); track trip.id) {
+            <app-driver-trip-card [trip]="trip" (changed)="handleChanged()" />
+          }
+        }
+      } @else {
+        <!-- Como pasajero: sus solicitudes con su viaje -->
+        <app-passenger-requests [tab]="tab()" />
       }
-    } @else {
-      <!-- Como pasajero: sus solicitudes con su viaje -->
-      <app-passenger-requests [tab]="tab()" />
-    }
+    </div>
   </div>
 </ion-content>
