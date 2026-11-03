@@ -19,6 +19,7 @@ La plataforma registra cada cambio de estado de sus entidades en la tabla `event
 - `EventsService.readAfter(secuencia, límite)` devuelve los eventos posteriores a la última secuencia procesada, en orden (500 como mucho por lectura).
 - La secuencia se asigna **al guardar**, no al confirmar la transacción: dos transacciones simultáneas pueden confirmarse en orden distinto y dejar un hueco momentáneo (la 11 visible antes que la 10). El consumidor no da un hueco por perdido a la primera: vuelve a leer desde antes del hueco pasado un instante y procesa lo que aparezca, descartando por `id` lo ya visto.
 - Al cambiar la forma del `payload` de un tipo, se sube su versión en `event-versions.ts` y se documenta aquí; el consumidor lee cada evento según su `version`.
+- El consumidor es `DigitalTwinSyncService` (`modules/digital-twin/sync/`): al arrancar reproduce todo desde el principio y después lee cada 250 ms. Un hueco se da por perdido (p. ej. una transacción deshecha, que también gasta su número) cuando lleva 2 s abierto o cuando el evento de después tiene más de 2 s. Los tipos y versiones que lee están en `SUPPORTED_EVENT_VERSIONS` (`model/system-twin.ts`); un test falla si sube la versión de uno de ellos y el gemelo no la acepta.
 
 ## Tipos (en la versión 1 salvo donde se indica)
 
