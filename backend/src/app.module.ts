@@ -15,6 +15,7 @@ import { MetricsModule } from './modules/metrics/metrics.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PlacesModule } from './modules/places/places.module';
 import { ReputationModule } from './modules/reputation/reputation.module';
+import { ChatModule } from './modules/chat/chat.module';
 import { RequestsModule } from './modules/requests/requests.module';
 import { SimulationModule } from './modules/simulation/simulation.module';
 import { SupportModule } from './modules/support/support.module';
@@ -44,6 +45,7 @@ import { UsersModule } from './modules/users/users.module';
     TrackingModule,
     RequestsModule,
     ReputationModule,
+    ChatModule,
     IncidentsModule,
     NotificationsModule,
     SupportModule,

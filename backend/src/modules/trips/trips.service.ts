@@ -460,6 +460,33 @@ export class TripsService {
       .getMany();
   }
 
+  // Viajes con chat de un participante (conductor o pasajero aceptado): los
+  // confirmados o en curso y los terminados o cancelados desde esa fecha. Del
+  // que se movió más recientemente al que menos
+  async findChatTripsForParticipant(
+    userId: string,
+    acceptedTripIds: string[],
+    endedSince: Date,
+  ): Promise<Trip[]> {
+    const qb = this.tripsRepository.createQueryBuilder('trip').where(
+      `(trip.status IN ('confirmed', 'in_progress')
+          OR (trip.status IN ('finished', 'cancelled') AND trip.updatedAt > :endedSince))`,
+      { endedSince },
+    );
+    if (acceptedTripIds.length > 0) {
+      qb.andWhere(
+        '(trip.driverId = :userId OR trip.id IN (:...acceptedTripIds))',
+        { userId, acceptedTripIds },
+      );
+    } else {
+      qb.andWhere('trip.driverId = :userId', { userId });
+    }
+    return qb
+      .orderBy('trip.updatedAt', 'DESC')
+      .addOrderBy('trip.id', 'ASC')
+      .getMany();
+  }
+
   private toViewWithProfile(
     trip: Trip,
     profile: Omit<TripView, 'trip'>,
