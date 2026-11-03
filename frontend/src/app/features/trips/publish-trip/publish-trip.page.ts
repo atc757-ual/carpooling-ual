@@ -40,7 +40,7 @@ import { DeclarationField } from '../declaration-field/declaration-field';
 import { PublishNextSteps } from '../publish-next-steps/publish-next-steps';
 import { VehiclePicker } from '../vehicle-picker/vehicle-picker';
 import { PUBLISH_FAQS } from './publish-help';
-import { publishWithVehicleDeclaration } from './publish-with-declaration';
+import { withDeclarations } from '../with-declarations';
 import {
   buildStops,
   estimateDriverImpact,
@@ -420,9 +420,11 @@ export class PublishTripPage implements OnInit {
         await this.driver.acceptDeclaration();
         this.hasDeclared.set(true);
       }
-      const trip = await publishWithVehicleDeclaration(
+      const request = toPublishTripRequest(place, parking, offer);
+      const trip = await withDeclarations(
         { driver: this.driver, modalController: this.modalController },
-        toPublishTripRequest(place, parking, offer),
+        request.vehicleId,
+        () => this.driver.publishTrip(request),
       );
       this.published.set(trip);
       void this.celebration.celebrate().catch(() => undefined);

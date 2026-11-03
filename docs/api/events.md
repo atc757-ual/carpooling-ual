@@ -40,7 +40,7 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `trip.updated`             | Cambia un viaje publicado                                                      | `trips/trip-status.service.ts`        |
 | `trip.confirmed`           | Se acepta la primera solicitud                                                 | `trips/trip-status.service.ts`        |
 | `trip.reopened`            | Vuelve a publicado al cancelarse todas las aceptadas                           | `trips/trip-status.service.ts`        |
-| `trip.started`             | Empieza el viaje                                                               | `trips/trip-status.service.ts`        |
+| `trip.started` (v2)        | Empieza el viaje                                                               | `trips/trip-status.service.ts`        |
 | `trip.finished` (v2)       | Termina el viaje                                                               | `trips/trip-status.service.ts`        |
 | `trip.cancelled`           | Se cancela el viaje                                                            | `trips/trip-status.service.ts`        |
 | `trip.cancelled_late`      | Cancelación tardía del conductor o de un pasajero (fiabilidad, S5)             | `trips/late-cancellations.service.ts` |
@@ -71,6 +71,7 @@ Las rutas son relativas a `backend/src/modules/`. Un test (`events-contract.spec
 
 ### Cambios de versión
 
+- `trip.started` **v2**: el `payload` añade `driverDeclarationVersion` y `vehicleDeclarationVersion` (las versiones de la declaración del conductor y de la del vehículo que confirma al iniciar, RF-21). La v1 llevaba el mismo estado del viaje sin esos dos campos.
 - `trip.finished` **v2**: el `payload` añade `finishedAt` y `finishDistanceM` (metros entre el conductor y el destino al terminar, calculados con PostGIS con la posición que envía la app; `null` si no la envió). La v1 llevaba el mismo estado del viaje sin esos dos campos.
 - `consent.granted` y `consent.revoked` **v2**: el `payload` añade `vehicleId` (el vehículo de una declaración de vehículo, `vehicle_declaration`; `null` en los demás). La v1 llevaba `consentId`, `type`, `documentVersion`, `source` y `fingerprint`.
 - `legal_document.published` **v2**: el `payload` añade `changeType` (`major` o `minor`) y `summary` («Qué ha cambiado», el texto que escribe quien publica; no tiene datos personales). La v1 llevaba `type`, `version`, `publishedAt` y `adminId`.

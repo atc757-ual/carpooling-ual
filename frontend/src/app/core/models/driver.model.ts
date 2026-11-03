@@ -77,6 +77,8 @@ export type TripStatus = 'published' | 'confirmed' | 'in_progress' | 'finished' 
 // Un viaje del conductor (GET /api/users/me/trips). Los nombres del origen y
 // el destino son null en los publicados antes de guardarlos
 export interface DriverTrip extends PublishedTrip {
+  // El vehículo con el que se publicó (su declaración se confirma al iniciar)
+  vehicleId: string;
   origin: GeoPoint;
   destination: GeoPoint;
   availableSeats: number;

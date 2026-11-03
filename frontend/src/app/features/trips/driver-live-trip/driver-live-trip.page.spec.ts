@@ -30,6 +30,7 @@ const TRIP: DriverTrip = {
   offeredSeats: 3,
   availableSeats: 0,
   maxDetourMin: 10,
+  vehicleId: 'v1',
   origin: { type: 'Point', coordinates: [-2.6, 36.76] },
   destination: { type: 'Point', coordinates: [-2.4045, 36.8322] },
   status: 'in_progress',

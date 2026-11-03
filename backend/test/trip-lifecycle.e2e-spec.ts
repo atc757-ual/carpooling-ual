@@ -185,6 +185,69 @@ describe('Trip lifecycle API (e2e)', () => {
     expect(event.payload.finishDistanceM).toBe(trip.finish_distance_m);
   });
 
+  it('asks to renew the declarations older than a year before starting (trip.started v2)', async () => {
+    const { driver, tripId, vehicleId } = await driverWithTrip(10);
+    const pia = await tokenFor('pia', ['passenger']);
+    const seatRequest = await api(
+      'post',
+      `/trips/${tripId}/requests`,
+      pia,
+    ).expect(201);
+    await api(
+      'post',
+      `/requests/${(seatRequest.body as { id: string }).id}/accept`,
+      driver,
+    ).expect(200);
+    // Las dos declaraciones se aceptaron hace 13 meses
+    await dataSource.query(
+      `UPDATE user_consents SET recorded_at = now() - interval '13 months'
+        WHERE user_id = (SELECT driver_id FROM vehicles WHERE id = $1)
+          AND type IN ('driver_declaration', 'vehicle_declaration')`,
+      [vehicleId],
+    );
+
+    const driverExpired = await api(
+      'post',
+      `/trips/${tripId}/start`,
+      driver,
+    ).expect(409);
+    expect(driverExpired.body).toMatchObject({
+      code: 'DRIVER_DECLARATION_REQUIRED',
+    });
+    await api('put', '/users/me/driver-declaration', driver).expect(200);
+    const vehicleExpired = await api(
+      'post',
+      `/trips/${tripId}/start`,
+      driver,
+    ).expect(409);
+    expect(vehicleExpired.body).toMatchObject({
+      code: 'VEHICLE_DECLARATION_REQUIRED',
+    });
+    await api('put', `/vehicles/${vehicleId}/declaration`, driver)
+      .send({})
+      .expect(200);
+    await api('post', `/trips/${tripId}/start`, driver).expect(200);
+
+    const [event] = await dataSource.query<
+      {
+        version: number;
+        payload: {
+          driverDeclarationVersion: string;
+          vehicleDeclarationVersion: string;
+        };
+      }[]
+    >(
+      `SELECT version, payload FROM events
+        WHERE source_entity_id = $1 AND type = 'trip.started'`,
+      [tripId],
+    );
+    expect(event.version).toBe(2);
+    expect(event.payload).toMatchObject({
+      driverDeclarationVersion: expect.stringMatching(/^\d+\.\d+$/) as string,
+      vehicleDeclarationVersion: '1.0',
+    });
+  });
+
   it('answers 409 TRIP_NOT_STARTABLE_YET more than 30 minutes before the departure', async () => {
     const { driver, tripId } = await driverWithTrip(60);
 

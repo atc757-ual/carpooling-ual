@@ -119,6 +119,19 @@ export class VehiclesService {
     return (await this.declaredIds(driverId, [vehicleId])).has(vehicleId);
   }
 
+  // La versión de su declaración si está al día (al iniciar un viaje); null si
+  // no lo está
+  declarationVersion(
+    driverId: string,
+    vehicleId: string,
+  ): Promise<string | null> {
+    return this.consents.acceptedVersion(
+      driverId,
+      'vehicle_declaration',
+      vehicleId,
+    );
+  }
+
   // Antes de guardar nada: la versión que leyó tiene que ser la vigente
   private async assertCurrentDeclaration(version?: string): Promise<void> {
     if (version === undefined) {

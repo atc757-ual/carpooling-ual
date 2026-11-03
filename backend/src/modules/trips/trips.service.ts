@@ -12,6 +12,7 @@ import { TripRoute } from './entities/trip-route.entity';
 import { Trip } from './entities/trip.entity';
 import { DepartureInThePastError } from './errors/departure-in-the-past.error';
 import { DepartureTooSoonError } from './errors/departure-too-soon.error';
+import { DriverDeclarationRequiredError } from './errors/driver-declaration-required.error';
 import { DriverNotReadyError } from './errors/driver-not-ready.error';
 import { SeatsExceedCapacityError } from './errors/seats-exceed-capacity.error';
 import { VehicleDeclarationRequiredError } from './errors/vehicle-declaration-required.error';
@@ -293,7 +294,8 @@ export class TripsService {
   }
 
   // RF-11: iniciar. Solo un viaje confirmado (con pasajeros), desde 10 minutos
-  // antes de su salida. El vehículo pasa a "en viaje" y las solicitudes
+  // antes de su salida, con las declaraciones del conductor y del vehículo al
+  // día (RF-21). El vehículo pasa a "en viaje" y las solicitudes
   // pendientes se rechazan (las rechaza su módulo al recibir el aviso)
   async start(driverId: string, tripId: string): Promise<TripView> {
     const trip = await this.dataSource.transaction(async (manager) => {
@@ -311,6 +313,7 @@ export class TripsService {
           START_WINDOW_MIN,
         );
       }
+      await this.confirmDeclarations(current);
       await this.vehiclesService.markOnTrip(manager, current.vehicleId);
       return this.tripStatus.changeStatus(manager, current, 'in_progress');
     });
@@ -493,6 +496,25 @@ export class TripsService {
     profile: Omit<TripView, 'trip'>,
   ): TripView {
     return { trip, ...profile };
+  }
+
+  // RF-21: al iniciar, el conductor confirma que sigue cumpliendo sus
+  // declaraciones y el viaje guarda sus versiones (también trip.started).
+  // Caducadas (más de un año) o cambiadas de forma importante, hay que
+  // aceptarlas antes
+  private async confirmDeclarations(trip: Trip): Promise<void> {
+    const [driverVersion, vehicleVersion] = await Promise.all([
+      this.usersService.driverDeclarationVersion(trip.driverId),
+      this.vehiclesService.declarationVersion(trip.driverId, trip.vehicleId),
+    ]);
+    if (driverVersion === null) {
+      throw new DriverDeclarationRequiredError(trip.driverId);
+    }
+    if (vehicleVersion === null) {
+      throw new VehicleDeclarationRequiredError(trip.vehicleId);
+    }
+    trip.driverDeclarationVersion = driverVersion;
+    trip.vehicleDeclarationVersion = vehicleVersion;
   }
 
   // Reglas comunes de publicar y modificar: vehículo suyo, activo y con su

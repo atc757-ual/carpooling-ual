@@ -338,6 +338,12 @@ export class UsersService {
     };
   }
 
+  // La versión de la declaración del conductor si está al día (al iniciar un
+  // viaje); null si no lo está
+  driverDeclarationVersion(userId: string): Promise<string | null> {
+    return this.consentsService.acceptedVersion(userId, 'driver_declaration');
+  }
+
   async getPassengerPriority(userId: string): Promise<boolean> {
     const profile = await this.dataSource
       .getRepository(PassengerProfile)

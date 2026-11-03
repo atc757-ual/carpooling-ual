@@ -30,6 +30,14 @@ import type {
   UserConsentsView,
 } from './user-consent';
 
+// Las declaraciones del conductor y de cada vehículo se renuevan cada año:
+// pasado ese tiempo desde su última aceptación, dejan de estar al día
+const DECLARATION_TYPES: ReadonlySet<ConsentType> = new Set([
+  'driver_declaration',
+  'vehicle_declaration',
+]);
+const DECLARATION_VALIDITY_MONTHS = 12;
+
 const INITIAL_CONSENT_TYPES: readonly CurrentConsentType[] = [
   'terms',
   'privacy',
@@ -259,7 +267,8 @@ export class ConsentsService {
         where: { userId, type, ...(vehicleId ? { vehicleId } : {}) },
         order: { recordedAt: 'DESC', id: 'DESC' },
       });
-      if (latest?.action === 'granted' && latest.documentVersion === version) {
+      // Repetirla no cambia nada, salvo para renovar una declaración caducada
+      if (isUpToDate(latest, version)) {
         return;
       }
       await this.insertConsent(manager, {
@@ -275,9 +284,9 @@ export class ConsentsService {
     });
   }
 
-  // Si su última aceptación del documento está al día: concedida y no
-  // anterior a su último cambio importante (p. ej. la declaración del
-  // conductor para poder publicar)
+  // Si su última aceptación del documento está al día: concedida, no
+  // anterior a su último cambio importante y, en las declaraciones, de hace
+  // menos de un año (p. ej. la del conductor para poder publicar)
   async isAccepted(userId: string, type: LegalDocumentType): Promise<boolean> {
     const [latest, required] = await Promise.all([
       this.consentsRepository.findOne({
@@ -287,6 +296,25 @@ export class ConsentsService {
       this.legalDocuments.requiredVersion(type),
     ]);
     return isUpToDate(latest, required);
+  }
+
+  // La versión de su última aceptación si está al día (la que vale al
+  // iniciar un viaje); null si no lo está. vehicleId: la de ese vehículo
+  async acceptedVersion(
+    userId: string,
+    type: LegalDocumentType,
+    vehicleId?: string,
+  ): Promise<string | null> {
+    const [latest, required] = await Promise.all([
+      this.consentsRepository.findOne({
+        where: { userId, type, ...(vehicleId ? { vehicleId } : {}) },
+        order: { recordedAt: 'DESC', id: 'DESC' },
+      }),
+      this.legalDocuments.requiredVersion(type),
+    ]);
+    return latest && isUpToDate(latest, required)
+      ? latest.documentVersion
+      : null;
   }
 
   // De esos vehículos suyos, los que tienen la declaración al día (una sola
@@ -358,7 +386,7 @@ export class ConsentsService {
           return false;
         }
         const required = await this.legalDocuments.requiredVersion(type);
-        return compareLegalVersions(consent.documentVersion, required) < 0;
+        return !isUpToDate(consent, required);
       }),
     );
     return CURRENT_CONSENT_TYPES.filter((_, index) => isOutdated[index]);
@@ -412,10 +440,30 @@ function toConsentRecord(entity: UserConsent): UserConsentRecord {
   };
 }
 
-// Concedida y no anterior a la versión del último cambio importante
-function isUpToDate(consent: UserConsent | null, required: string): boolean {
+type AcceptanceState = Pick<
+  UserConsentRecord,
+  'type' | 'action' | 'documentVersion' | 'recordedAt'
+>;
+
+// Concedida, no anterior a la versión del último cambio importante y, si es
+// una declaración, aceptada hace menos de un año
+function isUpToDate(
+  consent: AcceptanceState | null,
+  required: string,
+  now = new Date(),
+): boolean {
   return (
     consent?.action === 'granted' &&
-    compareLegalVersions(consent.documentVersion, required) >= 0
+    compareLegalVersions(consent.documentVersion, required) >= 0 &&
+    !isExpired(consent, now)
   );
+}
+
+function isExpired(consent: AcceptanceState, now: Date): boolean {
+  if (!DECLARATION_TYPES.has(consent.type)) {
+    return false;
+  }
+  const validFrom = new Date(now);
+  validFrom.setMonth(validFrom.getMonth() - DECLARATION_VALIDITY_MONTHS);
+  return consent.recordedAt < validFrom;
 }

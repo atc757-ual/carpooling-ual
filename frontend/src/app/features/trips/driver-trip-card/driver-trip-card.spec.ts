@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { Capacitor } from '@capacitor/core';
-import { provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
+import { ApiError } from '../../../core/models/api-error.model';
 import { vi } from 'vitest';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
@@ -19,6 +20,7 @@ const TRIP: DriverTrip = {
   offeredSeats: 3,
   availableSeats: 3,
   maxDetourMin: 10,
+  vehicleId: 'v1',
   origin: { type: 'Point', coordinates: [-2.6, 36.76] },
   destination: { type: 'Point', coordinates: [-2.4045, 36.8322] },
   status: 'published',
@@ -203,6 +205,26 @@ describe('DriverTripCard', () => {
       expect(tracking['start']).toHaveBeenCalledWith('t1');
       expect(changed).toBe(1);
       expect(navigate).toHaveBeenCalledWith('/tabs/trips/drive/t1');
+    });
+
+    // RF-21: al iniciar se confirma la declaración; si le toca renovarse
+    // (cada año), se abre y, aceptada, se inicia
+    it('says the start confirms the declarations and renews an expired one', async () => {
+      const root = await render(SOON);
+      vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+      vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
+        present: vi.fn().mockResolvedValue(undefined),
+        onWillDismiss: () => Promise.resolve({ role: 'accept' }),
+      } as unknown as HTMLIonModalElement);
+      driver['acceptDeclaration'] = vi.fn().mockResolvedValue({ hasLicenseDeclared: true });
+      driver['startTrip'].mockRejectedValueOnce(new ApiError('DRIVER_DECLARATION_REQUIRED', 409));
+
+      await fixture.componentInstance.handleStart();
+
+      expect(root.textContent).toContain('confirmas que sigues cumpliendo tu declaración');
+      expect(driver['acceptDeclaration']).toHaveBeenCalled();
+      expect(driver['startTrip']).toHaveBeenCalledTimes(2);
+      expect(tracking['start']).toHaveBeenCalledWith('t1');
     });
 
     // Es parte del servicio (RGPD 6.1.b): se informa y se pide el permiso del
