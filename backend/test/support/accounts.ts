@@ -6,6 +6,7 @@ import { MailSender } from '../../src/shared/mail/mail-sender';
 import { MemoryMailSender } from '../../src/shared/mail/memory-mail-sender';
 import { MemorySmsSender } from '../../src/shared/sms/memory-sms-sender';
 import { SmsSender } from '../../src/shared/sms/sms-sender';
+import { withLegalVersionsLock } from './legal-versions-lock';
 
 // Teléfono válido para los registros de prueba (formato internacional E.164)
 export const TEST_PHONE = '+34600123456';
@@ -69,23 +70,32 @@ export async function registerUser(
   account: TestAccount,
 ): Promise<string> {
   const server = app.getHttpServer();
-  await request(server)
-    .post('/api/auth/register')
-    .send({
-      name: account.name,
-      email: account.email,
-      password: account.password,
-      phone: TEST_PHONE,
-      acceptedTerms: true,
-    })
-    .expect(202);
-  const verified = await request(server)
-    .post('/api/auth/verify-email')
-    .send({
-      email: account.email,
-      code: lastCodeSentTo(app, account.email),
-    })
-    .expect(200);
+  // Al verificar el correo se aceptan las versiones vigentes de las
+  // condiciones y la política: nunca a la vez que el test legal tiene
+  // publicada una de prueba
+  const verified = await withLegalVersionsLock(
+    app.get(DataSource),
+    'shared',
+    async () => {
+      await request(server)
+        .post('/api/auth/register')
+        .send({
+          name: account.name,
+          email: account.email,
+          password: account.password,
+          phone: TEST_PHONE,
+          acceptedTerms: true,
+        })
+        .expect(202);
+      return request(server)
+        .post('/api/auth/verify-email')
+        .send({
+          email: account.email,
+          code: lastCodeSentTo(app, account.email),
+        })
+        .expect(200);
+    },
+  );
   const { accessToken, user } = verified.body as {
     accessToken: string;
     user: { id: string };
