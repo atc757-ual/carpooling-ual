@@ -78,6 +78,7 @@ describe('Trip lifecycle API (e2e)', () => {
         model: 'Ibiza',
         color: 'blue',
         engine: 'hybrid',
+        declarationVersion: '1.0',
       })
       .expect(201);
     const vehicleId = (vehicle.body as { id: string }).id;

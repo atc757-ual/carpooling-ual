@@ -108,6 +108,7 @@ describe('Vehicle colors catalog (e2e)', () => {
         model: 'Ibiza',
         color,
         engine: 'hybrid',
+        declarationVersion: '1.0',
       });
   }
 

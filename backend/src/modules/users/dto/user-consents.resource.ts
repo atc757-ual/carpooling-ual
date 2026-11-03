@@ -40,6 +40,14 @@ export class ConsentRecordResource {
     example: 'a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90',
   })
   fingerprint!: string;
+
+  @ApiProperty({
+    format: 'uuid',
+    type: String,
+    nullable: true,
+    description: 'The vehicle of a vehicle declaration; null in the others',
+  })
+  vehicleId!: string | null;
 }
 
 export class CurrentConsentsResource {
@@ -84,6 +92,7 @@ function toConsentRecordResource(
     source: record.source,
     recordedAt: record.recordedAt.toISOString(),
     fingerprint: record.fingerprint,
+    vehicleId: record.vehicleId,
   };
 }
 

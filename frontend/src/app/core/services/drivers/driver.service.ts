@@ -49,6 +49,14 @@ export class DriverService {
     return this.request(this.http.patch<Vehicle>(`${this.apiUrl}/vehicles/${vehicleId}`, changes));
   }
 
+  // La declaración vigente (seguro e ITV) de uno de sus vehículos: tras un
+  // cambio importante de su texto, antes de volver a publicar con él
+  acceptVehicleDeclaration(vehicleId: string): Promise<Vehicle> {
+    return this.request(
+      this.http.put<Vehicle>(`${this.apiUrl}/vehicles/${vehicleId}/declaration`, {}),
+    );
+  }
+
   // Dar de baja (deja de salir; registrar otra vez la matrícula la recupera).
   // Con un viaje pendiente o en curso, VEHICLE_IN_USE
   async deactivateVehicle(vehicleId: string): Promise<void> {

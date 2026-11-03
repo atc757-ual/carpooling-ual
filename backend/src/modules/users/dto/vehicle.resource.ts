@@ -65,13 +65,22 @@ export class VehicleResource {
 
   @ApiProperty({ enum: VEHICLE_STATUSES })
   status: VehicleStatus;
+
+  @ApiProperty({
+    description:
+      'Its declaration (compulsory insurance and ITV) is up to date: accepted the version of its last major change. Trips can only be published with declared vehicles (PUT /api/vehicles/{id}/declaration)',
+  })
+  isDeclared: boolean;
 }
 
 export function vehicleHref(id: string): string {
   return `/${API_PREFIX}/vehicles/${id}`;
 }
 
-export function toVehicleResource(vehicle: Vehicle): VehicleResource {
+export function toVehicleResource(
+  vehicle: Vehicle,
+  isDeclared: boolean,
+): VehicleResource {
   return {
     '@type': 'Vehicle',
     id: vehicle.id,
@@ -84,5 +93,6 @@ export function toVehicleResource(vehicle: Vehicle): VehicleResource {
     engine: vehicle.engine,
     capacity: vehicle.capacity,
     status: vehicle.status,
+    isDeclared,
   };
 }

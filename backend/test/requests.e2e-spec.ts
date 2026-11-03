@@ -79,6 +79,7 @@ describe('Seat requests API (e2e)', () => {
         model: 'Ibiza',
         color: 'blue',
         engine: 'hybrid',
+        declarationVersion: '1.0',
       })
       .expect(201);
     const trip = await api('post', '/trips', driver)

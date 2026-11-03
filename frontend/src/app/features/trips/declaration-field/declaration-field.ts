@@ -1,11 +1,11 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { IonCheckbox, ModalController } from '@ionic/angular';
-import { DeclarationModal } from '../declaration-modal/declaration-modal';
+import { DeclarationDocument, openDeclarationModal } from '../declaration-modal/declaration-modal';
 
-// La declaración responsable de Publicar (RF-21): la casilla con su texto y
-// el enlace a la declaración completa, que se abre en una ventana; «Acepto la
-// declaración» marca la casilla
+// Una declaración del conductor (RF-21) con su casilla: la suya en Publicar y
+// la de cada vehículo al registrarlo. El enlace abre la declaración completa
+// en una ventana; «Acepto la declaración» marca la casilla
 @Component({
   selector: 'app-declaration-field',
   imports: [ReactiveFormsModule, IonCheckbox],
@@ -16,15 +16,12 @@ export class DeclarationField {
   private readonly modalController = inject(ModalController);
 
   readonly control = input.required<FormControl<boolean>>();
+  readonly document = input<DeclarationDocument>('driver_declaration');
+  // Cada casilla con su texto (en Publicar puede haber las dos)
+  protected readonly labelId = computed(() => `${this.document()}-label`);
 
   async handleRead(): Promise<void> {
-    const modal = await this.modalController.create({
-      component: DeclarationModal,
-      cssClass: 'info-dialog',
-    });
-    await modal.present();
-    const { role } = await modal.onWillDismiss();
-    if (role === 'accept') {
+    if (await openDeclarationModal(this.modalController, this.document())) {
       this.control().setValue(true);
     }
   }

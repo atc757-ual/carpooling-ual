@@ -86,7 +86,10 @@ export class TripsController {
     [HttpStatus.BAD_REQUEST]: TRIP_RULE_ERRORS,
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', 'DRIVER_NOT_READY'],
     [HttpStatus.NOT_FOUND]: ['VEHICLE_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: ['PUBLISHING_SUSPENDED'],
+    [HttpStatus.CONFLICT]: [
+      'PUBLISHING_SUSPENDED',
+      'VEHICLE_DECLARATION_REQUIRED',
+    ],
   })
   async publish(
     @CurrentUser() driver: AccessTokenPayload,
@@ -192,7 +195,10 @@ export class TripsController {
     [HttpStatus.BAD_REQUEST]: TRIP_RULE_ERRORS,
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', 'NOT_TRIP_DRIVER'],
     [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND', 'VEHICLE_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: ['TRIP_NOT_EDITABLE'],
+    [HttpStatus.CONFLICT]: [
+      'TRIP_NOT_EDITABLE',
+      'VEHICLE_DECLARATION_REQUIRED',
+    ],
   })
   async update(
     @CurrentUser() driver: AccessTokenPayload,

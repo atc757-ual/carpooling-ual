@@ -21,6 +21,7 @@ function consentsWith(action: 'granted' | 'revoked' | null): UserConsents {
             source: 'settings',
             recordedAt: '2026-11-01T10:00:00.000Z',
             fingerprint: 'a'.repeat(64),
+            vehicleId: null,
           }
         : null,
     },

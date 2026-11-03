@@ -10,11 +10,13 @@ export const LEGAL_DOCUMENT_TYPES = [
   'terms',
   'privacy',
   'driver_declaration',
+  'vehicle_declaration',
 ] as const;
 export type LegalDocumentType = (typeof LEGAL_DOCUMENT_TYPES)[number];
 
 // Los que se aceptan al registrarse y bloquean la app tras un cambio
-// importante; la declaración del conductor se pide en su flujo (al publicar)
+// importante; las declaraciones del conductor y de cada vehículo se piden en
+// su flujo (al publicar y al registrar el vehículo)
 export const SIGNUP_DOCUMENT_TYPES = ['terms', 'privacy'] as const;
 export type SignupDocumentType = (typeof SIGNUP_DOCUMENT_TYPES)[number];
 

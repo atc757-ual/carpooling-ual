@@ -14,6 +14,7 @@ import { DepartureInThePastError } from './errors/departure-in-the-past.error';
 import { DepartureTooSoonError } from './errors/departure-too-soon.error';
 import { DriverNotReadyError } from './errors/driver-not-ready.error';
 import { SeatsExceedCapacityError } from './errors/seats-exceed-capacity.error';
+import { VehicleDeclarationRequiredError } from './errors/vehicle-declaration-required.error';
 import { TripAlreadyStartedError } from './errors/trip-already-started.error';
 import { TripNotEditableError } from './errors/trip-not-editable.error';
 import { TripNotFoundError } from './errors/trip-not-found.error';
@@ -494,13 +495,17 @@ export class TripsService {
     return { trip, ...profile };
   }
 
-  // Reglas comunes de publicar y modificar: vehículo suyo y activo, plazas
-  // dentro de su capacidad y salida en el futuro
+  // Reglas comunes de publicar y modificar: vehículo suyo, activo y con su
+  // declaración (seguro e ITV) al día, plazas dentro de su capacidad y salida
+  // en el futuro
   private async assertValidTrip(
     driverId: string,
     trip: Pick<TripInput, 'vehicleId' | 'offeredSeats' | 'departureAt'>,
   ): Promise<void> {
     const vehicle = await this.vehiclesService.getOwn(driverId, trip.vehicleId);
+    if (!(await this.vehiclesService.isDeclared(driverId, vehicle.id))) {
+      throw new VehicleDeclarationRequiredError(vehicle.id);
+    }
     if (trip.offeredSeats > vehicle.capacity) {
       throw new SeatsExceedCapacityError(trip.offeredSeats, vehicle.capacity);
     }

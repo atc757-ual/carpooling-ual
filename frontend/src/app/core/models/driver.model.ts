@@ -15,6 +15,8 @@ export interface Vehicle {
   engine: VehicleEngine | null;
   capacity: number;
   status: 'available' | 'on_trip' | 'inactive';
+  // Su declaración (seguro e ITV) al día: solo con él se publican viajes
+  isDeclared: boolean;
 }
 
 export interface RegisterVehicleRequest {
@@ -25,6 +27,8 @@ export interface RegisterVehicleRequest {
   model: string;
   color: string;
   engine: VehicleEngine;
+  // La versión de la declaración del vehículo (seguro e ITV) que acepta
+  declarationVersion: string;
 }
 
 export type VehicleEngine = 'electric' | 'hybrid' | 'other';

@@ -31,6 +31,7 @@ const VEHICLE: Vehicle = {
   engine: 'hybrid',
   capacity: 3,
   status: 'available',
+  isDeclared: true,
 };
 const PLACE = {
   id: 'roq',

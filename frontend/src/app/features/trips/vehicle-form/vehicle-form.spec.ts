@@ -6,6 +6,7 @@ import { Vehicle } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { provideCatalogsForTests } from '../../../core/services/catalogs/catalogs.testing';
+import { LegalDocumentsService } from '../../../core/services/users/legal-documents.service';
 import { VehicleForm } from './vehicle-form';
 
 const VEHICLE: Vehicle = {
@@ -19,6 +20,7 @@ const VEHICLE: Vehicle = {
   engine: 'hybrid',
   capacity: 3,
   status: 'available',
+  isDeclared: true,
 };
 
 describe('VehicleForm', () => {
@@ -42,6 +44,10 @@ describe('VehicleForm', () => {
         provideCatalogsForTests(),
         { provide: DriverService, useValue: driver },
         { provide: ToastService, useValue: { showError } },
+        {
+          provide: LegalDocumentsService,
+          useValue: { getCurrent: vi.fn().mockResolvedValue({ version: '1.0' }) },
+        },
       ],
     });
     fixture = TestBed.createComponent(VehicleForm);
@@ -61,10 +67,15 @@ describe('VehicleForm', () => {
 
       plate: '1234BCD',
       totalSeats: 4,
+      declared: true,
       color: 'blue',
       engine: 'hybrid',
     });
     expect(form.isComplete()).toBe(true);
+
+    form.form.controls.declared.setValue(false);
+
+    expect(form.isComplete()).toBe(false);
   });
 
   it('shows the 8 colors and 3 engines as options, chosen with one tap', () => {
@@ -128,6 +139,7 @@ describe('VehicleForm', () => {
 
       plate: '1234 bcd',
       totalSeats: 4,
+      declared: true,
       color: 'blue',
       engine: 'hybrid',
     });
@@ -141,6 +153,7 @@ describe('VehicleForm', () => {
 
       plate: '1234BCD',
       capacity: 3,
+      declarationVersion: '1.0',
     });
     expect(saved).toEqual([VEHICLE]);
   });
@@ -152,6 +165,7 @@ describe('VehicleForm', () => {
       plateCountry: 'ES',
       plate: 'AA-00-AA',
       totalSeats: 5,
+      declared: true,
       color: 'blue',
       engine: 'other',
     });
@@ -182,6 +196,7 @@ describe('VehicleForm', () => {
 
       plate: 'ABC',
       totalSeats: 4,
+      declared: true,
       color: '',
       engine: '',
     });
@@ -200,6 +215,7 @@ describe('VehicleForm', () => {
 
       plate: '1234BCD',
       totalSeats: 4,
+      declared: true,
       color: 'blue',
       engine: 'hybrid',
     });
@@ -236,6 +252,7 @@ describe('VehicleForm', () => {
 
       plate: '1234BCD',
       totalSeats: 4,
+      declared: true,
       color: 'blue',
       engine: 'hybrid',
     });

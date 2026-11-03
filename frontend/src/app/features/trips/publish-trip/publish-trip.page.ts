@@ -17,6 +17,7 @@ import {
   IonSelect,
   IonSelectOption,
   IonSpinner,
+  ModalController,
 } from '@ionic/angular';
 import { carOutline, checkmarkCircleOutline, leafOutline } from 'ionicons/icons';
 import { map } from 'rxjs';
@@ -39,6 +40,7 @@ import { DeclarationField } from '../declaration-field/declaration-field';
 import { PublishNextSteps } from '../publish-next-steps/publish-next-steps';
 import { VehiclePicker } from '../vehicle-picker/vehicle-picker';
 import { PUBLISH_FAQS } from './publish-help';
+import { publishWithVehicleDeclaration } from './publish-with-declaration';
 import {
   buildStops,
   estimateDriverImpact,
@@ -111,6 +113,7 @@ function getDefaultDeparture(now = new Date()): { date: string; time: string } {
 export class PublishTripPage implements OnInit {
   private readonly vehicleColors = inject(VehicleColorsStore);
   private readonly driver = inject(DriverService);
+  private readonly modalController = inject(ModalController);
   private readonly auth = inject(AuthService);
   private readonly places = inject(PlacesService);
   private readonly toast = inject(ToastService);
@@ -417,7 +420,10 @@ export class PublishTripPage implements OnInit {
         await this.driver.acceptDeclaration();
         this.hasDeclared.set(true);
       }
-      const trip = await this.driver.publishTrip(toPublishTripRequest(place, parking, offer));
+      const trip = await publishWithVehicleDeclaration(
+        { driver: this.driver, modalController: this.modalController },
+        toPublishTripRequest(place, parking, offer),
+      );
       this.published.set(trip);
       void this.celebration.celebrate().catch(() => undefined);
       void this.toast.showSuccess('Viaje publicado.');

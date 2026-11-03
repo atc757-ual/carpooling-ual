@@ -103,6 +103,7 @@ describe('DriverService', () => {
       model: 'Ibiza',
       color: 'blue',
       engine: 'hybrid',
+      declarationVersion: '1.0',
     });
     const request = http.expectOne('/api/vehicles');
     expect(request.request.method).toBe('POST');
@@ -114,6 +115,15 @@ describe('DriverService', () => {
 
     expect(await vehicle).toEqual({ id: 'v1' });
     expect(await declaration).toEqual({ hasLicenseDeclared: true });
+  });
+
+  it('accepts the declaration of one vehicle with PUT', async () => {
+    const accepted = driver.acceptVehicleDeclaration('v1');
+    const request = http.expectOne('/api/vehicles/v1/declaration');
+    expect(request.request.method).toBe('PUT');
+    request.flush({ id: 'v1', isDeclared: true });
+
+    expect(await accepted).toEqual({ id: 'v1', isDeclared: true });
   });
 
   it('edits a vehicle with PATCH', async () => {

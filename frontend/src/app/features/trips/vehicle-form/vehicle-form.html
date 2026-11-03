@@ -133,6 +133,14 @@
       <p class="field-hint">Asientos totales del vehículo.</p>
     </div>
   </div>
+  <!-- Al registrarlo: la declaración del vehículo (seguro e ITV) -->
+  @if (!vehicle()) {
+    <app-declaration-field
+      class="vehicle-form__declaration"
+      document="vehicle_declaration"
+      [control]="form.controls.declared"
+    />
+  }
   <!-- Se activa al completar los campos (cada uno dice lo que le falta) -->
   <ion-button type="submit" expand="block" [disabled]="isSaving() || !isComplete()">
     @if (isSaving()) {

@@ -16,6 +16,7 @@ const VEHICLE: Vehicle = {
   engine: 'hybrid',
   capacity: 3,
   status: 'available',
+  isDeclared: true,
 };
 
 describe('VehicleModal', () => {

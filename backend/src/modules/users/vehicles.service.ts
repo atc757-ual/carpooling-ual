@@ -11,6 +11,9 @@ import { VehicleAlreadyRegisteredError } from './errors/vehicle-already-register
 import { VehicleInUseError } from './errors/vehicle-in-use.error';
 import { VehicleLimitReachedError } from './errors/vehicle-limit-reached.error';
 import { VehicleNotFoundError } from './errors/vehicle-not-found.error';
+import { ConsentsService } from './consents.service';
+import { LegalDocumentOutdatedError } from './errors/legal-document-outdated.error';
+import { LegalDocumentsService } from './legal-documents.service';
 import {
   DEFAULT_PLATE_COUNTRY,
   normalizePlate,
@@ -26,6 +29,9 @@ export interface RegisterVehicleInput {
   model: string;
   color: string;
   engine: VehicleEngine;
+  // La versión de la declaración del vehículo (seguro e ITV) que leyó el
+  // conductor; si no se indica, la vigente
+  declarationVersion?: string;
 }
 
 export type UpdateVehicleInput = Partial<
@@ -52,16 +58,82 @@ export class VehiclesService {
     @InjectRepository(Vehicle)
     private readonly vehiclesRepository: Repository<Vehicle>,
     private readonly colors: VehicleColorsService,
+    private readonly consents: ConsentsService,
+    private readonly legalDocuments: LegalDocumentsService,
   ) {}
 
-  // Registra un vehículo. Si el mismo conductor lo había dado de baja, se
-  // reactiva con la nueva capacidad (la matrícula es única con su país).
-  // Con MAX_VEHICLES_PER_DRIVER activos, no admite ninguno más
+  // Registra un vehículo con su declaración (seguro e ITV), que queda unida a
+  // él. Si el mismo conductor lo había dado de baja, se reactiva con la nueva
+  // capacidad (la matrícula es única con su país). Con
+  // MAX_VEHICLES_PER_DRIVER activos, no admite ninguno más
   async register(
     driverId: string,
     input: RegisterVehicleInput,
   ): Promise<Vehicle> {
     await this.assertColorOffered(input.color);
+    await this.assertCurrentDeclaration(input.declarationVersion);
+    const vehicle = await this.saveRegistration(driverId, input);
+    await this.acceptDeclaration(
+      driverId,
+      vehicle.id,
+      input.declarationVersion,
+    );
+    return vehicle;
+  }
+
+  // Acepta la declaración vigente de uno de sus vehículos (al registrarlo o,
+  // tras un cambio importante del texto, antes de volver a publicar con él)
+  async declare(
+    driverId: string,
+    vehicleId: string,
+    version?: string,
+  ): Promise<Vehicle> {
+    const vehicle = await this.getOwn(driverId, vehicleId);
+    await this.acceptDeclaration(driverId, vehicleId, version);
+    return vehicle;
+  }
+
+  private acceptDeclaration(
+    driverId: string,
+    vehicleId: string,
+    version?: string,
+  ): Promise<void> {
+    return this.consents.acceptDocument(driverId, {
+      type: 'vehicle_declaration',
+      version,
+      source: 'vehicle_setup',
+      vehicleId,
+    });
+  }
+
+  // Los vehículos con la declaración al día (aceptada la versión de su último
+  // cambio importante): solo con ellos se publican viajes
+  declaredIds(
+    driverId: string,
+    vehicleIds: readonly string[],
+  ): Promise<Set<string>> {
+    return this.consents.acceptedVehicleIds(driverId, vehicleIds);
+  }
+
+  async isDeclared(driverId: string, vehicleId: string): Promise<boolean> {
+    return (await this.declaredIds(driverId, [vehicleId])).has(vehicleId);
+  }
+
+  // Antes de guardar nada: la versión que leyó tiene que ser la vigente
+  private async assertCurrentDeclaration(version?: string): Promise<void> {
+    if (version === undefined) {
+      return;
+    }
+    const current = await this.legalDocuments.getCurrent('vehicle_declaration');
+    if (current.version !== version) {
+      throw new LegalDocumentOutdatedError('vehicle_declaration');
+    }
+  }
+
+  private async saveRegistration(
+    driverId: string,
+    input: RegisterVehicleInput,
+  ): Promise<Vehicle> {
     const activeCount = await this.vehiclesRepository.countBy({
       driverId,
       status: Not('inactive'),

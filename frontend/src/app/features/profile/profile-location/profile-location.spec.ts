@@ -17,6 +17,7 @@ function consents(action: 'granted' | 'revoked' | null): UserConsents {
     source: 'settings',
     recordedAt: '2026-10-31T10:00:00.000Z',
     fingerprint: 'a1b2c3d4e5f6',
+    vehicleId: null,
   };
   return {
     current: { terms: null, privacy: null, location, driverDeclaration: null },

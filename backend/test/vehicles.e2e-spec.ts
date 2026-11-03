@@ -77,6 +77,7 @@ describe('Vehicles API (e2e)', () => {
       model: 'Ibiza',
       color: 'blue',
       engine: 'hybrid',
+      declarationVersion: '1.0',
     });
   }
 
@@ -99,8 +100,53 @@ describe('Vehicles API (e2e)', () => {
         engine: 'hybrid',
         capacity: 4,
         status: 'available',
+        isDeclared: true,
       });
       expect(response.headers.location).toBe(`/api/vehicles/${body.id}`);
+    });
+
+    // RF-21: la declaración del vehículo (seguro e ITV) se acepta al
+    // registrarlo y queda unida a él, con su versión y la huella de su texto
+    it('records the declaration of the vehicle and rejects an old version', async () => {
+      const ana = await tokenFor('ana');
+
+      const outdated = await api('post', '/vehicles', ana)
+        .send({
+          plate: '9209BCD',
+          capacity: 4,
+          brand: 'Seat',
+          model: 'Ibiza',
+          color: 'blue',
+          engine: 'hybrid',
+          declarationVersion: '0.9',
+        })
+        .expect(409);
+      expect((outdated.body as { code: string }).code).toBe(
+        'LEGAL_DOCUMENT_OUTDATED',
+      );
+      await api('get', '/vehicles', ana)
+        .expect(200)
+        .expect(({ body }) => expect(body).toEqual([]));
+
+      const created = await registerVehicle(ana, '9209BCD').expect(201);
+      const { id } = created.body as { id: string };
+      const consents = await api('get', '/users/me/consents', ana).expect(200);
+      const { history } = consents.body as {
+        history: { type: string; vehicleId: string | null; source: string }[];
+      };
+      expect(history).toContainEqual(
+        expect.objectContaining({
+          type: 'vehicle_declaration',
+          vehicleId: id,
+          source: 'vehicle_setup',
+          documentVersion: '1.0',
+        }),
+      );
+      const [row] = await dataSource.query<{ content_hash: string | null }[]>(
+        'SELECT content_hash FROM user_consents WHERE vehicle_id = $1',
+        [id],
+      );
+      expect(row.content_hash).toMatch(/^[0-9a-f]{64}$/);
     });
 
     it('validates the plate format and the capacity (1-8)', async () => {
@@ -122,6 +168,7 @@ describe('Vehicles API (e2e)', () => {
         capacity: 4,
         brand: 'Seat',
         model: 'Ibiza',
+        declarationVersion: '1.0',
       };
       const engine = await api('post', '/vehicles', ana)
         .send({ ...vehicle, color: 'blue', engine: 'diesel' })
@@ -160,6 +207,7 @@ describe('Vehicles API (e2e)', () => {
         model: '208',
         color: 'blue',
         engine: 'other',
+        declarationVersion: '1.0',
       };
 
       // La misma matrícula en Portugal es otro coche
@@ -192,6 +240,7 @@ describe('Vehicles API (e2e)', () => {
         model: 'Ibiza',
         color: 'blue',
         engine: 'hybrid',
+        declarationVersion: '1.0',
       };
 
       const noDigits = await api('post', '/vehicles', ana)
@@ -235,6 +284,7 @@ describe('Vehicles API (e2e)', () => {
           model: ' Ibiza ',
           color: 'blue',
           engine: 'hybrid',
+          declarationVersion: '1.0',
         })
         .expect(201);
       const { id } = created.body as { id: string };

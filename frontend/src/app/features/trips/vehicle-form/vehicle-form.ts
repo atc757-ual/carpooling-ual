@@ -25,6 +25,8 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { Vehicle, VehicleEngine } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { LegalDocumentsService } from '../../../core/services/users/legal-documents.service';
+import { DeclarationField } from '../declaration-field/declaration-field';
 import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { BrandField } from '../../../shared/components/ui/brand-field/brand-field';
@@ -70,6 +72,7 @@ const DEFAULT_TOTAL_SEATS = 5;
     SeatStepper,
     BrandField,
     LicensePlate,
+    DeclarationField,
   ],
   templateUrl: './vehicle-form.html',
   styleUrl: './vehicle-form.scss',
@@ -77,6 +80,7 @@ const DEFAULT_TOTAL_SEATS = 5;
 export class VehicleForm {
   private readonly driver = inject(DriverService);
   private readonly toast = inject(ToastService);
+  private readonly legalDocuments = inject(LegalDocumentsService);
 
   // El vehículo a editar; sin él, se registra uno nuevo
   readonly vehicle = input<Vehicle | null>(null);
@@ -126,6 +130,8 @@ export class VehicleForm {
     totalSeats: [DEFAULT_TOTAL_SEATS],
     color: ['', Validators.required],
     engine: ['', Validators.required],
+    // Al registrarlo: su declaración (seguro e ITV), que queda unida a él
+    declared: [false, Validators.requiredTrue],
   });
 
   // Con todos los campos bien (la matrícula, al editar, no cuenta: no se cambia)
@@ -175,7 +181,9 @@ export class VehicleForm {
         totalSeats: vehicle.capacity + 1,
         color: vehicle.color ?? '',
         engine: vehicle.engine ?? '',
+        declared: true,
       });
+      this.form.controls.declared.disable();
       this.form.controls.brand.disable();
       this.form.controls.model.disable();
       this.form.controls.plate.disable();
@@ -205,6 +213,8 @@ export class VehicleForm {
             engine: engine as VehicleEngine,
           })
         : await this.driver.registerVehicle({
+            declarationVersion: (await this.legalDocuments.getCurrent('vehicle_declaration'))
+              .version,
             brand: brand.trim(),
             model: model.trim(),
             color,
