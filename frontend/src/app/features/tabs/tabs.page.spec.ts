@@ -6,10 +6,11 @@ import { vi } from 'vitest';
 import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
+import { ChatService } from '../../core/services/chat/chat.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { TabHeading } from './tab-heading';
-import { TabsPage } from './tabs.page';
+import { MESSAGES_REFRESH_MS, TabsPage } from './tabs.page';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { LocationService } from '../../core/services/location/location.service';
 import { PreferencesPlugin } from '../../core/plugins/preferences-plugin';
@@ -28,6 +29,8 @@ describe('TabsPage', () => {
   const logout = vi.fn().mockResolvedValue(undefined);
   const unread = signal(0);
   const refreshUnread = vi.fn().mockResolvedValue(undefined);
+  const hasUnreadMessages = signal(false);
+  const refreshUnreadMessages = vi.fn().mockResolvedValue(undefined);
   const resume = vi.fn().mockResolvedValue(undefined);
   let permission = 'granted';
   let fixture: ComponentFixture<TabsPage>;
@@ -63,6 +66,10 @@ describe('TabsPage', () => {
         { provide: ActiveModeService, useValue: { mode, setMode } },
         { provide: NotificationsService, useValue: { unreadCount: unread, refreshUnread } },
         {
+          provide: ChatService,
+          useValue: { hasUnread: hasUnreadMessages, refreshUnread: refreshUnreadMessages },
+        },
+        {
           provide: LocationService,
           useValue: { checkPermission: () => Promise.resolve(permission) },
         },
@@ -85,6 +92,8 @@ describe('TabsPage', () => {
     preferences.set.mockClear();
     unread.set(0);
     refreshUnread.mockClear();
+    hasUnreadMessages.set(false);
+    refreshUnreadMessages.mockClear();
     setMode.mockClear();
   });
 
@@ -130,6 +139,33 @@ describe('TabsPage', () => {
     expect(bell?.getAttribute('aria-label')).toBe('Avisos, 2 sin leer');
     expect(bell?.querySelector('.bell-button__unread-dot')).not.toBeNull();
     expect(bell?.querySelector('ion-badge')).toBeNull();
+  });
+
+  it('marks the Messages tab with a dot when there are new messages', async () => {
+    vi.useFakeTimers();
+    try {
+      render();
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('.tab-dot')).toBeNull();
+      expect(refreshUnreadMessages).toHaveBeenCalled();
+
+      hasUnreadMessages.set(true);
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelectorAll('.tab-dot')).toHaveLength(2);
+      expect(fixture.nativeElement.textContent).toContain('(mensajes nuevos)');
+
+      // Cada 30 s se vuelve a mirar, solo con la sesión abierta
+      const calls = refreshUnreadMessages.mock.calls.length;
+      await vi.advanceTimersByTimeAsync(MESSAGES_REFRESH_MS);
+      expect(refreshUnreadMessages.mock.calls.length).toBeGreaterThan(calls);
+      loggedIn.set(false);
+      const callsLoggedOut = refreshUnreadMessages.mock.calls.length;
+      await vi.advanceTimersByTimeAsync(MESSAGES_REFRESH_MS);
+      expect(refreshUnreadMessages).toHaveBeenCalledTimes(callsLoggedOut);
+    } finally {
+      fixture.destroy();
+      vi.useRealTimers();
+    }
   });
 
   it('does not count the notifications without a session (e.g. when logging out)', async () => {

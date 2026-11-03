@@ -26,3 +26,96 @@
     font-size: 2rem; // 32px
   }
 }
+
+.messages__status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  padding: var(--space-xl) 0;
+}
+
+// Las conversaciones en una sola tarjeta, separadas por una línea fina
+.messages__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li + li {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}
+
+// Toda la fila se toca: la ruta, cuándo sale, el último mensaje y, a la
+// derecha, hace cuánto y los no leídos
+.conversation {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
+  min-height: 3rem; // 48px
+  padding: var(--space-base);
+  color: var(--color-text);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: calc(-1 * var(--border-width-m));
+  }
+}
+
+.conversation__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+  min-width: 0;
+}
+
+.conversation__route {
+  overflow: hidden;
+  font-weight: var(--font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conversation__preview {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Sin leer: el último mensaje en negrita y en el color del texto (no solo por
+// el número)
+.conversation--unread .conversation__preview {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+.conversation__meta {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-xs);
+}
+
+// El número de no leídos en un círculo del color de acento (como el punto de
+// los avisos sin leer)
+.conversation__unread {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem; // 20px
+  height: 1.25rem;
+  padding: 0 0.375rem; // 6px
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+}

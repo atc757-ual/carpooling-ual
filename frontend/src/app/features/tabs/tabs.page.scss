@@ -286,3 +286,22 @@ ion-tab-button {
     outline-offset: 0.125rem; // 2px
   }
 }
+
+// Mensajes nuevos: un punto en el color de acento, como el de la campana. En
+// escritorio, junto al nombre; en el móvil, sobre el icono
+.tab-dot {
+  display: inline-block;
+  width: 0.5rem; // 8px
+  height: 0.5rem;
+  margin-inline-start: var(--space-xs);
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+}
+
+.tab-dot--icon {
+  position: absolute;
+  top: var(--space-s);
+  left: calc(50% + 0.5rem); // 8px a la derecha del centro del icono
+  margin: 0;
+  border: var(--border-width-s) solid var(--color-surface);
+}

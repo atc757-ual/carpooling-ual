@@ -1,13 +1,65 @@
 <ion-content>
   <div class="tab-page messages">
-    <ion-card>
-      <ion-card-content class="messages__state">
-        <ion-icon [icon]="icon" aria-hidden="true" />
-        <div class="text-subtitle">Muy pronto podrás escribir aquí</div>
-        <div class="text-body-s text-color-muted">
-          Hablarás con quien conduce o viaja contigo para concretar la recogida.
-        </div>
-      </ion-card-content>
-    </ion-card>
+    @if (conversations.isLoading() && !conversations.hasValue()) {
+      <output class="messages__status">
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="text-color-muted">Cargando tus mensajes…</span>
+      </output>
+    } @else if (conversations.error()) {
+      <ion-card>
+        <ion-card-content class="messages__state" role="alert">
+          <ion-icon [icon]="errorIcon" aria-hidden="true" />
+          <div class="text-subtitle">No hemos podido cargar tus mensajes</div>
+          <form (submit)="$event.preventDefault(); handleRetry()">
+            <ion-button type="submit" fill="outline">Reintentar</ion-button>
+          </form>
+        </ion-card-content>
+      </ion-card>
+    } @else if (all().length === 0) {
+      <ion-card>
+        <ion-card-content class="messages__state">
+          <ion-icon [icon]="icon" aria-hidden="true" />
+          <div class="text-subtitle">Aún no tienes conversaciones</div>
+          <div class="text-body-s text-color-muted">
+            Cuando te acepten en un viaje o aceptes a alguien en el tuyo, podréis hablar aquí para
+            concretar la recogida.
+          </div>
+        </ion-card-content>
+      </ion-card>
+    } @else {
+      <ion-card>
+        <ul class="messages__list">
+          @for (conversation of all(); track conversation.id) {
+            <li>
+              <a
+                class="conversation"
+                [class.conversation--unread]="conversation.unreadCount > 0"
+                [routerLink]="['/tabs/messages', conversation.id]"
+              >
+                <span class="conversation__body">
+                  <span class="conversation__route">{{ route(conversation) }}</span>
+                  <span class="text-caption text-color-muted">
+                    {{ when(conversation) }}
+                    @if (!conversation.isOpen) {
+                      · Cerrada
+                    }
+                  </span>
+                  <span class="conversation__preview text-body-s">{{ preview(conversation) }}</span>
+                </span>
+                <span class="conversation__meta">
+                  <span class="text-caption text-color-muted">{{ elapsed(conversation) }}</span>
+                  @if (conversation.unreadCount > 0) {
+                    <span class="conversation__unread">
+                      {{ conversation.unreadCount }}
+                      <span class="visually-hidden">sin leer</span>
+                    </span>
+                  }
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+      </ion-card>
+    }
   </div>
 </ion-content>

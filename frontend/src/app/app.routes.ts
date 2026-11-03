@@ -199,6 +199,20 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'messages/:tripId',
+        loadComponent: () =>
+          import('./features/messages/conversation/conversation.page').then(
+            (m) => m.ConversationPage,
+          ),
+        data: {
+          heading: {
+            title: 'Conversación',
+            subtitle: 'Con quien conduce y los pasajeros del viaje.',
+            backHref: '/tabs/messages',
+          } satisfies TabHeading,
+        },
+      },
+      {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile.page').then((m) => m.ProfilePage),
         data: {

@@ -37,6 +37,7 @@ import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { AppContextService } from '../../core/services/ui/app-context.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
+import { ChatService } from '../../core/services/chat/chat.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { BrandLogo } from '../../shared/components/ui/brand-logo/brand-logo';
@@ -59,6 +60,8 @@ const TRIPS_TAB: Tab = { path: 'trips', label: 'Tus viajes', icon: mapOutline };
 const SEARCH_TAB: Tab = { path: 'search', label: 'Buscar', icon: searchOutline };
 const PUBLISH_TAB: Tab = { path: 'publish', label: 'Publicar', icon: addCircleOutline };
 const MESSAGES_TAB: Tab = { path: 'messages', label: 'Mensajes', icon: chatbubblesOutline };
+// Cada cuánto se mira si hay mensajes nuevos (el punto de la pestaña)
+export const MESSAGES_REFRESH_MS = 30_000;
 const PROFILE_TAB: Tab = { path: 'profile', label: 'Mi perfil', icon: personOutline };
 
 // Qué lado guarda cada pestaña al entrar (y por dónde se abre la próxima vez)
@@ -112,6 +115,7 @@ export class TabsPage implements OnInit {
   private readonly router = inject(Router);
   private readonly navController = inject(NavController);
   private readonly notifications = inject(NotificationsService);
+  private readonly chat = inject(ChatService);
   private readonly driverTracking = inject(DriverTrackingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly location = inject(LocationService);
@@ -138,6 +142,10 @@ export class TabsPage implements OnInit {
     this.unreadCount() > 0 ? `Avisos, ${this.unreadCount()} sin leer` : 'Avisos',
   );
 
+  // Mensajes nuevos: un punto en la pestaña Mensajes. Al entrar, en cada
+  // navegación y cada 30 s (llegan sin que el usuario haga nada)
+  readonly hasUnreadMessages = this.chat.hasUnread;
+
   protected readonly backIcon = arrowBackOutline;
   protected readonly bellIcon = notificationsOutline;
   protected readonly adminIcon = shieldCheckmarkOutline;
@@ -151,6 +159,12 @@ export class TabsPage implements OnInit {
   ngOnInit(): void {
     void this.appContext.remember('app');
     this.countUnread();
+    const timer = setInterval(() => {
+      if (this.auth.isLoggedIn()) {
+        void this.chat.refreshUnread();
+      }
+    }, MESSAGES_REFRESH_MS);
+    this.destroyRef.onDestroy(() => clearInterval(timer));
     void this.offerLocation();
     // Un viaje en curso sigue compartiendo la posición al volver a la app
     void this.driverTracking.resume();
@@ -192,6 +206,7 @@ export class TabsPage implements OnInit {
   private countUnread(): void {
     if (this.auth.isLoggedIn()) {
       void this.notifications.refreshUnread();
+      void this.chat.refreshUnread();
     }
   }
 
