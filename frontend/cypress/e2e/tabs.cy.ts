@@ -53,6 +53,7 @@ for (const viewport of VIEWPORTS) {
     beforeEach(() => {
       cy.viewport(viewport.width, viewport.height);
       cy.intercept('GET', '/api/users/me/notifications*', []);
+      cy.intercept('GET', '/api/users/me/conversations*', []);
     });
 
     it('shows the five fixed destinations and opens Buscar by default', () => {
@@ -102,12 +103,12 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-notifications', 'No tienes avisos').should('be.visible');
     });
 
-    it('shows Mensajes, coming soon', () => {
+    it('shows Mensajes, still without conversations', () => {
       logIn(['passenger']);
 
       goTo('Mensajes');
 
-      cy.contains('app-messages', 'Muy pronto podrás escribir aquí').should('be.visible');
+      cy.contains('app-messages', 'Aún no tienes conversaciones').should('be.visible');
     });
 
     it('logs out from Mi perfil after confirming it', () => {

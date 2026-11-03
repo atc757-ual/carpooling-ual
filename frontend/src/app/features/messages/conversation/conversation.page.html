@@ -1,0 +1,109 @@
+<ion-content>
+  <div class="tab-page conversation">
+    @if (isLoading() && messages().length === 0) {
+      <output class="conversation__status">
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="text-color-muted">Cargando la conversación…</span>
+      </output>
+    } @else if (hasError()) {
+      <div class="conversation__status" role="alert">
+        <ion-icon [icon]="errorIcon" aria-hidden="true" />
+        <span>No hemos podido cargar la conversación</span>
+        <form (submit)="$event.preventDefault(); handleRetry()">
+          <ion-button type="submit" fill="outline" size="small">Reintentar</ion-button>
+        </form>
+      </div>
+    } @else {
+      <header class="conversation__heading">
+        <span class="text-label text-label--strong">{{ route() }}</span>
+        <span class="text-caption text-color-muted">
+          Solo lo ven quien conduce y los pasajeros aceptados.
+        </span>
+      </header>
+      @if (messages().length === 0) {
+        <p class="conversation__empty text-body-s text-color-muted">
+          Aún no hay mensajes. Saluda o usa una respuesta rápida.
+        </p>
+      }
+      <ol class="conversation__messages" aria-label="Mensajes">
+        @for (message of messages(); track message.id) {
+          <li class="bubble" [class.bubble--mine]="isMine(message)">
+            @if (!isMine(message)) {
+              <span class="bubble__author text-caption">
+                {{ message.author.name }}
+                @if (message.authorRole === 'driver') {
+                  · Conduce
+                }
+              </span>
+            }
+            <span class="bubble__text" [class.bubble__text--quick]="message.kind === 'quick'">{{
+              text(message)
+            }}</span>
+            <span class="bubble__time text-caption">{{ time(message.createdAt) }}</span>
+          </li>
+        }
+      </ol>
+    }
+  </div>
+</ion-content>
+
+@if (!isLoading() && !hasError()) {
+  <ion-footer class="conversation-footer">
+    @if (!canWrite()) {
+      <output class="notice notice--info conversation-footer__closed">
+        <ion-icon [icon]="closedIcon" aria-hidden="true" />
+        <span>La conversación está cerrada: se puede leer, pero ya no admite mensajes.</span>
+      </output>
+    } @else {
+      <!-- De un toque: útiles con el coche en marcha -->
+      <fieldset class="conversation-footer__quick">
+        <legend class="visually-hidden">Respuestas rápidas</legend>
+        @for (quickReply of quickReplies; track quickReply) {
+          <button
+            type="button"
+            class="quick-reply"
+            [disabled]="isSending()"
+            (click)="handleQuickReply(quickReply)"
+          >
+            {{ quickReplyText[quickReply] }}
+          </button>
+        }
+      </fieldset>
+      @if (isQuickRepliesOnly()) {
+        <p class="conversation-footer__hint text-caption text-color-muted">
+          Mientras conduces, solo respuestas rápidas.
+        </p>
+      } @else {
+        <form
+          class="conversation-footer__form"
+          (submit)="$event.preventDefault(); handleSendText()"
+        >
+          <ion-textarea
+            class="conversation-footer__input"
+            fill="outline"
+            [autoGrow]="true"
+            [rows]="1"
+            [maxlength]="maxLength"
+            [counter]="true"
+            placeholder="Escribe un mensaje"
+            aria-label="Mensaje"
+            [value]="draft()"
+            (ionInput)="handleDraft($event.detail.value)"
+          />
+          <ion-button
+            class="conversation-footer__send"
+            type="submit"
+            [disabled]="!canSendText()"
+            aria-label="Enviar"
+          >
+            @if (isSending()) {
+              <ion-spinner slot="icon-only" name="crescent" aria-hidden="true" />
+            } @else {
+              <ion-icon slot="icon-only" [icon]="sendIcon" aria-hidden="true" />
+            }
+          </ion-button>
+        </form>
+      }
+    }
+  </ion-footer>
+}

@@ -1,0 +1,150 @@
+// Una columna de hasta 48rem (768px), como la lista: la ruta arriba y los
+// mensajes debajo, los míos a la derecha en azul y los de los demás a la
+// izquierda en gris
+.conversation {
+  align-items: stretch;
+  max-width: 48rem; // 768px
+}
+
+.conversation__status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  padding: var(--space-xl) 0;
+}
+
+.conversation__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+}
+
+.conversation__empty {
+  margin: 0;
+  text-align: center;
+}
+
+.conversation__messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+  max-width: 80%;
+  align-self: flex-start;
+  padding: var(--space-s) 0.75rem; // 8px 12px
+  border-radius: var(--radius-base) var(--radius-base) var(--radius-base) var(--radius-xs);
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+}
+
+.bubble--mine {
+  align-self: flex-end;
+  border-radius: var(--radius-base) var(--radius-base) var(--radius-xs) var(--radius-base);
+  background: var(--color-primary-subtle);
+}
+
+.bubble__author {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+.bubble__text {
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+// Las respuestas rápidas, en cursiva: se ve que son de un toque
+.bubble__text--quick {
+  font-style: italic;
+}
+
+.bubble__time {
+  align-self: flex-end;
+  color: var(--color-text-muted);
+}
+
+// Abajo, fijo: las respuestas rápidas y la caja de texto
+.conversation-footer {
+  padding: var(--space-s) var(--space-base);
+  padding-bottom: max(var(--space-s), env(safe-area-inset-bottom, 0px));
+  background: var(--color-surface);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+}
+
+.conversation-footer__closed {
+  align-items: center;
+
+  ion-icon {
+    flex-shrink: 0;
+    color: var(--color-link);
+  }
+}
+
+// Las respuestas rápidas en una fila que se desliza (sin saltar de línea)
+// Un fieldset (agrupa los botones para los lectores de pantalla) sin el borde
+// ni el relleno que trae el navegador
+.conversation-footer__quick {
+  display: flex;
+  gap: var(--space-s);
+  min-width: 0;
+  margin: 0;
+  overflow-x: auto;
+  padding: 0 0 var(--space-s);
+  border: 0;
+  scrollbar-width: none;
+}
+
+.quick-reply {
+  flex: none;
+  min-height: 2.75rem; // 44px
+  padding: 0 var(--space-base);
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-body-s);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-l) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.conversation-footer__hint {
+  margin: 0;
+}
+
+.conversation-footer__form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-s);
+}
+
+.conversation-footer__input {
+  flex: 1;
+}
+
+.conversation-footer__send {
+  flex: none;
+  margin: 0 0 var(--space-l);
+}
