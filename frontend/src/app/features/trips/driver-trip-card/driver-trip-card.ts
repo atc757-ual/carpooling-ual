@@ -22,6 +22,7 @@ import { DriverService } from '../../../core/services/drivers/driver.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { TripChatLink } from '../../../shared/components/ui/trip-chat-link/trip-chat-link';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatTime } from '../../matching/trip-results';
@@ -44,6 +45,7 @@ const REQUEST_STATUS_LABELS: Record<SeatRequestStatus, string> = {
 };
 // Solo en estos se piden y deciden plazas
 const OPEN_STATUSES: ReadonlySet<TripStatus> = new Set(['published', 'confirmed']);
+const CHAT_STATUSES: ReadonlySet<TripStatus> = new Set(['confirmed', 'in_progress']);
 // Cuánto antes de la salida se puede iniciar (START_WINDOW_MIN del backend)
 const START_WINDOW_MS = 10 * 60 * 1000;
 
@@ -67,7 +69,7 @@ export function formatSeats(seats: number): string {
 // posición del conductor con DriverTrackingService)
 @Component({
   selector: 'app-driver-trip-card',
-  imports: [IonButton, IonCard, IonCardContent, IonIcon, IonSpinner, RouterLink],
+  imports: [IonButton, IonCard, IonCardContent, IonIcon, IonSpinner, RouterLink, TripChatLink],
   templateUrl: './driver-trip-card.html',
   styleUrl: './driver-trip-card.scss',
 })
@@ -120,6 +122,8 @@ export class DriverTripCard {
   // hora se revisa cada minuto para activar el botón sin recargar
   private readonly now = signal(Date.now());
   readonly isInProgress = computed(() => this.trip().status === 'in_progress');
+  // El chat existe desde que hay pasajeros aceptados (confirmado) y en curso
+  readonly hasChat = computed(() => CHAT_STATUSES.has(this.trip().status));
   // La pantalla del viaje en curso
   readonly livePath = computed(() => `/tabs/trips/drive/${this.trip().id}`);
   private readonly startableAt = computed(

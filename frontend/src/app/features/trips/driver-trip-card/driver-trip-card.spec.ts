@@ -93,6 +93,13 @@ describe('DriverTripCard', () => {
     expect(root.textContent).toContain('Publicado');
     expect(root.textContent).toContain('3 de 3 libres');
     expect(root.textContent).toContain('Aún no hay solicitudes');
+    // Sin pasajeros aceptados aún no hay chat
+    expect(root.querySelector('app-trip-chat-link')).toBeNull();
+  });
+
+  it('opens the chat of the trip once it has passengers', async () => {
+    const confirmed = await render({ ...TRIP, status: 'confirmed' });
+    expect(confirmed.querySelector('app-trip-chat-link')?.textContent).toContain('Chat del viaje');
   });
 
   it('names the places generically when the trip has no names', async () => {
