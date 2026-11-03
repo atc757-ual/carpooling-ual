@@ -19,7 +19,6 @@ import { SeatRequest, SeatRequestStatus } from '../../../core/models/seat-reques
 import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
-import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -48,10 +47,12 @@ const OPEN_STATUSES: ReadonlySet<TripStatus> = new Set(['published', 'confirmed'
 // Cuánto antes de la salida se puede iniciar (START_WINDOW_MIN del backend)
 const START_WINDOW_MS = 10 * 60 * 1000;
 
-// Antes de compartir la ubicación al iniciar. En la app nativa sigue con la
-// pantalla bloqueada (servicio en primer plano), y se dice antes de pedirla
+// Antes de pedir el permiso del dispositivo al iniciar: se informa, no se pide
+// un consentimiento (es parte del servicio, RGPD 6.1.b, como explica la
+// Política de privacidad). En la app nativa sigue con la pantalla bloqueada
+// (servicio en primer plano), y se dice antes de pedirla
 const SHARE_MESSAGE =
-  'Para iniciar el viaje, tus pasajeros verán dónde estás mientras dura. Dejarás de compartirla al terminarlo.';
+  'Para iniciar el viaje hay que compartir tu ubicación: tus pasajeros verán dónde estás mientras dura y dejarás de compartirla al terminarlo. Es parte del servicio (lo explica la Política de privacidad): solo te pedimos el permiso del dispositivo.';
 const SHARE_MESSAGE_NATIVE = `${SHARE_MESSAGE} Seguirá compartiéndose aunque bloquees la pantalla o uses otra app; lo verás en una notificación.`;
 
 export function formatSeats(seats: number): string {
@@ -77,7 +78,6 @@ export class DriverTripCard {
   private readonly confirm = inject(ConfirmService);
   private readonly tracking = inject(DriverTrackingService);
   private readonly location = inject(LocationService);
-  private readonly consent = inject(LocationConsentService);
   private readonly router = inject(Router);
 
   readonly trip = input.required<DriverTrip>();
@@ -214,17 +214,17 @@ export class DriverTripCard {
     this.isChangingStatus.set(false);
   }
 
-  // Para iniciar el viaje hay que compartir la ubicación: si aún no se
-  // comparte, se pide (consentimiento y permiso del dispositivo). false si
-  // no se da
+  // Para iniciar el viaje hay que compartir la ubicación. No es un
+  // consentimiento (no se registra): si el dispositivo aún no da permiso, se
+  // explica y se pide el permiso. false si no se da
   private async ensureLocationShared(): Promise<boolean> {
-    if ((await this.location.checkPermission()) === 'granted') {
+    if ((await this.location.checkDevicePermission()) === 'granted') {
       return true;
     }
     const accepted = await this.confirm.ask({
-      header: '¿Compartes tu ubicación?',
+      header: 'Compartirás tu ubicación',
       message: Capacitor.isNativePlatform() ? SHARE_MESSAGE_NATIVE : SHARE_MESSAGE,
-      confirmText: 'Compartir e iniciar',
+      confirmText: 'Iniciar viaje',
       cancelText: 'Ahora no',
       icon: this.locationIcon,
     });
@@ -232,8 +232,7 @@ export class DriverTripCard {
       return false;
     }
     try {
-      await this.consent.set('granted', 'location_prompt');
-      await this.location.getCurrentPoint();
+      await this.location.getCurrentPoint('driving');
       return true;
     } catch (error) {
       const message =

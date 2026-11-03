@@ -15,6 +15,12 @@ export type LocationFailure = 'denied' | 'unavailable' | 'revoked';
 
 export type LocationPermission = 'granted' | 'denied' | 'prompt' | 'revoked';
 
+// Para qué se usa: consent (buscar, publicar, el pasajero en el viaje…) solo
+// con el consentimiento registrado (RGPD 6.1.a); driving, la del conductor con
+// su viaje en curso, es parte del servicio (6.1.b): basta el permiso del
+// dispositivo (Política de privacidad, «Ubicación del conductor»)
+export type LocationUse = 'consent' | 'driving';
+
 export interface CurrentLocation {
   coordinates: [number, number];
   accuracy: number;
@@ -104,16 +110,19 @@ export class LocationService {
   }
 
   // [longitud, latitud]; lanza LocationError
-  async getCurrentPoint(): Promise<[number, number]> {
-    return (await this.getCurrentLocation()).coordinates;
+  async getCurrentPoint(use: LocationUse = 'consent'): Promise<[number, number]> {
+    return (await this.getCurrentLocation(use)).coordinates;
   }
 
   // Sigue la posición mientras se mueve (el GPS la da según cambia: más
   // precisa y con menos gasto que pedirla cada vez). En la app nativa, también
-  // en segundo plano. Con el consentimiento retirado, no empieza. Devuelve el
-  // id para dejar de seguirla
-  async watchPoint(onPoint: (point: [number, number]) => void): Promise<string | null> {
-    if ((await this.consent.getStatus()) !== 'granted') {
+  // en segundo plano. Sin el consentimiento (salvo el conductor con su viaje
+  // en curso), no empieza. Devuelve el id para dejar de seguirla
+  async watchPoint(
+    onPoint: (point: [number, number]) => void,
+    use: LocationUse = 'consent',
+  ): Promise<string | null> {
+    if (!(await this.isAllowed(use))) {
       return null;
     }
     if (Capacitor.isNativePlatform()) {
@@ -142,8 +151,8 @@ export class LocationService {
   }
 
   // Coordenadas y precisión para dibujar el halo de ubicación del usuario
-  async getCurrentLocation(): Promise<CurrentLocation> {
-    if ((await this.consent.getStatus()) !== 'granted') {
+  async getCurrentLocation(use: LocationUse = 'consent'): Promise<CurrentLocation> {
+    if (!(await this.isAllowed(use))) {
       throw new LocationError('revoked');
     }
     if (Capacitor.isNativePlatform()) {
@@ -168,5 +177,11 @@ export class LocationService {
         (typeof message === 'string' && /denied|permission/i.test(message));
       throw new LocationError(isDenied ? 'denied' : 'unavailable');
     }
+  }
+
+  // La del conductor con su viaje en curso no depende del consentimiento:
+  // solo del permiso del dispositivo, que se pide al leerla
+  private async isAllowed(use: LocationUse): Promise<boolean> {
+    return use === 'driving' || (await this.consent.getStatus()) === 'granted';
   }
 }

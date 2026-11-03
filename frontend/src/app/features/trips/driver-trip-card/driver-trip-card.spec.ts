@@ -7,7 +7,6 @@ import { DriverTrip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
-import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
@@ -49,7 +48,6 @@ describe('DriverTripCard', () => {
   let ask: ReturnType<typeof vi.fn>;
   let tracking: Record<string, ReturnType<typeof vi.fn>>;
   let location: Record<string, ReturnType<typeof vi.fn>>;
-  let setConsent: ReturnType<typeof vi.fn>;
   let changed: number;
 
   async function render(trip: DriverTrip, requests: SeatRequest[] = []): Promise<HTMLElement> {
@@ -64,10 +62,9 @@ describe('DriverTripCard', () => {
     ask = vi.fn().mockResolvedValue(true);
     tracking = { start: vi.fn(), stop: vi.fn() };
     location = {
-      checkPermission: vi.fn().mockResolvedValue('granted'),
+      checkDevicePermission: vi.fn().mockResolvedValue('granted'),
       getCurrentPoint: vi.fn().mockResolvedValue([-2.43, 36.83]),
     };
-    setConsent = vi.fn().mockResolvedValue({});
     TestBed.configureTestingModule({
       imports: [DriverTripCard],
       providers: [
@@ -79,7 +76,6 @@ describe('DriverTripCard', () => {
         { provide: ConfirmService, useValue: { ask } },
         { provide: DriverTrackingService, useValue: tracking },
         { provide: LocationService, useValue: location },
-        { provide: LocationConsentService, useValue: { set: setConsent } },
       ],
     });
     fixture = TestBed.createComponent(DriverTripCard);
@@ -187,7 +183,7 @@ describe('DriverTripCard', () => {
       expect(driver['startTrip']).not.toHaveBeenCalled();
     });
 
-    it('starts sharing the location at once when it is already shared', async () => {
+    it('starts sharing the location at once when the device already allows it', async () => {
       const root = await render(SOON);
       expect(root.textContent).not.toContain('Podrás iniciarlo');
 
@@ -202,23 +198,30 @@ describe('DriverTripCard', () => {
       expect(navigate).toHaveBeenCalledWith('/tabs/trips/drive/t1');
     });
 
-    it('asks to share the location and records the consent', async () => {
+    // Es parte del servicio (RGPD 6.1.b): se informa y se pide el permiso del
+    // dispositivo, pero no se registra un consentimiento
+    it('explains that sharing is part of the service and only asks for the device permission', async () => {
       await render(SOON);
-      location['checkPermission'].mockResolvedValue('prompt');
+      location['checkDevicePermission'].mockResolvedValue('prompt');
 
       await fixture.componentInstance.handleStart();
 
       expect(ask).toHaveBeenCalledWith(
-        expect.objectContaining({ confirmText: 'Compartir e iniciar', cancelText: 'Ahora no' }),
+        expect.objectContaining({
+          header: 'Compartirás tu ubicación',
+          confirmText: 'Iniciar viaje',
+          cancelText: 'Ahora no',
+          message: expect.stringContaining('Es parte del servicio') as string,
+        }),
       );
-      expect(setConsent).toHaveBeenCalledWith('granted', 'location_prompt');
+      expect(location['getCurrentPoint']).toHaveBeenCalledWith('driving');
       expect(driver['startTrip']).toHaveBeenCalledWith('t1');
     });
 
     it('says in the app that it keeps sharing with the screen locked', async () => {
       const isNative = vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
       await render(SOON);
-      location['checkPermission'].mockResolvedValue('prompt');
+      location['checkDevicePermission'].mockResolvedValue('prompt');
 
       await fixture.componentInstance.handleStart();
 
@@ -231,18 +234,18 @@ describe('DriverTripCard', () => {
 
     it('does not start without sharing the location', async () => {
       await render(SOON);
-      location['checkPermission'].mockResolvedValue('revoked');
+      location['checkDevicePermission'].mockResolvedValue('prompt');
       ask.mockResolvedValue(false);
 
       await fixture.componentInstance.handleStart();
 
-      expect(setConsent).not.toHaveBeenCalled();
+      expect(location['getCurrentPoint']).not.toHaveBeenCalled();
       expect(driver['startTrip']).not.toHaveBeenCalled();
     });
 
     it('explains that the device permission is needed', async () => {
       await render(SOON);
-      location['checkPermission'].mockResolvedValue('denied');
+      location['checkDevicePermission'].mockResolvedValue('denied');
       location['getCurrentPoint'].mockRejectedValue(new LocationError('denied'));
 
       await fixture.componentInstance.handleStart();
@@ -253,13 +256,13 @@ describe('DriverTripCard', () => {
       expect(driver['startTrip']).not.toHaveBeenCalled();
     });
 
-    it('shows the API error when the consent or the start fails', async () => {
+    it('shows the error when the location or the start fails', async () => {
       await render(SOON);
-      location['checkPermission'].mockResolvedValue('prompt');
-      setConsent.mockRejectedValueOnce(new Error('down'));
+      location['checkDevicePermission'].mockResolvedValue('prompt');
+      location['getCurrentPoint'].mockRejectedValueOnce(new Error('down'));
       await fixture.componentInstance.handleStart();
       driver['startTrip'].mockRejectedValue(new Error('down'));
-      location['checkPermission'].mockResolvedValue('granted');
+      location['checkDevicePermission'].mockResolvedValue('granted');
       await fixture.componentInstance.handleStart();
 
       expect(toast['showError']).toHaveBeenCalledTimes(2);

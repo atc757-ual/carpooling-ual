@@ -71,7 +71,7 @@
     "location": {
       "title": "Location",
       "shareLocation": "Share location",
-      "shareDesc": "To suggest stops and detours.",
+      "shareDesc": "To suggest stops and detours. If you drive, your location is shared with your passengers while the trip is in progress even if you turn this off: it is part of the service.",
       "authorizedOn": "Authorized on {{ date }}",
       "withdrawnOn": "Revoked on {{ date }}",
       "hashTitle": "Code confirming registration",

@@ -125,6 +125,17 @@ describe('LocationService', () => {
     expect(geolocation.getCurrentPosition).not.toHaveBeenCalled();
   });
 
+  // RGPD 6.1.b: la del conductor con su viaje en curso es parte del servicio
+  it('uses the location of a driver in a trip without the consent, only with the device permission', async () => {
+    consent.getStatus.mockResolvedValue('revoked');
+    geolocation.getCurrentPosition.mockResolvedValue(position(-2.46, 36.84));
+    geolocation.watchPosition.mockResolvedValue('w1');
+
+    await expect(location.getCurrentPoint('driving')).resolves.toEqual([-2.46, 36.84]);
+    await expect(location.watchPoint(vi.fn(), 'driving')).resolves.toBe('w1');
+    expect(consent.set).not.toHaveBeenCalled();
+  });
+
   it('records the withdrawal when the system permission was removed', async () => {
     geolocation.checkPermissions.mockResolvedValueOnce({ location: 'denied' });
 
