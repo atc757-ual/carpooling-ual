@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Trip } from '../../core/models/driver.model';
 import { AppNotification, NotificationType } from '../../core/models/notification.model';
@@ -46,6 +46,7 @@ function notification(
     trip: { id: 't1', href: '/api/trips/t1' },
     request: requestId ? { id: requestId, href: `/api/requests/${requestId}` } : null,
     incident: null,
+    legalDocument: null,
     isRead,
     readAt: null,
     createdAt: new Date().toISOString(),
@@ -108,6 +109,35 @@ describe('NotificationsPage', () => {
     expect(root.textContent).toContain('Te han pedido plaza');
     expect(root.textContent).toContain('Roquetas de Mar → Campus UAL · Parking P1 (Sur)');
     expect(root.textContent).toContain('Marcar todo como leído');
+  });
+
+  it('shows a minor change of a legal document and opens the document', async () => {
+    const legal: AppNotification = {
+      ...notification('n1', 'privacy_updated'),
+      trip: null,
+      legalDocument: { id: 'l1', href: '/api/legal-documents/privacy' },
+    };
+    const root = await render(() =>
+      Promise.resolve([legal, notification('n2', 'request_received', true)]),
+    );
+    const present = vi.fn().mockResolvedValue(undefined);
+    const create = vi
+      .spyOn(TestBed.inject(ModalController), 'create')
+      .mockResolvedValue({ present } as unknown as HTMLIonModalElement);
+
+    expect(getTrip).toHaveBeenCalledTimes(1);
+    const [first] = root.querySelectorAll('.notification');
+    expect(first.textContent).toContain('Hemos actualizado la Política de privacidad');
+    expect(first.textContent).toContain('Toca para ver qué ha cambiado');
+
+    await fixture.componentInstance.handleOpen(fixture.componentInstance.all()[0]);
+
+    expect(service['markRead']).toHaveBeenCalledWith('n1');
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({ componentProps: { document: 'privacy' } }),
+    );
+    expect(present).toHaveBeenCalled();
+    expect(TestBed.inject(Router).navigateByUrl).not.toHaveBeenCalled();
   });
 
   it('marks an unread one as read and opens my trips in its mode', async () => {

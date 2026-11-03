@@ -1,6 +1,5 @@
 <ion-content>
   <div class="tab-page notifications">
-
     @if (items.isLoading() && !items.hasValue()) {
       <output class="notifications__status">
         <ion-spinner name="crescent" aria-hidden="true" />
@@ -55,7 +54,13 @@
                       <span class="visually-hidden">(sin leer)</span>
                     }
                   </span>
-                  <span class="text-caption text-color-muted">{{ tripLine(item.trip) }}</span>
+                  <span class="text-caption text-color-muted">
+                    @if (item.trip; as trip) {
+                      {{ tripLine(trip) }}
+                    } @else {
+                      Toca para ver qué ha cambiado
+                    }
+                  </span>
                 </span>
                 <span class="notification__time text-caption text-color-muted">
                   {{ elapsed(item.notification) }}

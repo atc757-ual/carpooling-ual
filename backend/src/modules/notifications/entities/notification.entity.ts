@@ -22,8 +22,22 @@ export const NOTIFICATION_TYPES = [
   'review_requested',
   'request_expired',
   'passenger_no_show',
+  'terms_updated',
+  'privacy_updated',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+
+// Un cambio menor en las condiciones o la política (no hay que aceptarlo):
+// no es de un viaje, sino de una versión de un documento legal
+export const LEGAL_NOTIFICATION_TYPES = [
+  'terms_updated',
+  'privacy_updated',
+] as const;
+export type LegalNotificationType = (typeof LEGAL_NOTIFICATION_TYPES)[number];
+export type TripNotificationType = Exclude<
+  NotificationType,
+  LegalNotificationType
+>;
 
 // Tabla notifications: un aviso dentro de la aplicación para un usuario
 // (RF-19, CU-11). Sin texto: solo el tipo y sus referencias
@@ -44,8 +58,13 @@ export class Notification {
   })
   type: NotificationType;
 
-  @Column({ name: 'trip_id', type: 'uuid' })
-  tripId: string;
+  // El viaje: en todos salvo los de un documento legal
+  @Column({ name: 'trip_id', type: 'uuid', nullable: true })
+  tripId: string | null;
+
+  // La versión publicada: solo en terms_updated y privacy_updated
+  @Column({ name: 'legal_document_id', type: 'uuid', nullable: true })
+  legalDocumentId: string | null;
 
   // La solicitud: en todos los avisos salvo el de una incidencia
   @Column({ name: 'request_id', type: 'uuid', nullable: true })

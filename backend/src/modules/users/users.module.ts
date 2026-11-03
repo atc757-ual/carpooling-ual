@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditModule } from '../../audit/audit.module';
 import { EventsModule } from '../../events/events.module';
 import { CatalogsModule } from '../catalogs/catalogs.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import {
   AdminAvatarsController,
   AdminAvatarUploadsController,
@@ -44,6 +45,7 @@ import { VehiclesService } from './vehicles.service';
       LegalDocument,
     ]),
     CatalogsModule,
+    NotificationsModule,
     EventsModule,
     AuditModule,
   ],

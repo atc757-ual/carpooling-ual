@@ -171,6 +171,12 @@ describe('Legal documents (e2e)', () => {
           href: '/api/legal-documents/terms',
         },
       ]);
+      // Un cambio importante se pide aceptar al entrar: no va a Avisos
+      const notices = await request(app.getHttpServer())
+        .get('/api/users/me/notifications')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200);
+      expect(notices.body).toEqual([]);
       const outdated = await accept('1.0').expect(409);
       expect((outdated.body as { code: string }).code).toBe(
         'LEGAL_DOCUMENT_OUTDATED',
@@ -224,8 +230,37 @@ describe('Legal documents (e2e)', () => {
       .expect(200);
 
     const published = await admin('post', '/privacy/draft/publish').expect(200);
+    const documentId = (published.body as { id: string }).id;
+    // El cambio menor avisa a todos los usuarios activos, también a los que
+    // crean a la vez otros tests (en paralelo) y que cuentan sus avisos: se
+    // borran al momento todos los avisos de esta versión salvo los de este test
+    await dataSource.query(
+      `DELETE FROM notifications
+        WHERE legal_document_id = $1
+          AND user_id NOT IN (SELECT id FROM users WHERE email LIKE $2)`,
+      [documentId, `${EMAIL_PREFIX}%`],
+    );
     try {
       expect((await pending().expect(200)).body).toEqual([]);
+
+      // Solo se avisa, en Avisos, con el enlace al documento y sin viaje
+      const notices = await request(app.getHttpServer())
+        .get('/api/users/me/notifications')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200);
+      expect(notices.body).toEqual([
+        expect.objectContaining({
+          type: 'privacy_updated',
+          trip: null,
+          request: null,
+          legalDocument: {
+            id: (published.body as { id: string }).id,
+            href: '/api/legal-documents/privacy',
+          },
+          isRead: false,
+        }),
+      ]);
+
       await expect(
         dataSource.query(
           "UPDATE legal_documents SET content = '<p>Otro</p>' WHERE id = $1",

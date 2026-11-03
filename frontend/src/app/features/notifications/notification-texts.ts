@@ -1,5 +1,6 @@
 import { TravelMode } from '../../core/services/users/active-mode.service';
 import { NotificationType } from '../../core/models/notification.model';
+import { LegalDocumentType } from '../../core/services/users/legal-documents.service';
 import { formatDateLabel } from '../../shared/components/ui/datetime-field/datetime-field';
 
 const MINUTE_MS = 60_000;
@@ -18,9 +19,12 @@ const MESSAGES: Record<NotificationType, string> = {
   passenger_left: 'Un pasajero ha dejado el viaje',
   trip_started: 'Tu conductor va de camino',
   incident_reported: 'Hay una incidencia nueva',
+  terms_updated: 'Hemos actualizado las Condiciones de uso',
+  privacy_updated: 'Hemos actualizado la Política de privacidad',
 };
 
 // Con qué modo se ve en Mis viajes; las incidencias son de la administración
+// y los avisos legales abren el documento
 const MODES: Record<NotificationType, TravelMode | null> = {
   request_received: 'driver',
   request_accepted: 'passenger',
@@ -31,6 +35,8 @@ const MODES: Record<NotificationType, TravelMode | null> = {
   passenger_left: 'driver',
   trip_started: 'passenger',
   incident_reported: null,
+  terms_updated: null,
+  privacy_updated: null,
 };
 
 export function notificationMessage(type: NotificationType): string {
@@ -59,4 +65,12 @@ export function formatElapsed(isoDate: string, now: Date): string {
     return 'Ayer';
   }
   return formatDateLabel(day, now);
+}
+
+// El documento de un aviso legal (cambio menor), o null si es de un viaje
+export function legalDocumentOf(type: NotificationType): LegalDocumentType | null {
+  if (type === 'terms_updated') {
+    return 'terms';
+  }
+  return type === 'privacy_updated' ? 'privacy' : null;
 }

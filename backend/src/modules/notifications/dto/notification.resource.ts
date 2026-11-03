@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { incidentHref } from '../../incidents/dto/incident.resource';
 import { requestHref } from '../../requests/dto/seat-request.resource';
 import { tripHref } from '../../trips/dto/trip.resource';
+import { legalDocumentHref } from '../../users/dto/legal-document.resource';
 import { NOTIFICATION_TYPES } from '../entities/notification.entity';
 import type {
   Notification,
@@ -30,12 +31,24 @@ export class NotificationResource {
   @ApiProperty({
     enum: NOTIFICATION_TYPES,
     description:
-      'request_received (to the driver), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver and accepted passengers when the trip finishes), incident_reported (to the administrators)',
+      'request_received (to the driver), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver and accepted passengers when the trip finishes), incident_reported (to the administrators), terms_updated and privacy_updated (to every active user after a minor change of a legal document)',
   })
   type: NotificationType;
 
-  @ApiProperty({ type: NotificationLinkResource })
-  trip: NotificationLinkResource;
+  @ApiProperty({
+    type: NotificationLinkResource,
+    nullable: true,
+    description: 'The trip; null in terms_updated and privacy_updated',
+  })
+  trip: NotificationLinkResource | null;
+
+  @ApiProperty({
+    type: NotificationLinkResource,
+    nullable: true,
+    description:
+      'The published version (its href is the current document of that type); only in terms_updated and privacy_updated',
+  })
+  legalDocument: NotificationLinkResource | null;
 
   @ApiProperty({
     type: NotificationLinkResource,
@@ -65,12 +78,22 @@ export class NotificationResource {
 export function toNotificationResource(
   notification: Notification,
 ): NotificationResource {
-  const { requestId, incidentId, readAt } = notification;
+  const { tripId, requestId, incidentId, legalDocumentId, readAt } =
+    notification;
   return {
     '@type': 'Notification',
     id: notification.id,
     type: notification.type,
-    trip: { id: notification.tripId, href: tripHref(notification.tripId) },
+    trip: tripId === null ? null : { id: tripId, href: tripHref(tripId) },
+    legalDocument:
+      legalDocumentId === null
+        ? null
+        : {
+            id: legalDocumentId,
+            href: legalDocumentHref(
+              notification.type === 'terms_updated' ? 'terms' : 'privacy',
+            ),
+          },
     request:
       requestId === null
         ? null

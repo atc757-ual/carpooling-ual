@@ -7,6 +7,7 @@ import {
   IonContent,
   IonIcon,
   IonSpinner,
+  ModalController,
 } from '@ionic/angular';
 import { alertCircleOutline, notificationsOutline } from 'ionicons/icons';
 import { ApiError } from '../../core/models/api-error.model';
@@ -20,17 +21,25 @@ import { ActiveModeService } from '../../core/services/users/active-mode.service
 import { formatDateLabel } from '../../shared/components/ui/datetime-field/datetime-field';
 import { getErrorMessage } from '../../shared/utils/error-message.util';
 import { formatTime } from '../matching/trip-results';
-import { formatElapsed, notificationMessage, notificationMode } from './notification-texts';
+import { openLegalModal } from '../../shared/components/modals/legal-modal/legal-modal';
+import {
+  formatElapsed,
+  legalDocumentOf,
+  notificationMessage,
+  notificationMode,
+} from './notification-texts';
 
 export interface NotificationItem {
   notification: AppNotification;
-  trip: Trip;
+  // null en los avisos de un documento legal
+  trip: Trip | null;
 }
 
 // Avisos (RF-19): los más recientes primero, cada uno con su frase, su viaje
 // y cuándo llegó; los no leídos, con un punto y en negrita. Al abrir uno se
 // marca como leído y lleva a Mis viajes en el modo que le toca (el conductor
-// decide las solicitudes; el pasajero ve las suyas)
+// decide las solicitudes; el pasajero ve las suyas). El de un cambio menor en
+// un documento legal abre el documento, con «Qué ha cambiado» encima
 @Component({
   selector: 'app-notifications',
   imports: [IonButton, IonCard, IonCardContent, IonContent, IonIcon, IonSpinner],
@@ -44,18 +53,21 @@ export class NotificationsPage {
   private readonly activeMode = inject(ActiveModeService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly modalController = inject(ModalController);
 
   // Cada aviso con su viaje (una petición por viaje distinto)
   readonly items = resource({
     loader: async (): Promise<NotificationItem[]> => {
       const notifications = await this.notifications.list();
-      const tripIds = [...new Set(notifications.map(({ trip }) => trip.id))];
+      const tripIds = [
+        ...new Set(notifications.flatMap(({ trip }) => (trip === null ? [] : [trip.id]))),
+      ];
       const trips = new Map(
         await Promise.all(tripIds.map(async (id) => [id, await this.trips.getTrip(id)] as const)),
       );
       return notifications.map((notification) => ({
         notification,
-        trip: trips.get(notification.trip.id) as Trip,
+        trip: notification.trip === null ? null : (trips.get(notification.trip.id) ?? null),
       }));
     },
   });
@@ -83,12 +95,17 @@ export class NotificationsPage {
     this.items.reload();
   }
 
-  // Marcarlo como leído y, si es de un viaje propio, abrir Mis viajes
+  // Marcarlo como leído y abrir lo suyo: el documento legal o Mis viajes
   async handleOpen({ notification }: NotificationItem): Promise<void> {
     try {
       if (!notification.isRead) {
         await this.notifications.markRead(notification.id);
         this.items.reload();
+      }
+      const document = legalDocumentOf(notification.type);
+      if (document !== null) {
+        await openLegalModal(this.modalController, document);
+        return;
       }
       const mode = notificationMode(notification.type);
       if (mode === null) {

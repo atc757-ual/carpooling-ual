@@ -1,4 +1,9 @@
-import { formatElapsed, notificationMessage, notificationMode } from './notification-texts';
+import {
+  formatElapsed,
+  legalDocumentOf,
+  notificationMessage,
+  notificationMode,
+} from './notification-texts';
 
 describe('notification texts', () => {
   const now = new Date('2026-10-28T12:00:00');
@@ -22,6 +27,14 @@ describe('notification texts', () => {
     expect(notificationMode('trip_cancelled')).toBe('passenger');
     expect(notificationMode('trip_started')).toBe('passenger');
     expect(notificationMode('incident_reported')).toBeNull();
+  });
+
+  it('tells which legal document a minor change notice opens', () => {
+    expect(notificationMessage('terms_updated')).toBe('Hemos actualizado las Condiciones de uso');
+    expect(notificationMode('privacy_updated')).toBeNull();
+    expect(legalDocumentOf('terms_updated')).toBe('terms');
+    expect(legalDocumentOf('privacy_updated')).toBe('privacy');
+    expect(legalDocumentOf('request_received')).toBeNull();
   });
 
   it('says how long ago it arrived', () => {
