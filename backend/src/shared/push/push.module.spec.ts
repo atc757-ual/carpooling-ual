@@ -12,7 +12,9 @@ describe('createPushSender', () => {
       serviceAccountPath: null,
     });
     expect(disabled).toBeInstanceOf(DisabledPushSender);
-    await expect(disabled.send()).resolves.toEqual([]);
+    await expect(
+      disabled.send(['t1'], { title: 'Hola', body: 'Texto', data: {} }),
+    ).resolves.toEqual([]);
   });
 
   it('fails at startup when the service account cannot be read', () => {
