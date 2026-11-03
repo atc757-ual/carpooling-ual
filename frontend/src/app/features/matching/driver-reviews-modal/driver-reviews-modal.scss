@@ -1,0 +1,128 @@
+// Media grande a la izquierda y barras por estrella a la derecha; debajo, la
+// lista con avatar, nombre, fecha, estrellas y comentario
+.driver-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.driver-reviews__loading,
+.driver-reviews__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-l) 0;
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+}
+
+.driver-reviews__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-l);
+  padding-bottom: var(--space-base);
+  border-bottom: var(--border-width-s) solid var(--color-border);
+}
+
+.driver-reviews__average {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+}
+
+.driver-reviews__average-value {
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+}
+
+.driver-reviews__stars {
+  color: var(--color-warning);
+  letter-spacing: 0.0625rem; // 1px
+}
+
+.driver-reviews__stars--small {
+  font-size: var(--font-size-body-s);
+}
+
+.driver-reviews__bars {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.driver-reviews__bar {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr 1.5rem; // 24px · barra · 24px
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.driver-reviews__track {
+  height: 0.5rem; // 8px
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+}
+
+.driver-reviews__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-warning);
+}
+
+.driver-reviews__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.driver-reviews__item {
+  display: flex;
+  gap: var(--space-s);
+}
+
+.driver-reviews__avatar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem; // 36px
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+}
+
+.driver-reviews__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.driver-reviews__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.driver-reviews__comment {
+  margin: var(--space-xs) 0 0;
+  overflow-wrap: anywhere;
+}

@@ -1,30 +1,34 @@
-<a class="trip-card__link" [routerLink]="['/tabs/search/trips', trip().id]">
-  <ion-card class="trip-card">
-    <ion-card-content>
-      <div class="trip-card__head">
-        <div class="trip-card__times">{{ trip().departureTime }} → {{ trip().arrivalTime }}</div>
-        @if (isLastSeat()) {
-          <span class="trip-card__seats trip-card__seats--last">Última plaza</span>
-        } @else {
-          <span class="trip-card__seats">
-            {{ trip().freeSeats }} {{ trip().freeSeats === 1 ? 'plaza' : 'plazas' }}
-          </span>
-        }
-      </div>
-
-      <div class="trip-card__route" [attr.title]="trip().origin + ' → ' + trip().destination">
-        {{ trip().origin }} → {{ trip().destination }}
-      </div>
-
-      <app-trip-driver [driver]="trip().driver" />
-
-      <div class="trip-card__pickup">
-        <ion-icon [icon]="pickupIcon" aria-hidden="true" />
-        <span>
-          Desvío de {{ trip().pickupDetourMinutes }} min para {{ passengerAction() }} ·
-          {{ trip().passengerStop }}
+<ion-card class="trip-card">
+  <ion-card-content>
+    <div class="trip-card__head">
+      <!-- El enlace cubre toda la tarjeta (::after); la valoración queda encima -->
+      <a
+        class="trip-card__link trip-card__times"
+        [routerLink]="['/tabs/search/trips', trip().id]"
+        [attr.aria-label]="linkLabel()"
+        >{{ trip().departureTime }} → {{ trip().arrivalTime }}</a
+      >
+      @if (isLastSeat()) {
+        <span class="trip-card__seats trip-card__seats--last">Última plaza</span>
+      } @else {
+        <span class="trip-card__seats">
+          {{ trip().freeSeats }} {{ trip().freeSeats === 1 ? 'plaza' : 'plazas' }}
         </span>
-      </div>
-    </ion-card-content>
-  </ion-card>
-</a>
+      }
+    </div>
+
+    <div class="trip-card__route" [attr.title]="trip().origin + ' → ' + trip().destination">
+      {{ trip().origin }} → {{ trip().destination }}
+    </div>
+
+    <app-trip-driver [driver]="trip().driver" />
+
+    <div class="trip-card__pickup">
+      <ion-icon [icon]="pickupIcon" aria-hidden="true" />
+      <span>
+        Desvío de {{ trip().pickupDetourMinutes }} min para {{ passengerAction() }} ·
+        {{ trip().passengerStop }}
+      </span>
+    </div>
+  </ion-card-content>
+</ion-card>

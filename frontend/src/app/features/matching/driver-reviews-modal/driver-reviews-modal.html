@@ -1,0 +1,91 @@
+<app-modal-header [title]="title()" (closed)="close()" />
+
+<div class="modal-body driver-reviews">
+  @if (isLoading()) {
+    <div class="driver-reviews__loading">
+      <ion-spinner name="crescent" aria-label="Cargando valoraciones" />
+    </div>
+  } @else {
+    @if (errorMessage(); as message) {
+      <div class="notice notice--danger" role="alert">
+        <span>{{ message }}</span>
+      </div>
+    }
+
+    @if (average(); as average) {
+      <!-- Media y reparto por estrellas -->
+      <section class="driver-reviews__summary" aria-label="Resumen de valoraciones">
+        <div class="driver-reviews__average">
+          <span class="driver-reviews__average-value">{{ average }}</span>
+          <span class="driver-reviews__stars" aria-hidden="true">{{
+            stars(rating()?.average ?? 0)
+          }}</span>
+          <span class="text-caption text-color-muted">{{ countText() }}</span>
+        </div>
+        <ul class="driver-reviews__bars">
+          @for (bar of bars(); track bar.rating) {
+            <li
+              class="driver-reviews__bar"
+              [attr.aria-label]="bar.rating + ' estrellas: ' + bar.count"
+            >
+              <span class="text-caption" aria-hidden="true">{{ bar.rating }}★</span>
+              <span class="driver-reviews__track" aria-hidden="true">
+                <span class="driver-reviews__fill" [style.width.%]="bar.percent"></span>
+              </span>
+              <span class="text-caption text-color-muted" aria-hidden="true">{{ bar.count }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+
+      <!-- Lista, las más recientes primero -->
+      <ul class="driver-reviews__list">
+        @for (review of reviews(); track review.id) {
+          <li class="driver-reviews__item">
+            <span class="driver-reviews__avatar" aria-hidden="true">{{
+              initials(review.author.name)
+            }}</span>
+            <div class="driver-reviews__body">
+              <div class="driver-reviews__head">
+                <span class="text-label text-label--strong">{{ review.author.name }}</span>
+                <span class="text-caption text-color-muted">{{ date(review.publishedAt) }}</span>
+              </div>
+              <span
+                class="driver-reviews__stars driver-reviews__stars--small"
+                [attr.aria-label]="'Valoración ' + review.rating + ' de 5'"
+                >{{ stars(review.rating) }}</span
+              >
+              @if (review.comment) {
+                <p class="text-body-s driver-reviews__comment">{{ review.comment }}</p>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+
+      @if (hasMore()) {
+        <ion-button
+          class="driver-reviews__more"
+          fill="outline"
+          expand="block"
+          [disabled]="isLoadingMore()"
+          (click)="loadMore()"
+        >
+          @if (isLoadingMore()) {
+            <ion-spinner name="crescent" aria-hidden="true" />
+          } @else {
+            Ver más
+          }
+        </ion-button>
+      }
+    } @else if (!errorMessage()) {
+      <div class="driver-reviews__empty">
+        <span class="driver-reviews__stars" aria-hidden="true">☆☆☆☆☆</span>
+        <p class="text-body text-body--strong">Aún no tiene valoraciones</p>
+        <p class="text-body-s text-color-muted">
+          Las verás aquí cuando sus pasajeros lo valoren después de un viaje.
+        </p>
+      </div>
+    }
+  }
+</div>

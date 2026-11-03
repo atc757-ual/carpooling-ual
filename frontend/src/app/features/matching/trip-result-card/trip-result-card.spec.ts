@@ -59,12 +59,15 @@ describe('TripResultCard', () => {
     expect(text(root, 'app-trip-driver .trip-driver__name')).toBe('Lucía Cortés');
   });
 
-  it('makes the full card a link to the trip detail', () => {
+  it('links the card to the trip detail with a label that describes the trip', () => {
     const root = render(TRIP);
-    const link = root.querySelector<HTMLAnchorElement>('.trip-card__link');
+    const link = root.querySelector<HTMLAnchorElement>('ion-card .trip-card__link');
 
     expect(link?.getAttribute('href')).toBe('/tabs/search/trips/trip-1');
-    expect(link?.querySelector('ion-card')).not.toBeNull();
+    expect(link?.getAttribute('aria-label')).toBe(
+      'Ver viaje de Lucía: 07:40 → 08:12, Roquetas de Mar → Campus UAL · Parking P1',
+    );
+    expect(link?.contains(root.querySelector('app-trip-driver'))).toBe(false);
   });
 
   it('describes the stop as a drop-off on return trips', () => {

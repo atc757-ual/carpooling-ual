@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
 import { locationOutline } from 'ionicons/icons';
 import { TripResult } from '../../../core/models/trip-result.model';
-import { TripDriver } from '../trip-driver/trip-driver';
+import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
 
 // Un viaje de los resultados (TripRow de la guía): horas de salida y llegada
 // con las plazas libres («Última plaza» en naranja si solo queda una), el
@@ -22,6 +22,11 @@ export class TripResultCard {
   readonly passengerAction = computed(() =>
     this.trip().direction === 'to-campus' ? 'recogerte' : 'dejarte',
   );
+  // Lo que lee el lector de pantalla del enlace (cubre toda la tarjeta)
+  readonly linkLabel = computed(() => {
+    const { driver, departureTime, arrivalTime, origin, destination } = this.trip();
+    return `Ver viaje de ${getFirstName(driver.name)}: ${departureTime} → ${arrivalTime}, ${origin} → ${destination}`;
+  });
 
   protected readonly pickupIcon = locationOutline;
 }

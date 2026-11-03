@@ -6,6 +6,8 @@ import { TripDirection } from './trip-search.model';
 import { TravelPreferences } from './travel-preferences.model';
 
 export interface TripDriver {
+  // Para ver sus valoraciones (sin él, la nota no se puede pulsar)
+  id?: string;
   name: string;
   avatarKey: string | null;
   preferences?: TravelPreferences;

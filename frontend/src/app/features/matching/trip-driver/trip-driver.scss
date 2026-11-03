@@ -41,3 +41,30 @@
   font-weight: var(--font-weight-semibold);
   white-space: nowrap;
 }
+
+// La nota se pulsa para ver las valoraciones: área de 44px y por encima del
+// enlace que cubre la tarjeta de resultados
+.trip-driver__rating--button {
+  position: relative;
+  z-index: 1;
+  min-width: 2.75rem; // 44px
+  min-height: 2.75rem;
+  padding: 0 var(--space-s);
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.1875rem; // 3px
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-l) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+}

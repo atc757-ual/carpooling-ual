@@ -72,6 +72,7 @@ export function toTripResult(match: TripMatch, search: TripSearch): TripResult {
     origin: isToCampus ? search.place.name : campus,
     destination: isToCampus ? campus : search.place.name,
     driver: {
+      id: match.driver.id,
       name: match.driver.name,
       avatarKey: match.driver.avatarKey,
       ...(match.driver.preferences ? { preferences: match.driver.preferences } : {}),
