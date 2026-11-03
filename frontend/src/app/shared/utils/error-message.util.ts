@@ -63,6 +63,7 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   LEGAL_DOCUMENT_NOT_FOUND: 'No hay ninguna versión publicada de ese documento.',
   LEGAL_DRAFT_NOT_FOUND: 'No hay ningún borrador que publicar.',
   LEGAL_DOCUMENT_OUTDATED: 'Se ha publicado otra versión mientras leías. Revisa la última.',
+  LEGAL_SUMMARY_REQUIRED: 'Escribe «Qué ha cambiado» antes de publicar la versión.',
 };
 
 export function getErrorMessage(error: ApiError): string {

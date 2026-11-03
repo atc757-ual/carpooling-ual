@@ -9,14 +9,20 @@ import {
 import { API_PREFIX } from '../../../app.setup';
 import { PaginationQueryDto } from '../../../shared/pagination/pagination-query.dto';
 import {
+  LEGAL_CHANGE_TYPES,
   LEGAL_DOCUMENT_STATUSES,
   LEGAL_DOCUMENT_TYPES,
   LegalDocument,
 } from '../entities/legal-document.entity';
-import type { LegalDocumentType } from '../entities/legal-document.entity';
+import type {
+  LegalChangeType,
+  LegalDocumentType,
+} from '../entities/legal-document.entity';
 
 // Un documento legal hasta ~200 KB de HTML
 const MAX_CONTENT_LENGTH = 200_000;
+// «Qué ha cambiado»: unas líneas
+const MAX_SUMMARY_LENGTH = 1000;
 
 // La versión vigente de un documento, como la ve la app
 export class LegalDocumentResource {
@@ -38,6 +44,21 @@ export class LegalDocumentResource {
     example: '<h2>1. Qué es UAL Carpool</h2><p>…</p>',
   })
   content: string;
+
+  @ApiProperty({
+    enum: LEGAL_CHANGE_TYPES,
+    description:
+      'major: users must accept it again; minor: they are only told about it',
+  })
+  changeType: LegalChangeType;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'What changed, shown above the document',
+    example: 'Añadimos cómo usamos tu ubicación durante el viaje.',
+  })
+  summary: string | null;
 
   @ApiProperty({ format: 'date-time', type: String, nullable: true })
   publishedAt: string | null;
@@ -84,6 +105,25 @@ export class SaveLegalDraftDto {
   @MaxLength(MAX_CONTENT_LENGTH)
   @Matches(/\S/)
   content: string;
+
+  @ApiPropertyOptional({
+    enum: LEGAL_CHANGE_TYPES,
+    default: 'minor',
+    description:
+      'major raises the major version (1.4 → 2.0) and asks every user to accept it again; minor raises the minor one (1.4 → 1.5)',
+  })
+  @IsOptional()
+  @IsIn(LEGAL_CHANGE_TYPES)
+  changeType?: LegalChangeType;
+
+  @ApiPropertyOptional({
+    maxLength: MAX_SUMMARY_LENGTH,
+    description: 'What changed; required to publish',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(MAX_SUMMARY_LENGTH)
+  summary?: string;
 }
 
 export class AcceptLegalDocumentDto {
@@ -109,6 +149,8 @@ export function toLegalDocumentResource(
     type: document.type,
     version: document.version,
     content: document.content,
+    changeType: document.changeType,
+    summary: document.summary,
     publishedAt: document.publishedAt?.toISOString() ?? null,
   };
 }

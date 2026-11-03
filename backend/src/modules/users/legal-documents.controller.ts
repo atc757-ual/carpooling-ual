@@ -169,7 +169,7 @@ export class AdminLegalDocumentsController {
   @ApiOperation({
     summary: 'Create or replace the draft of a legal document',
     description:
-      'A new draft takes the next version (1.0 → 1.1). The HTML is sanitized: only headings, paragraphs, lists, bold, italics, line breaks and safe links remain.',
+      'The draft version follows from the current one and the change type: major 1.4 → 2.0, minor 1.4 → 1.5. The HTML is sanitized: only headings, paragraphs, lists, bold, italics, line breaks and safe links remain. Published versions never change.',
   })
   @ApiParam(TYPE_PARAM)
   @ApiOkResponse({ type: AdminLegalDocumentResource })
@@ -182,7 +182,11 @@ export class AdminLegalDocumentsController {
     @Body() body: SaveLegalDraftDto,
   ): Promise<AdminLegalDocumentResource> {
     return toAdminLegalDocumentResource(
-      await this.documents.saveDraft(type, body.content),
+      await this.documents.saveDraft(type, {
+        content: body.content,
+        changeType: body.changeType ?? 'minor',
+        summary: body.summary ?? null,
+      }),
     );
   }
 
@@ -191,13 +195,14 @@ export class AdminLegalDocumentsController {
   @ApiOperation({
     summary: 'Publish the draft of a legal document',
     description:
-      'It becomes the current version; every user must accept it the next time they sign in.',
+      'It becomes the current version. After a major change every user must accept it the next time they sign in; after a minor one nothing is asked. The draft needs its summary of what changed.',
   })
   @ApiParam(TYPE_PARAM)
   @ApiOkResponse({ type: AdminLegalDocumentResource })
   @ApiErrorResponses({
     ...ADMIN_ERRORS,
     [HttpStatus.NOT_FOUND]: ['LEGAL_DRAFT_NOT_FOUND'],
+    [HttpStatus.UNPROCESSABLE_ENTITY]: ['LEGAL_SUMMARY_REQUIRED'],
   })
   async publish(
     @CurrentUser() admin: AccessTokenPayload,

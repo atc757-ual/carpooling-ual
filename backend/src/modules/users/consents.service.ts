@@ -2,13 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, IsNull, Repository } from 'typeorm';
 import { EventsService } from '../../events/events.service';
-import type { LegalDocumentType } from './entities/legal-document.entity';
+import type {
+  LegalDocument,
+  LegalDocumentType,
+} from './entities/legal-document.entity';
 import { UserConsent } from './entities/user-consent.entity';
 import { LegalDocumentOutdatedError } from './errors/legal-document-outdated.error';
-import { LegalDocumentsService } from './legal-documents.service';
+import {
+  compareLegalVersions,
+  LegalDocumentsService,
+} from './legal-documents.service';
 import { User } from './entities/user.entity';
 import { UserNotFoundError } from './errors/user-not-found.error';
-import { computeConsentFingerprint, CONSENT_TYPES } from './user-consent';
+import {
+  computeConsentFingerprint,
+  computeContentHash,
+  CONSENT_TYPES,
+} from './user-consent';
 import type {
   ConsentAction,
   ConsentSource,
@@ -20,13 +30,26 @@ import type {
 
 const INITIAL_CONSENT_TYPES: readonly ConsentType[] = ['terms', 'privacy'];
 
-interface InsertConsentInput {
+// La versión exacta de las condiciones o la política y el hash de su texto
+interface DocumentReference {
+  documentId: string | null;
+  contentHash: string | null;
+}
+
+interface InsertConsentInput extends Partial<DocumentReference> {
   userId: string;
   type: ConsentType;
   documentVersion: string;
   action: ConsentAction;
   source: ConsentSource;
   recordedAt: Date;
+}
+
+function referenceTo(document: LegalDocument): DocumentReference {
+  return {
+    documentId: document.id,
+    contentHash: computeContentHash(document.content),
+  };
 }
 
 @Injectable()
@@ -47,18 +70,20 @@ export class ConsentsService {
     acceptedAt: Date,
   ): Promise<void> {
     const recordedAt = new Date(acceptedAt);
-    const versions = await this.legalDocuments.currentVersions();
+    const documents = await this.legalDocuments.currentDocuments();
     await Promise.all(
-      INITIAL_CONSENT_TYPES.map((type) =>
-        this.insertConsent(manager, {
+      INITIAL_CONSENT_TYPES.map((type) => {
+        const document = documents[type as LegalDocumentType];
+        return this.insertConsent(manager, {
           userId,
           type,
-          documentVersion: versions[type as LegalDocumentType],
+          documentVersion: document.version,
+          ...referenceTo(document),
           action: 'granted',
           source: 'registration',
           recordedAt,
-        }),
-      ),
+        });
+      }),
     );
   }
 
@@ -117,6 +142,8 @@ export class ConsentsService {
             userId,
             type,
             documentVersion: latest.documentVersion,
+            documentId: latest.documentId,
+            contentHash: latest.contentHash,
             action: 'revoked',
             source: 'account_deletion',
             recordedAt,
@@ -126,24 +153,32 @@ export class ConsentsService {
     );
   }
 
-  // Los documentos cuya versión vigente aún no ha aceptado (p. ej. tras
-  // publicar una nueva): la app pide aceptarlos antes de seguir
+  // Los documentos que tiene que aceptar antes de seguir: aquellos cuyo
+  // último cambio importante aún no ha aceptado (tras uno menor no se pide
+  // nada). Se acepta siempre la versión vigente
   async pendingDocuments(
     userId: string,
   ): Promise<{ type: LegalDocumentType; version: string }[]> {
-    const [{ current }, versions] = await Promise.all([
-      this.getMyConsents(userId),
-      this.legalDocuments.currentVersions(),
-    ]);
+    const [{ current }, documents, termsRequired, privacyRequired] =
+      await Promise.all([
+        this.getMyConsents(userId),
+        this.legalDocuments.currentDocuments(),
+        this.legalDocuments.requiredVersion('terms'),
+        this.legalDocuments.requiredVersion('privacy'),
+      ]);
+    const required = { terms: termsRequired, privacy: privacyRequired };
     return INITIAL_CONSENT_TYPES.flatMap((type) => {
       const documentType = type as LegalDocumentType;
       const accepted = current[type];
       const isAccepted =
         accepted?.action === 'granted' &&
-        accepted.documentVersion === versions[documentType];
+        compareLegalVersions(
+          accepted.documentVersion,
+          required[documentType],
+        ) >= 0;
       return isAccepted
         ? []
-        : [{ type: documentType, version: versions[documentType] }];
+        : [{ type: documentType, version: documents[documentType].version }];
     });
   }
 
@@ -177,6 +212,7 @@ export class ConsentsService {
         userId,
         type,
         documentVersion: version,
+        ...referenceTo(current),
         action: 'granted',
         source: 'document_update',
         recordedAt: new Date(),
@@ -221,6 +257,8 @@ export class ConsentsService {
         source: input.source,
         recordedAt: input.recordedAt,
         fingerprint,
+        documentId: input.documentId ?? null,
+        contentHash: input.contentHash ?? null,
       }),
     );
     await this.eventsService.record(manager, {

@@ -49,4 +49,12 @@ export class UserConsent {
 
   @Column({ type: 'varchar', length: 64 })
   fingerprint!: string;
+
+  // Las condiciones y la política: la versión exacta aceptada (o retirada) y
+  // el hash SHA-256 de su texto. null en la ubicación
+  @Column({ name: 'document_id', type: 'uuid', nullable: true })
+  documentId!: string | null;
+
+  @Column({ name: 'content_hash', type: 'varchar', length: 64, nullable: true })
+  contentHash!: string | null;
 }

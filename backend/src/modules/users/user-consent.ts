@@ -50,6 +50,12 @@ export interface UserConsentsView {
   history: UserConsentRecord[];
 }
 
+// Hash SHA-256 del texto de un documento legal tal como se aceptó (el mismo
+// que calcula la migración AddLegalDocumentVersioning en PostgreSQL)
+export function computeContentHash(content: string): string {
+  return createHash('sha256').update(content, 'utf8').digest('hex');
+}
+
 // Huella SHA-256 de user_id|type|document_version|action|recorded_at (en UTC
 // ISO 8601 con milisegundos, idéntica a la de la migración en PostgreSQL)
 export function computeConsentFingerprint(
