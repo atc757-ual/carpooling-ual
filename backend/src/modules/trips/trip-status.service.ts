@@ -172,6 +172,13 @@ export class TripStatusService {
         maxDetourMin: trip.maxDetourMin,
         status: trip.status,
         startedAt: trip.startedAt?.toISOString() ?? null,
+        // v2 de trip.started: las versiones de las declaraciones que confirmó
+        ...(type === 'trip.started'
+          ? {
+              driverDeclarationVersion: trip.driverDeclarationVersion ?? null,
+              vehicleDeclarationVersion: trip.vehicleDeclarationVersion ?? null,
+            }
+          : {}),
         // v2 de trip.finished: cuándo y a cuántos metros del destino
         ...(type === 'trip.finished'
           ? {

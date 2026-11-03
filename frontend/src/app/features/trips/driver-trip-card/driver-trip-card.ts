@@ -10,7 +10,14 @@ import {
   signal,
 } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
-import { IonButton, IonCard, IonCardContent, IonIcon, IonSpinner } from '@ionic/angular';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonIcon,
+  IonSpinner,
+  ModalController,
+} from '@ionic/angular';
 import { Router, RouterLink } from '@angular/router';
 import { locationOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
@@ -27,6 +34,7 @@ import { formatDateLabel } from '../../../shared/components/ui/datetime-field/da
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatTime } from '../../matching/trip-results';
 import { finishTrip } from '../finish-trip.util';
+import { withDeclarations } from '../with-declarations';
 
 // El estado en texto (guía, «Estados»: nunca solo con color)
 const TRIP_STATUS_LABELS: Record<TripStatus, string> = {
@@ -81,6 +89,7 @@ export class DriverTripCard {
   private readonly tracking = inject(DriverTrackingService);
   private readonly location = inject(LocationService);
   private readonly router = inject(Router);
+  private readonly modalController = inject(ModalController);
 
   readonly trip = input.required<DriverTrip>();
   readonly changed = output<void>();
@@ -190,7 +199,12 @@ export class DriverTripCard {
     }
     this.isChangingStatus.set(true);
     try {
-      await this.driver.startTrip(trip.id);
+      // Si a una declaración le toca renovarse (cada año), se acepta antes
+      await withDeclarations(
+        { driver: this.driver, modalController: this.modalController },
+        trip.vehicleId,
+        () => this.driver.startTrip(trip.id),
+      );
       this.tracking.start(trip.id);
       void this.toast.showSuccess('Viaje iniciado. Tus pasajeros ya ven dónde estás.');
       this.changed.emit();

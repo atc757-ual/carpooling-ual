@@ -63,7 +63,9 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   LEGAL_DOCUMENT_NOT_FOUND: 'No hay ninguna versión publicada de ese documento.',
   LEGAL_DRAFT_NOT_FOUND: 'No hay ningún borrador que publicar.',
   VEHICLE_DECLARATION_REQUIRED:
-    'Antes de publicar con este vehículo, acepta su declaración (seguro e ITV).',
+    'Antes de seguir con este vehículo, acepta de nuevo su declaración (seguro e ITV).',
+  DRIVER_DECLARATION_REQUIRED:
+    'Antes de iniciar el viaje, acepta de nuevo tu declaración responsable (permiso de conducir).',
   LEGAL_DOCUMENT_OUTDATED: 'Se ha publicado otra versión mientras leías. Revisa la última.',
   LEGAL_SUMMARY_REQUIRED: 'Escribe «Qué ha cambiado» antes de publicar la versión.',
 };

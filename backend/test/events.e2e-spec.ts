@@ -71,7 +71,8 @@ describe('Events (e2e)', () => {
       (event) => event.sourceEntityId === sourceEntityId,
     );
     expect(read.map(({ id }) => id)).toEqual([...ids, third]);
-    expect(read.every(({ version }) => version === 1)).toBe(true);
+    // trip.started va por su v2 (las versiones de las declaraciones)
+    expect(read.map(({ version }) => version)).toEqual([1, 1, 2]);
     const sequences = read.map(({ sequence }) => sequence);
     expect(sequences).toEqual([...sequences].sort((a, b) => a - b));
     expect(sequences[0]).toBeGreaterThan(before);

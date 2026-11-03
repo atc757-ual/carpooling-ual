@@ -19,7 +19,7 @@ export const EVENT_VERSIONS: Readonly<Record<DomainEventType, number>> = {
   'trip.updated': 1,
   'trip.confirmed': 1,
   'trip.reopened': 1,
-  'trip.started': 1,
+  'trip.started': 2,
   'trip.finished': 2,
   'trip.cancelled': 1,
   'trip.cancelled_late': 1,

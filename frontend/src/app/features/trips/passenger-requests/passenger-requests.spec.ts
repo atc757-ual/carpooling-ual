@@ -17,6 +17,7 @@ function trip(id: string, status: Trip['status']): Trip {
     offeredSeats: 3,
     availableSeats: 1,
     maxDetourMin: 10,
+    vehicleId: 'v1',
     status,
     origin: { type: 'Point', coordinates: [-2.6146, 36.7642] },
     destination: { type: 'Point', coordinates: [-2.4, 36.83] },

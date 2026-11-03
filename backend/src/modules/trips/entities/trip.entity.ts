@@ -82,6 +82,24 @@ export class Trip {
   @Column({ name: 'finish_distance_m', type: 'integer', nullable: true })
   finishDistanceM: number | null;
 
+  // RF-21: las versiones de la declaración del conductor y de la del vehículo
+  // que confirmó al iniciar; null hasta que se inicia
+  @Column({
+    name: 'driver_declaration_version',
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+  })
+  driverDeclarationVersion: string | null;
+
+  @Column({
+    name: 'vehicle_declaration_version',
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+  })
+  vehicleDeclarationVersion: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

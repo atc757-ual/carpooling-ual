@@ -248,7 +248,7 @@ export class TripsController {
   @ApiOperation({
     summary: 'Start a confirmed trip',
     description:
-      'RF-11. Only its driver, from 10 minutes before the departure. The vehicle goes on trip, the pending seat requests are rejected and the accepted passengers are told the driver is on the way.',
+      'RF-11. Only its driver, from 10 minutes before the departure. The vehicle goes on trip, the pending seat requests are rejected and the accepted passengers are told the driver is on the way. RF-21: the driver declaration and the vehicle declaration must be up to date (accepted in the last 12 months and after their last major change); the trip keeps their versions.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: TripResource })
@@ -261,6 +261,8 @@ export class TripsController {
       'TRIP_NOT_STARTABLE_YET',
       'VEHICLE_IN_USE',
       'INVALID_TRIP_TRANSITION',
+      'DRIVER_DECLARATION_REQUIRED',
+      'VEHICLE_DECLARATION_REQUIRED',
     ],
   })
   async start(

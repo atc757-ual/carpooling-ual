@@ -153,10 +153,21 @@ describe('ConsentsService', () => {
 
   // P. ej. la declaración del conductor para poder publicar
   describe('isAccepted', () => {
-    const accepted = (documentVersion: string, action = 'granted') => ({
+    const accepted = (
+      documentVersion: string,
+      action = 'granted',
+      recordedAt = new Date(),
+    ) => ({
+      type: 'driver_declaration',
       documentVersion,
       action,
+      recordedAt,
     });
+    const monthsAgo = (months: number) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - months);
+      return date;
+    };
 
     it('is up to date with the version of the last major change or a later one', async () => {
       legalDocuments.requiredVersion.mockResolvedValue('2.0');
@@ -191,6 +202,48 @@ describe('ConsentsService', () => {
       await expect(
         service.isAccepted('u1', 'driver_declaration'),
       ).resolves.toBe(false);
+    });
+
+    it('renews the declarations once a year, but not the other documents', async () => {
+      legalDocuments.requiredVersion.mockResolvedValue('1.0');
+
+      consentsRepository.findOne.mockResolvedValue(
+        accepted('1.0', 'granted', monthsAgo(11)),
+      );
+      await expect(
+        service.isAccepted('u1', 'driver_declaration'),
+      ).resolves.toBe(true);
+      consentsRepository.findOne.mockResolvedValue(
+        accepted('1.0', 'granted', monthsAgo(13)),
+      );
+      await expect(
+        service.isAccepted('u1', 'driver_declaration'),
+      ).resolves.toBe(false);
+      consentsRepository.findOne.mockResolvedValue({
+        ...accepted('1.0', 'granted', monthsAgo(13)),
+        type: 'terms',
+      });
+      await expect(service.isAccepted('u1', 'terms')).resolves.toBe(true);
+    });
+
+    it('gives the accepted version only while it is up to date', async () => {
+      legalDocuments.requiredVersion.mockResolvedValue('1.0');
+
+      consentsRepository.findOne.mockResolvedValue(accepted('1.1'));
+      await expect(
+        service.acceptedVersion('u1', 'vehicle_declaration', 'v1'),
+      ).resolves.toBe('1.1');
+      expect(consentsRepository.findOne).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { userId: 'u1', type: 'vehicle_declaration', vehicleId: 'v1' },
+        }),
+      );
+      consentsRepository.findOne.mockResolvedValue(
+        accepted('1.1', 'granted', monthsAgo(13)),
+      );
+      await expect(
+        service.acceptedVersion('u1', 'driver_declaration'),
+      ).resolves.toBeNull();
     });
   });
 });
