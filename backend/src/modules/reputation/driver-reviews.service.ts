@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
+import { toShortName } from '../../shared/people/short-name';
 import { UserNotFoundError } from '../users/errors/user-not-found.error';
 import { UsersService } from '../users/users.service';
 import { Review } from './entities/review.entity';
@@ -107,10 +108,4 @@ export function toRatingView(
   );
   const average = count > 0 ? Math.round((sum / count) * 100) / 100 : null;
   return { driverId, average, count, distribution };
-}
-
-// «Carlos Ruiz Gómez» → «Carlos R.»: lo justo para reconocer a quien escribe
-export function toShortName(name: string): string {
-  const [first = '', second] = name.trim().split(/\s+/);
-  return second === undefined ? first : `${first} ${second.charAt(0)}.`;
 }

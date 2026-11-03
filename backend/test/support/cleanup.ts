@@ -3,7 +3,8 @@ import { DataSource } from 'typeorm';
 // Borra los datos de prueba de los usuarios cuyo correo empieza por el
 // prefijo, en el orden que exigen las claves foráneas:
 // 1. Los eventos (la tabla events no tiene claves foráneas: no se borran en
-//    cascada) de esos usuarios, sus viajes, sus solicitudes y sus incidencias
+//    cascada) de esos usuarios, sus viajes, sus solicitudes, sus incidencias
+//    y los mensajes del chat de sus viajes
 // 2. Sus viajes (sus solicitudes e incidencias caen en cascada). Antes que las
 //    solicitudes: una incidencia de pasajero apunta a su solicitud
 // 3. Las solicitudes que hicieron como pasajeros en viajes de otros
@@ -25,6 +26,7 @@ export async function deleteTestUsers(
                WHERE trip_id IN (${testTrips})
                   OR passenger_id IN (${testUsers})
        UNION SELECT id FROM incidents WHERE trip_id IN (${testTrips})
+       UNION SELECT id FROM chat_messages WHERE trip_id IN (${testTrips})
        UNION SELECT id FROM simulation_runs
                WHERE requested_by IN (${testUsers})
      )`,

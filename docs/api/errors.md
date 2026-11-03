@@ -161,6 +161,17 @@ Crear una reseña puede responder además `TRIP_NOT_FOUND` (ver _Viajes_).
 
 Enviar una posición puede responder además `NOT_TRIP_DRIVER` o `TRIP_NOT_IN_PROGRESS` (ver _Viajes_); consultarla, `NOT_TRIP_PASSENGER` a quien no es su conductor ni un pasajero aceptado (ver _Solicitudes de plaza_).
 
+## Chat del viaje (`chat`)
+
+| `code`                    | HTTP | Cuándo                                                                                                       |
+| ------------------------- | ---- | ------------------------------------------------------------------------------------------------------------ |
+| `CHAT_NOT_ALLOWED`        | 403  | Leer o escribir en el chat de un viaje sin ser su conductor ni un pasajero con la solicitud aceptada         |
+| `CHAT_CLOSED`             | 409  | Escribir cuando el chat no admite mensajes: viaje publicado (sin pasajeros), cancelado o terminado hace 24 h |
+| `CHAT_QUICK_REPLIES_ONLY` | 409  | El conductor escribe texto con el viaje en curso: solo puede enviar respuestas rápidas (seguridad vial)      |
+| `CHAT_RATE_LIMITED`       | 429  | Más de 20 mensajes en un minuto                                                                              |
+
+Si el viaje no existe, `TRIP_NOT_FOUND` (ver _Viajes_).
+
 ## Avisos (`notifications`)
 
 | `code`                   | HTTP | Cuándo                                                                                                       |

@@ -40,6 +40,7 @@ export type DomainEventType =
   | 'request.expired'
   | 'request.boarded'
   // Incidencias (RF-23, CU-12)
+  | 'chat_message.sent'
   | 'incident.reported'
   | 'incident.reviewed'
   | 'coverage.gap_reported'

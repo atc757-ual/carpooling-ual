@@ -7846,6 +7846,449 @@
         ]
       }
     },
+    "/api/users/me/conversations": {
+      "get": {
+        "description": "Chats of the trips where I drive or have an accepted seat that accept messages or already have some, newest activity first, with the last message and the unread count. hasUnread=true&limit=1 tells through X-Total-Count whether there is anything new.",
+        "operationId": "ChatController_listConversations",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "hasUnread",
+            "required": false,
+            "in": "query",
+            "description": "Only the conversations with unread messages (true). With true and limit=1, X-Total-Count says whether there is anything new",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List my conversations",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/trips/{id}/messages": {
+      "get": {
+        "description": "Only its driver and accepted passengers. Oldest first; with after, only the newer ones (polling).",
+        "operationId": "ChatController_listMessages",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "after",
+            "required": false,
+            "in": "query",
+            "description": "Only the messages after this one (the last one the client already has)",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatMessageResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: CHAT_NOT_ALLOWED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the messages of a trip chat",
+        "tags": [
+          "chat"
+        ]
+      },
+      "post": {
+        "description": "Text or a quick reply. Open while the trip is confirmed or in progress and up to 24 h after it finishes; while in progress the driver can only send quick replies. At most 20 messages per minute.",
+        "operationId": "ChatController_send",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendChatMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatMessageResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: CHAT_NOT_ALLOWED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: CHAT_CLOSED, CHAT_QUICK_REPLIES_ONLY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TMF630 error: CHAT_RATE_LIMITED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send a message to a trip chat",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/trips/{id}/messages/read": {
+      "put": {
+        "description": "Everything received so far stops counting as unread.",
+        "operationId": "ChatController_markRead",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: CHAT_NOT_ALLOWED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark a trip chat as read",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
     "/api/trips/{tripId}/incidents": {
       "post": {
         "description": "RF-23. If the driver reports it, the trip is cancelled and its accepted passengers get priority (RF-24). If an accepted passenger reports it, only their seat request is cancelled and the trip goes on.",
@@ -10128,6 +10571,7 @@
                 "request.cancelled",
                 "request.expired",
                 "request.boarded",
+                "chat_message.sent",
                 "incident.reported",
                 "incident.reviewed",
                 "coverage.gap_reported",
@@ -14183,6 +14627,216 @@
           "distribution"
         ]
       },
+      "ConversationTripResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "originName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Roquetas de Mar"
+          },
+          "destinationName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Campus UAL · Parking P1 (Sur)"
+          },
+          "departureAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "published",
+              "confirmed",
+              "in_progress",
+              "finished",
+              "cancelled"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "href",
+          "originName",
+          "destinationName",
+          "departureAt",
+          "status"
+        ]
+      },
+      "ChatAuthorResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "First name and the initial of the surname",
+            "example": "Carlos R."
+          },
+          "avatarKey": {
+            "type": "string",
+            "nullable": true,
+            "example": "sun"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "avatarKey"
+        ]
+      },
+      "ChatMessageResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "ChatMessage"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "author": {
+            "$ref": "#/components/schemas/ChatAuthorResource"
+          },
+          "authorRole": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "passenger"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "text",
+              "quick"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "quickReply": {
+            "type": "string",
+            "enum": [
+              "at_pickup",
+              "running_late",
+              "on_my_way",
+              "where_are_you"
+            ],
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "author",
+          "authorRole",
+          "kind",
+          "text",
+          "quickReply",
+          "createdAt"
+        ]
+      },
+      "ConversationResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "Conversation"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The trip id"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/messages"
+          },
+          "trip": {
+            "$ref": "#/components/schemas/ConversationTripResource"
+          },
+          "myRole": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "passenger"
+            ]
+          },
+          "lastMessage": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChatMessageResource"
+              }
+            ]
+          },
+          "unreadCount": {
+            "type": "number",
+            "description": "Messages of the others after my last read",
+            "example": 2
+          },
+          "isOpen": {
+            "type": "boolean",
+            "description": "True while new messages are accepted: trip confirmed or in progress, or finished less than 24 h ago"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "trip",
+          "myRole",
+          "lastMessage",
+          "unreadCount",
+          "isOpen"
+        ]
+      },
+      "SendChatMessageDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Plain text (trimmed). Send it or quickReply, not both",
+            "example": "Estoy en la puerta del portal"
+          },
+          "quickReply": {
+            "type": "string",
+            "enum": [
+              "at_pickup",
+              "running_late",
+              "on_my_way",
+              "where_are_you"
+            ],
+            "description": "A quick reply; the only kind the driver can send while the trip is in progress"
+          }
+        }
+      },
       "ReportIncidentDto": {
         "type": "object",
         "properties": {
@@ -15811,6 +16465,7 @@
               "request.cancelled",
               "request.expired",
               "request.boarded",
+              "chat_message.sent",
               "incident.reported",
               "incident.reviewed",
               "coverage.gap_reported",
@@ -15900,6 +16555,7 @@
               "request.cancelled",
               "request.expired",
               "request.boarded",
+              "chat_message.sent",
               "incident.reported",
               "incident.reviewed",
               "coverage.gap_reported",
