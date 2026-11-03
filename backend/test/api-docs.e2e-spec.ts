@@ -163,6 +163,7 @@ describe('API docs (e2e)', () => {
       '/api/users/{id}/profiles/{profile}',
       '/api/vehicles',
       '/api/vehicles/{id}',
+      '/api/vehicles/{id}/declaration',
     ]);
   });
 

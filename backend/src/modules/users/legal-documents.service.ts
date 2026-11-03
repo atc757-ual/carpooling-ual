@@ -17,6 +17,10 @@ import { LegalDraftNotFoundError } from './errors/legal-draft-not-found.error';
 import { LegalSummaryRequiredError } from './errors/legal-summary-required.error';
 import { sanitizeLegalHtml } from './legal-html';
 
+const SIGNUP_TYPES: ReadonlySet<LegalDocumentType> = new Set(
+  SIGNUP_DOCUMENT_TYPES,
+);
+
 // La versión del borrador: un cambio importante sube la mayor («1.4» → «2.0»)
 // y uno menor, la menor («1.4» → «1.5»)
 export function nextLegalVersion(
@@ -170,11 +174,11 @@ export class LegalDocumentsService {
           adminId,
         },
       });
-      // Solo las condiciones y la política se avisan a todos; la declaración
-      // del conductor se pide en su flujo (al publicar un viaje)
+      // Solo las condiciones y la política se avisan a todos; las
+      // declaraciones se piden en su flujo (al publicar o registrar un coche)
       if (
         published.changeType === 'minor' &&
-        published.type !== 'driver_declaration'
+        SIGNUP_TYPES.has(published.type)
       ) {
         await this.notifyMinorChange(manager, published);
       }

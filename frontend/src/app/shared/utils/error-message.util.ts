@@ -62,6 +62,8 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
     'Tiene viajes publicados o en curso: no se puede cerrar ni mover hasta que terminen.',
   LEGAL_DOCUMENT_NOT_FOUND: 'No hay ninguna versión publicada de ese documento.',
   LEGAL_DRAFT_NOT_FOUND: 'No hay ningún borrador que publicar.',
+  VEHICLE_DECLARATION_REQUIRED:
+    'Antes de publicar con este vehículo, acepta su declaración (seguro e ITV).',
   LEGAL_DOCUMENT_OUTDATED: 'Se ha publicado otra versión mientras leías. Revisa la última.',
   LEGAL_SUMMARY_REQUIRED: 'Escribe «Qué ha cambiado» antes de publicar la versión.',
 };

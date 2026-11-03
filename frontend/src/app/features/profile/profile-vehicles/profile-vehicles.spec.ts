@@ -22,6 +22,7 @@ function vehicle(id: string, status: Vehicle['status'], model: string | null): V
     engine: 'hybrid',
     capacity: 3,
     status,
+    isDeclared: true,
   };
 }
 

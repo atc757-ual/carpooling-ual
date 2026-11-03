@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Patch,
+  Put,
   Post,
   Query,
   Res,
@@ -31,10 +32,12 @@ import {
   setPaginationHeaders,
 } from '../../shared/pagination/paginated';
 import { PaginationQueryDto } from '../../shared/pagination/pagination-query.dto';
+import { AcceptDriverDeclarationDto } from './dto/accept-driver-declaration.dto';
 import { RegisterVehicleDto } from './dto/register-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { toVehicleResource, VehicleResource } from './dto/vehicle.resource';
 import { UserProfilesService } from './user-profiles.service';
+import { Vehicle } from './entities/vehicle.entity';
 import { VehiclesService } from './vehicles.service';
 
 const AUTH_ERRORS = {
@@ -58,7 +61,7 @@ export class VehiclesController {
   @ApiOperation({
     summary: 'Register a vehicle',
     description:
-      'Registers a vehicle of the authenticated user. The first one also activates the driver profile (refresh the access token afterwards to get it). Registering again a plate the driver had deactivated reactivates it.',
+      'Registers a vehicle of the authenticated user with its declaration (compulsory insurance and ITV), recorded with the vehicle. The first one also activates the driver profile (refresh the access token afterwards to get it). Registering again a plate the driver had deactivated reactivates it.',
   })
   @ApiCreatedResponse({
     type: VehicleResource,
@@ -71,6 +74,7 @@ export class VehiclesController {
       'VEHICLE_ALREADY_REGISTERED',
       'VEHICLE_LIMIT_REACHED',
       'PROFILE_DEACTIVATED_BY_ADMIN',
+      'LEGAL_DOCUMENT_OUTDATED',
     ],
   })
   // También para pasajeros: registrar el primer coche es lo que activa el
@@ -85,6 +89,7 @@ export class VehiclesController {
     await this.userProfiles.activateOwnProfile(driver.sub, 'driver');
     const vehicle = toVehicleResource(
       await this.vehiclesService.register(driver.sub, dto),
+      true,
     );
     response.setHeader('Location', vehicle.href);
     return vehicle;
@@ -107,7 +112,13 @@ export class VehiclesController {
       pagination,
     );
     setPaginationHeaders(response, page);
-    return page.items.map(toVehicleResource);
+    const declared = await this.vehiclesService.declaredIds(
+      driver.sub,
+      page.items.map(({ id }) => id),
+    );
+    return page.items.map((vehicle) =>
+      toVehicleResource(vehicle, declared.has(vehicle.id)),
+    );
   }
 
   @Get(':id')
@@ -123,7 +134,37 @@ export class VehiclesController {
     @CurrentUser() driver: AccessTokenPayload,
     @Param('id', uuidParam('id')) id: string,
   ): Promise<VehicleResource> {
-    return toVehicleResource(await this.vehiclesService.getOwn(driver.sub, id));
+    return this.withDeclaration(
+      driver.sub,
+      await this.vehiclesService.getOwn(driver.sub, id),
+    );
+  }
+
+  // RF-21: la declaración del vehículo (seguro e ITV). Tras un cambio
+  // importante de su texto, hay que volver a aceptarla para publicar con él
+  @Put(':id/declaration')
+  @ApiOperation({
+    summary: 'Accept the declaration of one of my vehicles',
+    description:
+      'Accepts the current vehicle declaration (compulsory insurance and ITV) for this vehicle, recorded with its version and the hash of its text. Needed again after a major change of the declaration to publish trips with it. Idempotent.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiOkResponse({ type: VehicleResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.NOT_FOUND]: ['VEHICLE_NOT_FOUND'],
+    [HttpStatus.CONFLICT]: ['LEGAL_DOCUMENT_OUTDATED'],
+  })
+  async declare(
+    @CurrentUser() driver: AccessTokenPayload,
+    @Param('id', uuidParam('id')) id: string,
+    @Body() body: AcceptDriverDeclarationDto,
+  ): Promise<VehicleResource> {
+    return toVehicleResource(
+      await this.vehiclesService.declare(driver.sub, id, body.version),
+      true,
+    );
   }
 
   @Patch(':id')
@@ -145,7 +186,8 @@ export class VehiclesController {
     @Param('id', uuidParam('id')) id: string,
     @Body() changes: UpdateVehicleDto,
   ): Promise<VehicleResource> {
-    return toVehicleResource(
+    return this.withDeclaration(
+      driver.sub,
       await this.vehiclesService.update(driver.sub, id, changes),
     );
   }
@@ -171,5 +213,15 @@ export class VehiclesController {
     @Param('id', uuidParam('id')) id: string,
   ): Promise<void> {
     await this.vehiclesService.deactivate(driver.sub, id);
+  }
+
+  private async withDeclaration(
+    driverId: string,
+    vehicle: Vehicle,
+  ): Promise<VehicleResource> {
+    return toVehicleResource(
+      vehicle,
+      await this.vehiclesService.isDeclared(driverId, vehicle.id),
+    );
   }
 }

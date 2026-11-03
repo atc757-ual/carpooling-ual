@@ -13,6 +13,7 @@ const VEHICLE = {
   engine: 'hybrid',
   capacity: 3,
   status: 'available',
+  isDeclared: true,
 };
 
 function vehicleModal() {
@@ -52,6 +53,14 @@ function stubNewDriver(): void {
     isReady: false,
   });
   cy.intercept('GET', '/api/vehicles', []);
+  cy.intercept('GET', '/api/legal-documents/vehicle_declaration', {
+    type: 'vehicle_declaration',
+    version: '1.0',
+    content: '<p>Seguro e ITV</p>',
+    changeType: 'major',
+    summary: null,
+    publishedAt: '2026-11-03T09:00:00.000Z',
+  });
   cy.intercept('POST', '/api/vehicles', { statusCode: 201, body: VEHICLE }).as('registerVehicle');
   cy.intercept('PUT', '/api/users/me/driver-declaration', { hasLicenseDeclared: true }).as(
     'declare',
@@ -117,6 +126,8 @@ for (const viewport of VIEWPORTS) {
         .find('button[aria-label="Una plaza menos"]', { includeShadowDom: true })
         .click();
       vehicleModal().should('contain', 'Asientos totales del vehículo.');
+      // La declaración del vehículo (seguro e ITV), al registrarlo
+      vehicleModal().find('app-declaration-field ion-checkbox', { includeShadowDom: true }).click();
       vehicleModal()
         .contains('ion-button', 'Registrar vehículo', { includeShadowDom: true })
         .click();
@@ -128,6 +139,7 @@ for (const viewport of VIEWPORTS) {
         plate: '1234BCD',
         plateCountry: 'ES',
         capacity: 3,
+        declarationVersion: '1.0',
       });
       cy.get('app-publish-trip .vehicle-card--selected').should('contain', 'SEAT Ibiza');
       cy.get('app-publish-trip .vehicle-card--selected').should('contain', 'Azul');

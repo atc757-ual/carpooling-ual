@@ -10,6 +10,7 @@ const ACCEPTED: ConsentRecord = {
   source: 'registration',
   recordedAt: '2026-10-21T09:00:00.000Z',
   fingerprint: 'abcdef0123456789'.repeat(4),
+  vehicleId: null,
 };
 
 const current = (version: string): LegalDocumentView => ({

@@ -5,8 +5,19 @@ export const CONSENT_TYPES = [
   'privacy',
   'location',
   'driver_declaration',
+  'vehicle_declaration',
 ] as const;
 export type ConsentType = (typeof CONSENT_TYPES)[number];
+
+// La de cada vehículo va unida a él (vehicle_id) y no tiene un estado único
+// por usuario: no entra en «current»
+export const CURRENT_CONSENT_TYPES = [
+  'terms',
+  'privacy',
+  'location',
+  'driver_declaration',
+] as const satisfies readonly ConsentType[];
+export type CurrentConsentType = (typeof CURRENT_CONSENT_TYPES)[number];
 
 export const CONSENT_ACTIONS = ['granted', 'revoked'] as const;
 export type ConsentAction = (typeof CONSENT_ACTIONS)[number];
@@ -14,7 +25,8 @@ export type ConsentAction = (typeof CONSENT_ACTIONS)[number];
 // location_prompt: la ventana que explica para qué se usa la ubicación;
 // device: el usuario quitó el permiso del sistema y la app lo detectó;
 // document_update: acepta una versión nueva de las condiciones o la política;
-// driver_setup: acepta la declaración responsable del conductor
+// driver_setup: acepta la declaración responsable del conductor;
+// vehicle_setup: acepta la declaración de un vehículo (seguro e ITV)
 export const CONSENT_SOURCES = [
   'registration',
   'settings',
@@ -23,6 +35,7 @@ export const CONSENT_SOURCES = [
   'device',
   'document_update',
   'driver_setup',
+  'vehicle_setup',
 ] as const;
 export type ConsentSource = (typeof CONSENT_SOURCES)[number];
 
@@ -50,10 +63,12 @@ export interface UserConsentRecord {
   source: ConsentSource;
   recordedAt: Date;
   fingerprint: string;
+  // El vehículo de una declaración de vehículo; null en los demás
+  vehicleId: string | null;
 }
 
 export interface UserConsentsView {
-  current: Record<ConsentType, UserConsentRecord | null>;
+  current: Record<CurrentConsentType, UserConsentRecord | null>;
   history: UserConsentRecord[];
 }
 

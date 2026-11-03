@@ -78,6 +78,7 @@ describe('Late cancellations (e2e)', () => {
         model: 'Ibiza',
         color: 'blue',
         engine: 'hybrid',
+        declarationVersion: '1.0',
       })
       .expect(201);
     return { token, vehicleId: (vehicle.body as { id: string }).id };

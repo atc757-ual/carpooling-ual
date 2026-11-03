@@ -21,6 +21,7 @@ function vehicle(id: string, capacity = 3): Vehicle {
     engine: 'hybrid',
     capacity,
     status: 'available',
+    isDeclared: true,
   };
 }
 

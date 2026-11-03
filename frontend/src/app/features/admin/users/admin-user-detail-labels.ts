@@ -42,6 +42,7 @@ const CONSENT_TYPES: Record<string, string> = {
   privacy: 'Política de privacidad',
   location: 'Ubicación',
   driver_declaration: 'Declaración responsable',
+  vehicle_declaration: 'Declaración del vehículo',
 };
 
 export const ROLE_LABELS: Record<'driver' | 'passenger', string> = {

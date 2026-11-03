@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   Length,
+  Matches,
   Max,
   MaxLength,
   Min,
@@ -112,4 +113,13 @@ export class RegisterVehicleDto {
   @ApiProperty({ enum: VEHICLE_ENGINES, example: 'hybrid' })
   @IsIn([...VEHICLE_ENGINES])
   engine!: (typeof VEHICLE_ENGINES)[number];
+
+  // La declaración del vehículo (seguro e ITV) que aceptó al registrarlo
+  @ApiProperty({
+    example: '1.0',
+    description:
+      'Version of the vehicle declaration (compulsory insurance and ITV, GET /api/legal-documents/vehicle_declaration) the driver accepted; it must be the current one (LEGAL_DOCUMENT_OUTDATED otherwise)',
+  })
+  @Matches(/^\d+\.\d+$/)
+  declarationVersion!: string;
 }

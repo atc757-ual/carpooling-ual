@@ -2,12 +2,19 @@
      texto va fuera de la etiqueta de la casilla para que pulsar el enlace no
      la marque -->
 <div class="declaration-field">
-  <ion-checkbox [formControl]="control()" aria-labelledby="declaration-field-label" />
-  <span id="declaration-field-label" class="text-body-s">
-    Declaro haber leído la
-    <button type="button" class="declaration-field__link" (click)="handleRead()">
-      declaración completa</button
-    >, que tengo el permiso de conducir en vigor y que mi vehículo tiene el seguro obligatorio y la
-    ITV al día.
+  <ion-checkbox [formControl]="control()" [attr.aria-labelledby]="labelId()" />
+  <span [id]="labelId()" class="text-body-s">
+    @if (document() === 'vehicle_declaration') {
+      Declaro haber leído la
+      <button type="button" class="declaration-field__link" (click)="handleRead()">
+        declaración del vehículo</button
+      >: tiene el seguro obligatorio en vigor y la ITV al día.
+    } @else {
+      Declaro haber leído la
+      <button type="button" class="declaration-field__link" (click)="handleRead()">
+        declaración completa
+      </button>
+      y que tengo el permiso de conducir en vigor.
+    }
   </span>
 </div>

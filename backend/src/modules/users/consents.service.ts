@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, IsNull, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, IsNull, Repository } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import type {
   LegalDocument,
@@ -18,18 +18,22 @@ import { UserNotFoundError } from './errors/user-not-found.error';
 import {
   computeConsentFingerprint,
   computeContentHash,
-  CONSENT_TYPES,
+  CURRENT_CONSENT_TYPES,
 } from './user-consent';
 import type {
   ConsentAction,
   ConsentSource,
   ConsentType,
+  CurrentConsentType,
   LocationConsentSource,
   UserConsentRecord,
   UserConsentsView,
 } from './user-consent';
 
-const INITIAL_CONSENT_TYPES: readonly ConsentType[] = ['terms', 'privacy'];
+const INITIAL_CONSENT_TYPES: readonly CurrentConsentType[] = [
+  'terms',
+  'privacy',
+];
 
 // La versión exacta de las condiciones o la política y el hash de su texto
 interface DocumentReference {
@@ -39,6 +43,7 @@ interface DocumentReference {
 
 interface InsertConsentInput extends Partial<DocumentReference> {
   userId: string;
+  vehicleId?: string | null;
   type: ConsentType;
   documentVersion: string;
   action: ConsentAction;
@@ -51,7 +56,12 @@ interface InsertConsentInput extends Partial<DocumentReference> {
 export interface DocumentAcceptance {
   type: LegalDocumentType;
   version?: string;
-  source?: Extract<ConsentSource, 'document_update' | 'driver_setup'>;
+  source?: Extract<
+    ConsentSource,
+    'document_update' | 'driver_setup' | 'vehicle_setup'
+  >;
+  // La declaración de un vehículo va unida a él
+  vehicleId?: string;
 }
 
 function referenceTo(document: LegalDocument): DocumentReference {
@@ -141,7 +151,8 @@ export class ConsentsService {
     recordedAt = new Date(),
   ): Promise<void> {
     await Promise.all(
-      CONSENT_TYPES.map(async (type) => {
+      // Las de cada vehículo no: van con el vehículo, que deja de usarse
+      CURRENT_CONSENT_TYPES.map(async (type) => {
         const latest = await manager.findOne(UserConsent, {
           where: { userId, type },
           order: { recordedAt: 'DESC', id: 'DESC' },
@@ -192,14 +203,14 @@ export class ConsentsService {
   }
 
   // Acepta la versión vigente de un documento: una versión nueva de las
-  // condiciones o la política (document_update) o la declaración del
-  // conductor (driver_setup). Si se indica otra versión que la vigente,
+  // condiciones o la política (document_update), la declaración del
+  // conductor (driver_setup) o la de un vehículo (vehicle_setup). Si se indica otra versión que la vigente,
   // LegalDocumentOutdatedError; aceptarla otra vez no cambia nada
   async acceptDocument(
     userId: string,
     acceptance: DocumentAcceptance,
   ): Promise<void> {
-    const { type, source = 'document_update' } = acceptance;
+    const { type, vehicleId, source = 'document_update' } = acceptance;
     const current = await this.legalDocuments.getCurrent(type);
     const version = acceptance.version ?? current.version;
     if (current.version !== version) {
@@ -214,7 +225,7 @@ export class ConsentsService {
         throw new UserNotFoundError(userId);
       }
       const latest = await manager.findOne(UserConsent, {
-        where: { userId, type },
+        where: { userId, type, ...(vehicleId ? { vehicleId } : {}) },
         order: { recordedAt: 'DESC', id: 'DESC' },
       });
       if (latest?.action === 'granted' && latest.documentVersion === version) {
@@ -223,6 +234,7 @@ export class ConsentsService {
       await this.insertConsent(manager, {
         userId,
         type,
+        vehicleId: vehicleId ?? null,
         documentVersion: version,
         ...referenceTo(current),
         action: 'granted',
@@ -243,9 +255,39 @@ export class ConsentsService {
       }),
       this.legalDocuments.requiredVersion(type),
     ]);
-    return (
-      latest?.action === 'granted' &&
-      compareLegalVersions(latest.documentVersion, required) >= 0
+    return isUpToDate(latest, required);
+  }
+
+  // De esos vehículos suyos, los que tienen la declaración al día (una sola
+  // consulta para toda la lista)
+  async acceptedVehicleIds(
+    userId: string,
+    vehicleIds: readonly string[],
+  ): Promise<Set<string>> {
+    if (vehicleIds.length === 0) {
+      return new Set();
+    }
+    const [rows, required] = await Promise.all([
+      this.consentsRepository.find({
+        where: {
+          userId,
+          type: 'vehicle_declaration',
+          vehicleId: In([...vehicleIds]),
+        },
+        order: { recordedAt: 'DESC', id: 'DESC' },
+      }),
+      this.legalDocuments.requiredVersion('vehicle_declaration'),
+    ]);
+    const latest = new Map<string, UserConsent>();
+    for (const row of rows) {
+      if (row.vehicleId !== null && !latest.has(row.vehicleId)) {
+        latest.set(row.vehicleId, row);
+      }
+    }
+    return new Set(
+      [...latest]
+        .filter(([, consent]) => isUpToDate(consent, required))
+        .map(([vehicleId]) => vehicleId),
     );
   }
 
@@ -261,13 +303,13 @@ export class ConsentsService {
       order: { recordedAt: 'DESC', id: 'DESC' },
     });
     const history = rows.map(toConsentRecord);
-    const current: Record<ConsentType, UserConsentRecord | null> = {
+    const current: Record<CurrentConsentType, UserConsentRecord | null> = {
       terms: null,
       privacy: null,
       location: null,
       driver_declaration: null,
     };
-    for (const type of CONSENT_TYPES) {
+    for (const type of CURRENT_CONSENT_TYPES) {
       current[type] = history.find((item) => item.type === type) ?? null;
     }
     return { current, history };
@@ -281,6 +323,7 @@ export class ConsentsService {
     const saved = await manager.save(
       manager.create(UserConsent, {
         userId: input.userId,
+        vehicleId: input.vehicleId ?? null,
         type: input.type,
         documentVersion: input.documentVersion,
         action: input.action,
@@ -300,6 +343,7 @@ export class ConsentsService {
         documentVersion: saved.documentVersion,
         source: saved.source,
         fingerprint: saved.fingerprint,
+        vehicleId: saved.vehicleId,
       },
     });
     return saved;
@@ -315,5 +359,14 @@ function toConsentRecord(entity: UserConsent): UserConsentRecord {
     source: entity.source,
     recordedAt: entity.recordedAt,
     fingerprint: entity.fingerprint,
+    vehicleId: entity.vehicleId,
   };
+}
+
+// Concedida y no anterior a la versión del último cambio importante
+function isUpToDate(consent: UserConsent | null, required: string): boolean {
+  return (
+    consent?.action === 'granted' &&
+    compareLegalVersions(consent.documentVersion, required) >= 0
+  );
 }

@@ -15,7 +15,17 @@ import {
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
 import { formatDateTime } from '../../users/admin-user-detail-labels';
 
-const DOCUMENT_TYPES: readonly LegalDocumentType[] = ['terms', 'privacy', 'driver_declaration'];
+const DOCUMENT_TYPES: readonly LegalDocumentType[] = [
+  'terms',
+  'privacy',
+  'driver_declaration',
+  'vehicle_declaration',
+];
+// Las declaraciones del conductor y de sus vehículos: se aceptan al publicar
+const DECLARATION_TYPES: ReadonlySet<LegalDocumentType> = new Set([
+  'driver_declaration',
+  'vehicle_declaration',
+]);
 
 export const CHANGE_TYPES: readonly { value: LegalChangeType; label: string; note: string }[] = [
   {
@@ -177,11 +187,11 @@ export class LegalDocumentsEditor {
 // publicar viajes; los menores de las condiciones y la política se avisan
 export function publishMessage(type: LegalDocumentType, changeType: LegalChangeType): string {
   if (changeType === 'major') {
-    return type === 'driver_declaration'
+    return DECLARATION_TYPES.has(type)
       ? 'Es un cambio importante: pasará a ser la vigente y cada conductor tendrá que leerla y aceptarla antes de publicar su próximo viaje.'
       : 'Es un cambio importante: pasará a ser la vigente y cada usuario tendrá que leerla y aceptarla para seguir usando la app.';
   }
-  return type === 'driver_declaration'
+  return DECLARATION_TYPES.has(type)
     ? 'Es un cambio menor: pasará a ser la vigente y nadie tendrá que aceptarla.'
     : 'Es un cambio menor: pasará a ser la vigente, nadie tendrá que aceptarla y se avisará a cada usuario en Avisos.';
 }

@@ -7,6 +7,9 @@ import { VehicleInUseError } from './errors/vehicle-in-use.error';
 import { VehicleNotFoundError } from './errors/vehicle-not-found.error';
 import { VehicleColorsService } from '../catalogs/vehicle-colors.service';
 import { VehiclesService } from './vehicles.service';
+import { ConsentsService } from './consents.service';
+import { LegalDocumentsService } from './legal-documents.service';
+import { LegalDocumentOutdatedError } from './errors/legal-document-outdated.error';
 
 // Tests unitarios de lo que no se puede provocar fácilmente contra la base de
 // datos real (dos registros simultáneos). El resto, en
@@ -21,6 +24,11 @@ describe('VehiclesService', () => {
     save: jest.fn(),
   };
   const isOffered = jest.fn();
+  const consents = {
+    acceptDocument: jest.fn(),
+    acceptedVehicleIds: jest.fn(),
+  };
+  const legalDocuments = { getCurrent: jest.fn() };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -28,11 +36,15 @@ describe('VehiclesService', () => {
     vehiclesRepository.findBy.mockResolvedValue([]);
     vehiclesRepository.countBy.mockResolvedValue(0);
     isOffered.mockResolvedValue(true);
+    consents.acceptDocument.mockResolvedValue(undefined);
+    legalDocuments.getCurrent.mockResolvedValue({ version: '1.0' });
     const moduleRef = await Test.createTestingModule({
       providers: [
         VehiclesService,
         { provide: getRepositoryToken(Vehicle), useValue: vehiclesRepository },
         { provide: VehicleColorsService, useValue: { isOffered } },
+        { provide: ConsentsService, useValue: consents },
+        { provide: LegalDocumentsService, useValue: legalDocuments },
       ],
     }).compile();
     vehiclesService = moduleRef.get(VehiclesService);
@@ -145,6 +157,55 @@ describe('VehiclesService', () => {
       color: 'blue',
       engine: 'hybrid',
     });
+  });
+
+  it('records the declaration of the vehicle it registers, and not with an old version', async () => {
+    vehiclesRepository.save.mockImplementation((vehicle: Vehicle) =>
+      Promise.resolve({ ...vehicle, id: 'v9' }),
+    );
+    const input = {
+      plate: '9002BCD',
+      capacity: 4,
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'blue',
+      engine: 'hybrid' as const,
+    };
+
+    await vehiclesService.register('driver-1', {
+      ...input,
+      declarationVersion: '1.0',
+    });
+    expect(consents.acceptDocument).toHaveBeenCalledWith('driver-1', {
+      type: 'vehicle_declaration',
+      version: '1.0',
+      source: 'vehicle_setup',
+      vehicleId: 'v9',
+    });
+
+    vehiclesRepository.save.mockClear();
+    await expect(
+      vehiclesService.register('driver-1', {
+        ...input,
+        declarationVersion: '0.9',
+      }),
+    ).rejects.toBeInstanceOf(LegalDocumentOutdatedError);
+    expect(vehiclesRepository.save).not.toHaveBeenCalled();
+  });
+
+  it('tells whether each vehicle has its declaration up to date', async () => {
+    consents.acceptedVehicleIds.mockResolvedValue(new Set(['v1']));
+
+    await expect(vehiclesService.isDeclared('driver-1', 'v1')).resolves.toBe(
+      true,
+    );
+    consents.acceptedVehicleIds.mockResolvedValue(new Set());
+    await expect(vehiclesService.isDeclared('driver-1', 'v2')).resolves.toBe(
+      false,
+    );
+    expect(consents.acceptedVehicleIds).toHaveBeenLastCalledWith('driver-1', [
+      'v2',
+    ]);
   });
 
   it('returns recognition details for a list of vehicle ids', async () => {

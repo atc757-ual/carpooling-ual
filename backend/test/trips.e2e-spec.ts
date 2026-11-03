@@ -80,6 +80,7 @@ describe('Trips API (e2e)', () => {
         model: 'Ibiza',
         color: 'blue',
         engine: 'hybrid',
+        declarationVersion: '1.0',
       })
       .expect(201);
     return { token, vehicleId: (vehicle.body as { id: string }).id };
@@ -162,6 +163,38 @@ describe('Trips API (e2e)', () => {
         .expect(403);
 
       expect(response.body).toMatchObject({ code: 'DRIVER_NOT_READY' });
+    });
+
+    // RF-21: sin la declaración del vehículo al día (aquí, como si hubiera
+    // cambiado de forma importante: se borra su aceptación) no se publica
+    // con él hasta aceptarla otra vez
+    it('publishes only with a vehicle whose declaration is up to date', async () => {
+      const { token, vehicleId } = await readyDriver('ana');
+      await dataSource.query(
+        'DELETE FROM user_consents WHERE vehicle_id = $1',
+        [vehicleId],
+      );
+
+      const blocked = await api('post', '/trips', token)
+        .send(tripBody(vehicleId))
+        .expect(409);
+      expect((blocked.body as { code: string }).code).toBe(
+        'VEHICLE_DECLARATION_REQUIRED',
+      );
+      const listed = await api('get', '/vehicles', token).expect(200);
+      expect(listed.body).toEqual([
+        expect.objectContaining({ id: vehicleId, isDeclared: false }),
+      ]);
+
+      const declared = await api(
+        'put',
+        `/vehicles/${vehicleId}/declaration`,
+        token,
+      )
+        .send({ version: '1.0' })
+        .expect(200);
+      expect(declared.body).toMatchObject({ id: vehicleId, isDeclared: true });
+      await api('post', '/trips', token).send(tripBody(vehicleId)).expect(201);
     });
 
     it('validates GeoJSON points, the date and the seats', async () => {

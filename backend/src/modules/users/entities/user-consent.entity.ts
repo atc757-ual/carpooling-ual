@@ -57,4 +57,9 @@ export class UserConsent {
 
   @Column({ name: 'content_hash', type: 'varchar', length: 64, nullable: true })
   contentHash!: string | null;
+
+  // El vehículo de una declaración de vehículo (seguro e ITV); null en los
+  // demás (lo exige un CHECK de la base de datos)
+  @Column({ name: 'vehicle_id', type: 'uuid', nullable: true })
+  vehicleId!: string | null;
 }

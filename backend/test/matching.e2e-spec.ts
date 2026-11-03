@@ -61,6 +61,7 @@ describe('Matching API (e2e)', () => {
         model: 'Yaris',
         color: 'red',
         engine: 'hybrid',
+        declarationVersion: '1.0',
       })
       .expect(201);
     vehicleId = (vehicle.body as { id: string }).id;
