@@ -1,4 +1,5 @@
-import { toRatingView, toShortName } from './driver-reviews.service';
+import { toShortName } from '../../shared/people/short-name';
+import { toRatingView } from './driver-reviews.service';
 
 describe('toShortName', () => {
   it.each([
