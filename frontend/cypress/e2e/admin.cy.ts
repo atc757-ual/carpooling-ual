@@ -168,7 +168,9 @@ for (const viewport of VIEWPORTS) {
 
       cy.contains('.legal-editor__change ion-segment-button', 'Cambio importante').click();
       cy.contains('Saldrá como la versión 2.0');
-      cy.get('.legal-editor__change ion-textarea textarea').type('Nuevas normas.', { force: true });
+      cy.get('.legal-editor__change ion-textarea textarea')
+        .should('be.visible')
+        .type('Nuevas normas.');
       cy.contains('ion-button', 'Publicar').should('not.have.attr', 'disabled');
       cy.contains('ion-button', 'Guardar borrador').click();
       cy.wait('@save').its('request.body').should('deep.equal', {
