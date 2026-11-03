@@ -57,6 +57,13 @@ export class ChatService {
     return this.call(this.http.post<ChatMessage>(this.messagesUrl(tripId), input));
   }
 
+  // Denuncia el mensaje de otro: llega al administrador como incidencia
+  async reportMessage(tripId: string, messageId: string, reason: string): Promise<void> {
+    await this.call(
+      this.http.post<unknown>(`${this.messagesUrl(tripId)}/${messageId}/report`, { reason }),
+    );
+  }
+
   async markRead(tripId: string): Promise<void> {
     await this.call(this.http.put<void>(`${this.messagesUrl(tripId)}/read`, null));
     void this.refreshUnread();

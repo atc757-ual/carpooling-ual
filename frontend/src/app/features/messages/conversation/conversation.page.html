@@ -39,7 +39,19 @@
             <span class="bubble__text" [class.bubble__text--quick]="message.kind === 'quick'">{{
               text(message)
             }}</span>
-            <span class="bubble__time text-caption">{{ time(message.createdAt) }}</span>
+            <span class="bubble__footer">
+              <span class="bubble__time text-caption">{{ time(message.createdAt) }}</span>
+              @if (!isMine(message) && !reportedIds().has(message.id)) {
+                <button
+                  type="button"
+                  class="bubble__report"
+                  [attr.aria-label]="'Denunciar el mensaje de ' + message.author.name"
+                  (click)="handleReport(message)"
+                >
+                  <ion-icon [icon]="reportIcon" aria-hidden="true" />
+                </button>
+              }
+            </span>
           </li>
         }
       </ol>

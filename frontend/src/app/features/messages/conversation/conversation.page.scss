@@ -67,9 +67,39 @@
   font-style: italic;
 }
 
+// La hora a la derecha y, en los de los demás, la bandera de denunciar
+.bubble__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-xs);
+}
+
 .bubble__time {
-  align-self: flex-end;
   color: var(--color-text-muted);
+}
+
+// Discreta (gris, sin borde) pero con área de toque de 44px
+.bubble__report {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem; // 44px
+  min-height: 2.75rem;
+  margin: calc(-1 * var(--space-s)) calc(-1 * var(--space-s)) calc(-1 * var(--space-s)) 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-danger);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-l) solid var(--color-focus);
+  }
 }
 
 // Abajo, fijo: las respuestas rápidas y la caja de texto
