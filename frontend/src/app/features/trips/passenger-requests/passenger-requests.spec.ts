@@ -84,17 +84,32 @@ describe('PassengerRequests', () => {
     vi.spyOn(TestBed.inject(ConfirmService), 'ask').mockResolvedValue(role === 'destructive');
   }
 
-  it('shows each request with its trip, upcoming first', async () => {
+  it('shows the requests of the tab, each with its trip', async () => {
     const root = await render(
-      [request('r1', 't1', 'accepted'), request('r2', 't2', 'pending')],
-      [trip('t1', 'confirmed'), trip('t2', 'finished')],
+      [
+        request('r1', 't1', 'accepted'),
+        request('r2', 't2', 'accepted'),
+        { ...request('r3', 't3', 'cancelled'), rejectionReason: 'no_show' },
+      ],
+      [trip('t1', 'confirmed'), trip('t2', 'finished'), trip('t3', 'finished')],
     );
+    const ids = (): string[] =>
+      fixture.componentInstance.tabItems().map(({ request }) => request.id);
 
-    expect(fixture.componentInstance.upcoming().map(({ request }) => request.id)).toEqual(['r1']);
-    expect(fixture.componentInstance.past().map(({ request }) => request.id)).toEqual(['r2']);
+    expect(ids()).toEqual(['r1']);
     expect(root.textContent).toContain('Roquetas de Mar → Campus UAL · Parking P1 (Sur)');
     expect(root.textContent).toContain('Conduce Lucía Cortés · 2 plazas · Matrícula 1234BCD');
     expect(root.textContent).toContain('Confirmada');
+
+    fixture.componentRef.setInput('tab', 'past');
+    fixture.detectChanges();
+    expect(ids()).toEqual(['r2']);
+    expect(root.textContent).toContain('Realizado');
+
+    fixture.componentRef.setInput('tab', 'cancelled');
+    fixture.detectChanges();
+    expect(ids()).toEqual(['r3']);
+    expect(root.textContent).toContain('No te presentaste');
   });
 
   it('lets cancel only active requests of trips that have not started', async () => {
@@ -102,7 +117,7 @@ describe('PassengerRequests', () => {
       [request('r1', 't1', 'pending'), request('r2', 't2', 'accepted')],
       [trip('t1', 'published'), trip('t2', 'in_progress')],
     );
-    const [first, second] = fixture.componentInstance.upcoming();
+    const [first, second] = fixture.componentInstance.tabItems();
 
     expect(fixture.componentInstance['canCancel'](first)).toBe(true);
     expect(fixture.componentInstance['canCancel'](second)).toBe(false);
@@ -110,7 +125,7 @@ describe('PassengerRequests', () => {
 
   it('cancels after confirming it and reloads', async () => {
     await render([request('r1', 't1', 'pending')], [trip('t1', 'published')]);
-    const [item] = fixture.componentInstance.upcoming();
+    const [item] = fixture.componentInstance.tabItems();
 
     confirmWith('cancel');
     await fixture.componentInstance.handleCancel(item);
@@ -128,16 +143,17 @@ describe('PassengerRequests', () => {
     requests['cancel'].mockRejectedValue(new Error('down'));
     confirmWith('destructive');
 
-    await fixture.componentInstance.handleCancel(fixture.componentInstance.upcoming()[0]);
+    await fixture.componentInstance.handleCancel(fixture.componentInstance.tabItems()[0]);
 
     expect(showError).toHaveBeenCalled();
     expect(fixture.componentInstance.cancelling()).toBeNull();
   });
 
-  it('invites to search when there are no requests', async () => {
+  it('invites to search when there are no upcoming requests', async () => {
     const root = await render([], []);
 
-    expect(root.textContent).toContain('Aún no has pedido plaza en ningún viaje');
+    expect(root.textContent).toContain('No tienes viajes programados');
+    expect(root.textContent).toContain('Buscar viaje');
   });
 
   it('offers to retry when they cannot be loaded', async () => {

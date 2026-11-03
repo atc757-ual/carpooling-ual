@@ -167,6 +167,9 @@ for (const viewport of VIEWPORTS) {
 
       cy.wait('@finish');
       cy.location('pathname').should('eq', '/tabs/trips');
+      // Terminado, pasa a Anteriores
+      cy.contains('app-my-trips', 'No tienes viajes programados');
+      cy.contains('.my-trips__tabs ion-segment-button', 'Anteriores').click();
       cy.contains('app-my-trips', 'Finalizado');
     });
   });

@@ -1,20 +1,10 @@
-// Una columna de tarjetas de hasta 48rem (768px): primero los próximos y
-// después los anteriores, cada grupo con su título
+// Una columna de tarjetas de hasta 48rem (768px): los segmentos y debajo los
+// viajes de la pestaña
 .my-trips {
   align-items: stretch;
   max-width: 48rem; // 768px
 
   ion-card {
-    margin: 0;
-  }
-}
-
-.my-trips__group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-
-  h2 {
     margin: 0;
   }
 }
@@ -48,7 +38,19 @@
   }
 }
 
-// Como pasajero | Como conductor: a todo el ancho de la columna
-.my-trips__view {
+// Como pasajero | Como conductor y Próximos | Anteriores | Cancelados: a todo
+// el ancho de la columna
+// Sin mayúsculas y con poco relleno a los lados, para que los nombres quepan
+// enteros en el móvil (con mayúsculas se cortaban: «ANTERIO…»)
+.my-trips__view,
+.my-trips__tabs {
   width: 100%;
+
+  ion-segment-button {
+    --padding-start: var(--space-xs);
+    --padding-end: var(--space-xs);
+
+    min-width: 0;
+    text-transform: none;
+  }
 }

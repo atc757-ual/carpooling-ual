@@ -76,16 +76,39 @@ describe('MyTripsPage', () => {
     expect(fixture.componentInstance.isDriver()).toBe(true);
   });
 
-  it('splits the trips of the driver into upcoming and past', async () => {
+  it('splits the trips of the driver into upcoming, past and cancelled tabs', async () => {
     const root = await render('driver', () =>
-      Promise.resolve([trip('t1', 'confirmed'), trip('t2', 'finished'), trip('t3', 'cancelled')]),
+      Promise.resolve([
+        trip('t1', 'confirmed'),
+        trip('t2', 'finished'),
+        trip('t3', 'cancelled'),
+        trip('t4', 'finished'),
+      ]),
     );
+    const page = fixture.componentInstance;
+    const ids = (): string[] => page.tabTrips().map(({ id }) => id);
 
-    expect(fixture.componentInstance.upcoming().map(({ id }) => id)).toEqual(['t1']);
-    expect(fixture.componentInstance.past().map(({ id }) => id)).toEqual(['t3', 't2']);
     expect(root.textContent).toContain('Próximos');
-    expect(root.textContent).toContain('Anteriores');
-    expect(root.querySelectorAll('app-driver-trip-card')).toHaveLength(3);
+    expect(ids()).toEqual(['t1']);
+    expect(root.querySelectorAll('app-driver-trip-card')).toHaveLength(1);
+
+    page.handleTabChange('past');
+    expect(ids()).toEqual(['t4', 't2']);
+    page.handleTabChange('cancelled');
+    expect(ids()).toEqual(['t3']);
+    page.handleTabChange('other');
+    expect(page.tab()).toBe('cancelled');
+  });
+
+  it('says what each empty tab is missing', async () => {
+    const root = await render('driver');
+    expect(root.textContent).toContain('No tienes viajes programados');
+    expect(root.textContent).toContain('Publicar viaje');
+
+    fixture.componentInstance.handleTabChange('cancelled');
+    fixture.detectChanges();
+    expect(root.textContent).toContain('No tienes viajes cancelados');
+    expect(root.textContent).not.toContain('Publicar viaje');
   });
 
   it('reloads the trips when coming back to the tab', async () => {
@@ -96,12 +119,6 @@ describe('MyTripsPage', () => {
     await fixture.whenStable();
 
     expect(listMyTrips).toHaveBeenCalledTimes(2);
-  });
-
-  it('invites to publish when there are no trips', async () => {
-    const root = await render('driver');
-
-    expect(root.textContent).toContain('Aún no has publicado ningún viaje');
   });
 
   it('offers to retry when the trips cannot be loaded', async () => {
@@ -120,6 +137,6 @@ describe('MyTripsPage', () => {
     const root = await render('passenger');
 
     expect(listMyTrips).not.toHaveBeenCalled();
-    expect(root.textContent).toContain('Aún no has pedido plaza en ningún viaje');
+    expect(root.textContent).toContain('Busca un viaje que encaje con tu ruta');
   });
 });
