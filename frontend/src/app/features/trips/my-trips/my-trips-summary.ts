@@ -12,10 +12,14 @@ export function formatRoute({
 
 // «3 próximos · 1 en curso», sin las partes a cero
 export function tripsSummary(upcoming: number, inProgress: number): string {
-  const parts = [
-    upcoming > 0 ? `${upcoming} ${upcoming === 1 ? 'próximo' : 'próximos'}` : null,
-    inProgress > 0 ? `${inProgress} en curso` : null,
-  ].filter((part) => part !== null);
+  const parts: string[] = [];
+  if (upcoming > 0) {
+    const noun = upcoming === 1 ? 'próximo' : 'próximos';
+    parts.push(`${upcoming} ${noun}`);
+  }
+  if (inProgress > 0) {
+    parts.push(`${inProgress} en curso`);
+  }
   return parts.length > 0 ? parts.join(' · ') : 'Sin viajes programados';
 }
 

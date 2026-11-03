@@ -43,7 +43,7 @@ export const EVENT_VERSIONS: Readonly<Record<DomainEventType, number>> = {
   'catalog.item_created': 1,
   'catalog.item_updated': 1,
   'catalog.item_deactivated': 1,
-  'legal_document.published': 1,
+  'legal_document.published': 2,
 };
 
 // Todos los tipos, en el orden de la tabla

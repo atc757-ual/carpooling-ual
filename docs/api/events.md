@@ -20,7 +20,7 @@ La plataforma registra cada cambio de estado de sus entidades en la tabla `event
 - La secuencia se asigna **al guardar**, no al confirmar la transacción: dos transacciones simultáneas pueden confirmarse en orden distinto y dejar un hueco momentáneo (la 11 visible antes que la 10). El consumidor no da un hueco por perdido a la primera: vuelve a leer desde antes del hueco pasado un instante y procesa lo que aparezca, descartando por `id` lo ya visto.
 - Al cambiar la forma del `payload` de un tipo, se sube su versión en `event-versions.ts` y se documenta aquí; el consumidor lee cada evento según su `version`.
 
-## Tipos (todos en la versión 1)
+## Tipos (en la versión 1 salvo donde se indica)
 
 El `payload` de cada tipo lo construye el fichero indicado.
 
@@ -67,3 +67,7 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `legal_document.published` | Un administrador publica una versión nueva de las condiciones o de la política | `users/legal-documents.service.ts`    |
 
 Las rutas son relativas a `backend/src/modules/`. Un test (`events-contract.spec.ts`) comprueba que todo tipo de `domain-event-type.ts` tiene versión y aparece en esta tabla.
+
+### Cambios de versión
+
+- `legal_document.published` **v2**: el `payload` añade `changeType` (`major` o `minor`) y `summary` («Qué ha cambiado», el texto que escribe quien publica; no tiene datos personales). La v1 llevaba `type`, `version`, `publishedAt` y `adminId`.

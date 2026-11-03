@@ -5,17 +5,36 @@ import { EventsService } from '../../events/events.service';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import {
   LEGAL_DOCUMENT_TYPES,
+  LegalChangeType,
   LegalDocument,
   LegalDocumentType,
 } from './entities/legal-document.entity';
 import { LegalDocumentNotFoundError } from './errors/legal-document-not-found.error';
 import { LegalDraftNotFoundError } from './errors/legal-draft-not-found.error';
+import { LegalSummaryRequiredError } from './errors/legal-summary-required.error';
 import { sanitizeLegalHtml } from './legal-html';
 
-// «1.4» → «1.5»: cada versión publicada sube el número menor
-export function nextLegalVersion(version: string): string {
+// La versión del borrador: un cambio importante sube la mayor («1.4» → «2.0»)
+// y uno menor, la menor («1.4» → «1.5»)
+export function nextLegalVersion(
+  version: string,
+  changeType: LegalChangeType,
+): string {
   const [major, minor] = version.split('.').map(Number);
-  return `${major}.${minor + 1}`;
+  return changeType === 'major' ? `${major + 1}.0` : `${major}.${minor + 1}`;
+}
+
+// «1.10» va después de «1.9»: se comparan los números, no el texto
+export function compareLegalVersions(a: string, b: string): number {
+  const [aMajor, aMinor] = a.split('.').map(Number);
+  const [bMajor, bMinor] = b.split('.').map(Number);
+  return aMajor - bMajor || aMinor - bMinor;
+}
+
+export interface LegalDraftChanges {
+  content: string;
+  changeType: LegalChangeType;
+  summary: string | null;
 }
 
 // Documentos legales con versiones: la vigente de cada uno (la publicada más
@@ -43,11 +62,24 @@ export class LegalDocumentsService {
   }
 
   // La versión vigente de cada documento (para registrar los consentimientos)
-  async currentVersions(): Promise<Record<LegalDocumentType, string>> {
+  async currentDocuments(): Promise<Record<LegalDocumentType, LegalDocument>> {
     const [terms, privacy] = await Promise.all(
       LEGAL_DOCUMENT_TYPES.map((type) => this.getCurrent(type)),
     );
-    return { terms: terms.version, privacy: privacy.version };
+    return { terms, privacy };
+  }
+
+  // La versión que hay que haber aceptado para usar la app: la última que
+  // cambió de forma importante (los cambios menores solo se avisan)
+  async requiredVersion(type: LegalDocumentType): Promise<string> {
+    const document = await this.documentsRepository.findOne({
+      where: { type, status: 'published', changeType: 'major' },
+      order: { publishedAt: 'DESC' },
+    });
+    if (document === null) {
+      throw new LegalDocumentNotFoundError(type);
+    }
+    return document.version;
   }
 
   // Todas las versiones, con los borradores, la más reciente primero (panel)
@@ -76,35 +108,33 @@ export class LegalDocumentsService {
     return draft;
   }
 
-  // Crea o reemplaza el borrador (con la siguiente versión a la vigente)
+  // Crea o reemplaza el borrador. Su versión sale de la vigente y del tipo de
+  // cambio, así que cambia si se cambia el tipo
   async saveDraft(
     type: LegalDocumentType,
-    html: string,
+    changes: LegalDraftChanges,
   ): Promise<LegalDocument> {
-    const content = sanitizeLegalHtml(html);
+    const content = sanitizeLegalHtml(changes.content);
+    const trimmed = changes.summary?.trim() ?? '';
+    const summary = trimmed === '' ? null : trimmed;
     return this.dataSource.transaction(async (manager) => {
+      const current = await this.getCurrent(type);
+      const version = nextLegalVersion(current.version, changes.changeType);
       const draft = await manager.findOne(LegalDocument, {
         where: { type, status: 'draft' },
         lock: { mode: 'pessimistic_write' },
       });
-      if (draft !== null) {
-        draft.content = content;
-        return manager.save(draft);
-      }
-      const current = await this.getCurrent(type);
       return manager.save(
-        manager.create(LegalDocument, {
-          type,
-          version: nextLegalVersion(current.version),
-          content,
-          status: 'draft',
-        }),
+        Object.assign(
+          draft ?? manager.create(LegalDocument, { type, status: 'draft' }),
+          { content, version, changeType: changes.changeType, summary },
+        ),
       );
     });
   }
 
-  // Publica el borrador: pasa a ser la vigente y quien ya aceptó la anterior
-  // tendrá que aceptarla al entrar
+  // Publica el borrador (con su «Qué ha cambiado»): pasa a ser la vigente. Si
+  // el cambio es importante, cada usuario tendrá que aceptarla al entrar
   async publish(
     adminId: string,
     type: LegalDocumentType,
@@ -117,6 +147,9 @@ export class LegalDocumentsService {
       if (draft === null) {
         throw new LegalDraftNotFoundError(type);
       }
+      if (draft.summary === null) {
+        throw new LegalSummaryRequiredError(type);
+      }
       draft.status = 'published';
       draft.publishedAt = new Date();
       draft.publishedBy = adminId;
@@ -127,6 +160,8 @@ export class LegalDocumentsService {
         payload: {
           type: published.type,
           version: published.version,
+          changeType: published.changeType,
+          summary: published.summary,
           publishedAt: published.publishedAt?.toISOString(),
           adminId,
         },

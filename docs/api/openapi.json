@@ -3068,7 +3068,7 @@
         ]
       },
       "put": {
-        "description": "A new draft takes the next version (1.0 → 1.1). The HTML is sanitized: only headings, paragraphs, lists, bold, italics, line breaks and safe links remain.",
+        "description": "The draft version follows from the current one and the change type: major 1.4 → 2.0, minor 1.4 → 1.5. The HTML is sanitized: only headings, paragraphs, lists, bold, italics, line breaks and safe links remain. Published versions never change.",
         "operationId": "AdminLegalDocumentsController_saveDraft",
         "parameters": [
           {
@@ -3169,7 +3169,7 @@
     },
     "/api/admin/legal-documents/{type}/draft/publish": {
       "post": {
-        "description": "It becomes the current version; every user must accept it the next time they sign in.",
+        "description": "It becomes the current version. After a major change every user must accept it the next time they sign in; after a minor one nothing is asked. The draft needs its summary of what changed.",
         "operationId": "AdminLegalDocumentsController_publish",
         "parameters": [
           {
@@ -3228,6 +3228,16 @@
           },
           "404": {
             "description": "TMF630 error: LEGAL_DRAFT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "TMF630 error: LEGAL_SUMMARY_REQUIRED",
             "content": {
               "application/json": {
                 "schema": {
@@ -11922,6 +11932,20 @@
             "description": "Sanitized HTML: h2, h3, p, ul, ol, li, strong, b, em, i, br and links (http, https or mailto)",
             "example": "<h2>1. Qué es UAL Carpool</h2><p>…</p>"
           },
+          "changeType": {
+            "type": "string",
+            "enum": [
+              "major",
+              "minor"
+            ],
+            "description": "major: users must accept it again; minor: they are only told about it"
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true,
+            "description": "What changed, shown above the document",
+            "example": "Añadimos cómo usamos tu ubicación durante el viaje."
+          },
           "publishedAt": {
             "type": "string",
             "format": "date-time",
@@ -11934,6 +11958,8 @@
           "type",
           "version",
           "content",
+          "changeType",
+          "summary",
           "publishedAt"
         ]
       },
@@ -12012,6 +12038,20 @@
             "description": "Sanitized HTML: h2, h3, p, ul, ol, li, strong, b, em, i, br and links (http, https or mailto)",
             "example": "<h2>1. Qué es UAL Carpool</h2><p>…</p>"
           },
+          "changeType": {
+            "type": "string",
+            "enum": [
+              "major",
+              "minor"
+            ],
+            "description": "major: users must accept it again; minor: they are only told about it"
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true,
+            "description": "What changed, shown above the document",
+            "example": "Añadimos cómo usamos tu ubicación durante el viaje."
+          },
           "publishedAt": {
             "type": "string",
             "format": "date-time",
@@ -12039,6 +12079,8 @@
           "type",
           "version",
           "content",
+          "changeType",
+          "summary",
           "publishedAt",
           "id",
           "status",
@@ -12053,6 +12095,20 @@
             "maxLength": 200000,
             "description": "HTML; it is sanitized before saving",
             "example": "<h2>1. Qué es UAL Carpool</h2><p>…</p>"
+          },
+          "changeType": {
+            "type": "string",
+            "enum": [
+              "major",
+              "minor"
+            ],
+            "default": "minor",
+            "description": "major raises the major version (1.4 → 2.0) and asks every user to accept it again; minor raises the minor one (1.4 → 1.5)"
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "What changed; required to publish"
           }
         },
         "required": [

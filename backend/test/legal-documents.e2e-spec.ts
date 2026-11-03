@@ -52,9 +52,15 @@ describe('Legal documents (e2e)', () => {
     await app.close();
   });
 
+  // Las versiones que crean los tests, con las aceptaciones que apuntan a
+  // ellas (de los usuarios de prueba)
   async function removeTestVersions(): Promise<void> {
     await dataSource.query(
       `DELETE FROM events WHERE source_entity_id IN (
+         SELECT id FROM legal_documents WHERE version <> '1.0')`,
+    );
+    await dataSource.query(
+      `DELETE FROM user_consents WHERE document_id IN (
          SELECT id FROM legal_documents WHERE version <> '1.0')`,
     );
     await dataSource.query(
@@ -122,32 +128,46 @@ describe('Legal documents (e2e)', () => {
       .expect(400);
   });
 
-  it('publishes a sanitized draft that users must accept', async () => {
+  it('publishes a sanitized major change that users must accept', async () => {
     expect((await pending().expect(200)).body).toEqual([]);
 
     const draft = await admin('put', '/terms/draft')
       .send({
         content:
           '<h2 onclick="x()">1. Nuevo</h2><p>Texto<script>alert(1)</script></p><a href="javascript:x">y</a>',
+        changeType: 'major',
       })
       .expect(200);
     expect(draft.body).toMatchObject({
-      version: '1.1',
+      version: '2.0',
       status: 'draft',
+      changeType: 'major',
+      summary: null,
       content: '<h2>1. Nuevo</h2><p>Texto</p><a>y</a>',
     });
-    // El borrador no cambia la vigente
+    // El borrador no cambia la vigente y no se publica sin «Qué ha cambiado»
     await request(app.getHttpServer())
       .get('/api/legal-documents/terms')
       .expect(200)
       .expect(({ body }) => expect((body as Document).version).toBe('1.0'));
+    const noSummary = await admin('post', '/terms/draft/publish').expect(422);
+    expect((noSummary.body as { code: string }).code).toBe(
+      'LEGAL_SUMMARY_REQUIRED',
+    );
 
+    await admin('put', '/terms/draft')
+      .send({
+        content: '<h2>1. Nuevo</h2><p>Texto</p>',
+        changeType: 'major',
+        summary: '  Nuevas normas de convivencia.  ',
+      })
+      .expect(200);
     await admin('post', '/terms/draft/publish').expect(200);
     try {
       expect((await pending().expect(200)).body).toEqual([
         {
           type: 'terms',
-          version: '1.1',
+          version: '2.0',
           href: '/api/legal-documents/terms',
         },
       ]);
@@ -155,11 +175,64 @@ describe('Legal documents (e2e)', () => {
       expect((outdated.body as { code: string }).code).toBe(
         'LEGAL_DOCUMENT_OUTDATED',
       );
-      await accept('1.1').expect(204);
-      await accept('1.1').expect(204);
+      await accept('2.0').expect(204);
+      await accept('2.0').expect(204);
       expect((await pending().expect(200)).body).toEqual([]);
+
+      // La aceptación apunta a la versión exacta y guarda el hash de su texto
+      const [consent] = await dataSource.query<
+        { content_hash: string; version: string; hash: string }[]
+      >(
+        `SELECT c.document_id, c.content_hash, d.version,
+                encode(sha256(convert_to(d.content, 'UTF8')), 'hex') AS hash
+           FROM user_consents c JOIN legal_documents d ON d.id = c.document_id
+          WHERE c.source = 'document_update' AND c.user_id = (
+            SELECT id FROM users WHERE email = $1)`,
+        [`${EMAIL_PREFIX}pia@ual.es`],
+      );
+      expect(consent).toMatchObject({
+        version: '2.0',
+        content_hash: consent.hash,
+      });
+
+      const current = await request(app.getHttpServer())
+        .get('/api/legal-documents/terms')
+        .expect(200);
+      expect(current.body).toMatchObject({
+        version: '2.0',
+        changeType: 'major',
+        summary: 'Nuevas normas de convivencia.',
+      });
     } finally {
       // Lo antes posible: otros tests registran usuarios a la vez
+      await removeTestVersions();
+    }
+  });
+
+  it('asks nothing after a minor change and never edits a published version', async () => {
+    const draft = await admin('put', '/privacy/draft')
+      .send({ content: '<p>Aclaración</p>', summary: 'Una aclaración.' })
+      .expect(200);
+    expect(draft.body).toMatchObject({ version: '1.1', changeType: 'minor' });
+    // Cambiar el tipo cambia el número del borrador
+    await admin('put', '/privacy/draft')
+      .send({ content: '<p>Aclaración</p>', summary: 'x', changeType: 'major' })
+      .expect(200)
+      .expect(({ body }) => expect((body as Document).version).toBe('2.0'));
+    await admin('put', '/privacy/draft')
+      .send({ content: '<p>Aclaración</p>', summary: 'Una aclaración.' })
+      .expect(200);
+
+    const published = await admin('post', '/privacy/draft/publish').expect(200);
+    try {
+      expect((await pending().expect(200)).body).toEqual([]);
+      await expect(
+        dataSource.query(
+          "UPDATE legal_documents SET content = '<p>Otro</p>' WHERE id = $1",
+          [(published.body as { id: string }).id],
+        ),
+      ).rejects.toThrow('A published legal document cannot be changed');
+    } finally {
       await removeTestVersions();
     }
   });
