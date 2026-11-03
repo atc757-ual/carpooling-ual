@@ -5,6 +5,7 @@ import { RequestsModule } from '../requests/requests.module';
 import { TripsModule } from '../trips/trips.module';
 import { UsersModule } from '../users/users.module';
 import { ChatController } from './chat.controller';
+import { ChatRetentionScheduler } from './chat-retention.scheduler';
 import { ChatService } from './chat.service';
 import { ConversationsService } from './conversations.service';
 import { ChatMessage } from './entities/chat-message.entity';
@@ -22,6 +23,6 @@ import { ChatRead } from './entities/chat-read.entity';
     EventsModule,
   ],
   controllers: [ChatController],
-  providers: [ChatService, ConversationsService],
+  providers: [ChatService, ConversationsService, ChatRetentionScheduler],
 })
 export class ChatModule {}

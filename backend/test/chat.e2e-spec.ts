@@ -5,6 +5,7 @@ import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { ChatRetentionScheduler } from '../src/modules/chat/chat-retention.scheduler';
 import { RequestsService } from '../src/modules/requests/requests.service';
 import { TripsService } from '../src/modules/trips/trips.service';
 import { UsersService } from '../src/modules/users/users.service';
@@ -295,6 +296,37 @@ describe('Chat API (e2e)', () => {
       .send({ text: 'Uno más' })
       .expect(429);
     expect(limited.body).toMatchObject({ code: 'CHAT_RATE_LIMITED' });
+  });
+
+  it('deletes the messages 30 days after the trip finishes', async () => {
+    const { tripId, dan, pia } = await confirmedTrip();
+    await api('post', `/trips/${tripId}/messages`, pia)
+      .send({ text: 'Gracias por el viaje' })
+      .expect(201);
+    await api('put', `/trips/${tripId}/messages/read`, dan).expect(204);
+    await setDepartureIn(dataSource, tripId, 5);
+    const trips = app.get(TripsService);
+    await trips.start(dan.id, tripId);
+    await trips.finish(dan.id, tripId);
+    const retention = app.get(ChatRetentionScheduler);
+
+    // Recién terminado: se conservan
+    await expect(retention.purgeExpired()).resolves.toBe(0);
+
+    await dataSource.query(
+      `UPDATE trips SET finished_at = now() - interval '31 days' WHERE id = $1`,
+      [tripId],
+    );
+    await expect(retention.purgeExpired()).resolves.toBe(1);
+
+    const [counts] = await dataSource.query<
+      { messages: number; reads: number }[]
+    >(
+      `SELECT (SELECT COUNT(*)::int FROM chat_messages WHERE trip_id = $1) AS messages,
+              (SELECT COUNT(*)::int FROM chat_reads WHERE trip_id = $1) AS reads`,
+      [tripId],
+    );
+    expect(counts).toEqual({ messages: 0, reads: 0 });
   });
 
   it('records chat_message.sent without the text', async () => {
