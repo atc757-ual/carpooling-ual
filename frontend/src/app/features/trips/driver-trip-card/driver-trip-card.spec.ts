@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { DriverTrip } from '../../../core/models/driver.model';
@@ -212,6 +213,20 @@ describe('DriverTripCard', () => {
       );
       expect(setConsent).toHaveBeenCalledWith('granted', 'location_prompt');
       expect(driver['startTrip']).toHaveBeenCalledWith('t1');
+    });
+
+    it('says in the app that it keeps sharing with the screen locked', async () => {
+      const isNative = vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
+      await render(SOON);
+      location['checkPermission'].mockResolvedValue('prompt');
+
+      await fixture.componentInstance.handleStart();
+
+      const [options] = ask.mock.calls[0] as [{ message: string }];
+      expect(options.message).toContain(
+        'Seguirá compartiéndose aunque bloquees la pantalla o uses otra app; lo verás en una notificación.',
+      );
+      isNative.mockRestore();
     });
 
     it('does not start without sharing the location', async () => {

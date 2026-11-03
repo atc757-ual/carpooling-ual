@@ -1,6 +1,7 @@
 import { inject, Injectable, InjectionToken } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
+import { BackgroundLocationService } from './background-location.service';
 import { LocationConsentService } from './location-consent.service';
 
 // Hasta cuándo se espera a la ubicación, y con qué precisión (la de una
@@ -45,6 +46,9 @@ export const GEOLOCATION = new InjectionToken<GeolocationPlugin>('Geolocation', 
   }),
 });
 
+// Id del seguimiento en segundo plano de la app nativa (solo hay uno a la vez)
+const BACKGROUND_WATCH_ID = 'background';
+
 // Código del error de permiso de la API de geolocalización del navegador
 const PERMISSION_DENIED = 1;
 
@@ -56,6 +60,7 @@ const PERMISSION_DENIED = 1;
 export class LocationService {
   private readonly geolocation = inject(GEOLOCATION);
   private readonly consent = inject(LocationConsentService);
+  private readonly background = inject(BackgroundLocationService);
 
   // Si ya se dio el permiso, se denegó o aún no se ha preguntado (también si
   // el navegador no deja saberlo); antes que nada, si el usuario dejó de
@@ -104,11 +109,15 @@ export class LocationService {
   }
 
   // Sigue la posición mientras se mueve (el GPS la da según cambia: más
-  // precisa y con menos gasto que pedirla cada vez). Con el consentimiento
-  // retirado, no empieza. Devuelve el id para dejar de seguirla
+  // precisa y con menos gasto que pedirla cada vez). En la app nativa, también
+  // en segundo plano. Con el consentimiento retirado, no empieza. Devuelve el
+  // id para dejar de seguirla
   async watchPoint(onPoint: (point: [number, number]) => void): Promise<string | null> {
     if ((await this.consent.getStatus()) !== 'granted') {
       return null;
+    }
+    if (Capacitor.isNativePlatform()) {
+      return (await this.background.start(onPoint)) ? BACKGROUND_WATCH_ID : null;
     }
     try {
       return await this.geolocation.watchPosition(
@@ -125,6 +134,10 @@ export class LocationService {
   }
 
   async clearWatch(id: string): Promise<void> {
+    if (id === BACKGROUND_WATCH_ID) {
+      await this.background.stop();
+      return;
+    }
     await this.geolocation.clearWatch({ id }).catch(() => undefined);
   }
 

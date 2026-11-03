@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { vi } from 'vitest';
+import { BackgroundLocationService } from './background-location.service';
 import { LocationConsentService } from './location-consent.service';
 import { GEOLOCATION, LocationError, LocationService } from './location.service';
 
@@ -16,6 +17,7 @@ describe('LocationService', () => {
     clearWatch: vi.fn(),
   };
   const consent = { getStatus: vi.fn(), set: vi.fn() };
+  const background = { start: vi.fn(), stop: vi.fn() };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -25,6 +27,7 @@ describe('LocationService', () => {
       providers: [
         { provide: GEOLOCATION, useValue: geolocation },
         { provide: LocationConsentService, useValue: consent },
+        { provide: BackgroundLocationService, useValue: background },
       ],
     });
     location = TestBed.inject(LocationService);
@@ -78,6 +81,24 @@ describe('LocationService', () => {
 
     expect(points).toEqual([[-2.46, 36.84]]);
     expect(geolocation.clearWatch).toHaveBeenCalledWith({ id: 'w1' });
+  });
+
+  it('follows the position in the background in the native app', async () => {
+    vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
+    background.start.mockResolvedValue(true);
+    background.stop.mockResolvedValue(undefined);
+    const onPoint = vi.fn();
+
+    await expect(location.watchPoint(onPoint)).resolves.toBe('background');
+    expect(background.start).toHaveBeenCalledWith(onPoint);
+    expect(geolocation.watchPosition).not.toHaveBeenCalled();
+
+    await location.clearWatch('background');
+    expect(background.stop).toHaveBeenCalled();
+    expect(geolocation.clearWatch).not.toHaveBeenCalled();
+
+    background.start.mockResolvedValue(false);
+    await expect(location.watchPoint(onPoint)).resolves.toBeNull();
   });
 
   it('does not follow the position without consent or when the device fails', async () => {
