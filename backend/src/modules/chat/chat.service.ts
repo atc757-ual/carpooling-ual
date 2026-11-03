@@ -8,6 +8,7 @@ import { RequestsService } from '../requests/requests.service';
 import type { Trip } from '../trips/entities/trip.entity';
 import { TripNotFoundError } from '../trips/errors/trip-not-found.error';
 import { TripsService } from '../trips/trips.service';
+import { PushService } from '../push/push.service';
 import { UsersService } from '../users/users.service';
 import {
   CHAT_MAX_MESSAGES_PER_MINUTE,
@@ -34,6 +35,8 @@ export interface ChatMessageView {
 export interface ChatAccess {
   trip: Trip;
   role: ChatRole;
+  // El conductor y los pasajeros aceptados
+  participantIds: string[];
 }
 
 // Chat de un viaje entre el conductor y sus pasajeros aceptados («Podría»
@@ -49,6 +52,7 @@ export class ChatService {
     private readonly requestsService: RequestsService,
     private readonly usersService: UsersService,
     private readonly eventsService: EventsService,
+    private readonly push: PushService,
   ) {}
 
   // El viaje y el papel del usuario en su chat; lanza TripNotFoundError o
@@ -61,11 +65,12 @@ export class ChatService {
     const passengers = await this.requestsService.acceptedPassengersByTrip([
       tripId,
     ]);
-    const role = chatRoleOf(trip, userId, passengers.get(tripId) ?? []);
+    const passengerIds = passengers.get(tripId) ?? [];
+    const role = chatRoleOf(trip, userId, passengerIds);
     if (!role) {
       throw new ChatNotAllowedError(tripId);
     }
-    return { trip, role };
+    return { trip, role, participantIds: [trip.driverId, ...passengerIds] };
   }
 
   // Del más antiguo al más nuevo; con after, solo los posteriores a ese
@@ -98,7 +103,7 @@ export class ChatService {
     tripId: string,
     input: ChatMessageInput,
   ): Promise<ChatMessageView> {
-    const { trip, role } = await this.getAccess(userId, tripId);
+    const { trip, role, participantIds } = await this.getAccess(userId, tripId);
     if (!isChatOpen(trip)) {
       throw new ChatClosedError(tripId);
     }
@@ -142,6 +147,16 @@ export class ChatService {
       return saved;
     });
     const [view] = await this.toViews(trip, [message]);
+    // Ya guardado: a los demás, quién ha escrito (no lo que dice)
+    this.push.queue(
+      this.dataSource.manager,
+      participantIds.filter((id) => id !== userId),
+      {
+        title: `${view.author.name} te ha escrito`,
+        body: 'Abre el chat del viaje para leerlo.',
+        data: { type: 'chat_message', tripId },
+      },
+    );
     return view;
   }
 
