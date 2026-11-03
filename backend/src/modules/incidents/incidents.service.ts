@@ -96,8 +96,7 @@ export class IncidentsService {
           description: input.description,
         }),
       );
-      await this.recordEvent(manager, 'incident.reported', created);
-      await this.notifyAdmins(manager, created);
+      await this.recordReported(manager, created, trip.driverId);
       return created;
     });
     return this.toView(incident);
@@ -174,10 +173,35 @@ export class IncidentsService {
       current.reviewedAt = new Date();
       current.resolution = resolution;
       const reviewed = await manager.save(current);
-      await this.recordEvent(manager, 'incident.reviewed', reviewed);
+      const trip = (await this.tripsService.getByIds([reviewed.tripId])).get(
+        reviewed.tripId,
+      );
+      await this.recordEvent(
+        manager,
+        'incident.reviewed',
+        reviewed,
+        trip?.driverId,
+      );
       return reviewed;
     });
     return this.toView(incident);
+  }
+
+  // Una incidencia nueva (del viaje en curso o de un mensaje del chat): su
+  // evento y el aviso a los administradores, en la transacción que la crea
+  async recordReported(
+    manager: EntityManager,
+    incident: Incident,
+    driverId: string,
+  ): Promise<void> {
+    await this.recordEvent(manager, 'incident.reported', incident, driverId);
+    await this.notifyAdmins(manager, incident);
+  }
+
+  // La incidencia con su viaje y los nombres, como la devuelve la API
+  async toView(incident: Incident): Promise<IncidentView> {
+    const [view] = await this.toViews([incident]);
+    return view;
   }
 
   // --- Internos
@@ -258,11 +282,6 @@ export class IncidentsService {
     );
   }
 
-  private async toView(incident: Incident): Promise<IncidentView> {
-    const [view] = await this.toViews([incident]);
-    return view;
-  }
-
   // Los viajes y los nombres en una consulta cada uno (no una por fila)
   private async toViews(incidents: Incident[]): Promise<IncidentView[]> {
     const trips = await this.tripsService.getByIds(
@@ -277,7 +296,7 @@ export class IncidentsService {
       return {
         incident,
         reporterName: names.get(incident.reporterId) ?? '',
-        reporterRole: reporterRoleOf(incident),
+        reporterRole: reporterRoleOf(incident, trip?.driverId),
         trip: trip
           ? {
               originName: trip.originName,
@@ -297,6 +316,7 @@ export class IncidentsService {
     manager: EntityManager,
     type: DomainEventType,
     incident: Incident,
+    driverId?: string,
   ): Promise<void> {
     await this.eventsService.record(manager, {
       type,
@@ -305,7 +325,7 @@ export class IncidentsService {
         tripId: incident.tripId,
         requestId: incident.requestId,
         reporterId: incident.reporterId,
-        reporterRole: reporterRoleOf(incident),
+        reporterRole: reporterRoleOf(incident, driverId),
         category: incident.category,
         status: incident.status,
         reviewedBy: incident.reviewedBy,
@@ -314,6 +334,11 @@ export class IncidentsService {
   }
 }
 
-function reporterRoleOf(incident: Incident): ReporterRole {
+// Con el conductor del viaje, comparándolo; sin él (viaje borrado), por la
+// solicitud: solo el pasajero que abandona el viaje la tiene
+function reporterRoleOf(incident: Incident, driverId?: string): ReporterRole {
+  if (driverId !== undefined) {
+    return incident.reporterId === driverId ? 'driver' : 'passenger';
+  }
   return incident.requestId === null ? 'driver' : 'passenger';
 }
