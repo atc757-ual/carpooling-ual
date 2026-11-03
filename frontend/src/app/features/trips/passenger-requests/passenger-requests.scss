@@ -1,23 +1,13 @@
-// Las solicitudes en tarjetas, agrupadas en próximas y anteriores (como los
-// viajes del conductor)
+// Las solicitudes de la pestaña en tarjetas, a 8px (como los viajes del
+// conductor)
 :host {
   display: flex;
   flex-direction: column;
-  gap: var(--space-l);
+  gap: var(--space-s);
 }
 
 ion-card {
   margin: 0;
-}
-
-.passenger-requests__group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-
-  h2 {
-    margin: 0;
-  }
 }
 
 .passenger-requests__status {

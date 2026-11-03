@@ -1,6 +1,5 @@
 <ion-content>
   <div class="tab-page my-trips">
-
     @if (canDrive()) {
       <ion-segment
         class="my-trips__view"
@@ -16,6 +15,19 @@
         </ion-segment-button>
       </ion-segment>
     }
+
+    <ion-segment
+      class="my-trips__tabs"
+      aria-label="Cuándo"
+      [value]="tab()"
+      (ionChange)="handleTabChange($event.detail.value)"
+    >
+      @for (option of tabs; track option.value) {
+        <ion-segment-button [value]="option.value">
+          <ion-label>{{ option.label }}</ion-label>
+        </ion-segment-button>
+      }
+    </ion-segment>
 
     @if (isDriver()) {
       @if (trips.isLoading() && !trips.hasValue()) {
@@ -33,38 +45,27 @@
             </form>
           </ion-card-content>
         </ion-card>
-      } @else if (upcoming().length === 0 && past().length === 0) {
+      } @else if (tabTrips().length === 0) {
         <ion-card>
           <ion-card-content class="my-trips__state">
             <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-            <div class="text-subtitle">Aún no has publicado ningún viaje</div>
-            <div class="text-body-s text-color-muted">
-              Publica tu recorrido y aquí verás quién te pide plaza.
-            </div>
-            <ion-button routerLink="/tabs/publish">Publicar viaje</ion-button>
+            <div class="text-subtitle">{{ emptyTexts[tab()] }}</div>
+            @if (tab() === 'upcoming') {
+              <div class="text-body-s text-color-muted">
+                Publica tu recorrido y aquí verás quién te pide plaza.
+              </div>
+              <ion-button routerLink="/tabs/publish">Publicar viaje</ion-button>
+            }
           </ion-card-content>
         </ion-card>
       } @else {
-        @if (upcoming().length > 0) {
-          <section class="my-trips__group" aria-labelledby="upcoming-title">
-            <h2 id="upcoming-title" class="text-eyebrow text-color-muted">Próximos</h2>
-            @for (trip of upcoming(); track trip.id) {
-              <app-driver-trip-card [trip]="trip" (changed)="handleChanged()" />
-            }
-          </section>
-        }
-        @if (past().length > 0) {
-          <section class="my-trips__group" aria-labelledby="past-title">
-            <h2 id="past-title" class="text-eyebrow text-color-muted">Anteriores</h2>
-            @for (trip of past(); track trip.id) {
-              <app-driver-trip-card [trip]="trip" />
-            }
-          </section>
+        @for (trip of tabTrips(); track trip.id) {
+          <app-driver-trip-card [trip]="trip" (changed)="handleChanged()" />
         }
       }
     } @else {
       <!-- Como pasajero: sus solicitudes con su viaje -->
-      <app-passenger-requests />
+      <app-passenger-requests [tab]="tab()" />
     }
   </div>
 </ion-content>

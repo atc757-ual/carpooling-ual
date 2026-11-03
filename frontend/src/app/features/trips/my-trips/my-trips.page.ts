@@ -1,4 +1,4 @@
-import { Component, computed, inject, linkedSignal, resource } from '@angular/core';
+import { Component, computed, inject, linkedSignal, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonButton,
@@ -13,19 +13,18 @@ import {
   IonSpinner,
 } from '@ionic/angular';
 import { alertCircleOutline, carOutline } from 'ionicons/icons';
-import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
+import { DriverTrip } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ActiveModeService, TravelMode } from '../../../core/services/users/active-mode.service';
 import { DriverTripCard } from '../driver-trip-card/driver-trip-card';
 import { PassengerRequests } from '../passenger-requests/passenger-requests';
+import { driverTripTab, EMPTY_TEXTS, isTripsTab, TRIPS_TABS, TripsTab } from './trip-tabs';
 
-// Viajes que aún no han terminado
-const UPCOMING: ReadonlySet<TripStatus> = new Set(['published', 'confirmed', 'in_progress']);
-
-// Mis viajes. Como conductor: sus viajes, primero los próximos (con sus
-// solicitudes para aceptarlas o rechazarlas) y después los anteriores. Como
-// pasajero, sus solicitudes, cada una con su viaje (PassengerRequests)
+// Mis viajes, en tres pestañas: Próximos, Anteriores y Cancelados. Como
+// conductor, sus viajes (los próximos, con sus solicitudes para aceptarlas o
+// rechazarlas). Como pasajero, sus solicitudes, cada una con su viaje
+// (PassengerRequests)
 @Component({
   selector: 'app-my-trips',
   imports: [
@@ -69,22 +68,29 @@ export class MyTripsPage {
   private readonly allTrips = computed<readonly DriverTrip[]>(() =>
     this.trips.hasValue() ? this.trips.value() : [],
   );
-  readonly upcoming = computed(() => this.allTrips().filter(({ status }) => UPCOMING.has(status)));
-  // Los anteriores, del más reciente al más antiguo
-  readonly past = computed(() =>
-    this.allTrips()
-      .filter(({ status }) => !UPCOMING.has(status))
-      .reverse(),
-  );
+  readonly tab = signal<TripsTab>('upcoming');
+  // Los viajes de la pestaña: los próximos, del primero que sale al último;
+  // los demás, del más reciente al más antiguo
+  readonly tabTrips = computed(() => {
+    const trips = this.allTrips().filter((trip) => driverTripTab(trip) === this.tab());
+    return this.tab() === 'upcoming' ? trips : trips.reverse();
+  });
 
+  protected readonly tabs = TRIPS_TABS;
+  protected readonly emptyTexts = EMPTY_TEXTS;
   protected readonly emptyIcon = carOutline;
   protected readonly errorIcon = alertCircleOutline;
 
-  // Al decidir una solicitud cambian las plazas (y quizá el estado)
-  // El segmento da su valor sin tipo
+  // Los segmentos dan su valor sin tipo
   handleViewChange(value: string | number | undefined): void {
     if (value === 'passenger' || value === 'driver') {
       this.view.set(value);
+    }
+  }
+
+  handleTabChange(value: string | number | undefined): void {
+    if (isTripsTab(value)) {
+      this.tab.set(value);
     }
   }
 
