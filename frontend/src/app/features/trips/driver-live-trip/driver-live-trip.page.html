@@ -48,7 +48,7 @@
               <!-- Al volver tras un rato con la pantalla bloqueada o en otra
                    app (en el navegador no se comparte en segundo plano) -->
               @if (gapMinutes(); as minutes) {
-                <div class="notice notice--warning driver-live-trip__gap" role="status">
+                <output class="notice notice--warning driver-live-trip__gap">
                   <span>
                     <b>Estuviste {{ minutes }} min sin compartir tu ubicación</b>
                     Con la pantalla bloqueada o en otra app, tus pasajeros no ven dónde estás.
@@ -57,7 +57,7 @@
                   <ion-button fill="clear" size="small" (click)="dismissGap()"
                     >Entendido</ion-button
                   >
-                </div>
+                </output>
               }
             }
 
