@@ -31,6 +31,8 @@
     "@capacitor/geolocation": "^8.2.4",
     "@capacitor/preferences": "^8.0.1",
     "@capgo/background-geolocation": "^8.5.2",
+    "@firebase/app": "^0.16.5",
+    "@firebase/messaging": "^0.13.3",
     "@ionic/angular": "^9.0.9",
     "@jsverse/transloco": "^8.4.0",
     "canvas-confetti": "^1.9.4",
