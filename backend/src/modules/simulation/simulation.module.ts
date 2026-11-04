@@ -4,6 +4,7 @@ import { EventsModule } from '../../events/events.module';
 import { Scenario } from './entities/scenario.entity';
 import { SimulationResult } from './entities/simulation-result.entity';
 import { SimulationRun } from './entities/simulation-run.entity';
+import { agentReplica } from './engine/agent-replica';
 import { FakeSimulationRunner } from './runner/fake-simulation-runner';
 import { SIMULATION_RUNNER } from './runner/simulation-runner';
 import { SimulationsController } from './simulations.controller';
@@ -21,7 +22,9 @@ import { SimulationsService } from './simulations.service';
     SimulationsService,
     {
       provide: SIMULATION_RUNNER,
-      useFactory: () => new FakeSimulationRunner(),
+      // El motor de agentes corre aún en el propio proceso (sin pausa entre
+      // réplicas); el worker aparte llega en el siguiente PR
+      useFactory: () => new FakeSimulationRunner(0, agentReplica),
     },
   ],
 })
