@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsModule } from '../../events/events.module';
@@ -7,6 +8,10 @@ import { SimulationRun } from './entities/simulation-run.entity';
 import { agentReplica } from './engine/agent-replica';
 import { FakeSimulationRunner } from './runner/fake-simulation-runner';
 import { SIMULATION_RUNNER } from './runner/simulation-runner';
+import {
+  WORKER_FILE,
+  WorkerSimulationRunner,
+} from './runner/worker-simulation-runner';
 import { SimulationsController } from './simulations.controller';
 import { SimulationsService } from './simulations.service';
 
@@ -22,9 +27,12 @@ import { SimulationsService } from './simulations.service';
     SimulationsService,
     {
       provide: SIMULATION_RUNNER,
-      // El motor de agentes corre aún en el propio proceso (sin pausa entre
-      // réplicas); el worker aparte llega en el siguiente PR
-      useFactory: () => new FakeSimulationRunner(0, agentReplica),
+      // En un hilo aparte si está compilado (dist/); si no (tests con
+      // TypeScript), el mismo motor de agentes en el propio proceso
+      useFactory: () =>
+        existsSync(WORKER_FILE)
+          ? new WorkerSimulationRunner()
+          : new FakeSimulationRunner(0, agentReplica),
     },
   ],
 })
