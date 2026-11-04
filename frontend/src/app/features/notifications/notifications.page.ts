@@ -22,6 +22,7 @@ import { formatDateLabel } from '../../shared/components/ui/datetime-field/datet
 import { getErrorMessage } from '../../shared/utils/error-message.util';
 import { formatTime } from '../matching/trip-results';
 import { openLegalModal } from '../../shared/components/modals/legal-modal/legal-modal';
+import { openNotificationTarget } from './notification-target';
 import {
   formatElapsed,
   legalDocumentOf,
@@ -107,19 +108,14 @@ export class NotificationsPage {
         await openLegalModal(this.modalController, document);
         return;
       }
-      const mode = notificationMode(notification.type);
-      if (mode === null) {
+      // Las incidencias no llevan a ninguna parte: se quedan en Avisos
+      if (notificationMode(notification.type) === null) {
         return;
       }
-      // Solo si hace falta: cambiar de modo se guarda en el servidor
-      if (this.auth.hasProfile(mode) && this.activeMode.mode() !== mode) {
-        await this.activeMode.setMode(mode);
-      }
-      const target =
-        mode === 'passenger' && notification.request
-          ? `/tabs/trips/requests/${notification.request.id}`
-          : '/tabs/trips';
-      await this.router.navigateByUrl(target);
+      await openNotificationTarget(
+        { router: this.router, auth: this.auth, activeMode: this.activeMode },
+        { type: notification.type, requestId: notification.request?.id },
+      );
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     }

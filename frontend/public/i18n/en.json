@@ -46,6 +46,10 @@
     "themeHint": "Pick the look that suits you.",
     "themeLight": "Light",
     "themeDark": "Dark",
+    "push": "Notifications",
+    "pushHint": "We let you know about your trips and messages even with the app closed.",
+    "pushDenied": "You blocked them in the browser: allow them in its site settings.",
+    "pushUnsupported": "This browser does not support notifications (on iPhone, add the site to the home screen).",
     "logout": "Log out",
     "adminPanel": "Admin panel",
     "privacy": {

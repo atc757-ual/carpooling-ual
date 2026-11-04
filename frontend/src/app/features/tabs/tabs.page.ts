@@ -37,6 +37,8 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { AppContextService } from '../../core/services/ui/app-context.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { ChatService } from '../../core/services/chat/chat.service';
+import { PushNotificationsService } from '../../core/services/push/push-notifications.service';
+import { openNotificationTarget } from '../notifications/notification-target';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { BrandLogo } from '../../shared/components/ui/brand-logo/brand-logo';
@@ -109,6 +111,7 @@ export class TabsPage implements OnInit {
   private readonly navController = inject(NavController);
   private readonly notifications = inject(NotificationsService);
   private readonly chat = inject(ChatService);
+  private readonly push = inject(PushNotificationsService);
   private readonly driverTracking = inject(DriverTrackingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly confirm = inject(ConfirmService);
@@ -155,6 +158,14 @@ export class TabsPage implements OnInit {
       }
     }, MESSAGES_REFRESH_MS);
     this.destroyRef.onDestroy(() => clearInterval(timer));
+    // Push: el estado de este navegador y abrir la pantalla al pulsar una
+    this.push.onOpen((target) => {
+      void openNotificationTarget(
+        { router: this.router, auth: this.auth, activeMode: this.activeMode },
+        target,
+      );
+    });
+    void this.push.start();
     // Un viaje en curso sigue compartiendo la posición al volver a la app
     void this.driverTracking.resume();
     this.router.events

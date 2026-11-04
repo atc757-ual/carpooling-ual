@@ -220,6 +220,23 @@ describe('AuthService', () => {
 
       expect(http.match('/api/auth/logout')).toHaveLength(0);
     });
+
+    it('runs the tasks registered before logging out, even if one fails', async () => {
+      const order: string[] = [];
+      auth.onBeforeLogout(() => {
+        order.push('push');
+        return Promise.reject(new Error('offline'));
+      });
+      auth.onBeforeLogout(() => {
+        order.push('other');
+        return Promise.resolve();
+      });
+
+      await expect(auth.logout()).resolves.toBeUndefined();
+
+      expect(order).toEqual(['push', 'other']);
+      expect(auth.isLoggedIn()).toBe(false);
+    });
   });
 
   describe('restoreSession', () => {

@@ -13,6 +13,7 @@ import { LocationConsentService } from '../../core/services/location/location-co
 import { UsersService } from '../../core/services/users/users.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { ThemeService } from '../../core/services/ui/theme.service';
+import { PushNotificationsService } from '../../core/services/push/push-notifications.service';
 import { ProfilePage } from './profile.page';
 import { ProfileSupportModal } from './profile-support-modal/profile-support-modal';
 
@@ -57,6 +58,10 @@ describe('ProfilePage', () => {
             },
           },
         }),
+        {
+          provide: PushNotificationsService,
+          useValue: { status: signal('off'), enable: vi.fn(), disable: vi.fn() },
+        },
         {
           provide: AuthService,
           useValue: {
