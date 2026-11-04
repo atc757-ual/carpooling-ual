@@ -2,7 +2,15 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, InjectionToken, signal } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { initializeApp } from '@firebase/app';
-import { deleteToken, getMessaging, getToken, isSupported, onMessage } from '@firebase/messaging';
+import {
+  getMessaging,
+  isSupported,
+  Messaging,
+  onMessage,
+  onRegistered,
+  register,
+  unregister,
+} from '@firebase/messaging';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { PreferencesPlugin } from '../../plugins/preferences-plugin';
@@ -11,7 +19,8 @@ import { ChatService } from '../chat/chat.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
 // Lo que se usa de Firebase Messaging en el navegador (en los tests se
-// sustituye): pedir y borrar el token de este navegador y oír las push que
+// sustituye): pedir y borrar el FID de este navegador (lo que la API guarda
+// como su token) y oír las push que
 // llegan con la app abierta
 export interface WebMessaging {
   isSupported(): Promise<boolean>;
@@ -20,19 +29,44 @@ export interface WebMessaging {
   onMessage(listener: () => void): void;
 }
 
+// Cuánto se espera a que Firebase entregue el FID tras registrarse
+const REGISTER_TIMEOUT_MS = 15_000;
+
+// Firebase recomienda identificar el navegador por su FID (el id de la
+// instalación) en vez de por un token: register() lo entrega por
+// onRegistered, no como resultado, así que se espera al primero que llegue
+function registerInstallation(
+  messaging: Messaging,
+  registration: ServiceWorkerRegistration,
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      stop();
+      reject(new Error('FCM registration timed out'));
+    }, REGISTER_TIMEOUT_MS);
+    const stop = onRegistered(messaging, (fid) => {
+      clearTimeout(timer);
+      stop();
+      resolve(fid);
+    });
+    register(messaging, {
+      vapidKey: environment.pushVapidKey,
+      serviceWorkerRegistration: registration,
+    }).catch((error: unknown) => {
+      clearTimeout(timer);
+      stop();
+      reject(error instanceof Error ? error : new Error(String(error)));
+    });
+  });
+}
+
 export const WEB_MESSAGING = new InjectionToken<WebMessaging>('WebMessaging', {
   factory: () => {
     const messaging = () => getMessaging(initializeApp(environment.firebase));
     return {
       isSupported: () => isSupported(),
-      getToken: (registration) =>
-        getToken(messaging(), {
-          vapidKey: environment.pushVapidKey,
-          serviceWorkerRegistration: registration,
-        }),
-      deleteToken: async () => {
-        await deleteToken(messaging());
-      },
+      getToken: (registration) => registerInstallation(messaging(), registration),
+      deleteToken: () => unregister(messaging()),
       onMessage: (listener) => onMessage(messaging(), listener),
     };
   },
