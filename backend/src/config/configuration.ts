@@ -4,6 +4,7 @@
 // en lugar de provocar errores confusos más tarde.
 
 import { MailConfig, parseMailConfig } from './mail.config';
+import { parsePushConfig, PushConfig } from './push.config';
 import { parseSmsConfig, SmsConfig } from './sms.config';
 
 // Forma de la configuración que usa el resto de la aplicación
@@ -18,6 +19,7 @@ export interface AppConfig {
   positionMinIntervalSeconds: number;
   mail: MailConfig;
   sms: SmsConfig;
+  push: PushConfig;
 }
 
 // Duración de la sesión (token de renovación), en días
@@ -227,5 +229,6 @@ export function loadConfiguration(): AppConfig {
     ),
     mail: parseMailConfig(process.env),
     sms: parseSmsConfig(process.env),
+    push: parsePushConfig(process.env),
   };
 }

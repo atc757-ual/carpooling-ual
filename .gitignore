@@ -38,3 +38,8 @@ CLAUDE.md
 
 # Worktrees
 .worktrees/
+
+# Firebase: la configuración de la app Android (de cada proyecto de Firebase)
+# y, por si acaba dentro del repositorio, la cuenta de servicio (secreta)
+frontend/android/app/google-services.json
+*firebase-adminsdk*.json

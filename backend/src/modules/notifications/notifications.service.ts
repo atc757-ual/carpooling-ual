@@ -9,6 +9,8 @@ import type {
   TripNotificationType,
 } from './entities/notification.entity';
 import { NotificationNotFoundError } from './errors/notification-not-found.error';
+import { PushService } from '../push/push.service';
+import { toPushMessage } from './notification-pushes';
 
 // Qué se avisa: el tipo y a qué se refiere. Los de un viaje llevan el viaje
 // (la base de datos exige la incidencia en incident_reported y la solicitud en
@@ -30,10 +32,12 @@ export class NotificationsService {
   constructor(
     @InjectRepository(Notification)
     private readonly notificationsRepository: Repository<Notification>,
+    private readonly push: PushService,
   ) {}
 
   // Avisa a varios usuarios con el manager de la transacción del cambio: si
-  // el cambio se deshace, el aviso también. Cada destinatario, una sola vez
+  // el cambio se deshace, el aviso también. Cada destinatario, una sola vez.
+  // Los importantes de un viaje van además por push (al confirmarse)
   async notify(
     manager: EntityManager,
     recipientIds: readonly string[],
@@ -44,6 +48,10 @@ export class NotificationsService {
       return;
     }
     const references = toReferences(content);
+    const push = toPushMessage(content);
+    if (push) {
+      this.push.queue(manager, recipients, push);
+    }
     await manager.insert(
       Notification,
       recipients.map((userId) => ({

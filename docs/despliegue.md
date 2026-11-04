@@ -18,6 +18,8 @@ Partir de [`.env.example`](../.env.example) y revisar en especial:
 | `MAIL_FROM` | Un remitente del dominio del servidor SMTP, p. ej. `Carpooling UAL <no-reply@ual.es>`; si no, muchos servidores rechazan o marcan como spam los correos |
 | `SUPPORT_EMAIL` | El buzón del equipo de soporte, que recibe los mensajes de «Ayuda y soporte» y responde al correo del usuario (p. ej. `soporte@ual.es`). Sin ella, llegan a `soporte@carpooling-ual.local` y en producción se pierden |
 | `SMS_TRANSPORT` | En desarrollo y demo sin coste, `mailpit` (guarda el SMS en Mailpit con `X-Tags: SMS`); en tests, `memory`. **Pendiente para producción:** conectar el transporte del proveedor real de SMS cuando se contrate |
+| `FIREBASE_SERVICE_ACCOUNT_PATH` | La ruta del JSON de la cuenta de servicio de Firebase (Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada). **Es un secreto:** fuera del repositorio y con permisos solo para el usuario del servidor. Sin ella no se envían notificaciones push (los avisos siguen dentro de la app) |
+| `PUSH_TRANSPORT` | Opcional: `fcm` (con la cuenta de servicio), `disabled` o `memory` (tests). Si se deja vacío, `fcm` con cuenta de servicio y `disabled` sin ella |
 | `SMS_OTP_DOMAIN` | El dominio público de la app (p. ej. `carpooling.ual.es`) para que el móvil rellene el código por WebOTP (`@<dominio> #123456`); dejar vacío si no aplica |
 
 Si `JWT_SECRET` o `DATABASE_URL` faltan o no son válidas, el servidor no arranca y explica por qué. Lo mismo con una configuración de correo incompleta (p. ej. `SMTP_USER` sin `SMTP_PASSWORD`).

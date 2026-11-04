@@ -5,6 +5,7 @@ import { RequestsModule } from '../requests/requests.module';
 import { TripsModule } from '../trips/trips.module';
 import { UsersModule } from '../users/users.module';
 import { IncidentsModule } from '../incidents/incidents.module';
+import { PushModule } from '../push/push.module';
 import { ChatController } from './chat.controller';
 import { ChatReportsService } from './chat-reports.service';
 import { ChatRetentionScheduler } from './chat-retention.scheduler';
@@ -15,7 +16,8 @@ import { ChatRead } from './entities/chat-read.entity';
 
 // Chat del viaje entre el conductor y sus pasajeros aceptados. Usa trips (el
 // viaje y su estado), requests (los pasajeros aceptados) y users (nombres y
-// avatares) e incidents (las denuncias); ninguno depende de este módulo
+// avatares), incidents (las denuncias) y push (avisar de los mensajes);
+// ninguno depende de este módulo
 @Module({
   imports: [
     TypeOrmModule.forFeature([ChatMessage, ChatRead]),
@@ -24,6 +26,7 @@ import { ChatRead } from './entities/chat-read.entity';
     UsersModule,
     EventsModule,
     IncidentsModule,
+    PushModule,
   ],
   controllers: [ChatController],
   providers: [
