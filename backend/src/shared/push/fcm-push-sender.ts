@@ -52,20 +52,18 @@ export class FcmPushSender extends PushSender {
       ...toBatches(fids).map(async (batch) =>
         invalidOf(
           batch,
-          await this.messaging.sendEachForMulticast({
-            ...content,
-            fids: batch,
-          }),
+          await this.messaging.sendEach(
+            batch.map((fid) => ({ ...content, fid })),
+          ),
         ),
       ),
       ...toBatches(tokens).map(async (batch) =>
         invalidOf(
           batch,
           // Por token, solo la app Android: su plugin aún no da FID
-          await this.messaging.sendEachForMulticast({
-            ...content,
-            tokens: batch,
-          }),
+          await this.messaging.sendEach(
+            batch.map((token) => ({ ...content, token })),
+          ),
         ),
       ),
     ]);
