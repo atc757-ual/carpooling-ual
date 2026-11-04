@@ -63,6 +63,14 @@ describe('SystemTwin', () => {
         cancelled: 0,
       },
       vehicles: { idle: 0, scheduled: 1, on_trip: 1 },
+      users: {
+        active: 0,
+        deactivated: 0,
+        drivers: 0,
+        passengers: 0,
+        inDriverMode: 0,
+      },
+      passengersOnBoard: 0,
       lastSequence: 3,
       appliedEvents: 3,
       duplicateEvents: 0,
@@ -164,5 +172,39 @@ describe('SystemTwin', () => {
     expect(twin.apply({ ...event('user.updated', 'u-1'), id: 'event-1' })).toBe(
       'ignored',
     );
+  });
+
+  it('counts the users by account, profile and mode', () => {
+    twin.apply(event('user.registered', 'u-1', { profiles: ['driver'] }));
+    twin.apply(event('user.registered', 'u-2', { profiles: ['passenger'] }));
+    twin.apply(
+      event('user.active_mode_changed', 'u-1', { activeMode: 'driver' }),
+    );
+    twin.apply(event('user.profile_activated', 'u-3', { profile: 'driver' }));
+    twin.apply(event('user.deactivated', 'u-3'));
+
+    expect(twin.summary().users).toEqual({
+      active: 2,
+      deactivated: 1,
+      drivers: 1,
+      passengers: 1,
+      inDriverMode: 1,
+    });
+  });
+
+  it('counts the passengers on board of the trips in progress', () => {
+    const boarded = (tripId: string) =>
+      event('request.boarded', `r-${tripId}`, {
+        tripId,
+        seats: 2,
+        status: 'accepted',
+        boardedAt: '2026-11-04T08:00:00Z',
+      });
+    twin.apply(event('trip.started', 't-1', trip('in_progress')));
+    twin.apply(event('trip.finished', 't-2', trip('finished', 'v-2')));
+    twin.apply(boarded('t-1'));
+    twin.apply(boarded('t-2'));
+
+    expect(twin.summary().passengersOnBoard).toBe(2);
   });
 });

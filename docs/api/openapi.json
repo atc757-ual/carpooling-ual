@@ -9823,7 +9823,7 @@
     },
     "/api/admin/digital-twin": {
       "get": {
-        "description": "Trips and vehicles by status, the last event applied and the lag between an event and the twin (RNF-07).",
+        "description": "Trips, vehicles and users by status, the passengers on board, the last event applied and the lag between an event and the twin (RNF-07).",
         "operationId": "DigitalTwinController_get",
         "parameters": [],
         "responses": {
@@ -15917,6 +15917,41 @@
           "on_trip"
         ]
       },
+      "UserTwinCountsResource": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "number",
+            "example": 240
+          },
+          "deactivated": {
+            "type": "number",
+            "example": 6
+          },
+          "drivers": {
+            "type": "number",
+            "example": 52,
+            "description": "Active users with the driver profile"
+          },
+          "passengers": {
+            "type": "number",
+            "example": 210,
+            "description": "Active users with the passenger profile"
+          },
+          "inDriverMode": {
+            "type": "number",
+            "example": 31,
+            "description": "Active users travelling as drivers"
+          }
+        },
+        "required": [
+          "active",
+          "deactivated",
+          "drivers",
+          "passengers",
+          "inDriverMode"
+        ]
+      },
       "SyncLagResource": {
         "type": "object",
         "properties": {
@@ -15964,6 +15999,14 @@
           "vehicles": {
             "$ref": "#/components/schemas/VehicleTwinCountsResource"
           },
+          "users": {
+            "$ref": "#/components/schemas/UserTwinCountsResource"
+          },
+          "passengersOnBoard": {
+            "type": "number",
+            "example": 7,
+            "description": "Seats of boarded passengers in the trips in progress"
+          },
           "isLive": {
             "type": "boolean",
             "example": false,
@@ -16006,6 +16049,8 @@
           "@type",
           "trips",
           "vehicles",
+          "users",
+          "passengersOnBoard",
           "isLive",
           "lastSequence",
           "appliedEvents",
