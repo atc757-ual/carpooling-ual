@@ -30,6 +30,32 @@ export class VehicleTwinCountsResource {
   on_trip: number;
 }
 
+export class UserTwinCountsResource {
+  @ApiProperty({ example: 240 })
+  active: number;
+
+  @ApiProperty({ example: 6 })
+  deactivated: number;
+
+  @ApiProperty({
+    example: 52,
+    description: 'Active users with the driver profile',
+  })
+  drivers: number;
+
+  @ApiProperty({
+    example: 210,
+    description: 'Active users with the passenger profile',
+  })
+  passengers: number;
+
+  @ApiProperty({
+    example: 31,
+    description: 'Active users travelling as drivers',
+  })
+  inDriverMode: number;
+}
+
 export class SyncLagResource {
   @ApiProperty({ example: 480, description: 'Live samples measured' })
   samples: number;
@@ -60,6 +86,15 @@ export class DigitalTwinResource {
 
   @ApiProperty({ type: VehicleTwinCountsResource })
   vehicles: VehicleTwinCountsResource;
+
+  @ApiProperty({ type: UserTwinCountsResource })
+  users: UserTwinCountsResource;
+
+  @ApiProperty({
+    example: 7,
+    description: 'Seats of boarded passengers in the trips in progress',
+  })
+  passengersOnBoard: number;
 
   @ApiProperty({
     example: false,
@@ -97,6 +132,8 @@ export function toDigitalTwinResource(
     '@type': 'DigitalTwinState',
     trips: summary.trips,
     vehicles: summary.vehicles,
+    users: summary.users,
+    passengersOnBoard: summary.passengersOnBoard,
     isLive: sync.isLive,
     lastSequence: summary.lastSequence,
     appliedEvents: summary.appliedEvents,

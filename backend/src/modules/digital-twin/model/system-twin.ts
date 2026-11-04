@@ -10,10 +10,22 @@ import {
   VehicleTwin,
   VehicleTwinStatus,
 } from './vehicle-twin';
+import { USER_EVENTS, UserTwin } from './user-twin';
+
+// Usuarios con la cuenta activa o eliminada; de los activos, cuántos tienen
+// cada perfil y cuántos viajan ahora en modo conductor
+export interface UserTwinCounts {
+  active: number;
+  deactivated: number;
+  drivers: number;
+  passengers: number;
+  inDriverMode: number;
+}
 
 // Versiones de cada tipo que el gemelo sabe leer (docs/api/events.md,
-// «Cambios de versión»). Un tipo que no está aquí no le afecta todavía (p. ej.
-// user.*, hasta el UserTwin); una versión desconocida se descarta y se cuenta
+// «Cambios de versión»). Un tipo que no está aquí no le afecta (p. ej.
+// user.updated o chat_message.sent); una versión desconocida se descarta y se
+// cuenta
 const V1: ReadonlySet<number> = new Set([1]);
 export const SUPPORTED_EVENT_VERSIONS: Readonly<
   Record<string, ReadonlySet<number>>
@@ -32,6 +44,12 @@ export const SUPPORTED_EVENT_VERSIONS: Readonly<
   'request.cancelled': V1,
   'request.expired': V1,
   'request.boarded': V1,
+  'user.registered': V1,
+  'user.phone_verified': V1,
+  'user.deactivated': V1,
+  'user.profile_activated': V1,
+  'user.profile_deactivated': V1,
+  'user.active_mode_changed': V1,
 };
 
 // Cuántos identificadores recientes se recuerdan para descartar duplicados
@@ -43,6 +61,9 @@ export type ApplyOutcome = 'applied' | 'ignored' | 'duplicate' | 'unsupported';
 export interface SystemTwinSummary {
   trips: Record<TripTwinStatus, number>;
   vehicles: Record<VehicleTwinStatus, number>;
+  users: UserTwinCounts;
+  // Plazas de pasajeros ya validados en los viajes en curso
+  passengersOnBoard: number;
   lastSequence: number;
   appliedEvents: number;
   duplicateEvents: number;
@@ -58,6 +79,7 @@ export interface SystemTwinSummary {
 export class SystemTwin {
   readonly trips = new Map<string, TripTwin>();
   readonly vehicles = new Map<string, VehicleTwin>();
+  readonly users = new Map<string, UserTwin>();
   lastSequence = 0;
   appliedEvents = 0;
   duplicateEvents = 0;
@@ -90,9 +112,13 @@ export class SystemTwin {
 
   summary(): SystemTwinSummary {
     const trips = countBy(TRIP_TWIN_STATUSES);
+    let passengersOnBoard = 0;
     for (const trip of this.trips.values()) {
       if (trip.status !== null) {
         trips[trip.status] += 1;
+      }
+      if (trip.status === 'in_progress') {
+        passengersOnBoard += trip.passengersOnBoard;
       }
     }
     const vehicles = countBy(VEHICLE_TWIN_STATUSES);
@@ -102,6 +128,8 @@ export class SystemTwin {
     return {
       trips,
       vehicles,
+      users: this.countUsers(),
+      passengersOnBoard,
       lastSequence: this.lastSequence,
       appliedEvents: this.appliedEvents,
       duplicateEvents: this.duplicateEvents,
@@ -110,7 +138,36 @@ export class SystemTwin {
     };
   }
 
+  private countUsers(): UserTwinCounts {
+    const counts: UserTwinCounts = {
+      active: 0,
+      deactivated: 0,
+      drivers: 0,
+      passengers: 0,
+      inDriverMode: 0,
+    };
+    for (const user of this.users.values()) {
+      if (!user.isActive) {
+        counts.deactivated += 1;
+        continue;
+      }
+      counts.active += 1;
+      counts.drivers += user.profiles.has('driver') ? 1 : 0;
+      counts.passengers += user.profiles.has('passenger') ? 1 : 0;
+      counts.inDriverMode += user.activeMode === 'driver' ? 1 : 0;
+    }
+    return counts;
+  }
+
   private dispatch(event: TwinEvent): boolean {
+    if (USER_EVENTS.has(event.type)) {
+      let user = this.users.get(event.sourceEntityId);
+      if (user === undefined) {
+        user = new UserTwin(event.sourceEntityId);
+        this.users.set(user.id, user);
+      }
+      return user.apply(event);
+    }
     if (TRIP_STATE_EVENTS.has(event.type)) {
       return this.applyTripState(event);
     }

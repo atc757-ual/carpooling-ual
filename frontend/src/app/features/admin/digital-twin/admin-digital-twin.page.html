@@ -2,15 +2,54 @@
   <div>
     <h1 class="text-heading">Gemelo digital</h1>
     <p class="text-body admin-page__subtitle">
-      Estado de la plataforma en vivo y los eventos que alimentarán al gemelo.
+      Lo que sabe el gemelo, el estado de la plataforma en vivo y los eventos que lo alimentan.
     </p>
   </div>
   <ion-button fill="outline" size="small" (click)="handleRefresh()">Actualizar</ion-button>
 </header>
 
-<output class="notice notice--info twin__notice">
-  El gemelo digital se conectará aquí. De momento, los datos salen directamente de la plataforma.
-</output>
+<!-- Gemelo vivo: se sincroniza solo con los eventos; aquí se refresca cada 30 s -->
+<section class="twin__section" aria-labelledby="twin-state-title">
+  <h2 id="twin-state-title" class="text-title">Gemelo digital</h2>
+  @if (twinError(); as message) {
+    <div class="notice notice--danger" role="alert">
+      <span>
+        <b>No hemos podido cargar el gemelo.</b>
+        {{ message }}
+      </span>
+      <ion-button fill="outline" size="small" (click)="twin.reload()">Reintentar</ion-button>
+    </div>
+  } @else if (!twin.hasValue()) {
+    <div class="twin__kpis" aria-busy="true" aria-label="Cargando el gemelo">
+      @for (kpi of skeletonKpis; track kpi) {
+        <div class="twin__kpi">
+          <ion-skeleton-text [animated]="true" class="twin__skeleton-label" />
+          <ion-skeleton-text [animated]="true" class="twin__skeleton-value" />
+        </div>
+      }
+    </div>
+  } @else {
+    @if (twinSync(); as sync) {
+      <output
+        class="notice twin__notice"
+        [class.notice--info]="sync.tone === 'info'"
+        [class.notice--success]="sync.tone === 'success'"
+        [class.notice--warning]="sync.tone === 'warning'"
+      >
+        {{ sync.text }}
+      </output>
+    }
+    <div class="twin__kpis">
+      @for (kpi of twinKpis(); track kpi.label) {
+        <div class="twin__kpi">
+          <span class="text-label admin-page__subtitle">{{ kpi.label }}</span>
+          <span class="twin__value">{{ kpi.value }}</span>
+          <span class="text-body-s admin-page__subtitle">{{ kpi.hint }}</span>
+        </div>
+      }
+    </div>
+  }
+</section>
 
 <!-- Resumen en vivo: se refresca solo cada 30 s -->
 <section class="twin__section" aria-labelledby="twin-overview-title">

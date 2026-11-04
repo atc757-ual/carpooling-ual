@@ -25,7 +25,7 @@ export class DigitalTwinController {
   @ApiOperation({
     summary: 'Get the state of the live digital twin',
     description:
-      'Trips and vehicles by status, the last event applied and the lag between an event and the twin (RNF-07).',
+      'Trips, vehicles and users by status, the passengers on board, the last event applied and the lag between an event and the twin (RNF-07).',
   })
   @ApiOkResponse({ type: DigitalTwinResource })
   @ApiErrorResponses({

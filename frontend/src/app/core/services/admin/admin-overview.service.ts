@@ -9,19 +9,24 @@ import {
   PlatformOverview,
 } from '../../models/admin-event.model';
 import { ApiError } from '../../models/api-error.model';
+import { DigitalTwinState } from '../../models/digital-twin.model';
 
 export interface AdminEventPage {
   items: AdminEventSummary[];
   total: number;
 }
 
-// Lo que el panel puede mirar de la plataforma mientras llega el Gemelo
-// Digital: el resumen en vivo y los eventos. Lanza ApiError (ver
+// Lo que el panel mira de la plataforma: el estado del Gemelo Digital, el
+// resumen en vivo y los eventos. Lanza ApiError (ver
 // shared/utils/error-message.util.ts)
 @Injectable({ providedIn: 'root' })
 export class AdminOverviewService {
   private readonly http = inject(HttpClient);
   private readonly url = `${environment.apiUrl}/admin`;
+
+  digitalTwin(): Promise<DigitalTwinState> {
+    return this.call(this.http.get<DigitalTwinState>(`${this.url}/digital-twin`));
+  }
 
   overview(): Promise<PlatformOverview> {
     return this.call(this.http.get<PlatformOverview>(`${this.url}/overview`));

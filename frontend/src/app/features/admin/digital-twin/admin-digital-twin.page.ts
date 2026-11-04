@@ -24,6 +24,7 @@ import {
   isKnownEventType,
   overviewKpis,
 } from './event-labels';
+import { twinKpis, twinSync } from './twin-kpis';
 
 export const PAGE_SIZE = 20;
 // El resumen se refresca solo mientras la pantalla está abierta
@@ -34,7 +35,8 @@ function errorMessageOf(error: unknown): string | null {
   return error ? getErrorMessage(ApiError.fromHttpError(error)) : null;
 }
 
-// Gemelo digital del panel: mientras se construye el gemelo, el resumen en
+// Gemelo digital del panel: el estado del gemelo vivo (vehículos, viajes,
+// usuarios y su sincronización), el resumen en
 // vivo de la plataforma y sus últimos eventos, con el payload al desplegar
 // cada uno. El tipo y la página van en la URL, como en Incidencias
 @Component({
@@ -59,6 +61,17 @@ export class AdminDigitalTwinPage {
     return overview ? overviewKpis(overview) : [];
   });
   readonly overviewError = computed(() => errorMessageOf(this.overview.error()));
+
+  readonly twin = resource({ loader: () => this.overviewService.digitalTwin() });
+  readonly twinKpis = computed(() => {
+    const state = this.twin.value();
+    return state ? twinKpis(state) : [];
+  });
+  readonly twinSync = computed(() => {
+    const state = this.twin.value();
+    return state ? twinSync(state) : null;
+  });
+  readonly twinError = computed(() => errorMessageOf(this.twin.error()));
 
   readonly query = computed<AdminEventQuery>(() => {
     const type = this.type();
@@ -91,11 +104,15 @@ export class AdminDigitalTwinPage {
   protected readonly pageSize = PAGE_SIZE;
 
   constructor() {
-    const timer = setInterval(() => this.overview.reload(), OVERVIEW_REFRESH_MS);
+    const timer = setInterval(() => {
+      this.overview.reload();
+      this.twin.reload();
+    }, OVERVIEW_REFRESH_MS);
     inject(DestroyRef).onDestroy(() => clearInterval(timer));
   }
 
   handleRefresh(): void {
+    this.twin.reload();
     this.overview.reload();
     this.events.reload();
   }
