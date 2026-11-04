@@ -11,6 +11,18 @@ import {
 import { environment } from '../../../../environments/environment';
 import type { PushChannel, PushPermission, PushTarget } from './push-channel';
 
+// Lo que se usa de Firebase en el navegador
+const FIREBASE = {
+  initializeApp,
+  getMessaging,
+  isSupported,
+  onMessage,
+  onRegistered,
+  register,
+  unregister,
+};
+export type FirebaseWeb = typeof FIREBASE;
+
 const SERVICE_WORKER_URL = '/push-sw.js';
 // Cuánto se espera a que Firebase entregue el FID tras registrarse
 const REGISTER_TIMEOUT_MS = 15_000;
@@ -23,11 +35,15 @@ export class WebPushChannel implements PushChannel {
   readonly platform = 'web' as const;
   private messaging: Messaging | null = null;
 
+  // Firebase se recibe aquí (y no se simula el módulo en los tests): en el
+  // CI, vi.mock no llega a la dependencia empaquetada
+  constructor(private readonly firebase: FirebaseWeb = FIREBASE) {}
+
   async isAvailable(): Promise<boolean> {
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
       return false;
     }
-    return isSupported().catch(() => false);
+    return this.firebase.isSupported().catch(() => false);
   }
 
   checkPermission(): Promise<PushPermission> {
@@ -49,28 +65,30 @@ export class WebPushChannel implements PushChannel {
         stop();
         reject(new Error('FCM registration timed out'));
       }, REGISTER_TIMEOUT_MS);
-      const stop = onRegistered(messaging, (fid) => {
+      const stop = this.firebase.onRegistered(messaging, (fid) => {
         clearTimeout(timer);
         stop();
         resolve(fid);
       });
-      register(messaging, {
-        vapidKey: environment.pushVapidKey,
-        serviceWorkerRegistration: registration,
-      }).catch((error: unknown) => {
-        clearTimeout(timer);
-        stop();
-        reject(error instanceof Error ? error : new Error(String(error)));
-      });
+      this.firebase
+        .register(messaging, {
+          vapidKey: environment.pushVapidKey,
+          serviceWorkerRegistration: registration,
+        })
+        .catch((error: unknown) => {
+          clearTimeout(timer);
+          stop();
+          reject(error instanceof Error ? error : new Error(String(error)));
+        });
     });
   }
 
   deleteToken(): Promise<void> {
-    return unregister(this.getMessaging());
+    return this.firebase.unregister(this.getMessaging());
   }
 
   listen(onReceive: () => void, onTap: (target: PushTarget) => void): void {
-    onMessage(this.getMessaging(), onReceive);
+    this.firebase.onMessage(this.getMessaging(), onReceive);
     navigator.serviceWorker.addEventListener('message', (event: MessageEvent) => {
       const message = event.data as { type?: string; data?: PushTarget } | null;
       if (message?.type === 'push-open' && message.data) {
@@ -80,7 +98,9 @@ export class WebPushChannel implements PushChannel {
   }
 
   private getMessaging(): Messaging {
-    this.messaging ??= getMessaging(initializeApp(environment.firebase));
+    this.messaging ??= this.firebase.getMessaging(
+      this.firebase.initializeApp(environment.firebase),
+    );
     return this.messaging;
   }
 }

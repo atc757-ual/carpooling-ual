@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { WebPushChannel } from './web-push-channel';
+import { FirebaseWeb, WebPushChannel } from './web-push-channel';
 
 const firebase = vi.hoisted(() => ({
   isSupported: vi.fn(),
@@ -8,9 +8,8 @@ const firebase = vi.hoisted(() => ({
   unregister: vi.fn(),
   onMessage: vi.fn(),
   getMessaging: vi.fn(() => ({ messaging: true })),
+  initializeApp: vi.fn(() => ({ app: true })),
 }));
-vi.mock('@firebase/messaging', () => firebase);
-vi.mock('@firebase/app', () => ({ initializeApp: vi.fn(() => ({ app: true })) }));
 
 describe('WebPushChannel', () => {
   let workerListener: ((event: MessageEvent) => void) | null;
@@ -39,7 +38,7 @@ describe('WebPushChannel', () => {
           (workerListener = listener),
       },
     });
-    channel = new WebPushChannel();
+    channel = new WebPushChannel(firebase as unknown as FirebaseWeb);
   });
 
   afterEach(() => {
