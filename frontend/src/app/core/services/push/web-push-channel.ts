@@ -1,16 +1,19 @@
 import { initializeApp } from '@firebase/app';
 import {
-  deleteToken,
   getMessaging,
-  getToken,
   isSupported,
   type Messaging,
   onMessage,
+  onRegistered,
+  register,
+  unregister,
 } from '@firebase/messaging';
 import { environment } from '../../../../environments/environment';
 import type { PushChannel, PushPermission, PushTarget } from './push-channel';
 
 const SERVICE_WORKER_URL = '/push-sw.js';
+// Cuánto se espera a que Firebase entregue el FID tras registrarse
+const REGISTER_TIMEOUT_MS = 15_000;
 
 // Las push en el navegador: Web Push con Firebase Cloud Messaging y un service
 // worker propio (public/push-sw.js) que las muestra con la app cerrada y, al
@@ -35,16 +38,35 @@ export class WebPushChannel implements PushChannel {
     return toPermission(await Notification.requestPermission());
   }
 
+  // Firebase recomienda identificar el navegador por su FID (el id de la
+  // instalación, lo que la API guarda como su token) en vez de por un token:
+  // register() lo entrega por onRegistered, no como resultado
   async getToken(): Promise<string> {
     const registration = await navigator.serviceWorker.register(SERVICE_WORKER_URL);
-    return getToken(this.getMessaging(), {
-      vapidKey: environment.pushVapidKey,
-      serviceWorkerRegistration: registration,
+    const messaging = this.getMessaging();
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        stop();
+        reject(new Error('FCM registration timed out'));
+      }, REGISTER_TIMEOUT_MS);
+      const stop = onRegistered(messaging, (fid) => {
+        clearTimeout(timer);
+        stop();
+        resolve(fid);
+      });
+      register(messaging, {
+        vapidKey: environment.pushVapidKey,
+        serviceWorkerRegistration: registration,
+      }).catch((error: unknown) => {
+        clearTimeout(timer);
+        stop();
+        reject(error instanceof Error ? error : new Error(String(error)));
+      });
     });
   }
 
-  async deleteToken(): Promise<void> {
-    await deleteToken(this.getMessaging());
+  deleteToken(): Promise<void> {
+    return unregister(this.getMessaging());
   }
 
   listen(onReceive: () => void, onTap: (target: PushTarget) => void): void {

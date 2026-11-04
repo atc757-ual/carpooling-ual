@@ -3,8 +3,9 @@ import { WebPushChannel } from './web-push-channel';
 
 const firebase = vi.hoisted(() => ({
   isSupported: vi.fn(),
-  getToken: vi.fn(),
-  deleteToken: vi.fn(),
+  register: vi.fn(),
+  onRegistered: vi.fn(),
+  unregister: vi.fn(),
   onMessage: vi.fn(),
   getMessaging: vi.fn(() => ({ messaging: true })),
 }));
@@ -19,8 +20,13 @@ describe('WebPushChannel', () => {
     vi.clearAllMocks();
     workerListener = null;
     firebase.isSupported.mockResolvedValue(true);
-    firebase.getToken.mockResolvedValue('browser-token');
-    firebase.deleteToken.mockResolvedValue(true);
+    firebase.register.mockResolvedValue(undefined);
+    // Firebase entrega el FID por onRegistered en cuanto se registra
+    firebase.onRegistered.mockImplementation((_m: unknown, next: (fid: string) => void) => {
+      queueMicrotask(() => next('browser-fid'));
+      return vi.fn();
+    });
+    firebase.unregister.mockResolvedValue(undefined);
     vi.stubGlobal('Notification', {
       permission: 'default',
       requestPermission: vi.fn().mockResolvedValue('granted'),
@@ -55,18 +61,37 @@ describe('WebPushChannel', () => {
     await expect(channel.requestPermission()).resolves.toBe('granted');
   });
 
-  it('gets the token with the push service worker and the VAPID key, and deletes it', async () => {
-    await expect(channel.getToken()).resolves.toBe('browser-token');
+  it('gets the FID with the push service worker and the VAPID key, and unregisters', async () => {
+    await expect(channel.getToken()).resolves.toBe('browser-fid');
     expect(navigator.serviceWorker.register).toHaveBeenCalledWith('/push-sw.js');
-    expect(firebase.getToken).toHaveBeenCalledWith(
+    expect(firebase.register).toHaveBeenCalledWith(
       { messaging: true },
       expect.objectContaining({ serviceWorkerRegistration: { scope: '/' } }) as unknown,
     );
 
     await channel.deleteToken();
-    expect(firebase.deleteToken).toHaveBeenCalled();
+    expect(firebase.unregister).toHaveBeenCalled();
     // Una sola instancia de Firebase
     expect(firebase.getMessaging).toHaveBeenCalledTimes(1);
+  });
+
+  it('fails when the registration fails', async () => {
+    firebase.onRegistered.mockReturnValue(vi.fn());
+    firebase.register.mockRejectedValue('blocked');
+    await expect(channel.getToken()).rejects.toThrow('blocked');
+  });
+
+  it('gives up when Firebase never delivers the FID', async () => {
+    vi.useFakeTimers();
+    try {
+      firebase.onRegistered.mockReturnValue(vi.fn());
+      const result = channel.getToken();
+      const check = expect(result).rejects.toThrow('timed out');
+      await vi.advanceTimersByTimeAsync(15_000);
+      await check;
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('tells when a push arrives and when the service worker opens one', () => {
