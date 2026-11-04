@@ -14,6 +14,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Frontend:** cerrar sesión descarta las pantallas de la cuenta anterior y Publicar abre limpio para cualquier perfil (#120).
 
 ### Changed
+- **Backend:** las push se envían con `sendEach` (un mensaje por token o FID, en lotes de 500) en lugar de `sendEachForMulticast`, obsoleto (#213).
 - **Backend:** las push a la web se envían por el id de la instalación de Firebase (FID), que sustituye a los tokens de registro obsoletos; la app Android sigue con su token de FCM. La API no cambia: la web guarda su FID donde antes iba el token (#210).
 - **Frontend:** la ubicación del conductor con su viaje en curso es parte del servicio (RGPD 6.1.b, como explica la Política de privacidad 1.1): al iniciar el viaje ya no se registra un consentimiento (`location_prompt`); si el dispositivo aún no da permiso, se explica y se pide solo el permiso. El seguimiento y la comprobación al terminar funcionan aunque el conductor haya retirado el consentimiento de ubicación en Mi perfil, cuyo texto lo dice (`LocationService`: uso `driving`) (#190).
 - **Frontend:** todas las ventanas comparten marco: como mucho el 85 % del alto (los textos legales, siempre el 85 %, también al abrirlos desde el registro), 720 px de ancho en escritorio y hoja abajo en el móvil, la cabecera común `app-modal-header` con una ✕ más grande (48 px) y el contenido en `.modal-body` con su propio scroll (#176).
