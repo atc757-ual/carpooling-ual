@@ -13893,7 +13893,7 @@
         "properties": {
           "token": {
             "type": "string",
-            "description": "The Firebase Cloud Messaging registration token",
+            "description": "The Firebase installation id (FID) on the web, or the Firebase Cloud Messaging registration token in the Android app",
             "maxLength": 4096
           },
           "platform": {
