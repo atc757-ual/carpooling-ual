@@ -12,6 +12,20 @@ const OVERVIEW = {
   seatsTaken: 41,
   pendingRequests: 12,
 };
+const TWIN = {
+  trips: { published: 4, confirmed: 2, in_progress: 3, finished: 90, cancelled: 5 },
+  vehicles: { idle: 20, scheduled: 6, on_trip: 3 },
+  users: { active: 120, deactivated: 2, drivers: 30, passengers: 100, inDriverMode: 12 },
+  passengersOnBoard: 7,
+  isLive: true,
+  lastSequence: 1834,
+  appliedEvents: 1500,
+  duplicateEvents: 0,
+  unsupportedEvents: 0,
+  lastEventAt: '2026-11-04T08:00:00.000Z',
+  syncedAt: '2026-11-04T08:00:01.000Z',
+  lag: { samples: 40, lastMs: 120, p95Ms: 310, maxMs: 600 },
+};
 const EVENT = {
   id: 'e1',
   href: '/api/admin/events/e1',
@@ -25,6 +39,7 @@ const EVENT = {
 describe('AdminDigitalTwinPage', () => {
   let fixture: ComponentFixture<AdminDigitalTwinPage>;
   const overview = vi.fn();
+  const digitalTwin = vi.fn();
   const listEvents = vi.fn();
   const getEvent = vi.fn();
 
@@ -34,7 +49,10 @@ describe('AdminDigitalTwinPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
-        { provide: AdminOverviewService, useValue: { overview, listEvents, getEvent } },
+        {
+          provide: AdminOverviewService,
+          useValue: { digitalTwin, overview, listEvents, getEvent },
+        },
       ],
     });
     fixture = TestBed.createComponent(AdminDigitalTwinPage);
@@ -54,19 +72,19 @@ describe('AdminDigitalTwinPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     overview.mockResolvedValue(OVERVIEW);
+    digitalTwin.mockResolvedValue(TWIN);
     listEvents.mockResolvedValue({ items: [EVENT], total: 41 });
     getEvent.mockResolvedValue({ ...EVENT, payload: { status: 'published' } });
   });
 
-  it('shows the live overview and the latest events', async () => {
+  it('shows the twin, the live overview and the latest events', async () => {
     const root = await render();
 
     const values = [...root.querySelectorAll('.twin__value')].map((value) => value.textContent);
-    expect(values).toEqual(['24', '8', '60', '41', '12']);
+    expect(values).toEqual(['3', '7', '6', '90', '120', '24', '8', '60', '41', '12']);
+    expect(root.textContent).toContain('6 con viajes por hacer · 20 sin viajes');
     expect(root.textContent).toContain('68 % de ocupación');
-    expect(root.querySelector('.notice--info')?.textContent).toContain(
-      'El gemelo digital se conectará aquí',
-    );
+    expect(root.querySelector('.notice--success')?.textContent).toContain('Retraso p95: 310 ms');
     expect(listEvents).toHaveBeenCalledWith({ type: undefined, offset: 0, limit: 20 });
     const row = root.querySelector('.twin__table tbody tr');
     expect(row?.textContent).toContain('Viaje publicado');
@@ -143,13 +161,15 @@ describe('AdminDigitalTwinPage', () => {
 
   it('shows the errors with a retry', async () => {
     overview.mockRejectedValue(new ApiError('INTERNAL_ERROR', 500));
+    digitalTwin.mockRejectedValue(new ApiError('INTERNAL_ERROR', 500));
     listEvents.mockRejectedValue(new ApiError('INTERNAL_ERROR', 500));
     const root = await render();
 
     const alerts = root.querySelectorAll('.notice--danger');
-    expect(alerts).toHaveLength(2);
-    expect(alerts[0].textContent).toContain('No hemos podido cargar el resumen.');
-    expect(alerts[1].textContent).toContain('No hemos podido cargar los eventos.');
+    expect(alerts).toHaveLength(3);
+    expect(alerts[0].textContent).toContain('No hemos podido cargar el gemelo.');
+    expect(alerts[1].textContent).toContain('No hemos podido cargar el resumen.');
+    expect(alerts[2].textContent).toContain('No hemos podido cargar los eventos.');
   });
 
   it('refreshes the overview by itself and on demand', async () => {
@@ -165,6 +185,7 @@ describe('AdminDigitalTwinPage', () => {
       fixture.componentInstance.handleRefresh();
       await settle();
       expect(overview).toHaveBeenCalledTimes(3);
+      expect(digitalTwin).toHaveBeenCalledTimes(3);
       expect(listEvents).toHaveBeenCalledTimes(2);
     } finally {
       fixture.destroy();

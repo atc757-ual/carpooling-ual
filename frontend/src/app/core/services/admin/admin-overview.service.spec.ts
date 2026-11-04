@@ -18,6 +18,12 @@ describe('AdminOverviewService', () => {
 
   afterEach(() => http.verify());
 
+  it('gets the state of the digital twin', async () => {
+    const request = overview.digitalTwin();
+    http.expectOne('/api/admin/digital-twin').flush({ isLive: true });
+    await expect(request).resolves.toEqual({ isLive: true });
+  });
+
   it('gets the live overview', async () => {
     const request = overview.overview();
     http.expectOne('/api/admin/overview').flush({ tripsPublishedToday: 4 });
