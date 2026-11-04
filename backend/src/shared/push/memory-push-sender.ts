@@ -1,20 +1,22 @@
-import { PushMessage, PushSender } from './push-sender';
+import { PushMessage, PushRecipients, PushSender } from './push-sender';
 
 export interface SentPush {
-  tokens: readonly string[];
+  recipients: PushRecipients;
   message: PushMessage;
 }
 
-// Para los tests: guarda lo enviado y trata como caducados los tokens que se
-// le indiquen (invalidTokens)
+// Para los tests: guarda lo enviado y trata como caducados los tokens o FID
+// que se le indiquen (invalidTokens)
 export class MemoryPushSender extends PushSender {
   readonly sent: SentPush[] = [];
   readonly invalidTokens = new Set<string>();
 
-  send(tokens: readonly string[], message: PushMessage): Promise<string[]> {
-    this.sent.push({ tokens, message });
+  send(recipients: PushRecipients, message: PushMessage): Promise<string[]> {
+    this.sent.push({ recipients, message });
     return Promise.resolve(
-      tokens.filter((token) => this.invalidTokens.has(token)),
+      [...recipients.tokens, ...recipients.fids].filter((id) =>
+        this.invalidTokens.has(id),
+      ),
     );
   }
 

@@ -9,7 +9,8 @@ import {
 // dispositivo o navegador y dónde está
 export class RegisterPushTokenDto {
   @ApiProperty({
-    description: 'The Firebase Cloud Messaging registration token',
+    description:
+      'The Firebase installation id (FID) on the web, or the Firebase Cloud Messaging registration token in the Android app',
     maxLength: 4096,
   })
   @IsString()

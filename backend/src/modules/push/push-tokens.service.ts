@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
+import type { PushRecipients } from '../../shared/push/push-sender';
 import { PushToken, type PushPlatform } from './entities/push-token.entity';
 
-// Los tokens de los dispositivos donde cada usuario activó las push
+// Los dispositivos donde cada usuario activó las push (su token o su FID)
 @Injectable()
 export class PushTokensService {
   constructor(
@@ -31,15 +32,19 @@ export class PushTokensService {
     await this.tokensRepository.delete({ userId, token });
   }
 
-  async tokensOf(userIds: readonly string[]): Promise<string[]> {
+  // Los dispositivos de unos usuarios: en la web, lo guardado es su FID; en la
+  // app Android, su token de FCM (PushRecipients)
+  async recipientsOf(userIds: readonly string[]): Promise<PushRecipients> {
     if (userIds.length === 0) {
-      return [];
+      return { tokens: [], fids: [] };
     }
     const rows = await this.tokensRepository.find({
-      select: { token: true },
+      select: { token: true, platform: true },
       where: { userId: In([...new Set(userIds)]) },
     });
-    return rows.map(({ token }) => token);
+    const idsOf = (platform: PushPlatform) =>
+      rows.filter((row) => row.platform === platform).map(({ token }) => token);
+    return { tokens: idsOf('android'), fids: idsOf('web') };
   }
 
   // Los que Firebase dice que ya no valen

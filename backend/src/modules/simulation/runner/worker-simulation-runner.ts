@@ -98,7 +98,8 @@ export class WorkerSimulationRunner
   }
 
   onModuleDestroy(): void {
-    for (const runId of [...this.running.keys()]) {
+    // Borrar del Map mientras se recorre es seguro: no hace falta copiarlo
+    for (const runId of this.running.keys()) {
       this.cancel(runId);
     }
   }

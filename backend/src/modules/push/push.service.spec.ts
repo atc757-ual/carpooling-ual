@@ -12,7 +12,7 @@ const MESSAGE: PushMessage = {
 
 describe('PushService', () => {
   let sender: MemoryPushSender;
-  let tokens: { tokensOf: jest.Mock; removeInvalid: jest.Mock };
+  let tokens: { recipientsOf: jest.Mock; removeInvalid: jest.Mock };
   let push: PushService;
   let subscribers: unknown[];
 
@@ -34,7 +34,7 @@ describe('PushService', () => {
   beforeEach(() => {
     sender = new MemoryPushSender();
     tokens = {
-      tokensOf: jest.fn().mockResolvedValue(['t1']),
+      recipientsOf: jest.fn().mockResolvedValue({ tokens: ['t1'], fids: [] }),
       removeInvalid: jest.fn().mockResolvedValue(undefined),
     };
     subscribers = [];
@@ -58,7 +58,9 @@ describe('PushService', () => {
       queryRunner: committed.queryRunner,
     } as never);
     await flush();
-    expect(sender.sent).toEqual([{ tokens: ['t1'], message: MESSAGE }]);
+    expect(sender.sent).toEqual([
+      { recipients: { tokens: ['t1'], fids: [] }, message: MESSAGE },
+    ]);
 
     const rolledBack = inTransaction();
     push.queue(rolledBack.manager, ['u1'], MESSAGE);
@@ -78,7 +80,7 @@ describe('PushService', () => {
     await flush();
     expect(sender.sent).toHaveLength(1);
 
-    tokens.tokensOf.mockResolvedValue([]);
+    tokens.recipientsOf.mockResolvedValue({ tokens: [], fids: [] });
     await push.deliver({ userIds: ['u2'], message: MESSAGE });
     expect(sender.sent).toHaveLength(1);
   });
@@ -88,7 +90,7 @@ describe('PushService', () => {
     await push.deliver({ userIds: ['u1'], message: MESSAGE });
     expect(tokens.removeInvalid).toHaveBeenCalledWith(['t1']);
 
-    tokens.tokensOf.mockRejectedValue(new Error('database down'));
+    tokens.recipientsOf.mockRejectedValue(new Error('database down'));
     await expect(
       push.deliver({ userIds: ['u1'], message: MESSAGE }),
     ).resolves.toBeUndefined();

@@ -177,7 +177,7 @@ describe('Push notifications (e2e)', () => {
       .request(pia.id, tripId);
 
     const [push] = await waitForPush();
-    expect([...push.tokens].sort()).toEqual(['dan-old', 'dan-web']);
+    expect([...push.recipients.fids].sort()).toEqual(['dan-old', 'dan-web']);
     expect(push.message).toEqual({
       title: 'Te han pedido plaza',
       body: 'Ábrela para aceptarla o rechazarla.',
@@ -212,7 +212,7 @@ describe('Push notifications (e2e)', () => {
       .expect(201);
 
     const [push] = await waitForPush();
-    expect(push.tokens).toEqual(['dan-web']);
+    expect(push.recipients).toEqual({ tokens: [], fids: ['dan-web'] });
     expect(push.message).toEqual({
       title: 'Pía R. te ha escrito',
       body: 'Abre el chat del viaje para leerlo.',

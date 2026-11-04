@@ -13,7 +13,10 @@ describe('createPushSender', () => {
     });
     expect(disabled).toBeInstanceOf(DisabledPushSender);
     await expect(
-      disabled.send(['t1'], { title: 'Hola', body: 'Texto', data: {} }),
+      disabled.send(
+        { tokens: ['t1'], fids: [] },
+        { title: 'Hola', body: 'Texto', data: {} },
+      ),
     ).resolves.toEqual([]);
   });
 

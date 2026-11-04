@@ -66,11 +66,11 @@ export class PushService implements EntitySubscriberInterface {
   // Los tokens que ya no valen se borran
   async deliver({ userIds, message }: PendingPush): Promise<void> {
     try {
-      const tokens = await this.tokens.tokensOf(userIds);
-      if (tokens.length === 0) {
+      const recipients = await this.tokens.recipientsOf(userIds);
+      if (recipients.tokens.length === 0 && recipients.fids.length === 0) {
         return;
       }
-      const invalid = await this.sender.send(tokens, message);
+      const invalid = await this.sender.send(recipients, message);
       await this.tokens.removeInvalid(invalid);
     } catch (error) {
       this.logger.warn(
