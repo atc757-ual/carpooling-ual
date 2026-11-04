@@ -56,7 +56,14 @@ El perfil de administrador no se puede pedir en el registro (RF-01): el primero 
 - **Direcciones (CartoCiudad, IGN):** el backend lo llama directamente, sin clave. Hay que dejar salir el tráfico HTTPS hacia `www.cartociudad.es`. Su licencia exige citar «CartoCiudad cedido por © Instituto Geográfico Nacional» (la app ya lo muestra junto a las sugerencias).
 - **Tiles del mapa (OpenStreetMap):** el navegador los pide a `tile.openstreetmap.org`, cuyo uso está limitado a tráfico moderado y con atribución (ya visible en el mapa). Para una demo vale; para un despliegue con usuarios reales, usar un servidor de tiles propio o un proveedor y cambiar `TILES_URL` en `location-modal.ts`.
 
-## 6. App Android (Capacitor)
+## 6. Notificaciones push en la web
+
+- **HTTPS obligatorio:** el navegador solo deja usar el *service worker* de las push (`push-sw.js`, en la raíz de la web) con HTTPS o en `localhost`.
+- `push-sw.js` tiene que servirse desde la raíz del dominio (`/push-sw.js`) y **sin caché larga**, para que los navegadores recojan sus cambios.
+- La configuración web de Firebase y la clave VAPID pública van en los `environment` del frontend (no son secretas). Si se cambia de proyecto de Firebase, hay que cambiarlas allí.
+- **Comprobar:** en Mi perfil → Notificaciones, activarlas; con otra cuenta, pedir plaza en un viaje de la primera: le llega la push aunque tenga la pestaña cerrada (con el navegador abierto).
+
+## 7. App Android (Capacitor)
 
 La app nativa empaqueta el frontend (`frontend/www`) en `frontend/android/`. Hace falta Android Studio (trae el SDK, Java y `adb`).
 

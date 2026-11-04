@@ -7,6 +7,7 @@ import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { ChatService } from '../../core/services/chat/chat.service';
+import { PushNotificationsService } from '../../core/services/push/push-notifications.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { TabHeading } from './tab-heading';
@@ -57,6 +58,10 @@ describe('TabsPage', () => {
         },
         { provide: ActiveModeService, useValue: { mode, setMode } },
         { provide: NotificationsService, useValue: { unreadCount: unread, refreshUnread } },
+        {
+          provide: PushNotificationsService,
+          useValue: { onOpen: vi.fn(), start: vi.fn().mockResolvedValue(undefined) },
+        },
         {
           provide: ChatService,
           useValue: { hasUnread: hasUnreadMessages, refreshUnread: refreshUnreadMessages },

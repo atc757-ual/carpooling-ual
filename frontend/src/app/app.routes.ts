@@ -234,6 +234,12 @@ export const routes: Routes = [
           } satisfies TabHeading,
         },
       },
+      {
+        // Al pulsar una push con la app cerrada (lo abre el service worker)
+        path: 'push-open',
+        loadComponent: () =>
+          import('./features/notifications/push-open/push-open.page').then((m) => m.PushOpenPage),
+      },
     ],
   },
   {

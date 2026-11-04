@@ -38,6 +38,7 @@ export class AuthService {
   private readonly authUrl = `${environment.apiUrl}/auth`;
 
   private readonly user = signal<User | null>(null);
+  private readonly beforeLogoutTasks: (() => Promise<void>)[] = [];
   private accessToken: string | null = null;
   private pendingRefresh: Promise<string> | null = null;
 
@@ -102,9 +103,17 @@ export class AuthService {
     return token.user;
   }
 
+  // Lo que hay que hacer con la sesión aún abierta, justo antes de cerrarla
+  // (p. ej. dejar de recibir push en este dispositivo). Un fallo no impide
+  // cerrar la sesión
+  onBeforeLogout(task: () => Promise<void>): void {
+    this.beforeLogoutTasks.push(task);
+  }
+
   // Cierra la sesión en este dispositivo y anula el token en el servidor. Si
   // el servidor no responde (sin conexión), la sesión local ya está cerrada.
   async logout(): Promise<void> {
+    await Promise.all(this.beforeLogoutTasks.map((task) => task().catch(() => undefined)));
     const refreshToken = await this.preferences.get(REFRESH_TOKEN_KEY);
     await this.endSession();
     if (refreshToken) {
