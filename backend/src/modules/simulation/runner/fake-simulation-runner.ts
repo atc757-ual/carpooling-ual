@@ -1,6 +1,9 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { Logger, OnModuleDestroy } from '@nestjs/common';
 import type { ReplicaMetrics } from '../simulation-metrics';
+
+// Calcula una réplica (el motor falso o el de agentes, engine/)
+export type ReplicaFn = (job: SimulationJob, index: number) => ReplicaMetrics;
 import { FAKE_SLOTS, fakeReplica } from './fake-replica';
 import type {
   SimulationJob,
@@ -19,7 +22,10 @@ export class FakeSimulationRunner implements SimulationRunner, OnModuleDestroy {
   private readonly logger = new Logger(FakeSimulationRunner.name);
   private readonly running = new Map<string, AbortController>();
 
-  constructor(private readonly tickMs: number = DEFAULT_TICK_MS) {}
+  constructor(
+    private readonly tickMs: number = DEFAULT_TICK_MS,
+    private readonly replica: ReplicaFn = fakeReplica,
+  ) {}
 
   start(job: SimulationJob, listener: SimulationRunListener): void {
     const controller = new AbortController();
@@ -70,7 +76,7 @@ export class FakeSimulationRunner implements SimulationRunner, OnModuleDestroy {
       return done;
     }
     await delay(this.tickMs, undefined, { signal });
-    const replicas = [...done, fakeReplica(job, done.length)];
+    const replicas = [...done, this.replica(job, done.length)];
     await listener.onProgress(job.runId, replicas.length);
     return this.runReplicas(job, listener, signal, replicas);
   }
