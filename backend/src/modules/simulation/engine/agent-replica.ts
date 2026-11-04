@@ -217,6 +217,15 @@ export function simulateDay(config: ScenarioConfig, random: Random): DayResult {
   };
 }
 
+// S5: pasajeros afectados por una cancelación que encuentran otro viaje; sin
+// afectados, la recuperación es completa
+function recoveryPctOf(day: DayResult): number {
+  if (day.affectedPassengers === 0) {
+    return 100;
+  }
+  return round((day.recoveredPassengers / day.affectedPassengers) * 100);
+}
+
 // Una réplica: el escenario y la base (S0) con la misma semilla, es decir,
 // con la misma población (semillas emparejadas)
 export function agentReplica(
@@ -244,13 +253,7 @@ export function agentReplica(
     baselineAverageOccupancy:
       base.vehicles > 0 ? round(base.people / base.vehicles) : 0,
     matchingP95Ms: round(day.matchingP95Ms),
-    recoveryPct: hasIncidents
-      ? round(
-          day.affectedPassengers > 0
-            ? (day.recoveredPassengers / day.affectedPassengers) * 100
-            : 100,
-        )
-      : null,
+    recoveryPct: hasIncidents ? recoveryPctOf(day) : null,
     vehiclesBySlot: day.vehiclesBySlot.map(Math.round),
     baselineVehiclesBySlot: base.vehiclesBySlot.map(Math.round),
   };
