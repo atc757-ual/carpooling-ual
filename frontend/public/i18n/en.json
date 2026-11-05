@@ -6,7 +6,37 @@
     "close": "Close",
     "loading": "Loading…",
     "countryPrefixLabel": "Country calling code: {{ prefix }}",
-    "countryPrefixList": "Available phone prefixes"
+    "countryPrefixList": "Available phone prefixes",
+    "accept": "OK",
+    "back": "Back",
+    "greeting": "Hello, {{ name }}!",
+    "nav": {
+      "mainAria": "Main navigation",
+      "search": "Search",
+      "publish": "Publish",
+      "trips": "Your trips",
+      "messages": "Messages",
+      "profile": "My profile",
+      "admin": "Admin panel",
+      "logout": "Log out",
+      "newMessages": "(new messages)",
+      "notifications": "Notifications",
+      "notificationsWithCount": {
+        "one": "Notifications, 1 unread",
+        "other": "Notifications, {{ count }} unread"
+      }
+    },
+    "logoutConfirm": {
+      "title": "Log out?",
+      "message": "You can log back in at any time with your UAL email and password.",
+      "confirm": "Log out"
+    },
+    "footer": {
+      "rights": "© {{ year }} Carpooling UAL. All rights reserved.",
+      "githubAria": "Author's GitHub",
+      "linkedinAria": "Author's LinkedIn",
+      "developedBy": "Developed by Alex Taquila"
+    }
   },
   "brand": {
     "tagline": "Shared mobility"

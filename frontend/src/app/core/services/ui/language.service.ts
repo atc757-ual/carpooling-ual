@@ -41,7 +41,18 @@ export class LanguageService {
         return saved;
       }
     } catch {
-      // Continuar con idioma por defecto
+      // Continuar con detección de navegador o idioma por defecto
+    }
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.language) {
+        const browserLang = navigator.language.toLowerCase();
+        if (browserLang.startsWith('en')) {
+          return 'en';
+        }
+      }
+    } catch {
+      // Ignorar si navigator no está disponible
     }
 
     return 'es';

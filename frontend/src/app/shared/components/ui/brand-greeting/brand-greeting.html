@@ -10,7 +10,7 @@
     <span
       class="brand-greeting__word brand-greeting__word--hello"
       [class.brand-greeting__word--out]="!isGreeting()"
-      >¡Hola, {{ name() }}!</span
+      >{{ 'common.greeting' | transloco: { name: name() } }}</span
     >
   </span>
 </span>

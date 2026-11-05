@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { ConfirmModal } from './confirm-modal';
 
 describe('ConfirmModal', () => {
@@ -12,7 +13,11 @@ describe('ConfirmModal', () => {
   ): { root: HTMLElement; modal: ConfirmModal } {
     TestBed.configureTestingModule({
       imports: [ConfirmModal],
-      providers: [provideIonicAngular(), { provide: ModalController, useValue: { dismiss } }],
+      providers: [
+        provideIonicAngular(),
+        provideTranslocoTestingSupport(),
+        { provide: ModalController, useValue: { dismiss } },
+      ],
     });
     const fixture = TestBed.createComponent(ConfirmModal);
     Object.assign(fixture.componentInstance, {

@@ -1,10 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { BrandGreeting } from './brand-greeting';
 
 describe('BrandGreeting', () => {
   function create(name = 'Ana'): ComponentFixture<BrandGreeting> {
-    TestBed.configureTestingModule({ imports: [BrandGreeting] });
+    TestBed.configureTestingModule({
+      imports: [BrandGreeting],
+      providers: [provideTranslocoTestingSupport()],
+    });
     const fixture = TestBed.createComponent(BrandGreeting);
     fixture.componentRef.setInput('name', name);
     fixture.detectChanges();

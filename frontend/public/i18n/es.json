@@ -6,7 +6,37 @@
     "close": "Cerrar",
     "loading": "Cargando…",
     "countryPrefixLabel": "Prefijo del país: {{ prefix }}",
-    "countryPrefixList": "Prefijos telefónicos disponibles"
+    "countryPrefixList": "Prefijos telefónicos disponibles",
+    "accept": "Aceptar",
+    "back": "Volver",
+    "greeting": "¡Hola, {{ name }}!",
+    "nav": {
+      "mainAria": "Principal",
+      "search": "Buscar",
+      "publish": "Publicar",
+      "trips": "Tus viajes",
+      "messages": "Mensajes",
+      "profile": "Mi perfil",
+      "admin": "Panel de administración",
+      "logout": "Cerrar sesión",
+      "newMessages": "(mensajes nuevos)",
+      "notifications": "Avisos",
+      "notificationsWithCount": {
+        "one": "Avisos, 1 sin leer",
+        "other": "Avisos, {{ count }} sin leer"
+      }
+    },
+    "logoutConfirm": {
+      "title": "¿Cerrar sesión?",
+      "message": "Podrás volver cuando quieras con tu correo UAL y tu contraseña.",
+      "confirm": "Cerrar sesión"
+    },
+    "footer": {
+      "rights": "© {{ year }} Carpooling UAL. Todos los derechos reservados.",
+      "githubAria": "GitHub del autor",
+      "linkedinAria": "LinkedIn del autor",
+      "developedBy": "Desarrollado por Alex Taquila"
+    }
   },
   "brand": {
     "tagline": "Sistema de movilidad compartida"
