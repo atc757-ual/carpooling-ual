@@ -1,11 +1,12 @@
 import {
   EnvironmentProviders,
+  ENVIRONMENT_INITIALIZER,
   inject,
   Injectable,
   InjectionToken,
   makeEnvironmentProviders,
 } from '@angular/core';
-import { provideTransloco } from '@jsverse/transloco';
+import { provideTransloco, TranslocoService } from '@jsverse/transloco';
 import type { TranslocoLoader } from '@jsverse/transloco';
 import { of } from 'rxjs';
 
@@ -17,8 +18,40 @@ const DEFAULT_TEST_TRANSLATIONS: Record<string, Record<string, unknown>> = {
   es: {
     brand: { tagline: 'Sistema de movilidad compartida' },
     common: {
+      accept: 'Aceptar',
+      cancel: 'Cancelar',
+      close: 'Cerrar',
+      back: 'Volver',
+      greeting: '¡Hola, {{ name }}!',
       countryPrefixLabel: 'Prefijo del país: {{ prefix }}',
       countryPrefixList: 'Prefijos telefónicos disponibles',
+      nav: {
+        mainAria: 'Principal',
+        search: 'Buscar',
+        publish: 'Publicar',
+        trips: 'Tus viajes',
+        messages: 'Mensajes',
+        profile: 'Mi perfil',
+        admin: 'Panel de administración',
+        logout: 'Cerrar sesión',
+        newMessages: '(mensajes nuevos)',
+        notifications: 'Avisos',
+        notificationsWithCount: {
+          one: 'Avisos, 1 sin leer',
+          other: 'Avisos, {{ count }} sin leer',
+        },
+      },
+      logoutConfirm: {
+        title: '¿Cerrar sesión?',
+        message: 'Podrás volver cuando quieras con tu correo UAL y tu contraseña.',
+        confirm: 'Cerrar sesión',
+      },
+      footer: {
+        rights: '© {{ year }} Carpooling UAL. Todos los derechos reservados.',
+        githubAria: 'GitHub del autor',
+        linkedinAria: 'LinkedIn del autor',
+        developedBy: 'Desarrollado por Alex Taquila',
+      },
     },
     auth: {
       layout: {
@@ -75,6 +108,45 @@ const DEFAULT_TEST_TRANSLATIONS: Record<string, Record<string, unknown>> = {
       },
     },
   },
+  en: {
+    brand: { tagline: 'Shared mobility' },
+    common: {
+      accept: 'OK',
+      cancel: 'Cancel',
+      close: 'Close',
+      back: 'Back',
+      greeting: 'Hello, {{ name }}!',
+      countryPrefixLabel: 'Country calling code: {{ prefix }}',
+      countryPrefixList: 'Available phone prefixes',
+      nav: {
+        mainAria: 'Main navigation',
+        search: 'Search',
+        publish: 'Publish',
+        trips: 'Your trips',
+        messages: 'Messages',
+        profile: 'My profile',
+        admin: 'Admin panel',
+        logout: 'Log out',
+        newMessages: '(new messages)',
+        notifications: 'Notifications',
+        notificationsWithCount: {
+          one: 'Notifications, 1 unread',
+          other: 'Notifications, {{ count }} unread',
+        },
+      },
+      logoutConfirm: {
+        title: 'Log out?',
+        message: 'You can log back in at any time with your UAL email and password.',
+        confirm: 'Log out',
+      },
+      footer: {
+        rights: '© {{ year }} Carpooling UAL. All rights reserved.',
+        githubAria: "Author's GitHub",
+        linkedinAria: "Author's LinkedIn",
+        developedBy: 'Developed by Alex Taquila',
+      },
+    },
+  },
 };
 
 function mergeTranslations(
@@ -108,7 +180,7 @@ export function provideTestingTransloco(
   translations: Record<string, Record<string, unknown>> = {},
 ): EnvironmentProviders {
   try {
-    globalThis.localStorage?.removeItem('carpooling_language');
+    globalThis.localStorage?.setItem('carpooling_language', 'es');
   } catch {
     // El almacenamiento puede no estar disponible en el entorno de pruebas
   }
@@ -130,6 +202,16 @@ export function provideTestingTransloco(
       },
       loader: TestingTranslocoLoader,
     }),
+    {
+      provide: ENVIRONMENT_INITIALIZER,
+      multi: true,
+      useValue: () => {
+        const transloco = inject(TranslocoService);
+        for (const [lang, dict] of Object.entries(mergedTranslations)) {
+          transloco.setTranslation(dict, lang);
+        }
+      },
+    },
   ]);
 }
 

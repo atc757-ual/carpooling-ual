@@ -32,9 +32,11 @@ import {
   searchOutline,
   shieldCheckmarkOutline,
 } from 'ionicons/icons';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { AppContextService } from '../../core/services/ui/app-context.service';
+import { LanguageService } from '../../core/services/ui/language.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { ChatService } from '../../core/services/chat/chat.service';
 import { PushNotificationsService } from '../../core/services/push/push-notifications.service';
@@ -50,17 +52,25 @@ import { ConfirmService } from '../../core/services/ui/confirm.service';
 interface Tab {
   // Ruta bajo /tabs
   path: string;
-  label: string;
+  labelKey: string;
   icon: string;
 }
 
-const TRIPS_TAB: Tab = { path: 'trips', label: 'Tus viajes', icon: mapOutline };
-const SEARCH_TAB: Tab = { path: 'search', label: 'Buscar', icon: searchOutline };
-const PUBLISH_TAB: Tab = { path: 'publish', label: 'Publicar', icon: addCircleOutline };
-const MESSAGES_TAB: Tab = { path: 'messages', label: 'Mensajes', icon: chatbubblesOutline };
+const TRIPS_TAB: Tab = { path: 'trips', labelKey: 'common.nav.trips', icon: mapOutline };
+const SEARCH_TAB: Tab = { path: 'search', labelKey: 'common.nav.search', icon: searchOutline };
+const PUBLISH_TAB: Tab = {
+  path: 'publish',
+  labelKey: 'common.nav.publish',
+  icon: addCircleOutline,
+};
+const MESSAGES_TAB: Tab = {
+  path: 'messages',
+  labelKey: 'common.nav.messages',
+  icon: chatbubblesOutline,
+};
 // Cada cuánto se mira si hay mensajes nuevos (el punto de la pestaña)
 export const MESSAGES_REFRESH_MS = 30_000;
-const PROFILE_TAB: Tab = { path: 'profile', label: 'Mi perfil', icon: personOutline };
+const PROFILE_TAB: Tab = { path: 'profile', labelKey: 'common.nav.profile', icon: personOutline };
 
 // Qué lado guarda cada pestaña al entrar (y por dónde se abre la próxima vez)
 const SIDES: readonly { path: string; mode: TravelMode }[] = [
@@ -99,6 +109,7 @@ const SIDES: readonly { path: string; mode: TravelMode }[] = [
     IonToolbar,
     BrandLogo,
     BrandGreeting,
+    TranslocoPipe,
   ],
   templateUrl: './tabs.page.html',
   styleUrl: './tabs.page.scss',
@@ -115,6 +126,8 @@ export class TabsPage implements OnInit {
   private readonly driverTracking = inject(DriverTrackingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly confirm = inject(ConfirmService);
+  private readonly transloco = inject(TranslocoService);
+  private readonly language = inject(LanguageService);
 
   // La cabecera propia de la pestaña que se ve, o null (saludo y logotipo)
   readonly heading = toSignal(
@@ -131,9 +144,18 @@ export class TabsPage implements OnInit {
   // Avisos sin leer, en la campana y en la pestaña Avisos. Se cuentan al
   // entrar y en cada navegación (sin consultar cada pocos segundos)
   readonly unreadCount = this.notifications.unreadCount;
-  readonly bellLabel = computed(() =>
-    this.unreadCount() > 0 ? `Avisos, ${this.unreadCount()} sin leer` : 'Avisos',
-  );
+  readonly bellLabel = computed(() => {
+    this.language.currentLanguage();
+    const count = this.unreadCount();
+    if (count <= 0) {
+      return this.transloco.translate('common.nav.notifications');
+    }
+    const key =
+      count === 1
+        ? 'common.nav.notificationsWithCount.one'
+        : 'common.nav.notificationsWithCount.other';
+    return this.transloco.translate(key, { count });
+  });
 
   // Mensajes nuevos: un punto en la pestaña Mensajes. Al entrar, en cada
   // navegación y cada 30 s (llegan sin que el usuario haga nada)
@@ -201,7 +223,7 @@ export class TabsPage implements OnInit {
 
   // Con la misma confirmación que en el Perfil
   async handleLogout(): Promise<void> {
-    if (!(await confirmLogout(this.confirm))) {
+    if (!(await confirmLogout(this.confirm, this.transloco))) {
       return;
     }
     await this.auth.logout();

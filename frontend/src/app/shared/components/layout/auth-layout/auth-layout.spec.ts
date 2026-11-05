@@ -6,7 +6,7 @@ import { AuthLayout, AuthLayoutVariant } from './auth-layout';
 @Component({
   imports: [AuthLayout],
   template: `
-    <app-auth-layout [variant]="variant()">
+    <app-auth-layout [variant]="variant()" [showLanguageSwitch]="showLanguageSwitch()">
       <p class="projected">Formulario</p>
       <p class="projected-top" authLayoutTop>Volver</p>
     </app-auth-layout>
@@ -14,6 +14,7 @@ import { AuthLayout, AuthLayoutVariant } from './auth-layout';
 })
 class Host {
   readonly variant = signal<AuthLayoutVariant>('form');
+  readonly showLanguageSwitch = signal(false);
 }
 
 describe('AuthLayout', () => {
@@ -86,6 +87,16 @@ describe('AuthLayout', () => {
       expect(logoVariants(root)).toEqual(['tile']);
       expect(root.querySelector('app-language-switch')).toBeNull();
       expect(root.querySelector('.auth-layout__illustration')).toBeNull();
+    });
+
+    it('shows the language switch when showLanguageSwitch is enabled', async () => {
+      const fixture = TestBed.createComponent(Host);
+      fixture.componentInstance.variant.set('form');
+      fixture.componentInstance.showLanguageSwitch.set(true);
+      await fixture.whenStable();
+      const root = fixture.nativeElement as HTMLElement;
+
+      expect(root.querySelector('app-language-switch')).not.toBeNull();
     });
 
     it('shows the separated footer only on desktop', async () => {

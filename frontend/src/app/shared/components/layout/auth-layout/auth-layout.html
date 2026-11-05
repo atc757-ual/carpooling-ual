@@ -18,7 +18,14 @@
           />
         } @else {
           <!-- En los formularios, el logotipo con el lema (igual en móvil y escritorio) -->
-          <app-brand-logo variant="tile" />
+          @if (showLanguageSwitch()) {
+            <div class="auth-layout__brand-row">
+              <app-brand-logo variant="tile" />
+              <app-language-switch [label]="'auth.layout.language' | transloco" />
+            </div>
+          } @else {
+            <app-brand-logo variant="tile" />
+          }
         }
       </div>
 
