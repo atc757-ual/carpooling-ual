@@ -10,9 +10,14 @@ export type NotificationType =
   | 'passenger_left'
   | 'trip_started'
   | 'incident_reported'
+  | 'review_requested'
+  | 'request_expired'
+  | 'passenger_no_show'
   // Un cambio menor en las condiciones o la política (no hay que aceptarlo)
   | 'terms_updated'
   | 'privacy_updated';
+
+export type NotificationCategory = 'travel' | 'account' | 'incident';
 
 interface NotificationLink {
   id: string;

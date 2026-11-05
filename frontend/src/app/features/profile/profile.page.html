@@ -212,6 +212,16 @@
                 </span>
                 <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
               </button>
+
+              <ion-button
+                class="profile__logout"
+                type="button"
+                expand="block"
+                (click)="handleLogout()"
+              >
+                <ion-icon slot="start" [icon]="logoutIcon" aria-hidden="true" />
+                {{ 'profile.logout' | transloco }}
+              </ion-button>
             </div>
           </ion-card-content>
         </ion-card>

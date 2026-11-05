@@ -5257,6 +5257,15 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": ["travel", "account", "incident"],
+              "type": "string"
+            }
           }
         ],
         "responses": {

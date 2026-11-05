@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, IsNull, Not, Repository } from 'typeorm';
+import { EntityManager, In, IsNull, Not, Repository } from 'typeorm';
 import type { FindOptionsWhere } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { Notification } from './entities/notification.entity';
@@ -11,6 +11,8 @@ import type {
 import { NotificationNotFoundError } from './errors/notification-not-found.error';
 import { PushService } from '../push/push.service';
 import { toPushMessage } from './notification-pushes';
+import type { NotificationCategory } from './dto/list-notifications-query.dto';
+import { LEGAL_NOTIFICATION_TYPES } from './entities/notification.entity';
 
 // Qué se avisa: el tipo y a qué se refiere. Los de un viaje llevan el viaje
 // (la base de datos exige la incidencia en incident_reported y la solicitud en
@@ -67,9 +69,28 @@ export class NotificationsService {
   async listForUser(
     userId: string,
     isRead: boolean | undefined,
-    page: PageRequest,
+    page: PageRequest & { category?: NotificationCategory },
   ): Promise<Page<Notification>> {
     const where: FindOptionsWhere<Notification> = { userId };
+    if (page.category === 'account') {
+      where.type = In([...LEGAL_NOTIFICATION_TYPES]);
+    } else if (page.category === 'incident') {
+      where.type = 'incident_reported';
+    } else if (page.category === 'travel') {
+      where.type = In([
+        'request_received',
+        'request_accepted',
+        'request_rejected',
+        'request_cancelled',
+        'request_conflict_cancelled',
+        'trip_cancelled',
+        'passenger_left',
+        'trip_started',
+        'review_requested',
+        'request_expired',
+        'passenger_no_show',
+      ]);
+    }
     if (isRead !== undefined) {
       where.readAt = isRead ? Not(IsNull()) : IsNull();
     }

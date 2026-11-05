@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { NavController, provideIonicAngular } from '@ionic/angular';
+import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -12,7 +12,6 @@ import { NotificationsService } from '../../core/services/notifications/notifica
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { TabHeading } from './tab-heading';
 import { MESSAGES_REFRESH_MS, TabsPage } from './tabs.page';
-import { ConfirmService } from '../../core/services/ui/confirm.service';
 
 @Component({ template: '' })
 class BlankPage {}
@@ -24,8 +23,8 @@ describe('TabsPage', () => {
   const profiles = signal<Profile[]>(['passenger', 'driver']);
   const loggedIn = signal(true);
   const setMode = vi.fn().mockResolvedValue(undefined);
-  const logout = vi.fn().mockResolvedValue(undefined);
   const unread = signal(0);
+  const arrivalVersion = signal(0);
   const refreshUnread = vi.fn().mockResolvedValue(undefined);
   const hasUnreadMessages = signal(false);
   const refreshUnreadMessages = vi.fn().mockResolvedValue(undefined);
@@ -53,11 +52,13 @@ describe('TabsPage', () => {
             currentUser: signal({ name: 'Mario Pérez' } as User),
             hasProfile: (profile: Profile) => profiles().includes(profile),
             isLoggedIn: () => loggedIn(),
-            logout,
           },
         },
         { provide: ActiveModeService, useValue: { mode, setMode } },
-        { provide: NotificationsService, useValue: { unreadCount: unread, refreshUnread } },
+        {
+          provide: NotificationsService,
+          useValue: { unreadCount: unread, arrivalVersion, refreshUnread },
+        },
         {
           provide: PushNotificationsService,
           useValue: { onOpen: vi.fn(), start: vi.fn().mockResolvedValue(undefined) },
@@ -80,6 +81,7 @@ describe('TabsPage', () => {
     profiles.set(['passenger', 'driver']);
     loggedIn.set(true);
     unread.set(0);
+    arrivalVersion.set(0);
     refreshUnread.mockClear();
     hasUnreadMessages.set(false);
     refreshUnreadMessages.mockClear();
@@ -110,23 +112,23 @@ describe('TabsPage', () => {
     await TestBed.inject(Router).navigateByUrl('/tabs/profile');
 
     expect(refreshUnread).toHaveBeenCalledTimes(2);
-    expect(page.bellLabel()).toBe('Avisos');
+    expect(page.bellLabel()).toBe('Notificaciones');
     unread.set(12);
-    expect(page.bellLabel()).toBe('Avisos, 12 sin leer');
+    expect(page.bellLabel()).toBe('Notificaciones, 12 sin leer');
   });
 
-  it('shows a compact unread dot without a number', async () => {
+  it('shows the unread total in a compact badge', async () => {
     render();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.bell-button__unread-dot')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.bell-button__badge')).toBeNull();
 
     unread.set(2);
     fixture.detectChanges();
     await fixture.whenStable();
 
     const bell = fixture.nativeElement.querySelector('.bell-button');
-    expect(bell?.getAttribute('aria-label')).toBe('Avisos, 2 sin leer');
-    expect(bell?.querySelector('.bell-button__unread-dot')).not.toBeNull();
+    expect(bell?.getAttribute('aria-label')).toBe('Notificaciones, 2 sin leer');
+    expect(bell?.querySelector('.bell-button__badge')?.textContent?.trim()).toBe('2');
     expect(bell?.querySelector('ion-badge')).toBeNull();
   });
 
@@ -195,13 +197,14 @@ describe('TabsPage', () => {
     expect(page.heading()).toEqual(HEADING);
   });
 
-  it('hides the bell and log out in the mobile header of an inner screen', async () => {
+  it('keeps the bell and hides log out in the mobile header', async () => {
     render();
     const header = (): HTMLElement => fixture.nativeElement.querySelector('.app-header');
 
     await TestBed.inject(Router).navigateByUrl('/tabs/search');
     await fixture.whenStable();
     expect(header().querySelector('.bell-button')).not.toBeNull();
+    expect(header().querySelector('.logout-button')).toBeNull();
 
     await TestBed.inject(Router).navigateByUrl('/tabs/search/results');
     await fixture.whenStable();
@@ -216,23 +219,5 @@ describe('TabsPage', () => {
 
     profiles.set(['passenger', 'admin']);
     expect(page['isAdmin']()).toBe(true);
-  });
-
-  it('logs out after confirming it and goes back to the welcome screen', async () => {
-    const page = render();
-    const navigateRoot = vi
-      .spyOn(TestBed.inject(NavController), 'navigateRoot')
-      .mockResolvedValue(true);
-    const ask = vi.spyOn(TestBed.inject(ConfirmService), 'ask').mockResolvedValueOnce(false);
-
-    await page.handleLogout();
-    expect(logout).not.toHaveBeenCalled();
-
-    ask.mockResolvedValueOnce(true);
-
-    await page.handleLogout();
-
-    expect(logout).toHaveBeenCalled();
-    expect(navigateRoot).toHaveBeenCalledWith('/auth/welcome');
   });
 });

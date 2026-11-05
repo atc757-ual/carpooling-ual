@@ -79,8 +79,8 @@ for (const viewport of VIEWPORTS) {
     it('counts the unread ones on the bell', () => {
       cy.get('app-tabs .bell-button')
         .filter(':visible')
-        .should('have.attr', 'aria-label', 'Avisos, 1 sin leer')
-        .find('.bell-button__unread-dot')
+        .should('have.attr', 'aria-label', 'Notificaciones, 1 sin leer')
+        .find('.bell-button__badge')
         .should('exist');
     });
 

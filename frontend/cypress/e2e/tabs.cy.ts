@@ -100,7 +100,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('app-tabs .bell-button').filter(':visible').click();
 
       cy.location('pathname').should('eq', '/tabs/notifications');
-      cy.contains('app-notifications', 'No tienes avisos').should('be.visible');
+      cy.contains('app-notifications', 'No tienes notificaciones').should('be.visible');
     });
 
     it('shows Mensajes, still without conversations', () => {
@@ -116,7 +116,7 @@ for (const viewport of VIEWPORTS) {
       logIn(['passenger']);
 
       goTo('Mi perfil');
-      cy.get('.logout-button').filter(':visible').click();
+      cy.get('.profile__logout').filter(':visible').click();
       cy.contains('app-confirm-modal ion-button', 'Cerrar sesión').click();
 
       cy.wait('@logout');
@@ -129,6 +129,7 @@ for (const viewport of VIEWPORTS) {
 
         cy.get('app-tabs .top-nav app-brand-logo').should('be.visible');
         cy.contains('app-tabs .top-nav__hello', '¡Hola, Mario!').should('be.visible');
+        cy.get('app-tabs .top-nav .logout-button').should('not.exist');
         cy.contains('app-tabs .top-nav__link', 'Buscar').should(
           'have.attr',
           'aria-current',
@@ -145,7 +146,7 @@ for (const viewport of VIEWPORTS) {
         cy.get('app-tabs .app-header app-brand-greeting').should('be.visible');
         cy.contains('app-tabs .app-header app-brand-greeting', '¡Hola, Mario!').should('exist');
         cy.get('app-tabs .app-header .bell-button').should('be.visible');
-        cy.get('app-tabs .app-header .logout-button').should('be.visible');
+        cy.get('app-tabs .app-header .logout-button').should('not.exist');
         cy.get('app-tabs .app-header .back-button').should('not.exist');
         cy.contains('ion-tab-button', 'Buscar').should('have.class', 'tab-selected');
       });

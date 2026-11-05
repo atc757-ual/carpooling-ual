@@ -28,9 +28,20 @@ describe('NotificationsService', () => {
 
   it('lists my latest notifications', async () => {
     const list = notifications.list();
-    http.expectOne('/api/users/me/notifications?limit=50').flush([{ id: 'n1' }]);
+    http
+      .expectOne('/api/users/me/notifications?offset=0&limit=10')
+      .flush([{ id: 'n1' }], { headers: { 'X-Total-Count': '1' } });
 
-    expect(await list).toEqual([{ id: 'n1' }]);
+    expect(await list).toEqual({ items: [{ id: 'n1' }], total: 1 });
+  });
+
+  it('lists the selected category at the requested offset', async () => {
+    const list = notifications.list({ offset: 10, category: 'account' });
+    http
+      .expectOne('/api/users/me/notifications?offset=10&limit=10&category=account')
+      .flush([], { headers: { 'X-Total-Count': '12' } });
+
+    expect(await list).toEqual({ items: [], total: 12 });
   });
 
   it('counts the unread ones and keeps the count if it fails', async () => {

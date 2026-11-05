@@ -66,7 +66,7 @@ export const routes: Routes = [
   {
     // Área con sesión: cinco destinos fijos (Buscar, Publicar, Mis viajes,
     // Mensajes y Perfil; sin sesión, authGuard lleva a la bienvenida o al
-    // login). Avisos se abre con la campana de la cabecera
+    // login). Notificaciones se abre con la campana de la cabecera
     path: 'tabs',
     canActivate: [authGuard, legalAcceptanceGuard, appAreaGuard],
     loadComponent: () => import('./features/tabs/tabs.page').then((m) => m.TabsPage),
@@ -229,8 +229,8 @@ export const routes: Routes = [
           import('./features/notifications/notifications.page').then((m) => m.NotificationsPage),
         data: {
           heading: {
-            title: 'Avisos',
-            subtitle: 'Lo que pasa con tus viajes y tus solicitudes.',
+            title: 'Notificaciones',
+            subtitle: 'Lo que pasa con tus viajes, solicitudes y cuenta.',
           } satisfies TabHeading,
         },
       },

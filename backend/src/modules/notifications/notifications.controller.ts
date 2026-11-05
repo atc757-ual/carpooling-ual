@@ -63,7 +63,7 @@ export class NotificationsController {
     const page = await this.notificationsService.listForUser(
       user.sub,
       query.isRead,
-      query,
+      { ...query, category: query.category },
     );
     setPaginationHeaders(response, page);
     return page.items.map(toNotificationResource);

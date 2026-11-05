@@ -131,6 +131,37 @@ describe('Notifications API (e2e)', () => {
     });
   });
 
+  it('filters by category and paginates the matching notifications', async () => {
+    const { dan } = await driverWithTwoNotices();
+
+    const firstPage = await api(
+      'get',
+      '/users/me/notifications?category=travel&limit=1',
+      dan.accessToken,
+    ).expect(200);
+    const secondPage = await api(
+      'get',
+      '/users/me/notifications?category=travel&limit=1&offset=1',
+      dan.accessToken,
+    ).expect(200);
+    const unsupportedCategory = await api(
+      'get',
+      '/users/me/notifications?category=other',
+      dan.accessToken,
+    ).expect(400);
+    const firstItems = firstPage.body as { id: string }[];
+    const secondItems = secondPage.body as { id: string }[];
+
+    expect(firstItems).toHaveLength(1);
+    expect(secondItems).toHaveLength(1);
+    expect(firstPage.headers['x-total-count']).toBe('2');
+    expect(secondPage.headers['x-total-count']).toBe('2');
+    expect(firstItems[0].id).not.toBe(secondItems[0].id);
+    expect(unsupportedCategory.body).toMatchObject({
+      fields: [{ field: 'category' }],
+    });
+  });
+
   it('marks one as read; a notification of someone else is not found', async () => {
     const { dan, pia } = await driverWithTwoNotices();
     const list = await api('get', '/users/me/notifications', dan.accessToken);

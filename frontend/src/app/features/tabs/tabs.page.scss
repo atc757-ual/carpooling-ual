@@ -219,16 +219,40 @@ ion-tab-button {
   }
 }
 
-// Avisos sin leer: punto naranja pequeño en la esquina de la campana
+// Notificaciones sin leer: contador compacto en la esquina de la campana
 .bell-button {
   position: relative;
   overflow: visible;
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  margin: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --border-radius: 50%;
+  --ripple-color: transparent;
+  --color: var(--color-text);
 
   ion-icon {
-    font-size: 1.75rem; // 28px
+    width: 1.625rem;
+    height: 1.625rem;
+    margin: 0;
+    font-size: 1.625rem; // 26px
   }
 
-  .bell-button__unread-dot {
+  &::part(native) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: transparent;
+    color: var(--color-text);
+  }
+
+  .bell-button__badge {
     position: absolute;
     top: -0.125rem; // -2px
     right: -0.125rem; // -2px
@@ -241,12 +265,54 @@ ion-tab-button {
   }
 }
 
-.logout-button ion-icon {
-  font-size: 1.75rem; // 28px
+.bell-button .bell-button__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  top: 0.25rem;
+  right: 0.25rem;
+  min-width: 1.125rem;
+  width: auto;
+  height: 1.125rem;
+  padding-inline: 0.2rem;
+  border: var(--border-width-s) solid var(--color-surface);
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-text);
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1rem;
+  pointer-events: none;
 }
 
-.logout-button {
-  --padding-end: 0;
+@media (min-width: 768px) {
+  .top-nav .bell-button .bell-button__badge {
+    top: -0.25rem;
+    right: 0.25rem;
+  }
+}
+
+.bell-button--pulse ion-icon {
+  animation: notification-bell-pulse 850ms ease-out;
+}
+
+@keyframes notification-bell-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.22);
+  }
+  65% {
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bell-button--pulse ion-icon {
+    animation: none;
+  }
 }
 
 // Pie de escritorio: una franja gris de 56px con la línea arriba; el contenido,

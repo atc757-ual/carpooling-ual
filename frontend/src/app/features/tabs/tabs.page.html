@@ -1,15 +1,17 @@
-<!-- La campana de Avisos y cerrar sesión: los mismos en la cabecera del móvil y
-     en el menú de escritorio (se escriben una vez y se colocan en los dos) -->
+<!-- Campana compartida entre la cabecera móvil y el menú de escritorio -->
 <ng-template #headerActions>
   <ion-button
     class="bell-button"
     fill="clear"
     routerLink="/tabs/notifications"
     [attr.aria-label]="bellLabel()"
+    [class.bell-button--pulse]="bellPulse()"
   >
     <ion-icon slot="icon-only" [icon]="bellIcon" aria-hidden="true" />
     @if (unreadCount() > 0) {
-      <span class="bell-button__unread-dot" aria-hidden="true"></span>
+      <span class="bell-button__badge" aria-hidden="true">{{
+        unreadCount() > 9 ? '9+' : unreadCount()
+      }}</span>
     }
   </ion-button>
   @if (isAdmin()) {
@@ -22,17 +24,11 @@
       <ion-icon slot="icon-only" [icon]="adminIcon" aria-hidden="true" />
     </ion-button>
   }
-  <!-- La misma confirmación que en el Perfil -->
-  <form (submit)="$event.preventDefault(); handleLogout()">
-    <ion-button class="logout-button" type="submit" fill="clear" aria-label="Cerrar sesión">
-      <ion-icon slot="icon-only" [icon]="logoutIcon" aria-hidden="true" />
-    </ion-button>
-  </form>
 </ng-template>
 
 <!-- Móvil: en las secciones, el logotipo (su título va en el contenido); en
-     las pantallas de detalle, la flecha de volver y su título. Siempre, a la
-     derecha, la campana de Avisos y cerrar sesión -->
+     las pantallas de detalle, la flecha de volver y su título. En secciones,
+     la campana queda a la derecha; cerrar sesión está en Mi perfil. -->
 <ion-header class="app-header ion-hide-md-up ion-no-border">
   <ion-toolbar>
     @if (heading()?.backHref; as backHref) {
@@ -79,7 +75,7 @@
     }
   </nav>
   <div class="top-nav__actions">
-    <!-- El saludo, pegado a la izquierda de las acciones (campana y salir) -->
+    <!-- El saludo, pegado a la izquierda de la campana -->
     <span class="top-nav__hello">¡Hola, {{ firstName() }}!</span>
     <ng-container [ngTemplateOutlet]="headerActions" />
   </div>
