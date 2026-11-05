@@ -22,6 +22,34 @@ class BlankPage {}
 
 const HEADING: TabHeading = { title: 'Buscar viaje', subtitle: 'Viajes' };
 
+const TABS_EN = {
+  common: {
+    greeting: 'Hello, {{ name }}!',
+    nav: {
+      mainAria: 'Main navigation',
+      search: 'Search',
+      publish: 'Publish',
+      trips: 'Your trips',
+      messages: 'Messages',
+      profile: 'My profile',
+      admin: 'Admin panel',
+      logout: 'Log out',
+      newMessages: '(new messages)',
+      notifications: 'Notifications',
+      notificationsWithCount: {
+        one: 'Notifications, 1 unread',
+        other: 'Notifications, {{ count }} unread',
+      },
+    },
+    footer: {
+      rights: '© {{ year }} Carpooling UAL. All rights reserved.',
+      githubAria: 'Author GitHub',
+      linkedinAria: 'Author LinkedIn',
+      developedBy: 'Developed by Alex Taquila',
+    },
+  },
+};
+
 describe('TabsPage', () => {
   const mode = signal<TravelMode | null>('passenger');
   const profiles = signal<Profile[]>(['passenger', 'driver']);
@@ -70,7 +98,7 @@ describe('TabsPage', () => {
           useValue: { hasUnread: hasUnreadMessages, refreshUnread: refreshUnreadMessages },
         },
         { provide: DriverTrackingService, useValue: { resume } },
-        provideTranslocoTestingSupport(),
+        provideTranslocoTestingSupport({ en: TABS_EN }),
       ],
     });
     fixture = TestBed.createComponent(TabsPage);
