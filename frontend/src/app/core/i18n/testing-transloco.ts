@@ -1,10 +1,10 @@
 import {
   EnvironmentProviders,
-  ENVIRONMENT_INITIALIZER,
   inject,
   Injectable,
   InjectionToken,
   makeEnvironmentProviders,
+  provideAppInitializer,
 } from '@angular/core';
 import { provideTransloco, TranslocoService } from '@jsverse/transloco';
 import type { TranslocoLoader } from '@jsverse/transloco';
@@ -163,16 +163,12 @@ export function provideTestingTransloco(
       },
       loader: TestingTranslocoLoader,
     }),
-    {
-      provide: ENVIRONMENT_INITIALIZER,
-      multi: true,
-      useValue: () => {
-        const transloco = inject(TranslocoService);
-        for (const [lang, dict] of Object.entries(mergedTranslations)) {
-          transloco.setTranslation(dict, lang);
-        }
-      },
-    },
+    provideAppInitializer(() => {
+      const transloco = inject(TranslocoService);
+      for (const [lang, dict] of Object.entries(mergedTranslations)) {
+        transloco.setTranslation(dict, lang);
+      }
+    }),
   ]);
 }
 
