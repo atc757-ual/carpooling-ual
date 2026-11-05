@@ -1,6 +1,5 @@
 import { Component, input, output } from '@angular/core';
 import { IonButton, IonButtons, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/angular';
-import { TranslocoPipe } from '@jsverse/transloco';
 import { close } from 'ionicons/icons';
 
 // Cabecera común de las ventanas: el título a la izquierda y la ✕ de cerrar
@@ -10,14 +9,14 @@ import { close } from 'ionicons/icons';
   selector: 'app-modal-header',
   // Sin caja propia: el ion-header queda como hijo directo de la ventana
   host: { style: 'display: contents' },
-  imports: [IonButton, IonButtons, IonHeader, IonIcon, IonTitle, IonToolbar, TranslocoPipe],
+  imports: [IonButton, IonButtons, IonHeader, IonIcon, IonTitle, IonToolbar],
   templateUrl: './modal-header.html',
 })
 export class ModalHeader {
   readonly title = input.required<string>();
   // El texto de la ✕ para los lectores de pantalla (las pantallas traducidas
   // pasan el suyo)
-  readonly closeLabel = input<string | undefined>(undefined);
+  readonly closeLabel = input('Cerrar');
   readonly closed = output<void>();
 
   protected readonly closeIcon = close;

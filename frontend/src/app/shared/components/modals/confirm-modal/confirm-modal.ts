@@ -1,6 +1,5 @@
 import { Component, inject, Input } from '@angular/core';
 import { IonButton, IonIcon, ModalController } from '@ionic/angular';
-import { TranslocoPipe } from '@jsverse/transloco';
 
 // Confirmación de una acción, como la «Confirmación destructiva» de la guía:
 // el icono en un círculo (azul claro; ámbar claro si es un aviso), el título, la explicación en gris y, a todo el ancho, el botón de la
@@ -8,7 +7,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 // con ConfirmService.ask; cierra con el rol 'confirm' o 'cancel'
 @Component({
   selector: 'app-confirm-modal',
-  imports: [IonButton, IonIcon, TranslocoPipe],
+  imports: [IonButton, IonIcon],
   templateUrl: './confirm-modal.html',
   styleUrl: './confirm-modal.scss',
 })
@@ -19,7 +18,7 @@ export class ConfirmModal {
   @Input({ required: true }) header!: string;
   @Input({ required: true }) message!: string;
   @Input({ required: true }) confirmText!: string;
-  @Input() cancelText?: string;
+  @Input() cancelText = 'Cancelar';
   @Input({ required: true }) icon!: string;
   @Input() isDestructive = false;
   // Aviso (ámbar): algo no cuadra, aunque se puede seguir
