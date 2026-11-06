@@ -63,6 +63,10 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-xs);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
 
   ion-chip {
     display: inline-flex;
@@ -136,7 +140,6 @@
   width: 100%;
   padding: var(--space-base) var(--space-s);
   border: 0;
-  background: none;
   color: var(--color-text);
   font: inherit;
   text-align: start;
@@ -223,6 +226,12 @@
 
 .notifications__load-more {
   display: none;
+  align-self: center;
+  min-height: 2.75rem;
+  margin: 0;
+  --border-color: var(--color-primary);
+  --border-radius: var(--radius-base);
+  --color: var(--color-link);
 }
 
 .notifications__pagination {
@@ -275,15 +284,6 @@
 .notifications__more {
   display: flex;
   justify-content: center;
-}
-
-.notifications__load-more {
-  align-self: center;
-  min-height: 2.75rem;
-  margin: 0;
-  --border-color: var(--color-primary);
-  --border-radius: var(--radius-base);
-  --color: var(--color-link);
 }
 
 .notifications__state {

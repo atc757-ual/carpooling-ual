@@ -5,7 +5,8 @@
         <ion-card class="notifications__panel">
           <ion-card-content class="notifications__panel-content">
             <div class="notifications__toolbar">
-              <div class="notifications__filters" role="group" aria-label="Filtrar por categoría">
+              <fieldset class="notifications__filters">
+                <legend class="visually-hidden">Filtrar por categoría</legend>
                 <ion-chip
                   button="true"
                   [outline]="category() !== null"
@@ -29,7 +30,7 @@
                     <span>{{ categoryName(option) }}</span>
                   </ion-chip>
                 }
-              </div>
+              </fieldset>
             </div>
 
             @if (isLoading() && all().length === 0) {

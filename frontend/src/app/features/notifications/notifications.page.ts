@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonButton,
@@ -56,7 +56,7 @@ const CATEGORIES: NotificationCategory[] = ['travel', 'account', 'incident'];
   templateUrl: './notifications.page.html',
   styleUrls: ['../tabs/tab-page.scss', './notifications.page.scss'],
 })
-export class NotificationsPage {
+export class NotificationsPage implements OnInit {
   private readonly notifications = inject(NotificationsService);
   private readonly trips = inject(TripsService);
   private readonly auth = inject(AuthService);
@@ -94,7 +94,7 @@ export class NotificationsPage {
   protected readonly categoryName = notificationCategoryLabel;
   protected readonly categoryOf = notificationCategory;
 
-  constructor() {
+  ngOnInit(): void {
     void this.loadPage(true);
   }
 

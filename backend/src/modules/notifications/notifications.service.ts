@@ -3,16 +3,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, In, IsNull, Not, Repository } from 'typeorm';
 import type { FindOptionsWhere } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
-import { Notification } from './entities/notification.entity';
-import type {
-  LegalNotificationType,
-  TripNotificationType,
+import {
+  LEGAL_NOTIFICATION_TYPES,
+  Notification,
+  type LegalNotificationType,
+  type TripNotificationType,
 } from './entities/notification.entity';
 import { NotificationNotFoundError } from './errors/notification-not-found.error';
 import { PushService } from '../push/push.service';
 import { toPushMessage } from './notification-pushes';
 import type { NotificationCategory } from './dto/list-notifications-query.dto';
-import { LEGAL_NOTIFICATION_TYPES } from './entities/notification.entity';
 
 // Qué se avisa: el tipo y a qué se refiere. Los de un viaje llevan el viaje
 // (la base de datos exige la incidencia en incident_reported y la solicitud en

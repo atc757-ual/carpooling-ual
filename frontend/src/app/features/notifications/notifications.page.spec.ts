@@ -6,7 +6,10 @@ import { vi } from 'vitest';
 import { Trip } from '../../core/models/driver.model';
 import { AppNotification, NotificationType } from '../../core/models/notification.model';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { NotificationsService } from '../../core/services/notifications/notifications.service';
+import {
+  NotificationsService,
+  NOTIFICATIONS_PAGE_SIZE,
+} from '../../core/services/notifications/notifications.service';
 import { TripsService } from '../../core/services/trips/trips.service';
 import { ToastService } from '../../core/services/ui/toast.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
@@ -96,6 +99,7 @@ describe('NotificationsPage', () => {
     });
     fixture = TestBed.createComponent(NotificationsPage);
     vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    fixture.detectChanges();
     await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;
   }
@@ -210,6 +214,47 @@ describe('NotificationsPage', () => {
     const root = await render(() => Promise.resolve([]));
 
     expect(root.textContent).toContain('No tienes notificaciones');
+  });
+
+  it('loads category filters and paginates the matching results', async () => {
+    await render(() => Promise.resolve([]));
+    service['list'].mockClear();
+    service['list'].mockResolvedValue({ items: [], total: 25 });
+
+    await fixture.componentInstance.handleSelectCategory('travel');
+    expect(service['list']).toHaveBeenLastCalledWith({ offset: 0, category: 'travel' });
+    expect(fixture.componentInstance.pageRange()).toBe(`1–${NOTIFICATIONS_PAGE_SIZE} de 25`);
+    expect(fixture.componentInstance.pageCount()).toBe(3);
+
+    await fixture.componentInstance.handleNextPage();
+    expect(service['list']).toHaveBeenLastCalledWith({
+      offset: NOTIFICATIONS_PAGE_SIZE,
+      category: 'travel',
+    });
+    expect(fixture.componentInstance.pageNumber()).toBe(2);
+
+    await fixture.componentInstance.handlePreviousPage();
+    expect(fixture.componentInstance.offset()).toBe(0);
+
+    await fixture.componentInstance.handleLoadMore();
+    expect(fixture.componentInstance.offset()).toBe(NOTIFICATIONS_PAGE_SIZE);
+    expect(fixture.componentInstance.all()).toHaveLength(0);
+  });
+
+  it('clears an unsupported category and does not load beyond the last page', async () => {
+    await render(() => Promise.resolve([]));
+    service['list'].mockClear();
+    service['list'].mockResolvedValue({ items: [], total: 0 });
+
+    await fixture.componentInstance.handleCategory('unsupported');
+    expect(fixture.componentInstance.category()).toBeNull();
+    expect(service['list']).toHaveBeenCalledWith({ offset: 0, category: undefined });
+
+    service['list'].mockClear();
+    await fixture.componentInstance.handleNextPage();
+    await fixture.componentInstance.handleLoadMore();
+    expect(service['list']).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.pageRange()).toBe('0 de 0');
   });
 
   it('offers to retry when they cannot be loaded', async () => {
