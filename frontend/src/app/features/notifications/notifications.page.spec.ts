@@ -100,7 +100,8 @@ describe('NotificationsPage', () => {
     fixture = TestBed.createComponent(NotificationsPage);
     vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     fixture.detectChanges();
-    await fixture.whenStable();
+    await vi.waitFor(() => expect(fixture.componentInstance.isLoading()).toBe(false));
+    fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
   }
 
