@@ -2,9 +2,12 @@ import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
+import { TranslocoService } from '@jsverse/transloco';
 import { vi } from 'vitest';
 import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { provideTranslocoTestingSupport } from '../../core/i18n/testing-transloco';
+import { LanguageService } from '../../core/services/ui/language.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { ChatService } from '../../core/services/chat/chat.service';
 import { PushNotificationsService } from '../../core/services/push/push-notifications.service';
@@ -17,6 +20,34 @@ import { MESSAGES_REFRESH_MS, TabsPage } from './tabs.page';
 class BlankPage {}
 
 const HEADING: TabHeading = { title: 'Buscar viaje', subtitle: 'Viajes' };
+
+const TABS_EN = {
+  common: {
+    greeting: 'Hello, {{ name }}!',
+    nav: {
+      mainAria: 'Main navigation',
+      search: 'Search',
+      publish: 'Publish',
+      trips: 'Your trips',
+      messages: 'Messages',
+      profile: 'My profile',
+      admin: 'Admin panel',
+      logout: 'Log out',
+      newMessages: '(new messages)',
+      notifications: 'Notifications',
+      notificationsWithCount: {
+        one: 'Notifications, 1 unread',
+        other: 'Notifications, {{ count }} unread',
+      },
+    },
+    footer: {
+      rights: '© {{ year }} Carpooling UAL. All rights reserved.',
+      githubAria: 'Author GitHub',
+      linkedinAria: 'Author LinkedIn',
+      developedBy: 'Developed by Alex Taquila',
+    },
+  },
+};
 
 describe('TabsPage', () => {
   const mode = signal<TravelMode | null>('passenger');
@@ -68,15 +99,19 @@ describe('TabsPage', () => {
           useValue: { hasUnread: hasUnreadMessages, refreshUnread: refreshUnreadMessages },
         },
         { provide: DriverTrackingService, useValue: { resume } },
+        provideTranslocoTestingSupport({ en: TABS_EN }),
       ],
     });
     fixture = TestBed.createComponent(TabsPage);
+    TestBed.inject(TranslocoService).setActiveLang('es');
+    TestBed.inject(LanguageService).setLanguage('es');
     const page = fixture.componentInstance;
     page.ngOnInit();
     return page;
   }
 
   beforeEach(() => {
+    localStorage.clear();
     mode.set('passenger');
     profiles.set(['passenger', 'driver']);
     loggedIn.set(true);
@@ -96,13 +131,40 @@ describe('TabsPage', () => {
   });
 
   it('has five fixed destinations', () => {
-    expect(render().tabs.map(({ label }) => label)).toEqual([
-      'Buscar',
-      'Publicar',
-      'Tus viajes',
-      'Mensajes',
-      'Mi perfil',
+    const page = render();
+    expect(page.tabs.map(({ labelKey }) => labelKey)).toEqual([
+      'common.nav.search',
+      'common.nav.publish',
+      'common.nav.trips',
+      'common.nav.messages',
+      'common.nav.profile',
     ]);
+    fixture.detectChanges();
+    const links = Array.from(
+      fixture.nativeElement.querySelectorAll('.top-nav__link'),
+      (el: HTMLElement) => el.childNodes[0].textContent?.trim(),
+    );
+    expect(links).toEqual(['Buscar', 'Publicar', 'Tus viajes', 'Mensajes', 'Mi perfil']);
+  });
+
+  it('translates the navigation and labels into English when the language switches', async () => {
+    const page = render();
+    const languageService = TestBed.inject(LanguageService);
+    languageService.setLanguage('en');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const links = Array.from(
+      fixture.nativeElement.querySelectorAll('.top-nav__link'),
+      (el: HTMLElement) => el.childNodes[0].textContent?.trim(),
+    );
+    expect(links).toEqual(['Search', 'Publish', 'Your trips', 'Messages', 'My profile']);
+
+    expect(page.bellLabel()).toBe('Notifications');
+    unread.set(1);
+    expect(page.bellLabel()).toBe('Notifications, 1 unread');
+    unread.set(5);
+    expect(page.bellLabel()).toBe('Notifications, 5 unread');
   });
 
   it('counts the unread notifications when it opens and on each navigation', async () => {

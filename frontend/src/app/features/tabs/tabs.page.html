@@ -19,7 +19,7 @@
       class="admin-button"
       fill="clear"
       routerLink="/admin"
-      aria-label="Panel de administración"
+      [attr.aria-label]="'common.nav.admin' | transloco"
     >
       <ion-icon slot="icon-only" [icon]="adminIcon" aria-hidden="true" />
     </ion-button>
@@ -38,7 +38,7 @@
           fill="clear"
           [routerLink]="backHref"
           routerDirection="back"
-          aria-label="Volver"
+          [attr.aria-label]="'common.back' | transloco"
         >
           <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
         </ion-button>
@@ -59,24 +59,23 @@
      subtítulo de la pantalla -->
 <header class="top-nav ion-hide-md-down">
   <app-brand-logo variant="compact" />
-  <nav class="top-nav__links" aria-label="Principal">
+  <nav class="top-nav__links" [attr.aria-label]="'common.nav.mainAria' | transloco">
     @for (tab of tabs; track tab.path) {
       <a
         class="top-nav__link"
         [routerLink]="'/tabs/' + tab.path"
         routerLinkActive="top-nav__link--active"
         ariaCurrentWhenActive="page"
-        >{{ tab.label }}
+        >{{ tab.labelKey | transloco }}
         @if (tab.path === 'messages' && hasUnreadMessages()) {
           <span class="tab-dot" aria-hidden="true"></span>
-          <span class="visually-hidden">(mensajes nuevos)</span>
+          <span class="visually-hidden">{{ 'common.nav.newMessages' | transloco }}</span>
         }
       </a>
     }
   </nav>
   <div class="top-nav__actions">
-    <!-- El saludo, pegado a la izquierda de la campana -->
-    <span class="top-nav__hello">¡Hola, {{ firstName() }}!</span>
+    <span class="top-nav__hello">{{ 'common.greeting' | transloco: { name: firstName() } }}</span>
     <ng-container [ngTemplateOutlet]="headerActions" />
   </div>
 </header>
@@ -115,9 +114,9 @@
           <span class="tab-dot tab-dot--icon" aria-hidden="true"></span>
         }
         <ion-label>
-          {{ tab.label }}
+          {{ tab.labelKey | transloco }}
           @if (tab.path === 'messages' && hasUnreadMessages()) {
-            <span class="visually-hidden">(mensajes nuevos)</span>
+            <span class="visually-hidden">{{ 'common.nav.newMessages' | transloco }}</span>
           }
         </ion-label>
       </ion-tab-button>
@@ -129,7 +128,7 @@
      derecha, los perfiles y el nombre del autor. Con el ancho de la página -->
 <footer class="app-footer ion-hide-md-down">
   <p class="text-caption text-color-muted">
-    © {{ year }} Carpooling UAL. Todos los derechos reservados.
+    {{ 'common.footer.rights' | transloco: { year } }}
   </p>
   <div class="app-footer__links">
     <a
@@ -137,7 +136,7 @@
       href="https://github.com/atc757-ual"
       target="_blank"
       rel="noopener"
-      aria-label="GitHub del autor"
+      [attr.aria-label]="'common.footer.githubAria' | transloco"
     >
       <ion-icon [icon]="githubIcon" aria-hidden="true" />
     </a>
@@ -146,10 +145,10 @@
       href="https://www.linkedin.com/in/alextaquilacamasca/"
       target="_blank"
       rel="noopener"
-      aria-label="LinkedIn del autor"
+      [attr.aria-label]="'common.footer.linkedinAria' | transloco"
     >
       <ion-icon [icon]="linkedinIcon" aria-hidden="true" />
     </a>
-    <span class="text-caption text-color-muted">Developed by Alex Taquila</span>
+    <span class="text-caption text-color-muted">{{ 'common.footer.developedBy' | transloco }}</span>
   </div>
 </footer>

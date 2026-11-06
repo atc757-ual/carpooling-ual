@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { LegalDocument, LegalModal } from './legal-modal';
 
 describe('LegalModal', () => {
@@ -17,6 +18,7 @@ describe('LegalModal', () => {
         provideIonicAngular(),
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideTranslocoTestingSupport(),
         { provide: ModalController, useValue: { dismiss } },
       ],
     });

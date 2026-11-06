@@ -30,8 +30,10 @@ import {
   searchOutline,
   shieldCheckmarkOutline,
 } from 'ionicons/icons';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { AppContextService } from '../../core/services/ui/app-context.service';
+import { LanguageService } from '../../core/services/ui/language.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { ChatService } from '../../core/services/chat/chat.service';
 import { PushNotificationsService } from '../../core/services/push/push-notifications.service';
@@ -45,18 +47,26 @@ import { findTabHeading } from './tab-heading';
 interface Tab {
   // Ruta bajo /tabs
   path: string;
-  label: string;
+  labelKey: string;
   icon: string;
 }
 
-const TRIPS_TAB: Tab = { path: 'trips', label: 'Tus viajes', icon: mapOutline };
-const SEARCH_TAB: Tab = { path: 'search', label: 'Buscar', icon: searchOutline };
-const PUBLISH_TAB: Tab = { path: 'publish', label: 'Publicar', icon: addCircleOutline };
-const MESSAGES_TAB: Tab = { path: 'messages', label: 'Mensajes', icon: chatbubblesOutline };
+const TRIPS_TAB: Tab = { path: 'trips', labelKey: 'common.nav.trips', icon: mapOutline };
+const SEARCH_TAB: Tab = { path: 'search', labelKey: 'common.nav.search', icon: searchOutline };
+const PUBLISH_TAB: Tab = {
+  path: 'publish',
+  labelKey: 'common.nav.publish',
+  icon: addCircleOutline,
+};
+const MESSAGES_TAB: Tab = {
+  path: 'messages',
+  labelKey: 'common.nav.messages',
+  icon: chatbubblesOutline,
+};
 // Cada cuánto se mira si hay mensajes nuevos (el punto de la pestaña)
 export const MESSAGES_REFRESH_MS = 30_000;
 export const NOTIFICATIONS_REFRESH_MS = 15_000;
-const PROFILE_TAB: Tab = { path: 'profile', label: 'Mi perfil', icon: personOutline };
+const PROFILE_TAB: Tab = { path: 'profile', labelKey: 'common.nav.profile', icon: personOutline };
 
 // Qué lado guarda cada pestaña al entrar (y por dónde se abre la próxima vez)
 const SIDES: readonly { path: string; mode: TravelMode }[] = [
@@ -70,8 +80,8 @@ const SIDES: readonly { path: string; mode: TravelMode }[] = [
 // - Móvil: cabecera con el título de la pantalla (y la flecha de volver en las
 //   pantallas de detalle) y la campana de Notificaciones; pestañas abajo. El logotipo y
 //   el saludo se turnan (BrandGreeting).
-// - Escritorio (≥ 768px): menú superior (logotipo y saludo, destinos centrados,
-//   campana y cerrar sesión) y debajo una franja fija con el título.
+// - Escritorio (≥ 768px): menú superior con el logotipo y el saludo, destinos
+//   centrados y campana; debajo, una franja fija con el título.
 // Al entrar en Buscar o Publicar se guarda ese lado (activeMode, en el
 // servidor): la próxima vez la app se abre ahí
 @Component({
@@ -95,6 +105,7 @@ const SIDES: readonly { path: string; mode: TravelMode }[] = [
     IonToolbar,
     BrandLogo,
     BrandGreeting,
+    TranslocoPipe,
   ],
   templateUrl: './tabs.page.html',
   styleUrl: './tabs.page.scss',
@@ -109,6 +120,8 @@ export class TabsPage implements OnInit {
   private readonly push = inject(PushNotificationsService);
   private readonly driverTracking = inject(DriverTrackingService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly transloco = inject(TranslocoService);
+  private readonly language = inject(LanguageService);
 
   // La cabecera propia de la pestaña que se ve, o null (saludo y logotipo)
   readonly heading = toSignal(
@@ -126,9 +139,18 @@ export class TabsPage implements OnInit {
   // cada 15 segundos mientras la aplicación está visible.
   readonly unreadCount = this.notifications.unreadCount;
   readonly bellPulse = signal(false);
-  readonly bellLabel = computed(() =>
-    this.unreadCount() > 0 ? `Notificaciones, ${this.unreadCount()} sin leer` : 'Notificaciones',
-  );
+  readonly bellLabel = computed(() => {
+    this.language.currentLanguage();
+    const count = this.unreadCount();
+    if (count <= 0) {
+      return this.transloco.translate('common.nav.notifications');
+    }
+    const key =
+      count === 1
+        ? 'common.nav.notificationsWithCount.one'
+        : 'common.nav.notificationsWithCount.other';
+    return this.transloco.translate(key, { count });
+  });
 
   // Mensajes nuevos: un punto en la pestaña Mensajes. Al entrar, en cada
   // navegación y cada 30 s (llegan sin que el usuario haga nada)

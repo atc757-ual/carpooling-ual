@@ -1,4 +1,5 @@
 import { Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { BrandLogo } from '../brand-logo/brand-logo';
 
 // Cada cuánto se turnan el nombre de la marca y el saludo (con 5 s el cambio se
@@ -12,7 +13,7 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 // desplazamiento, así que el cambio no mueve nada de sitio
 @Component({
   selector: 'app-brand-greeting',
-  imports: [BrandLogo],
+  imports: [BrandLogo, TranslocoPipe],
   templateUrl: './brand-greeting.html',
   styleUrl: './brand-greeting.scss',
 })

@@ -1,12 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { ModalHeader } from './modal-header';
 
 describe('ModalHeader', () => {
   function render(closeLabel?: string) {
     TestBed.configureTestingModule({
       imports: [ModalHeader],
-      providers: [provideIonicAngular()],
+      providers: [provideIonicAngular(), provideTranslocoTestingSupport()],
     });
     const fixture = TestBed.createComponent(ModalHeader);
     fixture.componentRef.setInput('title', 'Editar vehículo');

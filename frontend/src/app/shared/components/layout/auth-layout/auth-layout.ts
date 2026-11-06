@@ -23,6 +23,7 @@ export type AuthLayoutVariant = 'welcome' | 'form';
 })
 export class AuthLayout {
   readonly variant = input<AuthLayoutVariant>('form');
+  readonly showLanguageSwitch = input(false);
 
   protected readonly shieldIcon = shieldCheckmarkOutline;
   protected readonly isWelcome = computed(() => this.variant() === 'welcome');

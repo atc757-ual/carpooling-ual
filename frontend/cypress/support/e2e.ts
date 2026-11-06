@@ -120,4 +120,7 @@ export function stubLocation(permission: PermissionState): void {
 // ya la vio (clave de Preferences en el navegador: CapacitorStorage.*)
 Cypress.on('window:before:load', (win) => {
   win.localStorage.setItem('CapacitorStorage.location.offer-dismissed', 'later');
+  if (!win.localStorage.getItem('carpooling_language')) {
+    win.localStorage.setItem('carpooling_language', 'es');
+  }
 });
