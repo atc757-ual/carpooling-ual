@@ -1,4 +1,7 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
+import { EMPTY } from 'rxjs';
 
 // Una parada del trayecto: el sitio, su detalle debajo y, si se sabe, la hora
 export interface RouteStop {
@@ -17,8 +20,23 @@ export interface RouteStop {
   styleUrl: './route-timeline.scss',
 })
 export class RouteTimeline {
+  private readonly transpiler = inject(TRANSLOCO_TRANSPILER, { optional: true });
+  private readonly transloco = this.transpiler
+    ? inject(TranslocoService, { optional: true })
+    : null;
+  private readonly translation = toSignal(this.transloco?.selectTranslation() ?? EMPTY);
+
   readonly stops = input.required<readonly RouteStop[]>();
+  readonly ariaLabel = input<string | undefined>(undefined);
 
   // Con horas, la primera línea de cada parada crece a la altura de un título
   readonly hasTimes = computed(() => this.stops().some((stop) => stop.time));
+
+  protected readonly timelineAriaLabel = computed(() => {
+    return (
+      this.ariaLabel() ??
+      (this.translation() ? this.transloco?.translate('common.routeTimeline.aria') : null) ??
+      'Trayecto'
+    );
+  });
 }

@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { describe, expect, it } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { LicensePlate } from './license-plate';
 
 describe('LicensePlate', () => {
@@ -46,5 +48,24 @@ describe('LicensePlate', () => {
     const country = (fixture.nativeElement as HTMLElement).querySelector('.license-plate__country');
     expect(country?.getAttribute('textLength')).toBe('10');
     expect(country?.getAttribute('lengthAdjust')).toBe('spacingAndGlyphs');
+  });
+
+  it('translates screen reader label in English when configured', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideTranslocoTestingSupport({
+          en: { common: { licensePlate: { aria: 'License plate {{plate}}' } } },
+        }),
+      ],
+    });
+    TestBed.inject(TranslocoService).setActiveLang('en');
+    const fixture = TestBed.createComponent(LicensePlate);
+    fixture.componentRef.setInput('plate', '1234 BCD');
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.visually-hidden')?.textContent?.trim()).toBe(
+      'License plate 1234 BCD',
+    );
   });
 });

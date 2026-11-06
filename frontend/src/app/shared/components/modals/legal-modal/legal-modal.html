@@ -4,7 +4,7 @@
   @if (current(); as document) {
     <div class="legal">
       <app-legal-changes
-        [heading]="'Qué ha cambiado en la versión ' + document.version"
+        [heading]="changesHeading(document.version)"
         [summary]="document.summary"
       />
     </div>
@@ -12,11 +12,11 @@
     <article class="legal" [innerHTML]="document.content"></article>
   } @else if (hasError()) {
     <p class="text-body" role="alert">
-      No hemos podido cargar el texto. Comprueba tu conexión e inténtalo de nuevo.
+      {{ errorMessage }}
     </p>
   } @else {
     <div class="legal__loading">
-      <ion-spinner name="crescent" aria-label="Cargando el texto" />
+      <ion-spinner name="crescent" [attr.aria-label]="loadingAriaLabel" />
     </div>
   }
 </ion-content>

@@ -46,7 +46,7 @@
       [formControl]="control"
       presentation="date"
       [formatOptions]="{ date: { day: 'numeric', month: 'short' } }"
-      locale="es-ES"
+      [locale]="pickerLocale()"
       [firstDayOfWeek]="1"
       [min]="min()"
       [max]="max()"
@@ -60,7 +60,7 @@
       [id]="pickerId"
       [formControl]="control"
       presentation="time"
-      locale="es-ES"
+      [locale]="pickerLocale()"
       hourCycle="h23"
       [minuteValues]="minuteValues"
       [showDefaultButtons]="true"
@@ -73,14 +73,14 @@
 <ng-template #actions let-picker>
   <div slot="buttons" class="datetime-actions">
     <button type="button" class="datetime-actions__button" (click)="picker.cancel(true)">
-      Cancelar
+      {{ cancelLabel() }}
     </button>
     <button
       type="button"
       class="datetime-actions__button datetime-actions__button--primary"
       (click)="picker.confirm(true)"
     >
-      Aceptar
+      {{ acceptLabel() }}
     </button>
   </div>
 </ng-template>

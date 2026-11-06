@@ -1,4 +1,5 @@
 import { DestroyRef } from '@angular/core';
+import type { TranslocoService } from '@jsverse/transloco';
 import { vi } from 'vitest';
 import { createCountdown, getResendLabel } from './countdown.util';
 
@@ -67,5 +68,22 @@ describe('getResendLabel', () => {
     expect(getResendLabel(5)).toBe('Reenviar código en 00:05');
     expect(getResendLabel(0)).toBe('Reenviar código');
     expect(getResendLabel(-1)).toBe('Reenviar código');
+  });
+
+  it('translates the resend label using transloco when provided', () => {
+    const mockTransloco = {
+      translate: vi.fn((key: string, params?: { time?: string }) => {
+        if (key === 'common.countdown.resendIn') {
+          return `Resend code in ${params?.time}`;
+        }
+        if (key === 'common.countdown.resend') {
+          return 'Resend code';
+        }
+        return key;
+      }),
+    } as unknown as TranslocoService;
+
+    expect(getResendLabel(60, mockTransloco)).toBe('Resend code in 01:00');
+    expect(getResendLabel(0, mockTransloco)).toBe('Resend code');
   });
 });

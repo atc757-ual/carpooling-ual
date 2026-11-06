@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { provideIonicAngular } from '@ionic/angular';
+import { TranslocoService } from '@jsverse/transloco';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { SeatStepper } from './seat-stepper';
 
 @Component({
@@ -54,5 +56,36 @@ describe('SeatStepper', () => {
     expect(root.querySelector('output')?.textContent?.trim()).toBe('3');
     expect(button('Una plaza más').disabled).toBe(true);
     expect(button('Una plaza menos').disabled).toBe(true);
+  });
+
+  describe('with Transloco in English', () => {
+    it('translates button aria-labels into English', async () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [Host],
+        providers: [
+          provideIonicAngular(),
+          provideTranslocoTestingSupport({
+            en: {
+              common: {
+                seatStepper: {
+                  decrease: 'One fewer seat',
+                  increase: 'One more seat',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      const transloco = TestBed.inject(TranslocoService);
+      transloco.setActiveLang('en');
+      const fixture = TestBed.createComponent(Host);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector('button[aria-label="One more seat"]')).not.toBeNull();
+      expect(el.querySelector('button[aria-label="One fewer seat"]')).not.toBeNull();
+    });
   });
 });

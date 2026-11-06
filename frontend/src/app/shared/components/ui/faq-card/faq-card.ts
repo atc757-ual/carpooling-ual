@@ -1,4 +1,5 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   IonAccordion,
   IonAccordionGroup,
@@ -9,6 +10,8 @@ import {
   IonItem,
   IonLabel,
 } from '@ionic/angular';
+import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
+import { EMPTY } from 'rxjs';
 
 export interface Faq {
   question: string;
@@ -36,5 +39,20 @@ export interface Faq {
   styleUrl: './faq-card.scss',
 })
 export class FaqCard {
+  private readonly transpiler = inject(TRANSLOCO_TRANSPILER, { optional: true });
+  private readonly transloco = this.transpiler
+    ? inject(TranslocoService, { optional: true })
+    : null;
+  private readonly translation = toSignal(this.transloco?.selectTranslation() ?? EMPTY);
+
   readonly faqs = input.required<readonly Faq[]>();
+  readonly customTitle = input<string>();
+
+  protected readonly title = computed(() => {
+    return (
+      this.customTitle() ??
+      (this.translation() ? this.transloco?.translate('common.faq.title') : null) ??
+      'Preguntas frecuentes'
+    );
+  });
 }

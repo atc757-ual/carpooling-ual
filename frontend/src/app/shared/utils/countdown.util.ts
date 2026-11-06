@@ -1,4 +1,5 @@
 import { DestroyRef, WritableSignal, signal } from '@angular/core';
+import type { TranslocoService } from '@jsverse/transloco';
 
 export interface Countdown {
   // Segundos que faltan (0 cuando ha terminado). Modificable como cualquier
@@ -49,8 +50,13 @@ export function createCountdown(
 
 // Texto del botón de reenviar: «Reenviar código en 01:00», «00:42»… (minutos y
 // segundos) o, al terminar la
-// cuenta atrás, «Reenviar código»
-export function getResendLabel(seconds: number): string {
+// cuenta atrás, «Reenviar código» (o sus traducciones si se proporciona el servicio de i18n)
+export function getResendLabel(seconds: number, transloco?: TranslocoService | null): string {
+  if (transloco) {
+    return seconds > 0
+      ? transloco.translate('common.countdown.resendIn', { time: formatMinutesSeconds(seconds) })
+      : transloco.translate('common.countdown.resend');
+  }
   return seconds > 0 ? `Reenviar código en ${formatMinutesSeconds(seconds)}` : 'Reenviar código';
 }
 

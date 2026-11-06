@@ -52,6 +52,54 @@ const DEFAULT_TEST_TRANSLATIONS: Record<string, Record<string, unknown>> = {
         linkedinAria: 'LinkedIn del autor',
         developedBy: 'Desarrollado por Alex Taquila',
       },
+      pagination: {
+        aria: 'Paginación',
+        empty: '0 de 0',
+        range: '{{ start }}–{{ end }} de {{ total }}',
+        previous: 'Anterior',
+        next: 'Siguiente',
+      },
+      seatStepper: {
+        decrease: 'Una plaza menos',
+        increase: 'Una plaza más',
+      },
+      datetime: {
+        today: 'Hoy',
+        tomorrow: 'Mañana',
+      },
+      faq: {
+        title: 'Preguntas frecuentes',
+      },
+      steps: {
+        caption: 'Paso {{ current }} de {{ total }} · {{ step }}',
+      },
+      legal: {
+        loadError: 'No hemos podido cargar el texto. Comprueba tu conexión e inténtalo de nuevo.',
+        loadingAria: 'Cargando el texto',
+        changesInVersion: 'Qué ha cambiado en la versión {{ version }}',
+        documents: {
+          terms: 'Condiciones de uso',
+          privacy: 'Política de privacidad',
+          driver_declaration: 'Declaración responsable del conductor',
+          vehicle_declaration: 'Declaración del vehículo',
+          location: 'Uso de la ubicación',
+        },
+      },
+      reasonModal: {
+        defaultLabel: 'Motivo',
+        helperText: 'Mínimo {{ min }} caracteres. Queda registrado.',
+      },
+      countdown: {
+        resendIn: 'Reenviar código en {{ time }}',
+        resend: 'Reenviar código',
+      },
+      tripChatLink: 'Chat del viaje',
+      routeTimeline: {
+        aria: 'Trayecto',
+      },
+      licensePlate: {
+        aria: 'Matrícula {{ plate }}',
+      },
     },
     auth: {
       layout: {

@@ -7,14 +7,14 @@
   <div class="reason">
     <ion-textarea
       class="reason__field"
-      [label]="fieldLabel"
+      [label]="computedFieldLabel"
       labelPlacement="stacked"
       fill="outline"
       rows="3"
       [maxlength]="maxLength"
       [counter]="true"
       [value]="reason()"
-      [helperText]="'Mínimo ' + minLength + ' caracteres. Queda registrado.'"
+      [helperText]="computedHelperText"
       (ionInput)="handleReasonInput($event)"
     />
     @if (errorMessage(); as error) {
@@ -25,7 +25,9 @@
   <!-- El azul (el principal) es cancelar: la acción del administrador va en
        blanco con letras azules, como en la confirmación destructiva -->
   <div class="confirm__actions">
-    <ion-button type="button" expand="block" (click)="handleCancel()">Cancelar</ion-button>
+    <ion-button type="button" expand="block" (click)="handleCancel()">{{
+      computedCancelText
+    }}</ion-button>
     <ion-button
       class="confirm__secondary"
       type="submit"

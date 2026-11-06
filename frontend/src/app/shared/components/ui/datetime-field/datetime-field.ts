@@ -10,6 +10,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { IonDatetime, IonIcon, IonModal } from '@ionic/angular';
+import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { calendarOutline, timeOutline } from 'ionicons/icons';
 import { toIsoDate } from '../../../utils/date.util';
 
@@ -23,23 +24,28 @@ const DESKTOP_QUERY = '(min-width: 768px)';
 // dos formularios a la vez, y con el mismo id un botón abriría el selector
 // del otro)
 let nextId = 0;
-const DATE_LABEL = new Intl.DateTimeFormat('es-ES', {
-  weekday: 'short',
-  day: 'numeric',
-  month: 'short',
-});
 
-// «Hoy», «Mañana» o, desde el tercer día, «jue, 30 oct»
-export function formatDateLabel(isoDate: string, today = new Date()): string {
+// «Hoy», «Mañana» o, desde el tercer día, «jue, 30 oct» (o «Thu, 30 Oct» en inglés)
+export function formatDateLabel(
+  isoDate: string,
+  today = new Date(),
+  lang: 'es' | 'en' = 'es',
+): string {
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
   if (isoDate === toIsoDate(today)) {
-    return 'Hoy';
+    return lang === 'en' ? 'Today' : 'Hoy';
   }
   if (isoDate === toIsoDate(tomorrow)) {
-    return 'Mañana';
+    return lang === 'en' ? 'Tomorrow' : 'Mañana';
   }
-  return DATE_LABEL.format(new Date(`${isoDate}T00:00:00`));
+  const locale = lang === 'en' ? 'en-GB' : 'es-ES';
+  const formatter = new Intl.DateTimeFormat(locale, {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
+  return formatter.format(new Date(`${isoDate}T00:00:00`));
 }
 
 // Fecha o hora (guía, «Campos»), con la etiqueta encima. En escritorio, el
@@ -60,6 +66,12 @@ export function formatDateLabel(isoDate: string, today = new Date()): string {
   ],
 })
 export class DatetimeField implements ControlValueAccessor {
+  private readonly transpiler = inject(TRANSLOCO_TRANSPILER, { optional: true });
+  private readonly transloco = this.transpiler
+    ? inject(TranslocoService, { optional: true })
+    : null;
+  private readonly translation = toSignal(this.transloco?.selectTranslation() ?? EMPTY);
+
   readonly label = input.required<string>();
   readonly presentation = input<DatetimePresentation>('date');
   // Límites de la fecha (ISO); sin efecto en la hora
@@ -85,7 +97,20 @@ export class DatetimeField implements ControlValueAccessor {
     if (!value) {
       return '';
     }
-    return this.presentation() === 'date' ? formatDateLabel(value) : value;
+    const lang = this.transloco?.getActiveLang() === 'en' ? 'en' : 'es';
+    return this.presentation() === 'date' ? formatDateLabel(value, new Date(), lang) : value;
+  });
+
+  protected readonly pickerLocale = computed(() =>
+    this.transloco?.getActiveLang() === 'en' ? 'en-GB' : 'es-ES',
+  );
+
+  protected readonly cancelLabel = computed(() => {
+    return (this.translation() ? this.transloco?.translate('common.cancel') : null) ?? 'Cancelar';
+  });
+
+  protected readonly acceptLabel = computed(() => {
+    return (this.translation() ? this.transloco?.translate('common.accept') : null) ?? 'Aceptar';
   });
   // En el navegador de escritorio, el campo nativo (se escribe o se elige en
   // su calendario, sin ventanas de la app); en el móvil, la hoja de Ionic.
