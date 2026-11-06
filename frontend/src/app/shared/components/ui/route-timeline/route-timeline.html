@@ -1,4 +1,8 @@
-<ol class="route-timeline" [class.route-timeline--timed]="hasTimes()" aria-label="Trayecto">
+<ol
+  class="route-timeline"
+  [class.route-timeline--timed]="hasTimes()"
+  [attr.aria-label]="timelineAriaLabel()"
+>
   @for (stop of stops(); track $index; let isFirst = $first) {
     <li class="route-timeline__stop">
       @if (stop.time; as time) {

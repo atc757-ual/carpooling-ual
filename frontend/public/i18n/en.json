@@ -36,6 +36,54 @@
       "githubAria": "Author's GitHub",
       "linkedinAria": "Author's LinkedIn",
       "developedBy": "Developed by Alex Taquila"
+    },
+    "pagination": {
+      "aria": "Pagination",
+      "empty": "0 of 0",
+      "range": "{{ start }}–{{ end }} of {{ total }}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "seatStepper": {
+      "decrease": "One fewer seat",
+      "increase": "One more seat"
+    },
+    "datetime": {
+      "today": "Today",
+      "tomorrow": "Tomorrow"
+    },
+    "faq": {
+      "title": "Frequently asked questions"
+    },
+    "steps": {
+      "caption": "Step {{ current }} of {{ total }} · {{ step }}"
+    },
+    "legal": {
+      "loadError": "We couldn't load the text. Please check your connection and try again.",
+      "loadingAria": "Loading document",
+      "changesInVersion": "What's changed in version {{ version }}",
+      "documents": {
+        "terms": "Terms of service",
+        "privacy": "Privacy policy",
+        "driver_declaration": "Driver declaration",
+        "vehicle_declaration": "Vehicle declaration",
+        "location": "Location access"
+      }
+    },
+    "reasonModal": {
+      "defaultLabel": "Reason",
+      "helperText": "Minimum {{ min }} characters. This will be recorded."
+    },
+    "countdown": {
+      "resendIn": "Resend code in {{ time }}",
+      "resend": "Resend code"
+    },
+    "tripChatLink": "Trip chat",
+    "routeTimeline": {
+      "aria": "Route"
+    },
+    "licensePlate": {
+      "aria": "License plate {{ plate }}"
     }
   },
   "brand": {
@@ -387,5 +435,65 @@
       "deleteAccount": "Delete my account",
       "changes": "What changed"
     }
+  },
+  "errors": {
+    "reference": " (reference: {{ requestId }})",
+    "INTERNAL_ERROR": "A server error occurred{{ reference }}. Please try again.",
+    "NETWORK_ERROR": "No connection. Check your network and try again.",
+    "UNKNOWN_ERROR": "Something went wrong. Please try again.",
+    "VALIDATION_FAILED": "Please check the information entered.",
+    "NOT_FOUND": "We couldn't find what you're looking for.",
+    "SERVICE_UNAVAILABLE": "The service is temporarily unavailable. Please try again later.",
+    "INVALID_CREDENTIALS": "Incorrect email or password.",
+    "EMAIL_NOT_VERIFIED": "Please verify your email before signing in.",
+    "INVALID_VERIFICATION_CODE": "That code isn't valid. Check the 6 digits or request a new one.",
+    "PASSWORD_UNCHANGED": "Your new password must be different from your current one.",
+    "TOO_MANY_ATTEMPTS": "Too many attempts. Please request a new code.",
+    "EMAIL_ALREADY_REGISTERED": "An account already exists with this email.",
+    "EMAIL_DOMAIN_NOT_ALLOWED": "Use your University of Almería email address.",
+    "INVALID_ACCESS_TOKEN": "Your session is invalid. Please sign in again.",
+    "ACCESS_TOKEN_EXPIRED": "Your session has expired. Please sign in again.",
+    "INVALID_REFRESH_TOKEN": "Your session has expired. Please sign in again.",
+    "PROFILE_REQUIRED": "Your profile doesn't have permission for this action.",
+    "PROFILE_DEACTIVATED_BY_ADMIN": "This profile was deactivated by an administrator. Contact support if you believe this is an error.",
+    "AVATAR_NOT_FOUND": "Selected avatar is not available. Please choose another one.",
+    "PHONE_REQUIRED": "Add and save a phone number before verifying it.",
+    "VEHICLE_ALREADY_REGISTERED": "You already have a vehicle registered with this license plate.",
+    "DRIVER_NOT_READY": "Register a vehicle and accept the declaration before publishing.",
+    "PUBLISHING_SUSPENDED": "Publishing is temporarily suspended due to late cancellations. Check the notice in Publish.",
+    "DEPARTURE_TOO_SOON": "The trip must depart at least one hour from now.",
+    "SEATS_EXCEED_CAPACITY": "Offered seats exceed vehicle capacity.",
+    "DEPARTURE_IN_THE_PAST": "Departure time is in the past. Please choose a later time.",
+    "TRIP_FULL": "There are not enough seats left on this trip. Try searching for another one.",
+    "TRIP_NOT_OPEN": "This trip is no longer accepting seat requests.",
+    "REQUEST_ALREADY_EXISTS": "You already have a request for this trip.",
+    "CANNOT_REQUEST_OWN_TRIP": "You cannot request a seat on your own trip.",
+    "TRIP_ALREADY_STARTED": "The trip has already started and can no longer be cancelled here.",
+    "TRIP_NOT_STARTABLE_YET": "You cannot start the trip yet. It will be available 10 minutes before departure.",
+    "TRIP_NOT_IN_PROGRESS": "This trip is no longer in progress.",
+    "ACCOUNT_HAS_ACTIVE_TRIPS": "You cannot delete your account with upcoming trips or bookings. Cancel them first.",
+    "LAST_ADMIN": "This is the last administrator. Appoint another one first.",
+    "CANNOT_CHANGE_OWN_ADMIN": "You cannot remove your own administrator role.",
+    "USER_NOT_SUSPENDED": "This user is no longer suspended.",
+    "USER_NOT_FOUND": "User not found.",
+    "PROFILE_NOT_FOUND": "This user does not have that profile.",
+    "SIMULATION_ALREADY_RUNNING": "A simulation is already in progress. Wait for it to finish or cancel it.",
+    "SIMULATION_NOT_FINISHED": "This simulation has no results yet.",
+    "SCENARIO_NOT_FOUND": "Scenario not found.",
+    "INVALID_SIMULATION_TRANSITION": "This simulation has already ended.",
+    "CATALOG_ITEM_EXISTS": "An item with this name already exists (even if inactive).",
+    "CATALOG_ITEM_NOT_FOUND": "That item no longer exists. Please refresh the list.",
+    "INVALID_AVATAR_IMAGE": "The image must be a square PNG or WebP between 128 and 512 px, up to 100 KB.",
+    "VEHICLE_COLOR_NOT_OFFERED": "This color is no longer available. Please choose another one.",
+    "TRAVEL_PREFERENCE_NOT_OFFERED": "This preference is no longer available. Please choose another one.",
+    "CAMPUS_PARKING_NOT_FOUND": "This parking area doesn't exist or is currently closed.",
+    "PARKING_OUTSIDE_SERVICE_AREA": "This location is outside the service area.",
+    "PARKING_IN_USE": "This parking has active or scheduled trips and cannot be modified until they finish.",
+    "LEGAL_DOCUMENT_NOT_FOUND": "No published version found for this document.",
+    "LEGAL_DRAFT_NOT_FOUND": "There is no draft available to publish.",
+    "VEHICLE_DECLARATION_REQUIRED": "Before using this vehicle, please accept its declaration again (insurance and inspection).",
+    "DRIVER_DECLARATION_REQUIRED": "Before starting the trip, please accept your driver declaration again (driver's license).",
+    "LEGAL_DOCUMENT_OUTDATED": "A new version was published while you were reading. Please review the latest one.",
+    "LEGAL_SUMMARY_REQUIRED": "Provide a summary of changes before publishing this version."
   }
 }

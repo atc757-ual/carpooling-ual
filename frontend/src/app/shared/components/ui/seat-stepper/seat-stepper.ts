@@ -1,7 +1,10 @@
-import { Component, computed, forwardRef, input, signal } from '@angular/core';
+import { Component, computed, forwardRef, inject, input, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IonIcon } from '@ionic/angular';
+import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { addOutline, removeOutline } from 'ionicons/icons';
+import { EMPTY } from 'rxjs';
 
 // Contador de plazas (SeatStepper de la guía): «−», el número y «+», entre un
 // mínimo y un máximo. Es un fieldset con la etiqueta como leyenda; el número
@@ -16,6 +19,12 @@ import { addOutline, removeOutline } from 'ionicons/icons';
   ],
 })
 export class SeatStepper implements ControlValueAccessor {
+  private readonly transpiler = inject(TRANSLOCO_TRANSPILER, { optional: true });
+  private readonly transloco = this.transpiler
+    ? inject(TranslocoService, { optional: true })
+    : null;
+  private readonly currentLang = toSignal(this.transloco?.langChanges$ ?? EMPTY);
+
   readonly label = input.required<string>();
   readonly min = input(1);
   readonly max = input(4);
@@ -26,6 +35,15 @@ export class SeatStepper implements ControlValueAccessor {
   readonly isDisabled = signal(false);
   readonly canRemove = computed(() => !this.isDisabled() && this.value() > this.min());
   readonly canAdd = computed(() => !this.isDisabled() && this.value() < this.max());
+
+  protected readonly decreaseLabel = computed(() => {
+    void this.currentLang();
+    return this.transloco?.translate('common.seatStepper.decrease') ?? 'Una plaza menos';
+  });
+  protected readonly increaseLabel = computed(() => {
+    void this.currentLang();
+    return this.transloco?.translate('common.seatStepper.increase') ?? 'Una plaza más';
+  });
 
   protected readonly removeIcon = removeOutline;
   protected readonly addIcon = addOutline;

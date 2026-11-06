@@ -1,5 +1,6 @@
 import { Component, computed, inject, Input, signal } from '@angular/core';
 import { IonButton, IonIcon, IonTextarea, ModalController } from '@ionic/angular';
+import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { alertCircleOutline } from 'ionicons/icons';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { getErrorMessage } from '../../../utils/error-message.util';
@@ -16,6 +17,8 @@ export interface ReasonConfirmOptions {
   action: (reason: string) => Promise<void>;
   // Por defecto «Motivo» y 500 caracteres (p. ej. «Resolución» y 1000)
   fieldLabel?: string;
+  cancelText?: string;
+  helperText?: string;
   maxLength?: number;
 }
 
@@ -29,13 +32,38 @@ export interface ReasonConfirmOptions {
 })
 export class ReasonConfirmModal {
   private readonly modalController = inject(ModalController);
+  private readonly transpiler = inject(TRANSLOCO_TRANSPILER, { optional: true });
+  private readonly transloco = this.transpiler
+    ? inject(TranslocoService, { optional: true })
+    : null;
 
   @Input({ required: true }) header!: string;
   @Input({ required: true }) message!: string;
   @Input({ required: true }) confirmText!: string;
   @Input({ required: true }) action!: (reason: string) => Promise<void>;
-  @Input() fieldLabel = 'Motivo';
+  @Input() fieldLabel?: string;
+  @Input() cancelText?: string;
+  @Input() helperText?: string;
   @Input() maxLength = REASON_MAX_LENGTH;
+
+  get computedFieldLabel(): string {
+    return (
+      this.fieldLabel ?? this.transloco?.translate('common.reasonModal.defaultLabel') ?? 'Motivo'
+    );
+  }
+
+  get computedCancelText(): string {
+    return this.cancelText ?? this.transloco?.translate('common.cancel') ?? 'Cancelar';
+  }
+
+  get computedHelperText(): string {
+    return (
+      this.helperText ??
+      (this.transloco
+        ? this.transloco.translate('common.reasonModal.helperText', { min: this.minLength })
+        : `Mínimo ${this.minLength} caracteres. Queda registrado.`)
+    );
+  }
 
   readonly reason = signal('');
   readonly isSaving = signal(false);
@@ -62,7 +90,9 @@ export class ReasonConfirmModal {
       await this.action(this.reason().trim());
       await this.modalController.dismiss(null, 'confirm');
     } catch (error) {
-      this.errorMessage.set(getErrorMessage(ApiError.fromHttpError(error)));
+      this.errorMessage.set(
+        getErrorMessage(ApiError.fromHttpError(error), this.transloco ?? undefined),
+      );
     } finally {
       this.isSaving.set(false);
     }

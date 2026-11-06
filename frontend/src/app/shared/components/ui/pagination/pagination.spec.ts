@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
+import { TranslocoService } from '@jsverse/transloco';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { formatCount, Pagination } from './pagination';
 
 describe('Pagination', () => {
@@ -69,5 +71,49 @@ describe('Pagination', () => {
     fixture.componentInstance.handleNext();
 
     expect(offsets).toEqual([0, 40]);
+  });
+
+  describe('with Transloco in English', () => {
+    let englishFixture: ComponentFixture<Pagination>;
+
+    beforeEach(() => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [Pagination],
+        providers: [
+          provideIonicAngular(),
+          provideTranslocoTestingSupport({
+            en: {
+              common: {
+                pagination: {
+                  aria: 'Pagination',
+                  empty: '0 of 0',
+                  range: '{{ start }}–{{ end }} of {{ total }}',
+                  previous: 'Previous',
+                  next: 'Next',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      const transloco = TestBed.inject(TranslocoService);
+      transloco.setActiveLang('en');
+      englishFixture = TestBed.createComponent(Pagination);
+    });
+
+    it('translates the pagination labels, range and buttons to English', () => {
+      englishFixture.componentRef.setInput('offset', 0);
+      englishFixture.componentRef.setInput('limit', 20);
+      englishFixture.componentRef.setInput('total', 100);
+      englishFixture.detectChanges();
+
+      const element = englishFixture.nativeElement as HTMLElement;
+      expect(element.querySelector('nav')?.getAttribute('aria-label')).toBe('Pagination');
+      expect(element.querySelector('.pagination__range')?.textContent).toBe('1–20 of 100');
+      const [previous, next] = Array.from(element.querySelectorAll('ion-button'));
+      expect(previous.textContent?.trim()).toBe('Previous');
+      expect(next.textContent?.trim()).toBe('Next');
+    });
   });
 });

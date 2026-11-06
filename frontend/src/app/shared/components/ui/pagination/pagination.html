@@ -1,4 +1,4 @@
-<nav class="pagination" aria-label="Paginación">
+<nav class="pagination" [attr.aria-label]="computedAriaLabel()">
   <span class="pagination__range" aria-live="polite">{{ range() }}</span>
   <div class="pagination__actions">
     <ion-button
@@ -6,14 +6,14 @@
       size="small"
       [disabled]="!hasPrevious() || isLoading()"
       (click)="handlePrevious()"
-      >Anterior</ion-button
+      >{{ computedPreviousLabel() }}</ion-button
     >
     <ion-button
       fill="outline"
       size="small"
       [disabled]="!hasNext() || isLoading()"
       (click)="handleNext()"
-      >Siguiente</ion-button
+      >{{ computedNextLabel() }}</ion-button
     >
   </div>
 </nav>

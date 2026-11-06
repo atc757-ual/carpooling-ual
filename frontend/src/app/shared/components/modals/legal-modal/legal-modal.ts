@@ -1,5 +1,6 @@
 import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { IonContent, IonSpinner, ModalController } from '@ionic/angular';
+import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { ModalHeader } from '../modal-header/modal-header';
 import {
   LEGAL_DOCUMENT_TITLES,
@@ -26,6 +27,10 @@ export type LegalDocument = LegalDocumentType;
 export class LegalModal implements OnInit {
   private readonly legalDocuments = inject(LegalDocumentsService);
   private readonly modalController = inject(ModalController);
+  private readonly transpiler = inject(TRANSLOCO_TRANSPILER, { optional: true });
+  private readonly transloco = this.transpiler
+    ? inject(TranslocoService, { optional: true })
+    : null;
 
   // @Input y no input(): ModalController asigna componentProps como
   // propiedades normales, lo que rompería una entrada de tipo signal
@@ -35,7 +40,31 @@ export class LegalModal implements OnInit {
   readonly hasError = signal(false);
 
   get title(): string {
+    if (this.transloco) {
+      return this.transloco.translate(`common.legal.documents.${this.document}`);
+    }
     return LEGAL_DOCUMENT_TITLES[this.document];
+  }
+
+  changesHeading(version: string): string {
+    if (this.transloco) {
+      return this.transloco.translate('common.legal.changesInVersion', { version });
+    }
+    return `Qué ha cambiado en la versión ${version}`;
+  }
+
+  get errorMessage(): string {
+    if (this.transloco) {
+      return this.transloco.translate('common.legal.loadError');
+    }
+    return 'No hemos podido cargar el texto. Comprueba tu conexión e inténtalo de nuevo.';
+  }
+
+  get loadingAriaLabel(): string {
+    if (this.transloco) {
+      return this.transloco.translate('common.legal.loadingAria');
+    }
+    return 'Cargando el texto';
   }
 
   ngOnInit(): void {

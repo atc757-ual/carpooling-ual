@@ -3,7 +3,9 @@ import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Capacitor } from '@capacitor/core';
 import { provideIonicAngular } from '@ionic/angular';
+import { TranslocoService } from '@jsverse/transloco';
 import { vi } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { DatetimeField, DatetimePresentation, formatDateLabel } from './datetime-field';
 
 @Component({
@@ -64,6 +66,9 @@ describe('DatetimeField', () => {
     expect(formatDateLabel('2026-10-28', today)).toBe('Hoy');
     expect(formatDateLabel('2026-10-29', today)).toBe('Mañana');
     expect(formatDateLabel('2026-10-30', today)).toBe('vie, 30 oct');
+    expect(formatDateLabel('2026-10-28', today, 'en')).toBe('Today');
+    expect(formatDateLabel('2026-10-29', today, 'en')).toBe('Tomorrow');
+    expect(formatDateLabel('2026-10-30', today, 'en')).toBe('Fri 30 Oct');
   });
 
   it('passes the value both ways', () => {
@@ -89,6 +94,42 @@ describe('DatetimeField', () => {
     expect(control.disabled).toBe(true);
     host.value.enable();
     expect(control.disabled).toBe(false);
+  });
+
+  describe('with Transloco in English', () => {
+    it('translates picker buttons and formatted dates into English', async () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [Host],
+        providers: [
+          provideIonicAngular(),
+          provideTranslocoTestingSupport({
+            en: {
+              common: {
+                cancel: 'Cancel',
+                accept: 'OK',
+              },
+            },
+          }),
+        ],
+      });
+      const transloco = TestBed.inject(TranslocoService);
+      transloco.setActiveLang('en');
+      const fixture = TestBed.createComponent(Host);
+      const hostComponent = fixture.componentInstance;
+      hostComponent.value.setValue('2026-10-27');
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const fieldInstance = fixture.debugElement.children[0].componentInstance as DatetimeField;
+      expect((fieldInstance as unknown as { cancelLabel: () => string }).cancelLabel()).toBe(
+        'Cancel',
+      );
+      expect((fieldInstance as unknown as { acceptLabel: () => string }).acceptLabel()).toBe('OK');
+      expect((fieldInstance as unknown as { pickerLocale: () => string }).pickerLocale()).toBe(
+        'en-GB',
+      );
+    });
   });
 });
 

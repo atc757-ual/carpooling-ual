@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
+import { TranslocoService } from '@jsverse/transloco';
 import { vi } from 'vitest';
+import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { TripChatLink } from './trip-chat-link';
 
 describe('TripChatLink', () => {
@@ -23,5 +25,25 @@ describe('TripChatLink', () => {
 
     const [url] = navigate.mock.calls[0];
     expect(TestBed.inject(Router).serializeUrl(url as never)).toBe('/tabs/messages/t1');
+  });
+
+  it('translates button label in English when configured', () => {
+    TestBed.configureTestingModule({
+      imports: [TripChatLink],
+      providers: [
+        provideIonicAngular(),
+        provideRouter([]),
+        provideTranslocoTestingSupport({
+          en: { common: { tripChatLink: 'Trip chat' } },
+        }),
+      ],
+    });
+    TestBed.inject(TranslocoService).setActiveLang('en');
+    const fixture = TestBed.createComponent(TripChatLink);
+    fixture.componentRef.setInput('tripId', 't1');
+    fixture.detectChanges();
+
+    const button = (fixture.nativeElement as HTMLElement).querySelector('ion-button');
+    expect(button?.textContent).toContain('Trip chat');
   });
 });

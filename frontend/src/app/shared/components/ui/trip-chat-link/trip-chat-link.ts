@@ -1,7 +1,10 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { IonButton, IonIcon } from '@ionic/angular';
+import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { chatbubblesOutline } from 'ionicons/icons';
+import { EMPTY } from 'rxjs';
 
 // «Chat del viaje»: abre la conversación del viaje en Mensajes. En la tarjeta
 // del conductor, el detalle de la solicitud aceptada del pasajero y la
@@ -17,14 +20,24 @@ import { chatbubblesOutline } from 'ionicons/icons';
       [routerLink]="['/tabs/messages', tripId()]"
     >
       <ion-icon slot="start" [icon]="icon" aria-hidden="true" />
-      Chat del viaje
+      {{ label() }}
     </ion-button>
   `,
 })
 export class TripChatLink {
+  private readonly transpiler = inject(TRANSLOCO_TRANSPILER, { optional: true });
+  private readonly transloco = this.transpiler
+    ? inject(TranslocoService, { optional: true })
+    : null;
+  private readonly currentLang = toSignal(this.transloco?.langChanges$ ?? EMPTY);
+
   readonly tripId = input.required<string>();
   // A todo el ancho (detalle de la solicitud) o a su medida (tarjeta)
   readonly expand = input<'block' | undefined>(undefined);
 
   protected readonly icon = chatbubblesOutline;
+  protected readonly label = computed(() => {
+    this.currentLang();
+    return this.transloco?.translate('common.tripChatLink') ?? 'Chat del viaje';
+  });
 }

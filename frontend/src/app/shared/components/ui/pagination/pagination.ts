@@ -1,5 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { IonButton } from '@ionic/angular';
+import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
+import { EMPTY } from 'rxjs';
 
 // Separador de miles con espacio que no se parte (1 284), también con cuatro
 // cifras (Intl en español no separa los números de cuatro cifras). Se agrupa
@@ -24,21 +27,56 @@ export function formatCount(value: number): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Pagination {
+  private readonly transpiler = inject(TRANSLOCO_TRANSPILER, { optional: true });
+  private readonly transloco = this.transpiler
+    ? inject(TranslocoService, { optional: true })
+    : null;
+  private readonly currentLang = toSignal(this.transloco?.langChanges$ ?? EMPTY);
+
   readonly offset = input.required<number>();
   readonly limit = input.required<number>();
   readonly total = input.required<number>();
   // Mientras carga una página, los botones no responden
   readonly isLoading = input(false);
 
+  readonly ariaLabel = input<string>();
+  readonly previousLabel = input<string>();
+  readonly nextLabel = input<string>();
+
   readonly offsetChange = output<number>();
 
+  protected readonly computedAriaLabel = computed(() => {
+    void this.currentLang();
+    return this.ariaLabel() ?? this.transloco?.translate('common.pagination.aria') ?? 'Paginación';
+  });
+
+  protected readonly computedPreviousLabel = computed(() => {
+    void this.currentLang();
+    return (
+      this.previousLabel() ?? this.transloco?.translate('common.pagination.previous') ?? 'Anterior'
+    );
+  });
+
+  protected readonly computedNextLabel = computed(() => {
+    void this.currentLang();
+    return this.nextLabel() ?? this.transloco?.translate('common.pagination.next') ?? 'Siguiente';
+  });
+
   protected readonly range = computed(() => {
+    void this.currentLang();
     const total = this.total();
     if (total === 0) {
-      return '0 de 0';
+      return this.transloco?.translate('common.pagination.empty') ?? '0 de 0';
     }
     const first = this.offset() + 1;
     const last = Math.min(this.offset() + this.limit(), total);
+    if (this.transloco) {
+      return this.transloco.translate('common.pagination.range', {
+        start: formatCount(first),
+        end: formatCount(last),
+        total: formatCount(total),
+      });
+    }
     return `${formatCount(first)}–${formatCount(last)} de ${formatCount(total)}`;
   });
   protected readonly hasPrevious = computed(() => this.offset() > 0);

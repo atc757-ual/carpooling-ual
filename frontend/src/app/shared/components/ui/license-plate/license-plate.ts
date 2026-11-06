@@ -1,4 +1,7 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
+import { EMPTY } from 'rxjs';
 
 // Las 12 estrellas de la franja de la UE, en círculo (coordenadas del SVG)
 const STAR_RING_RADIUS = 3.4;
@@ -13,17 +16,30 @@ const STARS = Array.from({ length: 12 }, (_, index) => {
 // Matrícula dibujada como la de un coche (guía, «Vehículo»): placa blanca con
 // borde, la franja azul de la UE con las estrellas y la letra del país, y el
 // número en negro. Igual en modo claro y oscuro, como una placa de verdad.
-// Los lectores de pantalla leen solo «Matrícula 1234 BCD»
+// Los lectores de pantalla leen solo «Matrícula 1234 BCD» (o su traducción)
 @Component({
   selector: 'app-license-plate',
   templateUrl: './license-plate.html',
   styleUrl: './license-plate.scss',
 })
 export class LicensePlate {
+  private readonly transpiler = inject(TRANSLOCO_TRANSPILER, { optional: true });
+  private readonly transloco = this.transpiler
+    ? inject(TranslocoService, { optional: true })
+    : null;
+  private readonly currentLang = toSignal(this.transloco?.langChanges$ ?? EMPTY);
+
   // Ya con el formato de mostrar («1234 BCD»)
   readonly plate = input.required<string>();
   // El distintivo del país en la franja (España: E; ver plate-country.util)
   readonly country = input('E');
 
   protected readonly stars = STARS;
+  protected readonly ariaLabel = computed(() => {
+    this.currentLang();
+    return (
+      this.transloco?.translate('common.licensePlate.aria', { plate: this.plate() }) ??
+      `Matrícula ${this.plate()}`
+    );
+  });
 }

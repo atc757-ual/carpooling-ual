@@ -1,3 +1,4 @@
+import { TranslocoService } from '@jsverse/transloco';
 import { ApiError, NETWORK_ERROR, UNKNOWN_ERROR } from '../../core/models/api-error.model';
 
 // Mensajes para el usuario de cada código de error (docs/api/errors.md). Se
@@ -70,7 +71,22 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   LEGAL_SUMMARY_REQUIRED: 'Escribe «Qué ha cambiado» antes de publicar la versión.',
 };
 
-export function getErrorMessage(error: ApiError): string {
+export function getErrorMessage(error: ApiError, transloco?: TranslocoService): string {
+  if (transloco) {
+    if (error.code === 'INTERNAL_ERROR') {
+      const reference = error.requestId
+        ? transloco.translate('errors.reference', { requestId: error.requestId })
+        : '';
+      return transloco.translate('errors.INTERNAL_ERROR', { reference });
+    }
+    const key = `errors.${error.code}`;
+    const translated = transloco.translate(key);
+    if (translated === key) {
+      return transloco.translate(`errors.${UNKNOWN_ERROR}`);
+    }
+    return translated;
+  }
+
   if (error.code === 'INTERNAL_ERROR') {
     const reference = error.requestId ? ` (referencia: ${error.requestId})` : '';
     return `Ha ocurrido un error en el servidor${reference}. Inténtalo de nuevo.`;

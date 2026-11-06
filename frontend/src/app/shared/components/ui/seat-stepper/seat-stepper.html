@@ -4,7 +4,7 @@
     <button
       type="button"
       class="seat-stepper__button"
-      aria-label="Una plaza menos"
+      [attr.aria-label]="decreaseLabel()"
       [disabled]="!canRemove()"
       (click)="change(-1)"
     >
@@ -14,7 +14,7 @@
     <button
       type="button"
       class="seat-stepper__button"
-      aria-label="Una plaza más"
+      [attr.aria-label]="increaseLabel()"
       [disabled]="!canAdd()"
       (click)="change(1)"
     >
