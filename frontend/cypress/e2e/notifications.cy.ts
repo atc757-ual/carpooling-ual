@@ -104,8 +104,11 @@ for (const viewport of VIEWPORTS) {
 
     it('filters notifications by category through the API', () => {
       cy.intercept(
-        'GET',
-        { pathname: '/api/users/me/notifications', query: { category: 'travel' } },
+        {
+          method: 'GET',
+          pathname: '/api/users/me/notifications',
+          query: { category: 'travel' },
+        },
         [NOTIFICATION],
       ).as('travelNotifications');
       cy.get('app-tabs .bell-button').filter(':visible').click();
