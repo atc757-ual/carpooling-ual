@@ -37,11 +37,11 @@ export class SeatStepper implements ControlValueAccessor {
   readonly canAdd = computed(() => !this.isDisabled() && this.value() < this.max());
 
   protected readonly decreaseLabel = computed(() => {
-    void this.currentLang();
+    this.currentLang();
     return this.transloco?.translate('common.seatStepper.decrease') ?? 'Una plaza menos';
   });
   protected readonly increaseLabel = computed(() => {
-    void this.currentLang();
+    this.currentLang();
     return this.transloco?.translate('common.seatStepper.increase') ?? 'Una plaza más';
   });
 

@@ -106,12 +106,12 @@ export class DatetimeField implements ControlValueAccessor {
   );
 
   protected readonly cancelLabel = computed(() => {
-    void this.currentLang();
+    this.currentLang();
     return this.transloco?.translate('common.cancel') ?? 'Cancelar';
   });
 
   protected readonly acceptLabel = computed(() => {
-    void this.currentLang();
+    this.currentLang();
     return this.transloco?.translate('common.accept') ?? 'Aceptar';
   });
   // En el navegador de escritorio, el campo nativo (se escribe o se elige en

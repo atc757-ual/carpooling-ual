@@ -46,24 +46,24 @@ export class Pagination {
   readonly offsetChange = output<number>();
 
   protected readonly computedAriaLabel = computed(() => {
-    void this.currentLang();
+    this.currentLang();
     return this.ariaLabel() ?? this.transloco?.translate('common.pagination.aria') ?? 'Paginación';
   });
 
   protected readonly computedPreviousLabel = computed(() => {
-    void this.currentLang();
+    this.currentLang();
     return (
       this.previousLabel() ?? this.transloco?.translate('common.pagination.previous') ?? 'Anterior'
     );
   });
 
   protected readonly computedNextLabel = computed(() => {
-    void this.currentLang();
+    this.currentLang();
     return this.nextLabel() ?? this.transloco?.translate('common.pagination.next') ?? 'Siguiente';
   });
 
   protected readonly range = computed(() => {
-    void this.currentLang();
+    this.currentLang();
     const total = this.total();
     if (total === 0) {
       return this.transloco?.translate('common.pagination.empty') ?? '0 de 0';

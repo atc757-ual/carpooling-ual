@@ -49,7 +49,7 @@ export class FaqCard {
   readonly customTitle = input<string>();
 
   protected readonly title = computed(() => {
-    void this.currentLang();
+    this.currentLang();
     return (
       this.customTitle() ?? this.transloco?.translate('common.faq.title') ?? 'Preguntas frecuentes'
     );

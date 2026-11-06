@@ -36,7 +36,7 @@ export class StepIndicator {
   readonly selected = output<number>();
 
   protected readonly captionText = computed(() => {
-    void this.currentLang();
+    this.currentLang();
     const current = this.current();
     const total = this.steps().length;
     const step = this.steps()[current - 1] ?? '';
