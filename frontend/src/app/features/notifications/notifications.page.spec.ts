@@ -6,7 +6,10 @@ import { vi } from 'vitest';
 import { Trip } from '../../core/models/driver.model';
 import { AppNotification, NotificationType } from '../../core/models/notification.model';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { NotificationsService } from '../../core/services/notifications/notifications.service';
+import {
+  NotificationsService,
+  NOTIFICATIONS_PAGE_SIZE,
+} from '../../core/services/notifications/notifications.service';
 import { TripsService } from '../../core/services/trips/trips.service';
 import { ToastService } from '../../core/services/ui/toast.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
@@ -57,6 +60,7 @@ function notification(
 describe('NotificationsPage', () => {
   let fixture: ComponentFixture<NotificationsPage>;
   let service: Record<string, ReturnType<typeof vi.fn>>;
+  const unreadCount = signal(1);
   let getTrip: ReturnType<typeof vi.fn>;
   let setMode: ReturnType<typeof vi.fn>;
   const activeMode = signal<TravelMode | null>('passenger');
@@ -66,10 +70,13 @@ describe('NotificationsPage', () => {
     list: () => Promise<AppNotification[]>,
     profiles: string[] = ['driver'],
   ): Promise<HTMLElement> {
+    unreadCount.set(1);
     service = {
-      list: vi.fn().mockImplementation(list),
+      list: vi.fn().mockImplementation(async () => {
+        const items = await list();
+        return { items, total: items.length };
+      }),
       markRead: vi.fn().mockResolvedValue(undefined),
-      markAllRead: vi.fn().mockResolvedValue(undefined),
     };
     getTrip = vi.fn().mockResolvedValue(TRIP);
     setMode = vi.fn().mockResolvedValue(undefined);
@@ -80,7 +87,7 @@ describe('NotificationsPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
-        { provide: NotificationsService, useValue: service },
+        { provide: NotificationsService, useValue: { ...service, unreadCount } },
         { provide: TripsService, useValue: { getTrip } },
         {
           provide: AuthService,
@@ -92,7 +99,9 @@ describe('NotificationsPage', () => {
     });
     fixture = TestBed.createComponent(NotificationsPage);
     vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
-    await fixture.whenStable();
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(fixture.componentInstance.isLoading()).toBe(false));
+    fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
   }
 
@@ -109,7 +118,9 @@ describe('NotificationsPage', () => {
     expect(root.querySelectorAll('.notification--unread')).toHaveLength(1);
     expect(root.textContent).toContain('Te han pedido plaza');
     expect(root.textContent).toContain('Roquetas de Mar → Campus UAL · Parking P1 (Sur)');
-    expect(root.textContent).toContain('Marcar todo como leído');
+    expect(root.textContent).not.toContain('Tus notificaciones');
+    expect(root.querySelector('.notification__tag')).toBeNull();
+    expect(root.querySelector('.notification--unread.notification--travel')).not.toBeNull();
   });
 
   it('shows a minor change of a legal document and opens the document', async () => {
@@ -191,39 +202,69 @@ describe('NotificationsPage', () => {
     expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledTimes(1);
   });
 
-  it('marks all as read', async () => {
-    await render(() => Promise.resolve([notification('n1', 'request_received')]));
-
-    await fixture.componentInstance.handleMarkAllRead();
-
-    expect(service['markAllRead']).toHaveBeenCalled();
-    expect(fixture.componentInstance.isMarkingAll()).toBe(false);
-  });
-
   it('shows the API error when it cannot mark them', async () => {
     await render(() => Promise.resolve([notification('n1', 'request_received')]));
     service['markRead'].mockRejectedValue(new Error('down'));
-    service['markAllRead'].mockRejectedValue(new Error('down'));
 
     await fixture.componentInstance.handleOpen(fixture.componentInstance.all()[0]);
-    await fixture.componentInstance.handleMarkAllRead();
 
-    expect(showError).toHaveBeenCalledTimes(2);
+    expect(showError).toHaveBeenCalledTimes(1);
   });
 
   it('says there are none', async () => {
     const root = await render(() => Promise.resolve([]));
 
-    expect(root.textContent).toContain('No tienes avisos');
+    expect(root.textContent).toContain('No tienes notificaciones');
+  });
+
+  it('loads category filters and paginates the matching results', async () => {
+    await render(() => Promise.resolve([]));
+    service['list'].mockClear();
+    service['list'].mockResolvedValue({ items: [], total: 25 });
+
+    await fixture.componentInstance.handleSelectCategory('travel');
+    expect(service['list']).toHaveBeenLastCalledWith({ offset: 0, category: 'travel' });
+    expect(fixture.componentInstance.pageRange()).toBe(`1–${NOTIFICATIONS_PAGE_SIZE} de 25`);
+    expect(fixture.componentInstance.pageCount()).toBe(3);
+
+    await fixture.componentInstance.handleNextPage();
+    expect(service['list']).toHaveBeenLastCalledWith({
+      offset: NOTIFICATIONS_PAGE_SIZE,
+      category: 'travel',
+    });
+    expect(fixture.componentInstance.pageNumber()).toBe(2);
+
+    await fixture.componentInstance.handlePreviousPage();
+    expect(fixture.componentInstance.offset()).toBe(0);
+
+    await fixture.componentInstance.handleLoadMore();
+    expect(fixture.componentInstance.offset()).toBe(NOTIFICATIONS_PAGE_SIZE);
+    expect(fixture.componentInstance.all()).toHaveLength(0);
+  });
+
+  it('clears an unsupported category and does not load beyond the last page', async () => {
+    await render(() => Promise.resolve([]));
+    service['list'].mockClear();
+    service['list'].mockResolvedValue({ items: [], total: 0 });
+
+    await fixture.componentInstance.handleCategory('unsupported');
+    expect(fixture.componentInstance.category()).toBeNull();
+    expect(service['list']).toHaveBeenCalledWith({ offset: 0, category: undefined });
+
+    service['list'].mockClear();
+    await fixture.componentInstance.handleNextPage();
+    await fixture.componentInstance.handleLoadMore();
+    expect(service['list']).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.pageRange()).toBe('0 de 0');
   });
 
   it('offers to retry when they cannot be loaded', async () => {
     const root = await render(() => Promise.reject(new Error('down')));
 
-    expect(root.textContent).toContain('No hemos podido cargar tus avisos');
-    service['list'].mockResolvedValue([]);
+    expect(root.textContent).toContain('No hemos podido cargar tus notificaciones');
+    service['list'].mockResolvedValue({ items: [], total: 0 });
     fixture.componentInstance.handleRetry();
     await fixture.whenStable();
-    expect(root.textContent).toContain('No tienes avisos');
+    expect(root.textContent).toContain('No tienes notificaciones');
   });
 });

@@ -35,10 +35,10 @@ const DEFAULT_TEST_TRANSLATIONS: Record<string, Record<string, unknown>> = {
         admin: 'Panel de administración',
         logout: 'Cerrar sesión',
         newMessages: '(mensajes nuevos)',
-        notifications: 'Avisos',
+        notifications: 'Notificaciones',
         notificationsWithCount: {
-          one: 'Avisos, 1 sin leer',
-          other: 'Avisos, {{ count }} sin leer',
+          one: 'Notificaciones, 1 sin leer',
+          other: 'Notificaciones, {{ count }} sin leer',
         },
       },
       logoutConfirm: {

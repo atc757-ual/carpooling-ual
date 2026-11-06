@@ -246,6 +246,17 @@
   }
 }
 
+.profile__logout {
+  align-self: stretch;
+  min-height: var(--control-height-base);
+  margin: 0;
+  --border-radius: var(--radius-base);
+  --background: var(--color-primary);
+  --background-hover: var(--color-primary-hover);
+  --background-activated: var(--color-primary-pressed);
+  --color: var(--color-on-primary);
+}
+
 .profile__action-link {
   text-decoration: none;
 }

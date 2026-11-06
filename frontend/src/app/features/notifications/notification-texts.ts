@@ -19,6 +19,9 @@ const MESSAGES: Record<NotificationType, string> = {
   passenger_left: 'Un pasajero ha dejado el viaje',
   trip_started: 'Tu conductor va de camino',
   incident_reported: 'Hay una incidencia nueva',
+  review_requested: 'Valora el viaje',
+  request_expired: 'Tu solicitud ha caducado',
+  passenger_no_show: 'Un pasajero no se ha presentado',
   terms_updated: 'Hemos actualizado las Condiciones de uso',
   privacy_updated: 'Hemos actualizado la Política de privacidad',
 };
@@ -35,6 +38,9 @@ const MODES: Record<NotificationType, TravelMode | null> = {
   passenger_left: 'driver',
   trip_started: 'passenger',
   incident_reported: null,
+  review_requested: 'passenger',
+  request_expired: 'passenger',
+  passenger_no_show: 'driver',
   terms_updated: null,
   privacy_updated: null,
 };
@@ -45,6 +51,15 @@ export function notificationMessage(type: NotificationType): string {
 
 export function notificationMode(type: NotificationType): TravelMode | null {
   return MODES[type];
+}
+
+export function notificationCategory(type: NotificationType): 'travel' | 'account' | 'incident' {
+  if (type === 'terms_updated' || type === 'privacy_updated') return 'account';
+  return type === 'incident_reported' ? 'incident' : 'travel';
+}
+
+export function notificationCategoryLabel(category: 'travel' | 'account' | 'incident'): string {
+  return { travel: 'Viajes', account: 'Cuenta', incident: 'Incidencias' }[category];
 }
 
 // «Ahora», «hace 5 min», «hace 3 h», «Ayer» y después la fecha («jue, 30 oct»)

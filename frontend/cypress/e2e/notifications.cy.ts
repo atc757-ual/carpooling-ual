@@ -79,8 +79,8 @@ for (const viewport of VIEWPORTS) {
     it('counts the unread ones on the bell', () => {
       cy.get('app-tabs .bell-button')
         .filter(':visible')
-        .should('have.attr', 'aria-label', 'Avisos, 1 sin leer')
-        .find('.bell-button__unread-dot')
+        .should('have.attr', 'aria-label', 'Notificaciones, 1 sin leer')
+        .find('.bell-button__badge')
         .should('exist');
     });
 
@@ -102,13 +102,22 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/tabs/trips');
     });
 
-    it('marks all as read', () => {
-      cy.intercept('POST', '/api/users/me/notifications/read', { statusCode: 204 }).as('readAll');
+    it('filters notifications by category through the API', () => {
+      cy.intercept(
+        {
+          method: 'GET',
+          pathname: '/api/users/me/notifications',
+          query: { category: 'travel' },
+        },
+        [NOTIFICATION],
+      ).as('travelNotifications');
       cy.get('app-tabs .bell-button').filter(':visible').click();
 
-      cy.contains('app-notifications ion-button', 'Marcar todo como leído').click();
+      cy.contains('app-notifications ion-chip', 'Viajes').click();
 
-      cy.wait('@readAll').its('response.statusCode').should('eq', 204);
+      cy.wait('@travelNotifications')
+        .its('request.query')
+        .should('include', { category: 'travel' });
     });
   });
 }

@@ -1,115 +1,399 @@
-// Una columna de hasta 48rem (768px), como Mis viajes: los avisos en una sola
-// tarjeta, separados por una línea fina (lista, sin una tarjeta por aviso)
 .notifications {
   align-items: stretch;
-  max-width: 48rem; // 768px
+}
 
-  ion-card {
-    margin: 0;
+.notifications__layout {
+  display: grid;
+  grid-template-areas: 'aside' 'main';
+  gap: var(--space-base);
+  width: 100%;
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(0, 2fr) minmax(13rem, 1fr);
+    grid-template-areas: 'main aside';
+    align-items: start;
   }
 }
 
-.notifications__actions {
+.notifications__main,
+.notifications__aside {
   display: flex;
-  justify-content: flex-end;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.notifications__panel {
+  overflow: hidden;
+}
+
+.notifications__panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding: var(--space-base);
+}
+
+.notifications__main {
+  grid-area: main;
+}
+.notifications__aside {
+  grid-area: aside;
+}
+
+.notifications__main ion-card,
+.notifications__aside ion-card {
+  margin: 0;
+}
+
+.notifications__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
 
   ion-button {
     margin: 0;
   }
 }
 
-.notifications__list {
+.notifications__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
   margin: 0;
   padding: 0;
-  list-style: none;
+  border: 0;
 
-  li + li {
-    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  ion-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    margin: 0;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-label);
+    font-weight: var(--font-weight-medium);
+    --background: var(--color-surface);
+    --color: var(--color-text-muted);
+    --border-color: transparent;
+    --border-width: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
+    --padding-start: var(--space-s);
+    --padding-end: var(--space-s);
+  }
+
+  ion-chip[color='primary'] {
+    font-weight: var(--font-weight-semibold);
+    --background: var(--color-primary);
+    --color: var(--color-on-primary);
+  }
+
+  .notifications__filter-chip--travel {
+    --color: var(--color-text-muted);
+  }
+
+  .notifications__filter-chip--account {
+    --color: var(--color-text-muted);
+  }
+
+  .notifications__filter-chip--incident {
+    --color: var(--color-text-muted);
+  }
+
+  .notifications__filter-chip--selected.notifications__filter-chip--travel {
+    --color: var(--color-link);
+    --background: var(--color-primary-subtle);
+  }
+
+  .notifications__filter-chip--selected.notifications__filter-chip--account {
+    --color: var(--color-success);
+    --background: var(--color-success-subtle);
+  }
+
+  .notifications__filter-chip--selected.notifications__filter-chip--incident {
+    --color: var(--color-accent);
+    --background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
+  }
+
+  .notifications__filter-chip--selected {
+    font-weight: var(--font-weight-semibold);
   }
 }
 
-// Todo el aviso se toca: el punto, la frase con su viaje y cuándo llegó
+.notifications__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s); // 8px entre notificaciones
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .notification {
   display: flex;
   align-items: flex-start;
   gap: var(--space-s);
   width: 100%;
-  min-height: 3rem; // 48px
-  padding: var(--space-base);
+  padding: var(--space-base) var(--space-s);
   border: 0;
-  background: none;
   color: var(--color-text);
   font: inherit;
   text-align: start;
   cursor: pointer;
+  border-bottom: var(--border-width-s) solid var(--color-surface-subtle);
+  border-inline-start: 0.3125rem solid transparent;
+  background: var(--color-surface);
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-easing),
+    border-color var(--motion-duration-fast) var(--motion-easing);
 
   &:hover {
     background: var(--color-surface-subtle);
   }
-
   &:focus-visible {
     outline: var(--border-width-m) solid var(--color-focus);
     outline-offset: calc(-1 * var(--border-width-m));
   }
 }
 
-// Sin leer: el punto en el color de acento (guía, «avisos sin leer») y la
-// frase en negrita (no solo por el color)
-.notification__dot {
+.notification__read-icon {
+  display: inline-flex;
   flex: none;
-  width: 0.5rem; // 8px
-  height: 0.5rem;
-  margin-top: 0.5rem; // centrado con la primera línea
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.125rem;
   border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+
+  ion-icon {
+    font-size: 1.125rem;
+  }
 }
 
 .notification--unread {
-  .notification__dot {
-    background: var(--color-accent);
-  }
+  background: var(--color-primary-subtle);
 
+  .notification__read-icon--unread {
+    color: var(--color-link);
+  }
   .notification__message {
     font-weight: var(--font-weight-semibold);
   }
 }
 
+.notification--read {
+  border-inline-start-color: var(--color-card-border);
+}
+
+.notification--unread.notification--travel {
+  border-inline-start-color: var(--color-primary);
+}
+
+.notification--unread.notification--account {
+  border-inline-start-color: var(--color-success);
+}
+
+.notification--unread.notification--incident {
+  border-inline-start-color: var(--color-accent);
+}
+
 .notification__body {
   display: flex;
   flex: 1;
+  min-width: 0;
   flex-direction: column;
   gap: var(--space-xs);
-  min-width: 0;
 }
 
+.notification__detail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-xs);
+  overflow-wrap: anywhere;
+}
 .notification__time {
   flex: none;
+  margin-inline-start: auto;
+  white-space: nowrap;
 }
 
-.notifications__status {
+.notifications__load-more {
+  display: none;
+  align-self: center;
+  min-height: 2.75rem;
+  margin: 0;
+  --border-color: var(--color-primary);
+  --border-radius: var(--radius-base);
+  --color: var(--color-link);
+}
+
+.notifications__pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding-block: var(--space-s);
+}
+
+.notifications__page-range {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.notifications__page-range--mobile {
+  display: none;
+}
+
+.notifications__page-controls {
   display: flex;
   align-items: center;
-  gap: var(--space-s);
+  gap: var(--space-xs);
 }
 
-// Vacío y error: centrado, con el icono en un círculo azul claro (como Mis viajes)
+.notifications__page-arrow {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  --border-color: var(--color-border);
+  --color: var(--color-link);
+
+  ion-icon {
+    font-size: 1.25rem;
+  }
+}
+
+.notifications__page-number {
+  min-width: 3.5rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.notifications__more {
+  display: flex;
+  justify-content: center;
+}
+
 .notifications__state {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: var(--space-s);
-  padding: var(--space-xxl) var(--space-l);
+  min-height: 15rem; // 240px; la tarjeta incluye también los filtros
+  padding: var(--space-base);
   text-align: center;
 
   ion-icon {
     box-sizing: content-box;
-    padding: var(--space-base);
+    margin-bottom: var(--space-xs);
+    padding: var(--space-s);
     border-radius: var(--radius-full);
     background: var(--color-primary-subtle);
     color: var(--color-link);
-    font-size: 2rem; // 32px
+    font-size: 1.5rem;
+  }
+
+  ion-spinner {
+    width: 3rem;
+    height: 3rem;
+    color: var(--color-link);
+  }
+
+  form {
+    margin: var(--space-s) 0 0;
   }
 
   ion-button {
-    margin: var(--space-s) 0 0;
+    margin: 0;
+  }
+}
+
+.notifications__state-title {
+  font-weight: var(--font-weight-semibold);
+}
+
+.notifications__guide {
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--space-base);
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+.notifications__unread-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+
+  ion-icon {
+    flex: none;
+    color: var(--color-text-muted);
+    font-size: 1.25rem;
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-label);
+  }
+}
+
+.notifications__unread-summary--active {
+  ion-icon,
+  p {
+    color: var(--color-link);
+  }
+
+  p {
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+@media (max-width: 767px) {
+  .notifications__filters {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-block: var(--space-xs);
+    scroll-snap-type: x proximity;
+
+    ion-chip {
+      flex: none;
+      scroll-snap-align: start;
+    }
+  }
+  .notifications__aside ion-card {
+    width: 100%;
+  }
+  .notifications__pagination {
+    justify-content: flex-end;
+    padding-block: 0;
+  }
+  .notifications__load-more {
+    display: inline-flex;
+  }
+  .notifications__page-range--desktop,
+  .notifications__page-controls {
+    display: none;
+  }
+  .notifications__page-range--mobile {
+    display: inline;
+    font-weight: var(--font-weight-medium);
   }
 }
