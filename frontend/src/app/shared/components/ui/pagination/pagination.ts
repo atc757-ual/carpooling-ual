@@ -31,7 +31,7 @@ export class Pagination {
   private readonly transloco = this.transpiler
     ? inject(TranslocoService, { optional: true })
     : null;
-  private readonly currentLang = toSignal(this.transloco?.langChanges$ ?? EMPTY);
+  private readonly translation = toSignal(this.transloco?.selectTranslation() ?? EMPTY);
 
   readonly offset = input.required<number>();
   readonly limit = input.required<number>();
@@ -46,31 +46,40 @@ export class Pagination {
   readonly offsetChange = output<number>();
 
   protected readonly computedAriaLabel = computed(() => {
-    this.currentLang();
-    return this.ariaLabel() ?? this.transloco?.translate('common.pagination.aria') ?? 'Paginación';
+    return (
+      this.ariaLabel() ??
+      (this.translation() ? this.transloco?.translate('common.pagination.aria') : null) ??
+      'Paginación'
+    );
   });
 
   protected readonly computedPreviousLabel = computed(() => {
-    this.currentLang();
     return (
-      this.previousLabel() ?? this.transloco?.translate('common.pagination.previous') ?? 'Anterior'
+      this.previousLabel() ??
+      (this.translation() ? this.transloco?.translate('common.pagination.previous') : null) ??
+      'Anterior'
     );
   });
 
   protected readonly computedNextLabel = computed(() => {
-    this.currentLang();
-    return this.nextLabel() ?? this.transloco?.translate('common.pagination.next') ?? 'Siguiente';
+    return (
+      this.nextLabel() ??
+      (this.translation() ? this.transloco?.translate('common.pagination.next') : null) ??
+      'Siguiente'
+    );
   });
 
   protected readonly range = computed(() => {
-    this.currentLang();
     const total = this.total();
-    if (total === 0) {
-      return this.transloco?.translate('common.pagination.empty') ?? '0 de 0';
-    }
     const first = this.offset() + 1;
     const last = Math.min(this.offset() + this.limit(), total);
-    if (this.transloco) {
+    if (total === 0) {
+      return (
+        (this.translation() ? this.transloco?.translate('common.pagination.empty') : null) ??
+        '0 de 0'
+      );
+    }
+    if (this.transloco && this.translation()) {
       return this.transloco.translate('common.pagination.range', {
         start: formatCount(first),
         end: formatCount(last),

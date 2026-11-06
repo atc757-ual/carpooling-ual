@@ -21,7 +21,7 @@ export class StepIndicator {
   private readonly transloco = this.transpiler
     ? inject(TranslocoService, { optional: true })
     : null;
-  private readonly currentLang = toSignal(this.transloco?.langChanges$ ?? EMPTY);
+  private readonly translation = toSignal(this.transloco?.selectTranslation() ?? EMPTY);
 
   readonly steps = input.required<readonly string[]>();
   // El paso actual, de 1 en adelante
@@ -36,11 +36,10 @@ export class StepIndicator {
   readonly selected = output<number>();
 
   protected readonly captionText = computed(() => {
-    this.currentLang();
     const current = this.current();
     const total = this.steps().length;
     const step = this.steps()[current - 1] ?? '';
-    if (this.transloco) {
+    if (this.transloco && this.translation()) {
       return this.transloco.translate('common.steps.caption', {
         current,
         total,

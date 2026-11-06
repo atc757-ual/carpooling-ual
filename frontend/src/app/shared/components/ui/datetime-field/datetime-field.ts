@@ -70,7 +70,7 @@ export class DatetimeField implements ControlValueAccessor {
   private readonly transloco = this.transpiler
     ? inject(TranslocoService, { optional: true })
     : null;
-  private readonly currentLang = toSignal(this.transloco?.langChanges$ ?? EMPTY);
+  private readonly translation = toSignal(this.transloco?.selectTranslation() ?? EMPTY);
 
   readonly label = input.required<string>();
   readonly presentation = input<DatetimePresentation>('date');
@@ -97,22 +97,20 @@ export class DatetimeField implements ControlValueAccessor {
     if (!value) {
       return '';
     }
-    const lang = this.currentLang() === 'en' ? 'en' : 'es';
+    const lang = this.transloco?.getActiveLang() === 'en' ? 'en' : 'es';
     return this.presentation() === 'date' ? formatDateLabel(value, new Date(), lang) : value;
   });
 
   protected readonly pickerLocale = computed(() =>
-    this.currentLang() === 'en' ? 'en-GB' : 'es-ES',
+    this.transloco?.getActiveLang() === 'en' ? 'en-GB' : 'es-ES',
   );
 
   protected readonly cancelLabel = computed(() => {
-    this.currentLang();
-    return this.transloco?.translate('common.cancel') ?? 'Cancelar';
+    return (this.translation() ? this.transloco?.translate('common.cancel') : null) ?? 'Cancelar';
   });
 
   protected readonly acceptLabel = computed(() => {
-    this.currentLang();
-    return this.transloco?.translate('common.accept') ?? 'Aceptar';
+    return (this.translation() ? this.transloco?.translate('common.accept') : null) ?? 'Aceptar';
   });
   // En el navegador de escritorio, el campo nativo (se escribe o se elige en
   // su calendario, sin ventanas de la app); en el móvil, la hoja de Ionic.

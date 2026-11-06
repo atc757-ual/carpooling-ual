@@ -29,7 +29,7 @@ export class TripChatLink {
   private readonly transloco = this.transpiler
     ? inject(TranslocoService, { optional: true })
     : null;
-  private readonly currentLang = toSignal(this.transloco?.langChanges$ ?? EMPTY);
+  private readonly translation = toSignal(this.transloco?.selectTranslation() ?? EMPTY);
 
   readonly tripId = input.required<string>();
   // A todo el ancho (detalle de la solicitud) o a su medida (tarjeta)
@@ -37,7 +37,9 @@ export class TripChatLink {
 
   protected readonly icon = chatbubblesOutline;
   protected readonly label = computed(() => {
-    this.currentLang();
-    return this.transloco?.translate('common.tripChatLink') ?? 'Chat del viaje';
+    return (
+      (this.translation() ? this.transloco?.translate('common.tripChatLink') : null) ??
+      'Chat del viaje'
+    );
   });
 }

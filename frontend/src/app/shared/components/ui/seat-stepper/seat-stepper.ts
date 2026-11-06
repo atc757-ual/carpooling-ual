@@ -23,7 +23,7 @@ export class SeatStepper implements ControlValueAccessor {
   private readonly transloco = this.transpiler
     ? inject(TranslocoService, { optional: true })
     : null;
-  private readonly currentLang = toSignal(this.transloco?.langChanges$ ?? EMPTY);
+  private readonly translation = toSignal(this.transloco?.selectTranslation() ?? EMPTY);
 
   readonly label = input.required<string>();
   readonly min = input(1);
@@ -37,12 +37,16 @@ export class SeatStepper implements ControlValueAccessor {
   readonly canAdd = computed(() => !this.isDisabled() && this.value() < this.max());
 
   protected readonly decreaseLabel = computed(() => {
-    this.currentLang();
-    return this.transloco?.translate('common.seatStepper.decrease') ?? 'Una plaza menos';
+    return (
+      (this.translation() ? this.transloco?.translate('common.seatStepper.decrease') : null) ??
+      'Una plaza menos'
+    );
   });
   protected readonly increaseLabel = computed(() => {
-    this.currentLang();
-    return this.transloco?.translate('common.seatStepper.increase') ?? 'Una plaza más';
+    return (
+      (this.translation() ? this.transloco?.translate('common.seatStepper.increase') : null) ??
+      'Una plaza más'
+    );
   });
 
   protected readonly removeIcon = removeOutline;

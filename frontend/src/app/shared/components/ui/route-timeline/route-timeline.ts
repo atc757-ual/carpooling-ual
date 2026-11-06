@@ -24,7 +24,7 @@ export class RouteTimeline {
   private readonly transloco = this.transpiler
     ? inject(TranslocoService, { optional: true })
     : null;
-  private readonly currentLang = toSignal(this.transloco?.langChanges$ ?? EMPTY);
+  private readonly translation = toSignal(this.transloco?.selectTranslation() ?? EMPTY);
 
   readonly stops = input.required<readonly RouteStop[]>();
   readonly ariaLabel = input<string | undefined>(undefined);
@@ -33,7 +33,10 @@ export class RouteTimeline {
   readonly hasTimes = computed(() => this.stops().some((stop) => stop.time));
 
   protected readonly timelineAriaLabel = computed(() => {
-    this.currentLang();
-    return this.ariaLabel() ?? this.transloco?.translate('common.routeTimeline.aria') ?? 'Trayecto';
+    return (
+      this.ariaLabel() ??
+      (this.translation() ? this.transloco?.translate('common.routeTimeline.aria') : null) ??
+      'Trayecto'
+    );
   });
 }

@@ -43,15 +43,16 @@ export class FaqCard {
   private readonly transloco = this.transpiler
     ? inject(TranslocoService, { optional: true })
     : null;
-  private readonly currentLang = toSignal(this.transloco?.langChanges$ ?? EMPTY);
+  private readonly translation = toSignal(this.transloco?.selectTranslation() ?? EMPTY);
 
   readonly faqs = input.required<readonly Faq[]>();
   readonly customTitle = input<string>();
 
   protected readonly title = computed(() => {
-    this.currentLang();
     return (
-      this.customTitle() ?? this.transloco?.translate('common.faq.title') ?? 'Preguntas frecuentes'
+      this.customTitle() ??
+      (this.translation() ? this.transloco?.translate('common.faq.title') : null) ??
+      'Preguntas frecuentes'
     );
   });
 }

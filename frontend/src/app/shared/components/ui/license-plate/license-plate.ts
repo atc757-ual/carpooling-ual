@@ -27,7 +27,7 @@ export class LicensePlate {
   private readonly transloco = this.transpiler
     ? inject(TranslocoService, { optional: true })
     : null;
-  private readonly currentLang = toSignal(this.transloco?.langChanges$ ?? EMPTY);
+  private readonly translation = toSignal(this.transloco?.selectTranslation() ?? EMPTY);
 
   // Ya con el formato de mostrar («1234 BCD»)
   readonly plate = input.required<string>();
@@ -36,10 +36,10 @@ export class LicensePlate {
 
   protected readonly stars = STARS;
   protected readonly ariaLabel = computed(() => {
-    this.currentLang();
     return (
-      this.transloco?.translate('common.licensePlate.aria', { plate: this.plate() }) ??
-      `Matrícula ${this.plate()}`
+      (this.translation()
+        ? this.transloco?.translate('common.licensePlate.aria', { plate: this.plate() })
+        : null) ?? `Matrícula ${this.plate()}`
     );
   });
 }
