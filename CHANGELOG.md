@@ -8,6 +8,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Fixed
+- **Frontend:** el logotipo dice «Carpooling» (antes «Carpool») y el nombre completo es «Carpooling UAL» en todas partes (lectores de pantalla, panel de administración y textos), como el título de la web; la cabecera de las pantallas de detalle del móvil mide lo mismo que la de las secciones (la flecha de volver la estiraba 4 px); el número de avisos de la campana ya no se sale por arriba en escritorio; y en el chat del móvil el estado del viaje va encima de los botones de denunciar y llamar, para dejar más ancho al título.
 
 - **Frontend:** las etiquetas «Pendiente» se leen bien (texto ámbar oscuro, contraste AA) y el teléfono sin verificar lleva un reloj; los textos de eliminar la cuenta ya no prometen borrar los datos ni cancelar los viajes (#154).
 - **Frontend:** el mapa en vivo del pasajero nombra a su conductor (antes ponía siempre «Lucía») (#144).
