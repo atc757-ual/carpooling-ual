@@ -383,35 +383,28 @@ describe('Chat API (e2e)', () => {
     expect(counts).toEqual({ messages: 0, reads: 0 });
   });
 
-  it('reports a message of someone else as an incident that cancels nothing', async () => {
+  it('reports the chat with a copy of the conversation, as an incident that cancels nothing', async () => {
     const { tripId, dan, pia, leo } = await confirmedTrip();
-    const fromDan = await api('post', `/trips/${tripId}/messages`, dan)
+    await api('post', `/trips/${tripId}/messages`, dan)
       .send({ text: 'Mensaje ofensivo' })
       .expect(201);
-    const fromPia = await api('post', `/trips/${tripId}/messages`, pia)
-      .send({ text: 'Hola' })
+    await api('post', `/trips/${tripId}/messages`, pia)
+      .send({ quickReply: 'where_are_you' })
       .expect(201);
-    const danMessage = (fromDan.body as { id: string }).id;
-    const report = (session: Session, messageId: string) =>
-      api(
-        'post',
-        `/trips/${tripId}/messages/${messageId}/report`,
-        session,
-      ).send({
-        reason: 'Me ha insultado en el chat',
-      });
+    const report = (session: Session, reason = 'Me ha insultado en el chat') =>
+      api('post', `/trips/${tripId}/chat/report`, session).send({ reason });
 
-    const reported = await report(pia, danMessage).expect(201);
+    const reported = await report(pia).expect(201);
     const incident = reported.body as { id: string; href: string };
     expect(reported.headers.location).toBe(incident.href);
     expect(reported.body).toMatchObject({
       '@type': 'Incident',
-      category: 'driver',
+      category: 'other',
       reporter: expect.objectContaining({ role: 'passenger' }) as unknown,
     });
     const [row] = await dataSource.query<
       {
-        chat_message_id: string;
+        chat_message_id: string | null;
         description: string;
         request_id: string | null;
       }[]
@@ -419,34 +412,27 @@ describe('Chat API (e2e)', () => {
       `SELECT chat_message_id, description, request_id FROM incidents WHERE id = $1`,
       [incident.id],
     );
-    expect(row).toMatchObject({
-      chat_message_id: danMessage,
-      request_id: null,
-    });
-    expect(row.description).toContain('«Mensaje ofensivo»');
-    expect(row.description).toContain('Motivo: Me ha insultado en el chat');
-    // No cancela nada: el viaje y la plaza siguen igual
+    expect(row).toMatchObject({ chat_message_id: null, request_id: null });
+    expect(row.description).toContain(
+      'Chat del viaje denunciado. Motivo: Me ha insultado en el chat',
+    );
+    expect(row.description).toContain('dan (conductor): Mensaje ofensivo');
+    expect(row.description).toContain(
+      'Pía R. (pasajero): (respuesta rápida: where_are_you)',
+    );
+    // No cancela nada: el viaje sigue igual
     const [trip] = await dataSource.query<{ status: string }[]>(
       `SELECT status FROM trips WHERE id = $1`,
       [tripId],
     );
     expect(trip.status).toBe('confirmed');
 
-    const again = await report(pia, danMessage).expect(409);
-    expect(again.body).toMatchObject({ code: 'MESSAGE_ALREADY_REPORTED' });
-    const own = await report(pia, (fromPia.body as { id: string }).id).expect(
-      409,
-    );
-    expect(own.body).toMatchObject({ code: 'CHAT_OWN_MESSAGE' });
-    await report(leo, danMessage).expect(403);
-    const unknown = await report(
-      pia,
-      '00000000-0000-4000-8000-000000000000',
-    ).expect(404);
-    expect(unknown.body).toMatchObject({ code: 'CHAT_MESSAGE_NOT_FOUND' });
-    await api('post', `/trips/${tripId}/messages/${danMessage}/report`, pia)
-      .send({ reason: 'corto' })
-      .expect(400);
+    // Se puede volver a denunciar (pueden llegar mensajes nuevos), también el
+    // conductor; quien no está en el chat, no
+    await report(pia).expect(201);
+    await report(dan).expect(201);
+    await report(leo).expect(403);
+    await report(pia, 'corto').expect(400);
   });
 
   it('records chat_message.sent without the text', async () => {

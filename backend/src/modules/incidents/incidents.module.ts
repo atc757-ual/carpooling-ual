@@ -8,7 +8,7 @@ import { UsersModule } from '../users/users.module';
 import { Incident } from './entities/incident.entity';
 import { IncidentsController } from './incidents.controller';
 import { IncidentsService } from './incidents.service';
-import { MessageReportsService } from './message-reports.service';
+import { ConversationReportsService } from './conversation-reports.service';
 
 // Incidencias (RF-23, CU-12). Usa trips (cancelar un viaje en curso) y
 // requests (el pasajero abandona el viaje); ninguno de los dos depende de este
@@ -23,8 +23,8 @@ import { MessageReportsService } from './message-reports.service';
     NotificationsModule,
   ],
   controllers: [IncidentsController],
-  providers: [IncidentsService, MessageReportsService],
+  providers: [IncidentsService, ConversationReportsService],
   // Lo usa el panel de administración (incidencias abiertas por usuario)
-  exports: [IncidentsService, MessageReportsService],
+  exports: [IncidentsService, ConversationReportsService],
 })
 export class IncidentsModule {}

@@ -42,8 +42,10 @@ export class Incident {
   @Column({ name: 'reporter_id', type: 'uuid' })
   reporterId: string;
 
-  // El mensaje del chat denunciado (sin clave foránea: se borra a los 30
-  // días); null en las incidencias del viaje en curso (RF-23)
+  // El mensaje del chat denunciado en las denuncias de un mensaje, que ya no
+  // se hacen (ahora se denuncia el chat entero, con la copia en la
+  // descripción); se conserva en las antiguas. Sin clave foránea: los
+  // mensajes se borran a los 30 días
   @Column({ name: 'chat_message_id', type: 'uuid', nullable: true })
   chatMessageId: string | null;
 

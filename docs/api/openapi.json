@@ -8597,22 +8597,13 @@
         ]
       }
     },
-    "/api/trips/{id}/messages/{messageId}/report": {
+    "/api/trips/{id}/chat/report": {
       "post": {
-        "description": "Creates an incident for the administrator (it cancels nothing) with a copy of the message and the reason. Only messages of others, once each.",
+        "description": "Creates an incident for the administrator (it cancels nothing) with a copy of the conversation (its last 200 messages) and the reason. Any participant, also once the chat is closed; it can be reported again.",
         "operationId": "ChatController_report",
         "parameters": [
           {
             "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "name": "messageId",
             "required": true,
             "in": "path",
             "schema": {
@@ -8626,7 +8617,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ReportChatMessageDto"
+                "$ref": "#/components/schemas/ReportChatDto"
               }
             }
           }
@@ -8678,17 +8669,7 @@
             }
           },
           "404": {
-            "description": "TMF630 error: TRIP_NOT_FOUND, CHAT_MESSAGE_NOT_FOUND",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "TMF630 error: CHAT_OWN_MESSAGE, MESSAGE_ALREADY_REPORTED",
+            "description": "TMF630 error: TRIP_NOT_FOUND",
             "content": {
               "application/json": {
                 "schema": {
@@ -8713,7 +8694,7 @@
             "bearer": []
           }
         ],
-        "summary": "Report a message of a trip chat",
+        "summary": "Report a trip chat",
         "tags": [
           "chat"
         ]
@@ -15530,7 +15511,7 @@
           }
         }
       },
-      "ReportChatMessageDto": {
+      "ReportChatDto": {
         "type": "object",
         "properties": {
           "reason": {
