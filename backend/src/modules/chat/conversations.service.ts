@@ -5,6 +5,7 @@ import { Page, PageRequest } from '../../shared/pagination/page';
 import { RequestsService } from '../requests/requests.service';
 import { UsersService } from '../users/users.service';
 import type { Trip } from '../trips/entities/trip.entity';
+import type { TripStatus } from '../trips/trip-status';
 import { TripsService } from '../trips/trips.service';
 import { CHAT_RETENTION_MS, type ChatRole, isChatOpen } from './chat-rules';
 import { ChatMessageView, ChatService } from './chat.service';
@@ -38,10 +39,11 @@ export class ConversationsService {
 
   // La más reciente primero (último mensaje o, sin mensajes, último cambio
   // del viaje); con hasUnread, solo las que tienen mensajes nuevos (su total
-  // es el punto de la pestaña Mensajes)
+  // es el punto de la pestaña Mensajes); con tripStatus, solo las de los viajes
+  // en ese estado (in_progress: el viaje en curso, para la pestaña del coche)
   async listForUser(
     userId: string,
-    filter: { hasUnread?: boolean },
+    filter: { hasUnread?: boolean; tripStatus?: TripStatus },
     page: PageRequest,
   ): Promise<Page<ConversationView>> {
     const acceptedTripIds =
@@ -72,6 +74,9 @@ export class ConversationsService {
       }))
       .filter(({ isOpen, lastMessage }) => isOpen || lastMessage !== null)
       .filter(({ unreadCount }) => !filter.hasUnread || unreadCount > 0)
+      .filter(
+        ({ trip }) => !filter.tripStatus || trip.status === filter.tripStatus,
+      )
       .sort((a, b) => lastActivity(b) - lastActivity(a));
     const pageItems = conversations.slice(
       page.offset,

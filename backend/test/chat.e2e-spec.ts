@@ -226,6 +226,25 @@ describe('Chat API (e2e)', () => {
     expect(afterRead.headers['x-total-count']).toBe('0');
   });
 
+  it('lists only the conversation of the trip in progress with tripStatus', async () => {
+    const { tripId, dan, pia } = await confirmedTrip();
+    const path = '/users/me/conversations?tripStatus=in_progress&limit=1';
+
+    const before = await api('get', path, pia).expect(200);
+    expect(before.headers['x-total-count']).toBe('0');
+
+    await setDepartureIn(dataSource, tripId, 5);
+    await app.get(TripsService).start(dan.id, tripId);
+
+    const during = await api('get', path, pia).expect(200);
+    expect(during.body).toEqual([
+      expect.objectContaining({ id: tripId, myRole: 'passenger' }),
+    ]);
+    await api('get', '/users/me/conversations?tripStatus=nope', pia).expect(
+      400,
+    );
+  });
+
   it('only lets the driver send quick replies while the trip is in progress', async () => {
     const { tripId, dan, pia } = await confirmedTrip();
     await setDepartureIn(dataSource, tripId, 5);

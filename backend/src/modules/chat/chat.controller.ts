@@ -89,7 +89,7 @@ export class ChatController {
   ): Promise<ConversationResource[]> {
     const page = await this.conversationsService.listForUser(
       user.sub,
-      { hasUnread: query.hasUnread },
+      { hasUnread: query.hasUnread, tripStatus: query.tripStatus },
       query,
     );
     setPaginationHeaders(response, page);
