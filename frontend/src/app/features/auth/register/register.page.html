@@ -38,8 +38,8 @@
     </div>
 
     <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
-      <!-- Nombre y apellidos por separado: los demás usuarios solo ven el
-           nombre -->
+      <!-- Nombres y apellidos por separado: los demás usuarios solo ven los
+           nombres -->
       <div class="auth-field">
         <span class="text-label text-label--strong" aria-hidden="true">
           {{ 'auth.register.firstNameLabel' | transloco }}
@@ -50,7 +50,6 @@
           [attr.aria-label]="'auth.register.firstNameLabel' | transloco"
           fill="outline"
           [placeholder]="'auth.register.firstNamePlaceholder' | transloco"
-          [helperText]="'auth.register.firstNameHint' | transloco"
           [errorText]="firstNameErrorKey() | transloco"
         >
           <ion-icon slot="start" [icon]="personIcon" aria-hidden="true" />
