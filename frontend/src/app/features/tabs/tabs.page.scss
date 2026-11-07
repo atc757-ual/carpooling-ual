@@ -13,10 +13,11 @@ ion-tabs {
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 }
 
-// 16px por todos los lados
+// 56px de alto, como las cabeceras de Android: 4px arriba y abajo del
+// contenido (48px); a los lados, los 16px del margen de la página
 .app-header ion-toolbar {
-  --padding-top: var(--space-base);
-  --padding-bottom: var(--space-base);
+  --padding-top: var(--space-xs);
+  --padding-bottom: var(--space-xs);
   --padding-start: var(--space-base);
   --padding-end: var(--space-base);
 }
