@@ -294,7 +294,7 @@ ion-tab-button {
 
   .header-action__label {
     display: inline;
-    font-size: var(--font-size-label);
+    font-size: 1rem; // 16px
     font-weight: var(--font-weight-medium);
     letter-spacing: normal;
     text-transform: none;
