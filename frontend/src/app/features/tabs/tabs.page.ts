@@ -143,6 +143,8 @@ export class TabsPage implements OnInit {
 
   readonly firstName = computed(() => this.auth.currentUser()?.firstName ?? '');
   readonly tabs: readonly Tab[] = [SEARCH_TAB, PUBLISH_TAB, TRIPS_TAB, MESSAGES_TAB, PROFILE_TAB];
+  // En escritorio, Mi perfil va en la cabecera, junto a Notificaciones
+  readonly desktopTabs: readonly Tab[] = this.tabs.filter((tab) => tab !== PROFILE_TAB);
 
   // Notificaciones sin leer: la campana se sincroniza al navegar, al volver y
   // cada 15 segundos mientras la aplicación está visible.
@@ -181,6 +183,7 @@ export class TabsPage implements OnInit {
   protected readonly bellIcon = notificationsOutline;
   protected readonly adminIcon = shieldCheckmarkOutline;
   protected readonly logoutIcon = logOutOutline;
+  protected readonly profileIcon = personOutline;
 
   // Salir: siempre con la misma confirmación que en Mi perfil
   async handleLogout(): Promise<void> {

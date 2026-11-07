@@ -151,7 +151,8 @@ describe('TabsPage', () => {
       fixture.nativeElement.querySelectorAll('.top-nav__link'),
       (el: HTMLElement) => el.childNodes[0].textContent?.trim(),
     );
-    expect(links).toEqual(['Buscar', 'Publicar', 'Tus viajes', 'Mensajes', 'Mi perfil']);
+    // Mi perfil, en escritorio, va en la cabecera
+    expect(links).toEqual(['Buscar', 'Publicar', 'Tus viajes', 'Mensajes']);
   });
 
   it('translates the navigation and labels into English when the language switches', async () => {
@@ -165,7 +166,7 @@ describe('TabsPage', () => {
       fixture.nativeElement.querySelectorAll('.top-nav__link'),
       (el: HTMLElement) => el.childNodes[0].textContent?.trim(),
     );
-    expect(links).toEqual(['Search', 'Publish', 'Your trips', 'Messages', 'My profile']);
+    expect(links).toEqual(['Search', 'Publish', 'Your trips', 'Messages']);
 
     expect(page.bellLabel()).toBe('Notifications');
     unread.set(1);
@@ -266,20 +267,33 @@ describe('TabsPage', () => {
     expect(page.heading()).toEqual(HEADING);
   });
 
-  it('shows the bell and log out in the mobile header, but not in the details', async () => {
+  it('shows the bell and Mi perfil in the mobile header, but not in the details', async () => {
     render();
     const header = (): HTMLElement => fixture.nativeElement.querySelector('.app-header');
 
     await TestBed.inject(Router).navigateByUrl('/tabs/search');
     await fixture.whenStable();
     expect(header().querySelector('.bell-button')).not.toBeNull();
-    expect(header().querySelector('.logout-button')).not.toBeNull();
+    expect(header().querySelector('.profile-button')).not.toBeNull();
+    // Salir, en el móvil, solo en Mi perfil
+    expect(header().querySelector('.logout-button')).toBeNull();
 
     await TestBed.inject(Router).navigateByUrl('/tabs/search/results');
     await fixture.whenStable();
     expect(header().querySelector('.back-button')).not.toBeNull();
     expect(header().querySelector('.bell-button')).toBeNull();
-    expect(header().querySelector('.logout-button')).toBeNull();
+    expect(header().querySelector('.profile-button')).toBeNull();
+  });
+
+  it('moves Mi perfil from the desktop menu to the header', () => {
+    const page = render();
+
+    expect(page.desktopTabs.map(({ path }) => path)).toEqual([
+      'search',
+      'publish',
+      'trips',
+      'messages',
+    ]);
   });
 
   it('labels the desktop actions with text and keeps their accessible names', async () => {
@@ -290,7 +304,7 @@ describe('TabsPage', () => {
       ...fixture.nativeElement.querySelectorAll('.top-nav .header-action__label'),
     ].map((label: Element) => label.textContent?.trim());
 
-    expect(labels).toEqual(['Notificaciones', 'Salir']);
+    expect(labels).toEqual(['Mi perfil', 'Notificaciones', 'Salir']);
   });
 
   it('logs out only after confirming it', async () => {

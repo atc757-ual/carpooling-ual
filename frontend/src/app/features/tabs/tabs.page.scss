@@ -234,16 +234,16 @@ ion-tab-button {
   --padding-bottom: 0;
   --border-radius: 50%;
   --ripple-color: transparent;
-  --color: var(--color-text);
+  --color: var(--color-link);
   --background: transparent;
   --background-hover: transparent;
   --background-activated: transparent;
 
   ion-icon {
-    width: 1.625rem;
-    height: 1.625rem;
+    width: 1.5rem;
+    height: 1.5rem;
     margin: 0;
-    font-size: 1.625rem; // 26px
+    font-size: 1.5rem; // 24px
   }
 
   &::part(native) {
@@ -259,9 +259,23 @@ ion-tab-button {
     }
   }
 
-  &.ion-activated::part(native) {
+  &.ion-activated::part(native),
+  &.header-action--active::part(native) {
     background: var(--color-primary-subtle);
   }
+}
+
+// ion-buttons pone a sus botones esquinas de 2px con más prioridad: el círculo
+// se repite aquí con un selector más específico
+.app-header ion-buttons ion-button.header-action {
+  --border-radius: 50%;
+}
+
+// Móvil: el último botón (la campana, o el panel en los administradores),
+// con su icono alineado con el margen de la página (sobresale lo que el
+// círculo de 44px rodea al icono de 24px)
+.app-header ion-buttons .header-action:last-child {
+  margin-inline-end: -0.625rem; // -10px: (44 − 24) / 2
 }
 
 // El icono, con el contador encima en la campana
@@ -282,7 +296,6 @@ ion-tab-button {
   --padding-start: var(--space-s);
   --padding-end: var(--space-base);
   --border-radius: var(--radius-full);
-  --color: var(--color-link);
 
   ion-icon {
     width: 1.375rem;

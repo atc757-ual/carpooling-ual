@@ -46,7 +46,12 @@ for (const viewport of VIEWPORTS) {
       .then(($items) => [...$items].map((item) => item.textContent?.trim() ?? ''));
   }
 
+  // Mi perfil, en escritorio, está en la cabecera
   function goTo(label: string): void {
+    if (isDesktop && label === 'Mi perfil') {
+      cy.get('app-tabs .top-nav .profile-button').click();
+      return;
+    }
     cy.contains(DESTINATION, label).click();
   }
 
@@ -61,13 +66,12 @@ for (const viewport of VIEWPORTS) {
       logIn(['passenger']);
 
       cy.location('pathname').should('eq', '/tabs/search');
-      destinationLabels().should('deep.equal', [
-        'Buscar',
-        'Publicar',
-        'Tus viajes',
-        'Mensajes',
-        'Mi perfil',
-      ]);
+      destinationLabels().should(
+        'deep.equal',
+        isDesktop
+          ? ['Buscar', 'Publicar', 'Tus viajes', 'Mensajes']
+          : ['Buscar', 'Publicar', 'Tus viajes', 'Mensajes', 'Mi perfil'],
+      );
     });
 
     it('opens Buscar even when the driver side was last used', () => {
@@ -124,24 +128,25 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/auth/welcome');
     });
 
-    it('logs out from the header after confirming it', () => {
-      cy.intercept('POST', '/api/auth/logout', { statusCode: 204 }).as('logout');
-      logIn(['passenger']);
-
-      cy.get('app-tabs .logout-button').filter(':visible').click();
-      cy.contains('app-confirm-modal ion-button', 'Cerrar sesión').click();
-
-      cy.wait('@logout');
-      cy.location('pathname').should('eq', '/auth/welcome');
-    });
-
     if (isDesktop) {
+      it('logs out from the header after confirming it', () => {
+        cy.intercept('POST', '/api/auth/logout', { statusCode: 204 }).as('logout');
+        logIn(['passenger']);
+
+        cy.get('app-tabs .top-nav .logout-button').click();
+        cy.contains('app-confirm-modal ion-button', 'Cerrar sesión').click();
+
+        cy.wait('@logout');
+        cy.location('pathname').should('eq', '/auth/welcome');
+      });
+
       it('has the top menu with the greeting and the strip below', () => {
         logIn(['passenger']);
 
         cy.get('app-tabs .top-nav app-brand-logo').should('be.visible');
         cy.contains('app-tabs .top-nav__hello', '¡Hola, Mario!').should('be.visible');
         cy.contains('app-tabs .top-nav .bell-button', 'Notificaciones').should('be.visible');
+        cy.contains('app-tabs .top-nav .profile-button', 'Mi perfil').should('be.visible');
         cy.contains('app-tabs .top-nav .logout-button', 'Salir').should('be.visible');
         cy.contains('app-tabs .top-nav__link', 'Buscar').should(
           'have.attr',
@@ -159,7 +164,8 @@ for (const viewport of VIEWPORTS) {
         cy.get('app-tabs .app-header app-brand-greeting').should('be.visible');
         cy.contains('app-tabs .app-header app-brand-greeting', '¡Hola, Mario!').should('exist');
         cy.get('app-tabs .app-header .bell-button').should('be.visible');
-        cy.get('app-tabs .app-header .logout-button').should('be.visible');
+        cy.get('app-tabs .app-header .profile-button').should('be.visible');
+        cy.get('app-tabs .app-header .logout-button').should('not.exist');
         cy.get('app-tabs .app-header .back-button').should('not.exist');
         cy.contains('ion-tab-button', 'Buscar').should('have.class', 'tab-selected');
       });
