@@ -445,6 +445,12 @@ ion-toast.toast--success {
   --border-color: var(--color-success);
 }
 
+ion-toast.toast--info {
+  --background: var(--color-primary-subtle);
+  --color: var(--color-link);
+  --border-color: var(--color-link);
+}
+
 // Barra arriba (móvil y columna del formulario en escritorio): de lado a lado,
 // sin márgenes, borde ni esquinas
 ion-toast.toast--bar {
