@@ -269,25 +269,20 @@
   color: var(--color-text-muted);
 }
 
-// El estado del viaje y los botones, a la derecha del título: en una fila
+// El estado del viaje y los botones, a la derecha del título: el estado arriba
+// y los botones abajo, separados para ocupar todo el alto del título
 .conversation__actions {
   display: flex;
   flex: none;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
+  align-self: stretch;
+  justify-content: space-between;
   gap: var(--space-xs);
 }
 
 .conversation__buttons {
   display: flex;
-}
-
-// En el móvil, el estado arriba y los botones debajo
-@media (max-width: 767px) {
-  .conversation__actions {
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0;
-  }
 }
 
 // Denunciar es discreto, en gris y rojo al pasar el ratón, con 44px de área
