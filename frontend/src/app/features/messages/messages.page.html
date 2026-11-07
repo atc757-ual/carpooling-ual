@@ -1,65 +1,187 @@
 <ion-content>
-  <div class="tab-page messages">
-    @if (conversations.isLoading() && !conversations.hasValue()) {
-      <output class="messages__status">
-        <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-color-muted">Cargando tus mensajes…</span>
-      </output>
-    } @else if (conversations.error()) {
-      <ion-card>
-        <ion-card-content class="messages__state" role="alert">
-          <ion-icon [icon]="errorIcon" aria-hidden="true" />
-          <div class="text-subtitle">No hemos podido cargar tus mensajes</div>
-          <form (submit)="$event.preventDefault(); handleRetry()">
-            <ion-button type="submit" fill="outline">Reintentar</ion-button>
-          </form>
-        </ion-card-content>
-      </ion-card>
-    } @else if (all().length === 0) {
-      <ion-card>
-        <ion-card-content class="messages__state">
-          <ion-icon [icon]="icon" aria-hidden="true" />
-          <div class="text-subtitle">Aún no tienes conversaciones</div>
-          <div class="text-body-s text-color-muted">
-            Cuando te acepten en un viaje o aceptes a alguien en el tuyo, podréis hablar aquí para
-            concretar la recogida.
-          </div>
-        </ion-card-content>
-      </ion-card>
-    } @else {
-      <ion-card>
-        <ul class="messages__list">
-          @for (conversation of all(); track conversation.id) {
-            <li>
-              <a
-                class="conversation"
-                [class.conversation--unread]="conversation.unreadCount > 0"
-                [routerLink]="['/tabs/messages', conversation.id]"
+  <div class="tab-page messages" [class.messages--mobile-detail]="mobileDetail()">
+    <div class="messages__layout" [class.messages__layout--mobile-detail]="mobileDetail()">
+      <section class="messages__main" aria-label="Conversaciones">
+        <ion-card class="messages__panel">
+          <ion-card-content class="messages__panel-content">
+            <fieldset class="messages__filters">
+              <legend class="visually-hidden">Filtrar conversaciones</legend>
+              <ion-chip
+                button="true"
+                [outline]="onlyUnread()"
+                [color]="!onlyUnread() ? 'primary' : undefined"
+                [attr.aria-pressed]="!onlyUnread()"
+                (click)="handleFilter(false)"
               >
-                <span class="conversation__body">
-                  <span class="conversation__route">{{ route(conversation) }}</span>
-                  <span class="text-caption text-color-muted">
-                    {{ when(conversation) }}
-                    @if (!conversation.isOpen) {
-                      · Cerrada
+                Todas
+              </ion-chip>
+              <ion-chip
+                button="true"
+                [outline]="!onlyUnread()"
+                [color]="onlyUnread() ? 'primary' : undefined"
+                [attr.aria-pressed]="onlyUnread()"
+                (click)="handleFilter(true)"
+              >
+                Sin leer
+              </ion-chip>
+            </fieldset>
+            @if (unreadCount() > 0) {
+              <p class="messages__unread-summary text-caption text-color-muted">
+                {{ unreadCount() }}
+                {{ unreadCount() === 1 ? 'conversación sin leer' : 'conversaciones sin leer' }}
+              </p>
+            }
+
+            @if (isLoading() && all().length === 0) {
+              <output class="messages__state">
+                <ion-spinner name="crescent" aria-hidden="true" />
+                <span class="text-color-muted">Cargando tus mensajes…</span>
+              </output>
+            } @else if (error() && all().length === 0) {
+              <div class="messages__state" role="alert">
+                <ion-icon [icon]="errorIcon" aria-hidden="true" />
+                <div class="messages__state-title">No hemos podido cargar tus mensajes</div>
+                <ion-button type="button" fill="outline" size="small" (click)="handleRetry()">
+                  Reintentar
+                </ion-button>
+              </div>
+            } @else {
+              @if (error()) {
+                <div class="notice notice--danger" role="alert">
+                  No hemos podido actualizar tus mensajes.
+                  <ion-button type="button" fill="outline" size="small" (click)="handleRetry()">
+                    Reintentar
+                  </ion-button>
+                </div>
+              }
+
+              @if (all().length === 0) {
+                <div class="messages__state">
+                  <ion-icon [icon]="icon" aria-hidden="true" />
+                  <div class="messages__state-title">
+                    {{
+                      onlyUnread() ? 'No tienes mensajes sin leer' : 'Aún no tienes conversaciones'
+                    }}
+                  </div>
+                  <div class="text-body-s text-color-muted">
+                    @if (onlyUnread()) {
+                      Todas tus conversaciones están al día.
+                    } @else {
+                      Cuando te acepten en un viaje o aceptes a alguien en el tuyo, podréis hablar
+                      aquí para concretar la recogida.
                     }
-                  </span>
-                  <span class="conversation__preview text-body-s">{{ preview(conversation) }}</span>
-                </span>
-                <span class="conversation__meta">
-                  <span class="text-caption text-color-muted">{{ elapsed(conversation) }}</span>
-                  @if (conversation.unreadCount > 0) {
-                    <span class="conversation__unread">
-                      {{ conversation.unreadCount }}
-                      <span class="visually-hidden">sin leer</span>
-                    </span>
+                  </div>
+                </div>
+              } @else {
+                <ul class="messages__list">
+                  @for (conversation of all(); track conversation.id) {
+                    <li>
+                      <button
+                        type="button"
+                        class="conversation"
+                        [class.conversation--unread]="conversation.unreadCount > 0"
+                        [class.conversation--selected]="activeConversationId() === conversation.id"
+                        (click)="handleSelectConversation($event, conversation.id)"
+                      >
+                        <span class="conversation__body">
+                          <!-- El viaje: a qué hora sale y adónde va (el origen y quien
+                               conduce se ven al abrir el chat) -->
+                          <span class="conversation__row">
+                            <span class="conversation__trip">
+                              {{ departureTime(conversation) }} ·
+                              {{ conversation.trip.destinationName ?? 'Destino' }}
+                            </span>
+                            <span class="conversation__date text-caption">{{
+                              elapsed(conversation)
+                            }}</span>
+                          </span>
+                          <span class="conversation__row">
+                            <span class="conversation__preview text-body-s">{{
+                              preview(conversation)
+                            }}</span>
+                            @if (conversation.unreadCount > 0) {
+                              <span class="conversation__unread">
+                                {{ conversation.unreadCount }}
+                                <span class="visually-hidden">sin leer</span>
+                              </span>
+                            } @else {
+                              <!-- El estado del viaje, como en la cabecera del chat -->
+                              <span
+                                class="status"
+                                [class.status--accepted]="conversation.trip.status === 'confirmed'"
+                                [class.status--info]="conversation.trip.status === 'in_progress'"
+                                >{{ statusLabel(conversation) }}</span
+                              >
+                            }
+                          </span>
+                        </span>
+                      </button>
+                    </li>
                   }
+                </ul>
+
+                @if (isLoadingMore()) {
+                  <div class="messages__more" aria-live="polite">
+                    <ion-spinner name="crescent" aria-hidden="true" />
+                  </div>
+                }
+                @if (loadMoreError()) {
+                  <div class="notice notice--danger" role="alert">
+                    No se han podido cargar más conversaciones.
+                    <ion-button type="button" fill="outline" size="small" (click)="handleRetry()">
+                      Reintentar
+                    </ion-button>
+                  </div>
+                }
+                <div class="messages__pagination">
+                  <span class="messages__range text-caption text-color-muted" aria-live="polite">
+                    {{ all().length }} de {{ total() }} conversaciones
+                  </span>
+                  @if (hasMore()) {
+                    <ion-button
+                      type="button"
+                      fill="outline"
+                      size="small"
+                      [disabled]="isLoadingMore()"
+                      (click)="handleLoadMore()"
+                    >
+                      Ver más
+                    </ion-button>
+                  }
+                </div>
+              }
+            }
+          </ion-card-content>
+        </ion-card>
+      </section>
+
+      <section class="messages__detail" aria-label="Conversación seleccionada">
+        @if (activeConversationId(); as conversationId) {
+          <ion-card class="messages__conversation-card">
+            <app-conversation
+              [conversationId]="conversationId"
+              [active]="pageActive()"
+              [inPageHeading]="mobileDetail()"
+            />
+          </ion-card>
+        } @else {
+          <ion-card class="messages__empty-detail">
+            <ion-card-content class="messages__state">
+              <ion-icon [icon]="icon" aria-hidden="true" />
+              <div class="messages__state-title">Elige una conversación</div>
+              <div class="text-body-s text-color-muted">
+                Selecciona un chat de la lista para ver los mensajes.
+              </div>
+              @if (unreadCount() > 0) {
+                <span class="text-caption text-color-muted">
+                  {{ unreadCount() }}
+                  {{ unreadCount() === 1 ? 'conversación sin leer' : 'conversaciones sin leer' }}
                 </span>
-              </a>
-            </li>
-          }
-        </ul>
-      </ion-card>
-    }
+              }
+            </ion-card-content>
+          </ion-card>
+        }
+      </section>
+    </div>
   </div>
 </ion-content>

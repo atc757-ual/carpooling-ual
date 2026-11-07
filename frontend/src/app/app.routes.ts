@@ -201,9 +201,7 @@ export const routes: Routes = [
       {
         path: 'messages/:tripId',
         loadComponent: () =>
-          import('./features/messages/conversation/conversation.page').then(
-            (m) => m.ConversationPage,
-          ),
+          import('./features/messages/messages.page').then((m) => m.MessagesPage),
         data: {
           heading: {
             title: 'Conversación',

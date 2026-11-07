@@ -1,0 +1,7 @@
+<span class="conversation-avatar" aria-hidden="true">
+  @if (art.value(); as graphic) {
+    <app-avatar-art [graphic]="graphic" />
+  } @else {
+    {{ initials() }}
+  }
+</span>

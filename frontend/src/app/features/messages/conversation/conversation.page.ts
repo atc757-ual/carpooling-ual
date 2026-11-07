@@ -1,19 +1,41 @@
-import { Component, computed, DestroyRef, inject, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import {
+  ActionSheetController,
   IonButton,
-  IonContent,
-  IonFooter,
   IonIcon,
+  IonSkeletonText,
   IonSpinner,
   IonTextarea,
   ModalController,
 } from '@ionic/angular';
-import { alertCircleOutline, flagOutline, lockClosedOutline, send } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  arrowForwardOutline,
+  callOutline,
+  ellipseOutline,
+  flagOutline,
+  locationOutline,
+  lockClosedOutline,
+  send,
+} from 'ionicons/icons';
 import { map } from 'rxjs';
 import { ApiError } from '../../../core/models/api-error.model';
 import {
+  ChatContact,
   ChatMessage,
   ChatMessageInput,
   Conversation,
@@ -22,9 +44,19 @@ import {
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ChatService } from '../../../core/services/chat/chat.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { confirmWithReason } from '../../../shared/components/modals/reason-confirm-modal/reason-confirm-modal';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { messageText, messageTime, QUICK_REPLIES, QUICK_REPLY_TEXTS } from '../chat-texts';
+import { TRIP_STATUS_LABELS } from '../../../shared/utils/trip-status.util';
+import { formatTime } from '../../matching/trip-results';
+import {
+  groupMessagesByDay,
+  messageText,
+  messageTime,
+  QUICK_REPLIES,
+  QUICK_REPLY_TEXTS,
+} from '../chat-texts';
+import { ConversationAvatar } from '../conversation-avatar/conversation-avatar';
 
 // Cada cuánto se piden los mensajes nuevos con la conversación a la vista
 export const CHAT_POLL_INTERVAL_MS = 5_000;
@@ -37,36 +69,70 @@ export const MAX_MESSAGE_LENGTH = 500;
 // lee
 @Component({
   selector: 'app-conversation',
-  imports: [IonButton, IonContent, IonFooter, IonIcon, IonSpinner, IonTextarea],
+  imports: [
+    IonButton,
+    IonIcon,
+    IonSkeletonText,
+    IonSpinner,
+    IonTextarea,
+    NgTemplateOutlet,
+    ConversationAvatar,
+  ],
   templateUrl: './conversation.page.html',
-  styleUrls: ['../../tabs/tab-page.scss', './conversation.page.scss'],
+  styleUrl: './conversation.page.scss',
 })
 export class ConversationPage {
   private readonly chat = inject(ChatService);
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly modalController = inject(ModalController);
+  private readonly actionSheetController = inject(ActionSheetController);
 
-  private readonly tripId = toSignal(
+  private readonly routeTripId = toSignal(
     inject(ActivatedRoute).paramMap.pipe(map((params) => params.get('tripId') ?? '')),
     { initialValue: '' },
   );
-  private timer: ReturnType<typeof setInterval> | null = null;
-  private readonly content = viewChild(IonContent);
+  readonly conversationId = input<string | null>(null);
+  readonly active = input(false);
+  // En el móvil, el título del viaje va en la franja del título y no en la tarjeta
+  readonly inPageHeading = input(false);
+  private timer: ReturnType<typeof setTimeout> | null = null;
+  private isActive = false;
+  private pollInFlight = false;
+  private readonly scrollContainer = viewChild<ElementRef<HTMLDivElement>>('scrollContainer');
+  private readonly headingTitle = viewChild.required<TemplateRef<unknown>>('headingTitle');
+  private readonly headingContent = inject(HeadingContentService);
+  private readonly handleVisibilityChange = (): void => {
+    if (!this.isActive) return;
+    if (document.hidden) {
+      this.stopPolling();
+      return;
+    }
+    if (this.conversation() && !this.hasError()) {
+      this.stopPolling();
+      void this.fetchNew().finally(() => this.schedulePolling());
+    }
+  };
 
   readonly conversation = signal<Conversation | null>(null);
   readonly messages = signal<ChatMessage[]>([]);
+  // A quién puedo llamar (vacío: sin botón de llamar)
+  readonly contacts = signal<ChatContact[]>([]);
   readonly isLoading = signal(true);
   readonly hasError = signal(false);
   readonly isSending = signal(false);
   readonly draft = signal('');
   // Los que ya he denunciado en esta visita (no se ofrece otra vez)
   readonly reportedIds = signal<ReadonlySet<string>>(new Set());
+  private currentTripId = '';
+  private loadVersion = 0;
 
   readonly isQuickRepliesOnly = computed(() => {
     const conversation = this.conversation();
     return conversation?.myRole === 'driver' && conversation.trip.status === 'in_progress';
   });
+  // Con un separador por día («Hoy», «Ayer», «3 nov»)
+  readonly messageGroups = computed(() => groupMessagesByDay(this.messages()));
   readonly canWrite = computed(() => this.conversation()?.isOpen ?? false);
   readonly canSendText = computed(() => {
     const length = this.draft().trim().length;
@@ -78,23 +144,54 @@ export class ConversationPage {
   protected readonly maxLength = MAX_MESSAGE_LENGTH;
   protected readonly sendIcon = send;
   protected readonly reportIcon = flagOutline;
+  protected readonly callIcon = callOutline;
+  protected readonly originIcon = ellipseOutline;
+  protected readonly destinationIcon = locationOutline;
+  protected readonly arrowIcon = arrowForwardOutline;
   protected readonly closedIcon = lockClosedOutline;
   protected readonly errorIcon = alertCircleOutline;
   protected readonly text = messageText;
   protected readonly time = messageTime;
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.stopPolling());
+    const destroyRef = inject(DestroyRef);
+    document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    effect(() => {
+      const tripId = this.conversationId();
+      const isActive = this.active();
+      if (!tripId) return;
+      this.isActive = isActive;
+      this.stopPolling();
+      if (!isActive) return;
+      void this.load(tripId).finally(() => this.schedulePolling());
+    });
+    // El título en la franja del título: con el chat a la vista en el móvil
+    effect(() => {
+      const template = this.headingTitle();
+      if (this.inPageHeading() && this.active() && this.conversation()) {
+        this.headingContent.show(template);
+      } else {
+        this.headingContent.clear(template);
+      }
+    });
+    destroyRef.onDestroy(() => {
+      this.headingContent.clear(this.headingTitle());
+      this.isActive = false;
+      this.stopPolling();
+      document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    });
   }
 
-  // Al entrar: la conversación, sus mensajes y, cada 5 s, los nuevos
+  // Al entrar: carga el chat; solo inicia el polling si quedó disponible
   async ionViewWillEnter(): Promise<void> {
-    await this.load();
+    this.isActive = true;
     this.stopPolling();
-    this.timer = setInterval(() => void this.fetchNew(), CHAT_POLL_INTERVAL_MS);
+    await this.load(this.tripId());
+    this.schedulePolling();
   }
 
   ionViewDidLeave(): void {
+    this.isActive = false;
     this.stopPolling();
   }
 
@@ -102,10 +199,68 @@ export class ConversationPage {
     return message.author.id === this.auth.currentUser()?.id;
   }
 
-  // «Roquetas de Mar → Campus UAL»
-  route(): string {
-    const trip = this.conversation()?.trip;
-    return trip ? `${trip.originName ?? 'Origen'} → ${trip.destinationName ?? 'Destino'}` : '';
+  originName(): string {
+    return this.conversation()?.trip.originName ?? 'Origen';
+  }
+
+  destinationName(): string {
+    return this.conversation()?.trip.destinationName ?? 'Destino';
+  }
+
+  departureTime(): string {
+    const departureAt = this.conversation()?.trip.departureAt;
+    return departureAt ? formatTime(departureAt) : '';
+  }
+
+  driverName(): string {
+    return this.conversation()?.trip.driverName ?? '';
+  }
+
+  driverAvatarKey(): string | null {
+    return this.conversation()?.trip.driverAvatarKey ?? null;
+  }
+
+  // «Llamar a Lucía» o, al conductor con varios pasajeros, «Llamar»
+  // El estado del viaje, como etiqueta junto al título
+  statusLabel(): string {
+    const status = this.conversation()?.trip.status;
+    return status ? TRIP_STATUS_LABELS[status] : '';
+  }
+
+  // Hay a quién llamar: viaje confirmado o en curso y teléfono verificado
+  canCall(): boolean {
+    return this.contacts().length > 0;
+  }
+
+  callLabel(): string {
+    const contacts = this.contacts();
+    if (contacts.length === 0) return 'Llamar (no disponible)';
+    return contacts.length === 1 ? `Llamar a ${contacts[0].name}` : 'Llamar a un pasajero';
+  }
+
+  // Con una persona, abre su teléfono; con varias (el conductor), se elige.
+  // Sin nadie, explica por qué
+  async handleCall(): Promise<void> {
+    const contacts = this.contacts();
+    if (contacts.length === 0) {
+      void this.toast.showInfo(this.unavailableCallMessage());
+      return;
+    }
+    if (contacts.length === 1) {
+      this.openPhone(contacts[0].phone);
+      return;
+    }
+    const sheet = await this.actionSheetController.create({
+      header: '¿A quién llamas?',
+      buttons: [
+        ...contacts.map((contact) => ({
+          text: contact.name,
+          handler: () => this.openPhone(contact.phone),
+        })),
+        { text: 'Cancelar', role: 'cancel' },
+      ],
+    });
+    await sheet.present();
   }
 
   handleDraft(value: string | null | undefined): void {
@@ -140,11 +295,25 @@ export class ConversationPage {
   }
 
   async handleRetry(): Promise<void> {
-    await this.load();
+    this.stopPolling();
+    await this.load(this.tripId());
+    this.schedulePolling();
   }
 
-  private async load(): Promise<void> {
-    const tripId = this.tripId();
+  private tripId(): string {
+    return this.conversationId() ?? this.routeTripId();
+  }
+
+  private async load(tripId: string): Promise<void> {
+    if (!tripId) return;
+    const version = ++this.loadVersion;
+    if (tripId !== this.currentTripId) {
+      this.currentTripId = tripId;
+      this.conversation.set(null);
+      this.messages.set([]);
+      this.contacts.set([]);
+      this.reportedIds.set(new Set());
+    }
     this.isLoading.set(true);
     this.hasError.set(false);
     try {
@@ -152,29 +321,36 @@ export class ConversationPage {
         this.chat.listConversations(),
         this.chat.listMessages(tripId),
       ]);
+      if (version !== this.loadVersion) return;
       this.conversation.set(conversations.find(({ id }) => id === tripId) ?? null);
       this.messages.set(messages);
+      void this.loadContacts(tripId, version);
       this.scrollToBottom();
-      await this.markRead();
+      await this.markRead(tripId);
     } catch {
-      this.hasError.set(true);
+      if (version === this.loadVersion) this.hasError.set(true);
     } finally {
-      this.isLoading.set(false);
+      if (version === this.loadVersion) this.isLoading.set(false);
     }
   }
 
   // Los posteriores al último que ya se tiene. Si falla (sin señal), se
   // intenta en la siguiente vuelta
   private async fetchNew(): Promise<void> {
+    if (!this.isActive || document.hidden || this.pollInFlight) return;
+    this.pollInFlight = true;
     const last = this.messages().at(-1);
     try {
-      const newer = await this.chat.listMessages(this.tripId(), last?.id);
+      const tripId = this.tripId();
+      const newer = await this.chat.listMessages(tripId, last?.id);
       if (newer.length > 0) {
         this.appendMessages(newer);
-        await this.markRead();
+        await this.markRead(tripId);
       }
     } catch {
       // Siguiente vuelta
+    } finally {
+      this.pollInFlight = false;
     }
   }
 
@@ -203,11 +379,35 @@ export class ConversationPage {
 
   // Al último mensaje, cuando ya está pintado
   private scrollToBottom(): void {
-    setTimeout(() => void this.content()?.scrollToBottom(200));
+    setTimeout(() => {
+      const element = this.scrollContainer()?.nativeElement;
+      if (element) element.scrollTop = element.scrollHeight;
+    });
   }
 
-  private async markRead(): Promise<void> {
-    await this.chat.markRead(this.tripId()).catch(() => undefined);
+  // Abre la app de teléfono del dispositivo con el número
+  openPhone(phone: string): void {
+    globalThis.location.href = `tel:${phone}`;
+  }
+
+  // Por qué no se puede llamar: el estado del viaje o que nadie tiene el
+  // teléfono verificado
+  private unavailableCallMessage(): string {
+    const status = this.conversation()?.trip.status;
+    if (status === 'confirmed' || status === 'in_progress') {
+      return 'Nadie más de este viaje tiene el teléfono verificado.';
+    }
+    return 'Solo se puede llamar con el viaje confirmado o en curso.';
+  }
+
+  // Sin contactos (o si falla), el botón de llamar queda en gris
+  private async loadContacts(tripId: string, version: number): Promise<void> {
+    const contacts = await this.chat.listContacts(tripId).catch(() => []);
+    if (version === this.loadVersion) this.contacts.set(contacts);
+  }
+
+  private async markRead(tripId: string): Promise<void> {
+    await this.chat.markRead(tripId).catch(() => undefined);
   }
 
   private stopPolling(): void {
@@ -215,5 +415,16 @@ export class ConversationPage {
       clearInterval(this.timer);
       this.timer = null;
     }
+  }
+
+  private schedulePolling(): void {
+    this.stopPolling();
+    if (!this.isActive || document.hidden || this.hasError() || this.conversation() === null) {
+      return;
+    }
+    this.timer = setTimeout(() => {
+      this.timer = null;
+      void this.fetchNew().finally(() => this.schedulePolling());
+    }, CHAT_POLL_INTERVAL_MS);
   }
 }

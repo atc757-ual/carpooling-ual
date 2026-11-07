@@ -6,6 +6,14 @@ export type QuickReply = 'at_pickup' | 'running_late' | 'on_my_way' | 'where_are
 export type ChatRole = 'driver' | 'passenger';
 
 // Un mensaje del chat de un viaje (GET /api/trips/{id}/messages)
+// Alguien del viaje a quien se puede llamar desde el chat
+export interface ChatContact {
+  id: string;
+  name: string;
+  phone: string;
+  role: ChatRole;
+}
+
 export interface ChatMessage {
   id: string;
   author: { id: string; name: string; avatarKey: string | null };
@@ -26,6 +34,8 @@ export interface Conversation {
     destinationName: string | null;
     departureAt: string;
     status: TripStatus;
+    driverName: string;
+    driverAvatarKey: string | null;
   };
   myRole: ChatRole;
   lastMessage: ChatMessage | null;

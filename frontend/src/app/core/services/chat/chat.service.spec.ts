@@ -30,11 +30,13 @@ describe('ChatService', () => {
     expectUnreadQuery('2');
     await refreshing;
     expect(chat.hasUnread()).toBe(true);
+    expect(chat.unreadConversationCount()).toBe(2);
 
     const again = chat.refreshUnread();
     expectUnreadQuery('0');
     await again;
     expect(chat.hasUnread()).toBe(false);
+    expect(chat.unreadConversationCount()).toBe(0);
   });
 
   it('keeps the dot as it was when the check fails', async () => {
@@ -64,6 +66,21 @@ describe('ChatService', () => {
     await expect(newer).resolves.toEqual([]);
   });
 
+  it('loads a conversation page and reads its total from the pagination header', async () => {
+    const pagePromise = chat.listConversationsPage({
+      offset: 10,
+      limit: 10,
+      hasUnread: true,
+    });
+    const request = http.expectOne((req) => req.url === '/api/users/me/conversations');
+    expect(request.request.params.get('offset')).toBe('10');
+    expect(request.request.params.get('limit')).toBe('10');
+    expect(request.request.params.get('hasUnread')).toBe('true');
+    request.flush([{ id: 't2' }], { headers: { 'X-Total-Count': '13' } });
+
+    await expect(pagePromise).resolves.toEqual({ items: [{ id: 't2' }], total: 13 });
+  });
+
   it('sends a message and marks the conversation as read', async () => {
     const sending = chat.send('t1', { quickReply: 'at_pickup' });
     const post = http.expectOne('/api/trips/t1/messages');
@@ -88,6 +105,13 @@ describe('ChatService', () => {
     expect(post.request.body).toEqual({ reason: 'Me ha insultado' });
     post.flush({ id: 'i1' }, { status: 201, statusText: 'Created' });
     await expect(reporting).resolves.toBeUndefined();
+  });
+
+  it('lists whom can be called from the chat', async () => {
+    const contact = { id: 'u1', name: 'Lucía C.', phone: '+34600111222', role: 'driver' };
+    const listing = chat.listContacts('t1');
+    http.expectOne('/api/trips/t1/contacts').flush([contact]);
+    await expect(listing).resolves.toEqual([contact]);
   });
 
   it('throws an ApiError when a request fails', async () => {
