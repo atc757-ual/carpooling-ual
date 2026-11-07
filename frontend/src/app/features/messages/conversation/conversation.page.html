@@ -1,11 +1,6 @@
 <div class="conversation">
   @if (isLoading() && messages().length === 0) {
-    <div
-      class="conversation__loading"
-      role="status"
-      aria-label="Cargando conversación"
-      aria-busy="true"
-    >
+    <output class="conversation__loading" aria-label="Cargando conversación" aria-busy="true">
       <ion-skeleton-text
         class="conversation__skeleton-bubble conversation__skeleton-bubble--left"
         animated
@@ -18,7 +13,7 @@
         class="conversation__skeleton-bubble conversation__skeleton-bubble--left"
         animated
       />
-    </div>
+    </output>
   } @else if (hasError()) {
     <div class="conversation__status" role="alert">
       <ion-icon [icon]="errorIcon" aria-hidden="true" />
