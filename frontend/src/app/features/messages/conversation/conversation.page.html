@@ -28,6 +28,7 @@
       <header class="conversation__heading">
         <app-conversation-avatar [name]="driverName()" [avatarKey]="driverAvatarKey()" />
         <ng-container [ngTemplateOutlet]="tripTitle" />
+        <ng-container [ngTemplateOutlet]="reportButton" />
         <ng-container [ngTemplateOutlet]="callButton" />
       </header>
     }
@@ -55,16 +56,6 @@
               }}</span>
               <span class="bubble__footer">
                 <span class="bubble__time text-caption">{{ time(message.createdAt) }}</span>
-                @if (!isMine(message) && !reportedIds().has(message.id)) {
-                  <button
-                    type="button"
-                    class="bubble__report"
-                    [attr.aria-label]="'Denunciar el mensaje de ' + message.author.name"
-                    (click)="handleReport(message)"
-                  >
-                    <ion-icon [icon]="reportIcon" aria-hidden="true" />
-                  </button>
-                }
               </span>
             </li>
           }
@@ -170,6 +161,19 @@
 </ng-template>
 
 <!-- Llamar: solo si hay a quién (teléfono verificado y chat abierto) -->
+<!-- Denunciar el chat entero (la API copia la conversación en la incidencia) -->
+<ng-template #reportButton>
+  <ion-button
+    class="conversation__report"
+    fill="clear"
+    aria-label="Denunciar el chat"
+    title="Denunciar el chat"
+    (click)="handleReport()"
+  >
+    <ion-icon slot="icon-only" [icon]="reportIcon" aria-hidden="true" />
+  </ion-button>
+</ng-template>
+
 <ng-template #callButton>
   <!-- Siempre a la vista; en gris si aún no se puede llamar (al pulsarlo,
        explica por qué). No va deshabilitado para que se pueda pulsar -->
@@ -191,6 +195,7 @@
   <div class="conversation-heading-bar">
     <app-conversation-avatar [name]="driverName()" [avatarKey]="driverAvatarKey()" />
     <ng-container [ngTemplateOutlet]="tripTitle" />
+    <ng-container [ngTemplateOutlet]="reportButton" />
     <ng-container [ngTemplateOutlet]="callButton" />
   </div>
 </ng-template>

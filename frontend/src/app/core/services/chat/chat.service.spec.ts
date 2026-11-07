@@ -98,9 +98,9 @@ describe('ChatService', () => {
     expectUnreadQuery('0');
   });
 
-  it('reports a message with its reason', async () => {
-    const reporting = chat.reportMessage('t1', 'm1', 'Me ha insultado');
-    const post = http.expectOne('/api/trips/t1/messages/m1/report');
+  it('reports the chat with its reason', async () => {
+    const reporting = chat.reportChat('t1', 'Me ha insultado');
+    const post = http.expectOne('/api/trips/t1/chat/report');
     expect(post.request.method).toBe('POST');
     expect(post.request.body).toEqual({ reason: 'Me ha insultado' });
     post.flush({ id: 'i1' }, { status: 201, statusText: 'Created' });

@@ -45,7 +45,7 @@ import {
 } from './dto/chat.resource';
 import { ListConversationsQueryDto } from './dto/list-conversations-query.dto';
 import { ListMessagesQueryDto } from './dto/list-messages-query.dto';
-import { ReportChatMessageDto } from './dto/report-chat-message.dto';
+import { ReportChatDto } from './dto/report-chat.dto';
 import { SendChatMessageDto } from './dto/send-chat-message.dto';
 import type { QuickReply } from './entities/chat-message.entity';
 
@@ -166,37 +166,26 @@ export class ChatController {
   }
 
   // Las denuncias van al administrador como incidencias (CU-12)
-  @Post('trips/:id/messages/:messageId/report')
+  @Post('trips/:id/chat/report')
   @ApiOperation({
-    summary: 'Report a message of a trip chat',
+    summary: 'Report a trip chat',
     description:
-      'Creates an incident for the administrator (it cancels nothing) with a copy of the message and the reason. Only messages of others, once each.',
+      'Creates an incident for the administrator (it cancels nothing) with a copy of the conversation (its last 200 messages) and the reason. Any participant, also once the chat is closed; it can be reported again.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiParam({ name: 'messageId', format: 'uuid' })
   @ApiCreatedResponse({
     type: IncidentResource,
     headers: { Location: { description: 'Link to the new incident' } },
   })
-  @ApiErrorResponses({
-    ...TRIP_CHAT_ERRORS,
-    [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND', 'CHAT_MESSAGE_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: ['CHAT_OWN_MESSAGE', 'MESSAGE_ALREADY_REPORTED'],
-  })
+  @ApiErrorResponses(TRIP_CHAT_ERRORS)
   async report(
     @CurrentUser() user: AccessTokenPayload,
     @Param('id', uuidParam('id')) tripId: string,
-    @Param('messageId', uuidParam('messageId')) messageId: string,
-    @Body() dto: ReportChatMessageDto,
+    @Body() dto: ReportChatDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<IncidentResource> {
     const incident = toIncidentResource(
-      await this.chatReportsService.report(
-        user.sub,
-        tripId,
-        messageId,
-        dto.reason,
-      ),
+      await this.chatReportsService.report(user.sub, tripId, dto.reason),
     );
     response.setHeader('Location', incident.href);
     return incident;

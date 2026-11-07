@@ -114,7 +114,7 @@ describe('ConversationPage', () => {
           Promise.resolve(message('m3', 'me', { ...input, kind: 'text' })),
         ),
       markRead: vi.fn().mockResolvedValue(undefined),
-      reportMessage: vi.fn().mockResolvedValue(undefined),
+      reportChat: vi.fn().mockResolvedValue(undefined),
       listContacts: vi.fn().mockResolvedValue([]),
     };
   });
@@ -270,30 +270,25 @@ describe('ConversationPage', () => {
     expect(root.querySelectorAll('.bubble')).toHaveLength(2);
   });
 
-  it('reports the message of someone else with a reason, only once', async () => {
+  it('reports the whole chat with a reason, from its title and not from each message', async () => {
     const root = await render();
-    const flags = root.querySelectorAll<HTMLButtonElement>('.bubble__report');
-    expect(flags).toHaveLength(1);
-    expect(flags[0].getAttribute('aria-label')).toBe('Denunciar el mensaje de Pía R.');
+    expect(root.querySelector('.conversation__report')).not.toBeNull();
+    expect(root.querySelector('.bubble__report')).toBeNull();
 
-    await page.handleReport(page.messages()[0]);
+    await page.handleReport();
     await modalProps?.action('Me ha insultado');
-    fixture.detectChanges();
 
-    expect(chat['reportMessage']).toHaveBeenCalledWith('t1', 'm1', 'Me ha insultado');
-    expect(showSuccess).toHaveBeenCalledWith('Mensaje denunciado. Lo revisaremos.');
-    expect(root.querySelectorAll('.bubble__report')).toHaveLength(0);
+    expect(chat['reportChat']).toHaveBeenCalledWith('t1', 'Me ha insultado');
+    expect(showSuccess).toHaveBeenCalledWith('Chat denunciado. Lo revisaremos.');
   });
 
-  it('keeps the flag when the report is cancelled', async () => {
-    const root = await render();
+  it('reports nothing when the report is cancelled', async () => {
+    await render();
     modalRole = 'cancel';
 
-    await page.handleReport(page.messages()[0]);
-    fixture.detectChanges();
+    await page.handleReport();
 
     expect(showSuccess).not.toHaveBeenCalled();
-    expect(root.querySelectorAll('.bubble__report')).toHaveLength(1);
   });
 
   it('offers to retry when the conversation cannot be loaded', async () => {

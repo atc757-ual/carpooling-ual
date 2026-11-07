@@ -97,25 +97,25 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 
 ## Viajes (`trips`)
 
-| `code`                    | HTTP | Cuándo                                                                                                                                                                                                                           |
-| ------------------------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DRIVER_NOT_READY`        | 403  | Publicar sin cumplir RF-21: falta la declaración responsable o un vehículo activo (`message` indica qué falta)                                                                                                                   |
-| `SEATS_EXCEED_CAPACITY`   | 400  | Las plazas ofertadas superan la capacidad del vehículo (plazas para pasajeros)                                                                                                                                                   |
-| `VEHICLE_DECLARATION_REQUIRED` | 409 | Se publica, modifica o inicia un viaje con un vehículo sin su declaración (seguro e ITV) al día: nunca se aceptó, se aceptó hace más de un año o cambió de forma importante después. Se acepta con `PUT /api/vehicles/{id}/declaration` |
-| `DRIVER_DECLARATION_REQUIRED` | 409 | Se inicia un viaje sin la declaración responsable del conductor al día: se aceptó hace más de un año o cambió de forma importante después. Se acepta con `PUT /api/users/me/driver-declaration` |
-| `DEPARTURE_IN_THE_PAST`   | 400  | La hora de salida no es futura                                                                                                                                                                                                   |
-| `DEPARTURE_TOO_SOON`      | 400  | La salida está a menos de una hora: se publica (o se mueve) con al menos una hora de antelación, para que quede margen de cancelar sin penalización                                                                              |
-| `TRIP_NOT_FOUND`          | 404  | No existe un viaje con ese id                                                                                                                                                                                                    |
-| `NOT_TRIP_DRIVER`         | 403  | Modificar o cancelar un viaje de otro conductor                                                                                                                                                                                  |
-| `TRIP_NOT_EDITABLE`       | 409  | Modificar un viaje que ya no está publicado (con pasajeros aceptados solo se puede cancelar)                                                                                                                                     |
-| `TRIP_ALREADY_STARTED`    | 409  | Cancelar un viaje en curso: requiere registrar una incidencia (RF-23)                                                                                                                                                            |
-| `PUBLISHING_SUSPENDED`    | 409  | El conductor tiene 3 cancelaciones tardías (con pasajeros aceptados y a menos de 30 minutos de la salida) en 30 días: no puede publicar en 7 días desde la última. La fecha de fin está en `GET /api/users/me/publishing-status` |
-| `INVALID_TRIP_TRANSITION` | 409  | Cambio de estado que el diagrama de estados del viaje no permite (p. ej. cancelar un viaje ya cancelado o finalizado)                                                                                                            |
-| `TRIP_FULL`               | 409  | No quedan plazas: al solicitar plaza o al aceptar una solicitud (dos aceptaciones simultáneas nunca venden la misma plaza)                                                                                                       |
-| `TRIP_NOT_OPEN`           | 409  | El viaje ya no admite solicitudes: está en curso, finalizado o cancelado, o su hora de salida ya ha pasado                                                                                                                       |
-| `TRIP_NOT_STARTABLE_YET`  | 409  | Iniciar un viaje más de 10 minutos antes de su hora de salida (RF-11)                                                                                                                                                            |
-| `TRIP_NOT_IN_PROGRESS`    | 409  | Registrar una incidencia (cancelar durante el viaje, RF-23) en un viaje que no está en curso                                                                                                                                     |
-| `ROUTE_NOT_FOUND`         | 404  | `GET /api/trips/{id}/route` de un viaje sin ruta (solo viajes anteriores al cálculo de rutas: hoy cada viaje la calcula al publicarse, con OSRM o estimada)                                                                      |
+| `code`                         | HTTP | Cuándo                                                                                                                                                                                                                                  |
+| ------------------------------ | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DRIVER_NOT_READY`             | 403  | Publicar sin cumplir RF-21: falta la declaración responsable o un vehículo activo (`message` indica qué falta)                                                                                                                          |
+| `SEATS_EXCEED_CAPACITY`        | 400  | Las plazas ofertadas superan la capacidad del vehículo (plazas para pasajeros)                                                                                                                                                          |
+| `VEHICLE_DECLARATION_REQUIRED` | 409  | Se publica, modifica o inicia un viaje con un vehículo sin su declaración (seguro e ITV) al día: nunca se aceptó, se aceptó hace más de un año o cambió de forma importante después. Se acepta con `PUT /api/vehicles/{id}/declaration` |
+| `DRIVER_DECLARATION_REQUIRED`  | 409  | Se inicia un viaje sin la declaración responsable del conductor al día: se aceptó hace más de un año o cambió de forma importante después. Se acepta con `PUT /api/users/me/driver-declaration`                                         |
+| `DEPARTURE_IN_THE_PAST`        | 400  | La hora de salida no es futura                                                                                                                                                                                                          |
+| `DEPARTURE_TOO_SOON`           | 400  | La salida está a menos de una hora: se publica (o se mueve) con al menos una hora de antelación, para que quede margen de cancelar sin penalización                                                                                     |
+| `TRIP_NOT_FOUND`               | 404  | No existe un viaje con ese id                                                                                                                                                                                                           |
+| `NOT_TRIP_DRIVER`              | 403  | Modificar o cancelar un viaje de otro conductor                                                                                                                                                                                         |
+| `TRIP_NOT_EDITABLE`            | 409  | Modificar un viaje que ya no está publicado (con pasajeros aceptados solo se puede cancelar)                                                                                                                                            |
+| `TRIP_ALREADY_STARTED`         | 409  | Cancelar un viaje en curso: requiere registrar una incidencia (RF-23)                                                                                                                                                                   |
+| `PUBLISHING_SUSPENDED`         | 409  | El conductor tiene 3 cancelaciones tardías (con pasajeros aceptados y a menos de 30 minutos de la salida) en 30 días: no puede publicar en 7 días desde la última. La fecha de fin está en `GET /api/users/me/publishing-status`        |
+| `INVALID_TRIP_TRANSITION`      | 409  | Cambio de estado que el diagrama de estados del viaje no permite (p. ej. cancelar un viaje ya cancelado o finalizado)                                                                                                                   |
+| `TRIP_FULL`                    | 409  | No quedan plazas: al solicitar plaza o al aceptar una solicitud (dos aceptaciones simultáneas nunca venden la misma plaza)                                                                                                              |
+| `TRIP_NOT_OPEN`                | 409  | El viaje ya no admite solicitudes: está en curso, finalizado o cancelado, o su hora de salida ya ha pasado                                                                                                                              |
+| `TRIP_NOT_STARTABLE_YET`       | 409  | Iniciar un viaje más de 10 minutos antes de su hora de salida (RF-11)                                                                                                                                                                   |
+| `TRIP_NOT_IN_PROGRESS`         | 409  | Registrar una incidencia (cancelar durante el viaje, RF-23) en un viaje que no está en curso                                                                                                                                            |
+| `ROUTE_NOT_FOUND`              | 404  | `GET /api/trips/{id}/route` de un viaje sin ruta (solo viajes anteriores al cálculo de rutas: hoy cada viaje la calcula al publicarse, con OSRM o estimada)                                                                             |
 
 ## Solicitudes de plaza (`requests`)
 
@@ -172,13 +172,7 @@ Enviar una posición puede responder además `NOT_TRIP_DRIVER` o `TRIP_NOT_IN_PR
 | `CHAT_QUICK_REPLIES_ONLY` | 409  | El conductor escribe texto con el viaje en curso: solo puede enviar respuestas rápidas (seguridad vial)      |
 | `CHAT_RATE_LIMITED`       | 429  | Más de 20 mensajes en un minuto                                                                              |
 
-Al denunciar un mensaje (`POST /api/trips/{id}/messages/{messageId}/report`):
-
-| `code`                     | HTTP | Cuándo                                                      |
-| -------------------------- | ---- | ----------------------------------------------------------- |
-| `CHAT_MESSAGE_NOT_FOUND`   | 404  | El mensaje no existe o no es del chat de ese viaje          |
-| `CHAT_OWN_MESSAGE`         | 409  | Denunciar un mensaje propio                                 |
-| `MESSAGE_ALREADY_REPORTED` | 409  | El usuario ya denunció ese mensaje (cada uno, una sola vez) |
+Denunciar el chat (`POST /api/trips/{id}/chat/report`) solo da los errores de arriba (`CHAT_NOT_ALLOWED`) y `VALIDATION_FAILED` si el motivo no tiene entre 10 y 500 caracteres.
 
 Si el viaje no existe, `TRIP_NOT_FOUND` (ver _Viajes_).
 
