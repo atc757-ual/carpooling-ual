@@ -5,26 +5,12 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonIcon,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonPopover,
-  NavController,
-} from '@ionic/angular';
-import {
-  chevronDownOutline,
-  logOutOutline,
-  personCircleOutline,
-  phonePortraitOutline,
-} from 'ionicons/icons';
+import { IonContent, IonHeader, IonIcon, NavController } from '@ionic/angular';
+import { closeOutline, logOutOutline, menuOutline, phonePortraitOutline } from 'ionicons/icons';
 import { filter } from 'rxjs';
 import { HOME_PATH, WELCOME_PATH } from '../../../../core/guards/redirect-paths';
 import { AdminIncidentsService } from '../../../../core/services/admin/admin-incidents.service';
@@ -40,19 +26,7 @@ import { ADMIN_SECTIONS, INCIDENTS_SECTION_PATH } from '../../../../features/adm
 // escritorio; en el móvil todo va en una columna
 @Component({
   selector: 'app-admin-layout',
-  imports: [
-    IonHeader,
-    IonContent,
-    IonButton,
-    IonIcon,
-    IonItem,
-    IonLabel,
-    IonList,
-    IonPopover,
-    RouterLink,
-    RouterLinkActive,
-    RouterOutlet,
-  ],
+  imports: [IonHeader, IonContent, IonIcon, RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './admin-layout.html',
   styleUrl: './admin-layout.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,13 +43,22 @@ export class AdminLayout implements OnInit {
   protected readonly sections = ADMIN_SECTIONS;
   protected readonly incidentsPath = INCIDENTS_SECTION_PATH;
   protected readonly logoutIcon = logOutOutline;
-  protected readonly accountIcon = personCircleOutline;
-  protected readonly menuIcon = chevronDownOutline;
   protected readonly appIcon = phonePortraitOutline;
+  protected readonly menuIcon = menuOutline;
+  protected readonly closeIcon = closeOutline;
+  protected readonly mobileMenuOpen = signal(false);
   // «Ir a la app» solo si la cuenta también conduce o viaja
   protected readonly canUseApp = computed(() => canUseApp(this.auth.currentUser()?.profiles ?? []));
   protected readonly email = computed(() => this.auth.currentUser()?.email ?? '');
   protected readonly openIncidents = this.incidents.openCount;
+
+  protected toggleMobileMenu(): void {
+    this.mobileMenuOpen.update((open) => !open);
+  }
+
+  protected closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
+  }
 
   // El contador se actualiza al entrar y en cada cambio de sección
   ngOnInit(): void {
@@ -91,11 +74,13 @@ export class AdminLayout implements OnInit {
 
   // A la app sin cerrar sesión (la app recuerda que se volvió a ella)
   async handleGoToApp(): Promise<void> {
+    this.closeMobileMenu();
     await this.navController.navigateRoot(HOME_PATH);
   }
 
   // Con la misma confirmación que en la app
   async handleLogout(): Promise<void> {
+    this.closeMobileMenu();
     if (!(await confirmLogout(this.confirm))) {
       return;
     }

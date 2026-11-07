@@ -99,6 +99,18 @@ function visitWithSession(path: string, profiles: string[]): void {
 
 for (const viewport of VIEWPORTS) {
   describe(`Admin panel (${viewport.name})`, () => {
+    const adminNavSelector =
+      viewport.name === 'mobile'
+        ? '.admin-mobile-nav .admin-nav__link'
+        : '.admin-desktop-header .admin-nav__link';
+
+    function openAdminSection(label: string) {
+      if (viewport.name === 'mobile') {
+        cy.get('.admin-mobile-header__menu-button').click();
+      }
+      return cy.contains(adminNavSelector, label).click();
+    }
+
     beforeEach(() => {
       cy.viewport(viewport.width, viewport.height);
       cy.intercept('GET', '/api/incidents?status=open*', {
@@ -111,12 +123,39 @@ for (const viewport of VIEWPORTS) {
       visitWithSession('/admin', ['admin']);
 
       cy.location('pathname').should('eq', '/admin/simulation');
-      cy.contains('.admin-header__brand', 'Carpooling UAL · Admin');
-      cy.contains('.admin-header__email', 'admin@ual.es');
-      cy.get('.admin-nav__link').should('have.length', 6);
-      cy.contains('.admin-nav__link', 'Incidencias')
-        .find('.admin-nav__badge')
-        .should('contain', '2');
+      if (viewport.name === 'mobile') {
+        cy.get('.admin-mobile-header .admin-header__brand').should('have.text', 'Carpooling UAL');
+        cy.get('.admin-mobile-header__menu-button').click();
+        cy.get('.admin-mobile-menu__brand').should('be.visible');
+        cy.get('.admin-mobile-menu__email').should('contain', 'admin@ual.es');
+        cy.get('.admin-mobile-header').then(($header) => {
+          const headerBottom = $header[0].getBoundingClientRect().bottom;
+          cy.get('.admin-mobile-menu-layer').should(($menu) => {
+            expect($menu[0].getBoundingClientRect().top).to.equal(headerBottom);
+          });
+        });
+        cy.get('.admin-mobile-menu__brand').then(($brand) => {
+          const brandBottom = $brand[0].getBoundingClientRect().bottom;
+          cy.get('.admin-mobile-nav .admin-nav__link')
+            .first()
+            .should(($link) => {
+              expect($link[0].getBoundingClientRect().top).to.be.at.least(brandBottom);
+            });
+        });
+      } else {
+        cy.contains('.admin-desktop-header .admin-header__brand', 'Carpooling UAL · Admin');
+        cy.contains('.admin-header__email', 'admin@ual.es');
+        cy.get('.admin-header__logout').should('contain', 'Cerrar sesión');
+        cy.get('.admin-desktop-header').should(($header) => {
+          const rows = getComputedStyle($header[0]).gridTemplateRows.split(' ');
+          expect(rows[0]).to.equal('76px');
+          expect(getComputedStyle($header[0].querySelector('.admin-nav')!).justifyContent).to.equal(
+            'center',
+          );
+        });
+      }
+      cy.get(adminNavSelector).should('have.length', 6);
+      cy.contains(adminNavSelector, 'Incidencias').find('.admin-nav__badge').should('contain', '2');
       cy.contains('h1', 'Simulación de escenarios');
     });
 
@@ -130,10 +169,16 @@ for (const viewport of VIEWPORTS) {
       }).as('move');
       visitWithSession('/admin', ['admin']);
 
-      cy.contains('.admin-nav__link', 'Catálogos').click();
+      openAdminSection('Catálogos');
 
       cy.location('pathname').should('eq', '/admin/catalogs');
-      cy.contains('.admin-nav__link', 'Catálogos').should('have.attr', 'aria-current', 'page');
+      if (viewport.name === 'mobile') {
+        cy.get('.admin-mobile-header__menu-button').click();
+      }
+      cy.contains(adminNavSelector, 'Catálogos').should('have.attr', 'aria-current', 'page');
+      if (viewport.name === 'mobile') {
+        cy.get('.admin-mobile-header__menu-button').click();
+      }
       cy.contains('h1', 'Catálogos');
       cy.wait('@brands');
       // Ionic pasa el aria-label al botón interno: el primero de la fila es «Subir»
@@ -467,15 +512,24 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/admin/simulation');
     });
 
-    it('offers going to the app only to admins who also travel', () => {
+    it('shows mobile account actions in the drawer and a direct desktop logout', () => {
       visitWithSession('/admin', ['admin']);
-      cy.get('#admin-account-trigger').click();
-      cy.get('ion-popover ion-item').should('have.length', 1).and('contain', 'Cerrar sesión');
+      if (viewport.name === 'mobile') {
+        cy.get('.admin-mobile-header__menu-button').click();
+        cy.get('.admin-mobile-menu__footer').should('contain', 'admin@ual.es');
+        cy.get('.admin-mobile-menu__action').should('contain', 'Cerrar sesión');
+        cy.get('.admin-mobile-menu__action').should('not.contain', 'Cambiar a versión usuario');
+      } else {
+        cy.get('.admin-header__email').should('contain', 'admin@ual.es');
+        cy.get('.admin-header__logout').should('contain', 'Cerrar sesión');
+      }
 
       visitWithSession('/admin', ['passenger', 'admin']);
-      cy.get('#admin-account-trigger').click();
-      cy.contains('ion-popover ion-item', 'Ir a la app').click();
-      cy.location('pathname').should('match', /^\/tabs/);
+      if (viewport.name === 'mobile') {
+        cy.get('.admin-mobile-header__menu-button').click();
+        cy.contains('.admin-mobile-menu__action', 'Cambiar a versión usuario').click();
+        cy.location('pathname').should('match', /^\/tabs/);
+      }
     });
   });
 }

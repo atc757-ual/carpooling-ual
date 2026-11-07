@@ -58,14 +58,21 @@ describe('AdminLayout', () => {
   }
 
   function links(): HTMLAnchorElement[] {
-    return Array.from(element().querySelectorAll('.admin-nav__link'));
+    return Array.from(element().querySelectorAll('.admin-desktop-header .admin-nav__link'));
+  }
+
+  function mobileLinks(): HTMLAnchorElement[] {
+    return Array.from(element().querySelectorAll('.admin-mobile-nav .admin-nav__link'));
   }
 
   it('shows the brand, the admin account and the six sections in order', () => {
-    expect(element().querySelector('.admin-header__brand')?.textContent).toContain(
-      'Carpooling UAL · Admin',
-    );
+    expect(
+      element().querySelector('.admin-desktop-header .admin-header__brand')?.textContent,
+    ).toContain('Carpooling UAL · Admin');
     expect(element().querySelector('.admin-header__email')?.textContent).toContain('admin@ual.es');
+    expect(element().querySelector('.admin-header__logout')?.textContent).toContain(
+      'Cerrar sesión',
+    );
     expect(links().map((link) => link.textContent?.trim())).toEqual([
       'Simulación',
       'Gemelo digital',
@@ -74,6 +81,25 @@ describe('AdminLayout', () => {
       'Viajes',
       'Catálogos',
     ]);
+  });
+
+  it('shows the mobile drawer brand, six links and account actions without a duplicate logout', () => {
+    element().querySelector<HTMLButtonElement>('.admin-mobile-header__menu-button')?.click();
+    fixture.detectChanges();
+    expect(
+      element().querySelector('.admin-mobile-header .admin-header__brand')?.textContent,
+    ).toContain('Carpooling UAL');
+    expect(element().querySelector('.admin-mobile-menu__brand')?.textContent).toContain(
+      'Carpooling UAL',
+    );
+    expect(element().querySelector('.admin-mobile-menu__email')?.textContent).toContain(
+      'admin@ual.es',
+    );
+    expect(mobileLinks()).toHaveLength(6);
+    expect(element().querySelector('.admin-mobile-header__logout')).toBeNull();
+    expect(element().querySelector('.admin-mobile-menu__footer')?.textContent).toContain(
+      'Cerrar sesión',
+    );
   });
 
   it('shows the open incidents only when there are some', () => {
@@ -99,12 +125,21 @@ describe('AdminLayout', () => {
     expect(remember).toHaveBeenCalledWith('admin');
   });
 
-  // «Ir a la app» solo si la cuenta también conduce o viaja
-  it('offers the app only to admins who also travel and goes there', async () => {
+  // Cambiar a la versión de usuario solo si también tiene perfil de viaje
+  it('offers the user version only to admins who also travel and goes there', async () => {
+    element().querySelector<HTMLButtonElement>('.admin-mobile-header__menu-button')?.click();
+    fixture.detectChanges();
     expect(fixture.componentInstance['canUseApp']()).toBe(false);
+    expect(element().querySelector('.admin-mobile-menu__action span')?.textContent).not.toContain(
+      'Cambiar a versión usuario',
+    );
 
     currentUser.set({ email: 'admin@ual.es', profiles: ['passenger', 'admin'] });
+    fixture.detectChanges();
     expect(fixture.componentInstance['canUseApp']()).toBe(true);
+    expect(element().querySelector('.admin-mobile-menu__action span')?.textContent).toContain(
+      'Cambiar a versión usuario',
+    );
 
     const navigateRoot = vi
       .spyOn(TestBed.inject(NavController), 'navigateRoot')

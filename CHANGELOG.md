@@ -18,6 +18,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Frontend:** el panel de administración usa un menú lateral debajo de la cabecera en móvil (marca arriba y cuenta al pie); en escritorio conserva la navegación superior, centrada, con la fila de marca y cuenta de 76 px (#230).
 - **Backend:** Lucía incluye perfil de pasajero en los datos de prueba (`dev-seed.sql`), alineándola con la regla de que todo usuario nace con perfil de pasajero (#226).
 - **Frontend:** en el móvil, la franja con el título de las listas largas (Buscar, Tus viajes, Mensajes y Notificaciones) se esconde al bajar y vuelve al subir o al llegar arriba; en el chat y en escritorio sigue fija (#225).
 - **Frontend:** el fondo del chat lleva un mosaico de iconos de viaje muy suaves (coche, ubicación, hora, chat, la universidad y una hoja) en lugar de un color liso (#224).
