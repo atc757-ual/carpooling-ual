@@ -7,6 +7,7 @@ import { Conversation } from '../../core/models/chat.model';
 import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ChatService } from '../../core/services/chat/chat.service';
+import { formatTime } from '../matching/trip-results';
 import { MessagesPage } from './messages.page';
 
 const CONVERSATION: Conversation = {
@@ -73,7 +74,8 @@ describe('MessagesPage', () => {
     const row = root.querySelector('.conversation');
     expect(row?.tagName).toBe('BUTTON');
     expect(row?.classList).toContain('conversation--unread');
-    expect(row?.textContent).toContain('07:00 · Campus UAL');
+    // La hora en la zona del navegador (el CI va en UTC)
+    expect(row?.textContent).toContain(`${formatTime(CONVERSATION.trip.departureAt)} · Campus UAL`);
     // El origen y quien conduce se ven al abrir el chat
     expect(row?.textContent).not.toContain('Roquetas de Mar');
     expect(row?.textContent).toContain('Pía R.: Estoy en camino');
