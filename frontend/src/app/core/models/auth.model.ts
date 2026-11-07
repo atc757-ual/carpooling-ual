@@ -7,7 +7,8 @@ export type RegisterProfile = Exclude<Profile, 'admin'>;
 
 // El registro no lleva perfiles: se eligen después de verificar el correo
 export interface RegisterRequest {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   // Formato internacional, p. ej. +34600123456

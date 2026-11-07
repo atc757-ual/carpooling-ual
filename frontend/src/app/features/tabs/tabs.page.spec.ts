@@ -80,7 +80,7 @@ describe('TabsPage', () => {
         {
           provide: AuthService,
           useValue: {
-            currentUser: signal({ name: 'Mario Pérez' } as User),
+            currentUser: signal({ firstName: 'Mario', lastName: 'Pérez' } as User),
             hasProfile: (profile: Profile) => profiles().includes(profile),
             isLoggedIn: () => loggedIn(),
           },

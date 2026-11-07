@@ -40,7 +40,10 @@ import {
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
 import {
+  FIRST_NAME_MAX_LENGTH,
+  LAST_NAME_MAX_LENGTH,
   normalizePersonName,
+  personNameErrorKey,
   personNameValidator,
   stripNameSymbols,
 } from '../../../shared/utils/person-name.util';
@@ -56,7 +59,6 @@ import { NEW_PASSWORD_VALIDATORS } from '../../../shared/utils/password.util';
 
 // Mismos límites que la API (POST /api/auth/register)
 const VERIFY_PATH = '/auth/verify';
-const NAME_MAX_LENGTH = 100;
 
 // Crear la cuenta (RF-01, RF-27) con el correo de la UAL, el teléfono y la
 // aceptación de las normas. El registro no abre la sesión: después se
@@ -96,7 +98,14 @@ export class RegisterPage {
   private readonly modalController = inject(ModalController);
 
   readonly form = inject(NonNullableFormBuilder).group({
-    name: ['', [Validators.required, Validators.maxLength(NAME_MAX_LENGTH), personNameValidator()]],
+    firstName: [
+      '',
+      [Validators.required, Validators.maxLength(FIRST_NAME_MAX_LENGTH), personNameValidator()],
+    ],
+    lastName: [
+      '',
+      [Validators.required, Validators.maxLength(LAST_NAME_MAX_LENGTH), personNameValidator()],
+    ],
     // El prefijo del país (España por defecto) y el número, solo con cifras
     phonePrefix: [SPANISH_PREFIX],
     phone: ['', [Validators.required, phoneNumberValidator('phonePrefix')]],
@@ -116,14 +125,16 @@ export class RegisterPage {
   protected readonly eyeOffIcon = eyeOffOutline;
 
   constructor() {
-    const { name, phonePrefix, phone, email, password } = this.form.controls;
-    // En el nombre no se pueden escribir números ni símbolos
-    name.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      const cleaned = stripNameSymbols(value);
-      if (cleaned !== value) {
-        name.setValue(cleaned, { emitEvent: false });
-      }
-    });
+    const { firstName, lastName, phonePrefix, phone, email, password } = this.form.controls;
+    // En el nombre y los apellidos no se pueden escribir números ni símbolos
+    for (const name of [firstName, lastName]) {
+      name.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+        const cleaned = stripNameSymbols(value);
+        if (cleaned !== value) {
+          name.setValue(cleaned, { emitEvent: false });
+        }
+      });
+    }
     // Al cambiar de país, el número se muestra y se comprueba con sus reglas
     // (el aviso, al salir del campo)
     phonePrefix.valueChanges.pipe(takeUntilDestroyed()).subscribe((prefix) => {
@@ -145,19 +156,17 @@ export class RegisterPage {
     });
     // Mientras se corrige un campo, su aviso de error se quita; vuelve a
     // comprobarse al salir de él (Ionic lo marca como tocado al perder el foco)
-    for (const field of [name, phone, email, password]) {
+    for (const field of [firstName, lastName, phone, email, password]) {
       field.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => field.markAsUntouched());
     }
   }
 
-  nameErrorKey(): string {
-    const name = this.form.controls.name;
-    if (name.hasError('personName')) {
-      return 'auth.validation.nameInvalid';
-    }
-    return name.hasError('maxlength')
-      ? 'auth.validation.nameLength'
-      : 'auth.validation.nameRequired';
+  firstNameErrorKey(): string {
+    return personNameErrorKey(this.form.controls.firstName, 'firstName');
+  }
+
+  lastNameErrorKey(): string {
+    return personNameErrorKey(this.form.controls.lastName, 'lastName');
   }
 
   phoneErrorKey(): string {
@@ -187,7 +196,7 @@ export class RegisterPage {
     return openLegalModal(this.modalController, document);
   }
 
-  // Tab desde el nombre: al número del teléfono, no a su prefijo (el +34
+  // Tab desde los apellidos: al número del teléfono, no a su prefijo (el +34
   // casi nunca se cambia; se llega con Shift+Tab desde el número)
   handleNameTab(event: Event): void {
     event.preventDefault();
@@ -200,10 +209,11 @@ export class RegisterPage {
       return;
     }
     this.isSubmitting.set(true);
-    const { name, phonePrefix, phone, email, password } = this.form.getRawValue();
+    const { firstName, lastName, phonePrefix, phone, email, password } = this.form.getRawValue();
     try {
       await this.auth.register({
-        name: normalizePersonName(name),
+        firstName: normalizePersonName(firstName),
+        lastName: normalizePersonName(lastName),
         phone: buildPhone(phonePrefix, phone),
         email,
         password,

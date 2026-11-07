@@ -22,7 +22,11 @@ import { AvatarArt } from '../../../shared/components/ui/avatar-art/avatar-art';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import {
+  FIRST_NAME_MAX_LENGTH,
+  fullName,
+  LAST_NAME_MAX_LENGTH,
   normalizePersonName,
+  personNameErrorKey,
   personNameValidator,
   stripNameSymbols,
 } from '../../../shared/utils/person-name.util';
@@ -30,7 +34,6 @@ import { getInitials } from '../../matching/trip-driver/trip-driver';
 
 const BIO_MIN_LENGTH = 20;
 const BIO_MAX_LENGTH = 200;
-const NAME_MAX_LENGTH = 100;
 
 // Ventana para editar los datos públicos: avatar del catálogo, nombre y «Sobre mí».
 // El correo no se cambia (identidad UAL)
@@ -61,7 +64,14 @@ export class ProfilePublicModal implements OnInit {
   @Input() user: User | null = null;
 
   readonly form = inject(NonNullableFormBuilder).group({
-    name: ['', [Validators.required, Validators.maxLength(NAME_MAX_LENGTH), personNameValidator()]],
+    firstName: [
+      '',
+      [Validators.required, Validators.maxLength(FIRST_NAME_MAX_LENGTH), personNameValidator()],
+    ],
+    lastName: [
+      '',
+      [Validators.required, Validators.maxLength(LAST_NAME_MAX_LENGTH), personNameValidator()],
+    ],
     bio: [''],
   });
 
@@ -70,7 +80,12 @@ export class ProfilePublicModal implements OnInit {
   readonly isSaving = signal(false);
 
   readonly initials = computed(() =>
-    getInitials(this.form.controls.name.value || this.user?.name || ''),
+    getInitials(
+      fullName({
+        firstName: this.form.controls.firstName.value || this.user?.firstName || '',
+        lastName: this.form.controls.lastName.value || this.user?.lastName || '',
+      }),
+    ),
   );
 
   readonly selectedAvatarName = computed(() => {
@@ -89,7 +104,8 @@ export class ProfilePublicModal implements OnInit {
     const currentUser = this.user ?? this.auth.currentUser();
     if (currentUser) {
       this.form.patchValue({
-        name: currentUser.name,
+        firstName: currentUser.firstName,
+        lastName: currentUser.lastName,
         bio: currentUser.bio ?? '',
       });
       this.selectedAvatarKey.set(currentUser.avatarKey ?? null);
@@ -98,12 +114,17 @@ export class ProfilePublicModal implements OnInit {
     this.avatarCatalog.set(catalog);
   }
 
-  handleNameInput(event: Event): void {
+  // En el nombre y los apellidos no se pueden escribir números ni símbolos
+  handleNameInput(event: Event, part: 'firstName' | 'lastName'): void {
     const input = event.target as HTMLInputElement;
     const cleaned = stripNameSymbols(input.value);
     if (cleaned !== input.value) {
-      this.form.controls.name.setValue(cleaned);
+      this.form.controls[part].setValue(cleaned);
     }
+  }
+
+  nameErrorKey(part: 'firstName' | 'lastName'): string {
+    return personNameErrorKey(this.form.controls[part], part);
   }
 
   chooseAvatar(key: string | null): void {
@@ -128,10 +149,11 @@ export class ProfilePublicModal implements OnInit {
       return;
     }
     this.isSaving.set(true);
-    const { name, bio } = this.form.getRawValue();
+    const { firstName, lastName, bio } = this.form.getRawValue();
     try {
       const updated = await this.usersService.updateMe({
-        name: normalizePersonName(name),
+        firstName: normalizePersonName(firstName),
+        lastName: normalizePersonName(lastName),
         avatarKey: this.selectedAvatarKey(),
         bio: bio.trim() || null,
       });

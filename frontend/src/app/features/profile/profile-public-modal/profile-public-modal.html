@@ -6,18 +6,35 @@
 
 <div class="modal-body profile-public-modal">
   <form [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
-    <!-- 1. Nombre y apellidos -->
+    <!-- 1. Nombre y apellidos (los demás usuarios solo ven el nombre) -->
     <div class="profile-public-modal__field">
       <span class="text-label text-label--strong" aria-hidden="true">{{
-        'profile.name' | transloco
+        'profile.firstName' | transloco
       }}</span>
       <ion-input
-        formControlName="name"
-        (ionInput)="handleNameInput($event)"
+        formControlName="firstName"
+        (ionInput)="handleNameInput($event, 'firstName')"
+        autocomplete="given-name"
         fill="outline"
-        [placeholder]="'profile.name' | transloco"
-        [attr.aria-label]="'profile.name' | transloco"
-        errorText="Escribe un nombre válido (solo letras, espacios, guiones o apóstrofos)."
+        [placeholder]="'profile.firstName' | transloco"
+        [attr.aria-label]="'profile.firstName' | transloco"
+        [helperText]="'auth.register.firstNameHint' | transloco"
+        [errorText]="nameErrorKey('firstName') | transloco"
+      />
+    </div>
+
+    <div class="profile-public-modal__field">
+      <span class="text-label text-label--strong" aria-hidden="true">{{
+        'profile.lastName' | transloco
+      }}</span>
+      <ion-input
+        formControlName="lastName"
+        (ionInput)="handleNameInput($event, 'lastName')"
+        autocomplete="family-name"
+        fill="outline"
+        [placeholder]="'profile.lastName' | transloco"
+        [attr.aria-label]="'profile.lastName' | transloco"
+        [errorText]="nameErrorKey('lastName') | transloco"
       />
     </div>
 

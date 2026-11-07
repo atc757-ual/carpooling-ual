@@ -38,18 +38,37 @@
     </div>
 
     <form class="auth-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+      <!-- Nombre y apellidos por separado: los demás usuarios solo ven el
+           nombre -->
       <div class="auth-field">
         <span class="text-label text-label--strong" aria-hidden="true">
-          {{ 'auth.register.nameLabel' | transloco }}
+          {{ 'auth.register.firstNameLabel' | transloco }}
         </span>
         <ion-input
-          formControlName="name"
-          (keydown.tab)="handleNameTab($event)"
-          autocomplete="name"
-          [attr.aria-label]="'auth.register.nameLabel' | transloco"
+          formControlName="firstName"
+          autocomplete="given-name"
+          [attr.aria-label]="'auth.register.firstNameLabel' | transloco"
           fill="outline"
-          [placeholder]="'auth.register.namePlaceholder' | transloco"
-          [errorText]="nameErrorKey() | transloco"
+          [placeholder]="'auth.register.firstNamePlaceholder' | transloco"
+          [helperText]="'auth.register.firstNameHint' | transloco"
+          [errorText]="firstNameErrorKey() | transloco"
+        >
+          <ion-icon slot="start" [icon]="personIcon" aria-hidden="true" />
+        </ion-input>
+      </div>
+
+      <div class="auth-field">
+        <span class="text-label text-label--strong" aria-hidden="true">
+          {{ 'auth.register.lastNameLabel' | transloco }}
+        </span>
+        <ion-input
+          formControlName="lastName"
+          (keydown.tab)="handleNameTab($event)"
+          autocomplete="family-name"
+          [attr.aria-label]="'auth.register.lastNameLabel' | transloco"
+          fill="outline"
+          [placeholder]="'auth.register.lastNamePlaceholder' | transloco"
+          [errorText]="lastNameErrorKey() | transloco"
         >
           <ion-icon slot="start" [icon]="personIcon" aria-hidden="true" />
         </ion-input>

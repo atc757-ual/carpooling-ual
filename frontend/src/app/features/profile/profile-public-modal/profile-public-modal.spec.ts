@@ -18,7 +18,8 @@ describe('ProfilePublicModal', () => {
     id: 'user-1',
     href: '/api/users/user-1',
     email: 'ana@ual.es',
-    name: 'Ana García',
+    firstName: 'Ana',
+    lastName: 'García',
     phone: '+34612345678',
     avatarKey: null,
     bio: 'Hola, viajo a la UAL todas las mañanas',
@@ -68,7 +69,8 @@ describe('ProfilePublicModal', () => {
   });
 
   it('initializes form with user data', () => {
-    expect(component.form.controls.name.value).toBe('Ana García');
+    expect(component.form.controls.firstName.value).toBe('Ana');
+    expect(component.form.controls.lastName.value).toBe('García');
     expect(component.form.controls.bio.value).toBe('Hola, viajo a la UAL todas las mañanas');
     expect(component.selectedAvatarKey()).toBeNull();
   });
@@ -82,13 +84,14 @@ describe('ProfilePublicModal', () => {
   });
 
   it('submits updated profile data', async () => {
-    component.form.controls.name.setValue('Ana Gomez');
+    component.form.controls.lastName.setValue('Gomez');
     component.chooseAvatar('sun');
 
     await component.handleSubmit();
 
     expect(updateMe).toHaveBeenCalledWith({
-      name: 'Ana Gomez',
+      firstName: 'Ana',
+      lastName: 'Gomez',
       bio: 'Hola, viajo a la UAL todas las mañanas',
       avatarKey: 'sun',
     });

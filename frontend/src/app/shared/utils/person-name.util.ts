@@ -38,3 +38,26 @@ export function formatPersonName(name: string): string {
     .toLocaleLowerCase('es-ES')
     .replace(/(^|[\s-])\p{L}/gu, (letter) => letter.toLocaleUpperCase('es-ES'));
 }
+
+// Como la API: el nombre de pila hasta 50 caracteres y los apellidos hasta 100
+export const FIRST_NAME_MAX_LENGTH = 50;
+export const LAST_NAME_MAX_LENGTH = 100;
+
+// Nombre y apellidos juntos: solo para el propio usuario (su perfil). A los
+// demás se les muestra solo el nombre de pila
+export function fullName(person: { firstName: string; lastName: string }): string {
+  return [person.firstName, person.lastName].filter(Boolean).join(' ');
+}
+
+// Clave del aviso de error del nombre o de los apellidos (registro y perfil)
+export function personNameErrorKey(
+  control: AbstractControl<string>,
+  part: 'firstName' | 'lastName',
+): string {
+  if (control.hasError('personName')) {
+    return 'auth.validation.nameInvalid';
+  }
+  return control.hasError('maxlength')
+    ? `auth.validation.${part}Length`
+    : `auth.validation.${part}Required`;
+}
