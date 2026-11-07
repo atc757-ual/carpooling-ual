@@ -32,6 +32,20 @@ export interface ChatMessageView {
   authorRole: ChatRole;
 }
 
+// Con qué estados del viaje se puede llamar desde el chat
+const CALLABLE_TRIP_STATUSES: ReadonlySet<string> = new Set([
+  'confirmed',
+  'in_progress',
+]);
+
+// Alguien del viaje a quien se puede llamar
+export interface ChatContactView {
+  userId: string;
+  name: string;
+  phone: string;
+  role: ChatRole;
+}
+
 export interface ChatAccess {
   trip: Trip;
   role: ChatRole;
@@ -71,6 +85,36 @@ export class ChatService {
       throw new ChatNotAllowedError(tripId);
     }
     return { trip, role, participantIds: [trip.driverId, ...passengerIds] };
+  }
+
+  // A quién puede llamar el usuario desde el chat: el pasajero, al conductor;
+  // el conductor, a sus pasajeros aceptados. Solo con el teléfono verificado
+  // y con el viaje confirmado o en curso, para la recogida (la Política de
+  // privacidad: el teléfono solo lo ven el conductor y los pasajeros
+  // aceptados de un viaje)
+  async contacts(userId: string, tripId: string): Promise<ChatContactView[]> {
+    const { trip, role, participantIds } = await this.getAccess(userId, tripId);
+    if (!CALLABLE_TRIP_STATUSES.has(trip.status)) {
+      return [];
+    }
+    const contactIds =
+      role === 'driver' ? participantIds.slice(1) : [trip.driverId];
+    const phones = await this.usersService.getVerifiedPhones(contactIds);
+    return contactIds.flatMap((id) => {
+      const contact = phones.get(id);
+      return contact
+        ? [
+            {
+              userId: id,
+              ...contact,
+              role:
+                id === trip.driverId
+                  ? ('driver' as const)
+                  : ('passenger' as const),
+            },
+          ]
+        : [];
+    });
   }
 
   // Del más antiguo al más nuevo; con after, solo los posteriores a ese

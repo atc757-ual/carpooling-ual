@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { RequestsService } from '../requests/requests.service';
+import { UsersService } from '../users/users.service';
 import type { Trip } from '../trips/entities/trip.entity';
 import { TripsService } from '../trips/trips.service';
 import { CHAT_RETENTION_MS, type ChatRole, isChatOpen } from './chat-rules';
@@ -12,6 +13,7 @@ import { ChatRead } from './entities/chat-read.entity';
 
 export interface ConversationView {
   trip: Trip;
+  driver: { name: string; avatarKey: string | null };
   myRole: ChatRole;
   lastMessage: ChatMessageView | null;
   unreadCount: number;
@@ -31,6 +33,7 @@ export class ConversationsService {
     private readonly chat: ChatService,
     private readonly tripsService: TripsService,
     private readonly requestsService: RequestsService,
+    private readonly usersService: UsersService,
   ) {}
 
   // La más reciente primero (último mensaje o, sin mensajes, último cambio
@@ -53,9 +56,16 @@ export class ConversationsService {
       this.lastMessages(tripIds),
       this.unreadCounts(userId, tripIds),
     ]);
+    const driverProfiles = await this.usersService.getPublicProfiles(
+      trips.map(({ driverId }) => driverId),
+    );
     const conversations = trips
       .map((trip) => ({
         trip,
+        driver: {
+          name: driverProfiles.get(trip.driverId)?.name ?? '',
+          avatarKey: driverProfiles.get(trip.driverId)?.avatarKey ?? null,
+        },
         lastMessage: lastMessages.get(trip.id) ?? null,
         unreadCount: unread.get(trip.id) ?? 0,
         isOpen: isChatOpen(trip),
