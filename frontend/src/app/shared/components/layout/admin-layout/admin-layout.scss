@@ -1,5 +1,7 @@
 // En móvil, la cabecera queda compacta y las secciones pasan al menú lateral.
 .admin-header {
+  position: relative;
+  z-index: 40;
   background: var(--color-admin);
   color: var(--color-on-admin);
   box-shadow: none;
@@ -17,9 +19,27 @@
 }
 
 .admin-mobile-header__menu-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
   justify-self: start;
   color: var(--color-on-admin);
+  cursor: pointer;
   transform: translateX(calc(-1 * var(--space-s)));
+
+  ion-icon {
+    font-size: 1.5rem;
+  }
+
+  &:focus-visible {
+    outline: 0.125rem solid var(--color-on-admin);
+    outline-offset: -0.125rem;
+  }
 }
 
 .admin-header__brand {
@@ -34,12 +54,29 @@
   display: none;
 }
 
+.admin-mobile-menu-layer {
+  position: fixed;
+  z-index: 30;
+  inset: 3.5rem 0 0;
+}
+
+.admin-mobile-menu-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: rgb(0 0 0 / 40%);
+}
+
 .admin-mobile-menu {
-  top: 3.5rem; // El panel comienza bajo la cabecera móvil
-  height: calc(100% - 3.5rem);
-  --background: var(--color-admin);
-  --color: var(--color-on-admin);
-  --width: min(20rem, 86vw);
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: min(20rem, 86vw);
+  overflow-y: auto;
+  background: var(--color-admin);
+  color: var(--color-on-admin);
 }
 
 .admin-mobile-menu__brand {
@@ -67,10 +104,6 @@
   display: flex;
   flex-direction: column;
   margin-inline: calc(-1 * var(--page-gutter));
-
-  ion-menu-toggle {
-    display: block;
-  }
 }
 
 .admin-mobile-nav .admin-nav__link {

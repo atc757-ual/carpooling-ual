@@ -1,20 +1,24 @@
-<ion-menu
-  class="admin-mobile-menu ion-hide-md-up"
-  contentId="admin-content"
-  menuId="admin-navigation"
-  side="start"
->
-  <ion-content>
-    <div class="admin-mobile-menu__layout">
-      <a class="admin-mobile-menu__brand" routerLink="/admin">Carpooling UAL</a>
-      <nav class="admin-mobile-nav" aria-label="Secciones del panel">
-        @for (section of sections; track section.path) {
-          <ion-menu-toggle [autoHide]="true">
+@if (mobileMenuOpen()) {
+  <div class="admin-mobile-menu-layer ion-hide-md-up">
+    <button
+      type="button"
+      class="admin-mobile-menu-backdrop"
+      aria-label="Cerrar menú de administración"
+      (click)="closeMobileMenu()"
+    ></button>
+    <aside id="admin-mobile-menu" class="admin-mobile-menu" aria-label="Menú de administración">
+      <div class="admin-mobile-menu__layout">
+        <a class="admin-mobile-menu__brand" routerLink="/admin" (click)="closeMobileMenu()">
+          Carpooling UAL
+        </a>
+        <nav class="admin-mobile-nav" aria-label="Secciones del panel">
+          @for (section of sections; track section.path) {
             <a
               class="admin-nav__link"
               [routerLink]="section.path"
               routerLinkActive="admin-nav__link--active"
               ariaCurrentWhenActive="page"
+              (click)="closeMobileMenu()"
             >
               <ion-icon class="admin-nav__icon" [icon]="section.icon" aria-hidden="true" />
               {{ section.label }}
@@ -24,36 +28,41 @@
                 </span>
               }
             </a>
-          </ion-menu-toggle>
-        }
-      </nav>
-      <footer class="admin-mobile-menu__footer">
-        <span class="admin-mobile-menu__email">{{ email() }}</span>
-        @if (canUseApp()) {
-          <ion-menu-toggle [autoHide]="true">
+          }
+        </nav>
+        <footer class="admin-mobile-menu__footer">
+          <span class="admin-mobile-menu__email">{{ email() }}</span>
+          @if (canUseApp()) {
             <button type="button" class="admin-mobile-menu__action" (click)="handleGoToApp()">
               <ion-icon [icon]="appIcon" aria-hidden="true" />
               <span>Cambiar a versión usuario</span>
             </button>
-          </ion-menu-toggle>
-        }
-        <button type="button" class="admin-mobile-menu__action" (click)="handleLogout()">
-          <ion-icon [icon]="logoutIcon" aria-hidden="true" />
-          <span>Cerrar sesión</span>
-        </button>
-      </footer>
-    </div>
-  </ion-content>
-</ion-menu>
+          }
+          <button type="button" class="admin-mobile-menu__action" (click)="handleLogout()">
+            <ion-icon [icon]="logoutIcon" aria-hidden="true" />
+            <span>Cerrar sesión</span>
+          </button>
+        </footer>
+      </div>
+    </aside>
+  </div>
+}
 
 <ion-header class="admin-header">
   <div class="admin-header__bar">
     <div class="admin-mobile-header">
-      <ion-menu-button
+      <button
+        type="button"
         class="admin-mobile-header__menu-button"
-        menu="admin-navigation"
-        aria-label="Abrir menú de administración"
-      />
+        [attr.aria-expanded]="mobileMenuOpen()"
+        [attr.aria-controls]="mobileMenuOpen() ? 'admin-mobile-menu' : null"
+        [attr.aria-label]="
+          mobileMenuOpen() ? 'Cerrar menú de administración' : 'Abrir menú de administración'
+        "
+        (click)="toggleMobileMenu()"
+      >
+        <ion-icon [icon]="mobileMenuOpen() ? closeIcon : menuIcon" aria-hidden="true" />
+      </button>
       <a class="admin-header__brand" routerLink="/admin">Carpooling UAL</a>
     </div>
     <div class="admin-desktop-header">
@@ -87,7 +96,7 @@
   </div>
 </ion-header>
 
-<ion-content id="admin-content">
+<ion-content>
   <main class="admin-main">
     <router-outlet />
   </main>

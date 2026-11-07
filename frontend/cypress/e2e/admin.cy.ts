@@ -106,7 +106,7 @@ for (const viewport of VIEWPORTS) {
 
     function openAdminSection(label: string) {
       if (viewport.name === 'mobile') {
-        cy.get('ion-menu-button').click();
+        cy.get('.admin-mobile-header__menu-button').click();
       }
       return cy.contains(adminNavSelector, label).click();
     }
@@ -125,10 +125,10 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/admin/simulation');
       if (viewport.name === 'mobile') {
         cy.get('.admin-mobile-header .admin-header__brand').should('have.text', 'Carpooling UAL');
-        cy.get('ion-menu-button').click();
+        cy.get('.admin-mobile-header__menu-button').click();
         cy.get('.admin-mobile-menu__brand').should('be.visible');
         cy.get('.admin-mobile-menu__email').should('contain', 'admin@ual.es');
-        cy.get('ion-menu.admin-mobile-menu').then(($menu) => {
+        cy.get('.admin-mobile-menu-layer').then(($menu) => {
           const headerBottom = document
             .querySelector('.admin-header')
             ?.getBoundingClientRect().bottom;
@@ -508,7 +508,7 @@ for (const viewport of VIEWPORTS) {
     it('shows mobile account actions in the drawer and a direct desktop logout', () => {
       visitWithSession('/admin', ['admin']);
       if (viewport.name === 'mobile') {
-        cy.get('ion-menu-button').click();
+        cy.get('.admin-mobile-header__menu-button').click();
         cy.get('.admin-mobile-menu__footer').should('contain', 'admin@ual.es');
         cy.get('.admin-mobile-menu__action').should('contain', 'Cerrar sesión');
         cy.get('.admin-mobile-menu__action').should('not.contain', 'Cambiar a versión usuario');
@@ -519,7 +519,7 @@ for (const viewport of VIEWPORTS) {
 
       visitWithSession('/admin', ['passenger', 'admin']);
       if (viewport.name === 'mobile') {
-        cy.get('ion-menu-button').click();
+        cy.get('.admin-mobile-header__menu-button').click();
         cy.contains('.admin-mobile-menu__action', 'Cambiar a versión usuario').click();
         cy.location('pathname').should('match', /^\/tabs/);
       }

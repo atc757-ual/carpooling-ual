@@ -84,6 +84,8 @@ describe('AdminLayout', () => {
   });
 
   it('shows the mobile drawer brand, six links and account actions without a duplicate logout', () => {
+    element().querySelector<HTMLButtonElement>('.admin-mobile-header__menu-button')?.click();
+    fixture.detectChanges();
     expect(
       element().querySelector('.admin-mobile-header .admin-header__brand')?.textContent,
     ).toContain('Carpooling UAL');
@@ -125,6 +127,8 @@ describe('AdminLayout', () => {
 
   // Cambiar a la versión de usuario solo si también tiene perfil de viaje
   it('offers the user version only to admins who also travel and goes there', async () => {
+    element().querySelector<HTMLButtonElement>('.admin-mobile-header__menu-button')?.click();
+    fixture.detectChanges();
     expect(fixture.componentInstance['canUseApp']()).toBe(false);
     expect(element().querySelector('.admin-mobile-menu__action span')?.textContent).not.toContain(
       'Cambiar a versión usuario',
