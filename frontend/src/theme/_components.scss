@@ -478,10 +478,28 @@ ion-toast.toast--floating {
   --width: 8rem; // 128px
 }
 
-// Menú de opciones de la cabecera de conversación (tres puntos): ancho
-// suficiente para la acción de denunciar
+// Menú de opciones de la cabecera de conversación (tres puntos): flotante y compacto
 .conversation-options-popover {
-  --width: 14rem; // 224px
+  --width: auto;
+  --min-width: 11.5rem; // ~184px
+
+  ion-list {
+    padding: var(--space-xs) 0;
+  }
+
+  ion-item {
+    --padding-start: var(--space-base);
+    --inner-padding-end: var(--space-base);
+    --min-height: 2.75rem; // 44px
+    font-size: var(--font-size-body-s);
+    color: var(--color-danger-text);
+
+    ion-icon {
+      margin-inline-end: var(--space-s); // 8px en lugar de los 32px por defecto de Ionic
+      font-size: 1.25rem;
+      color: var(--color-danger-text);
+    }
+  }
 }
 
 // Tarjetas (ion-card): blancas, con borde fino y esquinas de 8px, sin la

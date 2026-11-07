@@ -215,6 +215,7 @@
 <ion-popover
   [isOpen]="isOptionsOpen()"
   [event]="optionsEvent"
+  [showBackdrop]="false"
   [dismissOnSelect]="true"
   (didDismiss)="isOptionsOpen.set(false)"
   side="bottom"
@@ -224,8 +225,8 @@
   <ng-template>
     <ion-list lines="none">
       <ion-item button [detail]="false" (click)="handleReport()">
-        <ion-icon slot="start" [icon]="reportIcon" color="danger" aria-hidden="true" />
-        <ion-label color="danger">Denunciar el chat</ion-label>
+        <ion-icon slot="start" [icon]="reportIcon" aria-hidden="true" />
+        <ion-label>Denunciar el chat</ion-label>
       </ion-item>
     </ion-list>
   </ng-template>
