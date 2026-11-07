@@ -15,6 +15,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Frontend:** cerrar sesión descarta las pantallas de la cuenta anterior y Publicar abre limpio para cualquier perfil (#120).
 
 ### Changed
+- **Frontend:** Mensajes con la lista y la conversación una al lado de la otra en escritorio; en el móvil, la conversación de lado a lado y su título (origen y destino con sus iconos, la hora y quien conduce, y el estado del viaje) en la franja fija del título (`HeadingContentService`). Cada conversación de la lista enseña la hora y el destino, el último mensaje («Tú:» si es tuyo) y los no leídos o el estado del viaje. Dentro, un separador por día («Hoy», «Ayer», «3 nov»). Las etiquetas neutras (`.status`) llevan borde para verse sobre blanco, y hay un toast informativo en azul (`showInfo`) (#218).
 - **Frontend y backend:** filtros por categoría y paginación en la bandeja de notificaciones, con contador de avisos sin leer y una lista responsive (#215).
 - **Backend:** las push se envían con `sendEach` (un mensaje por token o FID, en lotes de 500) en lugar de `sendEachForMulticast`, obsoleto (#213).
 - **Backend:** las push a la web se envían por el id de la instalación de Firebase (FID), que sustituye a los tokens de registro obsoletos; la app Android sigue con su token de FCM. La API no cambia: la web guarda su FID donde antes iba el token (#210).
@@ -27,6 +28,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Backend:** «Sobre mí» de 20 a 200 caracteres (antes 500; los más largos se recortan), Fumar sin «solo en paradas» (pasa a «no se fuma») y el consentimiento de ubicación guarda su origen: `location_prompt` (la ventana que explica para qué se usa) o `device` (se quitó el permiso del sistema), además de `settings` (#128).
 
 ### Added
+- **Frontend:** llamar desde el chat del viaje con el viaje confirmado o en curso: el botón abre la app de teléfono (el conductor elige a cuál de sus pasajeros) y, si aún no se puede, se ve en gris y explica por qué (#218).
 - **Backend:** a quién llamar desde el chat del viaje: `GET /api/trips/:id/contacts` da el teléfono verificado del conductor al pasajero y el de los pasajeros aceptados al conductor, solo con el viaje confirmado o en curso (como dice la Política de privacidad). Las conversaciones traen el nombre y el avatar del conductor (#217).
 
 - **Frontend:** internacionalización (es/en) con Transloco de componentes comunes (paginación, selector de plazas, selector de fecha/hora, preguntas frecuentes, indicador de pasos, modales de confirmación con motivo y textos legales, enlace a chat de viaje, línea de ruta y matrícula) y catálogo de mensajes de error de la API (#216).

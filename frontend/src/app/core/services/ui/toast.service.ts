@@ -1,8 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { Animation, createAnimation, ToastController } from '@ionic/angular';
-import { alertCircleOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  checkmarkCircleOutline,
+  informationCircleOutline,
+} from 'ionicons/icons';
 
-type ToastKind = 'danger' | 'success';
+type ToastKind = 'danger' | 'success' | 'info';
 
 const TOAST_DURATION_MS = 5000;
 // Punto de corte md (768px): por debajo, el aviso ocupa la cabecera
@@ -11,6 +15,7 @@ const MOBILE_QUERY = '(max-width: 767.98px)';
 const ICONS: Readonly<Record<ToastKind, string>> = {
   danger: alertCircleOutline,
   success: checkmarkCircleOutline,
+  info: informationCircleOutline,
 };
 
 // Como barra, el aviso aparece pegado arriba, sin el hueco de 8px de Ionic
@@ -43,7 +48,8 @@ function fitToColumn(toast: HTMLIonToastElement, column: Element): void {
 }
 
 // Avisos breves arriba de la pantalla (ion-toast), con los colores de la guía:
-// rojo tintado para los errores de la API y verde para lo que ha ido bien. Se
+// rojo tintado para los errores de la API, verde para lo que ha ido bien y
+// azul para explicar algo (p. ej. por qué un botón aún no funciona). Se
 // muestra uno a la vez, desaparece a los 5 s y se cierra al tocarlo. Es una
 // barra arriba (en el móvil, de lado a lado; en las pantallas de acceso de
 // escritorio, sobre la columna del formulario); en el resto flota con borde. Los errores de cada campo siguen bajo
@@ -59,6 +65,10 @@ export class ToastService {
 
   showSuccess(message: string): Promise<void> {
     return this.show(message, 'success');
+  }
+
+  showInfo(message: string): Promise<void> {
+    return this.show(message, 'info');
   }
 
   private async show(message: string, kind: ToastKind): Promise<void> {

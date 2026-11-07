@@ -110,4 +110,17 @@ describe('ToastService', () => {
     );
     expect(toasts[0].dismiss).toHaveBeenCalled();
   });
+
+  it('explains something in blue, without interrupting', async () => {
+    await TestBed.inject(ToastService).showInfo(
+      'Solo se puede llamar con el viaje confirmado o en curso.',
+    );
+
+    expect(create).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        cssClass: expect.arrayContaining(['toast--info']),
+        htmlAttributes: { role: 'status' },
+      }),
+    );
+  });
 });

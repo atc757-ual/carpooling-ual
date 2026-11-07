@@ -1,9 +1,22 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
-import { ChatMessage, ChatMessageInput, Conversation } from '../../models/chat.model';
+import { ChatContact, ChatMessage, ChatMessageInput, Conversation } from '../../models/chat.model';
+
+export const CONVERSATIONS_PAGE_SIZE = 10;
+
+export interface ConversationListOptions {
+  offset?: number;
+  limit?: number;
+  hasUnread?: boolean;
+}
+
+export interface ConversationPage {
+  items: Conversation[];
+  total: number;
+}
 
 // Mensajes de una conversación que se piden de una vez (los más antiguos
 // primero; una conversación de un viaje rara vez pasa de esto)
@@ -16,9 +29,10 @@ const MESSAGES_LIMIT = 100;
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private readonly http = inject(HttpClient);
-  private readonly unread = signal(false);
+  private readonly unreadCountState = signal(0);
 
-  readonly hasUnread = this.unread.asReadonly();
+  readonly unreadConversationCount = this.unreadCountState.asReadonly();
+  readonly hasUnread = computed(() => this.unreadConversationCount() > 0);
 
   // Con hasUnread=true y limit=1, X-Total-Count dice si hay algo nuevo. Si
   // falla, se queda como estaba: el punto no es motivo para un error
@@ -30,18 +44,31 @@ export class ChatService {
           observe: 'response',
         }),
       );
-      this.unread.set(Number(response.headers.get('X-Total-Count') ?? 0) > 0);
+      this.unreadCountState.set(Number(response.headers.get('X-Total-Count') ?? 0));
     } catch {
       // Se vuelve a intentar en la siguiente navegación
     }
   }
 
   listConversations(): Promise<Conversation[]> {
+    return this.listConversationsPage({ limit: 100 }).then(({ items }) => items);
+  }
+
+  listConversationsPage(options: ConversationListOptions = {}): Promise<ConversationPage> {
+    const params: Record<string, string | number | boolean> = {
+      offset: options.offset ?? 0,
+      limit: options.limit ?? CONVERSATIONS_PAGE_SIZE,
+    };
+    if (options.hasUnread) params['hasUnread'] = true;
     return this.call(
       this.http.get<Conversation[]>(`${environment.apiUrl}/users/me/conversations`, {
-        params: { limit: 100 },
+        params,
+        observe: 'response',
       }),
-    );
+    ).then((response) => ({
+      items: response.body ?? [],
+      total: Number(response.headers.get('X-Total-Count') ?? 0),
+    }));
   }
 
   // Del más antiguo al más nuevo; con after, solo los posteriores a ese
@@ -61,6 +88,14 @@ export class ChatService {
   async reportMessage(tripId: string, messageId: string, reason: string): Promise<void> {
     await this.call(
       this.http.post<unknown>(`${this.messagesUrl(tripId)}/${messageId}/report`, { reason }),
+    );
+  }
+
+  // A quién puedo llamar desde el chat (con el teléfono verificado y el chat
+  // abierto): el pasajero, al conductor; el conductor, a sus pasajeros
+  listContacts(tripId: string): Promise<ChatContact[]> {
+    return this.call(
+      this.http.get<ChatContact[]>(`${environment.apiUrl}/trips/${tripId}/contacts`),
     );
   }
 

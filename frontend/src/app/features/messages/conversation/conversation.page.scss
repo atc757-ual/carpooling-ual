@@ -1,9 +1,18 @@
-// Una columna de hasta 48rem (768px), como la lista: la ruta arriba y los
-// mensajes debajo, los míos a la derecha en azul y los de los demás a la
-// izquierda en gris
+:host {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  flex-direction: column;
+}
+
+// Panel adaptable: ruta arriba, mensajes con scroll y compositor fijo abajo.
 .conversation {
-  align-items: stretch;
-  max-width: 48rem; // 768px
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
 }
 
 .conversation__status {
@@ -11,13 +20,50 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-s);
+  flex: 1;
   padding: var(--space-xl) 0;
+}
+
+.conversation__loading {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding: var(--space-base);
+}
+
+.conversation__skeleton-bubble {
+  width: min(78%, 22rem);
+  height: 3.25rem;
+  margin: 0;
+  border-radius: var(--radius-base);
+}
+
+.conversation__skeleton-bubble--left {
+  align-self: flex-start;
+}
+
+.conversation__skeleton-bubble--right {
+  align-self: flex-end;
+  background: var(--color-primary-subtle);
 }
 
 .conversation__heading {
   display: flex;
-  flex-direction: column;
-  gap: 0.125rem; // 2px
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-base);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+}
+
+.conversation__scroll {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-base);
+  background: var(--color-surface-subtle);
 }
 
 .conversation__empty {
@@ -42,7 +88,7 @@
   align-self: flex-start;
   padding: var(--space-s) 0.75rem; // 8px 12px
   border-radius: var(--radius-base) var(--radius-base) var(--radius-base) var(--radius-xs);
-  background: var(--color-surface-subtle);
+  background: var(--color-surface);
   color: var(--color-text);
 }
 
@@ -104,6 +150,7 @@
 
 // Abajo, fijo: las respuestas rápidas y la caja de texto
 .conversation-footer {
+  flex: none;
   padding: var(--space-s) var(--space-base);
   padding-bottom: max(var(--space-s), env(safe-area-inset-bottom, 0px));
   background: var(--color-surface);
@@ -177,4 +224,99 @@
 .conversation-footer__send {
   flex: none;
   margin: 0 0 var(--space-l);
+}
+
+.conversation__heading-info {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+}
+
+// Móvil: origen y destino uno debajo del otro, cada uno con su icono
+.conversation__route {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+}
+
+.conversation__place {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.conversation__place-icon {
+  flex: none;
+  color: var(--color-text-muted);
+  font-size: 0.875rem; // 14px
+}
+
+// Si no cabe, con puntos suspensivos
+.conversation__place-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conversation__arrow {
+  display: none;
+}
+
+// Escritorio: en una línea, con sus iconos y una flecha entre los dos
+@media (min-width: 768px) {
+  .conversation__route {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .conversation__arrow {
+    display: block;
+    flex: none;
+    color: var(--color-text-muted);
+    font-size: 1rem; // 16px
+  }
+}
+
+// Separador de cada día, centrado como en las apps de mensajería
+.conversation__day {
+  align-self: center;
+  margin-block: var(--space-xs);
+  padding: 0.125rem var(--space-s); // 2px 8px
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+// El estado del viaje, a la derecha del título
+.conversation__trip-status {
+  flex: none;
+}
+
+// Área táctil de 44px (guía de estilos)
+.conversation__call {
+  --color: var(--color-link);
+
+  flex: none;
+  min-width: 2.75rem; // 44px
+  min-height: 2.75rem; // 44px
+  margin: 0;
+}
+
+// Aún no se puede llamar: en gris (sigue pudiéndose pulsar para saber por qué)
+.conversation__call--unavailable {
+  --color: var(--color-text-muted);
+}
+
+// En el móvil, el título del viaje en la franja del título (en lugar de
+// «Conversación»): la misma fila que la cabecera de la tarjeta
+.conversation-heading-bar {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-s);
 }
