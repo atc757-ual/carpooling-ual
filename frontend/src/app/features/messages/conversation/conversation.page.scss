@@ -63,7 +63,12 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: var(--space-base);
-  background: var(--color-surface-subtle);
+  // Detrás de los mensajes, iconos de viaje muy suaves (coche, ubicación,
+  // hora, chat, la universidad y una hoja) en un mosaico de 240px que no se
+  // mueve al bajar. Gris con poca opacidad: se ve igual en claro y en oscuro
+  background-color: var(--color-surface-subtle);
+  background-image: url('/images/chat-pattern.svg');
+  background-size: 15rem; // 240px
 }
 
 .conversation__empty {
