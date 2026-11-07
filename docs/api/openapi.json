@@ -8143,6 +8143,22 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "tripStatus",
+            "required": false,
+            "in": "query",
+            "description": "Only the conversations of the trips in this status. With in_progress, the trip going on now (the app opens it from the car tab)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "published",
+                "confirmed",
+                "in_progress",
+                "finished",
+                "cancelled"
+              ]
+            }
           }
         ],
         "responses": {

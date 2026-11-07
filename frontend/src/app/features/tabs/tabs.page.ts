@@ -22,6 +22,7 @@ import { filter, map } from 'rxjs';
 import {
   addCircleOutline,
   arrowBackOutline,
+  carSportOutline,
   chatbubblesOutline,
   logoGithub,
   logoLinkedin,
@@ -37,6 +38,7 @@ import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { confirmLogout } from '../../core/services/auth/confirm-logout';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
+import { SeatRequestsService } from '../../core/services/requests/seat-requests.service';
 import { AppContextService } from '../../core/services/ui/app-context.service';
 import { HeadingContentService } from '../../core/services/ui/heading-content.service';
 import { LanguageService } from '../../core/services/ui/language.service';
@@ -46,7 +48,6 @@ import { PushNotificationsService } from '../../core/services/push/push-notifica
 import { openNotificationTarget } from '../notifications/notification-target';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
-import { BrandLogo } from '../../shared/components/ui/brand-logo/brand-logo';
 import { BrandGreeting } from '../../shared/components/ui/brand-greeting/brand-greeting';
 import { findTabHeading } from './tab-heading';
 
@@ -72,7 +73,8 @@ const MESSAGES_TAB: Tab = {
 // Cada cuánto se mira si hay mensajes nuevos (el punto de la pestaña)
 export const MESSAGES_REFRESH_MS = 30_000;
 export const NOTIFICATIONS_REFRESH_MS = 15_000;
-const PROFILE_TAB: Tab = { path: 'profile', labelKey: 'common.nav.profile', icon: personOutline };
+// El coche va entre Publicar y Tus viajes
+const LIVE_TAB_INDEX = 2;
 
 // Qué lado guarda cada pestaña al entrar (y por dónde se abre la próxima vez)
 const SIDES: readonly { path: string; mode: TravelMode }[] = [
@@ -109,7 +111,6 @@ const SIDES: readonly { path: string; mode: TravelMode }[] = [
     IonTabs,
     IonTitle,
     IonToolbar,
-    BrandLogo,
     BrandGreeting,
     TranslocoPipe,
   ],
@@ -123,6 +124,7 @@ export class TabsPage implements OnInit {
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationsService);
   private readonly confirm = inject(ConfirmService);
+  private readonly seatRequests = inject(SeatRequestsService);
   private readonly navController = inject(NavController);
   private readonly chat = inject(ChatService);
   protected readonly headingContent = inject(HeadingContentService);
@@ -142,9 +144,19 @@ export class TabsPage implements OnInit {
   );
 
   readonly firstName = computed(() => this.auth.currentUser()?.firstName ?? '');
-  readonly tabs: readonly Tab[] = [SEARCH_TAB, PUBLISH_TAB, TRIPS_TAB, MESSAGES_TAB, PROFILE_TAB];
-  // En escritorio, Mi perfil va en la cabecera, junto a Notificaciones
-  readonly desktopTabs: readonly Tab[] = this.tabs.filter((tab) => tab !== PROFILE_TAB);
+  // Los destinos, con el coche del viaje en curso en medio (LIVE_TAB_INDEX).
+  // Mi perfil va en la cabecera, junto a Notificaciones
+  readonly tabs: readonly Tab[] = [SEARCH_TAB, PUBLISH_TAB, TRIPS_TAB, MESSAGES_TAB];
+  readonly liveTabIndex = LIVE_TAB_INDEX;
+
+  // El viaje en curso: el coche se enciende y lo abre; sin viaje, no hace nada
+  readonly liveTrip = this.chat.liveTrip;
+  readonly liveTabLabel = computed(() => {
+    this.language.currentLanguage();
+    return this.transloco.translate(
+      this.liveTrip() ? 'common.nav.liveTripOpen' : 'common.nav.liveTripNone',
+    );
+  });
 
   // Notificaciones sin leer: la campana se sincroniza al navegar, al volver y
   // cada 15 segundos mientras la aplicación está visible.
@@ -184,6 +196,25 @@ export class TabsPage implements OnInit {
   protected readonly adminIcon = shieldCheckmarkOutline;
   protected readonly logoutIcon = logOutOutline;
   protected readonly profileIcon = personOutline;
+  protected readonly carIcon = carSportOutline;
+
+  // El conductor, a su viaje en curso; el pasajero, al detalle de su plaza
+  // (con el mapa en vivo), que se busca al pulsar
+  async openLiveTrip(): Promise<void> {
+    const live = this.liveTrip();
+    if (!live) {
+      return;
+    }
+    if (live.myRole === 'driver') {
+      await this.router.navigateByUrl(`/tabs/trips/drive/${live.tripId}`);
+      return;
+    }
+    const requests = await this.seatRequests.listMine().catch(() => []);
+    const request = requests.find(
+      ({ trip, status }) => trip.id === live.tripId && status === 'accepted',
+    );
+    await this.router.navigateByUrl(request ? `/tabs/trips/requests/${request.id}` : '/tabs/trips');
+  }
 
   // Salir: siempre con la misma confirmación que en Mi perfil
   async handleLogout(): Promise<void> {
@@ -203,7 +234,10 @@ export class TabsPage implements OnInit {
     void this.appContext.remember('app');
     this.countUnread();
     const chatTimer = setInterval(() => {
-      if (this.auth.isLoggedIn() && !document.hidden) void this.chat.refreshUnread();
+      if (this.auth.isLoggedIn() && !document.hidden) {
+        void this.chat.refreshUnread();
+        void this.chat.refreshLiveTrip();
+      }
     }, MESSAGES_REFRESH_MS);
     const notificationsTimer = setInterval(() => {
       if (this.auth.isLoggedIn() && !document.hidden) void this.notifications.refreshUnread();
@@ -244,6 +278,7 @@ export class TabsPage implements OnInit {
     if (this.auth.isLoggedIn()) {
       void this.notifications.refreshUnread();
       void this.chat.refreshUnread();
+      void this.chat.refreshLiveTrip();
     }
   }
 

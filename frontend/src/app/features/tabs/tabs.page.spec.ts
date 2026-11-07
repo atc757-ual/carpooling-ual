@@ -10,7 +10,8 @@ import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { provideTranslocoTestingSupport } from '../../core/i18n/testing-transloco';
 import { LanguageService } from '../../core/services/ui/language.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
-import { ChatService } from '../../core/services/chat/chat.service';
+import { ChatService, LiveTrip } from '../../core/services/chat/chat.service';
+import { SeatRequestsService } from '../../core/services/requests/seat-requests.service';
 import { PushNotificationsService } from '../../core/services/push/push-notifications.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
@@ -64,6 +65,9 @@ describe('TabsPage', () => {
   const refreshUnread = vi.fn().mockResolvedValue(undefined);
   const hasUnreadMessages = signal(false);
   const refreshUnreadMessages = vi.fn().mockResolvedValue(undefined);
+  const liveTrip = signal<LiveTrip | null>(null);
+  const refreshLiveTrip = vi.fn().mockResolvedValue(undefined);
+  const listMine = vi.fn();
   const resume = vi.fn().mockResolvedValue(undefined);
   let fixture: ComponentFixture<TabsPage>;
 
@@ -103,7 +107,16 @@ describe('TabsPage', () => {
         },
         {
           provide: ChatService,
-          useValue: { hasUnread: hasUnreadMessages, refreshUnread: refreshUnreadMessages },
+          useValue: {
+            hasUnread: hasUnreadMessages,
+            refreshUnread: refreshUnreadMessages,
+            liveTrip,
+            refreshLiveTrip,
+          },
+        },
+        {
+          provide: SeatRequestsService,
+          useValue: { listMine },
         },
         { provide: DriverTrackingService, useValue: { resume } },
         provideTranslocoTestingSupport({ en: TABS_EN }),
@@ -127,6 +140,7 @@ describe('TabsPage', () => {
     refreshUnread.mockClear();
     hasUnreadMessages.set(false);
     refreshUnreadMessages.mockClear();
+    liveTrip.set(null);
     setMode.mockClear();
   });
 
@@ -137,22 +151,59 @@ describe('TabsPage', () => {
     expect(resume).toHaveBeenCalledTimes(1);
   });
 
-  it('has five fixed destinations', () => {
+  it('has four destinations with the live trip car in the middle', () => {
     const page = render();
+    // Mi perfil va en la cabecera
     expect(page.tabs.map(({ labelKey }) => labelKey)).toEqual([
       'common.nav.search',
       'common.nav.publish',
       'common.nav.trips',
       'common.nav.messages',
-      'common.nav.profile',
     ]);
     fixture.detectChanges();
     const links = Array.from(
       fixture.nativeElement.querySelectorAll('.top-nav__link'),
-      (el: HTMLElement) => el.childNodes[0].textContent?.trim(),
+      (el: HTMLElement) => el.textContent?.trim(),
     );
-    // Mi perfil, en escritorio, va en la cabecera
-    expect(links).toEqual(['Buscar', 'Publicar', 'Tus viajes', 'Mensajes']);
+    expect(links).toEqual(['Buscar', 'Publicar', 'En curso', 'Tus viajes', 'Mensajes']);
+  });
+
+  it('keeps the car off and does nothing without a trip in progress', async () => {
+    const page = render();
+    fixture.detectChanges();
+    const cars = fixture.nativeElement.querySelectorAll(
+      '.live-tab',
+    ) as NodeListOf<HTMLButtonElement>;
+
+    expect([...cars].every((car) => car.disabled)).toBe(true);
+    expect(page.liveTabLabel()).toBe('Sin viaje en curso');
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
+    await page.openLiveTrip();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('opens the trip in progress: the driver, the trip; the passenger, the seat', async () => {
+    const page = render();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+
+    liveTrip.set({ tripId: 't1', myRole: 'driver' });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.live-tab--on')).not.toBeNull();
+    expect(page.liveTabLabel()).toBe('Abrir el viaje en curso');
+    await page.openLiveTrip();
+    expect(navigate).toHaveBeenLastCalledWith('/tabs/trips/drive/t1');
+
+    liveTrip.set({ tripId: 't1', myRole: 'passenger' });
+    listMine.mockResolvedValueOnce([
+      { id: 'r0', trip: { id: 't1' }, status: 'cancelled' },
+      { id: 'r1', trip: { id: 't1' }, status: 'accepted' },
+    ]);
+    await page.openLiveTrip();
+    expect(navigate).toHaveBeenLastCalledWith('/tabs/trips/requests/r1');
+
+    listMine.mockRejectedValueOnce(new Error('offline'));
+    await page.openLiveTrip();
+    expect(navigate).toHaveBeenLastCalledWith('/tabs/trips');
   });
 
   it('translates the navigation and labels into English when the language switches', async () => {
@@ -163,7 +214,7 @@ describe('TabsPage', () => {
     await fixture.whenStable();
 
     const links = Array.from(
-      fixture.nativeElement.querySelectorAll('.top-nav__link'),
+      fixture.nativeElement.querySelectorAll('a.top-nav__link'),
       (el: HTMLElement) => el.childNodes[0].textContent?.trim(),
     );
     expect(links).toEqual(['Search', 'Publish', 'Your trips', 'Messages']);
@@ -283,17 +334,6 @@ describe('TabsPage', () => {
     expect(header().querySelector('.back-button')).not.toBeNull();
     expect(header().querySelector('.bell-button')).toBeNull();
     expect(header().querySelector('.profile-button')).toBeNull();
-  });
-
-  it('moves Mi perfil from the desktop menu to the header', () => {
-    const page = render();
-
-    expect(page.desktopTabs.map(({ path }) => path)).toEqual([
-      'search',
-      'publish',
-      'trips',
-      'messages',
-    ]);
   });
 
   it('labels the desktop actions with text and keeps their accessible names', async () => {

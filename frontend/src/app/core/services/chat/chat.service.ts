@@ -3,9 +3,21 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
-import { ChatContact, ChatMessage, ChatMessageInput, Conversation } from '../../models/chat.model';
+import {
+  ChatContact,
+  ChatMessage,
+  ChatMessageInput,
+  ChatRole,
+  Conversation,
+} from '../../models/chat.model';
 
 export const CONVERSATIONS_PAGE_SIZE = 10;
+
+// El viaje en curso del usuario y si lo conduce o va de pasajero
+export interface LiveTrip {
+  tripId: string;
+  myRole: ChatRole;
+}
 
 export interface ConversationListOptions {
   offset?: number;
@@ -33,6 +45,11 @@ export class ChatService {
 
   readonly unreadConversationCount = this.unreadCountState.asReadonly();
   readonly hasUnread = computed(() => this.unreadConversationCount() > 0);
+  private readonly liveTripState = signal<LiveTrip | null>(null);
+  // El viaje en curso (o null): lo abre la pestaña del coche. Sale del chat,
+  // que tienen el conductor y sus pasajeros aceptados; se actualiza con
+  // refreshLiveTrip
+  readonly liveTrip = this.liveTripState.asReadonly();
 
   // Con hasUnread=true y limit=1, X-Total-Count dice si hay algo nuevo. Si
   // falla, se queda como estaba: el punto no es motivo para un error
@@ -45,6 +62,22 @@ export class ChatService {
         }),
       );
       this.unreadCountState.set(Number(response.headers.get('X-Total-Count') ?? 0));
+    } catch {
+      // Se vuelve a intentar en la siguiente navegación
+    }
+  }
+
+  // Si falla, se queda como estaba (se vuelve a intentar al navegar)
+  async refreshLiveTrip(): Promise<void> {
+    try {
+      const [conversation] = await firstValueFrom(
+        this.http.get<Conversation[]>(`${environment.apiUrl}/users/me/conversations`, {
+          params: { tripStatus: 'in_progress', limit: 1 },
+        }),
+      );
+      this.liveTripState.set(
+        conversation ? { tripId: conversation.trip.id, myRole: conversation.myRole } : null,
+      );
     } catch {
       // Se vuelve a intentar en la siguiente navegación
     }

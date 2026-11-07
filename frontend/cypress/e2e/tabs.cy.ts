@@ -46,10 +46,10 @@ for (const viewport of VIEWPORTS) {
       .then(($items) => [...$items].map((item) => item.textContent?.trim() ?? ''));
   }
 
-  // Mi perfil, en escritorio, está en la cabecera
+  // Mi perfil está en la cabecera
   function goTo(label: string): void {
-    if (isDesktop && label === 'Mi perfil') {
-      cy.get('app-tabs .top-nav .profile-button').click();
+    if (label === 'Mi perfil') {
+      cy.get('app-tabs .profile-button').filter(':visible').click();
       return;
     }
     cy.contains(DESTINATION, label).click();
@@ -66,12 +66,14 @@ for (const viewport of VIEWPORTS) {
       logIn(['passenger']);
 
       cy.location('pathname').should('eq', '/tabs/search');
+      // En medio, el coche del viaje en curso (en escritorio, «En curso»)
       destinationLabels().should(
         'deep.equal',
         isDesktop
-          ? ['Buscar', 'Publicar', 'Tus viajes', 'Mensajes']
-          : ['Buscar', 'Publicar', 'Tus viajes', 'Mensajes', 'Mi perfil'],
+          ? ['Buscar', 'Publicar', 'En curso', 'Tus viajes', 'Mensajes']
+          : ['Buscar', 'Publicar', 'Tus viajes', 'Mensajes'],
       );
+      cy.get('app-tabs .live-tab').filter(':visible').should('be.disabled');
     });
 
     it('opens Buscar even when the driver side was last used', () => {
@@ -143,8 +145,9 @@ for (const viewport of VIEWPORTS) {
       it('has the top menu with the greeting and the strip below', () => {
         logIn(['passenger']);
 
-        cy.get('app-tabs .top-nav app-brand-logo').should('be.visible');
-        cy.contains('app-tabs .top-nav__hello', '¡Hola, Mario!').should('be.visible');
+        // El logotipo y el saludo se turnan, como en el móvil
+        cy.get('app-tabs .top-nav app-brand-greeting').should('be.visible');
+        cy.contains('app-tabs .top-nav app-brand-greeting', '¡Hola, Mario!').should('exist');
         cy.contains('app-tabs .top-nav .bell-button', 'Notificaciones').should('be.visible');
         cy.contains('app-tabs .top-nav .profile-button', 'Mi perfil').should('be.visible');
         cy.contains('app-tabs .top-nav .logout-button', 'Salir').should('be.visible');

@@ -92,16 +92,9 @@ ion-tab-button {
   padding-bottom: var(--space-base);
   background: var(--color-surface);
 
-  app-brand-logo {
+  .top-nav__brand {
     grid-area: brand;
   }
-}
-
-// El saludo con el nombre, pegado a la izquierda de la campana y el salir
-.top-nav__hello {
-  color: var(--color-text);
-  font-size: 1.125rem; // 18px
-  font-weight: var(--font-weight-semibold);
 }
 
 .top-nav__links {
@@ -356,6 +349,87 @@ ion-tab-button {
 
 @media (prefers-reduced-motion: reduce) {
   .bell-button--pulse ion-icon {
+    animation: none;
+  }
+}
+
+// El coche del viaje en curso: un círculo con borde. Apagado (gris) hasta
+// que empieza el viaje; entonces, en azul y con un pulso suave
+.live-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: default;
+  font: inherit;
+}
+
+.live-tab__circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem; // 44px
+  height: 2.75rem;
+  border: var(--border-width-m) solid var(--color-border-strong);
+  border-radius: 50%;
+  background: var(--color-surface);
+
+  ion-icon {
+    font-size: 1.5rem; // 24px
+  }
+}
+
+.live-tab--on {
+  color: var(--color-link);
+  cursor: pointer;
+
+  .live-tab__circle {
+    border-color: var(--color-primary);
+    animation: live-tab-pulse 2s ease-out infinite;
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// En la barra de abajo, el círculo algo mayor y en medio
+.live-tab--bar {
+  flex: 1;
+  padding: 0;
+
+  .live-tab__circle {
+    width: 3.25rem; // 52px
+    height: 3.25rem;
+  }
+}
+
+// En escritorio, entre los destinos: el círculo pequeño y el texto
+.top-nav .live-tab {
+  .live-tab__circle {
+    width: 2rem; // 32px
+    height: 2rem;
+
+    ion-icon {
+      font-size: 1.125rem; // 18px
+    }
+  }
+}
+
+@keyframes live-tab-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 45%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0.625rem transparent; // 10px
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-tab--on .live-tab__circle {
     animation: none;
   }
 }

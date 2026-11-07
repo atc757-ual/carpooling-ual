@@ -276,9 +276,7 @@ for (const viewport of VIEWPORTS) {
       goTo('Buscar');
 
       // El saludo con el nombre va en la cabecera del layout (BrandGreeting)
-      cy.contains('app-tabs app-brand-greeting, app-tabs .top-nav__hello', '¡Hola, Mario!').should(
-        'exist',
-      );
+      cy.contains('app-tabs app-brand-greeting', '¡Hola, Mario!').should('exist');
       cy.get('app-trip-search app-trip-search-form').should('be.visible');
       cy.contains('app-trip-search', 'Preguntas frecuentes').should('be.visible');
     });
