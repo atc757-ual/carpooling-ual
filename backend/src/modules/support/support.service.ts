@@ -1,3 +1,4 @@
+import { fullName } from '../users/user-name';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { MailConfig } from '../../config/mail.config';
@@ -30,7 +31,7 @@ export class SupportService {
     await this.mailSender.send(
       buildSupportMessageMail({
         to: supportTo,
-        user: { id: user.id, name: user.name, email: user.email },
+        user: { id: user.id, name: fullName(user), email: user.email },
         topic,
         message: message.trim(),
       }),

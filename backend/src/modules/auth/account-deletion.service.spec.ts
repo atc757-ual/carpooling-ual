@@ -31,7 +31,8 @@ describe('AccountDeletionService', () => {
   function activeUser(overrides: Partial<User> = {}): User {
     return Object.assign(new User(), {
       id: 'user-1',
-      name: 'Ana',
+      firstName: 'Ana',
+      lastName: 'García',
       email: 'ana@ual.es',
       deactivatedAt: null,
       ...overrides,

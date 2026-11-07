@@ -1,16 +1,4 @@
-import { toShortName } from '../../shared/people/short-name';
 import { toRatingView } from './driver-reviews.service';
-
-describe('toShortName', () => {
-  it.each([
-    ['Carlos Ruiz Gómez', 'Carlos R.'],
-    ['  Lucía   Pérez ', 'Lucía P.'],
-    ['Ana', 'Ana'],
-    ['', ''],
-  ])('turns "%s" into "%s"', (name, expected) => {
-    expect(toShortName(name)).toBe(expected);
-  });
-});
 
 describe('toRatingView', () => {
   it('fills every star from 5 to 1 and rounds the average to 2 decimals', () => {

@@ -17,31 +17,50 @@ import {
 // antes (normalize('NFC') en el @Transform del nombre)
 export const PERSON_NAME_PATTERN = /^\p{L}+(?:[ '’-]\p{L}+)*$/u;
 
+// Sin espacios en los extremos y uno solo entre palabras
+// (PERSON_NAME_PATTERN), con las tildes unidas a su letra
+function normalizePersonName({ value }: { value: unknown }): unknown {
+  return typeof value === 'string'
+    ? value.normalize('NFC').trim().replace(/\s+/g, ' ')
+    : value;
+}
+
+const PERSON_NAME_MESSAGE =
+  'must contain only letters, with a space, hyphen or apostrophe between them';
+
 // Cuerpo de POST /api/auth/register. Solo valida la FORMA de los datos; las
 // reglas de negocio (dominio UAL, correo repetido) están en AuthService.
 // Los perfiles (conductor, pasajero) no se piden aquí: el usuario los elige
 // después de verificar el correo (PUT /api/users/me/profiles/{profile}).
 // @ApiProperty lo describe en OpenAPI (Swagger)
 export class RegisterDto {
-  // Sin espacios en los extremos y uno solo entre palabras (PERSON_NAME_PATTERN)
+  // El nombre de pila: es lo único que ven los demás usuarios
   @ApiProperty({
-    description: 'Letters, with a space, hyphen or apostrophe between them',
-    maxLength: 100,
-    example: 'Ana García',
+    description:
+      'Given name, the only one other users see. Letters, with a space, hyphen or apostrophe between them',
+    maxLength: 50,
+    example: 'Ana María',
   })
-  @Transform(({ value }: { value: unknown }) =>
-    typeof value === 'string'
-      ? value.normalize('NFC').trim().replace(/\s+/g, ' ')
-      : value,
-  )
+  @Transform(normalizePersonName)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(50)
+  @Matches(PERSON_NAME_PATTERN, { message: `firstName ${PERSON_NAME_MESSAGE}` })
+  firstName!: string;
+
+  // Los apellidos, en cualquier formato (uno, dos o compuestos)
+  @ApiProperty({
+    description:
+      'Surnames (one, two or compound), seen only by the user and the administration. Same rules as firstName',
+    maxLength: 100,
+    example: 'García de la Fuente',
+  })
+  @Transform(normalizePersonName)
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
-  @Matches(PERSON_NAME_PATTERN, {
-    message:
-      'name must contain only letters, with a space, hyphen or apostrophe between them',
-  })
-  name!: string;
+  @Matches(PERSON_NAME_PATTERN, { message: `lastName ${PERSON_NAME_MESSAGE}` })
+  lastName!: string;
 
   @ApiProperty({
     description:

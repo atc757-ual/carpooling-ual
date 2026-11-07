@@ -68,7 +68,8 @@ describe('RequestsService (e2e)', () => {
     profiles: ('driver' | 'passenger')[],
   ): Promise<string> {
     const user = await usersService.createWithProfiles({
-      name,
+      firstName: name,
+      lastName: 'Prueba',
       email: `${EMAIL_PREFIX}${name}@ual.es`,
       passwordHash: 'hash',
       profiles,

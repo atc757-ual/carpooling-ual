@@ -32,7 +32,8 @@ describe('PasswordResetService', () => {
   function storedUser(): User {
     return Object.assign(new User(), {
       id: 'user-1',
-      name: 'Ana',
+      firstName: 'Ana',
+      lastName: 'García',
       email: 'ana@ual.es',
       passwordHash: currentHash,
     });

@@ -12,7 +12,7 @@ export class TripDriverResource {
   @ApiProperty({ format: 'uuid' })
   id: string;
 
-  @ApiProperty({ example: 'Lucía Martínez' })
+  @ApiProperty({ example: 'Lucía', description: 'Given name only' })
   name: string;
 
   @ApiProperty({ type: String, nullable: true, example: 'sun' })

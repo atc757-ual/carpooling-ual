@@ -151,7 +151,7 @@ export class TripsService {
       skip: page.offset,
       take: page.limit,
     });
-    const { name, avatarKey, preferences, ratings } =
+    const { firstName, avatarKey, preferences, ratings } =
       await this.usersService.getSummary(driverId);
     const [driverTripCount, vehicles] = await Promise.all([
       this.getDriverTripCount(driverId),
@@ -162,7 +162,7 @@ export class TripsService {
     return {
       items: trips.map((trip) =>
         this.toViewWithProfile(trip, {
-          driverName: name,
+          driverName: firstName,
           driverAvatarKey: avatarKey,
           driverPreferences: preferences,
           driverTripCount,

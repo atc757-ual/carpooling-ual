@@ -51,7 +51,8 @@ export class EmailVerificationService {
     return this.pendingRegistrations.consume(email, code, (manager, pending) =>
       this.usersService.createWithProfiles(
         {
-          name: pending.name,
+          firstName: pending.firstName,
+          lastName: pending.lastName,
           email: pending.email,
           passwordHash: pending.passwordHash,
           phone: pending.phone,

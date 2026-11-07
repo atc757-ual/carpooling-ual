@@ -195,9 +195,10 @@ describe('Push notifications (e2e)', () => {
       sessionFor('dan', ['driver']),
       sessionFor('pia', ['passenger']),
     ]);
-    await dataSource.query(`UPDATE users SET name = 'Pía Ruiz' WHERE id = $1`, [
-      pia.id,
-    ]);
+    await dataSource.query(
+      `UPDATE users SET first_name = 'Pía', last_name = 'Ruiz' WHERE id = $1`,
+      [pia.id],
+    );
     const tripId = await publishedTrip(dan);
     const requests = app.get(RequestsService);
     const { request: seatRequest } = await requests.request(pia.id, tripId);
@@ -214,7 +215,7 @@ describe('Push notifications (e2e)', () => {
     const [push] = await waitForPush();
     expect(push.recipients).toEqual({ tokens: [], fids: ['dan-web'] });
     expect(push.message).toEqual({
-      title: 'Pía R. te ha escrito',
+      title: 'Pía te ha escrito',
       body: 'Abre el chat del viaje para leerlo.',
       data: { type: 'chat_message', tripId },
     });

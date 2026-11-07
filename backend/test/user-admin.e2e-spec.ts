@@ -121,7 +121,7 @@ describe('User administration API (e2e)', () => {
         '@type': 'UserAdmin',
         id: pia.id,
         href: `/api/users/${pia.id}`,
-        name: 'pia',
+        name: 'pia Prueba',
         email: `${EMAIL_PREFIX}pia@ual.es`,
         phone: TEST_PHONE,
         profiles: [

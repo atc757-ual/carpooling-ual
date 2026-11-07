@@ -107,7 +107,8 @@ describe('Users API (e2e)', () => {
       '@type': 'User',
       id: ana.id,
       href: `/api/users/${ana.id}`,
-      name: 'ana',
+      firstName: 'ana',
+      lastName: 'Prueba',
       email: `${EMAIL_PREFIX}ana@ual.es`,
       phone: TEST_PHONE,
       phoneVerified: false,
@@ -222,7 +223,7 @@ describe('Users API (e2e)', () => {
     expect(response.body).toMatchObject({
       '@type': 'UserAdmin',
       id: bob.id,
-      name: 'bob',
+      name: 'bob Prueba',
       phone: TEST_PHONE,
     });
   });
@@ -480,7 +481,8 @@ describe('Users API (e2e)', () => {
 
       const response = await updateMe(
         {
-          name: '  Ana   María ',
+          firstName: '  Ana   María ',
+          lastName: ' García   López',
           phone: '+34 611 22 33 44',
           timeToleranceMin: 10,
         },
@@ -488,7 +490,8 @@ describe('Users API (e2e)', () => {
       ).expect(200);
 
       expect(response.body).toMatchObject({
-        name: 'Ana María',
+        firstName: 'Ana María',
+        lastName: 'García López',
         email: `${EMAIL_PREFIX}ana@ual.es`,
         phone: '+34611223344',
         timeToleranceMin: 10,
@@ -502,7 +505,12 @@ describe('Users API (e2e)', () => {
       expect(events).toEqual([
         {
           payload: {
-            changedFields: ['name', 'phone', 'timeToleranceMin'],
+            changedFields: [
+              'firstName',
+              'lastName',
+              'phone',
+              'timeToleranceMin',
+            ],
             timeToleranceMin: 10,
           },
         },
@@ -585,7 +593,8 @@ describe('Users API (e2e)', () => {
 
     it.each([
       [{ timeToleranceMin: 7 }],
-      [{ name: 'Ana 2' }],
+      [{ firstName: 'Ana 2' }],
+      [{ lastName: '' }],
       [{ phone: '123' }],
       [{ email: 'otra@ual.es' }],
       [{ avatarKey: 42 }],

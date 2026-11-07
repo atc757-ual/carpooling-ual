@@ -40,8 +40,8 @@ describe('RefreshTokensService (e2e)', () => {
 
   beforeEach(async () => {
     const [{ id }] = await dataSource.query<[{ id: string }]>(
-      `INSERT INTO users (name, email, password_hash)
-       VALUES ('Ana', $1, 'hash') RETURNING id`,
+      `INSERT INTO users (first_name, last_name, email, password_hash)
+       VALUES ('Ana', 'Prueba', $1, 'hash') RETURNING id`,
       [`${EMAIL_PREFIX}ana@ual.es`],
     );
     userId = id;

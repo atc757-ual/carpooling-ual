@@ -48,6 +48,7 @@ export function toUserRatingsSummary(user: {
 // viaje, resultados de búsqueda y solicitudes de plaza)
 export interface PublicUserProfile {
   id: string;
+  // Solo el nombre de pila: los apellidos no se muestran a los demás
   name: string;
   avatarKey: string | null;
   preferences: TravelPreferences;
@@ -58,7 +59,8 @@ export interface PublicUserProfile {
 // devuelven al propio usuario (registro, login, /me, su GET /api/users/{id})
 export interface UserSummary {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   // NULL en quien no pasó por el registro público (administrador inicial, seed)
   phone: string | null;

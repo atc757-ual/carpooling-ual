@@ -38,7 +38,12 @@ describe('Users entities (e2e)', () => {
   async function saveUserWithProfiles(email: string): Promise<User> {
     const manager = queryRunner.manager;
     const user = await manager.save(
-      manager.create(User, { name: 'Ana', email, passwordHash: 'hash' }),
+      manager.create(User, {
+        firstName: 'Ana',
+        lastName: 'Prueba',
+        email,
+        passwordHash: 'hash',
+      }),
     );
     await manager.save(
       manager.create(DriverProfile, { userId: user.id, averageRating: 4.5 }),

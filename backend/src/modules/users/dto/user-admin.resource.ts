@@ -1,3 +1,4 @@
+import { fullName } from '../user-name';
 import { ApiProperty } from '@nestjs/swagger';
 import { PROFILE_TYPES } from '../profile-type';
 import type { ProfileType } from '../profile-type';
@@ -55,7 +56,7 @@ export function toUserAdminResource({
     '@type': 'UserAdmin',
     id: user.id,
     href: userHref(user.id),
-    name: user.name,
+    name: fullName(user),
     email: user.email,
     phone: user.phone,
     profiles,

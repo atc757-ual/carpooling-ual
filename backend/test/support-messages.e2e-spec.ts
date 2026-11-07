@@ -70,7 +70,7 @@ describe('Support messages API (e2e)', () => {
     const mail = testMailbox(app).lastSentTo(supportTo);
     expect(mail).toMatchObject({
       replyTo: ANA,
-      subject: '[Soporte] Un viaje · Ana',
+      subject: '[Soporte] Un viaje · Ana Prueba',
     });
     expect(mail?.text).toContain(MESSAGE);
     expect(mail?.html).toContain('&lt;b&gt;hoy&lt;/b&gt;');

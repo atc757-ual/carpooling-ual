@@ -30,8 +30,14 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 100 })
-  name: string;
+  // Nombre de pila: es lo único que ven los demás usuarios (chat, viajes,
+  // solicitudes). Los apellidos solo los ven el propio usuario y la
+  // administración
+  @Column({ name: 'first_name', type: 'varchar', length: 50 })
+  firstName: string;
+
+  @Column({ name: 'last_name', type: 'varchar', length: 100 })
+  lastName: string;
 
   // citext: la base de datos compara sin distinguir mayúsculas, así que
   // Ana@UAL.es y ana@ual.es son el mismo correo

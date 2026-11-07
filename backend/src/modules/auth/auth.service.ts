@@ -21,14 +21,16 @@ import {
 } from './refresh-tokens.service';
 
 export interface RegisterInput {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   phone: string;
 }
 
 export interface CreateAdminInput {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
 }
 
@@ -101,7 +103,8 @@ export class AuthService {
       throw new EmailAlreadyRegisteredError(input.email);
     }
     await this.emailVerification.register({
-      name: input.name,
+      firstName: input.firstName,
+      lastName: input.lastName,
       email: input.email,
       phone: input.phone,
       passwordHash: await hash(input.password, BCRYPT_COST),
@@ -135,7 +138,8 @@ export class AuthService {
 
     const password = randomBytes(ADMIN_PASSWORD_BYTES).toString('base64url');
     const user = await this.usersService.createWithProfiles({
-      name: input.name,
+      firstName: input.firstName,
+      lastName: input.lastName,
       email: input.email,
       passwordHash: await hash(password, BCRYPT_COST),
       profiles: ['admin'],
@@ -229,7 +233,8 @@ export class AuthService {
   private toAuthenticatedUser(user: User): AuthenticatedUser {
     return {
       id: user.id,
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       phone: user.phone,
       phoneVerified: user.phoneVerifiedAt !== null,

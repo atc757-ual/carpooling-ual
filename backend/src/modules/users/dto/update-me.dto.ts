@@ -71,7 +71,7 @@ export class UpdateTravelPreferencesDto {
 // y de su perfil público. El correo no se cambia (es la identidad verificada
 // de la UAL)
 export class UpdateMeDto extends PartialType(
-  PickType(RegisterDto, ['name', 'phone'] as const),
+  PickType(RegisterDto, ['firstName', 'lastName', 'phone'] as const),
 ) {
   @ApiProperty({
     required: false,

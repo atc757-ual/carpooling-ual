@@ -25,6 +25,7 @@ import { UserNotFoundError } from './errors/user-not-found.error';
 import { PROFILE_ENTITIES } from './profile-entities';
 import { ProfileType } from './profile-type';
 import type { TravelPreferences } from './travel-preferences';
+import { FULL_NAME_SQL, fullName } from './user-name';
 import {
   PublicUserProfile,
   RoleRatingSummary,
@@ -37,7 +38,8 @@ import { VehiclesService } from './vehicles.service';
 // Lo que el usuario puede cambiar de su cuenta y su perfil público
 // (PATCH /api/users/me)
 export interface AccountChanges {
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   timeToleranceMin?: number;
   avatarKey?: string | null;
@@ -46,7 +48,8 @@ export interface AccountChanges {
 }
 
 const DIRECT_ACCOUNT_FIELDS = [
-  'name',
+  'firstName',
+  'lastName',
   'phone',
   'timeToleranceMin',
   'avatarKey',
@@ -61,7 +64,8 @@ const PREFERENCE_COLUMN_MAP = [
 ] as const;
 
 export interface CreateUserInput {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   // Llega ya convertida en hash: este service nunca ve contraseñas en claro
   passwordHash: string;
@@ -159,7 +163,8 @@ export class UsersService {
       : null;
     const user = await manager.save(
       manager.create(User, {
-        name: input.name,
+        firstName: input.firstName,
+        lastName: input.lastName,
         email: input.email,
         passwordHash: input.passwordHash,
         phone: input.phone ?? null,
@@ -405,17 +410,18 @@ export class UsersService {
     );
   }
 
-  // Nombres de varios usuarios en UNA consulta (para las listas: evita una
-  // consulta por cada fila)
+  // Nombres completos de varios usuarios en UNA consulta (para las listas:
+  // evita una consulta por cada fila). Para la administración y para quien
+  // consulta sus propios datos
   async getNames(userIds: string[]): Promise<Map<string, string>> {
     const users = await this.usersRepository.find({
-      select: { id: true, name: true },
+      select: { id: true, firstName: true, lastName: true },
       where: { id: In([...new Set(userIds)]) },
     });
-    return new Map(users.map(({ id, name }) => [id, name]));
+    return new Map(users.map((user) => [user.id, fullName(user)]));
   }
 
-  // Nombre y teléfono de los que lo tienen verificado (con el código del
+  // Nombre de pila y teléfono de los que lo tienen verificado (con el código del
   // SMS), en UNA consulta. Solo para quien puede verlo según la Política de
   // privacidad: el conductor y los pasajeros aceptados de un viaje
   async getVerifiedPhones(
@@ -426,7 +432,7 @@ export class UsersService {
       return new Map();
     }
     const users = await this.usersRepository.find({
-      select: { id: true, name: true, phone: true },
+      select: { id: true, firstName: true, phone: true },
       where: {
         id: In(uniqueIds),
         phone: Not(IsNull()),
@@ -434,7 +440,10 @@ export class UsersService {
       },
     });
     return new Map(
-      users.map(({ id, name, phone }) => [id, { name, phone: phone ?? '' }]),
+      users.map(({ id, firstName, phone }) => [
+        id,
+        { name: firstName, phone: phone ?? '' },
+      ]),
     );
   }
 
@@ -445,14 +454,14 @@ export class UsersService {
     const users = await this.usersRepository
       .createQueryBuilder('user')
       .select('user.id', 'id')
-      .where('user.name ILIKE :pattern OR user.email ILIKE :pattern', {
+      .where(`${FULL_NAME_SQL} ILIKE :pattern OR user.email ILIKE :pattern`, {
         pattern,
       })
       .getRawMany<{ id: string }>();
     return users.map(({ id }) => id);
   }
 
-  // Perfil público (nombre, avatar y preferencias) de varios usuarios en UNA
+  // Perfil público (nombre de pila, avatar y preferencias) de varios usuarios en UNA
   // sola consulta, para viajes, resultados de matching y solicitudes
   async getPublicProfiles(
     userIds: string[],
@@ -464,7 +473,7 @@ export class UsersService {
     const users = await this.usersRepository.find({
       select: {
         id: true,
-        name: true,
+        firstName: true,
         avatarKey: true,
         conversationPreference: true,
         musicPreference: true,
@@ -509,7 +518,8 @@ export class UsersService {
     }
     return {
       id: user.id,
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       phone: user.phone,
       phoneVerified: user.phoneVerifiedAt !== null,
@@ -590,7 +600,7 @@ function toTravelPreferences(user: User): TravelPreferences {
 function toPublicProfile(user: User): PublicUserProfile {
   return {
     id: user.id,
-    name: user.name,
+    name: user.firstName,
     avatarKey: user.avatarKey ?? null,
     preferences: toTravelPreferences(user),
     driverRating: toRoleRatingSummary(user.driverProfile).averageRating,

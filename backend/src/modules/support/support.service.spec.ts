@@ -14,7 +14,8 @@ describe('SupportService', () => {
   function activeUser(overrides: Partial<User> = {}): User {
     return Object.assign(new User(), {
       id: 'user-1',
-      name: 'Ana',
+      firstName: 'Ana',
+      lastName: 'García',
       email: 'ana@ual.es',
       deactivatedAt: null,
       ...overrides,
@@ -51,7 +52,7 @@ describe('SupportService', () => {
       expect.objectContaining({
         to: 'soporte@ual.es',
         replyTo: 'ana@ual.es',
-        subject: '[Soporte] Sugerencia · Ana',
+        subject: '[Soporte] Sugerencia · Ana García',
         text: expect.stringContaining(
           'Estaría bien poder elegir el parking.',
         ) as string,

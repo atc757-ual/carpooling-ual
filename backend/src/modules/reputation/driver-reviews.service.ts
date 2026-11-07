@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
-import { toShortName } from '../../shared/people/short-name';
 import { UserNotFoundError } from '../users/errors/user-not-found.error';
 import { UsersService } from '../users/users.service';
 import { Review } from './entities/review.entity';
@@ -61,7 +60,7 @@ export class DriverReviewsService {
       const author = authors.get(review.authorId);
       return {
         review,
-        authorName: toShortName(author?.name ?? ''),
+        authorName: author?.name ?? '',
         authorAvatarKey: author?.avatarKey ?? null,
       };
     });

@@ -1,6 +1,7 @@
 import { Brackets, SelectQueryBuilder } from 'typeorm';
 import type { User } from './entities/user.entity';
 import type { ProfileType } from './profile-type';
+import { FULL_NAME_SQL } from './user-name';
 
 // Estados de la cuenta que decide el propio módulo de usuarios (los que
 // dependen de otros módulos, como las incidencias o la suspensión, los
@@ -54,7 +55,7 @@ export function applyAdminUserFilter(
     query.andWhere(
       new Brackets((where) =>
         where
-          .where('user.name ILIKE :pattern', { pattern })
+          .where(`${FULL_NAME_SQL} ILIKE :pattern`, { pattern })
           .orWhere('user.email ILIKE :pattern', { pattern }),
       ),
     );

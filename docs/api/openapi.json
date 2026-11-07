@@ -7913,7 +7913,7 @@
     },
     "/api/users/{id}/driver-reviews": {
       "get": {
-        "description": "RF-22: published reviews the user received as a driver, newest first. The author shows only the first name and the initial of the surname.",
+        "description": "RF-22: published reviews the user received as a driver, newest first. The author shows only the given name.",
         "operationId": "DriverReviewsController_list",
         "parameters": [
           {
@@ -12109,11 +12109,17 @@
       "RegisterDto": {
         "type": "object",
         "properties": {
-          "name": {
+          "firstName": {
             "type": "string",
-            "description": "Letters, with a space, hyphen or apostrophe between them",
+            "description": "Given name, the only one other users see. Letters, with a space, hyphen or apostrophe between them",
+            "maxLength": 50,
+            "example": "Ana María"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Surnames (one, two or compound), seen only by the user and the administration. Same rules as firstName",
             "maxLength": 100,
-            "example": "Ana García"
+            "example": "García de la Fuente"
           },
           "email": {
             "type": "string",
@@ -12143,7 +12149,8 @@
           }
         },
         "required": [
-          "name",
+          "firstName",
+          "lastName",
           "email",
           "password",
           "phone",
@@ -12275,9 +12282,13 @@
             "type": "string",
             "example": "/api/users/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
           },
-          "name": {
+          "firstName": {
             "type": "string",
-            "example": "Ana García"
+            "example": "Ana María"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "García de la Fuente"
           },
           "email": {
             "type": "string",
@@ -12347,7 +12358,8 @@
           "@type",
           "id",
           "href",
-          "name",
+          "firstName",
+          "lastName",
           "email",
           "phone",
           "phoneVerified",
@@ -12708,11 +12720,17 @@
       "UpdateMeDto": {
         "type": "object",
         "properties": {
-          "name": {
+          "firstName": {
             "type": "string",
-            "description": "Letters, with a space, hyphen or apostrophe between them",
+            "description": "Given name, the only one other users see. Letters, with a space, hyphen or apostrophe between them",
+            "maxLength": 50,
+            "example": "Ana María"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Surnames (one, two or compound), seen only by the user and the administration. Same rules as firstName",
             "maxLength": 100,
-            "example": "Ana García"
+            "example": "García de la Fuente"
           },
           "phone": {
             "type": "string",
@@ -14144,7 +14162,8 @@
           },
           "name": {
             "type": "string",
-            "example": "Lucía Martínez"
+            "example": "Lucía",
+            "description": "Given name only"
           },
           "avatarKey": {
             "type": "string",
@@ -14667,7 +14686,8 @@
           },
           "name": {
             "type": "string",
-            "example": "Mario López"
+            "example": "Mario",
+            "description": "Given name only"
           },
           "avatarKey": {
             "type": "string",
@@ -14931,7 +14951,7 @@
           },
           "name": {
             "type": "string",
-            "example": "Lucía Conductora"
+            "example": "Lucía"
           },
           "avatarKey": {
             "type": "string",
@@ -15063,7 +15083,7 @@
           },
           "name": {
             "type": "string",
-            "example": "Mario Pasajero"
+            "example": "Mario"
           },
           "avatarKey": {
             "type": "string",
@@ -15132,8 +15152,8 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "First name and the initial of the first surname",
-            "example": "Carlos R."
+            "description": "Given name only",
+            "example": "Carlos"
           },
           "avatarKey": {
             "type": "string",
@@ -15316,8 +15336,8 @@
           },
           "name": {
             "type": "string",
-            "description": "First name and the initial of the surname",
-            "example": "Carlos R."
+            "description": "Given name only",
+            "example": "Carlos"
           },
           "avatarKey": {
             "type": "string",
@@ -15466,7 +15486,7 @@
           },
           "name": {
             "type": "string",
-            "example": "Lucía Conductora"
+            "example": "Lucía"
           },
           "phone": {
             "type": "string",

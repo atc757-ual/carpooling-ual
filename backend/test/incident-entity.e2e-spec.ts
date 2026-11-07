@@ -45,8 +45,8 @@ describe('Incident entity (e2e)', () => {
   // Un viaje con su conductor, creado con SQL (sin depender de otros módulos)
   async function insertTrip(): Promise<{ tripId: string; driverId: string }> {
     const driverId = await insertId(
-      `INSERT INTO users (name, email, password_hash)
-       VALUES ('Dan', 'incident-entity-test@ual.es', 'hash') RETURNING id`,
+      `INSERT INTO users (first_name, last_name, email, password_hash)
+       VALUES ('Dan', 'Prueba', 'incident-entity-test@ual.es', 'hash') RETURNING id`,
     );
     await queryRunner.query(
       'INSERT INTO driver_profiles (user_id) VALUES ($1)',

@@ -48,8 +48,8 @@ describe('Trips entities and events (e2e)', () => {
     vehicleId: string;
   }> {
     const [{ id: driverId }] = (await queryRunner.query(
-      `INSERT INTO users (name, email, password_hash)
-       VALUES ('Ana', 'trips-entities-test@ual.es', 'hash') RETURNING id`,
+      `INSERT INTO users (first_name, last_name, email, password_hash)
+       VALUES ('Ana', 'Prueba', 'trips-entities-test@ual.es', 'hash') RETURNING id`,
     )) as [{ id: string }];
     await queryRunner.query(
       'INSERT INTO driver_profiles (user_id) VALUES ($1)',

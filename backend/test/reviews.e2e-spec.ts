@@ -394,10 +394,10 @@ describe('Reputation & Reviews API (e2e)', () => {
     const dan = await sessionFor('dan', ['driver']);
     const pia = await sessionFor('pia', ['passenger']);
     const leo = await sessionFor('leo', ['passenger']);
-    await dataSource.query(`UPDATE users SET name = $1 WHERE id = $2`, [
-      'Pía Ruiz Gómez',
-      pia.id,
-    ]);
+    await dataSource.query(
+      `UPDATE users SET first_name = $1, last_name = $2 WHERE id = $3`,
+      ['Pía', 'Ruiz Gómez', pia.id],
+    );
     const tripId = await createFinishedTrip(dan, [pia, leo]);
     await api('post', `/trips/${tripId}/reviews`, pia.accessToken)
       .send({ targetId: dan.id, rating: 5, comment: 'Muy puntual' })
@@ -427,7 +427,7 @@ describe('Reputation & Reviews API (e2e)', () => {
     expect(reviews.body).toEqual([
       expect.objectContaining({
         '@type': 'DriverReview',
-        author: { name: 'Pía R.', avatarKey: null },
+        author: { name: 'Pía', avatarKey: null },
         rating: 5,
         comment: 'Muy puntual',
       }),

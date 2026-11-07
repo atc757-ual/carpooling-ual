@@ -134,7 +134,7 @@ describe('Admin trips API (e2e)', () => {
     expect(day.headers['x-total-count']).toBe('2');
     expect(trips[1]).toMatchObject({
       status: 'confirmed',
-      driver: { id: early.driverId, name: 'danearly' },
+      driver: { id: early.driverId, name: 'danearly Prueba' },
       requests: { pending: 1, accepted: 1 },
     });
 
@@ -201,7 +201,7 @@ describe('Admin trips API (e2e)', () => {
     ]);
     expect(body.seatRequests[1]).toMatchObject({
       status: 'accepted',
-      passenger: { name: 'piadetail' },
+      passenger: { name: 'piadetail Prueba' },
     });
     expect(body.timeline.map(({ type }) => type)).toEqual([
       'trip.published',
