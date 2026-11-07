@@ -269,12 +269,23 @@
   color: var(--color-text-muted);
 }
 
-// El estado del viaje, a la derecha del título
-.conversation__trip-status {
+// El estado del viaje y los botones, a la derecha del título: el estado arriba
+// y los botones abajo, separados para ocupar todo el alto del título
+.conversation__actions {
+  display: flex;
   flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  align-self: stretch;
+  justify-content: space-between;
+  gap: var(--space-xs);
 }
 
-// Denunciar: discreto (gris; rojo al pasar el ratón), con área táctil de 44px
+.conversation__buttons {
+  display: flex;
+}
+
+// Denunciar es discreto, en gris y rojo al pasar el ratón, con 44px de área
 .conversation__report {
   --color: var(--color-text-muted);
   --color-hover: var(--color-danger);

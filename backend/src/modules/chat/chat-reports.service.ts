@@ -34,7 +34,7 @@ export class ChatReportsService {
       order: { createdAt: 'DESC', id: 'DESC' },
       take: MAX_REPORTED_MESSAGES,
     });
-    const messages = latest.reverse();
+    const messages = latest.toReversed();
     const views = await this.chat.toViews(trip, messages);
     return this.conversationReports.report(
       userId,

@@ -427,7 +427,7 @@
     },
     "legalUpdate": {
       "title": "Hemos actualizado nuestros documentos",
-      "description": "Para seguir usando UAL Carpool, lee los cambios y acéptalos.",
+      "description": "Para seguir usando Carpooling UAL, lee los cambios y acéptalos.",
       "version": "versión {{version}}",
       "accept": "Aceptar y continuar",
       "loading": "Cargando los documentos",

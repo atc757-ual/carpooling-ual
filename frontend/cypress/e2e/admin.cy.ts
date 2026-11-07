@@ -110,7 +110,7 @@ for (const viewport of VIEWPORTS) {
       visitWithSession('/admin', ['admin']);
 
       cy.location('pathname').should('eq', '/admin/simulation');
-      cy.contains('.admin-header__brand', 'UAL Carpool · Admin');
+      cy.contains('.admin-header__brand', 'Carpooling UAL · Admin');
       cy.contains('.admin-header__email', 'admin@ual.es');
       cy.get('.admin-nav__link').should('have.length', 6);
       cy.contains('.admin-nav__link', 'Incidencias')

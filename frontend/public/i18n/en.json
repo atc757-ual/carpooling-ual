@@ -427,7 +427,7 @@
     },
     "legalUpdate": {
       "title": "We have updated our documents",
-      "description": "To keep using UAL Carpool, read the changes and accept them.",
+      "description": "To keep using Carpooling UAL, read the changes and accept them.",
       "version": "version {{version}}",
       "accept": "Accept and continue",
       "loading": "Loading the documents",

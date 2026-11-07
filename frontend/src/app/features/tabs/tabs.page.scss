@@ -21,6 +21,13 @@ ion-tabs {
   --padding-end: var(--space-base);
 }
 
+// La flecha de volver mide 52px (su área táctil) y el contenido de la barra
+// 48px: sin esto, la cabecera de las pantallas de detalle salía 4px más alta
+// que la de las secciones. Sobresale 2px arriba y abajo sin estirarla
+.app-header ion-toolbar ion-buttons ion-button.back-button.button-has-icon-only.button-clear {
+  margin-block: -0.125rem; // -2px: (48 − 52) / 2
+}
+
 // Móvil: barra de 76px abajo, icono encima del texto. La pestaña activa, en el
 // color de los enlaces, en negrita y sobre una pastilla azul muy clara (no solo
 // por el color)
@@ -270,13 +277,6 @@ ion-tab-button {
     font-weight: var(--font-weight-semibold);
     line-height: 1rem;
     pointer-events: none;
-  }
-}
-
-@media (min-width: 768px) {
-  .top-nav .bell-button .bell-button__badge {
-    top: -0.25rem;
-    right: 0.25rem;
   }
 }
 

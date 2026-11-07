@@ -3,21 +3,22 @@ import { IonIcon } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { carSportOutline } from 'ionicons/icons';
 
-// - default: insignia con icono de coche y «Carpool» al lado.
-// - tile: insignia cuadrada, «Carpool» en azul y el lema debajo (cabecera de
+// - default: insignia con icono de coche y «Carpooling» al lado.
+// - tile: insignia cuadrada, «Carpooling» en azul y el lema debajo (cabecera de
 //   los formularios de acceso en el móvil).
-// - compact: insignia cuadrada pequeña y «Carpool» al lado, sin lema
+// - compact: insignia cuadrada pequeña y «Carpooling» al lado, sin lema
 //   (cabeceras del área con sesión).
 export type BrandLogoVariant = 'default' | 'tile' | 'compact';
 
-// Logotipo de texto de la aplicación («UAL Carpool»). Para los lectores de
-// pantalla es una imagen con su nombre (si no, leerían «UALCarpool»)
+// Logotipo de la aplicación: el coche y «Carpooling». Para los lectores de
+// pantalla es una imagen con el nombre completo, «Carpooling UAL» (como el
+// título de la web y el pie)
 @Component({
   selector: 'app-brand-logo',
   imports: [IonIcon, TranslocoPipe],
   host: {
     role: 'img',
-    'aria-label': 'UAL Carpool',
+    'aria-label': 'Carpooling UAL',
     '[class.brand-logo--tile]': "variant() === 'tile'",
     '[class.brand-logo--compact]': "variant() === 'compact'",
   },
@@ -27,7 +28,7 @@ export type BrandLogoVariant = 'default' | 'tile' | 'compact';
     </span>
     @if (showText()) {
       <span class="brand-logo__text" aria-hidden="true">
-        <span class="brand-logo__name">Carpool</span>
+        <span class="brand-logo__name">Carpooling</span>
         @if (variant() === 'tile') {
           <span class="brand-logo__tagline">{{ 'brand.tagline' | transloco }}</span>
         }
