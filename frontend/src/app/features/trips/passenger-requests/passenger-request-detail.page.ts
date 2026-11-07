@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, resource, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, resource, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
@@ -9,13 +9,15 @@ import {
   IonSpinner,
   ModalController,
 } from '@ionic/angular';
-import { alertCircleOutline, searchOutline, sparklesOutline } from 'ionicons/icons';
+import { alertCircleOutline, callOutline, searchOutline, sparklesOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
+import { ChatContact } from '../../../core/models/chat.model';
 import { Trip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { TripDriver } from '../../../core/models/trip-result.model';
 import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
+import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -84,6 +86,7 @@ export class PassengerRequestDetailPage {
   private readonly travelPreferences = inject(TravelPreferencesStore);
   private readonly requests = inject(SeatRequestsService);
   private readonly trips = inject(TripsService);
+  private readonly tripCall = inject(TripCallService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
   private readonly modalController = inject(ModalController);
@@ -145,7 +148,13 @@ export class PassengerRequestDetailPage {
   readonly isCancelling = signal(false);
   readonly isPageVisible = signal(true);
 
+  readonly contacts = signal<ChatContact[]>([]);
+  readonly driverContact = computed(() => {
+    return this.contacts().find((c) => c.role === 'driver') ?? null;
+  });
+
   protected readonly alertIcon = alertCircleOutline;
+  protected readonly callIcon = callOutline;
   protected readonly sparklesIcon = sparklesOutline;
   protected readonly searchIcon = searchOutline;
 
@@ -174,6 +183,39 @@ export class PassengerRequestDetailPage {
     const trip = this.trip();
     return request?.status === 'accepted' && trip?.status === 'in_progress';
   });
+
+  constructor() {
+    effect(() => {
+      const tripId = this.trip()?.id;
+      const isAccepted = this.request()?.status === 'accepted';
+      if (tripId && isAccepted) {
+        void this.loadContacts(tripId);
+      } else {
+        this.contacts.set([]);
+      }
+    });
+  }
+
+  private async loadContacts(tripId: string): Promise<void> {
+    const contacts = await this.tripCall.loadContacts(tripId);
+    this.contacts.set(contacts);
+  }
+
+  canCallDriver(): boolean {
+    const trip = this.trip();
+    return this.tripCall.canCall(trip?.status, this.driverContact());
+  }
+
+  callDriverLabel(): string {
+    const trip = this.trip();
+    const name = trip ? this.firstName(trip.driver.name) : '';
+    return this.tripCall.callLabel(this.driverContact(), name);
+  }
+
+  handleCallDriver(): void {
+    const trip = this.trip();
+    this.tripCall.call(this.driverContact(), trip?.status);
+  }
 
   ionViewWillEnter(): void {
     this.isPageVisible.set(true);

@@ -110,3 +110,20 @@
     margin: 0;
   }
 }
+
+.driver-trip__accepted-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.driver-trip__call-btn {
+  --color: var(--color-link);
+  margin: 0;
+  min-width: 2.75rem; // 44px
+  min-height: 2.75rem;
+
+  &--unavailable {
+    --color: var(--color-text-muted);
+  }
+}

@@ -84,6 +84,15 @@
       "resend": "Reenviar código"
     },
     "tripChatLink": "Chat del viaje",
+    "tripCall": {
+      "call": "Llamar",
+      "callTo": "Llamar a {{ name }}",
+      "callPassenger": "Llamar a un pasajero",
+      "unavailable": "Llamar (no disponible)",
+      "onlyAllowed": "Solo se puede llamar con el viaje confirmado o en curso.",
+      "noVerifiedPhone": "Nadie más de este viaje tiene el teléfono verificado.",
+      "whoToCall": "¿A quién llamas?"
+    },
     "routeTimeline": {
       "aria": "Trayecto"
     },

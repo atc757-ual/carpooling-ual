@@ -39,6 +39,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- **Frontend:** llamar desde el viaje con el viaje confirmado o en curso: botón para que el pasajero llame al conductor desde el detalle de la solicitud y botones individuales para que el conductor llame a cada pasajero aceptado desde el viaje en curso y la tarjeta del viaje (#227).
+
 - **Frontend:** llamar desde el chat del viaje con el viaje confirmado o en curso: el botón abre la app de teléfono (el conductor elige a cuál de sus pasajeros) y, si aún no se puede, se ve en gris y explica por qué (#218).
 - **Backend:** a quién llamar desde el chat del viaje: `GET /api/trips/:id/contacts` da el teléfono verificado del conductor al pasajero y el de los pasajeros aceptados al conductor, solo con el viaje confirmado o en curso (como dice la Política de privacidad). Las conversaciones traen el nombre y el avatar del conductor (#217).
 

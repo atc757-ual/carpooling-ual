@@ -110,9 +110,28 @@
                     </form>
                   </div>
                 } @else {
-                  <span class="status" [class.status--accepted]="request.status === 'accepted'">
-                    {{ requestLabel(request.status) }}
-                  </span>
+                  <div class="driver-trip__accepted-actions">
+                    <span class="status" [class.status--accepted]="request.status === 'accepted'">
+                      {{ requestLabel(request.status) }}
+                    </span>
+                    @if (request.status === 'accepted') {
+                      <ion-button
+                        class="driver-trip__call-btn"
+                        [class.driver-trip__call-btn--unavailable]="
+                          !canCallPassenger(request.passenger.id)
+                        "
+                        fill="clear"
+                        size="small"
+                        [attr.aria-label]="
+                          callPassengerLabel(request.passenger.name, request.passenger.id)
+                        "
+                        [title]="callPassengerLabel(request.passenger.name, request.passenger.id)"
+                        (click)="handleCallPassenger(request.passenger)"
+                      >
+                        <ion-icon slot="icon-only" [icon]="callIcon" aria-hidden="true" />
+                      </ion-button>
+                    }
+                  </div>
                 }
               </li>
             }

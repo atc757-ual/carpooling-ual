@@ -9,13 +9,15 @@ import {
   IonIcon,
   IonSpinner,
 } from '@ionic/angular';
-import { locationOutline } from 'ionicons/icons';
+import { callOutline, locationOutline } from 'ionicons/icons';
 import { map } from 'rxjs';
 import { ApiError } from '../../../core/models/api-error.model';
+import { ChatContact } from '../../../core/models/chat.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { LocationService } from '../../../core/services/location/location.service';
+import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripChatLink } from '../../../shared/components/ui/trip-chat-link/trip-chat-link';
@@ -58,6 +60,7 @@ export class DriverLiveTripPage {
   private readonly tracking = inject(DriverTrackingService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
+  private readonly tripCall = inject(TripCallService);
   private readonly location = inject(LocationService);
   private readonly router = inject(Router);
 
@@ -106,7 +109,10 @@ export class DriverLiveTripPage {
   readonly gapMinutes = this.tracking.gapMinutes;
   readonly isFinishing = signal(false);
   readonly isPageVisible = signal(true);
+  readonly contacts = signal<ChatContact[]>([]);
+  readonly contactsMap = computed(() => new Map(this.contacts().map((c) => [c.id, c])));
   protected readonly locationIcon = locationOutline;
+  protected readonly callIcon = callOutline;
   protected readonly formatSeats = formatSeats;
 
   // Código de 4 cifras introducido para cada pasajero
@@ -123,6 +129,29 @@ export class DriverLiveTripPage {
         this.tracking.start(trip.id);
       }
     });
+    effect(() => {
+      const tripId = this.trip()?.id;
+      if (tripId) {
+        void this.tripCall.loadContacts(tripId).then((c) => this.contacts.set(c));
+      } else {
+        this.contacts.set([]);
+      }
+    });
+  }
+
+  canCallPassenger(passengerId: string): boolean {
+    const contact = this.contactsMap().get(passengerId);
+    return this.tripCall.canCall(this.trip()?.status, contact);
+  }
+
+  callPassengerLabel(name: string, passengerId: string): string {
+    const contact = this.contactsMap().get(passengerId);
+    return this.tripCall.callLabel(contact, name);
+  }
+
+  handleCallPassenger(passenger: { id: string; name: string }): void {
+    const contact = this.contactsMap().get(passenger.id);
+    this.tripCall.call(contact, this.trip()?.status);
   }
 
   ionViewWillEnter(): void {

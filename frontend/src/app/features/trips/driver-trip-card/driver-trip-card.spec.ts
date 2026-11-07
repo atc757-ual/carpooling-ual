@@ -8,6 +8,8 @@ import { DriverTrip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
+import { ChatService } from '../../../core/services/chat/chat.service';
+import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
@@ -60,7 +62,7 @@ describe('DriverTripCard', () => {
       startTrip: vi.fn().mockResolvedValue({ ...TRIP, status: 'in_progress' }),
       finishTrip: vi.fn().mockResolvedValue({ ...TRIP, status: 'finished' }),
     };
-    toast = { showSuccess: vi.fn(), showError: vi.fn() };
+    toast = { showSuccess: vi.fn(), showError: vi.fn(), showInfo: vi.fn() };
     ask = vi.fn().mockResolvedValue(true);
     tracking = { start: vi.fn(), stop: vi.fn() };
     location = {
@@ -74,6 +76,16 @@ describe('DriverTripCard', () => {
         provideIonicAngular(),
         provideRouter([{ path: 'tabs/trips/drive/:id', children: [] }]),
         { provide: DriverService, useValue: driver },
+        {
+          provide: ChatService,
+          useValue: {
+            listContacts: vi
+              .fn()
+              .mockResolvedValue([
+                { id: 'p1', name: 'Mario Pérez', phone: '+34600111222', role: 'passenger' },
+              ]),
+          },
+        },
         { provide: ToastService, useValue: toast },
         { provide: ConfirmService, useValue: { ask } },
         { provide: DriverTrackingService, useValue: tracking },
@@ -338,5 +350,32 @@ describe('DriverTripCard', () => {
     expect(driver['listTripRequests']).not.toHaveBeenCalled();
     expect(root.textContent).toContain('Finalizado');
     expect(root.querySelector('.driver-trip__requests')).toBeNull();
+  });
+
+  it('renders call button for accepted passenger and calls passenger when tapped', async () => {
+    const root = await render({ ...TRIP, status: 'confirmed' }, [request('accepted')]);
+    const tripCall = TestBed.inject(TripCallService);
+    const openPhoneSpy = vi.spyOn(tripCall, 'openPhone').mockImplementation(() => undefined);
+
+    const callBtn = root.querySelector('.driver-trip__call-btn');
+    expect(callBtn).not.toBeNull();
+    expect(callBtn?.getAttribute('title')).toBe('Llamar a Mario Pérez');
+    expect(callBtn?.classList).not.toContain('driver-trip__call-btn--unavailable');
+
+    fixture.componentInstance.handleCallPassenger({ id: 'p1', name: 'Mario Pérez' });
+    expect(openPhoneSpy).toHaveBeenCalledWith('+34600111222');
+  });
+
+  it('shows call button as unavailable when trip is published', async () => {
+    const root = await render({ ...TRIP, status: 'published' }, [request('accepted')]);
+
+    const callBtn = root.querySelector('.driver-trip__call-btn');
+    expect(callBtn).not.toBeNull();
+    expect(callBtn?.classList).toContain('driver-trip__call-btn--unavailable');
+
+    fixture.componentInstance.handleCallPassenger({ id: 'p1', name: 'Mario Pérez' });
+    expect(toast['showInfo']).toHaveBeenCalledWith(
+      'Solo se puede llamar con el viaje confirmado o en curso.',
+    );
   });
 });
