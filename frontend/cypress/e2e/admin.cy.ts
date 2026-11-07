@@ -136,10 +136,11 @@ for (const viewport of VIEWPORTS) {
         });
         cy.get('.admin-mobile-menu__brand').then(($brand) => {
           const brandBottom = $brand[0].getBoundingClientRect().bottom;
-          const firstLinkTop = document
-            .querySelector('.admin-mobile-nav .admin-nav__link')
-            ?.getBoundingClientRect().top;
-          expect(firstLinkTop).to.be.at.least(brandBottom);
+          cy.get('.admin-mobile-nav .admin-nav__link')
+            .first()
+            .should(($link) => {
+              expect($link[0].getBoundingClientRect().top).to.be.at.least(brandBottom);
+            });
         });
       } else {
         cy.contains('.admin-desktop-header .admin-header__brand', 'Carpooling UAL · Admin');
