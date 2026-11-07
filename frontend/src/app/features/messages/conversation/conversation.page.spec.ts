@@ -270,13 +270,18 @@ describe('ConversationPage', () => {
     expect(root.querySelectorAll('.bubble')).toHaveLength(2);
   });
 
-  it('reports the whole chat with a reason, from its title and not from each message', async () => {
+  it('opens options action sheet with report option and reports the chat with a reason', async () => {
     const root = await render();
-    expect(root.querySelector('.conversation__report')).not.toBeNull();
+    expect(root.querySelector('.conversation__options')).not.toBeNull();
     expect(root.querySelector('.bubble__report')).toBeNull();
 
-    await page.handleReport();
+    await page.handleOpenOptions();
+    const reportOption = sheetButtons.find((btn) => btn.text === 'Denunciar el chat');
+    expect(reportOption).toBeDefined();
+
+    const reportPromise = reportOption?.handler?.();
     await modalProps?.action('Me ha insultado');
+    await reportPromise;
 
     expect(chat['reportChat']).toHaveBeenCalledWith('t1', 'Me ha insultado');
     expect(showSuccess).toHaveBeenCalledWith('Chat denunciado. Lo revisaremos.');
@@ -365,6 +370,19 @@ describe('ConversationPage', () => {
     expect(fixture.nativeElement.querySelector('.conversation__heading')).toBeNull();
 
     fixture.destroy();
+    expect(heading.content()).toBeNull();
+  });
+
+  it('clears heading content when leaving view', async () => {
+    await render();
+    const heading = TestBed.inject(HeadingContentService);
+    fixture.componentRef.setInput('conversationId', 't1');
+    fixture.componentRef.setInput('active', true);
+    fixture.componentRef.setInput('inPageHeading', true);
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(heading.content()).not.toBeNull());
+
+    page.ionViewDidLeave();
     expect(heading.content()).toBeNull();
   });
 });

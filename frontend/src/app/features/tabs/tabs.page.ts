@@ -143,6 +143,9 @@ export class TabsPage implements OnInit {
       filter((event) => event instanceof NavigationEnd),
       map(() => {
         this.collapsingHeading.reset();
+        if (!this.router.url.startsWith('/tabs/messages/')) {
+          this.headingContent.clear();
+        }
         return findTabHeading(this.router.routerState.snapshot.root);
       }),
     ),

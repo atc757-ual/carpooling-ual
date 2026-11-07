@@ -13,9 +13,10 @@ export class HeadingContentService {
     this.current.set(template);
   }
 
-  // Solo la quita quien la puso (otra pantalla puede haber puesto la suya)
-  clear(template: TemplateRef<unknown>): void {
-    if (this.current() === template) {
+  // Quita la plantilla. Si se indica una concreta, solo la quita si es la que
+  // está puesta; sin argumento, limpia cualquier plantilla activa.
+  clear(template?: TemplateRef<unknown>): void {
+    if (!template || this.current() === template) {
       this.current.set(null);
     }
   }

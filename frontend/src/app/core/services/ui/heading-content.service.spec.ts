@@ -15,4 +15,14 @@ describe('HeadingContentService', () => {
     heading.clear(other);
     expect(heading.content()).toBeNull();
   });
+
+  it('clears unconditionally when no template is passed', () => {
+    const heading = new HeadingContentService();
+    const mine = {} as TemplateRef<unknown>;
+
+    heading.show(mine);
+    expect(heading.content()).toBe(mine);
+    heading.clear();
+    expect(heading.content()).toBeNull();
+  });
 });
