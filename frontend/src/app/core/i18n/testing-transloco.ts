@@ -34,6 +34,8 @@ const DEFAULT_TEST_TRANSLATIONS: Record<string, Record<string, unknown>> = {
         profile: 'Mi perfil',
         admin: 'Panel de administración',
         logout: 'Cerrar sesión',
+        logoutShort: 'Salir',
+        adminShort: 'Administración',
         newMessages: '(mensajes nuevos)',
         notifications: 'Notificaciones',
         notificationsWithCount: {

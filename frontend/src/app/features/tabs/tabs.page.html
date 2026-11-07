@@ -1,34 +1,78 @@
-<!-- Campana compartida entre la cabecera móvil y el menú de escritorio -->
-<ng-template #headerActions>
+<!-- Mi perfil, Notificaciones y el panel (administradores), compartidos entre
+     la cabecera móvil (solo iconos) y el menú de escritorio (icono y texto, y
+     además Salir). La sección abierta se queda en azul claro. El nombre accesible es el mismo
+     en los dos -->
+<ng-template #headerActions let-isDesktop>
   <ion-button
-    class="bell-button"
+    class="header-action profile-button"
+    fill="clear"
+    routerLink="/tabs/profile"
+    routerLinkActive="header-action--active"
+    [attr.aria-label]="'common.nav.profile' | transloco"
+  >
+    <span class="header-action__icon">
+      <ion-icon [icon]="profileIcon" aria-hidden="true" />
+    </span>
+    <span class="header-action__label" aria-hidden="true">{{
+      'common.nav.profile' | transloco
+    }}</span>
+  </ion-button>
+  <ion-button
+    class="header-action bell-button"
     fill="clear"
     routerLink="/tabs/notifications"
+    routerLinkActive="header-action--active"
     [attr.aria-label]="bellLabel()"
     [class.bell-button--pulse]="bellPulse()"
   >
-    <ion-icon slot="icon-only" [icon]="bellIcon" aria-hidden="true" />
-    @if (unreadCount() > 0) {
-      <span class="bell-button__badge" aria-hidden="true">{{
-        unreadCount() > 9 ? '9+' : unreadCount()
-      }}</span>
-    }
+    <span class="header-action__icon">
+      <ion-icon [icon]="bellIcon" aria-hidden="true" />
+      @if (unreadCount() > 0) {
+        <span class="bell-button__badge" aria-hidden="true">{{
+          unreadCount() > 9 ? '9+' : unreadCount()
+        }}</span>
+      }
+    </span>
+    <span class="header-action__label" aria-hidden="true">{{
+      'common.nav.notifications' | transloco
+    }}</span>
   </ion-button>
   @if (isAdmin()) {
     <ion-button
-      class="admin-button"
+      class="header-action"
       fill="clear"
       routerLink="/admin"
       [attr.aria-label]="'common.nav.admin' | transloco"
     >
-      <ion-icon slot="icon-only" [icon]="adminIcon" aria-hidden="true" />
+      <span class="header-action__icon">
+        <ion-icon [icon]="adminIcon" aria-hidden="true" />
+      </span>
+      <span class="header-action__label" aria-hidden="true">{{
+        'common.nav.adminShort' | transloco
+      }}</span>
+    </ion-button>
+  }
+  <!-- Salir, solo en escritorio (en el móvil está en Mi perfil) -->
+  @if (isDesktop) {
+    <ion-button
+      class="header-action logout-button"
+      fill="clear"
+      [attr.aria-label]="'common.nav.logout' | transloco"
+      (click)="handleLogout()"
+    >
+      <span class="header-action__icon">
+        <ion-icon [icon]="logoutIcon" aria-hidden="true" />
+      </span>
+      <span class="header-action__label" aria-hidden="true">{{
+        'common.nav.logoutShort' | transloco
+      }}</span>
     </ion-button>
   }
 </ng-template>
 
 <!-- Móvil: en las secciones, el logotipo (su título va en el contenido); en
      las pantallas de detalle, la flecha de volver y su título. En secciones,
-     la campana queda a la derecha; cerrar sesión está en Mi perfil. -->
+     Mi perfil y la campana quedan a la derecha, solo con sus iconos -->
 <ion-header class="app-header ion-hide-md-up ion-no-border">
   <ion-toolbar>
     @if (heading()?.backHref; as backHref) {
@@ -60,7 +104,7 @@
 <header class="top-nav ion-hide-md-down">
   <app-brand-logo variant="compact" />
   <nav class="top-nav__links" [attr.aria-label]="'common.nav.mainAria' | transloco">
-    @for (tab of tabs; track tab.path) {
+    @for (tab of desktopTabs; track tab.path) {
       <a
         class="top-nav__link"
         [routerLink]="'/tabs/' + tab.path"
@@ -76,7 +120,10 @@
   </nav>
   <div class="top-nav__actions">
     <span class="top-nav__hello">{{ 'common.greeting' | transloco: { name: firstName() } }}</span>
-    <ng-container [ngTemplateOutlet]="headerActions" />
+    <ng-container
+      [ngTemplateOutlet]="headerActions"
+      [ngTemplateOutletContext]="{ $implicit: true }"
+    />
   </div>
 </header>
 <!-- Franja fija con el título y el subtítulo de la pantalla. En el móvil se ve

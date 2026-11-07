@@ -13,10 +13,11 @@ ion-tabs {
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 }
 
-// 16px por todos los lados
+// 56px de alto, como las cabeceras de Android: 4px arriba y abajo del
+// contenido (48px); a los lados, los 16px del margen de la página
 .app-header ion-toolbar {
-  --padding-top: var(--space-base);
-  --padding-bottom: var(--space-base);
+  --padding-top: var(--space-xs);
+  --padding-bottom: var(--space-xs);
   --padding-start: var(--space-base);
   --padding-end: var(--space-base);
 }
@@ -84,7 +85,7 @@ ion-tab-button {
     'brand actions'
     'links links';
   grid-template-columns: auto 1fr;
-  grid-template-rows: 4rem auto; // 64px
+  grid-template-rows: 4.75rem auto; // 76px
   align-items: center;
   padding-inline: var(--page-gutter);
   // 16px bajo los destinos, para que no queden pegados al borde
@@ -98,7 +99,6 @@ ion-tab-button {
 
 // El saludo con el nombre, pegado a la izquierda de la campana y el salir
 .top-nav__hello {
-  margin-inline-end: var(--space-xs);
   color: var(--color-text);
   font-size: 1.125rem; // 18px
   font-weight: var(--font-weight-semibold);
@@ -145,14 +145,7 @@ ion-tab-button {
   align-items: center;
   grid-area: actions;
   justify-self: end;
-  gap: var(--space-xs);
-
-  ion-button {
-    --color: var(--color-text);
-
-    margin: 0;
-    font-size: var(--font-size-label);
-  }
+  gap: var(--space-base);
 }
 
 // Escritorio: franja fija y blanca bajo el menú (sin línea entre los dos) con
@@ -225,12 +218,13 @@ ion-tab-button {
   }
 }
 
-// Notificaciones sin leer: contador compacto en la esquina de la campana
-.bell-button {
-  position: relative;
+// Campana, panel y salir. En el móvil, solo el icono en un círculo de 44px;
+// en escritorio, el icono y su texto en azul, en una pastilla de 40px. Al
+// pasar el ratón (solo donde hay ratón) y al pulsar, el fondo azul muy claro
+// de las pestañas
+.header-action {
   overflow: visible;
-  width: 2.75rem;
-  min-width: 2.75rem;
+  width: 2.75rem; // 44px
   height: 2.75rem;
   min-height: 2.75rem;
   margin: 0;
@@ -240,31 +234,94 @@ ion-tab-button {
   --padding-bottom: 0;
   --border-radius: 50%;
   --ripple-color: transparent;
-  --color: var(--color-text);
+  --color: var(--color-link);
+  --background: transparent;
+  --background-hover: transparent;
+  --background-activated: transparent;
 
   ion-icon {
-    width: 1.625rem;
-    height: 1.625rem;
+    width: 1.5rem;
+    height: 1.5rem;
     margin: 0;
-    font-size: 1.625rem; // 26px
+    font-size: 1.5rem; // 24px
   }
 
   &::part(native) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    background: transparent;
-    color: var(--color-text);
+    width: 100%;
+    height: 100%;
+    border-radius: var(--border-radius);
+    color: var(--color);
   }
 
+  @media (any-hover: hover) {
+    &:hover::part(native) {
+      background: var(--color-primary-subtle);
+    }
+  }
+
+  &.ion-activated::part(native),
+  &.header-action--active::part(native) {
+    background: var(--color-primary-subtle);
+  }
+}
+
+// ion-buttons pone a sus botones esquinas de 2px con más prioridad: el círculo
+// se repite aquí con un selector más específico
+.app-header ion-buttons ion-button.header-action {
+  --border-radius: 50%;
+}
+
+// Móvil: el último botón (la campana, o el panel en los administradores),
+// con su icono alineado con el margen de la página (sobresale lo que el
+// círculo de 44px rodea al icono de 24px)
+.app-header ion-buttons .header-action:last-child {
+  margin-inline-end: -0.625rem; // -10px: (44 − 24) / 2
+}
+
+// El icono, con el contador encima en la campana
+.header-action__icon {
+  display: flex;
+  position: relative;
+}
+
+// El texto, solo en escritorio
+.header-action__label {
+  display: none;
+}
+
+.top-nav .header-action {
+  width: auto;
+  height: 2.5rem; // 40px
+  min-height: 2.5rem;
+  --padding-start: var(--space-s);
+  --padding-end: var(--space-base);
+  --border-radius: var(--radius-full);
+
+  ion-icon {
+    width: 1.375rem;
+    height: 1.375rem;
+    font-size: 1.375rem; // 22px
+  }
+
+  .header-action__label {
+    display: inline;
+    margin-inline-start: var(--space-s);
+    font-size: 1rem; // 16px
+    font-weight: var(--font-weight-medium);
+    letter-spacing: normal;
+    text-transform: none;
+  }
+}
+
+// Notificaciones sin leer: contador compacto en la esquina de la campana
+.bell-button {
   .bell-button__badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: 0.25rem;
-    right: 0.25rem;
+    top: -0.3125rem; // -5px
+    right: -0.3125rem;
     min-width: 1.125rem;
     width: auto;
     height: 1.125rem;
