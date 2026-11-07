@@ -27,7 +27,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Backend:** «Sobre mí» de 20 a 200 caracteres (antes 500; los más largos se recortan), Fumar sin «solo en paradas» (pasa a «no se fuma») y el consentimiento de ubicación guarda su origen: `location_prompt` (la ventana que explica para qué se usa) o `device` (se quitó el permiso del sistema), además de `settings` (#128).
 
 ### Added
-- **Backend:** a quién llamar desde el chat del viaje: `GET /api/trips/:id/contacts` da el teléfono verificado del conductor al pasajero y el de los pasajeros aceptados al conductor, solo con el viaje confirmado o en curso (como dice la Política de privacidad). Las conversaciones traen el nombre y el avatar del conductor.
+- **Backend:** a quién llamar desde el chat del viaje: `GET /api/trips/:id/contacts` da el teléfono verificado del conductor al pasajero y el de los pasajeros aceptados al conductor, solo con el viaje confirmado o en curso (como dice la Política de privacidad). Las conversaciones traen el nombre y el avatar del conductor (#217).
 
 - **Frontend:** internacionalización (es/en) con Transloco de componentes comunes (paginación, selector de plazas, selector de fecha/hora, preguntas frecuentes, indicador de pasos, modales de confirmación con motivo y textos legales, enlace a chat de viaje, línea de ruta y matrícula) y catálogo de mensajes de error de la API (#216).
 - **Frontend:** internacionalización (es/en) con Transloco del layout de navegación, modales y cabeceras comunes, y saludo; detección automática del idioma del dispositivo con fallback en español y selector de idioma en pantallas de acceso (login y registro) (#214).
