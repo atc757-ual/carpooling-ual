@@ -45,12 +45,8 @@ function openProfile(profiles: string[]): void {
   cy.get('app-login ion-input[formControlName="password"] input').type('secreta123');
   cy.contains('ion-button', 'Entrar').click();
   cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
-  // En escritorio, Mi perfil está en la cabecera; en el móvil, en las pestañas
-  cy.get(
-    'app-tabs .top-nav .profile-button:visible, app-tabs ion-tab-button[tab="profile"]:visible',
-  )
-    .first()
-    .click();
+  // Mi perfil, en la cabecera (la del móvil o la de escritorio)
+  cy.get('app-tabs .profile-button:visible').click();
   cy.location('pathname').should('eq', '/tabs/profile');
 }
 
