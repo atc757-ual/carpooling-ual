@@ -33,6 +33,7 @@ import {
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { AppContextService } from '../../core/services/ui/app-context.service';
+import { HeadingContentService } from '../../core/services/ui/heading-content.service';
 import { LanguageService } from '../../core/services/ui/language.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { ChatService } from '../../core/services/chat/chat.service';
@@ -117,6 +118,7 @@ export class TabsPage implements OnInit {
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationsService);
   private readonly chat = inject(ChatService);
+  protected readonly headingContent = inject(HeadingContentService);
   private readonly push = inject(PushNotificationsService);
   private readonly driverTracking = inject(DriverTrackingService);
   private readonly destroyRef = inject(DestroyRef);

@@ -84,22 +84,29 @@
      ahí el título ya va en la barra con la flecha de volver -->
 @if (heading(); as heading) {
   <div class="greeting-bar" [class.ion-hide-md-down]="heading.breadcrumbs">
-    <div class="greeting-bar__content">
-      <h1 class="greeting-bar__title">{{ heading.title }}</h1>
-      @if (heading.subtitle) {
-        <p class="greeting-bar__subtitle text-body-s text-color-muted">{{ heading.subtitle }}</p>
-      }
-      @if (heading.breadcrumbs; as breadcrumbs) {
-        <ion-breadcrumbs class="greeting-bar__breadcrumbs">
-          @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
-            <ion-breadcrumb [routerLink]="breadcrumb.href" routerDirection="back">
-              {{ breadcrumb.label }}
-            </ion-breadcrumb>
-          }
-          <ion-breadcrumb [active]="true">{{ heading.title }}</ion-breadcrumb>
-        </ion-breadcrumbs>
-      }
-    </div>
+    <!-- Lo que la pantalla ponga en lugar de su título y subtítulo -->
+    @if (headingContent.content(); as content) {
+      <div class="greeting-bar__content">
+        <ng-container [ngTemplateOutlet]="content" />
+      </div>
+    } @else {
+      <div class="greeting-bar__content">
+        <h1 class="greeting-bar__title">{{ heading.title }}</h1>
+        @if (heading.subtitle) {
+          <p class="greeting-bar__subtitle text-body-s text-color-muted">{{ heading.subtitle }}</p>
+        }
+        @if (heading.breadcrumbs; as breadcrumbs) {
+          <ion-breadcrumbs class="greeting-bar__breadcrumbs">
+            @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
+              <ion-breadcrumb [routerLink]="breadcrumb.href" routerDirection="back">
+                {{ breadcrumb.label }}
+              </ion-breadcrumb>
+            }
+            <ion-breadcrumb [active]="true">{{ heading.title }}</ion-breadcrumb>
+          </ion-breadcrumbs>
+        }
+      </div>
+    }
   </div>
 }
 
