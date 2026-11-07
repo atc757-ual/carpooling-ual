@@ -28,8 +28,7 @@
       <header class="conversation__heading">
         <app-conversation-avatar [name]="driverName()" [avatarKey]="driverAvatarKey()" />
         <ng-container [ngTemplateOutlet]="tripTitle" />
-        <ng-container [ngTemplateOutlet]="reportButton" />
-        <ng-container [ngTemplateOutlet]="callButton" />
+        <ng-container [ngTemplateOutlet]="tripActions" />
       </header>
     }
     <div #scrollContainer class="conversation__scroll">
@@ -150,14 +149,26 @@
       }
     </span>
   </span>
-  @if (conversation(); as current) {
-    <span
-      class="conversation__trip-status status"
-      [class.status--accepted]="current.trip.status === 'confirmed'"
-      [class.status--info]="current.trip.status === 'in_progress'"
-      >{{ statusLabel() }}</span
-    >
-  }
+</ng-template>
+
+<!-- A la derecha del título: el estado del viaje y los botones de denunciar y
+     llamar (en escritorio en una fila; en el móvil, el estado arriba y los
+     botones debajo, para no quitarle ancho al título) -->
+<ng-template #tripActions>
+  <span class="conversation__actions">
+    @if (conversation(); as current) {
+      <span
+        class="conversation__trip-status status"
+        [class.status--accepted]="current.trip.status === 'confirmed'"
+        [class.status--info]="current.trip.status === 'in_progress'"
+        >{{ statusLabel() }}</span
+      >
+    }
+    <span class="conversation__buttons">
+      <ng-container [ngTemplateOutlet]="reportButton" />
+      <ng-container [ngTemplateOutlet]="callButton" />
+    </span>
+  </span>
 </ng-template>
 
 <!-- Llamar: solo si hay a quién (teléfono verificado y chat abierto) -->
@@ -195,7 +206,6 @@
   <div class="conversation-heading-bar">
     <app-conversation-avatar [name]="driverName()" [avatarKey]="driverAvatarKey()" />
     <ng-container [ngTemplateOutlet]="tripTitle" />
-    <ng-container [ngTemplateOutlet]="reportButton" />
-    <ng-container [ngTemplateOutlet]="callButton" />
+    <ng-container [ngTemplateOutlet]="tripActions" />
   </div>
 </ng-template>
