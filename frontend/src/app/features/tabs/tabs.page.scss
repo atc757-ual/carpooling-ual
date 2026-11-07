@@ -149,6 +149,41 @@ ion-tab-button {
   background: var(--color-surface);
 }
 
+// Móvil: en las listas largas se esconde al bajar y vuelve al subir
+// (CollapsingHeadingService). Se pliega su fila (1fr → 0fr) con el relleno; en
+// escritorio queda siempre fija
+@media (max-width: 767px) {
+  .greeting-bar {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition:
+      grid-template-rows 200ms ease,
+      border-color 200ms ease;
+
+    > .greeting-bar__content {
+      min-height: 0;
+      overflow: hidden;
+      transition: padding 200ms ease;
+    }
+  }
+
+  .greeting-bar--hidden {
+    grid-template-rows: 0fr;
+    border-bottom-color: transparent;
+
+    > .greeting-bar__content {
+      padding-block: 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .greeting-bar,
+  .greeting-bar > .greeting-bar__content {
+    transition: none;
+  }
+}
+
 .greeting-bar__content {
   display: flex;
   flex-direction: column;

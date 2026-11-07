@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, TemplateRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { NavController, provideIonicAngular } from '@ionic/angular';
@@ -7,6 +7,8 @@ import { vi } from 'vitest';
 import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
+import { CollapsingHeadingService } from '../../core/services/ui/collapsing-heading.service';
+import { HeadingContentService } from '../../core/services/ui/heading-content.service';
 import { provideTranslocoTestingSupport } from '../../core/i18n/testing-transloco';
 import { LanguageService } from '../../core/services/ui/language.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
@@ -316,6 +318,27 @@ describe('TabsPage', () => {
     await TestBed.inject(Router).navigateByUrl('/tabs/search');
 
     expect(page.heading()).toEqual(HEADING);
+  });
+
+  it('collapses the title strip while scrolling down, except with its own content', async () => {
+    const page = render();
+    const collapsing = TestBed.inject(CollapsingHeadingService);
+    await TestBed.inject(Router).navigateByUrl('/tabs/search');
+
+    collapsing.track(200);
+    fixture.detectChanges();
+    expect(page.isHeadingHidden()).toBe(true);
+    expect(fixture.nativeElement.querySelector('.greeting-bar--hidden')).not.toBeNull();
+
+    // El título del chat (contenido propio) no se esconde
+    const content = {} as TemplateRef<unknown>;
+    TestBed.inject(HeadingContentService).show(content);
+    expect(page.isHeadingHidden()).toBe(false);
+    TestBed.inject(HeadingContentService).clear(content);
+
+    // Al cambiar de pantalla vuelve a verse
+    await TestBed.inject(Router).navigateByUrl('/tabs/publish');
+    expect(page.isHeadingHidden()).toBe(false);
   });
 
   it('shows the bell and Mi perfil in the mobile header, but not in the details', async () => {

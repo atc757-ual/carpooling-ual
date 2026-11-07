@@ -20,12 +20,14 @@ import { TRIP_STATUS_LABELS } from '../../shared/utils/trip-status.util';
 import { messageText } from './chat-texts';
 import { ConversationPage } from './conversation/conversation.page';
 import { map } from 'rxjs';
+import { CollapsingHeading } from '../../shared/directives/collapsing-heading.directive';
 
 // Mensajes: conversaciones recientes con filtro de no leídos y carga por lotes.
 // Cada conversación abre el chat del viaje.
 @Component({
   selector: 'app-messages',
   imports: [
+    CollapsingHeading,
     IonButton,
     IonCard,
     IonCardContent,
