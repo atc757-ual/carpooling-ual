@@ -50,6 +50,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { confirmWithReason } from '../../../shared/components/modals/reason-confirm-modal/reason-confirm-modal';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { TRIP_STATUS_LABELS } from '../../../shared/utils/trip-status.util';
 import { formatTime } from '../../matching/trip-results';
 import {
@@ -91,6 +92,10 @@ export class ConversationPage {
   private readonly toast = inject(ToastService);
   private readonly modalController = inject(ModalController);
   private readonly actionSheetController = inject(ActionSheetController);
+  private readonly transpiler = inject(TRANSLOCO_TRANSPILER, { optional: true });
+  private readonly transloco = this.transpiler
+    ? inject(TranslocoService, { optional: true })
+    : null;
 
   private readonly routeTripId = toSignal(
     inject(ActivatedRoute).paramMap.pipe(map((params) => params.get('tripId') ?? '')),
@@ -202,6 +207,13 @@ export class ConversationPage {
 
   isMine(message: ChatMessage): boolean {
     return message.author.id === this.auth.currentUser()?.id;
+  }
+
+  statusAriaLabel(message: ChatMessage): string {
+    if (message.readByAll) {
+      return this.transloco ? this.transloco.translate('common.chatReceipt.read') : 'Leído';
+    }
+    return this.transloco ? this.transloco.translate('common.chatReceipt.sent') : 'Enviado';
   }
 
   originName(): string {

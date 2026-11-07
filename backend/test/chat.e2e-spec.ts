@@ -34,6 +34,7 @@ interface Message {
   quickReply: string | null;
   author: { name: string };
   authorRole: string;
+  readByAll: boolean;
 }
 
 describe('Chat API (e2e)', () => {
@@ -224,6 +225,44 @@ describe('Chat API (e2e)', () => {
       dan,
     ).expect(200);
     expect(afterRead.headers['x-total-count']).toBe('0');
+  });
+
+  it('marks own messages as read by all when all other participants have read the chat', async () => {
+    const { tripId, dan, pia } = await confirmedTrip();
+
+    const sent = await api('post', `/trips/${tripId}/messages`, pia)
+      .send({ text: 'Hola, ¿dónde estás?' })
+      .expect(201);
+    expect(sent.body).toMatchObject({ readByAll: false });
+
+    const piaMessagesBefore = await api(
+      'get',
+      `/trips/${tripId}/messages`,
+      pia,
+    ).expect(200);
+    expect((piaMessagesBefore.body as Message[])[0]).toMatchObject({
+      readByAll: false,
+    });
+
+    await api('put', `/trips/${tripId}/messages/read`, dan).expect(204);
+
+    const piaMessagesAfter = await api(
+      'get',
+      `/trips/${tripId}/messages`,
+      pia,
+    ).expect(200);
+    expect((piaMessagesAfter.body as Message[])[0]).toMatchObject({
+      readByAll: true,
+    });
+
+    const danMessages = await api(
+      'get',
+      `/trips/${tripId}/messages`,
+      dan,
+    ).expect(200);
+    expect((danMessages.body as Message[])[0]).toMatchObject({
+      readByAll: false,
+    });
   });
 
   it('lists only the conversation of the trip in progress with tripStatus', async () => {

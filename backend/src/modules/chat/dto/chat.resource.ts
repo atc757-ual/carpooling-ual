@@ -58,6 +58,13 @@ export class ChatMessageResource {
 
   @ApiProperty({ format: 'date-time' })
   createdAt: string;
+
+  @ApiProperty({
+    description:
+      'Whether all other participants of the trip have read this message (computed for own messages)',
+    example: true,
+  })
+  readByAll: boolean;
 }
 
 // Recurso TMF630 ChatContact: alguien del viaje a quien se puede llamar (sin
@@ -164,6 +171,7 @@ export function toChatMessageResource({
   message,
   author,
   authorRole,
+  readByAll,
 }: ChatMessageView): ChatMessageResource {
   return {
     '@type': 'ChatMessage',
@@ -174,6 +182,7 @@ export function toChatMessageResource({
     text: message.body,
     quickReply: message.quickReply,
     createdAt: message.createdAt.toISOString(),
+    readByAll,
   };
 }
 

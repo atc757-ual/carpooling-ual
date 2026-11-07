@@ -29,6 +29,7 @@ export interface ChatMessageView {
   message: ChatMessage;
   author: { id: string; name: string; avatarKey: string | null };
   authorRole: ChatRole;
+  readByAll: boolean;
 }
 
 // Con qué estados del viaje se puede llamar desde el chat
@@ -122,7 +123,27 @@ export class ChatService {
     tripId: string,
     page: PageRequest & { after?: string },
   ): Promise<Page<ChatMessageView>> {
-    const { trip } = await this.getAccess(userId, tripId);
+    const { trip, participantIds } = await this.getAccess(userId, tripId);
+    const otherParticipantIds = participantIds.filter((id) => id !== userId);
+    let earliestReadAt: Date | null = null;
+    if (otherParticipantIds.length > 0) {
+      const result = await this.dataSource.query<
+        { min_read_at: Date | string | null; count: number }[]
+      >(
+        `SELECT MIN(last_read_at) AS min_read_at, COUNT(*)::int AS count
+           FROM chat_reads
+          WHERE trip_id = $1 AND user_id = ANY($2)`,
+        [tripId, otherParticipantIds],
+      );
+      if (
+        result[0] &&
+        Number(result[0].count) === otherParticipantIds.length &&
+        result[0].min_read_at
+      ) {
+        earliestReadAt = new Date(result[0].min_read_at);
+      }
+    }
+
     const qb = this.messagesRepository
       .createQueryBuilder('m')
       .where('m.tripId = :tripId', { tripId })
@@ -138,7 +159,14 @@ export class ChatService {
       );
     }
     const [messages, total] = await qb.getManyAndCount();
-    return { items: await this.toViews(trip, messages), total };
+    const readByAllPredicate = (m: ChatMessage) =>
+      m.authorId === userId &&
+      earliestReadAt !== null &&
+      m.createdAt.getTime() <= earliestReadAt.getTime();
+    return {
+      items: await this.toViews(trip, messages, readByAllPredicate),
+      total,
+    };
   }
 
   async send(
@@ -216,6 +244,7 @@ export class ChatService {
   async toViews(
     trip: Pick<Trip, 'driverId'>,
     messages: ChatMessage[],
+    readByAllPredicate?: (message: ChatMessage) => boolean,
   ): Promise<ChatMessageView[]> {
     const profiles = await this.usersService.getPublicProfiles(
       messages.map(({ authorId }) => authorId),
@@ -230,6 +259,7 @@ export class ChatService {
           avatarKey: profile?.avatarKey ?? null,
         },
         authorRole: message.authorId === trip.driverId ? 'driver' : 'passenger',
+        readByAll: readByAllPredicate ? readByAllPredicate(message) : false,
       };
     });
   }

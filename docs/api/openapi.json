@@ -15415,6 +15415,11 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "readByAll": {
+            "type": "boolean",
+            "description": "Whether all other participants of the trip have read this message (computed for own messages)",
+            "example": true
           }
         },
         "required": [
@@ -15425,7 +15430,8 @@
           "kind",
           "text",
           "quickReply",
-          "createdAt"
+          "createdAt",
+          "readByAll"
         ]
       },
       "ConversationResource": {

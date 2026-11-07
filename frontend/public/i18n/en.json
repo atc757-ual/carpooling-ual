@@ -98,6 +98,10 @@
     },
     "licensePlate": {
       "aria": "License plate {{ plate }}"
+    },
+    "chatReceipt": {
+      "sent": "Sent",
+      "read": "Read"
     }
   },
   "brand": {

@@ -22,6 +22,7 @@ export interface ChatMessage {
   text: string | null;
   quickReply: QuickReply | null;
   createdAt: string;
+  readByAll?: boolean;
 }
 
 // El chat de un viaje para el usuario (GET /api/users/me/conversations); su

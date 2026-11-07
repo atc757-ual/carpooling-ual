@@ -98,6 +98,10 @@
     },
     "licensePlate": {
       "aria": "Matrícula {{ plate }}"
+    },
+    "chatReceipt": {
+      "sent": "Enviado",
+      "read": "Leído"
     }
   },
   "brand": {
