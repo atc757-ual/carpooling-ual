@@ -280,13 +280,6 @@ ion-tab-button {
   }
 }
 
-@media (min-width: 768px) {
-  .top-nav .bell-button .bell-button__badge {
-    top: -0.25rem;
-    right: 0.25rem;
-  }
-}
-
 .bell-button--pulse ion-icon {
   animation: notification-bell-pulse 850ms ease-out;
 }
