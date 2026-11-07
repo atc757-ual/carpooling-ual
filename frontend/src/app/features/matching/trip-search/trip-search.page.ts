@@ -15,6 +15,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { FaqCard } from '../../../shared/components/ui/faq-card/faq-card';
 import { SEARCH_FAQS } from '../search-faqs';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
+import { CollapsingHeading } from '../../../shared/directives/collapsing-heading.directive';
 
 // Buscar (pasajero). La búsqueda es la última hecha, en Inicio o aquí
 // (TripSearchStateService, no va en la URL). Arriba en el móvil y en la
@@ -27,6 +28,7 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
 @Component({
   selector: 'app-trip-search',
   imports: [
+    CollapsingHeading,
     RouterLink,
     IonRouterLink,
     IonItem,

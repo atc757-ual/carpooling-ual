@@ -41,6 +41,7 @@ import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { SeatRequestsService } from '../../core/services/requests/seat-requests.service';
 import { AppContextService } from '../../core/services/ui/app-context.service';
 import { HeadingContentService } from '../../core/services/ui/heading-content.service';
+import { CollapsingHeadingService } from '../../core/services/ui/collapsing-heading.service';
 import { LanguageService } from '../../core/services/ui/language.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { ChatService } from '../../core/services/chat/chat.service';
@@ -128,22 +129,33 @@ export class TabsPage implements OnInit {
   private readonly navController = inject(NavController);
   private readonly chat = inject(ChatService);
   protected readonly headingContent = inject(HeadingContentService);
+  private readonly collapsingHeading = inject(CollapsingHeadingService);
   private readonly push = inject(PushNotificationsService);
   private readonly driverTracking = inject(DriverTrackingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly transloco = inject(TranslocoService);
   private readonly language = inject(LanguageService);
 
-  // La cabecera propia de la pestaña que se ve, o null (saludo y logotipo)
+  // La cabecera propia de la pestaña que se ve, o null (saludo y logotipo).
+  // Al cambiar de pantalla, la franja del título vuelve a verse
   readonly heading = toSignal(
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
-      map(() => findTabHeading(this.router.routerState.snapshot.root)),
+      map(() => {
+        this.collapsingHeading.reset();
+        return findTabHeading(this.router.routerState.snapshot.root);
+      }),
     ),
     { initialValue: findTabHeading(this.router.routerState.snapshot.root) },
   );
 
   readonly firstName = computed(() => this.auth.currentUser()?.firstName ?? '');
+  // La franja del título, escondida al bajar por una lista (solo en el móvil:
+  // lo decide el CSS). Con contenido propio, como el título del chat, no se
+  // esconde nunca
+  readonly isHeadingHidden = computed(
+    () => this.collapsingHeading.isHidden() && !this.headingContent.content(),
+  );
   // Los destinos, con el coche del viaje en curso en medio (LIVE_TAB_INDEX).
   // Mi perfil va en la cabecera, junto a Notificaciones
   readonly tabs: readonly Tab[] = [SEARCH_TAB, PUBLISH_TAB, TRIPS_TAB, MESSAGES_TAB];

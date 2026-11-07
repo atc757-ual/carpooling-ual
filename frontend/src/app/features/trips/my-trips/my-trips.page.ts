@@ -31,6 +31,7 @@ import { LiveTripBanner } from './live-trip-banner/live-trip-banner';
 import { MyTripsAside } from './my-trips-aside/my-trips-aside';
 import { formatRoute, occupiedSeats, savedCo2Kg, tripsSummary } from './my-trips-summary';
 import { driverTripTab, EMPTY_TEXTS, isTripsTab, TRIPS_TABS, TripsTab } from './trip-tabs';
+import { CollapsingHeading } from '../../../shared/directives/collapsing-heading.directive';
 
 interface LiveBannerData {
   route: string;
@@ -46,6 +47,7 @@ interface LiveBannerData {
 @Component({
   selector: 'app-my-trips',
   imports: [
+    CollapsingHeading,
     RouterLink,
     IonButton,
     IonCard,

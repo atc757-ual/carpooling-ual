@@ -42,6 +42,7 @@ import {
   notificationMessage,
   notificationMode,
 } from './notification-texts';
+import { CollapsingHeading } from '../../shared/directives/collapsing-heading.directive';
 
 export interface NotificationItem {
   notification: AppNotification;
@@ -52,7 +53,16 @@ const CATEGORIES: NotificationCategory[] = ['travel', 'account', 'incident'];
 
 @Component({
   selector: 'app-notifications',
-  imports: [IonButton, IonCard, IonCardContent, IonChip, IonContent, IonIcon, IonSpinner],
+  imports: [
+    CollapsingHeading,
+    IonButton,
+    IonCard,
+    IonCardContent,
+    IonChip,
+    IonContent,
+    IonIcon,
+    IonSpinner,
+  ],
   templateUrl: './notifications.page.html',
   styleUrls: ['../tabs/tab-page.scss', './notifications.page.scss'],
 })
