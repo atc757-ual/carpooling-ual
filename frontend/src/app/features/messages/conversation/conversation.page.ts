@@ -26,7 +26,9 @@ import {
   alertCircleOutline,
   arrowForwardOutline,
   callOutline,
+  closeOutline,
   ellipseOutline,
+  ellipsisVertical,
   flagOutline,
   locationOutline,
   lockClosedOutline,
@@ -149,6 +151,8 @@ export class ConversationPage {
   protected readonly maxLength = MAX_MESSAGE_LENGTH;
   protected readonly sendIcon = send;
   protected readonly reportIcon = flagOutline;
+  protected readonly optionsIcon = ellipsisVertical;
+  protected readonly optionsLabel = 'Más opciones';
   protected readonly callIcon = callOutline;
   protected readonly originIcon = ellipseOutline;
   protected readonly destinationIcon = locationOutline;
@@ -180,7 +184,7 @@ export class ConversationPage {
       }
     });
     destroyRef.onDestroy(() => {
-      this.headingContent.clear(this.headingTitle());
+      this.headingContent.clear();
       this.isActive = false;
       this.stopPolling();
       document.removeEventListener('visibilitychange', this.handleVisibilityChange);
@@ -198,6 +202,7 @@ export class ConversationPage {
   ionViewDidLeave(): void {
     this.isActive = false;
     this.stopPolling();
+    this.headingContent.clear();
   }
 
   isMine(message: ChatMessage): boolean {
@@ -270,6 +275,27 @@ export class ConversationPage {
           handler: () => this.openPhone(contact.phone),
         })),
         { text: 'Cancelar', role: 'cancel' },
+      ],
+    });
+    await sheet.present();
+  }
+
+  // Menú de opciones del chat: tres puntos al lado del teléfono
+  async handleOpenOptions(): Promise<void> {
+    const sheet = await this.actionSheetController.create({
+      header: 'Opciones de conversación',
+      buttons: [
+        {
+          text: 'Denunciar el chat',
+          role: 'destructive',
+          icon: this.reportIcon,
+          handler: () => this.handleReport(),
+        },
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          icon: closeOutline,
+        },
       ],
     });
     await sheet.present();

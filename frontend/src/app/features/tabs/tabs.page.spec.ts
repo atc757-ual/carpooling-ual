@@ -341,6 +341,18 @@ describe('TabsPage', () => {
     expect(page.isHeadingHidden()).toBe(false);
   });
 
+  it('clears custom heading content when navigating to routes outside conversation detail', async () => {
+    render();
+    const headingService = TestBed.inject(HeadingContentService);
+    const content = {} as TemplateRef<unknown>;
+    headingService.show(content);
+    expect(headingService.content()).toBe(content);
+
+    await TestBed.inject(Router).navigateByUrl('/tabs/publish');
+    await fixture.whenStable();
+    expect(headingService.content()).toBeNull();
+  });
+
   it('shows the bell and Mi perfil in the mobile header, but not in the details', async () => {
     render();
     const header = (): HTMLElement => fixture.nativeElement.querySelector('.app-header');

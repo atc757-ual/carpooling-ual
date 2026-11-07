@@ -161,8 +161,8 @@
   </span>
 </ng-template>
 
-<!-- A la derecha del título: el estado del viaje y los botones de denunciar y
-     llamar (el estado arriba y los botones debajo, para no quitarle ancho al
+<!-- A la derecha del título: el estado del viaje y los botones de llamar
+     y opciones (el estado arriba y los botones debajo, para no quitarle ancho al
      título) -->
 <ng-template #tripActions>
   <span class="conversation__actions">
@@ -175,26 +175,13 @@
       >
     }
     <span class="conversation__buttons">
-      <ng-container [ngTemplateOutlet]="reportButton" />
       <ng-container [ngTemplateOutlet]="callButton" />
+      <ng-container [ngTemplateOutlet]="optionsButton" />
     </span>
   </span>
 </ng-template>
 
 <!-- Llamar: solo si hay a quién (teléfono verificado y chat abierto) -->
-<!-- Denunciar el chat entero (la API copia la conversación en la incidencia) -->
-<ng-template #reportButton>
-  <ion-button
-    class="conversation__report"
-    fill="clear"
-    aria-label="Denunciar el chat"
-    title="Denunciar el chat"
-    (click)="handleReport()"
-  >
-    <ion-icon slot="icon-only" [icon]="reportIcon" aria-hidden="true" />
-  </ion-button>
-</ng-template>
-
 <ng-template #callButton>
   <!-- Siempre a la vista; en gris si aún no se puede llamar (al pulsarlo,
        explica por qué). No va deshabilitado para que se pueda pulsar -->
@@ -208,6 +195,19 @@
     (click)="handleCall()"
   >
     <ion-icon slot="icon-only" [icon]="callIcon" aria-hidden="true" />
+  </ion-button>
+</ng-template>
+
+<!-- Opciones de conversación (tres puntos): menú con denunciar el chat -->
+<ng-template #optionsButton>
+  <ion-button
+    class="conversation__options"
+    fill="clear"
+    [attr.aria-label]="optionsLabel"
+    [title]="optionsLabel"
+    (click)="handleOpenOptions()"
+  >
+    <ion-icon slot="icon-only" [icon]="optionsIcon" aria-hidden="true" />
   </ion-button>
 </ng-template>
 

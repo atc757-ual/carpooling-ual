@@ -326,6 +326,17 @@
   margin: 0;
 }
 
+// Opciones de conversación (tres puntos): 44px de área táctil
+.conversation__options {
+  --color: var(--color-text-muted);
+  --color-hover: var(--color-text);
+
+  flex: none;
+  min-width: 2.75rem; // 44px
+  min-height: 2.75rem; // 44px
+  margin: 0;
+}
+
 // Aún no se puede llamar: en gris (sigue pudiéndose pulsar para saber por qué)
 .conversation__call--unavailable {
   --color: var(--color-text-muted);
