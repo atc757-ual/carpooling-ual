@@ -92,16 +92,9 @@ ion-tab-button {
   padding-bottom: var(--space-base);
   background: var(--color-surface);
 
-  app-brand-logo {
+  .top-nav__brand {
     grid-area: brand;
   }
-}
-
-// El saludo con el nombre, pegado a la izquierda de la campana y el salir
-.top-nav__hello {
-  color: var(--color-text);
-  font-size: 1.125rem; // 18px
-  font-weight: var(--font-weight-semibold);
 }
 
 .top-nav__links {

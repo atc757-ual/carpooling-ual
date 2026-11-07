@@ -145,8 +145,9 @@ for (const viewport of VIEWPORTS) {
       it('has the top menu with the greeting and the strip below', () => {
         logIn(['passenger']);
 
-        cy.get('app-tabs .top-nav app-brand-logo').should('be.visible');
-        cy.contains('app-tabs .top-nav__hello', '¡Hola, Mario!').should('be.visible');
+        // El logotipo y el saludo se turnan, como en el móvil
+        cy.get('app-tabs .top-nav app-brand-greeting').should('be.visible');
+        cy.contains('app-tabs .top-nav app-brand-greeting', '¡Hola, Mario!').should('exist');
         cy.contains('app-tabs .top-nav .bell-button', 'Notificaciones').should('be.visible');
         cy.contains('app-tabs .top-nav .profile-button', 'Mi perfil').should('be.visible');
         cy.contains('app-tabs .top-nav .logout-button', 'Salir').should('be.visible');

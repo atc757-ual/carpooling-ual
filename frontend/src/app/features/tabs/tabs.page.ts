@@ -48,7 +48,6 @@ import { PushNotificationsService } from '../../core/services/push/push-notifica
 import { openNotificationTarget } from '../notifications/notification-target';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
-import { BrandLogo } from '../../shared/components/ui/brand-logo/brand-logo';
 import { BrandGreeting } from '../../shared/components/ui/brand-greeting/brand-greeting';
 import { findTabHeading } from './tab-heading';
 
@@ -112,7 +111,6 @@ const SIDES: readonly { path: string; mode: TravelMode }[] = [
     IonTabs,
     IonTitle,
     IonToolbar,
-    BrandLogo,
     BrandGreeting,
     TranslocoPipe,
   ],
