@@ -9,22 +9,15 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
-  IonButton,
   IonContent,
   IonHeader,
   IonIcon,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonPopover,
+  IonMenu,
+  IonMenuButton,
+  IonMenuToggle,
   NavController,
 } from '@ionic/angular';
-import {
-  chevronDownOutline,
-  logOutOutline,
-  personCircleOutline,
-  phonePortraitOutline,
-} from 'ionicons/icons';
+import { logOutOutline, phonePortraitOutline } from 'ionicons/icons';
 import { filter } from 'rxjs';
 import { HOME_PATH, WELCOME_PATH } from '../../../../core/guards/redirect-paths';
 import { AdminIncidentsService } from '../../../../core/services/admin/admin-incidents.service';
@@ -43,12 +36,10 @@ import { ADMIN_SECTIONS, INCIDENTS_SECTION_PATH } from '../../../../features/adm
   imports: [
     IonHeader,
     IonContent,
-    IonButton,
     IonIcon,
-    IonItem,
-    IonLabel,
-    IonList,
-    IonPopover,
+    IonMenu,
+    IonMenuButton,
+    IonMenuToggle,
     RouterLink,
     RouterLinkActive,
     RouterOutlet,
@@ -69,8 +60,6 @@ export class AdminLayout implements OnInit {
   protected readonly sections = ADMIN_SECTIONS;
   protected readonly incidentsPath = INCIDENTS_SECTION_PATH;
   protected readonly logoutIcon = logOutOutline;
-  protected readonly accountIcon = personCircleOutline;
-  protected readonly menuIcon = chevronDownOutline;
   protected readonly appIcon = phonePortraitOutline;
   // «Ir a la app» solo si la cuenta también conduce o viaja
   protected readonly canUseApp = computed(() => canUseApp(this.auth.currentUser()?.profiles ?? []));

@@ -1,6 +1,4 @@
-// Cabecera índigo del panel (guía de estilos, «Administración»): en el móvil,
-// logotipo, cuenta y navegación en una columna; desde 768px, logotipo y cuenta
-// en la primera fila y la navegación debajo, como el menú de la app
+// En móvil, la cabecera queda compacta y las secciones pasan al menú lateral.
 .admin-header {
   background: var(--color-admin);
   color: var(--color-on-admin);
@@ -8,26 +6,23 @@
 }
 
 .admin-header__bar {
-  display: grid;
-  grid-template-areas:
-    'brand'
-    'account'
-    'nav';
-  gap: var(--space-s);
-  padding: var(--space-s) var(--page-gutter);
+  padding: 0 var(--page-gutter);
+}
 
-  @media (min-width: 768px) {
-    grid-template-areas:
-      'brand account'
-      'nav nav';
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    padding-block: var(--space-xs) 0;
-  }
+.admin-mobile-header {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+  align-items: center;
+  min-height: 3.5rem; // 56px
+}
+
+.admin-mobile-header__menu-button {
+  justify-self: start;
+  color: var(--color-on-admin);
+  transform: translateX(calc(-1 * var(--space-s)));
 }
 
 .admin-header__brand {
-  grid-area: brand;
   color: inherit;
   font-family: var(--font-family-heading);
   font-size: 1.25rem; // 20px
@@ -35,38 +30,163 @@
   text-decoration: none;
 }
 
-.admin-header__account {
-  display: flex;
-  flex-wrap: wrap;
-  grid-area: account;
-  align-items: center;
-  gap: var(--space-xs);
+.admin-desktop-header {
+  display: none;
+}
 
-  @media (min-width: 768px) {
-    justify-self: end;
+.admin-mobile-menu {
+  top: 3.5rem; // El panel comienza bajo la cabecera móvil
+  height: calc(100% - 3.5rem);
+  --background: var(--color-admin);
+  --color: var(--color-on-admin);
+  --width: min(20rem, 86vw);
+}
+
+.admin-mobile-menu__brand {
+  display: flex;
+  align-items: center;
+  min-height: 3.5rem; // 56px
+  padding-inline: var(--space-base);
+  color: inherit;
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem; // 20px
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+
+.admin-mobile-menu__layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: var(--space-base) var(--page-gutter);
+  background: var(--color-admin);
+  color: var(--color-on-admin);
+}
+
+.admin-mobile-nav {
+  display: flex;
+  flex-direction: column;
+  margin-inline: calc(-1 * var(--page-gutter));
+
+  ion-menu-toggle {
+    display: block;
   }
 }
 
-.admin-header__email {
-  font-size: var(--font-size-label);
+.admin-mobile-nav .admin-nav__link {
+  border-bottom: 0;
+  border-inline-start: 0.1875rem solid transparent; // 3px
+}
+
+.admin-mobile-nav .admin-nav__link--active {
+  border-inline-start-color: var(--color-on-admin);
+}
+
+.admin-mobile-menu__footer {
+  display: grid;
+  gap: var(--space-s);
+  margin-block-start: auto;
+  padding-block-start: var(--space-base);
+  border-top: var(--border-width-s) solid color-mix(in srgb, var(--color-on-admin) 30%, transparent);
+}
+
+.admin-mobile-menu__email {
+  padding: var(--space-xs) var(--space-base);
+  font-size: var(--font-size-body);
   overflow-wrap: anywhere;
 }
 
-.admin-header__account-button {
-  text-transform: none;
+.admin-mobile-menu__action {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-height: var(--control-height-base);
+  padding-inline: var(--space-base);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: start;
 
-  --color: var(--color-on-admin);
-  --color-hover: var(--color-on-admin);
+  ion-icon {
+    flex: 0 0 auto;
+    font-size: 1.25rem; // 20px
+  }
+
+  &:focus-visible {
+    outline: 0.125rem solid var(--color-on-admin);
+    outline-offset: -0.125rem;
+  }
 }
 
-.admin-nav {
-  display: flex;
-  flex-direction: column;
-  grid-area: nav;
+// En escritorio se mantiene la navegación superior y la cuenta queda visible.
+@media (min-width: 768px) {
+  .admin-header__bar {
+    padding-block: var(--space-xs) 0;
+  }
 
-  @media (min-width: 768px) {
+  .admin-mobile-header {
+    display: none;
+  }
+
+  .admin-desktop-header {
+    display: grid;
+    grid-template-areas:
+      'brand account'
+      'nav nav';
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 4.75rem auto; // 76px para marca y cuenta, sin cambiar el menú
+    align-items: center;
+    gap: var(--space-s);
+  }
+
+  .admin-desktop-header > .admin-header__brand {
+    grid-area: brand;
+  }
+
+  .admin-header__account {
+    display: flex;
+    grid-area: account;
+    align-items: center;
+    justify-self: end;
+    gap: var(--space-base);
+  }
+
+  .admin-header__email {
+    font-size: var(--font-size-body);
+    overflow-wrap: anywhere;
+  }
+
+  .admin-header__logout {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: var(--control-height-base);
+    padding-inline: var(--space-s);
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    white-space: nowrap;
+
+    ion-icon {
+      font-size: 1.25rem; // 20px
+    }
+
+    &:focus-visible {
+      outline: 0.125rem solid var(--color-on-admin);
+      outline-offset: -0.125rem;
+    }
+  }
+
+  .admin-nav {
+    display: flex;
+    grid-area: nav;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: center;
     gap: var(--space-xs);
   }
 }
@@ -75,17 +195,16 @@
   display: flex;
   align-items: center;
   gap: var(--space-s);
-  // 48px de alto, como los botones
   min-height: var(--control-height-base);
   padding-inline: var(--space-base);
   border-bottom: 0.1875rem solid transparent; // 3px
   color: inherit;
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
 
   &:focus-visible {
-    outline: 0.125rem solid var(--color-on-admin); // 2px
+    outline: 0.125rem solid var(--color-on-admin);
     outline-offset: -0.125rem;
   }
 }
