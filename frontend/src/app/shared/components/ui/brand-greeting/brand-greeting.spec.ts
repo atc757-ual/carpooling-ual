@@ -31,7 +31,7 @@ describe('BrandGreeting', () => {
     const [brand, hello] = words(fixture);
 
     expect((fixture.nativeElement as HTMLElement).querySelector('app-brand-logo')).not.toBeNull();
-    expect(brand.textContent).toContain('Carpool');
+    expect(brand.textContent).toContain('Carpooling');
     expect(hello.textContent).toContain('¡Hola, Ana!');
     expect(hello.classList).toContain('brand-greeting__word--out');
   });
@@ -54,7 +54,7 @@ describe('BrandGreeting', () => {
     expect(brand.classList).not.toContain('brand-greeting__word--out');
   });
 
-  // Con «reducir movimiento» no se anima ni se cambia: se queda «Carpool»
+  // Con «reducir movimiento» no se anima ni se cambia: se queda «Carpooling»
   it('stays on the brand name when the system asks for less motion', () => {
     vi.useFakeTimers();
     vi.stubGlobal('matchMedia', () => ({ matches: true }));

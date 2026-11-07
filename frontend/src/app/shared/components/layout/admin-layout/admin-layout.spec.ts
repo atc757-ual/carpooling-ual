@@ -63,7 +63,7 @@ describe('AdminLayout', () => {
 
   it('shows the brand, the admin account and the six sections in order', () => {
     expect(element().querySelector('.admin-header__brand')?.textContent).toContain(
-      'UAL Carpool · Admin',
+      'Carpooling UAL · Admin',
     );
     expect(element().querySelector('.admin-header__email')?.textContent).toContain('admin@ual.es');
     expect(links().map((link) => link.textContent?.trim())).toEqual([

@@ -18,7 +18,7 @@ describe('BrandLogo', () => {
     const host = await render('default');
 
     expect(host.getAttribute('role')).toBe('img');
-    expect(host.getAttribute('aria-label')).toBe('UAL Carpool');
+    expect(host.getAttribute('aria-label')).toBe('Carpooling UAL');
   });
 
   it('renders the car-sport icon in the badge', async () => {
