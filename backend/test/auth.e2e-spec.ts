@@ -46,7 +46,8 @@ describe('Auth API (e2e)', () => {
     return request(app.getHttpServer())
       .post('/api/auth/register')
       .send({
-        name: 'Ana',
+        firstName: 'Ana',
+        lastName: 'García',
         email: `${EMAIL_PREFIX}ana@ual.es`,
         password: PASSWORD,
         phone: TEST_PHONE,
@@ -144,7 +145,10 @@ describe('Auth API (e2e)', () => {
       expect(response.body).toEqual({});
       expect(response.headers.location).toBeUndefined();
       expect(await countUsers()).toBe(0);
-      expect(await pendingRow('name')).toEqual({ name: 'Ana' });
+      expect(await pendingRow('first_name, last_name')).toEqual({
+        first_name: 'Ana',
+        last_name: 'García',
+      });
     });
 
     it('creates the user as a passenger when the code is verified', async () => {
@@ -154,7 +158,8 @@ describe('Auth API (e2e)', () => {
 
       expect(response.body).toMatchObject({
         user: {
-          name: 'Ana',
+          firstName: 'Ana',
+          lastName: 'García',
           email: ANA,
           phone: TEST_PHONE,
           profiles: ['passenger'],
@@ -185,10 +190,24 @@ describe('Auth API (e2e)', () => {
       ['with extra spaces', '  Ana   García ', 'Ana García'],
       // «a» + tilde suelta (dos caracteres): se guarda como «á»
       ['with a separate accent', 'María', 'María'],
-    ])('accepts a name %s', async (_case, name, stored) => {
-      await register({ name }).expect(202);
+    ])('accepts a name %s', async (_case, firstName, stored) => {
+      await register({ firstName }).expect(202);
 
-      expect(await pendingRow('name')).toEqual({ name: stored });
+      expect(await pendingRow('first_name')).toEqual({ first_name: stored });
+    });
+
+    it.each([
+      ['two surnames', 'García López', 'García López'],
+      [
+        'compound surnames',
+        'García-Pelayo de la Fuente',
+        'García-Pelayo de la Fuente',
+      ],
+      ['with extra spaces', '  de la   Fuente ', 'de la Fuente'],
+    ])('accepts %s', async (_case, lastName, stored) => {
+      await register({ lastName }).expect(202);
+
+      expect(await pendingRow('last_name')).toEqual({ last_name: stored });
     });
 
     it.each([
@@ -196,12 +215,21 @@ describe('Auth API (e2e)', () => {
       ['with symbols', 'Ana_García!'],
       ['starting with a hyphen', '-Ana'],
       ['with two hyphens in a row', 'Ana--María'],
-    ])('rejects a name %s with 400', async (_case, name) => {
-      const response = await register({ name }).expect(400);
+    ])('rejects a name %s with 400', async (_case, firstName) => {
+      const response = await register({ firstName }).expect(400);
 
       expect(response.body).toMatchObject({
         code: 'VALIDATION_FAILED',
-        fields: [{ field: 'name' }],
+        fields: [{ field: 'firstName' }],
+      });
+    });
+
+    it('rejects surnames with numbers with 400', async () => {
+      const response = await register({ lastName: 'García 2' }).expect(400);
+
+      expect(response.body).toMatchObject({
+        code: 'VALIDATION_FAILED',
+        fields: [{ field: 'lastName' }],
       });
     });
 
@@ -278,14 +306,14 @@ describe('Auth API (e2e)', () => {
     it('lets someone register again while the email is not verified', async () => {
       await register().expect(202);
 
-      await register({ name: 'Ana María' }).expect(202);
+      await register({ firstName: 'Ana María' }).expect(202);
 
       // Un solo registro pendiente, con los datos nuevos
-      const rows = await dataSource.query<{ name: string }[]>(
-        'SELECT name FROM pending_registrations WHERE email = $1',
+      const rows = await dataSource.query<{ first_name: string }[]>(
+        'SELECT first_name FROM pending_registrations WHERE email = $1',
         [ANA],
       );
-      expect(rows).toEqual([{ name: 'Ana María' }]);
+      expect(rows).toEqual([{ first_name: 'Ana María' }]);
     });
 
     it('rejects a non-UAL email with 400', async () => {
@@ -300,7 +328,8 @@ describe('Auth API (e2e)', () => {
 
     it('reports every invalid field at once', async () => {
       const response = await register({
-        name: '   ',
+        firstName: '   ',
+        lastName: '',
         email: 'not-an-email',
         password: 'short',
         phone: '123',
@@ -312,7 +341,7 @@ describe('Auth API (e2e)', () => {
         code: 'VALIDATION_FAILED',
       });
       expect(new Set(body.fields.map(({ field }) => field))).toEqual(
-        new Set(['name', 'email', 'password', 'phone']),
+        new Set(['firstName', 'lastName', 'email', 'password', 'phone']),
       );
     });
 

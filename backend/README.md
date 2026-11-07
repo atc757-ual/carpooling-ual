@@ -18,7 +18,7 @@ API REST en **NestJS 12** sobre Node.js 26 (LTS) y TypeScript 6.
     npm run lint          # ESLint (sin any, sin imports sin usar, sin console.log)
     npm run format        # Formatear con Prettier
     npm run openapi       # Regenerar docs/api/openapi.json (obligatorio al cambiar la API)
-    npm run create-admin -- --email=ana@ual.es --name="Ana García"   # Primer administrador (despliegue)
+    npm run create-admin -- --email=ana@ual.es --first-name=Ana --last-name="García López"   # Primer administrador (despliegue)
 
 Para poner en marcha un entorno nuevo (variables, migraciones y primer administrador), seguir [`docs/despliegue.md`](../docs/despliegue.md).
 

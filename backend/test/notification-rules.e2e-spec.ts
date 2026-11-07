@@ -57,7 +57,8 @@ describe('Notification rules (e2e)', () => {
     profiles: ('driver' | 'passenger' | 'admin')[] = ['passenger'],
   ): Promise<string> {
     const user = await usersService.createWithProfiles({
-      name,
+      firstName: name,
+      lastName: 'Prueba',
       email: `${EMAIL_PREFIX}${name}@ual.es`,
       passwordHash: 'hash',
       profiles,

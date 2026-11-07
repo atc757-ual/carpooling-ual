@@ -41,7 +41,7 @@ describe('TripSearchPage', () => {
   ): Promise<ComponentFixture<TripSearchPage>> {
     sessionStorage.clear();
     stubIntersectionObserver();
-    const user = signal({ name: 'Jimena Ruiz', profiles } as User);
+    const user = signal({ firstName: 'Jimena', lastName: 'Ruiz', profiles } as User);
     const requests = Array.from({ length: pending }, (_, index) => ({
       id: `r${index}`,
       status: 'pending',

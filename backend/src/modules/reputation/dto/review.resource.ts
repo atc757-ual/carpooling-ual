@@ -32,7 +32,7 @@ export class ReviewParticipantResource {
   @ApiProperty({ format: 'uuid' })
   id: string;
 
-  @ApiProperty({ example: 'Lucía Conductora' })
+  @ApiProperty({ example: 'Lucía' })
   name: string;
 
   @ApiProperty({ type: String, nullable: true, example: 'sun' })

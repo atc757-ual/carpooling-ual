@@ -89,7 +89,8 @@ export class UserProfilesService {
       .leftJoinAndSelect('user.passengerProfile', 'passenger')
       .leftJoinAndSelect('user.adminProfile', 'admin');
     const [users, total] = await applyAdminUserFilter(query, filter)
-      .orderBy('user.name', 'ASC')
+      .orderBy('user.firstName', 'ASC')
+      .addOrderBy('user.lastName', 'ASC')
       .addOrderBy('user.id', 'ASC')
       .skip(page.offset)
       .take(page.limit)

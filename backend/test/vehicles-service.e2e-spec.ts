@@ -43,7 +43,8 @@ describe('VehiclesService (e2e)', () => {
 
   async function createDriver(name: string): Promise<string> {
     const user = await usersService.createWithProfiles({
-      name,
+      firstName: name,
+      lastName: 'Prueba',
       email: `${EMAIL_PREFIX}${name}@ual.es`,
       passwordHash: 'hash',
       profiles: ['driver'],

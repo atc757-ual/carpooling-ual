@@ -39,7 +39,7 @@ export class DriverReviewsController {
   @ApiOperation({
     summary: "List a driver's published reviews",
     description:
-      'RF-22: published reviews the user received as a driver, newest first. The author shows only the first name and the initial of the surname.',
+      'RF-22: published reviews the user received as a driver, newest first. The author shows only the given name.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiPaginatedResponse(DriverReviewResource)

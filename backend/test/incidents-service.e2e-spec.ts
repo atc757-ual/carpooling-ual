@@ -63,7 +63,8 @@ describe('IncidentsService (e2e)', () => {
     profiles: ('driver' | 'passenger' | 'admin')[],
   ): Promise<string> {
     const user = await usersService.createWithProfiles({
-      name,
+      firstName: name,
+      lastName: 'Prueba',
       email: `${EMAIL_PREFIX}${name}@ual.es`,
       passwordHash: 'hash',
       profiles,
@@ -227,7 +228,7 @@ describe('IncidentsService (e2e)', () => {
       );
 
       expect(view).toMatchObject({
-        reporterName: 'dan',
+        reporterName: 'dan Prueba',
         reporterRole: 'driver',
       });
     });

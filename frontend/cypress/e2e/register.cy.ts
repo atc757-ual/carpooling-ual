@@ -3,7 +3,8 @@ import { VIEWPORTS } from '../support/e2e';
 const REGISTER_URL = '/api/auth/register';
 
 function fillForm(email: string): void {
-  cy.get('ion-input[formControlName="name"] input').type('Mario Pérez');
+  cy.get('ion-input[formControlName="firstName"] input').type('Mario');
+  cy.get('ion-input[formControlName="lastName"] input').type('Pérez Gil');
   cy.get('ion-input[formControlName="phone"] input.native-input').type('612 345 678');
   cy.get('ion-input[formControlName="email"] input').type(email);
   cy.get('ion-input[formControlName="password"] input').type('secreta123');
@@ -24,7 +25,8 @@ for (const viewport of VIEWPORTS) {
       cy.contains('ion-button', 'Crear mi cuenta').click();
 
       cy.wait('@register').its('request.body').should('deep.equal', {
-        name: 'Mario Pérez',
+        firstName: 'Mario',
+        lastName: 'Pérez Gil',
         phone: '+34612345678',
         email: 'mario.perez@ual.es',
         password: 'secreta123',
@@ -64,16 +66,16 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('does not let type digits or symbols in the name', () => {
-      cy.get('ion-input[formControlName="name"] input').type('Mario_2 Pérez!');
+      cy.get('ion-input[formControlName="firstName"] input').type('Mario_2!');
 
-      cy.get('ion-input[formControlName="name"] input').should('have.value', 'Mario Pérez');
+      cy.get('ion-input[formControlName="firstName"] input').should('have.value', 'Mario');
     });
 
     it('explains which names are allowed', () => {
-      cy.get('ion-input[formControlName="name"] input').type('-Mario').blur();
+      cy.get('ion-input[formControlName="firstName"] input').type('-Mario').blur();
 
       cy.contains(
-        'ion-input[formControlName="name"]',
+        'ion-input[formControlName="firstName"]',
         'Usa solo letras; entre palabras, un espacio, un guion o un apóstrofo.',
       ).should('be.visible');
     });

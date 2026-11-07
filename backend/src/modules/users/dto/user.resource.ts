@@ -49,8 +49,11 @@ export class UserResource {
   @ApiProperty({ example: '/api/users/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90' })
   href: string;
 
-  @ApiProperty({ example: 'Ana García' })
-  name: string;
+  @ApiProperty({ example: 'Ana María' })
+  firstName: string;
+
+  @ApiProperty({ example: 'García de la Fuente' })
+  lastName: string;
 
   @ApiProperty({ example: 'ana@ual.es' })
   email: string;
@@ -129,7 +132,8 @@ export function toUserResource(user: UserSummary): UserResource {
     '@type': 'User',
     id: user.id,
     href: userHref(user.id),
-    name: user.name,
+    firstName: user.firstName,
+    lastName: user.lastName,
     email: user.email,
     phone: user.phone,
     phoneVerified: user.phoneVerified,

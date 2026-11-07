@@ -119,7 +119,8 @@ describe('UsersService', () => {
       usersRepository.findOne.mockResolvedValue(
         userWith({
           id: 'user-1',
-          name: 'Ana',
+          firstName: 'Ana',
+          lastName: 'García',
           email: 'ana@ual.es',
           passwordHash: 'hash',
           avatarKey: 'sun',
@@ -131,7 +132,8 @@ describe('UsersService', () => {
 
       await expect(usersService.getSummary('user-1')).resolves.toEqual({
         id: 'user-1',
-        name: 'Ana',
+        firstName: 'Ana',
+        lastName: 'García',
         email: 'ana@ual.es',
         phoneVerified: false,
         profiles: ['passenger'],
@@ -152,7 +154,8 @@ describe('UsersService', () => {
       usersRepository.findOne.mockResolvedValue(
         userWith({
           id: 'user-1',
-          name: 'Ana',
+          firstName: 'Ana',
+          lastName: 'García',
           email: 'ana@ual.es',
           driverProfile: {
             isActive: true,
@@ -204,7 +207,8 @@ describe('UsersService', () => {
       usersRepository.find.mockResolvedValue([
         userWith({
           id: 'u1',
-          name: 'Lucía',
+          firstName: 'Lucía',
+          lastName: 'García',
           avatarKey: 'sun',
           conversationPreference: 'chatty',
           smokingPreference: 'no',
@@ -242,7 +246,8 @@ describe('UsersService', () => {
       usersRepository.find.mockResolvedValue([
         userWith({
           id: 'u1',
-          name: 'Lucía',
+          firstName: 'Lucía',
+          lastName: 'García',
           driverProfile: {
             averageRating: 4.8,
             ratingCount: 2,

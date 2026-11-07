@@ -67,7 +67,7 @@ export class AccountDeletionService {
       await this.mailSender.send(
         buildAccountDeletionCodeMail({
           to: user.email,
-          name: user.name,
+          name: user.firstName,
           code,
           expiresInMinutes: CODE_TTL_MINUTES,
         }),

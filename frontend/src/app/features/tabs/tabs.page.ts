@@ -134,7 +134,7 @@ export class TabsPage implements OnInit {
     { initialValue: findTabHeading(this.router.routerState.snapshot.root) },
   );
 
-  readonly firstName = computed(() => this.auth.currentUser()?.name.split(' ')[0] ?? '');
+  readonly firstName = computed(() => this.auth.currentUser()?.firstName ?? '');
   readonly tabs: readonly Tab[] = [SEARCH_TAB, PUBLISH_TAB, TRIPS_TAB, MESSAGES_TAB, PROFILE_TAB];
 
   // Notificaciones sin leer: la campana se sincroniza al navegar, al volver y

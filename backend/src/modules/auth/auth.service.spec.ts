@@ -58,7 +58,8 @@ describe('AuthService', () => {
   ): User {
     return Object.assign(new User(), {
       id: 'user-1',
-      name: 'Ana',
+      firstName: 'Ana',
+      lastName: 'García',
       email: 'ana@ual.es',
       passwordHash,
       emailVerifiedAt,
@@ -87,7 +88,8 @@ describe('AuthService', () => {
 
   describe('register', () => {
     const input = {
-      name: 'Ana',
+      firstName: 'Ana',
+      lastName: 'García',
       email: 'ana@ual.es',
       password: 'secret-password',
       phone: '+34600123456',
@@ -101,10 +103,11 @@ describe('AuthService', () => {
       await authService.register(input);
 
       const [pending] = emailVerification.register.mock.calls[0] as [
-        { name: string; email: string; phone: string },
+        { firstName: string; email: string; phone: string },
       ];
       expect(pending).toMatchObject({
-        name: 'Ana',
+        firstName: 'Ana',
+        lastName: 'García',
         email: 'ana@ual.es',
         phone: '+34600123456',
       });
@@ -185,7 +188,7 @@ describe('AuthService', () => {
   });
 
   describe('createFirstAdmin', () => {
-    const input = { name: 'Ana', email: 'ana@ual.es' };
+    const input = { firstName: 'Ana', lastName: 'García', email: 'ana@ual.es' };
 
     it('creates the admin with a random password, stored only as a hash', async () => {
       usersService.hasActiveAdmin.mockResolvedValue(false);
@@ -384,7 +387,8 @@ describe('AuthService', () => {
       await expect(authService.getAuthenticatedUser('user-1')).resolves.toEqual(
         {
           id: 'user-1',
-          name: 'Ana',
+          firstName: 'Ana',
+          lastName: 'García',
           email: 'ana@ual.es',
           phoneVerified: false,
           profiles: ['driver'],

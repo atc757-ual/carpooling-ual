@@ -105,7 +105,7 @@ export class PasswordResetService {
       await this.mailSender.send(
         buildPasswordResetCodeMail({
           to: user.email,
-          name: user.name,
+          name: user.firstName,
           code,
           expiresInMinutes: CODE_TTL_MINUTES,
         }),

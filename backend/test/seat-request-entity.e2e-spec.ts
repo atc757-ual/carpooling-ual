@@ -48,8 +48,8 @@ describe('SeatRequest entity (e2e)', () => {
     passengerId: string;
   }> {
     const driverId = await insertId(
-      `INSERT INTO users (name, email, password_hash)
-       VALUES ('Ana', 'seat-request-driver@ual.es', 'hash') RETURNING id`,
+      `INSERT INTO users (first_name, last_name, email, password_hash)
+       VALUES ('Ana', 'Prueba', 'seat-request-driver@ual.es', 'hash') RETURNING id`,
     );
     await queryRunner.query(
       'INSERT INTO driver_profiles (user_id) VALUES ($1)',
@@ -68,8 +68,8 @@ describe('SeatRequest entity (e2e)', () => {
       [driverId, vehicleId],
     );
     const passengerId = await insertId(
-      `INSERT INTO users (name, email, password_hash)
-       VALUES ('Pia', 'seat-request-passenger@ual.es', 'hash') RETURNING id`,
+      `INSERT INTO users (first_name, last_name, email, password_hash)
+       VALUES ('Pia', 'Prueba', 'seat-request-passenger@ual.es', 'hash') RETURNING id`,
     );
     await queryRunner.query(
       'INSERT INTO passenger_profiles (user_id) VALUES ($1)',

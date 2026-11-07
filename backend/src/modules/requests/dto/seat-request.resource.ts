@@ -20,7 +20,7 @@ export class SeatRequestPassengerResource {
   @ApiProperty({ format: 'uuid' })
   id: string;
 
-  @ApiProperty({ example: 'Mario López' })
+  @ApiProperty({ example: 'Mario', description: 'Given name only' })
   name: string;
 
   @ApiProperty({ type: String, nullable: true, example: 'headphones' })

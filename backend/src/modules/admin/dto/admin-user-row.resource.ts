@@ -1,3 +1,4 @@
+import { fullName } from '../../users/user-name';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProfileStatusResource } from '../../users/dto/user-admin.resource';
 import { userHref } from '../../users/dto/user.resource';
@@ -70,7 +71,7 @@ export function toAdminUserRowResource(
     '@type': 'AdminUserRow',
     id: user.id,
     href: userHref(user.id),
-    name: user.name,
+    name: fullName(user),
     email: user.email,
     profiles: row.profiles,
     statuses: row.statuses,

@@ -19,8 +19,8 @@ export class ChatAuthorResource {
   id: string;
 
   @ApiProperty({
-    description: 'First name and the initial of the surname',
-    example: 'Carlos R.',
+    description: 'Given name only',
+    example: 'Carlos',
   })
   name: string;
 
@@ -69,7 +69,7 @@ export class ChatContactResource {
   @ApiProperty({ format: 'uuid', description: 'The user id' })
   id: string;
 
-  @ApiProperty({ example: 'Lucía Conductora' })
+  @ApiProperty({ example: 'Lucía' })
   name: string;
 
   @ApiProperty({

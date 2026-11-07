@@ -73,7 +73,8 @@ describe('TripsService (e2e)', () => {
     name: string,
   ): Promise<{ driverId: string; vehicleId: string }> {
     const user = await usersService.createWithProfiles({
-      name,
+      firstName: name,
+      lastName: 'Prueba',
       email: `${EMAIL_PREFIX}${name}@ual.es`,
       passwordHash: 'hash',
       profiles: ['driver'],
@@ -139,7 +140,8 @@ describe('TripsService (e2e)', () => {
 
     it('requires the driver to be ready (RF-21) and says what is missing', async () => {
       const user = await usersService.createWithProfiles({
-        name: 'bob',
+        firstName: 'bob',
+        lastName: 'Prueba',
         email: `${EMAIL_PREFIX}bob@ual.es`,
         passwordHash: 'hash',
         profiles: ['driver'],

@@ -56,13 +56,15 @@ describe('UsersService', () => {
 
   it('updates current user with updateMe', async () => {
     const updatePromise = users.updateMe({
-      name: 'Ana G.',
+      firstName: 'Ana',
+      lastName: 'Gómez',
       bio: 'Estudiante de Informática en la UAL',
     });
     const req = http.expectOne('/api/users/me');
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual({
-      name: 'Ana G.',
+      firstName: 'Ana',
+      lastName: 'Gómez',
       bio: 'Estudiante de Informática en la UAL',
     });
     req.flush({ id: 'user-1', name: 'Ana G.' });

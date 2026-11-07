@@ -8,18 +8,26 @@ import { CreateAdminDto } from './modules/auth/dto/create-admin.dto';
 import { BusinessError } from './shared/errors/business-error';
 import { toFieldErrors } from './shared/http/validation';
 
-// npm run create-admin -- --email=ana@ual.es --name="Ana García"
+// npm run create-admin -- --email=ana@ual.es --first-name=Ana --last-name="García López"
 // Crea el PRIMER administrador en el despliegue (RF-01). Si ya hay uno, no
 // hace nada. La contraseña se genera aleatoria y se muestra UNA sola vez.
 // Solo lee los argumentos y llama a AuthService: la regla está en el service
 const USAGE =
-  'Uso: npm run create-admin -- --email=ana@ual.es --name="Ana García"';
+  'Uso: npm run create-admin -- --email=ana@ual.es --first-name=Ana --last-name="García López"';
 
 async function createAdmin(): Promise<void> {
   const { values } = parseArgs({
-    options: { email: { type: 'string' }, name: { type: 'string' } },
+    options: {
+      email: { type: 'string' },
+      'first-name': { type: 'string' },
+      'last-name': { type: 'string' },
+    },
   });
-  const input = plainToInstance(CreateAdminDto, values);
+  const input = plainToInstance(CreateAdminDto, {
+    email: values.email,
+    firstName: values['first-name'],
+    lastName: values['last-name'],
+  });
   const invalidFields = toFieldErrors(validateSync(input));
   if (invalidFields.length > 0) {
     const reasons = invalidFields.map(({ reason }) => `  - ${reason}`);
@@ -36,7 +44,7 @@ async function createAdmin(): Promise<void> {
       .createFirstAdmin(input);
     process.stdout.write(
       [
-        `Administrador creado: ${user.name} <${user.email}>`,
+        `Administrador creado: ${user.firstName} ${user.lastName} <${user.email}>`,
         `Contraseña: ${password}`,
         'Guárdala ahora en un lugar seguro: no se volverá a mostrar.',
         '',

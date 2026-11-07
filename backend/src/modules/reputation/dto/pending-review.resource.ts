@@ -34,7 +34,7 @@ export class PendingReviewTargetResource {
   @ApiProperty({ format: 'uuid' })
   id: string;
 
-  @ApiProperty({ example: 'Mario Pasajero' })
+  @ApiProperty({ example: 'Mario' })
   name: string;
 
   @ApiProperty({ type: String, nullable: true, example: 'headphones' })

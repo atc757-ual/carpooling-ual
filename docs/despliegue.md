@@ -36,7 +36,7 @@ Aplica las migraciones pendientes. **No** ejecutar `npm run seed` fuera de desar
 
 El perfil de administrador no se puede pedir en el registro (RF-01): el primero se crea en el despliegue.
 
-    npm run create-admin -- --email=nombre@ual.es --name="Nombre Apellido"
+    npm run create-admin -- --email=nombre@ual.es --first-name=Nombre --last-name="Apellido1 Apellido2"
 
 - Genera una **contraseña aleatoria** y la muestra **una sola vez**: guardarla en ese momento en un gestor de contraseñas.
 - El correo debe ser de un dominio permitido (`ALLOWED_EMAIL_DOMAINS`).

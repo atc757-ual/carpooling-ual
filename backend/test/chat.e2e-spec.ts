@@ -94,9 +94,10 @@ describe('Chat API (e2e)', () => {
       sessionFor('pia', ['passenger']),
       sessionFor('leo', ['passenger']),
     ]);
-    await dataSource.query(`UPDATE users SET name = 'Pía Ruiz' WHERE id = $1`, [
-      pia.id,
-    ]);
+    await dataSource.query(
+      `UPDATE users SET first_name = 'Pía', last_name = 'Ruiz' WHERE id = $1`,
+      [pia.id],
+    );
     await app.get(UsersService).declareDriverLicense(dan.id);
     const vehicle = await app.get(VehiclesService).register(dan.id, {
       plate: '9701BCD',
@@ -149,7 +150,7 @@ describe('Chat API (e2e)', () => {
       ['quick', null],
     ]);
     expect(messages[0]).toMatchObject({
-      author: { name: 'Pía R.' },
+      author: { name: 'Pía' },
       authorRole: 'passenger',
     });
 
@@ -306,7 +307,7 @@ describe('Chat API (e2e)', () => {
     expect(await contactsOf(dan)).toEqual([
       expect.objectContaining({
         id: pia.id,
-        name: 'Pía Ruiz',
+        name: 'Pía',
         role: 'passenger',
       }),
     ]);
@@ -418,7 +419,7 @@ describe('Chat API (e2e)', () => {
     );
     expect(row.description).toContain('dan (conductor): Mensaje ofensivo');
     expect(row.description).toContain(
-      'Pía R. (pasajero): (respuesta rápida: where_are_you)',
+      'Pía (pasajero): (respuesta rápida: where_are_you)',
     );
     // No cancela nada: el viaje sigue igual
     const [trip] = await dataSource.query<{ status: string }[]>(

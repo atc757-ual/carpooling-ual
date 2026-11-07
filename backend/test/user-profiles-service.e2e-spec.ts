@@ -56,7 +56,8 @@ describe('UserProfilesService (e2e)', () => {
     profiles: ProfileType[],
   ): Promise<string> {
     const user = await usersService.createWithProfiles({
-      name,
+      firstName: name,
+      lastName: 'Prueba',
       email: `${EMAIL_PREFIX}${name}@ual.es`,
       passwordHash: 'hash',
       profiles,
@@ -233,12 +234,14 @@ describe('UserProfilesService (e2e)', () => {
       );
       const byName = await userProfiles.list({ search: 'PI' }, ALL);
 
-      expect(byEmail.items.map(({ user }) => user.name)).toEqual([
+      expect(byEmail.items.map(({ user }) => user.firstName)).toEqual([
         'dan',
         'pia',
       ]);
-      expect(byName.items.map(({ user }) => user.name)).toContain('pia');
-      expect(byName.items.map(({ user }) => user.name)).not.toContain('dan');
+      expect(byName.items.map(({ user }) => user.firstName)).toContain('pia');
+      expect(byName.items.map(({ user }) => user.firstName)).not.toContain(
+        'dan',
+      );
     });
 
     it('treats % and _ in the search as text, not as wildcards', async () => {
@@ -262,7 +265,7 @@ describe('UserProfilesService (e2e)', () => {
       );
 
       expect(page.total).toBe(2);
-      expect(page.items.map(({ user }) => user.name)).toEqual(['pia']);
+      expect(page.items.map(({ user }) => user.firstName)).toEqual(['pia']);
     });
 
     it('answers USER_NOT_FOUND for the admin view of an unknown user', async () => {

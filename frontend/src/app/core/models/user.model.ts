@@ -17,7 +17,8 @@ export interface User {
   '@type': 'User';
   id: string;
   href: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   // Formato internacional (+34600123456); null en quien no pasó por el
   // registro (administrador inicial)
@@ -36,7 +37,8 @@ export interface User {
 
 // Cuerpo de PATCH /api/users/me
 export interface UpdateMeRequest {
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   timeToleranceMin?: TimeToleranceMin;
   avatarKey?: string | null;

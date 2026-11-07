@@ -18,7 +18,8 @@ const USER: User = {
   '@type': 'User',
   id: 'user-1',
   href: '/api/users/user-1',
-  name: 'Ana García',
+  firstName: 'Ana',
+  lastName: 'García',
   email: 'ana@ual.es',
   phone: '+34600123456',
   profiles: ['passenger'],
@@ -118,7 +119,8 @@ describe('AuthService', () => {
 
   it('starts the registration without starting a session', async () => {
     const request: RegisterRequest = {
-      name: 'Ana García',
+      firstName: 'Ana',
+      lastName: 'García',
       email: 'ana@ual.es',
       password: 'secret',
       phone: '+34600123456',

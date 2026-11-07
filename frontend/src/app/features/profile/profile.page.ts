@@ -49,7 +49,7 @@ import {
   LegalDocument,
   openLegalModal,
 } from '../../shared/components/modals/legal-modal/legal-modal';
-import { formatPersonName } from '../../shared/utils/person-name.util';
+import { formatPersonName, fullName } from '../../shared/utils/person-name.util';
 import { formatPhone } from '../../shared/utils/phone.util';
 import { getInitials } from '../matching/trip-driver/trip-driver';
 import { PREFERENCE_ICONS, TIME_TOLERANCE_ICON } from './preference-icons';
@@ -108,8 +108,12 @@ export class ProfilePage implements OnInit {
   private readonly legalDocuments = inject(LegalDocumentsService);
 
   readonly user = this.auth.currentUser;
-  readonly initials = computed(() => getInitials(this.user()?.name ?? ''));
-  readonly displayName = computed(() => formatPersonName(this.user()?.name ?? ''));
+  private readonly fullName = computed(() => {
+    const user = this.user();
+    return user ? fullName(user) : '';
+  });
+  readonly initials = computed(() => getInitials(this.fullName()));
+  readonly displayName = computed(() => formatPersonName(this.fullName()));
   readonly phone = computed(() => {
     const raw = this.user()?.phone;
     return raw ? formatPhone(raw) : null;

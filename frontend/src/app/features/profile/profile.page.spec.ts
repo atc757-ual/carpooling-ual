@@ -34,10 +34,11 @@ describe('ProfilePage', () => {
 
   function render(
     profiles: Profile[] = ['passenger'],
-    name = 'Ana García',
+    [firstName, lastName] = ['Ana', 'García'],
   ): { root: HTMLElement; page: ProfilePage } {
     const user = signal({
-      name,
+      firstName,
+      lastName,
       email: 'ana@ual.es',
       phone: '+34612345678',
       profiles,
@@ -140,10 +141,10 @@ describe('ProfilePage', () => {
   });
 
   it('formats the name for display without changing the account value', () => {
-    const { root, page } = render(['passenger'], 'ANA GARCÍA');
+    const { root, page } = render(['passenger'], ['ANA', 'GARCÍA']);
 
     expect(root.querySelector('.profile__name')?.textContent?.trim()).toBe('Ana García');
-    expect(page.user()?.name).toBe('ANA GARCÍA');
+    expect(page.user()?.lastName).toBe('GARCÍA');
   });
 
   it('shows the vehicles to everyone (the first one makes a driver)', () => {

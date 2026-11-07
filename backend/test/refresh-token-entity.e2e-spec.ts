@@ -39,8 +39,8 @@ describe('RefreshToken entity (e2e)', () => {
   // El usuario se crea con SQL: el módulo auth no usa la entidad User
   async function insertUser(): Promise<string> {
     const [{ id }] = (await queryRunner.query(
-      `INSERT INTO users (name, email, password_hash)
-       VALUES ('Ana', 'refresh-token-entity@ual.es', 'hash') RETURNING id`,
+      `INSERT INTO users (first_name, last_name, email, password_hash)
+       VALUES ('Ana', 'Prueba', 'refresh-token-entity@ual.es', 'hash') RETURNING id`,
     )) as [{ id: string }];
     return id;
   }

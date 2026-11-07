@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, MoreThan, Repository } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { Page, PageRequest } from '../../shared/pagination/page';
-import { toShortName } from '../../shared/people/short-name';
 import { RequestsService } from '../requests/requests.service';
 import type { Trip } from '../trips/entities/trip.entity';
 import { TripNotFoundError } from '../trips/errors/trip-not-found.error';
@@ -227,7 +226,7 @@ export class ChatService {
         message,
         author: {
           id: message.authorId,
-          name: toShortName(profile?.name ?? ''),
+          name: profile?.name ?? '',
           avatarKey: profile?.avatarKey ?? null,
         },
         authorRole: message.authorId === trip.driverId ? 'driver' : 'passenger',

@@ -42,7 +42,8 @@ describe('UsersService (e2e)', () => {
 
   function newUser(email: string, profiles: ProfileType[]) {
     return usersService.createWithProfiles({
-      name: 'Ana',
+      firstName: 'Ana',
+      lastName: 'Prueba',
       email: `${TEST_PREFIX}${email}`,
       passwordHash: 'hash',
       profiles,

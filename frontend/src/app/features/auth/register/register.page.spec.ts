@@ -10,7 +10,8 @@ import { LegalModal } from '../../../shared/components/modals/legal-modal/legal-
 import { RegisterPage } from './register.page';
 
 const FORM = {
-  name: '  Mario   Pérez ',
+  firstName: '  Mario  ',
+  lastName: ' Pérez   Gil ',
   phonePrefix: '+34',
   phone: '612 345 678',
   email: 'mario.perez@ual.es',
@@ -80,7 +81,8 @@ describe('RegisterPage', () => {
     await submit();
 
     expect(register).toHaveBeenCalledWith({
-      name: 'Mario Pérez',
+      firstName: 'Mario',
+      lastName: 'Pérez Gil',
       phone: '+34612345678',
       email: 'mario.perez@ual.es',
       password: 'secreta123',
@@ -91,19 +93,39 @@ describe('RegisterPage', () => {
   });
 
   it('only accepts letters in the name, with a space, hyphen or apostrophe between them', () => {
-    page.form.controls.name.setValue('-Mario');
+    const { firstName, lastName } = page.form.controls;
+    firstName.setValue('-Mario');
+    lastName.setValue('García--López');
 
-    expect(page.form.controls.name.hasError('personName')).toBe(true);
-    expect(page.nameErrorKey()).toBe('auth.validation.nameInvalid');
+    expect(firstName.hasError('personName')).toBe(true);
+    expect(page.firstNameErrorKey()).toBe('auth.validation.nameInvalid');
+    expect(page.lastNameErrorKey()).toBe('auth.validation.nameInvalid');
 
-    page.form.controls.name.setValue("Ana-María O'Connor");
-    expect(page.form.controls.name.valid).toBe(true);
+    firstName.setValue('Ana-María');
+    lastName.setValue("O'Connor de la Fuente");
+    expect(firstName.valid).toBe(true);
+    expect(lastName.valid).toBe(true);
   });
 
-  it('does not let type digits or symbols in the name', () => {
-    page.form.controls.name.setValue('Mario_2 Pérez!');
+  it('asks for the name and the surnames, each with its own limit', () => {
+    const { firstName, lastName } = page.form.controls;
+    firstName.setValue('');
+    lastName.setValue('');
+    expect(page.firstNameErrorKey()).toBe('auth.validation.firstNameRequired');
+    expect(page.lastNameErrorKey()).toBe('auth.validation.lastNameRequired');
 
-    expect(page.form.controls.name.value).toBe('Mario Pérez');
+    firstName.setValue('a'.repeat(51));
+    lastName.setValue('a'.repeat(101));
+    expect(page.firstNameErrorKey()).toBe('auth.validation.firstNameLength');
+    expect(page.lastNameErrorKey()).toBe('auth.validation.lastNameLength');
+  });
+
+  it('does not let type digits or symbols in the name or the surnames', () => {
+    page.form.controls.firstName.setValue('Mario_2!');
+    page.form.controls.lastName.setValue('Pérez 3');
+
+    expect(page.form.controls.firstName.value).toBe('Mario');
+    expect(page.form.controls.lastName.value).toBe('Pérez ');
   });
 
   it('hides the error of a field while it is being corrected', () => {
@@ -180,7 +202,7 @@ describe('RegisterPage', () => {
     expect(navigateByUrl).not.toHaveBeenCalled();
   });
 
-  it('jumps from the name to the phone number, not to its prefix', () => {
+  it('jumps from the surnames to the phone number, not to its prefix', () => {
     const setFocus = vi.fn().mockResolvedValue(undefined);
     vi.spyOn(page as unknown as { phoneInput: () => unknown }, 'phoneInput').mockReturnValue({
       setFocus,

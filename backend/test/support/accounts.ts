@@ -12,7 +12,10 @@ import { withLegalVersionsLock } from './legal-versions-lock';
 export const TEST_PHONE = '+34600123456';
 
 export interface TestAccount {
+  // Nombre de pila (lo que ven los demás usuarios); los apellidos, si no se
+  // dan, son «Prueba»
   name: string;
+  lastName?: string;
   email: string;
   password: string;
   // Modos que elige después de registrarse (conductor y/o pasajero)
@@ -80,7 +83,8 @@ export async function registerUser(
       await request(server)
         .post('/api/auth/register')
         .send({
-          name: account.name,
+          firstName: account.name,
+          lastName: account.lastName ?? 'Prueba',
           email: account.email,
           password: account.password,
           phone: TEST_PHONE,

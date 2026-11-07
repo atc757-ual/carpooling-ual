@@ -7,8 +7,8 @@ import type {
 
 export class DriverReviewAuthorResource {
   @ApiProperty({
-    description: 'First name and the initial of the first surname',
-    example: 'Carlos R.',
+    description: 'Given name only',
+    example: 'Carlos',
   })
   name: string;
 
