@@ -32,18 +32,11 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripChatLink } from '../../../shared/components/ui/trip-chat-link/trip-chat-link';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { TRIP_STATUS_LABELS } from '../../../shared/utils/trip-status.util';
 import { formatTime } from '../../matching/trip-results';
 import { finishTrip } from '../finish-trip.util';
 import { withDeclarations } from '../with-declarations';
 
-// El estado en texto (guía, «Estados»: nunca solo con color)
-const TRIP_STATUS_LABELS: Record<TripStatus, string> = {
-  published: 'Publicado',
-  confirmed: 'Confirmado',
-  in_progress: 'En curso',
-  finished: 'Finalizado',
-  cancelled: 'Cancelado',
-};
 const REQUEST_STATUS_LABELS: Record<SeatRequestStatus, string> = {
   pending: 'Pendiente',
   accepted: 'Aceptada',
