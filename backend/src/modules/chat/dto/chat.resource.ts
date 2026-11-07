@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { tripHref } from '../../trips/dto/trip.resource';
 import { TRIP_STATUSES, type TripStatus } from '../../trips/trip-status';
-import type { ChatMessageView } from '../chat.service';
+import type { ChatContactView, ChatMessageView } from '../chat.service';
 import type { ConversationView } from '../conversations.service';
 import {
   CHAT_MESSAGE_KINDS,
@@ -58,6 +58,40 @@ export class ChatMessageResource {
 
   @ApiProperty({ format: 'date-time' })
   createdAt: string;
+}
+
+// Recurso TMF630 ChatContact: alguien del viaje a quien se puede llamar (sin
+// href: no tiene GET propio)
+export class ChatContactResource {
+  @ApiProperty({ enum: ['ChatContact'] })
+  '@type': 'ChatContact';
+
+  @ApiProperty({ format: 'uuid', description: 'The user id' })
+  id: string;
+
+  @ApiProperty({ example: 'Lucía Conductora' })
+  name: string;
+
+  @ApiProperty({
+    description: 'Verified phone, E.164',
+    example: '+34600111222',
+  })
+  phone: string;
+
+  @ApiProperty({ enum: CHAT_ROLES })
+  role: ChatRoleValue;
+}
+
+export function toChatContactResource(
+  contact: ChatContactView,
+): ChatContactResource {
+  return {
+    '@type': 'ChatContact',
+    id: contact.userId,
+    name: contact.name,
+    phone: contact.phone,
+    role: contact.role,
+  };
 }
 
 export class ConversationTripResource {

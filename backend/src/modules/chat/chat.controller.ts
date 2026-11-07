@@ -23,6 +23,7 @@ import type { AccessTokenPayload } from '../../shared/auth/access-token-payload'
 import { CurrentUser } from '../../shared/auth/current-user.decorator';
 import { ApiErrorResponses } from '../../shared/http/api-error-responses.decorator';
 import { uuidParam } from '../../shared/http/validation';
+import { PaginationQueryDto } from '../../shared/pagination/pagination-query.dto';
 import {
   ApiPaginatedResponse,
   setPaginationHeaders,
@@ -35,8 +36,10 @@ import { ChatReportsService } from './chat-reports.service';
 import { type ChatMessageInput, ChatService } from './chat.service';
 import { ConversationsService } from './conversations.service';
 import {
+  ChatContactResource,
   ChatMessageResource,
   ConversationResource,
+  toChatContactResource,
   toChatMessageResource,
   toConversationResource,
 } from './dto/chat.resource';
@@ -111,6 +114,27 @@ export class ChatController {
     const page = await this.chatService.list(user.sub, tripId, query);
     setPaginationHeaders(response, page);
     return page.items.map(toChatMessageResource);
+  }
+
+  @Get('trips/:id/contacts')
+  @ApiOperation({
+    summary: 'List whom the user can call from a trip chat',
+    description:
+      'The passenger gets the driver; the driver, the accepted passengers. Only verified phones and while the trip is confirmed or in progress (as the privacy policy says).',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiPaginatedResponse(ChatContactResource)
+  @ApiErrorResponses(TRIP_CHAT_ERRORS)
+  async listContacts(
+    @CurrentUser() user: AccessTokenPayload,
+    @Param('id', uuidParam('id')) tripId: string,
+    @Query() query: PaginationQueryDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<ChatContactResource[]> {
+    const contacts = await this.chatService.contacts(user.sub, tripId);
+    const items = contacts.slice(query.offset, query.offset + query.limit);
+    setPaginationHeaders(response, { items, total: contacts.length });
+    return items.map(toChatContactResource);
   }
 
   @Post('trips/:id/messages')

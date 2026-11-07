@@ -274,6 +274,58 @@ describe('Chat API (e2e)', () => {
     ]);
   });
 
+  it('gives the phones to call while the trip is confirmed or in progress: the driver to the passenger and the accepted passengers to the driver', async () => {
+    const { tripId, dan, pia, leo } = await confirmedTrip();
+    const setPhone = (id: string, phone: string, isVerified: boolean) =>
+      dataSource.query(
+        `UPDATE users SET phone = $2, phone_verified_at = $3 WHERE id = $1`,
+        [id, phone, isVerified ? new Date() : null],
+      );
+    const contactsOf = async (session: Session) =>
+      (await api('get', `/trips/${tripId}/contacts`, session).expect(200))
+        .body as unknown[];
+    await setPhone(dan.id, '+34600111222', true);
+    await setPhone(pia.id, '+34600333444', true);
+    await setPhone(leo.id, '+34600555666', true);
+
+    const forPia = await api('get', `/trips/${tripId}/contacts`, pia).expect(
+      200,
+    );
+    expect(forPia.headers['x-total-count']).toBe('1');
+    expect(forPia.body).toEqual([
+      {
+        '@type': 'ChatContact',
+        id: dan.id,
+        name: 'dan',
+        phone: '+34600111222',
+        role: 'driver',
+      },
+    ]);
+    // leo solo tiene la solicitud pendiente: ni lo ve el conductor ni puede
+    // pedirlo
+    expect(await contactsOf(dan)).toEqual([
+      expect.objectContaining({
+        id: pia.id,
+        name: 'Pía Ruiz',
+        role: 'passenger',
+      }),
+    ]);
+    await api('get', `/trips/${tripId}/contacts`, leo).expect(403);
+
+    // Sin verificar, no se da
+    await setPhone(dan.id, '+34600111222', false);
+    expect(await contactsOf(pia)).toEqual([]);
+
+    // En curso, sí; con el viaje terminado, ya no
+    await setPhone(dan.id, '+34600111222', true);
+    await setDepartureIn(dataSource, tripId, 5);
+    const trips = app.get(TripsService);
+    await trips.start(dan.id, tripId);
+    expect(await contactsOf(pia)).toHaveLength(1);
+    await trips.finish(dan.id, tripId);
+    expect(await contactsOf(pia)).toEqual([]);
+  });
+
   it('validates the message and limits how many are sent', async () => {
     const { tripId, pia } = await confirmedTrip();
     const invalid = [

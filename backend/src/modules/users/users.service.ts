@@ -1,6 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, In, Repository } from 'typeorm';
+import {
+  DataSource,
+  EntityManager,
+  In,
+  IsNull,
+  Not,
+  Repository,
+} from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { ProfileRequiredError } from '../../shared/auth/profile-required.error';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
@@ -406,6 +413,29 @@ export class UsersService {
       where: { id: In([...new Set(userIds)]) },
     });
     return new Map(users.map(({ id, name }) => [id, name]));
+  }
+
+  // Nombre y teléfono de los que lo tienen verificado (con el código del
+  // SMS), en UNA consulta. Solo para quien puede verlo según la Política de
+  // privacidad: el conductor y los pasajeros aceptados de un viaje
+  async getVerifiedPhones(
+    userIds: string[],
+  ): Promise<Map<string, { name: string; phone: string }>> {
+    const uniqueIds = [...new Set(userIds)];
+    if (uniqueIds.length === 0) {
+      return new Map();
+    }
+    const users = await this.usersRepository.find({
+      select: { id: true, name: true, phone: true },
+      where: {
+        id: In(uniqueIds),
+        phone: Not(IsNull()),
+        phoneVerifiedAt: Not(IsNull()),
+      },
+    });
+    return new Map(
+      users.map(({ id, name, phone }) => [id, { name, phone: phone ?? '' }]),
+    );
   }
 
   // Ids de los usuarios cuyo nombre o correo contiene el texto, sin

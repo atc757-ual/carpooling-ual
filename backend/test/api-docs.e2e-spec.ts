@@ -122,6 +122,7 @@ describe('API docs (e2e)', () => {
       '/api/trips/search',
       '/api/trips/{id}',
       '/api/trips/{id}/cancel',
+      '/api/trips/{id}/contacts',
       '/api/trips/{id}/finish',
       '/api/trips/{id}/messages',
       '/api/trips/{id}/messages/read',
