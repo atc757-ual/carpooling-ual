@@ -69,6 +69,7 @@ INSERT INTO driver_profiles (user_id, average_rating, rating_count, has_license_
   ('00000000-0000-4000-8000-000000000004', NULL, 0, true, now() - interval '2 days');
 
 INSERT INTO passenger_profiles (user_id, average_rating, rating_count, has_high_priority) VALUES
+  ('00000000-0000-4000-8000-000000000002', NULL, 0, false),
   ('00000000-0000-4000-8000-000000000003', 4.50, 4, false),
   ('00000000-0000-4000-8000-000000000004', NULL, 0, true);
 

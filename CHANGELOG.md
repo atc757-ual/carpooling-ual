@@ -8,6 +8,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Fixed
+
 - **Frontend:** el logotipo dice «Carpooling» (antes «Carpool») y el nombre completo es «Carpooling UAL» en todas partes (lectores de pantalla, panel de administración y textos), como el título de la web; la cabecera de las pantallas de detalle del móvil mide lo mismo que la de las secciones (la flecha de volver la estiraba 4 px); el número de avisos de la campana ya no se sale por arriba en escritorio; y en el chat el estado del viaje va encima de los botones de denunciar y llamar, para dejar más ancho al título (#220).
 
 - **Frontend:** las etiquetas «Pendiente» se leen bien (texto ámbar oscuro, contraste AA) y el teléfono sin verificar lleva un reloj; los textos de eliminar la cuenta ya no prometen borrar los datos ni cancelar los viajes (#154).
@@ -16,6 +17,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Frontend:** cerrar sesión descarta las pantallas de la cuenta anterior y Publicar abre limpio para cualquier perfil (#120).
 
 ### Changed
+
+- **Backend:** Lucía incluye perfil de pasajero en los datos de prueba (`dev-seed.sql`), alineándola con la regla de que todo usuario nace con perfil de pasajero (#226).
 - **Frontend:** en el móvil, la franja con el título de las listas largas (Buscar, Tus viajes, Mensajes y Notificaciones) se esconde al bajar y vuelve al subir o al llegar arriba; en el chat y en escritorio sigue fija (#225).
 - **Frontend:** el fondo del chat lleva un mosaico de iconos de viaje muy suaves (coche, ubicación, hora, chat, la universidad y una hoja) en lugar de un color liso (#224).
 - **Frontend y backend:** pestaña central con un coche para el viaje en curso (Buscar · Publicar · coche · Tus viajes · Mensajes; en escritorio, «En curso»): gris y sin poder pulsarse hasta que empieza un viaje; entonces, borde azul con un pulso suave, y abre al conductor su viaje en curso y al pasajero el detalle de su plaza con el mapa en vivo. Mi perfil sale de la barra del móvil (está en la cabecera) y, en escritorio, el logotipo y el saludo se turnan como en el móvil. La lista de conversaciones admite `tripStatus` (p. ej. `in_progress`) (#223).
@@ -35,6 +38,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Backend:** «Sobre mí» de 20 a 200 caracteres (antes 500; los más largos se recortan), Fumar sin «solo en paradas» (pasa a «no se fuma») y el consentimiento de ubicación guarda su origen: `location_prompt` (la ventana que explica para qué se usa) o `device` (se quitó el permiso del sistema), además de `settings` (#128).
 
 ### Added
+
 - **Frontend:** llamar desde el chat del viaje con el viaje confirmado o en curso: el botón abre la app de teléfono (el conductor elige a cuál de sus pasajeros) y, si aún no se puede, se ve en gris y explica por qué (#218).
 - **Backend:** a quién llamar desde el chat del viaje: `GET /api/trips/:id/contacts` da el teléfono verificado del conductor al pasajero y el de los pasajeros aceptados al conductor, solo con el viaje confirmado o en curso (como dice la Política de privacidad). Las conversaciones traen el nombre y el avatar del conductor (#217).
 
