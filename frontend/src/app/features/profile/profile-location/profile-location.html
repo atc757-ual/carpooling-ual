@@ -1,103 +1,94 @@
-<ion-card class="profile-location">
-  <ion-card-header class="profile-location__header">
-    <ion-card-title>{{ 'profile.location.title' | transloco }}</ion-card-title>
-  </ion-card-header>
-  <ion-card-content class="profile-location__content">
-    <!-- El consentimiento de la app: el interruptor y su registro -->
-    <div class="profile-location__row">
-      <span class="profile-location__text">
-        <span class="text-body text-body--strong">{{
-          'profile.location.shareLocation' | transloco
-        }}</span>
-        <span class="text-body-s text-color-muted">{{
-          'profile.location.shareDesc' | transloco
-        }}</span>
-        @if (isOutdated()) {
-          <span class="text-body-s">{{ 'profile.location.outdated' | transloco }}</span>
-        }
-        <button
-          type="button"
-          class="profile-location__link text-body-s"
-          (click)="handleReadTerms()"
-        >
-          {{ 'profile.location.readTerms' | transloco }}
-        </button>
-      </span>
-      <ion-toggle
-        mode="ios"
-        [checked]="isGranted()"
-        (ionChange)="handleToggle($event)"
-        [attr.aria-label]="'profile.location.shareLocation' | transloco"
-      />
-    </div>
-    @if (stamp(); as stamp) {
-      <div class="profile-location__stamp text-body-s">
-        <!-- Desactualizada: se autorizó, aunque ya no cuente -->
-        @if (isGranted() || isOutdated()) {
-          <span class="profile-location__granted">
-            <ion-icon [icon]="checkIcon" aria-hidden="true" />
-            {{ 'profile.location.authorizedOn' | transloco: { date: stamp.date } }}
-          </span>
-        } @else {
-          <span class="text-color-muted">{{
-            'profile.location.withdrawnOn' | transloco: { date: stamp.date }
-          }}</span>
-        }
-        <span
-          class="profile-location__hash text-color-muted"
-          [title]="'profile.location.hashTitle' | transloco"
-        >
-          <ion-icon [icon]="lockIcon" aria-hidden="true" />
-          <span class="visually-hidden">{{ 'profile.location.hashHidden' | transloco }}</span>
-          {{ stamp.fingerprint }}
+<section class="profile-location" aria-labelledby="profile-location-title">
+  <!-- El consentimiento de la app: el interruptor y su registro -->
+  <div class="profile-location__row">
+    <span class="profile-location__text">
+      <span id="profile-location-title" class="text-body text-body--strong">{{
+        'profile.location.shareLocation' | transloco
+      }}</span>
+      <span class="text-body-s text-color-muted">{{
+        'profile.location.shareDesc' | transloco
+      }}</span>
+      @if (isOutdated()) {
+        <span class="text-body-s">{{ 'profile.location.outdated' | transloco }}</span>
+      }
+      <button type="button" class="profile-location__link text-body-s" (click)="handleReadTerms()">
+        {{ 'profile.location.readTerms' | transloco }}
+      </button>
+    </span>
+    <ion-toggle
+      mode="ios"
+      [checked]="isGranted()"
+      (ionChange)="handleToggle($event)"
+      [attr.aria-label]="'profile.location.shareLocation' | transloco"
+    />
+  </div>
+  @if (stamp(); as stamp) {
+    <div class="profile-location__stamp text-body-s">
+      <!-- Desactualizada: se autorizó, aunque ya no cuente -->
+      @if (isGranted() || isOutdated()) {
+        <span class="profile-location__granted">
+          <ion-icon [icon]="checkIcon" aria-hidden="true" />
+          {{ 'profile.location.authorizedOn' | transloco: { date: stamp.date } }}
         </span>
-      </div>
-    }
-
-    <!-- El permiso del dispositivo: la app solo lo pide o lo consulta -->
-    <div class="profile-location__row profile-location__device">
-      <span class="profile-location__text">
-        <span class="text-body">{{ 'profile.location.devicePermission' | transloco }}</span>
-        @switch (devicePermission()) {
-          @case ('granted') {
-            <span class="text-body-s text-color-muted">
-              {{ 'profile.location.deviceGrantedDesc' | transloco }}
-            </span>
-          }
-          @case ('denied') {
-            <span class="text-body-s text-color-muted">
-              {{ 'profile.location.deviceDeniedDesc' | transloco }}
-            </span>
-          }
-        }
+      } @else {
+        <span class="text-color-muted">{{
+          'profile.location.withdrawnOn' | transloco: { date: stamp.date }
+        }}</span>
+      }
+      <span
+        class="profile-location__hash text-color-muted"
+        [title]="'profile.location.hashTitle' | transloco"
+      >
+        <ion-icon [icon]="lockIcon" aria-hidden="true" />
+        <span class="visually-hidden">{{ 'profile.location.hashHidden' | transloco }}</span>
+        {{ stamp.fingerprint }}
       </span>
+    </div>
+  }
+
+  <!-- El permiso del dispositivo: la app solo lo pide o lo consulta -->
+  <div class="profile-location__row profile-location__device">
+    <span class="profile-location__text">
+      <span class="text-body">{{ 'profile.location.devicePermission' | transloco }}</span>
       @switch (devicePermission()) {
         @case ('granted') {
-          <span class="status status--accepted">
-            <ion-icon [icon]="locateIcon" aria-hidden="true" />
-            {{ 'profile.location.authorized' | transloco }}
+          <span class="text-body-s text-color-muted">
+            {{ 'profile.location.deviceGrantedDesc' | transloco }}
           </span>
         }
         @case ('denied') {
-          <span class="status status--pending">{{ 'profile.location.blocked' | transloco }}</span>
-        }
-        @case ('prompt') {
-          @if (isGranted()) {
-            <form (submit)="$event.preventDefault(); handleAllowDevice()">
-              <ion-button
-                class="profile-location__allow"
-                type="submit"
-                size="small"
-                [disabled]="isAsking()"
-              >
-                {{ 'profile.location.allow' | transloco }}
-              </ion-button>
-            </form>
-          } @else {
-            <span class="status">{{ 'profile.location.notRequested' | transloco }}</span>
-          }
+          <span class="text-body-s text-color-muted">
+            {{ 'profile.location.deviceDeniedDesc' | transloco }}
+          </span>
         }
       }
-    </div>
-  </ion-card-content>
-</ion-card>
+    </span>
+    @switch (devicePermission()) {
+      @case ('granted') {
+        <span class="status status--accepted">
+          <ion-icon [icon]="locateIcon" aria-hidden="true" />
+          {{ 'profile.location.authorized' | transloco }}
+        </span>
+      }
+      @case ('denied') {
+        <span class="status status--pending">{{ 'profile.location.blocked' | transloco }}</span>
+      }
+      @case ('prompt') {
+        @if (isGranted()) {
+          <form (submit)="$event.preventDefault(); handleAllowDevice()">
+            <ion-button
+              class="profile-location__allow"
+              type="submit"
+              size="small"
+              [disabled]="isAsking()"
+            >
+              {{ 'profile.location.allow' | transloco }}
+            </ion-button>
+          </form>
+        } @else {
+          <span class="status">{{ 'profile.location.notRequested' | transloco }}</span>
+        }
+      }
+    }
+  </div>
+</section>

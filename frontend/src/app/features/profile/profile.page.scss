@@ -211,6 +211,13 @@
   border: 1px solid var(--color-border-subtle);
 }
 
+// Separador entre el bloque de compartir ubicación y los documentos legales
+.profile__legal-divider {
+  height: 0;
+  margin: var(--space-s) 0;
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+}
+
 // Documento legal: icono, título y si está aceptado (check verde y fecha)
 .profile__legal-row {
   gap: var(--space-s);

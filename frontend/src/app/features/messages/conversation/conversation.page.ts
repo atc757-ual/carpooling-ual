@@ -17,6 +17,10 @@ import {
   ActionSheetController,
   IonButton,
   IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonPopover,
   IonSkeletonText,
   IonSpinner,
   IonTextarea,
@@ -26,7 +30,6 @@ import {
   alertCircleOutline,
   arrowForwardOutline,
   callOutline,
-  closeOutline,
   ellipseOutline,
   ellipsisVertical,
   flagOutline,
@@ -76,6 +79,10 @@ export const MAX_MESSAGE_LENGTH = 500;
   imports: [
     IonButton,
     IonIcon,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonPopover,
     IonSkeletonText,
     IonSpinner,
     IonTextarea,
@@ -131,6 +138,8 @@ export class ConversationPage {
   readonly hasError = signal(false);
   readonly isSending = signal(false);
   readonly draft = signal('');
+  readonly isOptionsOpen = signal(false);
+  optionsEvent: Event | null = null;
   private currentTripId = '';
   private loadVersion = 0;
 
@@ -281,24 +290,11 @@ export class ConversationPage {
   }
 
   // Menú de opciones del chat: tres puntos al lado del teléfono
-  async handleOpenOptions(): Promise<void> {
-    const sheet = await this.actionSheetController.create({
-      header: 'Opciones de conversación',
-      buttons: [
-        {
-          text: 'Denunciar el chat',
-          role: 'destructive',
-          icon: this.reportIcon,
-          handler: () => this.handleReport(),
-        },
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          icon: closeOutline,
-        },
-      ],
-    });
-    await sheet.present();
+  handleOpenOptions(event?: Event): void {
+    if (event) {
+      this.optionsEvent = event;
+    }
+    this.isOptionsOpen.set(true);
   }
 
   handleDraft(value: string | null | undefined): void {
@@ -321,6 +317,7 @@ export class ConversationPage {
   // Denunciar el chat con su motivo: lo revisa el administrador con una copia
   // de la conversación. Se puede volver a denunciar (llegan mensajes nuevos)
   async handleReport(): Promise<void> {
+    this.isOptionsOpen.set(false);
     const reported = await confirmWithReason(this.modalController, {
       header: '¿Denunciar este chat?',
       message:

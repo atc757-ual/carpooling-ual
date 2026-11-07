@@ -478,6 +478,12 @@ ion-toast.toast--floating {
   --width: 8rem; // 128px
 }
 
+// Menú de opciones de la cabecera de conversación (tres puntos): ancho
+// suficiente para la acción de denunciar
+.conversation-options-popover {
+  --width: 14rem; // 224px
+}
+
 // Tarjetas (ion-card): blancas, con borde fino y esquinas de 8px, sin la
 // sombra ni los márgenes de Ionic (la separación la pone quien las coloca).
 // Relleno de 16px

@@ -300,15 +300,17 @@
           </ion-card>
         }
 
-        <!-- Bloque: Ubicación (consentimiento y permiso del dispositivo) -->
-        <app-profile-location />
-
-        <!-- Bloque: Privacidad (documentos legales y su aceptación) -->
+        <!-- Bloque: Privacidad (ubicación, consentimientos y documentos legales) -->
         <ion-card class="profile-card">
           <ion-card-header class="profile-card__header">
             <ion-card-title>{{ 'profile.privacy.title' | transloco }}</ion-card-title>
           </ion-card-header>
           <ion-card-content class="profile-card__content">
+            <!-- Compartir ubicación (consentimiento y permiso del dispositivo) -->
+            <app-profile-location />
+
+            <div class="profile__legal-divider" role="separator" aria-hidden="true"></div>
+
             <div class="profile__legal-list">
               @for (doc of legalDocs(); track doc.id) {
                 <button type="button" class="profile__legal-row" (click)="handleOpenLegal(doc.id)">

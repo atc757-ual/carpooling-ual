@@ -1,28 +1,14 @@
-// «Ubicación» del Perfil: la misma tarjeta que las demás del Perfil
+// «Ubicación» del Perfil integrada en la tarjeta de Privacidad
+:host {
+  display: block;
+}
+
 .profile-location {
-  margin: 0;
-  text-align: left;
-}
-
-// Título a la izquierda (ion-card-header es una columna) y 18px también en
-// escritorio, como en el resto del Perfil
-.profile-location__header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  min-height: 3.5rem;
-  padding: var(--space-base) var(--space-base) var(--space-s);
-
-  ion-card-title {
-    margin: 0;
-    font-size: 1.125rem; // 18px
-  }
-}
-
-.profile-location__content {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
+  margin: 0;
+  text-align: left;
 
   form,
   ion-button {
@@ -98,5 +84,6 @@
 
   &:focus-visible {
     outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 2px;
   }
 }

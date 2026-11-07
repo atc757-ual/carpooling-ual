@@ -172,7 +172,7 @@
     "location": {
       "title": "Location",
       "shareLocation": "Share location",
-      "shareDesc": "To suggest stops and detours. If you drive, your location is shared with your passengers while the trip is in progress even if you turn this off: it is part of the service.",
+      "shareDesc": "To suggest pickup points and stops. During an ongoing trip, your location is shared with your travel companions as part of the service.",
       "authorizedOn": "Authorized on {{ date }}",
       "withdrawnOn": "Revoked on {{ date }}",
       "outdated": "We have updated how we use your location: turn it on to accept the new text. Until then, we do not use it.",

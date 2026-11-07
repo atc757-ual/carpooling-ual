@@ -1,14 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import {
-  IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonIcon,
-  IonToggle,
-  ModalController,
-} from '@ionic/angular';
+import { IonButton, IonIcon, IonToggle, ModalController } from '@ionic/angular';
 import { checkmarkCircle, locateOutline, lockClosedOutline } from 'ionicons/icons';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { UserConsents } from '../../../core/models/user-consent.model';
@@ -30,16 +21,7 @@ type DevicePermission = Exclude<LocationPermission, 'revoked'>;
 // es cosa de los ajustes del sistema). La app usa la ubicación solo con los dos
 @Component({
   selector: 'app-profile-location',
-  imports: [
-    IonButton,
-    IonCard,
-    IonCardContent,
-    IonCardHeader,
-    IonCardTitle,
-    IonIcon,
-    IonToggle,
-    TranslocoPipe,
-  ],
+  imports: [IonButton, IonIcon, IonToggle, TranslocoPipe],
   templateUrl: './profile-location.html',
   styleUrl: './profile-location.scss',
 })
