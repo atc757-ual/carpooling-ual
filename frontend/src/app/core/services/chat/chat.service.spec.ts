@@ -39,6 +39,30 @@ describe('ChatService', () => {
     expect(chat.unreadConversationCount()).toBe(0);
   });
 
+  it('knows the trip in progress and the role in it', async () => {
+    const refreshing = chat.refreshLiveTrip();
+    const request = http.expectOne((req) => req.url === '/api/users/me/conversations');
+    expect(request.request.params.get('tripStatus')).toBe('in_progress');
+    expect(request.request.params.get('limit')).toBe('1');
+    request.flush([{ trip: { id: 't1' }, myRole: 'passenger' }]);
+    await refreshing;
+    expect(chat.liveTrip()).toEqual({ tripId: 't1', myRole: 'passenger' });
+
+    const ended = chat.refreshLiveTrip();
+    http.expectOne((req) => req.url === '/api/users/me/conversations').flush([]);
+    await ended;
+    expect(chat.liveTrip()).toBeNull();
+  });
+
+  it('keeps the trip in progress as it was when the check fails', async () => {
+    const refreshing = chat.refreshLiveTrip();
+    http
+      .expectOne((req) => req.url === '/api/users/me/conversations')
+      .flush(null, { status: 500, statusText: 'Error' });
+    await refreshing;
+    expect(chat.liveTrip()).toBeNull();
+  });
+
   it('keeps the dot as it was when the check fails', async () => {
     const refreshing = chat.refreshUnread();
     http

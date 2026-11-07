@@ -46,10 +46,10 @@ for (const viewport of VIEWPORTS) {
       .then(($items) => [...$items].map((item) => item.textContent?.trim() ?? ''));
   }
 
-  // Mi perfil, en escritorio, está en la cabecera
+  // Mi perfil está en la cabecera
   function goTo(label: string): void {
-    if (isDesktop && label === 'Mi perfil') {
-      cy.get('app-tabs .top-nav .profile-button').click();
+    if (label === 'Mi perfil') {
+      cy.get('app-tabs .profile-button').filter(':visible').click();
       return;
     }
     cy.contains(DESTINATION, label).click();
@@ -66,12 +66,14 @@ for (const viewport of VIEWPORTS) {
       logIn(['passenger']);
 
       cy.location('pathname').should('eq', '/tabs/search');
+      // En medio, el coche del viaje en curso (en escritorio, «En curso»)
       destinationLabels().should(
         'deep.equal',
         isDesktop
-          ? ['Buscar', 'Publicar', 'Tus viajes', 'Mensajes']
-          : ['Buscar', 'Publicar', 'Tus viajes', 'Mensajes', 'Mi perfil'],
+          ? ['Buscar', 'Publicar', 'En curso', 'Tus viajes', 'Mensajes']
+          : ['Buscar', 'Publicar', 'Tus viajes', 'Mensajes'],
       );
+      cy.get('app-tabs .live-tab').filter(':visible').should('be.disabled');
     });
 
     it('opens Buscar even when the driver side was last used', () => {
