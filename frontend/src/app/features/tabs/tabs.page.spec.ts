@@ -1,11 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { provideIonicAngular } from '@ionic/angular';
+import { NavController, provideIonicAngular } from '@ionic/angular';
 import { TranslocoService } from '@jsverse/transloco';
 import { vi } from 'vitest';
 import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { provideTranslocoTestingSupport } from '../../core/i18n/testing-transloco';
 import { LanguageService } from '../../core/services/ui/language.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
@@ -33,6 +34,8 @@ const TABS_EN = {
       profile: 'My profile',
       admin: 'Admin panel',
       logout: 'Log out',
+      logoutShort: 'Log out',
+      adminShort: 'Admin',
       newMessages: '(new messages)',
       notifications: 'Notifications',
       notificationsWithCount: {
@@ -54,6 +57,8 @@ describe('TabsPage', () => {
   const profiles = signal<Profile[]>(['passenger', 'driver']);
   const loggedIn = signal(true);
   const setMode = vi.fn().mockResolvedValue(undefined);
+  const ask = vi.fn();
+  const logout = vi.fn().mockResolvedValue(undefined);
   const unread = signal(0);
   const arrivalVersion = signal(0);
   const refreshUnread = vi.fn().mockResolvedValue(undefined);
@@ -83,8 +88,10 @@ describe('TabsPage', () => {
             currentUser: signal({ firstName: 'Mario', lastName: 'Pérez' } as User),
             hasProfile: (profile: Profile) => profiles().includes(profile),
             isLoggedIn: () => loggedIn(),
+            logout,
           },
         },
+        { provide: ConfirmService, useValue: { ask } },
         { provide: ActiveModeService, useValue: { mode, setMode } },
         {
           provide: NotificationsService,
@@ -259,19 +266,47 @@ describe('TabsPage', () => {
     expect(page.heading()).toEqual(HEADING);
   });
 
-  it('keeps the bell and hides log out in the mobile header', async () => {
+  it('shows the bell and log out in the mobile header, but not in the details', async () => {
     render();
     const header = (): HTMLElement => fixture.nativeElement.querySelector('.app-header');
 
     await TestBed.inject(Router).navigateByUrl('/tabs/search');
     await fixture.whenStable();
     expect(header().querySelector('.bell-button')).not.toBeNull();
-    expect(header().querySelector('.logout-button')).toBeNull();
+    expect(header().querySelector('.logout-button')).not.toBeNull();
 
     await TestBed.inject(Router).navigateByUrl('/tabs/search/results');
     await fixture.whenStable();
     expect(header().querySelector('.back-button')).not.toBeNull();
     expect(header().querySelector('.bell-button')).toBeNull();
+    expect(header().querySelector('.logout-button')).toBeNull();
+  });
+
+  it('labels the desktop actions with text and keeps their accessible names', async () => {
+    render();
+    await TestBed.inject(Router).navigateByUrl('/tabs/search');
+    await fixture.whenStable();
+    const labels = [
+      ...fixture.nativeElement.querySelectorAll('.top-nav .header-action__label'),
+    ].map((label: Element) => label.textContent?.trim());
+
+    expect(labels).toEqual(['Notificaciones', 'Salir']);
+  });
+
+  it('logs out only after confirming it', async () => {
+    const page = render();
+    const navigateRoot = vi
+      .spyOn(TestBed.inject(NavController), 'navigateRoot')
+      .mockResolvedValue(true);
+    ask.mockResolvedValueOnce(false);
+
+    await page.handleLogout();
+    expect(logout).not.toHaveBeenCalled();
+
+    ask.mockResolvedValueOnce(true);
+    await page.handleLogout();
+    expect(logout).toHaveBeenCalled();
+    expect(navigateRoot).toHaveBeenCalledWith('/auth/welcome');
   });
 
   it('shows the admin panel button only with the admin profile', () => {

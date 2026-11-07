@@ -19,6 +19,8 @@
       "profile": "My profile",
       "admin": "Admin panel",
       "logout": "Log out",
+      "logoutShort": "Log out",
+      "adminShort": "Admin",
       "newMessages": "(new messages)",
       "notifications": "Notifications",
       "notificationsWithCount": {

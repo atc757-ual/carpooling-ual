@@ -16,6 +16,7 @@ import {
   IonTabs,
   IonTitle,
   IonToolbar,
+  NavController,
 } from '@ionic/angular';
 import { filter, map } from 'rxjs';
 import {
@@ -24,6 +25,7 @@ import {
   chatbubblesOutline,
   logoGithub,
   logoLinkedin,
+  logOutOutline,
   mapOutline,
   notificationsOutline,
   personOutline,
@@ -31,7 +33,10 @@ import {
   shieldCheckmarkOutline,
 } from 'ionicons/icons';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { confirmLogout } from '../../core/services/auth/confirm-logout';
+import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { AppContextService } from '../../core/services/ui/app-context.service';
 import { HeadingContentService } from '../../core/services/ui/heading-content.service';
 import { LanguageService } from '../../core/services/ui/language.service';
@@ -117,6 +122,8 @@ export class TabsPage implements OnInit {
   private readonly activeMode = inject(ActiveModeService);
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationsService);
+  private readonly confirm = inject(ConfirmService);
+  private readonly navController = inject(NavController);
   private readonly chat = inject(ChatService);
   protected readonly headingContent = inject(HeadingContentService);
   private readonly push = inject(PushNotificationsService);
@@ -173,6 +180,16 @@ export class TabsPage implements OnInit {
   protected readonly backIcon = arrowBackOutline;
   protected readonly bellIcon = notificationsOutline;
   protected readonly adminIcon = shieldCheckmarkOutline;
+  protected readonly logoutIcon = logOutOutline;
+
+  // Salir: siempre con la misma confirmación que en Mi perfil
+  async handleLogout(): Promise<void> {
+    if (!(await confirmLogout(this.confirm, this.transloco))) {
+      return;
+    }
+    await this.auth.logout();
+    await this.navController.navigateRoot(WELCOME_PATH);
+  }
   // Acceso al panel solo con el perfil de administrador
   protected readonly isAdmin = computed(() => this.auth.hasProfile('admin'));
   protected readonly githubIcon = logoGithub;

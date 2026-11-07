@@ -84,7 +84,7 @@ ion-tab-button {
     'brand actions'
     'links links';
   grid-template-columns: auto 1fr;
-  grid-template-rows: 4rem auto; // 64px
+  grid-template-rows: 4.75rem auto; // 76px
   align-items: center;
   padding-inline: var(--page-gutter);
   // 16px bajo los destinos, para que no queden pegados al borde
@@ -225,12 +225,12 @@ ion-tab-button {
   }
 }
 
-// Notificaciones sin leer: contador compacto en la esquina de la campana
-.bell-button {
-  position: relative;
+// Campana, panel y salir. En el móvil, solo el icono en un círculo de 44px;
+// en escritorio, el icono y su texto en una pastilla. Al pasar el ratón (solo
+// donde hay ratón) y al pulsar, la pastilla azul muy clara de las pestañas
+.header-action {
   overflow: visible;
-  width: 2.75rem;
-  min-width: 2.75rem;
+  min-width: 2.75rem; // 44px
   height: 2.75rem;
   min-height: 2.75rem;
   margin: 0;
@@ -238,7 +238,7 @@ ion-tab-button {
   --padding-end: 0;
   --padding-top: 0;
   --padding-bottom: 0;
-  --border-radius: 50%;
+  --border-radius: var(--radius-full);
   --ripple-color: transparent;
   --color: var(--color-text);
 
@@ -253,18 +253,62 @@ ion-tab-button {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: var(--space-xs);
     padding: 0;
     background: transparent;
     color: var(--color-text);
   }
 
+  @media (any-hover: hover) {
+    &:hover::part(native) {
+      background: var(--color-primary-subtle);
+    }
+  }
+
+  &.ion-activated::part(native) {
+    background: var(--color-primary-subtle);
+  }
+}
+
+// El icono, con el contador encima en la campana
+.header-action__icon {
+  display: flex;
+  position: relative;
+}
+
+// El texto, solo en escritorio
+.header-action__label {
+  display: none;
+}
+
+.top-nav .header-action {
+  --padding-start: var(--space-s);
+  --padding-end: var(--space-base);
+
+  ion-icon {
+    width: 1.375rem;
+    height: 1.375rem;
+    font-size: 1.375rem; // 22px
+  }
+
+  .header-action__label {
+    display: inline;
+    font-size: var(--font-size-label);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: normal;
+    text-transform: none;
+  }
+}
+
+// Notificaciones sin leer: contador compacto en la esquina de la campana
+.bell-button {
   .bell-button__badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: 0.25rem;
-    right: 0.25rem;
+    top: -0.3125rem; // -5px
+    right: -0.3125rem;
     min-width: 1.125rem;
     width: auto;
     height: 1.125rem;
