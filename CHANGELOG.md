@@ -39,6 +39,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- **Backend y frontend:** confirmaciones de lectura en el chat del viaje (doble check ✓✓): la tabla `chat_reads` permite saber en una sola consulta si un mensaje propio ha sido leído por todos los demás participantes (`readByAll`); en la interfaz, cada mensaje propio muestra ✓ si está enviado o ✓✓ en azul si está leído, con texto accesible. El borrador de la Política de privacidad 1.1 lo documenta (migración `AddChatReadReceiptsToPrivacyDraft`) (#228).
+
 - **Frontend:** llamar desde el viaje con el viaje confirmado o en curso: botón para que el pasajero llame al conductor desde el detalle de la solicitud y botones individuales para que el conductor llame a cada pasajero aceptado desde el viaje en curso y la tarjeta del viaje (#227).
 
 - **Frontend:** llamar desde el chat del viaje con el viaje confirmado o en curso: el botón abre la app de teléfono (el conductor elige a cuál de sus pasajeros) y, si aún no se puede, se ve en gris y explica por qué (#218).

@@ -367,4 +367,35 @@ describe('ConversationPage', () => {
     fixture.destroy();
     expect(heading.content()).toBeNull();
   });
+
+  it('shows checkmark ✓ (Enviado) for own unread message and ✓✓ (Leído) when read by all', async () => {
+    chat['listMessages'].mockResolvedValue([
+      message('m1', 'me', { text: 'Primer mensaje', readByAll: false }),
+      message('m2', 'me', { text: 'Segundo mensaje', readByAll: true }),
+      message('m3', 'other', { text: 'Mensaje de otro' }),
+    ]);
+
+    const root = await render();
+
+    const bubbles = root.querySelectorAll('.bubble');
+    expect(bubbles).toHaveLength(3);
+
+    // Primer mensaje propio: enviado (✓)
+    const statusM1 = bubbles[0].querySelector('.bubble__status');
+    expect(statusM1).not.toBeNull();
+    expect(statusM1?.textContent?.trim()).toBe('✓');
+    expect(statusM1?.getAttribute('aria-label')).toBe('Enviado');
+    expect(statusM1?.classList).not.toContain('bubble__status--read');
+
+    // Segundo mensaje propio: leído (✓✓)
+    const statusM2 = bubbles[1].querySelector('.bubble__status');
+    expect(statusM2).not.toBeNull();
+    expect(statusM2?.textContent?.trim()).toBe('✓✓');
+    expect(statusM2?.getAttribute('aria-label')).toBe('Leído');
+    expect(statusM2?.classList).toContain('bubble__status--read');
+
+    // Mensaje de otro participante: sin indicador de lectura propio
+    const statusM3 = bubbles[2].querySelector('.bubble__status');
+    expect(statusM3).toBeNull();
+  });
 });

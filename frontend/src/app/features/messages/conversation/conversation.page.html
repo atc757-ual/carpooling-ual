@@ -55,6 +55,16 @@
               }}</span>
               <span class="bubble__footer">
                 <span class="bubble__time text-caption">{{ time(message.createdAt) }}</span>
+                @if (isMine(message)) {
+                  <span
+                    class="bubble__status"
+                    [class.bubble__status--read]="message.readByAll"
+                    [attr.aria-label]="statusAriaLabel(message)"
+                    [title]="statusAriaLabel(message)"
+                  >
+                    <span aria-hidden="true">{{ message.readByAll ? '✓✓' : '✓' }}</span>
+                  </span>
+                }
               </span>
             </li>
           }

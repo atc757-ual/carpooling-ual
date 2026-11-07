@@ -130,6 +130,21 @@
   color: var(--color-text-muted);
 }
 
+// Confirmación de lectura del mensaje propio (✓ enviado, ✓✓ leído por todos)
+.bubble__status {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--font-size-caption);
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+.bubble__status--read {
+  color: var(--color-primary);
+}
+
 // Abajo, fijo: las respuestas rápidas y la caja de texto
 .conversation-footer {
   flex: none;
