@@ -128,11 +128,11 @@ for (const viewport of VIEWPORTS) {
         cy.get('.admin-mobile-header__menu-button').click();
         cy.get('.admin-mobile-menu__brand').should('be.visible');
         cy.get('.admin-mobile-menu__email').should('contain', 'admin@ual.es');
-        cy.get('.admin-mobile-menu-layer').then(($menu) => {
-          const headerBottom = document
-            .querySelector('.admin-mobile-header')
-            ?.getBoundingClientRect().bottom;
-          expect($menu[0].getBoundingClientRect().top).to.equal(headerBottom);
+        cy.get('.admin-mobile-header').then(($header) => {
+          const headerBottom = $header[0].getBoundingClientRect().bottom;
+          cy.get('.admin-mobile-menu-layer').should(($menu) => {
+            expect($menu[0].getBoundingClientRect().top).to.equal(headerBottom);
+          });
         });
         cy.get('.admin-mobile-menu__brand').then(($brand) => {
           const brandBottom = $brand[0].getBoundingClientRect().bottom;
@@ -175,6 +175,9 @@ for (const viewport of VIEWPORTS) {
         cy.get('.admin-mobile-header__menu-button').click();
       }
       cy.contains(adminNavSelector, 'Catálogos').should('have.attr', 'aria-current', 'page');
+      if (viewport.name === 'mobile') {
+        cy.get('.admin-mobile-header__menu-button').click();
+      }
       cy.contains('h1', 'Catálogos');
       cy.wait('@brands');
       // Ionic pasa el aria-label al botón interno: el primero de la fila es «Subir»
