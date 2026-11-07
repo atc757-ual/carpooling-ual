@@ -82,6 +82,12 @@ export class ConversationTripResource {
 
   @ApiProperty({ enum: TRIP_STATUSES })
   status: TripStatus;
+
+  @ApiProperty({ description: 'Public display name of the trip driver' })
+  driverName: string;
+
+  @ApiProperty({ type: String, nullable: true, example: 'sun' })
+  driverAvatarKey: string | null;
 }
 
 // Recurso TMF630 Conversation: el chat de un viaje para el usuario (su id es
@@ -152,6 +158,8 @@ export function toConversationResource(
       destinationName: trip.destinationName,
       departureAt: trip.departureAt.toISOString(),
       status: trip.status,
+      driverName: view.driver.name,
+      driverAvatarKey: view.driver.avatarKey,
     },
     myRole: view.myRole,
     lastMessage: view.lastMessage

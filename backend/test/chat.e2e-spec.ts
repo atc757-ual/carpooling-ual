@@ -204,6 +204,8 @@ describe('Chat API (e2e)', () => {
         trip: expect.objectContaining({
           originName: 'Almería centro',
           status: 'confirmed',
+          driverName: 'dan',
+          driverAvatarKey: null,
         }) as unknown,
       }),
     ]);
