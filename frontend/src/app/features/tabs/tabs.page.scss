@@ -99,7 +99,6 @@ ion-tab-button {
 
 // El saludo con el nombre, pegado a la izquierda de la campana y el salir
 .top-nav__hello {
-  margin-inline-end: var(--space-xs);
   color: var(--color-text);
   font-size: 1.125rem; // 18px
   font-weight: var(--font-weight-semibold);
@@ -146,14 +145,7 @@ ion-tab-button {
   align-items: center;
   grid-area: actions;
   justify-self: end;
-  gap: var(--space-xs);
-
-  ion-button {
-    --color: var(--color-text);
-
-    margin: 0;
-    font-size: var(--font-size-label);
-  }
+  gap: var(--space-base);
 }
 
 // Escritorio: franja fija y blanca bajo el menú (sin línea entre los dos) con
@@ -227,11 +219,12 @@ ion-tab-button {
 }
 
 // Campana, panel y salir. En el móvil, solo el icono en un círculo de 44px;
-// en escritorio, el icono y su texto en una pastilla. Al pasar el ratón (solo
-// donde hay ratón) y al pulsar, la pastilla azul muy clara de las pestañas
+// en escritorio, el icono y su texto en azul, en una pastilla de 40px. Al
+// pasar el ratón (solo donde hay ratón) y al pulsar, el fondo azul muy claro
+// de las pestañas
 .header-action {
   overflow: visible;
-  min-width: 2.75rem; // 44px
+  width: 2.75rem; // 44px
   height: 2.75rem;
   min-height: 2.75rem;
   margin: 0;
@@ -239,9 +232,12 @@ ion-tab-button {
   --padding-end: 0;
   --padding-top: 0;
   --padding-bottom: 0;
-  --border-radius: var(--radius-full);
+  --border-radius: 50%;
   --ripple-color: transparent;
   --color: var(--color-text);
+  --background: transparent;
+  --background-hover: transparent;
+  --background-activated: transparent;
 
   ion-icon {
     width: 1.625rem;
@@ -251,13 +247,10 @@ ion-tab-button {
   }
 
   &::part(native) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-xs);
-    padding: 0;
-    background: transparent;
-    color: var(--color-text);
+    width: 100%;
+    height: 100%;
+    border-radius: var(--border-radius);
+    color: var(--color);
   }
 
   @media (any-hover: hover) {
@@ -283,8 +276,13 @@ ion-tab-button {
 }
 
 .top-nav .header-action {
+  width: auto;
+  height: 2.5rem; // 40px
+  min-height: 2.5rem;
   --padding-start: var(--space-s);
   --padding-end: var(--space-base);
+  --border-radius: var(--radius-full);
+  --color: var(--color-link);
 
   ion-icon {
     width: 1.375rem;
@@ -294,6 +292,7 @@ ion-tab-button {
 
   .header-action__label {
     display: inline;
+    margin-inline-start: var(--space-s);
     font-size: 1rem; // 16px
     font-weight: var(--font-weight-medium);
     letter-spacing: normal;
