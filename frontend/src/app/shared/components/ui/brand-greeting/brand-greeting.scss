@@ -1,4 +1,4 @@
-// La insignia del coche y, a su lado, el texto que se da la vuelta: «Carpooling» o el
+// La insignia del coche y, a su lado, el texto que se da la vuelta: «Carpooling UAL» o el
 // saludo con el nombre
 .brand-greeting {
   display: inline-flex;
@@ -28,7 +28,7 @@
     visibility 650ms;
 }
 
-// «Carpooling», en negrita, como el logotipo
+// «Carpooling UAL», en negrita, como el logotipo
 .brand-greeting__word--brand {
   color: var(--color-text);
   font-weight: var(--font-weight-bold);
@@ -48,7 +48,7 @@
   transform: rotateY(72deg);
 }
 
-// Sin movimiento no hay giro ni cambio: se queda «Carpooling»
+// Sin movimiento no hay giro ni cambio: se queda «Carpooling UAL»
 @media (prefers-reduced-motion: reduce) {
   .brand-greeting__word {
     transition: none;
