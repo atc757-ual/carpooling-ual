@@ -130,7 +130,7 @@ for (const viewport of VIEWPORTS) {
         cy.get('.admin-mobile-menu__email').should('contain', 'admin@ual.es');
         cy.get('.admin-mobile-menu-layer').then(($menu) => {
           const headerBottom = document
-            .querySelector('.admin-header')
+            .querySelector('.admin-mobile-header')
             ?.getBoundingClientRect().bottom;
           expect($menu[0].getBoundingClientRect().top).to.equal(headerBottom);
         });
@@ -171,6 +171,9 @@ for (const viewport of VIEWPORTS) {
       openAdminSection('Catálogos');
 
       cy.location('pathname').should('eq', '/admin/catalogs');
+      if (viewport.name === 'mobile') {
+        cy.get('.admin-mobile-header__menu-button').click();
+      }
       cy.contains(adminNavSelector, 'Catálogos').should('have.attr', 'aria-current', 'page');
       cy.contains('h1', 'Catálogos');
       cy.wait('@brands');
