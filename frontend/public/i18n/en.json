@@ -84,6 +84,15 @@
       "resend": "Resend code"
     },
     "tripChatLink": "Trip chat",
+    "tripCall": {
+      "call": "Call",
+      "callTo": "Call {{ name }}",
+      "callPassenger": "Call a passenger",
+      "unavailable": "Call (unavailable)",
+      "onlyAllowed": "Calls are only available with the trip confirmed or in progress.",
+      "noVerifiedPhone": "Nobody else on this trip has a verified phone number.",
+      "whoToCall": "Who are you calling?"
+    },
     "routeTimeline": {
       "aria": "Route"
     },

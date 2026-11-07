@@ -43,6 +43,7 @@ import {
 } from '../../../core/models/chat.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ChatService } from '../../../core/services/chat/chat.service';
+import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { confirmWithReason } from '../../../shared/components/modals/reason-confirm-modal/reason-confirm-modal';
@@ -83,6 +84,7 @@ export const MAX_MESSAGE_LENGTH = 500;
 })
 export class ConversationPage {
   private readonly chat = inject(ChatService);
+  private readonly tripCall = inject(TripCallService);
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly modalController = inject(ModalController);
@@ -385,22 +387,18 @@ export class ConversationPage {
 
   // Abre la app de teléfono del dispositivo con el número
   openPhone(phone: string): void {
-    globalThis.location.href = `tel:${phone}`;
+    this.tripCall.openPhone(phone);
   }
 
   // Por qué no se puede llamar: el estado del viaje o que nadie tiene el
   // teléfono verificado
   private unavailableCallMessage(): string {
-    const status = this.conversation()?.trip.status;
-    if (status === 'confirmed' || status === 'in_progress') {
-      return 'Nadie más de este viaje tiene el teléfono verificado.';
-    }
-    return 'Solo se puede llamar con el viaje confirmado o en curso.';
+    return this.tripCall.getUnavailableReason(this.conversation()?.trip.status);
   }
 
   // Sin contactos (o si falla), el botón de llamar queda en gris
   private async loadContacts(tripId: string, version: number): Promise<void> {
-    const contacts = await this.chat.listContacts(tripId).catch(() => []);
+    const contacts = await this.tripCall.loadContacts(tripId);
     if (version === this.loadVersion) this.contacts.set(contacts);
   }
 

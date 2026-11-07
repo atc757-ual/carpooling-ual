@@ -12,6 +12,8 @@ import { LocationService } from '../../../core/services/location/location.servic
 import { TrackingService } from '../../../core/services/tracking/tracking.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { ChatService } from '../../../core/services/chat/chat.service';
+import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import {
   LIVE_TRIP_MAP_RENDERER_FACTORY,
   LOAD_LEAFLET,
@@ -67,9 +69,17 @@ describe('DriverLiveTripPage', () => {
     dismissGap: ReturnType<typeof vi.fn>;
   };
   let ask: ReturnType<typeof vi.fn>;
+  let showInfoMock: ReturnType<typeof vi.fn>;
+  let listContactsMock: ReturnType<typeof vi.fn>;
   let page: DriverLiveTripPage;
 
-  async function render(trips: DriverTrip[], requests: SeatRequest[] = []): Promise<HTMLElement> {
+  async function render(
+    trips: DriverTrip[],
+    requests: SeatRequest[] = [],
+    contacts = [
+      { id: 'p-r1', name: 'Carlos Ruiz', phone: '+34600333444', role: 'passenger' as const },
+    ],
+  ): Promise<HTMLElement> {
     driver = {
       listMyTrips: vi.fn().mockResolvedValue(trips),
       listTripRequests: vi.fn().mockResolvedValue(requests),
@@ -85,6 +95,8 @@ describe('DriverLiveTripPage', () => {
       dismissGap: vi.fn(),
     };
     ask = vi.fn().mockResolvedValue(true);
+    showInfoMock = vi.fn().mockResolvedValue(undefined);
+    listContactsMock = vi.fn().mockResolvedValue(contacts);
     TestBed.configureTestingModule({
       providers: [
         provideIonicAngular(),
@@ -95,7 +107,11 @@ describe('DriverLiveTripPage', () => {
         { provide: DriverService, useValue: driver },
         { provide: DriverTrackingService, useValue: { ...tracking, stop: vi.fn() } },
         { provide: ConfirmService, useValue: { ask } },
-        { provide: ToastService, useValue: { showSuccess: vi.fn(), showError: vi.fn() } },
+        {
+          provide: ToastService,
+          useValue: { showSuccess: vi.fn(), showError: vi.fn(), showInfo: showInfoMock },
+        },
+        { provide: ChatService, useValue: { listContacts: listContactsMock } },
         {
           provide: TrackingService,
           useValue: { getLatest: vi.fn().mockRejectedValue(new Error()) },
@@ -246,5 +262,32 @@ describe('DriverLiveTripPage', () => {
     expect(page.canMarkNoShow(latePassenger)).toBe(true);
     await page.handleNoShow('r1');
     expect(driver['markNoShow']).toHaveBeenCalledWith('r1');
+  });
+
+  it('renders call button for passenger and calls passenger when tapped', async () => {
+    const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
+    const tripCall = TestBed.inject(TripCallService);
+    const openPhoneSpy = vi.spyOn(tripCall, 'openPhone').mockImplementation(() => undefined);
+
+    const callBtn = root.querySelector('.driver-live-trip__call-btn');
+    expect(callBtn).not.toBeNull();
+    expect(callBtn?.getAttribute('title')).toBe('Llamar a Carlos Ruiz');
+    expect(callBtn?.classList).not.toContain('driver-live-trip__call-btn--unavailable');
+
+    page.handleCallPassenger({ id: 'p-r1', name: 'Carlos Ruiz' });
+    expect(openPhoneSpy).toHaveBeenCalledWith('+34600333444');
+  });
+
+  it('shows call button as unavailable when passenger has no verified phone', async () => {
+    const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)], []);
+
+    const callBtn = root.querySelector('.driver-live-trip__call-btn');
+    expect(callBtn).not.toBeNull();
+    expect(callBtn?.classList).toContain('driver-live-trip__call-btn--unavailable');
+
+    page.handleCallPassenger({ id: 'p-r1', name: 'Carlos Ruiz' });
+    expect(showInfoMock).toHaveBeenCalledWith(
+      'Nadie más de este viaje tiene el teléfono verificado.',
+    );
   });
 });

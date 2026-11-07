@@ -78,6 +78,25 @@
   flex-direction: column;
 }
 
+.passenger-request-detail__driver-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+}
+
+.passenger-request-detail__call-btn {
+  --color: var(--color-link);
+  --border-color: var(--color-link);
+  font-size: var(--font-size-label);
+  margin: 0;
+
+  &--unavailable {
+    --color: var(--color-text-muted);
+    --border-color: var(--color-border);
+  }
+}
+
 .passenger-request-detail__occupancy-info {
   display: flex;
   flex-direction: column;

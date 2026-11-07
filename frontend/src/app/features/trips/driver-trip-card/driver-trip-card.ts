@@ -19,14 +19,16 @@ import {
   ModalController,
 } from '@ionic/angular';
 import { Router, RouterLink } from '@angular/router';
-import { locationOutline } from 'ionicons/icons';
+import { callOutline, locationOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
+import { ChatContact } from '../../../core/models/chat.model';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
 import { SeatRequest, SeatRequestStatus } from '../../../core/models/seat-request.model';
 import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
+import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripChatLink } from '../../../shared/components/ui/trip-chat-link/trip-chat-link';
@@ -78,6 +80,7 @@ export class DriverTripCard {
   private readonly travelPreferences = inject(TravelPreferencesStore);
   private readonly driver = inject(DriverService);
   private readonly toast = inject(ToastService);
+  private readonly tripCall = inject(TripCallService);
   private readonly confirm = inject(ConfirmService);
   private readonly tracking = inject(DriverTrackingService);
   private readonly location = inject(LocationService);
@@ -142,6 +145,9 @@ export class DriverTripCard {
   );
   readonly isChangingStatus = signal(false);
   protected readonly locationIcon = locationOutline;
+  protected readonly callIcon = callOutline;
+  readonly contacts = signal<ChatContact[]>([]);
+  readonly contactsMap = computed(() => new Map(this.contacts().map((c) => [c.id, c])));
 
   constructor() {
     const timer = setInterval(() => this.now.set(Date.now()), 60_000);
@@ -150,6 +156,14 @@ export class DriverTripCard {
     effect(() => {
       if (this.isInProgress()) {
         this.tracking.start(this.trip().id);
+      }
+    });
+    effect(() => {
+      const tripId = this.trip().id;
+      if (tripId && this.isOpen()) {
+        void this.tripCall.loadContacts(tripId).then((c) => this.contacts.set(c));
+      } else {
+        this.contacts.set([]);
       }
     });
   }
@@ -161,6 +175,21 @@ export class DriverTripCard {
       new Date(trip.departureAt).getTime() - Date.now() < 30 * 60 * 1000
     );
   });
+
+  canCallPassenger(passengerId: string): boolean {
+    const contact = this.contactsMap().get(passengerId);
+    return this.tripCall.canCall(this.trip().status, contact);
+  }
+
+  callPassengerLabel(name: string, passengerId: string): string {
+    const contact = this.contactsMap().get(passengerId);
+    return this.tripCall.callLabel(contact, name);
+  }
+
+  handleCallPassenger(passenger: { id: string; name: string }): void {
+    const contact = this.contactsMap().get(passenger.id);
+    this.tripCall.call(contact, this.trip().status);
+  }
 
   protected requestLabel(status: SeatRequestStatus): string {
     return REQUEST_STATUS_LABELS[status];

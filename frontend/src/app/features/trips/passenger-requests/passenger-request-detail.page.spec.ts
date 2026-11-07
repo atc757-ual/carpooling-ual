@@ -6,11 +6,13 @@ import { Trip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { TripPosition } from '../../../core/models/trip-position.model';
 import { LocationService } from '../../../core/services/location/location.service';
+import { ChatService } from '../../../core/services/chat/chat.service';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { TrackingService } from '../../../core/services/tracking/tracking.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
+import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
 import { TripSearchStateService } from '../../matching/trip-search-state.service';
 import {
@@ -81,6 +83,8 @@ describe('PassengerRequestDetailPage', () => {
   let requests: Record<string, ReturnType<typeof vi.fn>>;
   let showError: ReturnType<typeof vi.fn>;
   let showSuccess: ReturnType<typeof vi.fn>;
+  let showInfo: ReturnType<typeof vi.fn>;
+  let listContactsMock: ReturnType<typeof vi.fn>;
   let modalDismiss: ReturnType<typeof vi.fn>;
 
   async function render(
@@ -95,6 +99,12 @@ describe('PassengerRequestDetailPage', () => {
     };
     showError = vi.fn().mockResolvedValue(undefined);
     showSuccess = vi.fn().mockResolvedValue(undefined);
+    showInfo = vi.fn().mockResolvedValue(undefined);
+    listContactsMock = vi
+      .fn()
+      .mockResolvedValue([
+        { id: 'd1', name: 'Lucía Cortés', phone: '+34600111222', role: 'driver' },
+      ]);
     modalDismiss = vi.fn().mockResolvedValue(true);
 
     TestBed.configureTestingModule({
@@ -136,7 +146,8 @@ describe('PassengerRequestDetailPage', () => {
             destroy: vi.fn(),
           }),
         },
-        { provide: ToastService, useValue: { showError, showSuccess } },
+        { provide: ToastService, useValue: { showError, showSuccess, showInfo } },
+        { provide: ChatService, useValue: { listContacts: listContactsMock } },
         {
           provide: ModalController,
           useValue: {
@@ -296,5 +307,32 @@ describe('PassengerRequestDetailPage', () => {
 
     expect(showError).toHaveBeenCalled();
     expect(fixture.componentInstance.isCancelling()).toBe(false);
+  });
+
+  it('shows call button for accepted request and calls driver when trip is confirmed', async () => {
+    const root = await render(seatRequest('accepted'), { ...TRIP, status: 'confirmed' });
+    const tripCall = TestBed.inject(TripCallService);
+    const openPhoneSpy = vi.spyOn(tripCall, 'openPhone').mockImplementation(() => undefined);
+
+    const callBtn = root.querySelector('.passenger-request-detail__call-btn');
+    expect(callBtn).not.toBeNull();
+    expect(callBtn?.textContent).toContain('Llamar a Lucía');
+    expect(callBtn?.classList).not.toContain('passenger-request-detail__call-btn--unavailable');
+
+    fixture.componentInstance.handleCallDriver();
+    expect(openPhoneSpy).toHaveBeenCalledWith('+34600111222');
+  });
+
+  it('shows call button as unavailable and shows info toast when trip is published or driver has no verified phone', async () => {
+    const root = await render(seatRequest('accepted'), { ...TRIP, status: 'published' });
+
+    const callBtn = root.querySelector('.passenger-request-detail__call-btn');
+    expect(callBtn).not.toBeNull();
+    expect(callBtn?.classList).toContain('passenger-request-detail__call-btn--unavailable');
+
+    fixture.componentInstance.handleCallDriver();
+    expect(showInfo).toHaveBeenCalledWith(
+      'Solo se puede llamar con el viaje confirmado o en curso.',
+    );
   });
 });

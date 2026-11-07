@@ -34,7 +34,11 @@
           class="notice"
           [class.notice--warning]="request.status === 'pending'"
           [class.notice--success]="request.status === 'accepted'"
-          [class.notice--info]="request.status === 'rejected' || request.status === 'cancelled' || request.status === 'expired'"
+          [class.notice--info]="
+            request.status === 'rejected' ||
+            request.status === 'cancelled' ||
+            request.status === 'expired'
+          "
         >
           <span>
             @switch (request.status) {
@@ -62,7 +66,8 @@
               @case ('cancelled') {
                 @if (request.rejectionReason === 'no_show') {
                   <b>Cancelada: no te presentaste a tiempo.</b>
-                  El conductor marcó que no te presentaste en el punto de recogida tras 5 minutos de espera.
+                  El conductor marcó que no te presentaste en el punto de recogida tras 5 minutos de
+                  espera.
                 } @else {
                   <b>La solicitud está cancelada.</b>
                   Puedes buscar otro viaje si todavía necesitas plaza.
@@ -107,7 +112,8 @@
               } @else if (request.boardCode) {
                 <div class="passenger-request-detail__code-digits">{{ request.boardCode }}</div>
                 <p class="text-caption text-color-muted">
-                  Indica este código de 4 cifras a {{ firstName(trip.driver.name) }} al subir al coche para validar tu recogida.
+                  Indica este código de 4 cifras a {{ firstName(trip.driver.name) }} al subir al
+                  coche para validar tu recogida.
                 </p>
               }
             </div>
@@ -140,13 +146,28 @@
                 <span class="text-caption text-color-muted">Conductor</span>
               </div>
               @if (request.status === 'accepted') {
-                <span class="status status--success">Tu plaza confirmada</span>
+                <div class="passenger-request-detail__driver-badges">
+                  <ion-button
+                    class="passenger-request-detail__call-btn"
+                    [class.passenger-request-detail__call-btn--unavailable]="!canCallDriver()"
+                    fill="outline"
+                    size="small"
+                    [attr.aria-label]="callDriverLabel()"
+                    [title]="callDriverLabel()"
+                    (click)="handleCallDriver()"
+                  >
+                    <ion-icon slot="start" [icon]="callIcon" aria-hidden="true" />
+                    {{ callDriverLabel() }}
+                  </ion-button>
+                  <span class="status status--success">Tu plaza confirmada</span>
+                </div>
               }
             </div>
 
             <div class="passenger-request-detail__occupancy-info">
               <p class="text-body-s">
-                <b>{{ trip.offeredSeats - trip.availableSeats }} de {{ trip.offeredSeats }}</b> plazas ocupadas
+                <b>{{ trip.offeredSeats - trip.availableSeats }} de {{ trip.offeredSeats }}</b>
+                plazas ocupadas
               </p>
               @if (trip.vehicle; as v) {
                 <p class="text-caption text-color-muted">
@@ -212,7 +233,13 @@
           <!-- Antes de salir: cancelar solicitud o cancelar plaza confirmada -->
           @if (canCancel()) {
             <form (submit)="$event.preventDefault(); handleCancel()">
-              <ion-button type="submit" fill="outline" color="danger" expand="block" [disabled]="isCancelling()">
+              <ion-button
+                type="submit"
+                fill="outline"
+                color="danger"
+                expand="block"
+                [disabled]="isCancelling()"
+              >
                 @if (isCancelling()) {
                   <ion-spinner slot="start" name="crescent" aria-hidden="true" />
                 }
@@ -222,10 +249,18 @@
           }
 
           <!-- Si fue rechazada o cancelada o caducada: búsqueda con prioridad -->
-          @if (request.status === 'rejected' || request.status === 'cancelled' || request.status === 'expired') {
+          @if (
+            request.status === 'rejected' ||
+            request.status === 'cancelled' ||
+            request.status === 'expired'
+          ) {
             <div class="passenger-request-detail__priority-search">
               <div class="passenger-request-detail__priority-card notice--info">
-                <ion-icon class="passenger-request-detail__priority-icon" [icon]="sparklesIcon" aria-hidden="true" />
+                <ion-icon
+                  class="passenger-request-detail__priority-icon"
+                  [icon]="sparklesIcon"
+                  aria-hidden="true"
+                />
                 <div class="passenger-request-detail__priority-text">
                   <p class="text-body-s text-body--strong">
                     @if (request.status === 'expired') {
@@ -237,7 +272,8 @@
                     }
                   </p>
                   <p class="text-caption text-color-muted">
-                    No te preocupes. Puedes buscar otra opción manteniendo tus preferencias y tu próxima solicitud tendrá prioridad.
+                    No te preocupes. Puedes buscar otra opción manteniendo tus preferencias y tu
+                    próxima solicitud tendrá prioridad.
                   </p>
                 </div>
               </div>

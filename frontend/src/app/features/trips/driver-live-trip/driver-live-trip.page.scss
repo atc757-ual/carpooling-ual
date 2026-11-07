@@ -85,8 +85,19 @@
 .driver-live-trip__person {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   gap: var(--space-xs) var(--space-s);
+}
+
+.driver-live-trip__call-btn {
+  --color: var(--color-link);
+  margin: 0;
+  min-width: 2.75rem; // 44px
+  min-height: 2.75rem;
+
+  &--unavailable {
+    --color: var(--color-text-muted);
+  }
 }
 
 .driver-live-trip__board-actions {
