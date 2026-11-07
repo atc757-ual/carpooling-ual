@@ -125,29 +125,6 @@
   color: var(--color-text-muted);
 }
 
-// Discreta (gris, sin borde) pero con área de toque de 44px
-.bubble__report {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.75rem; // 44px
-  min-height: 2.75rem;
-  margin: calc(-1 * var(--space-s)) calc(-1 * var(--space-s)) calc(-1 * var(--space-s)) 0;
-  border: 0;
-  border-radius: var(--radius-full);
-  background: transparent;
-  color: var(--color-text-muted);
-  cursor: pointer;
-
-  &:hover {
-    color: var(--color-danger);
-  }
-
-  &:focus-visible {
-    outline: var(--border-width-l) solid var(--color-focus);
-  }
-}
-
 // Abajo, fijo: las respuestas rápidas y la caja de texto
 .conversation-footer {
   flex: none;
@@ -295,6 +272,17 @@
 // El estado del viaje, a la derecha del título
 .conversation__trip-status {
   flex: none;
+}
+
+// Denunciar: discreto (gris; rojo al pasar el ratón), con área táctil de 44px
+.conversation__report {
+  --color: var(--color-text-muted);
+  --color-hover: var(--color-danger);
+
+  flex: none;
+  min-width: 2.75rem; // 44px
+  min-height: 2.75rem; // 44px
+  margin: 0;
 }
 
 // Área táctil de 44px (guía de estilos)

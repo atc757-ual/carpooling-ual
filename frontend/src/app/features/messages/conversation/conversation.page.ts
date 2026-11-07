@@ -122,8 +122,6 @@ export class ConversationPage {
   readonly hasError = signal(false);
   readonly isSending = signal(false);
   readonly draft = signal('');
-  // Los que ya he denunciado en esta visita (no se ofrece otra vez)
-  readonly reportedIds = signal<ReadonlySet<string>>(new Set());
   private currentTripId = '';
   private loadVersion = 0;
 
@@ -280,17 +278,18 @@ export class ConversationPage {
     await this.sendMessage({ quickReply });
   }
 
-  // Denunciar el mensaje de otro con su motivo: lo revisa el administrador
-  async handleReport(message: ChatMessage): Promise<void> {
+  // Denunciar el chat con su motivo: lo revisa el administrador con una copia
+  // de la conversación. Se puede volver a denunciar (llegan mensajes nuevos)
+  async handleReport(): Promise<void> {
     const reported = await confirmWithReason(this.modalController, {
-      header: '¿Denunciar este mensaje?',
-      message: `Lo revisará el equipo de Carpooling UAL. ${message.author.name} no sabrá que lo has denunciado.`,
+      header: '¿Denunciar este chat?',
+      message:
+        'Lo revisará el equipo de Carpooling UAL con una copia de la conversación. Nadie del viaje sabrá que lo has denunciado.',
       confirmText: 'Denunciar',
-      action: (reason) => this.chat.reportMessage(this.tripId(), message.id, reason),
+      action: (reason) => this.chat.reportChat(this.tripId(), reason),
     });
     if (reported) {
-      this.reportedIds.update((ids) => new Set([...ids, message.id]));
-      void this.toast.showSuccess('Mensaje denunciado. Lo revisaremos.');
+      void this.toast.showSuccess('Chat denunciado. Lo revisaremos.');
     }
   }
 
@@ -312,7 +311,6 @@ export class ConversationPage {
       this.conversation.set(null);
       this.messages.set([]);
       this.contacts.set([]);
-      this.reportedIds.set(new Set());
     }
     this.isLoading.set(true);
     this.hasError.set(false);
