@@ -4,6 +4,7 @@ import { provideIonicAngular } from '@ionic/angular';
 import { AdminUserRow } from '../../../core/models/admin-user.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminUsersService } from '../../../core/services/admin/admin-users.service';
+import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { AdminUsersPage } from './admin-users.page';
 
 const ROW: AdminUserRow = {
@@ -49,12 +50,11 @@ describe('AdminUsersPage', () => {
 
     const root = await render();
 
-    expect(root.querySelector('h1')?.textContent).toContain('Usuarios · 1 284');
+    expect(root.querySelector('.pagination__range')?.textContent).toContain('1 284');
     const cells = Array.from(root.querySelectorAll('tbody td')).map((td) => td.textContent?.trim());
     expect(cells).toEqual([
       expect.stringContaining('Lucía Cortés'),
       'Conductor',
-      '9',
       '2 incidencias',
       'Ver perfil',
     ]);
@@ -65,6 +65,63 @@ describe('AdminUsersPage', () => {
       offset: 0,
       limit: 20,
     });
+  });
+
+  it('puts its title strip with the search in the panel header and removes it on leave', async () => {
+    list.mockResolvedValue({ items: [ROW], total: 1 });
+    await render();
+    const heading = TestBed.inject(HeadingContentService);
+
+    expect(heading.content()).not.toBeNull();
+    fixture.destroy();
+    expect(heading.content()).toBeNull();
+  });
+
+  it('shows the initials of each user next to the name', async () => {
+    list.mockResolvedValue({ items: [ROW], total: 1 });
+
+    const root = await render();
+
+    expect(root.querySelector('.admin-users__avatar')?.textContent?.trim()).toBe('LC');
+  });
+
+  it('marks the chosen profile and status chips and filters with them', async () => {
+    list.mockResolvedValue({ items: [ROW], total: 1 });
+    const root = await render({ profile: 'driver', status: 'suspended' });
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+
+    const pressed = Array.from(root.querySelectorAll('ion-chip[aria-pressed="true"]')).map((chip) =>
+      chip.textContent?.trim(),
+    );
+    expect(pressed).toEqual(['Conductor', 'Suspendido']);
+
+    const passenger = Array.from(root.querySelectorAll<HTMLElement>('ion-chip')).find(
+      (chip) => chip.textContent?.trim() === 'Pasajero',
+    );
+    passenger?.click();
+    expect(navigate).toHaveBeenLastCalledWith(
+      [],
+      expect.objectContaining({ queryParams: { profile: 'passenger', offset: null } }),
+    );
+  });
+
+  it('opens the other filters on mobile and lists the applied ones while closed', async () => {
+    list.mockResolvedValue({ items: [ROW], total: 1 });
+    const root = await render({ profile: 'admin', status: 'deleted' });
+    const page = fixture.componentInstance;
+
+    expect(page.activeFilters()).toEqual([
+      { key: 'profile', label: 'Administrador' },
+      { key: 'status', label: 'Cuenta eliminada' },
+    ]);
+    expect(root.querySelector('.admin-users__toggle-count')?.textContent).toContain('2');
+    expect(root.querySelectorAll('.admin-users__applied ion-chip')).toHaveLength(2);
+
+    page.toggleFilters();
+    fixture.detectChanges();
+    expect(root.querySelector('.admin-users__toggle')?.getAttribute('aria-expanded')).toBe('true');
+    expect(root.querySelector('.admin-users__more--open')).not.toBeNull();
+    expect(root.querySelector('.admin-users__applied')).toBeNull();
   });
 
   it('reads the filters and the page from the URL and ignores wrong values', async () => {

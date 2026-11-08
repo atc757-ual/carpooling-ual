@@ -7,6 +7,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { IonContent, IonHeader, IonIcon, NavController } from '@ionic/angular';
@@ -18,6 +19,7 @@ import { AuthService } from '../../../../core/services/auth/auth.service';
 import { confirmLogout } from '../../../../core/services/auth/confirm-logout';
 import { AppContextService, canUseApp } from '../../../../core/services/ui/app-context.service';
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
+import { HeadingContentService } from '../../../../core/services/ui/heading-content.service';
 import { ADMIN_SECTIONS, INCIDENTS_SECTION_PATH } from '../../../../features/admin/admin-sections';
 
 // Marco del panel de administración (bloque b): la cabecera índigo con el
@@ -26,7 +28,15 @@ import { ADMIN_SECTIONS, INCIDENTS_SECTION_PATH } from '../../../../features/adm
 // escritorio; en el móvil todo va en una columna
 @Component({
   selector: 'app-admin-layout',
-  imports: [IonHeader, IonContent, IonIcon, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [
+    IonHeader,
+    IonContent,
+    IonIcon,
+    NgTemplateOutlet,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+  ],
   templateUrl: './admin-layout.html',
   styleUrl: './admin-layout.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +49,7 @@ export class AdminLayout implements OnInit {
   private readonly router = inject(Router);
   private readonly appContext = inject(AppContextService);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly headingContent = inject(HeadingContentService);
 
   protected readonly sections = ADMIN_SECTIONS;
   protected readonly incidentsPath = INCIDENTS_SECTION_PATH;

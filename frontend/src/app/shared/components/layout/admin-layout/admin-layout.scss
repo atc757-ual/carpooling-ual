@@ -2,6 +2,9 @@
 .admin-header {
   position: relative;
   z-index: 40;
+  // Sin la línea de abajo: la franja fija de una sección (p. ej. Usuarios)
+  // continúa la cabecera como si fueran una sola
+  border-bottom: 0;
   background: var(--color-admin);
   color: var(--color-on-admin);
   box-shadow: none;
@@ -260,6 +263,21 @@
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-bold);
   text-align: center;
+}
+
+// Franja de la sección, bajo la navegación y en su mismo color: sin línea
+// entre ambas, se ven como una sola. Con el margen de la página a los lados y
+// 16px arriba y abajo, como la franja del título de la app
+.admin-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-base) var(--page-gutter);
+}
+
+// Fondo gris claro como en la app, con el contenido en tarjetas blancas encima
+ion-content {
+  --background: var(--color-surface-subtle);
 }
 
 .admin-main {

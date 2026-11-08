@@ -479,7 +479,7 @@ for (const viewport of VIEWPORTS) {
       visitWithSession('/admin/users', ['admin']);
 
       cy.wait('@users');
-      cy.contains('h1', 'Usuarios · 1');
+      cy.contains('h1', 'Usuarios');
       cy.contains('tbody tr', 'Lucía Cortés').within(() => {
         cy.contains('Conductor · Pasajero');
         cy.contains('.status', '2 incidencias');
@@ -489,7 +489,7 @@ for (const viewport of VIEWPORTS) {
 
       visitWithSession('/admin/users?status=suspended', ['admin']);
       cy.contains('Ningún usuario coincide');
-      cy.contains('ion-button', 'Quitar filtros').click();
+      cy.get('.admin-users__empty').contains('ion-button', 'Quitar filtros').click();
       cy.location('search').should('eq', '');
       cy.contains('tbody tr', 'Lucía Cortés');
     });
