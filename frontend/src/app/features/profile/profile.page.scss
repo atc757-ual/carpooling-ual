@@ -394,17 +394,25 @@ app-profile-device-location {
   margin-top: var(--space-xs);
 }
 
-// Verificar el teléfono: botón azul claro pequeño, como el de editar
+// Verificar el teléfono: botón amarillo/ámbar de acción pendiente (como Notificaciones y Ubicación)
 .profile__verify {
-  --background: var(--color-primary-subtle);
-  --background-hover: var(--color-primary-subtle);
-  --color: var(--color-primary);
+  --background: var(--color-warning-subtle);
+  --background-hover: var(--color-warning-subtle);
+  --color: var(--color-warning-text);
   --border-radius: var(--radius-s);
   --box-shadow: none;
   height: 2rem; // 32px
   min-height: 2rem; // el tema da 48px a todos los ion-button
   margin: 0;
   font-weight: var(--font-weight-semibold);
+
+  ion-icon {
+    font-size: 1.125rem;
+  }
+
+  &:hover {
+    opacity: 0.9;
+  }
 }
 
 // Idioma y tema: el nombre y, debajo, una línea que invita a elegir

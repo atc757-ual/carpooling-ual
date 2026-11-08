@@ -60,24 +60,15 @@
         <ion-card class="profile-card">
           <ion-card-header class="profile-card__header">
             <ion-card-title>{{ 'profile.contactPhone' | transloco }}</ion-card-title>
-            @if (isPhoneVerified()) {
-              <form (submit)="$event.preventDefault(); handleManagePhone()">
-                <ion-button
-                  type="submit"
-                  class="profile__edit"
-                  [attr.aria-label]="'profile.managePhone' | transloco"
-                >
-                  <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
-                </ion-button>
-              </form>
-            } @else {
-              <form (submit)="$event.preventDefault(); handleManagePhone(true)">
-                <ion-button type="submit" class="profile__verify" size="small">
-                  <ion-icon slot="start" [icon]="shieldIcon" aria-hidden="true" />
-                  {{ 'profile.verify' | transloco }}
-                </ion-button>
-              </form>
-            }
+            <form (submit)="$event.preventDefault(); handleManagePhone()">
+              <ion-button
+                type="submit"
+                class="profile__edit"
+                [attr.aria-label]="'profile.managePhone' | transloco"
+              >
+                <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
+              </ion-button>
+            </form>
           </ion-card-header>
           <ion-card-content class="profile-card__content">
             @if (phone(); as ph) {
@@ -92,10 +83,12 @@
                     {{ 'profile.phoneVerified' | transloco }}
                   </span>
                 } @else {
-                  <span class="status status--pending">
-                    <ion-icon [icon]="pendingIcon" aria-hidden="true" />
-                    {{ 'profile.phonePending' | transloco }}
-                  </span>
+                  <form (submit)="$event.preventDefault(); handleManagePhone(true)">
+                    <ion-button type="submit" class="profile__verify" size="small">
+                      <ion-icon slot="start" [icon]="shieldIcon" aria-hidden="true" />
+                      {{ 'profile.verify' | transloco }}
+                    </ion-button>
+                  </form>
                 }
               </div>
             } @else {
