@@ -671,6 +671,24 @@ ion-card-header + ion-card-content[class] {
   }
 }
 
+// Aviso con una acción (p. ej. «Reintentar»): el texto ocupa lo que queda y el
+// botón va a su derecha, centrado y sin estirarse; si no cabe, debajo
+.notice:has(> ion-button) {
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+
+  > span {
+    flex: 1 1 14rem; // 224px: por debajo, el botón baja
+    min-width: 0;
+  }
+
+  > ion-button {
+    flex: none;
+    margin: 0;
+  }
+}
+
 .notice--info {
   background: var(--color-primary-subtle);
 
