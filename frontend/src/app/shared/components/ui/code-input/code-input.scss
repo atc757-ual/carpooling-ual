@@ -17,17 +17,15 @@ ion-input-otp.input-otp-size-medium {
   --height: 3.75rem; // 60px
   --border-radius: var(--radius-s);
 
-  justify-content: flex-start;
+  justify-content: center;
   font-family: var(--font-family-heading);
   font-size: 1.75rem; // 28px
   font-weight: var(--font-weight-semibold);
 }
 
-// Casillas alineadas a la izquierda, con la etiqueta y el resto del formulario
-// (Ionic las centra). Su grupo es HTML interno del componente: ::ng-deep,
-// limitado a este componente
+// Casillas centradas en el formulario
 :host ::ng-deep ion-input-otp .input-otp-group {
-  justify-content: flex-start;
+  justify-content: center;
 }
 // Cada casilla: borde gris de 1px; solo la que tiene el foco, azul y de 2px
 // (Ionic pintaría todas con el color del estado del campo). Su input es HTML

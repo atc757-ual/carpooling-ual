@@ -52,14 +52,11 @@
       </div>
     }
 
-    <!-- Quien no acepta puede irse, pero no usar la app -->
+    <!-- Quien no acepta puede cerrar sesión -->
     <div class="legal-update__exits">
-      <ion-button fill="clear" size="small" (click)="handleLogout()">
+      <button type="button" class="legal-update__logout-link" (click)="handleLogout()">
         {{ 'auth.legalUpdate.logout' | transloco }}
-      </ion-button>
-      <ion-button fill="clear" size="small" color="danger" (click)="handleDeleteAccount()">
-        {{ 'auth.legalUpdate.deleteAccount' | transloco }}
-      </ion-button>
+      </button>
     </div>
   </app-auth-layout>
 </ion-content>

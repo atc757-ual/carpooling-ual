@@ -105,75 +105,9 @@
             }
           </ion-card-content>
         </ion-card>
-
-        <!-- Bloque: Cuenta -->
-        <ion-card class="profile-card">
-          <ion-card-header class="profile-card__header">
-            <ion-card-title>{{ 'profile.account.title' | transloco }}</ion-card-title>
-          </ion-card-header>
-          <ion-card-content class="profile-card__content">
-            <div class="profile__legal-list">
-              <!-- Cambiar contraseña -->
-              <button type="button" class="profile__legal-row" (click)="handleOpenPassword()">
-                <ion-icon class="profile__legal-icon" [icon]="keyIcon" aria-hidden="true" />
-                <span class="profile__legal-text">
-                  <span class="text-body text-body--strong">{{
-                    'profile.account.changePassword' | transloco
-                  }}</span>
-                  <span class="text-body-s text-color-muted">{{
-                    'profile.account.changePasswordDesc' | transloco
-                  }}</span>
-                </span>
-                <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
-              </button>
-
-              <!-- Ayuda y soporte -->
-              <button type="button" class="profile__legal-row" (click)="handleOpenSupport()">
-                <ion-icon class="profile__legal-icon" [icon]="helpIcon" aria-hidden="true" />
-                <span class="profile__legal-text">
-                  <span class="text-body text-body--strong">{{
-                    'profile.account.help' | transloco
-                  }}</span>
-                  <span class="text-body-s text-color-muted">{{
-                    'profile.account.helpDesc' | transloco
-                  }}</span>
-                </span>
-                <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
-              </button>
-
-              <!-- Darse de baja / Eliminar cuenta -->
-              <button
-                type="button"
-                class="profile__legal-row profile__legal-row--danger"
-                (click)="handleOpenDeleteAccount()"
-              >
-                <ion-icon class="profile__legal-icon" [icon]="trashIcon" aria-hidden="true" />
-                <span class="profile__legal-text">
-                  <span class="profile__legal-title text-body text-body--strong">{{
-                    'profile.account.deleteAccount' | transloco
-                  }}</span>
-                  <span class="text-body-s text-color-muted">{{
-                    'profile.account.deleteAccountDesc' | transloco
-                  }}</span>
-                </span>
-                <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
-              </button>
-
-              <ion-button
-                class="profile__logout"
-                type="button"
-                expand="block"
-                (click)="handleLogout()"
-              >
-                <ion-icon slot="start" [icon]="logoutIcon" aria-hidden="true" />
-                {{ 'profile.logout' | transloco }}
-              </ion-button>
-            </div>
-          </ion-card-content>
-        </ion-card>
       </div>
 
-      <!-- Columna principal en escritorio (col-8): Vehículos, Preferencias, Reseñas, Ubicación y Privacidad -->
+      <!-- Columna principal en escritorio (col-8): Vehículos, Preferencias, Reseñas, Configuración, Privacidad y Cuenta -->
       <div class="profile__main">
         <!-- Vehículos -->
         <app-profile-vehicles />
@@ -355,6 +289,72 @@
                   />
                 </button>
               }
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Bloque: Cuenta -->
+        <ion-card class="profile-card">
+          <ion-card-header class="profile-card__header">
+            <ion-card-title>{{ 'profile.account.title' | transloco }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content class="profile-card__content">
+            <div class="profile__legal-list">
+              <!-- Cambiar contraseña -->
+              <button type="button" class="profile__legal-row" (click)="handleOpenPassword()">
+                <ion-icon class="profile__legal-icon" [icon]="keyIcon" aria-hidden="true" />
+                <span class="profile__legal-text">
+                  <span class="text-body text-body--strong">{{
+                    'profile.account.changePassword' | transloco
+                  }}</span>
+                  <span class="text-body-s text-color-muted">{{
+                    'profile.account.changePasswordDesc' | transloco
+                  }}</span>
+                </span>
+                <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
+              </button>
+
+              <!-- Ayuda y soporte -->
+              <button type="button" class="profile__legal-row" (click)="handleOpenSupport()">
+                <ion-icon class="profile__legal-icon" [icon]="helpIcon" aria-hidden="true" />
+                <span class="profile__legal-text">
+                  <span class="text-body text-body--strong">{{
+                    'profile.account.help' | transloco
+                  }}</span>
+                  <span class="text-body-s text-color-muted">{{
+                    'profile.account.helpDesc' | transloco
+                  }}</span>
+                </span>
+                <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
+              </button>
+
+              <!-- Darse de baja / Eliminar cuenta -->
+              <button
+                type="button"
+                class="profile__legal-row profile__legal-row--danger"
+                (click)="handleOpenDeleteAccount()"
+              >
+                <ion-icon class="profile__legal-icon" [icon]="trashIcon" aria-hidden="true" />
+                <span class="profile__legal-text">
+                  <span class="profile__legal-title text-body text-body--strong">{{
+                    'profile.account.deleteAccount' | transloco
+                  }}</span>
+                  <span class="text-body-s text-color-muted">{{
+                    'profile.account.deleteAccountDesc' | transloco
+                  }}</span>
+                </span>
+                <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
+              </button>
+
+              <ion-button
+                class="profile__logout"
+                type="button"
+                expand="block"
+                (click)="handleLogout()"
+              >
+                <ion-icon slot="start" [icon]="logoutIcon" aria-hidden="true" />
+                {{ 'profile.logout' | transloco }}
+              </ion-button>
             </div>
           </ion-card-content>
         </ion-card>

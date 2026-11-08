@@ -24,11 +24,10 @@ import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-l
 import { openLegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { LegalChanges } from '../../../shared/components/ui/legal-changes/legal-changes';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { ProfileDeleteModal } from '../../profile/profile-delete-modal/profile-delete-modal';
 
 // Se ha publicado una versión nueva de las condiciones de uso o de la
 // política de privacidad: se lee y se acepta antes de seguir. Quien no la
-// acepta puede cerrar sesión o eliminar su cuenta, pero no usar la app
+// acepta puede cerrar sesión, pero no usar la app
 @Component({
   selector: 'app-legal-update',
   imports: [IonButton, IonContent, IonIcon, IonSpinner, AuthLayout, LegalChanges, TranslocoPipe],
@@ -50,6 +49,10 @@ export class LegalUpdatePage {
   readonly documents = resource({
     loader: async () => {
       const pending = await this.legalDocuments.pending();
+      if (pending.length === 0) {
+        await this.router.navigateByUrl(HOME_PATH, { replaceUrl: true });
+        return [];
+      }
       return Promise.all(
         pending.map(async (document) => {
           const { content, summary } = await this.legalDocuments.getCurrent(document.type);
@@ -99,13 +102,5 @@ export class LegalUpdatePage {
     }
     await this.auth.logout();
     await this.navController.navigateRoot(WELCOME_PATH);
-  }
-
-  async handleDeleteAccount(): Promise<void> {
-    const modal = await this.modalController.create({
-      component: ProfileDeleteModal,
-      cssClass: 'info-dialog',
-    });
-    await modal.present();
   }
 }

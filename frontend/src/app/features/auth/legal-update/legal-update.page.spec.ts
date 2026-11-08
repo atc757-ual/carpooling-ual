@@ -11,6 +11,7 @@ import { LegalUpdatePage } from './legal-update.page';
 
 describe('LegalUpdatePage', () => {
   let fixture: ComponentFixture<LegalUpdatePage>;
+  let navigateSpy: ReturnType<typeof vi.spyOn>;
   const pending = vi.fn();
   const getCurrent = vi.fn();
   const accept = vi.fn();
@@ -34,6 +35,7 @@ describe('LegalUpdatePage', () => {
         { provide: ModalController, useValue: { create } },
       ],
     });
+    navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     fixture = TestBed.createComponent(LegalUpdatePage);
     if (returnUrl) {
       fixture.componentRef.setInput('returnUrl', returnUrl);
@@ -82,14 +84,19 @@ describe('LegalUpdatePage', () => {
     expect(present).toHaveBeenCalled();
   });
 
+  it('redirects to home if there are no pending documents', async () => {
+    pending.mockResolvedValue([]);
+    await render();
+    expect(navigateSpy).toHaveBeenCalledWith('/tabs', { replaceUrl: true });
+  });
+
   it('accepts them all and goes back where the user was going', async () => {
     await render('/tabs/trips');
-    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
     await fixture.componentInstance.handleAccept();
 
     expect(accept).toHaveBeenCalledWith({ type: 'terms', version: '1.1' });
-    expect(navigate).toHaveBeenCalledWith('/tabs/trips', { replaceUrl: true });
+    expect(navigateSpy).toHaveBeenCalledWith('/tabs/trips', { replaceUrl: true });
   });
 
   it('stays and reloads when the version changed meanwhile', async () => {
@@ -103,7 +110,7 @@ describe('LegalUpdatePage', () => {
     expect(pending).toHaveBeenCalledTimes(2);
   });
 
-  it('lets the user log out or delete the account instead', async () => {
+  it('lets the user log out instead', async () => {
     await render();
 
     ask.mockResolvedValue(false);
@@ -113,10 +120,6 @@ describe('LegalUpdatePage', () => {
     await fixture.componentInstance.handleLogout();
     expect(logout).toHaveBeenCalled();
     expect(navigateRoot).toHaveBeenCalledWith('/auth/welcome');
-
-    await fixture.componentInstance.handleDeleteAccount();
-    expect(create).toHaveBeenCalledWith(expect.objectContaining({ cssClass: 'info-dialog' }));
-    expect(present).toHaveBeenCalled();
   });
 
   it('offers a retry when the documents cannot be loaded', async () => {

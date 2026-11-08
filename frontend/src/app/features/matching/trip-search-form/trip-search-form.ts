@@ -154,6 +154,18 @@ export class TripSearchForm {
       const search = this.searchState.search();
       untracked(() => this.fill(search));
     });
+
+    // Si el usuario actualiza su tolerancia en el perfil, se sincroniza si no hay búsqueda fijada
+    effect(() => {
+      const margin = this.defaultMargin();
+      if (!this.searchState.search()) {
+        untracked(() => {
+          if (!this.form.controls.margin.dirty) {
+            this.form.controls.margin.setValue(margin);
+          }
+        });
+      }
+    });
   }
 
   // Limpiar: olvida la búsqueda (también en Buscar) y deja el formulario como

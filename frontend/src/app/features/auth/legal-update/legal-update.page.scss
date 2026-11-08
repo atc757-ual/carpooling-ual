@@ -47,8 +47,26 @@
 
 .legal-update__exits {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  gap: var(--space-s);
   margin-block-start: var(--space-l);
+}
+
+.legal-update__logout-link {
+  padding: var(--space-xs) var(--space-s);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: var(--font-size-body-s);
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    border-radius: var(--radius-xs);
+  }
 }
