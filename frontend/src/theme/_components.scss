@@ -779,6 +779,29 @@ ion-searchbar.admin-heading__search {
   overflow: clip;
 }
 
+// La tabla con el margen de 16px de su tarjeta, bajo su título
+.admin-list--padded {
+  padding: 0 var(--space-base) var(--space-base);
+
+  .admin-list__pagination {
+    padding-inline: 0;
+  }
+}
+
+.admin-list__head {
+  padding-block: var(--space-base);
+}
+
+// Título de tarjeta: 18px siempre
+.admin-list__title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
 .admin-list__pagination {
   display: block;
   padding: 0 var(--space-base);
@@ -863,6 +886,41 @@ ion-searchbar.admin-heading__search {
     td {
       padding: 0;
       border: 0;
+    }
+  }
+}
+
+// El enlace al detalle de la fila: en escritorio, el texto; en el móvil, una
+// flecha (el texto sigue para el lector de pantalla) y toda la fila se pulsa
+.admin-table__link-icon {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  .admin-table tbody tr:has(.admin-table__link--row) {
+    position: relative;
+  }
+
+  .admin-table__link--row {
+    color: var(--color-text-muted);
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+    }
+
+    .admin-table__link-text {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    .admin-table__link-icon {
+      display: block;
+      font-size: 1.25rem; // 20px
     }
   }
 }

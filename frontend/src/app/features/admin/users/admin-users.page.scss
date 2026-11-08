@@ -98,18 +98,20 @@
   color: var(--color-warning-text);
 }
 
-// Móvil: cada fila, una tarjeta (.admin-table): avatar, nombre y «Ver perfil»
-// arriba; debajo, el rol y, a la derecha, los estados
+// Móvil: cada fila, una tarjeta (.admin-table) con lo justo: avatar, nombre y
+// flecha arriba y debajo los estados. El correo y el rol, en el detalle
 @media (max-width: 767.98px) {
-  .admin-users__table {
-    tbody tr {
-      // Tres columnas: el nombre ocupa dos (los estados largos no lo
-      // estrechan) y los estados, lo que deja el rol a su derecha
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      grid-template-areas:
-        'name name action'
-        'roles status status';
-    }
+  .admin-users__table tbody tr {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'name action'
+      'status status';
+    padding-inline: 0;
+  }
+
+  .admin-users__email,
+  .admin-users__cell-roles {
+    display: none;
   }
 
   .admin-users__cell-name {
@@ -123,19 +125,8 @@
 
   .admin-users__cell-status {
     grid-area: status;
-    align-self: center;
-
-    .admin-users__chips {
-      justify-content: flex-end;
-    }
-  }
-
-  // El rol, alineado con el nombre (tras el avatar), y los estados a la
-  // derecha, en su misma fila
-  .admin-users__cell-roles {
-    grid-area: roles;
+    // Alineados con el nombre (tras el avatar)
     padding-inline-start: calc(2.5rem + var(--space-s));
-    color: var(--color-text-muted);
   }
 }
 

@@ -47,7 +47,7 @@ describe('AdminTripsPage', () => {
     list.mockResolvedValue({ items: [TRIP], total: 1 });
   });
 
-  it('shows each trip with its route, driver, seats, requests and status', async () => {
+  it('shows each trip with its route, driver, seats and status', async () => {
     const root = await render();
 
     expect(list).toHaveBeenCalledWith({
@@ -62,7 +62,7 @@ describe('AdminTripsPage', () => {
     expect(row?.textContent).toContain('Roquetas de Mar → Campus UAL');
     expect(row?.textContent).toContain('Javier Pardo');
     expect(row?.textContent).toContain('2 de 3 libres');
-    expect(row?.textContent).toContain('1 aceptada · 2 pendientes');
+    expect(row?.textContent).not.toContain('pendientes');
     expect(row?.querySelector('.status--accepted')?.textContent).toBe('Confirmado');
     expect(root.querySelector('.pagination__range')?.textContent).toContain('1');
   });

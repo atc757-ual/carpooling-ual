@@ -15,7 +15,7 @@ import {
   IonSearchbar,
   IonSkeletonText,
 } from '@ionic/angular';
-import { carOutline } from 'ionicons/icons';
+import { carOutline, chevronForwardOutline } from 'ionicons/icons';
 import { ADMIN_TRIP_STATUSES, AdminTripQuery } from '../../../core/models/admin-trip.model';
 import { TripStatus } from '../../../core/models/driver.model';
 import { ApiError } from '../../../core/models/api-error.model';
@@ -35,7 +35,7 @@ import {
   tripRoute,
   tripStatusLabel,
 } from '../users/admin-user-detail-labels';
-import { requestsLabel, seatsLabel, tripStatusClass } from './admin-trip-labels';
+import { seatsLabel, tripStatusClass } from './admin-trip-labels';
 
 export const PAGE_SIZE = 20;
 const STATUSES = new Set<string>(ADMIN_TRIP_STATUSES);
@@ -118,7 +118,6 @@ export class AdminTripsPage {
       route: tripRoute(trip),
       driver: trip.driver.name ?? 'Cuenta eliminada',
       seats: seatsLabel(trip),
-      requests: requestsLabel(trip),
       status: tripStatusLabel(trip.status),
       statusClass: tripStatusClass(trip.status),
     })),
@@ -157,6 +156,7 @@ export class AdminTripsPage {
   protected readonly skeletonRows = SKELETON_ROWS;
   protected readonly pageSize = PAGE_SIZE;
   protected readonly emptyIcon = carOutline;
+  protected readonly rowLinkIcon = chevronForwardOutline;
 
   // Cambiar un filtro vuelve a la primera página sin tocar los demás (el
   // buscador espera 300 ms antes de avisar)

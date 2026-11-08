@@ -241,7 +241,6 @@ for (const viewport of VIEWPORTS) {
       cy.wait('@trips').its('request.url').should('include', 'status=confirmed');
       cy.contains('tr', 'Roquetas de Mar → Campus UAL')
         .should('contain', 'Javier Pardo')
-        .and('contain', '1 aceptada · 2 pendientes')
         .and('contain', 'Confirmado');
     });
 
