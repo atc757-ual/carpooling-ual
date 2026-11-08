@@ -346,7 +346,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('ion-toast')
         .shadow()
         .find('.toast-message')
-        .should('contain', 'Perfil de conductor desactivado.');
+        .should('contain', 'Perfil de conductor inhabilitado.');
     });
 
     it('runs a scenario, follows its progress and shows its results', () => {
