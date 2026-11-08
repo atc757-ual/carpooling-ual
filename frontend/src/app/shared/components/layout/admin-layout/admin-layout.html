@@ -8,9 +8,6 @@
     ></button>
     <aside id="admin-mobile-menu" class="admin-mobile-menu" aria-label="Menú de administración">
       <div class="admin-mobile-menu__layout">
-        <a class="admin-mobile-menu__brand" routerLink="/admin" (click)="closeMobileMenu()">
-          Carpooling UAL
-        </a>
         <nav class="admin-mobile-nav" aria-label="Secciones del panel">
           @for (section of sections; track section.path) {
             <a
@@ -96,9 +93,10 @@
   </div>
   <!-- Franja fija de la sección (título, descripción y, si la tiene, su
        buscador): la pone la pantalla con HeadingContentService, como en la app.
-       Va en la cabecera, fuera de lo que se desplaza -->
+       Va en la cabecera, fuera de lo que se desplaza; con el menú del móvil
+       abierto se esconde, para no quedar encima de él -->
   @if (headingContent.content(); as content) {
-    <div class="admin-heading">
+    <div class="admin-heading" [class.ion-hide-md-down]="mobileMenuOpen()">
       <ng-container [ngTemplateOutlet]="content" />
     </div>
   }

@@ -126,21 +126,13 @@ for (const viewport of VIEWPORTS) {
       if (viewport.name === 'mobile') {
         cy.get('.admin-mobile-header .admin-header__brand').should('have.text', 'Carpooling UAL');
         cy.get('.admin-mobile-header__menu-button').click();
-        cy.get('.admin-mobile-menu__brand').should('be.visible');
+        cy.get('.admin-mobile-menu').should('not.contain', 'Carpooling UAL');
         cy.get('.admin-mobile-menu__email').should('contain', 'admin@ual.es');
         cy.get('.admin-mobile-header').then(($header) => {
           const headerBottom = $header[0].getBoundingClientRect().bottom;
           cy.get('.admin-mobile-menu-layer').should(($menu) => {
             expect($menu[0].getBoundingClientRect().top).to.equal(headerBottom);
           });
-        });
-        cy.get('.admin-mobile-menu__brand').then(($brand) => {
-          const brandBottom = $brand[0].getBoundingClientRect().bottom;
-          cy.get('.admin-mobile-nav .admin-nav__link')
-            .first()
-            .should(($link) => {
-              expect($link[0].getBoundingClientRect().top).to.be.at.least(brandBottom);
-            });
         });
       } else {
         cy.contains('.admin-desktop-header .admin-header__brand', 'Carpooling UAL · Admin');

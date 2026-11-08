@@ -430,12 +430,6 @@
     align-self: center;
   }
 
-  // El rol, alineado con el nombre (tras el avatar), y los estados a la
-  // derecha, en su misma fila
-  .admin-users__cell-roles {
-    padding-inline-start: calc(2.5rem + var(--space-s));
-  }
-
   .admin-users__cell-status {
     grid-area: status;
     align-self: center;
@@ -445,8 +439,11 @@
     }
   }
 
+  // El rol, alineado con el nombre (tras el avatar), y los estados a la
+  // derecha, en su misma fila
   .admin-users__cell-roles {
     grid-area: roles;
+    padding-inline-start: calc(2.5rem + var(--space-s));
     color: var(--color-text-muted);
   }
 }

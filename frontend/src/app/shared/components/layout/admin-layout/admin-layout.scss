@@ -82,18 +82,6 @@
   color: var(--color-on-admin);
 }
 
-.admin-mobile-menu__brand {
-  display: flex;
-  align-items: center;
-  min-height: 3.5rem; // 56px
-  padding-inline: var(--space-base);
-  color: inherit;
-  font-family: var(--font-family-heading);
-  font-size: 1.25rem; // 20px
-  font-weight: var(--font-weight-bold);
-  text-decoration: none;
-}
-
 .admin-mobile-menu__layout {
   display: flex;
   flex-direction: column;
