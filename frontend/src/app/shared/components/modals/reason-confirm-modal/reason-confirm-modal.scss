@@ -7,6 +7,11 @@
   text-align: left;
 }
 
+// En escritorio, los dos botones a partes iguales (si no, ocupan solo su texto)
+.confirm__actions ion-button {
+  flex: 1;
+}
+
 .reason__error {
   margin: 0;
   color: var(--color-danger);

@@ -28,6 +28,7 @@ const REQUEST_STATUSES: Record<string, string> = {
   accepted: 'Aceptada',
   rejected: 'Rechazada',
   cancelled: 'Cancelada',
+  expired: 'Caducada',
 };
 
 const INCIDENT_CATEGORIES: Record<string, string> = {

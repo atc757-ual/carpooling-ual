@@ -52,19 +52,32 @@
 <ion-header class="admin-header">
   <div class="admin-header__bar">
     <div class="admin-mobile-header">
-      <button
-        type="button"
-        class="admin-mobile-header__menu-button"
-        [attr.aria-expanded]="mobileMenuOpen()"
-        [attr.aria-controls]="mobileMenuOpen() ? 'admin-mobile-menu' : null"
-        [attr.aria-label]="
-          mobileMenuOpen() ? 'Cerrar menú de administración' : 'Abrir menú de administración'
-        "
-        (click)="toggleMobileMenu()"
-      >
-        <ion-icon [icon]="mobileMenuOpen() ? closeIcon : menuIcon" aria-hidden="true" />
-      </button>
-      <a class="admin-header__brand" routerLink="/admin">Carpooling UAL</a>
+      <!-- Una pantalla de detalle pone «Atrás» y su título en lugar del menú -->
+      @if (headingContent.mobileBar(); as bar) {
+        <button
+          type="button"
+          class="admin-mobile-header__menu-button"
+          aria-label="Volver"
+          (click)="bar.goBack()"
+        >
+          <ion-icon [icon]="backIcon" aria-hidden="true" />
+        </button>
+        <span class="admin-mobile-header__title">{{ bar.title }}</span>
+      } @else {
+        <button
+          type="button"
+          class="admin-mobile-header__menu-button"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          [attr.aria-controls]="mobileMenuOpen() ? 'admin-mobile-menu' : null"
+          [attr.aria-label]="
+            mobileMenuOpen() ? 'Cerrar menú de administración' : 'Abrir menú de administración'
+          "
+          (click)="toggleMobileMenu()"
+        >
+          <ion-icon [icon]="mobileMenuOpen() ? closeIcon : menuIcon" aria-hidden="true" />
+        </button>
+        <a class="admin-header__brand" routerLink="/admin">Carpooling UAL</a>
+      }
     </div>
     <div class="admin-desktop-header">
       <a class="admin-header__brand" routerLink="/admin">Carpooling UAL · Admin</a>
