@@ -113,13 +113,14 @@ describe('AdminLayout', () => {
     ]);
   });
 
-  it('shows the mobile drawer brand, six links and account actions without a duplicate logout', () => {
+  it('shows the mobile drawer with six links and account actions, without repeating the brand', () => {
     element().querySelector<HTMLButtonElement>('.admin-mobile-header__menu-button')?.click();
     fixture.detectChanges();
     expect(
       element().querySelector('.admin-mobile-header .admin-header__brand')?.textContent,
     ).toContain('Carpooling UAL');
-    expect(element().querySelector('.admin-mobile-menu__brand')?.textContent).toContain(
+    // El nombre ya está en la cabecera, encima del menú
+    expect(element().querySelector('.admin-mobile-menu')?.textContent).not.toContain(
       'Carpooling UAL',
     );
     expect(element().querySelector('.admin-mobile-menu__email')?.textContent).toContain(
