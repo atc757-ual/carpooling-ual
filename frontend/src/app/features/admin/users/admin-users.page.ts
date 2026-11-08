@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonButton, IonCard, IonIcon, IonSearchbar, IonSkeletonText } from '@ionic/angular';
-import { peopleOutline } from 'ionicons/icons';
+import { chevronForwardOutline, peopleOutline } from 'ionicons/icons';
 import {
   ADMIN_USER_STATUSES,
   AdminUserQuery,
@@ -135,6 +135,7 @@ export class AdminUsersPage {
   protected readonly skeletonRows = SKELETON_ROWS;
   protected readonly pageSize = PAGE_SIZE;
   protected readonly emptyIcon = peopleOutline;
+  protected readonly rowLinkIcon = chevronForwardOutline;
 
   // El buscador espera 300 ms (debounce) antes de avisar
   async handleSearch(event: CustomEvent<{ value?: string | null }>): Promise<void> {

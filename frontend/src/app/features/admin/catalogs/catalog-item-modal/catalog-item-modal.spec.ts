@@ -113,6 +113,81 @@ describe('CatalogItemModal', () => {
     expect(action).toHaveBeenCalledWith({ name: 'Búho' }, image);
   });
 
+  describe('choosing the image', () => {
+    function choose(modal: CatalogItemModal, image: File | null): void {
+      modal.handleImage({ target: { files: image ? [image] : [] } } as unknown as Event);
+    }
+
+    // Una imagen del navegador de estas medidas, que carga al recibir src
+    function stubImage(width: number, height: number): void {
+      vi.stubGlobal(
+        'Image',
+        class {
+          naturalWidth = width;
+          naturalHeight = height;
+          onload: (() => void) | null = null;
+          private source = '';
+
+          get src(): string {
+            return this.source;
+          }
+
+          set src(value: string) {
+            this.source = value;
+            this.onload?.();
+          }
+        },
+      );
+    }
+
+    const png = (bytes = 1): File =>
+      new File([new Uint8Array(bytes)], 'buho.png', { type: 'image/png' });
+
+    afterEach(() => vi.unstubAllGlobals());
+
+    it('rejects an SVG before uploading it', () => {
+      const modal = render({ fields: ['name'], withImage: true });
+      choose(modal, new File(['<svg/>'], 'buho.svg', { type: 'image/svg+xml' }));
+      expect(modal.image()).toBeNull();
+      expect(modal.errorMessage()).toContain('PNG o WebP');
+    });
+
+    it('rejects an image over 100 KB', () => {
+      const modal = render({ fields: ['name'], withImage: true });
+      choose(modal, png(100 * 1024 + 1));
+      expect(modal.image()).toBeNull();
+      expect(modal.errorMessage()).toContain('100 KB');
+    });
+
+    it('previews a valid image', async () => {
+      stubImage(256, 256);
+      const modal = render({ fields: ['name'], withImage: true });
+      choose(modal, png());
+      await vi.waitFor(() => expect(modal.imagePreview()).toContain('data:image/png'));
+      expect(modal.errorMessage()).toBeNull();
+    });
+
+    it.each([
+      [256, 128],
+      [64, 64],
+      [1024, 1024],
+    ])('rejects an image of %i × %i', async (width, height) => {
+      stubImage(width, height);
+      const modal = render({ fields: ['name'], withImage: true });
+      choose(modal, png());
+      await vi.waitFor(() => expect(modal.errorMessage()).toContain(`${width} × ${height}`));
+      expect(modal.image()).toBeNull();
+      expect(modal.imagePreview()).toBeNull();
+    });
+
+    it('clears the choice when the picker comes back empty', () => {
+      const modal = render({ fields: ['name'], withImage: true });
+      choose(modal, null);
+      expect(modal.image()).toBeNull();
+      expect(modal.errorMessage()).toBeNull();
+    });
+  });
+
   it('keeps the window open with the error when saving fails', async () => {
     action.mockRejectedValue(new ApiError('CATALOG_ITEM_EXISTS', 409));
     const modal = render({ fields: ['name'] });

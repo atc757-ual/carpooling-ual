@@ -83,15 +83,6 @@
   --padding-end: 0;
 }
 
-// La tabla, con el margen de 16px de su tarjeta (como el título y el filtro)
-.twin__events {
-  padding: 0 var(--space-base) var(--space-base);
-
-  .admin-list__pagination {
-    padding-inline: 0;
-  }
-}
-
 // Cabecera de los eventos: el título y, a la derecha, el tipo de evento
 // (estrecho)
 .twin__events-head {

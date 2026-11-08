@@ -42,7 +42,10 @@
 
   <!-- Columna de 8: la lista con su paginación -->
   <section class="admin-users__main" aria-label="Lista de usuarios">
-    <ion-card class="admin-list">
+    <ion-card class="admin-list admin-list--padded">
+      <div class="admin-list__head">
+        <h2 class="admin-list__title">Lista de usuarios</h2>
+      </div>
       @if (errorMessage(); as message) {
         <!-- Error: reintentar mantiene la página y los filtros -->
         <div class="notice notice--danger admin-users__state" role="alert">
@@ -112,7 +115,14 @@
                   </span>
                 </td>
                 <td class="admin-users__cell-action">
-                  <a class="admin-table__link" [routerLink]="[item.row.id]">Ver perfil</a>
+                  <a class="admin-table__link admin-table__link--row" [routerLink]="[item.row.id]">
+                    <span class="admin-table__link-text">Ver perfil</span>
+                    <ion-icon
+                      class="admin-table__link-icon"
+                      [icon]="rowLinkIcon"
+                      aria-hidden="true"
+                    />
+                  </a>
                 </td>
               </tr>
             }

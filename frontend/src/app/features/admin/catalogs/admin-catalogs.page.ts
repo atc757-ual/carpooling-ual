@@ -1,7 +1,14 @@
 import { Component, computed, inject, input, resource, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonButton, IonIcon, IonCard, IonSkeletonText, ModalController } from '@ionic/angular';
-import { arrowDownOutline, arrowUpOutline, fileTrayOutline } from 'ionicons/icons';
+import {
+  arrowDownOutline,
+  arrowUpOutline,
+  banOutline,
+  checkmarkCircleOutline,
+  createOutline,
+  fileTrayOutline,
+} from 'ionicons/icons';
 import { AdminCatalogItem } from '../../../core/models/admin-catalog.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminCatalogsService } from '../../../core/services/admin/admin-catalogs.service';
@@ -12,7 +19,7 @@ import {
 } from '../../../shared/components/ui/filter-chips/filter-chips';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { HeadingContent } from '../../../shared/directives/heading-content.directive';
-import { CATALOG_CONFIGS, catalogConfig, itemDetail, itemImage } from './catalog-config';
+import { CATALOG_CONFIGS, catalogConfig } from './catalog-config';
 import { openCatalogItemModal } from './catalog-item-modal/catalog-item-modal';
 import { LegalDocumentsEditor } from './legal-documents-editor/legal-documents-editor';
 
@@ -57,9 +64,7 @@ export class AdminCatalogsPage {
   readonly rows = computed(() =>
     (this.items.value() ?? []).map((item, index, all) => ({
       item,
-      detail: itemDetail(item),
-      image: itemImage(item),
-      swatch: item.hexLight ?? null,
+      cells: this.config().columns.map((column) => ({ column, ...column.cell(item) })),
       canMoveUp: index > 0 && samePreference(all[index - 1], item),
       canMoveDown: index < all.length - 1 && samePreference(all[index + 1], item),
     })),
@@ -84,6 +89,9 @@ export class AdminCatalogsPage {
   protected readonly skeletonRows = SKELETON_ROWS;
   protected readonly upIcon = arrowUpOutline;
   protected readonly downIcon = arrowDownOutline;
+  protected readonly editIcon = createOutline;
+  protected readonly deactivateIcon = banOutline;
+  protected readonly activateIcon = checkmarkCircleOutline;
 
   async handleCatalog(value: unknown): Promise<void> {
     await this.router.navigate([], {

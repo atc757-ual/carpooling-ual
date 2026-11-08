@@ -61,17 +61,20 @@
   font-weight: var(--font-weight-semibold);
 }
 
-// Móvil: cada viaje, una tarjeta: el trayecto y «Ver detalle» arriba; debajo,
-// la salida y el estado a la derecha; el conductor; y las plazas con las
-// solicitudes
+// Móvil: cada viaje, una tarjeta con lo justo: el trayecto y la flecha arriba
+// y debajo la salida y el estado. El conductor y las plazas, en el detalle
 @media (max-width: 767.98px) {
   .admin-trips__table tbody tr {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       'route action'
-      'departure status'
-      'driver driver'
-      'seats requests';
+      'departure status';
+    padding-inline: 0;
+  }
+
+  .admin-trips__cell-driver,
+  .admin-trips__cell-seats {
+    display: none;
   }
 
   .admin-trips__cell-route {
@@ -85,31 +88,12 @@
 
   .admin-trips__cell-departure {
     grid-area: departure;
+    color: var(--color-text-muted);
   }
 
   .admin-trips__cell-status {
     grid-area: status;
     justify-self: end;
-  }
-
-  .admin-trips__cell-driver {
-    grid-area: driver;
-  }
-
-  .admin-trips__cell-seats {
-    grid-area: seats;
-  }
-
-  .admin-trips__cell-requests {
-    grid-area: requests;
-    justify-self: end;
-  }
-
-  .admin-trips__cell-departure,
-  .admin-trips__cell-driver,
-  .admin-trips__cell-seats,
-  .admin-trips__cell-requests {
-    color: var(--color-text-muted);
   }
 }
 

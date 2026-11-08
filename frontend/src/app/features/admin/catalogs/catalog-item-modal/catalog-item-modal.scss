@@ -23,11 +23,62 @@
   border-radius: var(--radius-full);
 }
 
-.catalog-item__file {
+// Elegir la imagen: la vista previa (redonda, como se verá) y lo que se pide
+.catalog-item__upload {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+  width: 100%;
+  padding: var(--space-base);
+  border: var(--border-width-s) dashed var(--color-border-strong);
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
+
+  &:focus-within {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: var(--border-width-m);
+  }
+}
+
+.catalog-item__preview,
+.catalog-item__placeholder {
+  flex: none;
+  width: 4rem; // 64px
+  height: 4rem;
+  border-radius: var(--radius-full);
+}
+
+.catalog-item__preview {
+  object-fit: cover;
+}
+
+.catalog-item__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-size: 1.5rem; // 24px
+}
+
+.catalog-item__upload-text {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-  width: 100%;
+  min-width: 0;
+}
+
+.catalog-item__upload-title {
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.catalog-item__upload-hint {
   color: var(--color-text-muted);
 }
 

@@ -58,7 +58,10 @@
 
   <!-- Columna de 8: la lista con su paginación -->
   <section class="admin-trips__main" aria-label="Lista de viajes">
-    <ion-card class="admin-list">
+    <ion-card class="admin-list admin-list--padded">
+      <div class="admin-list__head">
+        <h2 class="admin-list__title">Lista de viajes</h2>
+      </div>
       @if (errorMessage(); as message) {
         <div class="notice notice--danger admin-trips__state" role="alert">
           <span>
@@ -94,7 +97,6 @@
               <th scope="col">Trayecto</th>
               <th scope="col">Conductor</th>
               <th scope="col">Plazas</th>
-              <th scope="col">Solicitudes</th>
               <th scope="col">Estado</th>
               <th scope="col"><span class="visually-hidden">Acciones</span></th>
             </tr>
@@ -106,12 +108,18 @@
                 <td class="admin-trips__cell-route">{{ row.route }}</td>
                 <td class="admin-trips__cell-driver">{{ row.driver }}</td>
                 <td class="admin-trips__nowrap admin-trips__cell-seats">{{ row.seats }}</td>
-                <td class="admin-trips__cell-requests">{{ row.requests }}</td>
                 <td class="admin-trips__cell-status">
                   <span [class]="row.statusClass">{{ row.status }}</span>
                 </td>
                 <td class="admin-trips__cell-action">
-                  <a class="admin-table__link" [routerLink]="[row.id]">Ver detalle</a>
+                  <a class="admin-table__link admin-table__link--row" [routerLink]="[row.id]">
+                    <span class="admin-table__link-text">Ver detalle</span>
+                    <ion-icon
+                      class="admin-table__link-icon"
+                      [icon]="rowLinkIcon"
+                      aria-hidden="true"
+                    />
+                  </a>
                 </td>
               </tr>
             }
