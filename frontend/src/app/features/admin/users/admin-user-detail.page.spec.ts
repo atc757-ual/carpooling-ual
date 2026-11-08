@@ -146,6 +146,16 @@ describe('AdminUserDetailPage', () => {
     expect(bar?.title).toBe('Detalle de usuario');
   });
 
+  it('goes back from the breadcrumb without following its link', async () => {
+    await render();
+    vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const click = new MouseEvent('click', { cancelable: true });
+
+    await fixture.componentInstance.handleBack(click);
+
+    expect(click.defaultPrevented).toBe(true);
+  });
+
   it('lifts a suspension with the reason', async () => {
     await render();
     confirmingModal();

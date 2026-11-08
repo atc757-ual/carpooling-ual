@@ -194,8 +194,10 @@ export class AdminUserDetailPage {
     tripStatusLabel,
   };
 
-  // Volver a la lista con sus filtros (si se llegó desde ella)
-  async handleBack(): Promise<void> {
+  // Volver a la lista con sus filtros (si se llegó desde ella), desde la
+  // cabecera móvil o desde la ruta (que lleva el enlace, pero no lo sigue)
+  async handleBack(event?: Event): Promise<void> {
+    event?.preventDefault();
     if (this.router.lastSuccessfulNavigation()?.previousNavigation) {
       this.location.back();
       return;

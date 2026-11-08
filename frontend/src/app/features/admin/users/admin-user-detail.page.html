@@ -24,9 +24,10 @@
       </div>
     </div>
   }
-  <!-- En escritorio, la ruta; en el móvil se vuelve desde la cabecera -->
+  <!-- En escritorio, la ruta (vuelve a la lista con sus filtros); en el móvil
+       se vuelve desde la cabecera -->
   <ion-breadcrumbs class="admin-detail__breadcrumbs ion-hide-md-down">
-    <ion-breadcrumb routerLink="/admin/users" routerDirection="back">Usuarios</ion-breadcrumb>
+    <ion-breadcrumb [href]="usersPath" (click)="handleBack($event)">Usuarios</ion-breadcrumb>
     <ion-breadcrumb [active]="true">{{ user()?.name ?? 'Detalle de usuario' }}</ion-breadcrumb>
   </ion-breadcrumbs>
 </ng-template>
