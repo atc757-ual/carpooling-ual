@@ -1,5 +1,6 @@
 import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
-import { IonButton, IonInput, ModalController } from '@ionic/angular';
+import { IonButton, IonIcon, IonInput, ModalController } from '@ionic/angular';
+import { cloudUploadOutline } from 'ionicons/icons';
 import { AdminCatalogChanges } from '../../../../core/models/admin-catalog.model';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
@@ -8,6 +9,11 @@ import { CatalogField, FIELD_LABELS, formatPoint } from '../catalog-config';
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 const MAX_NAME_LENGTH = 60;
+// Los límites del avatar; el backend los vuelve a comprobar con el contenido
+const IMAGE_TYPES = new Set(['image/png', 'image/webp']);
+const MAX_IMAGE_BYTES = 100 * 1024;
+const MIN_IMAGE_SIDE = 128;
+const MAX_IMAGE_SIDE = 512;
 // Donde se abre el mapa de un parking nuevo: el campus de La Cañada
 const CAMPUS_POINT: [number, number] = [-2.4045, 36.8322];
 
@@ -28,7 +34,7 @@ export interface CatalogItemModalOptions {
 // se elige en el mapa) y, para un avatar, la imagen
 @Component({
   selector: 'app-catalog-item-modal',
-  imports: [IonButton, IonInput],
+  imports: [IonButton, IonIcon, IonInput],
   templateUrl: './catalog-item-modal.html',
   styleUrls: [
     '../../../../shared/components/modals/confirm-modal/confirm-modal.scss',
@@ -47,6 +53,7 @@ export class CatalogItemModal implements OnInit {
 
   readonly values = signal<Partial<Record<CatalogField, string>>>({});
   readonly image = signal<File | null>(null);
+  readonly imagePreview = signal<string | null>(null);
   // [longitud, latitud] del punto elegido (parkings)
   readonly point = signal<[number, number] | null>(null);
   readonly pointLabel = computed(() => {
@@ -67,6 +74,7 @@ export class CatalogItemModal implements OnInit {
 
   protected readonly labels = FIELD_LABELS;
   protected readonly maxLength = MAX_NAME_LENGTH;
+  protected readonly uploadIcon = cloudUploadOutline;
 
   ngOnInit(): void {
     const initial: Partial<Record<CatalogField, string>> = {};
@@ -92,8 +100,54 @@ export class CatalogItemModal implements OnInit {
   }
 
   handleImage(event: Event): void {
-    this.image.set((event.target as HTMLInputElement).files?.[0] ?? null);
+    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+    this.imagePreview.set(null);
     this.errorMessage.set(null);
+    if (file && !IMAGE_TYPES.has(file.type)) {
+      this.rejectImage('La imagen tiene que ser PNG o WebP.');
+      return;
+    }
+    if (file && file.size > MAX_IMAGE_BYTES) {
+      this.rejectImage('La imagen no puede pasar de 100 KB.');
+      return;
+    }
+    this.image.set(file);
+    if (file) {
+      this.previewImage(file);
+    }
+  }
+
+  // La vista previa y, cuando se conocen, las medidas de la imagen
+  private previewImage(file: File): void {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const preview = new Image();
+      preview.onload = () => {
+        if (this.image() === file) {
+          this.applyPreview(preview);
+        }
+      };
+      preview.onerror = () => this.rejectImage('No hemos podido leer la imagen.');
+      preview.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  private applyPreview(preview: HTMLImageElement): void {
+    const { naturalWidth: width, naturalHeight: height } = preview;
+    if (width !== height || width < MIN_IMAGE_SIDE || width > MAX_IMAGE_SIDE) {
+      this.rejectImage(
+        `Tiene que ser cuadrada, de 128 a 512 px (esta es de ${width} × ${height}).`,
+      );
+      return;
+    }
+    this.imagePreview.set(preview.src);
+  }
+
+  private rejectImage(message: string): void {
+    this.image.set(null);
+    this.imagePreview.set(null);
+    this.errorMessage.set(message);
   }
 
   // El mapa del proyecto en modo «elegir punto», desde el actual o el campus

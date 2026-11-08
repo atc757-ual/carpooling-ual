@@ -36,9 +36,29 @@
   }
 
   @if (withImage) {
-    <label class="catalog-item__file text-body-s">
-      Imagen (PNG o WebP)
-      <input type="file" accept="image/png,image/webp" (change)="handleImage($event)" />
+    <!-- Toda la zona abre el selector; el input sigue accesible con el teclado -->
+    <label class="catalog-item__upload">
+      <input
+        class="visually-hidden"
+        type="file"
+        accept="image/png,image/webp"
+        (change)="handleImage($event)"
+      />
+      @if (imagePreview(); as preview) {
+        <img class="catalog-item__preview" [src]="preview" alt="" />
+      } @else {
+        <span class="catalog-item__placeholder" aria-hidden="true">
+          <ion-icon [icon]="uploadIcon" />
+        </span>
+      }
+      <span class="catalog-item__upload-text">
+        <span class="text-body catalog-item__upload-title">
+          {{ image()?.name ?? 'Elegir imagen' }}
+        </span>
+        <span class="text-body-s catalog-item__upload-hint">
+          PNG o WebP, cuadrada, de 128 a 512 px y hasta 100 KB.
+        </span>
+      </span>
     </label>
   }
 
