@@ -219,6 +219,14 @@ ion-select[class] {
   --highlight-color-invalid: var(--color-link);
 }
 
+// Edge añade su propio ojo (y una ✕ para borrar) a los campos de contraseña;
+// ya llevan el nuestro, así que se quita el del navegador para que no salgan
+// dos
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
 // La ayuda y el error de debajo de los campos, alineados con el borde
 // izquierdo del campo (Ionic los mete con el margen interior del texto), en
 // 12px y gris como el resto de ayudas de la app (.field-hint), a 8px del
