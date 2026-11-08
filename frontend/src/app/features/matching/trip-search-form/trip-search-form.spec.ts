@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -92,6 +93,45 @@ describe('TripSearchForm', () => {
     expect(customForm.form.getRawValue().margin).toBe(10);
     customForm.clear();
     expect(customForm.form.getRawValue().margin).toBe(10);
+  });
+
+  it('falls back to default margin if user tolerance is not in allowed margins', () => {
+    const auth = TestBed.inject(AuthService);
+    vi.spyOn(auth, 'currentUser').mockReturnValue({ timeToleranceMin: 99 } as never);
+    const customFixture = TestBed.createComponent(TripSearchForm);
+    const customForm = customFixture.componentInstance;
+    customFixture.detectChanges();
+
+    expect(customForm.form.getRawValue().margin).toBe(20);
+  });
+
+  it('dynamically syncs margin with user tolerance unless dirty or an active search exists', () => {
+    const user = signal<{ timeToleranceMin: number } | null>({ timeToleranceMin: 10 });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [TripSearchForm],
+      providers: [
+        provideIonicAngular(),
+        provideRouter([]),
+        { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
+        { provide: AuthService, useValue: { currentUser: user.asReadonly() } },
+      ],
+    });
+    const customFixture = TestBed.createComponent(TripSearchForm);
+    const customForm = customFixture.componentInstance;
+    customFixture.detectChanges();
+    expect(customForm.form.controls.margin.value).toBe(10);
+
+    // Profile updates preference to 15
+    user.set({ timeToleranceMin: 15 });
+    customFixture.detectChanges();
+    expect(customForm.form.controls.margin.value).toBe(15);
+
+    // If margin is dirty, it is not overwritten
+    customForm.form.controls.margin.markAsDirty();
+    user.set({ timeToleranceMin: 5 });
+    customFixture.detectChanges();
+    expect(customForm.form.controls.margin.value).toBe(15);
   });
 
   it('asks for the arrival time going to the campus and the departure time coming back', () => {
