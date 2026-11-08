@@ -18,6 +18,7 @@ describe('AdminCatalogsPage', () => {
   const move = vi.fn();
   const create = vi.fn();
   const uploadAvatar = vi.fn();
+  const replaceAvatarImage = vi.fn();
   const showSuccess = vi.fn().mockResolvedValue(undefined);
   const showError = vi.fn().mockResolvedValue(undefined);
   const onDidDismiss = vi.fn();
@@ -32,7 +33,7 @@ describe('AdminCatalogsPage', () => {
         provideRouter([]),
         {
           provide: AdminCatalogsService,
-          useValue: { list, update, move, create, uploadAvatar },
+          useValue: { list, update, move, create, uploadAvatar, replaceAvatarImage },
         },
         { provide: AdminLegalDocumentsService, useValue: { versions: legalVersions } },
         { provide: ToastService, useValue: { showSuccess, showError } },
@@ -128,6 +129,21 @@ describe('AdminCatalogsPage', () => {
     const image = new File([new Uint8Array([1])], 'buho.png');
     await lastAction()({ name: 'Búho' }, image);
     expect(uploadAvatar).toHaveBeenCalledWith('Búho', image);
+  });
+
+  it('replaces the image of an avatar only when another one is chosen', async () => {
+    await render('avatars');
+    const page = fixture.componentInstance;
+
+    await page.handleEdit(SEAT);
+    await lastAction()({ name: 'Búho' }, null);
+    expect(replaceAvatarImage).not.toHaveBeenCalled();
+
+    await page.handleEdit(SEAT);
+    const image = new File([new Uint8Array([1])], 'buho.png');
+    await lastAction()({ name: 'Búho' }, image);
+    expect(replaceAvatarImage).toHaveBeenCalledWith('seat', image);
+    expect(update).toHaveBeenCalledWith('avatars', 'seat', { name: 'Búho' });
   });
 
   it('shows a toast when a change fails and a retry when the list fails', async () => {

@@ -54,6 +54,13 @@ export class AdminCatalogsService {
     return toItem(await this.call(this.http.post<ApiItem>(`${this.url}/avatars`, form)));
   }
 
+  // Cambia la imagen de un avatar; el nombre va aparte, con update
+  async replaceAvatarImage(key: string, image: File): Promise<void> {
+    const form = new FormData();
+    form.append('image', image);
+    await this.call(this.http.put<ApiItem>(`${this.url}/avatars/${key}/image`, form));
+  }
+
   private async call<T>(request: Observable<T>): Promise<T> {
     try {
       return await firstValueFrom(request);

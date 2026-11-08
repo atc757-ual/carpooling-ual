@@ -102,7 +102,9 @@ describe('Admin avatar uploads (e2e)', () => {
     expect(created.body).toMatchObject({
       id: 'e2e-avatar-buho',
       svg: null,
-      imageHref: '/api/avatars/e2e-avatar-buho/image',
+      imageHref: expect.stringContaining(
+        '/api/avatars/e2e-avatar-buho/image?v=',
+      ) as string,
       isActive: true,
     });
 
@@ -186,9 +188,39 @@ describe('Admin avatar uploads (e2e)', () => {
       .expect(404);
   });
 
+  it('replaces the image and changes its link, only for an admin', async () => {
+    const created = await upload(
+      'E2E Avatar Cambio',
+      pngHeader(256, 256),
+    ).expect(201);
+    const { imageHref } = created.body as Avatar;
+    const replace = (key: string, image: Buffer, token = adminToken) =>
+      request(app.getHttpServer())
+        .put(`/api/admin/catalogs/avatars/${key}/image`)
+        .set('Authorization', `Bearer ${token}`)
+        .attach('image', image, 'avatar.png');
+    const image = pngHeader(128, 128);
+
+    await replace('e2e-avatar-cambio', image, userToken).expect(403);
+    await replace('e2e-avatar-nada', image).expect(404);
+    await replace('e2e-avatar-cambio', pngHeader(64, 64)).expect(422);
+
+    const replaced = await replace('e2e-avatar-cambio', image).expect(200);
+    expect((replaced.body as Avatar).imageHref).not.toBe(imageHref);
+    const served = await request(app.getHttpServer())
+      .get('/api/avatars/e2e-avatar-cambio/image')
+      .buffer(true)
+      .expect(200);
+    expect(served.body).toEqual(image);
+  });
+
   it('has no image for an SVG avatar', async () => {
+    await dataSource.query(
+      `INSERT INTO avatars (key, name, svg, sort_order)
+       VALUES ('e2e-avatar-svg', 'SVG', '<svg/>', 999)`,
+    );
     const response = await request(app.getHttpServer())
-      .get('/api/avatars/sun/image')
+      .get('/api/avatars/e2e-avatar-svg/image')
       .expect(404);
     expect((response.body as { code: string }).code).toBe('AVATAR_NOT_FOUND');
   });

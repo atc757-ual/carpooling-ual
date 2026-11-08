@@ -70,4 +70,11 @@ describe('AvatarsService', () => {
     ).rejects.toMatchObject({ code: 'INVALID_AVATAR_IMAGE' });
     expect(transaction).not.toHaveBeenCalled();
   });
+
+  it('checks a replacement image before saving anything', async () => {
+    await expect(
+      service.replaceImage('admin-1', 'buho', Buffer.from('<svg/>')),
+    ).rejects.toMatchObject({ code: 'INVALID_AVATAR_IMAGE' });
+    expect(transaction).not.toHaveBeenCalled();
+  });
 });

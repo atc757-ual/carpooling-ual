@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Res,
   StreamableFile,
@@ -50,7 +51,7 @@ import {
 const AUTH_ERRORS = {
   [HttpStatus.UNAUTHORIZED]: ['INVALID_ACCESS_TOKEN', 'ACCESS_TOKEN_EXPIRED'],
 };
-// Un día: la imagen de un avatar no cambia (uno nuevo tiene otra clave)
+// Un día: al cambiar la imagen cambia su dirección (imageHref lleva ?v=)
 const IMAGE_CACHE = 'public, max-age=86400';
 // Multer corta antes (413) los ficheros muy grandes; los de más de 100 KB
 // llegan y los rechaza la comprobación del contenido (422)
@@ -183,6 +184,44 @@ export class AdminAvatarUploadsController {
     const avatar = await this.avatarsService.upload(
       admin.sub,
       body.name,
+      file?.buffer ?? Buffer.alloc(0),
+    );
+    return toAdminAvatarResource(avatar);
+  }
+
+  @Put(':key/image')
+  @UseInterceptors(
+    FileInterceptor('image', { limits: { fileSize: UPLOAD_LIMIT_BYTES } }),
+  )
+  @ApiOperation({
+    summary: 'Replace the image of an avatar',
+    description:
+      'PNG or WebP, with the same checks as an upload. Whoever has chosen the avatar sees the new image; its imageHref changes.',
+  })
+  @ApiParam({ name: 'key', example: 'owl-photo' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['image'],
+      properties: { image: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOkResponse({ type: AdminAvatarResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
+    [HttpStatus.NOT_FOUND]: ['CATALOG_ITEM_NOT_FOUND'],
+    [HttpStatus.UNPROCESSABLE_ENTITY]: ['INVALID_AVATAR_IMAGE'],
+  })
+  async replaceImage(
+    @CurrentUser() admin: AccessTokenPayload,
+    @Param('key') key: string,
+    @UploadedFile() file: UploadedImage | undefined,
+  ): Promise<AdminAvatarResource> {
+    const avatar = await this.avatarsService.replaceImage(
+      admin.sub,
+      key,
       file?.buffer ?? Buffer.alloc(0),
     );
     return toAdminAvatarResource(avatar);

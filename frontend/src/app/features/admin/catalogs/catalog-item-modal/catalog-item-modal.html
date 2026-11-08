@@ -44,7 +44,7 @@
         accept="image/png,image/webp"
         (change)="handleImage($event)"
       />
-      @if (imagePreview(); as preview) {
+      @if (imagePreview() ?? currentImage; as preview) {
         <img class="catalog-item__preview" [src]="preview" alt="" />
       } @else {
         <span class="catalog-item__placeholder" aria-hidden="true">
@@ -53,7 +53,7 @@
       }
       <span class="catalog-item__upload-text">
         <span class="text-body catalog-item__upload-title">
-          {{ image()?.name ?? 'Elegir imagen' }}
+          {{ image()?.name ?? (currentImage ? 'Cambiar imagen' : 'Elegir imagen') }}
         </span>
         <span class="text-body-s catalog-item__upload-hint">
           PNG o WebP, cuadrada, de 128 a 512 px y hasta 100 KB.

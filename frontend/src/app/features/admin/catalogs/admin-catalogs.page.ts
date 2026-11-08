@@ -19,7 +19,7 @@ import {
 } from '../../../shared/components/ui/filter-chips/filter-chips';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { HeadingContent } from '../../../shared/directives/heading-content.directive';
-import { CATALOG_CONFIGS, catalogConfig } from './catalog-config';
+import { CATALOG_CONFIGS, catalogConfig, itemImage } from './catalog-config';
 import { openCatalogItemModal } from './catalog-item-modal/catalog-item-modal';
 import { LegalDocumentsEditor } from './legal-documents-editor/legal-documents-editor';
 
@@ -125,7 +125,13 @@ export class AdminCatalogsPage {
       confirmText: 'Guardar',
       fields: config.fields,
       initial: item,
-      action: async (changes) => {
+      withImage: config.creation === 'upload',
+      currentImage: itemImage(item),
+      // La imagen primero: si no es válida, no se cambia nada
+      action: async (changes, image) => {
+        if (image) {
+          await this.catalogs.replaceAvatarImage(item.key, image);
+        }
         await this.catalogs.update(config.id, item.key, changes);
       },
     });

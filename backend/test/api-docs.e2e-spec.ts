@@ -53,6 +53,7 @@ describe('API docs (e2e)', () => {
     expect(Object.keys(paths).sort()).toEqual([
       '/api/admin/catalogs/avatars',
       '/api/admin/catalogs/avatars/{key}',
+      '/api/admin/catalogs/avatars/{key}/image',
       '/api/admin/catalogs/avatars/{key}/move',
       '/api/admin/catalogs/campus-parkings',
       '/api/admin/catalogs/campus-parkings/{id}',

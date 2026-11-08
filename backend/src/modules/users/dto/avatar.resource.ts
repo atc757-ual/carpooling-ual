@@ -31,7 +31,7 @@ export class AvatarResource {
     type: String,
     nullable: true,
     description: 'Link to the uploaded PNG or WebP image; null for an SVG',
-    example: '/api/avatars/owl-photo/image',
+    example: '/api/avatars/owl-photo/image?v=1794300000000',
   })
   imageHref: string | null;
 }
@@ -57,7 +57,11 @@ export function toAvatarResource(avatar: Avatar): AvatarResource {
     href,
     name: avatar.name,
     svg: avatar.svg,
-    imageHref: avatar.contentType === null ? null : `${href}/image`,
+    // ?v=: la imagen va en caché un día; al cambiarla, cambia su dirección
+    imageHref:
+      avatar.contentType === null
+        ? null
+        : `${href}/image?v=${avatar.updatedAt.getTime()}`,
   };
 }
 
