@@ -129,6 +129,7 @@ export class SimulationsService implements SimulationRunListener {
   }
 
   async list(page: PageRequest): Promise<Page<SimulationRun>> {
+    await this.failStaleRuns();
     const [items, total] = await this.runsRepository.findAndCount({
       order: { createdAt: 'DESC', id: 'ASC' },
       skip: page.offset,
@@ -138,6 +139,9 @@ export class SimulationsService implements SimulationRunListener {
   }
 
   async get(runId: string): Promise<SimulationRun> {
+    // Al consultarla: si no, una ejecución perdida (p. ej. por un reinicio) se
+    // vería en curso para siempre y no dejaría lanzar otra desde el panel
+    await this.failStaleRuns();
     const run = await this.runsRepository.findOneBy({ id: runId });
     if (run === null) {
       throw new SimulationNotFoundError(runId);

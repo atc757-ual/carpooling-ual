@@ -71,7 +71,14 @@ export class WorkerSimulationRunner
       } else {
         this.close(job.runId);
         const output = { slots: FAKE_SLOTS, replicas: run.replicas };
-        notify(() => listener.onFinished(job.runId, output));
+        // Si no se pueden guardar los resultados, la ejecución ha fallado: sin
+        // esto se quedaría en curso para siempre
+        notify(() =>
+          listener.onFinished(job.runId, output).catch((error: unknown) => {
+            this.logger.error(`Simulation run ${job.runId} not saved`, error);
+            return listener.onFailed(job.runId, 'RUNNER_ERROR');
+          }),
+        );
       }
     });
     const fail = (): void => {

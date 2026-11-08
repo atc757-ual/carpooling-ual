@@ -103,6 +103,17 @@ describe('WorkerSimulationRunner', () => {
     expect(events.onFailed).not.toHaveBeenCalled();
   });
 
+  it('fails the run when its results cannot be saved', async () => {
+    const events = listener();
+    events.onFinished.mockRejectedValue(new Error('database down'));
+    runner.start(JOB, events);
+    runJob(JOB, (message) => thread.send(message));
+    await flush();
+
+    expect(events.onFailed).toHaveBeenCalledWith('run-1', 'RUNNER_ERROR');
+    expect(error).toHaveBeenCalled();
+  });
+
   it('fails a thread that exits or breaks before finishing', async () => {
     const exited = listener();
     runner.start(JOB, exited);
