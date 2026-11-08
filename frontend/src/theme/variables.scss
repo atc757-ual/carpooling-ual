@@ -8,6 +8,7 @@
 // - _roles.scss: roles de color y sombras, en modo claro y oscuro.
 // - _ionic.scss: variables de Ionic (--ion-*) a partir de la paleta.
 // - _components.scss: aspecto por defecto de los componentes de Ionic.
+// - _admin-detail.scss: pantallas de detalle del panel (usuario, viaje).
 // - _typography.scss: estilos de texto (.text-display, .text-body…).
 // - _utilities.scss: utilidades que Ionic no trae (.visually-hidden…).
 // - _map.scss: el CSS de Leaflet (mapas) y el pin del punto elegido.
@@ -20,6 +21,7 @@
 @use 'roles';
 @use 'ionic';
 @use 'components';
+@use 'admin-detail';
 @use 'flags';
 @use 'typography';
 @use 'utilities';
