@@ -199,17 +199,22 @@ for (const viewport of VIEWPORTS) {
       visitWithSession('/admin/catalogs?catalog=legal-documents', ['admin']);
 
       cy.wait('@versions');
-      cy.contains('Vigente: versión 1.0.');
+      cy.contains('Vigente: versión 1.0');
+      cy.contains('.legal-editor__tab', 'Vista previa').click();
       cy.get('.legal-editor__preview .legal').should('contain', 'Texto vigente');
-      cy.contains('Saldrá como la versión 1.1');
+      cy.contains('.legal-editor__tab', 'Editar').click();
+      cy.contains('.legal-editor__option', 'Cambio menor').should('contain', 'Versión 1.1');
       cy.contains('ion-button', 'Publicar').should('have.attr', 'disabled');
 
-      cy.contains('.legal-editor__change ion-segment-button', 'Cambio importante').click();
-      cy.contains('Saldrá como la versión 2.0');
+      cy.contains('.legal-editor__option', 'Cambio importante')
+        .should('contain', 'Versión 2.0')
+        .click();
       cy.get('.legal-editor__change ion-textarea textarea')
         .should('be.visible')
         .type('Nuevas normas.');
-      cy.contains('ion-button', 'Publicar').should('not.have.attr', 'disabled');
+      // El texto sigue siendo el vigente: no hay nada nuevo que publicar
+      cy.contains('igual al de la versión vigente');
+      cy.contains('ion-button', 'Publicar').should('have.attr', 'disabled');
       cy.contains('ion-button', 'Guardar borrador').click();
       cy.wait('@save').its('request.body').should('deep.equal', {
         content: '<p>Texto vigente</p>',

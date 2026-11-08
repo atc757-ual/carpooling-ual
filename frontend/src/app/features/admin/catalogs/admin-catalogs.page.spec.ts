@@ -7,6 +7,7 @@ import { AdminCatalogsService } from '../../../core/services/admin/admin-catalog
 import { AdminLegalDocumentsService } from '../../../core/services/admin/admin-legal-documents.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AdminCatalogsPage, LEGAL_TAB } from './admin-catalogs.page';
+import { LegalDocumentsEditor } from './legal-documents-editor/legal-documents-editor';
 
 const SEAT: AdminCatalogItem = { key: 'seat', name: 'SEAT', isActive: true, sortOrder: 0 };
 const SKODA: AdminCatalogItem = { key: 'skoda', name: 'Škoda', isActive: false, sortOrder: 1 };
@@ -145,6 +146,22 @@ describe('AdminCatalogsPage', () => {
     fixture.detectChanges();
     expect(root.querySelectorAll('.catalogs__row')).toHaveLength(2);
     expect(page.pageRows()[0].canMoveUp).toBe(true);
+  });
+
+  it('stays in the legal editor if its unsaved changes are kept', async () => {
+    await render('legal-documents');
+    const page = fixture.componentInstance;
+    const { legalEditor } = page as unknown as { legalEditor: () => LegalDocumentsEditor };
+    const confirmDiscard = vi.spyOn(legalEditor(), 'confirmDiscard');
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+
+    confirmDiscard.mockResolvedValueOnce(false);
+    await page.handleCatalog('avatars');
+    expect(navigate).not.toHaveBeenCalled();
+
+    confirmDiscard.mockResolvedValueOnce(true);
+    await page.handleCatalog('avatars');
+    expect(navigate).toHaveBeenCalled();
   });
 
   it('shows no pagination in a short catalog', async () => {

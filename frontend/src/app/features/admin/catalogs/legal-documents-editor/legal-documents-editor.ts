@@ -1,5 +1,5 @@
 import { Component, computed, inject, linkedSignal, resource, signal } from '@angular/core';
-import { IonButton, IonLabel, IonSegment, IonSegmentButton, IonTextarea } from '@ionic/angular';
+import { IonButton, IonCard, IonTextarea } from '@ionic/angular';
 import { ApiError } from '../../../../core/models/api-error.model';
 import {
   AdminLegalDocument,
@@ -12,6 +12,7 @@ import {
   LegalChangeType,
   LegalDocumentType,
 } from '../../../../core/services/users/legal-documents.service';
+import { FilterChips } from '../../../../shared/components/ui/filter-chips/filter-chips';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
 import { formatDateTime } from '../../users/admin-user-detail-labels';
 
@@ -32,12 +33,12 @@ export const CHANGE_TYPES: readonly { value: LegalChangeType; label: string; not
   {
     value: 'minor',
     label: 'Cambio menor',
-    note: 'Una aclaración o una corrección: sube la versión menor (1.0 → 1.1) y solo se avisa; nadie tiene que aceptarla.',
+    note: 'Una aclaración o una corrección. Solo se avisa: nadie tiene que aceptarla.',
   },
   {
     value: 'major',
     label: 'Cambio importante',
-    note: 'Cambia lo que se acepta: sube la versión mayor (1.x → 2.0) y cada usuario tendrá que leerla y aceptarla para seguir usando la app.',
+    note: 'Cambia lo que se acepta. Habrá que leerla y aceptarla de nuevo.',
   },
 ];
 
@@ -47,13 +48,22 @@ export function nextLegalVersion(version: string, changeType: LegalChangeType): 
   return changeType === 'major' ? `${major + 1}.0` : `${major}.${minor + 1}`;
 }
 
+type EditorView = 'edit' | 'preview' | 'compare';
+
+const EDITOR_VIEWS: readonly { value: EditorView; label: string }[] = [
+  { value: 'edit', label: 'Editar' },
+  { value: 'preview', label: 'Vista previa' },
+  { value: 'compare', label: 'Comparar' },
+];
+
 // Documentos legales en el panel: la versión vigente, su historial y un
 // borrador (empieza con el texto vigente) que se edita con su vista previa,
 // su tipo de cambio y «Qué ha cambiado», y se publica. El backend sanea el
-// HTML; tras un cambio importante, cada usuario tendrá que aceptarla al entrar
+// HTML; tras un cambio importante, cada usuario tendrá que aceptarla al entrar.
+// Lo que no se ha guardado no se pierde sin avisar
 @Component({
   selector: 'app-legal-documents-editor',
-  imports: [IonButton, IonLabel, IonSegment, IonSegmentButton, IonTextarea],
+  imports: [FilterChips, IonButton, IonCard, IonTextarea],
   templateUrl: './legal-documents-editor.html',
   styleUrl: './legal-documents-editor.scss',
 })
@@ -78,8 +88,10 @@ export class LegalDocumentsEditor {
       .filter(({ status }) => status === 'published')
       .map((version) => ({
         version: version.version,
-        kind: version.changeType === 'major' ? 'importante' : 'menor',
+        kind: version.changeType === 'major' ? 'Importante' : 'Menor',
+        kindClass: version.changeType === 'major' ? 'status status--pending' : 'status',
         summary: version.summary,
+        content: version.content,
         date: version.publishedAt ? formatDateTime(version.publishedAt) : '',
       })),
   );
@@ -92,10 +104,29 @@ export class LegalDocumentsEditor {
     const current = this.current();
     return current ? nextLegalVersion(current.version, this.changeType()) : null;
   });
-  readonly canPublish = computed(
-    () => this.summary().trim() !== '' && this.content().trim() !== '' && !this.isBusy(),
-  );
+  // Si lo que hay en pantalla difiere de lo guardado
+  readonly isDirty = computed(() => {
+    const draft = this.draft();
+    return (
+      this.content() !== (draft?.content ?? this.current()?.content ?? '') ||
+      this.changeType() !== (draft?.changeType ?? 'minor') ||
+      this.summary() !== (draft?.summary ?? '')
+    );
+  });
+  // Lo que falta para poder publicar, o null si ya se puede
+  readonly publishHint = computed(() => {
+    const content = this.content().trim();
+    if (content === '') {
+      return 'Escribe el texto del documento.';
+    }
+    if (content === this.current()?.content.trim()) {
+      return 'El texto es igual al de la versión vigente.';
+    }
+    return this.summary().trim() === '' ? 'Falta explicar «Qué ha cambiado».' : null;
+  });
+  readonly canPublish = computed(() => this.publishHint() === null && !this.isBusy());
   readonly isBusy = signal(false);
+  readonly view = signal<EditorView>('edit');
   readonly errorMessage = computed(() => {
     const error = this.versions.error();
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : null;
@@ -105,16 +136,43 @@ export class LegalDocumentsEditor {
     value,
     label: LEGAL_DOCUMENT_TITLES[value],
   }));
-  protected readonly changeTypes = CHANGE_TYPES;
-  protected readonly changeNote = computed(
-    () => CHANGE_TYPES.find(({ value }) => value === this.changeType())?.note ?? '',
+  // Cada tipo de cambio con la versión con la que saldría
+  protected readonly changeOptions = computed(() => {
+    const current = this.current();
+    return CHANGE_TYPES.map((option) => ({
+      ...option,
+      version: current ? nextLegalVersion(current.version, option.value) : null,
+    }));
+  });
+  // Comparar solo tiene sentido si hay una versión vigente
+  protected readonly views = computed(() =>
+    EDITOR_VIEWS.filter(({ value }) => value !== 'compare' || this.current() !== null),
   );
 
-  handleType(value: unknown): void {
+  // Cambia de documento si no se pierde nada
+  async handleType(value: unknown): Promise<void> {
     const type = DOCUMENT_TYPES.find((option) => option === value);
-    if (type) {
+    if (type && type !== this.type() && (await this.confirmDiscard())) {
       this.type.set(type);
+      this.view.set('edit');
     }
+  }
+
+  // true si no hay nada sin guardar o quien edita acepta perderlo
+  confirmDiscard(): Promise<boolean> {
+    if (!this.isDirty()) {
+      return Promise.resolve(true);
+    }
+    return this.confirm.ask({
+      header: '¿Descartar los cambios?',
+      message: 'Hay cambios sin guardar en este documento. Si continúas, se perderán.',
+      confirmText: 'Descartar',
+      isDestructive: true,
+    });
+  }
+
+  handleView(value: EditorView): void {
+    this.view.set(value);
   }
 
   handleChangeType(value: unknown): void {
@@ -143,8 +201,9 @@ export class LegalDocumentsEditor {
     if (!this.canPublish()) {
       return;
     }
+    const version = this.nextVersion();
     const isConfirmed = await this.confirm.ask({
-      header: `¿Publicar la versión ${this.nextVersion() ?? ''}?`,
+      header: version ? `¿Publicar la versión ${version}?` : '¿Publicar la primera versión?',
       message: publishMessage(this.type(), this.changeType()),
       confirmText: 'Publicar',
       isDestructive: false,

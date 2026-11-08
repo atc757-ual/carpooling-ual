@@ -1,4 +1,13 @@
-import { Component, computed, inject, input, linkedSignal, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  resource,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonButton, IonIcon, IonCard, IonSkeletonText, ModalController } from '@ionic/angular';
 import {
@@ -58,6 +67,8 @@ export class AdminCatalogsPage {
   // Parámetro de la URL (withComponentInputBinding)
   readonly catalog = input<string>();
 
+  // El editor legal, si está abierto: avisa antes de perder lo no guardado
+  private readonly legalEditor = viewChild(LegalDocumentsEditor);
   readonly isLegal = computed(() => this.catalog() === LEGAL_TAB);
   readonly config = computed(() => catalogConfig(this.catalog()));
   readonly items = resource({
@@ -104,6 +115,10 @@ export class AdminCatalogsPage {
   protected readonly activateIcon = checkmarkCircleOutline;
 
   async handleCatalog(value: unknown): Promise<void> {
+    const editor = this.legalEditor();
+    if (editor && !(await editor.confirmDiscard())) {
+      return;
+    }
     await this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { catalog: typeof value === 'string' ? value : null },

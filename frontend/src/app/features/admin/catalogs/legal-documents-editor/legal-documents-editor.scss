@@ -1,61 +1,221 @@
-.legal-editor__segment {
-  max-width: 24rem; // 384px
-}
-
-.legal-editor__status {
-  margin: var(--space-s) 0 var(--space-base);
-  color: var(--color-text-muted);
-}
-
-// El texto y su vista previa, uno al lado del otro en escritorio
-.legal-editor__panes {
-  display: grid;
+:host {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-base);
+}
 
-  @media (min-width: 48rem) {
-    grid-template-columns: 1fr 1fr;
+.legal-editor__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  margin: 0;
+  padding: var(--space-base);
+}
+
+// El título de la tarjeta y, a la derecha, su control
+.legal-editor__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s) var(--space-base);
+}
+
+// Escritorio: el estado a la derecha, en la línea de «Documento»
+.legal-editor__picker {
+  position: relative;
+}
+
+.legal-editor__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+
+  @media (min-width: 768px) {
+    position: absolute;
+    top: var(--space-base);
+    right: var(--space-base);
+    justify-content: flex-end;
   }
 }
 
-.legal-editor__preview {
-  max-height: 32rem; // 512px
-  overflow-y: auto;
-  padding: var(--space-base);
-  border: var(--border-width-s) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
+// Tarjetas de elección (guía de estilos): dos columnas si caben
+.legal-editor__options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); // 224px
+  gap: var(--space-s);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 
-.legal-editor__preview-title {
+.legal-editor__option {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-s) var(--space-base);
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
+
+  &:focus-within {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: var(--border-width-m);
+  }
+}
+
+.legal-editor__option--selected,
+.legal-editor__option--selected:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  box-shadow: 0 0 0 var(--border-width-s) var(--color-primary);
+}
+
+.legal-editor__option-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+.legal-editor__option-title {
+  font-weight: var(--font-weight-semibold);
+}
+
+// Editar, Vista previa y Comparar: un control segmentado con la elegida en azul
+.legal-editor__tabs {
+  display: inline-flex;
+  max-width: 100%;
+  padding: 0.125rem; // 2px
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+}
+
+.legal-editor__tab {
+  min-height: 2.25rem; // 36px
+  padding: 0 var(--space-base);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+.legal-editor__tab--selected {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+// Vigente y nueva, lado a lado en escritorio y una sobre otra en el móvil
+.legal-editor__compare {
+  display: grid;
+  gap: var(--space-s);
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.legal-editor__compare-title {
   margin: 0 0 var(--space-s);
   color: var(--color-text-muted);
 }
 
+.legal-editor__muted {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.legal-editor__preview {
+  padding: var(--space-base);
+  border: var(--border-width-s) solid var(--color-border-subtle);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+}
+
+// Lo que falta para publicar a la izquierda y los botones a la derecha
 .legal-editor__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-s);
-  margin-block: var(--space-base) var(--space-l);
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-s) var(--space-base);
 }
 
-.legal-editor__history-title {
-  margin: 0 0 var(--space-s);
+.legal-editor__hint {
+  flex: 1 1 12rem; // 192px
+}
+
+.legal-editor__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
 }
 
 .legal-editor__history {
   margin: 0;
-  padding-inline-start: var(--space-l);
-  color: var(--color-text-muted);
+  padding: 0;
+  list-style: none;
 }
 
-// Tipo de cambio, su explicación y «Qué ha cambiado», antes del texto
-.legal-editor__change {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-  margin-bottom: var(--space-base);
+.legal-editor__entry {
+  padding-block: var(--space-s);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 
-  .legal-editor__status {
-    margin: 0;
+  &:first-child {
+    padding-block-start: 0;
+  }
+
+  &:last-child {
+    padding-block-end: 0;
+    border-bottom: 0;
+  }
+}
+
+.legal-editor__entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-s);
+}
+
+.legal-editor__entry-version {
+  font-weight: var(--font-weight-semibold);
+}
+
+.legal-editor__entry-date {
+  margin-inline-start: auto;
+}
+
+.legal-editor__entry-summary {
+  margin-block-start: var(--space-xs);
+}
+
+.legal-editor__entry-text {
+  margin-block-start: var(--space-xs);
+
+  summary {
+    color: var(--color-link);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+  }
+
+  .legal {
+    margin-block-start: var(--space-s);
   }
 }
