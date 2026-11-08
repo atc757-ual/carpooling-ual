@@ -131,6 +131,27 @@ describe('AdminCatalogsPage', () => {
     expect(uploadAvatar).toHaveBeenCalledWith('Búho', image);
   });
 
+  it('paginates a long catalog and moves across pages', async () => {
+    list.mockResolvedValue(
+      Array.from({ length: 12 }, (_, index) => ({ ...SEAT, key: `k${index}`, name: `N${index}` })),
+    );
+    const root = await render('avatars');
+    const page = fixture.componentInstance;
+
+    expect(root.querySelectorAll('.catalogs__row')).toHaveLength(10);
+    expect(root.querySelector('app-pagination')).not.toBeNull();
+
+    page.offset.set(10);
+    fixture.detectChanges();
+    expect(root.querySelectorAll('.catalogs__row')).toHaveLength(2);
+    expect(page.pageRows()[0].canMoveUp).toBe(true);
+  });
+
+  it('shows no pagination in a short catalog', async () => {
+    const root = await render();
+    expect(root.querySelector('app-pagination')).toBeNull();
+  });
+
   it('replaces the image of an avatar only when another one is chosen', async () => {
     await render('avatars');
     const page = fixture.componentInstance;

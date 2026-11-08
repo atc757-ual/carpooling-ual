@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, resource, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, resource, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonButton, IonIcon, IonCard, IonSkeletonText, ModalController } from '@ionic/angular';
 import {
@@ -17,6 +17,7 @@ import {
   FilterChipOption,
   FilterChips,
 } from '../../../shared/components/ui/filter-chips/filter-chips';
+import { Pagination } from '../../../shared/components/ui/pagination/pagination';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { HeadingContent } from '../../../shared/directives/heading-content.directive';
 import { CATALOG_CONFIGS, catalogConfig, itemImage } from './catalog-config';
@@ -24,6 +25,7 @@ import { openCatalogItemModal } from './catalog-item-modal/catalog-item-modal';
 import { LegalDocumentsEditor } from './legal-documents-editor/legal-documents-editor';
 
 const SKELETON_ROWS = [1, 2, 3, 4];
+export const CATALOG_PAGE_SIZE = 10;
 // La pestaña de los documentos legales: no es un catálogo, tiene su editor
 export const LEGAL_TAB = 'legal-documents';
 
@@ -41,6 +43,7 @@ export const LEGAL_TAB = 'legal-documents';
     IonIcon,
     IonSkeletonText,
     LegalDocumentsEditor,
+    Pagination,
   ],
   templateUrl: './admin-catalogs.page.html',
   styleUrl: './admin-catalogs.page.scss',
@@ -69,6 +72,12 @@ export class AdminCatalogsPage {
       canMoveDown: index < all.length - 1 && samePreference(all[index + 1], item),
     })),
   );
+  // La página se calcula aquí: subir y bajar necesitan la lista entera, para
+  // mover también entre páginas. Cambiar de catálogo vuelve a la primera
+  readonly offset = linkedSignal({ source: () => this.config().id, computation: () => 0 });
+  readonly pageRows = computed(() =>
+    this.rows().slice(this.offset(), this.offset() + CATALOG_PAGE_SIZE),
+  );
   readonly errorMessage = computed(() => {
     const error = this.items.error();
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : null;
@@ -87,6 +96,7 @@ export class AdminCatalogsPage {
   protected readonly legalNote =
     'Términos, privacidad y la declaración del conductor. Se edita un borrador con su tipo de cambio y «Qué ha cambiado»; tras un cambio importante hay que volver a aceptarlo (la declaración, al publicar el próximo viaje).';
   protected readonly skeletonRows = SKELETON_ROWS;
+  protected readonly pageSize = CATALOG_PAGE_SIZE;
   protected readonly upIcon = arrowUpOutline;
   protected readonly downIcon = arrowDownOutline;
   protected readonly editIcon = createOutline;
