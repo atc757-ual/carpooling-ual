@@ -1,0 +1,150 @@
+// Pantallas de detalle del panel (usuario, viaje): la ruta en la franja, dos
+// columnas de tarjetas y las listas con una línea entre filas. Lo propio de
+// cada pantalla (avatar, perfiles…) va en su componente
+
+// Primera fila de la franja: el título y, a su lado, los estados
+.admin-detail__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-s);
+}
+
+// La ruta (solo en escritorio), clara sobre el color del panel
+.admin-detail__breadcrumbs {
+  padding: var(--space-s) 0 0;
+
+  ion-breadcrumb {
+    --color: color-mix(in srgb, var(--color-on-admin) 80%, transparent);
+    --color-active: var(--color-on-admin);
+    --color-hover: var(--color-on-admin);
+
+    font-size: var(--font-size-caption);
+  }
+
+  ion-breadcrumb::part(separator) {
+    color: var(--color-on-admin);
+  }
+
+  ion-breadcrumb:first-child::part(native) {
+    padding-inline-start: 0;
+  }
+}
+
+// Móvil: la columna estrecha arriba y debajo la ancha. Escritorio, como las
+// listas: lo principal en la columna de 8 y lo secundario en la de 4
+.admin-detail {
+  display: grid;
+  grid-template-areas: 'aside' 'main';
+  gap: var(--space-base);
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); // 256px
+    grid-template-areas: 'main aside';
+    align-items: start;
+  }
+}
+
+.admin-detail__main,
+.admin-detail__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  min-width: 0;
+}
+
+.admin-detail__main {
+  grid-area: main;
+}
+
+.admin-detail__aside {
+  grid-area: aside;
+}
+
+// El borde, las esquinas de 8px y la sombra, los de ion-card en el tema
+.admin-detail__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-base);
+
+  h3 {
+    margin: 0;
+  }
+}
+
+// El título de cada tarjeta (con .admin-list__title) y su icono, que ayuda a
+// localizarla
+.admin-detail__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+
+  ion-icon {
+    flex: none;
+    color: var(--color-link);
+    font-size: 1.25rem; // 20px
+  }
+}
+
+.admin-detail__muted {
+  color: var(--color-text-muted);
+}
+
+.admin-detail__wrap {
+  overflow-wrap: anywhere;
+}
+
+.admin-detail__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Listas del historial: el dato arriba, sus detalles debajo y el estado a la
+// derecha, con una línea entre filas
+.admin-detail__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-detail__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding-block: var(--space-s);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+
+  &:first-child {
+    padding-block-start: 0;
+  }
+
+  &:last-child {
+    padding-block-end: 0;
+    border-bottom: 0;
+  }
+
+  .status {
+    flex: none;
+  }
+}
+
+.admin-detail__item-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.admin-detail__state {
+  margin-block-start: var(--space-base);
+}
+
+.admin-detail__skeleton-title {
+  width: 40%;
+  height: 1.25rem; // 20px
+}

@@ -7,6 +7,7 @@ import { provideIonicAngular } from '@ionic/angular';
 import { AdminTripDetail } from '../../../core/models/admin-trip.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminTripsService } from '../../../core/services/admin/admin-trips.service';
+import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { AdminTripDetailPage } from './admin-trip-detail.page';
 
 const DETAIL: AdminTripDetail = {
@@ -97,8 +98,17 @@ describe('AdminTripDetailPage', () => {
 
     expect(get).toHaveBeenCalledWith('t1');
     const heading = renderHeadingContent();
-    expect(heading.querySelector('h1')?.textContent).toBe('Roquetas de Mar → Campus UAL');
+    expect(heading.querySelector('h1')?.getAttribute('aria-label')).toBe(
+      'Roquetas de Mar → Campus UAL',
+    );
+    expect(heading.querySelectorAll('.trip-heading__stop')).toHaveLength(2);
     expect(heading.querySelector('.status--accepted')?.textContent).toBe('Confirmado');
+    expect(heading.querySelector('.admin-heading__subtitle')?.textContent).toContain(
+      'Conductor: Javier Pardo',
+    );
+    expect(heading.querySelector('ion-breadcrumb:last-child')?.textContent).toBe(
+      'Detalle de viaje',
+    );
     const data = root.querySelector('.trip-detail__data')?.textContent ?? '';
     expect(data).toContain('2 de 3 libres');
     expect(data).toContain('1 aceptada · 1 pendiente');
@@ -131,6 +141,16 @@ describe('AdminTripDetailPage', () => {
     expect(events[1]).toContain('Solicitud aceptada');
   });
 
+  it('names the stops generically when the trip has no place names', async () => {
+    get.mockResolvedValue({ ...DETAIL, originName: null, destinationName: null });
+    await render();
+
+    const stops = [...renderHeadingContent().querySelectorAll('.trip-heading__stop')].map((stop) =>
+      stop.textContent?.trim(),
+    );
+    expect(stops).toEqual(['Origen', 'Destino']);
+  });
+
   it('says when there are no requests or events', async () => {
     get.mockResolvedValue({
       ...DETAIL,
@@ -149,6 +169,28 @@ describe('AdminTripDetailPage', () => {
     const notice = root.querySelector('.notice--danger')?.textContent ?? '';
     expect(notice).toContain('Este viaje no existe.');
     expect(notice).toContain('Ver la lista');
+    expect(notice).not.toContain('Reintentar');
+  });
+
+  it('asks the layout for the back button and the title on mobile', async () => {
+    await render();
+    const bar = TestBed.inject(HeadingContentService).mobileBar();
+    expect(bar?.title).toBe('Detalle de viaje');
+
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    bar?.goBack();
+    await fixture.whenStable();
+    expect(navigate).toHaveBeenCalledWith('/admin/trips');
+  });
+
+  it('goes back from the breadcrumb without following its link', async () => {
+    await render();
+    vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const click = new MouseEvent('click', { cancelable: true });
+
+    await fixture.componentInstance.handleBack(click);
+
+    expect(click.defaultPrevented).toBe(true);
   });
 
   it('retries after another error', async () => {

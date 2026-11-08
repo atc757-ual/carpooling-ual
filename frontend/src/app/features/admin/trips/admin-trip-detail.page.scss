@@ -1,30 +1,72 @@
-.trip-detail__muted {
-  color: var(--color-text-muted);
+// La distribución, las tarjetas y las listas, las de los detalles del panel
+// (theme/_admin-detail.scss); aquí, lo propio del viaje
+
+// Franja, en el móvil: cada parada en su línea con su icono (origen, un
+// círculo; destino, la chincheta) y el estado arriba a la derecha
+.trip-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-s);
 }
 
-// Dos columnas desde 768px; la línea de tiempo, a todo el ancho
-.trip-detail__grid {
-  display: grid;
-  gap: var(--space-base);
-
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.trip-detail__card {
+.trip-heading__route {
   display: flex;
   flex-direction: column;
-  gap: var(--space-s);
-  padding: var(--space-base);
-  border: var(--border-width-s) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
+  gap: var(--space-xs);
+  min-width: 0;
+  font-size: 1.125rem; // 18px: dos líneas sin pasar del alto de la franja
 }
 
-.trip-detail__card--wide {
-  @media (min-width: 768px) {
-    grid-column: 1 / -1;
+.trip-heading__stop {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.trip-heading__icon {
+  flex: none;
+  color: color-mix(in srgb, var(--color-on-admin) 80%, transparent);
+  font-size: 1rem; // 16px
+}
+
+.trip-heading__arrow {
+  display: none;
+}
+
+.trip-heading__status {
+  flex: none;
+  margin-block-start: 0.125rem; // 2px: alineada con la primera línea
+}
+
+// Escritorio: «Origen → Destino» en una línea (sin iconos) y el estado al lado
+@media (min-width: 768px) {
+  .trip-heading {
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-xs) var(--space-s);
+  }
+
+  .trip-heading__route {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0 var(--space-xs);
+    font-size: 1.5rem; // 24px, el del título de la franja
+  }
+
+  .trip-heading__icon {
+    display: none;
+  }
+
+  .trip-heading__arrow {
+    display: inline;
+  }
+
+  .trip-heading__status {
+    margin-block-start: 0;
   }
 }
 
@@ -40,7 +82,9 @@
   }
 
   dd {
+    min-width: 0;
     margin: 0;
+    overflow-wrap: anywhere;
   }
 }
 
@@ -49,31 +93,22 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.trip-detail__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.trip-detail__request {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-}
-
+// El pasajero y, a su lado, si la solicitud es prioritaria
 .trip-detail__request-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-s);
+  gap: var(--space-xs) var(--space-s);
 }
 
-// Línea de tiempo: un punto por evento sobre una línea vertical, con la hora
-// encima de su nombre
+// Línea de tiempo (igual en el móvil y en escritorio): la hora en su columna,
+// desde la izquierda; en medio, un punto con aro por evento y un tramo de
+// línea hasta el siguiente; y el evento
 .trip-detail__timeline {
+  --timeline-time: 5.5rem; // 88px: «12 nov, 08:12» a 12px
+  --timeline-rail: 1.75rem; // 28px: el carril del punto y la línea
+  --timeline-dot: 0.75rem; // 12px
+
   margin: 0;
   padding: 0;
   list-style: none;
@@ -81,34 +116,55 @@
 
 .trip-detail__event {
   position: relative;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: var(--timeline-time) var(--timeline-rail) minmax(0, 1fr);
+  align-items: baseline;
   padding-block-end: var(--space-base);
-  padding-inline-start: var(--space-l);
-  border-inline-start: var(--border-width-s) solid var(--color-border);
 
+  time {
+    grid-column: 1;
+  }
+
+  span {
+    grid-column: 3;
+  }
+
+  // El punto, centrado en el carril y a la altura del texto
   &::before {
     content: '';
     position: absolute;
     top: 0.25rem; // 4px
-    left: -0.3125rem; // -5px: centrado sobre la línea
-    width: 0.5rem; // 8px
-    height: 0.5rem;
+    left: calc(var(--timeline-time) + (var(--timeline-rail) - var(--timeline-dot)) / 2);
+    box-sizing: border-box;
+    width: var(--timeline-dot);
+    height: var(--timeline-dot);
+    border: 0.125rem solid var(--color-link); // 2px
     border-radius: var(--radius-full);
-    background: var(--color-link);
+    background: var(--color-surface);
   }
 
+  // El tramo de línea hasta el punto siguiente, con un pequeño hueco
+  &::after {
+    content: '';
+    position: absolute;
+    top: calc(0.25rem + var(--timeline-dot) + var(--space-xs));
+    bottom: var(--space-xs);
+    left: calc(var(--timeline-time) + var(--timeline-rail) / 2 - 0.0625rem); // 1px
+    width: 0.125rem; // 2px
+    border-radius: var(--radius-full);
+    background: var(--color-border);
+  }
+
+  // El último: punto relleno y sin tramo
   &:last-child {
     padding-block-end: 0;
-    border-inline-start-color: transparent;
+
+    &::before {
+      background: var(--color-link);
+    }
+
+    &::after {
+      display: none;
+    }
   }
-}
-
-.trip-detail__skeleton-title {
-  width: 40%;
-  height: 1rem; // 16px
-}
-
-.trip-detail__state {
-  margin-block-start: var(--space-base);
 }

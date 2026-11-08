@@ -307,14 +307,21 @@ for (const viewport of VIEWPORTS) {
 
       cy.contains('a', 'Ver detalle').click();
       cy.wait('@trip');
-      cy.contains('h1', 'Roquetas de Mar → Campus UAL');
+      cy.get('h1').should('have.attr', 'aria-label', 'Roquetas de Mar → Campus UAL');
       cy.contains('.trip-detail__request', 'Lucía Cortés').should(
         'contain',
         'Recogida: Avenida del Mediterráneo',
       );
       cy.contains('.trip-detail__event', 'Viaje publicado');
 
-      cy.contains('ion-button', 'Viajes').click();
+      // En el móvil se vuelve desde la cabecera; en escritorio, desde la ruta
+      if (viewport.name === 'mobile') {
+        cy.get('.admin-mobile-header__title').should('have.text', 'Detalle de viaje');
+        cy.get('.admin-mobile-header__menu-button[aria-label="Volver"]').click();
+      } else {
+        cy.contains('ion-breadcrumb', 'Viajes').click();
+      }
+      cy.location('pathname').should('eq', '/admin/trips');
       cy.location('search').should('eq', '?status=confirmed');
     });
 

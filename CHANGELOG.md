@@ -21,6 +21,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Frontend:** el detalle de viaje del panel se reorganiza como el de usuario: columnas y tarjetas, breadcrumb en escritorio y «Atrás» en móvil, el origen y el destino en dos líneas en el móvil y una línea de tiempo con la fecha a la izquierda. Los estilos comunes de los detalles pasan al tema; los avisos con «Reintentar» ya no estiran el botón (#244).
 - **Auth:** una cuenta con todos sus perfiles inhabilitados por un administrador ve una pantalla que lo explica, con acceso a soporte (#243).
 - **Frontend:** el detalle de usuario del panel se reorganiza en columnas y tarjetas, con breadcrumb en escritorio y «Atrás» en móvil; la lista de usuarios va en una línea en móvil (#242).
 - **Frontend:** la cabecera y el menú móvil del panel permiten cambiar de tema, y la cabecera lleva a «Modo usuario»; el documento legal se elige en un desplegable (#241).

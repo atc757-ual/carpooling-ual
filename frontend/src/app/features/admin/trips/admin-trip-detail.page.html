@@ -1,93 +1,121 @@
-<!-- La franja del panel (la pinta su cabecera): volver a Viajes, el trayecto,
-     la salida y el estado; sin buscador, se desplaza con el contenido -->
-<ng-template appHeadingContent>
-  <ion-button class="admin-heading__back" fill="clear" size="small" (click)="handleBack()">
-    <ion-icon slot="start" [icon]="backIcon" aria-hidden="true" />
-    Viajes
-  </ion-button>
+<!-- La franja del panel (la pinta su cabecera): el trayecto con su estado, y la
+     salida y el conductor. Sin buscador, se desplaza con el contenido. En el
+     móvil, la cabecera lleva «Atrás» y el título de la pantalla -->
+<ng-template appHeadingContent mobileTitle="Detalle de viaje" (mobileBack)="handleBack()">
   @if (trip(); as trip) {
     <div class="admin-heading__text">
-      <h1 class="admin-heading__title">{{ trip.route }}</h1>
-      <p class="text-body-s admin-heading__meta">
-        <span class="admin-heading__subtitle">Salida: {{ trip.departure }}</span>
-        <span [class]="trip.statusClass">{{ trip.status }}</span>
+      <!-- Escritorio: «Origen → Destino» y el estado al lado. Móvil: cada
+           parada en su línea con su icono y el estado a la derecha -->
+      <div class="trip-heading">
+        <h1 class="admin-heading__title trip-heading__route" [attr.aria-label]="trip.route">
+          <span class="trip-heading__stop">
+            <ion-icon class="trip-heading__icon" [icon]="icons.origin" aria-hidden="true" />
+            {{ trip.origin }}
+          </span>
+          <span class="trip-heading__arrow" aria-hidden="true">→</span>
+          <span class="trip-heading__stop">
+            <ion-icon class="trip-heading__icon" [icon]="icons.destination" aria-hidden="true" />
+            {{ trip.destination }}
+          </span>
+        </h1>
+        <span [class]="trip.statusClass + ' trip-heading__status'">{{ trip.status }}</span>
+      </div>
+      <p class="text-body-s admin-heading__subtitle admin-detail__wrap">
+        Salida: {{ trip.departure }} · Conductor: {{ trip.driver.name }}
       </p>
     </div>
   }
+  <!-- En escritorio, la ruta (vuelve a la lista con sus filtros); en el móvil
+       se vuelve desde la cabecera -->
+  <ion-breadcrumbs class="admin-detail__breadcrumbs ion-hide-md-down">
+    <ion-breadcrumb [href]="tripsPath" (click)="handleBack($event)">Viajes</ion-breadcrumb>
+    <ion-breadcrumb [active]="true">Detalle de viaje</ion-breadcrumb>
+  </ion-breadcrumbs>
 </ng-template>
 
 @if (trip(); as trip) {
-  <div class="trip-detail__grid">
-    <section class="trip-detail__card" aria-labelledby="trip-detail-data">
-      <h2 id="trip-detail-data" class="text-title">Viaje</h2>
-      <dl class="trip-detail__data">
-        <dt>Conductor</dt>
-        <dd>
-          <a class="trip-detail__link" [routerLink]="trip.driver.link">{{ trip.driver.name }}</a>
-        </dd>
-        <dt>Plazas</dt>
-        <dd>{{ trip.seats }}</dd>
-        <dt>Solicitudes</dt>
-        <dd>{{ trip.requests }}</dd>
-      </dl>
-    </section>
+  <div class="admin-detail">
+    <!-- Columna de 4 (arriba en el móvil): los datos del viaje -->
+    <aside class="admin-detail__aside" aria-label="Datos del viaje">
+      <ion-card class="admin-detail__card" role="region" aria-labelledby="trip-detail-data">
+        <h2 id="trip-detail-data" class="admin-list__title admin-detail__title">
+          <ion-icon [icon]="icons.trip" aria-hidden="true" />Viaje
+        </h2>
+        <dl class="text-body-s trip-detail__data">
+          <dt>Conductor</dt>
+          <dd>
+            <a class="trip-detail__link" [routerLink]="trip.driver.link">{{ trip.driver.name }}</a>
+          </dd>
+          <dt>Plazas</dt>
+          <dd>{{ trip.seats }}</dd>
+          <dt>Solicitudes</dt>
+          <dd>{{ trip.requests }}</dd>
+        </dl>
+      </ion-card>
+    </aside>
 
-    <section class="trip-detail__card" aria-labelledby="trip-detail-requests">
-      <h2 id="trip-detail-requests" class="text-title">Solicitudes</h2>
-      @if (trip.seatRequests.length === 0) {
-        <p class="text-body trip-detail__muted">Sin solicitudes.</p>
-      } @else {
-        <ul class="trip-detail__list">
+    <!-- Columna de 8: sus solicitudes y su línea de tiempo -->
+    <div class="admin-detail__main">
+      <ion-card class="admin-detail__card" role="region" aria-labelledby="trip-detail-requests">
+        <h2 id="trip-detail-requests" class="admin-list__title admin-detail__title">
+          <ion-icon [icon]="icons.requests" aria-hidden="true" />Solicitudes
+        </h2>
+        <ul class="admin-detail__items">
           @for (request of trip.seatRequests; track request.id) {
-            <li class="trip-detail__request">
-              <span class="trip-detail__request-head">
-                <a class="trip-detail__link" [routerLink]="request.passengerLink">{{
-                  request.passenger
-                }}</a>
-                <span class="status">{{ request.status }}</span>
-                @if (request.isPriority) {
-                  <span class="status status--info">Prioritaria</span>
-                }
+            <li class="admin-detail__item trip-detail__request">
+              <span class="admin-detail__item-text">
+                <span class="text-body trip-detail__request-head">
+                  <a class="trip-detail__link" [routerLink]="request.passengerLink">{{
+                    request.passenger
+                  }}</a>
+                  @if (request.isPriority) {
+                    <span class="status status--info">Prioritaria</span>
+                  }
+                </span>
+                <span class="text-body-s admin-detail__muted">
+                  {{ request.seats }}
+                  @if (request.pickup) {
+                    · {{ request.pickup }}
+                  }
+                </span>
               </span>
-              <span class="text-body-s trip-detail__muted">
-                {{ request.seats }}
-                @if (request.pickup) {
-                  · {{ request.pickup }}
-                }
-              </span>
+              <span class="status">{{ request.status }}</span>
             </li>
+          } @empty {
+            <li class="text-body-s admin-detail__muted">Sin solicitudes.</li>
           }
         </ul>
-      }
-    </section>
+      </ion-card>
 
-    <!-- Línea de tiempo: los eventos del viaje y de sus solicitudes, en orden -->
-    <section
-      class="trip-detail__card trip-detail__card--wide"
-      aria-labelledby="trip-detail-timeline"
-    >
-      <h2 id="trip-detail-timeline" class="text-title">Línea de tiempo</h2>
-      @if (trip.timeline.length === 0) {
-        <p class="text-body trip-detail__muted">Sin eventos.</p>
-      } @else {
-        <ol class="trip-detail__timeline">
-          @for (event of trip.timeline; track event.id) {
-            <li class="trip-detail__event">
-              <time class="text-body-s trip-detail__muted" [attr.datetime]="event.occurredAt">{{
-                event.time
-              }}</time>
-              <span class="text-body">{{ event.label }}</span>
-            </li>
-          }
-        </ol>
-      }
-    </section>
+      <!-- Línea de tiempo: los eventos del viaje y de sus solicitudes, en orden -->
+      <ion-card class="admin-detail__card" role="region" aria-labelledby="trip-detail-timeline">
+        <h2 id="trip-detail-timeline" class="admin-list__title admin-detail__title">
+          <ion-icon [icon]="icons.timeline" aria-hidden="true" />Línea de tiempo
+        </h2>
+        @if (trip.timeline.length === 0) {
+          <p class="text-body-s admin-detail__muted">Sin eventos.</p>
+        } @else {
+          <ol class="trip-detail__timeline">
+            @for (event of trip.timeline; track event.id) {
+              <li class="trip-detail__event">
+                <time class="text-caption admin-detail__muted" [attr.datetime]="event.occurredAt">{{
+                  event.time
+                }}</time>
+                <span class="text-body-s">{{ event.label }}</span>
+              </li>
+            }
+          </ol>
+        }
+      </ion-card>
+    </div>
   </div>
 } @else if (errorMessage(); as message) {
-  <div class="notice notice--danger trip-detail__state" role="alert">
+  <div class="notice notice--danger admin-detail__state" role="alert">
     <span>
       <b>{{ isNotFound() ? 'Este viaje no existe.' : 'No hemos podido cargar el viaje.' }}</b>
-      {{ message }}
+      @if (!isNotFound()) {
+        {{ message }}
+      }
     </span>
     @if (isNotFound()) {
       <ion-button fill="outline" size="small" [routerLink]="tripsPath">Ver la lista</ion-button>
@@ -96,12 +124,22 @@
     }
   </div>
 } @else {
-  <div class="trip-detail__grid" aria-busy="true" aria-label="Cargando el viaje">
-    @for (card of [1, 2, 3]; track card) {
-      <div class="trip-detail__card">
-        <ion-skeleton-text [animated]="true" class="trip-detail__skeleton-title" />
+  <div class="admin-detail" aria-busy="true" aria-label="Cargando el viaje">
+    <div class="admin-detail__aside">
+      <ion-card class="admin-detail__card">
+        <ion-skeleton-text [animated]="true" class="admin-detail__skeleton-title" />
         <ion-skeleton-text [animated]="true" />
-      </div>
-    }
+        <ion-skeleton-text [animated]="true" />
+      </ion-card>
+    </div>
+    <div class="admin-detail__main">
+      @for (card of [1, 2]; track card) {
+        <ion-card class="admin-detail__card">
+          <ion-skeleton-text [animated]="true" class="admin-detail__skeleton-title" />
+          <ion-skeleton-text [animated]="true" />
+          <ion-skeleton-text [animated]="true" />
+        </ion-card>
+      }
+    </div>
   </div>
 }
