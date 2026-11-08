@@ -37,3 +37,18 @@ function plural(count: number, one: string, many: string): string | null {
   }
   return `${count} ${count === 1 ? one : many}`;
 }
+
+// «7,8 km · 11 min»; desde una hora, «42 km · 1 h 5 min»
+export function routeSummaryLabel(route: { distanceKm: number; durationMin: number }): string {
+  const distance = route.distanceKm.toLocaleString('es-ES', { maximumFractionDigits: 1 });
+  return `${distance} km · ${durationLabel(Math.round(route.durationMin))}`;
+}
+
+function durationLabel(minutes: number): string {
+  if (minutes < 60) {
+    return `${minutes} min`;
+  }
+  const rest = minutes % 60;
+  const hours = `${Math.floor(minutes / 60)} h`;
+  return rest === 0 ? hours : `${hours} ${rest} min`;
+}

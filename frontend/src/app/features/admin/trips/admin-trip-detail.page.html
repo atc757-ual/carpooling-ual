@@ -56,6 +56,38 @@
 
     <!-- Columna de 8: sus solicitudes y su línea de tiempo -->
     <div class="admin-detail__main">
+      <!-- Ruta por carretera: se carga aparte y, si falla, lo dice sin más -->
+      <ion-card
+        class="admin-detail__card trip-detail__route"
+        role="region"
+        aria-labelledby="trip-detail-route"
+      >
+        <h2 id="trip-detail-route" class="admin-list__title admin-detail__title">
+          <ion-icon [icon]="icons.route" aria-hidden="true" />Ruta
+        </h2>
+        @if (routeMap(); as map) {
+          <app-trip-route-map
+            [route]="map.route"
+            [origin]="map.origin"
+            [destination]="map.destination"
+          />
+          <p class="text-body-s trip-detail__route-summary">
+            {{ map.summary }}
+            @if (map.isEstimated) {
+              <span class="status status--pending">Ruta estimada</span>
+            }
+          </p>
+        } @else if (routeData.error()) {
+          <p class="text-body-s admin-detail__muted">No hemos podido cargar la ruta.</p>
+        } @else {
+          <ion-skeleton-text
+            [animated]="true"
+            class="trip-detail__map-skeleton"
+            aria-label="Cargando la ruta"
+          />
+        }
+      </ion-card>
+
       <ion-card class="admin-detail__card" role="region" aria-labelledby="trip-detail-requests">
         <h2 id="trip-detail-requests" class="admin-list__title admin-detail__title">
           <ion-icon [icon]="icons.requests" aria-hidden="true" />Solicitudes

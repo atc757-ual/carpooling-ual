@@ -1,4 +1,4 @@
-import { requestsLabel, seatsLabel, tripStatusClass } from './admin-trip-labels';
+import { requestsLabel, routeSummaryLabel, seatsLabel, tripStatusClass } from './admin-trip-labels';
 
 describe('admin trip labels', () => {
   it('colors the status chip only while the trip is alive', () => {
@@ -20,5 +20,11 @@ describe('admin trip labels', () => {
     expect(requestsLabel({ requests: { accepted: 2, pending: 0 } })).toBe('2 aceptadas');
     expect(requestsLabel({ requests: { accepted: 0, pending: 1 } })).toBe('1 pendiente');
     expect(requestsLabel({ requests: { accepted: 0, pending: 0 } })).toBe('Sin solicitudes');
+  });
+
+  it('sums up the route in kilometres and minutes, or hours from one hour', () => {
+    expect(routeSummaryLabel({ distanceKm: 7.76, durationMin: 11 })).toBe('7,8 km · 11 min');
+    expect(routeSummaryLabel({ distanceKm: 42, durationMin: 65 })).toBe('42 km · 1 h 5 min');
+    expect(routeSummaryLabel({ distanceKm: 60.04, durationMin: 120 })).toBe('60 km · 2 h');
   });
 });
