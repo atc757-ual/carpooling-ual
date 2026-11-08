@@ -11,12 +11,20 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonButton, IonInput, IonProgressBar, IonRadio, IonRadioGroup } from '@ionic/angular';
+import {
+  IonButton,
+  IonCard,
+  IonInput,
+  IonProgressBar,
+  IonRadio,
+  IonRadioGroup,
+} from '@ionic/angular';
 import { SimulationRun } from '../../../core/models/admin-simulation.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminSimulationsService } from '../../../core/services/admin/admin-simulations.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { HeadingContent } from '../../../shared/directives/heading-content.directive';
 import { SimulationResultsView } from './simulation-results/simulation-results';
 import {
   comparisonLabel,
@@ -43,7 +51,16 @@ function isWholeNumber(value: number, max: number, min = 0): boolean {
 // resultados y el historial. La ejecución abierta va en la URL (?run=)
 @Component({
   selector: 'app-admin-simulation-page',
-  imports: [IonButton, IonInput, IonProgressBar, IonRadio, IonRadioGroup, SimulationResultsView],
+  imports: [
+    HeadingContent,
+    IonButton,
+    IonCard,
+    IonInput,
+    IonProgressBar,
+    IonRadio,
+    IonRadioGroup,
+    SimulationResultsView,
+  ],
   templateUrl: './admin-simulation.page.html',
   styleUrl: './admin-simulation.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -16,6 +16,16 @@ describe('HeadingContentService', () => {
     expect(heading.content()).toBeNull();
   });
 
+  it('says whether the strip stays fixed (fixed unless told otherwise)', () => {
+    const heading = new HeadingContentService();
+    const mine = {} as TemplateRef<unknown>;
+
+    heading.show(mine);
+    expect(heading.isFixed()).toBe(true);
+    heading.show(mine, false);
+    expect(heading.isFixed()).toBe(false);
+  });
+
   it('clears unconditionally when no template is passed', () => {
     const heading = new HeadingContentService();
     const mine = {} as TemplateRef<unknown>;

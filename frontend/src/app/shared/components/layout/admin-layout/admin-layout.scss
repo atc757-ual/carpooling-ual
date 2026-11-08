@@ -89,6 +89,11 @@
   padding: var(--space-base) var(--page-gutter);
   background: var(--color-admin);
   color: var(--color-on-admin);
+
+  // En escritorio, 24px arriba: que no quede pegada a la navegación
+  @media (min-width: 768px) {
+    padding-block-start: var(--space-l);
+  }
 }
 
 .admin-mobile-nav {
@@ -261,11 +266,24 @@
   flex-direction: column;
   gap: var(--space-xs);
   padding: var(--space-base) var(--page-gutter);
+  background: var(--color-admin);
+  color: var(--color-on-admin);
+
+  // En escritorio, 24px arriba: que no quede pegada a la navegación
+  @media (min-width: 768px) {
+    padding-block-start: var(--space-l);
+  }
 }
 
 // Fondo gris claro como en la app, con el contenido en tarjetas blancas encima
 ion-content {
   --background: var(--color-surface-subtle);
+}
+
+// Sin el rebote al tirar más allá de arriba o de abajo: dejaría ver el fondo
+// gris por encima de la franja del título cuando se desplaza con el contenido
+ion-content::part(scroll) {
+  overscroll-behavior-y: none;
 }
 
 .admin-main {

@@ -1,0 +1,61 @@
+<ion-card class="filters-card">
+  <h2 class="filters-card__title ion-hide-md-down">Filtros</h2>
+
+  <!-- Móvil: «Más filtros» y, con él cerrado, lo aplicado para quitarlo sin
+       abrirlo -->
+  <div class="filters-card__toggle-row ion-hide-md-up">
+    <ion-button
+      class="filters-card__toggle"
+      fill="clear"
+      size="small"
+      [attr.aria-controls]="panelId"
+      [attr.aria-expanded]="isOpen()"
+      (click)="toggle()"
+    >
+      <ion-icon slot="start" [icon]="filtersIcon" aria-hidden="true" />
+      Más filtros
+      @if (activeFilters().length > 0) {
+        <span class="filters-card__count">
+          {{ activeFilters().length }}<span class="visually-hidden"> aplicados</span>
+        </span>
+      }
+      <ion-icon
+        slot="end"
+        class="filters-card__chevron"
+        [class.filters-card__chevron--open]="isOpen()"
+        [icon]="toggleIcon"
+        aria-hidden="true"
+      />
+    </ion-button>
+    @if (!isOpen() && activeFilters().length > 0) {
+      <ul class="filters-card__applied" aria-label="Filtros aplicados">
+        @for (filter of activeFilters(); track filter.key) {
+          <li>
+            <ion-chip
+              button="true"
+              [attr.aria-label]="'Quitar el filtro ' + filter.label"
+              (click)="removeFilter.emit(filter.key)"
+            >
+              {{ filter.label }}
+              <ion-icon [icon]="removeIcon" aria-hidden="true" />
+            </ion-chip>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  <div [id]="panelId" class="filters-card__panel" [class.filters-card__panel--open]="isOpen()">
+    <ng-content />
+    @if (hasFilters()) {
+      <ion-button
+        class="filters-card__clear"
+        fill="clear"
+        size="small"
+        (click)="clearFilters.emit()"
+      >
+        Quitar filtros
+      </ion-button>
+    }
+  </div>
+</ion-card>

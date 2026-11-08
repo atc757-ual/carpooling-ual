@@ -17,6 +17,7 @@ import { AdminUsersService } from '../../../core/services/admin/admin-users.serv
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { confirmWithReason } from '../../../shared/components/modals/reason-confirm-modal/reason-confirm-modal';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { HeadingContent } from '../../../shared/directives/heading-content.directive';
 import {
   consentLabel,
   formatDate,
@@ -90,7 +91,7 @@ export function profileRows(detail: AdminUserDetail): ProfileRow[] {
 // administrador: cada una con su confirmación y su motivo (auditoría)
 @Component({
   selector: 'app-admin-user-detail-page',
-  imports: [IonButton, IonIcon, IonSkeletonText, RouterLink],
+  imports: [HeadingContent, IonButton, IonIcon, IonSkeletonText, RouterLink],
   templateUrl: './admin-user-detail.page.html',
   styleUrl: './admin-user-detail.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

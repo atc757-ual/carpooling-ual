@@ -1,20 +1,17 @@
 import { Component, computed, inject, input, resource, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  IonButton,
-  IonIcon,
-  IonLabel,
-  IonSegment,
-  IonSegmentButton,
-  IonSkeletonText,
-  ModalController,
-} from '@ionic/angular';
-import { arrowDownOutline, arrowUpOutline } from 'ionicons/icons';
+import { IonButton, IonIcon, IonCard, IonSkeletonText, ModalController } from '@ionic/angular';
+import { arrowDownOutline, arrowUpOutline, fileTrayOutline } from 'ionicons/icons';
 import { AdminCatalogItem } from '../../../core/models/admin-catalog.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminCatalogsService } from '../../../core/services/admin/admin-catalogs.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import {
+  FilterChipOption,
+  FilterChips,
+} from '../../../shared/components/ui/filter-chips/filter-chips';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { HeadingContent } from '../../../shared/directives/heading-content.directive';
 import { CATALOG_CONFIGS, catalogConfig, itemDetail, itemImage } from './catalog-config';
 import { openCatalogItemModal } from './catalog-item-modal/catalog-item-modal';
 import { LegalDocumentsEditor } from './legal-documents-editor/legal-documents-editor';
@@ -30,11 +27,11 @@ export const LEGAL_TAB = 'legal-documents';
 @Component({
   selector: 'app-admin-catalogs-page',
   imports: [
+    FilterChips,
+    HeadingContent,
     IonButton,
+    IonCard,
     IonIcon,
-    IonLabel,
-    IonSegment,
-    IonSegmentButton,
     IonSkeletonText,
     LegalDocumentsEditor,
   ],
@@ -76,6 +73,12 @@ export class AdminCatalogsPage {
 
   protected readonly configs = CATALOG_CONFIGS;
   protected readonly legalTab = LEGAL_TAB;
+  protected readonly emptyIcon = fileTrayOutline;
+  // Cada catálogo y, al final, los documentos legales, como chips
+  protected readonly catalogOptions: FilterChipOption[] = [
+    ...CATALOG_CONFIGS.map((option) => ({ value: option.id, label: option.label })),
+    { value: LEGAL_TAB, label: 'Documentos legales' },
+  ];
   protected readonly legalNote =
     'Términos, privacidad y la declaración del conductor. Se edita un borrador con su tipo de cambio y «Qué ha cambiado»; tras un cambio importante hay que volver a aceptarlo (la declaración, al publicar el próximo viaje).';
   protected readonly skeletonRows = SKELETON_ROWS;

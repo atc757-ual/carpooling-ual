@@ -1,25 +1,64 @@
-.admin-page__header {
-  margin-block-end: var(--space-l);
-}
-
 .admin-page__subtitle {
   color: var(--color-text-muted);
 }
 
-.catalogs__header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
+// Móvil: la elección del catálogo arriba y debajo el catálogo. Escritorio,
+// como Usuarios: el catálogo en la columna de 8 y la elección en la de 4, fija
+// al bajar
+.catalogs {
+  display: grid;
+  grid-template-areas: 'aside' 'main';
   gap: var(--space-base);
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); // 256px
+    grid-template-areas: 'main aside';
+    align-items: start;
+  }
 }
 
-.catalogs__segment {
-  max-width: 40rem; // 640px
+.catalogs__main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.catalogs__aside {
+  grid-area: aside;
+  min-width: 0;
+
+  @media (min-width: 768px) {
+    position: sticky;
+    top: var(--space-l);
+  }
+}
+
+.catalogs__picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding: var(--space-base);
+}
+
+// Título de tarjeta: 18px siempre
+.catalogs__card-title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
 }
 
 .catalogs__note {
-  margin: var(--space-s) 0 var(--space-base);
+  margin: 0;
+}
+
+.catalogs__create {
+  margin: 0;
+}
+
+.catalogs__main .notice {
+  margin: var(--space-base);
 }
 
 .catalogs__list {
@@ -28,9 +67,6 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  border: var(--border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
 }
 
 // Imagen o muestra, nombre, estado y acciones; en el móvil las acciones
@@ -41,7 +77,7 @@
   align-items: center;
   gap: var(--space-s) var(--space-base);
   padding: var(--space-s) var(--space-base);
-  border-bottom: var(--border-width) solid var(--color-border-subtle);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 
   &:last-child {
     border-bottom: 0;
@@ -66,7 +102,7 @@
 }
 
 .catalogs__swatch {
-  border: var(--border-width) solid var(--color-border-strong);
+  border: var(--border-width-s) solid var(--color-border-strong);
 }
 
 .catalogs__name {
@@ -81,14 +117,4 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-xs);
-}
-
-.catalogs__empty {
-  display: block;
-  padding: var(--space-xxl) var(--space-l);
-  border: var(--border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
-  text-align: center;
 }

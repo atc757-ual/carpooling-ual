@@ -1,120 +1,131 @@
-<header class="admin-page__header">
-  <h1 class="text-heading">
-    Viajes
-    @if (trips.hasValue()) {
-      <span class="admin-trips__total">· {{ totalLabel() }}</span>
-    }
-  </h1>
-  <p class="text-body admin-page__subtitle">
-    Consulta los viajes publicados, su estado y sus solicitudes.
-  </p>
-</header>
-
-<!-- Conductor, estado y días de salida: cambiar uno vuelve a la primera página -->
-<div class="admin-trips__filters">
+<!-- La franja del panel (la pinta su cabecera), fija porque lleva el buscador
+     del conductor. El total ya lo dice la paginación -->
+<ng-template appHeadingContent [isHeadingFixed]="true">
+  <div class="admin-heading__text">
+    <h1 class="admin-heading__title">Viajes</h1>
+    <p class="text-body-s admin-heading__subtitle">
+      Consulta los viajes publicados, su estado y sus solicitudes.
+    </p>
+  </div>
   <ion-searchbar
-    class="admin-trips__search"
+    class="admin-heading__search"
     placeholder="Buscar por conductor (nombre o correo)"
     [value]="query().driver ?? ''"
     [debounce]="300"
     (ionInput)="handleFilter('driver', $event.detail.value)"
   />
-  <ion-select
-    label="Estado"
-    labelPlacement="stacked"
-    fill="outline"
-    interface="popover"
-    placeholder="Todos"
-    [value]="query().status ?? ''"
-    (ionChange)="handleFilter('status', $event.detail.value)"
-  >
-    <ion-select-option value="">Todos</ion-select-option>
-    @for (option of statusOptions; track option.value) {
-      <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
-    }
-  </ion-select>
-  <ion-input
-    type="date"
-    label="Desde"
-    labelPlacement="stacked"
-    fill="outline"
-    [value]="query().from ?? ''"
-    [max]="query().to"
-    (ionChange)="handleFilter('from', $event.detail.value)"
-  />
-  <ion-input
-    type="date"
-    label="Hasta"
-    labelPlacement="stacked"
-    fill="outline"
-    [value]="query().to ?? ''"
-    [min]="query().from"
-    (ionChange)="handleFilter('to', $event.detail.value)"
-  />
-</div>
+</ng-template>
 
-@if (errorMessage(); as message) {
-  <div class="notice notice--danger admin-trips__state" role="alert">
-    <span>
-      <b>No hemos podido cargar los viajes.</b>
-      {{ message }}
-    </span>
-    <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
-  </div>
-} @else if (trips.isLoading() && !trips.hasValue()) {
-  <div class="admin-trips__table-wrap" aria-busy="true" aria-label="Cargando viajes">
-    @for (row of skeletonRows; track row) {
-      <ion-skeleton-text [animated]="true" class="admin-trips__skeleton-row" />
-    }
-  </div>
-} @else if (rows().length === 0) {
-  <output class="admin-trips__empty admin-trips__state">
-    @if (hasFilters()) {
-      <p class="text-title">No hay viajes con estos filtros</p>
-      <p class="text-body admin-page__subtitle">Prueba con otros días o quita los filtros.</p>
-      <ion-button fill="outline" (click)="handleClearFilters()">Quitar filtros</ion-button>
-    } @else {
-      <p class="text-title">Aún no hay viajes</p>
-    }
-  </output>
-} @else {
-  <div class="admin-trips__table-wrap">
-    <table class="admin-trips__table" [attr.aria-busy]="trips.isLoading()">
-      <thead>
-        <tr>
-          <th scope="col">Salida</th>
-          <th scope="col">Trayecto</th>
-          <th scope="col">Conductor</th>
-          <th scope="col">Plazas</th>
-          <th scope="col">Solicitudes</th>
-          <th scope="col">Estado</th>
-          <th scope="col"><span class="visually-hidden">Acciones</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of rows(); track row.id) {
-          <tr>
-            <td class="admin-trips__nowrap">{{ row.departure }}</td>
-            <td>{{ row.route }}</td>
-            <td>{{ row.driver }}</td>
-            <td class="admin-trips__nowrap">{{ row.seats }}</td>
-            <td>{{ row.requests }}</td>
-            <td>
-              <span [class]="row.statusClass">{{ row.status }}</span>
-            </td>
-            <td>
-              <a class="admin-trips__link" [routerLink]="[row.id]">Ver detalle</a>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
-  <app-pagination
-    [offset]="query().offset"
-    [limit]="pageSize"
-    [total]="total()"
-    [isLoading]="trips.isLoading()"
-    (offsetChange)="handleOffset($event)"
-  />
-}
+<div class="admin-trips">
+  <!-- Columna de 4 (arriba en el móvil): estado y días de salida. Cambiar un
+       filtro vuelve a la primera página sin tocar los demás -->
+  <aside class="admin-trips__aside" aria-label="Filtrar viajes">
+    <app-filters-card
+      [activeFilters]="activeFilters()"
+      [hasFilters]="hasFilters()"
+      (removeFilter)="handleRemoveFilter($event)"
+      (clearFilters)="handleClearFilters()"
+    >
+      <app-filter-chips
+        legend="Estado"
+        [options]="statusOptions"
+        [value]="query().status"
+        (valueChange)="handleFilter('status', $event)"
+      />
+      <fieldset class="admin-trips__dates">
+        <legend class="text-label admin-trips__legend">Días de salida</legend>
+        <ion-input
+          type="date"
+          label="Desde"
+          labelPlacement="stacked"
+          fill="outline"
+          [value]="query().from ?? ''"
+          [max]="query().to"
+          (ionChange)="handleFilter('from', $event.detail.value)"
+        />
+        <ion-input
+          type="date"
+          label="Hasta"
+          labelPlacement="stacked"
+          fill="outline"
+          [value]="query().to ?? ''"
+          [min]="query().from"
+          (ionChange)="handleFilter('to', $event.detail.value)"
+        />
+      </fieldset>
+    </app-filters-card>
+  </aside>
+
+  <!-- Columna de 8: la lista con su paginación -->
+  <section class="admin-trips__main" aria-label="Lista de viajes">
+    <ion-card class="admin-list">
+      @if (errorMessage(); as message) {
+        <div class="notice notice--danger admin-trips__state" role="alert">
+          <span>
+            <b>No hemos podido cargar los viajes.</b>
+            {{ message }}
+          </span>
+          <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
+        </div>
+      } @else if (trips.isLoading() && !trips.hasValue()) {
+        <div aria-busy="true" aria-label="Cargando viajes">
+          @for (row of skeletonRows; track row) {
+            <ion-skeleton-text [animated]="true" class="admin-trips__skeleton-row" />
+          }
+        </div>
+      } @else if (rows().length === 0) {
+        <output class="admin-empty">
+          <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+          @if (hasFilters()) {
+            <p class="admin-empty__title">No hay viajes con estos filtros</p>
+            <p class="text-body-s admin-empty__text">Prueba con otros días o quita los filtros.</p>
+            <ion-button fill="outline" size="small" (click)="handleClearFilters()"
+              >Quitar filtros</ion-button
+            >
+          } @else {
+            <p class="admin-empty__title">Aún no hay viajes</p>
+          }
+        </output>
+      } @else {
+        <table class="admin-table admin-trips__table" [attr.aria-busy]="trips.isLoading()">
+          <thead>
+            <tr>
+              <th scope="col">Salida</th>
+              <th scope="col">Trayecto</th>
+              <th scope="col">Conductor</th>
+              <th scope="col">Plazas</th>
+              <th scope="col">Solicitudes</th>
+              <th scope="col">Estado</th>
+              <th scope="col"><span class="visually-hidden">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.id) {
+              <tr>
+                <td class="admin-trips__nowrap admin-trips__cell-departure">{{ row.departure }}</td>
+                <td class="admin-trips__cell-route">{{ row.route }}</td>
+                <td class="admin-trips__cell-driver">{{ row.driver }}</td>
+                <td class="admin-trips__nowrap admin-trips__cell-seats">{{ row.seats }}</td>
+                <td class="admin-trips__cell-requests">{{ row.requests }}</td>
+                <td class="admin-trips__cell-status">
+                  <span [class]="row.statusClass">{{ row.status }}</span>
+                </td>
+                <td class="admin-trips__cell-action">
+                  <a class="admin-table__link" [routerLink]="[row.id]">Ver detalle</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <app-pagination
+          class="admin-list__pagination"
+          [offset]="query().offset"
+          [limit]="pageSize"
+          [total]="total()"
+          [isLoading]="trips.isLoading()"
+          (offsetChange)="handleOffset($event)"
+        />
+      }
+    </ion-card>
+  </section>
+</div>

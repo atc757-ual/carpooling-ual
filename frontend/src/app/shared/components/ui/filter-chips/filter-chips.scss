@@ -1,0 +1,65 @@
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  // Como los chips de Mensajes: blancos con borde y, el elegido, en azul
+  ion-chip {
+    min-height: 2.25rem; // 36px
+    margin: 0;
+    border: var(--border-width-s) solid var(--color-border);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-label);
+    font-weight: var(--font-weight-medium);
+    --background: var(--color-surface);
+    --color: var(--color-text);
+  }
+
+  ion-chip.filter-chips__chip--selected {
+    border-color: var(--color-primary);
+    font-weight: var(--font-weight-semibold);
+    --background: var(--color-primary);
+    --color: var(--color-on-primary);
+  }
+}
+
+.filter-chips__legend {
+  width: 100%;
+  margin-block-end: var(--space-xs);
+  padding: 0;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+// El punto acompaña al texto con el color de su etiqueta en la lista
+.filter-chips__dot {
+  width: 0.5rem; // 8px
+  height: 0.5rem;
+  margin-inline-end: var(--space-xs);
+  border-radius: var(--radius-full);
+  background: var(--color-text-muted);
+}
+
+.filter-chips__dot--success {
+  background: var(--color-success);
+}
+
+.filter-chips__dot--info {
+  background: var(--color-link);
+}
+
+.filter-chips__dot--warning {
+  background: var(--color-warning);
+}
+
+.filter-chips__dot--danger {
+  background: var(--color-danger);
+}
+
+.filter-chips__chip--selected .filter-chips__dot {
+  box-shadow: 0 0 0 0.125rem var(--color-on-primary); // 2px
+}

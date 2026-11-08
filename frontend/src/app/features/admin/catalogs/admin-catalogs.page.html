@@ -1,102 +1,120 @@
-<header class="admin-page__header catalogs__header">
-  <div>
-    <h1 class="text-heading">Catálogos</h1>
-    <p class="text-body admin-page__subtitle">
+<!-- La franja del panel (la pinta su cabecera); sin buscador, se desplaza con
+     el contenido -->
+<ng-template appHeadingContent>
+  <div class="admin-heading__text">
+    <h1 class="admin-heading__title">Catálogos</h1>
+    <p class="text-body-s admin-heading__subtitle">
       Lo que la app ofrece para elegir. Nada se borra: se desactiva.
     </p>
   </div>
-  @if (!isLegal() && config().creation !== 'none') {
-    <ion-button (click)="handleCreate()">
-      {{ config().creation === 'upload' ? 'Subir' : 'Añadir' }} {{ config().singular }}
-    </ion-button>
-  }
-</header>
+</ng-template>
 
-<ion-segment
-  class="catalogs__segment"
-  [value]="isLegal() ? legalTab : config().id"
-  (ionChange)="handleCatalog($event.detail.value)"
->
-  @for (option of configs; track option.id) {
-    <ion-segment-button [value]="option.id">
-      <ion-label>{{ option.label }}</ion-label>
-    </ion-segment-button>
-  }
-  <ion-segment-button [value]="legalTab">
-    <ion-label>Documentos legales</ion-label>
-  </ion-segment-button>
-</ion-segment>
+<div class="catalogs">
+  <!-- Columna de 4 (arriba en el móvil): qué catálogo se ve, su nota y su alta -->
+  <aside class="catalogs__aside" aria-label="Elegir catálogo">
+    <ion-card class="catalogs__picker">
+      <h2 class="catalogs__card-title">Catálogo</h2>
+      <app-filter-chips
+        legend="Qué se ve"
+        [options]="catalogOptions"
+        [value]="isLegal() ? legalTab : config().id"
+        [allLabel]="null"
+        (valueChange)="handleCatalog($event)"
+      />
+      <p class="text-body-s admin-page__subtitle catalogs__note">
+        {{ isLegal() ? legalNote : config().note }}
+      </p>
+      @if (!isLegal() && config().creation !== 'none') {
+        <ion-button class="catalogs__create" expand="block" (click)="handleCreate()">
+          {{ config().creation === 'upload' ? 'Subir' : 'Añadir' }} {{ config().singular }}
+        </ion-button>
+      }
+    </ion-card>
+  </aside>
 
-<p class="text-body-s admin-page__subtitle catalogs__note">
-  {{ isLegal() ? legalNote : config().note }}
-</p>
-
-@if (isLegal()) {
-  <app-legal-documents-editor />
-} @else if (errorMessage(); as message) {
-  <div class="notice notice--danger" role="alert">
-    <span>
-      <b>No hemos podido cargar el catálogo.</b>
-      {{ message }}
-    </span>
-    <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
-  </div>
-} @else if (items.isLoading() && !items.hasValue()) {
-  <ul class="catalogs__list" aria-busy="true" aria-label="Cargando el catálogo">
-    @for (row of skeletonRows; track row) {
-      <li class="catalogs__row"><ion-skeleton-text [animated]="true" /></li>
-    }
-  </ul>
-} @else if (rows().length === 0) {
-  <output class="catalogs__empty text-body">Este catálogo aún está vacío.</output>
-} @else {
-  <ul class="catalogs__list">
-    @for (row of rows(); track row.item.key) {
-      <li class="catalogs__row" [class.catalogs__row--inactive]="!row.item.isActive">
-        @if (row.image) {
-          <img class="catalogs__image" [src]="row.image" alt="" />
-        } @else if (row.swatch) {
-          <span class="catalogs__swatch" [style.background]="row.swatch" aria-hidden="true"></span>
+  <!-- Columna de 8: el catálogo abierto (o los documentos legales) -->
+  <section class="catalogs__main" aria-label="Catálogo abierto">
+    @if (isLegal()) {
+      <app-legal-documents-editor />
+    } @else {
+      <ion-card class="admin-list">
+        @if (errorMessage(); as message) {
+          <div class="notice notice--danger" role="alert">
+            <span>
+              <b>No hemos podido cargar el catálogo.</b>
+              {{ message }}
+            </span>
+            <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
+          </div>
+        } @else if (items.isLoading() && !items.hasValue()) {
+          <ul class="catalogs__list" aria-busy="true" aria-label="Cargando el catálogo">
+            @for (row of skeletonRows; track row) {
+              <li class="catalogs__row"><ion-skeleton-text [animated]="true" /></li>
+            }
+          </ul>
+        } @else if (rows().length === 0) {
+          <output class="admin-empty">
+            <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+            <p class="admin-empty__title">Este catálogo aún está vacío</p>
+          </output>
+        } @else {
+          <ul class="catalogs__list">
+            @for (row of rows(); track row.item.key) {
+              <li class="catalogs__row" [class.catalogs__row--inactive]="!row.item.isActive">
+                @if (row.image) {
+                  <img class="catalogs__image" [src]="row.image" alt="" />
+                } @else if (row.swatch) {
+                  <span
+                    class="catalogs__swatch"
+                    [style.background]="row.swatch"
+                    aria-hidden="true"
+                  ></span>
+                }
+                <span class="catalogs__name">
+                  <span class="text-body">{{ row.item.name }}</span>
+                  @if (row.detail) {
+                    <span class="text-body-s admin-page__subtitle">{{ row.detail }}</span>
+                  }
+                </span>
+                <span [class]="row.item.isActive ? 'status status--accepted' : 'status'">
+                  {{ row.item.isActive ? 'Activo' : 'Desactivado' }}
+                </span>
+                <span class="catalogs__actions">
+                  <ion-button
+                    fill="clear"
+                    size="small"
+                    [disabled]="!row.canMoveUp || busyKey() !== null"
+                    [attr.aria-label]="'Subir ' + row.item.name"
+                    (click)="handleMove(row.item, 'up')"
+                  >
+                    <ion-icon slot="icon-only" [icon]="upIcon" aria-hidden="true" />
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
+                    size="small"
+                    [disabled]="!row.canMoveDown || busyKey() !== null"
+                    [attr.aria-label]="'Bajar ' + row.item.name"
+                    (click)="handleMove(row.item, 'down')"
+                  >
+                    <ion-icon slot="icon-only" [icon]="downIcon" aria-hidden="true" />
+                  </ion-button>
+                  <ion-button fill="outline" size="small" (click)="handleEdit(row.item)"
+                    >Editar</ion-button
+                  >
+                  <ion-button
+                    fill="clear"
+                    size="small"
+                    [disabled]="busyKey() === row.item.key"
+                    (click)="handleToggle(row.item)"
+                  >
+                    {{ row.item.isActive ? 'Desactivar' : 'Activar' }}
+                  </ion-button>
+                </span>
+              </li>
+            }
+          </ul>
         }
-        <span class="catalogs__name">
-          <span class="text-body">{{ row.item.name }}</span>
-          @if (row.detail) {
-            <span class="text-body-s admin-page__subtitle">{{ row.detail }}</span>
-          }
-        </span>
-        <span [class]="row.item.isActive ? 'status status--accepted' : 'status'">
-          {{ row.item.isActive ? 'Activo' : 'Desactivado' }}
-        </span>
-        <span class="catalogs__actions">
-          <ion-button
-            fill="clear"
-            size="small"
-            [disabled]="!row.canMoveUp || busyKey() !== null"
-            [attr.aria-label]="'Subir ' + row.item.name"
-            (click)="handleMove(row.item, 'up')"
-          >
-            <ion-icon slot="icon-only" [icon]="upIcon" aria-hidden="true" />
-          </ion-button>
-          <ion-button
-            fill="clear"
-            size="small"
-            [disabled]="!row.canMoveDown || busyKey() !== null"
-            [attr.aria-label]="'Bajar ' + row.item.name"
-            (click)="handleMove(row.item, 'down')"
-          >
-            <ion-icon slot="icon-only" [icon]="downIcon" aria-hidden="true" />
-          </ion-button>
-          <ion-button fill="outline" size="small" (click)="handleEdit(row.item)">Editar</ion-button>
-          <ion-button
-            fill="clear"
-            size="small"
-            [disabled]="busyKey() === row.item.key"
-            (click)="handleToggle(row.item)"
-          >
-            {{ row.item.isActive ? 'Desactivar' : 'Activar' }}
-          </ion-button>
-        </span>
-      </li>
+      </ion-card>
     }
-  </ul>
-}
+  </section>
+</div>

@@ -9,11 +9,34 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonButton, IonSelect, IonSelectOption, IonSkeletonText } from '@ionic/angular';
+import {
+  IonButton,
+  IonCard,
+  IonIcon,
+  IonSelect,
+  IonSelectOption,
+  IonSkeletonText,
+} from '@ionic/angular';
+import {
+  carOutline,
+  checkmarkDoneOutline,
+  hourglassOutline,
+  megaphoneOutline,
+  navigateOutline,
+  peopleOutline,
+  personAddOutline,
+  personOutline,
+  pulseOutline,
+  refreshOutline,
+  statsChartOutline,
+  ticketOutline,
+  timeOutline,
+} from 'ionicons/icons';
 import { AdminEventQuery } from '../../../core/models/admin-event.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminOverviewService } from '../../../core/services/admin/admin-overview.service';
 import { Pagination } from '../../../shared/components/ui/pagination/pagination';
+import { HeadingContent } from '../../../shared/directives/heading-content.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatDateTime } from '../incidents/admin-incident-labels';
 import { EventPayload } from './event-payload';
@@ -27,6 +50,19 @@ import {
 import { twinKpis, twinSync } from './twin-kpis';
 
 export const PAGE_SIZE = 20;
+// El icono de cada cifra (por su nombre); sin icono propio, el de las estadísticas
+const KPI_ICONS: Record<string, string> = {
+  'Vehículos en viaje': carOutline,
+  'Pasajeros a bordo': peopleOutline,
+  'Viajes por salir': timeOutline,
+  'Viajes terminados': checkmarkDoneOutline,
+  'Usuarios activos': personOutline,
+  'Viajes publicados hoy': megaphoneOutline,
+  'Viajes en curso': navigateOutline,
+  'Plazas ofrecidas': ticketOutline,
+  'Plazas ocupadas': personAddOutline,
+  'Solicitudes pendientes': hourglassOutline,
+};
 // El resumen se refresca solo mientras la pantalla está abierta
 export const OVERVIEW_REFRESH_MS = 30_000;
 const SKELETON_KPIS = [1, 2, 3, 4, 5];
@@ -41,7 +77,17 @@ function errorMessageOf(error: unknown): string | null {
 // cada uno. El tipo y la página van en la URL, como en Incidencias
 @Component({
   selector: 'app-admin-digital-twin-page',
-  imports: [IonButton, IonSelect, IonSelectOption, IonSkeletonText, EventPayload, Pagination],
+  imports: [
+    EventPayload,
+    HeadingContent,
+    IonButton,
+    IonCard,
+    IonIcon,
+    IonSelect,
+    IonSelectOption,
+    IonSkeletonText,
+    Pagination,
+  ],
   templateUrl: './admin-digital-twin.page.html',
   styleUrl: './admin-digital-twin.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -67,8 +113,10 @@ export class AdminDigitalTwinPage {
     const state = this.twin.value();
     return state ? twinKpis(state) : [];
   });
+  // Se lee también fuera de las cifras (el aviso de arriba): con el gemelo en
+  // error, value() lanzaría una excepción
   readonly twinSync = computed(() => {
-    const state = this.twin.value();
+    const state = this.twin.hasValue() ? this.twin.value() : null;
     return state ? twinSync(state) : null;
   });
   readonly twinError = computed(() => errorMessageOf(this.twin.error()));
@@ -100,8 +148,14 @@ export class AdminDigitalTwinPage {
   readonly expandedId = signal<string | null>(null);
 
   protected readonly typeGroups = EVENT_TYPE_GROUPS;
+  protected readonly refreshIcon = refreshOutline;
+
+  protected kpiIcon(label: string): string {
+    return KPI_ICONS[label] ?? statsChartOutline;
+  }
   protected readonly skeletonKpis = SKELETON_KPIS;
   protected readonly pageSize = PAGE_SIZE;
+  protected readonly emptyIcon = pulseOutline;
 
   constructor() {
     const timer = setInterval(() => {

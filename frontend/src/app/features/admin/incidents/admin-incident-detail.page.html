@@ -1,21 +1,30 @@
-<ion-button class="incident__back" fill="clear" (click)="handleBack()">
-  <ion-icon slot="start" [icon]="backIcon" aria-hidden="true" />
-  Incidencias
-</ion-button>
+<!-- La franja del panel (la pinta su cabecera): volver a Incidencias, la
+     categoría, la fecha y el estado; sin buscador, se desplaza con el contenido -->
+<ng-template appHeadingContent>
+  <ion-button class="admin-heading__back" fill="clear" size="small" (click)="handleBack()">
+    <ion-icon slot="start" [icon]="backIcon" aria-hidden="true" />
+    Incidencias
+  </ion-button>
+  @if (incident(); as incident) {
+    @if (view(); as view) {
+      <div class="admin-heading__text">
+        <h1 class="admin-heading__title">{{ view.title }}</h1>
+        <p class="text-body-s admin-heading__meta">
+          <span class="admin-heading__subtitle">Registrada el {{ view.reportedAt }}</span>
+          @if (incident.status === 'open') {
+            <span class="status status--pending">Abierta</span>
+          } @else {
+            <span class="status status--accepted">Revisada</span>
+          }
+        </p>
+      </div>
+    }
+  }
+</ng-template>
 
 @if (incident(); as incident) {
   @if (view(); as view) {
     <article [class]="'incident incident--' + view.severity">
-      <header class="incident__header">
-        <h1 class="text-heading">{{ view.title }}</h1>
-        @if (incident.status === 'open') {
-          <span class="status status--pending">Abierta</span>
-        } @else {
-          <span class="status status--accepted">Revisada</span>
-        }
-      </header>
-      <p class="text-body-s incident__muted">Registrada el {{ view.reportedAt }}</p>
-
       <section class="incident__section" aria-labelledby="incident-report">
         <h2 id="incident-report" class="text-title">Informe</h2>
         <p class="text-body incident__description">{{ incident.description }}</p>

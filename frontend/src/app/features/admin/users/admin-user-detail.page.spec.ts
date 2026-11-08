@@ -1,3 +1,4 @@
+import { renderHeadingContent } from '../../../core/services/ui/heading-content.testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
@@ -102,8 +103,9 @@ describe('AdminUserDetailPage', () => {
   it('shows the account, the suspension and the late cancellations', async () => {
     const root = await render();
 
-    expect(root.querySelector('h1')?.textContent).toContain('Lucía Cortés');
-    expect(root.textContent).toContain('(verificado)');
+    const heading = renderHeadingContent();
+    expect(heading.querySelector('h1')?.textContent).toContain('Lucía Cortés');
+    expect(heading.textContent).toContain('(verificado)');
     expect(root.textContent).toContain('Suspendido como conductor hasta el 9 nov 2026');
     expect(root.textContent).toContain('como conductor');
     expect(root.textContent).toContain('La cuenta está eliminada.');

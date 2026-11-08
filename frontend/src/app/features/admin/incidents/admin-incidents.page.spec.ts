@@ -67,6 +67,30 @@ describe('AdminIncidentsPage', () => {
     });
   });
 
+  it('lists what is not the default and removes or clears it', async () => {
+    await render({ status: 'reviewed', category: 'driver' });
+    const page = fixture.componentInstance;
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+
+    expect(page.activeFilters()).toEqual([
+      { key: 'status', label: 'Revisadas' },
+      { key: 'category', label: 'Con el conductor' },
+    ]);
+    await page.handleRemoveFilter('status');
+    expect(navigate).toHaveBeenLastCalledWith(
+      [],
+      expect.objectContaining({ queryParams: { status: null, offset: null } }),
+    );
+    await page.handleClearFilters();
+    expect(navigate).toHaveBeenLastCalledWith(
+      [],
+      expect.objectContaining({ queryParams: { status: null, category: null, offset: null } }),
+    );
+    navigate.mockClear();
+    await page.handleRemoveFilter('offset');
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   it('changes the filters going back to the first page', async () => {
     await render();
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);

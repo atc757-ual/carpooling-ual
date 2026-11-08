@@ -2,25 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
-  effect,
   inject,
   input,
   resource,
-  signal,
-  TemplateRef,
-  viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import {
-  IonButton,
-  IonCard,
-  IonChip,
-  IonIcon,
-  IonSearchbar,
-  IonSkeletonText,
-} from '@ionic/angular';
-import { chevronDownOutline, closeOutline, optionsOutline } from 'ionicons/icons';
+import { IonButton, IonCard, IonIcon, IonSearchbar, IonSkeletonText } from '@ionic/angular';
+import { peopleOutline } from 'ionicons/icons';
 import {
   ADMIN_USER_STATUSES,
   AdminUserQuery,
@@ -29,8 +17,13 @@ import {
 import { ApiError } from '../../../core/models/api-error.model';
 import { Profile } from '../../../core/models/user.model';
 import { AdminUsersService } from '../../../core/services/admin/admin-users.service';
-import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
+import {
+  FilterChipOption,
+  FilterChips,
+} from '../../../shared/components/ui/filter-chips/filter-chips';
+import { ActiveFilter, FiltersCard } from '../../../shared/components/ui/filters-card/filters-card';
 import { Pagination } from '../../../shared/components/ui/pagination/pagination';
+import { HeadingContent } from '../../../shared/directives/heading-content.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { initialsOf } from './admin-user-detail-labels';
 import {
@@ -48,12 +41,8 @@ const STATUSES = new Set<string>(ADMIN_USER_STATUSES);
 const SKELETON_ROWS = [1, 2, 3, 4, 5];
 
 type FilterKey = 'search' | 'profile' | 'status';
-
-// Un filtro aplicado (menos el buscador), para quitarlo con un toque
-interface ActiveFilter {
-  key: Exclude<FilterKey, 'search'>;
-  label: string;
-}
+// Los que se quitan desde el resumen de «Más filtros»
+const CHIP_FILTERS = new Set<string>(['profile', 'status']);
 
 // Usuarios del panel (RF-25, CU-13): la tabla con su estado y paginación en
 // la columna de 8 y el buscador y los filtros en la de 4. En el móvil, el
@@ -63,9 +52,11 @@ interface ActiveFilter {
 @Component({
   selector: 'app-admin-users-page',
   imports: [
+    FilterChips,
+    FiltersCard,
+    HeadingContent,
     IonButton,
     IonCard,
-    IonChip,
     IonIcon,
     IonSearchbar,
     IonSkeletonText,
@@ -80,8 +71,6 @@ export class AdminUsersPage {
   private readonly adminUsers = inject(AdminUsersService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly headingContent = inject(HeadingContentService);
-  private readonly heading = viewChild.required<TemplateRef<unknown>>('heading');
 
   // Parámetros de la URL (withComponentInputBinding)
   readonly search = input<string>();
@@ -132,34 +121,20 @@ export class AdminUsersPage {
     }
     return filters;
   });
-  // «Más filtros» abierto en el móvil (en escritorio se ven siempre)
-  readonly areFiltersOpen = signal(false);
   readonly errorMessage = computed(() => {
     const error = this.users.error();
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : null;
   });
 
-  protected readonly profileOptions = Object.entries(PROFILE_LABELS);
-  protected readonly statusOptions = Object.entries(STATUS_LABELS).map(([value, label]) => ({
-    value,
-    label,
-    tone: STATUS_TONES[value as AdminUserStatus],
-  }));
+  protected readonly profileOptions: FilterChipOption[] = Object.entries(PROFILE_LABELS).map(
+    ([value, label]) => ({ value, label }),
+  );
+  protected readonly statusOptions: FilterChipOption[] = Object.entries(STATUS_LABELS).map(
+    ([value, label]) => ({ value, label, tone: STATUS_TONES[value as AdminUserStatus] }),
+  );
   protected readonly skeletonRows = SKELETON_ROWS;
   protected readonly pageSize = PAGE_SIZE;
-  protected readonly filtersIcon = optionsOutline;
-  protected readonly toggleIcon = chevronDownOutline;
-  protected readonly removeIcon = closeOutline;
-
-  constructor() {
-    // La franja del título, con el buscador, en la cabecera del panel
-    effect(() => this.headingContent.show(this.heading()));
-    inject(DestroyRef).onDestroy(() => this.headingContent.clear(this.heading()));
-  }
-
-  toggleFilters(): void {
-    this.areFiltersOpen.update((isOpen) => !isOpen);
-  }
+  protected readonly emptyIcon = peopleOutline;
 
   // El buscador espera 300 ms (debounce) antes de avisar
   async handleSearch(event: CustomEvent<{ value?: string | null }>): Promise<void> {
@@ -169,6 +144,12 @@ export class AdminUsersPage {
   // Cambiar un filtro vuelve a la primera página sin tocar los demás
   async handleFilter(key: FilterKey, value: string | null | undefined): Promise<void> {
     await this.navigate({ [key]: value || null, offset: null });
+  }
+
+  async handleRemoveFilter(key: string): Promise<void> {
+    if (CHIP_FILTERS.has(key)) {
+      await this.handleFilter(key as FilterKey, null);
+    }
   }
 
   async handleOffset(offset: number): Promise<void> {
