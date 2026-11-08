@@ -85,7 +85,8 @@ describe('AdminCatalogsPage', () => {
 
     expect(list).toHaveBeenCalledWith('travel-preferences');
     expect(root.querySelector('.catalogs__create')).toBeNull();
-    expect(root.textContent).toContain('Música · Soft music');
+    const cells = [...root.querySelectorAll('.catalogs__row .catalogs__cell')];
+    expect(cells.map((cell) => cell.textContent?.trim())).toEqual(['Música', 'SEAT', 'Soft music']);
   });
 
   it('opens the legal documents editor in its own tab', async () => {

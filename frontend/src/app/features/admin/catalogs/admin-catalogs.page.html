@@ -37,7 +37,10 @@
     @if (isLegal()) {
       <app-legal-documents-editor />
     } @else {
-      <ion-card class="admin-list">
+      <ion-card class="admin-list admin-list--padded">
+        <div class="admin-list__head">
+          <h2 class="admin-list__title">{{ config().label }}</h2>
+        </div>
         @if (errorMessage(); as message) {
           <div class="notice notice--danger" role="alert">
             <span>
@@ -47,72 +50,106 @@
             <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
           </div>
         } @else if (items.isLoading() && !items.hasValue()) {
-          <ul class="catalogs__list" aria-busy="true" aria-label="Cargando el catálogo">
+          <div aria-busy="true" aria-label="Cargando el catálogo">
             @for (row of skeletonRows; track row) {
-              <li class="catalogs__row"><ion-skeleton-text [animated]="true" /></li>
+              <ion-skeleton-text [animated]="true" class="catalogs__skeleton-row" />
             }
-          </ul>
+          </div>
         } @else if (rows().length === 0) {
           <output class="admin-empty">
             <ion-icon [icon]="emptyIcon" aria-hidden="true" />
             <p class="admin-empty__title">Este catálogo aún está vacío</p>
           </output>
         } @else {
-          <ul class="catalogs__list">
-            @for (row of rows(); track row.item.key) {
-              <li class="catalogs__row" [class.catalogs__row--inactive]="!row.item.isActive">
-                @if (row.image) {
-                  <img class="catalogs__image" [src]="row.image" alt="" />
-                } @else if (row.swatch) {
-                  <span
-                    class="catalogs__swatch"
-                    [style.background]="row.swatch"
-                    aria-hidden="true"
-                  ></span>
+          <table class="admin-table catalogs__table" [attr.aria-busy]="items.isLoading()">
+            <thead>
+              <tr>
+                @for (column of config().columns; track column.label) {
+                  <th scope="col">{{ column.label }}</th>
                 }
-                <span class="catalogs__name">
-                  <span class="text-body">{{ row.item.name }}</span>
-                  @if (row.detail) {
-                    <span class="text-body-s admin-page__subtitle">{{ row.detail }}</span>
+                <th scope="col">Estado</th>
+                <th scope="col"><span class="visually-hidden">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of rows(); track row.item.key) {
+                <tr class="catalogs__row" [class.catalogs__row--inactive]="!row.item.isActive">
+                  @for (cell of row.cells; track cell.column.label) {
+                    <td
+                      class="catalogs__cell"
+                      [class.catalogs__cell--name]="cell.column.isName"
+                      [class.catalogs__cell--secondary]="cell.column.isSecondary"
+                    >
+                      @if (cell.image) {
+                        <img class="catalogs__image" [src]="cell.image" alt="" />
+                      }
+                      @if (cell.swatch) {
+                        <span
+                          class="catalogs__swatch"
+                          [style.background]="cell.swatch"
+                          aria-hidden="true"
+                        ></span>
+                      }
+                      <span class="catalogs__cell-text">{{ cell.text }}</span>
+                    </td>
                   }
-                </span>
-                <span [class]="row.item.isActive ? 'status status--accepted' : 'status'">
-                  {{ row.item.isActive ? 'Activo' : 'Desactivado' }}
-                </span>
-                <span class="catalogs__actions">
-                  <ion-button
-                    fill="clear"
-                    size="small"
-                    [disabled]="!row.canMoveUp || busyKey() !== null"
-                    [attr.aria-label]="'Subir ' + row.item.name"
-                    (click)="handleMove(row.item, 'up')"
-                  >
-                    <ion-icon slot="icon-only" [icon]="upIcon" aria-hidden="true" />
-                  </ion-button>
-                  <ion-button
-                    fill="clear"
-                    size="small"
-                    [disabled]="!row.canMoveDown || busyKey() !== null"
-                    [attr.aria-label]="'Bajar ' + row.item.name"
-                    (click)="handleMove(row.item, 'down')"
-                  >
-                    <ion-icon slot="icon-only" [icon]="downIcon" aria-hidden="true" />
-                  </ion-button>
-                  <ion-button fill="outline" size="small" (click)="handleEdit(row.item)"
-                    >Editar</ion-button
-                  >
-                  <ion-button
-                    fill="clear"
-                    size="small"
-                    [disabled]="busyKey() === row.item.key"
-                    (click)="handleToggle(row.item)"
-                  >
-                    {{ row.item.isActive ? 'Desactivar' : 'Activar' }}
-                  </ion-button>
-                </span>
-              </li>
-            }
-          </ul>
+                  <td class="catalogs__cell-status">
+                    <span [class]="row.item.isActive ? 'status status--accepted' : 'status'">
+                      {{ row.item.isActive ? 'Activo' : 'Desactivado' }}
+                    </span>
+                  </td>
+                  <td class="catalogs__cell-actions">
+                    <span class="catalogs__actions">
+                      <ion-button
+                        fill="clear"
+                        size="small"
+                        [disabled]="!row.canMoveUp || busyKey() !== null"
+                        [attr.aria-label]="'Subir ' + row.item.name"
+                        (click)="handleMove(row.item, 'up')"
+                      >
+                        <ion-icon slot="icon-only" [icon]="upIcon" aria-hidden="true" />
+                      </ion-button>
+                      <ion-button
+                        fill="clear"
+                        size="small"
+                        [disabled]="!row.canMoveDown || busyKey() !== null"
+                        [attr.aria-label]="'Bajar ' + row.item.name"
+                        (click)="handleMove(row.item, 'down')"
+                      >
+                        <ion-icon slot="icon-only" [icon]="downIcon" aria-hidden="true" />
+                      </ion-button>
+                      <ion-button
+                        fill="clear"
+                        size="small"
+                        title="Editar"
+                        [attr.aria-label]="'Editar ' + row.item.name"
+                        (click)="handleEdit(row.item)"
+                      >
+                        <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
+                      </ion-button>
+                      <ion-button
+                        fill="clear"
+                        size="small"
+                        [color]="row.item.isActive ? 'danger' : 'success'"
+                        [title]="row.item.isActive ? 'Desactivar' : 'Activar'"
+                        [attr.aria-label]="
+                          (row.item.isActive ? 'Desactivar ' : 'Activar ') + row.item.name
+                        "
+                        [disabled]="busyKey() === row.item.key"
+                        (click)="handleToggle(row.item)"
+                      >
+                        <ion-icon
+                          slot="icon-only"
+                          [icon]="row.item.isActive ? deactivateIcon : activateIcon"
+                          aria-hidden="true"
+                        />
+                      </ion-button>
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         }
       </ion-card>
     }

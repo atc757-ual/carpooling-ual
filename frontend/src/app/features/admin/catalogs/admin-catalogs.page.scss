@@ -61,40 +61,77 @@
   margin: var(--space-base);
 }
 
-.catalogs__list {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-// Imagen o muestra, nombre, estado y acciones; en el móvil las acciones
-// bajan a su línea
-.catalogs__row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-s) var(--space-base);
-  padding: var(--space-s) var(--space-base);
-  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
-
-  &:last-child {
-    border-bottom: 0;
-  }
+.catalogs__skeleton-row {
+  height: 1.5rem; // 24px
+  margin-block: var(--space-base);
 }
 
 // Desactivado: se sigue viendo, en gris
-.catalogs__row--inactive .catalogs__name {
+.catalogs__row--inactive .catalogs__cell {
   opacity: 0.6;
+}
+
+.catalogs__cell-text {
+  vertical-align: middle;
+}
+
+.catalogs__cell--name .catalogs__cell-text {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+.catalogs__cell-actions {
+  width: 1%; // Solo lo que ocupan sus iconos
+}
+
+// Móvil: los datos arriba y, en su línea, el estado y las acciones (::after
+// es el salto de línea entre unos y otros)
+@media (max-width: 767.98px) {
+  .catalogs__table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-inline: 0;
+
+    &::after {
+      content: '';
+      flex-basis: 100%;
+      order: 1;
+    }
+  }
+
+  .catalogs__cell--name {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .catalogs__cell--secondary {
+    display: none;
+  }
+
+  // Del color basta la muestra: el código, en el formulario
+  .catalogs__swatch + .catalogs__cell-text {
+    display: none;
+  }
+
+  .catalogs__cell-status {
+    order: 2;
+  }
+
+  .catalogs__cell-actions {
+    order: 2;
+    width: auto;
+    margin-inline-start: auto;
+  }
 }
 
 .catalogs__image,
 .catalogs__swatch {
-  flex: none;
+  display: inline-block;
   width: 2.25rem; // 36px
   height: 2.25rem;
   border-radius: var(--radius-full);
+  vertical-align: middle;
 }
 
 .catalogs__image {
@@ -102,19 +139,14 @@
 }
 
 .catalogs__swatch {
+  width: 1.25rem; // 20px
+  height: 1.25rem;
+  margin-inline-end: var(--space-xs);
   border: var(--border-width-s) solid var(--color-border-strong);
-}
-
-.catalogs__name {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-width: 10rem; // 160px
 }
 
 .catalogs__actions {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-xs);
+  justify-content: flex-end;
 }
