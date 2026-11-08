@@ -99,14 +99,20 @@ export class ReplaceSvgAvatarsWithImages1797600000000 implements MigrationInterf
     await queryRunner.query(`DELETE FROM avatars WHERE key = ANY($1)`, [
       SVG_KEYS,
     ]);
-    for (const { key, name, sortOrder, image } of readDefaultAvatars()) {
-      await queryRunner.query(
-        `INSERT INTO avatars (key, name, image, content_type, sort_order)
-         VALUES ($1, $2, $3, 'image/png', $4)
-         ON CONFLICT (key) DO NOTHING`,
-        [key, name, image, sortOrder],
-      );
-    }
+    const avatars = readDefaultAvatars();
+    await queryRunner.query(
+      `INSERT INTO avatars (key, name, image, content_type, sort_order)
+       SELECT key, name, image, 'image/png', sort_order
+         FROM unnest($1::varchar[], $2::varchar[], $3::bytea[], $4::smallint[])
+           AS avatar (key, name, image, sort_order)
+       ON CONFLICT (key) DO NOTHING`,
+      [
+        avatars.map(({ key }) => key),
+        avatars.map(({ name }) => name),
+        avatars.map(({ image }) => image),
+        avatars.map(({ sortOrder }) => sortOrder),
+      ],
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -116,12 +122,17 @@ export class ReplaceSvgAvatarsWithImages1797600000000 implements MigrationInterf
       [keys],
     );
     await queryRunner.query(`DELETE FROM avatars WHERE key = ANY($1)`, [keys]);
-    for (const [index, [key, name, shapes]] of SVG_AVATARS.entries()) {
-      await queryRunner.query(
-        `INSERT INTO avatars (key, name, svg, sort_order)
-         VALUES ($1, $2, $3, $4)`,
-        [key, name, `${SVG_OPEN}${shapes}</svg>`, index + 1],
-      );
-    }
+    await queryRunner.query(
+      `INSERT INTO avatars (key, name, svg, sort_order)
+       SELECT key, name, svg, sort_order
+         FROM unnest($1::varchar[], $2::varchar[], $3::text[], $4::smallint[])
+           AS avatar (key, name, svg, sort_order)`,
+      [
+        SVG_AVATARS.map(([key]) => key),
+        SVG_AVATARS.map(([, name]) => name),
+        SVG_AVATARS.map(([, , shapes]) => `${SVG_OPEN}${shapes}</svg>`),
+        SVG_AVATARS.map((_, index) => index + 1),
+      ],
+    );
   }
 }
