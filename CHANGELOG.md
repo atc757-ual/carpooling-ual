@@ -9,6 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- **Simulación:** una ejecución perdida o que no se puede guardar pasa a fallida en vez de quedarse en curso para siempre; «Ver resultados» solo aparece al terminar y el historial va en una card (#239).
 - **Frontend:** en Edge, los campos de contraseña ya no muestran dos ojos: se quita el botón propio del navegador (`::-ms-reveal`, y la ✕ de `::-ms-clear`) y queda solo el de la app (#236).
 - **Frontend:** en el móvil, el menú lateral del panel ya no queda debajo de la franja del título (se esconde con el menú abierto) ni repite el nombre de la app, que ya está en la cabecera (#233).
 - **Frontend:** el logotipo dice «Carpooling» (antes «Carpool») y el nombre completo es «Carpooling UAL» en todas partes (lectores de pantalla, panel de administración y textos), como el título de la web; la cabecera de las pantallas de detalle del móvil mide lo mismo que la de las secciones (la flecha de volver la estiraba 4 px); el número de avisos de la campana ya no se sale por arriba en escritorio; y en el chat el estado del viaje va encima de los botones de denunciar y llamar, para dejar más ancho al título (#220).
