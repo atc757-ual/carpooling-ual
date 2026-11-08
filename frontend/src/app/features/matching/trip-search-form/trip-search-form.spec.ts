@@ -152,6 +152,11 @@ describe('TripSearchForm', () => {
     customFixture.detectChanges();
     expect(customForm.form.controls.margin.value).toBe(SEARCH.margin);
 
+    // Another change of the user (same tolerance) keeps the remembered margin
+    user.set({ timeToleranceMin: 10 });
+    customFixture.detectChanges();
+    expect(customForm.form.controls.margin.value).toBe(SEARCH.margin);
+
     user.set({ timeToleranceMin: 5 });
     customFixture.detectChanges();
     expect(customForm.form.controls.margin.value).toBe(5);

@@ -26,6 +26,7 @@ const LEAD_MINUTES = 30;
 const MINUTE_STEP = 5;
 const LAST_TIME = '23:55';
 const DEFAULT_MARGIN = 20;
+const ALLOWED_MARGINS: ReadonlySet<number> = new Set(MARGINS);
 const MINUTES_PER_DAY = 24 * 60;
 
 export type TimeType = 'arrival' | 'departure';
@@ -93,6 +94,15 @@ export class TripSearchForm {
   readonly canStartOver = computed(
     () => this.showNewSearch() && this.searchState.search() !== null,
   );
+
+  // Un computed: solo avisa si cambia el número, no con cada cambio del usuario
+  // (editar el nombre no debe tocar el margen)
+  private readonly defaultMargin = computed(() => {
+    const userTolerance = this.auth.currentUser()?.timeToleranceMin;
+    return typeof userTolerance === 'number' && ALLOWED_MARGINS.has(userTolerance)
+      ? userTolerance
+      : DEFAULT_MARGIN;
+  });
 
   readonly form = inject(NonNullableFormBuilder).group({
     // La dirección de fuera del campus (origen al ir, destino al volver),
@@ -179,17 +189,6 @@ export class TripSearchForm {
   clear(): void {
     this.searchState.clear();
     this.fill(null);
-  }
-
-  private defaultMargin(): number {
-    const userTolerance = this.auth.currentUser()?.timeToleranceMin;
-    if (
-      typeof userTolerance === 'number' &&
-      (MARGINS as readonly number[]).includes(userTolerance)
-    ) {
-      return userTolerance;
-    }
-    return DEFAULT_MARGIN;
   }
 
   private fill(search: TripSearch | null): void {
