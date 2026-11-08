@@ -3,6 +3,7 @@ import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { TripSearch } from '../../../core/models/trip-search.model';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { TripSearchStateService } from '../trip-search-state.service';
 import {
@@ -79,6 +80,18 @@ describe('TripSearchForm', () => {
       margin: 20,
       seats: 1,
     });
+  });
+
+  it('uses the user preferred time tolerance if available', () => {
+    const auth = TestBed.inject(AuthService);
+    vi.spyOn(auth, 'currentUser').mockReturnValue({ timeToleranceMin: 10 } as never);
+    const customFixture = TestBed.createComponent(TripSearchForm);
+    const customForm = customFixture.componentInstance;
+    customFixture.detectChanges();
+
+    expect(customForm.form.getRawValue().margin).toBe(10);
+    customForm.clear();
+    expect(customForm.form.getRawValue().margin).toBe(10);
   });
 
   it('asks for the arrival time going to the campus and the departure time coming back', () => {

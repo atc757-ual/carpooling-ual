@@ -6,6 +6,7 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { LegalDocumentsService } from '../../../core/services/users/legal-documents.service';
+import { LegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { LegalUpdatePage } from './legal-update.page';
 
 describe('LegalUpdatePage', () => {
@@ -55,7 +56,7 @@ describe('LegalUpdatePage', () => {
     accept.mockResolvedValue(undefined);
   });
 
-  it('shows each pending document with what changed and its new text', async () => {
+  it('shows each pending document with what changed and a button to read full text', async () => {
     const root = await render();
 
     expect(getCurrent).toHaveBeenCalledWith('terms');
@@ -64,7 +65,21 @@ describe('LegalUpdatePage', () => {
     expect(section?.querySelector('.legal-changes')?.textContent).toContain(
       'Nuevas normas de convivencia.',
     );
-    expect(section?.querySelector('.legal h2')?.textContent).toBe('Nuevo');
+    const readFullBtn = section?.querySelector('.legal-update__read-full ion-button');
+    expect(readFullBtn).not.toBeNull();
+  });
+
+  it('opens legal modal when clicking read full button', async () => {
+    await render();
+    await fixture.componentInstance.handleReadFull('terms');
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        component: LegalModal,
+        componentProps: { document: 'terms' },
+        cssClass: 'legal-dialog',
+      }),
+    );
+    expect(present).toHaveBeenCalled();
   });
 
   it('accepts them all and goes back where the user was going', async () => {
@@ -100,6 +115,7 @@ describe('LegalUpdatePage', () => {
     expect(navigateRoot).toHaveBeenCalledWith('/auth/welcome');
 
     await fixture.componentInstance.handleDeleteAccount();
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ cssClass: 'info-dialog' }));
     expect(present).toHaveBeenCalled();
   });
 

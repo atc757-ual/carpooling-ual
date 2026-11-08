@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { IonButton, IonIcon, IonSelect, IonSelectOption } from '@ionic/angular';
 import { leafOutline, searchOutline } from 'ionicons/icons';
 import { SearchPlace, TripSearch } from '../../../core/models/trip-search.model';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { DatetimeField } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
@@ -80,6 +81,7 @@ export class TripSearchForm {
   private readonly router = inject(Router);
   private readonly searchState = inject(TripSearchStateService);
   private readonly places = inject(PlacesService);
+  private readonly auth = inject(AuthService);
 
   // Avisa de cada búsqueda (en Buscar, para cerrar el formulario aunque se
   // repita la misma)
@@ -101,7 +103,7 @@ export class TripSearchForm {
     isToCampus: [true],
     // Hoy, dentro de media hora
     date: [toIsoDate(new Date())],
-    margin: [DEFAULT_MARGIN],
+    margin: [this.defaultMargin()],
     // Hora de llegada al campus o, al volver, de salida del campus
     time: [getDefaultTime(new Date())],
     seats: [MIN_SEATS, [Validators.required, Validators.min(MIN_SEATS), Validators.max(MAX_SEATS)]],
@@ -161,12 +163,21 @@ export class TripSearchForm {
     this.fill(null);
   }
 
+  private defaultMargin(): number {
+    const userTolerance = this.auth.currentUser()?.timeToleranceMin;
+    if (typeof userTolerance === 'number' && (MARGINS as readonly number[]).includes(userTolerance)) {
+      return userTolerance;
+    }
+    return DEFAULT_MARGIN;
+  }
+
   private fill(search: TripSearch | null): void {
     if (!search) {
       this.form.reset();
       this.form.patchValue({
         date: toIsoDate(new Date()),
         time: getDefaultTime(new Date()),
+        margin: this.defaultMargin(),
       });
       return;
     }

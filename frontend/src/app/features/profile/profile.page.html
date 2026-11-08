@@ -106,63 +106,6 @@
           </ion-card-content>
         </ion-card>
 
-        <!-- Bloque: Configuración -->
-        <ion-card class="profile-card">
-          <ion-card-header class="profile-card__header">
-            <ion-card-title>{{ 'profile.settings' | transloco }}</ion-card-title>
-          </ion-card-header>
-          <ion-card-content class="profile-card__content">
-            <!-- Idioma -->
-            <div class="profile__setting-row">
-              <span class="profile__setting-text">
-                <span class="text-body">{{ 'profile.language' | transloco }}</span>
-                <span class="text-caption text-color-muted">{{
-                  'profile.languageHint' | transloco
-                }}</span>
-              </span>
-              <app-language-switch label="Idioma de la app" />
-            </div>
-
-            <!-- Tema: selector pastilla solo con iconos, sin outline y del mismo ancho que idioma -->
-            <div class="profile__setting-row">
-              <span class="profile__setting-text">
-                <span class="text-body">{{ 'profile.theme' | transloco }}</span>
-                <span class="text-caption text-color-muted">{{
-                  'profile.themeHint' | transloco
-                }}</span>
-              </span>
-              <fieldset class="theme-switch" aria-label="Tema de la app">
-                <button
-                  type="button"
-                  class="theme-switch__option"
-                  [class.theme-switch__option--active]="!isDarkMode()"
-                  [attr.aria-pressed]="!isDarkMode()"
-                  [attr.aria-label]="'profile.themeLight' | transloco"
-                  (click)="handleSetTheme(false)"
-                >
-                  <ion-icon class="icon-sun" [icon]="sunIcon" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  class="theme-switch__option"
-                  [class.theme-switch__option--active]="isDarkMode()"
-                  [attr.aria-pressed]="isDarkMode()"
-                  [attr.aria-label]="'profile.themeDark' | transloco"
-                  (click)="handleSetTheme(true)"
-                >
-                  <ion-icon class="icon-moon" [icon]="moonIcon" aria-hidden="true" />
-                </button>
-              </fieldset>
-            </div>
-
-            <!-- Notificaciones push en este dispositivo -->
-            <app-profile-push-setting />
-
-            <!-- Ubicación en este dispositivo (permiso del navegador o móvil) -->
-            <app-profile-device-location />
-          </ion-card-content>
-        </ion-card>
-
         <!-- Bloque: Cuenta -->
         <ion-card class="profile-card">
           <ion-card-header class="profile-card__header">
@@ -302,6 +245,63 @@
             </ion-card-content>
           </ion-card>
         }
+
+        <!-- Bloque: Configuración -->
+        <ion-card class="profile-card">
+          <ion-card-header class="profile-card__header">
+            <ion-card-title>{{ 'profile.settings' | transloco }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content class="profile-card__content">
+            <!-- Idioma -->
+            <div class="profile__setting-row">
+              <span class="profile__setting-text">
+                <span class="text-body">{{ 'profile.language' | transloco }}</span>
+                <span class="text-caption text-color-muted">{{
+                  'profile.languageHint' | transloco
+                }}</span>
+              </span>
+              <app-language-switch label="Idioma de la app" />
+            </div>
+
+            <!-- Tema: selector pastilla solo con iconos, sin outline y del mismo ancho que idioma -->
+            <div class="profile__setting-row">
+              <span class="profile__setting-text">
+                <span class="text-body">{{ 'profile.theme' | transloco }}</span>
+                <span class="text-caption text-color-muted">{{
+                  'profile.themeHint' | transloco
+                }}</span>
+              </span>
+              <fieldset class="theme-switch" aria-label="Tema de la app">
+                <button
+                  type="button"
+                  class="theme-switch__option"
+                  [class.theme-switch__option--active]="!isDarkMode()"
+                  [attr.aria-pressed]="!isDarkMode()"
+                  [attr.aria-label]="'profile.themeLight' | transloco"
+                  (click)="handleSetTheme(false)"
+                >
+                  <ion-icon class="icon-sun" [icon]="sunIcon" aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  class="theme-switch__option"
+                  [class.theme-switch__option--active]="isDarkMode()"
+                  [attr.aria-pressed]="isDarkMode()"
+                  [attr.aria-label]="'profile.themeDark' | transloco"
+                  (click)="handleSetTheme(true)"
+                >
+                  <ion-icon class="icon-moon" [icon]="moonIcon" aria-hidden="true" />
+                </button>
+              </fieldset>
+            </div>
+
+            <!-- Notificaciones push en este dispositivo -->
+            <app-profile-push-setting />
+
+            <!-- Ubicación en este dispositivo (permiso del navegador o móvil) -->
+            <app-profile-device-location />
+          </ion-card-content>
+        </ion-card>
 
         <!-- Bloque: Privacidad (ubicación, consentimientos y documentos legales) -->
         <ion-card class="profile-card">

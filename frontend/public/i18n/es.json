@@ -462,7 +462,8 @@
       "loading": "Cargando los documentos",
       "logout": "Cerrar sesión",
       "deleteAccount": "Eliminar mi cuenta",
-      "changes": "Qué ha cambiado"
+      "changes": "Qué ha cambiado",
+      "readFull": "Leer texto legal completo"
     }
   },
   "errors": {
