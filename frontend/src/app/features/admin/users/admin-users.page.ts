@@ -32,8 +32,8 @@ import { AdminUsersService } from '../../../core/services/admin/admin-users.serv
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { Pagination } from '../../../shared/components/ui/pagination/pagination';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { initialsOf } from './admin-user-detail-labels';
 import {
-  initials,
   PROFILE_LABELS,
   rolesLabel,
   STATUS_LABELS,
@@ -111,7 +111,7 @@ export class AdminUsersPage {
       row,
       roles: rolesLabel(row),
       chips: statusChips(row),
-      initials: initials(row.name),
+      initials: initialsOf(row.name),
     })),
   );
   readonly total = computed(() => this.users.value()?.total ?? 0);

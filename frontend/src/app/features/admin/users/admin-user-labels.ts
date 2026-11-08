@@ -50,17 +50,6 @@ export function rolesLabel(row: Pick<AdminUserRow, 'profiles'>): string {
     : ordered.map((p) => PROFILE_LABELS[p]).join(' · ');
 }
 
-// «LC» para el avatar de la fila: la primera letra de las dos primeras
-// palabras del nombre (una sola si el nombre tiene una palabra)
-export function initials(name: string): string {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word.charAt(0).toLocaleUpperCase('es-ES'))
-    .join('');
-}
-
 // La última fecha de fin entre los dos papeles
 function suspensionEnd(row: Pick<AdminUserRow, 'suspensions'>): Date | null {
   const ends = [row.suspensions?.driver, row.suspensions?.passenger]
