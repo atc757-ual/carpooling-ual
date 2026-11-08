@@ -94,6 +94,14 @@
       </nav>
     </div>
   </div>
+  <!-- Franja fija de la sección (título, descripción y, si la tiene, su
+       buscador): la pone la pantalla con HeadingContentService, como en la app.
+       Va en la cabecera, fuera de lo que se desplaza -->
+  @if (headingContent.content(); as content) {
+    <div class="admin-heading">
+      <ng-container [ngTemplateOutlet]="content" />
+    </div>
+  }
 </ion-header>
 
 <ion-content>

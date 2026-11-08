@@ -26,7 +26,7 @@ export const STATUS_LABELS: Record<AdminUserStatus, string> = {
   deleted: 'Cuenta eliminada',
 };
 
-const STATUS_TONES: Record<AdminUserStatus, ChipTone> = {
+export const STATUS_TONES: Record<AdminUserStatus, ChipTone> = {
   active: 'success',
   email_unverified: 'info',
   open_incidents: 'warning',
@@ -48,6 +48,17 @@ export function rolesLabel(row: Pick<AdminUserRow, 'profiles'>): string {
   return ordered.length === 0
     ? 'Sin perfil activo'
     : ordered.map((p) => PROFILE_LABELS[p]).join(' · ');
+}
+
+// «LC» para el avatar de la fila: la primera letra de las dos primeras
+// palabras del nombre (una sola si el nombre tiene una palabra)
+export function initials(name: string): string {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toLocaleUpperCase('es-ES'))
+    .join('');
 }
 
 // La última fecha de fin entre los dos papeles

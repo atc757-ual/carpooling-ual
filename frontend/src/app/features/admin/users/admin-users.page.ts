@@ -2,18 +2,25 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
+  effect,
   inject,
   input,
   resource,
+  signal,
+  TemplateRef,
+  viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   IonButton,
+  IonCard,
+  IonChip,
+  IonIcon,
   IonSearchbar,
-  IonSelect,
-  IonSelectOption,
   IonSkeletonText,
 } from '@ionic/angular';
+import { chevronDownOutline, closeOutline, optionsOutline } from 'ionicons/icons';
 import {
   ADMIN_USER_STATUSES,
   AdminUserQuery,
@@ -22,9 +29,17 @@ import {
 import { ApiError } from '../../../core/models/api-error.model';
 import { Profile } from '../../../core/models/user.model';
 import { AdminUsersService } from '../../../core/services/admin/admin-users.service';
-import { formatCount, Pagination } from '../../../shared/components/ui/pagination/pagination';
+import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
+import { Pagination } from '../../../shared/components/ui/pagination/pagination';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { PROFILE_LABELS, rolesLabel, STATUS_LABELS, statusChips } from './admin-user-labels';
+import {
+  initials,
+  PROFILE_LABELS,
+  rolesLabel,
+  STATUS_LABELS,
+  STATUS_TONES,
+  statusChips,
+} from './admin-user-labels';
 
 export const PAGE_SIZE = 20;
 const PROFILES = new Set<string>(['driver', 'passenger', 'admin']);
@@ -34,16 +49,25 @@ const SKELETON_ROWS = [1, 2, 3, 4, 5];
 
 type FilterKey = 'search' | 'profile' | 'status';
 
-// Usuarios del panel (RF-25, CU-13): buscador, filtros, tabla con su estado
-// y paginación. Los filtros y la página van en la URL (?search=&profile=…),
+// Un filtro aplicado (menos el buscador), para quitarlo con un toque
+interface ActiveFilter {
+  key: Exclude<FilterKey, 'search'>;
+  label: string;
+}
+
+// Usuarios del panel (RF-25, CU-13): la tabla con su estado y paginación en
+// la columna de 8 y el buscador y los filtros en la de 4. En el móvil, el
+// buscador arriba y el resto de filtros tras «Más filtros», y cada fila como
+// una tarjeta. Los filtros y la página van en la URL (?search=&profile=…),
 // así se conservan al volver del detalle
 @Component({
   selector: 'app-admin-users-page',
   imports: [
     IonButton,
+    IonCard,
+    IonChip,
+    IonIcon,
     IonSearchbar,
-    IonSelect,
-    IonSelectOption,
     IonSkeletonText,
     Pagination,
     RouterLink,
@@ -56,6 +80,8 @@ export class AdminUsersPage {
   private readonly adminUsers = inject(AdminUsersService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly headingContent = inject(HeadingContentService);
+  private readonly heading = viewChild.required<TemplateRef<unknown>>('heading');
 
   // Parámetros de la URL (withComponentInputBinding)
   readonly search = input<string>();
@@ -85,23 +111,55 @@ export class AdminUsersPage {
       row,
       roles: rolesLabel(row),
       chips: statusChips(row),
+      initials: initials(row.name),
     })),
   );
   readonly total = computed(() => this.users.value()?.total ?? 0);
-  readonly totalLabel = computed(() => formatCount(this.total()));
   readonly hasFilters = computed(() => {
     const { search, profile, status } = this.query();
     return Boolean(search || profile || status);
   });
+  // Perfil y estado aplicados, para el resumen del móvil con «Más filtros»
+  // cerrado y para su número en el botón
+  readonly activeFilters = computed<ActiveFilter[]>(() => {
+    const { profile, status } = this.query();
+    const filters: ActiveFilter[] = [];
+    if (profile) {
+      filters.push({ key: 'profile', label: PROFILE_LABELS[profile] });
+    }
+    if (status) {
+      filters.push({ key: 'status', label: STATUS_LABELS[status] });
+    }
+    return filters;
+  });
+  // «Más filtros» abierto en el móvil (en escritorio se ven siempre)
+  readonly areFiltersOpen = signal(false);
   readonly errorMessage = computed(() => {
     const error = this.users.error();
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : null;
   });
 
   protected readonly profileOptions = Object.entries(PROFILE_LABELS);
-  protected readonly statusOptions = Object.entries(STATUS_LABELS);
+  protected readonly statusOptions = Object.entries(STATUS_LABELS).map(([value, label]) => ({
+    value,
+    label,
+    tone: STATUS_TONES[value as AdminUserStatus],
+  }));
   protected readonly skeletonRows = SKELETON_ROWS;
   protected readonly pageSize = PAGE_SIZE;
+  protected readonly filtersIcon = optionsOutline;
+  protected readonly toggleIcon = chevronDownOutline;
+  protected readonly removeIcon = closeOutline;
+
+  constructor() {
+    // La franja del título, con el buscador, en la cabecera del panel
+    effect(() => this.headingContent.show(this.heading()));
+    inject(DestroyRef).onDestroy(() => this.headingContent.clear(this.heading()));
+  }
+
+  toggleFilters(): void {
+    this.areFiltersOpen.update((isOpen) => !isOpen);
+  }
 
   // El buscador espera 300 ms (debounce) antes de avisar
   async handleSearch(event: CustomEvent<{ value?: string | null }>): Promise<void> {

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, TemplateRef, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { NavController, provideIonicAngular } from '@ionic/angular';
@@ -6,12 +6,22 @@ import { AdminIncidentsService } from '../../../../core/services/admin/admin-inc
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { AppContextService } from '../../../../core/services/ui/app-context.service';
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
+import { HeadingContentService } from '../../../../core/services/ui/heading-content.service';
 import { ADMIN_SECTIONS } from '../../../../features/admin/admin-sections';
 import { AdminLayout } from './admin-layout';
 
 // Una sección cualquiera: aquí solo cuenta el marco del panel
 @Component({ selector: 'app-section-stub', template: '' })
 class SectionStub {}
+
+// La franja que una sección pone en la cabecera
+@Component({
+  selector: 'app-heading-stub',
+  template: '<ng-template #heading><h1>Usuarios</h1></ng-template>',
+})
+class HeadingStub {
+  readonly heading = viewChild.required<TemplateRef<unknown>>('heading');
+}
 
 describe('AdminLayout', () => {
   let fixture: ComponentFixture<AdminLayout>;
@@ -64,6 +74,21 @@ describe('AdminLayout', () => {
   function mobileLinks(): HTMLAnchorElement[] {
     return Array.from(element().querySelectorAll('.admin-mobile-nav .admin-nav__link'));
   }
+
+  it('shows the title strip of the section inside the header while it is set', () => {
+    const stub = TestBed.createComponent(HeadingStub);
+    stub.detectChanges();
+    const heading = TestBed.inject(HeadingContentService);
+    expect(element().querySelector('.admin-heading')).toBeNull();
+
+    heading.show(stub.componentInstance.heading());
+    fixture.detectChanges();
+    expect(element().querySelector('ion-header .admin-heading h1')?.textContent).toBe('Usuarios');
+
+    heading.clear();
+    fixture.detectChanges();
+    expect(element().querySelector('.admin-heading')).toBeNull();
+  });
 
   it('shows the brand, the admin account and the six sections in order', () => {
     expect(

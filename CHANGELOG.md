@@ -18,6 +18,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Frontend:** Usuarios del panel de administración en dos columnas en escritorio: la lista en la de 8 (avatar con las iniciales y cabecera de la tabla en el color del panel, fija al bajar) y una tarjeta «Filtros» en la de 4 con el perfil y el estado como chips. En el móvil, «Más filtros» despliega los filtros (cerrado, lo aplicado se quita con un toque) y cada usuario es una tarjeta. La franja del título (título, descripción y buscador) va en la cabecera del panel con `HeadingContentService`, como en la app; el panel pasa al fondo gris de la app; sale la columna de viajes; y los chips «Correo sin verificar» recuperan su color (#232).
 - **Frontend:** el panel de administración usa un menú lateral debajo de la cabecera en móvil (marca arriba y cuenta al pie); en escritorio conserva la navegación superior, centrada, con la fila de marca y cuenta de 76 px (#230).
 - **Backend:** Lucía incluye perfil de pasajero en los datos de prueba (`dev-seed.sql`), alineándola con la regla de que todo usuario nace con perfil de pasajero (#226).
 - **Frontend:** en el móvil, la franja con el título de las listas largas (Buscar, Tus viajes, Mensajes y Notificaciones) se esconde al bajar y vuelve al subir o al llegar arriba; en el chat y en escritorio sigue fija (#225).

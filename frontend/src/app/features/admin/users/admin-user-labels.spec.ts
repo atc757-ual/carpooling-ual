@@ -1,5 +1,5 @@
 import { AdminUserRow } from '../../../core/models/admin-user.model';
-import { rolesLabel, statusChips } from './admin-user-labels';
+import { initials, rolesLabel, statusChips } from './admin-user-labels';
 
 function row(overrides: Partial<AdminUserRow> = {}): AdminUserRow {
   return {
@@ -21,6 +21,11 @@ function row(overrides: Partial<AdminUserRow> = {}): AdminUserRow {
 }
 
 describe('admin user labels', () => {
+  it('takes the initials of the first two words of the name', () => {
+    expect(initials('Lucía Cortés Martín')).toBe('LC');
+    expect(initials('  álvaro ')).toBe('Á');
+  });
+
   it('lists the active profiles in a fixed order', () => {
     expect(rolesLabel(row())).toBe('Conductor · Pasajero');
     expect(
