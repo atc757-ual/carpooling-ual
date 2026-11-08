@@ -136,7 +136,7 @@ export class TripsService {
   // estimada). La ve quien puede ver el viaje
   async getRoute(tripId: string): Promise<TripRouteView> {
     const { trip } = await this.getById(tripId);
-    const route = await this.tripRoutes.getForTrip(tripId);
+    const route = await this.tripRoutes.getForTrip(trip);
     return { trip, route };
   }
 

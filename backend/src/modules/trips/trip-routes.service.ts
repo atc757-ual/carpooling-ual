@@ -3,10 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import type { Point } from 'typeorm';
 import { TripRoute } from './entities/trip-route.entity';
-import { RouteNotFoundError } from './errors/route-not-found.error';
+import type { Trip } from './entities/trip.entity';
 import { OsrmClient } from './osrm.client';
 import { estimateRoute } from './route-plan';
 import type { RoutePlan } from './route-plan';
+
+const ESTIMATE_RETRY_MS = 5 * 60_000;
 
 // Rutas de los viajes (RF-12). Se calculan con OSRM; si no responde, se
 // estiman (plan B del análisis de riesgos, cap. 13): publicar un viaje nunca
@@ -64,11 +66,30 @@ export class TripRoutesService {
     await manager.save(manager.create(TripRoute, { tripId, ...plan }));
   }
 
-  async getForTrip(tripId: string): Promise<TripRoute> {
-    const route = await this.routesRepository.findOneBy({ tripId });
-    if (route === null) {
-      throw new RouteNotFoundError(tripId);
+  // La ruta del viaje. Si falta o es estimada (OSRM no respondió al
+  // publicar), se vuelve a pedir a OSRM y se guarda; si sigue sin responder,
+  // se guarda (o se mantiene) la estimada. Una estimada se reintenta como mucho
+  // cada 5 minutos, para no esperar a OSRM en cada consulta mientras esté caído
+  async getForTrip(
+    trip: Pick<Trip, 'id' | 'origin' | 'destination'>,
+    now = new Date(),
+  ): Promise<TripRoute> {
+    const saved = await this.routesRepository.findOneBy({ tripId: trip.id });
+    if (saved !== null && !isRetryDue(saved, now)) {
+      return saved;
     }
-    return route;
+    const plan = await this.plan(trip.origin, trip.destination);
+    await this.routesRepository.upsert({ tripId: trip.id, ...plan }, [
+      'tripId',
+    ]);
+    return this.routesRepository.findOneByOrFail({ tripId: trip.id });
   }
+}
+
+// Solo las estimadas, y pasado el plazo desde el último intento
+function isRetryDue(route: TripRoute, now: Date): boolean {
+  return (
+    route.source === 'estimated' &&
+    now.getTime() - route.updatedAt.getTime() >= ESTIMATE_RETRY_MS
+  );
 }

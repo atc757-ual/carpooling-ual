@@ -33,3 +33,82 @@ describe('TripRoutesService.planDurationVia', () => {
     );
   });
 });
+
+describe('TripRoutesService.getForTrip', () => {
+  const NOW = new Date('2026-11-08T10:00:00.000Z');
+  const TRIP = { id: 't1', origin: ORIGIN, destination: CAMPUS };
+  const OSRM_PLAN = {
+    distanceKm: 18.4,
+    durationMin: 21,
+    geometry: {
+      type: 'LineString' as const,
+      coordinates: [ORIGIN.coordinates, STOP.coordinates, CAMPUS.coordinates],
+    },
+    source: 'osrm' as const,
+  };
+  const route = jest.fn();
+  const findOneBy = jest.fn();
+  const findOneByOrFail = jest.fn();
+  const upsert = jest.fn();
+  const service = new TripRoutesService(
+    { findOneBy, findOneByOrFail, upsert } as unknown as Repository<TripRoute>,
+    { route } as unknown as OsrmClient,
+  );
+
+  // Una ruta guardada hace unos minutos
+  function savedRoute(source: 'osrm' | 'estimated', minutesAgo: number) {
+    return {
+      tripId: 't1',
+      ...estimateRoute(ORIGIN, CAMPUS),
+      source,
+      updatedAt: new Date(NOW.getTime() - minutesAgo * 60_000),
+    } as TripRoute;
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    findOneByOrFail.mockResolvedValue({ tripId: 't1', ...OSRM_PLAN });
+  });
+
+  it('returns a road route as it is, without asking OSRM', async () => {
+    const saved = savedRoute('osrm', 600);
+    findOneBy.mockResolvedValue(saved);
+
+    expect(await service.getForTrip(TRIP, NOW)).toBe(saved);
+    expect(route).not.toHaveBeenCalled();
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it('keeps a recent estimate without asking OSRM again', async () => {
+    const saved = savedRoute('estimated', 4);
+    findOneBy.mockResolvedValue(saved);
+
+    expect(await service.getForTrip(TRIP, NOW)).toBe(saved);
+    expect(route).not.toHaveBeenCalled();
+  });
+
+  it('replaces an old estimate with the road route', async () => {
+    findOneBy.mockResolvedValue(savedRoute('estimated', 5));
+    route.mockResolvedValue(OSRM_PLAN);
+
+    const result = await service.getForTrip(TRIP, NOW);
+
+    expect(route).toHaveBeenCalledWith(ORIGIN, CAMPUS);
+    expect(upsert).toHaveBeenCalledWith({ tripId: 't1', ...OSRM_PLAN }, [
+      'tripId',
+    ]);
+    expect(result.source).toBe('osrm');
+  });
+
+  it('calculates a missing route, estimated if OSRM is down', async () => {
+    findOneBy.mockResolvedValue(null);
+    route.mockRejectedValue(new OsrmUnavailableError('timeout'));
+
+    await service.getForTrip(TRIP, NOW);
+
+    expect(upsert).toHaveBeenCalledWith(
+      { tripId: 't1', ...estimateRoute(ORIGIN, CAMPUS) },
+      ['tripId'],
+    );
+  });
+});
