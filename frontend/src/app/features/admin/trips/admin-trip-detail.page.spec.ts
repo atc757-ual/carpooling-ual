@@ -277,6 +277,19 @@ describe('AdminTripDetailPage', () => {
     );
   });
 
+  it('says so when the route arrives without a line to draw', async () => {
+    getRoute.mockResolvedValue({
+      ...ROUTE,
+      geometry: { type: 'LineString', coordinates: [[-2.6132, 36.7642]] },
+    });
+    const root = await render();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(root.querySelector('app-trip-route-map')).toBeNull();
+    expect(root.textContent).toContain('No hemos podido cargar la ruta.');
+  });
+
   it('keeps the rest of the trip when the route fails', async () => {
     getRoute.mockRejectedValue(new ApiError('ROUTE_NOT_FOUND', 404));
     const root = await render();

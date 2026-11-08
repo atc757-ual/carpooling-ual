@@ -133,14 +133,14 @@ export class AdminTripDetailPage {
     }
     const route = this.routeData.value();
     const points = route.geometry.coordinates;
-    if (points.length < 2) {
+    const trip = this.trip();
+    if (trip === null || points.length < 2) {
       return null;
     }
-    const trip = this.trip();
-    const origin: RoutePoint = { coordinates: points[0], label: trip?.origin ?? 'Salida' };
+    const origin: RoutePoint = { coordinates: points[0], label: trip.origin };
     const destination: RoutePoint = {
       coordinates: points[points.length - 1],
-      label: trip?.destination ?? 'Destino',
+      label: trip.destination,
     };
     return {
       route,

@@ -77,7 +77,8 @@
               <span class="status status--pending">Ruta estimada</span>
             }
           </p>
-        } @else if (routeData.error()) {
+        } @else if (routeData.error() || routeData.hasValue()) {
+          <!-- Falló, o llegó sin trazado (menos de dos puntos) -->
           <p class="text-body-s admin-detail__muted">No hemos podido cargar la ruta.</p>
         } @else {
           <ion-skeleton-text
