@@ -58,6 +58,16 @@ describe('AdminCatalogsService', () => {
     await expect(moved).resolves.toBeUndefined();
   });
 
+  it('replaces the image of an avatar as multipart', async () => {
+    const image = new File([new Uint8Array([1, 2, 3])], 'buho.png', { type: 'image/png' });
+    const replaced = catalogs.replaceAvatarImage('buho', image);
+    const request = http.expectOne('/api/admin/catalogs/avatars/buho/image');
+    expect(request.request.method).toBe('PUT');
+    expect((request.request.body as FormData).get('image')).toBe(image);
+    request.flush({ id: 'buho' });
+    await expect(replaced).resolves.toBeUndefined();
+  });
+
   it('uploads an avatar as multipart and turns errors into ApiError', async () => {
     const image = new File([new Uint8Array([1, 2, 3])], 'buho.png', { type: 'image/png' });
     const uploaded = catalogs.uploadAvatar('Búho', image);

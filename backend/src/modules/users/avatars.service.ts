@@ -46,6 +46,17 @@ export class AvatarsService extends CatalogItemsService<Avatar> {
     return this.create(adminId, { name, image, contentType, svg: null });
   }
 
+  // Cambia la imagen de un avatar (con su evento). Quien lo tiene elegido ve
+  // la nueva. Lanza InvalidAvatarImageError o CatalogItemNotFoundError
+  async replaceImage(
+    adminId: string,
+    key: string,
+    image: Buffer,
+  ): Promise<Avatar> {
+    const contentType = checkAvatarImage(image);
+    return this.update(adminId, key, { image, contentType, svg: null });
+  }
+
   // La imagen de un avatar subido, activo o no (quien ya lo tenía lo sigue
   // viendo). AvatarNotFoundError si no existe o es un SVG
   async getImage(key: string): Promise<AvatarImage> {

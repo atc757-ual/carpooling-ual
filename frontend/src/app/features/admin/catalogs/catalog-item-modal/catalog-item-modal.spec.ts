@@ -113,6 +113,14 @@ describe('CatalogItemModal', () => {
     expect(action).toHaveBeenCalledWith({ name: 'Búho' }, image);
   });
 
+  it('keeps the current image when editing without choosing another', async () => {
+    const modal = render({ fields: ['name'], withImage: true, currentImage: '/a.png' });
+    modal.handleInput('name', 'Búho');
+    expect(modal.isValid()).toBe(true);
+    await modal.handleConfirm();
+    expect(action).toHaveBeenCalledWith({ name: 'Búho' }, null);
+  });
+
   describe('choosing the image', () => {
     function choose(modal: CatalogItemModal, image: File | null): void {
       modal.handleImage({ target: { files: image ? [image] : [] } } as unknown as Event);

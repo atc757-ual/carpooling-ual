@@ -66,6 +66,12 @@
   margin-block: var(--space-base);
 }
 
+// Filas compactas: la altura la dan los botones de iconos. El encabezado
+// conserva su padding y el horizontal alinea cada columna con él
+.catalogs__table td {
+  padding-block: 0;
+}
+
 // Desactivado: se sigue viendo, en gris
 .catalogs__row--inactive .catalogs__cell {
   opacity: 0.6;
@@ -84,20 +90,19 @@
   width: 1%; // Solo lo que ocupan sus iconos
 }
 
-// Móvil: los datos arriba y, en su línea, el estado y las acciones (::after
-// es el salto de línea entre unos y otros)
+// Móvil: cada elemento en una línea, con sus acciones a la derecha. «Activo»
+// es lo normal y no se muestra; «Desactivado» sí
 @media (max-width: 767.98px) {
   .catalogs__table tbody tr {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    padding-block: var(--space-xs);
     padding-inline: 0;
+  }
 
-    &::after {
-      content: '';
-      flex-basis: 100%;
-      order: 1;
-    }
+  .catalogs__cell-status--active {
+    display: none;
   }
 
   .catalogs__cell--name {
@@ -114,12 +119,7 @@
     display: none;
   }
 
-  .catalogs__cell-status {
-    order: 2;
-  }
-
   .catalogs__cell-actions {
-    order: 2;
     width: auto;
     margin-inline-start: auto;
   }

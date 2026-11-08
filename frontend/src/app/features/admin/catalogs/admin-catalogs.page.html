@@ -72,7 +72,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of rows(); track row.item.key) {
+              @for (row of pageRows(); track row.item.key) {
                 <tr class="catalogs__row" [class.catalogs__row--inactive]="!row.item.isActive">
                   @for (cell of row.cells; track cell.column.label) {
                     <td
@@ -93,7 +93,10 @@
                       <span class="catalogs__cell-text">{{ cell.text }}</span>
                     </td>
                   }
-                  <td class="catalogs__cell-status">
+                  <td
+                    class="catalogs__cell-status"
+                    [class.catalogs__cell-status--active]="row.item.isActive"
+                  >
                     <span [class]="row.item.isActive ? 'status status--accepted' : 'status'">
                       {{ row.item.isActive ? 'Activo' : 'Desactivado' }}
                     </span>
@@ -150,6 +153,15 @@
               }
             </tbody>
           </table>
+          @if (rows().length > pageSize) {
+            <app-pagination
+              class="admin-list__pagination"
+              [offset]="offset()"
+              [limit]="pageSize"
+              [total]="rows().length"
+              (offsetChange)="offset.set($event)"
+            />
+          }
         }
       </ion-card>
     }

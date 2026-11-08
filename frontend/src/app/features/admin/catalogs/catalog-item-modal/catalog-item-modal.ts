@@ -25,6 +25,8 @@ export interface CatalogItemModalOptions {
   initial?: AdminCatalogChanges;
   // Pide además una imagen (alta de un avatar)
   withImage?: boolean;
+  // La imagen que ya tiene (al editar): cambiarla es opcional
+  currentImage?: string | null;
   // Guarda; si falla, el error se ve en la ventana y no se cierra
   action: (changes: AdminCatalogChanges, image: File | null) => Promise<void>;
 }
@@ -49,6 +51,7 @@ export class CatalogItemModal implements OnInit {
   @Input({ required: true }) fields!: readonly CatalogField[];
   @Input() initial: AdminCatalogChanges = {};
   @Input() withImage = false;
+  @Input() currentImage: string | null = null;
   @Input({ required: true }) action!: CatalogItemModalOptions['action'];
 
   readonly values = signal<Partial<Record<CatalogField, string>>>({});
@@ -69,7 +72,8 @@ export class CatalogItemModal implements OnInit {
       .filter((field) => this.fields.includes(field))
       .every((field) => HEX_COLOR.test(values[field] ?? ''));
     const located = !this.fields.includes('location') || this.point() !== null;
-    return filled && colors && located && (!this.withImage || this.image() !== null);
+    const hasImage = !this.withImage || this.image() !== null || this.currentImage !== null;
+    return filled && colors && located && hasImage;
   });
 
   protected readonly labels = FIELD_LABELS;
