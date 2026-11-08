@@ -85,6 +85,11 @@ describe('AdminLayout', () => {
     fixture.detectChanges();
     expect(element().querySelector('ion-header .admin-heading h1')?.textContent).toBe('Usuarios');
 
+    // Con el menú del móvil abierto, la franja se esconde para no quedar encima
+    element().querySelector<HTMLButtonElement>('.admin-mobile-header__menu-button')?.click();
+    fixture.detectChanges();
+    expect(element().querySelector('.admin-heading')?.classList).toContain('ion-hide-md-down');
+
     heading.clear();
     fixture.detectChanges();
     expect(element().querySelector('.admin-heading')).toBeNull();

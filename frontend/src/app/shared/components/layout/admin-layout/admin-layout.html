@@ -96,9 +96,10 @@
   </div>
   <!-- Franja fija de la sección (título, descripción y, si la tiene, su
        buscador): la pone la pantalla con HeadingContentService, como en la app.
-       Va en la cabecera, fuera de lo que se desplaza -->
+       Va en la cabecera, fuera de lo que se desplaza; con el menú del móvil
+       abierto se esconde, para no quedar encima de él -->
   @if (headingContent.content(); as content) {
-    <div class="admin-heading">
+    <div class="admin-heading" [class.ion-hide-md-down]="mobileMenuOpen()">
       <ng-container [ngTemplateOutlet]="content" />
     </div>
   }
