@@ -8,20 +8,36 @@ import {
   viewChild,
 } from '@angular/core';
 import type * as Leaflet from 'leaflet';
-import { TripRoute } from '../../../core/models/trip-route.model';
+import { TripRoute } from '../../../../core/models/trip-route.model';
 
 const TILES_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TILES_ATTRIBUTION = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 const MARKER_SIZE = 28;
 
-// Mapa de la ruta del conductor y del punto de recogida del pasajero
+// Un punto del mapa: GeoJSON ([longitud, latitud]) y su nombre
+export interface RoutePoint {
+  coordinates: [number, number];
+  label: string;
+}
+
+interface RouteMarker {
+  point: RoutePoint;
+  letter: string;
+  modifier: string;
+}
+
+// Mapa de la ruta del conductor y, si se indica, del punto de recogida del
+// pasajero (en el panel, sin recogida). El alto lo fija quien lo usa con
+// --trip-route-map-height
 @Component({
   selector: 'app-trip-route-map',
   template: `
     <div #map class="trip-route-map__canvas" role="img" [attr.aria-label]="label()"></div>
     <p class="trip-route-map__legend text-caption text-color-muted" aria-hidden="true">
       <span class="trip-route-map__legend-item"><b>S</b> Salida</span>
-      <span class="trip-route-map__legend-item"><b>R</b> Recogida</span>
+      @if (pickup()) {
+        <span class="trip-route-map__legend-item"><b>R</b> Recogida</span>
+      }
       <span class="trip-route-map__legend-item"><b>D</b> Destino</span>
     </p>
   `,
@@ -29,14 +45,15 @@ const MARKER_SIZE = 28;
 })
 export class TripRouteMap implements OnDestroy {
   readonly route = input.required<TripRoute>();
-  readonly origin = input.required<{ coordinates: [number, number]; label: string }>();
-  readonly pickup = input.required<{ coordinates: [number, number]; label: string }>();
-  readonly destination = input.required<{ coordinates: [number, number]; label: string }>();
+  readonly origin = input.required<RoutePoint>();
+  readonly pickup = input<RoutePoint | null>(null);
+  readonly destination = input.required<RoutePoint>();
 
-  protected readonly label = computed(
-    () =>
-      `Ruta del conductor: ${this.origin().label} a ${this.destination().label}; recogida en ${this.pickup().label}`,
-  );
+  protected readonly label = computed(() => {
+    const route = `Ruta del conductor: ${this.origin().label} a ${this.destination().label}`;
+    const pickup = this.pickup();
+    return pickup ? `${route}; recogida en ${pickup.label}` : route;
+  });
   private readonly mapElement = viewChild<ElementRef<HTMLElement>>('map');
   private map: Leaflet.Map | null = null;
   private resizeObserver: ResizeObserver | null = null;
@@ -45,11 +62,9 @@ export class TripRouteMap implements OnDestroy {
     effect(() => {
       const element = this.mapElement()?.nativeElement;
       const route = this.route();
-      const origin = this.origin();
-      const pickup = this.pickup();
-      const destination = this.destination();
+      const markers = this.markers();
       if (element && !this.map) {
-        void this.createMap(element, route, origin, pickup, destination);
+        void this.createMap(element, route, markers);
       }
     });
   }
@@ -59,12 +74,22 @@ export class TripRouteMap implements OnDestroy {
     this.map?.remove();
   }
 
+  // Salida, recogida (si la hay) y destino, con su letra y su color
+  private markers(): RouteMarker[] {
+    const pickup = this.pickup();
+    return [
+      { point: this.origin(), letter: 'S', modifier: 'trip-route-map__marker--origin' },
+      ...(pickup
+        ? [{ point: pickup, letter: 'R', modifier: 'trip-route-map__marker--pickup' }]
+        : []),
+      { point: this.destination(), letter: 'D', modifier: 'trip-route-map__marker--destination' },
+    ];
+  }
+
   private async createMap(
     element: HTMLElement,
     route: TripRoute,
-    origin: { coordinates: [number, number]; label: string },
-    pickup: { coordinates: [number, number]; label: string },
-    destination: { coordinates: [number, number]; label: string },
+    markers: RouteMarker[],
   ): Promise<void> {
     const leafletModule = (await import('leaflet')) as typeof Leaflet & {
       default?: typeof Leaflet;
@@ -85,32 +110,11 @@ export class TripRouteMap implements OnDestroy {
       ([lon, lat]) => [lat, lon] as [number, number],
     );
     leaflet.polyline(routePoints, { color: 'var(--color-link)', weight: 5 }).addTo(map);
-    this.addMarker(
-      leaflet,
-      map,
-      origin.coordinates,
-      origin.label,
-      'S',
-      'trip-route-map__marker--origin',
-    );
-    this.addMarker(
-      leaflet,
-      map,
-      pickup.coordinates,
-      pickup.label,
-      'R',
-      'trip-route-map__marker--pickup',
-    );
-    this.addMarker(
-      leaflet,
-      map,
-      destination.coordinates,
-      destination.label,
-      'D',
-      'trip-route-map__marker--destination',
-    );
     const bounds = leaflet.latLngBounds(routePoints);
-    bounds.extend([pickup.coordinates[1], pickup.coordinates[0]]);
+    for (const marker of markers) {
+      this.addMarker(leaflet, map, marker);
+      bounds.extend([marker.point.coordinates[1], marker.point.coordinates[0]]);
+    }
     map.fitBounds(bounds, { padding: [24, 24], maxZoom: 15 });
     if (typeof ResizeObserver !== 'undefined') {
       this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize());
@@ -121,14 +125,12 @@ export class TripRouteMap implements OnDestroy {
   private addMarker(
     leaflet: typeof Leaflet,
     map: Leaflet.Map,
-    [lon, lat]: [number, number],
-    title: string,
-    letter: string,
-    modifier: string,
+    { point, letter, modifier }: RouteMarker,
   ): void {
+    const [lon, lat] = point.coordinates;
     leaflet
       .marker([lat, lon], {
-        title,
+        title: point.label,
         icon: leaflet.divIcon({
           html: `<span aria-hidden="true">${letter}</span>`,
           className: `trip-route-map__marker ${modifier}`,
