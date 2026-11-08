@@ -29,6 +29,10 @@
         </nav>
         <footer class="admin-mobile-menu__footer">
           <span class="admin-mobile-menu__email">{{ email() }}</span>
+          <button type="button" class="admin-mobile-menu__action" (click)="handleToggleTheme()">
+            <ion-icon [icon]="themeIcon()" aria-hidden="true" />
+            <span>{{ themeLabel() }}</span>
+          </button>
           @if (canUseApp()) {
             <button type="button" class="admin-mobile-menu__action" (click)="handleGoToApp()">
               <ion-icon [icon]="appIcon" aria-hidden="true" />
@@ -65,7 +69,22 @@
     <div class="admin-desktop-header">
       <a class="admin-header__brand" routerLink="/admin">Carpooling UAL · Admin</a>
       <div class="admin-header__account">
+        <button
+          type="button"
+          class="admin-header__action admin-header__theme"
+          [attr.aria-label]="themeLabel()"
+          [title]="themeLabel()"
+          (click)="handleToggleTheme()"
+        >
+          <ion-icon [icon]="themeIcon()" aria-hidden="true" />
+        </button>
         <span class="admin-header__email">{{ email() }}</span>
+        @if (canUseApp()) {
+          <button type="button" class="admin-header__action" (click)="handleGoToApp()">
+            <ion-icon [icon]="appIcon" aria-hidden="true" />
+            <span>Modo usuario</span>
+          </button>
+        }
         <button type="button" class="admin-header__logout" (click)="handleLogout()">
           <ion-icon [icon]="logoutIcon" aria-hidden="true" />
           <span>Cerrar sesión</span>

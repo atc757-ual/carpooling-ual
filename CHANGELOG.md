@@ -21,6 +21,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Frontend:** la cabecera y el menú móvil del panel permiten cambiar de tema, y la cabecera lleva a «Modo usuario»; el documento legal se elige en un desplegable (#241).
 - **Frontend:** el editor de documentos legales avisa antes de perder cambios, no deja publicar un texto idéntico al vigente y se reorganiza en tarjetas, con Comparar y el texto de cada versión publicada (#240).
 - **Avatares:** los 12 SVG de la plataforma se sustituyen por 28 imágenes propias (migración) y, al editar un avatar en el panel, se puede cambiar también su imagen (#238).
 - **Frontend:** las listas del panel van en una card con título; en el móvil muestran menos datos. Catálogos pasa a ser una tabla con iconos y la subida de avatares tiene vista previa y comprobaciones. Un avatar subido llena su círculo en el perfil (#237).
