@@ -2,7 +2,7 @@
   type="button"
   class="plate-country__trigger"
   [id]="triggerId"
-  aria-haspopup="listbox"
+  aria-haspopup="true"
   [attr.aria-expanded]="isOpen()"
   [attr.aria-label]="label() + ': ' + selected().name"
   [disabled]="isDisabled()"
@@ -26,15 +26,14 @@
 >
   <ng-template>
     <ion-content>
-      <ul class="plate-country__list" role="listbox" [attr.aria-label]="label()">
+      <ul class="plate-country__list" [attr.aria-label]="label()">
         @for (country of countries; track country.code) {
           <li>
             <button
               type="button"
-              role="option"
               class="plate-country__option"
               [class.plate-country__option--selected]="country.code === value()"
-              [attr.aria-selected]="country.code === value()"
+              [attr.aria-current]="country.code === value()"
               (click)="handleChoose(country.code)"
             >
               <span
