@@ -84,14 +84,6 @@
   height: 2rem;
 }
 
-// Una imagen subida llena el círculo (sin el fondo alrededor)
-.avatar-option__svg--photo {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  border-radius: var(--radius-full);
-}
-
 .profile-public-modal__field {
   display: flex;
   flex-direction: column;
