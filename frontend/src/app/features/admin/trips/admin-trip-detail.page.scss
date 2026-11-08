@@ -88,6 +88,30 @@
   }
 }
 
+// El mapa: 240px en el móvil y 320px en escritorio
+.trip-detail__route {
+  --trip-route-map-height: 15rem; // 240px
+
+  @media (min-width: 768px) {
+    --trip-route-map-height: 20rem; // 320px
+  }
+}
+
+.trip-detail__map-skeleton {
+  height: var(--trip-route-map-height);
+  margin: 0;
+  border-radius: var(--radius-s);
+}
+
+// «7,8 km · 11 min» y, si OSRM no respondió, «Ruta estimada»
+.trip-detail__route-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-s);
+  margin: 0;
+}
+
 .trip-detail__link {
   color: var(--color-link);
   font-weight: var(--font-weight-semibold);

@@ -21,10 +21,16 @@ import {
   ellipseOutline,
   handRightOutline,
   locationOutline,
+  mapOutline,
   timeOutline,
 } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminTripsService } from '../../../core/services/admin/admin-trips.service';
+import { TripsService } from '../../../core/services/trips/trips.service';
+import {
+  RoutePoint,
+  TripRouteMap,
+} from '../../../shared/components/ui/trip-route-map/trip-route-map';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { HeadingContent } from '../../../shared/directives/heading-content.directive';
 import { eventTypeLabel } from '../digital-twin/event-labels';
@@ -34,7 +40,7 @@ import {
   tripRoute,
   tripStatusLabel,
 } from '../users/admin-user-detail-labels';
-import { requestsLabel, seatsLabel, tripStatusClass } from './admin-trip-labels';
+import { requestsLabel, routeSummaryLabel, seatsLabel, tripStatusClass } from './admin-trip-labels';
 
 const TRIPS_PATH = '/admin/trips';
 const USERS_PATH = '/admin/users';
@@ -53,6 +59,7 @@ const NO_NAME = 'Cuenta eliminada';
     IonIcon,
     IonSkeletonText,
     RouterLink,
+    TripRouteMap,
   ],
   templateUrl: './admin-trip-detail.page.html',
   styleUrl: './admin-trip-detail.page.scss',
@@ -60,6 +67,7 @@ const NO_NAME = 'Cuenta eliminada';
 })
 export class AdminTripDetailPage {
   private readonly adminTrips = inject(AdminTripsService);
+  private readonly trips = inject(TripsService);
   private readonly location = inject(Location);
   private readonly router = inject(Router);
 
@@ -113,12 +121,42 @@ export class AdminTripDetailPage {
     return error ? getErrorMessage(error) : null;
   });
 
+  // La ruta por carretera (OSRM), aparte: si falla, el resto se ve igual
+  readonly routeData = resource({
+    params: () => this.id(),
+    loader: ({ params }) => this.trips.getRoute(params),
+  });
+  // El mapa con la salida y el destino (los extremos de la ruta) y el resumen
+  readonly routeMap = computed(() => {
+    if (!this.routeData.hasValue()) {
+      return null;
+    }
+    const route = this.routeData.value();
+    const points = route.geometry.coordinates;
+    const trip = this.trip();
+    const end = points.at(-1);
+    // Sin trazado: ningún punto, o uno solo (la salida es también el final)
+    if (trip === null || end === undefined || points.length < 2) {
+      return null;
+    }
+    const origin: RoutePoint = { coordinates: points[0], label: trip.origin };
+    const destination: RoutePoint = { coordinates: end, label: trip.destination };
+    return {
+      route,
+      origin,
+      destination,
+      summary: routeSummaryLabel(route),
+      isEstimated: route.source === 'estimated',
+    };
+  });
+
   protected readonly icons = {
     trip: carOutline,
     origin: ellipseOutline,
     destination: locationOutline,
     requests: handRightOutline,
     timeline: timeOutline,
+    route: mapOutline,
   };
   protected readonly tripsPath = TRIPS_PATH;
 

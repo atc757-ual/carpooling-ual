@@ -57,7 +57,14 @@ const EVENT_ENTITIES: Readonly<Record<string, EventEntity>> = {
       accepted: 'Solicitud aceptada',
       rejected: 'Solicitud rechazada',
       cancelled: 'Solicitud cancelada',
+      expired: 'Solicitud caducada',
+      boarded: 'Pasajero a bordo',
     },
+  },
+  chat_message: {
+    group: 'Chat',
+    entity: 'Mensaje',
+    actions: { sent: 'Mensaje enviado' },
   },
   incident: {
     group: 'Incidencias',

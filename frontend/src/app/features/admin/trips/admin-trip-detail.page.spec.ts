@@ -7,6 +7,8 @@ import { provideIonicAngular } from '@ionic/angular';
 import { AdminTripDetail } from '../../../core/models/admin-trip.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminTripsService } from '../../../core/services/admin/admin-trips.service';
+import { TripsService } from '../../../core/services/trips/trips.service';
+import { TripRoute } from '../../../core/models/trip-route.model';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { AdminTripDetailPage } from './admin-trip-detail.page';
 
@@ -67,9 +69,28 @@ const DETAIL: AdminTripDetail = {
   ],
 };
 
+const ROUTE: TripRoute = {
+  tripId: 't1',
+  distanceKm: 18.42,
+  durationMin: 21,
+  geometry: {
+    type: 'LineString',
+    coordinates: [
+      [-2.6132, 36.7642],
+      [-2.5, 36.8],
+      [-2.4053, 36.8297],
+    ],
+  },
+  source: 'osrm',
+  tripStatus: 'confirmed',
+  startedAt: null,
+  estimatedArrivalAt: '2026-11-02T07:51:00.000Z',
+};
+
 describe('AdminTripDetailPage', () => {
   let fixture: ComponentFixture<AdminTripDetailPage>;
   const get = vi.fn();
+  const getRoute = vi.fn();
 
   async function render(): Promise<HTMLElement> {
     TestBed.configureTestingModule({
@@ -78,6 +99,7 @@ describe('AdminTripDetailPage', () => {
         provideIonicAngular(),
         provideRouter([]),
         { provide: AdminTripsService, useValue: { get } },
+        { provide: TripsService, useValue: { getRoute } },
       ],
     });
     fixture = TestBed.createComponent(AdminTripDetailPage);
@@ -91,6 +113,7 @@ describe('AdminTripDetailPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     get.mockResolvedValue(DETAIL);
+    getRoute.mockResolvedValue(ROUTE);
   });
 
   it('shows the trip with links to the driver and passengers', async () => {
@@ -222,5 +245,59 @@ describe('AdminTripDetailPage', () => {
     Object.defineProperty(router, 'lastSuccessfulNavigation', { get: () => fromList });
     await fixture.componentInstance.handleBack();
     expect(back).toHaveBeenCalled();
+  });
+
+  it('draws the route from its ends with the distance and the duration', async () => {
+    const root = await render();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(getRoute).toHaveBeenCalledWith('t1');
+    expect(fixture.componentInstance.routeMap()?.origin).toEqual({
+      coordinates: [-2.6132, 36.7642],
+      label: 'Roquetas de Mar',
+    });
+    expect(fixture.componentInstance.routeMap()?.destination.coordinates).toEqual([
+      -2.4053, 36.8297,
+    ]);
+    expect(root.querySelector('app-trip-route-map')).not.toBeNull();
+    const summary = root.querySelector('.trip-detail__route-summary')?.textContent ?? '';
+    expect(summary).toContain('18,4 km · 21 min');
+    expect(summary).not.toContain('Ruta estimada');
+  });
+
+  it('warns when the route is a straight-line estimate', async () => {
+    getRoute.mockResolvedValue({ ...ROUTE, source: 'estimated' });
+    const root = await render();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(root.querySelector('.trip-detail__route-summary')?.textContent).toContain(
+      'Ruta estimada',
+    );
+  });
+
+  it.each([
+    ['no points', []],
+    ['a single point', [[-2.6132, 36.7642]]],
+  ])('says so when the route arrives with %s', async (_case, coordinates) => {
+    getRoute.mockResolvedValue({ ...ROUTE, geometry: { type: 'LineString', coordinates } });
+    const root = await render();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(root.querySelector('app-trip-route-map')).toBeNull();
+    expect(root.textContent).toContain('No hemos podido cargar la ruta.');
+  });
+
+  it('keeps the rest of the trip when the route fails', async () => {
+    getRoute.mockRejectedValue(new ApiError('ROUTE_NOT_FOUND', 404));
+    const root = await render();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(root.querySelector('app-trip-route-map')).toBeNull();
+    expect(root.textContent).toContain('No hemos podido cargar la ruta.');
+    expect(root.querySelectorAll('.trip-detail__request')).toHaveLength(2);
   });
 });

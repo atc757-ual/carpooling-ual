@@ -21,7 +21,7 @@ import { formatShortDate, formatTime, toTripDetail } from '../trip-results';
 import { getFirstName } from '../trip-driver/trip-driver';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
-import { TripRouteMap } from './trip-route-map';
+import { TripRouteMap } from '../../../shared/components/ui/trip-route-map/trip-route-map';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 
 // Detalle de un viaje de los resultados de Buscar: el recorrido con sus horas,
