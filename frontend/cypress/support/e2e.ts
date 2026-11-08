@@ -28,6 +28,11 @@ const VEHICLE_COLORS = [
 ].map(([key, name, hex]) => ({ key, name, hexLight: hex, hexDark: hex, isActive: true }));
 
 beforeEach(() => {
+  // Los permisos ya ofrecidos: sus ventanas taparían la pantalla que se prueba
+  cy.on('window:before:load', (win) => {
+    win.localStorage.setItem('CapacitorStorage.permissions.intro-shown', 'true');
+    win.localStorage.setItem('CapacitorStorage.permissions.push-offered-at', String(Date.now()));
+  });
   cy.intercept('GET', '/api/catalogs/vehicle-brands?*', [
     { key: 'seat', name: 'SEAT' },
     { key: 'skoda', name: 'Škoda' },

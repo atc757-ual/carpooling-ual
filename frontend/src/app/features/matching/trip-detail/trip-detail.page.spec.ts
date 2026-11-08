@@ -1,3 +1,4 @@
+import { PermissionPromptsService } from '../../../core/services/push/permission-prompts.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -58,6 +59,7 @@ function seatRequest(status: SeatRequest['status'], plate: string | null = null)
 }
 
 describe('TripDetailPage', () => {
+  const offerPush = vi.fn().mockResolvedValue(undefined);
   let fixture: ComponentFixture<TripDetailPage>;
   let requests: Record<string, ReturnType<typeof vi.fn>>;
   let trips: Record<string, ReturnType<typeof vi.fn>>;
@@ -121,6 +123,7 @@ describe('TripDetailPage', () => {
       providers: [
         provideCatalogsForTests(),
         provideIonicAngular(),
+        { provide: PermissionPromptsService, useValue: { offerPush } },
         provideRouter([]),
         { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
         { provide: SeatRequestsService, useValue: requests },
@@ -188,6 +191,7 @@ describe('TripDetailPage', () => {
       name: ROQUETAS.name,
     });
     expect(navigate).toHaveBeenCalledWith('/tabs/trips/requests/r1');
+    expect(offerPush).toHaveBeenCalledWith('request');
     expect(root.textContent).toContain('Solicitud enviada. Falta la respuesta de Lucía.');
     expect(root.textContent).toContain('Cancelar solicitud');
   });

@@ -475,6 +475,36 @@
       "readHint": "Read each document to the end to be able to accept."
     }
   },
+  "permissions": {
+    "title": "Get more out of the app",
+    "description": "You can enable each permission separately, now or later.",
+    "enable": "Enable",
+    "later": "Later",
+    "continue": "Continue",
+    "done": "Enabled",
+    "blocked": "Not enabled",
+    "enabled": "We will notify you even when the app is closed.",
+    "enableError": "We could not enable notifications. Please try again.",
+    "push": {
+      "title": "Notifications",
+      "description": "To let you know about your trips and messages."
+    },
+    "location": {
+      "title": "Location",
+      "description": "To find trips near you.",
+      "terms": "Read how it is used"
+    },
+    "offer": {
+      "publish": {
+        "title": "Want to hear about requests?",
+        "message": "Enable notifications to know when someone requests a seat on your trip."
+      },
+      "request": {
+        "title": "Want to hear back?",
+        "message": "Enable notifications to know when your request is answered."
+      }
+    }
+  },
   "errors": {
     "reference": " (reference: {{ requestId }})",
     "INTERNAL_ERROR": "A server error occurred{{ reference }}. Please try again.",

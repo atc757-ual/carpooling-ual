@@ -1,0 +1,70 @@
+<!-- Sin ion-content: así la ventana toma el alto de su contenido -->
+<div class="modal-body confirm">
+  <h2 class="text-subtitle">{{ 'permissions.title' | transloco }}</h2>
+  <p class="text-body-s text-color-muted">{{ 'permissions.description' | transloco }}</p>
+
+  <ul class="permissions">
+    @if (canAskPush) {
+      <li class="permissions__row">
+        <span class="permissions__icon" aria-hidden="true"><ion-icon [icon]="pushIcon" /></span>
+        <span class="permissions__text">
+          <span class="text-body permissions__title">{{
+            'permissions.push.title' | transloco
+          }}</span>
+          <span class="text-body-s text-color-muted">{{
+            'permissions.push.description' | transloco
+          }}</span>
+        </span>
+        <ng-container
+          [ngTemplateOutlet]="action"
+          [ngTemplateOutletContext]="{ state: pushState(), target: 'push' }"
+        />
+      </li>
+    }
+    @if (canAskLocation) {
+      <li class="permissions__row">
+        <span class="permissions__icon" aria-hidden="true"><ion-icon [icon]="locationIcon" /></span>
+        <span class="permissions__text">
+          <span class="text-body permissions__title">{{
+            'permissions.location.title' | transloco
+          }}</span>
+          <span class="text-body-s text-color-muted">{{
+            'permissions.location.description' | transloco
+          }}</span>
+          <button type="button" class="permissions__terms" (click)="handleReadTerms()">
+            {{ 'permissions.location.terms' | transloco }}
+          </button>
+        </span>
+        <ng-container
+          [ngTemplateOutlet]="action"
+          [ngTemplateOutletContext]="{ state: locationState(), target: 'location' }"
+        />
+      </li>
+    }
+  </ul>
+
+  <ion-button class="permissions__close" expand="block" fill="outline" (click)="handleClose()">
+    {{ (isAnswered() ? 'permissions.continue' : 'permissions.later') | transloco }}
+  </ion-button>
+</div>
+
+<!-- El botón de cada permiso o, ya respondido, cómo ha quedado -->
+<ng-template #action let-state="state" let-target="target">
+  @switch (state) {
+    @case ('done') {
+      <span class="status status--accepted">{{ 'permissions.done' | transloco }}</span>
+    }
+    @case ('blocked') {
+      <span class="status">{{ 'permissions.blocked' | transloco }}</span>
+    }
+    @default {
+      <ion-button
+        size="small"
+        [disabled]="state === 'busy'"
+        (click)="target === 'push' ? handleEnablePush() : handleEnableLocation()"
+      >
+        {{ 'permissions.enable' | transloco }}
+      </ion-button>
+    }
+  }
+</ng-template>

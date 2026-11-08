@@ -1,3 +1,4 @@
+import { PermissionPromptsService } from '../../../core/services/push/permission-prompts.service';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -45,6 +46,7 @@ const PLACE = {
 const COLD_START_TIMEOUT_MS = 15_000;
 
 describe('PublishTripPage', () => {
+  const offerPush = vi.fn().mockResolvedValue(undefined);
   let harness: RouterTestingHarness;
   let page: PublishTripPage;
   let router: Router;
@@ -82,6 +84,7 @@ describe('PublishTripPage', () => {
     TestBed.configureTestingModule({
       providers: [
         provideIonicAngular(),
+        { provide: PermissionPromptsService, useValue: { offerPush } },
         provideRouter([
           {
             path: 'publish',
@@ -243,6 +246,7 @@ describe('PublishTripPage', () => {
     await submit();
 
     expect(driver['acceptDeclaration']).toHaveBeenCalled();
+    expect(offerPush).toHaveBeenCalledWith('publish');
     expect(driver['publishTrip']).toHaveBeenCalledWith(
       expect.objectContaining({ vehicleId: 'v1', offeredSeats: 2, originName: 'Roquetas de Mar' }),
     );

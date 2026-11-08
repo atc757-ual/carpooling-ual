@@ -18,7 +18,7 @@ const TOKEN_KEY = 'push.token';
 
 // Notificaciones push (Firebase Cloud Messaging), en el navegador y en la app
 // Android por el mismo camino (PushChannel): las activa el usuario en Mi
-// perfil (se pide el permiso entonces, nunca al abrir la app); el token se
+// perfil o cuando se le ofrecen (PermissionPromptsService); el token se
 // registra en la API y se quita al desactivarlas o al cerrar sesión. Al pulsar
 // una push se abre la misma pantalla que su aviso (lo hacen las pestañas)
 @Injectable({ providedIn: 'root' })

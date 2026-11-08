@@ -14,6 +14,7 @@ import { RouteStop } from '../../../shared/components/ui/route-timeline/route-ti
 import { TripSummary, TripSummaryData } from '../../../shared/components/ui/trip-summary';
 import { ApiError } from '../../../core/models/api-error.model';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
+import { PermissionPromptsService } from '../../../core/services/push/permission-prompts.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
@@ -54,6 +55,7 @@ export class TripDetailPage {
   private readonly tripsService = inject(TripsService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
+  private readonly permissionPrompts = inject(PermissionPromptsService);
   private readonly router = inject(Router);
 
   // :id de la ruta (withComponentInputBinding)
@@ -202,6 +204,7 @@ export class TripDetailPage {
       );
       this.myRequest.set(request);
       await this.router.navigateByUrl(`/tabs/trips/requests/${request.id}`);
+      void this.permissionPrompts.offerPush('request').catch(() => undefined);
     });
   }
 

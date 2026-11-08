@@ -28,6 +28,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { CelebrationService } from '../../../core/services/ui/celebration.service';
+import { PermissionPromptsService } from '../../../core/services/push/permission-prompts.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { DatetimeField } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { RouteTimeline } from '../../../shared/components/ui/route-timeline/route-timeline';
@@ -117,6 +118,7 @@ export class PublishTripPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly places = inject(PlacesService);
   private readonly toast = inject(ToastService);
+  private readonly permissionPrompts = inject(PermissionPromptsService);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly celebration = inject(CelebrationService);
@@ -429,6 +431,7 @@ export class PublishTripPage implements OnInit {
       this.published.set(trip);
       void this.celebration.celebrate().catch(() => undefined);
       void this.toast.showSuccess('Viaje publicado.');
+      void this.permissionPrompts.offerPush('publish').catch(() => undefined);
     });
   }
 
