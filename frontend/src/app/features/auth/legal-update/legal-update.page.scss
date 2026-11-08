@@ -1,22 +1,100 @@
-// Cada documento, en su caja con scroll propio: la pantalla no se alarga
-.legal-update__document {
+// Los documentos, uno debajo de otro a 16px
+.legal-update__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+// Cada documento, en una tarjeta compacta (como ion-card): borde fino, esquinas
+// de 8px y su sombra
+.legal-card {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
-  margin-block-end: var(--space-l);
+  padding: var(--space-base);
+  border: var(--border-width-s) solid var(--color-card-border);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
 
-  h2 {
+// El icono del documento y, a su lado, el título con la versión
+.legal-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.legal-card__icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem; // 40px
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-size: 1.25rem; // 20px
+}
+
+.legal-card__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-s);
+  min-width: 0;
+}
+
+// Título de tarjeta: 18px
+.legal-card__title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+// Qué ha cambiado: la etiqueta pequeña en azul y el resumen debajo
+.legal-card__changes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  p {
     margin: 0;
   }
 }
 
-.legal-update__text {
-  max-height: 40vh;
-  overflow-y: auto;
-  padding: var(--space-base);
-  border: var(--border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
+.legal-card__label {
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+}
+
+// «Leer texto legal completo»: un enlace con su flecha, abajo a la izquierda,
+// del alto de su texto (4px arriba y abajo para el foco)
+.legal-card__read {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) 0;
+  border: 0;
+  background: none;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    border-radius: var(--radius-xs);
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
 }
 
 .legal-update__actions {
@@ -39,10 +117,52 @@
   padding: var(--space-xl);
 }
 
+// La separación entre bloques ya la pone la pantalla (auth-layout): sin margen
+// propio, para que los botones no queden tan lejos
 .legal-update__exits {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
   gap: var(--space-s);
-  margin-block-start: var(--space-l);
+
+  // Escritorio: en fila, centrados y más separados
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--space-l);
+  }
+}
+
+// Por qué «Aceptar» sigue desactivado
+.legal-update__hint {
+  margin: 0;
+  text-align: center;
+}
+
+// «Cerrar sesión»: botón azul claro, con el alto táctil mínimo
+.legal-update__exit-link {
+  min-height: var(--control-height-s);
+  padding: var(--space-xs) var(--space-l);
+  border: none;
+  border-radius: var(--radius-s);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-family: inherit;
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:focus-visible {
+    border-radius: var(--radius-xs);
+    outline: var(--border-width-m) solid var(--color-focus);
+  }
+}
+
+// «Eliminar mi cuenta»: el mismo botón, en rojo claro
+.legal-update__exit-link--danger {
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-text);
 }

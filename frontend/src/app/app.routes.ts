@@ -5,8 +5,9 @@ import { authGuard } from './core/guards/auth.guard';
 import { legalAcceptanceGuard } from './core/guards/legal-acceptance.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { profileGuard } from './core/guards/profile.guard';
-import { PUBLISH_PATH, SEARCH_PATH, WELCOME_PATH } from './core/guards/redirect-paths';
+import { HOME_PATH, PUBLISH_PATH, SEARCH_PATH, WELCOME_PATH } from './core/guards/redirect-paths';
 import { AuthService } from './core/services/auth/auth.service';
+import { LegalDocumentsService } from './core/services/users/legal-documents.service';
 import { ADMIN_ROUTES } from './features/admin/admin.routes';
 import { TabHeading } from './features/tabs/tab-heading';
 
@@ -15,6 +16,22 @@ import { TabHeading } from './features/tabs/tab-heading';
 // celebrar: a la bienvenida
 const sessionOnly: CanActivateFn = () =>
   inject(AuthService).isLoggedIn() || inject(Router).createUrlTree([WELCOME_PATH]);
+
+// Documentos actualizados: solo si hay sesión y documentos pendientes por
+// aceptar. Si no se puede comprobar, entra: la pantalla ofrece reintentar
+const pendingLegalOnly: CanActivateFn = async () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  if (!auth.isLoggedIn()) {
+    return router.createUrlTree([WELCOME_PATH]);
+  }
+  try {
+    const pending = await inject(LegalDocumentsService).pending();
+    return pending.length > 0 ? true : router.createUrlTree([HOME_PATH]);
+  } catch {
+    return true;
+  }
+};
 
 // Rutas de la aplicación. Cada pantalla se carga bajo demanda
 // (loadComponent) desde features/<área>/, con sus guards
@@ -262,9 +279,9 @@ export const routes: Routes = [
   },
   {
     // Una versión nueva de las condiciones o de la política: se acepta antes
-    // de seguir (o se cierra sesión o se elimina la cuenta)
+    // de seguir (o se cierra sesión o se elimina la cuenta). Solo si hay pendientes
     path: 'legal-update',
-    canActivate: [sessionOnly],
+    canActivate: [pendingLegalOnly],
     title: 'Documentos actualizados',
     loadComponent: () =>
       import('./features/auth/legal-update/legal-update.page').then((m) => m.LegalUpdatePage),

@@ -46,19 +46,6 @@
   margin-top: var(--space-base);
 }
 
-.profile-phone-modal__back {
-  background: none;
-  border: none;
-  color: var(--color-link);
-  cursor: pointer;
-  padding: var(--space-xs);
-  text-align: center;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
 // Al cambiar un número verificado: aviso en ámbar, antes del botón
 .profile-phone-modal__warning {
   margin: 0;

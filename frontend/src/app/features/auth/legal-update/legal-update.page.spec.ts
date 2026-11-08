@@ -6,10 +6,13 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { LegalDocumentsService } from '../../../core/services/users/legal-documents.service';
+import { LegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
+import { ProfileDeleteModal } from '../../profile/profile-delete-modal/profile-delete-modal';
 import { LegalUpdatePage } from './legal-update.page';
 
 describe('LegalUpdatePage', () => {
   let fixture: ComponentFixture<LegalUpdatePage>;
+  let navigateSpy: ReturnType<typeof vi.spyOn>;
   const pending = vi.fn();
   const getCurrent = vi.fn();
   const accept = vi.fn();
@@ -33,6 +36,7 @@ describe('LegalUpdatePage', () => {
         { provide: ModalController, useValue: { create } },
       ],
     });
+    navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     fixture = TestBed.createComponent(LegalUpdatePage);
     if (returnUrl) {
       fixture.componentRef.setInput('returnUrl', returnUrl);
@@ -55,26 +59,69 @@ describe('LegalUpdatePage', () => {
     accept.mockResolvedValue(undefined);
   });
 
-  it('shows each pending document with what changed and its new text', async () => {
+  it('shows each pending document with what changed and a button to read full text', async () => {
     const root = await render();
 
     expect(getCurrent).toHaveBeenCalledWith('terms');
-    const section = root.querySelector('.legal-update__document');
-    expect(section?.textContent).toContain('Condiciones de uso');
-    expect(section?.querySelector('.legal-changes')?.textContent).toContain(
+    const card = root.querySelector('.legal-card');
+    expect(card?.querySelector('.legal-card__title')?.textContent).toContain('Condiciones de uso');
+    expect(card?.querySelector('.legal-card__changes')?.textContent).toContain(
       'Nuevas normas de convivencia.',
     );
-    expect(section?.querySelector('.legal h2')?.textContent).toBe('Nuevo');
+    expect(card?.querySelector('.legal-card__read')).not.toBeNull();
+  });
+
+  it('opens legal modal when clicking read full button', async () => {
+    await render();
+    await fixture.componentInstance.handleReadFull({ type: 'terms', version: '1.1' });
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        component: LegalModal,
+        componentProps: expect.objectContaining({ document: 'terms' }),
+        cssClass: 'legal-dialog',
+      }),
+    );
+    expect(present).toHaveBeenCalled();
+  });
+
+  it('asks to read every document to the end before accepting', async () => {
+    const root = await render();
+    await fixture.componentInstance.handleReadFull({ type: 'terms', version: '1.1' });
+    fixture.detectChanges();
+
+    // Opened but not read to the end
+    expect(fixture.componentInstance.hasReadAll()).toBe(false);
+    expect(root.querySelector('.legal-update__hint')).not.toBeNull();
+
+    create.mock.calls[0][0].componentProps.onReachedEnd();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.hasReadAll()).toBe(true);
+    expect(root.querySelector('.legal-update__hint')).toBeNull();
+  });
+
+  it('lets the user delete the account instead', async () => {
+    await render();
+    await fixture.componentInstance.handleDeleteAccount();
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({ component: ProfileDeleteModal, cssClass: 'info-dialog' }),
+    );
+    expect(present).toHaveBeenCalled();
+  });
+
+  it('redirects to home if there are no pending documents', async () => {
+    pending.mockResolvedValue([]);
+    await render();
+    expect(navigateSpy).toHaveBeenCalledWith('/tabs', { replaceUrl: true });
   });
 
   it('accepts them all and goes back where the user was going', async () => {
     await render('/tabs/trips');
-    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
     await fixture.componentInstance.handleAccept();
 
     expect(accept).toHaveBeenCalledWith({ type: 'terms', version: '1.1' });
-    expect(navigate).toHaveBeenCalledWith('/tabs/trips', { replaceUrl: true });
+    expect(navigateSpy).toHaveBeenCalledWith('/tabs/trips', { replaceUrl: true });
   });
 
   it('stays and reloads when the version changed meanwhile', async () => {
@@ -88,7 +135,7 @@ describe('LegalUpdatePage', () => {
     expect(pending).toHaveBeenCalledTimes(2);
   });
 
-  it('lets the user log out or delete the account instead', async () => {
+  it('lets the user log out instead', async () => {
     await render();
 
     ask.mockResolvedValue(false);
@@ -98,9 +145,6 @@ describe('LegalUpdatePage', () => {
     await fixture.componentInstance.handleLogout();
     expect(logout).toHaveBeenCalled();
     expect(navigateRoot).toHaveBeenCalledWith('/auth/welcome');
-
-    await fixture.componentInstance.handleDeleteAccount();
-    expect(present).toHaveBeenCalled();
   });
 
   it('offers a retry when the documents cannot be loaded', async () => {

@@ -84,6 +84,38 @@
         </div>
       }
     </form>
+  } @else if (step() === 'confirm') {
+    <!-- Desde «Verificar»: qué va a pasar y a qué número, sin editarlo; el SMS
+         solo se envía al confirmar. Si no es el suyo, el enlace lleva al formulario -->
+    <div class="profile-phone-modal__verify">
+      <div class="profile-phone-modal__verify-header">
+        <h3 class="profile-phone-modal__title">
+          {{ 'profile.phoneModal.confirmTitle' | transloco }}
+        </h3>
+        <p class="text-body-s text-color-muted">
+          {{ 'profile.phoneModal.confirmText' | transloco }}
+        </p>
+      </div>
+
+      <div class="profile-phone-modal__current">
+        <span class="text-body text-body--strong">{{ formattedCurrentPhone() }}</span>
+      </div>
+
+      <form (submit)="$event.preventDefault(); handleStartVerification(false)">
+        <ion-button type="submit" expand="block" [disabled]="isVerifying()">
+          @if (isVerifying()) {
+            <ion-spinner name="crescent" slot="start" aria-hidden="true" />
+          } @else {
+            <ion-icon slot="start" [icon]="shieldIcon" aria-hidden="true" />
+          }
+          {{ 'profile.phoneModal.sendSmsCode' | transloco }}
+        </ion-button>
+      </form>
+
+      <ion-button type="button" fill="clear" expand="block" (click)="step.set('number')">
+        {{ 'profile.phoneModal.changeNumber' | transloco }}
+      </ion-button>
+    </div>
   } @else {
     <!-- Paso de verificación con código OTP -->
     <div class="profile-phone-modal__verify">
@@ -97,7 +129,7 @@
       </div>
 
       <form [formGroup]="codeForm" (ngSubmit)="handleConfirmCode()" novalidate>
-        <div class="auth-field">
+        <div class="auth-field code-field">
           <span id="phone-otp-label" class="text-label text-label--strong">{{
             'profile.phoneModal.codeLabel' | transloco
           }}</span>
@@ -136,13 +168,11 @@
             {{ resendLabel() }}
           </ion-button>
 
-          <button
-            type="button"
-            class="profile-phone-modal__back text-body-s"
-            (click)="backToNumber()"
-          >
-            {{ 'profile.phoneModal.backToNumber' | transloco }}
-          </button>
+          @if (canGoBackToNumber()) {
+            <ion-button type="button" fill="clear" expand="block" (click)="backToNumber()">
+              {{ 'profile.phoneModal.backToNumber' | transloco }}
+            </ion-button>
+          }
         </div>
       </form>
     </div>

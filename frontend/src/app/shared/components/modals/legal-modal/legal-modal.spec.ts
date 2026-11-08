@@ -68,6 +68,40 @@ describe('LegalModal', () => {
     });
   });
 
+  it('tells only once the end of the text is on screen', async () => {
+    let notify: (entries: { isIntersecting: boolean }[]) => void = () => undefined;
+    const disconnect = vi.fn();
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(callback: typeof notify) {
+          notify = callback;
+        }
+        observe = vi.fn();
+        disconnect = disconnect;
+      },
+    );
+    const root = await open('terms');
+    const onReachedEnd = vi.fn();
+    fixture.componentInstance.onReachedEnd = onReachedEnd;
+
+    http
+      .expectOne('/api/legal-documents/terms')
+      .flush({ type: 'terms', version: '1.0', content: '<p>Texto</p>', publishedAt: null });
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(root.querySelector('.legal__end')).not.toBeNull();
+    });
+
+    notify([{ isIntersecting: false }]);
+    expect(onReachedEnd).not.toHaveBeenCalled();
+
+    notify([{ isIntersecting: true }]);
+    expect(onReachedEnd).toHaveBeenCalledTimes(1);
+    expect(disconnect).toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
   it('closes itself', async () => {
     await open('terms');
     http

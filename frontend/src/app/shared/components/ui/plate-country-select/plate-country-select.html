@@ -1,0 +1,50 @@
+<button
+  type="button"
+  class="plate-country__trigger"
+  [id]="triggerId"
+  aria-haspopup="true"
+  [attr.aria-expanded]="isOpen()"
+  [attr.aria-label]="label() + ': ' + selected().name"
+  [disabled]="isDisabled()"
+>
+  <span [class]="'plate-country__flag ' + flagOf(selected().code)" aria-hidden="true"></span>
+  <span class="plate-country__name">{{ selected().name }}</span>
+  <ion-icon class="plate-country__caret" [icon]="caretIcon" aria-hidden="true" />
+</button>
+
+<!-- Pegada debajo del campo y de su mismo ancho (size="cover"); se cierra al elegir -->
+<ion-popover
+  cssClass="plate-country-popover"
+  side="bottom"
+  alignment="start"
+  size="cover"
+  [showBackdrop]="false"
+  [trigger]="triggerId"
+  [dismissOnSelect]="true"
+  (willPresent)="isOpen.set(true)"
+  (didDismiss)="isOpen.set(false)"
+>
+  <ng-template>
+    <ion-content>
+      <ul class="plate-country__list" [attr.aria-label]="label()">
+        @for (country of countries; track country.code) {
+          <li>
+            <button
+              type="button"
+              class="plate-country__option"
+              [class.plate-country__option--selected]="country.code === value()"
+              [attr.aria-current]="country.code === value()"
+              (click)="handleChoose(country.code)"
+            >
+              <span
+                [class]="'plate-country__flag ' + flagOf(country.code)"
+                aria-hidden="true"
+              ></span>
+              {{ country.name }}
+            </button>
+          </li>
+        }
+      </ul>
+    </ion-content>
+  </ng-template>
+</ion-popover>

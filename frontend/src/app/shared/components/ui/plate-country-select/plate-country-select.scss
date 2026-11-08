@@ -1,0 +1,96 @@
+:host {
+  display: block;
+}
+
+// El campo: como un ion-select con borde (fill="outline") y del alto de los
+// demás campos del formulario (56px), con esquinas de 8px; la bandera, el
+// nombre y la flecha
+.plate-country__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  width: 100%;
+  min-height: 3.5rem; // 56px
+  padding: 0 var(--space-base);
+  border: var(--border-width-s) solid var(--color-border-strong);
+  border-radius: var(--radius-s); // 8px
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: calc(-1 * var(--border-width-s));
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+.plate-country__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plate-country__caret {
+  flex: none;
+  color: var(--color-text-muted);
+  font-size: 0.75rem; // 12px
+}
+
+// Bandera de 24×18px con las esquinas un poco redondeadas (como el prefijo)
+.plate-country__flag {
+  flex: 0 0 auto;
+  width: 1.5rem; // 24px
+  height: 1.125rem; // 18px
+  border-radius: var(--radius-xs);
+}
+
+.plate-country__list {
+  margin: 0;
+  padding: var(--space-xs) 0;
+  list-style: none;
+}
+
+// Cada país: la bandera y el nombre, con el alto táctil mínimo
+.plate-country__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  width: 100%;
+  min-height: var(--control-height-s);
+  padding: 0 var(--space-base);
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: calc(-1 * var(--border-width-m));
+  }
+}
+
+// El elegido, marcado (no solo por el color: también en negrita)
+.plate-country__option--selected {
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+}

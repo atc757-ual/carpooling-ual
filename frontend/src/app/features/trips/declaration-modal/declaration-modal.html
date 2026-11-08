@@ -1,27 +1,6 @@
 <app-modal-header [title]="title" (closed)="close()" />
 
 <!-- Sin ion-content: así la ventana toma el alto de su contenido -->
-<div class="modal-body declaration">
-  @if (declaration.hasValue()) {
-    @let document = declaration.value();
-    <app-legal-changes
-      [heading]="'Qué ha cambiado en la versión ' + document.version"
-      [summary]="document.summary"
-    />
-    <!-- El backend ya lo ha saneado; Angular lo limpia otra vez al pintarlo -->
-    <article class="legal" [innerHTML]="document.content"></article>
-    <p class="text-caption text-color-muted">Versión {{ document.version }}</p>
-    <form (submit)="$event.preventDefault(); accept()">
-      <ion-button type="submit" expand="block">Acepto la declaración</ion-button>
-    </form>
-  } @else if (declaration.error()) {
-    <div class="notice notice--danger" role="alert">
-      <span>No hemos podido cargar la declaración. Comprueba tu conexión.</span>
-      <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
-    </div>
-  } @else {
-    <div class="declaration__loading">
-      <ion-spinner name="crescent" aria-label="Cargando la declaración" />
-    </div>
-  }
+<div class="modal-body">
+  <app-declaration-content [document]="document" (accepted)="accept()" />
 </div>

@@ -69,7 +69,7 @@ describe('DeclarationModal', () => {
     );
     expect(root.textContent).not.toContain('Acepto la declaración');
 
-    fixture.componentInstance.handleRetry();
+    root.querySelector<HTMLElement>('[role="alert"] ion-button')?.click();
     await fixture.whenStable();
     fixture.detectChanges();
     expect(root.textContent).toContain('Acepto la declaración');

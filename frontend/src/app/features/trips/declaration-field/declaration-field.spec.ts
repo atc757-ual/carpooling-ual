@@ -46,4 +46,21 @@ describe('DeclarationField', () => {
       expect.objectContaining({ componentProps: { document: 'vehicle_declaration' } }),
     );
   });
+
+  it('asks its host to show the declaration instead of opening another window inside one', async () => {
+    TestBed.configureTestingModule({
+      imports: [DeclarationField],
+      providers: [provideIonicAngular()],
+    });
+    const create = vi.spyOn(TestBed.inject(ModalController), 'create');
+    const fixture = TestBed.createComponent(DeclarationField);
+    fixture.componentRef.setInput('control', new FormControl(false, { nonNullable: true }));
+    fixture.componentRef.setInput('isInline', true);
+    let isRequested = false;
+    fixture.componentInstance.readRequested.subscribe(() => (isRequested = true));
+
+    await fixture.componentInstance.handleRead();
+    expect(isRequested).toBe(true);
+    expect(create).not.toHaveBeenCalled();
+  });
 });

@@ -10,6 +10,8 @@
     </div>
     <!-- Angular limpia el HTML (sin scripts ni estilos) antes de mostrarlo -->
     <article class="legal" [innerHTML]="document.content"></article>
+    <!-- Al verse esta marca se ha llegado al final (también si el texto es corto) -->
+    <div #endMarker class="legal__end" aria-hidden="true"></div>
   } @else if (hasError()) {
     <p class="text-body" role="alert">
       {{ errorMessage }}

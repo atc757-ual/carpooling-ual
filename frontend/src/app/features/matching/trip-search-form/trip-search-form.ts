@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { IonButton, IonIcon, IonSelect, IonSelectOption } from '@ionic/angular';
 import { leafOutline, searchOutline } from 'ionicons/icons';
 import { SearchPlace, TripSearch } from '../../../core/models/trip-search.model';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { DatetimeField } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
@@ -25,6 +26,7 @@ const LEAD_MINUTES = 30;
 const MINUTE_STEP = 5;
 const LAST_TIME = '23:55';
 const DEFAULT_MARGIN = 20;
+const ALLOWED_MARGINS: ReadonlySet<number> = new Set(MARGINS);
 const MINUTES_PER_DAY = 24 * 60;
 
 export type TimeType = 'arrival' | 'departure';
@@ -80,6 +82,7 @@ export class TripSearchForm {
   private readonly router = inject(Router);
   private readonly searchState = inject(TripSearchStateService);
   private readonly places = inject(PlacesService);
+  private readonly auth = inject(AuthService);
 
   // Avisa de cada búsqueda (en Buscar, para cerrar el formulario aunque se
   // repita la misma)
@@ -92,6 +95,15 @@ export class TripSearchForm {
     () => this.showNewSearch() && this.searchState.search() !== null,
   );
 
+  // Un computed: solo avisa si cambia el número, no con cada cambio del usuario
+  // (editar el nombre no debe tocar el margen)
+  private readonly defaultMargin = computed(() => {
+    const userTolerance = this.auth.currentUser()?.timeToleranceMin;
+    return typeof userTolerance === 'number' && ALLOWED_MARGINS.has(userTolerance)
+      ? userTolerance
+      : DEFAULT_MARGIN;
+  });
+
   readonly form = inject(NonNullableFormBuilder).group({
     // La dirección de fuera del campus (origen al ir, destino al volver),
     // elegida de las sugerencias; null mientras no se elige
@@ -101,7 +113,7 @@ export class TripSearchForm {
     isToCampus: [true],
     // Hoy, dentro de media hora
     date: [toIsoDate(new Date())],
-    margin: [DEFAULT_MARGIN],
+    margin: [this.defaultMargin()],
     // Hora de llegada al campus o, al volver, de salida del campus
     time: [getDefaultTime(new Date())],
     seats: [MIN_SEATS, [Validators.required, Validators.min(MIN_SEATS), Validators.max(MAX_SEATS)]],
@@ -152,6 +164,24 @@ export class TripSearchForm {
       const search = this.searchState.search();
       untracked(() => this.fill(search));
     });
+
+    // Al cambiar la tolerancia en Mi perfil, el margen la toma (también si hay
+    // una búsqueda recordada), salvo que se haya cambiado a mano en el
+    // formulario. La primera vez no: al abrir manda la búsqueda recordada o,
+    // sin ella, ya es la tolerancia (fill)
+    let isFirstMargin = true;
+    effect(() => {
+      const margin = this.defaultMargin();
+      if (isFirstMargin) {
+        isFirstMargin = false;
+        return;
+      }
+      untracked(() => {
+        if (!this.form.controls.margin.dirty) {
+          this.form.controls.margin.setValue(margin);
+        }
+      });
+    });
   }
 
   // Limpiar: olvida la búsqueda (también en Buscar) y deja el formulario como
@@ -167,6 +197,7 @@ export class TripSearchForm {
       this.form.patchValue({
         date: toIsoDate(new Date()),
         time: getDefaultTime(new Date()),
+        margin: this.defaultMargin(),
       });
       return;
     }

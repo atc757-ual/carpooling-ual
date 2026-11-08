@@ -1,8 +1,10 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { TripSearch } from '../../../core/models/trip-search.model';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { TripSearchStateService } from '../trip-search-state.service';
 import {
@@ -79,6 +81,86 @@ describe('TripSearchForm', () => {
       margin: 20,
       seats: 1,
     });
+  });
+
+  it('uses the user preferred time tolerance if available', () => {
+    const auth = TestBed.inject(AuthService);
+    vi.spyOn(auth, 'currentUser').mockReturnValue({ timeToleranceMin: 10 } as never);
+    const customFixture = TestBed.createComponent(TripSearchForm);
+    const customForm = customFixture.componentInstance;
+    customFixture.detectChanges();
+
+    expect(customForm.form.getRawValue().margin).toBe(10);
+    customForm.clear();
+    expect(customForm.form.getRawValue().margin).toBe(10);
+  });
+
+  it('falls back to default margin if user tolerance is not in allowed margins', () => {
+    const auth = TestBed.inject(AuthService);
+    vi.spyOn(auth, 'currentUser').mockReturnValue({ timeToleranceMin: 99 } as never);
+    const customFixture = TestBed.createComponent(TripSearchForm);
+    const customForm = customFixture.componentInstance;
+    customFixture.detectChanges();
+
+    expect(customForm.form.getRawValue().margin).toBe(20);
+  });
+
+  it('dynamically syncs margin with user tolerance unless dirty', () => {
+    const user = signal<{ timeToleranceMin: number } | null>({ timeToleranceMin: 10 });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [TripSearchForm],
+      providers: [
+        provideIonicAngular(),
+        provideRouter([]),
+        { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
+        { provide: AuthService, useValue: { currentUser: user.asReadonly() } },
+      ],
+    });
+    const customFixture = TestBed.createComponent(TripSearchForm);
+    const customForm = customFixture.componentInstance;
+    customFixture.detectChanges();
+    expect(customForm.form.controls.margin.value).toBe(10);
+
+    // Profile updates preference to 15
+    user.set({ timeToleranceMin: 15 });
+    customFixture.detectChanges();
+    expect(customForm.form.controls.margin.value).toBe(15);
+
+    // If margin is dirty, it is not overwritten
+    customForm.form.controls.margin.markAsDirty();
+    user.set({ timeToleranceMin: 5 });
+    customFixture.detectChanges();
+    expect(customForm.form.controls.margin.value).toBe(15);
+  });
+
+  it('takes a new tolerance even with a remembered search, which sets the margin on opening', () => {
+    const user = signal<{ timeToleranceMin: number } | null>({ timeToleranceMin: 10 });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [TripSearchForm],
+      providers: [
+        provideIonicAngular(),
+        provideRouter([]),
+        { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
+        { provide: AuthService, useValue: { currentUser: user.asReadonly() } },
+      ],
+    });
+    TestBed.inject(TripSearchStateService).set(SEARCH);
+    const customFixture = TestBed.createComponent(TripSearchForm);
+    const customForm = customFixture.componentInstance;
+    customFixture.detectChanges();
+    expect(customForm.form.controls.margin.value).toBe(SEARCH.margin);
+
+    // Another change of the user (same tolerance) keeps the remembered margin
+    user.set({ timeToleranceMin: 10 });
+    customFixture.detectChanges();
+    expect(customForm.form.controls.margin.value).toBe(SEARCH.margin);
+
+    user.set({ timeToleranceMin: 5 });
+    customFixture.detectChanges();
+    expect(customForm.form.controls.margin.value).toBe(5);
+    TestBed.inject(TripSearchStateService).clear();
   });
 
   it('asks for the arrival time going to the campus and the departure time coming back', () => {

@@ -7,14 +7,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import {
-  IonButton,
-  IonIcon,
-  IonInput,
-  IonSelect,
-  IonSelectOption,
-  IonSpinner,
-} from '@ionic/angular';
+import { IonButton, IonIcon, IonInput, IonSpinner } from '@ionic/angular';
 import {
   checkmark,
   ellipsisHorizontalCircleOutline,
@@ -26,11 +19,13 @@ import { Vehicle, VehicleEngine } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { LegalDocumentsService } from '../../../core/services/users/legal-documents.service';
+import { DeclarationContent } from '../declaration-content/declaration-content';
 import { DeclarationField } from '../declaration-field/declaration-field';
 import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { BrandField } from '../../../shared/components/ui/brand-field/brand-field';
 import { LicensePlate } from '../../../shared/components/ui/license-plate/license-plate';
+import { PlateCountrySelect } from '../../../shared/components/ui/plate-country-select/plate-country-select';
 import { formatPlate, vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
 import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colors.store';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -38,7 +33,6 @@ import {
   DEFAULT_PLATE_COUNTRY,
   isValidPlate,
   normalizePlate,
-  PLATE_COUNTRY_OPTIONS,
   plateSign,
 } from '../../../shared/utils/plate-country.util';
 
@@ -65,14 +59,14 @@ const DEFAULT_TOTAL_SEATS = 5;
     IonButton,
     IonIcon,
     IonInput,
-    IonSelect,
-    IonSelectOption,
     IonSpinner,
     IonicFormStatus,
     SeatStepper,
     BrandField,
     LicensePlate,
+    DeclarationContent,
     DeclarationField,
+    PlateCountrySelect,
   ],
   templateUrl: './vehicle-form.html',
   styleUrl: './vehicle-form.scss',
@@ -99,6 +93,8 @@ export class VehicleForm {
   });
 
   readonly isSaving = signal(false);
+  // Leyendo la declaración del vehículo, dentro de esta misma ventana
+  readonly isReadingDeclaration = signal(false);
   // Los colores activos del catálogo y, al editar, también el del vehículo
   // aunque ya no se ofrezca (lo conserva)
   private readonly colorCatalog = inject(VehicleColorsStore);
@@ -150,7 +146,6 @@ export class VehicleForm {
     () => this.engines.find(({ value }) => value === this.engine())?.label ?? null,
   );
   protected readonly checkIcon = checkmark;
-  protected readonly plateCountries = PLATE_COUNTRY_OPTIONS;
   // España: su formato; el resto: letras y números, como en la placa
   private readonly plateCountry = toSignal(this.form.controls.plateCountry.valueChanges, {
     initialValue: this.form.controls.plateCountry.value,
@@ -193,6 +188,12 @@ export class VehicleForm {
     this.form.controls.plateCountry.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.form.controls.plate.updateValueAndValidity());
+  }
+
+  // «Acepto la declaración»: marca la casilla y vuelve al formulario
+  handleDeclarationAccepted(): void {
+    this.form.controls.declared.setValue(true);
+    this.isReadingDeclaration.set(false);
   }
 
   async handleSubmit(): Promise<void> {

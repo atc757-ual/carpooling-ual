@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { IonCheckbox, ModalController } from '@ionic/angular';
 import { DeclarationDocument, openDeclarationModal } from '../declaration-modal/declaration-modal';
@@ -17,10 +17,16 @@ export class DeclarationField {
 
   readonly control = input.required<FormControl<boolean>>();
   readonly document = input<DeclarationDocument>('driver_declaration');
+  readonly isInline = input(false);
+  readonly readRequested = output();
   // Cada casilla con su texto (en Publicar puede haber las dos)
   protected readonly labelId = computed(() => `${this.document()}-label`);
 
   async handleRead(): Promise<void> {
+    if (this.isInline()) {
+      this.readRequested.emit();
+      return;
+    }
     if (await openDeclarationModal(this.modalController, this.document())) {
       this.control().setValue(true);
     }

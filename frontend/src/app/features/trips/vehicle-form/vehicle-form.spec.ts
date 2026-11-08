@@ -107,6 +107,26 @@ describe('VehicleForm', () => {
     expect(legends.join(' ')).toContain('· Híbrido');
   });
 
+  it('shows the vehicle declaration in its own window and ticks it when accepted', async () => {
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+
+    root.querySelector<HTMLButtonElement>('.declaration-field__link')?.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(form.isReadingDeclaration()).toBe(true);
+    expect(root.querySelector('.vehicle-form__fields--hidden')).not.toBeNull();
+    expect(root.querySelector('.vehicle-form__declaration-step')?.textContent).toContain(
+      'Declaración del vehículo',
+    );
+
+    form.handleDeclarationAccepted();
+    fixture.detectChanges();
+    expect(form.form.controls.declared.value).toBe(true);
+    expect(root.querySelector('.vehicle-form__declaration-step')).toBeNull();
+  });
+
   it('shows the plate field and no summary when registering', () => {
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;

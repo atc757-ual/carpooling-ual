@@ -9,9 +9,9 @@
   <h2 class="text-subtitle">{{ header }}</h2>
   <p class="text-body-s text-color-muted">{{ message }}</p>
   <!-- En formularios: cada botón envía el suyo (sin click en ion-button). El
-       botón azul (el principal) va primero: arriba en el móvil y a la derecha
-       en escritorio. Si la acción es destructiva, lo principal es cancelar y
-       la acción va en blanco con letras azules -->
+       botón de confirmar va primero: arriba en el móvil y a la izquierda en
+       escritorio. Si la acción es destructiva, lo principal (azul) es cancelar
+       y la acción va en blanco con letras azules -->
   <div class="confirm__actions">
     @if (isDestructive) {
       <form (submit)="$event.preventDefault(); handleConfirm()">

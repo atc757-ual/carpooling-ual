@@ -16,30 +16,54 @@
         </ion-button>
       </div>
     } @else if (documents.hasValue()) {
-      @for (document of documents.value(); track document.type) {
-        <section class="legal-update__document" [attr.aria-labelledby]="'legal-' + document.type">
-          <h2 [id]="'legal-' + document.type" class="text-title">
-            {{ document.title }}
-            <span class="text-body-s text-color-muted">
-              · {{ 'auth.legalUpdate.version' | transloco: { version: document.version } }}
-            </span>
-          </h2>
-          <app-legal-changes
-            [heading]="'auth.legalUpdate.changes' | transloco"
-            [summary]="document.summary"
-          />
-          <!-- El backend ya lo ha saneado; Angular lo limpia otra vez al pintarlo -->
-          <article class="legal legal-update__text" [innerHTML]="document.content"></article>
-        </section>
-      }
+      <!-- Una tarjeta compacta por documento: su icono, el título con la versión,
+           qué ha cambiado y el enlace al texto completo -->
+      <div class="legal-update__list">
+        @for (document of documents.value(); track document.type) {
+          <article class="legal-card" [attr.aria-labelledby]="'legal-' + document.type">
+            <div class="legal-card__head">
+              <span class="legal-card__icon" aria-hidden="true">
+                <ion-icon [icon]="iconOf(document.type)" />
+              </span>
+              <div class="legal-card__heading">
+                <h2 [id]="'legal-' + document.type" class="legal-card__title">
+                  {{ document.title }}
+                </h2>
+                <span class="status status--info">
+                  {{ 'auth.legalUpdate.version' | transloco: { version: document.version } }}
+                </span>
+              </div>
+            </div>
+            @if (document.summary) {
+              <div class="legal-card__changes">
+                <span class="text-caption legal-card__label">{{
+                  'auth.legalUpdate.changes' | transloco
+                }}</span>
+                <p class="text-body-s">{{ document.summary }}</p>
+              </div>
+            }
+            <button type="button" class="legal-card__read" (click)="handleReadFull(document)">
+              {{ 'auth.legalUpdate.readFull' | transloco }}
+              <ion-icon [icon]="isRead(document) ? doneIcon : readIcon" aria-hidden="true" />
+            </button>
+          </article>
+        }
+      </div>
 
       @if (acceptError(); as message) {
         <p class="text-body-s legal-update__error" role="alert">{{ message }}</p>
       }
 
+      <!-- Se dice por qué está desactivado: hay que leer cada documento hasta el final -->
+      @if (!hasReadAll()) {
+        <p class="text-body-s text-color-muted legal-update__hint">
+          {{ 'auth.legalUpdate.readHint' | transloco }}
+        </p>
+      }
+
       <!-- type="submit": ni (click) en un ion-button ni un botón suelto -->
       <form class="legal-update__actions" (submit)="$event.preventDefault(); handleAccept()">
-        <ion-button type="submit" expand="block" [disabled]="isAccepting()">
+        <ion-button type="submit" expand="block" [disabled]="isAccepting() || !hasReadAll()">
           {{ 'auth.legalUpdate.accept' | transloco }}
         </ion-button>
       </form>
@@ -51,12 +75,16 @@
 
     <!-- Quien no acepta puede irse, pero no usar la app -->
     <div class="legal-update__exits">
-      <ion-button fill="clear" size="small" (click)="handleLogout()">
+      <button type="button" class="legal-update__exit-link" (click)="handleLogout()">
         {{ 'auth.legalUpdate.logout' | transloco }}
-      </ion-button>
-      <ion-button fill="clear" size="small" color="danger" (click)="handleDeleteAccount()">
+      </button>
+      <button
+        type="button"
+        class="legal-update__exit-link legal-update__exit-link--danger"
+        (click)="handleDeleteAccount()"
+      >
         {{ 'auth.legalUpdate.deleteAccount' | transloco }}
-      </ion-button>
+      </button>
     </div>
   </app-auth-layout>
 </ion-content>

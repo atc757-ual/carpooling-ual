@@ -1,4 +1,13 @@
-import { Component, inject, Input, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  effect,
+  ElementRef,
+  inject,
+  Input,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { IonContent, IonSpinner, ModalController } from '@ionic/angular';
 import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { ModalHeader } from '../modal-header/modal-header';
@@ -35,9 +44,30 @@ export class LegalModal implements OnInit {
   // @Input y no input(): ModalController asigna componentProps como
   // propiedades normales, lo que rompería una entrada de tipo signal
   @Input({ required: true }) document!: LegalDocument;
+  // Solo quien necesita saber que se ha llegado al final del texto (una
+  // función y no el resultado al cerrar: arrastrar o tocar fuera no pasa por close)
+  @Input() onReachedEnd?: () => void;
 
   readonly current = signal<LegalDocumentView | null>(null);
   readonly hasError = signal(false);
+  private readonly endMarker = viewChild<ElementRef<HTMLElement>>('endMarker');
+
+  constructor() {
+    effect((onCleanup) => {
+      const marker = this.endMarker()?.nativeElement;
+      if (!marker || !this.onReachedEnd) {
+        return;
+      }
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          observer.disconnect();
+          this.onReachedEnd?.();
+        }
+      });
+      observer.observe(marker);
+      onCleanup(() => observer.disconnect());
+    });
+  }
 
   get title(): string {
     if (this.transloco) {
@@ -85,15 +115,16 @@ export class LegalModal implements OnInit {
   }
 }
 
-// Abre un texto legal en su ventana (legal-dialog: el 85 % del alto; en el
+// Abre un texto legal en su ventana (legal-dialog: el 70 % del alto; en el
 // móvil, una hoja desde abajo), igual desde el registro que desde Mi perfil
 export async function openLegalModal(
   modalController: ModalController,
   document: LegalDocument,
+  onReachedEnd?: () => void,
 ): Promise<void> {
   const modal = await modalController.create({
     component: LegalModal,
-    componentProps: { document },
+    componentProps: { document, onReachedEnd },
     cssClass: 'legal-dialog',
   });
   await modal.present();

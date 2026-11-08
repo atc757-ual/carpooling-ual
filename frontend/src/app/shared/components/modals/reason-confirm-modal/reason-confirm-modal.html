@@ -22,12 +22,8 @@
     }
   </div>
 
-  <!-- El azul (el principal) es cancelar: la acción del administrador va en
-       blanco con letras azules, como en la confirmación destructiva -->
+  <!-- Aceptar a la izquierda (arriba en móvil) y Cancelar a la derecha (abajo en móvil) -->
   <div class="confirm__actions">
-    <ion-button type="button" expand="block" (click)="handleCancel()">{{
-      computedCancelText
-    }}</ion-button>
     <ion-button
       class="confirm__secondary"
       type="submit"
@@ -37,5 +33,8 @@
     >
       {{ confirmText }}
     </ion-button>
+    <ion-button type="button" expand="block" (click)="handleCancel()">{{
+      computedCancelText
+    }}</ion-button>
   </div>
 </form>
