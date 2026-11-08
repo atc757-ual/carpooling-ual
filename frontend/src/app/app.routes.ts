@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, Routes } from '@angular/router';
+import { accessRevokedGuard, accessRevokedOnlyGuard } from './core/guards/access-revoked.guard';
 import { appAreaGuard } from './core/guards/app-area.guard';
 import { authGuard } from './core/guards/auth.guard';
 import { legalAcceptanceGuard } from './core/guards/legal-acceptance.guard';
@@ -85,7 +86,7 @@ export const routes: Routes = [
     // Mensajes y Perfil; sin sesión, authGuard lleva a la bienvenida o al
     // login). Notificaciones se abre con la campana de la cabecera
     path: 'tabs',
-    canActivate: [authGuard, legalAcceptanceGuard, appAreaGuard],
+    canActivate: [authGuard, accessRevokedGuard, legalAcceptanceGuard, appAreaGuard],
     loadComponent: () => import('./features/tabs/tabs.page').then((m) => m.TabsPage),
     children: [
       {
@@ -275,6 +276,16 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/account-created/account-created.page').then(
         (m) => m.AccountCreatedPage,
+      ),
+  },
+  {
+    // Un administrador ha desactivado todos los perfiles de la cuenta
+    path: 'account-disabled',
+    canActivate: [authGuard, accessRevokedOnlyGuard],
+    title: 'Cuenta sin perfiles activos',
+    loadComponent: () =>
+      import('./features/auth/account-disabled/account-disabled.page').then(
+        (m) => m.AccountDisabledPage,
       ),
   },
   {

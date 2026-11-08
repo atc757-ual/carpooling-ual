@@ -113,6 +113,7 @@ describe('Users API (e2e)', () => {
       phone: TEST_PHONE,
       phoneVerified: false,
       profiles: ['passenger'],
+      isAccessRevoked: false,
       activeMode: null,
       timeToleranceMin: 15,
       avatarKey: null,

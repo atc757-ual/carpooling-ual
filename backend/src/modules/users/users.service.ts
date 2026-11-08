@@ -524,6 +524,7 @@ export class UsersService {
       phone: user.phone,
       phoneVerified: user.phoneVerifiedAt !== null,
       profiles: this.getActiveProfiles(user),
+      isAccessRevoked: this.isAccessRevoked(user),
       activeMode: user.activeMode,
       timeToleranceMin: user.timeToleranceMin,
       avatarKey: user.avatarKey,
@@ -531,6 +532,17 @@ export class UsersService {
       preferences: toTravelPreferences(user),
       ratings: toUserRatingsSummary(user),
     };
+  }
+
+  // Si tiene perfiles y todos están desactivados: solo un administrador puede
+  // desactivarlos. Una cuenta que aún no ha elegido perfil no está en este caso
+  isAccessRevoked(user: User): boolean {
+    const profiles = [
+      user.driverProfile,
+      user.passengerProfile,
+      user.adminProfile,
+    ].filter((profile) => profile !== null && profile !== undefined);
+    return profiles.length > 0 && profiles.every(({ isActive }) => !isActive);
   }
 
   getActiveProfiles(user: User): ProfileType[] {

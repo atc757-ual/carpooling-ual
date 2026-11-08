@@ -25,6 +25,8 @@ export interface User {
   phone: string | null;
   phoneVerified?: boolean;
   profiles: Profile[];
+  // Un administrador le ha desactivado todos sus perfiles
+  isAccessRevoked?: boolean;
   // Modo con el que viaja ahora, el mismo en todos sus dispositivos; null
   // hasta que lo cambia por primera vez
   activeMode: 'passenger' | 'driver' | null;

@@ -12443,6 +12443,11 @@
               ]
             }
           },
+          "isAccessRevoked": {
+            "type": "boolean",
+            "description": "True when the user has profiles and an administrator has deactivated all of them",
+            "example": false
+          },
           "activeMode": {
             "type": "string",
             "enum": [
@@ -12487,6 +12492,7 @@
           "phone",
           "phoneVerified",
           "profiles",
+          "isAccessRevoked",
           "activeMode",
           "timeToleranceMin",
           "avatarKey",

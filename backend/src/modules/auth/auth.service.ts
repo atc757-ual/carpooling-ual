@@ -239,6 +239,7 @@ export class AuthService {
       phone: user.phone,
       phoneVerified: user.phoneVerifiedAt !== null,
       profiles: this.usersService.getActiveProfiles(user),
+      isAccessRevoked: this.usersService.isAccessRevoked(user),
       activeMode: user.activeMode,
       timeToleranceMin: user.timeToleranceMin,
       avatarKey: user.avatarKey,

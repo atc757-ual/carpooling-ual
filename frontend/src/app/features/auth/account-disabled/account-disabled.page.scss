@@ -1,0 +1,9 @@
+.account-disabled__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  ion-button {
+    margin: 0;
+  }
+}
