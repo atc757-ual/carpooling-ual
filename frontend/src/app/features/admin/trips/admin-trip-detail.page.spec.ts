@@ -107,7 +107,7 @@ describe('AdminTripDetailPage', () => {
       'Conductor: Javier Pardo',
     );
     expect(heading.querySelector('ion-breadcrumb:last-child')?.textContent).toBe(
-      'Roquetas de Mar → Campus UAL',
+      'Detalle de viaje',
     );
     const data = root.querySelector('.trip-detail__data')?.textContent ?? '';
     expect(data).toContain('2 de 3 libres');
