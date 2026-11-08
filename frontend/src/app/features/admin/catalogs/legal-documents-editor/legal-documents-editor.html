@@ -1,14 +1,29 @@
-<ion-segment
-  class="legal-editor__segment"
-  [value]="type()"
-  (ionChange)="handleType($event.detail.value)"
->
-  @for (option of types; track option.value) {
-    <ion-segment-button [value]="option.value">
-      <ion-label>{{ option.label }}</ion-label>
-    </ion-segment-button>
+<!-- Qué documento se edita y, en la misma línea, en qué estado está -->
+<ion-card class="legal-editor__card legal-editor__picker">
+  <app-filter-chips
+    legend="Documento"
+    [options]="types"
+    [value]="type()"
+    [allLabel]="null"
+    (valueChange)="handleType($event)"
+  />
+
+  @if (!errorMessage() && versions.hasValue()) {
+    <div class="legal-editor__chips">
+      @if (current(); as current) {
+        <span class="status status--accepted">Vigente: versión {{ current.version }}</span>
+      } @else {
+        <span class="status">Aún sin publicar</span>
+      }
+      @if (draft(); as draft) {
+        <span class="status status--info">Borrador {{ draft.version }} sin publicar</span>
+      }
+      @if (isDirty()) {
+        <span class="status status--pending">Cambios sin guardar</span>
+      }
+    </div>
   }
-</ion-segment>
+</ion-card>
 
 @if (errorMessage(); as message) {
   <div class="notice notice--danger" role="alert">
@@ -19,38 +34,34 @@
     <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
   </div>
 } @else if (versions.hasValue()) {
-  <p class="text-body-s legal-editor__status">
-    @if (current(); as current) {
-      Vigente: versión {{ current.version }}.
-    } @else {
-      Aún no hay ninguna versión publicada.
-    }
-    @if (draft(); as draft) {
-      Borrador {{ draft.version }} sin publicar.
-    }
-  </p>
-
-  <!-- Qué tipo de cambio es: decide el número y si hay que volver a aceptarla -->
-  <div class="legal-editor__change">
-    <ion-segment
-      class="legal-editor__segment"
-      aria-label="Tipo de cambio"
-      [value]="changeType()"
-      (ionChange)="handleChangeType($event.detail.value)"
-    >
-      @for (option of changeTypes; track option.value) {
-        <ion-segment-button [value]="option.value">
-          <ion-label>{{ option.label }}</ion-label>
-        </ion-segment-button>
+  <!-- El tipo decide el número de versión y si hay que volver a aceptarla: toda
+       la tarjeta elige (radio nativo oculto, como en la guía de estilos) -->
+  <ion-card class="legal-editor__card legal-editor__change">
+    <h2 class="admin-list__title">Preparar el cambio</h2>
+    <fieldset class="legal-editor__options">
+      <legend class="visually-hidden">Tipo de cambio</legend>
+      @for (option of changeOptions(); track option.value) {
+        <label
+          class="legal-editor__option"
+          [class.legal-editor__option--selected]="changeType() === option.value"
+        >
+          <input
+            class="visually-hidden"
+            type="radio"
+            name="legalChangeType"
+            [checked]="changeType() === option.value"
+            (change)="handleChangeType(option.value)"
+          />
+          <span class="legal-editor__option-head">
+            <span class="text-body legal-editor__option-title">{{ option.label }}</span>
+            @if (option.version; as version) {
+              <span class="status status--info">Versión {{ version }}</span>
+            }
+          </span>
+          <span class="text-body-s legal-editor__muted">{{ option.note }}</span>
+        </label>
       }
-    </ion-segment>
-    <p class="text-body-s legal-editor__status">
-      {{ changeNote() }}
-      @if (nextVersion(); as version) {
-        Saldrá como la versión <b>{{ version }}</b
-        >.
-      }
-    </p>
+    </fieldset>
     <ion-textarea
       label="Qué ha cambiado"
       label-placement="stacked"
@@ -63,42 +74,100 @@
       [value]="summary()"
       (ionInput)="handleSummary($event.detail.value)"
     />
-  </div>
+  </ion-card>
 
-  <div class="legal-editor__panes">
-    <ion-textarea
-      label="Texto (HTML)"
-      label-placement="stacked"
-      fill="outline"
-      [autoGrow]="true"
-      [rows]="14"
-      [value]="content()"
-      (ionInput)="handleInput($event.detail.value)"
-    />
-    <section class="legal-editor__preview" aria-label="Vista previa">
-      <h2 class="text-label legal-editor__preview-title">Vista previa</h2>
-      <div class="legal" [innerHTML]="content()"></div>
-    </section>
-  </div>
+  <!-- El texto a todo el ancho: se edita, se comprueba o se compara -->
+  <ion-card class="legal-editor__card">
+    <div class="legal-editor__head">
+      <h2 class="admin-list__title">Texto</h2>
+      <div class="legal-editor__tabs" role="group" aria-label="Vista del texto">
+        @for (option of views(); track option.value) {
+          <button
+            type="button"
+            class="legal-editor__tab"
+            [class.legal-editor__tab--selected]="view() === option.value"
+            [attr.aria-pressed]="view() === option.value"
+            (click)="handleView(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    </div>
 
-  <div class="legal-editor__actions">
-    <ion-button fill="outline" [disabled]="isBusy()" (click)="handleSave()">
-      Guardar borrador
-    </ion-button>
-    <ion-button [disabled]="!canPublish()" (click)="handlePublish()">Publicar</ion-button>
-  </div>
+    @switch (view()) {
+      @case ('edit') {
+        <ion-textarea
+          label="Texto (HTML)"
+          label-placement="stacked"
+          fill="outline"
+          [autoGrow]="true"
+          [rows]="14"
+          [value]="content()"
+          (ionInput)="handleInput($event.detail.value)"
+        />
+      }
+      @case ('preview') {
+        <section class="legal-editor__preview" aria-label="Vista previa">
+          <div class="legal" [innerHTML]="content()"></div>
+        </section>
+      }
+      @case ('compare') {
+        <div class="legal-editor__compare">
+          <section class="legal-editor__preview" aria-labelledby="legal-compare-current">
+            <h3 id="legal-compare-current" class="text-label legal-editor__compare-title">
+              Vigente · versión {{ current()?.version }}
+            </h3>
+            <div class="legal" [innerHTML]="current()?.content"></div>
+          </section>
+          <section class="legal-editor__preview" aria-labelledby="legal-compare-next">
+            <h3 id="legal-compare-next" class="text-label legal-editor__compare-title">
+              Nueva · versión {{ nextVersion() }}
+            </h3>
+            <div class="legal" [innerHTML]="content()"></div>
+          </section>
+        </div>
+      }
+    }
+
+    <div class="legal-editor__actions">
+      @if (publishHint(); as hint) {
+        <output class="text-body-s legal-editor__muted legal-editor__hint">{{ hint }}</output>
+      }
+      <div class="legal-editor__buttons">
+        <ion-button fill="outline" [disabled]="isBusy()" (click)="handleSave()">
+          Guardar borrador
+        </ion-button>
+        <ion-button [disabled]="!canPublish()" (click)="handlePublish()">Publicar</ion-button>
+      </div>
+    </div>
+  </ion-card>
 
   @if (published().length > 0) {
-    <h2 class="text-subtitle legal-editor__history-title">Versiones publicadas</h2>
-    <ul class="legal-editor__history">
-      @for (entry of published(); track entry.version) {
-        <li class="text-body-s">
-          Versión {{ entry.version }} · {{ entry.kind }} · {{ entry.date }}
-          @if (entry.summary) {
-            <br />{{ entry.summary }}
-          }
-        </li>
-      }
-    </ul>
+    <ion-card class="legal-editor__card">
+      <h2 class="admin-list__title">Versiones publicadas</h2>
+      <ul class="legal-editor__history">
+        @for (entry of published(); track entry.version) {
+          <li class="legal-editor__entry">
+            <div class="legal-editor__entry-head">
+              <span class="text-body legal-editor__entry-version">Versión {{ entry.version }}</span>
+              <span [class]="entry.kindClass">{{ entry.kind }}</span>
+              <time class="text-body-s legal-editor__muted legal-editor__entry-date">{{
+                entry.date
+              }}</time>
+            </div>
+            @if (entry.summary) {
+              <p class="text-body-s legal-editor__muted legal-editor__entry-summary">
+                {{ entry.summary }}
+              </p>
+            }
+            <details class="legal-editor__entry-text">
+              <summary class="text-body-s">Ver el texto</summary>
+              <div class="legal" [innerHTML]="entry.content"></div>
+            </details>
+          </li>
+        }
+      </ul>
+    </ion-card>
   }
 }

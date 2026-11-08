@@ -73,13 +73,95 @@ describe('LegalDocumentsEditor', () => {
     expect(editor.content()).toBe('<p>Borrador</p>');
     expect(editor.changeType()).toBe('minor');
     expect(editor.summary()).toBe('Una aclaración.');
-    expect(root.textContent).toContain('Vigente: versión 1.0.');
-    expect(root.textContent).toContain('Borrador 1.1 sin publicar.');
-    expect(root.textContent).toContain('Saldrá como la versión 1.1');
-    expect(root.querySelector('.legal')?.innerHTML).toContain('Borrador');
+    expect(root.textContent).toContain('Vigente: versión 1.0');
+    expect(root.textContent).toContain('Borrador 1.1 sin publicar');
+    const options = root.querySelectorAll('.legal-editor__option');
+    expect(options[0].textContent).toContain('Versión 1.1');
+    expect(options[1].textContent).toContain('Versión 2.0');
+    expect(options[0].classList).toContain('legal-editor__option--selected');
+    expect(root.textContent).not.toContain('Cambios sin guardar');
+    expect(root.querySelector('.legal-editor__preview')).toBeNull();
     const history = root.querySelectorAll('.legal-editor__history li');
     expect(history).toHaveLength(1);
-    expect(history[0].textContent).toContain('Versión 1.0 · importante');
+    expect(history[0].textContent).toContain('Versión 1.0');
+    expect(history[0].textContent).toContain('Importante');
+
+    editor.handleView('preview');
+    fixture.detectChanges();
+    expect(root.querySelector('.legal-editor__preview .legal')?.innerHTML).toContain('Borrador');
+    expect(history[0].querySelector('details .legal')?.innerHTML).toContain('Vigente');
+  });
+
+  it('compares the new text with the current version', async () => {
+    const root = await render();
+    fixture.componentInstance.handleView('compare');
+    fixture.detectChanges();
+
+    const panes = root.querySelectorAll('.legal-editor__compare .legal');
+    expect(panes[0].innerHTML).toContain('Vigente');
+    expect(panes[1].innerHTML).toContain('Borrador');
+    expect(root.querySelector('.legal-editor__compare')?.textContent).toContain('versión 1.1');
+  });
+
+  it('offers no comparison without a current version', async () => {
+    versions.mockResolvedValue([DRAFT]);
+    const root = await render();
+    const tabs = [...root.querySelectorAll('.legal-editor__tab')].map((tab) =>
+      tab.textContent?.trim(),
+    );
+    expect(tabs).toEqual(['Editar', 'Vista previa']);
+  });
+
+  it('marks the unsaved changes', async () => {
+    const root = await render();
+    const editor = fixture.componentInstance;
+
+    editor.handleSummary('Otra aclaración.');
+    fixture.detectChanges();
+    expect(editor.isDirty()).toBe(true);
+    expect(root.textContent).toContain('Cambios sin guardar');
+  });
+
+  it('asks before losing the unsaved changes and keeps the document if refused', async () => {
+    await render();
+    const editor = fixture.componentInstance;
+    editor.handleInput('<p>Sin guardar</p>');
+
+    ask.mockResolvedValueOnce(false);
+    await editor.handleType('privacy');
+    expect(ask).toHaveBeenCalledWith(
+      expect.objectContaining({ header: '¿Descartar los cambios?', isDestructive: true }),
+    );
+    expect(editor.type()).toBe('terms');
+
+    await editor.handleType('privacy');
+    expect(editor.type()).toBe('privacy');
+  });
+
+  it('explains what is missing to publish', async () => {
+    versions.mockResolvedValue([PUBLISHED]);
+    await render();
+    const editor = fixture.componentInstance;
+
+    expect(editor.publishHint()).toContain('igual al de la versión vigente');
+    editor.handleSummary('Cambios.');
+    expect(editor.canPublish()).toBe(false);
+
+    editor.handleInput('<p>Nuevo</p>');
+    expect(editor.canPublish()).toBe(true);
+    editor.handleSummary('');
+    expect(editor.publishHint()).toContain('Qué ha cambiado');
+    editor.handleInput('  ');
+    expect(editor.publishHint()).toContain('Escribe el texto');
+  });
+
+  it('names the first version when nothing is published yet', async () => {
+    versions.mockResolvedValue([DRAFT]);
+    await render();
+    await fixture.componentInstance.handlePublish();
+    expect(ask).toHaveBeenCalledWith(
+      expect.objectContaining({ header: '¿Publicar la primera versión?' }),
+    );
   });
 
   it('starts from the current text and saves it with its change type and summary', async () => {
@@ -145,8 +227,8 @@ describe('LegalDocumentsEditor', () => {
     await editor.handlePublish();
     expect(ask).not.toHaveBeenCalled();
 
-    editor.handleType('privacy');
-    editor.handleType('other');
+    await editor.handleType('privacy');
+    await editor.handleType('other');
     await fixture.whenStable();
     expect(editor.type()).toBe('privacy');
     expect(versions).toHaveBeenLastCalledWith('privacy');
