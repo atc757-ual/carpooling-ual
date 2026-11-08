@@ -1,7 +1,7 @@
 @let art = graphic();
 <!-- Una imagen subida por el panel, o un SVG de la plataforma -->
 @if (art.kind === 'image') {
-  <img [src]="art.src" alt="" loading="lazy" decoding="async" />
+  <img class="avatar-art__photo" [src]="art.src" alt="" loading="lazy" decoding="async" />
 } @else {
   <svg
     aria-hidden="true"

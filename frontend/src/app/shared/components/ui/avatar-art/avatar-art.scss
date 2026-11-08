@@ -12,11 +12,10 @@ img {
 
 // Una imagen subida llena el círculo de quien la usa (sin su fondo alrededor);
 // el tamaño que le dan es para el dibujo SVG, que lleva margen
-:host:has(> img) {
-  // !important: la clase de tamaño de quien lo usa tiene más especificidad y
-  // solo debe valer para el dibujo
-  width: 100% !important;
-  height: 100% !important;
+// (img.clase, y no img: así gana a la clase de tamaño de quien lo usa)
+:host:has(> img.avatar-art__photo) {
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   border-radius: var(--radius-full);
 }
