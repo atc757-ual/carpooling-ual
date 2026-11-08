@@ -73,6 +73,12 @@ export class IncidentResource {
   })
   href: string;
 
+  @ApiProperty({
+    example: 'INC-0042',
+    description: 'Short code to cite the incident (consecutive number)',
+  })
+  code: string;
+
   @ApiProperty({ type: IncidentTripResource })
   trip: IncidentTripResource;
 
@@ -99,6 +105,11 @@ export class IncidentResource {
   review: IncidentReviewResource | null;
 }
 
+// «INC-0042»: el número con al menos cuatro cifras
+export function incidentCode(number: number): string {
+  return `INC-${String(number).padStart(4, '0')}`;
+}
+
 export function incidentHref(id: string): string {
   return `/${API_PREFIX}/incidents/${id}`;
 }
@@ -114,6 +125,7 @@ export function toIncidentResource({
     '@type': 'Incident',
     id: incident.id,
     href: incidentHref(incident.id),
+    code: incidentCode(incident.number),
     trip: {
       id: incident.tripId,
       href: tripHref(incident.tripId),

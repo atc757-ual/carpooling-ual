@@ -322,6 +322,7 @@ export class IncidentsService {
       type,
       sourceEntityId: incident.id,
       payload: {
+        number: incident.number,
         tripId: incident.tripId,
         requestId: incident.requestId,
         reporterId: incident.reporterId,
