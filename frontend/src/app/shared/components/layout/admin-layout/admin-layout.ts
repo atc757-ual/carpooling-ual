@@ -12,6 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { IonContent, IonHeader, IonIcon, NavController } from '@ionic/angular';
 import {
+  arrowBackOutline,
   closeOutline,
   logOutOutline,
   menuOutline,
@@ -19,6 +20,7 @@ import {
   personOutline,
   sunny,
 } from 'ionicons/icons';
+import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { filter } from 'rxjs';
 import { HOME_PATH, WELCOME_PATH } from '../../../../core/guards/redirect-paths';
 import { AdminIncidentsService } from '../../../../core/services/admin/admin-incidents.service';
@@ -58,6 +60,10 @@ export class AdminLayout implements OnInit {
   private readonly appContext = inject(AppContextService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly theme = inject(ThemeService);
+  private readonly transpiler = inject(TRANSLOCO_TRANSPILER, { optional: true });
+  private readonly transloco = this.transpiler
+    ? inject(TranslocoService, { optional: true })
+    : null;
   protected readonly headingContent = inject(HeadingContentService);
 
   protected readonly sections = ADMIN_SECTIONS;
@@ -65,6 +71,7 @@ export class AdminLayout implements OnInit {
   protected readonly logoutIcon = logOutOutline;
   protected readonly appIcon = personOutline;
   protected readonly menuIcon = menuOutline;
+  protected readonly backIcon = arrowBackOutline;
   protected readonly closeIcon = closeOutline;
   protected readonly mobileMenuOpen = signal(false);
   // «Ir a la app» solo si la cuenta también conduce o viaja
@@ -91,6 +98,12 @@ export class AdminLayout implements OnInit {
 
   // El contador se actualiza al entrar y en cada cambio de sección
   ngOnInit(): void {
+    // El panel no usa el pipe, que es quien las carga; las ventanas compartidas
+    // (p. ej. la del motivo) sí necesitan los textos
+    this.transloco
+      ?.load(this.transloco.getActiveLang())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
     void this.appContext.remember('admin');
     void this.incidents.refreshOpenCount();
     this.router.events

@@ -5,6 +5,7 @@ import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { AdminUserDetail } from '../../../core/models/admin-user.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminUsersService } from '../../../core/services/admin/admin-users.service';
+import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AdminUserDetailPage, profileRows } from './admin-user-detail.page';
 
@@ -46,12 +47,12 @@ describe('profileRows', () => {
     expect(
       profileRows(DETAIL).map(({ profile, actionText, rating }) => [profile, actionText, rating]),
     ).toEqual([
-      ['driver', 'Desactivar', '4,5 ★ (4)'],
-      ['passenger', 'Activar', 'Sin valoraciones'],
-      ['admin', 'Dar', null],
+      ['driver', 'Inhabilitar', '4,5 ★ (4)'],
+      ['passenger', 'Habilitar', 'Sin valoraciones'],
+      ['admin', 'Conceder', null],
     ]);
     const admin = profileRows({ ...DETAIL, profiles: [{ profile: 'admin', isActive: true }] });
-    expect(admin.map(({ actionText }) => actionText)).toEqual(['Quitar']);
+    expect(admin.map(({ actionText }) => actionText)).toEqual(['Revocar']);
   });
 });
 
@@ -122,9 +123,27 @@ describe('AdminUserDetailPage', () => {
       isActive: false,
       reason: 'Checked with the user',
     });
-    expect(showSuccess).toHaveBeenCalledWith('Perfil de conductor desactivado.');
+    expect(showSuccess).toHaveBeenCalledWith('Perfil de conductor inhabilitado.');
     await fixture.whenStable();
     expect(get).toHaveBeenCalledTimes(2);
+  });
+
+  it('warns when the change leaves the account without active profiles', async () => {
+    await render();
+    confirmingModal();
+    const [driver, passenger] = profileRows(DETAIL);
+
+    await fixture.componentInstance.handleProfile(driver);
+    expect(create.mock.lastCall?.[0].componentProps.message).toContain('ningún perfil activo');
+
+    await fixture.componentInstance.handleProfile(passenger);
+    expect(create.mock.lastCall?.[0].componentProps.message).not.toContain('ningún perfil activo');
+  });
+
+  it('asks the layout for the back button and the title on mobile', async () => {
+    await render();
+    const bar = TestBed.inject(HeadingContentService).mobileBar();
+    expect(bar?.title).toBe('Detalle de usuario');
   });
 
   it('lifts a suspension with the reason', async () => {

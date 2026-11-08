@@ -330,14 +330,14 @@ for (const viewport of VIEWPORTS) {
       cy.contains('a', 'Ver perfil').click();
       cy.wait('@detail');
       cy.contains('h1', 'Lucía Cortés');
-      cy.contains('li', 'Conductor').contains('ion-button', 'Desactivar').click();
+      cy.contains('li', 'Conductor').contains('ion-button', 'Inhabilitar').click();
 
       cy.get('app-reason-confirm-modal').within(() => {
-        cy.contains('¿Desactivar el perfil de conductor?');
-        cy.contains('ion-button', 'Desactivar perfil').should('have.attr', 'disabled');
+        cy.contains('¿Inhabilitar el perfil de conductor?');
+        cy.contains('ion-button', 'Inhabilitar perfil').should('have.attr', 'disabled');
         cy.get('ion-textarea textarea').type('Several reports on the same week');
-        cy.contains('ion-button', 'Desactivar perfil').should('not.have.attr', 'disabled');
-        cy.contains('ion-button', 'Desactivar perfil').click();
+        cy.contains('ion-button', 'Inhabilitar perfil').should('not.have.attr', 'disabled');
+        cy.contains('ion-button', 'Inhabilitar perfil').click();
       });
 
       cy.wait('@profile')
@@ -346,7 +346,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('ion-toast')
         .shadow()
         .find('.toast-message')
-        .should('contain', 'Perfil de conductor desactivado.');
+        .should('contain', 'Perfil de conductor inhabilitado.');
     });
 
     it('runs a scenario, follows its progress and shows its results', () => {

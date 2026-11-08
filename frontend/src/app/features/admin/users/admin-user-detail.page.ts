@@ -8,8 +8,28 @@ import {
   resource,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { IonButton, IonIcon, IonSkeletonText, ModalController } from '@ionic/angular';
-import { arrowBackOutline } from 'ionicons/icons';
+import {
+  IonBreadcrumb,
+  IonBreadcrumbs,
+  IonButton,
+  IonCard,
+  IonIcon,
+  IonSkeletonText,
+  ModalController,
+} from '@ionic/angular';
+import {
+  alertCircleOutline,
+  banOutline,
+  carOutline,
+  checkmarkCircleOutline,
+  documentTextOutline,
+  handRightOutline,
+  pauseCircleOutline,
+  peopleOutline,
+  navigateOutline,
+  personOutline,
+  shieldOutline,
+} from 'ionicons/icons';
 import { AdminUserDetail } from '../../../core/models/admin-user.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { Profile } from '../../../core/models/user.model';
@@ -50,8 +70,8 @@ export interface ProfileRow {
 // Textos de la acción: el de administrador se da o se quita; los demás se
 // activan o se desactivan
 const ACTION_TEXTS = {
-  admin: { active: 'Quitar', inactive: 'Dar' },
-  other: { active: 'Desactivar', inactive: 'Activar' },
+  admin: { active: 'Revocar', inactive: 'Conceder' },
+  other: { active: 'Inhabilitar', inactive: 'Habilitar' },
 } as const;
 
 function stateTextFor(hasProfile: boolean, isActive: boolean): string {
@@ -91,7 +111,16 @@ export function profileRows(detail: AdminUserDetail): ProfileRow[] {
 // administrador: cada una con su confirmación y su motivo (auditoría)
 @Component({
   selector: 'app-admin-user-detail-page',
-  imports: [HeadingContent, IonButton, IonIcon, IonSkeletonText, RouterLink],
+  imports: [
+    HeadingContent,
+    IonBreadcrumb,
+    IonBreadcrumbs,
+    IonButton,
+    IonCard,
+    IonIcon,
+    IonSkeletonText,
+    RouterLink,
+  ],
   templateUrl: './admin-user-detail.page.html',
   styleUrl: './admin-user-detail.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -136,7 +165,22 @@ export class AdminUserDetailPage {
     return error ? getErrorMessage(error) : null;
   });
 
-  protected readonly backIcon = arrowBackOutline;
+  protected readonly icons = {
+    profiles: peopleOutline,
+    suspension: pauseCircleOutline,
+    vehicles: carOutline,
+    trips: navigateOutline,
+    requests: handRightOutline,
+    incidents: alertCircleOutline,
+    consents: documentTextOutline,
+    activate: checkmarkCircleOutline,
+    deactivate: banOutline,
+  };
+  protected readonly profileIcons: Readonly<Record<Profile, string>> = {
+    driver: carOutline,
+    passenger: personOutline,
+    admin: shieldOutline,
+  };
   protected readonly usersPath = USERS_PATH;
   protected readonly roleLabels = ROLE_LABELS;
   protected readonly text = {
@@ -165,16 +209,20 @@ export class AdminUserDetailPage {
       return;
     }
     const isActive = !row.isActive;
+    const isLastProfile =
+      row.isActive && this.profiles().filter(({ isActive: on }) => on).length === 1;
     const isDone = await confirmWithReason(this.modalController, {
       header: `¿${row.actionText} el perfil de ${row.label.toLowerCase()}?`,
-      message: profileMessage(row.profile, isActive, user.name),
+      message: isLastProfile
+        ? `${profileMessage(row.profile, isActive, user.name)} Se quedará sin ningún perfil activo y no podrá usar la app.`
+        : profileMessage(row.profile, isActive, user.name),
       confirmText: `${row.actionText} perfil`,
       action: (reason) =>
         this.adminUsers.setProfileActive(user.id, { profile: row.profile, isActive, reason }),
     });
     if (isDone) {
       void this.toast.showSuccess(
-        `Perfil de ${row.label.toLowerCase()} ${isActive ? 'activado' : 'desactivado'}.`,
+        `Perfil de ${row.label.toLowerCase()} ${isActive ? 'habilitado' : 'inhabilitado'}.`,
       );
       this.detail.reload();
     }

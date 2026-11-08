@@ -1,15 +1,19 @@
-<!-- La franja del panel (la pinta su cabecera): volver a Usuarios y quién es;
-     sin buscador, se desplaza con el contenido -->
-<ng-template appHeadingContent>
-  <ion-button class="admin-heading__back" fill="clear" size="small" (click)="handleBack()">
-    <ion-icon slot="start" [icon]="backIcon" aria-hidden="true" />
-    Usuarios
-  </ion-button>
+<!-- La franja del panel (la pinta su cabecera): quién es, en dos filas (nombre
+     y estados; contacto y alta). Sin buscador, se desplaza con el contenido. En
+     el móvil, la cabecera lleva «Atrás» y el título de la pantalla -->
+<ng-template appHeadingContent mobileTitle="Detalle de usuario" (mobileBack)="handleBack()">
   @if (user(); as user) {
     <div class="detail__heading">
       <span class="detail__avatar" aria-hidden="true">{{ text.initialsOf(user.name) }}</span>
       <div class="admin-heading__text">
-        <h1 class="admin-heading__title">{{ user.name }}</h1>
+        <div class="detail__title-row">
+          <h1 class="admin-heading__title">{{ user.name }}</h1>
+          <span class="detail__chips">
+            @for (chip of chips(); track chip.label) {
+              <span [class]="'status detail__chip--' + chip.tone">{{ chip.label }}</span>
+            }
+          </span>
+        </div>
         <p class="text-body-s admin-heading__subtitle detail__wrap">
           {{ user.email }}
           @if (user.phone) {
@@ -17,151 +21,213 @@
           }
           · Alta: {{ text.formatDate(user.createdAt) }}
         </p>
-        <span class="detail__chips">
-          @for (chip of chips(); track chip.label) {
-            <span [class]="'status detail__chip--' + chip.tone">{{ chip.label }}</span>
-          }
-        </span>
       </div>
     </div>
   }
+  <!-- En escritorio, la ruta; en el móvil se vuelve desde la cabecera -->
+  <ion-breadcrumbs class="detail__breadcrumbs ion-hide-md-down">
+    <ion-breadcrumb routerLink="/admin/users" routerDirection="back">Usuarios</ion-breadcrumb>
+    <ion-breadcrumb [active]="true">{{ user()?.name ?? 'Detalle de usuario' }}</ion-breadcrumb>
+  </ion-breadcrumbs>
 </ng-template>
 
 @if (user(); as user) {
-  <div class="detail__grid">
-    <!-- Perfiles: cada acción pide confirmación y motivo -->
-    <section class="detail__card" aria-labelledby="detail-profiles">
-      <h2 id="detail-profiles" class="text-title">Perfiles</h2>
-      <ul class="detail__list">
-        @for (row of profiles(); track row.profile) {
-          <li class="detail__row">
-            <span>
-              <b>{{ row.label }}</b>
-              <span class="detail__muted">
-                · {{ row.stateText }}
-                @if (row.rating) {
-                  · {{ row.rating }}
-                }
+  <div class="detail">
+    <!-- Columna de 4 (arriba en el móvil): lo que se gestiona -->
+    <aside class="detail__aside" aria-label="Gestión de la cuenta">
+      <!-- Perfiles: cada acción pide confirmación y motivo -->
+      <ion-card class="detail__card" role="region" aria-labelledby="detail-profiles">
+        <h2 id="detail-profiles" class="admin-list__title detail__title">
+          <ion-icon [icon]="icons.profiles" aria-hidden="true" />Perfiles
+        </h2>
+        <ul class="detail__list">
+          @for (row of profiles(); track row.profile) {
+            <li class="detail__row">
+              <span class="detail__profile">
+                <span
+                  class="detail__profile-icon"
+                  [class.detail__profile-icon--off]="!row.isActive"
+                  aria-hidden="true"
+                >
+                  <ion-icon [icon]="profileIcons[row.profile]" />
+                </span>
+                <span>
+                  <b>{{ row.label }}</b>
+                  <span class="text-body-s detail__muted detail__profile-meta">
+                    {{ row.stateText }}
+                    @if (row.rating) {
+                      · {{ row.rating }}
+                    }
+                  </span>
+                </span>
               </span>
-            </span>
-            <ion-button size="small" fill="outline" (click)="handleProfile(row)">
-              {{ row.actionText }}
+              <ion-button
+                class="detail__profile-action"
+                fill="clear"
+                size="small"
+                [color]="row.isActive ? 'danger' : 'success'"
+                [attr.aria-label]="row.actionText + ' el perfil de ' + row.label"
+                (click)="handleProfile(row)"
+              >
+                <ion-icon
+                  slot="start"
+                  [icon]="row.isActive ? icons.deactivate : icons.activate"
+                  aria-hidden="true"
+                />
+                {{ row.actionText }}
+              </ion-button>
+            </li>
+          }
+        </ul>
+      </ion-card>
+
+      <!-- Suspensión y cancelaciones tardías de los últimos 30 días -->
+      <ion-card class="detail__card" role="region" aria-labelledby="detail-suspension">
+        <h2 id="detail-suspension" class="admin-list__title detail__title">
+          <ion-icon [icon]="icons.suspension" aria-hidden="true" />Suspensión
+        </h2>
+        @for (suspension of suspensions(); track suspension.role) {
+          <div class="notice notice--warning detail__row">
+            <span
+              >Suspendido como {{ roleLabels[suspension.role] }} hasta el
+              {{ suspension.until }}</span
+            >
+            <ion-button size="small" fill="outline" (click)="handleLiftSuspension(suspension.role)">
+              Levantar suspensión
             </ion-button>
-          </li>
-        }
-      </ul>
-    </section>
-
-    <!-- Suspensión y cancelaciones tardías de los últimos 30 días -->
-    <section class="detail__card" aria-labelledby="detail-suspension">
-      <h2 id="detail-suspension" class="text-title">Suspensión</h2>
-      @for (suspension of suspensions(); track suspension.role) {
-        <div class="notice notice--warning detail__row">
-          <span
-            >Suspendido como {{ roleLabels[suspension.role] }} hasta el {{ suspension.until }}</span
-          >
-          <ion-button size="small" fill="outline" (click)="handleLiftSuspension(suspension.role)">
-            Levantar suspensión
-          </ion-button>
-        </div>
-      } @empty {
-        <p class="text-body-s detail__muted">No tiene ninguna suspensión en curso.</p>
-      }
-      <h3 class="text-label detail__subheading">Cancelaciones tardías (30 días)</h3>
-      <ul class="detail__list">
-        @for (cancellation of user.lateCancellations; track cancellation.cancelledAt) {
-          <li class="text-body-s">
-            {{ text.formatDateTime(cancellation.cancelledAt) }} · como
-            {{ roleLabels[cancellation.role] }}
-            @if (cancellation.waivedAt) {
-              <span class="detail__muted">· perdonada</span>
-            }
-          </li>
+          </div>
         } @empty {
-          <li class="text-body-s detail__muted">Ninguna.</li>
+          <p class="text-body-s detail__muted">No tiene ninguna suspensión en curso.</p>
         }
-      </ul>
-    </section>
+        <h3 class="text-label detail__subheading">Cancelaciones tardías (30 días)</h3>
+        <ul class="detail__list">
+          @for (cancellation of user.lateCancellations; track cancellation.cancelledAt) {
+            <li class="text-body-s">
+              {{ text.formatDateTime(cancellation.cancelledAt) }} · como
+              {{ roleLabels[cancellation.role] }}
+              @if (cancellation.waivedAt) {
+                <span class="detail__muted">· perdonada</span>
+              }
+            </li>
+          } @empty {
+            <li class="text-body-s detail__muted">Ninguna.</li>
+          }
+        </ul>
+      </ion-card>
 
-    <section class="detail__card" aria-labelledby="detail-vehicles">
-      <h2 id="detail-vehicles" class="text-title">Vehículos</h2>
-      <ul class="detail__list">
-        @for (vehicle of user.vehicles; track vehicle.id) {
-          <li class="text-body-s">
-            <b>{{ vehicle.brand ?? 'Vehículo' }} {{ vehicle.model ?? '' }}</b> ·
-            {{ vehicle.plate }}
-            @if (vehicle.plateCountry !== 'ES') {
-              ({{ vehicle.plateCountry }})
-            }
-            · {{ vehicle.capacity }} plazas
-          </li>
-        } @empty {
-          <li class="text-body-s detail__muted">Sin vehículos.</li>
-        }
-      </ul>
-    </section>
+      <ion-card class="detail__card" role="region" aria-labelledby="detail-vehicles">
+        <h2 id="detail-vehicles" class="admin-list__title detail__title">
+          <ion-icon [icon]="icons.vehicles" aria-hidden="true" />Vehículos
+        </h2>
+        <ul class="detail__list">
+          @for (vehicle of user.vehicles; track vehicle.id) {
+            <li class="text-body-s">
+              <b>{{ vehicle.brand ?? 'Vehículo' }} {{ vehicle.model ?? '' }}</b> ·
+              {{ vehicle.plate }}
+              @if (vehicle.plateCountry !== 'ES') {
+                ({{ vehicle.plateCountry }})
+              }
+              · {{ vehicle.capacity }} plazas
+            </li>
+          } @empty {
+            <li class="text-body-s detail__muted">Sin vehículos.</li>
+          }
+        </ul>
+      </ion-card>
+    </aside>
 
-    <section class="detail__card" aria-labelledby="detail-incidents">
-      <h2 id="detail-incidents" class="text-title">Incidencias</h2>
-      <ul class="detail__list">
-        @for (incident of user.incidents; track incident.id) {
-          <li class="text-body-s">
-            {{ text.incidentLabel(incident) }} ·
-            {{ incident.role === 'reporter' ? 'la registró' : 'era el conductor' }} ·
-            {{ text.formatDateTime(incident.reportedAt) }}
-          </li>
-        } @empty {
-          <li class="text-body-s detail__muted">Sin incidencias.</li>
-        }
-      </ul>
-    </section>
+    <!-- Columna de 8: su historial -->
+    <div class="detail__main">
+      <ion-card class="detail__card" role="region" aria-labelledby="detail-trips">
+        <h2 id="detail-trips" class="admin-list__title detail__title">
+          <ion-icon [icon]="icons.trips" aria-hidden="true" />Últimos viajes como conductor
+        </h2>
+        <ul class="detail__items">
+          @for (trip of user.trips; track trip.id) {
+            <li class="detail__item">
+              <span class="detail__item-text">
+                <span class="text-body">{{ text.tripRoute(trip) }}</span>
+                <span class="text-body-s detail__muted">{{
+                  text.formatDateTime(trip.departureAt)
+                }}</span>
+              </span>
+              <span class="status">{{ text.tripStatusLabel(trip.status) }}</span>
+            </li>
+          } @empty {
+            <li class="text-body-s detail__muted">No ha publicado viajes.</li>
+          }
+        </ul>
+      </ion-card>
 
-    <section class="detail__card" aria-labelledby="detail-trips">
-      <h2 id="detail-trips" class="text-title">Últimos viajes como conductor</h2>
-      <ul class="detail__list">
-        @for (trip of user.trips; track trip.id) {
-          <li class="text-body-s">
-            {{ text.formatDateTime(trip.departureAt) }} · {{ text.tripRoute(trip) }} ·
-            {{ text.tripStatusLabel(trip.status) }}
-          </li>
-        } @empty {
-          <li class="text-body-s detail__muted">No ha publicado viajes.</li>
-        }
-      </ul>
-    </section>
+      <ion-card class="detail__card" role="region" aria-labelledby="detail-requests">
+        <h2 id="detail-requests" class="admin-list__title detail__title">
+          <ion-icon [icon]="icons.requests" aria-hidden="true" />Últimas solicitudes como pasajero
+        </h2>
+        <ul class="detail__items">
+          @for (request of user.requests; track request.id) {
+            <li class="detail__item">
+              <span class="detail__item-text">
+                <span class="text-body">{{
+                  request.trip ? text.tripRoute(request.trip) : 'Viaje'
+                }}</span>
+                <span class="text-body-s detail__muted">{{
+                  text.formatDateTime(request.requestedAt)
+                }}</span>
+              </span>
+              <span class="status">{{ text.requestStatusLabel(request.status) }}</span>
+            </li>
+          } @empty {
+            <li class="text-body-s detail__muted">No ha pedido plaza.</li>
+          }
+        </ul>
+      </ion-card>
 
-    <section class="detail__card" aria-labelledby="detail-requests">
-      <h2 id="detail-requests" class="text-title">Últimas solicitudes como pasajero</h2>
-      <ul class="detail__list">
-        @for (request of user.requests; track request.id) {
-          <li class="text-body-s">
-            {{ text.formatDateTime(request.requestedAt) }} ·
-            {{ request.trip ? text.tripRoute(request.trip) : 'Viaje' }} ·
-            {{ text.requestStatusLabel(request.status) }}
-          </li>
-        } @empty {
-          <li class="text-body-s detail__muted">No ha pedido plaza.</li>
-        }
-      </ul>
-    </section>
+      <ion-card class="detail__card" role="region" aria-labelledby="detail-incidents">
+        <h2 id="detail-incidents" class="admin-list__title detail__title">
+          <ion-icon [icon]="icons.incidents" aria-hidden="true" />Incidencias
+        </h2>
+        <ul class="detail__items">
+          @for (incident of user.incidents; track incident.id) {
+            <li class="detail__item">
+              <span class="detail__item-text">
+                <span class="text-body">{{ text.incidentLabel(incident) }}</span>
+                <span class="text-body-s detail__muted">
+                  {{ incident.role === 'reporter' ? 'La registró' : 'Era el conductor' }} ·
+                  {{ text.formatDateTime(incident.reportedAt) }}
+                </span>
+              </span>
+            </li>
+          } @empty {
+            <li class="text-body-s detail__muted">Sin incidencias.</li>
+          }
+        </ul>
+      </ion-card>
 
-    <!-- Consentimientos: solo de lectura -->
-    <section class="detail__card detail__card--wide" aria-labelledby="detail-consents">
-      <h2 id="detail-consents" class="text-title">Consentimientos</h2>
-      <ul class="detail__list">
-        @for (record of user.consents?.history ?? []; track record.id) {
-          <li class="text-body-s">
-            {{ text.consentLabel(record) }} · v{{ record.documentVersion }} ·
-            {{ text.formatDateTime(record.recordedAt) }}
-            <span class="detail__muted">· {{ record.fingerprint.slice(0, 12) }}</span>
-          </li>
-        } @empty {
-          <li class="text-body-s detail__muted">
-            {{ user.consents ? 'Sin registros.' : 'La cuenta está eliminada.' }}
-          </li>
-        }
-      </ul>
-    </section>
+      <!-- Consentimientos: solo de lectura -->
+      <ion-card class="detail__card" role="region" aria-labelledby="detail-consents">
+        <h2 id="detail-consents" class="admin-list__title detail__title">
+          <ion-icon [icon]="icons.consents" aria-hidden="true" />Consentimientos
+        </h2>
+        <ul class="detail__items">
+          @for (record of user.consents?.history ?? []; track record.id) {
+            <li class="detail__item">
+              <span class="detail__item-text">
+                <span class="text-body">{{ text.consentLabel(record) }}</span>
+                <span class="text-body-s detail__muted detail__wrap">
+                  {{ text.formatDateTime(record.recordedAt) }} ·
+                  {{ record.fingerprint.slice(0, 12) }}
+                </span>
+              </span>
+              <span class="status">v{{ record.documentVersion }}</span>
+            </li>
+          } @empty {
+            <li class="text-body-s detail__muted">
+              {{ user.consents ? 'Sin registros.' : 'La cuenta está eliminada.' }}
+            </li>
+          }
+        </ul>
+      </ion-card>
+    </div>
   </div>
 } @else if (errorMessage(); as message) {
   <div class="notice notice--danger detail__state" role="alert">
@@ -180,13 +246,24 @@
     }
   </div>
 } @else {
-  <div class="detail__grid" aria-busy="true" aria-label="Cargando el usuario">
-    @for (card of [1, 2, 3, 4]; track card) {
-      <div class="detail__card">
-        <ion-skeleton-text [animated]="true" class="detail__skeleton-title" />
-        <ion-skeleton-text [animated]="true" />
-        <ion-skeleton-text [animated]="true" />
-      </div>
-    }
+  <div class="detail" aria-busy="true" aria-label="Cargando el usuario">
+    <div class="detail__aside">
+      @for (card of [1, 2]; track card) {
+        <ion-card class="detail__card">
+          <ion-skeleton-text [animated]="true" class="detail__skeleton-title" />
+          <ion-skeleton-text [animated]="true" />
+          <ion-skeleton-text [animated]="true" />
+        </ion-card>
+      }
+    </div>
+    <div class="detail__main">
+      @for (card of [1, 2]; track card) {
+        <ion-card class="detail__card">
+          <ion-skeleton-text [animated]="true" class="detail__skeleton-title" />
+          <ion-skeleton-text [animated]="true" />
+          <ion-skeleton-text [animated]="true" />
+        </ion-card>
+      }
+    </div>
   </div>
 }
