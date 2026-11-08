@@ -21,6 +21,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Auth:** una cuenta con todos sus perfiles inhabilitados por un administrador ve una pantalla que lo explica, con acceso a soporte (#243).
 - **Frontend:** el detalle de usuario del panel se reorganiza en columnas y tarjetas, con breadcrumb en escritorio y «Atrás» en móvil; la lista de usuarios va en una línea en móvil (#242).
 - **Frontend:** la cabecera y el menú móvil del panel permiten cambiar de tema, y la cabecera lleva a «Modo usuario»; el documento legal se elige en un desplegable (#241).
 - **Frontend:** el editor de documentos legales avisa antes de perder cambios, no deja publicar un texto idéntico al vigente y se reorganiza en tarjetas, con Comparar y el texto de cada versión publicada (#240).

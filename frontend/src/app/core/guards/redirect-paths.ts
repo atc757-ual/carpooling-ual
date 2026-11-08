@@ -16,6 +16,8 @@ export const ADMIN_PATH = '/admin';
 // Aceptar una versión nueva de las condiciones o de la política (antes de
 // entrar en la app o en el panel)
 export const LEGAL_UPDATE_PATH = '/legal-update';
+// Cuenta con todos sus perfiles desactivados por un administrador
+export const ACCOUNT_DISABLED_PATH = '/account-disabled';
 
 // Parámetro con la página que se pedía, para volver a ella tras el login
 export const RETURN_URL_PARAM = 'returnUrl';

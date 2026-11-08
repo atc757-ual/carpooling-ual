@@ -456,6 +456,12 @@
       "internal": "A server error occurred{{ reference }}. Please try again.",
       "reference": " (reference: {{ requestId }})"
     },
+    "accountDisabled": {
+      "title": "Your account has no active profiles",
+      "description": "An administrator has disabled your profiles, so you cannot use the app right now. If you think this is a mistake, write to us.",
+      "contact": "Contact support",
+      "logout": "Log out"
+    },
     "legalUpdate": {
       "title": "We have updated our documents",
       "description": "To keep using Carpooling UAL, read the changes and accept them.",

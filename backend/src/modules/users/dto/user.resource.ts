@@ -82,6 +82,13 @@ export class UserResource {
   profiles: ProfileType[];
 
   @ApiProperty({
+    description:
+      'True when the user has profiles and an administrator has deactivated all of them',
+    example: false,
+  })
+  isAccessRevoked: boolean;
+
+  @ApiProperty({
     enum: REGISTRABLE_PROFILES,
     nullable: true,
     description:
@@ -138,6 +145,7 @@ export function toUserResource(user: UserSummary): UserResource {
     phone: user.phone,
     phoneVerified: user.phoneVerified,
     profiles: user.profiles,
+    isAccessRevoked: user.isAccessRevoked,
     activeMode: user.activeMode,
     timeToleranceMin: user.timeToleranceMin,
     avatarKey: user.avatarKey,

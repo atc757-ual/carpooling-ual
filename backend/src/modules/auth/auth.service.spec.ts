@@ -33,6 +33,7 @@ describe('AuthService', () => {
     findByEmailWithPassword: jest.fn(),
     findById: jest.fn(),
     getActiveProfiles: jest.fn(),
+    isAccessRevoked: jest.fn(),
     hasActiveAdmin: jest.fn(),
   };
   const refreshTokensService = {

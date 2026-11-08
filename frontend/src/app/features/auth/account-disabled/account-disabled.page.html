@@ -1,0 +1,20 @@
+<ion-content>
+  <app-auth-layout>
+    <div class="auth-intro">
+      <span class="auth-icon" aria-hidden="true">
+        <ion-icon [icon]="lockIcon" />
+      </span>
+      <h1 class="text-heading">{{ 'auth.accountDisabled.title' | transloco }}</h1>
+      <p class="text-body text-color-muted">{{ 'auth.accountDisabled.description' | transloco }}</p>
+    </div>
+
+    <div class="account-disabled__actions">
+      <ion-button expand="block" (click)="handleContactSupport()">
+        {{ 'auth.accountDisabled.contact' | transloco }}
+      </ion-button>
+      <ion-button expand="block" fill="outline" (click)="handleLogout()">
+        {{ 'auth.accountDisabled.logout' | transloco }}
+      </ion-button>
+    </div>
+  </app-auth-layout>
+</ion-content>

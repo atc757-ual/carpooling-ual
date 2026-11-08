@@ -66,6 +66,8 @@ export interface UserSummary {
   phone: string | null;
   phoneVerified: boolean;
   profiles: ProfileType[];
+  // Tiene perfiles y un administrador los ha desactivado todos
+  isAccessRevoked: boolean;
   // NULL hasta que elige con qué modo viaja (ver User.activeMode)
   activeMode: RegistrableProfile | null;
   // Margen horario por defecto de sus búsquedas, en minutos

@@ -114,6 +114,27 @@ describe('UsersService', () => {
     });
   });
 
+  describe('isAccessRevoked', () => {
+    it('is true when every profile it has is deactivated', () => {
+      const user = userWith({
+        driverProfile: { isActive: false } as User['driverProfile'],
+        passengerProfile: { isActive: false } as User['passengerProfile'],
+      });
+
+      expect(usersService.isAccessRevoked(user)).toBe(true);
+    });
+
+    it('is false with an active profile or none chosen yet', () => {
+      const active = userWith({
+        driverProfile: { isActive: false } as User['driverProfile'],
+        passengerProfile: { isActive: true } as User['passengerProfile'],
+      });
+
+      expect(usersService.isAccessRevoked(active)).toBe(false);
+      expect(usersService.isAccessRevoked(userWith({}))).toBe(false);
+    });
+  });
+
   describe('getSummary', () => {
     it('returns the public data of the user with the active profiles', async () => {
       usersRepository.findOne.mockResolvedValue(
@@ -137,6 +158,7 @@ describe('UsersService', () => {
         email: 'ana@ual.es',
         phoneVerified: false,
         profiles: ['passenger'],
+        isAccessRevoked: false,
         avatarKey: 'sun',
         bio: 'Conductora desde Roquetas al campus de la UAL.',
         preferences: {

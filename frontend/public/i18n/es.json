@@ -456,6 +456,12 @@
       "internal": "Ha ocurrido un error en el servidor{{ reference }}. Inténtalo de nuevo.",
       "reference": " (referencia: {{ requestId }})"
     },
+    "accountDisabled": {
+      "title": "Tu cuenta no tiene perfiles activos",
+      "description": "Un administrador ha inhabilitado tus perfiles, así que ahora mismo no puedes usar la app. Si crees que es un error, escríbenos.",
+      "contact": "Contactar con soporte",
+      "logout": "Cerrar sesión"
+    },
     "legalUpdate": {
       "title": "Hemos actualizado nuestros documentos",
       "description": "Para seguir usando Carpooling UAL, lee los cambios y acéptalos.",
