@@ -1,36 +1,17 @@
-// «Ubicación» del Perfil: la misma tarjeta que las demás del Perfil
+// «Ubicación» del Perfil integrada en la tarjeta de Privacidad
+:host {
+  display: block;
+}
+
 .profile-location {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
   margin: 0;
   text-align: left;
 }
 
-// Título a la izquierda (ion-card-header es una columna) y 18px también en
-// escritorio, como en el resto del Perfil
-.profile-location__header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  min-height: 3.5rem;
-  padding: var(--space-base) var(--space-base) var(--space-s);
-
-  ion-card-title {
-    margin: 0;
-    font-size: 1.125rem; // 18px
-  }
-}
-
-.profile-location__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-
-  form,
-  ion-button {
-    margin: 0;
-  }
-}
-
-// Texto a la izquierda y el interruptor o el estado a la derecha
+// Texto a la izquierda y el interruptor a la derecha
 .profile-location__row {
   display: flex;
   align-items: center;
@@ -67,24 +48,6 @@
   font-family: monospace;
 }
 
-// El permiso del dispositivo, separado del consentimiento por una línea fina
-.profile-location__device {
-  padding-top: var(--space-s);
-  border-top: var(--border-width-s) solid var(--color-border-subtle);
-}
-
-// «Permitir»: botón pequeño azul suave, del alto de las etiquetas de estado
-.profile-location__allow {
-  --background: var(--color-primary-subtle);
-  --background-hover: var(--color-primary-subtle);
-  --color: var(--color-primary);
-  --border-radius: var(--radius-s);
-  --box-shadow: none;
-  height: 2rem; // 32px
-  min-height: 2rem; // el tema da 48px a todos los ion-button
-  font-weight: var(--font-weight-semibold);
-}
-
 // «Cómo usamos tu ubicación»: abre el texto que se acepta
 .profile-location__link {
   align-self: flex-start;
@@ -98,5 +61,6 @@
 
   &:focus-visible {
     outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 2px;
   }
 }

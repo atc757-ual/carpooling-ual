@@ -31,7 +31,9 @@ import { UsersModule } from './modules/users/users.module';
       envFilePath: ['.env', '../.env'],
       load: [loadConfiguration],
     }),
-    ScheduleModule.forRoot(),
+    ScheduleModule.forRoot({
+      cronJobs: process.env.NODE_ENV !== 'test',
+    }),
     // Conexión a PostgreSQL. "Async" porque necesita esperar a que ConfigService
     // haya leído DATABASE_URL del .env; NestJS se lo inyecta a useFactory
     TypeOrmModule.forRootAsync({

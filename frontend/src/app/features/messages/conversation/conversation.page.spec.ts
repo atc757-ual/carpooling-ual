@@ -270,19 +270,26 @@ describe('ConversationPage', () => {
     expect(root.querySelectorAll('.bubble')).toHaveLength(2);
   });
 
-  it('opens options action sheet with report option and reports the chat with a reason', async () => {
+  it('opens options popover with report option and reports the chat with a reason', async () => {
     const root = await render();
     expect(root.querySelector('.conversation__options')).not.toBeNull();
     expect(root.querySelector('.bubble__report')).toBeNull();
 
-    await page.handleOpenOptions();
-    const reportOption = sheetButtons.find((btn) => btn.text === 'Denunciar el chat');
-    expect(reportOption).toBeDefined();
+    expect(page.isOptionsOpen()).toBe(false);
+    const optionsBtn = root.querySelector<HTMLButtonElement>('.conversation__options');
+    optionsBtn?.click();
+    expect(page.isOptionsOpen()).toBe(true);
+    expect(page.optionsEvent).not.toBeNull();
 
-    const reportPromise = reportOption?.handler?.();
+    const mockEvent = new CustomEvent('click');
+    page.handleOpenOptions(mockEvent);
+    expect(page.optionsEvent).toBe(mockEvent);
+
+    const reportPromise = page.handleReport();
     await modalProps?.action('Me ha insultado');
     await reportPromise;
 
+    expect(page.isOptionsOpen()).toBe(false);
     expect(chat['reportChat']).toHaveBeenCalledWith('t1', 'Me ha insultado');
     expect(showSuccess).toHaveBeenCalledWith('Chat denunciado. Lo revisaremos.');
   });

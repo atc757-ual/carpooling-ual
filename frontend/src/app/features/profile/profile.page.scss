@@ -100,7 +100,8 @@
 .profile__review-row,
 .profile__setting-row,
 .profile__pref-row,
-.profile__toggle-item {
+.profile__toggle-item,
+app-profile-push-setting {
   // Separador a medio camino entre una fila y la siguiente (el hueco del
   // contenedor es --space-base): antes quedaba pegado al texto de arriba
   padding-bottom: var(--space-base);
@@ -110,6 +111,11 @@
     border-bottom: none;
     padding-bottom: 0;
   }
+}
+
+app-profile-push-setting,
+app-profile-device-location {
+  display: block;
 }
 
 .profile__row-three {
@@ -209,6 +215,14 @@
   font-size: var(--font-size-body-s);
   font-weight: 500;
   border: 1px solid var(--color-border-subtle);
+}
+
+// Separador entre el bloque de compartir ubicación y los documentos legales
+.profile__legal-divider {
+  border: 0;
+  height: 0;
+  margin: var(--space-s) 0;
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
 }
 
 // Documento legal: icono, título y si está aceptado (check verde y fecha)

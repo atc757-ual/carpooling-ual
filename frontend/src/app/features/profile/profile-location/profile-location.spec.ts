@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
+import { vi } from 'vitest';
 import { provideTestingTransloco } from '../../../core/i18n/testing-transloco';
 import { ConsentRecord, UserConsents } from '../../../core/models/user-consent.model';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
-import { LocationService } from '../../../core/services/location/location.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ProfileLocation } from './profile-location';
@@ -38,11 +38,6 @@ function toggleEvent(checked: boolean): CustomEvent<{ checked: boolean }> & {
 describe('ProfileLocation', () => {
   let fixture: ComponentFixture<ProfileLocation>;
   const consent = { load: vi.fn(), set: vi.fn() };
-  const location = {
-    checkDevicePermission: vi.fn(),
-    recordDeviceWithdrawal: vi.fn().mockResolvedValue(undefined),
-    getCurrentPoint: vi.fn(),
-  };
   const confirm = { ask: vi.fn() };
   const toast = {
     showSuccess: vi.fn().mockResolvedValue(undefined),
@@ -52,14 +47,12 @@ describe('ProfileLocation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     consent.load.mockResolvedValue(consents('granted'));
-    location.checkDevicePermission.mockResolvedValue('granted');
     TestBed.configureTestingModule({
       imports: [ProfileLocation],
       providers: [
         provideIonicAngular(),
         provideTestingTransloco(),
         { provide: LocationConsentService, useValue: consent },
-        { provide: LocationService, useValue: location },
         { provide: ConfirmService, useValue: confirm },
         { provide: ToastService, useValue: toast },
       ],
@@ -67,25 +60,11 @@ describe('ProfileLocation', () => {
     fixture = TestBed.createComponent(ProfileLocation);
   });
 
-  it('shows the consent with its stamp and the device permission', async () => {
+  it('shows the consent with its stamp', async () => {
     await fixture.componentInstance.refresh();
 
     expect(fixture.componentInstance.isGranted()).toBe(true);
     expect(fixture.componentInstance.stamp()).not.toBeNull();
-    expect(fixture.componentInstance.devicePermission()).toBe('granted');
-    expect(location.recordDeviceWithdrawal).not.toHaveBeenCalled();
-  });
-
-  it('records the withdrawal when the device permission was removed', async () => {
-    location.checkDevicePermission.mockResolvedValue('denied');
-    consent.load
-      .mockResolvedValueOnce(consents('granted'))
-      .mockResolvedValueOnce(consents('revoked'));
-
-    await fixture.componentInstance.refresh();
-
-    expect(location.recordDeviceWithdrawal).toHaveBeenCalled();
-    expect(fixture.componentInstance.isGranted()).toBe(false);
   });
 
   it('shows it off after an important change of the text and opens the text', async () => {
@@ -141,16 +120,6 @@ describe('ProfileLocation', () => {
     await fixture.componentInstance.handleToggle(failing);
     expect(failing.target.checked).toBe(true);
     expect(toast.showError).toHaveBeenCalled();
-  });
-
-  it('asks the device for the location and reads the new permission', async () => {
-    location.getCurrentPoint.mockRejectedValue(new Error('denied'));
-    location.checkDevicePermission.mockResolvedValue('prompt');
-
-    await fixture.componentInstance.handleAllowDevice();
-
-    expect(fixture.componentInstance.devicePermission()).toBe('prompt');
-    expect(fixture.componentInstance.isAsking()).toBe(false);
   });
 
   it('renders without errors', async () => {

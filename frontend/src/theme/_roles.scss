@@ -59,6 +59,7 @@
 
   // Estados
   --color-danger: #{$red-500};
+  --color-danger-text: #{$red-700};
   --color-danger-subtle: #{$red-50};
   --color-on-danger: #{$neutral-0};
   --color-success: #{$green-700};
@@ -121,6 +122,7 @@
   --color-on-admin: #{$neutral-950};
 
   --color-danger: #{$red-300};
+  --color-danger-text: #{$red-400};
   --color-danger-subtle: #{$red-900};
   --color-on-danger: #{$neutral-950};
   --color-success: #{$green-200};

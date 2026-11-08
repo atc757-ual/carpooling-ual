@@ -205,11 +205,32 @@
     fill="clear"
     [attr.aria-label]="optionsLabel"
     [title]="optionsLabel"
-    (click)="handleOpenOptions()"
+    (click)="handleOpenOptions($event)"
   >
     <ion-icon slot="icon-only" [icon]="optionsIcon" aria-hidden="true" />
   </ion-button>
 </ng-template>
+
+<!-- Desplegable de opciones (tres puntos): flotante y alineado con el botón -->
+<ion-popover
+  [isOpen]="isOptionsOpen()"
+  [event]="optionsEvent"
+  [showBackdrop]="false"
+  [dismissOnSelect]="true"
+  (didDismiss)="isOptionsOpen.set(false)"
+  side="bottom"
+  alignment="end"
+  cssClass="conversation-options-popover"
+>
+  <ng-template>
+    <ion-list lines="none">
+      <ion-item button [detail]="false" (click)="handleReport()">
+        <ion-icon slot="start" [icon]="reportIcon" aria-hidden="true" />
+        <ion-label>Denunciar el chat</ion-label>
+      </ion-item>
+    </ion-list>
+  </ng-template>
+</ion-popover>
 
 <!-- Lo que se pone en la franja del título del móvil (HeadingContentService) -->
 <ng-template #headingTitle>

@@ -157,6 +157,9 @@
 
             <!-- Notificaciones push en este dispositivo -->
             <app-profile-push-setting />
+
+            <!-- Ubicación en este dispositivo (permiso del navegador o móvil) -->
+            <app-profile-device-location />
           </ion-card-content>
         </ion-card>
 
@@ -300,15 +303,17 @@
           </ion-card>
         }
 
-        <!-- Bloque: Ubicación (consentimiento y permiso del dispositivo) -->
-        <app-profile-location />
-
-        <!-- Bloque: Privacidad (documentos legales y su aceptación) -->
+        <!-- Bloque: Privacidad (ubicación, consentimientos y documentos legales) -->
         <ion-card class="profile-card">
           <ion-card-header class="profile-card__header">
             <ion-card-title>{{ 'profile.privacy.title' | transloco }}</ion-card-title>
           </ion-card-header>
           <ion-card-content class="profile-card__content">
+            <!-- Compartir ubicación (consentimiento y permiso del dispositivo) -->
+            <app-profile-location />
+
+            <hr class="profile__legal-divider" aria-hidden="true" />
+
             <div class="profile__legal-list">
               @for (doc of legalDocs(); track doc.id) {
                 <button type="button" class="profile__legal-row" (click)="handleOpenLegal(doc.id)">
