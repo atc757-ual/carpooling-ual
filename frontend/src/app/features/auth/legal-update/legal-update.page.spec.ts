@@ -7,6 +7,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { LegalDocumentsService } from '../../../core/services/users/legal-documents.service';
 import { LegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
+import { ProfileDeleteModal } from '../../profile/profile-delete-modal/profile-delete-modal';
 import { LegalUpdatePage } from './legal-update.page';
 
 describe('LegalUpdatePage', () => {
@@ -72,13 +73,38 @@ describe('LegalUpdatePage', () => {
 
   it('opens legal modal when clicking read full button', async () => {
     await render();
-    await fixture.componentInstance.handleReadFull('terms');
+    await fixture.componentInstance.handleReadFull({ type: 'terms', version: '1.1' });
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({
         component: LegalModal,
-        componentProps: { document: 'terms' },
+        componentProps: expect.objectContaining({ document: 'terms' }),
         cssClass: 'legal-dialog',
       }),
+    );
+    expect(present).toHaveBeenCalled();
+  });
+
+  it('asks to read every document to the end before accepting', async () => {
+    const root = await render();
+    await fixture.componentInstance.handleReadFull({ type: 'terms', version: '1.1' });
+    fixture.detectChanges();
+
+    // Opened but not read to the end
+    expect(fixture.componentInstance.hasReadAll()).toBe(false);
+    expect(root.querySelector('.legal-update__hint')).not.toBeNull();
+
+    create.mock.calls[0][0].componentProps.onReachedEnd();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.hasReadAll()).toBe(true);
+    expect(root.querySelector('.legal-update__hint')).toBeNull();
+  });
+
+  it('lets the user delete the account instead', async () => {
+    await render();
+    await fixture.componentInstance.handleDeleteAccount();
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({ component: ProfileDeleteModal, cssClass: 'info-dialog' }),
     );
     expect(present).toHaveBeenCalled();
   });

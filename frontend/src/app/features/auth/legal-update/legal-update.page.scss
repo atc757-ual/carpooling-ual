@@ -121,15 +121,30 @@
 // propio, para que los botones no queden tan lejos
 .legal-update__exits {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  // Escritorio: en fila, centrados y más separados
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--space-l);
+  }
 }
 
-// «Cerrar sesión»: un enlace de texto como los demás de la app (azul y en
-// seminegrita; subrayado al pasar el ratón)
-.legal-update__logout-link {
-  padding: var(--space-xs) var(--space-s);
+// Por qué «Aceptar» sigue desactivado
+.legal-update__hint {
+  margin: 0;
+  text-align: center;
+}
+
+// «Cerrar sesión»: botón azul claro, con el alto táctil mínimo
+.legal-update__exit-link {
+  min-height: var(--control-height-s);
+  padding: var(--space-xs) var(--space-l);
   border: none;
-  background: transparent;
+  border-radius: var(--radius-s);
+  background: var(--color-primary-subtle);
   color: var(--color-link);
   font-family: inherit;
   font-size: var(--font-size-body-s);
@@ -137,11 +152,17 @@
   cursor: pointer;
 
   &:hover {
-    text-decoration: underline;
+    opacity: 0.9;
   }
 
   &:focus-visible {
     border-radius: var(--radius-xs);
     outline: var(--border-width-m) solid var(--color-focus);
   }
+}
+
+// «Eliminar mi cuenta»: el mismo botón, en rojo claro
+.legal-update__exit-link--danger {
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-text);
 }

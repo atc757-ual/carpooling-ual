@@ -11,6 +11,7 @@ import {
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   carOutline,
+  checkmark,
   chevronForwardOutline,
   documentTextOutline,
   idCardOutline,
@@ -26,14 +27,16 @@ import {
   LEGAL_DOCUMENT_TITLES,
   LegalDocumentsService,
   LegalDocumentType,
+  PendingLegalDocument,
 } from '../../../core/services/users/legal-documents.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import { openLegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { ProfileDeleteModal } from '../../profile/profile-delete-modal/profile-delete-modal';
 
 // Se ha publicado una versión nueva de las condiciones de uso o de la
 // política de privacidad: se lee y se acepta antes de seguir. Quien no la
-// acepta puede cerrar sesión, pero no usar la app
+// acepta puede cerrar sesión o eliminar su cuenta, pero no usar la app
 const DOCUMENT_ICONS: Record<LegalDocumentType, string> = {
   terms: documentTextOutline,
   privacy: shieldCheckmarkOutline,
@@ -69,8 +72,8 @@ export class LegalUpdatePage {
       }
       return Promise.all(
         pending.map(async (document) => {
-          const { content, summary } = await this.legalDocuments.getCurrent(document.type);
-          return { ...document, title: LEGAL_DOCUMENT_TITLES[document.type], content, summary };
+          const { summary } = await this.legalDocuments.getCurrent(document.type);
+          return { ...document, title: LEGAL_DOCUMENT_TITLES[document.type], summary };
         }),
       );
     },
@@ -82,16 +85,34 @@ export class LegalUpdatePage {
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : null;
   });
 
+  // Los documentos leídos hasta el final, por versión: si se publica otra
+  // mientras tanto hay que volver a leerla. Aceptar exige haberlos leído todos
+  private readonly readVersions = signal<ReadonlySet<string>>(new Set());
+  readonly hasReadAll = computed(() =>
+    (this.documents.value() ?? []).every((document) => this.isRead(document)),
+  );
+
   protected readonly documentIcon = documentTextOutline;
   protected readonly readIcon = chevronForwardOutline;
+  protected readonly doneIcon = checkmark;
+
+  protected isRead(document: PendingLegalDocument): boolean {
+    return this.readVersions().has(this.versionKey(document));
+  }
+
+  private versionKey({ type, version }: PendingLegalDocument): string {
+    return `${type}@${version}`;
+  }
 
   // El icono de cada documento en su tarjeta
   protected iconOf(type: LegalDocumentType): string {
     return DOCUMENT_ICONS[type];
   }
 
-  handleReadFull(type: LegalDocumentType): Promise<void> {
-    return openLegalModal(this.modalController, type);
+  handleReadFull(document: PendingLegalDocument): Promise<void> {
+    return openLegalModal(this.modalController, document.type, () =>
+      this.readVersions.update((read) => new Set(read).add(this.versionKey(document))),
+    );
   }
 
   // Acepta todas las pendientes y sigue adonde iba
@@ -122,5 +143,13 @@ export class LegalUpdatePage {
     }
     await this.auth.logout();
     await this.navController.navigateRoot(WELCOME_PATH);
+  }
+
+  async handleDeleteAccount(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: ProfileDeleteModal,
+      cssClass: 'info-dialog',
+    });
+    await modal.present();
   }
 }

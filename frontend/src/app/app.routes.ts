@@ -17,7 +17,8 @@ import { TabHeading } from './features/tabs/tab-heading';
 const sessionOnly: CanActivateFn = () =>
   inject(AuthService).isLoggedIn() || inject(Router).createUrlTree([WELCOME_PATH]);
 
-// Documentos actualizados: solo si hay sesión y documentos pendientes por aceptar
+// Documentos actualizados: solo si hay sesión y documentos pendientes por
+// aceptar. Si no se puede comprobar, entra: la pantalla ofrece reintentar
 const pendingLegalOnly: CanActivateFn = async () => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -28,7 +29,7 @@ const pendingLegalOnly: CanActivateFn = async () => {
     const pending = await inject(LegalDocumentsService).pending();
     return pending.length > 0 ? true : router.createUrlTree([HOME_PATH]);
   } catch {
-    return router.createUrlTree([HOME_PATH]);
+    return true;
   }
 };
 
@@ -278,7 +279,7 @@ export const routes: Routes = [
   },
   {
     // Una versión nueva de las condiciones o de la política: se acepta antes
-    // de seguir (o se cierra sesión). Solo accesible si hay documentos pendientes
+    // de seguir (o se cierra sesión o se elimina la cuenta). Solo si hay pendientes
     path: 'legal-update',
     canActivate: [pendingLegalOnly],
     title: 'Documentos actualizados',

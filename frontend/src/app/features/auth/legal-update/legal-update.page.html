@@ -42,9 +42,9 @@
                 <p class="text-body-s">{{ document.summary }}</p>
               </div>
             }
-            <button type="button" class="legal-card__read" (click)="handleReadFull(document.type)">
+            <button type="button" class="legal-card__read" (click)="handleReadFull(document)">
               {{ 'auth.legalUpdate.readFull' | transloco }}
-              <ion-icon [icon]="readIcon" aria-hidden="true" />
+              <ion-icon [icon]="isRead(document) ? doneIcon : readIcon" aria-hidden="true" />
             </button>
           </article>
         }
@@ -54,9 +54,16 @@
         <p class="text-body-s legal-update__error" role="alert">{{ message }}</p>
       }
 
+      <!-- Se dice por qué está desactivado: hay que leer cada documento hasta el final -->
+      @if (!hasReadAll()) {
+        <p class="text-body-s text-color-muted legal-update__hint">
+          {{ 'auth.legalUpdate.readHint' | transloco }}
+        </p>
+      }
+
       <!-- type="submit": ni (click) en un ion-button ni un botón suelto -->
       <form class="legal-update__actions" (submit)="$event.preventDefault(); handleAccept()">
-        <ion-button type="submit" expand="block" [disabled]="isAccepting()">
+        <ion-button type="submit" expand="block" [disabled]="isAccepting() || !hasReadAll()">
           {{ 'auth.legalUpdate.accept' | transloco }}
         </ion-button>
       </form>
@@ -66,10 +73,17 @@
       </div>
     }
 
-    <!-- Quien no acepta puede cerrar sesión -->
+    <!-- Quien no acepta puede irse, pero no usar la app -->
     <div class="legal-update__exits">
-      <button type="button" class="legal-update__logout-link" (click)="handleLogout()">
+      <button type="button" class="legal-update__exit-link" (click)="handleLogout()">
         {{ 'auth.legalUpdate.logout' | transloco }}
+      </button>
+      <button
+        type="button"
+        class="legal-update__exit-link legal-update__exit-link--danger"
+        (click)="handleDeleteAccount()"
+      >
+        {{ 'auth.legalUpdate.deleteAccount' | transloco }}
       </button>
     </div>
   </app-auth-layout>

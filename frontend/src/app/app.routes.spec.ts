@@ -47,7 +47,11 @@ describe('application routes', () => {
   it('allows access to legal-update only when logged in with pending documents', async () => {
     const legalRoute = routes.find(({ path }) => path === 'legal-update');
     const guard = legalRoute?.canActivate?.[0] as CanActivateFn;
-    const runGuard = async (isLoggedIn: boolean, pending: unknown[] = [], throws = false): Promise<unknown> => {
+    const runGuard = async (
+      isLoggedIn: boolean,
+      pending: unknown[] = [],
+      throws = false,
+    ): Promise<unknown> => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
@@ -56,7 +60,9 @@ describe('application routes', () => {
           {
             provide: LegalDocumentsService,
             useValue: {
-              pending: throws ? vi.fn().mockRejectedValue(new Error('fail')) : vi.fn().mockResolvedValue(pending),
+              pending: throws
+                ? vi.fn().mockRejectedValue(new Error('fail'))
+                : vi.fn().mockResolvedValue(pending),
             },
           },
         ],
@@ -75,8 +81,7 @@ describe('application routes', () => {
     const noPending = await runGuard(true, []);
     expect((noPending as UrlTree).toString()).toBe('/tabs');
 
-    // Error -> redirect to /tabs
-    const errorResult = await runGuard(true, [], true);
-    expect((errorResult as UrlTree).toString()).toBe('/tabs');
+    // Error -> stays, the page offers a retry
+    expect(await runGuard(true, [], true)).toBe(true);
   });
 });

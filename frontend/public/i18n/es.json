@@ -131,7 +131,6 @@
     "managePhone": "Gestionar o editar teléfono",
     "emptyPhone": "Sin teléfono registrado.",
     "phoneVerified": "Verificado",
-    "phonePending": "Pendiente de verificación",
     "verify": "Verificar",
     "phoneNote": "Tu teléfono solo se comparte con el conductor cuando se confirma una reserva.",
     "legalTerms": "Condiciones de uso",
@@ -202,6 +201,9 @@
       "searchTolerance": "Margen horario en búsquedas"
     },
     "phoneModal": {
+      "confirmTitle": "Verifica tu teléfono",
+      "confirmText": "Te enviaremos un SMS con un código de 6 cifras para comprobar que este número es tuyo.",
+      "changeNumber": "¿No es tu número? Cámbialo",
       "title": "Teléfono y verificación",
       "verifiedBadge": "Verificado",
       "pendingBadge": "Pendiente de verificación",
@@ -463,7 +465,8 @@
       "logout": "Cerrar sesión",
       "deleteAccount": "Eliminar mi cuenta",
       "changes": "Qué ha cambiado",
-      "readFull": "Leer texto legal completo"
+      "readFull": "Leer texto legal completo",
+      "readHint": "Lee cada documento hasta el final para poder aceptar."
     }
   },
   "errors": {

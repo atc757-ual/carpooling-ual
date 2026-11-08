@@ -131,7 +131,6 @@
     "managePhone": "Manage or edit phone",
     "emptyPhone": "No registered phone.",
     "phoneVerified": "Verified",
-    "phonePending": "Pending verification",
     "verify": "Verify",
     "phoneNote": "Your phone is only shared with the driver when a booking is confirmed.",
     "legalTerms": "Terms of use",
@@ -202,6 +201,9 @@
       "searchTolerance": "Time flexibility in searches"
     },
     "phoneModal": {
+      "confirmTitle": "Verify your phone",
+      "confirmText": "We will send you a text message with a 6-digit code to check that this number is yours.",
+      "changeNumber": "Not your number? Change it",
       "title": "Phone and verification",
       "verifiedBadge": "Verified",
       "pendingBadge": "Pending verification",
@@ -463,7 +465,8 @@
       "logout": "Log out",
       "deleteAccount": "Delete my account",
       "changes": "What changed",
-      "readFull": "Read full legal text"
+      "readFull": "Read full legal text",
+      "readHint": "Read each document to the end to be able to accept."
     }
   },
   "errors": {
