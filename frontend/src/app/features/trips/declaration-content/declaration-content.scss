@@ -1,0 +1,20 @@
+// El texto y el botón, a 16px
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  p {
+    margin: 0;
+  }
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+.declaration-content__loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-xl);
+}

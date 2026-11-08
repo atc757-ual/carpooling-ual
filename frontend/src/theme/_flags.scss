@@ -1,6 +1,7 @@
-// Banderas de los prefijos del teléfono (flag-icons, licencia MIT): la clase
-// «fi fi-es» pinta la de España. Solo se incluyen los países de la lista de
-// prefijos (shared/utils/phone-prefixes.ts), no las ~250 de la librería, y
+// Banderas de los prefijos del teléfono y de los países de la matrícula
+// (flag-icons, licencia MIT): la clase «fi fi-es» pinta la de España. Solo se
+// incluyen los países de esas listas (shared/utils/phone-prefixes.ts y
+// plate-country.util.ts), no las ~250 de la librería, y
 // solo en formato rectangular (4x3): no se usan las cuadradas
 @use 'flag-icons/sass/flag-icons' with (
   $flag-icons-use-square: false,
@@ -49,5 +50,11 @@
     ec,
     py,
     uy,
+    cy,
+    ee,
+    is,
+    li,
+    lu,
+    mt,
   )
 );

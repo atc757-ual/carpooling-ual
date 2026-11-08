@@ -1,0 +1,22 @@
+@if (declaration.hasValue()) {
+  @let current = declaration.value();
+  <app-legal-changes
+    [heading]="'Qué ha cambiado en la versión ' + current.version"
+    [summary]="current.summary"
+  />
+  <!-- El backend ya lo ha saneado; Angular lo limpia otra vez al pintarlo -->
+  <article class="legal" [innerHTML]="current.content"></article>
+  <p class="text-caption text-color-muted">Versión {{ current.version }}</p>
+  <ion-button type="button" expand="block" (click)="accepted.emit()">
+    Acepto la declaración
+  </ion-button>
+} @else if (declaration.error()) {
+  <div class="notice notice--danger" role="alert">
+    <span>No hemos podido cargar la declaración. Comprueba tu conexión.</span>
+    <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
+  </div>
+} @else {
+  <div class="declaration-content__loading">
+    <ion-spinner name="crescent" aria-label="Cargando la declaración" />
+  </div>
+}

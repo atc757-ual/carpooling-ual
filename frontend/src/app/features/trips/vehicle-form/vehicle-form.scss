@@ -227,3 +227,30 @@
       'seats .';
   }
 }
+
+// Sin caja propia: los campos siguen siendo hijos del formulario (su flex)
+.vehicle-form__fields {
+  display: contents;
+}
+
+// Leyendo la declaración: el formulario, escondido sin perder lo escrito
+.vehicle-form__fields--hidden {
+  display: none;
+}
+
+// La declaración dentro de la ventana: su título, el texto con «Acepto la
+// declaración» y, debajo, «Volver» al formulario
+.vehicle-form__declaration-step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+// Título de 18px, como el de una tarjeta
+.vehicle-form__step-title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
