@@ -151,8 +151,5 @@ export class ProfilePushSetting {
     }
   }
 
-  // Compatibilidad con pruebas previas
-  handleToggle(isChecked: boolean): Promise<void> {
-    return isChecked ? this.handleEnable() : this.handleDisable();
-  }
+
 }

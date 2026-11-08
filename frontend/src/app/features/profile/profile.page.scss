@@ -219,6 +219,7 @@ app-profile-device-location {
 
 // Separador entre el bloque de compartir ubicación y los documentos legales
 .profile__legal-divider {
+  border: 0;
   height: 0;
   margin: var(--space-s) 0;
   border-top: var(--border-width-s) solid var(--color-border-subtle);

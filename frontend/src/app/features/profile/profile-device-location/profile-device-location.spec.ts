@@ -36,19 +36,27 @@ describe('ProfileDeviceLocation', () => {
 
   it('shows granted status and hint when device permission is granted', async () => {
     await component.refresh();
+    fixture.detectChanges();
     expect(component.devicePermission()).toBe('granted');
     expect(component.hintKey()).toBe('profile.location.deviceGrantedDesc');
+    const badge = fixture.nativeElement.querySelector('.status--accepted');
+    expect(badge).not.toBeNull();
   });
 
-  it('shows prompt and allows requesting permission', async () => {
+  it('shows prompt and allows requesting permission through form submit', async () => {
     location.checkDevicePermission.mockResolvedValueOnce('prompt').mockResolvedValueOnce('granted');
     location.getCurrentPoint.mockResolvedValue({ lat: 36.8, lng: -2.4 });
 
     await component.refresh();
+    fixture.detectChanges();
     expect(component.devicePermission()).toBe('prompt');
     expect(component.hintKey()).toBe('profile.location.devicePromptDesc');
 
-    await component.handleAllowDevice();
+    const form = fixture.nativeElement.querySelector('form');
+    expect(form).not.toBeNull();
+    form.dispatchEvent(new Event('submit'));
+    await fixture.whenStable();
+
     expect(location.getCurrentPoint).toHaveBeenCalled();
     expect(toast.showSuccess).toHaveBeenCalledWith('Ubicación del dispositivo permitida.');
     expect(component.devicePermission()).toBe('granted');
@@ -57,7 +65,33 @@ describe('ProfileDeviceLocation', () => {
   it('handles denial gracefully', async () => {
     location.checkDevicePermission.mockResolvedValue('denied');
     await component.refresh();
+    fixture.detectChanges();
     expect(component.devicePermission()).toBe('denied');
     expect(component.hintKey()).toBe('profile.location.deviceDeniedDesc');
+    const badge = fixture.nativeElement.querySelector('.status--pending');
+    expect(badge).not.toBeNull();
+  });
+
+  it('handles catch error when requesting point fails', async () => {
+    location.checkDevicePermission.mockResolvedValueOnce('prompt').mockResolvedValueOnce('denied');
+    location.getCurrentPoint.mockRejectedValue(new Error('Permission dismissed'));
+
+    await component.refresh();
+    await component.handleAllowDevice();
+
+    expect(component.devicePermission()).toBe('denied');
+    expect(component.isAsking()).toBe(false);
+    expect(toast.showSuccess).not.toHaveBeenCalled();
+  });
+
+  it('does not show toast if permission check does not result in granted', async () => {
+    location.checkDevicePermission.mockResolvedValueOnce('prompt').mockResolvedValueOnce('prompt');
+    location.getCurrentPoint.mockResolvedValue({ lat: 36.8, lng: -2.4 });
+
+    await component.refresh();
+    await component.handleAllowDevice();
+
+    expect(toast.showSuccess).not.toHaveBeenCalled();
+    expect(component.devicePermission()).toBe('prompt');
   });
 });

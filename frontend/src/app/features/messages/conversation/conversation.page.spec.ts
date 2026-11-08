@@ -276,8 +276,14 @@ describe('ConversationPage', () => {
     expect(root.querySelector('.bubble__report')).toBeNull();
 
     expect(page.isOptionsOpen()).toBe(false);
-    page.handleOpenOptions();
+    const optionsBtn = root.querySelector<HTMLButtonElement>('.conversation__options');
+    optionsBtn?.click();
     expect(page.isOptionsOpen()).toBe(true);
+    expect(page.optionsEvent).not.toBeNull();
+
+    const mockEvent = new CustomEvent('click');
+    page.handleOpenOptions(mockEvent);
+    expect(page.optionsEvent).toBe(mockEvent);
 
     const reportPromise = page.handleReport();
     await modalProps?.action('Me ha insultado');

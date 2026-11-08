@@ -19,7 +19,7 @@ describe('ProfilePushSetting', () => {
   };
   let toast: { showSuccess: ReturnType<typeof vi.fn>; showError: ReturnType<typeof vi.fn> };
 
-  function render(): { component: ProfilePushSetting; root: HTMLElement } {
+  function render(): { component: ProfilePushSetting; root: HTMLElement; fixture: unknown } {
     TestBed.configureTestingModule({
       imports: [ProfilePushSetting],
       providers: [
@@ -31,7 +31,11 @@ describe('ProfilePushSetting', () => {
     });
     const fixture = TestBed.createComponent(ProfilePushSetting);
     fixture.detectChanges();
-    return { component: fixture.componentInstance, root: fixture.nativeElement as HTMLElement };
+    return {
+      component: fixture.componentInstance,
+      root: fixture.nativeElement as HTMLElement,
+      fixture,
+    };
   }
 
   beforeEach(() => {
@@ -53,24 +57,67 @@ describe('ProfilePushSetting', () => {
   it('turns them on and says so, and turns them off', async () => {
     const { component } = render();
 
-    await component.handleToggle(true);
+    await component.handleEnable();
     expect(push.enable).toHaveBeenCalled();
     expect(toast.showSuccess).toHaveBeenCalledWith('Te avisaremos aunque tengas la app cerrada.');
     expect(component.isOn()).toBe(true);
 
-    await component.handleToggle(false);
+    await component.handleDisable();
     expect(push.disable).toHaveBeenCalled();
     expect(component.isBusy()).toBe(false);
   });
 
-  it('does nothing when it is already so, and says so when it fails', async () => {
+  it('submits form from DOM when off and clicks status button when on', async () => {
+    const { root, fixture } = render();
+
+    const form = root.querySelector('form');
+    expect(form).not.toBeNull();
+    form?.dispatchEvent(new Event('submit'));
+    await (fixture as { whenStable: () => Promise<void> }).whenStable();
+
+    expect(push.enable).toHaveBeenCalled();
+    (fixture as { detectChanges: () => void }).detectChanges();
+
+    const statusBtn = root.querySelector<HTMLButtonElement>('.profile-push__status-btn');
+    expect(statusBtn).not.toBeNull();
+    statusBtn?.dispatchEvent(new Event('click'));
+    await (fixture as { whenStable: () => Promise<void> }).whenStable();
+
+    expect(push.disable).toHaveBeenCalled();
+  });
+
+  it('does nothing when already in that state', async () => {
     const { component } = render();
-    await component.handleToggle(false);
+    // Already off
+    await component.handleDisable();
     expect(push.disable).not.toHaveBeenCalled();
 
+    // Set to on and try enabling again
+    status.set('on');
+    await component.handleEnable();
+    expect(push.enable).not.toHaveBeenCalled();
+  });
+
+  it('does not show success toast if push.enable resolves to false', async () => {
+    push.enable.mockResolvedValue(false);
+    const { component } = render();
+
+    await component.handleEnable();
+    expect(toast.showSuccess).not.toHaveBeenCalled();
+  });
+
+  it('says so when enable or disable fails', async () => {
+    const { component } = render();
+
     push.enable.mockRejectedValue(new Error('offline'));
-    await component.handleToggle(true);
-    expect(toast.showError).toHaveBeenCalled();
+    await component.handleEnable();
+    expect(toast.showError).toHaveBeenCalledWith('No hemos podido activar las notificaciones. Inténtalo de nuevo.');
+    expect(component.isBusy()).toBe(false);
+
+    status.set('on');
+    push.disable.mockRejectedValue(new Error('offline'));
+    await component.handleDisable();
+    expect(toast.showError).toHaveBeenCalledWith('No hemos podido desactivar las notificaciones.');
     expect(component.isBusy()).toBe(false);
   });
 
