@@ -90,6 +90,14 @@ describe('ProfilePhoneModal', () => {
     expect(dismiss).toHaveBeenCalledWith(expect.anything(), 'saved');
   });
 
+  it('offers going back to the number only when the code came from it', async () => {
+    await component.handleStartVerification(false);
+    expect(component.canGoBackToNumber()).toBe(false);
+
+    await component.handleStartVerification();
+    expect(component.canGoBackToNumber()).toBe(true);
+  });
+
   it('navigates back to number step', () => {
     component.step.set('verify');
     component.backToNumber();

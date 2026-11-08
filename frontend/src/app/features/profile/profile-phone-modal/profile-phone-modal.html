@@ -97,7 +97,7 @@
       </div>
 
       <form [formGroup]="codeForm" (ngSubmit)="handleConfirmCode()" novalidate>
-        <div class="auth-field">
+        <div class="auth-field code-field">
           <span id="phone-otp-label" class="text-label text-label--strong">{{
             'profile.phoneModal.codeLabel' | transloco
           }}</span>
@@ -136,13 +136,15 @@
             {{ resendLabel() }}
           </ion-button>
 
-          <button
-            type="button"
-            class="profile-phone-modal__back text-body-s"
-            (click)="backToNumber()"
-          >
-            {{ 'profile.phoneModal.backToNumber' | transloco }}
-          </button>
+          @if (canGoBackToNumber()) {
+            <button
+              type="button"
+              class="profile-phone-modal__back text-body-s"
+              (click)="backToNumber()"
+            >
+              {{ 'profile.phoneModal.backToNumber' | transloco }}
+            </button>
+          }
         </div>
       </form>
     </div>

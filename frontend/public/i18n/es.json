@@ -217,7 +217,7 @@
       "codeLabel": "Código recibido",
       "tooManyAttempts": "Has superado el número de intentos. Solicita un nuevo código para continuar.",
       "confirmCode": "Confirmar código",
-      "backToNumber": "← Volver a editar el número"
+      "backToNumber": "Volver a editar el número"
     },
     "account": {
       "title": "Cuenta",

@@ -217,7 +217,7 @@
       "codeLabel": "Code received",
       "tooManyAttempts": "Too many attempts. Request a new code to continue.",
       "confirmCode": "Confirm code",
-      "backToNumber": "← Back to edit phone number"
+      "backToNumber": "Back to edit phone number"
     },
     "account": {
       "title": "Account",

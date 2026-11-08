@@ -67,6 +67,9 @@ export class ProfilePhoneModal implements OnInit {
   @Input() startVerification = false;
 
   readonly step = signal<'number' | 'verify'>('number');
+  // Solo se vuelve a editar el número si se llegó al código desde él (no al
+  // abrirla con «Verificar»)
+  readonly canGoBackToNumber = signal(false);
   readonly isSaving = signal(false);
   readonly isVerifying = signal(false);
   readonly isLocked = signal(false);
@@ -123,7 +126,7 @@ export class ProfilePhoneModal implements OnInit {
     });
 
     if (this.startVerification) {
-      void this.handleStartVerification();
+      void this.handleStartVerification(false);
     }
   }
 
@@ -162,13 +165,14 @@ export class ProfilePhoneModal implements OnInit {
 
   // Todo número se verifica: si ha cambiado, primero se guarda; después, el
   // código por SMS
-  async handleStartVerification(): Promise<void> {
+  async handleStartVerification(isFromNumber = true): Promise<void> {
     if (this.isPhoneChanged() && !(await this.savePhone())) {
       return;
     }
     this.isVerifying.set(true);
     try {
       await this.usersService.requestPhoneVerification();
+      this.canGoBackToNumber.set(isFromNumber);
       this.step.set('verify');
       this.resendCountdown.restart();
     } catch (error) {
