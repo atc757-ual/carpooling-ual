@@ -5,9 +5,6 @@
       <span id="profile-location-title" class="text-body text-body--strong">{{
         'profile.location.shareLocation' | transloco
       }}</span>
-      <span class="text-body-s text-color-muted">{{
-        'profile.location.shareDesc' | transloco
-      }}</span>
       @if (isOutdated()) {
         <span class="text-body-s">{{ 'profile.location.outdated' | transloco }}</span>
       }
@@ -45,50 +42,4 @@
       </span>
     </div>
   }
-
-  <!-- El permiso del dispositivo: la app solo lo pide o lo consulta -->
-  <div class="profile-location__row profile-location__device">
-    <span class="profile-location__text">
-      <span class="text-body">{{ 'profile.location.devicePermission' | transloco }}</span>
-      @switch (devicePermission()) {
-        @case ('granted') {
-          <span class="text-body-s text-color-muted">
-            {{ 'profile.location.deviceGrantedDesc' | transloco }}
-          </span>
-        }
-        @case ('denied') {
-          <span class="text-body-s text-color-muted">
-            {{ 'profile.location.deviceDeniedDesc' | transloco }}
-          </span>
-        }
-      }
-    </span>
-    @switch (devicePermission()) {
-      @case ('granted') {
-        <span class="status status--accepted">
-          <ion-icon [icon]="locateIcon" aria-hidden="true" />
-          {{ 'profile.location.authorized' | transloco }}
-        </span>
-      }
-      @case ('denied') {
-        <span class="status status--pending">{{ 'profile.location.blocked' | transloco }}</span>
-      }
-      @case ('prompt') {
-        @if (isGranted()) {
-          <form (submit)="$event.preventDefault(); handleAllowDevice()">
-            <ion-button
-              class="profile-location__allow"
-              type="submit"
-              size="small"
-              [disabled]="isAsking()"
-            >
-              {{ 'profile.location.allow' | transloco }}
-            </ion-button>
-          </form>
-        } @else {
-          <span class="status">{{ 'profile.location.notRequested' | transloco }}</span>
-        }
-      }
-    }
-  </div>
 </section>

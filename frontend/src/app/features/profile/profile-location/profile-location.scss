@@ -9,14 +9,9 @@
   gap: var(--space-s);
   margin: 0;
   text-align: left;
-
-  form,
-  ion-button {
-    margin: 0;
-  }
 }
 
-// Texto a la izquierda y el interruptor o el estado a la derecha
+// Texto a la izquierda y el interruptor a la derecha
 .profile-location__row {
   display: flex;
   align-items: center;
@@ -51,24 +46,6 @@
 
 .profile-location__hash {
   font-family: monospace;
-}
-
-// El permiso del dispositivo, separado del consentimiento por una línea fina
-.profile-location__device {
-  padding-top: var(--space-s);
-  border-top: var(--border-width-s) solid var(--color-border-subtle);
-}
-
-// «Permitir»: botón pequeño azul suave, del alto de las etiquetas de estado
-.profile-location__allow {
-  --background: var(--color-primary-subtle);
-  --background-hover: var(--color-primary-subtle);
-  --color: var(--color-primary);
-  --border-radius: var(--radius-s);
-  --box-shadow: none;
-  height: 2rem; // 32px
-  min-height: 2rem; // el tema da 48px a todos los ion-button
-  font-weight: var(--font-weight-semibold);
 }
 
 // «Cómo usamos tu ubicación»: abre el texto que se acepta

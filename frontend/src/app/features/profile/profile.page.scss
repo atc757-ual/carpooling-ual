@@ -100,7 +100,8 @@
 .profile__review-row,
 .profile__setting-row,
 .profile__pref-row,
-.profile__toggle-item {
+.profile__toggle-item,
+app-profile-push-setting {
   // Separador a medio camino entre una fila y la siguiente (el hueco del
   // contenedor es --space-base): antes quedaba pegado al texto de arriba
   padding-bottom: var(--space-base);
@@ -110,6 +111,11 @@
     border-bottom: none;
     padding-bottom: 0;
   }
+}
+
+app-profile-push-setting,
+app-profile-device-location {
+  display: block;
 }
 
 .profile__row-three {

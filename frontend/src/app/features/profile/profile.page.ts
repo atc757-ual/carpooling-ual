@@ -56,6 +56,7 @@ import { PREFERENCE_ICONS, TIME_TOLERANCE_ICON } from './preference-icons';
 import { ProfileVehicles } from './profile-vehicles/profile-vehicles';
 import { ProfilePublicModal } from './profile-public-modal/profile-public-modal';
 import { ProfilePushSetting } from './profile-push-setting/profile-push-setting';
+import { ProfileDeviceLocation } from './profile-device-location/profile-device-location';
 import { ProfilePreferencesModal } from './profile-preferences-modal/profile-preferences-modal';
 import { ProfilePhoneModal } from './profile-phone-modal/profile-phone-modal';
 import { ProfilePasswordModal } from './profile-password-modal/profile-password-modal';
@@ -78,6 +79,7 @@ interface ReviewRow {
   selector: 'app-profile',
   imports: [
     ProfilePushSetting,
+    ProfileDeviceLocation,
     AvatarArt,
     LanguageSwitch,
     RouterLink,
