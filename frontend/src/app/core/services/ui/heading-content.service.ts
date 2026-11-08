@@ -7,10 +7,15 @@ import { Injectable, signal, TemplateRef } from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class HeadingContentService {
   private readonly current = signal<TemplateRef<unknown> | null>(null);
+  private readonly fixed = signal(true);
   readonly content = this.current.asReadonly();
+  // Si la franja se queda fija al bajar o se desplaza con el contenido (el
+  // panel de administración la deja fija solo si lleva buscador)
+  readonly isFixed = this.fixed.asReadonly();
 
-  show(template: TemplateRef<unknown>): void {
+  show(template: TemplateRef<unknown>, isFixed = true): void {
     this.current.set(template);
+    this.fixed.set(isFixed);
   }
 
   // Quita la plantilla. Si se indica una concreta, solo la quita si es la que

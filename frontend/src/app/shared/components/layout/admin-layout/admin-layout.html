@@ -91,19 +91,29 @@
       </nav>
     </div>
   </div>
-  <!-- Franja fija de la sección (título, descripción y, si la tiene, su
-       buscador): la pone la pantalla con HeadingContentService, como en la app.
-       Va en la cabecera, fuera de lo que se desplaza; con el menú del móvil
-       abierto se esconde, para no quedar encima de él -->
+  <!-- Franja de la sección (título, descripción y lo que lleve): la pone la
+       pantalla con HeadingContentService, como en la app. Con buscador va
+       fija, en la cabecera; con el menú del móvil abierto se esconde, para no
+       quedar encima de él -->
+  @if (headingContent.isFixed()) {
+    <ng-container [ngTemplateOutlet]="heading" />
+  }
+</ion-header>
+
+<ion-content>
+  <!-- Sin buscador, al principio del contenido: se desplaza con él -->
+  @if (!headingContent.isFixed()) {
+    <ng-container [ngTemplateOutlet]="heading" />
+  }
+  <main class="admin-main">
+    <router-outlet />
+  </main>
+</ion-content>
+
+<ng-template #heading>
   @if (headingContent.content(); as content) {
     <div class="admin-heading" [class.ion-hide-md-down]="mobileMenuOpen()">
       <ng-container [ngTemplateOutlet]="content" />
     </div>
   }
-</ion-header>
-
-<ion-content>
-  <main class="admin-main">
-    <router-outlet />
-  </main>
-</ion-content>
+</ng-template>

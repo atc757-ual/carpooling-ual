@@ -1,0 +1,124 @@
+:host {
+  display: block;
+}
+
+.filters-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding: var(--space-xs) var(--space-base);
+
+  @media (min-width: 768px) {
+    padding: var(--space-base);
+  }
+}
+
+// Título de tarjeta: 18px siempre
+.filters-card__title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+// Móvil: «Más filtros», con lo aplicado a su lado
+.filters-card__toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.filters-card__toggle {
+  margin: 0;
+  margin-inline-start: calc(-1 * var(--space-s));
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-body); // 16px
+  --color: var(--color-link);
+}
+
+// El número de filtros aplicados, en un círculo de 24px
+.filters-card__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem; // 24px
+  height: 1.5rem;
+  margin-inline-start: var(--space-s);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+}
+
+.filters-card__chevron {
+  transition: transform 0.2s ease;
+}
+
+.filters-card__chevron--open {
+  transform: rotate(180deg);
+}
+
+// Lo aplicado con «Más filtros» cerrado: chips que se quitan con un toque
+.filters-card__applied {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  ion-chip {
+    margin: 0;
+    --background: var(--color-primary-subtle);
+    --color: var(--color-link);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  ion-icon {
+    margin-inline: var(--space-xs) 0;
+    font-size: 1.125rem; // 18px
+  }
+}
+
+// Los filtros: siempre en escritorio; en el móvil, solo abiertos
+.filters-card__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  @media (max-width: 767.98px) {
+    display: none;
+
+    &.filters-card__panel--open {
+      display: flex;
+      // 16px arriba (tras la línea) y abajo (12px más los 4px de la tarjeta)
+      padding-block: var(--space-base) calc(var(--space-base) - var(--space-xs));
+      border-top: var(--border-width-s) solid var(--color-border-subtle);
+      animation: filters-card-reveal 0.2s ease;
+    }
+  }
+}
+
+@keyframes filters-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem); // -8px
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filters-card__panel--open,
+  .filters-card__chevron {
+    animation: none;
+    transition: none;
+  }
+}
+
+.filters-card__clear {
+  align-self: flex-start;
+  margin: 0;
+}

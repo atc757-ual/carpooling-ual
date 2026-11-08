@@ -1,16 +1,10 @@
-.detail__back {
-  margin-inline-start: calc(-1 * var(--space-s));
-  margin-block-end: var(--space-s);
-}
-
-.detail__header {
+.detail__heading {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-base);
-  margin-block-end: var(--space-l);
 }
 
-// Iniciales en un círculo con el color del panel
+// Iniciales en un círculo claro sobre el color del panel (va en la franja)
 .detail__avatar {
   display: flex;
   flex-shrink: 0;
@@ -19,23 +13,15 @@
   width: 3.5rem; // 56px
   height: 3.5rem;
   border-radius: 50%;
-  background: var(--color-admin);
-  color: var(--color-on-admin);
+  background: var(--color-on-admin);
+  color: var(--color-admin);
   font-family: var(--font-family-heading);
   font-size: 1.25rem; // 20px
   font-weight: var(--font-weight-bold);
 }
 
-.detail__identity {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  min-width: 0;
-
-  p {
-    margin: 0;
-    overflow-wrap: anywhere;
-  }
+.detail__wrap {
+  overflow-wrap: anywhere;
 }
 
 .detail__muted {
@@ -54,13 +40,13 @@
 }
 
 .detail__chip--info {
-  background: var(--color-info-subtle);
-  color: var(--color-info);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
 }
 
 .detail__chip--warning {
   background: var(--color-warning-subtle);
-  color: var(--color-warning);
+  color: var(--color-warning-text);
 }
 
 // Tarjetas en dos columnas desde 768px; una en el móvil
@@ -78,7 +64,7 @@
   flex-direction: column;
   gap: var(--space-s);
   padding: var(--space-base);
-  border: var(--border-width) solid var(--color-border-subtle);
+  border: var(--border-width-s) solid var(--color-border-subtle);
   border-radius: var(--radius-l);
   background: var(--color-surface);
 

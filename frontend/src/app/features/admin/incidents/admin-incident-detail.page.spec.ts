@@ -1,3 +1,4 @@
+import { renderHeadingContent } from '../../../core/services/ui/heading-content.testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
@@ -41,7 +42,7 @@ describe('AdminIncidentDetailPage', () => {
   it('shows the report, the trip and links to the people involved', async () => {
     const root = await render();
 
-    expect(root.querySelector('h1')?.textContent).toContain('Con el conductor');
+    expect(renderHeadingContent().querySelector('h1')?.textContent).toContain('Con el conductor');
     expect(root.textContent).toContain('The driver did not stop at the pickup point');
     expect(root.textContent).toContain('Roquetas de Mar → Campus UAL');
     const links = Array.from(root.querySelectorAll('a')).map((a) => a.getAttribute('href'));

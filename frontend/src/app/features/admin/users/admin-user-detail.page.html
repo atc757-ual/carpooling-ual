@@ -1,28 +1,33 @@
-<ion-button class="detail__back" fill="clear" (click)="handleBack()">
-  <ion-icon slot="start" [icon]="backIcon" aria-hidden="true" />
-  Usuarios
-</ion-button>
+<!-- La franja del panel (la pinta su cabecera): volver a Usuarios y quién es;
+     sin buscador, se desplaza con el contenido -->
+<ng-template appHeadingContent>
+  <ion-button class="admin-heading__back" fill="clear" size="small" (click)="handleBack()">
+    <ion-icon slot="start" [icon]="backIcon" aria-hidden="true" />
+    Usuarios
+  </ion-button>
+  @if (user(); as user) {
+    <div class="detail__heading">
+      <span class="detail__avatar" aria-hidden="true">{{ text.initialsOf(user.name) }}</span>
+      <div class="admin-heading__text">
+        <h1 class="admin-heading__title">{{ user.name }}</h1>
+        <p class="text-body-s admin-heading__subtitle detail__wrap">
+          {{ user.email }}
+          @if (user.phone) {
+            · {{ user.phone }} {{ user.isPhoneVerified ? '(verificado)' : '(sin verificar)' }}
+          }
+          · Alta: {{ text.formatDate(user.createdAt) }}
+        </p>
+        <span class="detail__chips">
+          @for (chip of chips(); track chip.label) {
+            <span [class]="'status detail__chip--' + chip.tone">{{ chip.label }}</span>
+          }
+        </span>
+      </div>
+    </div>
+  }
+</ng-template>
 
 @if (user(); as user) {
-  <header class="detail__header">
-    <span class="detail__avatar" aria-hidden="true">{{ text.initialsOf(user.name) }}</span>
-    <div class="detail__identity">
-      <h1 class="text-heading">{{ user.name }}</h1>
-      <p class="text-body detail__muted">
-        {{ user.email }}
-        @if (user.phone) {
-          · {{ user.phone }} {{ user.isPhoneVerified ? '(verificado)' : '(sin verificar)' }}
-        }
-      </p>
-      <p class="text-body-s detail__muted">Alta: {{ text.formatDate(user.createdAt) }}</p>
-      <span class="detail__chips">
-        @for (chip of chips(); track chip.label) {
-          <span [class]="'status detail__chip--' + chip.tone">{{ chip.label }}</span>
-        }
-      </span>
-    </div>
-  </header>
-
   <div class="detail__grid">
     <!-- Perfiles: cada acción pide confirmación y motivo -->
     <section class="detail__card" aria-labelledby="detail-profiles">

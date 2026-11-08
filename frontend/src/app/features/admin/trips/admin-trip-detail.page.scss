@@ -1,12 +1,3 @@
-.trip-detail__back {
-  margin-inline-start: calc(-1 * var(--space-s));
-  margin-block-end: var(--space-s);
-}
-
-.trip-detail__header {
-  margin-block-end: var(--space-l);
-}
-
 .trip-detail__muted {
   color: var(--color-text-muted);
 }
@@ -26,7 +17,7 @@
   flex-direction: column;
   gap: var(--space-s);
   padding: var(--space-base);
-  border: var(--border-width) solid var(--color-border-subtle);
+  border: var(--border-width-s) solid var(--color-border-subtle);
   border-radius: var(--radius-l);
   background: var(--color-surface);
 }
@@ -94,7 +85,7 @@
   flex-direction: column;
   padding-block-end: var(--space-base);
   padding-inline-start: var(--space-l);
-  border-inline-start: var(--border-width) solid var(--color-border);
+  border-inline-start: var(--border-width-s) solid var(--color-border);
 
   &::before {
     content: '';

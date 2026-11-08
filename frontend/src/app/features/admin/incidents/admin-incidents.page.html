@@ -1,91 +1,102 @@
-<header class="admin-page__header">
-  <h1 class="text-heading">Incidencias</h1>
-  <p class="text-body admin-page__subtitle">
-    Revisa las incidencias registradas durante los viajes.
-  </p>
-</header>
-
-<!-- Estado (abiertas por defecto) y categoría: cambiar uno vuelve a la primera página -->
-<div class="incidents__filters">
-  <ion-segment
-    class="incidents__segment"
-    [value]="statusFilter()"
-    (ionChange)="handleStatus($event.detail.value)"
-  >
-    @for (filter of statusFilters; track filter.value) {
-      <ion-segment-button [value]="filter.value">
-        <ion-label>{{ filter.label }}</ion-label>
-      </ion-segment-button>
-    }
-  </ion-segment>
-  <ion-select
-    class="incidents__select"
-    label="Categoría"
-    labelPlacement="stacked"
-    fill="outline"
-    interface="popover"
-    placeholder="Todas"
-    [value]="query().category ?? ''"
-    (ionChange)="handleCategory($event.detail.value)"
-  >
-    <ion-select-option value="">Todas</ion-select-option>
-    @for (option of categoryOptions; track option[0]) {
-      <ion-select-option [value]="option[0]">{{ option[1] }}</ion-select-option>
-    }
-  </ion-select>
-</div>
-
-@if (errorMessage(); as message) {
-  <div class="notice notice--danger incidents__state" role="alert">
-    <span>
-      <b>No hemos podido cargar las incidencias.</b>
-      {{ message }}
-    </span>
-    <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
-  </div>
-} @else if (page.isLoading() && !page.hasValue()) {
-  <div class="incidents__list" aria-busy="true" aria-label="Cargando incidencias">
-    @for (card of skeletonCards; track card) {
-      <div class="incident-card">
-        <ion-skeleton-text [animated]="true" class="incidents__skeleton-title" />
-        <ion-skeleton-text [animated]="true" />
-      </div>
-    }
-  </div>
-} @else if (cards().length === 0) {
-  <output class="incidents__empty incidents__state">
-    <p class="text-title">
-      {{ statusFilter() === 'open' ? 'No hay incidencias abiertas' : 'No hay incidencias' }}
+<!-- La franja del panel (la pinta su cabecera); sin buscador, se desplaza con
+     el contenido -->
+<ng-template appHeadingContent>
+  <div class="admin-heading__text">
+    <h1 class="admin-heading__title">Incidencias</h1>
+    <p class="text-body-s admin-heading__subtitle">
+      Revisa las incidencias registradas durante los viajes.
     </p>
-    <p class="text-body admin-page__subtitle">Cambia el estado o la categoría para ver otras.</p>
-  </output>
-} @else {
-  <ul class="incidents__list">
-    @for (card of cards(); track card.incident.id) {
-      <li [class]="'incident-card incident-card--' + card.severity">
-        <div class="incident-card__head">
-          <span class="text-body incident-card__title">{{ card.title }}</span>
-          <span class="text-body-s admin-page__subtitle">{{ card.date }}</span>
+  </div>
+</ng-template>
+
+<div class="incidents">
+  <!-- Columna de 4 (arriba en el móvil): estado (abiertas por defecto) y
+       categoría. Cambiar uno vuelve a la primera página -->
+  <aside class="incidents__aside" aria-label="Filtrar incidencias">
+    <app-filters-card
+      [activeFilters]="activeFilters()"
+      [hasFilters]="activeFilters().length > 0"
+      (removeFilter)="handleRemoveFilter($event)"
+      (clearFilters)="handleClearFilters()"
+    >
+      <app-filter-chips
+        legend="Estado"
+        [options]="statusOptions"
+        [value]="statusFilter()"
+        [allLabel]="null"
+        (valueChange)="handleStatus($event)"
+      />
+      <app-filter-chips
+        legend="Categoría"
+        allLabel="Todas"
+        [options]="categoryOptions"
+        [value]="query().category"
+        (valueChange)="handleCategory($event)"
+      />
+    </app-filters-card>
+  </aside>
+
+  <!-- Columna de 8: la lista con su paginación -->
+  <section class="incidents__main" aria-label="Lista de incidencias">
+    <ion-card class="admin-list">
+      @if (errorMessage(); as message) {
+        <div class="notice notice--danger incidents__state" role="alert">
+          <span>
+            <b>No hemos podido cargar las incidencias.</b>
+            {{ message }}
+          </span>
+          <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
         </div>
-        <p class="text-body-s incident-card__meta">{{ card.people }} · {{ card.route }}</p>
-        <div class="incident-card__actions">
-          <a class="incident-card__link" [routerLink]="[card.incident.id]">Ver detalle</a>
-          @if (card.incident.status === 'open') {
-            <ion-button size="small" fill="outline" (click)="handleReview(card.incident)">
-              Marcar revisada
-            </ion-button>
-          } @else {
-            <span class="status status--accepted">Revisada</span>
+      } @else if (page.isLoading() && !page.hasValue()) {
+        <div class="incidents__list" aria-busy="true" aria-label="Cargando incidencias">
+          @for (card of skeletonCards; track card) {
+            <div class="incident-card">
+              <ion-skeleton-text [animated]="true" class="incidents__skeleton-title" />
+              <ion-skeleton-text [animated]="true" />
+            </div>
           }
         </div>
-      </li>
-    }
-  </ul>
-  <app-pagination
-    [offset]="query().offset"
-    [limit]="pageSize"
-    [total]="total()"
-    [isLoading]="page.isLoading()"
-    (offsetChange)="handleOffset($event)"
-  />
-}
+      } @else if (cards().length === 0) {
+        <output class="admin-empty">
+          <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+          <p class="admin-empty__title">
+            {{ statusFilter() === 'open' ? 'No hay incidencias abiertas' : 'No hay incidencias' }}
+          </p>
+          <p class="text-body-s admin-empty__text">
+            Cambia el estado o la categoría para ver otras.
+          </p>
+        </output>
+      } @else {
+        <ul class="incidents__list">
+          @for (card of cards(); track card.incident.id) {
+            <li [class]="'incident-card incident-card--' + card.severity">
+              <div class="incident-card__head">
+                <span class="text-body incident-card__title">{{ card.title }}</span>
+                <span class="text-body-s admin-page__subtitle">{{ card.date }}</span>
+              </div>
+              <p class="text-body-s incident-card__meta">{{ card.people }} · {{ card.route }}</p>
+              <div class="incident-card__actions">
+                <a class="admin-table__link" [routerLink]="[card.incident.id]">Ver detalle</a>
+                @if (card.incident.status === 'open') {
+                  <ion-button size="small" fill="outline" (click)="handleReview(card.incident)">
+                    Marcar revisada
+                  </ion-button>
+                } @else {
+                  <span class="status status--accepted">Revisada</span>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+        <app-pagination
+          class="admin-list__pagination"
+          [offset]="query().offset"
+          [limit]="pageSize"
+          [total]="total()"
+          [isLoading]="page.isLoading()"
+          (offsetChange)="handleOffset($event)"
+        />
+      }
+    </ion-card>
+  </section>
+</div>

@@ -1,90 +1,119 @@
-.admin-page__header {
-  margin-block-end: var(--space-l);
-}
-
 .admin-page__subtitle {
   color: var(--color-text-muted);
 }
 
-.admin-trips__total {
+// Móvil: los filtros y la lista en una columna. Escritorio: la lista en la
+// columna de 8 y los filtros en la de 4, fijos al bajar (como en Usuarios)
+.admin-trips {
+  display: grid;
+  grid-template-areas: 'aside' 'main';
+  gap: var(--space-base);
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); // 256px
+    grid-template-areas: 'main aside';
+    align-items: start;
+  }
+}
+
+.admin-trips__main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.admin-trips__aside {
+  grid-area: aside;
+  min-width: 0;
+
+  @media (min-width: 768px) {
+    position: sticky;
+    top: var(--space-l);
+  }
+}
+
+// Días de salida: «Desde» y «Hasta», uno al lado del otro
+.admin-trips__dates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-s);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.admin-trips__legend {
+  grid-column: 1 / -1;
+  margin-block-end: var(--space-xs);
+  padding: 0;
   color: var(--color-text-muted);
   font-weight: var(--font-weight-semibold);
 }
 
-// Conductor, estado y días: en una columna en el móvil, en dos filas en la
-// tableta y en una fila desde 1024px
-.admin-trips__filters {
-  display: grid;
-  gap: var(--space-base);
-  margin-block-end: var(--space-base);
-
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: end;
-  }
-
-  @media (min-width: 1024px) {
-    grid-template-columns: minmax(16rem, 2fr) repeat(3, minmax(9rem, 1fr)); // 256px · 144px
-  }
-}
-
-.admin-trips__search {
-  padding: 0;
-  --border-radius: var(--radius-base);
-
-  @media (min-width: 768px) and (max-width: 1023px) {
-    grid-column: 1 / -1;
-  }
-}
-
-// La tabla se desplaza dentro de su caja, nunca la página; la cabecera queda
-// fija al desplazar
-.admin-trips__table-wrap {
-  max-height: 70vh;
-  overflow: auto;
-  border: var(--border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
-}
-
-.admin-trips__table {
-  width: 100%;
-  min-width: 52rem; // 832px
-  border-collapse: collapse;
-  font-size: var(--font-size-label);
-
-  th,
-  td {
-    padding: var(--space-s) var(--space-base);
-    border-bottom: var(--border-width) solid var(--color-border-subtle);
-    text-align: left;
-    vertical-align: middle;
-  }
-
-  th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background: var(--color-surface);
-    color: var(--color-text-muted);
-    font-weight: var(--font-weight-medium);
-  }
-
-  tbody tr:last-child td {
-    border-bottom: 0;
-  }
-}
+// --- Lista (la tabla y su tarjeta, .admin-table y .admin-list del tema) ---
 
 .admin-trips__nowrap {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
-.admin-trips__link {
-  color: var(--color-link);
+.admin-trips__cell-route {
   font-weight: var(--font-weight-semibold);
-  white-space: nowrap;
 }
+
+// Móvil: cada viaje, una tarjeta: el trayecto y «Ver detalle» arriba; debajo,
+// la salida y el estado a la derecha; el conductor; y las plazas con las
+// solicitudes
+@media (max-width: 767.98px) {
+  .admin-trips__table tbody tr {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'route action'
+      'departure status'
+      'driver driver'
+      'seats requests';
+  }
+
+  .admin-trips__cell-route {
+    grid-area: route;
+  }
+
+  .admin-trips__cell-action {
+    grid-area: action;
+    justify-self: end;
+  }
+
+  .admin-trips__cell-departure {
+    grid-area: departure;
+  }
+
+  .admin-trips__cell-status {
+    grid-area: status;
+    justify-self: end;
+  }
+
+  .admin-trips__cell-driver {
+    grid-area: driver;
+  }
+
+  .admin-trips__cell-seats {
+    grid-area: seats;
+  }
+
+  .admin-trips__cell-requests {
+    grid-area: requests;
+    justify-self: end;
+  }
+
+  .admin-trips__cell-departure,
+  .admin-trips__cell-driver,
+  .admin-trips__cell-seats,
+  .admin-trips__cell-requests {
+    color: var(--color-text-muted);
+  }
+}
+
+// --- Estados de la lista ---
 
 .admin-trips__skeleton-row {
   height: 1.5rem; // 24px
@@ -92,17 +121,5 @@
 }
 
 .admin-trips__state {
-  margin-block-start: var(--space-base);
-}
-
-.admin-trips__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xxl) var(--space-l);
-  border: var(--border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
-  text-align: center;
+  margin: var(--space-base);
 }

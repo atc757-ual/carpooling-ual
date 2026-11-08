@@ -1,47 +1,61 @@
-.admin-page__header {
-  margin-block-end: var(--space-l);
-
-  h1,
-  p {
-    margin: 0;
-  }
-}
-
 .admin-page__subtitle {
   margin: 0;
   color: var(--color-text-muted);
 }
 
-.simulation__header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-base);
+.simulation__export {
+  align-self: flex-end;
+  margin: 0;
 }
 
-// Configurar a la izquierda y resultados a la derecha desde 768px
-.simulation__grid {
+// Móvil: la configuración arriba y debajo la ejecución y el historial.
+// Escritorio, como Usuarios: la ejecución y el historial en la columna de 8 y
+// la configuración en la de 4, fija al bajar
+.simulation {
   display: grid;
+  grid-template-areas: 'aside' 'main';
   gap: var(--space-base);
 
   @media (min-width: 768px) {
-    grid-template-columns: minmax(16rem, 1fr) minmax(0, 2fr); // 256px
+    grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); // 256px
+    grid-template-areas: 'main aside';
     align-items: start;
   }
 }
 
+.simulation__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-l);
+  min-width: 0;
+  grid-area: main;
+}
+
+.simulation__aside {
+  grid-area: aside;
+
+  @media (min-width: 768px) {
+    position: sticky;
+    top: var(--space-l);
+  }
+}
+
+// Tarjeta blanca, como ion-card (tema): borde fino, esquinas de 8px y su sombra
 .simulation__card {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
+  min-width: 0;
   padding: var(--space-base);
-  border: var(--border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
+  border: var(--border-width-s) solid var(--color-card-border);
+  border-radius: var(--radius-s);
   background: var(--color-surface);
+  box-shadow: var(--shadow-card);
 
+  // Título de tarjeta: 18px siempre
   h2 {
     margin: 0;
+    font-size: 1.125rem; // 18px
   }
 }
 
@@ -61,48 +75,93 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
-  margin-block-start: var(--space-l);
 
   h2 {
     margin: 0;
   }
 }
 
-// La tabla se desplaza dentro de su caja, nunca la página
-.simulation__table-wrap {
-  overflow: auto;
-  border: var(--border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
-}
-
+// Historial (.admin-table del tema): la ejecución abierta, marcada
 .simulation__table {
-  width: 100%;
-  min-width: 40rem; // 640px
-  border-collapse: collapse;
-  font-size: var(--font-size-label);
+  font-variant-numeric: tabular-nums;
 
-  th,
-  td {
-    padding: var(--space-xs) var(--space-base);
-    border-bottom: var(--border-width) solid var(--color-border-subtle);
-    text-align: left;
-    vertical-align: middle;
-    font-variant-numeric: tabular-nums;
-  }
-
-  th {
-    color: var(--color-text-muted);
-    font-weight: var(--font-weight-medium);
-  }
-
-  tbody tr:last-child td {
-    border-bottom: 0;
+  ion-button {
+    margin: 0;
   }
 }
 
-// La ejecución abierta se marca en el historial
 .simulation__row--open td {
   background: var(--color-surface-subtle);
   font-weight: var(--font-weight-semibold);
+}
+
+// «réplicas» y «Semilla»: solo en el móvil, donde no hay cabecera de columna
+.simulation__unit {
+  display: none;
+}
+
+// Móvil: cada ejecución, una tarjeta: la comparación y «Ver resultados»
+// arriba; debajo, la fecha y el estado; y las réplicas, la semilla y el
+// criterio
+@media (max-width: 767.98px) {
+  .simulation__table tbody tr {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'comparison action'
+      'date status'
+      'replicas seed'
+      'criterion criterion';
+  }
+
+  .simulation__row--open {
+    background: var(--color-surface-subtle);
+  }
+
+  .simulation__row--open td {
+    background: none;
+  }
+
+  .simulation__cell-comparison {
+    grid-area: comparison;
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .simulation__cell-action {
+    grid-area: action;
+    justify-self: end;
+  }
+
+  .simulation__cell-date {
+    grid-area: date;
+  }
+
+  .simulation__cell-status {
+    grid-area: status;
+    justify-self: end;
+  }
+
+  .simulation__cell-replicas {
+    grid-area: replicas;
+  }
+
+  .simulation__cell-seed {
+    grid-area: seed;
+    justify-self: end;
+  }
+
+  .simulation__cell-criterion {
+    grid-area: criterion;
+  }
+
+  .simulation__cell-date,
+  .simulation__cell-status,
+  .simulation__cell-replicas,
+  .simulation__cell-seed,
+  .simulation__cell-criterion {
+    color: var(--color-text-muted);
+  }
+
+  .simulation__unit {
+    display: inline;
+  }
 }

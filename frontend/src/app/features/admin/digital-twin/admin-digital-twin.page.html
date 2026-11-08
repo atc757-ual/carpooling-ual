@@ -1,180 +1,211 @@
-<header class="admin-page__header twin__header">
-  <div>
-    <h1 class="text-heading">Gemelo digital</h1>
-    <p class="text-body admin-page__subtitle">
+<!-- La franja del panel (la pinta su cabecera); sin buscador, se desplaza con
+     el contenido -->
+<ng-template appHeadingContent>
+  <div class="admin-heading__text">
+    <h1 class="admin-heading__title">Gemelo digital</h1>
+    <p class="text-body-s admin-heading__subtitle">
       Lo que sabe el gemelo, el estado de la plataforma en vivo y los eventos que lo alimentan.
     </p>
   </div>
-  <ion-button fill="outline" size="small" (click)="handleRefresh()">Actualizar</ion-button>
-</header>
+</ng-template>
 
-<!-- Gemelo vivo: se sincroniza solo con los eventos; aquí se refresca cada 30 s -->
-<section class="twin__section" aria-labelledby="twin-state-title">
-  <h2 id="twin-state-title" class="text-title">Gemelo digital</h2>
-  @if (twinError(); as message) {
-    <div class="notice notice--danger" role="alert">
-      <span>
-        <b>No hemos podido cargar el gemelo.</b>
-        {{ message }}
-      </span>
-      <ion-button fill="outline" size="small" (click)="twin.reload()">Reintentar</ion-button>
-    </div>
-  } @else if (!twin.hasValue()) {
-    <div class="twin__kpis" aria-busy="true" aria-label="Cargando el gemelo">
-      @for (kpi of skeletonKpis; track kpi) {
-        <div class="twin__kpi">
-          <ion-skeleton-text [animated]="true" class="twin__skeleton-label" />
-          <ion-skeleton-text [animated]="true" class="twin__skeleton-value" />
-        </div>
+<div class="twin">
+  <!-- Arriba de todo, a todo el ancho: si el gemelo va al día y «Actualizar»,
+       que refresca toda la pantalla (gemelo, resumen y eventos) -->
+  <div class="twin__status" [class.twin__status--warning]="twinSync()?.tone === 'warning'">
+    <output class="text-body-s twin__sync">
+      @if (twinSync(); as sync) {
+        {{ sync.text }} Se refresca cada 30 s.
+      } @else {
+        El gemelo se sincroniza solo con los eventos; aquí se refresca cada 30 s.
       }
-    </div>
-  } @else {
-    @if (twinSync(); as sync) {
-      <output
-        class="notice twin__notice"
-        [class.notice--info]="sync.tone === 'info'"
-        [class.notice--success]="sync.tone === 'success'"
-        [class.notice--warning]="sync.tone === 'warning'"
-      >
-        {{ sync.text }}
-      </output>
-    }
-    <div class="twin__kpis">
-      @for (kpi of twinKpis(); track kpi.label) {
-        <div class="twin__kpi">
-          <span class="text-label admin-page__subtitle">{{ kpi.label }}</span>
-          <span class="twin__value">{{ kpi.value }}</span>
-          <span class="text-body-s admin-page__subtitle">{{ kpi.hint }}</span>
-        </div>
-      }
-    </div>
-  }
-</section>
-
-<!-- Resumen en vivo: se refresca solo cada 30 s -->
-<section class="twin__section" aria-labelledby="twin-overview-title">
-  <h2 id="twin-overview-title" class="text-title">Ahora mismo</h2>
-  @if (overviewError(); as message) {
-    <div class="notice notice--danger" role="alert">
-      <span>
-        <b>No hemos podido cargar el resumen.</b>
-        {{ message }}
-      </span>
-      <ion-button fill="outline" size="small" (click)="overview.reload()">Reintentar</ion-button>
-    </div>
-  } @else if (!overview.hasValue()) {
-    <div class="twin__kpis" aria-busy="true" aria-label="Cargando el resumen">
-      @for (kpi of skeletonKpis; track kpi) {
-        <div class="twin__kpi">
-          <ion-skeleton-text [animated]="true" class="twin__skeleton-label" />
-          <ion-skeleton-text [animated]="true" class="twin__skeleton-value" />
-        </div>
-      }
-    </div>
-  } @else {
-    <div class="twin__kpis">
-      @for (kpi of kpis(); track kpi.label) {
-        <div class="twin__kpi">
-          <span class="text-label admin-page__subtitle">{{ kpi.label }}</span>
-          <span class="twin__value">{{ kpi.value }}</span>
-          <span class="text-body-s admin-page__subtitle">{{ kpi.hint }}</span>
-        </div>
-      }
-    </div>
-  }
-</section>
-
-<!-- Últimos eventos: cambiar el tipo vuelve a la primera página -->
-<section class="twin__section" aria-labelledby="twin-events-title">
-  <div class="twin__events-head">
-    <h2 id="twin-events-title" class="text-title">Últimos eventos</h2>
-    <ion-select
-      class="twin__select"
-      label="Tipo"
-      labelPlacement="stacked"
-      fill="outline"
-      interface="popover"
-      placeholder="Todos"
-      [value]="query().type ?? ''"
-      (ionChange)="handleType($event.detail.value)"
+    </output>
+    <ion-button
+      class="twin__refresh"
+      fill="clear"
+      aria-label="Actualizar"
+      title="Actualizar"
+      (click)="handleRefresh()"
     >
-      <ion-select-option value="">Todos</ion-select-option>
-      @for (group of typeGroups; track group.label) {
-        <ion-select-option [value]="'group:' + group.label" [disabled]="true">
-          {{ group.label }}
-        </ion-select-option>
-        @for (option of group.types; track option[0]) {
-          <ion-select-option [value]="option[0]">{{ option[1] }}</ion-select-option>
-        }
-      }
-    </ion-select>
+      <ion-icon slot="icon-only" [icon]="refreshIcon" aria-hidden="true" />
+    </ion-button>
   </div>
 
-  @if (eventsError(); as message) {
-    <div class="notice notice--danger" role="alert">
-      <span>
-        <b>No hemos podido cargar los eventos.</b>
-        {{ message }}
-      </span>
-      <ion-button fill="outline" size="small" (click)="events.reload()">Reintentar</ion-button>
-    </div>
-  } @else if (events.isLoading() && !events.hasValue()) {
-    <div class="twin__table-wrap" aria-busy="true" aria-label="Cargando los eventos">
-      @for (row of skeletonKpis; track row) {
-        <ion-skeleton-text [animated]="true" class="twin__skeleton-row" />
-      }
-    </div>
-  } @else if (rows().length === 0) {
-    <output class="twin__empty">
-      <p class="text-title">
-        {{ query().type ? 'No hay eventos de este tipo' : 'Aún no hay eventos' }}
-      </p>
-      <p class="text-body admin-page__subtitle">
-        Cada cambio de usuarios, viajes y solicitudes deja aquí su evento.
-      </p>
-    </output>
-  } @else {
-    <div class="twin__table-wrap">
-      <table class="twin__table" [attr.aria-busy]="events.isLoading()">
-        <thead>
-          <tr>
-            <th scope="col">Evento</th>
-            <th scope="col">Entidad</th>
-            <th scope="col">Hora</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (row of rows(); track row.id) {
-            <tr [class.twin__row--open]="expandedId() === row.id">
-              <td>
-                <button
-                  type="button"
-                  class="twin__toggle"
-                  [attr.aria-expanded]="expandedId() === row.id"
-                  [attr.aria-controls]="'event-' + row.id"
-                  (click)="handleToggle(row.id)"
-                >
-                  {{ row.type }}
-                </button>
-              </td>
-              <td class="twin__mono">{{ row.entity }}</td>
-              <td class="twin__date">{{ row.date }}</td>
-            </tr>
-            @if (expandedId() === row.id) {
-              <tr [id]="'event-' + row.id">
-                <td colspan="3"><app-event-payload [eventId]="row.id" /></td>
-              </tr>
-            }
+  <!-- Columna de 4 (arriba en el móvil): las cifras del gemelo y de la plataforma -->
+  <aside class="twin__aside" aria-label="El gemelo en cifras">
+    <!-- Cifras del gemelo, en una tarjeta: una cuadrícula separada por líneas -->
+    <ion-card class="twin__panel" role="region" aria-labelledby="twin-state-title">
+      <h2 id="twin-state-title" class="twin__card-title">Lo que sabe el gemelo</h2>
+      @if (twinError(); as message) {
+        <div class="notice notice--danger" role="alert">
+          <span>
+            <b>No hemos podido cargar el gemelo.</b>
+            {{ message }}
+          </span>
+          <ion-button fill="outline" size="small" (click)="twin.reload()">Reintentar</ion-button>
+        </div>
+      } @else if (!twin.hasValue()) {
+        <div class="twin__kpis" aria-busy="true" aria-label="Cargando el gemelo">
+          @for (kpi of skeletonKpis; track kpi) {
+            <div class="twin__kpi">
+              <ion-skeleton-text [animated]="true" class="twin__skeleton-label" />
+              <ion-skeleton-text [animated]="true" class="twin__skeleton-value" />
+            </div>
           }
-        </tbody>
-      </table>
-    </div>
-    <app-pagination
-      [offset]="query().offset"
-      [limit]="pageSize"
-      [total]="total()"
-      [isLoading]="events.isLoading()"
-      (offsetChange)="handleOffset($event)"
-    />
-  }
-</section>
+        </div>
+      } @else {
+        <div class="twin__kpis">
+          @for (kpi of twinKpis(); track kpi.label) {
+            <div class="twin__kpi">
+              <span class="twin__kpi-icon" aria-hidden="true"
+                ><ion-icon [icon]="kpiIcon(kpi.label)"
+              /></span>
+              <span class="text-label twin__kpi-label">{{ kpi.label }}</span>
+              <span class="twin__value">{{ kpi.value }}</span>
+              <span class="text-body-s admin-page__subtitle twin__kpi-hint">{{ kpi.hint }}</span>
+            </div>
+          }
+        </div>
+      }
+    </ion-card>
+
+    <!-- Resumen en vivo: se refresca solo cada 30 s -->
+    <ion-card class="twin__panel" role="region" aria-labelledby="twin-overview-title">
+      <h2 id="twin-overview-title" class="twin__card-title">Ahora mismo</h2>
+      @if (overviewError(); as message) {
+        <div class="notice notice--danger" role="alert">
+          <span>
+            <b>No hemos podido cargar el resumen.</b>
+            {{ message }}
+          </span>
+          <ion-button fill="outline" size="small" (click)="overview.reload()"
+            >Reintentar</ion-button
+          >
+        </div>
+      } @else if (!overview.hasValue()) {
+        <div class="twin__kpis" aria-busy="true" aria-label="Cargando el resumen">
+          @for (kpi of skeletonKpis; track kpi) {
+            <div class="twin__kpi">
+              <ion-skeleton-text [animated]="true" class="twin__skeleton-label" />
+              <ion-skeleton-text [animated]="true" class="twin__skeleton-value" />
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="twin__kpis">
+          @for (kpi of kpis(); track kpi.label) {
+            <div class="twin__kpi">
+              <span class="twin__kpi-icon" aria-hidden="true"
+                ><ion-icon [icon]="kpiIcon(kpi.label)"
+              /></span>
+              <span class="text-label twin__kpi-label">{{ kpi.label }}</span>
+              <span class="twin__value">{{ kpi.value }}</span>
+              <span class="text-body-s admin-page__subtitle twin__kpi-hint">{{ kpi.hint }}</span>
+            </div>
+          }
+        </div>
+      }
+    </ion-card>
+  </aside>
+
+  <!-- Columna de 8: los últimos eventos, con su filtro -->
+  <div class="twin__main">
+    <!-- Últimos eventos, con su paginación -->
+    <ion-card class="admin-list twin__events" role="region" aria-labelledby="twin-events-title">
+      <!-- Cabecera: el título y, a la derecha, el tipo de evento -->
+      <div class="twin__events-head">
+        <h2 id="twin-events-title" class="twin__card-title twin__events-title">Últimos eventos</h2>
+        <div class="twin__events-tools">
+          <!-- El tipo de los últimos eventos: cambiarlo vuelve a la primera página -->
+          <ion-select
+            class="twin__select"
+            label="Tipo de evento"
+            labelPlacement="stacked"
+            fill="outline"
+            interface="popover"
+            placeholder="Todos"
+            [value]="query().type ?? ''"
+            (ionChange)="handleType($event.detail.value)"
+          >
+            <ion-select-option value="">Todos</ion-select-option>
+            @for (group of typeGroups; track group.label) {
+              <ion-select-option [value]="'group:' + group.label" [disabled]="true">
+                {{ group.label }}
+              </ion-select-option>
+              @for (option of group.types; track option[0]) {
+                <ion-select-option [value]="option[0]">{{ option[1] }}</ion-select-option>
+              }
+            }
+          </ion-select>
+        </div>
+      </div>
+      @if (eventsError(); as message) {
+        <div class="notice notice--danger twin__state" role="alert">
+          <span>
+            <b>No hemos podido cargar los eventos.</b>
+            {{ message }}
+          </span>
+          <ion-button fill="outline" size="small" (click)="events.reload()">Reintentar</ion-button>
+        </div>
+      } @else if (events.isLoading() && !events.hasValue()) {
+        <div aria-busy="true" aria-label="Cargando los eventos">
+          @for (row of skeletonKpis; track row) {
+            <ion-skeleton-text [animated]="true" class="twin__skeleton-row" />
+          }
+        </div>
+      } @else if (rows().length === 0) {
+        <output class="admin-empty">
+          <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+          <p class="admin-empty__title">
+            {{ query().type ? 'No hay eventos de este tipo' : 'Aún no hay eventos' }}
+          </p>
+          <p class="text-body-s admin-empty__text">
+            Cada cambio de usuarios, viajes y solicitudes deja aquí su evento.
+          </p>
+        </output>
+      } @else {
+        <table class="admin-table twin__table" [attr.aria-busy]="events.isLoading()">
+          <thead>
+            <tr>
+              <th scope="col">Evento</th>
+              <th scope="col">Entidad</th>
+              <th scope="col">Hora</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.id) {
+              <tr [class.twin__row--open]="expandedId() === row.id">
+                <td class="twin__cell-type">
+                  <button
+                    type="button"
+                    class="twin__toggle"
+                    [attr.aria-expanded]="expandedId() === row.id"
+                    [attr.aria-controls]="'event-' + row.id"
+                    (click)="handleToggle(row.id)"
+                  >
+                    {{ row.type }}
+                  </button>
+                </td>
+                <td class="twin__mono twin__cell-entity">{{ row.entity }}</td>
+                <td class="twin__date twin__cell-date">{{ row.date }}</td>
+              </tr>
+              @if (expandedId() === row.id) {
+                <tr [id]="'event-' + row.id" class="twin__payload-row">
+                  <td colspan="3"><app-event-payload [eventId]="row.id" /></td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+        <app-pagination
+          class="admin-list__pagination"
+          [offset]="query().offset"
+          [limit]="pageSize"
+          [total]="total()"
+          [isLoading]="events.isLoading()"
+          (offsetChange)="handleOffset($event)"
+        />
+      }
+    </ion-card>
+  </div>
+</div>

@@ -14,6 +14,7 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { AdminIncidentsService } from '../../../core/services/admin/admin-incidents.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { HeadingContent } from '../../../shared/directives/heading-content.directive';
 import {
   CATEGORY_LABELS,
   formatDateTime,
@@ -28,7 +29,7 @@ const INCIDENTS_PATH = '/admin/incidents';
 // personas implicadas (con enlace a su ficha) y la revisión con su resolución
 @Component({
   selector: 'app-admin-incident-detail-page',
-  imports: [IonButton, IonIcon, IonSkeletonText, RouterLink],
+  imports: [HeadingContent, IonButton, IonIcon, IonSkeletonText, RouterLink],
   templateUrl: './admin-incident-detail.page.html',
   styleUrl: './admin-incident-detail.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -64,7 +64,7 @@ describe('AdminTripsPage', () => {
     expect(row?.textContent).toContain('2 de 3 libres');
     expect(row?.textContent).toContain('1 aceptada · 2 pendientes');
     expect(row?.querySelector('.status--accepted')?.textContent).toBe('Confirmado');
-    expect(root.querySelector('.admin-trips__total')?.textContent).toContain('1');
+    expect(root.querySelector('.pagination__range')?.textContent).toContain('1');
   });
 
   it('names a deleted driver', async () => {
@@ -126,10 +126,28 @@ describe('AdminTripsPage', () => {
     );
   });
 
+  it('lists the applied status and days and removes each one from the summary', async () => {
+    await render({ status: 'confirmed', from: '2026-11-03', to: '2026-11-10' });
+    const page = fixture.componentInstance;
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+
+    expect(page.activeFilters().map((filter) => filter.key)).toEqual(['status', 'from', 'to']);
+    expect(page.activeFilters()[0].label).toBe('Confirmado');
+    expect(page.activeFilters()[1].label).toContain('Desde el');
+    await page.handleRemoveFilter('from');
+    expect(navigate).toHaveBeenLastCalledWith(
+      [],
+      expect.objectContaining({ queryParams: { from: null, offset: null } }),
+    );
+    navigate.mockClear();
+    await page.handleRemoveFilter('driver');
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   it('offers to clear the filters when nothing matches', async () => {
     list.mockResolvedValue({ items: [], total: 0 });
     const root = await render({ status: 'cancelled' });
-    expect(root.querySelector('.admin-trips__empty')?.textContent).toContain(
+    expect(root.querySelector('.admin-empty')?.textContent).toContain(
       'No hay viajes con estos filtros',
     );
   });
@@ -137,7 +155,7 @@ describe('AdminTripsPage', () => {
   it('says there are no trips yet without filters', async () => {
     list.mockResolvedValue({ items: [], total: 0 });
     const root = await render();
-    expect(root.querySelector('.admin-trips__empty')?.textContent).toContain('Aún no hay viajes');
+    expect(root.querySelector('.admin-empty')?.textContent).toContain('Aún no hay viajes');
   });
 
   it('shows the error with a retry', async () => {

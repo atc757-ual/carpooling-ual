@@ -1,61 +1,231 @@
-.admin-page__header {
-  margin-block-end: var(--space-l);
-}
-
 .admin-page__subtitle {
+  margin: 0;
   color: var(--color-text-muted);
 }
 
-.twin__header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
+// Móvil: el aviso y las cifras arriba y debajo el filtro con los eventos.
+// Escritorio: el filtro y «Actualizar» con la tabla de eventos a la que se
+// aplican en la columna de 8, y el aviso y las cifras en la de 4
+.twin {
+  display: grid;
+  grid-template-areas: 'status' 'aside' 'main';
   gap: var(--space-base);
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); // 256px
+    grid-template-areas:
+      'status status'
+      'main aside';
+    align-items: start;
+  }
 }
 
-.twin__notice {
-  margin-block-end: var(--space-l);
+// Arriba de todo: el aviso de sincronización en una caja azul claro con borde
+// azul y, dentro, a la derecha, «Actualizar». Con retraso, en ámbar
+.twin__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  grid-area: status;
+  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-base);
+  border: var(--border-width-s) solid var(--color-primary);
+  border-radius: var(--radius-base);
+  background: var(--color-primary-subtle);
+  color: var(--color-text);
+}
+
+.twin__status--warning {
+  border-color: var(--color-warning);
+  background: var(--color-warning-subtle);
+}
+
+.twin__sync {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.twin__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  min-width: 0;
+  grid-area: main;
+}
+
+.twin__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  min-width: 0;
+  grid-area: aside;
+}
+
+// Título de tarjeta: 18px siempre
+.twin__card-title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+// «Actualizar»: el icono de recargar, sin borde, con 44px de área
+.twin__refresh {
+  flex: none;
+  width: 2.75rem; // 44px
+  height: 2.75rem;
+  margin: 0;
+  --border-radius: var(--radius-full);
+  --color: var(--color-link);
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+// La tabla, con el margen de 16px de su tarjeta (como el título y el filtro)
+.twin__events {
+  padding: 0 var(--space-base) var(--space-base);
+
+  .admin-list__pagination {
+    padding-inline: 0;
+  }
+}
+
+// Cabecera de los eventos: el título y, a la derecha, el tipo de evento
+// (estrecho)
+.twin__events-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s) var(--space-base);
+  padding-block: var(--space-base);
+}
+
+// Móvil: el título y el tipo, mitad y mitad (así el desplegable se ve entero)
+@media (max-width: 767.98px) {
+  .twin__events-head {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.twin__events-title {
+  flex: 1 1 12rem; // 192px
+  margin: 0;
+}
+
+.twin__events-tools {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-s);
+
+  @media (min-width: 768px) {
+    flex: none;
+  }
+}
+
+.twin__select {
+  flex: 1;
+  min-width: 0;
+
+  // En el móvil, el texto a 14px: se lee entero en pantallas estrechas
+  @media (max-width: 767.98px) {
+    font-size: var(--font-size-label);
+  }
+
+  @media (min-width: 768px) {
+    flex: none;
+    width: 15rem; // 240px
+  }
 }
 
 .twin__section {
   display: flex;
   flex-direction: column;
   gap: var(--space-base);
-  margin-block-end: var(--space-xl);
+
+  h2 {
+    margin: 0;
+  }
 }
 
-// Las cifras son las protagonistas (guía, «Administración»)
+// Cada grupo de cifras, en una tarjeta con su título de 18px
+.twin__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding: var(--space-base);
+}
+
+// Las cifras, en lista (caben en la columna de 4): una fila por cifra con su
+// nombre y su detalle a la izquierda y el número a la derecha, separadas por
+// una línea fina
 .twin__kpis {
-  display: grid;
-  gap: var(--space-s);
-  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); // 160px
+  display: flex;
+  flex-direction: column;
 }
 
 .twin__kpi {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  padding: var(--space-base);
-  border: var(--border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'icon label value'
+    'icon hint value';
+  align-items: center;
+  gap: 0 var(--space-s);
+  padding-block: var(--space-s);
+
+  & + & {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}
+
+// El icono de la cifra, en un círculo azul claro (como el avatar de Usuarios)
+.twin__kpi-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  grid-area: icon;
+  width: 2.25rem; // 36px
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-size: 1.125rem; // 18px
+}
+
+.twin__kpi-label {
+  grid-area: label;
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+.twin__kpi-hint {
+  grid-area: hint;
 }
 
 .twin__value {
+  grid-area: value;
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-title);
+  font-size: 1.5rem; // 24px
   font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 
 .twin__skeleton-label {
   width: 70%;
+  grid-area: label;
 }
 
 .twin__skeleton-value {
-  width: 30%;
+  width: 2.5rem; // 40px
   height: 1.5rem; // 24px
+  grid-area: value;
 }
 
 .twin__skeleton-row {
@@ -63,57 +233,7 @@
   margin: var(--space-s) var(--space-base);
 }
 
-.twin__events-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-base);
-}
-
-.twin__select {
-  width: 100%;
-
-  @media (min-width: 768px) {
-    width: 16rem; // 256px
-  }
-}
-
-.twin__table-wrap {
-  max-height: 70vh;
-  overflow: auto;
-  border: var(--border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
-}
-
-.twin__table {
-  width: 100%;
-  min-width: 36rem; // 576px
-  border-collapse: collapse;
-  font-size: var(--font-size-label);
-
-  th,
-  td {
-    padding: var(--space-s) var(--space-base);
-    border-bottom: var(--border-width) solid var(--color-border-subtle);
-    text-align: left;
-    vertical-align: middle;
-  }
-
-  th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background: var(--color-surface);
-    color: var(--color-text-muted);
-    font-weight: var(--font-weight-medium);
-  }
-
-  tbody tr:last-child td {
-    border-bottom: 0;
-  }
-}
+// --- Últimos eventos (.admin-table y .admin-list del tema) ---
 
 .twin__row--open td {
   border-bottom: 0;
@@ -138,14 +258,35 @@
   white-space: nowrap;
 }
 
-.twin__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xxl) var(--space-l);
-  border: var(--border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
-  text-align: center;
+// Móvil: cada evento en una línea, el tipo a la izquierda y la hora a la
+// derecha (la entidad se ve en escritorio y en el detalle); el payload,
+// debajo, a todo el ancho
+@media (max-width: 767.98px) {
+  .twin__table tbody tr {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'type date';
+    align-items: center;
+  }
+
+  .twin__table tbody tr.twin__payload-row {
+    grid-template-areas: none;
+    grid-template-columns: minmax(0, 1fr);
+    padding-block-start: 0;
+  }
+
+  .twin__cell-type {
+    grid-area: type;
+  }
+
+  .twin__cell-entity {
+    display: none;
+  }
+
+  .twin__cell-date {
+    grid-area: date;
+  }
+}
+
+.twin__state {
+  margin: var(--space-base);
 }

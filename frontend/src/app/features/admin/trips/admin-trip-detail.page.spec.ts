@@ -1,3 +1,4 @@
+import { renderHeadingContent } from '../../../core/services/ui/heading-content.testing';
 import { Location } from '@angular/common';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -95,8 +96,9 @@ describe('AdminTripDetailPage', () => {
     const root = await render();
 
     expect(get).toHaveBeenCalledWith('t1');
-    expect(root.querySelector('h1')?.textContent).toBe('Roquetas de Mar → Campus UAL');
-    expect(root.querySelector('.status--accepted')?.textContent).toBe('Confirmado');
+    const heading = renderHeadingContent();
+    expect(heading.querySelector('h1')?.textContent).toBe('Roquetas de Mar → Campus UAL');
+    expect(heading.querySelector('.status--accepted')?.textContent).toBe('Confirmado');
     const data = root.querySelector('.trip-detail__data')?.textContent ?? '';
     expect(data).toContain('2 de 3 libres');
     expect(data).toContain('1 aceptada · 1 pendiente');

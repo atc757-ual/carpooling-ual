@@ -481,7 +481,7 @@ for (const viewport of VIEWPORTS) {
 
       visitWithSession('/admin/users?status=suspended', ['admin']);
       cy.contains('Ningún usuario coincide');
-      cy.get('.admin-users__empty').contains('ion-button', 'Quitar filtros').click();
+      cy.get('.admin-empty').contains('ion-button', 'Quitar filtros').click();
       cy.location('search').should('eq', '');
       cy.contains('tbody tr', 'Lucía Cortés');
     });

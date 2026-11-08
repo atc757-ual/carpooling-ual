@@ -84,7 +84,7 @@ describe('AdminDigitalTwinPage', () => {
     expect(values).toEqual(['3', '7', '6', '90', '120', '24', '8', '60', '41', '12']);
     expect(root.textContent).toContain('6 con viajes por hacer · 20 sin viajes');
     expect(root.textContent).toContain('68 % de ocupación');
-    expect(root.querySelector('.notice--success')?.textContent).toContain('Retraso p95: 310 ms');
+    expect(root.querySelector('.twin__sync')?.textContent).toContain('Retraso p95: 310 ms');
     expect(listEvents).toHaveBeenCalledWith({ type: undefined, offset: 0, limit: 20 });
     const row = root.querySelector('.twin__table tbody tr');
     expect(row?.textContent).toContain('Viaje publicado');
@@ -154,7 +154,7 @@ describe('AdminDigitalTwinPage', () => {
   it('shows the empty state of a type without events', async () => {
     listEvents.mockResolvedValue({ items: [], total: 0 });
     const root = await render({ type: 'trip.started' });
-    expect(root.querySelector('.twin__empty')?.textContent).toContain(
+    expect(root.querySelector('.admin-empty')?.textContent).toContain(
       'No hay eventos de este tipo',
     );
   });

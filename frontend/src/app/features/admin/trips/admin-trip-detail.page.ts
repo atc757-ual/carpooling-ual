@@ -13,6 +13,7 @@ import { arrowBackOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminTripsService } from '../../../core/services/admin/admin-trips.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { HeadingContent } from '../../../shared/directives/heading-content.directive';
 import { eventTypeLabel } from '../digital-twin/event-labels';
 import {
   formatDateTime,
@@ -30,7 +31,7 @@ const NO_NAME = 'Cuenta eliminada';
 // (las prioritarias primero) y la línea de tiempo de sus eventos
 @Component({
   selector: 'app-admin-trip-detail-page',
-  imports: [IonButton, IonIcon, IonSkeletonText, RouterLink],
+  imports: [HeadingContent, IonButton, IonIcon, IonSkeletonText, RouterLink],
   templateUrl: './admin-trip-detail.page.html',
   styleUrl: './admin-trip-detail.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

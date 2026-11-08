@@ -74,9 +74,7 @@ describe('AdminCatalogsPage', () => {
     expect(rows).toHaveLength(2);
     expect(rows[1].classList).toContain('catalogs__row--inactive');
     expect(rows[1].textContent).toContain('Desactivado');
-    expect(root.querySelector('.catalogs__header ion-button')?.textContent).toContain(
-      'Añadir marca',
-    );
+    expect(root.querySelector('.catalogs__create')?.textContent).toContain('Añadir marca');
   });
 
   it('opens the catalog of the URL and only lets preferences be edited', async () => {
@@ -86,7 +84,7 @@ describe('AdminCatalogsPage', () => {
     const root = await render('travel-preferences');
 
     expect(list).toHaveBeenCalledWith('travel-preferences');
-    expect(root.querySelector('.catalogs__header ion-button')).toBeNull();
+    expect(root.querySelector('.catalogs__create')).toBeNull();
     expect(root.textContent).toContain('Música · Soft music');
   });
 
@@ -96,7 +94,7 @@ describe('AdminCatalogsPage', () => {
     expect(list).not.toHaveBeenCalled();
     expect(legalVersions).toHaveBeenCalledWith('terms');
     expect(root.querySelector('app-legal-documents-editor')).not.toBeNull();
-    expect(root.querySelector('.catalogs__header ion-button')).toBeNull();
+    expect(root.querySelector('.catalogs__create')).toBeNull();
     expect(root.textContent).toContain('Términos, privacidad y la declaración del conductor');
   });
 

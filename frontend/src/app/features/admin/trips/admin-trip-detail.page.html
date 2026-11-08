@@ -1,16 +1,22 @@
-<ion-button class="trip-detail__back" fill="clear" (click)="handleBack()">
-  <ion-icon slot="start" [icon]="backIcon" aria-hidden="true" />
-  Viajes
-</ion-button>
+<!-- La franja del panel (la pinta su cabecera): volver a Viajes, el trayecto,
+     la salida y el estado; sin buscador, se desplaza con el contenido -->
+<ng-template appHeadingContent>
+  <ion-button class="admin-heading__back" fill="clear" size="small" (click)="handleBack()">
+    <ion-icon slot="start" [icon]="backIcon" aria-hidden="true" />
+    Viajes
+  </ion-button>
+  @if (trip(); as trip) {
+    <div class="admin-heading__text">
+      <h1 class="admin-heading__title">{{ trip.route }}</h1>
+      <p class="text-body-s admin-heading__meta">
+        <span class="admin-heading__subtitle">Salida: {{ trip.departure }}</span>
+        <span [class]="trip.statusClass">{{ trip.status }}</span>
+      </p>
+    </div>
+  }
+</ng-template>
 
 @if (trip(); as trip) {
-  <header class="trip-detail__header">
-    <h1 class="text-heading">{{ trip.route }}</h1>
-    <p class="text-body trip-detail__muted">
-      Salida: {{ trip.departure }} · <span [class]="trip.statusClass">{{ trip.status }}</span>
-    </p>
-  </header>
-
   <div class="trip-detail__grid">
     <section class="trip-detail__card" aria-labelledby="trip-detail-data">
       <h2 id="trip-detail-data" class="text-title">Viaje</h2>

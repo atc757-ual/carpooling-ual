@@ -1,27 +1,39 @@
-.admin-page__header {
-  margin-block-end: var(--space-l);
-}
-
 .admin-page__subtitle {
   color: var(--color-text-muted);
 }
 
-// Estado y categoría: en columna en el móvil y en fila desde 768px
-.incidents__filters {
+// Móvil: los filtros y la lista en una columna. Escritorio: la lista en la
+// columna de 8 y los filtros en la de 4, fijos al bajar (como en Usuarios)
+.incidents {
   display: grid;
+  grid-template-areas: 'aside' 'main';
   gap: var(--space-base);
-  margin-block-end: var(--space-base);
 
   @media (min-width: 768px) {
-    grid-template-columns: minmax(18rem, 1fr) minmax(12rem, 16rem); // 288px · 192px–256px
-    align-items: end;
+    grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); // 256px
+    grid-template-areas: 'main aside';
+    align-items: start;
   }
 }
 
+.incidents__main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.incidents__aside {
+  grid-area: aside;
+  min-width: 0;
+
+  @media (min-width: 768px) {
+    position: sticky;
+    top: var(--space-l);
+  }
+}
+
+// --- Lista: una fila por incidencia dentro de la tarjeta (.admin-list) ---
+
 .incidents__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -34,10 +46,17 @@
   flex-direction: column;
   gap: var(--space-xs);
   padding: var(--space-base);
-  border: var(--border-width) solid var(--color-border-subtle);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
   border-left: 0.25rem solid var(--color-border); // 4px
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
+  transition: background-color 0.15s ease;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &:hover {
+    background: var(--color-surface-subtle);
+  }
 }
 
 .incident-card--danger {
@@ -70,12 +89,13 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-base);
+
+  ion-button {
+    margin: 0;
+  }
 }
 
-.incident-card__link {
-  color: var(--color-link);
-  font-weight: var(--font-weight-semibold);
-}
+// --- Estados de la lista ---
 
 .incidents__skeleton-title {
   width: 40%;
@@ -83,17 +103,5 @@
 }
 
 .incidents__state {
-  margin-block-start: var(--space-base);
-}
-
-.incidents__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xxl) var(--space-l);
-  border: var(--border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
-  text-align: center;
+  margin: var(--space-base);
 }

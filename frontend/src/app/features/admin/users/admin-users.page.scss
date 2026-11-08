@@ -16,29 +16,6 @@
   }
 }
 
-// La franja del título (en la cabecera del panel, ver admin-layout), con los
-// tamaños de la de la app: el título a 20px en el móvil y 24px en escritorio,
-// la descripción a 14px y, debajo, el buscador
-.admin-users__title {
-  margin: 0;
-  font-family: var(--font-family-heading);
-  font-size: 1.25rem; // 20px
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-title);
-
-  @media (min-width: 768px) {
-    font-size: 1.5rem; // 24px
-  }
-}
-
-// El gris de la app no se lee sobre el color del panel: su color con algo de
-// transparencia
-.admin-users__subtitle {
-  max-width: 70ch;
-  margin: 0;
-  opacity: 0.85;
-}
-
 .admin-users__main {
   grid-area: main;
   min-width: 0;
@@ -54,259 +31,7 @@
   }
 }
 
-// --- Filtros ---
-
-.admin-users__filters {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-base);
-  padding: var(--space-xs) var(--space-base);
-
-  @media (min-width: 768px) {
-    padding: var(--space-base);
-  }
-}
-
-// Título de tarjeta: 18px siempre
-.admin-users__filters-title {
-  margin: 0;
-  color: var(--color-text);
-  font-family: var(--font-family-heading);
-  font-size: 1.125rem; // 18px
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-title);
-}
-
-// Blanco sobre el color del panel, a 16px de la descripción (lo que falta
-// hasta 16px tras los 4px de separación de la franja). En el móvil, a todo el
-// ancho; en escritorio, el de la columna de 8 (la de la lista)
-.admin-users__search {
-  min-height: 2.75rem; // 44px
-  margin-block-start: calc(var(--space-base) - var(--space-xs));
-  padding: 0;
-  --background: var(--color-surface);
-  --color: var(--color-text);
-  --border-radius: var(--radius-base);
-
-  @media (min-width: 768px) {
-    width: calc((100% - var(--space-base)) * 2 / 3);
-  }
-}
-
-// Móvil: «Más filtros» bajo el buscador, con lo aplicado a su lado
-.admin-users__toggle-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.admin-users__toggle {
-  margin: 0;
-  margin-inline-start: calc(-1 * var(--space-s));
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-body); // 16px
-  --color: var(--color-link);
-}
-
-// El número de filtros aplicados, en un círculo de 24px
-.admin-users__toggle-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5rem; // 24px
-  height: 1.5rem;
-  margin-inline-start: var(--space-s);
-  border-radius: var(--radius-full);
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-bold);
-}
-
-.admin-users__toggle-chevron {
-  transition: transform 0.2s ease;
-}
-
-.admin-users__toggle-chevron--open {
-  transform: rotate(180deg);
-}
-
-// Lo aplicado con «Más filtros» cerrado: chips que se quitan con un toque
-.admin-users__applied {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-
-  ion-chip {
-    margin: 0;
-    --background: var(--color-primary-subtle);
-    --color: var(--color-link);
-    font-weight: var(--font-weight-semibold);
-  }
-
-  ion-icon {
-    margin-inline: var(--space-xs) 0;
-    font-size: 1.125rem; // 18px
-  }
-}
-
-// Perfil y estado: siempre en escritorio; en el móvil, solo abiertos
-.admin-users__more {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-base);
-
-  @media (max-width: 767.98px) {
-    display: none;
-
-    &.admin-users__more--open {
-      display: flex;
-      // 16px arriba (tras la línea) y abajo (12px más los 4px de la tarjeta)
-      padding-block: var(--space-base) calc(var(--space-base) - var(--space-xs));
-      border-top: var(--border-width-s) solid var(--color-border-subtle);
-      animation: admin-users-reveal 0.2s ease;
-    }
-  }
-}
-
-@keyframes admin-users-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(-0.5rem); // -8px
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .admin-users__more--open,
-  .admin-users__toggle-chevron {
-    animation: none;
-    transition: none;
-  }
-}
-
-.admin-users__group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-
-  // Los chips de filtro, como los de Mensajes: blancos con borde y, el
-  // elegido, en azul
-  ion-chip {
-    min-height: 2.25rem; // 36px
-    margin: 0;
-    border: var(--border-width-s) solid var(--color-border);
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-label);
-    font-weight: var(--font-weight-medium);
-    --background: var(--color-surface);
-    --color: var(--color-text);
-  }
-
-  ion-chip.admin-users__chip--selected {
-    border-color: var(--color-primary);
-    font-weight: var(--font-weight-semibold);
-    --background: var(--color-primary);
-    --color: var(--color-on-primary);
-  }
-}
-
-.admin-users__legend {
-  width: 100%;
-  margin-block-end: var(--space-xs);
-  padding: 0;
-  color: var(--color-text-muted);
-  font-weight: var(--font-weight-semibold);
-}
-
-// El punto del estado acompaña al texto con el color de su chip en la tabla
-.admin-users__dot {
-  width: 0.5rem; // 8px
-  height: 0.5rem;
-  margin-inline-end: var(--space-xs);
-  border-radius: var(--radius-full);
-  background: var(--color-text-muted);
-}
-
-.admin-users__dot--success {
-  background: var(--color-success);
-}
-
-.admin-users__dot--info {
-  background: var(--color-link);
-}
-
-.admin-users__dot--warning {
-  background: var(--color-warning);
-}
-
-.admin-users__chip--selected .admin-users__dot {
-  box-shadow: 0 0 0 0.125rem var(--color-on-primary); // 2px
-}
-
-.admin-users__clear {
-  align-self: flex-start;
-  margin: 0;
-}
-
 // --- Lista ---
-
-// clip (y no hidden) recorta las esquinas sin crear una caja de
-// desplazamiento: así la cabecera de la tabla puede quedarse fija
-.admin-users__card {
-  overflow: clip;
-}
-
-.admin-users__table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-label);
-
-  th,
-  td {
-    padding: var(--space-s) var(--space-base);
-    border-bottom: var(--border-width-s) solid var(--color-border-subtle);
-    text-align: left;
-    vertical-align: middle;
-  }
-
-  // Se queda fija arriba al bajar por la página
-  // Cabecera como un epígrafe (.text-eyebrow: 12px, negrita y mayúsculas) en
-  // el color del panel, sobre un tinte suave de ese color y con una línea de
-  // 2px debajo: se distingue de las filas y conversa con la cabecera
-  th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    border-bottom: var(--border-width-m) solid var(--color-admin);
-    background: color-mix(in srgb, var(--color-admin) 10%, var(--color-surface));
-    color: var(--color-admin);
-    font-size: var(--font-size-caption);
-    font-weight: var(--font-weight-bold);
-    letter-spacing: var(--letter-spacing-wide);
-    line-height: var(--line-height-caption);
-    text-transform: uppercase;
-  }
-
-  tbody tr {
-    transition: background-color 0.15s ease;
-  }
-
-  tbody tr:hover {
-    background: var(--color-surface-subtle);
-  }
-
-  tbody tr:last-child td {
-    border-bottom: 0;
-  }
-}
 
 // El flex va dentro: en la celda rompería la línea entre filas
 .admin-users__person {
@@ -373,51 +98,17 @@
   color: var(--color-warning-text);
 }
 
-.admin-users__link {
-  color: var(--color-link);
-  font-weight: var(--font-weight-semibold);
-  white-space: nowrap;
-}
-
-.admin-users__pagination {
-  display: block;
-  padding: 0 var(--space-base);
-  border-top: var(--border-width-s) solid var(--color-border-subtle);
-}
-
-// Móvil: cada fila, una tarjeta dentro de la lista (avatar, nombre y «Ver
-// perfil» arriba; debajo, el rol y, a la derecha, los estados). La tabla
-// sigue siendo la misma para el lector de pantalla
+// Móvil: cada fila, una tarjeta (.admin-table): avatar, nombre y «Ver perfil»
+// arriba; debajo, el rol y, a la derecha, los estados
 @media (max-width: 767.98px) {
   .admin-users__table {
-    thead {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-    }
-
     tbody tr {
-      display: grid;
       // Tres columnas: el nombre ocupa dos (los estados largos no lo
       // estrechan) y los estados, lo que deja el rol a su derecha
       grid-template-columns: auto minmax(0, 1fr) auto;
       grid-template-areas:
         'name name action'
         'roles status status';
-      gap: var(--space-xs) var(--space-s);
-      padding: var(--space-base);
-      border-bottom: var(--border-width-s) solid var(--color-border-subtle);
-    }
-
-    tbody tr:last-child {
-      border-bottom: 0;
-    }
-
-    td {
-      padding: 0;
-      border: 0;
     }
   }
 
@@ -475,13 +166,4 @@
 
 .admin-users__state {
   margin: var(--space-base);
-}
-
-.admin-users__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xxl) var(--space-l);
-  text-align: center;
 }

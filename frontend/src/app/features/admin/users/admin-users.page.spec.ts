@@ -105,23 +105,24 @@ describe('AdminUsersPage', () => {
     );
   });
 
-  it('opens the other filters on mobile and lists the applied ones while closed', async () => {
+  it('lists the applied profile and status and removes each one from the summary', async () => {
     list.mockResolvedValue({ items: [ROW], total: 1 });
-    const root = await render({ profile: 'admin', status: 'deleted' });
+    await render({ profile: 'admin', status: 'deleted' });
     const page = fixture.componentInstance;
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     expect(page.activeFilters()).toEqual([
       { key: 'profile', label: 'Administrador' },
       { key: 'status', label: 'Cuenta eliminada' },
     ]);
-    expect(root.querySelector('.admin-users__toggle-count')?.textContent).toContain('2');
-    expect(root.querySelectorAll('.admin-users__applied ion-chip')).toHaveLength(2);
-
-    page.toggleFilters();
-    fixture.detectChanges();
-    expect(root.querySelector('.admin-users__toggle')?.getAttribute('aria-expanded')).toBe('true');
-    expect(root.querySelector('.admin-users__more--open')).not.toBeNull();
-    expect(root.querySelector('.admin-users__applied')).toBeNull();
+    await page.handleRemoveFilter('status');
+    expect(navigate).toHaveBeenLastCalledWith(
+      [],
+      expect.objectContaining({ queryParams: { status: null, offset: null } }),
+    );
+    navigate.mockClear();
+    await page.handleRemoveFilter('search');
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   it('reads the filters and the page from the URL and ignores wrong values', async () => {

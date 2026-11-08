@@ -1,10 +1,13 @@
-<!-- La franja fija del panel (la pinta su cabecera): el título, la
-     descripción y el buscador. El total ya lo dice la paginación -->
-<ng-template #heading>
-  <h1 class="admin-users__title">Usuarios</h1>
-  <p class="text-body-s admin-users__subtitle">Consulta las cuentas y gestiona sus perfiles.</p>
+<!-- La franja del panel (la pinta su cabecera), fija porque lleva el
+     buscador: el título, la descripción y el buscador. El total ya lo dice la
+     paginación -->
+<ng-template appHeadingContent [isHeadingFixed]="true">
+  <div class="admin-heading__text">
+    <h1 class="admin-heading__title">Usuarios</h1>
+    <p class="text-body-s admin-heading__subtitle">Consulta las cuentas y gestiona sus perfiles.</p>
+  </div>
   <ion-searchbar
-    class="admin-users__search"
+    class="admin-heading__search"
     placeholder="Buscar por nombre o correo"
     [value]="query().search ?? ''"
     [debounce]="300"
@@ -16,123 +19,30 @@
   <!-- Columna de 4 (arriba en el móvil): perfil y estado. Cambiar un filtro
        vuelve a la primera página sin tocar los demás -->
   <aside class="admin-users__aside" aria-label="Filtrar usuarios">
-    <ion-card class="admin-users__filters">
-      <h2 class="admin-users__filters-title ion-hide-md-down">Filtros</h2>
-
-      <!-- Móvil: «Más filtros» y, con él cerrado, lo aplicado para quitarlo sin
-           abrirlo -->
-      <div class="admin-users__toggle-row ion-hide-md-up">
-        <ion-button
-          class="admin-users__toggle"
-          fill="clear"
-          size="small"
-          aria-controls="admin-users-more"
-          [attr.aria-expanded]="areFiltersOpen()"
-          (click)="toggleFilters()"
-        >
-          <ion-icon slot="start" [icon]="filtersIcon" aria-hidden="true" />
-          Más filtros
-          @if (activeFilters().length > 0) {
-            <span class="admin-users__toggle-count">
-              {{ activeFilters().length }}<span class="visually-hidden"> aplicados</span>
-            </span>
-          }
-          <ion-icon
-            slot="end"
-            class="admin-users__toggle-chevron"
-            [class.admin-users__toggle-chevron--open]="areFiltersOpen()"
-            [icon]="toggleIcon"
-            aria-hidden="true"
-          />
-        </ion-button>
-        @if (!areFiltersOpen() && activeFilters().length > 0) {
-          <ul class="admin-users__applied" aria-label="Filtros aplicados">
-            @for (filter of activeFilters(); track filter.key) {
-              <li>
-                <ion-chip
-                  button="true"
-                  [attr.aria-label]="'Quitar el filtro ' + filter.label"
-                  (click)="handleFilter(filter.key, null)"
-                >
-                  {{ filter.label }}
-                  <ion-icon [icon]="removeIcon" aria-hidden="true" />
-                </ion-chip>
-              </li>
-            }
-          </ul>
-        }
-      </div>
-
-      <div
-        id="admin-users-more"
-        class="admin-users__more"
-        [class.admin-users__more--open]="areFiltersOpen()"
-      >
-        <fieldset class="admin-users__group">
-          <legend class="text-label admin-users__legend">Perfil</legend>
-          <ion-chip
-            button="true"
-            [class.admin-users__chip--selected]="!query().profile"
-            [attr.aria-pressed]="!query().profile"
-            (click)="handleFilter('profile', null)"
-          >
-            Todos
-          </ion-chip>
-          @for (option of profileOptions; track option[0]) {
-            <ion-chip
-              button="true"
-              [class.admin-users__chip--selected]="query().profile === option[0]"
-              [attr.aria-pressed]="query().profile === option[0]"
-              (click)="handleFilter('profile', option[0])"
-            >
-              {{ option[1] }}
-            </ion-chip>
-          }
-        </fieldset>
-
-        <fieldset class="admin-users__group">
-          <legend class="text-label admin-users__legend">Estado</legend>
-          <ion-chip
-            button="true"
-            [class.admin-users__chip--selected]="!query().status"
-            [attr.aria-pressed]="!query().status"
-            (click)="handleFilter('status', null)"
-          >
-            Todos
-          </ion-chip>
-          @for (option of statusOptions; track option.value) {
-            <ion-chip
-              button="true"
-              [class.admin-users__chip--selected]="query().status === option.value"
-              [attr.aria-pressed]="query().status === option.value"
-              (click)="handleFilter('status', option.value)"
-            >
-              <span
-                [class]="'admin-users__dot admin-users__dot--' + option.tone"
-                aria-hidden="true"
-              ></span>
-              {{ option.label }}
-            </ion-chip>
-          }
-        </fieldset>
-
-        @if (hasFilters()) {
-          <ion-button
-            class="admin-users__clear"
-            fill="clear"
-            size="small"
-            (click)="handleClearFilters()"
-          >
-            Quitar filtros
-          </ion-button>
-        }
-      </div>
-    </ion-card>
+    <app-filters-card
+      [activeFilters]="activeFilters()"
+      [hasFilters]="hasFilters()"
+      (removeFilter)="handleRemoveFilter($event)"
+      (clearFilters)="handleClearFilters()"
+    >
+      <app-filter-chips
+        legend="Perfil"
+        [options]="profileOptions"
+        [value]="query().profile"
+        (valueChange)="handleFilter('profile', $event)"
+      />
+      <app-filter-chips
+        legend="Estado"
+        [options]="statusOptions"
+        [value]="query().status"
+        (valueChange)="handleFilter('status', $event)"
+      />
+    </app-filters-card>
   </aside>
 
   <!-- Columna de 8: la lista con su paginación -->
   <section class="admin-users__main" aria-label="Lista de usuarios">
-    <ion-card class="admin-users__card">
+    <ion-card class="admin-list">
       @if (errorMessage(); as message) {
         <!-- Error: reintentar mantiene la página y los filtros -->
         <div class="notice notice--danger admin-users__state" role="alert">
@@ -155,19 +65,22 @@
         </div>
       } @else if (rows().length === 0) {
         <!-- Vacío: con filtros, la salida es quitarlos -->
-        <output class="admin-users__empty">
+        <output class="admin-empty">
+          <ion-icon [icon]="emptyIcon" aria-hidden="true" />
           @if (hasFilters()) {
-            <p class="text-title">Ningún usuario coincide</p>
-            <p class="text-body admin-page__subtitle">
+            <p class="admin-empty__title">Ningún usuario coincide</p>
+            <p class="text-body-s admin-empty__text">
               Prueba con otra búsqueda o quita los filtros.
             </p>
-            <ion-button fill="outline" (click)="handleClearFilters()">Quitar filtros</ion-button>
+            <ion-button fill="outline" size="small" (click)="handleClearFilters()"
+              >Quitar filtros</ion-button
+            >
           } @else {
-            <p class="text-title">Aún no hay usuarios</p>
+            <p class="admin-empty__title">Aún no hay usuarios</p>
           }
         </output>
       } @else {
-        <table class="admin-users__table" [attr.aria-busy]="users.isLoading()">
+        <table class="admin-table admin-users__table" [attr.aria-busy]="users.isLoading()">
           <thead>
             <tr>
               <th scope="col">Nombre</th>
@@ -199,14 +112,14 @@
                   </span>
                 </td>
                 <td class="admin-users__cell-action">
-                  <a class="admin-users__link" [routerLink]="[item.row.id]">Ver perfil</a>
+                  <a class="admin-table__link" [routerLink]="[item.row.id]">Ver perfil</a>
                 </td>
               </tr>
             }
           </tbody>
         </table>
         <app-pagination
-          class="admin-users__pagination"
+          class="admin-list__pagination"
           [offset]="query().offset"
           [limit]="pageSize"
           [total]="total()"
