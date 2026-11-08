@@ -45,6 +45,19 @@
   }
 }
 
+// Título de una pantalla de detalle: centrado en la barra (el margen compensa
+// el botón de volver) y en 18px, por debajo del nombre de la franja (20px)
+.admin-mobile-header__title {
+  overflow: hidden;
+  padding-inline-end: 2.75rem; // 44px
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .admin-header__brand {
   color: inherit;
   font-family: var(--font-family-heading);
@@ -211,10 +224,22 @@
     }
   }
 
+  // En anchos intermedios, las secciones en una fila: sin sus iconos caben
+  @media (max-width: 1023.98px) {
+    .admin-nav {
+      flex-wrap: nowrap;
+    }
+
+    .admin-nav .admin-nav__icon {
+      display: none;
+    }
+  }
+
   // Tema: un círculo translúcido con el icono relleno, que gira al apuntarlo
   .admin-header__theme {
     justify-content: center;
-    width: var(--control-height-base);
+    width: 2.25rem; // 36px
+    min-height: 2.25rem;
     padding-inline: 0;
     border-radius: var(--radius-full);
     background: color-mix(in srgb, var(--color-on-admin) 14%, transparent);

@@ -98,15 +98,21 @@
   color: var(--color-warning-text);
 }
 
-// Móvil: cada fila, una tarjeta (.admin-table) con lo justo: avatar, nombre y
-// flecha arriba y debajo los estados. El correo y el rol, en el detalle
+// Móvil: cada usuario en una línea: avatar y nombre (recortado si no cabe), sus
+// estados y la flecha. El correo y el rol, en el detalle
 @media (max-width: 767.98px) {
   .admin-users__table tbody tr {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      'name action'
-      'status status';
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas: 'name status action';
+    align-items: center;
+    padding-block: var(--space-s);
     padding-inline: 0;
+  }
+
+  .admin-users__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .admin-users__email,
@@ -125,8 +131,10 @@
 
   .admin-users__cell-status {
     grid-area: status;
-    // Alineados con el nombre (tras el avatar)
-    padding-inline-start: calc(2.5rem + var(--space-s));
+
+    .admin-users__chips {
+      justify-content: flex-end;
+    }
   }
 }
 

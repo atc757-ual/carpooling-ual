@@ -96,6 +96,23 @@ describe('AdminLayout', () => {
     expect(element().querySelector('.admin-heading')).toBeNull();
   });
 
+  it('shows back and the title instead of the menu on a detail screen', () => {
+    const stub = TestBed.createComponent(HeadingStub);
+    stub.detectChanges();
+    const goBack = vi.fn();
+    TestBed.inject(HeadingContentService).show(stub.componentInstance.heading(), false, {
+      title: 'Detalle de usuario',
+      goBack,
+    });
+    fixture.detectChanges();
+
+    expect(element().querySelector('.admin-mobile-header__title')?.textContent).toBe(
+      'Detalle de usuario',
+    );
+    element().querySelector<HTMLButtonElement>('.admin-mobile-header__menu-button')?.click();
+    expect(goBack).toHaveBeenCalledTimes(1);
+  });
+
   it('shows the brand, the admin account and the six sections in order', () => {
     expect(
       element().querySelector('.admin-desktop-header .admin-header__brand')?.textContent,
