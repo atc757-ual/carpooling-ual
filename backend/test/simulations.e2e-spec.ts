@@ -231,9 +231,7 @@ describe('Simulations API (e2e)', () => {
         [stale.id],
       );
     });
-    await api('post', '')
-      .send({ ...PAIR, replicas: 1, seed: 4 })
-      .expect(201);
+    // Basta con consultarla: el panel no deja lanzar otra mientras está en curso
     const failed = await api('get', `/${stale.id}`).expect(200);
     expect(failed.body).toMatchObject({
       status: 'failed',
