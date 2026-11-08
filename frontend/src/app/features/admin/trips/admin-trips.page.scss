@@ -88,15 +88,12 @@
 
   .admin-trips__cell-departure {
     grid-area: departure;
+    color: var(--color-text-muted);
   }
 
   .admin-trips__cell-status {
     grid-area: status;
     justify-self: end;
-  }
-
-  .admin-trips__cell-departure {
-    color: var(--color-text-muted);
   }
 }
 
