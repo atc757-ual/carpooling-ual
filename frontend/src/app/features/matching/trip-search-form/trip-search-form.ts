@@ -155,16 +155,22 @@ export class TripSearchForm {
       untracked(() => this.fill(search));
     });
 
-    // Si el usuario actualiza su tolerancia en el perfil, se sincroniza si no hay búsqueda fijada
+    // Al cambiar la tolerancia en Mi perfil, el margen la toma (también si hay
+    // una búsqueda recordada), salvo que se haya cambiado a mano en el
+    // formulario. La primera vez no: al abrir manda la búsqueda recordada o,
+    // sin ella, ya es la tolerancia (fill)
+    let isFirstMargin = true;
     effect(() => {
       const margin = this.defaultMargin();
-      if (!this.searchState.search()) {
-        untracked(() => {
-          if (!this.form.controls.margin.dirty) {
-            this.form.controls.margin.setValue(margin);
-          }
-        });
+      if (isFirstMargin) {
+        isFirstMargin = false;
+        return;
       }
+      untracked(() => {
+        if (!this.form.controls.margin.dirty) {
+          this.form.controls.margin.setValue(margin);
+        }
+      });
     });
   }
 
@@ -177,7 +183,10 @@ export class TripSearchForm {
 
   private defaultMargin(): number {
     const userTolerance = this.auth.currentUser()?.timeToleranceMin;
-    if (typeof userTolerance === 'number' && (MARGINS as readonly number[]).includes(userTolerance)) {
+    if (
+      typeof userTolerance === 'number' &&
+      (MARGINS as readonly number[]).includes(userTolerance)
+    ) {
       return userTolerance;
     }
     return DEFAULT_MARGIN;

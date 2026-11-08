@@ -105,7 +105,7 @@ describe('TripSearchForm', () => {
     expect(customForm.form.getRawValue().margin).toBe(20);
   });
 
-  it('dynamically syncs margin with user tolerance unless dirty or an active search exists', () => {
+  it('dynamically syncs margin with user tolerance unless dirty', () => {
     const user = signal<{ timeToleranceMin: number } | null>({ timeToleranceMin: 10 });
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
@@ -132,6 +132,30 @@ describe('TripSearchForm', () => {
     user.set({ timeToleranceMin: 5 });
     customFixture.detectChanges();
     expect(customForm.form.controls.margin.value).toBe(15);
+  });
+
+  it('takes a new tolerance even with a remembered search, which sets the margin on opening', () => {
+    const user = signal<{ timeToleranceMin: number } | null>({ timeToleranceMin: 10 });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [TripSearchForm],
+      providers: [
+        provideIonicAngular(),
+        provideRouter([]),
+        { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
+        { provide: AuthService, useValue: { currentUser: user.asReadonly() } },
+      ],
+    });
+    TestBed.inject(TripSearchStateService).set(SEARCH);
+    const customFixture = TestBed.createComponent(TripSearchForm);
+    const customForm = customFixture.componentInstance;
+    customFixture.detectChanges();
+    expect(customForm.form.controls.margin.value).toBe(SEARCH.margin);
+
+    user.set({ timeToleranceMin: 5 });
+    customFixture.detectChanges();
+    expect(customForm.form.controls.margin.value).toBe(5);
+    TestBed.inject(TripSearchStateService).clear();
   });
 
   it('asks for the arrival time going to the campus and the departure time coming back', () => {
