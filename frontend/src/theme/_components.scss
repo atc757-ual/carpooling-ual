@@ -22,6 +22,11 @@ ion-header {
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 }
 
+// Las cabeceras de modal (app-modal-header) no llevan raya divisoria inferior
+ion-header.modal-header {
+  border-bottom: none;
+}
+
 // Barras superiores: 56px de alto también en iOS (que trae 44px) y el mismo
 // margen lateral que el contenido del móvil
 ion-toolbar {

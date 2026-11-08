@@ -462,7 +462,8 @@
       "loading": "Loading the documents",
       "logout": "Log out",
       "deleteAccount": "Delete my account",
-      "changes": "What changed"
+      "changes": "What changed",
+      "readFull": "Read full legal text"
     }
   },
   "errors": {

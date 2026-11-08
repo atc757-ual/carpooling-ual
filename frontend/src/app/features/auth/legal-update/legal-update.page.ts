@@ -18,8 +18,10 @@ import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import {
   LEGAL_DOCUMENT_TITLES,
   LegalDocumentsService,
+  LegalDocumentType,
 } from '../../../core/services/users/legal-documents.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
+import { openLegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { LegalChanges } from '../../../shared/components/ui/legal-changes/legal-changes';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { ProfileDeleteModal } from '../../profile/profile-delete-modal/profile-delete-modal';
@@ -64,6 +66,10 @@ export class LegalUpdatePage {
   });
 
   protected readonly documentIcon = documentTextOutline;
+
+  handleReadFull(type: LegalDocumentType): Promise<void> {
+    return openLegalModal(this.modalController, type);
+  }
 
   // Acepta todas las pendientes y sigue adonde iba
   async handleAccept(): Promise<void> {
