@@ -22,11 +22,6 @@ ion-header {
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 }
 
-// Las cabeceras de modal (app-modal-header) no llevan raya divisoria inferior
-ion-header.modal-header {
-  border-bottom: none;
-}
-
 // Barras superiores: 56px de alto también en iOS (que trae 44px) y el mismo
 // margen lateral que el contenido del móvil
 ion-toolbar {
@@ -280,16 +275,16 @@ ion-modal ion-title {
   text-align: start;
 }
 
-// Todas las ventanas tienen el mismo marco: como mucho, el 85 % del alto de
-// la pantalla; en escritorio, centradas y de 720px de ancho; en el móvil, una
-// hoja pegada abajo (más abajo). Las de formularios, avisos y confirmaciones
-// (info-dialog) y la de la ubicación (location-dialog) son tan altas como su
-// contenido; los textos legales (legal-dialog), siempre del 85 %. El
+// Todas las ventanas tienen el mismo marco: en escritorio, centradas y de 720px
+// de ancho; en el móvil, una hoja pegada abajo. Las de formularios, avisos y
+// confirmaciones (info-dialog) y la de la ubicación (location-dialog) son tan
+// altas como su contenido, como mucho el 92 % de la pantalla (en escritorio,
+// más abajo, 768px); los textos legales (legal-dialog), del 70 %. El
 // contenido de las primeras no usa ion-content (con él, Ionic no podría
 // calcular el alto): va en un .modal-body con su propio scroll
 ion-modal.location-dialog,
 ion-modal.info-dialog {
-  --max-height: 85%;
+  --max-height: 92%;
   --height: auto;
 
   .ion-page {
@@ -313,11 +308,24 @@ ion-modal.legal-dialog {
   }
 }
 
+// En escritorio, las de formularios y avisos, como mucho de 768px de alto (o el
+// 90 % si la pantalla es más baja): con 720px de ancho, más alto se ve
+// desproporcionado. Lo que no cabe se desplaza dentro (.modal-body)
+@media (min-width: 768px) {
+  ion-modal.info-dialog {
+    --max-height: min(90%, 48rem); // 768px
+
+    .modal-body {
+      max-height: calc(min(90vh, 48rem) - 3.5rem);
+    }
+  }
+}
+
 // El contenido de una ventana, debajo de su cabecera (app-modal-header, de
-// 56px): el alto que queda hasta el 85 %, con su propio scroll y sitio abajo
+// 56px): el alto que queda hasta el 92 %, con su propio scroll y sitio abajo
 // para la barra del sistema
 .modal-body {
-  max-height: calc(85vh - 3.5rem);
+  max-height: calc(92vh - 3.5rem);
   overflow-y: auto;
   padding: var(--space-base);
   padding-bottom: max(var(--space-l), calc(var(--space-base) + env(safe-area-inset-bottom, 0px)));
@@ -478,8 +486,17 @@ ion-toast.toast--floating {
 .phone-prefix-popover {
   --width: 8.5rem; // ~136px
   --max-height: 18rem;
-  --box-shadow: var(--shadow-m);
-  --border-radius: var(--radius-m);
+  --box-shadow: var(--shadow-base);
+  --border-radius: var(--radius-s); // 8px
+}
+
+// Lista de países de la matrícula (app-plate-country-select): pegada al campo y
+// de su ancho (size="cover"), flotante y sin oscurecer la pantalla, con
+// altura para unos 7 países. Global porque Ionic la pinta fuera de la pantalla
+.plate-country-popover {
+  --max-height: 18rem; // 288px
+  --box-shadow: var(--shadow-base);
+  --border-radius: var(--radius-s); // 8px
 }
 
 // Menú de opciones de la cabecera de conversación (tres puntos): flotante y compacto
@@ -876,4 +893,16 @@ ion-searchbar.admin-heading__search {
 .admin-empty__text {
   margin: 0;
   color: var(--color-text-muted);
+}
+
+// Campo del código (etiqueta y casillas de app-code-input). En escritorio las
+// casillas van centradas: el campo entero se centra con el ancho de las
+// casillas, así la etiqueta queda alineada con la primera. En el móvil, a todo
+// el ancho (las casillas se reparten)
+.code-field {
+  @media (min-width: 768px) {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+  }
 }

@@ -68,3 +68,9 @@
 .profile-preferences-modal__actions {
   margin-top: var(--space-s);
 }
+
+// La explicación de arriba, sin el margen del párrafo: a 16px del título (el
+// relleno del cuerpo) y de la primera preferencia (su relleno)
+.profile-preferences-modal form > p:first-child {
+  margin: 0;
+}
