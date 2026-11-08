@@ -277,11 +277,11 @@ describe('AdminTripDetailPage', () => {
     );
   });
 
-  it('says so when the route arrives without a line to draw', async () => {
-    getRoute.mockResolvedValue({
-      ...ROUTE,
-      geometry: { type: 'LineString', coordinates: [[-2.6132, 36.7642]] },
-    });
+  it.each([
+    ['no points', []],
+    ['a single point', [[-2.6132, 36.7642]]],
+  ])('says so when the route arrives with %s', async (_case, coordinates) => {
+    getRoute.mockResolvedValue({ ...ROUTE, geometry: { type: 'LineString', coordinates } });
     const root = await render();
     await fixture.whenStable();
     fixture.detectChanges();
