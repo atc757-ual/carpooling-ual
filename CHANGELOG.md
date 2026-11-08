@@ -21,6 +21,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Rutas:** al pedir la ruta de un viaje, si falta o es estimada (OSRM no respondió al publicar) se vuelve a calcular con OSRM y se guarda; si OSRM sigue sin responder, se mantiene la estimada y se reintenta como mucho cada 5 minutos (#245).
 - **Frontend:** el detalle de viaje del panel se reorganiza como el de usuario: columnas y tarjetas, breadcrumb en escritorio y «Atrás» en móvil, el origen y el destino en dos líneas en el móvil y una línea de tiempo con la fecha a la izquierda. Los estilos comunes de los detalles pasan al tema; los avisos con «Reintentar» ya no estiran el botón (#244).
 - **Auth:** una cuenta con todos sus perfiles inhabilitados por un administrador ve una pantalla que lo explica, con acceso a soporte (#243).
 - **Frontend:** el detalle de usuario del panel se reorganiza en columnas y tarjetas, con breadcrumb en escritorio y «Atrás» en móvil; la lista de usuarios va en una línea en móvil (#242).
