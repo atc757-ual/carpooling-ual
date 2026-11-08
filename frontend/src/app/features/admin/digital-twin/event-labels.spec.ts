@@ -11,11 +11,14 @@ describe('event labels', () => {
   it('names every event type once', () => {
     const types = EVENT_TYPE_GROUPS.flatMap((group) => group.types.map(([type]) => type));
     expect(new Set(types).size).toBe(types.length);
-    expect(types).toHaveLength(37);
+    expect(types).toHaveLength(40);
   });
 
   it('names known types and keeps unknown ones as they are', () => {
     expect(eventTypeLabel('trip.published')).toBe('Viaje publicado');
+    expect(eventTypeLabel('request.expired')).toBe('Solicitud caducada');
+    expect(eventTypeLabel('request.boarded')).toBe('Pasajero a bordo');
+    expect(eventTypeLabel('chat_message.sent')).toBe('Mensaje enviado');
     expect(eventTypeLabel('trip.teleported')).toBe('trip.teleported');
     expect(isKnownEventType('request.accepted')).toBe(true);
     expect(isKnownEventType('trip.teleported')).toBe(false);
