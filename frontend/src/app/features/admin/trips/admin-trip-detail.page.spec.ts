@@ -141,6 +141,16 @@ describe('AdminTripDetailPage', () => {
     expect(events[1]).toContain('Solicitud aceptada');
   });
 
+  it('names the stops generically when the trip has no place names', async () => {
+    get.mockResolvedValue({ ...DETAIL, originName: null, destinationName: null });
+    await render();
+
+    const stops = [...renderHeadingContent().querySelectorAll('.trip-heading__stop')].map((stop) =>
+      stop.textContent?.trim(),
+    );
+    expect(stops).toEqual(['Origen', 'Destino']);
+  });
+
   it('says when there are no requests or events', async () => {
     get.mockResolvedValue({
       ...DETAIL,
