@@ -157,30 +157,34 @@ describe('Users API (e2e)', () => {
   });
 
   describe('GET /api/avatars', () => {
-    it('lists the 12 SVG avatars in display order and gets one by key', async () => {
+    it('lists the 28 platform avatars in display order and gets one by key', async () => {
       const ana = await createUser('ana');
 
       const list = await request(app.getHttpServer())
-        .get('/api/avatars')
+        .get('/api/avatars?limit=100')
         .set('Authorization', `Bearer ${ana.accessToken}`)
         .expect(200);
 
-      const avatars = list.body as { id: string; svg: string }[];
-      expect(avatars).toHaveLength(12);
+      const avatars = list.body as { id: string; imageHref: string }[];
+      // Al menos: en local puede haber otros subidos desde el panel
+      expect(avatars.length).toBeGreaterThanOrEqual(28);
       expect(avatars[0]).toMatchObject({
         '@type': 'Avatar',
-        id: 'sun',
-        href: '/api/avatars/sun',
-        name: 'Sol de Almería',
+        id: 'rizado-y-camisa-azul',
+        href: '/api/avatars/rizado-y-camisa-azul',
+        name: 'Rizado y camisa azul',
+        svg: null,
       });
-      expect(avatars[0].svg).toContain('<svg');
-      expect(list.headers['x-total-count']).toBe('12');
+      expect(avatars[0].imageHref).toContain(
+        '/api/avatars/rizado-y-camisa-azul/image?v=',
+      );
+      expect(list.headers['x-total-count']).toBe(String(avatars.length));
 
       await request(app.getHttpServer())
-        .get('/api/avatars/cactus')
+        .get('/api/avatars/hiyab')
         .set('Authorization', `Bearer ${ana.accessToken}`)
         .expect(200)
-        .expect(({ body }) => expect(body).toMatchObject({ id: 'cactus' }));
+        .expect(({ body }) => expect(body).toMatchObject({ id: 'hiyab' }));
 
       await request(app.getHttpServer())
         .get('/api/avatars/unknown')
@@ -537,7 +541,7 @@ describe('Users API (e2e)', () => {
 
       const response = await updateMe(
         {
-          avatarKey: 'sun',
+          avatarKey: 'hiyab',
           bio: `  ${bio}  `,
           preferences: {
             conversation: 'chatty',
@@ -550,7 +554,7 @@ describe('Users API (e2e)', () => {
       ).expect(200);
 
       expect(response.body).toMatchObject({
-        avatarKey: 'sun',
+        avatarKey: 'hiyab',
         bio,
         preferences: {
           conversation: 'chatty',

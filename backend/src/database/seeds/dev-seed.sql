@@ -27,8 +27,8 @@ SELECT seed.id::uuid, seed.first_name, seed.last_name, seed.email,
        seed.pref_pets::pets_preference
   FROM (VALUES
     ('00000000-0000-4000-8000-000000000001', 'Admin', 'UAL',            'admin@ual.es', 15, false, NULL,           false, NULL,         NULL,                                                                NULL,      NULL,   NULL, NULL),
-    ('00000000-0000-4000-8000-000000000002', 'Lucía', 'Cortés Martín',  'lucia@ual.es', 10, true,  '+34600111222', true,  'sun',        'Conductora habitual desde Roquetas de Mar al campus de La Cañada.', 'chatty',  'soft', 'no', 'small_carrier'),
-    ('00000000-0000-4000-8000-000000000003', 'Mario', 'López Ruiz',     'mario@ual.es', 20, true,  '+34600333444', false, 'headphones', 'Estudiante en el campus de la UAL. Puntual en las paradas.',        'quiet',   'any',  'no', 'none'),
+    ('00000000-0000-4000-8000-000000000002', 'Lucía', 'Cortés Martín',  'lucia@ual.es', 10, true,  '+34600111222', true,  'melena',     'Conductora habitual desde Roquetas de Mar al campus de La Cañada.', 'chatty',  'soft', 'no', 'small_carrier'),
+    ('00000000-0000-4000-8000-000000000003', 'Mario', 'López Ruiz',     'mario@ual.es', 20, true,  '+34600333444', false, 'cabello-castano', 'Estudiante en el campus de la UAL. Puntual en las paradas.',        'quiet',   'any',  'no', 'none'),
     ('00000000-0000-4000-8000-000000000004', 'Sara',  'Gil Moreno',     'sara@ual.es',  15, true,  NULL,           false, NULL,         NULL,                                                                'depends', 'soft', 'no', NULL)
   ) AS seed (id, first_name, last_name, email, tolerance, accepted_terms, phone, phone_verified, avatar_key, bio, pref_conversation, pref_music, pref_smoking, pref_pets);
 
