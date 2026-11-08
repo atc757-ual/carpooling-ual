@@ -9,7 +9,14 @@ import {
   NavController,
 } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { documentTextOutline } from 'ionicons/icons';
+import {
+  carOutline,
+  chevronForwardOutline,
+  documentTextOutline,
+  idCardOutline,
+  locationOutline,
+  shieldCheckmarkOutline,
+} from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { HOME_PATH, WELCOME_PATH } from '../../../core/guards/redirect-paths';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -22,15 +29,22 @@ import {
 } from '../../../core/services/users/legal-documents.service';
 import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-layout';
 import { openLegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
-import { LegalChanges } from '../../../shared/components/ui/legal-changes/legal-changes';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 
 // Se ha publicado una versión nueva de las condiciones de uso o de la
 // política de privacidad: se lee y se acepta antes de seguir. Quien no la
 // acepta puede cerrar sesión, pero no usar la app
+const DOCUMENT_ICONS: Record<LegalDocumentType, string> = {
+  terms: documentTextOutline,
+  privacy: shieldCheckmarkOutline,
+  driver_declaration: idCardOutline,
+  vehicle_declaration: carOutline,
+  location: locationOutline,
+};
+
 @Component({
   selector: 'app-legal-update',
-  imports: [IonButton, IonContent, IonIcon, IonSpinner, AuthLayout, LegalChanges, TranslocoPipe],
+  imports: [IonButton, IonContent, IonIcon, IonSpinner, AuthLayout, TranslocoPipe],
   templateUrl: './legal-update.page.html',
   styleUrls: ['../auth-form.scss', './legal-update.page.scss'],
 })
@@ -69,6 +83,12 @@ export class LegalUpdatePage {
   });
 
   protected readonly documentIcon = documentTextOutline;
+  protected readonly readIcon = chevronForwardOutline;
+
+  // El icono de cada documento en su tarjeta
+  protected iconOf(type: LegalDocumentType): string {
+    return DOCUMENT_ICONS[type];
+  }
 
   handleReadFull(type: LegalDocumentType): Promise<void> {
     return openLegalModal(this.modalController, type);

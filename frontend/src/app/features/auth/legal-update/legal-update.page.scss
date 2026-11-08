@@ -1,27 +1,99 @@
-// Cada documento, en su caja con scroll propio: la pantalla no se alarga
-.legal-update__document {
+// Los documentos, uno debajo de otro a 16px
+.legal-update__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+// Cada documento, en una tarjeta compacta (como ion-card): borde fino, esquinas
+// de 8px y su sombra
+.legal-card {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
-  margin-block-end: var(--space-l);
   padding: var(--space-base);
-  border: var(--border-width) solid var(--color-border-subtle);
-  border-radius: var(--radius-l);
+  border: var(--border-width-s) solid var(--color-card-border);
+  border-radius: var(--radius-s);
   background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
 
-  h2 {
+// El icono del documento y, a su lado, el título con la versión
+.legal-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.legal-card__icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem; // 40px
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-size: 1.25rem; // 20px
+}
+
+.legal-card__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-s);
+  min-width: 0;
+}
+
+// Título de tarjeta: 18px
+.legal-card__title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+// Qué ha cambiado: la etiqueta pequeña en azul y el resumen debajo
+.legal-card__changes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  p {
     margin: 0;
   }
 }
 
-.legal-update__read-full {
-  display: flex;
-  justify-content: flex-start;
+.legal-card__label {
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+}
 
-  ion-button {
-    --padding-start: 0;
-    --padding-end: 0;
-    font-weight: 600;
+// «Leer texto legal completo»: un enlace con su flecha, abajo a la izquierda,
+// del alto de su texto (4px arriba y abajo para el foco)
+.legal-card__read {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) 0;
+  border: 0;
+  background: none;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    border-radius: var(--radius-xs);
+    outline: var(--border-width-m) solid var(--color-focus);
   }
 }
 
@@ -45,28 +117,31 @@
   padding: var(--space-xl);
 }
 
+// La separación entre bloques ya la pone la pantalla (auth-layout): sin margen
+// propio, para que los botones no queden tan lejos
 .legal-update__exits {
   display: flex;
   justify-content: center;
-  margin-block-start: var(--space-l);
 }
 
+// «Cerrar sesión»: un enlace de texto como los demás de la app (azul y en
+// seminegrita; subrayado al pasar el ratón)
 .legal-update__logout-link {
   padding: var(--space-xs) var(--space-s);
   border: none;
   background: transparent;
-  color: var(--color-text-muted);
+  color: var(--color-link);
   font-family: inherit;
   font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  text-decoration: underline;
 
   &:hover {
-    color: var(--color-text);
+    text-decoration: underline;
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
     border-radius: var(--radius-xs);
+    outline: var(--border-width-m) solid var(--color-focus);
   }
 }

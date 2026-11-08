@@ -16,25 +16,39 @@
         </ion-button>
       </div>
     } @else if (documents.hasValue()) {
-      @for (document of documents.value(); track document.type) {
-        <section class="legal-update__document" [attr.aria-labelledby]="'legal-' + document.type">
-          <h2 [id]="'legal-' + document.type" class="text-title">
-            {{ document.title }}
-            <span class="text-body-s text-color-muted">
-              · {{ 'auth.legalUpdate.version' | transloco: { version: document.version } }}
-            </span>
-          </h2>
-          <app-legal-changes
-            [heading]="'auth.legalUpdate.changes' | transloco"
-            [summary]="document.summary"
-          />
-          <div class="legal-update__read-full">
-            <ion-button fill="clear" size="small" (click)="handleReadFull(document.type)">
+      <!-- Una tarjeta compacta por documento: su icono, el título con la versión,
+           qué ha cambiado y el enlace al texto completo -->
+      <div class="legal-update__list">
+        @for (document of documents.value(); track document.type) {
+          <article class="legal-card" [attr.aria-labelledby]="'legal-' + document.type">
+            <div class="legal-card__head">
+              <span class="legal-card__icon" aria-hidden="true">
+                <ion-icon [icon]="iconOf(document.type)" />
+              </span>
+              <div class="legal-card__heading">
+                <h2 [id]="'legal-' + document.type" class="legal-card__title">
+                  {{ document.title }}
+                </h2>
+                <span class="status status--info">
+                  {{ 'auth.legalUpdate.version' | transloco: { version: document.version } }}
+                </span>
+              </div>
+            </div>
+            @if (document.summary) {
+              <div class="legal-card__changes">
+                <span class="text-caption legal-card__label">{{
+                  'auth.legalUpdate.changes' | transloco
+                }}</span>
+                <p class="text-body-s">{{ document.summary }}</p>
+              </div>
+            }
+            <button type="button" class="legal-card__read" (click)="handleReadFull(document.type)">
               {{ 'auth.legalUpdate.readFull' | transloco }}
-            </ion-button>
-          </div>
-        </section>
-      }
+              <ion-icon [icon]="readIcon" aria-hidden="true" />
+            </button>
+          </article>
+        }
+      </div>
 
       @if (acceptError(); as message) {
         <p class="text-body-s legal-update__error" role="alert">{{ message }}</p>

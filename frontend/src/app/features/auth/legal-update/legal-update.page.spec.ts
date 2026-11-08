@@ -62,13 +62,12 @@ describe('LegalUpdatePage', () => {
     const root = await render();
 
     expect(getCurrent).toHaveBeenCalledWith('terms');
-    const section = root.querySelector('.legal-update__document');
-    expect(section?.textContent).toContain('Condiciones de uso');
-    expect(section?.querySelector('.legal-changes')?.textContent).toContain(
+    const card = root.querySelector('.legal-card');
+    expect(card?.querySelector('.legal-card__title')?.textContent).toContain('Condiciones de uso');
+    expect(card?.querySelector('.legal-card__changes')?.textContent).toContain(
       'Nuevas normas de convivencia.',
     );
-    const readFullBtn = section?.querySelector('.legal-update__read-full ion-button');
-    expect(readFullBtn).not.toBeNull();
+    expect(card?.querySelector('.legal-card__read')).not.toBeNull();
   });
 
   it('opens legal modal when clicking read full button', async () => {
