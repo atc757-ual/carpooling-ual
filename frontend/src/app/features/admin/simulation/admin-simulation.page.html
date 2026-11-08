@@ -82,12 +82,26 @@
     <section class="simulation__card" aria-live="polite">
       @if (current(); as run) {
         @if (isRunning()) {
-          <h2 class="text-title">
-            En curso · {{ run.scenario }} frente a {{ run.baselineScenario }}
-          </h2>
-          <ion-progress-bar [value]="run.progress / run.replicas" />
-          <p class="text-body-s admin-page__subtitle">{{ progressLabel() }}</p>
-          <ion-button fill="outline" (click)="handleCancel()">Cancelar ejecución</ion-button>
+          <!-- Escritorio: «Cancelar» a la derecha del título; móvil: debajo -->
+          <div class="simulation__running">
+            <h2 class="text-title simulation__running-title">
+              En curso · {{ run.scenario }} frente a {{ run.baselineScenario }}
+            </h2>
+            <ion-progress-bar
+              class="simulation__running-bar"
+              [value]="run.progress / run.replicas"
+            />
+            <p class="text-body-s admin-page__subtitle simulation__running-label">
+              {{ progressLabel() }}
+            </p>
+            <ion-button
+              class="simulation__running-cancel"
+              fill="outline"
+              size="small"
+              (click)="handleCancel()"
+              >Cancelar ejecución</ion-button
+            >
+          </div>
         } @else if (results.value(); as result) {
           <!-- Exportar, junto a los resultados que exporta -->
           <ion-button
@@ -121,9 +135,11 @@
 
     <!-- Historial: abre los resultados de cada ejecución -->
     @if (historyRows().length > 0) {
-      <section class="simulation__history" aria-labelledby="simulation-history">
-        <h2 id="simulation-history" class="text-title">Historial</h2>
-        <ion-card class="admin-list">
+      <section aria-labelledby="simulation-history">
+        <ion-card class="admin-list admin-list--padded">
+          <div class="admin-list__head">
+            <h2 id="simulation-history" class="admin-list__title">Historial</h2>
+          </div>
           <table class="admin-table simulation__table">
             <thead>
               <tr>
@@ -151,9 +167,12 @@
                   <td class="simulation__cell-status">{{ row.status }}</td>
                   <td class="simulation__cell-criterion">{{ row.criterion }}</td>
                   <td class="simulation__cell-action">
-                    <ion-button size="small" fill="clear" (click)="openRun(row.run.id)">
-                      Ver resultados
-                    </ion-button>
+                    <!-- Solo hay resultados cuando la ejecución ha terminado -->
+                    @if (row.run.status === 'finished') {
+                      <ion-button size="small" fill="clear" (click)="openRun(row.run.id)">
+                        Ver resultados
+                      </ion-button>
+                    }
                   </td>
                 </tr>
               }

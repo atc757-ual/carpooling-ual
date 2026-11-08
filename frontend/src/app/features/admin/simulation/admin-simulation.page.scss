@@ -71,14 +71,39 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.simulation__history {
-  display: flex;
-  flex-direction: column;
+// En curso: «Cancelar» a la derecha del título en escritorio y al final, a
+// todo el ancho, en el móvil
+.simulation__running {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'title' 'bar' 'label' 'cancel';
   gap: var(--space-s);
 
-  h2 {
-    margin: 0;
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'title cancel'
+      'bar bar'
+      'label label';
+    align-items: center;
   }
+}
+
+.simulation__running-title {
+  grid-area: title;
+}
+
+.simulation__running-bar {
+  grid-area: bar;
+}
+
+.simulation__running-label {
+  grid-area: label;
+}
+
+.simulation__running-cancel {
+  grid-area: cancel;
+  margin: 0;
 }
 
 // Historial (.admin-table del tema): la ejecución abierta, marcada
@@ -111,6 +136,7 @@
       'date status'
       'replicas seed'
       'criterion criterion';
+    padding-inline: 0;
   }
 
   .simulation__row--open {
