@@ -80,7 +80,11 @@
               [attr.aria-label]="avatar.name"
             />
             <div class="avatar-option__preview" aria-hidden="true">
-              <app-avatar-art class="avatar-option__svg" [graphic]="avatar.graphic" />
+              <app-avatar-art
+                class="avatar-option__svg"
+                [class.avatar-option__svg--photo]="avatar.graphic.kind === 'image'"
+                [graphic]="avatar.graphic"
+              />
             </div>
             @if (selectedAvatarKey() === avatar.id) {
               <span class="avatar-option__check" aria-hidden="true">

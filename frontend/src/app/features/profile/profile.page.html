@@ -11,7 +11,11 @@
                 <!-- 1. Avatar a la izquierda -->
                 <div class="profile__avatar" aria-hidden="true">
                   @if (avatarGraphic.value(); as avatar) {
-                    <app-avatar-art class="profile__avatar-svg" [graphic]="avatar" />
+                    <app-avatar-art
+                      class="profile__avatar-svg"
+                      [class.profile__avatar-svg--photo]="avatar.kind === 'image'"
+                      [graphic]="avatar"
+                    />
                   } @else {
                     <span class="profile__avatar-initials">{{ initials() }}</span>
                   }
