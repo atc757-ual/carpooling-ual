@@ -12,6 +12,7 @@ import {
   OsrmUnavailableError,
 } from '../src/modules/trips/osrm.client';
 import type { RoutePlan } from '../src/modules/trips/route-plan';
+import { TripRoutesService } from '../src/modules/trips/trip-routes.service';
 import { TripsService } from '../src/modules/trips/trips.service';
 import { UsersService } from '../src/modules/users/users.service';
 import { VehiclesService } from '../src/modules/users/vehicles.service';
@@ -158,6 +159,23 @@ describe('Trip routes (e2e)', () => {
         coordinates: [ALMERIA_CENTRE.coordinates, UAL_CAMPUS.coordinates],
       },
     });
+
+    // Con OSRM de vuelta, la estimada se recalcula pasados 5 minutos
+    osrm.route.mockImplementation((_origin, destination) =>
+      Promise.resolve(osrmRoute(destination)),
+    );
+    await getRoute(trip.id, dan.token).expect(200);
+    expect(osrm.route).toHaveBeenCalledTimes(1);
+    // (updated_at lo pone un trigger: se adelanta el reloj en vez de la fila)
+    const inSixMinutes = new Date(Date.now() + 6 * MINUTE_MS);
+    await app.get(TripRoutesService).getForTrip(trip, inSixMinutes);
+    expect(osrm.route).toHaveBeenCalledTimes(2);
+
+    const recalculated = await getRoute(trip.id, dan.token).expect(200);
+    expect(recalculated.body).toMatchObject({
+      source: 'osrm',
+      distanceKm: 7.76,
+    });
   });
 
   it('changing the destination recalculates the route; other changes keep it', async () => {
@@ -200,14 +218,14 @@ describe('Trip routes (e2e)', () => {
     });
   });
 
-  it('answers 404 for an unknown trip or a trip without a route', async () => {
+  it('answers 404 for an unknown trip and calculates a missing route', async () => {
     const { dan, trip } = await publishTrip();
     await dataSource.query('DELETE FROM routes WHERE trip_id = $1', [trip.id]);
 
     const noTrip = await getRoute(UNKNOWN_ID, dan.token).expect(404);
-    const noRoute = await getRoute(trip.id, dan.token).expect(404);
+    const calculated = await getRoute(trip.id, dan.token).expect(200);
 
     expect(noTrip.body).toMatchObject({ code: 'TRIP_NOT_FOUND' });
-    expect(noRoute.body).toMatchObject({ code: 'ROUTE_NOT_FOUND' });
+    expect(calculated.body).toMatchObject({ source: 'osrm', distanceKm: 7.76 });
   });
 });

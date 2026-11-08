@@ -122,14 +122,14 @@ export class TripsController {
   @ApiOperation({
     summary: 'Get the route of a trip and its estimated arrival',
     description:
-      'RF-12, CU-08. The road route calculated with OSRM (or estimated if OSRM did not answer), with the trip status.',
+      'RF-12, CU-08. The road route calculated with OSRM (or estimated if OSRM did not answer), with the trip status. A missing or estimated route is asked to OSRM again (at most every 5 minutes).',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: TripRouteResource })
   @ApiErrorResponses({
     ...AUTH_ERRORS,
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
-    [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND', 'ROUTE_NOT_FOUND'],
+    [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND'],
   })
   async getRoute(
     @Param('id', uuidParam('id')) id: string,
