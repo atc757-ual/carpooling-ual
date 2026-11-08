@@ -25,7 +25,6 @@ import {
   shieldCheckmarkOutline,
   star,
   sunny,
-  timeOutline,
   trashOutline,
 } from 'ionicons/icons';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -196,7 +195,6 @@ export class ProfilePage implements OnInit {
   protected readonly helpIcon = helpCircleOutline;
   protected readonly trashIcon = trashOutline;
   // Teléfono sin verificar: un reloj (espera), no el escudo de verificado
-  protected readonly pendingIcon = timeOutline;
 
   ngOnInit(): void {
     void this.refreshData();
@@ -249,7 +247,7 @@ export class ProfilePage implements OnInit {
     }
   }
 
-  // startVerification: desde «Verificar», el modal envía el código y abre en él
+  // startVerification: desde «Verificar», el modal explica el SMS antes de enviarlo
   async handleManagePhone(startVerification = false): Promise<void> {
     const modal = await this.modalController.create({
       component: ProfilePhoneModal,

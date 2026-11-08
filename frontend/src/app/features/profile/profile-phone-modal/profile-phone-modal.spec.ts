@@ -81,6 +81,16 @@ describe('ProfilePhoneModal', () => {
     expect(component.step()).toBe('verify');
   });
 
+  it('explains the SMS first when opened from Verify, without sending it', () => {
+    requestPhoneVerification.mockClear();
+    component.startVerification = true;
+
+    component.ngOnInit();
+
+    expect(component.step()).toBe('confirm');
+    expect(requestPhoneVerification).not.toHaveBeenCalled();
+  });
+
   it('confirms verification code and dismisses with saved role', async () => {
     component.step.set('verify');
     component.codeForm.controls.code.setValue('123456');

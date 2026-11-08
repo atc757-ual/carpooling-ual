@@ -60,15 +60,18 @@
         <ion-card class="profile-card">
           <ion-card-header class="profile-card__header">
             <ion-card-title>{{ 'profile.contactPhone' | transloco }}</ion-card-title>
-            <form (submit)="$event.preventDefault(); handleManagePhone()">
-              <ion-button
-                type="submit"
-                class="profile__edit"
-                [attr.aria-label]="'profile.managePhone' | transloco"
-              >
-                <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
-              </ion-button>
-            </form>
+            <!-- Una sola acción por estado: sin verificar, solo «Verificar» (abajo) -->
+            @if (!phone() || isPhoneVerified()) {
+              <form (submit)="$event.preventDefault(); handleManagePhone()">
+                <ion-button
+                  type="submit"
+                  class="profile__edit"
+                  [attr.aria-label]="'profile.managePhone' | transloco"
+                >
+                  <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
+                </ion-button>
+              </form>
+            }
           </ion-card-header>
           <ion-card-content class="profile-card__content">
             @if (phone(); as ph) {
