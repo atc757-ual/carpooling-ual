@@ -45,6 +45,7 @@ import { CollapsingHeadingService } from '../../core/services/ui/collapsing-head
 import { LanguageService } from '../../core/services/ui/language.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { ChatService } from '../../core/services/chat/chat.service';
+import { PermissionPromptsService } from '../../core/services/push/permission-prompts.service';
 import { PushNotificationsService } from '../../core/services/push/push-notifications.service';
 import { openNotificationTarget } from '../notifications/notification-target';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
@@ -131,6 +132,7 @@ export class TabsPage implements OnInit {
   protected readonly headingContent = inject(HeadingContentService);
   private readonly collapsingHeading = inject(CollapsingHeadingService);
   private readonly push = inject(PushNotificationsService);
+  private readonly permissionPrompts = inject(PermissionPromptsService);
   private readonly driverTracking = inject(DriverTrackingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly transloco = inject(TranslocoService);
@@ -273,7 +275,7 @@ export class TabsPage implements OnInit {
         target,
       );
     });
-    void this.push.start();
+    void this.startPush();
     // Un viaje en curso sigue compartiendo la posición al volver a la app
     void this.driverTracking.resume();
     this.router.events
@@ -289,6 +291,12 @@ export class TabsPage implements OnInit {
 
   // Solo con la sesión abierta: al cerrarla (o caducar) también se navega, y
   // sin token la API respondería 401
+  // Con el estado de este dispositivo ya leído, los permisos de la primera vez
+  private async startPush(): Promise<void> {
+    await this.push.start();
+    await this.permissionPrompts.offerOnEntry().catch(() => undefined);
+  }
+
   private countUnread(): void {
     if (this.auth.isLoggedIn()) {
       void this.notifications.refreshUnread();

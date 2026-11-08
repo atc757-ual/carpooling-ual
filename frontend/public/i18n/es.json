@@ -475,6 +475,36 @@
       "readHint": "Lee cada documento hasta el final para poder aceptar."
     }
   },
+  "permissions": {
+    "title": "Saca más partido a la app",
+    "description": "Puedes activar cada permiso por separado, ahora o más adelante.",
+    "enable": "Activar",
+    "later": "Más tarde",
+    "continue": "Continuar",
+    "done": "Activado",
+    "blocked": "No activado",
+    "enabled": "Te avisaremos aunque tengas la app cerrada.",
+    "enableError": "No hemos podido activar las notificaciones. Inténtalo de nuevo.",
+    "push": {
+      "title": "Notificaciones",
+      "description": "Para avisarte de tus viajes y mensajes."
+    },
+    "location": {
+      "title": "Ubicación",
+      "description": "Para encontrar viajes cerca de ti.",
+      "terms": "Leer cómo se usa"
+    },
+    "offer": {
+      "publish": {
+        "title": "¿Te avisamos de las solicitudes?",
+        "message": "Activa las notificaciones para saber cuándo alguien pide plaza en tu viaje."
+      },
+      "request": {
+        "title": "¿Te avisamos de la respuesta?",
+        "message": "Activa las notificaciones para saber cuándo te respondan a tu solicitud."
+      }
+    }
+  },
   "errors": {
     "reference": " (referencia: {{ requestId }})",
     "INTERNAL_ERROR": "Ha ocurrido un error en el servidor{{ reference }}. Inténtalo de nuevo.",
