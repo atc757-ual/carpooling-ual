@@ -1,5 +1,5 @@
 import { Component, computed, inject, linkedSignal, resource, signal } from '@angular/core';
-import { IonButton, IonCard, IonTextarea } from '@ionic/angular';
+import { IonButton, IonCard, IonSelect, IonSelectOption, IonTextarea } from '@ionic/angular';
 import { ApiError } from '../../../../core/models/api-error.model';
 import {
   AdminLegalDocument,
@@ -12,7 +12,6 @@ import {
   LegalChangeType,
   LegalDocumentType,
 } from '../../../../core/services/users/legal-documents.service';
-import { FilterChips } from '../../../../shared/components/ui/filter-chips/filter-chips';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
 import { formatDateTime } from '../../users/admin-user-detail-labels';
 
@@ -63,7 +62,7 @@ const EDITOR_VIEWS: readonly { value: EditorView; label: string }[] = [
 // Lo que no se ha guardado no se pierde sin avisar
 @Component({
   selector: 'app-legal-documents-editor',
-  imports: [FilterChips, IonButton, IonCard, IonTextarea],
+  imports: [IonButton, IonCard, IonSelect, IonSelectOption, IonTextarea],
   templateUrl: './legal-documents-editor.html',
   styleUrl: './legal-documents-editor.scss',
 })
@@ -149,12 +148,18 @@ export class LegalDocumentsEditor {
     EDITOR_VIEWS.filter(({ value }) => value !== 'compare' || this.current() !== null),
   );
 
-  // Cambia de documento si no se pierde nada
-  async handleType(value: unknown): Promise<void> {
+  // Cambia de documento si no se pierde nada; si no, el desplegable vuelve al
+  // que estaba
+  async handleType(value: unknown, select?: { value?: unknown }): Promise<void> {
     const type = DOCUMENT_TYPES.find((option) => option === value);
-    if (type && type !== this.type() && (await this.confirmDiscard())) {
+    if (!type || type === this.type()) {
+      return;
+    }
+    if (await this.confirmDiscard()) {
       this.type.set(type);
       this.view.set('edit');
+    } else if (select) {
+      select.value = this.type();
     }
   }
 

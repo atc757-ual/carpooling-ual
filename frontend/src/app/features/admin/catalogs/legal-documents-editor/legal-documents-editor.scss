@@ -21,22 +21,29 @@
   gap: var(--space-s) var(--space-base);
 }
 
-// Escritorio: el estado a la derecha, en la línea de «Documento»
-.legal-editor__picker {
-  position: relative;
+// Ancho completo en el móvil y la mitad en escritorio
+.legal-editor__select {
+  width: 100%;
+
+  @media (min-width: 768px) {
+    width: 50%;
+  }
+
+  // Sin etiqueta, Ionic deja el texto a su ancho y la flecha pegada a él
+  &::part(container) {
+    flex: 1;
+    width: 100%;
+  }
+
+  &::part(icon) {
+    margin-inline-start: auto;
+  }
 }
 
 .legal-editor__chips {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-xs);
-
-  @media (min-width: 768px) {
-    position: absolute;
-    top: var(--space-base);
-    right: var(--space-base);
-    justify-content: flex-end;
-  }
 }
 
 // Tarjetas de elección (guía de estilos): dos columnas si caben
@@ -92,8 +99,11 @@
 // Editar, Vista previa y Comparar: un control segmentado con la elegida en azul
 .legal-editor__tabs {
   display: inline-flex;
+  min-width: 0;
   max-width: 100%;
+  margin: 0;
   padding: 0.125rem; // 2px
+  border: 0;
   border-radius: var(--radius-full);
   background: var(--color-surface-subtle);
 }

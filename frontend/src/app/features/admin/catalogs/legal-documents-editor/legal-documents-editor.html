@@ -1,28 +1,37 @@
-<!-- Qué documento se edita y, en la misma línea, en qué estado está -->
-<ion-card class="legal-editor__card legal-editor__picker">
-  <app-filter-chips
-    legend="Documento"
-    [options]="types"
+<!-- El título y su estado en una línea y debajo, qué documento se edita -->
+<ion-card class="legal-editor__card">
+  <div class="legal-editor__head">
+    <h2 class="admin-list__title">Documento</h2>
+    @if (!errorMessage() && versions.hasValue()) {
+      <div class="legal-editor__chips">
+        @if (current(); as current) {
+          <span class="status status--accepted">Vigente: versión {{ current.version }}</span>
+        } @else {
+          <span class="status">Aún sin publicar</span>
+        }
+        @if (draft(); as draft) {
+          <span class="status status--info">Borrador {{ draft.version }} sin publicar</span>
+        }
+        @if (isDirty()) {
+          <span class="status status--pending">Cambios sin guardar</span>
+        }
+      </div>
+    }
+  </div>
+  <ion-select
+    #documentSelect
+    class="legal-editor__select"
+    aria-label="Documento"
+    fill="outline"
+    justify="space-between"
+    interface="popover"
     [value]="type()"
-    [allLabel]="null"
-    (valueChange)="handleType($event)"
-  />
-
-  @if (!errorMessage() && versions.hasValue()) {
-    <div class="legal-editor__chips">
-      @if (current(); as current) {
-        <span class="status status--accepted">Vigente: versión {{ current.version }}</span>
-      } @else {
-        <span class="status">Aún sin publicar</span>
-      }
-      @if (draft(); as draft) {
-        <span class="status status--info">Borrador {{ draft.version }} sin publicar</span>
-      }
-      @if (isDirty()) {
-        <span class="status status--pending">Cambios sin guardar</span>
-      }
-    </div>
-  }
+    (ionChange)="handleType($event.detail.value, documentSelect)"
+  >
+    @for (option of types; track option.value) {
+      <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
+    }
+  </ion-select>
 </ion-card>
 
 @if (errorMessage(); as message) {
@@ -76,11 +85,12 @@
     />
   </ion-card>
 
-  <!-- El texto a todo el ancho: se edita, se comprueba o se compara -->
+  <!-- El texto ocupa la tarjeta: se edita, se comprueba o se compara -->
   <ion-card class="legal-editor__card">
     <div class="legal-editor__head">
       <h2 class="admin-list__title">Texto</h2>
-      <div class="legal-editor__tabs" role="group" aria-label="Vista del texto">
+      <fieldset class="legal-editor__tabs">
+        <legend class="visually-hidden">Vista del texto</legend>
         @for (option of views(); track option.value) {
           <button
             type="button"
@@ -92,7 +102,7 @@
             {{ option.label }}
           </button>
         }
-      </div>
+      </fieldset>
     </div>
 
     @switch (view()) {

@@ -125,10 +125,12 @@ describe('LegalDocumentsEditor', () => {
   it('asks before losing the unsaved changes and keeps the document if refused', async () => {
     await render();
     const editor = fixture.componentInstance;
+    const select = { value: 'privacy' as unknown };
     editor.handleInput('<p>Sin guardar</p>');
 
     ask.mockResolvedValueOnce(false);
-    await editor.handleType('privacy');
+    await editor.handleType('privacy', select);
+    expect(select.value).toBe('terms');
     expect(ask).toHaveBeenCalledWith(
       expect.objectContaining({ header: '¿Descartar los cambios?', isDestructive: true }),
     );
