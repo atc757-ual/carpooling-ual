@@ -11,7 +11,14 @@ import { NgTemplateOutlet } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { IonContent, IonHeader, IonIcon, NavController } from '@ionic/angular';
-import { closeOutline, logOutOutline, menuOutline, phonePortraitOutline } from 'ionicons/icons';
+import {
+  closeOutline,
+  logOutOutline,
+  menuOutline,
+  moon,
+  personOutline,
+  sunny,
+} from 'ionicons/icons';
 import { filter } from 'rxjs';
 import { HOME_PATH, WELCOME_PATH } from '../../../../core/guards/redirect-paths';
 import { AdminIncidentsService } from '../../../../core/services/admin/admin-incidents.service';
@@ -20,6 +27,7 @@ import { confirmLogout } from '../../../../core/services/auth/confirm-logout';
 import { AppContextService, canUseApp } from '../../../../core/services/ui/app-context.service';
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
 import { HeadingContentService } from '../../../../core/services/ui/heading-content.service';
+import { ThemeService } from '../../../../core/services/ui/theme.service';
 import { ADMIN_SECTIONS, INCIDENTS_SECTION_PATH } from '../../../../features/admin/admin-sections';
 
 // Marco del panel de administración (bloque b): la cabecera índigo con el
@@ -49,12 +57,13 @@ export class AdminLayout implements OnInit {
   private readonly router = inject(Router);
   private readonly appContext = inject(AppContextService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly theme = inject(ThemeService);
   protected readonly headingContent = inject(HeadingContentService);
 
   protected readonly sections = ADMIN_SECTIONS;
   protected readonly incidentsPath = INCIDENTS_SECTION_PATH;
   protected readonly logoutIcon = logOutOutline;
-  protected readonly appIcon = phonePortraitOutline;
+  protected readonly appIcon = personOutline;
   protected readonly menuIcon = menuOutline;
   protected readonly closeIcon = closeOutline;
   protected readonly mobileMenuOpen = signal(false);
@@ -62,6 +71,15 @@ export class AdminLayout implements OnInit {
   protected readonly canUseApp = computed(() => canUseApp(this.auth.currentUser()?.profiles ?? []));
   protected readonly email = computed(() => this.auth.currentUser()?.email ?? '');
   protected readonly openIncidents = this.incidents.openCount;
+  // El icono y el texto dicen a qué modo se cambia
+  protected readonly themeIcon = computed(() => (this.theme.isDark() ? sunny : moon));
+  protected readonly themeLabel = computed(() =>
+    this.theme.isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro',
+  );
+
+  protected handleToggleTheme(): void {
+    void this.theme.toggle();
+  }
 
   protected toggleMobileMenu(): void {
     this.mobileMenuOpen.update((open) => !open);

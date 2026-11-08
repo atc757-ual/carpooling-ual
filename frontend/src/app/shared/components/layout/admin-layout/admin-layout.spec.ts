@@ -7,6 +7,7 @@ import { AuthService } from '../../../../core/services/auth/auth.service';
 import { AppContextService } from '../../../../core/services/ui/app-context.service';
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
 import { HeadingContentService } from '../../../../core/services/ui/heading-content.service';
+import { ThemeService } from '../../../../core/services/ui/theme.service';
 import { ADMIN_SECTIONS } from '../../../../features/admin/admin-sections';
 import { AdminLayout } from './admin-layout';
 
@@ -161,15 +162,21 @@ describe('AdminLayout', () => {
     element().querySelector<HTMLButtonElement>('.admin-mobile-header__menu-button')?.click();
     fixture.detectChanges();
     expect(fixture.componentInstance['canUseApp']()).toBe(false);
-    expect(element().querySelector('.admin-mobile-menu__action span')?.textContent).not.toContain(
+    expect(element().querySelector('.admin-mobile-menu__footer')?.textContent).not.toContain(
       'Cambiar a versión usuario',
+    );
+    expect(element().querySelector('.admin-header__account')?.textContent).not.toContain(
+      'Modo usuario',
     );
 
     currentUser.set({ email: 'admin@ual.es', profiles: ['passenger', 'admin'] });
     fixture.detectChanges();
     expect(fixture.componentInstance['canUseApp']()).toBe(true);
-    expect(element().querySelector('.admin-mobile-menu__action span')?.textContent).toContain(
+    expect(element().querySelector('.admin-mobile-menu__footer')?.textContent).toContain(
       'Cambiar a versión usuario',
+    );
+    expect(element().querySelector('.admin-header__account')?.textContent).toContain(
+      'Modo usuario',
     );
 
     const navigateRoot = vi
@@ -177,6 +184,28 @@ describe('AdminLayout', () => {
       .mockResolvedValue(true);
     await fixture.componentInstance.handleGoToApp();
     expect(navigateRoot).toHaveBeenCalledWith('/tabs');
+  });
+
+  it('switches the theme from the header, before the email, and from the mobile menu', () => {
+    const theme = TestBed.inject(ThemeService);
+    const toggle = vi.spyOn(theme, 'toggle').mockResolvedValue();
+    const toggleButton = element().querySelector<HTMLButtonElement>('.admin-header__theme');
+
+    expect(toggleButton?.nextElementSibling?.classList).toContain('admin-header__email');
+    theme.isDark.set(false);
+    fixture.detectChanges();
+    expect(toggleButton?.getAttribute('aria-label')).toBe('Cambiar a modo oscuro');
+    toggleButton?.click();
+    expect(toggle).toHaveBeenCalledTimes(1);
+
+    theme.isDark.set(true);
+    element().querySelector<HTMLButtonElement>('.admin-mobile-header__menu-button')?.click();
+    fixture.detectChanges();
+    expect(toggleButton?.getAttribute('aria-label')).toBe('Cambiar a modo claro');
+    const mobileToggle = element().querySelector<HTMLButtonElement>('.admin-mobile-menu__action');
+    expect(mobileToggle?.textContent).toContain('Cambiar a modo claro');
+    mobileToggle?.click();
+    expect(toggle).toHaveBeenCalledTimes(2);
   });
 
   it('logs out after confirming it and goes back to the welcome screen', async () => {

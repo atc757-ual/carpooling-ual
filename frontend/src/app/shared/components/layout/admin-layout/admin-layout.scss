@@ -187,6 +187,7 @@
     overflow-wrap: anywhere;
   }
 
+  .admin-header__action,
   .admin-header__logout {
     display: flex;
     align-items: center;
@@ -207,6 +208,38 @@
     &:focus-visible {
       outline: 0.125rem solid var(--color-on-admin);
       outline-offset: -0.125rem;
+    }
+  }
+
+  // Tema: un círculo translúcido con el icono relleno, que gira al apuntarlo
+  .admin-header__theme {
+    justify-content: center;
+    width: var(--control-height-base);
+    padding-inline: 0;
+    border-radius: var(--radius-full);
+    background: color-mix(in srgb, var(--color-on-admin) 14%, transparent);
+    transition: background-color var(--motion-duration-fast);
+
+    ion-icon {
+      transition: transform 0.3s ease;
+    }
+
+    &:hover {
+      background: color-mix(in srgb, var(--color-on-admin) 26%, transparent);
+
+      ion-icon {
+        transform: rotate(25deg) scale(1.1);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      ion-icon {
+        transition: none;
+      }
+
+      &:hover ion-icon {
+        transform: none;
+      }
     }
   }
 
