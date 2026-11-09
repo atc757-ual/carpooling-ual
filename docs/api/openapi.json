@@ -15985,6 +15985,20 @@
       "IncidentReviewResource": {
         "type": "object",
         "properties": {
+          "by": {
+            "description": "The administrator who resolved it",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IncidentDriverResource"
+              }
+            ]
+          },
+          "startedAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When that administrator started the review; null if resolved before the review states existed"
+          },
           "reviewedAt": {
             "type": "string",
             "format": "date-time"
@@ -15995,6 +16009,8 @@
           }
         },
         "required": [
+          "by",
+          "startedAt",
           "reviewedAt",
           "resolution"
         ]

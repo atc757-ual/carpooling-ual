@@ -122,13 +122,17 @@ describe('Incident review (e2e)', () => {
     });
     expect(started.reviewStartedByName).toBe('ada Prueba');
 
-    const { incident } = await review.resolve(ada, id, RESOLUTION);
+    const resolved = await review.resolve(ada, id, RESOLUTION);
+    const { incident } = resolved;
     expect(incident).toMatchObject({
       status: 'reviewed',
       reviewedBy: ada,
       resolution: RESOLUTION,
     });
     expect(incident.reviewedAt).toBeInstanceOf(Date);
+    // Quién la atendió, y el inicio de su revisión se conserva
+    expect(resolved.reviewedByName).toBe('ada Prueba');
+    expect(incident.reviewStartedAt).toBeInstanceOf(Date);
     expect(await eventTypesOf(id)).toEqual([
       'incident.reported',
       'incident.review_started',

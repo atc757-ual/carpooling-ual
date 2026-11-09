@@ -350,7 +350,12 @@ describe('Incidents API (e2e)', () => {
         .expect(200);
       expect(reviewed.body).toMatchObject({
         status: 'reviewed',
-        review: { resolution: RESOLUTION },
+        reviewInProgress: null,
+        review: {
+          by: { name: expect.any(String) as string },
+          startedAt: expect.any(String) as string,
+          resolution: RESOLUTION,
+        },
       });
 
       const seenByReporter = await api(

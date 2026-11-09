@@ -46,6 +46,8 @@ export interface IncidentView {
   reporterRole: ReporterRole;
   // Quién la está revisando (solo en revisión)
   reviewStartedByName: string | null;
+  // Quién la atendió (solo atendida)
+  reviewedByName: string | null;
   // null solo si el viaje ya no existe
   trip: IncidentTripView | null;
 }
@@ -263,8 +265,8 @@ export class IncidentsService {
     );
     const names = await this.usersService.getNames([
       ...incidents.map(({ reporterId }) => reporterId),
-      ...incidents.flatMap(({ reviewStartedBy }) =>
-        reviewStartedBy ? [reviewStartedBy] : [],
+      ...incidents.flatMap(({ reviewStartedBy, reviewedBy }) =>
+        [reviewStartedBy, reviewedBy].filter((id) => id !== null),
       ),
       ...[...trips.values()].map(({ driverId }) => driverId),
     ]);
@@ -276,6 +278,9 @@ export class IncidentsService {
         reporterRole: reporterRoleOf(incident, trip?.driverId),
         reviewStartedByName: incident.reviewStartedBy
           ? (names.get(incident.reviewStartedBy) ?? '')
+          : null,
+        reviewedByName: incident.reviewedBy
+          ? (names.get(incident.reviewedBy) ?? '')
           : null,
         trip: trip
           ? {

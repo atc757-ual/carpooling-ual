@@ -62,6 +62,20 @@ export class IncidentReviewInProgressResource {
 }
 
 export class IncidentReviewResource {
+  @ApiProperty({
+    type: IncidentDriverResource,
+    description: 'The administrator who resolved it',
+  })
+  by: IncidentDriverResource;
+
+  @ApiProperty({
+    format: 'date-time',
+    nullable: true,
+    description:
+      'When that administrator started the review; null if resolved before the review states existed',
+  })
+  startedAt: string | null;
+
   @ApiProperty({ format: 'date-time' })
   reviewedAt: string;
 
@@ -135,9 +149,16 @@ export function toIncidentResource({
   reporterName,
   reporterRole,
   reviewStartedByName,
+  reviewedByName,
   trip,
 }: IncidentView): IncidentResource {
-  const { reviewedAt, resolution, reviewStartedBy, reviewStartedAt } = incident;
+  const {
+    reviewedAt,
+    reviewedBy,
+    resolution,
+    reviewStartedBy,
+    reviewStartedAt,
+  } = incident;
   return {
     '@type': 'Incident',
     id: incident.id,
@@ -170,8 +191,15 @@ export function toIncidentResource({
           }
         : null,
     review:
-      reviewedAt !== null && resolution !== null
-        ? { reviewedAt: reviewedAt.toISOString(), resolution }
+      reviewedAt !== null && reviewedBy !== null && resolution !== null
+        ? {
+            by: { id: reviewedBy, name: reviewedByName ?? '' },
+            // Solo quien la empezó puede atenderla: su inicio es el de esta
+            // revisión
+            startedAt: reviewStartedAt?.toISOString() ?? null,
+            reviewedAt: reviewedAt.toISOString(),
+            resolution,
+          }
         : null,
   };
 }
