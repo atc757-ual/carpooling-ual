@@ -10,6 +10,13 @@ export const TRIPS_TABS: readonly { value: TripsTab; label: string }[] = [
   { value: 'cancelled', label: 'Cancelados' },
 ];
 
+// El pasajero: ahí caen también las rechazadas y caducadas, que no canceló nadie
+export const PASSENGER_TRIPS_TABS: readonly { value: TripsTab; label: string }[] = [
+  { value: 'upcoming', label: 'Próximos' },
+  { value: 'past', label: 'Anteriores' },
+  { value: 'cancelled', label: 'No realizados' },
+];
+
 // Viajes que aún no han terminado: publicados, confirmados y en curso
 const ACTIVE_TRIPS: ReadonlySet<TripStatus> = new Set(['published', 'confirmed', 'in_progress']);
 

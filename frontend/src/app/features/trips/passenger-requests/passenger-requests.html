@@ -27,43 +27,34 @@
     </ion-card-content>
   </ion-card>
 } @else {
-  @for (item of tabItems(); track item.request.id) {
-    <ion-card class="passenger-request">
-      <ion-card-content>
-        <div class="passenger-request__head">
-          <div class="text-subtitle">{{ when(item.trip) }}</div>
-          <span
-            class="status"
-            [class.status--pending]="tab() === 'upcoming' && item.request.status === 'pending'"
-            [class.status--accepted]="tab() !== 'cancelled' && item.request.status === 'accepted'"
-          >
-            {{ statusLabel(item) }}
-          </span>
-        </div>
-        <div class="passenger-request__route">{{ route(item.trip) }}</div>
-        <div class="text-caption text-color-muted">{{ details(item) }}</div>
-        <ion-button
-          type="button"
-          fill="clear"
-          size="small"
-          [routerLink]="['/tabs/trips/requests', item.request.id]"
-        >
-          Ver solicitud
-        </ion-button>
-        @if (canCancel(item)) {
-          <form (submit)="$event.preventDefault(); handleCancel(item)">
-            <ion-button
-              type="submit"
-              size="small"
-              fill="outline"
-              color="danger"
-              [disabled]="cancelling() !== null"
+  @for (group of dayGroups(); track group.day) {
+    <h2 class="passenger-requests__day text-eyebrow text-color-muted">{{ group.day }}</h2>
+    @for (item of group.items; track item.request.id) {
+      <ion-card class="passenger-request">
+        <ion-card-content>
+          <div class="passenger-request__head">
+            <!-- El enlace cubre toda la tarjeta (::after) -->
+            <a
+              class="passenger-request__link text-subtitle"
+              [routerLink]="['/tabs/trips/requests', item.request.id]"
+              [attr.aria-label]="linkLabel(item)"
+              >{{ time(item.trip) }}</a
             >
-              Cancelar solicitud
-            </ion-button>
-          </form>
-        }
-      </ion-card-content>
-    </ion-card>
+            <span
+              class="status"
+              [class.status--pending]="tab() === 'upcoming' && item.request.status === 'pending'"
+              [class.status--accepted]="tab() !== 'cancelled' && item.request.status === 'accepted'"
+            >
+              {{ statusLabel(item) }}
+            </span>
+          </div>
+          <div class="passenger-request__route">{{ route(item.trip) }}</div>
+          @if (nextStep(item); as step) {
+            <div class="passenger-request__next">{{ step }}</div>
+          }
+          <div class="text-caption text-color-muted">{{ details(item) }}</div>
+        </ion-card-content>
+      </ion-card>
+    }
   }
 }

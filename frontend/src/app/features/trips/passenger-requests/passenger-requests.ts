@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, resource, signal } from '@angular/core';
+import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonButton,
@@ -9,14 +9,12 @@ import {
   IonSpinner,
 } from '@ionic/angular';
 import { alertCircleOutline, searchOutline } from 'ionicons/icons';
-import { ApiError } from '../../../core/models/api-error.model';
 import { Trip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
-import { ToastService } from '../../../core/services/ui/toast.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../matching/trip-results';
 import { formatSeats } from '../driver-trip-card/driver-trip-card';
 import {
@@ -26,17 +24,24 @@ import {
   TripsTab,
 } from '../my-trips/trip-tabs';
 import { formatRoute } from '../my-trips/my-trips-summary';
-import { ConfirmService } from '../../../core/services/ui/confirm.service';
 
 export interface PassengerTrip {
   request: SeatRequest;
   trip: Trip;
 }
 
-// Las solicitudes del pasajero en una pestaña de Mis viajes, cada una con su
-// viaje (cuándo, de dónde a dónde y quién conduce) y su estado (en
-// Cancelados, con el motivo). Las pendientes y las confirmadas de viajes que
-// aún no han salido se pueden cancelar (con confirmación)
+interface PassengerDayGroup {
+  day: string;
+  items: PassengerTrip[];
+}
+
+function dayLabel(trip: Trip): string {
+  return formatDateLabel(new Date(trip.departureAt).toLocaleDateString('sv-SE'));
+}
+
+// Las solicitudes del pasajero en una pestaña de Mis viajes, agrupadas por
+// día. Cada tarjeta lleva a su detalle (donde se cancela) y dice el siguiente
+// paso; en No realizados, el estado es el motivo
 @Component({
   selector: 'app-passenger-requests',
   imports: [RouterLink, IonButton, IonCard, IonCardContent, IonIcon, IonRouterLink, IonSpinner],
@@ -46,8 +51,6 @@ export interface PassengerTrip {
 export class PassengerRequests {
   private readonly seatRequests = inject(SeatRequestsService);
   private readonly trips = inject(TripsService);
-  private readonly confirm = inject(ConfirmService);
-  private readonly toast = inject(ToastService);
 
   // Cada solicitud con su viaje (uno por solicitud: un pasajero tiene pocas)
   readonly items = resource({
@@ -89,21 +92,52 @@ export class PassengerRequests {
     );
     return this.tab() === 'upcoming' ? items : items.reverse();
   });
+  // Los días, en el orden de la pestaña
+  readonly dayGroups = computed(() => {
+    const groups = new Map<string, PassengerTrip[]>();
+    for (const item of this.tabItems()) {
+      const day = dayLabel(item.trip);
+      groups.set(day, [...(groups.get(day) ?? []), item]);
+    }
+    return [...groups].map(([day, items]): PassengerDayGroup => ({ day, items }));
+  });
   readonly upcomingCount = computed(() => this.byTab().upcoming.length);
   readonly pastTrips = computed(() =>
     this.byTab().past.map(({ trip }) => ({ ...trip, carsAvoided: 1 })),
   );
-  readonly cancelling = signal<string | null>(null);
 
-  protected readonly emptyTexts = EMPTY_TEXTS;
+  protected readonly emptyTexts: Record<TripsTab, string> = {
+    ...EMPTY_TEXTS,
+    cancelled: 'Aquí verás los viajes que no se hayan realizado',
+  };
   protected readonly emptyIcon = searchOutline;
   protected readonly errorIcon = alertCircleOutline;
   protected readonly formatSeats = formatSeats;
 
-  // «Mañana · 07:40»
-  protected when(trip: Trip): string {
-    const departureAt = new Date(trip.departureAt);
-    return `${formatDateLabel(departureAt.toLocaleDateString('sv-SE'))} · ${formatTime(trip.departureAt)}`;
+  protected time(trip: Trip): string {
+    return formatTime(trip.departureAt);
+  }
+
+  // Lo que lee el lector de pantalla del enlace (cubre toda la tarjeta)
+  protected linkLabel(item: PassengerTrip): string {
+    const { trip } = item;
+    return `Ver solicitud: ${dayLabel(trip)}, ${this.time(trip)}, ${this.route(trip)}, ${this.statusLabel(item)}`;
+  }
+
+  // Qué falta: «Esperando respuesta de Lucía», «Confirmada: te recoge a las
+  // 08:10». Sin siguiente paso en las demás pestañas
+  protected nextStep({ request, trip }: PassengerTrip): string | null {
+    if (this.tab() !== 'upcoming') {
+      return null;
+    }
+    const driverName = getFirstName(trip.driver.name);
+    if (request.status === 'pending') {
+      return `Esperando respuesta de ${driverName}`;
+    }
+    if (request.pickupAt) {
+      return `Confirmada: te recoge a las ${formatTime(request.pickupAt)}`;
+    }
+    return `Confirmada: viajas con ${driverName}`;
   }
 
   protected route(trip: Trip): string {
@@ -123,36 +157,7 @@ export class PassengerRequests {
     return passengerRequestLabel(request, trip);
   }
 
-  // Pendiente o confirmada, en un viaje que aún no ha salido
-  protected canCancel({ request, trip }: PassengerTrip): boolean {
-    const isActive = request.status === 'pending' || request.status === 'accepted';
-    return isActive && (trip.status === 'published' || trip.status === 'confirmed');
-  }
-
   handleRetry(): void {
     this.items.reload();
-  }
-
-  // Cancelar una solicitud pendiente o confirmada, tras confirmarlo
-  async handleCancel({ request, trip }: PassengerTrip): Promise<void> {
-    const isConfirmed = await this.confirm.ask({
-      header: '¿Cancelar tu solicitud?',
-      message: `Dejarás de tener ${formatSeats(request.seats)} en el viaje de ${trip.driver.name}.`,
-      confirmText: 'Cancelar solicitud',
-      cancelText: 'Mantener solicitud',
-      isDestructive: true,
-    });
-    if (!isConfirmed) {
-      return;
-    }
-    this.cancelling.set(request.id);
-    try {
-      await this.seatRequests.cancel(request.id);
-      this.items.reload();
-    } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
-    } finally {
-      this.cancelling.set(null);
-    }
   }
 }

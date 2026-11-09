@@ -38,15 +38,51 @@ ion-card {
   }
 }
 
+.passenger-requests__day {
+  margin: var(--space-s) 0 0;
+}
+
+.passenger-request {
+  position: relative;
+
+  &:hover {
+    --background: var(--color-surface-subtle);
+  }
+}
+
 .passenger-request ion-card-content {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-xs);
+}
 
-  ion-button {
-    margin: var(--space-s) 0 0;
+// Enlace extendido: su ::after cubre toda la tarjeta
+.passenger-request__link {
+  color: inherit;
+  text-decoration: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-s);
   }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible::after {
+    outline: var(--border-width-l) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+}
+
+.passenger-request__next {
+  color: var(--color-link);
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
 }
 
 .passenger-request__head {
