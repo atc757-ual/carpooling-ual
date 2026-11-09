@@ -7,6 +7,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Simulación:** contraste de la hipótesis experimental en los resultados: t pareado unilateral sobre los vehículos de cada réplica frente a S0, con Bonferroni (α = 0,01) y la comprobación de Wilcoxon. El criterio de éxito exige ahora también rechazar HE0, como pide la memoria.
+
 ### Fixed
 
 - **Simulación:** los escenarios S0–S5 los crea una migración en lugar del seed de desarrollo, así que existen en cualquier despliegue y el panel puede lanzar simulaciones sin cargar datos de prueba (#265).
