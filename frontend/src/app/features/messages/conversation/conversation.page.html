@@ -85,7 +85,7 @@
       <!-- De un toque: útiles con el coche en marcha -->
       <fieldset class="conversation-footer__quick">
         <legend class="visually-hidden">Respuestas rápidas</legend>
-        @for (quickReply of quickReplies; track quickReply) {
+        @for (quickReply of quickReplies(); track quickReply) {
           <button
             type="button"
             class="quick-reply"

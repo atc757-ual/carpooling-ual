@@ -227,9 +227,10 @@ describe('ConversationPage', () => {
 
     const buttons = root.querySelectorAll<HTMLButtonElement>('.quick-reply');
     expect([...buttons].map((button) => button.textContent?.trim())).toEqual([
-      'Ya estoy en el punto',
-      'Llego 5 min tarde',
       'Estoy en camino',
+      'Llego 5 min tarde',
+      'Ya estoy en el punto',
+      'Te espero 2 min más',
       '¿Dónde estás?',
     ]);
     buttons[1].click();
@@ -258,7 +259,17 @@ describe('ConversationPage', () => {
 
     expect(root.textContent).toContain('Mientras conduces, solo respuestas rápidas.');
     expect(root.querySelector('ion-textarea')).toBeNull();
-    expect(root.querySelectorAll('.quick-reply')).toHaveLength(4);
+    expect(root.querySelectorAll('.quick-reply')).toHaveLength(7);
+  });
+
+  it('offers the quick replies of the passenger to a passenger', async () => {
+    const root = await render({ ...CONVERSATION, myRole: 'passenger' });
+    const texts = [...root.querySelectorAll('.quick-reply')].map((button) =>
+      button.textContent?.trim(),
+    );
+
+    expect(texts).toContain('Ya voy para allá');
+    expect(texts).not.toContain('Estoy en camino');
   });
 
   it('only lets a closed conversation be read', async () => {

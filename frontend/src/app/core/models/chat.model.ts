@@ -1,7 +1,23 @@
 import { TripStatus } from './driver.model';
 
 // Respuestas rápidas: la API guarda la clave y la app pone el texto
-export type QuickReply = 'at_pickup' | 'running_late' | 'on_my_way' | 'where_are_you';
+export type QuickReply =
+  | 'at_pickup'
+  | 'running_late'
+  | 'on_my_way'
+  | 'where_are_you'
+  | 'leaving_soon'
+  | 'still_going'
+  | 'arriving_soon'
+  | 'stopping_here'
+  | 'on_time'
+  | 'still_coming'
+  | 'im_coming'
+  | 'pickup_where'
+  | 'waiting_for_you'
+  | 'heading_down'
+  | 'i_see_you'
+  | 'can_we_stop';
 
 export type ChatRole = 'driver' | 'passenger';
 

@@ -5,6 +5,8 @@ import {
   messageText,
   messageTime,
   QUICK_REPLIES,
+  QUICK_REPLY_TEXTS,
+  quickRepliesForMoment,
 } from './chat-texts';
 
 describe('chat texts', () => {
@@ -14,8 +16,68 @@ describe('chat texts', () => {
     expect(messageText({ text: null, quickReply: null })).toBe('');
   });
 
-  it('offers the four quick replies of the API', () => {
-    expect(QUICK_REPLIES).toEqual(['at_pickup', 'running_late', 'on_my_way', 'where_are_you']);
+  it('has a text for every quick reply of the API', () => {
+    expect(QUICK_REPLIES).toHaveLength(16);
+    for (const quickReply of QUICK_REPLIES) {
+      expect(QUICK_REPLY_TEXTS[quickReply].length).toBeGreaterThan(0);
+    }
+  });
+
+  describe('quick replies by role and moment', () => {
+    const now = Date.parse('2026-11-09T08:00:00.000Z');
+    const minutesAhead = (minutes: number): string =>
+      new Date(now + minutes * 60_000).toISOString();
+    const published = (minutes: number) => ({
+      status: 'published',
+      departureAt: minutesAhead(minutes),
+    });
+    const inProgress = { status: 'in_progress', departureAt: minutesAhead(-5) };
+
+    it('offers each role its replies before leaving', () => {
+      expect(quickRepliesForMoment(published(60), 'driver', now)).toEqual([
+        'leaving_soon',
+        'on_time',
+        'still_coming',
+        'running_late',
+      ]);
+      expect(quickRepliesForMoment(published(60), 'passenger', now)).toEqual([
+        'still_going',
+        'im_coming',
+        'pickup_where',
+        'running_late',
+      ]);
+    });
+
+    it('moves on to the pickup replies 15 minutes before the departure', () => {
+      expect(quickRepliesForMoment(published(16), 'driver', now)).toContain('leaving_soon');
+      expect(quickRepliesForMoment(published(15), 'driver', now)).toContain('on_my_way');
+      expect(quickRepliesForMoment(published(15), 'passenger', now)).toContain('heading_down');
+    });
+
+    it('keeps the pickup replies when the departure has passed without starting', () => {
+      expect(quickRepliesForMoment(published(-10), 'driver', now)).toContain('at_pickup');
+    });
+
+    it('adds the replies of the trip while it is in progress', () => {
+      const driver = quickRepliesForMoment(inProgress, 'driver', now);
+      const passenger = quickRepliesForMoment(inProgress, 'passenger', now);
+
+      expect(driver).toEqual(
+        expect.arrayContaining(['on_my_way', 'arriving_soon', 'stopping_here']),
+      );
+      expect(passenger).toEqual(expect.arrayContaining(['heading_down', 'can_we_stop']));
+      expect(passenger).not.toContain('stopping_here');
+    });
+
+    it('only uses replies that have a text', () => {
+      for (const role of ['driver', 'passenger'] as const) {
+        for (const trip of [published(60), published(5), inProgress]) {
+          for (const quickReply of quickRepliesForMoment(trip, role, now)) {
+            expect(QUICK_REPLIES).toContain(quickReply);
+          }
+        }
+      }
+    });
   });
 
   it('shows the time in 24 h', () => {
