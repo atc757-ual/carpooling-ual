@@ -1,20 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager, In } from 'typeorm';
-import { TripRoute } from '../trips/entities/trip-route.entity';
-import { RouteNotFoundError } from '../trips/errors/route-not-found.error';
-import { Trip } from '../trips/entities/trip.entity';
+import { EntityManager, In, Not } from 'typeorm';
+import type { Trip } from '../trips/entities/trip.entity';
+import { TripLookupService } from '../trips/trip-lookup.service';
 import { TripStatusService } from '../trips/trip-status.service';
 import { SeatRequest } from './entities/seat-request.entity';
-import { RequestSchedule } from './request-schedule';
+import { RequestSchedule, schedulesOverlap } from './request-schedule';
 
 export interface OverlappingRequest {
   requestId: string;
   tripId: string;
 }
 
+// Por viaje y después por solicitud: el orden en que se bloquean
+function byTripThenRequest(
+  first: OverlappingRequest,
+  second: OverlappingRequest,
+): number {
+  return (
+    first.tripId.localeCompare(second.tripId) ||
+    first.requestId.localeCompare(second.requestId)
+  );
+}
+
 @Injectable()
 export class RequestOverlapService {
-  constructor(private readonly tripStatus: TripStatusService) {}
+  constructor(
+    private readonly tripStatus: TripStatusService,
+    private readonly tripLookup: TripLookupService,
+  ) {}
 
   async lockPassenger(
     manager: EntityManager,
@@ -32,35 +45,40 @@ export class RequestOverlapService {
     manager: EntityManager,
     trip: Pick<Trip, 'id' | 'departureAt'>,
   ): Promise<RequestSchedule> {
-    const route = await manager.findOneBy(TripRoute, { tripId: trip.id });
-    if (route === null) {
-      throw new RouteNotFoundError(trip.id);
-    }
-    return { departureAt: trip.departureAt, durationMin: route.durationMin };
+    return {
+      departureAt: trip.departureAt,
+      durationMin: await this.tripLookup.durationMin(manager, trip.id),
+    };
   }
 
+  // Las solicitudes pendientes del pasajero en viajes que aún las admiten y
+  // se solapan en horario con el dado. Los horarios los da trips: este módulo
+  // no consulta sus tablas
   async overlappingPendingRequests(
     manager: EntityManager,
     passengerId: string,
     schedule: RequestSchedule,
     excludedRequestId?: string,
   ): Promise<OverlappingRequest[]> {
-    const startsAt = schedule.departureAt;
-    const endsAt = new Date(startsAt.getTime() + schedule.durationMin * 60_000);
-    return manager.query<OverlappingRequest[]>(
-      `SELECT request.id AS "requestId", request.trip_id AS "tripId"
-       FROM requests request
-       JOIN trips trip ON trip.id = request.trip_id
-       JOIN routes route ON route.trip_id = trip.id
-       WHERE request.passenger_id = $1
-         AND request.status = 'pending'
-         AND trip.status IN ('published', 'confirmed')
-         AND trip.departure_at < $3
-         AND trip.departure_at + route.duration_min * INTERVAL '1 minute' > $2
-         AND ($4::uuid IS NULL OR request.id <> $4::uuid)
-       ORDER BY trip.id, request.id`,
-      [passengerId, startsAt, endsAt, excludedRequestId ?? null],
+    const pending = await manager.find(SeatRequest, {
+      where: {
+        passengerId,
+        status: 'pending',
+        ...(excludedRequestId ? { id: Not(excludedRequestId) } : {}),
+      },
+      select: { id: true, tripId: true },
+    });
+    const windows = await this.tripLookup.openWindows(
+      manager,
+      pending.map(({ tripId }) => tripId),
     );
+    return pending
+      .filter(({ tripId }) => {
+        const window = windows.get(tripId);
+        return window !== undefined && schedulesOverlap(schedule, window);
+      })
+      .map(({ id, tripId }) => ({ requestId: id, tripId }))
+      .sort(byTripThenRequest);
   }
 
   async lockTripsInOrder(

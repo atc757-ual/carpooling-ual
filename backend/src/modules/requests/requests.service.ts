@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { Page, PageRequest } from '../../shared/pagination/page';
-import { Trip } from '../trips/entities/trip.entity';
+import type { Trip } from '../trips/entities/trip.entity';
+import { TripLookupService } from '../trips/trip-lookup.service';
 import { NotTripDriverError } from '../trips/errors/not-trip-driver.error';
 import { TripAlreadyStartedError } from '../trips/errors/trip-already-started.error';
 import { TripFullError } from '../trips/errors/trip-full.error';
@@ -66,6 +67,7 @@ export class RequestsService {
     private readonly lateCancellations: LateCancellationsService,
     private readonly overlaps: RequestOverlapService,
     private readonly eventsService: EventsService,
+    private readonly tripLookup: TripLookupService,
   ) {}
 
   // --- Pasajero
@@ -259,7 +261,10 @@ export class RequestsService {
         throw new RequestNotFoundError(requestId);
       }
       await this.overlaps.lockPassenger(manager, found.passengerId);
-      const candidateTrip = await manager.findOneBy(Trip, { id: found.tripId });
+      const candidateTrip = await this.tripLookup.findById(
+        manager,
+        found.tripId,
+      );
       if (candidateTrip === null) {
         throw new RequestNotFoundError(requestId);
       }
