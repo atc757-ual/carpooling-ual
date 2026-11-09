@@ -75,6 +75,12 @@
   color: var(--color-link);
 }
 
+.trip-card__best {
+  color: var(--color-eco-text);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+}
+
 .trip-card__route {
   overflow: hidden;
   font-size: var(--font-size-body-s);

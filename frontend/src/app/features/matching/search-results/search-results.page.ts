@@ -115,6 +115,9 @@ export class SearchResultsPage {
   readonly resultsSummary = computed(() =>
     describeResults(this.trips(), this.search()?.direction ?? 'to-campus'),
   );
+  // La API los devuelve del más compatible al menos; con uno solo no hay nada
+  // que destacar
+  readonly bestTripId = computed(() => (this.trips().length > 1 ? this.trips()[0].id : null));
   readonly sortOrder = signal<SearchSortOrder>('arrival');
   readonly sortedTrips = computed(() => {
     const trips = [...this.trips()];

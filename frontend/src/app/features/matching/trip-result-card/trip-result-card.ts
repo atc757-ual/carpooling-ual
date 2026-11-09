@@ -20,6 +20,8 @@ export class TripResultCard {
 
   // El pasajero ya tiene una solicitud viva en este viaje
   readonly isRequested = input(false);
+  // El más compatible según el matching
+  readonly isBestMatch = input(false);
 
   readonly isLastSeat = computed(() => this.trip().freeSeats === 1);
   // «Recogida en Calle Mayor» o, al volver del campus, «Bajada en Calle Mayor»

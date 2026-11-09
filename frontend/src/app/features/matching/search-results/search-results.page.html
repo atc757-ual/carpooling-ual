@@ -107,7 +107,11 @@
             </ion-select>
           </div>
           @for (trip of sortedTrips(); track trip.id) {
-            <app-trip-result-card [trip]="trip" [isRequested]="requestedTripIds().has(trip.id)" />
+            <app-trip-result-card
+              [trip]="trip"
+              [isRequested]="requestedTripIds().has(trip.id)"
+              [isBestMatch]="trip.id === bestTripId()"
+            />
           }
           <p class="text-caption text-color-muted">
             Horas estimadas. Verificamos el correo UAL, no la identidad ni el permiso de conducir.

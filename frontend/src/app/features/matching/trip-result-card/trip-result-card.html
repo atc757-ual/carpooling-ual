@@ -1,5 +1,8 @@
 <ion-card class="trip-card">
   <ion-card-content>
+    @if (isBestMatch()) {
+      <div class="trip-card__best">Mejor opción</div>
+    }
     <div class="trip-card__head">
       <!-- El enlace cubre toda la tarjeta (::after); la valoración queda encima -->
       <a
