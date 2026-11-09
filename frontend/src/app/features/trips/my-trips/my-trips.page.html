@@ -36,7 +36,7 @@
         [value]="tab()"
         (ionChange)="handleTabChange($event.detail.value)"
       >
-        @for (option of tabs; track option.value) {
+        @for (option of tabs(); track option.value) {
           <ion-segment-button [value]="option.value">
             <ion-label>{{ option.label }}</ion-label>
           </ion-segment-button>
