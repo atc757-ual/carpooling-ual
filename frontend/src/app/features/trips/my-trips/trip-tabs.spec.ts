@@ -1,12 +1,24 @@
 import { DriverTrip, Trip, TripStatus } from '../../../core/models/driver.model';
 import { SeatRequest, SeatRequestStatus } from '../../../core/models/seat-request.model';
-import { driverTripTab, isTripsTab, passengerRequestLabel, passengerTripTab } from './trip-tabs';
+import {
+  driverTripTab,
+  isTripsTab,
+  PASSENGER_TRIPS_TABS,
+  passengerRequestLabel,
+  passengerTripTab,
+  TRIPS_TABS,
+} from './trip-tabs';
 
 const trip = (status: TripStatus): Trip => ({ status }) as Trip;
 const request = (status: SeatRequestStatus, rejectionReason?: string): SeatRequest =>
   ({ status, rejectionReason }) as SeatRequest;
 
 describe('trip tabs', () => {
+  it('names the last tab by who is looking', () => {
+    expect(TRIPS_TABS.at(-1)?.label).toBe('Cancelados');
+    expect(PASSENGER_TRIPS_TABS.at(-1)?.label).toBe('No realizados');
+  });
+
   it('puts each trip of the driver in its tab', () => {
     const tabs = (['published', 'confirmed', 'in_progress', 'finished', 'cancelled'] as const).map(
       (status) => driverTripTab({ status } as DriverTrip),
