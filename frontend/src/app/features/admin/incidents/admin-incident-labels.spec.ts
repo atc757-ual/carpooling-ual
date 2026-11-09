@@ -36,6 +36,8 @@ describe('admin incident labels', () => {
     expect(severityOf('passenger')).toBe('danger');
     expect(severityOf('technical')).toBe('warning');
     expect(severityOf('other')).toBe('neutral');
+    expect(severityOf('safety')).toBe('danger');
+    expect(severityOf('chat_behavior')).toBe('warning');
   });
 
   it('writes the route', () => {
@@ -79,6 +81,7 @@ describe('admin incident labels', () => {
 
     expect(view).toMatchObject({
       title: 'INC-0042',
+      source: 'Durante el viaje',
       category: 'Con el conductor',
       status: 'Registrada',
       severity: 'danger',
@@ -94,6 +97,16 @@ describe('admin incident labels', () => {
       ['Javier Pardo', 'Conductor del viaje'],
     ]);
     expect(incidentDetailView(IN_REVIEW).reviewer).toBe('Ada Admin');
+  });
+
+  it('says a chat report comes from the chat', () => {
+    expect(
+      incidentDetailView({ ...INCIDENT, source: 'chat', category: 'chat_behavior' }),
+    ).toMatchObject({
+      source: 'Denuncia del chat',
+      category: 'Comportamiento en el chat',
+      severity: 'warning',
+    });
   });
 
   it('lists the driver once when she reported it, and no trip link once it is gone', () => {

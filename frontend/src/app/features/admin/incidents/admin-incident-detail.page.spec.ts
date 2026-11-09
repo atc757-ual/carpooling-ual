@@ -64,7 +64,7 @@ describe('AdminIncidentDetailPage', () => {
     expect(heading.querySelector('h1')?.textContent).toBe('INC-0042');
     expect(heading.querySelector('.status')?.textContent).toBe('Registrada');
     const subtitle = heading.querySelector('.admin-heading__subtitle')?.textContent ?? '';
-    expect(subtitle).toContain('Con el conductor');
+    expect(subtitle).toContain('Durante el viaje · Con el conductor');
     expect(subtitle).toContain('por Lucía Cortés (pasajero)');
     const crumbs = Array.from(
       heading.querySelectorAll('ion-breadcrumb'),

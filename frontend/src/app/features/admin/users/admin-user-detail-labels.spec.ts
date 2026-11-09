@@ -21,6 +21,7 @@ describe('admin user detail labels', () => {
       'Con el conductor · En revisión',
     );
     expect(incidentLabel({ category: 'other', status: 'reviewed' })).toBe('Otro motivo · Atendida');
+    expect(incidentLabel({ category: 'safety', status: 'open' })).toBe('Seguridad · Registrada');
     expect(consentLabel({ type: 'location', action: 'revoked' })).toBe('Ubicación · Retirado');
     expect(consentLabel({ type: 'terms', action: 'granted' })).toBe(
       'Condiciones de uso · Aceptado',

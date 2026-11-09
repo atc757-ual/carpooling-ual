@@ -35,6 +35,16 @@ describe('PassengerIncidentModal', () => {
     expect(component.isFormValid()).toBe(false);
   });
 
+  it('lets the passenger say she felt in danger', () => {
+    expect(component.categories.map(({ value }) => value)).toEqual([
+      'technical',
+      'driver',
+      'safety',
+      'other',
+    ]);
+    expect(fixture.nativeElement.textContent).toContain('Me he sentido en peligro');
+  });
+
   it('validates description length correctly', () => {
     component.handleDescriptionInput(
       new CustomEvent('ionInput', { detail: { value: 'Too short' } }),
@@ -77,4 +87,3 @@ describe('PassengerIncidentModal', () => {
     expect(dismiss).toHaveBeenCalledWith(null, 'cancel');
   });
 });
-
