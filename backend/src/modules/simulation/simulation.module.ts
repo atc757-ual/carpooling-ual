@@ -12,6 +12,8 @@ import {
   WORKER_FILE,
   WorkerSimulationRunner,
 } from './runner/worker-simulation-runner';
+import { SimulationSweepsController } from './simulation-sweeps.controller';
+import { SimulationSweepsService } from './simulation-sweeps.service';
 import { SimulationsController } from './simulations.controller';
 import { SimulationsService } from './simulations.service';
 
@@ -22,9 +24,10 @@ import { SimulationsService } from './simulations.service';
     TypeOrmModule.forFeature([Scenario, SimulationRun, SimulationResult]),
     EventsModule,
   ],
-  controllers: [SimulationsController],
+  controllers: [SimulationsController, SimulationSweepsController],
   providers: [
     SimulationsService,
+    SimulationSweepsService,
     {
       provide: SIMULATION_RUNNER,
       // En un hilo aparte si está compilado (dist/); si no (tests con

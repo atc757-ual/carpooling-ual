@@ -9,6 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- **Simulación:** análisis de sensibilidad (capítulo 11): `POST /admin/simulation-sweeps` repite un escenario con varios valores del % que va en coche o de la adopción, una ejecución por valor y con las mismas semillas, y compara en cada uno los vehículos evitados, las solicitudes cubiertas y el contraste de HE0 (#269).
 - **Simulación:** contraste de la hipótesis experimental en los resultados: t pareado unilateral sobre los vehículos de cada réplica frente a S0, con Bonferroni (α = 0,01) y la comprobación de Wilcoxon. El criterio de éxito exige ahora también rechazar HE0, como pide la memoria (#267).
 
 ### Fixed

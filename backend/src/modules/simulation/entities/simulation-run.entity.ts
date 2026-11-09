@@ -6,14 +6,18 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import type { ScenarioConfig } from '../scenario-config';
+import type { SweepPlan, SweepVariant } from '../sensitivity';
 import type { SimulationSummary, SlotSeries } from '../simulation-metrics';
 import { SIMULATION_RUN_STATUSES } from '../simulation-run-status';
 import type { SimulationRunStatus } from '../simulation-run-status';
 
-// Configuración con la que se lanzó la ejecución (RF-16, RNF-06)
+// Configuración con la que se lanzó la ejecución (RF-16, RNF-06). En un
+// análisis de sensibilidad, también la variante y el plan del barrido
 export interface RunScenarioConfig {
   scenario: ScenarioConfig;
   baseline: ScenarioConfig;
+  variant?: SweepVariant;
+  sweep?: SweepPlan;
 }
 
 // Ejecución de una simulación (RF-15): un escenario frente a su base, con N
@@ -39,6 +43,10 @@ export class SimulationRun {
 
   @Column({ type: 'integer' })
   seed: number;
+
+  // Barrido de sensibilidad al que pertenece; null en una ejecución suelta
+  @Column({ name: 'sweep_id', type: 'uuid', nullable: true })
+  sweepId: string | null;
 
   @Column({
     type: 'enum',
