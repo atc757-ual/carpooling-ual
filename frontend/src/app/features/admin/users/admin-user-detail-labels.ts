@@ -34,7 +34,9 @@ const REQUEST_STATUSES: Record<string, string> = {
 const INCIDENT_CATEGORIES: Record<string, string> = {
   technical: 'Problema técnico',
   driver: 'Con el conductor',
-  passenger: 'Con el pasajero',
+  passenger: 'Con un pasajero',
+  safety: 'Seguridad',
+  chat_behavior: 'Comportamiento en el chat',
   other: 'Otro motivo',
 };
 

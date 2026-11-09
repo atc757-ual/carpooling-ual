@@ -458,7 +458,8 @@ describe('Chat API (e2e)', () => {
     expect(reported.headers.location).toBe(incident.href);
     expect(reported.body).toMatchObject({
       '@type': 'Incident',
-      category: 'other',
+      source: 'chat',
+      category: 'chat_behavior',
       reporter: expect.objectContaining({ role: 'passenger' }) as unknown,
     });
     const [row] = await dataSource.query<

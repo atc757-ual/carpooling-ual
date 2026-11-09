@@ -42,6 +42,7 @@ export async function recordIncidentEvent(
       requestId: incident.requestId,
       reporterId: incident.reporterId,
       reporterRole: reporterRoleOf(incident, driverId),
+      source: incident.source,
       category: incident.category,
       status: incident.status,
       reviewStartedBy: incident.reviewStartedBy,

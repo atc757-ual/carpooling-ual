@@ -27,6 +27,7 @@ export interface IncidentCategoryOption {
 export const PASSENGER_INCIDENT_CATEGORIES: readonly IncidentCategoryOption[] = [
   { value: 'technical', label: 'Problema con el vehículo o avería' },
   { value: 'driver', label: 'Problema con el conductor o convivencia' },
+  { value: 'safety', label: 'Me he sentido en peligro' },
   { value: 'other', label: 'Otro motivo' },
 ];
 

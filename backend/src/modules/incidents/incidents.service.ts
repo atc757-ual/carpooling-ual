@@ -102,6 +102,7 @@ export class IncidentsService {
           tripId,
           requestId,
           reporterId,
+          source: 'trip',
           category: input.category,
           description: input.description,
         }),

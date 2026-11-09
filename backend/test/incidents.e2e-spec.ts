@@ -143,6 +143,7 @@ describe('Incidents API (e2e)', () => {
         name: 'dan Prueba',
         role: 'driver',
       },
+      source: 'trip',
       category: 'technical',
       description: BREAKDOWN,
       reportedAt: expect.any(String) as string,

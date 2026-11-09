@@ -3,14 +3,17 @@ import { AdminIncident, IncidentCategory } from '../../../core/models/admin-inci
 // Textos de las incidencias del panel. Funciones puras para probarlas sin
 // pantalla
 
-// Gravedad por categoría: con el conductor o con el pasajero es lo más grave
-// (peligro), un problema técnico avisa y el resto es neutro
+// Gravedad por categoría: con el conductor, con un pasajero o de seguridad es
+// lo más grave (peligro), un problema técnico o el chat avisan y el resto es
+// neutro
 export type IncidentSeverity = 'danger' | 'warning' | 'neutral';
 
 export const CATEGORY_LABELS: Record<IncidentCategory, string> = {
   technical: 'Problema técnico',
   driver: 'Con el conductor',
-  passenger: 'Con el pasajero',
+  passenger: 'Con un pasajero',
+  safety: 'Seguridad',
+  chat_behavior: 'Comportamiento en el chat',
   other: 'Otro motivo',
 };
 
@@ -18,6 +21,8 @@ const SEVERITIES: Record<IncidentCategory, IncidentSeverity> = {
   technical: 'warning',
   driver: 'danger',
   passenger: 'danger',
+  safety: 'danger',
+  chat_behavior: 'warning',
   other: 'neutral',
 };
 
@@ -181,6 +186,8 @@ export function incidentMoments(incident: AdminIncident): IncidentMoment[] {
   return moments;
 }
 
+const SOURCE_LABELS = { chat: 'Denuncia del chat', trip: 'Durante el viaje' } as const;
+
 // Lo que pinta el detalle: la franja, el viaje (con su enlace si aún existe),
 // las personas y los momentos de la revisión
 export function incidentDetailView(incident: AdminIncident) {
@@ -189,6 +196,7 @@ export function incidentDetailView(incident: AdminIncident) {
   return {
     // El código es lo que se cita: va de título
     title: incident.code,
+    source: SOURCE_LABELS[incident.source],
     category: CATEGORY_LABELS[incident.category],
     status: status.label,
     statusClass: status.cssClass,

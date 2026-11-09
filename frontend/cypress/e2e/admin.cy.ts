@@ -71,6 +71,7 @@ const INCIDENT = {
     driver: { id: 'd1', name: 'Javier Pardo' },
   },
   reporter: { id: 'p1', name: 'Lucía Cortés', role: 'passenger' },
+  source: 'trip',
   category: 'driver',
   description: 'The driver did not stop at the pickup point',
   reportedAt: '2026-11-02T08:05:00.000Z',
@@ -474,7 +475,7 @@ for (const viewport of VIEWPORTS) {
 
       cy.location('pathname').should('eq', `/admin/incidents/${INCIDENT.id}`);
       cy.contains('h1', 'INC-0042');
-      cy.contains('.admin-heading__subtitle', 'Con el conductor');
+      cy.contains('.admin-heading__subtitle', 'Durante el viaje · Con el conductor');
       cy.contains('a', 'Javier Pardo').should('have.attr', 'href', '/admin/users/d1');
       cy.contains('.incident-moments__moment--done', 'Registrada');
       cy.contains('ion-button', 'Empezar revisión').click();

@@ -7,15 +7,33 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-// Categorías del motivo (tipo incident_category de la migración inicial;
-// RF-23): problema técnico, con el conductor, con el pasajero u otro
+// Categorías del motivo (tipo incident_category; RF-23): problema técnico,
+// con el conductor, con un pasajero, seguridad, comportamiento en el chat (las
+// denuncias del chat) u otro
 export const INCIDENT_CATEGORIES = [
   'technical',
   'driver',
   'passenger',
+  'safety',
+  'chat_behavior',
   'other',
 ] as const;
 export type IncidentCategory = (typeof INCIDENT_CATEGORIES)[number];
+
+// Las que puede elegir quien la registra durante el viaje (las del chat las
+// pone la denuncia del chat)
+export const TRIP_INCIDENT_CATEGORIES: readonly IncidentCategory[] = [
+  'technical',
+  'driver',
+  'passenger',
+  'safety',
+  'other',
+];
+
+// De dónde viene (tipo incident_source): del viaje en curso, al cancelarlo
+// (RF-23), o de una denuncia del chat del viaje
+export const INCIDENT_SOURCES = ['trip', 'chat'] as const;
+export type IncidentSource = (typeof INCIDENT_SOURCES)[number];
 
 // Estado de la revisión del administrador (CU-12; tipo incident_status):
 // registrada, en revisión o atendida (revisada)
@@ -55,6 +73,9 @@ export class Incident {
   // mensajes se borran a los 30 días
   @Column({ name: 'chat_message_id', type: 'uuid', nullable: true })
   chatMessageId: string | null;
+
+  @Column({ type: 'enum', enum: INCIDENT_SOURCES, enumName: 'incident_source' })
+  source: IncidentSource;
 
   @Column({
     type: 'enum',

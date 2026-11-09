@@ -3,10 +3,12 @@ import { API_PREFIX } from '../../../app.setup';
 import { tripHref } from '../../trips/dto/trip.resource';
 import {
   INCIDENT_CATEGORIES,
+  INCIDENT_SOURCES,
   INCIDENT_STATUSES,
 } from '../entities/incident.entity';
 import type {
   IncidentCategory,
+  IncidentSource,
   IncidentStatus,
 } from '../entities/incident.entity';
 import type { IncidentView, ReporterRole } from '../incidents.service';
@@ -108,6 +110,13 @@ export class IncidentResource {
   @ApiProperty({ type: IncidentReporterResource })
   reporter: IncidentReporterResource;
 
+  @ApiProperty({
+    enum: INCIDENT_SOURCES,
+    description:
+      'trip: reported while cancelling a trip in progress; chat: a report of the trip chat',
+  })
+  source: IncidentSource;
+
   @ApiProperty({ enum: INCIDENT_CATEGORIES })
   category: IncidentCategory;
 
@@ -184,6 +193,7 @@ export function toIncidentResource({
       name: reporterName,
       role: reporterRole,
     },
+    source: incident.source,
     category: incident.category,
     description: incident.description,
     reportedAt: incident.createdAt.toISOString(),
