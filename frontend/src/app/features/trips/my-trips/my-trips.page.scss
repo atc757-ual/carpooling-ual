@@ -84,3 +84,16 @@
     text-transform: none;
   }
 }
+
+// Pasajero o conductor: discreto, a lo que ocupa su texto
+.my-trips__view {
+  width: fit-content;
+
+  ion-segment-button {
+    --padding-start: var(--space-s);
+    --padding-end: var(--space-s);
+
+    min-height: 2.75rem; // 44px
+    font-size: var(--font-size-caption);
+  }
+}

@@ -25,7 +25,7 @@ import { DriverTrip } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ActiveModeService, TravelMode } from '../../../core/services/users/active-mode.service';
-import { DriverTripCard } from '../driver-trip-card/driver-trip-card';
+import { DriverTripSummary } from '../driver-trip-summary/driver-trip-summary';
 import { PassengerRequests } from '../passenger-requests/passenger-requests';
 import { LiveTripBanner } from './live-trip-banner/live-trip-banner';
 import { MyTripsAside } from './my-trips-aside/my-trips-aside';
@@ -66,7 +66,7 @@ interface LiveBannerData {
     IonSegment,
     IonSegmentButton,
     IonSpinner,
-    DriverTripCard,
+    DriverTripSummary,
     LiveTripBanner,
     MyTripsAside,
     PassengerRequests,

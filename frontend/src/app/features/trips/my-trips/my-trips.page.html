@@ -74,7 +74,7 @@
           </ion-card>
         } @else {
           @for (trip of tabTrips(); track trip.id) {
-            <app-driver-trip-card [trip]="trip" (changed)="handleChanged()" />
+            <app-driver-trip-summary [trip]="trip" />
           }
         }
       } @else {
