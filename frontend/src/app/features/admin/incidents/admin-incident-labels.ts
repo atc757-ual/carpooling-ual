@@ -22,10 +22,10 @@ const SEVERITIES: Record<IncidentCategory, IncidentSeverity> = {
 };
 
 export const STATUS_FILTERS = [
+  { value: 'all', label: 'Todas' },
   { value: 'open', label: 'Registradas' },
   { value: 'in_review', label: 'En revisión' },
   { value: 'reviewed', label: 'Atendidas' },
-  { value: 'all', label: 'Todas' },
 ] as const;
 export type StatusFilter = (typeof STATUS_FILTERS)[number]['value'];
 

@@ -138,7 +138,8 @@ export class IncidentsService {
 
   // --- Administrador (CU-12)
 
-  // Incidencias para revisar, por orden de llegada (la más antigua primero)
+  // Incidencias para revisar: primero las registradas, luego las que están en
+  // revisión y al final las atendidas; en cada estado, la más antigua primero
   async list(
     filter: IncidentFilter,
     page: PageRequest,
@@ -148,7 +149,8 @@ export class IncidentsService {
         ...(filter.status === undefined ? {} : { status: filter.status }),
         ...(filter.category === undefined ? {} : { category: filter.category }),
       },
-      order: { createdAt: 'ASC', id: 'ASC' },
+      // El enum se ordena como se declaró: registradas, en revisión, atendidas
+      order: { status: 'ASC', createdAt: 'ASC', id: 'ASC' },
       skip: page.offset,
       take: page.limit,
     });
