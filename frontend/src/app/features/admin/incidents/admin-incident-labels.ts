@@ -116,10 +116,72 @@ function incidentPeopleList(incident: AdminIncident): IncidentPerson[] {
   return people;
 }
 
-// Lo que pinta el detalle: la franja, el viaje (con su enlace si aún existe)
-// y las personas
+// Un momento de la revisión: hecho (con fecha y quién) o aún por llegar
+export interface IncidentMoment {
+  label: string;
+  isDone: boolean;
+  time: string | null;
+  datetime: string | null;
+  detail: string | null;
+  // La resolución, en el momento «Atendida»
+  note: string | null;
+}
+
+function moment(
+  label: string,
+  done: { at: string; detail: string; note?: string } | null,
+): IncidentMoment {
+  return {
+    label,
+    isDone: done !== null,
+    time: done ? formatDateTime(done.at) : null,
+    datetime: done?.at ?? null,
+    detail: done?.detail ?? null,
+    note: done?.note ?? null,
+  };
+}
+
+// Registrada → en revisión → atendida, con cuándo y quién. Las atendidas antes
+// de existir «en revisión» no tienen su inicio: ese momento no se pinta
+function reviewStartOf({
+  reviewInProgress,
+  review,
+}: AdminIncident): { at: string; by: string } | null {
+  if (reviewInProgress) {
+    return { at: reviewInProgress.since, by: reviewInProgress.by.name };
+  }
+  return review?.startedAt ? { at: review.startedAt, by: review.by.name } : null;
+}
+
+export function incidentMoments(incident: AdminIncident): IncidentMoment[] {
+  const { reporter, review } = incident;
+  const started = reviewStartOf(incident);
+  const moments = [
+    moment('Registrada', {
+      at: incident.reportedAt,
+      detail: `Por ${reporter.name} (${ROLE_LABELS[reporter.role]})`,
+    }),
+  ];
+  if (started || !review) {
+    moments.push(moment('En revisión', started && { at: started.at, detail: `Por ${started.by}` }));
+  }
+  moments.push(
+    moment(
+      'Atendida',
+      review && {
+        at: review.reviewedAt,
+        detail: `Por ${review.by.name}`,
+        note: review.resolution,
+      },
+    ),
+  );
+  return moments;
+}
+
+// Lo que pinta el detalle: la franja, el viaje (con su enlace si aún existe),
+// las personas y los momentos de la revisión
 export function incidentDetailView(incident: AdminIncident) {
-  const { trip, review } = incident;
+  const { trip } = incident;
   const status = incidentStatus(incident.status);
   return {
     // El código es lo que se cita: va de título
@@ -139,6 +201,6 @@ export function incidentDetailView(incident: AdminIncident) {
     people: incidentPeopleList(incident),
     reviewer: incident.reviewInProgress?.by.name ?? null,
     reviewSince: incident.reviewInProgress ? formatDateTime(incident.reviewInProgress.since) : null,
-    reviewedAt: review ? formatDateTime(review.reviewedAt) : null,
+    moments: incidentMoments(incident),
   };
 }

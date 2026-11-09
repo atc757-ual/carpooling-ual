@@ -26,7 +26,14 @@ export interface AdminIncident {
   status: IncidentStatus;
   // Quién la está revisando y desde cuándo (solo en revisión)
   reviewInProgress: { by: { id: string; name: string }; since: string } | null;
-  review: { reviewedAt: string; resolution: string } | null;
+  // La revisión terminada: quién la atendió, cuándo la empezó (null en las
+  // atendidas antes de existir «en revisión»), cuándo terminó y cómo
+  review: {
+    by: { id: string; name: string };
+    startedAt: string | null;
+    reviewedAt: string;
+    resolution: string;
+  } | null;
 }
 
 export interface AdminIncidentQuery {

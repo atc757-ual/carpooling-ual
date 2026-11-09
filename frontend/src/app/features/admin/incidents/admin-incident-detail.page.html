@@ -43,7 +43,29 @@
           <h2 id="incident-review" class="admin-list__title admin-detail__title">
             <ion-icon [icon]="icons.review" aria-hidden="true" />Revisión
           </h2>
-          <!-- Registrada → en revisión (la lleva un administrador) → atendida -->
+          <!-- Los momentos: registrada → en revisión (la lleva un administrador)
+               → atendida, con cuándo y quién; los que faltan, en gris -->
+          <ol class="incident-moments">
+            @for (moment of view.moments; track moment.label) {
+              <li
+                class="incident-moments__moment"
+                [class.incident-moments__moment--done]="moment.isDone"
+              >
+                <span class="text-body-s incident-moments__label">{{ moment.label }}</span>
+                @if (moment.isDone) {
+                  <span class="text-caption admin-detail__muted">
+                    <time [attr.datetime]="moment.datetime">{{ moment.time }}</time> ·
+                    {{ moment.detail }}
+                  </span>
+                  @if (moment.note; as note) {
+                    <p class="text-body-s incident-moments__note">{{ note }}</p>
+                  }
+                } @else {
+                  <span class="text-caption admin-detail__muted">Pendiente</span>
+                }
+              </li>
+            }
+          </ol>
           @switch (reviewState()) {
             @case ('open') {
               <p class="text-body-s admin-detail__muted">
@@ -77,12 +99,6 @@
                   Desde el {{ view.reviewSince }}. Solo esa persona puede atenderla o dejarla.
                 </span>
               </div>
-            }
-            @case ('done') {
-              @if (incident.review; as review) {
-                <p class="text-body incident-report__text">{{ review.resolution }}</p>
-                <p class="text-body-s admin-detail__muted">Atendida el {{ view.reviewedAt }}</p>
-              }
             }
           }
         </ion-card>
