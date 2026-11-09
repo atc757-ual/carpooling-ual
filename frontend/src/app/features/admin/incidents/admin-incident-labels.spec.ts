@@ -68,6 +68,12 @@ describe('admin incident labels', () => {
     expect(reviewStateOf(REVIEWED, 'a1')).toBe('done');
   });
 
+  it('keeps an admin involved in the trip out of the review, until it is resolved', () => {
+    expect(reviewStateOf({ ...INCIDENT, isViewerInvolved: true }, 'a1')).toBe('involved');
+    expect(reviewStateOf({ ...IN_REVIEW, isViewerInvolved: true }, 'a1')).toBe('involved');
+    expect(reviewStateOf({ ...REVIEWED, isViewerInvolved: true }, 'a1')).toBe('done');
+  });
+
   it('builds the detail: the code as title, the trip and the people', () => {
     const view = incidentDetailView(INCIDENT);
 
