@@ -22,7 +22,10 @@ import { formatShortDate, formatTime, toTripDetail } from '../trip-results';
 import { getFirstName } from '../trip-driver/trip-driver';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
-import { TripRouteMap } from '../../../shared/components/ui/trip-route-map/trip-route-map';
+import {
+  RoutePoint,
+  TripRouteMap,
+} from '../../../shared/components/ui/trip-route-map/trip-route-map';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 
 // Detalle de un viaje de los resultados de Buscar: el recorrido con sus horas,
@@ -122,6 +125,29 @@ export class TripDetailPage {
     return search.direction === 'to-campus'
       ? { coordinates: search.place.coordinates, label: search.place.name }
       : { coordinates: trip.origin.coordinates, label: search.parking.name };
+  });
+
+  // Salida y destino del mapa. Sin plaza, el servidor redondea el extremo que
+  // no es el campus (suele ser la casa del conductor): se pinta como zona
+  readonly mapEnds = computed<{ origin: RoutePoint; destination: RoutePoint } | null>(() => {
+    const search = this.searchState.search();
+    const trip = this.tripData.value()?.trip;
+    if (!search || !trip) {
+      return null;
+    }
+    const isToCampus = search.direction === 'to-campus';
+    return {
+      origin: {
+        coordinates: trip.origin.coordinates,
+        label: trip.originName ?? 'Salida del conductor',
+        isApproximate: trip.isLocationApproximate && isToCampus,
+      },
+      destination: {
+        coordinates: trip.destination.coordinates,
+        label: trip.destinationName ?? 'Destino del viaje',
+        isApproximate: trip.isLocationApproximate && !isToCampus,
+      },
+    };
   });
 
   readonly summary = computed<TripSummaryData | null>(() => {

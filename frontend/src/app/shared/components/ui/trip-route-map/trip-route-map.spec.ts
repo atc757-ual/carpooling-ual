@@ -27,10 +27,13 @@ describe('TripRouteMap', () => {
   const observe = vi.fn();
   const disconnect = vi.fn();
 
-  async function render(pickup?: RoutePoint): Promise<HTMLElement> {
+  async function render(
+    pickup?: RoutePoint,
+    { route = ROUTE, origin = ORIGIN }: { route?: TripRoute; origin?: RoutePoint } = {},
+  ): Promise<HTMLElement> {
     fixture = TestBed.createComponent(TripRouteMap);
-    fixture.componentRef.setInput('route', ROUTE);
-    fixture.componentRef.setInput('origin', ORIGIN);
+    fixture.componentRef.setInput('route', route);
+    fixture.componentRef.setInput('origin', origin);
     fixture.componentRef.setInput('destination', DESTINATION);
     if (pickup) {
       fixture.componentRef.setInput('pickup', pickup);
@@ -78,6 +81,21 @@ describe('TripRouteMap', () => {
       'recogida en Aguadulce',
     );
     expect(root.querySelectorAll('.trip-route-map__marker--pickup')).toHaveLength(1);
+  });
+
+  // Quien no tiene plaza: sin el trazado y con la salida como una zona
+  it('draws only the points, with the zone of an approximate one, without the route', async () => {
+    const root = await render(PICKUP, {
+      route: { ...ROUTE, geometry: null },
+      origin: { ...ORIGIN, isApproximate: true },
+    });
+
+    expect(legend(root)).toEqual(['S Salida', 'R Recogida', 'D Destino', 'Zona aproximada']);
+    expect(root.querySelector('[role="img"]')?.getAttribute('aria-label')).toContain(
+      'Zona aproximada del viaje: Roquetas de Mar a Campus UAL',
+    );
+    expect(root.querySelectorAll('.trip-route-map__marker')).toHaveLength(3);
+    expect(root.querySelectorAll('.trip-route-map__zone')).toHaveLength(1);
   });
 
   it('stops watching the size when it is destroyed', async () => {

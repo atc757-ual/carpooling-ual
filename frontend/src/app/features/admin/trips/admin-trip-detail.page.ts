@@ -132,7 +132,8 @@ export class AdminTripDetailPage {
       return null;
     }
     const route = this.routeData.value();
-    const points = route.geometry.coordinates;
+    // El panel la recibe siempre con trazado; sin él, como una ruta vacía
+    const points = route.geometry?.coordinates ?? [];
     const trip = this.trip();
     const end = points.at(-1);
     // Sin trazado: ningún punto, o uno solo (la salida es también el final)

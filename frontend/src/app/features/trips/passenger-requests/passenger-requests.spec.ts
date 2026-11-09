@@ -21,6 +21,7 @@ function trip(id: string, status: Trip['status']): Trip {
     destination: { type: 'Point', coordinates: [-2.4, 36.83] },
     originName: 'Roquetas de Mar',
     destinationName: 'Campus UAL · Parking P1 (Sur)',
+    isLocationApproximate: false,
     vehicle: null,
     driver: {
       id: 'd1',

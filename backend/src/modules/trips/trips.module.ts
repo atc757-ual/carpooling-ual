@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditModule } from '../../audit/audit.module';
 import { EventsModule } from '../../events/events.module';
+import { PlacesModule } from '../places/places.module';
 import { UsersModule } from '../users/users.module';
 import { LateCancellation } from './entities/late-cancellation.entity';
 import { TripRoute } from './entities/trip-route.entity';
@@ -13,6 +14,7 @@ import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
 import { TripsController } from './trips.controller';
 import { TripStatsService } from './trip-stats.service';
+import { TripViewerAccessService } from './trip-viewer-access.service';
 import { TripsService } from './trips.service';
 import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
 
@@ -25,6 +27,7 @@ import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
   imports: [
     TypeOrmModule.forFeature([Trip, TripRoute, LateCancellation]),
     UsersModule,
+    PlacesModule,
     EventsModule,
     AuditModule,
   ],
@@ -38,6 +41,7 @@ import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
     LateCancellationsService,
     TripStatsService,
     TripLifecycleScheduler,
+    TripViewerAccessService,
   ],
   // Los usan las solicitudes de plaza (requests), el seguimiento (tracking:
   // lo que queda hasta el destino) y el matching (los candidatos); las
@@ -50,6 +54,7 @@ import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
     LateCancellationsService,
     TripStatsService,
     TripLifecycleScheduler,
+    TripViewerAccessService,
   ],
 })
 export class TripsModule {}

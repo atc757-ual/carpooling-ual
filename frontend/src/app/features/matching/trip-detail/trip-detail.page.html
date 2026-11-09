@@ -11,18 +11,14 @@
           <ion-card-content>
             @if (tripData.value(); as data) {
               @if (pickup(); as pickup) {
-                <app-trip-route-map
-                  [route]="data.route"
-                  [origin]="{
-                    coordinates: data.trip.origin.coordinates,
-                    label: data.trip.originName ?? 'Salida del conductor',
-                  }"
-                  [pickup]="pickup"
-                  [destination]="{
-                    coordinates: data.trip.destination.coordinates,
-                    label: data.trip.destinationName ?? 'Destino del viaje',
-                  }"
-                />
+                @if (mapEnds(); as ends) {
+                  <app-trip-route-map
+                    [route]="data.route"
+                    [origin]="ends.origin"
+                    [pickup]="pickup"
+                    [destination]="ends.destination"
+                  />
+                }
               }
             } @else if (tripData.isLoading()) {
               <output class="trip-detail__loading" aria-live="polite">

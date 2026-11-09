@@ -14,6 +14,7 @@ import { RequestStatsService } from './request-stats.service';
 import { RequestsService } from './requests.service';
 import { RequestLifecycleScheduler } from './request-lifecycle.scheduler';
 import { TripChangesListener } from './trip-changes.listener';
+import { TripParticipantsRegistration } from './trip-participants.registration';
 
 // Solicitudes de plaza (RF-08 a RF-10). Depende de trips (plazas y estado del
 // viaje), de users (nombres, prioridad y matrícula) y de notifications (avisos
@@ -37,6 +38,7 @@ import { TripChangesListener } from './trip-changes.listener';
     RequestAcceptanceListener,
     TripChangesListener,
     RequestLifecycleScheduler,
+    TripParticipantsRegistration,
   ],
   // Lo usan las incidencias (el pasajero abandona un viaje en curso) y el
   // panel de administración (los recuentos)

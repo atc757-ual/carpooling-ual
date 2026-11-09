@@ -102,4 +102,7 @@ export interface Trip extends DriverTrip {
   originName: string | null;
   destinationName: string | null;
   vehicle: Pick<Vehicle, 'brand' | 'model' | 'color'> | null;
+  // Origen y destino redondeados a unos 500 m: quien no tiene plaza no ve
+  // la casa del conductor (los parkings del campus van siempre exactos)
+  isLocationApproximate: boolean;
 }

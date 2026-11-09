@@ -34,6 +34,7 @@ const TRIP: Trip = {
   destination: { type: 'Point', coordinates: [-2.4, 36.83] },
   originName: 'Roquetas de Mar',
   destinationName: 'Campus UAL · Parking P1 (Sur)',
+  isLocationApproximate: false,
   vehicle: { brand: 'Seat', model: 'Ibiza', color: 'blue' },
   driver: {
     id: 'd1',
