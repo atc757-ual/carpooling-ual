@@ -438,23 +438,30 @@ for (const viewport of VIEWPORTS) {
       cy.contains('.simulation__table', 'S1 frente a S0');
     });
 
-    it('lists the open incidents, reviews one and opens another one', () => {
+    it('lists the open incidents and reviews one from its detail', () => {
       cy.intercept('GET', '/api/incidents?offset=*', {
         body: [INCIDENT],
         headers: { 'X-Total-Count': '1', 'Access-Control-Expose-Headers': 'X-Total-Count' },
       }).as('incidents');
+      cy.intercept('GET', `/api/incidents/${INCIDENT.id}`, INCIDENT);
       cy.intercept('POST', `/api/incidents/${INCIDENT.id}/review`, {
         ...INCIDENT,
         status: 'reviewed',
       }).as('review');
-      cy.intercept('GET', `/api/incidents/${INCIDENT.id}`, INCIDENT);
       visitWithSession('/admin/incidents', ['admin']);
 
       cy.wait('@incidents').its('request.query.status').should('eq', 'open');
-      cy.contains('.incident-card--danger', 'Con el conductor').within(() => {
-        cy.contains('Lucía Cortés (pasajero) · conductor: Javier Pardo');
-        cy.contains('ion-button', 'Marcar revisada').click();
+      cy.contains('tbody tr.incidents__row--danger', 'INC-0042').within(() => {
+        cy.contains('Con el conductor');
+        cy.contains('Roquetas de Mar → Campus UAL');
+        cy.contains('a', 'Ver detalle').click();
       });
+
+      cy.location('pathname').should('eq', `/admin/incidents/${INCIDENT.id}`);
+      cy.contains('h1', 'INC-0042');
+      cy.contains('.admin-heading__subtitle', 'Con el conductor');
+      cy.contains('a', 'Javier Pardo').should('have.attr', 'href', '/admin/users/d1');
+      cy.contains('ion-button', 'Marcar revisada').click();
       cy.get('app-reason-confirm-modal').within(() => {
         cy.get('ion-textarea textarea').type('Talked to both of them');
         cy.contains('ion-button', 'Marcar revisada').click();
@@ -462,12 +469,6 @@ for (const viewport of VIEWPORTS) {
       cy.wait('@review')
         .its('request.body')
         .should('deep.equal', { resolution: 'Talked to both of them' });
-
-      cy.contains('a', 'Ver detalle').click();
-      cy.location('pathname').should('eq', `/admin/incidents/${INCIDENT.id}`);
-      cy.contains('h1', 'INC-0042');
-      cy.contains('.admin-heading__subtitle', 'Con el conductor');
-      cy.contains('a', 'Javier Pardo').should('have.attr', 'href', '/admin/users/d1');
     });
 
     it('lists the users, filters them and keeps the filters in the URL', () => {

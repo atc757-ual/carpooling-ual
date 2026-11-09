@@ -1,18 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { ModalController, provideIonicAngular } from '@ionic/angular';
+import { provideIonicAngular } from '@ionic/angular';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminIncidentsService } from '../../../core/services/admin/admin-incidents.service';
-import { ToastService } from '../../../core/services/ui/toast.service';
 import { INCIDENT } from './admin-incident.testing';
 import { AdminIncidentsPage } from './admin-incidents.page';
 
 describe('AdminIncidentsPage', () => {
   let fixture: ComponentFixture<AdminIncidentsPage>;
   const list = vi.fn();
-  const review = vi.fn().mockResolvedValue(undefined);
-  const showSuccess = vi.fn().mockResolvedValue(undefined);
-  const create = vi.fn();
 
   async function render(params: Record<string, string> = {}): Promise<HTMLElement> {
     TestBed.configureTestingModule({
@@ -20,9 +16,7 @@ describe('AdminIncidentsPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
-        { provide: AdminIncidentsService, useValue: { list, review } },
-        { provide: ToastService, useValue: { showSuccess } },
-        { provide: ModalController, useValue: { create } },
+        { provide: AdminIncidentsService, useValue: { list } },
       ],
     });
     fixture = TestBed.createComponent(AdminIncidentsPage);
@@ -40,7 +34,7 @@ describe('AdminIncidentsPage', () => {
     list.mockResolvedValue({ items: [INCIDENT], total: 1 });
   });
 
-  it('shows the open ones by default with their severity and people', async () => {
+  it('shows the open ones by default, one row each with its severity and a link', async () => {
     const root = await render();
 
     expect(list).toHaveBeenCalledWith({
@@ -49,11 +43,18 @@ describe('AdminIncidentsPage', () => {
       offset: 0,
       limit: 20,
     });
-    const card = root.querySelector('.incident-card');
-    expect(card?.classList).toContain('incident-card--danger');
-    expect(card?.textContent).toContain('Con el conductor');
-    expect(card?.textContent).toContain('Lucía Cortés (pasajero) · conductor: Javier Pardo');
-    expect(card?.textContent).toContain('Roquetas de Mar → Campus UAL');
+    const row = root.querySelector('tbody tr');
+    expect(row?.classList).toContain('incidents__row--danger');
+    const cells = Array.from(row?.querySelectorAll('td') ?? [], (cell) => cell.textContent?.trim());
+    expect(cells.slice(0, 3)).toEqual([
+      'INC-0042',
+      'Con el conductor',
+      'Roquetas de Mar → Campus UAL',
+    ]);
+    expect(cells[4]).toBe('Abierta');
+    expect(row?.querySelector('a')?.getAttribute('href')).toBe('/i1');
+    // Se gestiona solo desde el detalle
+    expect(root.textContent).not.toContain('Marcar revisada');
   });
 
   it('reads all the incidents and a category from the URL', async () => {
@@ -115,31 +116,6 @@ describe('AdminIncidentsPage', () => {
       [],
       expect.objectContaining({ queryParams: { offset: 20 } }),
     );
-  });
-
-  it('reviews an incident with its resolution and reloads', async () => {
-    await render();
-    create.mockImplementation(({ componentProps }) =>
-      Promise.resolve({
-        present: () => Promise.resolve(),
-        onDidDismiss: async () => {
-          await componentProps.action('Talked to both of them');
-          return { role: 'confirm' };
-        },
-      }),
-    );
-
-    await fixture.componentInstance.handleReview(INCIDENT);
-
-    expect(create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        componentProps: expect.objectContaining({ fieldLabel: 'Resolución', maxLength: 1000 }),
-      }),
-    );
-    expect(review).toHaveBeenCalledWith('i1', 'Talked to both of them');
-    expect(showSuccess).toHaveBeenCalledWith('Incidencia revisada.');
-    await fixture.whenStable();
-    expect(list).toHaveBeenCalledTimes(2);
   });
 
   it('says there are no open incidents and shows errors with a retry', async () => {

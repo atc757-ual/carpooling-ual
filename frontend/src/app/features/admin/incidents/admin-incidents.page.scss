@@ -1,7 +1,3 @@
-.admin-page__subtitle {
-  color: var(--color-text-muted);
-}
-
 // Móvil: los filtros y la lista en una columna. Escritorio: la lista en la
 // columna de 8 y los filtros en la de 4, fijos al bajar (como en Usuarios)
 .incidents {
@@ -31,75 +27,100 @@
   }
 }
 
-// --- Lista: una fila por incidencia dentro de la tarjeta (.admin-list) ---
+// --- Lista (la tabla y su tarjeta, .admin-table y .admin-list del tema) ---
 
-.incidents__list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.incidents__nowrap {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
-// La gravedad va en el borde izquierdo con el color de su rol (el título dice
-// la categoría: el color solo acompaña)
-.incident-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  padding: var(--space-base);
-  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
-  border-left: 0.25rem solid var(--color-border); // 4px
-  transition: background-color 0.15s ease;
-
-  &:last-child {
-    border-bottom: 0;
-  }
-
-  &:hover {
-    background: var(--color-surface-subtle);
-  }
-}
-
-.incident-card--danger {
-  border-left-color: var(--color-danger);
-}
-
-.incident-card--warning {
-  border-left-color: var(--color-warning);
-}
-
-.incident-card__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-s);
-}
-
-.incident-card__title {
+.incidents__cell-category {
   font-weight: var(--font-weight-semibold);
 }
 
-.incident-card__meta {
-  margin: 0;
-  color: var(--color-text-muted);
+// La gravedad, en el borde izquierdo de la fila con el color de su rol (la
+// categoría la dice en texto: el color solo acompaña)
+.incidents__row td:first-child {
+  box-shadow: inset 0.25rem 0 0 var(--color-border); // 4px
 }
 
-.incident-card__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-base);
+.incidents__row--danger td:first-child {
+  box-shadow: inset 0.25rem 0 0 var(--color-danger);
+}
 
-  ion-button {
-    margin: 0;
+.incidents__row--warning td:first-child {
+  box-shadow: inset 0.25rem 0 0 var(--color-warning);
+}
+
+// Lista estrecha (el móvil o la columna de 8 en anchos intermedios): cada
+// incidencia, una tarjeta de dos líneas: la categoría con su
+// estado y, debajo, el código y la fecha. El viaje, en el detalle
+@container admin-list (max-width: 47.98rem) {
+  .incidents__table tbody tr {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      'category category status action'
+      'code date date action';
+    padding-inline: var(--space-s) 0;
+  }
+
+  // En la tarjeta, la gravedad va en el borde de la fila entera
+  .incidents__row td:first-child,
+  .incidents__row--danger td:first-child,
+  .incidents__row--warning td:first-child {
+    box-shadow: none;
+  }
+
+  .incidents__row {
+    border-left: 0.25rem solid var(--color-border); // 4px
+  }
+
+  .incidents__row--danger {
+    border-left-color: var(--color-danger);
+  }
+
+  .incidents__row--warning {
+    border-left-color: var(--color-warning);
+  }
+
+  .incidents__cell-route {
+    display: none;
+  }
+
+  .incidents__cell-category {
+    grid-area: category;
+  }
+
+  .incidents__cell-status {
+    grid-area: status;
+    justify-self: end;
+  }
+
+  .incidents__cell-action {
+    grid-area: action;
+    align-self: center;
+  }
+
+  .incidents__cell-code {
+    grid-area: code;
+    color: var(--color-text-muted);
+  }
+
+  .incidents__cell-date {
+    grid-area: date;
+    color: var(--color-text-muted);
+
+    &::before {
+      content: '· ';
+    }
   }
 }
 
 // --- Estados de la lista ---
 
-.incidents__skeleton-title {
-  width: 40%;
-  height: 1rem; // 16px
+.incidents__skeleton-row {
+  height: 1.5rem; // 24px
+  margin: var(--space-base);
 }
 
 .incidents__state {

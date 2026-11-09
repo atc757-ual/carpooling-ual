@@ -38,7 +38,10 @@
 
   <!-- Columna de 8: la lista con su paginación -->
   <section class="incidents__main" aria-label="Lista de incidencias">
-    <ion-card class="admin-list">
+    <ion-card class="admin-list admin-list--padded">
+      <div class="admin-list__head">
+        <h2 class="admin-list__title">Lista de incidencias</h2>
+      </div>
       @if (errorMessage(); as message) {
         <div class="notice notice--danger incidents__state" role="alert">
           <span>
@@ -48,15 +51,12 @@
           <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
         </div>
       } @else if (page.isLoading() && !page.hasValue()) {
-        <div class="incidents__list" aria-busy="true" aria-label="Cargando incidencias">
-          @for (card of skeletonCards; track card) {
-            <div class="incident-card">
-              <ion-skeleton-text [animated]="true" class="incidents__skeleton-title" />
-              <ion-skeleton-text [animated]="true" />
-            </div>
+        <div aria-busy="true" aria-label="Cargando incidencias">
+          @for (row of skeletonRows; track row) {
+            <ion-skeleton-text [animated]="true" class="incidents__skeleton-row" />
           }
         </div>
-      } @else if (cards().length === 0) {
+      } @else if (rows().length === 0) {
         <output class="admin-empty">
           <ion-icon [icon]="emptyIcon" aria-hidden="true" />
           <p class="admin-empty__title">
@@ -67,27 +67,43 @@
           </p>
         </output>
       } @else {
-        <ul class="incidents__list">
-          @for (card of cards(); track card.incident.id) {
-            <li [class]="'incident-card incident-card--' + card.severity">
-              <div class="incident-card__head">
-                <span class="text-body incident-card__title">{{ card.title }}</span>
-                <span class="text-body-s admin-page__subtitle">{{ card.date }}</span>
-              </div>
-              <p class="text-body-s incident-card__meta">{{ card.people }} · {{ card.route }}</p>
-              <div class="incident-card__actions">
-                <a class="admin-table__link" [routerLink]="[card.incident.id]">Ver detalle</a>
-                @if (card.incident.status === 'open') {
-                  <ion-button size="small" fill="outline" (click)="handleReview(card.incident)">
-                    Marcar revisada
-                  </ion-button>
-                } @else {
-                  <span class="status status--accepted">Revisada</span>
-                }
-              </div>
-            </li>
-          }
-        </ul>
+        <!-- Toda la fila abre el detalle, el único sitio desde el que se
+             gestiona. La gravedad, en el borde izquierdo de la fila -->
+        <table class="admin-table incidents__table" [attr.aria-busy]="page.isLoading()">
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Categoría</th>
+              <th scope="col">Viaje</th>
+              <th scope="col">Registrada</th>
+              <th scope="col">Estado</th>
+              <th scope="col"><span class="visually-hidden">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.id) {
+              <tr [class]="'incidents__row incidents__row--' + row.severity">
+                <td class="incidents__nowrap incidents__cell-code">{{ row.code }}</td>
+                <td class="incidents__cell-category">{{ row.category }}</td>
+                <td class="incidents__cell-route">{{ row.route }}</td>
+                <td class="incidents__nowrap incidents__cell-date">{{ row.date }}</td>
+                <td class="incidents__cell-status">
+                  <span [class]="row.statusClass">{{ row.status }}</span>
+                </td>
+                <td class="incidents__cell-action">
+                  <a class="admin-table__link admin-table__link--row" [routerLink]="[row.id]">
+                    <span class="admin-table__link-text">Ver detalle</span>
+                    <ion-icon
+                      class="admin-table__link-icon"
+                      [icon]="rowLinkIcon"
+                      aria-hidden="true"
+                    />
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
         <app-pagination
           class="admin-list__pagination"
           [offset]="query().offset"
