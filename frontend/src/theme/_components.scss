@@ -795,6 +795,10 @@ ion-searchbar.admin-heading__search {
 // puede quedarse fija al bajar por la página
 .admin-list {
   overflow: clip;
+  // Contenedor de su tabla: la tabla pasa a tarjetas según el ancho de la
+  // lista, no el de la ventana (entre 768 y ~1200px, con la columna de 4 al
+  // lado, la de 8 es estrecha)
+  container: admin-list / inline-size;
 }
 
 // La tabla con el margen de 16px de su tarjeta, bajo su título
@@ -877,10 +881,11 @@ ion-searchbar.admin-heading__search {
   white-space: nowrap;
 }
 
-// Móvil: cada fila, una tarjeta dentro de la lista (cada pantalla reparte sus
-// celdas con grid-template-areas). La tabla sigue siendo la misma para el
-// lector de pantalla
-@media (max-width: 767.98px) {
+// Lista estrecha (menos de 768px: el móvil o la columna de 8 en anchos
+// intermedios): cada fila, una tarjeta dentro de la lista (cada pantalla
+// reparte sus celdas con grid-template-areas). La tabla sigue siendo la misma
+// para el lector de pantalla
+@container admin-list (max-width: 47.98rem) {
   .admin-table {
     thead {
       position: absolute;
@@ -914,7 +919,7 @@ ion-searchbar.admin-heading__search {
   display: none;
 }
 
-@media (max-width: 767.98px) {
+@container admin-list (max-width: 47.98rem) {
   .admin-table tbody tr:has(.admin-table__link--row) {
     position: relative;
   }

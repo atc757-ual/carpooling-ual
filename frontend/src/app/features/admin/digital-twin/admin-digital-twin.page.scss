@@ -252,7 +252,7 @@
 // Móvil: cada evento en una línea, el tipo a la izquierda y la hora a la
 // derecha (la entidad se ve en escritorio y en el detalle); el payload,
 // debajo, a todo el ancho
-@media (max-width: 767.98px) {
+@container admin-list (max-width: 47.98rem) {
   .twin__table tbody tr {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas: 'type date';
