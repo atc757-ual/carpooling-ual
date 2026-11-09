@@ -16,15 +16,18 @@ export class FixQuickRepliesInChatReports1798000000000 implements MigrationInter
   name = 'FixQuickRepliesInChatReports1798000000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    for (const [key, text] of Object.entries(QUICK_REPLY_COPY)) {
-      await queryRunner.query(
-        `UPDATE incidents
-            SET description = replace(description, $1, $2)
-          WHERE description LIKE 'Chat del viaje denunciado.%'
-            AND position($1 in description) > 0`,
-        [`(respuesta rápida: ${key})`, `${text} (respuesta rápida)`],
-      );
-    }
+    // Una sola consulta: las cuatro sustituciones, una dentro de otra
+    await queryRunner.query(
+      `UPDATE incidents
+          SET description = replace(replace(replace(replace(description,
+                $1, $2), $3, $4), $5, $6), $7, $8)
+        WHERE description LIKE 'Chat del viaje denunciado.%'
+          AND description LIKE '%(respuesta rápida: %'`,
+      Object.entries(QUICK_REPLY_COPY).flatMap(([key, text]) => [
+        `(respuesta rápida: ${key})`,
+        `${text} (respuesta rápida)`,
+      ]),
+    );
   }
 
   public async down(): Promise<void> {
