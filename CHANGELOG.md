@@ -9,7 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
-- **Frontend:** análisis de sensibilidad en la pantalla de Simulación del panel: se elige el supuesto (% en coche o adopción) y sus valores, se lanza con el escenario configurado y, al terminar, una gráfica compara los vehículos evitados de cada valor con su intervalo, el objetivo del 15 % y si se rechaza HE0, con la misma información en una tabla.
+- **Frontend:** análisis de sensibilidad en la pantalla de Simulación del panel: se elige el supuesto (% en coche o adopción) y sus valores, se lanza con el escenario configurado y, al terminar, una gráfica compara los vehículos evitados de cada valor con su intervalo, el objetivo del 15 % y si se rechaza HE0, con la misma información en una tabla (#271).
 - **Simulación:** análisis de sensibilidad (capítulo 11): `POST /admin/simulation-sweeps` repite un escenario con varios valores del % que va en coche o de la adopción, una ejecución por valor y con las mismas semillas, y compara en cada uno los vehículos evitados, las solicitudes cubiertas y el contraste de HE0 (#269).
 - **Simulación:** contraste de la hipótesis experimental en los resultados: t pareado unilateral sobre los vehículos de cada réplica frente a S0, con Bonferroni (α = 0,01) y la comprobación de Wilcoxon. El criterio de éxito exige ahora también rechazar HE0, como pide la memoria (#267).
 
