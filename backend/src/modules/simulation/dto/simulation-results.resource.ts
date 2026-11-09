@@ -24,6 +24,62 @@ class ComparedStatResource {
   baseline: MetricStatResource;
 }
 
+class WilcoxonResource {
+  @ApiProperty({ example: 28, description: 'Pairs with a non-zero difference' })
+  pairs: number;
+
+  @ApiProperty({ example: 4.2, description: 'Normal approximation, one-sided' })
+  z: number;
+
+  @ApiProperty()
+  rejectsNull: boolean;
+}
+
+// Contraste de la hipótesis experimental (HE1 frente a HE0) sobre las
+// réplicas emparejadas
+class PairedTestResource {
+  @ApiProperty({
+    example: 0.01,
+    description: 'Bonferroni: 0.05 / 5 comparisons, one-sided',
+  })
+  alpha: number;
+
+  @ApiProperty({ example: 30 })
+  replicas: number;
+
+  @ApiProperty({
+    example: 7.4,
+    description: 'Mean of baseline minus scenario vehicles (positive = fewer)',
+  })
+  meanDifference: number;
+
+  @ApiProperty({ example: 2.1 })
+  sdDifference: number;
+
+  @ApiProperty({
+    example: 6.45,
+    description: 'Lower bound of the one-sided (1 - alpha) interval',
+  })
+  lowerBound: number;
+
+  @ApiProperty({
+    example: 19.3,
+    nullable: true,
+    description: 'Paired t; null when every difference is equal',
+  })
+  tStatistic: number | null;
+
+  @ApiProperty({ description: 'HE0 is rejected: the scenario uses fewer cars' })
+  rejectsNull: boolean;
+
+  @ApiProperty({
+    type: WilcoxonResource,
+    nullable: true,
+    description: 'Signed-rank check; null with fewer than 10 non-zero pairs',
+  })
+  wilcoxon: WilcoxonResource | null;
+}
+
 // Métricas de RF-18 agregadas entre réplicas
 class SimulationSummaryResource {
   @ApiProperty({ type: ComparedStatResource })
@@ -47,6 +103,13 @@ class SimulationSummaryResource {
     description: 'Only in scenarios with incidents (S5)',
   })
   recoveryPct: MetricStatResource | null;
+
+  @ApiProperty({
+    type: PairedTestResource,
+    nullable: true,
+    description: 'Hypothesis test; null in runs saved before it existed',
+  })
+  vehiclesReduction: PairedTestResource | null;
 }
 
 class SlotSeriesResource {
@@ -98,7 +161,12 @@ export function toSimulationResultsResource(
     href: `${simulationHref(run.id)}/results`,
     replicas: run.progress,
     criterionMet: run.criterionMet ?? false,
-    summary: run.summary as SimulationSummaryResource,
+    summary: {
+      ...(run.summary as SimulationSummaryResource),
+      vehiclesReduction:
+        (run.summary as Partial<SimulationSummaryResource>).vehiclesReduction ??
+        null,
+    },
     series: run.series ?? [],
   };
 }
