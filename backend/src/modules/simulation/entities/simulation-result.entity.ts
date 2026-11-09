@@ -110,7 +110,10 @@ export function toResultRow(
     averageOccupancy: metrics.averageOccupancy,
     baselineAverageOccupancy: metrics.baselineAverageOccupancy,
     coveredRequestsRate: toRate(metrics.requestsCoveredPct),
-    matchingP95Ms: metrics.matchingP95Ms,
+    // La columna es de milisegundos enteros y el motor de agentes da
+    // decimales (p. ej. 0,65 ms): sin redondear, PostgreSQL rechazaba la fila
+    // y la ejecución se perdía al terminar
+    matchingP95Ms: Math.round(metrics.matchingP95Ms),
     recoveryRate:
       metrics.recoveryPct === null ? null : toRate(metrics.recoveryPct),
     vehiclesBySlot: metrics.vehiclesBySlot,
