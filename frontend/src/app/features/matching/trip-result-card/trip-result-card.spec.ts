@@ -26,7 +26,10 @@ const TRIP: TripResult = {
 };
 
 describe('TripResultCard', () => {
-  function render(trip: TripResult): HTMLElement {
+  function render(
+    trip: TripResult,
+    flags: { isRequested?: boolean; isBestMatch?: boolean } = {},
+  ): HTMLElement {
     TestBed.configureTestingModule({
       imports: [TripResultCard],
       providers: [
@@ -37,6 +40,8 @@ describe('TripResultCard', () => {
     });
     const fixture = TestBed.createComponent(TripResultCard);
     fixture.componentRef.setInput('trip', trip);
+    fixture.componentRef.setInput('isRequested', flags.isRequested ?? false);
+    fixture.componentRef.setInput('isBestMatch', flags.isBestMatch ?? false);
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
   }
@@ -50,7 +55,7 @@ describe('TripResultCard', () => {
     expect(text(root, '.trip-card__times')).toBe('07:40 → 08:12');
     expect(text(root, '.trip-card__seats')).toBe('2 plazas');
     expect(text(root, '.trip-card__route')).toBe('Roquetas de Mar → Campus UAL · Parking P1');
-    expect(root.textContent).toContain('Desvío de 3 min para recogerte · Av. Carlos III, 12');
+    expect(root.textContent).toContain('Recogida en Av. Carlos III, 12 · sale a las 07:40');
   });
 
   it('shows who drives', () => {
@@ -73,12 +78,28 @@ describe('TripResultCard', () => {
   it('describes the stop as a drop-off on return trips', () => {
     const root = render({ ...TRIP, direction: 'from-campus' });
 
-    expect(root.textContent).toContain('Desvío de 3 min para dejarte · Av. Carlos III, 12');
+    expect(root.textContent).toContain('Bajada en Av. Carlos III, 12 · sale a las 07:40');
   });
 
   it('marks the last seat', () => {
     const root = render({ ...TRIP, freeSeats: 1 });
 
     expect(text(root, '.trip-card__seats--last')).toBe('Última plaza');
+  });
+
+  it('shows a trip already requested instead of its seats, also to screen readers', () => {
+    const root = render({ ...TRIP, freeSeats: 1 }, { isRequested: true });
+
+    expect(text(root, '.trip-card__seats--requested')).toBe('Ya solicitado');
+    expect(root.querySelector('.trip-card__seats--last')).toBeNull();
+    expect(root.querySelector('.trip-card__link')?.getAttribute('aria-label')).toContain(
+      ', ya solicitado',
+    );
+  });
+
+  it('highlights the best match only when told to', () => {
+    expect(render(TRIP).querySelector('.trip-card__best')).toBeNull();
+    TestBed.resetTestingModule();
+    expect(text(render(TRIP, { isBestMatch: true }), '.trip-card__best')).toBe('Mejor opción');
   });
 });
