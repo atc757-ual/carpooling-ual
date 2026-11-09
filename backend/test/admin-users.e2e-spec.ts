@@ -138,8 +138,8 @@ describe('Admin users API (e2e)', () => {
       [otherTrip, dan.id],
     );
     await dataSource.query(
-      `INSERT INTO incidents (trip_id, reporter_id, category, description)
-       VALUES ($1, $2, 'technical', 'The car broke down on the way')`,
+      `INSERT INTO incidents (trip_id, reporter_id, source, category, description)
+       VALUES ($1, $2, 'trip', 'technical', 'The car broke down on the way')`,
       [ownTrip, dan.id],
     );
     await dataSource.query(
@@ -243,8 +243,8 @@ describe('Admin users API (e2e)', () => {
     );
     const tripId = await insertTrip(dan.id, 'cancelled');
     await dataSource.query(
-      `INSERT INTO incidents (trip_id, reporter_id, category, description)
-       VALUES ($1, $2, 'driver', 'The driver did not stop at the pickup point')`,
+      `INSERT INTO incidents (trip_id, reporter_id, source, category, description)
+       VALUES ($1, $2, 'trip', 'driver', 'The driver did not stop at the pickup point')`,
       [tripId, pia.id],
     );
 

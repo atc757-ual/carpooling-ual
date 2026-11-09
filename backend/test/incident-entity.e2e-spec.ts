@@ -75,6 +75,7 @@ describe('Incident entity (e2e)', () => {
         tripId,
         requestId: null,
         reporterId: driverId,
+        source: 'trip',
         category: 'technical',
         description: 'The car broke down on the way to the campus',
       }),

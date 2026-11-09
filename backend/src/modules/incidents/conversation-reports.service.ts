@@ -53,7 +53,8 @@ export class ConversationReportsService {
           requestId: null,
           reporterId,
           chatMessageId: null,
-          category: 'other',
+          source: 'chat',
+          category: 'chat_behavior',
           description: describe(conversation, reason),
         }),
       );

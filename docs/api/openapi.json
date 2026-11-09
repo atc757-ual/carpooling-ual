@@ -9244,6 +9244,8 @@
                 "technical",
                 "driver",
                 "passenger",
+                "safety",
+                "chat_behavior",
                 "other"
               ]
             }
@@ -16043,12 +16045,22 @@
           "reporter": {
             "$ref": "#/components/schemas/IncidentReporterResource"
           },
+          "source": {
+            "type": "string",
+            "enum": [
+              "trip",
+              "chat"
+            ],
+            "description": "trip: reported while cancelling a trip in progress; chat: a report of the trip chat"
+          },
           "category": {
             "type": "string",
             "enum": [
               "technical",
               "driver",
               "passenger",
+              "safety",
+              "chat_behavior",
               "other"
             ]
           },
@@ -16099,6 +16111,7 @@
           "code",
           "trip",
           "reporter",
+          "source",
           "category",
           "description",
           "reportedAt",
@@ -16117,9 +16130,10 @@
               "technical",
               "driver",
               "passenger",
+              "safety",
               "other"
             ],
-            "description": "technical problem, with the driver, with the passenger or other"
+            "description": "technical problem, with the driver, with a passenger, safety or other"
           },
           "description": {
             "type": "string",
@@ -17436,6 +17450,8 @@
               "technical",
               "driver",
               "passenger",
+              "safety",
+              "chat_behavior",
               "other"
             ]
           },
