@@ -92,7 +92,7 @@
 
 // Móvil: cada elemento en una línea, con sus acciones a la derecha. «Activo»
 // es lo normal y no se muestra; «Desactivado» sí
-@media (max-width: 767.98px) {
+@container admin-list (max-width: 47.98rem) {
   .catalogs__table tbody tr {
     display: flex;
     flex-wrap: wrap;

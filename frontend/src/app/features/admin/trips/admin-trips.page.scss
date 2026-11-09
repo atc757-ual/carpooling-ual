@@ -63,7 +63,7 @@
 
 // Móvil: cada viaje, una tarjeta con lo justo: el trayecto y la flecha arriba
 // y debajo la salida y el estado. El conductor y las plazas, en el detalle
-@media (max-width: 767.98px) {
+@container admin-list (max-width: 47.98rem) {
   .admin-trips__table tbody tr {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:

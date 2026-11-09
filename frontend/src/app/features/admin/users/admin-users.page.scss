@@ -100,7 +100,7 @@
 
 // Móvil: cada usuario en una línea: avatar y nombre (recortado si no cabe), sus
 // estados y la flecha. El correo y el rol, en el detalle
-@media (max-width: 767.98px) {
+@container admin-list (max-width: 47.98rem) {
   .admin-users__table tbody tr {
     grid-template-columns: minmax(0, 1fr) auto auto;
     grid-template-areas: 'name status action';

@@ -128,7 +128,7 @@
 // Móvil: cada ejecución, una tarjeta: la comparación y «Ver resultados»
 // arriba; debajo, la fecha y el estado; y las réplicas, la semilla y el
 // criterio
-@media (max-width: 767.98px) {
+@container admin-list (max-width: 47.98rem) {
   .simulation__table tbody tr {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
