@@ -66,12 +66,17 @@ export interface TripView {
   driverTripCount: number;
   driverRating: number | null;
   vehicle: VehicleRecognitionDetails | null;
+  // Origen y destino redondeados para quien no tiene plaza
+  // (TripViewerAccessService); sin el campo, son los exactos
+  isLocationApproximate?: boolean;
 }
 
 // Un viaje con su ruta (RF-12)
 export interface TripRouteView {
   trip: Trip;
   route: TripRoute;
+  // Sin el trazado para quien no tiene plaza (TripViewerAccessService)
+  isGeometryHidden?: boolean;
 }
 
 const DEFAULT_MAX_DETOUR_MIN = 10;

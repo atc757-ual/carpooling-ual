@@ -123,11 +123,20 @@ describe('Trip routes (e2e)', () => {
       .set('Authorization', `Bearer ${token}`);
   }
 
-  it('publishing calculates the road route with OSRM; anyone who can see the trip sees it', async () => {
-    const { trip } = await publishTrip();
+  it('publishing calculates the road route with OSRM; only the driver and the accepted passengers see its geometry', async () => {
+    const { dan, trip } = await publishTrip();
     const pia = await sessionFor('pia', ['passenger']);
 
-    const response = await getRoute(trip.id, pia.token).expect(200);
+    const response = await getRoute(trip.id, dan.token).expect(200);
+
+    // Quien busca viaje ve la distancia y la duración, pero no el trazado:
+    // señalaría dónde empieza o acaba el conductor
+    const seenBySearcher = await getRoute(trip.id, pia.token).expect(200);
+    expect(seenBySearcher.body).toMatchObject({
+      distanceKm: 7.76,
+      durationMin: 11,
+      geometry: null,
+    });
 
     expect(osrm.route).toHaveBeenCalledWith(ALMERIA_CENTRE, UAL_CAMPUS);
     expect(response.body).toEqual({

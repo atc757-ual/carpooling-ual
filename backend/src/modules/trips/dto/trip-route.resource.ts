@@ -45,8 +45,13 @@ export class TripRouteResource {
   @ApiProperty({ example: 11 })
   durationMin: number;
 
-  @ApiProperty({ type: GeoLineStringResource })
-  geometry: LineString;
+  @ApiProperty({
+    type: GeoLineStringResource,
+    nullable: true,
+    description:
+      'The road route; null for whoever is not the driver, an accepted passenger or an administrator (it would show where the driver starts or ends)',
+  })
+  geometry: LineString | null;
 
   @ApiProperty({
     enum: ROUTE_SOURCES,
@@ -73,6 +78,7 @@ export class TripRouteResource {
 export function toTripRouteResource({
   trip,
   route,
+  isGeometryHidden = false,
 }: TripRouteView): TripRouteResource {
   const isOver = trip.status === 'finished' || trip.status === 'cancelled';
   const start = trip.startedAt ?? trip.departureAt;
@@ -82,7 +88,7 @@ export function toTripRouteResource({
     tripId: trip.id,
     distanceKm: route.distanceKm,
     durationMin: route.durationMin,
-    geometry: route.geometry,
+    geometry: isGeometryHidden ? null : route.geometry,
     source: route.source,
     tripStatus: trip.status,
     startedAt: trip.startedAt?.toISOString() ?? null,

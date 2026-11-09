@@ -45,11 +45,17 @@ import {
 import { toTripResource, TripResource } from './dto/trip.resource';
 import { UpdateTripDto } from './dto/update-trip.dto';
 import { LateCancellationsService } from './late-cancellations.service';
+import { TripViewerAccessService } from './trip-viewer-access.service';
+import type { TripViewer } from './trip-viewer-access.service';
 import { TripsService } from './trips.service';
 
 const AUTH_ERRORS = {
   [HttpStatus.UNAUTHORIZED]: ['INVALID_ACCESS_TOKEN', 'ACCESS_TOKEN_EXPIRED'],
 };
+
+function tripViewerOf(user: AccessTokenPayload): TripViewer {
+  return { id: user.sub, isAdmin: user.profiles.includes('admin') };
+}
 
 // Errores comunes de publicar y modificar (reglas de TripsService)
 const TRIP_RULE_ERRORS = [
@@ -68,6 +74,7 @@ export class TripsController {
   constructor(
     private readonly tripsService: TripsService,
     private readonly lateCancellations: LateCancellationsService,
+    private readonly viewerAccess: TripViewerAccessService,
   ) {}
 
   @Post('trips')
@@ -104,7 +111,11 @@ export class TripsController {
   }
 
   @Get('trips/:id')
-  @ApiOperation({ summary: 'Get a trip' })
+  @ApiOperation({
+    summary: 'Get a trip',
+    description:
+      'Whoever is not the driver, an accepted passenger or an administrator gets the origin and destination rounded to about 500 m (isLocationApproximate); campus parkings are always exact.',
+  })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: TripResource })
   @ApiErrorResponses({
@@ -113,16 +124,20 @@ export class TripsController {
     [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND'],
   })
   async getOne(
+    @CurrentUser() user: AccessTokenPayload,
     @Param('id', uuidParam('id')) id: string,
   ): Promise<TripResource> {
-    return toTripResource(await this.tripsService.getById(id));
+    const view = await this.tripsService.getById(id);
+    return toTripResource(
+      await this.viewerAccess.tripFor(view, tripViewerOf(user)),
+    );
   }
 
   @Get('trips/:id/route')
   @ApiOperation({
     summary: 'Get the route of a trip and its estimated arrival',
     description:
-      'RF-12, CU-08. The road route calculated with OSRM (or estimated if OSRM did not answer), with the trip status. A missing or estimated route is asked to OSRM again (at most every 5 minutes).',
+      'RF-12, CU-08. The road route calculated with OSRM (or estimated if OSRM did not answer), with the trip status. A missing or estimated route is asked to OSRM again (at most every 5 minutes). Whoever is not the driver, an accepted passenger or an administrator gets it without the geometry.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: TripRouteResource })
@@ -132,9 +147,13 @@ export class TripsController {
     [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND'],
   })
   async getRoute(
+    @CurrentUser() user: AccessTokenPayload,
     @Param('id', uuidParam('id')) id: string,
   ): Promise<TripRouteResource> {
-    return toTripRouteResource(await this.tripsService.getRoute(id));
+    const view = await this.tripsService.getRoute(id);
+    return toTripRouteResource(
+      await this.viewerAccess.routeFor(view, tripViewerOf(user)),
+    );
   }
 
   @Get('users/me/trips')

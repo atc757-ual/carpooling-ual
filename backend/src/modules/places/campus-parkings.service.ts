@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
+import type { Point } from 'typeorm';
 import type { DomainEventType } from '../../events/domain-event-type';
 import { EventsService } from '../../events/events.service';
 import type { GeoPoint } from './geocoder/geocoder';
@@ -52,6 +53,24 @@ export class CampusParkingsService {
       throw new CampusParkingNotFoundError(id);
     }
     return parking;
+  }
+
+  // Si el punto está junto a un parking del campus, abierto o cerrado (un
+  // lugar público: los viajes no necesitan ocultarlo)
+  async isNearAny(point: Point, radiusMeters: number): Promise<boolean> {
+    const [lon, lat] = point.coordinates;
+    const [row] = await this.dataSource.query<{ isNear: boolean }[]>(
+      `SELECT EXISTS (
+         SELECT 1 FROM campus_parkings
+          WHERE ST_DWithin(
+                  location,
+                  ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography,
+                  $3
+                )
+       ) AS "isNear"`,
+      [lon, lat, radiusMeters],
+    );
+    return row.isNear;
   }
 
   // Abierto o cerrado (panel)

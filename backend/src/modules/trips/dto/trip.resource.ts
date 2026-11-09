@@ -115,6 +115,12 @@ export class TripResource {
     description: 'When the trip started; null until then',
   })
   startedAt: string | null;
+
+  @ApiProperty({
+    description:
+      'True when origin and destination are rounded to about 500 m (campus parkings excepted): whoever is not the driver, an accepted passenger or an administrator does not see the exact points',
+  })
+  isLocationApproximate: boolean;
 }
 
 export function tripHref(id: string): string {
@@ -129,6 +135,7 @@ export function toTripResource({
   driverTripCount,
   driverRating,
   vehicle,
+  isLocationApproximate = false,
 }: TripView): TripResource {
   return {
     '@type': 'Trip',
@@ -154,5 +161,6 @@ export function toTripResource({
     destinationName: trip.destinationName,
     status: trip.status,
     startedAt: trip.startedAt?.toISOString() ?? null,
+    isLocationApproximate,
   };
 }

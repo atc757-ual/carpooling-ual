@@ -5799,6 +5799,7 @@
     },
     "/api/trips/{id}": {
       "get": {
+        "description": "Whoever is not the driver, an accepted passenger or an administrator gets the origin and destination rounded to about 500 m (isLocationApproximate); campus parkings are always exact.",
         "operationId": "TripsController_getOne",
         "parameters": [
           {
@@ -5989,7 +5990,7 @@
     },
     "/api/trips/{id}/route": {
       "get": {
-        "description": "RF-12, CU-08. The road route calculated with OSRM (or estimated if OSRM did not answer), with the trip status. A missing or estimated route is asked to OSRM again (at most every 5 minutes).",
+        "description": "RF-12, CU-08. The road route calculated with OSRM (or estimated if OSRM did not answer), with the trip status. A missing or estimated route is asked to OSRM again (at most every 5 minutes). Whoever is not the driver, an accepted passenger or an administrator gets it without the geometry.",
         "operationId": "TripsController_getRoute",
         "parameters": [
           {
@@ -6533,6 +6534,460 @@
         "summary": "Finish a trip in progress",
         "tags": [
           "trips"
+        ]
+      }
+    },
+    "/api/campus-parkings": {
+      "get": {
+        "description": "The active campus parkings, in display order.",
+        "operationId": "CampusParkingsController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CampusParkingResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the campus parkings",
+        "tags": [
+          "campus-parkings"
+        ]
+      }
+    },
+    "/api/campus-parkings/{id}": {
+      "get": {
+        "operationId": "CampusParkingsController_getOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "p1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampusParkingResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: CAMPUS_PARKING_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a campus parking",
+        "tags": [
+          "campus-parkings"
+        ]
+      }
+    },
+    "/api/places": {
+      "get": {
+        "description": "Addresses of the province of Almería that match the text, without coordinates. Get one by its href to know its point and whether it is covered.",
+        "operationId": "PlacesController_search",
+        "parameters": [
+          {
+            "name": "q",
+            "required": true,
+            "in": "query",
+            "description": "Text of the address, as typed",
+            "schema": {
+              "minLength": 3,
+              "maxLength": 120,
+              "example": "avenida mediterraneo 120",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10,
+              "default": 5,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlaceSuggestionResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "TMF630 error: GEOCODER_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suggest addresses",
+        "tags": [
+          "places"
+        ]
+      }
+    },
+    "/api/places/reverse": {
+      "get": {
+        "description": "The nearest address to the point (e.g. the location of the device), and whether it is covered. Outside the service area, an anonymous coverage.gap_reported event is recorded.",
+        "operationId": "PlacesController_reverse",
+        "parameters": [
+          {
+            "name": "lon",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "minimum": -180,
+              "maximum": 180,
+              "example": -2.4637,
+              "type": "number"
+            }
+          },
+          {
+            "name": "lat",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "minimum": -90,
+              "maximum": 90,
+              "example": 36.8381,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaceResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: PLACE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "TMF630 error: GEOCODER_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the address of a point",
+        "tags": [
+          "places"
+        ]
+      }
+    },
+    "/api/places/{id}": {
+      "get": {
+        "description": "The suggested address with its point, and whether it is covered. Outside the service area, an anonymous coverage.gap_reported event is recorded.",
+        "operationId": "PlacesController_getOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Id of a suggestion",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaceResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: PLACE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "TMF630 error: GEOCODER_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get an address",
+        "tags": [
+          "places"
         ]
       }
     },
@@ -9717,460 +10172,6 @@
         "summary": "Send a message to the support team",
         "tags": [
           "support"
-        ]
-      }
-    },
-    "/api/campus-parkings": {
-      "get": {
-        "description": "The active campus parkings, in display order.",
-        "operationId": "CampusParkingsController_list",
-        "parameters": [
-          {
-            "name": "offset",
-            "required": false,
-            "in": "query",
-            "description": "Number of items to skip",
-            "schema": {
-              "minimum": 0,
-              "default": 0,
-              "type": "number"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Maximum number of items to return",
-            "schema": {
-              "minimum": 1,
-              "maximum": 100,
-              "default": 20,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "headers": {
-              "X-Total-Count": {
-                "description": "Total number of items",
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Result-Count": {
-                "description": "Number of items in this response",
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            },
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CampusParkingResource"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List the campus parkings",
-        "tags": [
-          "campus-parkings"
-        ]
-      }
-    },
-    "/api/campus-parkings/{id}": {
-      "get": {
-        "operationId": "CampusParkingsController_getOne",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "example": "p1",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CampusParkingResource"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "TMF630 error: CAMPUS_PARKING_NOT_FOUND",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get a campus parking",
-        "tags": [
-          "campus-parkings"
-        ]
-      }
-    },
-    "/api/places": {
-      "get": {
-        "description": "Addresses of the province of Almería that match the text, without coordinates. Get one by its href to know its point and whether it is covered.",
-        "operationId": "PlacesController_search",
-        "parameters": [
-          {
-            "name": "q",
-            "required": true,
-            "in": "query",
-            "description": "Text of the address, as typed",
-            "schema": {
-              "minLength": 3,
-              "maxLength": 120,
-              "example": "avenida mediterraneo 120",
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "minimum": 1,
-              "maximum": 10,
-              "default": 5,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "headers": {
-              "X-Total-Count": {
-                "description": "Total number of items",
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Result-Count": {
-                "description": "Number of items in this response",
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            },
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PlaceSuggestionResource"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "TMF630 error: GEOCODER_UNAVAILABLE",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Suggest addresses",
-        "tags": [
-          "places"
-        ]
-      }
-    },
-    "/api/places/reverse": {
-      "get": {
-        "description": "The nearest address to the point (e.g. the location of the device), and whether it is covered. Outside the service area, an anonymous coverage.gap_reported event is recorded.",
-        "operationId": "PlacesController_reverse",
-        "parameters": [
-          {
-            "name": "lon",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "minimum": -180,
-              "maximum": 180,
-              "example": -2.4637,
-              "type": "number"
-            }
-          },
-          {
-            "name": "lat",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "minimum": -90,
-              "maximum": 90,
-              "example": 36.8381,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlaceResource"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "TMF630 error: PLACE_NOT_FOUND",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "TMF630 error: GEOCODER_UNAVAILABLE",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get the address of a point",
-        "tags": [
-          "places"
-        ]
-      }
-    },
-    "/api/places/{id}": {
-      "get": {
-        "description": "The suggested address with its point, and whether it is covered. Outside the service area, an anonymous coverage.gap_reported event is recorded.",
-        "operationId": "PlacesController_getOne",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Id of a suggestion",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlaceResource"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "TMF630 error: PLACE_NOT_FOUND",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "TMF630 error: INTERNAL_ERROR",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "TMF630 error: GEOCODER_UNAVAILABLE",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TmfError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get an address",
-        "tags": [
-          "places"
         ]
       }
     },
@@ -14648,6 +14649,10 @@
             "format": "date-time",
             "nullable": true,
             "description": "When the trip started; null until then"
+          },
+          "isLocationApproximate": {
+            "type": "boolean",
+            "description": "True when origin and destination are rounded to about 500 m (campus parkings excepted): whoever is not the driver, an accepted passenger or an administrator does not see the exact points"
           }
         },
         "required": [
@@ -14666,7 +14671,8 @@
           "originName",
           "destinationName",
           "status",
-          "startedAt"
+          "startedAt",
+          "isLocationApproximate"
         ]
       },
       "GeoLineStringResource": {
@@ -14729,7 +14735,14 @@
             "example": 11
           },
           "geometry": {
-            "$ref": "#/components/schemas/GeoLineStringResource"
+            "nullable": true,
+            "description": "The road route; null for whoever is not the driver, an accepted passenger or an administrator (it would show where the driver starts or ends)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoLineStringResource"
+              }
+            ]
           },
           "source": {
             "type": "string",
@@ -14882,6 +14895,144 @@
             ]
           }
         }
+      },
+      "CampusParkingResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "CampusParking"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "example": "p1"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/campus-parkings/p1"
+          },
+          "name": {
+            "type": "string",
+            "example": "Parking P1 (Sur)"
+          },
+          "location": {
+            "example": {
+              "type": "Point",
+              "coordinates": [
+                -2.4045,
+                36.8322
+              ]
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "name",
+          "location"
+        ]
+      },
+      "PlaceSuggestionResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "PlaceSuggestion"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "example": "cG9ydGFsfDAxLjA0Lk1VTl8wNDAxMzAyMzQ1MTV8MTIw"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/places/cG9ydGFsfDAxLjA0Lk1VTl8wNDAxMzAyMzQ1MTV8MTIw"
+          },
+          "name": {
+            "type": "string",
+            "example": "Avenida del Mediterraneo, 120"
+          },
+          "locality": {
+            "type": "string",
+            "example": "Almería"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "name",
+          "locality"
+        ]
+      },
+      "PlaceResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "Place"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "example": "cG9ydGFsfDAxLjA0Lk1VTl8wNDAxMzAyMzQ1MTV8MTIw"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/places/cG9ydGFsfDAxLjA0Lk1VTl8wNDAxMzAyMzQ1MTV8MTIw"
+          },
+          "name": {
+            "type": "string",
+            "example": "Avenida del Mediterraneo, 120"
+          },
+          "locality": {
+            "type": "string",
+            "example": "Almería"
+          },
+          "municipality": {
+            "type": "string",
+            "example": "Almería"
+          },
+          "location": {
+            "example": {
+              "type": "Point",
+              "coordinates": [
+                -2.44615,
+                36.83256
+              ]
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "isCovered": {
+            "type": "boolean",
+            "description": "Whether the place is inside the service area",
+            "example": true
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "name",
+          "locality",
+          "municipality",
+          "location",
+          "isCovered"
+        ]
       },
       "ReportPositionDto": {
         "type": "object",
@@ -16223,144 +16374,6 @@
         "required": [
           "topic",
           "message"
-        ]
-      },
-      "CampusParkingResource": {
-        "type": "object",
-        "properties": {
-          "@type": {
-            "type": "string",
-            "enum": [
-              "CampusParking"
-            ]
-          },
-          "id": {
-            "type": "string",
-            "example": "p1"
-          },
-          "href": {
-            "type": "string",
-            "example": "/api/campus-parkings/p1"
-          },
-          "name": {
-            "type": "string",
-            "example": "Parking P1 (Sur)"
-          },
-          "location": {
-            "example": {
-              "type": "Point",
-              "coordinates": [
-                -2.4045,
-                36.8322
-              ]
-            },
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/GeoPointDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "@type",
-          "id",
-          "href",
-          "name",
-          "location"
-        ]
-      },
-      "PlaceSuggestionResource": {
-        "type": "object",
-        "properties": {
-          "@type": {
-            "type": "string",
-            "enum": [
-              "PlaceSuggestion"
-            ]
-          },
-          "id": {
-            "type": "string",
-            "example": "cG9ydGFsfDAxLjA0Lk1VTl8wNDAxMzAyMzQ1MTV8MTIw"
-          },
-          "href": {
-            "type": "string",
-            "example": "/api/places/cG9ydGFsfDAxLjA0Lk1VTl8wNDAxMzAyMzQ1MTV8MTIw"
-          },
-          "name": {
-            "type": "string",
-            "example": "Avenida del Mediterraneo, 120"
-          },
-          "locality": {
-            "type": "string",
-            "example": "Almería"
-          }
-        },
-        "required": [
-          "@type",
-          "id",
-          "href",
-          "name",
-          "locality"
-        ]
-      },
-      "PlaceResource": {
-        "type": "object",
-        "properties": {
-          "@type": {
-            "type": "string",
-            "enum": [
-              "Place"
-            ]
-          },
-          "id": {
-            "type": "string",
-            "example": "cG9ydGFsfDAxLjA0Lk1VTl8wNDAxMzAyMzQ1MTV8MTIw"
-          },
-          "href": {
-            "type": "string",
-            "example": "/api/places/cG9ydGFsfDAxLjA0Lk1VTl8wNDAxMzAyMzQ1MTV8MTIw"
-          },
-          "name": {
-            "type": "string",
-            "example": "Avenida del Mediterraneo, 120"
-          },
-          "locality": {
-            "type": "string",
-            "example": "Almería"
-          },
-          "municipality": {
-            "type": "string",
-            "example": "Almería"
-          },
-          "location": {
-            "example": {
-              "type": "Point",
-              "coordinates": [
-                -2.44615,
-                36.83256
-              ]
-            },
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/GeoPointDto"
-              }
-            ]
-          },
-          "isCovered": {
-            "type": "boolean",
-            "description": "Whether the place is inside the service area",
-            "example": true
-          }
-        },
-        "required": [
-          "@type",
-          "id",
-          "href",
-          "name",
-          "locality",
-          "municipality",
-          "location",
-          "isCovered"
         ]
       },
       "SearchTripsDto": {

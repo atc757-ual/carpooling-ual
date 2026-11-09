@@ -14,6 +14,11 @@ const EMAIL_PREFIX = 'trips-e2e-';
 const PASSWORD = 'secret-password';
 const UAL_CAMPUS = { type: 'Point', coordinates: [-2.4058, 36.8297] };
 const ALMERIA_CENTRE = { type: 'Point', coordinates: [-2.4637, 36.8381] };
+// El punto del parking P2 (migración UpdateCampusParkingLocations)
+const CAMPUS_PARKING_P2 = {
+  type: 'Point',
+  coordinates: [-2.404599, 36.827641],
+};
 const UNKNOWN_ID = '00000000-0000-4000-8000-000000000000';
 
 describe('Trips API (e2e)', () => {
@@ -150,6 +155,7 @@ describe('Trips API (e2e)', () => {
         destinationName: 'Campus UAL · Parking P1 (Sur)',
         status: 'published',
         startedAt: null,
+        isLocationApproximate: false,
       });
       expect(response.headers.location).toBe(`/api/trips/${trip.id}`);
       expect(JSON.stringify(response.body)).not.toContain('BCD');
@@ -253,6 +259,36 @@ describe('Trips API (e2e)', () => {
         availableSeats: 3,
       });
       expect(JSON.stringify(response.body)).not.toContain('BCD');
+    });
+
+    // El origen suele ser la casa del conductor: quien no tiene plaza lo ve
+    // redondeado a unos 500 m; los parkings del campus, tal cual
+    it('rounds the home of the driver for whoever has no seat, but not the campus parking', async () => {
+      const { token, vehicleId } = await readyDriver('ana');
+      const passenger = await tokenFor('pia', ['passenger']);
+      const created = await api('post', '/trips', token)
+        .send(tripBody(vehicleId, { destination: CAMPUS_PARKING_P2 }))
+        .expect(201);
+      const tripId = (created.body as { id: string }).id;
+
+      const seenBySearcher = await api(
+        'get',
+        `/trips/${tripId}`,
+        passenger,
+      ).expect(200);
+      expect(seenBySearcher.body).toMatchObject({
+        origin: { type: 'Point', coordinates: [-2.465, 36.84] },
+        destination: CAMPUS_PARKING_P2,
+        isLocationApproximate: true,
+      });
+
+      const seenByDriver = await api('get', `/trips/${tripId}`, token).expect(
+        200,
+      );
+      expect(seenByDriver.body).toMatchObject({
+        origin: ALMERIA_CENTRE,
+        isLocationApproximate: false,
+      });
     });
 
     it('shows the driver average after three published reviews', async () => {
