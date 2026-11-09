@@ -68,6 +68,26 @@ describe('AdminIncidentsService', () => {
     expect(incidents.openCount()).toBe(2);
   });
 
+  it('starts and leaves the review, updating the count', async () => {
+    const started = incidents.startReview('i1');
+    const start = http.expectOne('/api/incidents/i1/review/start');
+    expect(start.request.method).toBe('POST');
+    start.flush({ id: 'i1', status: 'in_review' });
+    expect(await started).toEqual({ id: 'i1', status: 'in_review' });
+    http
+      .expectOne('/api/incidents?status=open&limit=1')
+      .flush([], { headers: { 'X-Total-Count': '1' } });
+
+    const released = incidents.releaseReview('i1');
+    http.expectOne('/api/incidents/i1/review/release').flush({ id: 'i1', status: 'open' });
+    expect(await released).toEqual({ id: 'i1', status: 'open' });
+    http
+      .expectOne('/api/incidents?status=open&limit=1')
+      .flush([], { headers: { 'X-Total-Count': '2' } });
+    await Promise.resolve();
+    expect(incidents.openCount()).toBe(2);
+  });
+
   it('throws an ApiError when a request fails', async () => {
     const one = incidents.get('missing');
     http

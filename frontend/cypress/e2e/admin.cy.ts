@@ -75,6 +75,7 @@ const INCIDENT = {
   description: 'The driver did not stop at the pickup point',
   reportedAt: '2026-11-02T08:05:00.000Z',
   status: 'open',
+  reviewInProgress: null,
   review: null,
 };
 
@@ -438,19 +439,33 @@ for (const viewport of VIEWPORTS) {
       cy.contains('.simulation__table', 'S1 frente a S0');
     });
 
-    it('lists the open incidents and reviews one from its detail', () => {
+    it('lists all the incidents, starts the review of one and resolves it', () => {
+      const inReview = {
+        ...INCIDENT,
+        status: 'in_review',
+        reviewInProgress: {
+          by: { id: 'admin-1', name: 'Admin UAL' },
+          since: '2026-11-02T09:00:00.000Z',
+        },
+      };
+      let current: object = INCIDENT;
       cy.intercept('GET', '/api/incidents?offset=*', {
         body: [INCIDENT],
         headers: { 'X-Total-Count': '1', 'Access-Control-Expose-Headers': 'X-Total-Count' },
       }).as('incidents');
-      cy.intercept('GET', `/api/incidents/${INCIDENT.id}`, INCIDENT);
+      cy.intercept('GET', `/api/incidents/${INCIDENT.id}`, (request) => request.reply(current));
+      cy.intercept('POST', `/api/incidents/${INCIDENT.id}/review/start`, (request) => {
+        current = inReview;
+        request.reply(inReview);
+      }).as('start');
       cy.intercept('POST', `/api/incidents/${INCIDENT.id}/review`, {
         ...INCIDENT,
         status: 'reviewed',
       }).as('review');
       visitWithSession('/admin/incidents', ['admin']);
 
-      cy.wait('@incidents').its('request.query.status').should('eq', 'open');
+      // Todas por defecto: sin filtro de estado
+      cy.wait('@incidents').its('request.query').should('not.have.property', 'status');
       cy.contains('tbody tr.incidents__row--danger', 'INC-0042').within(() => {
         cy.contains('Con el conductor');
         cy.contains('Roquetas de Mar → Campus UAL');
@@ -461,10 +476,14 @@ for (const viewport of VIEWPORTS) {
       cy.contains('h1', 'INC-0042');
       cy.contains('.admin-heading__subtitle', 'Con el conductor');
       cy.contains('a', 'Javier Pardo').should('have.attr', 'href', '/admin/users/d1');
-      cy.contains('ion-button', 'Marcar revisada').click();
+      cy.contains('.incident-moments__moment--done', 'Registrada');
+      cy.contains('ion-button', 'Empezar revisión').click();
+      cy.wait('@start');
+      cy.contains('.incident-moments__moment--done', 'En revisión');
+      cy.contains('ion-button', 'Marcar atendida').click();
       cy.get('app-reason-confirm-modal').within(() => {
         cy.get('ion-textarea textarea').type('Talked to both of them');
-        cy.contains('ion-button', 'Marcar revisada').click();
+        cy.contains('ion-button', 'Marcar atendida').click();
       });
       cy.wait('@review')
         .its('request.body')

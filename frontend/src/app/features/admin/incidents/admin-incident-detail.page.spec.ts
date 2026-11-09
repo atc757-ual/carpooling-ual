@@ -5,16 +5,28 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { ApiError } from '../../../core/models/api-error.model';
+import { AdminIncident } from '../../../core/models/admin-incident.model';
 import { AdminIncidentsService } from '../../../core/services/admin/admin-incidents.service';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { AdminIncidentDetailPage } from './admin-incident-detail.page';
 import { INCIDENT } from './admin-incident.testing';
+
+const ADA = { id: 'a1', name: 'Ada Admin' };
+const IN_REVIEW: AdminIncident = {
+  ...INCIDENT,
+  status: 'in_review',
+  reviewInProgress: { by: ADA, since: '2026-11-02T09:00:00.000Z' },
+};
 
 describe('AdminIncidentDetailPage', () => {
   let fixture: ComponentFixture<AdminIncidentDetailPage>;
   const get = vi.fn();
   const review = vi.fn().mockResolvedValue(undefined);
+  const startReview = vi.fn().mockResolvedValue(undefined);
+  const releaseReview = vi.fn().mockResolvedValue(undefined);
   const showSuccess = vi.fn().mockResolvedValue(undefined);
+  const showError = vi.fn().mockResolvedValue(undefined);
   const create = vi.fn();
 
   async function render(): Promise<HTMLElement> {
@@ -23,8 +35,12 @@ describe('AdminIncidentDetailPage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
-        { provide: AdminIncidentsService, useValue: { get, review } },
-        { provide: ToastService, useValue: { showSuccess } },
+        {
+          provide: AdminIncidentsService,
+          useValue: { get, review, startReview, releaseReview },
+        },
+        { provide: ToastService, useValue: { showSuccess, showError } },
+        { provide: AuthService, useValue: { currentUser: signal({ id: ADA.id }) } },
         { provide: ModalController, useValue: { create } },
       ],
     });
@@ -46,7 +62,7 @@ describe('AdminIncidentDetailPage', () => {
     const heading = renderHeadingContent();
 
     expect(heading.querySelector('h1')?.textContent).toBe('INC-0042');
-    expect(heading.querySelector('.status')?.textContent).toBe('Abierta');
+    expect(heading.querySelector('.status')?.textContent).toBe('Registrada');
     const subtitle = heading.querySelector('.admin-heading__subtitle')?.textContent ?? '';
     expect(subtitle).toContain('Con el conductor');
     expect(subtitle).toContain('por Lucía Cortés (pasajero)');
@@ -83,8 +99,14 @@ describe('AdminIncidentDetailPage', () => {
     expect(root.textContent).not.toContain('Salida:');
   });
 
-  it('reviews it with the resolution and reloads', async () => {
-    await render();
+  it('resolves it with the resolution when it is mine, and reloads', async () => {
+    get.mockResolvedValue(IN_REVIEW);
+    const root = await render();
+    const actions = Array.from(root.querySelectorAll('.incident-review__actions ion-button'));
+    expect(actions.map((button) => button.textContent?.trim())).toEqual([
+      'Marcar atendida',
+      'Dejar de revisar',
+    ]);
     create.mockImplementation(({ componentProps }) =>
       Promise.resolve({
         present: () => Promise.resolve(),
@@ -98,22 +120,80 @@ describe('AdminIncidentDetailPage', () => {
     await fixture.componentInstance.handleReview();
 
     expect(review).toHaveBeenCalledWith('i1', 'Talked to both of them');
-    expect(showSuccess).toHaveBeenCalledWith('Incidencia revisada.');
+    expect(showSuccess).toHaveBeenCalledWith('Incidencia atendida.');
     await fixture.whenStable();
     expect(get).toHaveBeenCalledTimes(2);
   });
 
-  it('shows the resolution of a reviewed incident without the review button', async () => {
+  it('shows the moments of a resolved incident with its resolution and no actions', async () => {
     get.mockResolvedValue({
       ...INCIDENT,
       status: 'reviewed',
-      review: { reviewedAt: '2026-11-02T10:00:00.000Z', resolution: 'Both were contacted' },
+      review: {
+        by: ADA,
+        startedAt: '2026-11-02T09:00:00.000Z',
+        reviewedAt: '2026-11-02T10:00:00.000Z',
+        resolution: 'Both were contacted',
+      },
     });
 
     const root = await render();
 
-    expect(root.textContent).toContain('Both were contacted');
-    expect(root.querySelector('.incident-review__action')).toBeNull();
+    const moments = Array.from(root.querySelectorAll('.incident-moments__moment'));
+    expect(moments).toHaveLength(3);
+    expect(moments.every((moment) => moment.matches('.incident-moments__moment--done'))).toBe(true);
+    expect(moments[2].textContent).toContain('Por Ada Admin');
+    expect(root.querySelector('.incident-moments__note')?.textContent).toBe('Both were contacted');
+    expect(root.querySelector('.incident-review__actions')).toBeNull();
+  });
+
+  it('starts the review of a registered one, with the moments still pending', async () => {
+    const root = await render();
+    expect(root.querySelectorAll('.incident-moments__moment--done')).toHaveLength(1);
+    expect(root.textContent).toContain('Pendiente');
+
+    // Dos toques seguidos: una sola petición
+    await Promise.all([
+      fixture.componentInstance.handleStartReview(),
+      fixture.componentInstance.handleStartReview(),
+    ]);
+
+    expect(startReview).toHaveBeenCalledTimes(1);
+    expect(startReview).toHaveBeenCalledWith('i1');
+    expect(showSuccess).toHaveBeenCalledWith('Has empezado a revisar la incidencia.');
+    expect(fixture.componentInstance.isBusy()).toBe(false);
+    await fixture.whenStable();
+    expect(get).toHaveBeenCalledTimes(2);
+  });
+
+  it('leaves the review it has, and says why when it cannot', async () => {
+    get.mockResolvedValue(IN_REVIEW);
+    await render();
+
+    await fixture.componentInstance.handleReleaseReview();
+    expect(releaseReview).toHaveBeenCalledWith('i1');
+    expect(showSuccess).toHaveBeenCalledWith('Has dejado de revisar la incidencia.');
+    await fixture.whenStable();
+
+    startReview.mockRejectedValueOnce(new ApiError('INCIDENT_REVIEW_TAKEN', 409));
+    await fixture.componentInstance.handleStartReview();
+    expect(showError).toHaveBeenCalled();
+    await fixture.whenStable();
+    expect(get).toHaveBeenCalledTimes(3);
+  });
+
+  it('only shows who reviews it when another admin has it', async () => {
+    get.mockResolvedValue({
+      ...IN_REVIEW,
+      reviewInProgress: { by: { id: 'b2', name: 'Bea Admin' }, since: '2026-11-02T09:00:00.000Z' },
+    });
+
+    const root = await render();
+
+    expect(root.querySelector('.notice--info')?.textContent).toContain(
+      'La está revisando Bea Admin',
+    );
+    expect(root.querySelector('.incident-review__actions')).toBeNull();
   });
 
   it('tells an unknown incident apart from other errors and retries', async () => {
