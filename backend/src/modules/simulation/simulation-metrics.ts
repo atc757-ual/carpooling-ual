@@ -1,5 +1,7 @@
 // Métricas de la simulación (RF-18) y su agregación entre réplicas. Funciones
 // puras: las usa el servicio con lo que devuelva cualquier SimulationRunner
+import { pairedTest } from './paired-test';
+import type { PairedTest } from './paired-test';
 
 // Criterio de éxito experimental (sección 11 de la memoria)
 export const MIN_VEHICLES_AVOIDED_PCT = 15;
@@ -49,6 +51,8 @@ export interface SimulationSummary {
   requestsCoveredPct: MetricStat;
   matchingP95Ms: MetricStat;
   recoveryPct: MetricStat | null;
+  // Contraste de HE1 frente a HE0 sobre los vehículos (réplicas emparejadas)
+  vehiclesReduction: PairedTest;
 }
 
 export interface SlotSeries {
@@ -128,12 +132,15 @@ function slotSeries(output: SimulationOutput): SlotSeries[] {
   }));
 }
 
-// El criterio lo decide el backend, no el frontend: reducción de vehículos
-// >= 15 % frente a la base Y solicitudes cubiertas >= 70 % (medias)
+// El criterio lo decide el backend, no el frontend (tabla de criterios de
+// éxito de la memoria): reducción de vehículos >= 15 % frente a la base,
+// solicitudes cubiertas >= 70 % (medias) Y se rechaza HE0 (relevancia práctica
+// y significación estadística)
 export function isCriterionMet(summary: SimulationSummary): boolean {
   return (
     summary.vehiclesAvoidedPct.mean >= MIN_VEHICLES_AVOIDED_PCT &&
-    summary.requestsCoveredPct.mean >= MIN_REQUESTS_COVERED_PCT
+    summary.requestsCoveredPct.mean >= MIN_REQUESTS_COVERED_PCT &&
+    summary.vehiclesReduction.rejectsNull
   );
 }
 
@@ -152,6 +159,9 @@ export function aggregate(output: SimulationOutput): AggregatedResults {
     requestsCoveredPct: describeEach(replicas, (r) => r.requestsCoveredPct),
     matchingP95Ms: describeEach(replicas, (r) => r.matchingP95Ms),
     recoveryPct: describeRecovery(replicas),
+    vehiclesReduction: pairedTest(
+      replicas.map((r) => r.baselineVehiclesUsed - r.vehiclesUsed),
+    ),
   };
   return {
     summary,
