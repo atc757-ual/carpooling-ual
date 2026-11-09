@@ -83,6 +83,8 @@ describe('RequestsService boarding and no-show', () => {
       tripId: 'trip-1',
       passengerId: 'p-1',
       status: 'accepted',
+      seats: 1,
+      requestedAt: new Date('2026-11-03T08:00:00Z'),
       boardCode: '5829',
       boardedAt: null,
     } as SeatRequest;
@@ -104,6 +106,13 @@ describe('RequestsService boarding and no-show', () => {
       expect.objectContaining({
         type: 'request.boarded',
         sourceEntityId: 'req-1',
+        // v2: con el estado completo de la solicitud
+        payload: expect.objectContaining({
+          requestId: 'req-1',
+          tripId: 'trip-1',
+          status: 'accepted',
+          boardedAt: expect.any(String) as string,
+        }) as Record<string, unknown>,
       }),
     );
   });
