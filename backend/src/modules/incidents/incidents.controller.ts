@@ -1,4 +1,5 @@
 import {
+  applyDecorators,
   Body,
   Controller,
   Get,
@@ -38,6 +39,33 @@ import { IncidentsService } from './incidents.service';
 const AUTH_ERRORS = {
   [HttpStatus.UNAUTHORIZED]: ['INVALID_ACCESS_TOKEN', 'ACCESS_TOKEN_EXPIRED'],
 };
+
+// Lo común a empezar, dejar y atender la revisión: solo el administrador,
+// responde 200 con la incidencia y comparte los errores
+function ReviewEndpoint(
+  path: string,
+  operation: { summary: string; description: string },
+): MethodDecorator {
+  return applyDecorators(
+    Post(path),
+    Profiles('admin'),
+    HttpCode(HttpStatus.OK),
+    ApiOperation(operation),
+    ApiParam({ name: 'id', format: 'uuid' }),
+    ApiOkResponse({ type: IncidentResource }),
+    ApiErrorResponses({
+      ...AUTH_ERRORS,
+      [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+      [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
+      [HttpStatus.NOT_FOUND]: ['INCIDENT_NOT_FOUND'],
+      [HttpStatus.CONFLICT]: [
+        'INCIDENT_ALREADY_REVIEWED',
+        'INCIDENT_REVIEW_TAKEN',
+        'INCIDENT_INVALID_TRANSITION',
+      ],
+    }),
+  );
+}
 
 // Incidencias (RF-23) y su revisión (CU-12). Una incidencia la ven quien la
 // registró y los administradores; la lista general y la revisión son solo
@@ -155,26 +183,10 @@ export class IncidentsController {
 
   // --- Revisión del administrador (CU-12): registrada → en revisión → atendida
 
-  @Post('incidents/:id/review/start')
-  @Profiles('admin')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
+  @ReviewEndpoint('incidents/:id/review/start', {
     summary: 'Start reviewing an incident',
     description:
       'CU-12: the administrator takes the incident (open → in_review); the others see who is reviewing it.',
-  })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiOkResponse({ type: IncidentResource })
-  @ApiErrorResponses({
-    ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
-    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
-    [HttpStatus.NOT_FOUND]: ['INCIDENT_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: [
-      'INCIDENT_ALREADY_REVIEWED',
-      'INCIDENT_REVIEW_TAKEN',
-      'INCIDENT_INVALID_TRANSITION',
-    ],
   })
   async startReview(
     @CurrentUser() admin: AccessTokenPayload,
@@ -183,26 +195,10 @@ export class IncidentsController {
     return toIncidentResource(await this.reviewService.start(admin.sub, id));
   }
 
-  @Post('incidents/:id/review/release')
-  @Profiles('admin')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
+  @ReviewEndpoint('incidents/:id/review/release', {
     summary: 'Stop reviewing an incident',
     description:
       'CU-12: the administrator who is reviewing it leaves it (in_review → open) for someone else.',
-  })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiOkResponse({ type: IncidentResource })
-  @ApiErrorResponses({
-    ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
-    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
-    [HttpStatus.NOT_FOUND]: ['INCIDENT_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: [
-      'INCIDENT_ALREADY_REVIEWED',
-      'INCIDENT_REVIEW_TAKEN',
-      'INCIDENT_INVALID_TRANSITION',
-    ],
   })
   async releaseReview(
     @CurrentUser() admin: AccessTokenPayload,
@@ -211,26 +207,10 @@ export class IncidentsController {
     return toIncidentResource(await this.reviewService.release(admin.sub, id));
   }
 
-  @Post('incidents/:id/review')
-  @Profiles('admin')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
+  @ReviewEndpoint('incidents/:id/review', {
     summary: 'Resolve an incident',
     description:
       'CU-12: the administrator who is reviewing it closes it with a resolution (in_review → reviewed). Final.',
-  })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiOkResponse({ type: IncidentResource })
-  @ApiErrorResponses({
-    ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
-    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
-    [HttpStatus.NOT_FOUND]: ['INCIDENT_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: [
-      'INCIDENT_ALREADY_REVIEWED',
-      'INCIDENT_REVIEW_TAKEN',
-      'INCIDENT_INVALID_TRANSITION',
-    ],
   })
   async review(
     @CurrentUser() admin: AccessTokenPayload,
