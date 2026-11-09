@@ -39,6 +39,7 @@ const RATINGS = {
 describe('MyTripsPage', () => {
   let fixture: ComponentFixture<MyTripsPage>;
   let listMyTrips: ReturnType<typeof vi.fn>;
+  let listTripRequests: ReturnType<typeof vi.fn>;
 
   async function render(
     mode: 'driver' | 'passenger',
@@ -46,6 +47,7 @@ describe('MyTripsPage', () => {
     passenger: { requests: SeatRequest[]; trips: Trip[] } = { requests: [], trips: [] },
   ): Promise<HTMLElement> {
     listMyTrips = vi.fn().mockImplementation(trips);
+    listTripRequests ??= vi.fn().mockResolvedValue([]);
     TestBed.configureTestingModule({
       imports: [MyTripsPage],
       providers: [
@@ -54,7 +56,7 @@ describe('MyTripsPage', () => {
         provideRouter([]),
         {
           provide: DriverService,
-          useValue: { listMyTrips, listTripRequests: vi.fn().mockResolvedValue([]) },
+          useValue: { listMyTrips, listTripRequests },
         },
         {
           provide: SeatRequestsService,
@@ -110,7 +112,7 @@ describe('MyTripsPage', () => {
 
     expect(root.textContent).toContain('Próximos');
     expect(ids()).toEqual(['t1']);
-    expect(root.querySelectorAll('app-driver-trip-card')).toHaveLength(1);
+    expect(root.querySelectorAll('app-driver-trip-summary')).toHaveLength(1);
 
     page.handleTabChange('past');
     expect(ids()).toEqual(['t4', 't2']);
@@ -205,7 +207,42 @@ describe('MyTripsPage', () => {
     fixture.componentInstance.handleChanged();
     await fixture.whenStable();
 
-    expect(root.querySelectorAll('app-driver-trip-card')).toHaveLength(1);
+    expect(root.querySelectorAll('app-driver-trip-summary')).toHaveLength(1);
+  });
+
+  describe('requests waiting for an answer', () => {
+    const pending = [{ status: 'pending' }, { status: 'accepted' }, { status: 'pending' }];
+
+    afterEach(() => {
+      listTripRequests = undefined as unknown as ReturnType<typeof vi.fn>;
+    });
+
+    it('counts them and shows those trips first, only among the open ones', async () => {
+      listTripRequests = vi.fn((id: string) => Promise.resolve(id === 't2' ? pending : []));
+      await render('driver', () =>
+        Promise.resolve([trip('t1', 'published'), trip('t2', 'confirmed'), trip('t3', 'finished')]),
+      );
+      const page = fixture.componentInstance;
+
+      expect(page.pendingCounts().get('t2')).toBe(2);
+      expect(page.tabTrips().map(({ id }) => id)).toEqual(['t2', 't1']);
+      expect(listTripRequests).not.toHaveBeenCalledWith('t3');
+    });
+
+    it('asks for nothing without open trips', async () => {
+      listTripRequests = vi.fn();
+      await render('driver', () => Promise.resolve([trip('t3', 'finished')]));
+
+      expect(listTripRequests).not.toHaveBeenCalled();
+    });
+
+    it('still shows the trips if the count cannot be loaded', async () => {
+      listTripRequests = vi.fn().mockRejectedValue(new Error('down'));
+      const root = await render('driver', () => Promise.resolve([trip('t1', 'published')]));
+
+      expect(fixture.componentInstance.pendingCounts().size).toBe(0);
+      expect(root.querySelectorAll('app-driver-trip-summary')).toHaveLength(1);
+    });
   });
 
   it('shows the seat requests instead of the trips as a passenger', async () => {
