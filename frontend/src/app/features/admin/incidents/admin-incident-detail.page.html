@@ -1,81 +1,119 @@
-<!-- La franja del panel (la pinta su cabecera): volver a Incidencias, la
-     categoría, la fecha y el estado; sin buscador, se desplaza con el contenido -->
-<ng-template appHeadingContent>
-  <ion-button class="admin-heading__back" fill="clear" size="small" (click)="handleBack()">
-    <ion-icon slot="start" [icon]="backIcon" aria-hidden="true" />
-    Incidencias
-  </ion-button>
-  @if (incident(); as incident) {
-    @if (view(); as view) {
-      <div class="admin-heading__text">
+<!-- La franja del panel (la pinta su cabecera): la categoría con su estado y,
+     debajo, el código, cuándo y quién la registró. Sin buscador, se desplaza
+     con el contenido. En el móvil, la cabecera lleva «Atrás» y el título -->
+<ng-template appHeadingContent mobileTitle="Detalle de incidencia" (mobileBack)="handleBack()">
+  @if (view(); as view) {
+    <div class="admin-heading__text">
+      <div class="admin-detail__title-row">
         <h1 class="admin-heading__title">{{ view.title }}</h1>
-        <p class="text-body-s admin-heading__meta">
-          <span class="admin-heading__subtitle">Registrada el {{ view.reportedAt }}</span>
-          @if (incident.status === 'open') {
-            <span class="status status--pending">Abierta</span>
-          } @else {
-            <span class="status status--accepted">Revisada</span>
-          }
-        </p>
+        <span [class]="view.statusClass">{{ view.status }}</span>
       </div>
-    }
+      <p class="text-body-s admin-heading__subtitle admin-detail__wrap">
+        {{ view.code }} · Registrada el {{ view.reportedAt }} por {{ view.reporter }}
+      </p>
+    </div>
   }
+  <!-- En escritorio, la ruta (vuelve a la lista con sus filtros); en el móvil
+       se vuelve desde la cabecera -->
+  <ion-breadcrumbs class="admin-detail__breadcrumbs ion-hide-md-down">
+    <ion-breadcrumb [href]="incidentsPath" (click)="handleBack($event)">Incidencias</ion-breadcrumb>
+    <ion-breadcrumb [active]="true">Detalle de incidencia</ion-breadcrumb>
+  </ion-breadcrumbs>
 </ng-template>
 
 @if (incident(); as incident) {
   @if (view(); as view) {
-    <article [class]="'incident incident--' + view.severity">
-      <section class="incident__section" aria-labelledby="incident-report">
-        <h2 id="incident-report" class="text-title">Informe</h2>
-        <p class="text-body incident__description">{{ incident.description }}</p>
-      </section>
+    <!-- En el móvil, el informe primero: hay que leerlo antes que sus datos -->
+    <div class="admin-detail admin-detail--main-first">
+      <div class="admin-detail__main">
+        <!-- El informe tal como se escribió, con la gravedad en el borde -->
+        <ion-card
+          [class]="'admin-detail__card incident-report incident-report--' + view.severity"
+          role="region"
+          aria-labelledby="incident-report"
+        >
+          <h2 id="incident-report" class="admin-list__title admin-detail__title">
+            <ion-icon [icon]="icons.report" aria-hidden="true" />Informe
+          </h2>
+          <p class="text-body incident-report__text">{{ incident.description }}</p>
+        </ion-card>
 
-      <section class="incident__section" aria-labelledby="incident-trip">
-        <h2 id="incident-trip" class="text-title">Viaje y personas</h2>
-        <ul class="incident__list">
-          <li class="text-body-s">
-            <b>{{ view.route }}</b>
-            @if (view.departureAt) {
-              · salida {{ view.departureAt }}
-            }
-          </li>
-          <li class="text-body-s">
-            Notificada por
-            <a [routerLink]="['/admin/users', incident.reporter.id]">{{
-              incident.reporter.name
-            }}</a>
-            ({{ incident.reporter.role === 'driver' ? 'conductor' : 'pasajero' }})
-          </li>
-          @if (incident.trip.driver; as driver) {
-            @if (driver.id !== incident.reporter.id) {
-              <li class="text-body-s">
-                Conductor:
-                <a [routerLink]="['/admin/users', driver.id]">{{ driver.name }}</a>
+        <!-- La revisión: el único sitio desde el que se gestiona -->
+        <ion-card class="admin-detail__card" role="region" aria-labelledby="incident-review">
+          <h2 id="incident-review" class="admin-list__title admin-detail__title">
+            <ion-icon [icon]="icons.review" aria-hidden="true" />Revisión
+          </h2>
+          @if (incident.review; as review) {
+            <p class="text-body incident-report__text">{{ review.resolution }}</p>
+            <p class="text-body-s admin-detail__muted">Revisada el {{ view.reviewedAt }}</p>
+          } @else {
+            <p class="text-body-s admin-detail__muted">
+              Revisada no significa resuelta: la revisión conserva el informe original y es
+              definitiva.
+            </p>
+            <ion-button class="incident-review__action" (click)="handleReview()">
+              Marcar revisada
+            </ion-button>
+          }
+        </ion-card>
+      </div>
+
+      <!-- Columna de 4 (debajo en el móvil): el viaje y las personas -->
+      <aside class="admin-detail__aside" aria-label="Viaje y personas">
+        <ion-card class="admin-detail__card" role="region" aria-labelledby="incident-trip">
+          <h2 id="incident-trip" class="admin-list__title admin-detail__title">
+            <ion-icon [icon]="icons.trip" aria-hidden="true" />Viaje
+          </h2>
+          <ul class="incident-stops" [attr.aria-label]="view.route">
+            <li class="text-body incident-stops__stop">
+              <ion-icon class="incident-stops__icon" [icon]="icons.origin" aria-hidden="true" />
+              {{ view.origin }}
+            </li>
+            <li class="text-body incident-stops__stop">
+              <ion-icon
+                class="incident-stops__icon"
+                [icon]="icons.destination"
+                aria-hidden="true"
+              />
+              {{ view.destination }}
+            </li>
+          </ul>
+          @if (view.departureAt) {
+            <p class="text-body-s admin-detail__muted">Salida: {{ view.departureAt }}</p>
+          }
+          @if (view.tripLink; as link) {
+            <a class="text-body-s incident-link" [routerLink]="link">Ver viaje</a>
+          } @else {
+            <p class="text-body-s admin-detail__muted">El viaje ya no existe.</p>
+          }
+        </ion-card>
+
+        <ion-card class="admin-detail__card" role="region" aria-labelledby="incident-people">
+          <h2 id="incident-people" class="admin-list__title admin-detail__title">
+            <ion-icon [icon]="icons.people" aria-hidden="true" />Personas
+          </h2>
+          <ul class="admin-detail__items">
+            @for (person of view.people; track person.id) {
+              <li class="admin-detail__item">
+                <span class="admin-detail__item-text">
+                  <a class="text-body incident-link" [routerLink]="person.link">{{
+                    person.name
+                  }}</a>
+                  <span class="text-body-s admin-detail__muted">{{ person.role }}</span>
+                </span>
               </li>
             }
-          }
-        </ul>
-      </section>
-
-      <section class="incident__section" aria-labelledby="incident-review">
-        <h2 id="incident-review" class="text-title">Revisión</h2>
-        @if (incident.review; as review) {
-          <p class="text-body">{{ review.resolution }}</p>
-          <p class="text-body-s incident__muted">Revisada el {{ view.reviewedAt }}</p>
-        } @else {
-          <p class="text-body-s incident__muted">
-            Revisada no significa resuelta: la revisión conserva el informe original y es
-            definitiva.
-          </p>
-          <ion-button class="incident__review" (click)="handleReview()">Marcar revisada</ion-button>
-        }
-      </section>
-    </article>
+          </ul>
+        </ion-card>
+      </aside>
+    </div>
   }
 } @else if (errorMessage(); as message) {
-  <div class="notice notice--danger incident__state" role="alert">
+  <div class="notice notice--danger admin-detail__state" role="alert">
     <span>
-      <b>{{ isNotFound() ? 'No encontramos esta incidencia.' : 'No hemos podido cargarla.' }}</b>
+      <b>{{
+        isNotFound() ? 'No encontramos esta incidencia.' : 'No hemos podido cargar la incidencia.'
+      }}</b>
       @if (!isNotFound()) {
         {{ message }}
       }
@@ -87,9 +125,27 @@
     }
   </div>
 } @else {
-  <div class="incident" aria-busy="true" aria-label="Cargando la incidencia">
-    <ion-skeleton-text [animated]="true" class="incident__skeleton-title" />
-    <ion-skeleton-text [animated]="true" />
-    <ion-skeleton-text [animated]="true" />
+  <div
+    class="admin-detail admin-detail--main-first"
+    aria-busy="true"
+    aria-label="Cargando la incidencia"
+  >
+    <div class="admin-detail__main">
+      @for (card of [1, 2]; track card) {
+        <ion-card class="admin-detail__card">
+          <ion-skeleton-text [animated]="true" class="admin-detail__skeleton-title" />
+          <ion-skeleton-text [animated]="true" />
+          <ion-skeleton-text [animated]="true" />
+        </ion-card>
+      }
+    </div>
+    <div class="admin-detail__aside">
+      @for (card of [1, 2]; track card) {
+        <ion-card class="admin-detail__card">
+          <ion-skeleton-text [animated]="true" class="admin-detail__skeleton-title" />
+          <ion-skeleton-text [animated]="true" />
+        </ion-card>
+      }
+    </div>
   </div>
 }
