@@ -24,6 +24,16 @@ export class DriverTripSummary {
   private readonly tracking = inject(DriverTrackingService);
 
   readonly trip = input.required<DriverTrip>();
+  readonly pendingCount = input(0);
+
+  // «2 solicitudes por responder»
+  readonly pendingLabel = computed(() => {
+    const count = this.pendingCount();
+    if (count === 0) {
+      return null;
+    }
+    return count === 1 ? '1 solicitud por responder' : `${count} solicitudes por responder`;
+  });
 
   readonly isInProgress = computed(() => this.trip().status === 'in_progress');
   readonly link = computed(() =>

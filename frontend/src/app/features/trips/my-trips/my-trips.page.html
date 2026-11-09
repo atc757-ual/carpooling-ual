@@ -74,7 +74,10 @@
           </ion-card>
         } @else {
           @for (trip of tabTrips(); track trip.id) {
-            <app-driver-trip-summary [trip]="trip" />
+            <app-driver-trip-summary
+              [trip]="trip"
+              [pendingCount]="pendingCounts().get(trip.id) ?? 0"
+            />
           }
         }
       } @else {

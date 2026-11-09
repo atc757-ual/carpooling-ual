@@ -12,6 +12,9 @@
     </div>
     <div class="driver-summary__route">{{ route() }}</div>
     <div class="text-caption text-color-muted">{{ seatsLabel() }}</div>
+    @if (pendingLabel(); as label) {
+      <div class="driver-summary__pending">{{ label }}</div>
+    }
     <!-- El enlace cubre toda la tarjeta (::after) -->
     <a
       class="driver-summary__link"

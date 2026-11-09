@@ -108,10 +108,41 @@ export class MyTripsPage {
   });
   // Los viajes de la pestaña: los próximos, del primero que sale al último;
   // los demás, del más reciente al más antiguo
+  // (en Próximos, antes los que tienen solicitudes por responder)
   readonly tabTrips = computed(() => {
     const trips = this.driverTrips().filter((trip) => driverTripTab(trip) === this.tab());
-    return this.tab() === 'upcoming' ? trips : trips.reverse();
+    if (this.tab() !== 'upcoming') {
+      return trips.reverse();
+    }
+    const counts = this.pendingCounts();
+    return trips.sort(
+      (left, right) =>
+        Number((counts.get(right.id) ?? 0) > 0) - Number((counts.get(left.id) ?? 0) > 0),
+    );
   });
+
+  // Cuántas solicitudes faltan por responder en cada viaje abierto. Si no se
+  // pueden cargar, la lista se ve igual, sin el recuento
+  private readonly pendingRequests = resource({
+    params: () => {
+      const ids = this.driverTrips()
+        .filter(({ status }) => status === 'published' || status === 'confirmed')
+        .map(({ id }) => id);
+      return ids.length > 0 ? ids : undefined;
+    },
+    loader: async ({ params: ids }) =>
+      new Map(
+        await Promise.all(
+          ids.map(async (id): Promise<[string, number]> => {
+            const requests = await this.driver.listTripRequests(id);
+            return [id, requests.filter(({ status }) => status === 'pending').length];
+          }),
+        ),
+      ),
+  });
+  readonly pendingCounts = computed(() =>
+    this.pendingRequests.hasValue() ? this.pendingRequests.value() : new Map<string, number>(),
+  );
 
   // Las solicitudes del pasajero (con su viaje en curso y sus cifras)
   private readonly passengerRequests = viewChild(PassengerRequests);
