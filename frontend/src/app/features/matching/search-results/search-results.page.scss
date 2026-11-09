@@ -26,22 +26,20 @@
   gap: var(--space-s) var(--space-base);
 }
 
-.search-results__sort {
-  flex: 1 1 20rem;
-  max-width: 30rem;
-  margin-inline-start: auto;
-  --background: var(--color-surface-subtle);
+.search-results__count {
+  flex: 1 1 12rem; // 192px
+  margin: 0;
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
 
-  ion-segment-button {
-    min-height: 2.75rem; // 44px
-    font-size: var(--font-size-caption);
-    text-transform: none;
-    --border-radius: var(--radius-full);
-    --color: var(--color-text-muted);
-    --color-checked: var(--color-on-primary);
-    --indicator-color: var(--color-primary);
-    --indicator-box-shadow: none;
-  }
+// Selector compacto: solo lo que ocupa el texto, con 44px de área
+.search-results__sort {
+  flex: none;
+  width: auto;
+  min-height: 2.75rem; // 44px
+  color: var(--color-link);
+  font-size: var(--font-size-body-s);
 }
 
 @media (min-width: 768px) {
@@ -62,19 +60,6 @@
     top: var(--space-l);
     grid-row: 1;
     grid-column: 2;
-  }
-}
-
-@media (max-width: 479px) {
-  .search-results__results-header {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .search-results__sort {
-    flex: none;
-    width: 100%;
-    max-width: none;
   }
 }
 

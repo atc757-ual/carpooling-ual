@@ -67,6 +67,20 @@
   color: var(--color-on-accent);
 }
 
+// Ya hay una solicitud: pastilla azul claro en lugar de las plazas
+.trip-card__seats--requested {
+  padding: 0.125rem var(--space-s); // 2px 8px
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+}
+
+.trip-card__best {
+  color: var(--color-eco-text);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+}
+
 .trip-card__route {
   overflow: hidden;
   font-size: var(--font-size-body-s);

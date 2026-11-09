@@ -7,8 +7,8 @@ import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
 
 // Un viaje de los resultados (TripRow de la guía): horas de salida y llegada
 // con las plazas libres («Última plaza» en naranja si solo queda una), el
-// trayecto, quien conduce y el desvío para recoger al pasajero. «Ver viaje
-// la dirección del pasajero. Toda la tarjeta lleva al detalle del viaje
+// trayecto, quien conduce y dónde recoge al pasajero. Toda la tarjeta lleva al
+// detalle del viaje
 @Component({
   selector: 'app-trip-result-card',
   imports: [RouterLink, IonCard, IonCardContent, IonIcon, TripDriver],
@@ -18,14 +18,22 @@ import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
 export class TripResultCard {
   readonly trip = input.required<TripResult>();
 
+  // El pasajero ya tiene una solicitud viva en este viaje
+  readonly isRequested = input(false);
+  // El más compatible según el matching
+  readonly isBestMatch = input(false);
+
   readonly isLastSeat = computed(() => this.trip().freeSeats === 1);
-  readonly passengerAction = computed(() =>
-    this.trip().direction === 'to-campus' ? 'recogerte' : 'dejarte',
-  );
+  // «Recogida en Calle Mayor» o, al volver del campus, «Bajada en Calle Mayor»
+  readonly passengerStopLabel = computed(() => {
+    const { direction, passengerStop } = this.trip();
+    return `${direction === 'to-campus' ? 'Recogida' : 'Bajada'} en ${passengerStop}`;
+  });
   // Lo que lee el lector de pantalla del enlace (cubre toda la tarjeta)
   readonly linkLabel = computed(() => {
     const { driver, departureTime, arrivalTime, origin, destination } = this.trip();
-    return `Ver viaje de ${getFirstName(driver.name)}: ${departureTime} → ${arrivalTime}, ${origin} → ${destination}`;
+    const requested = this.isRequested() ? ', ya solicitado' : '';
+    return `Ver viaje de ${getFirstName(driver.name)}: ${departureTime} → ${arrivalTime}, ${origin} → ${destination}${requested}`;
   });
 
   protected readonly pickupIcon = locationOutline;

@@ -141,7 +141,7 @@ for (const viewport of VIEWPORTS) {
       // El resumen de la búsqueda, con el trayecto
       cy.contains('app-search-results app-route-timeline', 'Roquetas de Mar');
       cy.wait('@search').its('request.body').should('include', { parkingId: 'p1', seats: 1 });
-      cy.contains('app-search-results', '1 en tu margen').should('be.visible');
+      cy.contains('app-search-results', '1 viaje llega a las').should('be.visible');
       cy.contains('app-search-results app-trip-result-card', 'Lucía Cortés').should('be.visible');
       cy.contains('app-search-results app-trip-result-card', '07:20 → 07:52').should('be.visible');
       cy.contains('app-search-results app-trip-result-card', 'Nuevo conductor').should(
@@ -149,7 +149,7 @@ for (const viewport of VIEWPORTS) {
       );
       cy.contains(
         'app-search-results app-trip-result-card',
-        'Desvío de 3 min para recogerte',
+        'Recogida en Roquetas de Mar · sale a las 07:20',
       ).should('be.visible');
     });
 
