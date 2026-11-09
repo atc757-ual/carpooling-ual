@@ -129,6 +129,7 @@ describe('Incidents API (e2e)', () => {
       '@type': 'Incident',
       id: incident.id,
       href: `/api/incidents/${incident.id}`,
+      code: expect.stringMatching(/^INC-\d{4,}$/) as string,
       trip: {
         id: tripId,
         href: `/api/trips/${tripId}`,

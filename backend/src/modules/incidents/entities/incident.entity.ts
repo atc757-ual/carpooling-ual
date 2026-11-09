@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Generated,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -27,6 +28,12 @@ export type IncidentStatus = (typeof INCIDENT_STATUSES)[number];
 export class Incident {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  // Número correlativo para citarla (código INC-0042 en la API); lo da la base
+  // de datos al insertarla
+  @Column({ type: 'integer', unique: true })
+  @Generated('increment')
+  number: number;
 
   // Solo los ids, sin relaciones con entidades de otros módulos (fronteras);
   // las claves foráneas sí están en la base de datos

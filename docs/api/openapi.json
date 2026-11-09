@@ -15801,6 +15801,11 @@
             "type": "string",
             "example": "/api/incidents/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
           },
+          "code": {
+            "type": "string",
+            "example": "INC-0042",
+            "description": "Short code to cite the incident (consecutive number)"
+          },
           "trip": {
             "$ref": "#/components/schemas/IncidentTripResource"
           },
@@ -15845,6 +15850,7 @@
           "@type",
           "id",
           "href",
+          "code",
           "trip",
           "reporter",
           "category",
