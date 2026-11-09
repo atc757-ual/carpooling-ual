@@ -19,6 +19,7 @@ import {
   normalizePlate,
   type PlateCountry,
 } from './vehicle-plate';
+import { canChangeVehicleStatus } from './vehicle-status';
 
 export interface RegisterVehicleInput {
   plate: string;
@@ -286,7 +287,7 @@ export class VehiclesService {
     if (vehicle === null || vehicle.status === 'inactive') {
       throw new VehicleNotFoundError(vehicleId);
     }
-    if (vehicle.status === 'on_trip') {
+    if (!canChangeVehicleStatus(vehicle.status, 'on_trip')) {
       throw new VehicleInUseError(vehicleId);
     }
     await manager.update(Vehicle, vehicleId, { status: 'on_trip' });
@@ -323,13 +324,23 @@ export class VehiclesService {
   }
 
   // Da de baja un vehículo del conductor: pasa a inactive y deja de poder
-  // usarse en viajes nuevos, pero los viajes pasados lo siguen referenciando
+  // usarse en viajes nuevos, pero los viajes pasados lo siguen referenciando.
+  // Bloquea la fila como markOnTrip: si a la vez se inicia un viaje con él,
+  // uno espera al otro y no queda dado de baja con un viaje en curso
   async deactivate(driverId: string, vehicleId: string): Promise<void> {
-    const vehicle = await this.getOwn(driverId, vehicleId);
-    if (vehicle.status === 'on_trip') {
-      throw new VehicleInUseError(vehicleId);
-    }
-    await this.vehiclesRepository.update(vehicle.id, { status: 'inactive' });
+    await this.vehiclesRepository.manager.transaction(async (manager) => {
+      const vehicle = await manager.findOne(Vehicle, {
+        where: { id: vehicleId, driverId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (vehicle === null || vehicle.status === 'inactive') {
+        throw new VehicleNotFoundError(vehicleId);
+      }
+      if (!canChangeVehicleStatus(vehicle.status, 'inactive')) {
+        throw new VehicleInUseError(vehicleId);
+      }
+      await manager.update(Vehicle, vehicle.id, { status: 'inactive' });
+    });
   }
 
   // Solo se eligen colores activos del catálogo; un vehículo conserva el suyo
