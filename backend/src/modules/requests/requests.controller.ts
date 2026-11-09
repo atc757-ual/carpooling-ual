@@ -247,11 +247,8 @@ export class RequestsController {
     description:
       'Driver validates that the passenger boarded the vehicle using their 4-digit numeric code.',
     notAllowedCode: 'NOT_TRIP_DRIVER',
-    conflictCodes: [
-      'INVALID_BOARD_CODE',
-      'ALREADY_BOARDED',
-      'INVALID_REQUEST_TRANSITION',
-    ],
+    invalidCodes: ['INVALID_BOARD_CODE'],
+    conflictCodes: ['ALREADY_BOARDED', 'INVALID_REQUEST_TRANSITION'],
   })
   async board(
     @CurrentUser() driver: AccessTokenPayload,
@@ -271,7 +268,8 @@ export class RequestsController {
     description:
       'Driver marks that the passenger did not show up after waiting at least 5 minutes. Cancels the request and records a late cancellation for the passenger.',
     notAllowedCode: 'NOT_TRIP_DRIVER',
-    conflictCodes: ['PICKUP_GRACE_PERIOD_ACTIVE', 'INVALID_REQUEST_TRANSITION'],
+    invalidCodes: ['PICKUP_GRACE_PERIOD_ACTIVE'],
+    conflictCodes: ['INVALID_REQUEST_TRANSITION'],
   })
   async noShow(
     @CurrentUser() driver: AccessTokenPayload,
