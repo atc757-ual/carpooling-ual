@@ -85,9 +85,9 @@
   }
 }
 
-// Pasajero o conductor: discreto, a lo que ocupa su texto
+// Pasajero o conductor: discreto, más estrecho que las pestañas
 .my-trips__view {
-  width: fit-content;
+  max-width: 20rem; // 320px
 
   ion-segment-button {
     --padding-start: var(--space-s);
