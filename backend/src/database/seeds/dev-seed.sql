@@ -132,14 +132,5 @@ INSERT INTO events (id, source_entity_id, type, payload) VALUES
   (gen_random_uuid(), '00000000-0000-4000-8000-000000000301', 'request.accepted', '{"availableSeats": 2}'),
   (gen_random_uuid(), '00000000-0000-4000-8000-000000000201', 'trip.confirmed',   '{}');
 
--- -----------------------------------------------------------------------------
--- Escenarios S0-S5 (sección 11.5). Valores provisionales hasta cerrar DP-06;
--- el 30 % en coche propio es la referencia de la memoria.
--- -----------------------------------------------------------------------------
-INSERT INTO scenarios (code, name, user_count, adoption_rate, modal_split, time_window_min, parameters) VALUES
-  ('S0', 'Base',                200,  0.000, '{"own_car": 0.30, "public_transport": 0.50, "other": 0.20}', 15, '{}'),
-  ('S1', 'Carpooling básico',   200,  0.300, '{"own_car": 0.30, "public_transport": 0.50, "other": 0.20}', 15, '{}'),
-  ('S2', 'Mayor demanda',       1000, 0.300, '{"own_car": 0.30, "public_transport": 0.50, "other": 0.20}', 15, '{}'),
-  ('S3', 'Horarios variables',  200,  0.300, '{"own_car": 0.30, "public_transport": 0.50, "other": 0.20}', 30, '{"timeWindowRangeMin": [5, 60]}'),
-  ('S4', 'Capacidad variable',  200,  0.300, '{"own_car": 0.30, "public_transport": 0.50, "other": 0.20}', 15, '{"vehicleCapacities": [2, 3, 4, 6]}'),
-  ('S5', 'Incidencias',         200,  0.300, '{"own_car": 0.30, "public_transport": 0.50, "other": 0.20}', 15, '{"cancellationRate": 0.10}');
+-- Los escenarios S0-S5 ya no van aquí: los crea la migración
+-- 1798500000000-AddReferenceScenarios, también fuera de desarrollo.
