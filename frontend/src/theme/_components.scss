@@ -22,6 +22,13 @@ ion-header {
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 }
 
+// Sin el rebote al tirar más allá de arriba o de abajo, en la app y en el
+// panel: en el móvil dejaba ver el fondo gris por encima de la franja del
+// título. Ninguna pantalla usa ion-refresher, que lo necesitaría en iOS
+ion-content::part(scroll) {
+  overscroll-behavior-y: none;
+}
+
 // Barras superiores: 56px de alto también en iOS (que trae 44px) y el mismo
 // margen lateral que el contenido del móvil
 ion-toolbar {

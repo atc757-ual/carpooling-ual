@@ -9,6 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- **Frontend:** el aviso del viaje en curso y la columna lateral de Mis viajes vuelven a pintar su borde (usaban un token que no existe, `--border-width`), y la app deja de rebotar al tirar más allá de arriba o de abajo, como el panel: en el móvil dejaba ver el fondo gris por encima del título (#262).
 - **Frontend:** accesibilidad (WCAG 2.1 AA): ya se puede ampliar la página con zoom en el móvil y el botón del viaje en curso tiene el rol que exige la barra de pestañas (#260).
 - **Backend:** la copia del chat que se guarda al denunciarlo escribe el texto de las respuestas rápidas («Ya estoy en el punto (respuesta rápida)») en lugar de su clave (`at_pickup`); una migración corrige las denuncias que ya existían (#255).
 - **Frontend:** las tablas del panel (usuarios, viajes, catálogos, simulación y gemelo digital) pasan a tarjetas cuando su tarjeta se queda estrecha, no solo en el móvil: con la ventana mediana ya no se cortan las columnas, y en escritorio ancho siguen siendo tablas (#248).

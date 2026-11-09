@@ -338,12 +338,6 @@ ion-content {
   --background: var(--color-surface-subtle);
 }
 
-// Sin el rebote al tirar más allá de arriba o de abajo: dejaría ver el fondo
-// gris por encima de la franja del título cuando se desplaza con el contenido
-ion-content::part(scroll) {
-  overscroll-behavior-y: none;
-}
-
 .admin-main {
   padding: var(--space-l) var(--page-gutter) var(--space-xxl);
 }
