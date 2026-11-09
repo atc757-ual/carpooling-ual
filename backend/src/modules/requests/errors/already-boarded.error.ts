@@ -5,7 +5,7 @@ export class AlreadyBoardedError extends BusinessError {
     super(
       'ALREADY_BOARDED',
       'conflict',
-      `La solicitud ${requestId} ya ha sido validada como subida al vehículo`,
+      `Seat request ${requestId} has already been boarded`,
     );
   }
 }

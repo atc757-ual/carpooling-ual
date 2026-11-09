@@ -5,7 +5,7 @@ export class InvalidBoardCodeError extends BusinessError {
     super(
       'INVALID_BOARD_CODE',
       'invalid',
-      'El código de recogida de 4 cifras no coincide con el del pasajero',
+      'The 4-digit pickup code does not match the one of the passenger',
     );
   }
 }
