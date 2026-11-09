@@ -107,6 +107,8 @@ describe('API docs (e2e)', () => {
       '/api/incidents',
       '/api/incidents/{id}',
       '/api/incidents/{id}/review',
+      '/api/incidents/{id}/review/release',
+      '/api/incidents/{id}/review/start',
       '/api/legal-documents/{type}',
       '/api/notifications/{id}/read',
       '/api/places',

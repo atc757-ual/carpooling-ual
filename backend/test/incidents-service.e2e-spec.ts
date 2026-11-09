@@ -4,7 +4,6 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { DomainEvent } from '../src/events/entities/domain-event.entity';
 import { Incident } from '../src/modules/incidents/entities/incident.entity';
-import { IncidentAlreadyReviewedError } from '../src/modules/incidents/errors/incident-already-reviewed.error';
 import { IncidentNotFoundError } from '../src/modules/incidents/errors/incident-not-found.error';
 import { IncidentsService } from '../src/modules/incidents/incidents.service';
 import { NotTripPassengerError } from '../src/modules/requests/errors/not-trip-passenger.error';
@@ -202,9 +201,9 @@ describe('IncidentsService (e2e)', () => {
   });
 
   // CU-12: revisión por el administrador y quién ve cada incidencia
-  describe('review and visibility (CU-12)', () => {
+  // La revisión (registrada → en revisión → atendida): incident-review.e2e-spec
+  describe('visibility (CU-12)', () => {
     const ALL = { offset: 0, limit: 100 };
-    const RESOLUTION = 'The driver was contacted and the car repaired';
 
     // Una incidencia registrada por el conductor (dan) en un viaje en curso con
     // una pasajera aceptada (pia)
@@ -260,62 +259,6 @@ describe('IncidentsService (e2e)', () => {
       expect(open.items.map(({ incident }) => incident.id)).toContain(
         byDriver.id,
       );
-    });
-
-    it('reviews an incident: reviewed, with who, when, the resolution and its event', async () => {
-      const { byDriver } = await driverIncident();
-      const admin = await createUser('ada', ['admin']);
-
-      const { incident } = await incidentsService.review(
-        admin,
-        byDriver.id,
-        RESOLUTION,
-      );
-
-      expect(incident).toMatchObject({
-        status: 'reviewed',
-        reviewedBy: admin,
-        resolution: RESOLUTION,
-      });
-      expect(incident.reviewedAt).toBeInstanceOf(Date);
-      const events = await dataSource.manager.findBy(DomainEvent, {
-        sourceEntityId: byDriver.id,
-      });
-      const reviewed = events.find(({ type }) => type === 'incident.reviewed');
-      expect(reviewed?.payload).toMatchObject({ status: 'reviewed' });
-      expect(JSON.stringify(reviewed?.payload)).not.toContain(RESOLUTION);
-      const open = await incidentsService.list({ status: 'open' }, ALL);
-      expect(open.items.map(({ incident: i }) => i.id)).not.toContain(
-        byDriver.id,
-      );
-    });
-
-    it('does not review an incident twice, not even at the same time', async () => {
-      const { byDriver } = await driverIncident();
-      const admin = await createUser('ada', ['admin']);
-
-      const results = await Promise.allSettled([
-        incidentsService.review(admin, byDriver.id, RESOLUTION),
-        incidentsService.review(admin, byDriver.id, RESOLUTION),
-      ]);
-
-      const rejected = results.filter(({ status }) => status === 'rejected');
-      expect(rejected).toHaveLength(1);
-      expect((rejected[0] as PromiseRejectedResult).reason).toBeInstanceOf(
-        IncidentAlreadyReviewedError,
-      );
-    });
-
-    it('answers INCIDENT_NOT_FOUND when reviewing an unknown incident', async () => {
-      const admin = await createUser('ada', ['admin']);
-
-      await expect(
-        incidentsService.review(
-          admin,
-          '00000000-0000-4000-8000-000000000000',
-          RESOLUTION,
-        ),
-      ).rejects.toBeInstanceOf(IncidentNotFoundError);
     });
   });
 });

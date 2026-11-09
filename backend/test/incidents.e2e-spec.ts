@@ -147,6 +147,7 @@ describe('Incidents API (e2e)', () => {
       description: BREAKDOWN,
       reportedAt: expect.any(String) as string,
       status: 'open',
+      reviewInProgress: null,
       review: null,
     });
     expect(reported.headers.location).toBe(`/api/incidents/${incident.id}`);
@@ -330,9 +331,19 @@ describe('Incidents API (e2e)', () => {
       );
     });
 
-    it('reviews an incident; the reporter sees the resolution; it cannot be reviewed again', async () => {
+    it('starts the review, resolves it; the reporter sees the resolution; it is final', async () => {
       const { driver, location, id } = await reportedIncident();
       const admin = await adminToken();
+
+      const started = await api(
+        'post',
+        `/incidents/${id}/review/start`,
+        admin,
+      ).expect(200);
+      expect(started.body).toMatchObject({
+        status: 'in_review',
+        reviewInProgress: { by: { name: expect.any(String) as string } },
+      });
 
       const reviewed = await api('post', `/incidents/${id}/review`, admin)
         .send({ resolution: RESOLUTION })

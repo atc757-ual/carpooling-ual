@@ -32,6 +32,7 @@ import { IncidentResource, toIncidentResource } from './dto/incident.resource';
 import { ListIncidentsQueryDto } from './dto/list-incidents-query.dto';
 import { ReportIncidentDto } from './dto/report-incident.dto';
 import { ReviewIncidentDto } from './dto/review-incident.dto';
+import { IncidentReviewService } from './incident-review.service';
 import { IncidentsService } from './incidents.service';
 
 const AUTH_ERRORS = {
@@ -45,7 +46,10 @@ const AUTH_ERRORS = {
 @ApiBearerAuth()
 @Controller()
 export class IncidentsController {
-  constructor(private readonly incidentsService: IncidentsService) {}
+  constructor(
+    private readonly incidentsService: IncidentsService,
+    private readonly reviewService: IncidentReviewService,
+  ) {}
 
   // --- Conductor o pasajero del viaje (sin @Profiles: lo decide el service)
 
@@ -149,13 +153,15 @@ export class IncidentsController {
     return page.items.map(toIncidentResource);
   }
 
-  @Post('incidents/:id/review')
+  // --- Revisión del administrador (CU-12): registrada → en revisión → atendida
+
+  @Post('incidents/:id/review/start')
   @Profiles('admin')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Review an incident',
+    summary: 'Start reviewing an incident',
     description:
-      'CU-12: the incident is reviewed and closed with a resolution. Final: it cannot be reviewed again.',
+      'CU-12: the administrator takes the incident (open → in_review); the others see who is reviewing it.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: IncidentResource })
@@ -164,7 +170,67 @@ export class IncidentsController {
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
     [HttpStatus.NOT_FOUND]: ['INCIDENT_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: ['INCIDENT_ALREADY_REVIEWED'],
+    [HttpStatus.CONFLICT]: [
+      'INCIDENT_ALREADY_REVIEWED',
+      'INCIDENT_REVIEW_TAKEN',
+      'INCIDENT_INVALID_TRANSITION',
+    ],
+  })
+  async startReview(
+    @CurrentUser() admin: AccessTokenPayload,
+    @Param('id', uuidParam('id')) id: string,
+  ): Promise<IncidentResource> {
+    return toIncidentResource(await this.reviewService.start(admin.sub, id));
+  }
+
+  @Post('incidents/:id/review/release')
+  @Profiles('admin')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Stop reviewing an incident',
+    description:
+      'CU-12: the administrator who is reviewing it leaves it (in_review → open) for someone else.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiOkResponse({ type: IncidentResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
+    [HttpStatus.NOT_FOUND]: ['INCIDENT_NOT_FOUND'],
+    [HttpStatus.CONFLICT]: [
+      'INCIDENT_ALREADY_REVIEWED',
+      'INCIDENT_REVIEW_TAKEN',
+      'INCIDENT_INVALID_TRANSITION',
+    ],
+  })
+  async releaseReview(
+    @CurrentUser() admin: AccessTokenPayload,
+    @Param('id', uuidParam('id')) id: string,
+  ): Promise<IncidentResource> {
+    return toIncidentResource(await this.reviewService.release(admin.sub, id));
+  }
+
+  @Post('incidents/:id/review')
+  @Profiles('admin')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Resolve an incident',
+    description:
+      'CU-12: the administrator who is reviewing it closes it with a resolution (in_review → reviewed). Final.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiOkResponse({ type: IncidentResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
+    [HttpStatus.NOT_FOUND]: ['INCIDENT_NOT_FOUND'],
+    [HttpStatus.CONFLICT]: [
+      'INCIDENT_ALREADY_REVIEWED',
+      'INCIDENT_REVIEW_TAKEN',
+      'INCIDENT_INVALID_TRANSITION',
+    ],
   })
   async review(
     @CurrentUser() admin: AccessTokenPayload,
@@ -172,7 +238,7 @@ export class IncidentsController {
     @Body() dto: ReviewIncidentDto,
   ): Promise<IncidentResource> {
     return toIncidentResource(
-      await this.incidentsService.review(admin.sub, id, dto.resolution),
+      await this.reviewService.resolve(admin.sub, id, dto.resolution),
     );
   }
 }

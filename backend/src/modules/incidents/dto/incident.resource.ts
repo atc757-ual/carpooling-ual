@@ -52,6 +52,15 @@ export class IncidentReporterResource {
   role: ReporterRole;
 }
 
+// Quién la está revisando y desde cuándo (solo en revisión)
+export class IncidentReviewInProgressResource {
+  @ApiProperty({ type: IncidentDriverResource })
+  by: IncidentDriverResource;
+
+  @ApiProperty({ format: 'date-time' })
+  since: string;
+}
+
 export class IncidentReviewResource {
   @ApiProperty({ format: 'date-time' })
   reviewedAt: string;
@@ -98,6 +107,13 @@ export class IncidentResource {
   status: IncidentStatus;
 
   @ApiProperty({
+    type: IncidentReviewInProgressResource,
+    nullable: true,
+    description: 'Who is reviewing it (CU-12); null unless in_review',
+  })
+  reviewInProgress: IncidentReviewInProgressResource | null;
+
+  @ApiProperty({
     type: IncidentReviewResource,
     nullable: true,
     description: 'The review of the administrator (CU-12); null while open',
@@ -118,9 +134,10 @@ export function toIncidentResource({
   incident,
   reporterName,
   reporterRole,
+  reviewStartedByName,
   trip,
 }: IncidentView): IncidentResource {
-  const { reviewedAt, resolution } = incident;
+  const { reviewedAt, resolution, reviewStartedBy, reviewStartedAt } = incident;
   return {
     '@type': 'Incident',
     id: incident.id,
@@ -143,6 +160,15 @@ export function toIncidentResource({
     description: incident.description,
     reportedAt: incident.createdAt.toISOString(),
     status: incident.status,
+    reviewInProgress:
+      incident.status === 'in_review' &&
+      reviewStartedBy !== null &&
+      reviewStartedAt !== null
+        ? {
+            by: { id: reviewStartedBy, name: reviewStartedByName ?? '' },
+            since: reviewStartedAt.toISOString(),
+          }
+        : null,
     review:
       reviewedAt !== null && resolution !== null
         ? { reviewedAt: reviewedAt.toISOString(), resolution }
