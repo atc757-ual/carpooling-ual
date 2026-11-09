@@ -1,69 +1,57 @@
-// La gravedad, como en la lista: el borde izquierdo con el color de su rol
-.incident {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-base);
-  max-width: 48rem; // 768px
-  padding: var(--space-l);
-  border: var(--border-width-s) solid var(--color-border-subtle);
+// La distribución, las tarjetas y las listas, las de los detalles del panel
+// (theme/_admin-detail.scss); aquí, lo propio de la incidencia
+
+// La gravedad, como en la lista: el borde izquierdo del informe con el color
+// de su rol (peligro: con el conductor o el pasajero; aviso: técnico)
+.incident-report {
   border-left: 0.25rem solid var(--color-border); // 4px
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
 }
 
-.incident--danger {
+.incident-report--danger {
   border-left-color: var(--color-danger);
 }
 
-.incident--warning {
+.incident-report--warning {
   border-left-color: var(--color-warning);
 }
 
-.incident__muted {
+// El texto tal como se escribió (con sus saltos de línea)
+.incident-report__text {
   margin: 0;
-  color: var(--color-text-muted);
-}
-
-.incident__section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-
-  h2,
-  p {
-    margin: 0;
-  }
-}
-
-// El informe tal como lo escribió (con sus saltos de línea)
-.incident__description {
-  white-space: pre-line;
   overflow-wrap: anywhere;
+  white-space: pre-line;
 }
 
-.incident__list {
+.incident-review__action {
+  align-self: flex-start;
+  margin: 0;
+}
+
+// El trayecto: cada parada en su línea con su icono (origen, un círculo;
+// destino, la chincheta), como en la franja del detalle de viaje
+.incident-stops {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
   margin: 0;
   padding: 0;
   list-style: none;
-
-  a {
-    color: var(--color-link);
-    font-weight: var(--font-weight-semibold);
-  }
 }
 
-.incident__review {
-  align-self: flex-start;
+.incident-stops__stop {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  overflow-wrap: anywhere;
 }
 
-.incident__state {
-  margin-block-start: var(--space-base);
+.incident-stops__icon {
+  flex: none;
+  color: var(--color-link);
+  font-size: 1rem; // 16px
 }
 
-.incident__skeleton-title {
-  width: 40%;
-  height: 1.25rem; // 20px
+.incident-link {
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
 }

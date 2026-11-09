@@ -45,6 +45,14 @@
   }
 }
 
+// En el móvil, lo principal primero (p. ej. el informe de una incidencia,
+// que hay que leer antes que sus datos)
+.admin-detail--main-first {
+  @media (max-width: 767.98px) {
+    grid-template-areas: 'main' 'aside';
+  }
+}
+
 .admin-detail__main,
 .admin-detail__aside {
   display: flex;

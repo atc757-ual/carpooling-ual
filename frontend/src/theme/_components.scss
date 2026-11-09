@@ -769,26 +769,6 @@ ion-searchbar.admin-heading__search {
   }
 }
 
-// «‹ Usuarios»: volver a la lista desde un detalle, encima del título
-.admin-heading ion-button.admin-heading__back {
-  align-self: flex-start;
-  margin: 0;
-  margin-inline-start: calc(-1 * var(--space-s));
-  font-weight: var(--font-weight-semibold);
-  --padding-start: var(--space-s);
-  --padding-end: var(--space-s);
-  --color: var(--color-on-admin);
-}
-
-// Lo que acompaña al título de un detalle (fecha, estado…) en una línea
-.admin-heading__meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-xs) var(--space-s);
-  margin: 0;
-}
-
 // Listas del panel (Usuarios, Viajes): la tabla dentro de una ion-card
 // (.admin-list), con la paginación al pie. clip (y no hidden) recorta las
 // esquinas sin crear una caja de desplazamiento: así la cabecera de la tabla

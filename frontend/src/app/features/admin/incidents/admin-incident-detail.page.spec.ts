@@ -1,4 +1,6 @@
 import { renderHeadingContent } from '../../../core/services/ui/heading-content.testing';
+import { Location } from '@angular/common';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
@@ -39,15 +41,46 @@ describe('AdminIncidentDetailPage', () => {
     get.mockResolvedValue(INCIDENT);
   });
 
-  it('shows the report, the trip and links to the people involved', async () => {
+  it('titles it with its code and says what, when and who below', async () => {
+    await render();
+    const heading = renderHeadingContent();
+
+    expect(heading.querySelector('h1')?.textContent).toBe('INC-0042');
+    expect(heading.querySelector('.status')?.textContent).toBe('Abierta');
+    const subtitle = heading.querySelector('.admin-heading__subtitle')?.textContent ?? '';
+    expect(subtitle).toContain('Con el conductor');
+    expect(subtitle).toContain('por Lucía Cortés (pasajero)');
+    const crumbs = Array.from(
+      heading.querySelectorAll('ion-breadcrumb'),
+      (crumb) => crumb.textContent,
+    );
+    expect(crumbs).toEqual(['Incidencias', 'Detalle de incidencia']);
+  });
+
+  it('shows the report with its severity, the trip and links to the people', async () => {
     const root = await render();
 
-    expect(renderHeadingContent().querySelector('h1')?.textContent).toContain('Con el conductor');
-    expect(root.textContent).toContain('The driver did not stop at the pickup point');
-    expect(root.textContent).toContain('Roquetas de Mar → Campus UAL');
+    expect(root.querySelector('.incident-report--danger')?.textContent).toContain(
+      'The driver did not stop at the pickup point',
+    );
+    expect(root.querySelector('.incident-stops')?.getAttribute('aria-label')).toBe(
+      'Roquetas de Mar → Campus UAL',
+    );
+    expect(root.textContent).toContain('Salida:');
     const links = Array.from(root.querySelectorAll('a')).map((a) => a.getAttribute('href'));
-    expect(links).toEqual(['/admin/users/p1', '/admin/users/d1']);
-    expect(root.querySelector('.incident__review')).not.toBeNull();
+    expect(links).toEqual(['/admin/trips/t1', '/admin/users/p1', '/admin/users/d1']);
+  });
+
+  it('says when the trip no longer exists', async () => {
+    get.mockResolvedValue({
+      ...INCIDENT,
+      trip: { ...INCIDENT.trip, departureAt: null, driver: null },
+    });
+
+    const root = await render();
+
+    expect(root.textContent).toContain('El viaje ya no existe.');
+    expect(root.textContent).not.toContain('Salida:');
   });
 
   it('reviews it with the resolution and reloads', async () => {
@@ -80,24 +113,44 @@ describe('AdminIncidentDetailPage', () => {
     const root = await render();
 
     expect(root.textContent).toContain('Both were contacted');
-    expect(root.querySelector('.incident__review')).toBeNull();
+    expect(root.querySelector('.incident-review__action')).toBeNull();
   });
 
-  it('tells an unknown incident apart from other errors', async () => {
+  it('tells an unknown incident apart from other errors and retries', async () => {
     get.mockRejectedValue(new ApiError('INCIDENT_NOT_FOUND', 404));
     expect((await render()).textContent).toContain('No encontramos esta incidencia.');
 
     TestBed.resetTestingModule();
     get.mockRejectedValue(new ApiError('INTERNAL_ERROR', 500));
-    expect((await render()).textContent).toContain('No hemos podido cargarla.');
+    expect((await render()).textContent).toContain('No hemos podido cargar la incidencia.');
+
+    get.mockResolvedValue(INCIDENT);
+    fixture.componentInstance.handleRetry();
+    await fixture.whenStable();
+    expect(get).toHaveBeenCalledTimes(3);
   });
 
-  it('goes back to the list when it was opened directly', async () => {
+  it('goes back to the list when it was opened directly, without following the link', async () => {
     await render();
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const event = new Event('click');
+    const preventDefault = vi.spyOn(event, 'preventDefault');
+
+    await fixture.componentInstance.handleBack(event);
+
+    expect(preventDefault).toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith('/admin/incidents');
+  });
+
+  it('goes back to the list with its filters when it came from it', async () => {
+    await render();
+    const router = TestBed.inject(Router);
+    const fromList = signal({ previousNavigation: {} });
+    Object.defineProperty(router, 'lastSuccessfulNavigation', { get: () => fromList });
+    const back = vi.spyOn(TestBed.inject(Location), 'back').mockImplementation(() => undefined);
 
     await fixture.componentInstance.handleBack();
 
-    expect(navigate).toHaveBeenCalledWith('/admin/incidents');
+    expect(back).toHaveBeenCalled();
   });
 });

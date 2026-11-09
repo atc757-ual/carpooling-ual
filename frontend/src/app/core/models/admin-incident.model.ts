@@ -8,6 +8,8 @@ export interface AdminIncident {
   '@type'?: 'Incident';
   id: string;
   href: string;
+  // «INC-0042»: para citarla
+  code: string;
   trip: {
     id: string;
     href: string;

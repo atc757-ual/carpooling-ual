@@ -61,6 +61,7 @@ const INCIDENT = {
   '@type': 'Incident',
   id: '5c1e8a52-3c1e-4f7a-9d2b-5e8c1a4f7b91',
   href: '/api/incidents/5c1e8a52-3c1e-4f7a-9d2b-5e8c1a4f7b91',
+  code: 'INC-0042',
   trip: {
     id: 't1',
     href: '/api/trips/t1',
@@ -464,7 +465,8 @@ for (const viewport of VIEWPORTS) {
 
       cy.contains('a', 'Ver detalle').click();
       cy.location('pathname').should('eq', `/admin/incidents/${INCIDENT.id}`);
-      cy.contains('h1', 'Con el conductor');
+      cy.contains('h1', 'INC-0042');
+      cy.contains('.admin-heading__subtitle', 'Con el conductor');
       cy.contains('a', 'Javier Pardo').should('have.attr', 'href', '/admin/users/d1');
     });
 

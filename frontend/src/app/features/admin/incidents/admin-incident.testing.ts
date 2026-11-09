@@ -4,6 +4,7 @@ import { AdminIncident } from '../../../core/models/admin-incident.model';
 export const INCIDENT: AdminIncident = {
   id: 'i1',
   href: '/api/incidents/i1',
+  code: 'INC-0042',
   trip: {
     id: 't1',
     href: '/api/trips/t1',

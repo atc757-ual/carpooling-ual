@@ -8,19 +8,29 @@ import {
   resource,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { IonButton, IonIcon, IonSkeletonText, ModalController } from '@ionic/angular';
-import { arrowBackOutline } from 'ionicons/icons';
+import {
+  IonBreadcrumb,
+  IonBreadcrumbs,
+  IonButton,
+  IonCard,
+  IonIcon,
+  IonSkeletonText,
+  ModalController,
+} from '@ionic/angular';
+import {
+  carOutline,
+  checkmarkDoneOutline,
+  documentTextOutline,
+  ellipseOutline,
+  locationOutline,
+  peopleOutline,
+} from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminIncidentsService } from '../../../core/services/admin/admin-incidents.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { HeadingContent } from '../../../shared/directives/heading-content.directive';
-import {
-  CATEGORY_LABELS,
-  formatDateTime,
-  incidentRoute,
-  severityOf,
-} from './admin-incident-labels';
+import { incidentDetailView } from './admin-incident-labels';
 import { reviewWithResolution } from './admin-incidents.page';
 
 const INCIDENTS_PATH = '/admin/incidents';
@@ -29,7 +39,16 @@ const INCIDENTS_PATH = '/admin/incidents';
 // personas implicadas (con enlace a su ficha) y la revisión con su resolución
 @Component({
   selector: 'app-admin-incident-detail-page',
-  imports: [HeadingContent, IonButton, IonIcon, IonSkeletonText, RouterLink],
+  imports: [
+    HeadingContent,
+    IonBreadcrumb,
+    IonBreadcrumbs,
+    IonButton,
+    IonCard,
+    IonIcon,
+    IonSkeletonText,
+    RouterLink,
+  ],
   templateUrl: './admin-incident-detail.page.html',
   styleUrl: './admin-incident-detail.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,16 +71,7 @@ export class AdminIncidentDetailPage {
   readonly incident = computed(() => (this.detail.hasValue() ? this.detail.value() : null));
   readonly view = computed(() => {
     const incident = this.incident();
-    return incident
-      ? {
-          title: CATEGORY_LABELS[incident.category],
-          severity: severityOf(incident.category),
-          reportedAt: formatDateTime(incident.reportedAt),
-          route: incidentRoute(incident),
-          departureAt: incident.trip.departureAt ? formatDateTime(incident.trip.departureAt) : null,
-          reviewedAt: incident.review ? formatDateTime(incident.review.reviewedAt) : null,
-        }
-      : null;
+    return incident ? incidentDetailView(incident) : null;
   });
   readonly error = computed(() => {
     const error = this.detail.error();
@@ -73,11 +83,20 @@ export class AdminIncidentDetailPage {
     return error ? getErrorMessage(error) : null;
   });
 
-  protected readonly backIcon = arrowBackOutline;
+  protected readonly icons = {
+    report: documentTextOutline,
+    review: checkmarkDoneOutline,
+    trip: carOutline,
+    origin: ellipseOutline,
+    destination: locationOutline,
+    people: peopleOutline,
+  };
   protected readonly incidentsPath = INCIDENTS_PATH;
 
-  // Volver a la lista con sus filtros (si se llegó desde ella)
-  async handleBack(): Promise<void> {
+  // Volver a la lista con sus filtros (si se llegó desde ella), desde la
+  // cabecera móvil o desde la ruta (que lleva el enlace, pero no lo sigue)
+  async handleBack(event?: Event): Promise<void> {
+    event?.preventDefault();
     if (this.router.lastSuccessfulNavigation()?.previousNavigation) {
       this.location.back();
       return;
