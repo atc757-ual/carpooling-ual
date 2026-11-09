@@ -74,6 +74,8 @@ describe('API docs (e2e)', () => {
       '/api/admin/legal-documents/{type}/draft',
       '/api/admin/legal-documents/{type}/draft/publish',
       '/api/admin/overview',
+      '/api/admin/simulation-sweeps',
+      '/api/admin/simulation-sweeps/{id}',
       '/api/admin/simulations',
       '/api/admin/simulations/scenarios',
       '/api/admin/simulations/{id}',

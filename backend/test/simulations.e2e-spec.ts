@@ -270,4 +270,129 @@ describe('Simulations API (e2e)', () => {
       'SIMULATION_NOT_FOUND',
     );
   });
+
+  // Análisis de sensibilidad (capítulo 11): en esta misma suite porque lanza
+  // ejecuciones, y el simulador solo atiende una a la vez (en otra suite, en
+  // paralelo, chocarían)
+  describe('sensitivity sweeps', () => {
+    interface SweepBody {
+      id: string;
+      href: string;
+      status: string;
+      variants: {
+        value: number;
+        runId: string | null;
+        status: string | null;
+        vehiclesAvoidedPct: number | null;
+        rejectsNull: boolean | null;
+      }[];
+    }
+
+    function sweeps(
+      method: 'get' | 'post',
+      path: string,
+      token = adminToken,
+    ): request.Test {
+      return request(app.getHttpServer())
+        [method](`/api/admin/simulation-sweeps${path}`)
+        .set('Authorization', `Bearer ${token}`);
+    }
+
+    async function waitForSweep(
+      id: string,
+      status: string,
+    ): Promise<SweepBody> {
+      for (let attempt = 0; attempt < 200; attempt++) {
+        const body = (await sweeps('get', `/${id}`).expect(200))
+          .body as SweepBody;
+        if (body.status === status) {
+          return body;
+        }
+        await new Promise((resolve) => setTimeout(resolve, TICK_MS));
+      }
+      throw new Error(`The sweep ${id} never reached ${status}`);
+    }
+
+    it('runs one variant after another and compares them', async () => {
+      const created = await sweeps('post', '')
+        .send({
+          ...PAIR,
+          replicas: 2,
+          seed: 7,
+          parameter: 'ownCarShare',
+          values: [0.2, 0.5],
+        })
+        .expect(201);
+      const sweep = created.body as SweepBody;
+      expect(created.headers.location).toBe(sweep.href);
+      expect(sweep.variants.map(({ value }) => value)).toEqual([0.2, 0.5]);
+      expect(sweep.variants[1].runId).toBeNull();
+
+      const finished = await waitForSweep(sweep.id, 'finished');
+      expect(finished.variants.map(({ status }) => status)).toEqual([
+        'finished',
+        'finished',
+      ]);
+      expect(typeof finished.variants[0].vehiclesAvoidedPct).toBe('number');
+      expect(typeof finished.variants[0].rejectsNull).toBe('boolean');
+
+      // Cada variante es una ejecución normal con su configuración
+      const second = await api('get', `/${finished.variants[1].runId}`).expect(
+        200,
+      );
+      const { scenarioConfig } = second.body as {
+        scenarioConfig: {
+          scenario: { modalSplit: Record<string, number> };
+          baseline: { modalSplit: Record<string, number> };
+        };
+      };
+      expect(scenarioConfig.scenario.modalSplit.own_car).toBe(0.5);
+      expect(scenarioConfig.baseline.modalSplit.own_car).toBe(0.5);
+
+      const list = await sweeps('get', '?limit=1').expect(200);
+      expect(list.headers['x-total-count']).toEqual(expect.any(String));
+      expect((list.body as SweepBody[])[0].id).toBe(sweep.id);
+    });
+
+    it('stops when a variant is cancelled', async () => {
+      const created = await sweeps('post', '')
+        .send({
+          ...PAIR,
+          replicas: 50,
+          seed: 3,
+          parameter: 'adoptionRate',
+          values: [0.2, 0.4],
+        })
+        .expect(201);
+      const sweep = created.body as SweepBody;
+      await api('post', `/${sweep.variants[0].runId}/cancel`).expect(200);
+
+      const stopped = await waitForSweep(sweep.id, 'stopped');
+      expect(stopped.variants[1].runId).toBeNull();
+    });
+
+    it('is only for admins, validates the input and answers 404', async () => {
+      const token = await tokenFor('sweep-passenger');
+      const id = '0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90';
+      await sweeps('get', '', token).expect(403);
+      await sweeps('get', `/${id}`, token).expect(403);
+      const sweep = { ...PAIR, seed: 1, parameter: 'adoptionRate' };
+      await sweeps('post', '', token)
+        .send({ ...sweep, values: [0.2, 0.4] })
+        .expect(403);
+      await sweeps('post', '')
+        .send({ ...sweep, values: [0.3] })
+        .expect(400);
+      await sweeps('post', '')
+        .send({ ...sweep, parameter: 'speed', values: [0.2, 0.3] })
+        .expect(400);
+      await sweeps('post', '')
+        .send({ ...sweep, values: [0.2, 1.5] })
+        .expect(400);
+      const missing = await sweeps('get', `/${id}`).expect(404);
+      expect((missing.body as { code: string }).code).toBe(
+        'SIMULATION_SWEEP_NOT_FOUND',
+      );
+    });
+  });
 });
