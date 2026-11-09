@@ -73,6 +73,22 @@ describe('agentReplica', () => {
     expect(metrics.vehiclesBySlot).toHaveLength(6);
   });
 
+  // Semillas emparejadas entre escenarios (sección 11 de la memoria): con la
+  // misma semilla, la base de cualquier escenario es la ejecución de S0
+  it('pairs every scenario with the S0 run of the same seed', () => {
+    const s0 = agentReplica({ ...job(), scenario: BASELINE }, 4);
+    const s1 = agentReplica(job(), 4);
+    const s3 = agentReplica(
+      job({ code: 'S3', parameters: { timeWindowRangeMin: [5, 60] } }),
+      4,
+    );
+
+    expect(s1.seed).toBe(s0.seed);
+    expect(s1.baselineVehiclesUsed).toBe(s0.vehiclesUsed);
+    expect(s3.baselineVehiclesUsed).toBe(s0.vehiclesUsed);
+    expect(s1.baselineVehiclesBySlot).toEqual(s0.vehiclesBySlot);
+  });
+
   it('measures the recovery when drivers cancel (S5)', () => {
     const metrics = agentReplica(
       job({ parameters: { cancellationRate: 0.5 } }),

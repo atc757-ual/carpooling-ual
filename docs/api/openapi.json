@@ -17050,6 +17050,87 @@
           "baseline"
         ]
       },
+      "WilcoxonResource": {
+        "type": "object",
+        "properties": {
+          "pairs": {
+            "type": "number",
+            "example": 28,
+            "description": "Pairs with a non-zero difference"
+          },
+          "z": {
+            "type": "number",
+            "example": 4.2,
+            "description": "Normal approximation, one-sided"
+          },
+          "rejectsNull": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pairs",
+          "z",
+          "rejectsNull"
+        ]
+      },
+      "PairedTestResource": {
+        "type": "object",
+        "properties": {
+          "alpha": {
+            "type": "number",
+            "example": 0.01,
+            "description": "Bonferroni: 0.05 / 5 comparisons, one-sided"
+          },
+          "replicas": {
+            "type": "number",
+            "example": 30
+          },
+          "meanDifference": {
+            "type": "number",
+            "example": 7.4,
+            "description": "Mean of baseline minus scenario vehicles (positive = fewer)"
+          },
+          "sdDifference": {
+            "type": "number",
+            "example": 2.1
+          },
+          "lowerBound": {
+            "type": "number",
+            "example": 6.45,
+            "description": "Lower bound of the one-sided (1 - alpha) interval"
+          },
+          "tStatistic": {
+            "type": "object",
+            "example": 19.3,
+            "nullable": true,
+            "description": "Paired t; null when every difference is equal"
+          },
+          "rejectsNull": {
+            "type": "boolean",
+            "description": "HE0 is rejected: the scenario uses fewer cars"
+          },
+          "wilcoxon": {
+            "nullable": true,
+            "description": "Signed-rank check; null with fewer than 10 non-zero pairs",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WilcoxonResource"
+              }
+            ]
+          }
+        },
+        "required": [
+          "alpha",
+          "replicas",
+          "meanDifference",
+          "sdDifference",
+          "lowerBound",
+          "tStatistic",
+          "rejectsNull",
+          "wilcoxon"
+        ]
+      },
       "SimulationSummaryResource": {
         "type": "object",
         "properties": {
@@ -17082,6 +17163,16 @@
                 "$ref": "#/components/schemas/MetricStatResource"
               }
             ]
+          },
+          "vehiclesReduction": {
+            "nullable": true,
+            "description": "Hypothesis test; null in runs saved before it existed",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PairedTestResource"
+              }
+            ]
           }
         },
         "required": [
@@ -17090,7 +17181,8 @@
           "vehiclesAvoidedPct",
           "requestsCoveredPct",
           "matchingP95Ms",
-          "recoveryPct"
+          "recoveryPct",
+          "vehiclesReduction"
         ]
       },
       "SlotSeriesResource": {

@@ -52,20 +52,50 @@ describe('simulation metrics', () => {
     );
   });
 
-  it('meets the criterion only with both thresholds', () => {
-    expect(aggregate({ slots: [], replicas: [replica()] }).criterionMet).toBe(
+  // Tres réplicas con 15, 14 y 16 vehículos menos que la base
+  const passing = (overrides: Partial<ReplicaMetrics> = {}) => [
+    replica(overrides),
+    replica({ ...overrides, vehiclesUsed: 86 }),
+    replica({ ...overrides, vehiclesUsed: 84 }),
+  ];
+
+  it('meets the criterion with both thresholds and HE0 rejected', () => {
+    expect(aggregate({ slots: [], replicas: passing() }).criterionMet).toBe(
       true,
     );
     const fewAvoided = aggregate({
       slots: [],
-      replicas: [replica({ vehiclesAvoidedPct: 14.9 })],
+      replicas: passing({ vehiclesAvoidedPct: 14.9 }),
     });
     expect(isCriterionMet(fewAvoided.summary)).toBe(false);
     const fewCovered = aggregate({
       slots: [],
-      replicas: [replica({ requestsCoveredPct: 69 })],
+      replicas: passing({ requestsCoveredPct: 69 }),
     });
     expect(fewCovered.criterionMet).toBe(false);
+  });
+
+  it('does not meet the criterion without the hypothesis test', () => {
+    // Una sola réplica: los umbrales se cumplen, pero no hay contraste
+    const single = aggregate({ slots: [], replicas: [replica()] });
+
+    expect(single.summary.vehiclesReduction.rejectsNull).toBe(false);
+    expect(single.criterionMet).toBe(false);
+  });
+
+  it('tests the vehicle reduction on the paired replicas', () => {
+    const { vehiclesReduction } = aggregate({
+      slots: [],
+      replicas: passing(),
+    }).summary;
+
+    expect(vehiclesReduction).toMatchObject({
+      alpha: 0.01,
+      replicas: 3,
+      meanDifference: 15,
+      rejectsNull: true,
+      wilcoxon: null,
+    });
   });
 
   it('averages the series by slot and the recovery only when there is one', () => {
