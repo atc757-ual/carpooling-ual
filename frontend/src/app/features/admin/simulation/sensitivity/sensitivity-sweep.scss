@@ -1,0 +1,63 @@
+// El marco de la tarjeta lo pone la página (.simulation__card)
+:host {
+  display: block;
+}
+
+.sweep {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+// Escritorio: el supuesto, los valores y el botón en una fila; móvil, en
+// columna
+.sweep__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-base);
+}
+
+.sweep__parameter {
+  flex: 1 1 16rem; // 256px
+  --background: var(--color-surface-subtle);
+
+  ion-segment-button {
+    min-height: 2.75rem; // 44px
+    text-transform: none;
+  }
+}
+
+.sweep__values {
+  flex: 1 1 12rem; // 192px
+}
+
+.sweep__result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.sweep__status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.sweep__table-scroll {
+  overflow-x: auto;
+}
+
+.sweep__table {
+  min-width: 34rem; // 544px: las cinco columnas sin partir las cifras
+}
+
+.sweep__table th[scope='row'] {
+  font-weight: var(--font-weight-semibold);
+  text-align: start;
+}

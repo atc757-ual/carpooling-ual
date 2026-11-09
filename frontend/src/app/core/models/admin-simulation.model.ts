@@ -81,3 +81,41 @@ export interface StartSimulation {
   replicas?: number;
   seed: number;
 }
+
+// Análisis de sensibilidad (API /api/admin/simulation-sweeps, capítulo 11):
+// el mismo escenario con varios valores de un supuesto
+export type SweepParameter = 'ownCarShare' | 'adoptionRate';
+export type SweepStatus = 'running' | 'finished' | 'stopped';
+
+export interface SweepVariant {
+  value: number;
+  runId: string | null;
+  runHref: string | null;
+  status: SimulationRunStatus | null;
+  progress: number;
+  vehiclesAvoidedPct: number | null;
+  vehiclesAvoidedCiLow: number | null;
+  vehiclesAvoidedCiHigh: number | null;
+  requestsCoveredPct: number | null;
+  rejectsNull: boolean | null;
+  criterionMet: boolean | null;
+}
+
+export interface SimulationSweep {
+  '@type'?: 'SimulationSweep';
+  id: string;
+  href: string;
+  scenario: string;
+  baselineScenario: string;
+  parameter: SweepParameter;
+  replicas: number;
+  seed: number;
+  status: SweepStatus;
+  variants: SweepVariant[];
+  createdAt: string;
+}
+
+export interface StartSweep extends StartSimulation {
+  parameter: SweepParameter;
+  values: number[];
+}

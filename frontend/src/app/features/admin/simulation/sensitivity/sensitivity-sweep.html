@@ -1,0 +1,92 @@
+<section class="sweep" aria-labelledby="sweep-title">
+  <h2 id="sweep-title" class="text-title">Análisis de sensibilidad</h2>
+  <p class="text-body-s text-color-muted">
+    Repite {{ scenario() }} con varios valores de un supuesto, con las mismas semillas, para ver a
+    partir de cuál se cumple el criterio.
+  </p>
+
+  <div class="sweep__form">
+    <ion-segment
+      class="sweep__parameter"
+      aria-label="Supuesto que se varía: % de usuarios en coche propio o % de adopción"
+      [value]="parameter()"
+      (ionChange)="handleParameter($event.detail.value)"
+    >
+      <ion-segment-button value="ownCarShare">
+        <ion-label>En coche</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="adoptionRate">
+        <ion-label>Adopción</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+    <ion-input
+      class="sweep__values"
+      label="Valores (%)"
+      labelPlacement="stacked"
+      fill="outline"
+      helperText="De 2 a 5 valores entre 5 y 100, separados por comas."
+      [value]="valuesText()"
+      [errorText]="values() ? '' : 'De 2 a 5 valores distintos entre 5 y 100.'"
+      [class.ion-invalid]="!values()"
+      [class.ion-touched]="!values()"
+      (ionInput)="handleValues($event)"
+    />
+    <ion-button [disabled]="!canStart()" (click)="handleStart()">{{ startLabel() }}</ion-button>
+  </div>
+  @if (isBlocked() && !isRunning()) {
+    <p class="text-body-s text-color-muted">
+      Hay una ejecución en marcha: el simulador atiende una a la vez.
+    </p>
+  }
+  @if (startError(); as error) {
+    <p class="notice notice--danger" role="alert">{{ error }}</p>
+  }
+
+  @if (current(); as sweep) {
+    <div class="sweep__result" aria-live="polite">
+      <p class="sweep__status">
+        <span class="text-label">{{ sweep.scenario }} frente a {{ sweep.baselineScenario }}</span>
+        <span class="text-body-s text-color-muted"
+          >{{ sweep.replicas }} réplicas · semilla {{ sweep.seed }} · {{ progressLabel() }}</span
+        >
+      </p>
+      @if (isRunning()) {
+        <ion-progress-bar [value]="progress()" />
+      }
+      <app-sensitivity-chart [variants]="sweep.variants" [parameter]="sweep.parameter" />
+      <!-- En el móvil, la tabla se desplaza de lado dentro de su caja -->
+      <div
+        class="sweep__table-scroll"
+        tabindex="0"
+        role="region"
+        aria-label="Tabla de resultados por valor"
+      >
+        <table class="admin-table sweep__table">
+          <caption class="visually-hidden">
+            Resultados por valor del supuesto
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Valor</th>
+              <th scope="col">Vehículos evitados</th>
+              <th scope="col">Solicitudes cubiertas</th>
+              <th scope="col">HE0</th>
+              <th scope="col">Criterio</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.value) {
+              <tr>
+                <th scope="row">{{ row.value }}</th>
+                <td>{{ row.avoided }}</td>
+                <td>{{ row.covered }}</td>
+                <td>{{ row.test }}</td>
+                <td>{{ row.criterion }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</section>
