@@ -65,16 +65,19 @@ export function incidentStatus(status: AdminIncident['status']): {
 }
 
 // Lo que puede hacer el administrador con la revisión: empezarla (registrada),
-// atenderla o dejarla (la revisa él), solo verla (la revisa otro) o leer la
-// resolución (atendida)
-export type ReviewState = 'open' | 'mine' | 'other' | 'done';
+// atenderla o dejarla (la revisa él), solo verla (la revisa otro o está
+// implicado en el viaje) o leer la resolución (atendida)
+export type ReviewState = 'open' | 'mine' | 'other' | 'involved' | 'done';
 
 export function reviewStateOf(
-  incident: Pick<AdminIncident, 'status' | 'reviewInProgress'>,
+  incident: Pick<AdminIncident, 'status' | 'reviewInProgress' | 'isViewerInvolved'>,
   adminId: string | undefined,
 ): ReviewState {
   if (incident.status === 'reviewed') {
     return 'done';
+  }
+  if (incident.isViewerInvolved) {
+    return 'involved';
   }
   if (incident.status === 'open') {
     return 'open';

@@ -100,6 +100,18 @@
                 </span>
               </div>
             }
+            @case ('involved') {
+              <!-- Conflicto de intereses: la gestiona otro administrador -->
+              <div class="notice notice--warning">
+                <span>
+                  <b>Otro administrador debe gestionarla</b>
+                  Estás implicado en este viaje: la registraste, lo conduces o pediste plaza en él.
+                  @if (view.reviewer) {
+                    La está revisando {{ view.reviewer }} desde el {{ view.reviewSince }}.
+                  }
+                </span>
+              </div>
+            }
           }
         </ion-card>
       </div>
