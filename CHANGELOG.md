@@ -9,6 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- **Frontend:** las tablas del panel (usuarios, viajes, catálogos, simulación y gemelo digital) pasan a tarjetas cuando su tarjeta se queda estrecha, no solo en el móvil: con la ventana mediana ya no se cortan las columnas, y en escritorio ancho siguen siendo tablas (#248).
 - **Simulación:** una ejecución perdida o que no se puede guardar pasa a fallida en vez de quedarse en curso para siempre; «Ver resultados» solo aparece al terminar y el historial va en una card (#239).
 - **Frontend:** en Edge, los campos de contraseña ya no muestran dos ojos: se quita el botón propio del navegador (`::-ms-reveal`, y la ✕ de `::-ms-clear`) y queda solo el de la app (#236).
 - **Frontend:** en el móvil, el menú lateral del panel ya no queda debajo de la franja del título (se esconde con el menú abierto) ni repite el nombre de la app, que ya está en la cabecera (#233).
