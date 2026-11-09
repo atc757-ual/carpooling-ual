@@ -170,6 +170,15 @@ describe('TabsPage', () => {
     expect(links).toEqual(['Buscar', 'Publicar', 'En curso', 'Tus viajes', 'Mensajes']);
   });
 
+  it('gives the car of the tab bar the role its tablist requires', () => {
+    render();
+    fixture.detectChanges();
+    const car = fixture.nativeElement.querySelector('.live-tab--bar') as HTMLButtonElement;
+
+    expect(car.getAttribute('role')).toBe('tab');
+    expect(car.getAttribute('aria-selected')).toBe('false');
+  });
+
   it('keeps the car off and does nothing without a trip in progress', async () => {
     const page = render();
     fixture.detectChanges();
