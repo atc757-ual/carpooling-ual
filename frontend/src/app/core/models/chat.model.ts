@@ -9,7 +9,15 @@ export type QuickReply =
   | 'leaving_soon'
   | 'still_going'
   | 'arriving_soon'
-  | 'stopping_here';
+  | 'stopping_here'
+  | 'on_time'
+  | 'still_coming'
+  | 'im_coming'
+  | 'pickup_where'
+  | 'waiting_for_you'
+  | 'heading_down'
+  | 'i_see_you'
+  | 'can_we_stop';
 
 export type ChatRole = 'driver' | 'passenger';
 

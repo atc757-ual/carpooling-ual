@@ -1,4 +1,4 @@
-import { ChatMessage, QuickReply } from '../../core/models/chat.model';
+import { ChatMessage, ChatRole, QuickReply } from '../../core/models/chat.model';
 
 // El texto de cada respuesta rápida (la API guarda solo la clave)
 export const QUICK_REPLY_TEXTS: Record<QuickReply, string> = {
@@ -10,31 +10,69 @@ export const QUICK_REPLY_TEXTS: Record<QuickReply, string> = {
   still_going: '¿Sigues yendo?',
   arriving_soon: 'Llegamos en unos minutos',
   stopping_here: 'Paro aquí un momento',
+  on_time: 'Salgo a la hora',
+  still_coming: '¿Sigues viniendo?',
+  im_coming: 'Sí, voy',
+  pickup_where: '¿Dónde me recoges?',
+  waiting_for_you: 'Te espero 2 min más',
+  heading_down: 'Ya voy para allá',
+  i_see_you: 'Te veo',
+  can_we_stop: '¿Podemos parar un momento?',
 };
 
 export const QUICK_REPLIES = Object.keys(QUICK_REPLY_TEXTS) as QuickReply[];
 
 // Desde cuánto antes de la salida se considera que va a recoger
 const PICKUP_WINDOW_MS = 15 * 60 * 1000;
-const BEFORE_LEAVING: readonly QuickReply[] = ['leaving_soon', 'still_going'];
-const ON_THE_WAY: readonly QuickReply[] = [
+
+type TripMoment = 'before' | 'pickup' | 'inProgress';
+
+const DRIVER_PICKUP: readonly QuickReply[] = [
   'on_my_way',
   'running_late',
   'at_pickup',
+  'waiting_for_you',
   'where_are_you',
 ];
-// En curso se sigue recogiendo gente: el chat no sabe quién ha subido ya
-const IN_PROGRESS: readonly QuickReply[] = [...ON_THE_WAY, 'arriving_soon', 'stopping_here'];
+const PASSENGER_PICKUP: readonly QuickReply[] = [
+  'heading_down',
+  'at_pickup',
+  'running_late',
+  'i_see_you',
+  'where_are_you',
+];
 
-// Las respuestas que tienen sentido según el momento del viaje
+// En curso se sigue recogiendo gente (el chat no sabe quién ha subido ya):
+// se mantienen las de la recogida
+const QUICK_REPLIES_BY_ROLE: Readonly<
+  Record<ChatRole, Readonly<Record<TripMoment, readonly QuickReply[]>>>
+> = {
+  driver: {
+    before: ['leaving_soon', 'on_time', 'still_coming', 'running_late'],
+    pickup: DRIVER_PICKUP,
+    inProgress: [...DRIVER_PICKUP, 'arriving_soon', 'stopping_here'],
+  },
+  passenger: {
+    before: ['still_going', 'im_coming', 'pickup_where', 'running_late'],
+    pickup: PASSENGER_PICKUP,
+    inProgress: [...PASSENGER_PICKUP, 'can_we_stop'],
+  },
+};
+
+function tripMoment(trip: { status: string; departureAt: string }, now: number): TripMoment {
+  if (trip.status === 'in_progress') {
+    return 'inProgress';
+  }
+  return Date.parse(trip.departureAt) - now > PICKUP_WINDOW_MS ? 'before' : 'pickup';
+}
+
+// Las respuestas que tienen sentido para quien escribe en este momento del viaje
 export function quickRepliesForMoment(
   trip: { status: string; departureAt: string },
+  role: ChatRole,
   now = Date.now(),
 ): readonly QuickReply[] {
-  if (trip.status === 'in_progress') {
-    return IN_PROGRESS;
-  }
-  return Date.parse(trip.departureAt) - now > PICKUP_WINDOW_MS ? BEFORE_LEAVING : ON_THE_WAY;
+  return QUICK_REPLIES_BY_ROLE[role][tripMoment(trip, now)];
 }
 
 // Lo que se lee de un mensaje: su texto o el de su respuesta rápida

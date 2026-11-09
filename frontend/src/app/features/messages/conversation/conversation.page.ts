@@ -156,8 +156,8 @@ export class ConversationPage {
   });
 
   protected readonly quickReplies = computed(() => {
-    const trip = this.conversation()?.trip;
-    return trip ? quickRepliesForMoment(trip) : [];
+    const conversation = this.conversation();
+    return conversation ? quickRepliesForMoment(conversation.trip, conversation.myRole) : [];
   });
   protected readonly quickReplyText = QUICK_REPLY_TEXTS;
   protected readonly maxLength = MAX_MESSAGE_LENGTH;

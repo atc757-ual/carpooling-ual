@@ -23,6 +23,14 @@ const QUICK_REPLY_COPY: Readonly<Record<QuickReply, string>> = {
   still_going: '¿Sigues yendo?',
   arriving_soon: 'Llegamos en unos minutos',
   stopping_here: 'Paro aquí un momento',
+  on_time: 'Salgo a la hora',
+  still_coming: '¿Sigues viniendo?',
+  im_coming: 'Sí, voy',
+  pickup_where: '¿Dónde me recoges?',
+  waiting_for_you: 'Te espero 2 min más',
+  heading_down: 'Ya voy para allá',
+  i_see_you: 'Te veo',
+  can_we_stop: '¿Podemos parar un momento?',
 };
 
 // «Ya estoy en el punto (respuesta rápida)»
