@@ -24,6 +24,9 @@ export interface AdminIncident {
   description: string;
   reportedAt: string;
   status: IncidentStatus;
+  // El administrador que la consulta está implicado en el viaje (la registró,
+  // lo conduce o pidió plaza): la gestiona otro
+  isViewerInvolved: boolean;
   // Quién la está revisando y desde cuándo (solo en revisión)
   reviewInProgress: { by: { id: string; name: string }; since: string } | null;
   // La revisión terminada: quién la atendió, cuándo la empezó (null en las

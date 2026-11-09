@@ -465,6 +465,26 @@ export class RequestsService {
     });
   }
 
+  // De estos viajes, en cuáles pidió plaza el usuario (en cualquier estado):
+  // quien la pidió está implicado en sus incidencias (CU-12)
+  async tripIdsRequestedBy(
+    passengerId: string,
+    tripIds: string[],
+    manager?: EntityManager,
+  ): Promise<Set<string>> {
+    if (tripIds.length === 0) {
+      return new Set();
+    }
+    const repo = manager
+      ? manager.getRepository(SeatRequest)
+      : this.requestsRepository;
+    const rows = await repo.find({
+      select: { tripId: true },
+      where: { passengerId, tripId: In([...new Set(tripIds)]) },
+    });
+    return new Set(rows.map(({ tripId }) => tripId));
+  }
+
   // Ids de los viajes donde el usuario tuvo plaza aceptada (RF-22)
   async acceptedTripIdsOfPassenger(passengerId: string): Promise<string[]> {
     const rows = await this.requestsRepository.find({

@@ -196,6 +196,27 @@ describe('AdminIncidentDetailPage', () => {
     expect(root.querySelector('.incident-review__actions')).toBeNull();
   });
 
+  it('tells an admin involved in the trip that another one must manage it', async () => {
+    get.mockResolvedValue({ ...INCIDENT, isViewerInvolved: true });
+    const root = await render();
+
+    const notice = root.querySelector('.notice--warning')?.textContent ?? '';
+    expect(notice).toContain('Otro administrador debe gestionarla');
+    expect(notice).not.toContain('La está revisando');
+    expect(root.querySelector('.incident-review__actions')).toBeNull();
+
+    TestBed.resetTestingModule();
+    get.mockResolvedValue({
+      ...IN_REVIEW,
+      isViewerInvolved: true,
+      reviewInProgress: { by: { id: 'b2', name: 'Bea Admin' }, since: '2026-11-02T09:00:00.000Z' },
+    });
+    const reviewed = await render();
+    expect(reviewed.querySelector('.notice--warning')?.textContent).toContain(
+      'La está revisando Bea Admin',
+    );
+  });
+
   it('tells an unknown incident apart from other errors and retries', async () => {
     get.mockRejectedValue(new ApiError('INCIDENT_NOT_FOUND', 404));
     expect((await render()).textContent).toContain('No encontramos esta incidencia.');

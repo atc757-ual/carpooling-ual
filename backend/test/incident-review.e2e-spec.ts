@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { DomainEvent } from '../src/events/entities/domain-event.entity';
 import { IncidentAlreadyReviewedError } from '../src/modules/incidents/errors/incident-already-reviewed.error';
+import { IncidentInvolvedAdminError } from '../src/modules/incidents/errors/incident-involved-admin.error';
 import { IncidentNotFoundError } from '../src/modules/incidents/errors/incident-not-found.error';
 import { IncidentReviewTakenError } from '../src/modules/incidents/errors/incident-review-taken.error';
 import { InvalidIncidentTransitionError } from '../src/modules/incidents/errors/invalid-incident-transition.error';
@@ -67,9 +68,15 @@ describe('Incident review (e2e)', () => {
     return user.id;
   }
 
-  // Una incidencia registrada por el conductor (dan) en un viaje en curso
-  async function reportedIncident(): Promise<string> {
-    const driverId = await createUser('dan', ['driver']);
+  type Profile = 'driver' | 'passenger' | 'admin';
+
+  // Una incidencia registrada por el conductor (dan) en un viaje en curso con
+  // una pasajera aceptada (pia) y, si se indica, alguien que solo pidió plaza
+  // (rex, sin aceptar). Los perfiles permiten hacer administrador a cualquiera
+  async function reportedIncident(
+    profiles: { dan?: Profile[]; pia?: Profile[]; rex?: Profile[] } = {},
+  ): Promise<string> {
+    const driverId = await createUser('dan', profiles.dan ?? ['driver']);
     await usersService.declareDriverLicense(driverId);
     const vehicle = await app.get(VehiclesService).register(driverId, {
       plate: '9931BCD',
@@ -89,9 +96,13 @@ describe('Incident review (e2e)', () => {
     });
     await setDepartureIn(dataSource, trip.id, 10);
     const requests = app.get(RequestsService);
-    const pia = await createUser('pia', ['passenger']);
+    const pia = await createUser('pia', profiles.pia ?? ['passenger']);
     const { request } = await requests.request(pia, trip.id);
     await requests.accept(driverId, request.id);
+    if (profiles.rex) {
+      const rex = await createUser('rex', profiles.rex);
+      await requests.request(rex, trip.id);
+    }
     await trips.start(driverId, trip.id);
     const { incident } = await app
       .get(IncidentsService)
@@ -205,6 +216,38 @@ describe('Incident review (e2e)', () => {
     await expect(review.start(ada, id)).rejects.toBeInstanceOf(
       IncidentAlreadyReviewedError,
     );
+  });
+
+  it('an admin involved in the trip cannot manage it: who reported it, the passengers and who requested a seat', async () => {
+    const id = await reportedIncident({
+      dan: ['driver', 'admin'],
+      pia: ['passenger', 'admin'],
+      rex: ['passenger', 'admin'],
+    });
+    const adminIds = await Promise.all(
+      ['dan', 'pia', 'rex'].map(async (name) => {
+        const user = await usersService.findByEmail(
+          `${EMAIL_PREFIX}${name}@ual.es`,
+        );
+        return user?.id ?? '';
+      }),
+    );
+
+    for (const adminId of adminIds) {
+      await expect(review.start(adminId, id)).rejects.toBeInstanceOf(
+        IncidentInvolvedAdminError,
+      );
+    }
+    const view = await app.get(IncidentsService).get(adminIds[2], true, id);
+    expect(view.isViewerInvolved).toBe(true);
+  });
+
+  it('marks the incident as not involved for an outside admin', async () => {
+    const id = await reportedIncident();
+    const ada = await createUser('ada', ['admin']);
+
+    const view = await app.get(IncidentsService).get(ada, true, id);
+    expect(view.isViewerInvolved).toBe(false);
   });
 
   it('answers INCIDENT_NOT_FOUND for an unknown incident', async () => {

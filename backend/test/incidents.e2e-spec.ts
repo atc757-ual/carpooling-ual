@@ -147,6 +147,7 @@ describe('Incidents API (e2e)', () => {
       description: BREAKDOWN,
       reportedAt: expect.any(String) as string,
       status: 'open',
+      isViewerInvolved: false,
       reviewInProgress: null,
       review: null,
     });
