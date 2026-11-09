@@ -5,7 +5,9 @@ export interface TripRoute {
   tripId: string;
   distanceKm: number;
   durationMin: number;
-  geometry: { type: 'LineString'; coordinates: [number, number][] };
+  // Sin trazado (null) para quien no tiene plaza: señalaría dónde empieza o
+  // acaba el conductor
+  geometry: { type: 'LineString'; coordinates: [number, number][] } | null;
   source: 'osrm' | 'estimated';
   tripStatus: TripStatus;
   startedAt: string | null;

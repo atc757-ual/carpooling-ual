@@ -41,6 +41,17 @@
   color: var(--color-on-eco);
 }
 
+// La zona de un punto aproximado (Leaflet la pinta en SVG: se colorea con
+// fill y stroke). Para quien no tiene plaza: no se ve la casa del conductor
+.trip-route-map__zone {
+  fill: var(--color-link);
+  fill-opacity: 0.12;
+  stroke: var(--color-link);
+  stroke-opacity: 0.5;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
 .trip-live-map__car-marker {
   display: grid;
   border: var(--border-width-m) solid var(--color-surface);

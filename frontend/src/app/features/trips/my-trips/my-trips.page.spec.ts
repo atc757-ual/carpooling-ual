@@ -151,6 +151,7 @@ describe('MyTripsPage', () => {
     const live: Trip = {
       ...trip('t1', 'in_progress'),
       vehicle: null,
+      isLocationApproximate: false,
       driver: {
         id: 'd1',
         name: 'Lucía Cortés',

@@ -13,11 +13,16 @@ import { TripRoute } from '../../../../core/models/trip-route.model';
 const TILES_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TILES_ATTRIBUTION = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 const MARKER_SIZE = 28;
+// Radio del círculo de la zona en que está un punto aproximado (el servidor
+// lo redondea a una cuadrícula de unos 500 m)
+const APPROXIMATE_RADIUS_METERS = 300;
 
-// Un punto del mapa: GeoJSON ([longitud, latitud]) y su nombre
+// Un punto del mapa: GeoJSON ([longitud, latitud]) y su nombre. Aproximado:
+// se pinta con la zona alrededor (quien no tiene plaza no ve el exacto)
 export interface RoutePoint {
   coordinates: [number, number];
   label: string;
+  isApproximate?: boolean;
 }
 
 interface RouteMarker {
@@ -27,8 +32,8 @@ interface RouteMarker {
 }
 
 // Mapa de la ruta del conductor y, si se indica, del punto de recogida del
-// pasajero (en el panel, sin recogida). El alto lo fija quien lo usa con
-// --trip-route-map-height
+// pasajero (en el panel, sin recogida). Sin trazado (quien no tiene plaza),
+// solo los puntos. El alto lo fija quien lo usa con --trip-route-map-height
 @Component({
   selector: 'app-trip-route-map',
   template: `
@@ -39,6 +44,9 @@ interface RouteMarker {
         <span class="trip-route-map__legend-item"><b>R</b> Recogida</span>
       }
       <span class="trip-route-map__legend-item"><b>D</b> Destino</span>
+      @if (hasApproximatePoints()) {
+        <span class="trip-route-map__legend-item">Zona aproximada</span>
+      }
     </p>
   `,
   styleUrl: './trip-route-map.scss',
@@ -49,8 +57,14 @@ export class TripRouteMap implements OnDestroy {
   readonly pickup = input<RoutePoint | null>(null);
   readonly destination = input.required<RoutePoint>();
 
+  protected readonly hasApproximatePoints = computed(
+    () => this.origin().isApproximate === true || this.destination().isApproximate === true,
+  );
   protected readonly label = computed(() => {
-    const route = `Ruta del conductor: ${this.origin().label} a ${this.destination().label}`;
+    const ends = `${this.origin().label} a ${this.destination().label}`;
+    const route = this.hasApproximatePoints()
+      ? `Zona aproximada del viaje: ${ends}`
+      : `Ruta del conductor: ${ends}`;
     const pickup = this.pickup();
     return pickup ? `${route}; recogida en ${pickup.label}` : route;
   });
@@ -106,14 +120,21 @@ export class TripRouteMap implements OnDestroy {
     });
     this.map = map;
     leaflet.tileLayer(TILES_URL, { maxZoom: 19, attribution: TILES_ATTRIBUTION }).addTo(map);
-    const routePoints = route.geometry.coordinates.map(
+    const routePoints = (route.geometry?.coordinates ?? []).map(
       ([lon, lat]) => [lat, lon] as [number, number],
     );
-    leaflet.polyline(routePoints, { color: 'var(--color-link)', weight: 5 }).addTo(map);
+    if (routePoints.length > 0) {
+      leaflet.polyline(routePoints, { color: 'var(--color-link)', weight: 5 }).addTo(map);
+    }
     const bounds = leaflet.latLngBounds(routePoints);
     for (const marker of markers) {
       this.addMarker(leaflet, map, marker);
-      bounds.extend([marker.point.coordinates[1], marker.point.coordinates[0]]);
+      const [lon, lat] = marker.point.coordinates;
+      bounds.extend([lat, lon]);
+      if (marker.point.isApproximate) {
+        // La zona entera a la vista, no solo su centro
+        bounds.extend(leaflet.latLng(lat, lon).toBounds(APPROXIMATE_RADIUS_METERS * 2));
+      }
     }
     map.fitBounds(bounds, { padding: [24, 24], maxZoom: 15 });
     if (typeof ResizeObserver !== 'undefined') {
@@ -128,6 +149,15 @@ export class TripRouteMap implements OnDestroy {
     { point, letter, modifier }: RouteMarker,
   ): void {
     const [lon, lat] = point.coordinates;
+    if (point.isApproximate) {
+      leaflet
+        .circle([lat, lon], {
+          radius: APPROXIMATE_RADIUS_METERS,
+          className: 'trip-route-map__zone',
+          interactive: false,
+        })
+        .addTo(map);
+    }
     leaflet
       .marker([lat, lon], {
         title: point.label,
