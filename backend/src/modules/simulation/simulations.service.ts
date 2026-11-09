@@ -283,11 +283,9 @@ export class SimulationsService implements SimulationRunListener {
   }
 
   // Ya confirmada la transacción: el siguiente paso (p. ej. otra variante)
-  // puede lanzar una ejecución nueva
+  // puede lanzar una ejecución nueva. Los suscriptores no dependen entre sí
   private async notifyEnded(run: SimulationRun): Promise<void> {
-    for (const listener of this.endedListeners) {
-      await listener(run);
-    }
+    await Promise.all(this.endedListeners.map((listener) => listener(run)));
   }
 
   private async findScenario(code: string): Promise<Scenario> {
