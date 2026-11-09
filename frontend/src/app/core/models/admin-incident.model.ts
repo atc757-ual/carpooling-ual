@@ -2,7 +2,8 @@
 export const INCIDENT_CATEGORIES = ['technical', 'driver', 'passenger', 'other'] as const;
 export type IncidentCategory = (typeof INCIDENT_CATEGORIES)[number];
 
-export type IncidentStatus = 'open' | 'reviewed';
+// Registrada → en revisión (la lleva un administrador) → atendida
+export type IncidentStatus = 'open' | 'in_review' | 'reviewed';
 
 export interface AdminIncident {
   '@type'?: 'Incident';
@@ -23,6 +24,8 @@ export interface AdminIncident {
   description: string;
   reportedAt: string;
   status: IncidentStatus;
+  // Quién la está revisando y desde cuándo (solo en revisión)
+  reviewInProgress: { by: { id: string; name: string }; since: string } | null;
   review: { reviewedAt: string; resolution: string } | null;
 }
 

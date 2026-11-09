@@ -36,15 +36,15 @@ import {
 
 export const PAGE_SIZE = 20;
 const CATEGORIES = new Set<string>(INCIDENT_CATEGORIES);
-const STATUS_VALUES = new Set<string>(['open', 'reviewed', 'all']);
+const STATUS_VALUES = new Set<string>(['open', 'in_review', 'reviewed', 'all']);
 const SKELETON_ROWS = [1, 2, 3, 4, 5];
 // Los que se quitan desde el resumen de «Más filtros» (el estado vuelve a
-// «Abiertas», el de por defecto)
+// «Registradas», el de por defecto)
 const CHIP_FILTERS = new Set<string>(['status', 'category']);
 
 // Incidencias del panel (CU-12), como Usuarios: la lista con su paginación en
 // la columna de 8 (la gravedad en el borde de cada fila, que abre el detalle) y
-// el estado (abiertas por defecto) y la categoría en la de 4 (en el móvil, tras
+// el estado (registradas por defecto) y la categoría en la de 4 (en el móvil, tras
 // «Más filtros»). Los filtros y la página van en la URL
 @Component({
   selector: 'app-admin-incidents-page',
@@ -109,7 +109,7 @@ export class AdminIncidentsPage {
     }),
   );
   readonly total = computed(() => this.page.value()?.total ?? 0);
-  // Lo que no es lo de por defecto (estado distinto de «Abiertas» y categoría),
+  // Lo que no es lo de por defecto (estado distinto de «Registradas» y categoría),
   // para el resumen del móvil con «Más filtros» cerrado
   readonly activeFilters = computed<ActiveFilter[]>(() => {
     const status = this.statusFilter();

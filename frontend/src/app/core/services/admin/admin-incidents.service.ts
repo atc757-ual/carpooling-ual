@@ -57,13 +57,31 @@ export class AdminIncidentsService {
     return this.call(this.http.get<AdminIncident>(`${this.url}/${incidentId}`));
   }
 
-  // Revisada y cerrada, con su resolución. Actualiza el número de abiertas
+  // Empezar a revisarla (registrada → en revisión) o dejarla (vuelve a
+  // registrada). Cambian el número de registradas
+  startReview(incidentId: string): Promise<AdminIncident> {
+    return this.changeReview(incidentId, 'review/start');
+  }
+
+  releaseReview(incidentId: string): Promise<AdminIncident> {
+    return this.changeReview(incidentId, 'review/release');
+  }
+
+  // Atendida, con su resolución (solo quien la revisa)
   async review(incidentId: string, resolution: string): Promise<AdminIncident> {
     const reviewed = await this.call(
       this.http.post<AdminIncident>(`${this.url}/${incidentId}/review`, { resolution }),
     );
     void this.refreshOpenCount();
     return reviewed;
+  }
+
+  private async changeReview(incidentId: string, action: string): Promise<AdminIncident> {
+    const changed = await this.call(
+      this.http.post<AdminIncident>(`${this.url}/${incidentId}/${action}`, {}),
+    );
+    void this.refreshOpenCount();
+    return changed;
   }
 
   private async call<T>(request: Observable<T>): Promise<T> {

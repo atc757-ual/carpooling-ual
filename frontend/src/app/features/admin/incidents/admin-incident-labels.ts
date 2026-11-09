@@ -22,8 +22,9 @@ const SEVERITIES: Record<IncidentCategory, IncidentSeverity> = {
 };
 
 export const STATUS_FILTERS = [
-  { value: 'open', label: 'Abiertas' },
-  { value: 'reviewed', label: 'Revisadas' },
+  { value: 'open', label: 'Registradas' },
+  { value: 'in_review', label: 'En revisión' },
+  { value: 'reviewed', label: 'Atendidas' },
   { value: 'all', label: 'Todas' },
 ] as const;
 export type StatusFilter = (typeof STATUS_FILTERS)[number]['value'];
@@ -50,13 +51,35 @@ export function incidentRoute(incident: Pick<AdminIncident, 'trip'>): string {
 }
 
 // El estado en texto y su etiqueta (.status), igual en la lista y el detalle
+const STATUSES: Record<AdminIncident['status'], { label: string; cssClass: string }> = {
+  open: { label: 'Registrada', cssClass: 'status status--pending' },
+  in_review: { label: 'En revisión', cssClass: 'status status--info' },
+  reviewed: { label: 'Atendida', cssClass: 'status status--accepted' },
+};
+
 export function incidentStatus(status: AdminIncident['status']): {
   label: string;
   cssClass: string;
 } {
-  return status === 'open'
-    ? { label: 'Abierta', cssClass: 'status status--pending' }
-    : { label: 'Revisada', cssClass: 'status status--accepted' };
+  return STATUSES[status];
+}
+
+// Lo que puede hacer el administrador con la revisión: empezarla (registrada),
+// atenderla o dejarla (la revisa él), solo verla (la revisa otro) o leer la
+// resolución (atendida)
+export type ReviewState = 'open' | 'mine' | 'other' | 'done';
+
+export function reviewStateOf(
+  incident: Pick<AdminIncident, 'status' | 'reviewInProgress'>,
+  adminId: string | undefined,
+): ReviewState {
+  if (incident.status === 'reviewed') {
+    return 'done';
+  }
+  if (incident.status === 'open') {
+    return 'open';
+  }
+  return incident.reviewInProgress?.by.id === adminId ? 'mine' : 'other';
 }
 
 const USERS_PATH = '/admin/users';
@@ -114,6 +137,8 @@ export function incidentDetailView(incident: AdminIncident) {
     // Sin conductor, el viaje ya no existe
     tripLink: trip.driver ? [TRIPS_PATH, trip.id] : null,
     people: incidentPeopleList(incident),
+    reviewer: incident.reviewInProgress?.by.name ?? null,
+    reviewSince: incident.reviewInProgress ? formatDateTime(incident.reviewInProgress.since) : null,
     reviewedAt: review ? formatDateTime(review.reviewedAt) : null,
   };
 }

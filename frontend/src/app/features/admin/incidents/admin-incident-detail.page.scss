@@ -22,9 +22,15 @@
   white-space: pre-line;
 }
 
-.incident-review__action {
-  align-self: flex-start;
-  margin: 0;
+// Las acciones de la revisión, en una fila que baja si no cabe
+.incident-review__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+
+  ion-button {
+    margin: 0;
+  }
 }
 
 // El trayecto: cada parada en su línea con su icono (origen, un círculo;

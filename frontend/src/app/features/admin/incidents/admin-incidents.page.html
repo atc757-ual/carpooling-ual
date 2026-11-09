@@ -10,7 +10,7 @@
 </ng-template>
 
 <div class="incidents">
-  <!-- Columna de 4 (arriba en el móvil): estado (abiertas por defecto) y
+  <!-- Columna de 4 (arriba en el móvil): estado (registradas por defecto) y
        categoría. Cambiar uno vuelve a la primera página -->
   <aside class="incidents__aside" aria-label="Filtrar incidencias">
     <app-filters-card
@@ -60,7 +60,9 @@
         <output class="admin-empty">
           <ion-icon [icon]="emptyIcon" aria-hidden="true" />
           <p class="admin-empty__title">
-            {{ statusFilter() === 'open' ? 'No hay incidencias abiertas' : 'No hay incidencias' }}
+            {{
+              statusFilter() === 'open' ? 'No hay incidencias registradas' : 'No hay incidencias'
+            }}
           </p>
           <p class="text-body-s admin-empty__text">
             Cambia el estado o la categoría para ver otras.
