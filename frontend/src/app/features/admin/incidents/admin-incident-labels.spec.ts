@@ -1,7 +1,7 @@
 import { INCIDENT } from './admin-incident.testing';
 import {
   incidentDetailView,
-  incidentPeople,
+  incidentStatus,
   incidentRoute,
   severityOf,
 } from './admin-incident-labels';
@@ -14,20 +14,22 @@ describe('admin incident labels', () => {
     expect(severityOf('other')).toBe('neutral');
   });
 
-  it('writes the route and the people involved', () => {
+  it('writes the route', () => {
     expect(incidentRoute(INCIDENT)).toBe('Roquetas de Mar → Campus UAL');
     expect(
       incidentRoute({ trip: { ...INCIDENT.trip, originName: null, destinationName: null } }),
     ).toBe('Origen → Destino');
-    expect(incidentPeople(INCIDENT)).toBe(
-      'Notificada por Lucía Cortés (pasajero) · conductor: Javier Pardo',
-    );
-    expect(
-      incidentPeople({
-        reporter: { id: 'd1', name: 'Javier Pardo', role: 'driver' },
-        trip: INCIDENT.trip,
-      }),
-    ).toBe('Notificada por Javier Pardo (conductor)');
+  });
+
+  it('names the status with its label class', () => {
+    expect(incidentStatus('open')).toEqual({
+      label: 'Abierta',
+      cssClass: 'status status--pending',
+    });
+    expect(incidentStatus('reviewed')).toEqual({
+      label: 'Revisada',
+      cssClass: 'status status--accepted',
+    });
   });
 
   it('builds the detail: the code as title, the trip and the people', () => {
