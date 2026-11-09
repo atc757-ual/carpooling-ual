@@ -88,33 +88,30 @@
                   </ion-button>
                 </form>
               }
+              <!-- Abre el formulario relleno: el día lo elige quien busca -->
+              <ion-button fill="clear" (click)="isEditing.set(true)">Probar otro día</ion-button>
             </ion-card-content>
           </ion-card>
         } @else {
           <div class="search-results__results-header">
-            <span class="text-eyebrow text-color-muted">
-              {{ trips().length }} en tu margen (± {{ search.margin }} min)
-            </span>
-            <ion-segment
+            <p class="search-results__count" role="status">{{ resultsSummary() }}</p>
+            <ion-select
               class="search-results__sort"
+              aria-label="Ordenar viajes"
+              interface="popover"
               [value]="sortOrder()"
               (ionChange)="handleSortChange($event.detail.value)"
-              aria-label="Ordenar viajes"
             >
-              <ion-segment-button value="arrival">
-                <ion-label>Llegada más temprana</ion-label>
-              </ion-segment-button>
-              <ion-segment-button value="detour">
-                <ion-label>Menos desvío</ion-label>
-              </ion-segment-button>
-            </ion-segment>
+              <ion-select-option value="arrival">Llegada más temprana</ion-select-option>
+              <ion-select-option value="detour">Menos desvío</ion-select-option>
+            </ion-select>
           </div>
           @for (trip of sortedTrips(); track trip.id) {
-            <app-trip-result-card [trip]="trip" />
+            <app-trip-result-card [trip]="trip" [isRequested]="requestedTripIds().has(trip.id)" />
           }
           <p class="text-caption text-color-muted">
-            La hora de llegada es estimada. Verificamos el correo UAL, no la identidad ni el permiso
-            de conducir. La plaza solo se confirma cuando el conductor acepta.
+            Horas estimadas. Verificamos el correo UAL, no la identidad ni el permiso de conducir.
+            La plaza se confirma cuando el conductor acepta.
           </p>
         }
       } @else {

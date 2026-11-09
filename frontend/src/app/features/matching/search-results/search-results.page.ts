@@ -11,15 +11,16 @@ import {
   IonIcon,
   IonModal,
   IonRouterLink,
-  IonLabel,
-  IonSegment,
-  IonSegmentButton,
+  IonSelect,
+  IonSelectOption,
   IonSpinner,
 } from '@ionic/angular';
 import { alertCircleOutline, createOutline, searchOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
-import { TripSearch } from '../../../core/models/trip-search.model';
+import { TripResult } from '../../../core/models/trip-result.model';
+import { TripDirection, TripSearch } from '../../../core/models/trip-search.model';
 import { MatchingService } from '../../../core/services/matching/matching.service';
+import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -35,6 +36,23 @@ import { TripSearchForm } from '../trip-search-form/trip-search-form';
 import { TripSearchStateService } from '../trip-search-state.service';
 
 type SearchSortOrder = 'arrival' | 'detour';
+
+// Las solicitudes que siguen vivas: el viaje ya está pedido
+const ACTIVE_REQUEST_STATUSES = new Set(['pending', 'accepted']);
+
+// «3 viajes llegan entre 08:45 y 09:15»; al volver del campus, «salen»
+export function describeResults(trips: TripResult[], direction: TripDirection): string {
+  const isToCampus = direction === 'to-campus';
+  const times = trips.map((trip) => (isToCampus ? trip.arrivalTime : trip.departureTime)).sort();
+  const first = times[0];
+  const last = times[times.length - 1];
+  if (times.length === 1) {
+    return `1 viaje ${isToCampus ? 'llega' : 'sale'} a las ${first}`;
+  }
+  const verb = isToCampus ? 'llegan' : 'salen';
+  const when = first === last ? `a las ${first}` : `entre ${first} y ${last}`;
+  return `${times.length} viajes ${verb} ${when}`;
+}
 
 // «Tu búsqueda»: los viajes que encajan con la búsqueda hecha en Buscar. Arriba,
 // fija, el resumen (de dónde a dónde, cuándo y cuántas plazas) con «Editar
@@ -55,9 +73,8 @@ type SearchSortOrder = 'arrival' | 'detour';
     IonIcon,
     IonModal,
     IonRouterLink,
-    IonLabel,
-    IonSegment,
-    IonSegmentButton,
+    IonSelect,
+    IonSelectOption,
     IonSpinner,
     ModalHeader,
     RouteTimeline,
@@ -70,6 +87,7 @@ type SearchSortOrder = 'arrival' | 'detour';
 export class SearchResultsPage {
   private readonly searchState = inject(TripSearchStateService);
   private readonly matching = inject(MatchingService);
+  private readonly seatRequests = inject(SeatRequestsService);
 
   // La búsqueda hecha en Buscar, o null si se llega sin buscar
   readonly search = this.searchState.search;
@@ -84,6 +102,19 @@ export class SearchResultsPage {
   });
 
   readonly trips = computed(() => (this.results.hasValue() ? this.results.value() : []));
+  // Si fallan, los resultados se ven igual, solo que sin «Ya solicitado»
+  private readonly myRequests = resource({ loader: () => this.seatRequests.listMine() });
+  readonly requestedTripIds = computed(
+    () =>
+      new Set(
+        (this.myRequests.hasValue() ? this.myRequests.value() : [])
+          .filter((request) => ACTIVE_REQUEST_STATUSES.has(request.status))
+          .map((request) => request.trip.id),
+      ),
+  );
+  readonly resultsSummary = computed(() =>
+    describeResults(this.trips(), this.search()?.direction ?? 'to-campus'),
+  );
   readonly sortOrder = signal<SearchSortOrder>('arrival');
   readonly sortedTrips = computed(() => {
     const trips = [...this.trips()];
@@ -139,6 +170,11 @@ export class SearchResultsPage {
   constructor() {
     // El detalle de cada viaje sale de los resultados
     effect(() => this.searchState.setResults(this.trips()));
+  }
+
+  // Al volver del detalle puede haber una solicitud nueva
+  ionViewWillEnter(): void {
+    this.myRequests.reload();
   }
 
   // «Ampliar margen»: la misma búsqueda con el margen siguiente

@@ -8,7 +8,9 @@
         [attr.aria-label]="linkLabel()"
         >{{ trip().departureTime }} → {{ trip().arrivalTime }}</a
       >
-      @if (isLastSeat()) {
+      @if (isRequested()) {
+        <span class="trip-card__seats trip-card__seats--requested">Ya solicitado</span>
+      } @else if (isLastSeat()) {
         <span class="trip-card__seats trip-card__seats--last">Última plaza</span>
       } @else {
         <span class="trip-card__seats">
@@ -25,10 +27,7 @@
 
     <div class="trip-card__pickup">
       <ion-icon [icon]="pickupIcon" aria-hidden="true" />
-      <span>
-        Desvío de {{ trip().pickupDetourMinutes }} min para {{ passengerAction() }} ·
-        {{ trip().passengerStop }}
-      </span>
+      <span>{{ passengerStopLabel() }} · sale a las {{ trip().departureTime }}</span>
     </div>
   </ion-card-content>
 </ion-card>
