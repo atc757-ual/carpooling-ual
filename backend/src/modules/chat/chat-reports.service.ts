@@ -19,6 +19,10 @@ const QUICK_REPLY_COPY: Readonly<Record<QuickReply, string>> = {
   running_late: 'Llego 5 min tarde',
   on_my_way: 'Estoy en camino',
   where_are_you: '¿Dónde estás?',
+  leaving_soon: 'Salgo en 5 min',
+  still_going: '¿Sigues yendo?',
+  arriving_soon: 'Llegamos en unos minutos',
+  stopping_here: 'Paro aquí un momento',
 };
 
 // «Ya estoy en el punto (respuesta rápida)»

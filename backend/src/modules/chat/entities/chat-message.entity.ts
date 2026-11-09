@@ -15,6 +15,10 @@ export const QUICK_REPLIES = [
   'running_late',
   'on_my_way',
   'where_are_you',
+  'leaving_soon',
+  'still_going',
+  'arriving_soon',
+  'stopping_here',
 ] as const;
 export type QuickReply = (typeof QUICK_REPLIES)[number];
 

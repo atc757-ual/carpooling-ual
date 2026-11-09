@@ -6,9 +6,36 @@ export const QUICK_REPLY_TEXTS: Record<QuickReply, string> = {
   running_late: 'Llego 5 min tarde',
   on_my_way: 'Estoy en camino',
   where_are_you: '¿Dónde estás?',
+  leaving_soon: 'Salgo en 5 min',
+  still_going: '¿Sigues yendo?',
+  arriving_soon: 'Llegamos en unos minutos',
+  stopping_here: 'Paro aquí un momento',
 };
 
 export const QUICK_REPLIES = Object.keys(QUICK_REPLY_TEXTS) as QuickReply[];
+
+// Desde cuánto antes de la salida se considera que va a recoger
+const PICKUP_WINDOW_MS = 15 * 60 * 1000;
+const BEFORE_LEAVING: readonly QuickReply[] = ['leaving_soon', 'still_going'];
+const ON_THE_WAY: readonly QuickReply[] = [
+  'on_my_way',
+  'running_late',
+  'at_pickup',
+  'where_are_you',
+];
+// En curso se sigue recogiendo gente: el chat no sabe quién ha subido ya
+const IN_PROGRESS: readonly QuickReply[] = [...ON_THE_WAY, 'arriving_soon', 'stopping_here'];
+
+// Las respuestas que tienen sentido según el momento del viaje
+export function quickRepliesForMoment(
+  trip: { status: string; departureAt: string },
+  now = Date.now(),
+): readonly QuickReply[] {
+  if (trip.status === 'in_progress') {
+    return IN_PROGRESS;
+  }
+  return Date.parse(trip.departureAt) - now > PICKUP_WINDOW_MS ? BEFORE_LEAVING : ON_THE_WAY;
+}
 
 // Lo que se lee de un mensaje: su texto o el de su respuesta rápida
 export function messageText(message: Pick<ChatMessage, 'text' | 'quickReply'>): string {

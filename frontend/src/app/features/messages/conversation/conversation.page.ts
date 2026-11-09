@@ -60,7 +60,7 @@ import {
   groupMessagesByDay,
   messageText,
   messageTime,
-  QUICK_REPLIES,
+  quickRepliesForMoment,
   QUICK_REPLY_TEXTS,
 } from '../chat-texts';
 import { ConversationAvatar } from '../conversation-avatar/conversation-avatar';
@@ -155,7 +155,10 @@ export class ConversationPage {
     return length > 0 && length <= MAX_MESSAGE_LENGTH && !this.isSending();
   });
 
-  protected readonly quickReplies = QUICK_REPLIES;
+  protected readonly quickReplies = computed(() => {
+    const trip = this.conversation()?.trip;
+    return trip ? quickRepliesForMoment(trip) : [];
+  });
   protected readonly quickReplyText = QUICK_REPLY_TEXTS;
   protected readonly maxLength = MAX_MESSAGE_LENGTH;
   protected readonly sendIcon = send;

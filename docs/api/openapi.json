@@ -15722,7 +15722,11 @@
               "at_pickup",
               "running_late",
               "on_my_way",
-              "where_are_you"
+              "where_are_you",
+              "leaving_soon",
+              "still_going",
+              "arriving_soon",
+              "stopping_here"
             ],
             "nullable": true
           },
@@ -15861,7 +15865,11 @@
               "at_pickup",
               "running_late",
               "on_my_way",
-              "where_are_you"
+              "where_are_you",
+              "leaving_soon",
+              "still_going",
+              "arriving_soon",
+              "stopping_here"
             ],
             "description": "A quick reply; the only kind the driver can send while the trip is in progress"
           }
