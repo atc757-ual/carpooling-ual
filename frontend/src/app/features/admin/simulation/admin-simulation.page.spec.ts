@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { ApiError } from '../../../core/models/api-error.model';
+import { AdminSimulationSweepsService } from '../../../core/services/admin/admin-simulation-sweeps.service';
 import { AdminSimulationsService } from '../../../core/services/admin/admin-simulations.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { AdminSimulationPage } from './admin-simulation.page';
@@ -27,6 +28,10 @@ describe('AdminSimulationPage', () => {
         provideIonicAngular(),
         provideRouter([]),
         { provide: AdminSimulationsService, useValue: simulations },
+        {
+          provide: AdminSimulationSweepsService,
+          useValue: { latest: vi.fn().mockResolvedValue(null), get: vi.fn(), start: vi.fn() },
+        },
         { provide: ConfirmService, useValue: { ask } },
       ],
     });
