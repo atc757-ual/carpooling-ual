@@ -9,7 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
-- **Frontend:** accesibilidad (WCAG 2.1 AA): ya se puede ampliar la página con zoom en el móvil y el botón del viaje en curso tiene el rol que exige la barra de pestañas.
+- **Frontend:** accesibilidad (WCAG 2.1 AA): ya se puede ampliar la página con zoom en el móvil y el botón del viaje en curso tiene el rol que exige la barra de pestañas (#260).
 - **Backend:** la copia del chat que se guarda al denunciarlo escribe el texto de las respuestas rápidas («Ya estoy en el punto (respuesta rápida)») en lugar de su clave (`at_pickup`); una migración corrige las denuncias que ya existían (#255).
 - **Frontend:** las tablas del panel (usuarios, viajes, catálogos, simulación y gemelo digital) pasan a tarjetas cuando su tarjeta se queda estrecha, no solo en el móvil: con la ventana mediana ya no se cortan las columnas, y en escritorio ancho siguen siendo tablas (#248).
 - **Simulación:** una ejecución perdida o que no se puede guardar pasa a fallida en vez de quedarse en curso para siempre; «Ver resultados» solo aparece al terminar y el historial va en una card (#239).
