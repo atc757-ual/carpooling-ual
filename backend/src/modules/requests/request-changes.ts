@@ -26,7 +26,7 @@ export type RequestChangeListener = (
 ) => Promise<void>;
 
 // El estado completo de la solicitud en sus eventos (para el Gemelo Digital)
-function requestPayload(request: SeatRequest): Record<string, unknown> {
+export function requestPayload(request: SeatRequest): Record<string, unknown> {
   return {
     tripId: request.tripId,
     passengerId: request.passengerId,
