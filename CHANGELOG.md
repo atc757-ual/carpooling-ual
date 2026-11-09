@@ -9,7 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
-- **Simulación:** los escenarios S0–S5 los crea una migración en lugar del seed de desarrollo, así que existen en cualquier despliegue y el panel puede lanzar simulaciones sin cargar datos de prueba.
+- **Simulación:** los escenarios S0–S5 los crea una migración en lugar del seed de desarrollo, así que existen en cualquier despliegue y el panel puede lanzar simulaciones sin cargar datos de prueba (#265).
 - **Backend y frontend:** los errores de la recogida en el viaje en curso (`INVALID_BOARD_CODE`, `ALREADY_BOARDED` y `PICKUP_GRACE_PERIOD_ACTIVE`) se explican en la app en lugar de «Algo ha salido mal», tienen el mensaje de la API en inglés como el resto, están en `docs/api/errors.md` y el OpenAPI documenta su estado real (400 los dos de datos no válidos) (#263).
 - **Frontend:** el aviso del viaje en curso y la columna lateral de Mis viajes vuelven a pintar su borde (usaban un token que no existe, `--border-width`), y la app deja de rebotar al tirar más allá de arriba o de abajo, como el panel: en el móvil dejaba ver el fondo gris por encima del título (#262).
 - **Frontend:** accesibilidad (WCAG 2.1 AA): ya se puede ampliar la página con zoom en el móvil y el botón del viaje en curso tiene el rol que exige la barra de pestañas (#260).
