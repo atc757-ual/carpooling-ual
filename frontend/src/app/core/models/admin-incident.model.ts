@@ -1,6 +1,15 @@
 // Incidencias en el panel de administración (GET /api/incidents, CU-12)
-export const INCIDENT_CATEGORIES = ['technical', 'driver', 'passenger', 'other'] as const;
+export const INCIDENT_CATEGORIES = [
+  'technical',
+  'driver',
+  'passenger',
+  'safety',
+  'chat_behavior',
+  'other',
+] as const;
 export type IncidentCategory = (typeof INCIDENT_CATEGORIES)[number];
+// De dónde viene: el viaje en curso (al cancelarlo) o una denuncia del chat
+export type IncidentSource = 'trip' | 'chat';
 
 // Registrada → en revisión (la lleva un administrador) → atendida
 export type IncidentStatus = 'open' | 'in_review' | 'reviewed';
@@ -20,6 +29,7 @@ export interface AdminIncident {
     driver: { id: string; name: string } | null;
   };
   reporter: { id: string; name: string; role: 'driver' | 'passenger' };
+  source: IncidentSource;
   category: IncidentCategory;
   description: string;
   reportedAt: string;

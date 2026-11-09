@@ -14,6 +14,7 @@ export const INCIDENT: AdminIncident = {
     driver: { id: 'd1', name: 'Javier Pardo' },
   },
   reporter: { id: 'p1', name: 'Lucía Cortés', role: 'passenger' },
+  source: 'trip',
   category: 'driver',
   description: 'The driver did not stop at the pickup point',
   reportedAt: '2026-11-02T08:05:00.000Z',
