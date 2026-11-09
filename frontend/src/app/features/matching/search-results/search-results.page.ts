@@ -43,9 +43,11 @@ const ACTIVE_REQUEST_STATUSES = new Set(['pending', 'accepted']);
 // «3 viajes llegan entre 08:45 y 09:15»; al volver del campus, «salen»
 export function describeResults(trips: TripResult[], direction: TripDirection): string {
   const isToCampus = direction === 'to-campus';
-  const times = trips.map((trip) => (isToCampus ? trip.arrivalTime : trip.departureTime)).sort();
+  const times = trips
+    .map((trip) => (isToCampus ? trip.arrivalTime : trip.departureTime))
+    .sort((left, right) => left.localeCompare(right));
   const first = times[0];
-  const last = times[times.length - 1];
+  const last = times.at(-1);
   if (times.length === 1) {
     return `1 viaje ${isToCampus ? 'llega' : 'sale'} a las ${first}`;
   }
