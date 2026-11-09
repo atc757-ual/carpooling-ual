@@ -9,7 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
-- **Simulación:** contraste de la hipótesis experimental en los resultados: t pareado unilateral sobre los vehículos de cada réplica frente a S0, con Bonferroni (α = 0,01) y la comprobación de Wilcoxon. El criterio de éxito exige ahora también rechazar HE0, como pide la memoria.
+- **Simulación:** contraste de la hipótesis experimental en los resultados: t pareado unilateral sobre los vehículos de cada réplica frente a S0, con Bonferroni (α = 0,01) y la comprobación de Wilcoxon. El criterio de éxito exige ahora también rechazar HE0, como pide la memoria (#267).
 
 ### Fixed
 
