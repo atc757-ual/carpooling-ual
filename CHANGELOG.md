@@ -9,6 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- **Backend:** la copia del chat que se guarda al denunciarlo escribe el texto de las respuestas rápidas («Ya estoy en el punto (respuesta rápida)») en lugar de su clave (`at_pickup`); una migración corrige las denuncias que ya existían (#255).
 - **Frontend:** las tablas del panel (usuarios, viajes, catálogos, simulación y gemelo digital) pasan a tarjetas cuando su tarjeta se queda estrecha, no solo en el móvil: con la ventana mediana ya no se cortan las columnas, y en escritorio ancho siguen siendo tablas (#248).
 - **Simulación:** una ejecución perdida o que no se puede guardar pasa a fallida en vez de quedarse en curso para siempre; «Ver resultados» solo aparece al terminar y el historial va en una card (#239).
 - **Frontend:** en Edge, los campos de contraseña ya no muestran dos ojos: se quita el botón propio del navegador (`::-ms-reveal`, y la ✕ de `::-ms-clear`) y queda solo el de la app (#236).

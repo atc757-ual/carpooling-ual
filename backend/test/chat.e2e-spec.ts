@@ -478,7 +478,7 @@ describe('Chat API (e2e)', () => {
     );
     expect(row.description).toContain('dan (conductor): Mensaje ofensivo');
     expect(row.description).toContain(
-      'Pía (pasajero): (respuesta rápida: where_are_you)',
+      'Pía (pasajero): ¿Dónde estás? (respuesta rápida)',
     );
     // No cancela nada: el viaje sigue igual
     const [trip] = await dataSource.query<{ status: string }[]>(
