@@ -258,6 +258,15 @@ describe('Admin users API (e2e)', () => {
     expect(withIncidents.map(({ id }) => id).sort()).toEqual(
       [dan.id, pia.id].sort(),
     );
+
+    // En revisión sigue sin atender: cuenta como abierta
+    await dataSource.query(
+      `UPDATE incidents
+          SET status = 'in_review', review_started_by = $1, review_started_at = now()
+        WHERE trip_id = $2`,
+      [dan.id, tripId],
+    );
+    expect(await rowOf(pia.id)).toMatchObject({ openIncidents: 1 });
   });
 
   it('lifts a suspension with a reason, with its event and audit', async () => {

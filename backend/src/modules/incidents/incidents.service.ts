@@ -201,9 +201,10 @@ export class IncidentsService {
     });
   }
 
+  // Las que aún no están atendidas (registradas o en revisión)
   async countOpenByUser(): Promise<Map<string, number>> {
     const open = await this.incidentsRepository.find({
-      where: { status: 'open' },
+      where: { status: In(['open', 'in_review']) },
       select: { id: true, tripId: true, reporterId: true },
     });
     const trips = await this.tripsService.getByIds(
