@@ -209,6 +209,7 @@ Si el viaje no existe, `TRIP_NOT_FOUND` (ver _Viajes_).
 | ------------------------------- | ---- | --------------------------------------------------------------------------------------------- |
 | `SCENARIO_NOT_FOUND`            | 404  | No hay ningún escenario con el código pedido (S0-S5)                                          |
 | `SIMULATION_NOT_FOUND`          | 404  | La ejecución de simulación no existe                                                          |
+| `SIMULATION_SWEEP_NOT_FOUND`    | 404  | El análisis de sensibilidad no existe                                                         |
 | `SIMULATION_ALREADY_RUNNING`    | 409  | Lanzar una ejecución con otra en cola o en curso: el simulador atiende una a la vez           |
 | `SIMULATION_NOT_FINISHED`       | 409  | Pedir los resultados o el CSV de una ejecución que no ha terminado (o que falló o se canceló) |
 | `INVALID_SIMULATION_TRANSITION` | 409  | Cambio de estado no permitido, p. ej. cancelar una ejecución ya terminada                     |

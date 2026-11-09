@@ -10989,6 +10989,304 @@
         ]
       }
     },
+    "/api/admin/simulation-sweeps": {
+      "post": {
+        "description": "Runs the scenario once per value of the parameter, one after another, with the same seeds. Only one run at a time.",
+        "operationId": "SimulationSweepsController_start",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartSweepDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "headers": {
+              "Location": {
+                "description": "Link to the new sweep"
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationSweepResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: SCENARIO_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: SIMULATION_ALREADY_RUNNING",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start a sensitivity analysis",
+        "tags": [
+          "simulations"
+        ]
+      },
+      "get": {
+        "description": "The most recent first.",
+        "operationId": "SimulationSweepsController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimulationSweepResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List sensitivity analyses",
+        "tags": [
+          "simulations"
+        ]
+      }
+    },
+    "/api/admin/simulation-sweeps/{id}": {
+      "get": {
+        "description": "Its status and, for each value, the run with the vehicles avoided, the requests covered and the hypothesis test.",
+        "operationId": "SimulationSweepsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationSweepResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: SIMULATION_SWEEP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a sensitivity analysis",
+        "tags": [
+          "simulations"
+        ]
+      }
+    },
     "/api/admin/users": {
       "get": {
         "description": "Search by name or email and filter by profile and status. Each user comes with its statuses, trips, open incidents and suspensions; the most serious status first.",
@@ -17246,6 +17544,220 @@
           "criterionMet",
           "summary",
           "series"
+        ]
+      },
+      "StartSweepDto": {
+        "type": "object",
+        "properties": {
+          "scenario": {
+            "type": "string",
+            "example": "S1",
+            "description": "Scenario code"
+          },
+          "baselineScenario": {
+            "type": "string",
+            "example": "S0",
+            "default": "S0",
+            "description": "Scenario to compare with (S0, without carpooling, by default)"
+          },
+          "replicas": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Default: the replicas of the scenario"
+          },
+          "seed": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "example": 20261101,
+            "description": "Initial seed; replica i uses seed + i (paired seeds)"
+          },
+          "parameter": {
+            "type": "string",
+            "enum": [
+              "ownCarShare",
+              "adoptionRate"
+            ],
+            "example": "ownCarShare",
+            "description": "ownCarShare: share of users who drive their own car (scenario and baseline); adoptionRate: share of car users who carpool (scenario only)"
+          },
+          "values": {
+            "example": [
+              0.2,
+              0.3,
+              0.5
+            ],
+            "minItems": 2,
+            "maxItems": 5,
+            "description": "One run per value, in this order (between 0.05 and 1)",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "scenario",
+          "seed",
+          "parameter",
+          "values"
+        ]
+      },
+      "SweepVariantResource": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number",
+            "example": 0.3,
+            "description": "Value of the parameter"
+          },
+          "runId": {
+            "type": "object",
+            "format": "uuid",
+            "nullable": true,
+            "description": "null until it starts"
+          },
+          "runHref": {
+            "type": "object",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "finished",
+              "failed",
+              "cancelled"
+            ],
+            "nullable": true
+          },
+          "progress": {
+            "type": "number",
+            "example": 12,
+            "description": "Finished replicas"
+          },
+          "vehiclesAvoidedPct": {
+            "type": "object",
+            "example": 16.2,
+            "nullable": true,
+            "description": "Mean %"
+          },
+          "vehiclesAvoidedCiLow": {
+            "type": "object",
+            "example": 14.1,
+            "nullable": true,
+            "description": "95 % CI"
+          },
+          "vehiclesAvoidedCiHigh": {
+            "type": "object",
+            "example": 18.3,
+            "nullable": true,
+            "description": "95 % CI"
+          },
+          "requestsCoveredPct": {
+            "type": "object",
+            "example": 72.5,
+            "nullable": true,
+            "description": "Mean %"
+          },
+          "rejectsNull": {
+            "type": "object",
+            "nullable": true,
+            "description": "HE0 rejected (paired test)"
+          },
+          "criterionMet": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "value",
+          "runId",
+          "runHref",
+          "status",
+          "progress",
+          "vehiclesAvoidedPct",
+          "vehiclesAvoidedCiLow",
+          "vehiclesAvoidedCiHigh",
+          "requestsCoveredPct",
+          "rejectsNull",
+          "criterionMet"
+        ]
+      },
+      "SimulationSweepResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "SimulationSweep"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/admin/simulation-sweeps/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "scenario": {
+            "type": "string",
+            "example": "S1"
+          },
+          "baselineScenario": {
+            "type": "string",
+            "example": "S0"
+          },
+          "parameter": {
+            "type": "string",
+            "enum": [
+              "ownCarShare",
+              "adoptionRate"
+            ]
+          },
+          "replicas": {
+            "type": "number",
+            "example": 30
+          },
+          "seed": {
+            "type": "number",
+            "example": 20261101
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "finished",
+              "stopped"
+            ],
+            "description": "stopped: a variant failed, was cancelled or could not start"
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SweepVariantResource"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "scenario",
+          "baselineScenario",
+          "parameter",
+          "replicas",
+          "seed",
+          "status",
+          "variants",
+          "createdAt"
         ]
       },
       "SuspensionsResource": {
