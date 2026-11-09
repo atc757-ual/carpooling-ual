@@ -1,0 +1,94 @@
+<figure class="sweep-chart">
+  <figcaption class="sweep-chart__caption">
+    <span class="text-label sweep-chart__title">{{ title() }}</span>
+    <span class="sweep-chart__legend">
+      <span class="sweep-chart__item">
+        <span class="sweep-chart__key sweep-chart__key--rejects" aria-hidden="true"></span>
+        Se rechaza HE0
+      </span>
+      <span class="sweep-chart__item">
+        <span class="sweep-chart__key" aria-hidden="true"></span>
+        No se rechaza
+      </span>
+      <span class="sweep-chart__item">
+        <span class="sweep-chart__key sweep-chart__key--target" aria-hidden="true"></span>
+        Objetivo {{ target }} %
+      </span>
+    </span>
+  </figcaption>
+  <!-- Los datos van también en la tabla de debajo: el SVG es decorativo para
+       el lector de pantalla -->
+  <svg class="sweep-chart__svg" [attr.viewBox]="viewBox" aria-hidden="true">
+    @for (tick of layout().ticks; track tick.value) {
+      <line
+        class="sweep-chart__grid"
+        [attr.x1]="plot.left"
+        [attr.x2]="plot.right"
+        [attr.y1]="tick.y"
+        [attr.y2]="tick.y"
+      />
+      <text
+        class="sweep-chart__axis"
+        [attr.x]="plot.left - 6"
+        [attr.y]="tick.y + 4"
+        text-anchor="end"
+      >
+        {{ formatNumber(tick.value, 0) }} %
+      </text>
+    }
+    <line
+      class="sweep-chart__target"
+      [attr.x1]="plot.left"
+      [attr.x2]="plot.right"
+      [attr.y1]="layout().targetY"
+      [attr.y2]="layout().targetY"
+    />
+    @for (point of layout().points; track point.label) {
+      <g class="sweep-chart__point">
+        <title>{{ point.tooltip }}</title>
+        @if (point.ciTop !== null && point.ciBottom !== null) {
+          <line
+            class="sweep-chart__ci"
+            [attr.x1]="point.x"
+            [attr.x2]="point.x"
+            [attr.y1]="point.ciTop"
+            [attr.y2]="point.ciBottom"
+          />
+          <line
+            class="sweep-chart__ci"
+            [attr.x1]="point.x - cap"
+            [attr.x2]="point.x + cap"
+            [attr.y1]="point.ciTop"
+            [attr.y2]="point.ciTop"
+          />
+          <line
+            class="sweep-chart__ci"
+            [attr.x1]="point.x - cap"
+            [attr.x2]="point.x + cap"
+            [attr.y1]="point.ciBottom"
+            [attr.y2]="point.ciBottom"
+          />
+        }
+        @if (point.y !== null) {
+          <!-- Zona de pasar el ratón mayor que el punto -->
+          <circle class="sweep-chart__hit" [attr.cx]="point.x" [attr.cy]="point.y" r="14" />
+          <circle
+            class="sweep-chart__dot"
+            [class.sweep-chart__dot--rejects]="point.rejectsNull"
+            [attr.cx]="point.x"
+            [attr.cy]="point.y"
+            r="5"
+          />
+        }
+        <text
+          class="sweep-chart__axis"
+          [attr.x]="point.x"
+          [attr.y]="plot.bottom + 18"
+          text-anchor="middle"
+        >
+          {{ point.label }}
+        </text>
+      </g>
+    }
+  </svg>
+</figure>

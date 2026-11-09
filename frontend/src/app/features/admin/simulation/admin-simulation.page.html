@@ -133,6 +133,16 @@
       }
     </section>
 
+    <!-- Análisis de sensibilidad del escenario elegido (capítulo 11) -->
+    <app-sensitivity-sweep
+      class="simulation__card"
+      [scenario]="scenario()"
+      [replicas]="replicas()"
+      [seed]="seed()"
+      [isBlocked]="isRunning()"
+      (started)="history.reload()"
+    />
+
     <!-- Historial: abre los resultados de cada ejecución -->
     @if (historyRows().length > 0) {
       <section aria-labelledby="simulation-history">

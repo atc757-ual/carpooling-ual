@@ -440,6 +440,76 @@ for (const viewport of VIEWPORTS) {
       cy.contains('.simulation__table', 'S1 frente a S0');
     });
 
+    it('runs a sensitivity analysis and compares its variants', () => {
+      const variant = (value: number, avoided: number | null) => ({
+        value,
+        runId: avoided === null ? null : `r-${value}`,
+        runHref: null,
+        status: avoided === null ? null : 'finished',
+        progress: avoided === null ? 0 : 3,
+        vehiclesAvoidedPct: avoided,
+        vehiclesAvoidedCiLow: avoided === null ? null : avoided - 1,
+        vehiclesAvoidedCiHigh: avoided === null ? null : avoided + 1,
+        requestsCoveredPct: avoided === null ? null : 40,
+        rejectsNull: avoided === null ? null : true,
+        criterionMet: avoided === null ? null : avoided >= 15,
+      });
+      const sweep = {
+        '@type': 'SimulationSweep',
+        id: 'w1',
+        href: '/api/admin/simulation-sweeps/w1',
+        scenario: 'S1',
+        baselineScenario: 'S0',
+        parameter: 'ownCarShare',
+        replicas: 3,
+        seed: 20261101,
+        status: 'running',
+        variants: [variant(0.2, 4), variant(0.5, null)],
+        createdAt: '2026-11-09T22:00:00.000Z',
+      };
+      cy.intercept('GET', '/api/admin/simulations/scenarios', [
+        { ...SCENARIO_S1, '@type': 'SimulationScenario', id: 's1', replicas: 3 },
+      ]);
+      cy.intercept('GET', '/api/admin/simulations?*', {
+        body: [],
+        headers: { 'X-Total-Count': '0', 'Access-Control-Expose-Headers': 'X-Total-Count' },
+      });
+      cy.intercept('GET', '/api/admin/simulation-sweeps?*', []);
+      cy.intercept('POST', '/api/admin/simulation-sweeps', { statusCode: 201, body: sweep }).as(
+        'sweep',
+      );
+      let polls = 0;
+      cy.intercept('GET', '/api/admin/simulation-sweeps/w1', (request) => {
+        polls += 1;
+        request.reply(
+          polls < 2
+            ? sweep
+            : { ...sweep, status: 'finished', variants: [variant(0.2, 4), variant(0.5, 18)] },
+        );
+      });
+      visitWithSession('/admin/simulation', ['admin']);
+
+      cy.contains('app-sensitivity-sweep ion-input', 'Valores (%)')
+        .find('input')
+        .clear()
+        .type('20, 50');
+      cy.contains('app-sensitivity-sweep ion-button', 'Analizar S1 con estos valores').click();
+      cy.wait('@sweep')
+        .its('request.body')
+        .should('deep.equal', {
+          scenario: 'S1',
+          baselineScenario: 'S0',
+          replicas: 3,
+          seed: 20261101,
+          parameter: 'ownCarShare',
+          values: [0.2, 0.5],
+        });
+
+      cy.contains('app-sensitivity-sweep', 'Terminado', { timeout: 6000 });
+      cy.get('app-sensitivity-chart .sweep-chart__dot').should('have.length', 2);
+      cy.contains('app-sensitivity-sweep tbody tr', '50 %').should('contain', 'Cumplido');
+    });
+
     it('lists all the incidents, starts the review of one and resolves it', () => {
       const inReview = {
         ...INCIDENT,

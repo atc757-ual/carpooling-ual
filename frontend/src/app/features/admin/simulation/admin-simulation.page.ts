@@ -25,6 +25,7 @@ import { AdminSimulationsService } from '../../../core/services/admin/admin-simu
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { HeadingContent } from '../../../shared/directives/heading-content.directive';
+import { SensitivitySweep } from './sensitivity/sensitivity-sweep';
 import { SimulationResultsView } from './simulation-results/simulation-results';
 import {
   comparisonLabel,
@@ -59,6 +60,7 @@ function isWholeNumber(value: number, max: number, min = 0): boolean {
     IonProgressBar,
     IonRadio,
     IonRadioGroup,
+    SensitivitySweep,
     SimulationResultsView,
   ],
   templateUrl: './admin-simulation.page.html',

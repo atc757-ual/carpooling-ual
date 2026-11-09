@@ -1,0 +1,107 @@
+.sweep-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+}
+
+.sweep-chart__caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.sweep-chart__title {
+  font-weight: var(--font-weight-semibold);
+}
+
+.sweep-chart__legend {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-base);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+}
+
+// Cada clave con su texto, sin partirse entre líneas
+.sweep-chart__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  white-space: nowrap;
+}
+
+// Las claves de la leyenda: punto hueco, punto relleno y línea discontinua
+.sweep-chart__key {
+  display: inline-block;
+  width: 0.625rem; // 10px
+  height: 0.625rem;
+  border: 0.125rem solid var(--color-admin); // 2px
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+}
+
+.sweep-chart__key--rejects {
+  background: var(--color-admin);
+}
+
+.sweep-chart__key--target {
+  width: 1rem; // 16px
+  height: 0;
+  border: 0;
+  border-top: 0.125rem dashed var(--color-text-muted); // 2px
+  border-radius: 0;
+  background: none;
+}
+
+// Más estrecho que el de franjas: con pocas variantes, así el texto no se
+// queda diminuto en el móvil ni enorme en escritorio
+.sweep-chart__svg {
+  width: 100%;
+  max-width: 40rem; // 640px
+  height: auto;
+}
+
+.sweep-chart__grid {
+  stroke: var(--color-border-subtle);
+  stroke-width: 1;
+}
+
+.sweep-chart__axis {
+  fill: var(--color-text-muted);
+  font-size: 11px; // unidades del viewBox, se escala con el gráfico
+}
+
+.sweep-chart__target {
+  stroke: var(--color-text-muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+
+.sweep-chart__ci {
+  stroke: var(--color-admin);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.sweep-chart__hit {
+  fill: transparent;
+}
+
+.sweep-chart__dot {
+  fill: var(--color-surface);
+  stroke: var(--color-admin);
+  stroke-width: 2;
+}
+
+.sweep-chart__dot--rejects {
+  fill: var(--color-admin);
+}
+
+// Al pasar el ratón por un punto, el resto se aparta un poco
+.sweep-chart__svg:has(.sweep-chart__point:hover) .sweep-chart__point:not(:hover) {
+  opacity: 0.45;
+}
