@@ -187,6 +187,8 @@
       @if ($index === liveTabIndex) {
         <button
           type="button"
+          role="tab"
+          aria-selected="false"
           class="live-tab live-tab--bar"
           [class.live-tab--on]="liveTrip()"
           [disabled]="!liveTrip()"
