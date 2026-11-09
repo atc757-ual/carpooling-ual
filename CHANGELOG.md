@@ -22,6 +22,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Frontend:** las incidencias del panel van en una tabla dentro de su tarjeta, una fila por incidencia (código, categoría, viaje, fecha y estado, con la gravedad en el borde) que abre el detalle, el único sitio desde el que se gestionan: se quita «Marcar revisada» de la lista. Con la tarjeta estrecha, cada una ocupa dos líneas (#251).
 - **Frontend:** el detalle de incidencia del panel sigue el formato de los de usuario y viaje: el código de título con su estado y, debajo, el motivo, la fecha y quién la registró; la ruta «Incidencias › Detalle de incidencia» en escritorio y «Atrás» en el móvil; el informe (con la gravedad en el borde) y la revisión en la columna de 8, primero en el móvil; el viaje (paradas, salida y «Ver viaje») y las personas, con enlace a su ficha, en la de 4 (#250).
 - **Frontend:** al entrar se ofrecen las notificaciones y la ubicación, cada una con su botón, y las notificaciones también al publicar un viaje o solicitar plaza (#247).
 - **Frontend:** el detalle de viaje del panel muestra la ruta en un mapa, con la distancia, la duración y si es estimada; el mapa de la ruta pasa a los componentes compartidos. Las líneas de tiempo y el filtro de eventos nombran las solicitudes caducadas, los pasajeros a bordo y los mensajes del chat (#246).
