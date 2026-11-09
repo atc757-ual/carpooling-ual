@@ -10,6 +10,12 @@ describe('getErrorMessage', () => {
     );
   });
 
+  it('explains the boarding errors of the live trip instead of a generic message', () => {
+    expect(getErrorMessage(new ApiError('INVALID_BOARD_CODE', 400))).toContain('no coincide');
+    expect(getErrorMessage(new ApiError('ALREADY_BOARDED', 409))).toContain('ya está validado');
+    expect(getErrorMessage(new ApiError('PICKUP_GRACE_PERIOD_ACTIVE', 400))).toContain('5 minutos');
+  });
+
   it('explains a network error', () => {
     expect(getErrorMessage(new ApiError(NETWORK_ERROR, 0))).toContain('No hay conexión');
   });
