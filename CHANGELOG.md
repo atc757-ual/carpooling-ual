@@ -26,6 +26,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Backend y frontend:** privacidad del origen y el destino de los viajes. Quien no es el conductor, un pasajero aceptado ni un administrador los ve redondeados a unos 500 m (`isLocationApproximate`) y sin el trazado de la ruta (`geometry: null`); los parkings del campus se muestran siempre exactos. El mapa del detalle pinta entonces solo los puntos, con la zona aproximada, y el borrador de la Política de privacidad 1.1 lo explica (#264).
 - **Frontend:** en Mis viajes, cada viaje del conductor es una tarjeta resumida con una acción principal y el recuento de solicitudes por responder (esos viajes, primero). Las solicitudes, el chat, iniciar y cancelar pasan a una pantalla de detalle, el aviso de la declaración (RF-21) a la confirmación de «Iniciar viaje» y el selector Pasajero/Conductor es más discreto (#258).
 - **Chat:** las respuestas rápidas dependen de quien escribe y del momento del viaje (antes de salir, de camino a la recogida o en curso), con ocho respuestas nuevas también en la copia de las denuncias (#259).
 - **Frontend:** en Mis viajes, las solicitudes del pasajero se agrupan por día y cada tarjeta abre su detalle y dice el siguiente paso («Esperando respuesta de Lucía», «Confirmada: te recoge a las 08:10»). Cancelar pasa al detalle y la pestaña «Cancelados» del pasajero se llama «No realizados» (#257).
