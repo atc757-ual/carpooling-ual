@@ -49,14 +49,14 @@ export function incidentRoute(incident: Pick<AdminIncident, 'trip'>): string {
   return `${originName ?? 'Origen'} → ${destinationName ?? 'Destino'}`;
 }
 
-// «Notificada por Lucía Cortés (pasajera) · conductor: Javier Pardo»
-export function incidentPeople(incident: Pick<AdminIncident, 'reporter' | 'trip'>): string {
-  const role = incident.reporter.role === 'driver' ? 'conductor' : 'pasajero';
-  const reporter = `Notificada por ${incident.reporter.name} (${role})`;
-  const driver = incident.trip.driver;
-  return driver && driver.id !== incident.reporter.id
-    ? `${reporter} · conductor: ${driver.name}`
-    : reporter;
+// El estado en texto y su etiqueta (.status), igual en la lista y el detalle
+export function incidentStatus(status: AdminIncident['status']): {
+  label: string;
+  cssClass: string;
+} {
+  return status === 'open'
+    ? { label: 'Abierta', cssClass: 'status status--pending' }
+    : { label: 'Revisada', cssClass: 'status status--accepted' };
 }
 
 const USERS_PATH = '/admin/users';
@@ -96,14 +96,14 @@ function incidentPeopleList(incident: AdminIncident): IncidentPerson[] {
 // Lo que pinta el detalle: la franja, el viaje (con su enlace si aún existe)
 // y las personas
 export function incidentDetailView(incident: AdminIncident) {
-  const isOpen = incident.status === 'open';
   const { trip, review } = incident;
+  const status = incidentStatus(incident.status);
   return {
     // El código es lo que se cita: va de título
     title: incident.code,
     category: CATEGORY_LABELS[incident.category],
-    status: isOpen ? 'Abierta' : 'Revisada',
-    statusClass: isOpen ? 'status status--pending' : 'status status--accepted',
+    status: status.label,
+    statusClass: status.cssClass,
     severity: severityOf(incident.category),
     reportedAt: formatDateTime(incident.reportedAt),
     reporter: `${incident.reporter.name} (${ROLE_LABELS[incident.reporter.role]})`,

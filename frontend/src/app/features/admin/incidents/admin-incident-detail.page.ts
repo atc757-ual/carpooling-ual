@@ -26,14 +26,34 @@ import {
   peopleOutline,
 } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
+import { AdminIncident } from '../../../core/models/admin-incident.model';
 import { AdminIncidentsService } from '../../../core/services/admin/admin-incidents.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { confirmWithReason } from '../../../shared/components/modals/reason-confirm-modal/reason-confirm-modal';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { HeadingContent } from '../../../shared/directives/heading-content.directive';
 import { incidentDetailView } from './admin-incident-labels';
-import { reviewWithResolution } from './admin-incidents.page';
 
 const INCIDENTS_PATH = '/admin/incidents';
+const RESOLUTION_MAX_LENGTH = 1000;
+
+// Pide la resolución y revisa la incidencia; dice si se hizo
+export function reviewWithResolution(
+  modalController: ModalController,
+  incidents: AdminIncidentsService,
+  incident: AdminIncident,
+): Promise<boolean> {
+  return confirmWithReason(modalController, {
+    header: '¿Marcar como revisada?',
+    message: 'La revisión es definitiva y conserva el informe original.',
+    confirmText: 'Marcar revisada',
+    fieldLabel: 'Resolución',
+    maxLength: RESOLUTION_MAX_LENGTH,
+    action: async (resolution) => {
+      await incidents.review(incident.id, resolution);
+    },
+  });
+}
 
 // Detalle de una incidencia en el panel (CU-12): el informe, el viaje y las
 // personas implicadas (con enlace a su ficha) y la revisión con su resolución

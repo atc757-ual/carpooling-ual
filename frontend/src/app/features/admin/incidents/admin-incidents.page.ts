@@ -7,18 +7,15 @@ import {
   resource,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { IonButton, IonCard, IonIcon, IonSkeletonText, ModalController } from '@ionic/angular';
-import { checkmarkCircleOutline } from 'ionicons/icons';
+import { IonButton, IonCard, IonIcon, IonSkeletonText } from '@ionic/angular';
+import { checkmarkCircleOutline, chevronForwardOutline } from 'ionicons/icons';
 import {
-  AdminIncident,
   AdminIncidentQuery,
   INCIDENT_CATEGORIES,
   IncidentCategory,
 } from '../../../core/models/admin-incident.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AdminIncidentsService } from '../../../core/services/admin/admin-incidents.service';
-import { ToastService } from '../../../core/services/ui/toast.service';
-import { confirmWithReason } from '../../../shared/components/modals/reason-confirm-modal/reason-confirm-modal';
 import {
   FilterChipOption,
   FilterChips,
@@ -30,42 +27,23 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import {
   CATEGORY_LABELS,
   formatDateTime,
-  incidentPeople,
   incidentRoute,
+  incidentStatus,
   severityOf,
   STATUS_FILTERS,
   StatusFilter,
 } from './admin-incident-labels';
 
 export const PAGE_SIZE = 20;
-const RESOLUTION_MAX_LENGTH = 1000;
 const CATEGORIES = new Set<string>(INCIDENT_CATEGORIES);
 const STATUS_VALUES = new Set<string>(['open', 'reviewed', 'all']);
-const SKELETON_CARDS = [1, 2, 3];
+const SKELETON_ROWS = [1, 2, 3, 4, 5];
 // Los que se quitan desde el resumen de «Más filtros» (el estado vuelve a
 // «Abiertas», el de por defecto)
 const CHIP_FILTERS = new Set<string>(['status', 'category']);
 
-// Pide la resolución y revisa la incidencia; dice si se hizo
-export function reviewWithResolution(
-  modalController: ModalController,
-  incidents: AdminIncidentsService,
-  incident: AdminIncident,
-): Promise<boolean> {
-  return confirmWithReason(modalController, {
-    header: '¿Marcar como revisada?',
-    message: 'La revisión es definitiva y conserva el informe original.',
-    confirmText: 'Marcar revisada',
-    fieldLabel: 'Resolución',
-    maxLength: RESOLUTION_MAX_LENGTH,
-    action: async (resolution) => {
-      await incidents.review(incident.id, resolution);
-    },
-  });
-}
-
 // Incidencias del panel (CU-12), como Usuarios: la lista con su paginación en
-// la columna de 8 (la gravedad en el borde de cada fila y «Marcar revisada») y
+// la columna de 8 (la gravedad en el borde de cada fila, que abre el detalle) y
 // el estado (abiertas por defecto) y la categoría en la de 4 (en el móvil, tras
 // «Más filtros»). Los filtros y la página van en la URL
 @Component({
@@ -87,8 +65,6 @@ export function reviewWithResolution(
 })
 export class AdminIncidentsPage {
   private readonly incidents = inject(AdminIncidentsService);
-  private readonly modalController = inject(ModalController);
-  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -117,15 +93,20 @@ export class AdminIncidentsPage {
     loader: ({ params }) => this.incidents.list(params),
   });
 
-  readonly cards = computed(() =>
-    (this.page.value()?.items ?? []).map((incident) => ({
-      incident,
-      title: CATEGORY_LABELS[incident.category],
-      severity: severityOf(incident.category),
-      date: formatDateTime(incident.reportedAt),
-      people: incidentPeople(incident),
-      route: incidentRoute(incident),
-    })),
+  readonly rows = computed(() =>
+    (this.page.value()?.items ?? []).map((incident) => {
+      const status = incidentStatus(incident.status);
+      return {
+        id: incident.id,
+        code: incident.code,
+        category: CATEGORY_LABELS[incident.category],
+        severity: severityOf(incident.category),
+        route: incidentRoute(incident),
+        date: formatDateTime(incident.reportedAt),
+        status: status.label,
+        statusClass: status.cssClass,
+      };
+    }),
   );
   readonly total = computed(() => this.page.value()?.total ?? 0);
   // Lo que no es lo de por defecto (estado distinto de «Abiertas» y categoría),
@@ -158,9 +139,10 @@ export class AdminIncidentsPage {
     label: CATEGORY_LABELS[category],
     tone: severityOf(category),
   }));
-  protected readonly skeletonCards = SKELETON_CARDS;
+  protected readonly skeletonRows = SKELETON_ROWS;
   protected readonly pageSize = PAGE_SIZE;
   protected readonly emptyIcon = checkmarkCircleOutline;
+  protected readonly rowLinkIcon = chevronForwardOutline;
 
   async handleStatus(value: unknown): Promise<void> {
     const status = typeof value === 'string' && value !== 'open' ? value : null;
@@ -186,13 +168,6 @@ export class AdminIncidentsPage {
 
   async handleOffset(offset: number): Promise<void> {
     await this.navigate({ offset: offset || null });
-  }
-
-  async handleReview(incident: AdminIncident): Promise<void> {
-    if (await reviewWithResolution(this.modalController, this.incidents, incident)) {
-      void this.toast.showSuccess('Incidencia revisada.');
-      this.page.reload();
-    }
   }
 
   handleRetry(): void {
