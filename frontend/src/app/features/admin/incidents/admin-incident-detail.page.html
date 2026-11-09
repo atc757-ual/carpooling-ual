@@ -1,5 +1,5 @@
-<!-- La franja del panel (la pinta su cabecera): la categoría con su estado y,
-     debajo, el código, cuándo y quién la registró. Sin buscador, se desplaza
+<!-- La franja del panel (la pinta su cabecera): el código con su estado y,
+     debajo, el motivo, cuándo y quién la registró. Sin buscador, se desplaza
      con el contenido. En el móvil, la cabecera lleva «Atrás» y el título -->
 <ng-template appHeadingContent mobileTitle="Detalle de incidencia" (mobileBack)="handleBack()">
   @if (view(); as view) {
@@ -9,7 +9,7 @@
         <span [class]="view.statusClass">{{ view.status }}</span>
       </div>
       <p class="text-body-s admin-heading__subtitle admin-detail__wrap">
-        {{ view.code }} · Registrada el {{ view.reportedAt }} por {{ view.reporter }}
+        {{ view.category }} · Registrada el {{ view.reportedAt }} por {{ view.reporter }}
       </p>
     </div>
   }

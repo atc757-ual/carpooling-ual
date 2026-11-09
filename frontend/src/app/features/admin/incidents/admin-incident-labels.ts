@@ -99,8 +99,9 @@ export function incidentDetailView(incident: AdminIncident) {
   const isOpen = incident.status === 'open';
   const { trip, review } = incident;
   return {
-    code: incident.code,
-    title: CATEGORY_LABELS[incident.category],
+    // El código es lo que se cita: va de título
+    title: incident.code,
+    category: CATEGORY_LABELS[incident.category],
     status: isOpen ? 'Abierta' : 'Revisada',
     statusClass: isOpen ? 'status status--pending' : 'status status--accepted',
     severity: severityOf(incident.category),
