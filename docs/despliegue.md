@@ -30,7 +30,7 @@ Sin un servidor SMTP que funcione, el registro sigue funcionando pero **nadie re
 
     npm run migrate
 
-Aplica las migraciones pendientes. **No** ejecutar `npm run seed` fuera de desarrollo: carga usuarios de prueba con la contraseña `carpooling`.
+Aplica las migraciones pendientes. Entre ellas van los escenarios de simulación S0–S5, así que el panel puede lanzar simulaciones sin más datos. **No** ejecutar `npm run seed` fuera de desarrollo: carga usuarios de prueba con la contraseña `carpooling`.
 
 ## 3. Primer administrador (solo la primera vez)
 
