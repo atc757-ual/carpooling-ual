@@ -1,6 +1,7 @@
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { Trip } from '../trips/entities/trip.entity';
+import type { TripLookupService } from '../trips/trip-lookup.service';
 import { LateCancellationsService } from '../trips/late-cancellations.service';
 import { TripRoutesService } from '../trips/trip-routes.service';
 import { TripStatusService } from '../trips/trip-status.service';
@@ -71,6 +72,7 @@ describe('RequestsService boarding and no-show', () => {
       lateCancellations,
       {} as RequestOverlapService,
       eventsService,
+      {} as TripLookupService,
     );
   }
 

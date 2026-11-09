@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DataSource, In } from 'typeorm';
-import { Trip } from '../trips/entities/trip.entity';
+import { TripLookupService } from '../trips/trip-lookup.service';
 import { MINUTE_MS, REQUEST_RESPONSE_LEAD_MIN } from '../trips/trip-timing';
 import { SeatRequest } from './entities/seat-request.entity';
 import { RequestChangesRecorder } from './request-changes';
@@ -14,6 +14,7 @@ export class RequestLifecycleScheduler {
   constructor(
     private readonly dataSource: DataSource,
     private readonly changes: RequestChangesRecorder,
+    private readonly tripLookup: TripLookupService,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -34,22 +35,34 @@ export class RequestLifecycleScheduler {
     );
 
     return this.dataSource.transaction(async (manager) => {
-      // Buscar solicitudes pendientes cuyos viajes salgan en menos de 30 minutos
-      const pendingRequests = await manager
-        .createQueryBuilder(SeatRequest, 'request')
-        .innerJoin(Trip, 'trip', 'trip.id = request.trip_id')
-        .where('request.status = :status', { status: 'pending' })
-        .andWhere('trip.departure_at <= :threshold', { threshold })
-        .setLock('pessimistic_write')
-        .getMany();
-
+      // Las pendientes cuyo viaje sale en menos de 30 minutos. La salida la
+      // da trips (este módulo no consulta sus tablas); después se bloquean
+      // las que tocan, por si alguien las respondió mientras tanto
+      const pending = await manager.find(SeatRequest, {
+        where: { status: 'pending' },
+        select: { id: true, tripId: true },
+      });
+      const tripsById = await this.tripLookup.findByIds(
+        manager,
+        pending.map(({ tripId }) => tripId),
+      );
+      const dueIds = pending
+        .filter(({ tripId }) => {
+          const trip = tripsById.get(tripId);
+          return trip !== undefined && trip.departureAt <= threshold;
+        })
+        .map(({ id }) => id);
+      if (dueIds.length === 0) {
+        return 0;
+      }
+      const pendingRequests = await manager.find(SeatRequest, {
+        where: { id: In(dueIds), status: 'pending' },
+        order: { id: 'ASC' },
+        lock: { mode: 'pessimistic_write' },
+      });
       if (pendingRequests.length === 0) {
         return 0;
       }
-
-      const tripIds = [...new Set(pendingRequests.map(({ tripId }) => tripId))];
-      const trips = await manager.find(Trip, { where: { id: In(tripIds) } });
-      const tripsById = new Map(trips.map((trip) => [trip.id, trip]));
 
       for (const request of pendingRequests) {
         assertRequestTransition(request.status, 'expired');

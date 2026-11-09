@@ -4,7 +4,7 @@ import type { DomainEventType } from '../../events/domain-event-type';
 import { EventsService } from '../../events/events.service';
 import type { TripNotificationType } from '../notifications/entities/notification.entity';
 import { NotificationsService } from '../notifications/notifications.service';
-import { Trip } from '../trips/entities/trip.entity';
+import type { Trip } from '../trips/entities/trip.entity';
 import { SeatRequest } from './entities/seat-request.entity';
 
 export type RequestEventType = Extract<DomainEventType, `request.${string}`>;

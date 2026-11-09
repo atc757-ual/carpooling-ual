@@ -1,5 +1,6 @@
 import { EntityManager } from 'typeorm';
-import { Trip } from '../trips/entities/trip.entity';
+import type { Trip } from '../trips/entities/trip.entity';
+import type { TripLookupService } from '../trips/trip-lookup.service';
 import { SeatRequest } from './entities/seat-request.entity';
 import { RequestAcceptanceListener } from './request-acceptance.listener';
 import { RequestChange, RequestChangesRecorder } from './request-changes';
@@ -37,7 +38,11 @@ describe('RequestAcceptanceListener', () => {
       lockPendingRequests: jest.fn().mockResolvedValue([]),
     } as unknown as RequestOverlapService;
 
-    listener = new RequestAcceptanceListener(changes, overlaps);
+    const tripLookup = {
+      findByIds: jest.fn().mockResolvedValue(new Map()),
+    } as unknown as TripLookupService;
+
+    listener = new RequestAcceptanceListener(changes, overlaps, tripLookup);
     listener.onModuleInit();
   });
 

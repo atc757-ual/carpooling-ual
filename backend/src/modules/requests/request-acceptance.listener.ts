@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { EntityManager, In } from 'typeorm';
-import { Trip } from '../trips/entities/trip.entity';
+import { EntityManager } from 'typeorm';
+import type { Trip } from '../trips/entities/trip.entity';
+import { TripLookupService } from '../trips/trip-lookup.service';
 import { SeatRequest } from './entities/seat-request.entity';
 import { RequestChangesRecorder } from './request-changes';
 import { RequestOverlapService } from './request-overlap.service';
@@ -11,6 +12,7 @@ export class RequestAcceptanceListener implements OnModuleInit {
   constructor(
     private readonly changes: RequestChangesRecorder,
     private readonly overlaps: RequestOverlapService,
+    private readonly tripLookup: TripLookupService,
   ) {}
 
   onModuleInit(): void {
@@ -42,9 +44,10 @@ export class RequestAcceptanceListener implements OnModuleInit {
       manager,
       candidates,
     );
-    const tripIds = [...new Set(pending.map(({ tripId }) => tripId))];
-    const trips = await manager.find(Trip, { where: { id: In(tripIds) } });
-    const tripsById = new Map(trips.map((trip) => [trip.id, trip]));
+    const tripsById = await this.tripLookup.findByIds(
+      manager,
+      pending.map(({ tripId }) => tripId),
+    );
     const cancelledRequests: Array<{ request: SeatRequest; trip: Trip }> = [];
 
     for (const request of pending) {

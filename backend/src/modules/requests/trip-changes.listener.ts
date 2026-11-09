@@ -1,7 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { EntityManager, In } from 'typeorm';
 import { NotificationsService } from '../notifications/notifications.service';
-import { Trip } from '../trips/entities/trip.entity';
+import type { Trip } from '../trips/entities/trip.entity';
+import { TripLookupService } from '../trips/trip-lookup.service';
 import { TripStatusService } from '../trips/trip-status.service';
 import { AccountHasActiveTripsError } from '../users/errors/account-has-active-trips.error';
 import { UsersService } from '../users/users.service';
@@ -13,8 +14,6 @@ import {
   LIVE_REQUEST_STATUSES,
 } from './request-status';
 import type { RequestStatus } from './request-status';
-
-const ACTIVE_TRIP_STATUSES = ['published', 'confirmed', 'in_progress'] as const;
 
 // Qué les pasa a las solicitudes cuando cambia su viaje o cuando un usuario
 // elimina su cuenta. Patrón observador: se suscribe a los cambios de estado de
@@ -37,6 +36,7 @@ export class TripChangesListener implements OnModuleInit {
     private readonly changes: RequestChangesRecorder,
     private readonly notificationsService: NotificationsService,
     private readonly overlaps: RequestOverlapService,
+    private readonly tripLookup: TripLookupService,
   ) {}
 
   onModuleInit(): void {
@@ -89,24 +89,18 @@ export class TripChangesListener implements OnModuleInit {
     manager: EntityManager,
     userId: string,
   ): Promise<void> {
-    const hasActiveDriverTrip = await manager.existsBy(Trip, {
-      driverId: userId,
-      status: In([...ACTIVE_TRIP_STATUSES]),
-    });
-    if (hasActiveDriverTrip) {
+    if (await this.tripLookup.hasActiveAsDriver(manager, userId)) {
       throw new AccountHasActiveTripsError();
     }
 
-    const hasActiveAcceptedRequest = await manager
-      .createQueryBuilder(SeatRequest, 'request')
-      .innerJoin(Trip, 'trip', 'trip.id = request.tripId')
-      .where('request.passengerId = :userId', { userId })
-      .andWhere('request.status = :status', { status: 'accepted' })
-      .andWhere('trip.status IN (:...tripStatuses)', {
-        tripStatuses: [...ACTIVE_TRIP_STATUSES],
-      })
-      .getExists();
-    if (hasActiveAcceptedRequest) {
+    // Sus plazas aceptadas, y trips dice si alguno de esos viajes sigue sin
+    // terminar (este módulo no consulta sus tablas)
+    const accepted = await manager.find(SeatRequest, {
+      where: { passengerId: userId, status: 'accepted' },
+      select: { tripId: true },
+    });
+    const acceptedTripIds = accepted.map(({ tripId }) => tripId);
+    if (await this.tripLookup.anyActive(manager, acceptedTripIds)) {
       throw new AccountHasActiveTripsError();
     }
   }
