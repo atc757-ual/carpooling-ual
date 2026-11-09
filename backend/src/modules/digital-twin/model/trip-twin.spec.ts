@@ -175,6 +175,28 @@ describe('TripTwin', () => {
     expect(trip.requests.size).toBe(2);
   });
 
+  // request.boarded v1 no llevaba estado ni plazas: se conservan los de antes
+  it('keeps the status and seats of a request when the event lacks them', () => {
+    trip.apply(event('trip.started', tripState('in_progress')));
+    trip.apply(
+      event('request.accepted', request('accepted', { seats: 2 }), 'r-1'),
+    );
+    trip.apply(
+      event(
+        'request.boarded',
+        { tripId: TRIP_ID, boardedAt: '2026-11-03T08:35:00Z' },
+        'r-1',
+      ),
+    );
+
+    expect(trip.requests.get('r-1')).toMatchObject({
+      seats: 2,
+      status: 'accepted',
+      isBoarded: true,
+    });
+    expect(trip.passengersOnBoard).toBe(2);
+  });
+
   it('takes one seat and pending when the request payload lacks them', () => {
     trip.apply(event('request.created', { tripId: TRIP_ID }, 'r-1'));
 

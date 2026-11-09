@@ -30,7 +30,7 @@ import { RequestNotFoundError } from './errors/request-not-found.error';
 import { RequestingSuspendedError } from './errors/requesting-suspended.error';
 import { TooManyPendingRequestsError } from './errors/too-many-pending-requests.error';
 import { RequestView, RequestViewsService } from './request-views.service';
-import { RequestChangesRecorder } from './request-changes';
+import { RequestChangesRecorder, requestPayload } from './request-changes';
 import { RequestOverlapService } from './request-overlap.service';
 import { MAX_OVERLAPPING_PENDING_REQUESTS } from './request-schedule';
 import { assertRequestTransition } from './request-status';
@@ -375,12 +375,10 @@ export class RequestsService {
       await this.eventsService.record(manager, {
         type: 'request.boarded',
         sourceEntityId: saved.id,
-        payload: {
-          tripId: trip.id,
-          requestId: saved.id,
-          passengerId: saved.passengerId,
-          boardedAt: (saved.boardedAt ?? new Date()).toISOString(),
-        },
+        // v2: el estado completo, como el resto de eventos de la solicitud
+        // (la v1 no llevaba estado ni plazas y el gemelo no contaba al
+        // pasajero a bordo)
+        payload: { requestId: saved.id, ...requestPayload(saved) },
       });
       return saved;
     });

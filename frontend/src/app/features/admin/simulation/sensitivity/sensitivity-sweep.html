@@ -54,13 +54,9 @@
         <ion-progress-bar [value]="progress()" />
       }
       <app-sensitivity-chart [variants]="sweep.variants" [parameter]="sweep.parameter" />
-      <!-- En el móvil, la tabla se desplaza de lado dentro de su caja -->
-      <div
-        class="sweep__table-scroll"
-        tabindex="0"
-        role="region"
-        aria-label="Tabla de resultados por valor"
-      >
+      <!-- En el móvil, la tabla se desplaza de lado dentro de su caja (el
+           navegador ya deja enfocar con el teclado una caja con desplazamiento) -->
+      <section class="sweep__table-scroll" aria-label="Tabla de resultados por valor">
         <table class="admin-table sweep__table">
           <caption class="visually-hidden">
             Resultados por valor del supuesto
@@ -86,7 +82,7 @@
             }
           </tbody>
         </table>
-      </div>
+      </section>
     </div>
   }
 </section>

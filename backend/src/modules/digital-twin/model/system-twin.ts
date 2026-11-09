@@ -43,7 +43,7 @@ export const SUPPORTED_EVENT_VERSIONS: Readonly<
   'request.rejected': V1,
   'request.cancelled': V1,
   'request.expired': V1,
-  'request.boarded': V1,
+  'request.boarded': new Set([1, 2]),
   'user.registered': V1,
   'user.phone_verified': V1,
   'user.deactivated': V1,

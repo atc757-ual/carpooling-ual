@@ -30,7 +30,7 @@ export const EVENT_VERSIONS: Readonly<Record<DomainEventType, number>> = {
   'request.rejected': 1,
   'request.cancelled': 1,
   'request.expired': 1,
-  'request.boarded': 1,
+  'request.boarded': 2,
   'chat_message.sent': 1,
   'incident.reported': 1,
   'incident.review_started': 1,

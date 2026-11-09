@@ -137,11 +137,15 @@ export class TripTwin {
     this.remainingMin = readNumber(payload, 'remainingMin');
   }
 
+  // Lo que no trae el evento se queda como estaba (p. ej. request.boarded v1,
+  // que no llevaba estado ni plazas)
   private applyRequest({ payload, sourceEntityId }: TwinEvent): void {
+    const previous = this.requests.get(sourceEntityId);
     this.requests.set(sourceEntityId, {
-      passengerId: readString(payload, 'passengerId'),
-      seats: readNumber(payload, 'seats') ?? 1,
-      status: readString(payload, 'status') ?? 'pending',
+      passengerId:
+        readString(payload, 'passengerId') ?? previous?.passengerId ?? null,
+      seats: readNumber(payload, 'seats') ?? previous?.seats ?? 1,
+      status: readString(payload, 'status') ?? previous?.status ?? 'pending',
       isBoarded: readString(payload, 'boardedAt') !== null,
     });
   }
