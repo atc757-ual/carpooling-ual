@@ -48,6 +48,9 @@ export interface IncidentView {
   reviewStartedByName: string | null;
   // Quién la atendió (solo atendida)
   reviewedByName: string | null;
+  // Si el administrador que la consulta está implicado en su viaje: no puede
+  // gestionarla (false para quien la registró, que no es administrador)
+  isViewerInvolved: boolean;
   // null solo si el viaje ya no existe
   trip: IncidentTripView | null;
 }
@@ -135,16 +138,18 @@ export class IncidentsService {
     if (incident === null || (!isAdmin && incident.reporterId !== userId)) {
       throw new IncidentNotFoundError(incidentId);
     }
-    return this.toView(incident);
+    return this.toView(incident, isAdmin ? userId : undefined);
   }
 
   // --- Administrador (CU-12)
 
   // Incidencias para revisar: primero las registradas, luego las que están en
   // revisión y al final las atendidas; en cada estado, la más antigua primero
+  // (viewerId: el administrador que consulta, para saber en cuáles está implicado)
   async list(
     filter: IncidentFilter,
     page: PageRequest,
+    viewerId?: string,
   ): Promise<Page<IncidentView>> {
     const [incidents, total] = await this.incidentsRepository.findAndCount({
       where: {
@@ -156,7 +161,7 @@ export class IncidentsService {
       skip: page.offset,
       take: page.limit,
     });
-    return { items: await this.toViews(incidents), total };
+    return { items: await this.toViews(incidents, viewerId), total };
   }
 
   // Una incidencia nueva (del viaje en curso o de un mensaje del chat): su
@@ -175,8 +180,8 @@ export class IncidentsService {
   }
 
   // La incidencia con su viaje y los nombres, como la devuelve la API
-  async toView(incident: Incident): Promise<IncidentView> {
-    const [view] = await this.toViews([incident]);
+  async toView(incident: Incident, viewerId?: string): Promise<IncidentView> {
+    const [view] = await this.toViews([incident], viewerId);
     return view;
   }
 
@@ -260,10 +265,15 @@ export class IncidentsService {
   }
 
   // Los viajes y los nombres en una consulta cada uno (no una por fila)
-  private async toViews(incidents: Incident[]): Promise<IncidentView[]> {
-    const trips = await this.tripsService.getByIds(
-      incidents.map(({ tripId }) => tripId),
-    );
+  private async toViews(
+    incidents: Incident[],
+    viewerId?: string,
+  ): Promise<IncidentView[]> {
+    const tripIds = incidents.map(({ tripId }) => tripId);
+    const trips = await this.tripsService.getByIds(tripIds);
+    const requested = viewerId
+      ? await this.requestsService.tripIdsRequestedBy(viewerId, tripIds)
+      : new Set<string>();
     const names = await this.usersService.getNames([
       ...incidents.map(({ reporterId }) => reporterId),
       ...incidents.flatMap(({ reviewStartedBy, reviewedBy }) =>
@@ -277,6 +287,11 @@ export class IncidentsService {
         incident,
         reporterName: names.get(incident.reporterId) ?? '',
         reporterRole: reporterRoleOf(incident, trip?.driverId),
+        isViewerInvolved:
+          viewerId !== undefined &&
+          (incident.reporterId === viewerId ||
+            trip?.driverId === viewerId ||
+            requested.has(incident.tripId)),
         reviewStartedByName: incident.reviewStartedBy
           ? (names.get(incident.reviewStartedBy) ?? '')
           : null,

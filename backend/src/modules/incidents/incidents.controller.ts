@@ -56,7 +56,7 @@ function ReviewEndpoint(
     ApiErrorResponses({
       ...AUTH_ERRORS,
       [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
-      [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
+      [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', 'INCIDENT_INVOLVED_ADMIN'],
       [HttpStatus.NOT_FOUND]: ['INCIDENT_NOT_FOUND'],
       [HttpStatus.CONFLICT]: [
         'INCIDENT_ALREADY_REVIEWED',
@@ -170,12 +170,14 @@ export class IncidentsController {
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
   })
   async list(
+    @CurrentUser() admin: AccessTokenPayload,
     @Query() query: ListIncidentsQueryDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<IncidentResource[]> {
     const page = await this.incidentsService.list(
       { status: query.status, category: query.category },
       query,
+      admin.sub,
     );
     setPaginationHeaders(response, page);
     return page.items.map(toIncidentResource);

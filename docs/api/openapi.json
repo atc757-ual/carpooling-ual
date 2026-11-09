@@ -9376,7 +9376,7 @@
             }
           },
           "403": {
-            "description": "TMF630 error: PROFILE_REQUIRED",
+            "description": "TMF630 error: PROFILE_REQUIRED, INCIDENT_INVOLVED_ADMIN",
             "content": {
               "application/json": {
                 "schema": {
@@ -9474,7 +9474,7 @@
             }
           },
           "403": {
-            "description": "TMF630 error: PROFILE_REQUIRED",
+            "description": "TMF630 error: PROFILE_REQUIRED, INCIDENT_INVOLVED_ADMIN",
             "content": {
               "application/json": {
                 "schema": {
@@ -9582,7 +9582,7 @@
             }
           },
           "403": {
-            "description": "TMF630 error: PROFILE_REQUIRED",
+            "description": "TMF630 error: PROFILE_REQUIRED, INCIDENT_INVOLVED_ADMIN",
             "content": {
               "application/json": {
                 "schema": {
@@ -16067,6 +16067,10 @@
               "reviewed"
             ]
           },
+          "isViewerInvolved": {
+            "type": "boolean",
+            "description": "True when the administrator asking is involved in the trip (reported it, drives it or requested a seat): another administrator must manage it"
+          },
           "reviewInProgress": {
             "nullable": true,
             "description": "Who is reviewing it (CU-12); null unless in_review",
@@ -16099,6 +16103,7 @@
           "description",
           "reportedAt",
           "status",
+          "isViewerInvolved",
           "reviewInProgress",
           "review"
         ]

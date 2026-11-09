@@ -121,6 +121,12 @@ export class IncidentResource {
   status: IncidentStatus;
 
   @ApiProperty({
+    description:
+      'True when the administrator asking is involved in the trip (reported it, drives it or requested a seat): another administrator must manage it',
+  })
+  isViewerInvolved: boolean;
+
+  @ApiProperty({
     type: IncidentReviewInProgressResource,
     nullable: true,
     description: 'Who is reviewing it (CU-12); null unless in_review',
@@ -150,6 +156,7 @@ export function toIncidentResource({
   reporterRole,
   reviewStartedByName,
   reviewedByName,
+  isViewerInvolved,
   trip,
 }: IncidentView): IncidentResource {
   const {
@@ -181,6 +188,7 @@ export function toIncidentResource({
     description: incident.description,
     reportedAt: incident.createdAt.toISOString(),
     status: incident.status,
+    isViewerInvolved,
     reviewInProgress:
       incident.status === 'in_review' &&
       reviewStartedBy !== null &&
