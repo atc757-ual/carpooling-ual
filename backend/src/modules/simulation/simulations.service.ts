@@ -28,6 +28,8 @@ import type {
   SimulationRunner,
 } from './runner/simulation-runner';
 import { toScenarioConfig } from './scenario-config';
+import { applyVariant } from './sensitivity';
+import type { SweepPlan, SweepVariant } from './sensitivity';
 import { aggregate, toCsv } from './simulation-metrics';
 import type { SimulationOutput } from './simulation-metrics';
 import {
@@ -43,7 +45,19 @@ export interface StartSimulationInput {
   // Sin indicar, las réplicas por defecto del escenario
   replicas?: number;
   seed: number;
+  // Solo en un análisis de sensibilidad
+  sweep?: { id: string; plan: SweepPlan; variant: SweepVariant };
 }
+
+// Quien quiere saber cuándo termina una ejecución, bien o mal (p. ej. el
+// barrido, para lanzar la siguiente variante): patrón observador
+export type RunEndedListener = (run: SimulationRun) => Promise<void>;
+
+const ENDED_STATUSES: ReadonlySet<SimulationRunStatus> = new Set([
+  'finished',
+  'failed',
+  'cancelled',
+]);
 
 // Sin noticias del motor durante este tiempo, la ejecución se da por perdida
 // (p. ej. se reinició el servidor con el motor falso a medias)
@@ -63,6 +77,8 @@ const ENGINE_EVENTS: Partial<Record<SimulationRunStatus, DomainEventType>> = {
 // en el SimulationRunner, del que recibe el progreso y los resultados
 @Injectable()
 export class SimulationsService implements SimulationRunListener {
+  private readonly endedListeners: RunEndedListener[] = [];
+
   constructor(
     private readonly dataSource: DataSource,
     @InjectRepository(Scenario)
@@ -79,23 +95,38 @@ export class SimulationsService implements SimulationRunListener {
     return this.scenariosRepository.find({ order: { code: 'ASC' } });
   }
 
+  onRunEnded(listener: RunEndedListener): void {
+    this.endedListeners.push(listener);
+  }
+
+  // adminId null: lanzada por el sistema (la siguiente variante de un barrido
+  // cuyo administrador ya no consta)
   async start(
-    adminId: string,
+    adminId: string | null,
     input: StartSimulationInput,
   ): Promise<SimulationRun> {
     const scenario = await this.findScenario(input.scenarioCode);
     const baseline = await this.findScenario(input.baselineCode);
     await this.failStaleRuns();
+    const configs = {
+      scenario: toScenarioConfig(scenario),
+      baseline: toScenarioConfig(baseline),
+    };
+    const { sweep } = input;
     const run = await this.dataSource
       .transaction(async (manager) => {
         const created = await manager.save(
           manager.create(SimulationRun, {
             scenarioId: scenario.id,
             baselineScenarioId: baseline.id,
-            scenarioConfig: {
-              scenario: toScenarioConfig(scenario),
-              baseline: toScenarioConfig(baseline),
-            },
+            scenarioConfig: sweep
+              ? {
+                  ...applyVariant(configs, sweep.variant),
+                  variant: sweep.variant,
+                  sweep: sweep.plan,
+                }
+              : configs,
+            sweepId: sweep?.id ?? null,
             replicas: input.replicas ?? scenario.replicas,
             seed: input.seed,
             requestedBy: adminId,
@@ -182,6 +213,7 @@ export class SimulationsService implements SimulationRunListener {
       return cancelled;
     });
     this.runner.cancel(runId);
+    await this.notifyEnded(run);
     return run;
   }
 
@@ -231,19 +263,31 @@ export class SimulationsService implements SimulationRunListener {
     to: SimulationRunStatus,
     apply: (run: SimulationRun, manager: EntityManager) => void | Promise<void>,
   ): Promise<void> {
-    await this.dataSource.transaction(async (manager) => {
+    const saved = await this.dataSource.transaction(async (manager) => {
       const run = await this.lockRun(manager, runId);
       if (!canTransition(run.status, to)) {
-        return;
+        return null;
       }
       run.status = to;
       await apply(run, manager);
-      const saved = await manager.save(run);
+      const changed = await manager.save(run);
       const eventType = ENGINE_EVENTS[to];
       if (eventType !== undefined) {
-        await this.recordEvent(manager, eventType, saved, null);
+        await this.recordEvent(manager, eventType, changed, null);
       }
+      return changed;
     });
+    if (saved !== null && ENDED_STATUSES.has(to)) {
+      await this.notifyEnded(saved);
+    }
+  }
+
+  // Ya confirmada la transacción: el siguiente paso (p. ej. otra variante)
+  // puede lanzar una ejecución nueva
+  private async notifyEnded(run: SimulationRun): Promise<void> {
+    for (const listener of this.endedListeners) {
+      await listener(run);
+    }
   }
 
   private async findScenario(code: string): Promise<Scenario> {
