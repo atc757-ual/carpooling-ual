@@ -15,9 +15,12 @@ describe('admin user detail labels', () => {
     expect(tripStatusLabel('teleported')).toBe('teleported');
     expect(requestStatusLabel('accepted')).toBe('Aceptada');
     expect(incidentLabel({ category: 'technical', status: 'open' })).toBe(
-      'Problema técnico · Abierta',
+      'Problema técnico · Registrada',
     );
-    expect(incidentLabel({ category: 'other', status: 'reviewed' })).toBe('Otro motivo · Revisada');
+    expect(incidentLabel({ category: 'driver', status: 'in_review' })).toBe(
+      'Con el conductor · En revisión',
+    );
+    expect(incidentLabel({ category: 'other', status: 'reviewed' })).toBe('Otro motivo · Atendida');
     expect(consentLabel({ type: 'location', action: 'revoked' })).toBe('Ubicación · Retirado');
     expect(consentLabel({ type: 'terms', action: 'granted' })).toBe(
       'Condiciones de uso · Aceptado',

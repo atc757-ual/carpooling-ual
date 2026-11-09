@@ -52,7 +52,30 @@ export class IncidentReporterResource {
   role: ReporterRole;
 }
 
+// Quién la está revisando y desde cuándo (solo en revisión)
+export class IncidentReviewInProgressResource {
+  @ApiProperty({ type: IncidentDriverResource })
+  by: IncidentDriverResource;
+
+  @ApiProperty({ format: 'date-time' })
+  since: string;
+}
+
 export class IncidentReviewResource {
+  @ApiProperty({
+    type: IncidentDriverResource,
+    description: 'The administrator who resolved it',
+  })
+  by: IncidentDriverResource;
+
+  @ApiProperty({
+    format: 'date-time',
+    nullable: true,
+    description:
+      'When that administrator started the review; null if resolved before the review states existed',
+  })
+  startedAt: string | null;
+
   @ApiProperty({ format: 'date-time' })
   reviewedAt: string;
 
@@ -98,6 +121,13 @@ export class IncidentResource {
   status: IncidentStatus;
 
   @ApiProperty({
+    type: IncidentReviewInProgressResource,
+    nullable: true,
+    description: 'Who is reviewing it (CU-12); null unless in_review',
+  })
+  reviewInProgress: IncidentReviewInProgressResource | null;
+
+  @ApiProperty({
     type: IncidentReviewResource,
     nullable: true,
     description: 'The review of the administrator (CU-12); null while open',
@@ -118,9 +148,17 @@ export function toIncidentResource({
   incident,
   reporterName,
   reporterRole,
+  reviewStartedByName,
+  reviewedByName,
   trip,
 }: IncidentView): IncidentResource {
-  const { reviewedAt, resolution } = incident;
+  const {
+    reviewedAt,
+    reviewedBy,
+    resolution,
+    reviewStartedBy,
+    reviewStartedAt,
+  } = incident;
   return {
     '@type': 'Incident',
     id: incident.id,
@@ -143,9 +181,25 @@ export function toIncidentResource({
     description: incident.description,
     reportedAt: incident.createdAt.toISOString(),
     status: incident.status,
+    reviewInProgress:
+      incident.status === 'in_review' &&
+      reviewStartedBy !== null &&
+      reviewStartedAt !== null
+        ? {
+            by: { id: reviewStartedBy, name: reviewStartedByName ?? '' },
+            since: reviewStartedAt.toISOString(),
+          }
+        : null,
     review:
-      reviewedAt !== null && resolution !== null
-        ? { reviewedAt: reviewedAt.toISOString(), resolution }
+      reviewedAt !== null && reviewedBy !== null && resolution !== null
+        ? {
+            by: { id: reviewedBy, name: reviewedByName ?? '' },
+            // Solo quien la empezó puede atenderla: su inicio es el de esta
+            // revisión
+            startedAt: reviewStartedAt?.toISOString() ?? null,
+            reviewedAt: reviewedAt.toISOString(),
+            resolution,
+          }
         : null,
   };
 }

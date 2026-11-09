@@ -69,7 +69,12 @@ const EVENT_ENTITIES: Readonly<Record<string, EventEntity>> = {
   incident: {
     group: 'Incidencias',
     entity: 'Incidencia',
-    actions: { reported: 'Incidencia registrada', reviewed: 'Incidencia revisada' },
+    actions: {
+      reported: 'Incidencia registrada',
+      review_started: 'Revisión empezada',
+      review_released: 'Revisión dejada',
+      reviewed: 'Incidencia atendida',
+    },
   },
   review: {
     group: 'Valoraciones',

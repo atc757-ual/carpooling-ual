@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository, In } from 'typeorm';
-import type { DomainEventType } from '../../events/domain-event-type';
 import { EventsService } from '../../events/events.service';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -15,8 +14,12 @@ import type {
   IncidentCategory,
   IncidentStatus,
 } from './entities/incident.entity';
-import { IncidentAlreadyReviewedError } from './errors/incident-already-reviewed.error';
 import { IncidentNotFoundError } from './errors/incident-not-found.error';
+import {
+  recordIncidentEvent,
+  reporterRoleOf,
+  type ReporterRole,
+} from './incident-events';
 
 export interface ReportIncidentInput {
   category: IncidentCategory;
@@ -25,7 +28,7 @@ export interface ReportIncidentInput {
 
 // Quien la registró: el conductor (cancela el viaje) o un pasajero (lo
 // abandona). Se deduce de la incidencia: solo la del pasajero tiene solicitud
-export type ReporterRole = 'driver' | 'passenger';
+export type { ReporterRole } from './incident-events';
 
 // El viaje de la incidencia como lo ve quien la gestiona: el trayecto, la
 // hora y el conductor
@@ -41,6 +44,10 @@ export interface IncidentView {
   incident: Incident;
   reporterName: string;
   reporterRole: ReporterRole;
+  // Quién la está revisando (solo en revisión)
+  reviewStartedByName: string | null;
+  // Quién la atendió (solo atendida)
+  reviewedByName: string | null;
   // null solo si el viaje ya no existe
   trip: IncidentTripView | null;
 }
@@ -133,7 +140,8 @@ export class IncidentsService {
 
   // --- Administrador (CU-12)
 
-  // Incidencias para revisar, por orden de llegada (la más antigua primero)
+  // Incidencias para revisar: primero las registradas, luego las que están en
+  // revisión y al final las atendidas; en cada estado, la más antigua primero
   async list(
     filter: IncidentFilter,
     page: PageRequest,
@@ -143,48 +151,12 @@ export class IncidentsService {
         ...(filter.status === undefined ? {} : { status: filter.status }),
         ...(filter.category === undefined ? {} : { category: filter.category }),
       },
-      order: { createdAt: 'ASC', id: 'ASC' },
+      // El enum se ordena como se declaró: registradas, en revisión, atendidas
+      order: { status: 'ASC', createdAt: 'ASC', id: 'ASC' },
       skip: page.offset,
       take: page.limit,
     });
     return { items: await this.toViews(incidents), total };
-  }
-
-  // "Revisada y cerrada": la revisión es definitiva. La fila se bloquea para
-  // que dos administradores no la revisen a la vez
-  async review(
-    adminId: string,
-    incidentId: string,
-    resolution: string,
-  ): Promise<IncidentView> {
-    const incident = await this.dataSource.transaction(async (manager) => {
-      const current = await manager.findOne(Incident, {
-        where: { id: incidentId },
-        lock: { mode: 'pessimistic_write' },
-      });
-      if (current === null) {
-        throw new IncidentNotFoundError(incidentId);
-      }
-      if (current.status === 'reviewed') {
-        throw new IncidentAlreadyReviewedError(incidentId);
-      }
-      current.status = 'reviewed';
-      current.reviewedBy = adminId;
-      current.reviewedAt = new Date();
-      current.resolution = resolution;
-      const reviewed = await manager.save(current);
-      const trip = (await this.tripsService.getByIds([reviewed.tripId])).get(
-        reviewed.tripId,
-      );
-      await this.recordEvent(
-        manager,
-        'incident.reviewed',
-        reviewed,
-        trip?.driverId,
-      );
-      return reviewed;
-    });
-    return this.toView(incident);
   }
 
   // Una incidencia nueva (del viaje en curso o de un mensaje del chat): su
@@ -194,7 +166,11 @@ export class IncidentsService {
     incident: Incident,
     driverId: string,
   ): Promise<void> {
-    await this.recordEvent(manager, 'incident.reported', incident, driverId);
+    await recordIncidentEvent(this.eventsService, manager, {
+      type: 'incident.reported',
+      incident,
+      driverId,
+    });
     await this.notifyAdmins(manager, incident);
   }
 
@@ -225,9 +201,10 @@ export class IncidentsService {
     });
   }
 
+  // Las que aún no están atendidas (registradas o en revisión)
   async countOpenByUser(): Promise<Map<string, number>> {
     const open = await this.incidentsRepository.find({
-      where: { status: 'open' },
+      where: { status: In(['open', 'in_review']) },
       select: { id: true, tripId: true, reporterId: true },
     });
     const trips = await this.tripsService.getByIds(
@@ -289,6 +266,9 @@ export class IncidentsService {
     );
     const names = await this.usersService.getNames([
       ...incidents.map(({ reporterId }) => reporterId),
+      ...incidents.flatMap(({ reviewStartedBy, reviewedBy }) =>
+        [reviewStartedBy, reviewedBy].filter((id) => id !== null),
+      ),
       ...[...trips.values()].map(({ driverId }) => driverId),
     ]);
     return incidents.map((incident) => {
@@ -297,6 +277,12 @@ export class IncidentsService {
         incident,
         reporterName: names.get(incident.reporterId) ?? '',
         reporterRole: reporterRoleOf(incident, trip?.driverId),
+        reviewStartedByName: incident.reviewStartedBy
+          ? (names.get(incident.reviewStartedBy) ?? '')
+          : null,
+        reviewedByName: incident.reviewedBy
+          ? (names.get(incident.reviewedBy) ?? '')
+          : null,
         trip: trip
           ? {
               originName: trip.originName,
@@ -309,37 +295,4 @@ export class IncidentsService {
       };
     });
   }
-
-  // Sin la descripción ni la resolución: son texto libre que puede contener
-  // datos personales y el Gemelo Digital no lo necesita (minimización)
-  private async recordEvent(
-    manager: EntityManager,
-    type: DomainEventType,
-    incident: Incident,
-    driverId?: string,
-  ): Promise<void> {
-    await this.eventsService.record(manager, {
-      type,
-      sourceEntityId: incident.id,
-      payload: {
-        number: incident.number,
-        tripId: incident.tripId,
-        requestId: incident.requestId,
-        reporterId: incident.reporterId,
-        reporterRole: reporterRoleOf(incident, driverId),
-        category: incident.category,
-        status: incident.status,
-        reviewedBy: incident.reviewedBy,
-      },
-    });
-  }
-}
-
-// Con el conductor del viaje, comparándolo; sin él (viaje borrado), por la
-// solicitud: solo el pasajero que abandona el viaje la tiene
-function reporterRoleOf(incident: Incident, driverId?: string): ReporterRole {
-  if (driverId !== undefined) {
-    return incident.reporterId === driverId ? 'driver' : 'passenger';
-  }
-  return incident.requestId === null ? 'driver' : 'passenger';
 }

@@ -67,9 +67,16 @@ export function requestStatusLabel(status: string): string {
   return REQUEST_STATUSES[status] ?? status;
 }
 
+// Los estados de la revisión, como en Incidencias
+const INCIDENT_STATUSES: Readonly<Record<string, string>> = {
+  open: 'Registrada',
+  in_review: 'En revisión',
+  reviewed: 'Atendida',
+};
+
 export function incidentLabel(incident: { category: string; status: string }): string {
   const category = INCIDENT_CATEGORIES[incident.category] ?? incident.category;
-  return `${category} · ${incident.status === 'open' ? 'Abierta' : 'Revisada'}`;
+  return `${category} · ${INCIDENT_STATUSES[incident.status] ?? incident.status}`;
 }
 
 export function consentLabel(record: { type: string; action: string }): string {

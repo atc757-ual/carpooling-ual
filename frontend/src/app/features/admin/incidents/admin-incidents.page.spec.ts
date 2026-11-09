@@ -34,11 +34,11 @@ describe('AdminIncidentsPage', () => {
     list.mockResolvedValue({ items: [INCIDENT], total: 1 });
   });
 
-  it('shows the open ones by default, one row each with its severity and a link', async () => {
+  it('shows all of them by default, one row each with its severity and a link', async () => {
     const root = await render();
 
     expect(list).toHaveBeenCalledWith({
-      status: 'open',
+      status: undefined,
       category: undefined,
       offset: 0,
       limit: 20,
@@ -51,7 +51,7 @@ describe('AdminIncidentsPage', () => {
       'Con el conductor',
       'Roquetas de Mar → Campus UAL',
     ]);
-    expect(cells[4]).toBe('Abierta');
+    expect(cells[4]).toBe('Registrada');
     expect(row?.querySelector('a')?.getAttribute('href')).toBe('/i1');
     // Se gestiona solo desde el detalle
     expect(root.textContent).not.toContain('Marcar revisada');
@@ -74,7 +74,7 @@ describe('AdminIncidentsPage', () => {
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     expect(page.activeFilters()).toEqual([
-      { key: 'status', label: 'Revisadas' },
+      { key: 'status', label: 'Atendidas' },
       { key: 'category', label: 'Con el conductor' },
     ]);
     await page.handleRemoveFilter('status');
@@ -101,7 +101,7 @@ describe('AdminIncidentsPage', () => {
       [],
       expect.objectContaining({ queryParams: { status: 'reviewed', offset: null } }),
     );
-    await fixture.componentInstance.handleStatus('open');
+    await fixture.componentInstance.handleStatus('all');
     expect(navigate).toHaveBeenLastCalledWith(
       [],
       expect.objectContaining({ queryParams: { status: null, offset: null } }),
@@ -118,9 +118,14 @@ describe('AdminIncidentsPage', () => {
     );
   });
 
-  it('says there are no open incidents and shows errors with a retry', async () => {
+  it('says there are none and shows errors with a retry', async () => {
     list.mockResolvedValue({ items: [], total: 0 });
-    expect((await render()).textContent).toContain('No hay incidencias abiertas');
+    expect((await render()).textContent).toContain('No hay incidencias');
+
+    TestBed.resetTestingModule();
+    expect((await render({ status: 'open' })).textContent).toContain(
+      'No hay incidencias registradas',
+    );
 
     TestBed.resetTestingModule();
     list.mockRejectedValueOnce(new ApiError('INTERNAL_ERROR', 500));

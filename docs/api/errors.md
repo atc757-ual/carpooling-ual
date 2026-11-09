@@ -137,10 +137,12 @@ Además, aceptar o cancelar pueden responder `TRIP_FULL`, `TRIP_NOT_OPEN`, `TRIP
 
 ## Incidencias (`incidents`)
 
-| `code`                      | HTTP | Cuándo                                                                                                                                                  |
-| --------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `INCIDENT_NOT_FOUND`        | 404  | La incidencia no existe, o el usuario no es ni quien la registró ni administrador (es privada: protege a quien informa de un problema con otra persona) |
-| `INCIDENT_ALREADY_REVIEWED` | 409  | Revisar una incidencia ya revisada: la revisión es definitiva (CU-12)                                                                                   |
+| `code`                        | HTTP | Cuándo                                                                                                                                                  |
+| ----------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `INCIDENT_NOT_FOUND`          | 404  | La incidencia no existe, o el usuario no es ni quien la registró ni administrador (es privada: protege a quien informa de un problema con otra persona) |
+| `INCIDENT_ALREADY_REVIEWED`   | 409  | Mover una incidencia ya atendida: la revisión es definitiva (CU-12)                                                                                     |
+| `INCIDENT_REVIEW_TAKEN`       | 409  | Empezar, dejar o atender una incidencia que está revisando otro administrador                                                                           |
+| `INCIDENT_INVALID_TRANSITION` | 409  | Atender o dejar una incidencia sin haber empezado a revisarla (registrada → en revisión → atendida)                                                     |
 
 Registrar una incidencia puede responder además `TRIP_NOT_IN_PROGRESS` (ver _Viajes_) o `NOT_TRIP_PASSENGER` (ver _Solicitudes de plaza_).
 

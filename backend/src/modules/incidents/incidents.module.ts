@@ -7,6 +7,7 @@ import { TripsModule } from '../trips/trips.module';
 import { UsersModule } from '../users/users.module';
 import { Incident } from './entities/incident.entity';
 import { IncidentsController } from './incidents.controller';
+import { IncidentReviewService } from './incident-review.service';
 import { IncidentsService } from './incidents.service';
 import { ConversationReportsService } from './conversation-reports.service';
 
@@ -23,7 +24,11 @@ import { ConversationReportsService } from './conversation-reports.service';
     NotificationsModule,
   ],
   controllers: [IncidentsController],
-  providers: [IncidentsService, ConversationReportsService],
+  providers: [
+    IncidentsService,
+    IncidentReviewService,
+    ConversationReportsService,
+  ],
   // Lo usa el panel de administración (incidencias abiertas por usuario)
   exports: [IncidentsService, ConversationReportsService],
 })

@@ -9229,6 +9229,7 @@
               "type": "string",
               "enum": [
                 "open",
+                "in_review",
                 "reviewed"
               ]
             }
@@ -9328,9 +9329,205 @@
         ]
       }
     },
+    "/api/incidents/{id}/review/start": {
+      "post": {
+        "description": "CU-12: the administrator takes the incident (open → in_review); the others see who is reviewing it.",
+        "operationId": "IncidentsController_startReview",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: INCIDENT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: INCIDENT_ALREADY_REVIEWED, INCIDENT_REVIEW_TAKEN, INCIDENT_INVALID_TRANSITION",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start reviewing an incident",
+        "tags": [
+          "incidents"
+        ]
+      }
+    },
+    "/api/incidents/{id}/review/release": {
+      "post": {
+        "description": "CU-12: the administrator who is reviewing it leaves it (in_review → open) for someone else.",
+        "operationId": "IncidentsController_releaseReview",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: INCIDENT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: INCIDENT_ALREADY_REVIEWED, INCIDENT_REVIEW_TAKEN, INCIDENT_INVALID_TRANSITION",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Stop reviewing an incident",
+        "tags": [
+          "incidents"
+        ]
+      }
+    },
     "/api/incidents/{id}/review": {
       "post": {
-        "description": "CU-12: the incident is reviewed and closed with a resolution. Final: it cannot be reviewed again.",
+        "description": "CU-12: the administrator who is reviewing it closes it with a resolution (in_review → reviewed). Final.",
         "operationId": "IncidentsController_review",
         "parameters": [
           {
@@ -9405,7 +9602,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: INCIDENT_ALREADY_REVIEWED",
+            "description": "TMF630 error: INCIDENT_ALREADY_REVIEWED, INCIDENT_REVIEW_TAKEN, INCIDENT_INVALID_TRANSITION",
             "content": {
               "application/json": {
                 "schema": {
@@ -9430,7 +9627,7 @@
             "bearer": []
           }
         ],
-        "summary": "Review an incident",
+        "summary": "Resolve an incident",
         "tags": [
           "incidents"
         ]
@@ -11246,6 +11443,8 @@
                 "request.boarded",
                 "chat_message.sent",
                 "incident.reported",
+                "incident.review_started",
+                "incident.review_released",
                 "incident.reviewed",
                 "coverage.gap_reported",
                 "review.created",
@@ -15767,9 +15966,39 @@
           "role"
         ]
       },
+      "IncidentReviewInProgressResource": {
+        "type": "object",
+        "properties": {
+          "by": {
+            "$ref": "#/components/schemas/IncidentDriverResource"
+          },
+          "since": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "by",
+          "since"
+        ]
+      },
       "IncidentReviewResource": {
         "type": "object",
         "properties": {
+          "by": {
+            "description": "The administrator who resolved it",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IncidentDriverResource"
+              }
+            ]
+          },
+          "startedAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When that administrator started the review; null if resolved before the review states existed"
+          },
           "reviewedAt": {
             "type": "string",
             "format": "date-time"
@@ -15780,6 +16009,8 @@
           }
         },
         "required": [
+          "by",
+          "startedAt",
           "reviewedAt",
           "resolution"
         ]
@@ -15832,7 +16063,18 @@
             "type": "string",
             "enum": [
               "open",
+              "in_review",
               "reviewed"
+            ]
+          },
+          "reviewInProgress": {
+            "nullable": true,
+            "description": "Who is reviewing it (CU-12); null unless in_review",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IncidentReviewInProgressResource"
+              }
             ]
           },
           "review": {
@@ -15857,6 +16099,7 @@
           "description",
           "reportedAt",
           "status",
+          "reviewInProgress",
           "review"
         ]
       },
@@ -17195,6 +17438,7 @@
             "type": "string",
             "enum": [
               "open",
+              "in_review",
               "reviewed"
             ]
           },
@@ -17514,6 +17758,8 @@
               "request.boarded",
               "chat_message.sent",
               "incident.reported",
+              "incident.review_started",
+              "incident.review_released",
               "incident.reviewed",
               "coverage.gap_reported",
               "review.created",
@@ -17604,6 +17850,8 @@
               "request.boarded",
               "chat_message.sent",
               "incident.reported",
+              "incident.review_started",
+              "incident.review_released",
               "incident.reviewed",
               "coverage.gap_reported",
               "review.created",

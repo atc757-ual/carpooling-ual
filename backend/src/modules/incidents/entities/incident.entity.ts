@@ -17,9 +17,9 @@ export const INCIDENT_CATEGORIES = [
 ] as const;
 export type IncidentCategory = (typeof INCIDENT_CATEGORIES)[number];
 
-// Estado de la revisión del administrador (CU-12; tipo incident_status de la
-// migración AddIncidentReview)
-export const INCIDENT_STATUSES = ['open', 'reviewed'] as const;
+// Estado de la revisión del administrador (CU-12; tipo incident_status):
+// registrada, en revisión o atendida (revisada)
+export const INCIDENT_STATUSES = ['open', 'in_review', 'reviewed'] as const;
 export type IncidentStatus = (typeof INCIDENT_STATUSES)[number];
 
 // Tabla incidents: la incidencia que se registra al cancelar durante un viaje
@@ -66,8 +66,9 @@ export class Incident {
   @Column({ type: 'text' })
   description: string;
 
-  // --- Revisión del administrador (CU-12). La base de datos exige que, si
-  // está revisada, tenga quién, cuándo y la resolución; si está abierta, nada
+  // --- Revisión del administrador (CU-12). La base de datos exige los datos
+  // de cada estado: en revisión, quién y desde cuándo; atendida, quién, cuándo
+  // y la resolución; registrada, nada
 
   @Column({
     type: 'enum',
@@ -76,6 +77,14 @@ export class Incident {
     default: 'open',
   })
   status: IncidentStatus;
+
+  // Quién la está revisando y desde cuándo (en revisión; se conserva al
+  // atenderla)
+  @Column({ name: 'review_started_by', type: 'uuid', nullable: true })
+  reviewStartedBy: string | null;
+
+  @Column({ name: 'review_started_at', type: 'timestamptz', nullable: true })
+  reviewStartedAt: Date | null;
 
   @Column({ name: 'reviewed_by', type: 'uuid', nullable: true })
   reviewedBy: string | null;

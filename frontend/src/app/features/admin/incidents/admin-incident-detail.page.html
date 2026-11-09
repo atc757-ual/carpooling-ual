@@ -43,17 +43,63 @@
           <h2 id="incident-review" class="admin-list__title admin-detail__title">
             <ion-icon [icon]="icons.review" aria-hidden="true" />Revisión
           </h2>
-          @if (incident.review; as review) {
-            <p class="text-body incident-report__text">{{ review.resolution }}</p>
-            <p class="text-body-s admin-detail__muted">Revisada el {{ view.reviewedAt }}</p>
-          } @else {
-            <p class="text-body-s admin-detail__muted">
-              Revisada no significa resuelta: la revisión conserva el informe original y es
-              definitiva.
-            </p>
-            <ion-button class="incident-review__action" (click)="handleReview()">
-              Marcar revisada
-            </ion-button>
+          <!-- Los momentos: registrada → en revisión (la lleva un administrador)
+               → atendida, con cuándo y quién; los que faltan, en gris -->
+          <ol class="incident-moments">
+            @for (moment of view.moments; track moment.label) {
+              <li
+                class="incident-moments__moment"
+                [class.incident-moments__moment--done]="moment.isDone"
+              >
+                <span class="text-body-s incident-moments__label">{{ moment.label }}</span>
+                @if (moment.isDone) {
+                  <span class="text-caption admin-detail__muted">
+                    <time [attr.datetime]="moment.datetime">{{ moment.time }}</time> ·
+                    {{ moment.detail }}
+                  </span>
+                  @if (moment.note; as note) {
+                    <p class="text-body-s incident-moments__note">{{ note }}</p>
+                  }
+                } @else {
+                  <span class="text-caption admin-detail__muted">Pendiente</span>
+                }
+              </li>
+            }
+          </ol>
+          @switch (reviewState()) {
+            @case ('open') {
+              <p class="text-body-s admin-detail__muted">
+                Nadie la está revisando. Al empezar, los demás administradores verán que la llevas
+                tú.
+              </p>
+              <div class="incident-review__actions">
+                <ion-button [disabled]="isBusy()" (click)="handleStartReview()">
+                  Empezar revisión
+                </ion-button>
+              </div>
+            }
+            @case ('mine') {
+              <p class="text-body-s admin-detail__muted">
+                La estás revisando desde el {{ view.reviewSince }}. Atenderla es definitivo: la
+                resolución queda junto al informe original.
+              </p>
+              <div class="incident-review__actions">
+                <ion-button [disabled]="isBusy()" (click)="handleReview()">
+                  Marcar atendida
+                </ion-button>
+                <ion-button fill="outline" [disabled]="isBusy()" (click)="handleReleaseReview()">
+                  Dejar de revisar
+                </ion-button>
+              </div>
+            }
+            @case ('other') {
+              <div class="notice notice--info">
+                <span>
+                  <b>La está revisando {{ view.reviewer }}</b>
+                  Desde el {{ view.reviewSince }}. Solo esa persona puede atenderla o dejarla.
+                </span>
+              </div>
+            }
           }
         </ion-card>
       </div>

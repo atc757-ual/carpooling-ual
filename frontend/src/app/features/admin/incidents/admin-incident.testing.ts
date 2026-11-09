@@ -18,5 +18,6 @@ export const INCIDENT: AdminIncident = {
   description: 'The driver did not stop at the pickup point',
   reportedAt: '2026-11-02T08:05:00.000Z',
   status: 'open',
+  reviewInProgress: null,
   review: null,
 };

@@ -42,6 +42,8 @@ export type DomainEventType =
   // Incidencias (RF-23, CU-12)
   | 'chat_message.sent'
   | 'incident.reported'
+  | 'incident.review_started'
+  | 'incident.review_released'
   | 'incident.reviewed'
   | 'coverage.gap_reported'
   // Reseñas y reputación (RF-22, doble ciego)

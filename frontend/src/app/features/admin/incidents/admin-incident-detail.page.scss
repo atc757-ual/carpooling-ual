@@ -22,9 +22,91 @@
   white-space: pre-line;
 }
 
-.incident-review__action {
-  align-self: flex-start;
+// Los momentos de la revisión, en vertical como la línea de tiempo del viaje:
+// un punto por momento (relleno si ya pasó, hueco si falta) unido al siguiente
+.incident-moments {
+  --moment-rail: 1.5rem; // 24px: el carril del punto y la línea
+  --moment-dot: 0.75rem; // 12px
+
   margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.incident-moments__moment {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+  padding-inline-start: var(--moment-rail);
+  padding-block-end: var(--space-base);
+
+  // El punto, a la altura de la etiqueta
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0.3rem;
+    left: 0;
+    box-sizing: border-box;
+    width: var(--moment-dot);
+    height: var(--moment-dot);
+    border: 0.125rem solid var(--color-border); // 2px
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+  }
+
+  // El tramo hasta el momento siguiente
+  &::after {
+    content: '';
+    position: absolute;
+    top: calc(0.3rem + var(--moment-dot) + var(--space-xs));
+    bottom: var(--space-xs);
+    left: calc(var(--moment-dot) / 2 - 0.0625rem); // 1px
+    width: 0.125rem; // 2px
+    border-radius: var(--radius-full);
+    background: var(--color-border);
+  }
+
+  &:last-child {
+    padding-block-end: 0;
+
+    &::after {
+      content: none;
+    }
+  }
+}
+
+.incident-moments__moment--done::before {
+  border-color: var(--color-link);
+  background: var(--color-link);
+}
+
+// Lo que falta, en gris
+.incident-moments__label {
+  color: var(--color-text-muted);
+}
+
+.incident-moments__moment--done .incident-moments__label {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+// La resolución, tal como se escribió
+.incident-moments__note {
+  margin: var(--space-xs) 0 0;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+// Las acciones de la revisión, en una fila que baja si no cabe
+.incident-review__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+
+  ion-button {
+    margin: 0;
+  }
 }
 
 // El trayecto: cada parada en su línea con su icono (origen, un círculo;
