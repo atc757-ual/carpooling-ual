@@ -7486,11 +7486,18 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
+            "description": "TMF630 error: VALIDATION_FAILED, INVALID_BOARD_CODE",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
                 }
               }
             }
@@ -7526,7 +7533,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: INVALID_BOARD_CODE, ALREADY_BOARDED, INVALID_REQUEST_TRANSITION",
+            "description": "TMF630 error: ALREADY_BOARDED, INVALID_REQUEST_TRANSITION",
             "content": {
               "application/json": {
                 "schema": {
@@ -7584,11 +7591,18 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
+            "description": "TMF630 error: VALIDATION_FAILED, PICKUP_GRACE_PERIOD_ACTIVE",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
                 }
               }
             }
@@ -7624,7 +7638,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: PICKUP_GRACE_PERIOD_ACTIVE, INVALID_REQUEST_TRANSITION",
+            "description": "TMF630 error: INVALID_REQUEST_TRANSITION",
             "content": {
               "application/json": {
                 "schema": {

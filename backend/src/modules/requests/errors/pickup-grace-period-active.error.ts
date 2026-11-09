@@ -5,7 +5,7 @@ export class PickupGracePeriodActiveError extends BusinessError {
     super(
       'PICKUP_GRACE_PERIOD_ACTIVE',
       'invalid',
-      `Debes esperar al menos 5 minutos tras la hora de recogida antes de marcar «No se presentó» (quedan ${minutesLeft} min)`,
+      `Wait at least 5 minutes after the pickup time before marking a no-show (${minutesLeft} min left)`,
     );
   }
 }

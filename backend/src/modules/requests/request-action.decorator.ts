@@ -13,6 +13,8 @@ interface RequestActionOptions {
   description?: string;
   // El 403 de quien no es su pasajero o el conductor del viaje
   notAllowedCode: string;
+  // Los 400 propios de la acción (p. ej. un código de recogida que no coincide)
+  invalidCodes?: string[];
   conflictCodes: string[];
 }
 
@@ -35,7 +37,10 @@ export function RequestAction(options: RequestActionOptions): MethodDecorator {
         'INVALID_ACCESS_TOKEN',
         'ACCESS_TOKEN_EXPIRED',
       ],
-      [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+      [HttpStatus.BAD_REQUEST]: [
+        'VALIDATION_FAILED',
+        ...(options.invalidCodes ?? []),
+      ],
       [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', options.notAllowedCode],
       [HttpStatus.NOT_FOUND]: ['REQUEST_NOT_FOUND'],
       [HttpStatus.CONFLICT]: options.conflictCodes,
