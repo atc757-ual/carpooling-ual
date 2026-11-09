@@ -138,6 +138,23 @@ describe('Simulations API (e2e)', () => {
     ]);
   });
 
+  // El CI no carga el seed: si están, los ha creado la migración
+  it('ships the scenarios S0-S5 with the migrations, without the seed', async () => {
+    const response = await api('get', '/scenarios').expect(200);
+    const scenarios = response.body as { code: string; users: number }[];
+    const reference = scenarios.filter(({ code }) => /^S[0-5]$/.test(code));
+
+    expect(reference.map(({ code }) => code).sort()).toEqual([
+      'S0',
+      'S1',
+      'S2',
+      'S3',
+      'S4',
+      'S5',
+    ]);
+    expect(reference.find(({ code }) => code === 'S2')?.users).toBe(1000);
+  });
+
   it('answers 404 for an unknown scenario code', async () => {
     const response = await api('post', '')
       .send({ scenario: 'S99', seed: 1 })
