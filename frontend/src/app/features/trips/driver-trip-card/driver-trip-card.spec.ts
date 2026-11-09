@@ -204,7 +204,16 @@ describe('DriverTripCard', () => {
       expect(driver['startTrip']).not.toHaveBeenCalled();
     });
 
-    it('starts sharing the location at once when the device already allows it', async () => {
+    it('does not start if the driver backs out of the confirmation', async () => {
+      await render(SOON);
+      ask.mockResolvedValue(false);
+
+      await fixture.componentInstance.handleStart();
+
+      expect(driver['startTrip']).not.toHaveBeenCalled();
+    });
+
+    it('starts sharing the location after confirming when the device already allows it', async () => {
       const root = await render(SOON);
       expect(root.textContent).not.toContain('Podrás iniciarlo');
 
@@ -212,7 +221,10 @@ describe('DriverTripCard', () => {
 
       await fixture.componentInstance.handleStart();
 
-      expect(ask).not.toHaveBeenCalled();
+      expect(ask).toHaveBeenCalledWith(
+        expect.objectContaining({ header: '¿Iniciar el viaje?', confirmText: 'Iniciar viaje' }),
+      );
+      expect(location['getCurrentPoint']).not.toHaveBeenCalled();
       expect(driver['startTrip']).toHaveBeenCalledWith('t1');
       expect(tracking['start']).toHaveBeenCalledWith('t1');
       expect(changed).toBe(1);
@@ -222,7 +234,7 @@ describe('DriverTripCard', () => {
     // RF-21: al iniciar se confirma la declaración; si le toca renovarse
     // (cada año), se abre y, aceptada, se inicia
     it('says the start confirms the declarations and renews an expired one', async () => {
-      const root = await render(SOON);
+      await render(SOON);
       vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
       vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
         present: vi.fn().mockResolvedValue(undefined),
@@ -233,7 +245,11 @@ describe('DriverTripCard', () => {
 
       await fixture.componentInstance.handleStart();
 
-      expect(root.textContent).toContain('confirmas que sigues cumpliendo tu declaración');
+      expect(ask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('confirmas que sigues cumpliendo') as string,
+        }),
+      );
       expect(driver['acceptDeclaration']).toHaveBeenCalled();
       expect(driver['startTrip']).toHaveBeenCalledTimes(2);
       expect(tracking['start']).toHaveBeenCalledWith('t1');

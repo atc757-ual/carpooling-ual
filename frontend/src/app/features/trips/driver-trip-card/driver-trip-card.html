@@ -35,13 +35,6 @@
       @if (startHint(); as hint) {
         <p class="driver-trip__hint text-caption text-color-muted">{{ hint }}</p>
       }
-      <!-- RF-21: al iniciar se confirma la declaración, sin otra casilla -->
-      @if (trip().status === 'confirmed') {
-        <p class="driver-trip__hint text-caption text-color-muted">
-          Al iniciar, confirmas que sigues cumpliendo tu declaración y la de tu vehículo (permiso,
-          seguro e ITV).
-        </p>
-      }
     }
 
     @if (isInProgress()) {

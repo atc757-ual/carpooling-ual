@@ -60,6 +60,10 @@ const SHARE_MESSAGE =
   'Para iniciar el viaje hay que compartir tu ubicación: tus pasajeros verán dónde estás mientras dura y dejarás de compartirla al terminarlo. Es parte del servicio (lo explica la Política de privacidad): solo te pedimos el permiso del dispositivo.';
 const SHARE_MESSAGE_NATIVE = `${SHARE_MESSAGE} Seguirá compartiéndose aunque bloquees la pantalla o uses otra app; lo verás en una notificación.`;
 
+// RF-21: al iniciar se confirma la declaración, sin otra casilla
+const DECLARATION_MESSAGE =
+  'Al iniciar, confirmas que sigues cumpliendo tu declaración y la de tu vehículo (permiso, seguro e ITV).';
+
 export function formatSeats(seats: number): string {
   return seats === 1 ? '1 plaza' : `${seats} plazas`;
 }
@@ -258,18 +262,17 @@ export class DriverTripCard {
   // consentimiento (no se registra): si el dispositivo aún no da permiso, se
   // explica y se pide el permiso. false si no se da
   private async ensureLocationShared(): Promise<boolean> {
-    if ((await this.location.checkDevicePermission()) === 'granted') {
-      return true;
-    }
+    const hasPermission = (await this.location.checkDevicePermission()) === 'granted';
+    const shareMessage = Capacitor.isNativePlatform() ? SHARE_MESSAGE_NATIVE : SHARE_MESSAGE;
     const accepted = await this.confirm.ask({
-      header: 'Compartirás tu ubicación',
-      message: Capacitor.isNativePlatform() ? SHARE_MESSAGE_NATIVE : SHARE_MESSAGE,
+      header: hasPermission ? '¿Iniciar el viaje?' : 'Compartirás tu ubicación',
+      message: hasPermission ? DECLARATION_MESSAGE : `${shareMessage} ${DECLARATION_MESSAGE}`,
       confirmText: 'Iniciar viaje',
       cancelText: 'Ahora no',
       icon: this.locationIcon,
     });
-    if (!accepted) {
-      return false;
+    if (!accepted || hasPermission) {
+      return accepted;
     }
     try {
       await this.location.getCurrentPoint('driving');

@@ -1,0 +1,57 @@
+.driver-summary {
+  position: relative;
+  margin: 0;
+
+  &:hover {
+    --background: var(--color-surface-subtle);
+  }
+}
+
+.driver-summary ion-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+}
+
+.driver-summary__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  width: 100%;
+}
+
+.driver-summary__route {
+  font-weight: var(--font-weight-semibold);
+}
+
+.driver-summary__pending {
+  color: var(--color-text);
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+}
+
+// Enlace extendido: su ::after cubre toda la tarjeta
+.driver-summary__link {
+  color: var(--color-link);
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-s);
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible::after {
+    outline: var(--border-width-l) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+}

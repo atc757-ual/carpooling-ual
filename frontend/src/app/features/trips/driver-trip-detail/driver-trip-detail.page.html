@@ -1,0 +1,21 @@
+<ion-content>
+  <div class="tab-page">
+    @if (trip(); as trip) {
+      <app-driver-trip-card [trip]="trip" (changed)="handleReload()" />
+    } @else if (trips.isLoading()) {
+      <output>
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="text-color-muted">Cargando el viaje…</span>
+      </output>
+    } @else {
+      <ion-card>
+        <ion-card-content role="alert">
+          <div class="text-subtitle">No hemos podido cargar este viaje</div>
+          <form (submit)="$event.preventDefault(); handleReload()">
+            <ion-button type="submit" fill="outline">Reintentar</ion-button>
+          </form>
+        </ion-card-content>
+      </ion-card>
+    }
+  </div>
+</ion-content>

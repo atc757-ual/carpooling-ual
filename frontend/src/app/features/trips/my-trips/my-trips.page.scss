@@ -84,3 +84,16 @@
     text-transform: none;
   }
 }
+
+// Pasajero o conductor: discreto, más estrecho que las pestañas
+.my-trips__view {
+  max-width: 20rem; // 320px
+
+  ion-segment-button {
+    --padding-start: var(--space-s);
+    --padding-end: var(--space-s);
+
+    min-height: 2.75rem; // 44px
+    font-size: var(--font-size-caption);
+  }
+}

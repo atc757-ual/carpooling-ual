@@ -80,6 +80,12 @@ for (const viewport of VIEWPORTS) {
       cy.contains(isDesktop ? 'app-tabs .top-nav__link' : 'ion-tab-button', 'Tus viajes').click();
     }
 
+    // Abre el detalle del viaje desde su tarjeta resumida
+    function openTripDetail(): void {
+      cy.get('app-driver-trip-summary .driver-summary__link').click();
+      cy.location('pathname').should('eq', '/tabs/trips/published/t1');
+    }
+
     beforeEach(() => {
       cy.viewport(viewport.width, viewport.height);
     });
@@ -90,7 +96,9 @@ for (const viewport of VIEWPORTS) {
         'be.visible',
       );
       cy.contains('app-my-trips', '3 de 3 libres');
-      cy.contains('app-my-trips .driver-trip__request', 'Mario Pérez').should(
+      cy.contains('app-driver-trip-summary', '1 solicitud por responder').should('be.visible');
+      openTripDetail();
+      cy.contains('app-driver-trip-detail .driver-trip__request', 'Mario Pérez').should(
         'contain',
         '2 plazas',
       );
@@ -98,12 +106,12 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('POST', '/api/requests/r1/accept', seatRequest('accepted')).as('accept');
       cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'confirmed')]);
       cy.intercept('GET', '/api/trips/t1/requests', [seatRequest('accepted')]);
-      cy.contains('app-my-trips ion-button', 'Aceptar').click();
+      cy.contains('app-driver-trip-detail ion-button', 'Aceptar').click();
 
       cy.wait('@accept');
-      cy.contains('app-my-trips', 'Confirmado');
-      cy.contains('app-my-trips', '1 de 3 libres');
-      cy.contains('app-my-trips .driver-trip__request', 'Aceptada');
+      cy.contains('app-driver-trip-detail', 'Confirmado');
+      cy.contains('app-driver-trip-detail', '1 de 3 libres');
+      cy.contains('app-driver-trip-detail .driver-trip__request', 'Aceptada');
     });
 
     it('highlights the trip in progress at the top', () => {
@@ -119,7 +127,7 @@ for (const viewport of VIEWPORTS) {
         '/tabs/trips/drive/t1',
       );
       // No se repite en Próximos
-      cy.get('app-driver-trip-card').should('not.exist');
+      cy.get('app-driver-trip-summary').should('not.exist');
       if (isDesktop) {
         cy.get('app-my-trips-aside').should('be.visible').and('contain', '1 en curso');
       } else {
@@ -133,6 +141,7 @@ for (const viewport of VIEWPORTS) {
         statusCode: 200,
         body: trip(3, 'cancelled'),
       }).as('cancelTrip');
+      openTripDetail();
 
       cy.contains('app-driver-trip-card ion-button', 'Cancelar viaje').click();
       cy.contains('app-confirm-modal', '¿Cancelar este viaje?').should('be.visible');
@@ -147,6 +156,7 @@ for (const viewport of VIEWPORTS) {
 
     it('waits until 10 minutes before the departure to start', () => {
       openMyTrips([trip(1, 'confirmed', 60)]);
+      openTripDetail();
 
       cy.contains('app-driver-trip-card ion-button', 'Iniciar viaje').should(
         'have.attr',
@@ -155,17 +165,22 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-driver-trip-card', 'Podrás iniciarlo desde las');
     });
 
-    // Con el permiso del dispositivo dado, se inicia sin más: compartir la
-    // ubicación con el viaje en curso es parte del servicio (RGPD 6.1.b) y no
-    // se registra ningún consentimiento
+    // Con el permiso del dispositivo dado, solo se confirma la declaración
+    // (RF-21): compartir la ubicación con el viaje en curso es parte del
+    // servicio (RGPD 6.1.b) y no se registra ningún consentimiento
     it('shares the location to start the trip, and finishes it', () => {
       openMyTrips([trip(1, 'confirmed', 5)]);
       cy.intercept('PUT', '/api/users/me/consents/location', cy.spy().as('consent'));
       cy.intercept('POST', '/api/trips/t1/start', trip(1, 'in_progress', 5)).as('start');
       cy.intercept('POST', '/api/trips/t1/positions', { statusCode: 201 }).as('position');
+      openTripDetail();
+      // El detalle ya cargado con el viaje confirmado; a partir de aquí, en curso
+      cy.contains('app-driver-trip-card ion-button', 'Iniciar viaje').should('be.visible');
       cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'in_progress', 5)]);
 
       cy.contains('app-driver-trip-card ion-button', 'Iniciar viaje').click();
+      cy.contains('app-confirm-modal', 'confirmas que sigues cumpliendo').should('be.visible');
+      cy.contains('app-confirm-modal ion-button', 'Iniciar viaje').click();
 
       cy.wait('@start');
       cy.get('@consent').should('not.have.been.called');

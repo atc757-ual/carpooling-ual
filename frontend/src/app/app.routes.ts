@@ -179,6 +179,22 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'trips/published/:id',
+        canActivate: [profileGuard('driver')],
+        loadComponent: () =>
+          import('./features/trips/driver-trip-detail/driver-trip-detail.page').then(
+            (m) => m.DriverTripDetailPage,
+          ),
+        data: {
+          heading: {
+            title: 'Tu viaje',
+            subtitle: 'Solicitudes, chat y estado del viaje.',
+            backHref: '/tabs/trips',
+            breadcrumbs: [{ label: 'Tus viajes', href: '/tabs/trips' }],
+          } satisfies TabHeading,
+        },
+      },
+      {
         path: 'trips/drive/:id',
         canActivate: [profileGuard('driver')],
         loadComponent: () =>

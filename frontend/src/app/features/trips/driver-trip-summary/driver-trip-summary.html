@@ -1,0 +1,26 @@
+<ion-card class="driver-summary">
+  <ion-card-content>
+    <div class="driver-summary__head">
+      <div class="text-subtitle">{{ when() }}</div>
+      <span
+        class="status"
+        [class.status--accepted]="trip().status === 'confirmed'"
+        [class.status--info]="isInProgress()"
+      >
+        {{ statusLabel() }}
+      </span>
+    </div>
+    <div class="driver-summary__route">{{ route() }}</div>
+    <div class="text-caption text-color-muted">{{ seatsLabel() }}</div>
+    @if (pendingLabel(); as label) {
+      <div class="driver-summary__pending">{{ label }}</div>
+    }
+    <!-- El enlace cubre toda la tarjeta (::after) -->
+    <a
+      class="driver-summary__link"
+      [routerLink]="link()"
+      [attr.aria-label]="action() + ': ' + when() + ', ' + route()"
+      >{{ action() }}</a
+    >
+  </ion-card-content>
+</ion-card>
