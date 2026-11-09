@@ -173,8 +173,10 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('PUT', '/api/users/me/consents/location', cy.spy().as('consent'));
       cy.intercept('POST', '/api/trips/t1/start', trip(1, 'in_progress', 5)).as('start');
       cy.intercept('POST', '/api/trips/t1/positions', { statusCode: 201 }).as('position');
-      cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'in_progress', 5)]);
       openTripDetail();
+      // El detalle ya cargado con el viaje confirmado; a partir de aquí, en curso
+      cy.contains('app-driver-trip-card ion-button', 'Iniciar viaje').should('be.visible');
+      cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'in_progress', 5)]);
 
       cy.contains('app-driver-trip-card ion-button', 'Iniciar viaje').click();
       cy.contains('app-confirm-modal', 'confirmas que sigues cumpliendo').should('be.visible');
