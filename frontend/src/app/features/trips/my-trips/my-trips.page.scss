@@ -3,7 +3,10 @@
 // derecha la de 4 con los atajos y las cifras, fija al hacer scroll
 .my-trips {
   align-items: stretch;
-  max-width: 48rem; // 768px
+  // Todo el ancho (hasta el máximo): sin él, con pocos viajes, la página se
+  // encogía a lo que ocupaba su contenido
+  box-sizing: border-box;
+  width: 100%;
 
   ion-card {
     margin: 0;
@@ -28,7 +31,6 @@
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     align-items: start;
     gap: var(--space-l);
-    max-width: 72rem; // 1152px
   }
 
   .my-trips__main {
@@ -87,14 +89,6 @@ ion-card.my-trips__panel ion-card-content {
 // El título del vacío y del error, como en Resultados de búsqueda
 .my-trips__state-title {
   font-weight: var(--font-weight-semibold);
-}
-
-// Buscar y Publicar, juntos cuando tiene los dos papeles
-.my-trips__empty-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-s);
 }
 
 // El día de cada grupo de viajes: más pequeño y más grueso que el eyebrow

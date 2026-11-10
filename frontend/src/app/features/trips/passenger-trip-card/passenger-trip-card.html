@@ -18,6 +18,7 @@
         class="status"
         [class.status--pending]="isPending()"
         [class.status--accepted]="isAccepted()"
+        [class.status--danger]="tab() === 'cancelled'"
       >
         {{ statusLabel() }}
       </span>

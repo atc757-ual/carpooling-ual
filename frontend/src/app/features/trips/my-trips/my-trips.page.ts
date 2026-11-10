@@ -1,12 +1,10 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import {
   IonButton,
   IonCard,
   IonCardContent,
   IonContent,
   IonIcon,
-  IonRouterLink,
   IonSpinner,
 } from '@ionic/angular';
 import { alertCircleOutline, carOutline } from 'ionicons/icons';
@@ -48,13 +46,11 @@ interface LiveBannerData {
   selector: 'app-my-trips',
   imports: [
     SectionHeading,
-    RouterLink,
     IonButton,
     IonCard,
     IonCardContent,
     IonContent,
     IonIcon,
-    IonRouterLink,
     IonSpinner,
     DriverTripSummary,
     FilterChips,

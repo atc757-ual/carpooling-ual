@@ -50,17 +50,8 @@
               <ion-icon [icon]="emptyIcon" aria-hidden="true" />
               <div class="my-trips__state-title">{{ emptyText() }}</div>
               @if (isUpcomingView()) {
+                <!-- Sin botones: Buscar y Publicar ya están en «Te puede interesar» -->
                 <div class="text-body-s text-color-muted">{{ emptyHint() }}</div>
-                <div class="my-trips__empty-actions">
-                  @if (canRide()) {
-                    <ion-button routerLink="/tabs/search">Buscar viaje</ion-button>
-                  }
-                  @if (canDrive()) {
-                    <ion-button routerLink="/tabs/publish" [fill]="canRide() ? 'outline' : 'solid'">
-                      Publicar viaje
-                    </ion-button>
-                  }
-                </div>
               }
             </div>
           } @else {

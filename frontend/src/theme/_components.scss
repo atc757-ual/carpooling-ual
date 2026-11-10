@@ -667,6 +667,13 @@ ion-card-header + ion-card-content[class] {
   color: var(--color-link);
 }
 
+// No se hizo: cancelado, rechazada, caducada, no se presentó
+.status--danger {
+  border-color: transparent;
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-text); // texto oscuro del rojo: AA sobre el fondo suave
+}
+
 // Papel en un viaje (Tus viajes): «Conduces» o «Viajas», con su icono y una
 // franja del color del papel a la izquierda de la tarjeta. El papel se lee en
 // el texto, nunca solo por el color; y no es una píldora, para no
