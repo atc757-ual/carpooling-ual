@@ -1,40 +1,55 @@
 <ion-card class="my-trips-aside">
+  <ion-card-header>
+    <ion-card-title>Tu impacto</ion-card-title>
+  </ion-card-header>
   <ion-card-content>
-    <div class="my-trips-aside__actions">
-      <ion-button expand="block" routerLink="/tabs/publish">
-        <ion-icon slot="start" [icon]="publishIcon" aria-hidden="true" />
-        Publicar viaje
-      </ion-button>
-      <ion-button expand="block" fill="outline" routerLink="/tabs/search">
-        <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
-        Buscar viaje
-      </ion-button>
-    </div>
-
-    <p class="text-body text-body--strong my-trips-aside__summary">{{ summary() }}</p>
-
+    <!-- Las cifras en una fila: el valor arriba y su nombre debajo (en el
+         HTML el nombre va primero, como pide <dl>; el CSS los invierte) -->
     <dl class="my-trips-aside__stats">
       <div>
-        <dt class="text-caption">Viajes hechos</dt>
-        <dd class="text-subtitle">{{ pastCount() }}</dd>
+        <dt class="text-caption">CO₂ ahorrado*</dt>
+        <dd class="text-subtitle my-trips-aside__value">
+          <ion-icon class="my-trips-aside__leaf" [icon]="co2Icon" aria-hidden="true" />
+          {{ co2Text() }}
+        </dd>
       </div>
       <div>
-        <dt class="text-caption">
-          <ion-icon [icon]="co2Icon" aria-hidden="true" />
-          CO₂ ahorrado
-        </dt>
-        <dd class="text-subtitle">{{ co2Text() }}</dd>
-      </div>
-      <div>
-        <dt class="text-caption">
+        <dt class="text-caption">Valoración</dt>
+        <dd class="text-subtitle my-trips-aside__value">
           <ion-icon class="my-trips-aside__star" [icon]="ratingIcon" aria-hidden="true" />
-          Valoración
-        </dt>
-        <dd class="text-body-s">{{ ratingText() }}</dd>
+          {{ ratingText() }}
+        </dd>
       </div>
     </dl>
     <p class="text-caption my-trips-aside__note">
-      El CO₂ es una estimación: lo que habría emitido un coche más en cada viaje hecho.
+      * Estimado: lo que habría emitido un coche más en cada viaje hecho.
     </p>
   </ion-card-content>
 </ion-card>
+
+@if (suggestions().length > 0) {
+  <ion-card class="my-trips-aside">
+    <ion-card-header>
+      <ion-card-title id="my-trips-suggestions-title">Te puede interesar</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <nav aria-labelledby="my-trips-suggestions-title">
+        <ul class="my-trips-aside__list">
+          @for (item of suggestions(); track item.link) {
+            <li>
+              <!-- Toda la fila se pinta de azul claro al pasar o pulsar -->
+              <a class="my-trips-aside__item" [routerLink]="item.link">
+                <ion-icon class="my-trips-aside__item-icon" [icon]="item.icon" aria-hidden="true" />
+                <span class="my-trips-aside__item-text">
+                  <span class="text-body text-body--strong">{{ item.title }}</span>
+                  <span class="text-body-s text-color-muted">{{ item.detail }}</span>
+                </span>
+                <ion-icon class="my-trips-aside__chevron" [icon]="chevronIcon" aria-hidden="true" />
+              </a>
+            </li>
+          }
+        </ul>
+      </nav>
+    </ion-card-content>
+  </ion-card>
+}

@@ -1,0 +1,57 @@
+// Como la tarjeta del conductor (app-driver-trip-summary): toda ella es el
+// enlace a su detalle
+.passenger-trip {
+  position: relative;
+  margin: 0;
+
+  &:hover {
+    --background: var(--color-surface-subtle);
+  }
+}
+
+.passenger-trip ion-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+}
+
+// Enlace extendido: su ::after cubre toda la tarjeta
+.passenger-trip__link {
+  color: inherit;
+  text-decoration: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-s);
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible::after {
+    outline: var(--border-width-l) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+}
+
+.passenger-trip__next {
+  color: var(--color-link);
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-semibold);
+}
+
+.passenger-trip__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  width: 100%;
+}
+
+.passenger-trip__route {
+  font-weight: var(--font-weight-semibold);
+}

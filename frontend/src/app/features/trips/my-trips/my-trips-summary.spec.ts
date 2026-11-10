@@ -1,10 +1,4 @@
-import {
-  formatRoute,
-  occupiedSeats,
-  savedCo2Kg,
-  SharedTrip,
-  tripsSummary,
-} from './my-trips-summary';
+import { formatRoute, occupiedSeats, savedCo2Kg, SharedTrip } from './my-trips-summary';
 
 const ROQUETAS_TO_CAMPUS: Omit<SharedTrip, 'carsAvoided'> = {
   origin: { type: 'Point', coordinates: [-2.6146, 36.7642] },
@@ -17,13 +11,6 @@ describe('my trips summary', () => {
       'Roquetas de Mar → Campus UAL',
     );
     expect(formatRoute({ originName: null, destinationName: null })).toBe('Origen → Destino');
-  });
-
-  it('sums up the upcoming trips and the one in progress', () => {
-    expect(tripsSummary(3, 1)).toBe('3 próximos · 1 en curso');
-    expect(tripsSummary(1, 0)).toBe('1 próximo');
-    expect(tripsSummary(0, 1)).toBe('1 en curso');
-    expect(tripsSummary(0, 0)).toBe('Sin viajes programados');
   });
 
   it('estimates the CO₂ saved, one car per seat taken', () => {

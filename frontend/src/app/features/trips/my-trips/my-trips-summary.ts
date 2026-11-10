@@ -10,19 +10,6 @@ export function formatRoute({
   return `${originName ?? 'Origen'} → ${destinationName ?? 'Destino'}`;
 }
 
-// «3 próximos · 1 en curso», sin las partes a cero
-export function tripsSummary(upcoming: number, inProgress: number): string {
-  const parts: string[] = [];
-  if (upcoming > 0) {
-    const noun = upcoming === 1 ? 'próximo' : 'próximos';
-    parts.push(`${upcoming} ${noun}`);
-  }
-  if (inProgress > 0) {
-    parts.push(`${inProgress} en curso`);
-  }
-  return parts.length > 0 ? parts.join(' · ') : 'Sin viajes programados';
-}
-
 export interface SharedTrip extends Pick<DriverTrip, 'origin' | 'destination'> {
   // Los coches que no salieron gracias al viaje: uno por plaza ocupada (el
   // conductor) o uno (el pasajero, que no llevó el suyo)

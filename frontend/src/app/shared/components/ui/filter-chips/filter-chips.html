@@ -1,5 +1,11 @@
-<fieldset class="filter-chips">
-  <legend class="text-label filter-chips__legend">{{ legend() }}</legend>
+<fieldset class="filter-chips" [class.filter-chips--single-line]="isSingleLine()">
+  <!-- Oculta, sin la clase de la leyenda visible: su ancho y margen ganarían
+       a .visually-hidden -->
+  @if (isLegendHidden()) {
+    <legend class="visually-hidden">{{ legend() }}</legend>
+  } @else {
+    <legend class="text-label filter-chips__legend">{{ legend() }}</legend>
+  }
   @if (allLabel(); as all) {
     <ion-chip
       button="true"

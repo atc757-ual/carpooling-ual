@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IonCard, IonCardContent } from '@ionic/angular';
+import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
+import { carOutline } from 'ionicons/icons';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
@@ -16,7 +17,7 @@ const START_WINDOW_MS = 10 * 60 * 1000;
 // enlace es la acción principal
 @Component({
   selector: 'app-driver-trip-summary',
-  imports: [RouterLink, IonCard, IonCardContent],
+  imports: [RouterLink, IonCard, IonCardContent, IonIcon],
   templateUrl: './driver-trip-summary.html',
   styleUrl: './driver-trip-summary.scss',
 })
@@ -46,6 +47,8 @@ export class DriverTripSummary {
     const day = new Date(departureAt).toLocaleDateString('sv-SE');
     return `${formatDateLabel(day)} · ${formatTime(departureAt)}`;
   });
+  // En la tarjeta, solo la hora: el día va en el título de su grupo
+  readonly time = computed(() => formatTime(this.trip().departureAt));
   readonly route = computed(() => {
     const { originName, destinationName } = this.trip();
     return `${originName ?? 'Origen'} → ${destinationName ?? 'Destino'}`;
@@ -74,4 +77,6 @@ export class DriverTripSummary {
       }
     });
   }
+
+  protected readonly roleIcon = carOutline;
 }
