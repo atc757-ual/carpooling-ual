@@ -534,6 +534,8 @@
     "DEPARTURE_TOO_SOON": "The trip must depart at least one hour from now.",
     "SEATS_EXCEED_CAPACITY": "Offered seats exceed vehicle capacity.",
     "DEPARTURE_IN_THE_PAST": "Departure time is in the past. Please choose a later time.",
+    "TRIP_OVERLAPS": "This time overlaps another of your trips. Choose another time.",
+    "DAILY_TRIP_LIMIT": "You already have 4 trips that day. Choose another day.",
     "TRIP_FULL": "There are not enough seats left on this trip. Try searching for another one.",
     "TRIP_NOT_OPEN": "This trip is no longer accepting seat requests.",
     "REQUEST_ALREADY_EXISTS": "You already have a request for this trip.",
