@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, resource, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, resource, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
@@ -208,8 +208,28 @@ export class PassengerRequestDetailPage {
     this.tripCall.call(this.driverContact(), trip?.status);
   }
 
+  // Mientras está pendiente y a la vista, se revisa cada 30 s: el conductor
+  // puede responderla o puede caducar (corte, 10 min antes de la salida), y
+  // no debe seguir ofreciéndose «Cancelar solicitud»
+  private readonly pendingRefresh = effect((onCleanup) => {
+    if (!this.isPageVisible() || this.request()?.status !== 'pending') {
+      return;
+    }
+    const timer = setInterval(() => this.refreshRequest(), 30_000);
+    onCleanup(() => clearInterval(timer));
+  });
+
   ionViewWillEnter(): void {
     this.isPageVisible.set(true);
+    // Al volver a la pantalla (Ionic la reutiliza), la solicitud al día
+    if (this.requestResource.hasValue()) {
+      this.refreshRequest();
+    }
+  }
+
+  private refreshRequest(): void {
+    this.requestOverride.set(null);
+    this.requestResource.reload();
   }
 
   ionViewDidLeave(): void {

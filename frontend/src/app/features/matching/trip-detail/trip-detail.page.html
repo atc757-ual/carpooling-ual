@@ -78,6 +78,15 @@
               <span><b>Cancelaste tu solicitud.</b> Puedes volver a pedir si quedan plazas.</span>
             </output>
           }
+          @case ('expired') {
+            <output class="notice notice--info">
+              <span>
+                <b>Tu solicitud caducó.</b>
+                {{ driverFirstName() }} no respondió a tiempo: las solicitudes se cierran 10 minutos
+                antes de la salida. Busca otro viaje.
+              </span>
+            </output>
+          }
         }
 
         @if (myRequest.isLoading()) {

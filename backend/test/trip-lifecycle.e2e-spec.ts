@@ -98,7 +98,8 @@ describe('Trip lifecycle API (e2e)', () => {
   }
 
   it('full cycle: publish → request → accept → start → finish', async () => {
-    const { driver, tripId, vehicleId } = await driverWithTrip(10);
+    // Solicitudes antes del corte (10 min); después, la salida se acerca para iniciar
+    const { driver, tripId, vehicleId } = await driverWithTrip(20);
     const pia = await tokenFor('pia', ['passenger']);
     const leo = await tokenFor('leo', ['passenger']);
     const accepted = await api('post', `/trips/${tripId}/requests`, pia).expect(
@@ -112,6 +113,7 @@ describe('Trip lifecycle API (e2e)', () => {
       `/requests/${(accepted.body as { id: string }).id}/accept`,
       driver,
     ).expect(200);
+    await setDepartureIn(dataSource, tripId, 5);
 
     const started = await api('post', `/trips/${tripId}/start`, driver).expect(
       200,
@@ -145,7 +147,7 @@ describe('Trip lifecycle API (e2e)', () => {
   });
 
   it('stores how far from the destination the driver finished (trip.finished v2)', async () => {
-    const { driver, tripId } = await driverWithTrip(10);
+    const { driver, tripId } = await driverWithTrip(20);
     const pia = await tokenFor('pia', ['passenger']);
     const seatRequest = await api(
       'post',
@@ -157,6 +159,7 @@ describe('Trip lifecycle API (e2e)', () => {
       `/requests/${(seatRequest.body as { id: string }).id}/accept`,
       driver,
     ).expect(200);
+    await setDepartureIn(dataSource, tripId, 5);
     await api('post', `/trips/${tripId}/start`, driver).expect(200);
 
     const invalid = await api('post', `/trips/${tripId}/finish`, driver)
@@ -186,7 +189,7 @@ describe('Trip lifecycle API (e2e)', () => {
   });
 
   it('asks to renew the declarations older than a year before starting (trip.started v2)', async () => {
-    const { driver, tripId, vehicleId } = await driverWithTrip(10);
+    const { driver, tripId, vehicleId } = await driverWithTrip(20);
     const pia = await tokenFor('pia', ['passenger']);
     const seatRequest = await api(
       'post',
@@ -198,6 +201,7 @@ describe('Trip lifecycle API (e2e)', () => {
       `/requests/${(seatRequest.body as { id: string }).id}/accept`,
       driver,
     ).expect(200);
+    await setDepartureIn(dataSource, tripId, 5);
     // Las dos declaraciones se aceptaron hace 13 meses
     await dataSource.query(
       `UPDATE user_consents SET recorded_at = now() - interval '13 months'

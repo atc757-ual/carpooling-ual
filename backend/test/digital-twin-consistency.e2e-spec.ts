@@ -170,7 +170,7 @@ describe('Digital twin consistency (e2e)', () => {
       departureAt: publishableDeparture(),
       offeredSeats: 2,
     });
-    await setDepartureIn(dataSource, trip.id, 10);
+    await setDepartureIn(dataSource, trip.id, 20);
     await expectTwinMatches(trip.id, vehicle.id);
 
     const passengerId = await userId('pia', ['passenger']);
@@ -181,6 +181,7 @@ describe('Digital twin consistency (e2e)', () => {
       'confirmed',
     );
 
+    await setDepartureIn(dataSource, trip.id, 5);
     await trips.start(driverId, trip.id);
     await expectTwinMatches(trip.id, vehicle.id);
 

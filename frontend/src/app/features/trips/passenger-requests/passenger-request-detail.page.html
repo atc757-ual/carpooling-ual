@@ -61,7 +61,8 @@
               }
               @case ('expired') {
                 <b>Esta vez no ha podido ser: solicitud caducada.</b>
-                El conductor no respondió dentro del plazo de 30 minutos antes de la salida.
+                El conductor no respondió a tiempo: las solicitudes se cierran 10 minutos antes de
+                la salida.
               }
               @case ('cancelled') {
                 @if (request.rejectionReason === 'no_show') {

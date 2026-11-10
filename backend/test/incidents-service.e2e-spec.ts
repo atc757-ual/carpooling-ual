@@ -91,12 +91,13 @@ describe('IncidentsService (e2e)', () => {
       departureAt: publishableDeparture(),
       offeredSeats: 2,
     });
-    // Sale en 10 minutos (publicado con la antelación mínima y movido)
-    trip.departureAt = await setDepartureIn(dataSource, trip.id, 10);
+    // Sale en 20 minutos (antes del corte de solicitudes); se acerca para iniciar
+    trip.departureAt = await setDepartureIn(dataSource, trip.id, 20);
     const pia = await createUser('pia', ['passenger']);
     const { request } = await requestsService.request(pia, trip.id);
     await requestsService.accept(driverId, request.id);
     if (started) {
+      await setDepartureIn(dataSource, trip.id, 5);
       await tripsService.start(driverId, trip.id);
     }
     return { driverId, tripId: trip.id, pia, requestId: request.id };

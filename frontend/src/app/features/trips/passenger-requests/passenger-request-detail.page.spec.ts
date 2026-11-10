@@ -336,4 +336,35 @@ describe('PassengerRequestDetailPage', () => {
       'Solo se puede llamar con el viaje confirmado o en curso.',
     );
   });
+
+  it('stops offering to cancel once the pending request expires (refreshed on enter)', async () => {
+    const root = await render(seatRequest('pending'));
+    fixture.detectChanges();
+    expect(root.textContent).toContain('Cancelar solicitud');
+
+    requests['listMine'].mockResolvedValue([seatRequest('expired')]);
+    fixture.componentInstance.ionViewWillEnter();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(root.textContent).not.toContain('Cancelar solicitud');
+    expect(root.textContent).toContain('las solicitudes se cierran 10 minutos antes de la salida');
+  });
+
+  it('checks a pending request every 30 s while it is on screen', async () => {
+    const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
+    try {
+      await render(seatRequest('pending'));
+      fixture.detectChanges();
+      const refresh = setIntervalSpy.mock.calls.find(([, delay]) => delay === 30_000)?.[0];
+      const calls = requests['listMine'].mock.calls.length;
+
+      (refresh as () => void)();
+      await fixture.whenStable();
+
+      expect(requests['listMine'].mock.calls.length).toBe(calls + 1);
+    } finally {
+      setIntervalSpy.mockRestore();
+    }
+  });
 });

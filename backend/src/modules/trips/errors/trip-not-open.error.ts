@@ -2,7 +2,7 @@ import { BusinessError } from '../../../shared/errors/business-error';
 import type { TripStatus } from '../trip-status';
 
 // El viaje ya no admite solicitudes: está en curso, finalizado o cancelado, o
-// su hora de salida ya ha pasado. La capa API lo traduce a un 409
+// ha pasado el corte (10 min antes de la salida). La capa API lo traduce a un 409
 // (TRIP_NOT_OPEN)
 export class TripNotOpenError extends BusinessError {
   constructor(
