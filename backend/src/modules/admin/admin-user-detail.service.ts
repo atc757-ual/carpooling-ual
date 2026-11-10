@@ -9,6 +9,7 @@ import { TripStatsService } from '../trips/trip-stats.service';
 import { TripsService } from '../trips/trips.service';
 import { ConsentsService } from '../users/consents.service';
 import type { Vehicle } from '../users/entities/vehicle.entity';
+import { UserNotFoundError } from '../users/errors/user-not-found.error';
 import type { UserConsentsView } from '../users/user-consent';
 import { VehiclesService } from '../users/vehicles.service';
 import { AdminUserRow, AdminUsersService } from './admin-users.service';
@@ -45,6 +46,19 @@ export class AdminUserDetailService {
     private readonly incidents: IncidentsService,
   ) {}
 
+  // Los consentimientos; una cuenta eliminada (desactivada) no tiene, y el
+  // panel sigue viendo su ficha. Cualquier otro fallo se propaga
+  private async consentsOf(userId: string): Promise<UserConsentsView | null> {
+    try {
+      return await this.consents.getMyConsents(userId);
+    } catch (error) {
+      if (error instanceof UserNotFoundError) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
   // Lanza UserNotFoundError si no existe
   async get(userId: string): Promise<AdminUserDetail> {
     const row = await this.adminUsers.getRow(userId);
@@ -55,7 +69,7 @@ export class AdminUserDetailService {
         this.requestStats.recentByPassenger(userId, RECENT_ITEMS),
         this.incidents.listInvolving(userId, RECENT_ITEMS),
         this.tripStats.recentLateCancellations(userId),
-        this.consents.getMyConsents(userId).catch(() => null),
+        this.consentsOf(userId),
       ]);
     const requestTrips = await this.tripsService.getByIds(
       requests.map(({ tripId }) => tripId),
