@@ -116,6 +116,7 @@
             aria-label="Mensaje"
             [value]="draft()"
             (ionInput)="handleDraft($event.detail.value)"
+            (keydown.enter)="handleEnter($event)"
           />
           <ion-button
             class="conversation-footer__send"

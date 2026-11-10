@@ -362,7 +362,7 @@ describe('PassengerRequestDetailPage', () => {
       (refresh as () => void)();
       await fixture.whenStable();
 
-      expect(requests['listMine'].mock.calls.length).toBe(calls + 1);
+      expect(requests['listMine'].mock.calls).toHaveLength(calls + 1);
     } finally {
       setIntervalSpy.mockRestore();
     }

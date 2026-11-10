@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -75,6 +75,20 @@ export class MessagesPage implements OnInit {
   readonly mobileDetail = computed(() => !this.isDesktop() && !!this.routeConversationId());
   readonly unreadCount = this.chat.unreadConversationCount;
   readonly hasMore = computed(() => this.offset() < this.total());
+
+  // Al leer una conversación (en escritorio, abierta al lado), su contador
+  // pasa a cero en la lista sin recargarla
+  private readonly clearReadConversation = effect(() => {
+    const read = this.chat.lastRead();
+    if (!read) return;
+    this.all.update((conversations) =>
+      conversations.map((conversation) =>
+        conversation.id === read.tripId && conversation.unreadCount > 0
+          ? { ...conversation, unreadCount: 0 }
+          : conversation,
+      ),
+    );
+  });
 
   protected readonly pageSize = CONVERSATIONS_PAGE_SIZE;
   protected readonly icon = chatbubblesOutline;

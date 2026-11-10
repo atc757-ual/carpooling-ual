@@ -45,6 +45,10 @@ export class ChatService {
 
   readonly unreadConversationCount = this.unreadCountState.asReadonly();
   readonly hasUnread = computed(() => this.unreadConversationCount() > 0);
+  // La última conversación marcada como leída: la lista de Mensajes (en
+  // escritorio, a la izquierda del chat) pone su contador a cero sin recargar
+  private readonly lastReadState = signal<{ tripId: string } | null>(null);
+  readonly lastRead = this.lastReadState.asReadonly();
   private readonly liveTripState = signal<LiveTrip | null>(null);
   // El viaje en curso (o null): lo abre la pestaña del coche. Sale del chat,
   // que tienen el conductor y sus pasajeros aceptados; se actualiza con
@@ -135,6 +139,8 @@ export class ChatService {
 
   async markRead(tripId: string): Promise<void> {
     await this.call(this.http.put<void>(`${this.messagesUrl(tripId)}/read`, null));
+    // Un objeto nuevo cada vez: avisa aunque sea la misma conversación
+    this.lastReadState.set({ tripId });
     void this.refreshUnread();
   }
 
