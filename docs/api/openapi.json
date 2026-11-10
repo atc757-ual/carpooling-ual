@@ -14769,7 +14769,14 @@
           "departureAt": {
             "format": "date-time",
             "type": "string",
-            "example": "2026-11-03T07:30:00Z"
+            "example": "2026-11-03T07:30:00Z",
+            "description": "When the driver leaves. Send it or arrivalAt, not both"
+          },
+          "arrivalAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2026-11-03T08:00:00Z",
+            "description": "Latest arrival at the destination (e.g. to the campus). The departure is computed from the route and the maximum detour, so the driver arrives on time even after picking someone up. Send it or departureAt, not both"
           },
           "offeredSeats": {
             "type": "number",
@@ -14802,7 +14809,6 @@
           "vehicleId",
           "origin",
           "destination",
-          "departureAt",
           "offeredSeats"
         ]
       },
@@ -15161,7 +15167,8 @@
           "departureAt": {
             "format": "date-time",
             "type": "string",
-            "example": "2026-11-03T07:30:00Z"
+            "example": "2026-11-03T07:30:00Z",
+            "description": "When the driver leaves. Send it or arrivalAt, not both"
           },
           "offeredSeats": {
             "type": "number",

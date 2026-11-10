@@ -6,6 +6,7 @@ import { DomainEvent } from '../src/events/entities/domain-event.entity';
 import { VehicleNotFoundError } from '../src/modules/users/errors/vehicle-not-found.error';
 import { UsersService } from '../src/modules/users/users.service';
 import { VehiclesService } from '../src/modules/users/vehicles.service';
+import { DepartureTooSoonError } from '../src/modules/trips/errors/departure-too-soon.error';
 import { DepartureInThePastError } from '../src/modules/trips/errors/departure-in-the-past.error';
 import { DriverNotReadyError } from '../src/modules/trips/errors/driver-not-ready.error';
 import { InvalidTripTransitionError } from '../src/modules/trips/errors/invalid-trip-transition.error';
@@ -176,6 +177,35 @@ describe('TripsService (e2e)', () => {
           tripInput(vehicleId, { offeredSeats: 5 }),
         ),
       ).rejects.toBeInstanceOf(SeatsExceedCapacityError);
+    });
+
+    // Llega a esa hora como muy tarde aunque recoja a alguien
+    it('leaves early enough for the route and the maximum detour', async () => {
+      const { driverId, vehicleId } = await readyDriver('ana');
+      const arrivalAt = new Date(Date.now() + 24 * HOUR_MS);
+
+      const { trip } = await tripsService.publish(driverId, {
+        ...tripInput(vehicleId),
+        departureAt: undefined,
+        arrivalAt,
+      });
+
+      const { route } = await tripsService.getRoute(trip.id);
+      expect(trip.departureAt.getTime()).toBe(
+        arrivalAt.getTime() - (route.durationMin + trip.maxDetourMin) * 60_000,
+      );
+    });
+
+    it('checks the lead time on the computed departure', async () => {
+      const { driverId, vehicleId } = await readyDriver('ana');
+
+      await expect(
+        tripsService.publish(driverId, {
+          ...tripInput(vehicleId),
+          departureAt: undefined,
+          arrivalAt: new Date(Date.now() + HOUR_MS + 5 * 60_000),
+        }),
+      ).rejects.toBeInstanceOf(DepartureTooSoonError);
     });
 
     it('rejects a departure in the past', async () => {

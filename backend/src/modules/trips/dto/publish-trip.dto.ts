@@ -10,13 +10,15 @@ import {
   Length,
   Max,
   Min,
+  ValidateBy,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
 
 // Cuerpo de POST /api/trips (RF-04). Valida la FORMA; las reglas de negocio
 // (conductor listo, vehículo suyo, plazas ≤ capacidad, salida futura) están
-// en TripsService
+// en TripsService. La hora, de salida o de llegada (una de las dos)
 export class PublishTripDto {
   @ApiProperty({ format: 'uuid', description: 'One of my active vehicles' })
   @IsUUID()
@@ -40,10 +42,37 @@ export class PublishTripDto {
   @Type(() => GeoPointDto)
   destination!: GeoPointDto;
 
-  @ApiProperty({ format: 'date-time', example: '2026-11-03T07:30:00Z' })
+  @ApiPropertyOptional({
+    format: 'date-time',
+    example: '2026-11-03T07:30:00Z',
+    description: 'When the driver leaves. Send it or arrivalAt, not both',
+  })
+  @ValidateIf((dto: PublishTripDto) => dto.arrivalAt === undefined)
   @Type(() => Date)
   @IsDate()
-  departureAt!: Date;
+  departureAt?: Date;
+
+  @ApiPropertyOptional({
+    format: 'date-time',
+    example: '2026-11-03T08:00:00Z',
+    description:
+      'Latest arrival at the destination (e.g. to the campus). The departure is computed from the route and the maximum detour, so the driver arrives on time even after picking someone up. Send it or departureAt, not both',
+  })
+  @Type(() => Date)
+  @ValidateBy({
+    name: 'arrivalOrDeparture',
+    validator: {
+      validate: (value: unknown, args): boolean => {
+        const hasDeparture =
+          (args?.object as PublishTripDto).departureAt !== undefined;
+        return hasDeparture
+          ? value === undefined
+          : value instanceof Date && !Number.isNaN(value.getTime());
+      },
+      defaultMessage: () => 'send either departureAt or arrivalAt',
+    },
+  })
+  arrivalAt?: Date;
 
   @ApiProperty({
     minimum: 1,
