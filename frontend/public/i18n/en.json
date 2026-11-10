@@ -451,6 +451,7 @@
       "invalidCode": "That code is invalid. Check the 6 digits or request a new one.",
       "passwordUnchanged": "Your new password must be different from the current one.",
       "tooManyAttempts": "Too many failed attempts. Request a new code.",
+      "tooManyLogins": "Too many failed attempts. Try again in 5 minutes.",
       "emailRegistered": "An account with this email already exists.",
       "emailDomain": "Use your University of Almería email address.",
       "internal": "A server error occurred{{ reference }}. Please try again.",

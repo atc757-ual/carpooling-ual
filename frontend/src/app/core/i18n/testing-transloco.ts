@@ -156,6 +156,7 @@ const DEFAULT_TEST_TRANSLATIONS: Record<string, Record<string, unknown>> = {
         unavailable: 'El servicio no está disponible ahora mismo. Inténtalo más tarde.',
         invalidCode: 'Ese código no es válido. Revisa los 6 dígitos o pide uno nuevo.',
         tooManyAttempts: 'Has fallado demasiadas veces. Pide un código nuevo.',
+        tooManyLogins: 'Demasiados intentos fallidos. Vuelve a probar en 5 minutos.',
         passwordUnchanged: 'La contraseña nueva tiene que ser distinta de la actual.',
         emailRegistered: 'Ya hay una cuenta con este correo.',
       },

@@ -117,6 +117,17 @@ describe('LoginPage', () => {
     expect(page.isSubmitting()).toBe(false);
   });
 
+  it('tells how long to wait when the email is locked', async () => {
+    login.mockRejectedValue(new ApiError('TOO_MANY_LOGIN_ATTEMPTS', 429));
+
+    await submit();
+
+    expect(showError).toHaveBeenCalledWith(
+      'Demasiados intentos fallidos. Vuelve a probar en 5 minutos.',
+    );
+    expect(navigateByUrl).not.toHaveBeenCalled();
+  });
+
   it('places the sign-in action before the forgot-password link', () => {
     const buttons = Array.from(
       (fixture.nativeElement as HTMLElement).querySelectorAll('form ion-button'),
