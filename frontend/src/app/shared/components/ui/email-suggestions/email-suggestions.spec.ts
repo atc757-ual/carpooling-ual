@@ -38,6 +38,13 @@ describe('EmailSuggestions', () => {
     expect(type('mario@gmail')).toEqual([]);
   });
 
+  // Se borró la «@» y se volvió a escribir: no repite el dominio
+  it('only adds the missing @ when the name already ends with a UAL domain', () => {
+    expect(type('ac757inlumine.ual.es')).toEqual(['ac757@inlumine.ual.es']);
+    expect(type('mario.perezual.es')).toEqual(['mario.perez@ual.es']);
+    expect(type('mario.perez.ual.es')).toEqual(['mario.perez@ual.es']);
+  });
+
   it('suggests nothing once the email is complete', () => {
     expect(type('mario@ual.es')).toEqual([]);
   });

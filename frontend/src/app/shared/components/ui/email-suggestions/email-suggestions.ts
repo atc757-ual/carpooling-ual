@@ -15,6 +15,20 @@ const DOMAINS = [...environment.allowedEmailDomains].sort(
   (a, b) => Number(b === 'inlumine.ual.es') - Number(a === 'inlumine.ual.es'),
 );
 
+// Sin «@» pero terminado en un dominio admitido (p. ej. se borró la «@» y se
+// volvió a escribir): falta solo la «@». El dominio más largo primero, para
+// que «ac757inlumine.ual.es» sea de inlumine.ual.es y no de ual.es
+const DOMAINS_BY_LENGTH = [...DOMAINS].sort((a, b) => b.length - a.length);
+
+export function findMissingAt(text: string): { localPart: string; domain: string } | null {
+  const domain = DOMAINS_BY_LENGTH.find((candidate) => text.endsWith(candidate));
+  if (domain === undefined) {
+    return null;
+  }
+  const localPart = text.slice(0, -domain.length).replace(/\.$/, '');
+  return localPart === '' ? null : { localPart, domain };
+}
+
 export interface EmailSuggestion {
   email: string;
   audience: string;
@@ -49,6 +63,16 @@ export class EmailSuggestions {
     const typedDomain = at < 0 ? '' : email.slice(at + 1);
     if (localPart === '' || /\s/.test(localPart)) {
       return [];
+    }
+    // Falta solo la «@»: el correo reparado, sin repetir el dominio
+    const missingAt = at < 0 ? findMissingAt(localPart) : null;
+    if (missingAt) {
+      return [
+        {
+          email: `${missingAt.localPart}@${missingAt.domain}`,
+          audience: DOMAIN_AUDIENCES[missingAt.domain] ?? '',
+        },
+      ];
     }
     const suggestions = DOMAINS.filter((domain) => domain.startsWith(typedDomain)).map(
       (domain) => ({ email: `${localPart}@${domain}`, audience: DOMAIN_AUDIENCES[domain] ?? '' }),
