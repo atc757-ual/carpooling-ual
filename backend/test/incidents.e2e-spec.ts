@@ -94,8 +94,8 @@ describe('Incidents API (e2e)', () => {
       })
       .expect(201);
     const tripId = (trip.body as { id: string }).id;
-    // Sale en 10 minutos (publicado con la antelación mínima y movido)
-    await setDepartureIn(dataSource, tripId, 10);
+    // Sale en 20 minutos (antes del corte de solicitudes); se acerca para iniciar
+    await setDepartureIn(dataSource, tripId, 20);
     return { driver, tripId };
   }
 
@@ -118,6 +118,7 @@ describe('Incidents API (e2e)', () => {
     const { driver, tripId } = await driverWithTrip('dan');
     const pia = await tokenFor('pia', ['passenger']);
     await acceptedRequest(driver, pia, tripId);
+    await setDepartureIn(dataSource, tripId, 5);
     await api('post', `/trips/${tripId}/start`, driver).expect(200);
 
     const reported = await api('post', `/trips/${tripId}/incidents`, driver)
@@ -171,6 +172,7 @@ describe('Incidents API (e2e)', () => {
     const requestId = await acceptedRequest(driver, pia, tripId);
     const leo = await tokenFor('leo', ['passenger']);
     await acceptedRequest(driver, leo, tripId);
+    await setDepartureIn(dataSource, tripId, 5);
     await api('post', `/trips/${tripId}/start`, driver).expect(200);
 
     await api('post', `/trips/${tripId}/incidents`, pia)
@@ -216,6 +218,7 @@ describe('Incidents API (e2e)', () => {
     const { driver, tripId } = await driverWithTrip('dan');
     const pia = await tokenFor('pia', ['passenger']);
     await acceptedRequest(driver, pia, tripId);
+    await setDepartureIn(dataSource, tripId, 5);
     await api('post', `/trips/${tripId}/start`, driver).expect(200);
     const sam = await tokenFor('sam', ['passenger']);
 
@@ -257,6 +260,7 @@ describe('Incidents API (e2e)', () => {
       const { driver, tripId } = await driverWithTrip('dan');
       const pia = await tokenFor('pia', ['passenger']);
       await acceptedRequest(driver, pia, tripId);
+      await setDepartureIn(dataSource, tripId, 5);
       await api('post', `/trips/${tripId}/start`, driver).expect(200);
       const reported = await api('post', `/trips/${tripId}/incidents`, driver)
         .send({ category: 'technical', description: BREAKDOWN })

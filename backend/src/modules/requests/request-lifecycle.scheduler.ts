@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DataSource, In } from 'typeorm';
 import { TripLookupService } from '../trips/trip-lookup.service';
-import { MINUTE_MS, REQUEST_RESPONSE_LEAD_MIN } from '../trips/trip-timing';
+import { MINUTE_MS, REQUEST_CUTOFF_MIN } from '../trips/trip-timing';
 import { SeatRequest } from './entities/seat-request.entity';
 import { RequestChangesRecorder } from './request-changes';
 import { assertRequestTransition } from './request-status';
@@ -22,20 +22,18 @@ export class RequestLifecycleScheduler {
     const expiredCount = await this.expirePendingRequests();
     if (expiredCount > 0) {
       this.logger.log(
-        `Expiradas ${expiredCount} solicitudes pendientes por falta de respuesta a 30m`,
+        `Expiradas ${expiredCount} solicitudes pendientes al llegar el corte (${REQUEST_CUTOFF_MIN} min antes de la salida)`,
       );
     }
   }
 
-  // Expirar solicitudes pendientes cuando faltan menos de REQUEST_RESPONSE_LEAD_MIN (30 min)
+  // Caduca las solicitudes pendientes cuando faltan menos de REQUEST_CUTOFF_MIN
   // para la salida del viaje
   async expirePendingRequests(now = new Date()): Promise<number> {
-    const threshold = new Date(
-      now.getTime() + REQUEST_RESPONSE_LEAD_MIN * MINUTE_MS,
-    );
+    const threshold = new Date(now.getTime() + REQUEST_CUTOFF_MIN * MINUTE_MS);
 
     return this.dataSource.transaction(async (manager) => {
-      // Las pendientes cuyo viaje sale en menos de 30 minutos. La salida la
+      // Las pendientes cuyo viaje ya pasó el corte (sale en menos de 10 min). La salida la
       // da trips (este módulo no consulta sus tablas); después se bloquean
       // las que tocan, por si alguien las respondió mientras tanto
       const pending = await manager.find(SeatRequest, {

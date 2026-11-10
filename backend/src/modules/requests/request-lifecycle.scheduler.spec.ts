@@ -12,11 +12,11 @@ describe('RequestLifecycleScheduler', () => {
   const now = new Date('2026-11-03T09:00:00Z');
   const soon = {
     id: 'trip-soon',
-    departureAt: new Date('2026-11-03T09:20:00Z'),
+    departureAt: new Date('2026-11-03T09:08:00Z'),
   } as Trip;
   const later = {
     id: 'trip-later',
-    departureAt: new Date('2026-11-03T11:00:00Z'),
+    departureAt: new Date('2026-11-03T09:20:00Z'),
   } as Trip;
 
   function schedulerWith(pending: SeatRequest[]) {
@@ -53,7 +53,7 @@ describe('RequestLifecycleScheduler', () => {
     jest.clearAllMocks();
   });
 
-  it('expires the pending requests of the trips that leave within 30 minutes', async () => {
+  it('expires the pending requests once their trip passes the cutoff (10 min before departure)', async () => {
     const due = {
       id: 'req-1',
       tripId: soon.id,

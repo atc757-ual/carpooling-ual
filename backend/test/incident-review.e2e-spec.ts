@@ -94,7 +94,7 @@ describe('Incident review (e2e)', () => {
       departureAt: publishableDeparture(),
       offeredSeats: 2,
     });
-    await setDepartureIn(dataSource, trip.id, 10);
+    await setDepartureIn(dataSource, trip.id, 20);
     const requests = app.get(RequestsService);
     const pia = await createUser('pia', profiles.pia ?? ['passenger']);
     const { request } = await requests.request(pia, trip.id);
@@ -103,6 +103,7 @@ describe('Incident review (e2e)', () => {
       const rex = await createUser('rex', profiles.rex);
       await requests.request(rex, trip.id);
     }
+    await setDepartureIn(dataSource, trip.id, 5);
     await trips.start(driverId, trip.id);
     const { incident } = await app
       .get(IncidentsService)

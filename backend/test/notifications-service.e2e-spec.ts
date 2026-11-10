@@ -86,8 +86,8 @@ describe('NotificationsService (e2e)', () => {
       departureAt: publishableDeparture(),
       offeredSeats: 2,
     });
-    // Sale en 10 minutos (publicado con la antelación mínima y movido)
-    trip.departureAt = await setDepartureIn(dataSource, trip.id, 10);
+    // Sale en 20 minutos (antes del corte de solicitudes); se acerca para iniciar
+    trip.departureAt = await setDepartureIn(dataSource, trip.id, 20);
     return { driverId, tripId: trip.id };
   }
 

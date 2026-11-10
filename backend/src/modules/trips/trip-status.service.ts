@@ -8,6 +8,7 @@ import { TripFullError } from './errors/trip-full.error';
 import { TripNotFoundError } from './errors/trip-not-found.error';
 import { TripNotOpenError } from './errors/trip-not-open.error';
 import { assertTransition } from './trip-status';
+import { MINUTE_MS, REQUEST_CUTOFF_MIN } from './trip-timing';
 import type { TripStatus } from './trip-status';
 
 export interface TripStatusChange {
@@ -103,11 +104,13 @@ export class TripStatusService {
     return saved;
   }
 
-  // Solo se admiten solicitudes en un viaje publicado o confirmado que aún no
-  // ha salido
+  // Solo se admiten solicitudes (y respuestas) en un viaje publicado o
+  // confirmado antes del corte (REQUEST_CUTOFF_MIN antes de la salida)
   assertOpenForRequests(trip: Trip): void {
     const isOpen = trip.status === 'published' || trip.status === 'confirmed';
-    if (!isOpen || trip.departureAt.getTime() <= Date.now()) {
+    const cutoffMs =
+      trip.departureAt.getTime() - REQUEST_CUTOFF_MIN * MINUTE_MS;
+    if (!isOpen || cutoffMs <= Date.now()) {
       throw new TripNotOpenError(trip.id, trip.status);
     }
   }

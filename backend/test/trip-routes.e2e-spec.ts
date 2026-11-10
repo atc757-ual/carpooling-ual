@@ -112,8 +112,8 @@ describe('Trip routes (e2e)', () => {
       departureAt: publishableDeparture(),
       offeredSeats: 2,
     });
-    // Sale en 10 minutos (publicado con la antelación mínima y movido)
-    trip.departureAt = await setDepartureIn(dataSource, trip.id, 10);
+    // Sale en 20 minutos (antes del corte de solicitudes); se acerca para iniciar
+    trip.departureAt = await setDepartureIn(dataSource, trip.id, 20);
     return { dan, trip };
   }
 
@@ -208,6 +208,7 @@ describe('Trip routes (e2e)', () => {
     const { request: seat } = await requestsService.request(pia.id, trip.id);
     await requestsService.accept(dan.id, seat.id);
 
+    await setDepartureIn(dataSource, trip.id, 5);
     const { trip: started } = await tripsService.start(dan.id, trip.id);
     const inProgress = await getRoute(trip.id, pia.token).expect(200);
     await tripsService.finish(dan.id, trip.id);

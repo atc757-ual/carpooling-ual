@@ -85,8 +85,8 @@ describe('Notification rules (e2e)', () => {
       departureAt: publishableDeparture(),
       offeredSeats: 2,
     });
-    // Sale en 10 minutos (publicado con la antelación mínima y movido)
-    trip.departureAt = await setDepartureIn(dataSource, trip.id, 10);
+    // Sale en 20 minutos (antes del corte de solicitudes); se acerca para iniciar
+    trip.departureAt = await setDepartureIn(dataSource, trip.id, 20);
     return { driverId, tripId: trip.id };
   }
 
@@ -182,6 +182,7 @@ describe('Notification rules (e2e)', () => {
       const leo = await requestSeat('leo', tripId);
       await requestsService.accept(driverId, pia.requestId);
 
+      await setDepartureIn(dataSource, tripId, 5);
       await tripsService.start(driverId, tripId);
 
       expect(await noticesOf(leo.passengerId)).toMatchObject([
@@ -197,6 +198,7 @@ describe('Notification rules (e2e)', () => {
       const { driverId, tripId } = await publishTrip();
       const pia = await requestSeat('pia', tripId);
       await requestsService.accept(driverId, pia.requestId);
+      await setDepartureIn(dataSource, tripId, 5);
       await tripsService.start(driverId, tripId);
       const ada = await createUser('ada', ['admin']);
       // pia también es administradora: no se avisa a sí misma
@@ -234,6 +236,7 @@ describe('Notification rules (e2e)', () => {
       const { driverId, tripId } = await publishTrip();
       const pia = await requestSeat('pia', tripId);
       await requestsService.accept(driverId, pia.requestId);
+      await setDepartureIn(dataSource, tripId, 5);
       await tripsService.start(driverId, tripId);
 
       await app.get(IncidentsService).report(driverId, tripId, {

@@ -44,6 +44,15 @@ describe('MatchingService', () => {
     { getRecognitionDetails } as unknown as VehiclesService,
   );
 
+  // La víspera de las búsquedas: el corte de solicitudes no recorta la ventana
+  beforeAll(() => {
+    jest.useFakeTimers({ now: new Date('2026-10-27T12:00:00Z') });
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     getActive.mockResolvedValue({ id: 'p1', location: PARKING_LOCATION });
@@ -120,6 +129,22 @@ describe('MatchingService', () => {
       seats: 2,
     });
     expect(results).toHaveLength(1);
+  });
+
+  it('leaves out the trips past the request cutoff (10 min before departure)', async () => {
+    jest.setSystemTime(new Date('2026-10-28T07:25:00Z'));
+    findCandidates.mockResolvedValue([]);
+
+    await service.search('passenger-1', {
+      ...SEARCH,
+      direction: 'from-campus',
+      desiredAt: new Date('2026-10-28T07:40:00Z'),
+      marginMin: 10,
+    });
+
+    const [query] = findCandidates.mock.calls[0] as [CandidateQuery];
+    expect(query.departureFrom).toEqual(new Date('2026-10-28T07:35:00Z'));
+    jest.setSystemTime(new Date('2026-10-27T12:00:00Z'));
   });
 
   it('drops the candidates that do not fit', async () => {

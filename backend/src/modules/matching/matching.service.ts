@@ -14,6 +14,7 @@ import {
   type TripCandidate,
 } from './candidate-source';
 import { scoreCandidates, type ScoredMatch } from './compatibility';
+import { REQUEST_CUTOFF_MIN } from '../trips/trip-timing';
 import { DEFAULT_MARGIN_MIN, SearchTripsDto } from './dto/search-trips.dto';
 
 // Al ir al campus se compara la llegada: la salida puede ser hasta 2 h antes
@@ -55,13 +56,18 @@ export class MatchingService {
     const isToCampus = search.direction === 'to-campus';
     const desiredMs = search.desiredAt.getTime();
     const earliestMin = marginMin + (isToCampus ? MAX_TRAVEL_MIN : 0);
+    // Los viajes que ya pasaron el corte de solicitudes no se ofrecen: no se
+    // podría pedir plaza en ellos
+    const cutoffMs = Date.now() + REQUEST_CUTOFF_MIN * MS_PER_MINUTE;
 
     const candidates = await this.candidateSource.findCandidates({
       passengerId,
       place: { type: 'Point', coordinates: search.place.coordinates },
       campus: parking.location,
       direction: search.direction,
-      departureFrom: new Date(desiredMs - earliestMin * MS_PER_MINUTE),
+      departureFrom: new Date(
+        Math.max(desiredMs - earliestMin * MS_PER_MINUTE, cutoffMs),
+      ),
       departureTo: new Date(desiredMs + marginMin * MS_PER_MINUTE),
       seats,
     });

@@ -397,13 +397,14 @@ describe('RequestsService (e2e)', () => {
     });
 
     it('starting the trip rejects the pending requests and keeps the accepted ones (observer)', async () => {
-      const { driverId, tripId } = await publishedTrip(2, 'dan', 10);
+      const { driverId, tripId } = await publishedTrip(2, 'dan', 20);
       const pia = await createUser('pia', ['passenger']);
       const leo = await createUser('leo', ['passenger']);
       const accepted = await requestsService.request(pia, tripId);
       await requestsService.accept(driverId, accepted.request.id);
       const pending = await requestsService.request(leo, tripId);
 
+      await setDepartureIn(dataSource, tripId, 5);
       await tripsService.start(driverId, tripId);
 
       const stillAccepted = await requestsService.get(pia, accepted.request.id);
@@ -475,7 +476,7 @@ describe('RequestsService (e2e)', () => {
     // inicio rechaza (leo)
     // Viaje en curso con pia aceptada (con estas plazas) y, si se pide, leo
     async function tripInProgress({ piaSeats = 1, withLeo = false } = {}) {
-      const { driverId, tripId } = await publishedTrip(2, 'dan', 10);
+      const { driverId, tripId } = await publishedTrip(2, 'dan', 20);
       const pia = await createUser('pia', ['passenger']);
       const { request } = await requestsService.request(pia, tripId, piaSeats);
       await requestsService.accept(driverId, request.id);
@@ -487,6 +488,7 @@ describe('RequestsService (e2e)', () => {
         );
         await requestsService.accept(driverId, leoRequest.id);
       }
+      await setDepartureIn(dataSource, tripId, 5);
       await tripsService.start(driverId, tripId);
       return { driverId, tripId, pia, requestId: request.id };
     }

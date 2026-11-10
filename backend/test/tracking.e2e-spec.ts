@@ -116,13 +116,14 @@ describe('Trip tracking (e2e)', () => {
       departureAt: publishableDeparture(),
       offeredSeats: 2,
     });
-    // Sale en 10 minutos (publicado con la antelación mínima y movido)
-    trip.departureAt = await setDepartureIn(dataSource, trip.id, 10);
+    // Sale en 20 minutos (antes del corte de solicitudes); se acerca para iniciar
+    trip.departureAt = await setDepartureIn(dataSource, trip.id, 20);
     const pia = await sessionFor('pia', ['passenger']);
     const requestsService = app.get(RequestsService);
     const { request: seat } = await requestsService.request(pia.id, trip.id);
     await requestsService.accept(dan.id, seat.id);
     if (started) {
+      trip.departureAt = await setDepartureIn(dataSource, trip.id, 5);
       await tripsService.start(dan.id, trip.id);
     }
     return { dan, pia, tripId: trip.id };
