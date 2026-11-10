@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, resource, signal } from '@angular/core';
+import { Component, computed, inject, input, resource, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
@@ -148,7 +148,15 @@ export class PassengerRequestDetailPage {
   readonly isCancelling = signal(false);
   readonly isPageVisible = signal(true);
 
-  readonly contacts = signal<ChatContact[]>([]);
+  // El teléfono del conductor, solo con la plaza aceptada: resource y no
+  // effect, para no pintar el de otro viaje si la respuesta llega tarde
+  private readonly contactsData = resource({
+    params: () => (this.request()?.status === 'accepted' ? this.trip()?.id : undefined),
+    loader: ({ params: tripId }) => this.tripCall.loadContacts(tripId),
+  });
+  readonly contacts = computed<ChatContact[]>(() =>
+    this.contactsData.hasValue() ? this.contactsData.value() : [],
+  );
   readonly driverContact = computed(() => {
     return this.contacts().find((c) => c.role === 'driver') ?? null;
   });
@@ -183,23 +191,6 @@ export class PassengerRequestDetailPage {
     const trip = this.trip();
     return request?.status === 'accepted' && trip?.status === 'in_progress';
   });
-
-  constructor() {
-    effect(() => {
-      const tripId = this.trip()?.id;
-      const isAccepted = this.request()?.status === 'accepted';
-      if (tripId && isAccepted) {
-        void this.loadContacts(tripId);
-      } else {
-        this.contacts.set([]);
-      }
-    });
-  }
-
-  private async loadContacts(tripId: string): Promise<void> {
-    const contacts = await this.tripCall.loadContacts(tripId);
-    this.contacts.set(contacts);
-  }
 
   canCallDriver(): boolean {
     const trip = this.trip();

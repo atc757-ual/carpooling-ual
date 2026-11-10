@@ -150,7 +150,15 @@ export class DriverTripCard {
   readonly isChangingStatus = signal(false);
   protected readonly locationIcon = locationOutline;
   protected readonly callIcon = callOutline;
-  readonly contacts = signal<ChatContact[]>([]);
+  // Los teléfonos para llamar, solo con la tarjeta abierta: resource y no
+  // effect, para no pintar los de otro viaje si la respuesta llega tarde
+  private readonly contactsData = resource({
+    params: () => (this.isOpen() ? this.trip().id : undefined),
+    loader: ({ params: tripId }) => this.tripCall.loadContacts(tripId),
+  });
+  readonly contacts = computed<ChatContact[]>(() =>
+    this.contactsData.hasValue() ? this.contactsData.value() : [],
+  );
   readonly contactsMap = computed(() => new Map(this.contacts().map((c) => [c.id, c])));
 
   constructor() {
@@ -160,14 +168,6 @@ export class DriverTripCard {
     effect(() => {
       if (this.isInProgress()) {
         this.tracking.start(this.trip().id);
-      }
-    });
-    effect(() => {
-      const tripId = this.trip().id;
-      if (tripId && this.isOpen()) {
-        void this.tripCall.loadContacts(tripId).then((c) => this.contacts.set(c));
-      } else {
-        this.contacts.set([]);
       }
     });
   }
