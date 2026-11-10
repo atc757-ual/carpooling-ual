@@ -109,8 +109,9 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-driver-trip-detail ion-button', 'Aceptar').click();
 
       cy.wait('@accept');
-      cy.contains('app-driver-trip-detail', 'Confirmado');
-      cy.contains('app-driver-trip-detail', '1 de 3 libres');
+      // El estado va en la franja fija del título, fuera de la página
+      cy.contains('.greeting-bar', 'Confirmado');
+      cy.contains('app-driver-trip-passengers', '2 de 3 plazas ocupadas');
       cy.contains('app-driver-trip-detail .driver-trip__request', 'Aceptada');
     });
 
