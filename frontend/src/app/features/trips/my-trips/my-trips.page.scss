@@ -1,5 +1,5 @@
-// En el móvil, una columna de tarjetas: los segmentos, el viaje en curso y
-// los viajes de la pestaña. En escritorio, esa columna (8 de 12) y a la
+// En el móvil, una columna de tarjetas: el viaje en curso, las pastillas de
+// estado y los viajes, por días. En escritorio, esa columna (8 de 12) y a la
 // derecha la de 4 con los atajos y las cifras, fija al hacer scroll
 .my-trips {
   align-items: stretch;
@@ -15,6 +15,11 @@
   flex-direction: column;
   gap: var(--space-s);
   min-width: 0;
+}
+
+// En el móvil, la columna de 4 va debajo de la lista
+.my-trips__aside {
+  order: 1;
 }
 
 @media (min-width: 768px) {
@@ -51,16 +56,18 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-s);
-  padding: var(--space-xxl) var(--space-l);
+  padding: var(--space-l) var(--space-base);
   text-align: center;
 
+  // Como el vacío de Resultados de búsqueda: icono de 24px en un círculo de 40px
   ion-icon {
     box-sizing: content-box;
-    padding: var(--space-base);
+    margin-bottom: var(--space-xs);
+    padding: var(--space-s);
     border-radius: var(--radius-full);
     background: var(--color-primary-subtle);
     color: var(--color-link);
-    font-size: 2rem; // 32px
+    font-size: 1.5rem; // 24px
   }
 
   ion-button {
@@ -68,32 +75,32 @@
   }
 }
 
-// Como pasajero | Como conductor y Próximos | Anteriores | Cancelados: a todo
-// el ancho de la columna
-// Sin mayúsculas y con poco relleno a los lados, para que los nombres quepan
-// enteros en el móvil (con mayúsculas se cortaban: «ANTERIO…»)
-.my-trips__view,
-.my-trips__tabs {
-  width: 100%;
-
-  ion-segment-button {
-    --padding-start: var(--space-xs);
-    --padding-end: var(--space-xs);
-
-    min-width: 0;
-    text-transform: none;
-  }
+// La tarjeta de la columna de 8: las pastillas y, debajo, los viajes en
+// columna, a 8px (los viajes son filas con borde, sin sombra: .role-card)
+ion-card.my-trips__panel ion-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-base);
 }
 
-// Pasajero o conductor: discreto, más estrecho que las pestañas
-.my-trips__view {
-  max-width: 20rem; // 320px
+// El título del vacío y del error, como en Resultados de búsqueda
+.my-trips__state-title {
+  font-weight: var(--font-weight-semibold);
+}
 
-  ion-segment-button {
-    --padding-start: var(--space-s);
-    --padding-end: var(--space-s);
+// Buscar y Publicar, juntos cuando tiene los dos papeles
+.my-trips__empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-s);
+}
 
-    min-height: 2.75rem; // 44px
-    font-size: var(--font-size-caption);
-  }
+// El día de cada grupo de viajes: más pequeño y más grueso que el eyebrow
+// (12px seminegrita), para que separe sin pesar
+.my-trips__day {
+  margin: var(--space-s) 0 0;
+  font-size: 0.6875rem; // 11px
+  font-weight: var(--font-weight-bold);
 }

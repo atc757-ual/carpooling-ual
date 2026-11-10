@@ -27,5 +27,10 @@ export class FilterChips {
   // Texto de la opción sin filtro; null para no ofrecerla (p. ej. si el filtro
   // siempre tiene un valor)
   readonly allLabel = input<string | null>('Todos');
+  // La leyenda solo para los lectores de pantalla, cuando las opciones ya se
+  // explican solas (p. ej. Próximos · Anteriores en Tus viajes)
+  readonly isLegendHidden = input(false);
+  // En una sola línea, que se desplaza de lado si no cabe (p. ej. en el móvil)
+  readonly isSingleLine = input(false);
   readonly valueChange = output<string | null>();
 }

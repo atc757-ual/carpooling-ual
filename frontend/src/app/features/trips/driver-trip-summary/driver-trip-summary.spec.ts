@@ -47,7 +47,8 @@ describe('DriverTripSummary', () => {
     expect(root.textContent).toContain('2 de 3 libres');
     expect(link(root)?.getAttribute('href')).toBe('/tabs/trips/published/t1');
     expect(link(root)?.textContent).toBe('Ver solicitudes');
-    expect(link(root)?.getAttribute('aria-label')).toContain('Ver solicitudes:');
+    expect(link(root)?.getAttribute('aria-label')).toContain('Ver solicitudes, conduces:');
+    expect(root.querySelector('.role-tag')?.textContent).toContain('Conduces');
     expect(start).not.toHaveBeenCalled();
   });
 

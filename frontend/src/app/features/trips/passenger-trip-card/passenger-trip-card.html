@@ -1,0 +1,31 @@
+<ion-card class="passenger-trip role-card role-card--passenger">
+  <ion-card-content>
+    <div class="passenger-trip__head">
+      <!-- La hora (el enlace cubre toda la tarjeta con su ::after) y, a su
+           lado, el papel -->
+      <div class="role-card__when">
+        <a
+          class="passenger-trip__link text-subtitle"
+          [routerLink]="['/tabs/trips/requests', item().request.id]"
+          [attr.aria-label]="linkLabel()"
+          >{{ time() }}</a
+        >
+        <span class="role-tag role-tag--passenger">
+          <ion-icon [icon]="roleIcon" aria-hidden="true" />Viajas
+        </span>
+      </div>
+      <span
+        class="status"
+        [class.status--pending]="isPending()"
+        [class.status--accepted]="isAccepted()"
+      >
+        {{ statusLabel() }}
+      </span>
+    </div>
+    <div class="passenger-trip__route">{{ route() }}</div>
+    @if (nextStep(); as step) {
+      <div class="passenger-trip__next">{{ step }}</div>
+    }
+    <div class="text-caption text-color-muted">{{ details() }}</div>
+  </ion-card-content>
+</ion-card>

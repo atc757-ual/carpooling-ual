@@ -128,11 +128,8 @@ for (const viewport of VIEWPORTS) {
       );
       // No se repite en Próximos
       cy.get('app-driver-trip-summary').should('not.exist');
-      if (isDesktop) {
-        cy.get('app-my-trips-aside').should('be.visible').and('contain', '1 en curso');
-      } else {
-        cy.get('app-my-trips-aside').should('not.be.visible');
-      }
+      // La columna de 4: a la derecha en escritorio y debajo en el móvil
+      cy.get('app-my-trips-aside').should('contain', 'Tu impacto').and('contain', 'Publicar viaje');
     });
 
     it('confirms and cancels an upcoming trip', () => {
@@ -205,7 +202,7 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/tabs/trips');
       // Terminado, pasa a Anteriores
       cy.contains('app-my-trips', 'No tienes viajes programados');
-      cy.contains('.my-trips__tabs ion-segment-button', 'Anteriores').click();
+      cy.contains('app-filter-chips ion-chip', 'Anteriores').click();
       cy.contains('app-my-trips', 'Finalizado');
     });
   });

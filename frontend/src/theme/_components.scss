@@ -667,6 +667,58 @@ ion-card-header + ion-card-content[class] {
   color: var(--color-link);
 }
 
+// Papel en un viaje (Tus viajes): «Conduces» o «Viajas», con su icono y una
+// franja del color del papel a la izquierda de la tarjeta. El papel se lee en
+// el texto, nunca solo por el color; y no es una píldora, para no
+// confundirlo con el estado
+.role-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+
+  ion-icon {
+    font-size: 1rem; // 16px
+  }
+}
+
+.role-tag--driver ion-icon {
+  color: var(--color-link);
+}
+
+.role-tag--passenger ion-icon {
+  color: var(--color-accent);
+}
+
+// Van dentro de la tarjeta de Tus viajes: filas con borde, sin sombra y
+// compactas (8px arriba y abajo, 16px a los lados y 2px entre líneas; con el
+// elemento en el selector, gana al relleno de Ionic)
+.role-card {
+  box-shadow: none;
+}
+
+ion-card.role-card ion-card-content {
+  gap: 0.125rem; // 2px
+  padding: var(--space-s) var(--space-base);
+}
+
+// La hora y el papel, en la misma línea
+.role-card__when {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.role-card--driver {
+  border-inline-start: var(--border-width-l) solid var(--color-primary);
+}
+
+.role-card--passenger {
+  border-inline-start: var(--border-width-l) solid var(--color-accent);
+}
+
 // Aviso (notice de la guía): un texto en una caja de color suave con el título
 // en negrita encima, en el color del tipo de aviso. Información en el azul de
 // los enlaces (el tema no tiene un color propio de información)

@@ -27,6 +27,17 @@
   }
 }
 
+// Una sola línea con desplazamiento lateral, sin barra visible
+.filter-chips--single-line {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  ion-chip {
+    flex: none;
+  }
+}
+
 .filter-chips__legend {
   width: 100%;
   margin-block-end: var(--space-xs);

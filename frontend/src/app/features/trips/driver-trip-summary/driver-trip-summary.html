@@ -1,7 +1,13 @@
-<ion-card class="driver-summary">
+<ion-card class="driver-summary role-card role-card--driver">
   <ion-card-content>
     <div class="driver-summary__head">
-      <div class="text-subtitle">{{ when() }}</div>
+      <!-- La hora y, a su lado, el papel -->
+      <div class="role-card__when">
+        <span class="text-subtitle">{{ time() }}</span>
+        <span class="role-tag role-tag--driver">
+          <ion-icon [icon]="roleIcon" aria-hidden="true" />Conduces
+        </span>
+      </div>
       <span
         class="status"
         [class.status--accepted]="trip().status === 'confirmed'"
@@ -19,7 +25,7 @@
     <a
       class="driver-summary__link"
       [routerLink]="link()"
-      [attr.aria-label]="action() + ': ' + when() + ', ' + route()"
+      [attr.aria-label]="action() + ', conduces: ' + when() + ', ' + route()"
       >{{ action() }}</a
     >
   </ion-card-content>

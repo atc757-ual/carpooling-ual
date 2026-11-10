@@ -1,57 +1,117 @@
+// Dos tarjetas: arriba el próximo viaje y las cifras; debajo, «Te puede
+// interesar»
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
 .my-trips-aside {
   margin: 0;
-
-  ion-card-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-base);
-  }
 }
 
-.my-trips-aside__actions {
+ion-card.my-trips-aside ion-card-content {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
-
-  ion-button {
-    margin: 0;
-  }
 }
 
-.my-trips-aside__summary {
-  margin: 0;
-  padding-top: var(--space-base);
-  border-top: var(--border-width-s) solid var(--color-border-subtle);
-}
-
-// Cada cifra: su nombre en pequeño (con su icono) y el valor debajo
+// Las dos cifras en una fila, cada una con el valor encima de su nombre
 .my-trips-aside__stats {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-s);
   margin: 0;
+
+  div {
+    display: flex;
+    flex-direction: column-reverse;
+  }
 
   dt {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-xs);
     color: var(--color-text-muted);
   }
 
   dd {
     margin: 0;
   }
+}
+
+// El icono va con el valor (en la etiqueta la partía en dos líneas)
+.my-trips-aside__value {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  white-space: nowrap;
 
   ion-icon {
-    color: var(--color-eco);
+    flex: none;
+    font-size: 1rem; // 16px
   }
 }
 
-.my-trips-aside .my-trips-aside__star {
+.my-trips-aside__leaf {
+  color: var(--color-eco);
+}
+
+.my-trips-aside__star {
   color: var(--color-warning);
 }
 
 .my-trips-aside__note {
   margin: 0;
   color: var(--color-text-muted);
+}
+
+// Te puede interesar: una lista de filas con icono, título, detalle y flecha,
+// separadas por una línea
+.my-trips-aside__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li + li {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}
+
+// Toda la fila es el enlace: al pasar o pulsar, fondo azul claro entero
+.my-trips-aside__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-s);
+  border-radius: var(--radius-s);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: background var(--motion-duration-fast);
+
+  &:hover,
+  &:active {
+    background: var(--color-primary-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-l) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
+  }
+}
+
+.my-trips-aside__item-icon {
+  flex: none;
+  color: var(--color-primary);
+  font-size: 1.5rem; // 24px
+}
+
+.my-trips-aside__item-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.my-trips-aside__chevron {
+  flex: none;
+  color: var(--color-text-muted);
+  font-size: 1.125rem; // 18px
 }

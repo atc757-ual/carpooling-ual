@@ -1,17 +1,12 @@
 import { DriverTrip, Trip, TripStatus } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 
-// Las pestañas de Mis viajes, iguales para el conductor y el pasajero
+// Las pestañas de Tus viajes, una sola lista para el conductor y el pasajero.
+// «No realizados» y no «Cancelados»: ahí caen también las solicitudes
+// rechazadas y caducadas, que no canceló nadie
 export type TripsTab = 'upcoming' | 'past' | 'cancelled';
 
 export const TRIPS_TABS: readonly { value: TripsTab; label: string }[] = [
-  { value: 'upcoming', label: 'Próximos' },
-  { value: 'past', label: 'Anteriores' },
-  { value: 'cancelled', label: 'Cancelados' },
-];
-
-// El pasajero: ahí caen también las rechazadas y caducadas, que no canceló nadie
-export const PASSENGER_TRIPS_TABS: readonly { value: TripsTab; label: string }[] = [
   { value: 'upcoming', label: 'Próximos' },
   { value: 'past', label: 'Anteriores' },
   { value: 'cancelled', label: 'No realizados' },
@@ -71,5 +66,5 @@ export function passengerRequestLabel(request: SeatRequest, trip: Trip): string 
 export const EMPTY_TEXTS: Readonly<Record<TripsTab, string>> = {
   upcoming: 'No tienes viajes programados',
   past: 'Aún no has hecho ningún viaje',
-  cancelled: 'No tienes viajes cancelados',
+  cancelled: 'Aquí verás los viajes que no se hayan realizado',
 };
