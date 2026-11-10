@@ -420,12 +420,14 @@ ion-modal.legal-dialog {
   }
 }
 
-// La ✕ de cerrar las ventanas (app-modal-header): un botón redondo de 48px
+// La ✕ de cerrar las ventanas y la flecha de volver (app-modal-header): un
+// botón redondo de 48px
 // con el icono de 28px en el color del texto (al pasar el ratón, el velo
 // suave de Ionic). El selector es largo a propósito: ion-buttons fija el
 // tamaño de los iconos con sus clases (sc-ion-buttons-*) y ganaría a uno más
 // corto
-ion-toolbar ion-buttons ion-button.modal-close-button {
+ion-toolbar ion-buttons ion-button.modal-close-button,
+ion-toolbar ion-buttons ion-button.modal-back-button {
   --padding-start: 0;
   --padding-end: 0;
   --border-radius: var(--radius-full);

@@ -5,26 +5,11 @@
 <!-- Sin ion-content: así la ventana toma el alto del texto (con su propio
      scroll si no cabe) -->
 <div class="modal-body">
-  @if (current(); as document) {
-    <div class="legal">
-      <app-legal-changes
-        [heading]="changesHeading(document.version)"
-        [summary]="document.summary"
-      />
-    </div>
-    <!-- Angular limpia el HTML (sin scripts ni estilos) antes de mostrarlo -->
-    <article class="legal" [innerHTML]="document.content"></article>
-    <!-- Al verse esta marca se ha llegado al final (también si el texto es corto) -->
-    <div #endMarker class="legal__end" aria-hidden="true"></div>
-  } @else if (hasError()) {
-    <p class="text-body" role="alert">
-      {{ errorMessage }}
-    </p>
-  } @else {
-    <div class="legal__loading">
-      <ion-spinner name="crescent" [attr.aria-label]="loadingAriaLabel" />
-    </div>
-  }
+  <app-legal-document
+    [type]="document"
+    [isEndTracked]="!!onReachedEnd"
+    (reachedEnd)="onReachedEnd?.()"
+  />
   <!-- Al final del texto, con él -->
   <form class="legal__footer" (submit)="$event.preventDefault(); close()">
     <ion-button type="submit" expand="block">{{ understoodLabel }}</ion-button>

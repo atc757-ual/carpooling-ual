@@ -1,0 +1,14 @@
+// El texto, con la clase global .legal (theme/_components.scss)
+:host {
+  display: block;
+}
+
+.legal__end {
+  height: 1px;
+}
+
+.legal__loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-xl);
+}
