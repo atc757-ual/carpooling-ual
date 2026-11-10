@@ -1,6 +1,7 @@
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { Trip } from './entities/trip.entity';
 import { LateCancellationsService } from './late-cancellations.service';
+import { PublishingLimitsService } from './publishing-limits.service';
 import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
 import { TripsService } from './trips.service';
@@ -50,6 +51,7 @@ describe('TripsService cancelUnstartedTrips', () => {
       tripStatus,
       {} as TripRoutesService,
       lateCancellations,
+      {} as PublishingLimitsService,
     );
   });
 
@@ -91,6 +93,7 @@ describe('TripsService cancelUnstartedTrips', () => {
       tripStatus,
       {} as TripRoutesService,
       lateCancellations,
+      {} as PublishingLimitsService,
     );
 
     // Current time: 09:16:00Z (16 min after departure -> > 15 min)
@@ -147,6 +150,7 @@ describe('TripsService cancelUnstartedTrips', () => {
       tripStatus,
       {} as TripRoutesService,
       lateCancellations,
+      {} as PublishingLimitsService,
     );
 
     const now = new Date('2026-11-03T09:20:00Z');

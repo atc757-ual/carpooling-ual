@@ -16,6 +16,7 @@ import { TripsController } from './trips.controller';
 import { TripStatsService } from './trip-stats.service';
 import { TripViewerAccessService } from './trip-viewer-access.service';
 import { TripLookupService } from './trip-lookup.service';
+import { PublishingLimitsService } from './publishing-limits.service';
 import { TripsService } from './trips.service';
 import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
 
@@ -44,6 +45,7 @@ import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
     TripLifecycleScheduler,
     TripViewerAccessService,
     TripLookupService,
+    PublishingLimitsService,
   ],
   // Los usan las solicitudes de plaza (requests), el seguimiento (tracking:
   // lo que queda hasta el destino) y el matching (los candidatos); las
