@@ -44,7 +44,8 @@ describe('TripsService (e2e)', () => {
   let tripStatus: TripStatusService;
   let usersService: UsersService;
   let vehiclesService: VehiclesService;
-  let plateNumber = 9400;
+  // Serie propia: las 94xx las usa reviews.e2e y chocaban en paralelo
+  let plateNumber = 8400;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
