@@ -20,6 +20,9 @@ export interface TabHeading {
   // En escritorio, debajo del título y el subtítulo: los pasos hasta la
   // pantalla (que va al final, sin enlace, con su título)
   breadcrumbs?: readonly TabBreadcrumb[];
+  // Listas largas: en el móvil, el título va dentro del contenido
+  // (SectionHeading) y se desplaza con él, en lugar de la franja fija
+  scrollsWithContent?: boolean;
 }
 
 // La cabecera de la pantalla que se ve (la ruta más profunda)

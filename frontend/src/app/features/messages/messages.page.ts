@@ -21,14 +21,14 @@ import { HeadingContentService } from '../../core/services/ui/heading-content.se
 import { messageText } from './chat-texts';
 import { ConversationPage } from './conversation/conversation.page';
 import { map } from 'rxjs';
-import { CollapsingHeading } from '../../shared/directives/collapsing-heading.directive';
+import { SectionHeading } from '../tabs/section-heading/section-heading';
 
 // Mensajes: conversaciones recientes con filtro de no leídos y carga por lotes.
 // Cada conversación abre el chat del viaje.
 @Component({
   selector: 'app-messages',
   imports: [
-    CollapsingHeading,
+    SectionHeading,
     IonButton,
     IonCard,
     IonCardContent,

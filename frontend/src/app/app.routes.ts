@@ -109,6 +109,7 @@ export const routes: Routes = [
             // Lo que se ve en la franja fija (escritorio) y en la tarjeta (móvil)
             title: '¿A dónde vamos hoy?',
             subtitle: 'Encuentra a alguien de la UAL que haga tu mismo trayecto.',
+            scrollsWithContent: true,
           } satisfies TabHeading,
         },
       },
@@ -218,6 +219,7 @@ export const routes: Routes = [
           heading: {
             title: 'Tus viajes',
             subtitle: 'Tus viajes y las solicitudes de plaza.',
+            scrollsWithContent: true,
           } satisfies TabHeading,
         },
       },
@@ -229,6 +231,7 @@ export const routes: Routes = [
           heading: {
             title: 'Mensajes',
             subtitle: 'Habla con quien conduce o viaja contigo.',
+            scrollsWithContent: true,
           } satisfies TabHeading,
         },
       },
@@ -263,6 +266,7 @@ export const routes: Routes = [
           heading: {
             title: 'Notificaciones',
             subtitle: 'Lo que pasa con tus viajes, solicitudes y cuenta.',
+            scrollsWithContent: true,
           } satisfies TabHeading,
         },
       },

@@ -7,7 +7,6 @@ import { vi } from 'vitest';
 import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
-import { CollapsingHeadingService } from '../../core/services/ui/collapsing-heading.service';
 import { HeadingContentService } from '../../core/services/ui/heading-content.service';
 import { provideTranslocoTestingSupport } from '../../core/i18n/testing-transloco';
 import { LanguageService } from '../../core/services/ui/language.service';
@@ -86,6 +85,11 @@ describe('TabsPage', () => {
             data: { heading: { title: 'Tu búsqueda', backHref: '/tabs/search' } },
           },
           { path: 'tabs/publish', component: BlankPage },
+          {
+            path: 'tabs/trips',
+            component: BlankPage,
+            data: { heading: { ...HEADING, scrollsWithContent: true } },
+          },
           { path: 'tabs/profile', component: BlankPage },
         ]),
         {
@@ -329,25 +333,18 @@ describe('TabsPage', () => {
     expect(page.heading()).toEqual(HEADING);
   });
 
-  it('collapses the title strip while scrolling down, except with its own content', async () => {
-    const page = render();
-    const collapsing = TestBed.inject(CollapsingHeadingService);
+  // Las listas largas llevan el título dentro del contenido (SectionHeading)
+  it('hides the title strip on mobile for the long lists', async () => {
+    render();
+    const bar = () => fixture.nativeElement.querySelector('.greeting-bar') as HTMLElement;
+
     await TestBed.inject(Router).navigateByUrl('/tabs/search');
-
-    collapsing.track(200);
     fixture.detectChanges();
-    expect(page.isHeadingHidden()).toBe(true);
-    expect(fixture.nativeElement.querySelector('.greeting-bar--hidden')).not.toBeNull();
+    expect(bar().classList).not.toContain('ion-hide-md-down');
 
-    // El título del chat (contenido propio) no se esconde
-    const content = {} as TemplateRef<unknown>;
-    TestBed.inject(HeadingContentService).show(content);
-    expect(page.isHeadingHidden()).toBe(false);
-    TestBed.inject(HeadingContentService).clear(content);
-
-    // Al cambiar de pantalla vuelve a verse
-    await TestBed.inject(Router).navigateByUrl('/tabs/publish');
-    expect(page.isHeadingHidden()).toBe(false);
+    await TestBed.inject(Router).navigateByUrl('/tabs/trips');
+    fixture.detectChanges();
+    expect(bar().classList).toContain('ion-hide-md-down');
   });
 
   it('clears custom heading content when navigating to routes outside conversation detail', async () => {

@@ -145,12 +145,12 @@
 </header>
 <!-- Franja fija con el título y el subtítulo de la pantalla. En el móvil se ve
      en las secciones (la cabecera lleva el logotipo); en los detalles no, porque
-     ahí el título ya va en la barra con la flecha de volver -->
+     ahí el título ya va en la barra con la flecha de volver, ni en las listas
+     largas, que lo llevan dentro del contenido (SectionHeading) -->
 @if (heading(); as heading) {
   <div
     class="greeting-bar"
-    [class.ion-hide-md-down]="heading.breadcrumbs"
-    [class.greeting-bar--hidden]="isHeadingHidden()"
+    [class.ion-hide-md-down]="heading.breadcrumbs || heading.scrollsWithContent"
   >
     <!-- Lo que la pantalla ponga en lugar de su título y subtítulo -->
     @if (headingContent.content(); as content) {

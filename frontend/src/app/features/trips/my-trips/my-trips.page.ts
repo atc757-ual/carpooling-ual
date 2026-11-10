@@ -38,7 +38,7 @@ import {
   TRIPS_TABS,
   TripsTab,
 } from './trip-tabs';
-import { CollapsingHeading } from '../../../shared/directives/collapsing-heading.directive';
+import { SectionHeading } from '../../tabs/section-heading/section-heading';
 
 interface LiveBannerData {
   route: string;
@@ -54,7 +54,7 @@ interface LiveBannerData {
 @Component({
   selector: 'app-my-trips',
   imports: [
-    CollapsingHeading,
+    SectionHeading,
     RouterLink,
     IonButton,
     IonCard,
