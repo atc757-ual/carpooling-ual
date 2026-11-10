@@ -224,7 +224,7 @@
     },
     "/api/auth/login": {
       "post": {
-        "description": "Opens a new session (RF-02): returns an access token (15 min) and a refresh token (7 days, at most 30 days since login). Only users with a verified email can log in.",
+        "description": "Opens a new session (RF-02): returns an access token (15 min) and a refresh token (7 days, at most 30 days since login). Only users with a verified email can log in. After 5 failed logins in a row with the same email, it is locked for 5 minutes, even with the right password.",
         "operationId": "AuthController_login",
         "parameters": [],
         "requestBody": {
@@ -270,6 +270,16 @@
           },
           "403": {
             "description": "TMF630 error: EMAIL_NOT_VERIFIED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TMF630 error: TOO_MANY_LOGIN_ATTEMPTS",
             "content": {
               "application/json": {
                 "schema": {

@@ -14,6 +14,7 @@ import { EmailCodesService } from './email-codes.service';
 import { EmailVerificationService } from './email-verification.service';
 import { EmailCode } from './entities/email-code.entity';
 import { PendingRegistration } from './entities/pending-registration.entity';
+import { LoginAttemptsService } from './login-attempts.service';
 import { PendingRegistrationsService } from './pending-registrations.service';
 import { PasswordResetController } from './password-reset.controller';
 import { PasswordResetService } from './password-reset.service';
@@ -58,6 +59,7 @@ import { RefreshTokensService } from './refresh-tokens.service';
     RefreshTokensService,
     EmailCodesService,
     EmailVerificationService,
+    LoginAttemptsService,
     PasswordResetService,
     PhoneVerificationService,
     AccountDeletionService,

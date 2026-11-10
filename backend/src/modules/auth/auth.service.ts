@@ -15,6 +15,8 @@ import { EmailNotVerifiedError } from './errors/email-not-verified.error';
 import { InvalidAccessTokenError } from './errors/invalid-access-token.error';
 import { InvalidCredentialsError } from './errors/invalid-credentials.error';
 import { InvalidRefreshTokenError } from './errors/invalid-refresh-token.error';
+import { TooManyLoginAttemptsError } from './errors/too-many-login-attempts.error';
+import { LoginAttemptsService } from './login-attempts.service';
 import {
   IssuedRefreshToken,
   RefreshTokensService,
@@ -81,6 +83,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly refreshTokensService: RefreshTokensService,
     private readonly emailVerification: EmailVerificationService,
+    private readonly loginAttempts: LoginAttemptsService,
     private readonly jwtService: JwtService,
     configService: ConfigService,
   ) {
@@ -153,14 +156,20 @@ export class AuthService {
   // Una cuenta desactivada responde como credenciales incorrectas para no
   // revelar que existió
   async login(email: string, password: string): Promise<AuthSession> {
+    // Bloqueado tras demasiados fallos: ni se comprueba la contraseña
+    if (await this.loginAttempts.isLocked(email)) {
+      throw new TooManyLoginAttemptsError();
+    }
     const user = await this.usersService.findByEmailWithPassword(email);
     const isPasswordValid = await compare(
       password,
       user?.passwordHash ?? DUMMY_PASSWORD_HASH,
     );
     if (user?.deactivatedAt !== null || !isPasswordValid) {
+      await this.loginAttempts.recordFailure(email);
       throw new InvalidCredentialsError();
     }
+    await this.loginAttempts.clear(email);
     // Después de la contraseña: a quien no la sabe no se le dice si el correo
     // existe ni si está verificado
     if (user.emailVerifiedAt === null) {
