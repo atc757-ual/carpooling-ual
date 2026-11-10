@@ -10,6 +10,7 @@ const ERROR_TRANSLATION_KEYS: Readonly<Record<string, string>> = {
   INVALID_VERIFICATION_CODE: 'auth.errors.invalidCode',
   PASSWORD_UNCHANGED: 'auth.errors.passwordUnchanged',
   TOO_MANY_ATTEMPTS: 'auth.errors.tooManyAttempts',
+  TOO_MANY_LOGIN_ATTEMPTS: 'auth.errors.tooManyLogins',
   EMAIL_ALREADY_REGISTERED: 'auth.errors.emailRegistered',
   EMAIL_DOMAIN_NOT_ALLOWED: 'auth.errors.emailDomain',
 };

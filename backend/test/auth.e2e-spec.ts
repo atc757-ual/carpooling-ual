@@ -5,7 +5,14 @@ import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
-import { lastCodeSentTo, TEST_PHONE, testMailbox } from './support/accounts';
+import { ConfigService } from '@nestjs/config';
+import { hashLoginEmail } from '../src/modules/auth/login-attempts.service';
+import {
+  forgetFailedLogins,
+  lastCodeSentTo,
+  TEST_PHONE,
+  testMailbox,
+} from './support/accounts';
 import { deleteTestUsers } from './support/cleanup';
 
 // Prueba la API de auth de punta a punta: HTTP → validación → AuthService →
@@ -14,6 +21,7 @@ import { deleteTestUsers } from './support/cleanup';
 const EMAIL_PREFIX = 'auth-e2e-';
 const PASSWORD = 'secret-password';
 const ANA = `${EMAIL_PREFIX}ana@ual.es`;
+const NOBODY = `${EMAIL_PREFIX}nobody@ual.es`;
 
 // Un código de 6 cifras distinto del correcto
 function wrongCode(code: string): string {
@@ -36,6 +44,7 @@ describe('Auth API (e2e)', () => {
 
   afterEach(async () => {
     await deleteTestUsers(dataSource, EMAIL_PREFIX);
+    await forgetFailedLogins(app, [ANA, NOBODY]);
   });
 
   afterAll(async () => {
@@ -613,6 +622,55 @@ describe('Auth API (e2e)', () => {
       const response = await login(email, password).expect(401);
 
       expect(response.body).toMatchObject({ code: 'INVALID_CREDENTIALS' });
+    });
+
+    it('locks the email after 5 failed logins, even with the right password', async () => {
+      await registerVerified();
+      for (let attempt = 0; attempt < 5; attempt++) {
+        await login(ANA, 'wrong-password').expect(401);
+      }
+
+      // Otra forma de escribir el mismo correo cuenta igual
+      const response = await login(ANA.toUpperCase(), PASSWORD).expect(429);
+
+      expect(response.body).toMatchObject({ code: 'TOO_MANY_LOGIN_ATTEMPTS' });
+    });
+
+    it('locks an unknown email the same way', async () => {
+      for (let attempt = 0; attempt < 5; attempt++) {
+        await login(NOBODY, PASSWORD).expect(401);
+      }
+
+      const response = await login(NOBODY, PASSWORD).expect(429);
+
+      expect(response.body).toMatchObject({ code: 'TOO_MANY_LOGIN_ATTEMPTS' });
+    });
+
+    it('lets in again once the lock is over, and starts counting from zero', async () => {
+      await registerVerified();
+      for (let attempt = 0; attempt < 5; attempt++) {
+        await login(ANA, 'wrong-password').expect(401);
+      }
+      // Como si el bloqueo hubiera empezado hace 5 minutos
+      await dataSource.query(
+        `UPDATE login_attempts SET locked_until = now() - interval '1 second'
+          WHERE email_hash = $1`,
+        [hashLoginEmail(app.get(ConfigService).getOrThrow('jwt.secret'), ANA)],
+      );
+
+      await login(ANA, 'wrong-password').expect(401);
+      await login(ANA, PASSWORD).expect(200);
+    });
+
+    it('does not lock after a right password resets the count', async () => {
+      await registerVerified();
+      for (let attempt = 0; attempt < 4; attempt++) {
+        await login(ANA, 'wrong-password').expect(401);
+      }
+      await login(ANA, PASSWORD).expect(200);
+
+      await login(ANA, 'wrong-password').expect(401);
+      await login(ANA, PASSWORD).expect(200);
     });
 
     it('protects /me: without a token answers 401', async () => {

@@ -119,13 +119,16 @@ export class AuthController {
     description:
       'Opens a new session (RF-02): returns an access token (15 min) and a ' +
       'refresh token (7 days, at most 30 days since login). Only users ' +
-      'with a verified email can log in.',
+      'with a verified email can log in. After 5 failed logins in a row ' +
+      'with the same email, it is locked for 5 minutes, even with the ' +
+      'right password.',
   })
   @ApiOkResponse({ type: AccessTokenResource })
   @ApiErrorResponses({
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
     [HttpStatus.UNAUTHORIZED]: ['INVALID_CREDENTIALS'],
     [HttpStatus.FORBIDDEN]: ['EMAIL_NOT_VERIFIED'],
+    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_LOGIN_ATTEMPTS'],
   })
   async login(@Body() dto: LoginDto): Promise<AccessTokenResource> {
     return toAccessTokenResource(

@@ -451,6 +451,7 @@
       "invalidCode": "Ese código no es válido. Revisa los 6 dígitos o pide uno nuevo.",
       "passwordUnchanged": "La contraseña nueva tiene que ser distinta de la actual.",
       "tooManyAttempts": "Has fallado demasiadas veces. Pide un código nuevo.",
+      "tooManyLogins": "Demasiados intentos fallidos. Vuelve a probar en 5 minutos.",
       "emailRegistered": "Ya hay una cuenta con este correo.",
       "emailDomain": "Usa tu correo de la Universidad de Almería.",
       "internal": "Ha ocurrido un error en el servidor{{ reference }}. Inténtalo de nuevo.",

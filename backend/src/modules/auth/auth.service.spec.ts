@@ -14,6 +14,8 @@ import { EmailDomainNotAllowedError } from './errors/email-domain-not-allowed.er
 import { InvalidAccessTokenError } from './errors/invalid-access-token.error';
 import { InvalidCredentialsError } from './errors/invalid-credentials.error';
 import { InvalidRefreshTokenError } from './errors/invalid-refresh-token.error';
+import { TooManyLoginAttemptsError } from './errors/too-many-login-attempts.error';
+import { LoginAttemptsService } from './login-attempts.service';
 import { RefreshTokensService } from './refresh-tokens.service';
 
 const JWT_SECRET = 'test-only-secret-with-at-least-32-chars';
@@ -46,6 +48,12 @@ describe('AuthService', () => {
     resendCode: jest.fn(),
     verify: jest.fn(),
   };
+  // Sin bloqueo salvo en sus tests (resetAllMocks deja isLocked en undefined)
+  const loginAttempts = {
+    isLocked: jest.fn(),
+    recordFailure: jest.fn(),
+    clear: jest.fn(),
+  };
   const ISSUED_REFRESH_TOKEN = {
     token: 'refresh-token-1',
     expiresAt: new Date('2030-01-08T00:00:00Z'),
@@ -76,6 +84,7 @@ describe('AuthService', () => {
         { provide: UsersService, useValue: usersService },
         { provide: RefreshTokensService, useValue: refreshTokensService },
         { provide: EmailVerificationService, useValue: emailVerification },
+        { provide: LoginAttemptsService, useValue: loginAttempts },
         { provide: JwtService, useValue: jwtService },
         {
           provide: ConfigService,
@@ -323,6 +332,38 @@ describe('AuthService', () => {
       await expect(
         authService.login('nobody@ual.es', 'secret-password'),
       ).rejects.toBeInstanceOf(InvalidCredentialsError);
+    });
+
+    it('counts a failed login, also for an unknown email', async () => {
+      usersService.findByEmailWithPassword.mockResolvedValue(null);
+
+      await expect(
+        authService.login('nobody@ual.es', 'secret-password'),
+      ).rejects.toBeInstanceOf(InvalidCredentialsError);
+      expect(loginAttempts.recordFailure).toHaveBeenCalledWith('nobody@ual.es');
+      expect(loginAttempts.clear).not.toHaveBeenCalled();
+    });
+
+    it('clears the failed logins after a right password', async () => {
+      usersService.findByEmailWithPassword.mockResolvedValue(
+        storedUser(await hash('secret-password', 4)),
+      );
+      refreshTokensService.issue.mockResolvedValue(ISSUED_REFRESH_TOKEN);
+
+      await authService.login('ana@ual.es', 'secret-password');
+
+      expect(loginAttempts.clear).toHaveBeenCalledWith('ana@ual.es');
+      expect(loginAttempts.recordFailure).not.toHaveBeenCalled();
+    });
+
+    it('rejects a locked email without checking the password', async () => {
+      loginAttempts.isLocked.mockResolvedValue(true);
+
+      await expect(
+        authService.login('ana@ual.es', 'secret-password'),
+      ).rejects.toBeInstanceOf(TooManyLoginAttemptsError);
+      expect(usersService.findByEmailWithPassword).not.toHaveBeenCalled();
+      expect(refreshTokensService.issue).not.toHaveBeenCalled();
     });
   });
 

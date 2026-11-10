@@ -8,6 +8,7 @@ import { configureApp } from '../src/app.setup';
 import { computeConsentFingerprint } from '../src/modules/users/user-consent';
 import { deleteTestUsers } from './support/cleanup';
 import {
+  forgetFailedLogins,
   lastCodeSentTo,
   lastSmsCodeSentTo,
   registerUser,
@@ -46,6 +47,8 @@ describe('Users API (e2e)', () => {
 
   afterEach(async () => {
     await deleteTestUsers(dataSource, EMAIL_PREFIX);
+    // El login de la cuenta desactivada cuenta como fallo
+    await forgetFailedLogins(app, [`${EMAIL_PREFIX}ana@ual.es`]);
   });
 
   afterAll(async () => {

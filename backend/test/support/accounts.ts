@@ -1,7 +1,9 @@
 import { INestApplication } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
+import { hashLoginEmail } from '../../src/modules/auth/login-attempts.service';
 import { MailSender } from '../../src/shared/mail/mail-sender';
 import { MemoryMailSender } from '../../src/shared/mail/memory-mail-sender';
 import { MemorySmsSender } from '../../src/shared/sms/memory-sms-sender';
@@ -29,6 +31,20 @@ export function testMailbox(app: INestApplication<App>): MemoryMailSender {
     throw new Error('The tests need MAIL_TRANSPORT=memory');
   }
   return mailSender;
+}
+
+// Borra los fallos de login contados a esos correos (la tabla guarda su HMAC,
+// no el correo): así la base de datos queda como el seed tras los tests
+export async function forgetFailedLogins(
+  app: INestApplication<App>,
+  emails: string[],
+): Promise<void> {
+  const key = app.get(ConfigService).getOrThrow<string>('jwt.secret');
+  await app
+    .get(DataSource)
+    .query('DELETE FROM login_attempts WHERE email_hash = ANY($1)', [
+      emails.map((email) => hashLoginEmail(key, email)),
+    ]);
 }
 
 // Código de 6 cifras del último correo recibido por esa dirección, como lo
