@@ -112,6 +112,83 @@ describe('Trips API (e2e)', () => {
     return response.body as { id: string; href: string };
   }
 
+  // Mañana a esa hora UTC (las salidas de los tests de límites, todas el
+  // mismo día de Madrid)
+  function tomorrowAt(hour: number, minute = 0): string {
+    const date = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    date.setUTCHours(hour, minute, 0, 0);
+    return date.toISOString();
+  }
+
+  describe('publishing limits of the driver', () => {
+    it('rejects a trip that overlaps another active trip (409 TRIP_OVERLAPS)', async () => {
+      const { token, vehicleId } = await readyDriver('ana');
+      await api('post', '/trips', token)
+        .send(tripBody(vehicleId, { departureAt: tomorrowAt(8) }))
+        .expect(201);
+
+      const response = await api('post', '/trips', token)
+        .send(tripBody(vehicleId, { departureAt: tomorrowAt(8, 5) }))
+        .expect(409);
+
+      expect(response.body).toMatchObject({ code: 'TRIP_OVERLAPS' });
+    }, 30_000);
+
+    it('allows a trip at the same time once the other is cancelled', async () => {
+      const { token, vehicleId } = await readyDriver('ana');
+      const first = await api('post', '/trips', token)
+        .send(tripBody(vehicleId, { departureAt: tomorrowAt(8) }))
+        .expect(201);
+      await api(
+        'post',
+        `/trips/${(first.body as { id: string }).id}/cancel`,
+        token,
+      ).expect(200);
+
+      const response = await api('post', '/trips', token).send(
+        tripBody(vehicleId, { departureAt: tomorrowAt(8) }),
+      );
+
+      expect(response.status).toBe(201);
+    }, 30_000);
+
+    it('rejects moving a trip onto another one, but not onto itself', async () => {
+      const { token, vehicleId } = await readyDriver('ana');
+      await api('post', '/trips', token)
+        .send(tripBody(vehicleId, { departureAt: tomorrowAt(8) }))
+        .expect(201);
+      const second = await api('post', '/trips', token)
+        .send(tripBody(vehicleId, { departureAt: tomorrowAt(12) }))
+        .expect(201);
+      const secondId = (second.body as { id: string }).id;
+
+      const onto = await api('patch', `/trips/${secondId}`, token)
+        .send({ departureAt: tomorrowAt(8, 10) })
+        .expect(409);
+      const itself = await api('patch', `/trips/${secondId}`, token).send({
+        departureAt: tomorrowAt(12, 5),
+      });
+
+      expect(onto.body).toMatchObject({ code: 'TRIP_OVERLAPS' });
+      expect(itself.status).toBe(200);
+    }, 30_000);
+
+    it('allows at most 4 trips on the same day (409 DAILY_TRIP_LIMIT)', async () => {
+      const { token, vehicleId } = await readyDriver('ana');
+      for (const hour of [7, 9, 11, 13]) {
+        await api('post', '/trips', token)
+          .send(tripBody(vehicleId, { departureAt: tomorrowAt(hour) }))
+          .expect(201);
+      }
+
+      const response = await api('post', '/trips', token)
+        .send(tripBody(vehicleId, { departureAt: tomorrowAt(15) }))
+        .expect(409);
+
+      expect(response.body).toMatchObject({ code: 'DAILY_TRIP_LIMIT' });
+    }, 30_000);
+  });
+
   describe('POST /api/trips (RF-04)', () => {
     it('publishes a trip with public vehicle details and no plate', async () => {
       const { token, vehicleId } = await readyDriver('ana');
@@ -320,8 +397,12 @@ describe('Trips API (e2e)', () => {
 
     it('lists my trips with the TMF pagination headers', async () => {
       const { token, vehicleId } = await readyDriver('ana');
-      await publishTrip(token, vehicleId);
-      await publishTrip(token, vehicleId);
+      // A horas distintas: un conductor no puede tener dos viajes a la vez
+      for (const hour of [8, 14]) {
+        await api('post', '/trips', token)
+          .send(tripBody(vehicleId, { departureAt: tomorrowAt(hour) }))
+          .expect(201);
+      }
 
       const response = await api(
         'get',

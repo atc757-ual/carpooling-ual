@@ -5699,7 +5699,7 @@
     },
     "/api/trips": {
       "post": {
-        "description": "RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days.",
+        "description": "RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days. The trip cannot overlap another active trip of the driver (departure to arrival plus the maximum detour), and a driver can have at most 4 trips that are not cancelled on the same day.",
         "operationId": "TripsController_publish",
         "parameters": [],
         "requestBody": {
@@ -5776,7 +5776,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: PUBLISHING_SUSPENDED, VEHICLE_DECLARATION_REQUIRED",
+            "description": "TMF630 error: PUBLISHING_SUSPENDED, VEHICLE_DECLARATION_REQUIRED, TRIP_OVERLAPS, DAILY_TRIP_LIMIT",
             "content": {
               "application/json": {
                 "schema": {
@@ -5967,7 +5967,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: TRIP_NOT_EDITABLE, VEHICLE_DECLARATION_REQUIRED",
+            "description": "TMF630 error: TRIP_NOT_EDITABLE, VEHICLE_DECLARATION_REQUIRED, TRIP_OVERLAPS, DAILY_TRIP_LIMIT",
             "content": {
               "application/json": {
                 "schema": {

@@ -25,6 +25,7 @@ import {
   isLateDriverCancellation,
   LateCancellationsService,
 } from './late-cancellations.service';
+import { PublishingLimitsService } from './publishing-limits.service';
 import type { RoutePlan } from './route-plan';
 import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
@@ -94,6 +95,7 @@ export class TripsService {
     private readonly tripStatus: TripStatusService,
     private readonly tripRoutes: TripRoutesService,
     private readonly lateCancellations: LateCancellationsService,
+    private readonly publishingLimits: PublishingLimitsService,
   ) {}
 
   // RF-04: publicar un viaje. Antes, RF-21: el conductor debe estar listo y
@@ -111,12 +113,21 @@ export class TripsService {
     // mientras se espera a OSRM) y se guarda con el viaje
     const route = await this.tripRoutes.plan(input.origin, input.destination);
 
+    const maxDetourMin = input.maxDetourMin ?? DEFAULT_MAX_DETOUR_MIN;
+
     const trip = await this.dataSource.transaction(async (manager) => {
+      // Sin cruzarse con otro de sus viajes y sin pasar del máximo diario
+      await this.publishingLimits.assertCanSchedule(manager, {
+        driverId,
+        departureAt: input.departureAt,
+        durationMin: route.durationMin,
+        maxDetourMin,
+      });
       const saved = await manager.save(
         manager.create(Trip, {
           ...input,
           driverId,
-          maxDetourMin: input.maxDetourMin ?? DEFAULT_MAX_DETOUR_MIN,
+          maxDetourMin,
           availableSeats: input.offeredSeats,
         }),
       );
@@ -201,6 +212,22 @@ export class TripsService {
       // un viaje que sale pronto sigue permitido
       if (changes.departureAt !== undefined) {
         assertDepartureLead(changes.departureAt);
+      }
+      // Moverlo, alargar la ruta o el desvío puede cruzarlo con otro viaje
+      if (
+        changes.departureAt !== undefined ||
+        changes.maxDetourMin !== undefined ||
+        route !== null
+      ) {
+        const { durationMin } =
+          route ?? (await this.tripRoutes.getForTrip(current));
+        await this.publishingLimits.assertCanSchedule(manager, {
+          driverId,
+          departureAt: changes.departureAt ?? current.departureAt,
+          durationMin,
+          maxDetourMin: changes.maxDetourMin ?? current.maxDetourMin,
+          excludeTripId: current.id,
+        });
       }
 
       Object.assign(current, changes);

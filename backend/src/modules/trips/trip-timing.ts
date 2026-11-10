@@ -16,6 +16,10 @@ export const LATE_CANCELLATION_LEAD_MIN = 30;
 // Publicar por defecto): deja margen para cancelar sin penalización
 export const MIN_DEPARTURE_LEAD_MIN = 60;
 
+// Máximo de viajes no cancelados de un conductor en un mismo día (hora de
+// Madrid): ida y vuelta dos veces es el uso normal; más apunta a un abuso
+export const MAX_TRIPS_PER_DAY = 4;
+
 // Antelación mínima para responder solicitudes antes de la salida (30 min);
 // si el conductor no responde antes, la solicitud caduca automáticamente
 export const REQUEST_RESPONSE_LEAD_MIN = 30;

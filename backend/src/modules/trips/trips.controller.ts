@@ -65,6 +65,9 @@ const TRIP_RULE_ERRORS = [
   'DEPARTURE_TOO_SOON',
 ];
 
+// Límites del calendario del conductor al publicar o mover un viaje
+const SCHEDULE_ERRORS = ['TRIP_OVERLAPS', 'DAILY_TRIP_LIMIT'];
+
 // Viajes (RF-04, RF-05). Cualquier usuario autenticado puede ver un viaje;
 // publicar, modificar y cancelar es del conductor
 @ApiTags('trips')
@@ -82,7 +85,7 @@ export class TripsController {
   @ApiOperation({
     summary: 'Publish a trip',
     description:
-      'RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days.',
+      'RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days. The trip cannot overlap another active trip of the driver (departure to arrival plus the maximum detour), and a driver can have at most 4 trips that are not cancelled on the same day.',
   })
   @ApiCreatedResponse({
     type: TripResource,
@@ -96,6 +99,7 @@ export class TripsController {
     [HttpStatus.CONFLICT]: [
       'PUBLISHING_SUSPENDED',
       'VEHICLE_DECLARATION_REQUIRED',
+      ...SCHEDULE_ERRORS,
     ],
   })
   async publish(
@@ -217,6 +221,7 @@ export class TripsController {
     [HttpStatus.CONFLICT]: [
       'TRIP_NOT_EDITABLE',
       'VEHICLE_DECLARATION_REQUIRED',
+      ...SCHEDULE_ERRORS,
     ],
   })
   async update(
