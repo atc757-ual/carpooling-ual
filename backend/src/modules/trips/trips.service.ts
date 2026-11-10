@@ -32,6 +32,7 @@ import { TripStatusService } from './trip-status.service';
 import {
   MIN_DEPARTURE_LEAD_MIN,
   MINUTE_MS,
+  resolveDeparture,
   START_WINDOW_MIN,
   UNSTARTED_TRIP_CANCEL_WINDOW_MIN,
 } from './trip-timing';
@@ -54,6 +55,13 @@ export interface TripInput {
   originName?: string;
   destinationName?: string;
 }
+
+// Al publicar, la hora puede ser la de salida o la de llegada (una de las
+// dos): con la llegada, la salida se calcula con la ruta (departureForArrival)
+export type PublishTripInput = Omit<TripInput, 'departureAt'> & {
+  departureAt?: Date;
+  arrivalAt?: Date;
+};
 
 // Modificación parcial: solo los campos que cambian
 export type TripChanges = Partial<TripInput>;
@@ -100,20 +108,33 @@ export class TripsService {
 
   // RF-04: publicar un viaje. Antes, RF-21: el conductor debe estar listo y
   // no tener la publicación suspendida por cancelaciones tardías; la salida,
-  // con al menos una hora de antelación
-  async publish(driverId: string, input: TripInput): Promise<TripView> {
+  // con al menos una hora de antelación. Con la hora de llegada, la salida se
+  // calcula con la ruta y el desvío máximo
+  async publish(
+    driverId: string,
+    publishInput: PublishTripInput,
+  ): Promise<TripView> {
     const readiness = await this.usersService.getDriverReadiness(driverId);
     if (!readiness.isReady) {
       throw new DriverNotReadyError(readiness);
     }
     await this.lateCancellations.assertCanPublish(driverId);
+    // RF-12: la ruta se calcula antes de la transacción (sin bloquear filas
+    // mientras se espera a OSRM) y se guarda con el viaje. Va antes de validar
+    // la salida porque, con la llegada, depende de ella
+    const { arrivalAt, departureAt, ...fields } = publishInput;
+    const route = await this.tripRoutes.plan(fields.origin, fields.destination);
+    const maxDetourMin = fields.maxDetourMin ?? DEFAULT_MAX_DETOUR_MIN;
+    const input: TripInput = {
+      ...fields,
+      departureAt: resolveDeparture(
+        { departureAt, arrivalAt },
+        route.durationMin,
+        maxDetourMin,
+      ),
+    };
     await this.assertValidTrip(driverId, input);
     assertDepartureLead(input.departureAt);
-    // RF-12: la ruta se calcula antes de la transacción (sin bloquear filas
-    // mientras se espera a OSRM) y se guarda con el viaje
-    const route = await this.tripRoutes.plan(input.origin, input.destination);
-
-    const maxDetourMin = input.maxDetourMin ?? DEFAULT_MAX_DETOUR_MIN;
 
     const trip = await this.dataSource.transaction(async (manager) => {
       // Sin cruzarse con otro de sus viajes y sin pasar del máximo diario

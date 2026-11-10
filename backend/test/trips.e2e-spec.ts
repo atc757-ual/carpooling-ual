@@ -304,6 +304,47 @@ describe('Trips API (e2e)', () => {
       );
     });
 
+    // Hacia el campus se elige la llegada: la salida la calcula el backend
+    it('publishes with the arrival and computes the departure', async () => {
+      const { token, vehicleId } = await readyDriver('ana');
+      const arrivalAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+      const response = await api('post', '/trips', token)
+        .send(
+          tripBody(vehicleId, {
+            departureAt: undefined,
+            arrivalAt: arrivalAt.toISOString(),
+          }),
+        )
+        .expect(201);
+
+      const { departureAt } = response.body as { departureAt: string };
+      expect(new Date(departureAt).getTime()).toBeLessThan(arrivalAt.getTime());
+    });
+
+    it('asks for the departure or the arrival, not both nor none', async () => {
+      const { token, vehicleId } = await readyDriver('ana');
+      const arrivalAt = new Date(
+        Date.now() + 24 * 60 * 60 * 1000,
+      ).toISOString();
+
+      const both = await api('post', '/trips', token)
+        .send(tripBody(vehicleId, { arrivalAt }))
+        .expect(400);
+      const none = await api('post', '/trips', token)
+        .send(tripBody(vehicleId, { departureAt: undefined }))
+        .expect(400);
+
+      const fieldsOf = (body: unknown) =>
+        (body as { fields: { field: string }[] }).fields.map(
+          ({ field }) => field,
+        );
+      expect(fieldsOf(both.body)).toEqual(['arrivalAt']);
+      expect(new Set(fieldsOf(none.body))).toEqual(
+        new Set(['departureAt', 'arrivalAt']),
+      );
+    });
+
     it('is only for drivers (403 PROFILE_REQUIRED for a passenger)', async () => {
       const passenger = await tokenFor('pia', ['passenger']);
 
