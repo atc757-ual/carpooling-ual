@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { NUMERIC } from './numeric.transformer';
+import { numericTransformer } from '../../../shared/database/numeric.transformer';
 
 // Escenario de simulación predefinido (ESCENARIO del modelo de datos, RF-16).
 // Las filas S0-S5 las carga el seed con valores provisionales hasta cerrar
@@ -30,7 +30,7 @@ export class Scenario {
     type: 'numeric',
     precision: 4,
     scale: 3,
-    transformer: NUMERIC,
+    transformer: numericTransformer,
   })
   adoptionRate: number;
 

@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import type { Point } from 'typeorm';
-import { NUMERIC_TO_NUMBER } from '../../../shared/database/numeric-transformer';
+import { numericTransformer } from '../../../shared/database/numeric.transformer';
 import { ROUTE_SOURCES } from '../../trips/entities/trip-route.entity';
 import type { RouteSource } from '../../trips/entities/trip-route.entity';
 
@@ -29,7 +29,7 @@ export class TripPosition {
     type: 'numeric',
     precision: 7,
     scale: 2,
-    transformer: NUMERIC_TO_NUMBER,
+    transformer: numericTransformer,
   })
   remainingKm: number;
 

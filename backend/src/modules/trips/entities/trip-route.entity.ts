@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import type { LineString } from 'typeorm';
-import { NUMERIC_TO_NUMBER } from '../../../shared/database/numeric-transformer';
+import { numericTransformer } from '../../../shared/database/numeric.transformer';
 
 // De dónde sale la ruta (tipo route_source de la migración
 // AddRouteSourceAndTripStart): OSRM, o estimada si OSRM no respondió
@@ -25,7 +25,7 @@ export class TripRoute {
     type: 'numeric',
     precision: 7,
     scale: 2,
-    transformer: NUMERIC_TO_NUMBER,
+    transformer: numericTransformer,
   })
   distanceKm: number;
 
