@@ -125,7 +125,8 @@ for (const viewport of VIEWPORTS) {
 
       cy.get('ion-modal').contains('ion-title', 'Política de privacidad').should('be.visible');
       cy.get('ion-modal').contains('h2', 'Tus derechos').should('exist');
-      cy.get('ion-modal ion-buttons ion-button').click();
+      // Los textos legales se cierran con «Entendido», al final del texto
+      cy.get('ion-modal').contains('ion-button', 'Entendido').click();
       cy.get('ion-modal').should('not.exist');
       cy.get('ion-checkbox[formControlName="acceptedTerms"]').should(
         'not.have.class',

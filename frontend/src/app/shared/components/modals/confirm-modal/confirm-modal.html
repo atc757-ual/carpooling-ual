@@ -8,19 +8,26 @@
   />
   <h2 class="text-subtitle">{{ header }}</h2>
   <p class="text-body-s text-color-muted">{{ message }}</p>
+  @if (points.length) {
+    <ul class="bullet-list text-body-s">
+      @for (point of points; track point) {
+        <li>{{ point }}</li>
+      }
+    </ul>
+  }
   <!-- En formularios: cada botón envía el suyo (sin click en ion-button). El
-       botón de confirmar va primero: arriba en el móvil y a la izquierda en
+       azul va siempre primero: arriba en el móvil y a la izquierda en
        escritorio. Si la acción es destructiva, lo principal (azul) es cancelar
        y la acción va en blanco con letras azules -->
   <div class="confirm__actions">
     @if (isDestructive) {
+      <form (submit)="$event.preventDefault(); handleCancel()">
+        <ion-button type="submit" expand="block">{{ cancelText }}</ion-button>
+      </form>
       <form (submit)="$event.preventDefault(); handleConfirm()">
         <ion-button class="confirm__secondary" type="submit" expand="block" fill="outline">
           {{ confirmText }}
         </ion-button>
-      </form>
-      <form (submit)="$event.preventDefault(); handleCancel()">
-        <ion-button type="submit" expand="block">{{ cancelText }}</ion-button>
       </form>
     } @else {
       <form (submit)="$event.preventDefault(); handleConfirm()">

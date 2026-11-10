@@ -66,6 +66,7 @@
     "legal": {
       "loadError": "We couldn't load the text. Please check your connection and try again.",
       "loadingAria": "Loading document",
+      "understood": "Got it",
       "changesInVersion": "What's changed in version {{ version }}",
       "documents": {
         "terms": "Terms of service",
@@ -152,7 +153,6 @@
     "pushDeniedTag": "Blocked",
     "pushUnsupportedTag": "Unavailable",
     "logout": "Log out",
-    "adminPanel": "Admin panel",
     "privacy": {
       "title": "Privacy",
       "hashTitle": "Code confirming your acceptance",
@@ -175,7 +175,7 @@
     },
     "location": {
       "title": "Location",
-      "shareLocation": "Location and statistics",
+      "shareLocation": "Use my location",
       "shareDesc": "Allows analyzing routes anonymously to estimate saved emissions (CO₂), optimize campus stops, and improve UAL mobility. It is never shared with other users or stored in your personal history.",
       "authorizedOn": "Authorized on {{ date }}",
       "withdrawnOn": "Revoked on {{ date }}",
@@ -184,8 +184,8 @@
       "hashTitle": "Code confirming registration",
       "hashHidden": "Code confirming registration:",
       "devicePermission": "Location on this device",
-      "devicePromptDesc": "Browser or device permission to detect stops and detours.",
-      "deviceGrantedDesc": "You can only revoke it in browser or device settings.",
+      "devicePromptDesc": "Browser or device permission to see your location when you use it.",
+      "deviceGrantedDesc": "We only use it if «Use my location» is on in Privacy or while you drive a trip in progress. To remove it, go to your browser or device settings.",
       "deviceDeniedDesc": "Enable it in your browser or device settings.",
       "authorized": "Authorized",
       "blocked": "Blocked",
@@ -477,22 +477,22 @@
     }
   },
   "permissions": {
-    "title": "Get more out of the app",
-    "description": "You can enable each permission separately, now or later.",
+    "title": "Permissions on this device",
+    "description": "Your browser or phone will ask you about each one. You can turn them on now or later, and remove them anytime in its settings.",
     "enable": "Enable",
     "later": "Later",
     "continue": "Continue",
     "done": "Enabled",
     "blocked": "Not enabled",
-    "enabled": "We will notify you even when the app is closed.",
+    "enabled": "We will let you know even when Carpooling UAL is closed.",
     "enableError": "We could not enable notifications. Please try again.",
     "push": {
       "title": "Notifications",
-      "description": "To let you know about your trips and messages."
+      "description": "To let you know about your trips and messages, even when Carpooling UAL is closed."
     },
     "location": {
       "title": "Location",
-      "description": "To find trips near you.",
+      "description": "To fill in addresses when you ask and, if you drive, follow your trip in progress.",
       "terms": "Read how it is used"
     },
     "offer": {

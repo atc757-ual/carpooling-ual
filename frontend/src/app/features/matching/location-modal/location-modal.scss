@@ -72,14 +72,14 @@
 }
 
 // Dos botones: uno encima del otro en el móvil y uno al lado del otro, del
-// mismo ancho, en escritorio (el azul, el primero, a la derecha)
+// mismo ancho, en escritorio (el azul, el primero: arriba o a la izquierda)
 .location__actions {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
 
   @media (min-width: 768px) {
-    flex-direction: row-reverse;
+    flex-direction: row;
 
     form {
       flex: 1;

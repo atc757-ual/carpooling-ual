@@ -130,7 +130,7 @@ export class ProfilePushSetting {
     this.isBusy.set(true);
     try {
       if (await this.push.enable()) {
-        void this.toast.showSuccess('Te avisaremos aunque tengas la app cerrada.');
+        void this.toast.showSuccess('Te avisaremos aunque no tengas Carpooling UAL abierto.');
       }
     } catch {
       void this.toast.showError('No hemos podido activar las notificaciones. Inténtalo de nuevo.');
@@ -150,6 +150,4 @@ export class ProfilePushSetting {
       this.isBusy.set(false);
     }
   }
-
-
 }

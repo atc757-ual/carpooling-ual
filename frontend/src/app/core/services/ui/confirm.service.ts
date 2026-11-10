@@ -6,6 +6,8 @@ import { ConfirmModal } from '../../../shared/components/modals/confirm-modal/co
 export interface ConfirmOptions {
   header: string;
   message: string;
+  // Los efectos, uno por línea, en lugar de un párrafo largo
+  points?: readonly string[];
   confirmText: string;
   cancelText?: string;
   // Rojo (borra, cancela o cierra algo) o azul

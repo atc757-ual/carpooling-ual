@@ -59,7 +59,9 @@ describe('ProfilePushSetting', () => {
 
     await component.handleEnable();
     expect(push.enable).toHaveBeenCalled();
-    expect(toast.showSuccess).toHaveBeenCalledWith('Te avisaremos aunque tengas la app cerrada.');
+    expect(toast.showSuccess).toHaveBeenCalledWith(
+      'Te avisaremos aunque no tengas Carpooling UAL abierto.',
+    );
     expect(component.isOn()).toBe(true);
 
     await component.handleDisable();
@@ -111,7 +113,9 @@ describe('ProfilePushSetting', () => {
 
     push.enable.mockRejectedValue(new Error('offline'));
     await component.handleEnable();
-    expect(toast.showError).toHaveBeenCalledWith('No hemos podido activar las notificaciones. Inténtalo de nuevo.');
+    expect(toast.showError).toHaveBeenCalledWith(
+      'No hemos podido activar las notificaciones. Inténtalo de nuevo.',
+    );
     expect(component.isBusy()).toBe(false);
 
     status.set('on');

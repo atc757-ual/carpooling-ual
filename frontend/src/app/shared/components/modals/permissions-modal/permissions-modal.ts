@@ -3,7 +3,6 @@ import { Component, computed, inject, Input, signal } from '@angular/core';
 import { IonButton, IonIcon, ModalController } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { locationOutline, notificationsOutline } from 'ionicons/icons';
-import { LocationConsentService } from '../../../../core/services/location/location-consent.service';
 import {
   LocationError,
   LocationService,
@@ -14,8 +13,9 @@ import { openLegalModal } from '../legal-modal/legal-modal';
 type PermissionState = 'idle' | 'busy' | 'done' | 'blocked';
 
 // Los permisos al entrar: cada uno con su botón, porque son decisiones
-// distintas (la ubicación además es un consentimiento registrado). Lo que no
-// se active se volverá a ofrecer cuando haga falta
+// distintas. Solo los del dispositivo: el consentimiento de la app para usar la
+// ubicación se da al usarla («Usar mi ubicación») o en Perfil → Privacidad. Lo
+// que no se active se volverá a ofrecer cuando haga falta
 @Component({
   selector: 'app-permissions-modal',
   imports: [IonButton, IonIcon, NgTemplateOutlet, TranslocoPipe],
@@ -26,7 +26,6 @@ export class PermissionsModal {
   private readonly modalController = inject(ModalController);
   private readonly push = inject(PushNotificationsService);
   private readonly location = inject(LocationService);
-  private readonly consent = inject(LocationConsentService);
 
   // Los pasa ModalController (componentProps)
   @Input() canAskPush = false;
@@ -53,17 +52,19 @@ export class PermissionsModal {
     }
   }
 
-  // Registra el consentimiento y lee la posición: así el sistema pide su
-  // permiso ahora. Sin señal el permiso ya está dado: cuenta como activada
+  // Solo el permiso del dispositivo: el sistema lo pide al leer la posición.
+  // Sin señal el permiso ya está dado: cuenta como activada
   async handleEnableLocation(): Promise<void> {
     this.locationState.set('busy');
     try {
-      await this.consent.set('granted', 'location_prompt');
-      await this.location.getCurrentPoint();
-      this.locationState.set('done');
+      const permission = await this.location.requestDevicePermission();
+      this.locationState.set(permission === 'granted' ? 'done' : 'blocked');
     } catch (error) {
-      const isGranted = error instanceof LocationError && error.reason === 'unavailable';
-      this.locationState.set(isGranted ? 'done' : 'blocked');
+      if (!(error instanceof LocationError)) {
+        this.locationState.set('idle');
+        throw error;
+      }
+      this.locationState.set(error.reason === 'unavailable' ? 'done' : 'blocked');
     }
   }
 

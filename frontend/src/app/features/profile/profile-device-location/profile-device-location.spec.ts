@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { provideTestingTransloco } from '../../../core/i18n/testing-transloco';
-import { LocationService } from '../../../core/services/location/location.service';
+import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ProfileDeviceLocation } from './profile-device-location';
 
@@ -11,7 +11,7 @@ describe('ProfileDeviceLocation', () => {
   let component: ProfileDeviceLocation;
   const location = {
     checkDevicePermission: vi.fn(),
-    getCurrentPoint: vi.fn(),
+    requestDevicePermission: vi.fn(),
   };
   const toast = {
     showSuccess: vi.fn().mockResolvedValue(undefined),
@@ -44,8 +44,8 @@ describe('ProfileDeviceLocation', () => {
   });
 
   it('shows prompt and allows requesting permission through form submit', async () => {
-    location.checkDevicePermission.mockResolvedValueOnce('prompt').mockResolvedValueOnce('granted');
-    location.getCurrentPoint.mockResolvedValue({ lat: 36.8, lng: -2.4 });
+    location.checkDevicePermission.mockResolvedValueOnce('prompt');
+    location.requestDevicePermission.mockResolvedValue('granted');
 
     await component.refresh();
     fixture.detectChanges();
@@ -57,7 +57,7 @@ describe('ProfileDeviceLocation', () => {
     form.dispatchEvent(new Event('submit'));
     await fixture.whenStable();
 
-    expect(location.getCurrentPoint).toHaveBeenCalled();
+    expect(location.requestDevicePermission).toHaveBeenCalled();
     expect(toast.showSuccess).toHaveBeenCalledWith('Ubicación del dispositivo permitida.');
     expect(component.devicePermission()).toBe('granted');
   });
@@ -72,9 +72,9 @@ describe('ProfileDeviceLocation', () => {
     expect(badge).not.toBeNull();
   });
 
-  it('handles catch error when requesting point fails', async () => {
+  it('explains with a toast why the permission could not be given', async () => {
     location.checkDevicePermission.mockResolvedValueOnce('prompt').mockResolvedValueOnce('denied');
-    location.getCurrentPoint.mockRejectedValue(new Error('Permission dismissed'));
+    location.requestDevicePermission.mockRejectedValue(new LocationError('denied'));
 
     await component.refresh();
     await component.handleAllowDevice();
@@ -82,11 +82,22 @@ describe('ProfileDeviceLocation', () => {
     expect(component.devicePermission()).toBe('denied');
     expect(component.isAsking()).toBe(false);
     expect(toast.showSuccess).not.toHaveBeenCalled();
+    expect(toast.showError).toHaveBeenCalledWith(
+      'Has bloqueado la ubicación. Actívala en los ajustes del navegador o del móvil.',
+    );
+  });
+
+  it('rethrows unexpected errors', async () => {
+    location.requestDevicePermission.mockRejectedValue(new Error('boom'));
+
+    await expect(component.handleAllowDevice()).rejects.toThrow('boom');
+    expect(component.isAsking()).toBe(false);
+    expect(toast.showError).not.toHaveBeenCalled();
   });
 
   it('does not show toast if permission check does not result in granted', async () => {
-    location.checkDevicePermission.mockResolvedValueOnce('prompt').mockResolvedValueOnce('prompt');
-    location.getCurrentPoint.mockResolvedValue({ lat: 36.8, lng: -2.4 });
+    location.checkDevicePermission.mockResolvedValueOnce('prompt');
+    location.requestDevicePermission.mockResolvedValue('prompt');
 
     await component.refresh();
     await component.handleAllowDevice();
