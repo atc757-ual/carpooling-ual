@@ -1,4 +1,6 @@
-<ion-content appCollapsingHeading>
+<ion-content>
+  <!-- Móvil: el título, dentro del contenido para que se desplace con él -->
+  <app-section-heading />
   <div class="tab-page messages" [class.messages--mobile-detail]="mobileDetail()">
     <div class="messages__layout" [class.messages__layout--mobile-detail]="mobileDetail()">
       <section class="messages__main" aria-label="Conversaciones">
