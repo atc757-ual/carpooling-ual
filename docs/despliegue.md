@@ -21,6 +21,8 @@ Partir de [`.env.example`](../.env.example) y revisar en especial:
 | `FIREBASE_SERVICE_ACCOUNT_PATH` | La ruta del JSON de la cuenta de servicio de Firebase (Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada). **Es un secreto:** fuera del repositorio y con permisos solo para el usuario del servidor. Sin ella no se envían notificaciones push (los avisos siguen dentro de la app) |
 | `PUSH_TRANSPORT` | Opcional: `fcm` (con la cuenta de servicio), `disabled` o `memory` (tests). Si se deja vacío, `fcm` con cuenta de servicio y `disabled` sin ella |
 | `SMS_OTP_DOMAIN` | El dominio público de la app (p. ej. `carpooling.ual.es`) para que el móvil rellene el código por WebOTP (`@<dominio> #123456`); dejar vacío si no aplica |
+| `LOG_FORMAT` | `json` en el servidor (una línea JSON por mensaje, para Loki y Grafana: sección 8); `text` en desarrollo |
+| `GRAFANA_ADMIN_PASSWORD` | Si se usa la observabilidad (sección 8): una contraseña propia, nunca la de por defecto (`admin`) |
 
 Si `JWT_SECRET` o `DATABASE_URL` faltan o no son válidas, el servidor no arranca y explica por qué. Lo mismo con una configuración de correo incompleta (p. ej. `SMTP_USER` sin `SMTP_PASSWORD`).
 
@@ -81,3 +83,20 @@ La app nativa empaqueta el frontend (`frontend/www`) en `frontend/android/`. Hac
 - **Ubicación en segundo plano** (`@capgo/background-geolocation`): mientras el conductor comparte su ubicación, un servicio en primer plano con la notificación «Compartiendo tu ubicación» sigue enviándola con la app minimizada o la pantalla bloqueada. No usa `ACCESS_BACKGROUND_LOCATION` (no hace falta justificarlo en Google Play). `capacitor.config.ts` activa `android.useLegacyBridge` y `CapacitorHttp` para que no se pare a los 5 min en segundo plano.
 - **Notificaciones push** (`@capacitor/push-notifications`): necesitan el `google-services.json` de la app Android del proyecto de Firebase en `frontend/android/app/` (Consola de Firebase → Configuración del proyecto → Tus apps → Android, con el id `es.ual.carpooling`). Está en el `.gitignore`: cada equipo que compile la app lo descarga. Sin él, la app compila pero activar las notificaciones falla. Llegan al canal «Viajes y mensajes» (`trips`), con el icono `ic_stat_notify`. En el emulador, usar una imagen con Google Play.
 - **Comprobar en el móvil o el emulador:** que pide el permiso de ubicación y el de notificaciones, que al activar «Notificaciones» en Mi perfil llega la push de una solicitud con la app cerrada y que, al pulsarla, abre su pantalla, que aparece la notificación al iniciar un viaje y que el mapa del pasajero sigue moviéndose con la pantalla del conductor bloqueada.
+
+## 8. Observabilidad: logs, Loki y Grafana
+
+El backend escribe un log JSON (`LOG_FORMAT=json`) con una línea por petición (método, patrón de la ruta, estado, duración en ms y `X-Request-Id`; nunca la URL con sus identificadores ni el cuerpo). El perfil `observabilidad` de `docker compose` lo recoge y lo muestra:
+
+- **Alloy** lee los ficheros `logs/*.log` de la raíz del repositorio y los envía a Loki con las etiquetas `app`, `level` y `context`.
+- **Loki** los guarda **7 días** (`observability/loki.yaml`).
+- **Grafana** (http://localhost:3001, solo desde el propio equipo) trae ya la fuente de datos y el panel **«API del backend»** (carpeta «Carpooling UAL»): peticiones, errores 4xx y 5xx y p95 por ruta (RNF-01, RNF-07), y los mensajes de error.
+
+**Arrancarlo:**
+
+    docker compose --profile observabilidad up -d
+    cd backend
+    npm run build
+    LOG_FORMAT=json npm run start:prod >> ../logs/backend.log 2>&1
+
+En un servidor, el servicio del sistema que arranque el backend (p. ej. systemd con `StandardOutput=append:/ruta/al/repo/logs/backend.log`) escribe en ese fichero, y `logrotate` lo rota (con `copytruncate`). Grafana no se publica en Internet: se llega por un túnel SSH (`ssh -L 3001:localhost:3001 servidor`) o detrás de Nginx con autenticación, y con `GRAFANA_ADMIN_PASSWORD` propia.

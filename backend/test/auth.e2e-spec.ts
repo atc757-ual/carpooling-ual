@@ -658,8 +658,12 @@ describe('Auth API (e2e)', () => {
         [hashLoginEmail(app.get(ConfigService).getOrThrow('jwt.secret'), ANA)],
       );
 
-      await login(ANA, 'wrong-password').expect(401);
-      await login(ANA, PASSWORD).expect(200);
+      // Empieza de cero: un fallo más no vuelve a bloquear
+      const failed = await login(ANA, 'wrong-password');
+      const response = await login(ANA, PASSWORD);
+
+      expect(failed.body).toMatchObject({ code: 'INVALID_CREDENTIALS' });
+      expect(response.status).toBe(200);
     });
 
     it('does not lock after a right password resets the count', async () => {
@@ -669,8 +673,12 @@ describe('Auth API (e2e)', () => {
       }
       await login(ANA, PASSWORD).expect(200);
 
-      await login(ANA, 'wrong-password').expect(401);
-      await login(ANA, PASSWORD).expect(200);
+      // Con el contador a cero, el quinto fallo seguido sería este: no bloquea
+      const failed = await login(ANA, 'wrong-password');
+      const response = await login(ANA, PASSWORD);
+
+      expect(failed.status).toBe(401);
+      expect(response.status).toBe(200);
     });
 
     it('protects /me: without a token answers 401', async () => {

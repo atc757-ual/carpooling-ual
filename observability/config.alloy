@@ -1,0 +1,47 @@
+// Alloy lee el fichero de log del backend (LOG_FORMAT=json), saca el nivel y
+// el contexto de cada línea como etiquetas y lo envía a Loki. El backend no
+// corre en Docker: escribe su salida en logs/ y esa carpeta se monta aquí
+local.file_match "backend" {
+  path_targets = [{
+    "__path__" = "/var/log/carpooling/*.log",
+    "app"      = "carpooling-backend",
+  }]
+}
+
+loki.source.file "backend" {
+  targets    = local.file_match.backend.targets
+  forward_to = [loki.process.backend.receiver]
+}
+
+loki.process "backend" {
+  // Las líneas que no son JSON (p. ej. con LOG_FORMAT=text) pasan sin
+  // etiquetas de nivel ni de contexto
+  stage.json {
+    expressions = {
+      level     = "level",
+      context   = "context",
+      timestamp = "timestamp",
+    }
+  }
+
+  // Pocos valores distintos: sirven de etiqueta sin disparar la cardinalidad
+  stage.labels {
+    values = {
+      level   = "",
+      context = "",
+    }
+  }
+
+  stage.timestamp {
+    source = "timestamp"
+    format = "UnixMs"
+  }
+
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

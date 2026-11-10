@@ -15,6 +15,7 @@ export interface AppConfig {
   jwt: { secret: string; accessTtlMinutes: number } & SessionLifetime;
   allowedEmailDomains: string[];
   apiDocsEnabled: boolean;
+  logFormat: LogFormat;
   osrmUrl: string;
   positionMinIntervalSeconds: number;
   mail: MailConfig;
@@ -184,6 +185,20 @@ export function parseApiDocsEnabled(rawValue: string | undefined): boolean {
   return rawValue === 'true';
 }
 
+// LOG_FORMAT: «text» (por defecto, legible en la consola de desarrollo) o
+// «json» (una línea JSON por mensaje, para que la lea Loki: observabilidad)
+export type LogFormat = 'text' | 'json';
+
+export function parseLogFormat(rawValue: string | undefined): LogFormat {
+  if (rawValue === undefined || rawValue === '') {
+    return 'text';
+  }
+  if (rawValue !== 'text' && rawValue !== 'json') {
+    throw new Error(`Invalid LOG_FORMAT "${rawValue}": expected text or json`);
+  }
+  return rawValue;
+}
+
 // OSRM_URL: dirección del motor de rutas OSRM (DP-02). Por defecto, el de
 // Docker Compose en local. Si no responde, el backend estima las rutas
 export function parseOsrmUrl(rawUrl: string | undefined): string {
@@ -223,6 +238,7 @@ export function loadConfiguration(): AppConfig {
     },
     allowedEmailDomains: parseEmailDomains(process.env.ALLOWED_EMAIL_DOMAINS),
     apiDocsEnabled: parseApiDocsEnabled(process.env.API_DOCS_ENABLED),
+    logFormat: parseLogFormat(process.env.LOG_FORMAT),
     osrmUrl: parseOsrmUrl(process.env.OSRM_URL),
     positionMinIntervalSeconds: parsePositionMinInterval(
       process.env.POSITION_MIN_INTERVAL_SECONDS,

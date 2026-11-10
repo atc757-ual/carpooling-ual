@@ -1,0 +1,167 @@
+{
+  "uid": "carpooling-api",
+  "title": "API del backend",
+  "description": "Peticiones, errores y tiempo de respuesta (p95) por ruta, a partir del log JSON del backend (RNF-01, RNF-07)",
+  "tags": ["carpooling", "api"],
+  "timezone": "browser",
+  "schemaVersion": 41,
+  "version": 1,
+  "editable": false,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "route",
+        "label": "Ruta",
+        "type": "textbox",
+        "query": ".*",
+        "current": { "text": ".*", "value": ".*" },
+        "description": "Expresión regular sobre el patrón de la ruta (p. ej. /api/trips.*)"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Peticiones",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({app=\"carpooling-backend\", context=\"HTTP\"} | json route=\"message.route\" | route=~\"$route\" [$__range]))",
+          "queryType": "instant"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Errores 5xx",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({app=\"carpooling-backend\", context=\"HTTP\"} | json route=\"message.route\", status=\"message.status\" | route=~\"$route\" | status >= 500 [$__range])) or vector(0)",
+          "queryType": "instant"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "p95 global",
+      "description": "RNF-01: la búsqueda y el matching deben responder en menos de 2 s",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 4 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.95, {app=\"carpooling-backend\", context=\"HTTP\"} | json route=\"message.route\", duration=\"message.durationMs\" | route=~\"$route\" | unwrap duration [$__range]) by (app)",
+          "queryType": "instant"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 1000 },
+              { "color": "red", "value": 2000 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Peticiones por minuto, por ruta",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 9 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (route) (count_over_time({app=\"carpooling-backend\", context=\"HTTP\"} | json route=\"message.route\" | route=~\"$route\" [1m]))",
+          "legendFormat": "{{route}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqpm" }, "overrides": [] }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Tiempo de respuesta p95 por ruta",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 9 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.95, {app=\"carpooling-backend\", context=\"HTTP\"} | json route=\"message.route\", duration=\"message.durationMs\" | route=~\"$route\" | unwrap duration [5m]) by (route)",
+          "legendFormat": "{{route}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Errores por minuto (4xx y 5xx)",
+      "gridPos": { "x": 0, "y": 13, "w": 12, "h": 9 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (route) (count_over_time({app=\"carpooling-backend\", context=\"HTTP\"} | json route=\"message.route\", status=\"message.status\" | route=~\"$route\" | status >= 500 [1m]))",
+          "legendFormat": "5xx {{route}}"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (route) (count_over_time({app=\"carpooling-backend\", context=\"HTTP\"} | json route=\"message.route\", status=\"message.status\" | route=~\"$route\" | status >= 400 and status < 500 [1m]))",
+          "legendFormat": "4xx {{route}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqpm" }, "overrides": [] }
+    },
+    {
+      "id": 7,
+      "type": "logs",
+      "title": "Errores del backend",
+      "description": "Mensajes de nivel error; el X-Request-Id de la respuesta permite encontrar el de una petición",
+      "gridPos": { "x": 12, "y": 13, "w": 12, "h": 9 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{app=\"carpooling-backend\", level=\"error\"}"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending"
+      }
+    }
+  ]
+}

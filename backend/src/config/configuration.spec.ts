@@ -5,6 +5,7 @@ import {
   parseDatabaseUrl,
   parseEmailDomains,
   parseJwtSecret,
+  parseLogFormat,
   parseOsrmUrl,
   parsePositionMinInterval,
   parsePort,
@@ -156,6 +157,22 @@ describe('parseEmailDomains', () => {
   );
 });
 
+describe('parseLogFormat', () => {
+  it('writes readable text by default', () => {
+    expect(parseLogFormat(undefined)).toBe('text');
+    expect(parseLogFormat('')).toBe('text');
+  });
+
+  it('reads text and json', () => {
+    expect(parseLogFormat('text')).toBe('text');
+    expect(parseLogFormat('json')).toBe('json');
+  });
+
+  it.each(['JSON', 'pretty'])('rejects the invalid value "%s"', (raw) => {
+    expect(() => parseLogFormat(raw)).toThrow(/LOG_FORMAT/);
+  });
+});
+
 describe('parseApiDocsEnabled', () => {
   it('publishes the API docs by default', () => {
     expect(parseApiDocsEnabled(undefined)).toBe(true);
@@ -220,6 +237,7 @@ describe('loadConfiguration', () => {
     'JWT_SESSION_MAX_DAYS',
     'ALLOWED_EMAIL_DOMAINS',
     'API_DOCS_ENABLED',
+    'LOG_FORMAT',
     'OSRM_URL',
     'POSITION_MIN_INTERVAL_SECONDS',
   ];
@@ -241,6 +259,7 @@ describe('loadConfiguration', () => {
     process.env.JWT_SESSION_MAX_DAYS = '40';
     process.env.ALLOWED_EMAIL_DOMAINS = 'ual.es';
     process.env.API_DOCS_ENABLED = 'false';
+    process.env.LOG_FORMAT = 'json';
     process.env.OSRM_URL = 'http://osrm:5000';
     process.env.POSITION_MIN_INTERVAL_SECONDS = '15';
 
@@ -255,6 +274,7 @@ describe('loadConfiguration', () => {
       },
       allowedEmailDomains: ['ual.es'],
       apiDocsEnabled: false,
+      logFormat: 'json',
       osrmUrl: 'http://osrm:5000',
       positionMinIntervalSeconds: 15,
       // Con Jest (NODE_ENV=test) los correos, los SMS y las push se quedan
