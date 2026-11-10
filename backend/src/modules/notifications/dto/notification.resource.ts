@@ -75,6 +75,11 @@ export class NotificationResource {
   createdAt: string;
 }
 
+// El documento que avisa una notificación de documento legal actualizado
+function updatedLegalDocument(type: NotificationType): 'terms' | 'privacy' {
+  return type === 'terms_updated' ? 'terms' : 'privacy';
+}
+
 export function toNotificationResource(
   notification: Notification,
 ): NotificationResource {
@@ -90,9 +95,7 @@ export function toNotificationResource(
         ? null
         : {
             id: legalDocumentId,
-            href: legalDocumentHref(
-              notification.type === 'terms_updated' ? 'terms' : 'privacy',
-            ),
+            href: legalDocumentHref(updatedLegalDocument(notification.type)),
           },
     request:
       requestId === null
