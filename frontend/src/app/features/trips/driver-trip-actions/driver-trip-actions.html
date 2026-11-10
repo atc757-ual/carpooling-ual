@@ -38,10 +38,10 @@
       <!-- Cancelar, discreto. El aviso de tardía, solo cuando aplica -->
       <div class="driver-actions__block">
         @if (cancellationIsLate()) {
-          <div class="notice notice--warning" role="status">
+          <output class="notice notice--warning">
             <ion-icon [icon]="warningIcon" aria-hidden="true" />
             <span>Si cancelas ahora, contará como cancelación tardía.</span>
-          </div>
+          </output>
         }
         <ion-button
           type="button"
