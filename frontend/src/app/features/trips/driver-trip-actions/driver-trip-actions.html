@@ -1,0 +1,75 @@
+<ion-card class="driver-actions">
+  <ion-card-header>
+    <ion-card-title>Acciones del viaje</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    @if (isInProgress()) {
+      <div class="notice notice--info">
+        <ion-icon [icon]="locationIcon" aria-hidden="true" />
+        <span>Compartiendo tu ubicación con tus pasajeros</span>
+      </div>
+      <ion-button expand="block" [routerLink]="livePath()">Abrir viaje</ion-button>
+      <form (submit)="$event.preventDefault(); handleFinish()">
+        <ion-button type="submit" expand="block" fill="outline" [disabled]="isChangingStatus()">
+          {{ isChangingStatus() ? 'Terminando…' : 'Terminar viaje' }}
+        </ion-button>
+      </form>
+    }
+
+    @if (isOpen()) {
+      <!-- Iniciar y, solo si aún no se puede, cuándo se podrá. El motivo va
+           también dentro del botón, oculto, para el lector de pantalla:
+           aria-describedby no llega al botón nativo de ion-button (shadow
+           DOM). Lo que supone iniciar, en la confirmación -->
+      <div class="driver-actions__block">
+        <form (submit)="$event.preventDefault(); handleStart()">
+          <ion-button type="submit" expand="block" [disabled]="!canStart() || isChangingStatus()">
+            {{ isChangingStatus() ? 'Iniciando…' : 'Iniciar viaje' }}
+            @if (startHint(); as hint) {
+              <span class="visually-hidden">. {{ hint }}</span>
+            }
+          </ion-button>
+        </form>
+        @if (startHint(); as hint) {
+          <p class="driver-actions__hint text-caption" aria-hidden="true">{{ hint }}</p>
+        }
+      </div>
+
+      <!-- Cancelar, discreto. El aviso de tardía, solo cuando aplica -->
+      <div class="driver-actions__block">
+        @if (cancellationIsLate()) {
+          <output class="notice notice--warning">
+            <ion-icon [icon]="warningIcon" aria-hidden="true" />
+            <span>Si cancelas ahora, contará como cancelación tardía.</span>
+          </output>
+        }
+        <ion-button
+          type="button"
+          expand="block"
+          fill="clear"
+          color="danger"
+          [disabled]="isCancelling() || isChangingStatus()"
+          (click)="handleCancel()"
+        >
+          {{ isCancelling() ? 'Cancelando…' : 'Cancelar viaje' }}
+          @if (cancellationIsLate()) {
+            <span class="visually-hidden">. Contará como cancelación tardía</span>
+          }
+        </ion-button>
+      </div>
+    }
+
+    <!-- Cancelado o terminado: las mismas acciones, desactivadas, y por qué -->
+    @if (closedReason(); as reason) {
+      <div class="driver-actions__block">
+        <ion-button expand="block" [disabled]="true">
+          Iniciar viaje<span class="visually-hidden">. {{ reason }}</span>
+        </ion-button>
+        <ion-button expand="block" fill="clear" color="danger" [disabled]="true">
+          Cancelar viaje<span class="visually-hidden">. {{ reason }}</span>
+        </ion-button>
+        <p class="driver-actions__hint text-caption" aria-hidden="true">{{ reason }}</p>
+      </div>
+    }
+  </ion-card-content>
+</ion-card>

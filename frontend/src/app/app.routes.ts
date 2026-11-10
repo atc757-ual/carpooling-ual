@@ -191,7 +191,8 @@ export const routes: Routes = [
             title: 'Tu viaje',
             subtitle: 'Solicitudes, chat y estado del viaje.',
             backHref: '/tabs/trips',
-            breadcrumbs: [{ label: 'Tus viajes', href: '/tabs/trips' }],
+            // Sin breadcrumbs aquí: la franja fija se vería solo en escritorio.
+            // El detalle pone su propia cabecera (con las migas) en las dos
           } satisfies TabHeading,
         },
       },

@@ -5,7 +5,7 @@ import { personOutline } from 'ionicons/icons';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../matching/trip-results';
-import { formatSeats } from '../driver-trip-card/driver-trip-card';
+import { formatSeats } from '../../../shared/utils/seats.util';
 import { formatRoute } from '../my-trips/my-trips-summary';
 import { PassengerTrip } from '../my-trips/trip-entries';
 import { passengerRequestLabel, TripsTab } from '../my-trips/trip-tabs';

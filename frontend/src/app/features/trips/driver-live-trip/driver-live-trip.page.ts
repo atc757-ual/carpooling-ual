@@ -23,7 +23,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripChatLink } from '../../../shared/components/ui/trip-chat-link/trip-chat-link';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatTime } from '../../matching/trip-results';
-import { formatSeats } from '../driver-trip-card/driver-trip-card';
+import { formatSeats } from '../../../shared/utils/seats.util';
 import { finishTrip } from '../finish-trip.util';
 import { LiveTripMap } from '../passenger-requests/live-trip-map/live-trip-map';
 import { TripProgress } from '../trip-progress/trip-progress';

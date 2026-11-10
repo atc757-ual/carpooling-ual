@@ -9,11 +9,10 @@ import { SeatRequest } from '../../../core/models/seat-request.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ChatService } from '../../../core/services/chat/chat.service';
-import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
-import { DriverTripCard } from './driver-trip-card';
+import { DriverTripActions } from './driver-trip-actions';
 import { provideCatalogsForTests } from '../../../core/services/catalogs/catalogs.testing';
 
 const TRIP: DriverTrip = {
@@ -45,8 +44,8 @@ function request(status: SeatRequest['status'], isPriority = false): SeatRequest
   };
 }
 
-describe('DriverTripCard', () => {
-  let fixture: ComponentFixture<DriverTripCard>;
+describe('DriverTripActions', () => {
+  let fixture: ComponentFixture<DriverTripActions>;
   let driver: Record<string, ReturnType<typeof vi.fn>>;
   let toast: Record<string, ReturnType<typeof vi.fn>>;
   let ask: ReturnType<typeof vi.fn>;
@@ -70,7 +69,7 @@ describe('DriverTripCard', () => {
       getCurrentPoint: vi.fn().mockResolvedValue([-2.43, 36.83]),
     };
     TestBed.configureTestingModule({
-      imports: [DriverTripCard],
+      imports: [DriverTripActions],
       providers: [
         provideCatalogsForTests(),
         provideIonicAngular(),
@@ -92,71 +91,13 @@ describe('DriverTripCard', () => {
         { provide: LocationService, useValue: location },
       ],
     });
-    fixture = TestBed.createComponent(DriverTripCard);
+    fixture = TestBed.createComponent(DriverTripActions);
     fixture.componentRef.setInput('trip', trip);
     changed = 0;
     fixture.componentInstance.changed.subscribe(() => changed++);
     await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;
   }
-
-  it('shows the route, the status and the free seats', async () => {
-    const root = await render(TRIP);
-
-    expect(root.textContent).toContain('Roquetas de Mar → Campus UAL · Parking P1 (Sur)');
-    expect(root.textContent).toContain('Publicado');
-    expect(root.textContent).toContain('3 de 3 libres');
-    expect(root.textContent).toContain('Aún no hay solicitudes');
-    // Sin pasajeros aceptados aún no hay chat
-    expect(root.querySelector('app-trip-chat-link')).toBeNull();
-  });
-
-  it('opens the chat of the trip once it has passengers', async () => {
-    const confirmed = await render({ ...TRIP, status: 'confirmed' });
-    expect(confirmed.querySelector('app-trip-chat-link')?.textContent).toContain('Chat del viaje');
-  });
-
-  it('names the places generically when the trip has no names', async () => {
-    const root = await render({ ...TRIP, originName: null, destinationName: null });
-
-    expect(root.textContent).toContain('Origen → Destino');
-  });
-
-  it('lists the pending and accepted requests, and hides the closed ones', async () => {
-    const root = await render(TRIP, [
-      request('pending', true),
-      request('accepted'),
-      request('rejected'),
-    ]);
-
-    expect(fixture.componentInstance.visibleRequests().map(({ status }) => status)).toEqual([
-      'pending',
-      'accepted',
-    ]);
-    expect(root.textContent).toContain('2 plazas · Prioridad');
-    expect(root.textContent).toContain('Aceptada');
-  });
-
-  it('accepts a request and says so', async () => {
-    await render(TRIP, [request('pending')]);
-
-    await fixture.componentInstance.handleDecide(request('pending'), 'accept');
-
-    expect(driver['decideRequest']).toHaveBeenCalledWith('r-pending', 'accept');
-    expect(toast['showSuccess']).toHaveBeenCalledWith('Has aceptado la solicitud de Mario Pérez.');
-    expect(changed).toBe(1);
-    expect(fixture.componentInstance.deciding()).toBeNull();
-  });
-
-  it('shows the API error when the decision fails', async () => {
-    await render(TRIP, [request('pending')]);
-    driver['decideRequest'].mockRejectedValue(new Error('down'));
-
-    await fixture.componentInstance.handleDecide(request('pending'), 'reject');
-
-    expect(toast['showError']).toHaveBeenCalled();
-    expect(changed).toBe(0);
-  });
 
   it('confirms cancellation, cancels the trip and refreshes the list', async () => {
     await render(TRIP);
@@ -199,7 +140,7 @@ describe('DriverTripCard', () => {
       const root = await render({ ...TRIP, status: 'confirmed' });
 
       expect(fixture.componentInstance.canStart()).toBe(false);
-      expect(root.textContent).toContain('Podrás iniciarlo desde las');
+      expect(root.textContent).toContain('Disponible desde las');
       await fixture.componentInstance.handleStart();
       expect(driver['startTrip']).not.toHaveBeenCalled();
     });
@@ -215,7 +156,7 @@ describe('DriverTripCard', () => {
 
     it('starts sharing the location after confirming when the device already allows it', async () => {
       const root = await render(SOON);
-      expect(root.textContent).not.toContain('Podrás iniciarlo');
+      expect(root.textContent).not.toContain('Disponible desde');
 
       const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
@@ -360,38 +301,35 @@ describe('DriverTripCard', () => {
     });
   });
 
-  it('does not load requests of a finished trip', async () => {
-    const root = await render({ ...TRIP, status: 'finished' });
+  it('waits for a passenger before a published trip can start', async () => {
+    const root = await render(TRIP);
 
-    expect(driver['listTripRequests']).not.toHaveBeenCalled();
-    expect(root.textContent).toContain('Finalizado');
-    expect(root.querySelector('.driver-trip__requests')).toBeNull();
+    expect(root.textContent).toContain('Disponible cuando aceptes a algún pasajero');
+    expect(root.querySelector('.notice--warning')).toBeNull();
   });
 
-  it('renders call button for accepted passenger and calls passenger when tapped', async () => {
-    const root = await render({ ...TRIP, status: 'confirmed' }, [request('accepted')]);
-    const tripCall = TestBed.inject(TripCallService);
-    const openPhoneSpy = vi.spyOn(tripCall, 'openPhone').mockImplementation(() => undefined);
+  it('warns about a late cancellation only with passengers and under 30 minutes', async () => {
+    const root = await render({
+      ...TRIP,
+      status: 'confirmed',
+      departureAt: new Date(Date.now() + 20 * 60 * 1000).toISOString(),
+    });
 
-    const callBtn = root.querySelector('.driver-trip__call-btn');
-    expect(callBtn).not.toBeNull();
-    expect(callBtn?.getAttribute('title')).toBe('Llamar a Mario Pérez');
-    expect(callBtn?.classList).not.toContain('driver-trip__call-btn--unavailable');
-
-    fixture.componentInstance.handleCallPassenger({ id: 'p1', name: 'Mario Pérez' });
-    expect(openPhoneSpy).toHaveBeenCalledWith('+34600111222');
-  });
-
-  it('shows call button as unavailable when trip is published', async () => {
-    const root = await render({ ...TRIP, status: 'published' }, [request('accepted')]);
-
-    const callBtn = root.querySelector('.driver-trip__call-btn');
-    expect(callBtn).not.toBeNull();
-    expect(callBtn?.classList).toContain('driver-trip__call-btn--unavailable');
-
-    fixture.componentInstance.handleCallPassenger({ id: 'p1', name: 'Mario Pérez' });
-    expect(toast['showInfo']).toHaveBeenCalledWith(
-      'Solo se puede llamar con el viaje confirmado o en curso.',
+    expect(root.querySelector('.notice--warning')?.textContent).toContain(
+      'contará como cancelación tardía',
     );
+  });
+
+  it('keeps the actions of a closed trip, disabled and with the reason', async () => {
+    const root = await render({ ...TRIP, status: 'cancelled' });
+
+    expect(fixture.componentInstance.closedReason()).toContain('se canceló');
+    const buttons = [...root.querySelectorAll('ion-button')];
+    expect(buttons).toHaveLength(2);
+    expect(buttons[0].textContent).toContain('Iniciar viaje');
+    expect(buttons[1].textContent).toContain('Cancelar viaje');
+    expect(buttons.every((button) => button.hasAttribute('disabled'))).toBe(true);
+    // El motivo, dentro de cada botón para el lector de pantalla
+    expect(buttons.every((button) => button.textContent?.includes('se canceló'))).toBe(true);
   });
 });
