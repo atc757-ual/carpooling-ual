@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { IonButton, IonButtons, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/angular';
-import { close } from 'ionicons/icons';
+import { arrowBack, close } from 'ionicons/icons';
 
 // Cabecera común de las ventanas: el título a la izquierda y la ✕ de cerrar
 // (clases .modal-header y .modal-close-button de theme/_components.scss). El
@@ -21,6 +21,11 @@ export class ModalHeader {
   // «Entendido» en los textos legales)
   readonly hasClose = input(true);
   readonly closed = output<void>();
+  // Con un paso anterior dentro de la ventana: la flecha a la izquierda
+  readonly hasBack = input(false);
+  readonly backLabel = input('Volver');
+  readonly back = output<void>();
 
   protected readonly closeIcon = close;
+  protected readonly backIcon = arrowBack;
 }

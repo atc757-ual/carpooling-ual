@@ -1,5 +1,15 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, Input, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  Injector,
+  Input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { IonButton, IonIcon, ModalController } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { locationOutline, notificationsOutline } from 'ionicons/icons';
@@ -8,7 +18,8 @@ import {
   LocationService,
 } from '../../../../core/services/location/location.service';
 import { PushNotificationsService } from '../../../../core/services/push/push-notifications.service';
-import { openLegalModal } from '../legal-modal/legal-modal';
+import { LegalDocumentText } from '../../ui/legal-document/legal-document';
+import { ModalHeader } from '../modal-header/modal-header';
 
 type PermissionState = 'idle' | 'busy' | 'done' | 'blocked';
 
@@ -18,7 +29,7 @@ type PermissionState = 'idle' | 'busy' | 'done' | 'blocked';
 // que no se active se volverá a ofrecer cuando haga falta
 @Component({
   selector: 'app-permissions-modal',
-  imports: [IonButton, IonIcon, NgTemplateOutlet, TranslocoPipe],
+  imports: [IonButton, IonIcon, LegalDocumentText, ModalHeader, NgTemplateOutlet, TranslocoPipe],
   templateUrl: './permissions-modal.html',
   styleUrls: ['../confirm-modal/confirm-modal.scss', './permissions-modal.scss'],
 })
@@ -33,6 +44,10 @@ export class PermissionsModal {
 
   readonly pushState = signal<PermissionState>('idle');
   readonly locationState = signal<PermissionState>('idle');
+  readonly isReadingTerms = signal(false);
+  private readonly injector = inject(Injector);
+  private readonly termsSection = viewChild<ElementRef<HTMLElement>>('terms');
+  private readonly termsLink = viewChild<ElementRef<HTMLElement>>('termsLink');
   // Con todo respondido, el botón deja de decir «Más tarde»
   readonly isAnswered = computed(
     () =>
@@ -68,8 +83,18 @@ export class PermissionsModal {
     }
   }
 
-  handleReadTerms(): Promise<void> {
-    return openLegalModal(this.modalController, 'location');
+  // «Uso de la ubicación» en la misma ventana (sin abrir otra encima), con la
+  // flecha para volver a los permisos
+  handleReadTerms(): void {
+    this.isReadingTerms.set(true);
+    afterNextRender(() => this.termsSection()?.nativeElement.focus(), {
+      injector: this.injector,
+    });
+  }
+
+  handleCloseTerms(): void {
+    this.isReadingTerms.set(false);
+    afterNextRender(() => this.termsLink()?.nativeElement.focus(), { injector: this.injector });
   }
 
   async handleClose(): Promise<void> {

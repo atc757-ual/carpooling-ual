@@ -1,0 +1,17 @@
+@if (current(); as document) {
+  <div class="legal">
+    <app-legal-changes [heading]="changesHeading(document.version)" [summary]="document.summary" />
+  </div>
+  <!-- Angular limpia el HTML (sin scripts ni estilos) antes de mostrarlo -->
+  <article class="legal" [innerHTML]="document.content"></article>
+  <!-- Al verse esta marca se ha llegado al final (también si el texto es corto) -->
+  <div #endMarker class="legal__end" aria-hidden="true"></div>
+} @else if (hasError()) {
+  <p class="text-body" role="alert">
+    {{ errorMessage }}
+  </p>
+} @else {
+  <div class="legal__loading">
+    <ion-spinner name="crescent" [attr.aria-label]="loadingAriaLabel" />
+  </div>
+}

@@ -1,8 +1,4 @@
-// El texto, con la clase global .legal (theme/_components.scss)
-.legal__end {
-  height: 1px;
-}
-
+// El texto va en app-legal-document; aquí, solo «Entendido» al final
 .legal__footer {
   max-width: 40rem; // 640px: el ancho del texto
   margin: var(--space-l) auto 0;
@@ -10,10 +6,4 @@
   ion-button {
     margin: 0;
   }
-}
-
-.legal__loading {
-  display: flex;
-  justify-content: center;
-  padding: var(--space-xl);
 }

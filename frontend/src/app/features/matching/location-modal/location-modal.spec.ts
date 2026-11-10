@@ -5,6 +5,7 @@ import { Place } from '../../../core/models/place.model';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
+import { LegalDocumentsService } from '../../../core/services/users/legal-documents.service';
 import { LocationModal } from './location-modal';
 
 const PLACE: Place = {
@@ -23,6 +24,15 @@ describe('LocationModal', () => {
   const consent = { set: vi.fn(), isOutdated: vi.fn() };
   const places = { reverse: vi.fn() };
   const modalController = { dismiss: vi.fn(), create: vi.fn() };
+  const legalDocuments = {
+    getCurrent: vi.fn().mockResolvedValue({
+      type: 'location',
+      version: '1.0',
+      content: '<p>Para rellenar de dónde sales.</p>',
+      summary: null,
+      publishedAt: null,
+    }),
+  };
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -36,6 +46,7 @@ describe('LocationModal', () => {
         { provide: LocationConsentService, useValue: consent },
         { provide: PlacesService, useValue: places },
         { provide: ModalController, useValue: modalController },
+        { provide: LegalDocumentsService, useValue: legalDocuments },
       ],
     });
     fixture = TestBed.createComponent(LocationModal);
@@ -73,13 +84,31 @@ describe('LocationModal', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    await modal.handleReadTerms();
-
     expect(text()).toContain('Hemos actualizado cómo usamos tu ubicación');
     expect(text()).toContain('Cómo usamos tu ubicación');
-    expect(modalController.create).toHaveBeenCalledWith(
-      expect.objectContaining({ componentProps: { document: 'location' } }),
+  });
+
+  // Sin abrir otra ventana encima: el texto en la misma, con la flecha
+  it('shows the terms in the same window and goes back to the explanation', async () => {
+    modal.handleReadTerms();
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(text()).toContain('Para rellenar de dónde sales.');
+    });
+
+    expect(modal.title).toBe('Uso de la ubicación');
+    expect(modalController.create).not.toHaveBeenCalled();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.modal-back-button')).not.toBeNull();
+    // «Entendido» vuelve a la explicación, como la flecha
+    const understood = [...root.querySelectorAll('form')].find((form) =>
+      form.textContent?.includes('Entendido'),
     );
+    understood?.dispatchEvent(new Event('submit'));
+    fixture.detectChanges();
+    expect(modal.title).toBe('Usar mi ubicación');
+    expect(root.querySelector('.modal-back-button')).toBeNull();
+    expect(text()).toContain('no guardamos tu posición');
   });
 
   it('asks for the location and returns its point', async () => {

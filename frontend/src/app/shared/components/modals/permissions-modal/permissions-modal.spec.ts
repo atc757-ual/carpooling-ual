@@ -5,6 +5,7 @@ import {
   LocationError,
   LocationService,
 } from '../../../../core/services/location/location.service';
+import { LegalDocumentsService } from '../../../../core/services/users/legal-documents.service';
 import { PushNotificationsService } from '../../../../core/services/push/push-notifications.service';
 import { PermissionsModal } from './permissions-modal';
 
@@ -23,6 +24,18 @@ describe('PermissionsModal', () => {
         { provide: PushNotificationsService, useValue: { enable } },
         { provide: LocationService, useValue: { requestDevicePermission } },
         { provide: ModalController, useValue: { dismiss } },
+        {
+          provide: LegalDocumentsService,
+          useValue: {
+            getCurrent: vi.fn().mockResolvedValue({
+              type: 'location',
+              version: '1.0',
+              content: '<p>Para rellenar de dónde sales.</p>',
+              summary: null,
+              publishedAt: null,
+            }),
+          },
+        },
       ],
     });
     fixture = TestBed.createComponent(PermissionsModal);
@@ -105,6 +118,24 @@ describe('PermissionsModal', () => {
     requestDevicePermission.mockRejectedValueOnce(new LocationError('unavailable'));
     await modal.handleEnableLocation();
     expect(modal.locationState()).toBe('done');
+  });
+
+  // Sin abrir otra ventana encima: el texto en la misma, con la flecha
+  it('shows the location terms in the same window and goes back', async () => {
+    const modal = render({ canAskLocation: true });
+    const root = fixture.nativeElement as HTMLElement;
+
+    modal.handleReadTerms();
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(root.textContent).toContain('Para rellenar de dónde sales.');
+    });
+    expect(root.querySelector('.modal-back-button')).not.toBeNull();
+    expect(rows()).toBe(0);
+
+    modal.handleCloseTerms();
+    fixture.detectChanges();
+    expect(rows()).toBe(1);
   });
 
   it('closes without asking anything else', async () => {

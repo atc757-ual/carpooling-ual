@@ -1,8 +1,10 @@
 import {
+  afterNextRender,
   Component,
   ElementRef,
   effect,
   inject,
+  Injector,
   Input,
   OnDestroy,
   OnInit,
@@ -17,7 +19,8 @@ import { Place } from '../../../core/models/place.model';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { PlacesService } from '../../../core/services/places/places.service';
-import { openLegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
+import { LEGAL_DOCUMENT_TITLES } from '../../../core/services/users/legal-documents.service';
+import { LegalDocumentText } from '../../../shared/components/ui/legal-document/legal-document';
 
 // Acercamiento del mapa: el de una calle al ajustar un punto, y uno menos
 // al ver un lugar (para que se vea lo que tiene alrededor)
@@ -50,7 +53,7 @@ export type LocationModalResult = [number, number] | Place;
   selector: 'app-location-modal',
   // ion-page: así Ionic reparte el alto entre la cabecera y el contenido
   host: { class: 'ion-page' },
-  imports: [ModalHeader, IonButton, IonIcon, IonSpinner],
+  imports: [ModalHeader, IonButton, IonIcon, IonSpinner, LegalDocumentText],
   templateUrl: './location-modal.html',
   styleUrl: './location-modal.scss',
 })
@@ -59,6 +62,7 @@ export class LocationModal implements OnInit, OnDestroy {
   private readonly location = inject(LocationService);
   private readonly consent = inject(LocationConsentService);
   private readonly places = inject(PlacesService);
+  private readonly injector = inject(Injector);
 
   // Con un punto, se abre directamente el mapa para ajustarlo
   @Input() adjustPoint: [number, number] | null = null;
@@ -73,6 +77,9 @@ export class LocationModal implements OnInit, OnDestroy {
   readonly step = signal<LocationStep>('checking');
   // Ya la había dado, pero el texto cambió de forma importante
   readonly isOutdated = signal(false);
+  // Leyendo «Uso de la ubicación» dentro de la misma ventana (sin abrir otra
+  // encima): la flecha de la cabecera vuelve a la explicación
+  readonly isReadingTerms = signal(false);
   // [longitud, latitud] del pin
   readonly point = signal<[number, number] | null>(null);
   readonly place = signal<Place | null>(null);
@@ -81,6 +88,9 @@ export class LocationModal implements OnInit, OnDestroy {
   readonly addressError = signal<string | null>(null);
 
   private readonly mapElement = viewChild<ElementRef<HTMLElement>>('map');
+  // Para llevar el foco al texto al abrirlo y al enlace al volver
+  private readonly termsSection = viewChild<ElementRef<HTMLElement>>('terms');
+  private readonly termsLink = viewChild<ElementRef<HTMLElement>>('termsLink');
   private map: Leaflet.Map | null = null;
   private pin: Leaflet.Marker | null = null;
   // Recalcula el mapa cuando cambia el tamaño de su caja (p. ej. si se crea
@@ -101,6 +111,9 @@ export class LocationModal implements OnInit, OnDestroy {
   }
 
   get title(): string {
+    if (this.isReadingTerms()) {
+      return LEGAL_DOCUMENT_TITLES.location;
+    }
     if (this.viewPoint) {
       return this.viewTitle;
     }
@@ -156,9 +169,18 @@ export class LocationModal implements OnInit, OnDestroy {
     }
   }
 
-  // El texto completo de «Uso de la ubicación», el que se acepta al buscarla
-  handleReadTerms(): Promise<void> {
-    return openLegalModal(this.modalController, 'location');
+  // El texto completo de «Uso de la ubicación», el que se acepta al buscarla:
+  // en la misma ventana, con la flecha para volver
+  handleReadTerms(): void {
+    this.isReadingTerms.set(true);
+    afterNextRender(() => this.termsSection()?.nativeElement.focus(), {
+      injector: this.injector,
+    });
+  }
+
+  handleCloseTerms(): void {
+    this.isReadingTerms.set(false);
+    afterNextRender(() => this.termsLink()?.nativeElement.focus(), { injector: this.injector });
   }
 
   // Tras explicar para qué se usa (o si la había retirado en Perfil): queda

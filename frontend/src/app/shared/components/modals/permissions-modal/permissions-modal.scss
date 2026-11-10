@@ -61,3 +61,17 @@
   width: 100%;
   margin: 0;
 }
+
+// «Uso de la ubicación» dentro de la ventana: recibe el foco al abrirse (por
+// código, sin contorno: no es un control)
+.permissions__document {
+  outline: none;
+}
+
+.permissions__understood {
+  margin-top: var(--space-l);
+
+  ion-button {
+    margin: 0;
+  }
+}

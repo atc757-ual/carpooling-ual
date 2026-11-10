@@ -101,3 +101,10 @@
     outline: var(--border-width-m) solid var(--color-focus);
   }
 }
+
+// «Uso de la ubicación» dentro de la ventana: recibe el foco al abrirse (por
+// código, sin contorno: no es un control) y deja aire antes del botón
+.location__terms {
+  margin-bottom: var(--space-l);
+  outline: none;
+}

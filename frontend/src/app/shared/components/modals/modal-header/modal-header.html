@@ -1,5 +1,16 @@
 <ion-header class="ion-no-border modal-header">
   <ion-toolbar>
+    <!-- Volver al paso anterior dentro de la misma ventana (p. ej. del texto
+         legal a la explicación) -->
+    @if (hasBack()) {
+      <ion-buttons slot="start">
+        <form (submit)="$event.preventDefault(); back.emit()">
+          <ion-button class="modal-back-button" type="submit" [attr.aria-label]="backLabel()">
+            <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+          </ion-button>
+        </form>
+      </ion-buttons>
+    }
     <ion-title>{{ title() }}</ion-title>
     @if (hasClose()) {
       <ion-buttons slot="end">

@@ -11,7 +11,8 @@ describe('LegalModal', () => {
   let http: HttpTestingController;
   let dismiss: ReturnType<typeof vi.fn>;
 
-  async function open(document: LegalDocument): Promise<HTMLElement> {
+  // onReachedEnd llega con el resto de componentProps, antes de mostrarse
+  async function open(document: LegalDocument, onReachedEnd?: () => void): Promise<HTMLElement> {
     dismiss = vi.fn().mockResolvedValue(true);
     TestBed.configureTestingModule({
       providers: [
@@ -25,6 +26,7 @@ describe('LegalModal', () => {
     http = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(LegalModal);
     fixture.componentRef.setInput('document', document);
+    fixture.componentInstance.onReachedEnd = onReachedEnd;
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
   }
@@ -81,9 +83,8 @@ describe('LegalModal', () => {
         disconnect = disconnect;
       },
     );
-    const root = await open('terms');
     const onReachedEnd = vi.fn();
-    fixture.componentInstance.onReachedEnd = onReachedEnd;
+    const root = await open('terms', onReachedEnd);
 
     http
       .expectOne('/api/legal-documents/terms')
