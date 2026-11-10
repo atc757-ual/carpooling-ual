@@ -100,3 +100,35 @@ El backend escribe un log JSON (`LOG_FORMAT=json`) con una línea por petición 
     LOG_FORMAT=json npm run start:prod >> ../logs/backend.log 2>&1
 
 En un servidor, el servicio del sistema que arranque el backend (p. ej. systemd con `StandardOutput=append:/ruta/al/repo/logs/backend.log`) escribe en ese fichero, y `logrotate` lo rota (con `copytruncate`). Grafana no se publica en Internet: se llega por un túnel SSH (`ssh -L 3001:localhost:3001 servidor`) o detrás de Nginx con autenticación, y con `GRAFANA_ADMIN_PASSWORD` propia.
+
+## 9. Nginx: HTTPS y cabeceras de seguridad
+
+Nginx va delante de todo (RNF-04): sirve el frontend compilado, pasa `/api` al backend, pone HTTPS y las cabeceras de seguridad y limita las peticiones por IP. La configuración está versionada en [`deploy/nginx/`](../deploy/nginx/) y no hace falta ninguna dependencia en la aplicación (sin `helmet`).
+
+1. **Frontend:** `cd frontend && npm run build` y copiar `frontend/www` al servidor (p. ej. `/srv/carpooling/frontend/www`).
+2. **Certificado** de Let's Encrypt: `sudo certbot certonly --webroot -w /var/www/certbot -d <dominio>` (renueva solo con el temporizador de certbot).
+3. **Configuración:** copiar `deploy/nginx/carpooling.conf` a `/etc/nginx/conf.d/` y `deploy/nginx/carpooling-proxy.conf` a `/etc/nginx/snippets/`; cambiar `carpooling.example.org` por el dominio y, si hace falta, las rutas del certificado y del frontend.
+4. `sudo nginx -t && sudo systemctl reload nginx`.
+
+**Qué hace:**
+
+- **HTTPS:** HTTP redirige a HTTPS; TLS 1.2 y 1.3 (configuración intermedia de Mozilla), HTTP/2 y sin la versión de Nginx en las respuestas.
+- **Cabeceras** en todas las respuestas, también en las de la API y en los errores: `Strict-Transport-Security` (un año), `Content-Security-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` (solo la ubicación, y desde la propia app) y `Cross-Origin-Opener-Policy`.
+- **CSP:** solo recursos propios, más los mosaicos del mapa (`tile.openstreetmap.org`) y Firebase (`*.googleapis.com`) para las notificaciones web. Ionic necesita estilos en línea (`style-src 'unsafe-inline'`); los scripts en línea no se permiten, salvo el único que mete el build de Angular (el que activa la hoja de estilos), por su hash. **Al actualizar Angular**, si la app se ve sin estilos y la consola del navegador muestra un error de CSP, recalcular el hash del `<script>` de `www/index.html` y cambiarlo en la configuración: `node -e "const h=require('fs').readFileSync('www/index.html','utf8');const s=/<script>([\s\S]*?)<\/script>/.exec(h)[1];console.log('sha256-'+require('crypto').createHash('sha256').update(s).digest('base64'))"`.
+- **Límite por IP:** 20 peticiones/s a la API (con ráfagas de 40) y 10 logins por minuto (ráfaga de 5); al pasarse, `429`. Complementa el límite de intentos por correo del backend.
+- **Caché:** los ficheros con hash en el nombre, un año; `index.html` y las rutas de la app, sin caché, para que una versión nueva llegue al momento.
+
+**Comprobación:** las cabeceras, con `curl -sI https://<dominio>/`; la nota, con [Security Headers](https://securityheaders.com) o [Mozilla Observatory](https://developer.mozilla.org/en-US/observatory); y un escaneo pasivo de OWASP ZAP sobre el despliegue: `docker run --rm -t zaproxy/zap-stable zap-baseline.py -t https://<dominio>`. Guardar el informe como evidencia de RNF-04. En el navegador, la app no debe mostrar errores de CSP en la consola.
+
+## 10. Copias de seguridad de la base de datos
+
+`scripts/backup-db.sh` hace una copia completa con `pg_dump` (formato comprimido, con PostGIS) desde el contenedor `carpooling-db` y borra las de más de 14 días (`BACKUP_KEEP_DAYS`). Las deja en `backups/`, que está en el `.gitignore` y solo puede leer el usuario que las crea.
+
+- **Cada noche**, con cron (desde la raíz del repositorio): `30 3 * * * cd /ruta/al/repo && bash scripts/backup-db.sh >> logs/backup.log 2>&1`.
+- **Fuera del servidor:** copiar las copias a otro sitio (otro disco o un almacenamiento de la UAL), cifradas (p. ej. `gpg --symmetric`), para no perderlas con el servidor.
+- **Restaurar** (sobre una base de datos vacía con el mismo usuario):
+
+      docker exec -i carpooling-db pg_restore -U <POSTGRES_USER> -d <POSTGRES_DB> --no-owner --exit-on-error < backups/carpooling-<fecha>.dump
+
+- **Probar la restauración** de vez en cuando en una base de datos aparte y comparar los recuentos (usuarios, viajes, eventos, migraciones): una copia que no se ha restaurado nunca no se sabe si sirve.
+- **Datos personales:** una cuenta eliminada sigue en las copias hasta que caducan (14 días). Ese plazo debe constar en la Política de privacidad.
