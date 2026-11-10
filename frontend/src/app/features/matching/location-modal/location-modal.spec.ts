@@ -100,6 +100,8 @@ describe('LocationModal', () => {
     expect(modalController.create).not.toHaveBeenCalled();
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.modal-back-button')).not.toBeNull();
+    // Dentro de otra ventana: sin ✕, solo la flecha y «Entendido»
+    expect(root.querySelector('.modal-close-button')).toBeNull();
     // «Entendido» vuelve a la explicación, como la flecha
     const understood = [...root.querySelectorAll('form')].find((form) =>
       form.textContent?.includes('Entendido'),
@@ -155,6 +157,26 @@ describe('LocationModal', () => {
 
     expect(places.reverse).not.toHaveBeenCalled();
     expect(modalController.dismiss).toHaveBeenCalledWith([-2.405, 36.83], 'picked');
+  });
+
+  it('opened from another window to pick a point, it has Cancel instead of the close button', async () => {
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.modal-close-button')).not.toBeNull();
+    fixture = TestBed.createComponent(LocationModal);
+    modal = fixture.componentInstance;
+    Object.assign(modal, { adjustPoint: [-2.4045, 36.8322], pickPoint: true });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const pickRoot = fixture.nativeElement as HTMLElement;
+
+    expect(pickRoot.querySelector('.modal-close-button')).toBeNull();
+    pickRoot
+      .querySelector('.location__cancel')
+      ?.closest('form')
+      ?.dispatchEvent(new Event('submit', { cancelable: true }));
+
+    expect(modalController.dismiss).toHaveBeenCalledWith(null, 'cancel');
   });
 
   it('does not return an address out of the area', async () => {

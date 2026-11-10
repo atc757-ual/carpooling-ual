@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, viewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { Vehicle } from '../../../core/models/driver.model';
@@ -21,6 +21,9 @@ export class VehicleModal {
 
   // Lo pasa ModalController (componentProps), por eso es un @Input clásico
   @Input() vehicle: Vehicle | null = null;
+
+  // El formulario: dice si se está leyendo la declaración (sin la ✕)
+  protected readonly form = viewChild(VehicleForm);
 
   close(): Promise<boolean> {
     return this.modalController.dismiss();
