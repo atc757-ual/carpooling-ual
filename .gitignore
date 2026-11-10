@@ -30,6 +30,10 @@ coverage/
 # Docker
 docker-compose.override.yml
 
+# Copias de seguridad de la base de datos (scripts/backup-db.sh): tienen
+# datos personales
+backups/
+
 # Mapa de OSRM (se descarga y prepara con scripts/osrm-prepare.sh)
 osrm-data/
 
