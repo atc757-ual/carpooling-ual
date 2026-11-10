@@ -23,6 +23,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- **Frontend:** al borrar la «@» de un correo de la UAL, las sugerencias ya no repiten el dominio («ac757inlumine.ual.es@inlumine.ual.es»): si lo escrito termina en un dominio de la UAL, sugieren solo el correo con la «@» en su sitio (#289).
 - **Chat:** Enter envía el mensaje (Mayús+Enter, salto de línea). El ✓✓ aparece en cuanto todos leen tu mensaje, sin volver a entrar (el sondeo vuelve a mirar los tuyos sin leer). En escritorio, abrir o responder una conversación quita su contador de la lista de al lado sin recargarla. En el móvil, la conversación ya no repite «Conversación» bajo la cabecera y no pierde la cabecera del viaje al volver a entrar: la sección de dentro de la página solo sale en las listas que la desplazan con el contenido, y una conversación que se va solo quita su propio contenido de la franja fija (#288).
 
 - **Solicitudes:** un solo corte, 10 minutos antes de la salida (`REQUEST_CUTOFF_MIN`). Desde entonces el viaje no sale en la búsqueda, no admite solicitudes nuevas ni respuestas del conductor (`409 TRIP_NOT_OPEN`) y las pendientes caducan. Antes caducaban a 30 minutos aunque se pudiera pedir plaza hasta la salida, así que una solicitud de última hora caducaba al minuto sin que el conductor pudiera aceptarla. El detalle de la solicitud se refresca al entrar y cada 30 s mientras está pendiente (ya no ofrece «Cancelar solicitud» de una caducada) y el detalle del viaje en Buscar explica la caducada (#286).
