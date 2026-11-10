@@ -66,12 +66,24 @@
                       <app-datetime-field
                         formControlName="time"
                         presentation="time"
-                        label="Hora de salida"
+                        [label]="isArrivalTime() ? 'Hora de llegada' : 'Hora de salida'"
                       />
                     </div>
                     @if (departureTooSoon()) {
                       <p class="text-caption text-color-danger" role="alert">
-                        El viaje debe salir al menos dentro de una hora.
+                        @if (isArrivalTime()) {
+                          Para llegar a esa hora saldrías en menos de una hora: elige una llegada
+                          más tarde.
+                        } @else {
+                          El viaje debe salir al menos dentro de una hora.
+                        }
+                      </p>
+                    } @else if (estimatedDepartureTime(); as departure) {
+                      <!-- Hacia el campus: cuándo salir para llegar a tiempo aunque
+                           recoja a alguien (la exacta, con la ruta, al publicar) -->
+                      <p class="text-caption text-color-muted">
+                        Saldrás hacia las <b>{{ departure }}</b> para llegar a tiempo aunque recojas
+                        a alguien.
                       </p>
                     }
                     <!-- Desvío y, a la derecha del campo, «Siguiente» (qué es el
@@ -254,7 +266,16 @@
               </p>
             }
             <p class="text-caption text-color-muted">
-              La hora de llegada es aproximada y no cuenta los desvíos.
+              @if (isArrivalTime()) {
+                @if (published()) {
+                  Sales a esta hora para llegar a tiempo aunque recojas a alguien.
+                } @else {
+                  La salida es aproximada: al publicar la calculamos con tu ruta, contando el desvío
+                  máximo.
+                }
+              } @else {
+                La hora de llegada es aproximada y no cuenta los desvíos.
+              }
             </p>
           </section>
         </ng-template>

@@ -1,16 +1,26 @@
 <span [id]="labelId" class="text-label text-label--strong">{{ label() }}</span>
 @if (isDesktop()) {
   <!-- Escritorio: el campo nativo del navegador (se escribe o se elige en su
-       calendario), con el aspecto de los demás campos -->
-  <input
-    class="datetime-field__box datetime-field__native"
-    [type]="presentation()"
-    [formControl]="control"
-    [min]="min() ?? null"
-    [max]="max() ?? null"
-    [step]="presentation() === 'time' ? timeStepSeconds : null"
-    [attr.aria-labelledby]="labelId"
-  />
+       calendario), con el aspecto de los demás campos y, como en el móvil, su
+       icono a la izquierda: abre el calendario o el reloj del navegador -->
+  <span class="datetime-field__native-wrap">
+    <ion-icon
+      class="datetime-field__native-icon"
+      [icon]="icon()"
+      aria-hidden="true"
+      (click)="openNativePicker(native)"
+    />
+    <input
+      #native
+      class="datetime-field__box datetime-field__native"
+      [type]="presentation()"
+      [formControl]="control"
+      [min]="min() ?? null"
+      [max]="max() ?? null"
+      [step]="presentation() === 'time' ? timeStepSeconds : null"
+      [attr.aria-labelledby]="labelId"
+    />
+  </span>
 } @else {
   <!-- Móvil: botón propio (no ion-datetime-button) para poder leer «Hoy» o
        «Mañana», y la hoja que sube desde abajo, con la muesca (estilos del tema) -->

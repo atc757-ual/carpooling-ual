@@ -20,7 +20,7 @@ export interface DriverImpact {
 }
 
 // Fecha y hora locales («2026-10-27», «07:40») en ISO UTC para la API
-export function toDepartureAt(date: string, time: string): string {
+export function toIsoDateTime(date: string, time: string): string {
   return new Date(`${date}T${time}:00`).toISOString();
 }
 
@@ -29,28 +29,64 @@ export function formatDateLabel(date: string): string {
   return date ? DATE_LABEL.format(new Date(`${date}T00:00:00`)) : '';
 }
 
-// Paradas del viaje (RouteTimeline): la hora de salida y la de llegada
-// aproximada (sin desvíos, ver trip-impact.ts), en un sentido u otro
+// La hora que elige el conductor: hacia el campus, la de llegada (como muy
+// tarde); desde el campus, la de salida
+export interface TripTime {
+  isToCampus: boolean;
+  time: string;
+  maxDetourMin: number;
+}
+
+// Hacia el campus, la salida aproximada para llegar a tiempo aunque recoja a
+// alguien: la llegada menos el trayecto y el desvío máximo. El backend la
+// calcula con la ruta real al publicar
+export function estimateDepartureTime(
+  place: SearchPlace,
+  parking: CampusParking,
+  { time, maxDetourMin }: Pick<TripTime, 'time' | 'maxDetourMin'>,
+): string {
+  const durationMin = estimateDurationMin(place.coordinates, parking.location.coordinates);
+  return shiftTime(time, -(durationMin + maxDetourMin));
+}
+
+// La misma salida aproximada, como fecha completa: si la llegada es poco
+// después de medianoche, la salida es del día anterior (la hora sola no lo dice)
+export function estimateDepartureAt(
+  place: SearchPlace,
+  parking: CampusParking,
+  { date, time, maxDetourMin }: Pick<TripTime, 'time' | 'maxDetourMin'> & { date: string },
+): Date {
+  const durationMin = estimateDurationMin(place.coordinates, parking.location.coordinates);
+  const arrival = new Date(`${date}T${time}:00`);
+  return new Date(arrival.getTime() - (durationMin + maxDetourMin) * 60_000);
+}
+
+// Paradas del viaje (RouteTimeline) en un sentido u otro: hacia el campus, la
+// salida aproximada (o la real, ya publicado) y la llegada elegida; desde el
+// campus, la salida elegida y la llegada aproximada (sin desvíos)
 export function buildStops(
   place: SearchPlace,
   parking: CampusParking,
-  { isToCampus, time }: { isToCampus: boolean; time: string },
+  tripTime: TripTime & { departureTime?: string },
 ): RouteStop[] {
+  const { isToCampus, time } = tripTime;
+  const campus: RouteStop = { name: CAMPUS_NAME, detail: parking.name };
+  const outside: RouteStop = { name: place.name, detail: place.locality };
+  if (isToCampus) {
+    const departure = tripTime.departureTime ?? estimateDepartureTime(place, parking, tripTime);
+    return [
+      { ...outside, time: departure },
+      { ...campus, time },
+    ];
+  }
   const arrival = shiftTime(
     time,
     estimateDurationMin(place.coordinates, parking.location.coordinates),
   );
-  const campus: RouteStop = { name: CAMPUS_NAME, detail: parking.name };
-  const outside: RouteStop = { name: place.name, detail: place.locality };
-  return isToCampus
-    ? [
-        { ...outside, time },
-        { ...campus, time: arrival },
-      ]
-    : [
-        { ...campus, time },
-        { ...outside, time: arrival },
-      ];
+  return [
+    { ...campus, time },
+    { ...outside, time: arrival },
+  ];
 }
 
 // Cada pasajero deja su coche en casa: el ahorro de un trayecto por las
@@ -90,7 +126,9 @@ export function toPublishTripRequest(
     vehicleId: offer.vehicleId,
     origin: isToCampus ? placePoint : parking.location,
     destination: isToCampus ? parking.location : placePoint,
-    departureAt: toDepartureAt(offer.date, offer.time),
+    ...(isToCampus
+      ? { arrivalAt: toIsoDateTime(offer.date, offer.time) }
+      : { departureAt: toIsoDateTime(offer.date, offer.time) }),
     offeredSeats: Number(offer.seats),
     maxDetourMin: offer.maxDetourMin,
     originName: isToCampus ? place.name : campusName,

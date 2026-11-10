@@ -163,6 +163,22 @@ describe('DatetimeField on a desktop browser', () => {
     expect(root.querySelector('ion-modal')).toBeNull();
   });
 
+  // El icono a la izquierda, como en el móvil: abre el selector del navegador
+  it('opens the picker of the browser from its icon on the left', () => {
+    const root = render(false);
+    const input = root.querySelector<HTMLInputElement>('input.datetime-field__native')!;
+    const showPicker = vi.fn();
+    input.showPicker = showPicker;
+
+    root.querySelector<HTMLElement>('.datetime-field__native-icon')?.click();
+    expect(showPicker).toHaveBeenCalledTimes(1);
+
+    // Sin showPicker, el foco en el campo, que se puede escribir
+    input.showPicker = undefined as unknown as () => void;
+    root.querySelector<HTMLElement>('.datetime-field__native-icon')?.click();
+    expect(document.activeElement).toBe(input);
+  });
+
   it('keeps the Ionic picker in the installed app, whatever the width', () => {
     const root = render(true);
 

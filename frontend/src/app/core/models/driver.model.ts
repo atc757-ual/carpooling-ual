@@ -54,8 +54,10 @@ export interface PublishTripRequest {
   vehicleId: string;
   origin: GeoPoint;
   destination: GeoPoint;
-  // ISO 8601 (UTC)
-  departureAt: string;
+  // ISO 8601 (UTC). Una de las dos: hacia el campus, la llegada (el backend
+  // calcula la salida con la ruta y el desvío máximo); desde él, la salida
+  departureAt?: string;
+  arrivalAt?: string;
   offeredSeats: number;
   maxDetourMin: number;
   // Cómo se muestran después (Mis viajes, avisos): la dirección elegida y el

@@ -44,6 +44,8 @@ import { PUBLISH_FAQS } from './publish-help';
 import { withDeclarations } from '../with-declarations';
 import {
   buildStops,
+  estimateDepartureAt,
+  estimateDepartureTime,
   estimateDriverImpact,
   formatDateLabel,
   toPublishTripRequest,
@@ -63,8 +65,21 @@ const PUBLISHED_STEP = STEPS.length;
 
 type LoadState = 'loading' | 'error' | 'ready' | 'suspended';
 
-function getDefaultDeparture(now = new Date()): { date: string; time: string } {
-  const departure = new Date(now.getTime() + (PUBLISH_LEAD_MINUTES + 1) * 60_000);
+// Al empezar el viaje va hacia el campus y se elige la llegada: la propuesta
+// deja, además de la antelación mínima, un margen para el trayecto y el
+// desvío (si no, saldría antes de esa hora)
+const DEFAULT_ARRIVAL_MARGIN_MINUTES = 45;
+
+// «08:18» (hora local) de una fecha ISO
+function toLocalTime(iso: string): string {
+  const date = new Date(iso);
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function getDefaultArrival(now = new Date()): { date: string; time: string } {
+  const departure = new Date(
+    now.getTime() + (PUBLISH_LEAD_MINUTES + 1 + DEFAULT_ARRIVAL_MARGIN_MINUTES) * 60_000,
+  );
   const minuteOfDay = departure.getHours() * 60 + departure.getMinutes();
   const roundedMinute =
     Math.ceil(minuteOfDay / DEFAULT_TIME_STEP_MINUTES) * DEFAULT_TIME_STEP_MINUTES;
@@ -122,7 +137,7 @@ export class PublishTripPage implements OnInit {
   private readonly router = inject(Router);
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly celebration = inject(CelebrationService);
-  private readonly initialDeparture = getDefaultDeparture();
+  private readonly initialDeparture = getDefaultArrival();
 
   readonly loadState = signal<LoadState>('loading');
   // Los vehículos se piden al llegar al paso 2, no antes: el 1 no los necesita
@@ -178,6 +193,17 @@ export class PublishTripPage implements OnInit {
     const { place, parking } = this.tripValue();
     return Boolean(place && parking);
   });
+  // Hacia el campus se elige la llegada (como en Buscar); desde él, la salida
+  readonly isArrivalTime = computed(() => this.tripValue().isToCampus ?? true);
+  // Hacia el campus, la salida aproximada para llegar a tiempo aunque recoja
+  // a alguien (null hasta tener el trayecto)
+  readonly estimatedDepartureTime = computed(() => {
+    const { place, isToCampus = true, time, maxDetourMin = DEFAULT_DETOUR } = this.tripValue();
+    const parking = this.selectedParking();
+    return isToCampus && place && parking && time
+      ? estimateDepartureTime(place, parking, { time, maxDetourMin })
+      : null;
+  });
   readonly departureTooSoon = computed(() => {
     return this.isDepartureTooSoon();
   });
@@ -190,13 +216,37 @@ export class PublishTripPage implements OnInit {
     return until ? new Date(until).toLocaleDateString('es-ES') : '';
   });
 
+  // Con la llegada, sobre la salida aproximada (la que calculará el backend),
+  // con su fecha: llegar poco después de medianoche es salir el día anterior
   private isDepartureTooSoon(): boolean {
-    const { date, time } = this.tripValue();
+    const departure = this.estimatedDepartureAt()?.getTime();
+    return (
+      departure !== undefined &&
+      !Number.isNaN(departure) &&
+      departure - Date.now() < PUBLISH_LEAD_MINUTES * 60_000
+    );
+  }
+
+  // La salida como fecha: la elegida o, hacia el campus, la aproximada (null
+  // mientras falte la fecha, la hora o, hacia el campus, el trayecto)
+  private estimatedDepartureAt(): Date | null {
+    const {
+      place,
+      date,
+      time,
+      isToCampus = true,
+      maxDetourMin = DEFAULT_DETOUR,
+    } = this.tripValue();
+    const parking = this.selectedParking();
     if (!date || !time) {
-      return false;
+      return null;
     }
-    const departure = new Date(`${date}T${time}`).getTime();
-    return !Number.isNaN(departure) && departure - Date.now() < PUBLISH_LEAD_MINUTES * 60_000;
+    if (!isToCampus) {
+      return new Date(`${date}T${time}`);
+    }
+    return place && parking
+      ? estimateDepartureAt(place, parking, { date, time, maxDetourMin })
+      : null;
   }
 
   readonly selectedVehicle = computed(() =>
@@ -215,9 +265,14 @@ export class PublishTripPage implements OnInit {
   // Paradas del viaje, con la llegada aproximada: para la revisión y al
   // publicar
   readonly stops = computed(() => {
-    const { place, isToCampus = true, time = '' } = this.tripValue();
+    const { place, isToCampus = true, time = '', maxDetourMin = DEFAULT_DETOUR } = this.tripValue();
     const parking = this.selectedParking();
-    return place && parking ? buildStops(place, parking, { isToCampus, time }) : null;
+    // Ya publicado, la salida que calculó el backend con la ruta
+    const published = this.published();
+    const departureTime = published ? toLocalTime(published.departureAt) : undefined;
+    return place && parking
+      ? buildStops(place, parking, { isToCampus, time, maxDetourMin, departureTime })
+      : null;
   });
 
   readonly dateLabel = computed(() => formatDateLabel(this.tripValue().date ?? ''));
@@ -238,7 +293,7 @@ export class PublishTripPage implements OnInit {
       this.accountGeneration += 1;
       this.loadingVehiclesGeneration = null;
       this.vehicles.set([]);
-      const departure = getDefaultDeparture();
+      const departure = getDefaultArrival();
       this.tripForm.reset({
         place: null,
         parking: '',
@@ -438,7 +493,7 @@ export class PublishTripPage implements OnInit {
   // Otro viaje: mismo vehículo y trayecto, nueva hora, desde el primer paso
   async handlePublishAnother(): Promise<void> {
     this.published.set(null);
-    this.tripForm.patchValue(getDefaultDeparture());
+    this.tripForm.patchValue(getDefaultArrival());
     await this.goToStep(1);
   }
 

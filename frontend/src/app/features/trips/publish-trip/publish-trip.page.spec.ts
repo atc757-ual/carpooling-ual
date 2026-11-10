@@ -222,14 +222,16 @@ describe('PublishTripPage', () => {
     expect(harness.fixture.nativeElement.querySelector('app-step-indicator')).toBeNull();
   });
 
-  it('reviews the trip with the approximate arrival and what passengers save', async () => {
+  // Hacia el campus se elige la llegada; la salida, aproximada, antes
+  it('reviews the trip with the approximate departure and what passengers save', async () => {
     await openPage();
     fillTrip({ withVehicle: true });
 
     expect(page.stops()?.[1]).toEqual(
-      expect.objectContaining({ name: 'Campus UAL', detail: 'Parking P1' }),
+      expect.objectContaining({ name: 'Campus UAL', detail: 'Parking P1', time: '07:40' }),
     );
-    expect(page.stops()?.[1].time).not.toBe('07:40');
+    expect(page.stops()?.[0].time).toBe(page.estimatedDepartureTime());
+    expect(page.stops()?.[0].time).not.toBe('07:40');
     expect(page.impact()?.seats).toBe(2);
     expect(page.dateLabel()).toContain('15');
   });
@@ -248,7 +250,12 @@ describe('PublishTripPage', () => {
     expect(driver['acceptDeclaration']).toHaveBeenCalled();
     expect(offerPush).toHaveBeenCalledWith('publish');
     expect(driver['publishTrip']).toHaveBeenCalledWith(
-      expect.objectContaining({ vehicleId: 'v1', offeredSeats: 2, originName: 'Roquetas de Mar' }),
+      expect.objectContaining({
+        vehicleId: 'v1',
+        offeredSeats: 2,
+        originName: 'Roquetas de Mar',
+        arrivalAt: expect.any(String),
+      }),
     );
     expect(page.step()).toBe(4);
     expect(page.previousStep()).toBeNull();
