@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import type { ReplicaMetrics } from '../simulation-metrics';
-import { NUMERIC } from './numeric.transformer';
+import { numericTransformer } from '../../../shared/database/numeric.transformer';
 
 // Resultado de una réplica (RESULTADO del modelo de datos): el escenario con
 // una semilla frente a la base con la misma semilla. Las tasas se guardan de
@@ -25,7 +25,7 @@ export class SimulationResult {
   @Column({ type: 'smallint' })
   replica: number;
 
-  @Column({ type: 'bigint', transformer: NUMERIC })
+  @Column({ type: 'bigint', transformer: numericTransformer })
   seed: number;
 
   @Column({ name: 'vehicle_count', type: 'integer' })
@@ -39,7 +39,7 @@ export class SimulationResult {
     type: 'numeric',
     precision: 4,
     scale: 2,
-    transformer: NUMERIC,
+    transformer: numericTransformer,
   })
   averageOccupancy: number;
 
@@ -48,7 +48,7 @@ export class SimulationResult {
     type: 'numeric',
     precision: 4,
     scale: 2,
-    transformer: NUMERIC,
+    transformer: numericTransformer,
   })
   baselineAverageOccupancy: number;
 
@@ -57,7 +57,7 @@ export class SimulationResult {
     type: 'numeric',
     precision: 5,
     scale: 4,
-    transformer: NUMERIC,
+    transformer: numericTransformer,
   })
   coveredRequestsRate: number;
 
@@ -70,7 +70,7 @@ export class SimulationResult {
     precision: 5,
     scale: 4,
     nullable: true,
-    transformer: NUMERIC,
+    transformer: numericTransformer,
   })
   recoveryRate: number | null;
 

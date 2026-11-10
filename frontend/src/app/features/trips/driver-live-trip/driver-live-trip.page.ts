@@ -109,7 +109,15 @@ export class DriverLiveTripPage {
   readonly gapMinutes = this.tracking.gapMinutes;
   readonly isFinishing = signal(false);
   readonly isPageVisible = signal(true);
-  readonly contacts = signal<ChatContact[]>([]);
+  // Los teléfonos para llamar: resource y no effect, para no pintar los de
+  // otro viaje si la respuesta llega tarde
+  private readonly contactsData = resource({
+    params: () => this.trip()?.id,
+    loader: ({ params: tripId }) => this.tripCall.loadContacts(tripId),
+  });
+  readonly contacts = computed<ChatContact[]>(() =>
+    this.contactsData.hasValue() ? this.contactsData.value() : [],
+  );
   readonly contactsMap = computed(() => new Map(this.contacts().map((c) => [c.id, c])));
   protected readonly locationIcon = locationOutline;
   protected readonly callIcon = callOutline;
@@ -127,14 +135,6 @@ export class DriverLiveTripPage {
       const trip = this.trip();
       if (trip?.status === 'in_progress') {
         this.tracking.start(trip.id);
-      }
-    });
-    effect(() => {
-      const tripId = this.trip()?.id;
-      if (tripId) {
-        void this.tripCall.loadContacts(tripId).then((c) => this.contacts.set(c));
-      } else {
-        this.contacts.set([]);
       }
     });
   }

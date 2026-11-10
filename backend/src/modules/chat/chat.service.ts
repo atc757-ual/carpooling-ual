@@ -102,18 +102,12 @@ export class ChatService {
     const phones = await this.usersService.getVerifiedPhones(contactIds);
     return contactIds.flatMap((id) => {
       const contact = phones.get(id);
-      return contact
-        ? [
-            {
-              userId: id,
-              ...contact,
-              role:
-                id === trip.driverId
-                  ? ('driver' as const)
-                  : ('passenger' as const),
-            },
-          ]
-        : [];
+      if (!contact) {
+        return [];
+      }
+      const role: 'driver' | 'passenger' =
+        id === trip.driverId ? 'driver' : 'passenger';
+      return [{ userId: id, ...contact, role }];
     });
   }
 

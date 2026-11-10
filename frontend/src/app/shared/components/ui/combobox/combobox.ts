@@ -95,24 +95,39 @@ export class Combobox {
     if (!combobox.isOpen() && event.key !== 'ArrowDown') {
       return;
     }
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    const action = this.keyAction(event, combobox);
+    if (action) {
       event.preventDefault();
-      combobox.move(event.key === 'ArrowDown' ? 1 : -1);
-    } else if (event.key === 'Enter' && combobox.activeId() !== null) {
-      // Sin enviar el formulario: Enter elige la sugerencia
-      event.preventDefault();
-      combobox.chooseActive();
-    } else if (event.key === 'Tab' && !event.shiftKey && combobox.activeId() !== null) {
-      // Tab elige la resaltada y pasa al elemento siguiente. Se hace a mano,
-      // tras actualizarse la pantalla: elegir puede activar el botón de
-      // enviar, que el navegador se saltaría por estar aún desactivado
-      event.preventDefault();
-      combobox.chooseActive();
-      setTimeout(() => focusNextAfter(this.host.nativeElement));
-    } else if (event.key === 'Escape') {
-      event.preventDefault();
-      combobox.dismiss();
+      action();
     }
+  }
+
+  // Qué hace cada tecla con la lista abierta (null: la tecla sigue su curso)
+  private keyAction(event: KeyboardEvent, combobox: ComboboxState): (() => void) | null {
+    const hasActive = combobox.activeId() !== null;
+    switch (event.key) {
+      case 'ArrowDown':
+        return () => combobox.move(1);
+      case 'ArrowUp':
+        return () => combobox.move(-1);
+      case 'Escape':
+        return () => combobox.dismiss();
+      case 'Enter':
+        // Sin enviar el formulario: Enter elige la sugerencia
+        return hasActive ? () => combobox.chooseActive() : null;
+      case 'Tab':
+        // Tab elige la resaltada y pasa al elemento siguiente. Se hace a mano,
+        // tras actualizarse la pantalla: elegir puede activar el botón de
+        // enviar, que el navegador se saltaría por estar aún desactivado
+        return hasActive && !event.shiftKey ? () => this.chooseAndMoveOn(combobox) : null;
+      default:
+        return null;
+    }
+  }
+
+  private chooseAndMoveOn(combobox: ComboboxState): void {
+    combobox.chooseActive();
+    setTimeout(() => focusNextAfter(this.host.nativeElement));
   }
 
   // ion-input crea su input al cargarse: hay que esperarlo
