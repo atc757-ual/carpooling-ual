@@ -33,7 +33,7 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { TripSearchStateService } from '../../matching/trip-search-state.service';
 import { formatTime } from '../../matching/trip-results';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
-import { formatSeats } from '../driver-trip-card/driver-trip-card';
+import { formatSeats } from '../../../shared/utils/seats.util';
 import { TripProgress } from '../trip-progress/trip-progress';
 import { LiveTripMap } from './live-trip-map/live-trip-map';
 import { PassengerIncidentModal } from './passenger-incident-modal/passenger-incident-modal';

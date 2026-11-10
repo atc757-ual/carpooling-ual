@@ -1,0 +1,134 @@
+// En el móvil, una columna: cabecera, recorrido, pasajeros y, debajo, las
+// acciones y el impacto. En escritorio, 8 + 4 (las dos columnas se desplazan juntas)
+.driver-detail {
+  // Todo el ancho, como las demás pantallas (sin él se encoge a su contenido)
+  box-sizing: border-box;
+  width: 100%;
+  align-items: stretch;
+
+  ion-card {
+    margin: 0;
+  }
+}
+
+// Cuándo, el estado y el papel: como el título de la franja fija (20px en el
+// móvil y 24px en escritorio), con las migas debajo en escritorio
+.driver-detail__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.driver-detail__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.driver-detail__role-icon {
+  flex: none;
+  color: var(--color-link);
+}
+
+.driver-detail__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem; // 20px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+// Las migas, como en el panel: pequeñas y grises, la actual en el color del
+// texto y el primer paso alineado con el título
+.driver-detail__breadcrumbs {
+  margin: 0;
+  padding: var(--space-s) 0 0;
+
+  ion-breadcrumb {
+    --color: var(--color-text-muted);
+    --color-active: var(--color-text);
+    --color-hover: var(--color-link);
+
+    font-size: var(--font-size-caption);
+  }
+
+  ion-breadcrumb:first-child::part(native) {
+    padding-inline-start: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .driver-detail__title {
+    font-size: 1.5rem; // 24px
+  }
+}
+
+.driver-detail__main,
+.driver-detail__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+}
+
+.driver-detail__loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+// Impacto: dos cifras en una fila, el valor encima de su nombre
+ion-card.driver-detail__impact ion-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  p {
+    margin: 0;
+  }
+}
+
+.driver-detail__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-s);
+  margin: 0;
+
+  div {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  dt {
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.driver-detail__value {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+
+  ion-icon {
+    color: var(--color-eco);
+    font-size: 1rem; // 16px
+  }
+}
+
+@media (min-width: 768px) {
+  .driver-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-l);
+  }
+}

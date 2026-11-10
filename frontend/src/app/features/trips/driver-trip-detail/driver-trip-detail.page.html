@@ -1,9 +1,47 @@
 <ion-content>
-  <div class="tab-page">
+  <div class="tab-page driver-detail">
     @if (trip(); as trip) {
-      <app-driver-trip-card [trip]="trip" (changed)="handleReload()" />
+      <div class="driver-detail__main">
+        <app-driver-trip-route [trip]="trip" />
+        <app-driver-trip-passengers [trip]="trip" (changed)="handleReload()" />
+      </div>
+
+      <!-- Columna de 4 en escritorio; debajo en el móvil -->
+      <aside class="driver-detail__aside" aria-label="Acciones e impacto del viaje">
+        <app-driver-trip-actions [trip]="trip" (changed)="handleReload()" />
+
+        <ion-card class="driver-detail__impact">
+          <ion-card-header>
+            <ion-card-title>Impacto de este viaje</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            @if (impact(); as impact) {
+              <dl class="driver-detail__stats">
+                <div>
+                  <dt class="text-caption">Coches evitados</dt>
+                  <dd class="text-subtitle">{{ impact.cars }}</dd>
+                </div>
+                <div>
+                  <dt class="text-caption">CO₂ ahorrado*</dt>
+                  <dd class="text-subtitle driver-detail__value">
+                    <ion-icon [icon]="leafIcon" aria-hidden="true" />{{ impact.co2 }}
+                  </dd>
+                </div>
+              </dl>
+              <p class="text-caption text-color-muted">
+                * Estimado: un coche menos por cada pasajero que llevas.
+              </p>
+            } @else {
+              <!-- Cancelado: no hubo viaje, ni coches evitados -->
+              <p class="text-body-s text-color-muted">
+                Este viaje no se realizó, así que no evitó ningún coche.
+              </p>
+            }
+          </ion-card-content>
+        </ion-card>
+      </aside>
     } @else if (trips.isLoading()) {
-      <output>
+      <output class="driver-detail__loading">
         <ion-spinner name="crescent" aria-hidden="true" />
         <span class="text-color-muted">Cargando el viaje…</span>
       </output>
@@ -19,3 +57,32 @@
     }
   </div>
 </ion-content>
+
+<!-- Cuándo, el estado y el papel, en la franja fija del título (en el móvil
+     y en escritorio, aquí con las migas) -->
+<ng-template #tripHeading>
+  @if (trip(); as trip) {
+    <div class="driver-detail__heading">
+      <!-- Una línea con la misma letra: el coche, el papel y cuándo; el
+           estado, a la derecha -->
+      <div class="driver-detail__title-row">
+        <h1 class="driver-detail__title">
+          <ion-icon class="driver-detail__role-icon" [icon]="carIcon" aria-hidden="true" />
+          Conduces · {{ when() }}
+        </h1>
+        <span
+          class="status"
+          [class.status--info]="trip.status === 'published'"
+          [class.status--accepted]="trip.status === 'confirmed' || trip.status === 'in_progress'"
+          [class.status--danger]="trip.status === 'cancelled'"
+        >
+          {{ statusLabel() }}
+        </span>
+      </div>
+      <ion-breadcrumbs class="driver-detail__breadcrumbs ion-hide-md-down">
+        <ion-breadcrumb routerLink="/tabs/trips" routerDirection="back">Tus viajes</ion-breadcrumb>
+        <ion-breadcrumb [active]="true">Tu viaje</ion-breadcrumb>
+      </ion-breadcrumbs>
+    </div>
+  }
+</ng-template>

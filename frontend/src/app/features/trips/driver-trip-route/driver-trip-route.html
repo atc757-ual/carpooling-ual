@@ -1,0 +1,46 @@
+<ion-card class="driver-route">
+  <ion-card-header>
+    <ion-card-title>Tu recorrido</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    @if (route(); as route) {
+      <app-trip-route-map [route]="route" [origin]="origin()" [destination]="destination()" />
+    } @else if (details.isLoading()) {
+      <output class="driver-route__loading">
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="text-caption text-color-muted">Cargando el mapa del viaje…</span>
+      </output>
+    } @else if (details.error()) {
+      <p class="text-caption text-color-muted">No pudimos cargar el mapa de la ruta.</p>
+    }
+
+    <app-route-timeline [stops]="stops()" />
+
+    <!-- Los datos del trayecto, en una fila -->
+    <dl class="driver-route__facts">
+      @for (fact of facts(); track fact.label) {
+        <div>
+          <dt class="text-caption">{{ fact.label }}</dt>
+          <dd class="text-body text-body--strong">{{ fact.value }}</dd>
+        </div>
+      }
+    </dl>
+
+    @if (vehicle(); as vehicle) {
+      <div class="driver-route__vehicle">
+        <ion-icon [icon]="carIcon" aria-hidden="true" />
+        <div>
+          <div class="text-body-s text-body--strong">{{ vehicle.brand }} {{ vehicle.model }}</div>
+          <div class="text-caption text-color-muted">
+            <span
+              class="driver-route__swatch"
+              [style.--swatch-color]="vehicleSwatch(vehicle.color)"
+              aria-hidden="true"
+            ></span>
+            {{ vehicleColor(vehicle.color) }}
+          </div>
+        </div>
+      </div>
+    }
+  </ion-card-content>
+</ion-card>

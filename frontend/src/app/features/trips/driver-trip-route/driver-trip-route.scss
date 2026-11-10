@@ -1,0 +1,62 @@
+.driver-route {
+  margin: 0;
+}
+
+ion-card.driver-route ion-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.driver-route__loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+// Distancia, duración y desvío máximo en una fila, separados por una línea
+.driver-route__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-s);
+  margin: 0;
+  padding-block: var(--space-s);
+  border-block: var(--border-width-s) solid var(--color-border-subtle);
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  dt {
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+// El vehículo, como en el detalle del pasajero (trip-summary)
+.driver-route__vehicle {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
+
+  ion-icon {
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    font-size: 1.25rem; // 20px
+  }
+}
+
+.driver-route__swatch {
+  display: inline-block;
+  width: 0.7rem; // 11.2px
+  height: 0.7rem; // 11.2px
+  margin-inline-end: var(--space-xs);
+  border: var(--border-width-s) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--swatch-color);
+  vertical-align: -0.05rem; // -0.8px
+}

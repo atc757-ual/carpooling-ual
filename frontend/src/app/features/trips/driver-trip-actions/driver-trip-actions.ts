@@ -6,7 +6,6 @@ import {
   inject,
   input,
   output,
-  resource,
   signal,
 } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
@@ -14,41 +13,27 @@ import {
   IonButton,
   IonCard,
   IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
   IonIcon,
-  IonSpinner,
   ModalController,
 } from '@ionic/angular';
 import { Router, RouterLink } from '@angular/router';
-import { callOutline, locationOutline } from 'ionicons/icons';
+import { locationOutline, warningOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
-import { ChatContact } from '../../../core/models/chat.model';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
-import { SeatRequest, SeatRequestStatus } from '../../../core/models/seat-request.model';
-import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
-import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { TripChatLink } from '../../../shared/components/ui/trip-chat-link/trip-chat-link';
-import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { TRIP_STATUS_LABELS } from '../../../shared/utils/trip-status.util';
 import { formatTime } from '../../matching/trip-results';
 import { finishTrip } from '../finish-trip.util';
 import { withDeclarations } from '../with-declarations';
 
-const REQUEST_STATUS_LABELS: Record<SeatRequestStatus, string> = {
-  pending: 'Pendiente',
-  accepted: 'Aceptada',
-  rejected: 'No aceptada',
-  cancelled: 'Cancelada',
-  expired: 'Caducada',
-};
-// Solo en estos se piden y deciden plazas
+// Solo en estos se puede cancelar
 const OPEN_STATUSES: ReadonlySet<TripStatus> = new Set(['published', 'confirmed']);
-const CHAT_STATUSES: ReadonlySet<TripStatus> = new Set(['confirmed', 'in_progress']);
 // Cuánto antes de la salida se puede iniciar (START_WINDOW_MIN del backend)
 const START_WINDOW_MS = 10 * 60 * 1000;
 
@@ -64,27 +49,20 @@ const SHARE_MESSAGE_NATIVE = `${SHARE_MESSAGE} Seguirá compartiéndose aunque b
 const DECLARATION_MESSAGE =
   'Al iniciar, confirmas que sigues cumpliendo tu declaración y la de tu vehículo (permiso, seguro e ITV).';
 
-export function formatSeats(seats: number): string {
-  return seats === 1 ? '1 plaza' : `${seats} plazas`;
-}
-
-// Un viaje del conductor en Mis viajes: cuándo sale, de dónde a dónde, su
-// estado y sus plazas libres y, si sigue abierto, sus solicitudes (las
-// prioritarias primero) con «Aceptar» y «Rechazar» en las pendientes. Avisa
-// con «changed» al decidir una, porque cambian las plazas y quizá el estado,
-// y al iniciar o terminar el viaje (mientras está en curso se comparte la
-// posición del conductor con DriverTrackingService)
+// «Qué puedes hacer» en el detalle de un viaje del conductor: iniciarlo
+// (desde 10 min antes de la salida, con el viaje confirmado), abrirlo y
+// terminarlo mientras está en curso (su posición se comparte con
+// DriverTrackingService) y cancelarlo mientras sigue abierto. Avisa con
+// «changed» al iniciar, terminar o cancelar
 @Component({
-  selector: 'app-driver-trip-card',
-  imports: [IonButton, IonCard, IonCardContent, IonIcon, IonSpinner, RouterLink, TripChatLink],
-  templateUrl: './driver-trip-card.html',
-  styleUrl: './driver-trip-card.scss',
+  selector: 'app-driver-trip-actions',
+  imports: [IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon, RouterLink],
+  templateUrl: './driver-trip-actions.html',
+  styleUrl: './driver-trip-actions.scss',
 })
-export class DriverTripCard {
-  private readonly travelPreferences = inject(TravelPreferencesStore);
+export class DriverTripActions {
   private readonly driver = inject(DriverService);
   private readonly toast = inject(ToastService);
-  private readonly tripCall = inject(TripCallService);
   private readonly confirm = inject(ConfirmService);
   private readonly tracking = inject(DriverTrackingService);
   private readonly location = inject(LocationService);
@@ -95,44 +73,12 @@ export class DriverTripCard {
   readonly changed = output<void>();
 
   readonly isOpen = computed(() => OPEN_STATUSES.has(this.trip().status));
-  // «Hoy · 07:40», «jue, 30 oct · 07:40»
-  readonly when = computed(() => {
-    const departureAt = new Date(this.trip().departureAt);
-    const day = departureAt.toLocaleDateString('sv-SE');
-    return `${formatDateLabel(day)} · ${formatTime(this.trip().departureAt)}`;
-  });
-  readonly route = computed(() => {
-    const { originName, destinationName } = this.trip();
-    return `${originName ?? 'Origen'} → ${destinationName ?? 'Destino'}`;
-  });
-  readonly statusLabel = computed(() => TRIP_STATUS_LABELS[this.trip().status]);
-  readonly seatsLabel = computed(() => {
-    const { availableSeats, offeredSeats } = this.trip();
-    return `${availableSeats} de ${offeredSeats} libres`;
-  });
-
-  // Las solicitudes, solo de los viajes abiertos
-  readonly requests = resource({
-    params: () => (this.isOpen() ? this.trip().id : undefined),
-    loader: ({ params: tripId }) => this.driver.listTripRequests(tripId),
-  });
-  readonly visibleRequests = computed(() =>
-    (this.requests.hasValue() ? this.requests.value() : []).filter(
-      ({ status }) => status === 'pending' || status === 'accepted',
-    ),
-  );
-  // La solicitud que se está decidiendo
-  readonly deciding = signal<string | null>(null);
   readonly isCancelling = signal(false);
-
-  protected readonly formatSeats = formatSeats;
 
   // Iniciar: con el viaje confirmado y desde 10 min antes de la salida. La
   // hora se revisa cada minuto para activar el botón sin recargar
   private readonly now = signal(Date.now());
   readonly isInProgress = computed(() => this.trip().status === 'in_progress');
-  // El chat existe desde que hay pasajeros aceptados (confirmado) y en curso
-  readonly hasChat = computed(() => CHAT_STATUSES.has(this.trip().status));
   // La pantalla del viaje en curso
   readonly livePath = computed(() => `/tabs/trips/drive/${this.trip().id}`);
   private readonly startableAt = computed(
@@ -141,25 +87,32 @@ export class DriverTripCard {
   readonly canStart = computed(
     () => this.trip().status === 'confirmed' && this.now() >= this.startableAt(),
   );
-  // «Podrás iniciarlo desde las 08:50»
-  readonly startHint = computed(() =>
-    this.trip().status === 'confirmed' && !this.canStart()
-      ? `Podrás iniciarlo desde las ${formatTime(new Date(this.startableAt()).toISOString())}`
-      : null,
-  );
+  // Una sola línea bajo «Iniciar viaje», solo si aún no se puede: «Disponible
+  // desde las 08:50» o, publicado, hasta que alguien tenga plaza. Lo que
+  // supone iniciarlo lo explica la confirmación
+  readonly startHint = computed(() => {
+    const { status } = this.trip();
+    if (status === 'published') {
+      return 'Disponible cuando aceptes a algún pasajero';
+    }
+    return status === 'confirmed' && !this.canStart()
+      ? `Disponible desde las ${formatTime(new Date(this.startableAt()).toISOString())}`
+      : null;
+  });
+  // Cancelado o terminado: las acciones, desactivadas, con el motivo
+  readonly closedReason = computed(() => {
+    switch (this.trip().status) {
+      case 'cancelled':
+        return 'Este viaje se canceló: ya no se puede iniciar ni cancelar.';
+      case 'finished':
+        return 'Este viaje ya terminó.';
+      default:
+        return null;
+    }
+  });
   readonly isChangingStatus = signal(false);
   protected readonly locationIcon = locationOutline;
-  protected readonly callIcon = callOutline;
-  // Los teléfonos para llamar, solo con la tarjeta abierta: resource y no
-  // effect, para no pintar los de otro viaje si la respuesta llega tarde
-  private readonly contactsData = resource({
-    params: () => (this.isOpen() ? this.trip().id : undefined),
-    loader: ({ params: tripId }) => this.tripCall.loadContacts(tripId),
-  });
-  readonly contacts = computed<ChatContact[]>(() =>
-    this.contactsData.hasValue() ? this.contactsData.value() : [],
-  );
-  readonly contactsMap = computed(() => new Map(this.contacts().map((c) => [c.id, c])));
+  protected readonly warningIcon = warningOutline;
 
   constructor() {
     const timer = setInterval(() => this.now.set(Date.now()), 60_000);
@@ -172,51 +125,15 @@ export class DriverTripCard {
     });
   }
 
+  // Con pasajeros (confirmado) y a menos de 30 min de la salida: el aviso
+  // aparece solo entonces (la hora se revisa cada minuto)
   readonly cancellationIsLate = computed(() => {
     const trip = this.trip();
     return (
       trip.status === 'confirmed' &&
-      new Date(trip.departureAt).getTime() - Date.now() < 30 * 60 * 1000
+      new Date(trip.departureAt).getTime() - this.now() < 30 * 60 * 1000
     );
   });
-
-  canCallPassenger(passengerId: string): boolean {
-    const contact = this.contactsMap().get(passengerId);
-    return this.tripCall.canCall(this.trip().status, contact);
-  }
-
-  callPassengerLabel(name: string, passengerId: string): string {
-    const contact = this.contactsMap().get(passengerId);
-    return this.tripCall.callLabel(contact, name);
-  }
-
-  handleCallPassenger(passenger: { id: string; name: string }): void {
-    const contact = this.contactsMap().get(passenger.id);
-    this.tripCall.call(contact, this.trip().status);
-  }
-
-  protected requestLabel(status: SeatRequestStatus): string {
-    return REQUEST_STATUS_LABELS[status];
-  }
-
-  protected passengerPreferences(request: SeatRequest): string[] {
-    return this.travelPreferences.format(request.passenger.preferences);
-  }
-
-  async handleDecide(request: SeatRequest, decision: 'accept' | 'reject'): Promise<void> {
-    this.deciding.set(request.id);
-    try {
-      await this.driver.decideRequest(request.id, decision);
-      const verb = decision === 'accept' ? 'aceptado' : 'rechazado';
-      void this.toast.showSuccess(`Has ${verb} la solicitud de ${request.passenger.name}.`);
-      this.requests.reload();
-      this.changed.emit();
-    } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
-    } finally {
-      this.deciding.set(null);
-    }
-  }
 
   async handleStart(): Promise<void> {
     const trip = this.trip();

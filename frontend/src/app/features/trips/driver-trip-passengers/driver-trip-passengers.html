@@ -1,61 +1,17 @@
 <ion-card class="driver-trip">
+  <ion-card-header>
+    <ion-card-title>Pasajeros</ion-card-title>
+  </ion-card-header>
   <ion-card-content>
-    <div class="driver-trip__head">
-      <div class="driver-trip__when text-subtitle">{{ when() }}</div>
-      <span
-        class="status"
-        [class.status--accepted]="trip().status === 'confirmed'"
-        [class.status--info]="isInProgress()"
-      >
-        {{ statusLabel() }}
-      </span>
-    </div>
-    <div class="driver-trip__route">{{ route() }}</div>
-    <div class="text-caption text-color-muted">{{ seatsLabel() }}</div>
-
-    @if (isOpen()) {
-      <div class="driver-trip__actions-row">
-        <ion-button
-          type="button"
-          fill="outline"
-          color="danger"
-          [disabled]="isCancelling() || isChangingStatus()"
-          (click)="handleCancel()"
-        >
-          {{ isCancelling() ? 'Cancelando…' : 'Cancelar viaje' }}
-        </ion-button>
-        @if (trip().status === 'confirmed') {
-          <form (submit)="$event.preventDefault(); handleStart()">
-            <ion-button type="submit" [disabled]="!canStart() || isChangingStatus()">
-              {{ isChangingStatus() ? 'Iniciando…' : 'Iniciar viaje' }}
-            </ion-button>
-          </form>
+    <!-- Las plazas como asientos: ocupados en azul, libres con borde -->
+    <div class="driver-trip__seats">
+      <span class="driver-trip__seat-row" aria-hidden="true">
+        @for (isTaken of seats(); track $index) {
+          <span class="driver-trip__seat" [class.driver-trip__seat--taken]="isTaken"></span>
         }
-      </div>
-      @if (startHint(); as hint) {
-        <p class="driver-trip__hint text-caption text-color-muted">{{ hint }}</p>
-      }
-    }
-
-    @if (isInProgress()) {
-      <div class="notice notice--info driver-trip__sharing">
-        <ion-icon [icon]="locationIcon" aria-hidden="true" />
-        <span>Compartiendo tu ubicación con tus pasajeros</span>
-      </div>
-      <div class="driver-trip__actions-row">
-        <form (submit)="$event.preventDefault(); handleFinish()">
-          <ion-button type="submit" fill="outline" [disabled]="isChangingStatus()">
-            {{ isChangingStatus() ? 'Terminando…' : 'Terminar viaje' }}
-          </ion-button>
-        </form>
-        <ion-button [routerLink]="livePath()">Abrir viaje</ion-button>
-      </div>
-    }
-
-    <!-- Con pasajeros (confirmado o en curso): hablar con ellos -->
-    @if (hasChat()) {
-      <app-trip-chat-link [tripId]="trip().id" />
-    }
+      </span>
+      <span class="text-body-s">{{ seatsLabel() }}</span>
+    </div>
 
     @if (isOpen()) {
       <div class="driver-trip__requests">
@@ -131,6 +87,11 @@
           </ul>
         }
       </div>
+    }
+
+    <!-- Con pasajeros (confirmado o en curso): hablar con ellos -->
+    @if (hasChat()) {
+      <app-trip-chat-link [tripId]="trip().id" />
     }
   </ion-card-content>
 </ion-card>

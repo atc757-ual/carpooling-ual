@@ -140,7 +140,7 @@ for (const viewport of VIEWPORTS) {
       }).as('cancelTrip');
       openTripDetail();
 
-      cy.contains('app-driver-trip-card ion-button', 'Cancelar viaje').click();
+      cy.contains('app-driver-trip-actions ion-button', 'Cancelar viaje').click();
       cy.contains('app-confirm-modal', '¿Cancelar este viaje?').should('be.visible');
       cy.contains('app-confirm-modal ion-button', 'Cancelar viaje').click();
 
@@ -155,11 +155,11 @@ for (const viewport of VIEWPORTS) {
       openMyTrips([trip(1, 'confirmed', 60)]);
       openTripDetail();
 
-      cy.contains('app-driver-trip-card ion-button', 'Iniciar viaje').should(
+      cy.contains('app-driver-trip-actions ion-button', 'Iniciar viaje').should(
         'have.attr',
         'disabled',
       );
-      cy.contains('app-driver-trip-card', 'Podrás iniciarlo desde las');
+      cy.contains('app-driver-trip-actions', 'Disponible desde las');
     });
 
     // Con el permiso del dispositivo dado, solo se confirma la declaración
@@ -172,10 +172,10 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('POST', '/api/trips/t1/positions', { statusCode: 201 }).as('position');
       openTripDetail();
       // El detalle ya cargado con el viaje confirmado; a partir de aquí, en curso
-      cy.contains('app-driver-trip-card ion-button', 'Iniciar viaje').should('be.visible');
+      cy.contains('app-driver-trip-actions ion-button', 'Iniciar viaje').should('be.visible');
       cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'in_progress', 5)]);
 
-      cy.contains('app-driver-trip-card ion-button', 'Iniciar viaje').click();
+      cy.contains('app-driver-trip-actions ion-button', 'Iniciar viaje').click();
       cy.contains('app-confirm-modal', 'confirmas que sigues cumpliendo').should('be.visible');
       cy.contains('app-confirm-modal ion-button', 'Iniciar viaje').click();
 
