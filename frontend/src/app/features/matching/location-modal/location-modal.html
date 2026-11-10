@@ -1,6 +1,10 @@
+<!-- Sin ✕ en lo que va dentro de otra ventana: leyendo el texto legal (se
+     vuelve con la flecha o «Entendido») y con pickPoint, que se abre desde el
+     parking del panel (se sale con «Usar este punto» o «Cancelar») -->
 <app-modal-header
   [title]="title"
   [hasBack]="isReadingTerms()"
+  [hasClose]="!isReadingTerms() && !pickPoint"
   (back)="handleCloseTerms()"
   (closed)="close()"
 />
@@ -101,6 +105,13 @@
               {{ pickPoint ? 'Usar este punto' : 'Usar esta dirección' }}
             </ion-button>
           </form>
+          @if (pickPoint) {
+            <form (submit)="$event.preventDefault(); close()">
+              <ion-button class="location__cancel" type="submit" expand="block" fill="clear">
+                Cancelar
+              </ion-button>
+            </form>
+          }
         }
 
         <!-- Solo ver un lugar: el mapa con el pin fijo -->

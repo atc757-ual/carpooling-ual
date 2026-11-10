@@ -1,4 +1,10 @@
-<app-modal-header [title]="vehicle ? 'Editar vehículo' : 'Registrar vehículo'" (closed)="close()" />
+<!-- Leyendo la declaración (un paso dentro de esta ventana) no hay ✕: se sale
+     con sus botones -->
+<app-modal-header
+  [title]="vehicle ? 'Editar vehículo' : 'Registrar vehículo'"
+  [hasClose]="!form()?.isReadingDeclaration()"
+  (closed)="close()"
+/>
 
 <!-- Sin ion-content: así la ventana toma el alto de su contenido -->
 <div class="modal-body vehicle-modal">
