@@ -3,6 +3,7 @@ import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { BackgroundLocationService } from './background-location.service';
 import { LocationConsentService } from './location-consent.service';
+import { ToastService } from '../ui/toast.service';
 
 // Hasta cuándo se espera a la ubicación, y con qué precisión (la de una
 // calle: para recoger a alguien)
@@ -67,6 +68,7 @@ export class LocationService {
   private readonly geolocation = inject(GEOLOCATION);
   private readonly consent = inject(LocationConsentService);
   private readonly background = inject(BackgroundLocationService);
+  private readonly toast = inject(ToastService);
 
   // Si ya se dio el permiso, se denegó o aún no se ha preguntado (también si
   // el navegador no deja saberlo); antes que nada, si el usuario dejó de
@@ -90,9 +92,15 @@ export class LocationService {
 
   // Con el consentimiento dado, el usuario quitó el permiso en los ajustes del
   // sistema: se registra la retirada (origen device) para que el registro
-  // refleje lo que pasó. Si falla, se intentará la próxima vez
+  // refleje lo que pasó. Si falla, se avisa y se intentará la próxima vez
   async recordDeviceWithdrawal(): Promise<void> {
-    await this.consent.set('revoked', 'device').catch(() => undefined);
+    try {
+      await this.consent.set('revoked', 'device');
+    } catch {
+      void this.toast.showError(
+        'No hemos podido guardar que has quitado el permiso de ubicación. Lo intentaremos de nuevo.',
+      );
+    }
   }
 
   // Solo el permiso del dispositivo o del navegador (en Perfil, junto al
@@ -155,6 +163,18 @@ export class LocationService {
     if (!(await this.isAllowed(use))) {
       throw new LocationError('revoked');
     }
+    return this.readLocation();
+  }
+
+  // Solo el permiso del dispositivo (Perfil → Ajustes): el sistema lo pide al
+  // leer la ubicación, sin mirar el consentimiento de la app, que es otra
+  // cosa. Devuelve cómo queda; lanza LocationError si no se puede leer
+  async requestDevicePermission(): Promise<Exclude<LocationPermission, 'revoked'>> {
+    await this.readLocation();
+    return this.checkDevicePermission();
+  }
+
+  private async readLocation(): Promise<CurrentLocation> {
     if (Capacitor.isNativePlatform()) {
       const { location } = await this.geolocation.requestPermissions({ permissions: ['location'] });
       if (location !== 'granted') {

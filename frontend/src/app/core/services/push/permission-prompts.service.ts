@@ -37,7 +37,8 @@ export class PermissionPromptsService {
       return;
     }
     const canAskPush = this.push.status() === 'off';
-    const canAskLocation = (await this.location.checkPermission()) === 'prompt';
+    // Solo el permiso del dispositivo, decida lo que decida en la app
+    const canAskLocation = (await this.location.checkDevicePermission()) === 'prompt';
     if (!canAskPush && !canAskLocation) {
       return;
     }

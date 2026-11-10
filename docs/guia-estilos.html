@@ -550,7 +550,7 @@
     <p class="note">Ejemplos para ver el sistema aplicado; en la app se construyen con los componentes de Ionic (<code>ion-button</code>, <code>ion-input</code>, <code>ion-input-otp</code>, <code>ion-select</code>, <code>ion-toggle</code>, <code>ion-checkbox</code>, <code>ion-segment</code>, <code>ion-tabs</code>), personalizados con sus variables CSS y <code>::part()</code>. Usa el tabulador para ver el foco.</p>
 
     <h3>Botones</h3>
-    <p class="note">Altura 3,25rem, esquinas 0,5rem, Barlow 600 sin mayúsculas. Un solo botón principal por pantalla. Las acciones destructivas (eliminar, cancelar, desactivar) siempre con confirmación y sin rojo: en ella, «Cancelar» es el botón principal azul y la acción va en blanco con borde y letras azules. En las ventanas de confirmación, los dos botones van en fila (también en el móvil) con el azul a la derecha: «Eliminar · Cancelar». Cerrar sesión no es destructivo: su confirmación va en azul y en positivo.</p>
+    <p class="note">Altura 3,25rem, esquinas 0,5rem, Barlow 600 sin mayúsculas. Un solo botón principal por pantalla. Las acciones destructivas (eliminar, cancelar, desactivar) siempre con confirmación y sin rojo: en ella, «Cancelar» es el botón principal azul y la acción va en blanco con borde y letras azules. En las ventanas, el botón azul va siempre primero: a la izquierda en escritorio («Cancelar · Eliminar») y arriba en el móvil, con el blanco debajo. Cerrar sesión no es destructivo: su confirmación va en azul y en positivo.</p>
     <div class="scroll"><table>
       <thead><tr><th>Variante</th><th>Ejemplo</th><th>Uso</th></tr></thead>
       <tbody>
@@ -798,7 +798,7 @@
       </nav>
     </div>
     <p class="text-meta">Cabecera: logotipo, cuenta y las seis secciones en este orden. La activa se subraya; Incidencias lleva el número de abiertas (y «abiertas» para el lector de pantalla). El correo abre el menú de la cuenta: «Ir a la app» (solo si también conduce o viaja) y «Cerrar sesión» (con la misma confirmación que la app; cierra las dos partes).</p>
-    <p class="text-meta">Una cuenta, dos partes: tras iniciar sesión se entra en la última parte usada (el administrador que solo es administrador, siempre al panel), sin pantalla intermedia. Desde la app, quien es administrador vuelve al panel con «Panel de administración» en el Perfil o el escudo de la cabecera.</p>
+    <p class="text-meta">Una cuenta, dos partes: tras iniciar sesión se entra en la última parte usada (el administrador que solo es administrador, siempre al panel), sin pantalla intermedia. Desde la app, quien es administrador vuelve al panel con el escudo de la cabecera.</p>
 
     <div class="filter-bar">
       <label class="field"><span class="field__label">Buscar usuario</span><span class="field__control"><input type="search" placeholder="Nombre o correo"></span></label>
@@ -954,9 +954,10 @@
 
     <h3>Marco común de las ventanas</h3>
     <ul class="note">
-      <li><b>Tamaño:</b> como mucho el <b>85 %</b> del alto de la pantalla. Formularios, avisos y confirmaciones (<code>info-dialog</code>) y el mapa (<code>location-dialog</code>) miden lo que su contenido; los textos legales (<code>legal-dialog</code>), siempre el 85 %. En escritorio, centradas y de <b>720px</b> (<code>45rem</code>); en el móvil, una hoja pegada abajo con su muesca.</li>
-      <li><b>Cabecera</b> (<code>app-modal-header</code>, clase <code>.modal-header</code>): fija, con el título a la izquierda y la ✕ (<code>.modal-close-button</code>, botón de 48px con icono de 28px) a la derecha. Ninguna ventana repite su propio botón de cerrar.</li>
+      <li><b>Tamaño:</b> como mucho el <b>85 %</b> del alto de la pantalla. Formularios, avisos y confirmaciones (<code>info-dialog</code>) y el mapa (<code>location-dialog</code>) miden lo que su contenido; los textos legales (<code>legal-dialog</code>), lo que mida el texto, como mucho el 70 %. En escritorio, centradas y de <b>720px</b> (<code>45rem</code>); en el móvil, una hoja pegada abajo con su muesca.</li>
+      <li><b>Cabecera</b> (<code>app-modal-header</code>, clase <code>.modal-header</code>): fija, con el título a la izquierda y la ✕ (<code>.modal-close-button</code>, botón de 48px con icono de 28px) a la derecha. Ninguna ventana repite su propio botón de cerrar. Excepción: los textos legales no llevan ✕; se cierran con «Entendido», al final del texto.</li>
       <li><b>Contenido</b> (<code>.modal-body</code>): 16px de relleno (abajo, como mínimo 24px más la barra del sistema), fondo de superficie y <b>su propio scroll</b> cuando no cabe. Las confirmaciones, sin cabecera, también lo usan.</li>
+      <li><b>Lista de puntos</b> (<code>.bullet-list</code>): cuando una ventana explica varias cosas (qué pasa al confirmar, para qué se usa un dato), una por línea en lugar de un párrafo. Alineada a la izquierda aunque la ventana vaya centrada, en texto pequeño y gris. En las confirmaciones, con <code>points</code>.</li>
     </ul>
 
     <h3>Confirmación destructiva</h3>

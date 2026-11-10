@@ -8,7 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { IonContent, IonSpinner, ModalController } from '@ionic/angular';
+import { IonButton, IonSpinner, ModalController } from '@ionic/angular';
 import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { ModalHeader } from '../modal-header/modal-header';
 import {
@@ -26,10 +26,9 @@ export type LegalDocument = LegalDocumentType;
 // leerlo sin salir del formulario. Se abre con openLegalModal()
 @Component({
   selector: 'app-legal-modal',
-  // ion-page: así Ionic reparte el alto entre la cabecera y el contenido (sin
-  // ella, ion-content se queda sin alto y el texto se sale sin fondo)
+  // ion-page: la ventana mide su contenido (legal-dialog, en el tema)
   host: { class: 'ion-page' },
-  imports: [ModalHeader, IonContent, IonSpinner, LegalChanges],
+  imports: [ModalHeader, IonButton, IonSpinner, LegalChanges],
   templateUrl: './legal-modal.html',
   styleUrl: './legal-modal.scss',
 })
@@ -90,6 +89,13 @@ export class LegalModal implements OnInit {
     return 'No hemos podido cargar el texto. Comprueba tu conexión e inténtalo de nuevo.';
   }
 
+  get understoodLabel(): string {
+    if (this.transloco) {
+      return this.transloco.translate('common.legal.understood');
+    }
+    return 'Entendido';
+  }
+
   get loadingAriaLabel(): string {
     if (this.transloco) {
       return this.transloco.translate('common.legal.loadingAria');
@@ -115,7 +121,8 @@ export class LegalModal implements OnInit {
   }
 }
 
-// Abre un texto legal en su ventana (legal-dialog: el 70 % del alto; en el
+// Abre un texto legal en su ventana (legal-dialog: el alto del texto, como
+// mucho el 70 %; en el
 // móvil, una hoja desde abajo), igual desde el registro que desde Mi perfil
 export async function openLegalModal(
   modalController: ModalController,

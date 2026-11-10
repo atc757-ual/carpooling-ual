@@ -22,8 +22,12 @@
     }
   </div>
 
-  <!-- Aceptar a la izquierda (arriba en móvil) y Cancelar a la derecha (abajo en móvil) -->
+  <!-- El azul (Cancelar) a la izquierda (arriba en móvil) y la acción a la
+       derecha (abajo en móvil) -->
   <div class="confirm__actions">
+    <ion-button type="button" expand="block" (click)="handleCancel()">{{
+      computedCancelText
+    }}</ion-button>
     <ion-button
       class="confirm__secondary"
       type="submit"
@@ -33,8 +37,5 @@
     >
       {{ confirmText }}
     </ion-button>
-    <ion-button type="button" expand="block" (click)="handleCancel()">{{
-      computedCancelText
-    }}</ion-button>
   </div>
 </form>

@@ -1,13 +1,15 @@
 <ion-header class="ion-no-border modal-header">
   <ion-toolbar>
     <ion-title>{{ title() }}</ion-title>
-    <ion-buttons slot="end">
-      <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
-      <form (submit)="$event.preventDefault(); closed.emit()">
-        <ion-button class="modal-close-button" type="submit" [attr.aria-label]="closeLabel()">
-          <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
-        </ion-button>
-      </form>
-    </ion-buttons>
+    @if (hasClose()) {
+      <ion-buttons slot="end">
+        <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
+        <form (submit)="$event.preventDefault(); closed.emit()">
+          <ion-button class="modal-close-button" type="submit" [attr.aria-label]="closeLabel()">
+            <ion-icon slot="icon-only" [icon]="closeIcon" aria-hidden="true" />
+          </ion-button>
+        </form>
+      </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>

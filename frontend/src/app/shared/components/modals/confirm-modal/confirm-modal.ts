@@ -17,6 +17,8 @@ export class ConfirmModal {
   // Los pasa ModalController (componentProps), por eso son @Input clásicos
   @Input({ required: true }) header!: string;
   @Input({ required: true }) message!: string;
+  // Los efectos, uno por línea, debajo de la explicación
+  @Input() points: readonly string[] = [];
   @Input({ required: true }) confirmText!: string;
   @Input() cancelText = 'Cancelar';
   @Input({ required: true }) icon!: string;

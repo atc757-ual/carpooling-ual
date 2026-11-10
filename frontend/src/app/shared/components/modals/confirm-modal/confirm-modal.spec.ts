@@ -10,6 +10,7 @@ describe('ConfirmModal', () => {
   function render(
     isDestructive: boolean,
     isWarning = false,
+    points: string[] = [],
   ): { root: HTMLElement; modal: ConfirmModal } {
     TestBed.configureTestingModule({
       imports: [ConfirmModal],
@@ -27,6 +28,7 @@ describe('ConfirmModal', () => {
       icon: 'log-out-outline',
       isDestructive,
       isWarning,
+      points,
     });
     fixture.detectChanges();
     return { root: fixture.nativeElement as HTMLElement, modal: fixture.componentInstance };
@@ -36,10 +38,19 @@ describe('ConfirmModal', () => {
     const { root } = render(true);
 
     expect(root.textContent).toContain('¿Cerrar sesión?');
-    const [action, cancel] = [...root.querySelectorAll('ion-button')];
+    const [cancel, action] = [...root.querySelectorAll('ion-button')];
     expect(action.textContent?.trim()).toBe('Cerrar sesión');
     expect(action.classList).toContain('confirm__secondary');
     expect(cancel.textContent?.trim()).toBe('Cancelar');
+  });
+
+  it('lists the effects one per line, only when there are any', () => {
+    expect(render(false).root.querySelector('.bullet-list')).toBeNull();
+
+    TestBed.resetTestingModule();
+    const { root } = render(false, false, ['Uno', 'Dos']);
+    const items = [...root.querySelectorAll('.bullet-list li')].map((li) => li.textContent);
+    expect(items).toEqual(['Uno', 'Dos']);
   });
 
   it('shows the icon in amber only for a warning', () => {

@@ -17,6 +17,9 @@ export class ModalHeader {
   // El texto de la ✕ para los lectores de pantalla (las pantallas traducidas
   // pasan el suyo)
   readonly closeLabel = input('Cerrar');
+  // Sin la ✕ cuando la ventana se cierra con su propio botón (p. ej.
+  // «Entendido» en los textos legales)
+  readonly hasClose = input(true);
   readonly closed = output<void>();
 
   protected readonly closeIcon = close;

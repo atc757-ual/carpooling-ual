@@ -66,6 +66,7 @@
     "legal": {
       "loadError": "No hemos podido cargar el texto. Comprueba tu conexión e inténtalo de nuevo.",
       "loadingAria": "Cargando el texto",
+      "understood": "Entendido",
       "changesInVersion": "Qué ha cambiado en la versión {{ version }}",
       "documents": {
         "terms": "Condiciones de uso",
@@ -152,7 +153,6 @@
     "pushDeniedTag": "Bloqueadas",
     "pushUnsupportedTag": "No disponibles",
     "logout": "Cerrar sesión",
-    "adminPanel": "Panel de administración",
     "privacy": {
       "title": "Privacidad",
       "hashTitle": "Código que acredita tu aceptación",
@@ -175,7 +175,7 @@
     },
     "location": {
       "title": "Ubicación",
-      "shareLocation": "Ubicación y estadísticas",
+      "shareLocation": "Usar mi ubicación",
       "shareDesc": "Permite analizar trayectos de forma anónima para calcular emisiones ahorradas (CO₂), optimizar paradas del campus y mejorar la movilidad en la UAL. No se comparte con otros usuarios ni se guarda tu histórico personal.",
       "authorizedOn": "Autorizada el {{ date }}",
       "withdrawnOn": "Retirada el {{ date }}",
@@ -184,8 +184,8 @@
       "hashTitle": "Código que acredita el registro",
       "hashHidden": "Código que acredita el registro:",
       "devicePermission": "Ubicación en este dispositivo",
-      "devicePromptDesc": "Permiso del navegador o móvil para detectar paradas y desvíos.",
-      "deviceGrantedDesc": "Solo puedes quitarlo en los ajustes del navegador o del móvil.",
+      "devicePromptDesc": "Permiso del navegador o del móvil para ver tu ubicación cuando la uses.",
+      "deviceGrantedDesc": "Solo lo usamos si tienes activado «Usar mi ubicación» en Privacidad o si conduces un viaje en curso. Para quitarlo, ve a los ajustes del navegador o del móvil.",
       "deviceDeniedDesc": "Actívalo en los ajustes del navegador o del móvil.",
       "authorized": "Autorizado",
       "blocked": "Bloqueado",
@@ -477,22 +477,22 @@
     }
   },
   "permissions": {
-    "title": "Saca más partido a la app",
-    "description": "Puedes activar cada permiso por separado, ahora o más adelante.",
+    "title": "Permisos de este dispositivo",
+    "description": "Tu navegador o tu móvil te preguntarán por cada uno. Puedes activarlos ahora o más adelante, y quitarlos cuando quieras en sus ajustes.",
     "enable": "Activar",
     "later": "Más tarde",
     "continue": "Continuar",
     "done": "Activado",
     "blocked": "No activado",
-    "enabled": "Te avisaremos aunque tengas la app cerrada.",
+    "enabled": "Te avisaremos aunque no tengas Carpooling UAL abierto.",
     "enableError": "No hemos podido activar las notificaciones. Inténtalo de nuevo.",
     "push": {
       "title": "Notificaciones",
-      "description": "Para avisarte de tus viajes y mensajes."
+      "description": "Para avisarte de tus viajes y mensajes, aunque no tengas Carpooling UAL abierto."
     },
     "location": {
       "title": "Ubicación",
-      "description": "Para encontrar viajes cerca de ti.",
+      "description": "Para rellenar direcciones cuando lo pidas y, si conduces, seguir tu viaje en curso.",
       "terms": "Leer cómo se usa"
     },
     "offer": {

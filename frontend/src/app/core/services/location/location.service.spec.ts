@@ -4,6 +4,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { vi } from 'vitest';
 import { BackgroundLocationService } from './background-location.service';
 import { LocationConsentService } from './location-consent.service';
+import { ToastService } from '../ui/toast.service';
 import { GEOLOCATION, LocationError, LocationService } from './location.service';
 
 describe('LocationService', () => {
@@ -18,6 +19,7 @@ describe('LocationService', () => {
   };
   const consent = { getStatus: vi.fn(), set: vi.fn() };
   const background = { start: vi.fn(), stop: vi.fn() };
+  const toast = { showError: vi.fn().mockResolvedValue(undefined) };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -28,6 +30,7 @@ describe('LocationService', () => {
         { provide: GEOLOCATION, useValue: geolocation },
         { provide: LocationConsentService, useValue: consent },
         { provide: BackgroundLocationService, useValue: background },
+        { provide: ToastService, useValue: toast },
       ],
     });
     location = TestBed.inject(LocationService);
@@ -141,6 +144,33 @@ describe('LocationService', () => {
 
     await expect(location.checkPermission()).resolves.toBe('denied');
     expect(consent.set).toHaveBeenCalledWith('revoked', 'device');
+    expect(toast.showError).not.toHaveBeenCalled();
+  });
+
+  it('warns with a toast when the withdrawal cannot be recorded', async () => {
+    geolocation.checkPermissions.mockResolvedValueOnce({ location: 'denied' });
+    consent.set.mockRejectedValue(new Error('offline'));
+
+    await expect(location.checkPermission()).resolves.toBe('denied');
+    expect(toast.showError).toHaveBeenCalledWith(
+      'No hemos podido guardar que has quitado el permiso de ubicación. Lo intentaremos de nuevo.',
+    );
+  });
+
+  // El permiso del dispositivo (Perfil → Ajustes) no depende del consentimiento
+  it('asks for the device permission without the consent of the app', async () => {
+    consent.getStatus.mockResolvedValue('revoked');
+    geolocation.getCurrentPosition.mockResolvedValue(position(-2.46, 36.84));
+    geolocation.checkPermissions.mockResolvedValue({ location: 'granted' });
+
+    await expect(location.requestDevicePermission()).resolves.toBe('granted');
+    expect(consent.set).not.toHaveBeenCalled();
+  });
+
+  it('fails to ask for the device permission when the user denies it', async () => {
+    geolocation.getCurrentPosition.mockRejectedValue({ code: 1 });
+
+    await expect(location.requestDevicePermission()).rejects.toEqual(new LocationError('denied'));
   });
 
   it('knows whether the permission was given, denied or not asked yet', async () => {

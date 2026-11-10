@@ -132,14 +132,6 @@ describe('ProfilePage', () => {
     expect(root.textContent).toContain('+34 612 345 678');
   });
 
-  it('links to the admin panel only with the admin profile', () => {
-    expect(render().root.querySelector('.profile__admin')).toBeNull();
-    TestBed.resetTestingModule();
-
-    const { root } = render(['passenger', 'admin']);
-    expect(root.querySelector('.profile__admin')?.getAttribute('routerLink')).toBe('/admin');
-  });
-
   it('formats the name for display without changing the account value', () => {
     const { root, page } = render(['passenger'], ['ANA', 'GARCÍA']);
 

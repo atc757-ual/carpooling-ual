@@ -130,6 +130,13 @@ describe('RouteFields', () => {
       expect(reverse).not.toHaveBeenCalled();
     });
 
+    // Retirado en Perfil, aunque el permiso del dispositivo siga dado
+    it('does not fill the origin in when the user stopped sharing the location', async () => {
+      await render({ permission: 'revoked' });
+
+      expect(reverse).not.toHaveBeenCalled();
+    });
+
     it('suggests going home when it is at the campus, and swaps the direction', async () => {
       await render({ point: PARKING_POINT, permission: 'granted' });
 

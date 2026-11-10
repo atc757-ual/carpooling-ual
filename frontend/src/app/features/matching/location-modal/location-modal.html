@@ -10,13 +10,18 @@
         <div class="location__state">
           <ion-icon [icon]="locateIcon" aria-hidden="true" />
           <div class="text-subtitle">Rellenamos la dirección con tu ubicación</div>
-          <div class="text-body-s text-color-muted">
-            Solo la usamos para esta búsqueda y no la guardamos. Tu navegador o el móvil te pedirán
-            permiso.
-          </div>
+          <ul class="bullet-list text-body-s">
+            <li>
+              Al pulsar «Continuar», si aún no has dado permiso, tu navegador o el móvil te lo
+              pedirán.
+            </li>
+            <li>La usamos solo para encontrar la dirección: no guardamos tu posición.</li>
+            <li>Si publicas el viaje o solicitas plaza, guardamos la dirección elegida.</li>
+            <li>Puedes desactivarlo cuando quieras en Perfil.</li>
+          </ul>
           @if (isOutdated()) {
             <div class="text-body-s">
-              Hemos actualizado cómo usamos tu ubicación: al buscarla, aceptas el texto nuevo.
+              Hemos actualizado cómo usamos tu ubicación: al continuar, aceptas el texto nuevo.
             </div>
           }
           <button type="button" class="location__link text-body-s" (click)="handleReadTerms()">
@@ -24,7 +29,7 @@
           </button>
         </div>
         <form (submit)="$event.preventDefault(); handleShare()">
-          <ion-button type="submit" expand="block">Buscar mi ubicación</ion-button>
+          <ion-button type="submit" expand="block">Continuar</ion-button>
         </form>
       }
 
@@ -103,8 +108,12 @@
           <ion-icon [icon]="locateIcon" aria-hidden="true" />
           <div class="text-subtitle">Has dejado de compartir tu ubicación</div>
           <div class="text-body-s text-color-muted">
-            Puedes volver a compartirla para usarla aquí, o escribir la dirección.
+            Puedes volver a compartirla para usarla aquí, o escribir la dirección. Si aún no has
+            dado permiso, tu navegador o el móvil te lo pedirán.
           </div>
+          <button type="button" class="location__link text-body-s" (click)="handleReadTerms()">
+            Cómo usamos tu ubicación
+          </button>
         </div>
         <div class="location__actions">
           <form (submit)="$event.preventDefault(); handleShare()">

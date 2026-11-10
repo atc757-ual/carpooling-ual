@@ -102,13 +102,19 @@ describe('LegalModal', () => {
     vi.unstubAllGlobals();
   });
 
-  it('closes itself', async () => {
+  // Sin ✕: se cierra con «Entendido», al final del texto
+  it('closes with «Entendido» at the end of the text, without the ✕', async () => {
     await open('terms');
     http
       .expectOne('/api/legal-documents/terms')
       .flush({ type: 'terms', version: '1.0', content: '', publishedAt: null });
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
 
-    await fixture.componentInstance.close();
+    expect(root.querySelector('.modal-close-button')).toBeNull();
+    const form = root.querySelector('.modal-body .legal__footer') as HTMLFormElement;
+    expect(form.textContent?.trim()).toBe(fixture.componentInstance.understoodLabel);
+    form.dispatchEvent(new Event('submit'));
 
     expect(dismiss).toHaveBeenCalled();
   });

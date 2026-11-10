@@ -294,11 +294,12 @@ ion-modal ion-title {
 // de ancho; en el móvil, una hoja pegada abajo. Las de formularios, avisos y
 // confirmaciones (info-dialog) y la de la ubicación (location-dialog) son tan
 // altas como su contenido, como mucho el 92 % de la pantalla (en escritorio,
-// más abajo, 768px); los textos legales (legal-dialog), del 70 %. El
+// más abajo, 768px); los textos legales (legal-dialog), como mucho el 70 %. El
 // contenido de las primeras no usa ion-content (con él, Ionic no podría
 // calcular el alto): va en un .modal-body con su propio scroll
 ion-modal.location-dialog,
-ion-modal.info-dialog {
+ion-modal.info-dialog,
+ion-modal.legal-dialog {
   --max-height: 92%;
   --height: auto;
 
@@ -310,8 +311,11 @@ ion-modal.info-dialog {
 }
 
 ion-modal.legal-dialog {
-  --height: 70%;
   --max-height: 70%;
+
+  .modal-body {
+    max-height: calc(70vh - 3.5rem); // menos la cabecera (56px)
+  }
 }
 
 @media (min-width: 768px) {
@@ -981,4 +985,18 @@ ion-searchbar.admin-heading__search {
     max-width: 100%;
     margin-inline: auto;
   }
+}
+
+// Lista de puntos en las ventanas (confirmaciones y avisos): cada efecto en su
+// línea en lugar de un párrafo. Alineada a la izquierda aunque la ventana vaya
+// centrada, con el texto pequeño y gris de la explicación
+.bullet-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+  margin: 0;
+  padding-left: var(--space-l);
+  color: var(--color-text-muted);
+  text-align: left;
 }

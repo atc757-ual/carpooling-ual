@@ -58,7 +58,8 @@ describe('LocationModal', () => {
   const text = (): string => (fixture.nativeElement as HTMLElement).textContent ?? '';
 
   it('explains what the location is for before asking for it', () => {
-    expect(text()).toContain('Solo la usamos para esta búsqueda y no la guardamos.');
+    expect(text()).toContain('no guardamos tu posición');
+    expect(text()).toContain('Continuar');
     expect(location.getCurrentPoint).not.toHaveBeenCalled();
   });
 
@@ -191,6 +192,7 @@ describe('LocationModal', () => {
 
     expect(modal.step()).toBe('revoked');
     expect(text()).toContain('Has dejado de compartir tu ubicación');
+    expect(text()).toContain('Cómo usamos tu ubicación');
     expect(location.getCurrentPoint).not.toHaveBeenCalled();
   });
 

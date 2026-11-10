@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { provideTestingTransloco } from '../../../../core/i18n/testing-transloco';
-import { LocationConsentService } from '../../../../core/services/location/location-consent.service';
 import {
   LocationError,
   LocationService,
@@ -12,8 +11,7 @@ import { PermissionsModal } from './permissions-modal';
 describe('PermissionsModal', () => {
   let fixture: ComponentFixture<PermissionsModal>;
   const enable = vi.fn();
-  const getCurrentPoint = vi.fn();
-  const setConsent = vi.fn();
+  const requestDevicePermission = vi.fn();
   const dismiss = vi.fn().mockResolvedValue(true);
 
   function render(inputs: Partial<PermissionsModal>): PermissionsModal {
@@ -23,8 +21,7 @@ describe('PermissionsModal', () => {
         provideIonicAngular(),
         provideTestingTransloco(),
         { provide: PushNotificationsService, useValue: { enable } },
-        { provide: LocationService, useValue: { getCurrentPoint } },
-        { provide: LocationConsentService, useValue: { set: setConsent } },
+        { provide: LocationService, useValue: { requestDevicePermission } },
         { provide: ModalController, useValue: { dismiss } },
       ],
     });
@@ -40,8 +37,7 @@ describe('PermissionsModal', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    setConsent.mockResolvedValue(undefined);
-    getCurrentPoint.mockResolvedValue([-2.4, 36.8]);
+    requestDevicePermission.mockResolvedValue('granted');
   });
 
   it('shows only what can be asked', () => {
@@ -57,7 +53,7 @@ describe('PermissionsModal', () => {
 
     expect(modal.pushState()).toBe('done');
     expect(modal.locationState()).toBe('idle');
-    expect(setConsent).not.toHaveBeenCalled();
+    expect(requestDevicePermission).not.toHaveBeenCalled();
     expect(modal.isAnswered()).toBe(false);
   });
 
@@ -73,23 +69,40 @@ describe('PermissionsModal', () => {
     expect(modal.isAnswered()).toBe(true);
   });
 
-  it('records the consent before asking for the location', async () => {
+  // Solo el permiso del dispositivo: el consentimiento de la app es otra cosa
+  it('asks only for the device permission of the location', async () => {
     const modal = render({ canAskLocation: true });
 
     await modal.handleEnableLocation();
 
-    expect(setConsent).toHaveBeenCalledWith('granted', 'location_prompt');
-    expect(getCurrentPoint).toHaveBeenCalledTimes(1);
+    expect(requestDevicePermission).toHaveBeenCalledTimes(1);
     expect(modal.locationState()).toBe('done');
+  });
+
+  it('marks the location as blocked when the device permission is not given', async () => {
+    const modal = render({ canAskLocation: true });
+    requestDevicePermission.mockResolvedValueOnce('prompt');
+
+    await modal.handleEnableLocation();
+
+    expect(modal.locationState()).toBe('blocked');
+  });
+
+  it('rethrows unexpected errors when asking for the location', async () => {
+    const modal = render({ canAskLocation: true });
+    requestDevicePermission.mockRejectedValueOnce(new Error('boom'));
+
+    await expect(modal.handleEnableLocation()).rejects.toThrow('boom');
+    expect(modal.locationState()).toBe('idle');
   });
 
   it('tells a refused location apart from having no signal', async () => {
     const modal = render({ canAskLocation: true });
-    getCurrentPoint.mockRejectedValueOnce(new LocationError('denied'));
+    requestDevicePermission.mockRejectedValueOnce(new LocationError('denied'));
     await modal.handleEnableLocation();
     expect(modal.locationState()).toBe('blocked');
 
-    getCurrentPoint.mockRejectedValueOnce(new LocationError('unavailable'));
+    requestDevicePermission.mockRejectedValueOnce(new LocationError('unavailable'));
     await modal.handleEnableLocation();
     expect(modal.locationState()).toBe('done');
   });

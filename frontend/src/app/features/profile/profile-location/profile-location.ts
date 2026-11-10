@@ -6,6 +6,7 @@ import { UserConsents } from '../../../core/models/user-consent.model';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { TripSearchStateService } from '../../matching/trip-search-state.service';
 import { openLegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { toConsentStamp } from '../consent-stamp';
 
@@ -22,6 +23,7 @@ export class ProfileLocation implements OnInit {
   private readonly consent = inject(LocationConsentService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
+  private readonly tripSearch = inject(TripSearchStateService);
   private readonly modalController = inject(ModalController);
 
   readonly consents = signal<UserConsents | null>(null);
@@ -59,6 +61,11 @@ export class ProfileLocation implements OnInit {
     }
     try {
       this.consents.set(await this.consent.set(action));
+      // La última búsqueda (en esta pestaña) puede llevar una dirección sacada
+      // de la ubicación: al dejar de usarla, se olvida entera
+      if (action === 'revoked') {
+        this.tripSearch.clear();
+      }
       void this.toast.showSuccess(
         action === 'granted' ? 'Compartes tu ubicación.' : 'Has dejado de compartir tu ubicación.',
       );
@@ -75,11 +82,16 @@ export class ProfileLocation implements OnInit {
 
   private confirmRevoke(): Promise<boolean> {
     return this.confirm.ask({
-      header: '¿Dejar de tratar tu ubicación para análisis?',
-      message:
-        'No la usaremos para calcular emisiones ahorradas ni optimizar rutas. Podrás seguir buscando y publicando viajes indicando los puntos de forma manual.',
-      confirmText: 'Dejar de permitir',
-      cancelText: 'Seguir permitiendo',
+      header: '¿Dejar de usar tu ubicación?',
+      message: 'Si la desactivas:',
+      points: [
+        'No la usaremos para rellenar direcciones, proponerte volver a casa ni mostrarte en el mapa del viaje en curso. Podrás escribir las direcciones.',
+        'Borraremos tu última búsqueda de este navegador.',
+        'El permiso del navegador o del móvil seguirá concedido. Si quieres, quítalo en sus ajustes.',
+        'Si conduces, tu ubicación durante el viaje en curso se seguirá usando, porque forma parte del servicio.',
+      ],
+      confirmText: 'Dejar de usarla',
+      cancelText: 'Seguir usándola',
       isDestructive: true,
     });
   }

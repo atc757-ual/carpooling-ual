@@ -6,6 +6,7 @@ import { ConsentRecord, UserConsents } from '../../../core/models/user-consent.m
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { TripSearchStateService } from '../../matching/trip-search-state.service';
 import { ProfileLocation } from './profile-location';
 
 function consents(action: 'granted' | 'revoked' | null, isOutdated = false): UserConsents {
@@ -39,6 +40,7 @@ describe('ProfileLocation', () => {
   let fixture: ComponentFixture<ProfileLocation>;
   const consent = { load: vi.fn(), set: vi.fn() };
   const confirm = { ask: vi.fn() };
+  const tripSearch = { clear: vi.fn() };
   const toast = {
     showSuccess: vi.fn().mockResolvedValue(undefined),
     showError: vi.fn().mockResolvedValue(undefined),
@@ -55,6 +57,7 @@ describe('ProfileLocation', () => {
         { provide: LocationConsentService, useValue: consent },
         { provide: ConfirmService, useValue: confirm },
         { provide: ToastService, useValue: toast },
+        { provide: TripSearchStateService, useValue: tripSearch },
       ],
     });
     fixture = TestBed.createComponent(ProfileLocation);
@@ -97,6 +100,7 @@ describe('ProfileLocation', () => {
 
     expect(consent.set).toHaveBeenCalledWith('granted');
     expect(toast.showSuccess).toHaveBeenCalledWith('Compartes tu ubicación.');
+    expect(tripSearch.clear).not.toHaveBeenCalled();
   });
 
   it('keeps sharing when the revocation is not confirmed', async () => {
@@ -107,6 +111,7 @@ describe('ProfileLocation', () => {
 
     expect(consent.set).not.toHaveBeenCalled();
     expect(event.target.checked).toBe(true);
+    expect(tripSearch.clear).not.toHaveBeenCalled();
   });
 
   it('revokes after confirming and undoes the toggle if saving fails', async () => {
@@ -115,11 +120,14 @@ describe('ProfileLocation', () => {
 
     await fixture.componentInstance.handleToggle(toggleEvent(false));
     expect(toast.showSuccess).toHaveBeenCalledWith('Has dejado de compartir tu ubicación.');
+    // La última búsqueda puede llevar una dirección sacada de la ubicación
+    expect(tripSearch.clear).toHaveBeenCalledTimes(1);
 
     const failing = toggleEvent(false);
     await fixture.componentInstance.handleToggle(failing);
     expect(failing.target.checked).toBe(true);
     expect(toast.showError).toHaveBeenCalled();
+    expect(tripSearch.clear).toHaveBeenCalledTimes(1);
   });
 
   it('renders without errors', async () => {

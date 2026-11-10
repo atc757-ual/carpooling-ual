@@ -1,6 +1,10 @@
-<app-modal-header [title]="title" (closed)="close()" />
+<!-- Sin ✕: se cierra con «Entendido», al final del texto (también
+     arrastrando la hoja, tocando fuera o con Escape) -->
+<app-modal-header [title]="title" [hasClose]="false" />
 
-<ion-content class="ion-padding">
+<!-- Sin ion-content: así la ventana toma el alto del texto (con su propio
+     scroll si no cabe) -->
+<div class="modal-body">
   @if (current(); as document) {
     <div class="legal">
       <app-legal-changes
@@ -21,4 +25,8 @@
       <ion-spinner name="crescent" [attr.aria-label]="loadingAriaLabel" />
     </div>
   }
-</ion-content>
+  <!-- Al final del texto, con él -->
+  <form class="legal__footer" (submit)="$event.preventDefault(); close()">
+    <ion-button type="submit" expand="block">{{ understoodLabel }}</ion-button>
+  </form>
+</div>

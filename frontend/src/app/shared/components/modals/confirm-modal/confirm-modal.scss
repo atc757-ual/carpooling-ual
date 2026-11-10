@@ -32,7 +32,7 @@
 }
 
 // En móvil: un botón encima del otro. En escritorio: uno al lado del otro
-// con el azul a la derecha («Eliminar · Cancelar»)
+// con el azul a la izquierda («Cancelar · Eliminar»)
 .confirm__actions {
   display: flex;
   flex-direction: column;

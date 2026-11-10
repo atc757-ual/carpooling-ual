@@ -15,7 +15,7 @@ describe('PermissionPromptsService', () => {
   const stored = new Map<string, string>();
   const status = signal<PushStatus>('off');
   const enable = vi.fn();
-  const checkPermission = vi.fn();
+  const checkDevicePermission = vi.fn();
   const present = vi.fn().mockResolvedValue(undefined);
   const create = vi.fn().mockResolvedValue({ present });
   const ask = vi.fn();
@@ -27,7 +27,7 @@ describe('PermissionPromptsService', () => {
     vi.clearAllMocks();
     stored.clear();
     status.set('off');
-    checkPermission.mockResolvedValue('prompt');
+    checkDevicePermission.mockResolvedValue('prompt');
     TestBed.configureTestingModule({
       providers: [
         provideTestingTransloco(),
@@ -39,7 +39,7 @@ describe('PermissionPromptsService', () => {
           },
         },
         { provide: PushNotificationsService, useValue: { status, enable } },
-        { provide: LocationService, useValue: { checkPermission } },
+        { provide: LocationService, useValue: { checkDevicePermission } },
         { provide: ModalController, useValue: { create } },
         { provide: ConfirmService, useValue: { ask } },
         { provide: ToastService, useValue: { showSuccess, showError } },
@@ -64,7 +64,7 @@ describe('PermissionPromptsService', () => {
 
     it('stays closed when there is nothing to ask, and can open later', async () => {
       status.set('denied');
-      checkPermission.mockResolvedValue('granted');
+      checkDevicePermission.mockResolvedValue('granted');
       await service.offerOnEntry();
       expect(create).not.toHaveBeenCalled();
 
