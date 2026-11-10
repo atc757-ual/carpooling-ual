@@ -44,5 +44,55 @@ services:
       - "${SMTP_PORT:-1025}:1025"
       - "${MAILPIT_UI_PORT:-8025}:8025"
 
+  # Observabilidad (perfil "observabilidad"): Alloy lee el log JSON del backend
+  # (LOG_FORMAT=json, guardado en logs/), Loki lo almacena 7 días y Grafana
+  # muestra el panel de peticiones, errores y p95 por ruta en
+  # http://localhost:3001. docker compose --profile observabilidad up -d
+  loki:
+    image: grafana/loki:3.7.9
+    container_name: carpooling-loki
+    restart: unless-stopped
+    profiles: [observabilidad]
+    command: -config.file=/etc/loki/loki.yaml
+    volumes:
+      - ./observability/loki.yaml:/etc/loki/loki.yaml:ro
+      - loki_data:/loki
+
+  alloy:
+    image: grafana/alloy:v1.21.0
+    container_name: carpooling-alloy
+    restart: unless-stopped
+    profiles: [observabilidad]
+    command: run /etc/alloy/config.alloy --storage.path=/var/lib/alloy/data
+    volumes:
+      - ./observability/config.alloy:/etc/alloy/config.alloy:ro
+      - ./logs:/var/log/carpooling:ro
+      - alloy_data:/var/lib/alloy/data
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:13.2.4
+    container_name: carpooling-grafana
+    restart: unless-stopped
+    profiles: [observabilidad]
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    # Solo desde este equipo: en un servidor se llega por Nginx o por un túnel
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3001}:3000"
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - loki
+
 volumes:
   postgres_data:
+  loki_data:
+  alloy_data:
+  grafana_data:

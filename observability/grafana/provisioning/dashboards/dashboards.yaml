@@ -1,0 +1,10 @@
+# Carga los paneles de la carpeta montada en /var/lib/grafana/dashboards
+apiVersion: 1
+
+providers:
+  - name: carpooling
+    folder: Carpooling UAL
+    type: file
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards

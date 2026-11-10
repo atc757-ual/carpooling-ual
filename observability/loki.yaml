@@ -1,0 +1,39 @@
+# Loki en un solo proceso, con los datos en disco (volumen loki_data). Guarda
+# los logs del backend 7 días: basta para revisar una prueba de carga o una
+# incidencia, y los logs no se conservan más de lo necesario
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+common:
+  path_prefix: /loki
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2026-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+limits_config:
+  retention_period: 168h
+
+compactor:
+  working_directory: /loki/compactor
+  retention_enabled: true
+  delete_request_store: filesystem
+
+analytics:
+  reporting_enabled: false
