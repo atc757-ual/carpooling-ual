@@ -196,7 +196,7 @@ export class ConversationPage {
       }
     });
     destroyRef.onDestroy(() => {
-      this.headingContent.clear();
+      this.headingContent.clear(this.headingTitle());
       this.isActive = false;
       this.stopPolling();
       document.removeEventListener('visibilitychange', this.handleVisibilityChange);
@@ -214,7 +214,7 @@ export class ConversationPage {
   ionViewDidLeave(): void {
     this.isActive = false;
     this.stopPolling();
-    this.headingContent.clear();
+    this.headingContent.clear(this.headingTitle());
   }
 
   isMine(message: ChatMessage): boolean {
@@ -304,6 +304,17 @@ export class ConversationPage {
     this.draft.set(value ?? '');
   }
 
+  // Enter envía; Mayús+Enter hace un salto de línea (y no se envía mientras
+  // se compone una palabra con el teclado, p. ej. con acentos)
+  handleEnter(event: Event): void {
+    const key = event as KeyboardEvent;
+    if (key.shiftKey || key.isComposing) {
+      return;
+    }
+    event.preventDefault();
+    void this.handleSendText();
+  }
+
   async handleSendText(): Promise<void> {
     if (!this.canSendText()) {
       return;
@@ -385,6 +396,7 @@ export class ConversationPage {
         this.appendMessages(newer);
         await this.markRead(tripId);
       }
+      await this.refreshReceipts(tripId);
     } catch {
       // Siguiente vuelta
     } finally {
@@ -407,6 +419,21 @@ export class ConversationPage {
   }
 
   // Sin repetir los que ya están (el envío y la consulta pueden cruzarse)
+  // El ✓✓ de mis mensajes: si alguno aún no lo han leído todos, se vuelve a
+  // mirar en cada vuelta (sin esto solo se veía al volver a entrar al chat)
+  private async refreshReceipts(tripId: string): Promise<void> {
+    if (!this.messages().some((message) => this.isMine(message) && !message.readByAll)) {
+      return;
+    }
+    const current = await this.chat.listMessages(tripId);
+    const read = new Set(current.filter(({ readByAll }) => readByAll).map(({ id }) => id));
+    this.messages.update((messages) =>
+      messages.map((message) =>
+        !message.readByAll && read.has(message.id) ? { ...message, readByAll: true } : message,
+      ),
+    );
+  }
+
   private appendMessages(newer: ChatMessage[]): void {
     this.messages.update((messages) => {
       const ids = new Set(messages.map(({ id }) => id));

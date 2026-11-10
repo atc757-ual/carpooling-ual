@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { signal, TemplateRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { ActionSheetController, ModalController, provideIonicAngular } from '@ionic/angular';
@@ -107,7 +107,9 @@ describe('ConversationPage', () => {
     modalProps = null;
     chat = {
       listConversations: vi.fn(),
-      listMessages: vi.fn().mockResolvedValue([message('m1', 'u2'), message('m2', 'me')]),
+      listMessages: vi
+        .fn()
+        .mockResolvedValue([message('m1', 'u2'), message('m2', 'me', { readByAll: true })]),
       send: vi
         .fn()
         .mockImplementation((_tripId, input) =>
@@ -207,6 +209,47 @@ describe('ConversationPage', () => {
     await vi.advanceTimersByTimeAsync(CHAT_POLL_INTERVAL_MS);
 
     expect(page.messages()).toHaveLength(2);
+  });
+
+  it('shows the double check as soon as everyone reads my message, without re-entering', async () => {
+    chat['listMessages'].mockResolvedValueOnce([message('m1', 'u2'), message('m2', 'me')]);
+    await render();
+    expect(page.messages()[1].readByAll).toBeFalsy();
+
+    chat['listMessages']
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([message('m1', 'u2'), message('m2', 'me', { readByAll: true })]);
+    await vi.advanceTimersByTimeAsync(CHAT_POLL_INTERVAL_MS);
+
+    expect(chat['listMessages']).toHaveBeenLastCalledWith('t1');
+    expect(page.messages()[1].readByAll).toBe(true);
+  });
+
+  it('sends with Enter and leaves Shift+Enter for a new line', async () => {
+    await render();
+    page.handleDraft('Llego en 5');
+    const shiftEnter = new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true });
+    page.handleEnter(shiftEnter);
+    expect(chat['send']).not.toHaveBeenCalled();
+
+    const enter = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true });
+    page.handleEnter(enter);
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(enter.defaultPrevented).toBe(true);
+    expect(chat['send']).toHaveBeenCalledWith('t1', { text: 'Llego en 5' });
+  });
+
+  it('only clears its own heading from the fixed strip when it leaves', async () => {
+    await render();
+    const heading = TestBed.inject(HeadingContentService);
+    const other = {} as TemplateRef<unknown>;
+    heading.show(other);
+
+    page.ionViewDidLeave();
+
+    expect(heading.content()).toBe(other);
+    heading.clear();
   });
 
   it('sends a text, trimmed, and clears the box', async () => {

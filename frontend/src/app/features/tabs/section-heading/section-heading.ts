@@ -46,6 +46,12 @@ import { TabHeading } from '../tab-heading';
   `,
 })
 export class SectionHeading {
-  protected readonly heading =
-    (inject(ActivatedRoute).snapshot.data['heading'] as TabHeading | undefined) ?? null;
+  // Solo en las listas que lo desplazan con el contenido: en las demás rutas
+  // la franja fija ya muestra el título (si no, salía repetido, p. ej. en la
+  // conversación de Mensajes en el móvil)
+  protected readonly heading = ((): TabHeading | null => {
+    const heading =
+      (inject(ActivatedRoute).snapshot.data['heading'] as TabHeading | undefined) ?? null;
+    return heading?.scrollsWithContent ? heading : null;
+  })();
 }

@@ -38,6 +38,7 @@ const CONVERSATION: Conversation = {
 describe('MessagesPage', () => {
   let listConversationsPage: ReturnType<typeof vi.fn>;
   const unreadConversationCount = signal(2);
+  const lastRead = signal<{ tripId: string } | null>(null);
 
   async function render(): Promise<{
     root: HTMLElement;
@@ -51,7 +52,7 @@ describe('MessagesPage', () => {
         provideRouter([]),
         {
           provide: ChatService,
-          useValue: { listConversationsPage, unreadConversationCount },
+          useValue: { listConversationsPage, unreadConversationCount, lastRead },
         },
         { provide: AuthService, useValue: { currentUser: signal({ id: 'me' } as User) } },
       ],
@@ -216,6 +217,19 @@ describe('MessagesPage', () => {
     expect(event.defaultPrevented).toBe(true);
     expect(page.selectedConversationId()).toBe('t1');
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('clears the unread count of the conversation just read, without reloading', async () => {
+    const { root, page, fixture } = await render();
+    const calls = listConversationsPage.mock.calls.length;
+
+    lastRead.set({ tripId: 't1' });
+    fixture.detectChanges();
+
+    expect(page.all().find(({ id }) => id === 't1')?.unreadCount).toBe(0);
+    expect(root.querySelector('.conversation--unread')).toBeNull();
+    expect(listConversationsPage.mock.calls).toHaveLength(calls);
+    lastRead.set(null);
   });
 
   it('navigates to the full-screen conversation on mobile', async () => {
