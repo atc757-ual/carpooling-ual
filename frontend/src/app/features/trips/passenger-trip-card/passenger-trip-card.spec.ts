@@ -67,5 +67,6 @@ describe('PassengerTripCard', () => {
     );
     expect(root.textContent).toContain('No te presentaste');
     expect(root.querySelector('.status--accepted')).toBeNull();
+    expect(root.querySelector('.status--danger')?.textContent).toContain('No te presentaste');
   });
 });

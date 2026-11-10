@@ -10,8 +10,9 @@
       </div>
       <span
         class="status"
-        [class.status--accepted]="trip().status === 'confirmed'"
-        [class.status--info]="isInProgress()"
+        [class.status--info]="trip().status === 'published'"
+        [class.status--accepted]="trip().status === 'confirmed' || isInProgress()"
+        [class.status--danger]="trip().status === 'cancelled'"
       >
         {{ statusLabel() }}
       </span>

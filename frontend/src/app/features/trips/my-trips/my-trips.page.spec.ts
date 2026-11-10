@@ -157,20 +157,20 @@ describe('MyTripsPage', () => {
     expect(ids()).toEqual([]);
   });
 
-  it('invites to search or publish by profile when there is nothing upcoming', async () => {
+  it('says what to do when there is nothing upcoming, without repeating the shortcuts', async () => {
     const root = await render(['driver', 'passenger']);
     const empty = (): string => root.querySelector('.my-trips__state')?.textContent ?? '';
     fixture.detectChanges();
 
     expect(empty()).toContain('No tienes viajes programados');
     expect(empty()).toContain('o publica tu recorrido');
-    expect(empty()).toContain('Buscar viaje');
-    expect(empty()).toContain('Publicar viaje');
+    // Buscar y Publicar están en «Te puede interesar», no en el vacío
+    expect(root.querySelector('.my-trips__state ion-button')).toBeNull();
 
     fixture.componentInstance.handleTabChange('cancelled');
     fixture.detectChanges();
     expect(empty()).toContain('Aquí verás los viajes que no se hayan realizado');
-    expect(empty()).not.toContain('Publicar viaje');
+    expect(empty()).not.toContain('o publica tu recorrido');
   });
 
   it('gives each single profile its own hint', async () => {

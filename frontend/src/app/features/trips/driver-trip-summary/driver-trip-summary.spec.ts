@@ -52,6 +52,19 @@ describe('DriverTripSummary', () => {
     expect(start).not.toHaveBeenCalled();
   });
 
+  it('colors the status by state, always with its text', () => {
+    const tone = (status: DriverTrip['status']): string | undefined => {
+      TestBed.resetTestingModule();
+      const pill = render({ ...TRIP, status }).querySelector('.status');
+      return [...(pill?.classList ?? [])].find((name) => name.startsWith('status--'));
+    };
+
+    expect(tone('published')).toBe('status--info');
+    expect(tone('confirmed')).toBe('status--accepted');
+    expect(tone('cancelled')).toBe('status--danger');
+    expect(tone('finished')).toBeUndefined();
+  });
+
   it('falls back to generic names without place names', () => {
     const root = render({ ...TRIP, originName: null, destinationName: null } as DriverTrip);
 
