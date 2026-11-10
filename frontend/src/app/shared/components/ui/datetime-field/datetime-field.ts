@@ -144,6 +144,19 @@ export class DatetimeField implements ControlValueAccessor {
     });
   }
 
+  // Escritorio: el icono abre el calendario o el reloj del navegador (sin
+  // showPicker, el foco en el campo, que se puede escribir)
+  protected openNativePicker(native: HTMLInputElement): void {
+    if (native.disabled) {
+      return;
+    }
+    if (typeof native.showPicker === 'function') {
+      native.showPicker();
+      return;
+    }
+    native.focus();
+  }
+
   writeValue(value: string | null): void {
     this.control.setValue(value ?? '', { emitEvent: false });
     this.value.set(value ?? '');
