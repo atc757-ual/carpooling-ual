@@ -43,22 +43,54 @@ async function currentPoint(location: LocationService): Promise<[number, number]
   }
 }
 
-// «Terminar viaje» (en la tarjeta de Mis viajes y en la pantalla del viaje en
-// curso): si el conductor está a más de 300 m del destino, avisa en ámbar con
-// la distancia (lo principal es seguir en el viaje); si no, confirma en azul.
+// Dónde está el conductor al pulsar «Terminar viaje» y si está lejos del
+// destino (más de 300 m). Sin posición, distancia null y no se avisa
+export interface FinishCheck {
+  point: [number, number] | null;
+  distance: number | null;
+  isFar: boolean;
+}
+
+export async function checkFinish(
+  location: LocationService,
+  trip: FinishableTrip,
+): Promise<FinishCheck> {
+  const point = await currentPoint(location);
+  const distance = point ? distanceMeters(point, trip.destination.coordinates) : null;
+  return { point, distance, isFar: distance !== null && distance > FINISH_GEOFENCE_METERS };
+}
+
 // Termina el viaje con su posición (la API guarda a cuántos metros del
 // destino) y deja de compartir la ubicación. true si se ha terminado; si
 // falla, lo dice con un aviso
+export async function completeFinish(
+  deps: Pick<FinishTripDeps, 'driver' | 'tracking' | 'toast'>,
+  tripId: string,
+  point: [number, number] | null,
+): Promise<boolean> {
+  try {
+    await deps.driver.finishTrip(tripId, point);
+    deps.tracking.stop();
+    void deps.toast.showSuccess('Viaje terminado. Gracias por compartir coche.');
+    return true;
+  } catch (error) {
+    void deps.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+    return false;
+  }
+}
+
+// «Terminar viaje» con diálogo (en la tarjeta de Mis viajes; la pantalla del
+// viaje en curso lo pregunta en su propia tarjeta): si el conductor está a
+// más de 300 m del destino, avisa en ámbar con la distancia (lo principal es
+// seguir en el viaje); si no, confirma en azul. true si se ha terminado
 export async function finishTrip(
   deps: FinishTripDeps,
   trip: FinishableTrip,
   icon: string,
 ): Promise<boolean> {
-  const point = await currentPoint(deps.location);
-  const distance = point ? distanceMeters(point, trip.destination.coordinates) : null;
-  const isFar = distance !== null && distance > FINISH_GEOFENCE_METERS;
+  const { point, distance, isFar } = await checkFinish(deps.location, trip);
   const accepted = await deps.confirm.ask(
-    isFar
+    isFar && distance !== null
       ? {
           header: '¿Terminar lejos del destino?',
           message: `Aún estás a ${formatDistance(distance)} del destino. Si terminas ahora, tus pasajeros verán el viaje como finalizado.`,
@@ -75,16 +107,5 @@ export async function finishTrip(
           icon,
         },
   );
-  if (!accepted) {
-    return false;
-  }
-  try {
-    await deps.driver.finishTrip(trip.id, point);
-    deps.tracking.stop();
-    void deps.toast.showSuccess('Viaje terminado. Gracias por compartir coche.');
-    return true;
-  } catch (error) {
-    void deps.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
-    return false;
-  }
+  return accepted ? completeFinish(deps, trip.id, point) : false;
 }

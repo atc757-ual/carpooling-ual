@@ -3,39 +3,65 @@
 }
 
 .trip-live-map {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
-  padding: var(--space-base);
-  border-radius: var(--radius-l);
+  // Quien lo usa puede quitar el margen y las esquinas (el móvil de En curso)
+  padding: var(--live-trip-map-padding, var(--space-base));
+  border-radius: var(--live-trip-map-radius, var(--radius-l));
   background: var(--color-surface);
 }
 
+// «Centrar», flotando en la esquina del mapa (como los botones de zoom)
 .trip-live-map__heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-s);
+  position: absolute;
+  top: calc(var(--live-trip-map-padding, var(--space-base)) + var(--space-s));
+  right: calc(var(--live-trip-map-padding, var(--space-base)) + var(--space-s));
+  z-index: 1000; // por encima de las capas de Leaflet
+}
 
-  h2 {
-    margin: 0;
+.trip-live-map__center {
+  display: grid;
+  place-items: center;
+  width: 2.75rem; // 44px: lo mínimo para el dedo
+  height: 2.75rem;
+  padding: 0;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  box-shadow: 0 0.125rem 0.5rem rgb(0 0 0 / 20%);
+  color: var(--color-link);
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 1.375rem; // 22px
   }
 
-  ion-button {
-    margin: 0;
+  @media (any-hover: hover) {
+    &:hover {
+      background: var(--color-surface-subtle);
+    }
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus-ring);
+    outline-offset: 2px;
   }
 }
 
 .trip-live-map__canvas {
   width: 100%;
-  height: 14rem; // 224px
+  // Quien lo usa puede darle más alto (p. ej. la pantalla En curso)
+  height: var(--live-trip-map-height, 14rem); // 224px
   overflow: hidden;
-  border-radius: var(--radius-s);
+  border-radius: var(--live-trip-map-canvas-radius, var(--radius-s));
   background: var(--color-surface-subtle);
 }
 
+// Quien pinta el estado fuera del mapa (statusChange) puede ocultarlo aquí
 .trip-live-map__status {
-  display: flex;
+  display: var(--live-trip-map-status-display, flex);
   flex-direction: column;
   gap: var(--space-xs);
 
@@ -50,6 +76,6 @@
 
 @media (min-width: 48rem) {
   .trip-live-map__canvas {
-    height: 18rem; // 288px
+    height: var(--live-trip-map-height-desktop, 18rem); // 288px
   }
 }

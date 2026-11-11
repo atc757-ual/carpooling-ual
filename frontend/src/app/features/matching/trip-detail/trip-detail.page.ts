@@ -1,51 +1,78 @@
-import { Component, computed, inject, input, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  resource,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
+  IonBreadcrumb,
+  IonBreadcrumbs,
   IonButton,
   IonCard,
   IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
   IonContent,
   IonIcon,
   IonRouterLink,
   IonSpinner,
 } from '@ionic/angular';
-import { mapOutline } from 'ionicons/icons';
-import { RouteStop } from '../../../shared/components/ui/route-timeline/route-timeline';
-import { TripSummary, TripSummaryData } from '../../../shared/components/ui/trip-summary';
+import { carOutline, mapOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
-import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
-import { PermissionPromptsService } from '../../../core/services/push/permission-prompts.service';
-import { ToastService } from '../../../core/services/ui/toast.service';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
-import { formatShortDate, formatTime, toTripDetail } from '../trip-results';
-import { getFirstName } from '../trip-driver/trip-driver';
-import { TripSearchStateService } from '../trip-search-state.service';
+import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colors.store';
+import { PermissionPromptsService } from '../../../core/services/push/permission-prompts.service';
+import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
+import { ConfirmService } from '../../../core/services/ui/confirm.service';
+import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
+import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
+import {
+  RouteStop,
+  RouteTimeline,
+} from '../../../shared/components/ui/route-timeline/route-timeline';
 import {
   RoutePoint,
   TripRouteMap,
 } from '../../../shared/components/ui/trip-route-map/trip-route-map';
-import { ConfirmService } from '../../../core/services/ui/confirm.service';
+import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { formatAvailableSeats, formatSeats } from '../../../shared/utils/seats.util';
+import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
+import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
+import { formatTime, toTripDetail } from '../trip-results';
+import { TripSearchStateService } from '../trip-search-state.service';
 
-// Detalle de un viaje de los resultados de Buscar: el recorrido con sus horas,
-// quien conduce (y su coche, cuando se conozca) y cómo funciona la solicitud.
-// Sale de los resultados de la búsqueda (TripSearchStateService); si el viaje
-// no está entre ellos (p. ej. tras recargar la página), «No encontramos este
-// viaje». Al lado, pedir plaza (RF-08) y, si ya la ha pedido, el estado de
-// su solicitud tal como lo da el backend (guía, «Solicitud de plaza»)
+// Lo que se tarda de media en parar, saludar y subir al coche (minutos)
+const PICKUP_STOP_MIN = 2;
+
+// Detalle de un viaje de los resultados de Buscar: cabecera fija con cuándo y
+// sentido; en escritorio, columna de 8 con «Tu recorrido» y «Conductor y coche»
+// y columna de 4 con la tarjeta para solicitar plaza o gestionar la solicitud
 @Component({
   selector: 'app-trip-detail',
   imports: [
     RouterLink,
+    IonBreadcrumb,
+    IonBreadcrumbs,
     IonButton,
     IonCard,
     IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
     IonContent,
     IonIcon,
     IonRouterLink,
     IonSpinner,
-    TripSummary,
+    RouteTimeline,
+    TripDriver,
     TripRouteMap,
   ],
   templateUrl: './trip-detail.page.html',
@@ -53,16 +80,19 @@ import { ConfirmService } from '../../../core/services/ui/confirm.service';
 })
 export class TripDetailPage {
   private readonly travelPreferences = inject(TravelPreferencesStore);
+  private readonly colors = inject(VehicleColorsStore);
   private readonly searchState = inject(TripSearchStateService);
   private readonly seatRequests = inject(SeatRequestsService);
   private readonly tripsService = inject(TripsService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
   private readonly permissionPrompts = inject(PermissionPromptsService);
+  private readonly headingContent = inject(HeadingContentService);
   private readonly router = inject(Router);
 
-  // :id de la ruta (withComponentInputBinding)
   readonly id = input.required<string>();
+  private readonly tripHeading = viewChild.required<TemplateRef<unknown>>('tripHeading');
+  private readonly isVisible = signal(true);
 
   readonly trip = computed(() => {
     const search = this.searchState.search();
@@ -70,39 +100,14 @@ export class TripDetailPage {
     return search && result ? toTripDetail(result, search) : null;
   });
 
-  // «27 oct, ida al campus»
-  readonly tripDate = computed(() => {
+  // «Mañana · 23:20 · Ida al campus»
+  readonly headingTitle = computed(() => {
     const trip = this.trip();
     if (!trip) {
       return '';
     }
-    const way = trip.direction === 'to-campus' ? 'ida al campus' : 'vuelta del campus';
-    return `${formatShortDate(trip.date)}, ${way}`;
-  });
-
-  readonly stops = computed<RouteStop[]>(() => {
-    const trip = this.trip();
-    const data = this.tripData.value();
-    const search = this.searchState.search();
-    if (!trip || !data || !search) {
-      return [];
-    }
-    return [
-      {
-        name: data.trip.originName ?? 'Salida del conductor',
-        detail: 'Punto de salida del conductor',
-        time: formatTime(data.trip.departureAt),
-      },
-      {
-        name: search.direction === 'to-campus' ? search.place.name : search.parking.name,
-        detail: 'Tu punto de recogida',
-      },
-      {
-        name: data.trip.destinationName ?? trip.destination,
-        detail: search.direction === 'to-campus' ? search.parking.name : search.place.locality,
-        time: trip.arrivalTime,
-      },
-    ];
+    const way = trip.direction === 'to-campus' ? 'Ida al campus' : 'Vuelta del campus';
+    return `${formatDateLabel(trip.date)} · ${trip.departureTime} · ${way}`;
   });
 
   readonly tripData = resource({
@@ -116,6 +121,62 @@ export class TripDetailPage {
     },
   });
 
+  readonly stops = computed<RouteStop[]>(() => {
+    const trip = this.trip();
+    const data = this.tripData.value();
+    const search = this.searchState.search();
+    if (!trip || !data || !search) {
+      return [];
+    }
+    const isToCampus = search.direction === 'to-campus';
+    const originName = data.trip.originName ?? 'Salida del conductor';
+    const destinationName = data.trip.destinationName ?? trip.destination;
+    const searchedParking = search.parking.name;
+    // Sin plaza, la calle del conductor sin el portal (lo quita el backend) y
+    // el punto, redondeado: se dice que es una zona, no su casa
+    const originDetail = data.trip.isLocationApproximate
+      ? 'Salida del conductor · zona aproximada'
+      : 'Punto de salida del conductor';
+
+    if (isToCampus) {
+      const destDiffers = !destinationName.includes(searchedParking);
+      return [
+        {
+          name: originName,
+          detail: originDetail,
+          time: formatTime(data.trip.departureAt),
+        },
+        {
+          name: search.place.name,
+          detail: 'Tu punto de recogida',
+        },
+        {
+          name: destinationName,
+          detail: destDiffers
+            ? `Destino del viaje · buscabas ${searchedParking}`
+            : 'Destino del viaje',
+          time: trip.arrivalTime,
+        },
+      ];
+    }
+
+    const originDiffers = !originName.includes(searchedParking);
+    return [
+      {
+        name: originName,
+        detail: originDiffers
+          ? `Salida y recogida · buscabas ${searchedParking}`
+          : 'Salida del conductor y tu punto de recogida',
+        time: formatTime(data.trip.departureAt),
+      },
+      {
+        name: destinationName,
+        detail: search.place.locality || 'Destino del viaje',
+        time: trip.arrivalTime,
+      },
+    ];
+  });
+
   readonly pickup = computed(() => {
     const search = this.searchState.search();
     const trip = this.tripData.value()?.trip;
@@ -124,11 +185,9 @@ export class TripDetailPage {
     }
     return search.direction === 'to-campus'
       ? { coordinates: search.place.coordinates, label: search.place.name }
-      : { coordinates: trip.origin.coordinates, label: search.parking.name };
+      : { coordinates: trip.origin.coordinates, label: trip.originName ?? search.parking.name };
   });
 
-  // Salida y destino del mapa. Sin plaza, el servidor redondea el extremo que
-  // no es el campus (suele ser la casa del conductor): se pinta como zona
   readonly mapEnds = computed<{ origin: RoutePoint; destination: RoutePoint } | null>(() => {
     const search = this.searchState.search();
     const trip = this.tripData.value()?.trip;
@@ -150,24 +209,28 @@ export class TripDetailPage {
     };
   });
 
-  readonly summary = computed<TripSummaryData | null>(() => {
+  readonly seatSummary = computed(() => {
     const trip = this.trip();
     if (!trip) {
-      return null;
+      return '';
     }
     const apiTrip = this.tripData.value()?.trip;
-    const request = this.request();
-    return {
-      stops: this.stops(),
-      driver: trip.driver,
-      vehicle: trip.vehicle ?? null,
-      seatSummary: apiTrip
-        ? `Quedan ${apiTrip.availableSeats} de ${apiTrip.offeredSeats} plazas`
-        : formatFreeSeats(trip.freeSeats),
-      vehiclePlate: request?.status === 'accepted' ? request.vehiclePlate : null,
-      facts: `Desvío de recogida: ${trip.pickupDetourMinutes} min · Trayecto de unos ${trip.tripMinutes} min`,
-      preferences: apiTrip ? this.travelPreferences.format(apiTrip.driver.preferences) : [],
-    };
+    return apiTrip
+      ? formatAvailableSeats(apiTrip.availableSeats, apiTrip.offeredSeats)
+      : formatFreeSeats(trip.freeSeats);
+  });
+
+  readonly facts = computed(() => {
+    const trip = this.trip();
+    if (!trip) {
+      return [];
+    }
+    return [
+      { label: 'Plazas libres', value: this.seatSummary() },
+      // Recogerte nunca es 0 min: el desvío más lo que se tarda en parar y subir
+      { label: 'Recogida', value: `unos ${trip.pickupDetourMinutes + PICKUP_STOP_MIN} min` },
+      { label: 'Duración', value: `${trip.tripMinutes} min aprox.` },
+    ];
   });
 
   readonly driverFirstName = computed(() => {
@@ -175,22 +238,20 @@ export class TripDetailPage {
     return trip ? getFirstName(trip.driver.name) : '';
   });
 
-  readonly driverPreferences = computed(() =>
-    this.travelPreferences.format(this.trip()?.driver.preferences),
-  );
+  readonly driverPreferences = computed(() => {
+    const prefs = this.tripData.value()?.trip.driver.preferences ?? this.trip()?.driver.preferences;
+    return this.travelPreferences.format(prefs);
+  });
 
-  // Las plazas que pide el pasajero, las de su búsqueda
   readonly seats = computed(() => this.searchState.search()?.seats ?? 1);
   readonly requestedSeats = computed(() => formatSeats(this.seats()));
 
-  // Su solicitud en este viaje (la más reciente), o null si no tiene
   readonly myRequest = resource({
     params: () => this.trip()?.id,
     loader: async ({ params: tripId }) =>
       (await this.seatRequests.listMine()).find(({ trip }) => trip.id === tripId) ?? null,
   });
   readonly request = computed(() => (this.myRequest.hasValue() ? this.myRequest.value() : null));
-  // Se puede pedir sin solicitud, o con una rechazada o cancelada
   readonly canRequest = computed(() => {
     const status = this.request()?.status;
     return (
@@ -200,11 +261,48 @@ export class TripDetailPage {
   });
   readonly isSending = signal(false);
 
-  protected readonly notFoundIcon = mapOutline;
-  protected readonly formatSeats = formatSeats;
+  readonly headerBadge = computed(() => {
+    const request = this.request();
+    if (request?.status === 'pending') {
+      return { label: 'Solicitud pendiente', kind: 'pending' as const };
+    }
+    if (request?.status === 'accepted') {
+      return { label: 'Plaza confirmada', kind: 'accepted' as const };
+    }
+    const free = this.trip()?.freeSeats ?? 0;
+    return {
+      label: formatFreeSeats(free),
+      kind: free === 1 ? ('pending' as const) : ('accepted' as const),
+    };
+  });
 
-  // RF-08: pedir las plazas de la búsqueda. Queda pendiente hasta que el
-  // conductor decide
+  protected readonly notFoundIcon = mapOutline;
+  protected readonly carIcon = carOutline;
+  protected readonly formatSeats = formatSeats;
+  protected readonly vehicleName = vehicleDisplayName;
+  protected readonly vehicleColor = (color: string | null) => this.colors.label(color);
+  protected readonly vehicleSwatch = (color: string | null) => this.colors.swatch(color);
+
+  constructor() {
+    effect(() => {
+      const template = this.tripHeading();
+      if (this.isVisible() && this.trip()) {
+        this.headingContent.show(template);
+      } else {
+        this.headingContent.clear(template);
+      }
+    });
+    inject(DestroyRef).onDestroy(() => this.headingContent.clear(this.tripHeading()));
+  }
+
+  ionViewDidEnter(): void {
+    this.isVisible.set(true);
+  }
+
+  ionViewWillLeave(): void {
+    this.isVisible.set(false);
+  }
+
   async handleRequest(): Promise<void> {
     const trip = this.trip();
     if (!trip) {
@@ -234,7 +332,6 @@ export class TripDetailPage {
     });
   }
 
-  // Cancelar la solicitud, tras confirmarlo (acción destructiva)
   async handleCancel(): Promise<void> {
     const request = this.request();
     if (!request) {
@@ -267,12 +364,6 @@ export class TripDetailPage {
   }
 }
 
-// «Última plaza», «3 plazas libres»
 function formatFreeSeats(seats: number): string {
   return seats === 1 ? 'Última plaza' : `${seats} plazas libres`;
-}
-
-// «1 plaza», «2 plazas»
-function formatSeats(seats: number): string {
-  return seats === 1 ? '1 plaza' : `${seats} plazas`;
 }

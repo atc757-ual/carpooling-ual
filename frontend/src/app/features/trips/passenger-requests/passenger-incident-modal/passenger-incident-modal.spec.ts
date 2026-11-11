@@ -42,7 +42,8 @@ describe('PassengerIncidentModal', () => {
       'safety',
       'other',
     ]);
-    expect(fixture.nativeElement.textContent).toContain('Me he sentido en peligro');
+    // En la pastilla, el texto corto
+    expect(fixture.nativeElement.textContent).toContain('En peligro');
   });
 
   it('validates description length correctly', () => {

@@ -6,10 +6,11 @@ import {
   ElementRef,
   inject,
   input,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
-import { IonButton, IonIcon } from '@ionic/angular';
+import { IonIcon } from '@ionic/angular';
 import { locateOutline } from 'ionicons/icons';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { GeoPoint } from '../../../../core/models/place.model';
@@ -19,7 +20,7 @@ import {
   LocationService,
 } from '../../../../core/services/location/location.service';
 import { TrackingService } from '../../../../core/services/tracking/tracking.service';
-import { areTogether, estimatePickupMinutes } from './live-trip-map.utils';
+import { areTogether, distanceMeters, estimatePickupMinutes, inAbout } from './live-trip-map.utils';
 import { LIVE_TRIP_MAP_RENDERER_FACTORY, LOAD_LEAFLET } from './live-trip-map-runtime';
 import type { LeafletModule, LiveTripMapRendererPort } from './live-trip-map-runtime';
 
@@ -27,9 +28,21 @@ const POSITION_POLL_MS = 10_000;
 const CLOCK_UPDATE_MS = 1_000;
 const STALE_POSITION_SECONDS = 60;
 
+// Minutos que faltan hasta la recogida y hasta el destino según la última
+// posición del coche (null si aún no se sabe), y si el pasajero ya va dentro
+export interface LiveTripStatus {
+  pickupMinutes: number | null;
+  destinationMinutes: number | null;
+  // Metros en línea recta del coche al destino (si se le pasa el destino)
+  destinationMeters: number | null;
+  isTogether: boolean;
+  // Sin posición reciente (más de 1 min)
+  isStale: boolean;
+}
+
 @Component({
   selector: 'app-live-trip-map',
-  imports: [IonButton, IonIcon],
+  imports: [IonIcon],
   templateUrl: './live-trip-map.html',
   styleUrl: './live-trip-map.scss',
 })
@@ -51,6 +64,11 @@ export class LiveTripMap {
   readonly viewer = input<'passenger' | 'driver'>('passenger');
   // El nombre del conductor, para el pasajero («Lucía llega en…»)
   readonly driverName = input('El conductor');
+  // El destino del viaje, para saber cuánto le falta al coche (opcional)
+  readonly destination = input<GeoPoint | null>(null);
+  // Lo que tapa por abajo la hoja de detalles del móvil (px): el encuadre
+  // deja ese hueco para que el coche y la recogida queden a la vista
+  readonly bottomInset = input(0);
 
   readonly isDriver = computed(() => this.viewer() === 'driver');
   readonly latestPosition = signal<TripPosition | null>(null);
@@ -84,6 +102,25 @@ export class LiveTripMap {
       ? estimatePickupMinutes(position.position.coordinates, pickup.coordinates)
       : null;
   });
+  private readonly destinationMeters = computed(() => {
+    const position = this.latestPosition();
+    const destination = this.destination();
+    return position && destination
+      ? distanceMeters(position.position.coordinates, destination.coordinates)
+      : null;
+  });
+
+  // Lo que se sabe en directo, para quien lo pinta fuera del mapa (la
+  // tarjeta «En directo» de las pantallas En curso)
+  readonly liveStatus = computed<LiveTripStatus>(() => ({
+    pickupMinutes: this.estimatedPickupMinutes(),
+    destinationMinutes: this.latestPosition()?.remainingMin ?? null,
+    destinationMeters: this.destinationMeters(),
+    isTogether: this.isTogether(),
+    isStale: this.isStale(),
+  }));
+  readonly statusChange = output<LiveTripStatus>();
+
   readonly mapLabel = computed(() =>
     this.isDriver()
       ? `Tu posición y ${this.pickupName()}`
@@ -91,6 +128,7 @@ export class LiveTripMap {
   );
 
   protected readonly centerIcon = locateOutline;
+  protected readonly inAbout = inAbout;
   private readonly mapElement = viewChild<ElementRef<HTMLElement>>('map');
   private readonly documentVisible = signal(
     typeof document === 'undefined' || document.visibilityState === 'visible',
@@ -101,12 +139,15 @@ export class LiveTripMap {
   private destroyed = false;
 
   constructor() {
+    effect(() => this.statusChange.emit(this.liveStatus()));
+
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', this.handleVisibilityChange);
     }
     this.destroyRef.onDestroy(() => this.destroyMap());
     this.createPollingEffect();
     this.createMapEffect();
+    effect(() => this.renderer?.setBottomInset(this.bottomInset()));
   }
 
   protected centerMap(): void {
@@ -202,6 +243,7 @@ export class LiveTripMap {
       const leafletModule: LeafletModule = await this.loadLeaflet();
       if (this.destroyed) return;
       this.renderer = this.createRenderer(leafletModule.default ?? leafletModule);
+      this.renderer.setBottomInset(this.bottomInset());
       this.renderer.initialize(element, center);
       this.mapReady.set(true);
     } finally {

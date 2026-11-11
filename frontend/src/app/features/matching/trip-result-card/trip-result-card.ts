@@ -1,17 +1,18 @@
 import { Component, computed, input } from '@angular/core';
+import { MATCH_FIT_LABELS, MatchFit } from '../match-fit';
 import { RouterLink } from '@angular/router';
-import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
-import { locationOutline } from 'ionicons/icons';
+import { IonIcon } from '@ionic/angular';
+import { timeOutline, chevronForward } from 'ionicons/icons';
 import { TripResult } from '../../../core/models/trip-result.model';
-import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
+import { getFirstName } from '../trip-driver/trip-driver';
 
-// Un viaje de los resultados (TripRow de la guía): horas de salida y llegada
-// con las plazas libres («Última plaza» en naranja si solo queda una), el
-// trayecto, quien conduce y dónde recoge al pasajero. Toda la tarjeta lleva al
-// detalle del viaje
+// Un viaje de los resultados (SearchTripCard de la guía): horas de salida y
+// llegada con las plazas libres («Última plaza» en píldora ámbar si solo queda
+// una), el trayecto, quien conduce y el desvío con la hora de salida. Toda la
+// tarjeta lleva al detalle del viaje
 @Component({
   selector: 'app-trip-result-card',
-  imports: [RouterLink, IonCard, IonCardContent, IonIcon, TripDriver],
+  imports: [RouterLink, IonIcon],
   templateUrl: './trip-result-card.html',
   styleUrl: './trip-result-card.scss',
 })
@@ -22,13 +23,20 @@ export class TripResultCard {
   readonly isRequested = input(false);
   // El más compatible según el matching
   readonly isBestMatch = input(false);
+  // Cómo encaja con la búsqueda: el color del borde de abajo
+  readonly fit = input<MatchFit>('fair');
+  protected readonly chevronIcon = chevronForward;
+  protected readonly fitLabel = computed(() => MATCH_FIT_LABELS[this.fit()]);
 
   readonly isLastSeat = computed(() => this.trip().freeSeats === 1);
-  // «Recogida en Calle Mayor» o, al volver del campus, «Bajada en Calle Mayor»
-  readonly passengerStopLabel = computed(() => {
-    const { direction, passengerStop } = this.trip();
-    return `${direction === 'to-campus' ? 'Recogida' : 'Bajada'} en ${passengerStop}`;
+
+  // Sin repetir la calle de la ruta: muestra el desvío de recogida y la salida
+  readonly pickupMetaLabel = computed(() => {
+    const { pickupDetourMinutes, departureTime } = this.trip();
+    const detour = pickupDetourMinutes <= 0 ? 'En su ruta' : `Desvío de ${pickupDetourMinutes} min`;
+    return `${detour} · sale a las ${departureTime}`;
   });
+
   // Lo que lee el lector de pantalla del enlace (cubre toda la tarjeta)
   readonly linkLabel = computed(() => {
     const { driver, departureTime, arrivalTime, origin, destination } = this.trip();
@@ -36,5 +44,5 @@ export class TripResultCard {
     return `Ver viaje de ${getFirstName(driver.name)}: ${departureTime} → ${arrivalTime}, ${origin} → ${destination}${requested}`;
   });
 
-  protected readonly pickupIcon = locationOutline;
+  protected readonly timeIcon = timeOutline;
 }

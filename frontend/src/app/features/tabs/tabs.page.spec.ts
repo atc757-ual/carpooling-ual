@@ -214,7 +214,7 @@ describe('TabsPage', () => {
       { id: 'r1', trip: { id: 't1' }, status: 'accepted' },
     ]);
     await page.openLiveTrip();
-    expect(navigate).toHaveBeenLastCalledWith('/tabs/trips/requests/r1');
+    expect(navigate).toHaveBeenLastCalledWith('/tabs/trips/ride/r1');
 
     listMine.mockRejectedValueOnce(new Error('offline'));
     await page.openLiveTrip();

@@ -1,6 +1,9 @@
 // Móvil: los resultados en una columna (el resumen va en la cabecera fija).
-// Escritorio: los resultados en la columna de 8 y la búsqueda en la de 4
+// Escritorio: 8 + 4 a todo el ancho (los resultados en la de 8 y «Tu trayecto»
+// en la de 4)
 .search-results {
+  box-sizing: border-box;
+  width: 100%;
   align-items: stretch;
 
   ion-card {
@@ -8,27 +11,94 @@
   }
 }
 
-.search-results__list {
+.search-results__list,
+.search-results__aside {
   display: flex;
   flex-direction: column;
-  gap: var(--space-base);
+  gap: var(--space-s);
+  min-width: 0;
+}
 
-  > p {
-    margin: 0;
+.search-results__panel {
+  margin: 0;
+
+  ion-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-base);
   }
+}
+
+// Los viajes, en filas separadas por su borde de color (TripResultCard)
+.search-results__items {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Aviso de los viajes que ya solicitaste, arriba de la tarjeta y a todo el
+// ancho (también en la del estado vacío, que va centrada)
+.search-results__requested {
+  align-self: stretch;
+  text-align: start;
+}
+
+// En el estado vacío, el aviso pegado arriba (a los 16px del borde de la
+// tarjeta) y el resto centrado en lo que queda: el espacio libre se reparte
+// entre debajo del aviso y debajo del último elemento
+// El texto a la izquierda y «Tus viajes ›» pegado a la derecha, centrado;
+// si no cabe (móvil estrecho), debajo
+.search-results__requested {
+  flex-wrap: wrap;
+  align-items: center;
+
+  > span {
+    flex: 1 1 12rem; // 192px
+    min-width: 0;
+  }
+}
+
+.search-results__requested-link {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  min-height: 2.75rem; // 44px de área
+  margin-left: auto;
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+ion-card-content.search-results__state > .search-results__requested {
+  margin-bottom: auto;
+}
+
+ion-card-content.search-results__state:has(> .search-results__requested) > :last-child {
+  margin-bottom: auto;
 }
 
 .search-results__results-header {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-s) var(--space-base);
 }
 
 .search-results__count {
-  flex: 1 1 12rem; // 192px
+  // En una línea con el orden, también en el móvil: si no cabe, «…»
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
   margin: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--color-text);
   font-weight: var(--font-weight-semibold);
 }
@@ -47,19 +117,7 @@
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     align-items: start;
-    gap: var(--space-base);
-  }
-
-  .search-results__list {
-    grid-row: 1;
-    grid-column: 1;
-  }
-
-  .search-results__aside {
-    position: sticky;
-    top: var(--space-l);
-    grid-row: 1;
-    grid-column: 2;
+    gap: var(--space-l);
   }
 }
 
@@ -72,12 +130,28 @@
   gap: var(--space-s);
 }
 
-.search-results__aside ion-card-content p {
+.search-results__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-s);
   margin: 0;
+  padding-top: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  dt {
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+  }
 }
 
-// La línea de ruta y los detalles a la izquierda (en el móvil) y el lápiz a la
-// derecha, un botón de 44px (en el móvil y en la tarjeta de escritorio)
 .search-results__summary-text {
   display: flex;
   flex: 1;
@@ -104,24 +178,18 @@
   }
 }
 
-// Cabecera fija de la página: blanca, con una línea fina debajo
 .search-results__header {
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
   background: var(--color-surface);
 }
 
-// Buscando, vacío y error: tarjeta alta con todo centrado; el icono de 24px en
-// un círculo azul claro, como el de los estados de Publicar (los puntos de
-// carga, en el color de los enlaces)
 ion-card-content.search-results__state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--space-s);
-  min-height: 23.4375rem; // 375px, como las tarjetas de Buscar y Publicar
-  // 16px por todos los lados (con el elemento en el selector, gana al 13px
-  // 16px de Ionic)
+  min-height: 23.4375rem; // 375px
   padding: var(--space-base);
   text-align: center;
 
@@ -146,7 +214,6 @@ ion-card-content.search-results__state {
   }
 }
 
-// Resumen fijo (móvil): blanco, con el margen de la página
 .search-results__summary {
   display: flex;
   align-items: center;
@@ -158,7 +225,6 @@ ion-card-content.search-results__state {
   }
 }
 
-// El título del estado, como el de «Aún no tienes vehículos» de Publicar
 .search-results__state-title {
   font-weight: var(--font-weight-semibold);
 }

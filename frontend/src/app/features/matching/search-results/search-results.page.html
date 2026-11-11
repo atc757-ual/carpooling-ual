@@ -1,7 +1,6 @@
 <!-- Móvil: fijo arriba, el resumen de la búsqueda (origen y destino en una
      línea de ruta, y cuándo y cuántas plazas) y, a la derecha, el lápiz para
-     editarla (vuelve al formulario relleno). En escritorio va en la columna
-     de 4 -->
+     editarla. En escritorio va en la columna de 4 -->
 @if (search()) {
   <ion-header class="search-results__header ion-no-border ion-hide-md-up">
     <div class="search-results__summary">
@@ -25,32 +24,9 @@
   <div class="tab-page search-results">
     <h1 class="visually-hidden">Tu búsqueda</h1>
 
-    <!-- Escritorio: la búsqueda en una tarjeta de la columna de 4, con el
-         lápiz a la derecha del título, como en el móvil -->
-    @if (search()) {
-      <ion-card class="search-results__aside ion-hide-md-down">
-        <ion-card-header class="search-results__aside-header">
-          <ion-card-title>Tu trayecto</ion-card-title>
-          <button
-            class="search-results__edit-icon"
-            type="button"
-            (click)="isEditing.set(true)"
-            aria-label="Editar búsqueda"
-          >
-            <ion-icon [icon]="editIcon" aria-hidden="true" />
-          </button>
-        </ion-card-header>
-        <ion-card-content>
-          <app-route-timeline [stops]="stops()" />
-          <p class="text-body-s text-color-muted">{{ details() }}</p>
-        </ion-card-content>
-      </ion-card>
-    }
-
     <div class="search-results__list">
       @if (search(); as search) {
         @if (results.isLoading()) {
-          <!-- Buscando: los puntos que suben y bajan, y qué se busca -->
           <ion-card>
             <ion-card-content class="search-results__state" role="status">
               <ion-spinner name="dots" aria-hidden="true" />
@@ -72,10 +48,21 @@
             </ion-card-content>
           </ion-card>
         } @else if (trips().length === 0) {
-          <!-- Vacío (guía, «Estados»): cómo seguir, sin cambiar la búsqueda sin
-             avisar -->
           <ion-card>
             <ion-card-content class="search-results__state">
+              @if (requestedCount()) {
+                <!-- Los viajes que ya pediste no se repiten aquí: están en Tus viajes -->
+                <div class="notice notice--info search-results__requested">
+                  <span>
+                    <b>Ya pediste plaza</b>
+                    En {{ requestedCount() }} {{ requestedCount() === 1 ? 'viaje' : 'viajes' }} de
+                    esta búsqueda.
+                  </span>
+                  <a class="search-results__requested-link" routerLink="/tabs/trips"
+                    >Tus viajes ›</a
+                  >
+                </div>
+              }
               <ion-icon [icon]="emptyIcon" aria-hidden="true" />
               <div class="search-results__state-title">Aún no hay viajes para esa hora</div>
               <div class="text-body-s text-color-muted">
@@ -88,38 +75,65 @@
                   </ion-button>
                 </form>
               }
-              <!-- Abre el formulario relleno: el día lo elige quien busca -->
-              <ion-button fill="clear" (click)="isEditing.set(true)">Probar otro día</ion-button>
+              <ion-button fill="clear" (click)="isEditing.set(true)"
+                >Cambiar la búsqueda</ion-button
+              >
             </ion-card-content>
           </ion-card>
         } @else {
-          <div class="search-results__results-header">
-            <output class="search-results__count">{{ resultsSummary() }}</output>
-            <ion-select
-              class="search-results__sort"
-              aria-label="Ordenar viajes"
-              interface="popover"
-              [value]="sortOrder()"
-              (ionChange)="handleSortChange($event.detail.value)"
-            >
-              <ion-select-option value="arrival">Llegada más temprana</ion-select-option>
-              <ion-select-option value="detour">Menos desvío</ion-select-option>
-            </ion-select>
-          </div>
-          @for (trip of sortedTrips(); track trip.id) {
-            <app-trip-result-card
-              [trip]="trip"
-              [isRequested]="requestedTripIds().has(trip.id)"
-              [isBestMatch]="trip.id === bestTripId()"
-            />
-          }
-          <p class="text-caption text-color-muted">
-            Horas estimadas. Verificamos el correo UAL, no la identidad ni el permiso de conducir.
-            La plaza se confirma cuando el conductor acepta.
-          </p>
+          <!-- Todo en una tarjeta: el recuento y el orden, el aviso de las horas
+               estimadas y, debajo, los viajes en una lista -->
+          <ion-card class="search-results__panel">
+            <ion-card-content>
+              @if (requestedCount()) {
+                <!-- Los viajes que ya pediste no se repiten aquí: están en Tus viajes -->
+                <div class="notice notice--info search-results__requested">
+                  <span>
+                    <b>Ya pediste plaza</b>
+                    En {{ requestedCount() }} {{ requestedCount() === 1 ? 'viaje' : 'viajes' }} de
+                    esta búsqueda.
+                  </span>
+                  <a class="search-results__requested-link" routerLink="/tabs/trips"
+                    >Tus viajes ›</a
+                  >
+                </div>
+              }
+              <div class="search-results__results-header">
+                <output class="search-results__count">{{ resultsSummary() }}</output>
+                <ion-select
+                  class="search-results__sort"
+                  aria-label="Ordenar viajes"
+                  interface="popover"
+                  [value]="sortOrder()"
+                  (ionChange)="handleSortChange($event.detail.value)"
+                >
+                  <ion-select-option value="arrival">Llegada más temprana</ion-select-option>
+                  <ion-select-option value="detour">Menos desvío</ion-select-option>
+                </ion-select>
+              </div>
+              <div class="notice notice--info" role="note">
+                <span>
+                  <b>Horas estimadas.</b>
+                  La plaza se confirma cuando el conductor acepta. Verificamos el correo UAL, no la
+                  identidad ni el permiso de conducir.
+                </span>
+              </div>
+              <ul class="search-results__items">
+                @for (trip of sortedTrips(); track trip.id) {
+                  <li>
+                    <app-trip-result-card
+                      [trip]="trip"
+                      [isRequested]="requestedTripIds().has(trip.id)"
+                      [isBestMatch]="trip.id === bestTripId()"
+                      [fit]="fitOf(trip)"
+                    />
+                  </li>
+                }
+              </ul>
+            </ion-card-content>
+          </ion-card>
         }
       } @else {
-        <!-- Se ha llegado sin buscar (p. ej. recargando la página) -->
         <ion-card>
           <ion-card-content class="search-results__state">
             <ion-icon [icon]="emptyIcon" aria-hidden="true" />
@@ -129,16 +143,43 @@
         </ion-card>
       }
     </div>
+
+    <!-- Columna de 4 en escritorio (debajo en el móvil): «Tu trayecto» y el
+         aviso sobre las horas y la confirmación -->
+    @if (search()) {
+      <aside class="search-results__aside" aria-label="Resumen de tu búsqueda">
+        <ion-card class="ion-hide-md-down">
+          <ion-card-header class="search-results__aside-header">
+            <ion-card-title>Tu trayecto</ion-card-title>
+            <button
+              class="search-results__edit-icon"
+              type="button"
+              (click)="isEditing.set(true)"
+              aria-label="Editar búsqueda"
+            >
+              <ion-icon [icon]="editIcon" aria-hidden="true" />
+            </button>
+          </ion-card-header>
+          <ion-card-content>
+            <app-route-timeline [stops]="stops()" />
+            <dl class="search-results__facts">
+              @for (fact of searchFacts(); track fact.label) {
+                <div>
+                  <dt class="text-caption">{{ fact.label }}</dt>
+                  <dd class="text-body-s text-body--strong">{{ fact.value }}</dd>
+                </div>
+              }
+            </dl>
+          </ion-card-content>
+        </ion-card>
+      </aside>
+    }
   </div>
 </ion-content>
 
-<!-- Editar la búsqueda sin salir de los resultados: el formulario relleno en
-     una ventana (en el móvil, desde abajo; en escritorio, centrada). Al buscar
-     se cierra y los resultados se vuelven a cargar ahí mismo -->
 <ion-modal class="location-dialog" [isOpen]="isEditing()" (didDismiss)="isEditing.set(false)">
   <ng-template>
     <app-modal-header title="Editar búsqueda" (closed)="isEditing.set(false)" />
-    <!-- Sin ion-content: así la ventana toma el alto de su contenido -->
     <div class="modal-body">
       <app-trip-search-form (searched)="isEditing.set(false)" />
     </div>

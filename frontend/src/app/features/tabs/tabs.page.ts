@@ -76,6 +76,9 @@ export const MESSAGES_REFRESH_MS = 30_000;
 export const NOTIFICATIONS_REFRESH_MS = 15_000;
 // El coche va entre Publicar y Tus viajes
 const LIVE_TAB_INDEX = 2;
+// Las pantallas En curso (pasajero y conductor): cuelgan de Tus viajes, pero
+// en la navegación se marca el coche, no Tus viajes
+const LIVE_TRIP_URL = /^\/tabs\/trips\/(ride|drive)\//;
 
 // Qué lado guarda cada pestaña al entrar (y por dónde se abre la próxima vez)
 const SIDES: readonly { path: string; mode: TravelMode }[] = [
@@ -155,6 +158,13 @@ export class TabsPage implements OnInit {
   // Mi perfil va en la cabecera, junto a Notificaciones
   readonly tabs: readonly Tab[] = [SEARCH_TAB, PUBLISH_TAB, TRIPS_TAB, MESSAGES_TAB];
   readonly liveTabIndex = LIVE_TAB_INDEX;
+  readonly isOnLiveTrip = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map(() => LIVE_TRIP_URL.test(this.router.url)),
+    ),
+    { initialValue: LIVE_TRIP_URL.test(this.router.url) },
+  );
 
   // El viaje en curso: el coche se enciende y lo abre; sin viaje, no hace nada
   readonly liveTrip = this.chat.liveTrip;
@@ -205,8 +215,8 @@ export class TabsPage implements OnInit {
   protected readonly profileIcon = personOutline;
   protected readonly carIcon = carSportOutline;
 
-  // El conductor, a su viaje en curso; el pasajero, al detalle de su plaza
-  // (con el mapa en vivo), que se busca al pulsar
+  // El conductor, a su viaje en curso; el pasajero, a su pantalla En curso
+  // en curso (con el mapa en vivo), que se busca al pulsar
   async openLiveTrip(): Promise<void> {
     const live = this.liveTrip();
     if (!live) {
@@ -220,7 +230,7 @@ export class TabsPage implements OnInit {
     const request = requests.find(
       ({ trip, status }) => trip.id === live.tripId && status === 'accepted',
     );
-    await this.router.navigateByUrl(request ? `/tabs/trips/requests/${request.id}` : '/tabs/trips');
+    await this.router.navigateByUrl(request ? `/tabs/trips/ride/${request.id}` : '/tabs/trips');
   }
 
   // Salir: siempre con la misma confirmación que en Mi perfil

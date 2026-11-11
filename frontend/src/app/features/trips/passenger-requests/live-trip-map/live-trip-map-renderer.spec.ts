@@ -137,8 +137,11 @@ describe('LiveTripMapRenderer', () => {
     renderer.initialize(element, CENTER);
     renderer.center(null, null, null, CENTER);
 
-    expect(map.setView).toHaveBeenLastCalledWith([36.84, -2.46], 15);
-    expect(map.fitBounds).not.toHaveBeenCalled();
+    // Un solo punto: sus límites, hasta el zoom 15 (y el hueco de la hoja)
+    expect(map.fitBounds).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.objectContaining({ maxZoom: 15 }),
+    );
   });
 
   it('removes the pickup and cleans up map resources', () => {

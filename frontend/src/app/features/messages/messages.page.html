@@ -1,6 +1,12 @@
-<ion-content>
-  <!-- Móvil: el título, dentro del contenido para que se desplace con él -->
-  <app-section-heading />
+<!-- Con una conversación abierta en el móvil, la página no se desplaza: solo
+     los mensajes (si no, el chat más la cabecera pasaban del alto de la
+     pantalla y el campo de escribir quedaba bajo la barra de pestañas) -->
+<ion-content [scrollY]="!mobileDetail()">
+  <!-- Móvil: el título, dentro del contenido para que se desplace con él (con
+       una conversación abierta va en la franja fija) -->
+  @if (!mobileDetail()) {
+    <app-section-heading />
+  }
   <div class="tab-page messages" [class.messages--mobile-detail]="mobileDetail()">
     <div class="messages__layout" [class.messages__layout--mobile-detail]="mobileDetail()">
       <section class="messages__main" aria-label="Conversaciones">

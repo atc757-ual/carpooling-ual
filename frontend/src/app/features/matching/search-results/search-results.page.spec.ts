@@ -140,14 +140,13 @@ describe('SearchResultsPage', () => {
       expect.objectContaining({ parkingId: 'p1', direction: 'to-campus', marginMin: 20, seats: 1 }),
     );
     expect(root.querySelector('app-trip-result-card')?.textContent).toContain('Lucía Cortés');
-    expect(root.querySelector('app-trip-result-card')?.textContent).toContain('Nuevo conductor');
     expect(root.querySelector('.search-results__count')?.textContent).toContain(
       '1 viaje llega a las',
     );
     expect(root.querySelector('ion-select')).not.toBeNull();
-    expect(root.textContent).toContain(
-      'Horas estimadas. Verificamos el correo UAL, no la identidad ni el permiso de conducir.',
-    );
+    const notice = root.querySelector('.notice--info')?.textContent?.replace(/\s+/g, ' ');
+    expect(notice).toContain('Horas estimadas.');
+    expect(notice).toContain('La plaza se confirma cuando el conductor acepta.');
     expect(searchState.results().map(({ id }) => id)).toEqual(['t1']);
     expect(page.stops().map(({ name }) => name)).toEqual([ROQUETAS.name, 'Campus UAL']);
     expect(page.details()).toContain('llegada 08:00 ± 20 min · 1 plaza');
@@ -246,11 +245,11 @@ describe('SearchResultsPage', () => {
     expect(fixture.componentInstance.widerMargin()).toBe(20);
   });
 
-  it('opens the form to try another day when there are no trips', async () => {
+  it('opens the form to change the search when there are no trips', async () => {
     const fixture = await setUp(SEARCH, () => Promise.resolve([]));
     const root = fixture.nativeElement as HTMLElement;
     const button = [...root.querySelectorAll<HTMLElement>('ion-button')].find((element) =>
-      element.textContent?.includes('Probar otro día'),
+      element.textContent?.includes('Cambiar la búsqueda'),
     );
 
     button?.click();

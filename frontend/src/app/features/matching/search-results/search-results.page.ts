@@ -23,13 +23,15 @@ import { MatchingService } from '../../../core/services/matching/matching.servic
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import {
   RouteStop,
   RouteTimeline,
 } from '../../../shared/components/ui/route-timeline/route-timeline';
+import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { formatSeats } from '../../../shared/utils/seats.util';
 import { CAMPUS_NAME } from '../campus';
 import { TripResultCard } from '../trip-result-card/trip-result-card';
+import { getMatchFit, MatchFit } from '../match-fit';
 import { toSearchRequest, toTripResult } from '../trip-results';
 import { MARGINS } from '../trip-search';
 import { TripSearchForm } from '../trip-search-form/trip-search-form';
@@ -37,7 +39,6 @@ import { TripSearchStateService } from '../trip-search-state.service';
 
 type SearchSortOrder = 'arrival' | 'detour';
 
-// Las solicitudes que siguen vivas: el viaje ya está pedido
 const ACTIVE_REQUEST_STATUSES = new Set(['pending', 'accepted']);
 
 // «3 viajes llegan entre 08:45 y 09:15»; al volver del campus, «salen»
@@ -56,11 +57,9 @@ export function describeResults(trips: TripResult[], direction: TripDirection): 
   return `${times.length} viajes ${verb} ${when}`;
 }
 
-// «Tu búsqueda»: los viajes que encajan con la búsqueda hecha en Buscar. Arriba,
-// fija, el resumen (de dónde a dónde, cuándo y cuántas plazas) con «Editar
-// búsqueda», que vuelve al formulario relleno. Mientras busca, los puntos de
-// carga y qué se está buscando; después, los resultados, el vacío (con
-// «Ampliar margen») o el error (con «Reintentar»)
+// «Tu búsqueda»: los viajes que encajan con la búsqueda hecha en Buscar. En
+// escritorio, 8 + 4 a todo el ancho: resultados en la de 8 y «Tu trayecto»
+// (con los datos en fila y el aviso de horas estimadas) en la de 4
 @Component({
   selector: 'app-search-results',
   imports: [
@@ -91,10 +90,8 @@ export class SearchResultsPage {
   private readonly matching = inject(MatchingService);
   private readonly seatRequests = inject(SeatRequestsService);
 
-  // La búsqueda hecha en Buscar, o null si se llega sin buscar
   readonly search = this.searchState.search;
 
-  // Los viajes de la búsqueda; se vuelven a pedir con cada búsqueda nueva
   readonly results = resource({
     params: () => this.search() ?? undefined,
     loader: async ({ params }) =>
@@ -103,8 +100,15 @@ export class SearchResultsPage {
       ),
   });
 
-  readonly trips = computed(() => (this.results.hasValue() ? this.results.value() : []));
-  // Si fallan, los resultados se ven igual, solo que sin «Ya solicitado»
+  private readonly foundTrips = computed(() =>
+    this.results.hasValue() ? this.results.value() : [],
+  );
+  // Los viajes en que ya pediste plaza están en Tus viajes: aquí no se
+  // repiten (se avisa de cuántos con un enlace)
+  readonly trips = computed(() =>
+    this.foundTrips().filter(({ id }) => !this.requestedTripIds().has(id)),
+  );
+  readonly requestedCount = computed(() => this.foundTrips().length - this.trips().length);
   private readonly myRequests = resource({ loader: () => this.seatRequests.listMine() });
   readonly requestedTripIds = computed(
     () =>
@@ -117,8 +121,12 @@ export class SearchResultsPage {
   readonly resultsSummary = computed(() =>
     describeResults(this.trips(), this.search()?.direction ?? 'to-campus'),
   );
-  // La API los devuelve del más compatible al menos; con uno solo no hay nada
-  // que destacar
+  // Cómo encaja cada viaje con la búsqueda: el color de su fila
+  fitOf(trip: TripResult): MatchFit {
+    const search = this.search();
+    return search ? getMatchFit(trip, search) : 'fair';
+  }
+
   readonly bestTripId = computed(() => (this.trips().length > 1 ? this.trips()[0].id : null));
   readonly sortOrder = signal<SearchSortOrder>('arrival');
   readonly sortedTrips = computed(() => {
@@ -132,19 +140,15 @@ export class SearchResultsPage {
     }
     return trips.sort((left, right) => Date.parse(left.arrivalAt) - Date.parse(right.arrivalAt));
   });
-  // «Hemos tenido un problema…», con la referencia si es un error del servidor
   readonly errorMessage = computed(() => {
     const error = this.results.error();
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : '';
   });
-  // El margen siguiente (para «Ampliar margen»), o null si ya es el mayor
   readonly widerMargin = computed(() => {
     const margin = this.search()?.margin ?? 0;
     return MARGINS.find((value) => value > margin) ?? null;
   });
 
-  // Origen y destino, para la línea de ruta: al ir, la dirección y el
-  // parking; al volver, al revés
   readonly stops = computed<RouteStop[]>(() => {
     const search = this.search();
     if (!search) {
@@ -154,6 +158,7 @@ export class SearchResultsPage {
     const campus = { name: CAMPUS_NAME, detail: search.parking.name };
     return search.direction === 'to-campus' ? [place, campus] : [campus, place];
   });
+
   // «Mañana · llegada 08:00 ± 15 min · 1 plaza»
   readonly details = computed(() => {
     const search = this.search();
@@ -161,11 +166,22 @@ export class SearchResultsPage {
       return '';
     }
     const time = search.direction === 'to-campus' ? 'llegada' : 'salida';
-    const seats = search.seats === 1 ? '1 plaza' : `${search.seats} plazas`;
-    return `${formatDateLabel(search.date)} · ${time} ${search.time} ± ${search.margin} min · ${seats}`;
+    return `${formatDateLabel(search.date)} · ${time} ${search.time} ± ${search.margin} min · ${formatSeats(search.seats)}`;
   });
 
-  // La ventana con el formulario para editar la búsqueda
+  readonly searchFacts = computed(() => {
+    const search = this.search();
+    if (!search) {
+      return [];
+    }
+    const timeLabel = search.direction === 'to-campus' ? 'Llegada' : 'Salida';
+    return [
+      { label: 'Día', value: formatDateLabel(search.date) },
+      { label: timeLabel, value: `${search.time} ± ${search.margin} min` },
+      { label: 'Plazas', value: formatSeats(search.seats) },
+    ];
+  });
+
   readonly isEditing = signal(false);
 
   protected readonly editIcon = createOutline;
@@ -173,16 +189,13 @@ export class SearchResultsPage {
   protected readonly errorIcon = alertCircleOutline;
 
   constructor() {
-    // El detalle de cada viaje sale de los resultados
     effect(() => this.searchState.setResults(this.trips()));
   }
 
-  // Al volver del detalle puede haber una solicitud nueva
   ionViewWillEnter(): void {
     this.myRequests.reload();
   }
 
-  // «Ampliar margen»: la misma búsqueda con el margen siguiente
   handleWidenMargin(): void {
     const search = this.search();
     const margin = this.widerMargin();

@@ -22,6 +22,12 @@
            aria-describedby no llega al botón nativo de ion-button (shadow
            DOM). Lo que supone iniciar, en la confirmación -->
       <div class="driver-actions__block">
+        <!-- Si aún no se puede iniciar, por qué, encima del botón -->
+        @if (startHint(); as hint) {
+          <div class="notice notice--info" aria-hidden="true">
+            <span>{{ hint }}</span>
+          </div>
+        }
         <form (submit)="$event.preventDefault(); handleStart()">
           <ion-button type="submit" expand="block" [disabled]="!canStart() || isChangingStatus()">
             {{ isChangingStatus() ? 'Iniciando…' : 'Iniciar viaje' }}
@@ -30,12 +36,10 @@
             }
           </ion-button>
         </form>
-        @if (startHint(); as hint) {
-          <p class="driver-actions__hint text-caption" aria-hidden="true">{{ hint }}</p>
-        }
       </div>
 
-      <!-- Cancelar, discreto. El aviso de tardía, solo cuando aplica -->
+      <!-- Cancelar: con borde azul y fondo blanco (la guía: lo destructivo, sin
+           rojo). El aviso de tardía, solo cuando aplica -->
       <div class="driver-actions__block">
         @if (cancellationIsLate()) {
           <output class="notice notice--warning">
@@ -46,8 +50,7 @@
         <ion-button
           type="button"
           expand="block"
-          fill="clear"
-          color="danger"
+          fill="outline"
           [disabled]="isCancelling() || isChangingStatus()"
           (click)="handleCancel()"
         >
@@ -62,13 +65,15 @@
     <!-- Cancelado o terminado: las mismas acciones, desactivadas, y por qué -->
     @if (closedReason(); as reason) {
       <div class="driver-actions__block">
+        <div class="notice notice--info" aria-hidden="true">
+          <span>{{ reason }}</span>
+        </div>
         <ion-button expand="block" [disabled]="true">
           Iniciar viaje<span class="visually-hidden">. {{ reason }}</span>
         </ion-button>
-        <ion-button expand="block" fill="clear" color="danger" [disabled]="true">
+        <ion-button expand="block" fill="outline" [disabled]="true">
           Cancelar viaje<span class="visually-hidden">. {{ reason }}</span>
         </ion-button>
-        <p class="driver-actions__hint text-caption" aria-hidden="true">{{ reason }}</p>
       </div>
     }
   </ion-card-content>

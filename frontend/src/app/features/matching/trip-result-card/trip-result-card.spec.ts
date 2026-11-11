@@ -49,49 +49,51 @@ describe('TripResultCard', () => {
   const text = (root: HTMLElement, selector: string): string | undefined =>
     root.querySelector(selector)?.textContent?.trim();
 
-  it('shows times, free seats, route and the passenger pickup address', () => {
+  it('shows times, free seats, route, the detour and when it leaves', () => {
     const root = render(TRIP);
 
     expect(text(root, '.trip-card__times')).toBe('07:40 → 08:12');
     expect(text(root, '.trip-card__seats')).toBe('2 plazas');
     expect(text(root, '.trip-card__route')).toBe('Roquetas de Mar → Campus UAL · Parking P1');
-    expect(root.textContent).toContain('Recogida en Av. Carlos III, 12 · sale a las 07:40');
+    expect(text(root, '.trip-card__pickup')).toBe('Desvío de 3 min · sale a las 07:40');
+    expect(root.querySelector('.trip-card')?.classList).toBeTruthy();
   });
 
-  it('shows who drives', () => {
-    const root = render(TRIP);
+  it('says the trip is on its way when there is no detour', () => {
+    const root = render({ ...TRIP, pickupDetourMinutes: 0 });
 
-    expect(text(root, 'app-trip-driver .trip-driver__name')).toBe('Lucía Cortés');
+    expect(text(root, '.trip-card__pickup')).toBe('En su ruta · sale a las 07:40');
   });
 
-  it('links the card to the trip detail with a label that describes the trip', () => {
+  it('shows only the name of who drives (the rest, in the detail)', () => {
     const root = render(TRIP);
-    const link = root.querySelector<HTMLAnchorElement>('ion-card .trip-card__link');
+
+    expect(text(root, '.trip-card__driver')).toBe('Conduce Lucía Cortés');
+    expect(root.querySelector('app-trip-driver')).toBeNull();
+  });
+
+  it('links the row to the trip detail with a label that describes the trip', () => {
+    const root = render(TRIP);
+    const link = root.querySelector<HTMLAnchorElement>('.trip-card__link');
 
     expect(link?.getAttribute('href')).toBe('/tabs/search/trips/trip-1');
     expect(link?.getAttribute('aria-label')).toBe(
       'Ver viaje de Lucía: 07:40 → 08:12, Roquetas de Mar → Campus UAL · Parking P1',
     );
-    expect(link?.contains(root.querySelector('app-trip-driver'))).toBe(false);
-  });
-
-  it('describes the stop as a drop-off on return trips', () => {
-    const root = render({ ...TRIP, direction: 'from-campus' });
-
-    expect(root.textContent).toContain('Bajada en Av. Carlos III, 12 · sale a las 07:40');
   });
 
   it('marks the last seat', () => {
     const root = render({ ...TRIP, freeSeats: 1 });
 
-    expect(text(root, '.trip-card__seats--last')).toBe('Última plaza');
+    expect(text(root, '.status--pending')).toBe('Última plaza');
+    expect(root.querySelector('.trip-card__seats')).toBeNull();
   });
 
   it('shows a trip already requested instead of its seats, also to screen readers', () => {
     const root = render({ ...TRIP, freeSeats: 1 }, { isRequested: true });
 
-    expect(text(root, '.trip-card__seats--requested')).toBe('Ya solicitado');
-    expect(root.querySelector('.trip-card__seats--last')).toBeNull();
+    expect(text(root, '.status--info')).toBe('Ya solicitado');
+    expect(root.querySelector('.status--pending')).toBeNull();
     expect(root.querySelector('.trip-card__link')?.getAttribute('aria-label')).toContain(
       ', ya solicitado',
     );

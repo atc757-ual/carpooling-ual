@@ -17,12 +17,12 @@ ion-card.driver-actions ion-card-content {
 .driver-actions__block {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-s);
+
+  // 16px entre el aviso y los botones
+  > .notice {
+    margin-bottom: var(--space-s);
+  }
 }
 
 // Gris y centrada bajo su botón (≥ 4,5:1 sobre la tarjeta: --color-text-muted)
-.driver-actions__hint {
-  margin: 0;
-  color: var(--color-text-muted);
-  text-align: center;
-}

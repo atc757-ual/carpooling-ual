@@ -36,7 +36,7 @@ describe('TripRouteMap', () => {
     fixture.componentRef.setInput('origin', origin);
     fixture.componentRef.setInput('destination', DESTINATION);
     if (pickup) {
-      fixture.componentRef.setInput('pickup', pickup);
+      fixture.componentRef.setInput('pickups', [pickup]);
     }
     fixture.detectChanges();
     await fixture.whenStable();

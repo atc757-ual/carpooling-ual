@@ -1,4 +1,14 @@
-import { Component, computed, DestroyRef, effect, inject, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  resource,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
@@ -7,9 +17,20 @@ import {
   IonCardContent,
   IonContent,
   IonIcon,
+  IonModal,
   IonSpinner,
 } from '@ionic/angular';
-import { callOutline, locationOutline } from 'ionicons/icons';
+import {
+  businessOutline,
+  callOutline,
+  checkmarkCircle,
+  chatbubblesOutline,
+  checkmark,
+  flagOutline,
+  homeOutline,
+  locationOutline,
+  personRemoveOutline,
+} from 'ionicons/icons';
 import { map } from 'rxjs';
 import { ApiError } from '../../../core/models/api-error.model';
 import { ChatContact } from '../../../core/models/chat.model';
@@ -20,40 +41,55 @@ import { LocationService } from '../../../core/services/location/location.servic
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { TripChatLink } from '../../../shared/components/ui/trip-chat-link/trip-chat-link';
+import {
+  injectIsDesktop,
+  injectIsOnUrl,
+  LIVE_SHEET_BREAKPOINTS,
+  LIVE_SHEET_FULL_BREAKPOINT,
+  LIVE_SHEET_INITIAL_BREAKPOINT,
+  liveSheetInset,
+} from '../../../shared/utils/desktop-query.util';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { formatTime } from '../../matching/trip-results';
 import { formatSeats } from '../../../shared/utils/seats.util';
-import { finishTrip } from '../finish-trip.util';
-import { LiveTripMap } from '../passenger-requests/live-trip-map/live-trip-map';
-import { TripProgress } from '../trip-progress/trip-progress';
+import { isCampusName } from '../../matching/campus';
+import { getFirstName } from '../../matching/trip-driver/trip-driver';
+import { ReviewTarget, TripReviewCard } from '../trip-review/trip-review-card';
+import { checkFinish, completeFinish, FinishCheck, formatDistance } from '../finish-trip.util';
+import { LiveTripMap, LiveTripStatus } from '../passenger-requests/live-trip-map/live-trip-map';
+import { etaTag, headingTo, isArriving, journeyStages } from '../live-trip-hero.util';
 
 // Una recogida sigue siendo «la siguiente» hasta 5 min después de su hora
 // (lo que se espera al pasajero antes de poder marcar «No se presentó»)
 const PICKUP_GRACE_MS = 5 * 60 * 1000;
 const CLOCK_UPDATE_MS = 60_000;
+const DRIVER_STAGES = ['Recogidas', 'Al destino', 'Llegada'];
+// La URL de esta pantalla: la hoja del móvil solo está abierta en ella
+const DRIVE_URL = /^\/tabs\/trips\/drive\//;
 
-// Pantalla del viaje en curso del conductor (/tabs/trips/drive/:id): el
-// progreso, el mapa con su posición y la siguiente recogida, sus pasajeros
+// Pantalla del viaje en curso del conductor (/tabs/trips/drive/:id). En
+// escritorio, el mapa (8) y los detalles (4); en el móvil, el mapa a toda la
+// pantalla y los detalles en una hoja inferior que se arrastra. Detalles: lo
+// siguiente que hay que hacer, el progreso, sus pasajeros
 // con la hora y el punto de recogida y «Terminar viaje». Mientras está abierta
 // se sigue compartiendo la posición (DriverTrackingService); al terminar,
 // vuelve a Tus viajes
 @Component({
   selector: 'app-driver-live-trip',
   imports: [
+    NgTemplateOutlet,
     IonButton,
     IonCard,
     IonCardContent,
     IonContent,
     IonIcon,
+    IonModal,
     IonSpinner,
     LiveTripMap,
+    TripReviewCard,
     RouterLink,
-    TripChatLink,
-    TripProgress,
   ],
   templateUrl: './driver-live-trip.page.html',
-  styleUrl: './driver-live-trip.page.scss',
+  styleUrls: ['../../tabs/tab-page.scss', './driver-live-trip.page.scss'],
 })
 export class DriverLiveTripPage {
   private readonly driver = inject(DriverService);
@@ -104,11 +140,104 @@ export class DriverLiveTripPage {
       ) ?? null,
   );
 
+  readonly allOnBoard = computed(() =>
+    this.passengers().every((request) => Boolean(request.boardedAt)),
+  );
+  // A quién toca validar: el primero, por orden de recogida, que no ha subido
+  readonly activePickupId = computed(
+    () => this.passengers().find((request) => !request.boardedAt)?.id ?? null,
+  );
+  // Recogidas hechas (o sin pasajeros): la etapa pasa a «Al destino»
+  readonly arePickupsDone = computed(() => this.activePickupId() === null);
+  // La tarjeta del carrusel que se ve (para los puntos)
+  readonly carouselIndex = signal(0);
+  // Adónde va: al campus, un edificio; de vuelta, una casa
+  readonly destinationIcon = computed(() =>
+    isCampusName(this.trip()?.destinationName) ? businessOutline : homeOutline,
+  );
+  readonly boardedCount = computed(
+    () => this.passengers().filter((request) => Boolean(request.boardedAt)).length,
+  );
+
   readonly isSharing = computed(() => this.tracking.tripId() === this.trip()?.id);
   readonly isScreenKeptOn = this.tracking.isScreenKeptOn;
   readonly gapMinutes = this.tracking.gapMinutes;
   readonly isFinishing = signal(false);
+  // La respuesta a «Terminar viaje» (distancia al destino), mientras se confirma
+  readonly finishCheck = signal<FinishCheck | null>(null);
+  // Recién terminado aquí: la hoja enseña el aviso y la valoración de los
+  // pasajeros en lugar de salir enseguida
+  readonly justFinished = signal(false);
+  readonly reviewTargets = computed<ReviewTarget[]>(() =>
+    this.passengers().map((request) => ({
+      id: request.passenger.id,
+      name: getFirstName(request.passenger.name),
+    })),
+  );
+  protected readonly formatDistance = formatDistance;
   readonly isPageVisible = signal(true);
+  // Lo que el mapa sabe en directo (minutos hasta la recogida y el destino)
+  readonly liveStatus = signal<LiveTripStatus | null>(null);
+  readonly etaText = computed(() => {
+    const status = this.liveStatus();
+    if (!status) {
+      return null;
+    }
+    if (status.isStale) {
+      return 'Sin tu ubicación';
+    }
+    if (this.nextPickup()) {
+      return status.pickupMinutes === null ? null : etaTag(status.pickupMinutes, 'En la recogida');
+    }
+    return status.destinationMinutes === null
+      ? null
+      : etaTag(status.destinationMinutes, 'En destino');
+  });
+  readonly isToCampus = computed(() => isCampusName(this.trip()?.destinationName));
+  // Recogidas hechas y a menos de 300 m del campus: «Llegada» es la etapa actual
+  readonly isNearDestination = computed(
+    () =>
+      this.arePickupsDone() &&
+      this.isToCampus() &&
+      isArriving(this.liveStatus()?.destinationMeters ?? null),
+  );
+  readonly heroTitle = computed(() => {
+    const next = this.nextPickup();
+    return next
+      ? `Recoge a ${getFirstName(next.passenger.name)}`
+      : headingTo(this.isToCampus(), this.isNearDestination());
+  });
+  readonly stages = computed(() => {
+    let current = 1;
+    if (!this.arePickupsDone()) {
+      current = 0;
+    } else if (this.isNearDestination()) {
+      current = 2;
+    }
+    return journeyStages(DRIVER_STAGES, current);
+  });
+  readonly isDesktop = injectIsDesktop();
+  protected readonly sheetBreakpoints = LIVE_SHEET_BREAKPOINTS;
+  protected readonly sheetInitialBreakpoint = LIVE_SHEET_INITIAL_BREAKPOINT;
+  // La hoja no se cierra al arrastrarla en el móvil; sí al pasar a escritorio
+  // o al salir de la pantalla (se pregunta en el momento: una función, no un
+  // valor fijo, o se quedaría abierta encima del 8 + 4)
+  readonly isOnPage = injectIsOnUrl(DRIVE_URL);
+  protected readonly canDismissSheet = async (): Promise<boolean> =>
+    this.isDesktop() || !this.isOnPage() || this.isLeaving;
+  // Al salir (volver atrás destruye la pantalla), la hoja se cierra a mano:
+  // Ionic la ha sacado de su sitio y, si no, se quedaría encima de la otra
+  private readonly sheet = viewChild(IonModal);
+  private isLeaving = false;
+  private async closeSheet(): Promise<void> {
+    this.isLeaving = true;
+    await this.sheet()?.dismiss();
+  }
+  // Lo que tapa la hoja ahora (cambia al arrastrarla): el mapa encuadra encima
+  readonly sheetBreakpoint = signal(LIVE_SHEET_INITIAL_BREAKPOINT);
+  readonly mapInset = computed(() =>
+    this.isDesktop() ? 0 : liveSheetInset(this.sheetBreakpoint()),
+  );
   // Los teléfonos para llamar: resource y no effect, para no pintar los de
   // otro viaje si la respuesta llega tarde
   private readonly contactsData = resource({
@@ -120,7 +249,13 @@ export class DriverLiveTripPage {
   );
   readonly contactsMap = computed(() => new Map(this.contacts().map((c) => [c.id, c])));
   protected readonly locationIcon = locationOutline;
+  protected readonly flagIcon = flagOutline;
+  protected readonly firstName = (name: string) => getFirstName(name);
   protected readonly callIcon = callOutline;
+  protected readonly doneIcon = checkmark;
+  protected readonly finishedIcon = checkmarkCircle;
+  protected readonly noShowIcon = personRemoveOutline;
+  protected readonly chatIcon = chatbubblesOutline;
   protected readonly formatSeats = formatSeats;
 
   // Código de 4 cifras introducido para cada pasajero
@@ -128,6 +263,12 @@ export class DriverLiveTripPage {
   private readonly validatingBoardMap = signal<Record<string, boolean>>({});
 
   constructor() {
+    effect(() => {
+      if (!this.isOnPage()) {
+        void this.closeSheet();
+      }
+    });
+    inject(DestroyRef).onDestroy(() => void this.closeSheet());
     const timer = setInterval(() => this.now.set(Date.now()), CLOCK_UPDATE_MS);
     inject(DestroyRef).onDestroy(() => clearInterval(timer));
     // Si se entra con el viaje en curso, su posición se sigue enviando
@@ -137,6 +278,31 @@ export class DriverLiveTripPage {
         this.tracking.start(trip.id);
       }
     });
+    // Al validar a uno, el carrusel pasa solo al siguiente que toca
+    effect(() => {
+      const activeId = this.activePickupId();
+      if (activeId) {
+        setTimeout(() => this.scrollToPickup(activeId));
+      }
+    });
+  }
+
+  // La tarjeta que se ve, al deslizar el carrusel
+  handleCarouselScroll(event: Event): void {
+    const carousel = event.target as HTMLElement;
+    if (carousel.clientWidth > 0) {
+      this.carouselIndex.set(Math.round(carousel.scrollLeft / carousel.clientWidth));
+    }
+  }
+
+  // Lleva el carrusel a la tarjeta de un pasajero (por su id: el contenido de
+  // la hoja del móvil lo crea Ionic y un viewChild no lo vería)
+  scrollToPickup(requestId: string): void {
+    const slide = document.getElementById(`pickup-${requestId}`);
+    const carousel = slide?.parentElement;
+    if (slide && carousel) {
+      carousel.scrollTo?.({ left: slide.offsetLeft - carousel.offsetLeft, behavior: 'smooth' });
+    }
   }
 
   canCallPassenger(passengerId: string): boolean {
@@ -154,7 +320,12 @@ export class DriverLiveTripPage {
     this.tripCall.call(contact, this.trip()?.status);
   }
 
+  ionViewWillLeave(): void {
+    void this.closeSheet();
+  }
+
   ionViewWillEnter(): void {
+    this.isLeaving = false;
     this.isPageVisible.set(true);
   }
 
@@ -240,33 +411,53 @@ export class DriverLiveTripPage {
     }
   }
 
-  // «Recoger a las 09:12 · Av. del Mediterráneo»
-  protected pickupLabel(request: SeatRequest): string {
-    const at = request.pickupAt ? `Recoger a las ${formatTime(request.pickupAt)}` : 'Recoger';
-    return request.pickupName ? `${at} · ${request.pickupName}` : at;
+  // Dónde recoger (sin hora por ahora: la estimada no suma las otras recogidas)
+  protected pickupPlace(request: SeatRequest): string {
+    if (request.direction === 'from-campus') {
+      return 'En tu salida';
+    }
+    return request.pickupName ?? 'Su punto de recogida';
   }
 
   dismissGap(): void {
     this.tracking.dismissGap();
   }
 
+  // «Terminar viaje»: mira a qué distancia está del destino y pregunta en la
+  // última tarjeta (no en otra ventana)
   async handleFinish(): Promise<void> {
     const trip = this.trip();
-    if (!trip) {
+    if (!trip || this.isFinishing()) {
       return;
     }
     this.isFinishing.set(true);
-    const deps = {
-      confirm: this.confirm,
-      driver: this.driver,
-      tracking: this.tracking,
-      toast: this.toast,
-      location: this.location,
-    };
-    if (await finishTrip(deps, trip, this.locationIcon)) {
-      await this.router.navigateByUrl('/tabs/trips');
+    this.finishCheck.set(await checkFinish(this.location, trip));
+    this.isFinishing.set(false);
+  }
+
+  async confirmFinish(): Promise<void> {
+    const trip = this.trip();
+    const check = this.finishCheck();
+    if (!trip || !check || this.isFinishing()) {
+      return;
+    }
+    this.isFinishing.set(true);
+    const deps = { driver: this.driver, tracking: this.tracking, toast: this.toast };
+    if (await completeFinish(deps, trip.id, check.point)) {
+      this.finishCheck.set(null);
+      this.justFinished.set(true);
+      void this.sheet()?.setCurrentBreakpoint(LIVE_SHEET_FULL_BREAKPOINT);
     }
     this.isFinishing.set(false);
+  }
+
+  async leaveFinished(): Promise<void> {
+    await this.closeSheet();
+    await this.router.navigateByUrl('/tabs/trips');
+  }
+
+  cancelFinish(): void {
+    this.finishCheck.set(null);
   }
 }
 

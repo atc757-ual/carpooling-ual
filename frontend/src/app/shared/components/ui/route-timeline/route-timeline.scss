@@ -27,13 +27,20 @@
 
 // La hora, en la letra y el tamaño de los títulos (cifras del mismo ancho, así
 // las dos horas quedan alineadas)
-.route-timeline__time {
+.route-timeline__time,
+.route-timeline__time-slot {
   flex: 0 0 auto;
   font-family: var(--font-family-heading);
   font-size: var(--font-size-title);
   font-weight: var(--font-weight-semibold);
   font-variant-numeric: tabular-nums;
   line-height: var(--route-line);
+}
+
+// Reserva el hueco de la hora en paradas intermedias sin hora (p. ej. recogida)
+.route-timeline__time-slot::before {
+  content: '00:00';
+  visibility: hidden;
 }
 
 // Columna del punto: ocupa todo el alto de la parada, así la línea crece con
@@ -43,9 +50,11 @@
   flex: 0 0 0.625rem; // punto de 10px
 }
 
-// Punto de 10px en el centro de la primera línea: vacío el origen y relleno
-// el destino
+// Punto de 10px en el centro de la primera línea: vacío el origen (y paradas
+// intermedias) y relleno el destino
 .route-timeline__dot {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 0.625rem;
   height: 0.625rem;
@@ -59,9 +68,8 @@
   background: var(--color-primary);
 }
 
-// La línea sale del centro del primer punto y llega al centro del segundo
-// (12px entre paradas + media primera línea)
-.route-timeline__stop:first-child .route-timeline__rail::after {
+// La línea une cada parada con la siguiente (12px entre paradas + media primera línea)
+.route-timeline__stop:not(:last-child) .route-timeline__rail::after {
   content: '';
   position: absolute;
   top: calc(var(--route-line) / 2);

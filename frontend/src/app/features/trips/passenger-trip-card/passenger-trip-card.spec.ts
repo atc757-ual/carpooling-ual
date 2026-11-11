@@ -49,9 +49,10 @@ describe('PassengerTripCard', () => {
       'Esperando respuesta de Lucía',
     );
     TestBed.resetTestingModule();
+    // Sin hora de recogida, aunque la haya, hasta decidir el cálculo
     expect(
       next(render(passengerTrip('accepted', 'confirmed', { pickupAt: '2099-01-15T06:50:00Z' }))),
-    ).toContain('Confirmada: te recoge a las');
+    ).toBe('Confirmada: viajas con Lucía');
     TestBed.resetTestingModule();
     expect(next(render(passengerTrip('accepted', 'confirmed')))).toBe(
       'Confirmada: viajas con Lucía',

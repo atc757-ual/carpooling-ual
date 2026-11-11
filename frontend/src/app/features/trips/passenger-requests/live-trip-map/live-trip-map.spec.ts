@@ -13,6 +13,7 @@ const renderer = {
   initialize: vi.fn(),
   render: vi.fn(),
   center: vi.fn(),
+  setBottomInset: vi.fn(),
   destroy: vi.fn(),
 };
 
@@ -173,7 +174,9 @@ describe('LiveTripMap', () => {
   it('names the driver when telling the passenger the pickup time', async () => {
     const root = await render(true, { pickupLocation: PICKUP, driverName: 'Carlos' });
 
-    expect(root.textContent).toMatch(/Carlos llega en ~\d+ min a tu punto de recogida/);
+    expect(root.textContent).toMatch(
+      /Carlos (llega en unos \d+ min|está llegando) a tu punto de recogida/,
+    );
   });
 
   describe('as the driver', () => {
@@ -185,7 +188,9 @@ describe('LiveTripMap', () => {
       });
 
       expect(location.checkPermission).not.toHaveBeenCalled();
-      expect(root.textContent).toMatch(/Llegas en ~\d+ min a Av\. del Mediterráneo/);
+      expect(root.textContent).toMatch(
+        /(Llegas en unos \d+ min|Estás llegando) a Av\. del Mediterráneo/,
+      );
       expect(root.textContent).not.toContain('No podemos mostrar tu ubicación');
       expect(fixture.componentInstance.mapLabel()).toBe('Tu posición y Av. del Mediterráneo');
     });
@@ -193,7 +198,7 @@ describe('LiveTripMap', () => {
     it('shows the time to the destination when there is no pickup left', async () => {
       const root = await render(true, { viewer: 'driver' });
 
-      expect(root.textContent).toContain('Llegas al destino en ~2 min.');
+      expect(root.textContent).toContain('Llegas al destino en unos 2 min.');
     });
 
     it('waits for the first position and warns when it stops arriving', async () => {

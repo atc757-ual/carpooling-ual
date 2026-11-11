@@ -1,126 +1,179 @@
-.passenger-request-detail {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-base);
-  padding: var(--space-l) var(--page-gutter);
-}
+// En el móvil, una columna; en escritorio, 8 + 4 (las dos columnas se desplazan juntas)
+.passenger-detail {
+  box-sizing: border-box;
+  width: 100%;
+  align-items: stretch;
 
-.passenger-request-detail ion-card {
-  margin: 0;
-}
-
-.passenger-request-detail__loading {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-}
-
-.passenger-request-detail__state {
-  display: flex;
-  min-height: 23.4375rem; // 375px
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-s);
-  text-align: center;
-
-  p {
+  ion-card {
     margin: 0;
   }
 }
 
-.passenger-request-detail__heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-xs) var(--space-base);
-}
-
-.passenger-request-detail__progress {
-  padding: var(--space-s) var(--space-base);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
-}
-
-.passenger-request-detail__occupancy {
+.passenger-detail__heading {
   display: flex;
   flex-direction: column;
-  gap: var(--space-s);
-  padding: var(--space-base);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
-
-  h2 {
-    margin: 0;
-  }
+  gap: var(--space-xs);
 }
 
-.passenger-request-detail__occupancy-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-  padding: var(--space-s) var(--space-base);
-  border-radius: var(--radius-s);
-  background: var(--color-surface-subtle);
-  border: 1px solid var(--color-border-subtle);
-}
-
-.passenger-request-detail__occupancy-header {
+.passenger-detail__title-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-s);
 }
 
-.passenger-request-detail__driver-info {
-  display: flex;
-  flex-direction: column;
+.passenger-detail__role-icon {
+  flex: none;
+  color: var(--color-accent);
 }
 
-.passenger-request-detail__driver-badges {
+.passenger-detail__title {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: var(--space-s);
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem; // 20px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
 }
 
-.passenger-request-detail__call-btn {
-  --color: var(--color-link);
-  --border-color: var(--color-link);
-  font-size: var(--font-size-label);
+.passenger-detail__breadcrumbs {
   margin: 0;
+  padding: var(--space-s) 0 0;
 
-  &--unavailable {
+  ion-breadcrumb {
     --color: var(--color-text-muted);
-    --border-color: var(--color-border);
+    --color-active: var(--color-text);
+    --color-hover: var(--color-link);
+
+    font-size: var(--font-size-caption);
+  }
+
+  ion-breadcrumb:first-child::part(native) {
+    padding-inline-start: 0;
   }
 }
 
-.passenger-request-detail__occupancy-info {
+@media (min-width: 768px) {
+  .passenger-detail__title {
+    font-size: 1.5rem; // 24px
+  }
+}
+
+.passenger-detail__main,
+.passenger-detail__aside {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-s);
+  min-width: 0;
+}
 
-  p {
+.passenger-detail__loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+// Estado, arriba de la tarjeta: el aviso y el progreso debajo
+.passenger-detail__status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.passenger-detail__notice-icon {
+  flex: 0 0 auto;
+  margin-top: 0.125rem; // 2px
+  font-size: 1.25rem; // 20px
+}
+
+.notice--warning .passenger-detail__notice-icon {
+  color: var(--color-warning-text);
+}
+
+.notice--success .passenger-detail__notice-icon {
+  color: var(--color-success);
+}
+
+.notice--danger .passenger-detail__notice-icon {
+  color: var(--color-danger-text);
+}
+
+.notice--info .passenger-detail__notice-icon {
+  color: var(--color-link);
+}
+
+.passenger-detail__missing {
+  width: 100%;
+}
+
+ion-card-content.passenger-detail__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  min-height: 23.4375rem; // 375px
+  padding: var(--space-base);
+  text-align: center;
+
+  ion-icon {
+    box-sizing: content-box;
+    margin-bottom: var(--space-xs);
+    padding: var(--space-s);
+    border-radius: var(--radius-full);
+    background: var(--color-primary-subtle);
+    color: var(--color-link);
+    font-size: 1.5rem; // 24px
+  }
+
+  ion-button {
+    margin: var(--space-s) 0 0;
+  }
+}
+
+.passenger-detail__state-title {
+  font-weight: var(--font-weight-semibold);
+}
+
+// «Alex ha empezado el viaje» con «Seguir en directo» a la derecha (debajo
+// en el móvil)
+.passenger-detail__live {
+  flex-wrap: wrap;
+  align-items: center;
+
+  > span:nth-child(2) {
+    flex: 1 1 14rem; // 224px
+  }
+
+  ion-button {
+    flex: none;
     margin: 0;
   }
 }
 
-.passenger-request-detail__board-code {
+.passenger-detail__live-dot {
+  flex: none;
+  width: 0.5rem; // 8px
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+}
+
+// Dentro de «Tu recorrido», encima del mapa
+.passenger-detail__board-code {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
-  padding: var(--space-base);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
 
   h2 {
     margin: 0;
   }
 }
 
-.passenger-request-detail__code-card {
+.passenger-detail__code-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -129,101 +182,35 @@
   padding: var(--space-base);
   border-radius: var(--radius-s);
   background: var(--color-surface-subtle);
-  border: 1px dashed var(--color-primary);
+  border: var(--border-width-s) solid var(--color-border-subtle);
   text-align: center;
 }
 
-.passenger-request-detail__code-digits {
-  font-family: monospace;
-  font-size: 2.25rem;
-  font-weight: 700;
-  letter-spacing: 0.5rem;
-  color: var(--color-primary);
-  padding: var(--space-xs) var(--space-m);
-  background: var(--color-surface);
+.passenger-detail__code-digits {
+  padding: var(--space-xs) var(--space-base);
+  border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s);
-  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-link);
+  font-family: var(--font-family-heading);
+  font-size: 2rem; // 32px
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.375rem; // 6px
 }
 
-.passenger-request-detail__boarded-badge {
+.passenger-detail__boarded-badge {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-xs);
 }
 
-.passenger-request-detail__seats,
-.passenger-request-detail__history {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-  padding: var(--space-base);
-  border-radius: var(--radius-l);
-  background: var(--color-surface);
-
-  h2,
-  p {
-    margin: 0;
+@media (min-width: 768px) {
+  .passenger-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-l);
   }
-}
-
-.passenger-request-detail__history ol {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-
-  li {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--space-xs) var(--space-base);
-  }
-}
-
-.passenger-request-detail__actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-base);
-  margin-top: var(--space-xs);
-}
-
-.passenger-request-detail__priority-search {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-base);
-}
-
-.passenger-request-detail__priority-card {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-s);
-  padding: var(--space-s) var(--space-base);
-  border-radius: var(--radius-s);
-  background: var(--color-primary-subtle);
-  border: 1px solid var(--color-border-subtle);
-}
-
-.passenger-request-detail__priority-icon {
-  font-size: 1.5rem;
-  color: var(--color-primary);
-  flex-shrink: 0;
-  margin-top: 0.125rem;
-}
-
-.passenger-request-detail__priority-text {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-
-  p {
-    margin: 0;
-  }
-}
-
-.passenger-request-detail form,
-.passenger-request-detail ion-button {
-  margin: 0;
 }

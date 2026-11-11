@@ -107,7 +107,9 @@ describe('DriverTripPassengers', () => {
       'pending',
       'accepted',
     ]);
-    expect(root.textContent).toContain('2 plazas · Prioridad');
+    // La prioridad, en su etiqueta; las plazas, aparte
+    expect(root.querySelector('.status--pending')?.textContent).toContain('Prioridad');
+    expect(root.textContent).toContain('2 plazas');
     expect(root.textContent).toContain('Aceptada');
   });
 

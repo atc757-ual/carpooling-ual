@@ -19,6 +19,7 @@ export class LiveTripMapRenderer {
   private resizeObserver: ResizeObserver | null = null;
   private animationFrame: number | null = null;
   private hasInitialBounds = false;
+  private bottomInset = 0;
 
   constructor(private readonly leaflet: typeof Leaflet) {}
 
@@ -66,11 +67,17 @@ export class LiveTripMapRenderer {
       points.push([user.coordinates[1], user.coordinates[0]]);
     }
     points.push(this.toLatLng(pickup ?? fallbackCenter));
-    if (points.length === 1) {
-      this.map.setView(points[0], 15);
-    } else {
-      this.map.fitBounds(this.leaflet.latLngBounds(points), { padding: [28, 28], maxZoom: 15 });
-    }
+    // Con un solo punto, los límites son ese punto y se acerca hasta maxZoom.
+    // Por abajo, además, lo que tape la hoja de detalles del móvil
+    this.map.fitBounds(this.leaflet.latLngBounds(points), {
+      paddingTopLeft: [28, 28],
+      paddingBottomRight: [28, 28 + this.bottomInset],
+      maxZoom: 15,
+    });
+  }
+
+  setBottomInset(pixels: number): void {
+    this.bottomInset = Math.max(0, pixels);
   }
 
   destroy(): void {

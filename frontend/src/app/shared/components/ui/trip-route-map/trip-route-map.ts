@@ -31,16 +31,17 @@ interface RouteMarker {
   modifier: string;
 }
 
-// Mapa de la ruta del conductor y, si se indica, del punto de recogida del
-// pasajero (en el panel, sin recogida). Sin trazado (quien no tiene plaza),
-// solo los puntos. El alto lo fija quien lo usa con --trip-route-map-height
+// Mapa de la ruta del conductor y, si se indican, de los puntos de recogida
+// (el del pasajero en su solicitud; los de los aceptados en el viaje del
+// conductor; en el panel, ninguno). Sin trazado (quien no tiene plaza), solo
+// los puntos. El alto lo fija quien lo usa con --trip-route-map-height
 @Component({
   selector: 'app-trip-route-map',
   template: `
     <div #map class="trip-route-map__canvas" role="img" [attr.aria-label]="label()"></div>
     <p class="trip-route-map__legend text-caption text-color-muted" aria-hidden="true">
       <span class="trip-route-map__legend-item"><b>S</b> Salida</span>
-      @if (pickup()) {
+      @if (pickups().length > 0) {
         <span class="trip-route-map__legend-item"><b>R</b> Recogida</span>
       }
       <span class="trip-route-map__legend-item"><b>D</b> Destino</span>
@@ -54,7 +55,7 @@ interface RouteMarker {
 export class TripRouteMap implements OnDestroy {
   readonly route = input.required<TripRoute>();
   readonly origin = input.required<RoutePoint>();
-  readonly pickup = input<RoutePoint | null>(null);
+  readonly pickups = input<RoutePoint[]>([]);
   readonly destination = input.required<RoutePoint>();
 
   protected readonly hasApproximatePoints = computed(
@@ -65,11 +66,23 @@ export class TripRouteMap implements OnDestroy {
     const route = this.hasApproximatePoints()
       ? `Zona aproximada del viaje: ${ends}`
       : `Ruta del conductor: ${ends}`;
-    const pickup = this.pickup();
-    return pickup ? `${route}; recogida en ${pickup.label}` : route;
+    const pickups = this.pickups().map(({ label }) => label);
+    return pickups.length > 0 ? `${route}; recogida en ${pickups.join(', ')}` : route;
   });
+  // Salida, recogidas y destino, con su letra y su color
+  private readonly markers = computed<RouteMarker[]>(() => [
+    { point: this.origin(), letter: 'S', modifier: 'trip-route-map__marker--origin' },
+    ...this.pickups().map((point) => ({
+      point,
+      letter: 'R',
+      modifier: 'trip-route-map__marker--pickup',
+    })),
+    { point: this.destination(), letter: 'D', modifier: 'trip-route-map__marker--destination' },
+  ]);
   private readonly mapElement = viewChild<ElementRef<HTMLElement>>('map');
+  private leaflet: typeof Leaflet | null = null;
   private map: Leaflet.Map | null = null;
+  private markerLayer: Leaflet.LayerGroup | null = null;
   private resizeObserver: ResizeObserver | null = null;
 
   constructor() {
@@ -77,7 +90,14 @@ export class TripRouteMap implements OnDestroy {
       const element = this.mapElement()?.nativeElement;
       const route = this.route();
       const markers = this.markers();
-      if (element && !this.map) {
+      if (!element) {
+        return;
+      }
+      if (this.map) {
+        // Cambian las recogidas (p. ej. el conductor acepta a alguien): se
+        // repintan los puntos sin mover la vista
+        this.drawMarkers(markers);
+      } else {
         void this.createMap(element, route, markers);
       }
     });
@@ -86,18 +106,6 @@ export class TripRouteMap implements OnDestroy {
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
     this.map?.remove();
-  }
-
-  // Salida, recogida (si la hay) y destino, con su letra y su color
-  private markers(): RouteMarker[] {
-    const pickup = this.pickup();
-    return [
-      { point: this.origin(), letter: 'S', modifier: 'trip-route-map__marker--origin' },
-      ...(pickup
-        ? [{ point: pickup, letter: 'R', modifier: 'trip-route-map__marker--pickup' }]
-        : []),
-      { point: this.destination(), letter: 'D', modifier: 'trip-route-map__marker--destination' },
-    ];
   }
 
   private async createMap(
@@ -109,14 +117,20 @@ export class TripRouteMap implements OnDestroy {
       default?: typeof Leaflet;
     };
     const leaflet = leafletModule.default ?? leafletModule;
+    this.leaflet = leaflet;
+    // Se puede acercar para ver mejor: botones + y −, pellizcar, doble clic y
+    // teclado. Sin rueda, para no secuestrar el scroll de la pantalla. En el
+    // móvil, arrastrar solo tras acercar: con el zoom inicial, un dedo sobre
+    // el mapa sigue desplazando la pantalla
+    const isMobile = leaflet.Browser.mobile;
     const map = leaflet.map(element, {
-      dragging: false,
+      dragging: !isMobile,
       scrollWheelZoom: false,
-      touchZoom: false,
-      doubleClickZoom: false,
+      touchZoom: true,
+      doubleClickZoom: true,
       boxZoom: false,
-      keyboard: false,
-      zoomControl: false,
+      keyboard: true,
+      zoomControl: true,
     });
     this.map = map;
     leaflet.tileLayer(TILES_URL, { maxZoom: 19, attribution: TILES_ATTRIBUTION }).addTo(map);
@@ -126,26 +140,48 @@ export class TripRouteMap implements OnDestroy {
     if (routePoints.length > 0) {
       leaflet.polyline(routePoints, { color: 'var(--color-link)', weight: 5 }).addTo(map);
     }
+    this.markerLayer = leaflet.layerGroup().addTo(map);
+    this.drawMarkers(markers);
     const bounds = leaflet.latLngBounds(routePoints);
-    for (const marker of markers) {
-      this.addMarker(leaflet, map, marker);
-      const [lon, lat] = marker.point.coordinates;
+    for (const { point } of markers) {
+      const [lon, lat] = point.coordinates;
       bounds.extend([lat, lon]);
-      if (marker.point.isApproximate) {
+      if (point.isApproximate) {
         // La zona entera a la vista, no solo su centro
         bounds.extend(leaflet.latLng(lat, lon).toBounds(APPROXIMATE_RADIUS_METERS * 2));
       }
     }
     map.fitBounds(bounds, { padding: [24, 24], maxZoom: 15 });
+    if (isMobile) {
+      const initialZoom = map.getZoom();
+      map.on('zoomend', () => {
+        if (map.getZoom() > initialZoom) {
+          map.dragging.enable();
+        } else {
+          map.dragging.disable();
+        }
+      });
+    }
     if (typeof ResizeObserver !== 'undefined') {
       this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize());
       this.resizeObserver.observe(element);
     }
   }
 
+  private drawMarkers(markers: RouteMarker[]): void {
+    const { leaflet, markerLayer } = this;
+    if (!leaflet || !markerLayer) {
+      return;
+    }
+    markerLayer.clearLayers();
+    for (const marker of markers) {
+      this.addMarker(leaflet, markerLayer, marker);
+    }
+  }
+
   private addMarker(
     leaflet: typeof Leaflet,
-    map: Leaflet.Map,
+    layer: Leaflet.LayerGroup,
     { point, letter, modifier }: RouteMarker,
   ): void {
     const [lon, lat] = point.coordinates;
@@ -156,7 +192,7 @@ export class TripRouteMap implements OnDestroy {
           className: 'trip-route-map__zone',
           interactive: false,
         })
-        .addTo(map);
+        .addTo(layer);
     }
     leaflet
       .marker([lat, lon], {
@@ -168,6 +204,6 @@ export class TripRouteMap implements OnDestroy {
           iconAnchor: [MARKER_SIZE / 2, MARKER_SIZE / 2],
         }),
       })
-      .addTo(map);
+      .addTo(layer);
   }
 }

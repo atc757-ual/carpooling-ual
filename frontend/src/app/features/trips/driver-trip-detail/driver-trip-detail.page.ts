@@ -25,6 +25,8 @@ import {
 } from '@ionic/angular';
 import { carOutline, leafOutline } from 'ionicons/icons';
 import { DriverService } from '../../../core/services/drivers/driver.service';
+import { getFirstName } from '../../matching/trip-driver/trip-driver';
+import { ReviewTarget, TripReviewCard } from '../trip-review/trip-review-card';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { TRIP_STATUS_LABELS } from '../../../shared/utils/trip-status.util';
@@ -33,6 +35,8 @@ import { formatTime } from '../../matching/trip-results';
 import { DriverTripActions } from '../driver-trip-actions/driver-trip-actions';
 import { DriverTripPassengers } from '../driver-trip-passengers/driver-trip-passengers';
 import { DriverTripRoute } from '../driver-trip-route/driver-trip-route';
+import { LiveTripBanner } from '../my-trips/live-trip-banner/live-trip-banner';
+import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
 
 // El detalle de un viaje publicado. En escritorio, columna de 8 con el
 // recorrido (mapa, paradas, datos y vehículo) y los pasajeros (plazas,
@@ -57,6 +61,8 @@ import { DriverTripRoute } from '../driver-trip-route/driver-trip-route';
     DriverTripActions,
     DriverTripPassengers,
     DriverTripRoute,
+    LiveTripBanner,
+    TripReviewCard,
   ],
   templateUrl: './driver-trip-detail.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './driver-trip-detail.page.scss'],
@@ -90,6 +96,17 @@ export class DriverTripDetailPage {
   ionViewWillLeave(): void {
     this.isVisible.set(false);
   }
+
+  // Terminado: los pasajeros que tuvieron plaza, para valorarlos (RF-22)
+  private readonly finishedRequests = resource({
+    params: () => (this.trip()?.status === 'finished' ? this.trip()?.id : undefined),
+    loader: ({ params: tripId }) => this.driver.listTripRequests(tripId),
+  });
+  readonly reviewTargets = computed<ReviewTarget[]>(() =>
+    (this.finishedRequests.hasValue() ? this.finishedRequests.value() : [])
+      .filter((request) => request.status === 'accepted')
+      .map((request) => ({ id: request.passenger.id, name: getFirstName(request.passenger.name) })),
+  );
 
   readonly trips = resource({
     params: () => this.id(),
@@ -131,6 +148,19 @@ export class DriverTripDetailPage {
 
   protected readonly carIcon = carOutline;
   protected readonly leafIcon = leafOutline;
+
+  // Con el viaje en curso, el mismo aviso que en Tus viajes, que lleva a En curso
+  readonly liveBanner = computed(() => {
+    const trip = this.trip();
+    if (trip?.status !== 'in_progress') {
+      return null;
+    }
+    return {
+      route: formatRoute(trip),
+      detail: `${occupiedSeats(trip)} de ${trip.offeredSeats} plazas ocupadas`,
+      link: `/tabs/trips/drive/${trip.id}`,
+    };
+  });
 
   handleReload(): void {
     this.trips.reload();

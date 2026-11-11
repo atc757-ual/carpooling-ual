@@ -294,14 +294,15 @@ describe('ConversationPage', () => {
     expect(page.isSending()).toBe(false);
   });
 
-  it('only offers quick replies to the driver while the trip is in progress', async () => {
+  it('lets the driver write while the trip is in progress, suggesting quick replies', async () => {
     const root = await render({
       ...CONVERSATION,
       trip: { ...CONVERSATION.trip, status: 'in_progress' },
     });
 
-    expect(root.textContent).toContain('Mientras conduces, solo respuestas rápidas.');
-    expect(root.querySelector('ion-textarea')).toBeNull();
+    // Puede estar parado: escribe, pero se le recuerdan las respuestas rápidas
+    expect(root.textContent).toContain('Si vas conduciendo, mejor una respuesta rápida.');
+    expect(root.querySelector('ion-textarea')).not.toBeNull();
     expect(root.querySelectorAll('.quick-reply')).toHaveLength(7);
   });
 

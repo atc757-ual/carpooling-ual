@@ -208,9 +208,10 @@
   margin: 0;
 }
 
+// Enviar, arriba, a la altura del campo (el contador va debajo)
 .conversation-footer__form {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: var(--space-s);
 }
 
@@ -220,7 +221,7 @@
 
 .conversation-footer__send {
   flex: none;
-  margin: 0 0 var(--space-l);
+  margin: 0;
 }
 
 .conversation__heading-info {

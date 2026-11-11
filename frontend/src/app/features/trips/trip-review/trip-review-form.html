@@ -1,0 +1,54 @@
+<form class="trip-review" (submit)="$event.preventDefault(); handleSend()">
+  <span id="trip-review-label" class="text-label text-label--strong">
+    ¿Qué tal con {{ targetName() }}?
+  </span>
+  <!-- Una manita arriba o abajo (se guarda como 5 o 1 estrellas) -->
+  <div class="trip-review__thumbs" role="radiogroup" aria-labelledby="trip-review-label">
+    @for (option of options; track option.rating) {
+      <button
+        type="button"
+        role="radio"
+        class="trip-review__thumb"
+        [class]="'trip-review__thumb--' + option.tone"
+        [class.trip-review__thumb--on]="rating() === option.rating"
+        [attr.aria-checked]="rating() === option.rating"
+        (click)="rating.set(option.rating)"
+      >
+        <ion-icon
+          [icon]="rating() === option.rating ? option.iconOn : option.icon"
+          aria-hidden="true"
+        />
+        {{ option.label }}
+      </button>
+    }
+  </div>
+  <ion-textarea
+    fill="outline"
+    [rows]="2"
+    [maxlength]="maxComment"
+    [counter]="true"
+    placeholder="Cuéntalo, si quieres (opcional)"
+    aria-label="Comentario"
+    [value]="comment()"
+    (ionInput)="comment.set($event.detail.value ?? '')"
+  />
+  @if (error(); as message) {
+    <p class="trip-review__error text-caption" role="alert">{{ message }}</p>
+  }
+  <div class="trip-review__actions">
+    <ion-button type="submit" expand="block" [disabled]="rating() === 0 || isSending()">
+      {{ isSending() ? 'Enviando…' : 'Enviar valoración' }}
+    </ion-button>
+    @if (canSkip()) {
+      <ion-button
+        type="button"
+        expand="block"
+        fill="outline"
+        [disabled]="isSending()"
+        (click)="skipped.emit()"
+      >
+        Ahora no
+      </ion-button>
+    }
+  </div>
+</form>

@@ -14,13 +14,11 @@ import {
   chatRoleOf,
   type ChatRole,
   isChatOpen,
-  isQuickRepliesOnly,
 } from './chat-rules';
 import { ChatMessage, type QuickReply } from './entities/chat-message.entity';
 import { ChatRead } from './entities/chat-read.entity';
 import { ChatClosedError } from './errors/chat-closed.error';
 import { ChatNotAllowedError } from './errors/chat-not-allowed.error';
-import { ChatQuickRepliesOnlyError } from './errors/chat-quick-replies-only.error';
 import { ChatRateLimitedError } from './errors/chat-rate-limited.error';
 
 export type ChatMessageInput = { text: string } | { quickReply: QuickReply };
@@ -171,9 +169,6 @@ export class ChatService {
     const { trip, role, participantIds } = await this.getAccess(userId, tripId);
     if (!isChatOpen(trip)) {
       throw new ChatClosedError(tripId);
-    }
-    if ('text' in input && isQuickRepliesOnly(trip, role)) {
-      throw new ChatQuickRepliesOnlyError(tripId);
     }
     await this.assertUnderRateLimit(userId);
     const message = await this.dataSource.transaction(async (manager) => {

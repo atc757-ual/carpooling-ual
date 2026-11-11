@@ -8955,7 +8955,7 @@
         ]
       },
       "post": {
-        "description": "Text or a quick reply. Open while the trip is confirmed or in progress and up to 24 h after it finishes; while in progress the driver can only send quick replies. At most 20 messages per minute.",
+        "description": "Text or a quick reply. Open while the trip is confirmed or in progress and up to 24 h after it finishes. At most 20 messages per minute.",
         "operationId": "ChatController_send",
         "parameters": [
           {
@@ -9030,7 +9030,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: CHAT_CLOSED, CHAT_QUICK_REPLIES_ONLY",
+            "description": "TMF630 error: CHAT_CLOSED",
             "content": {
               "application/json": {
                 "schema": {

@@ -141,13 +141,13 @@ export class ChatController {
   @ApiOperation({
     summary: 'Send a message to a trip chat',
     description:
-      'Text or a quick reply. Open while the trip is confirmed or in progress and up to 24 h after it finishes; while in progress the driver can only send quick replies. At most 20 messages per minute.',
+      'Text or a quick reply. Open while the trip is confirmed or in progress and up to 24 h after it finishes. At most 20 messages per minute.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiCreatedResponse({ type: ChatMessageResource })
   @ApiErrorResponses({
     ...TRIP_CHAT_ERRORS,
-    [HttpStatus.CONFLICT]: ['CHAT_CLOSED', 'CHAT_QUICK_REPLIES_ONLY'],
+    [HttpStatus.CONFLICT]: ['CHAT_CLOSED'],
     [HttpStatus.TOO_MANY_REQUESTS]: ['CHAT_RATE_LIMITED'],
   })
   async send(
