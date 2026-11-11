@@ -21,6 +21,7 @@ import { PublishingLimitsService } from './publishing-limits.service';
 import { TripsService } from './trips.service';
 import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
 import { TripRemindersService } from './trip-reminders.service';
+import { TripExpiryService } from './trip-expiry.service';
 
 // Viajes (RF-04, RF-05, RF-11), sus rutas (RF-12, con OSRM) y las
 // cancelaciones tardías (que suspenden la publicación). Usa los
@@ -47,6 +48,7 @@ import { TripRemindersService } from './trip-reminders.service';
     TripStatsService,
     TripLifecycleScheduler,
     TripRemindersService,
+    TripExpiryService,
     TripViewerAccessService,
     TripLookupService,
     PublishingLimitsService,

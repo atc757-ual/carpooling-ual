@@ -24,6 +24,8 @@ export type DomainEventType =
   | 'trip.started'
   | 'trip.finished'
   | 'trip.cancelled'
+  // Sin pasajeros al llegar el corte (10 min antes de la salida): se cierra
+  | 'trip.expired'
   // Cancelación tardía (con pasajeros, a menos de 30 min de la salida): para
   // medir la fiabilidad de los conductores (escenario S5)
   | 'trip.cancelled_late'

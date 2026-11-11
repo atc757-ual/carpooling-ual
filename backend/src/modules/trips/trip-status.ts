@@ -7,14 +7,16 @@ export const TRIP_STATUSES = [
   'in_progress',
   'finished',
   'cancelled',
+  // Sin pasajeros al llegar el corte: se cierra solo (no es una cancelación)
+  'expired',
 ] as const;
 export type TripStatus = (typeof TRIP_STATUSES)[number];
 
 // Transiciones permitidas: el diagrama de estados del viaje de la memoria,
 // en una única tabla. Cualquier otra se rechaza (RNF-10)
 const ALLOWED_TRANSITIONS: Record<TripStatus, readonly TripStatus[]> = {
-  // aceptar una solicitud | cancelar
-  published: ['confirmed', 'cancelled'],
+  // aceptar una solicitud | cancelar | llegar al corte sin pasajeros
+  published: ['confirmed', 'cancelled', 'expired'],
   // iniciar | cancelan todos los aceptados | cancelar
   confirmed: ['in_progress', 'published', 'cancelled'],
   // finalizar | cancelar durante el viaje, con incidencia (RF-23)
@@ -22,6 +24,7 @@ const ALLOWED_TRANSITIONS: Record<TripStatus, readonly TripStatus[]> = {
   // estados terminales
   finished: [],
   cancelled: [],
+  expired: [],
 };
 
 export function canTransition(from: TripStatus, to: TripStatus): boolean {

@@ -6,6 +6,8 @@ export interface DigitalTwinState {
     in_progress: number;
     finished: number;
     cancelled: number;
+    // Sin pasajeros al llegar el corte
+    expired: number;
   };
   vehicles: { idle: number; scheduled: number; on_trip: number };
   users: {

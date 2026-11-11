@@ -26,6 +26,8 @@ export const NOTIFICATION_TYPES = [
   // iniciar el viaje a la hora de salida
   'pending_requests_reminder',
   'trip_start_reminder',
+  // El viaje llegó al corte sin pasajeros y se cerró
+  'trip_expired',
   'terms_updated',
   'privacy_updated',
 ] as const;
