@@ -293,7 +293,7 @@ export class TripsService {
     return this.toView(trip);
   }
 
-  // Cancelar automáticamente viajes no iniciados tras UNSTARTED_TRIP_CANCEL_WINDOW_MIN (15 min)
+  // Cancelar automáticamente viajes no iniciados tras UNSTARTED_TRIP_CANCEL_WINDOW_MIN (10 min)
   async cancelUnstartedTrips(now = new Date()): Promise<number> {
     const threshold = new Date(
       now.getTime() - UNSTARTED_TRIP_CANCEL_WINDOW_MIN * MINUTE_MS,
