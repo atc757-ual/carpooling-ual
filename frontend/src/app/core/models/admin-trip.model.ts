@@ -8,6 +8,7 @@ export const ADMIN_TRIP_STATUSES: readonly TripStatus[] = [
   'in_progress',
   'finished',
   'cancelled',
+  'expired',
 ];
 
 export interface AdminTripRow {

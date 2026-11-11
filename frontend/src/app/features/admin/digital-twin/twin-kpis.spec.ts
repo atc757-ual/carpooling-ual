@@ -3,7 +3,7 @@ import { twinKpis, twinSync } from './twin-kpis';
 
 function state(overrides: Partial<DigitalTwinState> = {}): DigitalTwinState {
   return {
-    trips: { published: 4, confirmed: 2, in_progress: 3, finished: 90, cancelled: 5 },
+    trips: { published: 4, confirmed: 2, in_progress: 3, finished: 90, cancelled: 5, expired: 1 },
     vehicles: { idle: 20, scheduled: 6, on_trip: 3 },
     users: { active: 120, deactivated: 2, drivers: 30, passengers: 100, inDriverMode: 12 },
     passengersOnBoard: 7,

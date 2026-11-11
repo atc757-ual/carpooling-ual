@@ -32,6 +32,7 @@ const EVENT_BY_STATUS: Record<TripStatus, DomainEventType> = {
   in_progress: 'trip.started',
   finished: 'trip.finished',
   cancelled: 'trip.cancelled',
+  expired: 'trip.expired',
 };
 
 // Maquinaria de los estados del viaje: bloqueo de la fila, transiciones

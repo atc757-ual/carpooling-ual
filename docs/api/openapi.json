@@ -8742,7 +8742,8 @@
                 "confirmed",
                 "in_progress",
                 "finished",
-                "cancelled"
+                "cancelled",
+                "expired"
               ]
             }
           }
@@ -11757,6 +11758,7 @@
                 "trip.started",
                 "trip.finished",
                 "trip.cancelled",
+                "trip.expired",
                 "trip.cancelled_late",
                 "late_cancellation.waived",
                 "trip.position_updated",
@@ -11992,7 +11994,8 @@
                 "confirmed",
                 "in_progress",
                 "finished",
-                "cancelled"
+                "cancelled",
+                "expired"
               ]
             }
           },
@@ -14612,6 +14615,7 @@
               "passenger_no_show",
               "pending_requests_reminder",
               "trip_start_reminder",
+              "trip_expired",
               "terms_updated",
               "privacy_updated"
             ],
@@ -14957,7 +14961,8 @@
               "confirmed",
               "in_progress",
               "finished",
-              "cancelled"
+              "cancelled",
+              "expired"
             ]
           },
           "startedAt": {
@@ -15075,7 +15080,8 @@
               "confirmed",
               "in_progress",
               "finished",
-              "cancelled"
+              "cancelled",
+              "expired"
             ]
           },
           "startedAt": {
@@ -16115,7 +16121,8 @@
               "confirmed",
               "in_progress",
               "finished",
-              "cancelled"
+              "cancelled",
+              "expired"
             ]
           },
           "driverName": {
@@ -18046,7 +18053,8 @@
               "confirmed",
               "in_progress",
               "finished",
-              "cancelled"
+              "cancelled",
+              "expired"
             ]
           }
         },
@@ -18442,6 +18450,7 @@
               "trip.started",
               "trip.finished",
               "trip.cancelled",
+              "trip.expired",
               "trip.cancelled_late",
               "late_cancellation.waived",
               "trip.position_updated",
@@ -18534,6 +18543,7 @@
               "trip.started",
               "trip.finished",
               "trip.cancelled",
+              "trip.expired",
               "trip.cancelled_late",
               "late_cancellation.waived",
               "trip.position_updated",
@@ -18654,7 +18664,8 @@
               "confirmed",
               "in_progress",
               "finished",
-              "cancelled"
+              "cancelled",
+              "expired"
             ]
           },
           "departureAt": {
@@ -18784,7 +18795,8 @@
               "confirmed",
               "in_progress",
               "finished",
-              "cancelled"
+              "cancelled",
+              "expired"
             ]
           },
           "departureAt": {

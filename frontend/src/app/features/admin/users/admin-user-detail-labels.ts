@@ -21,6 +21,7 @@ const TRIP_STATUSES: Record<string, string> = {
   in_progress: 'En curso',
   finished: 'Finalizado',
   cancelled: 'Cancelado',
+  expired: 'Sin pasajeros',
 };
 
 const REQUEST_STATUSES: Record<string, string> = {

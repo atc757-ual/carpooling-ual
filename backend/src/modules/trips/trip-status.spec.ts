@@ -11,6 +11,7 @@ import {
 const ALLOWED: [TripStatus, TripStatus][] = [
   ['published', 'confirmed'],
   ['published', 'cancelled'],
+  ['published', 'expired'],
   ['confirmed', 'in_progress'],
   ['confirmed', 'published'],
   ['confirmed', 'cancelled'],
@@ -25,8 +26,8 @@ const isAllowed = ([from, to]: [TripStatus, TripStatus]): boolean =>
   ALLOWED.some(([a, b]) => a === from && b === to);
 
 describe('trip status machine', () => {
-  it('covers the 25 combinations of states', () => {
-    expect(ALL_PAIRS).toHaveLength(25);
+  it('covers the 36 combinations of states', () => {
+    expect(ALL_PAIRS).toHaveLength(36);
   });
 
   it.each(ALL_PAIRS.filter(isAllowed))('allows %s → %s', (from, to) => {

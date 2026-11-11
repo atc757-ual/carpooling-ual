@@ -24,6 +24,7 @@ const MESSAGES: Record<NotificationType, string> = {
   passenger_no_show: 'Un pasajero no se ha presentado',
   pending_requests_reminder: 'Tienes solicitudes por responder',
   trip_start_reminder: 'Es la hora de tu viaje: inícialo',
+  trip_expired: 'Tu viaje se ha quedado sin pasajeros',
   terms_updated: 'Hemos actualizado las Condiciones de uso',
   privacy_updated: 'Hemos actualizado la Política de privacidad',
 };
@@ -45,6 +46,7 @@ const MODES: Record<NotificationType, TravelMode | null> = {
   passenger_no_show: 'driver',
   pending_requests_reminder: 'driver',
   trip_start_reminder: 'driver',
+  trip_expired: 'driver',
   terms_updated: null,
   privacy_updated: null,
 };

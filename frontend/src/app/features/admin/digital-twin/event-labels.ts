@@ -42,6 +42,7 @@ const EVENT_ENTITIES: Readonly<Record<string, EventEntity>> = {
       finished: 'Viaje finalizado',
       cancelled: 'Viaje cancelado',
       cancelled_late: 'Viaje cancelado tarde',
+      expired: 'Viaje sin pasajeros',
     },
   },
   late_cancellation: {

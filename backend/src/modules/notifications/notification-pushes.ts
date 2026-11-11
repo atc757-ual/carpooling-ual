@@ -36,6 +36,10 @@ const PUSH_TEXTS: Partial<
     title: 'Tienes solicitudes por responder',
     body: 'Respóndelas antes de 10 min de la salida o caducarán.',
   },
+  trip_expired: {
+    title: 'Tu viaje se ha quedado sin pasajeros',
+    body: 'Lo hemos cerrado: puedes publicar otro cuando quieras.',
+  },
   trip_start_reminder: {
     title: 'Es la hora de tu viaje',
     body: 'Inícialo: si no, se cancelará a los 10 min.',

@@ -9,6 +9,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- **Viajes:** un viaje que llega al corte (10 minutos antes de la salida) sin ningÃºn pasajero aceptado se cierra con estado propio, `expired` (Â«Sin pasajerosÂ», `TripExpiryService`), en lugar de quedarse publicado hasta cancelarse tras la salida: no es una cancelaciÃ³n ni cuenta para la suspensiÃ³n. Se avisa al conductor con push (`trip_expired`), el Gemelo Digital registra `trip.expired` y el estado se muestra en Tus viajes, en el detalle del viaje y en el panel (#294).
+
 - **Viajes:** recordatorios al conductor. 30 minutos antes de la salida, si tiene solicitudes por responder, Â«Tienes solicitudes por responderÂ» (una vez por viaje), y a la hora de salida, si tiene pasajeros y no ha iniciado, Â«Es la hora de tu viaje: inÃ­cialoÂ» (una vez). Los dos con push y su texto en Avisos (`pending_requests_reminder` y `trip_start_reminder`, migraciÃ³n). Un viaje no iniciado se cancela solo a los 10 minutos de la salida, antes 15 (`UNSTARTED_TRIP_CANCEL_WINDOW_MIN`) (#293).
 
 - **Frontend:** pantalla «En curso» del pasajero (`/tabs/trips/ride/:id`) y nueva del conductor. En el móvil, el mapa en vivo a pantalla completa y los detalles en una hoja inferior que se arrastra (`ion-modal` con breakpoints, encima de la barra de pestañas y cerrada al salir); en escritorio, 8 + 4. Tarjeta «En directo» con el título (Esperando a…, Recoge a…, Rumbo al campus/a casa, Llegando al campus a menos de 300 m en la ida), los minutos en directo con la posición real del coche y las etapas con la actual como barra de progreso. Pasajero: código de recogida, conductor y vehículo (matrícula, chat y llamar) e incidencia en la propia hoja. Conductor: las recogidas en un carrusel por orden, con el código, llamar, chat y «no se presentó», y «Terminar viaje» confirmado en la hoja (también lejos del destino). El coche de la navegación queda seleccionado en estas pantallas, y el banner de Tus viajes y el detalle del viaje llevan a ellas (#291).
@@ -108,6 +110,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Backend:** «Sobre mí» de 20 a 200 caracteres (antes 500; los más largos se recortan), Fumar sin «solo en paradas» (pasa a «no se fuma») y el consentimiento de ubicación guarda su origen: `location_prompt` (la ventana que explica para qué se usa) o `device` (se quitó el permiso del sistema), además de `settings` (#128).
 
 ### Added
+
+- **Viajes:** un viaje que llega al corte (10 minutos antes de la salida) sin ningÃºn pasajero aceptado se cierra con estado propio, `expired` (Â«Sin pasajerosÂ», `TripExpiryService`), en lugar de quedarse publicado hasta cancelarse tras la salida: no es una cancelaciÃ³n ni cuenta para la suspensiÃ³n. Se avisa al conductor con push (`trip_expired`), el Gemelo Digital registra `trip.expired` y el estado se muestra en Tus viajes, en el detalle del viaje y en el panel (#294).
 
 - **Viajes:** recordatorios al conductor. 30 minutos antes de la salida, si tiene solicitudes por responder, Â«Tienes solicitudes por responderÂ» (una vez por viaje), y a la hora de salida, si tiene pasajeros y no ha iniciado, Â«Es la hora de tu viaje: inÃ­cialoÂ» (una vez). Los dos con push y su texto en Avisos (`pending_requests_reminder` y `trip_start_reminder`, migraciÃ³n). Un viaje no iniciado se cancela solo a los 10 minutos de la salida, antes 15 (`UNSTARTED_TRIP_CANCEL_WINDOW_MIN`) (#293).
 
@@ -373,6 +377,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [0.1.0] - 2026-10-16
 
 ### Added
+
+- **Viajes:** un viaje que llega al corte (10 minutos antes de la salida) sin ningÃºn pasajero aceptado se cierra con estado propio, `expired` (Â«Sin pasajerosÂ», `TripExpiryService`), en lugar de quedarse publicado hasta cancelarse tras la salida: no es una cancelaciÃ³n ni cuenta para la suspensiÃ³n. Se avisa al conductor con push (`trip_expired`), el Gemelo Digital registra `trip.expired` y el estado se muestra en Tus viajes, en el detalle del viaje y en el panel (#294).
 
 - **Viajes:** recordatorios al conductor. 30 minutos antes de la salida, si tiene solicitudes por responder, Â«Tienes solicitudes por responderÂ» (una vez por viaje), y a la hora de salida, si tiene pasajeros y no ha iniciado, Â«Es la hora de tu viaje: inÃ­cialoÂ» (una vez). Los dos con push y su texto en Avisos (`pending_requests_reminder` y `trip_start_reminder`, migraciÃ³n). Un viaje no iniciado se cancela solo a los 10 minutos de la salida, antes 15 (`UNSTARTED_TRIP_CANCEL_WINDOW_MIN`) (#293).
 

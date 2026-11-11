@@ -15,12 +15,14 @@ export const TRIP_TWIN_STATUSES = [
   'in_progress',
   'finished',
   'cancelled',
+  'expired',
 ] as const;
 export type TripTwinStatus = (typeof TRIP_TWIN_STATUSES)[number];
 const TRIP_STATUS_SET: ReadonlySet<string> = new Set(TRIP_TWIN_STATUSES);
 const CLOSED_STATUSES: ReadonlySet<TripTwinStatus> = new Set([
   'finished',
   'cancelled',
+  'expired',
 ]);
 
 export interface RequestTwinState {
@@ -39,6 +41,7 @@ export const TRIP_STATE_EVENTS: ReadonlySet<string> = new Set([
   'trip.started',
   'trip.finished',
   'trip.cancelled',
+  'trip.expired',
 ]);
 
 // Gemelo de un viaje (DP-10): su estado, sus solicitudes y, mientras está en

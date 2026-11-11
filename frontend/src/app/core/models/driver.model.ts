@@ -74,7 +74,9 @@ export interface PublishedTrip {
   maxDetourMin: number;
 }
 
-export type TripStatus = 'published' | 'confirmed' | 'in_progress' | 'finished' | 'cancelled';
+// expired: llegó el corte (10 min antes de la salida) sin pasajeros
+export type TripStatus =
+  'published' | 'confirmed' | 'in_progress' | 'finished' | 'cancelled' | 'expired';
 
 // Un viaje del conductor (GET /api/users/me/trips). Los nombres del origen y
 // el destino son null en los publicados antes de guardarlos

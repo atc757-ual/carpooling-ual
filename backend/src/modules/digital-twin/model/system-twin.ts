@@ -37,6 +37,7 @@ export const SUPPORTED_EVENT_VERSIONS: Readonly<
   'trip.started': new Set([1, 2]),
   'trip.finished': new Set([1, 2]),
   'trip.cancelled': V1,
+  'trip.expired': V1,
   'trip.position_updated': V1,
   'request.created': V1,
   'request.accepted': V1,

@@ -7,4 +7,5 @@ export const TRIP_STATUS_LABELS: Record<TripStatus, string> = {
   in_progress: 'En curso',
   finished: 'Finalizado',
   cancelled: 'Cancelado',
+  expired: 'Sin pasajeros',
 };

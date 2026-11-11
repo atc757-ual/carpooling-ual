@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { TripExpiryService } from './trip-expiry.service';
 import { TripRemindersService } from './trip-reminders.service';
 import { TripsService } from './trips.service';
 
@@ -10,10 +11,12 @@ export class TripLifecycleScheduler {
   constructor(
     private readonly tripsService: TripsService,
     private readonly reminders: TripRemindersService,
+    private readonly expiry: TripExpiryService,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
   async handleCron(): Promise<void> {
+    await this.expiry.expireUnfilledTrips();
     await this.reminders.remindUnstartedTrips();
     const cancelledCount = await this.cancelUnstartedTrips();
     if (cancelledCount > 0) {

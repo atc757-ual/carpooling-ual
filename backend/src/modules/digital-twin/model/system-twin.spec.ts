@@ -61,6 +61,7 @@ describe('SystemTwin', () => {
         in_progress: 1,
         finished: 0,
         cancelled: 0,
+        expired: 0,
       },
       vehicles: { idle: 0, scheduled: 1, on_trip: 1 },
       users: {
