@@ -94,7 +94,7 @@ export function ridePhase(request: SeatRequest, trip: Trip): RidePhase {
     TripReviewForm,
   ],
   templateUrl: './passenger-live-trip.page.html',
-  styleUrls: ['../../tabs/tab-page.scss', './passenger-live-trip.page.scss'],
+  styleUrls: ['../../tabs/tab-page.scss', '../live-trip.scss', './passenger-live-trip.page.scss'],
 })
 export class PassengerLiveTripPage {
   private readonly requests = inject(SeatRequestsService);

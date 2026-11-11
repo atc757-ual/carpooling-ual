@@ -89,7 +89,7 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
     RouterLink,
   ],
   templateUrl: './driver-live-trip.page.html',
-  styleUrls: ['../../tabs/tab-page.scss', './driver-live-trip.page.scss'],
+  styleUrls: ['../../tabs/tab-page.scss', '../live-trip.scss', './driver-live-trip.page.scss'],
 })
 export class DriverLiveTripPage {
   private readonly driver = inject(DriverService);
