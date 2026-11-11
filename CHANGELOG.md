@@ -12,6 +12,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Frontend:** pantalla «En curso» del pasajero (`/tabs/trips/ride/:id`) y nueva del conductor. En el móvil, el mapa en vivo a pantalla completa y los detalles en una hoja inferior que se arrastra (`ion-modal` con breakpoints, encima de la barra de pestañas y cerrada al salir); en escritorio, 8 + 4. Tarjeta «En directo» con el título (Esperando a…, Recoge a…, Rumbo al campus/a casa, Llegando al campus a menos de 300 m en la ida), los minutos en directo con la posición real del coche y las etapas con la actual como barra de progreso. Pasajero: código de recogida, conductor y vehículo (matrícula, chat y llamar) e incidencia en la propia hoja. Conductor: las recogidas en un carrusel por orden, con el código, llamar, chat y «no se presentó», y «Terminar viaje» confirmado en la hoja (también lejos del destino). El coche de la navegación queda seleccionado en estas pantallas, y el banner de Tus viajes y el detalle del viaje llevan a ellas (#291).
 - **Frontend:** valorar a quien viajó contigo (RF-22) con 👍 «Buen viaje» o 👎 «Mejorable» y un comentario opcional (la API sigue guardando 5 o 1). El pasajero, al llegar o después en el detalle de su solicitud; el conductor, a cada pasajero al terminar y en el detalle del viaje terminado. Una valoración dada se ve solo para leer, con si ya está publicada (doble ciego) (#291).
 - **Frontend:** detalle de la solicitud del pasajero rehecho: tarjeta única con el estado y el progreso del pasajero con la hora de cada paso (sin historial aparte), el código de recogida desde 10 min antes de la salida, «Tu recorrido» y «Conductor y coche», y en la columna de 4 las acciones con lo que cuesta cancelar. Resultados de búsqueda en una lista con el color de cómo encaja cada viaje, y detalle del viaje en Buscar con la salida «· zona aproximada» (#291).
+- **DocumentaciÃ³n:** `docs/reglas-de-negocio.md` reÃºne todas las reglas de negocio de la plataforma (publicar, buscar y pedir plaza, antes de la salida, durante el viaje, cancelaciones, despuÃ©s del viaje, privacidad de la ubicaciÃ³n y cuentas), cada una con su valor y la constante o el servicio del cÃ³digo que la aplica, mÃ¡s las limitaciones conocidas por decidir. Se actualiza en cada PR que cambie una regla (#292).
 
 ### Fixed
 
@@ -351,6 +352,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ### Removed
 
 - Carpeta `database/` de la raíz: las migraciones y los datos de prueba viven ahora en `backend/src/database/` (#7)
+- **DocumentaciÃ³n:** `docs/reglas-de-negocio.md` reÃºne todas las reglas de negocio de la plataforma (publicar, buscar y pedir plaza, antes de la salida, durante el viaje, cancelaciones, despuÃ©s del viaje, privacidad de la ubicaciÃ³n y cuentas), cada una con su valor y la constante o el servicio del cÃ³digo que la aplica, mÃ¡s las limitaciones conocidas por decidir. Se actualiza en cada PR que cambie una regla (#292).
 
 ### Fixed
 
