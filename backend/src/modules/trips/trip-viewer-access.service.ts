@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import type { Point } from 'typeorm';
 import { CampusParkingsService } from '../places/campus-parkings.service';
 import type { Trip } from './entities/trip.entity';
-import { approximatePoint } from './trip-location-privacy';
+import { approximatePoint, withoutStreetNumber } from './trip-location-privacy';
 import type { TripRouteView, TripView } from './trips.service';
 
-// Quién pide el viaje
+// Quién pide el viaje desde la app. Ser administrador no cuenta: en la app
+// ve lo mismo que cualquier pasajero; los datos exactos, en el panel
+// (/admin/...), que no pasa por aquí
 export interface TripViewer {
   id: string;
-  isAdmin: boolean;
 }
 
 // Si un usuario participa en el viaje (p. ej. es un pasajero aceptado)
@@ -38,7 +39,7 @@ export class TripViewerAccessService {
   }
 
   async canSeeExactLocation(trip: Trip, viewer: TripViewer): Promise<boolean> {
-    if (viewer.isAdmin || trip.driverId === viewer.id) {
+    if (trip.driverId === viewer.id) {
       return true;
     }
     const answers = await Promise.all(
@@ -52,12 +53,18 @@ export class TripViewerAccessService {
       return view;
     }
     const [origin, destination] = await Promise.all([
-      this.publicPoint(view.trip.origin),
-      this.publicPoint(view.trip.destination),
+      this.publicPlace(view.trip.origin, view.trip.originName),
+      this.publicPlace(view.trip.destination, view.trip.destinationName),
     ]);
     return {
       ...view,
-      trip: { ...view.trip, origin, destination },
+      trip: {
+        ...view.trip,
+        origin: origin.point,
+        originName: origin.name,
+        destination: destination.point,
+        destinationName: destination.name,
+      },
       isLocationApproximate: true,
     };
   }
@@ -72,11 +79,19 @@ export class TripViewerAccessService {
     return { ...view, isGeometryHidden: true };
   }
 
-  private async publicPoint(point: Point): Promise<Point> {
+  // Un extremo del viaje para quien no tiene plaza: los parkings del campus,
+  // tal cual; el resto, el punto redondeado y el nombre sin el número de
+  // portal (la calle, no la casa)
+  private async publicPlace(
+    point: Point,
+    name: string | null,
+  ): Promise<{ point: Point; name: string | null }> {
     const isCampus = await this.campusParkings.isNearAny(
       point,
       CAMPUS_PARKING_RADIUS_METERS,
     );
-    return isCampus ? point : approximatePoint(point);
+    return isCampus
+      ? { point, name }
+      : { point: approximatePoint(point), name: withoutStreetNumber(name) };
   }
 }

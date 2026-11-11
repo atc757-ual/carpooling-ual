@@ -2,6 +2,7 @@ import type { Point } from 'typeorm';
 import {
   APPROXIMATE_GRID_DEGREES,
   approximatePoint,
+  withoutStreetNumber,
 } from './trip-location-privacy';
 
 const point = (lon: number, lat: number): Point => ({
@@ -33,5 +34,25 @@ describe('approximatePoint', () => {
     expect(Math.abs(lat - original.coordinates[1])).toBeLessThanOrEqual(
       APPROXIMATE_GRID_DEGREES / 2,
     );
+  });
+});
+
+describe('withoutStreetNumber', () => {
+  it('keeps the street and drops the house number', () => {
+    expect(withoutStreetNumber('Calle Profesor Mulian, 29')).toBe(
+      'Calle Profesor Mulian',
+    );
+    expect(withoutStreetNumber('Avenida del Mediterráneo, 129B')).toBe(
+      'Avenida del Mediterráneo',
+    );
+    expect(withoutStreetNumber('Camino de Ronda, s/n')).toBe('Camino de Ronda');
+  });
+
+  it('leaves a name without a number as it is', () => {
+    expect(withoutStreetNumber('Roquetas de Mar')).toBe('Roquetas de Mar');
+    expect(withoutStreetNumber('Calle 29 de Febrero, 4')).toBe(
+      'Calle 29 de Febrero',
+    );
+    expect(withoutStreetNumber(null)).toBeNull();
   });
 });

@@ -385,7 +385,12 @@ describe('Trips API (e2e)', () => {
       const { token, vehicleId } = await readyDriver('ana');
       const passenger = await tokenFor('pia', ['passenger']);
       const created = await api('post', '/trips', token)
-        .send(tripBody(vehicleId, { destination: CAMPUS_PARKING_P2 }))
+        .send(
+          tripBody(vehicleId, {
+            destination: CAMPUS_PARKING_P2,
+            originName: 'Calle Profesor Mulian, 29',
+          }),
+        )
         .expect(201);
       const tripId = (created.body as { id: string }).id;
 
@@ -396,7 +401,36 @@ describe('Trips API (e2e)', () => {
       ).expect(200);
       expect(seenBySearcher.body).toMatchObject({
         origin: { type: 'Point', coordinates: [-2.465, 36.84] },
+        originName: 'Calle Profesor Mulian',
         destination: CAMPUS_PARKING_P2,
+        isLocationApproximate: true,
+      });
+
+      // En la app, un administrador ve lo mismo que cualquier pasajero (los
+      // datos exactos, solo en el panel)
+      const adela = await registerUser(app, {
+        name: 'adela',
+        email: `${EMAIL_PREFIX}adela@ual.es`,
+        password: PASSWORD,
+        profiles: ['passenger'],
+      });
+      await dataSource.query(
+        'INSERT INTO admin_profiles (user_id) VALUES ($1)',
+        [adela],
+      );
+      const admin = (
+        (
+          await request(app.getHttpServer())
+            .post('/api/auth/login')
+            .send({ email: `${EMAIL_PREFIX}adela@ual.es`, password: PASSWORD })
+            .expect(200)
+        ).body as { accessToken: string }
+      ).accessToken;
+      const seenByAdmin = await api('get', `/trips/${tripId}`, admin).expect(
+        200,
+      );
+      expect(seenByAdmin.body).toMatchObject({
+        originName: 'Calle Profesor Mulian',
         isLocationApproximate: true,
       });
 
@@ -405,6 +439,7 @@ describe('Trips API (e2e)', () => {
       );
       expect(seenByDriver.body).toMatchObject({
         origin: ALMERIA_CENTRE,
+        originName: 'Calle Profesor Mulian, 29',
         isLocationApproximate: false,
       });
     });

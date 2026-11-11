@@ -20,7 +20,9 @@ const TRIP = {
   id: 't1',
   driverId: 'driver',
   origin: HOME,
+  originName: 'Calle Profesor Mulian, 29',
   destination: CAMPUS,
+  destinationName: 'Campus UAL · Parking P1 (Sur)',
 } as Trip;
 
 const VIEW = { trip: TRIP } as TripView;
@@ -39,13 +41,8 @@ describe('TripViewerAccessService', () => {
     } as unknown as CampusParkingsService);
   });
 
-  it('shows the exact points to the driver and to administrators', async () => {
-    expect(await access.tripFor(VIEW, { id: 'driver', isAdmin: false })).toBe(
-      VIEW,
-    );
-    expect(await access.tripFor(VIEW, { id: 'admin', isAdmin: true })).toBe(
-      VIEW,
-    );
+  it('shows the exact points to the driver', async () => {
+    expect(await access.tripFor(VIEW, { id: 'driver' })).toBe(VIEW);
     expect(isNearAny).not.toHaveBeenCalled();
   });
 
@@ -57,29 +54,30 @@ describe('TripViewerAccessService', () => {
     expect(
       await access.canSeeExactLocation(TRIP, {
         id: 'accepted',
-        isAdmin: false,
       }),
     ).toBe(true);
-    expect(
-      await access.canSeeExactLocation(TRIP, { id: 'other', isAdmin: false }),
-    ).toBe(false);
+    expect(await access.canSeeExactLocation(TRIP, { id: 'other' })).toBe(false);
   });
 
   it('rounds the home of the driver for anyone else, but not the campus', async () => {
-    const seen = await access.tripFor(VIEW, { id: 'other', isAdmin: false });
+    const seen = await access.tripFor(VIEW, { id: 'other' });
 
     expect(seen.isLocationApproximate).toBe(true);
     expect(seen.trip.origin).toEqual(point(-2.405, 36.84));
     expect(seen.trip.destination).toBe(CAMPUS);
+    // La calle sin el portal; el parking, tal cual
+    expect(seen.trip.originName).toBe('Calle Profesor Mulian');
+    expect(seen.trip.destinationName).toBe('Campus UAL · Parking P1 (Sur)');
     expect(isNearAny).toHaveBeenCalledWith(HOME, CAMPUS_PARKING_RADIUS_METERS);
   });
 
   it('hides the route from anyone else', async () => {
-    expect(
-      await access.routeFor(ROUTE_VIEW, { id: 'driver', isAdmin: false }),
-    ).toBe(ROUTE_VIEW);
-    expect(
-      await access.routeFor(ROUTE_VIEW, { id: 'other', isAdmin: false }),
-    ).toEqual({ ...ROUTE_VIEW, isGeometryHidden: true });
+    expect(await access.routeFor(ROUTE_VIEW, { id: 'driver' })).toBe(
+      ROUTE_VIEW,
+    );
+    expect(await access.routeFor(ROUTE_VIEW, { id: 'other' })).toEqual({
+      ...ROUTE_VIEW,
+      isGeometryHidden: true,
+    });
   });
 });
