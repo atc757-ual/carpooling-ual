@@ -54,7 +54,7 @@ const AUTH_ERRORS = {
 };
 
 function tripViewerOf(user: AccessTokenPayload): TripViewer {
-  return { id: user.sub, isAdmin: user.profiles.includes('admin') };
+  return { id: user.sub };
 }
 
 // Errores comunes de publicar y modificar (reglas de TripsService)

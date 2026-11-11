@@ -23,6 +23,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- **Privacidad:** quien no tiene plaza en un viaje ya no ve la dirección exacta de la casa del conductor en el nombre del origen o del destino: se le muestra la calle sin el número de portal («Calle Profesor Mulian, 29» → «Calle Profesor Mulian»), igual que el punto ya se redondeaba a unos 500 m; los parkings del campus siguen tal cual. Y ser administrador ya no da los datos exactos en la app (búsqueda y detalle): allí ve lo mismo que cualquier pasajero, y los exactos solo en el panel (#290).
 - **Frontend:** al borrar la «@» de un correo de la UAL, las sugerencias ya no repiten el dominio («ac757inlumine.ual.es@inlumine.ual.es»): si lo escrito termina en un dominio de la UAL, sugieren solo el correo con la «@» en su sitio (#289).
 - **Chat:** Enter envía el mensaje (Mayús+Enter, salto de línea). El ✓✓ aparece en cuanto todos leen tu mensaje, sin volver a entrar (el sondeo vuelve a mirar los tuyos sin leer). En escritorio, abrir o responder una conversación quita su contador de la lista de al lado sin recargarla. En el móvil, la conversación ya no repite «Conversación» bajo la cabecera y no pierde la cabecera del viaje al volver a entrar: la sección de dentro de la página solo sale en las listas que la desplazan con el contenido, y una conversación que se va solo quita su propio contenido de la franja fija (#288).
 
