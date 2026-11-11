@@ -15,6 +15,7 @@ import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { provideCatalogsForTests } from '../../../core/services/catalogs/catalogs.testing';
+import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 
 const SEARCH: TripSearch = {
   place: ROQUETAS,
@@ -230,6 +231,15 @@ describe('TripDetailPage', () => {
     await render('t1', { ...SEARCH, direction: 'from-campus', time: '14:00' });
 
     expect(fixture.componentInstance.headingTitle()).toContain('Vuelta del campus');
+  });
+
+  it('puts its heading back once the page has entered (after the navigation clears it)', async () => {
+    await render('t1', SEARCH);
+    const show = vi.spyOn(TestBed.inject(HeadingContentService), 'show');
+
+    fixture.componentInstance.ionViewDidEnter();
+
+    expect(show).toHaveBeenCalled();
   });
 
   it('does not find the trip without a search or when it is not in the results', async () => {

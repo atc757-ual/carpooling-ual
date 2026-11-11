@@ -295,8 +295,13 @@ export class TripDetailPage {
     inject(DestroyRef).onDestroy(() => this.headingContent.clear(this.tripHeading()));
   }
 
+  // Tras la navegación (que limpia la franja del título), la vuelve a poner:
+  // el effect pudo mostrarla antes y no se repite si nada cambia
   ionViewDidEnter(): void {
     this.isVisible.set(true);
+    if (this.trip()) {
+      this.headingContent.show(this.tripHeading());
+    }
   }
 
   ionViewWillLeave(): void {
