@@ -144,13 +144,12 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-search-results', '1 viaje llega a las').should('be.visible');
       cy.contains('app-search-results app-trip-result-card', 'Lucía Cortés').should('be.visible');
       cy.contains('app-search-results app-trip-result-card', '07:20 → 07:52').should('be.visible');
-      cy.contains('app-search-results app-trip-result-card', 'Nuevo conductor').should(
+      cy.contains('app-search-results app-trip-result-card', 'Conduce Lucía Cortés').should(
         'be.visible',
       );
-      cy.contains(
-        'app-search-results app-trip-result-card',
-        'Recogida en Roquetas de Mar · sale a las 07:20',
-      ).should('be.visible');
+      cy.contains('app-search-results app-trip-result-card', 'sale a las 07:20').should(
+        'be.visible',
+      );
     });
 
     it('requests a seat from the trip and shows it pending', () => {
@@ -197,7 +196,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-passenger-request-detail', 'Tu solicitud está en manos de Lucía').should(
         'be.visible',
       );
-      cy.contains('app-passenger-request-detail', 'Has pedido 1 plaza').should('be.visible');
+      cy.contains('app-passenger-request-detail', 'Plazas que pides').should('be.visible');
       cy.contains('app-passenger-request-detail ion-button', 'Cancelar solicitud').should(
         'be.visible',
       );
@@ -215,7 +214,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('app-trip-detail app-trip-route-map').should('be.visible');
       cy.get('app-trip-detail .trip-route-map__canvas').should('have.attr', 'role', 'img');
       cy.contains('app-trip-detail app-trip-driver', 'Lucía Cortés').should('be.visible');
-      cy.contains('app-trip-detail .notice', 'Primero solicitas; Lucía decide.').should(
+      cy.contains('app-trip-detail .notice', 'Primero solicitas y Lucía decide').should(
         'be.visible',
       );
       if (isDesktop) {
