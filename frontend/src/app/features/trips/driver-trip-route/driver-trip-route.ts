@@ -8,8 +8,10 @@ import {
   IonSpinner,
 } from '@ionic/angular';
 import { carOutline } from 'ionicons/icons';
-import { DriverTrip } from '../../../core/models/driver.model';
+import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
+import { SeatRequest } from '../../../core/models/seat-request.model';
 import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colors.store';
+import { DriverService } from '../../../core/services/drivers/driver.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import {
   RouteStop,
@@ -19,12 +21,18 @@ import {
   RoutePoint,
   TripRouteMap,
 } from '../../../shared/components/ui/trip-route-map/trip-route-map';
+import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../matching/trip-results';
+
+// Viajes cuyas recogidas aceptadas se pintan en el recorrido
+const STATUSES_WITH_PICKUPS = new Set<TripStatus>(['published', 'confirmed', 'in_progress']);
 
 // «Tu recorrido» en el detalle de un viaje del conductor: el mapa con la
 // ruta, las paradas con su hora (la llegada, la salida más la duración de la
 // ruta), los datos del trayecto (distancia, duración y desvío máximo) y el
-// vehículo con el que se publicó
+// vehículo con el que se publicó. Con pasajeros aceptados, sus recogidas son
+// paradas del recorrido (R en el mapa) con su hora aproximada; las solicitudes
+// pendientes no lo tocan
 @Component({
   selector: 'app-driver-trip-route',
   imports: [
@@ -43,6 +51,7 @@ import { formatTime } from '../../matching/trip-results';
 export class DriverTripRoute {
   private readonly tripsService = inject(TripsService);
   private readonly colors = inject(VehicleColorsStore);
+  private readonly driver = inject(DriverService);
 
   readonly trip = input.required<DriverTrip>();
 
@@ -62,6 +71,30 @@ export class DriverTripRoute {
     this.details.hasValue() ? this.details.value().trip.vehicle : null,
   );
 
+  // Las solicitudes aceptadas, ordenadas por hora de recogida. Depende del
+  // viaje entero: al aceptar o rechazar, la página lo recarga y esto también
+  private readonly requests = resource({
+    params: () => (STATUSES_WITH_PICKUPS.has(this.trip().status) ? this.trip() : undefined),
+    loader: ({ params: trip }) => this.driver.listTripRequests(trip.id),
+  });
+  readonly acceptedPickups = computed<SeatRequest[]>(() =>
+    (this.requests.hasValue() ? this.requests.value() : [])
+      .filter((request) => request.status === 'accepted' && request.pickupLocation)
+      .sort((a, b) => Date.parse(a.pickupAt ?? '') - Date.parse(b.pickupAt ?? '')),
+  );
+  readonly pickupPoints = computed<RoutePoint[]>(() =>
+    this.acceptedPickups().flatMap(({ pickupLocation, passenger }) =>
+      pickupLocation
+        ? [
+            {
+              coordinates: pickupLocation.coordinates,
+              label: `Recogida de ${getFirstName(passenger.name)}`,
+            },
+          ]
+        : [],
+    ),
+  );
+
   readonly origin = computed<RoutePoint>(() => ({
     coordinates: this.trip().origin.coordinates,
     label: this.trip().originName ?? 'Salida',
@@ -79,8 +112,14 @@ export class DriverTripRoute {
       durationMin === undefined
         ? undefined
         : formatTime(new Date(Date.parse(departureAt) + durationMin * 60_000).toISOString());
+    const pickups = this.acceptedPickups().map<RouteStop>((request) => ({
+      name: request.pickupName ?? 'Punto de recogida',
+      // Sin hora por ahora: la estimada no suma las otras recogidas
+      detail: `Recoges a ${getFirstName(request.passenger.name)}`,
+    }));
     return [
       { name: originName ?? 'Salida', detail: 'Sales de aquí', time: formatTime(departureAt) },
+      ...pickups,
       { name: destinationName ?? 'Destino', detail: 'Llegada aproximada', time: arrival },
     ];
   });

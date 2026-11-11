@@ -143,10 +143,8 @@ export const routes: Routes = [
             title: 'Detalle del viaje',
             subtitle: 'El recorrido, quién conduce y las plazas libres.',
             backHref: '/tabs/search/results',
-            breadcrumbs: [
-              { label: 'Buscar viaje', href: '/tabs/search' },
-              { label: 'Tu búsqueda', href: '/tabs/search/results' },
-            ],
+            // Sin breadcrumbs aquí: el detalle pone su cabecera con las migas
+            // en escritorio y muestra la franja también en el móvil
           } satisfies TabHeading,
         },
       },
@@ -174,6 +172,23 @@ export const routes: Routes = [
           heading: {
             title: 'Tu solicitud',
             subtitle: 'Consulta el estado y los datos de tu plaza.',
+            backHref: '/tabs/trips',
+            // Sin breadcrumbs aquí: el detalle pone su cabecera con las migas
+            // en escritorio y muestra la franja también en el móvil
+          } satisfies TabHeading,
+        },
+      },
+      {
+        path: 'trips/ride/:id',
+        canActivate: [profileGuard('passenger')],
+        loadComponent: () =>
+          import('./features/trips/passenger-live-trip/passenger-live-trip.page').then(
+            (m) => m.PassengerLiveTripPage,
+          ),
+        data: {
+          heading: {
+            title: 'Viaje en curso',
+            subtitle: 'Sigue el coche en directo hasta que llegues.',
             backHref: '/tabs/trips',
             breadcrumbs: [{ label: 'Tus viajes', href: '/tabs/trips' }],
           } satisfies TabHeading,

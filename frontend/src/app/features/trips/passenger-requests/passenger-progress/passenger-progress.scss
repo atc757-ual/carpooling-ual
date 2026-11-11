@@ -1,0 +1,99 @@
+// Pasos en fila, del mismo ancho, unidos por una línea; bajo cada uno, su
+// nombre y su hora. Hechos en azul con ✓, el actual en azul y negrita, los
+// siguientes en gris, y el de cierre (no aceptada, cancelada…) en gris con ✕
+.passenger-progress {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.passenger-progress__step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  text-align: center;
+
+  // La línea hasta el paso anterior, por detrás de los puntos
+  &:not(:first-child)::before {
+    content: '';
+    position: absolute;
+    top: 0.75rem; // 12px: la mitad del punto
+    right: 50%;
+    left: -50%;
+    border-top: var(--border-width-m) solid var(--color-border-subtle);
+  }
+}
+
+.passenger-progress__dot {
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 1.5rem; // 24px
+  height: 1.5rem;
+  border: var(--border-width-m) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-surface);
+
+  ion-icon {
+    font-size: 0.875rem; // 14px
+  }
+}
+
+.passenger-progress__label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-s);
+}
+
+.passenger-progress__time {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+}
+
+.passenger-progress__step--done {
+  &::before {
+    border-top-color: var(--color-primary);
+  }
+
+  .passenger-progress__dot {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+  }
+
+  .passenger-progress__label {
+    color: var(--color-text);
+  }
+}
+
+.passenger-progress__step--current {
+  &::before {
+    border-top-color: var(--color-primary);
+  }
+
+  .passenger-progress__dot {
+    border-color: var(--color-primary);
+    box-shadow: inset 0 0 0 0.25rem var(--color-primary-subtle); // 4px
+  }
+
+  .passenger-progress__label {
+    color: var(--color-text);
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+.passenger-progress__step--stopped {
+  .passenger-progress__dot {
+    border-color: var(--color-text-muted);
+    background: var(--color-text-muted);
+  }
+
+  .passenger-progress__label {
+    color: var(--color-text);
+    font-weight: var(--font-weight-semibold);
+  }
+}

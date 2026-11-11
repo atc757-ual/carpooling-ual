@@ -1,11 +1,11 @@
-// Viaje en curso del conductor. En el móvil, una columna con «Terminar viaje»
-// fijo abajo; en escritorio, el mapa a la izquierda (8) y el progreso, los
-// pasajeros y el botón a la derecha (4), fijos al bajar
+// Viaje en curso del conductor. En el móvil, el mapa a toda la pantalla y
+// los detalles en la hoja inferior (live-sheet, en el tema); en escritorio,
+// el mapa a la izquierda (8) y los detalles a la derecha (4), fijos al bajar
 .driver-live-trip {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-base);
-  padding: var(--space-l) var(--page-gutter);
+  // Todo el ancho, como el detalle del viaje (tab-page pone el fondo y el margen)
+  box-sizing: border-box;
+  width: 100%;
+  align-items: stretch;
 
   ion-card {
     margin: 0;
@@ -51,88 +51,234 @@
   }
 }
 
-.driver-live-trip__panel {
+.driver-live-trip__panel ion-card-content {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
-  padding: var(--space-base);
-  border-radius: var(--radius-l);
+}
+
+// El mapa, grande. En el móvil, sin márgenes ni tarjeta y del alto de la
+// pantalla (menos la cabecera y la barra de pestañas)
+.driver-live-trip__main {
+  // Sin el margen propio del mapa: ya lo da la tarjeta
+  --live-trip-map-padding: 0;
+  --live-trip-map-height: calc(100dvh - var(--tab-bar-height) - 12rem); // 192px de cabecera
+  --live-trip-map-height-desktop: 34rem; // 544px
+}
+
+@media (max-width: 767.98px) {
+  .driver-live-trip {
+    padding: 0;
+  }
+
+  .driver-live-trip__main {
+    // El mapa, de borde a borde y sin su línea de estado (va en la tarjeta)
+    --live-trip-map-padding: 0;
+    --live-trip-map-radius: 0;
+    --live-trip-map-canvas-radius: 0;
+    --live-trip-map-status-display: none;
+    --live-trip-map-height: calc(
+      100dvh - var(--tab-bar-height) - 3.5rem - var(--ion-safe-area-top, 0px)
+    ); // 56px: la barra del título
+    --border-radius: 0;
+
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+
+    ion-card-content {
+      padding: 0;
+    }
+  }
+}
+
+// Las recogidas en un carrusel: una tarjeta por pasajero, que encaja al
+// deslizar. La que toca validar, con el borde azul; las demás, atenuadas
+// hasta que les llega el turno; las de quien ya subió, con su ✓
+.pickup-carousel {
+  display: flex;
+  gap: var(--space-s);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// Cada tarjeta: arriba el nombre y la dirección con los iconos a la derecha;
+// debajo, a todo el ancho, el código con «Validar» (hasta que sube)
+.pickup-slide {
+  display: grid;
+  flex: 0 0 100%;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  box-sizing: border-box;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-base);
+  border: var(--border-width-s) solid var(--color-border-subtle);
+  border-radius: var(--radius-s);
   background: var(--color-surface);
+  opacity: 0.6;
+  scroll-snap-align: start;
+
+  &--active {
+    border-color: var(--color-primary);
+    opacity: 1;
+  }
+
+  &--done {
+    opacity: 1;
+  }
 }
 
-// Una fila por pasajero, separadas por una línea (como TripRow de la guía);
-// la siguiente recogida, con su etiqueta
-.driver-live-trip__passengers {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+// Sus hijos van directamente a la rejilla de la tarjeta
+.pickup-slide__main {
+  display: contents;
+
+  > * {
+    grid-column: 1 / -1;
+  }
 }
 
-.driver-live-trip__passenger {
+.pickup-slide__who {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  grid-row: 1;
+
+  .pickup-slide__main > & {
+    grid-column: 1;
+  }
+}
+
+.pickup-slide__done-icon {
+  vertical-align: middle;
+  color: var(--color-success);
+}
+
+.pickup-slide__code {
+  display: flex;
+  gap: var(--space-s);
+
+  ion-button {
+    flex: none;
+    margin: 0;
+  }
+}
+
+// Chat, llamar y «No se presentó»: en fila, a la derecha del nombre
+.pickup-slide__actions {
+  display: flex;
+  grid-column: 2;
+  grid-row: 1;
   gap: var(--space-xs);
-  padding: var(--space-s) 0;
+}
 
-  & + & {
-    border-top: var(--border-width-s) solid var(--color-border-subtle);
+.pickup-slide__icon-btn {
+  display: grid;
+  box-sizing: border-box;
+  text-decoration: none;
+  place-items: center;
+  width: 2.75rem; // 44px
+  height: 2.75rem;
+  padding: 0;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-link);
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 1.25rem; // 20px
   }
-}
 
-.driver-live-trip__person {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-xs) var(--space-s);
-}
+  @media (any-hover: hover) {
+    &:hover:not(:disabled) {
+      background: var(--color-surface-subtle);
+    }
+  }
 
-.driver-live-trip__call-btn {
-  --color: var(--color-link);
-  margin: 0;
-  min-width: 2.75rem; // 44px
-  min-height: 2.75rem;
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
 
+  &:disabled,
   &--unavailable {
-    --color: var(--color-text-muted);
+    color: var(--color-text-disabled);
+    cursor: default;
   }
 }
 
-.driver-live-trip__board-actions {
+// Los puntos: uno por pasajero, el que se ve más largo y en azul
+.pickup-dots {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-xs) var(--space-s);
-  width: 100%;
-  margin-top: var(--space-xs);
+  justify-content: center;
+  gap: var(--space-xs);
+}
+
+.pickup-dots__dot {
+  width: 0.5rem; // 8px
+  height: 0.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-border-strong);
+  cursor: pointer;
+  transition: width 0.2s ease;
+
+  &--current {
+    width: 1.25rem; // 20px
+    background: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
 }
 
 .driver-live-trip__code-input {
-  width: 5.5rem;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem; // 44px
   padding: var(--space-xs) var(--space-s);
-  font-family: monospace;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.15rem;
-  text-align: center;
+  border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s);
-  border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem; // 20px
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.3em;
+  text-align: center;
+
+  // El texto de ayuda, sin separar las letras
+  &:placeholder-shown {
+    font-family: inherit;
+    font-size: var(--font-size-body-s);
+    font-weight: inherit;
+    letter-spacing: normal;
+  }
+
+  &:focus-visible {
+    border-color: var(--color-primary);
+    outline: var(--border-width-m) solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
 }
 
-// Móvil: el botón siempre a la vista, sobre el fondo de la página
+// «Terminar» y «Seguir en el viaje», uno debajo del otro
 .driver-live-trip__finish {
-  position: sticky;
-  bottom: 0;
-  padding: var(--space-s) 0 var(--space-base);
-  background: var(--ion-background-color);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
 
-  ion-button {
-    margin: 0;
-  }
+.driver-live-trip__panel ion-button {
+  margin: 0;
 }
 
 @media (min-width: 768px) {
@@ -140,17 +286,12 @@
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     align-items: start;
+    gap: var(--space-l);
   }
 
   .driver-live-trip__side {
     position: sticky;
     top: var(--space-l);
-  }
-
-  .driver-live-trip__finish {
-    position: static;
-    padding: 0;
-    background: none;
   }
 }
 
@@ -169,4 +310,38 @@
     flex-shrink: 0;
     margin: 0;
   }
+}
+
+// En la hoja del móvil, las secciones ya traen su relleno: sin hueco entre ellas
+.driver-live-trip__side--sheet {
+  gap: 0;
+
+  // Una línea fina entre secciones
+  > * + * {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}
+
+// Terminado: el ✓ verde con el aviso
+.driver-live-trip__done {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+.driver-live-trip__done-icon {
+  flex: none;
+  color: var(--color-success);
+  font-size: 2.5rem; // 40px
+}
+
+.driver-live-trip__done-title {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-semibold);
 }

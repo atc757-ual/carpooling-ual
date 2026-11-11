@@ -409,6 +409,9 @@ ion-tab-button {
 
 // En escritorio, entre los destinos: el círculo pequeño y el texto
 .top-nav .live-tab {
+  // La línea de abajo, transparente como en las demás (.live-tab la quita)
+  border-bottom: 0.25rem solid transparent; // 4px
+
   .live-tab__circle {
     width: 2rem; // 32px
     height: 2rem;
@@ -416,6 +419,35 @@ ion-tab-button {
     ion-icon {
       font-size: 1.125rem; // 18px
     }
+  }
+}
+
+// En una pantalla En curso: el coche seleccionado, en blanco sobre el círculo
+// azul, y el texto como el de la pestaña activa
+.live-tab--active {
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+
+  .live-tab__circle {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+}
+
+// En escritorio, la línea azul de abajo, como la pestaña activa (con
+// .top-nav delante, para ganar a la línea transparente de .top-nav .live-tab)
+.top-nav .live-tab--active {
+  border-bottom-color: var(--color-primary);
+}
+
+// …y Tus viajes, de la que cuelga, sin marcar en la barra de abajo
+.tab-bar--live {
+  --color-selected: var(--color-text-muted);
+
+  ion-tab-button.tab-selected {
+    background: transparent;
+    font-weight: inherit;
   }
 }
 

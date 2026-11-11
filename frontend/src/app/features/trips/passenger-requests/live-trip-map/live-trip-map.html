@@ -1,16 +1,17 @@
 <section class="trip-live-map" aria-labelledby="live-map-title">
   <header class="trip-live-map__heading">
-    <h2 id="live-map-title" class="text-subtitle">Seguimiento en tiempo real</h2>
-    <ion-button
+    <!-- El título, solo para el lector de pantalla: el mapa ya se explica solo -->
+    <h2 id="live-map-title" class="visually-hidden">Seguimiento en tiempo real</h2>
+    <!-- Centrar: redondo y blanco, en la esquina del mapa (como el zoom) -->
+    <button
       type="button"
-      fill="clear"
-      size="small"
+      class="trip-live-map__center"
       aria-label="Centrar el mapa"
+      title="Centrar el mapa"
       (click)="centerMap()"
     >
-      <ion-icon slot="start" [icon]="centerIcon" aria-hidden="true" />
-      Centrar
-    </ion-button>
+      <ion-icon [icon]="centerIcon" aria-hidden="true" />
+    </button>
   </header>
 
   <section #map class="trip-live-map__canvas" [attr.aria-label]="mapLabel()"></section>
@@ -19,11 +20,16 @@
     @if (isDriver()) {
       @if (estimatedPickupMinutes(); as minutes) {
         <p class="text-body-s text-body--strong">
-          Llegas en ~{{ minutes }} min a {{ pickupName() }}.
+          {{ inAbout(minutes) ? 'Llegas ' + inAbout(minutes) : 'Estás llegando' }} a
+          {{ pickupName() }}.
         </p>
       } @else if (latestPosition(); as position) {
         <p class="text-body-s text-body--strong">
-          Llegas al destino en ~{{ position.remainingMin }} min.
+          {{
+            inAbout(position.remainingMin)
+              ? 'Llegas al destino ' + inAbout(position.remainingMin)
+              : 'Estás llegando al destino'
+          }}.
         </p>
       } @else {
         <p class="text-body-s text-color-muted">Esperando tu primera ubicación…</p>
@@ -32,7 +38,9 @@
       <p class="text-body-s text-body--strong">Estás en el coche.</p>
     } @else if (estimatedPickupMinutes(); as minutes) {
       <p class="text-body-s text-body--strong">
-        {{ driverName() }} llega en ~{{ minutes }} min a tu punto de recogida.
+        {{ driverName() }}
+        {{ inAbout(minutes) ? 'llega ' + inAbout(minutes) : 'está llegando' }} a tu punto de
+        recogida.
       </p>
     } @else if (latestPosition()) {
       <p class="text-body-s text-body--strong">El coche está en el mapa.</p>

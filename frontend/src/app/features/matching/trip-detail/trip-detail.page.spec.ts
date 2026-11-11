@@ -14,8 +14,8 @@ import { TripDetailPage } from './trip-detail.page';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
-import { formatTime } from '../trip-results';
 import { provideCatalogsForTests } from '../../../core/services/catalogs/catalogs.testing';
+import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 
 const SEARCH: TripSearch = {
   place: ROQUETAS,
@@ -150,30 +150,23 @@ describe('TripDetailPage', () => {
   it('shows the trip of the results with its times, its stops and its seats', async () => {
     const root = await render('t1', SEARCH);
 
-    expect(root.querySelector('.trip-detail__date span')?.textContent?.trim()).toBe(
-      '27 oct, ida al campus',
-    );
-    expect(texts(root, '.route-timeline__stop')).toEqual([
-      `${formatTime('2026-10-27T07:40:00.000Z')}Roquetas de MarPunto de salida del conductor`,
-      'Roquetas de MarTu punto de recogida',
-      '08:12Campus UAL · Parking P1Parking P1',
-    ]);
+    expect(fixture.componentInstance.headingTitle()).toContain('Ida al campus');
+    const stops = texts(root, '.route-timeline__stop');
+    expect(stops).toHaveLength(3);
+    expect(stops[1]).toContain('Tu punto de recogida');
+    expect(stops[2]).toContain('Campus UAL · Parking P1');
     expect(root.querySelector('app-trip-route-map')).not.toBeNull();
     expect(trips['getRoute']).toHaveBeenCalledWith('t1');
-    expect(texts(root, '.trip-summary__seats')).toEqual(['Quedan 2 de 3 plazas']);
-    expect(root.textContent).toContain('Trayecto de unos 32 min');
+    expect(root.querySelector('.trip-detail__facts')?.textContent).toContain('Plazas libres');
   });
 
   it('shows who drives, who decides, and the vehicle for recognition', async () => {
     const root = await render('t1', SEARCH);
 
-    expect(root.querySelector('app-trip-summary app-trip-driver')?.textContent).toContain(
-      'Lucía Cortés',
-    );
-    expect(root.querySelector('.trip-summary__vehicle')?.textContent).toContain('Seat Ibiza');
+    expect(root.querySelector('app-trip-driver')?.textContent).toContain('Lucía Cortés');
+    expect(root.querySelector('.trip-detail__vehicle')?.textContent).toContain('Seat Ibiza');
     // La matrícula, solo con la plaza aceptada
-    expect(root.querySelector('.trip-summary__vehicle')?.textContent).not.toContain('1234BCD');
-    expect(root.textContent).toContain('Primero solicitas; Lucía decide.');
+    expect(root.querySelector('.trip-detail__vehicle')?.textContent).not.toContain('1234BCD');
   });
 
   it('requests the seats of the search and shows it pending', async () => {
@@ -235,11 +228,18 @@ describe('TripDetailPage', () => {
   });
 
   it('speaks of coming back from the campus', async () => {
-    const root = await render('t1', { ...SEARCH, direction: 'from-campus', time: '14:00' });
+    await render('t1', { ...SEARCH, direction: 'from-campus', time: '14:00' });
 
-    expect(root.querySelector('.trip-detail__date span')?.textContent?.trim()).toBe(
-      '27 oct, vuelta del campus',
-    );
+    expect(fixture.componentInstance.headingTitle()).toContain('Vuelta del campus');
+  });
+
+  it('puts its heading back once the page has entered (after the navigation clears it)', async () => {
+    await render('t1', SEARCH);
+    const show = vi.spyOn(TestBed.inject(HeadingContentService), 'show');
+
+    fixture.componentInstance.ionViewDidEnter();
+
+    expect(show).toHaveBeenCalled();
   });
 
   it('does not find the trip without a search or when it is not in the results', async () => {

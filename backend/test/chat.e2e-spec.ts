@@ -284,15 +284,15 @@ describe('Chat API (e2e)', () => {
     );
   });
 
-  it('only lets the driver send quick replies while the trip is in progress', async () => {
+  it('lets the driver send text and quick replies while the trip is in progress', async () => {
     const { tripId, dan, pia } = await confirmedTrip();
     await setDepartureIn(dataSource, tripId, 5);
     await app.get(TripsService).start(dan.id, tripId);
 
-    const text = await api('post', `/trips/${tripId}/messages`, dan)
+    // Puede estar parado: el texto también se admite
+    await api('post', `/trips/${tripId}/messages`, dan)
       .send({ text: 'Llego ya' })
-      .expect(409);
-    expect(text.body).toMatchObject({ code: 'CHAT_QUICK_REPLIES_ONLY' });
+      .expect(201);
     await api('post', `/trips/${tripId}/messages`, dan)
       .send({ quickReply: 'at_pickup' })
       .expect(201);

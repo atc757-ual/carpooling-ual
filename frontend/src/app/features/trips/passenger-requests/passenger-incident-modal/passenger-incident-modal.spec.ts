@@ -42,7 +42,13 @@ describe('PassengerIncidentModal', () => {
       'safety',
       'other',
     ]);
-    expect(fixture.nativeElement.textContent).toContain('Me he sentido en peligro');
+    // En la pastilla, el texto corto
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.textContent).toContain('En peligro');
+    const radios = root.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+    expect(radios).toHaveLength(4);
+    radios[2].click();
+    expect(component.selectedCategory()).toBe('safety');
   });
 
   it('validates description length correctly', () => {

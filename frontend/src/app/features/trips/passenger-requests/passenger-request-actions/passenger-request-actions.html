@@ -1,0 +1,80 @@
+<ion-card class="passenger-actions">
+  <ion-card-header>
+    <ion-card-title>Acciones de tu solicitud</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    @if (hasChat() && showChat()) {
+      <app-trip-chat-link
+        [tripId]="request().trip.id"
+        expand="block"
+        fill="solid"
+        text="Chat con el conductor"
+      />
+    }
+
+    @if (isTripInProgress()) {
+      <ion-button
+        class="passenger-actions__incident-btn"
+        type="button"
+        fill="outline"
+        expand="block"
+        (click)="openIncidentModal()"
+      >
+        <ion-icon slot="start" [icon]="alertIcon" aria-hidden="true" />
+        Bajarme y registrar incidencia
+      </ion-button>
+    }
+
+    @if (canCancel()) {
+      <!-- Lo que cuesta cancelar, antes del botón. El botón, con borde azul y
+           fondo blanco (la guía: lo destructivo, sin rojo) -->
+      <div class="passenger-actions__block">
+        @if (cancellationIsLate()) {
+          <output class="notice notice--warning">
+            <ion-icon [icon]="warningIcon" aria-hidden="true" />
+            <span>
+              <b>Si cancelas ahora, contará como cancelación tardía</b>
+              Con 3 en 30 días, 7 días sin poder pedir plaza.
+            </span>
+          </output>
+        } @else if (cancelCost(); as cost) {
+          <div class="notice notice--info">
+            <span>{{ cost }}</span>
+          </div>
+        }
+        <form (submit)="$event.preventDefault(); handleCancel()">
+          <ion-button type="submit" fill="outline" expand="block" [disabled]="isCancelling()">
+            @if (isCancelling()) {
+              <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+            }
+            {{ isCancelling() ? 'Cancelando…' : cancelLabel() }}
+            @if (cancellationIsLate()) {
+              <span class="visually-hidden">. Contará como cancelación tardía</span>
+            }
+          </ion-button>
+        </form>
+      </div>
+    }
+
+    @if (closedReason(); as reason) {
+      <div class="passenger-actions__block">
+        <div class="notice notice--info" aria-hidden="true">
+          <span>{{ reason }}</span>
+        </div>
+        <ion-button expand="block" fill="outline" [disabled]="true">
+          {{ cancelLabel() }}<span class="visually-hidden">. {{ reason }}</span>
+        </ion-button>
+      </div>
+    }
+
+    @if (canSearchAnother()) {
+      <div class="passenger-actions__block">
+        <ion-button type="button" expand="block" color="primary" (click)="handlePrioritySearch()">
+          <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
+          Buscar con prioridad
+        </ion-button>
+        <p class="passenger-actions__hint text-caption">Mantiene tu ruta y tu horario en Buscar.</p>
+      </div>
+    }
+  </ion-card-content>
+</ion-card>

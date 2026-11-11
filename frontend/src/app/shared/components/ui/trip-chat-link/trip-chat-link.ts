@@ -15,7 +15,7 @@ import { EMPTY } from 'rxjs';
   template: `
     <ion-button
       class="trip-chat-link"
-      fill="outline"
+      [fill]="fill()"
       [expand]="expand()"
       [routerLink]="['/tabs/messages', tripId()]"
     >
@@ -34,10 +34,16 @@ export class TripChatLink {
   readonly tripId = input.required<string>();
   // A todo el ancho (detalle de la solicitud) o a su medida (tarjeta)
   readonly expand = input<'block' | undefined>(undefined);
+  // Con borde (por defecto) o azul relleno (la acción principal del pasajero)
+  readonly fill = input<'outline' | 'solid'>('outline');
 
   protected readonly icon = chatbubblesOutline;
+  // Otro texto que el de por defecto (p. ej. «Chat con el conductor»)
+  readonly text = input<string | null>(null);
+
   protected readonly label = computed(() => {
     return (
+      this.text() ??
       (this.translation() ? this.transloco?.translate('common.tripChatLink') : null) ??
       'Chat del viaje'
     );

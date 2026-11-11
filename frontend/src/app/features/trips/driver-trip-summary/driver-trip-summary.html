@@ -5,7 +5,9 @@
       <div class="role-card__when">
         <span class="text-subtitle">{{ time() }}</span>
         <span class="role-tag role-tag--driver">
-          <ion-icon [icon]="roleIcon" aria-hidden="true" />Conduces
+          <ion-icon [icon]="roleIcon" aria-hidden="true" />{{
+            trip().status === 'finished' ? 'Condujiste' : 'Conduces'
+          }}
         </span>
       </div>
       <span

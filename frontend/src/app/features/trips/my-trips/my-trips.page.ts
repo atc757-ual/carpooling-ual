@@ -176,7 +176,7 @@ export class MyTripsPage {
       ? {
           route: formatRoute(item.trip),
           detail: `Conduce ${item.trip.driver.name}`,
-          link: `/tabs/trips/requests/${item.request.id}`,
+          link: `/tabs/trips/ride/${item.request.id}`,
         }
       : null;
   });

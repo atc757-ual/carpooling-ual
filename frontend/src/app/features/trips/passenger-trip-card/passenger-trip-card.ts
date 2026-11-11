@@ -52,9 +52,7 @@ export class PassengerTripCard {
     if (request.status === 'pending') {
       return `Esperando respuesta de ${driverName}`;
     }
-    if (request.pickupAt) {
-      return `Confirmada: te recoge a las ${formatTime(request.pickupAt)}`;
-    }
+    // Sin hora de recogida por ahora: la estimada no suma las otras recogidas
     return `Confirmada: viajas con ${driverName}`;
   });
 

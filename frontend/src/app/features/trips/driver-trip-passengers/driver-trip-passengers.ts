@@ -126,6 +126,14 @@ export class DriverTripPassengers {
     return this.travelPreferences.format(request.passenger.preferences);
   }
 
+  // Solo el lugar: la hora estimada no suma las otras recogidas (pendiente
+  // de decidir con el director)
+  protected pickupSummary(request: SeatRequest): string | null {
+    const place =
+      request.direction === 'from-campus' ? 'En tu salida' : (request.pickupName ?? null);
+    return place ? `Recogida: ${place}` : null;
+  }
+
   async handleDecide(request: SeatRequest, decision: 'accept' | 'reject'): Promise<void> {
     this.deciding.set(request.id);
     try {

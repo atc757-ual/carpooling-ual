@@ -1,32 +1,39 @@
-<form class="modal-body incident-modal" (submit)="$event.preventDefault(); handleConfirm()">
-  <div class="incident-modal__header">
-    <ion-icon class="incident-modal__icon" [icon]="warningIcon" aria-hidden="true" />
-    <h2 class="text-subtitle">Bajarme y registrar incidencia</h2>
-  </div>
+<form
+  class="incident-modal"
+  [class.modal-body]="!isInline"
+  [class.incident-modal--inline]="isInline"
+  (submit)="$event.preventDefault(); handleConfirm()"
+>
+  <!-- Sin título visible (el botón ya lo dice): solo para el lector de pantalla -->
+  <h2 class="visually-hidden">Bajarme y registrar incidencia</h2>
 
-  <div class="incident-modal__warning notice--info">
-    <p class="text-body-s">
-      Al registrar esta incidencia se cancelará tu plaza en el viaje actual. El conductor continuará
-      su ruta para los demás pasajeros y el equipo de administración revisará lo sucedido.
-    </p>
-  </div>
+  <output class="notice notice--info incident-modal__note">
+    <span>Tu incidencia la revisará un administrador.</span>
+  </output>
 
-  <div class="incident-modal__section">
-    <span id="incident-category-label" class="text-label text-label--strong">Motivo principal</span>
-    <ion-radio-group
-      [value]="selectedCategory()"
-      aria-labelledby="incident-category-label"
-      (ionChange)="handleCategoryChange($event)"
-    >
+  <!-- Pastillas en lugar de una lista: ocupan menos alto. Cada una, un radio
+       nativo oculto (teclado y lector de pantalla de serie) -->
+  <fieldset class="incident-modal__section incident-modal__fieldset">
+    <legend class="text-label text-label--strong">Motivo principal</legend>
+    <div class="incident-modal__chips">
       @for (cat of categories; track cat.value) {
-        <ion-item class="incident-modal__radio-item" lines="none">
-          <ion-radio [value]="cat.value" justify="start" labelPlacement="end">
-            {{ cat.label }}
-          </ion-radio>
-        </ion-item>
+        <label
+          class="incident-modal__chip"
+          [class.incident-modal__chip--selected]="selectedCategory() === cat.value"
+        >
+          <input
+            class="visually-hidden"
+            type="radio"
+            name="incident-category"
+            [value]="cat.value"
+            [checked]="selectedCategory() === cat.value"
+            (change)="selectedCategory.set(cat.value)"
+          />
+          {{ cat.short }}
+        </label>
       }
-    </ion-radio-group>
-  </div>
+    </div>
+  </fieldset>
 
   <div class="incident-modal__section">
     <ion-textarea
@@ -34,7 +41,7 @@
       label="¿Qué ha ocurrido?"
       labelPlacement="stacked"
       fill="outline"
-      rows="3"
+      rows="2"
       [maxlength]="maxLength"
       [counter]="true"
       [value]="description()"
@@ -54,7 +61,6 @@
     <ion-button
       class="incident-modal__btn-submit"
       type="submit"
-      color="danger"
       expand="block"
       [disabled]="!isFormValid() || isSubmitting()"
     >

@@ -1,0 +1,238 @@
+// «En curso» del pasajero. En el móvil, el mapa a toda la pantalla y los
+// detalles en la hoja inferior (live-sheet, en el tema); en escritorio, el
+// mapa a la izquierda (8) y la columna de 4 a la derecha, fija al bajar
+.ride {
+  box-sizing: border-box;
+  width: 100%;
+  align-items: stretch;
+
+  ion-card {
+    margin: 0;
+  }
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+.ride__loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.ride__state-card {
+  width: 100%;
+}
+
+ion-card-content.ride__state {
+  display: flex;
+  min-height: 20rem; // 320px
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  text-align: center;
+}
+
+.ride__state-icon {
+  font-size: 2.5rem; // 40px
+  color: var(--color-primary);
+}
+
+.ride__layout,
+.ride__side,
+.ride__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  min-width: 0;
+}
+
+.ride__panel ion-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+// Cuatro cifras, una por casilla, fáciles de leer en voz alta
+.ride__code-digits {
+  display: grid;
+  grid-template-columns: repeat(4, 3rem); // 48px por casilla
+  gap: var(--space-s);
+
+  span {
+    display: grid;
+    place-items: center;
+    height: 3.5rem; // 56px
+    border: var(--border-width-s) solid var(--color-primary);
+    border-radius: var(--radius-s);
+    background: var(--color-primary-subtle);
+    color: var(--color-primary);
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-title);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1;
+  }
+}
+
+// El conductor: el título con chat y llamar a la derecha, a su altura; debajo,
+// quién conduce y la matrícula (la placa de editar el coche) con el modelo
+.ride__driver-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+
+  h2 {
+    flex: 1;
+    min-width: 0;
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+// Quién conduce: el icono de persona y el nombre
+.ride__driver-name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+  margin: 0;
+
+  ion-icon {
+    flex: none;
+    color: var(--color-text-muted);
+  }
+}
+
+.ride__driver-car {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-width: 0;
+}
+
+.ride__driver-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ride__icon-btn {
+  display: grid;
+  box-sizing: border-box;
+  text-decoration: none;
+  flex: none;
+  place-items: center;
+  width: 2.75rem; // 44px
+  height: 2.75rem;
+  padding: 0;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-link);
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 1.25rem; // 20px
+  }
+
+  @media (any-hover: hover) {
+    &:hover {
+      background: var(--color-surface-subtle);
+    }
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &--unavailable {
+    color: var(--color-text-muted);
+  }
+}
+
+// El mapa, grande: es lo que se mira durante el viaje. En el móvil, sin
+// márgenes ni tarjeta y del alto de la pantalla (menos la cabecera y la
+// barra de pestañas); la hoja de detalles se pone encima
+.ride__map-card {
+  // Sin el margen propio del mapa: ya lo da la tarjeta
+  --live-trip-map-padding: 0;
+  --live-trip-map-height: calc(100dvh - var(--tab-bar-height) - 12rem); // 192px de cabecera
+  --live-trip-map-height-desktop: 34rem; // 544px
+}
+
+@media (max-width: 767.98px) {
+  .ride.tab-page {
+    padding: 0;
+  }
+
+  .ride__map-card {
+    // El mapa, de borde a borde y sin su línea de estado (va en la tarjeta)
+    --live-trip-map-padding: 0;
+    --live-trip-map-radius: 0;
+    --live-trip-map-canvas-radius: 0;
+    --live-trip-map-status-display: none;
+    --live-trip-map-height: calc(
+      100dvh - var(--tab-bar-height) - 3.5rem - var(--ion-safe-area-top, 0px)
+    ); // 56px: la barra del título
+    --border-radius: 0;
+
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+
+    ion-card-content {
+      padding: 0;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .ride__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-l);
+  }
+
+  .ride__side {
+    position: sticky;
+    top: var(--space-l);
+  }
+}
+
+// En la hoja del móvil, las secciones ya traen su relleno: sin hueco entre ellas
+.ride__side--sheet {
+  gap: 0;
+
+  // Una línea fina entre secciones
+  > * + * {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}
+
+// Ha llegado: el ✓ verde con el aviso y, debajo, la valoración del conductor
+.ride__done-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.ride__done-icon {
+  flex: none;
+  color: var(--color-success);
+  font-size: 2.5rem; // 40px
+}
+
+.ride__done-title {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-semibold);
+}

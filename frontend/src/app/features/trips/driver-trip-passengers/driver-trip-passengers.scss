@@ -58,6 +58,7 @@ ion-card.driver-trip ion-card-content {
 
 .driver-trip__request {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-s);
@@ -70,20 +71,44 @@ ion-card.driver-trip ion-card-content {
 
 .driver-trip__person {
   display: flex;
+  flex: 1 1 13rem; // 208px: si no cabe con los botones, estos bajan a todo el ancho
   flex-direction: column;
+  gap: 0.125rem; // 2px
   min-width: 0;
+}
+
+.driver-trip__person-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
 }
 
 .driver-trip__name {
   font-weight: var(--font-weight-semibold);
 }
 
+.driver-trip__pickup {
+  color: var(--color-text);
+}
+
 .driver-trip__actions {
-  display: flex;
+  display: grid;
+  flex: 1 0 12.5rem; // 200px
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-s);
 
+  @media (min-width: 576px) {
+    flex: 0 0 auto;
+  }
+
+  form,
   ion-button {
     margin: 0;
+  }
+
+  ion-button {
+    min-height: var(--control-height-s); // 44px
   }
 }
 

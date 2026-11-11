@@ -9,7 +9,7 @@
   width: 100%;
   padding: var(--space-base);
   border: var(--border-width-s) solid var(--color-primary);
-  border-radius: var(--radius-l);
+  border-radius: var(--radius-s); // 8px, como las tarjetas
   background: var(--color-primary-subtle);
 
   ion-button {

@@ -1,13 +1,12 @@
 <ion-content>
-  @if (trip(); as trip) {
-    <div class="trip-detail">
-      <!-- Columna de 8 en escritorio: el viaje, en una sola tarjeta -->
+  <div class="tab-page trip-detail">
+    @if (trip(); as trip) {
+      <!-- Columna de 8 en escritorio: «Tu recorrido» y «Conductor y coche» -->
       <div class="trip-detail__main">
-        <div class="trip-detail__date">
-          <span class="text-body-s text-color-muted">{{ tripDate() }}</span>
-        </div>
-
         <ion-card>
+          <ion-card-header>
+            <ion-card-title>Tu recorrido</ion-card-title>
+          </ion-card-header>
           <ion-card-content>
             @if (tripData.value(); as data) {
               @if (pickup(); as pickup) {
@@ -15,7 +14,7 @@
                   <app-trip-route-map
                     [route]="data.route"
                     [origin]="ends.origin"
-                    [pickup]="pickup"
+                    [pickups]="[pickup]"
                     [destination]="ends.destination"
                   />
                 }
@@ -28,105 +27,184 @@
             } @else if (tripData.error()) {
               <p class="text-caption text-color-muted">No pudimos cargar el mapa de la ruta.</p>
             }
-            @if (summary(); as summary) {
-              <app-trip-summary [summary]="summary" />
+
+            <app-route-timeline [stops]="stops()" />
+
+            <dl class="trip-detail__facts">
+              @for (fact of facts(); track fact.label) {
+                <div>
+                  <dt class="text-caption">{{ fact.label }}</dt>
+                  <dd class="text-body text-body--strong">{{ fact.value }}</dd>
+                </div>
+              }
+            </dl>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Conductor y coche</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <app-trip-driver [driver]="trip.driver" />
+
+            @if (trip.vehicle; as vehicle) {
+              <div class="trip-detail__vehicle">
+                <ion-icon [icon]="carIcon" aria-hidden="true" />
+                <div>
+                  <div class="text-body-s text-body--strong">{{ vehicleName(vehicle) }}</div>
+                  <div class="text-caption text-color-muted">
+                    <span
+                      class="trip-detail__swatch"
+                      [style.--swatch-color]="vehicleSwatch(vehicle.color)"
+                      aria-hidden="true"
+                    ></span>
+                    {{ vehicleColor(vehicle.color) }}
+                    @if (request()?.status === 'accepted' && request()?.vehiclePlate; as plate) {
+                      · Matrícula <b>{{ plate }}</b>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (driverPreferences().length > 0) {
+              <section class="trip-detail__preferences" aria-label="Preferencias del conductor">
+                @for (preference of driverPreferences(); track preference) {
+                  <span class="trip-detail__preference">{{ preference }}</span>
+                }
+              </section>
             }
           </ion-card-content>
         </ion-card>
       </div>
 
-      <!-- Columna de 4 en escritorio (fija al bajar): cómo funciona y pedir
-           plaza -->
-      <div class="trip-detail__aside">
-        <div class="notice notice--info">
-          <span>
-            <b>Primero solicitas; {{ driverFirstName() }} decide.</b>
-            Tu plaza solo se confirma cuando {{ driverFirstName() }} acepta. Verificamos el correo
-            UAL, no la identidad ni el permiso de conducir.
-          </span>
-        </div>
-        <!-- La solicitud, tal como la da el backend (guía, «Solicitud de plaza») -->
-        @switch (request()?.status) {
-          @case ('pending') {
-            <output class="notice notice--warning">
-              <span>
-                <b>Solicitud enviada. Falta la respuesta de {{ driverFirstName() }}.</b>
-                Has pedido {{ formatSeats(request()!.seats) }}. Todavía no tienes plaza confirmada:
-                te avisaremos cuando {{ driverFirstName() }} acepte o rechace. No envíes otra
-                solicitud para este viaje.
-              </span>
-            </output>
-          }
-          @case ('accepted') {
-            <output class="notice notice--success">
-              <span>
-                <b>{{ driverFirstName() }} ha aceptado tu solicitud.</b>
-                Tienes {{ formatSeats(request()!.seats) }} en este viaje.
-              </span>
-            </output>
-          }
-          @case ('rejected') {
-            <output class="notice notice--info">
-              <span>
-                <b>Tu solicitud no se aceptó.</b>
-                No tienes plaza en este viaje. Puedes buscar otro o volver a pedir si quedan plazas.
-              </span>
-            </output>
-          }
-          @case ('cancelled') {
-            <output class="notice notice--info">
-              <span><b>Cancelaste tu solicitud.</b> Puedes volver a pedir si quedan plazas.</span>
-            </output>
-          }
-          @case ('expired') {
-            <output class="notice notice--info">
-              <span>
-                <b>Tu solicitud caducó.</b>
-                {{ driverFirstName() }} no respondió a tiempo: las solicitudes se cierran 10 minutos
-                antes de la salida. Busca otro viaje.
-              </span>
-            </output>
-          }
-        }
-
-        @if (myRequest.isLoading()) {
-          <output class="trip-detail__loading">
-            <ion-spinner name="crescent" aria-hidden="true" />
-            <span class="text-caption text-color-muted">Comprobando tus solicitudes…</span>
-          </output>
-        } @else if (canRequest()) {
-          <form (submit)="$event.preventDefault(); handleRequest()">
-            <ion-button type="submit" expand="block" [disabled]="isSending()">
-              @if (isSending()) {
-                <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+      <!-- Columna de 4 en escritorio; debajo en el móvil -->
+      <aside class="trip-detail__aside" aria-label="Solicitar plaza en este viaje">
+        <ion-card class="trip-detail__actions">
+          <ion-card-header>
+            <ion-card-title>
+              {{
+                request()?.status === 'pending' || request()?.status === 'accepted'
+                  ? 'Tu solicitud'
+                  : 'Solicitar plaza'
+              }}
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            @switch (request()?.status) {
+              @case ('pending') {
+                <output class="notice notice--warning">
+                  <span>
+                    <b>Solicitud enviada. Falta la respuesta de {{ driverFirstName() }}.</b>
+                    Has pedido {{ formatSeats(request()!.seats) }}. Todavía no tienes plaza
+                    confirmada: te avisaremos cuando {{ driverFirstName() }} acepte o rechace.
+                  </span>
+                </output>
               }
-              Solicitar {{ requestedSeats() }}
-            </ion-button>
-          </form>
-          <p class="text-caption text-color-muted">
-            Las plazas de tu búsqueda: para ti y quien vaya contigo.
-          </p>
-        } @else {
-          <form (submit)="$event.preventDefault(); handleCancel()">
-            <ion-button
-              type="submit"
-              expand="block"
-              fill="outline"
-              color="danger"
-              [disabled]="isSending()"
-            >
-              Cancelar solicitud
-            </ion-button>
-          </form>
-        }
-      </div>
-    </div>
-  } @else {
-    <div class="tab-page">
+              @case ('accepted') {
+                <output class="notice notice--success">
+                  <span>
+                    <b>{{ driverFirstName() }} ha aceptado tu solicitud.</b>
+                    Tienes {{ formatSeats(request()!.seats) }} en este viaje.
+                  </span>
+                </output>
+              }
+              @case ('rejected') {
+                <output class="notice notice--info">
+                  <span>
+                    <b>Tu solicitud no se aceptó.</b>
+                    Puedes buscar otro viaje o volver a pedir si quedan plazas.
+                  </span>
+                </output>
+              }
+              @case ('cancelled') {
+                <output class="notice notice--info">
+                  <span>
+                    <b>Cancelaste tu solicitud.</b> Puedes volver a pedir si quedan plazas.
+                  </span>
+                </output>
+              }
+              @case ('expired') {
+                <output class="notice notice--danger">
+                  <span>
+                    <b>Tu solicitud caducó.</b>
+                    {{ driverFirstName() }} no respondió a tiempo: las solicitudes se cierran 10
+                    minutos antes de la salida.
+                  </span>
+                </output>
+              }
+            }
+
+            @if (myRequest.isLoading()) {
+              <output class="trip-detail__loading">
+                <ion-spinner name="crescent" aria-hidden="true" />
+                <span class="text-caption text-color-muted">Comprobando tus solicitudes…</span>
+              </output>
+            } @else if (canRequest()) {
+              <div class="trip-detail__action-block">
+                <!-- Antes del botón: qué pasa al solicitar -->
+                <div class="notice notice--info">
+                  <span>
+                    <b>Primero solicitas y {{ driverFirstName() }} decide</b>
+                    Verificamos el correo UAL, no la identidad ni el permiso de conducir.
+                  </span>
+                </div>
+                <form (submit)="$event.preventDefault(); handleRequest()">
+                  <ion-button type="submit" expand="block" [disabled]="isSending()">
+                    @if (isSending()) {
+                      <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+                    }
+                    Solicitar {{ requestedSeats() }}
+                  </ion-button>
+                </form>
+              </div>
+            } @else if (request()?.status === 'expired') {
+              <div class="trip-detail__action-block">
+                <ion-button expand="block" [disabled]="true">
+                  Solicitar {{ requestedSeats() }}
+                  <span class="visually-hidden">
+                    . Las solicitudes se cerraron 10 minutos antes de la salida.
+                  </span>
+                </ion-button>
+                <p class="trip-detail__hint text-caption" aria-hidden="true">
+                  Las solicitudes se cerraron 10 minutos antes de la salida.
+                </p>
+              </div>
+            } @else {
+              @if (request(); as currentRequest) {
+                <ion-button
+                  expand="block"
+                  [routerLink]="['/tabs/trips/requests', currentRequest.id]"
+                >
+                  Ver tu solicitud
+                </ion-button>
+              }
+              <div class="trip-detail__action-block">
+                <form (submit)="$event.preventDefault(); handleCancel()">
+                  <ion-button
+                    type="submit"
+                    expand="block"
+                    fill="clear"
+                    color="danger"
+                    [disabled]="isSending()"
+                  >
+                    Cancelar solicitud
+                  </ion-button>
+                </form>
+                <p class="trip-detail__hint text-caption">
+                  Dejarás libre {{ formatSeats(request()!.seats) }} en este viaje.
+                </p>
+              </div>
+            }
+          </ion-card-content>
+        </ion-card>
+      </aside>
+    } @else {
       <ion-card class="trip-detail__missing">
-        <ion-card-content>
+        <ion-card-content class="trip-detail__state">
           <ion-icon [icon]="notFoundIcon" aria-hidden="true" />
-          <div class="text-subtitle">No encontramos este viaje</div>
+          <div class="trip-detail__state-title">No encontramos este viaje</div>
           <div class="text-body-s text-color-muted">
             Puede que ya no esté disponible. Vuelve a Buscar para ver los viajes que encajan con tu
             ruta.
@@ -134,6 +212,33 @@
           <ion-button routerLink="/tabs/search" routerDirection="back">Volver a Buscar</ion-button>
         </ion-card-content>
       </ion-card>
+    }
+  </div>
+</ion-content>
+
+<!-- Cuándo, sentido y disponibilidad/estado en la franja fija del título -->
+<ng-template #tripHeading>
+  @if (trip()) {
+    <div class="trip-detail__heading">
+      <div class="trip-detail__title-row">
+        <h1 class="trip-detail__title">{{ headingTitle() }}</h1>
+        <span
+          class="status"
+          [class.status--pending]="headerBadge().kind === 'pending'"
+          [class.status--accepted]="headerBadge().kind === 'accepted'"
+        >
+          {{ headerBadge().label }}
+        </span>
+      </div>
+      <ion-breadcrumbs class="trip-detail__breadcrumbs ion-hide-md-down">
+        <ion-breadcrumb routerLink="/tabs/search" routerDirection="back">
+          Buscar viaje
+        </ion-breadcrumb>
+        <ion-breadcrumb routerLink="/tabs/search/results" routerDirection="back">
+          Tu búsqueda
+        </ion-breadcrumb>
+        <ion-breadcrumb [active]="true">Detalle del viaje</ion-breadcrumb>
+      </ion-breadcrumbs>
     </div>
   }
-</ion-content>
+</ng-template>

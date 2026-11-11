@@ -4,7 +4,12 @@
   </ion-card-header>
   <ion-card-content>
     @if (route(); as route) {
-      <app-trip-route-map [route]="route" [origin]="origin()" [destination]="destination()" />
+      <app-trip-route-map
+        [route]="route"
+        [origin]="origin()"
+        [pickups]="pickupPoints()"
+        [destination]="destination()"
+      />
     } @else if (details.isLoading()) {
       <output class="driver-route__loading">
         <ion-spinner name="crescent" aria-hidden="true" />

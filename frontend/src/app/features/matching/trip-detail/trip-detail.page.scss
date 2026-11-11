@@ -1,82 +1,177 @@
-// El fondo gris y las tarjetas blancas, de ../../tabs/tab-page.scss y
-// theme/_components.scss
-
-// Móvil: una columna, con el margen de la página. Escritorio: el recorrido y
-// quien conduce en la columna de 8, y cómo funciona y pedir plaza en la de 4,
-// como en Buscar
+// En el móvil, una columna; en escritorio, 8 + 4 a todo el ancho
 .trip-detail {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-base);
-  padding: var(--space-l) var(--page-gutter);
-}
-
-.trip-detail__main,
-.trip-detail__aside {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-base);
+  box-sizing: border-box;
+  width: 100%;
+  align-items: stretch;
 
   ion-card {
     margin: 0;
   }
-
-  ion-button {
-    margin: 0;
-  }
-
-  p {
-    margin: 0;
-  }
 }
 
-// La columna de 4 se queda fija al bajar: el aviso y el botón, siempre a la
-// vista
-@media (min-width: 768px) {
-  .trip-detail {
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    align-items: start;
-  }
-
-  .trip-detail__aside {
-    position: sticky;
-    top: var(--space-l);
-  }
+.trip-detail__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
 }
 
-// La fecha y el sentido a la izquierda, en texto normal, y la marca de
-// ejemplo a la derecha
-.trip-detail__date {
+.trip-detail__title-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-s);
 }
 
-// Bajo el recorrido: las plazas libres y, a su lado (o debajo si no cabe), el
-// desvío y la duración
-// Viaje no encontrado: tarjeta con todo centrado, como el estado vacío de
-// Buscar (en div: Ionic pone 14px a los p de ion-card-content)
-.trip-detail__missing {
-  width: 100%;
+.trip-detail__title {
+  min-width: 0;
   margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem; // 20px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
 
-  ion-card-content {
-    align-items: center;
-    gap: var(--space-s);
-    padding: var(--space-xxxl) var(--space-l);
-    text-align: center;
+.trip-detail__breadcrumbs {
+  margin: 0;
+  padding: var(--space-s) 0 0;
+
+  ion-breadcrumb {
+    --color: var(--color-text-muted);
+    --color-active: var(--color-text);
+    --color-hover: var(--color-link);
+
+    font-size: var(--font-size-caption);
   }
+
+  ion-breadcrumb:first-child::part(native) {
+    padding-inline-start: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .trip-detail__title {
+    font-size: 1.5rem; // 24px
+  }
+}
+
+.trip-detail__main,
+.trip-detail__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+
+  ion-card,
+  ion-button,
+  form,
+  p {
+    margin: 0;
+  }
+}
+
+ion-card.trip-detail__actions ion-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.trip-detail__action-block {
+  display: flex;
+  flex-direction: column;
+  // Entre el aviso y el botón
+  gap: var(--space-base);
+}
+
+.trip-detail__hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.trip-detail__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-s);
+  margin: 0;
+  padding-top: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  dt {
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.trip-detail__vehicle {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
+  padding-top: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+
+  ion-icon {
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    font-size: 1.25rem; // 20px
+  }
+}
+
+.trip-detail__swatch {
+  display: inline-block;
+  width: 0.7rem; // 11.2px
+  height: 0.7rem; // 11.2px
+  margin-inline-end: var(--space-xs);
+  border: var(--border-width-s) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--swatch-color);
+  vertical-align: -0.05rem; // -0.8px
+}
+
+.trip-detail__preferences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.trip-detail__preference {
+  padding: var(--space-xs) var(--space-s);
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-text);
+  font-size: var(--font-size-caption);
+}
+
+.trip-detail__missing {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+ion-card-content.trip-detail__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  min-height: 23.4375rem; // 375px
+  padding: var(--space-base);
+  text-align: center;
 
   ion-icon {
     box-sizing: content-box;
-    margin-bottom: var(--space-s);
-    padding: var(--space-base);
+    margin-bottom: var(--space-xs);
+    padding: var(--space-s);
     border-radius: var(--radius-full);
     background: var(--color-primary-subtle);
     color: var(--color-link);
-    font-size: 2rem; // 32px
+    font-size: 1.5rem; // 24px
   }
 
   ion-button {
@@ -84,9 +179,21 @@
   }
 }
 
-// Mientras se comprueba si ya hay una solicitud en este viaje
+.trip-detail__state-title {
+  font-weight: var(--font-weight-semibold);
+}
+
 .trip-detail__loading {
   display: flex;
   align-items: center;
   gap: var(--space-s);
+}
+
+@media (min-width: 768px) {
+  .trip-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-l);
+  }
 }

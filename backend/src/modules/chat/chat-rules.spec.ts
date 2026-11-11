@@ -3,7 +3,6 @@ import {
   type ChatTrip,
   chatRoleOf,
   isChatOpen,
-  isQuickRepliesOnly,
 } from './chat-rules';
 
 const NOW = new Date('2026-11-03T12:00:00Z');
@@ -63,17 +62,5 @@ describe('chat rules', () => {
         NOW,
       ),
     ).toBe(false);
-  });
-
-  it('only limits the driver to quick replies while the trip is in progress', () => {
-    expect(isQuickRepliesOnly(trip({ status: 'in_progress' }), 'driver')).toBe(
-      true,
-    );
-    expect(
-      isQuickRepliesOnly(trip({ status: 'in_progress' }), 'passenger'),
-    ).toBe(false);
-    expect(isQuickRepliesOnly(trip({ status: 'confirmed' }), 'driver')).toBe(
-      false,
-    );
   });
 });

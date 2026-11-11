@@ -1,5 +1,8 @@
-<ion-card class="trip-card">
-  <ion-card-content>
+<!-- Una fila de la lista de resultados; el borde de abajo, del color de cómo
+     encaja con la búsqueda (con su texto para los lectores de pantalla) -->
+<article class="trip-card" [class]="'trip-card--' + fit()">
+  <div class="trip-card__body">
+    <span class="visually-hidden">{{ fitLabel() }}.</span>
     @if (isBestMatch()) {
       <div class="trip-card__best">Mejor opción</div>
     }
@@ -12,9 +15,9 @@
         >{{ trip().departureTime }} → {{ trip().arrivalTime }}</a
       >
       @if (isRequested()) {
-        <span class="trip-card__seats trip-card__seats--requested">Ya solicitado</span>
+        <span class="status status--info">Ya solicitado</span>
       } @else if (isLastSeat()) {
-        <span class="trip-card__seats trip-card__seats--last">Última plaza</span>
+        <span class="status status--pending">Última plaza</span>
       } @else {
         <span class="trip-card__seats">
           {{ trip().freeSeats }} {{ trip().freeSeats === 1 ? 'plaza' : 'plazas' }}
@@ -26,11 +29,21 @@
       {{ trip().origin }} → {{ trip().destination }}
     </div>
 
-    <app-trip-driver [driver]="trip().driver" />
+    <!-- Del conductor, solo el nombre: el resto (valoración, viajes, coche), en
+         el detalle -->
+    <p class="trip-card__driver text-body-s text-color-muted">Conduce {{ trip().driver.name }}</p>
 
-    <div class="trip-card__pickup">
-      <ion-icon [icon]="pickupIcon" aria-hidden="true" />
-      <span>{{ passengerStopLabel() }} · sale a las {{ trip().departureTime }}</span>
+    <!-- Abajo: dónde te recoge y, a la derecha, la invitación a abrirlo (toda
+         la fila es el enlace; esto solo lo hace evidente) -->
+    <div class="trip-card__foot">
+      <div class="trip-card__pickup">
+        <ion-icon [icon]="timeIcon" aria-hidden="true" />
+        <span>{{ pickupMetaLabel() }}</span>
+      </div>
+      <span class="trip-card__cta" aria-hidden="true">
+        Ver detalle
+        <ion-icon [icon]="chevronIcon" />
+      </span>
     </div>
-  </ion-card-content>
-</ion-card>
+  </div>
+</article>

@@ -143,7 +143,9 @@ export class ConversationPage {
   private currentTripId = '';
   private loadVersion = 0;
 
-  readonly isQuickRepliesOnly = computed(() => {
+  // El conductor con el viaje en marcha: se le recuerda que mejor respuestas
+  // rápidas (puede escribir: estará parado)
+  readonly isDriverOnTrip = computed(() => {
     const conversation = this.conversation();
     return conversation?.myRole === 'driver' && conversation.trip.status === 'in_progress';
   });

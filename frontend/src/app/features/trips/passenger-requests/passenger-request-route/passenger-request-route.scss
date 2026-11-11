@@ -1,0 +1,109 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
+.passenger-route {
+  margin: 0;
+}
+
+ion-card.passenger-route ion-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.passenger-route__loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+// Plazas pedidas, hora de recogida y disponibilidad en una fila
+.passenger-route__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-s);
+  margin: 0;
+  padding-top: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  dt {
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.passenger-route__driver-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+
+  app-trip-driver {
+    flex: 1 1 14rem; // 224px
+    min-width: 0;
+  }
+}
+
+.passenger-route__call-btn {
+  --color: var(--color-link);
+  --border-color: var(--color-link);
+  margin: 0;
+  min-height: var(--control-height-s); // 44px
+  font-size: var(--font-size-label);
+
+  &--unavailable {
+    --color: var(--color-text-muted);
+    --border-color: var(--color-border);
+  }
+}
+
+.passenger-route__vehicle {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
+  padding-top: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+
+  ion-icon {
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    font-size: 1.25rem; // 20px
+  }
+}
+
+.passenger-route__swatch {
+  display: inline-block;
+  width: 0.7rem; // 11.2px
+  height: 0.7rem; // 11.2px
+  margin-inline-end: var(--space-xs);
+  border: var(--border-width-s) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--swatch-color);
+  vertical-align: -0.05rem; // -0.8px
+}
+
+.passenger-route__preferences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.passenger-route__preference {
+  padding: var(--space-xs) var(--space-s);
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-text);
+  font-size: var(--font-size-caption);
+}

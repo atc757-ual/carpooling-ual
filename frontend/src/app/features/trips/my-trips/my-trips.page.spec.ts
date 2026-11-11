@@ -152,7 +152,7 @@ describe('MyTripsPage', () => {
     await render(['passenger'], undefined, { requests: [live.request], trips: [live.trip] });
 
     expect(fixture.componentInstance.liveBanner()).toEqual(
-      expect.objectContaining({ detail: 'Conduce Lucía Cortés', link: '/tabs/trips/requests/r1' }),
+      expect.objectContaining({ detail: 'Conduce Lucía Cortés', link: '/tabs/trips/ride/r1' }),
     );
     expect(ids()).toEqual([]);
   });

@@ -23,6 +23,8 @@ export interface LiveTripMapRendererPort {
     pickup: GeoPoint | null,
     fallbackCenter: GeoPoint,
   ): void;
+  // Lo que tapa una hoja por abajo (px): al encuadrar, se deja libre
+  setBottomInset(pixels: number): void;
   destroy(): void;
 }
 

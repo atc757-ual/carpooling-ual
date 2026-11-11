@@ -2,6 +2,10 @@
   <div class="tab-page driver-detail">
     @if (trip(); as trip) {
       <div class="driver-detail__main">
+        <!-- En curso: el seguimiento y las recogidas están en su pantalla -->
+        @if (liveBanner(); as live) {
+          <app-live-trip-banner [route]="live.route" [detail]="live.detail" [link]="live.link" />
+        }
         <app-driver-trip-route [trip]="trip" />
         <app-driver-trip-passengers [trip]="trip" (changed)="handleReload()" />
       </div>
@@ -9,6 +13,16 @@
       <!-- Columna de 4 en escritorio; debajo en el móvil -->
       <aside class="driver-detail__aside" aria-label="Acciones e impacto del viaje">
         <app-driver-trip-actions [trip]="trip" (changed)="handleReload()" />
+
+        <!-- Viaje terminado: valorar a cada pasajero o ver la valoración -->
+        @if (reviewTargets().length > 0) {
+          <app-trip-review-card
+            title="Valora a tus pasajeros"
+            [tripId]="trip.id"
+            [targets]="reviewTargets()"
+            targetRole="passenger"
+          />
+        }
 
         <ion-card class="driver-detail__impact">
           <ion-card-header>
@@ -68,7 +82,7 @@
       <div class="driver-detail__title-row">
         <h1 class="driver-detail__title">
           <ion-icon class="driver-detail__role-icon" [icon]="carIcon" aria-hidden="true" />
-          Conduces · {{ when() }}
+          {{ trip.status === 'finished' ? 'Condujiste' : 'Conduces' }} · {{ when() }}
         </h1>
         <span
           class="status"

@@ -113,6 +113,8 @@
           type="button"
           class="top-nav__link live-tab"
           [class.live-tab--on]="liveTrip()"
+          [class.live-tab--active]="isOnLiveTrip()"
+          [attr.aria-current]="isOnLiveTrip() ? 'page' : null"
           [disabled]="!liveTrip()"
           [attr.aria-label]="liveTabLabel()"
           (click)="openLiveTrip()"
@@ -126,8 +128,8 @@
       <a
         class="top-nav__link"
         [routerLink]="'/tabs/' + tab.path"
-        routerLinkActive="top-nav__link--active"
-        ariaCurrentWhenActive="page"
+        [routerLinkActive]="isOnLiveTrip() ? '' : 'top-nav__link--active'"
+        [ariaCurrentWhenActive]="isOnLiveTrip() ? undefined : 'page'"
         >{{ tab.labelKey | transloco }}
         @if (tab.path === 'messages' && hasUnreadMessages()) {
           <span class="tab-dot" aria-hidden="true"></span>
@@ -181,16 +183,17 @@
 <!-- Solo cambia lo de dentro. La barra de pestañas, solo en el móvil (en
      escritorio está oculta, pero sigue marcando la pestaña activa) -->
 <ion-tabs>
-  <ion-tab-bar slot="bottom" class="tab-bar ion-hide-md-up">
+  <ion-tab-bar slot="bottom" class="tab-bar ion-hide-md-up" [class.tab-bar--live]="isOnLiveTrip()">
     @for (tab of tabs; track tab.path) {
       <!-- En medio, el coche del viaje en curso (sin texto) -->
       @if ($index === liveTabIndex) {
         <button
           type="button"
           role="tab"
-          aria-selected="false"
           class="live-tab live-tab--bar"
           [class.live-tab--on]="liveTrip()"
+          [class.live-tab--active]="isOnLiveTrip()"
+          [attr.aria-selected]="isOnLiveTrip()"
           [disabled]="!liveTrip()"
           [attr.aria-label]="liveTabLabel()"
           (click)="openLiveTrip()"

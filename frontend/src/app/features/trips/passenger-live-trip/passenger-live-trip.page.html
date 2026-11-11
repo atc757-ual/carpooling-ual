@@ -1,0 +1,257 @@
+<ion-content>
+  <main class="tab-page ride">
+    @if (requestResource.isLoading() && !requestResource.hasValue()) {
+      <output class="ride__loading" aria-live="polite">
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="text-caption text-color-muted">Cargando tu viaje…</span>
+      </output>
+    } @else if (requestResource.error() || tripResource.error()) {
+      <ion-card class="ride__state-card">
+        <ion-card-content class="ride__state">
+          <div class="text-subtitle">No encontramos este viaje</div>
+          <p class="text-body-s text-color-muted">Puede que ya no esté disponible.</p>
+          <ion-button routerLink="/tabs/trips">Volver a Tus viajes</ion-button>
+        </ion-card-content>
+      </ion-card>
+    } @else if (request(); as request) {
+      @if (trip(); as trip) {
+        @if (!isLive() && phase() !== 'finished') {
+          <ion-card class="ride__state-card">
+            <ion-card-content class="ride__state">
+              <div class="text-subtitle">Este viaje no está en curso</div>
+              <p class="text-body-s text-color-muted">
+                Podrás seguirlo aquí en directo cuando {{ driverName() }} lo inicie.
+              </p>
+              <ion-button [routerLink]="['/tabs/trips/requests', request.id]">
+                Ver tu solicitud
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        } @else {
+          <!-- Lo que hay que hacer ahora: en la columna de 4 en escritorio y en
+               la hoja inferior que se arrastra en el móvil -->
+          <ng-template #rideDetails>
+            <!-- Ha llegado: el aviso y valorar al conductor (RF-22), en la misma
+                 hoja en la que seguía el viaje -->
+            @if (phase() === 'finished') {
+              <ion-card class="ride__panel" role="region" aria-labelledby="ride-done-title">
+                <ion-card-content>
+                  <div class="ride__done-head">
+                    <ion-icon class="ride__done-icon" [icon]="doneIcon" aria-hidden="true" />
+                    <div>
+                      <h2 id="ride-done-title" class="ride__done-title">¡Has llegado!</h2>
+                      <p class="text-body-s text-color-muted">
+                        {{ trip.destinationName ?? 'Tu destino' }} · un coche menos en el campus
+                      </p>
+                    </div>
+                  </div>
+
+                  @if (reviewState() === 'form') {
+                    <app-trip-review-form
+                      [tripId]="trip.id"
+                      [targetId]="trip.driver.id"
+                      [targetName]="driverName()"
+                      [canSkip]="true"
+                      (sent)="reviewState.set('sent')"
+                      (skipped)="reviewState.set('skipped')"
+                    />
+                  } @else {
+                    @if (reviewState() === 'sent') {
+                      <output class="notice notice--success">
+                        <span>
+                          <b>¡Gracias por tu valoración!</b>
+                          Se publicará cuando {{ driverName() }} también valore o en 7 días.
+                        </span>
+                      </output>
+                    }
+                    <ion-button
+                      expand="block"
+                      fill="outline"
+                      [routerLink]="['/tabs/trips/requests', request.id]"
+                    >
+                      Ver tu viaje
+                    </ion-button>
+                  }
+                </ion-card-content>
+              </ion-card>
+            } @else if (isReportingIncident()) {
+              <!-- Bajarse con incidencia: el formulario sustituye al
+                   resto; «Continuar en el viaje» lo vuelve a mostrar -->
+              <ion-card class="ride__panel">
+                <ion-card-content>
+                  <app-passenger-incident-modal
+                    [tripId]="trip.id"
+                    [isInline]="true"
+                    (reported)="handleIncidentReported()"
+                    (cancelled)="isReportingIncident.set(false)"
+                  />
+                </ion-card-content>
+              </ion-card>
+            } @else {
+              <ion-card class="live-hero">
+                <ion-card-content aria-live="polite">
+                  <!-- Compacta: el título y los minutos a la derecha; debajo, dónde -->
+                  <div class="live-hero__head">
+                    <h2 class="live-hero__title">{{ heroTitle() }}</h2>
+                    @if (etaText(); as eta) {
+                      <span class="live-hero__tag">{{ eta }}</span>
+                    }
+                  </div>
+                  <p class="live-hero__text">
+                    <ion-icon
+                      [icon]="phase() === 'waiting' ? pinIcon : destinationIcon()"
+                      aria-hidden="true"
+                    />
+                    <span class="live-hero__place">
+                      {{
+                        phase() === 'waiting'
+                          ? pickupName()
+                          : (trip.destinationName ?? 'tu destino')
+                      }}
+                    </span>
+                  </p>
+
+                  <!-- Las tres etapas del pasajero; la actual, cargando -->
+                  <ol class="live-journey" aria-label="Etapas de tu viaje">
+                    @for (stage of stages(); track stage.label) {
+                      <li
+                        class="live-journey__stage"
+                        [class.live-journey__stage--current]="stage.state === 'current'"
+                        [class.live-journey__stage--done]="stage.state === 'done'"
+                        [attr.aria-current]="stage.state === 'current' ? 'step' : null"
+                      >
+                        {{ stage.label }}
+                      </li>
+                    }
+                  </ol>
+                </ion-card-content>
+              </ion-card>
+
+              @if (phase() === 'waiting' && request.boardCode) {
+                <ion-card class="ride__panel" role="region" aria-labelledby="ride-code-title">
+                  <ion-card-content>
+                    <h2 id="ride-code-title" class="text-subtitle">Tu código de recogida</h2>
+                    <div
+                      class="ride__code-digits"
+                      [attr.aria-label]="request.boardCode.split('').join(' ')"
+                    >
+                      @for (digit of request.boardCode.split(''); track $index) {
+                        <span aria-hidden="true">{{ digit }}</span>
+                      }
+                    </div>
+                    <p class="text-caption text-color-muted">
+                      Díselo a {{ driverName() }} al subir: así confirma que vas en el coche.
+                    </p>
+                  </ion-card-content>
+                </ion-card>
+              }
+
+              <!-- El conductor y su coche: el título con los botones y, debajo, quién
+                   conduce, la matrícula y la marca y el modelo -->
+              <ion-card class="ride__panel" role="region" aria-labelledby="ride-car-title">
+                <ion-card-content>
+                  <!-- El título con chat y llamar a su altura, a la derecha; debajo,
+                       quién conduce y la matrícula con la marca y el modelo -->
+                  <div class="ride__driver-head">
+                    <h2 id="ride-car-title" class="text-subtitle">Conductor y vehículo</h2>
+                    <a
+                      class="ride__icon-btn"
+                      [routerLink]="['/tabs/messages', trip.id]"
+                      aria-label="Chat con el conductor"
+                      title="Chat con el conductor"
+                    >
+                      <ion-icon [icon]="chatIcon" aria-hidden="true" />
+                    </a>
+                    <button
+                      type="button"
+                      class="ride__icon-btn"
+                      [class.ride__icon-btn--unavailable]="!canCallDriver()"
+                      [attr.aria-label]="callDriverLabel()"
+                      [title]="callDriverLabel()"
+                      (click)="handleCallDriver()"
+                    >
+                      <ion-icon [icon]="callIcon" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <p class="ride__driver-name text-body">
+                    <ion-icon [icon]="personIcon" aria-hidden="true" />
+                    <span class="visually-hidden">Conduce:</span>
+                    <b class="ride__driver-text">{{ trip.driver.name }}</b>
+                  </p>
+                  <div class="ride__driver-car">
+                    @if (request.vehiclePlate; as plate) {
+                      <app-license-plate [plate]="plate" />
+                    }
+                    @if (trip.vehicle; as vehicle) {
+                      <span class="ride__driver-text text-body-s text-color-muted">
+                        {{ vehicleName(vehicle) }}
+                      </span>
+                    }
+                  </div>
+                </ion-card-content>
+              </ion-card>
+
+              <app-passenger-request-actions
+                [request]="request"
+                [trip]="trip"
+                [showChat]="false"
+                [inlineIncident]="true"
+                (incidentRequested)="isReportingIncident.set(true)"
+              />
+            }
+          </ng-template>
+
+          <div class="ride__layout">
+            <!-- Columna de 8 (en el móvil, toda la pantalla): el mapa en vivo -->
+            <section class="ride__main" aria-label="Mapa en directo">
+              <ion-card class="ride__map-card">
+                <ion-card-content>
+                  <app-live-trip-map
+                    [tripId]="trip.id"
+                    [pickupLocation]="pickupLocation()"
+                    [pickupName]="pickupName()"
+                    [initialCenter]="trip.origin"
+                    [active]="isPageVisible()"
+                    [driverName]="driverName()"
+                    [destination]="trip.destination"
+                    [bottomInset]="mapInset()"
+                    (statusChange)="liveStatus.set($event)"
+                  />
+                </ion-card-content>
+              </ion-card>
+            </section>
+
+            @if (isDesktop()) {
+              <aside class="ride__side" aria-label="Tu viaje ahora">
+                <ng-container [ngTemplateOutlet]="rideDetails" />
+              </aside>
+            }
+          </div>
+
+          @if (!isDesktop()) {
+            <ion-modal
+              class="live-sheet"
+              [isOpen]="!isDesktop() && isOnPage()"
+              [breakpoints]="sheetBreakpoints"
+              [initialBreakpoint]="sheetInitialBreakpoint"
+              [backdropBreakpoint]="1"
+              [canDismiss]="canDismissSheet"
+              [backdropDismiss]="false"
+              [handle]="true"
+              handleBehavior="cycle"
+              (ionBreakpointDidChange)="sheetBreakpoint.set($event.detail.breakpoint)"
+            >
+              <ng-template>
+                <ion-content>
+                  <section class="ride__side ride__side--sheet" aria-label="Tu viaje ahora">
+                    <ng-container [ngTemplateOutlet]="rideDetails" />
+                  </section>
+                </ion-content>
+              </ng-template>
+            </ion-modal>
+          }
+        }
+      }
+    }
+  </main>
+</ion-content>

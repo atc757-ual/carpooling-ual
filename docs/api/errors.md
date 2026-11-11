@@ -173,12 +173,11 @@ Enviar una posición puede responder además `NOT_TRIP_DRIVER` o `TRIP_NOT_IN_PR
 
 ## Chat del viaje (`chat`)
 
-| `code`                    | HTTP | Cuándo                                                                                                       |
-| ------------------------- | ---- | ------------------------------------------------------------------------------------------------------------ |
-| `CHAT_NOT_ALLOWED`        | 403  | Leer o escribir en el chat de un viaje sin ser su conductor ni un pasajero con la solicitud aceptada         |
-| `CHAT_CLOSED`             | 409  | Escribir cuando el chat no admite mensajes: viaje publicado (sin pasajeros), cancelado o terminado hace 24 h |
-| `CHAT_QUICK_REPLIES_ONLY` | 409  | El conductor escribe texto con el viaje en curso: solo puede enviar respuestas rápidas (seguridad vial)      |
-| `CHAT_RATE_LIMITED`       | 429  | Más de 20 mensajes en un minuto                                                                              |
+| `code`              | HTTP | Cuándo                                                                                                       |
+| ------------------- | ---- | ------------------------------------------------------------------------------------------------------------ |
+| `CHAT_NOT_ALLOWED`  | 403  | Leer o escribir en el chat de un viaje sin ser su conductor ni un pasajero con la solicitud aceptada         |
+| `CHAT_CLOSED`       | 409  | Escribir cuando el chat no admite mensajes: viaje publicado (sin pasajeros), cancelado o terminado hace 24 h |
+| `CHAT_RATE_LIMITED` | 429  | Más de 20 mensajes en un minuto                                                                              |
 
 Denunciar el chat (`POST /api/trips/{id}/chat/report`) solo da los errores de arriba (`CHAT_NOT_ALLOWED`) y `VALIDATION_FAILED` si el motivo no tiene entre 10 y 500 caracteres.
 

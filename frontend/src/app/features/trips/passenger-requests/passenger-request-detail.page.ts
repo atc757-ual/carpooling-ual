@@ -1,99 +1,83 @@
-import { Component, computed, effect, inject, input, resource, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
 import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  resource,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
+import { RouterLink } from '@angular/router';
+import {
+  IonBreadcrumb,
+  IonBreadcrumbs,
   IonButton,
   IonCard,
   IonCardContent,
   IonContent,
   IonIcon,
   IonSpinner,
-  ModalController,
 } from '@ionic/angular';
-import { alertCircleOutline, callOutline, searchOutline, sparklesOutline } from 'ionicons/icons';
-import { ApiError } from '../../../core/models/api-error.model';
-import { ChatContact } from '../../../core/models/chat.model';
-import { Trip } from '../../../core/models/driver.model';
-import { SeatRequest } from '../../../core/models/seat-request.model';
-import { TripDriver } from '../../../core/models/trip-result.model';
-import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
-import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
-import { TripCallService } from '../../../core/services/trips/trip-call.service';
-import { TripsService } from '../../../core/services/trips/trips.service';
-import { ConfirmService } from '../../../core/services/ui/confirm.service';
-import { ToastService } from '../../../core/services/ui/toast.service';
-import { TripChatLink } from '../../../shared/components/ui/trip-chat-link/trip-chat-link';
-import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
-import { RouteStop } from '../../../shared/components/ui/route-timeline/route-timeline';
 import {
-  TripSummary as TripSummaryComponent,
-  TripSummaryData,
-} from '../../../shared/components/ui/trip-summary';
-import { toIsoDate } from '../../../shared/utils/date.util';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { TripSearchStateService } from '../../matching/trip-search-state.service';
-import { formatTime } from '../../matching/trip-results';
+  alertCircleOutline,
+  checkmarkCircleOutline,
+  closeCircleOutline,
+  informationCircleOutline,
+  personOutline,
+  timeOutline,
+} from 'ionicons/icons';
+import { SeatRequest } from '../../../core/models/seat-request.model';
+import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
+import { TripsService } from '../../../core/services/trips/trips.service';
+import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
+import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
-import { formatSeats } from '../../../shared/utils/seats.util';
-import { TripProgress } from '../trip-progress/trip-progress';
-import { LiveTripMap } from './live-trip-map/live-trip-map';
-import { PassengerIncidentModal } from './passenger-incident-modal/passenger-incident-modal';
+import { formatTime } from '../../matching/trip-results';
+import { passengerRequestLabel, passengerTripTab } from '../my-trips/trip-tabs';
+import { PassengerProgress } from './passenger-progress/passenger-progress';
+import { PassengerRequestActions } from './passenger-request-actions/passenger-request-actions';
+import { PassengerRequestRoute } from './passenger-request-route/passenger-request-route';
+import { TripReviewCard } from '../trip-review/trip-review-card';
 
-interface HistoryEntry {
-  label: string;
-  at: string;
-}
+// Desde cuánto antes de la salida ve el pasajero su código de recogida
+const BOARD_CODE_LEAD_MS = 10 * 60_000;
 
-const HISTORY_DATE_FORMAT = new Intl.DateTimeFormat('es-ES', {
-  day: 'numeric',
-  month: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-
-function historyAnsweredLabel(request: SeatRequest): string {
-  if (request.status === 'accepted') {
-    return 'Solicitud aceptada';
-  }
-  if (request.status === 'expired') {
-    return 'Solicitud caducada';
-  }
-  if (request.rejectionReason === 'trip_full') {
-    return 'Viaje completo';
-  }
-  return 'Solicitud rechazada';
-}
-
-// Detalle compartido por Tus viajes, Avisos y el flujo de solicitud desde Buscar.
+// Detalle de la solicitud del pasajero (compartido por Tus viajes, Avisos y
+// Buscar). Cabecera fija con «Viajas · Hoy · 22:20» («Viajaste» si terminó) y el estado en su píldora;
+// en escritorio, columna de 8 (tarjeta de estado con el aviso y el progreso,
+// código de recogida, mapa en vivo, «Tu recorrido» y «Conductor y coche») y
+// columna de 4 («Acciones de tu solicitud»)
 @Component({
   selector: 'app-passenger-request-detail',
   imports: [
     RouterLink,
-    TripChatLink,
+    IonBreadcrumb,
+    IonBreadcrumbs,
     IonButton,
     IonCard,
     IonCardContent,
     IonContent,
     IonIcon,
     IonSpinner,
-    TripSummaryComponent,
-    TripProgress,
-    LiveTripMap,
+    PassengerProgress,
+    PassengerRequestRoute,
+    PassengerRequestActions,
+    TripReviewCard,
   ],
   templateUrl: './passenger-request-detail.page.html',
-  styleUrl: './passenger-request-detail.page.scss',
+  styleUrls: ['../../tabs/tab-page.scss', './passenger-request-detail.page.scss'],
 })
 export class PassengerRequestDetailPage {
-  private readonly travelPreferences = inject(TravelPreferencesStore);
   private readonly requests = inject(SeatRequestsService);
   private readonly trips = inject(TripsService);
-  private readonly tripCall = inject(TripCallService);
-  private readonly confirm = inject(ConfirmService);
-  private readonly toast = inject(ToastService);
-  private readonly modalController = inject(ModalController);
-  private readonly router = inject(Router);
-  private readonly searchState = inject(TripSearchStateService);
+  private readonly headingContent = inject(HeadingContentService);
 
   readonly id = input.required<string>();
+  private readonly requestHeading = viewChild.required<TemplateRef<unknown>>('requestHeading');
+
   readonly requestResource = resource({
     params: () => this.id(),
     loader: async ({ params }): Promise<SeatRequest> => {
@@ -115,116 +99,100 @@ export class PassengerRequestDetailPage {
     loader: ({ params }) => this.trips.getTrip(params),
   });
   readonly trip = computed(() => (this.tripResource.hasValue() ? this.tripResource.value() : null));
-  readonly summary = computed(() => {
+
+  readonly isPageVisible = signal(true);
+  private readonly now = signal(Date.now());
+
+  // El código se ve desde 10 min antes de la salida (cuando el conductor ya
+  // puede iniciar) o en cuanto inicia: así lo tiene aunque al subir no haya
+  // conexión
+  readonly isBoardCodeVisible = computed(() => {
+    const trip = this.trip();
+    if (!trip) {
+      return false;
+    }
+    if (trip.status === 'in_progress') {
+      return true;
+    }
+    return Date.parse(trip.departureAt) - this.now() <= BOARD_CODE_LEAD_MS;
+  });
+
+  readonly when = computed(() => {
+    const trip = this.trip();
+    if (!trip) {
+      return '';
+    }
+    const date = new Date(trip.departureAt).toLocaleDateString('sv-SE');
+    return `${formatDateLabel(date)} · ${formatTime(trip.departureAt)}`;
+  });
+
+  readonly statusLabel = computed(() => {
     const request = this.request();
     const trip = this.trip();
-    return request && trip ? this.toSummary(request, trip) : null;
-  });
-  readonly history = computed(() => {
-    const request = this.request();
-    if (!request) {
-      return [];
-    }
-    const entries: HistoryEntry[] = [{ label: 'Solicitud enviada', at: request.requestedAt }];
-    if (request.answeredAt) {
-      entries.push({
-        label: historyAnsweredLabel(request),
-        at: request.answeredAt,
-      });
-    }
-    if (request.boardedAt) {
-      entries.push({ label: 'Subida al vehículo validada', at: request.boardedAt });
-    }
-    if (request.cancelledAt) {
-      const label =
-        request.rejectionReason === 'no_show'
-          ? 'Cancelada por no presentarse'
-          : 'Solicitud cancelada';
-      entries.push({ label, at: request.cancelledAt });
-    }
-    return entries;
+    return request && trip ? passengerRequestLabel(request, trip) : '';
   });
 
-  readonly isCancelling = signal(false);
-  readonly isPageVisible = signal(true);
-
-  // El teléfono del conductor, solo con la plaza aceptada: resource y no
-  // effect, para no pintar el de otro viaje si la respuesta llega tarde
-  private readonly contactsData = resource({
-    params: () => (this.request()?.status === 'accepted' ? this.trip()?.id : undefined),
-    loader: ({ params: tripId }) => this.tripCall.loadContacts(tripId),
-  });
-  readonly contacts = computed<ChatContact[]>(() =>
-    this.contactsData.hasValue() ? this.contactsData.value() : [],
-  );
-  readonly driverContact = computed(() => {
-    return this.contacts().find((c) => c.role === 'driver') ?? null;
-  });
-
-  protected readonly alertIcon = alertCircleOutline;
-  protected readonly callIcon = callOutline;
-  protected readonly sparklesIcon = sparklesOutline;
-  protected readonly searchIcon = searchOutline;
-
-  readonly canCancel = computed(() => {
+  readonly statusKind = computed<'pending' | 'accepted' | 'danger' | 'neutral'>(() => {
     const request = this.request();
     const trip = this.trip();
     if (!request || !trip) {
-      return false;
+      return 'neutral';
     }
-    if (request.status === 'pending') {
-      return true;
+    const tab = passengerTripTab(request, trip);
+    if (tab === 'cancelled') {
+      return 'danger';
     }
-    if (
-      request.status === 'accepted' &&
-      trip.status !== 'in_progress' &&
-      trip.status !== 'finished' &&
-      trip.status !== 'cancelled'
-    ) {
-      return true;
+    if (tab === 'past') {
+      return 'neutral';
     }
-    return false;
+    return request.status === 'pending' ? 'pending' : 'accepted';
   });
 
-  readonly isTripInProgress = computed(() => {
-    const request = this.request();
-    const trip = this.trip();
-    return request?.status === 'accepted' && trip?.status === 'in_progress';
-  });
+  constructor() {
+    const clock = setInterval(() => this.now.set(Date.now()), 30_000);
+    inject(DestroyRef).onDestroy(() => clearInterval(clock));
 
-  canCallDriver(): boolean {
-    const trip = this.trip();
-    return this.tripCall.canCall(trip?.status, this.driverContact());
+    effect(() => {
+      const template = this.requestHeading();
+      if (this.isPageVisible() && this.request() && this.trip()) {
+        this.headingContent.show(template);
+      } else {
+        this.headingContent.clear(template);
+      }
+    });
+    inject(DestroyRef).onDestroy(() => this.headingContent.clear(this.requestHeading()));
+
+    // Mientras está pendiente y a la vista, se revisa cada 30 s (#286)
+    effect((onCleanup) => {
+      if (!this.isPageVisible() || this.request()?.status !== 'pending') {
+        return;
+      }
+      const timer = setInterval(() => this.refreshRequest(), 30_000);
+      onCleanup(() => clearInterval(timer));
+    });
   }
-
-  callDriverLabel(): string {
-    const trip = this.trip();
-    const name = trip ? this.firstName(trip.driver.name) : '';
-    return this.tripCall.callLabel(this.driverContact(), name);
-  }
-
-  handleCallDriver(): void {
-    const trip = this.trip();
-    this.tripCall.call(this.driverContact(), trip?.status);
-  }
-
-  // Mientras está pendiente y a la vista, se revisa cada 30 s: el conductor
-  // puede responderla o puede caducar (corte, 10 min antes de la salida), y
-  // no debe seguir ofreciéndose «Cancelar solicitud»
-  private readonly pendingRefresh = effect((onCleanup) => {
-    if (!this.isPageVisible() || this.request()?.status !== 'pending') {
-      return;
-    }
-    const timer = setInterval(() => this.refreshRequest(), 30_000);
-    onCleanup(() => clearInterval(timer));
-  });
 
   ionViewWillEnter(): void {
     this.isPageVisible.set(true);
-    // Al volver a la pantalla (Ionic la reutiliza), la solicitud al día
     if (this.requestResource.hasValue()) {
       this.refreshRequest();
     }
+  }
+
+  ionViewDidEnter(): void {
+    this.isPageVisible.set(true);
+  }
+
+  ionViewWillLeave(): void {
+    this.isPageVisible.set(false);
+  }
+
+  ionViewDidLeave(): void {
+    this.isPageVisible.set(false);
+  }
+
+  handleCancelled(updated: SeatRequest): void {
+    this.requestOverride.set(updated);
   }
 
   private refreshRequest(): void {
@@ -232,179 +200,11 @@ export class PassengerRequestDetailPage {
     this.requestResource.reload();
   }
 
-  ionViewDidLeave(): void {
-    this.isPageVisible.set(false);
-  }
-
-  protected pickupLocation(request: SeatRequest, trip: Trip) {
-    if (request.pickupLocation) {
-      return request.pickupLocation;
-    }
-    return request.direction === 'from-campus' ? trip.origin : null;
-  }
-
-  protected pickupName(request: SeatRequest, trip: Trip): string {
-    return (
-      request.pickupName ??
-      (request.direction === 'from-campus' ? trip.originName : 'Tu punto de recogida') ??
-      'Tu punto de recogida'
-    );
-  }
-
-  protected readonly formatDateTime = (value: string) =>
-    HISTORY_DATE_FORMAT.format(new Date(value));
-  protected readonly formatSeats = formatSeats;
   protected readonly firstName = (name: string) => getFirstName(name);
-  protected readonly directionLabel = (request: SeatRequest) => {
-    if (request.direction === 'to-campus') {
-      return 'Ida al campus';
-    }
-    if (request.direction === 'from-campus') {
-      return 'Vuelta del campus';
-    }
-    return 'Viaje';
-  };
-
-  protected when(trip: Trip): string {
-    const date = new Date(trip.departureAt).toLocaleDateString('sv-SE');
-    return `${formatDateLabel(date)} · ${formatTime(trip.departureAt)}`;
-  }
-
-  async handleCancel(): Promise<void> {
-    const request = this.request();
-    const trip = this.trip();
-    if (!request || !trip || !this.canCancel() || this.isCancelling()) {
-      return;
-    }
-
-    const isAccepted = request.status === 'accepted';
-    let isLate = false;
-    if (isAccepted) {
-      const departureTime = new Date(trip.departureAt).getTime();
-      const minutesToDeparture = Math.floor((departureTime - Date.now()) / 60000);
-      isLate = minutesToDeparture < 30;
-    }
-
-    const header = isAccepted ? '¿Cancelar tu plaza confirmada?' : '¿Cancelar la solicitud?';
-    const confirmText = isAccepted ? 'Cancelar mi plaza' : 'Cancelar solicitud';
-
-    let message: string;
-    if (isAccepted) {
-      message = isLate
-        ? 'Faltan menos de 30 minutos para la salida. La plaza quedará libre para otra persona, pero contará como cancelación tardía.'
-        : 'La plaza volverá a estar disponible para otra persona. Puedes buscar otro viaje cuando quieras.';
-    } else {
-      message = `${getFirstName(trip.driver.name)} dejará de verla. Puedes volver a solicitar si sigue habiendo plazas.`;
-    }
-
-    const confirmed = await this.confirm.ask({
-      header,
-      message,
-      confirmText,
-      cancelText: 'Mantener',
-      isDestructive: true,
-    });
-    if (!confirmed) {
-      return;
-    }
-    this.isCancelling.set(true);
-    try {
-      this.requestOverride.set(await this.requests.cancel(request.id));
-      void this.toast.showSuccess(isAccepted ? 'Plaza cancelada.' : 'Solicitud cancelada.');
-    } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
-    } finally {
-      this.isCancelling.set(false);
-    }
-  }
-
-  async openIncidentModal(): Promise<void> {
-    const trip = this.trip();
-    if (!trip) {
-      return;
-    }
-    const modal = await this.modalController.create({
-      component: PassengerIncidentModal,
-      componentProps: { tripId: trip.id },
-    });
-    await modal.present();
-    const { data } = await modal.onWillDismiss();
-    if (data?.reported) {
-      void this.toast.showSuccess('Incidencia registrada. Tu plaza ha sido cancelada.');
-      await this.router.navigateByUrl('/tabs/trips');
-    }
-  }
-
-  handlePrioritySearch(): void {
-    const trip = this.trip();
-    const request = this.request();
-    if (trip) {
-      const direction = request?.direction ?? 'to-campus';
-      const coordinates = request?.pickupLocation?.coordinates ?? trip.origin.coordinates;
-      const fallbackAddress =
-        direction === 'from-campus' ? (trip.destinationName ?? '') : (trip.originName ?? '');
-      const address = request?.pickupName ?? fallbackAddress;
-
-      const departureDate = new Date(trip.departureAt);
-      const isPast = departureDate.getTime() < Date.now();
-      const targetDate = isPast ? new Date() : departureDate;
-
-      this.searchState.set({
-        direction,
-        place: {
-          id: 'priority-place',
-          name: address || 'Almería',
-          locality: 'Almería',
-          coordinates,
-        },
-        parking: { id: 'p1', name: 'Parking Central' },
-        date: toIsoDate(targetDate),
-        time: formatTime(trip.departureAt),
-        margin: 20,
-        seats: request?.seats ?? 1,
-      });
-    }
-    void this.router.navigateByUrl('/tabs/search');
-  }
-
-  private toSummary(request: SeatRequest, trip: Trip): TripSummaryData {
-    const stops: RouteStop[] = [
-      {
-        name: trip.originName ?? 'Salida del conductor',
-        detail: 'Salida del conductor',
-        time: formatTime(trip.departureAt),
-      },
-    ];
-    if (request.direction) {
-      const pickupAt = request.pickupAt ?? trip.departureAt;
-      stops.push({
-        name:
-          request.pickupName ??
-          (request.direction === 'from-campus' ? trip.originName : 'Tu punto de recogida') ??
-          'Tu punto de recogida',
-        detail: 'Tu punto de recogida',
-        time: formatTime(pickupAt),
-      });
-    }
-    stops.push({
-      name: trip.destinationName ?? 'Destino del viaje',
-      detail: 'Destino',
-    });
-    const driver: TripDriver = {
-      name: trip.driver.name,
-      avatarKey: trip.driver.avatarKey,
-      tripCount: trip.driver.tripCount,
-      rating: trip.driver.rating ?? undefined,
-      // En esta app solo las cuentas con correo UAL verificado pueden viajar.
-      isEmailVerified: true,
-    };
-    return {
-      stops,
-      driver,
-      vehicle: trip.vehicle,
-      seatSummary: `Quedan ${trip.availableSeats} de ${trip.offeredSeats} plazas`,
-      vehiclePlate: request.status === 'accepted' ? request.vehiclePlate : null,
-      preferences: this.travelPreferences.format(trip.driver.preferences),
-    };
-  }
+  protected readonly personIcon = personOutline;
+  protected readonly alertIcon = alertCircleOutline;
+  protected readonly pendingIcon = timeOutline;
+  protected readonly acceptedIcon = checkmarkCircleOutline;
+  protected readonly dangerIcon = closeCircleOutline;
+  protected readonly infoIcon = informationCircleOutline;
 }

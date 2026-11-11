@@ -187,19 +187,25 @@ for (const viewport of VIEWPORTS) {
         .should('deep.equal', [-2.4637, 36.8381]);
       // Directo a la pantalla del viaje en curso
       cy.location('pathname').should('eq', '/tabs/trips/drive/t1');
-      cy.contains('app-driver-live-trip', 'Compartiendo tu ubicación con tus pasajeros');
-      cy.contains('app-driver-live-trip', 'En curso');
+      // Los detalles: en escritorio, la columna de 4; en el móvil, la hoja
+      const live = isDesktop ? 'app-driver-live-trip' : 'ion-modal.live-sheet';
+      cy.contains(live, 'Compartiendo tu ubicación con tus pasajeros');
+      cy.contains(live, 'Recogidas');
 
       cy.intercept('POST', '/api/trips/t1/finish', trip(1, 'finished', 5)).as('finish');
       cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'finished', 5)]);
-      cy.contains('app-driver-live-trip ion-button', 'Terminar viaje').click();
-      // Aún en Almería centro, a unos 5 km del campus: avisa antes de terminar
-      cy.contains('app-confirm-modal', '¿Terminar lejos del destino?');
-      cy.contains('app-confirm-modal ion-button', 'Terminar igualmente').click();
+      cy.intercept('GET', '/api/users/me/reviews*', []);
+      cy.intercept('GET', '/api/users/me/pending-reviews', []);
+      cy.contains(`${live} ion-button`, 'Terminar viaje').click();
+      // Aún en Almería centro, a unos 5 km del campus: avisa en la misma hoja
+      cy.contains(live, 'del destino');
+      cy.contains(`${live} ion-button`, 'Terminar igualmente').click();
 
       cy.wait('@finish')
         .its('request.body.position.coordinates')
         .should('deep.equal', [-2.4637, 36.8381]);
+      cy.contains(live, '¡Viaje terminado!');
+      cy.contains(`${live} ion-button`, 'Volver a Tus viajes').click();
       cy.location('pathname').should('eq', '/tabs/trips');
       // Terminado, pasa a Anteriores
       cy.contains('app-my-trips', 'No tienes viajes programados');

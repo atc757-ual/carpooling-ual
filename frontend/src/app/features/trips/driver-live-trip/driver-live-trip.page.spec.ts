@@ -18,13 +18,20 @@ import {
   LIVE_TRIP_MAP_RENDERER_FACTORY,
   LOAD_LEAFLET,
 } from '../passenger-requests/live-trip-map/live-trip-map-runtime';
+import { TripReviewsService } from '../../../core/services/users/trip-reviews.service';
 import { DriverLiveTripPage } from './driver-live-trip.page';
 
 @Component({ template: '' })
 class BlankPage {}
 
 // El mapa sin Leaflet: no dibuja nada
-const RENDERER = { initialize: vi.fn(), render: vi.fn(), center: vi.fn(), destroy: vi.fn() };
+const RENDERER = {
+  initialize: vi.fn(),
+  render: vi.fn(),
+  center: vi.fn(),
+  setBottomInset: vi.fn(),
+  destroy: vi.fn(),
+};
 
 const TRIP: DriverTrip = {
   id: 't1',
@@ -119,6 +126,13 @@ describe('DriverLiveTripPage', () => {
         { provide: LocationService, useValue: { checkPermission: vi.fn() } },
         { provide: LOAD_LEAFLET, useValue: vi.fn().mockResolvedValue({}) },
         { provide: LIVE_TRIP_MAP_RENDERER_FACTORY, useValue: () => RENDERER },
+        {
+          provide: TripReviewsService,
+          useValue: {
+            listGiven: vi.fn().mockResolvedValue([]),
+            listPending: vi.fn().mockResolvedValue([]),
+          },
+        },
       ],
     });
     const harness = await RouterTestingHarness.create();
@@ -155,9 +169,7 @@ describe('DriverLiveTripPage', () => {
       ],
     );
 
-    expect(root.textContent).toContain('Roquetas de Mar → Campus UAL · Parking P1 (Sur)');
     expect(root.textContent).toContain('Compartiendo tu ubicación con tus pasajeros');
-    expect(root.querySelector('app-trip-chat-link')?.textContent).toContain('Chat del viaje');
     expect(tracking.start).toHaveBeenCalledWith('t1');
     expect(page.passengers().map(({ passenger: { name } }) => name)).toEqual([
       'Carlos Ruiz',
@@ -165,12 +177,11 @@ describe('DriverLiveTripPage', () => {
       'Eva Gil',
     ]);
     expect(page.nextPickup()?.id).toBe('r1');
-    expect(root.querySelector('.driver-live-trip__passenger--next')?.textContent).toContain(
-      'Siguiente recogida',
-    );
-    expect(root.textContent).toMatch(/Recoger a las \d\d:\d\d · Parada de Carlos Ruiz/);
-    expect(root.textContent).toContain('Eva Gil');
-    expect(root.querySelector('[aria-current="step"]')?.textContent).toContain('En curso');
+    // Lo siguiente, en la tarjeta «En directo»; en el carrusel, solo la de quien toca
+    expect(root.querySelector('.live-hero__title')?.textContent).toContain('Recoge a Carlos');
+    expect(root.querySelector('.pickup-slide--active')?.textContent).toContain('Carlos');
+    expect(root.querySelectorAll('.pickup-slide')).toHaveLength(3);
+    expect(root.querySelector('[aria-current="step"]')?.textContent).toContain('Recogidas');
   });
 
   it('moves on to the next pickup 5 minutes after the time of the previous one', async () => {
@@ -203,25 +214,35 @@ describe('DriverLiveTripPage', () => {
     expect(root.textContent).toContain('No encontramos este viaje');
   });
 
-  it('finishes the trip and goes back to the trips', async () => {
-    await render([TRIP]);
+  it('confirms finishing in the same sheet, then offers to review the passengers', async () => {
+    const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
     await page.handleFinish();
+    expect(page.finishCheck()).not.toBeNull();
+    expect(driver['finishTrip']).not.toHaveBeenCalled();
 
+    await page.confirmFinish();
     // Sin posición (la prueba no tiene GPS): termina sin ella
     expect(driver['finishTrip']).toHaveBeenCalledWith('t1', null);
+    expect(page.justFinished()).toBe(true);
+    expect(page.reviewTargets()).toEqual([{ id: 'p-r1', name: 'Carlos' }]);
+    expect(navigate).not.toHaveBeenCalled();
+
+    await page.leaveFinished();
     expect(navigate).toHaveBeenCalledWith('/tabs/trips');
     expect(page.isFinishing()).toBe(false);
+    expect(root).toBeTruthy();
   });
 
   it('stays in the trip when finishing is dismissed', async () => {
     await render([TRIP]);
-    ask.mockResolvedValue(false);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
 
     await page.handleFinish();
+    page.cancelFinish();
 
+    expect(page.finishCheck()).toBeNull();
     expect(driver['finishTrip']).not.toHaveBeenCalled();
     expect(navigate).not.toHaveBeenCalled();
   });
@@ -269,10 +290,10 @@ describe('DriverLiveTripPage', () => {
     const tripCall = TestBed.inject(TripCallService);
     const openPhoneSpy = vi.spyOn(tripCall, 'openPhone').mockImplementation(() => undefined);
 
-    const callBtn = root.querySelector('.driver-live-trip__call-btn');
+    const callBtn = root.querySelector('button.pickup-slide__icon-btn');
     expect(callBtn).not.toBeNull();
     expect(callBtn?.getAttribute('title')).toBe('Llamar a Carlos Ruiz');
-    expect(callBtn?.classList).not.toContain('driver-live-trip__call-btn--unavailable');
+    expect(callBtn?.classList).not.toContain('pickup-slide__icon-btn--unavailable');
 
     page.handleCallPassenger({ id: 'p-r1', name: 'Carlos Ruiz' });
     expect(openPhoneSpy).toHaveBeenCalledWith('+34600333444');
@@ -281,9 +302,9 @@ describe('DriverLiveTripPage', () => {
   it('shows call button as unavailable when passenger has no verified phone', async () => {
     const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)], []);
 
-    const callBtn = root.querySelector('.driver-live-trip__call-btn');
+    const callBtn = root.querySelector('button.pickup-slide__icon-btn');
     expect(callBtn).not.toBeNull();
-    expect(callBtn?.classList).toContain('driver-live-trip__call-btn--unavailable');
+    expect(callBtn?.classList).toContain('pickup-slide__icon-btn--unavailable');
 
     page.handleCallPassenger({ id: 'p-r1', name: 'Carlos Ruiz' });
     expect(showInfoMock).toHaveBeenCalledWith(

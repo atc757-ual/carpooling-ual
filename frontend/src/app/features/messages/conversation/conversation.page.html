@@ -96,42 +96,40 @@
           </button>
         }
       </fieldset>
-      @if (isQuickRepliesOnly()) {
+      <!-- Escribir, siempre (también el conductor: puede estar parado); con el
+           viaje en marcha, se le recuerda que mejor las respuestas rápidas -->
+      @if (isDriverOnTrip()) {
         <p class="conversation-footer__hint text-caption text-color-muted">
-          Mientras conduces, solo respuestas rápidas.
+          Si vas conduciendo, mejor una respuesta rápida.
         </p>
-      } @else {
-        <form
-          class="conversation-footer__form"
-          (submit)="$event.preventDefault(); handleSendText()"
-        >
-          <ion-textarea
-            class="conversation-footer__input"
-            fill="outline"
-            [autoGrow]="true"
-            [rows]="1"
-            [maxlength]="maxLength"
-            [counter]="true"
-            placeholder="Escribe un mensaje"
-            aria-label="Mensaje"
-            [value]="draft()"
-            (ionInput)="handleDraft($event.detail.value)"
-            (keydown.enter)="handleEnter($event)"
-          />
-          <ion-button
-            class="conversation-footer__send"
-            type="submit"
-            [disabled]="!canSendText()"
-            aria-label="Enviar"
-          >
-            @if (isSending()) {
-              <ion-spinner slot="icon-only" name="crescent" aria-hidden="true" />
-            } @else {
-              <ion-icon slot="icon-only" [icon]="sendIcon" aria-hidden="true" />
-            }
-          </ion-button>
-        </form>
       }
+      <form class="conversation-footer__form" (submit)="$event.preventDefault(); handleSendText()">
+        <ion-textarea
+          class="conversation-footer__input"
+          fill="outline"
+          [autoGrow]="true"
+          [rows]="1"
+          [maxlength]="maxLength"
+          [counter]="true"
+          placeholder="Escribe un mensaje"
+          aria-label="Mensaje"
+          [value]="draft()"
+          (ionInput)="handleDraft($event.detail.value)"
+          (keydown.enter)="handleEnter($event)"
+        />
+        <ion-button
+          class="conversation-footer__send"
+          type="submit"
+          [disabled]="!canSendText()"
+          aria-label="Enviar"
+        >
+          @if (isSending()) {
+            <ion-spinner slot="icon-only" name="crescent" aria-hidden="true" />
+          } @else {
+            <ion-icon slot="icon-only" [icon]="sendIcon" aria-hidden="true" />
+          }
+        </ion-button>
+      </form>
     }
   </footer>
 }

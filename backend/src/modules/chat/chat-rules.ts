@@ -41,11 +41,3 @@ export function isChatOpen(trip: ChatTrip, now = new Date()): boolean {
   const finishedAt = trip.finishedAt ?? trip.updatedAt;
   return now.getTime() - finishedAt.getTime() < CHAT_OPEN_AFTER_FINISH_MS;
 }
-
-// Con el viaje en curso, el conductor solo envía respuestas rápidas
-export function isQuickRepliesOnly(
-  trip: Pick<ChatTrip, 'status'>,
-  role: ChatRole,
-): boolean {
-  return role === 'driver' && trip.status === 'in_progress';
-}
