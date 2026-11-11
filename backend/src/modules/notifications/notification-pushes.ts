@@ -32,6 +32,14 @@ const PUSH_TEXTS: Partial<
     title: 'Tu conductor va de camino',
     body: 'Sigue el coche en el mapa.',
   },
+  pending_requests_reminder: {
+    title: 'Tienes solicitudes por responder',
+    body: 'Respóndelas antes de 10 min de la salida o caducarán.',
+  },
+  trip_start_reminder: {
+    title: 'Es la hora de tu viaje',
+    body: 'Inícialo: si no, se cancelará a los 10 min.',
+  },
 };
 
 // La push de un aviso, o null si ese tipo no va por push. Los datos llevan el

@@ -64,6 +64,41 @@ export class NotificationsService {
     );
   }
 
+  // Si ya se le dio ese aviso de ese viaje (los recordatorios, una sola vez)
+  hasNotified(
+    manager: EntityManager,
+    {
+      userId,
+      type,
+      tripId,
+    }: { userId: string; type: TripNotificationType; tripId: string },
+  ): Promise<boolean> {
+    return manager.existsBy(Notification, { userId, type, tripId });
+  }
+
+  // Un recordatorio al conductor de cada viaje, una sola vez por viaje (los
+  // que ya lo tienen se saltan). Uno tras otro en la misma transacción;
+  // devuelve a cuántos se ha avisado
+  notifyTripDriversOnce(
+    manager: EntityManager,
+    trips: readonly { id: string; driverId: string }[],
+    type: TripNotificationType,
+  ): Promise<number> {
+    return trips.reduce<Promise<number>>(async (previous, trip) => {
+      const notified = await previous;
+      const alreadyNotified = await this.hasNotified(manager, {
+        userId: trip.driverId,
+        type,
+        tripId: trip.id,
+      });
+      if (alreadyNotified) {
+        return notified;
+      }
+      await this.notify(manager, [trip.driverId], { type, tripId: trip.id });
+      return notified + 1;
+    }, Promise.resolve(0));
+  }
+
   // Mis avisos, los más recientes primero; con isRead, solo los leídos o los
   // no leídos (el total de los no leídos es el contador del frontend)
   async listForUser(

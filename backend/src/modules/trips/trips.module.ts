@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditModule } from '../../audit/audit.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { EventsModule } from '../../events/events.module';
 import { PlacesModule } from '../places/places.module';
 import { UsersModule } from '../users/users.module';
@@ -19,6 +20,7 @@ import { TripLookupService } from './trip-lookup.service';
 import { PublishingLimitsService } from './publishing-limits.service';
 import { TripsService } from './trips.service';
 import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
+import { TripRemindersService } from './trip-reminders.service';
 
 // Viajes (RF-04, RF-05, RF-11), sus rutas (RF-12, con OSRM) y las
 // cancelaciones tardías (que suspenden la publicación). Usa los
@@ -32,6 +34,7 @@ import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
     PlacesModule,
     EventsModule,
     AuditModule,
+    NotificationsModule,
   ],
   controllers: [TripsController],
   providers: [
@@ -43,6 +46,7 @@ import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
     LateCancellationsService,
     TripStatsService,
     TripLifecycleScheduler,
+    TripRemindersService,
     TripViewerAccessService,
     TripLookupService,
     PublishingLimitsService,

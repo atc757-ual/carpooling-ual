@@ -2,7 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DataSource, In } from 'typeorm';
 import { TripLookupService } from '../trips/trip-lookup.service';
-import { MINUTE_MS, REQUEST_CUTOFF_MIN } from '../trips/trip-timing';
+import { NotificationsService } from '../notifications/notifications.service';
+import {
+  MINUTE_MS,
+  PENDING_REQUESTS_REMINDER_MIN,
+  REQUEST_CUTOFF_MIN,
+} from '../trips/trip-timing';
 import { SeatRequest } from './entities/seat-request.entity';
 import { RequestChangesRecorder } from './request-changes';
 import { assertRequestTransition } from './request-status';
@@ -15,7 +20,35 @@ export class RequestLifecycleScheduler {
     private readonly dataSource: DataSource,
     private readonly changes: RequestChangesRecorder,
     private readonly tripLookup: TripLookupService,
+    private readonly notifications: NotificationsService,
   ) {}
+
+  // 30 min antes de la salida, a los conductores con solicitudes por responder
+  // (caducan en el corte, 10 min antes): un aviso por viaje, una sola vez.
+  // Devuelve a cuántos viajes se ha avisado
+  @Cron(CronExpression.EVERY_MINUTE)
+  async remindPendingRequests(now = new Date()): Promise<number> {
+    const from = new Date(now.getTime() + REQUEST_CUTOFF_MIN * MINUTE_MS);
+    const until = new Date(
+      now.getTime() + PENDING_REQUESTS_REMINDER_MIN * MINUTE_MS,
+    );
+    return this.dataSource.transaction(async (manager) => {
+      const pending = await manager.find(SeatRequest, {
+        where: { status: 'pending' },
+        select: { id: true, tripId: true },
+      });
+      const tripIds = [...new Set(pending.map(({ tripId }) => tripId))];
+      const tripsById = await this.tripLookup.findByIds(manager, tripIds);
+      const due = [...tripsById.values()].filter(
+        ({ departureAt }) => departureAt > from && departureAt <= until,
+      );
+      return this.notifications.notifyTripDriversOnce(
+        manager,
+        due,
+        'pending_requests_reminder',
+      );
+    });
+  }
 
   @Cron(CronExpression.EVERY_MINUTE)
   async handleCron(): Promise<void> {

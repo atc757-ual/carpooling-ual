@@ -14610,6 +14610,8 @@
               "review_requested",
               "request_expired",
               "passenger_no_show",
+              "pending_requests_reminder",
+              "trip_start_reminder",
               "terms_updated",
               "privacy_updated"
             ],

@@ -22,6 +22,10 @@ export const NOTIFICATION_TYPES = [
   'review_requested',
   'request_expired',
   'passenger_no_show',
+  // Recordatorios al conductor: solicitudes por responder antes del corte y
+  // iniciar el viaje a la hora de salida
+  'pending_requests_reminder',
+  'trip_start_reminder',
   'terms_updated',
   'privacy_updated',
 ] as const;

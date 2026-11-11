@@ -9,6 +9,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- **Viajes:** recordatorios al conductor. 30 minutos antes de la salida, si tiene solicitudes por responder, Â«Tienes solicitudes por responderÂ» (una vez por viaje), y a la hora de salida, si tiene pasajeros y no ha iniciado, Â«Es la hora de tu viaje: inÃ­cialoÂ» (una vez). Los dos con push y su texto en Avisos (`pending_requests_reminder` y `trip_start_reminder`, migraciÃ³n). Un viaje no iniciado se cancela solo a los 10 minutos de la salida, antes 15 (`UNSTARTED_TRIP_CANCEL_WINDOW_MIN`) (#293).
+
 - **Frontend:** pantalla «En curso» del pasajero (`/tabs/trips/ride/:id`) y nueva del conductor. En el móvil, el mapa en vivo a pantalla completa y los detalles en una hoja inferior que se arrastra (`ion-modal` con breakpoints, encima de la barra de pestañas y cerrada al salir); en escritorio, 8 + 4. Tarjeta «En directo» con el título (Esperando a…, Recoge a…, Rumbo al campus/a casa, Llegando al campus a menos de 300 m en la ida), los minutos en directo con la posición real del coche y las etapas con la actual como barra de progreso. Pasajero: código de recogida, conductor y vehículo (matrícula, chat y llamar) e incidencia en la propia hoja. Conductor: las recogidas en un carrusel por orden, con el código, llamar, chat y «no se presentó», y «Terminar viaje» confirmado en la hoja (también lejos del destino). El coche de la navegación queda seleccionado en estas pantallas, y el banner de Tus viajes y el detalle del viaje llevan a ellas (#291).
 - **Frontend:** valorar a quien viajó contigo (RF-22) con 👍 «Buen viaje» o 👎 «Mejorable» y un comentario opcional (la API sigue guardando 5 o 1). El pasajero, al llegar o después en el detalle de su solicitud; el conductor, a cada pasajero al terminar y en el detalle del viaje terminado. Una valoración dada se ve solo para leer, con si ya está publicada (doble ciego) (#291).
 - **Frontend:** detalle de la solicitud del pasajero rehecho: tarjeta única con el estado y el progreso del pasajero con la hora de cada paso (sin historial aparte), el código de recogida desde 10 min antes de la salida, «Tu recorrido» y «Conductor y coche», y en la columna de 4 las acciones con lo que cuesta cancelar. Resultados de búsqueda en una lista con el color de cómo encaja cada viaje, y detalle del viaje en Buscar con la salida «· zona aproximada» (#291).
@@ -106,6 +108,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Backend:** «Sobre mí» de 20 a 200 caracteres (antes 500; los más largos se recortan), Fumar sin «solo en paradas» (pasa a «no se fuma») y el consentimiento de ubicación guarda su origen: `location_prompt` (la ventana que explica para qué se usa) o `device` (se quitó el permiso del sistema), además de `settings` (#128).
 
 ### Added
+
+- **Viajes:** recordatorios al conductor. 30 minutos antes de la salida, si tiene solicitudes por responder, Â«Tienes solicitudes por responderÂ» (una vez por viaje), y a la hora de salida, si tiene pasajeros y no ha iniciado, Â«Es la hora de tu viaje: inÃ­cialoÂ» (una vez). Los dos con push y su texto en Avisos (`pending_requests_reminder` y `trip_start_reminder`, migraciÃ³n). Un viaje no iniciado se cancela solo a los 10 minutos de la salida, antes 15 (`UNSTARTED_TRIP_CANCEL_WINDOW_MIN`) (#293).
 
 - **Backend y frontend:** dos categorías de incidencia nuevas, Seguridad y Comportamiento en el chat, y su origen (`source`: durante el viaje o denuncia del chat); la migración deduce el origen de las que ya existen. El pasajero puede decir «Me he sentido en peligro» al dejar el viaje y el detalle del panel muestra el origen junto al motivo (#254).
 - **Backend y frontend:** un administrador implicado en el viaje de una incidencia (la registró, lo conduce o pidió plaza en él, en cualquier estado) no puede gestionarla (`INCIDENT_INVOLVED_ADMIN`, 403); el recurso dice si lo está quien la consulta (`isViewerInvolved`) y el detalle del panel le avisa de que otro administrador debe gestionarla (#253).
@@ -369,6 +373,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ## [0.1.0] - 2026-10-16
 
 ### Added
+
+- **Viajes:** recordatorios al conductor. 30 minutos antes de la salida, si tiene solicitudes por responder, Â«Tienes solicitudes por responderÂ» (una vez por viaje), y a la hora de salida, si tiene pasajeros y no ha iniciado, Â«Es la hora de tu viaje: inÃ­cialoÂ» (una vez). Los dos con push y su texto en Avisos (`pending_requests_reminder` y `trip_start_reminder`, migraciÃ³n). Un viaje no iniciado se cancela solo a los 10 minutos de la salida, antes 15 (`UNSTARTED_TRIP_CANCEL_WINDOW_MIN`) (#293).
 
 - Estructura inicial del proyecto Carpooling UAL
 - README.md, CONTRIBUTING.md, .gitignore, docker-compose.yml

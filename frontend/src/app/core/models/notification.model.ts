@@ -13,6 +13,9 @@ export type NotificationType =
   | 'review_requested'
   | 'request_expired'
   | 'passenger_no_show'
+  // Recordatorios al conductor: solicitudes por responder y empezar el viaje
+  | 'pending_requests_reminder'
+  | 'trip_start_reminder'
   // Un cambio menor en las condiciones o la política (no hay que aceptarlo)
   | 'terms_updated'
   | 'privacy_updated';

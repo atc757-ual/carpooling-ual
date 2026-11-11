@@ -27,8 +27,13 @@ export const MAX_TRIPS_PER_DAY = 4;
 export const REQUEST_CUTOFF_MIN = 10;
 
 // Margen tras la hora pactada para cancelar automáticamente viajes que el
-// conductor no inició (15 min)
-export const UNSTARTED_TRIP_CANCEL_WINDOW_MIN = 15;
+// conductor no inició (10 min, como el de antes para iniciarlo). A la hora de
+// salida, si aún no ha iniciado, se le recuerda
+export const UNSTARTED_TRIP_CANCEL_WINDOW_MIN = 10;
+
+// Aviso al conductor con solicitudes por responder: 30 min antes de la salida
+// (le quedan 20 hasta el corte, en que caducan)
+export const PENDING_REQUESTS_REMINDER_MIN = 30;
 
 // Margen de cortesía en el punto de recogida antes de poder marcar «No se presentó» (5 min)
 export const PICKUP_NO_SHOW_WAIT_MIN = 5;
