@@ -62,7 +62,22 @@
   scrollbar-width: none;
 }
 
+// El grupo de motivos, sin el marco del fieldset
+.incident-modal__fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: var(--space-xs);
+    padding: 0;
+  }
+}
+
 .incident-modal__chip {
+  display: inline-flex;
+  align-items: center;
   flex: none;
   white-space: nowrap;
   min-height: 2rem; // 32px
@@ -82,7 +97,8 @@
     font-weight: var(--font-weight-semibold);
   }
 
-  &:focus-visible {
+  // El foco, en la pastilla (el radio está oculto)
+  &:focus-within {
     outline: var(--border-width-m) solid var(--color-focus-ring);
     outline-offset: 2px;
   }

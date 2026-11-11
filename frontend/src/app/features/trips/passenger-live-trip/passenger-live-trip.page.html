@@ -75,8 +75,8 @@
                 </ion-card-content>
               </ion-card>
             } @else if (isReportingIncident()) {
-              <!-- Bajarse con incidencia: el formulario sustituye a todo lo
-                   demás; «Continuar en el viaje» lo vuelve a mostrar -->
+              <!-- Bajarse con incidencia: el formulario sustituye al
+                   resto; «Continuar en el viaje» lo vuelve a mostrar -->
               <ion-card class="ride__panel">
                 <ion-card-content>
                   <app-passenger-incident-modal
@@ -243,13 +243,9 @@
             >
               <ng-template>
                 <ion-content>
-                  <div
-                    class="ride__side ride__side--sheet"
-                    role="region"
-                    aria-label="Tu viaje ahora"
-                  >
+                  <section class="ride__side ride__side--sheet" aria-label="Tu viaje ahora">
                     <ng-container [ngTemplateOutlet]="rideDetails" />
-                  </div>
+                  </section>
                 </ion-content>
               </ng-template>
             </ion-modal>

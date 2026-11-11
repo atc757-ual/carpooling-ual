@@ -28,7 +28,7 @@
         <!-- Lo que hay que hacer ahora: en la columna de 4 en escritorio y en
              la hoja inferior que se arrastra en el móvil -->
         <ng-template #liveDetails>
-          <!-- Terminar: la confirmación sustituye a todo lo demás (no abre otra
+          <!-- Terminar: la confirmación sustituye al resto (no abre otra
                ventana); «Seguir en el viaje» lo vuelve a mostrar. Lejos del
                destino (más de 300 m), en ámbar con la distancia -->
           <!-- Terminado: el aviso y valorar a cada pasajero, en la misma hoja -->
@@ -162,9 +162,8 @@
                 } @else {
                   <!-- Un pasajero por tarjeta, en orden de recogida; solo se valida
                      el que toca (el primero que no ha subido) -->
-                  <div
+                  <section
                     class="pickup-carousel"
-                    role="group"
                     aria-roledescription="carrusel"
                     aria-label="Pasajeros por orden de recogida"
                     (scroll)="handleCarouselScroll($event)"
@@ -276,7 +275,7 @@
                         </div>
                       </section>
                     }
-                  </div>
+                  </section>
 
                   <!-- Los puntos, solo con más de un pasajero -->
                   @if (passengers().length > 1) {
@@ -377,13 +376,12 @@
           >
             <ng-template>
               <ion-content>
-                <div
+                <section
                   class="driver-live-trip__side driver-live-trip__side--sheet"
-                  role="region"
                   aria-label="Tu viaje ahora"
                 >
                   <ng-container [ngTemplateOutlet]="liveDetails" />
-                </div>
+                </section>
               </ion-content>
             </ng-template>
           </ion-modal>

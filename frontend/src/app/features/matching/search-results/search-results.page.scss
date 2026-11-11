@@ -40,10 +40,6 @@
 
 // Aviso de los viajes que ya solicitaste, arriba de la tarjeta y a todo el
 // ancho (también en la del estado vacío, que va centrada)
-.search-results__requested {
-  align-self: stretch;
-  text-align: start;
-}
 
 // En el estado vacío, el aviso pegado arriba (a los 16px del borde de la
 // tarjeta) y el resto centrado en lo que queda: el espacio libre se reparte
@@ -51,7 +47,9 @@
 // El texto a la izquierda y «Tus viajes ›» pegado a la derecha, centrado;
 // si no cabe (móvil estrecho), debajo
 .search-results__requested {
+  align-self: stretch;
   flex-wrap: wrap;
+  text-align: start;
   align-items: center;
 
   > span {

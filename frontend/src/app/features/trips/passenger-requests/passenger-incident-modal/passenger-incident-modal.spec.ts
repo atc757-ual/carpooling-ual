@@ -43,7 +43,12 @@ describe('PassengerIncidentModal', () => {
       'other',
     ]);
     // En la pastilla, el texto corto
-    expect(fixture.nativeElement.textContent).toContain('En peligro');
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.textContent).toContain('En peligro');
+    const radios = root.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+    expect(radios).toHaveLength(4);
+    radios[2].click();
+    expect(component.selectedCategory()).toBe('safety');
   });
 
   it('validates description length correctly', () => {

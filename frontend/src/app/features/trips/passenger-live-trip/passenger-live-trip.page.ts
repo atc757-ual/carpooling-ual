@@ -218,8 +218,8 @@ export class PassengerLiveTripPage {
   // o al salir de la pantalla (se pregunta en el momento: una función, no un
   // valor fijo, o se quedaría abierta encima del 8 + 4)
   readonly isOnPage = injectIsOnUrl(RIDE_URL);
-  protected readonly canDismissSheet = async (): Promise<boolean> =>
-    this.isDesktop() || !this.isOnPage() || this.isLeaving;
+  protected readonly canDismissSheet = (): Promise<boolean> =>
+    Promise.resolve(this.isDesktop() || !this.isOnPage() || this.isLeaving);
   // Al salir (volver atrás destruye la pantalla), la hoja se cierra a mano:
   // Ionic la ha sacado de su sitio y, si no, se quedaría encima de la otra
   private readonly sheet = viewChild(IonModal);

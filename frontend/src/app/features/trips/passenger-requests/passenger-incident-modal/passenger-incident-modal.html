@@ -11,24 +11,29 @@
     <span>Tu incidencia la revisará un administrador.</span>
   </output>
 
-  <div class="incident-modal__section">
-    <span id="incident-category-label" class="text-label text-label--strong">Motivo principal</span>
-    <!-- Pastillas en lugar de una lista: ocupan menos alto -->
-    <div class="incident-modal__chips" role="radiogroup" aria-labelledby="incident-category-label">
+  <!-- Pastillas en lugar de una lista: ocupan menos alto. Cada una, un radio
+       nativo oculto (teclado y lector de pantalla de serie) -->
+  <fieldset class="incident-modal__section incident-modal__fieldset">
+    <legend class="text-label text-label--strong">Motivo principal</legend>
+    <div class="incident-modal__chips">
       @for (cat of categories; track cat.value) {
-        <button
-          type="button"
-          role="radio"
+        <label
           class="incident-modal__chip"
           [class.incident-modal__chip--selected]="selectedCategory() === cat.value"
-          [attr.aria-checked]="selectedCategory() === cat.value"
-          (click)="selectedCategory.set(cat.value)"
         >
+          <input
+            class="visually-hidden"
+            type="radio"
+            name="incident-category"
+            [value]="cat.value"
+            [checked]="selectedCategory() === cat.value"
+            (change)="selectedCategory.set(cat.value)"
+          />
           {{ cat.short }}
-        </button>
+        </label>
       }
     </div>
-  </div>
+  </fieldset>
 
   <div class="incident-modal__section">
     <ion-textarea

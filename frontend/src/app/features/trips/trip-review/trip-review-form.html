@@ -1,27 +1,32 @@
 <form class="trip-review" (submit)="$event.preventDefault(); handleSend()">
-  <span id="trip-review-label" class="text-label text-label--strong">
-    ¿Qué tal con {{ targetName() }}?
-  </span>
-  <!-- Una manita arriba o abajo (se guarda como 5 o 1 estrellas) -->
-  <div class="trip-review__thumbs" role="radiogroup" aria-labelledby="trip-review-label">
-    @for (option of options; track option.rating) {
-      <button
-        type="button"
-        role="radio"
-        class="trip-review__thumb"
-        [class]="'trip-review__thumb--' + option.tone"
-        [class.trip-review__thumb--on]="rating() === option.rating"
-        [attr.aria-checked]="rating() === option.rating"
-        (click)="rating.set(option.rating)"
-      >
-        <ion-icon
-          [icon]="rating() === option.rating ? option.iconOn : option.icon"
-          aria-hidden="true"
-        />
-        {{ option.label }}
-      </button>
-    }
-  </div>
+  <!-- Una manita arriba o abajo (se guarda como 5 o 1 estrellas). Cada una,
+       un radio nativo oculto (teclado y lector de pantalla de serie) -->
+  <fieldset class="trip-review__fieldset">
+    <legend class="text-label text-label--strong">¿Qué tal con {{ targetName() }}?</legend>
+    <div class="trip-review__thumbs">
+      @for (option of options; track option.rating) {
+        <label
+          class="trip-review__thumb"
+          [class]="'trip-review__thumb--' + option.tone"
+          [class.trip-review__thumb--on]="rating() === option.rating"
+        >
+          <input
+            class="visually-hidden"
+            type="radio"
+            [name]="'trip-review-' + targetId()"
+            [value]="option.rating"
+            [checked]="rating() === option.rating"
+            (change)="rating.set(option.rating)"
+          />
+          <ion-icon
+            [icon]="rating() === option.rating ? option.iconOn : option.icon"
+            aria-hidden="true"
+          />
+          {{ option.label }}
+        </label>
+      }
+    </div>
+  </fieldset>
   <ion-textarea
     fill="outline"
     [rows]="2"

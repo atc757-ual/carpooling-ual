@@ -30,12 +30,12 @@ describe('TripReviewForm', () => {
     const root = fixture.nativeElement as HTMLElement;
 
     expect(root.textContent).toContain('¿Qué tal con Lucía?');
-    expect(root.querySelectorAll('[role="radio"]')).toHaveLength(2);
+    expect(root.querySelectorAll('input[type="radio"]')).toHaveLength(2);
 
     await form.handleSend();
     expect(create).not.toHaveBeenCalled();
 
-    (root.querySelector('[role="radio"]') as HTMLButtonElement).click();
+    (root.querySelector('input[type="radio"]') as HTMLInputElement).click();
     form.comment.set('  Muy puntual  ');
     await form.handleSend();
 
