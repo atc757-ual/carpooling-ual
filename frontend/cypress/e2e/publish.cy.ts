@@ -63,6 +63,25 @@ function stubNewDriver(): void {
     publishedAt: '2026-11-03T09:00:00.000Z',
   });
   cy.intercept('POST', '/api/vehicles', { statusCode: 201, body: VEHICLE }).as('registerVehicle');
+  cy.intercept('POST', '/api/trips/plan', {
+    statusCode: 200,
+    body: {
+      tripId: 'preview',
+      distanceKm: 20,
+      durationMin: 25,
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [-2.6135, 36.7644],
+          [-2.4042, 36.8282],
+        ],
+      },
+      source: 'osrm',
+      tripStatus: 'published',
+      startedAt: null,
+      estimatedArrivalAt: null,
+    },
+  });
   cy.intercept('PUT', '/api/users/me/driver-declaration', { hasLicenseDeclared: true }).as(
     'declare',
   );
