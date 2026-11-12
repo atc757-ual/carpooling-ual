@@ -1,9 +1,4 @@
-import {
-  CHAT_OPEN_AFTER_FINISH_MS,
-  type ChatTrip,
-  chatRoleOf,
-  isChatOpen,
-} from './chat-rules';
+import { type ChatTrip, chatRoleOf, isChatOpen } from './chat-rules';
 
 const NOW = new Date('2026-11-03T12:00:00Z');
 
@@ -29,38 +24,9 @@ describe('chat rules', () => {
     ['published', false],
     ['confirmed', true],
     ['in_progress', true],
+    ['finished', false],
     ['cancelled', false],
   ] as const)('is open when the trip is %s: %s', (status, isOpen) => {
-    expect(isChatOpen(trip({ status }), NOW)).toBe(isOpen);
-  });
-
-  it('stays open for 24 h after the trip finishes', () => {
-    const finishedAt = (msAgo: number) => new Date(NOW.getTime() - msAgo);
-
-    expect(
-      isChatOpen(
-        trip({ status: 'finished', finishedAt: finishedAt(1000) }),
-        NOW,
-      ),
-    ).toBe(true);
-    expect(
-      isChatOpen(
-        trip({
-          status: 'finished',
-          finishedAt: finishedAt(CHAT_OPEN_AFTER_FINISH_MS),
-        }),
-        NOW,
-      ),
-    ).toBe(false);
-    // Los antiguos sin finished_at usan el último cambio
-    expect(
-      isChatOpen(
-        trip({
-          status: 'finished',
-          updatedAt: finishedAt(CHAT_OPEN_AFTER_FINISH_MS + 1),
-        }),
-        NOW,
-      ),
-    ).toBe(false);
+    expect(isChatOpen(trip({ status }))).toBe(isOpen);
   });
 });

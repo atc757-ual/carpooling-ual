@@ -1,3 +1,5 @@
+@use '../../../../../theme/color-scheme';
+
 // Una pastilla con borde y dos partes; la activa, rellena de azul
 :host {
   display: inline-flex;
@@ -47,6 +49,18 @@
 .language-switch__option--active {
   background: var(--color-primary);
   color: var(--color-on-primary);
+}
+
+@include color-scheme.dark {
+  .language-switch {
+    background: var(--color-surface-subtle);
+    border-color: var(--color-border-subtle);
+  }
+
+  .language-switch__option--active {
+    background: #2563eb;
+    color: #ffffff;
+  }
 }
 
 // 20px de ancho para bandera clara y bien definida

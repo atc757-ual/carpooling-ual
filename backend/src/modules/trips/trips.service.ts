@@ -177,6 +177,11 @@ export class TripsService {
     return { trip, route };
   }
 
+  // Previsualización de la ruta antes de publicar
+  planRoute(origin: Point, destination: Point): Promise<RoutePlan> {
+    return this.tripRoutes.plan(origin, destination);
+  }
+
   // Viajes del conductor, del de salida más próxima al más lejano
   async listByDriver(
     driverId: string,

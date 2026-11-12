@@ -30,12 +30,16 @@ import { PlacesService } from '../../../core/services/places/places.service';
 import { CelebrationService } from '../../../core/services/ui/celebration.service';
 import { PermissionPromptsService } from '../../../core/services/push/permission-prompts.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { TripsService } from '../../../core/services/trips/trips.service';
 import { DatetimeField } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { RouteTimeline } from '../../../shared/components/ui/route-timeline/route-timeline';
 import { FaqCard } from '../../../shared/components/ui/faq-card/faq-card';
 import { StepIndicator } from '../../../shared/components/ui/step-indicator/step-indicator';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { RouteFields } from '../../matching/route-fields/route-fields';
+import { estimateDurationMin } from '../../matching/trip-impact';
+import { RoutePoint, TripRouteMap } from '../../../shared/components/ui/trip-route-map/trip-route-map';
+import { TripRoute } from '../../../core/models/trip-route.model';
 
 import { DeclarationField } from '../declaration-field/declaration-field';
 import { PublishNextSteps } from '../publish-next-steps/publish-next-steps';
@@ -120,6 +124,7 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
     RouteFields,
     RouteTimeline,
     StepIndicator,
+    TripRouteMap,
     PublishNextSteps,
     VehiclePicker,
   ],
@@ -133,6 +138,7 @@ export class PublishTripPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly places = inject(PlacesService);
   private readonly toast = inject(ToastService);
+  private readonly tripsService = inject(TripsService);
   private readonly permissionPrompts = inject(PermissionPromptsService);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(NonNullableFormBuilder);
@@ -262,6 +268,57 @@ export class PublishTripPage implements OnInit {
     return place && parking ? estimateDriverImpact(place, parking, seats) : null;
   });
 
+  readonly originPoint = computed<RoutePoint | null>(() => {
+    const { place, isToCampus = true } = this.tripValue();
+    const parking = this.selectedParking();
+    if (!place || !parking) {
+      return null;
+    }
+    return isToCampus
+      ? { coordinates: place.coordinates, label: place.name }
+      : { coordinates: parking.location.coordinates, label: parking.name };
+  });
+
+  readonly destinationPoint = computed<RoutePoint | null>(() => {
+    const { place, isToCampus = true } = this.tripValue();
+    const parking = this.selectedParking();
+    if (!place || !parking) {
+      return null;
+    }
+    return isToCampus
+      ? { coordinates: parking.location.coordinates, label: parking.name }
+      : { coordinates: place.coordinates, label: place.name };
+  });
+
+  readonly osrmRoute = signal<TripRoute | null>(null);
+
+  readonly previewRoute = computed<TripRoute | null>(() => {
+    const planned = this.osrmRoute();
+    if (planned) {
+      return planned;
+    }
+    const origin = this.originPoint();
+    const destination = this.destinationPoint();
+    if (!origin || !destination) {
+      return null;
+    }
+    const impact = this.impact();
+    const durationMin = estimateDurationMin(origin.coordinates, destination.coordinates);
+    return {
+      tripId: this.published()?.id ?? 'preview',
+      distanceKm: impact?.km ?? 0,
+      durationMin,
+      geometry: {
+        type: 'LineString',
+        coordinates: [origin.coordinates, destination.coordinates],
+      },
+      source: 'estimated',
+      tripStatus: 'published',
+      startedAt: null,
+      estimatedArrivalAt: null,
+    };
+  });
+
   // Paradas del viaje, con la llegada aproximada: para la revisión y al
   // publicar
   readonly stops = computed(() => {
@@ -284,6 +341,19 @@ export class PublishTripPage implements OnInit {
   });
 
   constructor() {
+    effect(() => {
+      const origin = this.originPoint();
+      const destination = this.destinationPoint();
+      if (!origin || !destination) {
+        this.osrmRoute.set(null);
+        return;
+      }
+      void this.tripsService
+        .planRoute(origin.coordinates, destination.coordinates)
+        .then((route) => this.osrmRoute.set(route))
+        .catch(() => this.osrmRoute.set(null));
+    });
+
     effect(() => {
       const userId = this.auth.currentUser()?.id ?? null;
       if (userId === this.accountId) {

@@ -46,13 +46,22 @@
 }
 
 // Margen: a todo el ancho, con la flecha a la derecha (el
-// texto ocupa el hueco que queda)
+// texto ocupa el hueco que queda), igualando el alto y esquinas con los demás campos
 .search-form__select {
   width: 100%;
+  --min-height: var(--control-height-l);
+  min-height: var(--control-height-l);
+  --border-radius: var(--radius-s);
+  --border-color: var(--color-border);
+  --border-width: var(--border-width-s);
+  background: var(--color-surface);
+  border-radius: var(--radius-s);
 }
 
 .search-form__select::part(container) {
   flex: 1;
+  min-height: var(--control-height-l);
+  align-items: center;
 }
 
 // Ahorro aproximado del trayecto: aviso verde claro con la hoja y las cifras

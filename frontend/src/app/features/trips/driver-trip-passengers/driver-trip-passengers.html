@@ -3,6 +3,11 @@
     <ion-card-title>Pasajeros</ion-card-title>
   </ion-card-header>
   <ion-card-content>
+    <!-- Con pasajeros (confirmado o en curso): hablar con ellos arriba -->
+    @if (hasChat()) {
+      <app-trip-chat-link [tripId]="trip().id" />
+    }
+
     <!-- Las plazas como asientos: ocupados en azul, libres con borde -->
     <div class="driver-trip__seats">
       <span class="driver-trip__seat-row" aria-hidden="true">
@@ -101,11 +106,6 @@
           </ul>
         }
       </div>
-    }
-
-    <!-- Con pasajeros (confirmado o en curso): hablar con ellos -->
-    @if (hasChat()) {
-      <app-trip-chat-link [tripId]="trip().id" />
     }
   </ion-card-content>
 </ion-card>

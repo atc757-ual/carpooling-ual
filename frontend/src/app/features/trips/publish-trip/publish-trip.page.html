@@ -249,6 +249,17 @@
         <ng-template #summary>
           <section class="publish__summary-body" aria-labelledby="detail-title">
             <h2 id="detail-title" class="text-subtitle">Tu viaje</h2>
+            @if (previewRoute(); as route) {
+              @if (originPoint(); as origin) {
+                @if (destinationPoint(); as destination) {
+                  <app-trip-route-map
+                    [route]="route"
+                    [origin]="origin"
+                    [destination]="destination"
+                  />
+                }
+              }
+            }
             @if (stops(); as stops) {
               <app-route-timeline [stops]="stops" />
             }

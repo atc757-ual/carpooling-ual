@@ -33,6 +33,11 @@ import {
 } from '../../shared/pagination/paginated';
 import { PaginationQueryDto } from '../../shared/pagination/pagination-query.dto';
 import { FinishTripDto } from './dto/finish-trip.dto';
+import { PlanRouteDto } from './dto/plan-route.dto';
+import {
+  PlannedRouteResource,
+  toPlannedRouteResource,
+} from './dto/planned-route.resource';
 import { PublishTripDto } from './dto/publish-trip.dto';
 import {
   PublishingStatusResource,
@@ -158,6 +163,21 @@ export class TripsController {
     return toTripRouteResource(
       await this.viewerAccess.routeFor(view, tripViewerOf(user)),
     );
+  }
+
+  @Post('trips/plan')
+  @ApiOperation({
+    summary: 'Plan a road route between two points before publishing',
+    description: 'Returns the road route from OSRM or straight-line fallback.',
+  })
+  @ApiOkResponse({ type: PlannedRouteResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+  })
+  async planRoute(@Body() dto: PlanRouteDto): Promise<PlannedRouteResource> {
+    const plan = await this.tripsService.planRoute(dto.origin, dto.destination);
+    return toPlannedRouteResource(plan);
   }
 
   @Get('users/me/trips')

@@ -1,3 +1,5 @@
+@use '../../../theme/color-scheme';
+
 .profile {
   align-items: stretch;
   ion-card {
@@ -479,6 +481,28 @@ app-profile-device-location {
   .icon-sun,
   .icon-moon {
     color: var(--color-on-primary);
+  }
+}
+
+@include color-scheme.dark {
+  .theme-switch {
+    background: var(--color-surface-subtle);
+    border-color: var(--color-border-subtle);
+  }
+
+  .theme-switch__option--active {
+    background: #2563eb;
+
+    .icon-sun,
+    .icon-moon {
+      color: #ffffff;
+    }
+  }
+
+  .theme-switch__option:not(.theme-switch__option--active) {
+    .icon-moon {
+      color: var(--color-text-muted);
+    }
   }
 }
 

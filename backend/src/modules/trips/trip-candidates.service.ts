@@ -8,10 +8,10 @@ import type {
 } from '../matching/candidate-source';
 import { TripRoutesService } from './trip-routes.service';
 
-// La ruta del conductor tiene que pasar a menos de 2 km de la dirección del
+// La ruta del conductor tiene que pasar a menos de 1 km de la dirección del
 // pasajero, y su extremo del campus, a menos de 1 km del parking elegido (el
 // campus mide ~1 km: cualquier parking cercano le sirve)
-export const PICKUP_RADIUS_M = 2000;
+export const PICKUP_RADIUS_M = 800;
 export const CAMPUS_RADIUS_M = 1000;
 // Solo los más cercanos pasan a calcular el desvío con OSRM (una petición
 // por candidato)

@@ -1,3 +1,5 @@
+@use 'color-scheme';
+
 // Aspecto por defecto de los componentes de Ionic con los tokens del tema.
 // Solo con sus variables CSS y ::part(), sin !important (ver CLAUDE.md).
 
@@ -1060,4 +1062,21 @@ ion-searchbar.admin-heading__search {
   padding-left: var(--space-l);
   color: var(--color-text-muted);
   text-align: left;
+}
+
+// Interruptor (ion-toggle): contraste accesible y consistente en claro y oscuro
+ion-toggle {
+  --background: var(--color-surface-raised);
+  --background-checked: var(--color-link);
+  --handle-background: #ffffff;
+  --handle-background-checked: #ffffff;
+}
+
+@include color-scheme.dark {
+  ion-toggle {
+    --background: var(--color-surface-raised);
+    --background-checked: #2563eb;
+    --handle-background: #cbd5e1;
+    --handle-background-checked: #ffffff;
+  }
 }

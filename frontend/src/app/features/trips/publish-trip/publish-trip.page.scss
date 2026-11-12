@@ -206,6 +206,7 @@
 
 // Resumen del último paso: como «Tu viaje», dentro de la tarjeta
 .publish__summary-body {
+  --trip-route-map-height: 14rem; // 224px
   display: flex;
   flex-direction: column;
   gap: var(--space-s);

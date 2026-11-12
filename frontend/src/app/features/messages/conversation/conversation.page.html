@@ -174,7 +174,9 @@
       >
     }
     <span class="conversation__buttons">
-      <ng-container [ngTemplateOutlet]="callButton" />
+      @if (canShowCall()) {
+        <ng-container [ngTemplateOutlet]="callButton" />
+      }
       <ng-container [ngTemplateOutlet]="optionsButton" />
     </span>
   </span>

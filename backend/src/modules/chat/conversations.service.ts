@@ -98,6 +98,30 @@ export class ConversationsService {
     return { items: views, total: conversations.length };
   }
 
+  // Una conversación concreta del usuario (para el encabezado del chat y viajes terminados)
+  async getForTrip(userId: string, tripId: string): Promise<ConversationView> {
+    const { trip, role } = await this.chat.getAccess(userId, tripId);
+    const [lastMessages, unread, driverProfiles] = await Promise.all([
+      this.lastMessages([tripId]),
+      this.unreadCounts(userId, [tripId]),
+      this.usersService.getPublicProfiles([trip.driverId]),
+    ]);
+    const lastMessage = lastMessages.get(tripId) ?? null;
+    return {
+      trip,
+      driver: {
+        name: driverProfiles.get(trip.driverId)?.name ?? '',
+        avatarKey: driverProfiles.get(trip.driverId)?.avatarKey ?? null,
+      },
+      myRole: role,
+      lastMessage: lastMessage
+        ? (await this.chat.toViews(trip, [lastMessage]))[0]
+        : null,
+      unreadCount: unread.get(tripId) ?? 0,
+      isOpen: isChatOpen(trip),
+    };
+  }
+
   async markRead(userId: string, tripId: string): Promise<void> {
     await this.chat.getAccess(userId, tripId);
     // Con la hora de la base de datos, la misma que la de los mensajes

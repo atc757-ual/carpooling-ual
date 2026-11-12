@@ -1,8 +1,5 @@
 import type { Trip } from '../trips/entities/trip.entity';
 
-// Después de terminar el viaje, el chat admite mensajes durante 24 h; luego
-// queda de solo lectura
-export const CHAT_OPEN_AFTER_FINISH_MS = 24 * 60 * 60 * 1000;
 // Mensajes por minuto y usuario (evita abusos)
 export const CHAT_MAX_MESSAGES_PER_MINUTE = 20;
 // Los mensajes de un viaje terminado o cancelado se conservan 30 días: hasta
@@ -29,15 +26,8 @@ export function chatRoleOf(
   return acceptedPassengerIds.includes(userId) ? 'passenger' : null;
 }
 
-// Admite mensajes: confirmado (ya con pasajeros), en curso o terminado hace
-// menos de 24 h. Publicado (sin pasajeros) o cancelado, no
-export function isChatOpen(trip: ChatTrip, now = new Date()): boolean {
-  if (trip.status === 'confirmed' || trip.status === 'in_progress') {
-    return true;
-  }
-  if (trip.status !== 'finished') {
-    return false;
-  }
-  const finishedAt = trip.finishedAt ?? trip.updatedAt;
-  return now.getTime() - finishedAt.getTime() < CHAT_OPEN_AFTER_FINISH_MS;
+// Admite mensajes mientras el viaje esté confirmado (con pasajeros) o en curso.
+// Una vez finalizado, publicado (sin pasajeros) o cancelado, pasa a solo lectura
+export function isChatOpen(trip: ChatTrip): boolean {
+  return trip.status === 'confirmed' || trip.status === 'in_progress';
 }

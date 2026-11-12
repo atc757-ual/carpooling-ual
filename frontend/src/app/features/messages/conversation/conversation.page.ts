@@ -258,6 +258,12 @@ export class ConversationPage {
     return status ? TRIP_STATUS_LABELS[status] : '';
   }
 
+  // Mostrar botón de llamada solo si el viaje está activo (confirmado o en curso)
+  canShowCall(): boolean {
+    const status = this.conversation()?.trip.status;
+    return status === 'confirmed' || status === 'in_progress';
+  }
+
   // Hay a quién llamar: viaje confirmado o en curso y teléfono verificado
   canCall(): boolean {
     return this.contacts().length > 0;
@@ -368,12 +374,15 @@ export class ConversationPage {
     this.isLoading.set(true);
     this.hasError.set(false);
     try {
-      const [conversations, messages] = await Promise.all([
-        this.chat.listConversations(),
+      const [conversation, messages] = await Promise.all([
+        this.chat.getConversation(tripId).catch(async () => {
+          const conversations = await this.chat.listConversations();
+          return conversations.find(({ id }) => id === tripId) ?? null;
+        }),
         this.chat.listMessages(tripId),
       ]);
       if (version !== this.loadVersion) return;
-      this.conversation.set(conversations.find(({ id }) => id === tripId) ?? null);
+      this.conversation.set(conversation);
       this.messages.set(messages);
       void this.loadContacts(tripId, version);
       this.scrollToBottom();
