@@ -1,5 +1,3 @@
-@use '../../../theme/color-scheme';
-
 .profile {
   align-items: stretch;
   ion-card {
@@ -249,18 +247,6 @@ app-profile-device-location {
   }
 }
 
-.profile__legal-row--danger {
-  border-color: var(--color-border-subtle);
-
-  .profile__legal-icon {
-    color: var(--color-primary);
-  }
-
-  &:hover {
-    background: var(--color-primary-subtle);
-    border-color: var(--color-primary-subtle);
-  }
-}
 
 .profile__logout {
   align-self: stretch;
@@ -311,30 +297,6 @@ app-profile-device-location {
 .profile__star {
   color: var(--color-accent);
   vertical-align: -0.125rem;
-}
-
-.theme-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: 0.25rem var(--space-s);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
-  color: var(--color-text);
-  cursor: pointer;
-
-  ion-icon {
-    font-size: 1.25rem; // 20px
-  }
-  // Sol naranja en claro y luna azul en oscuro; los roles ya se aclaran en el
-  // modo oscuro para mantener el contraste
-  .icon-sun {
-    color: var(--color-accent);
-  }
-  .icon-moon {
-    color: var(--color-primary);
-  }
 }
 
 // Editar: botón cuadrado de 32px con fondo azul suave e icono de 20px
@@ -484,7 +446,7 @@ app-profile-device-location {
   }
 }
 
-@include color-scheme.dark {
+:host-context(.theme-dark) {
   .theme-switch {
     background: var(--color-surface-subtle);
     border-color: var(--color-border-subtle);
@@ -493,16 +455,13 @@ app-profile-device-location {
   .theme-switch__option--active {
     background: #2563eb;
 
-    .icon-sun,
-    .icon-moon {
+    ion-icon {
       color: #ffffff;
     }
   }
 
-  .theme-switch__option:not(.theme-switch__option--active) {
-    .icon-moon {
-      color: var(--color-text-muted);
-    }
+  .theme-switch__option:not(.theme-switch__option--active) .icon-moon {
+    color: var(--color-text-muted);
   }
 }
 

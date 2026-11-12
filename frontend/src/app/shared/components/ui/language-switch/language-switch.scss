@@ -1,5 +1,3 @@
-@use '../../../../../theme/color-scheme';
-
 // Una pastilla con borde y dos partes; la activa, rellena de azul
 :host {
   display: inline-flex;
@@ -51,7 +49,7 @@
   color: var(--color-on-primary);
 }
 
-@include color-scheme.dark {
+:host-context(.theme-dark) {
   .language-switch {
     background: var(--color-surface-subtle);
     border-color: var(--color-border-subtle);
