@@ -208,16 +208,6 @@ ion-card-content.ride__state {
   }
 }
 
-// En la hoja del móvil, las secciones ya traen su relleno: sin hueco entre ellas
-.ride__side--sheet {
-  gap: 0;
-
-  // Una línea fina entre secciones
-  > * + * {
-    border-top: var(--border-width-s) solid var(--color-border-subtle);
-  }
-}
-
 // Ha llegado: el ✓ verde con el aviso y, debajo, la valoración del conductor
 .ride__done-head {
   display: flex;

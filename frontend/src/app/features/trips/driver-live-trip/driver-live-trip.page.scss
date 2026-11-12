@@ -312,16 +312,6 @@
   }
 }
 
-// En la hoja del móvil, las secciones ya traen su relleno: sin hueco entre ellas
-.driver-live-trip__side--sheet {
-  gap: 0;
-
-  // Una línea fina entre secciones
-  > * + * {
-    border-top: var(--border-width-s) solid var(--color-border-subtle);
-  }
-}
-
 // Terminado: el ✓ verde con el aviso
 .driver-live-trip__done {
   display: flex;
