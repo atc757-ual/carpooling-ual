@@ -1,13 +1,4 @@
-import {
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  inject,
-  resource,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, resource, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -17,7 +8,6 @@ import {
   IonCardContent,
   IonContent,
   IonIcon,
-  IonModal,
   IonSpinner,
 } from '@ionic/angular';
 import {
@@ -41,14 +31,7 @@ import { LocationService } from '../../../core/services/location/location.servic
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import {
-  injectIsDesktop,
-  injectIsOnUrl,
-  LIVE_SHEET_BREAKPOINTS,
-  LIVE_SHEET_FULL_BREAKPOINT,
-  LIVE_SHEET_INITIAL_BREAKPOINT,
-  liveSheetInset,
-} from '../../../shared/utils/desktop-query.util';
+import { injectLiveSheet } from '../../../shared/utils/desktop-query.util';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatSeats } from '../../../shared/utils/seats.util';
 import { isCampusName } from '../../matching/campus';
@@ -56,7 +39,15 @@ import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { ReviewTarget, TripReviewCard } from '../trip-review/trip-review-card';
 import { checkFinish, completeFinish, FinishCheck, formatDistance } from '../finish-trip.util';
 import { LiveTripMap, LiveTripStatus } from '../passenger-requests/live-trip-map/live-trip-map';
-import { etaTag, headingTo, isArriving, journeyStages } from '../live-trip-hero.util';
+import {
+  headingTo,
+  isArriving,
+  journeyStages,
+  liveEtaText,
+  LiveTripHero,
+  LiveTripSheet,
+  stageIndex,
+} from '../live-trip-hero.util';
 
 // Una recogida sigue siendo «la siguiente» hasta 5 min después de su hora
 // (lo que se espera al pasajero antes de poder marcar «No se presentó»)
@@ -82,14 +73,15 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
     IonCardContent,
     IonContent,
     IonIcon,
-    IonModal,
     IonSpinner,
+    LiveTripHero,
     LiveTripMap,
+    LiveTripSheet,
     TripReviewCard,
     RouterLink,
   ],
   templateUrl: './driver-live-trip.page.html',
-  styleUrls: ['../../tabs/tab-page.scss', '../live-trip.scss', './driver-live-trip.page.scss'],
+  styleUrls: ['../../tabs/tab-page.scss', './driver-live-trip.page.scss'],
 })
 export class DriverLiveTripPage {
   private readonly driver = inject(DriverService);
@@ -178,21 +170,14 @@ export class DriverLiveTripPage {
   readonly isPageVisible = signal(true);
   // Lo que el mapa sabe en directo (minutos hasta la recogida y el destino)
   readonly liveStatus = signal<LiveTripStatus | null>(null);
-  readonly etaText = computed(() => {
-    const status = this.liveStatus();
-    if (!status) {
-      return null;
-    }
-    if (status.isStale) {
-      return 'Sin tu ubicación';
-    }
-    if (this.nextPickup()) {
-      return status.pickupMinutes === null ? null : etaTag(status.pickupMinutes, 'En la recogida');
-    }
-    return status.destinationMinutes === null
-      ? null
-      : etaTag(status.destinationMinutes, 'En destino');
-  });
+  readonly etaText = computed(() =>
+    liveEtaText(
+      this.liveStatus(),
+      Boolean(this.nextPickup()),
+      'En la recogida',
+      'Sin tu ubicación',
+    ),
+  );
   readonly isToCampus = computed(() => isCampusName(this.trip()?.destinationName));
   // Recogidas hechas y a menos de 300 m del campus: «Llegada» es la etapa actual
   readonly isNearDestination = computed(
@@ -207,37 +192,10 @@ export class DriverLiveTripPage {
       ? `Recoge a ${getFirstName(next.passenger.name)}`
       : headingTo(this.isToCampus(), this.isNearDestination());
   });
-  readonly stages = computed(() => {
-    let current = 1;
-    if (!this.arePickupsDone()) {
-      current = 0;
-    } else if (this.isNearDestination()) {
-      current = 2;
-    }
-    return journeyStages(DRIVER_STAGES, current);
-  });
-  readonly isDesktop = injectIsDesktop();
-  protected readonly sheetBreakpoints = LIVE_SHEET_BREAKPOINTS;
-  protected readonly sheetInitialBreakpoint = LIVE_SHEET_INITIAL_BREAKPOINT;
-  // La hoja no se cierra al arrastrarla en el móvil; sí al pasar a escritorio
-  // o al salir de la pantalla (se pregunta en el momento: una función, no un
-  // valor fijo, o se quedaría abierta encima del 8 + 4)
-  readonly isOnPage = injectIsOnUrl(DRIVE_URL);
-  protected readonly canDismissSheet = (): Promise<boolean> =>
-    Promise.resolve(this.isDesktop() || !this.isOnPage() || this.isLeaving);
-  // Al salir (volver atrás destruye la pantalla), la hoja se cierra a mano:
-  // Ionic la ha sacado de su sitio y, si no, se quedaría encima de la otra
-  private readonly sheet = viewChild(IonModal);
-  private isLeaving = false;
-  private async closeSheet(): Promise<void> {
-    this.isLeaving = true;
-    await this.sheet()?.dismiss();
-  }
-  // Lo que tapa la hoja ahora (cambia al arrastrarla): el mapa encuadra encima
-  readonly sheetBreakpoint = signal(LIVE_SHEET_INITIAL_BREAKPOINT);
-  readonly mapInset = computed(() =>
-    this.isDesktop() ? 0 : liveSheetInset(this.sheetBreakpoint()),
+  readonly stages = computed(() =>
+    journeyStages(DRIVER_STAGES, stageIndex(!this.arePickupsDone(), this.isNearDestination())),
   );
+  readonly sheet = injectLiveSheet(DRIVE_URL);
   // Los teléfonos para llamar: resource y no effect, para no pintar los de
   // otro viaje si la respuesta llega tarde
   private readonly contactsData = resource({
@@ -263,12 +221,6 @@ export class DriverLiveTripPage {
   private readonly validatingBoardMap = signal<Record<string, boolean>>({});
 
   constructor() {
-    effect(() => {
-      if (!this.isOnPage()) {
-        void this.closeSheet();
-      }
-    });
-    inject(DestroyRef).onDestroy(() => void this.closeSheet());
     const timer = setInterval(() => this.now.set(Date.now()), CLOCK_UPDATE_MS);
     inject(DestroyRef).onDestroy(() => clearInterval(timer));
     // Si se entra con el viaje en curso, su posición se sigue enviando
@@ -321,11 +273,11 @@ export class DriverLiveTripPage {
   }
 
   ionViewWillLeave(): void {
-    void this.closeSheet();
+    void this.sheet.close();
   }
 
   ionViewWillEnter(): void {
-    this.isLeaving = false;
+    this.sheet.enter();
     this.isPageVisible.set(true);
   }
 
@@ -446,13 +398,13 @@ export class DriverLiveTripPage {
     if (await completeFinish(deps, trip.id, check.point)) {
       this.finishCheck.set(null);
       this.justFinished.set(true);
-      void this.sheet()?.setCurrentBreakpoint(LIVE_SHEET_FULL_BREAKPOINT);
+      this.sheet.expand();
     }
     this.isFinishing.set(false);
   }
 
   async leaveFinished(): Promise<void> {
-    await this.closeSheet();
+    await this.sheet.close();
     await this.router.navigateByUrl('/tabs/trips');
   }
 

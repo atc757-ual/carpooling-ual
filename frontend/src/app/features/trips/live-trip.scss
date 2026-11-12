@@ -8,6 +8,8 @@
 .live-hero {
   --live-hero-accent: var(--color-primary);
 
+  margin: 0;
+
   ion-card-content {
     display: flex;
     flex-direction: column;
@@ -165,13 +167,11 @@ ion-modal.live-sheet {
   // Dentro, las tarjetas sin marco ni relleno lateral: secciones separadas
   // por una línea fina, para que la hoja se vea compacta
   ::ng-deep ion-card {
+    margin: 0;
     border: 0;
     border-radius: 0;
     box-shadow: none;
   }
-
-  // La línea entre secciones la pone cada pantalla entre los hijos de su
-  // columna (algunas tarjetas van dentro de un componente)
 
   // Con ion-card y [class] delante, para ganar al relleno general de las
   // tarjetas (ion-card ion-card-content[class], más abajo en este fichero)
@@ -191,5 +191,17 @@ ion-modal.live-sheet {
 
   ::ng-deep ion-card ion-card-header[class] + ion-card-content[class] {
     padding-top: var(--space-s);
+  }
+}
+
+// En la hoja del móvil, las secciones ya traen su relleno: sin hueco entre ellas
+.live-sheet__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+
+  ::ng-deep > * + * {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
   }
 }

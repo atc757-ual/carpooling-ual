@@ -88,44 +88,15 @@
                 </ion-card-content>
               </ion-card>
             } @else {
-              <ion-card class="live-hero">
-                <ion-card-content aria-live="polite">
-                  <!-- Compacta: el título y los minutos a la derecha; debajo, dónde -->
-                  <div class="live-hero__head">
-                    <h2 class="live-hero__title">{{ heroTitle() }}</h2>
-                    @if (etaText(); as eta) {
-                      <span class="live-hero__tag">{{ eta }}</span>
-                    }
-                  </div>
-                  <p class="live-hero__text">
-                    <ion-icon
-                      [icon]="phase() === 'waiting' ? pinIcon : destinationIcon()"
-                      aria-hidden="true"
-                    />
-                    <span class="live-hero__place">
-                      {{
-                        phase() === 'waiting'
-                          ? pickupName()
-                          : (trip.destinationName ?? 'tu destino')
-                      }}
-                    </span>
-                  </p>
-
-                  <!-- Las tres etapas del pasajero; la actual, cargando -->
-                  <ol class="live-journey" aria-label="Etapas de tu viaje">
-                    @for (stage of stages(); track stage.label) {
-                      <li
-                        class="live-journey__stage"
-                        [class.live-journey__stage--current]="stage.state === 'current'"
-                        [class.live-journey__stage--done]="stage.state === 'done'"
-                        [attr.aria-current]="stage.state === 'current' ? 'step' : null"
-                      >
-                        {{ stage.label }}
-                      </li>
-                    }
-                  </ol>
-                </ion-card-content>
-              </ion-card>
+              <app-live-trip-hero
+                [title]="heroTitle()"
+                [eta]="etaText()"
+                [icon]="phase() === 'waiting' ? pinIcon : destinationIcon()"
+                [place]="
+                  phase() === 'waiting' ? pickupName() : (trip.destinationName ?? 'tu destino')
+                "
+                [stages]="stages()"
+              />
 
               @if (phase() === 'waiting' && request.boardCode) {
                 <ion-card class="ride__panel" role="region" aria-labelledby="ride-code-title">
@@ -214,42 +185,21 @@
                     [active]="isPageVisible()"
                     [driverName]="driverName()"
                     [destination]="trip.destination"
-                    [bottomInset]="mapInset()"
+                    [bottomInset]="sheet.mapInset()"
                     (statusChange)="liveStatus.set($event)"
                   />
                 </ion-card-content>
               </ion-card>
             </section>
 
-            @if (isDesktop()) {
+            @if (sheet.isDesktop()) {
               <aside class="ride__side" aria-label="Tu viaje ahora">
                 <ng-container [ngTemplateOutlet]="rideDetails" />
               </aside>
             }
           </div>
 
-          @if (!isDesktop()) {
-            <ion-modal
-              class="live-sheet"
-              [isOpen]="!isDesktop() && isOnPage()"
-              [breakpoints]="sheetBreakpoints"
-              [initialBreakpoint]="sheetInitialBreakpoint"
-              [backdropBreakpoint]="1"
-              [canDismiss]="canDismissSheet"
-              [backdropDismiss]="false"
-              [handle]="true"
-              handleBehavior="cycle"
-              (ionBreakpointDidChange)="sheetBreakpoint.set($event.detail.breakpoint)"
-            >
-              <ng-template>
-                <ion-content>
-                  <section class="ride__side ride__side--sheet" aria-label="Tu viaje ahora">
-                    <ng-container [ngTemplateOutlet]="rideDetails" />
-                  </section>
-                </ion-content>
-              </ng-template>
-            </ion-modal>
-          }
+          <app-live-trip-sheet [sheet]="sheet" [content]="rideDetails" />
         }
       }
     }

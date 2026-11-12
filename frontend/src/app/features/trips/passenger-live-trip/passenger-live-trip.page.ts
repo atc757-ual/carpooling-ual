@@ -7,7 +7,6 @@ import {
   input,
   resource,
   signal,
-  viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -17,7 +16,6 @@ import {
   IonCardContent,
   IonContent,
   IonIcon,
-  IonModal,
   IonSpinner,
 } from '@ionic/angular';
 import {
@@ -36,19 +34,20 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import {
-  injectIsDesktop,
-  injectIsOnUrl,
-  LIVE_SHEET_BREAKPOINTS,
-  LIVE_SHEET_FULL_BREAKPOINT,
-  LIVE_SHEET_INITIAL_BREAKPOINT,
-  liveSheetInset,
-} from '../../../shared/utils/desktop-query.util';
+import { injectLiveSheet } from '../../../shared/utils/desktop-query.util';
 import { LicensePlate } from '../../../shared/components/ui/license-plate/license-plate';
 import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { LiveTripMap, LiveTripStatus } from '../passenger-requests/live-trip-map/live-trip-map';
-import { etaTag, headingTo, isArriving, journeyStages } from '../live-trip-hero.util';
+import {
+  headingTo,
+  isArriving,
+  journeyStages,
+  liveEtaText,
+  LiveTripHero,
+  LiveTripSheet,
+  stageIndex,
+} from '../live-trip-hero.util';
 import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
 import { TripReviewForm } from '../trip-review/trip-review-form';
 import { PassengerRequestActions } from '../passenger-requests/passenger-request-actions/passenger-request-actions';
@@ -85,16 +84,17 @@ export function ridePhase(request: SeatRequest, trip: Trip): RidePhase {
     IonCardContent,
     IonContent,
     IonIcon,
-    IonModal,
     IonSpinner,
     LicensePlate,
+    LiveTripHero,
     LiveTripMap,
+    LiveTripSheet,
     PassengerIncidentModal,
     PassengerRequestActions,
     TripReviewForm,
   ],
   templateUrl: './passenger-live-trip.page.html',
-  styleUrls: ['../../tabs/tab-page.scss', '../live-trip.scss', './passenger-live-trip.page.scss'],
+  styleUrls: ['../../tabs/tab-page.scss', './passenger-live-trip.page.scss'],
 })
 export class PassengerLiveTripPage {
   private readonly requests = inject(SeatRequestsService);
@@ -174,21 +174,9 @@ export class PassengerLiveTripPage {
   readonly isReportingIncident = signal(false);
   // Lo que el mapa sabe en directo (minutos hasta la recogida y el destino)
   readonly liveStatus = signal<LiveTripStatus | null>(null);
-  readonly etaText = computed(() => {
-    const status = this.liveStatus();
-    if (!status) {
-      return null;
-    }
-    if (status.isStale) {
-      return 'Sin posición';
-    }
-    if (this.phase() === 'waiting') {
-      return status.pickupMinutes === null ? null : etaTag(status.pickupMinutes, 'Llega');
-    }
-    return status.destinationMinutes === null
-      ? null
-      : etaTag(status.destinationMinutes, 'En destino');
-  });
+  readonly etaText = computed(() =>
+    liveEtaText(this.liveStatus(), this.phase() === 'waiting', 'Llega', 'Sin posición'),
+  );
   readonly isToCampus = computed(() => this.request()?.direction !== 'from-campus');
   // A bordo y a menos de 300 m del campus: «Llegada» pasa a ser la etapa actual
   readonly isNearDestination = computed(
@@ -202,50 +190,20 @@ export class PassengerLiveTripPage {
       ? `Esperando a ${this.driverName()}`
       : headingTo(this.isToCampus(), this.isNearDestination()),
   );
-  readonly stages = computed(() => {
-    let current = 1;
-    if (this.phase() === 'waiting') {
-      current = 0;
-    } else if (this.isNearDestination()) {
-      current = 2;
-    }
-    return journeyStages(PASSENGER_STAGES, current);
-  });
-  readonly isDesktop = injectIsDesktop();
-  protected readonly sheetBreakpoints = LIVE_SHEET_BREAKPOINTS;
-  protected readonly sheetInitialBreakpoint = LIVE_SHEET_INITIAL_BREAKPOINT;
-  // La hoja no se cierra al arrastrarla en el móvil; sí al pasar a escritorio
-  // o al salir de la pantalla (se pregunta en el momento: una función, no un
-  // valor fijo, o se quedaría abierta encima del 8 + 4)
-  readonly isOnPage = injectIsOnUrl(RIDE_URL);
-  protected readonly canDismissSheet = (): Promise<boolean> =>
-    Promise.resolve(this.isDesktop() || !this.isOnPage() || this.isLeaving);
-  // Al salir (volver atrás destruye la pantalla), la hoja se cierra a mano:
-  // Ionic la ha sacado de su sitio y, si no, se quedaría encima de la otra
-  private readonly sheet = viewChild(IonModal);
-  private isLeaving = false;
-  private async closeSheet(): Promise<void> {
-    this.isLeaving = true;
-    await this.sheet()?.dismiss();
-  }
-  // Lo que tapa la hoja ahora (cambia al arrastrarla): el mapa encuadra encima
-  readonly sheetBreakpoint = signal(LIVE_SHEET_INITIAL_BREAKPOINT);
-  readonly mapInset = computed(() =>
-    this.isDesktop() ? 0 : liveSheetInset(this.sheetBreakpoint()),
+  readonly stages = computed(() =>
+    journeyStages(
+      PASSENGER_STAGES,
+      stageIndex(this.phase() === 'waiting', this.isNearDestination()),
+    ),
   );
+  readonly sheet = injectLiveSheet(RIDE_URL);
 
   constructor() {
     effect(() => {
       if (this.phase() === 'finished') {
-        void this.sheet()?.setCurrentBreakpoint(LIVE_SHEET_FULL_BREAKPOINT);
+        this.sheet.expand();
       }
     });
-    effect(() => {
-      if (!this.isOnPage()) {
-        void this.closeSheet();
-      }
-    });
-    inject(DestroyRef).onDestroy(() => void this.closeSheet());
     const timer = setInterval(() => {
       if (this.isPageVisible() && this.isLive()) {
         this.requestResource.reload();
@@ -256,19 +214,19 @@ export class PassengerLiveTripPage {
   }
 
   ionViewWillEnter(): void {
-    this.isLeaving = false;
+    this.sheet.enter();
     this.isPageVisible.set(true);
   }
 
   ionViewWillLeave(): void {
-    void this.closeSheet();
+    void this.sheet.close();
     this.isPageVisible.set(false);
   }
 
   async handleIncidentReported(): Promise<void> {
     this.isReportingIncident.set(false);
     void this.toast.showSuccess('Incidencia registrada. Tu plaza ha sido cancelada.');
-    await this.closeSheet();
+    await this.sheet.close();
     await this.router.navigateByUrl('/tabs/trips');
   }
 
