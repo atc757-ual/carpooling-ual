@@ -6076,6 +6076,74 @@
         ]
       }
     },
+    "/api/trips/plan": {
+      "post": {
+        "description": "Returns the road route from OSRM or straight-line fallback.",
+        "operationId": "TripsController_planRoute",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanRouteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlannedRouteResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Plan a road route between two points before publishing",
+        "tags": [
+          "trips"
+        ]
+      }
+    },
     "/api/users/me/trips": {
       "get": {
         "description": "Ordered by departure time, the soonest first.",
@@ -8813,6 +8881,94 @@
           }
         ],
         "summary": "List my conversations",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/trips/{id}/conversation": {
+      "get": {
+        "description": "Returns the trip and driver details for the chat header, even if closed.",
+        "operationId": "ChatController_getConversation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: CHAT_NOT_ALLOWED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get conversation details for a trip",
         "tags": [
           "chat"
         ]
@@ -15107,6 +15263,72 @@
           "tripStatus",
           "startedAt",
           "estimatedArrivalAt"
+        ]
+      },
+      "PlanRouteDto": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "example": {
+              "type": "Point",
+              "coordinates": [
+                -2.4637,
+                36.8381
+              ]
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "destination": {
+            "example": {
+              "type": "Point",
+              "coordinates": [
+                -2.4058,
+                36.8297
+              ]
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "origin",
+          "destination"
+        ]
+      },
+      "PlannedRouteResource": {
+        "type": "object",
+        "properties": {
+          "distanceKm": {
+            "type": "number",
+            "example": 7.76
+          },
+          "durationMin": {
+            "type": "number",
+            "example": 11
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/GeoLineStringResource"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "osrm",
+              "estimated"
+            ]
+          }
+        },
+        "required": [
+          "distanceKm",
+          "durationMin",
+          "geometry",
+          "source"
         ]
       },
       "PublishingStatusResource": {
