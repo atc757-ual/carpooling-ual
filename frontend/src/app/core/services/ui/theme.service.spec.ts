@@ -56,4 +56,41 @@ describe('ThemeService', () => {
     expect(root.contains(wasDark ? 'theme-light' : 'theme-dark')).toBe(true);
     expect(preferences.set).toHaveBeenCalledWith('theme', wasDark ? 'light' : 'dark');
   });
+
+  it('sets the mode explicitly, forces it on the page and remembers it', async () => {
+    const theme = createService();
+    await theme.set(true);
+
+    expect(theme.isDark()).toBe(true);
+    expect(root.contains('theme-dark')).toBe(true);
+    expect(root.contains('theme-light')).toBe(false);
+    expect(preferences.set).toHaveBeenCalledWith('theme', 'dark');
+
+    await theme.set(false);
+    expect(theme.isDark()).toBe(false);
+    expect(root.contains('theme-light')).toBe(true);
+    expect(root.contains('theme-dark')).toBe(false);
+    expect(preferences.set).toHaveBeenCalledWith('theme', 'light');
+  });
+
+  it('updates dark signal when system theme changes and no preference is saved', async () => {
+    let listener: ((e: MediaQueryListEvent) => void) | undefined;
+    const originalMatchMedia = window.matchMedia;
+    window.matchMedia = vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn((_type: string, cb: unknown) => {
+        listener = cb as (e: MediaQueryListEvent) => void;
+      }),
+      removeEventListener: vi.fn(),
+    } as unknown as MediaQueryList);
+
+    const theme = createService();
+    expect(theme.isDark()).toBe(false);
+
+    listener?.({ matches: true } as MediaQueryListEvent);
+    await Promise.resolve();
+    expect(theme.isDark()).toBe(true);
+
+    window.matchMedia = originalMatchMedia;
+  });
 });

@@ -220,11 +220,11 @@ describe('ProfilePage', () => {
     expect(themeSpy).toHaveBeenCalled();
   });
 
-  it('sets theme if different from current mode', () => {
+  it('sets theme via theme service', () => {
     const { page } = render();
-    const themeSpy = vi.spyOn(TestBed.inject(ThemeService), 'toggle').mockResolvedValue();
+    const themeSpy = vi.spyOn(TestBed.inject(ThemeService), 'set').mockResolvedValue();
     page.handleSetTheme(true);
-    expect(themeSpy).toHaveBeenCalled();
+    expect(themeSpy).toHaveBeenCalledWith(true);
   });
   it('opens the change password modal', async () => {
     const { page } = render();
