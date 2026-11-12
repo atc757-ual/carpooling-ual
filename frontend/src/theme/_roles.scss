@@ -11,7 +11,7 @@
 @use 'color-scheme';
 
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
 
   // Fondos y superficies
   --color-bg: #{$neutral-0};
@@ -80,6 +80,10 @@
   --shadow-l: 0 12px 32px rgb(12 12 12 / 14%);
   // Tarjetas: un halo azulado muy suave, para separarlas del fondo gris
   --shadow-card: 0 2px 8px rgb(0 46 255 / 6%);
+}
+
+:root.theme-light {
+  color-scheme: light;
 }
 
 @include color-scheme.dark {

@@ -18,7 +18,7 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(notification.title || 'Carpooling UAL', {
       body: notification.body || '',
-      icon: '/favicon.ico',
+      icon: '/icon-192.png',
       // Un aviso por viaje y tipo: el nuevo sustituye al anterior
       tag: [data.type, data.tripId].filter(Boolean).join(':') || undefined,
       data,

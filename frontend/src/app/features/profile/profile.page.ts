@@ -212,9 +212,7 @@ export class ProfilePage implements OnInit {
   }
 
   handleSetTheme(dark: boolean): void {
-    if (this.isDarkMode() !== dark) {
-      void this.theme.toggle();
-    }
+    void this.theme.set(dark);
   }
 
   async handleEditPublic(): Promise<void> {
