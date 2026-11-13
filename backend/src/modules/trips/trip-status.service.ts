@@ -174,6 +174,8 @@ export class TripStatusService {
         offeredSeats: trip.offeredSeats,
         availableSeats: trip.availableSeats,
         maxDetourMin: trip.maxDetourMin,
+        pickupMode: trip.pickupMode,
+        maxDetourM: trip.maxDetourM,
         status: trip.status,
         startedAt: trip.startedAt?.toISOString() ?? null,
         // v2 de trip.started: las versiones de las declaraciones que confirmó

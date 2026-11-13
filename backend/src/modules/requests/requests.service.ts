@@ -16,7 +16,6 @@ import {
 } from '../trips/late-cancellations.service';
 import { TripStatusService } from '../trips/trip-status.service';
 import { TripsService } from '../trips/trips.service';
-import { TripRoutesService } from '../trips/trip-routes.service';
 import { UsersService } from '../users/users.service';
 import { SeatRequest } from './entities/seat-request.entity';
 import { AlreadyBoardedError } from './errors/already-boarded.error';
@@ -61,7 +60,6 @@ export class RequestsService {
     @InjectRepository(SeatRequest)
     private readonly requestsRepository: Repository<SeatRequest>,
     private readonly tripsService: TripsService,
-    private readonly tripRoutes: TripRoutesService,
     private readonly tripStatus: TripStatusService,
     private readonly usersService: UsersService,
     private readonly views: RequestViewsService,
@@ -150,18 +148,18 @@ export class RequestsService {
     const name = isToCampus
       ? context.pickupName!
       : (trip.originName ?? 'Punto de salida del conductor');
-    // Hacia el campus, lo que tarda el conductor desde su salida hasta la
-    // recogida; si recoge en su misma salida (o va desde el campus), sale ya
+    // Hacia el campus, cuándo llega el conductor a la recogida contando las
+    // que ya tiene aceptadas y sus paradas; si recoge en su misma salida (o va
+    // desde el campus), sale ya
     const needsRoute = isToCampus && !samePoint(trip.origin, location);
-    const durationMin = needsRoute
-      ? (await this.tripRoutes.plan(trip.origin, location)).durationMin
-      : 0;
     return {
       trip,
       direction: context.direction,
       location,
       name,
-      pickupAt: new Date(trip.departureAt.getTime() + durationMin * 60_000),
+      pickupAt: needsRoute
+        ? await this.requestPickups.estimatePickupAt(trip, location)
+        : trip.departureAt,
     };
   }
 

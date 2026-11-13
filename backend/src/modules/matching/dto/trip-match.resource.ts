@@ -40,9 +40,19 @@ export class TripMatchResource {
 
   @ApiProperty({
     example: 3,
-    description: 'Minutes the passenger adds to the driver route',
+    description:
+      'Detour of the whole trip with this passenger, in minutes: towards the campus, the detours and stops (2 min each) of every accepted passenger and this one; from the campus, dropping this passenger off',
   })
   detourMin: number;
+
+  @ApiProperty({
+    format: 'date-time',
+    nullable: true,
+    type: String,
+    description:
+      'Estimated pickup time towards the campus, after the earlier pickups and their stops; null from the campus (everybody boards there)',
+  })
+  pickupAt: string | null;
 
   @ApiProperty({
     example: -5,
@@ -91,6 +101,7 @@ export function toTripMatchResource({
     availableSeats: candidate.availableSeats,
     offeredSeats: candidate.offeredSeats,
     detourMin: candidate.detourMin,
+    pickupAt: candidate.pickupAt?.toISOString() ?? null,
     timeDifferenceMin,
     score,
   };

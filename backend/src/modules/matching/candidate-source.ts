@@ -31,6 +31,9 @@ export interface TripCandidate extends MatchCandidate {
   destination: Point;
   // Distancia de la ruta del conductor a la dirección del pasajero
   distanceKm: number;
+  // Hacia el campus, a qué hora le recogería (con las recogidas ya
+  // aceptadas); null al volver (todos suben en el campus)
+  pickupAt: Date | null;
 }
 
 export interface CandidateSource {

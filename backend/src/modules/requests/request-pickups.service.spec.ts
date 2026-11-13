@@ -64,6 +64,28 @@ describe('RequestPickupsService', () => {
     );
   });
 
+  it('estimates the pickup time of a new request after the accepted pickups', async () => {
+    const departure = new Date('2026-11-20T07:30:00Z');
+    planWith.mockResolvedValue({
+      pickups: [
+        { requestId: 'r0', etaOffsetMin: 3 },
+        { requestId: 'new-request', etaOffsetMin: 9 },
+      ],
+    });
+
+    const pickupAt = await service.estimatePickupAt(
+      { ...trip, departureAt: departure },
+      PICKUP,
+    );
+
+    expect(planWith).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 't1' }),
+      { id: 'new-request', location: PICKUP },
+      null,
+    );
+    expect(pickupAt).toEqual(new Date('2026-11-20T07:39:00Z'));
+  });
+
   it('gives the accepted request its time and moves the others', async () => {
     const accepted = seatRequest();
     const time = new Date('2026-11-20T07:35:00Z');

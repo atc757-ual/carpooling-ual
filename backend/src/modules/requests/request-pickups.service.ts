@@ -1,10 +1,15 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
+import type { Point } from 'typeorm';
 import type { Trip } from '../trips/entities/trip.entity';
 import { TripPickupsService } from '../trips/trip-pickups.service';
 import type { PickupPlan } from '../trips/trip-pickups.service';
+import { MINUTE_MS } from '../trips/trip-timing';
 import { SeatRequest } from './entities/seat-request.entity';
 import { RequestChangesRecorder } from './request-changes';
+
+// Id provisional de la solicitud que aún no existe, al estimar su hora
+const NEW_REQUEST_ID = 'new-request';
 
 // Mientras se puede soltar la plaza sin que el viaje haya empezado, su
 // recogida se quita y las horas de los demás se recalculan
@@ -51,6 +56,22 @@ export class RequestPickupsService implements OnModuleInit {
       trip,
       { id: request.id, location: request.pickupLocation },
       null,
+    );
+  }
+
+  // Al pedir plaza: a qué hora le recogería el conductor, después de las
+  // recogidas ya aceptadas y sus paradas (OSRM, antes de la transacción)
+  async estimatePickupAt(trip: Trip, location: Point): Promise<Date> {
+    const plan = await this.tripPickups.planWith(
+      trip,
+      { id: NEW_REQUEST_ID, location },
+      null,
+    );
+    const pickup = plan.pickups.find(
+      ({ requestId }) => requestId === NEW_REQUEST_ID,
+    );
+    return new Date(
+      trip.departureAt.getTime() + (pickup?.etaOffsetMin ?? 0) * MINUTE_MS,
     );
   }
 

@@ -6,7 +6,9 @@ import type {
   CandidateSource,
   TripCandidate,
 } from '../matching/candidate-source';
+import { TripPickupsService } from './trip-pickups.service';
 import { TripRoutesService } from './trip-routes.service';
+import { MINUTE_MS } from './trip-timing';
 
 // La ruta del conductor tiene que pasar a menos de 1 km de la dirección del
 // pasajero, y su extremo del campus, a menos de 1 km del parking elegido (el
@@ -16,6 +18,8 @@ export const CAMPUS_RADIUS_M = 1000;
 // Solo los más cercanos pasan a calcular el desvío con OSRM (una petición
 // por candidato)
 export const MAX_CANDIDATES = 10;
+// Id provisional de la recogida del pasajero que busca, al planificar
+export const CANDIDATE_PICKUP_ID = 'candidate';
 
 interface CandidateRow {
   id: string;
@@ -27,6 +31,7 @@ interface CandidateRow {
   driver_trip_count: number;
   max_detour_min: number;
   duration_min: number;
+  direct_duration_min: number;
   origin: Point;
   destination: Point;
   distance_km: number;
@@ -42,17 +47,17 @@ export class TripCandidatesService implements CandidateSource {
   constructor(
     private readonly dataSource: DataSource,
     private readonly tripRoutesService: TripRoutesService,
+    private readonly tripPickups: TripPickupsService,
   ) {}
 
   async findCandidates(query: CandidateQuery): Promise<TripCandidate[]> {
     const rows = await this.findNearbyTrips(query);
     return Promise.all(
       rows.map(async (row) => {
-        const durationVia = await this.tripRoutesService.planDurationVia(
-          row.origin,
-          query.place,
-          row.destination,
-        );
+        const { detourMin, pickupAt } =
+          query.direction === 'to-campus'
+            ? await this.pickupDetour(row, query.place)
+            : await this.dropOffDetour(row, query.place);
         return {
           tripId: row.id,
           driverId: row.driver_id,
@@ -60,9 +65,15 @@ export class TripCandidatesService implements CandidateSource {
           offeredSeats: row.offered_seats,
           driverTripCount: row.driver_trip_count,
           departureAt: new Date(row.departure_at),
-          durationMin: row.duration_min,
-          detourMin: Math.max(0, durationVia - row.duration_min),
+          // Hacia el campus el desvío es el total del viaje: se suma a la
+          // ruta directa (la actual ya lleva las recogidas aceptadas)
+          durationMin:
+            query.direction === 'to-campus'
+              ? row.direct_duration_min
+              : row.duration_min,
+          detourMin,
           maxDetourMin: row.max_detour_min,
+          pickupAt,
           availableSeats: row.available_seats,
           origin: row.origin,
           destination: row.destination,
@@ -70,6 +81,55 @@ export class TripCandidatesService implements CandidateSource {
         };
       }),
     );
+  }
+
+  // Hacia el campus: el desvío de TODO el viaje con las recogidas ya
+  // aceptadas y la del pasajero (con sus paradas), y a qué hora le recogería.
+  // La puntuación lo compara con el presupuesto total (max_detour_min)
+  private async pickupDetour(
+    row: CandidateRow,
+    place: Point,
+  ): Promise<{ detourMin: number; pickupAt: Date | null }> {
+    const plan = await this.tripPickups.planWith(
+      {
+        id: row.id,
+        origin: row.origin,
+        destination: row.destination,
+        departureAt: new Date(row.departure_at),
+        maxDetourMin: row.max_detour_min,
+      },
+      { id: CANDIDATE_PICKUP_ID, location: place },
+      null,
+    );
+    const pickup = plan.pickups.find(
+      ({ requestId }) => requestId === CANDIDATE_PICKUP_ID,
+    );
+    return {
+      detourMin: plan.usedDetourMin,
+      pickupAt: pickup
+        ? new Date(
+            new Date(row.departure_at).getTime() +
+              pickup.etaOffsetMin * MINUTE_MS,
+          )
+        : null,
+    };
+  }
+
+  // Desde el campus todos suben allí; el desvío es el de dejar al pasajero
+  // (las bajadas por pasajero llegarán con el «modo retorno»)
+  private async dropOffDetour(
+    row: CandidateRow,
+    place: Point,
+  ): Promise<{ detourMin: number; pickupAt: Date | null }> {
+    const durationVia = await this.tripRoutesService.planDurationVia(
+      row.origin,
+      place,
+      row.destination,
+    );
+    return {
+      detourMin: Math.max(0, durationVia - row.duration_min),
+      pickupAt: null,
+    };
   }
 
   private findNearbyTrips(query: CandidateQuery): Promise<CandidateRow[]> {
@@ -85,7 +145,7 @@ export class TripCandidatesService implements CandidateSource {
               (SELECT COUNT(*)::int FROM trips completed
                WHERE completed.driver_id = t.driver_id AND completed.status = 'finished')
                 AS driver_trip_count,
-              t.max_detour_min, r.duration_min,
+              t.max_detour_min, r.duration_min, r.direct_duration_min,
               ST_AsGeoJSON(t.origin)::json AS origin,
               ST_AsGeoJSON(t.destination)::json AS destination,
               ST_Distance(r.geometry, input.place) / 1000 AS distance_km
@@ -100,7 +160,9 @@ export class TripCandidatesService implements CandidateSource {
          AND ST_DWithin(
                CASE WHEN $9 THEN t.destination ELSE t.origin END,
                input.campus, $10)
-         AND ST_DWithin(r.geometry, input.place, $11)
+         -- Al ir, lo que el conductor se aparta de su ruta (max_detour_m)
+         AND ST_DWithin(r.geometry, input.place,
+               CASE WHEN $9 THEN COALESCE(t.max_detour_m, $11) ELSE $11 END)
        ORDER BY distance_km, t.departure_at
        LIMIT $12`,
       [
