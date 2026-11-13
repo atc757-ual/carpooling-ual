@@ -1,4 +1,4 @@
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, Point, Repository } from 'typeorm';
 import { Trip } from './entities/trip.entity';
 import { LateCancellationsService } from './late-cancellations.service';
 import { PublishingLimitsService } from './publishing-limits.service';
@@ -178,12 +178,9 @@ describe('TripsService cancelUnstartedTrips', () => {
       {} as LateCancellationsService,
       {} as PublishingLimitsService,
     );
-    const origin = { type: 'Point', coordinates: [-2.5, 36.8] } as const;
-    const destination = { type: 'Point', coordinates: [-2.4, 36.83] } as const;
-    const result = await tripsService.planRoute(
-      origin as any,
-      destination as any,
-    );
+    const origin: Point = { type: 'Point', coordinates: [-2.5, 36.8] };
+    const destination: Point = { type: 'Point', coordinates: [-2.4, 36.83] };
+    const result = await tripsService.planRoute(origin, destination);
     expect(planSpy).toHaveBeenCalledWith(origin, destination);
     expect(result).toEqual({ distanceKm: 10 });
   });

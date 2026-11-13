@@ -2,7 +2,7 @@ import { Repository } from 'typeorm';
 import { ConversationsService } from './conversations.service';
 import { ChatMessage } from './entities/chat-message.entity';
 import { ChatRead } from './entities/chat-read.entity';
-import { ChatService } from './chat.service';
+import { ChatMessageView, ChatService } from './chat.service';
 import { TripsService } from '../trips/trips.service';
 import { RequestsService } from '../requests/requests.service';
 import { UsersService } from '../users/users.service';
@@ -84,7 +84,7 @@ describe('ConversationsService', () => {
         tripId: 'trip-1',
         text: 'Hola',
       } as ChatMessage;
-      const messageView = { id: 'msg-1', text: 'Hola' } as any;
+      const messageView = { id: 'msg-1', text: 'Hola' } as ChatMessageView;
 
       (messagesRepository.query as jest.Mock)
         .mockResolvedValueOnce([{ id: 'msg-1' }]) // lastMessages query

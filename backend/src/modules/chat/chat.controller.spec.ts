@@ -2,7 +2,7 @@ import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
 import { ConversationsService } from './conversations.service';
 import { ChatReportsService } from './chat-reports.service';
-import { AccessTokenPayload } from '../auth/access-token-payload';
+import { AccessTokenPayload } from '../../shared/auth/access-token-payload';
 import { ConversationView } from './conversations.service';
 import { Trip } from '../trips/entities/trip.entity';
 
