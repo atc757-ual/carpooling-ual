@@ -1,15 +1,15 @@
 // Estimación de lo que se ahorra al compartir un trayecto en vez de ir en el
 // coche propio. Valores de ejemplo (DATOS DE EJEMPLO, ver
 // pendientes-memoria.md): la distancia por carretera se aproxima con la línea
-// recta por un factor, y el CO₂ y la gasolina con medias de un coche normal.
-// Cuando haya rutas reales (OSRM) y métricas del Gemelo Digital, se sustituye
+// recta por un factor, y el CO₂ con la media de un coche normal. Solo km y
+// CO₂: es una plataforma colaborativa, sin enfoque económico (revisión del
+// 12/11/2026). Cuando haya rutas reales (OSRM) y métricas del Gemelo Digital,
+// se sustituye
 
 // Lo que se alarga la carretera frente a la línea recta
 const ROAD_FACTOR = 1.3;
 // kg de CO₂ por km de un turismo medio
 const CO2_KG_PER_KM = 0.12;
-// € de gasolina por km (6 L/100 km a 1,60 €/L)
-const FUEL_EUROS_PER_KM = 0.1;
 const EARTH_RADIUS_KM = 6371;
 // Velocidad media por ciudad y carretera de la zona, y el redondeo de la
 // duración (como el selector de hora)
@@ -19,7 +19,6 @@ const DURATION_STEP_MIN = 5;
 export interface TripImpact {
   km: number;
   co2Kg: number;
-  fuelEuros: number;
 }
 
 // Entre dos puntos GeoJSON ([longitud, latitud]); null si están en el mismo
@@ -35,7 +34,6 @@ export function estimateTripImpact(
   return {
     km: Math.round(km),
     co2Kg: Math.round(km * CO2_KG_PER_KM * 10) / 10,
-    fuelEuros: Math.round(km * FUEL_EUROS_PER_KM * 10) / 10,
   };
 }
 
