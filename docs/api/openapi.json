@@ -5729,7 +5729,7 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY, DEPARTURE_IN_THE_PAST, DEPARTURE_TOO_SOON",
+            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY, DEPARTURE_IN_THE_PAST, DEPARTURE_TOO_SOON, INVALID_STOPS, STOPS_EXCEED_DETOUR",
             "content": {
               "application/json": {
                 "schema": {
@@ -5920,7 +5920,7 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY, DEPARTURE_IN_THE_PAST, DEPARTURE_TOO_SOON",
+            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY, DEPARTURE_IN_THE_PAST, DEPARTURE_TOO_SOON, INVALID_STOPS, STOPS_EXCEED_DETOUR",
             "content": {
               "application/json": {
                 "schema": {
@@ -7312,7 +7312,7 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED, INVALID_REQUEST_PICKUP",
+            "description": "TMF630 error: VALIDATION_FAILED, INVALID_REQUEST_PICKUP, STOP_REQUIRED, STOP_NOT_IN_TRIP",
             "content": {
               "application/json": {
                 "schema": {
@@ -7573,7 +7573,7 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED, INVALID_REQUEST_PICKUP",
+            "description": "TMF630 error: VALIDATION_FAILED, INVALID_REQUEST_PICKUP, STOP_REQUIRED, STOP_NOT_IN_TRIP",
             "content": {
               "application/json": {
                 "schema": {
@@ -14892,6 +14892,34 @@
           "coordinates"
         ]
       },
+      "TripStopInputDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 160,
+            "example": "Av. del Mediterráneo, 2"
+          },
+          "location": {
+            "example": {
+              "type": "Point",
+              "coordinates": [
+                -2.4489,
+                36.8389
+              ]
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "location"
+        ]
+      },
       "PublishTripDto": {
         "type": "object",
         "properties": {
@@ -14957,10 +14985,20 @@
           "pickupMode": {
             "type": "string",
             "enum": [
-              "on_route"
+              "on_route",
+              "stops"
             ],
             "default": "on_route",
-            "description": "How the driver picks up: on the route, up to maxDetourM"
+            "description": "How the driver picks up: on the route, up to maxDetourM, or at the stops (only towards the campus)"
+          },
+          "stops": {
+            "minItems": 1,
+            "maxItems": 5,
+            "description": "With pickupMode stops: the stops on the way to the campus, in any order (they are ordered along the route)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TripStopInputDto"
+            }
           },
           "maxDetourM": {
             "type": "number",
@@ -14970,7 +15008,7 @@
               1000
             ],
             "default": 500,
-            "description": "Metres the driver goes off the route to pick up"
+            "description": "Metres the driver goes off the route to pick up (only on the route)"
           },
           "originName": {
             "type": "string",
@@ -15060,6 +15098,39 @@
           "color"
         ]
       },
+      "TripStopResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "position": {
+            "type": "number",
+            "example": 0,
+            "description": "Order along the route, from 0"
+          },
+          "name": {
+            "type": "string",
+            "example": "Av. del Mediterráneo, 2"
+          },
+          "location": {
+            "$ref": "#/components/schemas/GeoPointDto"
+          },
+          "estimatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the driver gets there, after the earlier stops where someone boards"
+          }
+        },
+        "required": [
+          "id",
+          "position",
+          "name",
+          "location",
+          "estimatedAt"
+        ]
+      },
       "TripResource": {
         "type": "object",
         "properties": {
@@ -15134,6 +15205,13 @@
             ],
             "description": "Metres the driver goes off the route to pick up (on_route); null with stops"
           },
+          "stops": {
+            "description": "The stops, in order along the route (pickupMode stops); empty on the route. Public places: always exact",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TripStopResource"
+            }
+          },
           "originName": {
             "type": "string",
             "nullable": true,
@@ -15183,6 +15261,7 @@
           "maxDetourMin",
           "pickupMode",
           "maxDetourM",
+          "stops",
           "originName",
           "destinationName",
           "status",
@@ -15452,14 +15531,6 @@
             "default": 10,
             "description": "Detour budget of the whole trip, in minutes: the detours and stops (2 min each) of every accepted passenger"
           },
-          "pickupMode": {
-            "type": "string",
-            "enum": [
-              "on_route"
-            ],
-            "default": "on_route",
-            "description": "How the driver picks up: on the route, up to maxDetourM"
-          },
           "maxDetourM": {
             "type": "number",
             "enum": [
@@ -15468,7 +15539,7 @@
               1000
             ],
             "default": 500,
-            "description": "Metres the driver goes off the route to pick up"
+            "description": "Metres the driver goes off the route to pick up (only on the route)"
           },
           "originName": {
             "type": "string",
@@ -15734,7 +15805,7 @@
             "description": "Passenger direction chosen in search"
           },
           "pickupLocation": {
-            "description": "Passenger pickup point for a trip to campus; ignored for the return trip",
+            "description": "Passenger pickup point for a trip to campus (unless it picks up at stops: stopId); ignored for the return trip",
             "example": {
               "type": "Point",
               "coordinates": [
@@ -15753,6 +15824,11 @@
             "maxLength": 160,
             "description": "Label of the passenger pickup point",
             "example": "Calle Profesor Mulián, 29"
+          },
+          "stopId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Towards the campus, on a trip that picks up at stops: the chosen stop (then pickupLocation and pickupName are not sent)"
           }
         }
       },
@@ -15863,6 +15939,12 @@
             "nullable": true,
             "example": "Calle Profesor Mulián, 29"
           },
+          "stopId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "The stop where the passenger boards, on a trip that picks up at stops (pickupLocation and pickupName are the stop ones); null otherwise"
+          },
           "pickupAt": {
             "type": "string",
             "format": "date-time",
@@ -15925,6 +16007,7 @@
           "direction",
           "pickupLocation",
           "pickupName",
+          "stopId",
           "pickupAt",
           "isPriority",
           "requestedAt",
@@ -17036,6 +17119,34 @@
           "desiredAt"
         ]
       },
+      "TripMatchStopResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Send it as stopId to request a seat"
+          },
+          "name": {
+            "type": "string",
+            "example": "Av. del Mediterráneo, 2"
+          },
+          "location": {
+            "$ref": "#/components/schemas/GeoPointDto"
+          },
+          "walkingDistanceM": {
+            "type": "number",
+            "example": 350,
+            "description": "Metres from the searched place to the stop, in a straight line"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "location",
+          "walkingDistanceM"
+        ]
+      },
       "TripMatchResource": {
         "type": "object",
         "properties": {
@@ -17089,6 +17200,16 @@
             "nullable": true,
             "description": "Estimated pickup time towards the campus, after the earlier pickups and their stops; null from the campus (everybody boards there)"
           },
+          "stop": {
+            "nullable": true,
+            "description": "Towards the campus, when the driver picks up at stops: the nearest stop (the pickup is there, at pickupAt); null otherwise",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TripMatchStopResource"
+              }
+            ]
+          },
           "timeDifferenceMin": {
             "type": "number",
             "example": -5,
@@ -17114,6 +17235,7 @@
           "offeredSeats",
           "detourMin",
           "pickupAt",
+          "stop",
           "timeDifferenceMin",
           "score"
         ]
