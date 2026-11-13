@@ -338,6 +338,7 @@ export class ConversationPage {
       message:
         'Lo revisará el equipo de Carpooling UAL con una copia de la conversación. Nadie del viaje sabrá que lo has denunciado.',
       confirmText: 'Denunciar',
+      isDestructive: false,
       action: (reason) => this.chat.reportChat(this.tripId(), reason),
     });
     if (reported) {
