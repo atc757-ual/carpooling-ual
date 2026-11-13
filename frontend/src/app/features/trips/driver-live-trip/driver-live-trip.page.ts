@@ -48,6 +48,8 @@ import {
   LiveTripSheet,
   stageIndex,
 } from '../live-trip-hero.util';
+import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
+import { buildLiveShareText } from '../trip-share-text';
 
 // Una recogida sigue siendo «la siguiente» hasta 5 min después de su hora
 // (lo que se espera al pasajero antes de poder marcar «No se presentó»)
@@ -76,6 +78,7 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
     IonSpinner,
     LiveTripHero,
     LiveTripMap,
+    LiveTripSafety,
     LiveTripSheet,
     TripReviewCard,
     RouterLink,
@@ -110,6 +113,11 @@ export class DriverLiveTripPage {
   });
   readonly trip = computed(() => (this.tripResource.hasValue() ? this.tripResource.value() : null));
   readonly isInProgress = computed(() => this.trip()?.status === 'in_progress');
+  // Para alguien de confianza: solo el trayecto (sin datos de los pasajeros)
+  readonly safetyShareText = computed(() => {
+    const trip = this.trip();
+    return trip ? buildLiveShareText(trip) : '';
+  });
 
   // Los pasajeros aceptados, por hora de recogida
   readonly requests = resource({
