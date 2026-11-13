@@ -4,6 +4,7 @@ import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import type { Trip } from '../trips/entities/trip.entity';
+import type { PickupPlan } from '../trips/trip-pickups.service';
 import { TripLookupService } from '../trips/trip-lookup.service';
 import { NotTripDriverError } from '../trips/errors/not-trip-driver.error';
 import { TripAlreadyStartedError } from '../trips/errors/trip-already-started.error';
@@ -32,6 +33,7 @@ import { TooManyPendingRequestsError } from './errors/too-many-pending-requests.
 import { RequestView, RequestViewsService } from './request-views.service';
 import { RequestChangesRecorder, requestPayload } from './request-changes';
 import { RequestOverlapService } from './request-overlap.service';
+import { RequestPickupsService } from './request-pickups.service';
 import { MAX_OVERLAPPING_PENDING_REQUESTS } from './request-schedule';
 import { assertRequestTransition } from './request-status';
 import { TripChangedError } from './errors/trip-changed.error';
@@ -68,6 +70,7 @@ export class RequestsService {
     private readonly overlaps: RequestOverlapService,
     private readonly eventsService: EventsService,
     private readonly tripLookup: TripLookupService,
+    private readonly requestPickups: RequestPickupsService,
   ) {}
 
   // --- Pasajero
@@ -255,6 +258,8 @@ export class RequestsService {
   // RF-09/RF-10: aceptar resta las plazas pedidas; la primera aceptación confirma el
   // viaje. El viaje bloqueado evita vender dos veces la última plaza
   async accept(driverId: string, requestId: string): Promise<RequestView> {
+    // La ruta con la recogida nueva, antes de bloquear filas (OSRM)
+    const pickupPlan = await this.planPickupFor(requestId);
     const request = await this.dataSource.transaction(async (manager) => {
       const found = await manager.findOneBy(SeatRequest, { id: requestId });
       if (found === null) {
@@ -311,6 +316,14 @@ export class RequestsService {
       assertRequestTransition(request.status, 'accepted');
 
       await this.tripStatus.reserveSeat(manager, trip, request.seats);
+      if (pickupPlan !== null) {
+        await this.requestPickups.applyAcceptance(
+          manager,
+          trip,
+          request,
+          pickupPlan,
+        );
+      }
       request.status = 'accepted';
       request.answeredAt = new Date();
       request.boardCode = Math.floor(1000 + Math.random() * 9000).toString();
@@ -326,6 +339,19 @@ export class RequestsService {
       return accepted;
     });
     return this.views.toView(request);
+  }
+
+  // Lo que la recogida de la solicitud añade a la ruta del viaje, o null si
+  // no tiene recogida (sin punto o desde el campus) o ya no existe
+  private async planPickupFor(requestId: string): Promise<PickupPlan | null> {
+    const found = await this.requestsRepository.findOneBy({ id: requestId });
+    const trip =
+      found &&
+      (await this.tripLookup.findById(this.dataSource.manager, found.tripId));
+    if (!found || !trip) {
+      return null;
+    }
+    return (await this.requestPickups.planAcceptance(found, trip)) ?? null;
   }
 
   // RF-09: rechazar una solicitud pendiente

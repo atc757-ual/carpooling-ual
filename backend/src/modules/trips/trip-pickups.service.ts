@@ -15,6 +15,7 @@ import {
   usedDetourMin,
 } from './pickup-plan';
 import type { PickupPoint } from './pickup-plan';
+import { estimateRouteVia } from './route-plan';
 import type { RoutePlan } from './route-plan';
 import { TripRoutesService } from './trip-routes.service';
 import { MINUTE_MS } from './trip-timing';
@@ -119,6 +120,52 @@ export class TripPickupsService {
     if (plan.isAddition && !fitsBudget(plan.usedDetourMin, trip.maxDetourMin)) {
       throw new DetourBudgetExceededError(trip.id, trip.maxDetourMin);
     }
+    return this.save(manager, trip, plan);
+  }
+
+  // Quita la recogida de una plaza que se suelta (el pasajero cancela antes
+  // del viaje), dentro de su transacción y SIN OSRM: la ruta por las que
+  // quedan se estima y se marca para volver a pedirla (getForTrip). Devuelve
+  // las horas nuevas de los demás, o null si la plaza no tenía recogida
+  async remove(
+    manager: EntityManager,
+    trip: PickupTrip,
+    requestId: string,
+  ): Promise<Map<string, Date> | null> {
+    const [saved, savedRoute] = await Promise.all([
+      manager.find(TripPickup, {
+        where: { tripId: trip.id },
+        order: { position: 'ASC' },
+      }),
+      manager.findOneBy(TripRoute, { tripId: trip.id }),
+    ]);
+    if (!saved.some((pickup) => pickup.requestId === requestId)) {
+      return null;
+    }
+    const kept = saved.filter((pickup) => pickup.requestId !== requestId);
+    const { route, legsMin } = estimateRouteVia([
+      trip.origin,
+      ...kept.map(({ location }) => location),
+      trip.destination,
+    ]);
+    const offsets = pickupOffsets(legsMin.slice(0, kept.length));
+    return this.save(manager, trip, {
+      route,
+      directDurationMin: savedRoute?.directDurationMin ?? route.durationMin,
+      pickups: kept.map(({ requestId: keptId, location }, position) => ({
+        requestId: keptId,
+        location,
+        position,
+        etaOffsetMin: Math.round(offsets[position]),
+      })),
+    });
+  }
+
+  private async save(
+    manager: EntityManager,
+    trip: PickupTrip,
+    plan: Pick<PickupPlan, 'route' | 'directDurationMin' | 'pickups'>,
+  ): Promise<Map<string, Date>> {
     await manager.delete(TripPickup, { tripId: trip.id });
     if (plan.pickups.length > 0) {
       await manager.save(

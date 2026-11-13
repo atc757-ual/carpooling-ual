@@ -13,6 +13,7 @@ import { InvalidBoardCodeError } from './errors/invalid-board-code.error';
 import { PickupGracePeriodActiveError } from './errors/pickup-grace-period-active.error';
 import { RequestChangesRecorder } from './request-changes';
 import { RequestOverlapService } from './request-overlap.service';
+import { RequestPickupsService } from './request-pickups.service';
 import { RequestViewsService } from './request-views.service';
 import { RequestsService } from './requests.service';
 
@@ -73,6 +74,7 @@ describe('RequestsService boarding and no-show', () => {
       {} as RequestOverlapService,
       eventsService,
       {} as TripLookupService,
+      {} as RequestPickupsService,
     );
   }
 

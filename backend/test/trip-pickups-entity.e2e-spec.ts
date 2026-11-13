@@ -40,13 +40,12 @@ describe('Pickup modes data model (e2e)', () => {
     trip: Trip;
     requestId: string;
   }> {
-    const [row] = await queryRunner.query<
-      { trip_id: string; request_id: string }[]
-    >(
+    const rows = (await queryRunner.query(
       `SELECT r.trip_id, r.id AS request_id FROM requests r
          JOIN routes ro ON ro.trip_id = r.trip_id
         LIMIT 1`,
-    );
+    )) as { trip_id: string; request_id: string }[];
+    const [row] = rows;
     const trip = await queryRunner.manager.findOneByOrFail(Trip, {
       id: row.trip_id,
     });

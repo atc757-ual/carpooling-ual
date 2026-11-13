@@ -174,6 +174,45 @@ describe('TripPickupsService', () => {
     );
   });
 
+  it('removes a released pickup with an estimated route, without OSRM', async () => {
+    const managerFindOneBy = jest.fn().mockResolvedValue({
+      directDurationMin: 11,
+    });
+    const inTransaction = {
+      ...manager,
+      findOneBy: managerFindOneBy,
+    } as unknown as EntityManager;
+    managerFind.mockResolvedValue([
+      { requestId: 'r1', location: NEAR, position: 0 },
+      { requestId: 'r2', location: FAR, position: 1 },
+    ]);
+
+    const times = await service.remove(inTransaction, TRIP, 'r1');
+
+    expect(planVia).not.toHaveBeenCalled();
+    expect(managerSave).toHaveBeenCalledWith([
+      expect.objectContaining({ requestId: 'r2', position: 0 }),
+    ]);
+    expect(saveRoute).toHaveBeenCalledWith(
+      inTransaction,
+      't1',
+      expect.objectContaining({ source: 'estimated' }),
+      11,
+    );
+    expect([...(times?.keys() ?? [])]).toEqual(['r2']);
+  });
+
+  it('does nothing when the released seat had no pickup', async () => {
+    const inTransaction = {
+      ...manager,
+      findOneBy: jest.fn().mockResolvedValue(null),
+    } as unknown as EntityManager;
+    managerFind.mockResolvedValue([]);
+
+    expect(await service.remove(inTransaction, TRIP, 'r1')).toBeNull();
+    expect(managerDelete).not.toHaveBeenCalled();
+  });
+
   it('removes a pickup without checking the budget (it only gives time back)', async () => {
     findPickups.mockResolvedValue([
       { requestId: 'r1', location: FAR, position: 0, etaOffsetMin: 8 },

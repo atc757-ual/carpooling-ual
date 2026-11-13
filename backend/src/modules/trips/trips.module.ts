@@ -18,6 +18,7 @@ import { TripsController } from './trips.controller';
 import { TripStatsService } from './trip-stats.service';
 import { TripViewerAccessService } from './trip-viewer-access.service';
 import { TripLookupService } from './trip-lookup.service';
+import { TripPickupsService } from './trip-pickups.service';
 import { PublishingLimitsService } from './publishing-limits.service';
 import { TripsService } from './trips.service';
 import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
@@ -52,6 +53,7 @@ import { TripExpiryService } from './trip-expiry.service';
     TripExpiryService,
     TripViewerAccessService,
     TripLookupService,
+    TripPickupsService,
     PublishingLimitsService,
   ],
   // Los usan las solicitudes de plaza (requests), el seguimiento (tracking:
@@ -67,6 +69,7 @@ import { TripExpiryService } from './trip-expiry.service';
     TripLifecycleScheduler,
     TripViewerAccessService,
     TripLookupService,
+    TripPickupsService,
   ],
 })
 export class TripsModule {}
