@@ -196,6 +196,18 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'finished', 5)]);
       cy.intercept('GET', '/api/users/me/reviews*', []);
       cy.intercept('GET', '/api/users/me/pending-reviews', []);
+      // En el móvil, «Terminar viaje» queda al final de la hoja (tras la tarjeta
+      // de seguridad): se abre entera (0.92, LIVE_SHEET_BREAKPOINTS) y se baja
+      // hasta el final, como al arrastrarla hacia arriba (Cypress no desplaza
+      // el ion-content solo)
+      if (!isDesktop) {
+        cy.get<HTMLIonModalElement>('ion-modal.live-sheet').then(([sheet]) =>
+          sheet.setCurrentBreakpoint(0.92),
+        );
+        cy.get<HTMLIonContentElement>('ion-modal.live-sheet ion-content').then(([content]) =>
+          content.scrollToBottom(0),
+        );
+      }
       cy.contains(`${live} ion-button`, 'Terminar viaje').click();
       // Aún en Almería centro, a unos 5 km del campus: avisa en la misma hoja
       cy.contains(live, 'del destino');
