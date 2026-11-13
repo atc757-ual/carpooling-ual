@@ -17,6 +17,9 @@
     </div>
   }
 
+  <!-- Las dudas comunes antes del formulario: muchas se resuelven sin escribir -->
+  <app-faq-card [faqs]="faqs" />
+
   <div class="notice notice--info profile-support-modal__notice">
     <ion-icon [icon]="infoIcon" aria-hidden="true" />
     <span>{{ 'profile.supportModal.intro' | transloco }}</span>
