@@ -1,6 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
   IsDate,
   IsDefined,
   IsIn,
@@ -16,7 +19,30 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
-import { ALLOWED_MAX_DETOUR_M, DEFAULT_MAX_DETOUR_M } from '../trip-timing';
+import { TRIP_PICKUP_MODES } from '../entities/trip.entity';
+import type { TripPickupMode } from '../entities/trip.entity';
+import {
+  ALLOWED_MAX_DETOUR_M,
+  DEFAULT_MAX_DETOUR_M,
+  MAX_TRIP_STOPS,
+} from '../trip-timing';
+
+// Una parada (recogida en puntos): un lugar público que elige el conductor
+export class TripStopInputDto {
+  @ApiProperty({ maxLength: 160, example: 'Av. del Mediterráneo, 2' })
+  @IsString()
+  @Length(1, 160)
+  name!: string;
+
+  @ApiProperty({
+    type: GeoPointDto,
+    example: { type: 'Point', coordinates: [-2.4489, 36.8389] },
+  })
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => GeoPointDto)
+  location!: GeoPointDto;
+}
 
 // Cuerpo de POST /api/trips (RF-04). Valida la FORMA; las reglas de negocio
 // (conductor listo, vehículo suyo, plazas ≤ capacidad, salida futura) están
@@ -100,20 +126,36 @@ export class PublishTripDto {
   @Max(60)
   maxDetourMin?: number;
 
-  // Las paradas (stops) llegan en el siguiente cambio: por ahora, en ruta
   @ApiPropertyOptional({
-    enum: ['on_route'],
+    enum: TRIP_PICKUP_MODES,
     default: 'on_route',
-    description: 'How the driver picks up: on the route, up to maxDetourM',
+    description:
+      'How the driver picks up: on the route, up to maxDetourM, or at the stops (only towards the campus)',
   })
   @IsOptional()
-  @IsIn(['on_route'])
-  pickupMode?: 'on_route';
+  @IsIn(TRIP_PICKUP_MODES)
+  pickupMode?: TripPickupMode;
+
+  @ApiPropertyOptional({
+    type: [TripStopInputDto],
+    minItems: 1,
+    maxItems: MAX_TRIP_STOPS,
+    description:
+      'With pickupMode stops: the stops on the way to the campus, in any order (they are ordered along the route)',
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(MAX_TRIP_STOPS)
+  @ValidateNested({ each: true })
+  @Type(() => TripStopInputDto)
+  stops?: TripStopInputDto[];
 
   @ApiPropertyOptional({
     enum: ALLOWED_MAX_DETOUR_M,
     default: DEFAULT_MAX_DETOUR_M,
-    description: 'Metres the driver goes off the route to pick up',
+    description:
+      'Metres the driver goes off the route to pick up (only on the route)',
   })
   @IsOptional()
   @IsIn(ALLOWED_MAX_DETOUR_M)

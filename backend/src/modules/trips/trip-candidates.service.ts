@@ -3,12 +3,14 @@ import { DataSource } from 'typeorm';
 import type { Point } from 'typeorm';
 import type {
   CandidateQuery,
+  CandidateStop,
   CandidateSource,
   TripCandidate,
 } from '../matching/candidate-source';
 import { TripPickupsService } from './trip-pickups.service';
 import { TripRoutesService } from './trip-routes.service';
-import { MINUTE_MS } from './trip-timing';
+import type { TripPickupMode } from './entities/trip.entity';
+import { MINUTE_MS, WALK_RADIUS_M } from './trip-timing';
 
 // La ruta del conductor tiene que pasar a menos de 1 km de la dirección del
 // pasajero, y su extremo del campus, a menos de 1 km del parking elegido (el
@@ -35,6 +37,11 @@ interface CandidateRow {
   origin: Point;
   destination: Point;
   distance_km: number;
+  pickup_mode: TripPickupMode;
+  stop_id: string | null;
+  stop_name: string | null;
+  stop_location: Point | null;
+  stop_distance_m: number | null;
 }
 
 // Candidatos del matching en la plataforma (CandidateSource): los viajes
@@ -74,6 +81,7 @@ export class TripCandidatesService implements CandidateSource {
           detourMin,
           maxDetourMin: row.max_detour_min,
           pickupAt,
+          stop: toCandidateStop(row),
           availableSeats: row.available_seats,
           origin: row.origin,
           destination: row.destination,
@@ -97,8 +105,15 @@ export class TripCandidatesService implements CandidateSource {
         destination: row.destination,
         departureAt: new Date(row.departure_at),
         maxDetourMin: row.max_detour_min,
+        pickupMode: row.pickup_mode,
       },
-      { id: CANDIDATE_PICKUP_ID, location: place },
+      row.stop_id !== null && row.stop_location !== null
+        ? {
+            id: CANDIDATE_PICKUP_ID,
+            location: row.stop_location,
+            stopId: row.stop_id,
+          }
+        : { id: CANDIDATE_PICKUP_ID, location: place },
       null,
     );
     const pickup = plan.pickups.find(
@@ -148,10 +163,25 @@ export class TripCandidatesService implements CandidateSource {
               t.max_detour_min, r.duration_min, r.direct_duration_min,
               ST_AsGeoJSON(t.origin)::json AS origin,
               ST_AsGeoJSON(t.destination)::json AS destination,
-              ST_Distance(r.geometry, input.place) / 1000 AS distance_km
+              t.pickup_mode,
+              s.id AS stop_id, s.name AS stop_name,
+              ST_AsGeoJSON(s.location)::json AS stop_location,
+              round(s.distance_m)::int AS stop_distance_m,
+              COALESCE(s.distance_m, ST_Distance(r.geometry, input.place))
+                / 1000 AS distance_km
        FROM trips t
        JOIN routes r ON r.trip_id = t.id
        CROSS JOIN input
+       -- Al ir en un viaje con paradas: la más cercana a pie del pasajero
+       LEFT JOIN LATERAL (
+         SELECT ts.id, ts.name, ts.location,
+                ST_Distance(ts.location, input.place) AS distance_m
+         FROM trip_stops ts
+         WHERE $9 AND t.pickup_mode = 'stops' AND ts.trip_id = t.id
+           AND ST_DWithin(ts.location, input.place, $13)
+         ORDER BY distance_m, ts.position
+         LIMIT 1
+       ) s ON true
        WHERE t.status = 'published'
          AND t.driver_id <> $5
          AND t.available_seats >= $6
@@ -160,9 +190,12 @@ export class TripCandidatesService implements CandidateSource {
          AND ST_DWithin(
                CASE WHEN $9 THEN t.destination ELSE t.origin END,
                input.campus, $10)
-         -- Al ir, lo que el conductor se aparta de su ruta (max_detour_m)
-         AND ST_DWithin(r.geometry, input.place,
-               CASE WHEN $9 THEN COALESCE(t.max_detour_m, $11) ELSE $11 END)
+         -- Al ir, con paradas: una a menos de WALK_RADIUS_M a pie; en ruta,
+         -- lo que el conductor se aparta de su ruta (max_detour_m)
+         AND CASE WHEN $9 AND t.pickup_mode = 'stops' THEN s.id IS NOT NULL
+             ELSE ST_DWithin(r.geometry, input.place,
+                    CASE WHEN $9 THEN COALESCE(t.max_detour_m, $11) ELSE $11 END)
+             END
        ORDER BY distance_km, t.departure_at
        LIMIT $12`,
       [
@@ -178,7 +211,20 @@ export class TripCandidatesService implements CandidateSource {
         CAMPUS_RADIUS_M,
         PICKUP_RADIUS_M,
         MAX_CANDIDATES,
+        WALK_RADIUS_M,
       ],
     );
   }
+}
+
+function toCandidateStop(row: CandidateRow): CandidateStop | null {
+  if (row.stop_id === null || row.stop_location === null) {
+    return null;
+  }
+  return {
+    id: row.stop_id,
+    name: row.stop_name ?? '',
+    location: row.stop_location,
+    walkingDistanceM: row.stop_distance_m ?? 0,
+  };
 }

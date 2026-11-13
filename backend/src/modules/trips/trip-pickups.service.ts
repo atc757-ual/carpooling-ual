@@ -4,6 +4,7 @@ import { EntityManager, Repository } from 'typeorm';
 import type { LineString, Point } from 'typeorm';
 import { TripPickup } from './entities/trip-pickup.entity';
 import { TripRoute } from './entities/trip-route.entity';
+import { TripStop } from './entities/trip-stop.entity';
 import type { Trip } from './entities/trip.entity';
 import { DetourBudgetExceededError } from './errors/detour-budget-exceeded.error';
 import { TripPickupsChangedError } from './errors/trip-pickups-changed.error';
@@ -17,20 +18,31 @@ import {
 import type { PickupPoint } from './pickup-plan';
 import { estimateRouteVia } from './route-plan';
 import type { RoutePlan } from './route-plan';
+import { planStopPickups } from './stop-pickups';
 import { TripRoutesService } from './trip-routes.service';
 import { MINUTE_MS } from './trip-timing';
 
 export type PickupTrip = Pick<
   Trip,
-  'id' | 'origin' | 'destination' | 'departureAt' | 'maxDetourMin'
+  | 'id'
+  | 'origin'
+  | 'destination'
+  | 'departureAt'
+  | 'maxDetourMin'
+  | 'pickupMode'
 >;
 
 export interface PlannedPickup {
   requestId: string;
   location: Point;
+  // La parada en la que sube (recogida en puntos); null en ruta
+  stopId: string | null;
   position: number;
   etaOffsetMin: number;
 }
+
+// La recogida que se añade: en puntos, con su parada
+export type NewPickup = PickupPoint & { stopId?: string | null };
 
 // La ruta de un viaje con sus recogidas, calculada fuera de la transacción.
 // previousRequestIds son las recogidas de las que partió: al aplicarla se
@@ -56,13 +68,15 @@ export class TripPickupsService {
     private readonly pickupsRepository: Repository<TripPickup>,
     @InjectRepository(TripRoute)
     private readonly routesRepository: Repository<TripRoute>,
+    @InjectRepository(TripStop)
+    private readonly stopsRepository: Repository<TripStop>,
     private readonly tripRoutes: TripRoutesService,
   ) {}
 
   // La ruta con una recogida más (added) o una menos (removedRequestId)
   async planWith(
     trip: PickupTrip,
-    added: PickupPoint | null,
+    added: NewPickup | null,
     removedRequestId: string | null,
   ): Promise<PickupPlan> {
     const [current, savedRoute] = await Promise.all([
@@ -71,7 +85,28 @@ export class TripPickupsService {
     ]);
     const kept = current
       .filter(({ requestId }) => requestId !== removedRequestId)
-      .map(({ requestId, location }) => ({ id: requestId, location }));
+      .map(({ requestId, location, stopId }) => ({
+        id: requestId,
+        location,
+        stopId,
+      }));
+    if (trip.pickupMode === 'stops') {
+      const points = added
+        ? [...kept, { ...added, stopId: added.stopId ?? null }]
+        : kept;
+      const [stops, route] = await Promise.all([
+        this.stopsRepository.find({ where: { tripId: trip.id } }),
+        this.tripRoutes.getForTrip(trip),
+      ]);
+      return {
+        tripId: trip.id,
+        previousRequestIds: sortedRequestIds(current),
+        isAddition: added !== null,
+        route: toRoutePlan(route),
+        directDurationMin: route.directDurationMin,
+        ...planStopPickups({ tripId: trip.id, stops, points, route }),
+      };
+    }
     const geometry: LineString = savedRoute?.geometry ?? {
       type: 'LineString',
       coordinates: [trip.origin.coordinates, trip.destination.coordinates],
@@ -83,15 +118,14 @@ export class TripPickupsService {
       savedRoute?.directDurationMin ?? route.durationMin;
     return {
       tripId: trip.id,
-      previousRequestIds: current
-        .map(({ requestId }) => requestId)
-        .sort((a, b) => a.localeCompare(b)),
+      previousRequestIds: sortedRequestIds(current),
       isAddition: added !== null,
       route,
       directDurationMin,
       pickups: ordered.map(({ id, location }, position) => ({
         requestId: id,
         location,
+        stopId: null,
         position,
         etaOffsetMin: Math.round(offsets[position]),
       })),
@@ -115,10 +149,7 @@ export class TripPickupsService {
     const saved = await manager.find(TripPickup, {
       where: { tripId: trip.id },
     });
-    const savedIds = saved
-      .map(({ requestId }) => requestId)
-      .sort((a, b) => a.localeCompare(b));
-    if (savedIds.join() !== plan.previousRequestIds.join()) {
+    if (sortedRequestIds(saved).join() !== plan.previousRequestIds.join()) {
       throw new TripPickupsChangedError(trip.id);
     }
     if (plan.isAddition && !fitsBudget(plan.usedDetourMin, trip.maxDetourMin)) {
@@ -147,6 +178,25 @@ export class TripPickupsService {
       return null;
     }
     const kept = saved.filter((pickup) => pickup.requestId !== requestId);
+    if (trip.pickupMode === 'stops' && savedRoute !== null) {
+      const stops = await manager.find(TripStop, {
+        where: { tripId: trip.id },
+      });
+      return this.save(manager, trip, {
+        route: toRoutePlan(savedRoute),
+        directDurationMin: savedRoute.directDurationMin,
+        ...planStopPickups({
+          tripId: trip.id,
+          stops,
+          route: savedRoute,
+          points: kept.map(({ requestId: id, location, stopId }) => ({
+            id,
+            location,
+            stopId,
+          })),
+        }),
+      });
+    }
     const { route, legsMin } = estimateRouteVia([
       trip.origin,
       ...kept.map(({ location }) => location),
@@ -159,6 +209,7 @@ export class TripPickupsService {
       pickups: kept.map(({ requestId: keptId, location }, position) => ({
         requestId: keptId,
         location,
+        stopId: null,
         position,
         etaOffsetMin: Math.round(offsets[position]),
       })),
@@ -207,4 +258,19 @@ export class TripPickupsService {
       trip.destination,
     );
   }
+}
+
+function sortedRequestIds(pickups: readonly TripPickup[]): string[] {
+  return pickups
+    .map(({ requestId }) => requestId)
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function toRoutePlan({
+  distanceKm,
+  durationMin,
+  geometry,
+  source,
+}: TripRoute): RoutePlan {
+  return { distanceKm, durationMin, geometry, source };
 }

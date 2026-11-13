@@ -6,6 +6,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  IsUUID,
   Max,
   MaxLength,
   Min,
@@ -43,10 +44,13 @@ export class RequestSeatsDto {
   @ApiPropertyOptional({
     type: GeoPointDto,
     description:
-      'Passenger pickup point for a trip to campus; ignored for the return trip',
+      'Passenger pickup point for a trip to campus (unless it picks up at stops: stopId); ignored for the return trip',
     example: { type: 'Point', coordinates: [-2.6, 36.76] },
   })
-  @ValidateIf((request: RequestSeatsDto) => request.direction === 'to-campus')
+  @ValidateIf(
+    (request: RequestSeatsDto) =>
+      request.direction === 'to-campus' && request.stopId === undefined,
+  )
   @IsDefined()
   @ValidateNested()
   @Type(() => GeoPointDto)
@@ -57,9 +61,21 @@ export class RequestSeatsDto {
     description: 'Label of the passenger pickup point',
     example: 'Calle Profesor Mulián, 29',
   })
-  @ValidateIf((request: RequestSeatsDto) => request.direction === 'to-campus')
+  @ValidateIf(
+    (request: RequestSeatsDto) =>
+      request.direction === 'to-campus' && request.stopId === undefined,
+  )
   @IsDefined()
   @IsString()
   @MaxLength(160)
   pickupName?: string;
+
+  @ApiPropertyOptional({
+    format: 'uuid',
+    description:
+      'Towards the campus, on a trip that picks up at stops: the chosen stop (then pickupLocation and pickupName are not sent)',
+  })
+  @IsOptional()
+  @IsUUID()
+  stopId?: string;
 }

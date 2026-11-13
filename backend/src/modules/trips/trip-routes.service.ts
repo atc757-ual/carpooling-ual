@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import type { Point } from 'typeorm';
 import { TripPickup } from './entities/trip-pickup.entity';
+import { TripStop } from './entities/trip-stop.entity';
 import { TripRoute } from './entities/trip-route.entity';
 import type { Trip } from './entities/trip.entity';
 import { OsrmClient } from './osrm.client';
@@ -100,23 +101,15 @@ export class TripRoutesService {
     if (saved !== null && !isRetryDue(saved, now)) {
       return saved;
     }
-    // Con recogidas aceptadas, la ruta pasa por ellas y la directa se mantiene
-    const pickups = await this.routesRepository.manager.find(TripPickup, {
-      where: { tripId: trip.id },
-      order: { position: 'ASC' },
-    });
+    // Con paradas (recogida en puntos), la ruta pasa por todas; con recogidas
+    // aceptadas, por ellas. En los dos casos la directa se mantiene
+    const via = await this.viaPoints(trip.id);
     const plan =
-      pickups.length === 0
+      via.length === 0
         ? await this.plan(trip.origin, trip.destination)
-        : (
-            await this.planVia(
-              trip.origin,
-              pickups.map(({ location }) => location),
-              trip.destination,
-            )
-          ).route;
+        : (await this.planVia(trip.origin, via, trip.destination)).route;
     const directDurationMin =
-      pickups.length === 0
+      via.length === 0
         ? plan.durationMin
         : (saved?.directDurationMin ?? plan.durationMin);
     await this.routesRepository.upsert(
@@ -124,6 +117,22 @@ export class TripRoutesService {
       ['tripId'],
     );
     return this.routesRepository.findOneByOrFail({ tripId: trip.id });
+  }
+
+  private async viaPoints(tripId: string): Promise<Point[]> {
+    const { manager } = this.routesRepository;
+    const stops = await manager.find(TripStop, {
+      where: { tripId },
+      order: { position: 'ASC' },
+    });
+    if (stops.length > 0) {
+      return stops.map(({ location }) => location);
+    }
+    const pickups = await manager.find(TripPickup, {
+      where: { tripId },
+      order: { position: 'ASC' },
+    });
+    return pickups.map(({ location }) => location);
   }
 }
 

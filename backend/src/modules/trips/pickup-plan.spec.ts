@@ -4,6 +4,7 @@ import {
   orderPickups,
   pickupOffsets,
   stopCount,
+  stopPickupOffsets,
   usedDetourMin,
 } from './pickup-plan';
 
@@ -65,5 +66,35 @@ describe('pickup plan', () => {
   it('fits the budget up to its last minute', () => {
     expect(fitsBudget(10, 10)).toBe(true);
     expect(fitsBudget(10.5, 10)).toBe(false);
+  });
+});
+
+describe('stopPickupOffsets', () => {
+  const stops = [
+    { id: 'a', etaOffsetMin: 4 },
+    { id: 'b', etaOffsetMin: 9 },
+    { id: 'c', etaOffsetMin: 15 },
+  ];
+
+  it('adds the stop time of the earlier stops where someone boards', () => {
+    const offsets = stopPickupOffsets(stops, new Set(['a', 'c']));
+
+    expect(offsets).toEqual(
+      new Map([
+        ['a', 4],
+        ['b', 4 + 9 - 4 + 2],
+        ['c', 15 + 2],
+      ]),
+    );
+  });
+
+  it('keeps the route time while nobody boards before', () => {
+    expect(stopPickupOffsets(stops, new Set())).toEqual(
+      new Map([
+        ['a', 4],
+        ['b', 9],
+        ['c', 15],
+      ]),
+    );
   });
 });

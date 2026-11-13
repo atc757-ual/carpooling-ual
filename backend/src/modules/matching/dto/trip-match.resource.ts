@@ -1,10 +1,34 @@
 import { ApiProperty } from '@nestjs/swagger';
+import type { Point } from 'typeorm';
+import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
 import {
   TripDriverResource,
   tripHref,
   TripVehicleResource,
 } from '../../trips/dto/trip.resource';
 import type { TripMatch } from '../matching.service';
+
+// La parada en la que le recogería (viajes con recogida en puntos)
+export class TripMatchStopResource {
+  @ApiProperty({
+    format: 'uuid',
+    description: 'Send it as stopId to request a seat',
+  })
+  id: string;
+
+  @ApiProperty({ example: 'Av. del Mediterráneo, 2' })
+  name: string;
+
+  @ApiProperty({ type: GeoPointDto })
+  location: Point;
+
+  @ApiProperty({
+    example: 350,
+    description:
+      'Metres from the searched place to the stop, in a straight line',
+  })
+  walkingDistanceM: number;
+}
 
 // Un viaje compatible con la búsqueda, con lo que hace falta para elegirlo
 export class TripMatchResource {
@@ -55,6 +79,14 @@ export class TripMatchResource {
   pickupAt: string | null;
 
   @ApiProperty({
+    type: TripMatchStopResource,
+    nullable: true,
+    description:
+      'Towards the campus, when the driver picks up at stops: the nearest stop (the pickup is there, at pickupAt); null otherwise',
+  })
+  stop: TripMatchStopResource | null;
+
+  @ApiProperty({
     example: -5,
     description:
       'Difference with the desired time in minutes (negative: earlier)',
@@ -102,6 +134,7 @@ export function toTripMatchResource({
     offeredSeats: candidate.offeredSeats,
     detourMin: candidate.detourMin,
     pickupAt: candidate.pickupAt?.toISOString() ?? null,
+    stop: candidate.stop,
     timeDifferenceMin,
     score,
   };

@@ -10,6 +10,7 @@ import { VehiclesService } from '../users/vehicles.service';
 import type { VehicleRecognitionDetails } from '../users/vehicles.service';
 import { TripRoute } from './entities/trip-route.entity';
 import { Trip } from './entities/trip.entity';
+import type { TripPickupMode } from './entities/trip.entity';
 import { DepartureInThePastError } from './errors/departure-in-the-past.error';
 import { DepartureTooSoonError } from './errors/departure-too-soon.error';
 import { DriverDeclarationRequiredError } from './errors/driver-declaration-required.error';
@@ -29,7 +30,10 @@ import { PublishingLimitsService } from './publishing-limits.service';
 import type { RoutePlan } from './route-plan';
 import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
+import { TripStopsService } from './trip-stops.service';
+import type { StopInput, TripStopView } from './trip-stops.service';
 import {
+  DEFAULT_MAX_DETOUR_M,
   MIN_DEPARTURE_LEAD_MIN,
   MINUTE_MS,
   resolveDeparture,
@@ -52,9 +56,10 @@ export interface TripInput {
   departureAt: Date;
   offeredSeats: number;
   maxDetourMin?: number;
-  // Cómo recoge (las paradas llegan en el siguiente cambio) y cuánto se aparta
-  pickupMode?: 'on_route';
+  // Cómo recoge: en ruta (con los metros que se aparta) o en sus paradas
+  pickupMode?: TripPickupMode;
   maxDetourM?: number;
+  stops?: StopInput[];
   originName?: string;
   destinationName?: string;
 }
@@ -81,6 +86,8 @@ export interface TripView {
   // Origen y destino redondeados para quien no tiene plaza
   // (TripViewerAccessService); sin el campo, son los exactos
   isLocationApproximate?: boolean;
+  // Recogida en puntos: sus paradas (lugares públicos, siempre exactas)
+  stops: TripStopView[];
 }
 
 // Un viaje con su ruta (RF-12)
@@ -107,6 +114,7 @@ export class TripsService {
     private readonly tripRoutes: TripRoutesService,
     private readonly lateCancellations: LateCancellationsService,
     private readonly publishingLimits: PublishingLimitsService,
+    private readonly tripStops: TripStopsService,
   ) {}
 
   // RF-04: publicar un viaje. Antes, RF-21: el conductor debe estar listo y
@@ -125,9 +133,13 @@ export class TripsService {
     // RF-12: la ruta se calcula antes de la transacción (sin bloquear filas
     // mientras se espera a OSRM) y se guarda con el viaje. Va antes de validar
     // la salida porque, con la llegada, depende de ella
-    const { arrivalAt, departureAt, ...fields } = publishInput;
-    const route = await this.tripRoutes.plan(fields.origin, fields.destination);
+    const { arrivalAt, departureAt, stops, ...fields } = publishInput;
     const maxDetourMin = fields.maxDetourMin ?? DEFAULT_MAX_DETOUR_MIN;
+    const published = await this.tripStops.planRoute(
+      { ...fields, stops },
+      maxDetourMin,
+    );
+    const { route } = published;
     const input: TripInput = {
       ...fields,
       departureAt: resolveDeparture(
@@ -152,10 +164,21 @@ export class TripsService {
           ...input,
           driverId,
           maxDetourMin,
+          // En puntos no se aparta de la ruta: sin metros
+          maxDetourM:
+            input.pickupMode === 'stops'
+              ? null
+              : (input.maxDetourM ?? DEFAULT_MAX_DETOUR_M),
           availableSeats: input.offeredSeats,
         }),
       );
-      await this.tripRoutes.save(manager, saved.id, route);
+      await this.tripRoutes.save(
+        manager,
+        saved.id,
+        route,
+        published.directDurationMin,
+      );
+      await this.tripStops.save(manager, saved.id, published.stops);
       await this.tripStatus.recordEvent(manager, 'trip.published', saved);
       return saved;
     });
@@ -198,11 +221,12 @@ export class TripsService {
     });
     const { firstName, avatarKey, preferences, ratings } =
       await this.usersService.getSummary(driverId);
-    const [driverTripCount, vehicles] = await Promise.all([
+    const [driverTripCount, vehicles, stops] = await Promise.all([
       this.getDriverTripCount(driverId),
       this.vehiclesService.getRecognitionDetails(
         trips.map(({ vehicleId }) => vehicleId),
       ),
+      this.tripStops.getForTrips(trips),
     ]);
     return {
       items: trips.map((trip) =>
@@ -213,6 +237,7 @@ export class TripsService {
           driverTripCount,
           driverRating: ratings.driver.averageRating,
           vehicle: vehicles.get(trip.vehicleId) ?? null,
+          stops: stops.get(trip.id) ?? [],
         }),
       ),
       total,
@@ -237,6 +262,7 @@ export class TripsService {
         throw new TripNotEditableError(current.id, current.status);
       }
       await this.assertValidTrip(driverId, { ...current, ...changes });
+      await this.tripStops.assertChangesFit(manager, current, changes);
       // La antelación solo cuenta si se mueve la salida: cambiar las plazas de
       // un viaje que sale pronto sigue permitido
       if (changes.departureAt !== undefined) {
@@ -465,10 +491,11 @@ export class TripsService {
 
   // El viaje con el perfil público de su conductor
   private async toView(trip: Trip): Promise<TripView> {
-    const [profiles, driverTripCount, vehicles] = await Promise.all([
+    const [profiles, driverTripCount, vehicles, stops] = await Promise.all([
       this.usersService.getPublicProfiles([trip.driverId]),
       this.getDriverTripCount(trip.driverId),
       this.vehiclesService.getRecognitionDetails([trip.vehicleId]),
+      this.tripStops.getForTrips([trip]),
     ]);
     const profile = profiles.get(trip.driverId);
     return {
@@ -479,6 +506,7 @@ export class TripsService {
       driverTripCount,
       driverRating: profile?.driverRating ?? null,
       vehicle: vehicles.get(trip.vehicleId) ?? null,
+      stops: stops.get(trip.id) ?? [],
     };
   }
 

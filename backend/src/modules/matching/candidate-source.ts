@@ -34,6 +34,16 @@ export interface TripCandidate extends MatchCandidate {
   // Hacia el campus, a qué hora le recogería (con las recogidas ya
   // aceptadas); null al volver (todos suben en el campus)
   pickupAt: Date | null;
+  // Hacia el campus en un viaje con recogida en puntos: la parada más cercana
+  // a pie (ahí le recoge, a la hora de pickupAt); null en ruta y al volver
+  stop: CandidateStop | null;
+}
+
+export interface CandidateStop {
+  id: string;
+  name: string;
+  location: Point;
+  walkingDistanceM: number;
 }
 
 export interface CandidateSource {

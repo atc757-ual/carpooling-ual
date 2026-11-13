@@ -37,23 +37,23 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `user.active_mode_changed` | Cambia el modo con el que viaja                                                                    | `users/user-profiles.service.ts`       |
 | `consent.granted`          | Da un consentimiento (condiciones, privacidad, ubicación)                                          | `users/consents.service.ts`            |
 | `consent.revoked`          | Lo retira                                                                                          | `users/consents.service.ts`            |
-| `trip.published` (v2)      | Publica un viaje                                                                                   | `trips/trips.service.ts`               |
-| `trip.updated` (v2)        | Cambia un viaje publicado                                                                          | `trips/trip-status.service.ts`         |
-| `trip.confirmed` (v2)      | Se acepta la primera solicitud                                                                     | `trips/trip-status.service.ts`         |
-| `trip.reopened` (v2)       | Vuelve a publicado al cancelarse todas las aceptadas                                               | `trips/trip-status.service.ts`         |
-| `trip.started` (v3)        | Empieza el viaje                                                                                   | `trips/trip-status.service.ts`         |
-| `trip.finished` (v3)       | Termina el viaje                                                                                   | `trips/trip-status.service.ts`         |
-| `trip.cancelled` (v2)      | Se cancela el viaje                                                                                | `trips/trip-status.service.ts`         |
-| `trip.expired` (v2)        | Llega el corte (10 min antes de la salida) sin pasajeros aceptados: se cierra como «Sin pasajeros» | `trips/trip-expiry.service.ts`         |
+| `trip.published` (v3)      | Publica un viaje                                                                                   | `trips/trips.service.ts`               |
+| `trip.updated` (v3)        | Cambia un viaje publicado                                                                          | `trips/trip-status.service.ts`         |
+| `trip.confirmed` (v3)      | Se acepta la primera solicitud                                                                     | `trips/trip-status.service.ts`         |
+| `trip.reopened` (v3)       | Vuelve a publicado al cancelarse todas las aceptadas                                               | `trips/trip-status.service.ts`         |
+| `trip.started` (v4)        | Empieza el viaje                                                                                   | `trips/trip-status.service.ts`         |
+| `trip.finished` (v4)       | Termina el viaje                                                                                   | `trips/trip-status.service.ts`         |
+| `trip.cancelled` (v3)      | Se cancela el viaje                                                                                | `trips/trip-status.service.ts`         |
+| `trip.expired` (v3)        | Llega el corte (10 min antes de la salida) sin pasajeros aceptados: se cierra como «Sin pasajeros» | `trips/trip-expiry.service.ts`         |
 | `trip.cancelled_late`      | Cancelación tardía del conductor o de un pasajero (fiabilidad, S5)                                 | `trips/late-cancellations.service.ts`  |
 | `late_cancellation.waived` | Un administrador perdona las cancelaciones tardías de un papel                                     | `trips/late-cancellations.service.ts`  |
 | `trip.position_updated`    | Nueva posición del conductor durante el viaje (RF-12, RNF-07)                                      | `tracking/trip-positions.service.ts`   |
-| `request.created`          | Un pasajero pide plaza                                                                             | `requests/request-changes.ts`          |
-| `request.accepted`         | El conductor la acepta                                                                             | `requests/request-changes.ts`          |
-| `request.rejected`         | La rechaza                                                                                         | `requests/request-changes.ts`          |
-| `request.cancelled`        | Se cancela la solicitud                                                                            | `requests/request-changes.ts`          |
-| `request.expired`          | Caduca automáticamente al faltar 30 min para la salida                                             | `requests/request-changes.ts`          |
-| `request.boarded`          | El conductor valida la subida del pasajero con el código de 4 cifras                               | `requests/requests.service.ts`         |
+| `request.created` (v2)     | Un pasajero pide plaza                                                                             | `requests/request-changes.ts`          |
+| `request.accepted` (v2)    | El conductor la acepta                                                                             | `requests/request-changes.ts`          |
+| `request.rejected` (v2)    | La rechaza                                                                                         | `requests/request-changes.ts`          |
+| `request.cancelled` (v2)   | Se cancela la solicitud                                                                            | `requests/request-changes.ts`          |
+| `request.expired` (v2)     | Caduca automáticamente al faltar 30 min para la salida                                             | `requests/request-changes.ts`          |
+| `request.boarded` (v3)     | El conductor valida la subida del pasajero con el código de 4 cifras                               | `requests/requests.service.ts`         |
 | `chat_message.sent`        | Se envía un mensaje al chat del viaje (sin el texto: minimización)                                 | `chat/chat.service.ts`                 |
 | `incident.reported`        | Se registra una incidencia (sin su descripción)                                                    | `incidents/incidents.service.ts`       |
 | `incident.review_started`  | Un administrador empieza a revisarla                                                               | `incidents/incident-review.service.ts` |
@@ -75,6 +75,8 @@ Las rutas son relativas a `backend/src/modules/`. Un test (`events-contract.spec
 
 ### Cambios de versión
 
+- `trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.cancelled` y `trip.expired` **v3**, y `trip.started` y `trip.finished` **v4**: el `payload` añade `stops`, las paradas del viaje con recogida en puntos (`id`, `position`, `name`, `location` y `etaOffsetMin`, los minutos desde la salida por la ruta sin el tiempo de las paradas anteriores); vacío en ruta. La versión anterior llevaba el mismo estado sin las paradas.
+- `request.created`, `request.accepted`, `request.rejected`, `request.cancelled` y `request.expired` **v2**, y `request.boarded` **v3**: el `payload` añade `stopId`, la parada en la que sube el pasajero (`null` si no recoge en puntos). La versión anterior llevaba el mismo estado sin ese campo.
 - `trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.cancelled` y `trip.expired` **v2**, y `trip.started` y `trip.finished` **v3**: el `payload` añade `pickupMode` (`on_route` o `stops`, cómo recoge el conductor) y `maxDetourM` (los metros que se aparta de su ruta en modo `on_route`; `null` con paradas). `maxDetourMin` pasa a ser el presupuesto total de desvío del viaje, no por pasajero. La versión anterior llevaba el mismo estado sin esos dos campos.
 
 - `trip.started` **v2**: el `payload` añade `driverDeclarationVersion` y `vehicleDeclarationVersion` (las versiones de la declaración del conductor y de la del vehículo que confirma al iniciar, RF-21). La v1 llevaba el mismo estado del viaje sin esos dos campos.

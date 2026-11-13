@@ -4,6 +4,10 @@ import type {
   PickupPlan,
   TripPickupsService,
 } from '../trips/trip-pickups.service';
+import { StopNotInTripError } from '../trips/errors/stop-not-in-trip.error';
+import { StopRequiredError } from '../trips/errors/stop-required.error';
+import type { TripStopsService } from '../trips/trip-stops.service';
+import { InvalidRequestPickupError } from './errors/invalid-request-pickup.error';
 import { SeatRequest } from './entities/seat-request.entity';
 import type {
   RequestChangeListener,
@@ -23,8 +27,10 @@ describe('RequestPickupsService', () => {
       listener = registered;
     },
   } as unknown as RequestChangesRecorder;
+  const findStop = jest.fn();
   const service = new RequestPickupsService(
     { planWith, apply, remove } as unknown as TripPickupsService,
+    { findOne: findStop } as unknown as TripStopsService,
     changes,
   );
   const query = jest.fn();
@@ -55,11 +61,11 @@ describe('RequestPickupsService', () => {
       service.planAcceptance(seatRequest({ pickupLocation: null }), trip),
     ).toBeNull();
 
-    void service.planAcceptance(seatRequest(), trip);
+    void service.planAcceptance(seatRequest({ stopId: null }), trip);
 
     expect(planWith).toHaveBeenCalledWith(
       trip,
-      { id: 'r1', location: PICKUP },
+      { id: 'r1', location: PICKUP, stopId: null },
       null,
     );
   });
@@ -80,7 +86,7 @@ describe('RequestPickupsService', () => {
 
     expect(planWith).toHaveBeenCalledWith(
       expect.objectContaining({ id: 't1' }),
-      { id: 'new-request', location: PICKUP },
+      { id: 'new-request', location: PICKUP, stopId: null },
       null,
     );
     expect(pickupAt).toEqual(new Date('2026-11-20T07:39:00Z'));
@@ -141,5 +147,92 @@ describe('RequestPickupsService', () => {
     });
 
     expect(remove).not.toHaveBeenCalled();
+  });
+
+  describe('resolve (asking for a seat)', () => {
+    const departure = new Date('2026-11-20T07:30:00Z');
+    const ORIGIN: Point = { type: 'Point', coordinates: [-2.46, 36.84] };
+    const onRoute = {
+      ...trip,
+      origin: ORIGIN,
+      originName: 'Plaza Circular',
+      departureAt: departure,
+      pickupMode: 'on_route',
+    } as Trip;
+    const atStops = { ...onRoute, pickupMode: 'stops' } as Trip;
+    const STOP = {
+      id: 's1',
+      name: 'Av. Cabo de Gata',
+      location: PICKUP,
+    };
+
+    it('boards everyone at the driver start when leaving the campus', async () => {
+      await expect(
+        service.resolve(onRoute, { direction: 'from-campus' }),
+      ).resolves.toEqual({
+        location: ORIGIN,
+        name: 'Plaza Circular',
+        stopId: null,
+        pickupAt: departure,
+      });
+    });
+
+    it('picks up at the passenger point, at once when it is the start', async () => {
+      await expect(
+        service.resolve(onRoute, {
+          direction: 'to-campus',
+          pickupLocation: ORIGIN,
+          pickupName: 'Plaza Circular',
+        }),
+      ).resolves.toMatchObject({ stopId: null, pickupAt: departure });
+      expect(planWith).not.toHaveBeenCalled();
+      await expect(
+        service.resolve(onRoute, { direction: 'to-campus' }),
+      ).rejects.toThrow(InvalidRequestPickupError);
+    });
+
+    it('picks up at the chosen stop, at its time', async () => {
+      findStop.mockResolvedValue(STOP);
+      planWith.mockResolvedValue({
+        pickups: [{ requestId: 'new-request', etaOffsetMin: 6 }],
+      });
+
+      const pickup = await service.resolve(atStops, {
+        direction: 'to-campus',
+        stopId: 's1',
+      });
+
+      expect(findStop).toHaveBeenCalledWith('t1', 's1');
+      expect(planWith).toHaveBeenCalledWith(
+        atStops,
+        { id: 'new-request', location: PICKUP, stopId: 's1' },
+        null,
+      );
+      expect(pickup).toEqual({
+        location: PICKUP,
+        name: 'Av. Cabo de Gata',
+        stopId: 's1',
+        pickupAt: new Date('2026-11-20T07:36:00Z'),
+      });
+    });
+
+    it('asks for a stop of the trip when it picks up at stops', async () => {
+      await expect(
+        service.resolve(atStops, { direction: 'to-campus' }),
+      ).rejects.toThrow(StopRequiredError);
+      findStop.mockResolvedValue(null);
+      await expect(
+        service.resolve(atStops, { direction: 'to-campus', stopId: 'other' }),
+      ).rejects.toThrow(StopNotInTripError);
+    });
+
+    it('refuses a stop on a trip without stops or from the campus', async () => {
+      await expect(
+        service.resolve(onRoute, { direction: 'to-campus', stopId: 's1' }),
+      ).rejects.toThrow(StopNotInTripError);
+      await expect(
+        service.resolve(atStops, { direction: 'from-campus', stopId: 's1' }),
+      ).rejects.toThrow(StopNotInTripError);
+    });
   });
 });

@@ -31,6 +31,7 @@ const CANDIDATE: TripCandidate = {
   destination: PARKING_LOCATION,
   distanceKm: 0.4,
   pickupAt: null,
+  stop: null,
 };
 
 describe('MatchingService', () => {

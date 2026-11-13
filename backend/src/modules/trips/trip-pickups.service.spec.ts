@@ -1,6 +1,7 @@
 import type { EntityManager, LineString, Point, Repository } from 'typeorm';
 import { TripPickup } from './entities/trip-pickup.entity';
 import type { TripRoute } from './entities/trip-route.entity';
+import { TripStop } from './entities/trip-stop.entity';
 import type { Trip } from './entities/trip.entity';
 import { DetourBudgetExceededError } from './errors/detour-budget-exceeded.error';
 import { TripPickupsChangedError } from './errors/trip-pickups-changed.error';
@@ -40,10 +41,18 @@ describe('TripPickupsService', () => {
   const planVia = jest.fn();
   const plan = jest.fn();
   const saveRoute = jest.fn();
+  const findStops = jest.fn();
+  const getForTrip = jest.fn();
   const service = new TripPickupsService(
     { find: findPickups } as unknown as Repository<TripPickup>,
     { findOneBy: findRoute } as unknown as Repository<TripRoute>,
-    { planVia, plan, save: saveRoute } as unknown as TripRoutesService,
+    { find: findStops } as unknown as Repository<TripStop>,
+    {
+      planVia,
+      plan,
+      save: saveRoute,
+      getForTrip,
+    } as unknown as TripRoutesService,
   );
 
   const managerFind = jest.fn();
@@ -78,7 +87,13 @@ describe('TripPickupsService', () => {
 
     expect(planVia).toHaveBeenCalledWith(ORIGIN, [NEAR], CAMPUS);
     expect(planned.pickups).toEqual([
-      { requestId: 'r1', location: NEAR, position: 0, etaOffsetMin: 3 },
+      {
+        requestId: 'r1',
+        location: NEAR,
+        stopId: null,
+        position: 0,
+        etaOffsetMin: 3,
+      },
     ]);
     // 15 − 11 de desvío + 2 de parada
     expect(planned.usedDetourMin).toBe(6);
@@ -225,5 +240,79 @@ describe('TripPickupsService', () => {
     await expect(service.apply(manager, TRIP, planned)).resolves.toBeInstanceOf(
       Map,
     );
+  });
+
+  describe('at stops', () => {
+    const STOPS_TRIP = { ...TRIP, pickupMode: 'stops' } as Trip;
+    // La ruta ya pasa por las dos paradas: 4 min más que la directa
+    const STOPS_ROUTE = {
+      tripId: 't1',
+      distanceKm: 9,
+      durationMin: 15,
+      directDurationMin: 11,
+      geometry: LINE,
+      source: 'osrm',
+    };
+    const STOPS = [
+      { id: 's1', position: 0, etaOffsetMin: 3 },
+      { id: 's2', position: 1, etaOffsetMin: 9 },
+    ];
+
+    it('picks up at the chosen stop without asking OSRM', async () => {
+      findPickups.mockResolvedValue([
+        { requestId: 'r0', location: FAR, stopId: 's2' },
+      ]);
+      findStops.mockResolvedValue(STOPS);
+      getForTrip.mockResolvedValue(STOPS_ROUTE);
+
+      const planned = await service.planWith(
+        STOPS_TRIP,
+        { id: 'r1', location: NEAR, stopId: 's1' },
+        null,
+      );
+
+      expect(planVia).not.toHaveBeenCalled();
+      expect(planned.route.durationMin).toBe(15);
+      expect(planned.pickups).toEqual([
+        expect.objectContaining({
+          requestId: 'r1',
+          stopId: 's1',
+          etaOffsetMin: 3,
+        }),
+        expect.objectContaining({
+          requestId: 'r0',
+          stopId: 's2',
+          etaOffsetMin: 11,
+        }),
+      ]);
+      expect(planned.usedDetourMin).toBe(4 + 2 * 2);
+    });
+
+    it('gives back the stop time when the last passenger of a stop leaves', async () => {
+      managerFind
+        .mockResolvedValueOnce([
+          { requestId: 'r1', location: NEAR, stopId: 's1', position: 0 },
+          { requestId: 'r0', location: FAR, stopId: 's2', position: 1 },
+        ])
+        .mockResolvedValueOnce(STOPS);
+      const managerFindOneBy = jest.fn().mockResolvedValue(STOPS_ROUTE);
+      const stopsManager = {
+        ...manager,
+        findOneBy: managerFindOneBy,
+      } as unknown as EntityManager;
+
+      const times = await service.remove(stopsManager, STOPS_TRIP, 'r1');
+
+      expect(planVia).not.toHaveBeenCalled();
+      expect(times).toEqual(
+        new Map([['r0', new Date(DEPARTURE.getTime() + 9 * 60_000)]]),
+      );
+      expect(saveRoute).toHaveBeenCalledWith(
+        stopsManager,
+        't1',
+        expect.objectContaining({ durationMin: 15 }),
+        11,
+      );
+    });
   });
 });

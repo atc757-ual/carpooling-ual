@@ -26,6 +26,10 @@ export class TripPickup {
   @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326 })
   location: Point;
 
+  // La parada en la que sube (recogida en puntos); null en ruta
+  @Column({ name: 'stop_id', type: 'uuid', nullable: true })
+  stopId: string | null;
+
   // Orden a lo largo de la ruta, desde 0
   @Column({ type: 'smallint' })
   position: number;

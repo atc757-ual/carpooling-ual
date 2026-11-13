@@ -32,20 +32,18 @@ import { TooManyPendingRequestsError } from './errors/too-many-pending-requests.
 import { RequestView, RequestViewsService } from './request-views.service';
 import { RequestChangesRecorder, requestPayload } from './request-changes';
 import { RequestOverlapService } from './request-overlap.service';
-import { RequestPickupsService } from './request-pickups.service';
+import { RequestPickupsService, samePoint } from './request-pickups.service';
+import type {
+  RequestPickupContext,
+  ResolvedPickup,
+} from './request-pickups.service';
 import { MAX_OVERLAPPING_PENDING_REQUESTS } from './request-schedule';
 import { assertRequestTransition } from './request-status';
 import { TripChangedError } from './errors/trip-changed.error';
-import { InvalidRequestPickupError } from './errors/invalid-request-pickup.error';
 import { EventsService } from '../../events/events.service';
 import { MINUTE_MS, PICKUP_NO_SHOW_WAIT_MIN } from '../trips/trip-timing';
-import type { Point } from 'typeorm';
 
-export interface RequestPickupContext {
-  direction: 'to-campus' | 'from-campus';
-  pickupLocation?: Point;
-  pickupName?: string;
-}
+export type { RequestPickupContext } from './request-pickups.service';
 
 // Restricción de la base de datos: una sola solicitud viva por pasajero y viaje
 const ACTIVE_PER_TRIP_INDEX = 'requests_active_per_trip_idx';
@@ -122,6 +120,7 @@ export class RequestsService {
         pickupName: pickup?.name ?? null,
         direction: pickup?.direction ?? null,
         pickupAt: pickup?.pickupAt ?? null,
+        stopId: pickup?.stopId ?? null,
       });
       await this.changes.record(manager, 'request.created', created, trip);
       return created;
@@ -129,37 +128,22 @@ export class RequestsService {
     return this.views.toView(request);
   }
 
+  // Dónde y a qué hora le recogerían (RequestPickupsService), con el viaje
+  // leído antes de la transacción para comprobar después que no ha cambiado
   private async preparePickup(
     tripId: string,
     context: RequestPickupContext,
-  ): Promise<{
-    trip: Trip;
-    direction: RequestPickupContext['direction'];
-    location: Point;
-    name: string;
-    pickupAt: Date;
-  }> {
-    const { trip } = await this.tripsService.getById(tripId);
-    const isToCampus = context.direction === 'to-campus';
-    if (isToCampus && (!context.pickupLocation || !context.pickupName)) {
-      throw new InvalidRequestPickupError();
+  ): Promise<
+    ResolvedPickup & {
+      trip: Trip;
+      direction: RequestPickupContext['direction'];
     }
-    const location = isToCampus ? context.pickupLocation! : trip.origin;
-    const name = isToCampus
-      ? context.pickupName!
-      : (trip.originName ?? 'Punto de salida del conductor');
-    // Hacia el campus, cuándo llega el conductor a la recogida contando las
-    // que ya tiene aceptadas y sus paradas; si recoge en su misma salida (o va
-    // desde el campus), sale ya
-    const needsRoute = isToCampus && !samePoint(trip.origin, location);
+  > {
+    const { trip } = await this.tripsService.getById(tripId);
     return {
       trip,
       direction: context.direction,
-      location,
-      name,
-      pickupAt: needsRoute
-        ? await this.requestPickups.estimatePickupAt(trip, location)
-        : trip.departureAt,
+      ...(await this.requestPickups.resolve(trip, context)),
     };
   }
 
@@ -602,6 +586,7 @@ export class RequestsService {
       | 'pickupName'
       | 'direction'
       | 'pickupAt'
+      | 'stopId'
     >,
   ): Promise<SeatRequest> {
     try {
@@ -613,13 +598,6 @@ export class RequestsService {
       throw error;
     }
   }
-}
-
-function samePoint(first: Point, second: Point): boolean {
-  return (
-    first.coordinates[0] === second.coordinates[0] &&
-    first.coordinates[1] === second.coordinates[1]
-  );
 }
 
 function sameTripSchedule(first: Trip, second: Trip): boolean {

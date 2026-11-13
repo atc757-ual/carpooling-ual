@@ -1,5 +1,6 @@
 import type { Point, Repository } from 'typeorm';
 import type { TripRoute } from './entities/trip-route.entity';
+import { TripStop } from './entities/trip-stop.entity';
 import { OsrmUnavailableError, type OsrmClient } from './osrm.client';
 import { estimateRoute } from './route-plan';
 import { TripRoutesService } from './trip-routes.service';
@@ -72,13 +73,19 @@ describe('TripRoutesService.getForTrip', () => {
   const findOneByOrFail = jest.fn();
   const upsert = jest.fn();
   const findPickups = jest.fn();
+  const findStops = jest.fn();
   const routeWithLegs = jest.fn();
   const service = new TripRoutesService(
     {
       findOneBy,
       findOneByOrFail,
       upsert,
-      manager: { find: findPickups },
+      manager: {
+        find: (entity: unknown): Promise<unknown> =>
+          (entity === TripStop
+            ? findStops()
+            : findPickups()) as Promise<unknown>,
+      },
     } as unknown as Repository<TripRoute>,
     { route, routeWithLegs } as unknown as OsrmClient,
   );
@@ -97,6 +104,32 @@ describe('TripRoutesService.getForTrip', () => {
     jest.clearAllMocks();
     findOneByOrFail.mockResolvedValue({ tripId: 't1', ...OSRM_PLAN });
     findPickups.mockResolvedValue([]);
+    findStops.mockResolvedValue([]);
+  });
+
+  it('goes through every stop of a trip that picks up at stops', async () => {
+    const otherStop: Point = { type: 'Point', coordinates: [-2.5, 36.8] };
+    findOneBy.mockResolvedValue({
+      ...savedRoute('estimated', 5),
+      directDurationMin: 14,
+    });
+    findStops.mockResolvedValue([
+      { location: STOP, position: 0 },
+      { location: otherStop, position: 1 },
+    ]);
+    routeWithLegs.mockResolvedValue({ route: OSRM_PLAN, legsMin: [4, 6, 11] });
+
+    await service.getForTrip(TRIP, NOW);
+
+    expect(findPickups).not.toHaveBeenCalled();
+    expect(routeWithLegs).toHaveBeenCalledWith(ORIGIN, CAMPUS, [
+      STOP,
+      otherStop,
+    ]);
+    expect(upsert).toHaveBeenCalledWith(
+      { tripId: 't1', ...OSRM_PLAN, directDurationMin: 14 },
+      ['tripId'],
+    );
   });
 
   it('asks OSRM again through the accepted pickups, keeping the direct duration', async () => {

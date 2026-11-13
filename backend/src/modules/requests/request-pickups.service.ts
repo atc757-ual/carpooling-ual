@@ -4,9 +4,29 @@ import type { Point } from 'typeorm';
 import type { Trip } from '../trips/entities/trip.entity';
 import { TripPickupsService } from '../trips/trip-pickups.service';
 import type { PickupPlan } from '../trips/trip-pickups.service';
+import { StopNotInTripError } from '../trips/errors/stop-not-in-trip.error';
+import { StopRequiredError } from '../trips/errors/stop-required.error';
 import { MINUTE_MS } from '../trips/trip-timing';
+import { TripStopsService } from '../trips/trip-stops.service';
+import { InvalidRequestPickupError } from './errors/invalid-request-pickup.error';
 import { SeatRequest } from './entities/seat-request.entity';
 import { RequestChangesRecorder } from './request-changes';
+
+export interface RequestPickupContext {
+  direction: 'to-campus' | 'from-campus';
+  pickupLocation?: Point;
+  pickupName?: string;
+  // Recogida en puntos: la parada elegida
+  stopId?: string;
+}
+
+// Dónde y a qué hora le recogerían, al pedir plaza
+export interface ResolvedPickup {
+  location: Point;
+  name: string;
+  stopId: string | null;
+  pickupAt: Date;
+}
 
 // Id provisional de la solicitud que aún no existe, al estimar su hora
 const NEW_REQUEST_ID = 'new-request';
@@ -26,8 +46,66 @@ const STATUSES_WITH_PICKUPS = new Set<Trip['status']>([
 export class RequestPickupsService implements OnModuleInit {
   constructor(
     private readonly tripPickups: TripPickupsService,
+    private readonly tripStops: TripStopsService,
     private readonly changes: RequestChangesRecorder,
   ) {}
+
+  // Al pedir plaza (antes de la transacción). Al volver, todos suben en la
+  // salida del conductor (el campus). Hacia el campus, en su parada si el
+  // viaje recoge en puntos y, si no, en el punto del pasajero
+  async resolve(
+    trip: Trip,
+    context: RequestPickupContext,
+  ): Promise<ResolvedPickup> {
+    const atStops =
+      context.direction === 'to-campus' && trip.pickupMode === 'stops';
+    if (!atStops && context.stopId !== undefined) {
+      throw new StopNotInTripError(trip.id, context.stopId);
+    }
+    if (context.direction === 'from-campus') {
+      return {
+        location: trip.origin,
+        name: trip.originName ?? 'Punto de salida del conductor',
+        stopId: null,
+        pickupAt: trip.departureAt,
+      };
+    }
+    if (atStops) {
+      return this.resolveStop(trip, context.stopId);
+    }
+    if (!context.pickupLocation || !context.pickupName) {
+      throw new InvalidRequestPickupError();
+    }
+    const location = context.pickupLocation;
+    // Si recoge en su misma salida, sale ya
+    return {
+      location,
+      name: context.pickupName,
+      stopId: null,
+      pickupAt: samePoint(trip.origin, location)
+        ? trip.departureAt
+        : await this.estimatePickupAt(trip, location),
+    };
+  }
+
+  private async resolveStop(
+    trip: Trip,
+    stopId: string | undefined,
+  ): Promise<ResolvedPickup> {
+    if (stopId === undefined) {
+      throw new StopRequiredError(trip.id);
+    }
+    const stop = await this.tripStops.findOne(trip.id, stopId);
+    if (stop === null) {
+      throw new StopNotInTripError(trip.id, stopId);
+    }
+    return {
+      location: stop.location,
+      name: stop.name,
+      stopId: stop.id,
+      pickupAt: await this.estimatePickupAt(trip, stop.location, stop.id),
+    };
+  }
 
   onModuleInit(): void {
     this.changes.onRequestChanged(async (manager, change) => {
@@ -54,17 +132,25 @@ export class RequestPickupsService implements OnModuleInit {
     }
     return this.tripPickups.planWith(
       trip,
-      { id: request.id, location: request.pickupLocation },
+      {
+        id: request.id,
+        location: request.pickupLocation,
+        stopId: request.stopId,
+      },
       null,
     );
   }
 
   // Al pedir plaza: a qué hora le recogería el conductor, después de las
   // recogidas ya aceptadas y sus paradas (OSRM, antes de la transacción)
-  async estimatePickupAt(trip: Trip, location: Point): Promise<Date> {
+  async estimatePickupAt(
+    trip: Trip,
+    location: Point,
+    stopId: string | null = null,
+  ): Promise<Date> {
     const plan = await this.tripPickups.planWith(
       trip,
-      { id: NEW_REQUEST_ID, location },
+      { id: NEW_REQUEST_ID, location, stopId },
       null,
     );
     const pickup = plan.pickups.find(
@@ -105,4 +191,11 @@ export class RequestPickupsService implements OnModuleInit {
       [[...times.keys()], [...times.values()]],
     );
   }
+}
+
+export function samePoint(first: Point, second: Point): boolean {
+  return (
+    first.coordinates[0] === second.coordinates[0] &&
+    first.coordinates[1] === second.coordinates[1]
+  );
 }
