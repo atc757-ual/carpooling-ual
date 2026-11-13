@@ -91,6 +91,12 @@ export class ChatService {
     return this.listConversationsPage({ limit: 100 }).then(({ items }) => items);
   }
 
+  getConversation(tripId: string): Promise<Conversation> {
+    return this.call(
+      this.http.get<Conversation>(`${environment.apiUrl}/trips/${tripId}/conversation`),
+    );
+  }
+
   listConversationsPage(options: ConversationListOptions = {}): Promise<ConversationPage> {
     const params: Record<string, string | number | boolean> = {
       offset: options.offset ?? 0,

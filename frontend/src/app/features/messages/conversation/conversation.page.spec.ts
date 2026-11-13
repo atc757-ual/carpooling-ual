@@ -55,6 +55,7 @@ describe('ConversationPage', () => {
 
   async function render(conversation: Conversation = CONVERSATION): Promise<HTMLElement> {
     chat['listConversations'].mockResolvedValue([conversation]);
+    chat['getConversation'].mockResolvedValue(conversation);
     TestBed.configureTestingModule({
       imports: [ConversationPage],
       providers: [
@@ -107,6 +108,7 @@ describe('ConversationPage', () => {
     modalProps = null;
     chat = {
       listConversations: vi.fn(),
+      getConversation: vi.fn().mockImplementation(() => Promise.resolve(CONVERSATION)),
       listMessages: vi
         .fn()
         .mockResolvedValue([message('m1', 'u2'), message('m2', 'me', { readByAll: true })]),
@@ -325,6 +327,23 @@ describe('ConversationPage', () => {
     expect(root.querySelectorAll('.bubble')).toHaveLength(2);
   });
 
+  it('hides the call button but keeps heading and report button when the trip has finished or cancelled', async () => {
+    const finishedTrip = {
+      ...CONVERSATION,
+      trip: { ...CONVERSATION.trip, status: 'finished' as const },
+      isOpen: false,
+    };
+    const root = await render(finishedTrip);
+
+    expect(root.querySelector('.conversation__call')).toBeNull();
+    expect(root.querySelector('.conversation__options')).not.toBeNull();
+    const places = root.querySelectorAll('.conversation__place-name');
+    expect([...places].map((place) => place.textContent?.trim())).toEqual([
+      'Roquetas de Mar',
+      'Campus UAL',
+    ]);
+  });
+
   it('opens options popover with report option and reports the chat with a reason', async () => {
     const root = await render();
     expect(root.querySelector('.conversation__options')).not.toBeNull();
@@ -396,20 +415,11 @@ describe('ConversationPage', () => {
   });
 
   it('greys out the call and explains why when nobody can be called', async () => {
-    const root = await render({
-      ...CONVERSATION,
-      trip: { ...CONVERSATION.trip, status: 'cancelled' },
-    });
+    const root = await render(CONVERSATION);
 
     const call = root.querySelector('.conversation__call');
     expect(call?.classList).toContain('conversation__call--unavailable');
     expect(page.callLabel()).toBe('Llamar (no disponible)');
-    await page.handleCall();
-    expect(showInfo).toHaveBeenCalledWith(
-      'Solo se puede llamar con el viaje confirmado o en curso.',
-    );
-
-    page.conversation.set(CONVERSATION);
     await page.handleCall();
     expect(showInfo).toHaveBeenLastCalledWith(
       'Nadie más de este viaje tiene el teléfono verificado.',
@@ -477,5 +487,39 @@ describe('ConversationPage', () => {
 
     page.ionViewDidLeave();
     expect(heading.content()).toBeNull();
+  });
+
+  it('determines whether call button can be shown based on trip status', async () => {
+    await render();
+    expect(page.canShowCall()).toBe(true); // confirmed
+
+    page.conversation.set({
+      ...CONVERSATION,
+      trip: { ...CONVERSATION.trip, status: 'in_progress' },
+    });
+    expect(page.canShowCall()).toBe(true);
+
+    page.conversation.set({
+      ...CONVERSATION,
+      trip: { ...CONVERSATION.trip, status: 'finished' },
+    });
+    expect(page.canShowCall()).toBe(false);
+
+    page.conversation.set({
+      ...CONVERSATION,
+      trip: { ...CONVERSATION.trip, status: 'cancelled' },
+    });
+    expect(page.canShowCall()).toBe(false);
+
+    page.conversation.set(null);
+    expect(page.canShowCall()).toBe(false);
+  });
+
+  it('falls back to listConversations if getConversation fails', async () => {
+    chat['getConversation'].mockRejectedValueOnce(new Error('not found'));
+    chat['listConversations'].mockResolvedValueOnce([CONVERSATION]);
+
+    await render();
+    expect(page.conversation()).toEqual(CONVERSATION);
   });
 });

@@ -82,30 +82,46 @@ export class TripRouteMap implements OnDestroy {
   private readonly mapElement = viewChild<ElementRef<HTMLElement>>('map');
   private leaflet: typeof Leaflet | null = null;
   private map: Leaflet.Map | null = null;
+  private routeLayer: Leaflet.Polyline | null = null;
   private markerLayer: Leaflet.LayerGroup | null = null;
   private resizeObserver: ResizeObserver | null = null;
+  private isInitializing = false;
+  private isDestroyed = false;
 
   constructor() {
     effect(() => {
       const element = this.mapElement()?.nativeElement;
       const route = this.route();
       const markers = this.markers();
-      if (!element) {
+      if (!element || this.isDestroyed) {
         return;
       }
       if (this.map) {
-        // Cambian las recogidas (p. ej. el conductor acepta a alguien): se
-        // repintan los puntos sin mover la vista
+        // Cambian la ruta o las recogidas: se actualizan sobre el mapa existente
+        this.updateRoute(route);
         this.drawMarkers(markers);
-      } else {
-        void this.createMap(element, route, markers);
+      } else if (!this.isInitializing) {
+        this.isInitializing = true;
+        void this.createMap(element, route, markers).finally(() => {
+          this.isInitializing = false;
+        });
       }
     });
   }
 
   ngOnDestroy(): void {
+    this.isDestroyed = true;
     this.resizeObserver?.disconnect();
+    this.routeLayer?.remove();
+    this.routeLayer = null;
+    this.markerLayer?.remove();
+    this.markerLayer = null;
     this.map?.remove();
+    this.map = null;
+    const element = this.mapElement()?.nativeElement;
+    if (element && (element as unknown as { _leaflet_id?: number })._leaflet_id) {
+      delete (element as unknown as { _leaflet_id?: number })._leaflet_id;
+    }
   }
 
   private async createMap(
@@ -116,8 +132,17 @@ export class TripRouteMap implements OnDestroy {
     const leafletModule = (await import('leaflet')) as typeof Leaflet & {
       default?: typeof Leaflet;
     };
+    if (this.isDestroyed || this.map) {
+      return;
+    }
     const leaflet = leafletModule.default ?? leafletModule;
     this.leaflet = leaflet;
+
+    const el = element as unknown as { _leaflet_id?: number };
+    if (el._leaflet_id) {
+      delete el._leaflet_id;
+    }
+
     // Se puede acercar para ver mejor: botones + y −, pellizcar, doble clic y
     // teclado. Sin rueda, para no secuestrar el scroll de la pantalla. En el
     // móvil, arrastrar solo tras acercar: con el zoom inicial, un dedo sobre
@@ -134,14 +159,12 @@ export class TripRouteMap implements OnDestroy {
     });
     this.map = map;
     leaflet.tileLayer(TILES_URL, { maxZoom: 19, attribution: TILES_ATTRIBUTION }).addTo(map);
+    this.updateRoute(route);
+    this.markerLayer = leaflet.layerGroup().addTo(map);
+    this.drawMarkers(markers);
     const routePoints = (route.geometry?.coordinates ?? []).map(
       ([lon, lat]) => [lat, lon] as [number, number],
     );
-    if (routePoints.length > 0) {
-      leaflet.polyline(routePoints, { color: 'var(--color-link)', weight: 5 }).addTo(map);
-    }
-    this.markerLayer = leaflet.layerGroup().addTo(map);
-    this.drawMarkers(markers);
     const bounds = leaflet.latLngBounds(routePoints);
     for (const { point } of markers) {
       const [lon, lat] = point.coordinates;
@@ -165,6 +188,25 @@ export class TripRouteMap implements OnDestroy {
     if (typeof ResizeObserver !== 'undefined') {
       this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize());
       this.resizeObserver.observe(element);
+    }
+  }
+
+  private updateRoute(route: TripRoute): void {
+    const { leaflet, map } = this;
+    if (!leaflet || !map) {
+      return;
+    }
+    if (this.routeLayer) {
+      this.routeLayer.remove();
+      this.routeLayer = null;
+    }
+    const routePoints = (route.geometry?.coordinates ?? []).map(
+      ([lon, lat]) => [lat, lon] as [number, number],
+    );
+    if (routePoints.length > 0) {
+      this.routeLayer = leaflet
+        .polyline(routePoints, { color: 'var(--color-link)', weight: 5 })
+        .addTo(map);
     }
   }
 

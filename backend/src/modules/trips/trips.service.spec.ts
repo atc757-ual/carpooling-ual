@@ -1,4 +1,4 @@
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, Point, Repository } from 'typeorm';
 import { Trip } from './entities/trip.entity';
 import { LateCancellationsService } from './late-cancellations.service';
 import { PublishingLimitsService } from './publishing-limits.service';
@@ -163,5 +163,25 @@ describe('TripsService cancelUnstartedTrips', () => {
       'cancelled',
     );
     expect(recordDriverCancellationSpy).not.toHaveBeenCalled();
+  });
+
+  it('delegates planRoute to TripRoutesService.plan', async () => {
+    const planSpy = jest.fn().mockResolvedValue({ distanceKm: 10 });
+    const tripRoutes = { plan: planSpy } as unknown as TripRoutesService;
+    const tripsService = new TripsService(
+      {} as DataSource,
+      {} as Repository<Trip>,
+      {} as UsersService,
+      {} as VehiclesService,
+      {} as TripStatusService,
+      tripRoutes,
+      {} as LateCancellationsService,
+      {} as PublishingLimitsService,
+    );
+    const origin: Point = { type: 'Point', coordinates: [-2.5, 36.8] };
+    const destination: Point = { type: 'Point', coordinates: [-2.4, 36.83] };
+    const result = await tripsService.planRoute(origin, destination);
+    expect(planSpy).toHaveBeenCalledWith(origin, destination);
+    expect(result).toEqual({ distanceKm: 10 });
   });
 });

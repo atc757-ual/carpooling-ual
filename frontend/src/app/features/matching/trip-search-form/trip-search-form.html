@@ -5,9 +5,8 @@
     <ion-icon [icon]="impactIcon" aria-hidden="true" />
     @if (impact(); as impact) {
       <p>
-        Compartiendo este trayecto ahorras aproximadamente <b>{{ impact.km }} km</b> al volante,
-        <b>{{ formatDecimal(impact.co2Kg) }} kg de CO₂</b> y
-        <b>{{ formatDecimal(impact.fuelEuros) }} €</b> de gasolina.
+        Compartiendo este trayecto ahorras aproximadamente <b>{{ impact.km }} km</b> al volante y
+        <b>{{ formatDecimal(impact.co2Kg) }} kg de CO₂</b>.
       </p>
     } @else {
       <p>Elige de dónde sales y te decimos cuánto ahorras compartiendo el trayecto.</p>

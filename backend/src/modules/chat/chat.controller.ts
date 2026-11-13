@@ -14,6 +14,7 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
@@ -94,6 +95,23 @@ export class ChatController {
     );
     setPaginationHeaders(response, page);
     return page.items.map(toConversationResource);
+  }
+
+  @Get('trips/:id/conversation')
+  @ApiOperation({
+    summary: 'Get conversation details for a trip',
+    description:
+      'Returns the trip and driver details for the chat header, even if closed.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiOkResponse({ type: ConversationResource })
+  @ApiErrorResponses(TRIP_CHAT_ERRORS)
+  async getConversation(
+    @CurrentUser() user: AccessTokenPayload,
+    @Param('id', uuidParam('id')) tripId: string,
+  ): Promise<ConversationResource> {
+    const view = await this.conversationsService.getForTrip(user.sub, tripId);
+    return toConversationResource(view);
   }
 
   @Get('trips/:id/messages')

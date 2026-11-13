@@ -29,4 +29,35 @@ export class TripsService {
       throw ApiError.fromHttpError(error);
     }
   }
+
+  async planRoute(
+    origin: [number, number],
+    destination: [number, number],
+  ): Promise<TripRoute> {
+    try {
+      const response = await firstValueFrom(
+        this.http.post<{
+          distanceKm: number;
+          durationMin: number;
+          geometry: { type: 'LineString'; coordinates: [number, number][] };
+          source: 'osrm' | 'estimated';
+        }>(`${environment.apiUrl}/trips/plan`, {
+          origin: { type: 'Point', coordinates: origin },
+          destination: { type: 'Point', coordinates: destination },
+        }),
+      );
+      return {
+        tripId: 'preview',
+        distanceKm: response.distanceKm,
+        durationMin: response.durationMin,
+        geometry: response.geometry,
+        source: response.source,
+        tripStatus: 'published',
+        startedAt: null,
+        estimatedArrivalAt: null,
+      };
+    } catch (error) {
+      throw ApiError.fromHttpError(error);
+    }
+  }
 }

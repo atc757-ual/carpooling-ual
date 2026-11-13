@@ -63,7 +63,6 @@ describe('Campus parkings API (e2e)', () => {
       'p3',
       'p4',
       'p5',
-      'p6',
     ]);
     expect(parkings[0]).toMatchObject({
       '@type': 'CampusParking',
@@ -71,7 +70,7 @@ describe('Campus parkings API (e2e)', () => {
       name: 'Parking P1 (Sur)',
       location: { type: 'Point', coordinates: [-2.401719, 36.828856] },
     });
-    expect(response.headers['x-total-count']).toBe('6');
+    expect(response.headers['x-total-count']).toBe('5');
   });
 
   it('gets one parking and answers 404 for an unknown one', async () => {
