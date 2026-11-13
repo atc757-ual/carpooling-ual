@@ -1064,8 +1064,8 @@ describe('Users API (e2e)', () => {
         [driverId, vehicle.id, status],
       );
       await dataSource.query(
-        `INSERT INTO routes (trip_id, distance_km, duration_min, geometry, source)
-         VALUES ($1, 8.5, 15, ST_GeogFromText('LINESTRING(-2.4637 36.834, -2.4046 36.8295)'), 'estimated')`,
+        `INSERT INTO routes (trip_id, distance_km, duration_min, direct_duration_min, geometry, source)
+         VALUES ($1, 8.5, 15, 15, ST_GeogFromText('LINESTRING(-2.4637 36.834, -2.4046 36.8295)'), 'estimated')`,
         [trip.id],
       );
       return trip.id;

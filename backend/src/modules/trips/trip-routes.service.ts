@@ -57,13 +57,17 @@ export class TripRoutesService {
     }
   }
 
-  // Guarda (o sustituye) la ruta del viaje, en la transacción del viaje
+  // Guarda (o sustituye) la ruta del viaje, en la transacción del viaje. Sin
+  // recogidas, la ruta directa es la misma
   async save(
     manager: EntityManager,
     tripId: string,
     plan: RoutePlan,
+    directDurationMin = plan.durationMin,
   ): Promise<void> {
-    await manager.save(manager.create(TripRoute, { tripId, ...plan }));
+    await manager.save(
+      manager.create(TripRoute, { tripId, ...plan, directDurationMin }),
+    );
   }
 
   // La ruta del viaje. Si falta o es estimada (OSRM no respondió al
@@ -79,9 +83,10 @@ export class TripRoutesService {
       return saved;
     }
     const plan = await this.plan(trip.origin, trip.destination);
-    await this.routesRepository.upsert({ tripId: trip.id, ...plan }, [
-      'tripId',
-    ]);
+    await this.routesRepository.upsert(
+      { tripId: trip.id, ...plan, directDurationMin: plan.durationMin },
+      ['tripId'],
+    );
     return this.routesRepository.findOneByOrFail({ tripId: trip.id });
   }
 }

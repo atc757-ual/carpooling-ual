@@ -104,9 +104,10 @@ INSERT INTO trips (id, driver_id, vehicle_id, origin, destination, origin_name, 
 -- Rutas de los viajes. En la app las calcula OSRM al publicar; aquí se
 -- estiman como el plan B del backend (route-plan.ts): línea recta entre el
 -- origen y el destino por un factor de rodeo de 1,3, a 50 km/h
-INSERT INTO routes (trip_id, distance_km, duration_min, geometry, source)
+INSERT INTO routes (trip_id, distance_km, duration_min, direct_duration_min, geometry, source)
 SELECT id,
        round((ST_Distance(origin, destination) / 1000 * 1.3)::numeric, 2),
+       greatest(1, round(ST_Distance(origin, destination) / 1000 * 1.3 / 50 * 60)),
        greatest(1, round(ST_Distance(origin, destination) / 1000 * 1.3 / 50 * 60)),
        ST_MakeLine(origin::geometry, destination::geometry)::geography,
        'estimated'

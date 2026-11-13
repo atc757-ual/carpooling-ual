@@ -94,9 +94,14 @@ describe('TripRoutesService.getForTrip', () => {
     const result = await service.getForTrip(TRIP, NOW);
 
     expect(route).toHaveBeenCalledWith(ORIGIN, CAMPUS);
-    expect(upsert).toHaveBeenCalledWith({ tripId: 't1', ...OSRM_PLAN }, [
-      'tripId',
-    ]);
+    expect(upsert).toHaveBeenCalledWith(
+      {
+        tripId: 't1',
+        ...OSRM_PLAN,
+        directDurationMin: OSRM_PLAN.durationMin,
+      },
+      ['tripId'],
+    );
     expect(result.source).toBe('osrm');
   });
 
@@ -106,8 +111,9 @@ describe('TripRoutesService.getForTrip', () => {
 
     await service.getForTrip(TRIP, NOW);
 
+    const estimate = estimateRoute(ORIGIN, CAMPUS);
     expect(upsert).toHaveBeenCalledWith(
-      { tripId: 't1', ...estimateRoute(ORIGIN, CAMPUS) },
+      { tripId: 't1', ...estimate, directDurationMin: estimate.durationMin },
       ['tripId'],
     );
   });

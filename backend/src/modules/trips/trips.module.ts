@@ -6,6 +6,7 @@ import { EventsModule } from '../../events/events.module';
 import { PlacesModule } from '../places/places.module';
 import { UsersModule } from '../users/users.module';
 import { LateCancellation } from './entities/late-cancellation.entity';
+import { TripPickup } from './entities/trip-pickup.entity';
 import { TripRoute } from './entities/trip-route.entity';
 import { Trip } from './entities/trip.entity';
 import { LateCancellationsService } from './late-cancellations.service';
@@ -30,7 +31,7 @@ import { TripExpiryService } from './trip-expiry.service';
 // (EventsModule)
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Trip, TripRoute, LateCancellation]),
+    TypeOrmModule.forFeature([Trip, TripRoute, TripPickup, LateCancellation]),
     UsersModule,
     PlacesModule,
     EventsModule,
