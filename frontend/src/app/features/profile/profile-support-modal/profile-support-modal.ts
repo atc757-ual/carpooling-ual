@@ -12,13 +12,16 @@ import {
   SupportTopic,
 } from '../../../core/services/support/support.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { FaqCard } from '../../../shared/components/ui/faq-card/faq-card';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { SUPPORT_FAQS } from '../support-faqs';
 
 const TOPICS: readonly SupportTopic[] = ['trip', 'account', 'bug', 'suggestion', 'other'];
 
-// «Ayuda y soporte»: el motivo y el mensaje, que llegan por correo al equipo
-// de soporte; responde al correo del usuario. Se abre con ModalController;
+// «Ayuda y soporte»: primero las preguntas frecuentes y, si no basta, el
+// motivo y el mensaje, que llegan por correo al equipo de soporte; responde
+// al correo del usuario. Se abre con ModalController;
 // cierra con el rol 'sent' o 'cancel'
 @Component({
   selector: 'app-profile-support-modal',
@@ -31,6 +34,7 @@ const TOPICS: readonly SupportTopic[] = ['trip', 'account', 'bug', 'suggestion',
     IonTextarea,
     TranslocoPipe,
     IonicFormStatus,
+    FaqCard,
   ],
   templateUrl: './profile-support-modal.html',
   styleUrl: './profile-support-modal.scss',
@@ -55,6 +59,7 @@ export class ProfileSupportModal {
   readonly isSending = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
+  protected readonly faqs = SUPPORT_FAQS;
   protected readonly topics = TOPICS;
   protected readonly maxLength = SUPPORT_MESSAGE_MAX_LENGTH;
 

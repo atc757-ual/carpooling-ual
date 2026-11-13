@@ -5,6 +5,7 @@ import { provideTestingTransloco } from '../../../core/i18n/testing-transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { SupportService } from '../../../core/services/support/support.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { SUPPORT_FAQS } from '../support-faqs';
 import { ProfileSupportModal } from './profile-support-modal';
 
 const MESSAGE = 'El conductor no ha llegado al punto de recogida.';
@@ -33,6 +34,17 @@ describe('ProfileSupportModal', () => {
     fixture = TestBed.createComponent(ProfileSupportModal);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  it('shows the frequent questions before the contact topics', () => {
+    const root = fixture.nativeElement as HTMLElement;
+    const faqCard = root.querySelector('app-faq-card');
+    const topics = root.querySelector('fieldset');
+
+    expect(root.querySelectorAll('ion-accordion')).toHaveLength(SUPPORT_FAQS.length);
+    expect(root.textContent).toContain('¿Para qué es el código de embarque?');
+    // Primero la respuesta rápida y, si no basta, escribir
+    expect(faqCard?.compareDocumentPosition(topics as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
   it('offers the five topics as one-tap options', () => {

@@ -9,6 +9,11 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- **Viajes:** el conductor puede anunciar las plazas libres de un viaje («Compartir plazas libres», en las acciones del viaje) mientras admite solicitudes: con el menú de compartir del sistema o, si el navegador no lo tiene, por WhatsApp. El mensaje lleva el trayecto, el día y la hora, e invita a buscarlo en la app (el detalle de un viaje se abre desde una búsqueda, así que no se enlaza).
+- **Viajes:** tarjeta «Tu seguridad» en el viaje en curso, del conductor y del pasajero: compartir el viaje con alguien de confianza (el pasajero, con quién conduce, el coche y la matrícula) y «Llamar al 112», que abre la app de teléfono con el número puesto.
+- **Frontend:** preguntas frecuentes en «Ayuda y soporte», encima del formulario: el código de embarque, la espera en el punto de recogida, quién ve la ubicación, cancelar la plaza y que la plataforma no cobra nada.
+- **Privacidad:** el borrador de la Política de privacidad 1.1 empieza con un resumen «En pocas palabras», deja claro que los datos solo se usan para el carpooling de la UAL y no se venden ni se usan para publicidad, y explica cómo ejercer los derechos y en qué plazo (migración `ClarifyPrivacyDraft`).
+
 - **Viajes:** un viaje que llega al corte (10 minutos antes de la salida) sin ningÃºn pasajero aceptado se cierra con estado propio, `expired` (Â«Sin pasajerosÂ», `TripExpiryService`), en lugar de quedarse publicado hasta cancelarse tras la salida: no es una cancelaciÃ³n ni cuenta para la suspensiÃ³n. Se avisa al conductor con push (`trip_expired`), el Gemelo Digital registra `trip.expired` y el estado se muestra en Tus viajes, en el detalle del viaje y en el panel (#294).
 
 - **Viajes:** recordatorios al conductor. 30 minutos antes de la salida, si tiene solicitudes por responder, Â«Tienes solicitudes por responderÂ» (una vez por viaje), y a la hora de salida, si tiene pasajeros y no ha iniciado, Â«Es la hora de tu viaje: inÃ­cialoÂ» (una vez). Los dos con push y su texto en Avisos (`pending_requests_reminder` y `trip_start_reminder`, migraciÃ³n). Un viaje no iniciado se cancela solo a los 10 minutos de la salida, antes 15 (`UNSTARTED_TRIP_CANCEL_WINDOW_MIN`) (#293).
@@ -20,6 +25,9 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- **Frontend:** en iPhone, tocar un campo ya no amplía la pantalla. Safari hace zoom al enfocar un campo con la letra por debajo de 16 px y no lo deshace: el código de embarque del conductor tenía la ayuda a 14 px, y una regla del tema mantiene en iOS todos los campos de texto de Ionic a 16 px o más. Además, solo en iOS, la app añade `maximum-scale=1` al viewport al arrancar (`preventIosFocusZoom`): quita ese zoom en cualquier campo y el zoom con los dedos sigue funcionando, porque iOS lo permite siempre; en Android no se añade, porque allí lo bloquearía.
+- **Chat:** en el móvil, al abrir una conversación desde otra pantalla, la cabecera del viaje ya no se sustituye por «Conversación» y su subtítulo: la lista de Mensajes, al salir, borraba la cabecera que el chat acababa de poner. Mientras carga, la cabecera muestra un esqueleto en lugar del título genérico. El botón de llamar se ve siempre, también con el chat cerrado, y está deshabilitado cuando no hay a quién llamar.
+- **Chat:** en «¿Denunciar este chat?», «Denunciar» va primero y en azul y «Cancelar» después con borde, porque denunciar no es una acción destructiva. La ventana del motivo admite `isDestructive` (por defecto, sí) y las del panel de administración no cambian.
 - **Privacidad:** quien no tiene plaza en un viaje ya no ve la dirección exacta de la casa del conductor en el nombre del origen o del destino: se le muestra la calle sin el número de portal («Calle Profesor Mulian, 29» → «Calle Profesor Mulian»), igual que el punto ya se redondeaba a unos 500 m; los parkings del campus siguen tal cual. Y ser administrador ya no da los datos exactos en la app (búsqueda y detalle): allí ve lo mismo que cualquier pasajero, y los exactos solo en el panel (#290).
 - **Frontend:** al borrar la «@» de un correo de la UAL, las sugerencias ya no repiten el dominio («ac757inlumine.ual.es@inlumine.ual.es»): si lo escrito termina en un dominio de la UAL, sugieren solo el correo con la «@» en su sitio (#289).
 - **Chat:** Enter envía el mensaje (Mayús+Enter, salto de línea). El ✓✓ aparece en cuanto todos leen tu mensaje, sin volver a entrar (el sondeo vuelve a mirar los tuyos sin leer). En escritorio, abrir o responder una conversación quita su contador de la lista de al lado sin recargarla. En el móvil, la conversación ya no repite «Conversación» bajo la cabecera y no pierde la cabecera del viaje al volver a entrar: la sección de dentro de la página solo sale en las listas que la desplazan con el contenido, y una conversación que se va solo quita su propio contenido de la franja fija (#288).
@@ -51,6 +59,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Frontend:** la estimación del ahorro de un trayecto ya no calcula euros de gasolina, que no se mostraban en ninguna pantalla: solo km y CO₂ (plataforma colaborativa, sin enfoque económico).
 - **Chat:** el conductor puede escribir con el viaje en curso (puede estar parado): la app solo le sugiere usar las respuestas rápidas. Se quita el error `409 CHAT_QUICK_REPLIES_ONLY`. En el móvil, la conversación ya no tiene un scroll de más y el campo de escribir no queda bajo la barra de pestañas (#291).
 - **Frontend:** sin hora de recogida estimada en ninguna pantalla hasta decidir el cálculo con varios pasajeros. El recorrido del conductor muestra las recogidas de los pasajeros aceptados como paradas (R en el mapa). Con el viaje terminado, «Viajas» y «Conduces» pasan a «Viajaste» y «Condujiste» (#291).
 

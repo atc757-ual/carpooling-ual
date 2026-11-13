@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { signal, TemplateRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -7,6 +7,7 @@ import { Conversation } from '../../core/models/chat.model';
 import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ChatService } from '../../core/services/chat/chat.service';
+import { HeadingContentService } from '../../core/services/ui/heading-content.service';
 import { formatTime } from '../matching/trip-results';
 import { MessagesPage } from './messages.page';
 
@@ -67,6 +68,18 @@ describe('MessagesPage', () => {
   beforeEach(() => {
     unreadConversationCount.set(2);
     listConversationsPage = vi.fn().mockResolvedValue({ items: [CONVERSATION], total: 1 });
+  });
+
+  it('does not remove the heading another page has put when it leaves (the chat opened from the list)', async () => {
+    const { page } = await render();
+    const heading = TestBed.inject(HeadingContentService);
+    const chatHeading = {} as TemplateRef<unknown>;
+    heading.show(chatHeading);
+
+    page.ionViewDidLeave();
+
+    expect(heading.content()).toBe(chatHeading);
+    expect(page.pageActive()).toBe(false);
   });
 
   it('lists each conversation with its time, destination, last message and unread count', async () => {

@@ -1,0 +1,19 @@
+<ion-card class="live-safety" role="region" aria-labelledby="live-safety-title">
+  <ion-card-content>
+    <h2 id="live-safety-title" class="text-subtitle">Tu seguridad</h2>
+    <p class="text-body-s text-color-muted">
+      Comparte el viaje con alguien de confianza y, si hay una emergencia, llama al 112.
+    </p>
+    <div class="live-safety__actions">
+      <ion-button fill="outline" (click)="handleShare()">
+        <ion-icon slot="start" [icon]="shareIcon" aria-hidden="true" />
+        Compartir viaje
+      </ion-button>
+      <!-- 112: el teléfono único de emergencias en Europa -->
+      <ion-button color="danger" href="tel:112">
+        <ion-icon slot="start" [icon]="callIcon" aria-hidden="true" />
+        Llamar al 112
+      </ion-button>
+    </div>
+  </ion-card-content>
+</ion-card>

@@ -255,10 +255,12 @@
   letter-spacing: 0.3em;
   text-align: center;
 
-  // El texto de ayuda, sin separar las letras
+  // El texto de ayuda, sin separar las letras. A 16px y no a 14: el campo se
+  // enfoca con la ayuda puesta, y con menos de 16px Safari en iPhone amplía
+  // la pantalla al tocarlo
   &:placeholder-shown {
     font-family: inherit;
-    font-size: var(--font-size-body-s);
+    font-size: var(--font-size-body);
     font-weight: inherit;
     letter-spacing: normal;
   }

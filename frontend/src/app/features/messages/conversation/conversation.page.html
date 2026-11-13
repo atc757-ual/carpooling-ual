@@ -174,7 +174,7 @@
       >
     }
     <span class="conversation__buttons">
-      @if (canShowCall()) {
+      @if (conversation()) {
         <ng-container [ngTemplateOutlet]="callButton" />
       }
       <ng-container [ngTemplateOutlet]="optionsButton" />
@@ -182,16 +182,16 @@
   </span>
 </ng-template>
 
-<!-- Llamar: solo si hay a quién (teléfono verificado y chat abierto) -->
+<!-- Llamar: siempre a la vista, también con el chat cerrado; deshabilitado y en
+     gris si no hay a quién (viaje no confirmado ni en curso o sin teléfono
+     verificado) -->
 <ng-template #callButton>
-  <!-- Siempre a la vista; en gris si aún no se puede llamar (al pulsarlo,
-       explica por qué). No va deshabilitado para que se pueda pulsar -->
   <ion-button
     class="conversation__call"
     [class.conversation__call--unavailable]="!canCall()"
     fill="clear"
+    [disabled]="!canCall()"
     [attr.aria-label]="callLabel()"
-    [attr.aria-disabled]="!canCall()"
     [title]="callLabel()"
     (click)="handleCall()"
   >
@@ -233,11 +233,26 @@
   </ng-template>
 </ion-popover>
 
-<!-- Lo que se pone en la franja del título del móvil (HeadingContentService) -->
+<!-- Lo que se pone en la franja del título del móvil (HeadingContentService).
+     Se pone al entrar, antes de que llegue la conversación, con un esqueleto
+     mientras carga: así no asoma el título genérico de la ruta -->
 <ng-template #headingTitle>
   <div class="conversation-heading-bar">
-    <app-conversation-avatar [name]="driverName()" [avatarKey]="driverAvatarKey()" />
-    <ng-container [ngTemplateOutlet]="tripTitle" />
-    <ng-container [ngTemplateOutlet]="tripActions" />
+    @if (conversation()) {
+      <app-conversation-avatar [name]="driverName()" [avatarKey]="driverAvatarKey()" />
+      <ng-container [ngTemplateOutlet]="tripTitle" />
+      <ng-container [ngTemplateOutlet]="tripActions" />
+    } @else {
+      <output class="conversation-heading-bar__loading" aria-label="Cargando conversación">
+        <ion-skeleton-text class="conversation-heading-bar__avatar" animated />
+        <span class="conversation__heading-info">
+          <ion-skeleton-text class="conversation-heading-bar__line" animated />
+          <ion-skeleton-text
+            class="conversation-heading-bar__line conversation-heading-bar__line--short"
+            animated
+          />
+        </span>
+      </output>
+    }
   </div>
 </ng-template>

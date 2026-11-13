@@ -272,7 +272,7 @@
     },
     "supportModal": {
       "title": "Ayuda y soporte",
-      "intro": "Cuéntanos qué ha pasado y te responderemos por correo.",
+      "intro": "¿No encuentras la respuesta? Cuéntanos qué ha pasado y te responderemos por correo.",
       "topicLabel": "¿Sobre qué es?",
       "topics": {
         "trip": "Un viaje",

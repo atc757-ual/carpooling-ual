@@ -351,3 +351,31 @@
   align-items: center;
   gap: var(--space-s);
 }
+
+// Mientras carga la conversación: el hueco del avatar y dos líneas
+.conversation-heading-bar__loading {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.conversation-heading-bar__avatar {
+  width: 2.75rem; // 44px, como el avatar
+  height: 2.75rem;
+  flex: none;
+  margin: 0;
+  border-radius: 50%;
+}
+
+.conversation-heading-bar__line {
+  width: 70%;
+  height: 0.875rem; // 14px
+  margin: 0;
+  border-radius: var(--radius-s);
+}
+
+.conversation-heading-bar__line--short {
+  width: 45%;
+}

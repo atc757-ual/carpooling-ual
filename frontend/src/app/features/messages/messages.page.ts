@@ -17,7 +17,6 @@ import { ChatService, CONVERSATIONS_PAGE_SIZE } from '../../core/services/chat/c
 import { formatTime } from '../matching/trip-results';
 import { formatElapsed } from '../notifications/notification-texts';
 import { TRIP_STATUS_LABELS } from '../../shared/utils/trip-status.util';
-import { HeadingContentService } from '../../core/services/ui/heading-content.service';
 import { messageText } from './chat-texts';
 import { ConversationPage } from './conversation/conversation.page';
 import { map } from 'rxjs';
@@ -46,7 +45,6 @@ export class MessagesPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly headingContent = inject(HeadingContentService);
   private readonly routeConversationId = toSignal(
     inject(ActivatedRoute).paramMap.pipe(map((params) => params.get('tripId'))),
     { initialValue: null },
@@ -114,9 +112,12 @@ export class MessagesPage implements OnInit {
     this.hasEntered = true;
   }
 
+  // Al dejar de estar activa, su conversación quita su propia cabecera (y las
+  // pestañas limpian la franja al salir de Mensajes). Sin un clear() general:
+  // esta página sale después de que entre la siguiente (p. ej. el chat al
+  // abrirlo desde la lista) y borraría la cabecera que esa ya ha puesto
   ionViewDidLeave(): void {
     this.pageActive.set(false);
-    this.headingContent.clear();
   }
 
   async handleFilter(onlyUnread: boolean): Promise<void> {

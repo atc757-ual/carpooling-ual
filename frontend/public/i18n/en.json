@@ -272,7 +272,7 @@
     },
     "supportModal": {
       "title": "Help and support",
-      "intro": "Tell us what happened and we'll reply by email.",
+      "intro": "Can't find the answer? Tell us what happened and we'll reply by email.",
       "topicLabel": "What's it about?",
       "topics": {
         "trip": "A trip",

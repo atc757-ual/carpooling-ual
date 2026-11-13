@@ -162,6 +162,9 @@
                 </ion-card-content>
               </ion-card>
 
+              <!-- Compartir el viaje con alguien de confianza y el 112 -->
+              <app-live-trip-safety [shareText]="safetyShareText()" />
+
               <app-passenger-request-actions
                 [request]="request"
                 [trip]="trip"

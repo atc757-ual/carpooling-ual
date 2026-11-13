@@ -10,6 +10,7 @@ import { DriverTrackingService } from '../../../core/services/drivers/driver-tra
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ChatService } from '../../../core/services/chat/chat.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
+import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { DriverTripActions } from './driver-trip-actions';
@@ -51,6 +52,7 @@ describe('DriverTripActions', () => {
   let ask: ReturnType<typeof vi.fn>;
   let tracking: Record<string, ReturnType<typeof vi.fn>>;
   let location: Record<string, ReturnType<typeof vi.fn>>;
+  let share: ReturnType<typeof vi.fn>;
   let changed: number;
 
   async function render(trip: DriverTrip, requests: SeatRequest[] = []): Promise<HTMLElement> {
@@ -68,6 +70,7 @@ describe('DriverTripActions', () => {
       checkDevicePermission: vi.fn().mockResolvedValue('granted'),
       getCurrentPoint: vi.fn().mockResolvedValue([-2.43, 36.83]),
     };
+    share = vi.fn().mockResolvedValue('shared');
     TestBed.configureTestingModule({
       imports: [DriverTripActions],
       providers: [
@@ -89,6 +92,7 @@ describe('DriverTripActions', () => {
         { provide: ConfirmService, useValue: { ask } },
         { provide: DriverTrackingService, useValue: tracking },
         { provide: LocationService, useValue: location },
+        { provide: TripShareService, useValue: { share } },
       ],
     });
     fixture = TestBed.createComponent(DriverTripActions);
@@ -116,6 +120,45 @@ describe('DriverTripActions', () => {
       'Viaje cancelado. Hemos avisado a los pasajeros.',
     );
     expect(changed).toBe(1);
+  });
+
+  it('shares the free seats with the route and the link to the web', async () => {
+    const root = await render(TRIP);
+
+    const button = [...root.querySelectorAll('ion-button')].find((candidate) =>
+      candidate.textContent?.includes('Compartir plazas libres'),
+    );
+    expect(button).toBeDefined();
+    await fixture.componentInstance.handleShareSeats();
+
+    expect(share).toHaveBeenCalledWith({
+      title: 'Plazas libres en Carpooling UAL',
+      text: expect.stringContaining('Tengo 3 plazas libres en mi coche: Roquetas de Mar →'),
+      url: globalThis.location.origin,
+    });
+  });
+
+  it('shares the seats without the link from the native app', async () => {
+    vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
+    await render(TRIP);
+
+    await fixture.componentInstance.handleShareSeats();
+
+    expect(share).toHaveBeenCalledWith(expect.objectContaining({ url: undefined }));
+    vi.restoreAllMocks();
+  });
+
+  it('only offers to share seats while the trip takes requests', async () => {
+    await render({ ...TRIP, availableSeats: 0, status: 'confirmed' });
+    expect(fixture.componentInstance.canShareSeats()).toBe(false);
+
+    TestBed.resetTestingModule();
+    await render({ ...TRIP, departureAt: new Date(Date.now() + 5 * 60 * 1000).toISOString() });
+    expect(fixture.componentInstance.canShareSeats()).toBe(false);
+
+    TestBed.resetTestingModule();
+    await render({ ...TRIP, status: 'in_progress' });
+    expect(fixture.componentInstance.canShareSeats()).toBe(false);
   });
 
   it('does not cancel when the confirmation is dismissed', async () => {

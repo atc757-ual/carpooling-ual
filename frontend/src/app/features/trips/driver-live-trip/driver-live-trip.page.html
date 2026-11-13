@@ -269,6 +269,9 @@
               </ion-card-content>
             </ion-card>
 
+            <!-- Compartir el viaje con alguien de confianza y el 112 -->
+            <app-live-trip-safety [shareText]="safetyShareText()" />
+
             <!-- Al final: la ubicación que se comparte y terminar (el chat va en la
                tarjeta de cada pasajero) -->
             <ion-card class="driver-live-trip__panel">

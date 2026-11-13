@@ -19,23 +19,28 @@ import {
   ModalController,
 } from '@ionic/angular';
 import { Router, RouterLink } from '@angular/router';
-import { locationOutline, warningOutline } from 'ionicons/icons';
+import { locationOutline, shareSocialOutline, warningOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
+import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatTime } from '../../matching/trip-results';
 import { finishTrip } from '../finish-trip.util';
+import { buildSeatsShareText } from '../trip-share-text';
 import { withDeclarations } from '../with-declarations';
 
 // Solo en estos se puede cancelar
 const OPEN_STATUSES: ReadonlySet<TripStatus> = new Set(['published', 'confirmed']);
 // Cuánto antes de la salida se puede iniciar (START_WINDOW_MIN del backend)
 const START_WINDOW_MS = 10 * 60 * 1000;
+// Corte de las solicitudes (REQUEST_CUTOFF_MIN del backend): desde entonces el
+// viaje ya no sale en la búsqueda, así que no tiene sentido anunciar plazas
+const REQUEST_CUTOFF_MS = 10 * 60 * 1000;
 
 // Antes de pedir el permiso del dispositivo al iniciar: se informa, no se pide
 // un consentimiento (es parte del servicio, RGPD 6.1.b, como explica la
@@ -49,7 +54,8 @@ const SHARE_MESSAGE_NATIVE = `${SHARE_MESSAGE} Seguirá compartiéndose aunque b
 const DECLARATION_MESSAGE =
   'Al iniciar, confirmas que sigues cumpliendo tu declaración y la de tu vehículo (permiso, seguro e ITV).';
 
-// «Qué puedes hacer» en el detalle de un viaje del conductor: iniciarlo
+// «Qué puedes hacer» en el detalle de un viaje del conductor: anunciar sus
+// plazas libres (compartir), iniciarlo
 // (desde 10 min antes de la salida, con el viaje confirmado), abrirlo y
 // terminarlo mientras está en curso (su posición se comparte con
 // DriverTrackingService) y cancelarlo mientras sigue abierto. Avisa con
@@ -68,6 +74,7 @@ export class DriverTripActions {
   private readonly location = inject(LocationService);
   private readonly router = inject(Router);
   private readonly modalController = inject(ModalController);
+  private readonly tripShare = inject(TripShareService);
 
   readonly trip = input.required<DriverTrip>();
   readonly changed = output<void>();
@@ -111,8 +118,30 @@ export class DriverTripActions {
     }
   });
   readonly isChangingStatus = signal(false);
+  // Anunciar las plazas libres (grupos de clase de la UAL) mientras el viaje
+  // admite solicitudes: abierto, con plazas y antes del corte
+  readonly canShareSeats = computed(() => {
+    const trip = this.trip();
+    return (
+      this.isOpen() &&
+      trip.availableSeats > 0 &&
+      this.now() < new Date(trip.departureAt).getTime() - REQUEST_CUTOFF_MS
+    );
+  });
   protected readonly locationIcon = locationOutline;
+  protected readonly shareIcon = shareSocialOutline;
   protected readonly warningIcon = warningOutline;
+
+  async handleShareSeats(): Promise<void> {
+    const trip = this.trip();
+    await this.tripShare.share({
+      title: 'Plazas libres en Carpooling UAL',
+      text: buildSeatsShareText(trip, trip.availableSeats),
+      // El enlace a la web, solo desde la web: en la app nativa el origen es
+      // el de la WebView (localhost), que no abre nada en otro móvil
+      url: Capacitor.isNativePlatform() ? undefined : globalThis.location.origin,
+    });
+  }
 
   constructor() {
     const timer = setInterval(() => this.now.set(Date.now()), 60_000);

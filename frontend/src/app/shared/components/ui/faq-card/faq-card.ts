@@ -21,7 +21,8 @@ export interface Faq {
 }
 
 // Preguntas frecuentes en un acordeón de Ionic (una abierta a la vez), en
-// una tarjeta: las de Buscar y las de Publicar. En escritorio, en la columna
+// una tarjeta: las de Buscar, las de Publicar y las de Ayuda y soporte (en
+// su ventana, encima del formulario). En Buscar y Publicar, en escritorio, en la columna
 // de 4; en el móvil, al final
 @Component({
   selector: 'app-faq-card',

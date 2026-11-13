@@ -38,6 +38,15 @@
         </form>
       </div>
 
+      <!-- Anunciar las plazas libres en los grupos de clase (menú del sistema
+           o WhatsApp), mientras el viaje admite solicitudes -->
+      @if (canShareSeats()) {
+        <ion-button type="button" expand="block" fill="outline" (click)="handleShareSeats()">
+          <ion-icon slot="start" [icon]="shareIcon" aria-hidden="true" />
+          Compartir plazas libres
+        </ion-button>
+      }
+
       <!-- Cancelar: con borde azul y fondo blanco (la guía: lo destructivo, sin
            rojo). El aviso de tardía, solo cuando aplica -->
       <div class="driver-actions__block">

@@ -327,7 +327,7 @@ describe('ConversationPage', () => {
     expect(root.querySelectorAll('.bubble')).toHaveLength(2);
   });
 
-  it('hides the call button but keeps heading and report button when the trip has finished or cancelled', async () => {
+  it('keeps the call button greyed out, the heading and the report button when the trip has finished', async () => {
     const finishedTrip = {
       ...CONVERSATION,
       trip: { ...CONVERSATION.trip, status: 'finished' as const },
@@ -335,7 +335,8 @@ describe('ConversationPage', () => {
     };
     const root = await render(finishedTrip);
 
-    expect(root.querySelector('.conversation__call')).toBeNull();
+    const call = root.querySelector('.conversation__call');
+    expect(call?.classList).toContain('conversation__call--unavailable');
     expect(root.querySelector('.conversation__options')).not.toBeNull();
     const places = root.querySelectorAll('.conversation__place-name');
     expect([...places].map((place) => place.textContent?.trim())).toEqual([
@@ -414,16 +415,17 @@ describe('ConversationPage', () => {
     expect(openPhone).toHaveBeenLastCalledWith('+34600555666');
   });
 
-  it('greys out the call and explains why when nobody can be called', async () => {
+  it('disables the call when nobody can be called', async () => {
     const root = await render(CONVERSATION);
+    const openPhone = vi.spyOn(page, 'openPhone').mockImplementation(() => undefined);
 
-    const call = root.querySelector('.conversation__call');
+    const call = root.querySelector<HTMLIonButtonElement>('.conversation__call');
     expect(call?.classList).toContain('conversation__call--unavailable');
+    expect(call?.disabled).toBe(true);
     expect(page.callLabel()).toBe('Llamar (no disponible)');
     await page.handleCall();
-    expect(showInfo).toHaveBeenLastCalledWith(
-      'Nadie más de este viaje tiene el teléfono verificado.',
-    );
+    expect(openPhone).not.toHaveBeenCalled();
+    expect(showInfo).not.toHaveBeenCalled();
   });
 
   it('puts the trip title in the heading band on the phone, and removes it when leaving', async () => {
@@ -442,6 +444,36 @@ describe('ConversationPage', () => {
     expect(fixture.nativeElement.querySelector('.conversation__heading')).toBeNull();
 
     fixture.destroy();
+    expect(heading.content()).toBeNull();
+  });
+
+  it('shows a skeleton in the heading band while the conversation loads, without the route title', async () => {
+    await render();
+    const heading = TestBed.inject(HeadingContentService);
+    page.conversation.set(null);
+    chat['getConversation'].mockReturnValue(new Promise(() => undefined));
+
+    fixture.componentRef.setInput('conversationId', 't2');
+    fixture.componentRef.setInput('active', true);
+    fixture.componentRef.setInput('inPageHeading', true);
+    fixture.detectChanges();
+
+    expect(heading.content()).not.toBeNull();
+    expect(page.conversation()).toBeNull();
+  });
+
+  it('gives the heading band back to the route title when the conversation fails to load', async () => {
+    await render();
+    const heading = TestBed.inject(HeadingContentService);
+    fixture.componentRef.setInput('conversationId', 't1');
+    fixture.componentRef.setInput('active', true);
+    fixture.componentRef.setInput('inPageHeading', true);
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(heading.content()).not.toBeNull());
+
+    page.hasError.set(true);
+    fixture.detectChanges();
+
     expect(heading.content()).toBeNull();
   });
 
@@ -489,30 +521,15 @@ describe('ConversationPage', () => {
     expect(heading.content()).toBeNull();
   });
 
-  it('determines whether call button can be shown based on trip status', async () => {
-    await render();
-    expect(page.canShowCall()).toBe(true); // confirmed
-
-    page.conversation.set({
-      ...CONVERSATION,
-      trip: { ...CONVERSATION.trip, status: 'in_progress' },
-    });
-    expect(page.canShowCall()).toBe(true);
-
-    page.conversation.set({
-      ...CONVERSATION,
-      trip: { ...CONVERSATION.trip, status: 'finished' },
-    });
-    expect(page.canShowCall()).toBe(false);
-
-    page.conversation.set({
+  it('keeps the call button disabled when the chat is closed', async () => {
+    const root = await render({
       ...CONVERSATION,
       trip: { ...CONVERSATION.trip, status: 'cancelled' },
+      isOpen: false,
     });
-    expect(page.canShowCall()).toBe(false);
 
-    page.conversation.set(null);
-    expect(page.canShowCall()).toBe(false);
+    const call = root.querySelector<HTMLIonButtonElement>('.conversation__call');
+    expect(call?.disabled).toBe(true);
   });
 
   it('falls back to listConversations if getConversation fails', async () => {
