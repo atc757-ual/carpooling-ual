@@ -188,6 +188,7 @@ describe('Seat requests API (e2e)', () => {
       direction: null,
       pickupLocation: null,
       pickupName: null,
+      stopId: null,
       pickupAt: null,
       requestedAt: expect.any(String) as string,
       answeredAt: null,

@@ -75,6 +75,15 @@ export class SeatRequestResource {
 
   @ApiProperty({
     type: String,
+    format: 'uuid',
+    nullable: true,
+    description:
+      'The stop where the passenger boards, on a trip that picks up at stops (pickupLocation and pickupName are the stop ones); null otherwise',
+  })
+  stopId: string | null;
+
+  @ApiProperty({
+    type: String,
     format: 'date-time',
     nullable: true,
     description:
@@ -195,6 +204,7 @@ export function toSeatRequestResource(
         }
       : null,
     pickupName: request.pickupName,
+    stopId: request.stopId ?? null,
     pickupAt: request.pickupAt?.toISOString() ?? null,
     isPriority: request.isPriority,
     requestedAt: request.requestedAt.toISOString(),

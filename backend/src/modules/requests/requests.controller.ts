@@ -72,7 +72,12 @@ export class RequestsController {
   })
   @ApiErrorResponses({
     ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED', 'INVALID_REQUEST_PICKUP'],
+    [HttpStatus.BAD_REQUEST]: [
+      'VALIDATION_FAILED',
+      'INVALID_REQUEST_PICKUP',
+      'STOP_REQUIRED',
+      'STOP_NOT_IN_TRIP',
+    ],
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
     [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND'],
     [HttpStatus.CONFLICT]: [
@@ -101,6 +106,7 @@ export class RequestsController {
               direction: body.direction,
               pickupLocation: body.pickupLocation,
               pickupName: body.pickupName,
+              stopId: body.stopId,
             }
           : undefined,
       ),
@@ -116,7 +122,12 @@ export class RequestsController {
   @ApiPaginatedResponse(SeatRequestResource)
   @ApiErrorResponses({
     ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED', 'INVALID_REQUEST_PICKUP'],
+    [HttpStatus.BAD_REQUEST]: [
+      'VALIDATION_FAILED',
+      'INVALID_REQUEST_PICKUP',
+      'STOP_REQUIRED',
+      'STOP_NOT_IN_TRIP',
+    ],
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
   })
   async listMine(
