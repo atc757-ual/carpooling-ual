@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
@@ -23,6 +24,7 @@ import { provideTransloco } from '@jsverse/transloco';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { AuthService } from './core/services/auth/auth.service';
+import { preventIosFocusZoom } from './shared/utils/ios-viewport.util';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
 
 const IS_IOS = isPlatform('ios');
@@ -67,5 +69,9 @@ export const appConfig: ApplicationConfig = {
     // Antes de mostrar la primera pantalla, recupera la sesión guardada (así
     // los guards ya saben si hay usuario)
     provideAppInitializer(() => inject(AuthService).restoreSession()),
+    // En iPhone, sin el zoom automático al enfocar un campo
+    provideAppInitializer(() => {
+      if (IS_IOS) preventIosFocusZoom(inject(DOCUMENT));
+    }),
   ],
 };

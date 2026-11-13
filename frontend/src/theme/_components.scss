@@ -233,8 +233,9 @@ ion-select[class] {
 // tamaño. Red de seguridad para los campos de texto de Ionic: nunca por debajo
 // de 16px, aunque hereden un tamaño menor; si heredan uno mayor, se mantiene.
 // Solo en iOS (el único que entiende -webkit-touch-callout), para no cambiar
-// nada en Android ni en escritorio. Sin maximum-scale en el viewport: bloquearía
-// el zoom con los dedos en Android (WCAG 1.4.4)
+// nada en Android ni en escritorio. Además, en iOS se añade maximum-scale=1 al
+// viewport al arrancar (shared/utils/ios-viewport.util.ts); en Android no,
+// porque bloquearía el zoom con los dedos (WCAG 1.4.4)
 @supports (-webkit-touch-callout: none) {
   ion-input[class],
   ion-textarea[class],
