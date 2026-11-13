@@ -28,27 +28,30 @@ export interface UserTwinCounts {
 // cuenta
 const V1: ReadonlySet<number> = new Set([1]);
 // Los viajes desde la v2 (v3 en inicio y fin) añaden cómo recoge el conductor
-// (pickupMode, maxDetourM); el gemelo lee el estado igual en todas
-const TRIP_V1_V2: ReadonlySet<number> = new Set([1, 2]);
+// (pickupMode, maxDetourM), y desde la v3 (v4), sus paradas; el gemelo lee el
+// estado igual en todas
 const TRIP_V1_TO_V3: ReadonlySet<number> = new Set([1, 2, 3]);
+const TRIP_V1_TO_V4: ReadonlySet<number> = new Set([1, 2, 3, 4]);
+// Las solicitudes desde la v2 (v3 al subir) añaden la parada (stopId)
+const REQUEST_V1_V2: ReadonlySet<number> = new Set([1, 2]);
 export const SUPPORTED_EVENT_VERSIONS: Readonly<
   Record<string, ReadonlySet<number>>
 > = {
-  'trip.published': TRIP_V1_V2,
-  'trip.updated': TRIP_V1_V2,
-  'trip.confirmed': TRIP_V1_V2,
-  'trip.reopened': TRIP_V1_V2,
-  'trip.started': TRIP_V1_TO_V3,
-  'trip.finished': TRIP_V1_TO_V3,
-  'trip.cancelled': TRIP_V1_V2,
-  'trip.expired': TRIP_V1_V2,
+  'trip.published': TRIP_V1_TO_V3,
+  'trip.updated': TRIP_V1_TO_V3,
+  'trip.confirmed': TRIP_V1_TO_V3,
+  'trip.reopened': TRIP_V1_TO_V3,
+  'trip.started': TRIP_V1_TO_V4,
+  'trip.finished': TRIP_V1_TO_V4,
+  'trip.cancelled': TRIP_V1_TO_V3,
+  'trip.expired': TRIP_V1_TO_V3,
   'trip.position_updated': V1,
-  'request.created': V1,
-  'request.accepted': V1,
-  'request.rejected': V1,
-  'request.cancelled': V1,
-  'request.expired': V1,
-  'request.boarded': new Set([1, 2]),
+  'request.created': REQUEST_V1_V2,
+  'request.accepted': REQUEST_V1_V2,
+  'request.rejected': REQUEST_V1_V2,
+  'request.cancelled': REQUEST_V1_V2,
+  'request.expired': REQUEST_V1_V2,
+  'request.boarded': new Set([1, 2, 3]),
   'user.registered': V1,
   'user.phone_verified': V1,
   'user.deactivated': V1,

@@ -3,6 +3,7 @@ import { EntityManager } from 'typeorm';
 import type { DomainEventType } from '../../events/domain-event-type';
 import { EventsService } from '../../events/events.service';
 import { Trip } from './entities/trip.entity';
+import { TripStop } from './entities/trip-stop.entity';
 import { NotTripDriverError } from './errors/not-trip-driver.error';
 import { TripFullError } from './errors/trip-full.error';
 import { TripNotFoundError } from './errors/trip-not-found.error';
@@ -160,6 +161,14 @@ export class TripStatusService {
     type: DomainEventType,
     trip: Trip,
   ): Promise<void> {
+    // Recogida en puntos: sus paradas (v3; v4 en trip.started y finished)
+    const stops =
+      trip.pickupMode === 'stops'
+        ? await manager.find(TripStop, {
+            where: { tripId: trip.id },
+            order: { position: 'ASC' },
+          })
+        : [];
     await this.eventsService.record(manager, {
       type,
       sourceEntityId: trip.id,
@@ -176,6 +185,13 @@ export class TripStatusService {
         maxDetourMin: trip.maxDetourMin,
         pickupMode: trip.pickupMode,
         maxDetourM: trip.maxDetourM,
+        stops: stops.map(({ id, position, name, location, etaOffsetMin }) => ({
+          id,
+          position,
+          name,
+          location,
+          etaOffsetMin,
+        })),
         status: trip.status,
         startedAt: trip.startedAt?.toISOString() ?? null,
         // v2 de trip.started: las versiones de las declaraciones que confirmó

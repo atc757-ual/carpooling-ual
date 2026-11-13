@@ -155,7 +155,7 @@ describe('Detour budget of a trip (e2e)', () => {
       pickupMode: 'on_route',
       maxDetourM: 300,
     });
-    // Solo 300, 500 o 1000 m; las paradas llegan en el siguiente cambio
+    // Solo 300, 500 o 1000 m; en puntos, con sus paradas (pickup-stops.e2e)
     await trip({ maxDetourM: 700 }).expect(400);
     await trip({ pickupMode: 'stops' }).expect(400);
   });

@@ -107,3 +107,22 @@ export function pickupOffsets(legsMin: readonly number[]): number[] {
     return elapsed;
   });
 }
+
+// Recogida en puntos: minutos desde la salida hasta cada parada (en orden a
+// lo largo de la ruta). A su tramo por la ruta se suma el tiempo de cada
+// parada ANTERIOR en la que ya sube alguien
+export function stopPickupOffsets(
+  stops: readonly { id: string; etaOffsetMin: number }[],
+  occupiedStopIds: ReadonlySet<string>,
+): Map<string, number> {
+  let earlierStopsMin = 0;
+  return new Map(
+    stops.map(({ id, etaOffsetMin }) => {
+      const offset = etaOffsetMin + earlierStopsMin;
+      if (occupiedStopIds.has(id)) {
+        earlierStopsMin += STOP_TIME_MIN;
+      }
+      return [id, offset];
+    }),
+  );
+}

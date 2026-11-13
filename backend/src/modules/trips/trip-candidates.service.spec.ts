@@ -9,6 +9,7 @@ import {
 } from './trip-candidates.service';
 import type { TripPickupsService } from './trip-pickups.service';
 import type { TripRoutesService } from './trip-routes.service';
+import { WALK_RADIUS_M } from './trip-timing';
 
 const QUERY: CandidateQuery = {
   passengerId: 'passenger-1',
@@ -33,6 +34,11 @@ const ROW = {
   origin: { type: 'Point', coordinates: [-2.61, 36.75] },
   destination: { type: 'Point', coordinates: [-2.4045, 36.8322] },
   distance_km: 0.4567,
+  pickup_mode: 'on_route',
+  stop_id: null,
+  stop_name: null,
+  stop_location: null,
+  stop_distance_m: null,
 };
 
 describe('TripCandidatesService', () => {
@@ -72,6 +78,7 @@ describe('TripCandidatesService', () => {
       CAMPUS_RADIUS_M,
       PICKUP_RADIUS_M,
       MAX_CANDIDATES,
+      WALK_RADIUS_M,
     ]);
     // El desvío de todo el viaje con las recogidas ya aceptadas y esta
     expect(planWith).toHaveBeenCalledWith(
@@ -81,6 +88,7 @@ describe('TripCandidatesService', () => {
         destination: ROW.destination,
         departureAt: ROW.departure_at,
         maxDetourMin: 10,
+        pickupMode: 'on_route',
       },
       { id: CANDIDATE_PICKUP_ID, location: QUERY.place },
       null,
@@ -99,6 +107,45 @@ describe('TripCandidatesService', () => {
       durationMin: 22,
       detourMin: 4,
       distanceKm: 0.46,
+      stop: null,
+    });
+  });
+
+  it('picks up at the nearest stop of a trip with stops', async () => {
+    const stopLocation = { type: 'Point', coordinates: [-2.598, 36.761] };
+    query.mockResolvedValue([
+      {
+        ...ROW,
+        pickup_mode: 'stops',
+        stop_id: 's1',
+        stop_name: 'Av. Cabo de Gata',
+        stop_location: stopLocation,
+        stop_distance_m: 240,
+      },
+    ]);
+    planWith.mockResolvedValue({
+      usedDetourMin: 6,
+      pickups: [{ requestId: CANDIDATE_PICKUP_ID, etaOffsetMin: 9 }],
+    });
+
+    const [candidate] = await service.findCandidates(QUERY);
+
+    const [sql] = query.mock.calls[0] as [string];
+    expect(sql).toContain('trip_stops');
+    expect(planWith).toHaveBeenCalledWith(
+      expect.objectContaining({ pickupMode: 'stops' }),
+      { id: CANDIDATE_PICKUP_ID, location: stopLocation, stopId: 's1' },
+      null,
+    );
+    expect(candidate).toMatchObject({
+      detourMin: 6,
+      pickupAt: new Date('2026-10-28T07:49:00Z'),
+      stop: {
+        id: 's1',
+        name: 'Av. Cabo de Gata',
+        location: stopLocation,
+        walkingDistanceM: 240,
+      },
     });
   });
 

@@ -68,6 +68,8 @@ const TRIP_RULE_ERRORS = [
   'SEATS_EXCEED_CAPACITY',
   'DEPARTURE_IN_THE_PAST',
   'DEPARTURE_TOO_SOON',
+  'INVALID_STOPS',
+  'STOPS_EXCEED_DETOUR',
 ];
 
 // Límites del calendario del conductor al publicar o mover un viaje

@@ -1,3 +1,4 @@
+import type { TripStopsService } from './trip-stops.service';
 import { DataSource, EntityManager, Point, Repository } from 'typeorm';
 import { Trip } from './entities/trip.entity';
 import { LateCancellationsService } from './late-cancellations.service';
@@ -52,6 +53,7 @@ describe('TripsService cancelUnstartedTrips', () => {
       {} as TripRoutesService,
       lateCancellations,
       {} as PublishingLimitsService,
+      {} as TripStopsService,
     );
   });
 
@@ -94,6 +96,7 @@ describe('TripsService cancelUnstartedTrips', () => {
       {} as TripRoutesService,
       lateCancellations,
       {} as PublishingLimitsService,
+      {} as TripStopsService,
     );
 
     // Current time: 09:16:00Z (16 min after departure -> > 15 min)
@@ -151,6 +154,7 @@ describe('TripsService cancelUnstartedTrips', () => {
       {} as TripRoutesService,
       lateCancellations,
       {} as PublishingLimitsService,
+      {} as TripStopsService,
     );
 
     const now = new Date('2026-11-03T09:20:00Z');
@@ -177,6 +181,7 @@ describe('TripsService cancelUnstartedTrips', () => {
       tripRoutes,
       {} as LateCancellationsService,
       {} as PublishingLimitsService,
+      {} as TripStopsService,
     );
     const origin: Point = { type: 'Point', coordinates: [-2.5, 36.8] };
     const destination: Point = { type: 'Point', coordinates: [-2.4, 36.83] };

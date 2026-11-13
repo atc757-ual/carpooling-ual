@@ -54,6 +54,28 @@ export class TripVehicleResource {
   color: VehicleRecognitionDetails['color'];
 }
 
+// Una parada del viaje (recogida en puntos)
+export class TripStopResource {
+  @ApiProperty({ format: 'uuid' })
+  id: string;
+
+  @ApiProperty({ example: 0, description: 'Order along the route, from 0' })
+  position: number;
+
+  @ApiProperty({ example: 'Av. del Mediterráneo, 2' })
+  name: string;
+
+  @ApiProperty({ type: GeoPointDto })
+  location: Point;
+
+  @ApiProperty({
+    format: 'date-time',
+    description:
+      'When the driver gets there, after the earlier stops where someone boards',
+  })
+  estimatedAt: string;
+}
+
 // Recurso TMF630 Trip. Del conductor solo se muestra el nombre, no la
 // matrícula del vehículo (minimización: la verán los pasajeros aceptados)
 export class TripResource {
@@ -114,6 +136,13 @@ export class TripResource {
   maxDetourM: number | null;
 
   @ApiProperty({
+    type: [TripStopResource],
+    description:
+      'The stops, in order along the route (pickupMode stops); empty on the route. Public places: always exact',
+  })
+  stops: TripStopResource[];
+
+  @ApiProperty({
     type: String,
     nullable: true,
     example: 'Roquetas de Mar',
@@ -159,6 +188,7 @@ export function toTripResource({
   driverRating,
   vehicle,
   isLocationApproximate = false,
+  stops,
 }: TripView): TripResource {
   return {
     '@type': 'Trip',
@@ -182,6 +212,13 @@ export function toTripResource({
     maxDetourMin: trip.maxDetourMin,
     pickupMode: trip.pickupMode,
     maxDetourM: trip.maxDetourM,
+    stops: stops.map(({ id, position, name, location, estimatedAt }) => ({
+      id,
+      position,
+      name,
+      location,
+      estimatedAt: estimatedAt.toISOString(),
+    })),
     originName: trip.originName,
     destinationName: trip.destinationName,
     status: trip.status,

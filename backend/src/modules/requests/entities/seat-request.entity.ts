@@ -40,6 +40,11 @@ export class SeatRequest {
   @Column({ name: 'pickup_name', type: 'varchar', length: 160, nullable: true })
   pickupName: string | null;
 
+  // La parada en la que sube, en un viaje con recogida en puntos: el punto y
+  // el nombre de recogida copian los de la parada
+  @Column({ name: 'stop_id', type: 'uuid', nullable: true })
+  stopId: string | null;
+
   @Column({ name: 'direction', type: 'varchar', length: 16, nullable: true })
   direction: 'to-campus' | 'from-campus' | null;
 

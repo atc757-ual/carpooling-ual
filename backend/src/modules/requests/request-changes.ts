@@ -34,6 +34,7 @@ export function requestPayload(request: SeatRequest): Record<string, unknown> {
     isPriority: request.isPriority,
     direction: request.direction,
     pickupLocation: request.pickupLocation,
+    stopId: request.stopId ?? null,
     pickupAt: request.pickupAt?.toISOString() ?? null,
     requestedAt: request.requestedAt.toISOString(),
     status: request.status,

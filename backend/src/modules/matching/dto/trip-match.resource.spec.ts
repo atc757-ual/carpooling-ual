@@ -17,6 +17,7 @@ const CANDIDATE: TripCandidate = {
   destination: { type: 'Point', coordinates: [-2.4, 36.83] },
   distanceKm: 0.3,
   pickupAt: new Date('2026-11-20T07:37:00Z'),
+  stop: null,
 };
 
 function match(candidate: TripCandidate): TripMatch {
