@@ -37,14 +37,14 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `user.active_mode_changed` | Cambia el modo con el que viaja                                                                    | `users/user-profiles.service.ts`       |
 | `consent.granted`          | Da un consentimiento (condiciones, privacidad, ubicación)                                          | `users/consents.service.ts`            |
 | `consent.revoked`          | Lo retira                                                                                          | `users/consents.service.ts`            |
-| `trip.published`           | Publica un viaje                                                                                   | `trips/trips.service.ts`               |
-| `trip.updated`             | Cambia un viaje publicado                                                                          | `trips/trip-status.service.ts`         |
-| `trip.confirmed`           | Se acepta la primera solicitud                                                                     | `trips/trip-status.service.ts`         |
-| `trip.reopened`            | Vuelve a publicado al cancelarse todas las aceptadas                                               | `trips/trip-status.service.ts`         |
-| `trip.started` (v2)        | Empieza el viaje                                                                                   | `trips/trip-status.service.ts`         |
-| `trip.finished` (v2)       | Termina el viaje                                                                                   | `trips/trip-status.service.ts`         |
-| `trip.cancelled`           | Se cancela el viaje                                                                                | `trips/trip-status.service.ts`         |
-| `trip.expired`             | Llega el corte (10 min antes de la salida) sin pasajeros aceptados: se cierra como «Sin pasajeros» | `trips/trip-expiry.service.ts`         |
+| `trip.published` (v2)      | Publica un viaje                                                                                   | `trips/trips.service.ts`               |
+| `trip.updated` (v2)        | Cambia un viaje publicado                                                                          | `trips/trip-status.service.ts`         |
+| `trip.confirmed` (v2)      | Se acepta la primera solicitud                                                                     | `trips/trip-status.service.ts`         |
+| `trip.reopened` (v2)       | Vuelve a publicado al cancelarse todas las aceptadas                                               | `trips/trip-status.service.ts`         |
+| `trip.started` (v3)        | Empieza el viaje                                                                                   | `trips/trip-status.service.ts`         |
+| `trip.finished` (v3)       | Termina el viaje                                                                                   | `trips/trip-status.service.ts`         |
+| `trip.cancelled` (v2)      | Se cancela el viaje                                                                                | `trips/trip-status.service.ts`         |
+| `trip.expired` (v2)        | Llega el corte (10 min antes de la salida) sin pasajeros aceptados: se cierra como «Sin pasajeros» | `trips/trip-expiry.service.ts`         |
 | `trip.cancelled_late`      | Cancelación tardía del conductor o de un pasajero (fiabilidad, S5)                                 | `trips/late-cancellations.service.ts`  |
 | `late_cancellation.waived` | Un administrador perdona las cancelaciones tardías de un papel                                     | `trips/late-cancellations.service.ts`  |
 | `trip.position_updated`    | Nueva posición del conductor durante el viaje (RF-12, RNF-07)                                      | `tracking/trip-positions.service.ts`   |
@@ -74,6 +74,8 @@ El `payload` de cada tipo lo construye el fichero indicado.
 Las rutas son relativas a `backend/src/modules/`. Un test (`events-contract.spec.ts`) comprueba que todo tipo de `domain-event-type.ts` tiene versión y aparece en esta tabla.
 
 ### Cambios de versión
+
+- `trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.cancelled` y `trip.expired` **v2**, y `trip.started` y `trip.finished` **v3**: el `payload` añade `pickupMode` (`on_route` o `stops`, cómo recoge el conductor) y `maxDetourM` (los metros que se aparta de su ruta en modo `on_route`; `null` con paradas). `maxDetourMin` pasa a ser el presupuesto total de desvío del viaje, no por pasajero. La versión anterior llevaba el mismo estado sin esos dos campos.
 
 - `trip.started` **v2**: el `payload` añade `driverDeclarationVersion` y `vehicleDeclarationVersion` (las versiones de la declaración del conductor y de la del vehículo que confirma al iniciar, RF-21). La v1 llevaba el mismo estado del viaje sin esos dos campos.
 - `request.boarded` **v2**: el `payload` lleva el estado completo de la solicitud, como el resto de eventos de la solicitud (`status`, `seats`, `isPriority`…, además de `requestId`). La v1 solo llevaba `tripId`, `requestId`, `passengerId` y `boardedAt`, y el gemelo, sin el estado, no contaba al pasajero a bordo; ahora conserva el estado anterior de la solicitud cuando un evento no lo trae.

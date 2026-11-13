@@ -52,6 +52,9 @@ export interface TripInput {
   departureAt: Date;
   offeredSeats: number;
   maxDetourMin?: number;
+  // Cómo recoge (las paradas llegan en el siguiente cambio) y cuánto se aparta
+  pickupMode?: 'on_route';
+  maxDetourM?: number;
   originName?: string;
   destinationName?: string;
 }

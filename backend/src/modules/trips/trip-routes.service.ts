@@ -2,10 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import type { Point } from 'typeorm';
+import { TripPickup } from './entities/trip-pickup.entity';
 import { TripRoute } from './entities/trip-route.entity';
 import type { Trip } from './entities/trip.entity';
 import { OsrmClient } from './osrm.client';
-import { estimateRoute } from './route-plan';
+import { estimateRoute, estimateRouteVia } from './route-plan';
 import type { RoutePlan } from './route-plan';
 
 const ESTIMATE_RETRY_MS = 5 * 60_000;
@@ -57,13 +58,34 @@ export class TripRoutesService {
     }
   }
 
-  // Guarda (o sustituye) la ruta del viaje, en la transacción del viaje
+  // La ruta pasando por las recogidas en orden y los minutos de cada tramo;
+  // sin OSRM, la suma de los tramos estimados (en línea recta)
+  async planVia(
+    origin: Point,
+    via: readonly Point[],
+    destination: Point,
+  ): Promise<{ route: RoutePlan; legsMin: number[] }> {
+    try {
+      return await this.osrmClient.routeWithLegs(origin, destination, via);
+    } catch (error) {
+      this.logger.warn(
+        `Estimating the route via the pickups: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return estimateRouteVia([origin, ...via, destination]);
+    }
+  }
+
+  // Guarda (o sustituye) la ruta del viaje, en la transacción del viaje. Sin
+  // recogidas, la ruta directa es la misma
   async save(
     manager: EntityManager,
     tripId: string,
     plan: RoutePlan,
+    directDurationMin = plan.durationMin,
   ): Promise<void> {
-    await manager.save(manager.create(TripRoute, { tripId, ...plan }));
+    await manager.save(
+      manager.create(TripRoute, { tripId, ...plan, directDurationMin }),
+    );
   }
 
   // La ruta del viaje. Si falta o es estimada (OSRM no respondió al
@@ -78,10 +100,29 @@ export class TripRoutesService {
     if (saved !== null && !isRetryDue(saved, now)) {
       return saved;
     }
-    const plan = await this.plan(trip.origin, trip.destination);
-    await this.routesRepository.upsert({ tripId: trip.id, ...plan }, [
-      'tripId',
-    ]);
+    // Con recogidas aceptadas, la ruta pasa por ellas y la directa se mantiene
+    const pickups = await this.routesRepository.manager.find(TripPickup, {
+      where: { tripId: trip.id },
+      order: { position: 'ASC' },
+    });
+    const plan =
+      pickups.length === 0
+        ? await this.plan(trip.origin, trip.destination)
+        : (
+            await this.planVia(
+              trip.origin,
+              pickups.map(({ location }) => location),
+              trip.destination,
+            )
+          ).route;
+    const directDurationMin =
+      pickups.length === 0
+        ? plan.durationMin
+        : (saved?.directDurationMin ?? plan.durationMin);
+    await this.routesRepository.upsert(
+      { tripId: trip.id, ...plan, directDurationMin },
+      ['tripId'],
+    );
     return this.routesRepository.findOneByOrFail({ tripId: trip.id });
   }
 }

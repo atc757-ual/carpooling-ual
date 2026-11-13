@@ -30,6 +30,7 @@ const CANDIDATE: TripCandidate = {
   origin: { type: 'Point', coordinates: [-2.61, 36.75] },
   destination: PARKING_LOCATION,
   distanceKm: 0.4,
+  pickupAt: null,
 };
 
 describe('MatchingService', () => {

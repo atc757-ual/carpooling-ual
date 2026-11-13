@@ -7,6 +7,9 @@ import type { VehicleRecognitionDetails } from '../../users/vehicles.service';
 import { TripView } from '../trips.service';
 import { TRIP_STATUSES } from '../trip-status';
 import type { TripStatus } from '../trip-status';
+import { TRIP_PICKUP_MODES } from '../entities/trip.entity';
+import type { TripPickupMode } from '../entities/trip.entity';
+import { ALLOWED_MAX_DETOUR_M } from '../trip-timing';
 
 export class TripDriverResource {
   @ApiProperty({ format: 'uuid' })
@@ -87,8 +90,28 @@ export class TripResource {
   @ApiProperty({ example: 3 })
   availableSeats: number;
 
-  @ApiProperty({ example: 10, description: 'Minutes' })
+  @ApiProperty({
+    example: 10,
+    description:
+      'Detour budget of the whole trip, in minutes: the detours and stops (2 min each) of every accepted passenger fit in it',
+  })
   maxDetourMin: number;
+
+  @ApiProperty({
+    enum: TRIP_PICKUP_MODES,
+    description:
+      'How the driver picks up: on_route (goes up to maxDetourM off the route to the passenger point) or stops (at the stops on the route)',
+  })
+  pickupMode: TripPickupMode;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    enum: ALLOWED_MAX_DETOUR_M,
+    description:
+      'Metres the driver goes off the route to pick up (on_route); null with stops',
+  })
+  maxDetourM: number | null;
 
   @ApiProperty({
     type: String,
@@ -157,6 +180,8 @@ export function toTripResource({
     offeredSeats: trip.offeredSeats,
     availableSeats: trip.availableSeats,
     maxDetourMin: trip.maxDetourMin,
+    pickupMode: trip.pickupMode,
+    maxDetourM: trip.maxDetourM,
     originName: trip.originName,
     destinationName: trip.destinationName,
     status: trip.status,

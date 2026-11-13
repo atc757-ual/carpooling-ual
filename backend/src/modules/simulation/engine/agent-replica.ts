@@ -11,7 +11,7 @@ import {
   generatePopulation,
   Random,
 } from './population';
-import { findRide, RideOffer } from './ride-matcher';
+import { addPickup, findRide, RideOffer } from './ride-matcher';
 import { TwinFeed } from './twin-feed';
 
 // Franjas de 30 minutos de las llegadas al campus (07:00 a 10:00)
@@ -53,6 +53,7 @@ function board(feed: TwinFeed, passenger: Commuter, offer: RideOffer): void {
   const { driver } = offer;
   offer.free -= 1;
   offer.passengerIds.push(passenger.id);
+  addPickup(offer, passenger.origin);
   const tripId = driver.id;
   feed.request('request.created', passenger.id, { tripId, status: 'pending' });
   feed.request('request.accepted', passenger.id, {
@@ -114,6 +115,7 @@ function cancelSomeTrips(
       affected.push(passengerId);
     }
     offer.passengerIds = [];
+    offer.pickups = [];
     feed.trip('trip.cancelled', tripId, {
       vehicleId: `v-${tripId}`,
       status: 'cancelled',
@@ -168,7 +170,13 @@ export function simulateDay(config: ScenarioConfig, random: Random): DayResult {
       seats: driver.seats,
       free: driver.seats,
     });
-    return { driver, free: driver.seats, isCancelled: false, passengerIds: [] };
+    return {
+      driver,
+      free: driver.seats,
+      isCancelled: false,
+      passengerIds: [],
+      pickups: [],
+    };
   });
   const searchMs: number[] = [];
   const firstUnmatched = matchAll(

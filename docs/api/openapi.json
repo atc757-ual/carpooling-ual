@@ -14952,7 +14952,25 @@
             "minimum": 0,
             "maximum": 60,
             "default": 10,
-            "description": "Maximum detour to pick up passengers, in minutes"
+            "description": "Detour budget of the whole trip, in minutes: the detours and stops (2 min each) of every accepted passenger"
+          },
+          "pickupMode": {
+            "type": "string",
+            "enum": [
+              "on_route"
+            ],
+            "default": "on_route",
+            "description": "How the driver picks up: on the route, up to maxDetourM"
+          },
+          "maxDetourM": {
+            "type": "number",
+            "enum": [
+              300,
+              500,
+              1000
+            ],
+            "default": 500,
+            "description": "Metres the driver goes off the route to pick up"
           },
           "originName": {
             "type": "string",
@@ -15096,7 +15114,25 @@
           "maxDetourMin": {
             "type": "number",
             "example": 10,
-            "description": "Minutes"
+            "description": "Detour budget of the whole trip, in minutes: the detours and stops (2 min each) of every accepted passenger fit in it"
+          },
+          "pickupMode": {
+            "type": "string",
+            "enum": [
+              "on_route",
+              "stops"
+            ],
+            "description": "How the driver picks up: on_route (goes up to maxDetourM off the route to the passenger point) or stops (at the stops on the route)"
+          },
+          "maxDetourM": {
+            "type": "number",
+            "nullable": true,
+            "enum": [
+              300,
+              500,
+              1000
+            ],
+            "description": "Metres the driver goes off the route to pick up (on_route); null with stops"
           },
           "originName": {
             "type": "string",
@@ -15145,6 +15181,8 @@
           "offeredSeats",
           "availableSeats",
           "maxDetourMin",
+          "pickupMode",
+          "maxDetourM",
           "originName",
           "destinationName",
           "status",
@@ -15412,7 +15450,25 @@
             "minimum": 0,
             "maximum": 60,
             "default": 10,
-            "description": "Maximum detour to pick up passengers, in minutes"
+            "description": "Detour budget of the whole trip, in minutes: the detours and stops (2 min each) of every accepted passenger"
+          },
+          "pickupMode": {
+            "type": "string",
+            "enum": [
+              "on_route"
+            ],
+            "default": "on_route",
+            "description": "How the driver picks up: on the route, up to maxDetourM"
+          },
+          "maxDetourM": {
+            "type": "number",
+            "enum": [
+              300,
+              500,
+              1000
+            ],
+            "default": 500,
+            "description": "Metres the driver goes off the route to pick up"
           },
           "originName": {
             "type": "string",
@@ -17025,7 +17081,13 @@
           "detourMin": {
             "type": "number",
             "example": 3,
-            "description": "Minutes the passenger adds to the driver route"
+            "description": "Detour of the whole trip with this passenger, in minutes: towards the campus, the detours and stops (2 min each) of every accepted passenger and this one; from the campus, dropping this passenger off"
+          },
+          "pickupAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Estimated pickup time towards the campus, after the earlier pickups and their stops; null from the campus (everybody boards there)"
           },
           "timeDifferenceMin": {
             "type": "number",
@@ -17051,6 +17113,7 @@
           "availableSeats",
           "offeredSeats",
           "detourMin",
+          "pickupAt",
           "timeDifferenceMin",
           "score"
         ]

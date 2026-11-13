@@ -6,6 +6,7 @@ import { EventsModule } from '../../events/events.module';
 import { PlacesModule } from '../places/places.module';
 import { UsersModule } from '../users/users.module';
 import { LateCancellation } from './entities/late-cancellation.entity';
+import { TripPickup } from './entities/trip-pickup.entity';
 import { TripRoute } from './entities/trip-route.entity';
 import { Trip } from './entities/trip.entity';
 import { LateCancellationsService } from './late-cancellations.service';
@@ -17,6 +18,7 @@ import { TripsController } from './trips.controller';
 import { TripStatsService } from './trip-stats.service';
 import { TripViewerAccessService } from './trip-viewer-access.service';
 import { TripLookupService } from './trip-lookup.service';
+import { TripPickupsService } from './trip-pickups.service';
 import { PublishingLimitsService } from './publishing-limits.service';
 import { TripsService } from './trips.service';
 import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
@@ -30,7 +32,7 @@ import { TripExpiryService } from './trip-expiry.service';
 // (EventsModule)
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Trip, TripRoute, LateCancellation]),
+    TypeOrmModule.forFeature([Trip, TripRoute, TripPickup, LateCancellation]),
     UsersModule,
     PlacesModule,
     EventsModule,
@@ -51,6 +53,7 @@ import { TripExpiryService } from './trip-expiry.service';
     TripExpiryService,
     TripViewerAccessService,
     TripLookupService,
+    TripPickupsService,
     PublishingLimitsService,
   ],
   // Los usan las solicitudes de plaza (requests), el seguimiento (tracking:
@@ -66,6 +69,7 @@ import { TripExpiryService } from './trip-expiry.service';
     TripLifecycleScheduler,
     TripViewerAccessService,
     TripLookupService,
+    TripPickupsService,
   ],
 })
 export class TripsModule {}

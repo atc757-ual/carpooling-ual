@@ -9,6 +9,10 @@ import type { Point } from 'typeorm';
 import { TRIP_STATUSES } from '../trip-status';
 import type { TripStatus } from '../trip-status';
 
+// Tipo trip_pickup_mode de la migración AddPickupModes
+export const TRIP_PICKUP_MODES = ['on_route', 'stops'] as const;
+export type TripPickupMode = (typeof TRIP_PICKUP_MODES)[number];
+
 // Tabla trips: un viaje publicado por un conductor (RF-04). Las reglas de
 // integridad están también en la base de datos: el vehículo es del conductor,
 // las plazas ofertadas no superan su capacidad y las disponibles van de 0 a
@@ -56,8 +60,31 @@ export class Trip {
   @Column({ name: 'available_seats', type: 'smallint' })
   availableSeats: number;
 
+  // Presupuesto total de desvío del viaje: los desvíos y las paradas de
+  // todos los pasajeros aceptados caben en él (STOP_TIME_MIN por parada)
   @Column({ name: 'max_detour_min', type: 'smallint', default: 10 })
   maxDetourMin: number;
+
+  // Cómo recoge el conductor: en ruta (se aparta hasta max_detour_m) o en
+  // puntos (sus paradas). Los viajes desde el campus, siempre en ruta
+  @Column({
+    name: 'pickup_mode',
+    type: 'enum',
+    enum: TRIP_PICKUP_MODES,
+    enumName: 'trip_pickup_mode',
+    default: 'on_route',
+  })
+  pickupMode: TripPickupMode;
+
+  // Metros que se aparta de su ruta en modo en ruta (ALLOWED_MAX_DETOUR_M);
+  // nulo en modo en puntos
+  @Column({
+    name: 'max_detour_m',
+    type: 'smallint',
+    nullable: true,
+    default: 500,
+  })
+  maxDetourM: number | null;
 
   @Column({
     type: 'enum',

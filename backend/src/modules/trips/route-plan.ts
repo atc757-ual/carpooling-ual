@@ -33,6 +33,29 @@ export function estimateRoute(origin: Point, destination: Point): RoutePlan {
   };
 }
 
+// La ruta estimada pasando por varios puntos en orden: la suma de los tramos
+// estimados (cada uno, como estimateRoute) y los minutos de cada tramo
+export function estimateRouteVia(points: readonly Point[]): {
+  route: RoutePlan;
+  legsMin: number[];
+} {
+  const legs = points
+    .slice(1)
+    .map((point, index) => estimateRoute(points[index], point));
+  return {
+    route: {
+      distanceKm: roundTo2(legs.reduce((sum, leg) => sum + leg.distanceKm, 0)),
+      durationMin: legs.reduce((sum, leg) => sum + leg.durationMin, 0),
+      geometry: {
+        type: 'LineString',
+        coordinates: points.map(({ coordinates }) => coordinates),
+      },
+      source: 'estimated',
+    },
+    legsMin: legs.map(({ durationMin }) => durationMin),
+  };
+}
+
 // Distancia del círculo máximo (fórmula del semiverseno) entre dos puntos
 // [longitud, latitud]
 export function straightLineKm(from: number[], to: number[]): number {

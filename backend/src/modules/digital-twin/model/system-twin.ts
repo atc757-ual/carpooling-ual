@@ -27,17 +27,21 @@ export interface UserTwinCounts {
 // user.updated o chat_message.sent); una versión desconocida se descarta y se
 // cuenta
 const V1: ReadonlySet<number> = new Set([1]);
+// Los viajes desde la v2 (v3 en inicio y fin) añaden cómo recoge el conductor
+// (pickupMode, maxDetourM); el gemelo lee el estado igual en todas
+const TRIP_V1_V2: ReadonlySet<number> = new Set([1, 2]);
+const TRIP_V1_TO_V3: ReadonlySet<number> = new Set([1, 2, 3]);
 export const SUPPORTED_EVENT_VERSIONS: Readonly<
   Record<string, ReadonlySet<number>>
 > = {
-  'trip.published': V1,
-  'trip.updated': V1,
-  'trip.confirmed': V1,
-  'trip.reopened': V1,
-  'trip.started': new Set([1, 2]),
-  'trip.finished': new Set([1, 2]),
-  'trip.cancelled': V1,
-  'trip.expired': V1,
+  'trip.published': TRIP_V1_V2,
+  'trip.updated': TRIP_V1_V2,
+  'trip.confirmed': TRIP_V1_V2,
+  'trip.reopened': TRIP_V1_V2,
+  'trip.started': TRIP_V1_TO_V3,
+  'trip.finished': TRIP_V1_TO_V3,
+  'trip.cancelled': TRIP_V1_V2,
+  'trip.expired': TRIP_V1_V2,
   'trip.position_updated': V1,
   'request.created': V1,
   'request.accepted': V1,

@@ -29,8 +29,13 @@ export class TripRoute {
   })
   distanceKm: number;
 
+  // La ruta actual: con las recogidas aceptadas, si las hay
   @Column({ name: 'duration_min', type: 'integer' })
   durationMin: number;
+
+  // Sin recogidas, del origen al destino: con ella se mide el desvío gastado
+  @Column({ name: 'direct_duration_min', type: 'integer' })
+  directDurationMin: number;
 
   @Column({ type: 'geography', spatialFeatureType: 'LineString', srid: 4326 })
   geometry: LineString;

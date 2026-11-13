@@ -11,7 +11,12 @@ const OSRM_TIMEOUT_MS = 2000;
 // Lo que interesa de la respuesta de /route/v1 de OSRM
 interface OsrmRouteResponse {
   code: string;
-  routes?: { distance: number; duration: number; geometry: LineString }[];
+  routes?: {
+    distance: number;
+    duration: number;
+    geometry: LineString;
+    legs?: { duration: number }[];
+  }[];
 }
 
 // Una coordenada para la URL de OSRM: SOLO un número finito, escrito con 6
@@ -51,6 +56,17 @@ export class OsrmClient {
     destination: Point,
     via: readonly Point[] = [],
   ): Promise<RoutePlan> {
+    const { route } = await this.routeWithLegs(origin, destination, via);
+    return route;
+  }
+
+  // La ruta y los minutos de cada tramo (de la salida a la primera parada, de
+  // una parada a la siguiente y de la última al destino)
+  async routeWithLegs(
+    origin: Point,
+    destination: Point,
+    via: readonly Point[] = [],
+  ): Promise<{ route: RoutePlan; legsMin: number[] }> {
     const coordinates = [origin, ...via, destination]
       .map(
         ({ coordinates: [lon, lat] }) =>
@@ -67,10 +83,13 @@ export class OsrmClient {
       throw new OsrmUnavailableError(`no route (${body.code})`);
     }
     return {
-      distanceKm: roundTo2(best.distance / 1000),
-      durationMin: Math.max(1, Math.round(best.duration / 60)),
-      geometry: best.geometry,
-      source: 'osrm',
+      route: {
+        distanceKm: roundTo2(best.distance / 1000),
+        durationMin: Math.max(1, Math.round(best.duration / 60)),
+        geometry: best.geometry,
+        source: 'osrm',
+      },
+      legsMin: (best.legs ?? []).map(({ duration }) => duration / 60),
     };
   }
 

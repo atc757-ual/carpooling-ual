@@ -47,5 +47,6 @@ export function buildLiveShareText(route: ShareRoute, driver?: ShareDriver): str
   const car = [driver.vehicleName, driver.plate && `matrícula ${driver.plate}`]
     .filter(Boolean)
     .join(', ');
-  return `Voy en un viaje compartido de la UAL: ${trip}. Conduce ${driver.name}${car ? ` (${car})` : ''}.`;
+  const carText = car ? ` (${car})` : '';
+  return `Voy en un viaje compartido de la UAL: ${trip}. Conduce ${driver.name}${carText}.`;
 }

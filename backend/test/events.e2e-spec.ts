@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { EVENT_VERSIONS } from '../src/events/event-versions';
 import { DomainEvent } from '../src/events/entities/domain-event.entity';
 import { EventsService } from '../src/events/events.service';
 
@@ -71,8 +72,12 @@ describe('Events (e2e)', () => {
       (event) => event.sourceEntityId === sourceEntityId,
     );
     expect(read.map(({ id }) => id)).toEqual([...ids, third]);
-    // trip.started va por su v2 (las versiones de las declaraciones)
-    expect(read.map(({ version }) => version)).toEqual([1, 1, 2]);
+    // Cada uno, con la versión actual de su contrato (event-versions.ts)
+    expect(read.map(({ version }) => version)).toEqual([
+      EVENT_VERSIONS['trip.published'],
+      EVENT_VERSIONS['trip.confirmed'],
+      EVENT_VERSIONS['trip.started'],
+    ]);
     const sequences = read.map(({ sequence }) => sequence);
     expect(sequences).toEqual([...sequences].sort((a, b) => a - b));
     expect(sequences[0]).toBeGreaterThan(before);

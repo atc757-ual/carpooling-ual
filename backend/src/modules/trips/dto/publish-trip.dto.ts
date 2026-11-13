@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   IsDate,
   IsDefined,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -15,6 +16,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
+import { ALLOWED_MAX_DETOUR_M, DEFAULT_MAX_DETOUR_M } from '../trip-timing';
 
 // Cuerpo de POST /api/trips (RF-04). Valida la FORMA; las reglas de negocio
 // (conductor listo, vehículo suyo, plazas ≤ capacidad, salida futura) están
@@ -89,13 +91,33 @@ export class PublishTripDto {
     minimum: 0,
     maximum: 60,
     default: 10,
-    description: 'Maximum detour to pick up passengers, in minutes',
+    description:
+      'Detour budget of the whole trip, in minutes: the detours and stops (2 min each) of every accepted passenger',
   })
   @IsOptional()
   @IsInt()
   @Min(0)
   @Max(60)
   maxDetourMin?: number;
+
+  // Las paradas (stops) llegan en el siguiente cambio: por ahora, en ruta
+  @ApiPropertyOptional({
+    enum: ['on_route'],
+    default: 'on_route',
+    description: 'How the driver picks up: on the route, up to maxDetourM',
+  })
+  @IsOptional()
+  @IsIn(['on_route'])
+  pickupMode?: 'on_route';
+
+  @ApiPropertyOptional({
+    enum: ALLOWED_MAX_DETOUR_M,
+    default: DEFAULT_MAX_DETOUR_M,
+    description: 'Metres the driver goes off the route to pick up',
+  })
+  @IsOptional()
+  @IsIn(ALLOWED_MAX_DETOUR_M)
+  maxDetourM?: number;
 
   @ApiPropertyOptional({
     maxLength: 160,

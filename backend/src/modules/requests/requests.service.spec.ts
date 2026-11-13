@@ -3,7 +3,6 @@ import { EventsService } from '../../events/events.service';
 import { Trip } from '../trips/entities/trip.entity';
 import type { TripLookupService } from '../trips/trip-lookup.service';
 import { LateCancellationsService } from '../trips/late-cancellations.service';
-import { TripRoutesService } from '../trips/trip-routes.service';
 import { TripStatusService } from '../trips/trip-status.service';
 import { TripsService } from '../trips/trips.service';
 import { UsersService } from '../users/users.service';
@@ -13,6 +12,7 @@ import { InvalidBoardCodeError } from './errors/invalid-board-code.error';
 import { PickupGracePeriodActiveError } from './errors/pickup-grace-period-active.error';
 import { RequestChangesRecorder } from './request-changes';
 import { RequestOverlapService } from './request-overlap.service';
+import { RequestPickupsService } from './request-pickups.service';
 import { RequestViewsService } from './request-views.service';
 import { RequestsService } from './requests.service';
 
@@ -64,7 +64,6 @@ describe('RequestsService boarding and no-show', () => {
       dataSource,
       {} as unknown as Repository<SeatRequest>,
       tripsService,
-      {} as TripRoutesService,
       tripStatus,
       {} as UsersService,
       views,
@@ -73,6 +72,7 @@ describe('RequestsService boarding and no-show', () => {
       {} as RequestOverlapService,
       eventsService,
       {} as TripLookupService,
+      {} as RequestPickupsService,
     );
   }
 

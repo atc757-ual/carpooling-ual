@@ -38,6 +38,17 @@ export const PENDING_REQUESTS_REMINDER_MIN = 30;
 // Margen de cortesía en el punto de recogida antes de poder marcar «No se presentó» (5 min)
 export const PICKUP_NO_SHOW_WAIT_MIN = 5;
 
+// Recogidas (reunión con el director del 12/11/2026): cada parada con alguien
+// que sube suma este tiempo al viaje, y el desvío máximo (max_detour_min) es
+// el presupuesto total del viaje, con los desvíos y las paradas de todos
+export const STOP_TIME_MIN = 2;
+// Modo en ruta: cuánto se aparta el conductor de su camino para recoger
+export const ALLOWED_MAX_DETOUR_M = [300, 500, 1000] as const;
+export const DEFAULT_MAX_DETOUR_M = 500;
+// Modo en puntos: paradas por viaje y distancia a pie hasta una parada
+export const MAX_TRIP_STOPS = 5;
+export const WALK_RADIUS_M = 800;
+
 // Cancelaciones tardías (conductor y pasajero, la misma regla): con 3 en 30
 // días, 7 días sin publicar (conductor) o sin pedir plaza (pasajero)
 export const LATE_CANCELLATION_WINDOW_DAYS = 30;

@@ -4,6 +4,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
+import { EVENT_VERSIONS } from '../src/events/event-versions';
 import { configureApp } from '../src/app.setup';
 import { deleteTestUsers } from './support/cleanup';
 import { publishableDeparture, setDepartureIn } from './support/trips';
@@ -146,7 +147,7 @@ describe('Trip lifecycle API (e2e)', () => {
     expect(vehicleBack.body).toMatchObject({ status: 'available' });
   });
 
-  it('stores how far from the destination the driver finished (trip.finished v2)', async () => {
+  it('stores how far from the destination the driver finished (trip.finished v2 or later)', async () => {
     const { driver, tripId } = await driverWithTrip(20);
     const pia = await tokenFor('pia', ['passenger']);
     const seatRequest = await api(
@@ -184,11 +185,11 @@ describe('Trip lifecycle API (e2e)', () => {
         WHERE source_entity_id = $1 AND type = 'trip.finished'`,
       [tripId],
     );
-    expect(event.version).toBe(2);
+    expect(event.version).toBe(EVENT_VERSIONS['trip.finished']);
     expect(event.payload.finishDistanceM).toBe(trip.finish_distance_m);
   });
 
-  it('asks to renew the declarations older than a year before starting (trip.started v2)', async () => {
+  it('asks to renew the declarations older than a year before starting (trip.started v2 or later)', async () => {
     const { driver, tripId, vehicleId } = await driverWithTrip(20);
     const pia = await tokenFor('pia', ['passenger']);
     const seatRequest = await api(
@@ -245,7 +246,7 @@ describe('Trip lifecycle API (e2e)', () => {
         WHERE source_entity_id = $1 AND type = 'trip.started'`,
       [tripId],
     );
-    expect(event.version).toBe(2);
+    expect(event.version).toBe(EVENT_VERSIONS['trip.started']);
     expect(event.payload).toMatchObject({
       driverDeclarationVersion: expect.stringMatching(/^\d+\.\d+$/) as string,
       vehicleDeclarationVersion: '1.0',
