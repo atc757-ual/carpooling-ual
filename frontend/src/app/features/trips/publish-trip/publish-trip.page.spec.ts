@@ -11,6 +11,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
+import { TripsService } from '../../../core/services/trips/trips.service';
 import { CelebrationService } from '../../../core/services/ui/celebration.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { stubIntersectionObserver } from '../../matching/trip-search.testing';
@@ -111,6 +112,27 @@ describe('PublishTripPage', () => {
         },
         { provide: CelebrationService, useValue: { celebrate } },
         { provide: ToastService, useValue: { showError, showSuccess: vi.fn() } },
+        {
+          provide: TripsService,
+          useValue: {
+            planRoute: vi.fn().mockResolvedValue({
+              tripId: 'preview',
+              distanceKm: 15,
+              durationMin: 18,
+              geometry: {
+                type: 'LineString',
+                coordinates: [
+                  [-2.4045, 36.8322],
+                  [-2.4637, 36.8381],
+                ],
+              },
+              source: 'osrm',
+              tripStatus: 'published',
+              startedAt: null,
+              estimatedArrivalAt: null,
+            }),
+          },
+        },
       ],
     });
     harness = await RouterTestingHarness.create();
@@ -433,5 +455,26 @@ describe('PublishTripPage', () => {
 
     await page.load();
     expect(page.loadState()).toBe('ready');
+  });
+
+  it('plans the route and updates the preview route on step 3', async () => {
+    await openPage();
+    fillTrip({ withVehicle: true });
+    await harness.fixture.whenStable();
+
+    expect(page.previewRoute()).not.toBeNull();
+    expect(page.previewRoute()?.source).toBe('osrm');
+  });
+
+  it('falls back to straight line when planRoute fails', async () => {
+    await openPage();
+    const tripsService = TestBed.inject(TripsService);
+    vi.spyOn(tripsService, 'planRoute').mockRejectedValueOnce(new Error('network error'));
+
+    fillTrip({ withVehicle: true });
+    await harness.fixture.whenStable();
+
+    expect(page.previewRoute()).not.toBeNull();
+    expect(page.previewRoute()?.source).toBe('estimated');
   });
 });

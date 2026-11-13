@@ -138,6 +138,15 @@ describe('ChatService', () => {
     await expect(listing).resolves.toEqual([contact]);
   });
 
+  it('gets a single conversation by trip id', async () => {
+    const conversation = { trip: { id: 't1' }, myRole: 'driver' };
+    const promise = chat.getConversation('t1');
+    const req = http.expectOne('/api/trips/t1/conversation');
+    expect(req.request.method).toBe('GET');
+    req.flush(conversation);
+    await expect(promise).resolves.toEqual(conversation);
+  });
+
   it('throws an ApiError when a request fails', async () => {
     const sending = chat.send('t1', { text: 'Hola' });
     http

@@ -71,4 +71,48 @@ describe('TripsService', () => {
 
     await expect(route).rejects.toBeInstanceOf(ApiError);
   });
+
+  it('plans a route preview between origin and destination', async () => {
+    const plan = trips.planRoute([-2.5, 36.8], [-2.4, 36.83]);
+    const response = {
+      distanceKm: 15.5,
+      durationMin: 20,
+      geometry: {
+        type: 'LineString' as const,
+        coordinates: [[-2.5, 36.8] as [number, number], [-2.4, 36.83] as [number, number]],
+      },
+      source: 'osrm' as const,
+    };
+    const req = http.expectOne('/api/trips/plan');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      origin: { type: 'Point', coordinates: [-2.5, 36.8] },
+      destination: { type: 'Point', coordinates: [-2.4, 36.83] },
+    });
+    req.flush(response);
+
+    const result = await plan;
+    expect(result).toEqual({
+      tripId: 'preview',
+      distanceKm: 15.5,
+      durationMin: 20,
+      geometry: response.geometry,
+      source: 'osrm',
+      tripStatus: 'published',
+      startedAt: null,
+      estimatedArrivalAt: null,
+    });
+  });
+
+  it('turns planRoute API errors into ApiError', async () => {
+    const plan = trips.planRoute([-2.5, 36.8], [-2.4, 36.83]);
+    http
+      .expectOne('/api/trips/plan')
+      .flush(
+        { '@type': 'Error', code: 'INVALID_LOCATION', status: '400' },
+        { status: 400, statusText: 'Bad Request' },
+      );
+
+    await expect(plan).rejects.toBeInstanceOf(ApiError);
+  });
 });

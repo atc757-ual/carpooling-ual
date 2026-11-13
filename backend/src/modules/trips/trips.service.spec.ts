@@ -164,4 +164,27 @@ describe('TripsService cancelUnstartedTrips', () => {
     );
     expect(recordDriverCancellationSpy).not.toHaveBeenCalled();
   });
+
+  it('delegates planRoute to TripRoutesService.plan', async () => {
+    const planSpy = jest.fn().mockResolvedValue({ distanceKm: 10 });
+    const tripRoutes = { plan: planSpy } as unknown as TripRoutesService;
+    const tripsService = new TripsService(
+      {} as DataSource,
+      {} as Repository<Trip>,
+      {} as UsersService,
+      {} as VehiclesService,
+      {} as TripStatusService,
+      tripRoutes,
+      {} as LateCancellationsService,
+      {} as PublishingLimitsService,
+    );
+    const origin = { type: 'Point', coordinates: [-2.5, 36.8] } as const;
+    const destination = { type: 'Point', coordinates: [-2.4, 36.83] } as const;
+    const result = await tripsService.planRoute(
+      origin as any,
+      destination as any,
+    );
+    expect(planSpy).toHaveBeenCalledWith(origin, destination);
+    expect(result).toEqual({ distanceKm: 10 });
+  });
 });

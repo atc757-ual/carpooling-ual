@@ -488,4 +488,38 @@ describe('ConversationPage', () => {
     page.ionViewDidLeave();
     expect(heading.content()).toBeNull();
   });
+
+  it('determines whether call button can be shown based on trip status', async () => {
+    await render();
+    expect(page.canShowCall()).toBe(true); // confirmed
+
+    page.conversation.set({
+      ...CONVERSATION,
+      trip: { ...CONVERSATION.trip, status: 'in_progress' },
+    });
+    expect(page.canShowCall()).toBe(true);
+
+    page.conversation.set({
+      ...CONVERSATION,
+      trip: { ...CONVERSATION.trip, status: 'finished' },
+    });
+    expect(page.canShowCall()).toBe(false);
+
+    page.conversation.set({
+      ...CONVERSATION,
+      trip: { ...CONVERSATION.trip, status: 'cancelled' },
+    });
+    expect(page.canShowCall()).toBe(false);
+
+    page.conversation.set(null);
+    expect(page.canShowCall()).toBe(false);
+  });
+
+  it('falls back to listConversations if getConversation fails', async () => {
+    chat['getConversation'].mockRejectedValueOnce(new Error('not found'));
+    chat['listConversations'].mockResolvedValueOnce([CONVERSATION]);
+
+    await render();
+    expect(page.conversation()).toEqual(CONVERSATION);
+  });
 });

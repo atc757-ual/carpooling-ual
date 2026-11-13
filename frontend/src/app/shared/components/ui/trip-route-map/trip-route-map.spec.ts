@@ -103,4 +103,30 @@ describe('TripRouteMap', () => {
     fixture.destroy();
     expect(disconnect).toHaveBeenCalled();
   });
+
+  it('updates the route dynamically when map already exists', async () => {
+    await render();
+    const updatedRoute: TripRoute = {
+      ...ROUTE,
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [-2.6, 36.75],
+          [-2.5, 36.8],
+          [-2.4, 36.83],
+        ],
+      },
+    };
+    fixture.componentRef.setInput('route', updatedRoute);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const emptyRoute: TripRoute = {
+      ...ROUTE,
+      geometry: null,
+    };
+    fixture.componentRef.setInput('route', emptyRoute);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
 });
