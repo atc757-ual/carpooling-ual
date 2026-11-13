@@ -62,6 +62,32 @@ describe('OsrmClient', () => {
     );
   });
 
+  it('gives the minutes of every leg of a route through stops', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse(200, {
+        code: 'Ok',
+        routes: [
+          {
+            distance: 9000,
+            duration: 840,
+            geometry: GEOMETRY,
+            legs: [{ duration: 180 }, { duration: 660 }],
+          },
+        ],
+      }),
+    );
+    const stop: Point = { type: 'Point', coordinates: [-2.435, 36.834] };
+
+    const { route, legsMin } = await client.routeWithLegs(
+      ALMERIA_CENTRE,
+      UAL_CAMPUS,
+      [stop],
+    );
+
+    expect(legsMin).toEqual([3, 11]);
+    expect(route.durationMin).toBe(14);
+  });
+
   it('only puts numbers in the URL: anything else never reaches OSRM', async () => {
     const forged = {
       type: 'Point',
