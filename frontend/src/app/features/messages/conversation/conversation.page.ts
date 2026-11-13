@@ -188,10 +188,12 @@ export class ConversationPage {
       if (!isActive) return;
       void this.load(tripId).finally(() => this.schedulePolling());
     });
-    // El título en la franja del título: con el chat a la vista en el móvil
+    // El título en la franja del título: con el chat a la vista en el móvil,
+    // desde que se entra (con un esqueleto mientras carga). Si falla la carga,
+    // vuelve el título de la ruta
     effect(() => {
       const template = this.headingTitle();
-      if (this.inPageHeading() && this.active() && this.conversation()) {
+      if (this.inPageHeading() && this.active() && !this.hasError()) {
         this.headingContent.show(template);
       } else {
         this.headingContent.clear(template);
@@ -258,12 +260,6 @@ export class ConversationPage {
     return status ? TRIP_STATUS_LABELS[status] : '';
   }
 
-  // Mostrar botón de llamada solo si el viaje está activo (confirmado o en curso)
-  canShowCall(): boolean {
-    const status = this.conversation()?.trip.status;
-    return status === 'confirmed' || status === 'in_progress';
-  }
-
   // Hay a quién llamar: viaje confirmado o en curso y teléfono verificado
   canCall(): boolean {
     return this.contacts().length > 0;
@@ -276,13 +272,10 @@ export class ConversationPage {
   }
 
   // Con una persona, abre su teléfono; con varias (el conductor), se elige.
-  // Sin nadie, explica por qué
+  // Sin nadie, el botón está deshabilitado
   async handleCall(): Promise<void> {
     const contacts = this.contacts();
-    if (contacts.length === 0) {
-      void this.toast.showInfo(this.unavailableCallMessage());
-      return;
-    }
+    if (contacts.length === 0) return;
     if (contacts.length === 1) {
       this.openPhone(contacts[0].phone);
       return;
@@ -466,13 +459,7 @@ export class ConversationPage {
     this.tripCall.openPhone(phone);
   }
 
-  // Por qué no se puede llamar: el estado del viaje o que nadie tiene el
-  // teléfono verificado
-  private unavailableCallMessage(): string {
-    return this.tripCall.getUnavailableReason(this.conversation()?.trip.status);
-  }
-
-  // Sin contactos (o si falla), el botón de llamar queda en gris
+  // Sin contactos (o si falla), el botón de llamar queda deshabilitado
   private async loadContacts(tripId: string, version: number): Promise<void> {
     const contacts = await this.tripCall.loadContacts(tripId);
     if (version === this.loadVersion) this.contacts.set(contacts);
