@@ -83,7 +83,7 @@ export class TripCandidatesService implements CandidateSource {
     );
   }
 
-  // Hacia el campus: el desvío de TODO el viaje con las recogidas ya
+  // Hacia el campus: el desvío de todo el viaje con las recogidas ya
   // aceptadas y la del pasajero (con sus paradas), y a qué hora le recogería.
   // La puntuación lo compara con el presupuesto total (max_detour_min)
   private async pickupDetour(

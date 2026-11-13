@@ -94,8 +94,15 @@ export class RequestPickupsService implements OnModuleInit {
     manager: EntityManager,
     times: Map<string, Date>,
   ): Promise<void> {
-    for (const [requestId, pickupAt] of times) {
-      await manager.update(SeatRequest, { id: requestId }, { pickupAt });
+    if (times.size === 0) {
+      return;
     }
+    // Una sola consulta para todas las solicitudes del viaje
+    await manager.query(
+      `UPDATE requests r SET pickup_at = v.pickup_at
+         FROM unnest($1::uuid[], $2::timestamptz[]) AS v (id, pickup_at)
+        WHERE r.id = v.id`,
+      [[...times.keys()], [...times.values()]],
+    );
   }
 }

@@ -27,8 +27,8 @@ describe('RequestPickupsService', () => {
     { planWith, apply, remove } as unknown as TripPickupsService,
     changes,
   );
-  const update = jest.fn();
-  const manager = { update } as unknown as EntityManager;
+  const query = jest.fn();
+  const manager = { query } as unknown as EntityManager;
   const trip = { id: 't1', status: 'published' } as Trip;
 
   beforeEach(() => {
@@ -100,12 +100,20 @@ describe('RequestPickupsService', () => {
     await service.applyAcceptance(manager, trip, accepted, {} as PickupPlan);
 
     expect(accepted.pickupAt).toEqual(time);
-    expect(update).toHaveBeenCalledTimes(1);
-    expect(update).toHaveBeenCalledWith(
-      SeatRequest,
-      { id: 'r2' },
-      { pickupAt: later },
-    );
+    expect(query).toHaveBeenCalledTimes(1);
+    expect(query).toHaveBeenCalledWith(expect.stringContaining('unnest'), [
+      ['r2'],
+      [later],
+    ]);
+  });
+
+  it('does not touch the database when no other pickup moves', async () => {
+    const accepted = seatRequest();
+    apply.mockResolvedValue(new Map([['r1', new Date()]]));
+
+    await service.applyAcceptance(manager, trip, accepted, {} as PickupPlan);
+
+    expect(query).not.toHaveBeenCalled();
   });
 
   it('releases the pickup of a seat cancelled before the trip', async () => {
@@ -119,11 +127,10 @@ describe('RequestPickupsService', () => {
     });
 
     expect(remove).toHaveBeenCalledWith(manager, trip, 'r1');
-    expect(update).toHaveBeenCalledWith(
-      SeatRequest,
-      { id: 'r2' },
-      { pickupAt: later },
-    );
+    expect(query).toHaveBeenCalledWith(expect.stringContaining('unnest'), [
+      ['r2'],
+      [later],
+    ]);
   });
 
   it('leaves the route alone once the trip is under way', async () => {

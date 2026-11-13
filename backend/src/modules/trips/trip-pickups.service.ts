@@ -83,7 +83,9 @@ export class TripPickupsService {
       savedRoute?.directDurationMin ?? route.durationMin;
     return {
       tripId: trip.id,
-      previousRequestIds: current.map(({ requestId }) => requestId).sort(),
+      previousRequestIds: current
+        .map(({ requestId }) => requestId)
+        .sort((a, b) => a.localeCompare(b)),
       isAddition: added !== null,
       route,
       directDurationMin,
@@ -113,7 +115,9 @@ export class TripPickupsService {
     const saved = await manager.find(TripPickup, {
       where: { tripId: trip.id },
     });
-    const savedIds = saved.map(({ requestId }) => requestId).sort();
+    const savedIds = saved
+      .map(({ requestId }) => requestId)
+      .sort((a, b) => a.localeCompare(b));
     if (savedIds.join() !== plan.previousRequestIds.join()) {
       throw new TripPickupsChangedError(trip.id);
     }
