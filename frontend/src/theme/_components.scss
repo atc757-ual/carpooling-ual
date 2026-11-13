@@ -228,6 +228,21 @@ ion-select[class] {
   --highlight-color-invalid: var(--color-link);
 }
 
+// iPhone (Safari, la app instalada y la de Capacitor): iOS amplía la pantalla
+// al enfocar un campo con la letra por debajo de 16px y no la devuelve a su
+// tamaño. Red de seguridad para los campos de texto de Ionic: nunca por debajo
+// de 16px, aunque hereden un tamaño menor; si heredan uno mayor, se mantiene.
+// Solo en iOS (el único que entiende -webkit-touch-callout), para no cambiar
+// nada en Android ni en escritorio. Sin maximum-scale en el viewport: bloquearía
+// el zoom con los dedos en Android (WCAG 1.4.4)
+@supports (-webkit-touch-callout: none) {
+  ion-input[class],
+  ion-textarea[class],
+  ion-searchbar[class] .searchbar-input {
+    font-size: max(1rem, 1em); // ≥ 16px
+  }
+}
+
 // Edge añade su propio ojo (y una ✕ para borrar) a los campos de contraseña;
 // ya llevan el nuestro, así que se quita el del navegador para que no salgan
 // dos
