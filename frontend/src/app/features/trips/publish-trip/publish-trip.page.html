@@ -89,7 +89,10 @@
                     <!-- Hacia el campus, cómo recoge (desde él, todos suben en
                          el parking) -->
                     @if (isArrivalTime()) {
-                      <app-pickup-mode-field [controls]="pickupControls" />
+                      <app-pickup-mode-field
+                        [controls]="pickupControls"
+                        [mapCenter]="tripValueStart()"
+                      />
                     }
                     <!-- Desvío y, a la derecha del campo, «Siguiente» (qué es el
                      desvío, en las preguntas frecuentes) -->
@@ -181,15 +184,19 @@
                     @if (!hasDeclared()) {
                       <app-declaration-field [control]="tripForm.controls.declaration" />
                     } @else {
-                      <div class="publish__declared">
-                        <span class="badge-verified">
-                          <ion-icon [icon]="icons.published" aria-hidden="true" />
-                          Declaración del conductor aceptada
-                        </span>
-                        <p class="text-caption text-color-muted">
-                          Permiso de conducir en vigor, seguro obligatorio e ITV al día sin ánimo de
-                          lucro.
-                        </p>
+                      <!-- Ya aceptada: un aviso verde, como el de lo que se
+                           ahorra, con lo que declaró en palabras claras -->
+                      <div class="notice notice--success publish__declared">
+                        <ion-icon [icon]="icons.declared" aria-hidden="true" />
+                        <div>
+                          <p class="text-body-s text-body--strong">
+                            Declaración del conductor aceptada
+                          </p>
+                          <p class="text-caption">
+                            Tienes el permiso de conducir en vigor y el coche con seguro e ITV al
+                            día. Compartes gastos, no cobras por llevar a nadie.
+                          </p>
+                        </div>
                       </div>
                     }
 

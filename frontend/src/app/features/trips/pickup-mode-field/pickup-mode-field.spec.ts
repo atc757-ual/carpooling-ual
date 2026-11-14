@@ -1,7 +1,8 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
+import { vi } from 'vitest';
 import { PickupMode } from '../../../core/models/driver.model';
 import { SearchPlace } from '../../../core/models/trip-search.model';
 import { PlaceField } from '../../matching/place-field/place-field';
@@ -32,13 +33,16 @@ function place(id: string): SearchPlace {
 }
 
 describe('PickupModeField', () => {
+  const dismissed = vi.fn();
+  const create = vi.fn();
+  const modalController = { create } as unknown as ModalController;
   let fixture: ComponentFixture<PickupModeField>;
   let controls: PickupModeControls;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [PickupModeField],
-      providers: [provideIonicAngular()],
+      providers: [provideIonicAngular(), { provide: ModalController, useValue: modalController }],
     });
     // El buscador de direcciones llama a la API: aquí, uno que solo guarda
     TestBed.overrideComponent(PickupModeField, {
@@ -64,15 +68,20 @@ describe('PickupModeField', () => {
     expect(root().querySelector('.pickup-mode__stops')).toBeNull();
   });
 
-  it('switches to stops and asks for at least one', () => {
-    fixture.componentInstance.handleMode('stops');
+  it('marks the chosen card and switches to stops without an error yet', () => {
+    const cards = root().querySelectorAll<HTMLButtonElement>('.pickup-mode__choice');
+    expect(cards[0].getAttribute('aria-checked')).toBe('true');
+
+    cards[1].click();
     fixture.detectChanges();
 
     expect(controls.pickupMode.value).toBe('stops');
+    expect(cards[1].getAttribute('aria-checked')).toBe('true');
     expect(root().querySelector('.pickup-mode__distance')).toBeNull();
-    expect(root().querySelector('[role="alert"]')?.textContent).toContain(
-      'Añade al menos una parada',
+    expect(root().querySelector('.pickup-mode__stops-head')?.textContent).toContain(
+      '0 de 5 paradas',
     );
+    expect(root().querySelector('[role="alert"]')).toBeNull();
     fixture.componentInstance.handleMode('elsewhere');
     expect(controls.pickupMode.value).toBe('stops');
   });
@@ -99,5 +108,36 @@ describe('PickupModeField', () => {
     expect(controls.stops.value).toHaveLength(MAX_STOPS);
     expect(fixture.componentInstance.canAddStop()).toBe(false);
     expect(root().textContent).toContain(`Ya tienes ${MAX_STOPS} paradas`);
+  });
+
+  it('adds the address chosen on the map, opened at the start', async () => {
+    fixture.componentRef.setInput('mapCenter', [-2.46, 36.84]);
+    create.mockResolvedValue({ present: vi.fn(), onDidDismiss: dismissed });
+    dismissed.mockResolvedValue({
+      role: 'select',
+      data: {
+        id: 'm1',
+        name: 'Ctra. Sacramento',
+        locality: 'Almería',
+        municipality: 'Almería',
+        location: { type: 'Point', coordinates: [-2.41, 36.83] },
+        isCovered: true,
+      },
+    });
+
+    await fixture.componentInstance.handlePickOnMap();
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        componentProps: { adjustPoint: [-2.46, 36.84], adjustTitle: 'Elegir parada en el mapa' },
+      }),
+    );
+    expect(controls.stops.value).toEqual([
+      { id: 'm1', name: 'Ctra. Sacramento', locality: 'Almería', coordinates: [-2.41, 36.83] },
+    ]);
+
+    dismissed.mockResolvedValue({ role: 'cancel' });
+    await fixture.componentInstance.handlePickOnMap();
+    expect(controls.stops.value).toHaveLength(1);
   });
 });

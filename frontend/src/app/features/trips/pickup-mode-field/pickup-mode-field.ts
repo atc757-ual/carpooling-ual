@@ -1,20 +1,16 @@
-import { Component, computed, effect, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import {
-  IonButton,
-  IonIcon,
-  IonLabel,
-  IonSegment,
-  IonSegmentButton,
-  IonSelect,
-  IonSelectOption,
-} from '@ionic/angular';
-import { closeOutline, flagOutline } from 'ionicons/icons';
+import { IonIcon, IonSelect, IonSelectOption, ModalController } from '@ionic/angular';
+import { closeOutline, locationOutline, mapOutline, navigateOutline } from 'ionicons/icons';
 import { merge } from 'rxjs';
 import { PickupMode } from '../../../core/models/driver.model';
 import { SearchPlace } from '../../../core/models/trip-search.model';
-import { PlaceField } from '../../matching/place-field/place-field';
+import { LocationModal, LocationModalResult } from '../../matching/location-modal/location-modal';
+import { PlaceField, toSearchPlace } from '../../matching/place-field/place-field';
+
+// Sin trayecto aún, el mapa se abre en el campus
+const CAMPUS_POINT: [number, number] = [-2.4045, 36.8322];
 
 // Lo mismo que acepta la API (ALLOWED_MAX_DETOUR_M y MAX_TRIP_STOPS)
 export const PICKUP_DISTANCES_M = [150, 300, 500] as const;
@@ -34,22 +30,16 @@ export interface PickupModeControls {
 // cosa u otra
 @Component({
   selector: 'app-pickup-mode-field',
-  imports: [
-    ReactiveFormsModule,
-    IonButton,
-    IonIcon,
-    IonLabel,
-    IonSegment,
-    IonSegmentButton,
-    IonSelect,
-    IonSelectOption,
-    PlaceField,
-  ],
+  imports: [ReactiveFormsModule, IonIcon, IonSelect, IonSelectOption, PlaceField],
   templateUrl: './pickup-mode-field.html',
   styleUrl: './pickup-mode-field.scss',
 })
 export class PickupModeField {
+  private readonly modalController = inject(ModalController);
+
   readonly controls = input.required<PickupModeControls>();
+  // Dónde abrir el mapa para elegir una parada (la salida del conductor)
+  readonly mapCenter = input<[number, number] | null>(null);
 
   readonly mode = signal<PickupMode>('on_route');
   readonly stops = signal<readonly SearchPlace[]>([]);
@@ -61,7 +51,12 @@ export class PickupModeField {
 
   protected readonly distances = PICKUP_DISTANCES_M;
   protected readonly maxStops = MAX_STOPS;
-  protected readonly icons = { stop: flagOutline, remove: closeOutline };
+  protected readonly icons = {
+    route: navigateOutline,
+    stop: locationOutline,
+    remove: closeOutline,
+    map: mapOutline,
+  };
 
   constructor() {
     effect((onCleanup) => {
@@ -84,6 +79,22 @@ export class PickupModeField {
   handleMode(value: unknown): void {
     if (value === 'on_route' || value === 'stops') {
       this.controls().pickupMode.setValue(value);
+    }
+  }
+
+  // Respaldo del buscador: la parada se elige moviendo el pin en el mapa (la
+  // última parada, la salida o el campus) y se añade la dirección de ese punto
+  async handlePickOnMap(): Promise<void> {
+    const center = this.stops().at(-1)?.coordinates ?? this.mapCenter() ?? CAMPUS_POINT;
+    const modal = await this.modalController.create({
+      component: LocationModal,
+      componentProps: { adjustPoint: center, adjustTitle: 'Elegir parada en el mapa' },
+      cssClass: 'location-dialog',
+    });
+    await modal.present();
+    const { data, role } = await modal.onDidDismiss<LocationModalResult>();
+    if (role === 'select' && data && !Array.isArray(data) && data.isCovered) {
+      this.addStop(toSearchPlace(data));
     }
   }
 

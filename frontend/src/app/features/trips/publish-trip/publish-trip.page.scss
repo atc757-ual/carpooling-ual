@@ -238,9 +238,20 @@
   }
 }
 
+// La declaración ya aceptada: el check verde a la altura del título
 .publish__declared {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  margin-top: var(--space-base);
+  align-items: flex-start;
+
+  ion-icon {
+    flex: none;
+    margin-top: 0.125rem; // 2px
+    color: var(--color-success);
+    font-size: 1.25rem; // 20px
+  }
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem; // 2px
+  }
 }

@@ -19,7 +19,7 @@ import {
   IonSpinner,
   ModalController,
 } from '@ionic/angular';
-import { carOutline, checkmarkCircleOutline, leafOutline } from 'ionicons/icons';
+import { carOutline, checkmarkCircle, checkmarkCircleOutline, leafOutline } from 'ionicons/icons';
 import { map } from 'rxjs';
 import { ApiError } from '../../../core/models/api-error.model';
 import {
@@ -225,6 +225,8 @@ export class PublishTripPage implements OnInit {
   });
   // Hacia el campus se elige la llegada (como en Buscar); desde él, la salida
   readonly isArrivalTime = computed(() => this.tripValue().isToCampus ?? true);
+  // Donde se abre el mapa al elegir una parada: la dirección de salida
+  readonly tripValueStart = computed(() => this.tripValue().place?.coordinates ?? null);
   // En paradas hace falta al menos una para seguir
   readonly isMissingStops = computed(() => {
     const { isToCampus = true, pickupMode, stops = [] } = this.tripValue();
@@ -339,6 +341,12 @@ export class PublishTripPage implements OnInit {
   });
 
   readonly osrmRoute = signal<TripRoute | null>(null);
+  private routeRequest = 0;
+  // Las paradas por las que pasa la ruta (solo al ir al campus, en paradas)
+  private readonly previewVia = computed<[number, number][]>(() => {
+    const { isToCampus = true, pickupMode, stops = [] } = this.tripValue();
+    return isToCampus && pickupMode === 'stops' ? stops.map(({ coordinates }) => coordinates) : [];
+  });
 
   readonly previewRoute = computed<TripRoute | null>(() => {
     const planned = this.osrmRoute();
@@ -389,17 +397,29 @@ export class PublishTripPage implements OnInit {
   });
 
   constructor() {
+    // La ruta de la vista previa; en paradas, pasando por ellas (como se
+    // publicará). Si llega la respuesta de una petición anterior, se ignora
     effect(() => {
       const origin = this.originPoint();
       const destination = this.destinationPoint();
+      const via = this.previewVia();
       if (!origin || !destination) {
         this.osrmRoute.set(null);
         return;
       }
+      const request = ++this.routeRequest;
       void this.tripsService
-        .planRoute(origin.coordinates, destination.coordinates)
-        .then((route) => this.osrmRoute.set(route))
-        .catch(() => this.osrmRoute.set(null));
+        .planRoute(origin.coordinates, destination.coordinates, via)
+        .then((route) => {
+          if (request === this.routeRequest) {
+            this.osrmRoute.set(route);
+          }
+        })
+        .catch(() => {
+          if (request === this.routeRequest) {
+            this.osrmRoute.set(null);
+          }
+        });
     });
 
     effect(() => {
@@ -452,6 +472,7 @@ export class PublishTripPage implements OnInit {
     car: carOutline,
     impact: leafOutline,
     published: checkmarkCircleOutline,
+    declared: checkmarkCircle,
   };
 
   ngOnInit(): void {

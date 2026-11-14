@@ -25,7 +25,9 @@ const LOCATION_MESSAGES: Readonly<Record<LocationError['reason'], string>> = {
     'Has dejado de compartir tu ubicación. Vuelve a compartirla en Perfil o escribe la dirección.',
 };
 
-function toSearchPlace(place: Place): SearchPlace {
+// Una dirección de la API como lugar elegido (también al añadir una parada en
+// el mapa)
+export function toSearchPlace(place: Place): SearchPlace {
   return {
     id: place.id,
     name: place.name,
