@@ -541,6 +541,7 @@
     "STOP_NOT_IN_TRIP": "That stop is no longer part of this trip. Search again.",
     "DETOUR_BUDGET_EXCEEDED": "Picking up this passenger exceeds your maximum detour.",
     "TRIP_CHANGED_RETRY": "The trip has just changed. Try again.",
+    "RETURN_TRIP_REJECTED": "Neither trip was published: the return trip breaks a rule (it must not overlap another trip and must fit your car). Change its time or seats.",
     "DAILY_TRIP_LIMIT": "You already have 4 trips that day. Choose another day.",
     "TRIP_FULL": "There are not enough seats left on this trip. Try searching for another one.",
     "TRIP_NOT_OPEN": "This trip is no longer accepting seat requests.",

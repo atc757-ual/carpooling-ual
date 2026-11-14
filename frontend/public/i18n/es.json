@@ -541,6 +541,7 @@
     "STOP_NOT_IN_TRIP": "Esa parada ya no es de este viaje. Vuelve a buscar.",
     "DETOUR_BUDGET_EXCEEDED": "Recoger a este pasajero se pasa de tu desvío máximo.",
     "TRIP_CHANGED_RETRY": "El viaje acaba de cambiar. Inténtalo de nuevo.",
+    "RETURN_TRIP_REJECTED": "No se ha publicado ninguno: la vuelta no cumple las reglas (que no se cruce con otro viaje y que tenga plazas para tu coche). Cambia su hora o sus plazas.",
     "DAILY_TRIP_LIMIT": "Ya tienes 4 viajes ese día. Elige otro día.",
     "TRIP_FULL": "Ya no quedan plazas suficientes en este viaje. Busca otro viaje.",
     "TRIP_NOT_OPEN": "Este viaje ya no admite solicitudes.",

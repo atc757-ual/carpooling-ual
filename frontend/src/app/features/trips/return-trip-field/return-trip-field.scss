@@ -1,0 +1,14 @@
+// La casilla y, debajo, la hora de la vuelta, apilados a 8px
+.return-trip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  p {
+    margin: 0;
+  }
+
+  ion-checkbox {
+    min-height: 2.75rem; // 44px
+  }
+}
