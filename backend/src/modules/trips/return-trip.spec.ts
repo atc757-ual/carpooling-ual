@@ -16,7 +16,7 @@ const OUTBOUND: TripInput = {
   offeredSeats: 3,
   maxDetourMin: 15,
   pickupMode: 'on_route',
-  maxDetourM: 1000,
+  maxDetourM: 500,
 };
 const RETURN_AT = new Date('2099-01-15T14:30:00Z');
 
@@ -34,7 +34,7 @@ describe('toReturnTripInput', () => {
       offeredSeats: 2,
       maxDetourMin: 15,
       pickupMode: 'on_route',
-      maxDetourM: 1000,
+      maxDetourM: 500,
     });
   });
 
@@ -44,7 +44,7 @@ describe('toReturnTripInput', () => {
         { ...OUTBOUND, pickupMode: 'stops', maxDetourM: undefined },
         { departureAt: RETURN_AT, offeredSeats: 2 },
       ),
-    ).toMatchObject({ pickupMode: 'on_route', maxDetourM: 500 });
+    ).toMatchObject({ pickupMode: 'on_route', maxDetourM: 300 });
   });
 });
 
