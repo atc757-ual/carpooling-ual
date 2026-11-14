@@ -15412,6 +15412,14 @@
                 "$ref": "#/components/schemas/GeoPointDto"
               }
             ]
+          },
+          "via": {
+            "maxItems": 5,
+            "description": "Stops to go through, in any order: they are ordered along the route, as when publishing",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeoPointDto"
+            }
           }
         },
         "required": [

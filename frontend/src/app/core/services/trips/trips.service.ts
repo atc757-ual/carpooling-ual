@@ -30,9 +30,11 @@ export class TripsService {
     }
   }
 
+  // Con paradas (via), la ruta pasa por ellas en el orden de la ruta
   async planRoute(
     origin: [number, number],
     destination: [number, number],
+    via: readonly [number, number][] = [],
   ): Promise<TripRoute> {
     try {
       const response = await firstValueFrom(
@@ -44,6 +46,9 @@ export class TripsService {
         }>(`${environment.apiUrl}/trips/plan`, {
           origin: { type: 'Point', coordinates: origin },
           destination: { type: 'Point', coordinates: destination },
+          ...(via.length > 0 && {
+            via: via.map((coordinates) => ({ type: 'Point', coordinates })),
+          }),
         }),
       );
       return {
