@@ -5,6 +5,14 @@ import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
 import { SeatRequest } from '../../models/seat-request.model';
 
+// Dónde le recogen: su punto o, si el conductor recoge en paradas, la parada
+export interface SeatRequestPickup {
+  direction: 'to-campus' | 'from-campus';
+  location?: { type: 'Point'; coordinates: [number, number] };
+  name?: string;
+  stopId?: string;
+}
+
 // Como mucho una página: un pasajero tiene pocas solicitudes a la vez
 const MY_REQUESTS_LIMIT = 100;
 
@@ -15,15 +23,7 @@ export class SeatRequestsService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
 
-  request(
-    tripId: string,
-    seats: number,
-    pickup?: {
-      direction: 'to-campus' | 'from-campus';
-      location?: { type: 'Point'; coordinates: [number, number] };
-      name?: string;
-    },
-  ): Promise<SeatRequest> {
+  request(tripId: string, seats: number, pickup?: SeatRequestPickup): Promise<SeatRequest> {
     return this.call(
       this.http.post<SeatRequest>(`${this.apiUrl}/trips/${tripId}/requests`, {
         seats,
@@ -31,6 +31,7 @@ export class SeatRequestsService {
           direction: pickup.direction,
           pickupLocation: pickup.location,
           pickupName: pickup.name,
+          stopId: pickup.stopId,
         }),
       }),
     );

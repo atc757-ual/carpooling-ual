@@ -83,6 +83,14 @@ export function toTripResult(match: TripMatch, search: TripSearch): TripResult {
     freeSeats: match.availableSeats,
     pickupDetourMinutes: match.detourMin,
     passengerStop: search.place.name,
+    ...(match.pickupAt && { pickupTime: formatTime(match.pickupAt) }),
+    ...(match.stop && {
+      pickupStop: {
+        id: match.stop.id,
+        name: match.stop.name,
+        walkingDistanceM: match.stop.walkingDistanceM,
+      },
+    }),
     vehicle: match.vehicle,
   };
 }

@@ -30,9 +30,21 @@ export interface TripMatch {
   arrivalAt: string;
   availableSeats: number;
   detourMin: number;
+  // Hacia el campus, a qué hora le recogería (ISO 8601); null al volver
+  pickupAt: string | null;
+  // Si el conductor recoge en paradas: la más cercana, donde le recoge
+  stop: TripMatchStop | null;
   // Diferencia con la hora deseada, en minutos (negativa si es antes)
   timeDifferenceMin: number;
   // De 0 a 1
   score: number;
   vehicle: { brand: string | null; model: string | null; color: string | null };
+}
+
+export interface TripMatchStop {
+  id: string;
+  name: string;
+  location: GeoPoint;
+  // En línea recta desde la dirección buscada
+  walkingDistanceM: number;
 }

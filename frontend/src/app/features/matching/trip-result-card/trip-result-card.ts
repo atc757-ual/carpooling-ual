@@ -5,6 +5,7 @@ import { IonIcon } from '@ionic/angular';
 import { timeOutline, chevronForward } from 'ionicons/icons';
 import { TripResult } from '../../../core/models/trip-result.model';
 import { getFirstName } from '../trip-driver/trip-driver';
+import { formatWalkingDistance } from '../../../shared/utils/distance.util';
 
 // Un viaje de los resultados (SearchTripCard de la guía): horas de salida y
 // llegada con las plazas libres («Última plaza» en píldora ámbar si solo queda
@@ -30,11 +31,18 @@ export class TripResultCard {
 
   readonly isLastSeat = computed(() => this.trip().freeSeats === 1);
 
-  // Sin repetir la calle de la ruta: muestra el desvío de recogida y la salida
+  // Sin repetir la calle de la ruta: dónde y cuándo le recoge. En paradas, la
+  // suya (andando); si no, el desvío y la hora de recogida (o de salida)
   readonly pickupMetaLabel = computed(() => {
-    const { pickupDetourMinutes, departureTime } = this.trip();
+    const { pickupDetourMinutes, departureTime, pickupTime, pickupStop } = this.trip();
+    if (pickupStop) {
+      const at = pickupTime ? ` · a las ${pickupTime}` : '';
+      return `En la parada ${pickupStop.name} (a ${formatWalkingDistance(pickupStop.walkingDistanceM)})${at}`;
+    }
     const detour = pickupDetourMinutes <= 0 ? 'En su ruta' : `Desvío de ${pickupDetourMinutes} min`;
-    return `${detour} · sale a las ${departureTime}`;
+    return pickupTime
+      ? `${detour} · te recoge a las ${pickupTime}`
+      : `${detour} · sale a las ${departureTime}`;
   });
 
   // Lo que lee el lector de pantalla del enlace (cubre toda la tarjeta)
