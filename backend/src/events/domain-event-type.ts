@@ -34,6 +34,10 @@ export type DomainEventType =
   // Posición del conductor durante el viaje (seguimiento real, RF-12): el
   // "cambio de posición" con el que se sincroniza el Gemelo Digital (RNF-07)
   | 'trip.position_updated'
+  // Un pasajero comparte el viaje en directo con alguien de su confianza, o
+  // deja de hacerlo (sin el enlace: minimización)
+  | 'trip_share.created'
+  | 'trip_share.revoked'
   // Solicitudes de plaza
   | 'request.created'
   | 'request.accepted'

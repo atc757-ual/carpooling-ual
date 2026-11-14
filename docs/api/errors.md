@@ -174,8 +174,10 @@ Crear una reseña puede responder además `TRIP_NOT_FOUND` (ver _Viajes_).
 | ----------------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `POSITION_TOO_FREQUENT` | 409  | El conductor envía una posición antes de que pasen `POSITION_MIN_INTERVAL_SECONDS` (10 por defecto) desde la anterior: el móvil puede ignorarlo y enviar la siguiente |
 | `POSITION_NOT_FOUND`    | 404  | El viaje no tiene posición: aún no ha empezado, el conductor no ha enviado ninguna o ya terminó (al terminar se borra el recorrido)                                   |
+| `SHARE_NOT_ALLOWED`     | 409  | `POST /api/trips/{tripId}/share` con el viaje en un estado distinto de confirmado (`confirmed`) o en curso (`in_progress`)                                            |
+| `SHARE_NOT_FOUND`       | 404  | `GET /api/shares/{token}` con un enlace que no vale: desconocido, retirado, el pasajero ya no tiene la plaza o el viaje terminó hace más de 24 h                      |
 
-Enviar una posición puede responder además `NOT_TRIP_DRIVER` o `TRIP_NOT_IN_PROGRESS` (ver _Viajes_); consultarla, `NOT_TRIP_PASSENGER` a quien no es su conductor ni un pasajero aceptado (ver _Solicitudes de plaza_).
+Enviar una posición puede responder además `NOT_TRIP_DRIVER` o `TRIP_NOT_IN_PROGRESS` (ver _Viajes_); consultarla, `NOT_TRIP_PASSENGER` a quien no es su conductor ni un pasajero aceptado (ver _Solicitudes de plaza_). Compartir el viaje puede responder `NOT_TRIP_PASSENGER` a quien no es pasajero aceptado, y compartirlo o dejar de compartirlo, `TRIP_NOT_FOUND`.
 
 ## Chat del viaje (`chat`)
 

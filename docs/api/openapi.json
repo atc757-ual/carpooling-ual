@@ -7270,6 +7270,241 @@
         ]
       }
     },
+    "/api/trips/{tripId}/share": {
+      "post": {
+        "description": "Only an accepted passenger, while the trip is confirmed or in progress. Creates a secret link that opens without an account; a previous active link of the passenger for this trip stops working. The token is returned only once.",
+        "operationId": "TripSharesController_create",
+        "parameters": [
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "headers": {
+              "Location": {
+                "description": "Link to the shared trip"
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripShareLinkResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED, NOT_TRIP_PASSENGER",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: SHARE_NOT_ALLOWED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Share my trip live with someone I trust",
+        "tags": [
+          "tracking"
+        ]
+      },
+      "delete": {
+        "description": "The active link of the passenger for this trip stops working at once. Without an active link it does nothing.",
+        "operationId": "TripSharesController_revoke",
+        "parameters": [
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The link no longer works"
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Stop sharing my trip",
+        "tags": [
+          "tracking"
+        ]
+      }
+    },
+    "/api/shares/{token}": {
+      "get": {
+        "description": "Public: whoever has the link. The status, the pickup, the driver first name and the car; the position and the route only while the trip is in progress. Once the trip is over, without the plate; 24 hours later the link stops working.",
+        "operationId": "TripSharesController_get",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "description": "The secret token of the link",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripShareResource"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: SHARE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Follow a shared trip",
+        "tags": [
+          "tracking"
+        ]
+      }
+    },
     "/api/trips/{tripId}/requests": {
       "post": {
         "description": "RF-08. For the passenger and their companions (1 seat by default, up to 4). A passenger may have at most three pending requests whose trip schedules overlap. The trip must be published or confirmed, not yet departed, with enough seats left and not your own.",
@@ -11918,6 +12153,8 @@
                 "trip.cancelled_late",
                 "late_cancellation.waived",
                 "trip.position_updated",
+                "trip_share.created",
+                "trip_share.revoked",
                 "request.created",
                 "request.accepted",
                 "request.rejected",
@@ -15989,6 +16226,223 @@
           "estimatedArrivalAt"
         ]
       },
+      "TripShareLinkResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "TripShareLink"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/shares/q4c1Vt0Jk2m3N4b5V6c7X8z9A0s1D2f3G4h5J6k7L8m"
+          },
+          "tripId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "token": {
+            "type": "string",
+            "example": "q4c1Vt0Jk2m3N4b5V6c7X8z9A0s1D2f3G4h5J6k7L8m"
+          },
+          "url": {
+            "type": "string",
+            "example": "/seguir/q4c1Vt0Jk2m3N4b5V6c7X8z9A0s1D2f3G4h5J6k7L8m",
+            "description": "Path of the public page, relative to the web app"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "tripId",
+          "token",
+          "url",
+          "createdAt"
+        ]
+      },
+      "SharedDriverResource": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "example": "Lucía"
+          }
+        },
+        "required": [
+          "firstName"
+        ]
+      },
+      "SharedVehicleResource": {
+        "type": "object",
+        "properties": {
+          "brand": {
+            "type": "string",
+            "nullable": true,
+            "example": "Seat"
+          },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "example": "Ibiza"
+          },
+          "color": {
+            "type": "string",
+            "nullable": true,
+            "example": "red"
+          },
+          "plate": {
+            "type": "string",
+            "nullable": true,
+            "example": "1234ABC",
+            "description": "null once the trip is over"
+          }
+        },
+        "required": [
+          "brand",
+          "model",
+          "color",
+          "plate"
+        ]
+      },
+      "SharedPositionResource": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/GeoPointDto"
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "remainingMin": {
+            "type": "number",
+            "example": 5
+          }
+        },
+        "required": [
+          "location",
+          "recordedAt",
+          "remainingMin"
+        ]
+      },
+      "TripShareResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "TripShare"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/shares/q4c1Vt0Jk2m3N4b5V6c7X8z9A0s1D2f3G4h5J6k7L8m"
+          },
+          "tripStatus": {
+            "type": "string",
+            "enum": [
+              "published",
+              "confirmed",
+              "in_progress",
+              "finished",
+              "cancelled",
+              "expired"
+            ]
+          },
+          "passengerState": {
+            "type": "string",
+            "enum": [
+              "waiting",
+              "on_board",
+              "finished"
+            ],
+            "description": "waiting: before the pickup; on_board: the driver validated the pickup; finished: the trip is over"
+          },
+          "pickupName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Rambla Obispo Orberá"
+          },
+          "pickupAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "destinationName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Parking P1"
+          },
+          "estimatedArrivalAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "null once the trip is over"
+          },
+          "driver": {
+            "$ref": "#/components/schemas/SharedDriverResource"
+          },
+          "vehicle": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SharedVehicleResource"
+              }
+            ]
+          },
+          "position": {
+            "nullable": true,
+            "description": "Only while the trip is in progress",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SharedPositionResource"
+              }
+            ]
+          },
+          "route": {
+            "nullable": true,
+            "description": "The road route, only while the trip is in progress",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoLineStringResource"
+              }
+            ]
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "tripStatus",
+          "passengerState",
+          "pickupName",
+          "pickupAt",
+          "destinationName",
+          "estimatedArrivalAt",
+          "driver",
+          "vehicle",
+          "position",
+          "route"
+        ]
+      },
       "RequestSeatsDto": {
         "type": "object",
         "properties": {
@@ -19064,6 +19518,8 @@
               "trip.cancelled_late",
               "late_cancellation.waived",
               "trip.position_updated",
+              "trip_share.created",
+              "trip_share.revoked",
               "request.created",
               "request.accepted",
               "request.rejected",
@@ -19157,6 +19613,8 @@
               "trip.cancelled_late",
               "late_cancellation.waived",
               "trip.position_updated",
+              "trip_share.created",
+              "trip_share.revoked",
               "request.created",
               "request.accepted",
               "request.rejected",

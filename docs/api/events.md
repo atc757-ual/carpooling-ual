@@ -48,6 +48,8 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `trip.cancelled_late`      | Cancelación tardía del conductor o de un pasajero (fiabilidad, S5)                                 | `trips/late-cancellations.service.ts`  |
 | `late_cancellation.waived` | Un administrador perdona las cancelaciones tardías de un papel                                     | `trips/late-cancellations.service.ts`  |
 | `trip.position_updated`    | Nueva posición del conductor durante el viaje (RF-12, RNF-07)                                      | `tracking/trip-positions.service.ts`   |
+| `trip_share.created`       | Un pasajero comparte el viaje en directo (`tripId`, `passengerId`; nunca el enlace)                | `tracking/trip-shares.service.ts`      |
+| `trip_share.revoked`       | Deja de compartirlo o lo sustituye por otro enlace (`tripId`, `passengerId`)                       | `tracking/trip-shares.service.ts`      |
 | `request.created` (v2)     | Un pasajero pide plaza                                                                             | `requests/request-changes.ts`          |
 | `request.accepted` (v2)    | El conductor la acepta                                                                             | `requests/request-changes.ts`          |
 | `request.rejected` (v2)    | La rechaza                                                                                         | `requests/request-changes.ts`          |
