@@ -69,14 +69,17 @@ describe('PickupModeField', () => {
   });
 
   it('marks the chosen card and switches to stops without an error yet', () => {
-    const cards = root().querySelectorAll<HTMLButtonElement>('.pickup-mode__choice');
-    expect(cards[0].getAttribute('aria-checked')).toBe('true');
+    const radios = root().querySelectorAll<HTMLInputElement>(
+      '.pickup-mode__choice input[type="radio"]',
+    );
+    expect(radios[0].checked).toBe(true);
 
-    cards[1].click();
+    radios[1].click();
     fixture.detectChanges();
 
     expect(controls.pickupMode.value).toBe('stops');
-    expect(cards[1].getAttribute('aria-checked')).toBe('true');
+    expect(radios[1].checked).toBe(true);
+    expect(radios[0].checked).toBe(false);
     expect(root().querySelector('.pickup-mode__distance')).toBeNull();
     expect(root().querySelector('.pickup-mode__stops-head')?.textContent).toContain(
       '0 de 5 paradas',
