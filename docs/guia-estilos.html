@@ -740,6 +740,13 @@
       <li><b>Tu recorrido (conductor):</b> cada parada en la línea de ruta con su hora y quién sube («Recoges a Ana y Leo» o «Aún no sube nadie aquí»), y en el mapa como recogida; en el camino, el punto de cada pasajero aceptado con su hora de recogida.</li>
     </ul>
 
+    <h3>Ida y vuelta (Publicar, hacia el campus)</h3>
+    <ul class="rules">
+      <li><b>Paso Trayecto:</b> bajo la hora, un <code>ion-checkbox</code> de 44px con su texto como etiqueta, «Publicar también la vuelta». Marcado, una línea gris que explica que es otro viaje desde el campus el mismo día y que se gestiona aparte, y el campo de hora «Salida de la vuelta» (6 h después de llegar mientras no se toca). Si sale antes de llegar, «La vuelta tiene que salir después de que llegues al campus (08:00).» en rojo y «Siguiente» desactivado.</li>
+      <li><b>Paso Vehículo:</b> junto a «Plazas ofrecidas», «Plazas en la vuelta» con el mismo campo de − y +, con las de la ida hasta que se cambian.</li>
+      <li><b>Revisión y publicado:</b> la línea «Vuelta: sales del campus a las 14:30 · 2 plazas»; ya publicado, la enhorabuena añade «También has publicado la vuelta: la ves aparte en Tus viajes.». Si la vuelta incumple una regla, no se publica ninguno y el aviso lo dice.</li>
+    </ul>
+
     <h3>Lista de resultados</h3>
     <p class="note">Cabecera del grupo con el recuento y el orden; los viajes que llegan fuera del margen, en un grupo propio al final. Debajo, el aviso fijo de lo que no se promete y una sola acción principal.</p>
     <div class="demo" style="max-width:27rem">

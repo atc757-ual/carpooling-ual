@@ -5699,7 +5699,7 @@
     },
     "/api/trips": {
       "post": {
-        "description": "RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days. The trip cannot overlap another active trip of the driver (departure to arrival plus the maximum detour), and a driver can have at most 4 trips that are not cancelled on the same day.",
+        "description": "RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days. The trip cannot overlap another active trip of the driver (departure to arrival plus the maximum detour), and a driver can have at most 4 trips that are not cancelled on the same day. With returnTrip, the return trip is published in the same transaction, with the same rules (it cannot overlap the outbound trip either): both or none.",
         "operationId": "TripsController_publish",
         "parameters": [],
         "requestBody": {
@@ -5723,13 +5723,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TripResource"
+                  "$ref": "#/components/schemas/PublishedTripResource"
                 }
               }
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY, DEPARTURE_IN_THE_PAST, DEPARTURE_TOO_SOON, INVALID_STOPS, STOPS_EXCEED_DETOUR",
+            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY, DEPARTURE_IN_THE_PAST, DEPARTURE_TOO_SOON, INVALID_STOPS, STOPS_EXCEED_DETOUR, RETURN_TRIP_REJECTED",
             "content": {
               "application/json": {
                 "schema": {
@@ -5776,7 +5776,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: PUBLISHING_SUSPENDED, VEHICLE_DECLARATION_REQUIRED, TRIP_OVERLAPS, DAILY_TRIP_LIMIT",
+            "description": "TMF630 error: PUBLISHING_SUSPENDED, VEHICLE_DECLARATION_REQUIRED, TRIP_OVERLAPS, DAILY_TRIP_LIMIT, RETURN_TRIP_REJECTED",
             "content": {
               "application/json": {
                 "schema": {
@@ -14920,6 +14920,27 @@
           "location"
         ]
       },
+      "ReturnTripDto": {
+        "type": "object",
+        "properties": {
+          "departureAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2026-11-03T14:30:00Z",
+            "description": "When the driver leaves for the return trip"
+          },
+          "offeredSeats": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 8,
+            "example": 3
+          }
+        },
+        "required": [
+          "departureAt",
+          "offeredSeats"
+        ]
+      },
       "PublishTripDto": {
         "type": "object",
         "properties": {
@@ -15009,6 +15030,14 @@
             ],
             "default": 300,
             "description": "Metres the driver goes off the route to pick up (only on the route)"
+          },
+          "returnTrip": {
+            "description": "Also publish the return trip (origin and destination swapped, same vehicle and detour, picking up on the route). Both trips are published or none: RETURN_TRIP_REJECTED says the return breaks a rule",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReturnTripDto"
+              }
+            ]
           },
           "originName": {
             "type": "string",
@@ -15129,6 +15158,172 @@
           "name",
           "location",
           "estimatedAt"
+        ]
+      },
+      "TripLinkResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/2f1c…"
+          }
+        },
+        "required": [
+          "id",
+          "href"
+        ]
+      },
+      "PublishedTripResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "Trip"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "driver": {
+            "$ref": "#/components/schemas/TripDriverResource"
+          },
+          "vehicleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vehicle": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TripVehicleResource"
+              }
+            ]
+          },
+          "origin": {
+            "$ref": "#/components/schemas/GeoPointDto"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/GeoPointDto"
+          },
+          "departureAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "offeredSeats": {
+            "type": "number",
+            "example": 3
+          },
+          "availableSeats": {
+            "type": "number",
+            "example": 3
+          },
+          "maxDetourMin": {
+            "type": "number",
+            "example": 10,
+            "description": "Detour budget of the whole trip, in minutes: the detours and stops (2 min each) of every accepted passenger fit in it"
+          },
+          "pickupMode": {
+            "type": "string",
+            "enum": [
+              "on_route",
+              "stops"
+            ],
+            "description": "How the driver picks up: on_route (goes up to maxDetourM off the route to the passenger point) or stops (at the stops on the route)"
+          },
+          "maxDetourM": {
+            "type": "number",
+            "nullable": true,
+            "enum": [
+              300,
+              500,
+              1000
+            ],
+            "description": "Metres the driver goes off the route to pick up (on_route); null with stops"
+          },
+          "stops": {
+            "description": "The stops, in order along the route (pickupMode stops); empty on the route. Public places: always exact",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TripStopResource"
+            }
+          },
+          "originName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Roquetas de Mar",
+            "description": "Name of the origin as chosen when publishing"
+          },
+          "destinationName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Campus UAL · Parking P1 (Sur)",
+            "description": "Name of the destination as chosen when publishing"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "published",
+              "confirmed",
+              "in_progress",
+              "finished",
+              "cancelled",
+              "expired"
+            ]
+          },
+          "startedAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the trip started; null until then"
+          },
+          "isLocationApproximate": {
+            "type": "boolean",
+            "description": "True when origin and destination are rounded to about 500 m (campus parkings excepted): whoever is not the driver, an accepted passenger or an administrator does not see the exact points"
+          },
+          "returnTrip": {
+            "nullable": true,
+            "description": "The return trip published with it, or null",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TripLinkResource"
+              }
+            ]
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "driver",
+          "vehicleId",
+          "vehicle",
+          "origin",
+          "destination",
+          "departureAt",
+          "offeredSeats",
+          "availableSeats",
+          "maxDetourMin",
+          "pickupMode",
+          "maxDetourM",
+          "stops",
+          "originName",
+          "destinationName",
+          "status",
+          "startedAt",
+          "isLocationApproximate",
+          "returnTrip"
         ]
       },
       "TripResource": {
