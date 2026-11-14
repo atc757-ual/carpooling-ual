@@ -12,6 +12,7 @@ import { TripStatusService } from '../trips/trip-status.service';
 import { TripsService } from '../trips/trips.service';
 import type { VehicleRecognitionDetails } from '../users/vehicles.service';
 import { VehiclesService } from '../users/vehicles.service';
+import { VehicleColorsService } from '../catalogs/vehicle-colors.service';
 import { TripPosition } from './entities/trip-position.entity';
 import { TripShare } from './entities/trip-share.entity';
 import { ShareNotAllowedError } from './errors/share-not-allowed.error';
@@ -38,6 +39,9 @@ export interface SharedTripView {
   request: SeatRequest;
   driverFirstName: string;
   vehicle: VehicleRecognitionDetails | null;
+  // El nombre del color («Rojo»): quien abre el enlace no puede pedir el
+  // catálogo
+  colorName: string | null;
   // Solo con el viaje abierto (confirmado o en curso)
   plate: string | null;
   routeDurationMin: number | null;
@@ -65,6 +69,7 @@ export class TripSharesService {
     private readonly tripRoutes: TripRoutesService,
     private readonly requestsService: RequestsService,
     private readonly vehiclesService: VehiclesService,
+    private readonly vehicleColors: VehicleColorsService,
     private readonly eventsService: EventsService,
   ) {}
 
@@ -133,10 +138,11 @@ export class TripSharesService {
     }
     const isOpen = SHAREABLE_TRIP_STATUSES.has(trip.status);
     const isLive = trip.status === 'in_progress';
-    const [plate, route, position] = await Promise.all([
+    const [plate, route, position, colorName] = await Promise.all([
       isOpen ? this.vehiclesService.getPlate(trip.vehicleId) : null,
       isOpen ? this.tripRoutes.getForTrip(trip) : null,
       isLive ? this.findLatestPosition(trip.id) : null,
+      this.vehicleColors.getName(vehicle?.color ?? null),
     ]);
     return {
       share,
@@ -145,6 +151,7 @@ export class TripSharesService {
       request,
       driverFirstName: driverName,
       vehicle,
+      colorName,
       plate,
       routeDurationMin: route?.durationMin ?? null,
       position,

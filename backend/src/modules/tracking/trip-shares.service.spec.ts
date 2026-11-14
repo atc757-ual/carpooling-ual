@@ -9,6 +9,7 @@ import { TripRoutesService } from '../trips/trip-routes.service';
 import { TripStatusService } from '../trips/trip-status.service';
 import { TripsService } from '../trips/trips.service';
 import { VehiclesService } from '../users/vehicles.service';
+import { VehicleColorsService } from '../catalogs/vehicle-colors.service';
 import { toTripShareResource } from './dto/trip-share.resource';
 import { TripPosition } from './entities/trip-position.entity';
 import { TripShare } from './entities/trip-share.entity';
@@ -56,6 +57,7 @@ describe('TripSharesService', () => {
     findLatestRequest: jest.fn(),
   };
   const vehiclesService = { getPlate: jest.fn() };
+  const vehicleColors = { getName: jest.fn().mockResolvedValue('Rojo') };
   const eventsService = { record: jest.fn() };
   let manager: { findOneBy: jest.Mock; create: jest.Mock; save: jest.Mock };
 
@@ -95,6 +97,7 @@ describe('TripSharesService', () => {
         { provide: TripRoutesService, useValue: tripRoutes },
         { provide: RequestsService, useValue: requestsService },
         { provide: VehiclesService, useValue: vehiclesService },
+        { provide: VehicleColorsService, useValue: vehicleColors },
         { provide: EventsService, useValue: eventsService },
       ],
     }).compile();
@@ -222,7 +225,7 @@ describe('TripSharesService', () => {
         destinationName: 'Parking P1',
         estimatedArrivalAt: '2026-11-14T08:50:00.000Z',
         driver: { firstName: 'Lucía' },
-        vehicle: { brand: 'Seat', plate: '1234ABC' },
+        vehicle: { brand: 'Seat', colorName: 'Rojo', plate: '1234ABC' },
         position: null,
         route: null,
       });

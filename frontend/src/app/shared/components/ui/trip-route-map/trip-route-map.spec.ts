@@ -129,4 +129,22 @@ describe('TripRouteMap', () => {
     fixture.detectChanges();
     await fixture.whenStable();
   });
+
+  it('draws the car while the trip is in progress', async () => {
+    fixture = TestBed.createComponent(TripRouteMap);
+    fixture.componentRef.setInput('route', ROUTE);
+    fixture.componentRef.setInput('origin', ORIGIN);
+    fixture.componentRef.setInput('destination', DESTINATION);
+    fixture.componentRef.setInput('car', { coordinates: [-2.5, 36.8], label: 'el coche, ahora' });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await vi.waitFor(() => expect(observe).toHaveBeenCalled());
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelectorAll('.trip-live-map__car-marker')).toHaveLength(1);
+    expect(root.querySelector('[role="img"]')?.getAttribute('aria-label')).toContain(
+      'el coche, ahora',
+    );
+    expect(legend(root)).toContain('Coche: dónde va ahora');
+  });
 });

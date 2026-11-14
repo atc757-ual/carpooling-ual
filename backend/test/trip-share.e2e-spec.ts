@@ -236,6 +236,7 @@ describe('Trip share (e2e)', () => {
   });
 
   it('answers 404 to an unknown link', async () => {
-    await follow('x'.repeat(43)).expect(404);
+    const unknown = await follow('x'.repeat(43)).expect(404);
+    expect(unknown.body).toMatchObject({ code: 'SHARE_NOT_FOUND' });
   });
 });

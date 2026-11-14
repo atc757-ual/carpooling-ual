@@ -1,0 +1,85 @@
+// Página pública del viaje compartido: una sola columna centrada, legible en
+// el móvil de quien la recibe, con la marca arriba y las tarjetas del tema
+.shared-trip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  max-width: 40rem; // 640px
+  margin: 0 auto;
+  padding: var(--space-l) var(--space-base) var(--space-xl);
+
+  h1,
+  p {
+    margin: 0;
+  }
+}
+
+.shared-trip__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  color: var(--color-text);
+}
+
+.shared-trip__logo,
+.shared-trip__empty-icon {
+  display: grid;
+  width: 2.5rem; // 40px
+  height: 2.5rem; // 40px
+  border-radius: var(--radius-full);
+  background: var(--color-link);
+  color: var(--color-on-primary);
+  font-size: 1.25rem; // 20px
+  place-items: center;
+}
+
+.shared-trip__status {
+  align-items: flex-start;
+}
+
+.shared-trip__live-dot {
+  flex: none;
+  width: 0.625rem; // 10px
+  height: 0.625rem; // 10px
+  margin-top: 0.375rem; // 6px: centrado con la primera línea
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+}
+
+.shared-trip__map {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  --trip-route-map-height: 18rem; // 288px
+}
+
+.shared-trip__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  margin: 0;
+  padding: var(--space-base);
+  border: var(--border-width-s) solid var(--color-card-border);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+}
+
+.shared-trip__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  dd {
+    margin: 0;
+  }
+}
+
+.shared-trip__empty,
+.shared-trip__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  padding-top: var(--space-xxxl);
+  text-align: center;
+}

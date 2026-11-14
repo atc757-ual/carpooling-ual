@@ -39,6 +39,7 @@ import { formatTime } from '../../matching/trip-results';
 import { passengerRequestLabel, passengerTripTab } from '../my-trips/trip-tabs';
 import { PassengerProgress } from './passenger-progress/passenger-progress';
 import { PassengerRequestActions } from './passenger-request-actions/passenger-request-actions';
+import { TripLiveShare } from '../trip-live-share/trip-live-share';
 import { PassengerRequestRoute } from './passenger-request-route/passenger-request-route';
 import { TripReviewCard } from '../trip-review/trip-review-card';
 
@@ -65,6 +66,7 @@ const BOARD_CODE_LEAD_MS = 10 * 60_000;
     PassengerProgress,
     PassengerRequestRoute,
     PassengerRequestActions,
+    TripLiveShare,
     TripReviewCard,
   ],
   templateUrl: './passenger-request-detail.page.html',

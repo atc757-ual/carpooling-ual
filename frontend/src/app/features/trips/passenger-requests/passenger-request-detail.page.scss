@@ -163,7 +163,8 @@ ion-card-content.passenger-detail__state {
 }
 
 // Dentro de «Tu recorrido», encima del mapa
-.passenger-detail__board-code {
+.passenger-detail__board-code,
+.passenger-detail__live-share {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);

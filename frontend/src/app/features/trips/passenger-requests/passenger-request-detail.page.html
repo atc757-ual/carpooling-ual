@@ -148,6 +148,17 @@
                 </span>
               </output>
             }
+
+            <!-- Con la plaza aceptada y hasta que termine: el enlace en directo -->
+            @if (
+              request.status === 'accepted' &&
+              (trip.status === 'confirmed' || trip.status === 'in_progress')
+            ) {
+              <section class="passenger-detail__live-share" aria-labelledby="live-share-title">
+                <h2 id="live-share-title" class="text-subtitle">Tu seguridad</h2>
+                <app-trip-live-share [tripId]="trip.id" />
+              </section>
+            }
           </app-passenger-request-route>
         </div>
 

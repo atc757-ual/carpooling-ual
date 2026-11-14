@@ -85,6 +85,9 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
     'Antes de iniciar el viaje, acepta de nuevo tu declaración responsable (permiso de conducir).',
   LEGAL_DOCUMENT_OUTDATED: 'Se ha publicado otra versión mientras leías. Revisa la última.',
   LEGAL_SUMMARY_REQUIRED: 'Escribe «Qué ha cambiado» antes de publicar la versión.',
+  SHARE_NOT_ALLOWED:
+    'Solo puedes compartir el viaje desde que tienes la plaza aceptada hasta que termina.',
+  SHARE_NOT_FOUND: 'Este enlace ya no funciona: se ha dejado de compartir o el viaje terminó.',
 };
 
 export function getErrorMessage(error: ApiError, transloco?: TranslocoService): string {
