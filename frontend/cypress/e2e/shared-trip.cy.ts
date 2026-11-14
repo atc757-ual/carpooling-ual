@@ -47,6 +47,7 @@ describe('Shared trip (public link)', () => {
 
     cy.visit(`/seguir/${TOKEN}`);
 
-    cy.contains('Este enlace no está disponible');
+    cy.contains('h1', 'Este enlace no está disponible').should('be.visible');
+    cy.contains('Este enlace ya no funciona').should('be.visible');
   });
 });
