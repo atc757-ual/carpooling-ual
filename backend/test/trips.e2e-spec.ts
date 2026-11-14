@@ -231,6 +231,7 @@ describe('Trips API (e2e)', () => {
         pickupMode: 'on_route',
         maxDetourM: 300,
         stops: [],
+        returnTrip: null,
         originName: 'Almería centro',
         destinationName: 'Campus UAL · Parking P1 (Sur)',
         status: 'published',

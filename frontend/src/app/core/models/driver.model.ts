@@ -79,6 +79,8 @@ export interface PublishTripRequest {
   maxDetourM?: number;
   // En paradas: de 1 a 5, en cualquier orden (el backend las ordena)
   stops?: { name: string; location: GeoPoint }[];
+  // Ida y vuelta: la vuelta (desde el campus), a su hora y con sus plazas
+  returnTrip?: { departureAt: string; offeredSeats: number };
   // Cómo se muestran después (Mis viajes, avisos): la dirección elegida y el
   // parking del campus
   originName: string;
@@ -95,6 +97,8 @@ export interface PublishedTrip {
   maxDetourM: number | null;
   // En orden por la ruta; vacío si recoge en el camino
   stops: TripStop[];
+  // Solo al publicar: la vuelta publicada a la vez, o null
+  returnTrip?: { id: string; href: string } | null;
 }
 
 // expired: llegó el corte (10 min antes de la salida) sin pasajeros

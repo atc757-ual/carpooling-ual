@@ -2,28 +2,34 @@
      elegida (los metros o las paradas) -->
 <fieldset class="pickup-mode">
   <legend class="text-label text-label--strong">Cómo recoges</legend>
-  <!-- Dos tarjetas que se explican solas; la elegida, en azul -->
-  <div class="pickup-mode__choices" role="radiogroup" aria-label="Cómo recoges a los pasajeros">
-    <button
-      type="button"
-      role="radio"
-      class="pickup-mode__choice"
-      [attr.aria-checked]="mode() === 'on_route'"
-      (click)="handleMode('on_route')"
-    >
+  <!-- Dos tarjetas que se explican solas; la elegida, en azul. Cada una es
+       la etiqueta de un radio nativo (oculto a la vista): el teclado y los
+       lectores de pantalla lo tratan como un grupo de opciones -->
+  <div class="pickup-mode__choices">
+    <label class="pickup-mode__choice">
+      <input
+        class="visually-hidden"
+        type="radio"
+        name="pickup-mode"
+        value="on_route"
+        [checked]="mode() === 'on_route'"
+        (change)="handleMode('on_route')"
+      />
       <span class="pickup-mode__choice-title">
         <ion-icon [icon]="icons.route" aria-hidden="true" />
         En el camino
       </span>
-      <span class="pickup-mode__choice-detail"> Recoges a cada uno en su punto </span>
-    </button>
-    <button
-      type="button"
-      role="radio"
-      class="pickup-mode__choice"
-      [attr.aria-checked]="mode() === 'stops'"
-      (click)="handleMode('stops')"
-    >
+      <span class="pickup-mode__choice-detail">Recoges a cada uno en su punto</span>
+    </label>
+    <label class="pickup-mode__choice">
+      <input
+        class="visually-hidden"
+        type="radio"
+        name="pickup-mode"
+        value="stops"
+        [checked]="mode() === 'stops'"
+        (change)="handleMode('stops')"
+      />
       <span class="pickup-mode__choice-title">
         <ion-icon [icon]="icons.stop" aria-hidden="true" />
         En paradas
@@ -31,7 +37,7 @@
       <span class="pickup-mode__choice-detail">
         Eliges hasta {{ maxStops }} paradas y van andando
       </span>
-    </button>
+    </label>
   </div>
 
   @if (mode() === 'on_route') {

@@ -86,9 +86,13 @@
                         a alguien.
                       </p>
                     }
-                    <!-- Hacia el campus, cómo recoge (desde él, todos suben en
-                         el parking) -->
+                    <!-- Hacia el campus, la vuelta (otro viaje, el mismo día) y
+                         cómo recoge (desde él, cada pasajero sube en el parking) -->
                     @if (isArrivalTime()) {
+                      <app-return-trip-field
+                        [controls]="returnControls"
+                        [arrivalTime]="arrivalTime()"
+                      />
                       <app-pickup-mode-field
                         [controls]="pickupControls"
                         [mapCenter]="tripValueStart()"
@@ -117,7 +121,12 @@
                       <ion-button
                         class="publish__next"
                         type="submit"
-                        [disabled]="!isRouteComplete() || departureTooSoon() || isMissingStops()"
+                        [disabled]="
+                          !isRouteComplete() ||
+                          departureTooSoon() ||
+                          isMissingStops() ||
+                          isReturnTooEarly()
+                        "
                       >
                         Siguiente
                       </ion-button>
@@ -147,6 +156,15 @@
                       }
                       @default {
                         <app-vehicle-picker [(vehicles)]="vehicles" [controls]="tripForm.controls">
+                          <!-- Con la vuelta, sus plazas (las de la ida hasta
+                               que se cambian) -->
+                          @if (hasReturnTrip()) {
+                            <app-seat-stepper
+                              formControlName="returnSeats"
+                              label="Plazas en la vuelta"
+                              [max]="selectedVehicle()?.capacity ?? 1"
+                            />
+                          }
                           <div class="publish__actions">
                             <ng-container [ngTemplateOutlet]="back" />
                             <ion-button
@@ -225,6 +243,9 @@
                           {{ trip.offeredSeats === 1 ? 'plaza' : 'plazas' }} con un desvío máximo de
                           {{ trip.maxDetourMin }} min. Te avisaremos de cada solicitud para que la
                           aceptes o la rechaces.
+                          @if (trip.returnTrip) {
+                            También has publicado la vuelta: la ves aparte en Tus viajes.
+                          }
                         </span>
                       </output>
                     }
@@ -293,6 +314,9 @@
               </ol>
             } @else if (pickupSummary(); as pickup) {
               <p class="publish__meta text-body-s">{{ pickup }}</p>
+            }
+            @if (returnSummary(); as back) {
+              <p class="publish__meta text-body-s">{{ back }}</p>
             }
             @if (selectedVehicle(); as vehicle) {
               <p class="publish__vehicle text-body-s text-color-muted">

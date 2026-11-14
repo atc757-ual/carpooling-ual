@@ -44,6 +44,25 @@ export class TripStopInputDto {
   location!: GeoPointDto;
 }
 
+// La vuelta que se publica con la ida: otro viaje con el origen y el destino
+// al revés, el mismo vehículo y el mismo desvío
+export class ReturnTripDto {
+  @ApiProperty({
+    format: 'date-time',
+    example: '2026-11-03T14:30:00Z',
+    description: 'When the driver leaves for the return trip',
+  })
+  @Type(() => Date)
+  @IsDate()
+  departureAt!: Date;
+
+  @ApiProperty({ minimum: 1, maximum: 8, example: 3 })
+  @IsInt()
+  @Min(1)
+  @Max(8)
+  offeredSeats!: number;
+}
+
 // Cuerpo de POST /api/trips (RF-04). Valida la FORMA; las reglas de negocio
 // (conductor listo, vehículo suyo, plazas ≤ capacidad, salida futura) están
 // en TripsService. La hora, de salida o de llegada (una de las dos)
@@ -160,6 +179,16 @@ export class PublishTripDto {
   @IsOptional()
   @IsIn(ALLOWED_MAX_DETOUR_M)
   maxDetourM?: number;
+
+  @ApiPropertyOptional({
+    type: ReturnTripDto,
+    description:
+      'Also publish the return trip (origin and destination swapped, same vehicle and detour, picking up on the route). Both trips are published or none: RETURN_TRIP_REJECTED says the return breaks a rule',
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ReturnTripDto)
+  returnTrip?: ReturnTripDto;
 
   @ApiPropertyOptional({
     maxLength: 160,

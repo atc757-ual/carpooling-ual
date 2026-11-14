@@ -1,6 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   FormControl,
   NonNullableFormBuilder,
@@ -58,6 +58,13 @@ import {
 import { PublishNextSteps } from '../publish-next-steps/publish-next-steps';
 import { VehiclePicker } from '../vehicle-picker/vehicle-picker';
 import { PUBLISH_FAQS } from './publish-help';
+import { ReturnTripControls, ReturnTripField } from '../return-trip-field/return-trip-field';
+import {
+  defaultReturnTime,
+  isReturnBeforeArrival,
+  toReturnTripRequest,
+} from '../return-trip-field/return-trip';
+import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
 import { withDeclarations } from '../with-declarations';
 import {
   buildStops,
@@ -134,6 +141,8 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
     DatetimeField,
     DeclarationField,
     PickupModeField,
+    ReturnTripField,
+    SeatStepper,
     FaqCard,
     RouteFields,
     RouteTimeline,
@@ -186,8 +195,17 @@ export class PublishTripPage implements OnInit {
     pickupMode: new FormControl<PickupMode>('on_route', { nonNullable: true }),
     maxDetourM: [DEFAULT_PICKUP_DISTANCE_M],
     stops: new FormControl<SearchPlace[]>([], { nonNullable: true }),
+    // Ida y vuelta (solo al ir al campus): la hora de la vuelta y sus plazas
+    hasReturn: [false],
+    returnTime: [defaultReturnTime(this.initialDeparture.time)],
+    returnSeats: [1, [Validators.required, Validators.min(1)]],
     declaration: [false],
   });
+
+  protected readonly returnControls: ReturnTripControls = {
+    hasReturn: this.tripForm.controls.hasReturn,
+    returnTime: this.tripForm.controls.returnTime,
+  };
 
   protected readonly pickupControls: PickupModeControls = {
     pickupMode: this.tripForm.controls.pickupMode,
@@ -231,6 +249,22 @@ export class PublishTripPage implements OnInit {
   readonly isMissingStops = computed(() => {
     const { isToCampus = true, pickupMode, stops = [] } = this.tripValue();
     return isToCampus && pickupMode === 'stops' && stops.length === 0;
+  });
+  readonly arrivalTime = computed(() => this.tripValue().time ?? '');
+  // La vuelta solo se publica al ir al campus, y sale después de llegar
+  readonly hasReturnTrip = computed(() => {
+    const { isToCampus = true, hasReturn = false } = this.tripValue();
+    return isToCampus && hasReturn;
+  });
+  readonly isReturnTooEarly = computed(() => {
+    const { time = '', returnTime = '' } = this.tripValue();
+    return this.hasReturnTrip() && isReturnBeforeArrival(time, returnTime);
+  });
+  readonly returnSummary = computed(() => {
+    const { returnTime = '', returnSeats = 1 } = this.tripValue();
+    return this.hasReturnTrip()
+      ? `Vuelta: sales del campus a las ${returnTime} · ${returnSeats} ${returnSeats === 1 ? 'plaza' : 'plazas'}`
+      : null;
   });
   // Cómo recoge, en una línea del resumen (desde el campus todos suben allí)
   readonly pickupSummary = computed(() => {
@@ -397,6 +431,20 @@ export class PublishTripPage implements OnInit {
   });
 
   constructor() {
+    // Mientras no se tocan, la vuelta sale 6 h después de llegar y lleva las
+    // mismas plazas que la ida
+    const { time, seats, returnTime, returnSeats } = this.tripForm.controls;
+    time.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      if (returnTime.pristine && value) {
+        returnTime.setValue(defaultReturnTime(value));
+      }
+    });
+    seats.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      if (returnSeats.pristine) {
+        returnSeats.setValue(value);
+      }
+    });
+
     // La ruta de la vista previa; en paradas, pasando por ellas (como se
     // publicará). Si llega la respuesta de una petición anterior, se ignora
     effect(() => {
@@ -444,6 +492,9 @@ export class PublishTripPage implements OnInit {
         pickupMode: 'on_route',
         maxDetourM: DEFAULT_PICKUP_DISTANCE_M,
         stops: [],
+        hasReturn: false,
+        returnTime: defaultReturnTime(departure.time),
+        returnSeats: 1,
         declaration: false,
       });
       this.furthestStep.set(1);
@@ -585,7 +636,10 @@ export class PublishTripPage implements OnInit {
       place.markAsTouched();
       return;
     }
-    if (step === 1 && (this.isDepartureTooSoon() || this.isMissingStops())) {
+    if (
+      step === 1 &&
+      (this.isDepartureTooSoon() || this.isMissingStops() || this.isReturnTooEarly())
+    ) {
       return;
     }
     await this.goToStep(step + 1);
@@ -610,7 +664,8 @@ export class PublishTripPage implements OnInit {
       !parking ||
       this.needsDeclaration() ||
       this.isDepartureTooSoon() ||
-      this.isMissingStops()
+      this.isMissingStops() ||
+      this.isReturnTooEarly()
     ) {
       this.tripForm.markAllAsTouched();
       return;
@@ -620,7 +675,12 @@ export class PublishTripPage implements OnInit {
         await this.driver.acceptDeclaration();
         this.hasDeclared.set(true);
       }
-      const request = toPublishTripRequest(place, parking, offer);
+      const request = {
+        ...toPublishTripRequest(place, parking, offer),
+        ...(this.hasReturnTrip() && {
+          returnTrip: toReturnTripRequest(offer.date, offer.returnTime, offer.returnSeats),
+        }),
+      };
       const trip = await withDeclarations(
         { driver: this.driver, modalController: this.modalController },
         request.vehicleId,

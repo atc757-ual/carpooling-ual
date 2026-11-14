@@ -1,0 +1,22 @@
+<!-- La casilla con su texto como etiqueta y, marcada, la hora de la vuelta -->
+<div class="return-trip">
+  <ion-checkbox [formControl]="controls().hasReturn" labelPlacement="end" justify="start">
+    Publicar también la vuelta
+  </ion-checkbox>
+  @if (hasReturn()) {
+    <p class="text-caption text-color-muted">
+      Otro viaje desde el campus hasta tu origen, el mismo día y con el mismo coche. Después lo
+      gestionas aparte.
+    </p>
+    <app-datetime-field
+      [formControl]="controls().returnTime"
+      presentation="time"
+      label="Salida de la vuelta"
+    />
+    @if (isTooEarly()) {
+      <p class="text-caption text-color-danger" role="alert">
+        La vuelta tiene que salir después de que llegues al campus ({{ arrivalTime() }}).
+      </p>
+    }
+  }
+</div>

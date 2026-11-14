@@ -16,6 +16,7 @@ import { CelebrationService } from '../../../core/services/ui/celebration.servic
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { stubIntersectionObserver } from '../../matching/trip-search.testing';
 import { PublishTripPage } from './publish-trip.page';
+import { toIsoDateTime } from './publish-trip.utils';
 
 const P1: CampusParking = {
   id: 'p1',
@@ -307,6 +308,47 @@ describe('PublishTripPage', () => {
           { name: 'Av. Cabo de Gata', location: { type: 'Point', coordinates: PLACE.coordinates } },
         ],
       }),
+    );
+  });
+
+  it('publishes the return trip too: after arriving, with the outbound seats', async () => {
+    await openPage('/publish');
+    fillTrip({ withVehicle: true });
+    expect(page.tripForm.controls.returnTime.value).toBe('13:40');
+    expect(page.tripForm.controls.returnSeats.value).toBe(2);
+    page.tripForm.patchValue({ hasReturn: true });
+    page.tripForm.controls.returnTime.markAsDirty();
+    page.tripForm.patchValue({ returnTime: '07:00' });
+
+    expect(page.isReturnTooEarly()).toBe(true);
+    await submit();
+    expect(page.step()).toBe(1);
+
+    page.tripForm.patchValue({ returnTime: '15:00' });
+    expect(page.returnSummary()).toBe('Vuelta: sales del campus a las 15:00 · 2 plazas');
+    await page.goToStep(2);
+    await page.goToStep(3);
+    await submit();
+
+    expect(driver['publishTrip']).toHaveBeenCalledWith(
+      expect.objectContaining({
+        returnTrip: { departureAt: toIsoDateTime('2099-01-15', '15:00'), offeredSeats: 2 },
+      }),
+    );
+  });
+
+  it('publishes no return trip from the campus', async () => {
+    await openPage('/publish');
+    fillTrip({ withVehicle: true });
+    page.tripForm.patchValue({ hasReturn: true, isToCampus: false });
+
+    expect(page.hasReturnTrip()).toBe(false);
+    expect(page.returnSummary()).toBeNull();
+    await page.goToStep(2);
+    await page.goToStep(3);
+    await submit();
+    expect(driver['publishTrip']).toHaveBeenCalledWith(
+      expect.not.objectContaining({ returnTrip: expect.anything() }),
     );
   });
 
