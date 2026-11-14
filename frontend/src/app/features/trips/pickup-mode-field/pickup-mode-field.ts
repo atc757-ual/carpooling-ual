@@ -10,7 +10,7 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular';
-import { closeOutline, flagOutline } from 'ionicons/icons';
+import { closeOutline, flagOutline, navigateOutline } from 'ionicons/icons';
 import { merge } from 'rxjs';
 import { PickupMode } from '../../../core/models/driver.model';
 import { SearchPlace } from '../../../core/models/trip-search.model';
@@ -61,7 +61,7 @@ export class PickupModeField {
 
   protected readonly distances = PICKUP_DISTANCES_M;
   protected readonly maxStops = MAX_STOPS;
-  protected readonly icons = { stop: flagOutline, remove: closeOutline };
+  protected readonly icons = { route: navigateOutline, stop: flagOutline, remove: closeOutline };
 
   constructor() {
     effect((onCleanup) => {

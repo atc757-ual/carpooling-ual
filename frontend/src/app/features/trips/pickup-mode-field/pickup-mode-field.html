@@ -8,10 +8,12 @@
     [value]="mode()"
     (ionChange)="handleMode($event.detail.value)"
   >
-    <ion-segment-button value="on_route">
+    <ion-segment-button value="on_route" layout="icon-start">
+      <ion-icon [icon]="icons.route" aria-hidden="true" />
       <ion-label>En el camino</ion-label>
     </ion-segment-button>
-    <ion-segment-button value="stops">
+    <ion-segment-button value="stops" layout="icon-start">
+      <ion-icon [icon]="icons.stop" aria-hidden="true" />
       <ion-label>En paradas</ion-label>
     </ion-segment-button>
   </ion-segment>
