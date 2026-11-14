@@ -30,6 +30,7 @@ import { PublishingLimitsService } from './publishing-limits.service';
 import type { RoutePlan } from './route-plan';
 import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
+import { orderPickups } from './pickup-plan';
 import { TripStopsService } from './trip-stops.service';
 import type { StopInput, TripStopView } from './trip-stops.service';
 import {
@@ -204,8 +205,27 @@ export class TripsService {
   }
 
   // Previsualización de la ruta antes de publicar
-  planRoute(origin: Point, destination: Point): Promise<RoutePlan> {
-    return this.tripRoutes.plan(origin, destination);
+  // Con paradas, la ruta pasa por ellas en el orden en que las encuentra
+  // (como al publicar), para que lo que se ve antes sea lo que se guarda
+  async planRoute(
+    origin: Point,
+    destination: Point,
+    via: readonly Point[] = [],
+  ): Promise<RoutePlan> {
+    const direct = await this.tripRoutes.plan(origin, destination);
+    if (via.length === 0) {
+      return direct;
+    }
+    const ordered = orderPickups(
+      direct.geometry,
+      via.map((location, index) => ({ id: String(index), location })),
+    );
+    const { route } = await this.tripRoutes.planVia(
+      origin,
+      ordered.map(({ location }) => location),
+      destination,
+    );
+    return route;
   }
 
   // Viajes del conductor, del de salida más próxima al más lejano

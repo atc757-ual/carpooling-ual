@@ -284,6 +284,68 @@ describe('PublishTripPage', () => {
     expect(celebrate).toHaveBeenCalled();
   });
 
+  it('picks up at stops: needs one to go on and publishes them', async () => {
+    await openPage('/publish');
+    fillTrip({ withVehicle: true });
+    page.tripForm.patchValue({ pickupMode: 'stops' });
+
+    expect(page.isMissingStops()).toBe(true);
+    await submit();
+    expect(page.step()).toBe(1);
+
+    page.tripForm.patchValue({ stops: [{ ...PLACE, id: 's1', name: 'Av. Cabo de Gata' }] });
+    expect(page.isMissingStops()).toBe(false);
+    expect(page.pickupSummary()).toBe('Recoges en 1 parada: Av. Cabo de Gata');
+    await page.goToStep(2);
+    await page.goToStep(3);
+    await submit();
+
+    expect(driver['publishTrip']).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pickupMode: 'stops',
+        stops: [
+          { name: 'Av. Cabo de Gata', location: { type: 'Point', coordinates: PLACE.coordinates } },
+        ],
+      }),
+    );
+  });
+
+  it('sums up how it picks up on the route, and nothing from the campus', async () => {
+    await openPage('/publish');
+    fillTrip();
+    page.tripForm.patchValue({ maxDetourM: 500 });
+    expect(page.pickupSummary()).toBe('Recoges en el camino, a 500 m de tu ruta como mucho');
+
+    page.tripForm.patchValue({ isToCampus: false, pickupMode: 'stops' });
+    expect(page.pickupSummary()).toBeNull();
+    expect(page.isMissingStops()).toBe(false);
+  });
+
+  it('shows the published stops with the time the backend gave', async () => {
+    await openPage('/publish');
+    page.published.set({
+      id: 't1',
+      departureAt: '2099-01-15T07:00:00',
+      offeredSeats: 2,
+      maxDetourMin: 10,
+      pickupMode: 'stops',
+      maxDetourM: null,
+      stops: [
+        {
+          id: 's1',
+          position: 0,
+          name: 'Av. Cabo de Gata',
+          location: { type: 'Point', coordinates: [-2.44, 36.83] },
+          estimatedAt: '2099-01-15T07:12:00',
+        },
+      ],
+    });
+
+    expect(page.publishedStops()).toEqual([
+      expect.objectContaining({ name: 'Av. Cabo de Gata', time: '07:12' }),
+    ]);
+  });
+
   it('shows the API error and stays in the review', async () => {
     await openPage();
     driver['publishTrip'].mockRejectedValue(new Error('down'));

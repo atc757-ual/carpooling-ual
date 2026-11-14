@@ -1,7 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDefined, ValidateNested } from 'class-validator';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsDefined,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
 import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
+import { MAX_TRIP_STOPS } from '../trip-timing';
 
 export class PlanRouteDto {
   @ApiProperty({
@@ -21,4 +28,17 @@ export class PlanRouteDto {
   @ValidateNested()
   @Type(() => GeoPointDto)
   destination!: GeoPointDto;
+
+  @ApiPropertyOptional({
+    type: [GeoPointDto],
+    maxItems: MAX_TRIP_STOPS,
+    description:
+      'Stops to go through, in any order: they are ordered along the route, as when publishing',
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(MAX_TRIP_STOPS)
+  @ValidateNested({ each: true })
+  @Type(() => GeoPointDto)
+  via?: GeoPointDto[];
 }

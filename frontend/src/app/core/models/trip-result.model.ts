@@ -33,6 +33,10 @@ export interface TripResult {
   pickupDetourMinutes: number;
   // Dirección elegida por el pasajero; ya forma parte del estado de búsqueda
   passengerStop: string;
+  // Hacia el campus, la hora a la que le recogería (HH:MM)
+  pickupTime?: string;
+  // Si el conductor recoge en paradas: la parada donde le recoge
+  pickupStop?: { id: string; name: string; walkingDistanceM: number };
   // Sin la matrícula: solo la ve quien tiene la plaza aceptada (en su solicitud)
   vehicle?: { brand: string | null; model: string | null; color: string | null };
 }

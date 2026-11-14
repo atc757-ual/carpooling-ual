@@ -96,7 +96,7 @@ describe('Pickup modes data model (e2e)', () => {
     return { trip, requestId };
   }
 
-  it('picks up on the route, up to 500 m, by default', async () => {
+  it('picks up on the route, up to 300 m, by default', async () => {
     const { trip } = await insertTripWithAcceptedRequest();
 
     expect(trip.pickupMode).toBe('on_route');
@@ -107,11 +107,11 @@ describe('Pickup modes data model (e2e)', () => {
     expect(route.directDurationMin).toBe(15);
   });
 
-  it('only allows 300, 500 or 1000 m', async () => {
+  it('only allows 150, 300 or 500 m', async () => {
     const { trip } = await insertTripWithAcceptedRequest();
 
     await expect(
-      queryRunner.query(`UPDATE trips SET max_detour_m = 700 WHERE id = $1`, [
+      queryRunner.query(`UPDATE trips SET max_detour_m = 1000 WHERE id = $1`, [
         trip.id,
       ]),
     ).rejects.toThrow(/trips_max_detour_m_check/);

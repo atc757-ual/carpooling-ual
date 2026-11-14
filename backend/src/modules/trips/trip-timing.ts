@@ -43,8 +43,8 @@ export const PICKUP_NO_SHOW_WAIT_MIN = 5;
 // el presupuesto total del viaje, con los desvíos y las paradas de todos
 export const STOP_TIME_MIN = 2;
 // Modo en ruta: cuánto se aparta el conductor de su camino para recoger
-export const ALLOWED_MAX_DETOUR_M = [300, 500, 1000] as const;
-export const DEFAULT_MAX_DETOUR_M = 500;
+export const ALLOWED_MAX_DETOUR_M = [150, 300, 500] as const;
+export const DEFAULT_MAX_DETOUR_M = 300;
 // Modo en puntos: paradas por viaje y distancia a pie hasta una parada
 export const MAX_TRIP_STOPS = 5;
 export const WALK_RADIUS_M = 800;

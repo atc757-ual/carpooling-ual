@@ -19,10 +19,15 @@ import {
   IonSpinner,
   ModalController,
 } from '@ionic/angular';
-import { carOutline, checkmarkCircleOutline, leafOutline } from 'ionicons/icons';
+import { carOutline, checkmarkCircle, checkmarkCircleOutline, leafOutline } from 'ionicons/icons';
 import { map } from 'rxjs';
 import { ApiError } from '../../../core/models/api-error.model';
-import { PublishedTrip, PublishingStatus, Vehicle } from '../../../core/models/driver.model';
+import {
+  PickupMode,
+  PublishedTrip,
+  PublishingStatus,
+  Vehicle,
+} from '../../../core/models/driver.model';
 import { SearchPlace } from '../../../core/models/trip-search.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
@@ -38,10 +43,18 @@ import { StepIndicator } from '../../../shared/components/ui/step-indicator/step
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { RouteFields } from '../../matching/route-fields/route-fields';
 import { estimateDurationMin } from '../../matching/trip-impact';
-import { RoutePoint, TripRouteMap } from '../../../shared/components/ui/trip-route-map/trip-route-map';
+import {
+  RoutePoint,
+  TripRouteMap,
+} from '../../../shared/components/ui/trip-route-map/trip-route-map';
 import { TripRoute } from '../../../core/models/trip-route.model';
 
 import { DeclarationField } from '../declaration-field/declaration-field';
+import {
+  DEFAULT_PICKUP_DISTANCE_M,
+  PickupModeControls,
+  PickupModeField,
+} from '../pickup-mode-field/pickup-mode-field';
 import { PublishNextSteps } from '../publish-next-steps/publish-next-steps';
 import { VehiclePicker } from '../vehicle-picker/vehicle-picker';
 import { PUBLISH_FAQS } from './publish-help';
@@ -120,6 +133,7 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
     IonSpinner,
     DatetimeField,
     DeclarationField,
+    PickupModeField,
     FaqCard,
     RouteFields,
     RouteTimeline,
@@ -168,8 +182,18 @@ export class PublishTripPage implements OnInit {
     vehicleId: ['', Validators.required],
     seats: [1, [Validators.required, Validators.min(1)]],
     maxDetourMin: [DEFAULT_DETOUR],
+    // Cómo recoge (solo hacia el campus): en el camino o en sus paradas
+    pickupMode: new FormControl<PickupMode>('on_route', { nonNullable: true }),
+    maxDetourM: [DEFAULT_PICKUP_DISTANCE_M],
+    stops: new FormControl<SearchPlace[]>([], { nonNullable: true }),
     declaration: [false],
   });
+
+  protected readonly pickupControls: PickupModeControls = {
+    pickupMode: this.tripForm.controls.pickupMode,
+    maxDetourM: this.tripForm.controls.maxDetourM,
+    stops: this.tripForm.controls.stops,
+  };
 
   private readonly tripValue = toSignal(this.tripForm.valueChanges, {
     initialValue: this.tripForm.getRawValue(),
@@ -201,6 +225,32 @@ export class PublishTripPage implements OnInit {
   });
   // Hacia el campus se elige la llegada (como en Buscar); desde él, la salida
   readonly isArrivalTime = computed(() => this.tripValue().isToCampus ?? true);
+  // Donde se abre el mapa al elegir una parada: la dirección de salida
+  readonly tripValueStart = computed(() => this.tripValue().place?.coordinates ?? null);
+  // En paradas hace falta al menos una para seguir
+  readonly isMissingStops = computed(() => {
+    const { isToCampus = true, pickupMode, stops = [] } = this.tripValue();
+    return isToCampus && pickupMode === 'stops' && stops.length === 0;
+  });
+  // Cómo recoge, en una línea del resumen (desde el campus todos suben allí)
+  readonly pickupSummary = computed(() => {
+    const { isToCampus = true, pickupMode, maxDetourM, stops = [] } = this.tripValue();
+    if (!isToCampus) {
+      return null;
+    }
+    if (pickupMode === 'stops') {
+      const count = stops.length === 1 ? '1 parada' : `${stops.length} paradas`;
+      return `Recoges en ${count}: ${stops.map(({ name }) => name).join(', ')}`;
+    }
+    return `Recoges en el camino, a ${maxDetourM ?? DEFAULT_PICKUP_DISTANCE_M} m de tu ruta como mucho`;
+  });
+  // Ya publicado, las paradas con la hora que calculó el backend
+  readonly publishedStops = computed(() =>
+    (this.published()?.stops ?? []).map((stop) => ({
+      ...stop,
+      time: toLocalTime(stop.estimatedAt),
+    })),
+  );
   // Hacia el campus, la salida aproximada para llegar a tiempo aunque recoja
   // a alguien (null hasta tener el trayecto)
   readonly estimatedDepartureTime = computed(() => {
@@ -291,6 +341,12 @@ export class PublishTripPage implements OnInit {
   });
 
   readonly osrmRoute = signal<TripRoute | null>(null);
+  private routeRequest = 0;
+  // Las paradas por las que pasa la ruta (solo al ir al campus, en paradas)
+  private readonly previewVia = computed<[number, number][]>(() => {
+    const { isToCampus = true, pickupMode, stops = [] } = this.tripValue();
+    return isToCampus && pickupMode === 'stops' ? stops.map(({ coordinates }) => coordinates) : [];
+  });
 
   readonly previewRoute = computed<TripRoute | null>(() => {
     const planned = this.osrmRoute();
@@ -341,17 +397,29 @@ export class PublishTripPage implements OnInit {
   });
 
   constructor() {
+    // La ruta de la vista previa; en paradas, pasando por ellas (como se
+    // publicará). Si llega la respuesta de una petición anterior, se ignora
     effect(() => {
       const origin = this.originPoint();
       const destination = this.destinationPoint();
+      const via = this.previewVia();
       if (!origin || !destination) {
         this.osrmRoute.set(null);
         return;
       }
+      const request = ++this.routeRequest;
       void this.tripsService
-        .planRoute(origin.coordinates, destination.coordinates)
-        .then((route) => this.osrmRoute.set(route))
-        .catch(() => this.osrmRoute.set(null));
+        .planRoute(origin.coordinates, destination.coordinates, via)
+        .then((route) => {
+          if (request === this.routeRequest) {
+            this.osrmRoute.set(route);
+          }
+        })
+        .catch(() => {
+          if (request === this.routeRequest) {
+            this.osrmRoute.set(null);
+          }
+        });
     });
 
     effect(() => {
@@ -373,6 +441,9 @@ export class PublishTripPage implements OnInit {
         vehicleId: '',
         seats: 1,
         maxDetourMin: DEFAULT_DETOUR,
+        pickupMode: 'on_route',
+        maxDetourM: DEFAULT_PICKUP_DISTANCE_M,
+        stops: [],
         declaration: false,
       });
       this.furthestStep.set(1);
@@ -401,6 +472,7 @@ export class PublishTripPage implements OnInit {
     car: carOutline,
     impact: leafOutline,
     published: checkmarkCircleOutline,
+    declared: checkmarkCircle,
   };
 
   ngOnInit(): void {
@@ -513,7 +585,7 @@ export class PublishTripPage implements OnInit {
       place.markAsTouched();
       return;
     }
-    if (step === 1 && this.isDepartureTooSoon()) {
+    if (step === 1 && (this.isDepartureTooSoon() || this.isMissingStops())) {
       return;
     }
     await this.goToStep(step + 1);
@@ -537,7 +609,8 @@ export class PublishTripPage implements OnInit {
       !place ||
       !parking ||
       this.needsDeclaration() ||
-      this.isDepartureTooSoon()
+      this.isDepartureTooSoon() ||
+      this.isMissingStops()
     ) {
       this.tripForm.markAllAsTouched();
       return;

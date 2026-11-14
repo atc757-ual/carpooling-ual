@@ -33,6 +33,8 @@ const MATCH: TripMatch = {
   arrivalAt: new Date('2026-10-27T08:12:00').toISOString(),
   availableSeats: 1,
   detourMin: 4,
+  pickupAt: null,
+  stop: null,
   timeDifferenceMin: 12,
   score: 0.7,
   vehicle: { brand: 'Seat', model: 'Ibiza', color: 'white' },

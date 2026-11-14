@@ -122,12 +122,12 @@ describe('Detour budget of a trip (e2e)', () => {
       .then(([row]) => row.count);
   }
 
-  it('publishes picking up on the route, 500 m by default or the distance chosen', async () => {
+  it('publishes picking up on the route, 300 m by default or the distance chosen', async () => {
     const { driver, tripId } = await driverWithTrip(10);
     const published = await api('get', `/trips/${tripId}`, driver).expect(200);
     expect(published.body).toMatchObject({
       pickupMode: 'on_route',
-      maxDetourM: 500,
+      maxDetourM: 300,
     });
 
     const vehicles = await api('get', '/vehicles', driver).expect(200);
@@ -142,8 +142,8 @@ describe('Detour budget of a trip (e2e)', () => {
         ...overrides,
       });
 
-    const chosen = await trip({ maxDetourM: 300 }).expect(201);
-    expect(chosen.body).toMatchObject({ maxDetourM: 300 });
+    const chosen = await trip({ maxDetourM: 150 }).expect(201);
+    expect(chosen.body).toMatchObject({ maxDetourM: 150 });
     // El Gemelo Digital recibe el estado completo, con cómo recoge
     const [event] = await dataSource.query<
       { payload: Record<string, unknown> }[]
@@ -153,10 +153,10 @@ describe('Detour budget of a trip (e2e)', () => {
     );
     expect(event.payload).toMatchObject({
       pickupMode: 'on_route',
-      maxDetourM: 300,
+      maxDetourM: 150,
     });
-    // Solo 300, 500 o 1000 m; en puntos, con sus paradas (pickup-stops.e2e)
-    await trip({ maxDetourM: 700 }).expect(400);
+    // Solo 150, 300 o 500 m; en puntos, con sus paradas (pickup-stops.e2e)
+    await trip({ maxDetourM: 1000 }).expect(400);
     await trip({ pickupMode: 'stops' }).expect(400);
   });
 

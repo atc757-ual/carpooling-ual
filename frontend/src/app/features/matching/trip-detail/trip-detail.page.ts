@@ -48,10 +48,8 @@ import { formatAvailableSeats, formatSeats } from '../../../shared/utils/seats.u
 import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
 import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
 import { formatTime, toTripDetail } from '../trip-results';
+import { pickupFact, toRequestPickup } from '../trip-pickup';
 import { TripSearchStateService } from '../trip-search-state.service';
-
-// Lo que se tarda de media en parar, saludar y subir al coche (minutos)
-const PICKUP_STOP_MIN = 2;
 
 // Detalle de un viaje de los resultados de Buscar: cabecera fija con cuándo y
 // sentido; en escritorio, columna de 8 con «Tu recorrido» y «Conductor y coche»
@@ -228,7 +226,7 @@ export class TripDetailPage {
     return [
       { label: 'Plazas libres', value: this.seatSummary() },
       // Recogerte nunca es 0 min: el desvío más lo que se tarda en parar y subir
-      { label: 'Recogida', value: `unos ${trip.pickupDetourMinutes + PICKUP_STOP_MIN} min` },
+      { label: 'Recogida', value: pickupFact(trip) },
       { label: 'Duración', value: `${trip.tripMinutes} min aprox.` },
     ];
   });
@@ -318,18 +316,7 @@ export class TripDetailPage {
       const request = await this.seatRequests.request(
         trip.id,
         this.seats(),
-        search
-          ? {
-              direction: search.direction,
-              ...(search.direction === 'to-campus' && {
-                location: {
-                  type: 'Point',
-                  coordinates: search.place.coordinates,
-                },
-                name: search.place.name,
-              }),
-            }
-          : undefined,
+        search ? toRequestPickup(search, trip) : undefined,
       );
       this.myRequest.set(request);
       await this.router.navigateByUrl(`/tabs/trips/requests/${request.id}`);

@@ -65,6 +65,21 @@ describe('TripResultCard', () => {
     expect(text(root, '.trip-card__pickup')).toBe('En su ruta · sale a las 07:40');
   });
 
+  it('gives the pickup time and, at stops, the stop and the walk', () => {
+    const atPoint = render({ ...TRIP, pickupTime: '07:52' });
+    expect(text(atPoint, '.trip-card__pickup')).toBe('Desvío de 3 min · te recoge a las 07:52');
+
+    TestBed.resetTestingModule();
+    const atStop = render({
+      ...TRIP,
+      pickupTime: '07:52',
+      pickupStop: { id: 's1', name: 'Av. Cabo de Gata', walkingDistanceM: 347 },
+    });
+    expect(text(atStop, '.trip-card__pickup')).toBe(
+      'En la parada Av. Cabo de Gata (a 350 m) · a las 07:52',
+    );
+  });
+
   it('shows only the name of who drives (the rest, in the detail)', () => {
     const root = render(TRIP);
 

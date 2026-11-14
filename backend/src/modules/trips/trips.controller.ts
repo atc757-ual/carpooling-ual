@@ -178,7 +178,11 @@ export class TripsController {
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
   })
   async planRoute(@Body() dto: PlanRouteDto): Promise<PlannedRouteResource> {
-    const plan = await this.tripsService.planRoute(dto.origin, dto.destination);
+    const plan = await this.tripsService.planRoute(
+      dto.origin,
+      dto.destination,
+      dto.via ?? [],
+    );
     return toPlannedRouteResource(plan);
   }
 

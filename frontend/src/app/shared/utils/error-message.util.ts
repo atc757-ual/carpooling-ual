@@ -33,6 +33,13 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   SEATS_EXCEED_CAPACITY: 'Ofreces más plazas de las que tiene el vehículo.',
   DEPARTURE_IN_THE_PAST: 'La hora de salida ya ha pasado. Elige una hora posterior.',
   TRIP_OVERLAPS: 'Este horario se cruza con otro de tus viajes. Elige otra hora.',
+  INVALID_STOPS: 'Revisa las paradas: de 1 a 5, solo en viajes hacia el campus.',
+  STOPS_EXCEED_DETOUR:
+    'Pasar por esas paradas alarga el viaje más que tu desvío máximo. Quita alguna o sube el desvío.',
+  STOP_REQUIRED: 'Este conductor recoge en paradas: elige una para pedir plaza.',
+  STOP_NOT_IN_TRIP: 'Esa parada ya no es de este viaje. Vuelve a buscar.',
+  DETOUR_BUDGET_EXCEEDED: 'Recoger a este pasajero se pasa de tu desvío máximo.',
+  TRIP_CHANGED_RETRY: 'El viaje acaba de cambiar. Inténtalo de nuevo.',
   DAILY_TRIP_LIMIT: 'Ya tienes 4 viajes ese día. Elige otro día.',
   TRIP_FULL: 'Ya no quedan plazas suficientes en este viaje. Busca otro viaje.',
   TRIP_NOT_OPEN: 'Este viaje ya no admite solicitudes.',

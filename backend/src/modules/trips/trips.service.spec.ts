@@ -189,4 +189,45 @@ describe('TripsService cancelUnstartedTrips', () => {
     expect(planSpy).toHaveBeenCalledWith(origin, destination);
     expect(result).toEqual({ distanceKm: 10 });
   });
+
+  it('plans the preview through the stops, ordered along the route', async () => {
+    const origin: Point = { type: 'Point', coordinates: [-2.5, 36.8] };
+    const destination: Point = { type: 'Point', coordinates: [-2.4, 36.8] };
+    const near: Point = { type: 'Point', coordinates: [-2.48, 36.8] };
+    const far: Point = { type: 'Point', coordinates: [-2.42, 36.8] };
+    const viaRoute = { distanceKm: 12, durationMin: 20 };
+    const tripRoutes = {
+      plan: jest.fn().mockResolvedValue({
+        distanceKm: 10,
+        geometry: {
+          type: 'LineString',
+          coordinates: [origin.coordinates, destination.coordinates],
+        },
+      }),
+      planVia: jest.fn().mockResolvedValue({ route: viaRoute, legsMin: [] }),
+    };
+    const tripsService = new TripsService(
+      {} as DataSource,
+      {} as Repository<Trip>,
+      {} as UsersService,
+      {} as VehiclesService,
+      {} as TripStatusService,
+      tripRoutes as unknown as TripRoutesService,
+      {} as LateCancellationsService,
+      {} as PublishingLimitsService,
+      {} as TripStopsService,
+    );
+
+    const result = await tripsService.planRoute(origin, destination, [
+      far,
+      near,
+    ]);
+
+    expect(tripRoutes.planVia).toHaveBeenCalledWith(
+      origin,
+      [near, far],
+      destination,
+    );
+    expect(result).toBe(viaRoute);
+  });
 });

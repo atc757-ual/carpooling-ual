@@ -15003,11 +15003,11 @@
           "maxDetourM": {
             "type": "number",
             "enum": [
+              150,
               300,
-              500,
-              1000
+              500
             ],
-            "default": 500,
+            "default": 300,
             "description": "Metres the driver goes off the route to pick up (only on the route)"
           },
           "originName": {
@@ -15199,9 +15199,9 @@
             "type": "number",
             "nullable": true,
             "enum": [
+              150,
               300,
-              500,
-              1000
+              500
             ],
             "description": "Metres the driver goes off the route to pick up (on_route); null with stops"
           },
@@ -15412,6 +15412,14 @@
                 "$ref": "#/components/schemas/GeoPointDto"
               }
             ]
+          },
+          "via": {
+            "maxItems": 5,
+            "description": "Stops to go through, in any order: they are ordered along the route, as when publishing",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeoPointDto"
+            }
           }
         },
         "required": [
@@ -15534,11 +15542,11 @@
           "maxDetourM": {
             "type": "number",
             "enum": [
+              150,
               300,
-              500,
-              1000
+              500
             ],
-            "default": 500,
+            "default": 300,
             "description": "Metres the driver goes off the route to pick up (only on the route)"
           },
           "originName": {

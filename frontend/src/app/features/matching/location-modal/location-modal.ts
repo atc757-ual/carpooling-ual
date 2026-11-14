@@ -70,6 +70,8 @@ export class LocationModal implements OnInit, OnDestroy {
   // fijo y el nombre del lugar como título
   @Input() viewPoint: [number, number] | null = null;
   @Input() viewTitle = '';
+  // El título al ajustar en el mapa (p. ej. al elegir una parada)
+  @Input() adjustTitle = 'Ajustar en el mapa';
   // Con adjustPoint: elegir un punto (el del pin), no una dirección
   @Input() pickPoint = false;
 
@@ -120,7 +122,7 @@ export class LocationModal implements OnInit, OnDestroy {
     if (this.pickPoint) {
       return 'Elegir el punto';
     }
-    return this.adjustPoint ? 'Ajustar en el mapa' : 'Usar mi ubicación';
+    return this.adjustPoint ? this.adjustTitle : 'Usar mi ubicación';
   }
 
   // OnInit espera void: el arranque, asíncrono, va aparte

@@ -723,6 +723,23 @@
       <li><b>«Tu búsqueda»</b> (resultados): el resumen con la línea de ruta y el lápiz para editarla en una ventana; arriba en el móvil y en la columna de 4 en escritorio.</li>
     </ul>
 
+    <h3>Cómo recoges (Publicar, hacia el campus)</h3>
+    <p class="note">Bajo la hora, dos tarjetas excluyentes (<code>role="radiogroup"</code>, cada una un <code>role="radio"</code>) que se explican solas: título con icono (flecha «En el camino», pin «En paradas») y una línea gris. La elegida, rellena de azul (<code>--color-primary</code>) con todo el texto en blanco; la otra, blanca con borde gris y título azul. Esquinas de 8px; relleno de 16px a los lados con sitio y de 8px en el móvil. Debajo, a 16px, lo de la elegida. Desde el campus no aparece: todos suben en el parking.</p>
+    <div class="demo" style="max-width:27rem">
+      <span class="text-label text-label--strong">Cómo recoges</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-s);margin-top:var(--space-s)"><div style="padding:var(--space-s) var(--space-base);border:1px solid var(--color-border);border-radius:var(--radius-s)"><div style="color:var(--color-primary);font-weight:600">➤ En el camino</div><div class="text-meta">Recoges a cada uno en su punto</div></div><div style="padding:var(--space-s) var(--space-base);border-radius:var(--radius-s);background:var(--color-primary);color:var(--color-on-primary)"><div style="font-weight:600">📍 En paradas</div><div style="font-size:var(--font-size-caption)">Eliges hasta 5 paradas y van andando</div></div></div>
+      <div class="row" style="justify-content:space-between;margin-top:var(--space-base)"><span class="text-meta">1 de 5 paradas</span><span style="color:var(--color-link);font-size:var(--font-size-caption);font-weight:600">🗺 Elegir en el mapa</span></div>
+      <div class="row" style="gap:var(--space-s);margin-top:var(--space-s)"><span style="display:inline-flex;align-items:center;gap:var(--space-xs);padding:var(--space-xs) var(--space-xs) var(--space-xs) var(--space-s);border-radius:var(--radius-full);background:var(--color-primary-subtle);color:var(--color-primary);font-size:var(--font-size-caption);font-weight:600">📍 Av. Cabo de Gata <button class="btn btn--clear btn--s" type="button" aria-label="Quitar la parada Av. Cabo de Gata">✕</button></span></div>
+    </div>
+    <ul class="rules">
+      <li><b>En el camino:</b> un <code>ion-select</code> «Hasta dónde te apartas de tu ruta» con 150, 300 (por defecto) o 500 m: más lejos ya no es recoger en su punto.</li>
+      <li><b>En paradas:</b> un bloque a 8px. Arriba, en una fila, «N de 5 paradas» en gris y, a la derecha, el enlace «Elegir en el mapa» (respaldo del buscador: abre el mapa en la salida, o en la última parada, para mover el pin y «Usar esta dirección»). Debajo, las paradas en pastillas azul claro que saltan de línea (pin, nombre cortado con … y ✕ de 32px, con «Quitar la parada …» para el lector de pantalla) y el buscador «Añadir parada». Sin paradas no hay error: el contador dice 0 y «Siguiente» sigue desactivado. Una dirección repetida no se añade; con 5, el buscador y el mapa se cambian por «Ya tienes 5 paradas, el máximo.». En la revisión, el mapa traza la ruta pasando por las paradas (<code>POST /trips/plan</code> con <code>via</code>).</li>
+      <li><b>Declaración ya aceptada (revisión):</b> un aviso verde (<code>notice--success</code>) con el check relleno, «Declaración del conductor aceptada» y, debajo, en claro: «Tienes el permiso de conducir en vigor y el coche con seguro e ITV al día. Compartes gastos, no cobras por llevar a nadie.»</li>
+      <li><b>Revisión y publicado:</b> en el resumen, una línea «Recoges en 2 paradas: …» o «Recoges en el camino, a 300 m de tu ruta como mucho»; ya publicado, la lista numerada de paradas con la hora que calcula el backend («07:52 · Av. Cabo de Gata»).</li>
+      <li><b>Resultados y detalle (pasajero):</b> en la tarjeta, «En la parada Av. Cabo de Gata (a 350 m) · a las 07:52» o «Desvío de 3 min · te recoge a las 07:52»; en el detalle, el dato «Recogida» con la parada, su hora y lo que se anda. Al pedir plaza se envía la parada, no la dirección.</li>
+      <li><b>Tu recorrido (conductor):</b> cada parada en la línea de ruta con su hora y quién sube («Recoges a Ana y Leo» o «Aún no sube nadie aquí»), y en el mapa como recogida; en el camino, el punto de cada pasajero aceptado con su hora de recogida.</li>
+    </ul>
+
     <h3>Lista de resultados</h3>
     <p class="note">Cabecera del grupo con el recuento y el orden; los viajes que llegan fuera del margen, en un grupo propio al final. Debajo, el aviso fijo de lo que no se promete y una sola acción principal.</p>
     <div class="demo" style="max-width:27rem">

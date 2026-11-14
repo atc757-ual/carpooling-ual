@@ -23,6 +23,8 @@ function tripMatch() {
     arrivalAt: arrival.toISOString(),
     availableSeats: 2,
     detourMin: 3,
+    pickupAt: null,
+    stop: null,
     timeDifferenceMin: -8,
     score: 0.86,
   };

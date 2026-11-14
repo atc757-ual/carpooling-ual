@@ -97,6 +97,9 @@ describe('publish-trip utils', () => {
       vehicleId: 'v1',
       seats: 2,
       maxDetourMin: 10,
+      pickupMode: 'on_route' as const,
+      maxDetourM: 300,
+      stops: [],
     };
 
     expect(toPublishTripRequest(ROQUETAS, P1, offer)).toEqual({
@@ -106,6 +109,8 @@ describe('publish-trip utils', () => {
       arrivalAt: toIsoDateTime('2099-01-15', '07:40'),
       offeredSeats: 2,
       maxDetourMin: 10,
+      pickupMode: 'on_route',
+      maxDetourM: 300,
       originName: 'Roquetas de Mar',
       destinationName: 'Campus UAL · Parking P1',
     });
@@ -117,5 +122,27 @@ describe('publish-trip utils', () => {
         destinationName: 'Roquetas de Mar',
       }),
     );
+
+    // En paradas, solo hacia el campus: las paradas y sin metros; desde el
+    // campus, en el camino aunque se hubiera elegido
+    const stop = {
+      id: 's1',
+      name: 'Av. Cabo de Gata',
+      locality: 'Almería',
+      coordinates: [-2.44, 36.83] as [number, number],
+    };
+    const atStops = { ...offer, pickupMode: 'stops' as const, stops: [stop] };
+    const toCampus = toPublishTripRequest(ROQUETAS, P1, atStops);
+    expect(toCampus).toMatchObject({
+      pickupMode: 'stops',
+      stops: [
+        { name: 'Av. Cabo de Gata', location: { type: 'Point', coordinates: [-2.44, 36.83] } },
+      ],
+    });
+    expect(toCampus.maxDetourM).toBeUndefined();
+    expect(toPublishTripRequest(ROQUETAS, P1, { ...atStops, isToCampus: false })).toMatchObject({
+      pickupMode: 'on_route',
+      maxDetourM: 300,
+    });
   });
 });

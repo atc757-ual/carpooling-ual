@@ -1,0 +1,182 @@
+// «Cómo recoges»: las dos opciones y, debajo, los metros o las paradas,
+// apilados a 16px como el resto del formulario
+.pickup-mode {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: var(--space-s);
+    padding: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+// Dos tarjetas que se explican solas: la elegida, rellena de azul con letra
+// blanca; la otra, blanca con borde gris, título azul y explicación gris
+.pickup-mode__choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-s);
+}
+
+.pickup-mode__choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem; // 2px
+  min-height: 2.75rem; // 44px
+  padding: var(--space-s);
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  .pickup-mode__choice-title {
+    color: var(--color-primary);
+  }
+
+  &[aria-checked='true'] {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+
+    .pickup-mode__choice-title,
+    .pickup-mode__choice-detail {
+      color: var(--color-on-primary);
+    }
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
+
+// Con sitio (escritorio y tablet), 16px a los lados; en el móvil, 8px
+@container (min-width: 30rem) {
+  .pickup-mode__choice {
+    padding: var(--space-s) var(--space-base);
+  }
+}
+
+.pickup-mode__choice-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-weight: var(--font-weight-semibold);
+
+  ion-icon {
+    flex: none;
+    font-size: 1.125rem; // 18px
+  }
+}
+
+.pickup-mode__choice-detail {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  line-height: 1.3;
+}
+
+// Las paradas, juntas a 8px: la cabecera, las pastillas y el buscador
+.pickup-mode__stops-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
+// Cuántas lleva a la izquierda y «Elegir en el mapa» a la derecha
+.pickup-mode__stops-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-base);
+}
+
+// Las paradas elegidas, en pastillas que ocupan poco y saltan de línea
+.pickup-mode__stops {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pickup-mode__stop {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  max-width: 100%;
+  min-height: 2rem; // 32px
+  padding: 0 0 0 var(--space-s);
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+
+  > ion-icon {
+    flex: none;
+    font-size: 1rem; // 16px
+  }
+}
+
+.pickup-mode__stop-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Quitar: la ✕ en un botón redondo de 32px dentro de la pastilla
+.pickup-mode__remove {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2rem; // 32px
+  height: 2rem; // 32px
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus);
+    outline-offset: -2px;
+  }
+}
+
+// «Elegir en el mapa», como «Ajustar en el mapa» del campo de dirección
+.pickup-mode__map {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 2rem; // 32px
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-link);
+  font: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}

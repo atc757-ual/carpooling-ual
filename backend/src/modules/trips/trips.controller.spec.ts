@@ -60,6 +60,7 @@ describe('TripsController', () => {
       expect(tripsService.planRoute).toHaveBeenCalledWith(
         dto.origin,
         dto.destination,
+        [],
       );
       expect(result).toEqual({
         distanceKm: 7.76,

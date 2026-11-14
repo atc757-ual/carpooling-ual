@@ -86,6 +86,14 @@
                         a alguien.
                       </p>
                     }
+                    <!-- Hacia el campus, cómo recoge (desde él, todos suben en
+                         el parking) -->
+                    @if (isArrivalTime()) {
+                      <app-pickup-mode-field
+                        [controls]="pickupControls"
+                        [mapCenter]="tripValueStart()"
+                      />
+                    }
                     <!-- Desvío y, a la derecha del campo, «Siguiente» (qué es el
                      desvío, en las preguntas frecuentes) -->
                     <div class="publish__grid publish__grid--action">
@@ -109,7 +117,7 @@
                       <ion-button
                         class="publish__next"
                         type="submit"
-                        [disabled]="!isRouteComplete() || departureTooSoon()"
+                        [disabled]="!isRouteComplete() || departureTooSoon() || isMissingStops()"
                       >
                         Siguiente
                       </ion-button>
@@ -176,15 +184,19 @@
                     @if (!hasDeclared()) {
                       <app-declaration-field [control]="tripForm.controls.declaration" />
                     } @else {
-                      <div class="publish__declared">
-                        <span class="badge-verified">
-                          <ion-icon [icon]="icons.published" aria-hidden="true" />
-                          Declaración del conductor aceptada
-                        </span>
-                        <p class="text-caption text-color-muted">
-                          Permiso de conducir en vigor, seguro obligatorio e ITV al día sin ánimo de
-                          lucro.
-                        </p>
+                      <!-- Ya aceptada: un aviso verde, como el de lo que se
+                           ahorra, con lo que declaró en palabras claras -->
+                      <div class="notice notice--success publish__declared">
+                        <ion-icon [icon]="icons.declared" aria-hidden="true" />
+                        <div>
+                          <p class="text-body-s text-body--strong">
+                            Declaración del conductor aceptada
+                          </p>
+                          <p class="text-caption">
+                            Tienes el permiso de conducir en vigor y el coche con seguro e ITV al
+                            día. Compartes gastos, no cobras por llevar a nadie.
+                          </p>
+                        </div>
                       </div>
                     }
 
@@ -270,6 +282,18 @@
               {{ tripForm.controls.seats.value === 1 ? 'plaza' : 'plazas' }} · desvío ±
               {{ tripForm.controls.maxDetourMin.value }} min
             </p>
+            @if (publishedStops().length > 0) {
+              <!-- Ya publicado: las paradas en orden, con su hora -->
+              <ol class="publish__stops text-body-s" aria-label="Tus paradas">
+                @for (stop of publishedStops(); track stop.id) {
+                  <li>
+                    <b>{{ stop.time }}</b> · {{ stop.name }}
+                  </li>
+                }
+              </ol>
+            } @else if (pickupSummary(); as pickup) {
+              <p class="publish__meta text-body-s">{{ pickup }}</p>
+            }
             @if (selectedVehicle(); as vehicle) {
               <p class="publish__vehicle text-body-s text-color-muted">
                 <ion-icon [icon]="icons.car" aria-hidden="true" />
