@@ -476,6 +476,20 @@ export class RequestsService {
     });
   }
 
+  // La última solicitud de un pasajero en un viaje, en cualquier estado (o
+  // null): su recogida, si ya subió y si sigue con la plaza, para el viaje
+  // compartido en directo (módulo tracking). Al cancelarse el viaje, la
+  // aceptada pasa a cancelada, pero se sigue viendo que el viaje terminó
+  findLatestRequest(
+    tripId: string,
+    passengerId: string,
+  ): Promise<SeatRequest | null> {
+    return this.requestsRepository.findOne({
+      where: { tripId, passengerId },
+      order: { requestedAt: 'DESC', id: 'DESC' },
+    });
+  }
+
   // De estos viajes, en cuáles pidió plaza el usuario (en cualquier estado):
   // quien la pidió está implicado en sus incidencias (CU-12)
   async tripIdsRequestedBy(

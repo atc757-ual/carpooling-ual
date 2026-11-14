@@ -100,6 +100,9 @@ Las horas son de Madrid. «Salida» es la hora a la que sale el conductor (`trip
 | Ven los datos exactos el conductor y los pasajeros aceptados. Ser administrador no cuenta en la app: los datos exactos, en el panel                                                                                  | `TripViewerAccessService.canSeeExactLocation`                                    |
 | «Usar mi ubicación» (rellenar direcciones, volver a casa, verte en el mapa del viaje) es un consentimiento que se retira en Perfil; la del conductor con el viaje en curso no depende de él (ejecución del servicio) | `LocationService`, `LocationConsentService`                                      |
 | La posición del pasajero durante el viaje solo se muestra en su móvil: no se envía al servidor                                                                                                                       | `LocationService`                                                                |
+| El pasajero con la plaza aceptada puede compartir el viaje en directo (confirmado o en curso) con un enlace secreto que se abre sin cuenta; un enlace activo por pasajero y viaje, y solo se guarda su huella        | `SHAREABLE_TRIP_STATUSES` (`tracking/trip-share-rules.ts`)                       |
+| Quien abre el enlace ve el estado, la recogida, el destino, la llegada estimada, el nombre de pila del conductor y el coche con matrícula; la posición y la ruta, solo con el viaje en curso. Nunca teléfonos        | `toTripShareResource` (`tracking/dto/trip-share.resource.ts`)                    |
+| El enlace deja de funcionar al dejar de compartir, si el pasajero pierde la plaza o 24 h después de terminar o cancelarse el viaje (mientras, sin posición ni matrícula)                                             | `SHARE_TTL_AFTER_END_MS`, `isSharedTripVisible`                                  |
 
 ## 8. Cuentas y acceso
 
