@@ -163,7 +163,7 @@
               </ion-card>
 
               <!-- Compartir el viaje con alguien de confianza y el 112 -->
-              <app-live-trip-safety [shareText]="safetyShareText()" />
+              <app-live-trip-safety [shareText]="safetyShareText()" [liveShareTripId]="trip.id" />
 
               <app-passenger-request-actions
                 [request]="request"

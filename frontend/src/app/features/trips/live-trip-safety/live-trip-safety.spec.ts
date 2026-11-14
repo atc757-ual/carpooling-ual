@@ -44,4 +44,14 @@ describe('LiveTripSafety', () => {
   it('opens the phone app with the emergency number', () => {
     expect(buttonWithText('Llamar al 112').getAttribute('href')).toBe('tel:112');
   });
+
+  it('offers the live link to the passenger instead of the text', () => {
+    fixture.componentRef.setInput('liveShareTripId', 't1');
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('app-trip-live-share')).not.toBeNull();
+    expect(root.textContent).not.toContain('Compartir viaje');
+    expect(buttonWithText('Llamar al 112').getAttribute('href')).toBe('tel:112');
+  });
 });

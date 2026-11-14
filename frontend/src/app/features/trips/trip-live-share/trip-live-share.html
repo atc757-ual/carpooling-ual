@@ -1,0 +1,30 @@
+@if (activeLink()) {
+  <div class="live-share live-share--active">
+    <output class="live-share__status text-body-s">
+      <span class="live-share__dot" aria-hidden="true"></span>
+      <span
+        ><b>Compartiendo en directo.</b> Quien tenga el enlace ve tu viaje hasta que termine.</span
+      >
+    </output>
+    <div class="live-share__actions">
+      <ion-button fill="outline" [disabled]="isBusy()" (click)="handleResend()">
+        <ion-icon slot="start" [icon]="shareIcon" aria-hidden="true" />
+        Enviar el enlace
+      </ion-button>
+      <ion-button fill="clear" color="danger" [disabled]="isBusy()" (click)="handleStop()">
+        <ion-icon slot="start" [icon]="stopIcon" aria-hidden="true" />
+        Dejar de compartir
+      </ion-button>
+    </div>
+  </div>
+} @else {
+  <div class="live-share">
+    <ion-button fill="outline" [disabled]="isBusy()" (click)="handleStart()">
+      <ion-icon slot="start" [icon]="liveIcon" aria-hidden="true" />
+      Compartir mi viaje en directo
+    </ion-button>
+    <p class="text-caption text-color-muted">
+      Se abre sin cuenta: verá dónde está el coche, tu recogida y cuándo llegas.
+    </p>
+  </div>
+}

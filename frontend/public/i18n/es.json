@@ -539,6 +539,8 @@
     "STOPS_EXCEED_DETOUR": "Pasar por esas paradas alarga el viaje más que tu desvío máximo. Quita alguna o sube el desvío.",
     "STOP_REQUIRED": "Este conductor recoge en paradas: elige una para pedir plaza.",
     "STOP_NOT_IN_TRIP": "Esa parada ya no es de este viaje. Vuelve a buscar.",
+    "SHARE_NOT_ALLOWED": "Solo puedes compartir el viaje desde que tienes la plaza aceptada hasta que termina.",
+    "SHARE_NOT_FOUND": "Este enlace ya no funciona: se ha dejado de compartir o el viaje terminó.",
     "DETOUR_BUDGET_EXCEEDED": "Recoger a este pasajero se pasa de tu desvío máximo.",
     "TRIP_CHANGED_RETRY": "El viaje acaba de cambiar. Inténtalo de nuevo.",
     "RETURN_TRIP_REJECTED": "No se ha publicado ninguno: la vuelta no cumple las reglas (que no se cruce con otro viaje y que tenga plazas para tu coche). Cambia su hora o sus plazas.",

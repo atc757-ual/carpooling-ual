@@ -1,0 +1,45 @@
+// El botón de compartir en directo y, mientras se comparte, el estado con el
+// punto verde (como «En directo») y las dos acciones a la par
+:host {
+  display: block;
+}
+
+.live-share {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  p {
+    margin: 0;
+  }
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+.live-share__status {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  color: var(--color-text);
+}
+
+.live-share__dot {
+  flex: none;
+  width: 0.625rem; // 10px
+  height: 0.625rem; // 10px
+  margin-top: 0.3125rem; // 5px: centrado con la primera línea
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+}
+
+.live-share__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+
+  ion-button {
+    flex: 1 1 10rem; // 160px: los dos en una fila desde unos 340px de ancho
+  }
+}
