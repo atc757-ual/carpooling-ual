@@ -22,6 +22,8 @@ export interface SeatRequest {
   direction?: 'to-campus' | 'from-campus' | null;
   pickupLocation?: { type: 'Point'; coordinates: [number, number] } | null;
   pickupName?: string | null;
+  // La parada en la que sube, si el conductor recoge en paradas
+  stopId?: string | null;
   pickupAt?: string | null;
   requestedAt: string;
   answeredAt: string | null;

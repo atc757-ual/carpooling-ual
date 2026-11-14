@@ -219,6 +219,15 @@
   font-weight: var(--font-weight-semibold);
 }
 
+// Las paradas ya publicadas, una por línea con su hora
+.publish__stops {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding-left: var(--space-l);
+}
+
 .publish__vehicle {
   display: flex;
   align-items: center;

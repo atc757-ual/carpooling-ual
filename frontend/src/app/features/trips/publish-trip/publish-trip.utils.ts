@@ -1,4 +1,4 @@
-import { PublishTripRequest } from '../../../core/models/driver.model';
+import { PickupMode, PublishTripRequest } from '../../../core/models/driver.model';
 import { CampusParking } from '../../../core/models/place.model';
 import { SearchPlace } from '../../../core/models/trip-search.model';
 import { RouteStop } from '../../../shared/components/ui/route-timeline/route-timeline';
@@ -110,6 +110,9 @@ export interface TripOffer {
   vehicleId: string;
   seats: number;
   maxDetourMin: number;
+  pickupMode: PickupMode;
+  maxDetourM: number;
+  stops: readonly SearchPlace[];
 }
 
 // La petición de la API: origen y destino en GeoJSON, en un sentido u otro, y
@@ -131,7 +134,25 @@ export function toPublishTripRequest(
       : { departureAt: toIsoDateTime(offer.date, offer.time) }),
     offeredSeats: Number(offer.seats),
     maxDetourMin: offer.maxDetourMin,
+    ...toPickupRequest(offer),
     originName: isToCampus ? place.name : campusName,
     destinationName: isToCampus ? campusName : place.name,
   };
+}
+
+// Cómo recoge: las paradas solo hacia el campus; desde él (todos suben en el
+// parking), siempre en el camino
+function toPickupRequest(
+  offer: Pick<TripOffer, 'isToCampus' | 'pickupMode' | 'maxDetourM' | 'stops'>,
+): Pick<PublishTripRequest, 'pickupMode' | 'maxDetourM' | 'stops'> {
+  if (offer.isToCampus && offer.pickupMode === 'stops') {
+    return {
+      pickupMode: 'stops',
+      stops: offer.stops.map(({ name, coordinates }) => ({
+        name,
+        location: { type: 'Point', coordinates },
+      })),
+    };
+  }
+  return { pickupMode: 'on_route', maxDetourM: offer.maxDetourM };
 }

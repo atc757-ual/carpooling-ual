@@ -50,6 +50,20 @@ export interface PublishingStatus {
   publishingSuspendedUntil: string | null;
 }
 
+// Cómo recoge el conductor: en el camino (apartándose hasta maxDetourM) o en
+// sus paradas (solo hacia el campus)
+export type PickupMode = 'on_route' | 'stops';
+
+// Una parada del viaje (recogida en puntos), con la hora a la que pasa
+export interface TripStop {
+  id: string;
+  position: number;
+  name: string;
+  location: GeoPoint;
+  // ISO 8601: cuenta el tiempo de las paradas anteriores en las que sube alguien
+  estimatedAt: string;
+}
+
 export interface PublishTripRequest {
   vehicleId: string;
   origin: GeoPoint;
@@ -60,6 +74,11 @@ export interface PublishTripRequest {
   arrivalAt?: string;
   offeredSeats: number;
   maxDetourMin: number;
+  pickupMode: PickupMode;
+  // En el camino: metros que se aparta (300, 500 o 1000)
+  maxDetourM?: number;
+  // En paradas: de 1 a 5, en cualquier orden (el backend las ordena)
+  stops?: { name: string; location: GeoPoint }[];
   // Cómo se muestran después (Mis viajes, avisos): la dirección elegida y el
   // parking del campus
   originName: string;
@@ -72,6 +91,10 @@ export interface PublishedTrip {
   departureAt: string;
   offeredSeats: number;
   maxDetourMin: number;
+  pickupMode: PickupMode;
+  maxDetourM: number | null;
+  // En orden por la ruta; vacío si recoge en el camino
+  stops: TripStop[];
 }
 
 // expired: llegó el corte (10 min antes de la salida) sin pasajeros

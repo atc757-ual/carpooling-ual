@@ -1,0 +1,67 @@
+// «Cómo recoges»: las dos opciones en un segmento (como en la guía) y, debajo,
+// los metros o la lista de paradas, apilados a 8px
+.pickup-mode {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: var(--space-s);
+    padding: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.pickup-mode__options {
+  --background: var(--color-surface-subtle);
+
+  ion-segment-button {
+    min-height: 2.75rem; // 44px
+    text-transform: none;
+  }
+}
+
+.pickup-mode__stops {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pickup-mode__stop {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-base);
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+
+  > ion-icon {
+    flex: none;
+    color: var(--color-link);
+  }
+
+  // Quitar: 44px, el mínimo para tocarlo
+  ion-button {
+    flex: none;
+    min-width: 2.75rem; // 44px
+    min-height: 2.75rem; // 44px
+    margin: 0;
+  }
+}
+
+.pickup-mode__stop-name {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}

@@ -22,7 +22,7 @@ import {
   TripRouteMap,
 } from '../../../shared/components/ui/trip-route-map/trip-route-map';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
-import { formatTime } from '../../matching/trip-results';
+import { buildDriverRouteStops } from './driver-route-stops';
 
 // Viajes cuyas recogidas aceptadas se pintan en el recorrido
 const STATUSES_WITH_PICKUPS = new Set<TripStatus>(['published', 'confirmed', 'in_progress']);
@@ -82,7 +82,16 @@ export class DriverTripRoute {
       .filter((request) => request.status === 'accepted' && request.pickupLocation)
       .sort((a, b) => Date.parse(a.pickupAt ?? '') - Date.parse(b.pickupAt ?? '')),
   );
+  // En el mapa: las paradas del viaje o, en el camino, el punto de cada uno
   readonly pickupPoints = computed<RoutePoint[]>(() =>
+    this.trip().stops.length > 0
+      ? this.trip().stops.map(({ location, name }) => ({
+          coordinates: location.coordinates,
+          label: `Parada: ${name}`,
+        }))
+      : this.acceptedPickupPoints(),
+  );
+  private readonly acceptedPickupPoints = computed<RoutePoint[]>(() =>
     this.acceptedPickups().flatMap(({ pickupLocation, passenger }) =>
       pickupLocation
         ? [
@@ -105,24 +114,9 @@ export class DriverTripRoute {
   }));
 
   // Sale a su hora y llega, más o menos, tras la duración de la ruta
-  readonly stops = computed<RouteStop[]>(() => {
-    const { departureAt, originName, destinationName } = this.trip();
-    const durationMin = this.route()?.durationMin;
-    const arrival =
-      durationMin === undefined
-        ? undefined
-        : formatTime(new Date(Date.parse(departureAt) + durationMin * 60_000).toISOString());
-    const pickups = this.acceptedPickups().map<RouteStop>((request) => ({
-      name: request.pickupName ?? 'Punto de recogida',
-      // Sin hora por ahora: la estimada no suma las otras recogidas
-      detail: `Recoges a ${getFirstName(request.passenger.name)}`,
-    }));
-    return [
-      { name: originName ?? 'Salida', detail: 'Sales de aquí', time: formatTime(departureAt) },
-      ...pickups,
-      { name: destinationName ?? 'Destino', detail: 'Llegada aproximada', time: arrival },
-    ];
-  });
+  readonly stops = computed<RouteStop[]>(() =>
+    buildDriverRouteStops(this.trip(), this.acceptedPickups(), this.route()?.durationMin),
+  );
 
   // «12,4 km», «18 min», «hasta 10 min»
   readonly facts = computed(() => {

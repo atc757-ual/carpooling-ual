@@ -1,0 +1,78 @@
+<!-- Cómo recoge el conductor: dos opciones excluyentes y, debajo, lo de la
+     elegida (los metros o las paradas) -->
+<fieldset class="pickup-mode">
+  <legend class="text-label text-label--strong">Cómo recoges</legend>
+  <ion-segment
+    class="pickup-mode__options"
+    aria-label="Cómo recoges a los pasajeros"
+    [value]="mode()"
+    (ionChange)="handleMode($event.detail.value)"
+  >
+    <ion-segment-button value="on_route">
+      <ion-label>En el camino</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="stops">
+      <ion-label>En paradas</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  @if (mode() === 'on_route') {
+    <p class="text-caption text-color-muted">
+      Recoges a cada pasajero en su punto, apartándote de tu ruta como mucho:
+    </p>
+    <ion-select
+      class="pickup-mode__distance"
+      [formControl]="controls().maxDetourM"
+      interface="popover"
+      fill="outline"
+      label="Distancia máxima"
+      labelPlacement="stacked"
+    >
+      @for (distance of distances; track distance) {
+        <ion-select-option [value]="distance">
+          {{ distance < 1000 ? distance + ' m' : '1 km' }}
+        </ion-select-option>
+      }
+    </ion-select>
+  } @else {
+    <p class="text-caption text-color-muted">
+      Añade de 1 a {{ maxStops }} paradas de tu camino (una avenida, una parada de bus…). Los
+      pasajeros van andando a la que les quede más cerca. Las ordenamos por tu ruta.
+    </p>
+    @if (stops().length > 0) {
+      <ol class="pickup-mode__stops" aria-label="Tus paradas">
+        @for (stop of stops(); track stop.id; let index = $index) {
+          <li class="pickup-mode__stop">
+            <ion-icon [icon]="icons.stop" aria-hidden="true" />
+            <span class="pickup-mode__stop-name">
+              {{ stop.name }}
+              @if (stop.locality) {
+                <span class="text-caption text-color-muted">{{ stop.locality }}</span>
+              }
+            </span>
+            <ion-button
+              fill="clear"
+              size="small"
+              [attr.aria-label]="'Quitar la parada ' + stop.name"
+              (click)="removeStop(index)"
+            >
+              <ion-icon slot="icon-only" [icon]="icons.remove" aria-hidden="true" />
+            </ion-button>
+          </li>
+        }
+      </ol>
+    } @else {
+      <p class="text-caption text-color-danger" role="alert">Añade al menos una parada.</p>
+    }
+    @if (canAddStop()) {
+      <app-place-field
+        [formControl]="newStop"
+        label="Añadir parada"
+        placeholder="Busca una calle o un lugar de tu camino"
+        [icon]="icons.stop"
+      />
+    } @else {
+      <p class="text-caption text-color-muted">Ya tienes {{ maxStops }} paradas, el máximo.</p>
+    }
+  }
+</fieldset>
