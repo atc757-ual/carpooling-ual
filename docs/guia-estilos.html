@@ -723,6 +723,22 @@
       <li><b>«Tu búsqueda»</b> (resultados): el resumen con la línea de ruta y el lápiz para editarla en una ventana; arriba en el móvil y en la columna de 4 en escritorio.</li>
     </ul>
 
+    <h3>Cómo recoges (Publicar, hacia el campus)</h3>
+    <p class="note">Bajo la hora, un <code>ion-segment</code> con dos opciones excluyentes («En el camino» y «En paradas», 44px de alto, sin mayúsculas) y, debajo, lo de la elegida. Desde el campus no aparece: todos suben en el parking.</p>
+    <div class="demo" style="max-width:27rem">
+      <span class="text-label text-label--strong">Cómo recoges</span>
+      <div class="segment" style="margin-top:var(--space-s)"><span>En el camino</span><span class="on">En paradas</span></div>
+      <p class="text-meta">Añade de 1 a 5 paradas de tu camino (una avenida, una parada de bus…). Los pasajeros van andando a la que les quede más cerca. Las ordenamos por tu ruta.</p>
+      <div class="row" style="border:1px solid var(--color-border);border-radius:var(--radius-s);padding:var(--space-xs) var(--space-xs) var(--space-xs) var(--space-base);justify-content:space-between"><span class="text-label">⚑ Av. Cabo de Gata <span class="text-meta">Almería</span></span><button class="btn btn--clear btn--s" type="button" aria-label="Quitar la parada Av. Cabo de Gata">✕</button></div>
+    </div>
+    <ul class="rules">
+      <li><b>En el camino:</b> «Recoges a cada pasajero en su punto, apartándote de tu ruta como mucho:» y un <code>ion-select</code> «Distancia máxima» con 300 m, 500 m (por defecto) o 1 km.</li>
+      <li><b>En paradas:</b> la lista de paradas (bandera azul, nombre y localidad, ✕ de 44px para quitarla con «Quitar la parada …» para el lector de pantalla) y debajo el buscador «Añadir parada» (el mismo campo de dirección, con sus sugerencias). Al elegir una dirección se añade a la lista y el buscador se vacía; una dirección repetida no se añade. Sin paradas, «Añade al menos una parada.» en rojo y «Siguiente» desactivado; con 5, el buscador se cambia por «Ya tienes 5 paradas, el máximo.».</li>
+      <li><b>Revisión y publicado:</b> en el resumen, una línea «Recoges en 2 paradas: …» o «Recoges en el camino, a 500 m de tu ruta como mucho»; ya publicado, la lista numerada de paradas con la hora que calcula el backend («07:52 · Av. Cabo de Gata»).</li>
+      <li><b>Resultados y detalle (pasajero):</b> en la tarjeta, «En la parada Av. Cabo de Gata (a 350 m) · a las 07:52» o «Desvío de 3 min · te recoge a las 07:52»; en el detalle, el dato «Recogida» con la parada, su hora y lo que se anda. Al pedir plaza se envía la parada, no la dirección.</li>
+      <li><b>Tu recorrido (conductor):</b> cada parada en la línea de ruta con su hora y quién sube («Recoges a Ana y Leo» o «Aún no sube nadie aquí»), y en el mapa como recogida; en el camino, el punto de cada pasajero aceptado con su hora de recogida.</li>
+    </ul>
+
     <h3>Lista de resultados</h3>
     <p class="note">Cabecera del grupo con el recuento y el orden; los viajes que llegan fuera del margen, en un grupo propio al final. Debajo, el aviso fijo de lo que no se promete y una sola acción principal.</p>
     <div class="demo" style="max-width:27rem">
