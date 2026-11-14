@@ -15245,9 +15245,9 @@
             "type": "number",
             "nullable": true,
             "enum": [
+              150,
               300,
-              500,
-              1000
+              500
             ],
             "description": "Metres the driver goes off the route to pick up (on_route); null with stops"
           },
