@@ -333,6 +333,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/legal-update/legal-update.page').then((m) => m.LegalUpdatePage),
   },
+  {
+    // El viaje compartido en directo por un pasajero: lo abre, sin cuenta,
+    // alguien de su confianza. Sin guards: ni sesión ni documentos legales
+    path: 'seguir/:token',
+    title: 'Viaje en directo',
+    loadComponent: () =>
+      import('./features/trips/shared-trip/shared-trip.page').then((m) => m.SharedTripPage),
+  },
   { path: '', redirectTo: 'tabs', pathMatch: 'full' },
   { path: '**', redirectTo: 'tabs' },
 ];

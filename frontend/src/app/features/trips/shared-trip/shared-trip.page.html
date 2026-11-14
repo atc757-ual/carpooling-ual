@@ -1,0 +1,105 @@
+<ion-content>
+  <main class="shared-trip">
+    <header class="shared-trip__brand">
+      <span class="shared-trip__logo" aria-hidden="true"><ion-icon [icon]="carIcon" /></span>
+      <span class="text-label">Carpooling UAL</span>
+    </header>
+
+    @if (trip(); as trip) {
+      <h1 class="text-heading">Viaje en directo</h1>
+
+      @if (status(); as status) {
+        <output
+          class="notice shared-trip__status"
+          [class.notice--info]="status.tone === 'info'"
+          [class.notice--success]="status.tone === 'success'"
+        >
+          @if (trip.tripStatus === 'in_progress') {
+            <span class="shared-trip__live-dot" aria-hidden="true"></span>
+          }
+          <span
+            ><b>{{ status.title }}.</b> {{ status.description }}</span
+          >
+        </output>
+      }
+
+      <!-- Con el viaje en curso: el coche y el recorrido -->
+      @if (mapEnds(); as ends) {
+        <section class="shared-trip__map" aria-label="Mapa del viaje">
+          <app-trip-route-map
+            [route]="{ geometry: trip.route }"
+            [origin]="ends.origin"
+            [destination]="ends.destination"
+            [car]="carPoint()"
+          />
+          @if (isStale() && trip.position; as position) {
+            <p class="notice notice--warning text-body-s">
+              Ubicación sin actualizar desde las {{ formatTime(position.recordedAt) }}: puede que el
+              móvil del conductor no tenga cobertura.
+            </p>
+          }
+        </section>
+      }
+
+      <dl class="shared-trip__details">
+        @if (trip.pickupName || trip.pickupAt) {
+          <div class="shared-trip__row">
+            <dt class="text-caption text-color-muted">Recogida</dt>
+            <dd class="text-body">
+              {{ trip.pickupName ?? 'Punto de recogida' }}
+              @if (trip.pickupAt) {
+                · {{ formatTime(trip.pickupAt) }}
+              }
+            </dd>
+          </div>
+        }
+        <div class="shared-trip__row">
+          <dt class="text-caption text-color-muted">Destino</dt>
+          <dd class="text-body">{{ trip.destinationName ?? 'Destino del viaje' }}</dd>
+        </div>
+        @if (trip.estimatedArrivalAt) {
+          <div class="shared-trip__row">
+            <dt class="text-caption text-color-muted">Llegada estimada</dt>
+            <dd class="text-body">
+              {{ formatTime(trip.estimatedArrivalAt) }}
+              @if (trip.position) {
+                <span class="text-color-muted">
+                  (faltan unos {{ trip.position.remainingMin }} min)
+                </span>
+              }
+            </dd>
+          </div>
+        }
+        <div class="shared-trip__row">
+          <dt class="text-caption text-color-muted">Conduce</dt>
+          <dd class="text-body">{{ trip.driver.firstName }}</dd>
+        </div>
+        @if (vehicleText(); as vehicle) {
+          <div class="shared-trip__row">
+            <dt class="text-caption text-color-muted">Coche</dt>
+            <dd class="text-body">{{ vehicle }}</dd>
+          </div>
+        }
+      </dl>
+
+      <p class="text-caption text-color-muted">
+        Te lo ha enviado un pasajero de Carpooling UAL, la plataforma de coche compartido de la
+        comunidad universitaria. El enlace deja de funcionar cuando deja de compartirlo o al día
+        siguiente de terminar el viaje.
+      </p>
+    } @else if (errorMessage(); as message) {
+      <section class="shared-trip__empty">
+        <span class="shared-trip__empty-icon" aria-hidden="true"
+          ><ion-icon [icon]="linkIcon"
+        /></span>
+        <h1 class="text-title">Este enlace no está disponible</h1>
+        <p class="text-body text-color-muted">{{ message }}</p>
+      </section>
+    } @else {
+      <div class="shared-trip__loading" aria-busy="true">
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="text-body-s text-color-muted">Cargando el viaje…</span>
+      </div>
+    }
+  </main>
+</ion-content>

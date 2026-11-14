@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import type * as Leaflet from 'leaflet';
 import { TripRoute } from '../../../../core/models/trip-route.model';
+import { CAR_ICON_HTML, CAR_MARKER_SIZE } from './car-marker';
 
 const TILES_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TILES_ATTRIBUTION = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
@@ -25,10 +26,15 @@ export interface RoutePoint {
   isApproximate?: boolean;
 }
 
+// Solo hace falta el trazado de la ruta
+export type RouteGeometry = Pick<TripRoute, 'geometry'>;
+
 interface RouteMarker {
   point: RoutePoint;
-  letter: string;
+  // La letra del círculo o, el coche, su icono
+  html: string;
   modifier: string;
+  size: number;
 }
 
 // Mapa de la ruta del conductor y, si se indican, de los puntos de recogida
@@ -45,6 +51,9 @@ interface RouteMarker {
         <span class="trip-route-map__legend-item"><b>R</b> Recogida</span>
       }
       <span class="trip-route-map__legend-item"><b>D</b> Destino</span>
+      @if (car()) {
+        <span class="trip-route-map__legend-item">Coche: dónde va ahora</span>
+      }
       @if (hasApproximatePoints()) {
         <span class="trip-route-map__legend-item">Zona aproximada</span>
       }
@@ -53,7 +62,9 @@ interface RouteMarker {
   styleUrl: './trip-route-map.scss',
 })
 export class TripRouteMap implements OnDestroy {
-  readonly route = input.required<TripRoute>();
+  readonly route = input.required<RouteGeometry>();
+  // El coche con el viaje en curso (el viaje compartido en directo)
+  readonly car = input<RoutePoint | null>(null);
   readonly origin = input.required<RoutePoint>();
   readonly pickups = input<RoutePoint[]>([]);
   readonly destination = input.required<RoutePoint>();
@@ -67,18 +78,29 @@ export class TripRouteMap implements OnDestroy {
       ? `Zona aproximada del viaje: ${ends}`
       : `Ruta del conductor: ${ends}`;
     const pickups = this.pickups().map(({ label }) => label);
-    return pickups.length > 0 ? `${route}; recogida en ${pickups.join(', ')}` : route;
+    const withPickups = pickups.length > 0 ? `${route}; recogida en ${pickups.join(', ')}` : route;
+    const car = this.car();
+    return car ? `${withPickups}; ${car.label}` : withPickups;
   });
   // Salida, recogidas y destino, con su letra y su color
-  private readonly markers = computed<RouteMarker[]>(() => [
-    { point: this.origin(), letter: 'S', modifier: 'trip-route-map__marker--origin' },
-    ...this.pickups().map((point) => ({
-      point,
-      letter: 'R',
-      modifier: 'trip-route-map__marker--pickup',
-    })),
-    { point: this.destination(), letter: 'D', modifier: 'trip-route-map__marker--destination' },
-  ]);
+  private readonly markers = computed<RouteMarker[]>(() => {
+    const car = this.car();
+    return [
+      letterMarker(this.origin(), 'S', 'trip-route-map__marker--origin'),
+      ...this.pickups().map((point) => letterMarker(point, 'R', 'trip-route-map__marker--pickup')),
+      letterMarker(this.destination(), 'D', 'trip-route-map__marker--destination'),
+      ...(car
+        ? [
+            {
+              point: car,
+              html: CAR_ICON_HTML,
+              modifier: 'trip-live-map__car-marker',
+              size: CAR_MARKER_SIZE,
+            },
+          ]
+        : []),
+    ];
+  });
   private readonly mapElement = viewChild<ElementRef<HTMLElement>>('map');
   private leaflet: typeof Leaflet | null = null;
   private map: Leaflet.Map | null = null;
@@ -126,7 +148,7 @@ export class TripRouteMap implements OnDestroy {
 
   private async createMap(
     element: HTMLElement,
-    route: TripRoute,
+    route: RouteGeometry,
     markers: RouteMarker[],
   ): Promise<void> {
     const leafletModule = (await import('leaflet')) as typeof Leaflet & {
@@ -191,7 +213,7 @@ export class TripRouteMap implements OnDestroy {
     }
   }
 
-  private updateRoute(route: TripRoute): void {
+  private updateRoute(route: RouteGeometry): void {
     const { leaflet, map } = this;
     if (!leaflet || !map) {
       return;
@@ -224,7 +246,7 @@ export class TripRouteMap implements OnDestroy {
   private addMarker(
     leaflet: typeof Leaflet,
     layer: Leaflet.LayerGroup,
-    { point, letter, modifier }: RouteMarker,
+    { point, html, modifier, size }: RouteMarker,
   ): void {
     const [lon, lat] = point.coordinates;
     if (point.isApproximate) {
@@ -240,12 +262,22 @@ export class TripRouteMap implements OnDestroy {
       .marker([lat, lon], {
         title: point.label,
         icon: leaflet.divIcon({
-          html: `<span aria-hidden="true">${letter}</span>`,
-          className: `trip-route-map__marker ${modifier}`,
-          iconSize: [MARKER_SIZE, MARKER_SIZE],
-          iconAnchor: [MARKER_SIZE / 2, MARKER_SIZE / 2],
+          html,
+          className: modifier,
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size / 2],
         }),
       })
       .addTo(layer);
   }
+}
+
+// Salida, recogida o destino: un círculo con su letra (estilo de _map.scss)
+function letterMarker(point: RoutePoint, letter: string, modifier: string): RouteMarker {
+  return {
+    point,
+    html: `<span aria-hidden="true">${letter}</span>`,
+    modifier: `trip-route-map__marker ${modifier}`,
+    size: MARKER_SIZE,
+  };
 }
