@@ -1,5 +1,3 @@
-@use 'color-scheme';
-
 // Aspecto por defecto de los componentes de Ionic con los tokens del tema.
 // Solo con sus variables CSS y ::part(), sin !important (ver CLAUDE.md).
 
@@ -1080,19 +1078,14 @@ ion-searchbar.admin-heading__search {
   text-align: left;
 }
 
-// Interruptor (ion-toggle): contraste accesible y consistente en claro y oscuro
+// Interruptor (ion-toggle), solo con roles (el modo oscuro los redefine).
+// Apagado, la pista con el gris de los bordes de los campos: ≥ 3:1 sobre la
+// tarjeta en los dos modos (WCAG 1.4.11; con --color-surface-raised era 1:1
+// en claro y 1,3:1 en oscuro). Encendido, el azul de la app con la bolita del
+// color que va sobre él
 ion-toggle {
-  --background: var(--color-surface-raised);
+  --background: var(--color-border-strong);
   --background-checked: var(--color-link);
-  --handle-background: #ffffff;
-  --handle-background-checked: #ffffff;
-}
-
-@include color-scheme.dark {
-  ion-toggle {
-    --background: var(--color-surface-raised);
-    --background-checked: #2563eb;
-    --handle-background: #cbd5e1;
-    --handle-background-checked: #ffffff;
-  }
+  --handle-background: var(--color-surface);
+  --handle-background-checked: var(--color-on-primary);
 }
