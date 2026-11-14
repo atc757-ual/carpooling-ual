@@ -24,11 +24,9 @@
 // letra azul. Sin la raya de Ionic ni fondo al pasar el ratón
 .pickup-mode__options {
   --background: var(--color-surface);
-  width: 100%;
   padding: var(--space-xs);
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s);
-  box-shadow: var(--shadow-base);
 
   ion-segment-button {
     --background: transparent;
@@ -45,12 +43,6 @@
     margin: 0;
     font-weight: var(--font-weight-semibold);
     text-transform: none;
-
-    // El icono a la izquierda del texto, del mismo color
-    ion-icon {
-      margin: 0 var(--space-s) 0 0;
-      font-size: 1.25rem; // 20px
-    }
   }
 }
 
