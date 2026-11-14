@@ -75,7 +75,7 @@ export interface PublishTripRequest {
   offeredSeats: number;
   maxDetourMin: number;
   pickupMode: PickupMode;
-  // En el camino: metros que se aparta (300, 500 o 1000)
+  // En el camino: metros que se aparta (150, 300 o 500)
   maxDetourM?: number;
   // En paradas: de 1 a 5, en cualquier orden (el backend las ordena)
   stops?: { name: string; location: GeoPoint }[];

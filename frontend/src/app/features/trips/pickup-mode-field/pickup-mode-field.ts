@@ -17,8 +17,8 @@ import { SearchPlace } from '../../../core/models/trip-search.model';
 import { PlaceField } from '../../matching/place-field/place-field';
 
 // Lo mismo que acepta la API (ALLOWED_MAX_DETOUR_M y MAX_TRIP_STOPS)
-export const PICKUP_DISTANCES_M = [300, 500, 1000] as const;
-export const DEFAULT_PICKUP_DISTANCE_M = 500;
+export const PICKUP_DISTANCES_M = [150, 300, 500] as const;
+export const DEFAULT_PICKUP_DISTANCE_M = 300;
 export const MAX_STOPS = 5;
 
 export interface PickupModeControls {

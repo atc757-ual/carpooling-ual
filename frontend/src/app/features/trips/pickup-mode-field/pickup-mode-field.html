@@ -29,9 +29,7 @@
       labelPlacement="stacked"
     >
       @for (distance of distances; track distance) {
-        <ion-select-option [value]="distance">
-          {{ distance < 1000 ? distance + ' m' : '1 km' }}
-        </ion-select-option>
+        <ion-select-option [value]="distance"> {{ distance }} m </ion-select-option>
       }
     </ion-select>
   } @else {

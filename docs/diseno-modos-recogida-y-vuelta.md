@@ -49,7 +49,7 @@ El autor eligió **A** el 13/11/2026.
 **`trips`**
 
 - `pickup_mode` (enum `trip_pickup_mode`: `on_route`, `stops`), por defecto `on_route` (los viajes que ya existen siguen igual).
-- `max_detour_m` (entero, nulo en modo `stops`): cuánto se aparta el conductor de su ruta en modo en ruta. Valores permitidos: **300, 500 o 1000 m**; por defecto 500.
+- `max_detour_m` (entero, nulo en modo `stops`): cuánto se aparta el conductor de su ruta en modo en ruta. Valores permitidos: **150, 300 o 500 m**; por defecto 300 (el 14/11 se quitó 1 km: es demasiado para recoger en un punto).
 - `max_detour_min` se mantiene, pero pasa a ser el **presupuesto total** del viaje (antes, por pasajero).
 
 **`trip_stops`** (nueva, del módulo `trips`)
@@ -66,12 +66,12 @@ El autor eligió **A** el 13/11/2026.
 
 - `STOP_TIME_MIN = 2`: tiempo de cada parada con alguien que sube.
 - `MAX_TRIP_STOPS = 5`.
-- `ALLOWED_MAX_DETOUR_M = [300, 500, 1000]`.
+- `ALLOWED_MAX_DETOUR_M = [150, 300, 500]`.
 - `WALK_RADIUS_M = 800`: distancia máxima a pie hasta una parada (la misma que el `PICKUP_RADIUS_M` actual).
 
 ### 4.2 Publicar un viaje
 
-- **En ruta:** el conductor elige los metros (300, 500 o 1000) y su presupuesto de minutos (como hoy).
+- **En ruta:** el conductor elige los metros (150, 300 o 500) y su presupuesto de minutos (como hoy).
 - **En puntos:** el conductor añade entre 1 y 5 paradas con el buscador de direcciones (CartoCiudad, como el origen y el destino). Al publicar, el backend:
   1. ordena las paradas por su posición a lo largo de la ruta directa (`ST_LineLocatePoint`);
   2. pide a OSRM la ruta que pasa por todas ellas y guarda su geometría y duración (`trip_routes`) y la hora estimada de cada parada (`eta_offset_min`);

@@ -313,8 +313,8 @@ describe('PublishTripPage', () => {
   it('sums up how it picks up on the route, and nothing from the campus', async () => {
     await openPage('/publish');
     fillTrip();
-    page.tripForm.patchValue({ maxDetourM: 1000 });
-    expect(page.pickupSummary()).toBe('Recoges en el camino, a 1000 m de tu ruta como mucho');
+    page.tripForm.patchValue({ maxDetourM: 500 });
+    expect(page.pickupSummary()).toBe('Recoges en el camino, a 500 m de tu ruta como mucho');
 
     page.tripForm.patchValue({ isToCampus: false, pickupMode: 'stops' });
     expect(page.pickupSummary()).toBeNull();
