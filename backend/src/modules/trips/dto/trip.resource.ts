@@ -175,6 +175,35 @@ export class TripResource {
   isLocationApproximate: boolean;
 }
 
+// El enlace a la vuelta publicada con la ida
+export class TripLinkResource {
+  @ApiProperty({ format: 'uuid' })
+  id: string;
+
+  @ApiProperty({ example: '/api/trips/2f1c…' })
+  href: string;
+}
+
+// La respuesta al publicar: el viaje y, si se publicó a la vez, la vuelta
+export class PublishedTripResource extends TripResource {
+  @ApiProperty({
+    type: TripLinkResource,
+    nullable: true,
+    description: 'The return trip published with it, or null',
+  })
+  returnTrip: TripLinkResource | null;
+}
+
+export function toPublishedTripResource(view: TripView): PublishedTripResource {
+  const returnTripId = view.returnTripId ?? null;
+  return {
+    ...toTripResource(view),
+    returnTrip: returnTripId
+      ? { id: returnTripId, href: tripHref(returnTripId) }
+      : null,
+  };
+}
+
 export function tripHref(id: string): string {
   return `/${API_PREFIX}/trips/${id}`;
 }

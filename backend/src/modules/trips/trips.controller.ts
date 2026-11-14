@@ -47,7 +47,12 @@ import {
   toTripRouteResource,
   TripRouteResource,
 } from './dto/trip-route.resource';
-import { toTripResource, TripResource } from './dto/trip.resource';
+import {
+  PublishedTripResource,
+  toPublishedTripResource,
+  toTripResource,
+  TripResource,
+} from './dto/trip.resource';
 import { UpdateTripDto } from './dto/update-trip.dto';
 import { LateCancellationsService } from './late-cancellations.service';
 import { TripViewerAccessService } from './trip-viewer-access.service';
@@ -92,29 +97,30 @@ export class TripsController {
   @ApiOperation({
     summary: 'Publish a trip',
     description:
-      'RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days. The trip cannot overlap another active trip of the driver (departure to arrival plus the maximum detour), and a driver can have at most 4 trips that are not cancelled on the same day.',
+      'RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days. The trip cannot overlap another active trip of the driver (departure to arrival plus the maximum detour), and a driver can have at most 4 trips that are not cancelled on the same day. With returnTrip, the return trip is published in the same transaction, with the same rules (it cannot overlap the outbound trip either): both or none.',
   })
   @ApiCreatedResponse({
-    type: TripResource,
+    type: PublishedTripResource,
     headers: { Location: { description: 'Link to the new trip' } },
   })
   @ApiErrorResponses({
     ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: TRIP_RULE_ERRORS,
+    [HttpStatus.BAD_REQUEST]: [...TRIP_RULE_ERRORS, 'RETURN_TRIP_REJECTED'],
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', 'DRIVER_NOT_READY'],
     [HttpStatus.NOT_FOUND]: ['VEHICLE_NOT_FOUND'],
     [HttpStatus.CONFLICT]: [
       'PUBLISHING_SUSPENDED',
       'VEHICLE_DECLARATION_REQUIRED',
       ...SCHEDULE_ERRORS,
+      'RETURN_TRIP_REJECTED',
     ],
   })
   async publish(
     @CurrentUser() driver: AccessTokenPayload,
     @Body() dto: PublishTripDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<TripResource> {
-    const trip = toTripResource(
+  ): Promise<PublishedTripResource> {
+    const trip = toPublishedTripResource(
       await this.tripsService.publish(driver.sub, dto),
     );
     response.setHeader('Location', trip.href);

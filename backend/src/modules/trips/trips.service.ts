@@ -32,7 +32,13 @@ import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
 import { orderPickups } from './pickup-plan';
 import { TripStopsService } from './trip-stops.service';
-import type { StopInput, TripStopView } from './trip-stops.service';
+import type {
+  PublishedRoute,
+  StopInput,
+  TripStopView,
+} from './trip-stops.service';
+import { asReturnLeg, toReturnTripInput } from './return-trip';
+import type { ReturnTripInput } from './return-trip';
 import {
   DEFAULT_MAX_DETOUR_M,
   MIN_DEPARTURE_LEAD_MIN,
@@ -70,6 +76,8 @@ export interface TripInput {
 export type PublishTripInput = Omit<TripInput, 'departureAt'> & {
   departureAt?: Date;
   arrivalAt?: Date;
+  // Ida y vuelta en un solo flujo: la vuelta, con su hora y sus plazas
+  returnTrip?: ReturnTripInput;
 };
 
 // Modificación parcial: solo los campos que cambian
@@ -87,6 +95,8 @@ export interface TripView {
   // Origen y destino redondeados para quien no tiene plaza
   // (TripViewerAccessService); sin el campo, son los exactos
   isLocationApproximate?: boolean;
+  // Al publicar la ida y la vuelta a la vez, la vuelta
+  returnTripId?: string | null;
   // Recogida en puntos: sus paradas (lugares públicos, siempre exactas)
   stops: TripStopView[];
 }
@@ -134,56 +144,98 @@ export class TripsService {
     // RF-12: la ruta se calcula antes de la transacción (sin bloquear filas
     // mientras se espera a OSRM) y se guarda con el viaje. Va antes de validar
     // la salida porque, con la llegada, depende de ella
-    const { arrivalAt, departureAt, stops, ...fields } = publishInput;
+    const { arrivalAt, departureAt, stops, returnTrip, ...fields } =
+      publishInput;
     const maxDetourMin = fields.maxDetourMin ?? DEFAULT_MAX_DETOUR_MIN;
     const published = await this.tripStops.planRoute(
       { ...fields, stops },
       maxDetourMin,
     );
-    const { route } = published;
     const input: TripInput = {
       ...fields,
+      maxDetourMin,
       departureAt: resolveDeparture(
         { departureAt, arrivalAt },
-        route.durationMin,
+        published.route.durationMin,
         maxDetourMin,
       ),
     };
     await this.assertValidTrip(driverId, input);
     assertDepartureLead(input.departureAt);
+    // La vuelta, si se publica a la vez: sus reglas se comprueban igual y lo
+    // que falle se dice como de la vuelta (RETURN_TRIP_REJECTED)
+    const returnLeg = returnTrip
+      ? await asReturnLeg(() =>
+          this.planReturnLeg(driverId, toReturnTripInput(input, returnTrip)),
+        )
+      : null;
 
-    const trip = await this.dataSource.transaction(async (manager) => {
-      // Sin cruzarse con otro de sus viajes y sin pasar del máximo diario
-      await this.publishingLimits.assertCanSchedule(manager, {
-        driverId,
-        departureAt: input.departureAt,
-        durationMin: route.durationMin,
-        maxDetourMin,
-      });
-      const saved = await manager.save(
-        manager.create(Trip, {
-          ...input,
-          driverId,
-          maxDetourMin,
-          // En puntos no se aparta de la ruta: sin metros
-          maxDetourM:
-            input.pickupMode === 'stops'
-              ? null
-              : (input.maxDetourM ?? DEFAULT_MAX_DETOUR_M),
-          availableSeats: input.offeredSeats,
-        }),
-      );
-      await this.tripRoutes.save(
-        manager,
-        saved.id,
-        route,
-        published.directDurationMin,
-      );
-      await this.tripStops.save(manager, saved.id, published.stops);
-      await this.tripStatus.recordEvent(manager, 'trip.published', saved);
-      return saved;
+    // Las dos en la misma transacción: o se publican las dos o ninguna
+    const [trip, returned] = await this.dataSource.transaction(
+      async (manager) => {
+        const saved = await this.saveNew(manager, driverId, input, published);
+        const savedReturn = returnLeg
+          ? await asReturnLeg(() =>
+              this.saveNew(manager, driverId, returnLeg.input, returnLeg.route),
+            )
+          : null;
+        return [saved, savedReturn] as const;
+      },
+    );
+    return { ...(await this.toView(trip)), returnTripId: returned?.id ?? null };
+  }
+
+  private async planReturnLeg(
+    driverId: string,
+    input: TripInput,
+  ): Promise<{ input: TripInput; route: PublishedRoute }> {
+    const route = await this.tripStops.planRoute(
+      input,
+      input.maxDetourMin ?? 0,
+    );
+    await this.assertValidTrip(driverId, input);
+    assertDepartureLead(input.departureAt);
+    return { input, route };
+  }
+
+  // Guarda un viaje nuevo con su ruta, sus paradas y su evento, sin cruzarse
+  // con otro de sus viajes y sin pasar del máximo diario (también con la ida
+  // que se acaba de guardar en la misma transacción)
+  private async saveNew(
+    manager: EntityManager,
+    driverId: string,
+    input: TripInput,
+    published: PublishedRoute,
+  ): Promise<Trip> {
+    const maxDetourMin = input.maxDetourMin ?? DEFAULT_MAX_DETOUR_MIN;
+    await this.publishingLimits.assertCanSchedule(manager, {
+      driverId,
+      departureAt: input.departureAt,
+      durationMin: published.route.durationMin,
+      maxDetourMin,
     });
-    return this.toView(trip);
+    const saved = await manager.save(
+      manager.create(Trip, {
+        ...input,
+        driverId,
+        maxDetourMin,
+        // En puntos no se aparta de la ruta: sin metros
+        maxDetourM:
+          input.pickupMode === 'stops'
+            ? null
+            : (input.maxDetourM ?? DEFAULT_MAX_DETOUR_M),
+        availableSeats: input.offeredSeats,
+      }),
+    );
+    await this.tripRoutes.save(
+      manager,
+      saved.id,
+      published.route,
+      published.directDurationMin,
+    );
+    await this.tripStops.save(manager, saved.id, published.stops);
+    await this.tripStatus.recordEvent(manager, 'trip.published', saved);
+    return saved;
   }
 
   // Cualquier usuario autenticado puede ver un viaje (los pasajeros los
