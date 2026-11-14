@@ -19,11 +19,29 @@
   }
 }
 
+// Un solo control con borde gris claro y esquinas de 8px: la opción elegida,
+// rellena de azul (esquinas de 16px) con letra blanca; la otra, blanca con
+// letra azul. Sin la raya de Ionic ni fondo al pasar el ratón
 .pickup-mode__options {
-  --background: var(--color-surface-subtle);
+  --background: var(--color-surface);
+  padding: var(--space-xs);
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
 
   ion-segment-button {
-    min-height: 2.75rem; // 44px
+    --background: transparent;
+    // Sin fondo al pasar el ratón: en la elegida se quedaba tras pulsar
+    --background-hover: transparent;
+    --background-hover-opacity: 0;
+    --background-checked: var(--color-primary);
+    --color: var(--color-primary);
+    --color-checked: var(--color-on-primary);
+    --indicator-height: 0;
+    --border-radius: var(--radius-base);
+    --border-width: 0;
+    min-height: 2.5rem; // 40px, más el borde y el relleno: 50px
+    margin: 0;
+    font-weight: var(--font-weight-semibold);
     text-transform: none;
   }
 }
