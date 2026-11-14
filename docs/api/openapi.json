@@ -16301,6 +16301,12 @@
             "nullable": true,
             "example": "red"
           },
+          "colorName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Rojo",
+            "description": "The color name from the catalog (the link opens without an account)"
+          },
           "plate": {
             "type": "string",
             "nullable": true,
@@ -16312,6 +16318,7 @@
           "brand",
           "model",
           "color",
+          "colorName",
           "plate"
         ]
       },

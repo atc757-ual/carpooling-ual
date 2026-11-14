@@ -31,6 +31,19 @@ export class VehicleColorsService extends CatalogItemsService<VehicleColor> {
     });
   }
 
+  // El nombre de un color («Rojo»), aunque ya no se ofrezca; null sin color o
+  // con una clave desconocida. Para quien no tiene sesión y no puede pedir el
+  // catálogo (el viaje compartido en directo)
+  async getName(key: string | null): Promise<string | null> {
+    if (key === null) {
+      return null;
+    }
+    const color = await this.colorsDataSource.manager.findOneBy(VehicleColor, {
+      key,
+    });
+    return color?.name ?? null;
+  }
+
   protected override payloadOf(color: VehicleColor): Record<string, unknown> {
     return {
       ...super.payloadOf(color),

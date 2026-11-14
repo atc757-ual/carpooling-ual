@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsModule } from '../../events/events.module';
 import { RequestsModule } from '../requests/requests.module';
 import { UsersModule } from '../users/users.module';
+import { CatalogsModule } from '../catalogs/catalogs.module';
 import { TripsModule } from '../trips/trips.module';
 import { TripPosition } from './entities/trip-position.entity';
 import { TripShare } from './entities/trip-share.entity';
@@ -21,6 +22,7 @@ import { TripSharesService } from './trip-shares.service';
     TripsModule,
     RequestsModule,
     UsersModule,
+    CatalogsModule,
     EventsModule,
   ],
   controllers: [TrackingController, TripSharesController],

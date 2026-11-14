@@ -81,6 +81,15 @@ export class SharedVehicleResource {
   @ApiProperty({
     type: String,
     nullable: true,
+    example: 'Rojo',
+    description:
+      'The color name from the catalog (the link opens without an account)',
+  })
+  colorName: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
     example: '1234ABC',
     description: 'null once the trip is over',
   })
@@ -180,7 +189,9 @@ export function toTripShareResource(view: SharedTripView): TripShareResource {
     estimatedArrivalAt: arrival?.toISOString() ?? null,
     driver: { firstName: view.driverFirstName },
     vehicle:
-      view.vehicle === null ? null : { ...view.vehicle, plate: view.plate },
+      view.vehicle === null
+        ? null
+        : { ...view.vehicle, colorName: view.colorName, plate: view.plate },
     position:
       position === null
         ? null
