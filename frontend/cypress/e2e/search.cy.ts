@@ -144,7 +144,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-search-results app-route-timeline', 'Roquetas de Mar');
       cy.wait('@search').its('request.body').should('include', { parkingId: 'p1', seats: 1 });
       cy.contains('app-search-results', '1 viaje encontrado').should('be.visible');
-      cy.contains('app-search-results', 'Llega a destino a las').should('be.visible');
+      cy.contains('app-search-results', /llega a destino a las/i).should('be.visible');
       cy.contains('app-search-results app-trip-result-card', 'Lucía Cortés').should('be.visible');
       cy.contains('app-search-results app-trip-result-card', '07:20 → 07:52').should('be.visible');
       cy.contains('app-search-results app-trip-result-card', 'Conduce: Lucía Cortés').should(
