@@ -40,6 +40,9 @@ describe('Legal documents (e2e)', () => {
   let adminToken: string;
   let userToken: string;
   let originalDrafts: DraftRow[] = [];
+  // Las versiones publicadas que trae la base de datos (la 1.0 de cada tipo y
+  // las que publican las migraciones, como la política 1.1): no se borran
+  let originalPublishedIds: string[] = [];
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -55,6 +58,10 @@ describe('Legal documents (e2e)', () => {
       `SELECT id, type, version, content, change_type, summary, created_at
          FROM legal_documents WHERE status = 'draft'`,
     );
+    const published = await dataSource.query<{ id: string }[]>(
+      "SELECT id FROM legal_documents WHERE status = 'published'",
+    );
+    originalPublishedIds = published.map(({ id }) => id);
   });
 
   beforeEach(async () => {
@@ -96,17 +103,22 @@ describe('Legal documents (e2e)', () => {
     );
   }
 
+  // Todo lo que no estaba publicado al empezar (las versiones de los tests y
+  // los borradores, que se vuelven a crear después)
   async function deleteTestVersions(): Promise<void> {
+    const testVersions = `SELECT id FROM legal_documents
+        WHERE id <> ALL($1::uuid[])`;
     await dataSource.query(
-      `DELETE FROM events WHERE source_entity_id IN (
-         SELECT id FROM legal_documents WHERE version <> '1.0')`,
+      `DELETE FROM events WHERE source_entity_id IN (${testVersions})`,
+      [originalPublishedIds],
     );
     await dataSource.query(
-      `DELETE FROM user_consents WHERE document_id IN (
-         SELECT id FROM legal_documents WHERE version <> '1.0')`,
+      `DELETE FROM user_consents WHERE document_id IN (${testVersions})`,
+      [originalPublishedIds],
     );
     await dataSource.query(
-      "DELETE FROM legal_documents WHERE version <> '1.0'",
+      'DELETE FROM legal_documents WHERE id <> ALL($1::uuid[])',
+      [originalPublishedIds],
     );
   }
 
@@ -162,7 +174,7 @@ describe('Legal documents (e2e)', () => {
     expect(response.body).toMatchObject({
       '@type': 'LegalDocument',
       type: 'privacy',
-      version: '1.0',
+      version: '1.1',
     });
     expect((response.body as Document).content).toContain('<h2>');
     await request(app.getHttpServer())
@@ -266,7 +278,7 @@ describe('Legal documents (e2e)', () => {
       const draft = await admin('put', '/privacy/draft')
         .send({ content: '<p>Aclaración</p>', summary: 'Una aclaración.' })
         .expect(200);
-      expect(draft.body).toMatchObject({ version: '1.1', changeType: 'minor' });
+      expect(draft.body).toMatchObject({ version: '1.2', changeType: 'minor' });
       // Cambiar el tipo cambia el número del borrador
       await admin('put', '/privacy/draft')
         .send({
@@ -330,7 +342,7 @@ describe('Legal documents (e2e)', () => {
     expect((list.body as Document[]).map(({ version }) => version)).toContain(
       '1.0',
     );
-    // Las condiciones no tienen borrador (la política sí, de una migración)
+    // Sin borrador (el de la política 1.1 lo publicó su migración)
     const missing = await admin('post', '/terms/draft/publish').expect(404);
     expect((missing.body as { code: string }).code).toBe(
       'LEGAL_DRAFT_NOT_FOUND',
@@ -338,24 +350,31 @@ describe('Legal documents (e2e)', () => {
     await admin('get', '/terms/draft').expect(404);
   });
 
-  it('brings the privacy policy 1.1 draft for review, not published', async () => {
-    const draft = await admin('get', '/privacy/draft').expect(200);
-    expect(draft.body).toMatchObject({
+  it('publishes the privacy policy 1.1 with its migration, as a minor change', async () => {
+    const current = await request(app.getHttpServer())
+      .get('/api/legal-documents/privacy')
+      .expect(200);
+    expect(current.body).toMatchObject({
       version: '1.1',
-      status: 'draft',
       changeType: 'minor',
     });
-    const { content, summary } = draft.body as {
+    const { content, summary } = current.body as {
       content: string;
       summary: string;
     };
     expect(summary).toContain('parte del servicio');
     expect(content).toContain('Ubicación del conductor durante el viaje');
     expect(content).toContain('artículo 6.1.b');
-    await request(app.getHttpServer())
-      .get('/api/legal-documents/privacy')
-      .expect(200)
-      .expect(({ body }) => expect((body as Document).version).toBe('1.0'));
+    expect(content).toContain('Compartir el viaje en directo');
+    // Lo registra como si se publicara desde el panel
+    const [event] = await dataSource.query<{ payload: { version: string } }[]>(
+      `SELECT e.payload FROM events e
+         JOIN legal_documents d ON d.id = e.source_entity_id
+        WHERE e.type = 'legal_document.published' AND d.type = 'privacy'
+          AND d.version = '1.1'`,
+    );
+    expect(event.payload).toMatchObject({ version: '1.1', adminId: null });
+    await admin('get', '/privacy/draft').expect(404);
   });
 
   it('lets only admins manage the documents', async () => {
