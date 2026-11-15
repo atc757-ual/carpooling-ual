@@ -73,12 +73,13 @@ Las horas son de Madrid. «Salida» es la hora a la que sale el conductor (`trip
 
 ## 5. Cancelaciones
 
-| Regla                                                                                                | Valor                 | Código                                                                                         |
-| ---------------------------------------------------------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------- |
-| Cancelar con la plaza aceptada a menos de 30 min de la salida es tardío (conductor o pasajero)       | 30 min                | `LATE_CANCELLATION_LEAD_MIN`                                                                   |
-| Con 3 cancelaciones tardías en 30 días, 7 días sin publicar (conductor) o sin pedir plaza (pasajero) | 3 en 30 días → 7 días | `LATE_CANCELLATIONS_TO_SUSPEND`, `LATE_CANCELLATION_WINDOW_DAYS`, `PUBLISHING_SUSPENSION_DAYS` |
-| Al cancelar el viaje se cancelan sus solicitudes (pendientes y aceptadas)                            | —                     | `requests/trip-changes.listener.ts`                                                            |
-| Con el viaje iniciado, cancelar exige una incidencia (RF-23)                                         | —                     | `TripsService.cancel`                                                                          |
+| Regla                                                                                                                 | Valor                 | Código                                                                                         |
+| --------------------------------------------------------------------------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------- |
+| El conductor que cancela con pasajeros aceptados a menos de 20 min de la salida cancela tarde (15/11/2026)            | 20 min                | `DRIVER_LATE_CANCELLATION_LEAD_MIN`                                                            |
+| El pasajero que suelta su plaza aceptada a menos de 10 min (cuando ya nadie puede pedirla) cancela tarde (15/11/2026) | 10 min                | `PASSENGER_LATE_CANCELLATION_LEAD_MIN`                                                         |
+| Con 3 cancelaciones tardías en 30 días, 7 días sin publicar (conductor) o sin pedir plaza (pasajero)                  | 3 en 30 días → 7 días | `LATE_CANCELLATIONS_TO_SUSPEND`, `LATE_CANCELLATION_WINDOW_DAYS`, `PUBLISHING_SUSPENSION_DAYS` |
+| Al cancelar el viaje se cancelan sus solicitudes (pendientes y aceptadas)                                             | —                     | `requests/trip-changes.listener.ts`                                                            |
+| Con el viaje iniciado, cancelar exige una incidencia (RF-23)                                                          | —                     | `TripsService.cancel`                                                                          |
 
 ## 6. Después del viaje
 

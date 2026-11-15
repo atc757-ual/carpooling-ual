@@ -32,6 +32,11 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { publicWebOrigin } from '../../../shared/utils/public-url.util';
 import { formatTime } from '../../matching/trip-results';
 import { finishTrip } from '../finish-trip.util';
+import {
+  DRIVER_LATE_CANCELLATION_LEAD_MIN,
+  freeCancellationUntil,
+  isWithinLeadMinutes,
+} from '../late-cancellation';
 import { buildSeatsShareText } from '../trip-share-text';
 import { withDeclarations } from '../with-declarations';
 
@@ -155,18 +160,18 @@ export class DriverTripActions {
     });
   }
 
-  // Con pasajeros (confirmado) y a menos de 30 min de la salida: el aviso
+  // Con pasajeros (confirmado) y a menos de 20 min de la salida: el aviso
   // aparece solo entonces (la hora se revisa cada minuto)
   readonly cancellationIsLate = computed(() => {
     const trip = this.trip();
     return (
       trip.status === 'confirmed' &&
-      new Date(trip.departureAt).getTime() - this.now() < 30 * 60 * 1000
+      isWithinLeadMinutes(trip.departureAt, DRIVER_LATE_CANCELLATION_LEAD_MIN, this.now())
     );
   });
 
   // Hasta cuándo se cancela sin coste, antes del botón (como al pasajero): con
-  // pasajeros, nada hasta 30 min antes de la salida; sin ellos, nunca cuenta
+  // pasajeros, nada hasta 20 min antes de la salida; sin ellos, nunca cuenta
   readonly cancelCost = computed(() => {
     const trip = this.trip();
     if (this.cancellationIsLate()) {
@@ -176,9 +181,9 @@ export class DriverTripActions {
       return 'Sin pasajeros aceptados, puedes cancelarlo sin coste.';
     }
     const freeUntil = formatTime(
-      new Date(new Date(trip.departureAt).getTime() - 30 * 60 * 1000).toISOString(),
+      freeCancellationUntil(trip.departureAt, DRIVER_LATE_CANCELLATION_LEAD_MIN),
     );
-    return `Sin coste hasta las ${freeUntil} (30 min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder publicar.`;
+    return `Sin coste hasta las ${freeUntil} (${DRIVER_LATE_CANCELLATION_LEAD_MIN} min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder publicar.`;
   });
 
   async handleStart(): Promise<void> {
@@ -257,7 +262,7 @@ export class DriverTripActions {
     }
     const isLate = this.cancellationIsLate();
     const message = isLate
-      ? 'La salida está a menos de 30 minutos (o ya pasó) y hay pasajeros aceptados. Esta cancelación contará como tardía y puede suspender tus publicaciones al llegar a 3 en 30 días. Avisaremos a los pasajeros.'
+      ? 'La salida está a menos de 20 minutos (o ya pasó) y hay pasajeros aceptados. Esta cancelación contará como tardía y puede suspender tus publicaciones al llegar a 3 en 30 días. Avisaremos a los pasajeros.'
       : 'Se avisará a los pasajeros y dejarán de tener sus plazas. Puedes publicar otro viaje cuando quieras.';
     const accepted = await this.confirm.ask({
       header: '¿Cancelar este viaje?',

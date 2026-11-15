@@ -355,11 +355,11 @@ describe('DriverTripActions', () => {
     expect(root.querySelector('.notice--warning')).toBeNull();
   });
 
-  it('warns about a late cancellation only with passengers and under 30 minutes', async () => {
+  it('warns about a late cancellation only with passengers and under 20 minutes', async () => {
     const root = await render({
       ...TRIP,
       status: 'confirmed',
-      departureAt: new Date(Date.now() + 20 * 60 * 1000).toISOString(),
+      departureAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
     });
 
     expect(root.querySelector('.notice--warning')?.textContent).toContain(
@@ -374,10 +374,10 @@ describe('DriverTripActions', () => {
       status: 'confirmed',
       departureAt: departureAt.toISOString(),
     });
-    const freeUntil = formatTime(new Date(departureAt.getTime() - 30 * 60 * 1000).toISOString());
+    const freeUntil = formatTime(new Date(departureAt.getTime() - 20 * 60 * 1000).toISOString());
 
     expect(root.querySelector('.driver-actions__cancel-cost')?.textContent).toContain(
-      `Sin coste hasta las ${freeUntil} (30 min antes de la salida)`,
+      `Sin coste hasta las ${freeUntil} (20 min antes de la salida)`,
     );
     expect(root.querySelector('.notice--warning')).toBeNull();
   });

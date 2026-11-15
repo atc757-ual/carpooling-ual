@@ -6313,7 +6313,7 @@
     },
     "/api/trips/{id}/cancel": {
       "post": {
-        "description": "RF-05. Only its driver. With accepted passengers and less than 30 minutes before the departure, it counts as a late cancellation (see GET /users/me/publishing-status). Once started, cancelling requires an incident (RF-23).",
+        "description": "RF-05. Only its driver. With accepted passengers and less than 20 minutes before the departure, it counts as a late cancellation (see GET /users/me/publishing-status). Once started, cancelling requires an incident (RF-23).",
         "operationId": "TripsController_cancel",
         "parameters": [
           {
@@ -16002,7 +16002,7 @@
           "lateCancellations": {
             "type": "number",
             "example": 1,
-            "description": "Late cancellations in the last 30 days (with accepted passengers, less than 30 minutes before departure)"
+            "description": "Late cancellations in the last 30 days (with accepted passengers, less than 20 minutes before departure)"
           },
           "publishingSuspendedUntil": {
             "type": "string",
@@ -16797,7 +16797,7 @@
           "lateCancellations": {
             "type": "number",
             "example": 1,
-            "description": "Late cancellations in the last 30 days (an accepted seat released less than 30 minutes before departure)"
+            "description": "Late cancellations in the last 30 days (an accepted seat released less than 10 minutes before departure)"
           },
           "requestingSuspendedUntil": {
             "type": "string",

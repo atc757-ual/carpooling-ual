@@ -24,8 +24,8 @@ export const SUPPORT_FAQS: readonly Faq[] = [
     question: '¿Puedo cancelar mi plaza?',
     answer: 'Sí, desde Tus viajes, y depende del momento:',
     points: [
-      'Hasta 30 minutos antes de la salida: sin penalización; avisamos a quien conduce.',
-      'A menos de 30 minutos: es una cancelación tardía. Con 3 en 30 días, no podrás pedir plaza durante 7 días.',
+      'Hasta 10 minutos antes de la salida: sin penalización; avisamos a quien conduce.',
+      'A menos de 10 minutos: es una cancelación tardía. Con 3 en 30 días, no podrás pedir plaza durante 7 días.',
       'Con el viaje ya empezado: solo comunicando una incidencia.',
     ],
   },
