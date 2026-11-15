@@ -5,10 +5,10 @@
   <ion-card-content>
     <!-- Con la aceptación automática, las que caben no pasan por aquí -->
     @if (trip().autoAccept && isOpen()) {
-      <div class="notice notice--info driver-trip__auto-accept driver-trip__auto-accept-notice" role="status">
+      <output class="notice notice--info driver-trip__auto-accept driver-trip__auto-accept-notice">
         <ion-icon [icon]="autoAcceptIcon" aria-hidden="true" />
         <span>Aceptas solicitudes automáticamente</span>
-      </div>
+      </output>
     }
 
     <!-- Las plazas como asientos: ocupados en azul, libres con borde -->
@@ -48,7 +48,9 @@
                       <div class="driver-trip__user-info">
                         <span class="driver-trip__name">{{ request.passenger.name }}</span>
                         <div class="driver-trip__sub">
-                          <span class="text-caption text-color-muted">{{ formatSeats(request.seats) }}</span>
+                          <span class="text-caption text-color-muted">{{
+                            formatSeats(request.seats)
+                          }}</span>
                           @if (request.isPriority) {
                             <span class="status status--pending">Prioridad</span>
                           }
@@ -58,7 +60,10 @@
 
                     @if (request.status !== 'pending') {
                       <div class="driver-trip__accepted-actions">
-                        <span class="status" [class.status--accepted]="request.status === 'accepted'">
+                        <span
+                          class="status"
+                          [class.status--accepted]="request.status === 'accepted'"
+                        >
                           {{ requestLabel(request) }}
                         </span>
                         @if (request.status === 'accepted' && hasChat()) {
