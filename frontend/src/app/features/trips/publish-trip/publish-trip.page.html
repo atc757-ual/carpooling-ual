@@ -337,13 +337,17 @@
                 <span class="text-body-s">Sin indicar</span>
               }
               @if (!published()) {
-                <a class="publish__preferences-link text-body-s" routerLink="/tabs/profile">
+                <button
+                  type="button"
+                  class="publish__preferences-link text-body-s"
+                  (click)="handleEditPreferences()"
+                >
                   {{
                     myPreferences().length > 0
-                      ? 'Cambiarlas en tu perfil'
-                      : 'Indicarlas en tu perfil'
+                      ? 'Cambiarlas'
+                      : 'Indicarlas'
                   }}
-                </a>
+                </button>
               }
             </div>
             <p class="text-caption text-color-muted">

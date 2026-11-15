@@ -264,7 +264,16 @@
 }
 
 .publish__preferences-link {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--color-link);
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 // La declaración ya aceptada: el check verde a la altura del título
