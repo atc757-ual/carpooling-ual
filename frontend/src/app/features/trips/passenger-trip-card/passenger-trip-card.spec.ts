@@ -44,19 +44,16 @@ describe('PassengerTripCard', () => {
     expect(root.textContent).not.toContain('Cancelar solicitud');
   });
 
-  it('says the next step: who to wait for or when the pickup is', () => {
+  it('says the next step: who to wait for when pending; no redundant text when accepted', () => {
     expect(next(render(passengerTrip('pending', 'published')))).toBe(
       'Esperando respuesta de Lucía',
     );
     TestBed.resetTestingModule();
-    // Sin hora de recogida, aunque la haya, hasta decidir el cálculo
     expect(
       next(render(passengerTrip('accepted', 'confirmed', { pickupAt: '2099-01-15T06:50:00Z' }))),
-    ).toBe('Confirmada: viajas con Lucía');
+    ).toBeUndefined();
     TestBed.resetTestingModule();
-    expect(next(render(passengerTrip('accepted', 'confirmed')))).toBe(
-      'Confirmada: viajas con Lucía',
-    );
+    expect(next(render(passengerTrip('accepted', 'confirmed')))).toBeUndefined();
   });
 
   it('has no next step once the trip is over, and gives the reason when not made', () => {

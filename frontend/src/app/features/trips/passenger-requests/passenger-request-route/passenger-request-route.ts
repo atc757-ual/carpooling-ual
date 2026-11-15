@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   IonButton,
   IonCard,
@@ -8,7 +9,7 @@ import {
   IonIcon,
   IonSpinner,
 } from '@ionic/angular';
-import { callOutline, carOutline } from 'ionicons/icons';
+import { callOutline, carOutline, chatbubblesOutline } from 'ionicons/icons';
 import { ChatContact } from '../../../../core/models/chat.model';
 import { Trip } from '../../../../core/models/driver.model';
 import { SeatRequest } from '../../../../core/models/seat-request.model';
@@ -49,6 +50,7 @@ import { formatTime } from '../../../matching/trip-results';
     RouteTimeline,
     TripDriverComponent,
     TripRouteMap,
+    RouterLink,
   ],
   templateUrl: './passenger-request-route.html',
   styleUrl: './passenger-request-route.scss',
@@ -178,11 +180,26 @@ export class PassengerRequestRoute {
     this.travelPreferences.format(this.trip().driver.preferences),
   );
 
+  readonly hasChat = computed(() => {
+    const { status: requestStatus } = this.request();
+    const { status: tripStatus } = this.trip();
+    return (
+      requestStatus === 'accepted' &&
+      (tripStatus === 'confirmed' || tripStatus === 'in_progress')
+    );
+  });
+
   protected readonly carIcon = carOutline;
   protected readonly callIcon = callOutline;
+  protected readonly chatIcon = chatbubblesOutline;
   protected readonly vehicleName = vehicleDisplayName;
   protected readonly vehicleColor = (color: string | null) => this.colors.label(color);
   protected readonly vehicleSwatch = (color: string | null) => this.colors.swatch(color);
+
+  chatDriverLabel(): string {
+    const name = getFirstName(this.trip().driver.name);
+    return `Escribir a ${name}`;
+  }
 
   canCallDriver(): boolean {
     return this.tripCall.canCall(this.trip().status, this.driverContact());

@@ -43,18 +43,31 @@
     <div class="passenger-route__driver-row">
       <app-trip-driver [driver]="driver()" />
       @if (request().status === 'accepted') {
-        <ion-button
-          class="passenger-route__call-btn"
-          [class.passenger-route__call-btn--unavailable]="!canCallDriver()"
-          fill="outline"
-          size="small"
-          [attr.aria-label]="callDriverLabel()"
-          [title]="callDriverLabel()"
-          (click)="handleCallDriver()"
-        >
-          <ion-icon slot="start" [icon]="callIcon" aria-hidden="true" />
-          {{ callDriverLabel() }}
-        </ion-button>
+        <div class="passenger-route__driver-actions">
+          @if (hasChat()) {
+            <ion-button
+              class="passenger-route__chat-btn"
+              fill="outline"
+              size="small"
+              [routerLink]="['/tabs/messages', trip().id]"
+              [attr.aria-label]="chatDriverLabel()"
+              [title]="chatDriverLabel()"
+            >
+              <ion-icon slot="icon-only" [icon]="chatIcon" aria-hidden="true" />
+            </ion-button>
+          }
+          <ion-button
+            class="passenger-route__call-btn"
+            [class.passenger-route__call-btn--unavailable]="!canCallDriver()"
+            fill="outline"
+            size="small"
+            [attr.aria-label]="callDriverLabel()"
+            [title]="callDriverLabel()"
+            (click)="handleCallDriver()"
+          >
+            <ion-icon slot="icon-only" [icon]="callIcon" aria-hidden="true" />
+          </ion-button>
+        </div>
       }
     </div>
 

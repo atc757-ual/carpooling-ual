@@ -169,7 +169,7 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.textContent).not.toContain('Hora de recogida');
     expect(root.textContent).toContain('Puedes cancelarla sin coste.');
     expect(root.textContent).toContain('Cancelar solicitud');
-    expect(root.querySelector('app-trip-chat-link')).toBeNull();
+    expect(root.querySelector('.passenger-route__chat-btn')).toBeNull();
   });
 
   it('shows an accepted request with the plate, the chat and the code from 10 min before', async () => {
@@ -181,9 +181,11 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.textContent).toContain('Tienes plaza en el coche de Lucía.');
     expect(root.textContent).toContain('1234BCD');
     expect(root.textContent).toContain('Cancelar mi plaza');
-    expect(root.querySelector('app-trip-chat-link')?.textContent).toContain(
-      'Chat con el conductor',
-    );
+    expect(root.querySelector('.passenger-route__chat-btn')).not.toBeNull();
+    expect(
+      root.querySelector('.passenger-route__chat-btn')?.getAttribute('title'),
+    ).toBe('Escribir a Lucía');
+    expect(root.querySelector('.passenger-route__call-btn')).not.toBeNull();
     expect(root.textContent).toContain('Verás el código 10 minutos antes de la salida');
   });
 

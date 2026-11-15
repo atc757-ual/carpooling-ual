@@ -56,12 +56,19 @@ ion-card.passenger-route ion-card-content {
   }
 }
 
-.passenger-route__call-btn {
+.passenger-route__driver-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.passenger-route__call-btn,
+.passenger-route__chat-btn {
   --color: var(--color-link);
   --border-color: var(--color-link);
   margin: 0;
-  min-height: var(--control-height-s); // 44px
-  font-size: var(--font-size-label);
+  min-width: 2.75rem; // 44px
+  min-height: 2.75rem;
 
   &--unavailable {
     --color: var(--color-text-muted);

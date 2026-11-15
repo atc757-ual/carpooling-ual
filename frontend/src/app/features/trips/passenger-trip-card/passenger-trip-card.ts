@@ -55,8 +55,9 @@ export class PassengerTripCard {
     if (request.status === 'pending') {
       return `Esperando respuesta de ${driverName}`;
     }
-    // Sin hora de recogida por ahora: la estimada no suma las otras recogidas
-    return `Confirmada: viajas con ${driverName}`;
+    // Si ya está aceptada, la etiqueta superior y los detalles ya indican el estado
+    // y con quién se viaja; se omite para evitar redundancias
+    return null;
   });
 
   // «Conduce Lucía Cortés · 2 plazas · Matrícula 1234BCD» (la matrícula, al confirmarla)
