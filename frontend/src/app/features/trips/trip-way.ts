@@ -6,8 +6,8 @@ export interface TripWay {
   icon: string;
 }
 
-const TO_CAMPUS: TripWay = { label: 'Ida al campus', icon: schoolOutline };
-const FROM_CAMPUS: TripWay = { label: 'Vuelta a casa', icon: homeOutline };
+export const TO_CAMPUS: TripWay = { label: 'Ida al campus', icon: schoolOutline };
+export const FROM_CAMPUS: TripWay = { label: 'Vuelta a casa', icon: homeOutline };
 
 // Si un viaje es de ida (al campus) o de vuelta (desde el campus), para
 // distinguirlos en Tus viajes; null si no toca el campus por ninguno de los

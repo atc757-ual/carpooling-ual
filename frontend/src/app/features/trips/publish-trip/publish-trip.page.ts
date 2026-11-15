@@ -64,7 +64,6 @@ import {
   isReturnBeforeArrival,
   toReturnTripRequest,
 } from '../return-trip-field/return-trip';
-import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
 import { withDeclarations } from '../with-declarations';
 import {
   buildStops,
@@ -144,7 +143,6 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
     DeclarationField,
     PickupModeField,
     ReturnTripField,
-    SeatStepper,
     FaqCard,
     RouteFields,
     RouteTimeline,

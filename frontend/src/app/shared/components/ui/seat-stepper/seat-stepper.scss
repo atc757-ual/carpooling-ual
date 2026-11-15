@@ -18,8 +18,16 @@
 
 .seat-stepper legend {
   // La leyenda no respeta el gap del fieldset: su separación va aquí
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
   margin-block-end: var(--space-s);
   padding: 0;
+}
+
+.seat-stepper__icon {
+  color: var(--color-link);
+  font-size: 1rem; // 16px
 }
 
 // Como un campo más (el borde, las esquinas y el alto de los de al lado), a

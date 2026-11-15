@@ -34,11 +34,19 @@
   @if (selectedVehicle()) {
     <!-- Las plazas y, a la derecha, el botón para seguir -->
     <div class="vehicle-picker__row">
-      <app-seat-stepper
-        [formControl]="controls().seats"
-        label="Plazas ofrecidas"
-        [max]="maxSeats()"
-      />
+      @if (returnSeats(); as returnSeats) {
+        <app-round-trip-seats
+          [seats]="controls().seats"
+          [returnSeats]="returnSeats"
+          [max]="maxSeats()"
+        />
+      } @else {
+        <app-seat-stepper
+          [formControl]="controls().seats"
+          label="Plazas ofrecidas"
+          [max]="maxSeats()"
+        />
+      }
       <ng-content />
     </div>
   }

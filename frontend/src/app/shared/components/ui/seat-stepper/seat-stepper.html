@@ -1,5 +1,10 @@
 <fieldset class="seat-stepper">
-  <legend class="text-label text-label--strong">{{ label() }}</legend>
+  <legend class="seat-stepper__legend text-label text-label--strong">
+    @if (icon(); as icon) {
+      <ion-icon class="seat-stepper__icon" [icon]="icon" aria-hidden="true" />
+    }
+    {{ label() }}
+  </legend>
   <div class="seat-stepper__controls">
     <button
       type="button"
