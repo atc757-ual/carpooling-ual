@@ -6,36 +6,38 @@
   }
 </span>
 <div class="trip-driver__person">
-  <div class="trip-driver__name">{{ driver().name }}</div>
-  <div class="text-caption text-color-muted">{{ details() }}</div>
+  <div class="trip-driver__head">
+    <span class="trip-driver__name">{{ driver().name }}</span>
+    @if (showRating() && rating(); as rating) {
+      @if (driver().id) {
+        <button
+          class="trip-driver__rating trip-driver__rating--button"
+          type="button"
+          [attr.aria-label]="'Valoración ' + rating + ' de 5. Ver valoraciones'"
+          (click)="openReviews()"
+        >
+          <ion-icon
+            class="trip-driver__thumb"
+            [class.trip-driver__thumb--up]="(driver().rating ?? 0) >= 3"
+            [class.trip-driver__thumb--down]="(driver().rating ?? 0) < 3"
+            [icon]="(driver().rating ?? 0) >= 3 ? upIcon : downIcon"
+            aria-hidden="true"
+          />
+          <span>{{ rating }}</span>
+        </button>
+      } @else {
+        <span class="trip-driver__rating" [attr.aria-label]="'Valoración ' + rating + ' de 5'">
+          <ion-icon
+            class="trip-driver__thumb"
+            [class.trip-driver__thumb--up]="(driver().rating ?? 0) >= 3"
+            [class.trip-driver__thumb--down]="(driver().rating ?? 0) < 3"
+            [icon]="(driver().rating ?? 0) >= 3 ? upIcon : downIcon"
+            aria-hidden="true"
+          />
+          <span>{{ rating }}</span>
+        </span>
+      }
+    }
+  </div>
+  <div class="trip-driver__details">{{ details() }}</div>
 </div>
-@if (rating(); as rating) {
-  @if (driver().id) {
-    <button
-      class="trip-driver__rating trip-driver__rating--button"
-      type="button"
-      [attr.aria-label]="'Valoración ' + rating + ' de 5. Ver valoraciones'"
-      (click)="openReviews()"
-    >
-      <ion-icon
-        class="trip-driver__thumb"
-        [class.trip-driver__thumb--up]="(driver().rating ?? 0) >= 3"
-        [class.trip-driver__thumb--down]="(driver().rating ?? 0) < 3"
-        [icon]="(driver().rating ?? 0) >= 3 ? upIcon : downIcon"
-        aria-hidden="true"
-      />
-      <span>{{ rating }}</span>
-    </button>
-  } @else {
-    <span class="trip-driver__rating" [attr.aria-label]="'Valoración ' + rating + ' de 5'">
-      <ion-icon
-        class="trip-driver__thumb"
-        [class.trip-driver__thumb--up]="(driver().rating ?? 0) >= 3"
-        [class.trip-driver__thumb--down]="(driver().rating ?? 0) < 3"
-        [icon]="(driver().rating ?? 0) >= 3 ? upIcon : downIcon"
-        aria-hidden="true"
-      />
-      <span>{{ rating }}</span>
-    </span>
-  }
-}

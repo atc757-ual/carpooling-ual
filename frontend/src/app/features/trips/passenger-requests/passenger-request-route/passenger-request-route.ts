@@ -8,8 +8,9 @@ import {
   IonCardTitle,
   IonIcon,
   IonSpinner,
+  ModalController,
 } from '@ionic/angular';
-import { callOutline, carOutline, chatbubblesOutline } from 'ionicons/icons';
+import { callOutline, carOutline, chatbubblesOutline, thumbsDown, thumbsUp } from 'ionicons/icons';
 import { ChatContact } from '../../../../core/models/chat.model';
 import { Trip } from '../../../../core/models/driver.model';
 import { SeatRequest } from '../../../../core/models/seat-request.model';
@@ -33,6 +34,11 @@ import {
   TripDriver as TripDriverComponent,
 } from '../../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../../matching/trip-results';
+
+const RATING_FORMAT = new Intl.NumberFormat('es-ES', {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
 
 // «Tu recorrido» y «Conductor y coche» en el detalle de la solicitud del
 // pasajero: el mapa con su punto de recogida, las paradas con sus horas,
@@ -60,6 +66,7 @@ export class PassengerRequestRoute {
   private readonly colors = inject(VehicleColorsStore);
   private readonly travelPreferences = inject(TravelPreferencesStore);
   private readonly tripCall = inject(TripCallService);
+  private readonly modalController = inject(ModalController);
 
   readonly request = input.required<SeatRequest>();
   readonly trip = input.required<Trip>();
@@ -179,6 +186,27 @@ export class PassengerRequestRoute {
   readonly preferences = computed(() =>
     this.travelPreferences.format(this.trip().driver.preferences),
   );
+
+  readonly rating = computed(() => {
+    const { rating } = this.driver();
+    return rating === undefined ? null : RATING_FORMAT.format(rating);
+  });
+
+  protected readonly upIcon = thumbsUp;
+  protected readonly downIcon = thumbsDown;
+
+  async openReviews(): Promise<void> {
+    const { id, name } = this.driver();
+    const { DriverReviewsModal } = await import(
+      '../../../matching/driver-reviews-modal/driver-reviews-modal'
+    );
+    const modal = await this.modalController.create({
+      component: DriverReviewsModal,
+      cssClass: 'info-dialog',
+      componentProps: { driverId: id, driverName: name },
+    });
+    await modal.present();
+  }
 
   readonly hasChat = computed(() => {
     const { status: requestStatus } = this.request();

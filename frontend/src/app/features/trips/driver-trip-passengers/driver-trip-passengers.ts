@@ -20,7 +20,7 @@ import { TripCallService } from '../../../core/services/trips/trip-call.service'
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatSeats } from '../../../shared/utils/seats.util';
-import { getFirstName } from '../../matching/trip-driver/trip-driver';
+import { getFirstName, getInitials } from '../../matching/trip-driver/trip-driver';
 
 const REQUEST_STATUS_LABELS: Record<SeatRequestStatus, string> = {
   pending: 'Pendiente',
@@ -61,6 +61,8 @@ export class DriverTripPassengers {
 
   readonly trip = input.required<DriverTrip>();
   readonly changed = output<void>();
+
+  protected readonly passengerInitials = getInitials;
 
   readonly isOpen = computed(() => OPEN_STATUSES.has(this.trip().status));
   // El chat existe desde que hay pasajeros aceptados (confirmado) y en curso:
