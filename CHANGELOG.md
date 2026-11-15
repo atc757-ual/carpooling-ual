@@ -7,6 +7,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Valoraciones de 1 a 5 con manitas (RF-22):** una sola escala de 5 puntos entre la manita abajo y la manita arriba, al valorar (cinco botones, «4 de 5 · Bien») y al mostrar la nota (`app-rating-bar`, «4,6 de 5 · 12 valoraciones»): en la tarjeta del conductor, el modal de reseñas, el Perfil, Mis viajes y el panel. Sin estrellas (#313).
+
 ### Added
 
 - **Pantallas del viaje compartido en directo:** el pasajero con la plaza aceptada tiene «Compartir mi viaje en directo» en la tarjeta «Tu seguridad» de «En curso» y en el detalle de su plaza: genera el enlace y lo envía con el menú del sistema o WhatsApp; mientras comparte, «Enviar el enlace» y «Dejar de compartir». La página pública `/seguir/:token` (sin sesión ni pestañas, no se indexa) muestra el estado («Esperando la recogida», «En el coche», «El viaje ha terminado»), el mapa con el coche y la ruta con el viaje en curso (se actualiza cada 10 s), la recogida, el destino, la llegada estimada, quién conduce y el coche con su matrícula; un enlace que ya no vale lo explica. La API añade el nombre del color (`vehicle.colorName`), porque quien abre el enlace no puede pedir el catálogo. El mapa de la ruta acepta el coche (`car`), y el patrón queda en la guía de estilos (#307).
