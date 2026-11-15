@@ -227,7 +227,7 @@ describe('Trips API (e2e)', () => {
         departureAt: body.departureAt,
         offeredSeats: 3,
         availableSeats: 3,
-        maxDetourMin: 10,
+        maxDetourMin: 12,
         pickupMode: 'on_route',
         maxDetourM: 300,
         stops: [],

@@ -133,19 +133,6 @@ export class PublishTripDto {
   offeredSeats!: number;
 
   @ApiPropertyOptional({
-    minimum: 0,
-    maximum: 60,
-    default: 10,
-    description:
-      'Detour budget of the whole trip, in minutes: the detours and stops (2 min each) of every accepted passenger',
-  })
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Max(60)
-  maxDetourMin?: number;
-
-  @ApiPropertyOptional({
     enum: TRIP_PICKUP_MODES,
     default: 'on_route',
     description:

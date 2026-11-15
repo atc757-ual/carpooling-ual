@@ -1,4 +1,4 @@
-import type { EntityManager, LineString, Point, Repository } from 'typeorm';
+import type { LineString, Point, Repository } from 'typeorm';
 import type { CampusParkingsService } from '../places/campus-parkings.service';
 import type { TripStop } from './entities/trip-stop.entity';
 import { InvalidStopsError } from './errors/invalid-stops.error';
@@ -45,18 +45,15 @@ describe('TripStopsService', () => {
       legsMin: [3.4, 4.2, 7.4],
     });
 
-    const published = await service.planRoute(
-      {
-        origin: ORIGIN,
-        destination: CAMPUS,
-        pickupMode: 'stops',
-        stops: [
-          { name: 'Second', location: point(-2.43) },
-          { name: 'First', location: point(-2.45) },
-        ],
-      },
-      10,
-    );
+    const published = await service.planRoute({
+      origin: ORIGIN,
+      destination: CAMPUS,
+      pickupMode: 'stops',
+      stops: [
+        { name: 'Second', location: point(-2.43) },
+        { name: 'First', location: point(-2.45) },
+      ],
+    });
 
     expect(planVia).toHaveBeenCalledWith(
       ORIGIN,
@@ -64,6 +61,7 @@ describe('TripStopsService', () => {
       CAMPUS,
     );
     expect(published.directDurationMin).toBe(12);
+    expect(published.routeDetourMin).toBe(3);
     expect(published.stops).toEqual([
       { name: 'First', location: point(-2.45), position: 0, etaOffsetMin: 3 },
       { name: 'Second', location: point(-2.43), position: 1, etaOffsetMin: 8 },
@@ -74,15 +72,13 @@ describe('TripStopsService', () => {
     const stops = [{ name: 'Stop', location: point(-2.44) }];
     const trip = { origin: ORIGIN, destination: CAMPUS, stops };
 
-    await expect(service.planRoute(trip, 10)).rejects.toThrow(
-      InvalidStopsError,
-    );
+    await expect(service.planRoute(trip)).rejects.toThrow(InvalidStopsError);
     await expect(
-      service.planRoute({ ...trip, pickupMode: 'stops', maxDetourM: 500 }, 10),
+      service.planRoute({ ...trip, pickupMode: 'stops', maxDetourM: 500 }),
     ).rejects.toThrow(InvalidStopsError);
     isNearAny.mockResolvedValue(false);
     await expect(
-      service.planRoute({ ...trip, pickupMode: 'stops' }, 10),
+      service.planRoute({ ...trip, pickupMode: 'stops' }),
     ).rejects.toThrow(InvalidStopsError);
     isNearAny.mockResolvedValue(true);
     planVia.mockResolvedValue({
@@ -90,62 +86,41 @@ describe('TripStopsService', () => {
       legsMin: [10, 15],
     });
     await expect(
-      service.planRoute({ ...trip, pickupMode: 'stops' }, 10),
+      service.planRoute({ ...trip, pickupMode: 'stops' }),
     ).rejects.toThrow(StopsExceedDetourError);
   });
 
   it('keeps the direct route when picking up on the route', async () => {
     await expect(
-      service.planRoute({ origin: ORIGIN, destination: CAMPUS }, 10),
-    ).resolves.toEqual({ route: DIRECT, directDurationMin: 12, stops: [] });
+      service.planRoute({ origin: ORIGIN, destination: CAMPUS }),
+    ).resolves.toEqual({
+      route: DIRECT,
+      directDurationMin: 12,
+      routeDetourMin: 0,
+      stops: [],
+    });
     expect(planVia).not.toHaveBeenCalled();
   });
 
   describe('assertChangesFit', () => {
-    const trip = { id: 't1', pickupMode: 'stops' as const };
-    const findOneByOrFail = jest.fn();
-    const find = jest.fn();
-    const manager = { findOneByOrFail, find } as unknown as EntityManager;
+    const trip = { pickupMode: 'stops' as const };
 
-    beforeEach(() => {
-      // 3 min de las paradas en la ruta y alguien en dos paradas: 7 min
-      findOneByOrFail.mockResolvedValue({
-        durationMin: 15,
-        directDurationMin: 12,
-      });
-      find.mockResolvedValue([
-        { stopId: 's1' },
-        { stopId: 's1' },
-        { stopId: 's2' },
-      ]);
-    });
-
-    it('lets a trip on the route change freely', async () => {
-      await expect(
+    it('lets a trip on the route change freely', () => {
+      expect(() =>
         service.assertChangesFit(
-          manager,
-          { ...trip, pickupMode: 'on_route' },
+          { pickupMode: 'on_route' },
           { origin: ORIGIN, maxDetourM: 300 },
         ),
-      ).resolves.toBeUndefined();
+      ).not.toThrow();
     });
 
-    it('keeps a detour that still covers the one already spent', async () => {
-      await expect(
-        service.assertChangesFit(manager, trip, { maxDetourMin: 7 }),
-      ).resolves.toBeUndefined();
-      await expect(
-        service.assertChangesFit(manager, trip, { maxDetourMin: 6 }),
-      ).rejects.toThrow(StopsExceedDetourError);
-    });
-
-    it('does not move a trip with stops nor give it metres', async () => {
-      await expect(
-        service.assertChangesFit(manager, trip, { destination: CAMPUS }),
-      ).rejects.toThrow(InvalidStopsError);
-      await expect(
-        service.assertChangesFit(manager, trip, { maxDetourM: 500 }),
-      ).rejects.toThrow(InvalidStopsError);
+    it('does not move a trip with stops nor give it metres', () => {
+      expect(() =>
+        service.assertChangesFit(trip, { destination: CAMPUS }),
+      ).toThrow(InvalidStopsError);
+      expect(() => service.assertChangesFit(trip, { maxDetourM: 500 })).toThrow(
+        InvalidStopsError,
+      );
     });
   });
 });

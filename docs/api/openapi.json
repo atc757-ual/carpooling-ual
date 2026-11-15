@@ -15335,13 +15335,6 @@
             "description": "Seats offered to passengers (at most the vehicle capacity)",
             "example": 3
           },
-          "maxDetourMin": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 60,
-            "default": 10,
-            "description": "Detour budget of the whole trip, in minutes: the detours and stops (2 min each) of every accepted passenger"
-          },
           "pickupMode": {
             "type": "string",
             "enum": [
@@ -16065,13 +16058,6 @@
             "maximum": 8,
             "description": "Seats offered to passengers (at most the vehicle capacity)",
             "example": 3
-          },
-          "maxDetourMin": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 60,
-            "default": 10,
-            "description": "Detour budget of the whole trip, in minutes: the detours and stops (2 min each) of every accepted passenger"
           },
           "maxDetourM": {
             "type": "number",

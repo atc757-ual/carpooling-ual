@@ -41,6 +41,7 @@ import { asReturnLeg, toReturnTripInput } from './return-trip';
 import type { ReturnTripInput } from './return-trip';
 import {
   DEFAULT_MAX_DETOUR_M,
+  detourBudgetMin,
   MIN_DEPARTURE_LEAD_MIN,
   MINUTE_MS,
   resolveDeparture,
@@ -109,8 +110,6 @@ export interface TripRouteView {
   isGeometryHidden?: boolean;
 }
 
-const DEFAULT_MAX_DETOUR_MIN = 10;
-
 // Viajes (RF-04, RF-05, RF-11): las operaciones del usuario. Los cambios de
 // estado, los eventos (outbox, RNF-08) y las plazas los hace TripStatusService
 @Injectable()
@@ -146,11 +145,9 @@ export class TripsService {
     // la salida porque, con la llegada, depende de ella
     const { arrivalAt, departureAt, stops, returnTrip, ...fields } =
       publishInput;
-    const maxDetourMin = fields.maxDetourMin ?? DEFAULT_MAX_DETOUR_MIN;
-    const published = await this.tripStops.planRoute(
-      { ...fields, stops },
-      maxDetourMin,
-    );
+    const published = await this.tripStops.planRoute({ ...fields, stops });
+    // El desvío máximo lo calcula el sistema (plazas y metros, o paradas)
+    const maxDetourMin = budgetOf(fields, published);
     const input: TripInput = {
       ...fields,
       maxDetourMin,
@@ -189,13 +186,11 @@ export class TripsService {
     driverId: string,
     input: TripInput,
   ): Promise<{ input: TripInput; route: PublishedRoute }> {
-    const route = await this.tripStops.planRoute(
-      input,
-      input.maxDetourMin ?? 0,
-    );
-    await this.assertValidTrip(driverId, input);
+    const route = await this.tripStops.planRoute(input);
+    const withBudget = { ...input, maxDetourMin: budgetOf(input, route) };
+    await this.assertValidTrip(driverId, withBudget);
     assertDepartureLead(input.departureAt);
-    return { input, route };
+    return { input: withBudget, route };
   }
 
   // Guarda un viaje nuevo con su ruta, sus paradas y su evento, sin cruzarse
@@ -207,7 +202,7 @@ export class TripsService {
     input: TripInput,
     published: PublishedRoute,
   ): Promise<Trip> {
-    const maxDetourMin = input.maxDetourMin ?? DEFAULT_MAX_DETOUR_MIN;
+    const maxDetourMin = input.maxDetourMin ?? budgetOf(input, published);
     await this.publishingLimits.assertCanSchedule(manager, {
       driverId,
       departureAt: input.departureAt,
@@ -321,9 +316,9 @@ export class TripsService {
   async update(
     driverId: string,
     tripId: string,
-    changes: TripChanges,
+    requested: TripChanges,
   ): Promise<TripView> {
-    const route = await this.planChangedRoute(tripId, changes);
+    const route = await this.planChangedRoute(tripId, requested);
     const trip = await this.dataSource.transaction(async (manager) => {
       const current = await this.tripStatus.lockOwnTrip(
         manager,
@@ -333,8 +328,10 @@ export class TripsService {
       if (current.status !== 'published') {
         throw new TripNotEditableError(current.id, current.status);
       }
+      // Con otras plazas u otros metros, el desvío máximo se recalcula
+      const changes = { ...requested, ...changedBudget(current, requested) };
       await this.assertValidTrip(driverId, { ...current, ...changes });
-      await this.tripStops.assertChangesFit(manager, current, changes);
+      this.tripStops.assertChangesFit(current, changes);
       // La antelación solo cuenta si se mueve la salida: cambiar las plazas de
       // un viaje que sale pronto sigue permitido
       if (changes.departureAt !== undefined) {
@@ -715,4 +712,41 @@ async function distanceToDestination(
     [tripId, longitude, latitude],
   );
   return row.meters;
+}
+
+// El desvío máximo de un viaje (detourBudgetMin) con su ruta ya planificada
+function budgetOf(
+  trip: Pick<TripInput, 'pickupMode' | 'offeredSeats' | 'maxDetourM'>,
+  published: PublishedRoute,
+): number {
+  return detourBudgetMin({
+    isStops: trip.pickupMode === 'stops',
+    offeredSeats: trip.offeredSeats,
+    maxDetourM: trip.maxDetourM,
+    routeDetourMin: published.routeDetourMin,
+    stopCount: published.stops.length,
+  });
+}
+
+// Recogiendo en ruta, el desvío máximo depende de las plazas y de los metros:
+// si cambia alguno, el nuevo (en paradas solo depende de ellas, que no cambian)
+function changedBudget(
+  current: Pick<Trip, 'pickupMode' | 'offeredSeats' | 'maxDetourM'>,
+  changes: TripChanges,
+): Pick<TripChanges, 'maxDetourMin'> {
+  if (
+    current.pickupMode === 'stops' ||
+    (changes.offeredSeats === undefined && changes.maxDetourM === undefined)
+  ) {
+    return {};
+  }
+  return {
+    maxDetourMin: detourBudgetMin({
+      isStops: false,
+      offeredSeats: changes.offeredSeats ?? current.offeredSeats,
+      maxDetourM: changes.maxDetourM ?? current.maxDetourM,
+      routeDetourMin: 0,
+      stopCount: 0,
+    }),
+  };
 }

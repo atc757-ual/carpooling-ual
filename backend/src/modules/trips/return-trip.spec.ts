@@ -21,7 +21,7 @@ const OUTBOUND: TripInput = {
 const RETURN_AT = new Date('2099-01-15T14:30:00Z');
 
 describe('toReturnTripInput', () => {
-  it('swaps origin and destination and keeps the vehicle and the detour', () => {
+  it('swaps origin and destination and keeps the vehicle and the metres', () => {
     expect(
       toReturnTripInput(OUTBOUND, { departureAt: RETURN_AT, offeredSeats: 2 }),
     ).toEqual({
@@ -32,7 +32,6 @@ describe('toReturnTripInput', () => {
       destinationName: 'Almería centro',
       departureAt: RETURN_AT,
       offeredSeats: 2,
-      maxDetourMin: 15,
       pickupMode: 'on_route',
       maxDetourM: 500,
     });

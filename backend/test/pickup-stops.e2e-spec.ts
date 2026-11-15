@@ -119,7 +119,6 @@ describe('Picking up at stops (e2e)', () => {
           destination: campus,
           departureAt: departureAt.toISOString(),
           offeredSeats: 3,
-          maxDetourMin: 20,
           ...body,
         }),
     };
@@ -208,7 +207,6 @@ describe('Picking up at stops (e2e)', () => {
     const tooFar = await publish({
       pickupMode: 'stops',
       stops: [{ name: 'Roquetas', location: FAR_AWAY }],
-      maxDetourMin: 1,
     }).expect(400);
     expect(tooFar.body).toMatchObject({ code: 'STOPS_EXCEED_DETOUR' });
     await publish({ pickupMode: 'stops', stops: [] }).expect(400);
