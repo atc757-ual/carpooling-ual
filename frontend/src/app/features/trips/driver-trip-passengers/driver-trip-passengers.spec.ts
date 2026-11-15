@@ -90,13 +90,14 @@ describe('DriverTripPassengers', () => {
     expect(root.querySelectorAll('.driver-trip__seat--taken')).toHaveLength(1);
     expect(root.textContent).toContain('1 de 3 plazas ocupadas');
     expect(root.textContent).toContain('Aún no hay solicitudes');
-    expect(root.querySelector('app-trip-chat-link')).toBeNull();
+    expect(root.querySelector('.driver-trip__chat-btn')).toBeNull();
   });
 
-  it('opens the chat of the trip once it has passengers', async () => {
-    const root = await render({ ...TRIP, status: 'confirmed' });
+  it('opens a direct chat with each accepted passenger once the trip is confirmed', async () => {
+    const root = await render({ ...TRIP, status: 'confirmed' }, [request('accepted')]);
 
-    expect(root.querySelector('app-trip-chat-link')?.textContent).toContain('Chat del viaje');
+    const chat = root.querySelector('.driver-trip__chat-btn');
+    expect(chat?.getAttribute('title')).toBe('Escribir a Mario');
   });
 
   it('lists the pending and accepted requests, and hides the closed ones', async () => {

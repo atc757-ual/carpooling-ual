@@ -209,7 +209,7 @@
                         <div class="pickup-slide__actions">
                           <a
                             class="pickup-slide__icon-btn"
-                            [routerLink]="['/tabs/messages', trip.id]"
+                            [routerLink]="['/tabs/messages', trip.id, request.passenger.id]"
                             [attr.aria-label]="'Escribir a ' + firstName(request.passenger.name)"
                             [title]="'Escribir a ' + firstName(request.passenger.name)"
                           >

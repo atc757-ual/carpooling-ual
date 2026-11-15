@@ -1,7 +1,7 @@
 import { signal, TemplateRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { ActionSheetController, ModalController, provideIonicAngular } from '@ionic/angular';
+import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { ChatMessage, Conversation } from '../../../core/models/chat.model';
@@ -12,8 +12,10 @@ import { HeadingContentService } from '../../../core/services/ui/heading-content
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { CHAT_POLL_INTERVAL_MS, ConversationPage } from './conversation.page';
 
+// La conversación del conductor (yo) con Pía
+const REF = { tripId: 't1', passengerId: 'u2' };
 const CONVERSATION: Conversation = {
-  id: 't1',
+  id: 't1:u2',
   trip: {
     id: 't1',
     originName: 'Roquetas de Mar',
@@ -23,6 +25,7 @@ const CONVERSATION: Conversation = {
     driverName: 'Lucía Cortés',
     driverAvatarKey: null,
   },
+  passenger: { id: 'u2', name: 'Pía Ruiz', avatarKey: null },
   myRole: 'driver',
   lastMessage: null,
   unreadCount: 0,
@@ -47,7 +50,6 @@ describe('ConversationPage', () => {
   let showError: ReturnType<typeof vi.fn>;
   let showSuccess: ReturnType<typeof vi.fn>;
   let showInfo: ReturnType<typeof vi.fn>;
-  let sheetButtons: { text: string; handler?: () => void }[];
   let modalRole: string;
   let modalProps: { action: (reason: string) => Promise<void> } | null;
   let fixture: ComponentFixture<ConversationPage>;
@@ -64,15 +66,6 @@ describe('ConversationPage', () => {
         { provide: AuthService, useValue: { currentUser: signal({ id: 'me' } as User) } },
         { provide: ToastService, useValue: { showError, showSuccess, showInfo } },
         {
-          provide: ActionSheetController,
-          useValue: {
-            create: vi.fn().mockImplementation(({ buttons }) => {
-              sheetButtons = buttons;
-              return Promise.resolve({ present: () => Promise.resolve() });
-            }),
-          },
-        },
-        {
           provide: ModalController,
           useValue: {
             create: vi.fn().mockImplementation(({ componentProps }) => {
@@ -86,7 +79,7 @@ describe('ConversationPage', () => {
         },
         {
           provide: ActivatedRoute,
-          useValue: { paramMap: of(convertToParamMap({ tripId: 't1' })) },
+          useValue: { paramMap: of(convertToParamMap({ tripId: 't1', passengerId: 'u2' })) },
         },
       ],
     });
@@ -103,7 +96,6 @@ describe('ConversationPage', () => {
     showError = vi.fn();
     showSuccess = vi.fn();
     showInfo = vi.fn();
-    sheetButtons = [];
     modalRole = 'confirm';
     modalProps = null;
     chat = {
@@ -136,7 +128,7 @@ describe('ConversationPage', () => {
       'Roquetas de Mar',
       'Campus UAL',
     ]);
-    expect(root.textContent).toContain('Conduce Lucía Cortés');
+    expect(root.textContent).toContain('Con Pía Ruiz');
     expect(root.querySelector('.conversation__trip-status')?.textContent).toContain('Confirmado');
     // Un separador por día, como en las apps de mensajería
     expect(root.querySelectorAll('.conversation__day')).toHaveLength(1);
@@ -146,7 +138,7 @@ describe('ConversationPage', () => {
     expect(bubbles[0].textContent).toContain('Pía R.');
     expect(bubbles[1].classList).toContain('bubble--mine');
     expect(bubbles[1].querySelector('.bubble__author')).toBeNull();
-    expect(chat['markRead']).toHaveBeenCalledWith('t1');
+    expect(chat['markRead']).toHaveBeenCalledWith(REF);
   });
 
   it('asks for the new messages every 5 s and stops when leaving', async () => {
@@ -155,7 +147,7 @@ describe('ConversationPage', () => {
 
     await vi.advanceTimersByTimeAsync(CHAT_POLL_INTERVAL_MS);
 
-    expect(chat['listMessages']).toHaveBeenLastCalledWith('t1', 'm2');
+    expect(chat['listMessages']).toHaveBeenLastCalledWith(REF, 'm2');
     expect(page.messages().map(({ id }) => id)).toEqual(['m1', 'm2', 'm3']);
     expect(chat['markRead']).toHaveBeenCalledTimes(2);
 
@@ -177,7 +169,7 @@ describe('ConversationPage', () => {
     expect(page.hasError()).toBe(false);
     await vi.advanceTimersByTimeAsync(CHAT_POLL_INTERVAL_MS);
 
-    expect(chat['listMessages']).toHaveBeenLastCalledWith('t1', 'm2');
+    expect(chat['listMessages']).toHaveBeenLastCalledWith(REF, 'm2');
   });
 
   it('pauses polling in the background and checks for messages on return', async () => {
@@ -193,7 +185,7 @@ describe('ConversationPage', () => {
       Object.defineProperty(document, 'hidden', { configurable: true, value: false });
       document.dispatchEvent(new Event('visibilitychange'));
       await vi.advanceTimersByTimeAsync(0);
-      expect(chat['listMessages']).toHaveBeenLastCalledWith('t1', 'm2');
+      expect(chat['listMessages']).toHaveBeenLastCalledWith(REF, 'm2');
       await vi.advanceTimersByTimeAsync(CHAT_POLL_INTERVAL_MS);
       expect(chat['listMessages']).toHaveBeenCalledTimes(3);
     } finally {
@@ -223,7 +215,7 @@ describe('ConversationPage', () => {
       .mockResolvedValueOnce([message('m1', 'u2'), message('m2', 'me', { readByAll: true })]);
     await vi.advanceTimersByTimeAsync(CHAT_POLL_INTERVAL_MS);
 
-    expect(chat['listMessages']).toHaveBeenLastCalledWith('t1');
+    expect(chat['listMessages']).toHaveBeenLastCalledWith(REF);
     expect(page.messages()[1].readByAll).toBe(true);
   });
 
@@ -239,7 +231,7 @@ describe('ConversationPage', () => {
     await vi.advanceTimersByTimeAsync(0);
 
     expect(enter.defaultPrevented).toBe(true);
-    expect(chat['send']).toHaveBeenCalledWith('t1', { text: 'Llego en 5' });
+    expect(chat['send']).toHaveBeenCalledWith(REF, { text: 'Llego en 5' });
   });
 
   it('only clears its own heading from the fixed strip when it leaves', async () => {
@@ -262,7 +254,7 @@ describe('ConversationPage', () => {
     expect(page.canSendText()).toBe(true);
     await page.handleSendText();
 
-    expect(chat['send']).toHaveBeenCalledWith('t1', { text: 'Te espero en el portal' });
+    expect(chat['send']).toHaveBeenCalledWith(REF, { text: 'Te espero en el portal' });
     expect(page.draft()).toBe('');
     expect(page.messages().at(-1)?.id).toBe('m3');
   });
@@ -281,7 +273,7 @@ describe('ConversationPage', () => {
     buttons[1].click();
     await vi.advanceTimersByTimeAsync(0);
 
-    expect(chat['send']).toHaveBeenCalledWith('t1', { quickReply: 'running_late' });
+    expect(chat['send']).toHaveBeenCalledWith(REF, { quickReply: 'running_late' });
   });
 
   it('keeps the draft and says so when sending fails', async () => {
@@ -365,7 +357,7 @@ describe('ConversationPage', () => {
     await reportPromise;
 
     expect(page.isOptionsOpen()).toBe(false);
-    expect(chat['reportChat']).toHaveBeenCalledWith('t1', 'Me ha insultado');
+    expect(chat['reportChat']).toHaveBeenCalledWith(REF, 'Me ha insultado');
     expect(showSuccess).toHaveBeenCalledWith('Chat denunciado. Lo revisaremos.');
   });
 
@@ -389,7 +381,7 @@ describe('ConversationPage', () => {
     expect(root.querySelectorAll('.bubble')).toHaveLength(2);
   });
 
-  it('calls the only contact, or lets the driver choose among the passengers', async () => {
+  it('calls the other person of the conversation', async () => {
     chat['listContacts'].mockResolvedValue([
       { id: 'u2', name: 'Pía Ruiz', phone: '+34600333444', role: 'passenger' },
     ]);
@@ -403,16 +395,29 @@ describe('ConversationPage', () => {
     expect(page.callLabel()).toBe('Llamar a Pía Ruiz');
     await page.handleCall();
     expect(openPhone).toHaveBeenCalledWith('+34600333444');
+    expect(chat['listContacts']).toHaveBeenCalledWith(REF);
+  });
 
-    page.contacts.set([
-      { id: 'u2', name: 'Pía Ruiz', phone: '+34600333444', role: 'passenger' },
-      { id: 'u3', name: 'Leo Gil', phone: '+34600555666', role: 'passenger' },
+  it('shows the former shared chat on top, read only and without checkmarks', async () => {
+    chat['listMessages'].mockResolvedValue([
+      message('m0', 'me', { isShared: true, createdAt: '2026-11-02T07:05:00.000Z' }),
+      message('m1', 'u2'),
     ]);
-    expect(page.callLabel()).toBe('Llamar a un pasajero');
-    await page.handleCall();
-    expect(sheetButtons.map(({ text }) => text)).toEqual(['Pía Ruiz', 'Leo Gil', 'Cancelar']);
-    sheetButtons[1].handler?.();
-    expect(openPhone).toHaveBeenLastCalledWith('+34600555666');
+    const root = await render();
+
+    const shared = root.querySelector('.conversation__shared');
+    expect(shared?.textContent).toContain('Chat común anterior (solo lectura)');
+    expect(shared?.querySelectorAll('.bubble--shared')).toHaveLength(1);
+    expect(shared?.querySelector('.bubble__status')).toBeNull();
+    expect(root.querySelectorAll('.bubble')).toHaveLength(2);
+    expect(root.textContent).not.toContain('Aún no hay mensajes');
+  });
+
+  it('shows the driver to a passenger', async () => {
+    const root = await render({ ...CONVERSATION, myRole: 'passenger' });
+
+    expect(root.textContent).toContain('Conduce Lucía Cortés');
+    expect(page.partnerAvatarKey()).toBeNull();
   });
 
   it('disables the call when nobody can be called', async () => {

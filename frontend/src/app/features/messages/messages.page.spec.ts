@@ -12,7 +12,7 @@ import { formatTime } from '../matching/trip-results';
 import { MessagesPage } from './messages.page';
 
 const CONVERSATION: Conversation = {
-  id: 't1',
+  id: 't1:u2',
   trip: {
     id: 't1',
     originName: 'Roquetas de Mar',
@@ -22,6 +22,7 @@ const CONVERSATION: Conversation = {
     driverName: 'Lucía Cortés',
     driverAvatarKey: null,
   },
+  passenger: { id: 'u2', name: 'Pía', avatarKey: null },
   myRole: 'driver',
   lastMessage: {
     id: 'm1',
@@ -225,10 +226,10 @@ describe('MessagesPage', () => {
     page.isDesktop.set(true);
     const event = new MouseEvent('click', { cancelable: true });
 
-    await page.handleSelectConversation(event, 't1');
+    await page.handleSelectConversation(event, CONVERSATION);
 
     expect(event.defaultPrevented).toBe(true);
-    expect(page.selectedConversationId()).toBe('t1');
+    expect(page.selectedConversationId()).toBe('t1:u2');
     expect(navigate).not.toHaveBeenCalled();
   });
 
@@ -239,7 +240,7 @@ describe('MessagesPage', () => {
     lastRead.set({ tripId: 't1' });
     fixture.detectChanges();
 
-    expect(page.all().find(({ id }) => id === 't1')?.unreadCount).toBe(0);
+    expect(page.all().find(({ id }) => id === 't1:u2')?.unreadCount).toBe(0);
     expect(root.querySelector('.conversation--unread')).toBeNull();
     expect(listConversationsPage.mock.calls).toHaveLength(calls);
     lastRead.set(null);
@@ -251,8 +252,14 @@ describe('MessagesPage', () => {
     const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
     page.isDesktop.set(false);
 
-    await page.handleSelectConversation(new MouseEvent('click'), 't1');
+    await page.handleSelectConversation(new MouseEvent('click'), CONVERSATION);
 
-    expect(navigate).toHaveBeenCalledWith(['/tabs/messages', 't1']);
+    expect(navigate).toHaveBeenCalledWith(['/tabs/messages', 't1', 'u2']);
+  });
+
+  it('names the passenger of each conversation to the driver', async () => {
+    const { root } = await render();
+
+    expect(root.querySelector('.conversation__trip')?.textContent).toContain('Pía · ');
   });
 });

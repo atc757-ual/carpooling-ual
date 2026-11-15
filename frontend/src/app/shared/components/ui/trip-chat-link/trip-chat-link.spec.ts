@@ -27,6 +27,23 @@ describe('TripChatLink', () => {
     expect(TestBed.inject(Router).serializeUrl(url as never)).toBe('/tabs/messages/t1');
   });
 
+  it('opens the conversation with a passenger when the driver gives one', () => {
+    TestBed.configureTestingModule({
+      imports: [TripChatLink],
+      providers: [provideIonicAngular(), provideRouter([])],
+    });
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    const fixture = TestBed.createComponent(TripChatLink);
+    fixture.componentRef.setInput('tripId', 't1');
+    fixture.componentRef.setInput('passengerId', 'p1');
+    fixture.detectChanges();
+
+    (fixture.nativeElement as HTMLElement).querySelector('ion-button')?.click();
+
+    const [url] = navigate.mock.calls[0];
+    expect(TestBed.inject(Router).serializeUrl(url as never)).toBe('/tabs/messages/t1/p1');
+  });
+
   it('translates button label in English when configured', () => {
     TestBed.configureTestingModule({
       imports: [TripChatLink],

@@ -38,11 +38,14 @@ export interface ChatMessage {
   text: string | null;
   quickReply: QuickReply | null;
   createdAt: string;
+  // Si la otra persona de la conversación lo ha leído (solo los míos)
   readByAll?: boolean;
+  // Del chat común anterior del viaje (lo veían todos): solo lectura
+  isShared?: boolean;
 }
 
-// El chat de un viaje para el usuario (GET /api/users/me/conversations); su
-// id es el del viaje
+// Una conversación directa del chat de un viaje entre el conductor y un
+// pasajero (GET /api/users/me/conversations); su id es «viaje:pasajero»
 export interface Conversation {
   id: string;
   trip: {
@@ -54,10 +57,19 @@ export interface Conversation {
     driverName: string;
     driverAvatarKey: string | null;
   };
+  // El pasajero de la conversación
+  passenger: { id: string; name: string; avatarKey: string | null };
   myRole: ChatRole;
   lastMessage: ChatMessage | null;
   unreadCount: number;
   isOpen: boolean;
+}
+
+// Qué conversación: la del viaje con un pasajero. El pasajero no hace falta
+// que se indique a sí mismo; el conductor, sí
+export interface ConversationRef {
+  tripId: string;
+  passengerId?: string | null;
 }
 
 export type ChatMessageInput = { text: string } | { quickReply: QuickReply };

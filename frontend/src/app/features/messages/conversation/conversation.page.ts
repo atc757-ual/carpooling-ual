@@ -14,7 +14,6 @@ import { NgTemplateOutlet } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import {
-  ActionSheetController,
   IonButton,
   IonIcon,
   IonItem,
@@ -44,10 +43,16 @@ import {
   ChatMessage,
   ChatMessageInput,
   Conversation,
+  ConversationRef,
   QuickReply,
 } from '../../../core/models/chat.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { ChatService } from '../../../core/services/chat/chat.service';
+import {
+  ChatService,
+  conversationIdOf,
+  isSameConversation,
+  parseConversationId,
+} from '../../../core/services/chat/chat.service';
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
@@ -69,8 +74,9 @@ import { ConversationAvatar } from '../conversation-avatar/conversation-avatar';
 export const CHAT_POLL_INTERVAL_MS = 5_000;
 export const MAX_MESSAGE_LENGTH = 500;
 
-// La conversación del chat de un viaje: los mensajes (los míos a la derecha),
-// las respuestas rápidas y la caja de texto. Con la conversación a la vista,
+// Una conversación directa del chat de un viaje (el conductor con un
+// pasajero): los mensajes (los míos a la derecha), arriba los del chat común
+// anterior (solo lectura), las respuestas rápidas y la caja de texto. Con la conversación a la vista,
 // pide los nuevos cada 5 s y la marca como leída. Con el viaje en curso, el
 // conductor solo ve las respuestas rápidas (seguridad vial); cerrada, solo se
 // lee
@@ -98,16 +104,23 @@ export class ConversationPage {
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly modalController = inject(ModalController);
-  private readonly actionSheetController = inject(ActionSheetController);
   private readonly transpiler = inject(TRANSLOCO_TRANSPILER, { optional: true });
   private readonly transloco = this.transpiler
     ? inject(TranslocoService, { optional: true })
     : null;
 
-  private readonly routeTripId = toSignal(
-    inject(ActivatedRoute).paramMap.pipe(map((params) => params.get('tripId') ?? '')),
+  private readonly routeConversationId = toSignal(
+    inject(ActivatedRoute).paramMap.pipe(
+      map((params) =>
+        conversationIdOf({
+          tripId: params.get('tripId') ?? '',
+          passengerId: params.get('passengerId'),
+        }),
+      ),
+    ),
     { initialValue: '' },
   );
+  // «viaje:pasajero» o, la del pasajero con el conductor, solo el viaje
   readonly conversationId = input<string | null>(null);
   readonly active = input(false);
   // En el móvil, el título del viaje va en la franja del título y no en la tarjeta
@@ -140,7 +153,7 @@ export class ConversationPage {
   readonly draft = signal('');
   readonly isOptionsOpen = signal(false);
   optionsEvent: Event | null = null;
-  private currentTripId = '';
+  private currentConversationId = '';
   private loadVersion = 0;
 
   // El conductor con el viaje en marcha: se le recuerda que mejor respuestas
@@ -149,8 +162,14 @@ export class ConversationPage {
     const conversation = this.conversation();
     return conversation?.myRole === 'driver' && conversation.trip.status === 'in_progress';
   });
-  // Con un separador por día («Hoy», «Ayer», «3 nov»)
-  readonly messageGroups = computed(() => groupMessagesByDay(this.messages()));
+  // Con un separador por día («Hoy», «Ayer», «3 nov»): los de la conversación
+  // y, aparte, los del chat común anterior (solo lectura)
+  readonly messageGroups = computed(() =>
+    groupMessagesByDay(this.messages().filter(({ isShared }) => !isShared)),
+  );
+  readonly sharedGroups = computed(() =>
+    groupMessagesByDay(this.messages().filter(({ isShared }) => isShared)),
+  );
   readonly canWrite = computed(() => this.conversation()?.isOpen ?? false);
   readonly canSendText = computed(() => {
     const length = this.draft().trim().length;
@@ -180,13 +199,13 @@ export class ConversationPage {
     const destroyRef = inject(DestroyRef);
     document.addEventListener('visibilitychange', this.handleVisibilityChange);
     effect(() => {
-      const tripId = this.conversationId();
+      const conversationId = this.conversationId();
       const isActive = this.active();
-      if (!tripId) return;
+      if (!conversationId) return;
       this.isActive = isActive;
       this.stopPolling();
       if (!isActive) return;
-      void this.load(tripId).finally(() => this.schedulePolling());
+      void this.load(conversationId).finally(() => this.schedulePolling());
     });
     // El título en la franja del título: con el chat a la vista en el móvil,
     // desde que se entra (con un esqueleto mientras carga). Si falla la carga,
@@ -211,7 +230,7 @@ export class ConversationPage {
   async ionViewWillEnter(): Promise<void> {
     this.isActive = true;
     this.stopPolling();
-    await this.load(this.tripId());
+    await this.load(this.currentId());
     this.schedulePolling();
   }
 
@@ -223,6 +242,12 @@ export class ConversationPage {
 
   isMine(message: ChatMessage): boolean {
     return message.author.id === this.auth.currentUser()?.id;
+  }
+
+  // El ✓ o ✓✓ solo en los míos de la conversación (los del chat común
+  // anterior no lo llevan)
+  hasReceipt(message: ChatMessage): boolean {
+    return this.isMine(message) && !message.isShared;
   }
 
   statusAriaLabel(message: ChatMessage): string {
@@ -245,15 +270,30 @@ export class ConversationPage {
     return departureAt ? formatTime(departureAt) : '';
   }
 
-  driverName(): string {
-    return this.conversation()?.trip.driverName ?? '';
+  // Con quién hablo: el pasajero (soy el conductor) o el conductor
+  partnerName(): string {
+    const conversation = this.conversation();
+    if (!conversation) return '';
+    return conversation.myRole === 'driver'
+      ? conversation.passenger.name
+      : conversation.trip.driverName;
   }
 
-  driverAvatarKey(): string | null {
-    return this.conversation()?.trip.driverAvatarKey ?? null;
+  partnerAvatarKey(): string | null {
+    const conversation = this.conversation();
+    if (!conversation) return null;
+    return conversation.myRole === 'driver'
+      ? conversation.passenger.avatarKey
+      : conversation.trip.driverAvatarKey;
   }
 
-  // «Llamar a Lucía» o, al conductor con varios pasajeros, «Llamar»
+  // «Conduce Lucía» o, al conductor, «Con Pía»
+  partnerLabel(): string {
+    const name = this.partnerName();
+    if (!name) return '';
+    return this.conversation()?.myRole === 'driver' ? `Con ${name}` : `Conduce ${name}`;
+  }
+
   // El estado del viaje, como etiqueta junto al título
   statusLabel(): string {
     const status = this.conversation()?.trip.status;
@@ -265,32 +305,16 @@ export class ConversationPage {
     return this.contacts().length > 0;
   }
 
+  // «Llamar a Lucía»: la otra persona de la conversación
   callLabel(): string {
-    const contacts = this.contacts();
-    if (contacts.length === 0) return 'Llamar (no disponible)';
-    return contacts.length === 1 ? `Llamar a ${contacts[0].name}` : 'Llamar a un pasajero';
+    const [contact] = this.contacts();
+    return contact ? `Llamar a ${contact.name}` : 'Llamar (no disponible)';
   }
 
-  // Con una persona, abre su teléfono; con varias (el conductor), se elige.
-  // Sin nadie, el botón está deshabilitado
-  async handleCall(): Promise<void> {
-    const contacts = this.contacts();
-    if (contacts.length === 0) return;
-    if (contacts.length === 1) {
-      this.openPhone(contacts[0].phone);
-      return;
-    }
-    const sheet = await this.actionSheetController.create({
-      header: '¿A quién llamas?',
-      buttons: [
-        ...contacts.map((contact) => ({
-          text: contact.name,
-          handler: () => this.openPhone(contact.phone),
-        })),
-        { text: 'Cancelar', role: 'cancel' },
-      ],
-    });
-    await sheet.present();
+  // Abre el teléfono de la otra persona. Sin él, el botón está deshabilitado
+  handleCall(): void {
+    const [contact] = this.contacts();
+    if (contact) this.openPhone(contact.phone);
   }
 
   // Menú de opciones del chat: tres puntos al lado del teléfono
@@ -334,12 +358,12 @@ export class ConversationPage {
   async handleReport(): Promise<void> {
     this.isOptionsOpen.set(false);
     const reported = await confirmWithReason(this.modalController, {
-      header: '¿Denunciar este chat?',
+      header: '¿Denunciar esta conversación?',
       message:
         'Lo revisará el equipo de Carpooling UAL con una copia de la conversación. Nadie del viaje sabrá que lo has denunciado.',
       confirmText: 'Denunciar',
       isDestructive: false,
-      action: (reason) => this.chat.reportChat(this.tripId(), reason),
+      action: (reason) => this.chat.reportChat(this.ref(), reason),
     });
     if (reported) {
       void this.toast.showSuccess('Chat denunciado. Lo revisaremos.');
@@ -348,19 +372,24 @@ export class ConversationPage {
 
   async handleRetry(): Promise<void> {
     this.stopPolling();
-    await this.load(this.tripId());
+    await this.load(this.currentId());
     this.schedulePolling();
   }
 
-  private tripId(): string {
-    return this.conversationId() ?? this.routeTripId();
+  private currentId(): string {
+    return this.conversationId() ?? this.routeConversationId();
   }
 
-  private async load(tripId: string): Promise<void> {
-    if (!tripId) return;
+  private ref(): ConversationRef {
+    return parseConversationId(this.currentId());
+  }
+
+  private async load(conversationId: string): Promise<void> {
+    const ref = parseConversationId(conversationId);
+    if (!ref.tripId) return;
     const version = ++this.loadVersion;
-    if (tripId !== this.currentTripId) {
-      this.currentTripId = tripId;
+    if (conversationId !== this.currentConversationId) {
+      this.currentConversationId = conversationId;
       this.conversation.set(null);
       this.messages.set([]);
       this.contacts.set([]);
@@ -369,18 +398,18 @@ export class ConversationPage {
     this.hasError.set(false);
     try {
       const [conversation, messages] = await Promise.all([
-        this.chat.getConversation(tripId).catch(async () => {
+        this.chat.getConversation(ref).catch(async () => {
           const conversations = await this.chat.listConversations();
-          return conversations.find(({ id }) => id === tripId) ?? null;
+          return conversations.find((item) => isSameConversation(item, ref)) ?? null;
         }),
-        this.chat.listMessages(tripId),
+        this.chat.listMessages(ref),
       ]);
       if (version !== this.loadVersion) return;
       this.conversation.set(conversation);
       this.messages.set(messages);
-      void this.loadContacts(tripId, version);
+      void this.loadContacts(ref, version);
       this.scrollToBottom();
-      await this.markRead(tripId);
+      await this.markRead(ref);
     } catch {
       if (version === this.loadVersion) this.hasError.set(true);
     } finally {
@@ -395,13 +424,13 @@ export class ConversationPage {
     this.pollInFlight = true;
     const last = this.messages().at(-1);
     try {
-      const tripId = this.tripId();
-      const newer = await this.chat.listMessages(tripId, last?.id);
+      const ref = this.ref();
+      const newer = await this.chat.listMessages(ref, last?.id);
       if (newer.length > 0) {
         this.appendMessages(newer);
-        await this.markRead(tripId);
+        await this.markRead(ref);
       }
-      await this.refreshReceipts(tripId);
+      await this.refreshReceipts(ref);
     } catch {
       // Siguiente vuelta
     } finally {
@@ -412,7 +441,7 @@ export class ConversationPage {
   private async sendMessage(input: ChatMessageInput): Promise<boolean> {
     this.isSending.set(true);
     try {
-      const sent = await this.chat.send(this.tripId(), input);
+      const sent = await this.chat.send(this.ref(), input);
       this.appendMessages([sent]);
       return true;
     } catch (error) {
@@ -424,13 +453,13 @@ export class ConversationPage {
   }
 
   // Sin repetir los que ya están (el envío y la consulta pueden cruzarse)
-  // El ✓✓ de mis mensajes: si alguno aún no lo han leído todos, se vuelve a
-  // mirar en cada vuelta (sin esto solo se veía al volver a entrar al chat)
-  private async refreshReceipts(tripId: string): Promise<void> {
-    if (!this.messages().some((message) => this.isMine(message) && !message.readByAll)) {
+  // El ✓✓ de mis mensajes: si la otra persona aún no ha leído alguno, se
+  // vuelve a mirar en cada vuelta (sin esto solo se veía al volver a entrar)
+  private async refreshReceipts(ref: ConversationRef): Promise<void> {
+    if (!this.messages().some((message) => this.hasReceipt(message) && !message.readByAll)) {
       return;
     }
-    const current = await this.chat.listMessages(tripId);
+    const current = await this.chat.listMessages(ref);
     const read = new Set(current.filter(({ readByAll }) => readByAll).map(({ id }) => id));
     this.messages.update((messages) =>
       messages.map((message) =>
@@ -461,13 +490,13 @@ export class ConversationPage {
   }
 
   // Sin contactos (o si falla), el botón de llamar queda deshabilitado
-  private async loadContacts(tripId: string, version: number): Promise<void> {
-    const contacts = await this.tripCall.loadContacts(tripId);
+  private async loadContacts(ref: ConversationRef, version: number): Promise<void> {
+    const contacts = await this.tripCall.loadContacts(ref.tripId, ref.passengerId);
     if (version === this.loadVersion) this.contacts.set(contacts);
   }
 
-  private async markRead(tripId: string): Promise<void> {
-    await this.chat.markRead(tripId).catch(() => undefined);
+  private async markRead(ref: ConversationRef): Promise<void> {
+    await this.chat.markRead(ref).catch(() => undefined);
   }
 
   private stopPolling(): void {
