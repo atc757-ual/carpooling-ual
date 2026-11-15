@@ -61,12 +61,11 @@ describe('TripResultCard', () => {
   const text = (root: HTMLElement, selector: string): string | undefined =>
     root.querySelector(selector)?.textContent?.trim();
 
-  it('shows times, free seats, route, the detour and when it leaves', () => {
+  it('shows times, free seats, the detour and when it leaves', () => {
     const root = render(TRIP);
 
     expect(text(root, '.trip-card__times')).toBe('07:40 → 08:12');
     expect(text(root, '.trip-card__seats')).toBe('2 plazas');
-    expect(text(root, '.trip-card__route')).toBe('Roquetas de Mar → Campus UAL · Parking P1');
     expect(text(root, '.trip-card__pickup')).toBe('Desvío de 3 min · sale a las 07:40');
     expect(root.querySelector('.trip-card')?.classList).toBeTruthy();
   });

@@ -82,6 +82,24 @@ ion-card-content.search-results__state:has(> .search-results__requested) > :last
   margin-bottom: auto;
 }
 
+.search-results__notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  margin-bottom: var(--space-m);
+  border: var(--border-width-s) solid var(--color-success);
+  border-radius: var(--radius-s);
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+  font-weight: var(--font-weight-medium);
+
+  ion-icon {
+    flex: none;
+    font-size: 1.25rem;
+    color: var(--color-success);
+  }
+}
+
 .search-results__results-header {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -133,6 +151,10 @@ ion-card-content.search-results__state:has(> .search-results__requested) > :last
   font-size: var(--font-size-body-s);
   line-height: 1.4;
   white-space: normal;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
 }
 
 // Selector desplegable estándar con borde como los demás de la app (fill="outline")
@@ -140,9 +162,21 @@ ion-card-content.search-results__state:has(> .search-results__requested) > :last
   grid-area: sort;
   justify-self: end;
   width: auto;
-  min-height: 2.5rem;
+  min-height: 2.25rem;
   font-size: var(--font-size-body-s);
   --border-radius: var(--radius-s);
+  --padding-start: var(--space-s);
+  --padding-end: var(--space-xs);
+  --border-color: var(--color-border);
+
+  &::part(text) {
+    font-size: var(--font-size-body-s);
+  }
+
+  &::part(icon) {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
 }
 
 @media (min-width: 768px) {

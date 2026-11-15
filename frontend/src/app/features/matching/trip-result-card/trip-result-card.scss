@@ -172,15 +172,6 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.trip-card__route {
-  overflow: hidden;
-  font-size: var(--font-size-body-s);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-body-s);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .trip-card__pickup {
   display: flex;
   align-items: center;

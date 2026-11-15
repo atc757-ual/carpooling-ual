@@ -25,10 +25,6 @@
       }
     </div>
 
-    <div class="trip-card__route" [attr.title]="trip().origin + ' → ' + trip().destination">
-      {{ trip().origin }} → {{ trip().destination }}
-    </div>
-
     <!-- Del conductor, solo el nombre: el resto (valoración, viajes, coche), en
          el detalle -->
     <p class="trip-card__driver text-body-s text-color-muted">Conduce {{ trip().driver.name }}</p>

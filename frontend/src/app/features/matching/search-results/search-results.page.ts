@@ -15,7 +15,12 @@ import {
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular';
-import { alertCircleOutline, createOutline, searchOutline } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  createOutline,
+  navigateOutline,
+  searchOutline,
+} from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { TripResult } from '../../../core/models/trip-result.model';
 import { TripDirection, TripSearch } from '../../../core/models/trip-search.model';
@@ -215,6 +220,7 @@ export class SearchResultsPage {
   protected readonly editIcon = createOutline;
   protected readonly emptyIcon = searchOutline;
   protected readonly errorIcon = alertCircleOutline;
+  protected readonly routeIcon = navigateOutline;
 
   constructor() {
     effect(() => this.searchState.setResults(this.trips()));
