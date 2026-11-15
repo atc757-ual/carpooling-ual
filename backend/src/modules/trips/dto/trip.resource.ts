@@ -120,6 +120,13 @@ export class TripResource {
   maxDetourMin: number;
 
   @ApiProperty({
+    description:
+      'Whether the requests that fit (seats and detour) are accepted automatically',
+    example: false,
+  })
+  autoAccept: boolean;
+
+  @ApiProperty({
     enum: TRIP_PICKUP_MODES,
     description:
       'How the driver picks up: on_route (goes up to maxDetourM off the route to the passenger point) or stops (at the stops on the route)',
@@ -239,6 +246,7 @@ export function toTripResource({
     offeredSeats: trip.offeredSeats,
     availableSeats: trip.availableSeats,
     maxDetourMin: trip.maxDetourMin,
+    autoAccept: trip.autoAccept,
     pickupMode: trip.pickupMode,
     maxDetourM: trip.maxDetourM,
     stops: stops.map(({ id, position, name, location, estimatedAt }) => ({

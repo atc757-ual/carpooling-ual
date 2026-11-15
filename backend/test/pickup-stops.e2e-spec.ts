@@ -5,6 +5,7 @@ import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { EVENT_VERSIONS } from '../src/events/event-versions';
 import { deleteTestUsers } from './support/cleanup';
 import { registerUser } from './support/accounts';
 
@@ -171,7 +172,7 @@ describe('Picking up at stops (e2e)', () => {
         WHERE type = 'trip.published' AND source_entity_id = $1`,
       [trip.id],
     );
-    expect(event.version).toBe(3);
+    expect(event.version).toBe(EVENT_VERSIONS['trip.published']);
     expect(event.payload.stops.map(({ id }) => id)).toEqual(
       trip.stops.map(({ id }) => id),
     );

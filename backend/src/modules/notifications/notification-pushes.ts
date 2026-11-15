@@ -12,6 +12,10 @@ const PUSH_TEXTS: Partial<
     title: 'Te han pedido plaza',
     body: 'Ábrela para aceptarla o rechazarla.',
   },
+  passenger_joined: {
+    title: 'Alguien se ha unido a tu viaje',
+    body: 'Lo has aceptado automáticamente: mira dónde le recoges.',
+  },
   request_cancelled: {
     title: 'Han cancelado una solicitud',
     body: 'Se ha liberado una plaza de tu viaje.',

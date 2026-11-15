@@ -5,6 +5,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsDate,
+  IsBoolean,
   IsDefined,
   IsIn,
   IsInt,
@@ -131,6 +132,15 @@ export class PublishTripDto {
   @Min(1)
   @Max(8)
   offeredSeats!: number;
+
+  @ApiPropertyOptional({
+    default: false,
+    description:
+      'Accept the requests that fit (seats and detour) automatically; the rest wait for the driver. The return trip gets the same',
+  })
+  @IsOptional()
+  @IsBoolean()
+  autoAccept?: boolean;
 
   @ApiPropertyOptional({
     enum: TRIP_PICKUP_MODES,

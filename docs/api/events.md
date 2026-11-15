@@ -77,6 +77,7 @@ Las rutas son relativas a `backend/src/modules/`. Un test (`events-contract.spec
 
 ### Cambios de versión
 
+- `trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.cancelled` y `trip.expired` **v4**, y `trip.started` y `trip.finished` **v5**: el `payload` añade `autoAccept` (si el viaje acepta solas las solicitudes que caben). La versión anterior llevaba el mismo estado sin ese campo.
 - `chat_message.sent` **v2**: el `payload` añade `passengerId`, el pasajero de la conversación (el chat pasa a ser directo entre el conductor y cada pasajero aceptado). La v1 llevaba el mismo mensaje del chat común del viaje, sin ese campo.
 - `trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.cancelled` y `trip.expired` **v3**, y `trip.started` y `trip.finished` **v4**: el `payload` añade `stops`, las paradas del viaje con recogida en puntos (`id`, `position`, `name`, `location` y `etaOffsetMin`, los minutos desde la salida por la ruta sin el tiempo de las paradas anteriores); vacío en ruta. La versión anterior llevaba el mismo estado sin las paradas.
 - `request.created`, `request.accepted`, `request.rejected`, `request.cancelled` y `request.expired` **v2**, y `request.boarded` **v3**: el `payload` añade `stopId`, la parada en la que sube el pasajero (`null` si no recoge en puntos). La versión anterior llevaba el mismo estado sin ese campo.

@@ -183,6 +183,7 @@ export class TripStatusService {
         offeredSeats: trip.offeredSeats,
         availableSeats: trip.availableSeats,
         maxDetourMin: trip.maxDetourMin,
+        autoAccept: trip.autoAccept,
         pickupMode: trip.pickupMode,
         maxDetourM: trip.maxDetourM,
         stops: stops.map(({ id, position, name, location, etaOffsetMin }) => ({

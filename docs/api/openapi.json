@@ -15097,6 +15097,7 @@
             "type": "string",
             "enum": [
               "request_received",
+              "passenger_joined",
               "request_accepted",
               "request_rejected",
               "request_cancelled",
@@ -15114,7 +15115,7 @@
               "terms_updated",
               "privacy_updated"
             ],
-            "description": "request_received (to the driver), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver and accepted passengers when the trip finishes), incident_reported (to the administrators), terms_updated and privacy_updated (to every active user after a minor change of a legal document)"
+            "description": "request_received (to the driver), passenger_joined (to the driver, when the trip accepts requests automatically), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver and accepted passengers when the trip finishes), incident_reported (to the administrators), terms_updated and privacy_updated (to every active user after a minor change of a legal document)"
           },
           "trip": {
             "nullable": true,
@@ -15334,6 +15335,11 @@
             "maximum": 8,
             "description": "Seats offered to passengers (at most the vehicle capacity)",
             "example": 3
+          },
+          "autoAccept": {
+            "type": "boolean",
+            "default": false,
+            "description": "Accept the requests that fit (seats and detour) automatically; the rest wait for the driver. The return trip gets the same"
           },
           "pickupMode": {
             "type": "string",
@@ -15565,6 +15571,11 @@
             "example": 10,
             "description": "Detour budget of the whole trip, in minutes: the detours and stops (2 min each) of every accepted passenger fit in it"
           },
+          "autoAccept": {
+            "type": "boolean",
+            "description": "Whether the requests that fit (seats and detour) are accepted automatically",
+            "example": false
+          },
           "pickupMode": {
             "type": "string",
             "enum": [
@@ -15647,6 +15658,7 @@
           "offeredSeats",
           "availableSeats",
           "maxDetourMin",
+          "autoAccept",
           "pickupMode",
           "maxDetourM",
           "stops",
@@ -15713,6 +15725,11 @@
             "type": "number",
             "example": 10,
             "description": "Detour budget of the whole trip, in minutes: the detours and stops (2 min each) of every accepted passenger fit in it"
+          },
+          "autoAccept": {
+            "type": "boolean",
+            "description": "Whether the requests that fit (seats and detour) are accepted automatically",
+            "example": false
           },
           "pickupMode": {
             "type": "string",
@@ -15786,6 +15803,7 @@
           "offeredSeats",
           "availableSeats",
           "maxDetourMin",
+          "autoAccept",
           "pickupMode",
           "maxDetourM",
           "stops",
@@ -16058,6 +16076,11 @@
             "maximum": 8,
             "description": "Seats offered to passengers (at most the vehicle capacity)",
             "example": 3
+          },
+          "autoAccept": {
+            "type": "boolean",
+            "default": false,
+            "description": "Accept the requests that fit (seats and detour) automatically; the rest wait for the driver. The return trip gets the same"
           },
           "maxDetourM": {
             "type": "number",

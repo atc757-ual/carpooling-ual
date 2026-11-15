@@ -25,6 +25,7 @@ export function toReturnTripInput(
     destinationName: outbound.originName,
     departureAt: returnTrip.departureAt,
     offeredSeats: returnTrip.offeredSeats,
+    autoAccept: outbound.autoAccept,
     pickupMode: 'on_route',
     maxDetourM:
       outbound.pickupMode === 'stops'

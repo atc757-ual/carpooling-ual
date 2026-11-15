@@ -8,7 +8,9 @@ import type { PickupPlan } from '../trips/trip-pickups.service';
 import { TripLookupService } from '../trips/trip-lookup.service';
 import { NotTripDriverError } from '../trips/errors/not-trip-driver.error';
 import { TripAlreadyStartedError } from '../trips/errors/trip-already-started.error';
+import { DetourBudgetExceededError } from '../trips/errors/detour-budget-exceeded.error';
 import { TripFullError } from '../trips/errors/trip-full.error';
+import { TripPickupsChangedError } from '../trips/errors/trip-pickups-changed.error';
 import { TripNotInProgressError } from '../trips/errors/trip-not-in-progress.error';
 import {
   isLatePassengerCancellation,
@@ -89,43 +91,89 @@ export class RequestsService {
     const pickup = pickupContext
       ? await this.preparePickup(tripId, pickupContext)
       : null;
-    const request = await this.dataSource.transaction(async (manager) => {
-      await this.overlaps.lockPassenger(manager, passengerId);
-      const trip = await this.tripStatus.lockTrip(manager, tripId);
-      if (pickup && !sameTripSchedule(trip, pickup.trip)) {
-        throw new TripChangedError(tripId);
-      }
-      this.tripStatus.assertOpenForRequests(trip);
-      if (trip.driverId === passengerId) {
-        throw new CannotRequestOwnTripError(tripId);
-      }
-      if (trip.availableSeats < seats) {
-        throw new TripFullError(tripId);
-      }
-      const schedule = await this.overlaps.scheduleForTrip(manager, trip);
-      const overlapping = await this.overlaps.overlappingPendingRequests(
-        manager,
-        passengerId,
-        schedule,
-      );
-      if (overlapping.length >= MAX_OVERLAPPING_PENDING_REQUESTS) {
-        throw new TooManyPendingRequestsError();
-      }
-      const created = await this.saveNew(manager, {
-        tripId,
-        passengerId,
-        seats,
-        isPriority,
-        pickupLocation: pickup?.location ?? null,
-        pickupName: pickup?.name ?? null,
-        direction: pickup?.direction ?? null,
-        pickupAt: pickup?.pickupAt ?? null,
-        stopId: pickup?.stopId ?? null,
+    const { request, trip } = await this.dataSource.transaction(
+      async (manager) => {
+        await this.overlaps.lockPassenger(manager, passengerId);
+        const trip = await this.tripStatus.lockTrip(manager, tripId);
+        if (pickup && !sameTripSchedule(trip, pickup.trip)) {
+          throw new TripChangedError(tripId);
+        }
+        this.tripStatus.assertOpenForRequests(trip);
+        if (trip.driverId === passengerId) {
+          throw new CannotRequestOwnTripError(tripId);
+        }
+        if (trip.availableSeats < seats) {
+          throw new TripFullError(tripId);
+        }
+        const schedule = await this.overlaps.scheduleForTrip(manager, trip);
+        const overlapping = await this.overlaps.overlappingPendingRequests(
+          manager,
+          passengerId,
+          schedule,
+        );
+        if (overlapping.length >= MAX_OVERLAPPING_PENDING_REQUESTS) {
+          throw new TooManyPendingRequestsError();
+        }
+        const created = await this.saveNew(manager, {
+          tripId,
+          passengerId,
+          seats,
+          isPriority,
+          pickupLocation: pickup?.location ?? null,
+          pickupName: pickup?.name ?? null,
+          direction: pickup?.direction ?? null,
+          pickupAt: pickup?.pickupAt ?? null,
+          stopId: pickup?.stopId ?? null,
+        });
+        // Con la aceptación automática, al conductor se le avisa después
+        if (trip.autoAccept) {
+          await this.changes.recordWithoutNotice(
+            manager,
+            'request.created',
+            created,
+            trip,
+          );
+        } else {
+          await this.changes.record(manager, 'request.created', created, trip);
+        }
+        return { request: created, trip };
+      },
+    );
+    return trip.autoAccept
+      ? this.acceptAutomatically(request, trip)
+      : this.views.toView(request);
+  }
+
+  // Aceptación automática (decidida con el autor el 15/11/2026): como si la
+  // aceptara el conductor; al conductor, «se ha unido a tu viaje». Si no cabe
+  // (sin plazas, fuera del desvío o el viaje cambió a la vez), queda
+  // pendiente y le llega como siempre, para que decida él
+  private async acceptAutomatically(
+    request: SeatRequest,
+    trip: Trip,
+  ): Promise<RequestView> {
+    const notice = {
+      recipientId: trip.driverId,
+      tripId: trip.id,
+      requestId: request.id,
+    };
+    try {
+      const accepted = await this.accept(trip.driverId, request.id);
+      await this.changes.notify(this.dataSource.manager, {
+        ...notice,
+        type: 'passenger_joined',
       });
-      await this.changes.record(manager, 'request.created', created, trip);
-      return created;
-    });
-    return this.views.toView(request);
+      return accepted;
+    } catch (error) {
+      if (!isLeftPending(error)) {
+        throw error;
+      }
+      await this.changes.notify(this.dataSource.manager, {
+        ...notice,
+        type: 'request_received',
+      });
+      return this.views.toView(request);
+    }
   }
 
   // Dónde y a qué hora le recogerían (RequestPickupsService), con el viaje
@@ -618,5 +666,16 @@ function sameTripSchedule(first: Trip, second: Trip): boolean {
   return (
     first.departureAt.getTime() === second.departureAt.getTime() &&
     samePoint(first.origin, second.origin)
+  );
+}
+
+// Lo que deja pendiente una solicitud con aceptación automática (no son
+// fallos: lo decide el conductor)
+function isLeftPending(error: unknown): boolean {
+  return (
+    error instanceof DetourBudgetExceededError ||
+    error instanceof TripFullError ||
+    error instanceof TripPickupsChangedError ||
+    error instanceof TripChangedError
   );
 }

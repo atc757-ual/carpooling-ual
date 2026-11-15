@@ -64,6 +64,8 @@ export interface TripInput {
   departureAt: Date;
   offeredSeats: number;
   maxDetourMin?: number;
+  // Aceptación automática de las solicitudes que caben
+  autoAccept?: boolean;
   // Cómo recoge: en ruta (con los metros que se aparta) o en sus paradas
   pickupMode?: TripPickupMode;
   maxDetourM?: number;

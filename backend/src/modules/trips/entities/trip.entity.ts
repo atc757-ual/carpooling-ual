@@ -86,6 +86,11 @@ export class Trip {
   })
   maxDetourM: number | null;
 
+  // Aceptación automática: las solicitudes que caben (plazas y desvío) se
+  // aceptan solas; las que no, quedan pendientes para el conductor
+  @Column({ name: 'auto_accept', type: 'boolean', default: false })
+  autoAccept: boolean;
+
   @Column({
     type: 'enum',
     enum: TRIP_STATUSES,
