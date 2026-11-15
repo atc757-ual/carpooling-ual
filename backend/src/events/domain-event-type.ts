@@ -65,5 +65,13 @@ export type DomainEventType =
   | 'catalog.item_created'
   | 'catalog.item_updated'
   | 'catalog.item_deactivated'
+  // Centro de ayuda: cambios del panel en las preguntas frecuentes y sus
+  // temas, con el administrador
+  | 'faq.created'
+  | 'faq.updated'
+  | 'faq.published'
+  | 'faq.unpublished'
+  | 'faq.deleted'
+  | 'faq_topic.updated'
   // Documentos legales: una versión nueva de las condiciones o la política
   | 'legal_document.published';
