@@ -22,7 +22,6 @@ import {
   logOutOutline,
   moon,
   shieldCheckmarkOutline,
-  star,
   sunny,
   trashOutline,
 } from 'ionicons/icons';
@@ -42,6 +41,7 @@ import { LegalDocumentsService } from '../../core/services/users/legal-documents
 import { LegalDocRow, toLegalDocRow } from './privacy-rows';
 import { ProfileLocation } from './profile-location/profile-location';
 import { AvatarArt } from '../../shared/components/ui/avatar-art/avatar-art';
+import { RatingBar } from '../../shared/components/ui/rating-bar/rating-bar';
 import { LanguageSwitch } from '../../shared/components/ui/language-switch/language-switch';
 import {
   LegalDocument,
@@ -70,6 +70,7 @@ interface PreferenceRow {
 interface ReviewRow {
   role: string;
   average: string;
+  value: number;
   count: string;
 }
 
@@ -79,6 +80,7 @@ interface ReviewRow {
     ProfilePushSetting,
     ProfileDeviceLocation,
     AvatarArt,
+    RatingBar,
     LanguageSwitch,
     IonButton,
     IonCard,
@@ -148,6 +150,7 @@ export class ProfilePage implements OnInit {
       .map(({ role, rating }) => ({
         role,
         average: (rating?.averageRating ?? 0).toFixed(1).replace('.', ','),
+        value: rating?.averageRating ?? 0,
         count: `${rating?.ratingCount} ${rating?.ratingCount === 1 ? 'reseña' : 'reseñas'}`,
       }));
   });
@@ -183,7 +186,7 @@ export class ProfilePage implements OnInit {
   protected readonly docIcon = documentTextOutline;
   protected readonly chevronIcon = chevronForwardOutline;
   protected readonly lockIcon = lockClosedOutline;
-  protected readonly starIcon = star;
+
   protected readonly sunIcon = sunny;
   protected readonly moonIcon = moon;
   protected readonly toleranceIcon = TIME_TOLERANCE_ICON;

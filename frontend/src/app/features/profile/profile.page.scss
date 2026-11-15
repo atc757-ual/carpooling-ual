@@ -247,7 +247,6 @@ app-profile-device-location {
   }
 }
 
-
 .profile__logout {
   align-self: stretch;
   min-height: var(--control-height-base);
@@ -292,11 +291,6 @@ app-profile-device-location {
   flex: none;
   color: var(--color-text-muted);
   font-size: 1.125rem;
-}
-
-.profile__star {
-  color: var(--color-accent);
-  vertical-align: -0.125rem;
 }
 
 // Editar: botón cuadrado de 32px con fondo azul suave e icono de 20px

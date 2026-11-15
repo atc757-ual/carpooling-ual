@@ -29,15 +29,11 @@
                       <span class="text-color-muted">Sin comentario</span>
                     }
                   </p>
-                  <span
-                    class="trip-review-card__verdict"
-                    [class.trip-review-card__verdict--up]="isThumbUp(review.rating)"
-                  >
-                    <ion-icon
-                      [icon]="isThumbUp(review.rating) ? upIcon : downIcon"
-                      aria-hidden="true"
-                    />
-                    {{ isThumbUp(review.rating) ? 'Buen viaje' : 'Mejorable' }}
+                  <span class="trip-review-card__verdict">
+                    <app-rating-bar [rating]="review.rating" />
+                    <span class="text-caption"
+                      >{{ review.rating }} de 5 · {{ ratingName(review.rating) }}</span
+                    >
                   </span>
                 </div>
               } @else {

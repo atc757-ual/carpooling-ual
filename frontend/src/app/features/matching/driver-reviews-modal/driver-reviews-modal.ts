@@ -4,7 +4,9 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { DriverRating, DriverReview } from '../../../core/models/driver-review.model';
 import { DriverReviewsService } from '../../../core/services/users/driver-reviews.service';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
+import { RatingBar } from '../../../shared/components/ui/rating-bar/rating-bar';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { RATING_MAX, ratingName } from '../../../shared/utils/rating.util';
 import { getFirstName, getInitials } from '../trip-driver/trip-driver';
 
 const PAGE_SIZE = 10;
@@ -23,10 +25,10 @@ export function formatReviewCount(count: number): string {
   return count === 1 ? '1 valoración' : `${count} valoraciones`;
 }
 
-// «★★★★☆» para una nota de 1 a 5
-export function toStars(rating: number): string {
-  const filled = Math.round(rating);
-  return '★'.repeat(filled) + '☆'.repeat(5 - filled);
+// La fila del reparto: «5 · Muy bien» y «1 · Muy mal» en los extremos; el
+// resto, solo el número
+export function barLabel(rating: number): string {
+  return rating === 1 || rating === RATING_MAX ? `${rating} · ${ratingName(rating)}` : `${rating}`;
 }
 
 // Las valoraciones de quien conduce, al pulsar su nota en un resultado o en el
@@ -34,7 +36,7 @@ export function toStars(rating: number): string {
 // más recientes primero, de 10 en 10)
 @Component({
   selector: 'app-driver-reviews-modal',
-  imports: [ModalHeader, IonButton, IonSpinner],
+  imports: [ModalHeader, IonButton, IonSpinner, RatingBar],
   templateUrl: './driver-reviews-modal.html',
   styleUrl: './driver-reviews-modal.scss',
 })
@@ -94,8 +96,8 @@ export class DriverReviewsModal implements OnInit {
     return getInitials(name);
   }
 
-  stars(rating: number): string {
-    return toStars(rating);
+  barLabel(rating: number): string {
+    return barLabel(rating);
   }
 
   date(isoDate: string): string {

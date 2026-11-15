@@ -9,6 +9,7 @@ import {
   star,
 } from 'ionicons/icons';
 import { RoleRating } from '../../../../core/models/user.model';
+import { formatRatingSummary } from '../../../../shared/utils/rating.util';
 
 interface Suggestion {
   link: string;
@@ -33,13 +34,13 @@ export class MyTripsAside {
   readonly canDrive = input(true);
   readonly canRide = input(true);
 
-  // «4,8 (12)» o, sin ninguna, «—»
+  // «4,8 de 5 · 12 valoraciones» o, sin ninguna, «—»
   readonly ratingText = computed(() => {
     const rating = this.rating();
     if (!rating || rating.ratingCount === 0 || rating.averageRating === null) {
       return '—';
     }
-    return `${rating.averageRating.toFixed(1).replace('.', ',')} (${rating.ratingCount})`;
+    return formatRatingSummary(rating.averageRating, rating.ratingCount);
   });
   readonly co2Text = computed(() => `${this.co2Kg().toString().replace('.', ',')} kg`);
 

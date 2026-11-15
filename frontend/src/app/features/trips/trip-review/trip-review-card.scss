@@ -49,18 +49,10 @@ ion-card.trip-review-card ion-card-content {
 .trip-review-card__verdict {
   display: flex;
   flex: none;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
   gap: var(--space-xs);
-  color: var(--color-danger-text);
-  font-weight: var(--font-weight-semibold);
-
-  ion-icon {
-    font-size: 1.375rem; // 22px
-  }
-
-  &--up {
-    color: var(--color-success);
-  }
+  color: var(--color-text);
 }
 
 .trip-review-card__loading {

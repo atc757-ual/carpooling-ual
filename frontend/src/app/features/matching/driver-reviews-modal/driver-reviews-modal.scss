@@ -41,13 +41,9 @@
   line-height: 1;
 }
 
-.driver-reviews__stars {
-  color: var(--color-warning);
-  letter-spacing: 0.0625rem; // 1px
-}
-
-.driver-reviews__stars--small {
-  font-size: var(--font-size-body-s);
+// «5 · Muy bien»: ancho fijo para que las barras empiecen a la par
+.driver-reviews__bar-label {
+  min-width: 5.5rem; // 88px
 }
 
 .driver-reviews__bars {

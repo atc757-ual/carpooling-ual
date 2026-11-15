@@ -218,8 +218,8 @@
                 <div class="profile__review-row">
                   <span class="text-body text-body--strong">{{ row.role }}</span>
                   <span class="text-body">
-                    <ion-icon class="profile__star" [icon]="starIcon" aria-hidden="true" />
-                    {{ row.average }}
+                    <app-rating-bar size="small" [rating]="row.value" />
+                    {{ row.average }} de 5
                     <span class="text-color-muted">· {{ row.count }}</span>
                   </span>
                 </div>

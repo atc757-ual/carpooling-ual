@@ -32,7 +32,7 @@ describe('MyTripsAside', () => {
       'Te puede interesar',
     ]);
     expect(root.textContent).toContain('25,4 kg');
-    expect(root.textContent).toContain('4,8 (12)');
+    expect(root.textContent).toContain('4,8 de 5 · 12 valoraciones');
     expect(titles(root)).toEqual(['Publicar viaje', 'Buscar viaje']);
   });
 
@@ -56,6 +56,6 @@ describe('MyTripsAside', () => {
     expect(fixture.componentInstance.ratingText()).toBe('—');
 
     fixture.componentRef.setInput('rating', { averageRating: 5, ratingCount: 1 });
-    expect(fixture.componentInstance.ratingText()).toBe('5,0 (1)');
+    expect(fixture.componentInstance.ratingText()).toBe('5,0 de 5 · 1 valoración');
   });
 });
