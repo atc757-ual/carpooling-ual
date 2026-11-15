@@ -100,10 +100,10 @@ export class DriverTripActions {
   readonly startHint = computed(() => {
     const { status } = this.trip();
     if (status === 'published') {
-      return 'Disponible cuando aceptes a algún pasajero';
+      return 'Podrás iniciarlo cuando aceptes a algún pasajero.';
     }
     return status === 'confirmed' && !this.canStart()
-      ? `Disponible desde las ${formatTime(new Date(this.startableAt()).toISOString())}`
+      ? `Podrás iniciarlo a las ${formatTime(new Date(this.startableAt()).toISOString())}, 10 min antes de salir.`
       : null;
   });
   // Cancelado o terminado: las acciones, desactivadas, con el motivo

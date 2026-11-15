@@ -1,25 +1,34 @@
 @if (activeLink()) {
   <div class="live-share live-share--active">
-    <output class="live-share__status text-body-s">
-      <span class="live-share__dot" aria-hidden="true"></span>
-      <span
-        ><b>Compartiendo en directo.</b> Quien tenga el enlace ve tu viaje hasta que termine.</span
-      >
+    <!-- La etiqueta «En directo» con el punto que late y, debajo, qué supone -->
+    <output class="live-share__status">
+      <span class="live-share__badge text-caption">
+        <span class="live-share__dot" aria-hidden="true"></span>
+        En directo
+      </span>
+      <span class="text-body-s text-color-muted">
+        Quien tenga el enlace ve tu viaje hasta que termine.
+      </span>
     </output>
-    <div class="live-share__actions">
-      <ion-button fill="outline" [disabled]="isBusy()" (click)="handleResend()">
-        <ion-icon slot="start" [icon]="shareIcon" aria-hidden="true" />
-        Enviar el enlace
-      </ion-button>
-      <ion-button fill="clear" color="danger" [disabled]="isBusy()" (click)="handleStop()">
-        <ion-icon slot="start" [icon]="stopIcon" aria-hidden="true" />
-        Dejar de compartir
-      </ion-button>
-    </div>
+    <ion-button expand="block" [disabled]="isBusy()" (click)="handleResend()">
+      <ion-icon slot="start" [icon]="shareIcon" aria-hidden="true" />
+      Enviar el enlace
+    </ion-button>
+    <ion-button
+      class="live-share__stop"
+      fill="clear"
+      color="danger"
+      size="small"
+      [disabled]="isBusy()"
+      (click)="handleStop()"
+    >
+      <ion-icon slot="start" [icon]="stopIcon" aria-hidden="true" />
+      Dejar de compartir
+    </ion-button>
   </div>
 } @else {
   <div class="live-share">
-    <ion-button fill="outline" [disabled]="isBusy()" (click)="handleStart()">
+    <ion-button expand="block" fill="outline" [disabled]="isBusy()" (click)="handleStart()">
       <ion-icon slot="start" [icon]="liveIcon" aria-hidden="true" />
       Compartir mi viaje en directo
     </ion-button>
