@@ -10,21 +10,22 @@
         Quien tenga el enlace ve tu viaje hasta que termine.
       </span>
     </output>
-    <ion-button expand="block" [disabled]="isBusy()" (click)="handleResend()">
-      <ion-icon slot="start" [icon]="shareIcon" aria-hidden="true" />
-      Enviar el enlace
-    </ion-button>
-    <ion-button
-      class="live-share__stop"
-      fill="clear"
-      color="danger"
-      size="small"
-      [disabled]="isBusy()"
-      (click)="handleStop()"
-    >
-      <ion-icon slot="start" [icon]="stopIcon" aria-hidden="true" />
-      Dejar de compartir
-    </ion-button>
+    <div class="live-share__actions">
+      <ion-button expand="block" [disabled]="isBusy()" (click)="handleResend()">
+        <ion-icon slot="start" [icon]="shareIcon" aria-hidden="true" />
+        Enviar el enlace
+      </ion-button>
+      <ion-button
+        class="live-share__stop"
+        expand="block"
+        fill="outline"
+        [disabled]="isBusy()"
+        (click)="handleStop()"
+      >
+        <ion-icon slot="start" [icon]="stopIcon" aria-hidden="true" />
+        Dejar de compartir
+      </ion-button>
+    </div>
   </div>
 } @else {
   <div class="live-share">

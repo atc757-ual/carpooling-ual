@@ -1,6 +1,7 @@
 // El botón de compartir en directo y, mientras se comparte, la etiqueta
-// «En directo» (punto verde que late), el botón principal para enviar el
-// enlace y, debajo y discreto, «Dejar de compartir»
+// «En directo» (punto verde que late), y las acciones: «Enviar el enlace»
+// y «Dejar de compartir» (con borde; en escritorio a la par mitad y mitad,
+// en móvil apiladas)
 :host {
   display: block;
 }
@@ -75,6 +76,16 @@
   }
 }
 
-.live-share__stop {
-  align-self: center;
+.live-share__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+
+    ion-button {
+      flex: 1;
+    }
+  }
 }

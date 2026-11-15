@@ -9,7 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
-- **Compartir en directo e «Iniciar viaje»:** mientras se comparte, la etiqueta «En directo» con el punto que late, «Enviar el enlace» como botón principal y «Dejar de compartir» discreto debajo. El aviso de «Iniciar viaje» pasa a una línea gris bajo el botón: «Podrás iniciarlo a las 08:50, 10 min antes de salir» (#310).
+- **Compartir en directo e «Iniciar viaje»:** mientras se comparte, la etiqueta «En directo» con el punto que late, «Enviar el enlace» como botón principal y «Dejar de compartir» con borde (en escritorio a la par mitad y mitad, en móvil apilados). El aviso de «Iniciar viaje» pasa a una línea gris bajo el botón: «Podrás iniciarlo a las 08:50, 10 min antes de salir» (#310).
 
 ### Added
 
