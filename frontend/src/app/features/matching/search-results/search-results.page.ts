@@ -62,6 +62,13 @@ export function describeResults(trips: TripResult[], direction: TripDirection): 
   return `${times.length} viajes ${verb} ${when}`;
 }
 
+function resolveTimeVerb(isToCampus: boolean, isSingleTrip: boolean): string {
+  if (isToCampus) {
+    return isSingleTrip ? 'llega a destino' : 'llegan a destino';
+  }
+  return isSingleTrip ? 'sale' : 'salen';
+}
+
 export function timeWindowText(trips: TripResult[], direction: TripDirection): string {
   if (trips.length === 0) return '';
   const isToCampus = direction === 'to-campus';
@@ -70,13 +77,7 @@ export function timeWindowText(trips: TripResult[], direction: TripDirection): s
     .sort((left, right) => left.localeCompare(right));
   const first = times[0];
   const last = times.at(-1);
-  const verb = isToCampus
-    ? trips.length === 1
-      ? 'llega a destino'
-      : 'llegan a destino'
-    : trips.length === 1
-      ? 'sale'
-      : 'salen';
+  const verb = resolveTimeVerb(isToCampus, trips.length === 1);
   if (first === last || trips.length === 1) {
     return `${verb} a las ${first}`;
   }
