@@ -114,6 +114,7 @@ export class NotificationsService {
     } else if (page.category === 'travel') {
       where.type = In([
         'request_received',
+        'passenger_joined',
         'request_accepted',
         'request_rejected',
         'request_cancelled',

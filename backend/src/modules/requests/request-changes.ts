@@ -110,16 +110,38 @@ export class RequestChangesRecorder {
     request: SeatRequest,
     trip: Trip,
   ): Promise<void> {
+    await this.recordWithoutNotice(manager, type, request, trip);
+    await this.notify(manager, {
+      ...noticeFor(type, request, trip),
+      tripId: trip.id,
+      requestId: request.id,
+    });
+  }
+
+  // El aviso de un cambio por separado: con la aceptación automática, al
+  // conductor se le avisa después, según se haya aceptado o no
+  async notify(
+    manager: EntityManager,
+    notice: RequestNotice & { tripId: string; requestId: string },
+  ): Promise<void> {
+    await this.notificationsService.notify(manager, [notice.recipientId], {
+      type: notice.type,
+      tripId: notice.tripId,
+      requestId: notice.requestId,
+    });
+  }
+
+  // El evento y los observadores, sin el aviso
+  async recordWithoutNotice(
+    manager: EntityManager,
+    type: RequestEventType,
+    request: SeatRequest,
+    trip: Trip,
+  ): Promise<void> {
     await this.eventsService.record(manager, {
       type,
       sourceEntityId: request.id,
       payload: requestPayload(request),
-    });
-    const notice = noticeFor(type, request, trip);
-    await this.notificationsService.notify(manager, [notice.recipientId], {
-      type: notice.type,
-      tripId: trip.id,
-      requestId: request.id,
     });
     await Promise.all(
       this.listeners.map((listener) =>

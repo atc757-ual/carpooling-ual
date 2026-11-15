@@ -11,6 +11,8 @@ import {
 // donde ocurre el cambio
 export const NOTIFICATION_TYPES = [
   'request_received',
+  // Con la aceptación automática: el pasajero ya tiene la plaza
+  'passenger_joined',
   'request_accepted',
   'request_rejected',
   'request_cancelled',
