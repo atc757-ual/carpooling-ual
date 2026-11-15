@@ -7,6 +7,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Compartir en directo e «Iniciar viaje»:** mientras se comparte, la etiqueta «En directo» con el punto que late, «Enviar el enlace» como botón principal y «Dejar de compartir» con borde (en escritorio a la par mitad y mitad, en móvil apilados). El aviso de «Iniciar viaje» pasa a una línea gris bajo el botón: «Podrás iniciarlo a las 08:50, 10 min antes de salir» (#310).
+
 ### Added
 
 - **Pantallas del viaje compartido en directo:** el pasajero con la plaza aceptada tiene «Compartir mi viaje en directo» en la tarjeta «Tu seguridad» de «En curso» y en el detalle de su plaza: genera el enlace y lo envía con el menú del sistema o WhatsApp; mientras comparte, «Enviar el enlace» y «Dejar de compartir». La página pública `/seguir/:token` (sin sesión ni pestañas, no se indexa) muestra el estado («Esperando la recogida», «En el coche», «El viaje ha terminado»), el mapa con el coche y la ruta con el viaje en curso (se actualiza cada 10 s), la recogida, el destino, la llegada estimada, quién conduce y el coche con su matrícula; un enlace que ya no vale lo explica. La API añade el nombre del color (`vehicle.colorName`), porque quien abre el enlace no puede pedir el catálogo. El mapa de la ruta acepta el coche (`car`), y el patrón queda en la guía de estilos (#307).
