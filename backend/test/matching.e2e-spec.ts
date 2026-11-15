@@ -5,12 +5,20 @@ import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import {
+  OsrmClient,
+  OsrmUnavailableError,
+} from '../src/modules/trips/osrm.client';
 import { registerUser } from './support/accounts';
 import { deleteTestUsers } from './support/cleanup';
 
 // Búsqueda de viajes (matching, RF-06, RF-07) de punta a punta: un conductor
 // publica un viaje del centro de Almería al campus y un pasajero que vive en
-// el camino lo encuentra. Funciona con OSRM o con la ruta estimada
+// el camino lo encuentra. Siempre con la ruta estimada en línea recta, como en
+// el CI: con OSRM en local, la ruta real por carretera puede quedar más lejos
+// del punto «en el camino» que la distancia máxima de recogida
+const OSRM_DOWN = (): Promise<never> =>
+  Promise.reject(new OsrmUnavailableError('disabled in this test'));
 const EMAIL_PREFIX = 'matching-e2e-';
 const PASSWORD = 'secret-password';
 const ALMERIA_CENTRE = { type: 'Point', coordinates: [-2.4637, 36.8381] };
@@ -43,7 +51,10 @@ describe('Matching API (e2e)', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(OsrmClient)
+      .useValue({ route: OSRM_DOWN, routeWithLegs: OSRM_DOWN })
+      .compile();
     app = moduleRef.createNestApplication();
     configureApp(app);
     await app.init();

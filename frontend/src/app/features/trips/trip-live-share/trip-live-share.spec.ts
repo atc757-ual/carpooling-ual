@@ -68,7 +68,7 @@ describe('TripLiveShare', () => {
   it('shows the sharing state of a remembered link and sends it again', async () => {
     await render(LINK);
 
-    expect(fixture.nativeElement.textContent).toContain('Compartiendo en directo');
+    expect(fixture.nativeElement.textContent).toContain('En directo');
     await fixture.componentInstance.handleResend();
     expect(share).toHaveBeenCalledWith(expect.objectContaining({ url: LINK }));
   });
