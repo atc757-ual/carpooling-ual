@@ -109,6 +109,7 @@ export interface TripOffer {
   time: string;
   vehicleId: string;
   seats: number;
+  autoAccept: boolean;
   pickupMode: PickupMode;
   maxDetourM: number;
   stops: readonly SearchPlace[];
@@ -132,6 +133,7 @@ export function toPublishTripRequest(
       ? { arrivalAt: toIsoDateTime(offer.date, offer.time) }
       : { departureAt: toIsoDateTime(offer.date, offer.time) }),
     offeredSeats: Number(offer.seats),
+    autoAccept: offer.autoAccept,
     ...toPickupRequest(offer),
     originName: isToCampus ? place.name : campusName,
     destinationName: isToCampus ? campusName : place.name,

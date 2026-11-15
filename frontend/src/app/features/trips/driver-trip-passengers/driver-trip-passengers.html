@@ -12,6 +12,12 @@
       </span>
       <span class="text-body-s">{{ seatsLabel() }}</span>
     </div>
+    <!-- Con la aceptación automática, las que caben no pasan por aquí -->
+    @if (trip().autoAccept && isOpen()) {
+      <p class="driver-trip__auto-accept text-caption text-color-muted">
+        Aceptas automáticamente las solicitudes que caben; aquí verás las que no.
+      </p>
+    }
 
     @if (isOpen()) {
       <div class="driver-trip__requests">

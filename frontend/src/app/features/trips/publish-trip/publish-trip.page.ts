@@ -57,6 +57,7 @@ import { PublishNextSteps } from '../publish-next-steps/publish-next-steps';
 import { VehiclePicker } from '../vehicle-picker/vehicle-picker';
 import { PUBLISH_FAQS } from './publish-help';
 import { ReturnTripControls, ReturnTripField } from '../return-trip-field/return-trip-field';
+import { AutoAcceptField } from '../auto-accept-field/auto-accept-field';
 import {
   defaultReturnTime,
   isReturnBeforeArrival,
@@ -138,6 +139,7 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
     DeclarationField,
     PickupModeField,
     ReturnTripField,
+    AutoAcceptField,
     FaqCard,
     RouteFields,
     RouteTimeline,
@@ -194,6 +196,8 @@ export class PublishTripPage implements OnInit {
     hasReturn: [false],
     returnTime: [defaultReturnTime(this.initialDeparture.time)],
     returnSeats: [1, [Validators.required, Validators.min(1)]],
+    // Aceptar solas las solicitudes que caben (en Revisión)
+    autoAccept: [false],
     declaration: [false],
   });
 
@@ -518,6 +522,7 @@ export class PublishTripPage implements OnInit {
         hasReturn: false,
         returnTime: defaultReturnTime(departure.time),
         returnSeats: 1,
+        autoAccept: false,
         declaration: false,
       });
       this.furthestStep.set(1);

@@ -2,6 +2,8 @@
 // la frase la compone el frontend a partir del tipo
 export type NotificationType =
   | 'request_received'
+  // Con la aceptación automática: el pasajero ya tiene la plaza
+  | 'passenger_joined'
   | 'request_accepted'
   | 'request_rejected'
   | 'request_cancelled'

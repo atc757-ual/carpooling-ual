@@ -100,6 +100,14 @@ describe('DriverTripPassengers', () => {
     expect(chat?.getAttribute('title')).toBe('Escribir a Mario');
   });
 
+  it('says the requests that fit are accepted automatically', async () => {
+    const root = await render({ ...TRIP, autoAccept: true });
+
+    expect(root.querySelector('.driver-trip__auto-accept')?.textContent).toContain(
+      'Aceptas automáticamente las solicitudes que caben',
+    );
+  });
+
   it('lists the pending and accepted requests, and hides the closed ones', async () => {
     const root = await render(TRIP, [
       request('pending', true),
