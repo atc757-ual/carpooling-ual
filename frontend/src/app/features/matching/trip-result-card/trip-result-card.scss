@@ -27,11 +27,12 @@
 .trip-card {
   position: relative;
   display: block;
-  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  border: var(--border-width-s) solid var(--color-border-subtle);
   border-left: 0.25rem solid var(--color-border-subtle); // 4px
   border-radius: var(--radius-s);
   background: var(--color-surface);
   cursor: pointer;
+  transition: background-color var(--transition-fast, 0.15s ease);
 
   &:hover {
     background: var(--color-surface-subtle);
@@ -86,8 +87,20 @@
   font-size: var(--font-size-caption);
 }
 
+.trip-card__preference--desktop-only {
+  display: none;
+
+  @media (min-width: 768px) {
+    display: inline-block;
+  }
+}
+
 .trip-card__preference--more {
   color: var(--color-text-muted);
+
+  @media (min-width: 768px) {
+    display: none;
+  }
 }
 
 // La recogida a la izquierda y «Ver detalle ›» a la derecha, en una línea

@@ -100,13 +100,13 @@ describe('TripResultCard', () => {
     expect(root.querySelector('.trip-card__preferences')).toBeNull();
   });
 
-  it('shows the first three driver preferences and how many more', () => {
+  it('shows driver preferences with the remaining items in desktop and count badge in mobile', () => {
     const root = render({ ...TRIP, driver: { ...TRIP.driver, preferences: PREFERENCES } });
     const chips = [...root.querySelectorAll('.trip-card__preference')].map((chip) =>
       chip.textContent?.trim(),
     );
 
-    expect(chips).toEqual(['Charlar', 'Música suave', 'No se fuma', '+1']);
+    expect(chips).toEqual(['Charlar', 'Música suave', 'No se fuma', 'En transportín', '+1']);
   });
 
   it('links the row to the trip detail with a label that describes the trip', () => {

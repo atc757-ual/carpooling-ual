@@ -8,8 +8,6 @@ import { TripResult } from '../../../core/models/trip-result.model';
 import { getFirstName } from '../trip-driver/trip-driver';
 import { formatWalkingDistance } from '../../../shared/utils/distance.util';
 
-const MAX_PREFERENCES = 3;
-
 // Un viaje de los resultados (SearchTripCard de la guía): horas de salida y
 // llegada con las plazas libres («Última plaza» en píldora ámbar si solo queda
 // una), el trayecto, quien conduce y el desvío con la hora de salida. Toda la
@@ -25,14 +23,9 @@ export class TripResultCard {
 
   readonly trip = input.required<TripResult>();
 
-  // Las preferencias del conductor (las mismas que en el detalle): las 3
-  // primeras y, si hay más, «+2»
-  private readonly preferences = computed(() =>
+  // Las preferencias del conductor: en móvil las 3 primeras y +N; en escritorio todas
+  readonly preferences = computed(() =>
     this.travelPreferences.format(this.trip().driver.preferences),
-  );
-  readonly shownPreferences = computed(() => this.preferences().slice(0, MAX_PREFERENCES));
-  readonly morePreferences = computed(() =>
-    Math.max(0, this.preferences().length - MAX_PREFERENCES),
   );
 
   // El pasajero ya tiene una solicitud viva en este viaje

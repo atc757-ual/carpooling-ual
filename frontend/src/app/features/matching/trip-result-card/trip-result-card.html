@@ -33,15 +33,20 @@
          el detalle -->
     <p class="trip-card__driver text-body-s text-color-muted">Conduce {{ trip().driver.name }}</p>
 
-    <!-- Sus preferencias de viaje, como en el detalle (las 3 primeras) -->
-    @if (shownPreferences().length > 0) {
+    <!-- Sus preferencias de viaje: en móvil las 3 primeras y +N; en escritorio todas -->
+    @if (preferences().length > 0) {
       <ul class="trip-card__preferences" aria-label="Preferencias del conductor">
-        @for (preference of shownPreferences(); track preference) {
-          <li class="trip-card__preference">{{ preference }}</li>
+        @for (preference of preferences(); track preference; let idx = $index) {
+          <li
+            class="trip-card__preference"
+            [class.trip-card__preference--desktop-only]="idx >= 3"
+          >
+            {{ preference }}
+          </li>
         }
-        @if (morePreferences() > 0) {
+        @if (preferences().length > 3) {
           <li class="trip-card__preference trip-card__preference--more">
-            +{{ morePreferences() }}
+            +{{ preferences().length - 3 }}
           </li>
         }
       </ul>

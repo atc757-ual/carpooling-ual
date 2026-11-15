@@ -15,7 +15,12 @@ import {
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular';
-import { alertCircleOutline, createOutline, searchOutline } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  createOutline,
+  searchOutline,
+  swapVerticalOutline,
+} from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { TripResult } from '../../../core/models/trip-result.model';
 import { TripDirection, TripSearch } from '../../../core/models/trip-search.model';
@@ -55,6 +60,27 @@ export function describeResults(trips: TripResult[], direction: TripDirection): 
   const verb = isToCampus ? 'llegan' : 'salen';
   const when = first === last ? `a las ${first}` : `entre ${first} y ${last}`;
   return `${times.length} viajes ${verb} ${when}`;
+}
+
+export function timeWindowText(trips: TripResult[], direction: TripDirection): string {
+  if (trips.length === 0) return '';
+  const isToCampus = direction === 'to-campus';
+  const times = trips
+    .map((trip) => (isToCampus ? trip.arrivalTime : trip.departureTime))
+    .sort((left, right) => left.localeCompare(right));
+  const first = times[0];
+  const last = times.at(-1);
+  const verb = isToCampus
+    ? trips.length === 1
+      ? 'llega'
+      : 'llegan'
+    : trips.length === 1
+      ? 'sale'
+      : 'salen';
+  if (first === last || trips.length === 1) {
+    return `${verb} a las ${first}`;
+  }
+  return `${verb} entre ${first} y ${last}`;
 }
 
 // «Tu búsqueda»: los viajes que encajan con la búsqueda hecha en Buscar. En
@@ -121,6 +147,14 @@ export class SearchResultsPage {
   readonly resultsSummary = computed(() =>
     describeResults(this.trips(), this.search()?.direction ?? 'to-campus'),
   );
+  readonly resultsCountLabel = computed(() => {
+    const count = this.trips().length;
+    return `${count} ${count === 1 ? 'viaje' : 'viajes'}`;
+  });
+  readonly resultsTimeWindow = computed(() =>
+    timeWindowText(this.trips(), this.search()?.direction ?? 'to-campus'),
+  );
+  protected readonly swapVerticalIcon = swapVerticalOutline;
   // Cómo encaja cada viaje con la búsqueda: el color de su fila
   fitOf(trip: TripResult): MatchFit {
     const search = this.search();

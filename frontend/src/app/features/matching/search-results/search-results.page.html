@@ -99,17 +99,23 @@
                 </div>
               }
               <div class="search-results__results-header">
-                <output class="search-results__count">{{ resultsSummary() }}</output>
-                <ion-select
-                  class="search-results__sort"
-                  aria-label="Ordenar viajes"
-                  interface="popover"
-                  [value]="sortOrder()"
-                  (ionChange)="handleSortChange($event.detail.value)"
-                >
-                  <ion-select-option value="arrival">Llegada más temprana</ion-select-option>
-                  <ion-select-option value="detour">Menos desvío</ion-select-option>
-                </ion-select>
+                <output class="search-results__count" [attr.aria-label]="resultsSummary()">
+                  <span class="search-results__badge">{{ resultsCountLabel() }}</span>
+                  <span class="search-results__time"> {{ resultsTimeWindow() }}</span>
+                </output>
+                <div class="search-results__sort-chip">
+                  <ion-icon [icon]="swapVerticalIcon" aria-hidden="true" />
+                  <ion-select
+                    class="search-results__sort"
+                    aria-label="Ordenar viajes"
+                    interface="popover"
+                    [value]="sortOrder()"
+                    (ionChange)="handleSortChange($event.detail.value)"
+                  >
+                    <ion-select-option value="arrival">Llegada más temprana</ion-select-option>
+                    <ion-select-option value="detour">Menos desvío</ion-select-option>
+                  </ion-select>
+                </div>
               </div>
               <div class="notice notice--info" role="note">
                 <span>
