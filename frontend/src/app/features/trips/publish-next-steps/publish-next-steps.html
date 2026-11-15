@@ -22,7 +22,7 @@
 <aside class="next-steps__card" aria-labelledby="next-title">
   <h2 id="next-title" class="text-subtitle">¿Qué pasa después?</h2>
   <ol class="next-steps__list">
-    @for (item of nextSteps; track item.title; let index = $index) {
+    @for (item of nextSteps(); track item.title; let index = $index) {
       <li>
         <span class="next-steps__number" aria-hidden="true">{{ index + 1 }}</span>
         <span>

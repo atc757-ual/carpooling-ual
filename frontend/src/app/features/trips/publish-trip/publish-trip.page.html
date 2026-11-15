@@ -259,7 +259,10 @@
           } @else {
             <!-- En el móvil, al final: al publicar, por qué ayuda a la UAL; y
                  qué pasa después -->
-            <app-publish-next-steps [isPublished]="published() !== null" />
+            <app-publish-next-steps
+              [isPublished]="published() !== null"
+              [autoAccept]="published() ? (published()?.autoAccept ?? false) : (tripForm.controls.autoAccept.value ?? false)"
+            />
           }
         </div>
 

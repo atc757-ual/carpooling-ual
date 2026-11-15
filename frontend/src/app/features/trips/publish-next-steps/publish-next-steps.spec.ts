@@ -3,13 +3,14 @@ import { provideIonicAngular } from '@ionic/angular';
 import { PublishNextSteps } from './publish-next-steps';
 
 describe('PublishNextSteps', () => {
-  function render(isPublished: boolean): HTMLElement {
+  function render(isPublished: boolean, autoAccept = false): HTMLElement {
     TestBed.configureTestingModule({
       imports: [PublishNextSteps],
       providers: [provideIonicAngular()],
     });
     const fixture = TestBed.createComponent(PublishNextSteps);
     fixture.componentRef.setInput('isPublished', isPublished);
+    fixture.componentRef.setInput('autoAccept', autoAccept);
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
   }
@@ -18,8 +19,16 @@ describe('PublishNextSteps', () => {
     const root = render(false);
 
     expect(root.textContent).toContain('¿Qué pasa después?');
+    expect(root.textContent).toContain('Tú decides');
     expect(root.querySelectorAll('.next-steps__list li')).toHaveLength(3);
     expect(root.textContent).not.toContain('Gracias por compartir tu coche');
+  });
+
+  it('adapts step 2 when auto accept is active', () => {
+    const root = render(false, true);
+
+    expect(root.textContent).toContain('Aceptación automática');
+    expect(root.textContent).not.toContain('Tú decides');
   });
 
   it('thanks the driver once the trip is published', () => {

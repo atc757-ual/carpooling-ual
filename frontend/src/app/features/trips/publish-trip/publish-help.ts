@@ -46,20 +46,29 @@ export interface NextStep {
   text: string;
 }
 
-export const NEXT_STEPS: readonly NextStep[] = [
-  {
-    title: 'Recibes solicitudes',
-    text: 'Te avisamos cuando alguien de la UAL pida plaza en tu viaje.',
-  },
-  {
-    title: 'Tú decides',
-    text: 'Aceptas o rechazas cada solicitud: nadie tiene plaza sin tu visto bueno.',
-  },
-  {
-    title: 'El día del viaje',
-    text: 'Sal a tu hora y recoge a tus pasajeros. Si no puedes ir, cancélalo en Tus viajes hasta 20 minutos antes.',
-  },
-];
+export function getNextSteps(autoAccept = false): readonly NextStep[] {
+  return [
+    {
+      title: 'Recibes solicitudes',
+      text: 'Te avisamos cuando alguien de la UAL pida plaza en tu viaje.',
+    },
+    autoAccept
+      ? {
+          title: 'Aceptación automática',
+          text: 'Quien quepa en tu ruta y plazas se unirá al momento y te avisaremos; si no cabe, decidirás tú.',
+        }
+      : {
+          title: 'Tú decides',
+          text: 'Aceptas o rechazas cada solicitud: nadie tiene plaza sin tu visto bueno.',
+        },
+    {
+      title: 'El día del viaje',
+      text: 'Sal a tu hora y recoge a tus pasajeros. Si no puedes ir, cancélalo en Tus viajes hasta 20 minutos antes.',
+    },
+  ];
+}
+
+export const NEXT_STEPS: readonly NextStep[] = getNextSteps(false);
 
 // «Gracias por compartir tu coche» (al publicar): por qué ayuda a la UAL
 export const COMMUNITY_POINTS: readonly string[] = [
