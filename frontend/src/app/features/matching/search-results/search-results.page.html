@@ -85,6 +85,11 @@
                estimadas y, debajo, los viajes en una lista -->
           <ion-card class="search-results__panel">
             <ion-card-content>
+              <div class="notice notice--success search-results__notice" role="note">
+                <ion-icon [icon]="routeIcon" aria-hidden="true" />
+                <span>Horas estimadas según tu ruta.</span>
+              </div>
+
               @if (requestedCount()) {
                 <!-- Los viajes que ya pediste no se repiten aquí: están en Tus viajes -->
                 <div class="notice notice--info search-results__requested">
@@ -99,24 +104,23 @@
                 </div>
               }
               <div class="search-results__results-header">
-                <output class="search-results__count">{{ resultsSummary() }}</output>
+                <output class="search-results__count" [attr.aria-label]="resultsSummary()">
+                  <span class="search-results__badge">{{ resultsCountLabel() }}</span>
+                  <span class="search-results__time"> {{ resultsTimeWindow() }}</span>
+                </output>
                 <ion-select
                   class="search-results__sort"
                   aria-label="Ordenar viajes"
                   interface="popover"
+                  fill="outline"
+                  label="Ordenar por"
+                  labelPlacement="floating"
                   [value]="sortOrder()"
                   (ionChange)="handleSortChange($event.detail.value)"
                 >
+                  <ion-select-option value="detour">Mejor coincidencia</ion-select-option>
                   <ion-select-option value="arrival">Llegada más temprana</ion-select-option>
-                  <ion-select-option value="detour">Menos desvío</ion-select-option>
                 </ion-select>
-              </div>
-              <div class="notice notice--info" role="note">
-                <span>
-                  <b>Horas estimadas.</b>
-                  La plaza se confirma cuando el conductor acepta. Verificamos el correo UAL, no la
-                  identidad ni el permiso de conducir.
-                </span>
               </div>
               <ul class="search-results__items">
                 @for (trip of sortedTrips(); track trip.id) {

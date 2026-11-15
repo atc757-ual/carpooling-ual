@@ -16,6 +16,7 @@ import {
   ROQUETAS,
   stubIntersectionObserver,
 } from '../trip-search.testing';
+import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { describeResults, SearchResultsPage } from './search-results.page';
 
@@ -70,18 +71,18 @@ describe('describeResults', () => {
     ({ arrivalTime, departureTime }) as TripResult;
 
   it('says when a single trip arrives', () => {
-    expect(describeResults([at('08:45')], 'to-campus')).toBe('1 viaje llega a las 08:45');
+    expect(describeResults([at('08:45')], 'to-campus')).toBe('1 viaje llega a destino a las 08:45');
   });
 
   it('gives the window of several trips, whatever their order', () => {
     expect(describeResults([at('09:15'), at('08:45'), at('09:00')], 'to-campus')).toBe(
-      '3 viajes llegan entre 08:45 y 09:15',
+      '3 viajes llegan a destino entre 08:45 y 09:15',
     );
   });
 
   it('gives a single time when they all arrive at once', () => {
     expect(describeResults([at('08:45'), at('08:45')], 'to-campus')).toBe(
-      '2 viajes llegan a las 08:45',
+      '2 viajes llegan a destino a las 08:45',
     );
   });
 
@@ -115,6 +116,7 @@ describe('SearchResultsPage', () => {
         provideIonicAngular(),
         provideRouter([]),
         { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
+        { provide: TravelPreferencesStore, useValue: { format: () => [] } },
         { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
         { provide: MatchingService, useValue: { search } },
         { provide: SeatRequestsService, useValue: { listMine } },
@@ -143,28 +145,30 @@ describe('SearchResultsPage', () => {
     );
     expect(root.querySelector('app-trip-result-card')?.textContent).toContain('Lucía Cortés');
     expect(root.querySelector('.search-results__count')?.textContent).toContain(
-      '1 viaje llega a las',
+      '1 viaje encontrado',
+    );
+    expect(root.querySelector('.search-results__count')?.textContent).toContain(
+      'llega a destino a las',
     );
     expect(root.querySelector('ion-select')).not.toBeNull();
-    const notice = root.querySelector('.notice--info')?.textContent?.replace(/\s+/g, ' ');
-    expect(notice).toContain('Horas estimadas.');
-    expect(notice).toContain('La plaza se confirma cuando el conductor acepta.');
+    const notice = root.querySelector('.notice--success')?.textContent?.replace(/\s+/g, ' ');
+    expect(notice).toContain('Horas estimadas según tu ruta.');
     expect(searchState.results().map(({ id }) => id)).toEqual(['t1']);
     expect(page.stops().map(({ name }) => name)).toEqual([ROQUETAS.name, 'Campus UAL']);
     expect(page.details()).toContain('llegada 08:00 ± 20 min · 1 plaza');
   });
 
-  it('sorts by earliest arrival by default and by detour on request', async () => {
+  it('sorts by best match (detour) by default and by arrival on request', async () => {
     const fixture = await setUp(SEARCH, () =>
       Promise.resolve([MATCH, LOWER_DETOUR_MATCH, EARLIER_MATCH]),
     );
     const page = fixture.componentInstance;
 
-    expect(page.sortedTrips().map(({ id }) => id)).toEqual(['earlier', 't1', 'lower-detour']);
-
-    page.handleSortChange('detour');
-
     expect(page.sortedTrips().map(({ id }) => id)).toEqual(['lower-detour', 't1', 'earlier']);
+
+    page.handleSortChange('arrival');
+
+    expect(page.sortedTrips().map(({ id }) => id)).toEqual(['earlier', 't1', 'lower-detour']);
   });
 
   it('ignores an unknown sort order', async () => {
@@ -172,7 +176,7 @@ describe('SearchResultsPage', () => {
 
     page.handleSortChange('other');
 
-    expect(page.sortOrder()).toBe('arrival');
+    expect(page.sortOrder()).toBe('detour');
   });
 
   it('marks the trips with a live request, not the ones that ended', async () => {
@@ -219,10 +223,10 @@ describe('SearchResultsPage', () => {
     expect(page.bestTripId()).toBe('lower-detour');
   });
 
-  it('highlights nothing with a single trip', async () => {
+  it('highlights the single trip as best match', async () => {
     const page = (await setUp(SEARCH)).componentInstance;
 
-    expect(page.bestTripId()).toBeNull();
+    expect(page.bestTripId()).toBe('t1');
   });
 
   it('reverses the route when coming back from the campus', async () => {

@@ -76,7 +76,9 @@ import {
 } from './publish-trip.utils';
 import { toIsoDate } from '../../../shared/utils/date.util';
 import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
+import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colors.store';
+import { ProfilePreferencesModal } from '../../profile/profile-preferences-modal/profile-preferences-modal';
 
 export const DETOURS = [5, 10, 15, 20] as const;
 const DEFAULT_DETOUR = 10;
@@ -156,6 +158,7 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
 })
 export class PublishTripPage implements OnInit {
   private readonly vehicleColors = inject(VehicleColorsStore);
+  private readonly travelPreferences = inject(TravelPreferencesStore);
   private readonly driver = inject(DriverService);
   private readonly modalController = inject(ModalController);
   private readonly auth = inject(AuthService);
@@ -423,6 +426,19 @@ export class PublishTripPage implements OnInit {
   });
 
   readonly dateLabel = computed(() => formatDateLabel(this.tripValue().date ?? ''));
+  // Tus preferencias de viaje (del Perfil), en la revisión: las ven los pasajeros
+  readonly myPreferences = computed(() =>
+    this.travelPreferences.format(this.auth.currentUser()?.preferences),
+  );
+
+  async handleEditPreferences(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: ProfilePreferencesModal,
+      cssClass: 'info-dialog',
+      componentProps: { user: this.auth.currentUser() },
+    });
+    await modal.present();
+  }
 
   // «Volver a Trayecto»: el paso anterior, por su nombre (al publicar, no hay)
   readonly previousStep = computed(() => {
