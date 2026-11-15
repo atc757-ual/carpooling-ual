@@ -1,29 +1,23 @@
-// Página pública del viaje compartido: una sola columna centrada, legible en
-// el móvil de quien la recibe, con la marca arriba y las tarjetas del tema
-.shared-trip {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-base);
-  max-width: 40rem; // 640px
-  margin: 0 auto;
-  padding: var(--space-l) var(--space-base) var(--space-xl);
-
-  h1,
-  p {
-    margin: 0;
-  }
-}
-
+// La página pública del viaje compartido: cabecera con la marca y, debajo, en
+// 8 + 4 desde 768px como «En curso». En curso y en el móvil, el mapa de
+// fondo (de borde a borde) y el detalle en la hoja inferior
 .shared-trip__brand {
   display: flex;
   align-items: center;
   gap: var(--space-s);
+  padding: 0 var(--space-base);
   color: var(--color-text);
 }
 
+.shared-trip__brand-title {
+  margin-left: auto;
+}
+
 .shared-trip__logo,
-.shared-trip__empty-icon {
+.shared-trip__empty-icon,
+.shared-trip__state-icon {
   display: grid;
+  flex: none;
   width: 2.5rem; // 40px
   height: 2.5rem; // 40px
   border-radius: var(--radius-full);
@@ -31,6 +25,74 @@
   color: var(--color-on-primary);
   font-size: 1.25rem; // 20px
   place-items: center;
+}
+
+.shared-trip__logo {
+  width: 2rem; // 32px
+  height: 2rem; // 32px
+  font-size: 1rem; // 16px
+}
+
+.shared-trip {
+  max-width: 72rem; // 1152px
+  margin: 0 auto;
+  padding: var(--space-base) var(--space-base) var(--space-xl);
+
+  h1,
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+.shared-trip__layout,
+.shared-trip__main,
+.shared-trip__aside,
+.shared-trip__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  min-width: 0;
+}
+
+.shared-trip__card,
+.shared-trip__map-card {
+  margin: 0;
+}
+
+.shared-trip__card ion-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
+.shared-trip__map-card {
+  --trip-route-map-height: 34rem; // 544px
+}
+
+// El estado (antes de salir o terminado), como estado vacío de la columna de 8
+.shared-trip__card ion-card-content.shared-trip__state {
+  align-items: center;
+  gap: var(--space-base);
+  padding-block: var(--space-xxl);
+  text-align: center;
+}
+
+.shared-trip__state-icon {
+  width: 3.5rem; // 56px
+  height: 3.5rem; // 56px
+  font-size: 1.75rem; // 28px
+}
+
+.shared-trip__state-icon--success {
+  background: var(--color-success);
+  color: var(--color-on-success);
+}
+
+.shared-trip__state-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
 }
 
 .shared-trip__status {
@@ -46,22 +108,11 @@
   background: var(--color-success);
 }
 
-.shared-trip__map {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-  --trip-route-map-height: 18rem; // 288px
-}
-
 .shared-trip__details {
   display: flex;
   flex-direction: column;
   gap: var(--space-base);
   margin: 0;
-  padding: var(--space-base);
-  border: var(--border-width-s) solid var(--color-card-border);
-  border-radius: var(--radius-s);
-  background: var(--color-surface);
 }
 
 .shared-trip__row {
@@ -74,6 +125,11 @@
   }
 }
 
+.shared-trip__plate {
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
 .shared-trip__empty,
 .shared-trip__loading {
   display: flex;
@@ -82,4 +138,38 @@
   gap: var(--space-s);
   padding-top: var(--space-xxxl);
   text-align: center;
+}
+
+@media (min-width: 768px) {
+  .shared-trip__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-l);
+  }
+
+  .shared-trip__aside {
+    position: sticky;
+    top: var(--space-l);
+  }
+}
+
+// En curso y en el móvil: el mapa de borde a borde bajo la cabecera
+@media (max-width: 767.98px) {
+  .shared-trip--live {
+    padding: 0;
+  }
+
+  .shared-trip--live .shared-trip__map-card {
+    --trip-route-map-height: calc(
+      100dvh - 3.5rem - var(--ion-safe-area-top, 0px)
+    ); // 56px: la cabecera
+
+    border-radius: 0;
+    box-shadow: none;
+
+    ion-card-content {
+      padding: 0;
+    }
+  }
 }

@@ -1,5 +1,7 @@
-// El botón de compartir en directo y, mientras se comparte, el estado con el
-// punto verde (como «En directo») y las dos acciones a la par
+// El botón de compartir en directo y, mientras se comparte, la etiqueta
+// «En directo» (punto verde que late), y las acciones: «Enviar el enlace»
+// y «Dejar de compartir» (con borde; en escritorio a la par mitad y mitad,
+// en móvil apiladas)
 :host {
   display: block;
 }
@@ -7,7 +9,7 @@
 .live-share {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-s);
 
   p {
     margin: 0;
@@ -20,26 +22,70 @@
 
 .live-share__status {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
   gap: var(--space-xs);
-  color: var(--color-text);
+}
+
+.live-share__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0.25rem 0.625rem; // 4px 10px
+  border-radius: var(--radius-full);
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+  font-weight: var(--font-weight-semibold);
 }
 
 .live-share__dot {
+  position: relative;
   flex: none;
-  width: 0.625rem; // 10px
-  height: 0.625rem; // 10px
-  margin-top: 0.3125rem; // 5px: centrado con la primera línea
+  width: 0.5rem; // 8px
+  height: 0.5rem; // 8px
   border-radius: var(--radius-full);
   background: var(--color-success);
+
+  // El latido: un anillo que crece y se desvanece
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: live-share-pulse 1.6s ease-out infinite;
+  }
+}
+
+// Sin animación para quien la ha desactivado en el sistema
+@media (prefers-reduced-motion: reduce) {
+  .live-share__dot::after {
+    animation: none;
+  }
+}
+
+@keyframes live-share-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
 }
 
 .live-share__actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-s);
 
-  ion-button {
-    flex: 1 1 10rem; // 160px: los dos en una fila desde unos 340px de ancho
+  @media (min-width: 768px) {
+    flex-direction: row;
+
+    ion-button {
+      flex: 1;
+    }
   }
 }
