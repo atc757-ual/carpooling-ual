@@ -15,12 +15,7 @@ import {
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular';
-import {
-  alertCircleOutline,
-  createOutline,
-  searchOutline,
-  swapVerticalOutline,
-} from 'ionicons/icons';
+import { alertCircleOutline, createOutline, searchOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { TripResult } from '../../../core/models/trip-result.model';
 import { TripDirection, TripSearch } from '../../../core/models/trip-search.model';
@@ -154,7 +149,6 @@ export class SearchResultsPage {
   readonly resultsTimeWindow = computed(() =>
     timeWindowText(this.trips(), this.search()?.direction ?? 'to-campus'),
   );
-  protected readonly swapVerticalIcon = swapVerticalOutline;
   // Cómo encaja cada viaje con la búsqueda: el color de su fila
   fitOf(trip: TripResult): MatchFit {
     const search = this.search();

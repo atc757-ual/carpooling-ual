@@ -135,36 +135,14 @@ ion-card-content.search-results__state:has(> .search-results__requested) > :last
   white-space: normal;
 }
 
-// Selector en chip moderno con icono
-.search-results__sort-chip {
-  grid-area: sort;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2xs);
-  justify-self: end;
-  padding: 0 0.5rem 0 0.625rem;
-  border: var(--border-width-s) solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
-  min-height: 2.25rem;
-
-  ion-icon {
-    font-size: 1rem;
-    color: var(--color-text-muted);
-    flex-shrink: 0;
-  }
-}
-
+// Selector desplegable estándar con borde como los demás de la app (fill="outline")
 .search-results__sort {
+  grid-area: sort;
+  justify-self: end;
   width: auto;
-  min-height: 2.25rem;
-  color: var(--color-text);
+  min-height: 2.5rem;
   font-size: var(--font-size-body-s);
-  font-weight: var(--font-weight-medium);
-
-  &::part(text) {
-    color: var(--color-text);
-  }
+  --border-radius: var(--radius-s);
 }
 
 @media (min-width: 768px) {
