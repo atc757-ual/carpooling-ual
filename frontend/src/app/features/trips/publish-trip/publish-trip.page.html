@@ -155,16 +155,12 @@
                         </form>
                       }
                       @default {
-                        <app-vehicle-picker [(vehicles)]="vehicles" [controls]="tripForm.controls">
-                          <!-- Con la vuelta, sus plazas (las de la ida hasta
-                               que se cambian) -->
-                          @if (hasReturnTrip()) {
-                            <app-seat-stepper
-                              formControlName="returnSeats"
-                              label="Plazas en la vuelta"
-                              [max]="selectedVehicle()?.capacity ?? 1"
-                            />
-                          }
+                        <!-- Con la vuelta, las plazas de la ida y la vuelta -->
+                        <app-vehicle-picker
+                          [(vehicles)]="vehicles"
+                          [controls]="tripForm.controls"
+                          [returnSeats]="hasReturnTrip() ? tripForm.controls.returnSeats : null"
+                        >
                           <div class="publish__actions">
                             <ng-container [ngTemplateOutlet]="back" />
                             <ion-button

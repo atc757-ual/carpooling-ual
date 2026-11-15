@@ -1,0 +1,24 @@
+<div class="round-trip-seats">
+  <ion-checkbox
+    labelPlacement="end"
+    justify="start"
+    [checked]="isSame()"
+    (ionChange)="handleSameChange($event.detail.checked)"
+  >
+    Mismo número de plazas en la ida y la vuelta
+  </ion-checkbox>
+  @if (isSame()) {
+    <app-seat-stepper [formControl]="seats()" label="Plazas (ida y vuelta)" [max]="max()" />
+  } @else {
+    <!-- Lado a lado también en el móvil: cada uno cabe en la mitad -->
+    <div class="round-trip-seats__pair">
+      <app-seat-stepper [formControl]="seats()" label="Ida" [icon]="toCampusIcon" [max]="max()" />
+      <app-seat-stepper
+        [formControl]="returnSeats()"
+        label="Vuelta"
+        [icon]="fromCampusIcon"
+        [max]="max()"
+      />
+    </div>
+  }
+</div>

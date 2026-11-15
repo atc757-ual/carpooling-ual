@@ -1,0 +1,12 @@
+.round-trip-seats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+// La ida y la vuelta, en dos columnas iguales (también en el móvil)
+.round-trip-seats__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-base);
+}

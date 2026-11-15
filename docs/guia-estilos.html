@@ -743,7 +743,7 @@
     <h3>Ida y vuelta (Publicar, hacia el campus)</h3>
     <ul class="rules">
       <li><b>Paso Trayecto:</b> bajo la hora, un <code>ion-checkbox</code> de 44px con su texto como etiqueta, «Publicar también la vuelta». Marcado, una línea gris que explica que es otro viaje desde el campus el mismo día y que se gestiona aparte, y el campo de hora «Salida de la vuelta» (6 h después de llegar mientras no se toca). Si sale antes de llegar, «La vuelta tiene que salir después de que llegues al campus (08:00).» en rojo y «Siguiente» desactivado.</li>
-      <li><b>Paso Vehículo:</b> junto a «Plazas ofrecidas», «Plazas en la vuelta» con el mismo campo de − y +, con las de la ida hasta que se cambian.</li>
+      <li><b>Paso Vehículo</b> (<code>app-round-trip-seats</code>): un <code>ion-checkbox</code> marcado por defecto, «Mismo número de plazas en la ida y la vuelta», y un solo contador, «Plazas (ida y vuelta)». Desmarcado, dos contadores lado a lado, también en el móvil (dos columnas iguales): «Ida» con el birrete y «Vuelta» con la casa (el icono azul de 16px delante de la etiqueta, input <code>icon</code> de SeatStepper; los mismos que en Tus viajes). Al volver a marcarlo, la vuelta copia las plazas de la ida.</li>
       <li><b>Revisión y publicado:</b> la línea «Vuelta: sales del campus a las 14:30 · 2 plazas»; ya publicado, la enhorabuena añade «También has publicado la vuelta: la ves aparte en Tus viajes.». Si la vuelta incumple una regla, no se publica ninguno y el aviso lo dice.</li>
     </ul>
 

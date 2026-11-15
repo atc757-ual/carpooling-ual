@@ -30,6 +30,8 @@ export class SeatStepper implements ControlValueAccessor {
   readonly max = input(4);
   // Texto opcional debajo (p. ej. «Tu coche tiene 3 plazas libres»)
   readonly hint = input<string>();
+  // Icono opcional delante de la etiqueta (p. ej. la ida y la vuelta)
+  readonly icon = input<string>();
 
   readonly value = signal(1);
   readonly isDisabled = signal(false);

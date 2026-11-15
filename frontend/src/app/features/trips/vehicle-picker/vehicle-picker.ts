@@ -19,6 +19,7 @@ import { PreferencesPlugin } from '../../../core/plugins/preferences-plugin';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-stepper';
 import { VehicleCard } from '../../../shared/components/ui/vehicle-card/vehicle-card';
+import { RoundTripSeats } from '../round-trip-seats/round-trip-seats';
 import { VehicleModal } from '../vehicle-modal/vehicle-modal';
 
 // Vehículos activos que puede tener un conductor (VEHICLE_LIMIT_REACHED)
@@ -40,7 +41,7 @@ export interface VehiclePickerControls {
 // proyecte (el botón para seguir)
 @Component({
   selector: 'app-vehicle-picker',
-  imports: [ReactiveFormsModule, IonIcon, SeatStepper, VehicleCard],
+  imports: [ReactiveFormsModule, IonIcon, RoundTripSeats, SeatStepper, VehicleCard],
   templateUrl: './vehicle-picker.html',
   styleUrl: './vehicle-picker.scss',
 })
@@ -52,6 +53,8 @@ export class VehiclePicker implements OnInit {
   readonly vehicles = model.required<readonly Vehicle[]>();
   // Los controles del formulario de Publicar (form.controls)
   readonly controls = input.required<VehiclePickerControls>();
+  // Con la vuelta, sus plazas: entonces se eligen las de la ida y la vuelta
+  readonly returnSeats = input<FormControl<number> | null>(null);
 
   // El predeterminado guardado; undefined mientras se lee
   private readonly defaultId = signal<string | null | undefined>(undefined);
