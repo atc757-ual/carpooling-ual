@@ -3,7 +3,7 @@ import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-p
 import { MATCH_FIT_LABELS, MatchFit } from '../match-fit';
 import { RouterLink } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
-import { timeOutline, chevronForward } from 'ionicons/icons';
+import { timeOutline, chevronForward, personOutline } from 'ionicons/icons';
 import { TripResult } from '../../../core/models/trip-result.model';
 import { getFirstName } from '../trip-driver/trip-driver';
 import { formatWalkingDistance } from '../../../shared/utils/distance.util';
@@ -35,6 +35,7 @@ export class TripResultCard {
   // Cómo encaja con la búsqueda: el color del borde de abajo
   readonly fit = input<MatchFit>('fair');
   protected readonly chevronIcon = chevronForward;
+  protected readonly personIcon = personOutline;
   protected readonly fitLabel = computed(() => MATCH_FIT_LABELS[this.fit()]);
 
   readonly isLastSeat = computed(() => this.trip().freeSeats === 1);

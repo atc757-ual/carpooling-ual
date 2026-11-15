@@ -86,6 +86,7 @@ ion-card-content.search-results__state:has(> .search-results__requested) > :last
   display: flex;
   align-items: center;
   gap: var(--space-s);
+  padding: 0.5rem var(--space-s); // 8px arriba y abajo
   margin-bottom: var(--space-m);
   border: var(--border-width-s) solid var(--color-success);
   border-radius: var(--radius-s);

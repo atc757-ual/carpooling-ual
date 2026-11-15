@@ -27,7 +27,10 @@
 
     <!-- Del conductor, solo el nombre: el resto (valoración, viajes, coche), en
          el detalle -->
-    <p class="trip-card__driver text-body-s text-color-muted">Conduce {{ trip().driver.name }}</p>
+    <p class="trip-card__driver text-body-s text-color-muted">
+      <ion-icon [icon]="personIcon" aria-hidden="true" />
+      <span>Conduce {{ trip().driver.name }}</span>
+    </p>
 
     <!-- Sus preferencias de viaje: en móvil las 3 primeras y +N; en escritorio todas -->
     @if (preferences().length > 0) {
@@ -48,17 +51,16 @@
       </ul>
     }
 
-    <!-- Abajo: dónde te recoge y, a la derecha, la invitación a abrirlo (toda
-         la fila es el enlace; esto solo lo hace evidente) -->
+    <!-- Abajo: dónde te recoge -->
     <div class="trip-card__foot">
       <div class="trip-card__pickup">
         <ion-icon [icon]="timeIcon" aria-hidden="true" />
         <span>{{ pickupMetaLabel() }}</span>
       </div>
-      <span class="trip-card__cta" aria-hidden="true">
-        Ver detalle
-        <ion-icon [icon]="chevronIcon" />
-      </span>
     </div>
+  </div>
+
+  <div class="trip-card__arrow" aria-hidden="true">
+    <ion-icon [icon]="chevronIcon" />
   </div>
 </article>

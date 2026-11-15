@@ -22,20 +22,26 @@
 }
 
 // Una fila de la lista (dentro de la tarjeta de resultados): a la izquierda,
-// una franja del color de cómo encaja (verde, ámbar o rojo) y, entre filas,
-// una línea gris. Al pasar por encima, el fondo y la mano: se abre
+// una franja del color de cómo encaja (verde, ámbar o rojo). Al pasar por encima,
+// el fondo y la mano: se abre
 .trip-card {
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
   border: var(--border-width-s) solid var(--color-border-subtle);
   border-left: 0.25rem solid var(--color-border-subtle); // 4px
   border-radius: var(--radius-s);
   background: var(--color-surface);
   cursor: pointer;
-  transition: background-color var(--transition-fast, 0.15s ease);
+  transition: background-color var(--transition-fast, 0.15s ease), border-color var(--transition-fast, 0.15s ease);
 
   &:hover {
     background: var(--color-surface-subtle);
+
+    .trip-card__arrow ion-icon {
+      transform: translateX(3px);
+      color: var(--color-link);
+    }
   }
 }
 
@@ -52,21 +58,46 @@
 }
 
 .trip-card__body {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-s);
+  gap: var(--space-xs);
   padding: var(--space-s) var(--space-base);
 }
 
 @media (min-width: 768px) {
   .trip-card__body {
-    gap: var(--space-base);
-    padding: var(--space-base);
+    gap: var(--space-xs);
+    padding: var(--space-s) var(--space-base);
+  }
+}
+
+.trip-card__arrow {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: var(--space-base);
+  color: var(--color-text-muted);
+  font-size: 1.25rem; // 20px
+
+  ion-icon {
+    transition: transform var(--transition-fast, 0.15s ease), color var(--transition-fast, 0.15s ease);
   }
 }
 
 .trip-card__driver {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
   margin: 0;
+
+  ion-icon {
+    flex: none;
+    font-size: 1rem;
+    color: var(--color-text-muted);
+  }
 }
 
 // Las preferencias del conductor: píldoras como en el detalle, en una fila
@@ -103,43 +134,10 @@
   }
 }
 
-// La recogida a la izquierda y «Ver detalle ›» a la derecha, en una línea
-// también en el móvil: si no cabe, se corta la recogida, nunca el enlace
 .trip-card__foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-base);
-
-  .trip-card__pickup {
-    flex: 1 1 auto;
-    min-width: 0;
-
-    span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-}
-
-// La invitación a abrir el viaje, en el color de los enlaces
-.trip-card__cta {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: var(--space-xs);
-  color: var(--color-link);
-  font-size: var(--font-size-body-s);
-  font-weight: var(--font-weight-semibold);
-
-  ion-icon {
-    font-size: 1rem; // 16px
-  }
-}
-
-.trip-card:hover .trip-card__cta {
-  text-decoration: underline;
 }
 
 // Horas a la izquierda y plazas a la derecha
