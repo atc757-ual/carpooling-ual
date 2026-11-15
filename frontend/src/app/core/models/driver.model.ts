@@ -81,6 +81,8 @@ export interface PublishTripRequest {
   stops?: { name: string; location: GeoPoint }[];
   // Ida y vuelta: la vuelta (desde el campus), a su hora y con sus plazas
   returnTrip?: { departureAt: string; offeredSeats: number };
+  // Aceptar solas las solicitudes que caben (la vuelta lleva lo mismo)
+  autoAccept?: boolean;
   // Cómo se muestran después (Mis viajes, avisos): la dirección elegida y el
   // parking del campus
   originName: string;
@@ -95,6 +97,8 @@ export interface PublishedTrip {
   maxDetourMin: number;
   pickupMode: PickupMode;
   maxDetourM: number | null;
+  // Si acepta solas las solicitudes que caben
+  autoAccept?: boolean;
   // En orden por la ruta; vacío si recoge en el camino
   stops: TripStop[];
   // Solo al publicar: la vuelta publicada a la vez, o null

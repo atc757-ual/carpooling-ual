@@ -178,6 +178,8 @@
 
                     <ng-container [ngTemplateOutlet]="summary" />
 
+                    <app-auto-accept-field [control]="tripForm.controls.autoAccept" />
+
                     @if (!hasDeclared()) {
                       <app-declaration-field [control]="tripForm.controls.declaration" />
                     } @else {
@@ -220,8 +222,12 @@
                           <b>¡Enhorabuena! Has publicado un viaje.</b> Ofreces
                           {{ trip.offeredSeats }}
                           {{ trip.offeredSeats === 1 ? 'plaza' : 'plazas' }}, con
-                          {{ trip.maxDetourMin }} min de margen para recoger. Te avisaremos de cada
-                          solicitud para que la aceptes o la rechaces.
+                          {{ trip.maxDetourMin }} min de margen para recoger.
+                          @if (trip.autoAccept) {
+                            Aceptaremos solas las solicitudes que quepan y te avisaremos.
+                          } @else {
+                            Te avisaremos de cada solicitud para que la aceptes o la rechaces.
+                          }
                           @if (trip.returnTrip) {
                             También has publicado la vuelta: la ves aparte en Tus viajes.
                           }
@@ -253,7 +259,10 @@
           } @else {
             <!-- En el móvil, al final: al publicar, por qué ayuda a la UAL; y
                  qué pasa después -->
-            <app-publish-next-steps [isPublished]="published() !== null" />
+            <app-publish-next-steps
+              [isPublished]="published() !== null"
+              [autoAccept]="published() ? (published()?.autoAccept ?? false) : (tripForm.controls.autoAccept.value ?? false)"
+            />
           }
         </div>
 

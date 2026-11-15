@@ -11,6 +11,7 @@ const DAY_MS = 24 * HOUR_MS;
 // conductor, el pasajero o, en las incidencias, la administración
 const MESSAGES: Record<NotificationType, string> = {
   request_received: 'Te han pedido plaza',
+  passenger_joined: 'Alguien se ha unido a tu viaje',
   request_accepted: 'Han aceptado tu solicitud',
   request_rejected: 'No han aceptado tu solicitud',
   request_cancelled: 'Han cancelado una solicitud',
@@ -33,6 +34,7 @@ const MESSAGES: Record<NotificationType, string> = {
 // y los avisos legales abren el documento
 const MODES: Record<NotificationType, TravelMode | null> = {
   request_received: 'driver',
+  passenger_joined: 'driver',
   request_accepted: 'passenger',
   request_rejected: 'passenger',
   request_cancelled: 'driver',

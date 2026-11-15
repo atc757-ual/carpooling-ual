@@ -9,7 +9,7 @@ import {
   IonSpinner,
 } from '@ionic/angular';
 import { RouterLink } from '@angular/router';
-import { callOutline, chatbubblesOutline } from 'ionicons/icons';
+import { callOutline, chatbubblesOutline, locationOutline, sparklesOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { ChatContact } from '../../../core/models/chat.model';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
@@ -107,6 +107,8 @@ export class DriverTripPassengers {
   protected readonly formatSeats = formatSeats;
   protected readonly callIcon = callOutline;
   protected readonly chatIcon = chatbubblesOutline;
+  protected readonly locationIcon = locationOutline;
+  protected readonly autoAcceptIcon = sparklesOutline;
 
   canCallPassenger(passengerId: string): boolean {
     const contact = this.contactsMap().get(passengerId);
@@ -128,8 +130,11 @@ export class DriverTripPassengers {
     this.tripCall.call(contact, this.trip().status);
   }
 
-  protected requestLabel(status: SeatRequestStatus): string {
-    return REQUEST_STATUS_LABELS[status];
+  protected requestLabel(request: SeatRequest): string {
+    if (request.status === 'accepted' && this.trip().autoAccept) {
+      return 'Autoaceptada';
+    }
+    return REQUEST_STATUS_LABELS[request.status];
   }
 
   protected passengerPreferences(request: SeatRequest): string[] {

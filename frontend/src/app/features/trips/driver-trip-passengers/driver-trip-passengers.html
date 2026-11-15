@@ -3,6 +3,14 @@
     <ion-card-title>Pasajeros</ion-card-title>
   </ion-card-header>
   <ion-card-content>
+    <!-- Con la aceptación automática, las que caben no pasan por aquí -->
+    @if (trip().autoAccept && isOpen()) {
+      <div class="notice notice--info driver-trip__auto-accept driver-trip__auto-accept-notice" role="status">
+        <ion-icon [icon]="autoAcceptIcon" aria-hidden="true" />
+        <span>Aceptas solicitudes automáticamente</span>
+      </div>
+    }
+
     <!-- Las plazas como asientos: ocupados en azul, libres con borde -->
     <div class="driver-trip__seats">
       <span class="driver-trip__seat-row" aria-hidden="true">
@@ -41,9 +49,6 @@
                         <span class="driver-trip__name">{{ request.passenger.name }}</span>
                         <div class="driver-trip__sub">
                           <span class="text-caption text-color-muted">{{ formatSeats(request.seats) }}</span>
-                          @if (pickupSummary(request); as pickup) {
-                            <span class="text-caption driver-trip__pickup">· {{ pickup }}</span>
-                          }
                           @if (request.isPriority) {
                             <span class="status status--pending">Prioridad</span>
                           }
@@ -54,7 +59,7 @@
                     @if (request.status !== 'pending') {
                       <div class="driver-trip__accepted-actions">
                         <span class="status" [class.status--accepted]="request.status === 'accepted'">
-                          {{ requestLabel(request.status) }}
+                          {{ requestLabel(request) }}
                         </span>
                         @if (request.status === 'accepted' && hasChat()) {
                           <!-- El chat es directo: una conversación con cada pasajero -->
@@ -87,6 +92,13 @@
                       </div>
                     }
                   </div>
+
+                  @if (pickupSummary(request); as pickup) {
+                    <div class="driver-trip__pickup-row text-caption text-color-muted">
+                      <ion-icon [icon]="locationIcon" aria-hidden="true" />
+                      <span>{{ pickup }}</span>
+                    </div>
+                  }
 
                   @if (passengerPreferences(request).length > 0) {
                     <div class="driver-trip__preferences" aria-label="Preferencias del pasajero">

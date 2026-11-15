@@ -281,6 +281,8 @@ describe('PublishTripPage', () => {
         offeredSeats: 2,
         originName: 'Roquetas de Mar',
         arrivalAt: expect.any(String),
+        // Sin tocar el interruptor, el conductor acepta a mano
+        autoAccept: false,
       }),
     );
     expect(page.step()).toBe(4);

@@ -87,7 +87,9 @@
               {{
                 request()?.status === 'pending' || request()?.status === 'accepted'
                   ? 'Tu solicitud'
-                  : 'Solicitar plaza'
+                  : isAutoAccept()
+                    ? 'Reservar plaza'
+                    : 'Solicitar plaza'
               }}
             </ion-card-title>
           </ion-card-header>
@@ -143,19 +145,30 @@
               </output>
             } @else if (canRequest()) {
               <div class="trip-detail__action-block">
-                <!-- Antes del botón: qué pasa al solicitar -->
-                <div class="notice notice--info">
-                  <span>
-                    <b>Primero solicitas y {{ driverFirstName() }} decide</b>
-                    Verificamos el correo UAL, no la identidad ni el permiso de conducir.
-                  </span>
-                </div>
+                @if (isAutoAccept()) {
+                  <!-- Con aceptación automática: la plaza se asigna directamente -->
+                  <div class="notice notice--success">
+                    <span>
+                      <b>Reserva directa (aceptación automática)</b>
+                      {{ driverFirstName() }} tiene activada la aceptación automática. Tu plaza se
+                      confirmará al instante sin esperar su respuesta.
+                    </span>
+                  </div>
+                } @else {
+                  <!-- Antes del botón: qué pasa al solicitar -->
+                  <div class="notice notice--info">
+                    <span>
+                      <b>Primero solicitas y {{ driverFirstName() }} decide</b>
+                      Verificamos el correo UAL, no la identidad ni el permiso de conducir.
+                    </span>
+                  </div>
+                }
                 <form (submit)="$event.preventDefault(); handleRequest()">
                   <ion-button type="submit" expand="block" [disabled]="isSending()">
                     @if (isSending()) {
                       <ion-spinner slot="start" name="crescent" aria-hidden="true" />
                     }
-                    Solicitar {{ requestedSeats() }}
+                    {{ isAutoAccept() ? 'Reservar' : 'Solicitar' }} {{ requestedSeats() }}
                   </ion-button>
                 </form>
               </div>

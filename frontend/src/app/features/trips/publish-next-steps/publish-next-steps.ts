@@ -1,7 +1,7 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 import { checkmarkOutline, peopleOutline } from 'ionicons/icons';
-import { COMMUNITY_POINTS, NEXT_STEPS } from '../publish-trip/publish-help';
+import { COMMUNITY_POINTS, getNextSteps } from '../publish-trip/publish-help';
 
 // Columna de ayuda de Publicar en la revisión y al publicar: «¿Qué pasa
 // después?» y, ya publicado, encima, «Gracias por compartir tu coche» (por
@@ -14,8 +14,9 @@ import { COMMUNITY_POINTS, NEXT_STEPS } from '../publish-trip/publish-help';
 })
 export class PublishNextSteps {
   readonly isPublished = input(false);
+  readonly autoAccept = input(false);
 
-  protected readonly nextSteps = NEXT_STEPS;
+  protected readonly nextSteps = computed(() => getNextSteps(this.autoAccept()));
   protected readonly communityPoints = COMMUNITY_POINTS;
   protected readonly communityIcon = peopleOutline;
   protected readonly checkIcon = checkmarkOutline;
