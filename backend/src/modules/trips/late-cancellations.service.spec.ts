@@ -25,13 +25,13 @@ function trip(status: Trip['status'], minutesToDeparture: number): Trip {
 // test/trips-service.e2e-spec.ts)
 describe('late cancellations', () => {
   describe('isLateDriverCancellation', () => {
-    it('is late with accepted passengers and less than 30 minutes left', () => {
-      expect(isLateDriverCancellation(trip('confirmed', 29), NOW)).toBe(true);
+    it('is late with accepted passengers and less than 20 minutes left', () => {
+      expect(isLateDriverCancellation(trip('confirmed', 19), NOW)).toBe(true);
     });
 
-    it('is not late from 30 minutes on', () => {
-      expect(isLateDriverCancellation(trip('confirmed', 30), NOW)).toBe(false);
-      expect(isLateDriverCancellation(trip('confirmed', 31), NOW)).toBe(false);
+    it('is not late from 20 minutes on', () => {
+      expect(isLateDriverCancellation(trip('confirmed', 20), NOW)).toBe(false);
+      expect(isLateDriverCancellation(trip('confirmed', 21), NOW)).toBe(false);
     });
 
     it('is never late without accepted passengers', () => {
@@ -40,15 +40,15 @@ describe('late cancellations', () => {
   });
 
   describe('isLatePassengerCancellation', () => {
-    it('is late releasing an accepted seat less than 30 minutes before', () => {
+    it('is late releasing an accepted seat less than 10 minutes before', () => {
       expect(
-        isLatePassengerCancellation(trip('confirmed', 29), true, NOW),
+        isLatePassengerCancellation(trip('confirmed', 9), true, NOW),
       ).toBe(true);
     });
 
-    it('is not late from 30 minutes on', () => {
+    it('is not late from 10 minutes on', () => {
       expect(
-        isLatePassengerCancellation(trip('confirmed', 30), true, NOW),
+        isLatePassengerCancellation(trip('confirmed', 10), true, NOW),
       ).toBe(false);
     });
 

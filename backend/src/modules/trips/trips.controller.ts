@@ -279,7 +279,7 @@ export class TripsController {
   @ApiOperation({
     summary: 'Cancel a trip before it starts',
     description:
-      'RF-05. Only its driver. With accepted passengers and less than 30 minutes before the departure, it counts as a late cancellation (see GET /users/me/publishing-status). Once started, cancelling requires an incident (RF-23).',
+      'RF-05. Only its driver. With accepted passengers and less than 20 minutes before the departure, it counts as a late cancellation (see GET /users/me/publishing-status). Once started, cancelling requires an incident (RF-23).',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: TripResource })

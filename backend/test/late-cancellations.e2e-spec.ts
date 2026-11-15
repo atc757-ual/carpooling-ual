@@ -129,10 +129,10 @@ describe('Late cancellations (e2e)', () => {
     return response.body as PublishingStatusBody;
   }
 
-  it('counts a cancellation with passengers less than 30 minutes before as late', async () => {
+  it('counts a cancellation with passengers less than 20 minutes before as late', async () => {
     const driver = await readyDriver();
     const pia = await tokenFor('pia', ['passenger']);
-    const tripId = await tripLeavingIn(driver, 20, pia);
+    const tripId = await tripLeavingIn(driver, 15, pia);
 
     await api('post', `/trips/${tripId}/cancel`, driver.token).expect(200);
 
@@ -151,7 +151,7 @@ describe('Late cancellations (e2e)', () => {
   it('does not count it with time left or without passengers', async () => {
     const driver = await readyDriver();
     const pia = await tokenFor('pia', ['passenger']);
-    const withTime = await tripLeavingIn(driver, 40, pia);
+    const withTime = await tripLeavingIn(driver, 25, pia);
     const empty = await tripLeavingIn(driver, 10);
 
     await api('post', `/trips/${withTime}/cancel`, driver.token).expect(200);
@@ -232,10 +232,10 @@ describe('Late cancellations (e2e)', () => {
       return response.body as object;
     }
 
-    it('counts releasing an accepted seat less than 30 minutes before as late', async () => {
+    it('counts releasing an accepted seat less than 10 minutes before as late', async () => {
       const driver = await readyDriver();
       const pia = await tokenFor('pia', ['passenger']);
-      const requestId = await requestLeavingIn(driver, pia, { minutes: 20 });
+      const requestId = await requestLeavingIn(driver, pia, { minutes: 5 });
 
       await api('post', `/requests/${requestId}/cancel`, pia).expect(200);
 
@@ -251,7 +251,8 @@ describe('Late cancellations (e2e)', () => {
     it('does not count it with time left or for a pending request', async () => {
       const driver = await readyDriver();
       const pia = await tokenFor('pia', ['passenger']);
-      const withTime = await requestLeavingIn(driver, pia, { minutes: 40 });
+      // A 15 min ya no lo es (antes, con 30 min, sí)
+      const withTime = await requestLeavingIn(driver, pia, { minutes: 15 });
       const pending = await requestLeavingIn(driver, pia, {
         minutes: 10,
         isAccepted: false,
@@ -269,7 +270,7 @@ describe('Late cancellations (e2e)', () => {
       const driver = await readyDriver();
       const pia = await tokenFor('pia', ['passenger']);
       for (let index = 0; index < 3; index += 1) {
-        const requestId = await requestLeavingIn(driver, pia, { minutes: 10 });
+        const requestId = await requestLeavingIn(driver, pia, { minutes: 5 });
         await api('post', `/requests/${requestId}/cancel`, pia).expect(200);
       }
 

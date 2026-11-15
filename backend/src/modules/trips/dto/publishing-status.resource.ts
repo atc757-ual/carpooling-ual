@@ -10,7 +10,7 @@ export class PublishingStatusResource {
   @ApiProperty({
     example: 1,
     description:
-      'Late cancellations in the last 30 days (with accepted passengers, less than 30 minutes before departure)',
+      'Late cancellations in the last 30 days (with accepted passengers, less than 20 minutes before departure)',
   })
   lateCancellations: number;
 

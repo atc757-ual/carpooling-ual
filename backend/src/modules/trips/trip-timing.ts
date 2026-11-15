@@ -7,10 +7,13 @@ export const DAY_MS = 24 * 60 * MINUTE_MS;
 // (la hora de recogida es un compromiso con el pasajero)
 export const START_WINDOW_MIN = 10;
 
-// Cancelar con la plaza aceptada (conductor o pasajero) a menos de 30 minutos
-// de la salida es tardío: la otra parte ya casi no tiene tiempo de buscar otra
-// opción
-export const LATE_CANCELLATION_LEAD_MIN = 30;
+// Cancelar con la plaza aceptada a poco de la salida es tardío (decidido con
+// el autor el 15/11/2026): el conductor, a menos de 20 minutos, porque deja a
+// sus pasajeros sin tiempo de buscar otro viaje; el pasajero, a menos de 10,
+// cuando su plaza ya no la puede pedir nadie (se cierran las solicitudes,
+// REQUEST_CUTOFF_MIN)
+export const DRIVER_LATE_CANCELLATION_LEAD_MIN = 20;
+export const PASSENGER_LATE_CANCELLATION_LEAD_MIN = 10;
 
 // Antelación mínima para publicar o mover la salida (la misma hora que propone
 // Publicar por defecto): deja margen para cancelar sin penalización

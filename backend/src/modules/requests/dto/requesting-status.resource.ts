@@ -11,7 +11,7 @@ export class RequestingStatusResource {
   @ApiProperty({
     example: 1,
     description:
-      'Late cancellations in the last 30 days (an accepted seat released less than 30 minutes before departure)',
+      'Late cancellations in the last 30 days (an accepted seat released less than 10 minutes before departure)',
   })
   lateCancellations: number;
 
