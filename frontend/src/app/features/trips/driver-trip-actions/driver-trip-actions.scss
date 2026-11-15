@@ -26,3 +26,7 @@ ion-card.driver-actions ion-card-content {
 }
 
 // Gris y centrada bajo su botón (≥ 4,5:1 sobre la tarjeta: --color-text-muted)
+.driver-actions__hint {
+  margin: 0;
+  text-align: center;
+}

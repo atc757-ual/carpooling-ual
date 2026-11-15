@@ -7,6 +7,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Compartir en directo e «Iniciar viaje»:** mientras se comparte, la etiqueta «En directo» con el punto que late, «Enviar el enlace» como botón principal y «Dejar de compartir» con borde (en escritorio a la par mitad y mitad, en móvil apilados). El aviso de «Iniciar viaje» pasa a una línea gris bajo el botón: «Podrás iniciarlo a las 08:50, 10 min antes de salir» (#310).
+
 ### Added
 
 - **Política de privacidad 1.1 publicada:** la migración `PublishPrivacyPolicy11` publica el borrador como cambio menor, igual que «Publicar» en el panel: registra `legal_document.published` y avisa en Avisos a cada usuario activo. Toda base de datos nueva tiene la 1.1 vigente (#311).
