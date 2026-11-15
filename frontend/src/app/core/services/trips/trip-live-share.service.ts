@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { publicWebOrigin } from '../../../shared/utils/public-url.util';
 import { ApiError } from '../../models/api-error.model';
 import { SharedTrip, TripShareLink } from '../../models/trip-share.model';
 import { PreferencesPlugin } from '../../plugins/preferences-plugin';
@@ -29,7 +30,8 @@ export class TripLiveShareService {
     const link = await this.request(
       this.http.post<TripShareLink>(`${this.apiUrl}/trips/${tripId}/share`, {}),
     );
-    const fullUrl = `${globalThis.location.origin}${link.url}`;
+    // La dirección pública (en la app, la configurada; si no, la de la página)
+    const fullUrl = `${publicWebOrigin() ?? globalThis.location.origin}${link.url}`;
     await this.preferences.set(sharedLinkKey(tripId), fullUrl);
     return fullUrl;
   }

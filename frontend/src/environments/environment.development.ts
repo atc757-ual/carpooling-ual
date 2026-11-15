@@ -4,6 +4,9 @@
 export const environment = {
   production: false,
   apiUrl: '/api',
+  // Dirección pública de la web para los enlaces que se comparten (viaje en
+  // directo, plazas libres). Vacía: la de la página (location.origin)
+  publicWebUrl: '',
   allowedEmailDomains: ['ual.es', 'inlumine.ual.es'],
   // Firebase (solo Messaging, para las notificaciones push). Es pública: va en
   // la web que descarga cualquiera; lo secreto es la cuenta de servicio del

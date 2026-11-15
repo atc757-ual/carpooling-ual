@@ -29,6 +29,7 @@ import { TripShareService } from '../../../core/services/trips/trip-share.servic
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { publicWebOrigin } from '../../../shared/utils/public-url.util';
 import { formatTime } from '../../matching/trip-results';
 import { finishTrip } from '../finish-trip.util';
 import { buildSeatsShareText } from '../trip-share-text';
@@ -137,9 +138,9 @@ export class DriverTripActions {
     await this.tripShare.share({
       title: 'Plazas libres en Carpooling UAL',
       text: buildSeatsShareText(trip, trip.availableSeats),
-      // El enlace a la web, solo desde la web: en la app nativa el origen es
-      // el de la WebView (localhost), que no abre nada en otro móvil
-      url: Capacitor.isNativePlatform() ? undefined : globalThis.location.origin,
+      // El enlace a la web: la dirección pública (en la app nativa sin ella,
+      // ninguno: la WebView es localhost)
+      url: publicWebOrigin() ?? undefined,
     });
   }
 
