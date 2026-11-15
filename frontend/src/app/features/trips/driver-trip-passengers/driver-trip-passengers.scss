@@ -118,7 +118,8 @@ ion-card.driver-trip ion-card-content {
   gap: var(--space-xs);
 }
 
-.driver-trip__call-btn {
+.driver-trip__call-btn,
+.driver-trip__chat-btn {
   --color: var(--color-link);
   margin: 0;
   min-width: 2.75rem; // 44px

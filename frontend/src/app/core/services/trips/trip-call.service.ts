@@ -18,8 +18,8 @@ export class TripCallService {
     : null;
 
   // Carga los contactos con teléfono verificado para este viaje
-  async loadContacts(tripId: string): Promise<ChatContact[]> {
-    return this.chat.listContacts(tripId).catch(() => []);
+  async loadContacts(tripId: string, passengerId?: string | null): Promise<ChatContact[]> {
+    return this.chat.listContacts({ tripId, passengerId }).catch(() => []);
   }
 
   // Comprueba si se puede llamar al contacto

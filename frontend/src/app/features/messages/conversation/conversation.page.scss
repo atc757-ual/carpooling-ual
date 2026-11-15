@@ -103,6 +103,33 @@
   background: var(--color-primary-subtle);
 }
 
+// El chat común anterior del viaje (lo veían todos): arriba, con su título y
+// separado de la conversación por una línea; solo lectura
+.conversation__shared {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin-bottom: var(--space-base);
+  padding-bottom: var(--space-base);
+  border-bottom: var(--border-width-s) dashed var(--color-border);
+}
+
+.conversation__shared-title {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  gap: var(--space-xs);
+  margin: 0;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+// Sus burbujas, más apagadas: se leen pero ya no se contestan
+.bubble--shared {
+  border: var(--border-width-s) solid var(--color-border-subtle);
+  background: var(--color-surface-subtle);
+}
+
 .bubble__author {
   color: var(--color-text-muted);
   font-weight: var(--font-weight-semibold);

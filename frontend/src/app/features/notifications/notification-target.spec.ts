@@ -24,9 +24,16 @@ describe('openNotificationTarget', () => {
   it('opens the trip chat for a chat message, or Mensajes without a trip', async () => {
     await openNotificationTarget(deps(), { type: 'chat_message', tripId: 't1' });
     await openNotificationTarget(deps(), { type: 'chat_message' });
+    await openNotificationTarget(deps(), {
+      type: 'chat_message',
+      tripId: 't1',
+      passengerId: 'p1',
+    });
 
     expect(navigateByUrl).toHaveBeenNthCalledWith(1, '/tabs/messages/t1');
     expect(navigateByUrl).toHaveBeenNthCalledWith(2, '/tabs/messages');
+    // El chat es directo: la conversación con ese pasajero
+    expect(navigateByUrl).toHaveBeenNthCalledWith(3, '/tabs/messages/t1/p1');
   });
 
   it('opens the passenger request in passenger mode, replacing the page when it comes from a push', async () => {

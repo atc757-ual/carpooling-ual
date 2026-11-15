@@ -88,17 +88,14 @@
                         type="button"
                         class="conversation"
                         [class.conversation--unread]="conversation.unreadCount > 0"
-                        [class.conversation--selected]="activeConversationId() === conversation.id"
-                        (click)="handleSelectConversation($event, conversation.id)"
+                        [class.conversation--selected]="isSelected(conversation)"
+                        (click)="handleSelectConversation($event, conversation)"
                       >
                         <span class="conversation__body">
-                          <!-- El viaje: a qué hora sale y adónde va (el origen y quien
-                               conduce se ven al abrir el chat) -->
+                          <!-- El viaje: a qué hora sale y adónde va y, al conductor,
+                               con qué pasajero (el origen se ve al abrir el chat) -->
                           <span class="conversation__row">
-                            <span class="conversation__trip">
-                              {{ departureTime(conversation) }} ·
-                              {{ conversation.trip.destinationName ?? 'Destino' }}
-                            </span>
+                            <span class="conversation__trip">{{ title(conversation) }}</span>
                             <span class="conversation__date text-caption">{{
                               elapsed(conversation)
                             }}</span>
