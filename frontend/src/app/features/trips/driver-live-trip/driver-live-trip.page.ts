@@ -357,7 +357,6 @@ export class DriverLiveTripPage {
         'Se liberará la plaza y se registrará como cancelación tardía del pasajero. Esta acción no se puede deshacer.',
       confirmText: 'Marcar no presentado',
       cancelText: 'Seguir esperando',
-      isDestructive: true,
     });
     if (!confirmed) {
       return;

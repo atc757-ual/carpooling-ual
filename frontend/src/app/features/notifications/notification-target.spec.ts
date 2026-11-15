@@ -36,6 +36,16 @@ describe('openNotificationTarget', () => {
     expect(navigateByUrl).toHaveBeenCalledWith('/tabs/trips/requests/r1', { replaceUrl: true });
   });
 
+  it('opens the trip of the driver in driver mode, or Tus viajes without it', async () => {
+    mode = 'passenger';
+    await openNotificationTarget(deps(), { type: 'request_received', tripId: 't1' });
+    await openNotificationTarget(deps(), { type: 'passenger_left' });
+
+    expect(setMode).toHaveBeenCalledWith('driver');
+    expect(navigateByUrl).toHaveBeenNthCalledWith(1, '/tabs/trips/published/t1');
+    expect(navigateByUrl).toHaveBeenNthCalledWith(2, '/tabs/trips');
+  });
+
   it('opens Avisos for incidents and unknown types', async () => {
     await openNotificationTarget(deps(), { type: 'incident_reported' });
     await openNotificationTarget(deps(), { type: 'something_new' });

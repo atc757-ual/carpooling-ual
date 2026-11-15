@@ -64,11 +64,3 @@
   --border-color: var(--color-border-strong);
   --color: var(--color-text);
 }
-
-// La acción destructiva: blanca, con borde y letras azules (sin rojo: la
-// confirmación ya avisa, y lo seguro es el botón principal)
-.confirm__secondary {
-  --background: var(--color-surface);
-  --border-color: var(--color-primary);
-  --color: var(--color-link);
-}

@@ -332,9 +332,8 @@ export class TripDetailPage {
     const isConfirmed = await this.confirm.ask({
       header: '¿Cancelar tu solicitud?',
       message: `Dejarás de tener ${formatSeats(request.seats)} en este viaje. Podrás volver a pedirla mientras queden plazas.`,
-      confirmText: 'Cancelar solicitud',
+      confirmText: 'Confirmar cancelación',
       cancelText: 'Mantener solicitud',
-      isDestructive: true,
     });
     if (!isConfirmed) {
       return;

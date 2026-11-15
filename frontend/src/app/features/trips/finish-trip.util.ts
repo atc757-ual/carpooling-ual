@@ -96,7 +96,6 @@ export async function finishTrip(
           message: `Aún estás a ${formatDistance(distance)} del destino. Si terminas ahora, tus pasajeros verán el viaje como finalizado.`,
           confirmText: 'Terminar igualmente',
           cancelText: 'Seguir en el viaje',
-          isDestructive: true,
           isWarning: true,
         }
       : {

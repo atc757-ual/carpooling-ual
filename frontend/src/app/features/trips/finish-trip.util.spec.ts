@@ -64,7 +64,6 @@ describe('finishTrip', () => {
       header: '¿Terminar lejos del destino?',
       confirmText: 'Terminar igualmente',
       cancelText: 'Seguir en el viaje',
-      isDestructive: true,
       isWarning: true,
     });
     expect(options.message).toMatch(/^Aún estás a 5,\d km del destino\./);

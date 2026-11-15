@@ -22,7 +22,8 @@ export interface NotificationTargetDeps {
 }
 
 // Abre lo suyo de un aviso (al pulsarlo en Avisos o en una push): el chat del
-// viaje, la solicitud del pasajero o Mis viajes con el modo que toca. Las
+// viaje, la solicitud del pasajero, el viaje del conductor o, sin ellos, Mis
+// viajes con el modo que toca. Las
 // incidencias y lo desconocido, Avisos. replaceUrl: al entrar desde una push
 // (/push-open), para que volver no regrese a esa página de paso
 export async function openNotificationTarget(
@@ -45,9 +46,13 @@ export async function openNotificationTarget(
   if (auth.hasProfile(mode) && activeMode.mode() !== mode) {
     await activeMode.setMode(mode);
   }
-  await go(
-    mode === 'passenger' && target.requestId
-      ? `/tabs/trips/requests/${target.requestId}`
-      : '/tabs/trips',
-  );
+  await go(tripUrl(mode, target));
+}
+
+// Directo a lo suyo: el pasajero, a su solicitud; el conductor, a su viaje.
+// Sin ellos, Tus viajes
+function tripUrl(mode: 'driver' | 'passenger', { tripId, requestId }: NotificationTarget): string {
+  if (mode === 'passenger' && requestId) return `/tabs/trips/requests/${requestId}`;
+  if (mode === 'driver' && tripId) return `/tabs/trips/published/${tripId}`;
+  return '/tabs/trips';
 }

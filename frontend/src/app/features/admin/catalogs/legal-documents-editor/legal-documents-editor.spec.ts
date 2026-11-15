@@ -132,7 +132,7 @@ describe('LegalDocumentsEditor', () => {
     await editor.handleType('privacy', select);
     expect(select.value).toBe('terms');
     expect(ask).toHaveBeenCalledWith(
-      expect.objectContaining({ header: '¿Descartar los cambios?', isDestructive: true }),
+      expect.objectContaining({ header: '¿Descartar los cambios?' }),
     );
     expect(editor.type()).toBe('terms');
 

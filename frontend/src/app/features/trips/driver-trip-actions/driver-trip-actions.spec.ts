@@ -15,6 +15,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { DriverTripActions } from './driver-trip-actions';
 import { provideCatalogsForTests } from '../../../core/services/catalogs/catalogs.testing';
+import { formatTime } from '../../matching/trip-results';
 
 const TRIP: DriverTrip = {
   id: 't1',
@@ -114,7 +115,7 @@ describe('DriverTripActions', () => {
     expect(ask).toHaveBeenCalledWith(
       expect.objectContaining({
         header: '¿Cancelar este viaje?',
-        confirmText: 'Cancelar viaje',
+        confirmText: 'Confirmar cancelación',
         cancelText: 'Mantener viaje',
       }),
     );
@@ -363,6 +364,29 @@ describe('DriverTripActions', () => {
 
     expect(root.querySelector('.notice--warning')?.textContent).toContain(
       'contará como cancelación tardía',
+    );
+  });
+
+  it('says until when cancelling is free, like the passenger sees it', async () => {
+    const departureAt = new Date(Date.now() + 3 * 60 * 60 * 1000);
+    const root = await render({
+      ...TRIP,
+      status: 'confirmed',
+      departureAt: departureAt.toISOString(),
+    });
+    const freeUntil = formatTime(new Date(departureAt.getTime() - 30 * 60 * 1000).toISOString());
+
+    expect(root.querySelector('.driver-actions__cancel-cost')?.textContent).toContain(
+      `Sin coste hasta las ${freeUntil} (30 min antes de la salida)`,
+    );
+    expect(root.querySelector('.notice--warning')).toBeNull();
+  });
+
+  it('says a trip without passengers is cancelled at no cost', async () => {
+    const root = await render(TRIP);
+
+    expect(root.querySelector('.driver-actions__cancel-cost')?.textContent).toContain(
+      'Sin pasajeros aceptados, puedes cancelarlo sin coste.',
     );
   });
 

@@ -665,6 +665,12 @@ ion-card-header + ion-card-content[class] {
   }
 }
 
+// En el encabezado de un detalle (junto al título), más grande: 14px
+.status--heading {
+  padding: 0.25rem 0.625rem; // 4px 10px
+  font-size: 0.875rem; // 14px
+}
+
 .status--pending {
   border-color: transparent;
   background: var(--color-warning-subtle);
@@ -713,6 +719,22 @@ ion-card-header + ion-card-content[class] {
 
 .role-tag--passenger ion-icon {
   color: var(--color-accent);
+}
+
+// Ida o vuelta de un viaje (Tus viajes), encima del trayecto: «Ida al campus»
+// con el birrete o «Vuelta a casa» con la casa. En texto, nunca solo el icono
+.trip-way {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+
+  ion-icon {
+    font-size: 1rem; // 16px
+    color: var(--color-link);
+  }
 }
 
 // Van dentro de la tarjeta de Tus viajes: filas con borde, sin sombra y

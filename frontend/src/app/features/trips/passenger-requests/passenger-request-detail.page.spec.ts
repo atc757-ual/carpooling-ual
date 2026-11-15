@@ -232,7 +232,7 @@ describe('PassengerRequestDetailPage', () => {
     expect(ask).toHaveBeenCalledWith(
       expect.objectContaining({
         header: '¿Cancelar tu plaza confirmada?',
-        confirmText: 'Cancelar mi plaza',
+        confirmText: 'Confirmar cancelación',
       }),
     );
     expect(requests['cancel']).toHaveBeenCalledWith('r1');
@@ -253,9 +253,8 @@ describe('PassengerRequestDetailPage', () => {
     expect(ask).toHaveBeenLastCalledWith({
       header: '¿Cancelar la solicitud?',
       message: 'Lucía dejará de verla. Puedes volver a solicitar si sigue habiendo plazas.',
-      confirmText: 'Cancelar solicitud',
-      cancelText: 'Mantener',
-      isDestructive: true,
+      confirmText: 'Confirmar cancelación',
+      cancelText: 'Mantener solicitud',
     });
     expect(showSuccess).toHaveBeenCalledWith('Solicitud cancelada.');
     expect(fixture.componentInstance.request()?.status).toBe('cancelled');

@@ -92,7 +92,6 @@ export class ProfileLocation implements OnInit {
       ],
       confirmText: 'Dejar de usarla',
       cancelText: 'Seguir usándola',
-      isDestructive: true,
     });
   }
 }

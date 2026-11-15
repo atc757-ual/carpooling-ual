@@ -19,6 +19,11 @@
         {{ statusLabel() }}
       </span>
     </div>
+    @if (way(); as tripWay) {
+      <div class="trip-way">
+        <ion-icon [icon]="tripWay.icon" aria-hidden="true" />{{ tripWay.label }}
+      </div>
+    }
     <div class="driver-summary__route">{{ route() }}</div>
     <div class="text-caption text-color-muted">{{ seatsLabel() }}</div>
     @if (pendingLabel(); as label) {

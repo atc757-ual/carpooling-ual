@@ -62,17 +62,7 @@ describe('ReasonConfirmModal', () => {
     expect(fixture.componentInstance.errorMessage()).toBeNull();
   });
 
-  it('puts Cancel first in blue when the action is destructive (default)', () => {
-    const buttons = fixture.nativeElement.querySelectorAll('.confirm__actions ion-button');
-    expect(buttons[0].textContent.trim()).toBe('Cancelar');
-    expect(buttons[0].getAttribute('fill')).toBeNull();
-    expect(buttons[1].getAttribute('fill')).toBe('outline');
-  });
-
-  it('puts the action first in blue and Cancel outlined when it is not destructive', () => {
-    fixture.componentRef.setInput('isDestructive', false);
-    fixture.detectChanges();
-
+  it('puts the action first in blue and Cancel below, outlined', () => {
     const buttons = fixture.nativeElement.querySelectorAll('.confirm__actions ion-button');
     expect(buttons[0].textContent.trim()).toBe('Desactivar perfil');
     expect(buttons[0].getAttribute('fill')).toBeNull();

@@ -174,7 +174,7 @@ export class PassengerRequestActions {
     const isAccepted = request.status === 'accepted';
     const isLate = this.cancellationIsLate();
     const header = isAccepted ? '¿Cancelar tu plaza confirmada?' : '¿Cancelar la solicitud?';
-    const confirmText = isAccepted ? 'Cancelar mi plaza' : 'Cancelar solicitud';
+    const confirmText = 'Confirmar cancelación';
     let message: string;
     if (isAccepted) {
       message = isLate
@@ -187,8 +187,7 @@ export class PassengerRequestActions {
       header,
       message,
       confirmText,
-      cancelText: 'Mantener',
-      isDestructive: true,
+      cancelText: isAccepted ? 'Mantener mi plaza' : 'Mantener solicitud',
     });
     if (!confirmed) {
       return;

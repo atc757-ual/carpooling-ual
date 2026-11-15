@@ -22,35 +22,19 @@
     }
   </div>
 
-  <!-- El azul va siempre primero: arriba en el móvil y a la izquierda en
-       escritorio. Si la acción es destructiva, lo principal (azul) es cancelar
-       y la acción va en blanco con letras azules (como en confirm-modal) -->
+  <!-- Como en confirm-modal: la acción primero y en azul (arriba en el móvil
+       y a la izquierda en escritorio) y volver atrás debajo, con borde -->
   <div class="confirm__actions">
-    @if (isDestructive) {
-      <ion-button type="button" expand="block" (click)="handleCancel()">{{
-        computedCancelText
-      }}</ion-button>
-      <ion-button
-        class="confirm__secondary"
-        type="submit"
-        expand="block"
-        fill="outline"
-        [disabled]="!isReasonValid() || isSaving()"
-      >
-        {{ confirmText }}
-      </ion-button>
-    } @else {
-      <ion-button type="submit" expand="block" [disabled]="!isReasonValid() || isSaving()">
-        {{ confirmText }}
-      </ion-button>
-      <ion-button
-        class="confirm__cancel"
-        type="button"
-        expand="block"
-        fill="outline"
-        (click)="handleCancel()"
-        >{{ computedCancelText }}</ion-button
-      >
-    }
+    <ion-button type="submit" expand="block" [disabled]="!isReasonValid() || isSaving()">
+      {{ confirmText }}
+    </ion-button>
+    <ion-button
+      class="confirm__cancel"
+      type="button"
+      expand="block"
+      fill="outline"
+      (click)="handleCancel()"
+      >{{ computedCancelText }}</ion-button
+    >
   </div>
 </form>

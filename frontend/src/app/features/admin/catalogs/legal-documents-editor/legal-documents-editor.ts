@@ -172,7 +172,6 @@ export class LegalDocumentsEditor {
       header: '¿Descartar los cambios?',
       message: 'Hay cambios sin guardar en este documento. Si continúas, se perderán.',
       confirmText: 'Descartar',
-      isDestructive: true,
     });
   }
 
@@ -211,7 +210,6 @@ export class LegalDocumentsEditor {
       header: version ? `¿Publicar la versión ${version}?` : '¿Publicar la primera versión?',
       message: publishMessage(this.type(), this.changeType()),
       confirmText: 'Publicar',
-      isDestructive: false,
     });
     if (isConfirmed) {
       await this.run(async () => {

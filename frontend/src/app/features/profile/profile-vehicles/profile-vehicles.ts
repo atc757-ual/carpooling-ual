@@ -93,7 +93,6 @@ export class ProfileVehicles implements OnInit {
       header: `¿Eliminar ${vehicle.plate}?`,
       message: 'Dejará de salir en tus vehículos y no podrás publicar viajes con él.',
       confirmText: 'Eliminar',
-      isDestructive: true,
       icon: CONFIRM_ICONS.remove,
     });
     if (!isConfirmed) {
