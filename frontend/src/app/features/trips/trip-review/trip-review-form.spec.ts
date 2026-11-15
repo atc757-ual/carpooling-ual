@@ -3,7 +3,7 @@ import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { ApiError } from '../../../core/models/api-error.model';
 import { TripReviewsService } from '../../../core/services/users/trip-reviews.service';
-import { isThumbUp, THUMB_DOWN_RATING, THUMB_UP_RATING, TripReviewForm } from './trip-review-form';
+import { TripReviewForm } from './trip-review-form';
 
 describe('TripReviewForm', () => {
   let create: ReturnType<typeof vi.fn>;
@@ -22,7 +22,7 @@ describe('TripReviewForm', () => {
     return fixture;
   }
 
-  it('asks with a thumb up or down and sends it with the comment', async () => {
+  it('asks on a scale of 1 to 5 and sends it with the comment', async () => {
     const fixture = render();
     const form = fixture.componentInstance;
     const sent = vi.fn();
@@ -30,18 +30,24 @@ describe('TripReviewForm', () => {
     const root = fixture.nativeElement as HTMLElement;
 
     expect(root.textContent).toContain('¿Qué tal con Lucía?');
-    expect(root.querySelectorAll('input[type="radio"]')).toHaveLength(2);
+    expect(root.textContent).toContain('Elige de 1 (muy mal) a 5 (muy bien)');
+    const radios = root.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+    expect(radios).toHaveLength(5);
+    expect(radios[3].getAttribute('aria-label')).toBe('4 de 5, Bien');
 
     await form.handleSend();
     expect(create).not.toHaveBeenCalled();
 
-    (root.querySelector('input[type="radio"]') as HTMLInputElement).click();
+    radios[3].click();
+    fixture.detectChanges();
+    expect(root.textContent).toContain('4 · Bien');
+    expect(root.querySelectorAll('.trip-review__point--on')).toHaveLength(4);
     form.comment.set('  Muy puntual  ');
     await form.handleSend();
 
     expect(create).toHaveBeenCalledWith('t1', {
       targetId: 'd1',
-      rating: THUMB_UP_RATING,
+      rating: 4,
       comment: 'Muy puntual',
     });
     expect(sent).toHaveBeenCalledWith({ id: 'rev1' });
@@ -52,7 +58,7 @@ describe('TripReviewForm', () => {
     const form = fixture.componentInstance;
     const sent = vi.fn();
     form.sent.subscribe(sent);
-    form.rating.set(THUMB_DOWN_RATING);
+    form.rating.set(1);
 
     create.mockRejectedValueOnce(new ApiError('REVIEW_ALREADY_EXISTS', 409));
     await form.handleSend();
@@ -67,7 +73,5 @@ describe('TripReviewForm', () => {
   it('lets skip only when allowed', () => {
     const root = render(true).nativeElement as HTMLElement;
     expect(root.textContent).toContain('Ahora no');
-    expect(isThumbUp(4)).toBe(true);
-    expect(isThumbUp(2)).toBe(false);
   });
 });

@@ -36,10 +36,26 @@
   line-height: var(--line-height-body-s);
 }
 
+// La manita y la nota («4,8»)
 .trip-driver__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
   font-size: var(--font-size-body-s);
   font-weight: var(--font-weight-semibold);
   white-space: nowrap;
+}
+
+.trip-driver__thumb {
+  font-size: 1rem; // 16px
+
+  &--up {
+    color: var(--color-success);
+  }
+
+  &--down {
+    color: var(--color-danger);
+  }
 }
 
 // La nota se pulsa para ver las valoraciones: área de 44px y por encima del
@@ -55,8 +71,6 @@
   background: transparent;
   color: inherit;
   font-family: inherit;
-  text-decoration: underline dotted;
-  text-underline-offset: 0.1875rem; // 3px
   cursor: pointer;
 
   &:hover {

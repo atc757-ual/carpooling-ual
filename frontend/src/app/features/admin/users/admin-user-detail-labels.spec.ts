@@ -32,7 +32,7 @@ describe('admin user detail labels', () => {
     expect(tripRoute({ originName: 'Roquetas', destinationName: null })).toBe('Roquetas → Destino');
     expect(ratingLabel(null)).toBe('Sin valoraciones');
     expect(ratingLabel({ average: null, count: 0 })).toBe('Sin valoraciones');
-    expect(ratingLabel({ average: 4.56, count: 12 })).toBe('4,6 ★ (12)');
+    expect(ratingLabel({ average: 4.56, count: 12 })).toBe('4,6 de 5 · 12 valoraciones');
     expect(initialsOf('Lucía  Cortés Gil')).toBe('LC');
     expect(formatDate('2026-10-25T10:00:00.000Z')).toBe('25 oct 2026');
   });

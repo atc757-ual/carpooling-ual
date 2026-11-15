@@ -11,7 +11,11 @@ export function publicWebOrigin(
   isNative: boolean = Capacitor.isNativePlatform(),
 ): string | null {
   if (configured) {
-    return configured.replace(/\/+$/, '');
+    let url = configured.trim();
+    while (url.endsWith('/')) {
+      url = url.slice(0, -1);
+    }
+    return url;
   }
   return isNative ? null : globalThis.location.origin;
 }

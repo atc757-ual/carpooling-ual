@@ -33,6 +33,37 @@
   flex: 0 0 auto;
   flex-direction: column;
   align-items: center;
+  gap: var(--space-xs);
+}
+
+.driver-reviews__thumb {
+  font-size: 1.5rem; // 24px
+
+  &--up {
+    color: var(--color-success);
+  }
+
+  &--down {
+    color: var(--color-danger);
+  }
+}
+
+.driver-reviews__item-score {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.driver-reviews__item-thumb {
+  font-size: 1rem; // 16px
+
+  &--up {
+    color: var(--color-success);
+  }
+
+  &--down {
+    color: var(--color-danger);
+  }
 }
 
 .driver-reviews__average-value {
@@ -41,13 +72,9 @@
   line-height: 1;
 }
 
-.driver-reviews__stars {
-  color: var(--color-warning);
-  letter-spacing: 0.0625rem; // 1px
-}
-
-.driver-reviews__stars--small {
-  font-size: var(--font-size-body-s);
+// «5 · Muy bien»: ancho fijo para que las barras empiecen a la par
+.driver-reviews__bar-label {
+  min-width: 5.5rem; // 88px
 }
 
 .driver-reviews__bars {
