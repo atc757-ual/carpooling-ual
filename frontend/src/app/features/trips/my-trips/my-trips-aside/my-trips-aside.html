@@ -16,8 +16,18 @@
       <div>
         <dt class="text-caption">Valoración</dt>
         <dd class="text-subtitle my-trips-aside__value">
-          <ion-icon class="my-trips-aside__star" [icon]="ratingIcon" aria-hidden="true" />
-          {{ ratingText() }}
+          @if (ratingValue(); as value) {
+            <ion-icon
+              class="my-trips-aside__thumb"
+              [class.my-trips-aside__thumb--up]="value >= 3"
+              [class.my-trips-aside__thumb--down]="value < 3"
+              [icon]="value >= 3 ? upIcon : downIcon"
+              aria-hidden="true"
+            />
+            {{ ratingText() }}
+          } @else {
+            —
+          }
         </dd>
       </div>
     </dl>

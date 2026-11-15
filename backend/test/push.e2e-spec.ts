@@ -217,7 +217,7 @@ describe('Push notifications (e2e)', () => {
     expect(push.message).toEqual({
       title: 'Pía te ha escrito',
       body: 'Abre el chat del viaje para leerlo.',
-      data: { type: 'chat_message', tripId },
+      data: { type: 'chat_message', tripId, passengerId: pia.id },
     });
     expect(JSON.stringify(push.message)).not.toContain('portal');
   });

@@ -49,7 +49,9 @@ describe('TripCallService', () => {
 
   it('loads contacts delegating to ChatService', async () => {
     const contacts = await service.loadContacts('t1');
-    expect(chatMock.listContacts).toHaveBeenCalledWith('t1');
+    expect(chatMock.listContacts).toHaveBeenCalledWith({ tripId: 't1', passengerId: undefined });
+    await service.loadContacts('t1', 'p1');
+    expect(chatMock.listContacts).toHaveBeenLastCalledWith({ tripId: 't1', passengerId: 'p1' });
     expect(contacts).toEqual([CONTACT]);
   });
 

@@ -1,7 +1,8 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { TripDriver as Driver } from '../../../core/models/trip-result.model';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
-import { ModalController } from '@ionic/angular';
+import { IonIcon, ModalController } from '@ionic/angular';
+import { thumbsDown, thumbsUp } from 'ionicons/icons';
 import { AvatarArt } from '../../../shared/components/ui/avatar-art/avatar-art';
 
 const RATING_FORMAT = new Intl.NumberFormat('es-ES', {
@@ -34,7 +35,7 @@ export function getFirstName(name: string): string {
 // En los resultados y en el detalle del viaje
 @Component({
   selector: 'app-trip-driver',
-  imports: [AvatarArt],
+  imports: [AvatarArt, IonIcon],
   templateUrl: './trip-driver.html',
   styleUrl: './trip-driver.scss',
 })
@@ -42,6 +43,9 @@ export class TripDriver {
   readonly driver = input.required<Driver>();
   private readonly avatars = inject(AvatarsService);
   private readonly modalController = inject(ModalController);
+
+  protected readonly upIcon = thumbsUp;
+  protected readonly downIcon = thumbsDown;
 
   readonly initials = computed(() => getInitials(this.driver().name));
   readonly avatarSvg = resource({

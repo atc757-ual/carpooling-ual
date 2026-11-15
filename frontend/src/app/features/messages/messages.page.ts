@@ -13,7 +13,13 @@ import {
 import { alertCircleOutline, chatbubblesOutline } from 'ionicons/icons';
 import { Conversation } from '../../core/models/chat.model';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { ChatService, CONVERSATIONS_PAGE_SIZE } from '../../core/services/chat/chat.service';
+import {
+  ChatService,
+  conversationIdOf,
+  CONVERSATIONS_PAGE_SIZE,
+  isSameConversation,
+  parseConversationId,
+} from '../../core/services/chat/chat.service';
 import { formatTime } from '../matching/trip-results';
 import { formatElapsed } from '../notifications/notification-texts';
 import { TRIP_STATUS_LABELS } from '../../shared/utils/trip-status.util';
@@ -23,7 +29,8 @@ import { map } from 'rxjs';
 import { SectionHeading } from '../tabs/section-heading/section-heading';
 
 // Mensajes: conversaciones recientes con filtro de no leídos y carga por lotes.
-// Cada conversación abre el chat del viaje.
+// El chat es directo: el conductor tiene una conversación con cada pasajero y
+// el pasajero, la suya con el conductor. Cada una abre su chat.
 @Component({
   selector: 'app-messages',
   imports: [
@@ -45,8 +52,14 @@ export class MessagesPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  // «viaje:pasajero» o, la del pasajero con el conductor, solo el viaje
   private readonly routeConversationId = toSignal(
-    inject(ActivatedRoute).paramMap.pipe(map((params) => params.get('tripId'))),
+    inject(ActivatedRoute).paramMap.pipe(
+      map((params) => {
+        const tripId = params.get('tripId');
+        return tripId ? conversationIdOf({ tripId, passengerId: params.get('passengerId') }) : null;
+      }),
+    ),
     { initialValue: null },
   );
   private hasEntered = false;
@@ -81,7 +94,7 @@ export class MessagesPage implements OnInit {
     if (!read) return;
     this.all.update((conversations) =>
       conversations.map((conversation) =>
-        conversation.id === read.tripId && conversation.unreadCount > 0
+        isSameConversation(conversation, read) && conversation.unreadCount > 0
           ? { ...conversation, unreadCount: 0 }
           : conversation,
       ),
@@ -138,14 +151,26 @@ export class MessagesPage implements OnInit {
     await this.loadPage(this.loadMoreError());
   }
 
-  async handleSelectConversation(event: MouseEvent, conversationId: string): Promise<void> {
+  async handleSelectConversation(event: MouseEvent, conversation: Conversation): Promise<void> {
     if (this.isDesktop()) {
       event.preventDefault();
-      this.selectedConversationId.set(conversationId);
+      this.selectedConversationId.set(conversation.id);
       return;
     }
     this.selectedConversationId.set(null);
-    await this.router.navigate(['/tabs/messages', conversationId]);
+    await this.router.navigate(['/tabs/messages', conversation.trip.id, conversation.passenger.id]);
+  }
+
+  // La conversación abierta (también la del pasajero, que llega sin pasajero)
+  protected isSelected(conversation: Conversation): boolean {
+    const activeId = this.activeConversationId();
+    return activeId !== null && isSameConversation(conversation, parseConversationId(activeId));
+  }
+
+  // «07:30 · Campus UAL» o, al conductor, con quién: «Pía · 07:30 · Campus UAL»
+  protected title(conversation: Conversation): string {
+    const trip = `${this.departureTime(conversation)} · ${conversation.trip.destinationName ?? 'Destino'}`;
+    return conversation.myRole === 'driver' ? `${conversation.passenger.name} · ${trip}` : trip;
   }
 
   protected statusLabel(conversation: Conversation): string {

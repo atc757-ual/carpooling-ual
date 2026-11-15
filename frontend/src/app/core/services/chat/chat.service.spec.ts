@@ -2,7 +2,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ApiError } from '../../models/api-error.model';
-import { ChatService } from './chat.service';
+import { Conversation } from '../../models/chat.model';
+import {
+  ChatService,
+  conversationIdOf,
+  isSameConversation,
+  parseConversationId,
+} from './chat.service';
 
 describe('ChatService', () => {
   let chat: ChatService;
@@ -77,15 +83,17 @@ describe('ChatService', () => {
     http.expectOne((req) => req.url === '/api/users/me/conversations').flush([{ id: 't1' }]);
     await expect(conversations).resolves.toEqual([{ id: 't1' }]);
 
-    const all = chat.listMessages('t1');
+    const all = chat.listMessages({ tripId: 't1' });
     const first = http.expectOne((req) => req.url === '/api/trips/t1/messages');
     expect(first.request.params.has('after')).toBe(false);
+    expect(first.request.params.has('passengerId')).toBe(false);
     first.flush([{ id: 'm1' }]);
     await expect(all).resolves.toEqual([{ id: 'm1' }]);
 
-    const newer = chat.listMessages('t1', 'm1');
+    const newer = chat.listMessages({ tripId: 't1', passengerId: 'p1' }, 'm1');
     const second = http.expectOne((req) => req.url === '/api/trips/t1/messages');
     expect(second.request.params.get('after')).toBe('m1');
+    expect(second.request.params.get('passengerId')).toBe('p1');
     second.flush([]);
     await expect(newer).resolves.toEqual([]);
   });
@@ -106,25 +114,27 @@ describe('ChatService', () => {
   });
 
   it('sends a message and marks the conversation as read', async () => {
-    const sending = chat.send('t1', { quickReply: 'at_pickup' });
-    const post = http.expectOne('/api/trips/t1/messages');
+    const ref = { tripId: 't1', passengerId: 'p1' };
+    const sending = chat.send(ref, { quickReply: 'at_pickup' });
+    const post = http.expectOne('/api/trips/t1/messages?passengerId=p1');
     expect(post.request.method).toBe('POST');
     expect(post.request.body).toEqual({ quickReply: 'at_pickup' });
     post.flush({ id: 'm2' });
     await expect(sending).resolves.toEqual({ id: 'm2' });
 
-    const reading = chat.markRead('t1');
-    const put = http.expectOne('/api/trips/t1/messages/read');
+    const reading = chat.markRead(ref);
+    const put = http.expectOne('/api/trips/t1/messages/read?passengerId=p1');
     expect(put.request.method).toBe('PUT');
     put.flush(null, { status: 204, statusText: 'No Content' });
     await reading;
+    expect(chat.lastRead()).toEqual(ref);
     // Después, vuelve a mirar si queda algo nuevo
     expectUnreadQuery('0');
   });
 
   it('reports the chat with its reason', async () => {
-    const reporting = chat.reportChat('t1', 'Me ha insultado');
-    const post = http.expectOne('/api/trips/t1/chat/report');
+    const reporting = chat.reportChat({ tripId: 't1', passengerId: 'p1' }, 'Me ha insultado');
+    const post = http.expectOne('/api/trips/t1/chat/report?passengerId=p1');
     expect(post.request.method).toBe('POST');
     expect(post.request.body).toEqual({ reason: 'Me ha insultado' });
     post.flush({ id: 'i1' }, { status: 201, statusText: 'Created' });
@@ -133,25 +143,43 @@ describe('ChatService', () => {
 
   it('lists whom can be called from the chat', async () => {
     const contact = { id: 'u1', name: 'Lucía C.', phone: '+34600111222', role: 'driver' };
-    const listing = chat.listContacts('t1');
+    const listing = chat.listContacts({ tripId: 't1' });
     http.expectOne('/api/trips/t1/contacts').flush([contact]);
     await expect(listing).resolves.toEqual([contact]);
   });
 
-  it('gets a single conversation by trip id', async () => {
+  it('gets a single conversation by trip and passenger', async () => {
     const conversation = { trip: { id: 't1' }, myRole: 'driver' };
-    const promise = chat.getConversation('t1');
-    const req = http.expectOne('/api/trips/t1/conversation');
+    const promise = chat.getConversation({ tripId: 't1', passengerId: 'p1' });
+    const req = http.expectOne('/api/trips/t1/conversation?passengerId=p1');
     expect(req.request.method).toBe('GET');
     req.flush(conversation);
     await expect(promise).resolves.toEqual(conversation);
   });
 
   it('throws an ApiError when a request fails', async () => {
-    const sending = chat.send('t1', { text: 'Hola' });
+    const sending = chat.send({ tripId: 't1' }, { text: 'Hola' });
     http
       .expectOne('/api/trips/t1/messages')
       .flush({ code: 'CHAT_CLOSED' }, { status: 409, statusText: 'Conflict' });
     await expect(sending).rejects.toBeInstanceOf(ApiError);
+  });
+});
+
+describe('conversation ids', () => {
+  const conversation = { trip: { id: 't1' }, passenger: { id: 'p1' } } as Conversation;
+
+  it('joins and splits the trip and the passenger', () => {
+    expect(conversationIdOf({ tripId: 't1', passengerId: 'p1' })).toBe('t1:p1');
+    expect(conversationIdOf({ tripId: 't1', passengerId: null })).toBe('t1');
+    expect(parseConversationId('t1:p1')).toEqual({ tripId: 't1', passengerId: 'p1' });
+    expect(parseConversationId('t1')).toEqual({ tripId: 't1' });
+  });
+
+  it('matches a conversation with or without the passenger', () => {
+    expect(isSameConversation(conversation, { tripId: 't1' })).toBe(true);
+    expect(isSameConversation(conversation, { tripId: 't1', passengerId: 'p1' })).toBe(true);
+    expect(isSameConversation(conversation, { tripId: 't1', passengerId: 'p2' })).toBe(false);
+    expect(isSameConversation(conversation, { tripId: 't2' })).toBe(false);
   });
 });

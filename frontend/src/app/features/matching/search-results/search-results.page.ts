@@ -15,7 +15,12 @@ import {
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular';
-import { alertCircleOutline, createOutline, searchOutline } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  createOutline,
+  navigateOutline,
+  searchOutline,
+} from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { TripResult } from '../../../core/models/trip-result.model';
 import { TripDirection, TripSearch } from '../../../core/models/trip-search.model';
@@ -41,7 +46,7 @@ type SearchSortOrder = 'arrival' | 'detour';
 
 const ACTIVE_REQUEST_STATUSES = new Set(['pending', 'accepted']);
 
-// «3 viajes llegan entre 08:45 y 09:15»; al volver del campus, «salen»
+// «3 viajes llegan a destino entre 08:45 y 09:15»; al volver del campus, «salen»
 export function describeResults(trips: TripResult[], direction: TripDirection): string {
   const isToCampus = direction === 'to-campus';
   const times = trips
@@ -50,11 +55,33 @@ export function describeResults(trips: TripResult[], direction: TripDirection): 
   const first = times[0];
   const last = times.at(-1);
   if (times.length === 1) {
-    return `1 viaje ${isToCampus ? 'llega' : 'sale'} a las ${first}`;
+    return `1 viaje ${isToCampus ? 'llega a destino' : 'sale'} a las ${first}`;
   }
-  const verb = isToCampus ? 'llegan' : 'salen';
+  const verb = isToCampus ? 'llegan a destino' : 'salen';
   const when = first === last ? `a las ${first}` : `entre ${first} y ${last}`;
   return `${times.length} viajes ${verb} ${when}`;
+}
+
+function resolveTimeVerb(isToCampus: boolean, isSingleTrip: boolean): string {
+  if (isToCampus) {
+    return isSingleTrip ? 'llega a destino' : 'llegan a destino';
+  }
+  return isSingleTrip ? 'sale' : 'salen';
+}
+
+export function timeWindowText(trips: TripResult[], direction: TripDirection): string {
+  if (trips.length === 0) return '';
+  const isToCampus = direction === 'to-campus';
+  const times = trips
+    .map((trip) => (isToCampus ? trip.arrivalTime : trip.departureTime))
+    .sort((left, right) => left.localeCompare(right));
+  const first = times[0];
+  const last = times.at(-1);
+  const verb = resolveTimeVerb(isToCampus, trips.length === 1);
+  if (first === last || trips.length === 1) {
+    return `${verb} a las ${first}`;
+  }
+  return `${verb} entre ${first} y ${last}`;
 }
 
 // «Tu búsqueda»: los viajes que encajan con la búsqueda hecha en Buscar. En
@@ -121,14 +148,21 @@ export class SearchResultsPage {
   readonly resultsSummary = computed(() =>
     describeResults(this.trips(), this.search()?.direction ?? 'to-campus'),
   );
+  readonly resultsCountLabel = computed(() => {
+    const count = this.trips().length;
+    return `${count} ${count === 1 ? 'viaje encontrado' : 'viajes encontrados'}`;
+  });
+  readonly resultsTimeWindow = computed(() =>
+    timeWindowText(this.trips(), this.search()?.direction ?? 'to-campus'),
+  );
   // Cómo encaja cada viaje con la búsqueda: el color de su fila
   fitOf(trip: TripResult): MatchFit {
     const search = this.search();
     return search ? getMatchFit(trip, search) : 'fair';
   }
 
-  readonly bestTripId = computed(() => (this.trips().length > 1 ? this.trips()[0].id : null));
-  readonly sortOrder = signal<SearchSortOrder>('arrival');
+  readonly bestTripId = computed(() => (this.trips().length > 0 ? this.trips()[0].id : null));
+  readonly sortOrder = signal<SearchSortOrder>('detour');
   readonly sortedTrips = computed(() => {
     const trips = [...this.trips()];
     if (this.sortOrder() === 'detour') {
@@ -187,6 +221,7 @@ export class SearchResultsPage {
   protected readonly editIcon = createOutline;
   protected readonly emptyIcon = searchOutline;
   protected readonly errorIcon = alertCircleOutline;
+  protected readonly routeIcon = navigateOutline;
 
   constructor() {
     effect(() => this.searchState.setResults(this.trips()));

@@ -8,7 +8,8 @@ import {
   IonIcon,
   IonSpinner,
 } from '@ionic/angular';
-import { callOutline } from 'ionicons/icons';
+import { RouterLink } from '@angular/router';
+import { callOutline, chatbubblesOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { ChatContact } from '../../../core/models/chat.model';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
@@ -17,9 +18,9 @@ import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-p
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { TripChatLink } from '../../../shared/components/ui/trip-chat-link/trip-chat-link';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatSeats } from '../../../shared/utils/seats.util';
+import { getFirstName } from '../../matching/trip-driver/trip-driver';
 
 const REQUEST_STATUS_LABELS: Record<SeatRequestStatus, string> = {
   pending: 'Pendiente',
@@ -35,7 +36,7 @@ const CHAT_STATUSES: ReadonlySet<TripStatus> = new Set(['confirmed', 'in_progres
 // «Pasajeros» en el detalle de un viaje del conductor: las plazas como
 // asientos (ocupados y libres), las solicitudes del viaje abierto (las
 // prioritarias primero) con «Aceptar» y «Rechazar» en las pendientes y la
-// llamada a los aceptados, y el chat del viaje. Avisa con «changed» al
+// llamada y el chat directo con cada aceptado. Avisa con «changed» al
 // decidir una, porque cambian las plazas y quizá el estado
 @Component({
   selector: 'app-driver-trip-passengers',
@@ -47,7 +48,7 @@ const CHAT_STATUSES: ReadonlySet<TripStatus> = new Set(['confirmed', 'in_progres
     IonCardTitle,
     IonIcon,
     IonSpinner,
-    TripChatLink,
+    RouterLink,
   ],
   templateUrl: './driver-trip-passengers.html',
   styleUrl: './driver-trip-passengers.scss',
@@ -62,7 +63,8 @@ export class DriverTripPassengers {
   readonly changed = output<void>();
 
   readonly isOpen = computed(() => OPEN_STATUSES.has(this.trip().status));
-  // El chat existe desde que hay pasajeros aceptados (confirmado) y en curso
+  // El chat existe desde que hay pasajeros aceptados (confirmado) y en curso:
+  // uno directo con cada pasajero
   readonly hasChat = computed(() => CHAT_STATUSES.has(this.trip().status));
 
   // Un asiento por plaza ofrecida: los primeros, ocupados
@@ -102,10 +104,16 @@ export class DriverTripPassengers {
 
   protected readonly formatSeats = formatSeats;
   protected readonly callIcon = callOutline;
+  protected readonly chatIcon = chatbubblesOutline;
 
   canCallPassenger(passengerId: string): boolean {
     const contact = this.contactsMap().get(passengerId);
     return this.tripCall.canCall(this.trip().status, contact);
+  }
+
+  // «Escribir a Pía»: abre la conversación directa con ese pasajero
+  chatPassengerLabel(name: string): string {
+    return `Escribir a ${getFirstName(name)}`;
   }
 
   callPassengerLabel(name: string, passengerId: string): string {

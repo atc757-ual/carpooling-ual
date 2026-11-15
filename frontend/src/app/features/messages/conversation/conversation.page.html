@@ -26,53 +26,85 @@
     <!-- En el móvil, el título del viaje va en la cabecera fija (inPageHeading) -->
     @if (!inPageHeading()) {
       <header class="conversation__heading">
-        <app-conversation-avatar [name]="driverName()" [avatarKey]="driverAvatarKey()" />
+        <app-conversation-avatar [name]="partnerName()" [avatarKey]="partnerAvatarKey()" />
         <ng-container [ngTemplateOutlet]="tripTitle" />
         <ng-container [ngTemplateOutlet]="tripActions" />
       </header>
     }
     <div #scrollContainer class="conversation__scroll">
-      @if (messages().length === 0) {
+      @if (messageGroups().length === 0) {
         <p class="conversation__empty text-body-s text-color-muted">
           Aún no hay mensajes. Saluda o usa una respuesta rápida.
         </p>
+      }
+      <!-- Historial del chat anterior del viaje (compartido): solo lectura, sin ✓ -->
+      @if (sharedGroups().length > 0) {
+        <section class="conversation__shared" aria-labelledby="conversation-shared-title">
+          <h3 id="conversation-shared-title" class="conversation__shared-title text-caption">
+            <ion-icon [icon]="closedIcon" aria-hidden="true" />
+            Chat común anterior (solo lectura)
+          </h3>
+          <ol class="conversation__messages" aria-label="Mensajes del chat común anterior">
+            @for (group of sharedGroups(); track group.day) {
+              <li class="conversation__day text-caption">{{ group.day }}</li>
+              @for (message of group.messages; track message.id) {
+                <ng-container
+                  [ngTemplateOutlet]="bubble"
+                  [ngTemplateOutletContext]="{ $implicit: message }"
+                />
+              }
+            }
+          </ol>
+        </section>
       }
       <ol class="conversation__messages" aria-label="Mensajes">
         @for (group of messageGroups(); track group.day) {
           <li class="conversation__day text-caption">{{ group.day }}</li>
           @for (message of group.messages; track message.id) {
-            <li class="bubble" [class.bubble--mine]="isMine(message)">
-              @if (!isMine(message)) {
-                <span class="bubble__author text-caption">
-                  {{ message.author.name }}
-                  @if (message.authorRole === 'driver') {
-                    · Conduce
-                  }
-                </span>
-              }
-              <span class="bubble__text" [class.bubble__text--quick]="message.kind === 'quick'">{{
-                text(message)
-              }}</span>
-              <span class="bubble__footer">
-                <span class="bubble__time text-caption">{{ time(message.createdAt) }}</span>
-                @if (isMine(message)) {
-                  <span
-                    class="bubble__status"
-                    [class.bubble__status--read]="message.readByAll"
-                    [attr.aria-label]="statusAriaLabel(message)"
-                    [title]="statusAriaLabel(message)"
-                  >
-                    <span aria-hidden="true">{{ message.readByAll ? '✓✓' : '✓' }}</span>
-                  </span>
-                }
-              </span>
-            </li>
+            <ng-container
+              [ngTemplateOutlet]="bubble"
+              [ngTemplateOutletContext]="{ $implicit: message }"
+            />
           }
         }
       </ol>
     </div>
   }
 </div>
+
+<!-- Un mensaje: los míos a la derecha, con su ✓ o ✓✓ (los de la conversación) -->
+<ng-template #bubble let-message>
+  <li
+    class="bubble"
+    [class.bubble--mine]="isMine(message)"
+    [class.bubble--shared]="message.isShared"
+  >
+    @if (!isMine(message)) {
+      <span class="bubble__author text-caption">
+        {{ message.author.name }}
+        @if (message.authorRole === 'driver') {
+          · Conduce
+        }
+      </span>
+    }
+    <span class="bubble__text" [class.bubble__text--quick]="message.kind === 'quick'">{{
+      text(message)
+    }}</span>
+    <span class="bubble__footer">
+      <span class="bubble__time text-caption">{{ time(message.createdAt) }}</span>
+      @if (hasReceipt(message)) {
+        <span
+          class="bubble__status"
+          [class.bubble__status--read]="message.readByAll"
+          [attr.aria-label]="statusAriaLabel(message)"
+          [title]="statusAriaLabel(message)"
+        >
+          <span aria-hidden="true">{{ message.readByAll ? '✓✓' : '✓' }}</span>
+        </span>
+      }
+    </span>
+  </li>
+</ng-template>
 
 @if (!isLoading() && !hasError()) {
   <footer class="conversation-footer">
@@ -153,8 +185,8 @@
     </span>
     <span class="conversation__details text-body-s text-color-muted">
       {{ departureTime() }}
-      @if (driverName()) {
-        · Conduce {{ driverName() }}
+      @if (partnerLabel()) {
+        · {{ partnerLabel() }}
       }
     </span>
   </span>
@@ -199,7 +231,7 @@
   </ion-button>
 </ng-template>
 
-<!-- Opciones de conversación (tres puntos): menú con denunciar el chat -->
+<!-- Opciones de conversación (tres puntos): menú con denunciar la conversación -->
 <ng-template #optionsButton>
   <ion-button
     class="conversation__options"
@@ -227,7 +259,7 @@
     <ion-list lines="none">
       <ion-item button [detail]="false" (click)="handleReport()">
         <ion-icon slot="start" [icon]="reportIcon" aria-hidden="true" />
-        <ion-label>Denunciar el chat</ion-label>
+        <ion-label>Denunciar la conversación</ion-label>
       </ion-item>
     </ion-list>
   </ng-template>
@@ -239,7 +271,7 @@
 <ng-template #headingTitle>
   <div class="conversation-heading-bar">
     @if (conversation()) {
-      <app-conversation-avatar [name]="driverName()" [avatarKey]="driverAvatarKey()" />
+      <app-conversation-avatar [name]="partnerName()" [avatarKey]="partnerAvatarKey()" />
       <ng-container [ngTemplateOutlet]="tripTitle" />
       <ng-container [ngTemplateOutlet]="tripActions" />
     } @else {

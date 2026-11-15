@@ -1,4 +1,5 @@
 import { AdminTripSummary } from '../../../core/models/admin-user.model';
+import { formatRatingSummary } from '../../../shared/utils/rating.util';
 
 // Textos del detalle de un usuario en el panel. Funciones puras para probarlas
 // sin pantalla
@@ -92,13 +93,13 @@ export function tripRoute(trip: Pick<AdminTripSummary, 'originName' | 'destinati
   return `${trip.originName ?? 'Origen'} → ${trip.destinationName ?? 'Destino'}`;
 }
 
-// «4,6 ★ (12)» o «Sin valoraciones»
+// «4,6 de 5 · 12 valoraciones» o «Sin valoraciones»
 export function ratingLabel(rating: { average: number | null; count: number } | null): string {
   const average = rating?.average;
   if (average === undefined || average === null) {
     return 'Sin valoraciones';
   }
-  return `${average.toLocaleString('es-ES', { maximumFractionDigits: 1 })} ★ (${rating?.count ?? 0})`;
+  return formatRatingSummary(average, rating?.count ?? 0);
 }
 
 // Iniciales del nombre (dos como mucho) para el avatar

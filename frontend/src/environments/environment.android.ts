@@ -7,6 +7,11 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api',
+  // Dirección pública de la web para los enlaces que se comparten: en la app
+  // el origen es el de la WebView (localhost), que no abre nada en otro móvil.
+  // Provisional (túnel de ngrok al ng serve del autor) hasta tener el servidor
+  // con HTTPS (docs/despliegue.md)
+  publicWebUrl: 'https://skydiver-splashed-snugness.ngrok-free.dev',
   allowedEmailDomains: ['ual.es', 'inlumine.ual.es'],
   // Firebase (solo Messaging, para las notificaciones push). Es pública: va en
   // la web que descarga cualquiera; lo secreto es la cuenta de servicio del

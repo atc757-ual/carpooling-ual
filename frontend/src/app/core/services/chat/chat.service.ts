@@ -9,6 +9,7 @@ import {
   ChatMessageInput,
   ChatRole,
   Conversation,
+  ConversationRef,
 } from '../../models/chat.model';
 
 export const CONVERSATIONS_PAGE_SIZE = 10;
@@ -30,11 +31,32 @@ export interface ConversationPage {
   total: number;
 }
 
+// El id de una conversación en la app: «viaje:pasajero» (como el de la API)
+// o, sin pasajero (la del pasajero con el conductor), solo el viaje
+export function conversationIdOf({ tripId, passengerId }: ConversationRef): string {
+  return passengerId ? `${tripId}:${passengerId}` : tripId;
+}
+
+export function parseConversationId(id: string): ConversationRef {
+  const [tripId, passengerId] = id.split(':');
+  return passengerId ? { tripId, passengerId } : { tripId };
+}
+
+// Si una conversación de la lista es la que se indica (sin pasajero, la única
+// del pasajero en ese viaje)
+export function isSameConversation(conversation: Conversation, ref: ConversationRef): boolean {
+  return (
+    conversation.trip.id === ref.tripId &&
+    (!ref.passengerId || conversation.passenger.id === ref.passengerId)
+  );
+}
+
 // Mensajes de una conversación que se piden de una vez (los más antiguos
 // primero; una conversación de un viaje rara vez pasa de esto)
 const MESSAGES_LIMIT = 100;
 
-// Chat del viaje entre el conductor y sus pasajeros aceptados: las
+// Chat del viaje, directo entre el conductor y cada pasajero aceptado (el
+// conductor indica el pasajero; el pasajero habla con el conductor): las
 // conversaciones, sus mensajes (con after, solo los nuevos), enviar y marcar
 // leído. hasUnread es el punto de la pestaña Mensajes; se actualiza con
 // refreshUnread. Lanza ApiError (ver shared/utils/error-message.util.ts)
@@ -47,7 +69,7 @@ export class ChatService {
   readonly hasUnread = computed(() => this.unreadConversationCount() > 0);
   // La última conversación marcada como leída: la lista de Mensajes (en
   // escritorio, a la izquierda del chat) pone su contador a cero sin recargar
-  private readonly lastReadState = signal<{ tripId: string } | null>(null);
+  private readonly lastReadState = signal<ConversationRef | null>(null);
   readonly lastRead = this.lastReadState.asReadonly();
   private readonly liveTripState = signal<LiveTrip | null>(null);
   // El viaje en curso (o null): lo abre la pestaña del coche. Sale del chat,
@@ -91,9 +113,11 @@ export class ChatService {
     return this.listConversationsPage({ limit: 100 }).then(({ items }) => items);
   }
 
-  getConversation(tripId: string): Promise<Conversation> {
+  getConversation(ref: ConversationRef): Promise<Conversation> {
     return this.call(
-      this.http.get<Conversation>(`${environment.apiUrl}/trips/${tripId}/conversation`),
+      this.http.get<Conversation>(`${environment.apiUrl}/trips/${ref.tripId}/conversation`, {
+        params: conversationParams(ref),
+      }),
     );
   }
 
@@ -114,39 +138,58 @@ export class ChatService {
     }));
   }
 
-  // Del más antiguo al más nuevo; con after, solo los posteriores a ese
-  listMessages(tripId: string, after?: string): Promise<ChatMessage[]> {
-    const params: Record<string, string | number> = { limit: MESSAGES_LIMIT };
+  // Del más antiguo al más nuevo (los del chat común anterior, primero); con
+  // after, solo los posteriores a ese
+  listMessages(ref: ConversationRef, after?: string): Promise<ChatMessage[]> {
+    const params: Record<string, string | number> = {
+      ...conversationParams(ref),
+      limit: MESSAGES_LIMIT,
+    };
     if (after) {
       params['after'] = after;
     }
-    return this.call(this.http.get<ChatMessage[]>(`${this.messagesUrl(tripId)}`, { params }));
+    return this.call(this.http.get<ChatMessage[]>(this.messagesUrl(ref.tripId), { params }));
   }
 
-  send(tripId: string, input: ChatMessageInput): Promise<ChatMessage> {
-    return this.call(this.http.post<ChatMessage>(this.messagesUrl(tripId), input));
-  }
-
-  // Denuncia el chat del viaje: llega al administrador como incidencia, con
-  // una copia de la conversación (la hace la API)
-  async reportChat(tripId: string, reason: string): Promise<void> {
-    await this.call(
-      this.http.post<unknown>(`${environment.apiUrl}/trips/${tripId}/chat/report`, { reason }),
-    );
-  }
-
-  // A quién puedo llamar desde el chat (con el teléfono verificado y el chat
-  // abierto): el pasajero, al conductor; el conductor, a sus pasajeros
-  listContacts(tripId: string): Promise<ChatContact[]> {
+  send(ref: ConversationRef, input: ChatMessageInput): Promise<ChatMessage> {
     return this.call(
-      this.http.get<ChatContact[]>(`${environment.apiUrl}/trips/${tripId}/contacts`),
+      this.http.post<ChatMessage>(this.messagesUrl(ref.tripId), input, {
+        params: conversationParams(ref),
+      }),
     );
   }
 
-  async markRead(tripId: string): Promise<void> {
-    await this.call(this.http.put<void>(`${this.messagesUrl(tripId)}/read`, null));
+  // Denuncia la conversación: llega al administrador como incidencia, con
+  // una copia de la conversación (la hace la API)
+  async reportChat(ref: ConversationRef, reason: string): Promise<void> {
+    await this.call(
+      this.http.post<unknown>(
+        `${environment.apiUrl}/trips/${ref.tripId}/chat/report`,
+        { reason },
+        { params: conversationParams(ref) },
+      ),
+    );
+  }
+
+  // A quién puedo llamar (con el teléfono verificado y el viaje confirmado o
+  // en curso): el pasajero, al conductor; el conductor, al pasajero indicado
+  // o, sin él (las pantallas del viaje), a todos sus pasajeros
+  listContacts(ref: ConversationRef): Promise<ChatContact[]> {
+    return this.call(
+      this.http.get<ChatContact[]>(`${environment.apiUrl}/trips/${ref.tripId}/contacts`, {
+        params: conversationParams(ref),
+      }),
+    );
+  }
+
+  async markRead(ref: ConversationRef): Promise<void> {
+    await this.call(
+      this.http.put<void>(`${this.messagesUrl(ref.tripId)}/read`, null, {
+        params: conversationParams(ref),
+      }),
+    );
     // Un objeto nuevo cada vez: avisa aunque sea la misma conversación
-    this.lastReadState.set({ tripId });
+    this.lastReadState.set({ ...ref });
     void this.refreshUnread();
   }
 
@@ -161,4 +204,9 @@ export class ChatService {
       throw ApiError.fromHttpError(error);
     }
   }
+}
+
+// El pasajero de la conversación, si se indica
+function conversationParams({ passengerId }: ConversationRef): Record<string, string> {
+  return passengerId ? { passengerId } : {};
 }

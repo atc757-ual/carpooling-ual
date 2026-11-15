@@ -13,6 +13,8 @@ export interface NotificationTarget {
   type: string;
   tripId?: string;
   requestId?: string;
+  // El pasajero de la conversación (los mensajes del chat, que es directo)
+  passengerId?: string;
 }
 
 export interface NotificationTargetDeps {
@@ -34,7 +36,7 @@ export async function openNotificationTarget(
   const go = (url: string) =>
     replaceUrl ? router.navigateByUrl(url, { replaceUrl }) : router.navigateByUrl(url);
   if (target.type === CHAT_MESSAGE_PUSH) {
-    await go(target.tripId ? `/tabs/messages/${target.tripId}` : '/tabs/messages');
+    await go(chatUrl(target));
     return;
   }
   const mode = notificationMode(target.type as NotificationType) ?? null;
@@ -55,4 +57,12 @@ function tripUrl(mode: 'driver' | 'passenger', { tripId, requestId }: Notificati
   if (mode === 'passenger' && requestId) return `/tabs/trips/requests/${requestId}`;
   if (mode === 'driver' && tripId) return `/tabs/trips/published/${tripId}`;
   return '/tabs/trips';
+}
+
+// La conversación del mensaje: la del conductor con el pasajero o, sin
+// pasajero (una push de antes del chat directo), la del viaje, que para el
+// pasajero es la suya con el conductor (la API la deduce)
+function chatUrl({ tripId, passengerId }: NotificationTarget): string {
+  if (!tripId) return '/tabs/messages';
+  return passengerId ? `/tabs/messages/${tripId}/${passengerId}` : `/tabs/messages/${tripId}`;
 }

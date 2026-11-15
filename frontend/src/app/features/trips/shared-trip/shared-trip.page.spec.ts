@@ -80,6 +80,24 @@ describe('SharedTripPage', () => {
     expect(TestBed.inject(Meta).getTag('name="robots"')?.content).toBe('noindex, nofollow');
   });
 
+  it('offers the 112 with the plate while the trip is open, not once finished', async () => {
+    getShared.mockResolvedValue(sharedTrip());
+    let page = await render();
+
+    expect(page.textContent).toContain('¿Algo va mal?');
+    expect(page.querySelector('.shared-trip__plate')?.textContent).toBe('1234ABC');
+    expect(page.querySelector('ion-button[href="tel:112"]')).not.toBeNull();
+    fixture.destroy();
+
+    getShared.mockResolvedValue(
+      sharedTrip({ tripStatus: 'finished', passengerState: 'finished', vehicle: null }),
+    );
+    page = await render();
+
+    expect(page.textContent).not.toContain('¿Algo va mal?');
+    expect(page.querySelector('ion-button[href="tel:112"]')).toBeNull();
+  });
+
   it('shows the car on the map while in progress', async () => {
     getShared.mockResolvedValue(
       sharedTrip({

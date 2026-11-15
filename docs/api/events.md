@@ -56,7 +56,7 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `request.cancelled` (v2)   | Se cancela la solicitud                                                                            | `requests/request-changes.ts`          |
 | `request.expired` (v2)     | Caduca automáticamente al faltar 30 min para la salida                                             | `requests/request-changes.ts`          |
 | `request.boarded` (v3)     | El conductor valida la subida del pasajero con el código de 4 cifras                               | `requests/requests.service.ts`         |
-| `chat_message.sent`        | Se envía un mensaje al chat del viaje (sin el texto: minimización)                                 | `chat/chat.service.ts`                 |
+| `chat_message.sent`        | Se envía un mensaje a una conversación del viaje (sin el texto: minimización)                      | `chat/chat.service.ts`                 |
 | `incident.reported`        | Se registra una incidencia (sin su descripción)                                                    | `incidents/incidents.service.ts`       |
 | `incident.review_started`  | Un administrador empieza a revisarla                                                               | `incidents/incident-review.service.ts` |
 | `incident.review_released` | Quien la revisa la deja: vuelve a registrada                                                       | `incidents/incident-review.service.ts` |
@@ -77,6 +77,7 @@ Las rutas son relativas a `backend/src/modules/`. Un test (`events-contract.spec
 
 ### Cambios de versión
 
+- `chat_message.sent` **v2**: el `payload` añade `passengerId`, el pasajero de la conversación (el chat pasa a ser directo entre el conductor y cada pasajero aceptado). La v1 llevaba el mismo mensaje del chat común del viaje, sin ese campo.
 - `trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.cancelled` y `trip.expired` **v3**, y `trip.started` y `trip.finished` **v4**: el `payload` añade `stops`, las paradas del viaje con recogida en puntos (`id`, `position`, `name`, `location` y `etaOffsetMin`, los minutos desde la salida por la ruta sin el tiempo de las paradas anteriores); vacío en ruta. La versión anterior llevaba el mismo estado sin las paradas.
 - `request.created`, `request.accepted`, `request.rejected`, `request.cancelled` y `request.expired` **v2**, y `request.boarded` **v3**: el `payload` añade `stopId`, la parada en la que sube el pasajero (`null` si no recoge en puntos). La versión anterior llevaba el mismo estado sin ese campo.
 - `trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.cancelled` y `trip.expired` **v2**, y `trip.started` y `trip.finished` **v3**: el `payload` añade `pickupMode` (`on_route` o `stops`, cómo recoge el conductor) y `maxDetourM` (los metros que se aparta de su ruta en modo `on_route`; `null` con paradas). `maxDetourMin` pasa a ser el presupuesto total de desvío del viaje, no por pasajero. La versión anterior llevaba el mismo estado sin esos dos campos.

@@ -72,7 +72,12 @@ export class NativePushChannel implements PushChannel {
     void this.plugin.addListener('pushNotificationActionPerformed', ({ notification }) => {
       const data = notification.data as Partial<PushTarget> | undefined;
       if (data?.type) {
-        onTap({ type: data.type, tripId: data.tripId, requestId: data.requestId });
+        onTap({
+          type: data.type,
+          tripId: data.tripId,
+          requestId: data.requestId,
+          passengerId: data.passengerId,
+        });
       }
     });
   }

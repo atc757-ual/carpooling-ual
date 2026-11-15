@@ -258,7 +258,20 @@ export const routes: Routes = [
         data: {
           heading: {
             title: 'Conversación',
-            subtitle: 'Con quien conduce y los pasajeros del viaje.',
+            subtitle: 'Con quien conduce el viaje.',
+            backHref: '/tabs/messages',
+          } satisfies TabHeading,
+        },
+      },
+      {
+        // El chat es directo: la conversación del conductor con un pasajero
+        path: 'messages/:tripId/:passengerId',
+        loadComponent: () =>
+          import('./features/messages/messages.page').then((m) => m.MessagesPage),
+        data: {
+          heading: {
+            title: 'Conversación',
+            subtitle: 'Entre quien conduce y un pasajero del viaje.',
             backHref: '/tabs/messages',
           } satisfies TabHeading,
         },

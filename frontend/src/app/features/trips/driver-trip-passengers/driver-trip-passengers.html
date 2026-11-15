@@ -3,11 +3,6 @@
     <ion-card-title>Pasajeros</ion-card-title>
   </ion-card-header>
   <ion-card-content>
-    <!-- Con pasajeros (confirmado o en curso): hablar con ellos arriba -->
-    @if (hasChat()) {
-      <app-trip-chat-link [tripId]="trip().id" />
-    }
-
     <!-- Las plazas como asientos: ocupados en azul, libres con borde -->
     <div class="driver-trip__seats">
       <span class="driver-trip__seat-row" aria-hidden="true">
@@ -82,6 +77,19 @@
                     <span class="status" [class.status--accepted]="request.status === 'accepted'">
                       {{ requestLabel(request.status) }}
                     </span>
+                    @if (request.status === 'accepted' && hasChat()) {
+                      <!-- El chat es directo: una conversación con cada pasajero -->
+                      <ion-button
+                        class="driver-trip__chat-btn"
+                        fill="clear"
+                        size="small"
+                        [routerLink]="['/tabs/messages', trip().id, request.passenger.id]"
+                        [attr.aria-label]="chatPassengerLabel(request.passenger.name)"
+                        [title]="chatPassengerLabel(request.passenger.name)"
+                      >
+                        <ion-icon slot="icon-only" [icon]="chatIcon" aria-hidden="true" />
+                      </ion-button>
+                    }
                     @if (request.status === 'accepted') {
                       <ion-button
                         class="driver-trip__call-btn"

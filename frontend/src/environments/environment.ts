@@ -5,6 +5,9 @@ export const environment = {
   // La API del core-api (API Gateway), en el mismo dominio: el frontend solo
   // habla con él
   apiUrl: '/api',
+  // Dirección pública de la web para los enlaces que se comparten (viaje en
+  // directo, plazas libres). Vacía: la de la página (location.origin)
+  publicWebUrl: '',
   // Dominios de correo admitidos: los mismos que ALLOWED_EMAIL_DOMAINS del
   // backend, que es quien decide. Aquí solo evitan llamadas que fallarían
   allowedEmailDomains: ['ual.es', 'inlumine.ual.es'],

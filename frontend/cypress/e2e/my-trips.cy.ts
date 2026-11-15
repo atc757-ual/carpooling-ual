@@ -163,7 +163,7 @@ for (const viewport of VIEWPORTS) {
         'have.attr',
         'disabled',
       );
-      cy.contains('app-driver-trip-actions', 'Disponible desde las');
+      cy.contains('app-driver-trip-actions', 'Podrás iniciarlo a las');
     });
 
     // Con el permiso del dispositivo dado, solo se confirma la declaración

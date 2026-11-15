@@ -560,6 +560,26 @@ ion-toast.toast--floating {
   }
 }
 
+// Opciones de desplegables (ion-select-popover): tipografía a 14px para que no
+// se vean desproporcionadas, manteniendo la altura táctil y la apariencia nativa
+ion-select-popover {
+  ion-item {
+    font-size: var(--font-size-body-s);
+  }
+
+  ion-radio {
+    font-size: var(--font-size-body-s);
+
+    &::part(label) {
+      font-size: var(--font-size-body-s);
+    }
+  }
+
+  .select-option-label {
+    font-size: var(--font-size-body-s);
+  }
+}
+
 // Tarjetas (ion-card): blancas, con borde fino y esquinas de 8px, sin la
 // sombra ni los márgenes de Ionic (la separación la pone quien las coloca).
 // Relleno de 16px

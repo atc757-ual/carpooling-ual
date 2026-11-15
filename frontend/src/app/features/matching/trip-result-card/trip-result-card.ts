@@ -1,4 +1,5 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { MATCH_FIT_LABELS, MatchFit } from '../match-fit';
 import { RouterLink } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
@@ -18,7 +19,14 @@ import { formatWalkingDistance } from '../../../shared/utils/distance.util';
   styleUrl: './trip-result-card.scss',
 })
 export class TripResultCard {
+  private readonly travelPreferences = inject(TravelPreferencesStore);
+
   readonly trip = input.required<TripResult>();
+
+  // Las preferencias del conductor: en móvil las 3 primeras y +N; en escritorio todas
+  readonly preferences = computed(() =>
+    this.travelPreferences.format(this.trip().driver.preferences),
+  );
 
   // El pasajero ya tiene una solicitud viva en este viaje
   readonly isRequested = input(false);

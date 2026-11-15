@@ -22,12 +22,6 @@
            aria-describedby no llega al botón nativo de ion-button (shadow
            DOM). Lo que supone iniciar, en la confirmación -->
       <div class="driver-actions__block">
-        <!-- Si aún no se puede iniciar, por qué, encima del botón -->
-        @if (startHint(); as hint) {
-          <div class="notice notice--info" aria-hidden="true">
-            <span>{{ hint }}</span>
-          </div>
-        }
         <form (submit)="$event.preventDefault(); handleStart()">
           <ion-button type="submit" expand="block" [disabled]="!canStart() || isChangingStatus()">
             {{ isChangingStatus() ? 'Iniciando…' : 'Iniciar viaje' }}
@@ -36,6 +30,12 @@
             }
           </ion-button>
         </form>
+        <!-- Si aún no se puede iniciar, cuándo se podrá: una línea bajo el botón -->
+        @if (startHint(); as hint) {
+          <p class="driver-actions__hint text-caption text-color-muted" aria-hidden="true">
+            {{ hint }}
+          </p>
+        }
       </div>
 
       <!-- Anunciar las plazas libres en los grupos de clase (menú del sistema

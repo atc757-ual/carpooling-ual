@@ -17,9 +17,7 @@ describe('pickupFact', () => {
   });
 
   it('gives the pickup time at the passenger point', () => {
-    expect(pickupFact({ pickupDetourMinutes: 4, pickupTime: '07:52' })).toBe(
-      'A las 07:52, en tu punto',
-    );
+    expect(pickupFact({ pickupDetourMinutes: 4, pickupTime: '07:52' })).toBe('A las 07:52');
   });
 
   it('falls back to the detour plus the stop when there is no time', () => {

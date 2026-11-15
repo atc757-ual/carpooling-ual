@@ -1,9 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
+import { TravelPreferences } from '../../../core/models/travel-preferences.model';
 import { TripResult } from '../../../core/models/trip-result.model';
+import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
 import { TripResultCard } from './trip-result-card';
+
+// Las preferencias ya con su texto (el catálogo real lo prueba su store)
+const PREFERENCE_TEXTS = ['Charlar', 'Música suave', 'No se fuma', 'En transportín'];
+const PREFERENCES = {} as TravelPreferences;
 
 const TRIP: TripResult = {
   id: 'trip-1',
@@ -36,6 +42,12 @@ describe('TripResultCard', () => {
         provideIonicAngular(),
         provideRouter([]),
         { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
+        {
+          provide: TravelPreferencesStore,
+          useValue: {
+            format: (preferences?: TravelPreferences) => (preferences ? PREFERENCE_TEXTS : []),
+          },
+        },
       ],
     });
     const fixture = TestBed.createComponent(TripResultCard);
@@ -49,12 +61,11 @@ describe('TripResultCard', () => {
   const text = (root: HTMLElement, selector: string): string | undefined =>
     root.querySelector(selector)?.textContent?.trim();
 
-  it('shows times, free seats, route, the detour and when it leaves', () => {
+  it('shows times, free seats, the detour and when it leaves', () => {
     const root = render(TRIP);
 
     expect(text(root, '.trip-card__times')).toBe('07:40 → 08:12');
     expect(text(root, '.trip-card__seats')).toBe('2 plazas');
-    expect(text(root, '.trip-card__route')).toBe('Roquetas de Mar → Campus UAL · Parking P1');
     expect(text(root, '.trip-card__pickup')).toBe('Desvío de 3 min · sale a las 07:40');
     expect(root.querySelector('.trip-card')?.classList).toBeTruthy();
   });
@@ -83,8 +94,18 @@ describe('TripResultCard', () => {
   it('shows only the name of who drives (the rest, in the detail)', () => {
     const root = render(TRIP);
 
-    expect(text(root, '.trip-card__driver')).toBe('Conduce Lucía Cortés');
+    expect(text(root, '.trip-card__driver')).toBe('Conduce: Lucía Cortés');
     expect(root.querySelector('app-trip-driver')).toBeNull();
+    expect(root.querySelector('.trip-card__preferences')).toBeNull();
+  });
+
+  it('shows driver preferences with the remaining items in desktop and count badge in mobile', () => {
+    const root = render({ ...TRIP, driver: { ...TRIP.driver, preferences: PREFERENCES } });
+    const chips = [...root.querySelectorAll('.trip-card__preference')].map((chip) =>
+      chip.textContent?.trim(),
+    );
+
+    expect(chips).toEqual(['Charlar', 'Música suave', 'No se fuma', 'En transportín', '+1']);
   });
 
   it('links the row to the trip detail with a label that describes the trip', () => {
@@ -117,6 +138,6 @@ describe('TripResultCard', () => {
   it('highlights the best match only when told to', () => {
     expect(render(TRIP).querySelector('.trip-card__best')).toBeNull();
     TestBed.resetTestingModule();
-    expect(text(render(TRIP, { isBestMatch: true }), '.trip-card__best')).toBe('Mejor opción');
+    expect(text(render(TRIP, { isBestMatch: true }), '.trip-card__best')).toBe('Mejor coincidencia');
   });
 });
