@@ -113,6 +113,8 @@
                   aria-label="Ordenar viajes"
                   interface="popover"
                   fill="outline"
+                  label="Ordenar por"
+                  labelPlacement="floating"
                   [value]="sortOrder()"
                   (ionChange)="handleSortChange($event.detail.value)"
                 >

@@ -27,7 +27,9 @@
 .trip-card {
   position: relative;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-s) var(--space-base);
   border: var(--border-width-s) solid var(--color-border-subtle);
   border-left: 0.25rem solid var(--color-border-subtle); // 4px
   border-radius: var(--radius-s);
@@ -57,20 +59,33 @@
   border-left-color: var(--color-danger);
 }
 
-.trip-card__body {
+.trip-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  min-height: 1.25rem;
+}
+
+.trip-card__status {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+}
+
+.trip-card__main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.trip-card__content {
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  padding: var(--space-s) var(--space-base);
-}
-
-@media (min-width: 768px) {
-  .trip-card__body {
-    gap: var(--space-xs);
-    padding: var(--space-s) var(--space-base);
-  }
 }
 
 .trip-card__arrow {
@@ -78,9 +93,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-right: var(--space-base);
   color: var(--color-text-muted);
   font-size: 1.25rem; // 20px
+  align-self: center; // centrado verticalmente respecto al contenido
 
   ion-icon {
     transition: transform var(--transition-fast, 0.15s ease), color var(--transition-fast, 0.15s ease);
@@ -88,16 +103,8 @@
 }
 
 .trip-card__driver {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2xs);
   margin: 0;
-
-  ion-icon {
-    flex: none;
-    font-size: 1rem;
-    color: var(--color-text-muted);
-  }
+  line-height: 1.3;
 }
 
 // Las preferencias del conductor: píldoras como en el detalle, en una fila
@@ -138,14 +145,6 @@
   display: flex;
   align-items: center;
   gap: var(--space-base);
-}
-
-// Horas a la izquierda y plazas a la derecha
-.trip-card__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-s);
 }
 
 .trip-card__times {

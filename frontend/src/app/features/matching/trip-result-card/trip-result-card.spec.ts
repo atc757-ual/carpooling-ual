@@ -94,7 +94,7 @@ describe('TripResultCard', () => {
   it('shows only the name of who drives (the rest, in the detail)', () => {
     const root = render(TRIP);
 
-    expect(text(root, '.trip-card__driver')).toBe('Conduce Lucía Cortés');
+    expect(text(root, '.trip-card__driver')).toBe('Conduce: Lucía Cortés');
     expect(root.querySelector('app-trip-driver')).toBeNull();
     expect(root.querySelector('.trip-card__preferences')).toBeNull();
   });
@@ -138,6 +138,6 @@ describe('TripResultCard', () => {
   it('highlights the best match only when told to', () => {
     expect(render(TRIP).querySelector('.trip-card__best')).toBeNull();
     TestBed.resetTestingModule();
-    expect(text(render(TRIP, { isBestMatch: true }), '.trip-card__best')).toBe('Mejor opción');
+    expect(text(render(TRIP, { isBestMatch: true }), '.trip-card__best')).toBe('Mejor coincidencia');
   });
 });

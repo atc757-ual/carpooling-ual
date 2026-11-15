@@ -1,19 +1,14 @@
-<!-- Una fila de la lista de resultados; el borde de abajo, del color de cómo
+<!-- Una fila de la lista de resultados; el borde de la izquierda, del color de cómo
      encaja con la búsqueda (con su texto para los lectores de pantalla) -->
 <article class="trip-card" [class]="'trip-card--' + fit()">
-  <div class="trip-card__body">
-    <span class="visually-hidden">{{ fitLabel() }}.</span>
+  <span class="visually-hidden">{{ fitLabel() }}.</span>
+
+  <!-- Fila superior: Mejor coincidencia a la izquierda, última plaza / estado al extremo derecho -->
+  <div class="trip-card__top">
     @if (isBestMatch()) {
-      <div class="trip-card__best">Mejor opción</div>
+      <span class="trip-card__best">Mejor coincidencia</span>
     }
-    <div class="trip-card__head">
-      <!-- El enlace cubre toda la tarjeta (::after); la valoración queda encima -->
-      <a
-        class="trip-card__link trip-card__times"
-        [routerLink]="['/tabs/search/trips', trip().id]"
-        [attr.aria-label]="linkLabel()"
-        >{{ trip().departureTime }} → {{ trip().arrivalTime }}</a
-      >
+    <div class="trip-card__status">
       @if (isRequested()) {
         <span class="status status--info">Ya solicitado</span>
       } @else if (isLastSeat()) {
@@ -24,43 +19,55 @@
         </span>
       }
     </div>
-
-    <!-- Del conductor, solo el nombre: el resto (valoración, viajes, coche), en
-         el detalle -->
-    <p class="trip-card__driver text-body-s text-color-muted">
-      <ion-icon [icon]="personIcon" aria-hidden="true" />
-      <span>Conduce {{ trip().driver.name }}</span>
-    </p>
-
-    <!-- Sus preferencias de viaje: en móvil las 3 primeras y +N; en escritorio todas -->
-    @if (preferences().length > 0) {
-      <ul class="trip-card__preferences" aria-label="Preferencias del conductor">
-        @for (preference of preferences(); track preference; let idx = $index) {
-          <li
-            class="trip-card__preference"
-            [class.trip-card__preference--desktop-only]="idx >= 3"
-          >
-            {{ preference }}
-          </li>
-        }
-        @if (preferences().length > 3) {
-          <li class="trip-card__preference trip-card__preference--more">
-            +{{ preferences().length - 3 }}
-          </li>
-        }
-      </ul>
-    }
-
-    <!-- Abajo: dónde te recoge -->
-    <div class="trip-card__foot">
-      <div class="trip-card__pickup">
-        <ion-icon [icon]="timeIcon" aria-hidden="true" />
-        <span>{{ pickupMetaLabel() }}</span>
-      </div>
-    </div>
   </div>
 
-  <div class="trip-card__arrow" aria-hidden="true">
-    <ion-icon [icon]="chevronIcon" />
+  <div class="trip-card__main">
+    <div class="trip-card__content">
+      <!-- El enlace cubre toda la tarjeta (::after); la valoración queda encima -->
+      <a
+        class="trip-card__link trip-card__times"
+        [routerLink]="['/tabs/search/trips', trip().id]"
+        [attr.aria-label]="linkLabel()"
+        >{{ trip().departureTime }} → {{ trip().arrivalTime }}</a
+      >
+
+      <!-- Del conductor, solo el nombre: el resto (valoración, viajes, coche), en
+           el detalle -->
+      <p class="trip-card__driver text-body-s text-color-muted">
+        Conduce: {{ trip().driver.name }}
+      </p>
+
+      <!-- Dónde te recoge / en su ruta -->
+      <div class="trip-card__foot">
+        <div class="trip-card__pickup">
+          <ion-icon [icon]="timeIcon" aria-hidden="true" />
+          <span>{{ pickupMetaLabel() }}</span>
+        </div>
+      </div>
+
+      <!-- Sus preferencias de viaje: en móvil las 3 primeras y +N; en escritorio todas -->
+      @if (preferences().length > 0) {
+        <ul class="trip-card__preferences" aria-label="Preferencias del conductor">
+          @for (preference of preferences(); track preference; let idx = $index) {
+            <li
+              class="trip-card__preference"
+              [class.trip-card__preference--desktop-only]="idx >= 3"
+            >
+              {{ preference }}
+            </li>
+          }
+          @if (preferences().length > 3) {
+            <li class="trip-card__preference trip-card__preference--more">
+              +{{ preferences().length - 3 }}
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- Flecha a la derecha, debajo del tag de última plaza, centrada verticalmente -->
+    <div class="trip-card__arrow" aria-hidden="true">
+      <ion-icon [icon]="chevronIcon" />
+    </div>
   </div>
 </article>
