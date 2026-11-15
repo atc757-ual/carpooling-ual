@@ -90,10 +90,15 @@ describe('Detour budget of a trip (e2e)', () => {
         destination: UAL_CAMPUS,
         departureAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         offeredSeats: 3,
-        maxDetourMin,
       })
       .expect(201);
-    return { driver, tripId: (trip.body as { id: string }).id };
+    const tripId = (trip.body as { id: string }).id;
+    // El desvío lo calcula el sistema: para probar el presupuesto, se fija aquí
+    await dataSource.query(
+      `UPDATE trips SET max_detour_min = $2 WHERE id = $1`,
+      [tripId, maxDetourMin],
+    );
+    return { driver, tripId };
   }
 
   async function requestFrom(

@@ -14,7 +14,7 @@ import {
   TravelPreferences,
 } from '../../../core/models/travel-preferences.model';
 import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
-import { User } from '../../../core/models/user.model';
+import { UpdateMeRequest, User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { UsersService } from '../../../core/services/users/users.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -35,6 +35,7 @@ export class ProfilePreferencesModal implements OnInit {
   private readonly toast = inject(ToastService);
 
   @Input() user: User | null = null;
+  @Input() showTolerance = true;
 
   readonly conversation = signal<ConversationPreference | null>(null);
   readonly music = signal<MusicPreference | null>(null);
@@ -101,10 +102,11 @@ export class ProfilePreferencesModal implements OnInit {
         smoking: this.smoking(),
         pets: this.pets(),
       };
-      const updated = await this.usersService.updateMe({
+      const payload: UpdateMeRequest = {
         preferences,
-        timeToleranceMin: this.timeTolerance(),
-      });
+        ...(this.showTolerance ? { timeToleranceMin: this.timeTolerance() } : {}),
+      };
+      const updated = await this.usersService.updateMe(payload);
       this.auth.updateUser(updated);
       void this.toast.showSuccess('Preferencias actualizadas.');
       await this.modalController.dismiss(null, 'saved');

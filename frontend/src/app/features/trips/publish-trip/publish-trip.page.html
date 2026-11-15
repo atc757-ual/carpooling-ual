@@ -98,26 +98,9 @@
                         [mapCenter]="tripValueStart()"
                       />
                     }
-                    <!-- Desvío y, a la derecha del campo, «Siguiente» (qué es el
-                     desvío, en las preguntas frecuentes) -->
-                    <div class="publish__grid publish__grid--action">
-                      <span
-                        class="publish__action-label text-label text-label--strong"
-                        aria-hidden="true"
-                      >
-                        Tiempo máximo de desvío
-                      </span>
-                      <ion-select
-                        class="publish__select publish__action-field"
-                        formControlName="maxDetourMin"
-                        interface="popover"
-                        fill="outline"
-                        aria-label="Tiempo máximo de desvío"
-                      >
-                        @for (detour of detours; track detour) {
-                          <ion-select-option [value]="detour">± {{ detour }} min</ion-select-option>
-                        }
-                      </ion-select>
+                    <!-- El margen para recoger lo calcula el sistema (con las
+                         plazas y los metros, o con las paradas): sin campo -->
+                    <div class="publish__actions">
                       <ion-button
                         class="publish__next"
                         type="submit"
@@ -236,9 +219,9 @@
                         <span>
                           <b>¡Enhorabuena! Has publicado un viaje.</b> Ofreces
                           {{ trip.offeredSeats }}
-                          {{ trip.offeredSeats === 1 ? 'plaza' : 'plazas' }} con un desvío máximo de
-                          {{ trip.maxDetourMin }} min. Te avisaremos de cada solicitud para que la
-                          aceptes o la rechaces.
+                          {{ trip.offeredSeats === 1 ? 'plaza' : 'plazas' }}, con
+                          {{ trip.maxDetourMin }} min de margen para recoger. Te avisaremos de cada
+                          solicitud para que la aceptes o la rechaces.
                           @if (trip.returnTrip) {
                             También has publicado la vuelta: la ves aparte en Tus viajes.
                           }
@@ -296,8 +279,8 @@
                         datos y el vehículo debajo -->
             <p class="publish__meta text-body-s">
               {{ dateLabel() }} · {{ tripForm.controls.seats.value }}
-              {{ tripForm.controls.seats.value === 1 ? 'plaza' : 'plazas' }} · desvío ±
-              {{ tripForm.controls.maxDetourMin.value }} min
+              {{ tripForm.controls.seats.value === 1 ? 'plaza' : 'plazas' }} ·
+              {{ detourBudget() }} min de margen para recoger
             </p>
             @if (publishedStops().length > 0) {
               <!-- Ya publicado: las paradas en orden, con su hora -->

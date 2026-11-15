@@ -4,7 +4,6 @@ import { EntityManager, In, Repository } from 'typeorm';
 import type { Point } from 'typeorm';
 import { CampusParkingsService } from '../places/campus-parkings.service';
 import { TripPickup } from './entities/trip-pickup.entity';
-import { TripRoute } from './entities/trip-route.entity';
 import { TripStop } from './entities/trip-stop.entity';
 import type { Trip, TripPickupMode } from './entities/trip.entity';
 import { InvalidStopsError } from './errors/invalid-stops.error';
@@ -13,7 +12,11 @@ import { orderPickups, stopPickupOffsets, usedDetourMin } from './pickup-plan';
 import type { RoutePlan } from './route-plan';
 import { CAMPUS_RADIUS_M } from './trip-candidates.service';
 import { TripRoutesService } from './trip-routes.service';
-import { MAX_TRIP_STOPS, MINUTE_MS } from './trip-timing';
+import {
+  MAX_STOPS_ROUTE_DETOUR_MIN,
+  MAX_TRIP_STOPS,
+  MINUTE_MS,
+} from './trip-timing';
 
 export interface StopInput {
   name: string;
@@ -30,6 +33,8 @@ export interface PlannedStop extends StopInput {
 export interface PublishedRoute {
   route: RoutePlan;
   directDurationMin: number;
+  // Lo que alargan la ruta las paradas (0 recogiendo en ruta)
+  routeDetourMin: number;
   stops: PlannedStop[];
 }
 
@@ -57,16 +62,13 @@ export class TripStopsService {
   // Antes de la transacción (OSRM). En ruta, la directa y sin paradas; en
   // puntos, ordena las paradas a lo largo de la ruta directa, pide la ruta
   // que pasa por todas y comprueba que su desvío cabe en el presupuesto
-  async planRoute(
-    trip: {
-      origin: Point;
-      destination: Point;
-      pickupMode?: TripPickupMode;
-      maxDetourM?: number | null;
-      stops?: readonly StopInput[];
-    },
-    maxDetourMin: number,
-  ): Promise<PublishedRoute> {
+  async planRoute(trip: {
+    origin: Point;
+    destination: Point;
+    pickupMode?: TripPickupMode;
+    maxDetourM?: number | null;
+    stops?: readonly StopInput[];
+  }): Promise<PublishedRoute> {
     const direct = await this.tripRoutes.plan(trip.origin, trip.destination);
     if (trip.pickupMode !== 'stops') {
       if (trip.stops !== undefined && trip.stops.length > 0) {
@@ -75,6 +77,7 @@ export class TripStopsService {
       return {
         route: direct,
         directDurationMin: direct.durationMin,
+        routeDetourMin: 0,
         stops: [],
       };
     }
@@ -95,13 +98,14 @@ export class TripStopsService {
         stops: 0,
       }),
     );
-    if (detourMin > maxDetourMin) {
-      throw new StopsExceedDetourError(detourMin, maxDetourMin);
+    if (detourMin > MAX_STOPS_ROUTE_DETOUR_MIN) {
+      throw new StopsExceedDetourError(detourMin, MAX_STOPS_ROUTE_DETOUR_MIN);
     }
     let elapsedMin = 0;
     return {
       route,
       directDurationMin: direct.durationMin,
+      routeDetourMin: detourMin,
       stops: ordered.map(({ name, location }, position) => {
         elapsedMin += legsMin[position];
         return {
@@ -129,17 +133,15 @@ export class TripStopsService {
 
   // Al modificar un viaje con paradas: las paradas dependen de la ruta (se
   // cancela y se vuelve a publicar para moverlo), los metros solo son de la
-  // recogida en ruta y el desvío nuevo tiene que cubrir el que ya se gasta
-  async assertChangesFit(
-    manager: EntityManager,
-    trip: Pick<Trip, 'id' | 'pickupMode'>,
+  // recogida en ruta
+  assertChangesFit(
+    trip: Pick<Trip, 'pickupMode'>,
     changes: {
       origin?: Point;
       destination?: Point;
       maxDetourM?: number | null;
-      maxDetourMin?: number;
     },
-  ): Promise<void> {
+  ): void {
     if (trip.pickupMode !== 'stops') {
       return;
     }
@@ -150,23 +152,6 @@ export class TripStopsService {
     }
     if (changes.maxDetourM !== undefined) {
       throw new InvalidStopsError('maxDetourM only applies on the route');
-    }
-    if (changes.maxDetourMin === undefined) {
-      return;
-    }
-    const [route, pickups] = await Promise.all([
-      manager.findOneByOrFail(TripRoute, { tripId: trip.id }),
-      manager.find(TripPickup, { where: { tripId: trip.id } }),
-    ]);
-    const usedMin = Math.round(
-      usedDetourMin({
-        durationMin: route.durationMin,
-        directDurationMin: route.directDurationMin,
-        stops: new Set(pickups.map(({ stopId }) => stopId)).size,
-      }),
-    );
-    if (usedMin > changes.maxDetourMin) {
-      throw new StopsExceedDetourError(usedMin, changes.maxDetourMin);
     }
   }
 

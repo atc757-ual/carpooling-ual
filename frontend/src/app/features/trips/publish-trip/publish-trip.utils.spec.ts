@@ -8,6 +8,7 @@ import {
   estimateDepartureTime,
   toIsoDateTime,
   toPublishTripRequest,
+  estimateDetourBudget,
 } from './publish-trip.utils';
 
 const P1: CampusParking = {
@@ -96,7 +97,6 @@ describe('publish-trip utils', () => {
       time: '07:40',
       vehicleId: 'v1',
       seats: 2,
-      maxDetourMin: 10,
       pickupMode: 'on_route' as const,
       maxDetourM: 300,
       stops: [],
@@ -108,7 +108,6 @@ describe('publish-trip utils', () => {
       destination: P1.location,
       arrivalAt: toIsoDateTime('2099-01-15', '07:40'),
       offeredSeats: 2,
-      maxDetourMin: 10,
       pickupMode: 'on_route',
       maxDetourM: 300,
       originName: 'Roquetas de Mar',
@@ -144,5 +143,17 @@ describe('publish-trip utils', () => {
       pickupMode: 'on_route',
       maxDetourM: 300,
     });
+  });
+
+  it('estimates the margin to pick up like the backend', () => {
+    const onRoute = { isStops: false, stopCount: 0 };
+    // 3 plazas a 300 m: 3 × (2 + 2); a 500 m, 3 × (2 + 3)
+    expect(estimateDetourBudget({ ...onRoute, offeredSeats: 3, maxDetourM: 300 })).toBe(12);
+    expect(estimateDetourBudget({ ...onRoute, offeredSeats: 3, maxDetourM: 500 })).toBe(15);
+    expect(estimateDetourBudget({ ...onRoute, offeredSeats: 1, maxDetourM: undefined })).toBe(4);
+    // En paradas, unos 4 min por parada
+    expect(
+      estimateDetourBudget({ isStops: true, offeredSeats: 3, maxDetourM: null, stopCount: 2 }),
+    ).toBe(8);
   });
 });

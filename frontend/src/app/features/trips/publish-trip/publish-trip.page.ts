@@ -14,8 +14,6 @@ import {
   IonCardContent,
   IonContent,
   IonIcon,
-  IonSelect,
-  IonSelectOption,
   IonSpinner,
   ModalController,
 } from '@ionic/angular';
@@ -69,6 +67,7 @@ import {
   buildStops,
   estimateDepartureAt,
   estimateDepartureTime,
+  estimateDetourBudget,
   estimateDriverImpact,
   formatDateLabel,
   toPublishTripRequest,
@@ -79,8 +78,6 @@ import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-p
 import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colors.store';
 import { ProfilePreferencesModal } from '../../profile/profile-preferences-modal/profile-preferences-modal';
 
-export const DETOURS = [5, 10, 15, 20] as const;
-const DEFAULT_DETOUR = 10;
 // Plazo mínimo para publicar; el valor inicial se redondea al siguiente
 // intervalo de 5 min para mantener al menos una hora de antelación.
 const PUBLISH_LEAD_MINUTES = 60;
@@ -136,8 +133,6 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
     IonCardContent,
     IonContent,
     IonIcon,
-    IonSelect,
-    IonSelectOption,
     IonSpinner,
     DatetimeField,
     DeclarationField,
@@ -191,7 +186,6 @@ export class PublishTripPage implements OnInit {
     time: [this.initialDeparture.time],
     vehicleId: ['', Validators.required],
     seats: [1, [Validators.required, Validators.min(1)]],
-    maxDetourMin: [DEFAULT_DETOUR],
     // Cómo recoge (solo hacia el campus): en el camino o en sus paradas
     pickupMode: new FormControl<PickupMode>('on_route', { nonNullable: true }),
     maxDetourM: [DEFAULT_PICKUP_DISTANCE_M],
@@ -245,6 +239,25 @@ export class PublishTripPage implements OnInit {
   // Hacia el campus se elige la llegada (como en Buscar); desde él, la salida
   readonly isArrivalTime = computed(() => this.tripValue().isToCampus ?? true);
   // Donde se abre el mapa al elegir una parada: la dirección de salida
+  // Margen para recoger (desvío máximo del viaje), como lo calcula el backend:
+  // con las plazas y los metros, o con las paradas; ya publicado, el suyo
+  readonly detourBudget = computed(() => {
+    const published = this.published();
+    if (published) return published.maxDetourMin;
+    const {
+      seats = 1,
+      pickupMode = 'on_route',
+      maxDetourM,
+      stops = [],
+      isToCampus = true,
+    } = this.tripValue();
+    return estimateDetourBudget({
+      isStops: isToCampus && pickupMode === 'stops',
+      offeredSeats: Number(seats),
+      maxDetourM,
+      stopCount: stops.length,
+    });
+  });
   readonly tripValueStart = computed(() => this.tripValue().place?.coordinates ?? null);
   // En paradas hace falta al menos una para seguir
   readonly isMissingStops = computed(() => {
@@ -289,8 +302,9 @@ export class PublishTripPage implements OnInit {
   // Hacia el campus, la salida aproximada para llegar a tiempo aunque recoja
   // a alguien (null hasta tener el trayecto)
   readonly estimatedDepartureTime = computed(() => {
-    const { place, isToCampus = true, time, maxDetourMin = DEFAULT_DETOUR } = this.tripValue();
+    const { place, isToCampus = true, time } = this.tripValue();
     const parking = this.selectedParking();
+    const maxDetourMin = this.detourBudget();
     return isToCampus && place && parking && time
       ? estimateDepartureTime(place, parking, { time, maxDetourMin })
       : null;
@@ -321,13 +335,8 @@ export class PublishTripPage implements OnInit {
   // La salida como fecha: la elegida o, hacia el campus, la aproximada (null
   // mientras falte la fecha, la hora o, hacia el campus, el trayecto)
   private estimatedDepartureAt(): Date | null {
-    const {
-      place,
-      date,
-      time,
-      isToCampus = true,
-      maxDetourMin = DEFAULT_DETOUR,
-    } = this.tripValue();
+    const { place, date, time, isToCampus = true } = this.tripValue();
+    const maxDetourMin = this.detourBudget();
     const parking = this.selectedParking();
     if (!date || !time) {
       return null;
@@ -413,7 +422,8 @@ export class PublishTripPage implements OnInit {
   // Paradas del viaje, con la llegada aproximada: para la revisión y al
   // publicar
   readonly stops = computed(() => {
-    const { place, isToCampus = true, time = '', maxDetourMin = DEFAULT_DETOUR } = this.tripValue();
+    const { place, isToCampus = true, time = '' } = this.tripValue();
+    const maxDetourMin = this.detourBudget();
     const parking = this.selectedParking();
     // Ya publicado, la salida que calculó el backend con la ruta
     const published = this.published();
@@ -433,7 +443,7 @@ export class PublishTripPage implements OnInit {
     const modal = await this.modalController.create({
       component: ProfilePreferencesModal,
       cssClass: 'info-dialog',
-      componentProps: { user: this.auth.currentUser() },
+      componentProps: { user: this.auth.currentUser(), showTolerance: false },
     });
     await modal.present();
   }
@@ -502,7 +512,6 @@ export class PublishTripPage implements OnInit {
         time: departure.time,
         vehicleId: '',
         seats: 1,
-        maxDetourMin: DEFAULT_DETOUR,
         pickupMode: 'on_route',
         maxDetourM: DEFAULT_PICKUP_DISTANCE_M,
         stops: [],
@@ -529,7 +538,6 @@ export class PublishTripPage implements OnInit {
   );
 
   protected readonly parkings = this.places.parkings;
-  protected readonly detours = DETOURS;
   protected readonly steps = STEPS;
   protected readonly faqs = PUBLISH_FAQS;
   protected readonly minDate = toIsoDate(new Date());

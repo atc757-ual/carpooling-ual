@@ -136,51 +136,6 @@
   align-items: start;
 }
 
-// El desvío: la etiqueta y el campo con «Siguiente» a su derecha (llena el
-// hueco de la columna; qué es el desvío, en las preguntas). En el móvil
-// estrecho, apilados y el botón al final
-.publish__grid--action {
-  grid-template-areas:
-    'label .'
-    'field action';
-  row-gap: var(--space-s);
-  align-items: center;
-}
-
-.publish__action-label {
-  grid-area: label;
-}
-
-.publish__action-field {
-  grid-area: field;
-}
-
-.publish__grid--action .publish__next {
-  grid-area: action;
-}
-
-@container (max-width: 419px) {
-  .publish__grid--action {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'label' 'field' 'action';
-  }
-
-  // «Siguiente», separado del desplegable del desvío (8px más)
-  .publish__grid--action .publish__next {
-    margin-top: var(--space-s);
-  }
-}
-
-// Desplegables a todo el ancho, con la flecha a la derecha (el texto ocupa el
-// hueco que queda), como los de Buscar
-.publish__select {
-  width: 100%;
-}
-
-.publish__select::part(container) {
-  flex: 1;
-}
-
 // Ahorro aproximado: aviso verde claro con la hoja y las cifras en negrita
 .publish__impact {
   align-items: flex-start;
@@ -256,11 +211,12 @@
 }
 
 .publish__preference {
-  padding: 0.125rem var(--space-s); // 2px arriba y abajo
-  border-radius: var(--radius-full);
+  padding: 2px 4px;
+  border-radius: var(--radius-s);
   background: var(--color-primary-subtle);
   color: var(--color-text);
   font-size: var(--font-size-caption);
+  white-space: nowrap;
 }
 
 .publish__preferences-link {

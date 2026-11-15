@@ -89,7 +89,7 @@ describe('Matching API (e2e)', () => {
         destination: (parking.body as { location: unknown }).location,
         departureAt,
         offeredSeats: 2,
-        maxDetourMin: 15,
+        maxDetourM: 500,
       })
       .expect(201);
     tripId = (trip.body as { id: string }).id;
@@ -198,7 +198,7 @@ describe('Matching API (e2e)', () => {
         destination: campusLocation,
         departureAt: new Date(Date.now() + 24 * 60 * MINUTES),
         offeredSeats: 3,
-        maxDetourMin: 15,
+        maxDetourM: 500,
       })
       .expect(201);
 

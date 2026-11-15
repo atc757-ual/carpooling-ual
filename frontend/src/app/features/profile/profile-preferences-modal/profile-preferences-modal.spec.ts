@@ -100,6 +100,24 @@ describe('ProfilePreferencesModal', () => {
     expect(dismiss).toHaveBeenCalledWith(null, 'saved');
   });
 
+  it('submits updated preferences without timeToleranceMin when showTolerance is false', async () => {
+    component.showTolerance = false;
+    component.toggleOption('smoking', 'yes');
+
+    await component.handleSubmit();
+
+    expect(updateMe).toHaveBeenCalledWith({
+      preferences: {
+        conversation: 'chatty',
+        music: 'soft',
+        smoking: 'yes',
+        pets: 'none',
+      },
+    });
+    expect(showSuccess).toHaveBeenCalled();
+    expect(dismiss).toHaveBeenCalledWith(null, 'saved');
+  });
+
   it('dismisses modal on close', () => {
     component.close();
     expect(dismiss).toHaveBeenCalledWith(null, 'cancel');

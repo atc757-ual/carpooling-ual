@@ -128,7 +128,8 @@ describe('TripsService (e2e)', () => {
         destination: UAL_CAMPUS,
         offeredSeats: 3,
         availableSeats: 3,
-        maxDetourMin: 10,
+        // Calculado: 3 plazas a 300 m, 3 × (2 + 2)
+        maxDetourMin: 12,
         status: 'published',
       });
       const events = await eventsOf(trip.id);
@@ -277,13 +278,15 @@ describe('TripsService (e2e)', () => {
 
       const { trip: updated } = await tripsService.update(driverId, trip.id, {
         offeredSeats: 2,
-        maxDetourMin: 5,
+        maxDetourM: 150,
       });
 
+      // Con otras plazas y otros metros, el desvío se recalcula: 2 × (2 + 1)
       expect(updated).toMatchObject({
         offeredSeats: 2,
         availableSeats: 2,
-        maxDetourMin: 5,
+        maxDetourM: 150,
+        maxDetourMin: 6,
       });
       expect((await eventsOf(trip.id)).map(({ type }) => type)).toEqual([
         'trip.published',

@@ -48,6 +48,37 @@ export const STOP_TIME_MIN = 2;
 // Modo en ruta: cuánto se aparta el conductor de su camino para recoger
 export const ALLOWED_MAX_DETOUR_M = [150, 300, 500] as const;
 export const DEFAULT_MAX_DETOUR_M = 300;
+
+// El desvío máximo del viaje lo calcula el sistema (decidido con el autor el
+// 15/11/2026; antes lo elegía el conductor entre 5 y 20 min, que no tenía
+// sentido recogiendo a 150-500 m o en paradas). En ruta: cada plaza, su
+// parada y el rodeo de ir y volver a la ruta según cuánto se aparta (a unos
+// 20 km/h por ciudad); en paradas: el rodeo de la ruta por ellas y su parada
+const PICKUP_DETOUR_MIN_BY_RADIUS: Readonly<Record<number, number>> = {
+  150: 1,
+  300: 2,
+  500: 3,
+};
+// Las paradas no pueden alargar la ruta más que esto (STOPS_EXCEED_DETOUR):
+// una parada a desmano deja de ser «en el camino»
+export const MAX_STOPS_ROUTE_DETOUR_MIN = 10;
+
+export function detourBudgetMin(trip: {
+  isStops: boolean;
+  offeredSeats: number;
+  maxDetourM: number | null | undefined;
+  // En paradas: lo que alargan la ruta y cuántas hay
+  routeDetourMin: number;
+  stopCount: number;
+}): number {
+  if (trip.isStops) {
+    return Math.round(trip.routeDetourMin) + STOP_TIME_MIN * trip.stopCount;
+  }
+  const pickupMin =
+    PICKUP_DETOUR_MIN_BY_RADIUS[trip.maxDetourM ?? DEFAULT_MAX_DETOUR_M] ??
+    PICKUP_DETOUR_MIN_BY_RADIUS[DEFAULT_MAX_DETOUR_M];
+  return trip.offeredSeats * (STOP_TIME_MIN + pickupMin);
+}
 // Modo en puntos: paradas por viaje y distancia a pie hasta una parada
 export const MAX_TRIP_STOPS = 5;
 export const WALK_RADIUS_M = 800;
