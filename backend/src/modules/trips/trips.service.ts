@@ -379,7 +379,7 @@ export class TripsService {
       if (current.status === 'in_progress') {
         throw new TripAlreadyStartedError(current.id);
       }
-      // Con pasajeros y a menos de 30 minutos, se registra como tardía (cuenta
+      // Con pasajeros y a menos de 20 minutos, se registra como tardía (cuenta
       // para suspender la publicación)
       const isLate = isLateDriverCancellation(current, new Date());
       // Avisa a los suscriptores: las solicitudes se cancelan con el viaje

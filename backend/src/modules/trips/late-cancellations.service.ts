@@ -16,7 +16,8 @@ import {
   LATE_CANCELLATIONS_TO_SUSPEND,
   MINUTE_MS,
   PUBLISHING_SUSPENSION_DAYS,
-  LATE_CANCELLATION_LEAD_MIN,
+  DRIVER_LATE_CANCELLATION_LEAD_MIN,
+  PASSENGER_LATE_CANCELLATION_LEAD_MIN,
 } from './trip-timing';
 
 // Cancelaciones tardías del conductor en los últimos 30 días y, si las hay
@@ -133,24 +134,25 @@ function minutesToDeparture(trip: Trip, now: Date): number {
 }
 
 // Si cancelar este viaje ahora es tardío: tiene pasajeros aceptados
-// (confirmado) y faltan menos de 30 minutos para la salida
+// (confirmado) y faltan menos de 20 minutos para la salida
 export function isLateDriverCancellation(trip: Trip, now: Date): boolean {
   return (
     trip.status === 'confirmed' &&
-    minutesToDeparture(trip, now) < LATE_CANCELLATION_LEAD_MIN
+    minutesToDeparture(trip, now) < DRIVER_LATE_CANCELLATION_LEAD_MIN
   );
 }
 
 // Si el pasajero suelta tarde su plaza: la tenía aceptada y faltan menos de
-// 30 minutos para la salida (la misma regla que el conductor). Cancelar una
-// solicitud pendiente nunca es tardío
+// 10 minutos para la salida, cuando ya nadie puede pedir esa plaza. Cancelar
+// una solicitud pendiente nunca es tardío
 export function isLatePassengerCancellation(
   trip: Trip,
   wasAccepted: boolean,
   now: Date,
 ): boolean {
   return (
-    wasAccepted && minutesToDeparture(trip, now) < LATE_CANCELLATION_LEAD_MIN
+    wasAccepted &&
+    minutesToDeparture(trip, now) < PASSENGER_LATE_CANCELLATION_LEAD_MIN
   );
 }
 

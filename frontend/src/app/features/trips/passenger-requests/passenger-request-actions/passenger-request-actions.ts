@@ -23,6 +23,11 @@ import { getFirstName } from '../../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../../matching/trip-results';
 import { TripSearchStateService } from '../../../matching/trip-search-state.service';
 import { PassengerIncidentModal } from '../passenger-incident-modal/passenger-incident-modal';
+import {
+  freeCancellationUntil,
+  isWithinLeadMinutes,
+  PASSENGER_LATE_CANCELLATION_LEAD_MIN,
+} from '../../late-cancellation';
 
 // Columna de 4 en el detalle de la solicitud del pasajero: «Acciones de tu
 // solicitud» (chat, cancelar con lo que cuesta cancelar, desactivadas con su
@@ -102,12 +107,15 @@ export class PassengerRequestActions {
     if (this.request().status !== 'accepted' || !this.canCancel()) {
       return false;
     }
-    const departureTime = new Date(this.trip().departureAt).getTime();
-    return departureTime - this.now() < 30 * 60 * 1000;
+    return isWithinLeadMinutes(
+      this.trip().departureAt,
+      PASSENGER_LATE_CANCELLATION_LEAD_MIN,
+      this.now(),
+    );
   });
 
   // Lo que cuesta cancelar, antes del botón (si aún no es tardía): pendiente,
-  // nada; con plaza, nada hasta 30 min antes de la salida
+  // nada; con plaza, nada hasta 10 min antes de la salida
   readonly cancelCost = computed(() => {
     if (!this.canCancel() || this.cancellationIsLate()) {
       return null;
@@ -116,9 +124,9 @@ export class PassengerRequestActions {
       return 'Puedes cancelarla sin coste.';
     }
     const freeUntil = formatTime(
-      new Date(new Date(this.trip().departureAt).getTime() - 30 * 60 * 1000).toISOString(),
+      freeCancellationUntil(this.trip().departureAt, PASSENGER_LATE_CANCELLATION_LEAD_MIN),
     );
-    return `Sin coste hasta las ${freeUntil} (30 min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder pedir plaza.`;
+    return `Sin coste hasta las ${freeUntil} (${PASSENGER_LATE_CANCELLATION_LEAD_MIN} min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder pedir plaza.`;
   });
 
   readonly closedReason = computed(() => {
@@ -176,7 +184,7 @@ export class PassengerRequestActions {
     let message: string;
     if (isAccepted) {
       message = isLate
-        ? 'Faltan menos de 30 minutos para la salida. La plaza quedará libre para otra persona, pero contará como cancelación tardía.'
+        ? 'Faltan menos de 10 minutos para la salida. La plaza quedará libre para otra persona, pero contará como cancelación tardía.'
         : 'La plaza volverá a estar disponible para otra persona. Puedes buscar otro viaje cuando quieras.';
     } else {
       message = `${getFirstName(trip.driver.name)} dejará de verla. Puedes volver a solicitar si sigue habiendo plazas.`;
