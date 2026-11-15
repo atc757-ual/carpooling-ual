@@ -40,7 +40,7 @@ describe('TripReviewForm', () => {
 
     radios[3].click();
     fixture.detectChanges();
-    expect(root.textContent).toContain('4 de 5 · Bien');
+    expect(root.textContent).toContain('4 · Bien');
     expect(root.querySelectorAll('.trip-review__point--on')).toHaveLength(4);
     form.comment.set('  Muy puntual  ');
     await form.handleSend();

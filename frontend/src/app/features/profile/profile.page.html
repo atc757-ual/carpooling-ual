@@ -217,10 +217,16 @@
               @for (row of reviewRows(); track row.role) {
                 <div class="profile__review-row">
                   <span class="text-body text-body--strong">{{ row.role }}</span>
-                  <span class="text-body">
-                    <app-rating-bar size="small" [rating]="row.value" />
-                    {{ row.average }} de 5
-                    <span class="text-color-muted">· {{ row.count }}</span>
+                  <span class="profile__review-score">
+                    <ion-icon
+                      class="profile__review-thumb"
+                      [class.profile__review-thumb--up]="row.value >= 3"
+                      [class.profile__review-thumb--down]="row.value < 3"
+                      [icon]="row.value >= 3 ? thumbsUpIcon : thumbsDownIcon"
+                      aria-hidden="true"
+                    />
+                    <span class="text-body">{{ row.average }}</span>
+                    <span class="text-color-muted">{{ row.count }}</span>
                   </span>
                 </div>
               } @empty {

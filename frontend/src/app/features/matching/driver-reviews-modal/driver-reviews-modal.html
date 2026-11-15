@@ -17,7 +17,13 @@
       <section class="driver-reviews__summary" aria-label="Resumen de valoraciones">
         <div class="driver-reviews__average">
           <span class="driver-reviews__average-value">{{ average }}</span>
-          <app-rating-bar [rating]="rating()?.average ?? 0" />
+          <ion-icon
+            class="driver-reviews__thumb"
+            [class.driver-reviews__thumb--up]="(rating()?.average ?? 0) >= 3"
+            [class.driver-reviews__thumb--down]="(rating()?.average ?? 0) < 3"
+            [icon]="(rating()?.average ?? 0) >= 3 ? upIcon : downIcon"
+            aria-hidden="true"
+          />
           <span class="text-caption text-color-muted">{{ countText() }}</span>
         </div>
         <ul class="driver-reviews__bars">
@@ -47,7 +53,16 @@
                 <span class="text-label text-label--strong">{{ review.author.name }}</span>
                 <span class="text-caption text-color-muted">{{ date(review.publishedAt) }}</span>
               </div>
-              <app-rating-bar size="small" [rating]="review.rating" />
+              <div class="driver-reviews__item-score">
+                <ion-icon
+                  class="driver-reviews__item-thumb"
+                  [class.driver-reviews__item-thumb--up]="review.rating >= 3"
+                  [class.driver-reviews__item-thumb--down]="review.rating < 3"
+                  [icon]="review.rating >= 3 ? upIcon : downIcon"
+                  aria-hidden="true"
+                />
+                <span class="text-caption text-body--strong">{{ review.rating }}</span>
+              </div>
               @if (review.comment) {
                 <p class="text-body-s driver-reviews__comment">{{ review.comment }}</p>
               }

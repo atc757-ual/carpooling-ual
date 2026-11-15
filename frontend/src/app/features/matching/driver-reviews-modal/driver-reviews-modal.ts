@@ -1,5 +1,6 @@
 import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
-import { IonButton, IonSpinner, ModalController } from '@ionic/angular';
+import { IonButton, IonIcon, IonSpinner, ModalController } from '@ionic/angular';
+import { thumbsDown, thumbsUp } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { DriverRating, DriverReview } from '../../../core/models/driver-review.model';
 import { DriverReviewsService } from '../../../core/services/users/driver-reviews.service';
@@ -36,13 +37,16 @@ export function barLabel(rating: number): string {
 // más recientes primero, de 10 en 10)
 @Component({
   selector: 'app-driver-reviews-modal',
-  imports: [ModalHeader, IonButton, IonSpinner, RatingBar],
+  imports: [ModalHeader, IonButton, IonIcon, IonSpinner, RatingBar],
   templateUrl: './driver-reviews-modal.html',
   styleUrl: './driver-reviews-modal.scss',
 })
 export class DriverReviewsModal implements OnInit {
   private readonly modalController = inject(ModalController);
   private readonly driverReviews = inject(DriverReviewsService);
+
+  protected readonly upIcon = thumbsUp;
+  protected readonly downIcon = thumbsDown;
 
   @Input() driverId = '';
   @Input() driverName = '';
