@@ -8,6 +8,7 @@ import { vi } from 'vitest';
 import { Vehicle } from '../../../core/models/driver.model';
 import { CampusParking } from '../../../core/models/place.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
@@ -95,6 +96,7 @@ describe('PublishTripPage', () => {
           },
         ]),
         { provide: DriverService, useValue: driver },
+        { provide: TravelPreferencesStore, useValue: { format: () => ['Charlar'] } },
         {
           provide: AuthService,
           useValue: {
@@ -257,6 +259,7 @@ describe('PublishTripPage', () => {
     expect(page.stops()?.[0].time).not.toBe('07:40');
     expect(page.impact()?.seats).toBe(2);
     expect(page.dateLabel()).toContain('15');
+    expect(page.myPreferences()).toEqual(['Charlar']);
   });
 
   it('needs the declaration the first time, publishes and celebrates in step 4', async () => {

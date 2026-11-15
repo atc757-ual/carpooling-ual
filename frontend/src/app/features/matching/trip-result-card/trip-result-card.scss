@@ -22,19 +22,28 @@
 }
 
 // Una fila de la lista (dentro de la tarjeta de resultados): a la izquierda,
-// una franja del color de cómo encaja (verde, ámbar o rojo) y, entre filas,
-// una línea gris. Al pasar por encima, el fondo y la mano: se abre
+// una franja del color de cómo encaja (verde, ámbar o rojo). Al pasar por encima,
+// el fondo y la mano: se abre
 .trip-card {
   position: relative;
-  display: block;
-  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-s) var(--space-base);
+  border: var(--border-width-s) solid var(--color-border-subtle);
   border-left: 0.25rem solid var(--color-border-subtle); // 4px
   border-radius: var(--radius-s);
   background: var(--color-surface);
   cursor: pointer;
+  transition: background-color var(--transition-fast, 0.15s ease), border-color var(--transition-fast, 0.15s ease);
 
   &:hover {
     background: var(--color-surface-subtle);
+
+    .trip-card__arrow ion-icon {
+      transform: translateX(3px);
+      color: var(--color-link);
+    }
   }
 }
 
@@ -50,69 +59,92 @@
   border-left-color: var(--color-danger);
 }
 
-.trip-card__body {
+.trip-card__top {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--space-s);
-  padding: var(--space-s) var(--space-base);
+  min-height: 1.25rem;
 }
 
-@media (min-width: 768px) {
-  .trip-card__body {
-    gap: var(--space-base);
-    padding: var(--space-base);
+.trip-card__status {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+}
+
+.trip-card__main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.trip-card__content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.trip-card__arrow {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 1.25rem; // 20px
+  align-self: center; // centrado verticalmente respecto al contenido
+
+  ion-icon {
+    transition: transform var(--transition-fast, 0.15s ease), color var(--transition-fast, 0.15s ease);
   }
 }
 
 .trip-card__driver {
   margin: 0;
+  line-height: 1.3;
 }
 
-// La recogida a la izquierda y «Ver detalle ›» a la derecha, en una línea
-// también en el móvil: si no cabe, se corta la recogida, nunca el enlace
+// Las preferencias del conductor: píldoras como en el detalle, en una fila
+.trip-card__preferences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trip-card__preference {
+  padding: 0.125rem var(--space-s); // 2px arriba y abajo
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-text);
+  font-size: var(--font-size-caption);
+}
+
+.trip-card__preference--desktop-only {
+  display: none;
+
+  @media (min-width: 768px) {
+    display: inline-block;
+  }
+}
+
+.trip-card__preference--more {
+  color: var(--color-text-muted);
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
 .trip-card__foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-base);
-
-  .trip-card__pickup {
-    flex: 1 1 auto;
-    min-width: 0;
-
-    span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-}
-
-// La invitación a abrir el viaje, en el color de los enlaces
-.trip-card__cta {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: var(--space-xs);
-  color: var(--color-link);
-  font-size: var(--font-size-body-s);
-  font-weight: var(--font-weight-semibold);
-
-  ion-icon {
-    font-size: 1rem; // 16px
-  }
-}
-
-.trip-card:hover .trip-card__cta {
-  text-decoration: underline;
-}
-
-// Horas a la izquierda y plazas a la derecha
-.trip-card__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-s);
 }
 
 .trip-card__times {
@@ -135,15 +167,6 @@
   color: var(--color-eco-text);
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
-}
-
-.trip-card__route {
-  overflow: hidden;
-  font-size: var(--font-size-body-s);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-body-s);
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .trip-card__pickup {
