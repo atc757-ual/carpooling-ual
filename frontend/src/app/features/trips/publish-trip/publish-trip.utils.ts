@@ -109,7 +109,6 @@ export interface TripOffer {
   time: string;
   vehicleId: string;
   seats: number;
-  maxDetourMin: number;
   pickupMode: PickupMode;
   maxDetourM: number;
   stops: readonly SearchPlace[];
@@ -133,7 +132,6 @@ export function toPublishTripRequest(
       ? { arrivalAt: toIsoDateTime(offer.date, offer.time) }
       : { departureAt: toIsoDateTime(offer.date, offer.time) }),
     offeredSeats: Number(offer.seats),
-    maxDetourMin: offer.maxDetourMin,
     ...toPickupRequest(offer),
     originName: isToCampus ? place.name : campusName,
     destinationName: isToCampus ? campusName : place.name,
@@ -155,4 +153,25 @@ function toPickupRequest(
     };
   }
   return { pickupMode: 'on_route', maxDetourM: offer.maxDetourM };
+}
+
+// El margen para recoger (desvío máximo del viaje) que calculará el backend
+// (trip-timing.ts, detourBudgetMin): en el camino, cada plaza con su parada
+// de 2 min y el rodeo según los metros; en paradas, 2 min por parada y un
+// rodeo aproximado de 2 min por cada una (el real sale de la ruta al publicar)
+const STOP_TIME_MIN = 2;
+const PICKUP_DETOUR_MIN_BY_RADIUS: Readonly<Record<number, number>> = { 150: 1, 300: 2, 500: 3 };
+const DEFAULT_PICKUP_DETOUR_MIN = 2;
+
+export function estimateDetourBudget(trip: {
+  isStops: boolean;
+  offeredSeats: number;
+  maxDetourM: number | null | undefined;
+  stopCount: number;
+}): number {
+  if (trip.isStops) {
+    return trip.stopCount * (STOP_TIME_MIN + DEFAULT_PICKUP_DETOUR_MIN);
+  }
+  const pickupMin = PICKUP_DETOUR_MIN_BY_RADIUS[trip.maxDetourM ?? 0] ?? DEFAULT_PICKUP_DETOUR_MIN;
+  return trip.offeredSeats * (STOP_TIME_MIN + pickupMin);
 }

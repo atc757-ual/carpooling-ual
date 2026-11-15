@@ -11,7 +11,6 @@ const TRIP: PublishTripRequest = {
   destination: { type: 'Point', coordinates: [-2.4045, 36.8322] },
   departureAt: '2026-10-28T06:40:00.000Z',
   offeredSeats: 2,
-  maxDetourMin: 10,
   pickupMode: 'on_route',
   maxDetourM: 500,
   originName: 'Roquetas de Mar',

@@ -5,9 +5,9 @@ import { Faq } from '../../../shared/components/ui/faq-card/faq-card';
 // pendiente, en pendientes-memoria.md)
 export const PUBLISH_FAQS: readonly Faq[] = [
   {
-    question: '¿Qué es el desvío máximo?',
+    question: '¿Cuánto tiempo extra me supone recoger?',
     answer:
-      'Los minutos que aceptas añadir a tu ruta para recoger o dejar a un pasajero. Solo te pedirán plaza quienes estén dentro de ese margen.',
+      'Lo calculamos por ti: unos 2 minutos de parada por pasajero más el rodeo hasta su punto (según los metros que te apartas) o, si recoges en paradas, lo que alargan tu ruta. Con la hora de llegada, ese margen ya va en la hora de salida, y solo te pedirán plaza quienes quepan en él.',
   },
   {
     question: '¿Cuántas plazas ofrezco?',

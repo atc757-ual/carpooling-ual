@@ -69,11 +69,11 @@ export interface PublishTripRequest {
   origin: GeoPoint;
   destination: GeoPoint;
   // ISO 8601 (UTC). Una de las dos: hacia el campus, la llegada (el backend
-  // calcula la salida con la ruta y el desvío máximo); desde él, la salida
+  // calcula la salida con la ruta y el margen para recoger, que también
+  // calcula él); desde él, la salida
   departureAt?: string;
   arrivalAt?: string;
   offeredSeats: number;
-  maxDetourMin: number;
   pickupMode: PickupMode;
   // En el camino: metros que se aparta (150, 300 o 500)
   maxDetourM?: number;
