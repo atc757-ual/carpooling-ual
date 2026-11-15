@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { DigitalTwinModule } from './modules/digital-twin/digital-twin.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { CatalogsModule } from './modules/catalogs/catalogs.module';
+import { HelpModule } from './modules/help/help.module';
 import { IncidentsModule } from './modules/incidents/incidents.module';
 import { MatchingModule } from './modules/matching/matching.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
@@ -53,6 +54,7 @@ import { UsersModule } from './modules/users/users.module';
     SupportModule,
     PlacesModule,
     CatalogsModule,
+    HelpModule,
     MatchingModule,
     DigitalTwinModule,
     SimulationModule,

@@ -10679,6 +10679,288 @@
         ]
       }
     },
+    "/api/faqs": {
+      "get": {
+        "description": "In topic order, in the language asked for. Filter by quick-question screen, audience or topic, or search by text.",
+        "operationId": "FaqsController_list",
+        "parameters": [
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "lang",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "es",
+              "type": "string",
+              "enum": [
+                "es",
+                "en"
+              ]
+            }
+          },
+          {
+            "name": "context",
+            "required": false,
+            "in": "query",
+            "description": "Only the quick questions of that screen",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "search",
+                "publish",
+                "support"
+              ]
+            }
+          },
+          {
+            "name": "audience",
+            "required": false,
+            "in": "query",
+            "description": "driver or passenger also return the questions for both; both returns only those",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "driver",
+                "passenger",
+                "both"
+              ]
+            }
+          },
+          {
+            "name": "topic",
+            "required": false,
+            "in": "query",
+            "description": "Topic key",
+            "schema": {
+              "example": "cancellations",
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Text to look for in the question, the answer and its points, ignoring case and accents",
+            "schema": {
+              "minLength": 2,
+              "maxLength": 60,
+              "example": "codigo",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FaqResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List the published FAQs",
+        "tags": [
+          "help"
+        ]
+      }
+    },
+    "/api/faqs/{id}": {
+      "get": {
+        "operationId": "FaqsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "lang",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "es",
+              "type": "string",
+              "enum": [
+                "es",
+                "en"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FaqResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: FAQ_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get a published FAQ",
+        "tags": [
+          "help"
+        ]
+      }
+    },
+    "/api/faq-topics": {
+      "get": {
+        "description": "All of them in display order, in the language asked for.",
+        "operationId": "FaqTopicsController_list",
+        "parameters": [
+          {
+            "name": "lang",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "es",
+              "type": "string",
+              "enum": [
+                "es",
+                "en"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FaqTopicResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List the FAQ topics",
+        "tags": [
+          "help"
+        ]
+      }
+    },
     "/api/trips/search": {
       "post": {
         "description": "Published trips going the same way, near the address and the campus parking, with enough seats, an acceptable detour for the driver and a time within the margin. Sorted by compatibility (60 % detour, 40 % time); at most 10.",
@@ -17849,6 +18131,107 @@
         "required": [
           "topic",
           "message"
+        ]
+      },
+      "FaqResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "example": "Faq"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/faqs/6f1c1c0e-6f0b-4a51-9d3e-0e3c5d2f8a11"
+          },
+          "topic": {
+            "type": "string",
+            "example": "cancellations",
+            "description": "Topic key"
+          },
+          "audience": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "passenger",
+              "both"
+            ]
+          },
+          "quickContexts": {
+            "type": "array",
+            "description": "Screens that show it as a quick question",
+            "items": {
+              "type": "string",
+              "enum": [
+                "search",
+                "publish",
+                "support"
+              ]
+            }
+          },
+          "question": {
+            "type": "string",
+            "example": "¿Puedo cancelar mi plaza?"
+          },
+          "answer": {
+            "type": "string",
+            "example": "Sí, desde Tus viajes, y depende del momento:"
+          },
+          "points": {
+            "description": "Optional list shown under the answer",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "topic",
+          "audience",
+          "quickContexts",
+          "question",
+          "answer",
+          "points"
+        ]
+      },
+      "FaqTopicResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "example": "FaqTopic"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "key": {
+            "type": "string",
+            "example": "cancellations"
+          },
+          "name": {
+            "type": "string",
+            "example": "Cancelaciones y penalizaciones"
+          },
+          "icon": {
+            "type": "string",
+            "example": "close-circle-outline",
+            "description": "Ionicons name"
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "key",
+          "name",
+          "icon"
         ]
       },
       "SearchTripsDto": {

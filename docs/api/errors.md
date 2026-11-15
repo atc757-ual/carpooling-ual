@@ -236,6 +236,12 @@ Una ejecución que falla guarda en `errorCode` el motivo: `RUNNER_ERROR` (error 
 | `CATALOG_ITEM_NOT_FOUND` | 404  | No hay ningún elemento con esa clave en el catálogo                                            |
 | `CATALOG_ITEM_EXISTS`    | 409  | Dar de alta un elemento cuya clave (el nombre sin tildes ni mayúsculas) ya existe, activo o no |
 
+## Ayuda (`help`)
+
+| `code`          | HTTP | Cuándo                                                               |
+| --------------- | ---- | -------------------------------------------------------------------- |
+| `FAQ_NOT_FOUND` | 404  | La pregunta frecuente no existe o no está publicada (es un borrador) |
+
 ## Cómo añadir un código
 
 1. Crea el error de negocio extendiendo `BusinessError` (`backend/src/shared/errors/business-error.ts`) con su `code` y su tipo de fallo: `invalid` (400), `unauthorized` (401), `forbidden` (403), `not_found` (404) o `conflict` (409).
