@@ -35,6 +35,7 @@ interface Message {
   author: { name: string };
   authorRole: string;
   readByAll: boolean;
+  isShared: boolean;
 }
 
 describe('Chat API (e2e)', () => {
@@ -89,6 +90,7 @@ describe('Chat API (e2e)', () => {
     dan: Session;
     pia: Session;
     leo: Session;
+    leoRequestId: string;
   }> {
     const [dan, pia, leo] = await Promise.all([
       sessionFor('dan', ['driver']),
@@ -120,9 +122,13 @@ describe('Chat API (e2e)', () => {
     const requests = app.get(RequestsService);
     const { request: accepted } = await requests.request(pia.id, trip.id);
     await requests.accept(dan.id, accepted.id);
-    await requests.request(leo.id, trip.id);
-    return { tripId: trip.id, dan, pia, leo };
+    const { request: pending } = await requests.request(leo.id, trip.id);
+    return { tripId: trip.id, dan, pia, leo, leoRequestId: pending.id };
   }
+
+  // La ruta de la conversación con un pasajero (la que indica el conductor)
+  const withPassenger = (path: string, passenger: Session) =>
+    `${path}${path.includes('?') ? '&' : '?'}passengerId=${passenger.id}`;
 
   it('lets the driver and the accepted passengers talk, and only them', async () => {
     const { tripId, dan, pia, leo } = await confirmedTrip();
@@ -130,7 +136,11 @@ describe('Chat API (e2e)', () => {
     await api('post', `/trips/${tripId}/messages`, pia)
       .send({ text: '  Estoy en el portal  ' })
       .expect(201);
-    const sent = await api('post', `/trips/${tripId}/messages`, dan)
+    const sent = await api(
+      'post',
+      withPassenger(`/trips/${tripId}/messages`, pia),
+      dan,
+    )
       .send({ quickReply: 'on_my_way' })
       .expect(201);
     expect(sent.body).toMatchObject({
@@ -141,9 +151,11 @@ describe('Chat API (e2e)', () => {
       authorRole: 'driver',
     });
 
-    const listed = await api('get', `/trips/${tripId}/messages`, dan).expect(
-      200,
-    );
+    const listed = await api(
+      'get',
+      withPassenger(`/trips/${tripId}/messages`, pia),
+      dan,
+    ).expect(200);
     expect(listed.headers['x-total-count']).toBe('2');
     const messages = listed.body as Message[];
     expect(messages.map(({ kind, text }) => [kind, text])).toEqual([
@@ -195,9 +207,10 @@ describe('Chat API (e2e)', () => {
     expect(unread.body).toEqual([
       expect.objectContaining({
         '@type': 'Conversation',
-        id: tripId,
-        href: `/api/trips/${tripId}/messages`,
+        id: `${tripId}:${pia.id}`,
+        href: `/api/trips/${tripId}/messages?passengerId=${pia.id}`,
         myRole: 'driver',
+        passenger: { id: pia.id, name: 'Pía', avatarKey: null },
         unreadCount: 2,
         isOpen: true,
         lastMessage: expect.objectContaining({
@@ -217,7 +230,11 @@ describe('Chat API (e2e)', () => {
       expect.objectContaining({ myRole: 'passenger', unreadCount: 0 }),
     ]);
 
-    await api('put', `/trips/${tripId}/messages/read`, dan).expect(204);
+    await api(
+      'put',
+      withPassenger(`/trips/${tripId}/messages/read`, pia),
+      dan,
+    ).expect(204);
 
     const afterRead = await api(
       'get',
@@ -227,7 +244,7 @@ describe('Chat API (e2e)', () => {
     expect(afterRead.headers['x-total-count']).toBe('0');
   });
 
-  it('marks own messages as read by all when all other participants have read the chat', async () => {
+  it('marks own messages as read when the other person has read the conversation', async () => {
     const { tripId, dan, pia } = await confirmedTrip();
 
     const sent = await api('post', `/trips/${tripId}/messages`, pia)
@@ -244,7 +261,11 @@ describe('Chat API (e2e)', () => {
       readByAll: false,
     });
 
-    await api('put', `/trips/${tripId}/messages/read`, dan).expect(204);
+    await api(
+      'put',
+      withPassenger(`/trips/${tripId}/messages/read`, pia),
+      dan,
+    ).expect(204);
 
     const piaMessagesAfter = await api(
       'get',
@@ -257,7 +278,7 @@ describe('Chat API (e2e)', () => {
 
     const danMessages = await api(
       'get',
-      `/trips/${tripId}/messages`,
+      withPassenger(`/trips/${tripId}/messages`, pia),
       dan,
     ).expect(200);
     expect((danMessages.body as Message[])[0]).toMatchObject({
@@ -277,7 +298,10 @@ describe('Chat API (e2e)', () => {
 
     const during = await api('get', path, pia).expect(200);
     expect(during.body).toEqual([
-      expect.objectContaining({ id: tripId, myRole: 'passenger' }),
+      expect.objectContaining({
+        id: `${tripId}:${pia.id}`,
+        myRole: 'passenger',
+      }),
     ]);
     await api('get', '/users/me/conversations?tripStatus=nope', pia).expect(
       400,
@@ -290,10 +314,10 @@ describe('Chat API (e2e)', () => {
     await app.get(TripsService).start(dan.id, tripId);
 
     // Puede estar parado: el texto también se admite
-    await api('post', `/trips/${tripId}/messages`, dan)
+    await api('post', withPassenger(`/trips/${tripId}/messages`, pia), dan)
       .send({ text: 'Llego ya' })
       .expect(201);
-    await api('post', `/trips/${tripId}/messages`, dan)
+    await api('post', withPassenger(`/trips/${tripId}/messages`, pia), dan)
       .send({ quickReply: 'at_pickup' })
       .expect(201);
     await api('post', `/trips/${tripId}/messages`, pia)
@@ -315,7 +339,11 @@ describe('Chat API (e2e)', () => {
       [tripId],
     );
 
-    const closed = await api('post', `/trips/${tripId}/messages`, dan)
+    const closed = await api(
+      'post',
+      withPassenger(`/trips/${tripId}/messages`, pia),
+      dan,
+    )
       .send({ quickReply: 'on_my_way' })
       .expect(409);
     expect(closed.body).toMatchObject({ code: 'CHAT_CLOSED' });
@@ -341,8 +369,15 @@ describe('Chat API (e2e)', () => {
         [id, phone, isVerified ? new Date() : null],
       );
     const contactsOf = async (session: Session) =>
-      (await api('get', `/trips/${tripId}/contacts`, session).expect(200))
-        .body as unknown[];
+      (
+        await api(
+          'get',
+          session === dan
+            ? withPassenger(`/trips/${tripId}/contacts`, pia)
+            : `/trips/${tripId}/contacts`,
+          session,
+        ).expect(200)
+      ).body as unknown[];
     await setPhone(dan.id, '+34600111222', true);
     await setPhone(pia.id, '+34600333444', true);
     await setPhone(leo.id, '+34600555666', true);
@@ -360,8 +395,14 @@ describe('Chat API (e2e)', () => {
         role: 'driver',
       },
     ]);
-    // leo solo tiene la solicitud pendiente: ni lo ve el conductor ni puede
-    // pedirlo
+    // leo solo tiene la solicitud pendiente: ni el conductor puede pedir su
+    // teléfono ni él el del conductor
+    const notPassenger = await api(
+      'get',
+      withPassenger(`/trips/${tripId}/contacts`, leo),
+      dan,
+    ).expect(400);
+    expect(notPassenger.body).toMatchObject({ code: 'CHAT_PASSENGER_INVALID' });
     expect(await contactsOf(dan)).toEqual([
       expect.objectContaining({
         id: pia.id,
@@ -416,7 +457,11 @@ describe('Chat API (e2e)', () => {
     await api('post', `/trips/${tripId}/messages`, pia)
       .send({ text: 'Gracias por el viaje' })
       .expect(201);
-    await api('put', `/trips/${tripId}/messages/read`, dan).expect(204);
+    await api(
+      'put',
+      withPassenger(`/trips/${tripId}/messages/read`, pia),
+      dan,
+    ).expect(204);
     await setDepartureIn(dataSource, tripId, 5);
     const trips = app.get(TripsService);
     await trips.start(dan.id, tripId);
@@ -444,7 +489,7 @@ describe('Chat API (e2e)', () => {
 
   it('reports the chat with a copy of the conversation, as an incident that cancels nothing', async () => {
     const { tripId, dan, pia, leo } = await confirmedTrip();
-    await api('post', `/trips/${tripId}/messages`, dan)
+    await api('post', withPassenger(`/trips/${tripId}/messages`, pia), dan)
       .send({ text: 'Mensaje ofensivo' })
       .expect(201);
     await api('post', `/trips/${tripId}/messages`, pia)
@@ -490,7 +535,9 @@ describe('Chat API (e2e)', () => {
     // Se puede volver a denunciar (pueden llegar mensajes nuevos), también el
     // conductor; quien no está en el chat, no
     await report(pia).expect(201);
-    await report(dan).expect(201);
+    await api('post', withPassenger(`/trips/${tripId}/chat/report`, pia), dan)
+      .send({ reason: 'Me ha insultado en el chat' })
+      .expect(201);
     await report(leo).expect(403);
     await report(pia, 'corto').expect(400);
   });
@@ -509,11 +556,127 @@ describe('Chat API (e2e)', () => {
     );
     expect(event.payload).toMatchObject({
       tripId,
+      passengerId: pia.id,
       authorId: pia.id,
       authorRole: 'passenger',
       kind: 'text',
       quickReply: null,
     });
     expect(JSON.stringify(event.payload)).not.toContain('portal');
+  });
+  it('keeps a direct conversation between the driver and each accepted passenger', async () => {
+    const { tripId, dan, pia, leo, leoRequestId } = await confirmedTrip();
+    await app.get(RequestsService).accept(dan.id, leoRequestId);
+
+    await api('post', `/trips/${tripId}/messages`, pia)
+      .send({ text: 'Soy Pía' })
+      .expect(201);
+    await api('post', withPassenger(`/trips/${tripId}/messages`, leo), dan)
+      .send({ text: 'Hola, Leo' })
+      .expect(201);
+
+    // Cada pasajero solo ve su conversación con el conductor
+    const forLeo = await api('get', `/trips/${tripId}/messages`, leo).expect(
+      200,
+    );
+    expect((forLeo.body as Message[]).map(({ text }) => text)).toEqual([
+      'Hola, Leo',
+    ]);
+    const forPia = await api(
+      'get',
+      withPassenger(`/trips/${tripId}/messages`, pia),
+      pia,
+    ).expect(200);
+    expect((forPia.body as Message[]).map(({ text }) => text)).toEqual([
+      'Soy Pía',
+    ]);
+    // Ni puede pedir la del otro
+    const other = await api(
+      'get',
+      withPassenger(`/trips/${tripId}/messages`, leo),
+      pia,
+    ).expect(403);
+    expect(other.body).toMatchObject({ code: 'CHAT_NOT_ALLOWED' });
+
+    // El conductor tiene una conversación por pasajero y dice con quién habla
+    const conversations = await api(
+      'get',
+      '/users/me/conversations',
+      dan,
+    ).expect(200);
+    expect(conversations.headers['x-total-count']).toBe('2');
+    const rows = conversations.body as {
+      passenger: { id: string };
+      unreadCount: number;
+    }[];
+    expect(
+      Object.fromEntries(
+        rows.map(({ passenger, unreadCount }) => [passenger.id, unreadCount]),
+      ),
+    ).toEqual({ [leo.id]: 0, [pia.id]: 1 });
+    const missing = await api('get', `/trips/${tripId}/messages`, dan).expect(
+      400,
+    );
+    expect(missing.body).toMatchObject({ code: 'CHAT_PASSENGER_INVALID' });
+    await api(
+      'get',
+      withPassenger(`/trips/${tripId}/conversation`, dan),
+      dan,
+    ).expect(400);
+    const conversation = await api(
+      'get',
+      withPassenger(`/trips/${tripId}/conversation`, leo),
+      dan,
+    ).expect(200);
+    expect(conversation.body).toMatchObject({
+      id: `${tripId}:${leo.id}`,
+      passenger: { id: leo.id, name: 'leo' },
+      lastMessage: { text: 'Hola, Leo' },
+    });
+  });
+
+  it('shows the former shared chat as read only in every conversation of the trip', async () => {
+    const { tripId, dan, pia, leo, leoRequestId } = await confirmedTrip();
+    await app.get(RequestsService).accept(dan.id, leoRequestId);
+    // Un mensaje del chat común anterior (sin pasajero)
+    await dataSource.query(
+      `INSERT INTO chat_messages (trip_id, author_id, kind, body, created_at)
+       VALUES ($1, $2, 'text', 'Salgo a las 8', now() - interval '1 hour')`,
+      [tripId, dan.id],
+    );
+    await api('post', `/trips/${tripId}/messages`, pia)
+      .send({ text: 'Vale' })
+      .expect(201);
+
+    const forPia = await api('get', `/trips/${tripId}/messages`, pia).expect(
+      200,
+    );
+    expect(
+      (forPia.body as Message[]).map(({ text, isShared }) => [text, isShared]),
+    ).toEqual([
+      ['Salgo a las 8', true],
+      ['Vale', false],
+    ]);
+    const forLeo = await api('get', `/trips/${tripId}/messages`, leo).expect(
+      200,
+    );
+    expect(forLeo.body).toEqual([
+      expect.objectContaining({ text: 'Salgo a las 8', isShared: true }),
+    ]);
+    // No cuenta como no leído, pero sí como último mensaje
+    const conversations = await api(
+      'get',
+      '/users/me/conversations',
+      leo,
+    ).expect(200);
+    expect(conversations.body).toEqual([
+      expect.objectContaining({
+        unreadCount: 0,
+        lastMessage: expect.objectContaining({
+          text: 'Salgo a las 8',
+          isShared: true,
+        }) as unknown,
+      }),
+    ]);
   });
 });

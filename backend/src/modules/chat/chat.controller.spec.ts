@@ -30,6 +30,7 @@ describe('ChatController', () => {
   const conversationView: ConversationView = {
     trip,
     driver: { name: 'Juan', avatarKey: 'sun' },
+    passenger: { id: 'passenger-1', name: 'Pía', avatarKey: null },
     myRole: 'driver',
     lastMessage: null,
     unreadCount: 0,
@@ -64,13 +65,23 @@ describe('ChatController', () => {
         conversationView,
       );
 
-      const result = await controller.getConversation(user, 'trip-1');
+      const result = await controller.getConversation(user, 'trip-1', {
+        passengerId: 'passenger-1',
+      });
 
-      expect(conversationsService.getForTrip).toHaveBeenCalledWith(
-        'user-1',
-        'trip-1',
+      expect(conversationsService.getForTrip).toHaveBeenCalledWith('user-1', {
+        tripId: 'trip-1',
+        passengerId: 'passenger-1',
+      });
+      expect(result.id).toBe('trip-1:passenger-1');
+      expect(result.href).toBe(
+        '/api/trips/trip-1/messages?passengerId=passenger-1',
       );
-      expect(result.id).toBe('trip-1');
+      expect(result.passenger).toEqual({
+        id: 'passenger-1',
+        name: 'Pía',
+        avatarKey: null,
+      });
       expect(result.myRole).toBe('driver');
       expect(result.isOpen).toBe(true);
       expect(result.trip.originName).toBe('Almería');
