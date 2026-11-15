@@ -211,11 +211,12 @@
 }
 
 .publish__preference {
-  padding: 0.125rem var(--space-s); // 2px arriba y abajo
-  border-radius: var(--radius-full);
+  padding: 2px 4px;
+  border-radius: var(--radius-s);
   background: var(--color-primary-subtle);
   color: var(--color-text);
   font-size: var(--font-size-caption);
+  white-space: nowrap;
 }
 
 .publish__preferences-link {

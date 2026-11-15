@@ -443,7 +443,7 @@ export class PublishTripPage implements OnInit {
     const modal = await this.modalController.create({
       component: ProfilePreferencesModal,
       cssClass: 'info-dialog',
-      componentProps: { user: this.auth.currentUser() },
+      componentProps: { user: this.auth.currentUser(), showTolerance: false },
     });
     await modal.present();
   }

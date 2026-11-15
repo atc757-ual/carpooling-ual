@@ -32,25 +32,27 @@
       </fieldset>
     }
 
-    <fieldset class="preferences-group" aria-label="Margen horario de búsqueda">
-      <span class="preferences-group__title text-label text-label--strong">
-        <ion-icon [icon]="toleranceIcon" aria-hidden="true" />
-        {{ 'profile.preferencesModal.searchTolerance' | transloco }}
-      </span>
-      <div class="preferences-chips">
-        @for (tol of tolerances; track tol) {
-          <button
-            type="button"
-            class="preference-chip"
-            [class.preference-chip--selected]="timeTolerance() === tol"
-            [attr.aria-pressed]="timeTolerance() === tol"
-            (click)="handleSelectTolerance(tol)"
-          >
-            ± {{ tol }} min
-          </button>
-        }
-      </div>
-    </fieldset>
+    @if (showTolerance) {
+      <fieldset class="preferences-group" aria-label="Margen horario de búsqueda">
+        <span class="preferences-group__title text-label text-label--strong">
+          <ion-icon [icon]="toleranceIcon" aria-hidden="true" />
+          {{ 'profile.preferencesModal.searchTolerance' | transloco }}
+        </span>
+        <div class="preferences-chips">
+          @for (tol of tolerances; track tol) {
+            <button
+              type="button"
+              class="preference-chip"
+              [class.preference-chip--selected]="timeTolerance() === tol"
+              [attr.aria-pressed]="timeTolerance() === tol"
+              (click)="handleSelectTolerance(tol)"
+            >
+              ± {{ tol }} min
+            </button>
+          }
+        </div>
+      </fieldset>
+    }
 
     <div class="profile-preferences-modal__actions">
       <ion-button type="submit" expand="block" [disabled]="isSaving()">
