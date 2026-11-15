@@ -47,7 +47,7 @@ describe('profileRows', () => {
     expect(
       profileRows(DETAIL).map(({ profile, actionText, rating }) => [profile, actionText, rating]),
     ).toEqual([
-      ['driver', 'Inhabilitar', '4,5 ★ (4)'],
+      ['driver', 'Inhabilitar', '4,5 de 5 · 4 valoraciones'],
       ['passenger', 'Habilitar', 'Sin valoraciones'],
       ['admin', 'Conceder', null],
     ]);

@@ -6,7 +6,8 @@ import {
   chevronForwardOutline,
   leafOutline,
   searchOutline,
-  star,
+  thumbsDown,
+  thumbsUp,
 } from 'ionicons/icons';
 import { RoleRating } from '../../../../core/models/user.model';
 
@@ -33,13 +34,26 @@ export class MyTripsAside {
   readonly canDrive = input(true);
   readonly canRide = input(true);
 
+  readonly ratingValue = computed(() => {
+    const rating = this.rating();
+    if (!rating || rating.ratingCount === 0 || rating.averageRating === null) {
+      return null;
+    }
+    return rating.averageRating;
+  });
+
   // «4,8 (12)» o, sin ninguna, «—»
   readonly ratingText = computed(() => {
     const rating = this.rating();
-    if (!rating || rating.ratingCount === 0 || rating.averageRating === null) {
+    const value = this.ratingValue();
+    if (!rating || value === null) {
       return '—';
     }
-    return `${rating.averageRating.toFixed(1).replace('.', ',')} (${rating.ratingCount})`;
+    const formatted = value.toLocaleString('es-ES', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    });
+    return `${formatted} (${rating.ratingCount})`;
   });
   readonly co2Text = computed(() => `${this.co2Kg().toString().replace('.', ',')} kg`);
 
@@ -65,6 +79,7 @@ export class MyTripsAside {
   });
 
   protected readonly co2Icon = leafOutline;
-  protected readonly ratingIcon = star;
+  protected readonly upIcon = thumbsUp;
+  protected readonly downIcon = thumbsDown;
   protected readonly chevronIcon = chevronForwardOutline;
 }
