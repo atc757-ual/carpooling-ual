@@ -165,6 +165,22 @@ export class DriverTripActions {
     );
   });
 
+  // Hasta cuándo se cancela sin coste, antes del botón (como al pasajero): con
+  // pasajeros, nada hasta 30 min antes de la salida; sin ellos, nunca cuenta
+  readonly cancelCost = computed(() => {
+    const trip = this.trip();
+    if (this.cancellationIsLate()) {
+      return null;
+    }
+    if (trip.status !== 'confirmed') {
+      return 'Sin pasajeros aceptados, puedes cancelarlo sin coste.';
+    }
+    const freeUntil = formatTime(
+      new Date(new Date(trip.departureAt).getTime() - 30 * 60 * 1000).toISOString(),
+    );
+    return `Sin coste hasta las ${freeUntil} (30 min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder publicar.`;
+  });
+
   async handleStart(): Promise<void> {
     const trip = this.trip();
     if (!this.canStart() || !(await this.ensureLocationShared())) {
@@ -246,9 +262,8 @@ export class DriverTripActions {
     const accepted = await this.confirm.ask({
       header: '¿Cancelar este viaje?',
       message,
-      confirmText: 'Cancelar viaje',
+      confirmText: 'Confirmar cancelación',
       cancelText: 'Mantener viaje',
-      isDestructive: true,
     });
     if (!accepted) {
       return;

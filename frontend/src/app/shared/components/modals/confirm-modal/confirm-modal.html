@@ -15,29 +15,19 @@
       }
     </ul>
   }
-  <!-- En formularios: cada botón envía el suyo (sin click en ion-button). El
-       azul va siempre primero: arriba en el móvil y a la izquierda en
-       escritorio. Si la acción es destructiva, lo principal (azul) es cancelar
-       y la acción va en blanco con letras azules -->
+  <!-- En formularios: cada botón envía el suyo (sin click en ion-button). La
+       acción, con un texto que no deja dudas («Confirmar cancelación»), va
+       siempre primero y en azul: arriba en el móvil y a la izquierda en
+       escritorio; volver atrás («Mantener viaje»), debajo con borde. También
+       en las destructivas: con la seguridad abajo se pulsaba por error -->
   <div class="confirm__actions">
-    @if (isDestructive) {
-      <form (submit)="$event.preventDefault(); handleCancel()">
-        <ion-button type="submit" expand="block">{{ cancelText }}</ion-button>
-      </form>
-      <form (submit)="$event.preventDefault(); handleConfirm()">
-        <ion-button class="confirm__secondary" type="submit" expand="block" fill="outline">
-          {{ confirmText }}
-        </ion-button>
-      </form>
-    } @else {
-      <form (submit)="$event.preventDefault(); handleConfirm()">
-        <ion-button type="submit" expand="block">{{ confirmText }}</ion-button>
-      </form>
-      <form (submit)="$event.preventDefault(); handleCancel()">
-        <ion-button class="confirm__cancel" type="submit" expand="block" fill="outline">
-          {{ cancelText }}
-        </ion-button>
-      </form>
-    }
+    <form (submit)="$event.preventDefault(); handleConfirm()">
+      <ion-button type="submit" expand="block">{{ confirmText }}</ion-button>
+    </form>
+    <form (submit)="$event.preventDefault(); handleCancel()">
+      <ion-button class="confirm__cancel" type="submit" expand="block" fill="outline">
+        {{ cancelText }}
+      </ion-button>
+    </form>
   </div>
 </div>

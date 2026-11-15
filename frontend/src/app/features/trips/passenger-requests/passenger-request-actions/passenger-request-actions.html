@@ -3,15 +3,6 @@
     <ion-card-title>Acciones de tu solicitud</ion-card-title>
   </ion-card-header>
   <ion-card-content>
-    @if (hasChat() && showChat()) {
-      <app-trip-chat-link
-        [tripId]="request().trip.id"
-        expand="block"
-        fill="solid"
-        text="Chat con el conductor"
-      />
-    }
-
     @if (isTripInProgress()) {
       <ion-button
         class="passenger-actions__incident-btn"

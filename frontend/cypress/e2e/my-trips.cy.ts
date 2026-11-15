@@ -146,7 +146,7 @@ for (const viewport of VIEWPORTS) {
 
       cy.contains('app-driver-trip-actions ion-button', 'Cancelar viaje').click();
       cy.contains('app-confirm-modal', '¿Cancelar este viaje?').should('be.visible');
-      cy.contains('app-confirm-modal ion-button', 'Cancelar viaje').click();
+      cy.contains('app-confirm-modal ion-button', 'Confirmar cancelación').click();
 
       cy.wait('@cancelTrip').its('request.method').should('eq', 'POST');
       cy.get('ion-toast')

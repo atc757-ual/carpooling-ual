@@ -33,24 +33,22 @@ describe('TripDriver', () => {
 
     expect(text(root, '.trip-driver__avatar')).toBe('LC');
     expect(text(root, '.trip-driver__name')).toBe('Lucía Cortés');
-    expect(root.textContent).toContain('42 viajes · Correo UAL verificado');
+    expect(root.textContent).toContain('42 viajes');
     expect(root.querySelector('.trip-driver__rating')?.getAttribute('aria-label')).toBe(
       'Valoración 4,8 de 5',
     );
   });
 
-  it('speaks of one trip and leaves out an unverified email', () => {
+  it('speaks of one trip', () => {
     const root = render({ ...DRIVER, tripCount: 1, isEmailVerified: false });
 
     expect(root.textContent).toContain('1 viaje');
-    expect(root.textContent).not.toContain('Correo UAL verificado');
   });
 
   it('shows new driver when no rating is available', () => {
     const root = render({ name: 'Lucía Cortés', avatarKey: null, isEmailVerified: true });
 
     expect(root.textContent).toContain('Nuevo conductor');
-    expect(root.textContent).toContain('Correo UAL verificado');
     expect(root.querySelector('.trip-driver__rating')).toBeNull();
   });
 

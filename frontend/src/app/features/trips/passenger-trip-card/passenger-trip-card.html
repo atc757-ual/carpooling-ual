@@ -25,6 +25,11 @@
         {{ statusLabel() }}
       </span>
     </div>
+    @if (way(); as tripWay) {
+      <div class="trip-way">
+        <ion-icon [icon]="tripWay.icon" aria-hidden="true" />{{ tripWay.label }}
+      </div>
+    }
     <div class="passenger-trip__route">{{ route() }}</div>
     @if (nextStep(); as step) {
       <div class="passenger-trip__next">{{ step }}</div>

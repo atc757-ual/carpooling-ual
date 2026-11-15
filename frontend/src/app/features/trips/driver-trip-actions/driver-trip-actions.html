@@ -48,13 +48,17 @@
       }
 
       <!-- Cancelar: con borde azul y fondo blanco (la guía: lo destructivo, sin
-           rojo). El aviso de tardía, solo cuando aplica -->
+           rojo). Antes, hasta cuándo es sin coste o, ya tardía, el aviso -->
       <div class="driver-actions__block">
         @if (cancellationIsLate()) {
           <output class="notice notice--warning">
             <ion-icon [icon]="warningIcon" aria-hidden="true" />
             <span>Si cancelas ahora, contará como cancelación tardía.</span>
           </output>
+        } @else if (cancelCost(); as cost) {
+          <div class="notice notice--info driver-actions__cancel-cost">
+            <span>{{ cost }}</span>
+          </div>
         }
         <ion-button
           type="button"

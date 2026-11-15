@@ -14,7 +14,6 @@ export function confirmLogout(
       'Podrás volver cuando quieras con tu correo UAL y tu contraseña.',
     confirmText: transloco?.translate('common.logoutConfirm.confirm') ?? 'Cerrar sesión',
     cancelText: transloco?.translate('common.cancel') ?? 'Cancelar',
-    isDestructive: false,
     icon: CONFIRM_ICONS.logout,
   });
 }

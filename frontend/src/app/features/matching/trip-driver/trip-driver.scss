@@ -1,9 +1,9 @@
-// Las iniciales en un círculo de 40px, el nombre y los detalles, y la
-// valoración a la derecha
+// Las iniciales en un círculo de 48px, el nombre y los detalles, y la
+// valoración junto al nombre
 :host {
   display: flex;
   align-items: center;
-  gap: 0.75rem; // 12px
+  gap: var(--space-s); // 8px
 }
 
 .trip-driver__avatar {
@@ -11,11 +11,11 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 2.5rem; // 40px
-  height: 2.5rem;
+  width: 3rem; // 48px
+  height: 3rem;
   border-radius: var(--radius-full);
   background: var(--color-warning-subtle);
-  font-size: var(--font-size-body-s);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
 }
 
@@ -30,10 +30,23 @@
   min-width: 0;
 }
 
+.trip-driver__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  flex-wrap: wrap;
+}
+
 .trip-driver__name {
-  font-size: var(--font-size-body-s);
+  font-size: var(--font-size-body); // 16px
   font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body);
+}
+
+.trip-driver__details {
+  font-size: var(--font-size-body-s); // 14px
   line-height: var(--line-height-body-s);
+  color: var(--color-text-muted);
 }
 
 // La manita y la nota («4,8»)
@@ -58,14 +71,13 @@
   }
 }
 
-// La nota se pulsa para ver las valoraciones: área de 44px y por encima del
-// enlace que cubre la tarjeta de resultados
+// La nota se pulsa para ver las valoraciones
 .trip-driver__rating--button {
   position: relative;
   z-index: 1;
-  min-width: 2.75rem; // 44px
-  min-height: 2.75rem;
-  padding: 0 var(--space-s);
+  min-width: auto;
+  min-height: auto;
+  padding: 0 var(--space-xs);
   border: 0;
   border-radius: var(--radius-s);
   background: transparent;

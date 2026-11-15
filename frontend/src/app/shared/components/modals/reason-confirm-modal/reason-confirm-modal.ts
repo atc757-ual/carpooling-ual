@@ -20,9 +20,6 @@ export interface ReasonConfirmOptions {
   cancelText?: string;
   helperText?: string;
   maxLength?: number;
-  // Por defecto destructiva (Cancelar en azul); false para una acción normal,
-  // como denunciar un chat (la acción en azul y primero)
-  isDestructive?: boolean;
 }
 
 // Confirmación de una acción del administrador con su motivo obligatorio
@@ -48,7 +45,6 @@ export class ReasonConfirmModal {
   @Input() cancelText?: string;
   @Input() helperText?: string;
   @Input() maxLength = REASON_MAX_LENGTH;
-  @Input() isDestructive = true;
 
   get computedFieldLabel(): string {
     return (

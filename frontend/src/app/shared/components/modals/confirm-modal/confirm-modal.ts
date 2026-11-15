@@ -22,7 +22,6 @@ export class ConfirmModal {
   @Input({ required: true }) confirmText!: string;
   @Input() cancelText = 'Cancelar';
   @Input({ required: true }) icon!: string;
-  @Input() isDestructive = false;
   // Aviso (ámbar): algo no cuadra, aunque se puede seguir
   @Input() isWarning = false;
 

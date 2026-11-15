@@ -7,6 +7,7 @@ import { DriverTrackingService } from '../../../core/services/drivers/driver-tra
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { TRIP_STATUS_LABELS } from '../../../shared/utils/trip-status.util';
 import { formatTime } from '../../matching/trip-results';
+import { tripWayOf } from '../trip-way';
 
 // Cuánto antes de la salida se puede iniciar (START_WINDOW_MIN del backend)
 const START_WINDOW_MS = 10 * 60 * 1000;
@@ -79,4 +80,6 @@ export class DriverTripSummary {
   }
 
   protected readonly roleIcon = carOutline;
+  // «Ida al campus» o «Vuelta a casa», encima del trayecto
+  readonly way = computed(() => tripWayOf(this.trip()));
 }

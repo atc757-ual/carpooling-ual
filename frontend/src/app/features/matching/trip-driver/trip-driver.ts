@@ -41,6 +41,7 @@ export function getFirstName(name: string): string {
 })
 export class TripDriver {
   readonly driver = input.required<Driver>();
+  readonly showRating = input(true);
   private readonly avatars = inject(AvatarsService);
   private readonly modalController = inject(ModalController);
 
@@ -58,19 +59,16 @@ export class TripDriver {
     return rating === undefined ? null : RATING_FORMAT.format(rating);
   });
 
-  // «42 viajes · Correo UAL verificado» (cada parte, si se sabe)
+  // «42 viajes» o «Nuevo conductor»
   readonly details = computed(() => {
-    const { tripCount, rating, isEmailVerified } = this.driver();
-    let tripDetails: string | null;
+    const { tripCount, rating } = this.driver();
     if (rating === undefined) {
-      tripDetails = 'Nuevo conductor';
-    } else if (tripCount === undefined) {
-      tripDetails = null;
-    } else {
-      tripDetails = formatTripCount(tripCount);
+      return 'Nuevo conductor';
     }
-    const parts = [tripDetails, isEmailVerified ? 'Correo UAL verificado' : null];
-    return parts.filter(Boolean).join(' · ');
+    if (tripCount === undefined) {
+      return null;
+    }
+    return formatTripCount(tripCount);
   });
 
   // Sus valoraciones en una ventana (desde los resultados, sin entrar al viaje).

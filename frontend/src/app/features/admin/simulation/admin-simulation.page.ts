@@ -190,9 +190,8 @@ export class AdminSimulationPage {
     const isConfirmed = await this.confirm.ask({
       header: '¿Cancelar la ejecución?',
       message: 'Se perderán las réplicas hechas hasta ahora.',
-      confirmText: 'Cancelar ejecución',
+      confirmText: 'Confirmar cancelación',
       cancelText: 'Seguir',
-      isDestructive: true,
     });
     if (run && isConfirmed) {
       await this.simulations.cancel(run.id).catch(() => undefined);

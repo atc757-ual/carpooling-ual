@@ -34,7 +34,6 @@ describe('ConfirmService', () => {
       expect.objectContaining({
         componentProps: expect.objectContaining({
           header: '¿Cerrar sesión?',
-          isDestructive: false,
         }),
       }),
     );

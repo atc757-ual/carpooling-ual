@@ -9,6 +9,7 @@ import { formatSeats } from '../../../shared/utils/seats.util';
 import { formatRoute } from '../my-trips/my-trips-summary';
 import { PassengerTrip } from '../my-trips/trip-entries';
 import { passengerRequestLabel, TripsTab } from '../my-trips/trip-tabs';
+import { tripWayOf } from '../trip-way';
 
 // Un viaje del pasajero en Tus viajes: su solicitud con su viaje. Toda la
 // tarjeta lleva a su detalle (donde se cancela) y dice el siguiente paso; en
@@ -25,6 +26,8 @@ export class PassengerTripCard {
 
   readonly time = computed(() => formatTime(this.item().trip.departureAt));
   readonly route = computed(() => formatRoute(this.item().trip));
+  // «Ida al campus» o «Vuelta a casa», encima del trayecto
+  readonly way = computed(() => tripWayOf(this.item().trip));
   readonly statusLabel = computed(() =>
     passengerRequestLabel(this.item().request, this.item().trip),
   );
@@ -52,8 +55,9 @@ export class PassengerTripCard {
     if (request.status === 'pending') {
       return `Esperando respuesta de ${driverName}`;
     }
-    // Sin hora de recogida por ahora: la estimada no suma las otras recogidas
-    return `Confirmada: viajas con ${driverName}`;
+    // Si ya está aceptada, la etiqueta superior y los detalles ya indican el estado
+    // y con quién se viaja; se omite para evitar redundancias
+    return null;
   });
 
   // «Conduce Lucía Cortés · 2 plazas · Matrícula 1234BCD» (la matrícula, al confirmarla)

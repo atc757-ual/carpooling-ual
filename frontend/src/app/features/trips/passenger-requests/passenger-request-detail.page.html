@@ -193,7 +193,7 @@
           {{ trip()?.status === 'finished' ? 'Viajaste' : 'Viajas' }} · {{ when() }}
         </h1>
         <span
-          class="status"
+          class="status status--heading"
           [class.status--pending]="statusKind() === 'pending'"
           [class.status--accepted]="statusKind() === 'accepted'"
           [class.status--danger]="statusKind() === 'danger'"

@@ -65,7 +65,6 @@ export class PermissionPromptsService {
       confirmText: this.transloco.translate('permissions.enable'),
       cancelText: this.transloco.translate('permissions.later'),
       icon: notificationsOutline,
-      isDestructive: false,
     });
     if (isAccepted) {
       await this.enablePush();

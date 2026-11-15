@@ -8,7 +8,6 @@ describe('ConfirmModal', () => {
   const dismiss = vi.fn().mockResolvedValue(true);
 
   function render(
-    isDestructive: boolean,
     isWarning = false,
     points: string[] = [],
   ): { root: HTMLElement; modal: ConfirmModal } {
@@ -26,7 +25,6 @@ describe('ConfirmModal', () => {
       message: 'Para volver a entrar necesitarás tu correo y tu contraseña.',
       confirmText: 'Cerrar sesión',
       icon: 'log-out-outline',
-      isDestructive,
       isWarning,
       points,
     });
@@ -34,39 +32,40 @@ describe('ConfirmModal', () => {
     return { root: fixture.nativeElement as HTMLElement, modal: fixture.componentInstance };
   }
 
-  it('makes cancelling the main button when it is destructive', () => {
-    const { root } = render(true);
+  it('puts the action first in blue and going back below, outlined', () => {
+    const { root } = render();
 
     expect(root.textContent).toContain('¿Cerrar sesión?');
-    const [cancel, action] = [...root.querySelectorAll('ion-button')];
+    const [action, cancel] = [...root.querySelectorAll('ion-button')];
     expect(action.textContent?.trim()).toBe('Cerrar sesión');
-    expect(action.classList).toContain('confirm__secondary');
+    expect(action.getAttribute('fill')).toBeNull();
     expect(cancel.textContent?.trim()).toBe('Cancelar');
+    expect(cancel.classList).toContain('confirm__cancel');
   });
 
   it('lists the effects one per line, only when there are any', () => {
-    expect(render(false).root.querySelector('.bullet-list')).toBeNull();
+    expect(render().root.querySelector('.bullet-list')).toBeNull();
 
     TestBed.resetTestingModule();
-    const { root } = render(false, false, ['Uno', 'Dos']);
+    const { root } = render(false, ['Uno', 'Dos']);
     const items = [...root.querySelectorAll('.bullet-list li')].map((li) => li.textContent);
     expect(items).toEqual(['Uno', 'Dos']);
   });
 
   it('shows the icon in amber only for a warning', () => {
-    const { root } = render(true, true);
+    const { root } = render(true);
 
     expect(root.querySelector('.confirm__icon')?.classList).toContain('confirm__icon--warning');
   });
 
   it('keeps the icon blue when it is not a warning', () => {
-    const { root } = render(false);
+    const { root } = render();
 
     expect(root.querySelector('.confirm__icon')?.classList).not.toContain('confirm__icon--warning');
   });
 
   it('closes confirming or cancelling', async () => {
-    const { modal } = render(false);
+    const { modal } = render();
 
     await modal.handleConfirm();
     expect(dismiss).toHaveBeenLastCalledWith(null, 'confirm');

@@ -17,7 +17,6 @@ import { SeatRequest } from '../../../../core/models/seat-request.model';
 import { SeatRequestsService } from '../../../../core/services/requests/seat-requests.service';
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../../core/services/ui/toast.service';
-import { TripChatLink } from '../../../../shared/components/ui/trip-chat-link/trip-chat-link';
 import { toIsoDate } from '../../../../shared/utils/date.util';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
 import { getFirstName } from '../../../matching/trip-driver/trip-driver';
@@ -39,7 +38,6 @@ import { PassengerIncidentModal } from '../passenger-incident-modal/passenger-in
     IonCardTitle,
     IonIcon,
     IonSpinner,
-    TripChatLink,
   ],
   templateUrl: './passenger-request-actions.html',
   styleUrl: './passenger-request-actions.scss',
@@ -174,7 +172,7 @@ export class PassengerRequestActions {
     const isAccepted = request.status === 'accepted';
     const isLate = this.cancellationIsLate();
     const header = isAccepted ? '¿Cancelar tu plaza confirmada?' : '¿Cancelar la solicitud?';
-    const confirmText = isAccepted ? 'Cancelar mi plaza' : 'Cancelar solicitud';
+    const confirmText = 'Confirmar cancelación';
     let message: string;
     if (isAccepted) {
       message = isLate
@@ -187,8 +185,7 @@ export class PassengerRequestActions {
       header,
       message,
       confirmText,
-      cancelText: 'Mantener',
-      isDestructive: true,
+      cancelText: isAccepted ? 'Mantener mi plaza' : 'Mantener solicitud',
     });
     if (!confirmed) {
       return;

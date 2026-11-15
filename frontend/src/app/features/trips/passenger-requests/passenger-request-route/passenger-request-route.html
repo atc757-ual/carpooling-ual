@@ -37,26 +37,66 @@
 
 <ion-card class="passenger-route">
   <ion-card-header>
-    <ion-card-title>Conductor y coche</ion-card-title>
+    <div class="passenger-route__driver-header">
+      <ion-card-title>Conductor y coche</ion-card-title>
+      @if (rating(); as ratingVal) {
+        <button
+          class="trip-driver__rating trip-driver__rating--button"
+          type="button"
+          [attr.aria-label]="'Valoración ' + ratingVal + ' de 5. Ver valoraciones'"
+          (click)="openReviews()"
+        >
+          <ion-icon
+            class="trip-driver__thumb"
+            [class.trip-driver__thumb--up]="(driver().rating ?? 0) >= 3"
+            [class.trip-driver__thumb--down]="(driver().rating ?? 0) < 3"
+            [icon]="(driver().rating ?? 0) >= 3 ? upIcon : downIcon"
+            aria-hidden="true"
+          />
+          <span>{{ ratingVal }}</span>
+        </button>
+      }
+    </div>
   </ion-card-header>
   <ion-card-content>
     <div class="passenger-route__driver-row">
-      <app-trip-driver [driver]="driver()" />
+      <app-trip-driver [driver]="driver()" [showRating]="false" />
       @if (request().status === 'accepted') {
-        <ion-button
-          class="passenger-route__call-btn"
-          [class.passenger-route__call-btn--unavailable]="!canCallDriver()"
-          fill="outline"
-          size="small"
-          [attr.aria-label]="callDriverLabel()"
-          [title]="callDriverLabel()"
-          (click)="handleCallDriver()"
-        >
-          <ion-icon slot="start" [icon]="callIcon" aria-hidden="true" />
-          {{ callDriverLabel() }}
-        </ion-button>
+        <div class="passenger-route__driver-actions">
+          @if (hasChat()) {
+            <ion-button
+              class="passenger-route__chat-btn"
+              fill="clear"
+              size="small"
+              [routerLink]="['/tabs/messages', trip().id]"
+              [attr.aria-label]="chatDriverLabel()"
+              [title]="chatDriverLabel()"
+            >
+              <ion-icon slot="icon-only" [icon]="chatIcon" aria-hidden="true" />
+            </ion-button>
+          }
+          <ion-button
+            class="passenger-route__call-btn"
+            [class.passenger-route__call-btn--unavailable]="!canCallDriver()"
+            fill="clear"
+            size="small"
+            [attr.aria-label]="callDriverLabel()"
+            [title]="callDriverLabel()"
+            (click)="handleCallDriver()"
+          >
+            <ion-icon slot="icon-only" [icon]="callIcon" aria-hidden="true" />
+          </ion-button>
+        </div>
       }
     </div>
+
+    @if (preferences().length > 0) {
+      <section class="passenger-route__preferences" aria-label="Preferencias del conductor">
+        @for (preference of preferences(); track preference) {
+          <span class="passenger-route__preference">{{ preference }}</span>
+        }
+      </section>
+    }
 
     @if (trip().vehicle; as vehicle) {
       <div class="passenger-route__vehicle">
@@ -76,14 +116,6 @@
           </div>
         </div>
       </div>
-    }
-
-    @if (preferences().length > 0) {
-      <section class="passenger-route__preferences" aria-label="Preferencias del conductor">
-        @for (preference of preferences(); track preference) {
-          <span class="passenger-route__preference">{{ preference }}</span>
-        }
-      </section>
     }
   </ion-card-content>
 </ion-card>

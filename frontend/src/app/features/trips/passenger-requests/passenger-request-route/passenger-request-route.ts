@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   IonButton,
   IonCard,
@@ -7,8 +8,9 @@ import {
   IonCardTitle,
   IonIcon,
   IonSpinner,
+  ModalController,
 } from '@ionic/angular';
-import { callOutline, carOutline } from 'ionicons/icons';
+import { callOutline, carOutline, chatbubblesOutline, thumbsDown, thumbsUp } from 'ionicons/icons';
 import { ChatContact } from '../../../../core/models/chat.model';
 import { Trip } from '../../../../core/models/driver.model';
 import { SeatRequest } from '../../../../core/models/seat-request.model';
@@ -33,6 +35,11 @@ import {
 } from '../../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../../matching/trip-results';
 
+const RATING_FORMAT = new Intl.NumberFormat('es-ES', {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+
 // «Tu recorrido» y «Conductor y coche» en el detalle de la solicitud del
 // pasajero: el mapa con su punto de recogida, las paradas con sus horas,
 // los datos clave y el coche con el color traducido y su muestra
@@ -49,6 +56,7 @@ import { formatTime } from '../../../matching/trip-results';
     RouteTimeline,
     TripDriverComponent,
     TripRouteMap,
+    RouterLink,
   ],
   templateUrl: './passenger-request-route.html',
   styleUrl: './passenger-request-route.scss',
@@ -58,6 +66,7 @@ export class PassengerRequestRoute {
   private readonly colors = inject(VehicleColorsStore);
   private readonly travelPreferences = inject(TravelPreferencesStore);
   private readonly tripCall = inject(TripCallService);
+  private readonly modalController = inject(ModalController);
 
   readonly request = input.required<SeatRequest>();
   readonly trip = input.required<Trip>();
@@ -178,11 +187,47 @@ export class PassengerRequestRoute {
     this.travelPreferences.format(this.trip().driver.preferences),
   );
 
+  readonly rating = computed(() => {
+    const { rating } = this.driver();
+    return rating === undefined ? null : RATING_FORMAT.format(rating);
+  });
+
+  protected readonly upIcon = thumbsUp;
+  protected readonly downIcon = thumbsDown;
+
+  async openReviews(): Promise<void> {
+    const { id, name } = this.driver();
+    const { DriverReviewsModal } = await import(
+      '../../../matching/driver-reviews-modal/driver-reviews-modal'
+    );
+    const modal = await this.modalController.create({
+      component: DriverReviewsModal,
+      cssClass: 'info-dialog',
+      componentProps: { driverId: id, driverName: name },
+    });
+    await modal.present();
+  }
+
+  readonly hasChat = computed(() => {
+    const { status: requestStatus } = this.request();
+    const { status: tripStatus } = this.trip();
+    return (
+      requestStatus === 'accepted' &&
+      (tripStatus === 'confirmed' || tripStatus === 'in_progress')
+    );
+  });
+
   protected readonly carIcon = carOutline;
   protected readonly callIcon = callOutline;
+  protected readonly chatIcon = chatbubblesOutline;
   protected readonly vehicleName = vehicleDisplayName;
   protected readonly vehicleColor = (color: string | null) => this.colors.label(color);
   protected readonly vehicleSwatch = (color: string | null) => this.colors.swatch(color);
+
+  chatDriverLabel(): string {
+    const name = getFirstName(this.trip().driver.name);
+    return `Escribir a ${name}`;
+  }
 
   canCallDriver(): boolean {
     return this.tripCall.canCall(this.trip().status, this.driverContact());
