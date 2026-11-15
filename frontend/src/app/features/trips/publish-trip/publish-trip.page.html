@@ -324,6 +324,32 @@
                 {{ vehicleLabel(vehicle) }}
               </p>
             }
+            <!-- Tus preferencias de viaje: las ven los pasajeros en Buscar -->
+            <div class="publish__preferences">
+              <span class="text-caption text-color-muted">Tus preferencias</span>
+              @if (myPreferences().length > 0) {
+                <ul class="publish__preference-list" aria-label="Tus preferencias">
+                  @for (preference of myPreferences(); track preference) {
+                    <li class="publish__preference">{{ preference }}</li>
+                  }
+                </ul>
+              } @else {
+                <span class="text-body-s">Sin indicar</span>
+              }
+              @if (!published()) {
+                <button
+                  type="button"
+                  class="publish__preferences-link text-body-s"
+                  (click)="handleEditPreferences()"
+                >
+                  {{
+                    myPreferences().length > 0
+                      ? 'Cambiarlas'
+                      : 'Indicarlas'
+                  }}
+                </button>
+              }
+            </div>
             <p class="text-caption text-color-muted">
               @if (isArrivalTime()) {
                 @if (published()) {

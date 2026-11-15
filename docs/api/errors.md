@@ -181,13 +181,16 @@ Enviar una posición puede responder además `NOT_TRIP_DRIVER` o `TRIP_NOT_IN_PR
 
 ## Chat del viaje (`chat`)
 
-| `code`              | HTTP | Cuándo                                                                                                       |
-| ------------------- | ---- | ------------------------------------------------------------------------------------------------------------ |
-| `CHAT_NOT_ALLOWED`  | 403  | Leer o escribir en el chat de un viaje sin ser su conductor ni un pasajero con la solicitud aceptada         |
-| `CHAT_CLOSED`       | 409  | Escribir cuando el chat no admite mensajes: viaje publicado (sin pasajeros), cancelado o terminado hace 24 h |
-| `CHAT_RATE_LIMITED` | 429  | Más de 20 mensajes en un minuto                                                                              |
+El chat es directo entre el conductor y cada pasajero aceptado: el conductor indica el pasajero de la conversación con `passengerId`; el pasajero no hace falta que lo indique.
 
-Denunciar el chat (`POST /api/trips/{id}/chat/report`) solo da los errores de arriba (`CHAT_NOT_ALLOWED`) y `VALIDATION_FAILED` si el motivo no tiene entre 10 y 500 caracteres.
+| `code`                   | HTTP | Cuándo                                                                                                                                               |
+| ------------------------ | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CHAT_NOT_ALLOWED`       | 403  | Leer o escribir en el chat de un viaje sin ser su conductor ni un pasajero con la solicitud aceptada, o un pasajero que pide la conversación de otro |
+| `CHAT_PASSENGER_INVALID` | 400  | El conductor no indica `passengerId` o no es un pasajero con la solicitud aceptada del viaje                                                         |
+| `CHAT_CLOSED`            | 409  | Escribir cuando el chat no admite mensajes: viaje publicado (sin pasajeros), cancelado o terminado hace 24 h                                         |
+| `CHAT_RATE_LIMITED`      | 429  | Más de 20 mensajes en un minuto                                                                                                                      |
+
+Denunciar el chat (`POST /api/trips/{id}/chat/report`) solo da los errores de arriba (`CHAT_NOT_ALLOWED` y `CHAT_PASSENGER_INVALID`) y `VALIDATION_FAILED` si el motivo no tiene entre 10 y 500 caracteres.
 
 Si el viaje no existe, `TRIP_NOT_FOUND` (ver _Viajes_).
 

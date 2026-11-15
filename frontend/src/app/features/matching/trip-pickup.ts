@@ -18,7 +18,7 @@ export function pickupFact(
     return `En la parada ${pickupStop.name}${at} (a ${formatWalkingDistance(pickupStop.walkingDistanceM)} andando)`;
   }
   if (pickupTime) {
-    return `A las ${pickupTime}, en tu punto`;
+    return `A las ${pickupTime}`;
   }
   return `unos ${trip.pickupDetourMinutes + PICKUP_STOP_MIN} min`;
 }

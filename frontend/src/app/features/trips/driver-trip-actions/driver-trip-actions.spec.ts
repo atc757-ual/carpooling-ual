@@ -186,7 +186,7 @@ describe('DriverTripActions', () => {
       const root = await render({ ...TRIP, status: 'confirmed' });
 
       expect(fixture.componentInstance.canStart()).toBe(false);
-      expect(root.textContent).toContain('Disponible desde las');
+      expect(root.textContent).toContain('Podrás iniciarlo a las');
       await fixture.componentInstance.handleStart();
       expect(driver['startTrip']).not.toHaveBeenCalled();
     });
@@ -202,7 +202,7 @@ describe('DriverTripActions', () => {
 
     it('starts sharing the location after confirming when the device already allows it', async () => {
       const root = await render(SOON);
-      expect(root.textContent).not.toContain('Disponible desde');
+      expect(root.textContent).not.toContain('Podrás iniciarlo a las');
 
       const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
@@ -350,7 +350,7 @@ describe('DriverTripActions', () => {
   it('waits for a passenger before a published trip can start', async () => {
     const root = await render(TRIP);
 
-    expect(root.textContent).toContain('Disponible cuando aceptes a algún pasajero');
+    expect(root.textContent).toContain('Podrás iniciarlo cuando aceptes a algún pasajero');
     expect(root.querySelector('.notice--warning')).toBeNull();
   });
 

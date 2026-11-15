@@ -8,22 +8,46 @@ import type { Trip } from '../trips/entities/trip.entity';
 import type { TripStatus } from '../trips/trip-status';
 import { TripsService } from '../trips/trips.service';
 import { CHAT_RETENTION_MS, type ChatRole, isChatOpen } from './chat-rules';
-import { ChatMessageView, ChatService } from './chat.service';
+import {
+  type ChatMessageView,
+  ChatService,
+  type ConversationRef,
+} from './chat.service';
 import { ChatMessage } from './entities/chat-message.entity';
 import { ChatRead } from './entities/chat-read.entity';
 
+interface PersonView {
+  id: string;
+  name: string;
+  avatarKey: string | null;
+}
+
 export interface ConversationView {
   trip: Trip;
-  driver: { name: string; avatarKey: string | null };
+  driver: Omit<PersonView, 'id'>;
+  // El pasajero de la conversación
+  passenger: PersonView;
   myRole: ChatRole;
   lastMessage: ChatMessageView | null;
   unreadCount: number;
   isOpen: boolean;
 }
 
-// Las conversaciones de un usuario: las de los viajes donde conduce o tiene
-// plaza aceptada que admiten mensajes o ya tienen alguno; con el último
-// mensaje y los no leídos (los de los demás después de su última lectura)
+interface ConversationRow {
+  trip: Trip;
+  passengerId: string;
+  lastMessage: ChatMessage | null;
+  unreadCount: number;
+  isOpen: boolean;
+}
+
+type Profiles = Map<string, { name: string; avatarKey: string | null }>;
+
+// Las conversaciones de un usuario: en los viajes donde conduce, una con cada
+// pasajero aceptado; donde tiene plaza aceptada, la suya con el conductor. Solo
+// las que admiten mensajes o ya tienen alguno; con el último mensaje y los no
+// leídos (los de la otra persona después de su última lectura). Los mensajes
+// del chat común anterior cuentan como último mensaje, nunca como no leídos
 @Injectable()
 export class ConversationsService {
   constructor(
@@ -54,24 +78,27 @@ export class ConversationsService {
       new Date(Date.now() - CHAT_RETENTION_MS),
     );
     const tripIds = trips.map(({ id }) => id);
-    const [lastMessages, unread] = await Promise.all([
+    const drivenTripIds = trips
+      .filter(({ driverId }) => driverId === userId)
+      .map(({ id }) => id);
+    const [passengersByTrip, lastMessages, unread] = await Promise.all([
+      this.requestsService.acceptedPassengersByTrip(drivenTripIds),
       this.lastMessages(tripIds),
       this.unreadCounts(userId, tripIds),
     ]);
-    const driverProfiles = await this.usersService.getPublicProfiles(
-      trips.map(({ driverId }) => driverId),
-    );
     const conversations = trips
-      .map((trip) => ({
-        trip,
-        driver: {
-          name: driverProfiles.get(trip.driverId)?.name ?? '',
-          avatarKey: driverProfiles.get(trip.driverId)?.avatarKey ?? null,
-        },
-        lastMessage: lastMessages.get(trip.id) ?? null,
-        unreadCount: unread.get(trip.id) ?? 0,
-        isOpen: isChatOpen(trip),
-      }))
+      .flatMap((trip) =>
+        (trip.driverId === userId
+          ? (passengersByTrip.get(trip.id) ?? [])
+          : [userId]
+        ).map((passengerId) => ({
+          trip,
+          passengerId,
+          lastMessage: lastMessageOf(lastMessages, trip.id, passengerId),
+          unreadCount: unread.get(conversationKey(trip.id, passengerId)) ?? 0,
+          isOpen: isChatOpen(trip),
+        })),
+      )
       .filter(({ isOpen, lastMessage }) => isOpen || lastMessage !== null)
       .filter(({ unreadCount }) => !filter.hasUnread || unreadCount > 0)
       .filter(
@@ -82,57 +109,79 @@ export class ConversationsService {
       page.offset,
       page.offset + page.limit,
     );
-    const views = await Promise.all(
-      pageItems.map(async ({ trip, lastMessage, ...rest }) => ({
-        trip,
-        myRole:
-          trip.driverId === userId
-            ? ('driver' as const)
-            : ('passenger' as const),
-        lastMessage: lastMessage
-          ? (await this.chat.toViews(trip, [lastMessage]))[0]
-          : null,
-        ...rest,
-      })),
+    const profiles = await this.usersService.getPublicProfiles(
+      pageItems.flatMap(({ trip, passengerId }) => [
+        trip.driverId,
+        passengerId,
+      ]),
     );
-    return { items: views, total: conversations.length };
+    const items = await Promise.all(
+      pageItems.map((row) => this.toView(userId, row, profiles)),
+    );
+    return { items, total: conversations.length };
   }
 
-  // Una conversación concreta del usuario (para el encabezado del chat y viajes terminados)
-  async getForTrip(userId: string, tripId: string): Promise<ConversationView> {
-    const { trip, role } = await this.chat.getAccess(userId, tripId);
-    const [lastMessages, unread, driverProfiles] = await Promise.all([
-      this.lastMessages([tripId]),
-      this.unreadCounts(userId, [tripId]),
-      this.usersService.getPublicProfiles([trip.driverId]),
+  // Una conversación concreta del usuario (para el encabezado del chat y
+  // viajes terminados)
+  async getForTrip(
+    userId: string,
+    ref: ConversationRef,
+  ): Promise<ConversationView> {
+    const { trip, passengerId } = await this.chat.getConversation(userId, ref);
+    const [lastMessages, unread, profiles] = await Promise.all([
+      this.lastMessages([trip.id]),
+      this.unreadCounts(userId, [trip.id]),
+      this.usersService.getPublicProfiles([trip.driverId, passengerId]),
     ]);
-    const lastMessage = lastMessages.get(tripId) ?? null;
+    const row: ConversationRow = {
+      trip,
+      passengerId,
+      lastMessage: lastMessageOf(lastMessages, trip.id, passengerId),
+      unreadCount: unread.get(conversationKey(trip.id, passengerId)) ?? 0,
+      isOpen: isChatOpen(trip),
+    };
+    return this.toView(userId, row, profiles);
+  }
+
+  async markRead(userId: string, ref: ConversationRef): Promise<void> {
+    const { trip, passengerId } = await this.chat.getConversation(userId, ref);
+    // Con la hora de la base de datos, la misma que la de los mensajes
+    await this.readsRepository.query(
+      `INSERT INTO chat_reads (trip_id, passenger_id, user_id, last_read_at)
+       VALUES ($1, $2, $3, now())
+       ON CONFLICT (trip_id, passenger_id, user_id)
+       DO UPDATE SET last_read_at = now()`,
+      [trip.id, passengerId, userId],
+    );
+  }
+
+  private async toView(
+    userId: string,
+    { trip, passengerId, lastMessage, unreadCount, isOpen }: ConversationRow,
+    profiles: Profiles,
+  ): Promise<ConversationView> {
     return {
       trip,
       driver: {
-        name: driverProfiles.get(trip.driverId)?.name ?? '',
-        avatarKey: driverProfiles.get(trip.driverId)?.avatarKey ?? null,
+        name: profiles.get(trip.driverId)?.name ?? '',
+        avatarKey: profiles.get(trip.driverId)?.avatarKey ?? null,
       },
-      myRole: role,
+      passenger: {
+        id: passengerId,
+        name: profiles.get(passengerId)?.name ?? '',
+        avatarKey: profiles.get(passengerId)?.avatarKey ?? null,
+      },
+      myRole: trip.driverId === userId ? 'driver' : 'passenger',
       lastMessage: lastMessage
         ? (await this.chat.toViews(trip, [lastMessage]))[0]
         : null,
-      unreadCount: unread.get(tripId) ?? 0,
-      isOpen: isChatOpen(trip),
+      unreadCount,
+      isOpen,
     };
   }
 
-  async markRead(userId: string, tripId: string): Promise<void> {
-    await this.chat.getAccess(userId, tripId);
-    // Con la hora de la base de datos, la misma que la de los mensajes
-    await this.readsRepository.query(
-      `INSERT INTO chat_reads (trip_id, user_id, last_read_at) VALUES ($1, $2, now())
-       ON CONFLICT (trip_id, user_id) DO UPDATE SET last_read_at = now()`,
-      [tripId, userId],
-    );
-  }
-
-  // El último mensaje de cada viaje
+  // El último mensaje de cada conversación de los viajes y el del chat común
+  // anterior de cada viaje (clave con el pasajero vacío)
   private async lastMessages(
     tripIds: string[],
   ): Promise<Map<string, ChatMessage>> {
@@ -140,19 +189,25 @@ export class ConversationsService {
       return new Map();
     }
     const ids = await this.messagesRepository.query<{ id: string }[]>(
-      `SELECT DISTINCT ON (trip_id) id
+      `SELECT DISTINCT ON (trip_id, passenger_id) id
          FROM chat_messages
         WHERE trip_id = ANY($1)
-        ORDER BY trip_id, created_at DESC, id DESC`,
+        ORDER BY trip_id, passenger_id, created_at DESC, id DESC`,
       [tripIds],
     );
     const messages = await this.messagesRepository.findBy({
       id: In(ids.map(({ id }) => id)),
     });
-    return new Map(messages.map((message) => [message.tripId, message]));
+    return new Map(
+      messages.map((message) => [
+        conversationKey(message.tripId, message.passengerId),
+        message,
+      ]),
+    );
   }
 
-  // Los mensajes de los demás posteriores a la última lectura del usuario
+  // Los mensajes de la otra persona posteriores a la última lectura del
+  // usuario, por conversación (los del chat común anterior no cuentan)
   private async unreadCounts(
     userId: string,
     tripIds: string[],
@@ -161,19 +216,46 @@ export class ConversationsService {
       return new Map();
     }
     const rows = await this.messagesRepository.query<
-      { trip_id: string; count: number }[]
+      { trip_id: string; passenger_id: string; count: number }[]
     >(
-      `SELECT m.trip_id, COUNT(*)::int AS count
+      `SELECT m.trip_id, m.passenger_id, COUNT(*)::int AS count
          FROM chat_messages m
-         LEFT JOIN chat_reads r ON r.trip_id = m.trip_id AND r.user_id = $1
+         LEFT JOIN chat_reads r
+           ON r.trip_id = m.trip_id
+          AND r.passenger_id = m.passenger_id
+          AND r.user_id = $1
         WHERE m.trip_id = ANY($2)
+          AND m.passenger_id IS NOT NULL
           AND m.author_id <> $1
           AND (r.last_read_at IS NULL OR m.created_at > r.last_read_at)
-        GROUP BY m.trip_id`,
+        GROUP BY m.trip_id, m.passenger_id`,
       [userId, tripIds],
     );
-    return new Map(rows.map(({ trip_id, count }) => [trip_id, count]));
+    return new Map(
+      rows.map(({ trip_id, passenger_id, count }) => [
+        conversationKey(trip_id, passenger_id),
+        count,
+      ]),
+    );
   }
+}
+
+function conversationKey(tripId: string, passengerId: string | null): string {
+  return `${tripId}:${passengerId ?? ''}`;
+}
+
+// El más reciente entre el de la conversación y el del chat común anterior
+function lastMessageOf(
+  lastMessages: Map<string, ChatMessage>,
+  tripId: string,
+  passengerId: string,
+): ChatMessage | null {
+  const direct = lastMessages.get(conversationKey(tripId, passengerId));
+  const shared = lastMessages.get(conversationKey(tripId, null));
+  if (!direct || !shared) {
+    return direct ?? shared ?? null;
+  }
+  return direct.createdAt >= shared.createdAt ? direct : shared;
 }
 
 function lastActivity({

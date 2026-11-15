@@ -113,6 +113,24 @@ app-profile-push-setting {
   }
 }
 
+.profile__review-score {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.profile__review-thumb {
+  font-size: 1rem; // 16px
+
+  &--up {
+    color: var(--color-success);
+  }
+
+  &--down {
+    color: var(--color-danger);
+  }
+}
+
 app-profile-push-setting,
 app-profile-device-location {
   display: block;
@@ -247,7 +265,6 @@ app-profile-device-location {
   }
 }
 
-
 .profile__logout {
   align-self: stretch;
   min-height: var(--control-height-base);
@@ -292,11 +309,6 @@ app-profile-device-location {
   flex: none;
   color: var(--color-text-muted);
   font-size: 1.125rem;
-}
-
-.profile__star {
-  color: var(--color-accent);
-  vertical-align: -0.125rem;
 }
 
 // Editar: botón cuadrado de 32px con fondo azul suave e icono de 20px
