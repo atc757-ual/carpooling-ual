@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import type { IncidentView } from '../incidents/incidents.service';
 import { ConversationReportsService } from '../incidents/conversation-reports.service';
-import { ChatService } from './chat.service';
+import { ChatService, type ConversationRef } from './chat.service';
 import { ChatMessage } from './entities/chat-message.entity';
 import type { QuickReply } from './entities/chat-message.entity';
 
@@ -40,9 +40,10 @@ export function quickReplyCopy(quickReply: QuickReply | null): string {
     : '(mensaje vacío)';
 }
 
-// Denunciar el chat de un viaje: quien participa lo denuncia con un motivo y
-// el módulo de incidencias crea la incidencia (sin cancelar nada) con una
-// copia de la conversación. Se puede aunque el chat ya no admita mensajes
+// Denunciar una conversación del chat: el conductor o el pasajero la denuncia
+// con un motivo y el módulo de incidencias crea la incidencia (sin cancelar
+// nada) con una copia de la conversación y del chat común anterior. Se puede
+// aunque el chat ya no admita mensajes
 @Injectable()
 export class ChatReportsService {
   constructor(
@@ -54,13 +55,18 @@ export class ChatReportsService {
 
   async report(
     userId: string,
-    tripId: string,
+    ref: ConversationRef,
     reason: string,
   ): Promise<IncidentView> {
-    const { trip } = await this.chat.getAccess(userId, tripId);
-    // Los últimos, y luego del más antiguo al más nuevo
+    const { trip, passengerId } = await this.chat.getConversation(userId, ref);
+    const tripId = trip.id;
+    // Los de la conversación y los del chat común anterior: los últimos, y
+    // luego del más antiguo al más nuevo
     const [latest, total] = await this.messagesRepository.findAndCount({
-      where: { tripId },
+      where: [
+        { tripId, passengerId },
+        { tripId, passengerId: IsNull() },
+      ],
       order: { createdAt: 'DESC', id: 'DESC' },
       take: MAX_REPORTED_MESSAGES,
     });

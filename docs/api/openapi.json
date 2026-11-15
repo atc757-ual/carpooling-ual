@@ -8998,7 +8998,7 @@
     },
     "/api/users/me/conversations": {
       "get": {
-        "description": "Chats of the trips where I drive or have an accepted seat that accept messages or already have some, newest activity first, with the last message and the unread count. hasUnread=true&limit=1 tells through X-Total-Count whether there is anything new.",
+        "description": "Direct chats of the trips where I drive (one per accepted passenger) or have an accepted seat (the one with the driver) that accept messages or already have some, newest activity first, with the last message and the unread count. hasUnread=true&limit=1 tells through X-Total-Count whether there is anything new.",
         "operationId": "ChatController_listConversations",
         "parameters": [
           {
@@ -9123,13 +9123,23 @@
     },
     "/api/trips/{id}/conversation": {
       "get": {
-        "description": "Returns the trip and driver details for the chat header, even if closed.",
+        "description": "The trip, the driver and the passenger of the conversation for the chat header, even if closed. The driver says which passenger (passengerId).",
         "operationId": "ChatController_getConversation",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "passengerId",
+            "required": false,
+            "in": "query",
+            "description": "The passenger of the conversation. Required for the driver (an accepted passenger of the trip); a passenger may leave it out (it is themselves)",
             "schema": {
               "format": "uuid",
               "type": "string"
@@ -9148,11 +9158,18 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
+            "description": "TMF630 error: VALIDATION_FAILED, CHAT_PASSENGER_INVALID",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
                 }
               }
             }
@@ -9203,7 +9220,7 @@
             "bearer": []
           }
         ],
-        "summary": "Get conversation details for a trip",
+        "summary": "Get a conversation of a trip",
         "tags": [
           "chat"
         ]
@@ -9211,7 +9228,7 @@
     },
     "/api/trips/{id}/messages": {
       "get": {
-        "description": "Only its driver and accepted passengers. Oldest first; with after, only the newer ones (polling).",
+        "description": "Only the driver and the passenger of the conversation; the driver says which passenger (passengerId). Also the messages of the former shared trip chat (isShared, read only). Oldest first; with after, only the newer ones (polling).",
         "operationId": "ChatController_listMessages",
         "parameters": [
           {
@@ -9244,6 +9261,16 @@
               "maximum": 100,
               "default": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "passengerId",
+            "required": false,
+            "in": "query",
+            "description": "The passenger of the conversation. Required for the driver (an accepted passenger of the trip); a passenger may leave it out (it is themselves)",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
             }
           },
           {
@@ -9286,11 +9313,18 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
+            "description": "TMF630 error: VALIDATION_FAILED, CHAT_PASSENGER_INVALID",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
                 }
               }
             }
@@ -9341,19 +9375,29 @@
             "bearer": []
           }
         ],
-        "summary": "List the messages of a trip chat",
+        "summary": "List the messages of a conversation",
         "tags": [
           "chat"
         ]
       },
       "post": {
-        "description": "Text or a quick reply. Open while the trip is confirmed or in progress and up to 24 h after it finishes. At most 20 messages per minute.",
+        "description": "Text or a quick reply, to the other person of the conversation (the driver says which passenger with passengerId). Open while the trip is confirmed or in progress and up to 24 h after it finishes. At most 20 messages per minute.",
         "operationId": "ChatController_send",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "passengerId",
+            "required": false,
+            "in": "query",
+            "description": "The passenger of the conversation. Required for the driver (an accepted passenger of the trip); a passenger may leave it out (it is themselves)",
             "schema": {
               "format": "uuid",
               "type": "string"
@@ -9382,11 +9426,18 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
+            "description": "TMF630 error: VALIDATION_FAILED, CHAT_PASSENGER_INVALID",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
                 }
               }
             }
@@ -9457,7 +9508,7 @@
             "bearer": []
           }
         ],
-        "summary": "Send a message to a trip chat",
+        "summary": "Send a message to a conversation",
         "tags": [
           "chat"
         ]
@@ -9465,7 +9516,7 @@
     },
     "/api/trips/{id}/contacts": {
       "get": {
-        "description": "The passenger gets the driver; the driver, the accepted passengers. Only verified phones and while the trip is confirmed or in progress (as the privacy policy says).",
+        "description": "The other person of the conversation: the passenger gets the driver; the driver, the passenger (passengerId) or, without passengerId (the trip screens), all the accepted passengers. Only verified phones and while the trip is confirmed or in progress (as the privacy policy says).",
         "operationId": "ChatController_listContacts",
         "parameters": [
           {
@@ -9499,6 +9550,16 @@
               "default": 20,
               "type": "number"
             }
+          },
+          {
+            "name": "passengerId",
+            "required": false,
+            "in": "query",
+            "description": "The passenger of the conversation. Required for the driver (an accepted passenger of the trip); a passenger may leave it out (it is themselves)",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -9530,11 +9591,18 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
+            "description": "TMF630 error: VALIDATION_FAILED, CHAT_PASSENGER_INVALID",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
                 }
               }
             }
@@ -9593,13 +9661,23 @@
     },
     "/api/trips/{id}/chat/report": {
       "post": {
-        "description": "Creates an incident for the administrator (it cancels nothing) with a copy of the conversation (its last 200 messages) and the reason. Any participant, also once the chat is closed; it can be reported again.",
+        "description": "Creates an incident for the administrator (it cancels nothing) with a copy of the conversation (its last 200 messages, with those of the former shared chat) and the reason. Either person of the conversation (the driver says which passenger), also once the chat is closed; it can be reported again.",
         "operationId": "ChatController_report",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "passengerId",
+            "required": false,
+            "in": "query",
+            "description": "The passenger of the conversation. Required for the driver (an accepted passenger of the trip); a passenger may leave it out (it is themselves)",
             "schema": {
               "format": "uuid",
               "type": "string"
@@ -9633,11 +9711,18 @@
             }
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
+            "description": "TMF630 error: VALIDATION_FAILED, CHAT_PASSENGER_INVALID",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
                 }
               }
             }
@@ -9688,7 +9773,7 @@
             "bearer": []
           }
         ],
-        "summary": "Report a trip chat",
+        "summary": "Report a conversation",
         "tags": [
           "chat"
         ]
@@ -9696,13 +9781,23 @@
     },
     "/api/trips/{id}/messages/read": {
       "put": {
-        "description": "Everything received so far stops counting as unread.",
+        "description": "Everything received so far in the conversation stops counting as unread (the driver says which passenger).",
         "operationId": "ChatController_markRead",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "passengerId",
+            "required": false,
+            "in": "query",
+            "description": "The passenger of the conversation. Required for the driver (an accepted passenger of the trip); a passenger may leave it out (it is themselves)",
             "schema": {
               "format": "uuid",
               "type": "string"
@@ -9714,11 +9809,18 @@
             "description": ""
           },
           "400": {
-            "description": "TMF630 error: VALIDATION_FAILED",
+            "description": "TMF630 error: VALIDATION_FAILED, CHAT_PASSENGER_INVALID",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TmfValidationError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
                 }
               }
             }
@@ -9769,7 +9871,7 @@
             "bearer": []
           }
         ],
-        "summary": "Mark a trip chat as read",
+        "summary": "Mark a conversation as read",
         "tags": [
           "chat"
         ]
@@ -17258,8 +17360,13 @@
           },
           "readByAll": {
             "type": "boolean",
-            "description": "Whether all other participants of the trip have read this message (computed for own messages)",
+            "description": "Whether the other person of the conversation has read this message (computed for own direct messages)",
             "example": true
+          },
+          "isShared": {
+            "type": "boolean",
+            "description": "A message of the former shared trip chat, seen by all its participants: read only, shown before the direct ones",
+            "example": false
           }
         },
         "required": [
@@ -17271,7 +17378,8 @@
           "text",
           "quickReply",
           "createdAt",
-          "readByAll"
+          "readByAll",
+          "isShared"
         ]
       },
       "ConversationResource": {
@@ -17285,15 +17393,23 @@
           },
           "id": {
             "type": "string",
-            "format": "uuid",
-            "description": "The trip id"
+            "description": "The trip id and the passenger id, joined by a colon",
+            "example": "0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90:5d2c9e1a-7b3f-4a8e-9c6d-2f1e0a9b8c7d"
           },
           "href": {
             "type": "string",
-            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/messages"
+            "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/messages?passengerId=5d2c9e1a-7b3f-4a8e-9c6d-2f1e0a9b8c7d"
           },
           "trip": {
             "$ref": "#/components/schemas/ConversationTripResource"
+          },
+          "passenger": {
+            "description": "The passenger of the conversation",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChatAuthorResource"
+              }
+            ]
           },
           "myRole": {
             "type": "string",
@@ -17326,6 +17442,7 @@
           "id",
           "href",
           "trip",
+          "passenger",
           "myRole",
           "lastMessage",
           "unreadCount",

@@ -42,6 +42,11 @@ export class ChatMessage {
   @Column({ name: 'trip_id', type: 'uuid' })
   tripId: string;
 
+  // El pasajero de la conversación (el chat es directo entre el conductor y
+  // cada pasajero); null en los del chat común anterior, de solo lectura
+  @Column({ name: 'passenger_id', type: 'uuid', nullable: true })
+  passengerId: string | null;
+
   @Column({ name: 'author_id', type: 'uuid' })
   authorId: string;
 

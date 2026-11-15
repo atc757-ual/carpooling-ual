@@ -33,9 +33,12 @@ describe('ConversationsService', () => {
       query: jest.fn(),
     };
     chat = {
-      getAccess: jest
-        .fn()
-        .mockResolvedValue({ trip: mockTrip, role: 'driver' }),
+      getConversation: jest.fn().mockResolvedValue({
+        trip: mockTrip,
+        role: 'driver',
+        passengerId: 'passenger-1',
+        otherUserId: 'passenger-1',
+      }),
       toViews: jest.fn().mockResolvedValue([]),
     };
     tripsService = {};
@@ -43,11 +46,12 @@ describe('ConversationsService', () => {
       acceptedTripIdsOfPassenger: jest.fn(),
     };
     usersService = {
-      getPublicProfiles: jest
-        .fn()
-        .mockResolvedValue(
-          new Map([['driver-1', { name: 'Lucía', avatarKey: 'sun' }]]),
-        ),
+      getPublicProfiles: jest.fn().mockResolvedValue(
+        new Map([
+          ['driver-1', { name: 'Lucía', avatarKey: 'sun' }],
+          ['passenger-1', { name: 'Pía', avatarKey: null }],
+        ]),
+      ),
     };
 
     service = new ConversationsService(
@@ -64,38 +68,74 @@ describe('ConversationsService', () => {
     it('returns the conversation view when there are no messages', async () => {
       (messagesRepository.query as jest.Mock)
         .mockResolvedValueOnce([]) // lastMessages ids
-        .mockResolvedValueOnce([{ trip_id: 'trip-1', count: 0 }]); // unreadCounts
+        .mockResolvedValueOnce([]); // unreadCounts
       (messagesRepository.findBy as jest.Mock).mockResolvedValueOnce([]);
 
-      const result = await service.getForTrip('user-1', 'trip-1');
+      const ref = { tripId: 'trip-1', passengerId: 'passenger-1' };
+      const result = await service.getForTrip('driver-1', ref);
 
-      expect(chat.getAccess).toHaveBeenCalledWith('user-1', 'trip-1');
+      expect(chat.getConversation).toHaveBeenCalledWith('driver-1', ref);
       expect(result.trip).toBe(mockTrip);
       expect(result.myRole).toBe('driver');
       expect(result.driver).toEqual({ name: 'Lucía', avatarKey: 'sun' });
+      expect(result.passenger).toEqual({
+        id: 'passenger-1',
+        name: 'Pía',
+        avatarKey: null,
+      });
       expect(result.lastMessage).toBeNull();
       expect(result.unreadCount).toBe(0);
       expect(result.isOpen).toBe(true);
     });
 
-    it('returns the conversation view with last message when present', async () => {
-      const message = {
-        id: 'msg-1',
-        tripId: 'trip-1',
-        text: 'Hola',
-      } as ChatMessage;
-      const messageView = { id: 'msg-1', text: 'Hola' } as ChatMessageView;
+    it('takes the newest of the direct and the former shared messages as the last one', async () => {
+      const message = (id: string, passengerId: string | null, at: string) =>
+        ({
+          id,
+          tripId: 'trip-1',
+          passengerId,
+          createdAt: new Date(at),
+        }) as unknown as ChatMessage;
+      const direct = message('msg-1', 'passenger-1', '2026-11-15T08:00:00Z');
+      const shared = message('msg-0', null, '2026-11-14T08:00:00Z');
+      const messageView = { message: direct } as unknown as ChatMessageView;
 
       (messagesRepository.query as jest.Mock)
-        .mockResolvedValueOnce([{ id: 'msg-1' }]) // lastMessages query
-        .mockResolvedValueOnce([{ trip_id: 'trip-1', count: 2 }]); // unreadCounts query
-      (messagesRepository.findBy as jest.Mock).mockResolvedValueOnce([message]);
+        .mockResolvedValueOnce([{ id: 'msg-0' }, { id: 'msg-1' }]) // lastMessages
+        .mockResolvedValueOnce([
+          { trip_id: 'trip-1', passenger_id: 'passenger-1', count: 2 },
+        ]); // unreadCounts
+      (messagesRepository.findBy as jest.Mock).mockResolvedValueOnce([
+        shared,
+        direct,
+      ]);
       (chat.toViews as jest.Mock).mockResolvedValueOnce([messageView]);
 
-      const result = await service.getForTrip('user-1', 'trip-1');
+      const result = await service.getForTrip('user-1', {
+        tripId: 'trip-1',
+        passengerId: 'passenger-1',
+      });
 
+      expect(chat.toViews).toHaveBeenCalledWith(mockTrip, [direct]);
       expect(result.lastMessage).toEqual(messageView);
       expect(result.unreadCount).toBe(2);
+    });
+
+    it('takes the former shared message when the conversation has none', async () => {
+      const shared = {
+        id: 'msg-0',
+        tripId: 'trip-1',
+        passengerId: null,
+        createdAt: new Date('2026-11-14T08:00:00Z'),
+      } as unknown as ChatMessage;
+      (messagesRepository.query as jest.Mock)
+        .mockResolvedValueOnce([{ id: 'msg-0' }])
+        .mockResolvedValueOnce([]);
+      (messagesRepository.findBy as jest.Mock).mockResolvedValueOnce([shared]);
+
+      await service.getForTrip('user-1', { tripId: 'trip-1' });
+
+      expect(chat.toViews).toHaveBeenCalledWith(mockTrip, [shared]);
     });
   });
 });

@@ -61,10 +61,17 @@ export class ChatMessageResource {
 
   @ApiProperty({
     description:
-      'Whether all other participants of the trip have read this message (computed for own messages)',
+      'Whether the other person of the conversation has read this message (computed for own direct messages)',
     example: true,
   })
   readByAll: boolean;
+
+  @ApiProperty({
+    description:
+      'A message of the former shared trip chat, seen by all its participants: read only, shown before the direct ones',
+    example: false,
+  })
+  isShared: boolean;
 }
 
 // Recurso TMF630 ChatContact: alguien del viaje a quien se puede llamar (sin
@@ -131,22 +138,33 @@ export class ConversationTripResource {
   driverAvatarKey: string | null;
 }
 
-// Recurso TMF630 Conversation: el chat de un viaje para el usuario (su id es
-// el del viaje)
+// Recurso TMF630 Conversation: el chat directo de un viaje entre el conductor
+// y un pasajero (su id, el del viaje y el del pasajero)
 export class ConversationResource {
   @ApiProperty({ enum: ['Conversation'] })
   '@type': 'Conversation';
 
-  @ApiProperty({ format: 'uuid', description: 'The trip id' })
+  @ApiProperty({
+    description: 'The trip id and the passenger id, joined by a colon',
+    example:
+      '0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90:5d2c9e1a-7b3f-4a8e-9c6d-2f1e0a9b8c7d',
+  })
   id: string;
 
   @ApiProperty({
-    example: '/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/messages',
+    example:
+      '/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/messages?passengerId=5d2c9e1a-7b3f-4a8e-9c6d-2f1e0a9b8c7d',
   })
   href: string;
 
   @ApiProperty({ type: ConversationTripResource })
   trip: ConversationTripResource;
+
+  @ApiProperty({
+    type: ChatAuthorResource,
+    description: 'The passenger of the conversation',
+  })
+  passenger: ChatAuthorResource;
 
   @ApiProperty({ enum: CHAT_ROLES })
   myRole: ChatRoleValue;
@@ -183,17 +201,18 @@ export function toChatMessageResource({
     quickReply: message.quickReply,
     createdAt: message.createdAt.toISOString(),
     readByAll,
+    isShared: message.passengerId === null,
   };
 }
 
 export function toConversationResource(
   view: ConversationView,
 ): ConversationResource {
-  const { trip } = view;
+  const { trip, passenger } = view;
   return {
     '@type': 'Conversation',
-    id: trip.id,
-    href: `${tripHref(trip.id)}/messages`,
+    id: `${trip.id}:${passenger.id}`,
+    href: `${tripHref(trip.id)}/messages?passengerId=${passenger.id}`,
     trip: {
       id: trip.id,
       href: tripHref(trip.id),
@@ -204,6 +223,7 @@ export function toConversationResource(
       driverName: view.driver.name,
       driverAvatarKey: view.driver.avatarKey,
     },
+    passenger,
     myRole: view.myRole,
     lastMessage: view.lastMessage
       ? toChatMessageResource(view.lastMessage)

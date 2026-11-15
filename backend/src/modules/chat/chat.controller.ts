@@ -24,7 +24,6 @@ import type { AccessTokenPayload } from '../../shared/auth/access-token-payload'
 import { CurrentUser } from '../../shared/auth/current-user.decorator';
 import { ApiErrorResponses } from '../../shared/http/api-error-responses.decorator';
 import { uuidParam } from '../../shared/http/validation';
-import { PaginationQueryDto } from '../../shared/pagination/pagination-query.dto';
 import {
   ApiPaginatedResponse,
   setPaginationHeaders,
@@ -44,6 +43,8 @@ import {
   toChatMessageResource,
   toConversationResource,
 } from './dto/chat.resource';
+import { ConversationQueryDto } from './dto/conversation-query.dto';
+import { ListContactsQueryDto } from './dto/list-contacts-query.dto';
 import { ListConversationsQueryDto } from './dto/list-conversations-query.dto';
 import { ListMessagesQueryDto } from './dto/list-messages-query.dto';
 import { ReportChatDto } from './dto/report-chat.dto';
@@ -55,13 +56,15 @@ const AUTH_ERRORS = {
 };
 const TRIP_CHAT_ERRORS = {
   ...AUTH_ERRORS,
-  [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+  [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED', 'CHAT_PASSENGER_INVALID'],
   [HttpStatus.FORBIDDEN]: ['CHAT_NOT_ALLOWED'],
   [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND'],
 };
 
-// Chat de un viaje entre el conductor y sus pasajeros aceptados («Podría»
-// del capítulo 6). Los mensajes llegan con consultas periódicas (after)
+// Chat de un viaje («Podría» del capítulo 6): directo entre el conductor y
+// cada pasajero aceptado. El conductor indica el pasajero (passengerId); el
+// pasajero habla siempre con el conductor. Los mensajes llegan con consultas
+// periódicas (after)
 @ApiTags('chat')
 @ApiBearerAuth()
 @Controller()
@@ -76,7 +79,7 @@ export class ChatController {
   @ApiOperation({
     summary: 'List my conversations',
     description:
-      'Chats of the trips where I drive or have an accepted seat that accept messages or already have some, newest activity first, with the last message and the unread count. hasUnread=true&limit=1 tells through X-Total-Count whether there is anything new.',
+      'Direct chats of the trips where I drive (one per accepted passenger) or have an accepted seat (the one with the driver) that accept messages or already have some, newest activity first, with the last message and the unread count. hasUnread=true&limit=1 tells through X-Total-Count whether there is anything new.',
   })
   @ApiPaginatedResponse(ConversationResource)
   @ApiErrorResponses({
@@ -99,9 +102,9 @@ export class ChatController {
 
   @Get('trips/:id/conversation')
   @ApiOperation({
-    summary: 'Get conversation details for a trip',
+    summary: 'Get a conversation of a trip',
     description:
-      'Returns the trip and driver details for the chat header, even if closed.',
+      'The trip, the driver and the passenger of the conversation for the chat header, even if closed. The driver says which passenger (passengerId).',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: ConversationResource })
@@ -109,16 +112,20 @@ export class ChatController {
   async getConversation(
     @CurrentUser() user: AccessTokenPayload,
     @Param('id', uuidParam('id')) tripId: string,
+    @Query() query: ConversationQueryDto,
   ): Promise<ConversationResource> {
-    const view = await this.conversationsService.getForTrip(user.sub, tripId);
+    const view = await this.conversationsService.getForTrip(user.sub, {
+      tripId,
+      passengerId: query.passengerId,
+    });
     return toConversationResource(view);
   }
 
   @Get('trips/:id/messages')
   @ApiOperation({
-    summary: 'List the messages of a trip chat',
+    summary: 'List the messages of a conversation',
     description:
-      'Only its driver and accepted passengers. Oldest first; with after, only the newer ones (polling).',
+      'Only the driver and the passenger of the conversation; the driver says which passenger (passengerId). Also the messages of the former shared trip chat (isShared, read only). Oldest first; with after, only the newer ones (polling).',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiPaginatedResponse(ChatMessageResource)
@@ -129,7 +136,11 @@ export class ChatController {
     @Query() query: ListMessagesQueryDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<ChatMessageResource[]> {
-    const page = await this.chatService.list(user.sub, tripId, query);
+    const page = await this.chatService.list(
+      user.sub,
+      { tripId, passengerId: query.passengerId },
+      query,
+    );
     setPaginationHeaders(response, page);
     return page.items.map(toChatMessageResource);
   }
@@ -138,7 +149,7 @@ export class ChatController {
   @ApiOperation({
     summary: 'List whom the user can call from a trip chat',
     description:
-      'The passenger gets the driver; the driver, the accepted passengers. Only verified phones and while the trip is confirmed or in progress (as the privacy policy says).',
+      'The other person of the conversation: the passenger gets the driver; the driver, the passenger (passengerId) or, without passengerId (the trip screens), all the accepted passengers. Only verified phones and while the trip is confirmed or in progress (as the privacy policy says).',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiPaginatedResponse(ChatContactResource)
@@ -146,10 +157,13 @@ export class ChatController {
   async listContacts(
     @CurrentUser() user: AccessTokenPayload,
     @Param('id', uuidParam('id')) tripId: string,
-    @Query() query: PaginationQueryDto,
+    @Query() query: ListContactsQueryDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<ChatContactResource[]> {
-    const contacts = await this.chatService.contacts(user.sub, tripId);
+    const contacts = await this.chatService.contacts(user.sub, {
+      tripId,
+      passengerId: query.passengerId,
+    });
     const items = contacts.slice(query.offset, query.offset + query.limit);
     setPaginationHeaders(response, { items, total: contacts.length });
     return items.map(toChatContactResource);
@@ -157,9 +171,9 @@ export class ChatController {
 
   @Post('trips/:id/messages')
   @ApiOperation({
-    summary: 'Send a message to a trip chat',
+    summary: 'Send a message to a conversation',
     description:
-      'Text or a quick reply. Open while the trip is confirmed or in progress and up to 24 h after it finishes. At most 20 messages per minute.',
+      'Text or a quick reply, to the other person of the conversation (the driver says which passenger with passengerId). Open while the trip is confirmed or in progress and up to 24 h after it finishes. At most 20 messages per minute.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiCreatedResponse({ type: ChatMessageResource })
@@ -171,6 +185,7 @@ export class ChatController {
   async send(
     @CurrentUser() user: AccessTokenPayload,
     @Param('id', uuidParam('id')) tripId: string,
+    @Query() query: ConversationQueryDto,
     @Body() dto: SendChatMessageDto,
   ): Promise<ChatMessageResource> {
     // La validación garantiza uno de los dos
@@ -179,16 +194,20 @@ export class ChatController {
         ? { quickReply: dto.quickReply as QuickReply }
         : { text: dto.text };
     return toChatMessageResource(
-      await this.chatService.send(user.sub, tripId, input),
+      await this.chatService.send(
+        user.sub,
+        { tripId, passengerId: query.passengerId },
+        input,
+      ),
     );
   }
 
   // Las denuncias van al administrador como incidencias (CU-12)
   @Post('trips/:id/chat/report')
   @ApiOperation({
-    summary: 'Report a trip chat',
+    summary: 'Report a conversation',
     description:
-      'Creates an incident for the administrator (it cancels nothing) with a copy of the conversation (its last 200 messages) and the reason. Any participant, also once the chat is closed; it can be reported again.',
+      'Creates an incident for the administrator (it cancels nothing) with a copy of the conversation (its last 200 messages, with those of the former shared chat) and the reason. Either person of the conversation (the driver says which passenger), also once the chat is closed; it can be reported again.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiCreatedResponse({
@@ -199,11 +218,16 @@ export class ChatController {
   async report(
     @CurrentUser() user: AccessTokenPayload,
     @Param('id', uuidParam('id')) tripId: string,
+    @Query() query: ConversationQueryDto,
     @Body() dto: ReportChatDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<IncidentResource> {
     const incident = toIncidentResource(
-      await this.chatReportsService.report(user.sub, tripId, dto.reason),
+      await this.chatReportsService.report(
+        user.sub,
+        { tripId, passengerId: query.passengerId },
+        dto.reason,
+      ),
     );
     response.setHeader('Location', incident.href);
     return incident;
@@ -212,8 +236,9 @@ export class ChatController {
   @Put('trips/:id/messages/read')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
-    summary: 'Mark a trip chat as read',
-    description: 'Everything received so far stops counting as unread.',
+    summary: 'Mark a conversation as read',
+    description:
+      'Everything received so far in the conversation stops counting as unread (the driver says which passenger).',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiNoContentResponse()
@@ -221,7 +246,11 @@ export class ChatController {
   async markRead(
     @CurrentUser() user: AccessTokenPayload,
     @Param('id', uuidParam('id')) tripId: string,
+    @Query() query: ConversationQueryDto,
   ): Promise<void> {
-    await this.conversationsService.markRead(user.sub, tripId);
+    await this.conversationsService.markRead(user.sub, {
+      tripId,
+      passengerId: query.passengerId,
+    });
   }
 }
