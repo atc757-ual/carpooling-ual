@@ -142,12 +142,39 @@ ion-card.driver-trip ion-card-content {
   margin-top: 0.125rem; // 2px
 }
 
+.driver-trip__auto-accept-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  margin-bottom: var(--space-xs);
+
+  ion-icon {
+    font-size: 1.125rem;
+    flex-shrink: 0;
+  }
+}
+
 .driver-trip__preference-tag {
-  padding: 0.125rem var(--space-s); // 2px 8px
+  padding: 2px 4px;
   border-radius: var(--radius-s); // 8px
   background: var(--color-primary-subtle);
   color: var(--color-text);
   font-size: var(--font-size-caption); // 12px
+  white-space: nowrap;
+}
+
+.driver-trip__pickup-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: 0.125rem; // 2px
+  color: var(--color-text-muted);
+
+  ion-icon {
+    font-size: 0.875rem; // 14px
+    flex-shrink: 0;
+    color: var(--color-link);
+  }
 }
 
 .driver-trip__actions {

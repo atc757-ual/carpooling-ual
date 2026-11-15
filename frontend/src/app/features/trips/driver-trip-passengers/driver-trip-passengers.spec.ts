@@ -101,11 +101,12 @@ describe('DriverTripPassengers', () => {
   });
 
   it('says the requests that fit are accepted automatically', async () => {
-    const root = await render({ ...TRIP, autoAccept: true });
+    const root = await render({ ...TRIP, autoAccept: true }, [request('accepted')]);
 
     expect(root.querySelector('.driver-trip__auto-accept')?.textContent).toContain(
-      'Aceptas automáticamente las solicitudes que caben',
+      'Aceptas solicitudes automáticamente',
     );
+    expect(root.querySelector('.status--accepted')?.textContent).toContain('Autoaceptada');
   });
 
   it('lists the pending and accepted requests, and hides the closed ones', async () => {

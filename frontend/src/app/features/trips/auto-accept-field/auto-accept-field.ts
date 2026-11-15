@@ -11,7 +11,7 @@ import { IonToggle } from '@ionic/angular';
   imports: [ReactiveFormsModule, IonToggle],
   template: `
     <div class="auto-accept">
-      <ion-toggle [formControl]="control()" labelPlacement="start" justify="space-between">
+      <ion-toggle mode="ios" [formControl]="control()" labelPlacement="start" justify="space-between">
         Aceptar solicitudes automáticamente
       </ion-toggle>
       <p class="text-caption text-color-muted">

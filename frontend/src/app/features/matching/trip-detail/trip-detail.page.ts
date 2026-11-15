@@ -243,6 +243,7 @@ export class TripDetailPage {
 
   readonly seats = computed(() => this.searchState.search()?.seats ?? 1);
   readonly requestedSeats = computed(() => formatSeats(this.seats()));
+  readonly isAutoAccept = computed(() => this.tripData.value()?.trip.autoAccept === true);
 
   readonly myRequest = resource({
     params: () => this.trip()?.id,
