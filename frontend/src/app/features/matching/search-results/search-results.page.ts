@@ -156,7 +156,7 @@ export class SearchResultsPage {
   }
 
   readonly bestTripId = computed(() => (this.trips().length > 1 ? this.trips()[0].id : null));
-  readonly sortOrder = signal<SearchSortOrder>('arrival');
+  readonly sortOrder = signal<SearchSortOrder>('detour');
   readonly sortedTrips = computed(() => {
     const trips = [...this.trips()];
     if (this.sortOrder() === 'detour') {

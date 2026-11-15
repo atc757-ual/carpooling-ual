@@ -156,17 +156,17 @@ describe('SearchResultsPage', () => {
     expect(page.details()).toContain('llegada 08:00 ± 20 min · 1 plaza');
   });
 
-  it('sorts by earliest arrival by default and by detour on request', async () => {
+  it('sorts by best match (detour) by default and by arrival on request', async () => {
     const fixture = await setUp(SEARCH, () =>
       Promise.resolve([MATCH, LOWER_DETOUR_MATCH, EARLIER_MATCH]),
     );
     const page = fixture.componentInstance;
 
-    expect(page.sortedTrips().map(({ id }) => id)).toEqual(['earlier', 't1', 'lower-detour']);
-
-    page.handleSortChange('detour');
-
     expect(page.sortedTrips().map(({ id }) => id)).toEqual(['lower-detour', 't1', 'earlier']);
+
+    page.handleSortChange('arrival');
+
+    expect(page.sortedTrips().map(({ id }) => id)).toEqual(['earlier', 't1', 'lower-detour']);
   });
 
   it('ignores an unknown sort order', async () => {
@@ -174,7 +174,7 @@ describe('SearchResultsPage', () => {
 
     page.handleSortChange('other');
 
-    expect(page.sortOrder()).toBe('arrival');
+    expect(page.sortOrder()).toBe('detour');
   });
 
   it('marks the trips with a live request, not the ones that ended', async () => {
