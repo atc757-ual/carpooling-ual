@@ -1,9 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
+import { TravelPreferences } from '../../../core/models/travel-preferences.model';
 import { TripResult } from '../../../core/models/trip-result.model';
+import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
 import { TripResultCard } from './trip-result-card';
+
+// Las preferencias ya con su texto (el catálogo real lo prueba su store)
+const PREFERENCE_TEXTS = ['Charlar', 'Música suave', 'No se fuma', 'En transportín'];
+const PREFERENCES = {} as TravelPreferences;
 
 const TRIP: TripResult = {
   id: 'trip-1',
@@ -36,6 +42,12 @@ describe('TripResultCard', () => {
         provideIonicAngular(),
         provideRouter([]),
         { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
+        {
+          provide: TravelPreferencesStore,
+          useValue: {
+            format: (preferences?: TravelPreferences) => (preferences ? PREFERENCE_TEXTS : []),
+          },
+        },
       ],
     });
     const fixture = TestBed.createComponent(TripResultCard);
@@ -85,6 +97,16 @@ describe('TripResultCard', () => {
 
     expect(text(root, '.trip-card__driver')).toBe('Conduce Lucía Cortés');
     expect(root.querySelector('app-trip-driver')).toBeNull();
+    expect(root.querySelector('.trip-card__preferences')).toBeNull();
+  });
+
+  it('shows the first three driver preferences and how many more', () => {
+    const root = render({ ...TRIP, driver: { ...TRIP.driver, preferences: PREFERENCES } });
+    const chips = [...root.querySelectorAll('.trip-card__preference')].map((chip) =>
+      chip.textContent?.trim(),
+    );
+
+    expect(chips).toEqual(['Charlar', 'Música suave', 'No se fuma', '+1']);
   });
 
   it('links the row to the trip detail with a label that describes the trip', () => {

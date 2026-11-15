@@ -68,6 +68,28 @@
   margin: 0;
 }
 
+// Las preferencias del conductor: píldoras como en el detalle, en una fila
+.trip-card__preferences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trip-card__preference {
+  padding: 0.125rem var(--space-s); // 2px arriba y abajo
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-text);
+  font-size: var(--font-size-caption);
+}
+
+.trip-card__preference--more {
+  color: var(--color-text-muted);
+}
+
 // La recogida a la izquierda y «Ver detalle ›» a la derecha, en una línea
 // también en el móvil: si no cabe, se corta la recogida, nunca el enlace
 .trip-card__foot {

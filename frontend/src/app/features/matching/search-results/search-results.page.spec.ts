@@ -16,6 +16,7 @@ import {
   ROQUETAS,
   stubIntersectionObserver,
 } from '../trip-search.testing';
+import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { describeResults, SearchResultsPage } from './search-results.page';
 
@@ -115,6 +116,7 @@ describe('SearchResultsPage', () => {
         provideIonicAngular(),
         provideRouter([]),
         { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
+        { provide: TravelPreferencesStore, useValue: { format: () => [] } },
         { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
         { provide: MatchingService, useValue: { search } },
         { provide: SeatRequestsService, useValue: { listMine } },

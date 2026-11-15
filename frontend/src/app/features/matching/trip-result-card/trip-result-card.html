@@ -33,6 +33,20 @@
          el detalle -->
     <p class="trip-card__driver text-body-s text-color-muted">Conduce {{ trip().driver.name }}</p>
 
+    <!-- Sus preferencias de viaje, como en el detalle (las 3 primeras) -->
+    @if (shownPreferences().length > 0) {
+      <ul class="trip-card__preferences" aria-label="Preferencias del conductor">
+        @for (preference of shownPreferences(); track preference) {
+          <li class="trip-card__preference">{{ preference }}</li>
+        }
+        @if (morePreferences() > 0) {
+          <li class="trip-card__preference trip-card__preference--more">
+            +{{ morePreferences() }}
+          </li>
+        }
+      </ul>
+    }
+
     <!-- Abajo: dónde te recoge y, a la derecha, la invitación a abrirlo (toda
          la fila es el enlace; esto solo lo hace evidente) -->
     <div class="trip-card__foot">

@@ -238,6 +238,35 @@
   }
 }
 
+// Tus preferencias: etiqueta, píldoras como en Buscar y el enlace al Perfil
+.publish__preferences {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+}
+
+.publish__preference-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.publish__preference {
+  padding: 0.125rem var(--space-s); // 2px arriba y abajo
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-text);
+  font-size: var(--font-size-caption);
+}
+
+.publish__preferences-link {
+  color: var(--color-link);
+}
+
 // La declaración ya aceptada: el check verde a la altura del título
 .publish__declared {
   align-items: flex-start;

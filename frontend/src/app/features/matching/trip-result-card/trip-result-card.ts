@@ -1,4 +1,5 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { MATCH_FIT_LABELS, MatchFit } from '../match-fit';
 import { RouterLink } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
@@ -6,6 +7,8 @@ import { timeOutline, chevronForward } from 'ionicons/icons';
 import { TripResult } from '../../../core/models/trip-result.model';
 import { getFirstName } from '../trip-driver/trip-driver';
 import { formatWalkingDistance } from '../../../shared/utils/distance.util';
+
+const MAX_PREFERENCES = 3;
 
 // Un viaje de los resultados (SearchTripCard de la guía): horas de salida y
 // llegada con las plazas libres («Última plaza» en píldora ámbar si solo queda
@@ -18,7 +21,19 @@ import { formatWalkingDistance } from '../../../shared/utils/distance.util';
   styleUrl: './trip-result-card.scss',
 })
 export class TripResultCard {
+  private readonly travelPreferences = inject(TravelPreferencesStore);
+
   readonly trip = input.required<TripResult>();
+
+  // Las preferencias del conductor (las mismas que en el detalle): las 3
+  // primeras y, si hay más, «+2»
+  private readonly preferences = computed(() =>
+    this.travelPreferences.format(this.trip().driver.preferences),
+  );
+  readonly shownPreferences = computed(() => this.preferences().slice(0, MAX_PREFERENCES));
+  readonly morePreferences = computed(() =>
+    Math.max(0, this.preferences().length - MAX_PREFERENCES),
+  );
 
   // El pasajero ya tiene una solicitud viva en este viaje
   readonly isRequested = input(false);
