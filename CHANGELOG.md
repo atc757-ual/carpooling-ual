@@ -9,6 +9,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Valoraciones de 1 a 5 con manitas (RF-22):** una sola escala de 5 puntos entre la manita abajo y la manita arriba, al valorar (cinco botones, «4 de 5 · Bien») y al mostrar la nota (`app-rating-bar`, «4,6 de 5 · 12 valoraciones»): en la tarjeta del conductor, el modal de reseñas, el Perfil, Mis viajes y el panel. Sin estrellas (#313).
 - **Compartir en directo e «Iniciar viaje»:** mientras se comparte, la etiqueta «En directo» con el punto que late, «Enviar el enlace» como botón principal y «Dejar de compartir» con borde (en escritorio a la par mitad y mitad, en móvil apilados). El aviso de «Iniciar viaje» pasa a una línea gris bajo el botón: «Podrás iniciarlo a las 08:50, 10 min antes de salir» (#310).
 
 ### Added

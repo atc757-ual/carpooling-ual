@@ -1,6 +1,6 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { IonButton, IonIcon, IonTextarea } from '@ionic/angular';
-import { thumbsDown, thumbsDownOutline, thumbsUp, thumbsUpOutline } from 'ionicons/icons';
+import { thumbsDownOutline, thumbsUpOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import {
   GivenReview,
@@ -8,18 +8,10 @@ import {
   TripReviewsService,
 } from '../../../core/services/users/trip-reviews.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { RATING_MAX, ratingName } from '../../../shared/utils/rating.util';
 
-// Una manita arriba o abajo: la API guarda de 1 a 5 estrellas (RF-22) y aquí
-// se envía 5 o 1 (decidido con el autor el 11/11; revisar con el director)
-export const THUMB_UP_RATING = 5;
-export const THUMB_DOWN_RATING = 1;
-
-// Si una valoración (de 1 a 5) cuenta como manita arriba
-export function isThumbUp(rating: number): boolean {
-  return rating >= 3;
-}
-
-// Valorar a quien ha viajado contigo (RF-22): una manita arriba o abajo, un comentario
+// Valorar a quien ha viajado contigo (RF-22): una escala de 5 puntos entre la
+// manita abajo y la manita arriba (de 1 a 5, decidido con el autor el 15/11), un comentario
 // opcional, «Enviar valoración» y, si se puede dejar para luego, «Ahora no».
 // En En curso al llegar y en el detalle del viaje terminado
 @Component({
@@ -44,22 +36,10 @@ export class TripReviewForm {
   readonly comment = signal('');
   readonly isSending = signal(false);
   readonly error = signal<string | null>(null);
-  protected readonly options = [
-    {
-      rating: THUMB_UP_RATING,
-      label: 'Buen viaje',
-      tone: 'up',
-      icon: thumbsUpOutline,
-      iconOn: thumbsUp,
-    },
-    {
-      rating: THUMB_DOWN_RATING,
-      label: 'Mejorable',
-      tone: 'down',
-      icon: thumbsDownOutline,
-      iconOn: thumbsDown,
-    },
-  ];
+  protected readonly options = Array.from({ length: RATING_MAX }, (_, index) => index + 1);
+  protected readonly ratingName = ratingName;
+  protected readonly upIcon = thumbsUpOutline;
+  protected readonly downIcon = thumbsDownOutline;
   protected readonly maxComment = MAX_REVIEW_COMMENT_LENGTH;
 
   async handleSend(): Promise<void> {

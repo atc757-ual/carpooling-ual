@@ -1,10 +1,11 @@
+// La valoración: la escala de 5 puntos entre las dos manitas, el comentario y
+// los botones a todo el ancho
 .trip-review {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
 }
 
-// El grupo, sin el marco del fieldset
 .trip-review__fieldset {
   display: flex;
   min-width: 0;
@@ -20,48 +21,65 @@
   }
 }
 
-// Dos botones grandes: «Bien» (verde al elegirlo) y «Mejorable» (rojo claro)
-.trip-review__thumbs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+// La manita abajo, los 5 puntos y la manita arriba en una fila
+.trip-review__scale {
+  display: flex;
+  align-items: center;
   gap: var(--space-s);
 }
 
-.trip-review__thumb {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.trip-review__end {
+  flex: none;
+  font-size: 1.375rem; // 22px
+}
+
+.trip-review__end--down {
+  color: var(--color-danger-text);
+}
+
+.trip-review__end--up {
+  color: var(--color-success);
+}
+
+.trip-review__points {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--space-xs);
+}
+
+// Cada punto, de 44px de alto (objetivo táctil); en verde hasta el elegido
+.trip-review__point {
+  display: grid;
   min-height: 2.75rem; // 44px
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s);
   background: var(--color-surface);
-  color: var(--color-text);
+  color: var(--color-text-muted);
   cursor: pointer;
-  font: inherit;
   font-weight: var(--font-weight-semibold);
+  place-items: center;
 
-  ion-icon {
-    font-size: 1.375rem; // 22px
-  }
-
-  // El foco, en el botón (el radio está oculto)
   &:focus-within {
     outline: var(--border-width-m) solid var(--color-focus-ring);
     outline-offset: 2px;
   }
 }
 
-.trip-review__thumb--up.trip-review__thumb--on {
+.trip-review__point--on {
   border-color: var(--color-success);
   background: var(--color-success-subtle);
   color: var(--color-success);
 }
 
-.trip-review__thumb--down.trip-review__thumb--on {
-  border-color: var(--color-danger);
-  background: var(--color-danger-subtle);
-  color: var(--color-danger-text);
+.trip-review__point--current {
+  background: var(--color-success);
+  color: var(--color-on-success);
+}
+
+.trip-review__chosen {
+  margin: 0;
+  text-align: center;
 }
 
 .trip-review__error {

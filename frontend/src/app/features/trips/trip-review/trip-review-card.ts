@@ -1,19 +1,13 @@
 import { Component, computed, inject, input, resource, signal } from '@angular/core';
-import {
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonIcon,
-  IonSpinner,
-} from '@ionic/angular';
-import { thumbsDown, thumbsUp } from 'ionicons/icons';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSpinner } from '@ionic/angular';
 import {
   GivenReview,
   ReviewTargetRole,
   TripReviewsService,
 } from '../../../core/services/users/trip-reviews.service';
-import { isThumbUp, TripReviewForm } from './trip-review-form';
+import { RatingBar } from '../../../shared/components/ui/rating-bar/rating-bar';
+import { ratingName } from '../../../shared/utils/rating.util';
+import { TripReviewForm } from './trip-review-form';
 
 // A quién se valora: el conductor (lo hace el pasajero) o cada pasajero (lo
 // hace el conductor)
@@ -36,8 +30,8 @@ export type TripReviewView =
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
-    IonIcon,
     IonSpinner,
+    RatingBar,
     TripReviewForm,
   ],
   templateUrl: './trip-review-card.html',
@@ -95,9 +89,7 @@ export class TripReviewCard {
     });
   });
 
-  protected readonly isThumbUp = isThumbUp;
-  protected readonly upIcon = thumbsUp;
-  protected readonly downIcon = thumbsDown;
+  protected readonly ratingName = ratingName;
 
   handleSent(targetId: string, review: GivenReview | null): void {
     this.justSent.update((current) => new Map(current).set(targetId, review));

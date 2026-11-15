@@ -22,8 +22,9 @@ import {
   logOutOutline,
   moon,
   shieldCheckmarkOutline,
-  star,
   sunny,
+  thumbsDown,
+  thumbsUp,
   trashOutline,
 } from 'ionicons/icons';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -70,6 +71,7 @@ interface PreferenceRow {
 interface ReviewRow {
   role: string;
   average: string;
+  value: number;
   count: string;
 }
 
@@ -148,7 +150,8 @@ export class ProfilePage implements OnInit {
       .map(({ role, rating }) => ({
         role,
         average: (rating?.averageRating ?? 0).toFixed(1).replace('.', ','),
-        count: `${rating?.ratingCount} ${rating?.ratingCount === 1 ? 'reseña' : 'reseñas'}`,
+        value: rating?.averageRating ?? 0,
+        count: `(${rating?.ratingCount ?? 0})`,
       }));
   });
 
@@ -183,9 +186,11 @@ export class ProfilePage implements OnInit {
   protected readonly docIcon = documentTextOutline;
   protected readonly chevronIcon = chevronForwardOutline;
   protected readonly lockIcon = lockClosedOutline;
-  protected readonly starIcon = star;
+
   protected readonly sunIcon = sunny;
   protected readonly moonIcon = moon;
+  protected readonly thumbsUpIcon = thumbsUp;
+  protected readonly thumbsDownIcon = thumbsDown;
   protected readonly toleranceIcon = TIME_TOLERANCE_ICON;
   protected readonly keyIcon = keyOutline;
   protected readonly helpIcon = helpCircleOutline;

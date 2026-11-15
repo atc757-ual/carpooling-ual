@@ -54,8 +54,14 @@ ion-card.my-trips-aside ion-card-content {
   color: var(--color-eco);
 }
 
-.my-trips-aside__star {
-  color: var(--color-warning);
+.my-trips-aside__thumb {
+  &--up {
+    color: var(--color-success);
+  }
+
+  &--down {
+    color: var(--color-danger);
+  }
 }
 
 .my-trips-aside__note {
