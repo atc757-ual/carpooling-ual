@@ -49,6 +49,12 @@ export const EVENT_VERSIONS: Readonly<Record<DomainEventType, number>> = {
   'catalog.item_created': 1,
   'catalog.item_updated': 1,
   'catalog.item_deactivated': 1,
+  'faq.created': 1,
+  'faq.updated': 1,
+  'faq.published': 1,
+  'faq.unpublished': 1,
+  'faq.deleted': 1,
+  'faq_topic.updated': 1,
   'legal_document.published': 2,
 };
 

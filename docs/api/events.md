@@ -71,6 +71,12 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `catalog.item_created`     | Un administrador da de alta un elemento de un catálogo (p. ej. una marca)                          | `catalogs/catalog-items.service.ts`    |
 | `catalog.item_updated`     | Cambia su nombre, su orden o lo vuelve a activar                                                   | `catalogs/catalog-items.service.ts`    |
 | `catalog.item_deactivated` | Lo desactiva (deja de ofrecerse; no se borra)                                                      | `catalogs/catalog-items.service.ts`    |
+| `faq.created`              | Un administrador da de alta una pregunta frecuente (como borrador)                                 | `help/admin-faqs.service.ts`           |
+| `faq.updated`              | Cambia sus textos, su tema, a quién va, sus pantallas o su orden                                   | `help/admin-faqs.service.ts`           |
+| `faq.published`            | La publica (completa en los dos idiomas)                                                           | `help/admin-faqs.service.ts`           |
+| `faq.unpublished`          | La devuelve a borrador                                                                             | `help/admin-faqs.service.ts`           |
+| `faq.deleted`              | Borra un borrador                                                                                  | `help/admin-faqs.service.ts`           |
+| `faq_topic.updated`        | Cambia los nombres, el icono o el orden de un tema de ayuda                                        | `help/admin-faq-topics.service.ts`     |
 | `legal_document.published` | Un administrador publica una versión nueva de las condiciones o de la política                     | `users/legal-documents.service.ts`     |
 
 Las rutas son relativas a `backend/src/modules/`. Un test (`events-contract.spec.ts`) comprueba que todo tipo de `domain-event-type.ts` tiene versión y aparece en esta tabla.

@@ -238,9 +238,13 @@ Una ejecución que falla guarda en `errorCode` el motivo: `RUNNER_ERROR` (error 
 
 ## Ayuda (`help`)
 
-| `code`          | HTTP | Cuándo                                                               |
-| --------------- | ---- | -------------------------------------------------------------------- |
-| `FAQ_NOT_FOUND` | 404  | La pregunta frecuente no existe o no está publicada (es un borrador) |
+| `code`                        | HTTP | Cuándo                                                                                                   |
+| ----------------------------- | ---- | -------------------------------------------------------------------------------------------------------- |
+| `FAQ_NOT_FOUND`               | 404  | La pregunta frecuente no existe o no está publicada (es un borrador)                                     |
+| `FAQ_TOPIC_NOT_FOUND`         | 404  | No hay ningún tema de ayuda con esa clave                                                                |
+| `INVALID_FAQ_TRANSITION`      | 409  | Publicar una pregunta ya publicada o pasar a borrador un borrador                                        |
+| `FAQ_TRANSLATION_MISSING`     | 409  | Publicar (o dejar publicada) una pregunta sin su pregunta, su respuesta o alguno de sus puntos en inglés |
+| `FAQ_PUBLISHED_NOT_DELETABLE` | 409  | Borrar una pregunta publicada: primero se pasa a borrador                                                |
 
 ## Cómo añadir un código
 
