@@ -89,18 +89,7 @@ export class ChatService {
     userId: string,
     { tripId, passengerId }: ConversationRef,
   ): Promise<ChatConversation> {
-    const trip = (await this.tripsService.getByIds([tripId])).get(tripId);
-    if (!trip) {
-      throw new TripNotFoundError(tripId);
-    }
-    const passengers = await this.requestsService.acceptedPassengersByTrip([
-      tripId,
-    ]);
-    const passengerIds = passengers.get(tripId) ?? [];
-    const role = chatRoleOf(trip, userId, passengerIds);
-    if (!role) {
-      throw new ChatNotAllowedError(tripId);
-    }
+    const { trip, role, passengerIds } = await this.getAccess(userId, tripId);
     if (role === 'passenger') {
       if (passengerId !== undefined && passengerId !== userId) {
         throw new ChatNotAllowedError(tripId);
@@ -113,25 +102,67 @@ export class ChatService {
     return { trip, role, passengerId, otherUserId: passengerId };
   }
 
-  // A quién puede llamar el usuario desde el chat: a la otra persona de la
-  // conversación. Solo con el teléfono verificado y con el viaje confirmado o
-  // en curso, para la recogida (la Política de privacidad: el teléfono solo lo
-  // ven el conductor y los pasajeros aceptados de un viaje)
+  // El viaje, el papel del usuario y los pasajeros aceptados; lanza
+  // TripNotFoundError o ChatNotAllowedError
+  private async getAccess(
+    userId: string,
+    tripId: string,
+  ): Promise<{ trip: Trip; role: ChatRole; passengerIds: string[] }> {
+    const trip = (await this.tripsService.getByIds([tripId])).get(tripId);
+    if (!trip) {
+      throw new TripNotFoundError(tripId);
+    }
+    const passengers = await this.requestsService.acceptedPassengersByTrip([
+      tripId,
+    ]);
+    const passengerIds = passengers.get(tripId) ?? [];
+    const role = chatRoleOf(trip, userId, passengerIds);
+    if (!role) {
+      throw new ChatNotAllowedError(tripId);
+    }
+    return { trip, role, passengerIds };
+  }
+
+  // A quién puede llamar el usuario: a la otra persona de la conversación o,
+  // al conductor que no indica pasajero (las pantallas del viaje), a todos sus
+  // pasajeros aceptados. Solo con el teléfono verificado y con el viaje
+  // confirmado o en curso, para la recogida (la Política de privacidad: el
+  // teléfono solo lo ven el conductor y los pasajeros aceptados de un viaje)
   async contacts(
     userId: string,
     ref: ConversationRef,
   ): Promise<ChatContactView[]> {
-    const { trip, role, otherUserId } = await this.getConversation(userId, ref);
+    const { trip, contactIds } = await this.contactIdsOf(userId, ref);
     if (!CALLABLE_TRIP_STATUSES.has(trip.status)) {
       return [];
     }
-    const phones = await this.usersService.getVerifiedPhones([otherUserId]);
-    const contact = phones.get(otherUserId);
-    if (!contact) {
-      return [];
+    const phones = await this.usersService.getVerifiedPhones(contactIds);
+    return contactIds.flatMap((id) => {
+      const contact = phones.get(id);
+      if (!contact) {
+        return [];
+      }
+      const role: ChatRole = id === trip.driverId ? 'driver' : 'passenger';
+      return [{ userId: id, ...contact, role }];
+    });
+  }
+
+  private async contactIdsOf(
+    userId: string,
+    ref: ConversationRef,
+  ): Promise<{ trip: Trip; contactIds: string[] }> {
+    if (ref.passengerId === undefined) {
+      const { trip, role, passengerIds } = await this.getAccess(
+        userId,
+        ref.tripId,
+      );
+      return {
+        trip,
+        contactIds: role === 'driver' ? passengerIds : [trip.driverId],
+      };
     }
-    const otherRole: ChatRole = role === 'driver' ? 'passenger' : 'driver';
-    return [{ userId: otherUserId, ...contact, role: otherRole }];
+    const { trip, otherUserId } = await this.getConversation(userId, ref);
+    return { trip, contactIds: [otherUserId] };
   }
 
   // Del más antiguo al más nuevo (los del chat común anterior, que son más

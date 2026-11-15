@@ -149,7 +149,7 @@ export class ChatController {
   @ApiOperation({
     summary: 'List whom the user can call from a trip chat',
     description:
-      'The other person of the conversation: the passenger gets the driver; the driver, the passenger (passengerId). Only verified phones and while the trip is confirmed or in progress (as the privacy policy says).',
+      'The other person of the conversation: the passenger gets the driver; the driver, the passenger (passengerId) or, without passengerId (the trip screens), all the accepted passengers. Only verified phones and while the trip is confirmed or in progress (as the privacy policy says).',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiPaginatedResponse(ChatContactResource)

@@ -9516,7 +9516,7 @@
     },
     "/api/trips/{id}/contacts": {
       "get": {
-        "description": "The other person of the conversation: the passenger gets the driver; the driver, the passenger (passengerId). Only verified phones and while the trip is confirmed or in progress (as the privacy policy says).",
+        "description": "The other person of the conversation: the passenger gets the driver; the driver, the passenger (passengerId) or, without passengerId (the trip screens), all the accepted passengers. Only verified phones and while the trip is confirmed or in progress (as the privacy policy says).",
         "operationId": "ChatController_listContacts",
         "parameters": [
           {

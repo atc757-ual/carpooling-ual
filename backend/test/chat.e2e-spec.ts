@@ -410,6 +410,11 @@ describe('Chat API (e2e)', () => {
         role: 'passenger',
       }),
     ]);
+    // Sin pasajero (las pantallas del viaje), todos sus pasajeros aceptados
+    const forDan = await api('get', `/trips/${tripId}/contacts`, dan).expect(
+      200,
+    );
+    expect(forDan.body).toEqual([expect.objectContaining({ id: pia.id })]);
     await api('get', `/trips/${tripId}/contacts`, leo).expect(403);
 
     // Sin verificar, no se da
