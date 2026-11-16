@@ -31,12 +31,15 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { HeadingContent } from '../../../shared/directives/heading-content.directive';
 import { CATALOG_CONFIGS, catalogConfig, itemImage } from './catalog-config';
 import { openCatalogItemModal } from './catalog-item-modal/catalog-item-modal';
+import { FaqsEditor } from './faqs-editor/faqs-editor';
 import { LegalDocumentsEditor } from './legal-documents-editor/legal-documents-editor';
 
 const SKELETON_ROWS = [1, 2, 3, 4];
 export const CATALOG_PAGE_SIZE = 10;
 // La pestaña de los documentos legales: no es un catálogo, tiene su editor
 export const LEGAL_TAB = 'legal-documents';
+// La de las preguntas frecuentes: tampoco es un catálogo (temas, borradores)
+export const FAQS_TAB = 'faqs';
 
 // Catálogos del panel: marcas, colores, opciones de las preferencias,
 // avatares y parkings, y en su pestaña los documentos legales. Cada catálogo
@@ -45,6 +48,7 @@ export const LEGAL_TAB = 'legal-documents';
 @Component({
   selector: 'app-admin-catalogs-page',
   imports: [
+    FaqsEditor,
     FilterChips,
     HeadingContent,
     IonButton,
@@ -70,9 +74,24 @@ export class AdminCatalogsPage {
   // El editor legal, si está abierto: avisa antes de perder lo no guardado
   private readonly legalEditor = viewChild(LegalDocumentsEditor);
   readonly isLegal = computed(() => this.catalog() === LEGAL_TAB);
+  readonly isFaqs = computed(() => this.catalog() === FAQS_TAB);
+  // La pestaña con editor propio, si es la abierta
+  readonly specialTab = computed(() => {
+    if (this.isLegal()) {
+      return LEGAL_TAB;
+    }
+    return this.isFaqs() ? FAQS_TAB : null;
+  });
   readonly config = computed(() => catalogConfig(this.catalog()));
+  // La nota bajo los chips: la de la pestaña abierta
+  readonly note = computed(() => {
+    if (this.isLegal()) {
+      return this.legalNote;
+    }
+    return this.isFaqs() ? this.faqsNote : this.config().note;
+  });
   readonly items = resource({
-    params: () => (this.isLegal() ? undefined : this.config().id),
+    params: () => (this.specialTab() ? undefined : this.config().id),
     loader: ({ params }) => this.catalogs.list(params),
   });
   readonly rows = computed(() =>
@@ -97,13 +116,16 @@ export class AdminCatalogsPage {
   readonly busyKey = signal<string | null>(null);
 
   protected readonly configs = CATALOG_CONFIGS;
-  protected readonly legalTab = LEGAL_TAB;
   protected readonly emptyIcon = fileTrayOutline;
-  // Cada catálogo y, al final, los documentos legales, como chips
+  // Cada catálogo y, al final, las preguntas frecuentes y los documentos
+  // legales, como chips
   protected readonly catalogOptions: FilterChipOption[] = [
     ...CATALOG_CONFIGS.map((option) => ({ value: option.id, label: option.label })),
+    { value: FAQS_TAB, label: 'Preguntas frecuentes' },
     { value: LEGAL_TAB, label: 'Documentos legales' },
   ];
+  protected readonly faqsNote =
+    'La ayuda de la app, por temas. Una pregunta nace como borrador y se publica cuando está completa en español e inglés; solo se borran los borradores.';
   protected readonly legalNote =
     'Términos, privacidad y la declaración del conductor. Se edita un borrador con su tipo de cambio y «Qué ha cambiado»; tras un cambio importante hay que volver a aceptarlo (la declaración, al publicar el próximo viaje).';
   protected readonly skeletonRows = SKELETON_ROWS;

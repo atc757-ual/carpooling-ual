@@ -1,0 +1,165 @@
+<!-- Qué se ve: el tema, el estado y el texto que se busca -->
+<ion-card class="faqs-editor__card">
+  <div class="faqs-editor__head">
+    <h2 class="admin-list__title">Preguntas frecuentes</h2>
+    <ion-button size="small" (click)="handleCreate()">Añadir pregunta</ion-button>
+  </div>
+  <div class="faqs-editor__filters">
+    <ion-select
+      aria-label="Tema"
+      fill="outline"
+      justify="space-between"
+      interface="popover"
+      [value]="topic() ?? allTopics"
+      (ionChange)="handleTopic($event.detail.value)"
+    >
+      <ion-select-option [value]="allTopics">Todos los temas</ion-select-option>
+      @for (option of topics(); track option.key) {
+        <ion-select-option [value]="option.key">{{ option.nameEs }}</ion-select-option>
+      }
+    </ion-select>
+    <ion-searchbar
+      class="faqs-editor__search"
+      placeholder="Buscar en las preguntas"
+      aria-label="Buscar en las preguntas"
+      [debounce]="200"
+      [value]="search()"
+      (ionInput)="handleSearch($event.detail.value)"
+    />
+  </div>
+  <app-filter-chips
+    legend="Estado"
+    allLabel="Todas"
+    [options]="statusOptions"
+    [value]="status()"
+    (valueChange)="handleStatus($event)"
+  />
+</ion-card>
+
+@if (errorMessage(); as message) {
+  <div class="notice notice--danger" role="alert">
+    <span>
+      <b>No hemos podido cargar las preguntas.</b>
+      {{ message }}
+    </span>
+    <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
+  </div>
+} @else if (data.isLoading() && !data.hasValue()) {
+  <ion-card class="faqs-editor__card" aria-busy="true" aria-label="Cargando las preguntas">
+    @for (row of skeletonRows; track row) {
+      <ion-skeleton-text [animated]="true" class="faqs-editor__skeleton" />
+    }
+  </ion-card>
+} @else if (total() === 0 && (status() !== null || search() !== '')) {
+  <ion-card class="faqs-editor__card">
+    <output class="admin-empty">
+      <ion-icon [icon]="emptyIcon" aria-hidden="true" />
+      <span class="admin-empty__title">Ninguna pregunta coincide</span>
+      <span class="admin-empty__text">Prueba con otro texto o quita el filtro de estado.</span>
+    </output>
+  </ion-card>
+} @else {
+  @for (group of groups(); track group.topic.key) {
+    <ion-card class="faqs-editor__card" [attr.aria-busy]="data.isLoading()">
+      <div class="faqs-editor__head">
+        <h3 class="faqs-editor__topic">{{ group.topic.nameEs }}</h3>
+        <span class="status">{{ group.rows.length }}</span>
+      </div>
+      @if (group.rows.length === 0) {
+        <p class="text-body-s faqs-editor__empty">Este tema aún no tiene preguntas.</p>
+      } @else {
+        <ul class="faqs-editor__list">
+          @for (row of group.rows; track row.faq.id) {
+            <li class="faqs-editor__row">
+              <div class="faqs-editor__text">
+                <span class="faqs-editor__question">{{ row.faq.questionEs }}</span>
+                <span class="faqs-editor__tags">
+                  <span
+                    [class]="
+                      row.faq.status === 'published'
+                        ? 'status status--accepted'
+                        : 'status status--pending'
+                    "
+                  >
+                    {{ row.faq.status === 'published' ? 'Publicada' : 'Borrador' }}
+                  </span>
+                  <span class="status">{{ audienceLabels[row.faq.audience] }}</span>
+                  @for (context of row.faq.quickContexts; track context) {
+                    <span class="status status--info">Rápida en {{ contextLabels[context] }}</span>
+                  }
+                  @if (!row.isTranslated) {
+                    <span class="status status--danger">Falta el inglés</span>
+                  }
+                </span>
+              </div>
+              <span class="faqs-editor__actions">
+                <ion-button
+                  fill="clear"
+                  size="small"
+                  [disabled]="!row.canMoveUp || busyId() !== null"
+                  [attr.aria-label]="'Subir: ' + row.faq.questionEs"
+                  (click)="handleMove(row.faq, 'up')"
+                >
+                  <ion-icon slot="icon-only" [icon]="upIcon" aria-hidden="true" />
+                </ion-button>
+                <ion-button
+                  fill="clear"
+                  size="small"
+                  [disabled]="!row.canMoveDown || busyId() !== null"
+                  [attr.aria-label]="'Bajar: ' + row.faq.questionEs"
+                  (click)="handleMove(row.faq, 'down')"
+                >
+                  <ion-icon slot="icon-only" [icon]="downIcon" aria-hidden="true" />
+                </ion-button>
+                <ion-button
+                  fill="clear"
+                  size="small"
+                  title="Editar"
+                  [attr.aria-label]="'Editar: ' + row.faq.questionEs"
+                  (click)="handleEdit(row.faq)"
+                >
+                  <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
+                </ion-button>
+                @if (row.faq.status === 'published') {
+                  <ion-button
+                    fill="clear"
+                    size="small"
+                    title="Pasar a borrador"
+                    [attr.aria-label]="'Pasar a borrador: ' + row.faq.questionEs"
+                    [disabled]="busyId() === row.faq.id"
+                    (click)="handleToggle(row.faq)"
+                  >
+                    <ion-icon slot="icon-only" [icon]="unpublishIcon" aria-hidden="true" />
+                  </ion-button>
+                } @else {
+                  <ion-button
+                    fill="clear"
+                    size="small"
+                    color="success"
+                    [title]="row.isTranslated ? 'Publicar' : 'Para publicarla falta el inglés'"
+                    [attr.aria-label]="'Publicar: ' + row.faq.questionEs"
+                    [disabled]="!row.isTranslated || busyId() === row.faq.id"
+                    (click)="handleToggle(row.faq)"
+                  >
+                    <ion-icon slot="icon-only" [icon]="publishIcon" aria-hidden="true" />
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
+                    size="small"
+                    color="danger"
+                    title="Borrar"
+                    [attr.aria-label]="'Borrar: ' + row.faq.questionEs"
+                    [disabled]="busyId() === row.faq.id"
+                    (click)="handleDelete(row.faq)"
+                  >
+                    <ion-icon slot="icon-only" [icon]="deleteIcon" aria-hidden="true" />
+                  </ion-button>
+                }
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </ion-card>
+  }
+}

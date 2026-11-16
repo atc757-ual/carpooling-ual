@@ -17,14 +17,14 @@
       <app-filter-chips
         legend="Qué se ve"
         [options]="catalogOptions"
-        [value]="isLegal() ? legalTab : config().id"
+        [value]="specialTab() ?? config().id"
         [allLabel]="null"
         (valueChange)="handleCatalog($event)"
       />
       <p class="text-body-s admin-page__subtitle catalogs__note">
-        {{ isLegal() ? legalNote : config().note }}
+        {{ note() }}
       </p>
-      @if (!isLegal() && config().creation !== 'none') {
+      @if (!specialTab() && config().creation !== 'none') {
         <ion-button class="catalogs__create" expand="block" (click)="handleCreate()">
           {{ config().creation === 'upload' ? 'Subir' : 'Añadir' }} {{ config().singular }}
         </ion-button>
@@ -36,6 +36,8 @@
   <section class="catalogs__main" aria-label="Catálogo abierto">
     @if (isLegal()) {
       <app-legal-documents-editor />
+    } @else if (isFaqs()) {
+      <app-faqs-editor />
     } @else {
       <ion-card class="admin-list admin-list--padded">
         <div class="admin-list__head">

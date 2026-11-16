@@ -1,0 +1,107 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.faqs-editor__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  margin: 0;
+  padding: var(--space-base);
+}
+
+.faqs-editor__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+// El tema y el buscador a la par (en el móvil, uno debajo del otro)
+.faqs-editor__filters {
+  display: grid;
+  gap: var(--space-s);
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+.faqs-editor__search {
+  --background: var(--color-surface-subtle);
+  --box-shadow: none;
+
+  padding: 0;
+}
+
+// Título de cada tema: 16px, por debajo del de la tarjeta
+.faqs-editor__topic {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: 1rem; // 16px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+.faqs-editor__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.faqs-editor__skeleton {
+  height: 1.5rem; // 24px
+  margin: 0;
+}
+
+.faqs-editor__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Cada pregunta: el texto y sus etiquetas, y las acciones a la derecha (en
+// el móvil, debajo)
+.faqs-editor__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-base);
+  padding-block: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border);
+}
+
+.faqs-editor__text {
+  display: flex;
+  flex: 1 1 16rem; // 256px
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.faqs-editor__question {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+.faqs-editor__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.faqs-editor__actions {
+  display: flex;
+  align-items: center;
+  margin-inline-start: auto;
+}

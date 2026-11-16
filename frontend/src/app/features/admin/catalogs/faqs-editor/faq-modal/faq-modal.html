@@ -1,0 +1,104 @@
+<!-- Sin ion-content: así la ventana toma el alto de su contenido -->
+<form class="modal-body confirm faq-modal" (submit)="$event.preventDefault(); handleConfirm()">
+  <h2 class="text-subtitle">{{ faq ? 'Editar pregunta' : 'Añadir pregunta' }}</h2>
+
+  <div class="faq-modal__row">
+    <ion-select
+      label="Tema"
+      labelPlacement="stacked"
+      fill="outline"
+      interface="popover"
+      [value]="topic()"
+      (ionChange)="topic.set($event.detail.value)"
+    >
+      @for (option of topics; track option.key) {
+        <ion-select-option [value]="option.key">{{ option.nameEs }}</ion-select-option>
+      }
+    </ion-select>
+    <ion-select
+      label="Para quién"
+      labelPlacement="stacked"
+      fill="outline"
+      interface="popover"
+      [value]="audience()"
+      (ionChange)="audience.set($event.detail.value)"
+    >
+      @for (option of audiences; track option) {
+        <ion-select-option [value]="option">{{ audienceLabels[option] }}</ion-select-option>
+      }
+    </ion-select>
+  </div>
+
+  <fieldset class="faq-modal__contexts">
+    <legend class="text-label text-label--strong">Pregunta rápida en</legend>
+    @for (context of contextOptions; track context) {
+      <ion-checkbox
+        labelPlacement="end"
+        justify="start"
+        [checked]="contexts().includes(context)"
+        (ionChange)="handleContext(context, $event.detail.checked)"
+      >
+        {{ contextLabels[context] }}
+      </ion-checkbox>
+    }
+  </fieldset>
+
+  <ion-segment
+    class="faq-modal__langs"
+    aria-label="Idioma de los textos"
+    [value]="lang()"
+    (ionChange)="handleLang($event.detail.value)"
+  >
+    <ion-segment-button value="es">Español</ion-segment-button>
+    <ion-segment-button value="en">Inglés</ion-segment-button>
+  </ion-segment>
+
+  <ion-input
+    label="Pregunta"
+    labelPlacement="stacked"
+    fill="outline"
+    [maxlength]="maxQuestion"
+    [counter]="true"
+    [value]="current().question"
+    (ionInput)="handleText('question', $event.detail.value)"
+  />
+  <ion-textarea
+    label="Respuesta"
+    labelPlacement="stacked"
+    fill="outline"
+    [rows]="4"
+    [autoGrow]="true"
+    [maxlength]="maxAnswer"
+    [value]="current().answer"
+    (ionInput)="handleText('answer', $event.detail.value)"
+  />
+  <ion-textarea
+    label="Puntos (opcional)"
+    labelPlacement="stacked"
+    fill="outline"
+    helperText="Una lista bajo la respuesta: un punto por línea."
+    [rows]="3"
+    [autoGrow]="true"
+    [value]="current().points"
+    (ionInput)="handleText('points', $event.detail.value)"
+  />
+
+  @if (isEnglishMissing()) {
+    <output class="notice notice--info faq-modal__notice">
+      <span>Para publicarla hace falta el inglés: pregunta, respuesta y los mismos puntos.</span>
+    </output>
+  }
+
+  @if (errorMessage(); as error) {
+    <p class="faq-modal__error text-body-s" role="alert">{{ error }}</p>
+  }
+
+  <div class="confirm__actions">
+    <ion-button type="submit" expand="block" [disabled]="!isValid() || isSaving()">
+      {{ faq ? 'Guardar' : 'Añadir como borrador' }}
+    </ion-button>
+    <ion-button type="button" expand="block" fill="outline" (click)="handleCancel()">
+      Cancelar
+    </ion-button>
+  </div>
+</form>
