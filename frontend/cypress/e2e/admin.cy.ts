@@ -297,6 +297,8 @@ for (const viewport of VIEWPORTS) {
       cy.contains('ion-button', 'Añadir pregunta').click();
       cy.get('.faq-modal ion-select').first().click();
       cy.contains('ion-select-popover ion-radio', 'Valoraciones').click();
+      // Al cerrarse, el desplegable devuelve el foco al selector
+      cy.get('ion-select-popover').should('not.exist');
       cy.get('.faq-modal ion-input input').type('¿Cómo valoro?');
       cy.get('.faq-modal ion-textarea textarea').first().type('Al terminar el viaje.');
       cy.contains('Para publicarla hace falta el inglés');
