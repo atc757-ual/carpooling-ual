@@ -280,9 +280,11 @@ export class PublishTripPage implements OnInit {
   });
   readonly returnSummary = computed(() => {
     const { returnTime = '', returnSeats = 1 } = this.tripValue();
-    return this.hasReturnTrip()
-      ? `Vuelta: sales del campus a las ${returnTime} · ${returnSeats} ${returnSeats === 1 ? 'plaza' : 'plazas'}`
-      : null;
+    if (!this.hasReturnTrip()) {
+      return null;
+    }
+    const seats = returnSeats === 1 ? 'plaza' : 'plazas';
+    return `Vuelta: sales del campus a las ${returnTime} · ${returnSeats} ${seats}`;
   });
   // Cómo recoge, en una línea del resumen (desde el campus todos suben allí)
   readonly pickupSummary = computed(() => {

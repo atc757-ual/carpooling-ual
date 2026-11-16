@@ -6,7 +6,8 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { AdminCatalogsService } from '../../../core/services/admin/admin-catalogs.service';
 import { AdminLegalDocumentsService } from '../../../core/services/admin/admin-legal-documents.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { AdminCatalogsPage, LEGAL_TAB } from './admin-catalogs.page';
+import { AdminFaqsService } from '../../../core/services/admin/admin-faqs.service';
+import { AdminCatalogsPage, FAQS_TAB, LEGAL_TAB } from './admin-catalogs.page';
 import { LegalDocumentsEditor } from './legal-documents-editor/legal-documents-editor';
 
 const SEAT: AdminCatalogItem = { key: 'seat', name: 'SEAT', isActive: true, sortOrder: 0 };
@@ -25,6 +26,8 @@ describe('AdminCatalogsPage', () => {
   const onDidDismiss = vi.fn();
   const modalCreate = vi.fn();
   const legalVersions = vi.fn().mockResolvedValue([]);
+  const faqTopics = vi.fn().mockResolvedValue([]);
+  const faqList = vi.fn().mockResolvedValue([]);
 
   async function render(catalog?: string): Promise<HTMLElement> {
     TestBed.configureTestingModule({
@@ -37,6 +40,7 @@ describe('AdminCatalogsPage', () => {
           useValue: { list, update, move, create, uploadAvatar, replaceAvatarImage },
         },
         { provide: AdminLegalDocumentsService, useValue: { versions: legalVersions } },
+        { provide: AdminFaqsService, useValue: { listTopics: faqTopics, list: faqList } },
         { provide: ToastService, useValue: { showSuccess, showError } },
         { provide: ModalController, useValue: { create: modalCreate } },
       ],
@@ -99,6 +103,17 @@ describe('AdminCatalogsPage', () => {
     expect(root.querySelector('app-legal-documents-editor')).not.toBeNull();
     expect(root.querySelector('.catalogs__create')).toBeNull();
     expect(root.textContent).toContain('Términos, privacidad y la declaración del conductor');
+  });
+
+  it('opens the FAQs editor in its own tab', async () => {
+    const root = await render(FAQS_TAB);
+
+    expect(list).not.toHaveBeenCalled();
+    expect(faqList).toHaveBeenCalled();
+    expect(root.querySelector('app-faqs-editor')).not.toBeNull();
+    expect(root.querySelector('app-legal-documents-editor')).toBeNull();
+    expect(root.querySelector('.catalogs__create')).toBeNull();
+    expect(root.textContent).toContain('La ayuda de la app, por temas.');
   });
 
   it('moves, deactivates and edits an item, then reloads the list', async () => {

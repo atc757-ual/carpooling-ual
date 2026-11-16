@@ -226,6 +226,88 @@ for (const viewport of VIEWPORTS) {
       });
     });
 
+    it('manages the FAQs by topic', () => {
+      const faq = {
+        id: 'f1',
+        topic: 'search',
+        sortOrder: 1,
+        audience: 'passenger',
+        quickContexts: ['search'],
+        questionEs: '¿Qué es el margen horario?',
+        questionEn: 'What is the time margin?',
+        answerEs: 'Cuánto antes o después te viene bien.',
+        answerEn: 'How much earlier or later suits you.',
+        pointsEs: [],
+        pointsEn: [],
+        status: 'published',
+        updatedAt: '2026-11-15T10:00:00.000Z',
+      };
+      cy.intercept('GET', '/api/admin/faq-topics', [
+        {
+          id: 't1',
+          key: 'search',
+          nameEs: 'Buscar y pedir plaza',
+          nameEn: 'Searching',
+          icon: 'search-outline',
+          sortOrder: 1,
+        },
+        {
+          id: 't2',
+          key: 'ratings',
+          nameEs: 'Valoraciones',
+          nameEn: 'Ratings',
+          icon: 'thumbs-up-outline',
+          sortOrder: 2,
+        },
+      ]).as('topics');
+      cy.intercept('GET', '/api/admin/faqs?*', [
+        faq,
+        {
+          ...faq,
+          id: 'f2',
+          sortOrder: 2,
+          questionEs: '¿Y el código?',
+          questionEn: '',
+          status: 'draft',
+        },
+      ]).as('faqs');
+      cy.intercept('POST', '/api/admin/faqs/f1/unpublish', { ...faq, status: 'draft' }).as(
+        'unpublish',
+      );
+      cy.intercept('POST', '/api/admin/faqs', { statusCode: 201, body: { ...faq, id: 'f3' } }).as(
+        'create',
+      );
+      visitWithSession('/admin/catalogs?catalog=faqs', ['admin']);
+
+      cy.wait(['@topics', '@faqs']);
+      cy.contains('.faqs-editor__topic', 'Buscar y pedir plaza');
+      cy.contains('.faqs-editor__row', '¿Qué es el margen horario?')
+        .should('contain', 'Publicada')
+        .and('contain', 'Rápida en Buscar');
+      cy.contains('.faqs-editor__row', '¿Y el código?')
+        .should('contain', 'Borrador')
+        .and('contain', 'Falta el inglés');
+      cy.contains('Este tema aún no tiene preguntas.');
+
+      cy.contains('.faqs-editor__row', '¿Qué es el margen horario?')
+        .find('ion-button[title="Pasar a borrador"]')
+        .click();
+      cy.wait('@unpublish');
+
+      cy.contains('ion-button', 'Añadir pregunta').click();
+      cy.get('.faq-modal ion-select').first().click();
+      cy.contains('ion-select-popover ion-radio', 'Valoraciones').click();
+      // Al cerrarse, el desplegable devuelve el foco al selector
+      cy.get('ion-select-popover').should('not.exist');
+      cy.get('.faq-modal ion-input input').type('¿Cómo valoro?');
+      cy.get('.faq-modal ion-textarea textarea').first().type('Al terminar el viaje.');
+      cy.contains('Para publicarla hace falta el inglés');
+      cy.contains('.faq-modal ion-button', 'Añadir como borrador').click();
+      cy.wait('@create')
+        .its('request.body')
+        .should('include', { topic: 'ratings', questionEs: '¿Cómo valoro?', questionEn: '' });
+    });
+
     it('lists the trips and filters them by status in the URL', () => {
       cy.intercept('GET', '/api/admin/trips?*', {
         body: [

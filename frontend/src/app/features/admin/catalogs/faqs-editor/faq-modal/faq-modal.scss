@@ -1,0 +1,50 @@
+.faq-modal {
+  gap: var(--space-base);
+  text-align: left;
+
+  ion-input,
+  ion-textarea,
+  ion-select {
+    width: 100%;
+  }
+}
+
+// El tema y a quién va, a la par (en el móvil, uno debajo del otro)
+.faq-modal__row {
+  display: grid;
+  gap: var(--space-base);
+  width: 100%;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.faq-modal__contexts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s) var(--space-l);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    width: 100%;
+    margin-block-end: var(--space-s);
+    padding: 0;
+  }
+}
+
+.faq-modal__langs {
+  width: 100%;
+}
+
+.faq-modal__notice {
+  width: 100%;
+}
+
+.faq-modal__error {
+  margin: 0;
+  color: var(--color-danger);
+}
