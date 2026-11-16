@@ -27,6 +27,11 @@ const ON_THE_WAY = { type: 'Point', coordinates: [-2.435, 36.834] };
 // Roquetas de Mar: a más de 2 km de la ruta
 const FAR_AWAY = { type: 'Point', coordinates: [-2.6, 36.76] };
 const MINUTES = 60_000;
+// Los viajes salen dentro de 5 días, una franja que no usa ningún otro test
+// e2e: corren en paralelo sobre la misma base de datos, y si la búsqueda
+// encontrara el viaje de otro test justo cuando su limpieza lo borra (con su
+// vehículo), fallaría con VEHICLE_NOT_FOUND
+const DAYS_AHEAD = 5;
 
 interface TripMatchBody {
   id: string;
@@ -80,8 +85,7 @@ describe('Matching API (e2e)', () => {
       200,
     );
     campusLocation = (parking.body as { location: unknown }).location;
-    // Mañana a la misma hora: siempre en el futuro
-    departureAt = new Date(Date.now() + 24 * 60 * MINUTES);
+    departureAt = new Date(Date.now() + DAYS_AHEAD * 24 * 60 * MINUTES);
     const trip = await api('post', '/trips', driverToken)
       .send({
         vehicleId,
@@ -196,7 +200,7 @@ describe('Matching API (e2e)', () => {
         vehicleId,
         origin: ALMERIA_CENTRE,
         destination: campusLocation,
-        departureAt: new Date(Date.now() + 24 * 60 * MINUTES),
+        departureAt,
         offeredSeats: 3,
         maxDetourM: 500,
       })
