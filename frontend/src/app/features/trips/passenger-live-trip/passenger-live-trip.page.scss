@@ -175,9 +175,9 @@ ion-card.ride__panel.ride__panel--arriving[class] {
 // barra de pestañas); la hoja de detalles se pone encima
 .ride__map-card {
   // Sin el margen propio del mapa: ya lo da la tarjeta
-  --live-trip-map-padding: 0;
+  --live-trip-map-padding: 0px; // con unidad: va dentro de calc()
   --live-trip-map-height: calc(100dvh - var(--tab-bar-height) - 12rem); // 192px de cabecera
-  --live-trip-map-height-desktop: 34rem; // 544px
+  --live-trip-map-height-desktop: 31.25rem; // 500px
 }
 
 @media (max-width: 767.98px) {
@@ -187,7 +187,7 @@ ion-card.ride__panel.ride__panel--arriving[class] {
 
   .ride__map-card {
     // El mapa, de borde a borde y sin su línea de estado (va en la tarjeta)
-    --live-trip-map-padding: 0;
+    --live-trip-map-padding: 0px; // con unidad: va dentro de calc()
     --live-trip-map-radius: 0;
     --live-trip-map-canvas-radius: 0;
     --live-trip-map-status-display: none;

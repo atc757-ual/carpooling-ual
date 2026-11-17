@@ -200,7 +200,6 @@ export class DriverLiveTripPage {
   private readonly droppingOffIds = signal<ReadonlySet<string>>(new Set());
 
   readonly isSharing = computed(() => this.tracking.tripId() === this.trip()?.id);
-  readonly isScreenKeptOn = this.tracking.isScreenKeptOn;
   readonly gapMinutes = this.tracking.gapMinutes;
   readonly isFinishing = signal(false);
   // La respuesta a «Terminar viaje» (distancia al destino), mientras se confirma

@@ -406,14 +406,7 @@
                 @if (isSharing()) {
                   <output class="notice notice--info driver-live-trip__sharing">
                     <ion-icon [icon]="locationIcon" aria-hidden="true" />
-                    <span>
-                      Compartiendo tu ubicación con tus pasajeros
-                      @if (isScreenKeptOn()) {
-                        <span class="driver-live-trip__sharing-hint">
-                          La pantalla no se apagará hasta que termines.
-                        </span>
-                      }
-                    </span>
+                    <span> Compartiendo tu ubicación con tus pasajeros </span>
                   </output>
                   <!-- Al volver tras un rato con la pantalla bloqueada o en otra
                      app (en el navegador no se comparte en segundo plano) -->

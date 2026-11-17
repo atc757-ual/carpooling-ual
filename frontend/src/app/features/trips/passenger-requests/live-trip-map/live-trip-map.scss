@@ -13,11 +13,13 @@
   background: var(--color-surface);
 }
 
-// «Centrar», flotando en la esquina del mapa (como los botones de zoom)
+// «Centrar», flotando arriba a la izquierda del mapa, a 16px de sus bordes
+// (el relleno, si lo hay, más 16px). --live-trip-map-padding, con unidad: va
+// dentro de calc() y un 0 sin unidad lo invalidaba
 .trip-live-map__heading {
   position: absolute;
-  top: calc(var(--live-trip-map-padding, var(--space-base)) + var(--space-s));
-  right: calc(var(--live-trip-map-padding, var(--space-base)) + var(--space-s));
+  top: calc(var(--live-trip-map-padding, var(--space-base)) + var(--space-base));
+  left: calc(var(--live-trip-map-padding, var(--space-base)) + var(--space-base));
   z-index: 1000; // por encima de las capas de Leaflet
 }
 
@@ -50,6 +52,26 @@
   }
 }
 
+// El mapa y, encima, abajo a la derecha, «Actualizado hace…»
+.trip-live-map__frame {
+  position: relative;
+}
+
+// Justo encima de la atribución de OpenStreetMap (que debe verse), en una
+// pastilla blanca. Oculto donde se oculta el estado (la hoja del móvil)
+.trip-live-map__updated {
+  position: absolute;
+  right: var(--space-s);
+  bottom: 1.5rem; // 24px: sobre la atribución
+  z-index: 1000; // por encima de las capas de Leaflet
+  display: var(--live-trip-map-status-display, block);
+  margin: 0;
+  padding: 0.125rem var(--space-s); // 2px 8px
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  box-shadow: 0 0.0625rem 0.25rem rgb(0 0 0 / 15%);
+}
+
 .trip-live-map__canvas {
   width: 100%;
   // Quien lo usa puede darle más alto (p. ej. la pantalla En curso)
@@ -75,6 +97,26 @@
 }
 
 @media (min-width: 48rem) {
+  // El mapa y, encima, abajo a la derecha, «Actualizado hace…»
+  .trip-live-map__frame {
+    position: relative;
+  }
+
+  // Justo encima de la atribución de OpenStreetMap (que debe verse), en una
+  // pastilla blanca. Oculto donde se oculta el estado (la hoja del móvil)
+  .trip-live-map__updated {
+    position: absolute;
+    right: var(--space-s);
+    bottom: 1.5rem; // 24px: sobre la atribución
+    z-index: 1000; // por encima de las capas de Leaflet
+    display: var(--live-trip-map-status-display, block);
+    margin: 0;
+    padding: 0.125rem var(--space-s); // 2px 8px
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    box-shadow: 0 0.0625rem 0.25rem rgb(0 0 0 / 15%);
+  }
+
   .trip-live-map__canvas {
     height: var(--live-trip-map-height-desktop, 18rem); // 288px
   }

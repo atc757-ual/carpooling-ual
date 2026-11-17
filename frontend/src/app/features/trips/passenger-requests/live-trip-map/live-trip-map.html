@@ -14,7 +14,14 @@
     </button>
   </header>
 
-  <section #map class="trip-live-map__canvas" [attr.aria-label]="mapLabel()"></section>
+  <div class="trip-live-map__frame">
+    <section #map class="trip-live-map__canvas" [attr.aria-label]="mapLabel()"></section>
+    @if (latestPosition()) {
+      <p class="trip-live-map__updated text-caption text-color-muted">
+        Actualizado hace {{ ageSeconds() }} s
+      </p>
+    }
+  </div>
 
   <div class="trip-live-map__status" aria-live="polite">
     @if (isDriver()) {
@@ -51,7 +58,6 @@
     }
 
     @if (latestPosition()) {
-      <p class="text-caption text-color-muted">Actualizado hace {{ ageSeconds() }} s</p>
       @if (isStale()) {
         <output class="notice notice--warning">
           <span>

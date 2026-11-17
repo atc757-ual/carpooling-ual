@@ -70,9 +70,9 @@
 // pantalla (menos la cabecera y la barra de pestañas)
 .driver-live-trip__main {
   // Sin el margen propio del mapa: ya lo da la tarjeta
-  --live-trip-map-padding: 0;
+  --live-trip-map-padding: 0px; // con unidad: va dentro de calc()
   --live-trip-map-height: calc(100dvh - var(--tab-bar-height) - 12rem); // 192px de cabecera
-  --live-trip-map-height-desktop: 34rem; // 544px
+  --live-trip-map-height-desktop: 31.25rem; // 500px
 }
 
 @media (max-width: 767.98px) {
@@ -82,7 +82,7 @@
 
   .driver-live-trip__main {
     // El mapa, de borde a borde y sin su línea de estado (va en la tarjeta)
-    --live-trip-map-padding: 0;
+    --live-trip-map-padding: 0px; // con unidad: va dentro de calc()
     --live-trip-map-radius: 0;
     --live-trip-map-canvas-radius: 0;
     --live-trip-map-status-display: none;
@@ -321,13 +321,6 @@
   .driver-live-trip__main ion-card-content[class] {
     padding-bottom: var(--space-base);
   }
-}
-
-// «La pantalla no se apagará…», debajo y en gris
-.driver-live-trip__sharing-hint {
-  display: block;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-caption);
 }
 
 // El aviso del rato sin compartir, con «Entendido» a la derecha
