@@ -3,7 +3,50 @@
     <ion-card-title>{{ title() }}</ion-card-title>
   </ion-card-header>
   <ion-card-content>
-    @if (sections().length > 0) {
+    @if (isStepped() && sections().length > 0) {
+      <!-- De uno en uno: el que toca, con su número; al acabar, el resumen -->
+      @if (currentStep(); as step) {
+        <section class="trip-review-card__section" [attr.aria-label]="step.target.name">
+          @if (step.total > 1) {
+            <p class="text-caption text-color-muted">{{ step.number }} de {{ step.total }}</p>
+          }
+          <!-- Un formulario nuevo por persona (track por su id): sin la nota
+               de la anterior -->
+          @for (current of [step]; track current.target.id) {
+            <app-trip-review-form
+              [tripId]="tripId()"
+              [targetId]="current.target.id"
+              [targetName]="current.target.name"
+              [canSkip]="true"
+              (sent)="handleSent(current.target.id, $event)"
+              (skipped)="handleSkip(current.target.id)"
+            />
+          }
+        </section>
+      } @else {
+        <ul class="trip-review-card__summary">
+          @for (section of sections(); track section.target.id) {
+            <li class="trip-review-card__summary-row">
+              <span class="text-body-s text-body--strong">{{ section.target.name }}</span>
+              @if (section.view.kind === 'given' && section.view.review; as review) {
+                <span class="trip-review-card__summary-verdict">
+                  <app-rating-bar [rating]="review.rating" />
+                  <span class="text-caption"
+                    >{{ review.rating }} · {{ ratingName(review.rating) }}</span
+                  >
+                </span>
+              } @else if (skipped().has(section.target.id)) {
+                <span class="text-caption text-color-muted">Más tarde, en el viaje</span>
+              } @else if (section.view.kind === 'given') {
+                <span class="text-caption text-color-muted">Valorado</span>
+              } @else {
+                <span class="text-caption text-color-muted">Fuera de plazo</span>
+              }
+            </li>
+          }
+        </ul>
+      }
+    } @else if (sections().length > 0) {
       @for (section of sections(); track section.target.id) {
         <section class="trip-review-card__section" [attr.aria-label]="section.target.name">
           @switch (section.view.kind) {

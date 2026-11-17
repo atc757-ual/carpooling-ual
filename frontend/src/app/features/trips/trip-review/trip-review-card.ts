@@ -44,6 +44,10 @@ export class TripReviewCard {
   readonly targets = input.required<ReviewTarget[]>();
   readonly targetRole = input.required<ReviewTargetRole>();
   readonly title = input('Tu valoración');
+  // De uno en uno (en la hoja de «En curso» del conductor): solo el primero
+  // que falta, con «1 de 2» y «Ahora no»; al acabar, un resumen en una línea
+  // por persona. Si no, todos a la vez (en el detalle del viaje)
+  readonly isStepped = input(false);
 
   private readonly loaded = resource({
     params: () => ({ tripId: this.tripId(), role: this.targetRole() }),
@@ -89,9 +93,25 @@ export class TripReviewCard {
     });
   });
 
+  // De uno en uno: los que dejó para luego con «Ahora no»
+  private readonly skippedIds = signal<ReadonlySet<string>>(new Set());
+  // El que toca valorar (el primero pendiente que no ha saltado) y su número
+  readonly currentStep = computed(() => {
+    const sections = this.sections();
+    const index = sections.findIndex(
+      ({ target, view }) => view.kind === 'pending' && !this.skippedIds().has(target.id),
+    );
+    return index === -1 ? null : { ...sections[index], number: index + 1, total: sections.length };
+  });
+  readonly skipped = this.skippedIds.asReadonly();
+
   protected readonly ratingName = ratingName;
 
   handleSent(targetId: string, review: GivenReview | null): void {
     this.justSent.update((current) => new Map(current).set(targetId, review));
+  }
+
+  handleSkip(targetId: string): void {
+    this.skippedIds.update((current) => new Set([...current, targetId]));
   }
 }

@@ -283,7 +283,6 @@ export class DriverLiveTripPage {
       if (this.isInProgress() && !this.justFinished() && this.hasEveryoneGotOff()) {
         this.tracking.stop();
         this.justFinished.set(true);
-        this.sheet.expand();
         void this.toast.showSuccess('Se han bajado todos: viaje terminado.');
       }
     });
@@ -493,7 +492,6 @@ export class DriverLiveTripPage {
     if (await completeFinish(deps, trip.id, check.point)) {
       this.finishCheck.set(null);
       this.justFinished.set(true);
-      this.sheet.expand();
     }
     this.isFinishing.set(false);
   }
