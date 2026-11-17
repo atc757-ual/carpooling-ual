@@ -210,12 +210,12 @@ export class PassengerLiveTripPage {
   // (en el detalle del viaje)
   readonly reviewState = signal<'form' | 'sent' | 'skipped'>('form');
 
-  // Tras valorar (u omitirlo) ya no queda nada que hacer: la hoja vuelve a su
-  // altura y se ve el mapa, sin un hueco vacío debajo
+  // Tras valorar (u omitirlo), la hoja se ajusta a lo que queda (el resumen y
+  // «Ver tu viaje»): ni cortado ni con un hueco vacío debajo
   handleReviewDone(state: 'sent' | 'skipped', review: GivenReview | null = null): void {
     this.givenReview.set(review);
     this.reviewState.set(state);
-    this.sheet.collapse();
+    this.sheet.expand();
   }
   // La valoración enviada, para el resumen (null si ya existía de antes)
   readonly givenReview = signal<GivenReview | null>(null);

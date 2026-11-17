@@ -87,7 +87,6 @@ export interface LiveSheetController {
   enter(): void;
   close(): Promise<void>;
   expand(): void;
-  collapse(): void;
 }
 
 // La hoja inferior móvil de las pantallas «En curso»: no se cierra al
@@ -132,15 +131,11 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
     isLeaving = true;
     await modal?.dismiss();
   };
-  // Al terminar (el aviso y valorar): la altura justa, no siempre la máxima
+  // Al terminar (el aviso y valorar) o tras valorar: la altura justa para lo
+  // que se ve, no siempre la máxima
   const expand = (): void => {
     isExpanded = true;
     fitToContent();
-  };
-  // A su altura inicial (p. ej. tras valorar: no queda nada más que hacer)
-  const collapse = (): void => {
-    isExpanded = false;
-    void modal?.setCurrentBreakpoint(LIVE_SHEET_INITIAL_BREAKPOINT);
   };
 
   effect(() => {
@@ -163,6 +158,5 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
     enter,
     close,
     expand,
-    collapse,
   };
 }
