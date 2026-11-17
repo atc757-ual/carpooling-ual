@@ -22,11 +22,11 @@ import {
   businessOutline,
   callOutline,
   checkmarkCircle,
-  flagOutline,
   chatbubblesOutline,
   homeOutline,
   locationOutline,
   personOutline,
+  walkOutline,
 } from 'ionicons/icons';
 import { ChatContact } from '../../../core/models/chat.model';
 import { Trip } from '../../../core/models/driver.model';
@@ -275,7 +275,7 @@ export class PassengerLiveTripPage {
       header: '¿Has llegado?',
       message: `Tu viaje con ${this.driverName()} terminará y podrás valorarlo.`,
       confirmText: 'He llegado',
-      icon: flagOutline,
+      icon: walkOutline,
     });
     if (!isConfirmed) {
       return;
@@ -316,5 +316,5 @@ export class PassengerLiveTripPage {
   protected readonly doneIcon = checkmarkCircle;
   protected readonly personIcon = personOutline;
   protected readonly pinIcon = locationOutline;
-  protected readonly arrivedIcon = flagOutline;
+  protected readonly arrivedIcon = walkOutline;
 }
