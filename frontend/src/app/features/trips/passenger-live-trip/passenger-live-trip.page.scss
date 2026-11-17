@@ -66,6 +66,13 @@ ion-card-content.ride__state {
   }
 }
 
+// «Estás llegando»: destacada, con el estilo «En directo» de la guía
+.ride__panel--arriving {
+  --background: var(--color-primary-subtle);
+
+  border: var(--border-width-s) solid var(--color-primary);
+}
+
 // Cuatro cifras, una por casilla, fáciles de leer en voz alta
 .ride__code-digits {
   display: grid;

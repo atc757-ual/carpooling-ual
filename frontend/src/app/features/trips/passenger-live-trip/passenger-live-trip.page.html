@@ -112,24 +112,61 @@
                 </ion-card>
               }
 
-              <!-- A bordo: «He llegado» cierra su plaza (cierre por pasajero) -->
-              @if (phase() === 'on_board') {
-                <ion-card class="ride__panel" role="region" aria-labelledby="ride-arrive-title">
+              <!-- A bordo: «He llegado» cierra su plaza (cierre por pasajero).
+                   Arriba al llegar al campus (o en la vuelta); lejos, más abajo -->
+              @if (arriveCard(); as variant) {
+                @if (variant !== 'early') {
+                  <ng-container
+                    [ngTemplateOutlet]="arriveTemplate"
+                    [ngTemplateOutletContext]="{ $implicit: variant }"
+                  />
+                }
+              }
+
+              <ng-template #arriveTemplate let-variant>
+                <ion-card
+                  class="ride__panel"
+                  [class.ride__panel--arriving]="variant === 'near'"
+                  role="region"
+                  aria-labelledby="ride-arrive-title"
+                >
                   <ion-card-content>
-                    <h2 id="ride-arrive-title" class="text-subtitle">¿Ya te has bajado?</h2>
-                    <p class="text-caption text-color-muted">
-                      Márcalo al llegar y podrás valorar a {{ driverName() }}. Si lo marca
-                      {{ driverName() }} antes, tu viaje se cerrará solo.
-                    </p>
+                    @switch (variant) {
+                      @case ('near') {
+                        <h2 id="ride-arrive-title" class="text-subtitle">Estás llegando</h2>
+                        <p class="text-caption text-color-muted">
+                          ¿Has llegado? Márcalo y podrás valorar a {{ driverName() }}.
+                        </p>
+                      }
+                      @case ('early') {
+                        <h2 id="ride-arrive-title" class="text-subtitle">¿Te has bajado antes?</h2>
+                        <p class="text-caption text-color-muted">
+                          Márcalo si te has bajado antes del campus. Si no, te lo pediremos al
+                          llegar.
+                        </p>
+                      }
+                      @default {
+                        <h2 id="ride-arrive-title" class="text-subtitle">¿Ya te has bajado?</h2>
+                        <p class="text-caption text-color-muted">
+                          Márcalo al llegar y podrás valorar a {{ driverName() }}. Si lo marca
+                          {{ driverName() }} antes, tu viaje se cerrará solo.
+                        </p>
+                      }
+                    }
                     <form (submit)="handleArrive($event)">
-                      <ion-button type="submit" expand="block" [disabled]="isArriving()">
+                      <ion-button
+                        type="submit"
+                        expand="block"
+                        [fill]="variant === 'early' ? 'outline' : 'solid'"
+                        [disabled]="isArriving()"
+                      >
                         <ion-icon slot="start" [icon]="arrivedIcon" aria-hidden="true" />
-                        He llegado
+                        {{ variant === 'near' ? 'Sí, he llegado' : 'He llegado' }}
                       </ion-button>
                     </form>
                   </ion-card-content>
                 </ion-card>
-              }
+              </ng-template>
 
               <!-- El conductor y su coche: el título con los botones y, debajo, quién
                    conduce, la matrícula y la marca y el modelo -->
@@ -175,6 +212,14 @@
                   </div>
                 </ion-card-content>
               </ion-card>
+
+              <!-- Lejos del campus: «¿Te has bajado antes?», discreto -->
+              @if (arriveCard() === 'early') {
+                <ng-container
+                  [ngTemplateOutlet]="arriveTemplate"
+                  [ngTemplateOutletContext]="{ $implicit: 'early' }"
+                />
+              }
 
               <!-- Compartir el viaje con alguien de confianza y el 112 -->
               <app-live-trip-safety [shareText]="safetyShareText()" [liveShareTripId]="trip.id" />

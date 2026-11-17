@@ -59,6 +59,10 @@ import { buildLiveShareText } from '../trip-share-text';
 
 // Cada cuánto se revisa si ya subió (código validado) o si el viaje terminó
 const REFRESH_MS = 15_000;
+
+// near: a menos de 300 m del campus; early: lejos (bajarse antes);
+// default: en la vuelta
+type ArriveCardVariant = 'near' | 'early' | 'default';
 // La URL de esta pantalla: la hoja del móvil solo está abierta en ella
 const RIDE_URL = /^\/tabs\/trips\/ride\//;
 
@@ -216,6 +220,14 @@ export class PassengerLiveTripPage {
       this.isToCampus() &&
       isArriving(this.liveStatus()?.destinationMeters ?? null),
   );
+  // La tarjeta de «He llegado» (a bordo): en la ida, destacada a menos de
+  // 300 m del campus y discreta lejos; en la vuelta cada pasajero se baja en
+  // un sitio (aún no se mide la distancia a su punto), así que va siempre
+  readonly arriveCard = computed<ArriveCardVariant | null>(() => {
+    if (this.phase() !== 'on_board') return null;
+    if (!this.isToCampus()) return 'default';
+    return this.isNearDestination() ? 'near' : 'early';
+  });
   readonly heroTitle = computed(() =>
     this.phase() === 'waiting'
       ? `Esperando a ${this.driverName()}`
