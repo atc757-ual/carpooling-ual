@@ -172,10 +172,27 @@
                    conduce, la matrícula y la marca y el modelo -->
               <ion-card class="ride__panel" role="region" aria-labelledby="ride-car-title">
                 <ion-card-content>
-                  <!-- El título con chat y llamar a su altura, a la derecha; debajo,
-                       quién conduce y la matrícula con la marca y el modelo -->
-                  <div class="ride__driver-head">
-                    <h2 id="ride-car-title" class="text-subtitle">Conductor y vehículo</h2>
+                  <!-- El título; debajo, quién conduce y la matrícula con la marca y
+                       el modelo, y chat y llamar a su altura, a la derecha -->
+                  <h2 id="ride-car-title" class="text-subtitle">Conductor y vehículo</h2>
+                  <div class="ride__driver-row">
+                    <div class="ride__driver-info">
+                      <p class="ride__driver-name text-body">
+                        <ion-icon [icon]="personIcon" aria-hidden="true" />
+                        <span class="visually-hidden">Conduce:</span>
+                        <b class="ride__driver-text">{{ trip.driver.name }}</b>
+                      </p>
+                      <div class="ride__driver-car">
+                        @if (request.vehiclePlate; as plate) {
+                          <app-license-plate [plate]="plate" />
+                        }
+                        @if (trip.vehicle; as vehicle) {
+                          <span class="ride__driver-text text-body-s text-color-muted">
+                            {{ vehicleName(vehicle) }}
+                          </span>
+                        }
+                      </div>
+                    </div>
                     <a
                       class="ride__icon-btn"
                       [routerLink]="['/tabs/messages', trip.id]"
@@ -194,21 +211,6 @@
                     >
                       <ion-icon [icon]="callIcon" aria-hidden="true" />
                     </button>
-                  </div>
-                  <p class="ride__driver-name text-body">
-                    <ion-icon [icon]="personIcon" aria-hidden="true" />
-                    <span class="visually-hidden">Conduce:</span>
-                    <b class="ride__driver-text">{{ trip.driver.name }}</b>
-                  </p>
-                  <div class="ride__driver-car">
-                    @if (request.vehiclePlate; as plate) {
-                      <app-license-plate [plate]="plate" />
-                    }
-                    @if (trip.vehicle; as vehicle) {
-                      <span class="ride__driver-text text-body-s text-color-muted">
-                        {{ vehicleName(vehicle) }}
-                      </span>
-                    }
                   </div>
                 </ion-card-content>
               </ion-card>

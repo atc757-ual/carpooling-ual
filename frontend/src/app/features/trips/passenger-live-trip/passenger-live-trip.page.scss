@@ -94,18 +94,20 @@ ion-card-content.ride__state {
   }
 }
 
-// El conductor: el título con chat y llamar a la derecha, a su altura; debajo,
-// quién conduce y la matrícula (la placa de editar el coche) con el modelo
-.ride__driver-head {
+// El conductor: debajo del título, quién conduce y la matrícula (la placa de
+// editar el coche) con el modelo, y chat y llamar a la derecha, a su altura
+.ride__driver-row {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
+}
 
-  h2 {
-    flex: 1;
-    min-width: 0;
-    font-weight: var(--font-weight-semibold);
-  }
+.ride__driver-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
 }
 
 // Quién conduce: el icono de persona y el nombre
