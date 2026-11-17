@@ -211,3 +211,38 @@ ion-modal.live-sheet {
   gap: 0;
   min-width: 0;
 }
+
+// Al pie de lo que se ve de la hoja, cuando el contenido sigue por debajo:
+// un degradado bajo desde el fondo de la hoja y una flecha gris hacia abajo
+// (pulsarla sube la hoja a la siguiente parada). Va fijo (slot="fixed"), a la
+// altura que se ve (top) y sube con su propio alto
+.live-sheet__more {
+  position: absolute;
+  right: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  padding-top: var(--space-base);
+  background: linear-gradient(to bottom, transparent, var(--color-surface) 70%);
+  pointer-events: none;
+  transform: translateY(-100%);
+}
+
+.live-sheet__more-btn {
+  display: grid;
+  place-items: center;
+  width: 2rem; // 32px
+  height: 1.5rem; // 24px
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.25rem; // 20px: el icono
+  pointer-events: auto;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}

@@ -1,6 +1,16 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, effect, ElementRef, input, TemplateRef, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  input,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import { IonCard, IonCardContent, IonContent, IonIcon, IonModal } from '@ionic/angular';
+import { chevronDownOutline } from 'ionicons/icons';
 import { LiveSheetController } from '../../shared/utils/desktop-query.util';
 import type { LiveTripStatus } from './passenger-requests/live-trip-map/live-trip-map';
 
@@ -118,7 +128,7 @@ export class LiveTripHero {
 
 @Component({
   selector: 'app-live-trip-sheet',
-  imports: [NgTemplateOutlet, IonContent, IonModal],
+  imports: [NgTemplateOutlet, IonContent, IonIcon, IonModal],
   styleUrl: './live-trip.scss',
   template: `
     @if (!sheet().isDesktop()) {
@@ -139,6 +149,21 @@ export class LiveTripHero {
             <section #body class="live-sheet__body" aria-label="Tu viaje ahora">
               <ng-container [ngTemplateOutlet]="content()" />
             </section>
+            <!-- Si el contenido sigue por debajo de lo que se ve: un degradado
+                 y una flecha gris hacia abajo, que sube la hoja a la siguiente
+                 parada -->
+            @if (hasMoreBelow()) {
+              <div slot="fixed" class="live-sheet__more" [style.top.px]="visiblePx()">
+                <button
+                  type="button"
+                  class="live-sheet__more-btn"
+                  aria-label="Ver más"
+                  (click)="sheet().expandStep()"
+                >
+                  <ion-icon [icon]="moreIcon" aria-hidden="true" />
+                </button>
+              </div>
+            }
           </ion-content>
         </ng-template>
       </ion-modal>
@@ -151,6 +176,13 @@ export class LiveTripSheet {
 
   private readonly modal = viewChild(IonModal);
   private readonly body = viewChild<ElementRef<HTMLElement>>('body');
+  // Lo que necesita el contenido y lo que mide la hoja entera (px); lo que se
+  // ve depende de la parada en la que está
+  private readonly neededPx = signal(0);
+  private readonly sheetPx = signal(0);
+  readonly visiblePx = computed(() => Math.round(this.sheet().breakpoint() * this.sheetPx()));
+  readonly hasMoreBelow = computed(() => this.neededPx() > this.visiblePx() + 8);
+  protected readonly moreIcon = chevronDownOutline;
 
   constructor() {
     effect(() => this.sheet().setModal(this.modal()));
@@ -176,6 +208,9 @@ export class LiveTripSheet {
       return;
     }
     const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
-    this.sheet().fitToContent((body.offsetHeight + 1.5 * rem) / content.offsetHeight);
+    const needed = body.offsetHeight + 1.5 * rem;
+    this.neededPx.set(needed);
+    this.sheetPx.set(content.offsetHeight);
+    this.sheet().fitToContent(needed / content.offsetHeight);
   }
 }

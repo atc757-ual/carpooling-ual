@@ -96,6 +96,7 @@ export interface LiveSheetController {
   close(): Promise<void>;
   expand(): void;
   fitToContent(contentFraction: number): void;
+  expandStep(): void;
 }
 
 // La hoja inferior móvil de las pantallas «En curso»: no se cierra al
@@ -133,6 +134,13 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
   const expand = (): void => {
     isExpanded = true;
     void modal?.setCurrentBreakpoint(topBreakpoint());
+  };
+  // «Ver más»: sube a la siguiente parada
+  const expandStep = (): void => {
+    const next = breakpoints.find((stop) => stop > breakpoint() + 0.001);
+    if (next !== undefined) {
+      void modal?.setCurrentBreakpoint(next);
+    }
   };
   // Si el contenido cambia de alto, la parada de arriba lo sigue; si la hoja
   // estaba en ella (o más arriba de lo que ahora ocupa), baja o sube con él
@@ -173,5 +181,6 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
     close,
     expand,
     fitToContent,
+    expandStep,
   };
 }
