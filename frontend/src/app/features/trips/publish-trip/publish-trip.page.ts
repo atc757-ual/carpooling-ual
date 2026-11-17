@@ -36,7 +36,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { DatetimeField } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { RouteTimeline } from '../../../shared/components/ui/route-timeline/route-timeline';
-import { FaqCard } from '../../../shared/components/ui/faq-card/faq-card';
+import { QuickFaqs } from '../../../shared/components/ui/quick-faqs/quick-faqs';
 import { StepIndicator } from '../../../shared/components/ui/step-indicator/step-indicator';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { RouteFields } from '../../matching/route-fields/route-fields';
@@ -55,7 +55,6 @@ import {
 } from '../pickup-mode-field/pickup-mode-field';
 import { PublishNextSteps } from '../publish-next-steps/publish-next-steps';
 import { VehiclePicker } from '../vehicle-picker/vehicle-picker';
-import { PUBLISH_FAQS } from './publish-help';
 import { ReturnTripControls, ReturnTripField } from '../return-trip-field/return-trip-field';
 import { AutoAcceptField } from '../auto-accept-field/auto-accept-field';
 import {
@@ -140,7 +139,7 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
     PickupModeField,
     ReturnTripField,
     AutoAcceptField,
-    FaqCard,
+    QuickFaqs,
     RouteFields,
     RouteTimeline,
     StepIndicator,
@@ -546,7 +545,6 @@ export class PublishTripPage implements OnInit {
 
   protected readonly parkings = this.places.parkings;
   protected readonly steps = STEPS;
-  protected readonly faqs = PUBLISH_FAQS;
   protected readonly minDate = toIsoDate(new Date());
   protected readonly icons = {
     car: carOutline,

@@ -3,7 +3,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { IonButton, IonIcon, IonSpinner, IonTextarea, ModalController } from '@ionic/angular';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { alertCircleOutline, chatbubblesOutline } from 'ionicons/icons';
+import { alertCircleOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import {
   SUPPORT_MESSAGE_MAX_LENGTH,
@@ -12,15 +12,13 @@ import {
   SupportTopic,
 } from '../../../core/services/support/support.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { FaqCard } from '../../../shared/components/ui/faq-card/faq-card';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { SUPPORT_FAQS } from '../support-faqs';
 
 const TOPICS: readonly SupportTopic[] = ['trip', 'account', 'bug', 'suggestion', 'other'];
 
-// «Ayuda y soporte»: primero las preguntas frecuentes y, si no basta, el
-// motivo y el mensaje, que llegan por correo al equipo de soporte; responde
+// «Escribir a soporte» (desde Ayuda y soporte, tras las preguntas frecuentes):
+// solo el motivo y el mensaje, que llegan por correo al equipo de soporte; responde
 // al correo del usuario. Se abre con ModalController;
 // cierra con el rol 'sent' o 'cancel'
 @Component({
@@ -34,7 +32,6 @@ const TOPICS: readonly SupportTopic[] = ['trip', 'account', 'bug', 'suggestion',
     IonTextarea,
     TranslocoPipe,
     IonicFormStatus,
-    FaqCard,
   ],
   templateUrl: './profile-support-modal.html',
   styleUrl: './profile-support-modal.scss',
@@ -59,11 +56,9 @@ export class ProfileSupportModal {
   readonly isSending = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
-  protected readonly faqs = SUPPORT_FAQS;
   protected readonly topics = TOPICS;
   protected readonly maxLength = SUPPORT_MESSAGE_MAX_LENGTH;
 
-  protected readonly infoIcon = chatbubblesOutline;
   protected readonly alertIcon = alertCircleOutline;
 
   async handleSubmit(): Promise<void> {

@@ -1,46 +1,5 @@
-import { Faq } from '../../../shared/components/ui/faq-card/faq-card';
-
-// Ayuda de Publicar: las dudas de quien conduce (pasos 1 y 2) y qué pasa
-// después de publicar (paso 3). Solo lo que la plataforma ya hace (lo
-// pendiente, en pendientes-memoria.md)
-export const PUBLISH_FAQS: readonly Faq[] = [
-  {
-    question: '¿Cuánto tiempo extra me supone recoger?',
-    answer:
-      'Lo calculamos por ti: unos 2 minutos de parada por pasajero más el rodeo hasta su punto (según los metros que te apartas) o, si recoges en paradas, lo que alargan tu ruta. Con la hora de llegada, ese margen ya va en la hora de salida, y solo te pedirán plaza quienes quepan en él.',
-  },
-  {
-    question: '¿Cuántas plazas ofrezco?',
-    answer:
-      'Las que quieras llevar en este viaje, como mucho las de tu vehículo sin contarte a ti. Puedes ofrecer menos si llevas cosas en el asiento.',
-  },
-  {
-    question: '¿Cuántas solicitudes puedo aceptar?',
-    answer:
-      'Tantas como plazas ofreces. Cuando se llenan, el viaje deja de salir en las búsquedas.',
-  },
-  {
-    question: '¿Qué ven los pasajeros de mí?',
-    answer:
-      'Tu nombre, el trayecto, la hora y las plazas libres. Tu teléfono y tu correo no se muestran.',
-  },
-  {
-    question: '¿Qué pasa si cancelo?',
-    answer: 'Se cancela desde Tus viajes y depende del momento:',
-    points: [
-      'Sin pasajeros aceptados: las solicitudes pendientes se cancelan y avisamos a quien las hizo.',
-      'Con pasajeros, hasta 20 minutos antes de salir: sin penalización; les avisamos al momento para que busquen otro viaje.',
-      'A menos de 20 minutos de salir: también les avisamos, pero tendrás una penalización.',
-      'Con el viaje ya empezado: solo comunicando una incidencia; tus pasajeros tienen prioridad para encontrar otro viaje.',
-    ],
-  },
-  {
-    question: '¿Por qué la declaración responsable?',
-    answer:
-      'Para que quien viaja contigo sepa que tienes el permiso de conducir en vigor y que tu vehículo tiene el seguro y la ITV al día. Se acepta una sola vez.',
-  },
-];
-
+// Ayuda de Publicar: qué pasa después de publicar (paso 3). Las preguntas
+// frecuentes vienen de la API (app-quick-faqs)
 export interface NextStep {
   title: string;
   text: string;

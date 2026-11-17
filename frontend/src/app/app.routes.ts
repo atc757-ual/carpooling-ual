@@ -287,6 +287,43 @@ export const routes: Routes = [
         },
       },
       {
+        // Ayuda y soporte: desde Mi perfil y desde «¿Tienes más dudas?» de las
+        // preguntas rápidas
+        path: 'profile/help',
+        loadComponent: () =>
+          import('./features/profile/help-center/help-center.page').then((m) => m.HelpCenterPage),
+        data: {
+          heading: {
+            title: 'Ayuda y soporte',
+            subtitle: 'Preguntas frecuentes y contacto con soporte.',
+            backHref: '/tabs/profile',
+            // Sin breadcrumbs aquí: la pantalla pone su franja con el buscador
+            // (también en el móvil) y las migas en escritorio
+          } satisfies TabHeading,
+        },
+      },
+      {
+        // Una pregunta de la ayuda, desde su fila en Ayuda y soporte
+        path: 'profile/help/:id',
+        loadComponent: () =>
+          import('./features/profile/help-center/help-faq/help-faq.page').then(
+            (m) => m.HelpFaqPage,
+          ),
+        data: {
+          heading: {
+            title: 'Ayuda y soporte',
+            subtitle: 'Preguntas frecuentes y contacto con soporte.',
+            backHref: '/tabs/profile/help',
+            // Las migas ocultan la franja en el móvil (la flecha y el título
+            // van en la cabecera); en escritorio la pantalla pone la suya
+            breadcrumbs: [
+              { label: 'Mi perfil', href: '/tabs/profile' },
+              { label: 'Ayuda y soporte', href: '/tabs/profile/help' },
+            ],
+          } satisfies TabHeading,
+        },
+      },
+      {
         // Con la campana de la cabecera
         path: 'notifications',
         loadComponent: () =>

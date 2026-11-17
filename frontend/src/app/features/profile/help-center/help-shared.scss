@@ -1,0 +1,287 @@
+// Ayuda y soporte: la franja fija del título (los estilos de la cabecera de
+// las pestañas no llegan a una plantilla de la pantalla) y las columnas 8 + 4
+
+.help-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.help-heading__title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 1.5rem; // 24px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+.help-heading__subtitle {
+  margin: 0;
+}
+
+.help-heading__breadcrumbs {
+  margin: 0;
+  padding: var(--space-s) 0 0;
+
+  ion-breadcrumb {
+    --color: var(--color-text-muted);
+    --color-active: var(--color-text);
+    --color-hover: var(--color-link);
+
+    font-size: var(--font-size-caption);
+  }
+
+  ion-breadcrumb:first-child::part(native) {
+    padding-inline-start: 0;
+  }
+}
+
+// El buscador: azul claro, sin sombra ni borde, esquinas de 8px y 44px de
+// alto. En escritorio, del ancho de la columna de 8 y separado de las migas
+.help-heading__search {
+  --background: var(--color-primary-subtle);
+  --box-shadow: none;
+  --border-radius: var(--radius-s); // 8px, como su desplegable
+  --color: var(--color-text);
+  --placeholder-color: var(--color-text-muted);
+  --placeholder-opacity: 1;
+  --icon-color: var(--color-primary);
+
+  min-height: 2.75rem; // 44px
+  padding: 0;
+}
+
+// El buscador y su desplegable, por encima del fondo que se oscurece
+.help-search {
+  position: relative;
+  z-index: 11;
+
+  @media (min-width: 768px) {
+    width: calc((100% - var(--space-base)) * 2 / 3);
+    margin-top: var(--space-base);
+  }
+}
+
+// Las preguntas que coinciden, en una lista bajo el buscador
+.help-search__panel {
+  position: absolute;
+  top: calc(100% + var(--space-xs));
+  right: 0;
+  left: 0;
+  max-height: min(24rem, 60vh); // 384px como mucho
+  overflow-y: auto;
+  border: var(--border-width-s) solid var(--color-border-subtle);
+  border-radius: var(--radius-s); // 8px
+  background: var(--color-surface);
+  box-shadow: var(--shadow-l);
+}
+
+.help-search__list {
+  margin: 0;
+  padding: var(--space-xs) 0;
+  list-style: none;
+}
+
+.help-search__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+  padding: var(--space-s) var(--space-base);
+  color: var(--color-text);
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-primary-subtle);
+  }
+}
+
+.help-search__question {
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-medium);
+}
+
+.help-search__topic {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+}
+
+.help-search__status {
+  margin: 0;
+  padding: var(--space-base);
+
+  output {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+}
+
+// Fuera del desplegable: transparente en escritorio (solo cierra al pulsar)
+// y, en el móvil, el fondo oscurecido
+.help-search__backdrop {
+  position: fixed;
+  z-index: 10;
+  inset: 0;
+
+  @media (max-width: 767.98px) {
+    background: var(--color-backdrop);
+  }
+}
+
+// Las tarjetas de estas pantallas, sin sombra: solo el borde. Las de las
+// preguntas son de app-faq-card, de ahí ::ng-deep, limitado a estas pantallas
+.help-page {
+  align-items: stretch;
+
+  ion-card,
+  ::ng-deep app-faq-card ion-card {
+    margin: 0;
+    box-shadow: none;
+    text-align: left;
+  }
+}
+
+// Móvil: el contenido y debajo la columna de 4. Escritorio: el contenido en
+// la columna de 8 y la de 4 a la derecha
+.help-page__layout {
+  display: grid;
+  gap: var(--space-base);
+  grid-template-areas:
+    'main'
+    'aside';
+
+  @media (min-width: 768px) {
+    grid-template-columns: 2fr 1fr;
+    grid-template-areas: 'main aside';
+    align-items: start;
+  }
+}
+
+.help-page__main,
+.help-page__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  min-width: 0;
+}
+
+.help-page__main {
+  grid-area: main;
+}
+
+.help-page__aside {
+  grid-area: aside;
+}
+
+.help-page__section-title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+// La tarjeta grande de la columna de 8: las pestañas (o el título de los
+// resultados) y debajo las tarjetas de los temas
+.help-faqs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding: var(--space-base);
+}
+
+// Los temas: una tarjeta cada uno, con borde, dentro de la grande; en
+// escritorio, dos por fila (cada fila, del alto de la tarjeta más alta)
+.help-topics-grid {
+  display: grid;
+  gap: var(--space-base);
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+// Un tema: el título con su icono en un círculo azul claro y las preguntas
+// como filas con la flecha de abrir; las líneas, dentro del relleno
+.help-page .help-topic-card {
+  padding: var(--space-base) var(--space-base) var(--space-xs);
+  border: var(--border-width-s) solid var(--color-border-subtle);
+}
+
+.help-topic-card__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  margin: 0;
+  // Separado de las preguntas por una línea, dentro del relleno de la tarjeta
+  padding-bottom: var(--space-s);
+  border-bottom: var(--border-width-s) solid var(--color-border);
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: 1.125rem; // 18px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+.help-topic-card__icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2rem; // 32px
+  height: 2rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-size: 1.125rem; // 18px
+}
+
+.help-topic-card__list {
+  padding: 0;
+  background: transparent;
+}
+
+.help-topic-card__item {
+  // Sin relleno a los lados: el de la tarjeta hace que las líneas entre
+  // preguntas no lleguen a los bordes
+  --background: transparent;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --min-height: 2.75rem; // 44px
+  --detail-icon-color: var(--color-text-muted);
+  --detail-icon-opacity: 1;
+}
+
+.help-topic-card__question {
+  font-size: var(--font-size-body-s); // 14px
+  white-space: normal;
+}
+
+.help-page__skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding: var(--space-base);
+}
+
+.help-page__skeleton {
+  height: 1.5rem; // 24px
+  margin: 0;
+}
+
+// Sin resultados: el aviso centrado
+.help-page__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-l) var(--space-base);
+  text-align: center;
+
+  ion-icon {
+    color: var(--color-text-muted);
+    font-size: 2rem; // 32px
+  }
+}

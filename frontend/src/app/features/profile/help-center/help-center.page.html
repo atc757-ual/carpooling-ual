@@ -1,0 +1,139 @@
+<ion-content>
+  <div class="tab-page help-page">
+    <div class="help-page__layout">
+      <section class="help-page__main" [attr.aria-label]="'help.title' | transloco">
+        @if (errorMessage(); as message) {
+          <div class="notice notice--danger" role="alert">
+            <span>
+              <b>{{ 'help.loadError' | transloco }}</b>
+              {{ message }}
+            </span>
+            <ion-button fill="outline" size="small" (click)="handleRetry()">
+              {{ 'help.retry' | transloco }}
+            </ion-button>
+          </div>
+        } @else if (isLoading()) {
+          <ion-card class="help-page__skeleton-card" aria-busy="true">
+            @for (row of skeletonRows; track row) {
+              <ion-skeleton-text [animated]="true" class="help-page__skeleton" />
+            }
+          </ion-card>
+        } @else {
+          <!-- La tarjeta grande: las pestañas y, dentro, una tarjeta por tema
+               con la lista de sus preguntas (dos por fila en escritorio) -->
+          <ion-card class="help-faqs">
+            <app-help-audience-picker />
+            <div class="help-topics-grid">
+              @for (section of sections(); track section.topic.key) {
+                <ion-card class="help-topic-card">
+                  <h2 class="help-topic-card__title">
+                    <span class="help-topic-card__icon" aria-hidden="true">
+                      <ion-icon [icon]="section.icon" />
+                    </span>
+                    {{ section.topic.name }}
+                  </h2>
+                  <ion-list class="help-topic-card__list" lines="full">
+                    @for (faq of section.faqs; track faq.id; let last = $last) {
+                      <ion-item
+                        class="help-topic-card__item"
+                        [button]="true"
+                        [detail]="true"
+                        [lines]="last ? 'none' : 'full'"
+                        [routerLink]="[helpCenterPath, faq.id]"
+                      >
+                        <ion-label class="help-topic-card__question">{{ faq.question }}</ion-label>
+                      </ion-item>
+                    }
+                  </ion-list>
+                </ion-card>
+              }
+            </div>
+          </ion-card>
+        }
+      </section>
+
+      <aside class="help-page__aside" [attr.aria-label]="'help.contactSupport' | transloco">
+        <app-help-support-card />
+      </aside>
+    </div>
+  </div>
+</ion-content>
+
+<!-- La franja fija del título: en escritorio, el título, las migas y debajo
+     el buscador (del ancho de la columna de 8); en el móvil, solo el
+     buscador (la cabecera ya lleva la flecha de volver y el título). Al
+     escribir, debajo del buscador se despliegan las preguntas que coinciden;
+     en el móvil, con el fondo oscurecido -->
+<ng-template #helpHeading>
+  <div class="help-heading">
+    <div class="ion-hide-md-down">
+      <h1 class="help-heading__title">{{ 'help.title' | transloco }}</h1>
+      <p class="help-heading__subtitle text-body-s text-color-muted">
+        {{ 'help.subtitle' | transloco }}
+      </p>
+    </div>
+    <ion-breadcrumbs class="help-heading__breadcrumbs ion-hide-md-down">
+      <ion-breadcrumb routerLink="/tabs/profile" routerDirection="back">
+        {{ 'help.breadcrumbProfile' | transloco }}
+      </ion-breadcrumb>
+      <ion-breadcrumb [active]="true">{{ 'help.title' | transloco }}</ion-breadcrumb>
+    </ion-breadcrumbs>
+    <div class="help-search">
+      <ion-searchbar
+        class="help-heading__search"
+        [placeholder]="'help.searchPlaceholder' | transloco"
+        [attr.aria-label]="'help.searchPlaceholder' | transloco"
+        [debounce]="300"
+        [value]="search()"
+        (ionInput)="handleSearch($event.detail.value)"
+        (ionFocus)="handleOpenSearch()"
+        (keydown.escape)="handleCloseSearch()"
+      />
+      @if (isSearchOpen()) {
+        <div class="help-search__panel">
+          @if (isSearchLoading()) {
+            <p class="help-search__status text-body-s text-color-muted" aria-busy="true">
+              {{ 'help.searching' | transloco }}
+            </p>
+          } @else {
+            <ul class="help-search__list" [attr.aria-label]="'help.resultsTitle' | transloco">
+              @for (item of searchItems(); track item.id) {
+                <li>
+                  <a
+                    class="help-search__item"
+                    [routerLink]="[helpCenterPath, item.id]"
+                    (click)="handleCloseSearch()"
+                  >
+                    <span class="help-search__question">{{ item.question }}</span>
+                    <span class="help-search__topic">{{ item.topicName }}</span>
+                  </a>
+                </li>
+              } @empty {
+                <li class="help-search__status">
+                  <output>
+                    <span class="text-body text-body--strong">{{
+                      'help.emptyTitle' | transloco
+                    }}</span>
+                    <span class="text-body-s text-color-muted">{{
+                      'help.emptyText' | transloco
+                    }}</span>
+                  </output>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      }
+    </div>
+  </div>
+  @if (isSearchOpen()) {
+    <!-- Fuera del desplegable: cierra al pulsar (con el teclado, Escape);
+         en el móvil, oscurece -->
+    <div
+      class="help-search__backdrop"
+      aria-hidden="true"
+      (click)="handleCloseSearch()"
+      (keydown.escape)="handleCloseSearch()"
+    ></div>
+  }
+</ng-template>

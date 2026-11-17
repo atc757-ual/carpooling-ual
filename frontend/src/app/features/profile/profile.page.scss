@@ -254,6 +254,8 @@ app-profile-device-location {
   color: var(--color-text);
   font: inherit;
   text-align: left;
+  // También es un enlace (Preguntas frecuentes): sin subrayado
+  text-decoration: none;
   cursor: pointer;
   transition:
     background var(--motion-duration-fast),

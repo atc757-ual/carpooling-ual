@@ -1,0 +1,23 @@
+:host {
+  display: block;
+}
+
+.quick-faqs__loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  margin: 0;
+  padding: var(--space-base);
+}
+
+.quick-faqs__skeleton {
+  height: 1.5rem; // 24px
+  margin: 0;
+}
+
+// «Ver todas las preguntas», separado de la última pregunta y con el texto
+// a 16px (Ionic lo deja en 14px y dentro de la tarjeta se veía pequeño)
+.quick-faqs__more {
+  margin: var(--space-base) 0 0;
+  font-size: var(--font-size-body); // 16px
+}

@@ -121,5 +121,47 @@ for (const viewport of VIEWPORTS) {
 
       cy.wait('@remove');
     });
+
+    it('finds a question in Help & support and opens its answer', () => {
+      const faq = (id: string, topic: string, audience: string, question: string) => ({
+        '@type': 'Faq',
+        id,
+        topic,
+        audience,
+        quickContexts: [],
+        question,
+        answer: 'Cuánto antes o después de tu hora te viene bien.',
+        points: [],
+      });
+      const margin = faq('f1', 'search', 'passenger', '¿Qué es el margen horario?');
+      cy.intercept('GET', '/api/faq-topics?*', [
+        { id: 't1', key: 'search', name: 'Buscar y pedir plaza', icon: 'ticket-outline' },
+        { id: 't2', key: 'publish', name: 'Publicar y conducir', icon: 'car-outline' },
+      ]);
+      cy.intercept('GET', '/api/faqs?*', (req) => {
+        req.reply(
+          req.query['q']
+            ? [margin]
+            : [margin, faq('f2', 'publish', 'driver', '¿Cuántas plazas ofrezco?')],
+        );
+      });
+      cy.intercept('GET', '/api/faqs/f1?*', margin);
+      openProfile(['passenger']);
+
+      cy.contains('app-profile a', 'Ayuda y soporte').click();
+      cy.location('pathname').should('eq', '/tabs/profile/help');
+      // Las de pasajero; las de conductor, en su pestaña
+      cy.contains('.help-topic-card', 'Buscar y pedir plaza').should('be.visible');
+      cy.contains('.help-topic-card', 'Publicar y conducir').should('not.exist');
+      cy.contains('.audience-picker__option', 'Conductor').click();
+      cy.contains('.help-topic-card', 'Publicar y conducir').should('be.visible');
+
+      cy.get('.help-heading__search input:visible').type('margen');
+      cy.contains('.help-search__item', '¿Qué es el margen horario?').click();
+
+      cy.location('pathname').should('eq', '/tabs/profile/help/f1');
+      cy.contains('.help-answer__question', '¿Qué es el margen horario?');
+      cy.contains('.help-answer', 'Cuánto antes o después de tu hora te viene bien.');
+    });
   });
 }

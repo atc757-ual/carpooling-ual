@@ -1,0 +1,56 @@
+// Arriba la categoría (azul y pequeña) y la pregunta como título, separadas
+// de la respuesta por una línea; la respuesta a 16px y, si los tiene, los
+// casos en una lista
+.help-answer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding: var(--space-l) var(--space-base);
+  color: var(--color-text);
+}
+
+.help-answer__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-bottom: var(--space-base);
+  border-bottom: var(--border-width-s) solid var(--color-border);
+}
+
+.help-answer__topic {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: 0;
+  color: var(--color-link);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+
+  ion-icon {
+    flex: none;
+    font-size: 1rem; // 16px
+  }
+}
+
+.help-answer__question {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle); // 20 → 22px
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+.help-answer__text {
+  margin: 0;
+  font-size: var(--font-size-body);
+  line-height: 1.6;
+}
+
+.help-answer__points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+  padding-inline-start: var(--space-l);
+  line-height: 1.5;
+}

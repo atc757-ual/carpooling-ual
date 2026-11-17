@@ -316,8 +316,8 @@
                 <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
               </button>
 
-              <!-- Ayuda y soporte -->
-              <button type="button" class="profile__legal-row" (click)="handleOpenSupport()">
+              <!-- Ayuda y soporte: las preguntas frecuentes y, desde ellas, escribir -->
+              <a class="profile__legal-row" routerLink="/tabs/profile/help">
                 <ion-icon class="profile__legal-icon" [icon]="helpIcon" aria-hidden="true" />
                 <span class="profile__legal-text">
                   <span class="text-body text-body--strong">{{
@@ -328,7 +328,7 @@
                   }}</span>
                 </span>
                 <ion-icon class="profile__legal-chevron" [icon]="chevronIcon" aria-hidden="true" />
-              </button>
+              </a>
 
               <!-- Darse de baja / Eliminar cuenta -->
               <button

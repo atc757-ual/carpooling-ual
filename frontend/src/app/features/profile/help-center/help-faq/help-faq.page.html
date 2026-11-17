@@ -1,0 +1,70 @@
+<ion-content>
+  <div class="tab-page help-page">
+    <div class="help-page__layout">
+      <section class="help-page__main" [attr.aria-label]="current()?.question ?? ''">
+        @if (errorMessage(); as message) {
+          <div class="notice notice--danger" role="alert">
+            <span>
+              <b>{{ 'help.faqLoadError' | transloco }}</b>
+              {{ message }}
+            </span>
+            <ion-button fill="outline" size="small" (click)="handleRetry()">
+              {{ 'help.retry' | transloco }}
+            </ion-button>
+          </div>
+        } @else if (isLoading()) {
+          <ion-card class="help-page__skeleton-card" aria-busy="true">
+            @for (row of skeletonRows; track row) {
+              <ion-skeleton-text [animated]="true" class="help-page__skeleton" />
+            }
+          </ion-card>
+        } @else if (current(); as faq) {
+          <!-- Una sola tarjeta: la categoría, la pregunta y su respuesta -->
+          <ion-card class="help-answer">
+            <div class="help-answer__header">
+              @if (topic(); as topic) {
+                <p class="help-answer__topic">
+                  <ion-icon [icon]="topic.icon" aria-hidden="true" />
+                  {{ topic.name }}
+                </p>
+              }
+              <h2 class="help-answer__question">{{ faq.question }}</h2>
+            </div>
+            <p class="help-answer__text">{{ faq.answer }}</p>
+            @if (faq.points.length > 0) {
+              <ul class="help-answer__points">
+                @for (point of faq.points; track point) {
+                  <li>{{ point }}</li>
+                }
+              </ul>
+            }
+          </ion-card>
+        }
+      </section>
+
+      <aside class="help-page__aside" [attr.aria-label]="'help.contactSupport' | transloco">
+        <app-help-support-card />
+      </aside>
+    </div>
+  </div>
+</ion-content>
+
+<!-- La franja fija, solo en escritorio: «Pregunta», el subtítulo y las migas
+     (en el móvil la cabecera lleva «Ayuda y soporte» y la flecha de volver) -->
+<ng-template #helpHeading>
+  <div class="help-heading">
+    <h1 class="help-heading__title">{{ 'help.breadcrumbFaq' | transloco }}</h1>
+    <p class="help-heading__subtitle text-body-s text-color-muted">
+      {{ 'help.faqSubtitle' | transloco }}
+    </p>
+    <ion-breadcrumbs class="help-heading__breadcrumbs">
+      <ion-breadcrumb routerLink="/tabs/profile" routerDirection="back">
+        {{ 'help.breadcrumbProfile' | transloco }}
+      </ion-breadcrumb>
+      <ion-breadcrumb [routerLink]="helpCenterPath" routerDirection="back">
+        {{ 'help.title' | transloco }}
+      </ion-breadcrumb>
+      <ion-breadcrumb [active]="true">{{ 'help.breadcrumbFaq' | transloco }}</ion-breadcrumb>
+    </ion-breadcrumbs>
+  </div>
+</ng-template>
