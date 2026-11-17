@@ -192,8 +192,34 @@
 // Los puntos: uno por pasajero, el que se ve más largo y en azul
 .pickup-dots {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: var(--space-xs);
+}
+
+// El carrusel con, en escritorio, las flechas de anterior y siguiente a sus
+// lados: botones de icono de 32px sin borde, a media altura de la tarjeta.
+// En el móvil no se ven (se desliza con el dedo)
+.pickup-viewport {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+
+  .pickup-carousel {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// Con las dos clases, para ganar a .icon-btn
+.icon-btn.pickup-arrow {
+  width: 2rem; // 32px
+  height: 2rem;
+  border-color: transparent;
+
+  @media (max-width: 767.98px) {
+    display: none;
+  }
 }
 
 .pickup-dots__dot {
@@ -372,15 +398,24 @@
   font-weight: var(--font-weight-semibold);
 }
 
-// «Terminar viaje» y los iconos de compartir y SOS, mitad y mitad (también en
-// el móvil, para ahorrar sitio en la hoja)
+// «Terminar viaje» a todo el ancho que dejan los iconos de compartir y SOS,
+// a su derecha: al desplegarse uno con su texto, el botón se encoge
 .driver-live-trip__finish-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  display: flex;
   align-items: center;
-  gap: var(--space-base);
+  gap: var(--space-s);
+
+  app-live-trip-safety {
+    flex: none;
+    margin-left: auto;
+  }
 }
 
 .driver-live-trip__finish-slot {
+  flex: 1;
   min-width: 0;
+
+  &:empty {
+    display: none;
+  }
 }

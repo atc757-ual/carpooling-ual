@@ -16,6 +16,8 @@ import {
   checkmarkCircle,
   chatbubblesOutline,
   checkmarkCircleOutline,
+  chevronBackOutline,
+  chevronForwardOutline,
   homeOutline,
   locationOutline,
   personRemoveOutline,
@@ -262,6 +264,8 @@ export class DriverLiveTripPage {
   protected readonly confirmFinishIcon = checkmarkCircleOutline;
   protected readonly firstName = (name: string) => getFirstName(name);
   protected readonly callIcon = callOutline;
+  protected readonly previousIcon = chevronBackOutline;
+  protected readonly nextIcon = chevronForwardOutline;
   protected readonly finishedIcon = checkmarkCircle;
   protected readonly noShowIcon = personRemoveOutline;
   protected readonly dropOffIcon = walkOutline;
