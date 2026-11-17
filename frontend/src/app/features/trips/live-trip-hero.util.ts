@@ -126,6 +126,9 @@ export class LiveTripHero {
   readonly stages = input.required<readonly JourneyStage[]>();
 }
 
+// Lo que tarda la hoja en llegar a su parada al soltarla
+const RELEASE_MS = 400;
+
 @Component({
   selector: 'app-live-trip-sheet',
   imports: [NgTemplateOutlet, IonContent, IonIcon, IonModal],
@@ -143,6 +146,9 @@ export class LiveTripHero {
         [handle]="true"
         handleBehavior="cycle"
         (ionBreakpointDidChange)="sheet().breakpoint.set($event.detail.breakpoint)"
+        (pointerdown)="isTouching.set(true)"
+        (pointerup)="handleRelease()"
+        (pointercancel)="handleRelease()"
       >
         <ng-template>
           <ion-content>
@@ -153,7 +159,12 @@ export class LiveTripHero {
                  y una flecha gris hacia abajo, que sube la hoja a la siguiente
                  parada -->
             @if (hasMoreBelow()) {
-              <div slot="fixed" class="live-sheet__more" [style.top.px]="visiblePx()">
+              <div
+                slot="fixed"
+                class="live-sheet__more"
+                [class.live-sheet__more--hidden]="isTouching()"
+                [style.top.px]="visiblePx()"
+              >
                 <button
                   type="button"
                   class="live-sheet__more-btn"
@@ -183,6 +194,10 @@ export class LiveTripSheet {
   readonly visiblePx = computed(() => Math.round(this.sheet().breakpoint() * this.sheetPx()));
   readonly hasMoreBelow = computed(() => this.neededPx() > this.visiblePx() + 8);
   protected readonly moreIcon = chevronDownOutline;
+  // Mientras se toca la hoja (arrastrar o desplazar) la flecha se oculta al
+  // momento; al soltar vuelve cuando la hoja ya ha llegado a su parada
+  readonly isTouching = signal(false);
+  private releaseTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
     effect(() => this.sheet().setModal(this.modal()));
@@ -199,6 +214,11 @@ export class LiveTripSheet {
       observer.observe(content);
       onCleanup(() => observer.disconnect());
     });
+  }
+
+  handleRelease(): void {
+    clearTimeout(this.releaseTimer);
+    this.releaseTimer = setTimeout(() => this.isTouching.set(false), RELEASE_MS);
   }
 
   // Lo que ocupa el contenido con el relleno de la hoja (8px arriba, bajo el

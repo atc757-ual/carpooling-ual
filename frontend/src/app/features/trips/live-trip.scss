@@ -158,6 +158,12 @@ ion-modal.live-sheet {
   // su borde de arriba
   bottom: calc(var(--tab-bar-height) + var(--ion-safe-area-bottom, 0px) + var(--border-width-s));
 
+  // En escritorio no se ve nunca, ni mientras se cierra al pasar del móvil a
+  // escritorio: su contenido ya va en la columna de 4 y saldría dos veces
+  @media (min-width: 768px) {
+    display: none;
+  }
+
   ::ng-deep ion-content {
     --background: var(--color-surface);
     --padding-top: var(--space-s); // bajo el asa
@@ -222,8 +228,14 @@ ion-modal.live-sheet {
   left: 0;
   display: flex;
   justify-content: center;
-  padding-top: var(--space-base);
+  padding-top: var(--space-s);
   background: linear-gradient(to bottom, transparent, var(--color-surface) 70%);
+  transition: opacity 120ms ease;
+
+  // Mientras se toca la hoja (arrastrar o desplazar), fuera al momento
+  &--hidden {
+    opacity: 0;
+  }
   pointer-events: none;
   transform: translateY(-100%);
 }
@@ -232,12 +244,12 @@ ion-modal.live-sheet {
   display: grid;
   place-items: center;
   width: 2rem; // 32px
-  height: 1.5rem; // 24px
+  height: 1rem; // 16px
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--color-text-muted);
-  font-size: 1.25rem; // 20px: el icono
+  color: var(--color-border-strong); // gris claro: una pista, no un botón más
+  font-size: 1rem; // 16px: el icono
   pointer-events: auto;
   cursor: pointer;
 
