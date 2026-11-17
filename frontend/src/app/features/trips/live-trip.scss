@@ -180,8 +180,16 @@ ion-modal.live-sheet {
     padding-inline: 0;
   }
 
+  // Compacta: 12 px arriba y abajo de cada sección, con la línea en medio
   ::ng-deep ion-card ion-card-content[class] {
-    padding-block: var(--space-base);
+    padding-block: calc(var(--space-s) + var(--space-xs)); // 12px
+  }
+
+  // La línea entre secciones: aquí, para ganar al «border: 0» de las
+  // tarjetas de arriba (si no, solo la llevaban los componentes, no las
+  // tarjetas, y quedaba un hueco sin línea)
+  ::ng-deep .live-sheet__body > * + * {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
   }
 
   // Con título: el título arriba y el contenido justo debajo
@@ -200,8 +208,4 @@ ion-modal.live-sheet {
   flex-direction: column;
   gap: 0;
   min-width: 0;
-
-  ::ng-deep > * + * {
-    border-top: var(--border-width-s) solid var(--color-border-subtle);
-  }
 }
