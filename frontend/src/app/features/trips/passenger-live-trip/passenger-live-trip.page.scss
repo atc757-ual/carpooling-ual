@@ -224,19 +224,23 @@ ion-card-content.ride__state {
 }
 
 // Ha llegado: el ✓ verde con el aviso y, debajo, la valoración del conductor
-// El encabezado, con una línea fina debajo (4px de aire), como los demás de
-// la hoja
+// El encabezado, con una línea fina debajo, como los demás de la hoja: 16px
+// entre el texto y la línea y 16px entre la línea y lo siguiente (el gap de
+// 8px de la tarjeta más 8px de margen)
 .ride__done-head {
   display: flex;
   align-items: center;
   gap: var(--space-s);
-  padding-bottom: var(--space-xs);
+  margin-bottom: var(--space-s);
+  padding-bottom: var(--space-base);
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 
-  // Ya valorado: el icono encima y el texto centrado
+  // Ya valorado: el icono encima y el texto centrado (la tarjeta ya pone 16px
+  // de gap, sin margen)
   &--centered {
     flex-direction: column;
     justify-content: center;
+    margin-bottom: 0;
     padding-top: var(--space-base);
     text-align: center;
   }

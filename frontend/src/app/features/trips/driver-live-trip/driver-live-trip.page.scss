@@ -389,13 +389,15 @@
 
 // Terminado: el ✓ verde con el aviso
 // Los encabezados de la hoja (terminado y «¿Terminar el viaje?»), con una
-// línea fina debajo y 4px de aire
+// línea fina debajo: 16px entre el texto y la línea y 16px entre la línea y lo
+// siguiente (el gap de 8px de la tarjeta más 8px de margen)
 .driver-live-trip__done,
 .driver-live-trip__confirm-head {
   display: flex;
   align-items: center;
   gap: var(--space-s);
-  padding-bottom: var(--space-xs);
+  margin-bottom: var(--space-s);
+  padding-bottom: var(--space-base);
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 
   h2,
