@@ -8,6 +8,7 @@ import { SeatRequest } from './entities/seat-request.entity';
 import { RequestChangesRecorder } from './request-changes';
 import { RequestAcceptanceListener } from './request-acceptance.listener';
 import { RequestPickupsService } from './request-pickups.service';
+import { RequestDropOffService } from './request-drop-off.service';
 import { RequestOverlapService } from './request-overlap.service';
 import { RequestsController } from './requests.controller';
 import { RequestViewsService } from './request-views.service';
@@ -38,6 +39,7 @@ import { TripParticipantsRegistration } from './trip-participants.registration';
     RequestOverlapService,
     RequestAcceptanceListener,
     RequestPickupsService,
+    RequestDropOffService,
     TripChangesListener,
     RequestLifecycleScheduler,
     TripParticipantsRegistration,

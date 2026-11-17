@@ -42,6 +42,8 @@ export function requestPayload(request: SeatRequest): Record<string, unknown> {
     cancelledAt: request.cancelledAt?.toISOString() ?? null,
     rejectionReason: request.rejectionReason ?? null,
     boardedAt: request.boardedAt?.toISOString() ?? null,
+    droppedOffAt: request.droppedOffAt?.toISOString() ?? null,
+    droppedOffBy: request.droppedOffBy ?? null,
   };
 }
 
@@ -73,6 +75,8 @@ export function noticeFor(
       return toPassenger('request_rejected');
     case 'request.expired':
       return toPassenger('request_expired');
+    case 'request.completed':
+      return toPassenger('trip_completed');
     case 'request.boarded':
       return toPassenger('trip_started');
     case 'request.cancelled':

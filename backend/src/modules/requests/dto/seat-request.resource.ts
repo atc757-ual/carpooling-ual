@@ -5,8 +5,8 @@ import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
 import { tripHref } from '../../trips/dto/trip.resource';
 import { TravelPreferencesResource } from '../../users/dto/travel-preferences.resource';
 import type { RequestView } from '../request-views.service';
-import { REQUEST_STATUSES } from '../request-status';
-import type { RequestStatus } from '../request-status';
+import { DROP_OFF_ACTORS, REQUEST_STATUSES } from '../request-status';
+import type { DropOffActor, RequestStatus } from '../request-status';
 
 export class SeatRequestTripResource {
   @ApiProperty({ format: 'uuid' })
@@ -150,6 +150,22 @@ export class SeatRequestResource {
     description: 'When the passenger boarded the vehicle',
   })
   boardedAt: string | null;
+
+  @ApiProperty({
+    type: String,
+    format: 'date-time',
+    nullable: true,
+    description: 'When the passenger got off (the seat is completed)',
+  })
+  droppedOffAt: string | null;
+
+  @ApiProperty({
+    enum: DROP_OFF_ACTORS,
+    nullable: true,
+    description:
+      'Who marked the drop-off: the driver («Ha bajado»), the passenger («He llegado») or the system when the trip finished',
+  })
+  droppedOffBy: DropOffActor | null;
 }
 
 export class BoardSeatRequestDto {
@@ -214,5 +230,7 @@ export function toSeatRequestResource(
     rejectionReason: request.rejectionReason ?? null,
     boardCode: isPassenger ? (request.boardCode ?? null) : null,
     boardedAt: request.boardedAt?.toISOString() ?? null,
+    droppedOffAt: request.droppedOffAt?.toISOString() ?? null,
+    droppedOffBy: request.droppedOffBy ?? null,
   };
 }

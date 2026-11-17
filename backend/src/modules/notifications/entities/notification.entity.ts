@@ -24,6 +24,8 @@ export const NOTIFICATION_TYPES = [
   'review_requested',
   'request_expired',
   'passenger_no_show',
+  // Al pasajero, cuando se cierra su plaza: puede valorar al conductor
+  'trip_completed',
   // Recordatorios al conductor: solicitudes por responder antes del corte y
   // iniciar el viaje a la hora de salida
   'pending_requests_reminder',

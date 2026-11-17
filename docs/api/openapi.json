@@ -8437,6 +8437,202 @@
         ]
       }
     },
+    "/api/requests/{id}/drop-off": {
+      "post": {
+        "description": "During the trip, with the passenger on board. Closes the seat (completed); marking it again returns the same seat. When no accepted passenger is left on board, the trip finishes.",
+        "operationId": "RequestsController_dropOff",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeatRequestResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED, NOT_TRIP_DRIVER",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: REQUEST_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: TRIP_NOT_IN_PROGRESS, PASSENGER_NOT_BOARDED, INVALID_REQUEST_TRANSITION",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark that the passenger got off («Ha bajado»)",
+        "tags": [
+          "seat requests"
+        ]
+      }
+    },
+    "/api/requests/{id}/arrive": {
+      "post": {
+        "description": "During the trip, once on board. Closes my seat (completed) and lets me review the driver; marking it again returns the same seat. When no accepted passenger is left on board, the trip finishes.",
+        "operationId": "RequestsController_arrive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeatRequestResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED, NOT_REQUEST_PASSENGER",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: REQUEST_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: TRIP_NOT_IN_PROGRESS, PASSENGER_NOT_BOARDED, INVALID_REQUEST_TRANSITION",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark that I have arrived («He llegado»)",
+        "tags": [
+          "seat requests"
+        ]
+      }
+    },
     "/api/requests/{id}": {
       "get": {
         "description": "Only its passenger and the driver of the trip can see it.",
@@ -13523,6 +13719,7 @@
                 "request.cancelled",
                 "request.expired",
                 "request.boarded",
+                "request.completed",
                 "chat_message.sent",
                 "incident.reported",
                 "incident.review_started",
@@ -16375,13 +16572,14 @@
               "review_requested",
               "request_expired",
               "passenger_no_show",
+              "trip_completed",
               "pending_requests_reminder",
               "trip_start_reminder",
               "trip_expired",
               "terms_updated",
               "privacy_updated"
             ],
-            "description": "request_received (to the driver), passenger_joined (to the driver, when the trip accepts requests automatically), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver and accepted passengers when the trip finishes), incident_reported (to the administrators), terms_updated and privacy_updated (to every active user after a minor change of a legal document)"
+            "description": "request_received (to the driver), passenger_joined (to the driver, when the trip accepts requests automatically), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver when a trip with passengers finishes), trip_completed (to the passenger when their seat is closed: they got off or the trip finished), incident_reported (to the administrators), terms_updated and privacy_updated (to every active user after a minor change of a legal document)"
           },
           "trip": {
             "nullable": true,
@@ -17948,7 +18146,8 @@
               "accepted",
               "rejected",
               "cancelled",
-              "expired"
+              "expired",
+              "completed"
             ]
           },
           "seats": {
@@ -18035,6 +18234,22 @@
             "format": "date-time",
             "nullable": true,
             "description": "When the passenger boarded the vehicle"
+          },
+          "droppedOffAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the passenger got off (the seat is completed)"
+          },
+          "droppedOffBy": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "passenger",
+              "system"
+            ],
+            "nullable": true,
+            "description": "Who marked the drop-off: the driver («Ha bajado»), the passenger («He llegado») or the system when the trip finished"
           }
         },
         "required": [
@@ -18057,7 +18272,9 @@
           "vehiclePlate",
           "rejectionReason",
           "boardCode",
-          "boardedAt"
+          "boardedAt",
+          "droppedOffAt",
+          "droppedOffBy"
         ]
       },
       "RequestingStatusResource": {
@@ -20955,7 +21172,8 @@
               "accepted",
               "rejected",
               "cancelled",
-              "expired"
+              "expired",
+              "completed"
             ]
           },
           "seats": {
@@ -21332,6 +21550,7 @@
               "request.cancelled",
               "request.expired",
               "request.boarded",
+              "request.completed",
               "chat_message.sent",
               "incident.reported",
               "incident.review_started",
@@ -21433,6 +21652,7 @@
               "request.cancelled",
               "request.expired",
               "request.boarded",
+              "request.completed",
               "chat_message.sent",
               "incident.reported",
               "incident.review_started",
@@ -21615,7 +21835,8 @@
               "accepted",
               "rejected",
               "cancelled",
-              "expired"
+              "expired",
+              "completed"
             ]
           },
           "passenger": {

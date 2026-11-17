@@ -50,12 +50,13 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `trip.position_updated`    | Nueva posición del conductor durante el viaje (RF-12, RNF-07)                                      | `tracking/trip-positions.service.ts`   |
 | `trip_share.created`       | Un pasajero comparte el viaje en directo (`tripId`, `passengerId`; nunca el enlace)                | `tracking/trip-shares.service.ts`      |
 | `trip_share.revoked`       | Deja de compartirlo o lo sustituye por otro enlace (`tripId`, `passengerId`)                       | `tracking/trip-shares.service.ts`      |
-| `request.created` (v2)     | Un pasajero pide plaza                                                                             | `requests/request-changes.ts`          |
-| `request.accepted` (v2)    | El conductor la acepta                                                                             | `requests/request-changes.ts`          |
-| `request.rejected` (v2)    | La rechaza                                                                                         | `requests/request-changes.ts`          |
-| `request.cancelled` (v2)   | Se cancela la solicitud                                                                            | `requests/request-changes.ts`          |
-| `request.expired` (v2)     | Caduca automáticamente al faltar 30 min para la salida                                             | `requests/request-changes.ts`          |
-| `request.boarded` (v3)     | El conductor valida la subida del pasajero con el código de 4 cifras                               | `requests/requests.service.ts`         |
+| `request.created` (v3)     | Un pasajero pide plaza                                                                             | `requests/request-changes.ts`          |
+| `request.accepted` (v3)    | El conductor la acepta                                                                             | `requests/request-changes.ts`          |
+| `request.rejected` (v3)    | La rechaza                                                                                         | `requests/request-changes.ts`          |
+| `request.cancelled` (v3)   | Se cancela la solicitud                                                                            | `requests/request-changes.ts`          |
+| `request.expired` (v3)     | Caduca automáticamente al faltar 30 min para la salida                                             | `requests/request-changes.ts`          |
+| `request.boarded` (v4)     | El conductor valida la subida del pasajero con el código de 4 cifras                               | `requests/requests.service.ts`         |
+| `request.completed`        | El pasajero se baja: «Ha bajado» (conductor), «He llegado» (pasajero) o al terminar el viaje        | `requests/request-drop-off.service.ts` |
 | `chat_message.sent`        | Se envía un mensaje a una conversación del viaje (sin el texto: minimización)                      | `chat/chat.service.ts`                 |
 | `incident.reported`        | Se registra una incidencia (sin su descripción)                                                    | `incidents/incidents.service.ts`       |
 | `incident.review_started`  | Un administrador empieza a revisarla                                                               | `incidents/incident-review.service.ts` |
@@ -83,6 +84,7 @@ Las rutas son relativas a `backend/src/modules/`. Un test (`events-contract.spec
 
 ### Cambios de versión
 
+- `request.created`, `request.accepted`, `request.rejected`, `request.cancelled` y `request.expired` **v3**, y `request.boarded` **v4**: el `payload` añade `droppedOffAt` y `droppedOffBy` (`driver`, `passenger` o `system`: cuándo y quién marcó la bajada; `null` mientras no se ha bajado) y `status` admite `completed` (cierre por pasajero). La versión anterior llevaba el mismo estado sin esos dos campos.
 - `trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.cancelled` y `trip.expired` **v4**, y `trip.started` y `trip.finished` **v5**: el `payload` añade `autoAccept` (si el viaje acepta solas las solicitudes que caben). La versión anterior llevaba el mismo estado sin ese campo.
 - `chat_message.sent` **v2**: el `payload` añade `passengerId`, el pasajero de la conversación (el chat pasa a ser directo entre el conductor y cada pasajero aceptado). La v1 llevaba el mismo mensaje del chat común del viaje, sin ese campo.
 - `trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.cancelled` y `trip.expired` **v3**, y `trip.started` y `trip.finished` **v4**: el `payload` añade `stops`, las paradas del viaje con recogida en puntos (`id`, `position`, `name`, `location` y `etaOffsetMin`, los minutos desde la salida por la ruta sin el tiempo de las paradas anteriores); vacío en ruta. La versión anterior llevaba el mismo estado sin las paradas.

@@ -30,7 +30,7 @@ export class RequestStatsService {
         .select('request.passengerId', 'passengerId')
         .addSelect('COUNT(*)', 'total')
         .where('request.passengerId IN (:...passengerIds)', { passengerIds })
-        .andWhere("request.status = 'accepted'")
+        .andWhere("request.status IN ('accepted', 'completed')")
         .groupBy('request.passengerId')
         .getRawMany();
     return new Map(rows.map((row) => [row.passengerId, Number(row.total)]));
@@ -72,7 +72,7 @@ export class RequestStatsService {
           'pending',
         )
         .addSelect(
-          "COUNT(*) FILTER (WHERE request.status = 'accepted')",
+          "COUNT(*) FILTER (WHERE request.status IN ('accepted', 'completed'))",
           'accepted',
         )
         .where('request.tripId IN (:...tripIds)', { tripIds })

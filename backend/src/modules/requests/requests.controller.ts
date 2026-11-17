@@ -40,6 +40,7 @@ import {
 } from './dto/seat-request.resource';
 import { RequestAction } from './request-action.decorator';
 import { RequestsService } from './requests.service';
+import { RequestDropOffService } from './request-drop-off.service';
 
 const AUTH_ERRORS = {
   [HttpStatus.UNAUTHORIZED]: ['INVALID_ACCESS_TOKEN', 'ACCESS_TOKEN_EXPIRED'],
@@ -54,6 +55,7 @@ export class RequestsController {
   constructor(
     private readonly requestsService: RequestsService,
     private readonly lateCancellations: LateCancellationsService,
+    private readonly dropOffs: RequestDropOffService,
   ) {}
 
   // --- Pasajero
@@ -289,6 +291,52 @@ export class RequestsController {
     return toSeatRequestResource(
       await this.requestsService.noShow(driver.sub, id),
       driver.sub,
+    );
+  }
+
+  @RequestAction({
+    action: 'drop-off',
+    profile: 'driver',
+    summary: 'Mark that the passenger got off («Ha bajado»)',
+    description:
+      'During the trip, with the passenger on board. Closes the seat (completed); marking it again returns the same seat. When no accepted passenger is left on board, the trip finishes.',
+    notAllowedCode: 'NOT_TRIP_DRIVER',
+    conflictCodes: [
+      'TRIP_NOT_IN_PROGRESS',
+      'PASSENGER_NOT_BOARDED',
+      'INVALID_REQUEST_TRANSITION',
+    ],
+  })
+  async dropOff(
+    @CurrentUser() driver: AccessTokenPayload,
+    @Param('id', uuidParam('id')) id: string,
+  ): Promise<SeatRequestResource> {
+    return toSeatRequestResource(
+      await this.dropOffs.dropOff(driver.sub, id),
+      driver.sub,
+    );
+  }
+
+  @RequestAction({
+    action: 'arrive',
+    profile: 'passenger',
+    summary: 'Mark that I have arrived («He llegado»)',
+    description:
+      'During the trip, once on board. Closes my seat (completed) and lets me review the driver; marking it again returns the same seat. When no accepted passenger is left on board, the trip finishes.',
+    notAllowedCode: 'NOT_REQUEST_PASSENGER',
+    conflictCodes: [
+      'TRIP_NOT_IN_PROGRESS',
+      'PASSENGER_NOT_BOARDED',
+      'INVALID_REQUEST_TRANSITION',
+    ],
+  })
+  async arrive(
+    @CurrentUser() passenger: AccessTokenPayload,
+    @Param('id', uuidParam('id')) id: string,
+  ): Promise<SeatRequestResource> {
+    return toSeatRequestResource(
+      await this.dropOffs.arrive(passenger.sub, id),
+      passenger.sub,
     );
   }
 

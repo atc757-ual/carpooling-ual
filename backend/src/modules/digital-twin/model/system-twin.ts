@@ -33,8 +33,11 @@ const V1: ReadonlySet<number> = new Set([1]);
 // en todas
 const TRIP_V1_TO_V4: ReadonlySet<number> = new Set([1, 2, 3, 4]);
 const TRIP_V1_TO_V5: ReadonlySet<number> = new Set([1, 2, 3, 4, 5]);
-// Las solicitudes desde la v2 (v3 al subir) añaden la parada (stopId)
-const REQUEST_V1_V2: ReadonlySet<number> = new Set([1, 2]);
+// Las solicitudes desde la v2 (v3 al subir) añaden la parada (stopId) y desde
+// la v3 (v4 al subir), la bajada (droppedOffAt, droppedOffBy); el gemelo lee
+// el estado igual en todas. request.completed: el pasajero se ha bajado (ya
+// no cuenta a bordo)
+const REQUEST_V1_TO_V3: ReadonlySet<number> = new Set([1, 2, 3]);
 export const SUPPORTED_EVENT_VERSIONS: Readonly<
   Record<string, ReadonlySet<number>>
 > = {
@@ -47,12 +50,13 @@ export const SUPPORTED_EVENT_VERSIONS: Readonly<
   'trip.cancelled': TRIP_V1_TO_V4,
   'trip.expired': TRIP_V1_TO_V4,
   'trip.position_updated': V1,
-  'request.created': REQUEST_V1_V2,
-  'request.accepted': REQUEST_V1_V2,
-  'request.rejected': REQUEST_V1_V2,
-  'request.cancelled': REQUEST_V1_V2,
-  'request.expired': REQUEST_V1_V2,
-  'request.boarded': new Set([1, 2, 3]),
+  'request.created': REQUEST_V1_TO_V3,
+  'request.accepted': REQUEST_V1_TO_V3,
+  'request.rejected': REQUEST_V1_TO_V3,
+  'request.cancelled': REQUEST_V1_TO_V3,
+  'request.expired': REQUEST_V1_TO_V3,
+  'request.boarded': new Set([1, 2, 3, 4]),
+  'request.completed': V1,
   'user.registered': V1,
   'user.phone_verified': V1,
   'user.deactivated': V1,
