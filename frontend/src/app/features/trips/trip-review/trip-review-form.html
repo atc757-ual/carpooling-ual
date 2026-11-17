@@ -23,7 +23,7 @@
               [attr.aria-label]="option + ' de 5, ' + ratingName(option)"
               (change)="rating.set(option)"
             />
-            <span class="trip-review__bar" aria-hidden="true"></span>
+            <span class="trip-review__bar" aria-hidden="true">{{ option }}</span>
           </label>
         }
       </div>
