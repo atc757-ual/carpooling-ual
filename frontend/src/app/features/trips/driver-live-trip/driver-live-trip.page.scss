@@ -345,6 +345,16 @@
   }
 }
 
+.driver-live-trip__done-text {
+  flex: 1;
+  min-width: 0;
+}
+
+// «1 de 2», en el extremo derecho, a la altura del título y el subtítulo
+.driver-live-trip__done-step {
+  flex: none;
+}
+
 .driver-live-trip__done-icon {
   flex: none;
   color: var(--color-success);

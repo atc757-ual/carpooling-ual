@@ -8,6 +8,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSpinner } from '@ionic/angular';
 import {
   GivenReview,
@@ -35,6 +36,7 @@ export type TripReviewView =
 @Component({
   selector: 'app-trip-review-card',
   imports: [
+    NgTemplateOutlet,
     IonCard,
     IonCardContent,
     IonCardHeader,
@@ -59,6 +61,9 @@ export class TripReviewCard {
   readonly isStepped = input(false);
   // De uno en uno: ya no queda nadie por valorar (cargadas y sin pendientes)
   readonly stepsDone = output<void>();
+  // De uno en uno: en cuál va («1 de 2»), para la cabecera de quien la usa;
+  // null al acabar
+  readonly stepChange = output<{ number: number; total: number } | null>();
 
   private readonly loaded = resource({
     params: () => ({ tripId: this.tripId(), role: this.targetRole() }),
@@ -120,7 +125,12 @@ export class TripReviewCard {
 
   constructor() {
     effect(() => {
-      if (this.isStepped() && this.sections().length > 0 && this.currentStep() === null) {
+      if (!this.isStepped() || this.sections().length === 0) {
+        return;
+      }
+      const step = this.currentStep();
+      this.stepChange.emit(step ? { number: step.number, total: step.total } : null);
+      if (step === null) {
         this.stepsDone.emit();
       }
     });

@@ -1,18 +1,21 @@
-<ion-card class="trip-review-card">
-  <ion-card-header>
-    <!-- De uno en uno, «1 de 2» a la derecha del título -->
-    <div class="trip-review-card__head">
-      <ion-card-title>{{ title() }}</ion-card-title>
-      @if (isStepped() && currentStep(); as step) {
-        @if (step.total > 1) {
-          <span class="text-caption text-color-muted">{{ step.number }} de {{ step.total }}</span>
-        }
-      }
-    </div>
-  </ion-card-header>
-  <ion-card-content>
-    @if (isStepped() && sections().length > 0) {
-      <!-- De uno en uno: el que toca, con su número; al acabar, el resumen -->
+<!-- Mientras carga o si falla -->
+<ng-template #status>
+  @if (isLoading()) {
+    <output class="trip-review-card__loading">
+      <ion-spinner name="crescent" aria-hidden="true" />
+      <span class="text-caption text-color-muted">Cargando tus valoraciones…</span>
+    </output>
+  } @else if (hasError()) {
+    <p class="text-caption text-color-muted">No pudimos cargar tus valoraciones.</p>
+  }
+</ng-template>
+
+@if (isStepped()) {
+  <!-- De uno en uno, sin tarjeta ni título propios (va dentro de la tarjeta
+       del viaje terminado, que lleva el título y «1 de 2»): el que toca y, al
+       acabar, el resumen -->
+  <div class="trip-review-card__stepped">
+    @if (sections().length > 0) {
       @if (currentStep(); as step) {
         <section class="trip-review-card__section" [attr.aria-label]="step.target.name">
           <!-- Un formulario nuevo por persona (track por su id): sin la nota
@@ -51,68 +54,74 @@
           }
         </ul>
       }
-    } @else if (sections().length > 0) {
-      @for (section of sections(); track section.target.id) {
-        <section class="trip-review-card__section" [attr.aria-label]="section.target.name">
-          @switch (section.view.kind) {
-            @case ('given') {
-              @if (section.view.kind === 'given' && section.view.review; as review) {
-                <!-- Arriba, el aviso: publicada o a la espera del doble ciego -->
-                <output class="notice notice--info">
-                  <span>
-                    @if (review.isPublished) {
-                      Tu valoración de {{ section.target.name }} ya está publicada.
-                    } @else {
-                      Se publicará cuando {{ section.target.name }} también valore o en 7 días.
-                    }
-                  </span>
-                </output>
-                <!-- Debajo, solo para leer: el comentario a la izquierda y la
-                     manita con su texto a la derecha -->
-                <div class="trip-review-card__given">
-                  <p class="trip-review-card__comment text-body-s">
-                    @if (review.comment) {
-                      «{{ review.comment }}»
-                    } @else {
-                      <span class="text-color-muted">Sin comentario</span>
-                    }
+    } @else {
+      <ng-container [ngTemplateOutlet]="status" />
+    }
+  </div>
+} @else {
+  <ion-card class="trip-review-card">
+    <ion-card-header>
+      <ion-card-title>{{ title() }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      @if (sections().length > 0) {
+        @for (section of sections(); track section.target.id) {
+          <section class="trip-review-card__section" [attr.aria-label]="section.target.name">
+            @switch (section.view.kind) {
+              @case ('given') {
+                @if (section.view.kind === 'given' && section.view.review; as review) {
+                  <!-- Arriba, el aviso: publicada o a la espera del doble ciego -->
+                  <output class="notice notice--info">
+                    <span>
+                      @if (review.isPublished) {
+                        Tu valoración de {{ section.target.name }} ya está publicada.
+                      } @else {
+                        Se publicará cuando {{ section.target.name }} también valore o en 7 días.
+                      }
+                    </span>
+                  </output>
+                  <!-- Debajo, solo para leer: el comentario a la izquierda y la
+                       manita con su texto a la derecha -->
+                  <div class="trip-review-card__given">
+                    <p class="trip-review-card__comment text-body-s">
+                      @if (review.comment) {
+                        «{{ review.comment }}»
+                      } @else {
+                        <span class="text-color-muted">Sin comentario</span>
+                      }
+                    </p>
+                    <span class="trip-review-card__verdict">
+                      <app-rating-bar [rating]="review.rating" />
+                      <span class="text-caption"
+                        >{{ review.rating }} · {{ ratingName(review.rating) }}</span
+                      >
+                    </span>
+                  </div>
+                } @else {
+                  <p class="text-body-s text-color-muted">
+                    Ya valoraste a {{ section.target.name }}.
                   </p>
-                  <span class="trip-review-card__verdict">
-                    <app-rating-bar [rating]="review.rating" />
-                    <span class="text-caption"
-                      >{{ review.rating }} · {{ ratingName(review.rating) }}</span
-                    >
-                  </span>
-                </div>
-              } @else {
+                }
+              }
+              @case ('pending') {
+                <app-trip-review-form
+                  [tripId]="tripId()"
+                  [targetId]="section.target.id"
+                  [targetName]="section.target.name"
+                  (sent)="handleSent(section.target.id, $event)"
+                />
+              }
+              @case ('expired') {
                 <p class="text-body-s text-color-muted">
-                  Ya valoraste a {{ section.target.name }}.
+                  El plazo para valorar a {{ section.target.name }} terminó (7 días tras llegar).
                 </p>
               }
             }
-            @case ('pending') {
-              <app-trip-review-form
-                [tripId]="tripId()"
-                [targetId]="section.target.id"
-                [targetName]="section.target.name"
-                (sent)="handleSent(section.target.id, $event)"
-              />
-            }
-            @case ('expired') {
-              <p class="text-body-s text-color-muted">
-                El plazo para valorar a {{ section.target.name }} terminó (7 días tras llegar).
-              </p>
-            }
-          }
-        </section>
+          </section>
+        }
+      } @else {
+        <ng-container [ngTemplateOutlet]="status" />
       }
-    } @else if (isLoading()) {
-      <output class="trip-review-card__loading">
-        <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-caption text-color-muted">Cargando tus valoraciones…</span>
-      </output>
-    } @else if (hasError()) {
-      <p class="text-caption text-color-muted">No pudimos cargar tus valoraciones.</p>
-    }
-  </ion-card-content>
-</ion-card>
+    </ion-card-content>
+  </ion-card>
+}

@@ -41,36 +41,46 @@
                     [icon]="finishedIcon"
                     aria-hidden="true"
                   />
-                  <div>
+                  <!-- Mientras valora, el subtítulo dice qué toca y, a la
+                       derecha, «1 de 2»; al acabar, los coches de menos -->
+                  <div class="driver-live-trip__done-text">
                     <h2 class="driver-live-trip__done-title">¡Viaje terminado!</h2>
                     <p class="text-body-s text-color-muted">
-                      {{ boardedCount() }}
-                      {{ boardedCount() === 1 ? 'coche menos' : 'coches menos' }} en el campus
+                      @if (reviewStep()) {
+                        Valora a tus pasajeros
+                      } @else {
+                        {{ boardedCount() }}
+                        {{ boardedCount() === 1 ? 'coche menos' : 'coches menos' }} en el campus
+                      }
                     </p>
                   </div>
+                  @if (reviewStep(); as step) {
+                    @if (step.total > 1) {
+                      <span class="driver-live-trip__done-step text-caption text-color-muted">
+                        {{ step.number }} de {{ step.total }}
+                      </span>
+                    }
+                  }
                 </div>
-              </ion-card-content>
-            </ion-card>
-            @if (reviewTargets().length > 0) {
-              <app-trip-review-card
-                title="Valora a tus pasajeros"
-                [tripId]="trip.id"
-                [targets]="reviewTargets()"
-                targetRole="passenger"
-                [isStepped]="true"
-                (stepsDone)="areReviewsDone.set(true)"
-              />
-            }
-            <!-- Al acabar de valorar (o sin nadie a quien valorar) -->
-            @if (reviewTargets().length === 0 || areReviewsDone()) {
-              <ion-card class="driver-live-trip__panel">
-                <ion-card-content>
+                <!-- En la misma tarjeta: valorar de uno en uno y, al acabar
+                     (o sin nadie a quien valorar), volver -->
+                @if (reviewTargets().length > 0) {
+                  <app-trip-review-card
+                    [tripId]="trip.id"
+                    [targets]="reviewTargets()"
+                    targetRole="passenger"
+                    [isStepped]="true"
+                    (stepChange)="reviewStep.set($event)"
+                    (stepsDone)="areReviewsDone.set(true)"
+                  />
+                }
+                @if (reviewTargets().length === 0 || areReviewsDone()) {
                   <ion-button expand="block" fill="outline" (click)="leaveFinished()">
                     Volver a Tus viajes
                   </ion-button>
-                </ion-card-content>
-              </ion-card>
-            }
+                }
+              </ion-card-content>
+            </ion-card>
           } @else if (finishCheck(); as check) {
             <ion-card class="driver-live-trip__panel">
               <ion-card-content>

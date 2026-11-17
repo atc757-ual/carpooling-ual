@@ -205,6 +205,8 @@ export class DriverLiveTripPage {
   readonly justFinished = signal(false);
   // Ya valoró (o dejó para luego) a todos: entonces sale «Volver a Tus viajes»
   readonly areReviewsDone = signal(false);
+  // Mientras valora de uno en uno: en cuál va, para «1 de 2» en la cabecera
+  readonly reviewStep = signal<{ number: number; total: number } | null>(null);
   readonly reviewTargets = computed<ReviewTarget[]>(() =>
     this.passengers().map((request) => ({
       id: request.passenger.id,
