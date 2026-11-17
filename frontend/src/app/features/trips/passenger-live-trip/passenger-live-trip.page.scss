@@ -247,11 +247,11 @@ ion-card-content.ride__state {
 .ride__done-icon {
   flex: none;
   color: var(--color-success);
-  font-size: 2.5rem; // 40px
+  font-size: 2rem; // 32px
 }
 
 .ride__done-title {
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-subtitle);
+  font-size: 1.125rem; // 18px
   font-weight: var(--font-weight-semibold);
 }
