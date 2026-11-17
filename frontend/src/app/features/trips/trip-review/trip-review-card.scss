@@ -52,9 +52,18 @@ ion-card.trip-review-card ion-card-content {
     font-weight: var(--font-weight-regular);
   }
 
+  // Dos columnas ajustadas al contenido y centradas: el nombre y, cerca, la
+  // nota (alineadas entre filas)
   .trip-review-card__summary {
-    width: 100%;
-    max-width: 18rem; // 288px
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-s) var(--space-base);
+  }
+
+  .trip-review-card__summary-row {
+    display: contents;
   }
 }
 
