@@ -64,10 +64,10 @@
                     @if (reviewState() === 'sent') {
                       <!-- Lo que ha votado: la barra con la nota y su comentario -->
                       @if (givenReview(); as review) {
-                        <div class="ride__given" role="group" aria-labelledby="ride-given-title">
-                          <p id="ride-given-title" class="text-caption text-color-muted">
+                        <section class="ride__given" aria-labelledby="ride-given-title">
+                          <h3 id="ride-given-title" class="text-caption text-color-muted">
                             Tu valoración a {{ driverName() }}
-                          </p>
+                          </h3>
                           <span class="ride__given-verdict">
                             <app-rating-bar [rating]="review.rating" />
                             <span class="text-body-s">
@@ -77,7 +77,7 @@
                           @if (review.comment) {
                             <p class="ride__given-comment text-body-s">«{{ review.comment }}»</p>
                           }
-                        </div>
+                        </section>
                       }
                       <output class="notice notice--success">
                         <span>

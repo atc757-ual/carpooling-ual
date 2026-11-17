@@ -246,6 +246,11 @@ ion-card-content.ride__state {
   align-items: center;
   gap: var(--space-xs);
   text-align: center;
+
+  h3 {
+    margin: 0;
+    font-weight: var(--font-weight-regular);
+  }
 }
 
 .ride__given-verdict {
