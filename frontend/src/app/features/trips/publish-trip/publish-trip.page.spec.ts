@@ -10,6 +10,7 @@ import { CampusParking } from '../../../core/models/place.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { DriverService } from '../../../core/services/drivers/driver.service';
+import { FaqsService } from '../../../core/services/help/faqs.service';
 import { LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
@@ -114,6 +115,7 @@ describe('PublishTripPage', () => {
           useValue: { checkPermission: () => Promise.resolve('prompt') },
         },
         { provide: CelebrationService, useValue: { celebrate } },
+        { provide: FaqsService, useValue: { list: vi.fn().mockResolvedValue([]) } },
         { provide: ToastService, useValue: { showError, showSuccess: vi.fn() } },
         {
           provide: TripsService,

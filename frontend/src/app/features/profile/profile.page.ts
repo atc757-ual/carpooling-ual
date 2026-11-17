@@ -27,6 +27,7 @@ import {
   thumbsUp,
   trashOutline,
 } from 'ionicons/icons';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -59,7 +60,6 @@ import { ProfileDeviceLocation } from './profile-device-location/profile-device-
 import { ProfilePreferencesModal } from './profile-preferences-modal/profile-preferences-modal';
 import { ProfilePhoneModal } from './profile-phone-modal/profile-phone-modal';
 import { ProfilePasswordModal } from './profile-password-modal/profile-password-modal';
-import { ProfileSupportModal } from './profile-support-modal/profile-support-modal';
 import { ProfileDeleteModal } from './profile-delete-modal/profile-delete-modal';
 
 interface PreferenceRow {
@@ -91,6 +91,7 @@ interface ReviewRow {
     IonIcon,
     ProfileLocation,
     ProfileVehicles,
+    RouterLink,
     TranslocoPipe,
   ],
   templateUrl: './profile.page.html',
@@ -267,15 +268,6 @@ export class ProfilePage implements OnInit {
   async handleOpenPassword(): Promise<void> {
     const modal = await this.modalController.create({
       component: ProfilePasswordModal,
-      cssClass: 'info-dialog',
-    });
-    await modal.present();
-  }
-
-  // «Ayuda y soporte»: el formulario que llega por correo al equipo de soporte
-  async handleOpenSupport(): Promise<void> {
-    const modal = await this.modalController.create({
-      component: ProfileSupportModal,
       cssClass: 'info-dialog',
     });
     await modal.present();

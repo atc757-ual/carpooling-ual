@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { TripSearch } from '../../../core/models/trip-search.model';
 import { Profile, User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { FaqsService } from '../../../core/services/help/faqs.service';
 import { LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
@@ -67,6 +68,7 @@ describe('TripSearchPage', () => {
           provide: LocationService,
           useValue: { checkPermission: () => Promise.resolve('prompt') },
         },
+        { provide: FaqsService, useValue: { list: vi.fn().mockResolvedValue([]) } },
       ],
     });
     searchState = TestBed.inject(TripSearchStateService);
@@ -85,7 +87,7 @@ describe('TripSearchPage', () => {
 
       // El saludo con el nombre va en la cabecera del layout, no en la pantalla
       expect(root.querySelector('app-trip-search-form')).not.toBeNull();
-      expect(root.querySelector('app-faq-card')).not.toBeNull();
+      expect(root.querySelector('app-quick-faqs')).not.toBeNull();
       expect(root.textContent).not.toContain('Nueva búsqueda');
     },
     COLD_START_TIMEOUT_MS,

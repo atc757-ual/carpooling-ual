@@ -255,13 +255,17 @@
 
           @if (step() < 3) {
             <!-- Las dudas de quien conduce (en el móvil, al final) -->
-            <app-faq-card [faqs]="faqs" />
+            <app-quick-faqs context="publish" />
           } @else {
             <!-- En el móvil, al final: al publicar, por qué ayuda a la UAL; y
                  qué pasa después -->
             <app-publish-next-steps
               [isPublished]="published() !== null"
-              [autoAccept]="published() ? (published()?.autoAccept ?? false) : (tripForm.controls.autoAccept.value ?? false)"
+              [autoAccept]="
+                published()
+                  ? (published()?.autoAccept ?? false)
+                  : (tripForm.controls.autoAccept.value ?? false)
+              "
             />
           }
         </div>
@@ -330,11 +334,7 @@
                   class="publish__preferences-link text-body-s"
                   (click)="handleEditPreferences()"
                 >
-                  {{
-                    myPreferences().length > 0
-                      ? 'Cambiarlas'
-                      : 'Indicarlas'
-                  }}
+                  {{ myPreferences().length > 0 ? 'Cambiarlas' : 'Indicarlas' }}
                 </button>
               }
             </div>

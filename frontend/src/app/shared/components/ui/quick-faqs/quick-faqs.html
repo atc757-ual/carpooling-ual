@@ -1,0 +1,21 @@
+@if (isLoading()) {
+  <ion-card class="quick-faqs__loading" aria-busy="true">
+    @for (row of skeletonRows; track row) {
+      <ion-skeleton-text [animated]="true" class="quick-faqs__skeleton" />
+    }
+  </ion-card>
+} @else {
+  <app-faq-card [faqs]="items()">
+    <!-- A Ayuda y soporte: botón de contorno a todo el ancho (la guía: el
+         contorno, para la alternativa y la navegación) -->
+    <ion-button
+      class="quick-faqs__more"
+      fill="outline"
+      expand="block"
+      [routerLink]="moreLink"
+      (click)="more.emit()"
+    >
+      {{ moreText() }}
+    </ion-button>
+  </app-faq-card>
+}

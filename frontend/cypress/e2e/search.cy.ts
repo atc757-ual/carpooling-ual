@@ -281,6 +281,11 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-tabs app-brand-greeting', '¡Hola, Mario!').should('exist');
       cy.get('app-trip-search app-trip-search-form').should('be.visible');
       cy.contains('app-trip-search', 'Preguntas frecuentes').should('be.visible');
+      cy.contains('app-trip-search .quick-faqs__more', 'Ver todas las preguntas').should(
+        'have.attr',
+        'href',
+        '/tabs/profile/help',
+      );
     });
   });
 }

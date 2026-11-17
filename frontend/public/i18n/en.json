@@ -58,7 +58,8 @@
       "tomorrow": "Tomorrow"
     },
     "faq": {
-      "title": "Frequently asked questions"
+      "title": "Frequently asked questions",
+      "more": "See all questions"
     },
     "steps": {
       "caption": "Step {{ current }} of {{ total }} · {{ step }}"
@@ -228,7 +229,7 @@
       "help": "Help & support",
       "deleteAccount": "Delete account",
       "deleteAccountDesc": "Your account and personal data will be permanently deleted",
-      "helpDesc": "Write to us and we'll reply by email."
+      "helpDesc": "Frequently asked questions and contact with support."
     },
     "passwordModal": {
       "title": "Change password",
@@ -271,8 +272,7 @@
       "newCode": "Send a new code"
     },
     "supportModal": {
-      "title": "Help and support",
-      "intro": "Can't find the answer? Tell us what happened and we'll reply by email.",
+      "title": "Write to support",
       "topicLabel": "What's it about?",
       "topics": {
         "trip": "A trip",
@@ -287,6 +287,35 @@
       "send": "Send message",
       "sent": "We've received your message. We'll reply by email."
     }
+  },
+  "help": {
+    "title": "Help & support",
+    "subtitle": "Frequently asked questions and contact with support.",
+    "breadcrumbProfile": "My profile",
+    "breadcrumbFaq": "Question",
+    "searchPlaceholder": "Search for your question",
+    "faqSubtitle": "Everything you need to know, explained.",
+    "faqLoadError":"We couldn't load the question.",
+    "resultsTitle": "Search results",
+    "searching": "Searching…",
+    "audience": {
+      "legend": "Which questions do you want to see?",
+      "passenger": {
+        "name": "Passenger",
+        "hint": "Find a ride"
+      },
+      "driver": {
+        "name": "Driver",
+        "hint": "Offer a ride"
+      }
+    },
+    "emptyTitle": "We found nothing",
+    "emptyText": "Try other words or write to us.",
+    "moreTitle": "Still have questions?",
+    "moreText": "Write to us and we'll reply by email.",
+    "contactSupport": "Write to support",
+    "loadError": "We couldn't load the questions.",
+    "retry": "Retry"
   },
   "auth": {
     "layout": {

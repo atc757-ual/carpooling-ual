@@ -58,7 +58,8 @@
       "tomorrow": "Mañana"
     },
     "faq": {
-      "title": "Preguntas frecuentes"
+      "title": "Preguntas frecuentes",
+      "more": "Ver todas las preguntas"
     },
     "steps": {
       "caption": "Paso {{ current }} de {{ total }} · {{ step }}"
@@ -228,7 +229,7 @@
       "help": "Ayuda y soporte",
       "deleteAccount": "Eliminar cuenta",
       "deleteAccountDesc": "Se eliminará tu cuenta y tus datos personales definitivamente",
-      "helpDesc": "Escríbenos y te responderemos por correo."
+      "helpDesc": "Preguntas frecuentes y contacto con soporte."
     },
     "passwordModal": {
       "title": "Cambiar contraseña",
@@ -271,8 +272,7 @@
       "newCode": "Enviar un código nuevo"
     },
     "supportModal": {
-      "title": "Ayuda y soporte",
-      "intro": "¿No encuentras la respuesta? Cuéntanos qué ha pasado y te responderemos por correo.",
+      "title": "Escribir a soporte",
       "topicLabel": "¿Sobre qué es?",
       "topics": {
         "trip": "Un viaje",
@@ -287,6 +287,35 @@
       "send": "Enviar mensaje",
       "sent": "Hemos recibido tu mensaje. Te responderemos por correo."
     }
+  },
+  "help": {
+    "title": "Ayuda y soporte",
+    "subtitle": "Preguntas frecuentes y contacto con soporte.",
+    "breadcrumbProfile": "Mi perfil",
+    "breadcrumbFaq": "Pregunta",
+    "searchPlaceholder": "Busca tu duda",
+    "faqSubtitle": "Te contamos todo lo que necesitas saber.",
+    "faqLoadError":"No hemos podido cargar la pregunta.",
+    "resultsTitle": "Resultados de la búsqueda",
+    "searching": "Buscando…",
+    "audience": {
+      "legend": "¿Qué preguntas quieres ver?",
+      "passenger": {
+        "name": "Pasajero",
+        "hint": "Buscar y viajar"
+      },
+      "driver": {
+        "name": "Conductor",
+        "hint": "Publicar y llevar"
+      }
+    },
+    "emptyTitle": "No hemos encontrado nada",
+    "emptyText": "Prueba con otras palabras o escríbenos.",
+    "moreTitle": "¿No hemos podido resolver tus dudas?",
+    "moreText": "Escríbenos y te responderemos por correo.",
+    "contactSupport": "Escribir a soporte",
+    "loadError": "No hemos podido cargar las preguntas.",
+    "retry": "Reintentar"
   },
   "auth": {
     "layout": {
