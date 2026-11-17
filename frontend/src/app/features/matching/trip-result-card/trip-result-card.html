@@ -5,9 +5,14 @@
 
   <!-- Fila superior: Mejor coincidencia a la izquierda, última plaza / estado al extremo derecho -->
   <div class="trip-card__top">
-    @if (isBestMatch()) {
-      <span class="trip-card__best">Mejor coincidencia</span>
-    }
+    <div class="trip-card__tags">
+      @if (isBestMatch()) {
+        <span class="trip-card__best">Mejor coincidencia</span>
+      }
+      @if (isPreferenceMatch()) {
+        <span class="trip-card__match">Coincide con tus preferencias</span>
+      }
+    </div>
     <div class="trip-card__status">
       @if (isRequested()) {
         <span class="status status--info">Ya solicitado</span>

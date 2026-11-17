@@ -35,7 +35,9 @@
   border-radius: var(--radius-s);
   background: var(--color-surface);
   cursor: pointer;
-  transition: background-color var(--transition-fast, 0.15s ease), border-color var(--transition-fast, 0.15s ease);
+  transition:
+    background-color var(--transition-fast, 0.15s ease),
+    border-color var(--transition-fast, 0.15s ease);
 
   &:hover {
     background: var(--color-surface-subtle);
@@ -98,7 +100,9 @@
   align-self: center; // centrado verticalmente respecto al contenido
 
   ion-icon {
-    transition: transform var(--transition-fast, 0.15s ease), color var(--transition-fast, 0.15s ease);
+    transition:
+      transform var(--transition-fast, 0.15s ease),
+      color var(--transition-fast, 0.15s ease);
   }
 }
 
@@ -181,4 +185,18 @@
     flex: 0 0 auto;
     font-size: 1rem; // 16px
   }
+}
+
+// Las etiquetas de la izquierda de la fila superior (se parten si no caben)
+.trip-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-s);
+  min-width: 0;
+}
+
+.trip-card__match {
+  color: var(--color-link);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
 }

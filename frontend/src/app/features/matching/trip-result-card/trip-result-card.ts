@@ -32,6 +32,8 @@ export class TripResultCard {
   readonly isRequested = input(false);
   // El más compatible según el matching
   readonly isBestMatch = input(false);
+  // Las preferencias del conductor encajan con las del perfil del pasajero
+  readonly isPreferenceMatch = input(false);
   // Cómo encaja con la búsqueda: el color del borde de abajo
   readonly fit = input<MatchFit>('fair');
   protected readonly chevronIcon = chevronForward;

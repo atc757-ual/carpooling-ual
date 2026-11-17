@@ -122,18 +122,34 @@
                   <ion-select-option value="arrival">Llegada más temprana</ion-select-option>
                 </ion-select>
               </div>
-              <ul class="search-results__items">
-                @for (trip of sortedTrips(); track trip.id) {
-                  <li>
-                    <app-trip-result-card
-                      [trip]="trip"
-                      [isRequested]="requestedTripIds().has(trip.id)"
-                      [isBestMatch]="trip.id === bestTripId()"
-                      [fit]="fitOf(trip)"
-                    />
-                  </li>
-                }
-              </ul>
+              <app-preference-filters
+                class="search-results__filters"
+                [selected]="preferenceFilters()"
+                (toggled)="handlePreferenceToggle($event)"
+              />
+              @if (sortedTrips().length === 0) {
+                <!-- Ningún viaje pasa los filtros: se quitan aquí mismo -->
+                <div class="search-results__filtered-empty">
+                  <span class="text-body text-body--strong">Ningún viaje con esos filtros</span>
+                  <form (submit)="$event.preventDefault(); clearPreferenceFilters()">
+                    <ion-button type="submit" fill="outline">Quitar filtros</ion-button>
+                  </form>
+                </div>
+              } @else {
+                <ul class="search-results__items">
+                  @for (trip of sortedTrips(); track trip.id) {
+                    <li>
+                      <app-trip-result-card
+                        [trip]="trip"
+                        [isRequested]="requestedTripIds().has(trip.id)"
+                        [isBestMatch]="trip.id === bestTripId()"
+                        [isPreferenceMatch]="isPreferenceMatch(trip)"
+                        [fit]="fitOf(trip)"
+                      />
+                    </li>
+                  }
+                </ul>
+              }
             </ion-card-content>
           </ion-card>
         }

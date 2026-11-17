@@ -15,12 +15,7 @@ import {
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular';
-import {
-  alertCircleOutline,
-  createOutline,
-  navigateOutline,
-  searchOutline,
-} from 'ionicons/icons';
+import { alertCircleOutline, createOutline, navigateOutline, searchOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { TripResult } from '../../../core/models/trip-result.model';
 import { TripDirection, TripSearch } from '../../../core/models/trip-search.model';
@@ -36,6 +31,14 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatSeats } from '../../../shared/utils/seats.util';
 import { CAMPUS_NAME } from '../campus';
 import { TripResultCard } from '../trip-result-card/trip-result-card';
+import { PreferenceFilters } from '../preference-filters/preference-filters';
+import {
+  driverPreferencesOf,
+  filterByPreferences,
+  matchesPreferences,
+  PreferenceFilter,
+} from '../preference-filters/preference-filter';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { getMatchFit, MatchFit } from '../match-fit';
 import { toSearchRequest, toTripResult } from '../trip-results';
 import { MARGINS } from '../trip-search';
@@ -107,6 +110,7 @@ export function timeWindowText(trips: TripResult[], direction: TripDirection): s
     ModalHeader,
     RouteTimeline,
     TripResultCard,
+    PreferenceFilters,
     TripSearchForm,
   ],
   templateUrl: './search-results.page.html',
@@ -116,6 +120,7 @@ export class SearchResultsPage {
   private readonly searchState = inject(TripSearchStateService);
   private readonly matching = inject(MatchingService);
   private readonly seatRequests = inject(SeatRequestsService);
+  private readonly auth = inject(AuthService);
 
   readonly search = this.searchState.search;
 
@@ -148,8 +153,12 @@ export class SearchResultsPage {
   readonly resultsSummary = computed(() =>
     describeResults(this.trips(), this.search()?.direction ?? 'to-campus'),
   );
+  // Con filtros, «3 de 7 viajes»
   readonly resultsCountLabel = computed(() => {
     const count = this.trips().length;
+    if (this.hasFilters()) {
+      return `${this.filteredTrips().length} de ${count} ${count === 1 ? 'viaje' : 'viajes'}`;
+    }
     return `${count} ${count === 1 ? 'viaje encontrado' : 'viajes encontrados'}`;
   });
   readonly resultsTimeWindow = computed(() =>
@@ -163,8 +172,16 @@ export class SearchResultsPage {
 
   readonly bestTripId = computed(() => (this.trips().length > 0 ? this.trips()[0].id : null));
   readonly sortOrder = signal<SearchSortOrder>('detour');
+  // Filtros por las preferencias del conductor (solo en la lista; el
+  // matching no cambia) y la etiqueta «Coincide con tus preferencias»
+  readonly preferenceFilters = signal<ReadonlySet<PreferenceFilter>>(new Set());
+  readonly filteredTrips = computed(() =>
+    filterByPreferences(this.trips(), this.preferenceFilters()),
+  );
+  readonly hasFilters = computed(() => this.preferenceFilters().size > 0);
+  private readonly myPreferences = computed(() => this.auth.currentUser()?.preferences);
   readonly sortedTrips = computed(() => {
-    const trips = [...this.trips()];
+    const trips = [...this.filteredTrips()];
     if (this.sortOrder() === 'detour') {
       return trips.sort(
         (left, right) =>
@@ -241,6 +258,26 @@ export class SearchResultsPage {
 
   handleRetry(): void {
     this.results.reload();
+  }
+
+  isPreferenceMatch(trip: TripResult): boolean {
+    return matchesPreferences(this.myPreferences(), driverPreferencesOf(trip));
+  }
+
+  handlePreferenceToggle(filter: PreferenceFilter): void {
+    this.preferenceFilters.update((current) => {
+      const next = new Set(current);
+      if (next.has(filter)) {
+        next.delete(filter);
+      } else {
+        next.add(filter);
+      }
+      return next;
+    });
+  }
+
+  clearPreferenceFilters(): void {
+    this.preferenceFilters.set(new Set());
   }
 
   handleSortChange(value: string | number | undefined): void {

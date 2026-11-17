@@ -291,3 +291,19 @@ ion-card-content.search-results__state {
 .search-results__state-title {
   font-weight: var(--font-weight-semibold);
 }
+
+// Filtros por preferencias, encima de la lista
+.search-results__filters {
+  display: block;
+  margin-block: var(--space-s);
+}
+
+// Ningún viaje pasa los filtros: el texto y «Quitar filtros», centrados
+.search-results__filtered-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-l) var(--space-base);
+  text-align: center;
+}
