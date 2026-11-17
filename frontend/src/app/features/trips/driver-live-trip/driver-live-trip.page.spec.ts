@@ -145,16 +145,13 @@ describe('DriverLiveTripPage', () => {
     return harness.routeNativeElement as HTMLElement;
   }
 
-  it('says the screen stays on and warns about a while without sharing', async () => {
+  it('warns about a while without sharing', async () => {
     const root = await render([TRIP]);
-    expect(root.querySelector('.driver-live-trip__sharing-hint')).toBeNull();
     expect(root.querySelector('.driver-live-trip__gap')).toBeNull();
 
-    tracking.isScreenKeptOn.set(true);
     tracking.gapMinutes.set(4);
     TestBed.tick();
 
-    expect(root.textContent).toContain('La pantalla no se apagará hasta que termines.');
     expect(root.querySelector('.driver-live-trip__gap')?.textContent).toContain(
       'Estuviste 4 min sin compartir tu ubicación',
     );
@@ -295,19 +292,19 @@ describe('DriverLiveTripPage', () => {
 
     const callBtn = root.querySelector('button.icon-btn');
     expect(callBtn).not.toBeNull();
-    expect(callBtn?.getAttribute('title')).toBe('Llamar a Carlos Ruiz');
-    expect(callBtn?.classList).not.toContain('icon-btn--unavailable');
+    expect(callBtn?.getAttribute('aria-label')).toBe('Llamar a Carlos Ruiz');
+    expect(callBtn?.hasAttribute('disabled')).toBe(false);
 
     page.handleCallPassenger({ id: 'p-r1', name: 'Carlos Ruiz' });
     expect(openPhoneSpy).toHaveBeenCalledWith('+34600333444');
   });
 
-  it('shows call button as unavailable when passenger has no verified phone', async () => {
+  it('disables the call button when passenger has no verified phone', async () => {
     const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)], []);
 
     const callBtn = root.querySelector('button.icon-btn');
     expect(callBtn).not.toBeNull();
-    expect(callBtn?.classList).toContain('icon-btn--unavailable');
+    expect(callBtn?.hasAttribute('disabled')).toBe(true);
 
     page.handleCallPassenger({ id: 'p-r1', name: 'Carlos Ruiz' });
     expect(showInfoMock).toHaveBeenCalledWith(

@@ -164,7 +164,7 @@ describe('PassengerLiveTripPage', () => {
     });
 
     expect(page.phase()).toBe('finished');
-    expect(root.textContent).toContain('¡Has llegado!');
+    expect(root.textContent).toContain('Tu viaje ha terminado');
     expect(root.querySelector('app-trip-review-form')).not.toBeNull();
   });
 

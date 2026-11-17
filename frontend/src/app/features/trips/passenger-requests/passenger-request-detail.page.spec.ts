@@ -195,7 +195,7 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.querySelector('app-live-trip-map')).toBeNull();
     expect(root.textContent).toContain('Lucía ha empezado el viaje.');
     expect(root.textContent).toContain('Seguir en directo');
-    expect(root.textContent).toContain('Bajarme y registrar incidencia');
+    expect(root.textContent).toContain('Enviar reporte');
   });
 
   it('opens the incident window and goes back to Tus viajes once reported', async () => {
