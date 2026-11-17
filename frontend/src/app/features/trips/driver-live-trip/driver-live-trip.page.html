@@ -217,6 +217,7 @@
                      el que toca (el primero que no ha subido) -->
                   <section
                     class="pickup-carousel"
+                    appDragScroll
                     aria-roledescription="carrusel"
                     aria-label="Pasajeros por orden de recogida"
                     (scroll)="handleCarouselScroll($event)"
@@ -236,13 +237,6 @@
                           <div class="pickup-slide__who">
                             <span class="text-body text-body--strong">
                               {{ firstName(request.passenger.name) }}
-                              @if (request.boardedAt) {
-                                <ion-icon
-                                  class="pickup-slide__done-icon"
-                                  [icon]="doneIcon"
-                                  aria-hidden="true"
-                                />
-                              }
                             </span>
                             <span class="text-caption text-color-muted">
                               @if (request.status === 'completed') {
@@ -330,11 +324,14 @@
                           } @else if (request.status === 'accepted') {
                             <!-- A bordo: «Ha bajado» cierra su plaza (con el coche
                                  parado). Redondo como los demás; al pasar o
-                                 enfocarlo (y mientras guarda) se estira con el texto -->
+                                 enfocarlo (y mientras guarda) se estira con el
+                                 texto. En el móvil, el primer toque lo estira y
+                                 el segundo confirma -->
                             <button
                               type="button"
-                              class="icon-btn pickup-slide__drop-off"
-                              [class.pickup-slide__drop-off--busy]="isDroppingOff(request.id)"
+                              class="icon-btn icon-btn--reveal"
+                              appRevealOnTouch
+                              [class.icon-btn--busy]="isDroppingOff(request.id)"
                               [disabled]="isDroppingOff(request.id)"
                               [attr.aria-label]="firstName(request.passenger.name) + ' ha bajado'"
                               (click)="handleDropOff(request)"
@@ -344,9 +341,7 @@
                               } @else {
                                 <ion-icon [icon]="dropOffIcon" aria-hidden="true" />
                               }
-                              <span class="pickup-slide__drop-off-label" aria-hidden="true">
-                                Ha bajado
-                              </span>
+                              <span class="icon-btn__label" aria-hidden="true"> Ha bajado </span>
                             </button>
                           }
                         </div>
@@ -373,8 +368,8 @@
               </ion-card-content>
             </ion-card>
 
-            <!-- Antes que la seguridad: la ubicación que se comparte y terminar
-                 (el chat va en la tarjeta de cada pasajero) -->
+            <!-- La ubicación que se comparte, terminar y la seguridad (el chat
+                 va en la tarjeta de cada pasajero) -->
             <ion-card class="driver-live-trip__panel">
               <ion-card-content>
                 @if (isSharing()) {
@@ -405,14 +400,18 @@
                   }
                 }
 
-                @if (!isReadyToFinish()) {
-                  <ng-container [ngTemplateOutlet]="finishButton" />
-                }
+                <!-- Mitad y mitad: «Terminar viaje» (si no está ya arriba,
+                     destacado) y compartir el viaje y el 112, como iconos -->
+                <div class="driver-live-trip__finish-row">
+                  <div class="driver-live-trip__finish-slot">
+                    @if (!isReadyToFinish()) {
+                      <ng-container [ngTemplateOutlet]="finishButton" />
+                    }
+                  </div>
+                  <app-live-trip-safety [isInline]="true" [shareText]="safetyShareText()" />
+                </div>
               </ion-card-content>
             </ion-card>
-
-            <!-- Al final: compartir el viaje con alguien de confianza y el 112 -->
-            <app-live-trip-safety [shareText]="safetyShareText()" />
           }
         </ng-template>
 

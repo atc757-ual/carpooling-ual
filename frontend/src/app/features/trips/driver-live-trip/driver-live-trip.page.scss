@@ -103,7 +103,8 @@
 
 // Las recogidas en un carrusel: una tarjeta por pasajero, que encaja al
 // deslizar. La que toca validar, con el borde azul; las demás, atenuadas
-// hasta que les llega el turno; las de quien ya subió, con su ✓
+// hasta que les llega el turno; la de quien va en el coche, en azul claro, y
+// la de quien ya se bajó, en verde claro
 .pickup-carousel {
   display: flex;
   gap: var(--space-s);
@@ -170,11 +171,6 @@
   }
 }
 
-.pickup-slide__done-icon {
-  vertical-align: middle;
-  color: var(--color-success);
-}
-
 .pickup-slide__code {
   display: flex;
   gap: var(--space-s);
@@ -182,79 +178,6 @@
   ion-button {
     flex: none;
     margin: 0;
-  }
-}
-
-// «Ha bajado»: redondo como chat y llamar; al pasar, enfocarlo o mientras
-// guarda, se estira hacia la izquierda con el texto y vuelve a su forma. En
-// el móvil (sin ratón que pase por encima), siempre con el texto
-// Con las dos clases, para ganar a .icon-btn (del tema, que lo dejaría en
-// rejilla, con el icono arriba y sin estirarse)
-.icon-btn.pickup-slide__drop-off {
-  display: inline-flex;
-  width: auto;
-  min-width: 2.75rem; // 44px
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  padding-inline: 0.6875rem; // 11px: el icono centrado en 44px
-  transition:
-    gap 160ms ease,
-    padding 160ms ease;
-
-  ion-spinner {
-    width: 1.25rem; // 20px
-    height: 1.25rem;
-  }
-
-  @media (any-hover: hover) {
-    &:hover:not(:disabled) {
-      gap: var(--space-xs);
-      padding-inline: var(--space-s) var(--space-base);
-    }
-  }
-
-  // En pantallas táctiles (sin ratón) va siempre estirado, con el texto
-  @media (any-hover: none) {
-    gap: var(--space-xs);
-    padding-inline: var(--space-s) var(--space-base);
-  }
-
-  &:focus-visible,
-  &--busy {
-    gap: var(--space-xs);
-    padding-inline: var(--space-s) var(--space-base);
-  }
-}
-
-.pickup-slide__drop-off-label {
-  overflow: hidden;
-  max-width: 0;
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-semibold);
-  white-space: nowrap;
-  transition: max-width 160ms ease;
-
-  @media (any-hover: hover) {
-    .pickup-slide__drop-off:hover:not(:disabled) & {
-      max-width: 5rem; // 80px
-    }
-  }
-
-  @media (any-hover: none) {
-    max-width: 5rem;
-  }
-
-  .pickup-slide__drop-off:focus-visible &,
-  .pickup-slide__drop-off--busy & {
-    max-width: 5rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pickup-slide__drop-off,
-  .pickup-slide__drop-off-label {
-    transition: none;
   }
 }
 
@@ -447,4 +370,17 @@
   font-family: var(--font-family-heading);
   font-size: 1.125rem; // 18px
   font-weight: var(--font-weight-semibold);
+}
+
+// «Terminar viaje» y los iconos de compartir y SOS, mitad y mitad (también en
+// el móvil, para ahorrar sitio en la hoja)
+.driver-live-trip__finish-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-base);
+}
+
+.driver-live-trip__finish-slot {
+  min-width: 0;
 }

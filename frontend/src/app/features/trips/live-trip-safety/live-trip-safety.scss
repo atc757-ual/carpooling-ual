@@ -1,5 +1,6 @@
-// Como las demás tarjetas del viaje en curso: el título y dos filas, cada una
-// con su texto en gris y su botón de icono a la derecha (compartir y SOS)
+// Pasajero: la tarjeta «Viaje seguro» con el enlace en directo. Conductor: solo
+// los iconos de compartir y SOS, juntos y a la derecha (se estiran hacia la
+// izquierda al mostrar su texto)
 :host {
   display: block;
 }
@@ -20,16 +21,8 @@ ion-card-content {
   }
 }
 
-// Una fila: el texto a la izquierda y el botón (.icon-btn, del tema) a la
-// derecha, con 16px entre ellos
-.live-safety__row {
+.live-safety-inline {
   display: flex;
-  align-items: center;
-  gap: var(--space-base);
-
-  p {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-  }
+  justify-content: flex-end;
+  gap: var(--space-s);
 }

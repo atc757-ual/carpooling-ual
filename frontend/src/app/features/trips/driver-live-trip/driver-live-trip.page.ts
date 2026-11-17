@@ -15,7 +15,6 @@ import {
   callOutline,
   checkmarkCircle,
   chatbubblesOutline,
-  checkmark,
   checkmarkCircleOutline,
   homeOutline,
   locationOutline,
@@ -50,6 +49,8 @@ import {
   stageIndex,
 } from '../live-trip-hero.util';
 import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
+import { DragScroll } from '../../../shared/directives/drag-scroll.directive';
+import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 import { buildLiveShareText } from '../trip-share-text';
 
 // Una recogida sigue siendo «la siguiente» hasta 5 min después de su hora
@@ -81,7 +82,9 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
     IonSpinner,
     LiveTripHero,
     LiveTripMap,
+    DragScroll,
     LiveTripSafety,
+    RevealOnTouch,
     LiveTripSheet,
     TripReviewCard,
     RouterLink,
@@ -259,7 +262,6 @@ export class DriverLiveTripPage {
   protected readonly confirmFinishIcon = checkmarkCircleOutline;
   protected readonly firstName = (name: string) => getFirstName(name);
   protected readonly callIcon = callOutline;
-  protected readonly doneIcon = checkmark;
   protected readonly finishedIcon = checkmarkCircle;
   protected readonly noShowIcon = personRemoveOutline;
   protected readonly dropOffIcon = walkOutline;

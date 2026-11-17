@@ -1227,3 +1227,68 @@ ion-toggle {
     }
   }
 }
+
+// Botón de icono que muestra su texto (.icon-btn.icon-btn--reveal con el texto
+// en .icon-btn__label): redondo como los demás; al pasar el ratón, enfocarlo
+// con el teclado, en el móvil con el primer toque (--revealed, de la
+// directiva appRevealOnTouch) o mientras guarda (--busy), se estira hacia la
+// izquierda con el texto. Con las dos clases, para ganar a .icon-btn (rejilla)
+.icon-btn.icon-btn--reveal {
+  display: inline-flex;
+  width: auto;
+  min-width: 2.75rem; // 44px
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding-inline: 0.6875rem; // 11px: el icono centrado en 44px
+  transition:
+    gap 160ms ease,
+    padding 160ms ease;
+
+  ion-spinner {
+    width: 1.25rem; // 20px
+    height: 1.25rem;
+  }
+
+  @media (any-hover: hover) {
+    &:hover:not(:disabled) {
+      gap: var(--space-xs);
+      padding-inline: var(--space-s) var(--space-base);
+    }
+  }
+
+  &:focus-visible,
+  &.icon-btn--revealed,
+  &.icon-btn--busy {
+    gap: var(--space-xs);
+    padding-inline: var(--space-s) var(--space-base);
+  }
+}
+
+.icon-btn__label {
+  overflow: hidden;
+  max-width: 0;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  transition: max-width 160ms ease;
+
+  @media (any-hover: hover) {
+    .icon-btn--reveal:hover:not(:disabled) & {
+      max-width: 6rem; // 96px
+    }
+  }
+
+  .icon-btn--reveal:focus-visible &,
+  .icon-btn--revealed &,
+  .icon-btn--busy & {
+    max-width: 6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-btn.icon-btn--reveal,
+  .icon-btn__label {
+    transition: none;
+  }
+}

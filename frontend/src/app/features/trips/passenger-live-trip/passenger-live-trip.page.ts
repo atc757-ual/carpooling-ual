@@ -48,7 +48,6 @@ import { RatingBar } from '../../../shared/components/ui/rating-bar/rating-bar';
 import { ratingName } from '../../../shared/utils/rating.util';
 import { PassengerRequestActions } from '../passenger-requests/passenger-request-actions/passenger-request-actions';
 import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
-import { buildLiveShareText } from '../trip-share-text';
 import { FilterChips } from '../../../shared/components/ui/filter-chips/filter-chips';
 import {
   buildRideSheetTabs,
@@ -164,19 +163,6 @@ export class PassengerLiveTripPage {
     return request && trip ? ridePhase(request, trip) : null;
   });
   readonly driverName = computed(() => getFirstName(this.trip()?.driver.name ?? 'El conductor'));
-  // Para alguien de confianza: el trayecto, quién conduce y el coche que ya
-  // ve el pasajero aceptado (con la matrícula)
-  readonly safetyShareText = computed(() => {
-    const trip = this.trip();
-    if (!trip) {
-      return '';
-    }
-    return buildLiveShareText(trip, {
-      name: trip.driver.name,
-      vehicleName: trip.vehicle ? vehicleDisplayName(trip.vehicle) : null,
-      plate: this.request()?.vehiclePlate ?? null,
-    });
-  });
   readonly pickupName = computed(() => {
     const request = this.request();
     const trip = this.trip();
