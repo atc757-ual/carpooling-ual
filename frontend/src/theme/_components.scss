@@ -1274,14 +1274,14 @@ ion-toggle {
 
   @media (any-hover: hover) {
     .icon-btn--reveal:hover:not(:disabled) & {
-      max-width: 6rem; // 96px
+      max-width: 10rem; // 160px: cabe «Compartir ubicación»
     }
   }
 
   .icon-btn--reveal:focus-visible &,
   .icon-btn--revealed &,
   .icon-btn--busy & {
-    max-width: 6rem;
+    max-width: 10rem;
   }
 }
 
