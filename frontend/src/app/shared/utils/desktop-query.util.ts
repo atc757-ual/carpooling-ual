@@ -73,6 +73,7 @@ export interface LiveSheetController {
   enter(): void;
   close(): Promise<void>;
   expand(): void;
+  collapse(): void;
 }
 
 // La hoja inferior móvil de las pantallas «En curso»: no se cierra al
@@ -107,6 +108,11 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
     isExpanded = true;
     void modal?.setCurrentBreakpoint(LIVE_SHEET_FULL_BREAKPOINT);
   };
+  // A su altura inicial (p. ej. tras valorar: no queda nada más que hacer)
+  const collapse = (): void => {
+    isExpanded = false;
+    void modal?.setCurrentBreakpoint(LIVE_SHEET_INITIAL_BREAKPOINT);
+  };
 
   effect(() => {
     if (!isOnPage()) {
@@ -128,5 +134,6 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
     enter,
     close,
     expand,
+    collapse,
   };
 }

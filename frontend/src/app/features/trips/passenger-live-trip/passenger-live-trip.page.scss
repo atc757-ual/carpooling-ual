@@ -228,6 +228,12 @@ ion-card-content.ride__state {
   display: flex;
   align-items: center;
   gap: var(--space-s);
+
+  // Ya valorado: el icono encima y el texto centrado
+  &--centered {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
 .ride__done-icon {

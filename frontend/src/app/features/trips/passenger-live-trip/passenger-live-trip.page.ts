@@ -205,6 +205,13 @@ export class PassengerLiveTripPage {
   // Al llegar: valorar al conductor (RF-22). «Ahora no» lo deja para luego
   // (en el detalle del viaje)
   readonly reviewState = signal<'form' | 'sent' | 'skipped'>('form');
+
+  // Tras valorar (u omitirlo) ya no queda nada que hacer: la hoja vuelve a su
+  // altura y se ve el mapa, sin un hueco vacío debajo
+  handleReviewDone(state: 'sent' | 'skipped'): void {
+    this.reviewState.set(state);
+    this.sheet.collapse();
+  }
   // Registrando una incidencia: el formulario sustituye a todo lo demás
   readonly isReportingIncident = signal(false);
   // Lo que el mapa sabe en directo (minutos hasta la recogida y el destino)
