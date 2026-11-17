@@ -232,8 +232,16 @@ ion-card-content.ride__state {
   // Ya valorado: el icono encima y el texto centrado
   &--centered {
     flex-direction: column;
+    justify-content: center;
+    padding-block: var(--space-base) var(--space-s); // 16px arriba, 8px abajo
     text-align: center;
   }
+}
+
+// Ya valorado: más aire entre el resumen, el aviso y el botón
+.ride__panel:has(.ride__done-head--centered) ion-card-content {
+  gap: var(--space-base);
+  padding-bottom: var(--space-l);
 }
 
 .ride__done-icon {
