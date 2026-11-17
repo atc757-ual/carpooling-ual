@@ -123,9 +123,9 @@
   align-items: center;
   box-sizing: border-box;
   gap: var(--space-s);
-  // Sin borde (ya va dentro de la tarjeta «Recogidas»): la que toca se ve en
-  // los puntos de abajo; la del que ya se bajó, por su fondo verde claro
-  padding: var(--space-s);
+  // Sin borde ni relleno (ya va dentro de la tarjeta «Recogidas»): la que
+  // toca se ve en los puntos de abajo; la del que ya se bajó, por su fondo
+  // verde claro
   border-radius: var(--radius-s);
   background: var(--color-surface);
   opacity: 0.6;
@@ -139,8 +139,10 @@
     opacity: 1;
   }
 
-  // Ya se bajó: en verde claro, para distinguirla de los que siguen en el coche
+  // Ya se bajó: en verde claro, para distinguirla de los que siguen en el
+  // coche; solo esta con relleno, para que el texto no toque el borde del fondo
   &--off {
+    padding: var(--space-s);
     background: var(--color-success-subtle);
   }
 }
