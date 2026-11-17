@@ -126,8 +126,8 @@
   box-sizing: border-box;
   gap: var(--space-s);
   // Sin borde ni relleno (ya va dentro de la tarjeta «Recogidas»): la que
-  // toca se ve en los puntos de abajo; la del que ya se bajó, por su fondo
-  // verde claro
+  // toca se ve en los puntos de abajo; la de quien va en el coche, por su
+  // fondo azul claro, y la de quien ya se bajó, por el verde claro
   border-radius: var(--radius-s);
   background: var(--color-surface);
   opacity: 0.6;
@@ -137,14 +137,16 @@
     opacity: 1;
   }
 
+  // En el coche: en azul claro, con relleno para que el texto no toque el
+  // borde del fondo
   &--done {
+    padding: var(--space-s);
+    background: var(--color-primary-subtle);
     opacity: 1;
   }
 
-  // Ya se bajó: en verde claro, para distinguirla de los que siguen en el
-  // coche; solo esta con relleno, para que el texto no toque el borde del fondo
+  // Ya se bajó (también lleva --done): en verde claro
   &--off {
-    padding: var(--space-s);
     background: var(--color-success-subtle);
   }
 }
@@ -184,7 +186,8 @@
 }
 
 // «Ha bajado»: redondo como chat y llamar; al pasar, enfocarlo o mientras
-// guarda, se estira hacia la izquierda con el texto y vuelve a su forma
+// guarda, se estira hacia la izquierda con el texto y vuelve a su forma. En
+// el móvil (sin ratón que pase por encima), siempre con el texto
 // Con las dos clases, para ganar a .icon-btn (del tema, que lo dejaría en
 // rejilla, con el icono arriba y sin estirarse)
 .icon-btn.pickup-slide__drop-off {
@@ -211,6 +214,12 @@
     }
   }
 
+  // En pantallas táctiles (sin ratón) va siempre estirado, con el texto
+  @media (any-hover: none) {
+    gap: var(--space-xs);
+    padding-inline: var(--space-s) var(--space-base);
+  }
+
   &:focus-visible,
   &--busy {
     gap: var(--space-xs);
@@ -230,6 +239,10 @@
     .pickup-slide__drop-off:hover:not(:disabled) & {
       max-width: 5rem; // 80px
     }
+  }
+
+  @media (any-hover: none) {
+    max-width: 5rem;
   }
 
   .pickup-slide__drop-off:focus-visible &,
