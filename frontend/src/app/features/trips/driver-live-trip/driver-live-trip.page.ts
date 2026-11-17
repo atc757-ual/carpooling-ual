@@ -56,6 +56,8 @@ import { buildLiveShareText } from '../trip-share-text';
 // (lo que se espera al pasajero antes de poder marcar «No se presentó»)
 const PICKUP_GRACE_MS = 5 * 60 * 1000;
 const CLOCK_UPDATE_MS = 60_000;
+// Cada cuánto se vuelven a pedir las plazas (como en la pantalla del pasajero)
+const REFRESH_MS = 15_000;
 const DRIVER_STAGES = ['Recogidas', 'Al destino', 'Llegada'];
 // La URL de esta pantalla: la hoja del móvil solo está abierta en ella
 const DRIVE_URL = /^\/tabs\/trips\/drive\//;
@@ -171,6 +173,12 @@ export class DriverLiveTripPage {
   );
   // Nadie por recoger ni en el coche (sin pasajeros, o todos bajados o sin
   // presentarse): lo único que queda es terminar, así que el botón sube arriba
+  // Había pasajeros y se han bajado todos (sin pasajeros, no: hay que terminar)
+  private readonly hasEveryoneGotOff = computed(
+    () =>
+      this.passengers().length > 0 &&
+      this.passengers().every((request) => request.status === 'completed'),
+  );
   readonly isReadyToFinish = computed(
     () =>
       this.requests.hasValue() &&
@@ -250,7 +258,27 @@ export class DriverLiveTripPage {
 
   constructor() {
     const timer = setInterval(() => this.now.set(Date.now()), CLOCK_UPDATE_MS);
-    inject(DestroyRef).onDestroy(() => clearInterval(timer));
+    // Las plazas se vuelven a pedir cada poco: así se ve el «He llegado» que
+    // marca un pasajero desde su móvil
+    const refreshTimer = setInterval(() => {
+      if (this.isPageVisible() && this.isInProgress() && !this.justFinished()) {
+        this.requests.reload();
+      }
+    }, REFRESH_MS);
+    inject(DestroyRef).onDestroy(() => {
+      clearInterval(timer);
+      clearInterval(refreshTimer);
+    });
+    // Todos bajados (lo marque el conductor o cada pasajero): el servidor ya
+    // ha terminado el viaje; aquí, el aviso y valorar a los pasajeros
+    effect(() => {
+      if (this.isInProgress() && !this.justFinished() && this.hasEveryoneGotOff()) {
+        this.tracking.stop();
+        this.justFinished.set(true);
+        this.sheet.expand();
+        void this.toast.showSuccess('Se han bajado todos: viaje terminado.');
+      }
+    });
     // Si se entra con el viaje en curso, su posición se sigue enviando
     effect(() => {
       const trip = this.trip();
@@ -414,12 +442,7 @@ export class DriverLiveTripPage {
       this.requests.update((list) =>
         list?.map((item) => (item.id === updated.id ? updated : item)),
       );
-      if (this.passengers().every(({ status }) => status !== 'accepted')) {
-        this.tracking.stop();
-        this.justFinished.set(true);
-        this.sheet.expand();
-        void this.toast.showSuccess('Se han bajado todos: viaje terminado.');
-      }
+      // Si era el último, el viaje lo termina el efecto de «todos bajados»
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     } finally {
