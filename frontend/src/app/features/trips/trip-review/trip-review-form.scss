@@ -1,5 +1,5 @@
-// La valoración: la escala de 5 puntos entre las dos manitas, el comentario y
-// los botones a todo el ancho
+// La valoración: la barra de 5 tramos entre las dos manitas, el comentario
+// (al pedirlo) y los dos botones en una fila
 .trip-review {
   display: flex;
   flex-direction: column;
@@ -10,18 +10,18 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: var(--space-s);
+  gap: var(--space-xs);
   margin: 0;
   padding: 0;
   border: 0;
 
   legend {
-    margin-bottom: var(--space-s);
+    margin-bottom: var(--space-xs);
     padding: 0;
   }
 }
 
-// La manita abajo, los 5 puntos y la manita arriba en una fila
+// La manita abajo, la barra y la manita arriba en una fila
 .trip-review__scale {
   display: flex;
   align-items: center;
@@ -41,24 +41,21 @@
   color: var(--color-success);
 }
 
-.trip-review__points {
+.trip-review__steps {
   display: grid;
   flex: 1;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--space-xs);
 }
 
-// Cada punto, de 44px de alto (objetivo táctil); en verde hasta el elegido
-.trip-review__point {
-  display: grid;
+// Cada tramo: 44px de alto para tocarlo (objetivo táctil) y la barra fina en
+// medio, como la de app-rating-bar pero más gruesa
+.trip-review__step {
+  display: flex;
   min-height: 2.75rem; // 44px
-  border: var(--border-width-s) solid var(--color-border);
+  align-items: center;
   border-radius: var(--radius-s);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
   cursor: pointer;
-  font-weight: var(--font-weight-semibold);
-  place-items: center;
 
   &:focus-within {
     outline: var(--border-width-m) solid var(--color-focus-ring);
@@ -66,20 +63,29 @@
   }
 }
 
-.trip-review__point--on {
-  border-color: var(--color-success);
-  background: var(--color-success-subtle);
-  color: var(--color-success);
+.trip-review__bar {
+  width: 100%;
+  height: 0.625rem; // 10px
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  transition: background-color 120ms ease;
 }
 
-.trip-review__point--current {
+.trip-review__step--on .trip-review__bar {
   background: var(--color-success);
-  color: var(--color-on-success);
 }
 
 .trip-review__chosen {
   margin: 0;
   text-align: center;
+}
+
+// «Añadir comentario», un enlace con icono pegado a la izquierda
+.trip-review__add-comment {
+  --padding-start: 0;
+
+  align-self: flex-start;
+  margin: 0;
 }
 
 .trip-review__error {
@@ -89,10 +95,11 @@
 
 .trip-review__actions {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: var(--space-s);
 
   ion-button {
+    flex: 1 1 8rem; // 128px: si no caben, uno debajo del otro
     margin: 0;
   }
 }
