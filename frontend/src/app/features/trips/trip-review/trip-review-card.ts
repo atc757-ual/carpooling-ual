@@ -87,6 +87,8 @@ export class TripReviewCard {
   });
   // Las enviadas desde aquí: se muestran sin volver a cargar
   private readonly justSent = signal<Map<string, GivenReview | null>>(new Map());
+  // Valoró a alguien desde aquí (para el «¡Gracias por valorar!» del resumen)
+  readonly hasSentHere = computed(() => this.justSent().size > 0);
 
   readonly isLoading = this.loaded.isLoading;
   readonly hasError = computed(() => Boolean(this.loaded.error()));

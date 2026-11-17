@@ -33,6 +33,31 @@ ion-card.trip-review-card ion-card-content {
 
 // De uno en uno, al acabar: una línea por persona, el nombre a la izquierda y
 // la nota (o «Más tarde») a la derecha
+// De uno en uno: el formulario o, al acabar, el resumen y el agradecimiento
+.trip-review-card__stepped {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+// El resumen al acabar: centrado y estrecho, con su título en gris
+.trip-review-card__done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+
+  h3 {
+    margin: 0;
+    font-weight: var(--font-weight-regular);
+  }
+
+  .trip-review-card__summary {
+    width: 100%;
+    max-width: 18rem; // 288px
+  }
+}
+
 .trip-review-card__summary {
   display: flex;
   flex-direction: column;

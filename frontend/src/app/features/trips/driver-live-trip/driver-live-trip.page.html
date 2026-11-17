@@ -35,7 +35,14 @@
           @if (justFinished()) {
             <ion-card class="driver-live-trip__panel">
               <ion-card-content>
-                <div class="driver-live-trip__done">
+                <!-- Al acabar de valorar (o sin nadie a quien valorar), centrado
+                     como el del pasajero -->
+                <div
+                  class="driver-live-trip__done"
+                  [class.driver-live-trip__done--centered]="
+                    reviewTargets().length === 0 || areReviewsDone()
+                  "
+                >
                   <ion-icon
                     class="driver-live-trip__done-icon"
                     [icon]="finishedIcon"
@@ -75,7 +82,7 @@
                   />
                 }
                 @if (reviewTargets().length === 0 || areReviewsDone()) {
-                  <ion-button expand="block" fill="outline" (click)="leaveFinished()">
+                  <ion-button expand="block" (click)="leaveFinished()">
                     Volver a Tus viajes
                   </ion-button>
                 }

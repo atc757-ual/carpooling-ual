@@ -32,27 +32,43 @@
           }
         </section>
       } @else {
-        <ul class="trip-review-card__summary">
-          @for (section of sections(); track section.target.id) {
-            <li class="trip-review-card__summary-row">
-              <span class="text-body-s text-body--strong">{{ section.target.name }}</span>
-              @if (section.view.kind === 'given' && section.view.review; as review) {
-                <span class="trip-review-card__summary-verdict">
-                  <app-rating-bar [rating]="review.rating" />
-                  <span class="text-caption"
-                    >{{ review.rating }} · {{ ratingName(review.rating) }}</span
-                  >
-                </span>
-              } @else if (skipped().has(section.target.id)) {
-                <span class="text-caption text-color-muted">Más tarde, en el viaje</span>
-              } @else if (section.view.kind === 'given') {
-                <span class="text-caption text-color-muted">Valorado</span>
-              } @else {
-                <span class="text-caption text-color-muted">Fuera de plazo</span>
-              }
-            </li>
-          }
-        </ul>
+        <!-- Al acabar, como el resumen del pasajero: el título en gris, una
+             fila por persona (centradas y estrechas) y, si valoró a alguien
+             aquí, el agradecimiento -->
+        <section class="trip-review-card__done" aria-labelledby="trip-review-done-title">
+          <h3 id="trip-review-done-title" class="text-caption text-color-muted">
+            Tus valoraciones
+          </h3>
+          <ul class="trip-review-card__summary">
+            @for (section of sections(); track section.target.id) {
+              <li class="trip-review-card__summary-row">
+                <span class="text-body-s text-body--strong">{{ section.target.name }}</span>
+                @if (section.view.kind === 'given' && section.view.review; as review) {
+                  <span class="trip-review-card__summary-verdict">
+                    <app-rating-bar [rating]="review.rating" />
+                    <span class="text-caption"
+                      >{{ review.rating }} · {{ ratingName(review.rating) }}</span
+                    >
+                  </span>
+                } @else if (skipped().has(section.target.id)) {
+                  <span class="text-caption text-color-muted">Más tarde, en el viaje</span>
+                } @else if (section.view.kind === 'given') {
+                  <span class="text-caption text-color-muted">Valorado</span>
+                } @else {
+                  <span class="text-caption text-color-muted">Fuera de plazo</span>
+                }
+              </li>
+            }
+          </ul>
+        </section>
+        @if (hasSentHere()) {
+          <output class="notice notice--success">
+            <span>
+              <b>¡Gracias por valorar!</b>
+              Se publicarán cuando también te valoren o en 7 días.
+            </span>
+          </output>
+        }
       }
     } @else {
       <ng-container [ngTemplateOutlet]="status" />

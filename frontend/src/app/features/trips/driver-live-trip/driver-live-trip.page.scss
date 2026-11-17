@@ -417,6 +417,18 @@
   text-align: center;
 }
 
+// Terminado y ya valorado: centrado como el del pasajero
+.driver-live-trip__done--centered {
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-top: var(--space-base);
+  text-align: center;
+
+  .driver-live-trip__done-text {
+    flex: none;
+  }
+}
+
 .driver-live-trip__confirm-icon {
   color: var(--color-link);
   font-size: 2rem; // 32px
