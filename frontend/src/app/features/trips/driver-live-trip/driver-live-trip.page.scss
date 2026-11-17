@@ -197,29 +197,42 @@
   gap: var(--space-xs);
 }
 
-// El carrusel con, en escritorio, las flechas de anterior y siguiente a sus
-// lados: botones de icono de 32px sin borde, a media altura de la tarjeta.
-// En el móvil no se ven (se desliza con el dedo)
-.pickup-viewport {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-
-  .pickup-carousel {
-    flex: 1;
-    min-width: 0;
+// En escritorio, los puntos sobran (las flechas van junto al título): la
+// tarjeta, más baja
+@media (min-width: 768px) {
+  .pickup-dots {
+    display: none;
   }
 }
 
-// Con las dos clases, para ganar a .icon-btn
-.icon-btn.pickup-arrow {
-  width: 2rem; // 32px
-  height: 2rem;
-  border-color: transparent;
+// El título «Recogidas» y, a su derecha, las flechas (solo en escritorio)
+.pickups-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+
+  h2 {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
+}
+
+.pickups-head__arrows {
+  display: flex;
+  flex: none;
+  gap: var(--space-xs);
 
   @media (max-width: 767.98px) {
     display: none;
   }
+}
+
+// Anterior y siguiente: botones de icono de 32px. Con las dos clases, para
+// ganar a .icon-btn
+.icon-btn.pickup-arrow {
+  width: 2rem; // 32px
+  height: 2rem;
 }
 
 .pickup-dots__dot {
