@@ -1,7 +1,11 @@
-import { DestroyRef, Directive, ElementRef, inject, signal } from '@angular/core';
+import { computed, DestroyRef, Directive, ElementRef, inject, signal } from '@angular/core';
 
 // Lo que tarda en volver a su forma si no se toca otra vez
 const REVEAL_MS = 4000;
+
+// El botón desplegado: uno solo a la vez en toda la app (al desplegar otro,
+// el anterior se pliega)
+const revealedButton = signal<RevealOnTouch | null>(null);
 
 // Un botón de icono que muestra su texto (.icon-btn--reveal, del tema): con
 // ratón, al pasar por encima; con el dedo (o un lápiz), el primer toque solo lo
@@ -16,7 +20,7 @@ const REVEAL_MS = 4000;
 })
 export class RevealOnTouch {
   private readonly element: HTMLElement = inject(ElementRef).nativeElement;
-  readonly isRevealed = signal(false);
+  readonly isRevealed = computed(() => revealedButton() === this);
   private pointerType = '';
   private timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -33,7 +37,7 @@ export class RevealOnTouch {
       }
       event.preventDefault();
       event.stopImmediatePropagation();
-      this.isRevealed.set(true);
+      revealedButton.set(this);
       clearTimeout(this.timer);
       this.timer = setTimeout(() => this.collapse(), REVEAL_MS);
     };
@@ -42,12 +46,14 @@ export class RevealOnTouch {
     inject(DestroyRef).onDestroy(() => {
       this.element.removeEventListener('pointerdown', handlePointerDown, { capture: true });
       this.element.removeEventListener('click', handleClick, { capture: true });
-      clearTimeout(this.timer);
+      this.collapse();
     });
   }
 
   private collapse(): void {
     clearTimeout(this.timer);
-    this.isRevealed.set(false);
+    if (revealedButton() === this) {
+      revealedButton.set(null);
+    }
   }
 }
