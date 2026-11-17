@@ -84,6 +84,17 @@
           } @else if (finishCheck(); as check) {
             <ion-card class="driver-live-trip__panel">
               <ion-card-content>
+                <!-- El encabezado centrado (icono y pregunta) con la línea
+                     debajo; después, el aviso y los botones -->
+                <div class="driver-live-trip__confirm-head">
+                  <ion-icon
+                    class="driver-live-trip__confirm-icon"
+                    [class.driver-live-trip__confirm-icon--far]="check.isFar"
+                    [icon]="flagIcon"
+                    aria-hidden="true"
+                  />
+                  <h2 class="driver-live-trip__done-title">¿Terminar el viaje?</h2>
+                </div>
                 <output
                   class="notice"
                   [class.notice--warning]="check.isFar"
@@ -94,7 +105,6 @@
                       <b>Aún estás a {{ formatDistance(check.distance) }} del destino.</b>
                       Si terminas ahora, tus pasajeros verán el viaje como finalizado.
                     } @else {
-                      <b>¿Terminar el viaje?</b>
                       Dejarás de compartir tu ubicación y el viaje pasará a finalizado.
                     }
                   </span>
@@ -232,21 +242,6 @@
                                 «No se presentó» en {{ noShowWaitMinutes(request) }} min
                               </span>
                             }
-                          } @else if (request.status === 'accepted') {
-                            <!-- A bordo: «Ha bajado» cierra su plaza (con el coche parado) -->
-                            <ion-button
-                              class="pickup-slide__drop-off"
-                              fill="outline"
-                              [disabled]="isDroppingOff(request.id)"
-                              (click)="handleDropOff(request)"
-                            >
-                              @if (isDroppingOff(request.id)) {
-                                <ion-spinner name="crescent" slot="start" aria-hidden="true" />
-                              } @else {
-                                <ion-icon slot="start" [icon]="dropOffIcon" aria-hidden="true" />
-                              }
-                              Ha bajado
-                            </ion-button>
                           }
                         </div>
 
@@ -288,6 +283,27 @@
                               (click)="handleNoShow(request.id)"
                             >
                               <ion-icon [icon]="noShowIcon" aria-hidden="true" />
+                            </button>
+                          } @else if (request.status === 'accepted') {
+                            <!-- A bordo: «Ha bajado» cierra su plaza (con el coche
+                                 parado). Redondo como los demás; al pasar o
+                                 enfocarlo (y mientras guarda) se estira con el texto -->
+                            <button
+                              type="button"
+                              class="pickup-slide__icon-btn pickup-slide__drop-off"
+                              [class.pickup-slide__drop-off--busy]="isDroppingOff(request.id)"
+                              [disabled]="isDroppingOff(request.id)"
+                              [attr.aria-label]="firstName(request.passenger.name) + ' ha bajado'"
+                              (click)="handleDropOff(request)"
+                            >
+                              @if (isDroppingOff(request.id)) {
+                                <ion-spinner name="crescent" aria-hidden="true" />
+                              } @else {
+                                <ion-icon [icon]="dropOffIcon" aria-hidden="true" />
+                              }
+                              <span class="pickup-slide__drop-off-label" aria-hidden="true">
+                                Ha bajado
+                              </span>
                             </button>
                           }
                         </div>

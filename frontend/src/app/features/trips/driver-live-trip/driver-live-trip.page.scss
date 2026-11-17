@@ -123,15 +123,15 @@
   align-items: center;
   box-sizing: border-box;
   gap: var(--space-s);
-  padding: var(--space-s) var(--space-base);
-  border: var(--border-width-s) solid var(--color-border-subtle);
+  // Sin borde (ya va dentro de la tarjeta «Recogidas»): la que toca se ve en
+  // los puntos de abajo; la del que ya se bajó, por su fondo verde claro
+  padding: var(--space-s);
   border-radius: var(--radius-s);
   background: var(--color-surface);
   opacity: 0.6;
   scroll-snap-align: start;
 
   &--active {
-    border-color: var(--color-primary);
     opacity: 1;
   }
 
@@ -141,7 +141,6 @@
 
   // Ya se bajó: en verde claro, para distinguirla de los que siguen en el coche
   &--off {
-    border-color: var(--color-success);
     background: var(--color-success-subtle);
   }
 }
@@ -181,9 +180,65 @@
 }
 
 // «Ha bajado»: a lo ancho de la tarjeta, con el alto táctil mínimo
+// «Ha bajado»: redondo como chat y llamar; al pasar, enfocarlo o mientras
+// guarda, se estira hacia la izquierda con el texto y vuelve a su forma
 .pickup-slide__drop-off {
-  min-height: var(--control-height-s); // 44px
-  margin: 0;
+  display: inline-flex;
+  width: auto;
+  min-width: 2.75rem; // 44px
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding-inline: 0.6875rem; // 11px: el icono centrado en 44px
+  border-color: var(--color-link);
+  transition:
+    gap 160ms ease,
+    padding 160ms ease;
+
+  ion-spinner {
+    width: 1.25rem; // 20px
+    height: 1.25rem;
+  }
+
+  @media (any-hover: hover) {
+    &:hover:not(:disabled) {
+      gap: var(--space-xs);
+      padding-inline: var(--space-s) var(--space-base);
+    }
+  }
+
+  &:focus-visible,
+  &--busy {
+    gap: var(--space-xs);
+    padding-inline: var(--space-s) var(--space-base);
+  }
+}
+
+.pickup-slide__drop-off-label {
+  overflow: hidden;
+  max-width: 0;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  transition: max-width 160ms ease;
+
+  @media (any-hover: hover) {
+    .pickup-slide__drop-off:hover:not(:disabled) & {
+      max-width: 5rem; // 80px
+    }
+  }
+
+  .pickup-slide__drop-off:focus-visible &,
+  .pickup-slide__drop-off--busy & {
+    max-width: 5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pickup-slide__drop-off,
+  .pickup-slide__drop-off-label {
+    transition: none;
+  }
 }
 
 // Chat, llamar y «No se presentó»: en fila, a la derecha del nombre
@@ -334,14 +389,37 @@
 }
 
 // Terminado: el ✓ verde con el aviso
-.driver-live-trip__done {
+// Los encabezados de la hoja (terminado y «¿Terminar el viaje?»), con una
+// línea fina debajo y 4px de aire
+.driver-live-trip__done,
+.driver-live-trip__confirm-head {
   display: flex;
   align-items: center;
   gap: var(--space-s);
+  padding-bottom: var(--space-xs);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 
   h2,
   p {
     margin: 0;
+  }
+}
+
+// «¿Terminar el viaje?»: el icono encima y la pregunta, centrados
+.driver-live-trip__confirm-head {
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-top: var(--space-s);
+  text-align: center;
+}
+
+.driver-live-trip__confirm-icon {
+  color: var(--color-link);
+  font-size: 2rem; // 32px
+
+  // Lejos del destino, en ámbar como el aviso
+  &--far {
+    color: var(--color-warning-text);
   }
 }
 

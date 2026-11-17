@@ -224,16 +224,20 @@ ion-card-content.ride__state {
 }
 
 // Ha llegado: el ✓ verde con el aviso y, debajo, la valoración del conductor
+// El encabezado, con una línea fina debajo (4px de aire), como los demás de
+// la hoja
 .ride__done-head {
   display: flex;
   align-items: center;
   gap: var(--space-s);
+  padding-bottom: var(--space-xs);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 
   // Ya valorado: el icono encima y el texto centrado
   &--centered {
     flex-direction: column;
     justify-content: center;
-    padding-block: var(--space-base) var(--space-s); // 16px arriba, 8px abajo
+    padding-top: var(--space-base);
     text-align: center;
   }
 }
