@@ -73,8 +73,12 @@
                       }
                       @case ('completed') {
                         <b>Tu viaje ha terminado.</b>
-                        Has llegado a tu destino. Valora a {{ firstName(trip.driver.name) }}: ayuda
-                        a la comunidad.
+                        @if (request.droppedOffBy === 'system') {
+                          Lo cerramos automáticamente una hora después de la llegada estimada.
+                        } @else {
+                          Has llegado a tu destino.
+                        }
+                        Valora a {{ firstName(trip.driver.name) }}: ayuda a la comunidad.
                       }
                       @case ('rejected') {
                         @if (request.rejectionReason === 'trip_full') {
