@@ -22,6 +22,9 @@ export interface MailConfig {
   from: string;
   // Buzón que recibe los mensajes de «Ayuda y soporte» (SUPPORT_EMAIL)
   supportTo: string;
+  // Dirección pública de la app web (PUBLIC_WEB_URL), para los enlaces de los
+  // correos (p. ej. «Valorar el viaje»); sin barra final
+  publicWebUrl: string;
   smtp: SmtpSettings;
 }
 
@@ -37,6 +40,7 @@ export interface MailEnvironment {
   SMTP_USER?: string;
   SMTP_PASSWORD?: string;
   SUPPORT_EMAIL?: string;
+  PUBLIC_WEB_URL?: string;
 }
 
 // Por defecto, el Mailpit de Docker Compose
@@ -46,6 +50,8 @@ const MAX_PORT = 65535;
 const DEFAULT_FROM = 'Carpooling UAL <no-reply@carpooling-ual.local>';
 // En desarrollo llega a Mailpit como cualquier otro correo
 const DEFAULT_SUPPORT_TO = 'soporte@carpooling-ual.local';
+// En desarrollo, el ng serve
+const DEFAULT_PUBLIC_WEB_URL = 'http://localhost:4200';
 
 // MAIL_TRANSPORT es opcional: con los tests (Jest pone NODE_ENV=test) los
 // correos se quedan en memoria, así el CI no necesita un servidor de correo;
@@ -55,6 +61,9 @@ export function parseMailConfig(env: MailEnvironment): MailConfig {
     transport: parseTransport(env.MAIL_TRANSPORT, env.NODE_ENV),
     from: env.MAIL_FROM || DEFAULT_FROM,
     supportTo: env.SUPPORT_EMAIL || DEFAULT_SUPPORT_TO,
+    publicWebUrl: withoutTrailingSlash(
+      env.PUBLIC_WEB_URL || DEFAULT_PUBLIC_WEB_URL,
+    ),
     smtp: {
       host: env.SMTP_HOST || DEFAULT_SMTP_HOST,
       port: parseSmtpPort(env.SMTP_PORT),
@@ -115,4 +124,8 @@ function parseAuth(
     throw new Error('SMTP_USER and SMTP_PASSWORD must be set together');
   }
   return { user, pass: password };
+}
+
+function withoutTrailingSlash(url: string): string {
+  return url.endsWith('/') ? withoutTrailingSlash(url.slice(0, -1)) : url;
 }
