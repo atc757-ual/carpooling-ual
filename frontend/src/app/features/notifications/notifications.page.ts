@@ -93,6 +93,8 @@ export class NotificationsPage implements OnInit {
     return `${this.offset() + 1}–${Math.min(this.offset() + NOTIFICATIONS_PAGE_SIZE, this.total())} de ${this.total()}`;
   });
 
+  private hasEntered = false;
+
   protected readonly pageSize = NOTIFICATIONS_PAGE_SIZE;
   protected readonly emptyIcon = notificationsOutline;
   protected readonly errorIcon = alertCircleOutline;
@@ -106,6 +108,17 @@ export class NotificationsPage implements OnInit {
 
   ngOnInit(): void {
     void this.loadPage(true);
+  }
+
+  // Ionic guarda la pantalla al salir: al volver (p. ej. desde la campana
+  // tras llegar un aviso) se pide de nuevo la primera página, con el filtro
+  // elegido. La primera vez ya la pide ngOnInit
+  ionViewWillEnter(): void {
+    if (this.hasEntered) {
+      this.offset.set(0);
+      void this.loadPage(true);
+    }
+    this.hasEntered = true;
   }
 
   async handleCategory(value: unknown): Promise<void> {
