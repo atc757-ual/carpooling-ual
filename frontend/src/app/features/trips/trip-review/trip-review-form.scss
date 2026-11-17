@@ -48,8 +48,8 @@
   gap: var(--space-xs);
 }
 
-// Cada tramo: 44px de alto para tocarlo (objetivo táctil) y la barra fina en
-// medio, como la de app-rating-bar pero más gruesa
+// Cada punto: 44px de alto para tocarlo (objetivo táctil) y, dentro, el botón
+// con su número, más bajo (36px)
 .trip-review__step {
   display: flex;
   min-height: 2.75rem; // 44px
@@ -64,45 +64,37 @@
   }
 }
 
-// El tramo se ve como un botón (el número dentro, en gris) para invitar a
-// tocarlo; juntos forman la barra
-.trip-review__bar {
+// El botón: cuadrado (radio de 8px) con borde y el número en gris; en verde
+// claro hasta el elegido y el elegido en verde
+.trip-review__button {
   display: grid;
   width: 100%;
-  height: 1.75rem; // 28px
-  border-radius: var(--radius-full);
-  background: var(--color-surface-subtle);
-  box-shadow: inset 0 0 0 var(--border-width-s) var(--color-border);
+  height: 2.25rem; // 36px
+  box-sizing: border-box;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s); // 8px
+  background: var(--color-surface);
   color: var(--color-text-muted);
-  font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
   place-items: center;
-  transition:
-    background-color 120ms ease,
-    transform 80ms ease;
+  transition: background-color 120ms ease;
 }
 
-.trip-review__step:active .trip-review__bar {
-  transform: scale(0.94);
+.trip-review__step--on .trip-review__button {
+  border-color: var(--color-success);
+  background: var(--color-success-subtle);
+  color: var(--color-success);
 }
 
-// Con ratón: al pasar por un tramo, se rellenan en verde claro hasta él
-@media (hover: hover) {
-  .trip-review__step:not(.trip-review__step--on):hover .trip-review__bar,
-  .trip-review__step:not(.trip-review__step--on):has(~ .trip-review__step:hover) .trip-review__bar {
-    background: var(--color-success-subtle);
-    color: var(--color-success);
-  }
-}
-
-.trip-review__step--on .trip-review__bar {
+.trip-review__step--current .trip-review__button {
   background: var(--color-success);
-  box-shadow: none;
   color: var(--color-on-success);
 }
 
+// Debajo, a 12px y centrado
 .trip-review__chosen {
   margin: 0;
+  font-size: var(--font-size-caption); // 12px
   text-align: center;
 }
 

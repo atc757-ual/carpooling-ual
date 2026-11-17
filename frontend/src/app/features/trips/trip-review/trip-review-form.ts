@@ -10,9 +10,9 @@ import {
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { RATING_MAX, ratingName } from '../../../shared/utils/rating.util';
 
-// Valorar a quien ha viajado contigo (RF-22): una barra de 5 tramos entre la
-// manita abajo y la manita arriba (de 1 a 5; escala del 15/11, barra del
-// 17/11), un comentario opcional que se abre al pedirlo y, en una fila,
+// Valorar a quien ha viajado contigo (RF-22): 5 botones con su número entre la
+// manita abajo y la manita arriba (de 1 a 5, decidido con el autor el 15/11),
+// un comentario opcional que se abre al pedirlo (17/11) y, en una fila,
 // «Ahora no» (si se puede dejar para luego) y «Enviar valoración».
 // En En curso al llegar y en el detalle del viaje terminado
 @Component({
