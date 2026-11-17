@@ -48,6 +48,7 @@ import { RatingBar } from '../../../shared/components/ui/rating-bar/rating-bar';
 import { ratingName } from '../../../shared/utils/rating.util';
 import { PassengerRequestActions } from '../passenger-requests/passenger-request-actions/passenger-request-actions';
 import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
+import { buildLiveShareText } from '../trip-share-text';
 import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 import { FilterChips } from '../../../shared/components/ui/filter-chips/filter-chips';
 import {
@@ -154,6 +155,19 @@ export class PassengerLiveTripPage {
     loader: ({ params }) => this.trips.getTrip(params),
   });
   readonly trip = computed(() => (this.tripResource.hasValue() ? this.tripResource.value() : null));
+  // Para compartir el viaje con alguien de confianza: el trayecto, quién
+  // conduce, el coche y la matrícula
+  readonly safetyShareText = computed(() => {
+    const trip = this.trip();
+    if (!trip) {
+      return '';
+    }
+    return buildLiveShareText(trip, {
+      name: trip.driver.name,
+      vehicleName: trip.vehicle ? vehicleDisplayName(trip.vehicle) : null,
+      plate: this.request()?.vehiclePlate ?? null,
+    });
+  });
 
   readonly isLive = computed(() => {
     const request = this.request();

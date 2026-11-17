@@ -86,16 +86,14 @@
             @switch (section.view.kind) {
               @case ('given') {
                 @if (section.view.kind === 'given' && section.view.review; as review) {
-                  <!-- Arriba, el aviso: publicada o a la espera del doble ciego -->
-                  <output class="notice notice--info">
-                    <span>
-                      @if (review.isPublished) {
-                        Tu valoración de {{ section.target.name }} ya está publicada.
-                      } @else {
-                        Se publicará cuando {{ section.target.name }} también valore o en 7 días.
-                      }
-                    </span>
-                  </output>
+                  <!-- Arriba, en texto: publicada o a la espera del doble ciego -->
+                  <p class="text-caption text-color-muted">
+                    @if (review.isPublished) {
+                      Tu valoración de {{ section.target.name }} ya está publicada.
+                    } @else {
+                      Se publicará cuando {{ section.target.name }} también valore o en 7 días.
+                    }
+                  </p>
                   <!-- Debajo, solo para leer: el comentario a la izquierda y la
                        manita con su texto a la derecha -->
                   <div class="trip-review-card__given">

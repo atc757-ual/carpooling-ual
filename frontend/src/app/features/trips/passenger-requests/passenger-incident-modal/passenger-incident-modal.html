@@ -7,8 +7,10 @@
   <!-- Sin título visible (el botón ya lo dice): solo para el lector de pantalla -->
   <h2 class="visually-hidden">{{ submitLabel }}</h2>
 
+  <!-- Aviso compacto (8px de relleno, texto pequeño) con el icono de revisión -->
   <output class="notice notice--info incident-modal__note">
-    <span>
+    <ion-icon [icon]="reviewIcon" aria-hidden="true" />
+    <span class="text-caption">
       @if (isDriver) {
         Se cancelará el viaje y tus pasajeros tendrán prioridad para buscar otro. Lo revisará un
         administrador.

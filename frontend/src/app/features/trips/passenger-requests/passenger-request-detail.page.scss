@@ -138,25 +138,62 @@ ion-card-content.passenger-detail__state {
   font-weight: var(--font-weight-semibold);
 }
 
-// «Alex ha empezado el viaje» con el coche a la derecha, también en el
-// móvil (el texto se parte en líneas, el botón no baja)
-.passenger-detail__live {
-  flex-wrap: nowrap;
-  align-items: center;
+// «Viaje y seguridad»: una lista con el título de cada fila (14px), su
+// explicación debajo y el botón de icono (.icon-btn, del tema) a la derecha
+.passenger-detail__safety {
+  margin: 0;
 
-  > span {
-    flex: 1;
-    min-width: 0;
+  ion-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
   }
 
-  > .icon-btn {
-    flex: none;
+  h2 {
+    margin: 0;
+    font-weight: var(--font-weight-semibold);
   }
 }
 
+.passenger-detail__items {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.passenger-detail__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+  padding-block: var(--space-s);
+
+  & + & {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}
+
+.passenger-detail__item-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+  min-width: 0;
+}
+
+.passenger-detail__item-title {
+  font-size: 0.875rem; // 14px
+  font-weight: var(--font-weight-semibold);
+}
+
+// En curso, la tarjeta de acciones se queda sin nada que mostrar: oculta
+.passenger-detail__hidden {
+  display: none;
+}
+
 // Dentro de «Tu recorrido», encima del mapa
-.passenger-detail__board-code,
-.passenger-detail__live-share {
+.passenger-detail__board-code {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);

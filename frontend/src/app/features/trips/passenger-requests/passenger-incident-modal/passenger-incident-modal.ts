@@ -1,7 +1,7 @@
 import { Component, computed, inject, Input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonButton, IonIcon, IonSpinner, IonTextarea, ModalController } from '@ionic/angular';
-import { alertCircleOutline } from 'ionicons/icons';
+import { alertCircleOutline, shieldCheckmarkOutline } from 'ionicons/icons';
 import { IncidentCategory } from '../../../../core/models/admin-incident.model';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { IncidentsService } from '../../../../core/services/incidents/incidents.service';
@@ -66,6 +66,7 @@ export class PassengerIncidentModal {
   readonly errorMessage = signal<string | null>(null);
 
   protected readonly alertIcon = alertCircleOutline;
+  protected readonly reviewIcon = shieldCheckmarkOutline;
   protected readonly minLength = INCIDENT_MIN_LENGTH;
   protected readonly maxLength = INCIDENT_MAX_LENGTH;
 

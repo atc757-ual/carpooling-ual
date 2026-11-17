@@ -1,121 +1,125 @@
-<ion-card class="passenger-route">
-  <ion-card-content>
-    <!-- Lo que pone la página arriba: el estado, el código y el seguimiento -->
-    <ng-content />
+@if (part() !== 'driver') {
+  <ion-card class="passenger-route">
+    <ion-card-content>
+      <!-- Lo que pone la página arriba: el estado, el código y el seguimiento -->
+      <ng-content />
 
-    <ion-card-title role="heading" aria-level="2">Tu recorrido</ion-card-title>
+      <ion-card-title role="heading" aria-level="2">Tu recorrido</ion-card-title>
 
-    @if (route(); as route) {
-      <app-trip-route-map
-        [route]="route"
-        [origin]="mapEnds().origin"
-        [pickups]="pickupPoints()"
-        [destination]="mapEnds().destination"
-      />
-    } @else if (routeResource.isLoading()) {
-      <output class="passenger-route__loading">
-        <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-caption text-color-muted">Cargando el mapa del viaje…</span>
-      </output>
-    } @else if (routeResource.error()) {
-      <p class="text-caption text-color-muted">No pudimos cargar el mapa de la ruta.</p>
-    }
-
-    <app-route-timeline [stops]="stops()" />
-
-    <!-- Los datos del trayecto, en una fila -->
-    <dl class="passenger-route__facts">
-      @for (fact of facts(); track fact.label) {
-        <div>
-          <dt class="text-caption">{{ fact.label }}</dt>
-          <dd class="text-body text-body--strong">{{ fact.value }}</dd>
-        </div>
+      @if (route(); as route) {
+        <app-trip-route-map
+          [route]="route"
+          [origin]="mapEnds().origin"
+          [pickups]="pickupPoints()"
+          [destination]="mapEnds().destination"
+        />
+      } @else if (routeResource.isLoading()) {
+        <output class="passenger-route__loading">
+          <ion-spinner name="crescent" aria-hidden="true" />
+          <span class="text-caption text-color-muted">Cargando el mapa del viaje…</span>
+        </output>
+      } @else if (routeResource.error()) {
+        <p class="text-caption text-color-muted">No pudimos cargar el mapa de la ruta.</p>
       }
-    </dl>
-  </ion-card-content>
-</ion-card>
 
-<ion-card class="passenger-route">
-  <ion-card-header>
-    <div class="passenger-route__driver-header">
-      <ion-card-title>Conductor y coche</ion-card-title>
-      @if (rating(); as ratingVal) {
-        <button
-          class="trip-driver__rating trip-driver__rating--button"
-          type="button"
-          [attr.aria-label]="'Valoración ' + ratingVal + ' de 5. Ver valoraciones'"
-          (click)="openReviews()"
-        >
-          <ion-icon
-            class="trip-driver__thumb"
-            [class.trip-driver__thumb--up]="(driver().rating ?? 0) >= 3"
-            [class.trip-driver__thumb--down]="(driver().rating ?? 0) < 3"
-            [icon]="(driver().rating ?? 0) >= 3 ? upIcon : downIcon"
-            aria-hidden="true"
-          />
-          <span>{{ ratingVal }}</span>
-        </button>
-      }
-    </div>
-  </ion-card-header>
-  <ion-card-content>
-    <div class="passenger-route__driver-row">
-      <app-trip-driver [driver]="driver()" [showRating]="false" />
-      @if (request().status === 'accepted') {
-        <div class="passenger-route__driver-actions">
-          @if (hasChat()) {
+      <app-route-timeline [stops]="stops()" />
+
+      <!-- Los datos del trayecto, en una fila -->
+      <dl class="passenger-route__facts">
+        @for (fact of facts(); track fact.label) {
+          <div>
+            <dt class="text-caption">{{ fact.label }}</dt>
+            <dd class="text-body text-body--strong">{{ fact.value }}</dd>
+          </div>
+        }
+      </dl>
+    </ion-card-content>
+  </ion-card>
+}
+
+@if (part() !== 'route') {
+  <ion-card class="passenger-route">
+    <ion-card-header>
+      <div class="passenger-route__driver-header">
+        <ion-card-title>Conductor y coche</ion-card-title>
+        @if (rating(); as ratingVal) {
+          <button
+            class="trip-driver__rating trip-driver__rating--button"
+            type="button"
+            [attr.aria-label]="'Valoración ' + ratingVal + ' de 5. Ver valoraciones'"
+            (click)="openReviews()"
+          >
+            <ion-icon
+              class="trip-driver__thumb"
+              [class.trip-driver__thumb--up]="(driver().rating ?? 0) >= 3"
+              [class.trip-driver__thumb--down]="(driver().rating ?? 0) < 3"
+              [icon]="(driver().rating ?? 0) >= 3 ? upIcon : downIcon"
+              aria-hidden="true"
+            />
+            <span>{{ ratingVal }}</span>
+          </button>
+        }
+      </div>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="passenger-route__driver-row">
+        <app-trip-driver [driver]="driver()" [showRating]="false" />
+        @if (request().status === 'accepted') {
+          <div class="passenger-route__driver-actions">
+            @if (hasChat()) {
+              <ion-button
+                class="passenger-route__chat-btn"
+                fill="clear"
+                size="small"
+                [routerLink]="['/tabs/messages', trip().id]"
+                [attr.aria-label]="chatDriverLabel()"
+                [title]="chatDriverLabel()"
+              >
+                <ion-icon slot="icon-only" [icon]="chatIcon" aria-hidden="true" />
+              </ion-button>
+            }
             <ion-button
-              class="passenger-route__chat-btn"
+              class="passenger-route__call-btn"
+              [class.passenger-route__call-btn--unavailable]="!canCallDriver()"
               fill="clear"
               size="small"
-              [routerLink]="['/tabs/messages', trip().id]"
-              [attr.aria-label]="chatDriverLabel()"
-              [title]="chatDriverLabel()"
+              [attr.aria-label]="callDriverLabel()"
+              [title]="callDriverLabel()"
+              (click)="handleCallDriver()"
             >
-              <ion-icon slot="icon-only" [icon]="chatIcon" aria-hidden="true" />
+              <ion-icon slot="icon-only" [icon]="callIcon" aria-hidden="true" />
             </ion-button>
-          }
-          <ion-button
-            class="passenger-route__call-btn"
-            [class.passenger-route__call-btn--unavailable]="!canCallDriver()"
-            fill="clear"
-            size="small"
-            [attr.aria-label]="callDriverLabel()"
-            [title]="callDriverLabel()"
-            (click)="handleCallDriver()"
-          >
-            <ion-icon slot="icon-only" [icon]="callIcon" aria-hidden="true" />
-          </ion-button>
-        </div>
-      }
-    </div>
-
-    @if (preferences().length > 0) {
-      <section class="passenger-route__preferences" aria-label="Preferencias del conductor">
-        @for (preference of preferences(); track preference) {
-          <span class="passenger-route__preference">{{ preference }}</span>
+          </div>
         }
-      </section>
-    }
+      </div>
 
-    @if (trip().vehicle; as vehicle) {
-      <div class="passenger-route__vehicle">
-        <ion-icon [icon]="carIcon" aria-hidden="true" />
-        <div>
-          <div class="text-body-s text-body--strong">{{ vehicleName(vehicle) }}</div>
-          <div class="text-caption text-color-muted">
-            <span
-              class="passenger-route__swatch"
-              [style.--swatch-color]="vehicleSwatch(vehicle.color)"
-              aria-hidden="true"
-            ></span>
-            {{ vehicleColor(vehicle.color) }}
-            @if (request().status === 'accepted' && request().vehiclePlate; as plate) {
-              · Matrícula <b>{{ plate }}</b>
-            }
+      @if (preferences().length > 0) {
+        <section class="passenger-route__preferences" aria-label="Preferencias del conductor">
+          @for (preference of preferences(); track preference) {
+            <span class="passenger-route__preference">{{ preference }}</span>
+          }
+        </section>
+      }
+
+      @if (trip().vehicle; as vehicle) {
+        <div class="passenger-route__vehicle">
+          <ion-icon [icon]="carIcon" aria-hidden="true" />
+          <div>
+            <div class="text-body-s text-body--strong">{{ vehicleName(vehicle) }}</div>
+            <div class="text-caption text-color-muted">
+              <span
+                class="passenger-route__swatch"
+                [style.--swatch-color]="vehicleSwatch(vehicle.color)"
+                aria-hidden="true"
+              ></span>
+              {{ vehicleColor(vehicle.color) }}
+              @if (request().status === 'accepted' && request().vehiclePlate; as plate) {
+                · Matrícula <b>{{ plate }}</b>
+              }
+            </div>
           </div>
         </div>
-      </div>
-    }
-  </ion-card-content>
-</ion-card>
+      }
+    </ion-card-content>
+  </ion-card>
+}

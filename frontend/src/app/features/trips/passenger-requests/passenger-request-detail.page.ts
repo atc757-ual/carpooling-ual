@@ -27,6 +27,7 @@ import {
   checkmarkCircleOutline,
   closeCircleOutline,
   informationCircleOutline,
+  paperPlaneOutline,
   personOutline,
   timeOutline,
 } from 'ionicons/icons';
@@ -40,10 +41,12 @@ import { formatTime } from '../../matching/trip-results';
 import { passengerRequestLabel, passengerTripTab } from '../my-trips/trip-tabs';
 import { PassengerProgress } from './passenger-progress/passenger-progress';
 import { PassengerRequestActions } from './passenger-request-actions/passenger-request-actions';
-import { TripLiveShare } from '../trip-live-share/trip-live-share';
 import { PassengerRequestRoute } from './passenger-request-route/passenger-request-route';
 import { TripReviewCard } from '../trip-review/trip-review-card';
-import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
+import { TripShareService } from '../../../core/services/trips/trip-share.service';
+import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
+import { buildLiveShareText } from '../trip-share-text';
+import { Trip } from '../../../core/models/driver.model';
 
 // Desde cuánto antes de la salida ve el pasajero su código de recogida
 const BOARD_CODE_LEAD_MS = 10 * 60_000;
@@ -68,8 +71,6 @@ const BOARD_CODE_LEAD_MS = 10 * 60_000;
     PassengerProgress,
     PassengerRequestRoute,
     PassengerRequestActions,
-    RevealOnTouch,
-    TripLiveShare,
     TripReviewCard,
   ],
   templateUrl: './passenger-request-detail.page.html',
@@ -79,9 +80,12 @@ export class PassengerRequestDetailPage {
   private readonly requests = inject(SeatRequestsService);
   private readonly trips = inject(TripsService);
   private readonly headingContent = inject(HeadingContentService);
+  private readonly tripShare = inject(TripShareService);
 
   readonly id = input.required<string>();
   private readonly requestHeading = viewChild.required<TemplateRef<unknown>>('requestHeading');
+  // Para abrir «Reportar» desde la lista «Viaje y seguridad»
+  protected readonly actions = viewChild(PassengerRequestActions);
 
   readonly requestResource = resource({
     params: () => this.id(),
@@ -210,10 +214,22 @@ export class PassengerRequestDetailPage {
     this.requestResource.reload();
   }
 
+  // Compartir el viaje con alguien de confianza (el menú del sistema): el
+  // trayecto, quién conduce, el coche y la matrícula
+  async handleShare(request: SeatRequest, trip: Trip): Promise<void> {
+    const text = buildLiveShareText(trip, {
+      name: trip.driver.name,
+      vehicleName: trip.vehicle ? vehicleDisplayName(trip.vehicle) : null,
+      plate: request.vehiclePlate ?? null,
+    });
+    await this.tripShare.share({ title: 'Mi viaje en Carpooling UAL', text });
+  }
+
   protected readonly firstName = (name: string) => getFirstName(name);
   protected readonly personIcon = personOutline;
   // El coche, como la pestaña «En curso»
   protected readonly liveIcon = carOutline;
+  protected readonly shareIcon = paperPlaneOutline;
   protected readonly alertIcon = alertCircleOutline;
   protected readonly pendingIcon = timeOutline;
   protected readonly acceptedIcon = checkmarkCircleOutline;

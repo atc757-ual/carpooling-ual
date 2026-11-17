@@ -70,6 +70,9 @@ export class PassengerRequestRoute {
 
   readonly request = input.required<SeatRequest>();
   readonly trip = input.required<Trip>();
+  // Qué tarjetas pinta: el recorrido, «Conductor y coche» o las dos (en el
+  // detalle de la solicitud, el conductor va en la columna de 4)
+  readonly part = input<'route' | 'driver' | 'all'>('all');
 
   readonly routeResource = resource({
     params: () => this.trip().id,
@@ -197,9 +200,8 @@ export class PassengerRequestRoute {
 
   async openReviews(): Promise<void> {
     const { id, name } = this.driver();
-    const { DriverReviewsModal } = await import(
-      '../../../matching/driver-reviews-modal/driver-reviews-modal'
-    );
+    const { DriverReviewsModal } =
+      await import('../../../matching/driver-reviews-modal/driver-reviews-modal');
     const modal = await this.modalController.create({
       component: DriverReviewsModal,
       cssClass: 'info-dialog',
@@ -212,8 +214,7 @@ export class PassengerRequestRoute {
     const { status: requestStatus } = this.request();
     const { status: tripStatus } = this.trip();
     return (
-      requestStatus === 'accepted' &&
-      (tripStatus === 'confirmed' || tripStatus === 'in_progress')
+      requestStatus === 'accepted' && (tripStatus === 'confirmed' || tripStatus === 'in_progress')
     );
   });
 
