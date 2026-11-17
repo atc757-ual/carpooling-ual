@@ -212,17 +212,13 @@
                         Termina el viaje para dejar de compartir tu ubicación.
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      class="icon-btn icon-btn--reveal"
-                      appRevealOnTouch
-                      aria-label="Terminar el viaje"
+                    <ion-button
+                      class="driver-live-trip__finish-btn"
                       [disabled]="isFinishing()"
                       (click)="handleFinish()"
                     >
-                      <ion-icon [icon]="finishIcon" aria-hidden="true" />
-                      <span class="icon-btn__label" aria-hidden="true">Terminar viaje</span>
-                    </button>
+                      {{ isFinishing() ? 'Comprobando…' : 'Terminar viaje' }}
+                    </ion-button>
                   </div>
                 </ion-card-content>
               </ion-card>
@@ -255,18 +251,26 @@
                 <!-- El título y, en escritorio, las flechas de anterior y
                      siguiente a su derecha (más fácil que arrastrar) -->
                 <div class="pickups-head">
-                  <h2 id="pickups-title" class="text-subtitle">
-                    Recogidas
+                  <!-- El título y, debajo, cuántos van; a la derecha, la etiqueta
+                       de que se comparte la ubicación (y en escritorio, las flechas) -->
+                  <div class="pickups-head__text">
+                    <h2 id="pickups-title" class="text-subtitle">Recogidas</h2>
                     @if (passengers().length > 0) {
-                      <span class="text-caption text-color-muted">
-                        · {{ onBoardCount() }} de {{ passengers().length }} en el coche
+                      <p class="text-caption text-color-muted">
+                        {{ onBoardCount() }} de {{ passengers().length }} en el coche
                         @if (droppedOffCount() > 0) {
                           · {{ droppedOffCount() }}
                           {{ droppedOffCount() === 1 ? 'se ha bajado' : 'se han bajado' }}
                         }
-                      </span>
+                      </p>
                     }
-                  </h2>
+                  </div>
+                  @if (isSharing()) {
+                    <span class="pickups-head__tag text-caption">
+                      <ion-icon [icon]="locationIcon" aria-hidden="true" />
+                      Compartiendo ubicación con pasajeros
+                    </span>
+                  }
                   @if (passengers().length > 1) {
                     <div class="pickups-head__arrows">
                       <button
@@ -482,50 +486,55 @@
                 </a>
               </div>
 
+              <!-- Cada pastilla, en su tarjeta, como en el pasajero: el título
+                   arriba y, debajo, el texto y el botón a la derecha -->
               @switch (sheetTab()) {
                 @case ('finish') {
                   <!-- Terminar antes de llegar (con su confirmación) -->
-                  <div class="live-alert__row">
-                    <div class="live-alert__text">
+                  <ion-card class="driver-live-trip__panel">
+                    <ion-card-content>
                       <h2 class="text-subtitle">¿Quieres terminar el viaje?</h2>
-                      <p class="text-caption text-color-muted">
-                        Hazlo cuando hayas dejado a todos: tus pasajeros dejarán de ver dónde estás.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      class="icon-btn icon-btn--labeled driver-live-trip__finish-btn"
-                      [disabled]="isFinishing()"
-                      (click)="handleFinish()"
-                    >
-                      <ion-icon [icon]="finishIcon" aria-hidden="true" />
-                      {{ isFinishing() ? 'Comprobando…' : 'Terminar viaje' }}
-                    </button>
-                  </div>
+                      <div class="driver-live-trip__row">
+                        <p class="text-body-s text-color-muted">
+                          Hazlo cuando hayas dejado a todos: tus pasajeros dejarán de ver dónde
+                          estás.
+                        </p>
+                        <ion-button
+                          class="driver-live-trip__finish-btn"
+                          [disabled]="isFinishing()"
+                          (click)="handleFinish()"
+                        >
+                          {{ isFinishing() ? 'Comprobando…' : 'Terminar viaje' }}
+                        </ion-button>
+                      </div>
+                    </ion-card-content>
+                  </ion-card>
                 }
                 @case ('actions') {
                   <!-- Reportar: abre el formulario de la incidencia en la hoja -->
-                  <div class="live-alert__row">
-                    <div class="live-alert__text">
+                  <ion-card class="driver-live-trip__panel">
+                    <ion-card-content>
                       <h2 class="text-subtitle">¿Algo va mal?</h2>
-                      <p class="text-caption text-color-muted">
-                        Si no puedes seguir, repórtalo: cancelaremos el viaje y lo revisaremos.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      class="icon-btn icon-btn--reveal"
-                      appRevealOnTouch
-                      aria-label="Enviar un reporte: abre el formulario de la incidencia"
-                      (click)="isReportingIncident.set(true)"
-                    >
-                      <ion-icon [icon]="reportIcon" aria-hidden="true" />
-                      <span class="icon-btn__label" aria-hidden="true">Enviar reporte</span>
-                    </button>
-                  </div>
+                      <div class="driver-live-trip__row">
+                        <p class="text-body-s text-color-muted">
+                          Si no puedes seguir, repórtalo: cancelaremos el viaje y lo revisaremos.
+                        </p>
+                        <button
+                          type="button"
+                          class="icon-btn icon-btn--reveal"
+                          appRevealOnTouch
+                          aria-label="Enviar un reporte: abre el formulario de la incidencia"
+                          (click)="isReportingIncident.set(true)"
+                        >
+                          <ion-icon [icon]="reportIcon" aria-hidden="true" />
+                          <span class="icon-btn__label" aria-hidden="true">Enviar reporte</span>
+                        </button>
+                      </div>
+                    </ion-card-content>
+                  </ion-card>
                 }
                 @default {
-                  <app-live-trip-safety [isInline]="true" [shareText]="safetyShareText()" />
+                  <app-live-trip-safety [shareText]="safetyShareText()" />
                 }
               }
             </div>

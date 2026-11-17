@@ -1,32 +1,25 @@
-@if (isInline()) {
-  <!-- Conductor (en la pastilla «Seguridad»): el texto y, a la derecha,
-       compartir el viaje, que muestra su texto al pasar o con el primer toque.
-       El SOS va en la esquina de las pastillas -->
-  <div class="live-safety-inline">
-    <div class="live-safety-inline__text">
-      <h2 class="text-subtitle">Viaje seguro</h2>
-      <p class="text-caption text-color-muted">Comparte tu viaje con alguien de confianza.</p>
-    </div>
-    <button
-      type="button"
-      class="icon-btn icon-btn--reveal"
-      appRevealOnTouch
-      aria-label="Compartir el viaje con alguien de confianza"
-      (click)="handleShare()"
-    >
-      <ion-icon [icon]="shareIcon" aria-hidden="true" />
-      <span class="icon-btn__label" aria-hidden="true">Compartir viaje</span>
-    </button>
-  </div>
-} @else {
-  <ion-card class="live-safety" role="region" aria-labelledby="live-safety-title">
-    <ion-card-content>
-      <h2 id="live-safety-title" class="text-subtitle">Viaje seguro</h2>
-      <!-- Pasajero: el enlace en directo con alguien de confianza (el SOS va en
-           la esquina de las pastillas de la hoja) -->
-      @if (liveShareTripId(); as tripId) {
-        <app-trip-live-share [tripId]="tripId" [isCompact]="true" />
-      }
-    </ion-card-content>
-  </ion-card>
-}
+<ion-card class="live-safety" role="region" aria-labelledby="live-safety-title">
+  <ion-card-content>
+    <h2 id="live-safety-title" class="text-subtitle">Viaje seguro</h2>
+    @if (liveShareTripId(); as tripId) {
+      <!-- Pasajero: el enlace en directo con alguien de confianza -->
+      <app-trip-live-share [tripId]="tripId" [isCompact]="true" />
+    } @else {
+      <!-- Conductor: el texto y, a la derecha, compartir el viaje (muestra su
+           texto al pasar o con el primer toque) -->
+      <div class="live-safety__row">
+        <p class="text-body-s text-color-muted">Comparte tu viaje con alguien de confianza.</p>
+        <button
+          type="button"
+          class="icon-btn icon-btn--reveal"
+          appRevealOnTouch
+          aria-label="Compartir el viaje con alguien de confianza"
+          (click)="handleShare()"
+        >
+          <ion-icon [icon]="shareIcon" aria-hidden="true" />
+          <span class="icon-btn__label" aria-hidden="true">Compartir viaje</span>
+        </button>
+      </div>
+    }
+  </ion-card-content>
+</ion-card>

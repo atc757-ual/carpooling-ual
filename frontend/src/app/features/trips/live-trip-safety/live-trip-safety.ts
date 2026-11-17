@@ -5,10 +5,10 @@ import { TripShareService } from '../../../core/services/trips/trip-share.servic
 import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 import { TripLiveShare } from '../trip-live-share/trip-live-share';
 
-// Seguridad durante el viaje en curso. Conductor (en línea, en la pastilla
-// «Seguridad»): compartir el viaje con alguien de confianza (el menú del
-// sistema o WhatsApp). Pasajero (tarjeta «Viaje seguro»): el enlace en
-// directo. El 112 va en la esquina de las pastillas de cada pantalla
+// «Viaje seguro» en el viaje en curso, como las demás tarjetas de la hoja.
+// Pasajero: el enlace en directo. Conductor: compartir el viaje con alguien de
+// confianza (el menú del sistema o WhatsApp). El 112 va en la esquina de las
+// pastillas de cada pantalla
 @Component({
   selector: 'app-live-trip-safety',
   imports: [IonCard, IonCardContent, IonIcon, RevealOnTouch, TripLiveShare],
@@ -22,8 +22,6 @@ export class LiveTripSafety {
   readonly shareText = input('');
   // Pasajero: el enlace en directo de este viaje
   readonly liveShareTripId = input<string | null>(null);
-  // Conductor: la fila de compartir, sin tarjeta
-  readonly isInline = input(false);
 
   protected readonly shareIcon = paperPlaneOutline;
 

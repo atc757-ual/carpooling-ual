@@ -19,7 +19,6 @@ import {
   chevronBackOutline,
   chevronForwardOutline,
   documentTextOutline,
-  flagOutline,
   homeOutline,
   locationOutline,
   personRemoveOutline,
@@ -279,7 +278,6 @@ export class DriverLiveTripPage {
   protected readonly previousIcon = chevronBackOutline;
   protected readonly nextIcon = chevronForwardOutline;
   protected readonly reportIcon = documentTextOutline;
-  protected readonly finishIcon = flagOutline;
   protected readonly finishedIcon = checkmarkCircle;
   protected readonly noShowIcon = personRemoveOutline;
   protected readonly dropOffIcon = walkOutline;

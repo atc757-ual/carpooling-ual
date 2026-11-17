@@ -27,8 +27,8 @@ describe('LiveTripSafety', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  it('shares the trip text from the driver icons', () => {
-    const root = render({ isInline: true, shareText: SHARE_TEXT });
+  it('shares the trip text from the driver row', () => {
+    const root = render({ shareText: SHARE_TEXT });
 
     root
       .querySelector<HTMLElement>('[aria-label="Compartir el viaje con alguien de confianza"]')
@@ -45,6 +45,6 @@ describe('LiveTripSafety', () => {
 
     expect(root.textContent).toContain('Viaje seguro');
     expect(root.querySelector('app-trip-live-share')).not.toBeNull();
-    expect(root.querySelector('.live-safety-inline')).toBeNull();
+    expect(root.querySelector('.live-safety__row')).toBeNull();
   });
 });

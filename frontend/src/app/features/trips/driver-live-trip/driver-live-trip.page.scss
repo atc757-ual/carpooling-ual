@@ -135,16 +135,18 @@
     opacity: 1;
   }
 
-  // En el coche: en azul claro, con relleno para que el texto no toque el
-  // borde del fondo
+  // En el coche: en azul claro con el borde azul, con relleno para que el
+  // texto no toque el borde
   &--done {
     padding: var(--space-s);
+    border: var(--border-width-s) solid var(--color-primary);
     background: var(--color-primary-subtle);
     opacity: 1;
   }
 
-  // Ya se bajó (también lleva --done): en verde claro
+  // Ya se bajó (también lleva --done): en verde claro con el borde verde
   &--off {
+    border-color: var(--color-success);
     background: var(--color-success-subtle);
   }
 }
@@ -207,11 +209,38 @@
   display: flex;
   align-items: center;
   gap: var(--space-s);
+}
 
-  h2 {
-    flex: 1;
-    min-width: 0;
+.pickups-head__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+  min-width: 0;
+
+  h2,
+  p {
     margin: 0;
+  }
+}
+
+// «Compartiendo ubicación con pasajeros»: una etiqueta pequeña, azul muy
+// claro con el texto azul, que se parte en dos líneas si no cabe
+.pickups-head__tag {
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: var(--space-xs);
+  max-width: 50%;
+  padding: 0.125rem var(--space-s); // 2px 8px
+  border-radius: var(--radius-s);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+
+  ion-icon {
+    flex: none;
   }
 }
 
@@ -407,9 +436,21 @@
 .driver-live-trip__choice {
   display: flex;
   flex-direction: column;
-  gap: var(--space-s);
   min-width: 0;
-  padding-block: calc(var(--space-s) + var(--space-xs)); // 12px
+  padding-top: calc(var(--space-s) + var(--space-xs)); // 12px
+}
+
+// En una pastilla: el texto a la izquierda y el botón a la derecha, a 16px
+.driver-live-trip__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+
+  p {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
 }
 
 .driver-live-trip__choice-bar {
@@ -431,12 +472,10 @@ ion-card.live-alert.live-alert[class] {
 
 @include live-column.alert-layout;
 
-// «Terminar viaje» de la pastilla «Viaje»: con su texto, al alto de los
-// demás botones (44px). Con las dos clases, para ganar a .icon-btn--labeled
-.icon-btn.driver-live-trip__finish-btn {
+// «Terminar viaje»: botón azul con su texto (sin icono), del alto de los
+// demás botones (44px), a la derecha
+ion-button.driver-live-trip__finish-btn {
+  flex: none;
   height: 2.75rem; // 44px
-  padding-inline: var(--space-base);
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-semibold);
-  white-space: nowrap;
+  margin: 0;
 }
