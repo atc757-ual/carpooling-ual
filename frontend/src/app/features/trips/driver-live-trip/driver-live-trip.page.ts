@@ -203,6 +203,8 @@ export class DriverLiveTripPage {
   // Recién terminado aquí: la hoja enseña el aviso y la valoración de los
   // pasajeros en lugar de salir enseguida
   readonly justFinished = signal(false);
+  // Ya valoró (o dejó para luego) a todos: entonces sale «Volver a Tus viajes»
+  readonly areReviewsDone = signal(false);
   readonly reviewTargets = computed<ReviewTarget[]>(() =>
     this.passengers().map((request) => ({
       id: request.passenger.id,

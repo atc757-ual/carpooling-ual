@@ -1,4 +1,13 @@
-import { Component, computed, inject, input, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  resource,
+  signal,
+} from '@angular/core';
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSpinner } from '@ionic/angular';
 import {
   GivenReview,
@@ -48,6 +57,8 @@ export class TripReviewCard {
   // que falta, con «1 de 2» y «Ahora no»; al acabar, un resumen en una línea
   // por persona. Si no, todos a la vez (en el detalle del viaje)
   readonly isStepped = input(false);
+  // De uno en uno: ya no queda nadie por valorar (cargadas y sin pendientes)
+  readonly stepsDone = output<void>();
 
   private readonly loaded = resource({
     params: () => ({ tripId: this.tripId(), role: this.targetRole() }),
@@ -106,6 +117,14 @@ export class TripReviewCard {
   readonly skipped = this.skippedIds.asReadonly();
 
   protected readonly ratingName = ratingName;
+
+  constructor() {
+    effect(() => {
+      if (this.isStepped() && this.sections().length > 0 && this.currentStep() === null) {
+        this.stepsDone.emit();
+      }
+    });
+  }
 
   handleSent(targetId: string, review: GivenReview | null): void {
     this.justSent.update((current) => new Map(current).set(targetId, review));

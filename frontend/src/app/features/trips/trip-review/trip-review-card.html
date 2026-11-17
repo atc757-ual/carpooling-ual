@@ -1,15 +1,20 @@
 <ion-card class="trip-review-card">
   <ion-card-header>
-    <ion-card-title>{{ title() }}</ion-card-title>
+    <!-- De uno en uno, «1 de 2» a la derecha del título -->
+    <div class="trip-review-card__head">
+      <ion-card-title>{{ title() }}</ion-card-title>
+      @if (isStepped() && currentStep(); as step) {
+        @if (step.total > 1) {
+          <span class="text-caption text-color-muted">{{ step.number }} de {{ step.total }}</span>
+        }
+      }
+    </div>
   </ion-card-header>
   <ion-card-content>
     @if (isStepped() && sections().length > 0) {
       <!-- De uno en uno: el que toca, con su número; al acabar, el resumen -->
       @if (currentStep(); as step) {
         <section class="trip-review-card__section" [attr.aria-label]="step.target.name">
-          @if (step.total > 1) {
-            <p class="text-caption text-color-muted">{{ step.number }} de {{ step.total }}</p>
-          }
           <!-- Un formulario nuevo por persona (track por su id): sin la nota
                de la anterior -->
           @for (current of [step]; track current.target.id) {

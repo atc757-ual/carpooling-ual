@@ -31,6 +31,14 @@ ion-card.trip-review-card ion-card-content {
   }
 }
 
+// El título y, a la derecha, «1 de 2»
+.trip-review-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
 // De uno en uno, al acabar: una línea por persona, el nombre a la izquierda y
 // la nota (o «Más tarde») a la derecha
 .trip-review-card__summary {
