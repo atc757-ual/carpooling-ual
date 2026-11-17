@@ -57,7 +57,8 @@
   border-radius: var(--radius-s);
   cursor: pointer;
 
-  &:focus-within {
+  // El anillo de foco solo con teclado (al tocar con el dedo, no)
+  &:has(:focus-visible) {
     outline: var(--border-width-m) solid var(--color-focus-ring);
     outline-offset: 2px;
   }
