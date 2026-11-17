@@ -32,8 +32,9 @@ export function injectIsDesktop(): Signal<boolean> {
 
 // En el móvil, los detalles de «En curso» van en una hoja inferior que se
 // arrastra (live-sheet): alturas, en fracción de la pantalla, casi cerrada,
-// a media pantalla o abierta; se abre a media pantalla
-export const LIVE_SHEET_BREAKPOINTS = [0.2, 0.45, 0.92];
+// a media pantalla, a dos tercios o abierta, para que crezca por tramos
+// parecidos y no salte de la mitad a casi todo el alto; se abre a la mitad
+export const LIVE_SHEET_BREAKPOINTS = [0.2, 0.45, 0.68, 0.92];
 export const LIVE_SHEET_INITIAL_BREAKPOINT = 0.45;
 
 // Lo que tapa la hoja (px) a una altura dada, para encuadrar el mapa encima
