@@ -1,28 +1,41 @@
 <ion-card class="live-safety" role="region" aria-labelledby="live-safety-title">
   <ion-card-content>
     <h2 id="live-safety-title" class="text-subtitle">Tu seguridad</h2>
-    <p class="text-body-s text-color-muted">
-      Comparte el viaje con alguien de confianza y, si hay una emergencia, llama al 112.
-    </p>
-    @if (liveShareTripId(); as tripId) {
-      <!-- Pasajero: el enlace en directo, y el 112 debajo -->
-      <app-trip-live-share [tripId]="tripId" />
-      <ion-button color="danger" href="tel:112">
-        <ion-icon slot="start" [icon]="callIcon" aria-hidden="true" />
-        Llamar al 112
-      </ion-button>
-    } @else {
-      <div class="live-safety__actions">
-        <ion-button fill="outline" (click)="handleShare()">
-          <ion-icon slot="start" [icon]="shareIcon" aria-hidden="true" />
-          Compartir viaje
-        </ion-button>
+    <!-- El texto a la izquierda y, a la derecha, botones redondos: compartir
+         (el avión de papel) y el SOS rojo, que llama al 112 -->
+    <div class="live-safety__row">
+      <p class="text-body-s text-color-muted">
+        @if (liveShareTripId()) {
+          Comparte tu viaje en directo o llama al 112 si hay una emergencia.
+        } @else {
+          Comparte el viaje con alguien de confianza o llama al 112 si hay una emergencia.
+        }
+      </p>
+      <div class="live-safety__buttons">
+        @if (liveShareTripId(); as tripId) {
+          <!-- Pasajero: el enlace en directo -->
+          <app-trip-live-share [tripId]="tripId" [isCompact]="true" />
+        } @else {
+          <button
+            type="button"
+            class="live-safety__share"
+            aria-label="Compartir el viaje con alguien de confianza"
+            title="Compartir el viaje"
+            (click)="handleShare()"
+          >
+            <ion-icon [icon]="shareIcon" aria-hidden="true" />
+          </button>
+        }
         <!-- 112: el teléfono único de emergencias en Europa -->
-        <ion-button color="danger" href="tel:112">
-          <ion-icon slot="start" [icon]="callIcon" aria-hidden="true" />
-          Llamar al 112
-        </ion-button>
+        <a
+          class="live-safety__sos"
+          href="tel:112"
+          aria-label="SOS: llamar al 112"
+          title="Llamar al 112"
+        >
+          SOS
+        </a>
       </div>
-    }
+    </div>
   </ion-card-content>
 </ion-card>

@@ -157,11 +157,25 @@
                         </p>
                       }
                       @case ('early') {
+                        <!-- Discreto: el texto y, a la derecha, el botón redondo -->
                         <h2 id="ride-arrive-title" class="text-subtitle">¿Te has bajado antes?</h2>
-                        <p class="text-caption text-color-muted">
-                          Márcalo si te has bajado antes del campus. Si no, te lo pediremos al
-                          llegar.
-                        </p>
+                        <div class="ride__arrive-row">
+                          <p class="text-caption text-color-muted">
+                            Márcalo si te has bajado antes del campus. Si no, te lo pediremos al
+                            llegar.
+                          </p>
+                          <form (submit)="handleArrive($event)">
+                            <button
+                              type="submit"
+                              class="ride__icon-btn"
+                              aria-label="He llegado: ya me he bajado"
+                              title="He llegado"
+                              [disabled]="isArriving()"
+                            >
+                              <ion-icon [icon]="arrivedIcon" aria-hidden="true" />
+                            </button>
+                          </form>
+                        </div>
                       }
                       @default {
                         <h2 id="ride-arrive-title" class="text-subtitle">¿Ya te has bajado?</h2>
@@ -171,17 +185,14 @@
                         </p>
                       }
                     }
-                    <form (submit)="handleArrive($event)">
-                      <ion-button
-                        type="submit"
-                        expand="block"
-                        [fill]="variant === 'early' ? 'outline' : 'solid'"
-                        [disabled]="isArriving()"
-                      >
-                        <ion-icon slot="start" [icon]="arrivedIcon" aria-hidden="true" />
-                        {{ variant === 'near' ? 'Sí, he llegado' : 'He llegado' }}
-                      </ion-button>
-                    </form>
+                    @if (variant !== 'early') {
+                      <form (submit)="handleArrive($event)">
+                        <ion-button type="submit" expand="block" [disabled]="isArriving()">
+                          <ion-icon slot="start" [icon]="arrivedIcon" aria-hidden="true" />
+                          {{ variant === 'near' ? 'Sí, he llegado' : 'He llegado' }}
+                        </ion-button>
+                      </form>
+                    }
                   </ion-card-content>
                 </ion-card>
               </ng-template>

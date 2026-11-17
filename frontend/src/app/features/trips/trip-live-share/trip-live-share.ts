@@ -1,6 +1,11 @@
 import { Component, inject, input, linkedSignal, resource, signal } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular';
-import { closeCircleOutline, radioOutline, shareSocialOutline } from 'ionicons/icons';
+import {
+  closeCircleOutline,
+  paperPlaneOutline,
+  radioOutline,
+  shareSocialOutline,
+} from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { TripLiveShareService } from '../../../core/services/trips/trip-live-share.service';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
@@ -26,6 +31,8 @@ export class TripLiveShare {
   private readonly toast = inject(ToastService);
 
   readonly tripId = input.required<string>();
+  // Compacto: solo botones redondos con icono (en «En curso», junto al SOS)
+  readonly isCompact = input(false);
 
   // El enlace que este dispositivo está compartiendo (el servidor no lo guarda)
   private readonly storedLink = resource({
@@ -40,6 +47,7 @@ export class TripLiveShare {
   protected readonly shareIcon = shareSocialOutline;
   protected readonly liveIcon = radioOutline;
   protected readonly stopIcon = closeCircleOutline;
+  protected readonly sendIcon = paperPlaneOutline;
 
   async handleStart(): Promise<void> {
     await this.run(async () => {

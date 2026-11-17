@@ -1,6 +1,6 @@
 // «En curso» del pasajero. En el móvil, el mapa a toda la pantalla y los
 // detalles en la hoja inferior (live-sheet, en el tema); en escritorio, el
-// mapa a la izquierda (8) y la columna de 4 a la derecha, fija al bajar
+// mapa a la izquierda (8) y la columna de 4 a la derecha
 .ride {
   box-sizing: border-box;
   width: 100%;
@@ -96,6 +96,22 @@ ion-card-content.ride__state {
 
 // El conductor: debajo del título, quién conduce y la matrícula (la placa de
 // editar el coche) con el modelo, y chat y llamar a la derecha, a su altura
+// «¿Te has bajado antes?»: el texto y, a la derecha, el botón redondo
+.ride__arrive-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base); // 16px entre el texto y el botón
+
+  p {
+    flex: 1;
+    min-width: 0;
+  }
+
+  form {
+    flex: none;
+  }
+}
+
 .ride__driver-row {
   display: flex;
   align-items: center;
@@ -217,10 +233,8 @@ ion-card-content.ride__state {
     gap: var(--space-l);
   }
 
-  .ride__side {
-    position: sticky;
-    top: var(--space-l);
-  }
+  // La columna de 4 baja con la página (fija, si era más alta que la
+  // pantalla, su final no se llegaba a ver)
 }
 
 // Ha llegado: el ✓ verde con el aviso y, debajo, la valoración del conductor

@@ -1,4 +1,46 @@
-@if (activeLink()) {
+@if (isCompact()) {
+  <!-- Compacto (en «En curso», junto al SOS): botones redondos con icono; al
+       compartir, la etiqueta «En directo», reenviar y dejar de compartir -->
+  <div class="live-share-compact">
+    @if (activeLink()) {
+      <span class="live-share__badge text-caption">
+        <span class="live-share__dot" aria-hidden="true"></span>
+        En directo
+      </span>
+      <button
+        type="button"
+        class="live-share__icon-btn"
+        aria-label="Enviar el enlace de tu viaje en directo"
+        title="Enviar el enlace"
+        [disabled]="isBusy()"
+        (click)="handleResend()"
+      >
+        <ion-icon [icon]="sendIcon" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        class="live-share__icon-btn"
+        aria-label="Dejar de compartir tu viaje"
+        title="Dejar de compartir"
+        [disabled]="isBusy()"
+        (click)="handleStop()"
+      >
+        <ion-icon [icon]="stopIcon" aria-hidden="true" />
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="live-share__icon-btn"
+        aria-label="Compartir mi viaje en directo (se abre sin cuenta)"
+        title="Compartir mi viaje en directo"
+        [disabled]="isBusy()"
+        (click)="handleStart()"
+      >
+        <ion-icon [icon]="sendIcon" aria-hidden="true" />
+      </button>
+    }
+  </div>
+} @else if (activeLink()) {
   <div class="live-share live-share--active">
     <!-- La etiqueta «En directo» con el punto que late y, debajo, qué supone -->
     <output class="live-share__status">

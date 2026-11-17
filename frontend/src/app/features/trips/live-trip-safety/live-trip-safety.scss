@@ -1,5 +1,6 @@
-// Como las demás tarjetas del viaje en curso: el título, el texto en gris y
-// los dos botones a la par (uno debajo del otro si no caben)
+// Como las demás tarjetas del viaje en curso: el título y, en una fila, el
+// texto en gris y los botones redondos (compartir y SOS)
+
 :host {
   display: block;
 }
@@ -20,13 +21,68 @@ ion-card-content {
   }
 }
 
-.live-safety__actions {
+// El texto a la izquierda y los botones a la derecha; si no caben (p. ej. con
+// «En directo»), los botones bajan a su propia fila
+.live-safety__row {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-s);
+  align-items: center;
+  gap: var(--space-s) var(--space-base); // 16px entre el texto y los botones
 
-  ion-button {
-    flex: 1 1 10rem; // 160px: los dos en una fila desde unos 340px de ancho
+  p {
+    flex: 1 1 10rem; // 160px
+    min-width: 0;
     margin: 0;
+  }
+}
+
+.live-safety__buttons {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-left: auto;
+}
+
+// Compartir: redondo de 44px con borde, como chat y llamar
+.live-safety__share {
+  display: grid;
+  box-sizing: border-box;
+  width: 2.75rem; // 44px
+  height: 2.75rem;
+  padding: 0;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-link);
+  cursor: pointer;
+  place-items: center;
+
+  ion-icon {
+    font-size: 1.25rem; // 20px
+  }
+}
+
+// SOS: redondo, en rojo y con el texto en negrita; llama al 112
+.live-safety__sos {
+  display: grid;
+  box-sizing: border-box;
+  width: 2.75rem; // 44px
+  height: 2.75rem;
+  border-radius: var(--radius-full);
+  background: var(--color-danger);
+  color: var(--color-on-danger);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+  place-items: center;
+  text-decoration: none;
+}
+
+.live-safety__share,
+.live-safety__sos {
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus-ring);
+    outline-offset: 2px;
   }
 }

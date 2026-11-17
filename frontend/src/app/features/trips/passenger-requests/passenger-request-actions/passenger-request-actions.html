@@ -4,16 +4,23 @@
   </ion-card-header>
   <ion-card-content>
     @if (isTripInProgress()) {
-      <ion-button
-        class="passenger-actions__incident-btn"
-        type="button"
-        fill="outline"
-        expand="block"
-        (click)="openIncidentModal()"
-      >
-        <ion-icon slot="start" [icon]="alertIcon" aria-hidden="true" />
-        Bajarme y registrar incidencia
-      </ion-button>
+      <!-- La frase explica qué hacer (bajarse y contarlo) y, a la derecha,
+           «Reportar», que abre el formulario de la incidencia -->
+      <div class="passenger-actions__incident">
+        <p class="text-body-s text-color-muted">
+          Si algo va mal, bájate cuando sea seguro y cuéntanoslo: lo revisaremos.
+        </p>
+        <ion-button
+          class="passenger-actions__incident-btn"
+          type="button"
+          fill="outline"
+          aria-label="Reportar: bajarme y registrar una incidencia"
+          (click)="openIncidentModal()"
+        >
+          <ion-icon slot="start" [icon]="alertIcon" aria-hidden="true" />
+          Reportar
+        </ion-button>
+      </div>
     }
 
     @if (canCancel()) {

@@ -19,6 +19,24 @@ ion-card.passenger-actions ion-card-content {
   }
 }
 
+// La frase de qué hacer a la izquierda y «Reportar» a la derecha, con 16px
+// entre los dos
+.passenger-actions__incident {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+
+  p {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
+
+  ion-button {
+    flex: none;
+  }
+}
+
 .passenger-actions__block {
   display: flex;
   flex-direction: column;

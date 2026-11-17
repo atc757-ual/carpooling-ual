@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
-import { IonButton, IonCard, IonCardContent, IonIcon } from '@ionic/angular';
-import { callOutline, shareSocialOutline } from 'ionicons/icons';
+import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
+import { paperPlaneOutline } from 'ionicons/icons';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { TripLiveShare } from '../trip-live-share/trip-live-share';
 
@@ -10,7 +10,7 @@ import { TripLiveShare } from '../trip-live-share/trip-live-share';
 // confirma, así que un toque sin querer no llama
 @Component({
   selector: 'app-live-trip-safety',
-  imports: [IonButton, IonCard, IonCardContent, IonIcon, TripLiveShare],
+  imports: [IonCard, IonCardContent, IonIcon, TripLiveShare],
   templateUrl: './live-trip-safety.html',
   styleUrl: './live-trip-safety.scss',
 })
@@ -22,8 +22,7 @@ export class LiveTripSafety {
   // Pasajero: en vez del texto, el enlace en directo de este viaje
   readonly liveShareTripId = input<string | null>(null);
 
-  protected readonly shareIcon = shareSocialOutline;
-  protected readonly callIcon = callOutline;
+  protected readonly shareIcon = paperPlaneOutline;
 
   async handleShare(): Promise<void> {
     await this.tripShare.share({ title: 'Mi viaje en Carpooling UAL', text: this.shareText() });

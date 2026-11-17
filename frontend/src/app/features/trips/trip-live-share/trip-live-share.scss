@@ -89,3 +89,39 @@
     }
   }
 }
+
+// Compacto: la etiqueta y los botones redondos en fila, a la derecha
+.live-share-compact {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+// Redondo de 44px con borde, como chat y llamar
+.live-share__icon-btn {
+  display: grid;
+  box-sizing: border-box;
+  width: 2.75rem; // 44px
+  height: 2.75rem;
+  padding: 0;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-link);
+  cursor: pointer;
+  place-items: center;
+
+  ion-icon {
+    font-size: 1.25rem; // 20px
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    color: var(--color-text-disabled);
+    cursor: default;
+  }
+}

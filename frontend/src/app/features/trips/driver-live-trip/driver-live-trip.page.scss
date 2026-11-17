@@ -367,10 +367,8 @@
     gap: var(--space-l);
   }
 
-  .driver-live-trip__side {
-    position: sticky;
-    top: var(--space-l);
-  }
+  // La columna de 4 baja con la página (fija, si era más alta que la
+  // pantalla, su final no se llegaba a ver)
 }
 
 // «La pantalla no se apagará…», debajo y en gris
