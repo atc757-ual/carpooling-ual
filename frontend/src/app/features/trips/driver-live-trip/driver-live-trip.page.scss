@@ -1,3 +1,5 @@
+@use '../live-desktop-column' as live-column;
+
 // Viaje en curso del conductor. En el móvil, el mapa a toda la pantalla y
 // los detalles en la hoja inferior (live-sheet, en el tema); en escritorio,
 // el mapa a la izquierda (8) y los detalles a la derecha (4), fijos al bajar
@@ -333,6 +335,17 @@
 
   // La columna de 4 baja con la página (fija, si era más alta que la
   // pantalla, su final no se llegaba a ver)
+
+  // Cada columna, una sola tarjeta (_live-desktop-column.scss)
+  .driver-live-trip__column,
+  .driver-live-trip__side {
+    @include live-column.card;
+  }
+
+  // El mapa, con 16px abajo dentro de la tarjeta de la columna
+  .driver-live-trip__main ion-card-content[class] {
+    padding-bottom: var(--space-base);
+  }
 }
 
 // «La pantalla no se apagará…», debajo y en gris

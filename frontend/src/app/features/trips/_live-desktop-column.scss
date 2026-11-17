@@ -1,0 +1,29 @@
+// «En curso» en escritorio (pasajero y conductor): cada columna se ve como
+// una sola tarjeta (la de 8, «Lo siguiente» y el mapa; la de 4, todo lo demás)
+// con las secciones planas dentro, separadas por una línea fina como en la
+// hoja del móvil. Se usa dentro de @media (min-width: 768px)
+@mixin card {
+  gap: 0;
+  padding-inline: var(--space-base);
+  border: var(--border-width-s) solid var(--color-card-border);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+
+  // Las tarjetas de dentro (también las de los componentes), planas
+  ::ng-deep ion-card {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  ::ng-deep ion-card ion-card-header[class],
+  ::ng-deep ion-card ion-card-content[class] {
+    padding-inline: 0;
+  }
+
+  > * + * {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}

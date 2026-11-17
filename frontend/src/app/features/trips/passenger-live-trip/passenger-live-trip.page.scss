@@ -1,3 +1,5 @@
+@use '../live-desktop-column' as live-column;
+
 // «En curso» del pasajero. En el móvil, el mapa a toda la pantalla y los
 // detalles en la hoja inferior (live-sheet, en el tema); en escritorio, el
 // mapa a la izquierda (8) y la columna de 4 a la derecha
@@ -71,6 +73,14 @@ ion-card-content.ride__state {
   --background: var(--color-primary-subtle);
 
   border: var(--border-width-s) solid var(--color-primary);
+}
+
+// Con el borde azul y esquinas de 8px también en la hoja y en la columna de 4, donde las
+// demás secciones van planas. Con ion-card y [class] delante, para ganar a
+// esa regla y a la línea gris entre secciones de la hoja (live-trip.scss)
+ion-card.ride__panel.ride__panel--arriving[class] {
+  border: var(--border-width-s) solid var(--color-primary);
+  border-radius: var(--radius-s);
 }
 
 // En la hoja y en la columna de 4 las secciones no tienen relleno lateral:
@@ -316,35 +326,11 @@ ion-card-content.ride__state {
   }
 }
 
-// Escritorio: cada columna es una sola tarjeta (la de 8, «Lo siguiente» y el
-// mapa; la de 4, todo lo demás) con las secciones planas dentro, separadas
-// por una línea fina como en la hoja del móvil
+// Escritorio: cada columna, una sola tarjeta (_live-desktop-column.scss)
 @media (min-width: 768px) {
   .ride__main,
   .ride__side {
-    gap: 0;
-    padding-inline: var(--space-base);
-    border: var(--border-width-s) solid var(--color-card-border);
-    border-radius: var(--radius-s);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-card);
-
-    // Las tarjetas de dentro (también las de los componentes), planas
-    ::ng-deep ion-card {
-      margin: 0;
-      border: 0;
-      border-radius: 0;
-      box-shadow: none;
-    }
-
-    ::ng-deep ion-card ion-card-header[class],
-    ::ng-deep ion-card ion-card-content[class] {
-      padding-inline: 0;
-    }
-
-    > * + * {
-      border-top: var(--border-width-s) solid var(--color-border-subtle);
-    }
+    @include live-column.card;
   }
 
   // «Estás llegando», un recuadro azul dentro de la tarjeta: 16px arriba (si
