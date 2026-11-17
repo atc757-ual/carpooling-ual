@@ -200,6 +200,11 @@ ion-modal.live-sheet {
     border-top: var(--border-width-s) solid var(--color-border-subtle);
   }
 
+  // Sin línea debajo de un aviso (.live-alert): ya va en su recuadro
+  ::ng-deep .live-sheet__body > .live-alert + * {
+    border-top: 0;
+  }
+
   // Con título: el título arriba y el contenido justo debajo
   ::ng-deep ion-card ion-card-header[class] {
     padding-block: var(--space-base) 0;

@@ -45,19 +45,16 @@
   gap: var(--space-base);
 }
 
-.driver-live-trip__sharing {
-  align-items: center;
-
-  ion-icon {
-    flex-shrink: 0;
-    color: var(--color-link);
-  }
-}
-
 .driver-live-trip__panel ion-card-content {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
+
+  // Ionic da a los h2 de ion-card-content un peso normal: los títulos de las
+  // tarjetas, en seminegrita, como en la pantalla del pasajero
+  h2 {
+    font-weight: var(--font-weight-semibold);
+  }
 
   // Ionic da a los h2 de ion-card-content un peso normal, que gana a
   // .text-subtitle: los títulos de las tarjetas, en seminegrita
@@ -415,16 +412,31 @@
   padding-block: calc(var(--space-s) + var(--space-xs)); // 12px
 }
 
-.driver-live-trip__choice-bar,
-.driver-live-trip__report {
+.driver-live-trip__choice-bar {
   display: flex;
   align-items: center;
   gap: var(--space-base);
 }
 
-.driver-live-trip__choice-bar app-filter-chips,
-.driver-live-trip__report p {
+.driver-live-trip__choice-bar app-filter-chips {
   flex: 1;
   min-width: 0;
-  margin: 0;
+}
+
+// «¿Has llegado?» / «Ya no queda nadie por llevar»: el aviso de «En curso»
+// (_live-desktop-column.scss), con su fila de título, texto y botón
+ion-card.live-alert.live-alert[class] {
+  @include live-column.alert;
+}
+
+@include live-column.alert-layout;
+
+// «Terminar viaje» de la pastilla «Viaje»: con su texto, al alto de los
+// demás botones (44px). Con las dos clases, para ganar a .icon-btn--labeled
+.icon-btn.driver-live-trip__finish-btn {
+  height: 2.75rem; // 44px
+  padding-inline: var(--space-base);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
 }

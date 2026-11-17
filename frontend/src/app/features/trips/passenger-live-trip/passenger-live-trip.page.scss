@@ -68,27 +68,12 @@ ion-card-content.ride__state {
   }
 }
 
-// «Estás llegando»: destacada, con el estilo «En directo» de la guía
-.ride__panel--arriving {
-  --background: var(--color-primary-subtle);
-
-  border: var(--border-width-s) solid var(--color-primary);
+// «¿Has llegado?»: el aviso de «En curso» (_live-desktop-column.scss)
+ion-card.live-alert.live-alert[class] {
+  @include live-column.alert;
 }
 
-// Con el borde azul y esquinas de 8px también en la hoja y en la columna de 4, donde las
-// demás secciones van planas. Con ion-card y [class] delante, para ganar a
-// esa regla y a la línea gris entre secciones de la hoja (live-trip.scss)
-ion-card.ride__panel.ride__panel--arriving[class] {
-  border: var(--border-width-s) solid var(--color-primary);
-  border-radius: var(--radius-s);
-}
-
-// 8px de relleno por todos los lados (en la hoja y en la columna de 4 las
-// demás secciones no lo tienen a los lados): compacta, sin que el texto toque
-// el borde del fondo azul
-.ride__panel--arriving ion-card-content[class] {
-  padding: var(--space-s);
-}
+@include live-column.alert-layout;
 
 // Cuatro cifras, una por casilla, fáciles de leer en voz alta
 .ride__code-digits {
@@ -113,31 +98,6 @@ ion-card.ride__panel.ride__panel--arriving[class] {
 
 // El conductor: debajo del título, quién conduce y la matrícula (la placa de
 // editar el coche) con el modelo, y chat y llamar a la derecha, a su altura
-// «¿Te has bajado antes?»: el texto y, a la derecha, el botón redondo
-.ride__arrive-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-base); // 16px entre el texto y el botón
-
-  form {
-    flex: none;
-  }
-}
-
-// El título y el texto, uno encima del otro, ocupando lo que deja el botón
-.ride__arrive-text {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: var(--space-xs);
-  min-width: 0;
-
-  h2,
-  p {
-    margin: 0;
-  }
-}
-
 .ride__driver-row {
   display: flex;
   align-items: center;
@@ -341,12 +301,6 @@ ion-card.ride__panel.ride__panel--arriving[class] {
   .ride__main,
   .ride__side {
     @include live-column.card;
-  }
-
-  // «Estás llegando», un recuadro azul dentro de la tarjeta: 16px arriba (si
-  // abre la columna) y 16px hasta la línea de la sección siguiente
-  .ride__side > .ride__panel--arriving {
-    margin-block: var(--space-base);
   }
 
   // El mapa, con 16px abajo dentro de la tarjeta de la columna

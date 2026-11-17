@@ -159,7 +159,7 @@ describe('DriverLiveTripPage', () => {
     expect(tracking.dismissGap).toHaveBeenCalled();
   });
 
-  it('shows the trip in progress, sharing the location, with its passengers in order', async () => {
+  it('shows the trip in progress with its passengers in order', async () => {
     const root = await render(
       [TRIP],
       [
@@ -169,7 +169,6 @@ describe('DriverLiveTripPage', () => {
       ],
     );
 
-    expect(root.textContent).toContain('Compartiendo tu ubicación con tus pasajeros');
     expect(tracking.start).toHaveBeenCalledWith('t1');
     expect(page.passengers().map(({ passenger: { name } }) => name)).toEqual([
       'Carlos Ruiz',

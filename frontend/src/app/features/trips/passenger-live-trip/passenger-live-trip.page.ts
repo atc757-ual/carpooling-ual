@@ -52,6 +52,7 @@ import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.direct
 import { FilterChips } from '../../../shared/components/ui/filter-chips/filter-chips';
 import {
   buildRideSheetTabs,
+  EARLY_TAB,
   isRideSheetTab,
   resolveRideSheetTab,
   RideSheetTab,
@@ -235,10 +236,9 @@ export class PassengerLiveTripPage {
   });
   // Las pastillas del final de la hoja: qué ve (al abrir, su seguridad)
   private readonly chosenTab = signal<RideSheetTab>('safety');
-  readonly sheetTabs = computed(() => buildRideSheetTabs(this.arriveCard() === 'early'));
-  readonly sheetTab = computed(() =>
-    resolveRideSheetTab(this.chosenTab(), this.arriveCard() === 'early'),
-  );
+  private readonly firstTab = computed(() => (this.arriveCard() === 'early' ? EARLY_TAB : null));
+  readonly sheetTabs = computed(() => buildRideSheetTabs(this.firstTab()));
+  readonly sheetTab = computed(() => resolveRideSheetTab(this.chosenTab(), this.firstTab()));
   handleSheetTab(value: string | null): void {
     if (isRideSheetTab(value)) this.chosenTab.set(value);
   }

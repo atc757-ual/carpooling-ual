@@ -1,4 +1,4 @@
-// «En curso» en escritorio (pasajero y conductor): cada columna se ve como
+// Estilos compartidos de «En curso» (pasajero y conductor). En escritorio: cada columna se ve como
 // una sola tarjeta (la de 8, «Lo siguiente» y el mapa; la de 4, todo lo demás)
 // con las secciones planas dentro, separadas por una línea fina como en la
 // hoja del móvil. Se usa dentro de @media (min-width: 768px)
@@ -25,5 +25,65 @@
 
   > * + * {
     border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+
+  // Un aviso (.live-alert) va como recuadro, con 16px arriba y abajo y sin
+  // línea debajo
+  > .live-alert {
+    margin-block: var(--space-base);
+  }
+
+  > .live-alert + * {
+    border-top: 0;
+  }
+}
+
+// Un aviso de «En curso» (¿Has llegado?, terminar el viaje): fondo azul muy
+// claro, borde azul, esquinas de 8px y 8px de relleno. Se usa con
+// ion-card.live-alert.live-alert[class], para ganar a las tarjetas planas de
+// la hoja y de la columna de escritorio
+@mixin alert {
+  --background: var(--color-primary-subtle);
+
+  border: var(--border-width-s) solid var(--color-primary);
+  border-radius: var(--radius-s);
+
+  ion-card-content[class] {
+    padding: var(--space-s);
+  }
+}
+
+// Dentro de un aviso (y de las filas parecidas): el título y el texto, uno
+// encima del otro, y el botón a su derecha, a 16px. Se incluye en la raíz de
+// la hoja de estilos de cada pantalla
+@mixin alert-layout {
+  .live-alert__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-base);
+
+    form {
+      flex: none;
+    }
+  }
+
+  .live-alert__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--space-xs);
+    min-width: 0;
+
+    h2,
+    p {
+      margin: 0;
+    }
+
+    // Los títulos, como los de las tarjetas de la hoja: 16px en seminegrita
+    // (fuera de una tarjeta, .text-subtitle los dejaría más grandes)
+    h2 {
+      font-size: 1rem; // 16px
+      font-weight: var(--font-weight-semibold);
+    }
   }
 }

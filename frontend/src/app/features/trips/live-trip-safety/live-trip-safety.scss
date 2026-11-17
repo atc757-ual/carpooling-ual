@@ -15,7 +15,9 @@ ion-card-content {
 
   // Ionic da a los h2 de ion-card-content un peso normal, que gana a
   // .text-subtitle: en seminegrita, como los demás títulos de la pantalla
+  // 16px en seminegrita, como los títulos de las tarjetas de la hoja
   h2 {
+    font-size: 1rem; // 16px
     font-weight: var(--font-weight-semibold);
   }
 }
@@ -24,10 +26,22 @@ ion-card-content {
   display: flex;
   align-items: center;
   gap: var(--space-base);
+}
 
+// El título y el texto, uno encima del otro, ocupando lo que deja el botón
+.live-safety-inline__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+
+  h2,
   p {
-    flex: 1;
-    min-width: 0;
     margin: 0;
+  }
+
+  h2 {
+    font-weight: var(--font-weight-semibold);
   }
 }
