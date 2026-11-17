@@ -4,10 +4,10 @@
       <span class="live-trip-banner__dot" aria-hidden="true"></span>
       Viaje en curso
     </span>
-    <span class="text-subtitle">{{ route() }}</span>
+    <span class="text-body text-body--strong live-trip-banner__route">{{ route() }}</span>
     @if (detail()) {
       <span class="text-body-s live-trip-banner__detail">{{ detail() }}</span>
     }
   </div>
-  <ion-button [routerLink]="link()">Abrir viaje</ion-button>
+  <ion-button size="small" [routerLink]="link()">Abrir viaje</ion-button>
 </section>

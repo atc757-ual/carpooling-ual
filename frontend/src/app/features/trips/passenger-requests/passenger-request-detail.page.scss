@@ -138,14 +138,15 @@ ion-card-content.passenger-detail__state {
   font-weight: var(--font-weight-semibold);
 }
 
-// «Alex ha empezado el viaje» con «Seguir en directo» a la derecha (debajo
-// en el móvil)
+// «Alex ha empezado el viaje» con «Seguir en directo» a la derecha, pequeño,
+// también en el móvil (el texto se parte en líneas, el botón no baja)
 .passenger-detail__live {
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
 
   > span:nth-child(2) {
-    flex: 1 1 14rem; // 224px
+    flex: 1;
+    min-width: 0;
   }
 
   ion-button {

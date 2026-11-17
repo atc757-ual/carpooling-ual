@@ -4,7 +4,8 @@ import { IonButton, IonRouterLink } from '@ionic/angular';
 
 // El viaje en curso, destacado arriba de Mis viajes: de dónde a dónde, un
 // detalle (quién conduce o cuántos van) y «Abrir viaje», que lleva a su
-// pantalla (la del conductor o la solicitud del pasajero, con el mapa en vivo)
+// pantalla (la del conductor o la del pasajero, con el mapa en vivo). También
+// arriba de Buscar y Publicar (en la tarjeta del próximo viaje)
 @Component({
   selector: 'app-live-trip-banner',
   imports: [RouterLink, IonButton, IonRouterLink],
