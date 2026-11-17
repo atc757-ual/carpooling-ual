@@ -6,8 +6,13 @@
   gap: var(--space-s);
 }
 
+// El grupo ocupa solo su ancho y va centrado en la tarjeta: la pregunta queda
+// alineada a la izquierda de los botones, como la etiqueta de un campo
 .trip-review__fieldset {
   display: flex;
+  align-self: center;
+  width: fit-content;
+  max-width: 100%;
   min-width: 0;
   flex-direction: column;
   gap: var(--space-xs);
@@ -15,13 +20,11 @@
   padding: var(--space-s) 0 0; // 8px de aire con lo de arriba
   border: 0;
 
-  // «¿Qué tal con Sara?», la etiqueta del grupo: centrada como los botones y
-  // el texto de debajo, y pegada a los botones que describe
+  // «¿Qué tal con Sara?», la etiqueta del grupo: alineada a la izquierda de
+  // los botones y pegada a ellos
   legend {
-    width: 100%;
     margin-bottom: var(--space-xs);
     padding: 0;
-    text-align: center;
   }
 }
 
