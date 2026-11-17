@@ -127,6 +127,25 @@ describe('NotificationsPage', () => {
     expect(root.querySelector('.notification--unread.notification--travel')).not.toBeNull();
   });
 
+  it('asks again for the first page when it comes back, not the first time', async () => {
+    let items = [notification('n1', 'request_received')];
+    const root = await render(() => Promise.resolve(items));
+    const page = fixture.componentInstance;
+
+    page.ionViewWillEnter();
+    expect(service['list']).toHaveBeenCalledTimes(1);
+
+    // Llega un aviso nuevo mientras se está en otra pantalla
+    items = [notification('n2', 'request_cancelled'), ...items];
+    page.offset.set(10);
+    page.ionViewWillEnter();
+    await vi.waitFor(() => expect(page.all()).toHaveLength(2));
+    fixture.detectChanges();
+
+    expect(service['list']).toHaveBeenLastCalledWith({ offset: 0, category: undefined });
+    expect(root.querySelectorAll('.notification')).toHaveLength(2);
+  });
+
   it('shows a minor change of a legal document and opens the document', async () => {
     const legal: AppNotification = {
       ...notification('n1', 'privacy_updated'),

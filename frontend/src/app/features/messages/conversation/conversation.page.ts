@@ -72,6 +72,9 @@ import { ConversationAvatar } from '../conversation-avatar/conversation-avatar';
 
 // Cada cuánto se piden los mensajes nuevos con la conversación a la vista
 export const CHAT_POLL_INTERVAL_MS = 5_000;
+// Cada cuántas vueltas se mira si el chat sigue abierto (cada 30 s)
+const STATUS_CHECK_EVERY = 6;
+const CHAT_CLOSED = 'CHAT_CLOSED';
 export const MAX_MESSAGE_LENGTH = 500;
 
 // Una conversación directa del chat de un viaje (el conductor con un
@@ -128,6 +131,7 @@ export class ConversationPage {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private isActive = false;
   private pollInFlight = false;
+  private pollCount = 0;
   private readonly scrollContainer = viewChild<ElementRef<HTMLDivElement>>('scrollContainer');
   private readonly headingTitle = viewChild.required<TemplateRef<unknown>>('headingTitle');
   private readonly headingContent = inject(HeadingContentService);
@@ -430,6 +434,7 @@ export class ConversationPage {
         await this.markRead(ref);
       }
       await this.refreshReceipts(ref);
+      await this.refreshIsOpen(ref);
     } catch {
       // Siguiente vuelta
     } finally {
@@ -444,7 +449,13 @@ export class ConversationPage {
       this.appendMessages([sent]);
       return true;
     } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      const apiError = ApiError.fromHttpError(error);
+      if (apiError.code === CHAT_CLOSED) {
+        // El viaje terminó o se canceló con la conversación abierta: se
+        // cierra la caja de texto y queda el aviso de solo lectura
+        this.markClosed();
+      }
+      void this.toast.showError(getErrorMessage(apiError));
       return false;
     } finally {
       this.isSending.set(false);
@@ -492,6 +503,25 @@ export class ConversationPage {
   private async loadContacts(ref: ConversationRef, version: number): Promise<void> {
     const contacts = await this.tripCall.loadContacts(ref.tripId, ref.passengerId);
     if (version === this.loadVersion) this.contacts.set(contacts);
+  }
+
+  // Si sigue admitiendo mensajes: el viaje puede terminar con la conversación
+  // a la vista (en escritorio, Mensajes la deja abierta al lado de la lista).
+  // Se mira una vuelta de cada STATUS_CHECK_EVERY, y solo mientras está abierta
+  private async refreshIsOpen(ref: ConversationRef): Promise<void> {
+    this.pollCount += 1;
+    if (!this.canWrite() || this.pollCount % STATUS_CHECK_EVERY !== 0) return;
+    const conversation = await this.chat.getConversation(ref);
+    if (isSameConversation(conversation, this.ref())) {
+      this.conversation.set(conversation);
+    }
+  }
+
+  private markClosed(): void {
+    const conversation = this.conversation();
+    if (conversation) {
+      this.conversation.set({ ...conversation, isOpen: false });
+    }
   }
 
   private async markRead(ref: ConversationRef): Promise<void> {

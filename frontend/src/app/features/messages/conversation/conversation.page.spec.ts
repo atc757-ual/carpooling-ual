@@ -4,6 +4,7 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
+import { ApiError } from '../../../core/models/api-error.model';
 import { ChatMessage, Conversation } from '../../../core/models/chat.model';
 import { User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -308,6 +309,36 @@ describe('ConversationPage', () => {
 
     expect(texts).toContain('Ya voy para allá');
     expect(texts).not.toContain('Estoy en camino');
+  });
+
+  it('closes the box when sending finds the chat already closed', async () => {
+    chat['send'].mockRejectedValue(new ApiError('CHAT_CLOSED', 409));
+    const root = await render();
+    page.handleDraft('Hola');
+
+    await page.handleSendText();
+    fixture.detectChanges();
+
+    expect(showError).toHaveBeenCalled();
+    expect(page.canWrite()).toBe(false);
+    expect(root.querySelector('ion-textarea')).toBeNull();
+  });
+
+  it('notices that the trip has finished while the conversation is open', async () => {
+    await render();
+    chat['listMessages'].mockResolvedValue([]);
+    chat['getConversation'].mockResolvedValue({
+      ...CONVERSATION,
+      trip: { ...CONVERSATION.trip, status: 'finished' },
+      isOpen: false,
+    });
+
+    // Se mira cada 30 s (una de cada seis vueltas), no en cada una
+    await vi.advanceTimersByTimeAsync(CHAT_POLL_INTERVAL_MS * 5);
+    expect(page.canWrite()).toBe(true);
+    await vi.advanceTimersByTimeAsync(CHAT_POLL_INTERVAL_MS);
+
+    expect(page.canWrite()).toBe(false);
   });
 
   it('only lets a closed conversation be read', async () => {
