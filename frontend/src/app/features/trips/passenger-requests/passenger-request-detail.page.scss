@@ -244,3 +244,8 @@ ion-card-content.passenger-detail__state {
     gap: var(--space-l);
   }
 }
+
+// Las alertas de esta pantalla, con 8px de relleno por los cuatro lados
+.notice {
+  padding: var(--space-s);
+}

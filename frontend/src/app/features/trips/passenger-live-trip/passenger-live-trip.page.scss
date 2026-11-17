@@ -308,3 +308,8 @@ ion-card.live-alert.live-alert[class] {
     padding-bottom: var(--space-base);
   }
 }
+
+// Las alertas de esta pantalla, con 8px de relleno por los cuatro lados
+.notice {
+  padding: var(--space-s);
+}

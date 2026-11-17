@@ -52,3 +52,8 @@ ion-card.passenger-actions ion-card-content {
   color: var(--color-text-muted);
   text-align: center;
 }
+
+// Las alertas de esta pantalla, con 8px de relleno por los cuatro lados
+.notice {
+  padding: var(--space-s);
+}

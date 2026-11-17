@@ -479,3 +479,8 @@ ion-button.driver-live-trip__finish-btn {
   height: 2.75rem; // 44px
   margin: 0;
 }
+
+// Las alertas de esta pantalla, con 8px de relleno por los cuatro lados
+.notice {
+  padding: var(--space-s);
+}
