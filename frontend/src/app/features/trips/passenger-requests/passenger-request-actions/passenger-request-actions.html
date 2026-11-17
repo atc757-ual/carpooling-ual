@@ -10,16 +10,15 @@
         <p class="text-body-s text-color-muted">
           Si algo va mal, bájate cuando sea seguro y cuéntanoslo: lo revisaremos.
         </p>
-        <ion-button
-          class="passenger-actions__incident-btn"
+        <button
           type="button"
-          fill="outline"
+          class="icon-btn passenger-actions__incident-btn"
           aria-label="Reportar: bajarme y registrar una incidencia"
+          title="Reportar"
           (click)="openIncidentModal()"
         >
-          <ion-icon slot="start" [icon]="alertIcon" aria-hidden="true" />
-          Reportar
-        </ion-button>
+          <ion-icon [icon]="alertIcon" aria-hidden="true" />
+        </button>
       </div>
     }
 

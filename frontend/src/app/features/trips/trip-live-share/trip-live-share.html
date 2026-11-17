@@ -1,36 +1,35 @@
 @if (isCompact()) {
-  <!-- Compacto (en «En curso», junto al SOS): botones redondos con icono; al
-       compartir, la etiqueta «En directo», reenviar y dejar de compartir -->
-  <div class="live-share-compact">
+  <!-- Compacto (en «En curso»): una fila con el texto y un solo botón
+       redondo. Sin compartir, el avión lo empieza; compartiendo, la ✕ pide a
+       la pantalla que confirme antes de dejarlo (sin ventana encima) -->
+  <div class="live-share-row">
     @if (activeLink()) {
-      <span class="live-share__badge text-caption">
-        <span class="live-share__dot" aria-hidden="true"></span>
-        En directo
-      </span>
+      <div class="live-share-row__text">
+        <span class="live-share__badge text-caption">
+          <span class="live-share__dot" aria-hidden="true"></span>
+          En directo
+        </span>
+        <p class="text-body-s text-color-muted">
+          Quien tenga el enlace ve tu viaje hasta que termine.
+        </p>
+      </div>
       <button
         type="button"
-        class="live-share__icon-btn"
-        aria-label="Enviar el enlace de tu viaje en directo"
-        title="Enviar el enlace"
-        [disabled]="isBusy()"
-        (click)="handleResend()"
-      >
-        <ion-icon [icon]="sendIcon" aria-hidden="true" />
-      </button>
-      <button
-        type="button"
-        class="live-share__icon-btn"
+        class="icon-btn"
         aria-label="Dejar de compartir tu viaje"
         title="Dejar de compartir"
         [disabled]="isBusy()"
-        (click)="handleStop()"
+        (click)="stopRequest.emit(stopSharing)"
       >
         <ion-icon [icon]="stopIcon" aria-hidden="true" />
       </button>
     } @else {
+      <p class="text-body-s text-color-muted">
+        Comparte tu viaje en directo con alguien de confianza.
+      </p>
       <button
         type="button"
-        class="live-share__icon-btn"
+        class="icon-btn"
         aria-label="Compartir mi viaje en directo (se abre sin cuenta)"
         title="Compartir mi viaje en directo"
         [disabled]="isBusy()"

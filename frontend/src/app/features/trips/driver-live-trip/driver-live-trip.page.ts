@@ -207,6 +207,8 @@ export class DriverLiveTripPage {
   readonly areReviewsDone = signal(false);
   // Mientras valora de uno en uno: en cuál va, para «1 de 2» en la cabecera
   readonly reviewStep = signal<{ number: number; total: number } | null>(null);
+  // «Ha bajado» por confirmar, en la hoja en vez de en una ventana
+  readonly pendingDropOff = signal<SeatRequest | null>(null);
   readonly reviewTargets = computed<ReviewTarget[]>(() =>
     this.passengers().map((request) => ({
       id: request.passenger.id,
@@ -436,17 +438,12 @@ export class DriverLiveTripPage {
   // «Ha bajado»: cierra la plaza de un pasajero a bordo (no se puede
   // deshacer: se confirma). Si era el último, el viaje termina solo y la hoja
   // enseña el aviso y las valoraciones, como al terminarlo
-  async handleDropOff(request: SeatRequest): Promise<void> {
-    const name = getFirstName(request.passenger.name);
-    const isConfirmed = await this.confirm.ask({
-      header: `¿Ha bajado ${name}?`,
-      message: `Su viaje terminará y podrá valorarte. Si ya lo marcó ${name}, no cambia nada.`,
-      confirmText: 'Ha bajado',
-      cancelText: 'Todavía no',
-    });
-    if (!isConfirmed) {
-      return;
-    }
+  // «Ha bajado»: lo pregunta en la hoja (sin ventana encima)
+  handleDropOff(request: SeatRequest): void {
+    this.pendingDropOff.set(request);
+  }
+
+  async confirmDropOff(request: SeatRequest): Promise<void> {
     this.droppingOffIds.update((ids) => new Set([...ids, request.id]));
     try {
       const updated = await this.driver.dropOffPassenger(request.id);
@@ -458,6 +455,7 @@ export class DriverLiveTripPage {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     } finally {
       this.droppingOffIds.update((ids) => new Set([...ids].filter((id) => id !== request.id)));
+      this.pendingDropOff.set(null);
     }
   }
 

@@ -293,10 +293,10 @@ describe('DriverLiveTripPage', () => {
     const tripCall = TestBed.inject(TripCallService);
     const openPhoneSpy = vi.spyOn(tripCall, 'openPhone').mockImplementation(() => undefined);
 
-    const callBtn = root.querySelector('button.pickup-slide__icon-btn');
+    const callBtn = root.querySelector('button.icon-btn');
     expect(callBtn).not.toBeNull();
     expect(callBtn?.getAttribute('title')).toBe('Llamar a Carlos Ruiz');
-    expect(callBtn?.classList).not.toContain('pickup-slide__icon-btn--unavailable');
+    expect(callBtn?.classList).not.toContain('icon-btn--unavailable');
 
     page.handleCallPassenger({ id: 'p-r1', name: 'Carlos Ruiz' });
     expect(openPhoneSpy).toHaveBeenCalledWith('+34600333444');
@@ -305,9 +305,9 @@ describe('DriverLiveTripPage', () => {
   it('shows call button as unavailable when passenger has no verified phone', async () => {
     const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)], []);
 
-    const callBtn = root.querySelector('button.pickup-slide__icon-btn');
+    const callBtn = root.querySelector('button.icon-btn');
     expect(callBtn).not.toBeNull();
-    expect(callBtn?.classList).toContain('pickup-slide__icon-btn--unavailable');
+    expect(callBtn?.classList).toContain('icon-btn--unavailable');
 
     page.handleCallPassenger({ id: 'p-r1', name: 'Carlos Ruiz' });
     expect(showInfoMock).toHaveBeenCalledWith(

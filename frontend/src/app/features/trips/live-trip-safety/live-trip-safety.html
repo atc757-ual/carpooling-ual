@@ -1,41 +1,40 @@
 <ion-card class="live-safety" role="region" aria-labelledby="live-safety-title">
   <ion-card-content>
     <h2 id="live-safety-title" class="text-subtitle">Tu seguridad</h2>
-    <!-- El texto a la izquierda y, a la derecha, botones redondos: compartir
-         (el avión de papel) y el SOS rojo, que llama al 112 -->
-    <div class="live-safety__row">
-      <p class="text-body-s text-color-muted">
-        @if (liveShareTripId()) {
-          Comparte tu viaje en directo o llama al 112 si hay una emergencia.
-        } @else {
-          Comparte el viaje con alguien de confianza o llama al 112 si hay una emergencia.
-        }
-      </p>
-      <div class="live-safety__buttons">
-        @if (liveShareTripId(); as tripId) {
-          <!-- Pasajero: el enlace en directo -->
-          <app-trip-live-share [tripId]="tripId" [isCompact]="true" />
-        } @else {
-          <button
-            type="button"
-            class="live-safety__share"
-            aria-label="Compartir el viaje con alguien de confianza"
-            title="Compartir el viaje"
-            (click)="handleShare()"
-          >
-            <ion-icon [icon]="shareIcon" aria-hidden="true" />
-          </button>
-        }
-        <!-- 112: el teléfono único de emergencias en Europa -->
-        <a
-          class="live-safety__sos"
-          href="tel:112"
-          aria-label="SOS: llamar al 112"
-          title="Llamar al 112"
+    <!-- Dos filas, cada una con su texto y su botón a la derecha: compartir y
+         la emergencia (el SOS rojo llama al 112) -->
+    @if (liveShareTripId(); as tripId) {
+      <!-- Pasajero: el enlace en directo (la ✕ pide confirmar a la pantalla) -->
+      <app-trip-live-share
+        [tripId]="tripId"
+        [isCompact]="true"
+        (stopRequest)="stopShareRequest.emit($event)"
+      />
+    } @else {
+      <div class="live-safety__row">
+        <p class="text-body-s text-color-muted">Comparte el viaje con alguien de confianza.</p>
+        <button
+          type="button"
+          class="icon-btn"
+          aria-label="Compartir el viaje con alguien de confianza"
+          title="Compartir el viaje"
+          (click)="handleShare()"
         >
-          SOS
-        </a>
+          <ion-icon [icon]="shareIcon" aria-hidden="true" />
+        </button>
       </div>
+    }
+    <div class="live-safety__row">
+      <p class="text-body-s text-color-muted">Si hay una emergencia, llama al 112.</p>
+      <!-- 112: el teléfono único de emergencias en Europa -->
+      <a
+        class="icon-btn icon-btn--danger"
+        href="tel:112"
+        aria-label="SOS: llamar al 112"
+        title="Llamar al 112"
+      >
+        SOS
+      </a>
     </div>
   </ion-card-content>
 </ion-card>

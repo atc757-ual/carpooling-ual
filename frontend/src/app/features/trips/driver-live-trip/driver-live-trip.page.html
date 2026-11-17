@@ -88,6 +88,44 @@
                 }
               </ion-card-content>
             </ion-card>
+          } @else if (pendingDropOff(); as dropOff) {
+            <!-- Confirmar «Ha bajado» en la hoja (sin ventana encima), como
+                 «¿Terminar el viaje?» -->
+            <ion-card class="driver-live-trip__panel">
+              <ion-card-content>
+                <div class="driver-live-trip__confirm-head">
+                  <ion-icon
+                    class="driver-live-trip__confirm-icon"
+                    [icon]="dropOffIcon"
+                    aria-hidden="true"
+                  />
+                  <h2 class="driver-live-trip__done-title">
+                    ¿Ha bajado {{ firstName(dropOff.passenger.name) }}?
+                  </h2>
+                </div>
+                <p class="text-body-s text-color-muted">
+                  Su viaje terminará y podrá valorarte. Si ya lo marcó
+                  {{ firstName(dropOff.passenger.name) }}, no cambia nada.
+                </p>
+                <div class="driver-live-trip__finish">
+                  <ion-button
+                    expand="block"
+                    [disabled]="isDroppingOff(dropOff.id)"
+                    (click)="confirmDropOff(dropOff)"
+                  >
+                    Ha bajado
+                  </ion-button>
+                  <ion-button
+                    expand="block"
+                    fill="outline"
+                    [disabled]="isDroppingOff(dropOff.id)"
+                    (click)="pendingDropOff.set(null)"
+                  >
+                    Todavía no
+                  </ion-button>
+                </div>
+              </ion-card-content>
+            </ion-card>
           } @else if (finishCheck(); as check) {
             <ion-card class="driver-live-trip__panel">
               <ion-card-content>
@@ -255,7 +293,7 @@
                         <!-- Chat, llamar y «No se presentó», con su icono -->
                         <div class="pickup-slide__actions">
                           <a
-                            class="pickup-slide__icon-btn"
+                            class="icon-btn"
                             [routerLink]="['/tabs/messages', trip.id, request.passenger.id]"
                             [attr.aria-label]="'Escribir a ' + firstName(request.passenger.name)"
                             [title]="'Escribir a ' + firstName(request.passenger.name)"
@@ -264,10 +302,8 @@
                           </a>
                           <button
                             type="button"
-                            class="pickup-slide__icon-btn"
-                            [class.pickup-slide__icon-btn--unavailable]="
-                              !canCallPassenger(request.passenger.id)
-                            "
+                            class="icon-btn"
+                            [class.icon-btn--unavailable]="!canCallPassenger(request.passenger.id)"
                             [attr.aria-label]="
                               callPassengerLabel(request.passenger.name, request.passenger.id)
                             "
@@ -281,7 +317,7 @@
                           @if (!request.boardedAt) {
                             <button
                               type="button"
-                              class="pickup-slide__icon-btn"
+                              class="icon-btn"
                               [disabled]="!isActive || !canMarkNoShow(request)"
                               [attr.aria-label]="
                                 firstName(request.passenger.name) + ' no se presentó'
@@ -297,7 +333,7 @@
                                  enfocarlo (y mientras guarda) se estira con el texto -->
                             <button
                               type="button"
-                              class="pickup-slide__icon-btn pickup-slide__drop-off"
+                              class="icon-btn pickup-slide__drop-off"
                               [class.pickup-slide__drop-off--busy]="isDroppingOff(request.id)"
                               [disabled]="isDroppingOff(request.id)"
                               [attr.aria-label]="firstName(request.passenger.name) + ' ha bajado'"

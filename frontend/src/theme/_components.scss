@@ -1139,3 +1139,61 @@ ion-toggle {
   --handle-background: var(--color-surface);
   --handle-background-checked: var(--color-on-primary);
 }
+
+// Botón de icono de 44 × 44px con esquinas de 8px (chat, llamar, compartir,
+// «Ha bajado», SOS…): borde gris e icono azul; al pasar, fondo gris claro; con el teclado,
+// el anillo de foco; desactivado o no disponible, en gris. --danger: relleno
+// rojo con el texto en blanco (el SOS que llama al 112). Con <button> o <a>
+// y siempre con aria-label (no lleva texto visible)
+.icon-btn {
+  display: grid;
+  flex: none;
+  box-sizing: border-box;
+  width: 2.75rem; // 44px
+  height: 2.75rem;
+  padding: 0;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s); // 8px
+  background: var(--color-surface);
+  color: var(--color-link);
+  cursor: pointer;
+  place-items: center;
+  text-decoration: none;
+  transition: background-color 120ms ease;
+
+  ion-icon {
+    font-size: 1.25rem; // 20px
+  }
+
+  @media (any-hover: hover) {
+    &:hover:not(:disabled) {
+      background: var(--color-surface-subtle);
+    }
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled,
+  &--unavailable {
+    color: var(--color-text-disabled);
+    cursor: default;
+  }
+
+  &--danger {
+    border-color: transparent;
+    background: var(--color-danger);
+    color: var(--color-on-danger);
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.02em;
+
+    @media (any-hover: hover) {
+      &:hover:not(:disabled) {
+        background: var(--color-danger-text);
+      }
+    }
+  }
+}

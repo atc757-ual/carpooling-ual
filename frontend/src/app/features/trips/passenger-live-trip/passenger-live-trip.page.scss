@@ -154,41 +154,6 @@ ion-card-content.ride__state {
   white-space: nowrap;
 }
 
-.ride__icon-btn {
-  display: grid;
-  box-sizing: border-box;
-  text-decoration: none;
-  flex: none;
-  place-items: center;
-  width: 2.75rem; // 44px
-  height: 2.75rem;
-  padding: 0;
-  border: var(--border-width-s) solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
-  color: var(--color-link);
-  cursor: pointer;
-
-  ion-icon {
-    font-size: 1.25rem; // 20px
-  }
-
-  @media (any-hover: hover) {
-    &:hover {
-      background: var(--color-surface-subtle);
-    }
-  }
-
-  &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus-ring);
-    outline-offset: 2px;
-  }
-
-  &--unavailable {
-    color: var(--color-text-muted);
-  }
-}
-
 // El mapa, grande: es lo que se mira durante el viaje. En el móvil, sin
 // márgenes ni tarjeta y del alto de la pantalla (menos la cabecera y la
 // barra de pestañas); la hoja de detalles se pone encima
@@ -258,6 +223,25 @@ ion-card-content.ride__state {
     padding-top: var(--space-base);
     text-align: center;
   }
+}
+
+// Confirmar en la hoja («¿Has llegado?», «¿Dejar de compartir…?»): el icono y
+// la pregunta centrados, con la misma línea debajo que los demás encabezados
+.ride__confirm-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-s);
+  padding-top: var(--space-s);
+  padding-bottom: var(--space-base);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  text-align: center;
+}
+
+.ride__confirm-icon {
+  color: var(--color-link);
+  font-size: 2rem; // 32px
 }
 
 // Lo que ha votado, centrado bajo el título: la barra con la nota y, debajo,

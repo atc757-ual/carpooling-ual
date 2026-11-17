@@ -18,6 +18,7 @@ import {
   locationOutline,
   personOutline,
   walkOutline,
+  closeCircleOutline,
 } from 'ionicons/icons';
 import { ChatContact } from '../../../core/models/chat.model';
 import { Trip } from '../../../core/models/driver.model';
@@ -26,7 +27,6 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ApiError } from '../../../core/models/api-error.model';
 import { injectLiveSheet } from '../../../shared/utils/desktop-query.util';
 import { LicensePlate } from '../../../shared/components/ui/license-plate/license-plate';
@@ -57,6 +57,10 @@ const REFRESH_MS = 15_000;
 // near: a menos de 300 m del campus; early: lejos (bajarse antes);
 // default: en la vuelta
 type ArriveCardVariant = 'near' | 'early' | 'default';
+
+// Lo que se está confirmando en la hoja (sin ventana encima): «He llegado» o
+// dejar de compartir el viaje en directo (con cómo hacerlo)
+type RideConfirm = { kind: 'arrive' } | { kind: 'stopShare'; run: () => Promise<void> };
 // La URL de esta pantalla: la hoja del móvil solo está abierta en ella
 const RIDE_URL = /^\/tabs\/trips\/ride\//;
 
@@ -118,7 +122,6 @@ export class PassengerLiveTripPage {
   private readonly tripCall = inject(TripCallService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
-  private readonly confirm = inject(ConfirmService);
 
   readonly id = input.required<string>();
 
@@ -279,19 +282,37 @@ export class PassengerLiveTripPage {
   // bajado» del conductor). No se puede deshacer: se confirma antes
   readonly isArriving = signal(false);
 
-  async handleArrive(event?: Event): Promise<void> {
+  handleArrive(event?: Event): void {
     event?.preventDefault();
     const request = this.request();
     if (!request || this.isArriving()) {
       return;
     }
-    const isConfirmed = await this.confirm.ask({
-      header: '¿Has llegado?',
-      message: `Tu viaje con ${this.driverName()} terminará y podrás valorarlo.`,
-      confirmText: 'He llegado',
-      icon: walkOutline,
-    });
-    if (!isConfirmed) {
+    this.pendingConfirm.set({ kind: 'arrive' });
+  }
+
+  // Lo que se confirma en la hoja y si se está guardando
+  readonly pendingConfirm = signal<RideConfirm | null>(null);
+  readonly isConfirming = signal(false);
+
+  async handleConfirmPending(): Promise<void> {
+    const pending = this.pendingConfirm();
+    if (!pending || this.isConfirming()) {
+      return;
+    }
+    this.isConfirming.set(true);
+    try {
+      await (pending.kind === 'arrive' ? this.arrive() : pending.run());
+    } finally {
+      this.isConfirming.set(false);
+      this.pendingConfirm.set(null);
+    }
+  }
+
+  // «He llegado» confirmado: cierra su plaza
+  private async arrive(): Promise<void> {
+    const request = this.request();
+    if (!request) {
       return;
     }
     this.isArriving.set(true);
@@ -331,4 +352,5 @@ export class PassengerLiveTripPage {
   protected readonly personIcon = personOutline;
   protected readonly pinIcon = locationOutline;
   protected readonly arrivedIcon = walkOutline;
+  protected readonly stopShareIcon = closeCircleOutline;
 }

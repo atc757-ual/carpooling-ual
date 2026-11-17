@@ -1,4 +1,4 @@
-import { Component, inject, input, linkedSignal, resource, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, output, resource, signal } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular';
 import {
   closeCircleOutline,
@@ -31,8 +31,12 @@ export class TripLiveShare {
   private readonly toast = inject(ToastService);
 
   readonly tripId = input.required<string>();
-  // Compacto: solo botones redondos con icono (en «En curso», junto al SOS)
+  // Compacto (en «En curso»): una fila con el texto y un botón redondo
   readonly isCompact = input(false);
+  // Compacto: la ✕ no deja de compartir; pide confirmarlo a la pantalla (que
+  // lo pregunta en la hoja, sin ventana encima) y le da cómo hacerlo
+  readonly stopRequest = output<() => Promise<void>>();
+  readonly stopSharing = (): Promise<void> => this.handleStop();
 
   // El enlace que este dispositivo está compartiendo (el servidor no lo guarda)
   private readonly storedLink = resource({

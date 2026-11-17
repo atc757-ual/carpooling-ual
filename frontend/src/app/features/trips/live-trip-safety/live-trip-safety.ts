@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
 import { paperPlaneOutline } from 'ionicons/icons';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
@@ -21,6 +21,8 @@ export class LiveTripSafety {
   readonly shareText = input.required<string>();
   // Pasajero: en vez del texto, el enlace en directo de este viaje
   readonly liveShareTripId = input<string | null>(null);
+  // Pasajero: quiere dejar de compartir; la pantalla lo confirma en la hoja
+  readonly stopShareRequest = output<() => Promise<void>>();
 
   protected readonly shareIcon = paperPlaneOutline;
 

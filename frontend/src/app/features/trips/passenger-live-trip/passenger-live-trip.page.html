@@ -130,138 +130,190 @@
                 </ion-card>
               }
 
-              <!-- A bordo: «He llegado» cierra su plaza (cierre por pasajero).
-                   Arriba al llegar al campus (o en la vuelta); lejos, más abajo -->
-              @if (arriveCard(); as variant) {
-                @if (variant !== 'early') {
-                  <ng-container
-                    [ngTemplateOutlet]="arriveTemplate"
-                    [ngTemplateOutletContext]="{ $implicit: variant }"
-                  />
-                }
-              }
-
-              <ng-template #arriveTemplate let-variant>
-                <ion-card
-                  class="ride__panel"
-                  [class.ride__panel--arriving]="variant === 'near'"
-                  role="region"
-                  aria-labelledby="ride-arrive-title"
-                >
+              <!-- Confirmar «He llegado» o dejar de compartir: ocupa el sitio de
+                   las tarjetas de debajo (sin ventana encima de la hoja) -->
+              @if (pendingConfirm(); as pending) {
+                <ion-card class="ride__panel" role="region" aria-labelledby="ride-confirm-title">
                   <ion-card-content>
-                    @switch (variant) {
-                      @case ('near') {
-                        <h2 id="ride-arrive-title" class="text-subtitle">Estás llegando</h2>
-                        <p class="text-caption text-color-muted">
-                          ¿Has llegado? Márcalo y podrás valorar a {{ driverName() }}.
-                        </p>
+                    <div class="ride__confirm-head">
+                      <ion-icon
+                        class="ride__confirm-icon"
+                        [icon]="pending.kind === 'arrive' ? arrivedIcon : stopShareIcon"
+                        aria-hidden="true"
+                      />
+                      <h2 id="ride-confirm-title" class="ride__done-title">
+                        {{
+                          pending.kind === 'arrive'
+                            ? '¿Has llegado?'
+                            : '¿Dejar de compartir tu viaje?'
+                        }}
+                      </h2>
+                    </div>
+                    <p class="text-body-s text-color-muted">
+                      @if (pending.kind === 'arrive') {
+                        Tu viaje con {{ driverName() }} terminará y podrás valorarlo.
+                      } @else {
+                        El enlace dejará de funcionar: quien lo tenga ya no verá dónde está el
+                        coche.
                       }
-                      @case ('early') {
-                        <!-- Discreto: el texto y, a la derecha, el botón redondo -->
-                        <h2 id="ride-arrive-title" class="text-subtitle">¿Te has bajado antes?</h2>
-                        <div class="ride__arrive-row">
-                          <p class="text-caption text-color-muted">
-                            Márcalo si te has bajado antes del campus. Si no, te lo pediremos al
-                            llegar.
-                          </p>
-                          <form (submit)="handleArrive($event)">
-                            <button
-                              type="submit"
-                              class="ride__icon-btn"
-                              aria-label="He llegado: ya me he bajado"
-                              title="He llegado"
-                              [disabled]="isArriving()"
-                            >
-                              <ion-icon [icon]="arrivedIcon" aria-hidden="true" />
-                            </button>
-                          </form>
-                        </div>
-                      }
-                      @default {
-                        <h2 id="ride-arrive-title" class="text-subtitle">¿Ya te has bajado?</h2>
-                        <p class="text-caption text-color-muted">
-                          Márcalo al llegar y podrás valorar a {{ driverName() }}. Si lo marca
-                          {{ driverName() }} antes, tu viaje se cerrará solo.
-                        </p>
-                      }
-                    }
-                    @if (variant !== 'early') {
-                      <form (submit)="handleArrive($event)">
-                        <ion-button type="submit" expand="block" [disabled]="isArriving()">
-                          <ion-icon slot="start" [icon]="arrivedIcon" aria-hidden="true" />
-                          {{ variant === 'near' ? 'Sí, he llegado' : 'He llegado' }}
-                        </ion-button>
-                      </form>
-                    }
+                    </p>
+                    <ion-button
+                      expand="block"
+                      [disabled]="isConfirming()"
+                      (click)="handleConfirmPending()"
+                    >
+                      {{ pending.kind === 'arrive' ? 'Sí, he llegado' : 'Dejar de compartir' }}
+                    </ion-button>
+                    <ion-button
+                      expand="block"
+                      fill="outline"
+                      [disabled]="isConfirming()"
+                      (click)="pendingConfirm.set(null)"
+                    >
+                      {{ pending.kind === 'arrive' ? 'Todavía no' : 'Seguir compartiendo' }}
+                    </ion-button>
                   </ion-card-content>
                 </ion-card>
-              </ng-template>
+              } @else {
+                <!-- A bordo: «He llegado» cierra su plaza (cierre por pasajero).
+                   Arriba al llegar al campus (o en la vuelta); lejos, más abajo -->
+                @if (arriveCard(); as variant) {
+                  @if (variant !== 'early') {
+                    <ng-container
+                      [ngTemplateOutlet]="arriveTemplate"
+                      [ngTemplateOutletContext]="{ $implicit: variant }"
+                    />
+                  }
+                }
 
-              <!-- El conductor y su coche: el título con los botones y, debajo, quién
+                <ng-template #arriveTemplate let-variant>
+                  <ion-card
+                    class="ride__panel"
+                    [class.ride__panel--arriving]="variant === 'near'"
+                    role="region"
+                    aria-labelledby="ride-arrive-title"
+                  >
+                    <ion-card-content>
+                      @switch (variant) {
+                        @case ('near') {
+                          <h2 id="ride-arrive-title" class="text-subtitle">Estás llegando</h2>
+                          <p class="text-caption text-color-muted">
+                            ¿Has llegado? Márcalo y podrás valorar a {{ driverName() }}.
+                          </p>
+                        }
+                        @case ('early') {
+                          <!-- Discreto: el texto y, a la derecha, el botón redondo -->
+                          <h2 id="ride-arrive-title" class="text-subtitle">
+                            ¿Te has bajado antes?
+                          </h2>
+                          <div class="ride__arrive-row">
+                            <p class="text-caption text-color-muted">
+                              Márcalo si te has bajado antes del campus. Si no, te lo pediremos al
+                              llegar.
+                            </p>
+                            <form (submit)="handleArrive($event)">
+                              <button
+                                type="submit"
+                                class="icon-btn"
+                                aria-label="He llegado: ya me he bajado"
+                                title="He llegado"
+                                [disabled]="isArriving()"
+                              >
+                                <ion-icon [icon]="arrivedIcon" aria-hidden="true" />
+                              </button>
+                            </form>
+                          </div>
+                        }
+                        @default {
+                          <h2 id="ride-arrive-title" class="text-subtitle">¿Ya te has bajado?</h2>
+                          <p class="text-caption text-color-muted">
+                            Márcalo al llegar y podrás valorar a {{ driverName() }}. Si lo marca
+                            {{ driverName() }} antes, tu viaje se cerrará solo.
+                          </p>
+                        }
+                      }
+                      @if (variant !== 'early') {
+                        <form (submit)="handleArrive($event)">
+                          <ion-button type="submit" expand="block" [disabled]="isArriving()">
+                            <ion-icon slot="start" [icon]="arrivedIcon" aria-hidden="true" />
+                            {{ variant === 'near' ? 'Sí, he llegado' : 'He llegado' }}
+                          </ion-button>
+                        </form>
+                      }
+                    </ion-card-content>
+                  </ion-card>
+                </ng-template>
+
+                <!-- El conductor y su coche: el título con los botones y, debajo, quién
                    conduce, la matrícula y la marca y el modelo -->
-              <ion-card class="ride__panel" role="region" aria-labelledby="ride-car-title">
-                <ion-card-content>
-                  <!-- El título; debajo, quién conduce y la matrícula con la marca y
+                <ion-card class="ride__panel" role="region" aria-labelledby="ride-car-title">
+                  <ion-card-content>
+                    <!-- El título; debajo, quién conduce y la matrícula con la marca y
                        el modelo, y chat y llamar a su altura, a la derecha -->
-                  <h2 id="ride-car-title" class="text-subtitle">Conductor y vehículo</h2>
-                  <div class="ride__driver-row">
-                    <div class="ride__driver-info">
-                      <p class="ride__driver-name text-body">
-                        <ion-icon [icon]="personIcon" aria-hidden="true" />
-                        <span class="visually-hidden">Conduce:</span>
-                        <b class="ride__driver-text">{{ trip.driver.name }}</b>
-                      </p>
-                      <div class="ride__driver-car">
-                        @if (request.vehiclePlate; as plate) {
-                          <app-license-plate [plate]="plate" />
-                        }
-                        @if (trip.vehicle; as vehicle) {
-                          <span class="ride__driver-text text-body-s text-color-muted">
-                            {{ vehicleName(vehicle) }}
-                          </span>
-                        }
+                    <h2 id="ride-car-title" class="text-subtitle">Conductor y vehículo</h2>
+                    <div class="ride__driver-row">
+                      <div class="ride__driver-info">
+                        <p class="ride__driver-name text-body">
+                          <ion-icon [icon]="personIcon" aria-hidden="true" />
+                          <span class="visually-hidden">Conduce:</span>
+                          <b class="ride__driver-text">{{ trip.driver.name }}</b>
+                        </p>
+                        <div class="ride__driver-car">
+                          @if (request.vehiclePlate; as plate) {
+                            <app-license-plate [plate]="plate" />
+                          }
+                          @if (trip.vehicle; as vehicle) {
+                            <span class="ride__driver-text text-body-s text-color-muted">
+                              {{ vehicleName(vehicle) }}
+                            </span>
+                          }
+                        </div>
                       </div>
+                      <a
+                        class="icon-btn"
+                        [routerLink]="['/tabs/messages', trip.id]"
+                        aria-label="Chat con el conductor"
+                        title="Chat con el conductor"
+                      >
+                        <ion-icon [icon]="chatIcon" aria-hidden="true" />
+                      </a>
+                      <button
+                        type="button"
+                        class="icon-btn"
+                        [class.icon-btn--unavailable]="!canCallDriver()"
+                        [attr.aria-label]="callDriverLabel()"
+                        [title]="callDriverLabel()"
+                        (click)="handleCallDriver()"
+                      >
+                        <ion-icon [icon]="callIcon" aria-hidden="true" />
+                      </button>
                     </div>
-                    <a
-                      class="ride__icon-btn"
-                      [routerLink]="['/tabs/messages', trip.id]"
-                      aria-label="Chat con el conductor"
-                      title="Chat con el conductor"
-                    >
-                      <ion-icon [icon]="chatIcon" aria-hidden="true" />
-                    </a>
-                    <button
-                      type="button"
-                      class="ride__icon-btn"
-                      [class.ride__icon-btn--unavailable]="!canCallDriver()"
-                      [attr.aria-label]="callDriverLabel()"
-                      [title]="callDriverLabel()"
-                      (click)="handleCallDriver()"
-                    >
-                      <ion-icon [icon]="callIcon" aria-hidden="true" />
-                    </button>
-                  </div>
-                </ion-card-content>
-              </ion-card>
+                  </ion-card-content>
+                </ion-card>
 
-              <!-- Lejos del campus: «¿Te has bajado antes?», discreto -->
-              @if (arriveCard() === 'early') {
-                <ng-container
-                  [ngTemplateOutlet]="arriveTemplate"
-                  [ngTemplateOutletContext]="{ $implicit: 'early' }"
+                <!-- Lejos del campus: «¿Te has bajado antes?», discreto -->
+                @if (arriveCard() === 'early') {
+                  <ng-container
+                    [ngTemplateOutlet]="arriveTemplate"
+                    [ngTemplateOutletContext]="{ $implicit: 'early' }"
+                  />
+                }
+
+                <!-- Compartir el viaje con alguien de confianza y el 112 -->
+                <app-live-trip-safety
+                  [shareText]="safetyShareText()"
+                  [liveShareTripId]="trip.id"
+                  (stopShareRequest)="pendingConfirm.set({ kind: 'stopShare', run: $event })"
+                />
+
+                <app-passenger-request-actions
+                  [request]="request"
+                  [trip]="trip"
+                  [showChat]="false"
+                  [inlineIncident]="true"
+                  (incidentRequested)="isReportingIncident.set(true)"
                 />
               }
-
-              <!-- Compartir el viaje con alguien de confianza y el 112 -->
-              <app-live-trip-safety [shareText]="safetyShareText()" [liveShareTripId]="trip.id" />
-
-              <app-passenger-request-actions
-                [request]="request"
-                [trip]="trip"
-                [showChat]="false"
-                [inlineIncident]="true"
-                (incidentRequested)="isReportingIncident.set(true)"
-              />
             }
           </ng-template>
 
