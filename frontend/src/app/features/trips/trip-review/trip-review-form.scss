@@ -17,7 +17,7 @@
   flex-direction: column;
   gap: var(--space-xs);
   margin: 0;
-  padding: var(--space-s) 0 0; // 8px de aire con lo de arriba
+  padding: 0; // el aire con lo de arriba lo pone quien lo contiene
   border: 0;
 
   // «¿Qué tal con Sara?», la etiqueta del grupo: alineada a la izquierda de
