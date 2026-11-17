@@ -1,5 +1,5 @@
 // Una tarjeta azul claro con el borde de la marca, baja: el texto a la
-// izquierda y «Abrir viaje», pequeño, a la derecha (también en el móvil)
+// izquierda y el coche («Abrir viaje») a la derecha (también en el móvil)
 .live-trip-banner {
   display: flex;
   align-items: center;
@@ -11,10 +11,6 @@
   border: var(--border-width-s) solid var(--color-primary);
   border-radius: var(--radius-s); // 8px, como las tarjetas
   background: var(--color-primary-subtle);
-
-  ion-button {
-    margin: 0;
-  }
 }
 
 .live-trip-banner__text {
@@ -32,7 +28,7 @@
   white-space: nowrap;
 }
 
-.live-trip-banner ion-button {
+.live-trip-banner__open {
   flex: none;
 }
 

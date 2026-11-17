@@ -25,7 +25,9 @@ describe('LiveTripBanner', () => {
     expect(root.textContent).toContain('Viaje en curso');
     expect(root.textContent).toContain('Roquetas de Mar → Campus UAL');
     expect(root.textContent).toContain('Conduce Lucía Cortés');
-    expect(root.querySelector('ion-button')?.getAttribute('href')).toBe('/tabs/trips/drive/t1');
+    expect(root.querySelector('a.live-trip-banner__open')?.getAttribute('href')).toBe(
+      '/tabs/trips/drive/t1',
+    );
   });
 
   it('leaves out the detail when there is none', () => {

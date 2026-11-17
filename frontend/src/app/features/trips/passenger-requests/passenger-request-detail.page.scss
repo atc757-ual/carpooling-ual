@@ -138,29 +138,20 @@ ion-card-content.passenger-detail__state {
   font-weight: var(--font-weight-semibold);
 }
 
-// «Alex ha empezado el viaje» con «Seguir en directo» a la derecha, pequeño,
-// también en el móvil (el texto se parte en líneas, el botón no baja)
+// «Alex ha empezado el viaje» con el coche a la derecha, también en el
+// móvil (el texto se parte en líneas, el botón no baja)
 .passenger-detail__live {
   flex-wrap: nowrap;
   align-items: center;
 
-  > span:nth-child(2) {
+  > span {
     flex: 1;
     min-width: 0;
   }
 
-  ion-button {
+  > .icon-btn {
     flex: none;
-    margin: 0;
   }
-}
-
-.passenger-detail__live-dot {
-  flex: none;
-  width: 0.5rem; // 8px
-  height: 0.5rem;
-  border-radius: var(--radius-full);
-  background: var(--color-success);
 }
 
 // Dentro de «Tu recorrido», encima del mapa

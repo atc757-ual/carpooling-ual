@@ -23,6 +23,7 @@ import {
 } from '@ionic/angular';
 import {
   alertCircleOutline,
+  carOutline,
   checkmarkCircleOutline,
   closeCircleOutline,
   informationCircleOutline,
@@ -42,6 +43,7 @@ import { PassengerRequestActions } from './passenger-request-actions/passenger-r
 import { TripLiveShare } from '../trip-live-share/trip-live-share';
 import { PassengerRequestRoute } from './passenger-request-route/passenger-request-route';
 import { TripReviewCard } from '../trip-review/trip-review-card';
+import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 
 // Desde cuánto antes de la salida ve el pasajero su código de recogida
 const BOARD_CODE_LEAD_MS = 10 * 60_000;
@@ -66,6 +68,7 @@ const BOARD_CODE_LEAD_MS = 10 * 60_000;
     PassengerProgress,
     PassengerRequestRoute,
     PassengerRequestActions,
+    RevealOnTouch,
     TripLiveShare,
     TripReviewCard,
   ],
@@ -209,6 +212,8 @@ export class PassengerRequestDetailPage {
 
   protected readonly firstName = (name: string) => getFirstName(name);
   protected readonly personIcon = personOutline;
+  // El coche, como la pestaña «En curso»
+  protected readonly liveIcon = carOutline;
   protected readonly alertIcon = alertCircleOutline;
   protected readonly pendingIcon = timeOutline;
   protected readonly acceptedIcon = checkmarkCircleOutline;

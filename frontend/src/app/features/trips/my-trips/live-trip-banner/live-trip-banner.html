@@ -9,5 +9,15 @@
       <span class="text-body-s live-trip-banner__detail">{{ detail() }}</span>
     }
   </div>
-  <ion-button size="small" [routerLink]="link()">Abrir viaje</ion-button>
+  <!-- El coche (el icono de «En curso»): lleva al viaje y muestra «Abrir
+       viaje» al pasar o con el primer toque -->
+  <a
+    class="icon-btn icon-btn--reveal live-trip-banner__open"
+    appRevealOnTouch
+    aria-label="Abrir el viaje en curso"
+    [routerLink]="link()"
+  >
+    <ion-icon [icon]="liveIcon" aria-hidden="true" />
+    <span class="icon-btn__label" aria-hidden="true">Abrir viaje</span>
+  </a>
 </section>

@@ -136,15 +136,23 @@
 
             <!-- En curso: el seguimiento en directo está en su pantalla -->
             @if (request.status === 'accepted' && trip.status === 'in_progress') {
+              <!-- El aviso y, a la derecha, el coche (el icono de «En curso»), que
+                   lleva a su pantalla y muestra «Seguir en directo» al pasar o
+                   con el primer toque -->
               <div class="notice notice--info passenger-detail__live">
-                <span class="passenger-detail__live-dot" aria-hidden="true"></span>
                 <span>
                   <b>{{ firstName(trip.driver.name) }} ha empezado el viaje.</b>
                   Síguelo en directo: verás dónde está el coche y cuánto le falta.
                 </span>
-                <ion-button size="small" [routerLink]="['/tabs/trips/ride', request.id]">
-                  Seguir en directo
-                </ion-button>
+                <a
+                  class="icon-btn icon-btn--reveal"
+                  appRevealOnTouch
+                  aria-label="Seguir el viaje en directo"
+                  [routerLink]="['/tabs/trips/ride', request.id]"
+                >
+                  <ion-icon [icon]="liveIcon" aria-hidden="true" />
+                  <span class="icon-btn__label" aria-hidden="true">Seguir en directo</span>
+                </a>
               </div>
             } @else if (request.status === 'accepted' && trip.status === 'confirmed') {
               <output class="notice notice--info">
