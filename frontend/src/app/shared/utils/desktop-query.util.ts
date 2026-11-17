@@ -58,8 +58,29 @@ export function injectIsOnUrl(pattern: RegExp): Signal<boolean> {
   return isOn.asReadonly();
 }
 
-// Abierta del todo (p. ej. para valorar al llegar)
+// Abierta del todo (p. ej. para valorar al llegar), como mucho
 export const LIVE_SHEET_FULL_BREAKPOINT = 0.92;
+
+// La parada de dos tercios, solo si la de arriba queda bastante más alta
+const LIVE_SHEET_TWO_THIRDS = 0.68;
+const LIVE_SHEET_TWO_THIRDS_MIN_TOP = 0.8;
+
+// Las paradas de la hoja según lo que ocupa su contenido (fracción del alto de
+// la hoja): la de arriba, justo a su altura (sin hueco vacío debajo) y como
+// mucho casi toda la pantalla; la de dos tercios, solo si hay sitio para que
+// crezca por tramos
+export function fitLiveSheetBreakpoints(contentFraction: number): number[] {
+  const [closed, half] = LIVE_SHEET_BREAKPOINTS;
+  const top = Math.min(Math.max(contentFraction, half), LIVE_SHEET_FULL_BREAKPOINT);
+  const stops = [closed, half];
+  if (top >= LIVE_SHEET_TWO_THIRDS_MIN_TOP) {
+    stops.push(LIVE_SHEET_TWO_THIRDS);
+  }
+  if (top > half) {
+    stops.push(Math.round(top * 100) / 100);
+  }
+  return stops;
+}
 
 export interface LiveSheetController {
   readonly isDesktop: Signal<boolean>;
@@ -74,6 +95,7 @@ export interface LiveSheetController {
   enter(): void;
   close(): Promise<void>;
   expand(): void;
+  fitToContent(contentFraction: number): void;
 }
 
 // La hoja inferior móvil de las pantallas «En curso»: no se cierra al
@@ -88,13 +110,17 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
   let modal: IonModal | undefined;
   let isLeaving = false;
   let isExpanded = false;
+  // Una copia por hoja: Ionic se queda con este mismo array al abrirla y no
+  // relee las paradas, así que al ajustarlas se cambia en su sitio
+  const breakpoints = [...LIVE_SHEET_BREAKPOINTS];
+  const topBreakpoint = (): number => breakpoints[breakpoints.length - 1];
 
   const canDismiss = (): Promise<boolean> =>
     Promise.resolve(isDesktop() || !isOnPage() || isLeaving);
   const setModal = (next: IonModal | undefined): void => {
     modal = next;
     if (modal && isExpanded) {
-      void modal.setCurrentBreakpoint(LIVE_SHEET_FULL_BREAKPOINT);
+      void modal.setCurrentBreakpoint(topBreakpoint());
     }
   };
   const enter = (): void => {
@@ -106,7 +132,24 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
   };
   const expand = (): void => {
     isExpanded = true;
-    void modal?.setCurrentBreakpoint(LIVE_SHEET_FULL_BREAKPOINT);
+    void modal?.setCurrentBreakpoint(topBreakpoint());
+  };
+  // Si el contenido cambia de alto, la parada de arriba lo sigue; si la hoja
+  // estaba en ella (o más arriba de lo que ahora ocupa), baja o sube con él
+  const fitToContent = (contentFraction: number): void => {
+    const next = fitLiveSheetBreakpoints(contentFraction);
+    const previousTop = topBreakpoint();
+    if (
+      Math.abs(next[next.length - 1] - previousTop) < 0.01 &&
+      next.length === breakpoints.length
+    ) {
+      return;
+    }
+    const wasAtTop = breakpoint() >= previousTop - 0.001 || breakpoint() > next[next.length - 1];
+    breakpoints.splice(0, breakpoints.length, ...next);
+    if (modal && wasAtTop) {
+      void modal.setCurrentBreakpoint(topBreakpoint());
+    }
   };
 
   effect(() => {
@@ -120,7 +163,7 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
     isDesktop,
     isOnPage,
     isOpen,
-    breakpoints: LIVE_SHEET_BREAKPOINTS,
+    breakpoints,
     initialBreakpoint: LIVE_SHEET_INITIAL_BREAKPOINT,
     breakpoint,
     mapInset,
@@ -129,5 +172,6 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
     enter,
     close,
     expand,
+    fitToContent,
   };
 }

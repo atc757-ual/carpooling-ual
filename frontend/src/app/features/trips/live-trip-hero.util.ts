@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, effect, input, TemplateRef, viewChild } from '@angular/core';
+import { Component, effect, ElementRef, input, TemplateRef, viewChild } from '@angular/core';
 import { IonCard, IonCardContent, IonContent, IonIcon, IonModal } from '@ionic/angular';
 import { LiveSheetController } from '../../shared/utils/desktop-query.util';
 import type { LiveTripStatus } from './passenger-requests/live-trip-map/live-trip-map';
@@ -136,7 +136,7 @@ export class LiveTripHero {
       >
         <ng-template>
           <ion-content>
-            <section class="live-sheet__body" aria-label="Tu viaje ahora">
+            <section #body class="live-sheet__body" aria-label="Tu viaje ahora">
               <ng-container [ngTemplateOutlet]="content()" />
             </section>
           </ion-content>
@@ -150,8 +150,32 @@ export class LiveTripSheet {
   readonly content = input.required<TemplateRef<unknown>>();
 
   private readonly modal = viewChild(IonModal);
+  private readonly body = viewChild<ElementRef<HTMLElement>>('body');
 
   constructor() {
     effect(() => this.sheet().setModal(this.modal()));
+    // La parada de arriba, a la altura del contenido: se mide cada vez que
+    // cambia (otra pastilla, una confirmación…) o cambia el alto de la hoja
+    effect((onCleanup) => {
+      const body = this.body()?.nativeElement;
+      const content = body?.closest('ion-content');
+      if (!body || !content || typeof ResizeObserver === 'undefined') {
+        return;
+      }
+      const observer = new ResizeObserver(() => this.fit(body, content));
+      observer.observe(body);
+      observer.observe(content);
+      onCleanup(() => observer.disconnect());
+    });
+  }
+
+  // Lo que ocupa el contenido con el relleno de la hoja (8px arriba, bajo el
+  // asa, y 16px abajo: 1,5rem, en live-trip.scss), en fracción de su alto
+  private fit(body: HTMLElement, content: HTMLElement): void {
+    if (content.offsetHeight === 0) {
+      return;
+    }
+    const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
+    this.sheet().fitToContent((body.offsetHeight + 1.5 * rem) / content.offsetHeight);
   }
 }
