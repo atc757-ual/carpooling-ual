@@ -1,13 +1,4 @@
-import {
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  inject,
-  input,
-  resource,
-  signal,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, resource, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -210,12 +201,11 @@ export class PassengerLiveTripPage {
   // (en el detalle del viaje)
   readonly reviewState = signal<'form' | 'sent' | 'skipped'>('form');
 
-  // Tras valorar (u omitirlo), la hoja se ajusta a lo que queda (el resumen y
-  // «Ver tu viaje»): ni cortado ni con un hueco vacío debajo
+  // Tras valorar (u omitirlo): el resumen y «Ver tu viaje». La hoja se queda a
+  // la altura que tenía durante el viaje (no salta)
   handleReviewDone(state: 'sent' | 'skipped', review: GivenReview | null = null): void {
     this.givenReview.set(review);
     this.reviewState.set(state);
-    this.sheet.expand();
   }
   // La valoración enviada, para el resumen (null si ya existía de antes)
   readonly givenReview = signal<GivenReview | null>(null);
@@ -256,12 +246,9 @@ export class PassengerLiveTripPage {
   );
   readonly sheet = injectLiveSheet(RIDE_URL);
 
+  // Al terminar, la hoja no se mueve: la valoración cabe a la altura que tenía
+  // durante el viaje (pidió el autor el 17/11 que no subiera sola)
   constructor() {
-    effect(() => {
-      if (this.phase() === 'finished') {
-        this.sheet.expand();
-      }
-    });
     const timer = setInterval(() => {
       if (this.isPageVisible() && this.isLive()) {
         this.requestResource.reload();
