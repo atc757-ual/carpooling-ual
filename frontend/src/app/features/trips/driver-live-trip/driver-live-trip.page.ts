@@ -150,6 +150,14 @@ export class DriverLiveTripPage {
   readonly activePickupId = computed(
     () => this.passengers().find((request) => !request.boardedAt)?.id ?? null,
   );
+  // La tarjeta que toca: el siguiente por recoger o, con todos dentro, el
+  // primero que sigue en el coche (los que ya se bajaron, no)
+  readonly focusPassengerId = computed(
+    () =>
+      this.activePickupId() ??
+      this.passengers().find((request) => request.status === 'accepted')?.id ??
+      null,
+  );
   // Recogidas hechas (o sin pasajeros): la etapa pasa a «Al destino»
   readonly arePickupsDone = computed(() => this.activePickupId() === null);
   // La tarjeta del carrusel que se ve (para los puntos)
@@ -286,11 +294,11 @@ export class DriverLiveTripPage {
         this.tracking.start(trip.id);
       }
     });
-    // Al validar a uno, el carrusel pasa solo al siguiente que toca
+    // Al validar a uno o al bajarse, el carrusel pasa solo al siguiente que toca
     effect(() => {
-      const activeId = this.activePickupId();
-      if (activeId) {
-        setTimeout(() => this.scrollToPickup(activeId));
+      const focusId = this.focusPassengerId();
+      if (focusId) {
+        setTimeout(() => this.scrollToPickup(focusId));
       }
     });
   }

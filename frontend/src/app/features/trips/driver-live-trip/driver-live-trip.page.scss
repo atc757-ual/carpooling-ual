@@ -138,6 +138,12 @@
   &--done {
     opacity: 1;
   }
+
+  // Ya se bajó: en verde claro, para distinguirla de los que siguen en el coche
+  &--off {
+    border-color: var(--color-success);
+    background: var(--color-success-subtle);
+  }
 }
 
 // Sus hijos van directamente a la rejilla de la tarjeta

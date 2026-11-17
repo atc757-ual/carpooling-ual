@@ -156,8 +156,9 @@
                       <section
                         class="pickup-slide"
                         [id]="'pickup-' + request.id"
-                        [class.pickup-slide--active]="isActive"
+                        [class.pickup-slide--active]="request.id === focusPassengerId()"
                         [class.pickup-slide--done]="request.boardedAt"
+                        [class.pickup-slide--off]="request.status === 'completed'"
                         aria-roledescription="pasajero"
                         [attr.aria-label]="firstName(request.passenger.name)"
                       >
