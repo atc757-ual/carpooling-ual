@@ -1,6 +1,5 @@
-// «Próximo viaje»: tarjeta blanca con borde (como las de Tus viajes); en
-// curso, el estilo «En directo» de la guía (azul claro con el borde de la
-// marca y el punto verde que late, como el aviso de Tus viajes). El espacio
+// «Próximo viaje»: tarjeta blanca con borde (como las de Tus viajes; en curso
+// va la de arriba de Tus viajes, app-live-trip-banner). El espacio
 // con lo de debajo lo pone el gap de la pantalla; sin viaje, el elemento no
 // ocupa sitio (si no, el gap dejaría un hueco vacío)
 :host {
@@ -17,11 +16,6 @@
   border: var(--border-width-s) solid var(--color-border-subtle);
   border-radius: var(--radius-s); // 8px, como las tarjetas
   background: var(--color-surface);
-
-  &--live {
-    border-color: var(--color-primary);
-    background: var(--color-primary-subtle);
-  }
 }
 
 .next-trip__text {
@@ -36,18 +30,6 @@
   align-items: center;
   gap: var(--space-xs);
   color: var(--color-link);
-}
-
-.next-trip__dot {
-  width: 0.5rem; // 8px
-  height: 0.5rem;
-  border-radius: var(--radius-full);
-  background: var(--color-success);
-  animation: next-trip-pulse 1.6s ease-in-out infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
 }
 
 .next-trip__when {
@@ -78,11 +60,5 @@
   .next-trip {
     grid-template-columns: 2fr 1fr;
     align-items: center;
-  }
-}
-
-@keyframes next-trip-pulse {
-  50% {
-    opacity: 0.35;
   }
 }

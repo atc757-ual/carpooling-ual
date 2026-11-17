@@ -8,18 +8,19 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { formatTime } from '../../matching/trip-results';
-import { formatRoute } from '../my-trips/my-trips-summary';
+import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
+import { LiveTripBanner } from '../my-trips/live-trip-banner/live-trip-banner';
 import { isOpenRequest, NextTrip, nextTripLink, nextTripStatus, pickNextTrip } from './next-trip';
 
 // «Próximo viaje», arriba de Buscar y de Publicar: el viaje más cercano del
-// usuario en cualquiera de sus papeles (o el que está en curso, con el estilo
-// «En directo»), con la hora, el trayecto, el estado, el papel y el acceso. El
+// usuario en cualquiera de sus papeles (el que está en curso, con la misma
+// tarjeta que arriba de Tus viajes), con la hora, el trayecto, el estado, el papel y el acceso. El
 // pasajero con plaza tiene además el chat con el conductor. Sin viaje no se
 // ve. Ionic guarda las pantallas: quien la usa llama a reload() al volver a
 // la pestaña (ionViewWillEnter)
 @Component({
   selector: 'app-next-trip-card',
-  imports: [RouterLink, IonButton, IonIcon, IonRouterLink],
+  imports: [RouterLink, IonButton, IonIcon, IonRouterLink, LiveTripBanner],
   templateUrl: './next-trip-card.html',
   styleUrl: './next-trip-card.scss',
 })
@@ -77,10 +78,18 @@ export class NextTripCard {
       ? `/tabs/messages/${next.trip.id}`
       : null;
   });
-  readonly actionLabel = computed(() => {
-    if (this.isLive()) {
-      return 'Abrir viaje';
+  // En curso: cuántos van (conductor) o quién conduce (pasajero), como en la
+  // tarjeta de Tus viajes
+  readonly liveDetail = computed(() => {
+    const next = this.next();
+    if (!next) {
+      return '';
     }
+    return next.role === 'driver'
+      ? `${occupiedSeats(next.trip)} de ${next.trip.offeredSeats} plazas ocupadas`
+      : `Conduce ${next.trip.driver.name}`;
+  });
+  readonly actionLabel = computed(() => {
     return this.next()?.role === 'driver' ? 'Ver tu viaje' : 'Ver tu plaza';
   });
 

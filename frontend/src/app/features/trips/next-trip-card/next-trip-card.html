@@ -1,16 +1,12 @@
-@if (next(); as next) {
-  <section class="next-trip" [class.next-trip--live]="isLive()" aria-labelledby="next-trip-title">
+@if (isLive()) {
+  <!-- En curso: la misma tarjeta que arriba de Tus viajes -->
+  <app-live-trip-banner [route]="route()" [detail]="liveDetail()" [link]="link()" />
+} @else if (next(); as next) {
+  <section class="next-trip" aria-labelledby="next-trip-title">
     <!-- 8 + 4 en escritorio: el viaje a la izquierda y el acceso a la derecha;
          en el móvil, uno debajo de otro -->
     <div class="next-trip__text">
-      <span id="next-trip-title" class="text-eyebrow next-trip__eyebrow">
-        @if (isLive()) {
-          <span class="next-trip__dot" aria-hidden="true"></span>
-          En directo
-        } @else {
-          Próximo viaje
-        }
-      </span>
+      <span id="next-trip-title" class="text-eyebrow next-trip__eyebrow"> Próximo viaje </span>
       <div class="next-trip__when">
         <span class="text-subtitle">{{ when() }}</span>
         @if (next.role === 'driver') {
