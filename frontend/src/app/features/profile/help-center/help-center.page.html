@@ -127,7 +127,13 @@
     </div>
   </div>
   @if (isSearchOpen()) {
-    <!-- Fuera del desplegable: cierra al pulsar; en el móvil, oscurece -->
-    <div class="help-search__backdrop" aria-hidden="true" (click)="handleCloseSearch()"></div>
+    <!-- Fuera del desplegable: cierra al pulsar (con el teclado, Escape);
+         en el móvil, oscurece -->
+    <div
+      class="help-search__backdrop"
+      aria-hidden="true"
+      (click)="handleCloseSearch()"
+      (keydown.escape)="handleCloseSearch()"
+    ></div>
   }
 </ng-template>
