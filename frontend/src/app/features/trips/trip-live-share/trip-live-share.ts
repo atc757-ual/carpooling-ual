@@ -1,5 +1,6 @@
 import { Component, inject, input, linkedSignal, resource, signal } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular';
+import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 import {
   closeCircleOutline,
   paperPlaneOutline,
@@ -21,7 +22,7 @@ const SHARE_TEXT = 'Sigue mi viaje en directo: dónde está el coche y cuándo l
 // de compartir (el enlace deja de funcionar al momento)
 @Component({
   selector: 'app-trip-live-share',
-  imports: [IonButton, IonIcon],
+  imports: [IonButton, IonIcon, RevealOnTouch],
   templateUrl: './trip-live-share.html',
   styleUrl: './trip-live-share.scss',
 })

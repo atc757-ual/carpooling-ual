@@ -1168,13 +1168,13 @@ ion-toggle {
   // Al pasar (ratón) o al pulsar (táctil): azul claro con el borde azul. El
   // gris claro de antes casi no se distinguía del blanco de la tarjeta
   @media (any-hover: hover) {
-    &:hover:not(:disabled, .icon-btn--unavailable) {
+    &:hover:not(:disabled) {
       border-color: var(--color-link);
       background: var(--color-primary-subtle);
     }
   }
 
-  &:active:not(:disabled, .icon-btn--unavailable) {
+  &:active:not(:disabled) {
     border-color: var(--color-link);
     background: var(--color-primary-subtle);
   }
@@ -1184,8 +1184,7 @@ ion-toggle {
     outline-offset: 2px;
   }
 
-  &:disabled,
-  &--unavailable {
+  &:disabled {
     color: var(--color-text-disabled);
     cursor: default;
   }
@@ -1291,4 +1290,29 @@ ion-toggle {
   .icon-btn__label {
     transition: none;
   }
+}
+
+// Con un texto corto que se ve siempre (.icon-btn__short, p. ej. «SOS») y que,
+// al estirarse, deja su sitio al largo (.icon-btn__label, «Llamar al 112»)
+.icon-btn__short {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+
+  @media (any-hover: hover) {
+    .icon-btn--reveal:hover:not(:disabled) & {
+      display: none;
+    }
+  }
+
+  .icon-btn--reveal:focus-visible &,
+  .icon-btn--revealed & {
+    display: none;
+  }
+}
+
+// Plegado, con su texto corto: el icono y el texto con 4px entre ellos
+.icon-btn--reveal:has(.icon-btn__short) {
+  gap: var(--space-xs);
+  padding-inline: var(--space-s);
 }

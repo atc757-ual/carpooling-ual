@@ -48,6 +48,7 @@ import { RatingBar } from '../../../shared/components/ui/rating-bar/rating-bar';
 import { ratingName } from '../../../shared/utils/rating.util';
 import { PassengerRequestActions } from '../passenger-requests/passenger-request-actions/passenger-request-actions';
 import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
+import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 import { FilterChips } from '../../../shared/components/ui/filter-chips/filter-chips';
 import {
   buildRideSheetTabs,
@@ -119,6 +120,7 @@ function arriveErrorMessage(code: string): string {
     PassengerIncidentModal,
     PassengerRequestActions,
     RatingBar,
+    RevealOnTouch,
     TripReviewForm,
   ],
   templateUrl: './passenger-live-trip.page.html',

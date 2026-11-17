@@ -297,7 +297,7 @@
                           <button
                             type="button"
                             class="icon-btn"
-                            [class.icon-btn--unavailable]="!canCallPassenger(request.passenger.id)"
+                            [disabled]="!canCallPassenger(request.passenger.id)"
                             [attr.aria-label]="
                               callPassengerLabel(request.passenger.name, request.passenger.id)
                             "

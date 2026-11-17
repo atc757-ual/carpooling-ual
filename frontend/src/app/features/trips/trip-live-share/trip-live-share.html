@@ -11,13 +11,14 @@
            enlace -->
       <button
         type="button"
-        class="icon-btn"
+        class="icon-btn icon-btn--reveal"
+        appRevealOnTouch
         aria-label="Compartir el enlace de tu viaje con alguien más"
-        title="Compartir el enlace"
         [disabled]="isBusy()"
         (click)="handleCopyLink()"
       >
         <ion-icon [icon]="sendIcon" aria-hidden="true" />
+        <span class="icon-btn__label" aria-hidden="true">Compartir ubicación</span>
       </button>
     } @else {
       <p class="text-body-s text-color-muted">
@@ -25,13 +26,14 @@
       </p>
       <button
         type="button"
-        class="icon-btn"
+        class="icon-btn icon-btn--reveal"
+        appRevealOnTouch
         aria-label="Compartir el enlace de tu viaje (se abre sin cuenta)"
-        title="Compartir el enlace"
         [disabled]="isBusy()"
         (click)="handleStart()"
       >
         <ion-icon [icon]="sendIcon" aria-hidden="true" />
+        <span class="icon-btn__label" aria-hidden="true">Compartir ubicación</span>
       </button>
     }
   </div>
