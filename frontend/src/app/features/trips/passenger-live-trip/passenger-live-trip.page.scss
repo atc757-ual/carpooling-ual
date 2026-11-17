@@ -347,6 +347,12 @@ ion-card-content.ride__state {
     }
   }
 
+  // «Estás llegando», un recuadro azul dentro de la tarjeta: 16px arriba (si
+  // abre la columna) y 16px hasta la línea de la sección siguiente
+  .ride__side > .ride__panel--arriving {
+    margin-block: var(--space-base);
+  }
+
   // El mapa, con 16px abajo dentro de la tarjeta de la columna
   .ride__map-card ion-card-content[class] {
     padding-bottom: var(--space-base);
