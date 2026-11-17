@@ -154,7 +154,9 @@ ion-modal.live-sheet {
   --border-radius: var(--radius-s);
   --box-shadow: 0 -0.25rem 1rem rgb(0 0 0 / 12%); // sombra hacia arriba
 
-  bottom: calc(var(--tab-bar-height) + var(--ion-safe-area-bottom, 0px));
+  // Justo encima de la barra: sus 76px, el margen seguro de abajo (iPhone) y
+  // su borde de arriba
+  bottom: calc(var(--tab-bar-height) + var(--ion-safe-area-bottom, 0px) + var(--border-width-s));
 
   ::ng-deep ion-content {
     --background: var(--color-surface);

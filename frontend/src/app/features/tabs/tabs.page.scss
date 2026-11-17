@@ -36,7 +36,10 @@ ion-tabs {
   --color: var(--color-text-muted);
   --color-selected: var(--color-link);
 
-  height: calc(var(--tab-bar-height) + var(--ion-safe-area-bottom, 0px));
+  // Solo los 76px: Ionic ya le suma el margen seguro de abajo (iPhone) como
+  // relleno (ion-tab-bar es content-box). Sumarlo aquí lo contaba dos veces y
+  // la barra quedaba más alta que el hueco que le dejan las pantallas
+  height: var(--tab-bar-height);
   border-top: var(--border-width-s) solid var(--color-border-subtle);
 }
 
