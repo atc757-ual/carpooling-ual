@@ -83,10 +83,11 @@ ion-card.ride__panel.ride__panel--arriving[class] {
   border-radius: var(--radius-s);
 }
 
-// En la hoja y en la columna de 4 las secciones no tienen relleno lateral:
-// aquí 8px, para que el texto no toque el borde del fondo azul
+// 8px de relleno por todos los lados (en la hoja y en la columna de 4 las
+// demás secciones no lo tienen a los lados): compacta, sin que el texto toque
+// el borde del fondo azul
 .ride__panel--arriving ion-card-content[class] {
-  padding-inline: var(--space-s);
+  padding: var(--space-s);
 }
 
 // Cuatro cifras, una por casilla, fáciles de leer en voz alta
@@ -118,13 +119,22 @@ ion-card.ride__panel.ride__panel--arriving[class] {
   align-items: center;
   gap: var(--space-base); // 16px entre el texto y el botón
 
-  p {
-    flex: 1;
-    min-width: 0;
-  }
-
   form {
     flex: none;
+  }
+}
+
+// El título y el texto, uno encima del otro, ocupando lo que deja el botón
+.ride__arrive-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+
+  h2,
+  p {
+    margin: 0;
   }
 }
 

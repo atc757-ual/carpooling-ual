@@ -183,52 +183,50 @@
                     aria-labelledby="ride-arrive-title"
                   >
                     <ion-card-content>
-                      @switch (variant) {
-                        @case ('near') {
-                          <h2 id="ride-arrive-title" class="text-subtitle">Estás llegando</h2>
-                          <p class="text-caption text-color-muted">
-                            ¿Has llegado? Márcalo y podrás valorar a {{ driverName() }}.
-                          </p>
-                        }
-                        @case ('early') {
-                          <!-- Discreto: el texto y, a la derecha, el botón redondo -->
-                          <h2 id="ride-arrive-title" class="text-subtitle">
-                            ¿Te has bajado antes?
-                          </h2>
-                          <div class="ride__arrive-row">
-                            <p class="text-caption text-color-muted">
-                              Márcalo si te has bajado antes del campus. Si no, te lo pediremos al
-                              llegar.
-                            </p>
-                            <form (submit)="handleArrive($event)">
-                              <button
-                                type="submit"
-                                class="icon-btn"
-                                aria-label="He llegado: ya me he bajado"
-                                title="He llegado"
-                                [disabled]="isArriving()"
-                              >
-                                <ion-icon [icon]="arrivedIcon" aria-hidden="true" />
-                              </button>
-                            </form>
-                          </div>
-                        }
-                        @default {
-                          <h2 id="ride-arrive-title" class="text-subtitle">¿Ya te has bajado?</h2>
-                          <p class="text-caption text-color-muted">
-                            Márcalo al llegar y podrás valorar a {{ driverName() }}. Si lo marca
-                            {{ driverName() }} antes, tu viaje se cerrará solo.
-                          </p>
-                        }
-                      }
-                      @if (variant !== 'early') {
+                      <!-- El título y el texto y, a su derecha, «He llegado» como botón
+                           de icono que se despliega con su texto -->
+                      <div class="ride__arrive-row">
+                        <div class="ride__arrive-text">
+                          @switch (variant) {
+                            @case ('near') {
+                              <h2 id="ride-arrive-title" class="text-subtitle">Estás llegando</h2>
+                              <p class="text-caption text-color-muted">
+                                ¿Has llegado? Márcalo y podrás valorar a {{ driverName() }}.
+                              </p>
+                            }
+                            @case ('early') {
+                              <h2 id="ride-arrive-title" class="text-subtitle">
+                                ¿Te has bajado antes?
+                              </h2>
+                              <p class="text-caption text-color-muted">
+                                Márcalo si te has bajado antes del campus. Si no, te lo pediremos al
+                                llegar.
+                              </p>
+                            }
+                            @default {
+                              <h2 id="ride-arrive-title" class="text-subtitle">
+                                ¿Ya te has bajado?
+                              </h2>
+                              <p class="text-caption text-color-muted">
+                                Márcalo al llegar y podrás valorar a {{ driverName() }}. Si lo marca
+                                {{ driverName() }} antes, tu viaje se cerrará solo.
+                              </p>
+                            }
+                          }
+                        </div>
                         <form (submit)="handleArrive($event)">
-                          <ion-button type="submit" expand="block" [disabled]="isArriving()">
-                            <ion-icon slot="start" [icon]="arrivedIcon" aria-hidden="true" />
-                            {{ variant === 'near' ? 'Sí, he llegado' : 'He llegado' }}
-                          </ion-button>
+                          <button
+                            type="submit"
+                            class="icon-btn icon-btn--reveal"
+                            appRevealOnTouch
+                            aria-label="He llegado: ya me he bajado"
+                            [disabled]="isArriving()"
+                          >
+                            <ion-icon [icon]="arrivedIcon" aria-hidden="true" />
+                            <span class="icon-btn__label" aria-hidden="true">He llegado</span>
+                          </button>
                         </form>
-                      }
+                      </div>
                     </ion-card-content>
                   </ion-card>
                 </ng-template>
