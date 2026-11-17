@@ -70,15 +70,21 @@
   @if (error(); as message) {
     <p class="trip-review__error text-caption" role="alert">{{ message }}</p>
   }
-  <!-- En una fila: «Ahora no» a la izquierda y enviar, la principal, a la derecha -->
+  <!-- Uno debajo del otro, de lado a lado: enviar y, si se puede, «Ahora no» -->
   <div class="trip-review__actions">
+    <ion-button type="submit" expand="block" [disabled]="rating() === 0 || isSending()">
+      {{ isSending() ? 'Enviando…' : 'Enviar valoración' }}
+    </ion-button>
     @if (canSkip()) {
-      <ion-button type="button" fill="outline" [disabled]="isSending()" (click)="skipped.emit()">
+      <ion-button
+        type="button"
+        expand="block"
+        fill="outline"
+        [disabled]="isSending()"
+        (click)="skipped.emit()"
+      >
         Ahora no
       </ion-button>
     }
-    <ion-button type="submit" [disabled]="rating() === 0 || isSending()">
-      {{ isSending() ? 'Enviando…' : 'Enviar valoración' }}
-    </ion-button>
   </div>
 </form>

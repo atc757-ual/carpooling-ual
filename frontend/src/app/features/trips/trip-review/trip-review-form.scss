@@ -1,5 +1,5 @@
-// La valoración: la barra de 5 tramos entre las dos manitas, el comentario
-// (al pedirlo) y los dos botones en una fila
+// La valoración: los 5 botones entre las dos manitas, el comentario
+// (al pedirlo) y los dos botones, uno debajo del otro
 .trip-review {
   display: flex;
   flex-direction: column;
@@ -21,7 +21,7 @@
   }
 }
 
-// La manita abajo, la barra y la manita arriba en una fila
+// La manita abajo, los 5 botones y la manita arriba en una fila
 .trip-review__scale {
   display: flex;
   align-items: center;
@@ -113,11 +113,10 @@
 
 .trip-review__actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-s);
 
   ion-button {
-    flex: 1 1 8rem; // 128px: si no caben, uno debajo del otro
     margin: 0;
   }
 }
