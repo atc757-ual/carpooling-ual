@@ -14,12 +14,12 @@ import {
   withComponentInputBinding,
   withPreloading,
 } from '@angular/router';
-import {
-  iosTransitionAnimation,
-  IonicRouteStrategy,
-  isPlatform,
-  provideIonicAngular,
-} from '@ionic/angular';
+// El arranque importa de las entradas sueltas de Ionic, no de '@ionic/angular':
+// su índice arrastra todos los componentes al paquete inicial (1,51 MB frente
+// a 744 kB). Las pantallas, que se cargan en diferido, siguen con el índice
+import { iosTransitionAnimation, isPlatform } from '@ionic/core/components';
+import { provideIonicAngular } from '@ionic/angular/provide';
+import { IonicRouteStrategy } from '@ionic/angular/ionic-route-strategy';
 import { provideTransloco, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 import { routes } from './app.routes';

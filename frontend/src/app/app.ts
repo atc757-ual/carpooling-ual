@@ -1,7 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationStart, Router } from '@angular/router';
-import { IonApp, IonRouterOutlet } from '@ionic/angular';
+// Entradas sueltas de Ionic, como en app.config.ts: el índice de
+// '@ionic/angular' metería todos los componentes en el paquete inicial
+import { IonApp } from '@ionic/angular/ion-app';
+import { IonRouterOutlet } from '@ionic/angular/ion-router-outlet';
 import { filter } from 'rxjs';
 import { ThemeService } from './core/services/ui/theme.service';
 
