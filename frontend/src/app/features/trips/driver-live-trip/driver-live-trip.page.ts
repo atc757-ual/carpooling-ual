@@ -169,6 +169,13 @@ export class DriverLiveTripPage {
   readonly droppedOffCount = computed(
     () => this.passengers().filter((request) => request.status === 'completed').length,
   );
+  // Nadie por recoger ni en el coche (sin pasajeros, o todos bajados o sin
+  // presentarse): lo único que queda es terminar, así que el botón sube arriba
+  readonly isReadyToFinish = computed(
+    () =>
+      this.requests.hasValue() &&
+      this.passengers().every((request) => request.status === 'completed'),
+  );
   private readonly droppingOffIds = signal<ReadonlySet<string>>(new Set());
 
   readonly isSharing = computed(() => this.tracking.tripId() === this.trip()?.id);

@@ -110,6 +110,19 @@
               <ng-container [ngTemplateOutlet]="liveHero" />
             }
 
+            <!-- Sin nadie por recoger ni en el coche: terminar, a la vista -->
+            @if (isReadyToFinish()) {
+              <ion-card class="driver-live-trip__panel">
+                <ion-card-content>
+                  <h2 class="text-subtitle">Ya no queda nadie por llevar</h2>
+                  <p class="text-body-s text-color-muted">
+                    Termina el viaje al llegar para dejar de compartir tu ubicación.
+                  </p>
+                  <ng-container [ngTemplateOutlet]="finishButton" />
+                </ion-card-content>
+              </ion-card>
+            }
+
             <!-- Las recogidas, en un carrusel por orden de recogida -->
             <ion-card class="driver-live-trip__panel" role="region" aria-labelledby="pickups-title">
               <ion-card-content>
@@ -320,12 +333,18 @@
                   }
                 }
 
-                <ion-button expand="block" [disabled]="isFinishing()" (click)="handleFinish()">
-                  {{ isFinishing() ? 'Comprobando…' : 'Terminar viaje' }}
-                </ion-button>
+                @if (!isReadyToFinish()) {
+                  <ng-container [ngTemplateOutlet]="finishButton" />
+                }
               </ion-card-content>
             </ion-card>
           }
+        </ng-template>
+
+        <ng-template #finishButton>
+          <ion-button expand="block" [disabled]="isFinishing()" (click)="handleFinish()">
+            {{ isFinishing() ? 'Comprobando…' : 'Terminar viaje' }}
+          </ion-button>
         </ng-template>
 
         <!-- «Rumbo al campus»: en la hoja (móvil) o encima del mapa (escritorio) -->
