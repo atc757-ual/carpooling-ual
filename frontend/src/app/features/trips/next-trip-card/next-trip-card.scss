@@ -1,0 +1,83 @@
+// «Próximo viaje»: tarjeta blanca con borde (como las de Tus viajes); en
+// curso, el estilo «En directo» de la guía (azul claro con el borde de la
+// marca y el punto verde que late, como el aviso de Tus viajes)
+.next-trip {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-s) var(--space-base);
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: var(--space-base);
+  padding: var(--space-base);
+  border: var(--border-width-s) solid var(--color-border-subtle);
+  border-radius: var(--radius-s); // 8px, como las tarjetas
+  background: var(--color-surface);
+
+  &--live {
+    border-color: var(--color-primary);
+    background: var(--color-primary-subtle);
+  }
+}
+
+.next-trip__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.next-trip__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-link);
+}
+
+.next-trip__dot {
+  width: 0.5rem; // 8px
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  animation: next-trip-pulse 1.6s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.next-trip__when {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-s);
+}
+
+.next-trip__route {
+  overflow-wrap: anywhere;
+}
+
+.next-trip__actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-xs);
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+// Escritorio (desde 768 px): 8 + 4, el viaje a la izquierda y el acceso a la
+// derecha
+@media (min-width: 48rem) {
+  .next-trip {
+    grid-template-columns: 2fr 1fr;
+    align-items: center;
+  }
+}
+
+@keyframes next-trip-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}

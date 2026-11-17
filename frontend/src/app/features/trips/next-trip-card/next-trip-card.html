@@ -1,0 +1,48 @@
+@if (next(); as next) {
+  <section class="next-trip" [class.next-trip--live]="isLive()" aria-labelledby="next-trip-title">
+    <!-- 8 + 4 en escritorio: el viaje a la izquierda y el acceso a la derecha;
+         en el móvil, uno debajo de otro -->
+    <div class="next-trip__text">
+      <span id="next-trip-title" class="text-eyebrow next-trip__eyebrow">
+        @if (isLive()) {
+          <span class="next-trip__dot" aria-hidden="true"></span>
+          En directo
+        } @else {
+          Próximo viaje
+        }
+      </span>
+      <div class="next-trip__when">
+        <span class="text-subtitle">{{ when() }}</span>
+        @if (next.role === 'driver') {
+          <span class="role-tag role-tag--driver">
+            <ion-icon [icon]="driverIcon" aria-hidden="true" />Conduces
+          </span>
+        } @else {
+          <span class="role-tag role-tag--passenger">
+            <ion-icon [icon]="passengerIcon" aria-hidden="true" />Viajas
+          </span>
+        }
+        @if (status(); as status) {
+          <span
+            class="status"
+            [class.status--pending]="status.kind === 'pending'"
+            [class.status--accepted]="status.kind === 'accepted'"
+            [class.status--info]="status.kind === 'info'"
+          >
+            {{ status.label }}
+          </span>
+        }
+      </div>
+      <span class="text-body next-trip__route">{{ route() }}</span>
+    </div>
+    <div class="next-trip__actions">
+      <ion-button [routerLink]="link()">{{ actionLabel() }}</ion-button>
+      @if (chatLink(); as chat) {
+        <ion-button fill="outline" [routerLink]="chat">
+          <ion-icon slot="start" [icon]="chatIcon" aria-hidden="true" />
+          Chat con el conductor
+        </ion-button>
+      }
+    </div>
+  </section>
+}

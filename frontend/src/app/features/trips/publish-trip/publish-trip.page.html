@@ -1,5 +1,7 @@
 <ion-content>
   <div class="tab-page publish">
+    <!-- El próximo viaje (o el que está en curso), si lo tiene -->
+    <app-next-trip-card />
     <!-- Mientras se preparan los parkings y el estado del conductor, nada (es
          un instante); más adelante, un esqueleto de la pantalla -->
     @switch (loadState()) {
