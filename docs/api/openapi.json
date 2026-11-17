@@ -16576,10 +16576,11 @@
               "pending_requests_reminder",
               "trip_start_reminder",
               "trip_expired",
+              "trip_auto_finished",
               "terms_updated",
               "privacy_updated"
             ],
-            "description": "request_received (to the driver), passenger_joined (to the driver, when the trip accepts requests automatically), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver when a trip with passengers finishes), trip_completed (to the passenger when their seat is closed: they got off or the trip finished), incident_reported (to the administrators), terms_updated and privacy_updated (to every active user after a minor change of a legal document)"
+            "description": "request_received (to the driver), passenger_joined (to the driver, when the trip accepts requests automatically), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver when a trip with passengers finishes), trip_completed (to the passenger when their seat is closed: they got off or the trip finished), trip_auto_finished (to the driver when the system closes a trip in progress that nobody finished), incident_reported (to the administrators), terms_updated and privacy_updated (to every active user after a minor change of a legal document)"
           },
           "trip": {
             "nullable": true,
@@ -17094,6 +17095,16 @@
             "nullable": true,
             "description": "When the trip started; null until then"
           },
+          "finishedBy": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "passengers",
+              "system"
+            ],
+            "nullable": true,
+            "description": "How the trip finished: the driver, the passengers (the last one got off or left) or the system (closed automatically 1 h after the estimated arrival); null until it finishes"
+          },
           "isLocationApproximate": {
             "type": "boolean",
             "description": "True when origin and destination are rounded to about 500 m (campus parkings excepted): whoever is not the driver, an accepted passenger or an administrator does not see the exact points"
@@ -17130,6 +17141,7 @@
           "destinationName",
           "status",
           "startedAt",
+          "finishedBy",
           "isLocationApproximate",
           "returnTrip"
         ]
@@ -17249,6 +17261,16 @@
             "nullable": true,
             "description": "When the trip started; null until then"
           },
+          "finishedBy": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "passengers",
+              "system"
+            ],
+            "nullable": true,
+            "description": "How the trip finished: the driver, the passengers (the last one got off or left) or the system (closed automatically 1 h after the estimated arrival); null until it finishes"
+          },
           "isLocationApproximate": {
             "type": "boolean",
             "description": "True when origin and destination are rounded to about 500 m (campus parkings excepted): whoever is not the driver, an accepted passenger or an administrator does not see the exact points"
@@ -17275,6 +17297,7 @@
           "destinationName",
           "status",
           "startedAt",
+          "finishedBy",
           "isLocationApproximate"
         ]
       },

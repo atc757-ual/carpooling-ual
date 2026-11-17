@@ -31,7 +31,7 @@ export class NotificationResource {
   @ApiProperty({
     enum: NOTIFICATION_TYPES,
     description:
-      'request_received (to the driver), passenger_joined (to the driver, when the trip accepts requests automatically), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver when a trip with passengers finishes), trip_completed (to the passenger when their seat is closed: they got off or the trip finished), incident_reported (to the administrators), terms_updated and privacy_updated (to every active user after a minor change of a legal document)',
+      'request_received (to the driver), passenger_joined (to the driver, when the trip accepts requests automatically), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver when a trip with passengers finishes), trip_completed (to the passenger when their seat is closed: they got off or the trip finished), trip_auto_finished (to the driver when the system closes a trip in progress that nobody finished), incident_reported (to the administrators), terms_updated and privacy_updated (to every active user after a minor change of a legal document)',
   })
   type: NotificationType;
 

@@ -495,6 +495,7 @@ export class TripsService {
       current.finishDistanceM = position
         ? await distanceToDestination(manager, tripId, position)
         : null;
+      current.finishedBy = 'driver';
       const finished = await this.tripStatus.changeStatus(
         manager,
         current,
@@ -513,6 +514,7 @@ export class TripsService {
     manager: EntityManager,
     trip: Trip,
   ): Promise<Trip> {
+    trip.finishedBy = 'passengers';
     const finished = await this.tripStatus.changeStatus(
       manager,
       trip,

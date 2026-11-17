@@ -117,3 +117,7 @@ export function resolveDeparture(
   }
   return departureAt;
 }
+// Cierre automático (decidido con el autor el 17/11/2026): un viaje en curso
+// que nadie termina pasa a finalizado 1 h después de su llegada estimada (la
+// salida, o el inicio si fue más tarde, más la duración de la ruta)
+export const AUTO_FINISH_AFTER_ARRIVAL_MIN = 60;

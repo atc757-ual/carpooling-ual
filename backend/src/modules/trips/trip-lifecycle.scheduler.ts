@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { TripExpiryService } from './trip-expiry.service';
+import { TripAutoFinishService } from './trip-auto-finish.service';
 import { TripRemindersService } from './trip-reminders.service';
 import { TripsService } from './trips.service';
 
@@ -12,6 +13,7 @@ export class TripLifecycleScheduler {
     private readonly tripsService: TripsService,
     private readonly reminders: TripRemindersService,
     private readonly expiry: TripExpiryService,
+    private readonly autoFinish: TripAutoFinishService,
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -22,6 +24,12 @@ export class TripLifecycleScheduler {
     if (cancelledCount > 0) {
       this.logger.log(
         `Cancelados automáticamente ${cancelledCount} viajes no iniciados tras 10 min de la salida`,
+      );
+    }
+    const finishedCount = await this.autoFinish.finishAbandonedTrips();
+    if (finishedCount > 0) {
+      this.logger.log(
+        `Cerrados automáticamente ${finishedCount} viajes en curso 1 h después de su llegada estimada`,
       );
     }
   }

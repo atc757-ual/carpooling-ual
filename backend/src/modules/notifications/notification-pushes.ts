@@ -40,6 +40,10 @@ const PUSH_TEXTS: Partial<
     title: 'Tu viaje ha terminado',
     body: 'Valora a tu conductor: ayuda a la comunidad.',
   },
+  trip_auto_finished: {
+    title: 'Hemos cerrado tu viaje',
+    body: 'Había pasado una hora de la llegada: valora a tus pasajeros.',
+  },
   pending_requests_reminder: {
     title: 'Tienes solicitudes por responder',
     body: 'Respóndelas antes de 10 min de la salida o caducarán.',
