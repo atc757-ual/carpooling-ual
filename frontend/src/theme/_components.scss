@@ -1165,10 +1165,18 @@ ion-toggle {
     font-size: 1.25rem; // 20px
   }
 
+  // Al pasar (ratón) o al pulsar (táctil): azul claro con el borde azul. El
+  // gris claro de antes casi no se distinguía del blanco de la tarjeta
   @media (any-hover: hover) {
-    &:hover:not(:disabled) {
-      background: var(--color-surface-subtle);
+    &:hover:not(:disabled, .icon-btn--unavailable) {
+      border-color: var(--color-link);
+      background: var(--color-primary-subtle);
     }
+  }
+
+  &:active:not(:disabled, .icon-btn--unavailable) {
+    border-color: var(--color-link);
+    background: var(--color-primary-subtle);
   }
 
   &:focus-visible {
@@ -1182,6 +1190,22 @@ ion-toggle {
     cursor: default;
   }
 
+  // Con icono y texto (p. ej. el teléfono y «SOS»): tan ancho y alto como
+  // pida, con 8px de relleno (como las pastillas a su lado)
+  &--labeled {
+    display: inline-flex;
+    gap: var(--space-xs);
+    width: auto;
+    height: auto;
+    padding: var(--space-s);
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 1rem; // 16px
+    }
+  }
+
   &--danger {
     border-color: transparent;
     background: var(--color-danger);
@@ -1192,8 +1216,14 @@ ion-toggle {
 
     @media (any-hover: hover) {
       &:hover:not(:disabled) {
+        border-color: transparent;
         background: var(--color-danger-text);
       }
+    }
+
+    &:active:not(:disabled) {
+      border-color: transparent;
+      background: var(--color-danger-text);
     }
   }
 }

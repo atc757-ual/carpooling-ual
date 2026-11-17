@@ -1,4 +1,4 @@
-import { Component, inject, input, linkedSignal, output, resource, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, resource, signal } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular';
 import {
   closeCircleOutline,
@@ -33,10 +33,6 @@ export class TripLiveShare {
   readonly tripId = input.required<string>();
   // Compacto (en «En curso»): una fila con el texto y un botón redondo
   readonly isCompact = input(false);
-  // Compacto: la ✕ no deja de compartir; pide confirmarlo a la pantalla (que
-  // lo pregunta en la hoja, sin ventana encima) y le da cómo hacerlo
-  readonly stopRequest = output<() => Promise<void>>();
-  readonly stopSharing = (): Promise<void> => this.handleStop();
 
   // El enlace que este dispositivo está compartiendo (el servidor no lo guarda)
   private readonly storedLink = resource({
@@ -64,6 +60,30 @@ export class TripLiveShare {
   async handleResend(): Promise<void> {
     const url = this.activeLink();
     if (url) {
+      await this.send(url);
+    }
+  }
+
+  // El avión (compacto, compartiendo): con menú de compartir del sistema, como ahora; sin él
+  // (escritorio), copia el enlace y lo avisa. Si el navegador no deja copiar,
+  // se envía por WhatsApp como al empezar
+  async handleCopyLink(): Promise<void> {
+    const url = this.activeLink();
+    if (!url) {
+      return;
+    }
+    const navigator = globalThis.navigator;
+    if (typeof navigator?.share === 'function' || !navigator?.clipboard) {
+      await this.send(url);
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      await this.toast.showSuccess('Enlace copiado: pégalo donde quieras enviarlo.');
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === 'NotAllowedError')) {
+        throw error;
+      }
       await this.send(url);
     }
   }

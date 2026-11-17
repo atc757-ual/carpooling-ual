@@ -8,6 +8,13 @@
   margin: 0;
 }
 
+// En «En curso»: el título en seminegrita, como los de las demás tarjetas
+// (Ionic da a los h2 de ion-card-content un peso normal)
+.passenger-actions__title {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+}
+
 ion-card.passenger-actions ion-card-content {
   display: flex;
   flex-direction: column;

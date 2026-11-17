@@ -27,6 +27,20 @@
   }
 }
 
+// Compactas: 8px por todos los lados
+.filter-chips--compact ion-chip {
+  min-height: 0;
+  padding: var(--space-s); // 8px
+}
+
+// La elegida, en azul claro: el texto y el borde azules sobre el fondo azul
+// muy claro, en seminegrita
+.filter-chips--compact ion-chip.filter-chips__chip--selected {
+  border-color: var(--color-primary);
+  --background: var(--color-primary-subtle);
+  --color: var(--color-link);
+}
+
 // Una sola línea con desplazamiento lateral, sin barra visible
 .filter-chips--single-line {
   flex-wrap: nowrap;

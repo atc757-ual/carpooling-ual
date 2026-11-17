@@ -90,8 +90,8 @@
   }
 }
 
-// Compacto: el texto (y, compartiendo, la etiqueta «En directo» encima) a la
-// izquierda y el botón de icono (.icon-btn, del tema) a la derecha, a 16px
+// Compacto: el texto a la izquierda y los botones de icono (.icon-btn, del
+// tema) a la derecha, a 16px (compartiendo, el clip y la antena verde)
 .live-share-row {
   display: flex;
   align-items: center;
@@ -102,13 +102,4 @@
     min-width: 0;
     margin: 0;
   }
-}
-
-.live-share-row__text {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-xs);
-  min-width: 0;
 }

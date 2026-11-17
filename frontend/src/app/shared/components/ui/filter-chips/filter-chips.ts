@@ -32,5 +32,7 @@ export class FilterChips {
   readonly isLegendHidden = input(false);
   // En una sola línea, que se desplaza de lado si no cabe (p. ej. en el móvil)
   readonly isSingleLine = input(false);
+  // Más pequeñas (8px de relleno), p. ej. para elegir qué ver en «En curso»
+  readonly isCompact = input(false);
   readonly valueChange = output<string | null>();
 }

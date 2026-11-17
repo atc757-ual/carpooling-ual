@@ -10,7 +10,7 @@ import {
   IonSpinner,
   ModalController,
 } from '@ionic/angular';
-import { alertCircleOutline, searchOutline, warningOutline } from 'ionicons/icons';
+import { documentTextOutline, searchOutline, warningOutline } from 'ionicons/icons';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { Trip } from '../../../../core/models/driver.model';
 import { SeatRequest } from '../../../../core/models/seat-request.model';
@@ -35,15 +35,7 @@ import {
 // de la solicitud van en su progreso (PassengerProgress)
 @Component({
   selector: 'app-passenger-request-actions',
-  imports: [
-    IonButton,
-    IonCard,
-    IonCardContent,
-    IonCardHeader,
-    IonCardTitle,
-    IonIcon,
-    IonSpinner,
-  ],
+  imports: [IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon, IonSpinner],
   templateUrl: './passenger-request-actions.html',
   styleUrl: './passenger-request-actions.scss',
 })
@@ -167,7 +159,7 @@ export class PassengerRequestActions {
     );
   });
 
-  protected readonly alertIcon = alertCircleOutline;
+  protected readonly formIcon = documentTextOutline;
   protected readonly searchIcon = searchOutline;
   protected readonly warningIcon = warningOutline;
 

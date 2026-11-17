@@ -73,6 +73,12 @@ ion-card-content.ride__state {
   border: var(--border-width-s) solid var(--color-primary);
 }
 
+// En la hoja y en la columna de 4 las secciones no tienen relleno lateral:
+// aquí 8px, para que el texto no toque el borde del fondo azul
+.ride__panel--arriving ion-card-content[class] {
+  padding-inline: var(--space-s);
+}
+
 // Cuatro cifras, una por casilla, fáciles de leer en voz alta
 .ride__code-digits {
   display: grid;
@@ -287,4 +293,62 @@ ion-card-content.ride__state {
   font-family: var(--font-family-heading);
   font-size: 1.125rem; // 18px
   font-weight: var(--font-weight-semibold);
+}
+
+// Pastillas y lo que muestran, en una sola sección de la hoja (sin la línea
+// entre secciones): arriba las pastillas y el SOS en la esquina, debajo lo
+// elegido. 12px arriba, como las demás secciones de la hoja
+.ride__choice {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-top: calc(var(--space-s) + var(--space-xs)); // 12px
+}
+
+.ride__choice-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+
+  app-filter-chips {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+// Escritorio: cada columna es una sola tarjeta (la de 8, «Lo siguiente» y el
+// mapa; la de 4, todo lo demás) con las secciones planas dentro, separadas
+// por una línea fina como en la hoja del móvil
+@media (min-width: 768px) {
+  .ride__main,
+  .ride__side {
+    gap: 0;
+    padding-inline: var(--space-base);
+    border: var(--border-width-s) solid var(--color-card-border);
+    border-radius: var(--radius-s);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+
+    // Las tarjetas de dentro (también las de los componentes), planas
+    ::ng-deep ion-card {
+      margin: 0;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    ::ng-deep ion-card ion-card-header[class],
+    ::ng-deep ion-card ion-card-content[class] {
+      padding-inline: 0;
+    }
+
+    > * + * {
+      border-top: var(--border-width-s) solid var(--color-border-subtle);
+    }
+  }
+
+  // El mapa, con 16px abajo dentro de la tarjeta de la columna
+  .ride__map-card ion-card-content[class] {
+    padding-bottom: var(--space-base);
+  }
 }

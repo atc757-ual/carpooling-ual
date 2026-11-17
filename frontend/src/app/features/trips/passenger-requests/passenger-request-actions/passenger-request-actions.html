@@ -1,23 +1,29 @@
 <ion-card class="passenger-actions">
-  <ion-card-header>
-    <ion-card-title>Acciones de tu solicitud</ion-card-title>
-  </ion-card-header>
+  <!-- En «En curso», el título como los de las demás tarjetas de la hoja -->
+  @if (!inlineIncident()) {
+    <ion-card-header>
+      <ion-card-title>Acciones de tu solicitud</ion-card-title>
+    </ion-card-header>
+  }
   <ion-card-content>
+    @if (inlineIncident()) {
+      <h2 class="passenger-actions__title text-subtitle">Acciones de tu solicitud</h2>
+    }
     @if (isTripInProgress()) {
-      <!-- La frase explica qué hacer (bajarse y contarlo) y, a la derecha,
-           «Reportar», que abre el formulario de la incidencia -->
+      <!-- La frase explica qué hacer (bajarse y reportarlo) y, a la derecha,
+           el formulario de la incidencia -->
       <div class="passenger-actions__incident">
         <p class="text-body-s text-color-muted">
-          Si algo va mal, bájate cuando sea seguro y cuéntanoslo: lo revisaremos.
+          ¿Algo va mal? Bájate en un sitio seguro y rellena el formulario: lo revisaremos.
         </p>
         <button
           type="button"
           class="icon-btn passenger-actions__incident-btn"
-          aria-label="Reportar: bajarme y registrar una incidencia"
-          title="Reportar"
+          aria-label="Reportar una incidencia: abre el formulario"
+          title="Reportar una incidencia"
           (click)="openIncidentModal()"
         >
-          <ion-icon [icon]="alertIcon" aria-hidden="true" />
+          <ion-icon [icon]="formIcon" aria-hidden="true" />
         </button>
       </div>
     }

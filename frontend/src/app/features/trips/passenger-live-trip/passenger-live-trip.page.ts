@@ -18,7 +18,6 @@ import {
   locationOutline,
   personOutline,
   walkOutline,
-  closeCircleOutline,
 } from 'ionicons/icons';
 import { ChatContact } from '../../../core/models/chat.model';
 import { Trip } from '../../../core/models/driver.model';
@@ -50,6 +49,13 @@ import { ratingName } from '../../../shared/utils/rating.util';
 import { PassengerRequestActions } from '../passenger-requests/passenger-request-actions/passenger-request-actions';
 import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
 import { buildLiveShareText } from '../trip-share-text';
+import { FilterChips } from '../../../shared/components/ui/filter-chips/filter-chips';
+import {
+  buildRideSheetTabs,
+  isRideSheetTab,
+  resolveRideSheetTab,
+  RideSheetTab,
+} from './ride-sheet-tabs';
 
 // Cada cuánto se revisa si ya subió (código validado) o si el viaje terminó
 const REFRESH_MS = 15_000;
@@ -60,7 +66,9 @@ type ArriveCardVariant = 'near' | 'early' | 'default';
 
 // Lo que se está confirmando en la hoja (sin ventana encima): «He llegado» o
 // dejar de compartir el viaje en directo (con cómo hacerlo)
-type RideConfirm = { kind: 'arrive' } | { kind: 'stopShare'; run: () => Promise<void> };
+interface RideConfirm {
+  kind: 'arrive';
+}
 // La URL de esta pantalla: la hoja del móvil solo está abierta en ella
 const RIDE_URL = /^\/tabs\/trips\/ride\//;
 
@@ -103,6 +111,7 @@ function arriveErrorMessage(code: string): string {
     IonContent,
     IonIcon,
     IonSpinner,
+    FilterChips,
     LicensePlate,
     LiveTripHero,
     LiveTripMap,
@@ -236,6 +245,15 @@ export class PassengerLiveTripPage {
     if (!this.isToCampus()) return 'default';
     return this.isNearDestination() ? 'near' : 'early';
   });
+  // Las pastillas del final de la hoja: qué ve (al abrir, su seguridad)
+  private readonly chosenTab = signal<RideSheetTab>('safety');
+  readonly sheetTabs = computed(() => buildRideSheetTabs(this.arriveCard() === 'early'));
+  readonly sheetTab = computed(() =>
+    resolveRideSheetTab(this.chosenTab(), this.arriveCard() === 'early'),
+  );
+  handleSheetTab(value: string | null): void {
+    if (isRideSheetTab(value)) this.chosenTab.set(value);
+  }
   readonly heroTitle = computed(() =>
     this.phase() === 'waiting'
       ? `Esperando a ${this.driverName()}`
@@ -302,7 +320,7 @@ export class PassengerLiveTripPage {
     }
     this.isConfirming.set(true);
     try {
-      await (pending.kind === 'arrive' ? this.arrive() : pending.run());
+      await this.arrive();
     } finally {
       this.isConfirming.set(false);
       this.pendingConfirm.set(null);
@@ -352,5 +370,4 @@ export class PassengerLiveTripPage {
   protected readonly personIcon = personOutline;
   protected readonly pinIcon = locationOutline;
   protected readonly arrivedIcon = walkOutline;
-  protected readonly stopShareIcon = closeCircleOutline;
 }
