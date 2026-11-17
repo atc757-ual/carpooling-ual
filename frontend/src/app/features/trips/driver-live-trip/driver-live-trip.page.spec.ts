@@ -311,4 +311,22 @@ describe('DriverLiveTripPage', () => {
       'Nadie más de este viaje tiene el teléfono verificado.',
     );
   });
+
+  it('keeps the SOS by the chips and reports an incident in place', async () => {
+    const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+
+    expect(root.querySelector('[aria-label="SOS: llamar al 112"]')?.getAttribute('href')).toBe(
+      'tel:112',
+    );
+
+    page.handleSheetTab('actions');
+    TestBed.tick();
+    root.querySelector<HTMLElement>('[aria-label^="Enviar un reporte"]')?.click();
+    TestBed.tick();
+    expect(root.querySelector('app-passenger-incident-modal')).not.toBeNull();
+
+    await page.handleIncidentReported();
+    expect(navigate).toHaveBeenCalledWith('/tabs/trips');
+  });
 });

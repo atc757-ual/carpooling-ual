@@ -55,7 +55,7 @@ import {
   isRideSheetTab,
   resolveRideSheetTab,
   RideSheetTab,
-} from './ride-sheet-tabs';
+} from '../live-sheet-tabs';
 
 // Cada cuánto se revisa si ya subió (código validado) o si el viaje terminó
 const REFRESH_MS = 15_000;

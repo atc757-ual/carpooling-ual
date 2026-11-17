@@ -404,24 +404,27 @@
   font-weight: var(--font-weight-semibold);
 }
 
-// «Terminar viaje» a todo el ancho que dejan los iconos de compartir y SOS,
-// a su derecha: al desplegarse uno con su texto, el botón se encoge
-.driver-live-trip__finish-row {
+// Pastillas y lo que muestran, en una sola sección de la hoja (sin la línea
+// entre secciones): arriba las pastillas y el SOS en la esquina, debajo lo
+// elegido. 12px arriba, como las demás secciones de la hoja
+.driver-live-trip__choice {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-s);
-
-  app-live-trip-safety {
-    flex: none;
-    margin-left: auto;
-  }
+  min-width: 0;
+  padding-block: calc(var(--space-s) + var(--space-xs)); // 12px
 }
 
-.driver-live-trip__finish-slot {
+.driver-live-trip__choice-bar,
+.driver-live-trip__report {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+}
+
+.driver-live-trip__choice-bar app-filter-chips,
+.driver-live-trip__report p {
   flex: 1;
   min-width: 0;
-
-  &:empty {
-    display: none;
-  }
+  margin: 0;
 }

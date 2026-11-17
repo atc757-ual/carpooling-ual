@@ -18,6 +18,7 @@ import {
   checkmarkCircleOutline,
   chevronBackOutline,
   chevronForwardOutline,
+  documentTextOutline,
   homeOutline,
   locationOutline,
   personRemoveOutline,
@@ -54,6 +55,9 @@ import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
 import { DragScroll } from '../../../shared/directives/drag-scroll.directive';
 import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 import { buildLiveShareText } from '../trip-share-text';
+import { FilterChips } from '../../../shared/components/ui/filter-chips/filter-chips';
+import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
+import { buildRideSheetTabs, isRideSheetTab, RideSheetTab } from '../live-sheet-tabs';
 
 // Una recogida sigue siendo «la siguiente» hasta 5 min después de su hora
 // (lo que se espera al pasajero antes de poder marcar «No se presentó»)
@@ -85,7 +89,9 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
     LiveTripHero,
     LiveTripMap,
     DragScroll,
+    FilterChips,
     LiveTripSafety,
+    PassengerIncidentModal,
     RevealOnTouch,
     LiveTripSheet,
     TripReviewCard,
@@ -265,6 +271,7 @@ export class DriverLiveTripPage {
   protected readonly callIcon = callOutline;
   protected readonly previousIcon = chevronBackOutline;
   protected readonly nextIcon = chevronForwardOutline;
+  protected readonly reportIcon = documentTextOutline;
   protected readonly finishedIcon = checkmarkCircle;
   protected readonly noShowIcon = personRemoveOutline;
   protected readonly dropOffIcon = walkOutline;
@@ -501,6 +508,21 @@ export class DriverLiveTripPage {
       this.justFinished.set(true);
     }
     this.isFinishing.set(false);
+  }
+
+  // Las pastillas del final de la hoja: la seguridad (al abrir) o las acciones
+  readonly sheetTabs = buildRideSheetTabs(false);
+  readonly sheetTab = signal<RideSheetTab>('safety');
+  handleSheetTab(value: string | null): void {
+    if (isRideSheetTab(value)) this.sheetTab.set(value);
+  }
+
+  // Reportar una incidencia: el formulario sustituye al resto de la hoja; al
+  // enviarla se cancela el viaje (RF-23) y vuelve a Tus viajes
+  readonly isReportingIncident = signal(false);
+  async handleIncidentReported(): Promise<void> {
+    await this.toast.showSuccess('Incidencia registrada. El viaje se ha cancelado.');
+    await this.leaveFinished();
   }
 
   async leaveFinished(): Promise<void> {

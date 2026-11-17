@@ -40,14 +40,6 @@ describe('LiveTripSafety', () => {
     });
   });
 
-  it('opens the phone app with the emergency number', () => {
-    const root = render({ isInline: true, shareText: SHARE_TEXT });
-
-    expect(root.querySelector('[aria-label="SOS: llamar al 112"]')?.getAttribute('href')).toBe(
-      'tel:112',
-    );
-  });
-
   it('offers the live link to the passenger in its card', () => {
     const root = render({ liveShareTripId: 't1' });
 

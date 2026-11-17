@@ -1,8 +1,9 @@
-import { FilterChipOption } from '../../../shared/components/ui/filter-chips/filter-chips';
+import { FilterChipOption } from '../../shared/components/ui/filter-chips/filter-chips';
 
-// Lo que el pasajero elige ver al final de la hoja de «En curso», en pastillas:
-// «Bajada» (bajarse antes; solo lejos del campus, en la ida), su seguridad (al abrir)
-// y las acciones de su plaza. El SOS va siempre a la vista, junto a ellas
+// Lo que se elige ver al final de la hoja de «En curso» (pasajero y
+// conductor), en pastillas: «Bajada» (solo el pasajero, lejos del campus, en la
+// ida), la seguridad (al abrir) y las acciones (reportar). El SOS va siempre a
+// la vista, junto a ellas
 export type RideSheetTab = 'early' | 'safety' | 'actions';
 
 const EARLY_OPTION: FilterChipOption = { value: 'early', label: 'Bajada' };

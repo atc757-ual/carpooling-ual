@@ -1,7 +1,9 @@
 @if (isInline()) {
-  <!-- Conductor: compartir y SOS como iconos junto a «Terminar viaje»; con
-       ratón muestran su texto al pasar y en el móvil con el primer toque -->
+  <!-- Conductor (en la pastilla «Seguridad»): el texto y, a la derecha,
+       compartir el viaje, que muestra su texto al pasar o con el primer toque.
+       El SOS va en la esquina de las pastillas -->
   <div class="live-safety-inline">
+    <p class="text-body-s text-color-muted">Comparte tu viaje con alguien de confianza.</p>
     <button
       type="button"
       class="icon-btn icon-btn--reveal"
@@ -10,18 +12,8 @@
       (click)="handleShare()"
     >
       <ion-icon [icon]="shareIcon" aria-hidden="true" />
-      <span class="icon-btn__label" aria-hidden="true">Compartir</span>
+      <span class="icon-btn__label" aria-hidden="true">Compartir viaje</span>
     </button>
-    <!-- 112: el teléfono único de emergencias en Europa -->
-    <a
-      class="icon-btn icon-btn--reveal icon-btn--danger"
-      appRevealOnTouch
-      href="tel:112"
-      aria-label="SOS: llamar al 112"
-    >
-      <span class="icon-btn__short" aria-hidden="true">SOS</span>
-      <span class="icon-btn__label" aria-hidden="true">Llamar al 112</span>
-    </a>
   </div>
 } @else {
   <ion-card class="live-safety" role="region" aria-labelledby="live-safety-title">

@@ -5,10 +5,17 @@
   (submit)="$event.preventDefault(); handleConfirm()"
 >
   <!-- Sin título visible (el botón ya lo dice): solo para el lector de pantalla -->
-  <h2 class="visually-hidden">Bajarme y registrar incidencia</h2>
+  <h2 class="visually-hidden">{{ submitLabel }}</h2>
 
   <output class="notice notice--info incident-modal__note">
-    <span>Tu incidencia la revisará un administrador.</span>
+    <span>
+      @if (isDriver) {
+        Se cancelará el viaje y tus pasajeros tendrán prioridad para buscar otro. Lo revisará un
+        administrador.
+      } @else {
+        Tu incidencia la revisará un administrador.
+      }
+    </span>
   </output>
 
   <!-- Pastillas en lugar de una lista: ocupan menos alto. Cada una, un radio
@@ -67,7 +74,7 @@
       @if (isSubmitting()) {
         <ion-spinner name="crescent" slot="start" aria-hidden="true" />
       }
-      Bajarme y registrar incidencia
+      {{ submitLabel }}
     </ion-button>
 
     <ion-button
@@ -78,7 +85,7 @@
       [disabled]="isSubmitting()"
       (click)="handleCancel()"
     >
-      Continuar en el viaje
+      {{ isDriver ? 'Continuar el viaje' : 'Continuar en el viaje' }}
     </ion-button>
   </div>
 </form>
