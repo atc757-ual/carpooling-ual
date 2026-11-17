@@ -57,11 +57,28 @@
                       [targetId]="trip.driver.id"
                       [targetName]="driverName()"
                       [canSkip]="true"
-                      (sent)="handleReviewDone('sent')"
+                      (sent)="handleReviewDone('sent', $event)"
                       (skipped)="handleReviewDone('skipped')"
                     />
                   } @else {
                     @if (reviewState() === 'sent') {
+                      <!-- Lo que ha votado: la barra con la nota y su comentario -->
+                      @if (givenReview(); as review) {
+                        <div class="ride__given" role="group" aria-labelledby="ride-given-title">
+                          <p id="ride-given-title" class="text-caption text-color-muted">
+                            Tu valoración a {{ driverName() }}
+                          </p>
+                          <span class="ride__given-verdict">
+                            <app-rating-bar [rating]="review.rating" />
+                            <span class="text-body-s">
+                              <b>{{ review.rating }} de 5</b> · {{ ratingName(review.rating) }}
+                            </span>
+                          </span>
+                          @if (review.comment) {
+                            <p class="ride__given-comment text-body-s">«{{ review.comment }}»</p>
+                          }
+                        </div>
+                      }
                       <output class="notice notice--success">
                         <span>
                           <b>¡Gracias por tu valoración!</b>

@@ -53,6 +53,9 @@ import {
 } from '../live-trip-hero.util';
 import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
 import { TripReviewForm } from '../trip-review/trip-review-form';
+import { GivenReview } from '../../../core/services/users/trip-reviews.service';
+import { RatingBar } from '../../../shared/components/ui/rating-bar/rating-bar';
+import { ratingName } from '../../../shared/utils/rating.util';
 import { PassengerRequestActions } from '../passenger-requests/passenger-request-actions/passenger-request-actions';
 import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
 import { buildLiveShareText } from '../trip-share-text';
@@ -112,6 +115,7 @@ function arriveErrorMessage(code: string): string {
     LiveTripSheet,
     PassengerIncidentModal,
     PassengerRequestActions,
+    RatingBar,
     TripReviewForm,
   ],
   templateUrl: './passenger-live-trip.page.html',
@@ -208,10 +212,14 @@ export class PassengerLiveTripPage {
 
   // Tras valorar (u omitirlo) ya no queda nada que hacer: la hoja vuelve a su
   // altura y se ve el mapa, sin un hueco vacío debajo
-  handleReviewDone(state: 'sent' | 'skipped'): void {
+  handleReviewDone(state: 'sent' | 'skipped', review: GivenReview | null = null): void {
+    this.givenReview.set(review);
     this.reviewState.set(state);
     this.sheet.collapse();
   }
+  // La valoración enviada, para el resumen (null si ya existía de antes)
+  readonly givenReview = signal<GivenReview | null>(null);
+  protected readonly ratingName = ratingName;
   // Registrando una incidencia: el formulario sustituye a todo lo demás
   readonly isReportingIncident = signal(false);
   // Lo que el mapa sabe en directo (minutos hasta la recogida y el destino)

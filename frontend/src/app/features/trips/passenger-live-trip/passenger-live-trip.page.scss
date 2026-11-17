@@ -238,6 +238,28 @@ ion-card-content.ride__state {
   }
 }
 
+// Lo que ha votado, centrado bajo el título: la barra con la nota y, debajo,
+// el comentario entre comillas
+.ride__given {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  text-align: center;
+}
+
+.ride__given-verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.ride__given-comment {
+  overflow-wrap: anywhere;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
 // Ya valorado: más aire entre el resumen, el aviso y el botón
 .ride__panel:has(.ride__done-head--centered) ion-card-content {
   gap: var(--space-base);
