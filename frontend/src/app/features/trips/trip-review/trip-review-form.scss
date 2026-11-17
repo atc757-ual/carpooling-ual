@@ -12,12 +12,16 @@
   flex-direction: column;
   gap: var(--space-xs);
   margin: 0;
-  padding: 0;
+  padding: var(--space-s) 0 0; // 8px de aire con lo de arriba
   border: 0;
 
+  // «¿Qué tal con Sara?», la etiqueta del grupo: centrada como los botones y
+  // el texto de debajo, y pegada a los botones que describe
   legend {
+    width: 100%;
     margin-bottom: var(--space-xs);
     padding: 0;
+    text-align: center;
   }
 }
 
