@@ -16,7 +16,7 @@ import {
   checkmarkCircle,
   chatbubblesOutline,
   checkmark,
-  flagOutline,
+  checkmarkCircleOutline,
   homeOutline,
   locationOutline,
   personRemoveOutline,
@@ -254,7 +254,7 @@ export class DriverLiveTripPage {
   );
   readonly contactsMap = computed(() => new Map(this.contacts().map((c) => [c.id, c])));
   protected readonly locationIcon = locationOutline;
-  protected readonly flagIcon = flagOutline;
+  protected readonly confirmFinishIcon = checkmarkCircleOutline;
   protected readonly firstName = (name: string) => getFirstName(name);
   protected readonly callIcon = callOutline;
   protected readonly doneIcon = checkmark;

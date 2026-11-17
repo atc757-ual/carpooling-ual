@@ -179,10 +179,11 @@
   }
 }
 
-// «Ha bajado»: a lo ancho de la tarjeta, con el alto táctil mínimo
 // «Ha bajado»: redondo como chat y llamar; al pasar, enfocarlo o mientras
 // guarda, se estira hacia la izquierda con el texto y vuelve a su forma
-.pickup-slide__drop-off {
+// Con las dos clases, para ganar a .pickup-slide__icon-btn (que va después y
+// lo dejaría en rejilla, con el icono arriba y sin estirarse)
+.pickup-slide__icon-btn.pickup-slide__drop-off {
   display: inline-flex;
   width: auto;
   min-width: 2.75rem; // 44px
