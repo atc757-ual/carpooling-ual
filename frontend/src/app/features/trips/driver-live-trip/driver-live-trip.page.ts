@@ -20,6 +20,7 @@ import {
   homeOutline,
   locationOutline,
   personRemoveOutline,
+  walkOutline,
 } from 'ionicons/icons';
 import { map } from 'rxjs';
 import { ApiError } from '../../../core/models/api-error.model';
@@ -119,14 +120,14 @@ export class DriverLiveTripPage {
     return trip ? buildLiveShareText(trip) : '';
   });
 
-  // Los pasajeros aceptados, por hora de recogida
+  // Los pasajeros aceptados (también los que ya se bajaron), por hora de recogida
   readonly requests = resource({
     params: () => (this.isInProgress() ? this.trip()?.id : undefined),
     loader: ({ params: id }) => this.driver.listTripRequests(id),
   });
   readonly passengers = computed(() =>
     (this.requests.hasValue() ? this.requests.value() : [])
-      .filter(({ status }) => status === 'accepted')
+      .filter(({ status }) => status === 'accepted' || status === 'completed')
       .sort((first, second) => pickupTime(first) - pickupTime(second)),
   );
   private readonly now = signal(Date.now());
@@ -155,9 +156,20 @@ export class DriverLiveTripPage {
   readonly destinationIcon = computed(() =>
     isCampusName(this.trip()?.destinationName) ? businessOutline : homeOutline,
   );
+  // Los que subieron (también los que ya se bajaron): los coches de menos
   readonly boardedCount = computed(
     () => this.passengers().filter((request) => Boolean(request.boardedAt)).length,
   );
+  // En el coche ahora y los que ya se bajaron (cierre por pasajero)
+  readonly onBoardCount = computed(
+    () =>
+      this.passengers().filter((request) => request.status === 'accepted' && request.boardedAt)
+        .length,
+  );
+  readonly droppedOffCount = computed(
+    () => this.passengers().filter((request) => request.status === 'completed').length,
+  );
+  private readonly droppingOffIds = signal<ReadonlySet<string>>(new Set());
 
   readonly isSharing = computed(() => this.tracking.tripId() === this.trip()?.id);
   readonly isScreenKeptOn = this.tracking.isScreenKeptOn;
@@ -221,6 +233,7 @@ export class DriverLiveTripPage {
   protected readonly doneIcon = checkmark;
   protected readonly finishedIcon = checkmarkCircle;
   protected readonly noShowIcon = personRemoveOutline;
+  protected readonly dropOffIcon = walkOutline;
   protected readonly chatIcon = chatbubblesOutline;
   protected readonly formatSeats = formatSeats;
 
@@ -367,6 +380,43 @@ export class DriverLiveTripPage {
       this.requests.reload();
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+    }
+  }
+
+  isDroppingOff(requestId: string): boolean {
+    return this.droppingOffIds().has(requestId);
+  }
+
+  // «Ha bajado»: cierra la plaza de un pasajero a bordo (no se puede
+  // deshacer: se confirma). Si era el último, el viaje termina solo y la hoja
+  // enseña el aviso y las valoraciones, como al terminarlo
+  async handleDropOff(request: SeatRequest): Promise<void> {
+    const name = getFirstName(request.passenger.name);
+    const isConfirmed = await this.confirm.ask({
+      header: `¿Ha bajado ${name}?`,
+      message: `Su viaje terminará y podrá valorarte. Si ya lo marcó ${name}, no cambia nada.`,
+      confirmText: 'Ha bajado',
+      cancelText: 'Todavía no',
+    });
+    if (!isConfirmed) {
+      return;
+    }
+    this.droppingOffIds.update((ids) => new Set([...ids, request.id]));
+    try {
+      const updated = await this.driver.dropOffPassenger(request.id);
+      this.requests.update((list) =>
+        list?.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      if (this.passengers().every(({ status }) => status !== 'accepted')) {
+        this.tracking.stop();
+        this.justFinished.set(true);
+        this.sheet.expand();
+        void this.toast.showSuccess('Se han bajado todos: viaje terminado.');
+      }
+    } catch (error) {
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+    } finally {
+      this.droppingOffIds.update((ids) => new Set([...ids].filter((id) => id !== request.id)));
     }
   }
 

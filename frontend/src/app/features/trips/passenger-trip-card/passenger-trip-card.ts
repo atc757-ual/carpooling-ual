@@ -35,7 +35,9 @@ export class PassengerTripCard {
     () => this.tab() === 'upcoming' && this.item().request.status === 'pending',
   );
   readonly isAccepted = computed(
-    () => this.tab() !== 'cancelled' && this.item().request.status === 'accepted',
+    () =>
+      this.tab() !== 'cancelled' &&
+      (this.item().request.status === 'accepted' || this.item().request.status === 'completed'),
   );
 
   // Lo que lee el lector de pantalla del enlace (cubre toda la tarjeta)

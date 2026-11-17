@@ -134,6 +134,11 @@ export class PassengerRequestDetailPage {
     return request && trip ? passengerRequestLabel(request, trip) : '';
   });
 
+  // Ya viajó: el viaje terminó o él ya se bajó (cierre por pasajero)
+  readonly hasTravelled = computed(
+    () => this.trip()?.status === 'finished' || this.request()?.status === 'completed',
+  );
+
   readonly statusKind = computed<'pending' | 'accepted' | 'danger' | 'neutral'>(() => {
     const request = this.request();
     const trip = this.trip();

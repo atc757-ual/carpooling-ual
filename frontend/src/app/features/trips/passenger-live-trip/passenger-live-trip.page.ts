@@ -22,6 +22,7 @@ import {
   businessOutline,
   callOutline,
   checkmarkCircle,
+  flagOutline,
   chatbubblesOutline,
   homeOutline,
   locationOutline,
@@ -34,6 +35,8 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { ConfirmService } from '../../../core/services/ui/confirm.service';
+import { ApiError } from '../../../core/models/api-error.model';
 import { injectLiveSheet } from '../../../shared/utils/desktop-query.util';
 import { LicensePlate } from '../../../shared/components/ui/license-plate/license-plate';
 import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
@@ -65,10 +68,21 @@ export type RidePhase = 'waiting' | 'on_board' | 'finished';
 
 // En qué momento del viaje está el pasajero
 export function ridePhase(request: SeatRequest, trip: Trip): RidePhase {
-  if (trip.status === 'finished') {
+  if (trip.status === 'finished' || request.status === 'completed') {
     return 'finished';
   }
   return request.boardedAt ? 'on_board' : 'waiting';
+}
+
+// El mensaje de un «He llegado» que no se pudo marcar
+function arriveErrorMessage(code: string): string {
+  if (code === 'PASSENGER_NOT_BOARDED') {
+    return 'Aún no consta que hayas subido: el conductor tiene que validar tu código.';
+  }
+  if (code === 'TRIP_NOT_IN_PROGRESS') {
+    return 'El viaje ya no está en curso.';
+  }
+  return 'No hemos podido marcar tu llegada. Inténtalo de nuevo.';
 }
 
 // «En curso» del pasajero (/tabs/trips/ride/:id, con el id de su solicitud):
@@ -105,6 +119,7 @@ export class PassengerLiveTripPage {
   private readonly tripCall = inject(TripCallService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly confirm = inject(ConfirmService);
 
   readonly id = input.required<string>();
 
@@ -246,6 +261,39 @@ export class PassengerLiveTripPage {
     await this.router.navigateByUrl('/tabs/trips');
   }
 
+  // «He llegado»: cierra su plaza (vale lo primero que llegue, esto o el «Ha
+  // bajado» del conductor). No se puede deshacer: se confirma antes
+  readonly isArriving = signal(false);
+
+  async handleArrive(event?: Event): Promise<void> {
+    event?.preventDefault();
+    const request = this.request();
+    if (!request || this.isArriving()) {
+      return;
+    }
+    const isConfirmed = await this.confirm.ask({
+      header: '¿Has llegado?',
+      message: `Tu viaje con ${this.driverName()} terminará y podrás valorarlo.`,
+      confirmText: 'He llegado',
+      icon: flagOutline,
+    });
+    if (!isConfirmed) {
+      return;
+    }
+    this.isArriving.set(true);
+    try {
+      this.requestResource.set(await this.requests.arrive(request.id));
+      this.tripResource.reload();
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        throw error;
+      }
+      void this.toast.showError(arriveErrorMessage(error.code));
+    } finally {
+      this.isArriving.set(false);
+    }
+  }
+
   canCallDriver(): boolean {
     const trip = this.trip();
     return trip ? this.tripCall.canCall(trip.status, this.driverContact()) : false;
@@ -268,4 +316,5 @@ export class PassengerLiveTripPage {
   protected readonly doneIcon = checkmarkCircle;
   protected readonly personIcon = personOutline;
   protected readonly pinIcon = locationOutline;
+  protected readonly arrivedIcon = flagOutline;
 }

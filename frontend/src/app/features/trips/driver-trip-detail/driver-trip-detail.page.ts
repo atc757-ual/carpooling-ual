@@ -104,7 +104,7 @@ export class DriverTripDetailPage {
   });
   readonly reviewTargets = computed<ReviewTarget[]>(() =>
     (this.finishedRequests.hasValue() ? this.finishedRequests.value() : [])
-      .filter((request) => request.status === 'accepted')
+      .filter((request) => request.status === 'accepted' || request.status === 'completed')
       .map((request) => ({ id: request.passenger.id, name: getFirstName(request.passenger.name) })),
   );
 

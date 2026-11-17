@@ -2,7 +2,9 @@
 // estado; la interfaz solo lo refleja (guía, «Solicitud de plaza»)
 import { TravelPreferences } from './travel-preferences.model';
 
-export type SeatRequestStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'expired';
+// completed: el pasajero se ha bajado (cierre por pasajero)
+export type SeatRequestStatus =
+  'pending' | 'accepted' | 'rejected' | 'cancelled' | 'expired' | 'completed';
 
 export interface SeatRequest {
   id: string;
@@ -36,4 +38,7 @@ export interface SeatRequest {
   boardCode?: string | null;
   // Fecha/hora de subida confirmada
   boardedAt?: string | null;
+  // Cuándo se bajó y quién lo marcó («Ha bajado», «He llegado» o el sistema)
+  droppedOffAt?: string | null;
+  droppedOffBy?: 'driver' | 'passenger' | 'system' | null;
 }

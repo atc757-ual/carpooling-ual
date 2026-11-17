@@ -124,7 +124,11 @@
                   Recogidas
                   @if (passengers().length > 0) {
                     <span class="text-caption text-color-muted">
-                      · {{ boardedCount() }} de {{ passengers().length }} en el coche
+                      · {{ onBoardCount() }} de {{ passengers().length }} en el coche
+                      @if (droppedOffCount() > 0) {
+                        · {{ droppedOffCount() }}
+                        {{ droppedOffCount() === 1 ? 'se ha bajado' : 'se han bajado' }}
+                      }
                     </span>
                   }
                 </h2>
@@ -164,7 +168,11 @@
                               }
                             </span>
                             <span class="text-caption text-color-muted">
-                              {{ request.boardedAt ? 'En el coche' : pickupPlace(request) }}
+                              @if (request.status === 'completed') {
+                                Se ha bajado
+                              } @else {
+                                {{ request.boardedAt ? 'En el coche' : pickupPlace(request) }}
+                              }
                             </span>
                           </div>
 
@@ -202,6 +210,21 @@
                                 «No se presentó» en {{ noShowWaitMinutes(request) }} min
                               </span>
                             }
+                          } @else if (request.status === 'accepted') {
+                            <!-- A bordo: «Ha bajado» cierra su plaza (con el coche parado) -->
+                            <ion-button
+                              class="pickup-slide__drop-off"
+                              fill="outline"
+                              [disabled]="isDroppingOff(request.id)"
+                              (click)="handleDropOff(request)"
+                            >
+                              @if (isDroppingOff(request.id)) {
+                                <ion-spinner name="crescent" slot="start" aria-hidden="true" />
+                              } @else {
+                                <ion-icon slot="start" [icon]="dropOffIcon" aria-hidden="true" />
+                              }
+                              Ha bajado
+                            </ion-button>
                           }
                         </div>
 

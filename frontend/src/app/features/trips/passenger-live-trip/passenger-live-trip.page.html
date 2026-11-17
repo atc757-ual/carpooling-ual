@@ -39,9 +39,9 @@
                   <div class="ride__done-head">
                     <ion-icon class="ride__done-icon" [icon]="doneIcon" aria-hidden="true" />
                     <div>
-                      <h2 id="ride-done-title" class="ride__done-title">¡Has llegado!</h2>
+                      <h2 id="ride-done-title" class="ride__done-title">Tu viaje ha terminado</h2>
                       <p class="text-body-s text-color-muted">
-                        {{ trip.destinationName ?? 'Tu destino' }} · un coche menos en el campus
+                        Has llegado · un coche menos en el campus
                       </p>
                     </div>
                   </div>
@@ -113,6 +113,25 @@
                     <p class="text-caption text-color-muted">
                       Díselo a {{ driverName() }} al subir: así confirma que vas en el coche.
                     </p>
+                  </ion-card-content>
+                </ion-card>
+              }
+
+              <!-- A bordo: «He llegado» cierra su plaza (cierre por pasajero) -->
+              @if (phase() === 'on_board') {
+                <ion-card class="ride__panel" role="region" aria-labelledby="ride-arrive-title">
+                  <ion-card-content>
+                    <h2 id="ride-arrive-title" class="text-subtitle">¿Ya te has bajado?</h2>
+                    <p class="text-caption text-color-muted">
+                      Márcalo al llegar y podrás valorar a {{ driverName() }}. Si lo marca
+                      {{ driverName() }} antes, tu viaje se cerrará solo.
+                    </p>
+                    <form (submit)="handleArrive($event)">
+                      <ion-button type="submit" expand="block" [disabled]="isArriving()">
+                        <ion-icon slot="start" [icon]="arrivedIcon" aria-hidden="true" />
+                        He llegado
+                      </ion-button>
+                    </form>
                   </ion-card-content>
                 </ion-card>
               }

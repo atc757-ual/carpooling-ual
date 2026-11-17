@@ -167,6 +167,12 @@
   }
 }
 
+// «Ha bajado»: a lo ancho de la tarjeta, con el alto táctil mínimo
+.pickup-slide__drop-off {
+  min-height: var(--control-height-s); // 44px
+  margin: 0;
+}
+
 // Chat, llamar y «No se presentó»: en fila, a la derecha del nombre
 .pickup-slide__actions {
   display: flex;

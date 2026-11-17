@@ -58,7 +58,7 @@
                   aria-hidden="true"
                 />
                 <span>
-                  @if (trip.status === 'cancelled') {
+                  @if (trip.status === 'cancelled' && request.status !== 'completed') {
                     <b>{{ firstName(trip.driver.name) }} ha cancelado este viaje.</b>
                     Puedes buscar otro viaje con prioridad manteniendo tu ruta y tu horario.
                   } @else {
@@ -70,6 +70,11 @@
                       @case ('accepted') {
                         <b>Tienes plaza en el coche de {{ firstName(trip.driver.name) }}.</b>
                         Tu solicitud ha sido aceptada.
+                      }
+                      @case ('completed') {
+                        <b>Tu viaje ha terminado.</b>
+                        Has llegado a tu destino. Valora a {{ firstName(trip.driver.name) }}: ayuda
+                        a la comunidad.
                       }
                       @case ('rejected') {
                         @if (request.rejectionReason === 'trip_full') {
@@ -170,7 +175,10 @@
             (cancelled)="handleCancelled($event)"
           />
           <!-- Viaje terminado con plaza: valorar al conductor o ver la valoración -->
-          @if (trip.status === 'finished' && request.status === 'accepted') {
+          @if (
+            (trip.status === 'finished' && request.status === 'accepted') ||
+            request.status === 'completed'
+          ) {
             <app-trip-review-card
               [tripId]="trip.id"
               [targets]="[{ id: trip.driver.id, name: firstName(trip.driver.name) }]"
@@ -190,7 +198,7 @@
       <div class="passenger-detail__title-row">
         <h1 class="passenger-detail__title">
           <ion-icon class="passenger-detail__role-icon" [icon]="personIcon" aria-hidden="true" />
-          {{ trip()?.status === 'finished' ? 'Viajaste' : 'Viajas' }} · {{ when() }}
+          {{ hasTravelled() ? 'Viajaste' : 'Viajas' }} · {{ when() }}
         </h1>
         <span
           class="status status--heading"

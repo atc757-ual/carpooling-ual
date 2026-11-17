@@ -98,6 +98,14 @@ export class DriverService {
     );
   }
 
+  // «Ha bajado»: cierra la plaza de un pasajero a bordo; al bajarse el
+  // último, el viaje termina solo
+  dropOffPassenger(requestId: string): Promise<SeatRequest> {
+    return this.request(
+      this.http.post<SeatRequest>(`${this.apiUrl}/requests/${requestId}/drop-off`, null),
+    );
+  }
+
   // Marcar «No se presentó» tras esperar 5 minutos de cortesía
   markNoShow(requestId: string): Promise<SeatRequest> {
     return this.request(
