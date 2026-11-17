@@ -18,12 +18,13 @@
         </p>
         <button
           type="button"
-          class="icon-btn passenger-actions__incident-btn"
-          aria-label="Reportar una incidencia: abre el formulario"
-          title="Reportar una incidencia"
+          class="icon-btn icon-btn--reveal"
+          appRevealOnTouch
+          aria-label="Enviar un reporte: abre el formulario de la incidencia"
           (click)="openIncidentModal()"
         >
           <ion-icon [icon]="formIcon" aria-hidden="true" />
+          <span class="icon-btn__label" aria-hidden="true">Enviar reporte</span>
         </button>
       </div>
     }

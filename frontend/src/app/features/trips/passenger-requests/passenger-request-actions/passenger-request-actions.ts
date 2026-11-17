@@ -19,6 +19,7 @@ import { ConfirmService } from '../../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../../core/services/ui/toast.service';
 import { toIsoDate } from '../../../../shared/utils/date.util';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
+import { RevealOnTouch } from '../../../../shared/directives/reveal-on-touch.directive';
 import { getFirstName } from '../../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../../matching/trip-results';
 import { TripSearchStateService } from '../../../matching/trip-search-state.service';
@@ -35,7 +36,16 @@ import {
 // de la solicitud van en su progreso (PassengerProgress)
 @Component({
   selector: 'app-passenger-request-actions',
-  imports: [IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon, IonSpinner],
+  imports: [
+    IonButton,
+    IonCard,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonIcon,
+    IonSpinner,
+    RevealOnTouch,
+  ],
   templateUrl: './passenger-request-actions.html',
   styleUrl: './passenger-request-actions.scss',
 })

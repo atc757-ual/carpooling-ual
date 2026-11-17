@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
-import { callOutline, paperPlaneOutline } from 'ionicons/icons';
+import { paperPlaneOutline } from 'ionicons/icons';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 import { TripLiveShare } from '../trip-live-share/trip-live-share';
@@ -27,7 +27,6 @@ export class LiveTripSafety {
   readonly isInline = input(false);
 
   protected readonly shareIcon = paperPlaneOutline;
-  protected readonly callIcon = callOutline;
 
   async handleShare(): Promise<void> {
     await this.tripShare.share({ title: 'Mi viaje en Carpooling UAL', text: this.shareText() });
