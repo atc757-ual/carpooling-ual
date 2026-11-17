@@ -88,15 +88,10 @@
                 </ion-card-content>
               </ion-card>
             } @else {
-              <app-live-trip-hero
-                [title]="heroTitle()"
-                [eta]="etaText()"
-                [icon]="phase() === 'waiting' ? pinIcon : destinationIcon()"
-                [place]="
-                  phase() === 'waiting' ? pickupName() : (trip.destinationName ?? 'tu destino')
-                "
-                [stages]="stages()"
-              />
+              <!-- En escritorio va encima del mapa (la columna de 4 se llena) -->
+              @if (!sheet.isDesktop()) {
+                <ng-container [ngTemplateOutlet]="rideHero" />
+              }
 
               @if (phase() === 'waiting' && request.boardCode) {
                 <ion-card class="ride__panel" role="region" aria-labelledby="ride-code-title">
@@ -194,9 +189,25 @@
             }
           </ng-template>
 
+          <!-- «Rumbo al campus»: en la hoja (móvil) o encima del mapa (escritorio) -->
+          <ng-template #rideHero>
+            <app-live-trip-hero
+              [title]="heroTitle()"
+              [eta]="etaText()"
+              [icon]="phase() === 'waiting' ? pinIcon : destinationIcon()"
+              [place]="
+                phase() === 'waiting' ? pickupName() : (trip.destinationName ?? 'tu destino')
+              "
+              [stages]="stages()"
+            />
+          </ng-template>
+
           <div class="ride__layout">
             <!-- Columna de 8 (en el móvil, toda la pantalla): el mapa en vivo -->
             <section class="ride__main" aria-label="Mapa en directo">
+              @if (sheet.isDesktop() && phase() !== 'finished' && !isReportingIncident()) {
+                <ng-container [ngTemplateOutlet]="rideHero" />
+              }
               <ion-card class="ride__map-card">
                 <ion-card-content>
                   <app-live-trip-map

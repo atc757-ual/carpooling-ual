@@ -104,18 +104,11 @@
               </ion-card-content>
             </ion-card>
           } @else {
-            <!-- Lo siguiente que hay que hacer, lo primero que se ve -->
-            <app-live-trip-hero
-              [title]="heroTitle()"
-              [eta]="etaText()"
-              [icon]="nextPickup() ? locationIcon : destinationIcon()"
-              [place]="
-                nextPickup()
-                  ? (nextPickup()?.pickupName ?? 'Su punto de recogida')
-                  : (trip.destinationName ?? 'tu destino')
-              "
-              [stages]="stages()"
-            />
+            <!-- Lo siguiente que hay que hacer, lo primero que se ve. En
+                 escritorio va encima del mapa (la columna de 4 se llena) -->
+            @if (!sheet.isDesktop()) {
+              <ng-container [ngTemplateOutlet]="liveHero" />
+            }
 
             <!-- Las recogidas, en un carrusel por orden de recogida -->
             <ion-card class="driver-live-trip__panel" role="region" aria-labelledby="pickups-title">
@@ -335,23 +328,43 @@
           }
         </ng-template>
 
+        <!-- «Rumbo al campus»: en la hoja (móvil) o encima del mapa (escritorio) -->
+        <ng-template #liveHero>
+          <app-live-trip-hero
+            [title]="heroTitle()"
+            [eta]="etaText()"
+            [icon]="nextPickup() ? locationIcon : destinationIcon()"
+            [place]="
+              nextPickup()
+                ? (nextPickup()?.pickupName ?? 'Su punto de recogida')
+                : (trip.destinationName ?? 'tu destino')
+            "
+            [stages]="stages()"
+          />
+        </ng-template>
+
         <div class="driver-live-trip__layout">
           <!-- Columna de 8 (en el móvil, toda la pantalla): el mapa en vivo -->
-          <ion-card class="driver-live-trip__main">
-            <ion-card-content>
-              <app-live-trip-map
-                viewer="driver"
-                [tripId]="trip.id"
-                [initialCenter]="trip.origin"
-                [pickupLocation]="nextPickup()?.pickupLocation ?? null"
-                [pickupName]="nextPickup()?.pickupName ?? 'la recogida'"
-                [active]="isPageVisible()"
-                [destination]="trip.destination"
-                [bottomInset]="sheet.mapInset()"
-                (statusChange)="liveStatus.set($event)"
-              />
-            </ion-card-content>
-          </ion-card>
+          <div class="driver-live-trip__column">
+            @if (sheet.isDesktop() && !justFinished() && !finishCheck()) {
+              <ng-container [ngTemplateOutlet]="liveHero" />
+            }
+            <ion-card class="driver-live-trip__main">
+              <ion-card-content>
+                <app-live-trip-map
+                  viewer="driver"
+                  [tripId]="trip.id"
+                  [initialCenter]="trip.origin"
+                  [pickupLocation]="nextPickup()?.pickupLocation ?? null"
+                  [pickupName]="nextPickup()?.pickupName ?? 'la recogida'"
+                  [active]="isPageVisible()"
+                  [destination]="trip.destination"
+                  [bottomInset]="sheet.mapInset()"
+                  (statusChange)="liveStatus.set($event)"
+                />
+              </ion-card-content>
+            </ion-card>
+          </div>
 
           @if (sheet.isDesktop()) {
             <aside class="driver-live-trip__side" aria-label="Tu viaje ahora">
