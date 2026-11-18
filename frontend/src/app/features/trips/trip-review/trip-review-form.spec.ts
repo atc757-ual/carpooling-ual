@@ -40,8 +40,9 @@ describe('TripReviewForm', () => {
 
     radios[3].click();
     fixture.detectChanges();
-    expect(root.textContent).toContain('4 · Bien');
-    expect(root.querySelectorAll('.trip-review__point--on')).toHaveLength(4);
+    expect(root.querySelector('.trip-review__chosen')?.textContent).toContain('4 de 5 · Bien');
+    expect(root.querySelectorAll('.trip-review__step--on')).toHaveLength(4);
+    expect(root.querySelectorAll('.trip-review__step--current')).toHaveLength(1);
     form.comment.set('  Muy puntual  ');
     await form.handleSend();
 
@@ -68,6 +69,18 @@ describe('TripReviewForm', () => {
     await form.handleSend();
     expect(form.error()).toBeTruthy();
     expect(form.isSending()).toBe(false);
+  });
+
+  it('opens the optional comment only when asked', () => {
+    const fixture = render();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('ion-textarea')).toBeNull();
+
+    root.querySelector<HTMLElement>('.trip-review__add-comment')?.click();
+    fixture.detectChanges();
+
+    expect(root.querySelector('ion-textarea')).not.toBeNull();
+    expect(root.querySelector('.trip-review__add-comment')).toBeNull();
   });
 
   it('lets skip only when allowed', () => {
