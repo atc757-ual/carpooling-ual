@@ -254,3 +254,9 @@
 .publish__next-trip:has(.next-trip, app-live-trip-banner) {
   margin-bottom: var(--space-base);
 }
+
+// Las alertas de Publicar (ahorro, declaración…), con 8px de relleno por los
+// cuatro lados
+.notice {
+  padding: var(--space-s);
+}
