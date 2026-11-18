@@ -10,16 +10,14 @@
   }
 </ng-template>
 
-@if (isStepped()) {
-  <!-- De uno en uno, sin tarjeta ni título propios (va dentro de la tarjeta
-       del viaje terminado, que lleva el título y «1 de 2»): el que toca y, al
-       acabar, el resumen -->
+<!-- De uno en uno: el que toca y, al acabar, el resumen -->
+<ng-template #steppedContent>
   <div class="trip-review-card__stepped">
     @if (sections().length > 0) {
       @if (currentStep(); as step) {
         <section class="trip-review-card__section" [attr.aria-label]="step.target.name">
           <!-- Un formulario nuevo por persona (track por su id): sin la nota
-               de la anterior -->
+             de la anterior -->
           @for (current of [step]; track current.target.id) {
             <app-trip-review-form
               [tripId]="tripId()"
@@ -33,8 +31,8 @@
         </section>
       } @else {
         <!-- Al acabar, como el resumen del pasajero: el título en gris, una
-             fila por persona (centradas y estrechas) y, si valoró a alguien
-             aquí, el agradecimiento -->
+           fila por persona (centradas y estrechas) y, si valoró a alguien
+           aquí, el agradecimiento -->
         <section class="trip-review-card__done" aria-labelledby="trip-review-done-title">
           <h3 id="trip-review-done-title" class="text-caption text-color-muted">
             Tus valoraciones
@@ -74,6 +72,29 @@
       <ng-container [ngTemplateOutlet]="status" />
     }
   </div>
+</ng-template>
+
+@if (isStepped() && isCarded()) {
+  <!-- En su tarjeta (detalle del viaje): el título y «1 de 2» a la derecha -->
+  <ion-card class="trip-review-card">
+    <ion-card-header>
+      <div class="trip-review-card__head">
+        <ion-card-title>{{ title() }}</ion-card-title>
+        @if (currentStep(); as step) {
+          @if (step.total > 1) {
+            <span class="text-caption text-color-muted">{{ step.number }} de {{ step.total }}</span>
+          }
+        }
+      </div>
+    </ion-card-header>
+    <ion-card-content>
+      <ng-container [ngTemplateOutlet]="steppedContent" />
+    </ion-card-content>
+  </ion-card>
+} @else if (isStepped()) {
+  <!-- Sin tarjeta ni título propios (dentro del panel de viaje terminado,
+       que lleva el título y «1 de 2») -->
+  <ng-container [ngTemplateOutlet]="steppedContent" />
 } @else {
   <ion-card class="trip-review-card">
     <ion-card-header>

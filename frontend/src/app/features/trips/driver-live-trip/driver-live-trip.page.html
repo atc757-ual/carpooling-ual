@@ -462,82 +462,119 @@
             <!-- Una sola sección (sin línea entre las pastillas y lo que
                  muestran): qué ver, en pastillas, con el SOS siempre a la vista
                  en la esquina, y debajo lo elegido (como el pasajero) -->
-            <div class="driver-live-trip__choice">
-              <div class="driver-live-trip__choice-bar">
-                <app-filter-chips
-                  legend="Qué ver en el viaje"
-                  [options]="sheetTabs()"
-                  [value]="sheetTab()"
-                  [allLabel]="null"
-                  [isLegendHidden]="true"
-                  [isSingleLine]="true"
-                  [isCompact]="true"
-                  (valueChange)="handleSheetTab($event)"
-                />
-                <!-- 112: el teléfono único de emergencias en Europa -->
-                <a
-                  class="icon-btn icon-btn--reveal icon-btn--danger"
-                  appRevealOnTouch
-                  href="tel:112"
-                  aria-label="SOS: llamar al 112"
-                >
-                  <span class="icon-btn__short" aria-hidden="true">SOS</span>
-                  <span class="icon-btn__label" aria-hidden="true">Llamar al 112</span>
-                </a>
-              </div>
+            <div
+              class="driver-live-trip__choice"
+              [class.driver-live-trip__choice--desktop]="sheet.isDesktop()"
+              [class.icon-btns-open]="sheet.isDesktop()"
+              [class.sections-divided]="sheet.isDesktop()"
+            >
+              @if (sheet.isDesktop()) {
+                <!-- Escritorio: sin pastillas, cada sección a la vista (hay sitio) -->
+                @if (!showFinishAlert()) {
+                  <ng-container [ngTemplateOutlet]="finishPanel" />
+                }
+                <app-live-trip-safety [shareText]="safetyShareText()" />
+                <ng-container [ngTemplateOutlet]="reportPanel" />
+                <ion-card class="driver-live-trip__panel">
+                  <ion-card-content>
+                    <h2 class="text-subtitle">Emergencia</h2>
+                    <div class="driver-live-trip__row">
+                      <p class="text-body-s text-color-muted">
+                        Si hay una emergencia, llama al 112.
+                      </p>
+                      <ng-container [ngTemplateOutlet]="sosButton" />
+                    </div>
+                  </ion-card-content>
+                </ion-card>
+              } @else {
+                <div class="driver-live-trip__choice-bar">
+                  <app-filter-chips
+                    legend="Qué ver en el viaje"
+                    [options]="sheetTabs()"
+                    [value]="sheetTab()"
+                    [allLabel]="null"
+                    [isLegendHidden]="true"
+                    [isSingleLine]="true"
+                    [isCompact]="true"
+                    (valueChange)="handleSheetTab($event)"
+                  />
+                  <ng-container [ngTemplateOutlet]="sosButton" />
+                </div>
 
-              <!-- Cada pastilla, en su tarjeta, como en el pasajero: el título
-                   arriba y, debajo, el texto y el botón a la derecha -->
-              @switch (sheetTab()) {
-                @case ('finish') {
-                  <!-- Terminar antes de llegar (con su confirmación) -->
-                  <ion-card class="driver-live-trip__panel">
-                    <ion-card-content>
-                      <h2 class="text-subtitle">¿Quieres terminar el viaje?</h2>
-                      <div class="driver-live-trip__row">
-                        <p class="text-body-s text-color-muted">
-                          Hazlo cuando hayas dejado a todos: tus pasajeros dejarán de ver dónde
-                          estás.
-                        </p>
-                        <ion-button
-                          class="driver-live-trip__finish-btn"
-                          [disabled]="isFinishing()"
-                          (click)="handleFinish()"
-                        >
-                          {{ isFinishing() ? 'Comprobando…' : 'Terminar viaje' }}
-                        </ion-button>
-                      </div>
-                    </ion-card-content>
-                  </ion-card>
-                }
-                @case ('actions') {
-                  <!-- Reportar: abre el formulario de la incidencia en la hoja -->
-                  <ion-card class="driver-live-trip__panel">
-                    <ion-card-content>
-                      <h2 class="text-subtitle">¿Algo va mal?</h2>
-                      <div class="driver-live-trip__row">
-                        <p class="text-body-s text-color-muted">
-                          Si no puedes seguir, repórtalo: cancelaremos el viaje y lo revisaremos.
-                        </p>
-                        <button
-                          type="button"
-                          class="icon-btn icon-btn--reveal"
-                          appRevealOnTouch
-                          aria-label="Enviar un reporte: abre el formulario de la incidencia"
-                          (click)="isReportingIncident.set(true)"
-                        >
-                          <ion-icon [icon]="reportIcon" aria-hidden="true" />
-                          <span class="icon-btn__label" aria-hidden="true">Enviar reporte</span>
-                        </button>
-                      </div>
-                    </ion-card-content>
-                  </ion-card>
-                }
-                @default {
-                  <app-live-trip-safety [shareText]="safetyShareText()" />
+                <!-- Cada pastilla, en su tarjeta, como en el pasajero: el título
+                     arriba y, debajo, el texto y el botón a la derecha -->
+                @switch (sheetTab()) {
+                  @case ('finish') {
+                    <ng-container [ngTemplateOutlet]="finishPanel" />
+                  }
+                  @case ('actions') {
+                    <ng-container [ngTemplateOutlet]="reportPanel" />
+                  }
+                  @default {
+                    <app-live-trip-safety [shareText]="safetyShareText()" />
+                  }
                 }
               }
             </div>
+
+            <!-- Terminar antes de llegar y reportar: en su pastilla (móvil) o a la
+                 vista (escritorio) -->
+            <ng-template #finishPanel>
+              <!-- Terminar antes de llegar (con su confirmación) -->
+              <ion-card class="driver-live-trip__panel">
+                <ion-card-content>
+                  <h2 class="text-subtitle">¿Quieres terminar el viaje?</h2>
+                  <div class="driver-live-trip__row">
+                    <p class="text-body-s text-color-muted">
+                      Hazlo cuando hayas dejado a todos: tus pasajeros dejarán de ver dónde estás.
+                    </p>
+                    <ion-button
+                      class="driver-live-trip__finish-btn"
+                      [disabled]="isFinishing()"
+                      (click)="handleFinish()"
+                    >
+                      {{ isFinishing() ? 'Comprobando…' : 'Terminar viaje' }}
+                    </ion-button>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </ng-template>
+            <ng-template #reportPanel>
+              <!-- Reportar: abre el formulario de la incidencia en la hoja -->
+              <ion-card class="driver-live-trip__panel">
+                <ion-card-content>
+                  <h2 class="text-subtitle">¿Algo va mal?</h2>
+                  <div class="driver-live-trip__row">
+                    <p class="text-body-s text-color-muted">
+                      Si no puedes seguir, repórtalo: cancelaremos el viaje y lo revisaremos.
+                    </p>
+                    <button
+                      type="button"
+                      class="icon-btn icon-btn--reveal"
+                      appRevealOnTouch
+                      aria-label="Enviar un reporte: abre el formulario de la incidencia"
+                      (click)="isReportingIncident.set(true)"
+                    >
+                      <ion-icon [icon]="reportIcon" aria-hidden="true" />
+                      <span class="icon-btn__label" aria-hidden="true">Enviar reporte</span>
+                    </button>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </ng-template>
+            <ng-template #sosButton>
+              <!-- 112: el teléfono único de emergencias en Europa -->
+              <a
+                class="icon-btn icon-btn--reveal icon-btn--danger"
+                appRevealOnTouch
+                href="tel:112"
+                aria-label="SOS: llamar al 112"
+              >
+                <ion-icon class="icon-btn__open-icon" [icon]="callIcon" aria-hidden="true" />
+                <span class="icon-btn__short" aria-hidden="true">SOS</span>
+                <span class="icon-btn__label" aria-hidden="true">Llamar al 112</span>
+              </a>
+            </ng-template>
           }
         </ng-template>
 

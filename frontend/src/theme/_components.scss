@@ -1252,15 +1252,16 @@ ion-toggle {
   @media (any-hover: hover) {
     &:hover:not(:disabled) {
       gap: var(--space-xs);
-      padding-inline: var(--space-s) var(--space-base);
+      padding-inline: var(--space-s); // 8px, como arriba y abajo
     }
   }
 
   &:focus-visible,
   &.icon-btn--revealed,
-  &.icon-btn--busy {
+  &.icon-btn--busy,
+  .icon-btns-open & {
     gap: var(--space-xs);
-    padding-inline: var(--space-s) var(--space-base);
+    padding-inline: var(--space-s); // 8px, como arriba y abajo
   }
 }
 
@@ -1280,7 +1281,8 @@ ion-toggle {
 
   .icon-btn--reveal:focus-visible &,
   .icon-btn--revealed &,
-  .icon-btn--busy & {
+  .icon-btn--busy &,
+  .icon-btns-open & {
     max-width: 10rem;
   }
 }
@@ -1306,13 +1308,33 @@ ion-toggle {
   }
 
   .icon-btn--reveal:focus-visible &,
-  .icon-btn--revealed & {
+  .icon-btn--revealed &,
+  .icon-btns-open & {
     display: none;
   }
 }
+
+// Dentro de .icon-btns-open (p. ej. «En curso» en escritorio, donde hay
+// sitio), los botones van siempre desplegados con su texto
 
 // Plegado, con su texto corto: el icono y el texto con 4px entre ellos
 .icon-btn--reveal:has(.icon-btn__short) {
   gap: var(--space-xs);
   padding-inline: var(--space-s);
+}
+
+// Secciones una debajo de otra separadas por una línea fina (p. ej. «En
+// curso» en escritorio, sin pastillas)
+.sections-divided > * + * {
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+}
+
+// Icono que solo sale con el botón siempre desplegado (.icon-btns-open), p. ej.
+// el teléfono de «Llamar al 112» en escritorio
+.icon-btn__open-icon {
+  display: none;
+
+  .icon-btns-open & {
+    display: inline-block;
+  }
 }

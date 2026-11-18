@@ -123,3 +123,11 @@ ion-card.trip-review-card ion-card-content {
 .notice {
   padding: var(--space-s);
 }
+
+// El título y, a la derecha, «1 de 2»
+.trip-review-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s);
+}

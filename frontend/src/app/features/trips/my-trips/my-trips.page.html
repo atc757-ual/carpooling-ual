@@ -13,15 +13,15 @@
     />
 
     <div class="my-trips__main">
-      @if (liveBanner(); as live) {
-        <app-live-trip-banner [route]="live.route" [detail]="live.detail" [link]="live.link" />
-      }
-
       <!-- Una sola tarjeta: arriba los estados en pastillas (como los filtros
            del panel) y debajo la lista de los dos papeles, por días (cada
            viaje dice el suyo) -->
       <ion-card class="my-trips__panel">
         <ion-card-content>
+          <!-- El viaje en curso, dentro de la tarjeta y encima de las pastillas -->
+          @if (liveBanner(); as live) {
+            <app-live-trip-banner [route]="live.route" [detail]="live.detail" [link]="live.link" />
+          }
           <app-filter-chips
             legend="Qué viajes ver"
             [isLegendHidden]="true"

@@ -59,6 +59,9 @@ export class TripReviewCard {
   // que falta, con «1 de 2» y «Ahora no»; al acabar, un resumen en una línea
   // por persona. Si no, todos a la vez (en el detalle del viaje)
   readonly isStepped = input(false);
+  // De uno en uno pero en su propia tarjeta, con el título y «1 de 2» (en el
+  // detalle del viaje del conductor)
+  readonly isCarded = input(false);
   // De uno en uno: ya no queda nadie por valorar (cargadas y sin pendientes)
   readonly stepsDone = output<void>();
   // De uno en uno: en cuál va («1 de 2»), para la cabecera de quien la usa;

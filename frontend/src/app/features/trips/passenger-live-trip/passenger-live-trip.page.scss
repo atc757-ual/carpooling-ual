@@ -313,3 +313,16 @@ ion-card.live-alert.live-alert[class] {
 .notice {
   padding: var(--space-s);
 }
+
+// Una fila: el texto a la izquierda y el botón a la derecha (16px entre ellos)
+.ride__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+
+  p {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
+}

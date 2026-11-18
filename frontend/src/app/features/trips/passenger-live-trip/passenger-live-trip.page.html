@@ -286,53 +286,92 @@
                      muestran): qué ver, en pastillas («Bajada» solo
                      lejos del campus; al abrir, la seguridad), con el SOS
                      siempre a la vista en la esquina, y debajo lo elegido -->
-                <div class="ride__choice">
-                  <div class="ride__choice-bar">
-                    <app-filter-chips
-                      legend="Qué ver en el viaje"
-                      [options]="sheetTabs()"
-                      [value]="sheetTab()"
-                      [allLabel]="null"
-                      [isLegendHidden]="true"
-                      [isSingleLine]="true"
-                      [isCompact]="true"
-                      (valueChange)="handleSheetTab($event)"
-                    />
-                    <!-- 112: el teléfono único de emergencias en Europa -->
-                    <a
-                      class="icon-btn icon-btn--reveal icon-btn--danger"
-                      appRevealOnTouch
-                      href="tel:112"
-                      aria-label="SOS: llamar al 112"
-                    >
-                      <span class="icon-btn__short" aria-hidden="true">SOS</span>
-                      <span class="icon-btn__label" aria-hidden="true">Llamar al 112</span>
-                    </a>
-                  </div>
-
-                  @switch (sheetTab()) {
-                    @case ('early') {
+                <div
+                  class="ride__choice"
+                  [class.ride__choice--desktop]="sheet.isDesktop()"
+                  [class.icon-btns-open]="sheet.isDesktop()"
+                  [class.sections-divided]="sheet.isDesktop()"
+                >
+                  @if (sheet.isDesktop()) {
+                    <!-- Escritorio: sin pastillas, cada sección a la vista (hay sitio) -->
+                    @if (arriveCard() === 'early') {
                       <ng-container
                         [ngTemplateOutlet]="arriveTemplate"
                         [ngTemplateOutletContext]="{ $implicit: 'early' }"
                       />
                     }
-                    @case ('actions') {
-                      <app-passenger-request-actions
-                        [request]="request"
-                        [trip]="trip"
-                        [showChat]="false"
-                        [inlineIncident]="true"
-                        (incidentRequested)="isReportingIncident.set(true)"
+                    <app-live-trip-safety [shareText]="safetyShareText()" />
+                    <app-passenger-request-actions
+                      [request]="request"
+                      [trip]="trip"
+                      [showChat]="false"
+                      [inlineIncident]="true"
+                      (incidentRequested)="isReportingIncident.set(true)"
+                    />
+                    <ion-card class="ride__panel" role="region" aria-labelledby="ride-sos-title">
+                      <ion-card-content>
+                        <h2 id="ride-sos-title" class="text-subtitle">Emergencia</h2>
+                        <div class="ride__row">
+                          <p class="text-body-s text-color-muted">
+                            Si hay una emergencia, llama al 112.
+                          </p>
+                          <ng-container [ngTemplateOutlet]="sosButton" />
+                        </div>
+                      </ion-card-content>
+                    </ion-card>
+                  } @else {
+                    <div class="ride__choice-bar">
+                      <app-filter-chips
+                        legend="Qué ver en el viaje"
+                        [options]="sheetTabs()"
+                        [value]="sheetTab()"
+                        [allLabel]="null"
+                        [isLegendHidden]="true"
+                        [isSingleLine]="true"
+                        [isCompact]="true"
+                        (valueChange)="handleSheetTab($event)"
                       />
-                    }
-                    @default {
-                      <!-- Compartir el viaje con alguien de confianza (el 112
+                      <ng-container [ngTemplateOutlet]="sosButton" />
+                    </div>
+
+                    @switch (sheetTab()) {
+                      @case ('early') {
+                        <ng-container
+                          [ngTemplateOutlet]="arriveTemplate"
+                          [ngTemplateOutletContext]="{ $implicit: 'early' }"
+                        />
+                      }
+                      @case ('actions') {
+                        <app-passenger-request-actions
+                          [request]="request"
+                          [trip]="trip"
+                          [showChat]="false"
+                          [inlineIncident]="true"
+                          (incidentRequested)="isReportingIncident.set(true)"
+                        />
+                      }
+                      @default {
+                        <!-- Compartir el viaje con alguien de confianza (el 112
                            ya está en la esquina) -->
-                      <app-live-trip-safety [shareText]="safetyShareText()" />
+                        <app-live-trip-safety [shareText]="safetyShareText()" />
+                      }
                     }
                   }
                 </div>
+
+                <!-- 112: el teléfono único de emergencias en Europa -->
+                <ng-template #sosButton>
+                  <a
+                    class="icon-btn icon-btn--reveal icon-btn--danger"
+                    appRevealOnTouch
+                    href="tel:112"
+                    aria-label="SOS: llamar al 112"
+                  >
+                    <ion-icon class="icon-btn__open-icon" [icon]="callIcon" aria-hidden="true" />
+                    <span class="icon-btn__short" aria-hidden="true">SOS</span>
+                    <span class="icon-btn__label" aria-hidden="true">Llamar al 112</span>
+                  </a>
+                </ng-template>
               }
             }
           </ng-template>
