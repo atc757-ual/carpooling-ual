@@ -19,14 +19,12 @@
   min-width: 0;
 }
 
+// Sin tarjeta (19/11, decidido con el autor): el aviso, el recuento con el
+// orden y los filtros y la lista, uno debajo de otro
 .search-results__panel {
-  margin: 0;
-
-  ion-card-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-s);
-  }
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
 }
 
 // Los viajes, en filas separadas con espacio entre tarjetas (TripResultCard)
@@ -87,7 +85,7 @@ ion-card-content.search-results__state:has(> .search-results__requested) > :last
   align-items: center;
   gap: var(--space-s);
   padding: 0.5rem var(--space-s); // 8px arriba y abajo
-  margin: 0; // El espaciado vertical lo gestiona el gap uniforme del panel
+  margin: 0 0 var(--space-s); // 16px hasta lo de debajo, con el gap (8px) del panel
   border: var(--border-width-s) solid var(--color-success); // borde del color fuerte
   border-radius: var(--radius-s); // 8px
   background: var(--color-success-subtle);
@@ -175,9 +173,11 @@ ion-card-content.search-results__state:has(> .search-results__requested) > :last
   height: 3rem;
   font-size: var(--font-size-body-s);
 
+  // En escritorio, un ancho fijo: dentro de una fila que se ajusta a su
+  // contenido, el 100 % de Ionic empujaba el botón «Filtros» fuera
   @media (min-width: 768px) {
-    flex: 0 0 auto;
-    min-width: 14rem;
+    flex: none;
+    width: 14rem; // 224px
   }
 
   &::part(container) {

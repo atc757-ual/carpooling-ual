@@ -44,9 +44,11 @@
 }
 
 // Cada casilla, una fila de 48px con el texto a la izquierda y la casilla a
-// la derecha, separadas por una línea fina
+// la derecha, centrados en vertical (con relleno: un alto mínimo dejaba el
+// texto arriba) y separadas por una línea fina
 .preference-filters__option {
-  min-height: 3rem; // 48px
+  width: 100%;
+  padding-block: 0.75rem; // 12px arriba y abajo: 48px con la casilla de 24px
   border-block-end: var(--border-width-s) solid var(--color-border-subtle);
 }
 

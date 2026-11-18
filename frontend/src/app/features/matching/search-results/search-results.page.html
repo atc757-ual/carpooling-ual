@@ -81,81 +81,77 @@
             </ion-card-content>
           </ion-card>
         } @else {
-          <!-- En una sola tarjeta: el recuento y el orden, el aviso de las horas
-               estimadas y, debajo, los viajes en una lista -->
-          <ion-card class="search-results__panel">
-            <ion-card-content>
-              <div class="notice notice--success search-results__notice" role="note">
-                <ion-icon [icon]="routeIcon" aria-hidden="true" />
-                <span>Horas estimadas según tu ruta.</span>
-              </div>
+          <!-- Sin tarjeta (19/11): el aviso de las horas estimadas, el recuento
+               con el orden y los filtros y, debajo, los viajes en una lista -->
+          <div class="search-results__panel">
+            <div class="notice notice--success search-results__notice" role="note">
+              <ion-icon [icon]="routeIcon" aria-hidden="true" />
+              <span>Horas estimadas según tu ruta.</span>
+            </div>
 
-              @if (requestedCount()) {
-                <!-- Los viajes que ya pediste no se repiten aquí: están en Tus viajes -->
-                <div class="notice notice--info search-results__requested">
-                  <span>
-                    <b>Ya pediste plaza</b>
-                    En {{ requestedCount() }} {{ requestedCount() === 1 ? 'viaje' : 'viajes' }} de
-                    esta búsqueda.
-                  </span>
-                  <a class="search-results__requested-link" routerLink="/tabs/trips"
-                    >Tus viajes ›</a
-                  >
-                </div>
-              }
-              <div class="search-results__results-header">
-                <output class="search-results__count" [attr.aria-label]="resultsSummary()">
-                  <span class="search-results__badge">{{ resultsCountLabel() }}</span>
-                  <span class="search-results__time"> {{ resultsTimeWindow() }}</span>
-                </output>
-                <!-- «Ordenar por» y, a su lado, el botón «Filtros» -->
-                <div class="search-results__tools">
-                  <ion-select
-                    class="search-results__sort"
-                    aria-label="Ordenar viajes"
-                    interface="popover"
-                    fill="outline"
-                    label="Ordenar por"
-                    labelPlacement="floating"
-                    [value]="sortOrder()"
-                    (ionChange)="handleSortChange($event.detail.value)"
-                  >
-                    <ion-select-option value="detour">Mejor coincidencia</ion-select-option>
-                    <ion-select-option value="arrival">Llegada más temprana</ion-select-option>
-                  </ion-select>
-                  <app-preference-filters
-                    [selected]="preferenceFilters()"
-                    [resultCount]="sortedTrips().length"
-                    (toggled)="handlePreferenceToggle($event)"
-                    (cleared)="clearPreferenceFilters()"
-                  />
-                </div>
+            @if (requestedCount()) {
+              <!-- Los viajes que ya pediste no se repiten aquí: están en Tus viajes -->
+              <div class="notice notice--info search-results__requested">
+                <span>
+                  <b>Ya pediste plaza</b>
+                  En {{ requestedCount() }} {{ requestedCount() === 1 ? 'viaje' : 'viajes' }} de
+                  esta búsqueda.
+                </span>
+                <a class="search-results__requested-link" routerLink="/tabs/trips">Tus viajes ›</a>
               </div>
-              @if (sortedTrips().length === 0) {
-                <!-- Ningún viaje pasa los filtros: se quitan aquí mismo -->
-                <div class="search-results__filtered-empty">
-                  <span class="text-body text-body--strong">Ningún viaje con esos filtros</span>
-                  <form (submit)="$event.preventDefault(); clearPreferenceFilters()">
-                    <ion-button type="submit" fill="outline">Quitar filtros</ion-button>
-                  </form>
-                </div>
-              } @else {
-                <ul class="search-results__items">
-                  @for (trip of sortedTrips(); track trip.id) {
-                    <li>
-                      <app-trip-result-card
-                        [trip]="trip"
-                        [isRequested]="requestedTripIds().has(trip.id)"
-                        [isBestMatch]="trip.id === bestTripId()"
-                        [isPreferenceMatch]="isPreferenceMatch(trip)"
-                        [fit]="fitOf(trip)"
-                      />
-                    </li>
-                  }
-                </ul>
-              }
-            </ion-card-content>
-          </ion-card>
+            }
+            <div class="search-results__results-header">
+              <output class="search-results__count" [attr.aria-label]="resultsSummary()">
+                <span class="search-results__badge">{{ resultsCountLabel() }}</span>
+                <span class="search-results__time"> {{ resultsTimeWindow() }}</span>
+              </output>
+              <!-- «Ordenar por» y, a su lado, el botón «Filtros» -->
+              <div class="search-results__tools">
+                <ion-select
+                  class="search-results__sort"
+                  aria-label="Ordenar viajes"
+                  interface="popover"
+                  fill="outline"
+                  label="Ordenar por"
+                  labelPlacement="floating"
+                  [value]="sortOrder()"
+                  (ionChange)="handleSortChange($event.detail.value)"
+                >
+                  <ion-select-option value="detour">Mejor coincidencia</ion-select-option>
+                  <ion-select-option value="arrival">Llegada más temprana</ion-select-option>
+                </ion-select>
+                <app-preference-filters
+                  [selected]="preferenceFilters()"
+                  [resultCount]="sortedTrips().length"
+                  (toggled)="handlePreferenceToggle($event)"
+                  (cleared)="clearPreferenceFilters()"
+                />
+              </div>
+            </div>
+            @if (sortedTrips().length === 0) {
+              <!-- Ningún viaje pasa los filtros: se quitan aquí mismo -->
+              <div class="search-results__filtered-empty">
+                <span class="text-body text-body--strong">Ningún viaje con esos filtros</span>
+                <form (submit)="$event.preventDefault(); clearPreferenceFilters()">
+                  <ion-button type="submit" fill="outline">Quitar filtros</ion-button>
+                </form>
+              </div>
+            } @else {
+              <ul class="search-results__items">
+                @for (trip of sortedTrips(); track trip.id) {
+                  <li>
+                    <app-trip-result-card
+                      [trip]="trip"
+                      [isRequested]="requestedTripIds().has(trip.id)"
+                      [isBestMatch]="trip.id === bestTripId()"
+                      [isPreferenceMatch]="isPreferenceMatch(trip)"
+                      [fit]="fitOf(trip)"
+                    />
+                  </li>
+                }
+              </ul>
+            }
+          </div>
         }
       } @else {
         <ion-card>
