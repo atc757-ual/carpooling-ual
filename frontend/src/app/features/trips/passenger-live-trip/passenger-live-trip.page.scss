@@ -314,19 +314,6 @@ ion-card.live-alert.live-alert[class] {
   padding: var(--space-s);
 }
 
-// Una fila: el texto a la izquierda y el botón a la derecha (16px entre ellos)
-.ride__row {
-  display: flex;
-  align-items: center; // el botón, centrado en vertical con el texto
-  gap: var(--space-base);
-
-  p {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-  }
-}
-
 // Escritorio: sin el hueco de 12px de las pastillas del móvil
 .ride__choice--desktop {
   padding-top: 0;

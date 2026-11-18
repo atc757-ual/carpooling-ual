@@ -477,11 +477,11 @@
                 <ng-container [ngTemplateOutlet]="reportPanel" />
                 <ion-card class="driver-live-trip__panel">
                   <ion-card-content>
-                    <h2 class="text-subtitle">Emergencia</h2>
-                    <div class="driver-live-trip__row">
-                      <p class="text-body-s text-color-muted">
-                        Llama al 112 si hay una emergencia.
-                      </p>
+                    <div class="section-item">
+                      <div class="section-item__text">
+                        <h2 class="section-item__title">Emergencia</h2>
+                        <p class="section-item__subtitle">Llama si hay una emergencia.</p>
+                      </div>
                       <ng-container [ngTemplateOutlet]="sosButton" />
                     </div>
                   </ion-card-content>
@@ -542,9 +542,11 @@
               <!-- Terminar antes de llegar (con su confirmación) -->
               <ion-card class="driver-live-trip__panel">
                 <ion-card-content>
-                  <h2 class="text-subtitle">Terminar viaje</h2>
-                  <div class="driver-live-trip__row">
-                    <p class="text-body-s text-color-muted">Hazlo cuando se hayan bajado todos.</p>
+                  <div class="section-item">
+                    <div class="section-item__text">
+                      <h2 class="section-item__title">Terminar viaje</h2>
+                      <p class="section-item__subtitle">Cuando se hayan bajado todos.</p>
+                    </div>
                     <ion-button
                       class="driver-live-trip__finish-btn"
                       [disabled]="isFinishing()"
@@ -560,11 +562,11 @@
               <!-- Reportar: abre el formulario de la incidencia en la hoja -->
               <ion-card class="driver-live-trip__panel">
                 <ion-card-content>
-                  <h2 class="text-subtitle">¿Algo va mal?</h2>
-                  <div class="driver-live-trip__row">
-                    <p class="text-body-s text-color-muted">
-                      Si no puedes seguir, repórtalo: lo revisará un administrador.
-                    </p>
+                  <div class="section-item">
+                    <div class="section-item__text">
+                      <h2 class="section-item__title">¿Algo va mal?</h2>
+                      <p class="section-item__subtitle">Repórtalo y lo revisaremos.</p>
+                    </div>
                     <button
                       type="button"
                       class="icon-btn icon-btn--reveal"

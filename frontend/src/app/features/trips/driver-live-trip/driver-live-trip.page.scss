@@ -439,20 +439,6 @@
   min-width: 0;
   padding-top: calc(var(--space-s) + var(--space-xs)); // 12px
 }
-
-// En una pastilla: el texto a la izquierda y el botón a la derecha, a 16px
-.driver-live-trip__row {
-  display: flex;
-  align-items: center; // el botón, centrado en vertical con el texto
-  gap: var(--space-base);
-
-  p {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-  }
-}
-
 .driver-live-trip__choice-bar {
   display: flex;
   align-items: center;

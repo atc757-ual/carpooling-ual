@@ -1,21 +1,19 @@
 <ion-card class="passenger-actions">
-  <!-- En «En curso», el título como los de las demás tarjetas de la hoja -->
+  <!-- En «En curso», sin título: «¿Algo va mal?» ya lleva el suyo -->
   @if (!inlineIncident()) {
     <ion-card-header>
       <ion-card-title>Acciones de tu solicitud</ion-card-title>
     </ion-card-header>
   }
   <ion-card-content>
-    @if (inlineIncident()) {
-      <h2 class="passenger-actions__title text-subtitle">Acciones de tu solicitud</h2>
-    }
     @if (isTripInProgress()) {
       <!-- La frase explica qué hacer (bajarse y reportarlo) y, a la derecha,
            el formulario de la incidencia -->
-      <div class="passenger-actions__incident">
-        <p class="text-body-s text-color-muted">
-          ¿Algo va mal? Bájate en un sitio seguro y rellena el formulario: lo revisaremos.
-        </p>
+      <div class="section-item">
+        <div class="section-item__text">
+          <h2 class="section-item__title">¿Algo va mal?</h2>
+          <p class="section-item__subtitle">Bájate en un sitio seguro.</p>
+        </div>
         <button
           type="button"
           class="icon-btn icon-btn--reveal"

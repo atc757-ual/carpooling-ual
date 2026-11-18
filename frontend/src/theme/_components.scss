@@ -1378,3 +1378,42 @@ ion-toggle {
   -webkit-line-clamp: 2;
   line-clamp: 2;
 }
+
+// Una fila de acción (p. ej. «Terminar viaje», «Viaje seguro»): a la izquierda
+// el título y, debajo, el subtítulo en una línea (dos líneas en total, «…» si
+// no cabe); a la derecha, el botón centrado en vertical, a 16px
+.section-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+}
+
+.section-item__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+  min-width: 0;
+}
+
+.section-item__title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-subtitle);
+}
+
+.section-item__subtitle {
+  overflow: hidden;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption); // 12px
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.section-item > :not(.section-item__text) {
+  flex: none;
+  margin: 0;
+}

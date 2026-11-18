@@ -338,7 +338,10 @@ export class DriverLiveTripPage {
     const slide = document.getElementById(`pickup-${requestId}`);
     const carousel = slide?.parentElement;
     if (slide && carousel) {
-      carousel.scrollTo?.({ left: slide.offsetLeft - carousel.offsetLeft, behavior: 'smooth' });
+      // Con la posición exacta en pantalla (offsetLeft redondea a píxeles
+      // enteros y dejaba 1px de la tarjeta anterior junto al borde)
+      const offset = slide.getBoundingClientRect().left - carousel.getBoundingClientRect().left;
+      carousel.scrollTo?.({ left: carousel.scrollLeft + offset, behavior: 'smooth' });
     }
   }
 
