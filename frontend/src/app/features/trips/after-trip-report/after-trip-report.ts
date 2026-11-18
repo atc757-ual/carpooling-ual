@@ -5,6 +5,21 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
 
+// Hasta cuándo se puede reportar un viaje ya realizado (la API lo admite
+// en los 7 días siguientes a terminar)
+const REPORT_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+
+export function isAfterTripReportOpen(
+  { status, finishedAt }: { status: string; finishedAt?: string | null },
+  now = Date.now(),
+): boolean {
+  return (
+    status === 'finished' &&
+    !!finishedAt &&
+    now <= new Date(finishedAt).getTime() + REPORT_WINDOW_MS
+  );
+}
+
 // «¿Algo fue mal?» en el detalle de un viaje ya realizado (conductor o
 // pasajero): abre el formulario de la incidencia en su ventana, sin cancelar
 // nada. La API solo lo admite en los 7 días siguientes a terminar

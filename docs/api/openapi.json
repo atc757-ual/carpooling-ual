@@ -17218,6 +17218,12 @@
             "nullable": true,
             "description": "How the trip finished: the driver, the passengers (the last one got off or left) or the system (closed automatically 1 h after the estimated arrival); null until it finishes"
           },
+          "finishedAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the trip finished (a report after the trip is accepted until 7 days later); null until it finishes"
+          },
           "isLocationApproximate": {
             "type": "boolean",
             "description": "True when origin and destination are rounded to about 500 m (campus parkings excepted): whoever is not the driver, an accepted passenger or an administrator does not see the exact points"
@@ -17255,6 +17261,7 @@
           "status",
           "startedAt",
           "finishedBy",
+          "finishedAt",
           "isLocationApproximate",
           "returnTrip"
         ]
@@ -17384,6 +17391,12 @@
             "nullable": true,
             "description": "How the trip finished: the driver, the passengers (the last one got off or left) or the system (closed automatically 1 h after the estimated arrival); null until it finishes"
           },
+          "finishedAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the trip finished (a report after the trip is accepted until 7 days later); null until it finishes"
+          },
           "isLocationApproximate": {
             "type": "boolean",
             "description": "True when origin and destination are rounded to about 500 m (campus parkings excepted): whoever is not the driver, an accepted passenger or an administrator does not see the exact points"
@@ -17411,6 +17424,7 @@
           "status",
           "startedAt",
           "finishedBy",
+          "finishedAt",
           "isLocationApproximate"
         ]
       },

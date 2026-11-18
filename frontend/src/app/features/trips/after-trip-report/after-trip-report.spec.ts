@@ -3,7 +3,7 @@ import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
-import { AfterTripReport } from './after-trip-report';
+import { AfterTripReport, isAfterTripReportOpen } from './after-trip-report';
 
 describe('AfterTripReport', () => {
   let fixture: ComponentFixture<AfterTripReport>;
@@ -57,5 +57,20 @@ describe('AfterTripReport', () => {
     expect(showSuccess).toHaveBeenCalledWith('Reporte enviado: lo revisará un administrador.');
     expect(root.textContent).toContain('Gracias: lo revisará un administrador.');
     expect(root.querySelector('button')).toBeNull();
+  });
+
+  it('stays open for 7 days after the trip finished', () => {
+    const finishedAt = '2026-11-10T08:00:00.000Z';
+    const at = (iso: string): number => new Date(iso).getTime();
+
+    expect(
+      isAfterTripReportOpen({ status: 'finished', finishedAt }, at('2026-11-17T08:00:00Z')),
+    ).toBe(true);
+    expect(
+      isAfterTripReportOpen({ status: 'finished', finishedAt }, at('2026-11-17T08:00:01Z')),
+    ).toBe(false);
+    // Sin terminar, o sin saber cuándo terminó, no
+    expect(isAfterTripReportOpen({ status: 'in_progress', finishedAt: null })).toBe(false);
+    expect(isAfterTripReportOpen({ status: 'finished' })).toBe(false);
   });
 });

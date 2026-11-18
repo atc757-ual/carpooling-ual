@@ -123,6 +123,8 @@ export interface DriverTrip extends PublishedTrip {
   // Cómo terminó: el conductor, los pasajeros o el sistema (cierre
   // automático 1 h después de la llegada estimada); null si no ha terminado
   finishedBy?: 'driver' | 'passengers' | 'system' | null;
+  // Cuándo terminó (ISO); null si no ha terminado
+  finishedAt?: string | null;
 }
 
 // Un viaje visto por cualquiera (GET /api/trips/{id}): con quien conduce
