@@ -14,6 +14,20 @@
     </button>
   </header>
 
+  <!-- Sin posición reciente: el aviso encima del mapa (en el móvil, donde el
+       mapa ocupa la pantalla, no se pinta: lo dice la etiqueta de minutos) -->
+  @if (latestPosition() && isStale()) {
+    <output class="notice notice--warning trip-live-map__stale">
+      <span>
+        {{
+          isDriver()
+            ? 'No estamos recibiendo tu ubicación. Comprueba que la app sigue abierta y el GPS activo.'
+            : 'Sin posición reciente del coche.'
+        }}
+      </span>
+    </output>
+  }
+
   <div class="trip-live-map__frame">
     <section #map class="trip-live-map__canvas" [attr.aria-label]="mapLabel()"></section>
     @if (latestPosition()) {
@@ -58,17 +72,7 @@
     }
 
     @if (latestPosition()) {
-      @if (isStale()) {
-        <output class="notice notice--warning">
-          <span>
-            {{
-              isDriver()
-                ? 'No estamos recibiendo tu ubicación. Comprueba que la app sigue abierta y el GPS activo.'
-                : 'Sin posición reciente del coche.'
-            }}
-          </span>
-        </output>
-      } @else if (refreshFailed()) {
+      @if (refreshFailed() && !isStale()) {
         <p class="text-caption text-color-muted">Mostramos la última ubicación recibida.</p>
       }
     }
