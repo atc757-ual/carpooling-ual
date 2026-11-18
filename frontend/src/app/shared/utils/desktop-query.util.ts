@@ -114,7 +114,7 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
   // Una copia por hoja: Ionic se queda con este mismo array al abrirla y no
   // relee las paradas, así que al ajustarlas se cambia en su sitio
   const breakpoints = [...LIVE_SHEET_BREAKPOINTS];
-  const topBreakpoint = (): number => breakpoints[breakpoints.length - 1];
+  const topBreakpoint = (): number => breakpoints.at(-1) ?? LIVE_SHEET_FULL_BREAKPOINT;
 
   const canDismiss = (): Promise<boolean> =>
     Promise.resolve(isDesktop() || !isOnPage() || isLeaving);
@@ -147,13 +147,10 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
   const fitToContent = (contentFraction: number): void => {
     const next = fitLiveSheetBreakpoints(contentFraction);
     const previousTop = topBreakpoint();
-    if (
-      Math.abs(next[next.length - 1] - previousTop) < 0.01 &&
-      next.length === breakpoints.length
-    ) {
+    if (Math.abs((next.at(-1) ?? 0) - previousTop) < 0.01 && next.length === breakpoints.length) {
       return;
     }
-    const wasAtTop = breakpoint() >= previousTop - 0.001 || breakpoint() > next[next.length - 1];
+    const wasAtTop = breakpoint() >= previousTop - 0.001 || breakpoint() > (next.at(-1) ?? 0);
     breakpoints.splice(0, breakpoints.length, ...next);
     if (modal && wasAtTop) {
       void modal.setCurrentBreakpoint(topBreakpoint());

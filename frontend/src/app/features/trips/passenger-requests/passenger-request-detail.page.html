@@ -141,8 +141,8 @@
         <aside class="passenger-detail__aside" aria-label="Tu viaje y acciones">
           <app-passenger-request-route [request]="request" [trip]="trip" part="driver" />
 
-          <!-- Con la plaza aceptada y hasta que termine: una lista con todo a
-               la vista (seguirlo, compartirlo y, en curso, reportar) -->
+          <!-- Con la plaza aceptada y hasta que termine: una lista con cada
+               opción a la vista (seguirlo, compartirlo y, en curso, reportar) -->
           @if (
             request.status === 'accepted' &&
             (trip.status === 'confirmed' || trip.status === 'in_progress')
