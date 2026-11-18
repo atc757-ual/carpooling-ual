@@ -185,31 +185,32 @@
                     <ion-card-content>
                       <!-- El título y el texto y, a su derecha, «He llegado» como botón
                            de icono que se despliega con su texto -->
-                      <div class="live-alert__row">
-                        <div class="live-alert__text">
+                      <div class="section-item">
+                        <div class="section-item__text">
                           @switch (variant) {
                             @case ('near') {
-                              <h2 id="ride-arrive-title" class="text-subtitle">¿Has llegado?</h2>
-                              <p class="text-caption text-color-muted">
-                                Márcalo y podrás valorar a {{ driverName() }}.
+                              <h2 id="ride-arrive-title" class="section-item__title">
+                                ¿Has llegado?
+                              </h2>
+                              <p class="section-item__subtitle">
+                                Márcalo al bajarte y podrás valorar a {{ driverName() }} enseguida.
                               </p>
                             }
                             @case ('early') {
-                              <h2 id="ride-arrive-title" class="text-subtitle">
+                              <h2 id="ride-arrive-title" class="section-item__title">
                                 ¿Te has bajado antes?
                               </h2>
-                              <p class="text-caption text-color-muted">
-                                Márcalo si te has bajado antes del campus. Si no, te lo pediremos al
-                                llegar.
+                              <p class="section-item__subtitle">
+                                Márcalo si te has bajado antes; si no, te lo pediremos al llegar.
                               </p>
                             }
                             @default {
-                              <h2 id="ride-arrive-title" class="text-subtitle">
+                              <h2 id="ride-arrive-title" class="section-item__title">
                                 ¿Ya te has bajado?
                               </h2>
-                              <p class="text-caption text-color-muted">
-                                Márcalo al llegar y podrás valorar a {{ driverName() }}. Si lo marca
-                                {{ driverName() }} antes, tu viaje se cerrará solo.
+                              <p class="section-item__subtitle">
+                                Márcalo al bajarte; si {{ driverName() }} lo marca antes, se cerrará
+                                solo.
                               </p>
                             }
                           }
@@ -313,7 +314,9 @@
                         <div class="section-item">
                           <div class="section-item__text">
                             <h2 id="ride-sos-title" class="section-item__title">Emergencia</h2>
-                            <p class="section-item__subtitle">Llama si hay una emergencia.</p>
+                            <p class="section-item__subtitle">
+                              Si hay una emergencia, llama al 112: es gratis y atienden 24 h.
+                            </p>
                           </div>
                           <ng-container [ngTemplateOutlet]="sosButton" />
                         </div>

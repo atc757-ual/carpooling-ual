@@ -1380,8 +1380,8 @@ ion-toggle {
 }
 
 // Una fila de acción (p. ej. «Terminar viaje», «Viaje seguro»): a la izquierda
-// el título y, debajo, el subtítulo en una línea (dos líneas en total, «…» si
-// no cabe); a la derecha, el botón centrado en vertical, a 16px
+// el título y, debajo, la descripción en dos líneas (siempre dos, «…» si no
+// cabe); a la derecha, el botón centrado en vertical, a 16px
 .section-item {
   display: flex;
   align-items: center;
@@ -1405,12 +1405,16 @@ ion-toggle {
 }
 
 .section-item__subtitle {
+  display: -webkit-box;
   overflow: hidden;
+  min-height: 2rem; // 32px: siempre dos líneas
   margin: 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-caption); // 12px
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1rem; // 16px
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .section-item > :not(.section-item__text) {
