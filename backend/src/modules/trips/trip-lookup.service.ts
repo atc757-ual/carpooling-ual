@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager, In } from 'typeorm';
+import type { TripsTab } from '../../shared/pagination/trips-tab-query.dto';
+import { DRIVER_TAB_STATUSES } from './driver-trip-tabs';
 import { TripRoute } from './entities/trip-route.entity';
 import { Trip } from './entities/trip.entity';
 import { RouteNotFoundError } from './errors/route-not-found.error';
@@ -12,6 +14,12 @@ export const ACTIVE_TRIP_STATUSES = [
 ] as const;
 // Aún admite solicitudes: publicado o confirmado
 const OPEN_TRIP_STATUSES = ['published', 'confirmed'] as const;
+
+// Una fila de «Tus viajes» antes de cargarla: su id y la salida del viaje
+export interface TripEntryKey {
+  id: string;
+  departureAt: Date;
+}
 
 // Cuándo sale un viaje y cuánto dura (su ruta)
 export interface TripWindow {
@@ -63,6 +71,28 @@ export class TripLookupService {
       id: In([...tripIds]),
       status: In([...ACTIVE_TRIP_STATUSES]),
     });
+  }
+
+  // Los viajes del conductor de una pestaña de «Tus viajes», solo el id y la
+  // salida (para mezclarlos con sus solicitudes de pasajero y paginar)
+  async driverTabKeys(
+    manager: EntityManager,
+    driverId: string,
+    tab: TripsTab,
+  ): Promise<TripEntryKey[]> {
+    const trips = await manager.find(Trip, {
+      select: { id: true, departureAt: true },
+      where: { driverId, status: In([...DRIVER_TAB_STATUSES[tab]]) },
+    });
+    return trips.map(({ id, departureAt }) => ({ id, departureAt }));
+  }
+
+  // La salida del viaje como expresión SQL, para ordenar por ella una consulta
+  // de otro módulo que tiene el id del viaje en tripIdColumn (p. ej.
+  // «request.trip_id»). Así la tabla de viajes solo la nombra este módulo
+  departureAtSql(manager: EntityManager, tripIdColumn: string): string {
+    const { tableName } = manager.connection.getMetadata(Trip);
+    return `(SELECT lookup_trip.departure_at FROM ${tableName} lookup_trip WHERE lookup_trip.id = ${tripIdColumn})`;
   }
 
   // Cuánto dura el viaje según su ruta (los anteriores al cálculo de rutas
