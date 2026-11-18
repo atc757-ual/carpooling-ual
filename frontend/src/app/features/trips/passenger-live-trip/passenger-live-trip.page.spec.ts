@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { ApiError } from '../../../core/models/api-error.model';
 import { Trip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { provideCatalogsForTests } from '../../../core/services/catalogs/catalogs.testing';
@@ -10,9 +11,10 @@ import { LocationService } from '../../../core/services/location/location.servic
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { TrackingService } from '../../../core/services/tracking/tracking.service';
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
+import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { TripReviewsService } from '../../../core/services/users/trip-reviews.service';
+import { GivenReview, TripReviewsService } from '../../../core/services/users/trip-reviews.service';
 import {
   LIVE_TRIP_MAP_RENDERER_FACTORY,
   LOAD_LEAFLET,
@@ -60,16 +62,25 @@ describe('PassengerLiveTripPage', () => {
   let page: PassengerLiveTripPage;
   let root: HTMLElement;
   let showSuccess: ReturnType<typeof vi.fn>;
+  let showError: ReturnType<typeof vi.fn>;
+  let arrive: ReturnType<typeof vi.fn>;
+  let getTrip: ReturnType<typeof vi.fn>;
 
   async function render(req: SeatRequest = request(), trip: Trip = TRIP): Promise<void> {
     showSuccess = vi.fn();
+    showError = vi.fn();
+    arrive = vi.fn();
+    getTrip = vi.fn().mockResolvedValue(trip);
     TestBed.configureTestingModule({
       providers: [
         provideIonicAngular(),
         provideRouter([]),
         provideCatalogsForTests(),
-        { provide: SeatRequestsService, useValue: { listMine: vi.fn().mockResolvedValue([req]) } },
-        { provide: TripsService, useValue: { getTrip: vi.fn().mockResolvedValue(trip) } },
+        {
+          provide: SeatRequestsService,
+          useValue: { listMine: vi.fn().mockResolvedValue([req]), arrive },
+        },
+        { provide: TripsService, useValue: { getTrip } },
         {
           provide: ChatService,
           useValue: {
@@ -82,7 +93,7 @@ describe('PassengerLiveTripPage', () => {
         },
         {
           provide: ToastService,
-          useValue: { showSuccess, showError: vi.fn(), showInfo: vi.fn() },
+          useValue: { showSuccess, showError, showInfo: vi.fn() },
         },
         {
           provide: TrackingService,
@@ -199,6 +210,93 @@ describe('PassengerLiveTripPage', () => {
 
     expect(page.callDriverLabel()).toContain('Lucía');
     expect(openPhone).toHaveBeenCalledWith('+34600111222');
+  });
+
+  it('asks before «He llegado» and then closes the seat', async () => {
+    const onBoard = request({ boardedAt: '2099-01-15T06:45:00.000Z' });
+    await render(onBoard);
+    const event = new Event('click');
+    const preventDefault = vi.spyOn(event, 'preventDefault');
+    arrive.mockResolvedValue({ ...onBoard, status: 'completed' });
+
+    page.handleArrive(event);
+    expect(preventDefault).toHaveBeenCalled();
+    expect(page.pendingConfirm()).toEqual({ kind: 'arrive' });
+
+    await page.handleConfirmPending();
+    expect(arrive).toHaveBeenCalledWith('r1');
+    expect(page.request()?.status).toBe('completed');
+    // Vuelve a cargar el viaje (por si ya se ha cerrado)
+    await vi.waitFor(() => expect(getTrip).toHaveBeenCalledTimes(2));
+    expect(page.pendingConfirm()).toBeNull();
+    expect(page.isArriving()).toBe(false);
+    expect(page.isConfirming()).toBe(false);
+  });
+
+  it('does nothing on «He llegado» while it is already saving', async () => {
+    await render();
+
+    page.isArriving.set(true);
+    page.handleArrive();
+    expect(page.pendingConfirm()).toBeNull();
+
+    await page.handleConfirmPending();
+    expect(arrive).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['PASSENGER_NOT_BOARDED', 'Aún no consta que hayas subido'],
+    ['TRIP_NOT_IN_PROGRESS', 'El viaje ya no está en curso.'],
+    ['INTERNAL_ERROR', 'No hemos podido marcar tu llegada'],
+  ])('explains why «He llegado» failed (%s)', async (code, message) => {
+    await render(request({ boardedAt: '2099-01-15T06:45:00.000Z' }));
+    arrive.mockRejectedValue(new ApiError(code, 409));
+
+    page.handleArrive();
+    await page.handleConfirmPending();
+
+    expect(showError).toHaveBeenCalledWith(expect.stringContaining(message));
+    expect(page.isArriving()).toBe(false);
+    expect(page.pendingConfirm()).toBeNull();
+  });
+
+  it('lets an unexpected error of «He llegado» through', async () => {
+    await render(request({ boardedAt: '2099-01-15T06:45:00.000Z' }));
+    arrive.mockRejectedValue(new TypeError('boom'));
+
+    page.handleArrive();
+    await expect(page.handleConfirmPending()).rejects.toThrow('boom');
+    expect(showError).not.toHaveBeenCalled();
+    expect(page.isArriving()).toBe(false);
+  });
+
+  it('shares the trip with someone they trust', async () => {
+    await render();
+    const share = vi.spyOn(TestBed.inject(TripShareService), 'share').mockResolvedValue('shared');
+
+    await page.handleShareTrip();
+
+    expect(share).toHaveBeenCalledWith({
+      title: 'Mi viaje en Carpooling UAL',
+      text: page.safetyShareText(),
+    });
+    expect(page.safetyShareText()).toContain('Roquetas de Mar');
+  });
+
+  it('keeps the review it sent, or none when it skips it', async () => {
+    await render(request({ boardedAt: '2099-01-15T06:45:00.000Z' }), {
+      ...TRIP,
+      status: 'finished',
+    });
+    const review = { id: 'rev1', rating: 5 } as unknown as GivenReview;
+
+    page.handleReviewDone('sent', review);
+    expect(page.reviewState()).toBe('sent');
+    expect(page.givenReview()).toBe(review);
+
+    page.handleReviewDone('skipped');
+    expect(page.reviewState()).toBe('skipped');
+    expect(page.givenReview()).toBeNull();
   });
 
   it('knows the phase of the passenger in the trip', () => {
