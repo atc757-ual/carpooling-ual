@@ -168,6 +168,15 @@ export class PassengerRequestActions {
       this.trip().status === 'cancelled'
     );
   });
+  // Si hay algo que enseñar: reportar en curso, cancelar, el motivo del
+  // cierre o buscar otro viaje
+  readonly hasContent = computed(
+    () =>
+      this.isTripInProgress() ||
+      this.canCancel() ||
+      this.closedReason() !== null ||
+      this.canSearchAnother(),
+  );
 
   protected readonly formIcon = documentTextOutline;
   protected readonly searchIcon = searchOutline;
