@@ -1,9 +1,18 @@
-// Dos tarjetas: arriba el próximo viaje y las cifras; debajo, «Te puede
-// interesar»
+@use '../../live-desktop-column' as live-column;
+
+// Dos secciones: arriba las cifras; debajo, «Te puede interesar». En el
+// móvil, una tarjeta cada una; en escritorio, la columna de 4 es una sola
+// tarjeta, como en el detalle del viaje y «En curso»
 :host {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
+}
+
+@media (min-width: 768px) {
+  :host {
+    @include live-column.card;
+  }
 }
 
 .my-trips-aside {
