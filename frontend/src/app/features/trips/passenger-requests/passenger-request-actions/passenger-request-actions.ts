@@ -10,7 +10,7 @@ import {
   IonSpinner,
   ModalController,
 } from '@ionic/angular';
-import { alertCircleOutline, searchOutline, warningOutline } from 'ionicons/icons';
+import { documentTextOutline, searchOutline, warningOutline } from 'ionicons/icons';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { Trip } from '../../../../core/models/driver.model';
 import { SeatRequest } from '../../../../core/models/seat-request.model';
@@ -19,6 +19,7 @@ import { ConfirmService } from '../../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../../core/services/ui/toast.service';
 import { toIsoDate } from '../../../../shared/utils/date.util';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
+import { RevealOnTouch } from '../../../../shared/directives/reveal-on-touch.directive';
 import { getFirstName } from '../../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../../matching/trip-results';
 import { TripSearchStateService } from '../../../matching/trip-search-state.service';
@@ -43,6 +44,7 @@ import {
     IonCardTitle,
     IonIcon,
     IonSpinner,
+    RevealOnTouch,
   ],
   templateUrl: './passenger-request-actions.html',
   styleUrl: './passenger-request-actions.scss',
@@ -166,8 +168,17 @@ export class PassengerRequestActions {
       this.trip().status === 'cancelled'
     );
   });
+  // Si hay algo que enseñar: reportar en curso, cancelar, el motivo del
+  // cierre o buscar otro viaje
+  readonly hasContent = computed(
+    () =>
+      this.isTripInProgress() ||
+      this.canCancel() ||
+      this.closedReason() !== null ||
+      this.canSearchAnother(),
+  );
 
-  protected readonly alertIcon = alertCircleOutline;
+  protected readonly formIcon = documentTextOutline;
   protected readonly searchIcon = searchOutline;
   protected readonly warningIcon = warningOutline;
 

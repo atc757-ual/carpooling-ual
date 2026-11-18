@@ -1,0 +1,60 @@
+// «En curso» del conductor: lo que solo cambia en escritorio. En su propio fichero porque la hoja principal
+// está al límite de tamaño de estilos por componente
+
+// Escritorio: sin el hueco de 12px que separa las pastillas en el móvil, para
+// que todas las secciones tengan el mismo espacio arriba
+.driver-live-trip__choice--desktop {
+  padding-top: 0;
+}
+
+// Escritorio: «Recogidas» con su recuento en una línea a lo ancho y, debajo,
+// la etiqueta a la izquierda y las flechas a la derecha
+.pickups-head--desktop {
+  display: grid;
+  grid-template-areas:
+    'text text'
+    'tag arrows';
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-xs) var(--space-s);
+
+  // «Recogidas» y, a su lado en la misma línea, «1 de 2 en el coche…»
+  .pickups-head__text {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0;
+    grid-area: text;
+    min-width: 0;
+
+    h2 {
+      flex: none;
+    }
+
+    // Separados por un punto centrado: «Recogidas · 1 de 2 en el coche»
+    p {
+      min-width: 0;
+
+      &::before {
+        content: '·';
+        margin-inline: var(--space-s); // 8px a cada lado
+      }
+    }
+  }
+
+  .pickups-head__tag {
+    grid-area: tag;
+    justify-self: start;
+    white-space: nowrap; // «Ubicación en directo», sin partir
+  }
+
+  .pickups-head__arrows {
+    grid-area: arrows;
+  }
+}
+
+// «1 de 2 en el coche · 1 se ha bajado», siempre en una línea («…» si no cabe)
+.pickups-head__text p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

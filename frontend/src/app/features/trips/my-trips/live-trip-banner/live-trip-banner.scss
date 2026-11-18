@@ -1,28 +1,35 @@
-// Una tarjeta azul claro con el borde de la marca: el texto a la izquierda y
-// «Abrir viaje» a la derecha (en el móvil, debajo y a todo el ancho)
+// Una tarjeta azul claro con el borde de la marca, baja: el texto a la
+// izquierda y el coche («Abrir viaje») a la derecha (también en el móvil)
 .live-trip-banner {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-s) var(--space-base);
+  gap: var(--space-base);
+  box-sizing: border-box;
   width: 100%;
-  padding: var(--space-base);
+  padding: var(--space-s); // 8px, como los avisos
   border: var(--border-width-s) solid var(--color-primary);
   border-radius: var(--radius-s); // 8px, como las tarjetas
   background: var(--color-primary-subtle);
-
-  ion-button {
-    margin: 0;
-  }
 }
 
 .live-trip-banner__text {
   display: flex;
-  flex: 1 1 14rem;
+  flex: 1;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: 0.125rem; // 2px
   min-width: 0;
+}
+
+// De dónde a dónde, en una línea (con … si no cabe)
+.live-trip-banner__route {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-trip-banner__open {
+  flex: none;
 }
 
 // «Viaje en curso» con un punto verde que late (sin animación si el sistema
@@ -38,7 +45,7 @@
   width: 0.5rem; // 8px
   height: 0.5rem;
   border-radius: var(--radius-full);
-  background: var(--color-success);
+  background: var(--color-link); // azul, como «Viaje en curso»
   animation: live-trip-pulse 1.6s ease-in-out infinite;
 
   @media (prefers-reduced-motion: reduce) {
@@ -48,12 +55,7 @@
 
 .live-trip-banner__detail {
   color: var(--color-text-muted);
-}
-
-@media (max-width: 479px) {
-  .live-trip-banner ion-button {
-    width: 100%;
-  }
+  font-size: var(--font-size-caption);
 }
 
 @keyframes live-trip-pulse {

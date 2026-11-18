@@ -18,6 +18,12 @@ const TOKEN_BYTES = 32;
 // 32 bytes en base64url, sin relleno
 const TOKEN_PATTERN = /^[\w-]{43}$/;
 
+// Plazas con las que se ve el viaje compartido (también tras bajarse)
+const PARTICIPANT_STATUSES: ReadonlySet<SeatRequest['status']> = new Set([
+  'accepted',
+  'completed',
+]);
+
 // Desde que hay plaza aceptada (confirmado) hasta que termina (en curso)
 export const SHAREABLE_TRIP_STATUSES: ReadonlySet<TripStatus> = new Set([
   'confirmed',
@@ -52,10 +58,10 @@ export function isSharedTripVisible(
     return false;
   }
   if (SHAREABLE_TRIP_STATUSES.has(trip.status)) {
-    return request.status === 'accepted';
+    return PARTICIPANT_STATUSES.has(request.status);
   }
   const isEndedWithSeat =
-    (trip.status === 'finished' && request.status === 'accepted') ||
+    (trip.status === 'finished' && PARTICIPANT_STATUSES.has(request.status)) ||
     trip.status === 'cancelled';
   const endedAt = trip.finishedAt ?? trip.updatedAt;
   return (

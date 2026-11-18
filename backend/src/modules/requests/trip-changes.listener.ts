@@ -9,9 +9,11 @@ import { UsersService } from '../users/users.service';
 import { SeatRequest } from './entities/seat-request.entity';
 import { RequestChangesRecorder } from './request-changes';
 import { RequestOverlapService } from './request-overlap.service';
+import { RequestDropOffService } from './request-drop-off.service';
 import {
   assertRequestTransition,
   LIVE_REQUEST_STATUSES,
+  PARTICIPANT_REQUEST_STATUSES,
 } from './request-status';
 import type { RequestStatus } from './request-status';
 
@@ -37,6 +39,7 @@ export class TripChangesListener implements OnModuleInit {
     private readonly notificationsService: NotificationsService,
     private readonly overlaps: RequestOverlapService,
     private readonly tripLookup: TripLookupService,
+    private readonly dropOffs: RequestDropOffService,
   ) {}
 
   onModuleInit(): void {
@@ -62,7 +65,7 @@ export class TripChangesListener implements OnModuleInit {
         await this.notifyDriverOnTheWay(manager, trip);
       }
       if (to === 'finished') {
-        await this.notifyReviewRequested(manager, trip);
+        await this.closeSeatsAndRequestReviews(manager, trip);
       }
     });
 
@@ -168,28 +171,24 @@ export class TripChangesListener implements OnModuleInit {
     );
   }
 
-  // Al terminar un viaje con pasajeros aceptados, avisa al conductor y a cada
-  // pasajero aceptado para que puedan valorarse mutuamente (RF-22)
-  private async notifyReviewRequested(
+  // Al terminar un viaje, las plazas que siguen abiertas se cierran (cada
+  // pasajero recibe «Tu viaje ha terminado» para valorar al conductor) y, si
+  // alguien viajó, se avisa al conductor para que valore a sus pasajeros (RF-22)
+  private async closeSeatsAndRequestReviews(
     manager: EntityManager,
     trip: Trip,
   ): Promise<void> {
-    const accepted = await manager.find(SeatRequest, {
-      where: { tripId: trip.id, status: 'accepted' },
+    await this.dropOffs.closeOpenSeats(manager, trip, 'driver');
+    const travelled = await manager.count(SeatRequest, {
+      where: { tripId: trip.id, status: In([...PARTICIPANT_REQUEST_STATUSES]) },
     });
-    if (accepted.length === 0) {
+    if (travelled === 0) {
       return;
     }
     await this.notificationsService.notify(manager, [trip.driverId], {
       type: 'review_requested',
       tripId: trip.id,
     });
-    await notifyPassengersSequentially(
-      this.notificationsService,
-      manager,
-      trip.id,
-      accepted,
-    );
   }
 
   // Pasajeros con la solicitud aceptada en el viaje
@@ -234,29 +233,4 @@ export class TripChangesListener implements OnModuleInit {
       }),
     );
   }
-}
-
-async function notifyPassengersSequentially(
-  notificationsService: NotificationsService,
-  manager: EntityManager,
-  tripId: string,
-  requests: readonly SeatRequest[],
-  index = 0,
-): Promise<void> {
-  if (index >= requests.length) {
-    return;
-  }
-  const request = requests[index];
-  await notificationsService.notify(manager, [request.passengerId], {
-    type: 'review_requested',
-    tripId,
-    requestId: request.id,
-  });
-  await notifyPassengersSequentially(
-    notificationsService,
-    manager,
-    tripId,
-    requests,
-    index + 1,
-  );
 }

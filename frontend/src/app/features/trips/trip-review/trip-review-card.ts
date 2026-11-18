@@ -1,4 +1,14 @@
-import { Component, computed, inject, input, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  resource,
+  signal,
+} from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSpinner } from '@ionic/angular';
 import {
   GivenReview,
@@ -26,6 +36,7 @@ export type TripReviewView =
 @Component({
   selector: 'app-trip-review-card',
   imports: [
+    NgTemplateOutlet,
     IonCard,
     IonCardContent,
     IonCardHeader,
@@ -44,6 +55,18 @@ export class TripReviewCard {
   readonly targets = input.required<ReviewTarget[]>();
   readonly targetRole = input.required<ReviewTargetRole>();
   readonly title = input('Tu valoración');
+  // De uno en uno (en la hoja de «En curso» del conductor): solo el primero
+  // que falta, con «1 de 2» y «Ahora no»; al acabar, un resumen en una línea
+  // por persona. Si no, todos a la vez (en el detalle del viaje)
+  readonly isStepped = input(false);
+  // De uno en uno pero en su propia tarjeta, con el título y «1 de 2» (en el
+  // detalle del viaje del conductor)
+  readonly isCarded = input(false);
+  // De uno en uno: ya no queda nadie por valorar (cargadas y sin pendientes)
+  readonly stepsDone = output<void>();
+  // De uno en uno: en cuál va («1 de 2»), para la cabecera de quien la usa;
+  // null al acabar
+  readonly stepChange = output<{ number: number; total: number } | null>();
 
   private readonly loaded = resource({
     params: () => ({ tripId: this.tripId(), role: this.targetRole() }),
@@ -67,6 +90,8 @@ export class TripReviewCard {
   });
   // Las enviadas desde aquí: se muestran sin volver a cargar
   private readonly justSent = signal<Map<string, GivenReview | null>>(new Map());
+  // Valoró a alguien desde aquí (para el «¡Gracias por valorar!» del resumen)
+  readonly hasSentHere = computed(() => this.justSent().size > 0);
 
   readonly isLoading = this.loaded.isLoading;
   readonly hasError = computed(() => Boolean(this.loaded.error()));
@@ -89,9 +114,38 @@ export class TripReviewCard {
     });
   });
 
+  // De uno en uno: los que dejó para luego con «Ahora no»
+  private readonly skippedIds = signal<ReadonlySet<string>>(new Set());
+  // El que toca valorar (el primero pendiente que no ha saltado) y su número
+  readonly currentStep = computed(() => {
+    const sections = this.sections();
+    const index = sections.findIndex(
+      ({ target, view }) => view.kind === 'pending' && !this.skippedIds().has(target.id),
+    );
+    return index === -1 ? null : { ...sections[index], number: index + 1, total: sections.length };
+  });
+  readonly skipped = this.skippedIds.asReadonly();
+
   protected readonly ratingName = ratingName;
+
+  constructor() {
+    effect(() => {
+      if (!this.isStepped() || this.sections().length === 0) {
+        return;
+      }
+      const step = this.currentStep();
+      this.stepChange.emit(step ? { number: step.number, total: step.total } : null);
+      if (step === null) {
+        this.stepsDone.emit();
+      }
+    });
+  }
 
   handleSent(targetId: string, review: GivenReview | null): void {
     this.justSent.update((current) => new Map(current).set(targetId, review));
+  }
+
+  handleSkip(targetId: string): void {
+    this.skippedIds.update((current) => new Set([...current, targetId]));
   }
 }

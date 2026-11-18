@@ -11,6 +11,7 @@ import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
+import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
 import { TripReviewsService } from '../../../core/services/users/trip-reviews.service';
 import { TripSearchStateService } from '../../matching/trip-search-state.service';
@@ -182,9 +183,9 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.textContent).toContain('1234BCD');
     expect(root.textContent).toContain('Cancelar mi plaza');
     expect(root.querySelector('.passenger-route__chat-btn')).not.toBeNull();
-    expect(
-      root.querySelector('.passenger-route__chat-btn')?.getAttribute('title'),
-    ).toBe('Escribir a Lucía');
+    expect(root.querySelector('.passenger-route__chat-btn')?.getAttribute('title')).toBe(
+      'Escribir a Lucía',
+    );
     expect(root.querySelector('.passenger-route__call-btn')).not.toBeNull();
     expect(root.textContent).toContain('Verás el código 10 minutos antes de la salida');
   });
@@ -193,9 +194,11 @@ describe('PassengerRequestDetailPage', () => {
     const root = await render(seatRequest('accepted'), { ...TRIP, status: 'in_progress' });
 
     expect(root.querySelector('app-live-trip-map')).toBeNull();
-    expect(root.textContent).toContain('Lucía ha empezado el viaje.');
-    expect(root.textContent).toContain('Seguir en directo');
-    expect(root.textContent).toContain('Bajarme y registrar incidencia');
+    expect(root.textContent).toContain('Lucía ha empezado el viaje');
+    expect(root.querySelector('[aria-label="Seguir el viaje en directo"]')).not.toBeNull();
+    expect(
+      root.querySelector('[aria-label="Reportar: bajarme y registrar una incidencia"]'),
+    ).not.toBeNull();
   });
 
   it('opens the incident window and goes back to Tus viajes once reported', async () => {
@@ -339,5 +342,30 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.querySelector('app-trip-review-card')?.textContent).toContain(
       '¿Qué tal con Lucía?',
     );
+  });
+
+  it('lets the passenger review the driver once off the car, with the trip still going', async () => {
+    const root = await render(seatRequest('completed'), { ...TRIP, status: 'in_progress' });
+
+    expect(fixture.componentInstance.hasTravelled()).toBe(true);
+    expect(root.querySelector('app-trip-review-card')?.textContent).toContain(
+      '¿Qué tal con Lucía?',
+    );
+  });
+
+  it('shares the trip with the driver, the car and the plate', async () => {
+    await render(seatRequest('accepted'));
+    const share = vi.spyOn(TestBed.inject(TripShareService), 'share').mockResolvedValue('shared');
+
+    await fixture.componentInstance.handleShare(seatRequest('accepted'), TRIP);
+    await fixture.componentInstance.handleShare(seatRequest('accepted', { vehiclePlate: null }), {
+      ...TRIP,
+      vehicle: null,
+    });
+
+    const [first, second] = share.mock.calls.map(([content]) => content.text);
+    expect(first).toContain('Lucía');
+    expect(first).toContain('1234BCD');
+    expect(second).not.toContain('1234BCD');
   });
 });

@@ -34,6 +34,8 @@ describe('trip tabs', () => {
     expect(passengerTripTab(request('accepted'), trip('finished'))).toBe('past');
     expect(passengerTripTab(request('accepted'), trip('cancelled'))).toBe('cancelled');
     expect(passengerTripTab(request('pending'), trip('finished'))).toBe('cancelled');
+    // Ya se bajó: en Anteriores aunque el viaje del conductor siga en curso
+    expect(passengerTripTab(request('completed'), trip('in_progress'))).toBe('past');
     for (const status of ['rejected', 'expired', 'cancelled'] as const) {
       expect(passengerTripTab(request(status), trip('confirmed'))).toBe('cancelled');
     }
@@ -46,6 +48,7 @@ describe('trip tabs', () => {
     expect(label('pending', 'published')).toBe('Pendiente');
     expect(label('accepted', 'confirmed')).toBe('Confirmada');
     expect(label('accepted', 'finished')).toBe('Realizado');
+    expect(label('completed', 'in_progress')).toBe('Realizado');
     expect(label('accepted', 'cancelled')).toBe('Viaje cancelado');
     expect(label('rejected', 'confirmed')).toBe('No aceptada');
     expect(label('rejected', 'confirmed', 'trip_full')).toBe('Viaje completo');

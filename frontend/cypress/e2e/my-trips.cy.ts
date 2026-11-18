@@ -125,7 +125,8 @@ for (const viewport of VIEWPORTS) {
         .should('be.visible')
         .and('contain', 'Roquetas de Mar → Campus UAL · Parking P1 (Sur)')
         .and('contain', '2 de 3 plazas ocupadas');
-      cy.contains('app-live-trip-banner ion-button', 'Abrir viaje').should(
+      // El coche del aviso lleva al viaje en curso
+      cy.get('app-live-trip-banner [aria-label="Abrir el viaje en curso"]').should(
         'have.attr',
         'href',
         '/tabs/trips/drive/t1',
@@ -192,25 +193,16 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('eq', '/tabs/trips/drive/t1');
       // Los detalles: en escritorio, la columna de 4; en el móvil, la hoja
       const live = isDesktop ? 'app-driver-live-trip' : 'ion-modal.live-sheet';
-      cy.contains(live, 'Compartiendo tu ubicación con tus pasajeros');
+      cy.contains(live, 'Ubicación en directo');
       cy.contains(live, 'Recogidas');
 
       cy.intercept('POST', '/api/trips/t1/finish', trip(1, 'finished', 5)).as('finish');
       cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'finished', 5)]);
       cy.intercept('GET', '/api/users/me/reviews*', []);
       cy.intercept('GET', '/api/users/me/pending-reviews', []);
-      // En el móvil, «Terminar viaje» queda al final de la hoja (tras la tarjeta
-      // de seguridad): se abre entera (0.92, LIVE_SHEET_BREAKPOINTS) y se baja
-      // hasta el final, como al arrastrarla hacia arriba (Cypress no desplaza
-      // el ion-content solo)
-      if (!isDesktop) {
-        cy.get<HTMLIonModalElement>('ion-modal.live-sheet').then(([sheet]) =>
-          sheet.setCurrentBreakpoint(0.92),
-        );
-        cy.get<HTMLIonContentElement>('ion-modal.live-sheet ion-content').then(([content]) =>
-          content.scrollToBottom(0),
-        );
-      }
+      // Sin pasajeros que llevar, el aviso «Ya no queda nadie por llevar»
+      // ocupa el sitio del botón de terminar (en escritorio y en el móvil)
+      cy.contains(live, 'Ya no queda nadie por llevar');
       cy.contains(`${live} ion-button`, 'Terminar viaje').click();
       // Aún en Almería centro, a unos 5 km del campus: avisa en la misma hoja
       cy.contains(live, 'del destino');

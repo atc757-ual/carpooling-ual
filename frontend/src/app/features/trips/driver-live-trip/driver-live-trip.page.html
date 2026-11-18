@@ -35,40 +35,111 @@
           @if (justFinished()) {
             <ion-card class="driver-live-trip__panel">
               <ion-card-content>
-                <div class="driver-live-trip__done">
+                <!-- Al acabar de valorar (o sin nadie a quien valorar), centrado
+                     como el del pasajero -->
+                <div
+                  class="driver-live-trip__done"
+                  [class.driver-live-trip__done--centered]="
+                    reviewTargets().length === 0 || areReviewsDone()
+                  "
+                >
                   <ion-icon
                     class="driver-live-trip__done-icon"
                     [icon]="finishedIcon"
                     aria-hidden="true"
                   />
-                  <div>
+                  <!-- Mientras valora, el subtítulo dice qué toca y, a la
+                       derecha, «1 de 2»; al acabar, los coches de menos -->
+                  <div class="driver-live-trip__done-text">
                     <h2 class="driver-live-trip__done-title">¡Viaje terminado!</h2>
                     <p class="text-body-s text-color-muted">
-                      Gracias por compartir coche: {{ boardedCount() }}
-                      {{ boardedCount() === 1 ? 'coche menos' : 'coches menos' }} en el campus.
+                      @if (reviewStep()) {
+                        Valora a tus pasajeros
+                      } @else {
+                        {{ boardedCount() }}
+                        {{ boardedCount() === 1 ? 'coche menos' : 'coches menos' }} en el campus
+                      }
                     </p>
                   </div>
+                  @if (reviewStep(); as step) {
+                    @if (step.total > 1) {
+                      <span class="driver-live-trip__done-step text-caption text-color-muted">
+                        {{ step.number }} de {{ step.total }}
+                      </span>
+                    }
+                  }
                 </div>
+                <!-- En la misma tarjeta: valorar de uno en uno y, al acabar
+                     (o sin nadie a quien valorar), volver -->
+                @if (reviewTargets().length > 0) {
+                  <app-trip-review-card
+                    [tripId]="trip.id"
+                    [targets]="reviewTargets()"
+                    targetRole="passenger"
+                    [isStepped]="true"
+                    (stepChange)="reviewStep.set($event)"
+                    (stepsDone)="areReviewsDone.set(true)"
+                  />
+                }
+                @if (reviewTargets().length === 0 || areReviewsDone()) {
+                  <ion-button expand="block" (click)="leaveFinished()">
+                    Volver a Tus viajes
+                  </ion-button>
+                }
               </ion-card-content>
             </ion-card>
-            @if (reviewTargets().length > 0) {
-              <app-trip-review-card
-                title="Valora a tus pasajeros"
-                [tripId]="trip.id"
-                [targets]="reviewTargets()"
-                targetRole="passenger"
-              />
-            }
+          } @else if (pendingDropOff(); as dropOff) {
+            <!-- Confirmar «Ha bajado» en la hoja (sin ventana encima), como
+                 «¿Terminar el viaje?» -->
             <ion-card class="driver-live-trip__panel">
               <ion-card-content>
-                <ion-button expand="block" fill="outline" (click)="leaveFinished()">
-                  Volver a Tus viajes
-                </ion-button>
+                <div class="driver-live-trip__confirm-head">
+                  <ion-icon
+                    class="driver-live-trip__confirm-icon"
+                    [icon]="dropOffIcon"
+                    aria-hidden="true"
+                  />
+                  <h2 class="driver-live-trip__done-title">
+                    ¿Ha bajado {{ firstName(dropOff.passenger.name) }}?
+                  </h2>
+                </div>
+                <p class="text-body-s text-color-muted">
+                  Su viaje terminará y podrá valorarte. Si ya lo marcó
+                  {{ firstName(dropOff.passenger.name) }}, no cambia nada.
+                </p>
+                <div class="driver-live-trip__finish">
+                  <ion-button
+                    expand="block"
+                    [disabled]="isDroppingOff(dropOff.id)"
+                    (click)="confirmDropOff(dropOff)"
+                  >
+                    Ha bajado
+                  </ion-button>
+                  <ion-button
+                    expand="block"
+                    fill="outline"
+                    [disabled]="isDroppingOff(dropOff.id)"
+                    (click)="pendingDropOff.set(null)"
+                  >
+                    Todavía no
+                  </ion-button>
+                </div>
               </ion-card-content>
             </ion-card>
           } @else if (finishCheck(); as check) {
             <ion-card class="driver-live-trip__panel">
               <ion-card-content>
+                <!-- El encabezado centrado (icono y pregunta) con la línea
+                     debajo; después, el aviso y los botones -->
+                <div class="driver-live-trip__confirm-head">
+                  <ion-icon
+                    class="driver-live-trip__confirm-icon"
+                    [class.driver-live-trip__confirm-icon--far]="check.isFar"
+                    [icon]="confirmFinishIcon"
+                    aria-hidden="true"
+                  />
+                  <h2 class="driver-live-trip__done-title">¿Terminar el viaje?</h2>
+                </div>
                 <output
                   class="notice"
                   [class.notice--warning]="check.isFar"
@@ -79,7 +150,6 @@
                       <b>Aún estás a {{ formatDistance(check.distance) }} del destino.</b>
                       Si terminas ahora, tus pasajeros verán el viaje como finalizado.
                     } @else {
-                      <b>¿Terminar el viaje?</b>
                       Dejarás de compartir tu ubicación y el viaje pasará a finalizado.
                     }
                   </span>
@@ -103,31 +173,127 @@
                 </div>
               </ion-card-content>
             </ion-card>
+          } @else if (isReportingIncident()) {
+            <!-- Reportar: el formulario sustituye al resto; «Continuar el viaje»
+                 lo vuelve a mostrar -->
+            <ion-card class="driver-live-trip__panel">
+              <ion-card-content>
+                <app-passenger-incident-modal
+                  [tripId]="trip.id"
+                  [isInline]="true"
+                  [isDriver]="true"
+                  (reported)="handleIncidentReported()"
+                  (cancelled)="isReportingIncident.set(false)"
+                />
+              </ion-card-content>
+            </ion-card>
           } @else {
-            <!-- Lo siguiente que hay que hacer, lo primero que se ve -->
-            <app-live-trip-hero
-              [title]="heroTitle()"
-              [eta]="etaText()"
-              [icon]="nextPickup() ? locationIcon : destinationIcon()"
-              [place]="
-                nextPickup()
-                  ? (nextPickup()?.pickupName ?? 'Su punto de recogida')
-                  : (trip.destinationName ?? 'tu destino')
-              "
-              [stages]="stages()"
-            />
+            <!-- Lo siguiente que hay que hacer, lo primero que se ve. En
+                 escritorio va encima del mapa (la columna de 4 se llena) -->
+            @if (!sheet.isDesktop()) {
+              <ng-container [ngTemplateOutlet]="liveHero" />
+            }
+
+            <!-- Sin nadie en el coche o cerca del destino: terminar, en un aviso
+                 como «¿Has llegado?» del pasajero (y sin la pastilla «Viaje») -->
+            @if (showFinishAlert()) {
+              <ion-card
+                class="driver-live-trip__panel live-alert"
+                role="region"
+                aria-labelledby="finish-alert-title"
+              >
+                <ion-card-content>
+                  <div class="live-alert__row">
+                    <div class="live-alert__text">
+                      <h2 id="finish-alert-title" class="text-subtitle">
+                        {{ isReadyToFinish() ? 'Ya no queda nadie por llevar' : '¿Has llegado?' }}
+                      </h2>
+                      <p class="text-caption text-color-muted">
+                        Termina el viaje para dejar de compartir tu ubicación.
+                      </p>
+                    </div>
+                    <ion-button
+                      class="driver-live-trip__finish-btn"
+                      [disabled]="isFinishing()"
+                      (click)="handleFinish()"
+                    >
+                      {{ isFinishing() ? 'Comprobando…' : 'Terminar viaje' }}
+                    </ion-button>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            }
+
+            <!-- Solo si estuvo un rato sin compartir la ubicación (pantalla
+                 bloqueada u otra app: en el navegador no se comparte en segundo
+                 plano), encima de las recogidas. Mientras se comparte no hace
+                 falta avisar: la hoja ya es la del viaje en directo -->
+            @if (isSharing() && gapMinutes(); as minutes) {
+              <ion-card class="driver-live-trip__panel">
+                <ion-card-content>
+                  <output class="notice notice--warning driver-live-trip__gap">
+                    <span>
+                      <b>Estuviste {{ minutes }} min sin compartir tu ubicación</b>
+                      Con la pantalla bloqueada o en otra app, tus pasajeros no ven dónde estás.
+                      Mantén esta pantalla abierta durante el viaje.
+                    </span>
+                    <ion-button fill="clear" size="small" (click)="dismissGap()"
+                      >Entendido</ion-button
+                    >
+                  </output>
+                </ion-card-content>
+              </ion-card>
+            }
 
             <!-- Las recogidas, en un carrusel por orden de recogida -->
             <ion-card class="driver-live-trip__panel" role="region" aria-labelledby="pickups-title">
               <ion-card-content>
-                <h2 id="pickups-title" class="text-subtitle">
-                  Recogidas
-                  @if (passengers().length > 0) {
-                    <span class="text-caption text-color-muted">
-                      · {{ boardedCount() }} de {{ passengers().length }} en el coche
+                <!-- El título y, en escritorio, las flechas de anterior y
+                     siguiente a su derecha (más fácil que arrastrar) -->
+                <div class="pickups-head" [class.pickups-head--desktop]="sheet.isDesktop()">
+                  <!-- El título y, debajo, cuántos van; a la derecha, la etiqueta
+                       de que se comparte la ubicación (y en escritorio, las flechas) -->
+                  <div class="pickups-head__text">
+                    <h2 id="pickups-title" class="text-subtitle">Recogidas</h2>
+                    @if (passengers().length > 0) {
+                      <p class="text-caption text-color-muted">
+                        {{ onBoardCount() }} de {{ passengers().length }} en el coche
+                        @if (droppedOffCount() > 0) {
+                          · {{ droppedOffCount() }}
+                          {{ droppedOffCount() === 1 ? 'se ha bajado' : 'se han bajado' }}
+                        }
+                      </p>
+                    }
+                  </div>
+                  @if (isSharing()) {
+                    <span class="pickups-head__tag text-caption">
+                      <ion-icon [icon]="locationIcon" aria-hidden="true" />
+                      Ubicación en directo
                     </span>
                   }
-                </h2>
+                  @if (passengers().length > 1) {
+                    <div class="pickups-head__arrows">
+                      <button
+                        type="button"
+                        class="icon-btn pickup-arrow"
+                        aria-label="Pasajero anterior"
+                        [disabled]="carouselIndex() === 0"
+                        (click)="scrollToPickup(passengers()[carouselIndex() - 1].id)"
+                      >
+                        <ion-icon [icon]="previousIcon" aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        class="icon-btn pickup-arrow"
+                        aria-label="Pasajero siguiente"
+                        [disabled]="carouselIndex() >= passengers().length - 1"
+                        (click)="scrollToPickup(passengers()[carouselIndex() + 1].id)"
+                      >
+                        <ion-icon [icon]="nextIcon" aria-hidden="true" />
+                      </button>
+                    </div>
+                  }
+                </div>
                 @if (requests.isLoading() && !requests.hasValue()) {
                   <p class="text-caption text-color-muted">Cargando tus pasajeros…</p>
                 } @else if (passengers().length === 0) {
@@ -137,6 +303,7 @@
                      el que toca (el primero que no ha subido) -->
                   <section
                     class="pickup-carousel"
+                    appDragScroll
                     aria-roledescription="carrusel"
                     aria-label="Pasajeros por orden de recogida"
                     (scroll)="handleCarouselScroll($event)"
@@ -146,8 +313,9 @@
                       <section
                         class="pickup-slide"
                         [id]="'pickup-' + request.id"
-                        [class.pickup-slide--active]="isActive"
+                        [class.pickup-slide--active]="request.id === focusPassengerId()"
                         [class.pickup-slide--done]="request.boardedAt"
+                        [class.pickup-slide--off]="request.status === 'completed'"
                         aria-roledescription="pasajero"
                         [attr.aria-label]="firstName(request.passenger.name)"
                       >
@@ -155,16 +323,13 @@
                           <div class="pickup-slide__who">
                             <span class="text-body text-body--strong">
                               {{ firstName(request.passenger.name) }}
-                              @if (request.boardedAt) {
-                                <ion-icon
-                                  class="pickup-slide__done-icon"
-                                  [icon]="doneIcon"
-                                  aria-hidden="true"
-                                />
-                              }
                             </span>
                             <span class="text-caption text-color-muted">
-                              {{ request.boardedAt ? 'En el coche' : pickupPlace(request) }}
+                              @if (request.status === 'completed') {
+                                Se ha bajado
+                              } @else {
+                                {{ request.boardedAt ? 'En el coche' : pickupPlace(request) }}
+                              }
                             </span>
                           </div>
 
@@ -207,42 +372,84 @@
 
                         <!-- Chat, llamar y «No se presentó», con su icono -->
                         <div class="pickup-slide__actions">
-                          <a
-                            class="pickup-slide__icon-btn"
-                            [routerLink]="['/tabs/messages', trip.id, request.passenger.id]"
-                            [attr.aria-label]="'Escribir a ' + firstName(request.passenger.name)"
-                            [title]="'Escribir a ' + firstName(request.passenger.name)"
-                          >
-                            <ion-icon [icon]="chatIcon" aria-hidden="true" />
-                          </a>
+                          <!-- Ya se bajó: sin chat ni llamada (su viaje ha terminado) -->
+                          @if (request.status === 'completed') {
+                            <button
+                              type="button"
+                              class="icon-btn"
+                              disabled
+                              [attr.aria-label]="
+                                firstName(request.passenger.name) + ' ya se ha bajado: sin mensajes'
+                              "
+                            >
+                              <ion-icon [icon]="chatIcon" aria-hidden="true" />
+                            </button>
+                          } @else {
+                            <a
+                              class="icon-btn icon-btn--reveal"
+                              appRevealOnTouch
+                              [routerLink]="['/tabs/messages', trip.id, request.passenger.id]"
+                              [attr.aria-label]="
+                                'Enviar un mensaje a ' + firstName(request.passenger.name)
+                              "
+                            >
+                              <ion-icon [icon]="chatIcon" aria-hidden="true" />
+                              <span class="icon-btn__label" aria-hidden="true">Enviar mensaje</span>
+                            </a>
+                          }
                           <button
                             type="button"
-                            class="pickup-slide__icon-btn"
-                            [class.pickup-slide__icon-btn--unavailable]="
+                            class="icon-btn icon-btn--reveal"
+                            appRevealOnTouch
+                            [disabled]="
+                              request.status === 'completed' ||
                               !canCallPassenger(request.passenger.id)
                             "
                             [attr.aria-label]="
                               callPassengerLabel(request.passenger.name, request.passenger.id)
                             "
-                            [title]="
-                              callPassengerLabel(request.passenger.name, request.passenger.id)
-                            "
                             (click)="handleCallPassenger(request.passenger)"
                           >
                             <ion-icon [icon]="callIcon" aria-hidden="true" />
+                            <span class="icon-btn__label" aria-hidden="true">
+                              Llamar a {{ firstName(request.passenger.name) }}
+                            </span>
                           </button>
                           @if (!request.boardedAt) {
                             <button
                               type="button"
-                              class="pickup-slide__icon-btn"
+                              class="icon-btn icon-btn--reveal"
+                              appRevealOnTouch
                               [disabled]="!isActive || !canMarkNoShow(request)"
                               [attr.aria-label]="
                                 firstName(request.passenger.name) + ' no se presentó'
                               "
-                              [title]="firstName(request.passenger.name) + ' no se presentó'"
                               (click)="handleNoShow(request.id)"
                             >
                               <ion-icon [icon]="noShowIcon" aria-hidden="true" />
+                              <span class="icon-btn__label" aria-hidden="true">No se presentó</span>
+                            </button>
+                          } @else if (request.status === 'accepted') {
+                            <!-- A bordo: «Ha bajado» cierra su plaza (con el coche
+                                 parado). Redondo como los demás; al pasar o
+                                 enfocarlo (y mientras guarda) se estira con el
+                                 texto. En el móvil, el primer toque lo estira y
+                                 el segundo confirma -->
+                            <button
+                              type="button"
+                              class="icon-btn icon-btn--reveal"
+                              appRevealOnTouch
+                              [class.icon-btn--busy]="isDroppingOff(request.id)"
+                              [disabled]="isDroppingOff(request.id)"
+                              [attr.aria-label]="firstName(request.passenger.name) + ' ha bajado'"
+                              (click)="handleDropOff(request)"
+                            >
+                              @if (isDroppingOff(request.id)) {
+                                <ion-spinner name="crescent" aria-hidden="true" />
+                              } @else {
+                                <ion-icon [icon]="dropOffIcon" aria-hidden="true" />
+                              }
+                              <span class="icon-btn__label" aria-hidden="true"> Ha bajado </span>
                             </button>
                           }
                         </div>
@@ -269,66 +476,188 @@
               </ion-card-content>
             </ion-card>
 
-            <!-- Compartir el viaje con alguien de confianza y el 112 -->
-            <app-live-trip-safety [shareText]="safetyShareText()" />
-
-            <!-- Al final: la ubicación que se comparte y terminar (el chat va en la
-               tarjeta de cada pasajero) -->
-            <ion-card class="driver-live-trip__panel">
-              <ion-card-content>
-                @if (isSharing()) {
-                  <output class="notice notice--info driver-live-trip__sharing">
-                    <ion-icon [icon]="locationIcon" aria-hidden="true" />
-                    <span>
-                      Compartiendo tu ubicación con tus pasajeros
-                      @if (isScreenKeptOn()) {
-                        <span class="driver-live-trip__sharing-hint">
-                          La pantalla no se apagará hasta que termines.
-                        </span>
-                      }
-                    </span>
-                  </output>
-                  <!-- Al volver tras un rato con la pantalla bloqueada o en otra
-                     app (en el navegador no se comparte en segundo plano) -->
-                  @if (gapMinutes(); as minutes) {
-                    <output class="notice notice--warning driver-live-trip__gap">
-                      <span>
-                        <b>Estuviste {{ minutes }} min sin compartir tu ubicación</b>
-                        Con la pantalla bloqueada o en otra app, tus pasajeros no ven dónde estás.
-                        Mantén esta pantalla abierta durante el viaje.
-                      </span>
-                      <ion-button fill="clear" size="small" (click)="dismissGap()"
-                        >Entendido</ion-button
-                      >
-                    </output>
-                  }
+            <!-- Una sola sección (sin línea entre las pastillas y lo que
+                 muestran): qué ver, en pastillas, con el SOS siempre a la vista
+                 en la esquina, y debajo lo elegido (como el pasajero) -->
+            <div
+              class="driver-live-trip__choice"
+              [class.driver-live-trip__choice--desktop]="sheet.isDesktop()"
+              [class.icon-btns-open]="sheet.isDesktop()"
+              [class.sections-divided]="sheet.isDesktop()"
+            >
+              @if (sheet.isDesktop()) {
+                <!-- Escritorio: sin pastillas, cada sección a la vista (hay sitio) -->
+                @if (!showFinishAlert()) {
+                  <ng-container [ngTemplateOutlet]="finishPanel" />
                 }
+                <app-live-trip-safety [shareText]="safetyShareText()" />
+                <ng-container [ngTemplateOutlet]="reportPanel" />
+                <ion-card class="driver-live-trip__panel">
+                  <ion-card-content>
+                    <div class="section-item">
+                      <div class="section-item__text">
+                        <h2 class="section-item__title">Emergencia</h2>
+                        <p class="section-item__subtitle">
+                          Si hay una emergencia, llama al 112: es gratis y atienden 24 h.
+                        </p>
+                      </div>
+                      <ng-container [ngTemplateOutlet]="sosButton" />
+                    </div>
+                  </ion-card-content>
+                </ion-card>
+              } @else {
+                <!-- Móvil: las acciones en una fila de botones (el primer toque
+                     los despliega y explica debajo qué hacen; el segundo actúa) -->
+                <div class="live-actions">
+                  <p class="live-actions__hint" aria-live="polite">
+                    {{ revealedHint() ?? 'Toca un botón para ver qué hace.' }}
+                  </p>
+                  <div class="live-actions__row">
+                    @if (!showFinishAlert()) {
+                      <button
+                        type="button"
+                        class="icon-btn icon-btn--reveal"
+                        appRevealOnTouch
+                        appRevealHint="Hazlo cuando se hayan bajado todos: dejarán de ver dónde estás."
+                        aria-label="Terminar el viaje"
+                        [disabled]="isFinishing()"
+                        (click)="handleFinish()"
+                      >
+                        <ion-icon [icon]="confirmFinishIcon" aria-hidden="true" />
+                        <span class="icon-btn__label" aria-hidden="true">Terminar</span>
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      class="icon-btn icon-btn--reveal"
+                      appRevealOnTouch
+                      appRevealHint="Envía tu viaje a alguien de confianza."
+                      aria-label="Compartir el viaje con alguien de confianza"
+                      (click)="handleShareTrip()"
+                    >
+                      <ion-icon [icon]="shareIcon" aria-hidden="true" />
+                      <span class="icon-btn__label" aria-hidden="true">Compartir</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="icon-btn icon-btn--reveal"
+                      appRevealOnTouch
+                      appRevealHint="Si no puedes seguir, repórtalo: lo revisará un administrador."
+                      aria-label="Enviar un reporte: abre el formulario de la incidencia"
+                      (click)="isReportingIncident.set(true)"
+                    >
+                      <ion-icon [icon]="reportIcon" aria-hidden="true" />
+                      <span class="icon-btn__label" aria-hidden="true">Reportar</span>
+                    </button>
+                    <ng-container [ngTemplateOutlet]="sosButton" />
+                  </div>
+                </div>
+              }
+            </div>
 
-                <ion-button expand="block" [disabled]="isFinishing()" (click)="handleFinish()">
-                  {{ isFinishing() ? 'Comprobando…' : 'Terminar viaje' }}
-                </ion-button>
-              </ion-card-content>
-            </ion-card>
+            <!-- Terminar antes de llegar y reportar: en su pastilla (móvil) o a la
+                 vista (escritorio) -->
+            <ng-template #finishPanel>
+              <!-- Terminar antes de llegar (con su confirmación) -->
+              <ion-card class="driver-live-trip__panel">
+                <ion-card-content>
+                  <div class="section-item">
+                    <div class="section-item__text">
+                      <h2 class="section-item__title">Terminar viaje</h2>
+                      <p class="section-item__subtitle">
+                        Hazlo cuando se hayan bajado todos: dejarán de ver dónde estás.
+                      </p>
+                    </div>
+                    <ion-button
+                      class="driver-live-trip__finish-btn"
+                      [disabled]="isFinishing()"
+                      (click)="handleFinish()"
+                    >
+                      {{ isFinishing() ? 'Comprobando…' : 'Terminar viaje' }}
+                    </ion-button>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </ng-template>
+            <ng-template #reportPanel>
+              <!-- Reportar: abre el formulario de la incidencia en la hoja -->
+              <ion-card class="driver-live-trip__panel">
+                <ion-card-content>
+                  <div class="section-item">
+                    <div class="section-item__text">
+                      <h2 class="section-item__title">¿Algo va mal?</h2>
+                      <p class="section-item__subtitle">
+                        Si no puedes seguir, repórtalo: lo revisará un administrador.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      class="icon-btn icon-btn--reveal"
+                      appRevealOnTouch
+                      aria-label="Enviar un reporte: abre el formulario de la incidencia"
+                      (click)="isReportingIncident.set(true)"
+                    >
+                      <ion-icon [icon]="reportIcon" aria-hidden="true" />
+                      <span class="icon-btn__label" aria-hidden="true">Enviar reporte</span>
+                    </button>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </ng-template>
+            <ng-template #sosButton>
+              <!-- 112: el teléfono único de emergencias en Europa -->
+              <a
+                class="icon-btn icon-btn--reveal icon-btn--danger"
+                appRevealOnTouch
+                appRevealHint="Si hay una emergencia, llama al 112: es gratis y atienden 24 h."
+                href="tel:112"
+                aria-label="SOS: llamar al 112"
+              >
+                <ion-icon class="icon-btn__open-icon" [icon]="callIcon" aria-hidden="true" />
+                <span class="icon-btn__short" aria-hidden="true">SOS</span>
+                <span class="icon-btn__label" aria-hidden="true">Llamar al 112</span>
+              </a>
+            </ng-template>
           }
+        </ng-template>
+
+        <!-- «Rumbo al campus»: en la hoja (móvil) o encima del mapa (escritorio) -->
+        <ng-template #liveHero>
+          <app-live-trip-hero
+            [title]="heroTitle()"
+            [eta]="etaText()"
+            [icon]="nextPickup() ? locationIcon : destinationIcon()"
+            [place]="
+              nextPickup()
+                ? (nextPickup()?.pickupName ?? 'Su punto de recogida')
+                : (trip.destinationName ?? 'tu destino')
+            "
+            [stages]="stages()"
+          />
         </ng-template>
 
         <div class="driver-live-trip__layout">
           <!-- Columna de 8 (en el móvil, toda la pantalla): el mapa en vivo -->
-          <ion-card class="driver-live-trip__main">
-            <ion-card-content>
-              <app-live-trip-map
-                viewer="driver"
-                [tripId]="trip.id"
-                [initialCenter]="trip.origin"
-                [pickupLocation]="nextPickup()?.pickupLocation ?? null"
-                [pickupName]="nextPickup()?.pickupName ?? 'la recogida'"
-                [active]="isPageVisible()"
-                [destination]="trip.destination"
-                [bottomInset]="sheet.mapInset()"
-                (statusChange)="liveStatus.set($event)"
-              />
-            </ion-card-content>
-          </ion-card>
+          <div class="driver-live-trip__column">
+            @if (sheet.isDesktop() && !justFinished() && !finishCheck()) {
+              <ng-container [ngTemplateOutlet]="liveHero" />
+            }
+            <ion-card class="driver-live-trip__main">
+              <ion-card-content>
+                <app-live-trip-map
+                  viewer="driver"
+                  [tripId]="trip.id"
+                  [initialCenter]="trip.origin"
+                  [pickupLocation]="nextPickup()?.pickupLocation ?? null"
+                  [pickupName]="nextPickup()?.pickupName ?? 'la recogida'"
+                  [active]="isPageVisible()"
+                  [destination]="trip.destination"
+                  [bottomInset]="sheet.mapInset()"
+                  (statusChange)="liveStatus.set($event)"
+                />
+              </ion-card-content>
+            </ion-card>
+          </div>
 
           @if (sheet.isDesktop()) {
             <aside class="driver-live-trip__side" aria-label="Tu viaje ahora">

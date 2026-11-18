@@ -45,6 +45,7 @@ export type DomainEventType =
   | 'request.cancelled'
   | 'request.expired'
   | 'request.boarded'
+  | 'request.completed'
   // Incidencias (RF-23, CU-12)
   | 'chat_message.sent'
   | 'incident.reported'

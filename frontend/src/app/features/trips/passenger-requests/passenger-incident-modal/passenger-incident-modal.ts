@@ -1,7 +1,7 @@
 import { Component, computed, inject, Input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonButton, IonIcon, IonSpinner, IonTextarea, ModalController } from '@ionic/angular';
-import { alertCircleOutline } from 'ionicons/icons';
+import { alertCircleOutline, shieldCheckmarkOutline } from 'ionicons/icons';
 import { IncidentCategory } from '../../../../core/models/admin-incident.model';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { IncidentsService } from '../../../../core/services/incidents/incidents.service';
@@ -16,6 +16,14 @@ export interface IncidentCategoryOption {
   // Corto, para la pastilla
   short: string;
 }
+
+// El conductor: un problema con un pasajero en vez de con el conductor
+export const DRIVER_INCIDENT_CATEGORIES: readonly IncidentCategoryOption[] = [
+  { value: 'technical', label: 'Problema con el vehículo o avería', short: 'Avería' },
+  { value: 'passenger', label: 'Problema con un pasajero', short: 'Un pasajero' },
+  { value: 'safety', label: 'Me he sentido en peligro', short: 'En peligro' },
+  { value: 'other', label: 'Otro motivo', short: 'Otro motivo' },
+];
 
 export const PASSENGER_INCIDENT_CATEGORIES: readonly IncidentCategoryOption[] = [
   { value: 'technical', label: 'Problema con el vehículo o avería', short: 'Avería' },
@@ -39,16 +47,26 @@ export class PassengerIncidentModal {
   // Dentro de una tarjeta (la hoja de En curso) en vez de en su ventana:
   // avisa con reported/cancelled en lugar de cerrar la ventana
   @Input() isInline = false;
+  // El conductor: al reportar se cancela el viaje (RF-23), no solo su plaza
+  @Input() isDriver = false;
   readonly reported = output<void>();
   readonly cancelled = output<void>();
 
-  readonly categories = PASSENGER_INCIDENT_CATEGORIES;
+  get categories(): readonly IncidentCategoryOption[] {
+    return this.isDriver ? DRIVER_INCIDENT_CATEGORIES : PASSENGER_INCIDENT_CATEGORIES;
+  }
+  get submitLabel(): string {
+    return this.isDriver
+      ? 'Cancelar el viaje y registrar incidencia'
+      : 'Bajarme y registrar incidencia';
+  }
   readonly selectedCategory = signal<IncidentCategory>('technical');
   readonly description = signal('');
   readonly isSubmitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
   protected readonly alertIcon = alertCircleOutline;
+  protected readonly reviewIcon = shieldCheckmarkOutline;
   protected readonly minLength = INCIDENT_MIN_LENGTH;
   protected readonly maxLength = INCIDENT_MAX_LENGTH;
 

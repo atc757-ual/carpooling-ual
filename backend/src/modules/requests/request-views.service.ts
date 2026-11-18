@@ -7,6 +7,7 @@ import {
 import { UsersService } from '../users/users.service';
 import { VehiclesService } from '../users/vehicles.service';
 import { SeatRequest } from './entities/seat-request.entity';
+import { PARTICIPANT_REQUEST_STATUSES } from './request-status';
 
 // Una solicitud con el perfil público del pasajero y, solo si está aceptada, la
 // matrícula del vehículo (para reconocer el coche; minimización)
@@ -47,10 +48,9 @@ export class RequestViewsService {
           passengerAvatarKey: passenger?.avatarKey ?? null,
           passengerPreferences:
             passenger?.preferences ?? EMPTY_TRAVEL_PREFERENCES,
-          vehiclePlate:
-            request.status === 'accepted'
-              ? await this.plateOfTrip(request.tripId)
-              : null,
+          vehiclePlate: PARTICIPANT_REQUEST_STATUSES.includes(request.status)
+            ? await this.plateOfTrip(request.tripId)
+            : null,
         };
       }),
     );

@@ -7,7 +7,14 @@ import { SeatRequestResource } from './dto/seat-request.resource';
 
 interface RequestActionOptions {
   // POST /api/requests/:id/<action>
-  action: 'cancel' | 'accept' | 'reject' | 'board' | 'no-show';
+  action:
+    | 'cancel'
+    | 'accept'
+    | 'reject'
+    | 'board'
+    | 'no-show'
+    | 'drop-off'
+    | 'arrive';
   profile: ProfileType;
   summary: string;
   description?: string;

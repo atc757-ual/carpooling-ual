@@ -1,28 +1,20 @@
 <ion-card class="live-safety" role="region" aria-labelledby="live-safety-title">
   <ion-card-content>
-    <h2 id="live-safety-title" class="text-subtitle">Tu seguridad</h2>
-    <p class="text-body-s text-color-muted">
-      Comparte el viaje con alguien de confianza y, si hay una emergencia, llama al 112.
-    </p>
-    @if (liveShareTripId(); as tripId) {
-      <!-- Pasajero: el enlace en directo, y el 112 debajo -->
-      <app-trip-live-share [tripId]="tripId" />
-      <ion-button color="danger" href="tel:112">
-        <ion-icon slot="start" [icon]="callIcon" aria-hidden="true" />
-        Llamar al 112
-      </ion-button>
-    } @else {
-      <div class="live-safety__actions">
-        <ion-button fill="outline" (click)="handleShare()">
-          <ion-icon slot="start" [icon]="shareIcon" aria-hidden="true" />
-          Compartir viaje
-        </ion-button>
-        <!-- 112: el teléfono único de emergencias en Europa -->
-        <ion-button color="danger" href="tel:112">
-          <ion-icon slot="start" [icon]="callIcon" aria-hidden="true" />
-          Llamar al 112
-        </ion-button>
+    <div class="section-item">
+      <div class="section-item__text">
+        <h2 id="live-safety-title" class="section-item__title">Viaje seguro</h2>
+        <p class="section-item__subtitle">Envía tu viaje a alguien de confianza.</p>
       </div>
-    }
+      <button
+        type="button"
+        class="icon-btn icon-btn--reveal"
+        appRevealOnTouch
+        aria-label="Compartir el viaje con alguien de confianza"
+        (click)="handleShare()"
+      >
+        <ion-icon [icon]="shareIcon" aria-hidden="true" />
+        <span class="icon-btn__label" aria-hidden="true">Compartir viaje</span>
+      </button>
+    </div>
   </ion-card-content>
 </ion-card>

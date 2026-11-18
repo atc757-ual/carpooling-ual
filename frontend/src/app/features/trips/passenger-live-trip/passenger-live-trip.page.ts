@@ -1,13 +1,4 @@
-import {
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  inject,
-  input,
-  resource,
-  signal,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, resource, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -23,9 +14,12 @@ import {
   callOutline,
   checkmarkCircle,
   chatbubblesOutline,
+  documentTextOutline,
   homeOutline,
   locationOutline,
+  paperPlaneOutline,
   personOutline,
+  walkOutline,
 } from 'ionicons/icons';
 import { ChatContact } from '../../../core/models/chat.model';
 import { Trip } from '../../../core/models/driver.model';
@@ -34,6 +28,7 @@ import { SeatRequestsService } from '../../../core/services/requests/seat-reques
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { ApiError } from '../../../core/models/api-error.model';
 import { injectLiveSheet } from '../../../shared/utils/desktop-query.util';
 import { LicensePlate } from '../../../shared/components/ui/license-plate/license-plate';
 import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
@@ -50,12 +45,27 @@ import {
 } from '../live-trip-hero.util';
 import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
 import { TripReviewForm } from '../trip-review/trip-review-form';
+import { GivenReview } from '../../../core/services/users/trip-reviews.service';
+import { RatingBar } from '../../../shared/components/ui/rating-bar/rating-bar';
+import { ratingName } from '../../../shared/utils/rating.util';
 import { PassengerRequestActions } from '../passenger-requests/passenger-request-actions/passenger-request-actions';
 import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
 import { buildLiveShareText } from '../trip-share-text';
+import { RevealOnTouch, revealedHint } from '../../../shared/directives/reveal-on-touch.directive';
+import { TripShareService } from '../../../core/services/trips/trip-share.service';
 
 // Cada cuánto se revisa si ya subió (código validado) o si el viaje terminó
 const REFRESH_MS = 15_000;
+
+// near: a menos de 300 m del campus; early: lejos (bajarse antes);
+// default: en la vuelta
+type ArriveCardVariant = 'near' | 'early' | 'default';
+
+// Lo que se está confirmando en la hoja (sin ventana encima): «He llegado» o
+// dejar de compartir el viaje en directo (con cómo hacerlo)
+interface RideConfirm {
+  kind: 'arrive';
+}
 // La URL de esta pantalla: la hoja del móvil solo está abierta en ella
 const RIDE_URL = /^\/tabs\/trips\/ride\//;
 
@@ -65,10 +75,21 @@ export type RidePhase = 'waiting' | 'on_board' | 'finished';
 
 // En qué momento del viaje está el pasajero
 export function ridePhase(request: SeatRequest, trip: Trip): RidePhase {
-  if (trip.status === 'finished') {
+  if (trip.status === 'finished' || request.status === 'completed') {
     return 'finished';
   }
   return request.boardedAt ? 'on_board' : 'waiting';
+}
+
+// El mensaje de un «He llegado» que no se pudo marcar
+function arriveErrorMessage(code: string): string {
+  if (code === 'PASSENGER_NOT_BOARDED') {
+    return 'Aún no consta que hayas subido: el conductor tiene que validar tu código.';
+  }
+  if (code === 'TRIP_NOT_IN_PROGRESS') {
+    return 'El viaje ya no está en curso.';
+  }
+  return 'No hemos podido marcar tu llegada. Inténtalo de nuevo.';
 }
 
 // «En curso» del pasajero (/tabs/trips/ride/:id, con el id de su solicitud):
@@ -94,6 +115,8 @@ export function ridePhase(request: SeatRequest, trip: Trip): RidePhase {
     LiveTripSheet,
     PassengerIncidentModal,
     PassengerRequestActions,
+    RatingBar,
+    RevealOnTouch,
     TripReviewForm,
   ],
   templateUrl: './passenger-live-trip.page.html',
@@ -104,6 +127,7 @@ export class PassengerLiveTripPage {
   private readonly trips = inject(TripsService);
   private readonly tripCall = inject(TripCallService);
   private readonly toast = inject(ToastService);
+  private readonly tripShare = inject(TripShareService);
   private readonly router = inject(Router);
 
   readonly id = input.required<string>();
@@ -126,6 +150,19 @@ export class PassengerLiveTripPage {
     loader: ({ params }) => this.trips.getTrip(params),
   });
   readonly trip = computed(() => (this.tripResource.hasValue() ? this.tripResource.value() : null));
+  // Para compartir el viaje con alguien de confianza: el trayecto, quién
+  // conduce, el coche y la matrícula
+  readonly safetyShareText = computed(() => {
+    const trip = this.trip();
+    if (!trip) {
+      return '';
+    }
+    return buildLiveShareText(trip, {
+      name: trip.driver.name,
+      vehicleName: trip.vehicle ? vehicleDisplayName(trip.vehicle) : null,
+      plate: this.request()?.vehiclePlate ?? null,
+    });
+  });
 
   readonly isLive = computed(() => {
     const request = this.request();
@@ -138,19 +175,6 @@ export class PassengerLiveTripPage {
     return request && trip ? ridePhase(request, trip) : null;
   });
   readonly driverName = computed(() => getFirstName(this.trip()?.driver.name ?? 'El conductor'));
-  // Para alguien de confianza: el trayecto, quién conduce y el coche que ya
-  // ve el pasajero aceptado (con la matrícula)
-  readonly safetyShareText = computed(() => {
-    const trip = this.trip();
-    if (!trip) {
-      return '';
-    }
-    return buildLiveShareText(trip, {
-      name: trip.driver.name,
-      vehicleName: trip.vehicle ? vehicleDisplayName(trip.vehicle) : null,
-      plate: this.request()?.vehiclePlate ?? null,
-    });
-  });
   readonly pickupName = computed(() => {
     const request = this.request();
     const trip = this.trip();
@@ -186,6 +210,16 @@ export class PassengerLiveTripPage {
   // Al llegar: valorar al conductor (RF-22). «Ahora no» lo deja para luego
   // (en el detalle del viaje)
   readonly reviewState = signal<'form' | 'sent' | 'skipped'>('form');
+
+  // Tras valorar (u omitirlo): el resumen y «Ver tu viaje». La hoja se queda a
+  // la altura que tenía durante el viaje (no salta)
+  handleReviewDone(state: 'sent' | 'skipped', review: GivenReview | null = null): void {
+    this.givenReview.set(review);
+    this.reviewState.set(state);
+  }
+  // La valoración enviada, para el resumen (null si ya existía de antes)
+  readonly givenReview = signal<GivenReview | null>(null);
+  protected readonly ratingName = ratingName;
   // Registrando una incidencia: el formulario sustituye a todo lo demás
   readonly isReportingIncident = signal(false);
   // Lo que el mapa sabe en directo (minutos hasta la recogida y el destino)
@@ -201,6 +235,26 @@ export class PassengerLiveTripPage {
       this.isToCampus() &&
       isArriving(this.liveStatus()?.destinationMeters ?? null),
   );
+  // La tarjeta de «He llegado» (a bordo): en la ida, destacada a menos de
+  // 300 m del campus y discreta lejos; en la vuelta cada pasajero se baja en
+  // un sitio (aún no se mide la distancia a su punto), así que va siempre
+  readonly arriveCard = computed<ArriveCardVariant | null>(() => {
+    if (this.phase() !== 'on_board') return null;
+    if (!this.isToCampus()) return 'default';
+    return this.isNearDestination() ? 'near' : 'early';
+  });
+  // Móvil: qué hace el botón desplegado de la fila de acciones
+  protected readonly revealedHint = revealedHint;
+  protected readonly shareIcon = paperPlaneOutline;
+  protected readonly reportIcon = documentTextOutline;
+
+  // Compartir el viaje con alguien de confianza (el menú del sistema)
+  async handleShareTrip(): Promise<void> {
+    await this.tripShare.share({
+      title: 'Mi viaje en Carpooling UAL',
+      text: this.safetyShareText(),
+    });
+  }
   readonly heroTitle = computed(() =>
     this.phase() === 'waiting'
       ? `Esperando a ${this.driverName()}`
@@ -214,12 +268,9 @@ export class PassengerLiveTripPage {
   );
   readonly sheet = injectLiveSheet(RIDE_URL);
 
+  // Al terminar, la hoja no se mueve: la valoración cabe a la altura que tenía
+  // durante el viaje (pidió el autor el 17/11 que no subiera sola)
   constructor() {
-    effect(() => {
-      if (this.phase() === 'finished') {
-        this.sheet.expand();
-      }
-    });
     const timer = setInterval(() => {
       if (this.isPageVisible() && this.isLive()) {
         this.requestResource.reload();
@@ -246,6 +297,57 @@ export class PassengerLiveTripPage {
     await this.router.navigateByUrl('/tabs/trips');
   }
 
+  // «He llegado»: cierra su plaza (vale lo primero que llegue, esto o el «Ha
+  // bajado» del conductor). No se puede deshacer: se confirma antes
+  readonly isArriving = signal(false);
+
+  handleArrive(event?: Event): void {
+    event?.preventDefault();
+    const request = this.request();
+    if (!request || this.isArriving()) {
+      return;
+    }
+    this.pendingConfirm.set({ kind: 'arrive' });
+  }
+
+  // Lo que se confirma en la hoja y si se está guardando
+  readonly pendingConfirm = signal<RideConfirm | null>(null);
+  readonly isConfirming = signal(false);
+
+  async handleConfirmPending(): Promise<void> {
+    const pending = this.pendingConfirm();
+    if (!pending || this.isConfirming()) {
+      return;
+    }
+    this.isConfirming.set(true);
+    try {
+      await this.arrive();
+    } finally {
+      this.isConfirming.set(false);
+      this.pendingConfirm.set(null);
+    }
+  }
+
+  // «He llegado» confirmado: cierra su plaza
+  private async arrive(): Promise<void> {
+    const request = this.request();
+    if (!request) {
+      return;
+    }
+    this.isArriving.set(true);
+    try {
+      this.requestResource.set(await this.requests.arrive(request.id));
+      this.tripResource.reload();
+    } catch (error) {
+      if (!(error instanceof ApiError)) {
+        throw error;
+      }
+      void this.toast.showError(arriveErrorMessage(error.code));
+    } finally {
+      this.isArriving.set(false);
+    }
+  }
+
   canCallDriver(): boolean {
     const trip = this.trip();
     return trip ? this.tripCall.canCall(trip.status, this.driverContact()) : false;
@@ -268,4 +370,5 @@ export class PassengerLiveTripPage {
   protected readonly doneIcon = checkmarkCircle;
   protected readonly personIcon = personOutline;
   protected readonly pinIcon = locationOutline;
+  protected readonly arrivedIcon = walkOutline;
 }

@@ -1,3 +1,5 @@
+@use '../live-desktop-column' as live-column;
+
 // Viaje en curso del conductor. En el móvil, el mapa a toda la pantalla y
 // los detalles en la hoja inferior (live-sheet, en el tema); en escritorio,
 // el mapa a la izquierda (8) y los detalles a la derecha (4), fijos al bajar
@@ -35,6 +37,7 @@
 }
 
 .driver-live-trip__layout,
+.driver-live-trip__column,
 .driver-live-trip__main,
 .driver-live-trip__side {
   display: flex;
@@ -42,28 +45,31 @@
   gap: var(--space-base);
 }
 
-.driver-live-trip__sharing {
-  align-items: center;
-
-  ion-icon {
-    flex-shrink: 0;
-    color: var(--color-link);
-  }
-}
-
 .driver-live-trip__panel ion-card-content {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
+
+  // Ionic da a los h2 de ion-card-content un peso normal: los títulos de las
+  // tarjetas, en seminegrita, como en la pantalla del pasajero
+  h2 {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  // Ionic da a los h2 de ion-card-content un peso normal, que gana a
+  // .text-subtitle: los títulos de las tarjetas, en seminegrita
+  > h2 {
+    font-weight: var(--font-weight-semibold);
+  }
 }
 
 // El mapa, grande. En el móvil, sin márgenes ni tarjeta y del alto de la
 // pantalla (menos la cabecera y la barra de pestañas)
 .driver-live-trip__main {
   // Sin el margen propio del mapa: ya lo da la tarjeta
-  --live-trip-map-padding: 0;
+  --live-trip-map-padding: 0px; // con unidad: va dentro de calc()
   --live-trip-map-height: calc(100dvh - var(--tab-bar-height) - 12rem); // 192px de cabecera
-  --live-trip-map-height-desktop: 34rem; // 544px
+  --live-trip-map-height-desktop: 31.25rem; // 500px
 }
 
 @media (max-width: 767.98px) {
@@ -73,7 +79,7 @@
 
   .driver-live-trip__main {
     // El mapa, de borde a borde y sin su línea de estado (va en la tarjeta)
-    --live-trip-map-padding: 0;
+    --live-trip-map-padding: 0px; // con unidad: va dentro de calc()
     --live-trip-map-radius: 0;
     --live-trip-map-canvas-radius: 0;
     --live-trip-map-status-display: none;
@@ -94,7 +100,8 @@
 
 // Las recogidas en un carrusel: una tarjeta por pasajero, que encaja al
 // deslizar. La que toca validar, con el borde azul; las demás, atenuadas
-// hasta que les llega el turno; las de quien ya subió, con su ✓
+// hasta que les llega el turno; la de quien va en el coche, en azul claro, y
+// la de quien ya se bajó, en verde claro
 .pickup-carousel {
   display: flex;
   gap: var(--space-s);
@@ -116,20 +123,32 @@
   align-items: center;
   box-sizing: border-box;
   gap: var(--space-s);
-  padding: var(--space-s) var(--space-base);
-  border: var(--border-width-s) solid var(--color-border-subtle);
+  // Sin borde ni relleno (ya va dentro de la tarjeta «Recogidas»): la que
+  // toca se ve en los puntos de abajo; la de quien va en el coche, por su
+  // fondo azul claro, y la de quien ya se bajó, en gris
   border-radius: var(--radius-s);
   background: var(--color-surface);
   opacity: 0.6;
   scroll-snap-align: start;
 
   &--active {
-    border-color: var(--color-primary);
     opacity: 1;
   }
 
+  // En el coche: en azul claro con el borde azul, con relleno para que el
+  // texto no toque el borde
   &--done {
+    padding: var(--space-s);
+    border: var(--border-width-s) solid var(--color-primary);
+    background: var(--color-primary-subtle);
     opacity: 1;
+  }
+
+  // Ya se bajó (también lleva --done): en gris, como desactivada
+  &--off {
+    border-color: var(--color-border);
+    background: var(--color-surface-subtle);
+    opacity: 0.6;
   }
 }
 
@@ -152,11 +171,6 @@
   }
 }
 
-.pickup-slide__done-icon {
-  vertical-align: middle;
-  color: var(--color-success);
-}
-
 .pickup-slide__code {
   display: flex;
   gap: var(--space-s);
@@ -175,47 +189,77 @@
   gap: var(--space-xs);
 }
 
-.pickup-slide__icon-btn {
-  display: grid;
-  box-sizing: border-box;
-  text-decoration: none;
-  place-items: center;
-  width: 2.75rem; // 44px
-  height: 2.75rem;
-  padding: 0;
-  border: var(--border-width-s) solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
-  color: var(--color-link);
-  cursor: pointer;
-
-  ion-icon {
-    font-size: 1.25rem; // 20px
-  }
-
-  @media (any-hover: hover) {
-    &:hover:not(:disabled) {
-      background: var(--color-surface-subtle);
-    }
-  }
-
-  &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus-ring);
-    outline-offset: 2px;
-  }
-
-  &:disabled,
-  &--unavailable {
-    color: var(--color-text-disabled);
-    cursor: default;
-  }
-}
-
 // Los puntos: uno por pasajero, el que se ve más largo y en azul
 .pickup-dots {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: var(--space-xs);
+}
+
+// En escritorio, los puntos sobran (las flechas van junto al título): la
+// tarjeta, más baja
+@media (min-width: 768px) {
+  .pickup-dots {
+    display: none;
+  }
+}
+
+// El título «Recogidas» y, a su derecha, las flechas (solo en escritorio)
+.pickups-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.pickups-head__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+  min-width: 0;
+
+  h2,
+  p {
+    margin: 0;
+  }
+}
+
+// «Compartiendo ubicación con pasajeros»: una etiqueta pequeña, azul muy
+// claro con el texto azul, que se parte en dos líneas si no cabe
+.pickups-head__tag {
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: var(--space-xs);
+  max-width: 50%;
+  padding: 0.125rem var(--space-s); // 2px 8px
+  border-radius: var(--radius-s);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+
+  ion-icon {
+    flex: none;
+  }
+}
+
+.pickups-head__arrows {
+  display: flex;
+  flex: none;
+  gap: var(--space-xs);
+
+  @media (max-width: 767.98px) {
+    display: none;
+  }
+}
+
+// Anterior y siguiente: botones de icono de 32px. Con las dos clases, para
+// ganar a .icon-btn
+.icon-btn.pickup-arrow {
+  width: 2rem; // 32px
+  height: 2rem;
 }
 
 .pickup-dots__dot {
@@ -291,17 +335,19 @@
     gap: var(--space-l);
   }
 
-  .driver-live-trip__side {
-    position: sticky;
-    top: var(--space-l);
-  }
-}
+  // La columna de 4 baja con la página (fija, si era más alta que la
+  // pantalla, su final no se llegaba a ver)
 
-// «La pantalla no se apagará…», debajo y en gris
-.driver-live-trip__sharing-hint {
-  display: block;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-caption);
+  // Cada columna, una sola tarjeta (_live-desktop-column.scss)
+  .driver-live-trip__column,
+  .driver-live-trip__side {
+    @include live-column.card;
+  }
+
+  // El mapa, con 16px abajo dentro de la tarjeta de la columna
+  .driver-live-trip__main ion-card-content[class] {
+    padding-bottom: var(--space-base);
+  }
 }
 
 // El aviso del rato sin compartir, con «Entendido» a la derecha
@@ -315,10 +361,17 @@
 }
 
 // Terminado: el ✓ verde con el aviso
-.driver-live-trip__done {
+// Los encabezados de la hoja (terminado y «¿Terminar el viaje?»), con una
+// línea fina debajo: 16px entre el texto y la línea y 16px entre la línea y lo
+// siguiente (el gap de 8px de la tarjeta más 8px de margen)
+.driver-live-trip__done,
+.driver-live-trip__confirm-head {
   display: flex;
   align-items: center;
   gap: var(--space-s);
+  margin-bottom: var(--space-s);
+  padding-bottom: var(--space-base);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 
   h2,
   p {
@@ -326,14 +379,95 @@
   }
 }
 
+// «¿Terminar el viaje?»: el icono encima y la pregunta, centrados
+.driver-live-trip__confirm-head {
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-top: var(--space-s);
+  text-align: center;
+}
+
+// Terminado y ya valorado: centrado como el del pasajero
+.driver-live-trip__done--centered {
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-top: var(--space-base);
+  text-align: center;
+
+  .driver-live-trip__done-text {
+    flex: none;
+  }
+}
+
+.driver-live-trip__confirm-icon {
+  color: var(--color-link);
+  font-size: 2rem; // 32px
+
+  // Lejos del destino, en ámbar como el aviso
+  &--far {
+    color: var(--color-warning-text);
+  }
+}
+
+.driver-live-trip__done-text {
+  flex: 1;
+  min-width: 0;
+}
+
+// «1 de 2», en el extremo derecho, a la altura del título y el subtítulo
+.driver-live-trip__done-step {
+  flex: none;
+}
+
 .driver-live-trip__done-icon {
   flex: none;
   color: var(--color-success);
-  font-size: 2.5rem; // 40px
+  font-size: 2rem; // 32px
 }
 
 .driver-live-trip__done-title {
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-subtitle);
+  font-size: 1.125rem; // 18px
   font-weight: var(--font-weight-semibold);
+}
+
+// Pastillas y lo que muestran, en una sola sección de la hoja (sin la línea
+// entre secciones): arriba las pastillas y el SOS en la esquina, debajo lo
+// elegido. 12px arriba, como las demás secciones de la hoja
+.driver-live-trip__choice {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-top: calc(var(--space-s) + var(--space-xs)); // 12px
+}
+.driver-live-trip__choice-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+}
+
+.driver-live-trip__choice-bar app-filter-chips {
+  flex: 1;
+  min-width: 0;
+}
+
+// «¿Has llegado?» / «Ya no queda nadie por llevar»: el aviso de «En curso»
+// (_live-desktop-column.scss), con su fila de título, texto y botón
+ion-card.live-alert.live-alert[class] {
+  @include live-column.alert;
+}
+
+@include live-column.alert-layout;
+
+// «Terminar viaje»: botón azul con su texto (sin icono), del alto de los
+// demás botones (44px), a la derecha
+ion-button.driver-live-trip__finish-btn {
+  flex: none;
+  height: 2.75rem; // 44px
+  margin: 0;
+}
+
+// Las alertas de esta pantalla, con 8px de relleno por los cuatro lados
+.notice {
+  padding: var(--space-s);
 }

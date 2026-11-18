@@ -40,7 +40,10 @@ import type {
   ResolvedPickup,
 } from './request-pickups.service';
 import { MAX_OVERLAPPING_PENDING_REQUESTS } from './request-schedule';
-import { assertRequestTransition } from './request-status';
+import {
+  assertRequestTransition,
+  PARTICIPANT_REQUEST_STATUSES,
+} from './request-status';
 import { TripChangedError } from './errors/trip-changed.error';
 import { EventsService } from '../../events/events.service';
 import { MINUTE_MS, PICKUP_NO_SHOW_WAIT_MIN } from '../trips/trip-timing';
@@ -520,7 +523,7 @@ export class RequestsService {
     return repo.existsBy({
       tripId,
       passengerId,
-      status: 'accepted',
+      status: In([...PARTICIPANT_REQUEST_STATUSES]),
     });
   }
 
@@ -562,9 +565,30 @@ export class RequestsService {
   async acceptedTripIdsOfPassenger(passengerId: string): Promise<string[]> {
     const rows = await this.requestsRepository.find({
       select: { tripId: true },
-      where: { passengerId, status: 'accepted' },
+      where: { passengerId, status: In([...PARTICIPANT_REQUEST_STATUSES]) },
     });
     return [...new Set(rows.map(({ tripId }) => tripId))];
+  }
+
+  // Ids de los viajes donde el pasajero ya se bajó (su plaza está cerrada):
+  // puede valorar al conductor aunque el viaje siga en curso para otros
+  async completedTripIdsOfPassenger(passengerId: string): Promise<string[]> {
+    const rows = await this.requestsRepository.find({
+      select: { tripId: true },
+      where: { passengerId, status: 'completed' },
+    });
+    return [...new Set(rows.map(({ tripId }) => tripId))];
+  }
+
+  // ¿Se bajó ya el pasajero de este viaje? (RF-22: valora al bajarse)
+  hasCompletedSeat(
+    tripId: string,
+    passengerId: string,
+    manager: EntityManager,
+  ): Promise<boolean> {
+    return manager
+      .getRepository(SeatRequest)
+      .existsBy({ tripId, passengerId, status: 'completed' });
   }
 
   // Pasajeros aceptados de varios viajes en una sola consulta (RF-22)
@@ -577,7 +601,10 @@ export class RequestsService {
     }
     const rows = await this.requestsRepository.find({
       select: { tripId: true, passengerId: true, requestedAt: true, id: true },
-      where: { tripId: In(uniqueTripIds), status: 'accepted' },
+      where: {
+        tripId: In(uniqueTripIds),
+        status: In([...PARTICIPANT_REQUEST_STATUSES]),
+      },
       order: { requestedAt: 'ASC', id: 'ASC' },
     });
     const result = new Map<string, string[]>();

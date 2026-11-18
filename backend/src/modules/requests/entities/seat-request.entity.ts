@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import type { Point } from 'typeorm';
 import { REQUEST_STATUSES } from '../request-status';
-import type { RequestStatus } from '../request-status';
+import type { DropOffActor, RequestStatus } from '../request-status';
 
 // Tabla requests: la solicitud de plaza de un pasajero en un viaje (RF-08).
 // Se llama SeatRequest y no Request para no confundirla con la petición HTTP
@@ -90,6 +90,19 @@ export class SeatRequest {
 
   @Column({ name: 'boarded_at', type: 'timestamptz', nullable: true })
   boardedAt: Date | null;
+
+  // Cierre por pasajero: cuándo se bajó y quién lo marcó (el conductor con
+  // «Ha bajado», el pasajero con «He llegado» o el sistema al cerrar el viaje)
+  @Column({ name: 'dropped_off_at', type: 'timestamptz', nullable: true })
+  droppedOffAt: Date | null;
+
+  @Column({
+    name: 'dropped_off_by',
+    type: 'varchar',
+    length: 16,
+    nullable: true,
+  })
+  droppedOffBy: DropOffActor | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

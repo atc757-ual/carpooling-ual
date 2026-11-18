@@ -89,7 +89,9 @@ export class AdminTripsService {
       driverName: names.get(trip.driverId) ?? null,
       requests: {
         pending: countWithStatus(seatRequests, 'pending'),
-        accepted: countWithStatus(seatRequests, 'accepted'),
+        accepted:
+          countWithStatus(seatRequests, 'accepted') +
+          countWithStatus(seatRequests, 'completed'),
       },
       seatRequests: seatRequests.map((request) => ({
         request,

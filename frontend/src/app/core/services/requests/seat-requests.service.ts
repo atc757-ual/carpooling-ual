@@ -52,6 +52,14 @@ export class SeatRequestsService {
     );
   }
 
+  // «He llegado»: el pasajero cierra su plaza (vale lo primero que llegue,
+  // esto o el «Ha bajado» del conductor)
+  arrive(requestId: string): Promise<SeatRequest> {
+    return this.call(
+      this.http.post<SeatRequest>(`${this.apiUrl}/requests/${requestId}/arrive`, null),
+    );
+  }
+
   private async call<T>(response: Observable<T>): Promise<T> {
     try {
       return await firstValueFrom(response);

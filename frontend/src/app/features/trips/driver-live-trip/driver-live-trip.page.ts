@@ -15,11 +15,15 @@ import {
   callOutline,
   checkmarkCircle,
   chatbubblesOutline,
-  checkmark,
-  flagOutline,
+  checkmarkCircleOutline,
+  paperPlaneOutline,
+  chevronBackOutline,
+  chevronForwardOutline,
+  documentTextOutline,
   homeOutline,
   locationOutline,
   personRemoveOutline,
+  walkOutline,
 } from 'ionicons/icons';
 import { map } from 'rxjs';
 import { ApiError } from '../../../core/models/api-error.model';
@@ -49,12 +53,18 @@ import {
   stageIndex,
 } from '../live-trip-hero.util';
 import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
+import { DragScroll } from '../../../shared/directives/drag-scroll.directive';
+import { RevealOnTouch, revealedHint } from '../../../shared/directives/reveal-on-touch.directive';
+import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { buildLiveShareText } from '../trip-share-text';
+import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
 
 // Una recogida sigue siendo «la siguiente» hasta 5 min después de su hora
 // (lo que se espera al pasajero antes de poder marcar «No se presentó»)
 const PICKUP_GRACE_MS = 5 * 60 * 1000;
 const CLOCK_UPDATE_MS = 60_000;
+// Cada cuánto se vuelven a pedir las plazas (como en la pantalla del pasajero)
+const REFRESH_MS = 15_000;
 const DRIVER_STAGES = ['Recogidas', 'Al destino', 'Llegada'];
 // La URL de esta pantalla: la hoja del móvil solo está abierta en ella
 const DRIVE_URL = /^\/tabs\/trips\/drive\//;
@@ -78,19 +88,27 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
     IonSpinner,
     LiveTripHero,
     LiveTripMap,
+    DragScroll,
     LiveTripSafety,
+    PassengerIncidentModal,
+    RevealOnTouch,
     LiveTripSheet,
     TripReviewCard,
     RouterLink,
   ],
   templateUrl: './driver-live-trip.page.html',
-  styleUrls: ['../../tabs/tab-page.scss', './driver-live-trip.page.scss'],
+  styleUrls: [
+    '../../tabs/tab-page.scss',
+    './driver-live-trip.page.scss',
+    './driver-live-trip.desktop.scss',
+  ],
 })
 export class DriverLiveTripPage {
   private readonly driver = inject(DriverService);
   private readonly tracking = inject(DriverTrackingService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
+  private readonly tripShare = inject(TripShareService);
   private readonly tripCall = inject(TripCallService);
   private readonly location = inject(LocationService);
   private readonly router = inject(Router);
@@ -119,14 +137,14 @@ export class DriverLiveTripPage {
     return trip ? buildLiveShareText(trip) : '';
   });
 
-  // Los pasajeros aceptados, por hora de recogida
+  // Los pasajeros aceptados (también los que ya se bajaron), por hora de recogida
   readonly requests = resource({
     params: () => (this.isInProgress() ? this.trip()?.id : undefined),
     loader: ({ params: id }) => this.driver.listTripRequests(id),
   });
   readonly passengers = computed(() =>
     (this.requests.hasValue() ? this.requests.value() : [])
-      .filter(({ status }) => status === 'accepted')
+      .filter(({ status }) => status === 'accepted' || status === 'completed')
       .sort((first, second) => pickupTime(first) - pickupTime(second)),
   );
   private readonly now = signal(Date.now());
@@ -147,6 +165,14 @@ export class DriverLiveTripPage {
   readonly activePickupId = computed(
     () => this.passengers().find((request) => !request.boardedAt)?.id ?? null,
   );
+  // La tarjeta que toca: el siguiente por recoger o, con todos dentro, el
+  // primero que sigue en el coche (los que ya se bajaron, no)
+  readonly focusPassengerId = computed(
+    () =>
+      this.activePickupId() ??
+      this.passengers().find((request) => request.status === 'accepted')?.id ??
+      null,
+  );
   // Recogidas hechas (o sin pasajeros): la etapa pasa a «Al destino»
   readonly arePickupsDone = computed(() => this.activePickupId() === null);
   // La tarjeta del carrusel que se ve (para los puntos)
@@ -155,12 +181,35 @@ export class DriverLiveTripPage {
   readonly destinationIcon = computed(() =>
     isCampusName(this.trip()?.destinationName) ? businessOutline : homeOutline,
   );
+  // Los que subieron (también los que ya se bajaron): los coches de menos
   readonly boardedCount = computed(
     () => this.passengers().filter((request) => Boolean(request.boardedAt)).length,
   );
+  // En el coche ahora y los que ya se bajaron (cierre por pasajero)
+  readonly onBoardCount = computed(
+    () =>
+      this.passengers().filter((request) => request.status === 'accepted' && request.boardedAt)
+        .length,
+  );
+  readonly droppedOffCount = computed(
+    () => this.passengers().filter((request) => request.status === 'completed').length,
+  );
+  // Nadie por recoger ni en el coche (sin pasajeros, o todos bajados o sin
+  // presentarse): lo único que queda es terminar, así que el botón sube arriba
+  // Había pasajeros y se han bajado todos (sin pasajeros, no: hay que terminar)
+  private readonly hasEveryoneGotOff = computed(
+    () =>
+      this.passengers().length > 0 &&
+      this.passengers().every((request) => request.status === 'completed'),
+  );
+  readonly isReadyToFinish = computed(
+    () =>
+      this.requests.hasValue() &&
+      this.passengers().every((request) => request.status === 'completed'),
+  );
+  private readonly droppingOffIds = signal<ReadonlySet<string>>(new Set());
 
   readonly isSharing = computed(() => this.tracking.tripId() === this.trip()?.id);
-  readonly isScreenKeptOn = this.tracking.isScreenKeptOn;
   readonly gapMinutes = this.tracking.gapMinutes;
   readonly isFinishing = signal(false);
   // La respuesta a «Terminar viaje» (distancia al destino), mientras se confirma
@@ -168,6 +217,12 @@ export class DriverLiveTripPage {
   // Recién terminado aquí: la hoja enseña el aviso y la valoración de los
   // pasajeros en lugar de salir enseguida
   readonly justFinished = signal(false);
+  // Ya valoró (o dejó para luego) a todos: entonces sale «Volver a Tus viajes»
+  readonly areReviewsDone = signal(false);
+  // Mientras valora de uno en uno: en cuál va, para «1 de 2» en la cabecera
+  readonly reviewStep = signal<{ number: number; total: number } | null>(null);
+  // «Ha bajado» por confirmar, en la hoja en vez de en una ventana
+  readonly pendingDropOff = signal<SeatRequest | null>(null);
   readonly reviewTargets = computed<ReviewTarget[]>(() =>
     this.passengers().map((request) => ({
       id: request.passenger.id,
@@ -215,12 +270,15 @@ export class DriverLiveTripPage {
   );
   readonly contactsMap = computed(() => new Map(this.contacts().map((c) => [c.id, c])));
   protected readonly locationIcon = locationOutline;
-  protected readonly flagIcon = flagOutline;
+  protected readonly confirmFinishIcon = checkmarkCircleOutline;
   protected readonly firstName = (name: string) => getFirstName(name);
   protected readonly callIcon = callOutline;
-  protected readonly doneIcon = checkmark;
+  protected readonly previousIcon = chevronBackOutline;
+  protected readonly nextIcon = chevronForwardOutline;
+  protected readonly reportIcon = documentTextOutline;
   protected readonly finishedIcon = checkmarkCircle;
   protected readonly noShowIcon = personRemoveOutline;
+  protected readonly dropOffIcon = walkOutline;
   protected readonly chatIcon = chatbubblesOutline;
   protected readonly formatSeats = formatSeats;
 
@@ -230,7 +288,26 @@ export class DriverLiveTripPage {
 
   constructor() {
     const timer = setInterval(() => this.now.set(Date.now()), CLOCK_UPDATE_MS);
-    inject(DestroyRef).onDestroy(() => clearInterval(timer));
+    // Las plazas se vuelven a pedir cada poco: así se ve el «He llegado» que
+    // marca un pasajero desde su móvil
+    const refreshTimer = setInterval(() => {
+      if (this.isPageVisible() && this.isInProgress() && !this.justFinished()) {
+        this.requests.reload();
+      }
+    }, REFRESH_MS);
+    inject(DestroyRef).onDestroy(() => {
+      clearInterval(timer);
+      clearInterval(refreshTimer);
+    });
+    // Todos bajados (lo marque el conductor o cada pasajero): el servidor ya
+    // ha terminado el viaje; aquí, el aviso y valorar a los pasajeros
+    effect(() => {
+      if (this.isInProgress() && !this.justFinished() && this.hasEveryoneGotOff()) {
+        this.tracking.stop();
+        this.justFinished.set(true);
+        void this.toast.showSuccess('Se han bajado todos: viaje terminado.');
+      }
+    });
     // Si se entra con el viaje en curso, su posición se sigue enviando
     effect(() => {
       const trip = this.trip();
@@ -238,11 +315,11 @@ export class DriverLiveTripPage {
         this.tracking.start(trip.id);
       }
     });
-    // Al validar a uno, el carrusel pasa solo al siguiente que toca
+    // Al validar a uno o al bajarse, el carrusel pasa solo al siguiente que toca
     effect(() => {
-      const activeId = this.activePickupId();
-      if (activeId) {
-        setTimeout(() => this.scrollToPickup(activeId));
+      const focusId = this.focusPassengerId();
+      if (focusId) {
+        setTimeout(() => this.scrollToPickup(focusId));
       }
     });
   }
@@ -261,7 +338,10 @@ export class DriverLiveTripPage {
     const slide = document.getElementById(`pickup-${requestId}`);
     const carousel = slide?.parentElement;
     if (slide && carousel) {
-      carousel.scrollTo?.({ left: slide.offsetLeft - carousel.offsetLeft, behavior: 'smooth' });
+      // Con la posición exacta en pantalla (offsetLeft redondea a píxeles
+      // enteros y dejaba 1px de la tarjeta anterior junto al borde)
+      const offset = slide.getBoundingClientRect().left - carousel.getBoundingClientRect().left;
+      carousel.scrollTo?.({ left: carousel.scrollLeft + offset, behavior: 'smooth' });
     }
   }
 
@@ -370,6 +450,34 @@ export class DriverLiveTripPage {
     }
   }
 
+  isDroppingOff(requestId: string): boolean {
+    return this.droppingOffIds().has(requestId);
+  }
+
+  // «Ha bajado»: cierra la plaza de un pasajero a bordo (no se puede
+  // deshacer: se confirma). Si era el último, el viaje termina solo y la hoja
+  // enseña el aviso y las valoraciones, como al terminarlo
+  // «Ha bajado»: lo pregunta en la hoja (sin ventana encima)
+  handleDropOff(request: SeatRequest): void {
+    this.pendingDropOff.set(request);
+  }
+
+  async confirmDropOff(request: SeatRequest): Promise<void> {
+    this.droppingOffIds.update((ids) => new Set([...ids, request.id]));
+    try {
+      const updated = await this.driver.dropOffPassenger(request.id);
+      this.requests.update((list) =>
+        list?.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      // Si era el último, el viaje lo termina el efecto de «todos bajados»
+    } catch (error) {
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+    } finally {
+      this.droppingOffIds.update((ids) => new Set([...ids].filter((id) => id !== request.id)));
+      this.pendingDropOff.set(null);
+    }
+  }
+
   // Dónde recoger (sin hora por ahora: la estimada no suma las otras recogidas)
   protected pickupPlace(request: SeatRequest): string {
     if (request.direction === 'from-campus') {
@@ -405,9 +513,31 @@ export class DriverLiveTripPage {
     if (await completeFinish(deps, trip.id, check.point)) {
       this.finishCheck.set(null);
       this.justFinished.set(true);
-      this.sheet.expand();
     }
     this.isFinishing.set(false);
+  }
+
+  // Terminar, en un aviso arriba cuando ya no queda nadie en el coche o se
+  // está llegando al destino; antes, en la fila de acciones (móvil) o a la vista
+  readonly showFinishAlert = computed(() => this.isReadyToFinish() || this.isNearDestination());
+  // Móvil: qué hace el botón desplegado de la fila de acciones
+  protected readonly revealedHint = revealedHint;
+  protected readonly shareIcon = paperPlaneOutline;
+
+  // Compartir el viaje con alguien de confianza (el menú del sistema)
+  async handleShareTrip(): Promise<void> {
+    await this.tripShare.share({
+      title: 'Mi viaje en Carpooling UAL',
+      text: this.safetyShareText(),
+    });
+  }
+
+  // Reportar una incidencia: el formulario sustituye al resto de la hoja; al
+  // enviarla se cancela el viaje (RF-23) y vuelve a Tus viajes
+  readonly isReportingIncident = signal(false);
+  async handleIncidentReported(): Promise<void> {
+    await this.toast.showSuccess('Incidencia registrada. El viaje se ha cancelado.');
+    await this.leaveFinished();
   }
 
   async leaveFinished(): Promise<void> {

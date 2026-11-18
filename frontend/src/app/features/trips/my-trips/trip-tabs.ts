@@ -33,6 +33,10 @@ export function driverTripTab({ status }: DriverTrip): TripsTab {
 // Cancelados todo lo demás (no aceptadas, caducadas, canceladas por él o por
 // no presentarse y las de viajes cancelados)
 export function passengerTripTab(request: SeatRequest, trip: Trip): TripsTab {
+  // Ya se bajó: su viaje terminó aunque el del conductor siga en curso
+  if (request.status === 'completed') {
+    return 'past';
+  }
   const isActive = request.status === 'pending' || request.status === 'accepted';
   if (isActive && ACTIVE_TRIPS.has(trip.status)) {
     return 'upcoming';
@@ -45,6 +49,9 @@ export function passengerTripTab(request: SeatRequest, trip: Trip): TripsTab {
 
 // La etiqueta de una solicitud del pasajero, con el motivo en Cancelados
 export function passengerRequestLabel(request: SeatRequest, trip: Trip): string {
+  if (request.status === 'completed') {
+    return 'Realizado';
+  }
   if (trip.status === 'cancelled') {
     return 'Viaje cancelado';
   }

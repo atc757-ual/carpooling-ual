@@ -104,7 +104,17 @@ export class ReputationService implements OnModuleInit {
           authorId,
           input.targetId,
         );
-        if (lockedTrip.status !== 'finished') {
+        // Con el viaje terminado o, para el pasajero, en cuanto se baja
+        // (cierre por pasajero): su reseña espera sin publicar al resto
+        const canReviewEarly =
+          lockedTrip.status === 'in_progress' &&
+          targetRole === 'driver' &&
+          (await this.requestsService.hasCompletedSeat(
+            tripId,
+            authorId,
+            manager,
+          ));
+        if (lockedTrip.status !== 'finished' && !canReviewEarly) {
           throw new ReviewNotAllowedError(tripId);
         }
 
@@ -118,7 +128,10 @@ export class ReputationService implements OnModuleInit {
         }
 
         const finishedAt = tripFinishedAt(lockedTrip);
-        if (Date.now() > finishedAt.getTime() + REVIEW_WINDOW_MS) {
+        if (
+          !canReviewEarly &&
+          Date.now() > finishedAt.getTime() + REVIEW_WINDOW_MS
+        ) {
           throw new ReviewWindowClosedError(tripId);
         }
 
@@ -192,12 +205,15 @@ export class ReputationService implements OnModuleInit {
     const finishedSince = new Date(Date.now() - REVIEW_WINDOW_MS);
     const acceptedTripIds =
       await this.requestsService.acceptedTripIdsOfPassenger(userId);
-    const candidateTrips =
-      await this.tripsService.findFinishedSinceForParticipant(
+    const [finishedTrips, droppedOffTrips] = await Promise.all([
+      this.tripsService.findFinishedSinceForParticipant(
         userId,
         acceptedTripIds,
         finishedSince,
-      );
+      ),
+      this.inProgressTripsDroppedOff(userId),
+    ]);
+    const candidateTrips = [...droppedOffTrips, ...finishedTrips];
     if (candidateTrips.length === 0) {
       return [];
     }
@@ -239,6 +255,18 @@ export class ReputationService implements OnModuleInit {
           })),
         ),
       );
+  }
+
+  // Viajes aún en curso de los que el pasajero ya se bajó: ya puede valorar
+  // al conductor (cierre por pasajero)
+  private async inProgressTripsDroppedOff(userId: string): Promise<Trip[]> {
+    const tripIds =
+      await this.requestsService.completedTripIdsOfPassenger(userId);
+    if (tripIds.length === 0) {
+      return [];
+    }
+    const trips = await this.tripsService.getByIds(tripIds);
+    return [...trips.values()].filter((trip) => trip.status === 'in_progress');
   }
 
   // Publicación diferida al consultar: publica las reseñas pendientes cuyas

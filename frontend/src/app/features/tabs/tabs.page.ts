@@ -228,7 +228,8 @@ export class TabsPage implements OnInit {
     }
     const requests = await this.seatRequests.listMine().catch(() => []);
     const request = requests.find(
-      ({ trip, status }) => trip.id === live.tripId && status === 'accepted',
+      ({ trip, status }) =>
+        trip.id === live.tripId && (status === 'accepted' || status === 'completed'),
     );
     await this.router.navigateByUrl(request ? `/tabs/trips/ride/${request.id}` : '/tabs/trips');
   }

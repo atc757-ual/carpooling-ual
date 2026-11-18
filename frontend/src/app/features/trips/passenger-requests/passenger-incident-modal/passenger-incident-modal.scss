@@ -50,9 +50,18 @@
 
 // Compacto: el aviso en azul claro con su borde y los motivos en pastillas,
 // en una sola línea (si no caben, se desplazan de lado)
+// Aviso compacto: 8px de relleno, texto pequeño y el icono de revisión
 .incident-modal__note {
+  align-items: center;
+  gap: var(--space-s);
   margin: 0;
+  padding: var(--space-s);
   border: var(--border-width-s) solid var(--color-primary);
+
+  ion-icon {
+    flex: none;
+    font-size: 1rem; // 16px
+  }
 }
 
 .incident-modal__chips {

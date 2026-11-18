@@ -154,7 +154,15 @@ ion-modal.live-sheet {
   --border-radius: var(--radius-s);
   --box-shadow: 0 -0.25rem 1rem rgb(0 0 0 / 12%); // sombra hacia arriba
 
-  bottom: calc(var(--tab-bar-height) + var(--ion-safe-area-bottom, 0px));
+  // Justo encima de la barra: sus 76px, el margen seguro de abajo (iPhone) y
+  // su borde de arriba
+  bottom: calc(var(--tab-bar-height) + var(--ion-safe-area-bottom, 0px) + var(--border-width-s));
+
+  // En escritorio no se ve nunca, ni mientras se cierra al pasar del móvil a
+  // escritorio: su contenido ya va en la columna de 4 y saldría dos veces
+  @media (min-width: 768px) {
+    display: none;
+  }
 
   ::ng-deep ion-content {
     --background: var(--color-surface);
@@ -180,8 +188,21 @@ ion-modal.live-sheet {
     padding-inline: 0;
   }
 
+  // Compacta: 12 px arriba y abajo de cada sección, con la línea en medio
   ::ng-deep ion-card ion-card-content[class] {
-    padding-block: var(--space-base);
+    padding-block: calc(var(--space-s) + var(--space-xs)); // 12px
+  }
+
+  // La línea entre secciones: aquí, para ganar al «border: 0» de las
+  // tarjetas de arriba (si no, solo la llevaban los componentes, no las
+  // tarjetas, y quedaba un hueco sin línea)
+  ::ng-deep .live-sheet__body > * + * {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+
+  // Sin línea debajo de un aviso (.live-alert): ya va en su recuadro
+  ::ng-deep .live-sheet__body > .live-alert + * {
+    border-top: 0;
   }
 
   // Con título: el título arriba y el contenido justo debajo
@@ -200,8 +221,45 @@ ion-modal.live-sheet {
   flex-direction: column;
   gap: 0;
   min-width: 0;
+}
 
-  ::ng-deep > * + * {
-    border-top: var(--border-width-s) solid var(--color-border-subtle);
+// Al pie de lo que se ve de la hoja, cuando el contenido sigue por debajo:
+// un degradado bajo desde el fondo de la hoja y una flecha gris hacia abajo
+// (pulsarla sube la hoja a la siguiente parada). Va fijo (slot="fixed"), a la
+// altura que se ve (top) y sube con su propio alto
+.live-sheet__more {
+  position: absolute;
+  right: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  padding-top: var(--space-s);
+  background: linear-gradient(to bottom, transparent, var(--color-surface) 70%);
+  transition: opacity 120ms ease;
+
+  // Mientras se toca la hoja (arrastrar o desplazar), fuera al momento
+  &--hidden {
+    opacity: 0;
+  }
+  pointer-events: none;
+  transform: translateY(-100%);
+}
+
+.live-sheet__more-btn {
+  display: grid;
+  place-items: center;
+  width: 2rem; // 32px
+  height: 1rem; // 16px
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-border-strong); // gris claro: una pista, no un botón más
+  font-size: 1rem; // 16px: el icono
+  pointer-events: auto;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus-ring);
+    outline-offset: 2px;
   }
 }

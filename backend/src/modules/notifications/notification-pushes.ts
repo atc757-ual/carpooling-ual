@@ -36,6 +36,10 @@ const PUSH_TEXTS: Partial<
     title: 'Tu conductor va de camino',
     body: 'Sigue el coche en el mapa.',
   },
+  trip_completed: {
+    title: 'Tu viaje ha terminado',
+    body: 'Valora a tu conductor: ayuda a la comunidad.',
+  },
   pending_requests_reminder: {
     title: 'Tienes solicitudes por responder',
     body: 'Respóndelas antes de 10 min de la salida o caducarán.',

@@ -138,33 +138,62 @@ ion-card-content.passenger-detail__state {
   font-weight: var(--font-weight-semibold);
 }
 
-// «Alex ha empezado el viaje» con «Seguir en directo» a la derecha (debajo
-// en el móvil)
-.passenger-detail__live {
-  flex-wrap: wrap;
-  align-items: center;
+// «Viaje y seguridad»: una lista con el título de cada fila (14px), su
+// explicación debajo y el botón de icono (.icon-btn, del tema) a la derecha
+.passenger-detail__safety {
+  margin: 0;
 
-  > span:nth-child(2) {
-    flex: 1 1 14rem; // 224px
+  ion-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
   }
 
-  ion-button {
-    flex: none;
+  h2 {
     margin: 0;
+    font-weight: var(--font-weight-semibold);
   }
 }
 
-.passenger-detail__live-dot {
-  flex: none;
-  width: 0.5rem; // 8px
-  height: 0.5rem;
-  border-radius: var(--radius-full);
-  background: var(--color-success);
+.passenger-detail__items {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.passenger-detail__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+  padding-block: var(--space-s);
+
+  & + & {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}
+
+.passenger-detail__item-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+  min-width: 0;
+}
+
+.passenger-detail__item-title {
+  font-size: 0.875rem; // 14px
+  font-weight: var(--font-weight-semibold);
+}
+
+// En curso, la tarjeta de acciones se queda sin nada que mostrar: oculta
+.passenger-detail__hidden {
+  display: none;
 }
 
 // Dentro de «Tu recorrido», encima del mapa
-.passenger-detail__board-code,
-.passenger-detail__live-share {
+.passenger-detail__board-code {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
@@ -214,4 +243,9 @@ ion-card-content.passenger-detail__state {
     align-items: start;
     gap: var(--space-l);
   }
+}
+
+// Las alertas de esta pantalla, con 8px de relleno por los cuatro lados
+.notice {
+  padding: var(--space-s);
 }

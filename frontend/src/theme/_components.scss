@@ -1139,3 +1139,285 @@ ion-toggle {
   --handle-background: var(--color-surface);
   --handle-background-checked: var(--color-on-primary);
 }
+
+// Botón de icono de 44 × 44px con esquinas de 8px (chat, llamar, compartir,
+// «Ha bajado», SOS…): borde gris e icono azul; al pasar, fondo gris claro; con el teclado,
+// el anillo de foco; desactivado o no disponible, en gris. --danger: relleno
+// rojo con el texto en blanco (el SOS que llama al 112). Con <button> o <a>
+// y siempre con aria-label (no lleva texto visible)
+.icon-btn {
+  display: grid;
+  flex: none;
+  box-sizing: border-box;
+  width: 2.75rem; // 44px
+  height: 2.75rem;
+  padding: 0;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s); // 8px
+  background: var(--color-surface);
+  color: var(--color-link);
+  cursor: pointer;
+  place-items: center;
+  text-decoration: none;
+  transition: background-color 120ms ease;
+
+  ion-icon {
+    font-size: 1.25rem; // 20px
+  }
+
+  // Al pasar (ratón) o al pulsar (táctil): azul claro con el borde azul. El
+  // gris claro de antes casi no se distinguía del blanco de la tarjeta
+  @media (any-hover: hover) {
+    &:hover:not(:disabled) {
+      border-color: var(--color-link);
+      background: var(--color-primary-subtle);
+    }
+  }
+
+  &:active:not(:disabled) {
+    border-color: var(--color-link);
+    background: var(--color-primary-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--border-width-m) solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    color: var(--color-text-disabled);
+    cursor: default;
+  }
+
+  // Con icono y texto (p. ej. el teléfono y «SOS»): tan ancho y alto como
+  // pida, con 8px de relleno (como las pastillas a su lado)
+  &--labeled {
+    display: inline-flex;
+    gap: var(--space-xs);
+    width: auto;
+    height: auto;
+    padding: var(--space-s);
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 1rem; // 16px
+    }
+  }
+
+  &--danger {
+    border-color: transparent;
+    background: var(--color-danger);
+    color: var(--color-on-danger);
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.02em;
+
+    @media (any-hover: hover) {
+      &:hover:not(:disabled) {
+        border-color: transparent;
+        background: var(--color-danger-text);
+      }
+    }
+
+    &:active:not(:disabled) {
+      border-color: transparent;
+      background: var(--color-danger-text);
+    }
+  }
+}
+
+// Botón de icono que muestra su texto (.icon-btn.icon-btn--reveal con el texto
+// en .icon-btn__label): redondo como los demás; al pasar el ratón, enfocarlo
+// con el teclado, en el móvil con el primer toque (--revealed, de la
+// directiva appRevealOnTouch) o mientras guarda (--busy), se estira hacia la
+// izquierda con el texto. Con las dos clases, para ganar a .icon-btn (rejilla)
+.icon-btn.icon-btn--reveal {
+  display: inline-flex;
+  width: auto;
+  min-width: 2.75rem; // 44px
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding-inline: 0.6875rem; // 11px: el icono centrado en 44px
+  transition:
+    gap 160ms ease,
+    padding 160ms ease;
+
+  ion-spinner {
+    width: 1.25rem; // 20px
+    height: 1.25rem;
+  }
+
+  @media (any-hover: hover) {
+    &:hover:not(:disabled) {
+      gap: var(--space-xs);
+      padding-inline: var(--space-s); // 8px, como arriba y abajo
+    }
+  }
+
+  &:focus-visible,
+  &.icon-btn--revealed,
+  &.icon-btn--busy,
+  .icon-btns-open & {
+    gap: var(--space-xs);
+    padding-inline: var(--space-s); // 8px, como arriba y abajo
+  }
+}
+
+.icon-btn__label {
+  overflow: hidden;
+  max-width: 0;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  transition: max-width 160ms ease;
+
+  @media (any-hover: hover) {
+    .icon-btn--reveal:hover:not(:disabled) & {
+      max-width: 10rem; // 160px: cabe «Compartir ubicación»
+    }
+  }
+
+  .icon-btn--reveal:focus-visible &,
+  .icon-btn--revealed &,
+  .icon-btn--busy &,
+  .icon-btns-open & {
+    max-width: 10rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-btn.icon-btn--reveal,
+  .icon-btn__label {
+    transition: none;
+  }
+}
+
+// Con un texto corto que se ve siempre (.icon-btn__short, p. ej. «SOS») y que,
+// al estirarse, deja su sitio al largo (.icon-btn__label, «Llamar al 112»)
+.icon-btn__short {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+
+  @media (any-hover: hover) {
+    .icon-btn--reveal:hover:not(:disabled) & {
+      display: none;
+    }
+  }
+
+  .icon-btn--reveal:focus-visible &,
+  .icon-btn--revealed &,
+  .icon-btns-open & {
+    display: none;
+  }
+}
+
+// Dentro de .icon-btns-open (p. ej. «En curso» en escritorio, donde hay
+// sitio), los botones van siempre desplegados con su texto
+
+// Plegado, con su texto corto: el icono y el texto con 4px entre ellos
+.icon-btn--reveal:has(.icon-btn__short) {
+  gap: var(--space-xs);
+  padding-inline: var(--space-s);
+}
+
+// Secciones una debajo de otra separadas por una línea fina (p. ej. «En
+// curso» en escritorio, sin pastillas). La clase, tres veces: tiene que ganar
+// al «border: 0» con que la columna de escritorio deja planas sus tarjetas
+// (_live-desktop-column.scss), sin !important
+.sections-divided.sections-divided.sections-divided > * + * {
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+}
+
+// Icono que solo sale con el botón siempre desplegado (.icon-btns-open), p. ej.
+// el teléfono de «Llamar al 112» en escritorio
+.icon-btn__open-icon {
+  display: none;
+
+  .icon-btns-open & {
+    display: inline-block;
+  }
+}
+
+// «En curso» en el móvil: las acciones del viaje en una fila de botones de
+// icono (.icon-btn--reveal: el primer toque los despliega con su nombre y el
+// segundo actúa) y, encima, en 12px, qué hace el desplegado
+.live-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-top: calc(var(--space-s) + var(--space-xs)); // 12px
+}
+
+.live-actions__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-s);
+
+  // El SOS, siempre al final de la fila, a la derecha
+  > .icon-btn--danger {
+    margin-left: auto;
+  }
+}
+
+// Dos líneas como máximo y sin llegar a la altura del SOS (44px y 8px de hueco
+// a la derecha); la altura de dos líneas, fija, para que la fila no salte
+.live-actions__hint {
+  display: -webkit-box;
+  overflow: hidden;
+  max-width: calc(100% - 3.25rem); // 52px
+  min-height: 2rem; // 32px: dos líneas
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption); // 12px
+  line-height: 1rem; // 16px
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+// Una fila de acción (p. ej. «Terminar viaje», «Viaje seguro»): a la izquierda
+// el título y, debajo, la descripción en dos líneas (siempre dos, «…» si no
+// cabe); a la derecha, el botón centrado en vertical, a 16px
+.section-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+}
+
+.section-item__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem; // 2px
+  min-width: 0;
+}
+
+.section-item__title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-subtitle);
+}
+
+.section-item__subtitle {
+  display: -webkit-box;
+  overflow: hidden;
+  min-height: 2rem; // 32px: siempre dos líneas
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption); // 12px
+  line-height: 1rem; // 16px
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.section-item > :not(.section-item__text) {
+  flex: none;
+  margin: 0;
+}

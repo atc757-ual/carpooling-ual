@@ -28,7 +28,7 @@ export function formatStepTime(iso: string, now = new Date()): string {
 
 // El paso en que se cerró una solicitud sin viaje (o null si sigue su curso)
 function stoppedStep(request: SeatRequest, trip: Trip): ProgressStep | null {
-  if (trip.status === 'cancelled') {
+  if (trip.status === 'cancelled' && request.status !== 'completed') {
     return { label: 'Viaje cancelado', at: request.cancelledAt, state: 'stopped' };
   }
   switch (request.status) {
@@ -56,7 +56,7 @@ function reachedSteps(request: SeatRequest, trip: Trip): number {
   if (request.status === 'pending') {
     return 1;
   }
-  if (trip.status === 'finished') {
+  if (trip.status === 'finished' || request.status === 'completed') {
     return 4;
   }
   return trip.status === 'in_progress' ? 3 : 2;
@@ -85,11 +85,11 @@ export function buildProgressSteps(request: SeatRequest, trip: Trip): ProgressSt
     sent,
     {
       label: 'Confirmada',
-      at: request.status === 'accepted' ? request.answeredAt : null,
+      at: request.status === 'pending' ? null : request.answeredAt,
       state: stateOf(1),
     },
     { label: 'En curso', at: request.boardedAt ?? null, state: stateOf(2) },
-    { label: 'Finalizado', at: null, state: stateOf(3) },
+    { label: 'Finalizado', at: request.droppedOffAt ?? null, state: stateOf(3) },
   ];
 }
 

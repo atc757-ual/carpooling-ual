@@ -14,6 +14,7 @@ import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ChatService } from '../../../core/services/chat/chat.service';
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
+import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import {
   LIVE_TRIP_MAP_RENDERER_FACTORY,
   LOAD_LEAFLET,
@@ -81,6 +82,9 @@ describe('DriverLiveTripPage', () => {
   let ask: ReturnType<typeof vi.fn>;
   let showInfoMock: ReturnType<typeof vi.fn>;
   let listContactsMock: ReturnType<typeof vi.fn>;
+  let showSuccessMock: ReturnType<typeof vi.fn>;
+  let showErrorMock: ReturnType<typeof vi.fn>;
+  let stopTracking: ReturnType<typeof vi.fn>;
   let page: DriverLiveTripPage;
 
   async function render(
@@ -96,7 +100,11 @@ describe('DriverLiveTripPage', () => {
       finishTrip: vi.fn().mockResolvedValue({ ...TRIP, status: 'finished' }),
       boardPassenger: vi.fn().mockResolvedValue({ id: 'r1', boardedAt: new Date().toISOString() }),
       markNoShow: vi.fn().mockResolvedValue({ id: 'r1', status: 'cancelled' }),
+      dropOffPassenger: vi.fn(),
     };
+    showSuccessMock = vi.fn();
+    showErrorMock = vi.fn();
+    stopTracking = vi.fn();
     tracking = {
       tripId: signal<string | null>('t1'),
       isScreenKeptOn: signal(false),
@@ -115,11 +123,15 @@ describe('DriverLiveTripPage', () => {
           { path: 'tabs/trips', component: BlankPage },
         ]),
         { provide: DriverService, useValue: driver },
-        { provide: DriverTrackingService, useValue: { ...tracking, stop: vi.fn() } },
+        { provide: DriverTrackingService, useValue: { ...tracking, stop: stopTracking } },
         { provide: ConfirmService, useValue: { ask } },
         {
           provide: ToastService,
-          useValue: { showSuccess: vi.fn(), showError: vi.fn(), showInfo: showInfoMock },
+          useValue: {
+            showSuccess: showSuccessMock,
+            showError: showErrorMock,
+            showInfo: showInfoMock,
+          },
         },
         { provide: ChatService, useValue: { listContacts: listContactsMock } },
         {
@@ -145,16 +157,13 @@ describe('DriverLiveTripPage', () => {
     return harness.routeNativeElement as HTMLElement;
   }
 
-  it('says the screen stays on and warns about a while without sharing', async () => {
+  it('warns about a while without sharing', async () => {
     const root = await render([TRIP]);
-    expect(root.querySelector('.driver-live-trip__sharing-hint')).toBeNull();
     expect(root.querySelector('.driver-live-trip__gap')).toBeNull();
 
-    tracking.isScreenKeptOn.set(true);
     tracking.gapMinutes.set(4);
     TestBed.tick();
 
-    expect(root.textContent).toContain('La pantalla no se apagará hasta que termines.');
     expect(root.querySelector('.driver-live-trip__gap')?.textContent).toContain(
       'Estuviste 4 min sin compartir tu ubicación',
     );
@@ -162,7 +171,7 @@ describe('DriverLiveTripPage', () => {
     expect(tracking.dismissGap).toHaveBeenCalled();
   });
 
-  it('shows the trip in progress, sharing the location, with its passengers in order', async () => {
+  it('shows the trip in progress with its passengers in order', async () => {
     const root = await render(
       [TRIP],
       [
@@ -172,7 +181,6 @@ describe('DriverLiveTripPage', () => {
       ],
     );
 
-    expect(root.textContent).toContain('Compartiendo tu ubicación con tus pasajeros');
     expect(tracking.start).toHaveBeenCalledWith('t1');
     expect(page.passengers().map(({ passenger: { name } }) => name)).toEqual([
       'Carlos Ruiz',
@@ -293,25 +301,109 @@ describe('DriverLiveTripPage', () => {
     const tripCall = TestBed.inject(TripCallService);
     const openPhoneSpy = vi.spyOn(tripCall, 'openPhone').mockImplementation(() => undefined);
 
-    const callBtn = root.querySelector('button.pickup-slide__icon-btn');
+    const callBtn = root.querySelector('button.icon-btn');
     expect(callBtn).not.toBeNull();
-    expect(callBtn?.getAttribute('title')).toBe('Llamar a Carlos Ruiz');
-    expect(callBtn?.classList).not.toContain('pickup-slide__icon-btn--unavailable');
+    expect(callBtn?.getAttribute('aria-label')).toBe('Llamar a Carlos Ruiz');
+    expect(callBtn?.hasAttribute('disabled')).toBe(false);
 
     page.handleCallPassenger({ id: 'p-r1', name: 'Carlos Ruiz' });
     expect(openPhoneSpy).toHaveBeenCalledWith('+34600333444');
   });
 
-  it('shows call button as unavailable when passenger has no verified phone', async () => {
+  it('disables the call button when passenger has no verified phone', async () => {
     const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)], []);
 
-    const callBtn = root.querySelector('button.pickup-slide__icon-btn');
+    const callBtn = root.querySelector('button.icon-btn');
     expect(callBtn).not.toBeNull();
-    expect(callBtn?.classList).toContain('pickup-slide__icon-btn--unavailable');
+    expect(callBtn?.hasAttribute('disabled')).toBe(true);
 
     page.handleCallPassenger({ id: 'p-r1', name: 'Carlos Ruiz' });
     expect(showInfoMock).toHaveBeenCalledWith(
       'Nadie más de este viaje tiene el teléfono verificado.',
     );
+  });
+
+  it('keeps the SOS in the action row and reports an incident in place', async () => {
+    const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+
+    expect(root.querySelector('[aria-label="SOS: llamar al 112"]')?.getAttribute('href')).toBe(
+      'tel:112',
+    );
+
+    root.querySelector<HTMLElement>('[aria-label^="Enviar un reporte"]')?.click();
+    TestBed.tick();
+    expect(root.querySelector('app-passenger-incident-modal')).not.toBeNull();
+
+    await page.handleIncidentReported();
+    expect(navigate).toHaveBeenCalledWith('/tabs/trips');
+  });
+
+  const onBoard = (id: string, name: string): SeatRequest => ({
+    ...passenger(id, name, -10),
+    boardedAt: new Date().toISOString(),
+  });
+
+  it('asks «Ha bajado» in the sheet and closes that seat only', async () => {
+    const carlos = onBoard('r1', 'Carlos Ruiz');
+    await render([TRIP], [carlos, onBoard('r2', 'Ana Gil')]);
+    driver['dropOffPassenger'].mockResolvedValue({ ...carlos, status: 'completed' });
+
+    page.handleDropOff(carlos);
+    expect(page.pendingDropOff()).toBe(carlos);
+
+    const saving = page.confirmDropOff(carlos);
+    expect(page.isDroppingOff('r1')).toBe(true);
+    await saving;
+
+    expect(driver['dropOffPassenger']).toHaveBeenCalledWith('r1');
+    expect(page.passengers().map(({ id, status }) => [id, status])).toEqual([
+      ['r1', 'completed'],
+      ['r2', 'accepted'],
+    ]);
+    expect(page.isDroppingOff('r1')).toBe(false);
+    expect(page.pendingDropOff()).toBeNull();
+    // Aún queda Ana: la tarjeta pasa a ella y el viaje sigue
+    expect(page.focusPassengerId()).toBe('r2');
+    expect(page.justFinished()).toBe(false);
+  });
+
+  it('finishes the trip when the last passenger gets off', async () => {
+    const carlos = onBoard('r1', 'Carlos Ruiz');
+    await render([TRIP], [carlos]);
+    driver['dropOffPassenger'].mockResolvedValue({ ...carlos, status: 'completed' });
+
+    await page.confirmDropOff(carlos);
+    TestBed.tick();
+
+    expect(page.justFinished()).toBe(true);
+    expect(stopTracking).toHaveBeenCalled();
+    expect(showSuccessMock).toHaveBeenCalledWith('Se han bajado todos: viaje terminado.');
+  });
+
+  it('explains why «Ha bajado» failed and keeps the passenger on board', async () => {
+    const carlos = onBoard('r1', 'Carlos Ruiz');
+    await render([TRIP], [carlos]);
+    driver['dropOffPassenger'].mockRejectedValue(new Error('offline'));
+
+    page.handleDropOff(carlos);
+    await page.confirmDropOff(carlos);
+
+    expect(showErrorMock).toHaveBeenCalled();
+    expect(page.passengers()[0].status).toBe('accepted');
+    expect(page.pendingDropOff()).toBeNull();
+    expect(page.isDroppingOff('r1')).toBe(false);
+  });
+
+  it('shares the trip with someone they trust', async () => {
+    await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
+    const share = vi.spyOn(TestBed.inject(TripShareService), 'share').mockResolvedValue('shared');
+
+    await page.handleShareTrip();
+
+    expect(share).toHaveBeenCalledWith({
+      title: 'Mi viaje en Carpooling UAL',
+      text: page.safetyShareText(),
+    });
   });
 });

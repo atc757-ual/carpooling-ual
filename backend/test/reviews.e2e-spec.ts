@@ -123,7 +123,7 @@ describe('Reputation & Reviews API (e2e)', () => {
     return trip.id;
   }
 
-  it('notifies driver and accepted passengers with review_requested and lists pending reviews', async () => {
+  it('notifies the driver with review_requested and the passengers with trip_completed, and lists pending reviews', async () => {
     const dan = await sessionFor('dan', ['driver']);
     const pia = await sessionFor('pia', ['passenger']);
     const tripId = await createFinishedTrip(dan, [pia]);
@@ -144,10 +144,12 @@ describe('Reputation & Reviews API (e2e)', () => {
         }),
       ]),
     );
+    // El pasajero recibe «Tu viaje ha terminado» (cierre por pasajero), que
+    // abre su valoración
     expect(piaNotices.body).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          type: 'review_requested',
+          type: 'trip_completed',
           trip: { id: tripId, href: `/api/trips/${tripId}` },
         }),
       ]),

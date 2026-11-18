@@ -79,7 +79,11 @@ export class DriverTripRoute {
   });
   readonly acceptedPickups = computed<SeatRequest[]>(() =>
     (this.requests.hasValue() ? this.requests.value() : [])
-      .filter((request) => request.status === 'accepted' && request.pickupLocation)
+      .filter(
+        (request) =>
+          (request.status === 'accepted' || request.status === 'completed') &&
+          request.pickupLocation,
+      )
       .sort((a, b) => Date.parse(a.pickupAt ?? '') - Date.parse(b.pickupAt ?? '')),
   );
   // En el mapa: las paradas del viaje o, en el camino, el punto de cada uno
