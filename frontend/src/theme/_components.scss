@@ -1425,7 +1425,10 @@ ion-toggle {
   min-width: 0;
 }
 
-.section-item__title {
+// La clase, dos veces: dentro de una tarjeta, Ionic deja los h2 sin negrita
+// (.card-content-md h2 { font-weight: normal }) y su selector pesa más que
+// una sola clase. Sin !important
+.section-item__title.section-item__title {
   margin: 0;
   font-family: var(--font-family-heading);
   font-size: var(--font-size-subtitle);
