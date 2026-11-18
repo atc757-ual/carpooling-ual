@@ -19,3 +19,9 @@
     opacity: 1;
   }
 }
+
+// Escritorio: sin el hueco de 12px que separa las pastillas en el móvil, para
+// que todas las secciones tengan el mismo espacio arriba
+.driver-live-trip__choice--desktop {
+  padding-top: 0;
+}

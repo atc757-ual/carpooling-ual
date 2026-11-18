@@ -481,7 +481,7 @@
                     <h2 class="text-subtitle">Emergencia</h2>
                     <div class="driver-live-trip__row">
                       <p class="text-body-s text-color-muted">
-                        Si hay una emergencia, llama al 112.
+                        Llama al 112 si hay una emergencia.
                       </p>
                       <ng-container [ngTemplateOutlet]="sosButton" />
                     </div>
@@ -500,7 +500,7 @@
                         type="button"
                         class="icon-btn icon-btn--reveal"
                         appRevealOnTouch
-                        appRevealHint="Termina cuando hayas dejado a todos: dejarán de ver dónde estás."
+                        appRevealHint="Hazlo cuando se hayan bajado todos."
                         aria-label="Terminar el viaje"
                         [disabled]="isFinishing()"
                         (click)="handleFinish()"
@@ -513,7 +513,7 @@
                       type="button"
                       class="icon-btn icon-btn--reveal"
                       appRevealOnTouch
-                      appRevealHint="Comparte tu viaje con alguien de confianza."
+                      appRevealHint="Envía tu viaje a alguien de confianza."
                       aria-label="Compartir el viaje con alguien de confianza"
                       (click)="handleShareTrip()"
                     >
@@ -524,7 +524,7 @@
                       type="button"
                       class="icon-btn icon-btn--reveal"
                       appRevealOnTouch
-                      appRevealHint="Si no puedes seguir, repórtalo: cancelaremos el viaje y lo revisaremos."
+                      appRevealHint="Repórtalo y cancelaremos el viaje."
                       aria-label="Enviar un reporte: abre el formulario de la incidencia"
                       (click)="isReportingIncident.set(true)"
                     >
@@ -543,11 +543,9 @@
               <!-- Terminar antes de llegar (con su confirmación) -->
               <ion-card class="driver-live-trip__panel">
                 <ion-card-content>
-                  <h2 class="text-subtitle">¿Quieres terminar el viaje?</h2>
+                  <h2 class="text-subtitle">Terminar viaje</h2>
                   <div class="driver-live-trip__row">
-                    <p class="text-body-s text-color-muted">
-                      Hazlo cuando hayas dejado a todos: tus pasajeros dejarán de ver dónde estás.
-                    </p>
+                    <p class="text-body-s text-color-muted">Hazlo cuando se hayan bajado todos.</p>
                     <ion-button
                       class="driver-live-trip__finish-btn"
                       [disabled]="isFinishing()"
@@ -565,9 +563,7 @@
                 <ion-card-content>
                   <h2 class="text-subtitle">¿Algo va mal?</h2>
                   <div class="driver-live-trip__row">
-                    <p class="text-body-s text-color-muted">
-                      Si no puedes seguir, repórtalo: cancelaremos el viaje y lo revisaremos.
-                    </p>
+                    <p class="text-body-s text-color-muted">Repórtalo y cancelaremos el viaje.</p>
                     <button
                       type="button"
                       class="icon-btn icon-btn--reveal"

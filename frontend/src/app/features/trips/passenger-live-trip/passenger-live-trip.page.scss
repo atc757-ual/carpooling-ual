@@ -317,7 +317,7 @@ ion-card.live-alert.live-alert[class] {
 // Una fila: el texto a la izquierda y el botón a la derecha (16px entre ellos)
 .ride__row {
   display: flex;
-  align-items: center;
+  align-items: flex-start; // el texto arriba: mismo hueco con el título
   gap: var(--space-base);
 
   p {
@@ -325,4 +325,9 @@ ion-card.live-alert.live-alert[class] {
     min-width: 0;
     margin: 0;
   }
+}
+
+// Escritorio: sin el hueco de 12px de las pastillas del móvil
+.ride__choice--desktop {
+  padding-top: 0;
 }

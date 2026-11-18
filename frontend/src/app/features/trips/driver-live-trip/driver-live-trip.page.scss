@@ -443,7 +443,7 @@
 // En una pastilla: el texto a la izquierda y el botón a la derecha, a 16px
 .driver-live-trip__row {
   display: flex;
-  align-items: center;
+  align-items: flex-start; // el texto arriba: mismo hueco con el título
   gap: var(--space-base);
 
   p {

@@ -313,7 +313,7 @@
                         <h2 id="ride-sos-title" class="text-subtitle">Emergencia</h2>
                         <div class="ride__row">
                           <p class="text-body-s text-color-muted">
-                            Si hay una emergencia, llama al 112.
+                            Llama al 112 si hay una emergencia.
                           </p>
                           <ng-container [ngTemplateOutlet]="sosButton" />
                         </div>
@@ -345,7 +345,7 @@
                           type="button"
                           class="icon-btn icon-btn--reveal"
                           appRevealOnTouch
-                          appRevealHint="Comparte tu viaje con alguien de confianza."
+                          appRevealHint="Envía tu viaje a alguien de confianza."
                           aria-label="Compartir el viaje con alguien de confianza"
                           (click)="handleShareTrip()"
                         >
@@ -356,7 +356,7 @@
                           type="button"
                           class="icon-btn icon-btn--reveal"
                           appRevealOnTouch
-                          appRevealHint="Si algo va mal, bájate cuando sea seguro y cuéntanoslo."
+                          appRevealHint="Bájate en un sitio seguro y repórtalo."
                           aria-label="Reportar: bajarme y registrar una incidencia"
                           (click)="isReportingIncident.set(true)"
                         >
