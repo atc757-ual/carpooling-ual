@@ -311,7 +311,7 @@ describe('DriverLiveTripPage', () => {
     );
   });
 
-  it('keeps the SOS by the chips and reports an incident in place', async () => {
+  it('keeps the SOS in the action row and reports an incident in place', async () => {
     const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
@@ -319,8 +319,6 @@ describe('DriverLiveTripPage', () => {
       'tel:112',
     );
 
-    page.handleSheetTab('actions');
-    TestBed.tick();
     root.querySelector<HTMLElement>('[aria-label^="Enviar un reporte"]')?.click();
     TestBed.tick();
     expect(root.querySelector('app-passenger-incident-modal')).not.toBeNull();

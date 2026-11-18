@@ -27,7 +27,7 @@ describe('LiveTripSafety', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  it('shares the trip text from the driver row', () => {
+  it('shares the trip text with the system menu', () => {
     const root = render({ shareText: SHARE_TEXT });
 
     root
@@ -40,11 +40,11 @@ describe('LiveTripSafety', () => {
     });
   });
 
-  it('offers the live link to the passenger in its card', () => {
-    const root = render({ liveShareTripId: 't1' });
+  it('shows the same title and text to the driver and the passenger, without a live link', () => {
+    const root = render({ shareText: SHARE_TEXT });
 
     expect(root.textContent).toContain('Viaje seguro');
-    expect(root.querySelector('app-trip-live-share')).not.toBeNull();
-    expect(root.querySelector('.live-safety__row')).toBeNull();
+    expect(root.textContent).toContain('Envía tu viaje a alguien de confianza.');
+    expect(root.querySelector('app-trip-live-share')).toBeNull();
   });
 });

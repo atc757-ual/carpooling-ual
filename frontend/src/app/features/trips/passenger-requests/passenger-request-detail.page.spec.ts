@@ -182,9 +182,9 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.textContent).toContain('1234BCD');
     expect(root.textContent).toContain('Cancelar mi plaza');
     expect(root.querySelector('.passenger-route__chat-btn')).not.toBeNull();
-    expect(
-      root.querySelector('.passenger-route__chat-btn')?.getAttribute('title'),
-    ).toBe('Escribir a Lucía');
+    expect(root.querySelector('.passenger-route__chat-btn')?.getAttribute('title')).toBe(
+      'Escribir a Lucía',
+    );
     expect(root.querySelector('.passenger-route__call-btn')).not.toBeNull();
     expect(root.textContent).toContain('Verás el código 10 minutos antes de la salida');
   });
@@ -193,9 +193,11 @@ describe('PassengerRequestDetailPage', () => {
     const root = await render(seatRequest('accepted'), { ...TRIP, status: 'in_progress' });
 
     expect(root.querySelector('app-live-trip-map')).toBeNull();
-    expect(root.textContent).toContain('Lucía ha empezado el viaje.');
-    expect(root.textContent).toContain('Seguir en directo');
-    expect(root.textContent).toContain('Enviar reporte');
+    expect(root.textContent).toContain('Lucía ha empezado el viaje');
+    expect(root.querySelector('[aria-label="Seguir el viaje en directo"]')).not.toBeNull();
+    expect(
+      root.querySelector('[aria-label="Reportar: bajarme y registrar una incidencia"]'),
+    ).not.toBeNull();
   });
 
   it('opens the incident window and goes back to Tus viajes once reported', async () => {

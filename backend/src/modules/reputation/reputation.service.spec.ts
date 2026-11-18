@@ -31,6 +31,8 @@ describe('ReputationService', () => {
     isAcceptedPassenger: jest.fn(),
     acceptedTripIdsOfPassenger: jest.fn(),
     acceptedPassengersByTrip: jest.fn(),
+    hasCompletedSeat: jest.fn(),
+    completedTripIdsOfPassenger: jest.fn(),
   };
   const usersService = {
     onBeforeUserSummary: jest.fn(),
@@ -52,6 +54,9 @@ describe('ReputationService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    // Por defecto, el pasajero no se ha bajado de ningún viaje en curso
+    requestsService.hasCompletedSeat.mockResolvedValue(false);
+    requestsService.completedTripIdsOfPassenger.mockResolvedValue([]);
     manager = {
       existsBy: jest.fn().mockResolvedValue(false),
       create: jest.fn((_, values: object) =>
@@ -237,6 +242,21 @@ describe('ReputationService', () => {
           rating: 5,
         }),
       ).rejects.toBeInstanceOf(ReviewNotAllowedError);
+    });
+
+    it('lets a passenger who got off review the driver while the trip goes on', async () => {
+      tripStatus.lockTrip.mockResolvedValue(
+        finishedTrip({ status: 'in_progress' }),
+      );
+      requestsService.isAcceptedPassenger.mockResolvedValue(true);
+      requestsService.hasCompletedSeat.mockResolvedValue(true);
+
+      await expect(
+        service.createReview('passenger-1', 'trip-1', {
+          targetId: 'driver-1',
+          rating: 5,
+        }),
+      ).resolves.toBeDefined();
     });
 
     it('rejects a duplicate review (409 REVIEW_ALREADY_EXISTS)', async () => {
