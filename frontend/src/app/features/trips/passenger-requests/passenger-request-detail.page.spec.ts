@@ -342,6 +342,18 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.querySelector('app-trip-review-card')?.textContent).toContain(
       '¿Qué tal con Lucía?',
     );
+    // Las acciones: solo por qué (sin el botón de cancelar desactivado) y,
+    // debajo, reportar el viaje
+    const card = root.querySelector('app-passenger-request-actions');
+    expect(card?.querySelector('.notice')?.textContent?.trim()).toBe('Este viaje ya terminó.');
+    expect(card?.querySelectorAll('ion-button')).toHaveLength(0);
+    expect(card?.querySelector('app-after-trip-report')?.textContent).toContain('¿Algo fue mal?');
+  });
+
+  it('does not offer to report a trip the passenger did not take', async () => {
+    const root = await render(seatRequest('cancelled'), { ...TRIP, status: 'finished' });
+
+    expect(root.querySelector('app-after-trip-report')).toBeNull();
   });
 
   it('lets the passenger review the driver once off the car, with the trip still going', async () => {

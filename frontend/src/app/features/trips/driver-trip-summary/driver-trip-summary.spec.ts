@@ -62,7 +62,8 @@ describe('DriverTripSummary', () => {
     expect(tone('published')).toBe('status--info');
     expect(tone('confirmed')).toBe('status--accepted');
     expect(tone('cancelled')).toBe('status--danger');
-    expect(tone('finished')).toBeUndefined();
+    // Hecho, en verde como la plaza del pasajero («Realizado»)
+    expect(tone('finished')).toBe('status--accepted');
   });
 
   it('says when the system closed the trip', () => {

@@ -3,7 +3,7 @@ import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
-import { AfterTripReport, isAfterTripReportOpen } from './after-trip-report';
+import { AfterTripReport } from './after-trip-report';
 
 describe('AfterTripReport', () => {
   let fixture: ComponentFixture<AfterTripReport>;
@@ -32,9 +32,10 @@ describe('AfterTripReport', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  it('opens the report form for the trip', async () => {
+  it('opens the report form for the trip, without a card of its own', async () => {
     const root = await render(undefined);
 
+    expect(root.querySelector('ion-card')).toBeNull();
     expect(root.textContent).toContain('Repórtalo en los 7 días siguientes');
     (root.querySelector('button') as HTMLButtonElement).click();
     await fixture.whenStable();
@@ -57,20 +58,5 @@ describe('AfterTripReport', () => {
     expect(showSuccess).toHaveBeenCalledWith('Reporte enviado: lo revisará un administrador.');
     expect(root.textContent).toContain('Gracias: lo revisará un administrador.');
     expect(root.querySelector('button')).toBeNull();
-  });
-
-  it('stays open for 7 days after the trip finished', () => {
-    const finishedAt = '2026-11-10T08:00:00.000Z';
-    const at = (iso: string): number => new Date(iso).getTime();
-
-    expect(
-      isAfterTripReportOpen({ status: 'finished', finishedAt }, at('2026-11-17T08:00:00Z')),
-    ).toBe(true);
-    expect(
-      isAfterTripReportOpen({ status: 'finished', finishedAt }, at('2026-11-17T08:00:01Z')),
-    ).toBe(false);
-    // Sin terminar, o sin saber cuándo terminó, no
-    expect(isAfterTripReportOpen({ status: 'in_progress', finishedAt: null })).toBe(false);
-    expect(isAfterTripReportOpen({ status: 'finished' })).toBe(false);
   });
 });

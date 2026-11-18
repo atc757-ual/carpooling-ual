@@ -217,7 +217,7 @@ for (const viewport of VIEWPORTS) {
       // Terminado, pasa a Anteriores
       cy.contains('app-my-trips', 'No tienes viajes programados');
       cy.contains('app-filter-chips ion-chip', 'Anteriores').click();
-      cy.contains('app-my-trips', 'Finalizado');
+      cy.contains('app-my-trips', 'Realizado');
     });
   });
 }

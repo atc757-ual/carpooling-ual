@@ -390,16 +390,19 @@ describe('DriverTripActions', () => {
     );
   });
 
-  it('keeps the actions of a closed trip, disabled and with the reason', async () => {
+  it('shows only why a cancelled trip has no actions', async () => {
     const root = await render({ ...TRIP, status: 'cancelled' });
 
-    expect(fixture.componentInstance.closedReason()).toContain('se canceló');
-    const buttons = [...root.querySelectorAll('ion-button')];
-    expect(buttons).toHaveLength(2);
-    expect(buttons[0].textContent).toContain('Iniciar viaje');
-    expect(buttons[1].textContent).toContain('Cancelar viaje');
-    expect(buttons.every((button) => button.hasAttribute('disabled'))).toBe(true);
-    // El motivo, dentro de cada botón para el lector de pantalla
-    expect(buttons.every((button) => button.textContent?.includes('se canceló'))).toBe(true);
+    expect(root.querySelector('.notice')?.textContent?.trim()).toBe('Este viaje se canceló.');
+    expect(root.querySelectorAll('ion-button')).toHaveLength(0);
+    expect(root.querySelector('app-after-trip-report')).toBeNull();
+  });
+
+  it('shows that a finished trip is over and offers to report it below', async () => {
+    const root = await render({ ...TRIP, status: 'finished' });
+
+    expect(root.querySelector('.notice')?.textContent?.trim()).toBe('Este viaje ya terminó.');
+    expect(root.querySelectorAll('ion-button')).toHaveLength(0);
+    expect(root.querySelector('app-after-trip-report')?.textContent).toContain('¿Algo fue mal?');
   });
 });
