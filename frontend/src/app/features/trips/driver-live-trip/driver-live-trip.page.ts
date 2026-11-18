@@ -16,6 +16,7 @@ import {
   checkmarkCircle,
   chatbubblesOutline,
   checkmarkCircleOutline,
+  paperPlaneOutline,
   chevronBackOutline,
   chevronForwardOutline,
   documentTextOutline,
@@ -53,17 +54,10 @@ import {
 } from '../live-trip-hero.util';
 import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
 import { DragScroll } from '../../../shared/directives/drag-scroll.directive';
-import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
+import { RevealOnTouch, revealedHint } from '../../../shared/directives/reveal-on-touch.directive';
+import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { buildLiveShareText } from '../trip-share-text';
-import { FilterChips } from '../../../shared/components/ui/filter-chips/filter-chips';
 import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
-import {
-  buildRideSheetTabs,
-  FINISH_TAB,
-  isRideSheetTab,
-  resolveRideSheetTab,
-  RideSheetTab,
-} from '../live-sheet-tabs';
 
 // Una recogida sigue siendo «la siguiente» hasta 5 min después de su hora
 // (lo que se espera al pasajero antes de poder marcar «No se presentó»)
@@ -95,7 +89,6 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
     LiveTripHero,
     LiveTripMap,
     DragScroll,
-    FilterChips,
     LiveTripSafety,
     PassengerIncidentModal,
     RevealOnTouch,
@@ -111,6 +104,7 @@ export class DriverLiveTripPage {
   private readonly tracking = inject(DriverTrackingService);
   private readonly confirm = inject(ConfirmService);
   private readonly toast = inject(ToastService);
+  private readonly tripShare = inject(TripShareService);
   private readonly tripCall = inject(TripCallService);
   private readonly location = inject(LocationService);
   private readonly router = inject(Router);
@@ -517,16 +511,18 @@ export class DriverLiveTripPage {
   }
 
   // Terminar, en un aviso arriba cuando ya no queda nadie en el coche o se
-  // está llegando al destino; antes, en la pastilla «Viaje»
+  // está llegando al destino; antes, en la fila de acciones (móvil) o a la vista
   readonly showFinishAlert = computed(() => this.isReadyToFinish() || this.isNearDestination());
-  // Las pastillas del final de la hoja: «Viaje» (mientras no hay aviso), la
-  // seguridad (al abrir) y las acciones
-  private readonly chosenTab = signal<RideSheetTab>('safety');
-  private readonly firstTab = computed(() => (this.showFinishAlert() ? null : FINISH_TAB));
-  readonly sheetTabs = computed(() => buildRideSheetTabs(this.firstTab()));
-  readonly sheetTab = computed(() => resolveRideSheetTab(this.chosenTab(), this.firstTab()));
-  handleSheetTab(value: string | null): void {
-    if (isRideSheetTab(value)) this.chosenTab.set(value);
+  // Móvil: qué hace el botón desplegado de la fila de acciones
+  protected readonly revealedHint = revealedHint;
+  protected readonly shareIcon = paperPlaneOutline;
+
+  // Compartir el viaje con alguien de confianza (el menú del sistema)
+  async handleShareTrip(): Promise<void> {
+    await this.tripShare.share({
+      title: 'Mi viaje en Carpooling UAL',
+      text: this.safetyShareText(),
+    });
   }
 
   // Reportar una incidencia: el formulario sustituye al resto de la hoja; al

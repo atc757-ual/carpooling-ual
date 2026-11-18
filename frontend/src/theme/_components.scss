@@ -1324,8 +1324,10 @@ ion-toggle {
 }
 
 // Secciones una debajo de otra separadas por una línea fina (p. ej. «En
-// curso» en escritorio, sin pastillas)
-.sections-divided > * + * {
+// curso» en escritorio, sin pastillas). La clase, tres veces: tiene que ganar
+// al «border: 0» con que la columna de escritorio deja planas sus tarjetas
+// (_live-desktop-column.scss), sin !important
+.sections-divided.sections-divided.sections-divided > * + * {
   border-top: var(--border-width-s) solid var(--color-border-subtle);
 }
 
@@ -1337,4 +1339,42 @@ ion-toggle {
   .icon-btns-open & {
     display: inline-block;
   }
+}
+
+// «En curso» en el móvil: las acciones del viaje en una fila de botones de
+// icono (.icon-btn--reveal: el primer toque los despliega con su nombre y el
+// segundo actúa) y, encima, en 12px, qué hace el desplegado
+.live-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-top: calc(var(--space-s) + var(--space-xs)); // 12px
+}
+
+.live-actions__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-s);
+
+  // El SOS, siempre al final de la fila, a la derecha
+  > .icon-btn--danger {
+    margin-left: auto;
+  }
+}
+
+// Dos líneas como máximo y sin llegar a la altura del SOS (44px y 8px de hueco
+// a la derecha); la altura de dos líneas, fija, para que la fila no salte
+.live-actions__hint {
+  display: -webkit-box;
+  overflow: hidden;
+  max-width: calc(100% - 3.25rem); // 52px
+  min-height: 2rem; // 32px: dos líneas
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption); // 12px
+  line-height: 1rem; // 16px
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }

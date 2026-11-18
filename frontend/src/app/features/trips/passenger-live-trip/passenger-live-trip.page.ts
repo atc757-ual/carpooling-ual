@@ -14,8 +14,10 @@ import {
   callOutline,
   checkmarkCircle,
   chatbubblesOutline,
+  documentTextOutline,
   homeOutline,
   locationOutline,
+  paperPlaneOutline,
   personOutline,
   walkOutline,
 } from 'ionicons/icons';
@@ -49,15 +51,8 @@ import { ratingName } from '../../../shared/utils/rating.util';
 import { PassengerRequestActions } from '../passenger-requests/passenger-request-actions/passenger-request-actions';
 import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
 import { buildLiveShareText } from '../trip-share-text';
-import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
-import { FilterChips } from '../../../shared/components/ui/filter-chips/filter-chips';
-import {
-  buildRideSheetTabs,
-  EARLY_TAB,
-  isRideSheetTab,
-  resolveRideSheetTab,
-  RideSheetTab,
-} from '../live-sheet-tabs';
+import { RevealOnTouch, revealedHint } from '../../../shared/directives/reveal-on-touch.directive';
+import { TripShareService } from '../../../core/services/trips/trip-share.service';
 
 // Cada cuánto se revisa si ya subió (código validado) o si el viaje terminó
 const REFRESH_MS = 15_000;
@@ -113,7 +108,6 @@ function arriveErrorMessage(code: string): string {
     IonContent,
     IonIcon,
     IonSpinner,
-    FilterChips,
     LicensePlate,
     LiveTripHero,
     LiveTripMap,
@@ -133,6 +127,7 @@ export class PassengerLiveTripPage {
   private readonly trips = inject(TripsService);
   private readonly tripCall = inject(TripCallService);
   private readonly toast = inject(ToastService);
+  private readonly tripShare = inject(TripShareService);
   private readonly router = inject(Router);
 
   readonly id = input.required<string>();
@@ -248,13 +243,17 @@ export class PassengerLiveTripPage {
     if (!this.isToCampus()) return 'default';
     return this.isNearDestination() ? 'near' : 'early';
   });
-  // Las pastillas del final de la hoja: qué ve (al abrir, su seguridad)
-  private readonly chosenTab = signal<RideSheetTab>('safety');
-  private readonly firstTab = computed(() => (this.arriveCard() === 'early' ? EARLY_TAB : null));
-  readonly sheetTabs = computed(() => buildRideSheetTabs(this.firstTab()));
-  readonly sheetTab = computed(() => resolveRideSheetTab(this.chosenTab(), this.firstTab()));
-  handleSheetTab(value: string | null): void {
-    if (isRideSheetTab(value)) this.chosenTab.set(value);
+  // Móvil: qué hace el botón desplegado de la fila de acciones
+  protected readonly revealedHint = revealedHint;
+  protected readonly shareIcon = paperPlaneOutline;
+  protected readonly reportIcon = documentTextOutline;
+
+  // Compartir el viaje con alguien de confianza (el menú del sistema)
+  async handleShareTrip(): Promise<void> {
+    await this.tripShare.share({
+      title: 'Mi viaje en Carpooling UAL',
+      text: this.safetyShareText(),
+    });
   }
   readonly heroTitle = computed(() =>
     this.phase() === 'waiting'

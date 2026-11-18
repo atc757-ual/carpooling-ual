@@ -487,33 +487,52 @@
                   </ion-card-content>
                 </ion-card>
               } @else {
-                <div class="driver-live-trip__choice-bar">
-                  <app-filter-chips
-                    legend="Qué ver en el viaje"
-                    [options]="sheetTabs()"
-                    [value]="sheetTab()"
-                    [allLabel]="null"
-                    [isLegendHidden]="true"
-                    [isSingleLine]="true"
-                    [isCompact]="true"
-                    (valueChange)="handleSheetTab($event)"
-                  />
-                  <ng-container [ngTemplateOutlet]="sosButton" />
+                <!-- Móvil: las acciones en una fila de botones (el primer toque
+                     los despliega y explica debajo qué hacen; el segundo actúa) -->
+                <div class="live-actions">
+                  <p class="live-actions__hint" aria-live="polite">
+                    {{ revealedHint() ?? 'Toca un botón para ver qué hace.' }}
+                  </p>
+                  <div class="live-actions__row">
+                    @if (!showFinishAlert()) {
+                      <button
+                        type="button"
+                        class="icon-btn icon-btn--reveal"
+                        appRevealOnTouch
+                        appRevealHint="Termina cuando hayas dejado a todos: dejarán de ver dónde estás."
+                        aria-label="Terminar el viaje"
+                        [disabled]="isFinishing()"
+                        (click)="handleFinish()"
+                      >
+                        <ion-icon [icon]="confirmFinishIcon" aria-hidden="true" />
+                        <span class="icon-btn__label" aria-hidden="true">Terminar</span>
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      class="icon-btn icon-btn--reveal"
+                      appRevealOnTouch
+                      appRevealHint="Comparte tu viaje con alguien de confianza."
+                      aria-label="Compartir el viaje con alguien de confianza"
+                      (click)="handleShareTrip()"
+                    >
+                      <ion-icon [icon]="shareIcon" aria-hidden="true" />
+                      <span class="icon-btn__label" aria-hidden="true">Compartir</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="icon-btn icon-btn--reveal"
+                      appRevealOnTouch
+                      appRevealHint="Si no puedes seguir, repórtalo: cancelaremos el viaje y lo revisaremos."
+                      aria-label="Enviar un reporte: abre el formulario de la incidencia"
+                      (click)="isReportingIncident.set(true)"
+                    >
+                      <ion-icon [icon]="reportIcon" aria-hidden="true" />
+                      <span class="icon-btn__label" aria-hidden="true">Reportar</span>
+                    </button>
+                    <ng-container [ngTemplateOutlet]="sosButton" />
+                  </div>
                 </div>
-
-                <!-- Cada pastilla, en su tarjeta, como en el pasajero: el título
-                     arriba y, debajo, el texto y el botón a la derecha -->
-                @switch (sheetTab()) {
-                  @case ('finish') {
-                    <ng-container [ngTemplateOutlet]="finishPanel" />
-                  }
-                  @case ('actions') {
-                    <ng-container [ngTemplateOutlet]="reportPanel" />
-                  }
-                  @default {
-                    <app-live-trip-safety [shareText]="safetyShareText()" />
-                  }
-                }
               }
             </div>
 
@@ -567,6 +586,7 @@
               <a
                 class="icon-btn icon-btn--reveal icon-btn--danger"
                 appRevealOnTouch
+                appRevealHint="Llama al 112 si hay una emergencia."
                 href="tel:112"
                 aria-label="SOS: llamar al 112"
               >
