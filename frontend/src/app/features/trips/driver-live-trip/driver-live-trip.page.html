@@ -264,13 +264,13 @@
                         }
                       </p>
                     }
-                    @if (isSharing()) {
-                      <span class="pickups-head__tag text-caption">
-                        <ion-icon [icon]="locationIcon" aria-hidden="true" />
-                        Ubicación en directo
-                      </span>
-                    }
                   </div>
+                  @if (isSharing()) {
+                    <span class="pickups-head__tag text-caption">
+                      <ion-icon [icon]="locationIcon" aria-hidden="true" />
+                      Ubicación en directo
+                    </span>
+                  }
                   @if (passengers().length > 1) {
                     <div class="pickups-head__arrows">
                       <button
