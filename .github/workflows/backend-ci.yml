@@ -6,11 +6,13 @@ on:
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
+      - 'scripts/audit-check*.mjs'
   pull_request:
     branches: [main, dev]
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
+      - 'scripts/audit-check*.mjs'
 
 jobs:
   test:
@@ -54,10 +56,14 @@ jobs:
         working-directory: ./backend
         run: npm install
 
+      # npm audit --omit=dev con nivel alto, con las excepciones revisadas y con
+      # fecha de scripts/audit-check.mjs (antes se prueba el propio script)
       - name: Audit dependencies
         if: steps.check-package.outputs.exists == 'true'
         working-directory: ./backend
-        run: npm audit --omit=dev --audit-level=high
+        run: |
+          node --test ../scripts/audit-check.test.mjs
+          node ../scripts/audit-check.mjs backend
 
       - name: Run linter
         if: steps.check-package.outputs.exists == 'true'

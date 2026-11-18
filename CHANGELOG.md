@@ -47,6 +47,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Frontend:** detalle de la solicitud del pasajero rehecho: tarjeta única con el estado y el progreso del pasajero con la hora de cada paso (sin historial aparte), el código de recogida desde 10 min antes de la salida, «Tu recorrido» y «Conductor y coche», y en la columna de 4 las acciones con lo que cuesta cancelar. Resultados de búsqueda en una lista con el color de cómo encaja cada viaje, y detalle del viaje en Buscar con la salida «· zona aproximada» (#291).
 - **DocumentaciÃ³n:** `docs/reglas-de-negocio.md` reÃºne todas las reglas de negocio de la plataforma (publicar, buscar y pedir plaza, antes de la salida, durante el viaje, cancelaciones, despuÃ©s del viaje, privacidad de la ubicaciÃ³n y cuentas), cada una con su valor y la constante o el servicio del cÃ³digo que la aplica, mÃ¡s las limitaciones conocidas por decidir. Se actualiza en cada PR que cambie una regla (#292).
 
+### Security
+
+- **Auditoría de dependencias con excepciones revisadas:** el CI de backend y frontend usa `scripts/audit-check.mjs` en lugar de `npm audit --audit-level=high`. Sigue fallando con cualquier aviso alto o crítico salvo los de su lista, cada uno con su GHSA, paquete, proyecto, rango, motivo y fecha de revisión; la excepción vuelve a fallar si caduca, si el aviso cambia de rango, si npm ofrece un arreglo compatible o si ya no hace falta. La primera es [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf) (`picomatch` ≤ 4.0.7, vía `typeorm`), sin versión que la arregle y que solo afecta a patrones glob elegidos por un atacante; se revisa el 18/12/2026.
+
 ### Fixed
 
 - **Revisión del autor (17/11/2026):** Avisos vuelve a pedir la primera página al entrar otra vez (Ionic guardaba la pantalla y no se veían los avisos nuevos). Los interruptores usan `--track-background`, la variable de Ionic 9: en modo oscuro la pista quedaba casi transparente y la bolita no se veía. El chat abierto de un viaje que termina o se cancela pasa a solo lectura: se comprueba cada 30 s y, si un envío devuelve `CHAT_CLOSED`, se cierra la caja de texto (#329).
