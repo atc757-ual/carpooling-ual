@@ -151,8 +151,7 @@ describe('SearchResultsPage', () => {
       'llega a destino a las',
     );
     expect(root.querySelector('ion-select')).not.toBeNull();
-    const notice = root.querySelector('.notice--success')?.textContent?.replace(/\s+/g, ' ');
-    expect(notice).toContain('Horas estimadas según tu ruta.');
+    expect(root.textContent).not.toContain('Horas estimadas según tu ruta.');
     expect(searchState.results().map(({ id }) => id)).toEqual(['t1']);
     expect(page.stops().map(({ name }) => name)).toEqual([ROQUETAS.name, 'Campus UAL']);
     expect(page.details()).toContain('llegada 08:00 ± 20 min · 1 plaza');

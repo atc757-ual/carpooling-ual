@@ -19,12 +19,14 @@
   min-width: 0;
 }
 
-// Sin tarjeta (19/11, decidido con el autor): el aviso, el recuento con el
-// orden y los filtros y la lista, uno debajo de otro
 .search-results__panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
+  margin: 0;
+
+  ion-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
 }
 
 // Los viajes, en filas separadas con espacio entre tarjetas (TripResultCard)
@@ -78,25 +80,6 @@ ion-card-content.search-results__state > .search-results__requested {
 
 ion-card-content.search-results__state:has(> .search-results__requested) > :last-child {
   margin-bottom: auto;
-}
-
-.search-results__notice {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-  padding: 0.5rem var(--space-s); // 8px arriba y abajo
-  margin: 0 0 var(--space-s); // 16px hasta lo de debajo, con el gap (8px) del panel
-  border: var(--border-width-s) solid var(--color-success); // borde del color fuerte
-  border-radius: var(--radius-s); // 8px
-  background: var(--color-success-subtle);
-  color: var(--color-text); // texto negro / principal
-  font-weight: var(--font-weight-medium);
-
-  ion-icon {
-    flex: none;
-    font-size: 1.25rem;
-    color: var(--color-success);
-  }
 }
 
 .search-results__results-header {
