@@ -31,3 +31,18 @@ export function chatRoleOf(
 export function isChatOpen(trip: ChatTrip): boolean {
   return trip.status === 'confirmed' || trip.status === 'in_progress';
 }
+
+// Una conversación (conductor y un pasajero) admite mensajes si el viaje está
+// abierto y ese pasajero aún no se ha bajado: al bajarse, su chat pasa a solo
+// lectura aunque el viaje siga en curso para otros
+export function isConversationOpen(
+  trip: ChatTrip,
+  isSeatClosed: boolean,
+): boolean {
+  return isChatOpen(trip) && !isSeatClosed;
+}
+
+// La clave de una plaza en las de RequestsService.completedSeatKeys
+export function seatKey(tripId: string, passengerId: string): string {
+  return `${tripId}:${passengerId}`;
+}

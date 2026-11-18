@@ -591,6 +591,22 @@ export class RequestsService {
       .existsBy({ tripId, passengerId, status: 'completed' });
   }
 
+  // Plazas ya cerradas (el pasajero se bajó) de varios viajes, en una sola
+  // consulta: «viaje:pasajero». Su chat pasa a solo lectura
+  async completedSeatKeys(tripIds: string[]): Promise<Set<string>> {
+    const uniqueTripIds = [...new Set(tripIds)];
+    if (uniqueTripIds.length === 0) {
+      return new Set();
+    }
+    const rows = await this.requestsRepository.find({
+      select: { tripId: true, passengerId: true },
+      where: { tripId: In(uniqueTripIds), status: 'completed' },
+    });
+    return new Set(
+      rows.map(({ tripId, passengerId }) => `${tripId}:${passengerId}`),
+    );
+  }
+
   // Pasajeros aceptados de varios viajes en una sola consulta (RF-22)
   async acceptedPassengersByTrip(
     tripIds: string[],
