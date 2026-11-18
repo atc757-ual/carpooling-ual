@@ -12,7 +12,7 @@
   gap: var(--space-s) var(--space-base);
   width: 100%;
   box-sizing: border-box;
-  padding: var(--space-base);
+  padding: var(--space-s); // 8px, como los avisos
   border: var(--border-width-s) solid var(--color-border-subtle);
   border-radius: var(--radius-s); // 8px, como las tarjetas
   background: var(--color-surface);
