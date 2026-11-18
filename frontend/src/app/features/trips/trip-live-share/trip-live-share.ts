@@ -1,12 +1,6 @@
 import { Component, inject, input, linkedSignal, resource, signal } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular';
-import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
-import {
-  closeCircleOutline,
-  paperPlaneOutline,
-  radioOutline,
-  shareSocialOutline,
-} from 'ionicons/icons';
+import { closeCircleOutline, radioOutline, shareSocialOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { TripLiveShareService } from '../../../core/services/trips/trip-live-share.service';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
@@ -22,7 +16,7 @@ const SHARE_TEXT = 'Sigue mi viaje en directo: dónde está el coche y cuándo l
 // de compartir (el enlace deja de funcionar al momento)
 @Component({
   selector: 'app-trip-live-share',
-  imports: [IonButton, IonIcon, RevealOnTouch],
+  imports: [IonButton, IonIcon],
   templateUrl: './trip-live-share.html',
   styleUrl: './trip-live-share.scss',
 })
@@ -32,8 +26,6 @@ export class TripLiveShare {
   private readonly toast = inject(ToastService);
 
   readonly tripId = input.required<string>();
-  // Compacto (en «En curso»): una fila con el texto y un botón redondo
-  readonly isCompact = input(false);
 
   // El enlace que este dispositivo está compartiendo (el servidor no lo guarda)
   private readonly storedLink = resource({
@@ -48,7 +40,6 @@ export class TripLiveShare {
   protected readonly shareIcon = shareSocialOutline;
   protected readonly liveIcon = radioOutline;
   protected readonly stopIcon = closeCircleOutline;
-  protected readonly sendIcon = paperPlaneOutline;
 
   async handleStart(): Promise<void> {
     await this.run(async () => {
@@ -61,30 +52,6 @@ export class TripLiveShare {
   async handleResend(): Promise<void> {
     const url = this.activeLink();
     if (url) {
-      await this.send(url);
-    }
-  }
-
-  // El avión (compacto, compartiendo): con menú de compartir del sistema, como ahora; sin él
-  // (escritorio), copia el enlace y lo avisa. Si el navegador no deja copiar,
-  // se envía por WhatsApp como al empezar
-  async handleCopyLink(): Promise<void> {
-    const url = this.activeLink();
-    if (!url) {
-      return;
-    }
-    const navigator = globalThis.navigator;
-    if (typeof navigator?.share === 'function' || !navigator?.clipboard) {
-      await this.send(url);
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(url);
-      await this.toast.showSuccess('Enlace copiado: pégalo donde quieras enviarlo.');
-    } catch (error) {
-      if (!(error instanceof DOMException && error.name === 'NotAllowedError')) {
-        throw error;
-      }
       await this.send(url);
     }
   }

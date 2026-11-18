@@ -89,17 +89,3 @@
     }
   }
 }
-
-// Compacto: el texto a la izquierda y los botones de icono (.icon-btn, del
-// tema) a la derecha, a 16px (compartiendo, el clip y la antena verde)
-.live-share-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-base);
-
-  p {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-  }
-}

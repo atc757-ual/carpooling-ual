@@ -1,43 +1,4 @@
-@if (isCompact()) {
-  <!-- Compacto (en «En curso»): una fila con el texto y el botón
-       redondo. Sin compartir, el avión lo empieza; compartiendo, reenvía o
-       copia el enlace (deja de funcionar al terminar el viaje) -->
-  <div class="live-share-row">
-    @if (activeLink()) {
-      <p class="text-body-s text-color-muted">
-        Comparte tu ubicación en tiempo real con alguien de confianza.
-      </p>
-      <!-- El avión: el menú de compartir del sistema o, si no lo hay, copia el
-           enlace -->
-      <button
-        type="button"
-        class="icon-btn icon-btn--reveal"
-        appRevealOnTouch
-        aria-label="Compartir el enlace de tu viaje con alguien más"
-        [disabled]="isBusy()"
-        (click)="handleCopyLink()"
-      >
-        <ion-icon [icon]="sendIcon" aria-hidden="true" />
-        <span class="icon-btn__label" aria-hidden="true">Compartir ubicación</span>
-      </button>
-    } @else {
-      <p class="text-body-s text-color-muted">
-        Comparte tu ubicación en tiempo real con alguien de confianza.
-      </p>
-      <button
-        type="button"
-        class="icon-btn icon-btn--reveal"
-        appRevealOnTouch
-        aria-label="Compartir el enlace de tu viaje (se abre sin cuenta)"
-        [disabled]="isBusy()"
-        (click)="handleStart()"
-      >
-        <ion-icon [icon]="sendIcon" aria-hidden="true" />
-        <span class="icon-btn__label" aria-hidden="true">Compartir ubicación</span>
-      </button>
-    }
-  </div>
-} @else if (activeLink()) {
+@if (activeLink()) {
   <div class="live-share live-share--active">
     <!-- La etiqueta «En directo» con el punto que late y, debajo, qué supone -->
     <output class="live-share__status">
