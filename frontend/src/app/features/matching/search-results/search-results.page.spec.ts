@@ -170,6 +170,36 @@ describe('SearchResultsPage', () => {
     expect(page.sortedTrips().map(({ id }) => id)).toEqual(['earlier', 't1', 'lower-detour']);
   });
 
+  it('filters by the driver preferences, says when none is left and clears them', async () => {
+    const quiet = {
+      ...MATCH,
+      id: 'quiet',
+      driver: {
+        ...MATCH.driver,
+        preferences: { conversation: 'quiet', music: null, smoking: 'no', pets: null },
+      },
+    } as TripMatch;
+    const fixture = await setUp(SEARCH, () => Promise.resolve([MATCH, quiet]));
+    const page = fixture.componentInstance;
+    const root = fixture.nativeElement as HTMLElement;
+
+    page.handlePreferenceToggle('no_smoking');
+    expect(page.sortedTrips().map(({ id }) => id)).toEqual(['quiet']);
+    expect(page.isPreferenceMatch(page.sortedTrips()[0])).toBe(false);
+
+    page.handlePreferenceToggle('pets');
+    fixture.detectChanges();
+    expect(page.sortedTrips()).toEqual([]);
+    expect(root.textContent).toContain('Ningún viaje con esos filtros');
+
+    page.handlePreferenceToggle('pets');
+    expect(page.sortedTrips()).toHaveLength(1);
+
+    page.clearPreferenceFilters();
+    expect(page.hasFilters()).toBe(false);
+    expect(page.sortedTrips()).toHaveLength(2);
+  });
+
   it('ignores an unknown sort order', async () => {
     const page = (await setUp(SEARCH)).componentInstance;
 

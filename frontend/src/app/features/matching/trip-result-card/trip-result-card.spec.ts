@@ -34,7 +34,7 @@ const TRIP: TripResult = {
 describe('TripResultCard', () => {
   function render(
     trip: TripResult,
-    flags: { isRequested?: boolean; isBestMatch?: boolean } = {},
+    flags: { isRequested?: boolean; isBestMatch?: boolean; isPreferenceMatch?: boolean } = {},
   ): HTMLElement {
     TestBed.configureTestingModule({
       imports: [TripResultCard],
@@ -54,6 +54,7 @@ describe('TripResultCard', () => {
     fixture.componentRef.setInput('trip', trip);
     fixture.componentRef.setInput('isRequested', flags.isRequested ?? false);
     fixture.componentRef.setInput('isBestMatch', flags.isBestMatch ?? false);
+    fixture.componentRef.setInput('isPreferenceMatch', flags.isPreferenceMatch ?? false);
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
   }
@@ -138,6 +139,16 @@ describe('TripResultCard', () => {
   it('highlights the best match only when told to', () => {
     expect(render(TRIP).querySelector('.trip-card__best')).toBeNull();
     TestBed.resetTestingModule();
-    expect(text(render(TRIP, { isBestMatch: true }), '.trip-card__best')).toBe('Mejor coincidencia');
+    expect(text(render(TRIP, { isBestMatch: true }), '.trip-card__best')).toBe(
+      'Mejor coincidencia',
+    );
+  });
+
+  it('tags a trip that fits the passenger preferences only when told to', () => {
+    expect(render(TRIP).querySelector('.trip-card__match')).toBeNull();
+    TestBed.resetTestingModule();
+    expect(text(render(TRIP, { isPreferenceMatch: true }), '.trip-card__match')).toBe(
+      'Coincide con tus preferencias',
+    );
   });
 });

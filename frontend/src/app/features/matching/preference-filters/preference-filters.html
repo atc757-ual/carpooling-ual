@@ -11,7 +11,14 @@
   }
 </ion-button>
 
-<ion-modal class="info-dialog" [isOpen]="isOpen()" (didDismiss)="isOpen.set(false)">
+<!-- Montada desde el principio (keepContentsMounted): es pequeña y se abre al
+     instante -->
+<ion-modal
+  class="info-dialog"
+  [keepContentsMounted]="true"
+  [isOpen]="isOpen()"
+  (didDismiss)="isOpen.set(false)"
+>
   <ng-template>
     <app-modal-header title="Filtros" (closed)="isOpen.set(false)" />
     <div class="modal-body preference-filters__body">
