@@ -107,7 +107,7 @@ describe('TripSearchPage', () => {
     fixture.componentInstance.ionViewWillEnter();
     await fixture.whenStable();
 
-    expect(listMine.mock.calls.length).toBe(calls * 2);
+    expect(listMine.mock.calls).toHaveLength(calls * 2);
   });
 
   it('invites to publish only to who has no car yet', async () => {
