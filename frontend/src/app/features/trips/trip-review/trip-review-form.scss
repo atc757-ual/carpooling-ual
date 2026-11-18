@@ -1,30 +1,38 @@
-// La valoración: la escala de 5 puntos entre las dos manitas, el comentario y
-// los botones a todo el ancho
+// La valoración: los 5 botones entre las dos manitas, el comentario
+// (al pedirlo) y los dos botones, uno debajo del otro
 .trip-review {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
 }
 
+// El grupo ocupa solo su ancho y va centrado en la tarjeta: la pregunta queda
+// alineada a la izquierda de los botones, como la etiqueta de un campo
 .trip-review__fieldset {
   display: flex;
+  align-self: center;
+  width: fit-content;
+  max-width: 100%;
   min-width: 0;
   flex-direction: column;
-  gap: var(--space-s);
+  gap: var(--space-xs);
   margin: 0;
-  padding: 0;
+  padding: 0; // el aire con lo de arriba lo pone quien lo contiene
   border: 0;
 
+  // «¿Qué tal con Sara?», la etiqueta del grupo: alineada a la izquierda de
+  // los botones y pegada a ellos
   legend {
-    margin-bottom: var(--space-s);
+    margin-bottom: var(--space-xs);
     padding: 0;
   }
 }
 
-// La manita abajo, los 5 puntos y la manita arriba en una fila
+// La manita abajo, los 5 botones y la manita arriba en una fila
 .trip-review__scale {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-s);
 }
 
@@ -41,45 +49,68 @@
   color: var(--color-success);
 }
 
-.trip-review__points {
-  display: grid;
-  flex: 1;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--space-xs);
+// Los 5 botones juntos y centrados (no se estiran a lo ancho)
+.trip-review__steps {
+  display: flex;
+  gap: var(--space-s);
 }
 
-// Cada punto, de 44px de alto (objetivo táctil); en verde hasta el elegido
-.trip-review__point {
-  display: grid;
-  min-height: 2.75rem; // 44px
-  border: var(--border-width-s) solid var(--color-border);
+// Cada punto, el botón cuadrado con su número, de 48 × 48px (más que el
+// objetivo táctil de 44px)
+.trip-review__step {
+  display: flex;
+  min-height: 3rem; // 48px
+  align-items: center;
   border-radius: var(--radius-s);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
   cursor: pointer;
-  font-weight: var(--font-weight-semibold);
-  place-items: center;
 
-  &:focus-within {
+  // El anillo de foco solo con teclado (al tocar con el dedo, no)
+  &:has(:focus-visible) {
     outline: var(--border-width-m) solid var(--color-focus-ring);
     outline-offset: 2px;
   }
 }
 
-.trip-review__point--on {
+// El botón: cuadrado (radio de 8px) con borde y el número en gris; en verde
+// claro hasta el elegido y el elegido en verde
+.trip-review__button {
+  display: grid;
+  width: 3rem; // 48px: cuadrado
+  height: 3rem;
+  box-sizing: border-box;
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s); // 8px
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+  place-items: center;
+  transition: background-color 120ms ease;
+}
+
+.trip-review__step--on .trip-review__button {
   border-color: var(--color-success);
   background: var(--color-success-subtle);
   color: var(--color-success);
 }
 
-.trip-review__point--current {
+.trip-review__step--current .trip-review__button {
   background: var(--color-success);
   color: var(--color-on-success);
 }
 
+// Debajo, a 12px y centrado
 .trip-review__chosen {
   margin: 0;
+  font-size: var(--font-size-caption); // 12px
   text-align: center;
+}
+
+// «Añadir comentario», un enlace con icono pegado a la izquierda
+.trip-review__add-comment {
+  --padding-start: 0;
+
+  align-self: flex-start;
+  margin: 0;
 }
 
 .trip-review__error {
