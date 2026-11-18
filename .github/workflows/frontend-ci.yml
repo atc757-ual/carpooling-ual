@@ -6,11 +6,13 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-ci.yml'
+      - 'scripts/audit-check*.mjs'
   pull_request:
     branches: [main, dev]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-ci.yml'
+      - 'scripts/audit-check*.mjs'
 
 jobs:
   test:
@@ -34,8 +36,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # npm audit --omit=dev con nivel alto, con las excepciones revisadas y con
+      # fecha de scripts/audit-check.mjs (antes se prueba el propio script)
       - name: Audit dependencies
-        run: npm audit --omit=dev --audit-level=high
+        run: |
+          node --test ../scripts/audit-check.test.mjs
+          node ../scripts/audit-check.mjs frontend
 
       - name: Run linter
         run: npm run lint
