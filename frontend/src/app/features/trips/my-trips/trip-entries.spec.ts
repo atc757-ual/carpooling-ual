@@ -34,24 +34,27 @@ describe('trip entries', () => {
     expect(entryTab(passenger('r1', '2099-01-15T08:00:00Z'))).toBe('upcoming');
   });
 
-  it('mixes both roles by departure, with the trips to answer first in each day', () => {
-    const entries = [
+  it('mixes both roles of a tab by departure, with the trips to answer first in each day', () => {
+    const upcoming = [
       driverEntry(driverTrip('t1', 'published', '2099-01-15T09:00:00Z')),
       driverEntry(driverTrip('t2', 'published', '2099-01-15T11:00:00Z'), 2),
       passenger('r1', '2099-01-15T08:00:00Z'),
       passenger('r2', '2099-01-16T07:00:00Z'),
+    ];
+    const past = [
       driverEntry(driverTrip('t3', 'finished', '2099-01-10T09:00:00Z')),
       driverEntry(driverTrip('t4', 'finished', '2099-01-12T09:00:00Z')),
     ];
 
-    expect(ids(tabEntries(entries, 'upcoming'))).toEqual([
+    expect(ids(tabEntries(upcoming, 'upcoming'))).toEqual([
       'driver-t2',
       'passenger-r1',
       'driver-t1',
       'passenger-r2',
     ]);
-    expect(ids(tabEntries(entries, 'past'))).toEqual(['driver-t4', 'driver-t3']);
-    expect(tabEntries(entries, 'cancelled')).toEqual([]);
+    // La API ya da cada pestaña filtrada: aquí solo se ordena, la más reciente primero
+    expect(ids(tabEntries(past, 'past'))).toEqual(['driver-t4', 'driver-t3']);
+    expect(tabEntries([], 'cancelled')).toEqual([]);
   });
 
   it('groups them by day, keeping their order', () => {

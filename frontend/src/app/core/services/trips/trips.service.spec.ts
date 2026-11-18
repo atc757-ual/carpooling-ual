@@ -25,6 +25,28 @@ describe('TripsService', () => {
     expect(await trip).toEqual({ id: 't1' });
   });
 
+  it('gets a page of a «Tus viajes» tab with its total', async () => {
+    const page = trips.listMyTripEntries('past', 10);
+    const request = http.expectOne((req) => req.url === '/api/users/me/trip-entries');
+    expect(request.request.params.get('tab')).toBe('past');
+    expect(request.request.params.get('offset')).toBe('10');
+    expect(request.request.params.get('limit')).toBe('10');
+    request.flush([{ role: 'driver', trip: { id: 't1' } }], {
+      headers: { 'X-Total-Count': '12' },
+    });
+
+    expect(await page).toEqual({ items: [{ role: 'driver', trip: { id: 't1' } }], total: 12 });
+  });
+
+  it('rejects a page of «Tus viajes» with the API error', async () => {
+    const page = trips.listMyTripEntries('upcoming', 0);
+    http
+      .expectOne((req) => req.url === '/api/users/me/trip-entries')
+      .flush({ code: 'VALIDATION_FAILED' }, { status: 400, statusText: 'Bad Request' });
+
+    await expect(page).rejects.toBeInstanceOf(ApiError);
+  });
+
   it('gets a trip route', async () => {
     const route = trips.getRoute('t1');
     const response = {
