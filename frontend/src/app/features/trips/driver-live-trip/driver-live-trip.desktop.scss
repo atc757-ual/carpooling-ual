@@ -7,19 +7,6 @@
   align-self: flex-start;
 }
 
-// Escritorio: los pasajeros en una lista, uno debajo de otro (hay sitio), sin
-// carrusel, flechas ni puntos; así tampoco se solapan los bordes al pasar
-.pickup-carousel--list {
-  flex-direction: column;
-  overflow: visible;
-  scroll-snap-type: none;
-
-  .pickup-slide {
-    flex: none;
-    opacity: 1;
-  }
-}
-
 // Escritorio: sin el hueco de 12px que separa las pastillas en el móvil, para
 // que todas las secciones tengan el mismo espacio arriba
 .driver-live-trip__choice--desktop {

@@ -271,7 +271,7 @@
                       </span>
                     }
                   </div>
-                  @if (passengers().length > 1 && !sheet.isDesktop()) {
+                  @if (passengers().length > 1) {
                     <div class="pickups-head__arrows">
                       <button
                         type="button"
@@ -303,7 +303,6 @@
                      el que toca (el primero que no ha subido) -->
                   <section
                     class="pickup-carousel"
-                    [class.pickup-carousel--list]="sheet.isDesktop()"
                     appDragScroll
                     aria-roledescription="carrusel"
                     aria-label="Pasajeros por orden de recogida"
@@ -442,7 +441,7 @@
                   </section>
 
                   <!-- Los puntos, solo con más de un pasajero -->
-                  @if (passengers().length > 1 && !sheet.isDesktop()) {
+                  @if (passengers().length > 1) {
                     <div class="pickup-dots">
                       @for (request of passengers(); track request.id; let index = $index) {
                         <button
