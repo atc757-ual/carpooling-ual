@@ -24,7 +24,7 @@ ion-card-content {
 // Conductor: el texto a la izquierda y compartir a la derecha, a 16px
 .live-safety__row {
   display: flex;
-  align-items: flex-start; // el texto arriba: mismo hueco con el título
+  align-items: center; // el botón, centrado en vertical con el texto
   gap: var(--space-base);
 
   p {

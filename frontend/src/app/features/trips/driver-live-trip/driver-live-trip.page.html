@@ -524,7 +524,7 @@
                       type="button"
                       class="icon-btn icon-btn--reveal"
                       appRevealOnTouch
-                      appRevealHint="Repórtalo y cancelaremos el viaje."
+                      appRevealHint="Si no puedes seguir, repórtalo: lo revisará un administrador."
                       aria-label="Enviar un reporte: abre el formulario de la incidencia"
                       (click)="isReportingIncident.set(true)"
                     >
@@ -563,7 +563,9 @@
                 <ion-card-content>
                   <h2 class="text-subtitle">¿Algo va mal?</h2>
                   <div class="driver-live-trip__row">
-                    <p class="text-body-s text-color-muted">Repórtalo y cancelaremos el viaje.</p>
+                    <p class="text-body-s text-color-muted">
+                      Si no puedes seguir, repórtalo: lo revisará un administrador.
+                    </p>
                     <button
                       type="button"
                       class="icon-btn icon-btn--reveal"
