@@ -7,8 +7,8 @@
   padding-top: 0;
 }
 
-// Escritorio: «Recogidas» y su línea a lo ancho y, debajo, la etiqueta a la
-// izquierda y las flechas a la derecha
+// Escritorio: «Recogidas» con su recuento en una línea a lo ancho y, debajo,
+// la etiqueta a la izquierda y las flechas a la derecha
 .pickups-head--desktop {
   display: grid;
   grid-template-areas:
@@ -18,8 +18,21 @@
   align-items: center;
   gap: var(--space-xs) var(--space-s);
 
+  // «Recogidas» y, a su lado en la misma línea, «1 de 2 en el coche…»
   .pickups-head__text {
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--space-s);
     grid-area: text;
+    min-width: 0;
+
+    h2 {
+      flex: none;
+    }
+
+    p {
+      min-width: 0;
+    }
   }
 
   .pickups-head__tag {
