@@ -237,6 +237,7 @@ describe('Trips API (e2e)', () => {
         destinationName: 'Campus UAL · Parking P1 (Sur)',
         status: 'published',
         startedAt: null,
+        finishedBy: null,
         isLocationApproximate: false,
       });
       expect(response.headers.location).toBe(`/api/trips/${trip.id}`);
