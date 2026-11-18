@@ -49,7 +49,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Security
 
-- **Auditoría de dependencias con excepciones revisadas:** el CI de backend y frontend usa `scripts/audit-check.mjs` en lugar de `npm audit --audit-level=high`. Sigue fallando con cualquier aviso alto o crítico salvo los de su lista, cada uno con su GHSA, paquete, proyecto, rango, motivo y fecha de revisión; la excepción vuelve a fallar si caduca, si el aviso cambia de rango, si npm ofrece un arreglo compatible o si ya no hace falta. La primera es [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf) (`picomatch` ≤ 4.0.7, vía `typeorm`), sin versión que la arregle y que solo afecta a patrones glob elegidos por un atacante; se revisa el 18/12/2026.
+- **Auditoría de dependencias con excepciones revisadas:** el CI de backend y frontend usa `scripts/audit-check.mjs` en lugar de `npm audit --audit-level=high`. Sigue fallando con cualquier aviso alto o crítico salvo los de su lista, cada uno con su GHSA, paquete, proyecto, rango, motivo y fecha de revisión; la excepción vuelve a fallar si caduca, si el aviso cambia de rango, si npm ofrece un arreglo compatible o si ya no hace falta. La primera es [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf) (`picomatch` ≤ 4.0.7, vía `typeorm`), sin versión que la arregle y que solo afecta a patrones glob elegidos por un atacante; se revisa el 18/12/2026 (#331).
 
 ### Fixed
 
