@@ -1,12 +1,13 @@
 import { translate } from '@jsverse/transloco';
 import { DriverTrip, Trip, TripStatus } from '../../../core/models/driver.model';
+import { TripsTab } from '../../../core/models/my-trips.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
+
+export type { TripsTab } from '../../../core/models/my-trips.model';
 
 // Las pestañas de Tus viajes, una sola lista para el conductor y el pasajero.
 // «No realizados» y no «Cancelados»: ahí caen también las solicitudes
 // rechazadas y caducadas, que no canceló nadie
-export type TripsTab = 'upcoming' | 'past' | 'cancelled';
-
 const TRIPS_TAB_VALUES: readonly TripsTab[] = ['upcoming', 'past', 'cancelled'];
 
 // Las pestañas con su texto en el idioma activo
