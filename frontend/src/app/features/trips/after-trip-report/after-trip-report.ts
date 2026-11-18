@@ -73,6 +73,8 @@ export class AfterTripReport {
     const modal = await this.modalController.create({
       component: PassengerIncidentModal,
       componentProps: { tripId: this.tripId(), isDriver: this.isDriver(), isAfterTrip: true },
+      // Tan alta como el formulario (hoja abajo en el móvil, ventana en escritorio)
+      cssClass: 'info-dialog',
     });
     await modal.present();
     const { role } = await modal.onWillDismiss();
