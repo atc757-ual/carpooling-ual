@@ -79,6 +79,7 @@ describe('PublishTripPage', () => {
         publishingSuspendedUntil,
       }),
       listVehicles: vi.fn().mockResolvedValue(vehicles),
+      listMyTrips: vi.fn().mockResolvedValue([]),
       acceptDeclaration: vi.fn().mockResolvedValue({ hasLicenseDeclared: true }),
       publishTrip: vi.fn().mockResolvedValue({ id: 't1', offeredSeats: 2, maxDetourMin: 10 }),
     };
@@ -190,6 +191,16 @@ describe('PublishTripPage', () => {
     },
     COLD_START_TIMEOUT_MS,
   );
+
+  it('asks again for the next trip when coming back to the tab', async () => {
+    await openPage();
+    expect(driver['listMyTrips']).toHaveBeenCalledTimes(1);
+
+    page.ionViewWillEnter();
+    await harness.fixture.whenStable();
+
+    expect(driver['listMyTrips']).toHaveBeenCalledTimes(2);
+  });
 
   it('moves forward with the buttons and back to the previous step by its name', async () => {
     await openPage();

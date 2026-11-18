@@ -22,6 +22,9 @@
          que se cambia ahí mismo). El título de la pantalla va en la franja fija -->
     <ion-card class="trip-search__criteria">
       <ion-card-content>
+        <!-- El próximo viaje (o el que está en curso), dentro de la tarjeta y
+             encima de la búsqueda -->
+        <div class="trip-search__next-trip"><app-next-trip-card /></div>
         <app-trip-search-form [showNewSearch]="true" />
       </ion-card-content>
     </ion-card>

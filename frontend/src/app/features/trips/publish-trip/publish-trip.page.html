@@ -29,6 +29,9 @@
                franja fija -->
           <ion-card class="publish__form">
             <ion-card-content>
+              <!-- El próximo viaje (o el que está en curso), dentro de la tarjeta
+                   y encima de los pasos -->
+              <div class="publish__next-trip"><app-next-trip-card /></div>
               <form
                 class="publish__steps"
                 [formGroup]="tripForm"

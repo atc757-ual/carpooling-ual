@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   FormControl,
@@ -53,6 +53,7 @@ import {
   PickupModeControls,
   PickupModeField,
 } from '../pickup-mode-field/pickup-mode-field';
+import { NextTripCard } from '../next-trip-card/next-trip-card';
 import { PublishNextSteps } from '../publish-next-steps/publish-next-steps';
 import { VehiclePicker } from '../vehicle-picker/vehicle-picker';
 import { ReturnTripControls, ReturnTripField } from '../return-trip-field/return-trip-field';
@@ -146,6 +147,7 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
     TripRouteMap,
     PublishNextSteps,
     VehiclePicker,
+    NextTripCard,
   ],
   templateUrl: './publish-trip.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './publish-trip.page.scss'],
@@ -163,6 +165,7 @@ export class PublishTripPage implements OnInit {
   private readonly router = inject(Router);
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly celebration = inject(CelebrationService);
+  private readonly nextTrip = viewChild(NextTripCard);
   private readonly initialDeparture = getDefaultArrival();
 
   readonly loadState = signal<LoadState>('loading');
@@ -552,6 +555,12 @@ export class PublishTripPage implements OnInit {
     published: checkmarkCircleOutline,
     declared: checkmarkCircle,
   };
+
+  // Ionic guarda la pantalla: al volver a la pestaña, el próximo viaje se pide
+  // de nuevo
+  ionViewWillEnter(): void {
+    this.nextTrip()?.reload();
+  }
 
   ngOnInit(): void {
     // Al recargar, lo escrito se pierde: se empieza por el primer paso

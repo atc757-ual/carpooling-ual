@@ -99,6 +99,17 @@ describe('TripSearchPage', () => {
     expect(root.textContent).toContain('Tienes 2 solicitudes esperando respuesta.');
   });
 
+  it('asks again for the requests and the next trip when coming back to the tab', async () => {
+    const fixture = await setUp(null);
+    const listMine = vi.mocked(TestBed.inject(SeatRequestsService).listMine);
+    const calls = listMine.mock.calls.length;
+
+    fixture.componentInstance.ionViewWillEnter();
+    await fixture.whenStable();
+
+    expect(listMine.mock.calls).toHaveLength(calls * 2);
+  });
+
   it('invites to publish only to who has no car yet', async () => {
     const passenger = (await setUp(null)).nativeElement as HTMLElement;
     expect(passenger.textContent).toContain('¿Tienes coche?');

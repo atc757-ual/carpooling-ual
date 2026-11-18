@@ -1,0 +1,55 @@
+// «Próximo viaje»: como «Viaje en curso» (app-live-trip-banner), una tarjeta
+// azul claro con el borde de la marca, el viaje a la izquierda y los accesos
+// (botones de icono que muestran su texto) a la derecha, también en el móvil.
+// En curso va esa misma tarjeta. El espacio con lo de debajo lo pone el gap
+// de la pantalla; sin viaje, el elemento no ocupa sitio (si no, el gap
+// dejaría un hueco vacío)
+:host {
+  display: contents;
+}
+
+.next-trip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-base);
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-s); // 8px, como los avisos
+  border: var(--border-width-s) solid var(--color-primary);
+  border-radius: var(--radius-s); // 8px, como las tarjetas
+  background: var(--color-primary-subtle);
+}
+
+.next-trip__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.next-trip__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-link);
+}
+
+.next-trip__when {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-s);
+}
+
+.next-trip__route {
+  overflow-wrap: anywhere;
+}
+
+.next-trip__actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-s);
+}

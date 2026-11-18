@@ -1,4 +1,5 @@
-import { Component, computed, inject, resource } from '@angular/core';
+import { NextTripCard } from '../../trips/next-trip-card/next-trip-card';
+import { Component, computed, inject, resource, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonCard,
@@ -38,6 +39,7 @@ import { SectionHeading } from '../../tabs/section-heading/section-heading';
     IonContent,
     IonIcon,
     TripSearchForm,
+    NextTripCard,
   ],
   templateUrl: './trip-search.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './trip-search.page.scss'],
@@ -45,6 +47,7 @@ import { SectionHeading } from '../../tabs/section-heading/section-heading';
 export class TripSearchPage {
   private readonly auth = inject(AuthService);
   private readonly seatRequests = inject(SeatRequestsService);
+  private readonly nextTrip = viewChild(NextTripCard);
 
   // Sin coche registrado aún: se le invita a publicar
   readonly isDriver = computed(() => {
@@ -65,4 +68,11 @@ export class TripSearchPage {
 
   protected readonly pendingIcon = timeOutline;
   protected readonly carIcon = carOutline;
+
+  // Ionic guarda la pantalla: al volver a la pestaña, el próximo viaje y el
+  // aviso de solicitudes se piden de nuevo
+  ionViewWillEnter(): void {
+    this.nextTrip()?.reload();
+    this.myRequests.reload();
+  }
 }
