@@ -26,11 +26,6 @@
           />
         }
 
-        <!-- Viaje ya realizado: reportarlo (7 días, sin cancelar nada) -->
-        @if (isReportOpen(trip)) {
-          <app-after-trip-report [tripId]="trip.id" [isDriver]="true" />
-        }
-
         <ion-card class="driver-detail__impact">
           <ion-card-header>
             <ion-card-title>Impacto de este viaje</ion-card-title>

@@ -23,6 +23,7 @@ import { RevealOnTouch } from '../../../../shared/directives/reveal-on-touch.dir
 import { getFirstName } from '../../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../../matching/trip-results';
 import { TripSearchStateService } from '../../../matching/trip-search-state.service';
+import { AfterTripReport } from '../../after-trip-report/after-trip-report';
 import { PassengerIncidentModal } from '../passenger-incident-modal/passenger-incident-modal';
 import {
   freeCancellationUntil,
@@ -37,6 +38,7 @@ import {
 @Component({
   selector: 'app-passenger-request-actions',
   imports: [
+    AfterTripReport,
     IonButton,
     IonCard,
     IonCardContent,
@@ -157,6 +159,12 @@ export class PassengerRequestActions {
       default:
         return null;
     }
+  });
+
+  // Viaje ya realizado con plaza: reportarlo bajo «Este viaje ya terminó»
+  readonly canReportAfterTrip = computed(() => {
+    const status = this.request().status;
+    return this.trip().status === 'finished' && (status === 'accepted' || status === 'completed');
   });
 
   readonly canSearchAnother = computed(() => {

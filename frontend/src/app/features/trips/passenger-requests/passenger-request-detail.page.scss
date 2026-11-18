@@ -1,3 +1,5 @@
+@use '../live-desktop-column' as live-column;
+
 // En el móvil, una columna; en escritorio, 8 + 4 (las dos columnas se desplazan juntas)
 .passenger-detail {
   box-sizing: border-box;
@@ -242,6 +244,12 @@ ion-card-content.passenger-detail__state {
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     align-items: start;
     gap: var(--space-l);
+  }
+
+  // La columna de 4, una sola tarjeta con sus secciones separadas por una
+  // línea fina, como la de 8 y «En curso» (_live-desktop-column.scss)
+  .passenger-detail__aside {
+    @include live-column.card;
   }
 }
 

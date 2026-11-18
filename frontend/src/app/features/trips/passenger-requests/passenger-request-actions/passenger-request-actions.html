@@ -60,15 +60,15 @@
         </div>
       }
 
+      <!-- Cerrada: sin botón desactivado, solo por qué. Viaje realizado,
+           debajo, reportarlo (7 días, sin cancelar nada) -->
       @if (closedReason(); as reason) {
-        <div class="passenger-actions__block">
-          <div class="notice notice--info" aria-hidden="true">
-            <span>{{ reason }}</span>
-          </div>
-          <ion-button expand="block" fill="outline" [disabled]="true">
-            {{ cancelLabel() }}<span class="visually-hidden">. {{ reason }}</span>
-          </ion-button>
+        <div class="notice notice--info">
+          <span>{{ reason }}</span>
         </div>
+        @if (canReportAfterTrip()) {
+          <app-after-trip-report [tripId]="trip().id" />
+        }
       }
 
       @if (canSearchAnother()) {
