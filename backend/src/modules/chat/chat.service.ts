@@ -13,7 +13,8 @@ import {
   CHAT_MAX_MESSAGES_PER_MINUTE,
   chatRoleOf,
   type ChatRole,
-  isChatOpen,
+  isConversationOpen,
+  seatKey,
 } from './chat-rules';
 import { ChatMessage, type QuickReply } from './entities/chat-message.entity';
 import { ChatRead } from './entities/chat-read.entity';
@@ -218,7 +219,10 @@ export class ChatService {
       userId,
       ref,
     );
-    if (!isChatOpen(trip)) {
+    const closedSeats = await this.requestsService.completedSeatKeys([trip.id]);
+    if (
+      !isConversationOpen(trip, closedSeats.has(seatKey(trip.id, passengerId)))
+    ) {
       throw new ChatClosedError(trip.id);
     }
     await this.assertUnderRateLimit(userId);

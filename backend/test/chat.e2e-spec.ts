@@ -325,6 +325,37 @@ describe('Chat API (e2e)', () => {
       .expect(201);
   });
 
+  it('closes the chat of a passenger who got off, while the trip goes on for the others', async () => {
+    const { tripId, dan, pia, leo, leoRequestId } = await confirmedTrip();
+    await app.get(RequestsService).accept(dan.id, leoRequestId);
+    await setDepartureIn(dataSource, tripId, 5);
+    await app.get(TripsService).start(dan.id, tripId);
+    // pia ya se ha bajado: su plaza, cerrada
+    await dataSource.query(
+      `UPDATE requests SET status = 'completed', dropped_off_at = now(), dropped_off_by = 'driver'
+        WHERE trip_id = $1 AND passenger_id = $2`,
+      [tripId, pia.id],
+    );
+
+    const fromPia = await api('post', `/trips/${tripId}/messages`, pia)
+      .send({ text: 'Gracias' })
+      .expect(409);
+    expect(fromPia.body).toMatchObject({ code: 'CHAT_CLOSED' });
+    await api('post', withPassenger(`/trips/${tripId}/messages`, pia), dan)
+      .send({ text: 'Hasta otra' })
+      .expect(409);
+    // Con leo, que sigue a bordo, el chat sigue abierto
+    await api('post', withPassenger(`/trips/${tripId}/messages`, leo), dan)
+      .send({ quickReply: 'on_my_way' })
+      .expect(201);
+    const conversation = await api(
+      'get',
+      withPassenger(`/trips/${tripId}/conversation`, pia),
+      dan,
+    ).expect(200);
+    expect(conversation.body).toMatchObject({ isOpen: false });
+  });
+
   it('closes the chat 24 h after the trip finishes, and keeps it readable', async () => {
     const { tripId, dan, pia } = await confirmedTrip();
     await api('post', `/trips/${tripId}/messages`, pia)

@@ -9,12 +9,14 @@ import { Trip } from '../trips/entities/trip.entity';
 import { TripStatsService } from '../trips/trip-stats.service';
 import { TripsService } from '../trips/trips.service';
 import { UsersService } from '../users/users.service';
-import { Incident } from './entities/incident.entity';
+import { AFTER_TRIP_REPORT_MS, Incident } from './entities/incident.entity';
 import type {
   IncidentCategory,
   IncidentStatus,
 } from './entities/incident.entity';
 import { IncidentNotFoundError } from './errors/incident-not-found.error';
+import { ReportWindowClosedError } from './errors/report-window-closed.error';
+import { NotTripPassengerError } from '../requests/errors/not-trip-passenger.error';
 import {
   recordIncidentEvent,
   reporterRoleOf,
@@ -103,6 +105,45 @@ export class IncidentsService {
           requestId,
           reporterId,
           source: 'trip',
+          category: input.category,
+          description: input.description,
+        }),
+      );
+      await this.recordReported(manager, created, trip.driverId);
+      return created;
+    });
+    return this.toView(incident);
+  }
+
+  // Reportar un viaje ya realizado (hasta 7 días después de terminar): no
+  // cancela nada, solo queda para que lo revise un administrador. Lo pueden
+  // hacer el conductor y quien viajó en él
+  async reportAfterTrip(
+    reporterId: string,
+    tripId: string,
+    input: ReportIncidentInput,
+  ): Promise<IncidentView> {
+    const { trip } = await this.tripsService.getById(tripId);
+    if (
+      trip.driverId !== reporterId &&
+      !(await this.requestsService.isAcceptedPassenger(tripId, reporterId))
+    ) {
+      throw new NotTripPassengerError(tripId);
+    }
+    if (
+      trip.status !== 'finished' ||
+      trip.finishedAt === null ||
+      Date.now() > trip.finishedAt.getTime() + AFTER_TRIP_REPORT_MS
+    ) {
+      throw new ReportWindowClosedError(tripId);
+    }
+    const incident = await this.dataSource.transaction(async (manager) => {
+      const created = await manager.save(
+        manager.create(Incident, {
+          tripId,
+          requestId: null,
+          reporterId,
+          source: 'after_trip',
           category: input.category,
           description: input.description,
         }),

@@ -7,7 +7,12 @@ import { UsersService } from '../users/users.service';
 import type { Trip } from '../trips/entities/trip.entity';
 import type { TripStatus } from '../trips/trip-status';
 import { TripsService } from '../trips/trips.service';
-import { CHAT_RETENTION_MS, type ChatRole, isChatOpen } from './chat-rules';
+import {
+  CHAT_RETENTION_MS,
+  type ChatRole,
+  isConversationOpen,
+  seatKey,
+} from './chat-rules';
 import {
   type ChatMessageView,
   ChatService,
@@ -81,11 +86,13 @@ export class ConversationsService {
     const drivenTripIds = trips
       .filter(({ driverId }) => driverId === userId)
       .map(({ id }) => id);
-    const [passengersByTrip, lastMessages, unread] = await Promise.all([
-      this.requestsService.acceptedPassengersByTrip(drivenTripIds),
-      this.lastMessages(tripIds),
-      this.unreadCounts(userId, tripIds),
-    ]);
+    const [passengersByTrip, lastMessages, unread, closedSeats] =
+      await Promise.all([
+        this.requestsService.acceptedPassengersByTrip(drivenTripIds),
+        this.lastMessages(tripIds),
+        this.unreadCounts(userId, tripIds),
+        this.requestsService.completedSeatKeys(tripIds),
+      ]);
     const conversations = trips
       .flatMap((trip) =>
         (trip.driverId === userId
@@ -96,7 +103,10 @@ export class ConversationsService {
           passengerId,
           lastMessage: lastMessageOf(lastMessages, trip.id, passengerId),
           unreadCount: unread.get(conversationKey(trip.id, passengerId)) ?? 0,
-          isOpen: isChatOpen(trip),
+          isOpen: isConversationOpen(
+            trip,
+            closedSeats.has(seatKey(trip.id, passengerId)),
+          ),
         })),
       )
       .filter(({ isOpen, lastMessage }) => isOpen || lastMessage !== null)
@@ -128,17 +138,21 @@ export class ConversationsService {
     ref: ConversationRef,
   ): Promise<ConversationView> {
     const { trip, passengerId } = await this.chat.getConversation(userId, ref);
-    const [lastMessages, unread, profiles] = await Promise.all([
+    const [lastMessages, unread, profiles, closedSeats] = await Promise.all([
       this.lastMessages([trip.id]),
       this.unreadCounts(userId, [trip.id]),
       this.usersService.getPublicProfiles([trip.driverId, passengerId]),
+      this.requestsService.completedSeatKeys([trip.id]),
     ]);
     const row: ConversationRow = {
       trip,
       passengerId,
       lastMessage: lastMessageOf(lastMessages, trip.id, passengerId),
       unreadCount: unread.get(conversationKey(trip.id, passengerId)) ?? 0,
-      isOpen: isChatOpen(trip),
+      isOpen: isConversationOpen(
+        trip,
+        closedSeats.has(seatKey(trip.id, passengerId)),
+      ),
     };
     return this.toView(userId, row, profiles);
   }

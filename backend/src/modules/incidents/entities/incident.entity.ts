@@ -31,8 +31,14 @@ export const TRIP_INCIDENT_CATEGORIES: readonly IncidentCategory[] = [
 ];
 
 // De dónde viene (tipo incident_source): del viaje en curso, al cancelarlo
-// (RF-23), o de una denuncia del chat del viaje
-export const INCIDENT_SOURCES = ['trip', 'chat'] as const;
+// (RF-23), de una denuncia del chat del viaje o de un viaje ya realizado
+// (after_trip: hasta 7 días después, sin cancelar nada)
+export const INCIDENT_SOURCES = ['trip', 'chat', 'after_trip'] as const;
+
+// Días tras terminar el viaje en que se puede reportar (como las valoraciones)
+export const AFTER_TRIP_REPORT_DAYS = 7;
+export const AFTER_TRIP_REPORT_MS =
+  AFTER_TRIP_REPORT_DAYS * 24 * 60 * 60 * 1000;
 export type IncidentSource = (typeof INCIDENT_SOURCES)[number];
 
 // Estado de la revisión del administrador (CU-12; tipo incident_status):

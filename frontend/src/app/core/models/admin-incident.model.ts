@@ -9,7 +9,7 @@ export const INCIDENT_CATEGORIES = [
 ] as const;
 export type IncidentCategory = (typeof INCIDENT_CATEGORIES)[number];
 // De dónde viene: el viaje en curso (al cancelarlo) o una denuncia del chat
-export type IncidentSource = 'trip' | 'chat';
+export type IncidentSource = 'trip' | 'chat' | 'after_trip';
 
 // Registrada → en revisión (la lleva un administrador) → atendida
 export type IncidentStatus = 'open' | 'in_review' | 'reviewed';

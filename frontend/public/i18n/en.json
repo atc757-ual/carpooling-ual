@@ -295,7 +295,7 @@
     "breadcrumbFaq": "Question",
     "searchPlaceholder": "Search for your question",
     "faqSubtitle": "Everything you need to know, explained.",
-    "faqLoadError":"We couldn't load the question.",
+    "faqLoadError": "We couldn't load the question.",
     "resultsTitle": "Search results",
     "searching": "Searching…",
     "audience": {
@@ -584,6 +584,7 @@
     "INVALID_BOARD_CODE": "The code does not match. Ask the passenger for their 4 digits again.",
     "ALREADY_BOARDED": "This passenger is already checked in as on board.",
     "PASSENGER_NOT_BOARDED": "The passenger has not boarded yet: validate their pickup code first.",
+    "REPORT_WINDOW_CLOSED": "You can only report a trip in the 7 days after it finishes.",
     "PICKUP_GRACE_PERIOD_ACTIVE": "Wait at least 5 minutes after the pickup time to mark them as a no-show.",
     "ACCOUNT_HAS_ACTIVE_TRIPS": "You cannot delete your account with upcoming trips or bookings. Cancel them first.",
     "LAST_ADMIN": "This is the last administrator. Appoint another one first.",

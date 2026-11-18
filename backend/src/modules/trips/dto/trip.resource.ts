@@ -184,6 +184,14 @@ export class TripResource {
   finishedBy: TripFinisher | null;
 
   @ApiProperty({
+    format: 'date-time',
+    nullable: true,
+    description:
+      'When the trip finished (a report after the trip is accepted until 7 days later); null until it finishes',
+  })
+  finishedAt: string | null;
+
+  @ApiProperty({
     description:
       'True when origin and destination are rounded to about 500 m (campus parkings excepted): whoever is not the driver, an accepted passenger or an administrator does not see the exact points',
   })
@@ -269,6 +277,7 @@ export function toTripResource({
     status: trip.status,
     startedAt: trip.startedAt?.toISOString() ?? null,
     finishedBy: trip.finishedBy ?? null,
+    finishedAt: trip.finishedAt?.toISOString() ?? null,
     isLocationApproximate,
   };
 }

@@ -35,4 +35,18 @@ export class IncidentsService {
       throw ApiError.fromHttpError(error);
     }
   }
+
+  // Reportar un viaje ya realizado (hasta 7 días después): no cancela nada
+  async reportAfterTrip(tripId: string, payload: ReportIncidentPayload): Promise<CreatedIncident> {
+    try {
+      return await firstValueFrom(
+        this.http.post<CreatedIncident>(
+          `${this.apiUrl}/trips/${tripId}/incidents/after-trip`,
+          payload,
+        ),
+      );
+    } catch (error) {
+      throw ApiError.fromHttpError(error);
+    }
+  }
 }

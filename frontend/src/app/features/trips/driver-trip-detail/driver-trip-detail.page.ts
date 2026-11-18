@@ -24,9 +24,11 @@ import {
   IonSpinner,
 } from '@ionic/angular';
 import { carOutline, leafOutline } from 'ionicons/icons';
+import { DriverTrip } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { ReviewTarget, TripReviewCard } from '../trip-review/trip-review-card';
+import { AfterTripReport, isAfterTripReportOpen } from '../after-trip-report/after-trip-report';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { TRIP_STATUS_LABELS } from '../../../shared/utils/trip-status.util';
@@ -63,6 +65,7 @@ import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
     DriverTripRoute,
     LiveTripBanner,
     TripReviewCard,
+    AfterTripReport,
   ],
   templateUrl: './driver-trip-detail.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './driver-trip-detail.page.scss'],
@@ -146,6 +149,8 @@ export class DriverTripDetailPage {
     };
   });
 
+  // «¿Algo fue mal?», solo en los 7 días siguientes a terminar
+  protected readonly isReportOpen = (trip: DriverTrip) => isAfterTripReportOpen(trip);
   protected readonly carIcon = carOutline;
   protected readonly leafIcon = leafOutline;
 

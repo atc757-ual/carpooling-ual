@@ -10186,6 +10186,119 @@
         ]
       }
     },
+    "/api/trips/{tripId}/incidents/after-trip": {
+      "post": {
+        "description": "For the driver or a passenger who travelled. Nothing is cancelled: the incident stays for an administrator to review.",
+        "operationId": "IncidentsController_reportAfterTrip",
+        "parameters": [
+          {
+            "name": "tripId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportIncidentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "headers": {
+              "Location": {
+                "description": "Link to the new incident"
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: NOT_TRIP_PASSENGER",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: REPORT_WINDOW_CLOSED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Report a finished trip, up to 7 days after it finishes",
+        "tags": [
+          "incidents"
+        ]
+      }
+    },
     "/api/users/me/incidents": {
       "get": {
         "operationId": "IncidentsController_listMine",
@@ -17105,6 +17218,12 @@
             "nullable": true,
             "description": "How the trip finished: the driver, the passengers (the last one got off or left) or the system (closed automatically 1 h after the estimated arrival); null until it finishes"
           },
+          "finishedAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the trip finished (a report after the trip is accepted until 7 days later); null until it finishes"
+          },
           "isLocationApproximate": {
             "type": "boolean",
             "description": "True when origin and destination are rounded to about 500 m (campus parkings excepted): whoever is not the driver, an accepted passenger or an administrator does not see the exact points"
@@ -17142,6 +17261,7 @@
           "status",
           "startedAt",
           "finishedBy",
+          "finishedAt",
           "isLocationApproximate",
           "returnTrip"
         ]
@@ -17271,6 +17391,12 @@
             "nullable": true,
             "description": "How the trip finished: the driver, the passengers (the last one got off or left) or the system (closed automatically 1 h after the estimated arrival); null until it finishes"
           },
+          "finishedAt": {
+            "type": "object",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the trip finished (a report after the trip is accepted until 7 days later); null until it finishes"
+          },
           "isLocationApproximate": {
             "type": "boolean",
             "description": "True when origin and destination are rounded to about 500 m (campus parkings excepted): whoever is not the driver, an accepted passenger or an administrator does not see the exact points"
@@ -17298,6 +17424,7 @@
           "status",
           "startedAt",
           "finishedBy",
+          "finishedAt",
           "isLocationApproximate"
         ]
       },
@@ -19219,7 +19346,8 @@
             "type": "string",
             "enum": [
               "trip",
-              "chat"
+              "chat",
+              "after_trip"
             ],
             "description": "trip: reported while cancelling a trip in progress; chat: a report of the trip chat"
           },

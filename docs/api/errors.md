@@ -141,7 +141,7 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `INVALID_REQUEST_TRANSITION` | 409  | Cambio de estado que el diagrama de estados de la solicitud no permite (p. ej. aceptar una solicitud rechazada)                                                                                                                                                                     |
 | `INVALID_BOARD_CODE`         | 400  | El conductor valida la subida (`POST /api/requests/{id}/board`) con un código de 4 cifras que no es el del pasajero                                                                                                                                                                 |
 | `ALREADY_BOARDED`            | 409  | El conductor valida la subida de un pasajero que ya estaba validado                                                                                                                                                                                                                 |
-| `PASSENGER_NOT_BOARDED`      | 409  | Se marca la bajada («Ha bajado» o «He llegado») de un pasajero que no ha validado su código de recogida (no está a bordo)                                                                                                                                                              |
+| `PASSENGER_NOT_BOARDED`      | 409  | Se marca la bajada («Ha bajado» o «He llegado») de un pasajero que no ha validado su código de recogida (no está a bordo)                                                                                                                                                           |
 | `PICKUP_GRACE_PERIOD_ACTIVE` | 400  | El conductor marca «No se presentó» (`POST /api/requests/{id}/no-show`) antes de que pasen 5 minutos desde la hora de recogida. `message` dice cuántos minutos faltan                                                                                                               |
 | `NOT_TRIP_PASSENGER`         | 403  | Registrar una incidencia en un viaje sin ser su conductor ni un pasajero aceptado                                                                                                                                                                                                   |
 
@@ -156,8 +156,9 @@ Además, aceptar o cancelar pueden responder `TRIP_FULL`, `TRIP_NOT_OPEN`, `TRIP
 | `INCIDENT_INVOLVED_ADMIN`     | 403  | Empezar, dejar o atender la revisión de una incidencia en cuyo viaje está implicado el administrador (la registró, lo conduce o pidió plaza): la gestiona otro (CU-12) |
 | `INCIDENT_REVIEW_TAKEN`       | 409  | Empezar, dejar o atender una incidencia que está revisando otro administrador                                                                                          |
 | `INCIDENT_INVALID_TRANSITION` | 409  | Atender o dejar una incidencia sin haber empezado a revisarla (registrada → en revisión → atendida)                                                                    |
+| `REPORT_WINDOW_CLOSED`        | 409  | Reportar un viaje ya realizado que no ha terminado o del que han pasado más de 7 días desde que finalizó (`finished_at`)                                               |
 
-Registrar una incidencia puede responder además `TRIP_NOT_IN_PROGRESS` (ver _Viajes_) o `NOT_TRIP_PASSENGER` (ver _Solicitudes de plaza_).
+Registrar una incidencia puede responder además `TRIP_NOT_IN_PROGRESS` (ver _Viajes_) o `NOT_TRIP_PASSENGER` (ver _Solicitudes de plaza_). Reportar un viaje ya realizado (`POST /api/trips/{id}/incidents/after-trip`) responde `REPORT_WINDOW_CLOSED` en lugar de `TRIP_NOT_IN_PROGRESS`.
 
 ## Reseñas y reputación (`reputation`)
 

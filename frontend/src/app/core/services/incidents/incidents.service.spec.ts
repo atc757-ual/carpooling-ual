@@ -57,4 +57,20 @@ describe('IncidentsService', () => {
 
     await expect(promise).rejects.toBeInstanceOf(ApiError);
   });
+
+  it('reports a finished trip, and translates its errors', async () => {
+    const payload = { category: 'other' as const, description: 'El conductor llegó tarde.' };
+    const sent = service.reportAfterTrip('t1', payload);
+    const req = http.expectOne('/api/trips/t1/incidents/after-trip');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(payload);
+    req.flush({ id: 'inc-2' });
+    expect((await sent).id).toBe('inc-2');
+
+    const late = service.reportAfterTrip('t1', payload);
+    http
+      .expectOne('/api/trips/t1/incidents/after-trip')
+      .flush({ code: 'REPORT_WINDOW_CLOSED' }, { status: 409, statusText: 'Conflict' });
+    await expect(late).rejects.toBeInstanceOf(ApiError);
+  });
 });

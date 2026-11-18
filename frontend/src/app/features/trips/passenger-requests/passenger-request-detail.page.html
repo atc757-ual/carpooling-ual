@@ -244,6 +244,12 @@
               targetRole="driver"
             />
           }
+          <!-- Viaje ya realizado: reportarlo (7 días, sin cancelar nada) -->
+          @if (
+            isReportOpen(trip) && (request.status === 'accepted' || request.status === 'completed')
+          ) {
+            <app-after-trip-report [tripId]="trip.id" />
+          }
         </aside>
       }
     }

@@ -43,6 +43,7 @@ import { PassengerProgress } from './passenger-progress/passenger-progress';
 import { PassengerRequestActions } from './passenger-request-actions/passenger-request-actions';
 import { PassengerRequestRoute } from './passenger-request-route/passenger-request-route';
 import { TripReviewCard } from '../trip-review/trip-review-card';
+import { AfterTripReport, isAfterTripReportOpen } from '../after-trip-report/after-trip-report';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
 import { buildLiveShareText } from '../trip-share-text';
@@ -72,6 +73,7 @@ const BOARD_CODE_LEAD_MS = 10 * 60_000;
     PassengerRequestRoute,
     PassengerRequestActions,
     TripReviewCard,
+    AfterTripReport,
   ],
   templateUrl: './passenger-request-detail.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './passenger-request-detail.page.scss'],
@@ -225,6 +227,8 @@ export class PassengerRequestDetailPage {
     await this.tripShare.share({ title: 'Mi viaje en Carpooling UAL', text });
   }
 
+  // «¿Algo fue mal?», solo en los 7 días siguientes a terminar
+  protected readonly isReportOpen = (trip: Trip) => isAfterTripReportOpen(trip);
   protected readonly firstName = (name: string) => getFirstName(name);
   protected readonly personIcon = personOutline;
   // El coche, como la pestaña «En curso»

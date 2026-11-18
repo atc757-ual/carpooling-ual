@@ -238,6 +238,7 @@ describe('Trips API (e2e)', () => {
         status: 'published',
         startedAt: null,
         finishedBy: null,
+        finishedAt: null,
         isLocationApproximate: false,
       });
       expect(response.headers.location).toBe(`/api/trips/${trip.id}`);

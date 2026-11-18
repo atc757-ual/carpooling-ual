@@ -44,6 +44,7 @@ describe('ConversationsService', () => {
     tripsService = {};
     requestsService = {
       acceptedTripIdsOfPassenger: jest.fn(),
+      completedSeatKeys: jest.fn().mockResolvedValue(new Set<string>()),
     };
     usersService = {
       getPublicProfiles: jest.fn().mockResolvedValue(
@@ -86,6 +87,26 @@ describe('ConversationsService', () => {
       expect(result.lastMessage).toBeNull();
       expect(result.unreadCount).toBe(0);
       expect(result.isOpen).toBe(true);
+    });
+
+    it('closes the conversation of a passenger who already got off', async () => {
+      (messagesRepository.query as jest.Mock)
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
+      (messagesRepository.findBy as jest.Mock).mockResolvedValueOnce([]);
+      (requestsService.completedSeatKeys as jest.Mock).mockResolvedValueOnce(
+        new Set(['trip-1:passenger-1']),
+      );
+
+      const result = await service.getForTrip('driver-1', {
+        tripId: 'trip-1',
+        passengerId: 'passenger-1',
+      });
+
+      expect(requestsService.completedSeatKeys).toHaveBeenCalledWith([
+        'trip-1',
+      ]);
+      expect(result.isOpen).toBe(false);
     });
 
     it('takes the newest of the direct and the former shared messages as the last one', async () => {
