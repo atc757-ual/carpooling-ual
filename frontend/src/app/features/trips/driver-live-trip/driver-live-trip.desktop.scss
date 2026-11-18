@@ -30,14 +30,21 @@
       flex: none;
     }
 
+    // Separados por un punto centrado: «Recogidas · 1 de 2 en el coche»
     p {
       min-width: 0;
+
+      &::before {
+        content: '·';
+        margin-right: var(--space-s);
+      }
     }
   }
 
   .pickups-head__tag {
     grid-area: tag;
     justify-self: start;
+    white-space: nowrap; // «Ubicación en directo», sin partir
   }
 
   .pickups-head__arrows {
