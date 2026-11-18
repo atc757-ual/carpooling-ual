@@ -125,7 +125,7 @@
   gap: var(--space-s);
   // Sin borde ni relleno (ya va dentro de la tarjeta «Recogidas»): la que
   // toca se ve en los puntos de abajo; la de quien va en el coche, por su
-  // fondo azul claro, y la de quien ya se bajó, por el verde claro
+  // fondo azul claro, y la de quien ya se bajó, en gris
   border-radius: var(--radius-s);
   background: var(--color-surface);
   opacity: 0.6;
@@ -144,10 +144,11 @@
     opacity: 1;
   }
 
-  // Ya se bajó (también lleva --done): en verde claro con el borde verde
+  // Ya se bajó (también lleva --done): en gris, como desactivada
   &--off {
-    border-color: var(--color-success);
-    background: var(--color-success-subtle);
+    border-color: var(--color-border);
+    background: var(--color-surface-subtle);
+    opacity: 0.6;
   }
 }
 

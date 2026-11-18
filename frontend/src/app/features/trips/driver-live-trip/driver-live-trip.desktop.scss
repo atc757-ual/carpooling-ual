@@ -22,7 +22,7 @@
   .pickups-head__text {
     flex-direction: row;
     align-items: baseline;
-    gap: var(--space-s);
+    gap: 0;
     grid-area: text;
     min-width: 0;
 
@@ -36,7 +36,7 @@
 
       &::before {
         content: '·';
-        margin-right: var(--space-s);
+        margin-inline: var(--space-s); // 8px a cada lado
       }
     }
   }
