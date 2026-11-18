@@ -249,3 +249,8 @@
     gap: 0.125rem; // 2px
   }
 }
+
+// El próximo viaje dentro de la tarjeta: 16px hasta los pasos, solo si hay
+.publish__next-trip:has(.next-trip) {
+  margin-bottom: var(--space-base);
+}

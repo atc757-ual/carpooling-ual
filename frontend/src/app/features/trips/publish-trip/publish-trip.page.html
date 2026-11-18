@@ -1,7 +1,5 @@
 <ion-content>
   <div class="tab-page publish">
-    <!-- El próximo viaje (o el que está en curso), si lo tiene -->
-    <app-next-trip-card />
     <!-- Mientras se preparan los parkings y el estado del conductor, nada (es
          un instante); más adelante, un esqueleto de la pantalla -->
     @switch (loadState()) {
@@ -31,6 +29,9 @@
                franja fija -->
           <ion-card class="publish__form">
             <ion-card-content>
+              <!-- El próximo viaje (o el que está en curso), dentro de la tarjeta
+                   y encima de los pasos -->
+              <div class="publish__next-trip"><app-next-trip-card /></div>
               <form
                 class="publish__steps"
                 [formGroup]="tripForm"
