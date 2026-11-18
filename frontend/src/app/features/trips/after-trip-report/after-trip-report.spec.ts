@@ -43,6 +43,7 @@ describe('AfterTripReport', () => {
     expect(create).toHaveBeenCalledWith({
       component: PassengerIncidentModal,
       componentProps: { tripId: 't1', isDriver: true, isAfterTrip: true },
+      cssClass: 'info-dialog',
     });
     // Cerrado sin enviar: sigue ofreciendo reportar
     expect(fixture.componentInstance.isSent()).toBe(false);

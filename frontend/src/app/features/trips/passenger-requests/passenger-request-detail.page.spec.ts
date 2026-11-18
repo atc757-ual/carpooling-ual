@@ -336,7 +336,8 @@ describe('PassengerRequestDetailPage', () => {
   });
 
   it('says it in the past and lets the passenger review the driver once the trip ended', async () => {
-    const root = await render(seatRequest('accepted'), { ...TRIP, status: 'finished' });
+    const finishedAt = new Date().toISOString();
+    const root = await render(seatRequest('accepted'), { ...TRIP, status: 'finished', finishedAt });
 
     expect(fixture.componentInstance.statusLabel()).toBeTruthy();
     expect(root.querySelector('app-trip-review-card')?.textContent).toContain(

@@ -399,10 +399,21 @@ describe('DriverTripActions', () => {
   });
 
   it('shows that a finished trip is over and offers to report it below', async () => {
-    const root = await render({ ...TRIP, status: 'finished' });
+    const finishedAt = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const root = await render({ ...TRIP, status: 'finished', finishedAt });
 
+    expect(root.querySelector('ion-card-title')).toBeNull();
+    expect(root.querySelector('.notice--icon ion-icon')).not.toBeNull();
     expect(root.querySelector('.notice')?.textContent?.trim()).toBe('Este viaje ya terminó.');
     expect(root.querySelectorAll('ion-button')).toHaveLength(0);
     expect(root.querySelector('app-after-trip-report')?.textContent).toContain('¿Algo fue mal?');
+  });
+
+  it('stops offering the report 7 days after the trip finished', async () => {
+    const finishedAt = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+    const root = await render({ ...TRIP, status: 'finished', finishedAt });
+
+    expect(root.querySelector('.notice')?.textContent?.trim()).toBe('Este viaje ya terminó.');
+    expect(root.querySelector('app-after-trip-report')).toBeNull();
   });
 });
