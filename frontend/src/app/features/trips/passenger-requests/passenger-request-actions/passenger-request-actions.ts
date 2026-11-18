@@ -10,7 +10,13 @@ import {
   IonSpinner,
   ModalController,
 } from '@ionic/angular';
-import { documentTextOutline, searchOutline, warningOutline } from 'ionicons/icons';
+import {
+  checkmarkCircleOutline,
+  documentTextOutline,
+  informationCircleOutline,
+  searchOutline,
+  warningOutline,
+} from 'ionicons/icons';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { Trip } from '../../../../core/models/driver.model';
 import { SeatRequest } from '../../../../core/models/seat-request.model';
@@ -23,7 +29,7 @@ import { RevealOnTouch } from '../../../../shared/directives/reveal-on-touch.dir
 import { getFirstName } from '../../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../../matching/trip-results';
 import { TripSearchStateService } from '../../../matching/trip-search-state.service';
-import { AfterTripReport } from '../../after-trip-report/after-trip-report';
+import { AfterTripReport, isAfterTripReportOpen } from '../../after-trip-report/after-trip-report';
 import { PassengerIncidentModal } from '../passenger-incident-modal/passenger-incident-modal';
 import {
   freeCancellationUntil,
@@ -162,10 +168,15 @@ export class PassengerRequestActions {
   });
 
   // Viaje ya realizado con plaza: reportarlo bajo «Este viaje ya terminó»
+  // ... y solo en los 7 días siguientes a terminar
   readonly canReportAfterTrip = computed(() => {
     const status = this.request().status;
-    return this.trip().status === 'finished' && (status === 'accepted' || status === 'completed');
+    return isAfterTripReportOpen(this.trip()) && (status === 'accepted' || status === 'completed');
   });
+  // El icono del aviso: hecho, o cualquier otro motivo de cierre
+  readonly closedIcon = computed(() =>
+    this.trip().status === 'finished' ? checkmarkCircleOutline : informationCircleOutline,
+  );
 
   readonly canSearchAnother = computed(() => {
     const status = this.request().status;

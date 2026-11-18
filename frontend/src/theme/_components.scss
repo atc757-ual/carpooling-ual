@@ -1431,7 +1431,8 @@ ion-toggle {
 .section-item__title.section-item__title {
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-subtitle);
+  // 20px, como los títulos de tarjeta en escritorio (el subtítulo llega a 22)
+  font-size: 1.25rem; // 20px
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-subtitle);
 }

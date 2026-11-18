@@ -1,8 +1,9 @@
 <!-- Sin nada que hacer (p. ej. viaje ya realizado), sin tarjeta vacía -->
 @if (hasContent()) {
   <ion-card class="passenger-actions">
-    <!-- En «En curso», sin título: «¿Algo va mal?» ya lleva el suyo -->
-    @if (!inlineIncident()) {
+    <!-- En «En curso», sin título: «¿Algo va mal?» ya lleva el suyo. Cerrada y
+         sin «Buscar con prioridad», tampoco: solo queda el aviso -->
+    @if (!inlineIncident() && (!closedReason() || canSearchAnother())) {
       <ion-card-header>
         <ion-card-title>Acciones de tu solicitud</ion-card-title>
       </ion-card-header>
@@ -64,6 +65,7 @@
            debajo, reportarlo (7 días, sin cancelar nada) -->
       @if (closedReason(); as reason) {
         <div class="notice notice--info">
+          <ion-icon [icon]="closedIcon()" aria-hidden="true" />
           <span>{{ reason }}</span>
         </div>
         @if (canReportAfterTrip()) {
