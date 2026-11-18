@@ -1,6 +1,6 @@
 import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IonButton, IonIcon, IonRouterLink } from '@ionic/angular';
+import { IonIcon } from '@ionic/angular';
 import { carOutline, chatbubblesOutline, personOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
@@ -10,6 +10,7 @@ import { formatDateLabel } from '../../../shared/components/ui/datetime-field/da
 import { formatTime } from '../../matching/trip-results';
 import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
 import { LiveTripBanner } from '../my-trips/live-trip-banner/live-trip-banner';
+import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 import { isOpenRequest, NextTrip, nextTripLink, nextTripStatus, pickNextTrip } from './next-trip';
 
 // «Próximo viaje», arriba de Buscar y de Publicar: el viaje más cercano del
@@ -20,7 +21,7 @@ import { isOpenRequest, NextTrip, nextTripLink, nextTripStatus, pickNextTrip } f
 // la pestaña (ionViewWillEnter)
 @Component({
   selector: 'app-next-trip-card',
-  imports: [RouterLink, IonButton, IonIcon, IonRouterLink, LiveTripBanner],
+  imports: [RouterLink, IonIcon, LiveTripBanner, RevealOnTouch],
   templateUrl: './next-trip-card.html',
   styleUrl: './next-trip-card.scss',
 })

@@ -3,8 +3,8 @@
   <app-live-trip-banner [route]="route()" [detail]="liveDetail()" [link]="link()" />
 } @else if (next(); as next) {
   <section class="next-trip" aria-labelledby="next-trip-title">
-    <!-- 8 + 4 en escritorio: el viaje a la izquierda y el acceso a la derecha;
-         en el móvil, uno debajo de otro -->
+    <!-- Como «Viaje en curso»: el viaje a la izquierda y los accesos (botones
+         de icono que muestran su texto) a la derecha, también en el móvil -->
     <div class="next-trip__text">
       <span id="next-trip-title" class="text-eyebrow next-trip__eyebrow"> Próximo viaje </span>
       <div class="next-trip__when">
@@ -32,13 +32,26 @@
       <span class="text-body next-trip__route">{{ route() }}</span>
     </div>
     <div class="next-trip__actions">
-      <ion-button [routerLink]="link()">{{ actionLabel() }}</ion-button>
       @if (chatLink(); as chat) {
-        <ion-button fill="outline" [routerLink]="chat">
-          <ion-icon slot="start" [icon]="chatIcon" aria-hidden="true" />
-          Chat con el conductor
-        </ion-button>
+        <a
+          class="icon-btn icon-btn--reveal"
+          appRevealOnTouch
+          aria-label="Chat con el conductor"
+          [routerLink]="chat"
+        >
+          <ion-icon [icon]="chatIcon" aria-hidden="true" />
+          <span class="icon-btn__label" aria-hidden="true">Chat con el conductor</span>
+        </a>
       }
+      <a
+        class="icon-btn icon-btn--reveal"
+        appRevealOnTouch
+        [attr.aria-label]="actionLabel()"
+        [routerLink]="link()"
+      >
+        <ion-icon [icon]="driverIcon" aria-hidden="true" />
+        <span class="icon-btn__label" aria-hidden="true">{{ actionLabel() }}</span>
+      </a>
     </div>
   </section>
 }

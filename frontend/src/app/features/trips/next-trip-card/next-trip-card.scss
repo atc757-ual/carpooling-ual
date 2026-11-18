@@ -1,25 +1,29 @@
-// «Próximo viaje»: tarjeta blanca con borde (como las de Tus viajes; en curso
-// va la de arriba de Tus viajes, app-live-trip-banner). El espacio
-// con lo de debajo lo pone el gap de la pantalla; sin viaje, el elemento no
-// ocupa sitio (si no, el gap dejaría un hueco vacío)
+// «Próximo viaje»: como «Viaje en curso» (app-live-trip-banner), una tarjeta
+// azul claro con el borde de la marca, el viaje a la izquierda y los accesos
+// (botones de icono que muestran su texto) a la derecha, también en el móvil.
+// En curso va esa misma tarjeta. El espacio con lo de debajo lo pone el gap
+// de la pantalla; sin viaje, el elemento no ocupa sitio (si no, el gap
+// dejaría un hueco vacío)
 :host {
   display: contents;
 }
 
 .next-trip {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-s) var(--space-base);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-base);
   width: 100%;
   box-sizing: border-box;
   padding: var(--space-s); // 8px, como los avisos
-  border: var(--border-width-s) solid var(--color-border-subtle);
+  border: var(--border-width-s) solid var(--color-primary);
   border-radius: var(--radius-s); // 8px, como las tarjetas
-  background: var(--color-surface);
+  background: var(--color-primary-subtle);
 }
 
 .next-trip__text {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: var(--space-xs);
   min-width: 0;
@@ -45,20 +49,7 @@
 
 .next-trip__actions {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--space-xs);
-
-  ion-button {
-    margin: 0;
-  }
-}
-
-// Escritorio (desde 768 px): 8 + 4, el viaje a la izquierda y el acceso a la
-// derecha
-@media (min-width: 48rem) {
-  .next-trip {
-    grid-template-columns: 2fr 1fr;
-    align-items: center;
-  }
+  flex: none;
+  align-items: center;
+  gap: var(--space-s);
 }
