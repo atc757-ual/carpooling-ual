@@ -200,21 +200,10 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'finished', 5)]);
       cy.intercept('GET', '/api/users/me/reviews*', []);
       cy.intercept('GET', '/api/users/me/pending-reviews', []);
-      // En escritorio, «Terminar viaje» va en su sección; en el móvil es el
-      // primer botón de la fila de acciones del final de la hoja: se abre a su
-      // parada de arriba y se baja hasta el final, como al arrastrarla hacia
-      // arriba (Cypress no desplaza el ion-content solo)
-      if (isDesktop) {
-        cy.contains(`${live} ion-button`, 'Terminar viaje').click();
-      } else {
-        cy.get<HTMLIonModalElement>('ion-modal.live-sheet').then(([sheet]) =>
-          sheet.setCurrentBreakpoint(sheet.breakpoints?.at(-1) ?? 0.92),
-        );
-        cy.get<HTMLIonContentElement>('ion-modal.live-sheet ion-content').then(([content]) =>
-          content.scrollToBottom(0),
-        );
-        cy.get(`${live} [aria-label="Terminar el viaje"]`).click();
-      }
+      // Sin pasajeros que llevar, el aviso «Ya no queda nadie por llevar»
+      // ocupa el sitio del botón de terminar (en escritorio y en el móvil)
+      cy.contains(live, 'Ya no queda nadie por llevar');
+      cy.contains(`${live} ion-button`, 'Terminar viaje').click();
       // Aún en Almería centro, a unos 5 km del campus: avisa en la misma hoja
       cy.contains(live, 'del destino');
       cy.contains(`${live} ion-button`, 'Terminar igualmente').click();
