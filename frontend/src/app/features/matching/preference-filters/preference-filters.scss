@@ -43,21 +43,20 @@
   }
 }
 
-// Cada casilla, una fila de 48px con el texto a la izquierda y la casilla a
-// la derecha, centrados en vertical (con relleno: un alto mínimo dejaba el
-// texto arriba) y separadas por una línea fina
-.preference-filters__option {
-  width: 100%;
-  padding-block: 0.75rem; // 12px arriba y abajo: 48px con la casilla de 24px
-  border-block-end: var(--border-width-s) solid var(--color-border-subtle);
+// Las filas, sin el relleno lateral de ion-item (el de la hoja ya basta) y
+// con el icono azul de 20px
+.preference-filters__options ion-list {
+  padding: 0;
+  background: transparent;
 }
 
-.preference-filters__label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-s);
+.preference-filters__options ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --background: transparent;
 
   ion-icon {
+    margin-inline-end: var(--space-s);
     font-size: 1.25rem; // 20px
     color: var(--color-link);
   }

@@ -15,21 +15,24 @@
   <ng-template>
     <app-modal-header title="Filtros" (closed)="isOpen.set(false)" />
     <div class="modal-body preference-filters__body">
+      <!-- El patrón de Ionic para casillas: una fila (ion-item) por opción, con
+           la línea fina entre ellas, el alto táctil y el centrado de serie -->
       <fieldset class="preference-filters__options">
         <legend class="text-label text-label--strong">Preferencias del conductor</legend>
-        @for (option of options; track option.value) {
-          <ion-checkbox
-            class="preference-filters__option"
-            justify="space-between"
-            [checked]="selected().has(option.value)"
-            (ionChange)="toggled.emit(option.value)"
-          >
-            <span class="preference-filters__label">
-              <ion-icon [icon]="option.icon" aria-hidden="true" />
-              {{ option.label }}
-            </span>
-          </ion-checkbox>
-        }
+        <ion-list lines="full">
+          @for (option of options; track option.value) {
+            <ion-item>
+              <ion-icon slot="start" [icon]="option.icon" aria-hidden="true" />
+              <ion-checkbox
+                justify="space-between"
+                [checked]="selected().has(option.value)"
+                (ionChange)="toggled.emit(option.value)"
+              >
+                {{ option.label }}
+              </ion-checkbox>
+            </ion-item>
+          }
+        </ion-list>
       </fieldset>
       <p class="text-body-s text-color-muted">
         Solo filtran la lista: un conductor que no indicó esa preferencia no aparece.

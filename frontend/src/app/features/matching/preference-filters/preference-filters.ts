@@ -1,5 +1,5 @@
 import { Component, input, output, signal } from '@angular/core';
-import { IonButton, IonCheckbox, IonIcon, IonModal } from '@ionic/angular';
+import { IonButton, IonCheckbox, IonIcon, IonItem, IonList, IonModal } from '@ionic/angular';
 import {
   chatbubblesOutline,
   leafOutline,
@@ -26,7 +26,7 @@ const OPTIONS: readonly { value: PreferenceFilter; label: string; icon: string }
 // filtra al momento; «Ver N viajes» cierra y «Quitar filtros» los quita todos
 @Component({
   selector: 'app-preference-filters',
-  imports: [IonButton, IonCheckbox, IonIcon, IonModal, ModalHeader],
+  imports: [IonButton, IonCheckbox, IonIcon, IonItem, IonList, IonModal, ModalHeader],
   templateUrl: './preference-filters.html',
   styleUrl: './preference-filters.scss',
 })
