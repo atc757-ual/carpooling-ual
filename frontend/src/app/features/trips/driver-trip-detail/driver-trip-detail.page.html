@@ -89,7 +89,11 @@
         <span
           class="status status--heading"
           [class.status--info]="trip.status === 'published'"
-          [class.status--accepted]="trip.status === 'confirmed' || trip.status === 'in_progress'"
+          [class.status--accepted]="
+            trip.status === 'confirmed' ||
+            trip.status === 'in_progress' ||
+            trip.status === 'finished'
+          "
           [class.status--danger]="trip.status === 'cancelled'"
         >
           {{ statusLabel() }}
