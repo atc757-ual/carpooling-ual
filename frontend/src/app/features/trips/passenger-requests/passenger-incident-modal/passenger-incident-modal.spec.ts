@@ -10,6 +10,7 @@ describe('PassengerIncidentModal', () => {
   let component: PassengerIncidentModal;
 
   const reportTripIncident = vi.fn().mockResolvedValue({ id: 'inc-1' });
+  const reportAfterTrip = vi.fn().mockResolvedValue({ id: 'inc-2' });
   const dismiss = vi.fn().mockResolvedValue(true);
 
   beforeEach(async () => {
@@ -19,7 +20,7 @@ describe('PassengerIncidentModal', () => {
       providers: [
         provideIonicAngular(),
         { provide: ModalController, useValue: { dismiss } },
-        { provide: IncidentsService, useValue: { reportTripIncident } },
+        { provide: IncidentsService, useValue: { reportTripIncident, reportAfterTrip } },
       ],
     });
 
@@ -86,6 +87,21 @@ describe('PassengerIncidentModal', () => {
 
     expect(component.errorMessage()).not.toBeNull();
     expect(dismiss).not.toHaveBeenCalled();
+  });
+
+  it('reports a finished trip without cancelling anything', async () => {
+    component.isAfterTrip = true;
+    component.description.set('El conductor llegó muy tarde a recogerme.');
+
+    expect(component.submitLabel).toBe('Enviar reporte');
+    await component.handleConfirm();
+
+    expect(reportAfterTrip).toHaveBeenCalledWith('trip-123', {
+      category: 'technical',
+      description: 'El conductor llegó muy tarde a recogerme.',
+    });
+    expect(reportTripIncident).not.toHaveBeenCalled();
+    expect(dismiss).toHaveBeenCalledWith({ reported: true }, 'confirm');
   });
 
   it('dismisses modal on cancel', async () => {

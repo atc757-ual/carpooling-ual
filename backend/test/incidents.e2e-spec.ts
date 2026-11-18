@@ -229,6 +229,78 @@ describe('Incidents API (e2e)', () => {
     expect(response.body).toMatchObject({ code: 'NOT_TRIP_PASSENGER' });
   });
 
+  // «¿Algo fue mal?» en un viaje ya realizado: hasta 7 días después de
+  // terminar, sin cancelar nada
+  describe('reports after the trip', () => {
+    const DAY_MS = 24 * 60 * 60 * 1000;
+
+    // Un viaje de dan con pia aceptada, terminado hace esos días
+    async function finishedTrip(
+      daysAgo: number,
+    ): Promise<{ driver: string; passenger: string; tripId: string }> {
+      const { driver, tripId } = await driverWithTrip('dan');
+      const passenger = await tokenFor('pia', ['passenger']);
+      await acceptedRequest(driver, passenger, tripId);
+      const finishedAt = new Date(Date.now() - daysAgo * DAY_MS);
+      await dataSource.query(
+        `UPDATE trips SET status = 'finished', started_at = $1, finished_at = $1
+          WHERE id = $2`,
+        [finishedAt, tripId],
+      );
+      return { driver, passenger, tripId };
+    }
+
+    function reportAfter(token: string, tripId: string) {
+      return api('post', `/trips/${tripId}/incidents/after-trip`, token).send({
+        category: 'other',
+        description: BREAKDOWN,
+      });
+    }
+
+    it('lets the driver and the passenger report it within 7 days', async () => {
+      const { driver, passenger, tripId } = await finishedTrip(6);
+
+      const byPassenger = await reportAfter(passenger, tripId).expect(201);
+      expect(byPassenger.body).toMatchObject({
+        '@type': 'Incident',
+        source: 'after_trip',
+        category: 'other',
+        description: BREAKDOWN,
+        reporter: { role: 'passenger' },
+      });
+      const byDriver = await reportAfter(driver, tripId).expect(201);
+      expect(byDriver.body).toMatchObject({ reporter: { role: 'driver' } });
+      // No cancela nada: el viaje sigue terminado
+      const [trip] = await dataSource.query<{ status: string }[]>(
+        'SELECT status FROM trips WHERE id = $1',
+        [tripId],
+      );
+      expect(trip.status).toBe('finished');
+    });
+
+    it('closes the window 7 days after the trip finished', async () => {
+      const { passenger, tripId } = await finishedTrip(8);
+
+      const response = await reportAfter(passenger, tripId).expect(409);
+      expect(response.body).toMatchObject({ code: 'REPORT_WINDOW_CLOSED' });
+    });
+
+    it('does not take a trip that has not finished yet', async () => {
+      const { driver, tripId } = await driverWithTrip('dan');
+
+      const response = await reportAfter(driver, tripId).expect(409);
+      expect(response.body).toMatchObject({ code: 'REPORT_WINDOW_CLOSED' });
+    });
+
+    it('only takes the driver and who travelled', async () => {
+      const { tripId } = await finishedTrip(1);
+      const sam = await tokenFor('sam', ['passenger']);
+
+      const response = await reportAfter(sam, tripId).expect(403);
+      expect(response.body).toMatchObject({ code: 'NOT_TRIP_PASSENGER' });
+    });
+  });
+
   // CU-12: revisión por el administrador y quién ve cada incidencia
   describe('review by the administrator (CU-12)', () => {
     const RESOLUTION = 'The driver was contacted and the car repaired';
