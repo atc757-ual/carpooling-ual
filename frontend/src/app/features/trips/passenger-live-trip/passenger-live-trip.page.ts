@@ -29,7 +29,11 @@ import { TripCallService } from '../../../core/services/trips/trip-call.service'
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ApiError } from '../../../core/models/api-error.model';
-import { injectLiveSheet } from '../../../shared/utils/desktop-query.util';
+import {
+  injectLiveSheet,
+  injectMatchesMedia,
+  WIDE_ASIDE_MEDIA_QUERY,
+} from '../../../shared/utils/desktop-query.util';
 import { LicensePlate } from '../../../shared/components/ui/license-plate/license-plate';
 import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
@@ -267,6 +271,11 @@ export class PassengerLiveTripPage {
     ),
   );
   readonly sheet = injectLiveSheet(RIDE_URL);
+  // Las acciones (llegada, compartir, reportar, SOS) en filas con su texto
+  // solo si la columna de 4 tiene sitio; si no (móvil y tabletas), en la fila
+  // de botones cortos
+  private readonly isWideAside = injectMatchesMedia(WIDE_ASIDE_MEDIA_QUERY);
+  readonly hasActionRows = computed(() => this.sheet.isDesktop() && this.isWideAside());
 
   // Al terminar, la hoja no se mueve: la valoración cabe a la altura que tenía
   // durante el viaje (pidió el autor el 17/11 que no subiera sola)

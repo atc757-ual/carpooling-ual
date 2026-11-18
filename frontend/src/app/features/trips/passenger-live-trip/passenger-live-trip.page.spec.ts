@@ -19,6 +19,7 @@ import {
   LIVE_TRIP_MAP_RENDERER_FACTORY,
   LOAD_LEAFLET,
 } from '../passenger-requests/live-trip-map/live-trip-map-runtime';
+import { DESKTOP_MEDIA_QUERY } from '../../../shared/utils/desktop-query.util';
 import { PassengerLiveTripPage, ridePhase } from './passenger-live-trip.page';
 
 const TRIP = {
@@ -297,6 +298,33 @@ describe('PassengerLiveTripPage', () => {
     page.handleReviewDone('skipped');
     expect(page.reviewState()).toBe('skipped');
     expect(page.givenReview()).toBeNull();
+  });
+
+  it('uses the row of short buttons on a tablet, with the SOS in the corner', async () => {
+    // Escritorio, pero sin el ancho de WIDE_ASIDE_MEDIA_QUERY
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query === DESKTOP_MEDIA_QUERY,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    try {
+      await render(request({ boardedAt: '2099-01-15T06:45:00.000Z' }));
+
+      expect(page.hasActionRows()).toBe(false);
+      expect(root.querySelector('.live-actions--compact')).not.toBeNull();
+      expect(root.querySelector('.icon-btns-open')).toBeNull();
+      expect(root.querySelectorAll('.ride__side .section-item')).toHaveLength(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('keeps the action rows on a wide screen', async () => {
+    await render(request({ boardedAt: '2099-01-15T06:45:00.000Z' }));
+
+    expect(page.hasActionRows()).toBe(true);
+    expect(root.querySelector('.live-actions')).toBeNull();
+    expect(root.querySelector('.icon-btns-open .section-item')).not.toBeNull();
   });
 
   it('knows the phase of the passenger in the trip', () => {
