@@ -264,14 +264,14 @@
                         }
                       </p>
                     }
+                    @if (isSharing()) {
+                      <span class="pickups-head__tag text-caption">
+                        <ion-icon [icon]="locationIcon" aria-hidden="true" />
+                        Ubicación en directo
+                      </span>
+                    }
                   </div>
-                  @if (isSharing()) {
-                    <span class="pickups-head__tag text-caption">
-                      <ion-icon [icon]="locationIcon" aria-hidden="true" />
-                      Ubicación en directo
-                    </span>
-                  }
-                  @if (passengers().length > 1) {
+                  @if (passengers().length > 1 && !sheet.isDesktop()) {
                     <div class="pickups-head__arrows">
                       <button
                         type="button"
@@ -303,6 +303,7 @@
                      el que toca (el primero que no ha subido) -->
                   <section
                     class="pickup-carousel"
+                    [class.pickup-carousel--list]="sheet.isDesktop()"
                     appDragScroll
                     aria-roledescription="carrusel"
                     aria-label="Pasajeros por orden de recogida"
@@ -441,7 +442,7 @@
                   </section>
 
                   <!-- Los puntos, solo con más de un pasajero -->
-                  @if (passengers().length > 1) {
+                  @if (passengers().length > 1 && !sheet.isDesktop()) {
                     <div class="pickup-dots">
                       @for (request of passengers(); track request.id; let index = $index) {
                         <button

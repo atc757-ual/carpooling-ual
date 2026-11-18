@@ -1,0 +1,21 @@
+// «En curso» del conductor: lo que solo cambia en escritorio y la etiqueta de
+// la cabecera de «Recogidas». En su propio fichero porque la hoja principal
+// está al límite de tamaño de estilos por componente
+
+// «Ubicación en directo», debajo del recuento y a su ancho (no estirada)
+.pickups-head__tag {
+  align-self: flex-start;
+}
+
+// Escritorio: los pasajeros en una lista, uno debajo de otro (hay sitio), sin
+// carrusel, flechas ni puntos; así tampoco se solapan los bordes al pasar
+.pickup-carousel--list {
+  flex-direction: column;
+  overflow: visible;
+  scroll-snap-type: none;
+
+  .pickup-slide {
+    flex: none;
+    opacity: 1;
+  }
+}
