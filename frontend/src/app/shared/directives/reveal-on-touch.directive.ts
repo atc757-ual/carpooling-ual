@@ -9,7 +9,7 @@ const revealedButton = signal<RevealOnTouch | null>(null);
 
 // Qué hace el botón desplegado (su appRevealHint), para enseñarlo en una línea
 // junto a una fila de botones; null si no hay ninguno desplegado o no lo dice
-export const revealedHint = computed(() => revealedButton()?.hint() ?? null);
+export const revealedHint = computed(() => revealedButton()?.appRevealHint() ?? null);
 
 // Un botón de icono que muestra su texto (.icon-btn--reveal, del tema): con
 // ratón, al pasar por encima; con el dedo (o un lápiz), el primer toque solo lo
@@ -26,7 +26,7 @@ export class RevealOnTouch {
   private readonly element: HTMLElement = inject(ElementRef).nativeElement;
   readonly isRevealed = computed(() => revealedButton() === this);
   // Opcional: qué hace, en una frase (ver revealedHint)
-  readonly hint = input<string | null>(null, { alias: 'appRevealHint' });
+  readonly appRevealHint = input<string | null>(null);
   private pointerType = '';
   private timer: ReturnType<typeof setTimeout> | undefined;
 
