@@ -17,6 +17,15 @@ export class RequestStatsService {
     private readonly requestsRepository: Repository<SeatRequest>,
   ) {}
 
+  // Los viajes que el pasajero ya hizo (su plaza, completada)
+  async completedTripIds(passengerId: string): Promise<string[]> {
+    const requests = await this.requestsRepository.find({
+      select: { tripId: true },
+      where: { passengerId, status: 'completed' },
+    });
+    return requests.map(({ tripId }) => tripId);
+  }
+
   // Viajes con plaza aceptada de cada pasajero
   async countAcceptedByPassengers(
     passengerIds: readonly string[],
