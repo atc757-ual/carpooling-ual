@@ -108,25 +108,29 @@
                   <span class="search-results__badge">{{ resultsCountLabel() }}</span>
                   <span class="search-results__time"> {{ resultsTimeWindow() }}</span>
                 </output>
-                <ion-select
-                  class="search-results__sort"
-                  aria-label="Ordenar viajes"
-                  interface="popover"
-                  fill="outline"
-                  label="Ordenar por"
-                  labelPlacement="floating"
-                  [value]="sortOrder()"
-                  (ionChange)="handleSortChange($event.detail.value)"
-                >
-                  <ion-select-option value="detour">Mejor coincidencia</ion-select-option>
-                  <ion-select-option value="arrival">Llegada más temprana</ion-select-option>
-                </ion-select>
+                <!-- «Ordenar por» y, a su lado, el botón «Filtros» -->
+                <div class="search-results__tools">
+                  <ion-select
+                    class="search-results__sort"
+                    aria-label="Ordenar viajes"
+                    interface="popover"
+                    fill="outline"
+                    label="Ordenar por"
+                    labelPlacement="floating"
+                    [value]="sortOrder()"
+                    (ionChange)="handleSortChange($event.detail.value)"
+                  >
+                    <ion-select-option value="detour">Mejor coincidencia</ion-select-option>
+                    <ion-select-option value="arrival">Llegada más temprana</ion-select-option>
+                  </ion-select>
+                  <app-preference-filters
+                    [selected]="preferenceFilters()"
+                    [resultCount]="sortedTrips().length"
+                    (toggled)="handlePreferenceToggle($event)"
+                    (cleared)="clearPreferenceFilters()"
+                  />
+                </div>
               </div>
-              <app-preference-filters
-                class="search-results__filters"
-                [selected]="preferenceFilters()"
-                (toggled)="handlePreferenceToggle($event)"
-              />
               @if (sortedTrips().length === 0) {
                 <!-- Ningún viaje pasa los filtros: se quitan aquí mismo -->
                 <div class="search-results__filtered-empty">

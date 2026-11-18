@@ -1,37 +1,73 @@
-// Una sola línea que se desplaza de lado si no cabe (como los filtros de Tus
-// viajes); chips blancos con borde y, los elegidos, en azul
-.preference-filters {
+// El botón «Filtros», junto a «Ordenar por», con cuántos hay elegidos en una
+// pastilla azul; la hoja (o ventana) con una casilla por preferencia
+:host {
+  display: contents;
+}
+
+.preference-filters__open {
+  flex: none;
+  min-height: 2.75rem; // 44px, el mínimo táctil
+  margin: 0;
+}
+
+.preference-filters__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.25rem; // 20px
+  height: 1.25rem;
+  margin-inline-start: var(--space-xs);
+  padding-inline: var(--space-xs);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+}
+
+.preference-filters__body {
   display: flex;
-  flex-wrap: nowrap;
-  gap: var(--space-xs);
-  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.preference-filters__options {
+  display: flex;
+  flex-direction: column;
   margin: 0;
   padding: 0;
-  overflow-x: auto;
   border: 0;
-  scrollbar-width: none;
 
-  ion-chip {
-    flex: none;
-    min-height: 2.75rem; // 44px, el mínimo táctil
-    margin: 0;
-    border: var(--border-width-s) solid var(--color-border);
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-label);
-    font-weight: var(--font-weight-medium);
-    --background: var(--color-surface);
-    --color: var(--color-text);
-
-    ion-icon {
-      margin-inline: 0 var(--space-xs);
-      color: inherit;
-    }
+  legend {
+    margin-block-end: var(--space-xs);
+    padding: 0;
   }
+}
 
-  ion-chip.preference-filters__chip--selected {
-    border-color: var(--color-primary);
-    font-weight: var(--font-weight-semibold);
-    --background: var(--color-primary);
-    --color: var(--color-on-primary);
+// Cada casilla, una fila de 48px con el texto a la izquierda y la casilla a
+// la derecha, separadas por una línea fina
+.preference-filters__option {
+  min-height: 3rem; // 48px
+  border-block-end: var(--border-width-s) solid var(--color-border-subtle);
+}
+
+.preference-filters__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+
+  ion-icon {
+    font-size: 1.25rem; // 20px
+    color: var(--color-link);
+  }
+}
+
+// Uno al lado del otro, a partes iguales
+.preference-filters__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-s);
+
+  ion-button {
+    margin: 0;
   }
 }

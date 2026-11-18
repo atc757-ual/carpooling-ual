@@ -1,12 +1,14 @@
-import { Component, input, output } from '@angular/core';
-import { IonChip, IonIcon } from '@ionic/angular';
+import { Component, input, output, signal } from '@angular/core';
+import { IonButton, IonCheckbox, IonIcon, IonModal } from '@ionic/angular';
 import {
   chatbubblesOutline,
   leafOutline,
   musicalNotesOutline,
+  optionsOutline,
   pawOutline,
   volumeMuteOutline,
 } from 'ionicons/icons';
+import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { PreferenceFilter } from './preference-filter';
 
 const OPTIONS: readonly { value: PreferenceFilter; label: string; icon: string }[] = [
@@ -17,33 +19,25 @@ const OPTIONS: readonly { value: PreferenceFilter; label: string; icon: string }
   { value: 'quiet', label: 'Tranquilo', icon: volumeMuteOutline },
 ];
 
-// Filtros por las preferencias del conductor, en chips con su icono como los
-// filtros de la guía (app-filter-chips), pero de elección múltiple: cada uno
-// se activa o se quita por separado (aria-pressed). Avisa del que se pulsa
+// Filtros por las preferencias del conductor (19/11, decidido con el autor:
+// las pastillas ocupaban mucho): un botón «Filtros» con cuántos hay elegidos,
+// junto a «Ordenar por», que abre una hoja en el móvil y una ventana en
+// escritorio (info-dialog) con una casilla por preferencia. Cada casilla
+// filtra al momento; «Ver N viajes» cierra y «Quitar filtros» los quita todos
 @Component({
   selector: 'app-preference-filters',
-  imports: [IonChip, IonIcon],
-  template: `
-    <fieldset class="preference-filters">
-      <legend class="visually-hidden">Filtrar por preferencias del conductor</legend>
-      @for (option of options; track option.value) {
-        <ion-chip
-          button="true"
-          [class.preference-filters__chip--selected]="selected().has(option.value)"
-          [attr.aria-pressed]="selected().has(option.value)"
-          (click)="toggled.emit(option.value)"
-        >
-          <ion-icon [icon]="option.icon" aria-hidden="true" />
-          {{ option.label }}
-        </ion-chip>
-      }
-    </fieldset>
-  `,
+  imports: [IonButton, IonCheckbox, IonIcon, IonModal, ModalHeader],
+  templateUrl: './preference-filters.html',
   styleUrl: './preference-filters.scss',
 })
 export class PreferenceFilters {
   readonly selected = input.required<ReadonlySet<PreferenceFilter>>();
+  // Cuántos viajes pasan los filtros elegidos
+  readonly resultCount = input.required<number>();
   readonly toggled = output<PreferenceFilter>();
+  readonly cleared = output<void>();
 
+  readonly isOpen = signal(false);
   protected readonly options = OPTIONS;
+  protected readonly filtersIcon = optionsOutline;
 }

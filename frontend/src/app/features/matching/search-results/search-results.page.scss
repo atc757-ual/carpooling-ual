@@ -153,18 +153,30 @@ ion-card-content.search-results__state:has(> .search-results__requested) > :last
 }
 
 // Selector desplegable estándar con notch como los de buscar y publicar (fill="outline")
+// «Ordenar por» y «Filtros» en una fila: en el móvil van primero, arriba, y
+// el combo ocupa lo que deja el botón; en escritorio, a la derecha
+.search-results__tools {
+  display: flex;
+  order: -1;
+  align-items: center;
+  gap: var(--space-s);
+
+  @media (min-width: 768px) {
+    order: 1;
+    flex: none;
+  }
+}
+
 .search-results__sort {
-  order: -1; // En móvil el combo va primero arriba
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   min-height: 3rem; // 48px de alto
   --min-height: 3rem;
   height: 3rem;
   font-size: var(--font-size-body-s);
 
   @media (min-width: 768px) {
-    order: 1; // En escritorio va a la derecha
     flex: 0 0 auto;
-    width: auto;
     min-width: 14rem;
   }
 
@@ -293,11 +305,6 @@ ion-card-content.search-results__state {
 }
 
 // Filtros por preferencias, encima de la lista
-.search-results__filters {
-  display: block;
-  margin-block: var(--space-s);
-}
-
 // Ningún viaje pasa los filtros: el texto y «Quitar filtros», centrados
 .search-results__filtered-empty {
   display: flex;
