@@ -1,3 +1,4 @@
+import { TripAutoFinishService } from './trip-auto-finish.service';
 import { TripLifecycleScheduler } from './trip-lifecycle.scheduler';
 import { TripExpiryService } from './trip-expiry.service';
 import { TripRemindersService } from './trip-reminders.service';
@@ -8,6 +9,7 @@ describe('TripLifecycleScheduler', () => {
   const cancelUnstartedTripsSpy = jest.fn().mockResolvedValue(2);
   const remindUnstartedTrips = jest.fn().mockResolvedValue(1);
   const expireUnfilledTrips = jest.fn().mockResolvedValue(1);
+  const finishAbandonedTrips = jest.fn().mockResolvedValue(1);
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -23,6 +25,7 @@ describe('TripLifecycleScheduler', () => {
       {
         expireUnfilledTrips,
       } as unknown as TripExpiryService,
+      { finishAbandonedTrips } as unknown as TripAutoFinishService,
     );
   });
 
@@ -39,5 +42,14 @@ describe('TripLifecycleScheduler', () => {
     expect(expireUnfilledTrips).toHaveBeenCalled();
     expect(remindUnstartedTrips).toHaveBeenCalled();
     expect(cancelUnstartedTripsSpy).toHaveBeenCalled();
+    expect(finishAbandonedTrips).toHaveBeenCalled();
+  });
+
+  it('says nothing when there is nothing to close', async () => {
+    cancelUnstartedTripsSpy.mockResolvedValueOnce(0);
+    finishAbandonedTrips.mockResolvedValueOnce(0);
+
+    await expect(scheduler.handleCron()).resolves.toBeUndefined();
+    expect(finishAbandonedTrips).toHaveBeenCalled();
   });
 });

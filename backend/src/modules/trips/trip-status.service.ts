@@ -207,6 +207,8 @@ export class TripStatusService {
           ? {
               finishedAt: trip.finishedAt?.toISOString() ?? null,
               finishDistanceM: trip.finishDistanceM ?? null,
+              // v6: cómo terminó (conductor, pasajeros o sistema)
+              finishedBy: trip.finishedBy ?? null,
             }
           : {}),
       },

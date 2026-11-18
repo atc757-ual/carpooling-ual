@@ -32,6 +32,9 @@ export const NOTIFICATION_TYPES = [
   'trip_start_reminder',
   // El viaje llegó al corte sin pasajeros y se cerró
   'trip_expired',
+  // Nadie terminó el viaje en curso: lo cerró el sistema 1 h después de la
+  // llegada estimada (al conductor)
+  'trip_auto_finished',
   'terms_updated',
   'privacy_updated',
 ] as const;

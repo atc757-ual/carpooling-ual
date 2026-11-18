@@ -42,7 +42,7 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `trip.confirmed` (v3)      | Se acepta la primera solicitud                                                                     | `trips/trip-status.service.ts`         |
 | `trip.reopened` (v3)       | Vuelve a publicado al cancelarse todas las aceptadas                                               | `trips/trip-status.service.ts`         |
 | `trip.started` (v4)        | Empieza el viaje                                                                                   | `trips/trip-status.service.ts`         |
-| `trip.finished` (v4)       | Termina el viaje                                                                                   | `trips/trip-status.service.ts`         |
+| `trip.finished` (v6)       | Termina el viaje                                                                                   | `trips/trip-status.service.ts`         |
 | `trip.cancelled` (v3)      | Se cancela el viaje                                                                                | `trips/trip-status.service.ts`         |
 | `trip.expired` (v3)        | Llega el corte (10 min antes de la salida) sin pasajeros aceptados: se cierra como «Sin pasajeros» | `trips/trip-expiry.service.ts`         |
 | `trip.cancelled_late`      | Cancelación tardía del conductor o de un pasajero (fiabilidad, S5)                                 | `trips/late-cancellations.service.ts`  |
@@ -83,6 +83,8 @@ El `payload` de cada tipo lo construye el fichero indicado.
 Las rutas son relativas a `backend/src/modules/`. Un test (`events-contract.spec.ts`) comprueba que todo tipo de `domain-event-type.ts` tiene versión y aparece en esta tabla.
 
 ### Cambios de versión
+
+- `trip.finished` **v6**: el `payload` añade `finishedBy`, cómo terminó el viaje (`driver`: «Terminar viaje»; `passengers`: se bajó o se fue el último pasajero; `system`: cierre automático 1 h después de la llegada estimada). La v5 llevaba el mismo estado sin ese campo.
 
 - `request.created`, `request.accepted`, `request.rejected`, `request.cancelled` y `request.expired` **v3**, y `request.boarded` **v4**: el `payload` añade `droppedOffAt` y `droppedOffBy` (`driver`, `passenger` o `system`: cuándo y quién marcó la bajada; `null` mientras no se ha bajado) y `status` admite `completed` (cierre por pasajero). La versión anterior llevaba el mismo estado sin esos dos campos.
 - `trip.published`, `trip.updated`, `trip.confirmed`, `trip.reopened`, `trip.cancelled` y `trip.expired` **v4**, y `trip.started` y `trip.finished` **v5**: el `payload` añade `autoAccept` (si el viaje acepta solas las solicitudes que caben). La versión anterior llevaba el mismo estado sin ese campo.

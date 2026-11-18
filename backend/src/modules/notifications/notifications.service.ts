@@ -126,6 +126,7 @@ export class NotificationsService {
         'request_expired',
         'passenger_no_show',
         'trip_completed',
+        'trip_auto_finished',
       ]);
     }
     if (isRead !== undefined) {

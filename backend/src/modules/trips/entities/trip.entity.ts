@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import type { Point } from 'typeorm';
 import { TRIP_STATUSES } from '../trip-status';
-import type { TripStatus } from '../trip-status';
+import type { TripFinisher, TripStatus } from '../trip-status';
 
 // Tipo trip_pickup_mode de la migración AddPickupModes
 export const TRIP_PICKUP_MODES = ['on_route', 'stops'] as const;
@@ -113,6 +113,11 @@ export class Trip {
   // envió su posición o si el viaje terminó de otra forma
   @Column({ name: 'finish_distance_m', type: 'integer', nullable: true })
   finishDistanceM: number | null;
+
+  // Cómo terminó: el conductor («Terminar viaje»), los pasajeros (se bajó o se
+  // fue el último) o el sistema (cierre automático); null mientras no termina
+  @Column({ name: 'finished_by', type: 'varchar', length: 16, nullable: true })
+  finishedBy: TripFinisher | null;
 
   // RF-21: las versiones de la declaración del conductor y de la del vehículo
   // que confirmó al iniciar; null hasta que se inicia

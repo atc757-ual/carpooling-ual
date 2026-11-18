@@ -5,8 +5,8 @@ import { GeoPointDto } from '../../../shared/geo/geo-point.dto';
 import { TravelPreferencesResource } from '../../users/dto/travel-preferences.resource';
 import type { VehicleRecognitionDetails } from '../../users/vehicles.service';
 import { TripView } from '../trips.service';
-import { TRIP_STATUSES } from '../trip-status';
-import type { TripStatus } from '../trip-status';
+import { TRIP_FINISHERS, TRIP_STATUSES } from '../trip-status';
+import type { TripFinisher, TripStatus } from '../trip-status';
 import { TRIP_PICKUP_MODES } from '../entities/trip.entity';
 import type { TripPickupMode } from '../entities/trip.entity';
 import { ALLOWED_MAX_DETOUR_M } from '../trip-timing';
@@ -176,6 +176,14 @@ export class TripResource {
   startedAt: string | null;
 
   @ApiProperty({
+    enum: TRIP_FINISHERS,
+    nullable: true,
+    description:
+      'How the trip finished: the driver, the passengers (the last one got off or left) or the system (closed automatically 1 h after the estimated arrival); null until it finishes',
+  })
+  finishedBy: TripFinisher | null;
+
+  @ApiProperty({
     description:
       'True when origin and destination are rounded to about 500 m (campus parkings excepted): whoever is not the driver, an accepted passenger or an administrator does not see the exact points',
   })
@@ -260,6 +268,7 @@ export function toTripResource({
     destinationName: trip.destinationName,
     status: trip.status,
     startedAt: trip.startedAt?.toISOString() ?? null,
+    finishedBy: trip.finishedBy ?? null,
     isLocationApproximate,
   };
 }

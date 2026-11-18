@@ -65,6 +65,16 @@ describe('DriverTripSummary', () => {
     expect(tone('finished')).toBeUndefined();
   });
 
+  it('says when the system closed the trip', () => {
+    expect(render({ ...TRIP, status: 'finished', finishedBy: 'system' }).textContent).toContain(
+      'Cerrado automáticamente',
+    );
+    TestBed.resetTestingModule();
+    expect(render({ ...TRIP, status: 'finished', finishedBy: 'driver' }).textContent).not.toContain(
+      'Cerrado automáticamente',
+    );
+  });
+
   it('falls back to generic names without place names', () => {
     const root = render({ ...TRIP, originName: null, destinationName: null } as DriverTrip);
 

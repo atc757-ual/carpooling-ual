@@ -178,7 +178,11 @@ export class TripChangesListener implements OnModuleInit {
     manager: EntityManager,
     trip: Trip,
   ): Promise<void> {
-    await this.dropOffs.closeOpenSeats(manager, trip, 'driver');
+    await this.dropOffs.closeOpenSeats(
+      manager,
+      trip,
+      trip.finishedBy === 'system' ? 'system' : 'driver',
+    );
     const travelled = await manager.count(SeatRequest, {
       where: { tripId: trip.id, status: In([...PARTICIPANT_REQUEST_STATUSES]) },
     });

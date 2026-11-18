@@ -33,6 +33,8 @@ const V1: ReadonlySet<number> = new Set([1]);
 // en todas
 const TRIP_V1_TO_V4: ReadonlySet<number> = new Set([1, 2, 3, 4]);
 const TRIP_V1_TO_V5: ReadonlySet<number> = new Set([1, 2, 3, 4, 5]);
+// trip.finished v6 añade cómo terminó (finishedBy)
+const TRIP_V1_TO_V6: ReadonlySet<number> = new Set([1, 2, 3, 4, 5, 6]);
 // Las solicitudes desde la v2 (v3 al subir) añaden la parada (stopId) y desde
 // la v3 (v4 al subir), la bajada (droppedOffAt, droppedOffBy); el gemelo lee
 // el estado igual en todas. request.completed: el pasajero se ha bajado (ya
@@ -46,7 +48,7 @@ export const SUPPORTED_EVENT_VERSIONS: Readonly<
   'trip.confirmed': TRIP_V1_TO_V4,
   'trip.reopened': TRIP_V1_TO_V4,
   'trip.started': TRIP_V1_TO_V5,
-  'trip.finished': TRIP_V1_TO_V5,
+  'trip.finished': TRIP_V1_TO_V6,
   'trip.cancelled': TRIP_V1_TO_V4,
   'trip.expired': TRIP_V1_TO_V4,
   'trip.position_updated': V1,

@@ -353,6 +353,15 @@ describe('PassengerRequestDetailPage', () => {
     );
   });
 
+  it('says when the system closed the seat', async () => {
+    const root = await render(seatRequest('completed', { droppedOffBy: 'system' }), {
+      ...TRIP,
+      status: 'finished',
+    });
+
+    expect(root.textContent).toContain('Lo cerramos automáticamente una hora después');
+  });
+
   it('shares the trip with the driver, the car and the plate', async () => {
     await render(seatRequest('accepted'));
     const share = vi.spyOn(TestBed.inject(TripShareService), 'share').mockResolvedValue('shared');

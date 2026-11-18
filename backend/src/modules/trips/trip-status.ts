@@ -12,6 +12,11 @@ export const TRIP_STATUSES = [
 ] as const;
 export type TripStatus = (typeof TRIP_STATUSES)[number];
 
+// Cómo termina un viaje (columna finished_by): el conductor, los pasajeros
+// (se bajó o se fue el último) o el sistema (cierre automático)
+export const TRIP_FINISHERS = ['driver', 'passengers', 'system'] as const;
+export type TripFinisher = (typeof TRIP_FINISHERS)[number];
+
 // Transiciones permitidas: el diagrama de estados del viaje de la memoria,
 // en una única tabla. Cualquier otra se rechaza (RNF-10)
 const ALLOWED_TRANSITIONS: Record<TripStatus, readonly TripStatus[]> = {
