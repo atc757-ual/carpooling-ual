@@ -31,3 +31,10 @@
     grid-area: arrows;
   }
 }
+
+// «1 de 2 en el coche · 1 se ha bajado», siempre en una línea («…» si no cabe)
+.pickups-head__text p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

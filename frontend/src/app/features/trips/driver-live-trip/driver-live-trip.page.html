@@ -372,22 +372,39 @@
 
                         <!-- Chat, llamar y «No se presentó», con su icono -->
                         <div class="pickup-slide__actions">
-                          <a
-                            class="icon-btn icon-btn--reveal"
-                            appRevealOnTouch
-                            [routerLink]="['/tabs/messages', trip.id, request.passenger.id]"
-                            [attr.aria-label]="
-                              'Enviar un mensaje a ' + firstName(request.passenger.name)
-                            "
-                          >
-                            <ion-icon [icon]="chatIcon" aria-hidden="true" />
-                            <span class="icon-btn__label" aria-hidden="true">Enviar mensaje</span>
-                          </a>
+                          <!-- Ya se bajó: sin chat ni llamada (su viaje ha terminado) -->
+                          @if (request.status === 'completed') {
+                            <button
+                              type="button"
+                              class="icon-btn"
+                              disabled
+                              [attr.aria-label]="
+                                firstName(request.passenger.name) + ' ya se ha bajado: sin mensajes'
+                              "
+                            >
+                              <ion-icon [icon]="chatIcon" aria-hidden="true" />
+                            </button>
+                          } @else {
+                            <a
+                              class="icon-btn icon-btn--reveal"
+                              appRevealOnTouch
+                              [routerLink]="['/tabs/messages', trip.id, request.passenger.id]"
+                              [attr.aria-label]="
+                                'Enviar un mensaje a ' + firstName(request.passenger.name)
+                              "
+                            >
+                              <ion-icon [icon]="chatIcon" aria-hidden="true" />
+                              <span class="icon-btn__label" aria-hidden="true">Enviar mensaje</span>
+                            </a>
+                          }
                           <button
                             type="button"
                             class="icon-btn icon-btn--reveal"
                             appRevealOnTouch
-                            [disabled]="!canCallPassenger(request.passenger.id)"
+                            [disabled]="
+                              request.status === 'completed' ||
+                              !canCallPassenger(request.passenger.id)
+                            "
                             [attr.aria-label]="
                               callPassengerLabel(request.passenger.name, request.passenger.id)
                             "
