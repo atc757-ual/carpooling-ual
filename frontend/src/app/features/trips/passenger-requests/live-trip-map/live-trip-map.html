@@ -1,19 +1,4 @@
 <section class="trip-live-map" aria-labelledby="live-map-title">
-  <header class="trip-live-map__heading">
-    <!-- El título, solo para el lector de pantalla: el mapa ya se explica solo -->
-    <h2 id="live-map-title" class="visually-hidden">Seguimiento en tiempo real</h2>
-    <!-- Centrar: redondo y blanco, en la esquina del mapa (como el zoom) -->
-    <button
-      type="button"
-      class="trip-live-map__center"
-      aria-label="Centrar el mapa"
-      title="Centrar el mapa"
-      (click)="centerMap()"
-    >
-      <ion-icon [icon]="centerIcon" aria-hidden="true" />
-    </button>
-  </header>
-
   <!-- Sin posición reciente: el aviso encima del mapa (en el móvil, donde el
        mapa ocupa la pantalla, no se pinta: lo dice la etiqueta de minutos) -->
   @if (latestPosition() && isStale()) {
@@ -29,6 +14,20 @@
   }
 
   <div class="trip-live-map__frame">
+    <header class="trip-live-map__heading">
+      <!-- El título, solo para el lector de pantalla: el mapa ya se explica solo -->
+      <h2 id="live-map-title" class="visually-hidden">Seguimiento en tiempo real</h2>
+      <!-- Centrar: redondo y blanco, en la esquina del mapa (como el zoom) -->
+      <button
+        type="button"
+        class="trip-live-map__center"
+        aria-label="Centrar el mapa"
+        title="Centrar el mapa"
+        (click)="centerMap()"
+      >
+        <ion-icon [icon]="centerIcon" aria-hidden="true" />
+      </button>
+    </header>
     <section #map class="trip-live-map__canvas" [attr.aria-label]="mapLabel()"></section>
     @if (latestPosition()) {
       <p class="trip-live-map__updated text-caption text-color-muted">

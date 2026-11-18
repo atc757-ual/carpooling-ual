@@ -13,13 +13,13 @@
   background: var(--color-surface);
 }
 
-// «Centrar», flotando arriba a la izquierda del mapa, a 16px de sus bordes
-// (el relleno, si lo hay, más 16px). --live-trip-map-padding, con unidad: va
-// dentro de calc() y un 0 sin unidad lo invalidaba
+// «Centrar», flotando arriba a la izquierda del mapa, a 16px de sus bordes.
+// Dentro del marco del mapa (no de la sección): queda en su esquina aunque
+// encima haya un aviso
 .trip-live-map__heading {
   position: absolute;
-  top: calc(var(--live-trip-map-padding, var(--space-base)) + var(--space-base));
-  left: calc(var(--live-trip-map-padding, var(--space-base)) + var(--space-base));
+  top: var(--space-base);
+  left: var(--space-base);
   z-index: 1000; // por encima de las capas de Leaflet
 }
 
