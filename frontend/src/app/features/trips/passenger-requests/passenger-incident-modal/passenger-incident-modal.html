@@ -11,7 +11,9 @@
   <output class="notice notice--info incident-modal__note">
     <ion-icon [icon]="reviewIcon" aria-hidden="true" />
     <span class="text-caption">
-      @if (isDriver) {
+      @if (isAfterTrip) {
+        Tu reporte lo revisará un administrador. No cambia nada del viaje.
+      } @else if (isDriver) {
         Se cancelará el viaje y tus pasajeros tendrán prioridad para buscar otro. Lo revisará un
         administrador.
       } @else {
@@ -87,7 +89,11 @@
       [disabled]="isSubmitting()"
       (click)="handleCancel()"
     >
-      {{ isDriver ? 'Continuar el viaje' : 'Continuar en el viaje' }}
+      @if (isAfterTrip) {
+        Ahora no
+      } @else {
+        {{ isDriver ? 'Continuar el viaje' : 'Continuar en el viaje' }}
+      }
     </ion-button>
   </div>
 </form>

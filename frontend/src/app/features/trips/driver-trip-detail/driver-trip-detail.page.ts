@@ -27,6 +27,7 @@ import { carOutline, leafOutline } from 'ionicons/icons';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { ReviewTarget, TripReviewCard } from '../trip-review/trip-review-card';
+import { AfterTripReport } from '../after-trip-report/after-trip-report';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { TRIP_STATUS_LABELS } from '../../../shared/utils/trip-status.util';
@@ -63,6 +64,7 @@ import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
     DriverTripRoute,
     LiveTripBanner,
     TripReviewCard,
+    AfterTripReport,
   ],
   templateUrl: './driver-trip-detail.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './driver-trip-detail.page.scss'],

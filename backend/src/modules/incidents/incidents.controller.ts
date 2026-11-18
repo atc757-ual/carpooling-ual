@@ -40,6 +40,31 @@ const AUTH_ERRORS = {
   [HttpStatus.UNAUTHORIZED]: ['INVALID_ACCESS_TOKEN', 'ACCESS_TOKEN_EXPIRED'],
 };
 
+// Lo común a reportar un viaje (en curso o ya realizado): crea la incidencia
+// (201 con Location) y comparte los errores, salvo el del momento del viaje
+function ReportEndpoint(
+  path: string,
+  operation: { summary: string; description: string },
+  conflict: string,
+): MethodDecorator {
+  return applyDecorators(
+    Post(path),
+    ApiOperation(operation),
+    ApiParam({ name: 'tripId', format: 'uuid' }),
+    ApiCreatedResponse({
+      type: IncidentResource,
+      headers: { Location: { description: 'Link to the new incident' } },
+    }),
+    ApiErrorResponses({
+      ...AUTH_ERRORS,
+      [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+      [HttpStatus.FORBIDDEN]: ['NOT_TRIP_PASSENGER'],
+      [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND'],
+      [HttpStatus.CONFLICT]: [conflict],
+    }),
+  );
+}
+
 // Lo común a empezar, dejar y atender la revisión: solo el administrador,
 // responde 200 con la incidencia y comparte los errores
 function ReviewEndpoint(
@@ -81,24 +106,15 @@ export class IncidentsController {
 
   // --- Conductor o pasajero del viaje (sin @Profiles: lo decide el service)
 
-  @Post('trips/:tripId/incidents')
-  @ApiOperation({
-    summary: 'Report an incident and cancel during a trip in progress',
-    description:
-      'RF-23. If the driver reports it, the trip is cancelled and its accepted passengers get priority (RF-24). If an accepted passenger reports it, only their seat request is cancelled and the trip goes on.',
-  })
-  @ApiParam({ name: 'tripId', format: 'uuid' })
-  @ApiCreatedResponse({
-    type: IncidentResource,
-    headers: { Location: { description: 'Link to the new incident' } },
-  })
-  @ApiErrorResponses({
-    ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
-    [HttpStatus.FORBIDDEN]: ['NOT_TRIP_PASSENGER'],
-    [HttpStatus.NOT_FOUND]: ['TRIP_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: ['TRIP_NOT_IN_PROGRESS'],
-  })
+  @ReportEndpoint(
+    'trips/:tripId/incidents',
+    {
+      summary: 'Report an incident and cancel during a trip in progress',
+      description:
+        'RF-23. If the driver reports it, the trip is cancelled and its accepted passengers get priority (RF-24). If an accepted passenger reports it, only their seat request is cancelled and the trip goes on.',
+    },
+    'TRIP_NOT_IN_PROGRESS',
+  )
   async report(
     @CurrentUser() user: AccessTokenPayload,
     @Param('tripId', uuidParam('tripId')) tripId: string,
@@ -107,6 +123,28 @@ export class IncidentsController {
   ): Promise<IncidentResource> {
     const incident = toIncidentResource(
       await this.incidentsService.report(user.sub, tripId, dto),
+    );
+    response.setHeader('Location', incident.href);
+    return incident;
+  }
+
+  @ReportEndpoint(
+    'trips/:tripId/incidents/after-trip',
+    {
+      summary: 'Report a finished trip, up to 7 days after it finishes',
+      description:
+        'For the driver or a passenger who travelled. Nothing is cancelled: the incident stays for an administrator to review.',
+    },
+    'REPORT_WINDOW_CLOSED',
+  )
+  async reportAfterTrip(
+    @CurrentUser() user: AccessTokenPayload,
+    @Param('tripId', uuidParam('tripId')) tripId: string,
+    @Body() dto: ReportIncidentDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<IncidentResource> {
+    const incident = toIncidentResource(
+      await this.incidentsService.reportAfterTrip(user.sub, tripId, dto),
     );
     response.setHeader('Location', incident.href);
     return incident;

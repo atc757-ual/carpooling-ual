@@ -186,7 +186,11 @@ export function incidentMoments(incident: AdminIncident): IncidentMoment[] {
   return moments;
 }
 
-const SOURCE_LABELS = { chat: 'Denuncia del chat', trip: 'Durante el viaje' } as const;
+const SOURCE_LABELS = {
+  chat: 'Denuncia del chat',
+  trip: 'Durante el viaje',
+  after_trip: 'Tras el viaje',
+} as const;
 
 // Lo que pinta el detalle: la franja, el viaje (con su enlace si aún existe),
 // las personas y los momentos de la revisión

@@ -49,6 +49,9 @@ export class PassengerIncidentModal {
   @Input() isInline = false;
   // El conductor: al reportar se cancela el viaje (RF-23), no solo su plaza
   @Input() isDriver = false;
+  // Un viaje ya realizado (hasta 7 días después): solo se reporta, sin
+  // bajarse ni cancelar nada
+  @Input() isAfterTrip = false;
   readonly reported = output<void>();
   readonly cancelled = output<void>();
 
@@ -56,6 +59,9 @@ export class PassengerIncidentModal {
     return this.isDriver ? DRIVER_INCIDENT_CATEGORIES : PASSENGER_INCIDENT_CATEGORIES;
   }
   get submitLabel(): string {
+    if (this.isAfterTrip) {
+      return 'Enviar reporte';
+    }
     return this.isDriver
       ? 'Cancelar el viaje y registrar incidencia'
       : 'Bajarme y registrar incidencia';
@@ -87,10 +93,13 @@ export class PassengerIncidentModal {
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
     try {
-      await this.incidentsService.reportTripIncident(this.tripId, {
+      const payload = {
         category: this.selectedCategory(),
         description: this.description().trim(),
-      });
+      };
+      await (this.isAfterTrip
+        ? this.incidentsService.reportAfterTrip(this.tripId, payload)
+        : this.incidentsService.reportTripIncident(this.tripId, payload));
       if (this.isInline) {
         this.reported.emit();
       } else {

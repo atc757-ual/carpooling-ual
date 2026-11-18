@@ -53,6 +53,7 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   INVALID_BOARD_CODE: 'El código no coincide. Pídele al pasajero sus 4 cifras otra vez.',
   ALREADY_BOARDED: 'Este pasajero ya está validado como a bordo.',
   PASSENGER_NOT_BOARDED: 'El pasajero aún no ha subido: valida antes su código de recogida.',
+  REPORT_WINDOW_CLOSED: 'Solo puedes reportar un viaje en los 7 días siguientes a terminarlo.',
   PICKUP_GRACE_PERIOD_ACTIVE:
     'Espera al menos 5 minutos desde la hora de recogida para marcar que no se presentó.',
   ACCOUNT_HAS_ACTIVE_TRIPS:
