@@ -188,6 +188,15 @@ ion-card.live-alert.live-alert[class] {
   // pantalla, su final no se llegaba a ver)
 }
 
+// Tabletas (768 a 1023px): el mapa y la columna de la derecha en 3:2 y con
+// 16px entre ellos, para que la fila de botones quepa desplegada
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .ride__layout {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: var(--space-base);
+  }
+}
+
 // Ha llegado: el ✓ verde con el aviso y, debajo, la valoración del conductor
 // El encabezado, con una línea fina debajo, como los demás de la hoja: 16px
 // entre el texto y la línea y 16px entre la línea y lo siguiente (el gap de

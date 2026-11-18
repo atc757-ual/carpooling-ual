@@ -52,6 +52,73 @@
   }
 }
 
+// Tabletas (768 a 1023px): el mapa y la columna de la derecha en 3:2 y con
+// 16px entre ellos (en 2:1 la columna mide unos 230px y la fila de botones no
+// cabe desplegada); desde 1024px, las columnas de siempre
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .driver-live-trip__layout {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: var(--space-base);
+  }
+}
+
+// Cada tarjeta de la columna de 4 es un contenedor: si es estrecha (p. ej. en
+// una tableta de 768px), lo que va en fila se coloca en dos líneas
+.driver-live-trip__panel {
+  container: live-panel / inline-size;
+}
+
+@container live-panel (max-width: 17.5rem) {
+  // 280px: «Recogidas» con las flechas a su derecha, el recuento debajo y la
+  // etiqueta en su propia línea (sin cortar ni salirse de la tarjeta)
+  .pickups-head--desktop {
+    grid-template-areas:
+      'text arrows'
+      'tag tag';
+
+    .pickups-head__text {
+      flex-direction: column;
+      align-items: flex-start;
+
+      p::before {
+        content: none;
+      }
+    }
+  }
+
+  // La recogida: el nombre arriba a todo el ancho y los iconos debajo (sin
+  // partir el nombre)
+  .pickup-slide__main > .pickup-slide__who {
+    grid-column: 1 / -1;
+  }
+
+  .pickup-slide__actions {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+// Tabletas: las flechas, sobre el carrusel (un ancla de altura 0 justo antes),
+// en la esquina de arriba a la derecha de la tarjeta, en la línea del nombre;
+// el nombre deja su hueco
+.pickup-carousel__arrows {
+  position: relative;
+  z-index: 1;
+  height: 0;
+
+  // 16px: el hueco de 8px entre el ancla y el carrusel y el relleno de 8px de
+  // la tarjeta del pasajero; a la derecha, su relleno
+  .pickups-head__arrows {
+    position: absolute;
+    top: calc(var(--space-s) * 2);
+    right: var(--space-s);
+  }
+
+  + .pickup-carousel .pickup-slide__who {
+    padding-right: 4.5rem; // 72px: las dos flechas (32px) y sus huecos
+  }
+}
+
 // «1 de 2 en el coche · 1 se ha bajado», siempre en una línea («…» si no cabe)
 .pickups-head__text p {
   overflow: hidden;

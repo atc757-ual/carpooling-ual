@@ -8,8 +8,10 @@ import {
   injectIsDesktop,
   injectIsOnUrl,
   injectLiveSheet,
+  injectMatchesMedia,
   LIVE_SHEET_FULL_BREAKPOINT,
   liveSheetInset,
+  WIDE_ASIDE_MEDIA_QUERY,
 } from './desktop-query.util';
 
 @Component({ template: '' })
@@ -34,6 +36,29 @@ describe('desktop query', () => {
     expect(isDesktop()).toBe(false);
     media.listener?.({ matches: true } as MediaQueryListEvent);
     expect(isDesktop()).toBe(true);
+  });
+
+  it('follows any media query and stops listening when destroyed', () => {
+    const removeEventListener = vi.fn();
+    const matchMedia = vi.fn().mockReturnValue({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener,
+    });
+    vi.stubGlobal('matchMedia', matchMedia);
+    const isWide = TestBed.runInInjectionContext(() => injectMatchesMedia(WIDE_ASIDE_MEDIA_QUERY));
+
+    expect(matchMedia).toHaveBeenCalledWith('(min-width: 1024px)');
+    expect(isWide()).toBe(true);
+    TestBed.resetTestingModule();
+    expect(removeEventListener).toHaveBeenCalledWith('change', expect.any(Function));
+  });
+
+  it('behaves as on a desktop when the browser has no matchMedia', () => {
+    vi.stubGlobal('matchMedia', undefined);
+    const isWide = TestBed.runInInjectionContext(() => injectMatchesMedia(WIDE_ASIDE_MEDIA_QUERY));
+
+    expect(isWide()).toBe(true);
   });
 
   it('knows whether the URL is the one of the screen, from the start of a navigation', async () => {

@@ -290,11 +290,12 @@
                 <div
                   class="ride__choice"
                   [class.ride__choice--desktop]="sheet.isDesktop()"
-                  [class.icon-btns-open]="sheet.isDesktop()"
-                  [class.sections-divided]="sheet.isDesktop()"
+                  [class.icon-btns-open]="hasActionRows()"
+                  [class.sections-divided]="hasActionRows()"
                 >
-                  @if (sheet.isDesktop()) {
-                    <!-- Escritorio: sin pastillas, cada sección a la vista (hay sitio) -->
+                  @if (hasActionRows()) {
+                    <!-- Escritorio ancho: sin pastillas, cada sección a la vista
+                         (hay sitio); en tabletas, la fila de botones cortos del móvil -->
                     @if (arriveCard() === 'early') {
                       <ng-container
                         [ngTemplateOutlet]="arriveTemplate"
@@ -325,7 +326,7 @@
                   } @else {
                     <!-- Móvil: las acciones en una fila de botones (el primer toque
                          los despliega y explica debajo qué hacen; el segundo actúa) -->
-                    <div class="live-actions">
+                    <div class="live-actions" [class.live-actions--compact]="sheet.isDesktop()">
                       <p class="live-actions__hint" aria-live="polite">
                         {{ revealedHint() ?? 'Toca un botón para ver qué hace.' }}
                       </p>

@@ -20,6 +20,7 @@ import {
   LOAD_LEAFLET,
 } from '../passenger-requests/live-trip-map/live-trip-map-runtime';
 import { TripReviewsService } from '../../../core/services/users/trip-reviews.service';
+import { DESKTOP_MEDIA_QUERY } from '../../../shared/utils/desktop-query.util';
 import { DriverLiveTripPage } from './driver-live-trip.page';
 
 @Component({ template: '' })
@@ -405,5 +406,54 @@ describe('DriverLiveTripPage', () => {
       title: 'Mi viaje en Carpooling UAL',
       text: page.safetyShareText(),
     });
+  });
+
+  describe('on a tablet (768 to 1023 px)', () => {
+    // Escritorio, pero sin el ancho de WIDE_ASIDE_MEDIA_QUERY
+    beforeEach(() =>
+      vi.stubGlobal('matchMedia', (query: string) => ({
+        matches: query === DESKTOP_MEDIA_QUERY,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    );
+    afterEach(() => vi.unstubAllGlobals());
+
+    it('uses the row of short buttons, with the SOS in the corner', async () => {
+      const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
+
+      expect(page.hasActionRows()).toBe(false);
+      expect(root.querySelector('.live-actions--compact')).not.toBeNull();
+      expect(root.querySelector('.live-actions [aria-label="SOS: llamar al 112"]')).not.toBeNull();
+      expect(root.querySelector('.icon-btns-open')).toBeNull();
+      expect(root.querySelectorAll('.section-item')).toHaveLength(0);
+    });
+
+    it('puts the pickup arrows on the carousel instead of the header', async () => {
+      const root = await render(
+        [TRIP],
+        [passenger('r1', 'Carlos Ruiz', 5), passenger('r2', 'Ana Gil', 15)],
+      );
+
+      expect(page.hasCarouselArrows()).toBe(true);
+      expect(root.querySelector('.pickups-head .pickup-arrow')).toBeNull();
+      expect(
+        root.querySelectorAll('.pickup-carousel__arrows [aria-label^="Pasajero"]'),
+      ).toHaveLength(2);
+    });
+  });
+
+  it('keeps the action rows and the arrows in the header on a wide screen', async () => {
+    const root = await render(
+      [TRIP],
+      [passenger('r1', 'Carlos Ruiz', 5), passenger('r2', 'Ana Gil', 15)],
+    );
+
+    expect(page.hasActionRows()).toBe(true);
+    expect(page.hasCarouselArrows()).toBe(false);
+    expect(root.querySelector('.live-actions')).toBeNull();
+    expect(root.querySelector('.icon-btns-open .section-item')).not.toBeNull();
+    expect(root.querySelectorAll('.pickups-head .pickup-arrow')).toHaveLength(2);
+    expect(root.querySelector('.pickup-carousel__arrows')).toBeNull();
   });
 });

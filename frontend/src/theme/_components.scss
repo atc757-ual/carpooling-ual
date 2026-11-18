@@ -1363,6 +1363,35 @@ ion-toggle {
   }
 }
 
+// En una columna estrecha (tabletas, donde los botones y el SOS no caben en
+// una línea): el SOS sube a la esquina de arriba a la derecha, junto a la
+// explicación, que ya le deja su hueco, y los demás quedan en su fila; con
+// 16px debajo, que en el móvil pone la hoja
+.live-actions--compact {
+  position: relative;
+  padding-bottom: var(--space-base);
+
+  .live-actions__row > .icon-btn--danger {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  // El SOS se queda en «SOS» (ni al tocarlo, ni con el foco, ni al pasar el
+  // ratón): desplegado taparía la explicación, que ya dice qué hace
+  .icon-btn--danger.icon-btn--reveal.icon-btn--reveal {
+    gap: 0;
+  }
+
+  .icon-btn--danger.icon-btn--reveal .icon-btn__label {
+    max-width: 0;
+  }
+
+  .icon-btn--danger.icon-btn--reveal .icon-btn__short {
+    display: inline;
+  }
+}
+
 // Dos líneas como máximo y sin llegar a la altura del SOS (44px y 8px de hueco
 // a la derecha); la altura de dos líneas, fija, para que la fila no salte
 .live-actions__hint {

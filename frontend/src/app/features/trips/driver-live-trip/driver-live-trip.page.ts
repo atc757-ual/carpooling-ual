@@ -35,7 +35,11 @@ import { LocationService } from '../../../core/services/location/location.servic
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { injectLiveSheet } from '../../../shared/utils/desktop-query.util';
+import {
+  injectLiveSheet,
+  injectMatchesMedia,
+  WIDE_ASIDE_MEDIA_QUERY,
+} from '../../../shared/utils/desktop-query.util';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatSeats } from '../../../shared/utils/seats.util';
 import { isCampusName } from '../../matching/campus';
@@ -259,6 +263,14 @@ export class DriverLiveTripPage {
     journeyStages(DRIVER_STAGES, stageIndex(!this.arePickupsDone(), this.isNearDestination())),
   );
   readonly sheet = injectLiveSheet(DRIVE_URL);
+  // Las acciones (terminar, compartir, reportar, SOS) en filas con su texto
+  // solo si la columna de 4 tiene sitio; si no (móvil y tabletas), en la fila
+  // de botones cortos
+  private readonly isWideAside = injectMatchesMedia(WIDE_ASIDE_MEDIA_QUERY);
+  readonly hasActionRows = computed(() => this.sheet.isDesktop() && this.isWideAside());
+  // En tabletas, las flechas de las recogidas van sobre el carrusel (en la
+  // cabecera no caben junto a «Recogidas» y su recuento)
+  readonly hasCarouselArrows = computed(() => this.sheet.isDesktop() && !this.isWideAside());
   // Los teléfonos para llamar: resource y no effect, para no pintar los de
   // otro viaje si la respuesta llega tarde
   private readonly contactsData = resource({

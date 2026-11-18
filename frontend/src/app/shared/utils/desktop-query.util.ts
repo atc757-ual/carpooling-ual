@@ -13,21 +13,28 @@ import { IonModal } from '@ionic/angular';
 // Desde este ancho, la app usa el diseño de escritorio (columnas 8 + 4)
 export const DESKTOP_MEDIA_QUERY = '(min-width: 768px)';
 
-// Si la pantalla tiene el ancho de escritorio, como signal que cambia al
-// girar el móvil o redimensionar la ventana. Se llama en un contexto de
-// inyección (constructor o campo de un componente)
-export function injectIsDesktop(): Signal<boolean> {
+// Desde este ancho, la columna de 4 tiene sitio para filas con texto y botón;
+// por debajo (tabletas de 768 a 1023px) va tan estrecha como en el móvil
+export const WIDE_ASIDE_MEDIA_QUERY = '(min-width: 1024px)';
+
+// Si la pantalla cumple la consulta, como signal que cambia al girar el móvil
+// o redimensionar la ventana. Se llama en un contexto de inyección
+// (constructor o campo de un componente). Sin matchMedia, como en escritorio
+export function injectMatchesMedia(mediaQuery: string): Signal<boolean> {
   const query =
-    typeof window !== 'undefined' && window.matchMedia
-      ? window.matchMedia(DESKTOP_MEDIA_QUERY)
-      : null;
-  const isDesktop = signal(query?.matches ?? true);
+    typeof window !== 'undefined' && window.matchMedia ? window.matchMedia(mediaQuery) : null;
+  const matches = signal(query?.matches ?? true);
   if (query) {
-    const handleChange = (event: MediaQueryListEvent) => isDesktop.set(event.matches);
+    const handleChange = (event: MediaQueryListEvent) => matches.set(event.matches);
     query.addEventListener('change', handleChange);
     inject(DestroyRef).onDestroy(() => query.removeEventListener('change', handleChange));
   }
-  return isDesktop.asReadonly();
+  return matches.asReadonly();
+}
+
+// Si la pantalla tiene el ancho de escritorio
+export function injectIsDesktop(): Signal<boolean> {
+  return injectMatchesMedia(DESKTOP_MEDIA_QUERY);
 }
 
 // En el móvil, los detalles de «En curso» van en una hoja inferior que se

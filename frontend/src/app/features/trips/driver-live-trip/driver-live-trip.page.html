@@ -271,34 +271,44 @@
                       Ubicación en directo
                     </span>
                   }
-                  @if (passengers().length > 1) {
-                    <div class="pickups-head__arrows">
-                      <button
-                        type="button"
-                        class="icon-btn pickup-arrow"
-                        aria-label="Pasajero anterior"
-                        [disabled]="carouselIndex() === 0"
-                        (click)="scrollToPickup(passengers()[carouselIndex() - 1].id)"
-                      >
-                        <ion-icon [icon]="previousIcon" aria-hidden="true" />
-                      </button>
-                      <button
-                        type="button"
-                        class="icon-btn pickup-arrow"
-                        aria-label="Pasajero siguiente"
-                        [disabled]="carouselIndex() >= passengers().length - 1"
-                        (click)="scrollToPickup(passengers()[carouselIndex() + 1].id)"
-                      >
-                        <ion-icon [icon]="nextIcon" aria-hidden="true" />
-                      </button>
-                    </div>
+                  @if (passengers().length > 1 && !hasCarouselArrows()) {
+                    <ng-container [ngTemplateOutlet]="pickupArrows" />
                   }
                 </div>
+                <ng-template #pickupArrows>
+                  <div class="pickups-head__arrows">
+                    <button
+                      type="button"
+                      class="icon-btn pickup-arrow"
+                      aria-label="Pasajero anterior"
+                      [disabled]="carouselIndex() === 0"
+                      (click)="scrollToPickup(passengers()[carouselIndex() - 1].id)"
+                    >
+                      <ion-icon [icon]="previousIcon" aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      class="icon-btn pickup-arrow"
+                      aria-label="Pasajero siguiente"
+                      [disabled]="carouselIndex() >= passengers().length - 1"
+                      (click)="scrollToPickup(passengers()[carouselIndex() + 1].id)"
+                    >
+                      <ion-icon [icon]="nextIcon" aria-hidden="true" />
+                    </button>
+                  </div>
+                </ng-template>
                 @if (requests.isLoading() && !requests.hasValue()) {
                   <p class="text-caption text-color-muted">Cargando tus pasajeros…</p>
                 } @else if (passengers().length === 0) {
                   <p class="text-body-s text-color-muted">Viajas sin pasajeros.</p>
                 } @else {
+                  <!-- En tabletas, las flechas van sobre el carrusel, arriba a la
+                       derecha de la tarjeta (en la línea del nombre) -->
+                  @if (passengers().length > 1 && hasCarouselArrows()) {
+                    <div class="pickup-carousel__arrows">
+                      <ng-container [ngTemplateOutlet]="pickupArrows" />
+                    </div>
+                  }
                   <!-- Un pasajero por tarjeta, en orden de recogida; solo se valida
                      el que toca (el primero que no ha subido) -->
                   <section
@@ -482,11 +492,12 @@
             <div
               class="driver-live-trip__choice"
               [class.driver-live-trip__choice--desktop]="sheet.isDesktop()"
-              [class.icon-btns-open]="sheet.isDesktop()"
-              [class.sections-divided]="sheet.isDesktop()"
+              [class.icon-btns-open]="hasActionRows()"
+              [class.sections-divided]="hasActionRows()"
             >
-              @if (sheet.isDesktop()) {
-                <!-- Escritorio: sin pastillas, cada sección a la vista (hay sitio) -->
+              @if (hasActionRows()) {
+                <!-- Escritorio ancho: sin pastillas, cada sección a la vista (hay
+                     sitio); en tabletas, la fila de botones cortos del móvil -->
                 @if (!showFinishAlert()) {
                   <ng-container [ngTemplateOutlet]="finishPanel" />
                 }
@@ -508,7 +519,7 @@
               } @else {
                 <!-- Móvil: las acciones en una fila de botones (el primer toque
                      los despliega y explica debajo qué hacen; el segundo actúa) -->
-                <div class="live-actions">
+                <div class="live-actions" [class.live-actions--compact]="sheet.isDesktop()">
                   <p class="live-actions__hint" aria-live="polite">
                     {{ revealedHint() ?? 'Toca un botón para ver qué hace.' }}
                   </p>
