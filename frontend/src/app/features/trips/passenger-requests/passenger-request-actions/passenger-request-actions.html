@@ -64,7 +64,7 @@
       <!-- Cerrada: sin botón desactivado, solo por qué. Viaje realizado,
            debajo, reportarlo (7 días, sin cancelar nada) -->
       @if (closedReason(); as reason) {
-        <div class="notice notice--info">
+        <div class="notice notice--info notice--icon">
           <ion-icon [icon]="closedIcon()" aria-hidden="true" />
           <span>{{ reason }}</span>
         </div>

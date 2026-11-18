@@ -820,6 +820,18 @@ ion-card.role-card ion-card-content {
   }
 }
 
+// Aviso corto con un icono delante (p. ej. «Este viaje ya terminó»): el
+// icono centrado con el texto, del alto de su línea (20px) y en azul
+.notice--icon {
+  align-items: center;
+
+  > ion-icon {
+    flex: none;
+    color: var(--color-link);
+    font-size: 1.25rem; // 20px
+  }
+}
+
 .notice--info {
   border-color: var(--color-link);
   background: var(--color-primary-subtle);
