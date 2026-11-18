@@ -250,7 +250,7 @@
               <ion-card-content>
                 <!-- El título y, en escritorio, las flechas de anterior y
                      siguiente a su derecha (más fácil que arrastrar) -->
-                <div class="pickups-head">
+                <div class="pickups-head" [class.pickups-head--desktop]="sheet.isDesktop()">
                   <!-- El título y, debajo, cuántos van; a la derecha, la etiqueta
                        de que se comparte la ubicación (y en escritorio, las flechas) -->
                   <div class="pickups-head__text">
