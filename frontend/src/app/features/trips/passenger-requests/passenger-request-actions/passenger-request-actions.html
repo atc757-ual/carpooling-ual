@@ -1,8 +1,9 @@
 <!-- Sin nada que hacer (p. ej. viaje ya realizado), sin tarjeta vacía -->
 @if (hasContent()) {
   <ion-card class="passenger-actions">
-    <!-- En «En curso», sin título: «¿Algo va mal?» ya lleva el suyo -->
-    @if (!inlineIncident()) {
+    <!-- En «En curso», sin título: «¿Algo va mal?» ya lleva el suyo. Cerrada y
+         sin «Buscar con prioridad», tampoco: solo queda el aviso -->
+    @if (!inlineIncident() && (!closedReason() || canSearchAnother())) {
       <ion-card-header>
         <ion-card-title>Acciones de tu solicitud</ion-card-title>
       </ion-card-header>
@@ -60,15 +61,16 @@
         </div>
       }
 
+      <!-- Cerrada: sin botón desactivado, solo por qué. Viaje realizado,
+           debajo, reportarlo (7 días, sin cancelar nada) -->
       @if (closedReason(); as reason) {
-        <div class="passenger-actions__block">
-          <div class="notice notice--info" aria-hidden="true">
-            <span>{{ reason }}</span>
-          </div>
-          <ion-button expand="block" fill="outline" [disabled]="true">
-            {{ cancelLabel() }}<span class="visually-hidden">. {{ reason }}</span>
-          </ion-button>
+        <div class="notice notice--info notice--icon">
+          <ion-icon [icon]="closedIcon()" aria-hidden="true" />
+          <span>{{ reason }}</span>
         </div>
+        @if (canReportAfterTrip()) {
+          <app-after-trip-report [tripId]="trip().id" />
+        }
       }
 
       @if (canSearchAnother()) {

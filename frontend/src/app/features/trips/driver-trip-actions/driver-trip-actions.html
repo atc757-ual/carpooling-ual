@@ -1,7 +1,10 @@
 <ion-card class="driver-actions">
-  <ion-card-header>
-    <ion-card-title>Acciones del viaje</ion-card-title>
-  </ion-card-header>
+  <!-- Cancelado o terminado, sin título: ya no hay acciones, solo el aviso -->
+  @if (!closedReason()) {
+    <ion-card-header>
+      <ion-card-title>Acciones del viaje</ion-card-title>
+    </ion-card-header>
+  }
   <ion-card-content>
     @if (isInProgress()) {
       <div class="notice notice--info">
@@ -75,19 +78,16 @@
       </div>
     }
 
-    <!-- Cancelado o terminado: las mismas acciones, desactivadas, y por qué -->
+    <!-- Cancelado o terminado: sin botones, solo por qué. Terminado, debajo,
+         reportarlo (7 días, sin cancelar nada) -->
     @if (closedReason(); as reason) {
-      <div class="driver-actions__block">
-        <div class="notice notice--info" aria-hidden="true">
-          <span>{{ reason }}</span>
-        </div>
-        <ion-button expand="block" [disabled]="true">
-          Iniciar viaje<span class="visually-hidden">. {{ reason }}</span>
-        </ion-button>
-        <ion-button expand="block" fill="outline" [disabled]="true">
-          Cancelar viaje<span class="visually-hidden">. {{ reason }}</span>
-        </ion-button>
+      <div class="notice notice--info notice--icon">
+        <ion-icon [icon]="closedIcon()" aria-hidden="true" />
+        <span>{{ reason }}</span>
       </div>
+      @if (isReportOpen()) {
+        <app-after-trip-report [tripId]="trip().id" [isDriver]="true" />
+      }
     }
   </ion-card-content>
 </ion-card>

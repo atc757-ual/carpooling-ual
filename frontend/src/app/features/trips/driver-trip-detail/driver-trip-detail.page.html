@@ -26,11 +26,6 @@
           />
         }
 
-        <!-- Viaje ya realizado: reportarlo (7 días, sin cancelar nada) -->
-        @if (isReportOpen(trip)) {
-          <app-after-trip-report [tripId]="trip.id" [isDriver]="true" />
-        }
-
         <ion-card class="driver-detail__impact">
           <ion-card-header>
             <ion-card-title>Impacto de este viaje</ion-card-title>
@@ -94,16 +89,20 @@
         <span
           class="status status--heading"
           [class.status--info]="trip.status === 'published'"
-          [class.status--accepted]="trip.status === 'confirmed' || trip.status === 'in_progress'"
+          [class.status--accepted]="
+            trip.status === 'confirmed' ||
+            trip.status === 'in_progress' ||
+            trip.status === 'finished'
+          "
           [class.status--danger]="trip.status === 'cancelled'"
         >
           {{ statusLabel() }}
         </span>
       </div>
       @if (trip.finishedBy === 'system') {
-        <p class="text-caption text-color-muted">
+        <span class="text-body-s text-color-muted">
           Cerrado automáticamente: había pasado una hora de la llegada estimada
-        </p>
+        </span>
       }
       <ion-breadcrumbs class="driver-detail__breadcrumbs ion-hide-md-down">
         <ion-breadcrumb routerLink="/tabs/trips" routerDirection="back">Tus viajes</ion-breadcrumb>

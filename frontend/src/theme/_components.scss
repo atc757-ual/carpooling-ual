@@ -820,6 +820,18 @@ ion-card.role-card ion-card-content {
   }
 }
 
+// Aviso corto con un icono delante (p. ej. «Este viaje ya terminó»): el
+// icono centrado con el texto, del alto de su línea (20px) y en azul
+.notice--icon {
+  align-items: center;
+
+  > ion-icon {
+    flex: none;
+    color: var(--color-link);
+    font-size: 1.25rem; // 20px
+  }
+}
+
 .notice--info {
   border-color: var(--color-link);
   background: var(--color-primary-subtle);
@@ -1425,12 +1437,22 @@ ion-toggle {
   min-width: 0;
 }
 
-.section-item__title {
+// La clase, dos veces: dentro de una tarjeta, Ionic deja los h2 sin negrita
+// (.card-content-md h2 { font-weight: normal }) y su selector pesa más que
+// una sola clase. Sin !important
+.section-item__title.section-item__title {
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-subtitle);
+  // Como los títulos de tarjeta: 18px en el móvil y 20px en escritorio
+  font-size: 1.125rem; // 18px
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-subtitle);
+}
+
+@media (min-width: 768px) {
+  .section-item__title.section-item__title {
+    font-size: 1.25rem; // 20px
+  }
 }
 
 .section-item__subtitle {

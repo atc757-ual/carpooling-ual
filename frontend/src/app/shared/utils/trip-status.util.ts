@@ -5,7 +5,8 @@ export const TRIP_STATUS_LABELS: Record<TripStatus, string> = {
   published: 'Publicado',
   confirmed: 'Confirmado',
   in_progress: 'En curso',
-  finished: 'Finalizado',
+  // Como la plaza del pasajero: el viaje se hizo
+  finished: 'Realizado',
   cancelled: 'Cancelado',
   expired: 'Sin pasajeros',
 };

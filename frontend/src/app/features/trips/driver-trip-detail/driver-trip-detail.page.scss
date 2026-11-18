@@ -1,3 +1,5 @@
+@use '../live-desktop-column' as live-column;
+
 // En el móvil, una columna: cabecera, recorrido, pasajeros y, debajo, las
 // acciones y el impacto. En escritorio, 8 + 4 (las dos columnas se desplazan juntas)
 .driver-detail {
@@ -130,5 +132,12 @@ ion-card.driver-detail__impact ion-card-content {
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     align-items: start;
     gap: var(--space-l);
+  }
+
+  // Cada columna, una sola tarjeta con sus secciones separadas por una línea
+  // fina, como «En curso» (_live-desktop-column.scss)
+  .driver-detail__main,
+  .driver-detail__aside {
+    @include live-column.card;
   }
 }

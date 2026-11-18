@@ -19,7 +19,13 @@ import {
   ModalController,
 } from '@ionic/angular';
 import { Router, RouterLink } from '@angular/router';
-import { locationOutline, shareSocialOutline, warningOutline } from 'ionicons/icons';
+import {
+  checkmarkCircleOutline,
+  closeCircleOutline,
+  locationOutline,
+  shareSocialOutline,
+  warningOutline,
+} from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
@@ -28,6 +34,7 @@ import { LocationError, LocationService } from '../../../core/services/location/
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { AfterTripReport, isAfterTripReportOpen } from '../after-trip-report/after-trip-report';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { publicWebOrigin } from '../../../shared/utils/public-url.util';
 import { formatTime } from '../../matching/trip-results';
@@ -68,7 +75,16 @@ const DECLARATION_MESSAGE =
 // «changed» al iniciar, terminar o cancelar
 @Component({
   selector: 'app-driver-trip-actions',
-  imports: [IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon, RouterLink],
+  imports: [
+    AfterTripReport,
+    IonButton,
+    IonCard,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonIcon,
+    RouterLink,
+  ],
   templateUrl: './driver-trip-actions.html',
   styleUrl: './driver-trip-actions.scss',
 })
@@ -112,17 +128,23 @@ export class DriverTripActions {
       ? `Podrás iniciarlo a las ${formatTime(new Date(this.startableAt()).toISOString())}, 10 min antes de salir.`
       : null;
   });
-  // Cancelado o terminado: las acciones, desactivadas, con el motivo
+  // Cancelado o terminado: sin acciones, solo el motivo
   readonly closedReason = computed(() => {
     switch (this.trip().status) {
       case 'cancelled':
-        return 'Este viaje se canceló: ya no se puede iniciar ni cancelar.';
+        return 'Este viaje se canceló.';
       case 'finished':
         return 'Este viaje ya terminó.';
       default:
         return null;
     }
   });
+  // El icono del aviso: hecho o cancelado
+  readonly closedIcon = computed(() =>
+    this.trip().status === 'finished' ? checkmarkCircleOutline : closeCircleOutline,
+  );
+  // «¿Algo fue mal?», solo en los 7 días siguientes a terminar
+  readonly isReportOpen = computed(() => isAfterTripReportOpen(this.trip()));
   readonly isChangingStatus = signal(false);
   // Anunciar las plazas libres (grupos de clase de la UAL) mientras el viaje
   // admite solicitudes: abierto, con plazas y antes del corte
