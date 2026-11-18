@@ -26,38 +26,9 @@ import { pathToFileURL } from 'node:url';
 
 const BLOCKING_SEVERITIES = new Set(['high', 'critical']);
 
-export const ALLOWED_ADVISORIES = [
-  {
-    id: 'GHSA-fc5q-39xc-vjpf',
-    project: 'backend',
-    packageName: 'picomatch',
-    range: '<=4.0.7',
-    // Por qué se permite (revisado el 18/11/2026):
-    // - Es un ReDoS: un patrón glob con extglobs repetidos («+(a|a)…») bloquea
-    //   la CPU. Solo se puede explotar si el atacante elige el patrón.
-    // - Nos llega por typeorm → tinyglobby → fdir → picomatch. TypeORM solo lo
-    //   usa para cargar clases de una carpeta (DirectoryExportedClassesLoader),
-    //   con los patrones fijos de entidades y migraciones de
-    //   src/database/data-source.ts (comandos de migración y seed). La API ni
-    //   siquiera pasa por ahí: usa autoLoadEntities (src/config/database.config.ts).
-    //   Ningún dato de un usuario llega a un glob.
-    // - No hay versión que lo arregle: GitHub da first_patched_version = null
-    //   y la última de picomatch es la 4.0.7. El único arreglo que propone npm
-    //   es bajar typeorm a la 0.3.31, un salto major hacia atrás que rompe el
-    //   backend.
-    // - El aviso existe desde el 19/10/2026, pero GitHub no lo revisó hasta el
-    //   17/11/2026: desde ese día `npm audit` falla en todas las ramas sin que
-    //   haya cambiado ninguna dependencia.
-    // Cuándo se quita: en cuanto salga una versión de picomatch que lo arregle
-    // (Dependabot la propondrá en su revisión semanal y este script fallará
-    // porque cambia el rango o porque deja de salir el aviso). Si para el 18/12
-    // aún no ha salido, se revisa de nuevo: si sigue sin arreglo y sin riesgo,
-    // se renueva la fecha un mes más en un PR propio.
-    reason:
-      'ReDoS only with attacker-controlled glob patterns; typeorm uses fixed config globs; no patched version',
-    reviewBy: '2026-12-18',
-  },
-];
+// Sin excepciones ahora. La de picomatch (GHSA-fc5q-39xc-vjpf) se quitó el
+// 18/11/2026: GitHub retiró el aviso ese día y `npm audit` dejó de darlo
+export const ALLOWED_ADVISORIES = [];
 
 // El GHSA de un aviso, sacado de su enlace (https://github.com/advisories/GHSA-…)
 function advisoryId(url) {
