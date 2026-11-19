@@ -10,7 +10,9 @@ import {
   viewChild,
 } from '@angular/core';
 import { IonCard, IonCardContent, IonContent, IonIcon, IonModal } from '@ionic/angular';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { chevronDownOutline } from 'ionicons/icons';
+import { Translate } from '../../core/i18n/translate';
 import { LiveSheetController } from '../../shared/utils/desktop-query.util';
 import type { LiveTripStatus } from './passenger-requests/live-trip-map/live-trip-map';
 
@@ -54,40 +56,46 @@ export function isArriving(destinationMeters: number | null): boolean {
   return destinationMeters !== null && destinationMeters <= ARRIVING_METERS;
 }
 
-// «Rumbo al campus», «Rumbo a casa» o, ya cerca, «Llegando al campus»
+// La clave de «Rumbo al campus», «Rumbo a casa» o, ya cerca, «Llegando al campus»
 export function headingTo(isToCampus: boolean, isNear: boolean): string {
   if (isToCampus) {
-    return isNear ? 'Llegando al campus' : 'Rumbo al campus';
+    return isNear ? 'live.hero.arrivingCampus' : 'live.hero.toCampus';
   }
-  return 'Rumbo a casa';
+  return 'live.hero.toHome';
 }
 
-// La etiqueta de los minutos: «En destino en 10 min»; con 1 o menos, «Llegando»
-export function etaTag(minutes: number, prefix: string): string {
+// La etiqueta de los minutos: «En destino en 10 min» (la clave lleva
+// {{ minutes }}); con 1 o menos, «Llegando»
+export function etaTag(minutes: number, key: string, translate: Translate): string {
   const rounded = Math.round(minutes);
-  return rounded <= 1 ? 'Llegando' : `${prefix} en ${rounded} min`;
+  return rounded <= 1 ? translate('live.hero.arriving') : translate(key, { minutes: rounded });
+}
+
+// Las claves de la etiqueta: camino de la recogida y sin posición reciente
+export interface LiveEtaKeys {
+  pickup: string;
+  stale: string;
 }
 
 export function liveEtaText(
   status: LiveTripStatus | null,
   isHeadingToPickup: boolean,
-  pickupPrefix: string,
-  staleLabel: string,
+  { keys, translate }: { keys: LiveEtaKeys; translate: Translate },
 ): string | null {
   if (!status) {
     return null;
   }
   if (status.isStale) {
-    return staleLabel;
+    return translate(keys.stale);
   }
   const minutes = isHeadingToPickup ? status.pickupMinutes : status.destinationMinutes;
-  const prefix = isHeadingToPickup ? pickupPrefix : 'En destino';
-  return minutes === null ? null : etaTag(minutes, prefix);
+  const key = isHeadingToPickup ? keys.pickup : 'live.hero.atDestinationIn';
+  return minutes === null ? null : etaTag(minutes, key, translate);
 }
 
 @Component({
   selector: 'app-live-trip-hero',
-  imports: [IonCard, IonCardContent, IonIcon],
+  imports: [IonCard, IonCardContent, IonIcon, TranslocoPipe],
   styleUrl: './live-trip.scss',
   template: `
     <ion-card class="live-hero">
@@ -102,7 +110,7 @@ export function liveEtaText(
           <ion-icon [icon]="icon()" aria-hidden="true" />
           <span class="live-hero__place">{{ place() }}</span>
         </p>
-        <ol class="live-journey" aria-label="Etapas de tu viaje">
+        <ol class="live-journey" [attr.aria-label]="'live.hero.stagesLabel' | transloco">
           @for (stage of stages(); track stage.label) {
             <li
               class="live-journey__stage"
@@ -131,7 +139,7 @@ const RELEASE_MS = 400;
 
 @Component({
   selector: 'app-live-trip-sheet',
-  imports: [NgTemplateOutlet, IonContent, IonIcon, IonModal],
+  imports: [NgTemplateOutlet, IonContent, IonIcon, IonModal, TranslocoPipe],
   styleUrl: './live-trip.scss',
   template: `
     @if (!sheet().isDesktop()) {
@@ -152,7 +160,11 @@ const RELEASE_MS = 400;
       >
         <ng-template>
           <ion-content>
-            <section #body class="live-sheet__body" aria-label="Tu viaje ahora">
+            <section
+              #body
+              class="live-sheet__body"
+              [attr.aria-label]="'live.viajeAhora' | transloco"
+            >
               <ng-container [ngTemplateOutlet]="content()" />
             </section>
             <!-- Si el contenido sigue por debajo de lo que se ve: un degradado
@@ -168,7 +180,7 @@ const RELEASE_MS = 400;
                 <button
                   type="button"
                   class="live-sheet__more-btn"
-                  aria-label="Ver más"
+                  [attr.aria-label]="'live.seeMore' | transloco"
                   (click)="sheet().expandStep()"
                 >
                   <ion-icon [icon]="moreIcon" aria-hidden="true" />

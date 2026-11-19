@@ -2,7 +2,7 @@
   <div class="live-trip-banner__text">
     <span id="live-trip-title" class="text-eyebrow live-trip-banner__eyebrow">
       <span class="live-trip-banner__dot" aria-hidden="true"></span>
-      Viaje en curso
+      {{ 'live.viajeCurso' | transloco }}
     </span>
     <span class="text-body text-body--strong live-trip-banner__route">{{ route() }}</span>
     @if (detail()) {
@@ -14,10 +14,10 @@
   <a
     class="icon-btn icon-btn--reveal live-trip-banner__open"
     appRevealOnTouch
-    aria-label="Abrir el viaje en curso"
+    [attr.aria-label]="'live.abrirViajeCurso' | transloco"
     [routerLink]="link()"
   >
     <ion-icon [icon]="liveIcon" aria-hidden="true" />
-    <span class="icon-btn__label" aria-hidden="true">Abrir viaje</span>
+    <span class="icon-btn__label" aria-hidden="true">{{ 'live.abrirViaje' | transloco }}</span>
   </a>
 </section>

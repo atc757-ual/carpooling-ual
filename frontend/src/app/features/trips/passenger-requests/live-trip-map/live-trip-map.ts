@@ -11,6 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { locateOutline } from 'ionicons/icons';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { GeoPoint } from '../../../../core/models/place.model';
@@ -20,7 +21,13 @@ import {
   LocationService,
 } from '../../../../core/services/location/location.service';
 import { TrackingService } from '../../../../core/services/tracking/tracking.service';
-import { areTogether, distanceMeters, estimatePickupMinutes, inAbout } from './live-trip-map.utils';
+import { LanguageService } from '../../../../core/services/ui/language.service';
+import {
+  areTogether,
+  distanceMeters,
+  estimatePickupMinutes,
+  etaMinutes,
+} from './live-trip-map.utils';
 import { LIVE_TRIP_MAP_RENDERER_FACTORY, LOAD_LEAFLET } from './live-trip-map-runtime';
 import type { LeafletModule, LiveTripMapRendererPort } from './live-trip-map-runtime';
 
@@ -42,7 +49,7 @@ export interface LiveTripStatus {
 
 @Component({
   selector: 'app-live-trip-map',
-  imports: [IonIcon],
+  imports: [IonIcon, TranslocoPipe],
   templateUrl: './live-trip-map.html',
   styleUrl: './live-trip-map.scss',
 })
@@ -52,10 +59,12 @@ export class LiveTripMap {
   private readonly destroyRef = inject(DestroyRef);
   private readonly loadLeaflet = inject(LOAD_LEAFLET);
   private readonly createRenderer = inject(LIVE_TRIP_MAP_RENDERER_FACTORY);
+  private readonly transloco = inject(TranslocoService);
+  private readonly language = inject(LanguageService);
 
   readonly tripId = input.required<string>();
   readonly pickupLocation = input<GeoPoint | null>(null);
-  readonly pickupName = input('Punto de recogida');
+  readonly pickupName = input('');
   readonly initialCenter = input.required<GeoPoint>();
   readonly active = input(true);
   // Quién mira: el pasajero ve el coche, su recogida y su ubicación; el
@@ -63,7 +72,7 @@ export class LiveTripMap {
   // recogida, sin su ubicación aparte (sería el mismo punto que el coche)
   readonly viewer = input<'passenger' | 'driver'>('passenger');
   // El nombre del conductor, para el pasajero («Lucía llega en…»)
-  readonly driverName = input('El conductor');
+  readonly driverName = input('');
   // El destino del viaje, para saber cuánto le falta al coche (opcional)
   readonly destination = input<GeoPoint | null>(null);
   // Lo que tapa por abajo la hoja de detalles del móvil (px): el encuadre
@@ -121,14 +130,16 @@ export class LiveTripMap {
   }));
   readonly statusChange = output<LiveTripStatus>();
 
-  readonly mapLabel = computed(() =>
-    this.isDriver()
-      ? `Tu posición y ${this.pickupName()}`
-      : `Posición actual del coche y ${this.pickupName()}`,
-  );
+  readonly mapLabel = computed(() => {
+    this.language.currentLanguage();
+    return this.transloco.translate(
+      this.isDriver() ? 'live.map.driverLabel' : 'live.map.passengerLabel',
+      { place: this.pickupName() || this.transloco.translate('live.thePickup') },
+    );
+  });
 
   protected readonly centerIcon = locateOutline;
-  protected readonly inAbout = inAbout;
+  protected readonly etaMinutes = etaMinutes;
   private readonly mapElement = viewChild<ElementRef<HTMLElement>>('map');
   private readonly documentVisible = signal(
     typeof document === 'undefined' || document.visibilityState === 'visible',
@@ -244,6 +255,7 @@ export class LiveTripMap {
       if (this.destroyed) return;
       this.renderer = this.createRenderer(leafletModule.default ?? leafletModule);
       this.renderer.setBottomInset(this.bottomInset());
+      this.renderer.setCarTitle(this.transloco.translate('live.map.carMarker'));
       this.renderer.initialize(element, center);
       this.mapReady.set(true);
     } finally {

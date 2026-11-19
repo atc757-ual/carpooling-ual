@@ -19,10 +19,13 @@ import {
   linkOutline,
   timeOutline,
 } from 'ionicons/icons';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { defer, switchMap, takeWhile, timer } from 'rxjs';
+import { Translate } from '../../../core/i18n/translate';
 import { ApiError } from '../../../core/models/api-error.model';
 import { SharedTrip } from '../../../core/models/trip-share.model';
 import { TripLiveShareService } from '../../../core/services/trips/trip-live-share.service';
+import { LanguageService } from '../../../core/services/ui/language.service';
 import { TripRouteMap } from '../../../shared/components/ui/trip-route-map/trip-route-map';
 import { injectLiveSheet } from '../../../shared/utils/desktop-query.util';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -59,12 +62,16 @@ const OPEN_STATUSES = new Set(['confirmed', 'in_progress']);
     IonToolbar,
     LiveTripSheet,
     TripRouteMap,
+    TranslocoPipe,
   ],
   templateUrl: './shared-trip.page.html',
   styleUrl: './shared-trip.page.scss',
 })
 export class SharedTripPage {
   private readonly liveShare = inject(TripLiveShareService);
+  private readonly transloco = inject(TranslocoService);
+  private readonly language = inject(LanguageService);
+  private readonly translate: Translate = (key, params) => this.transloco.translate(key, params);
 
   readonly token = input.required<string>();
 
@@ -85,7 +92,8 @@ export class SharedTripPage {
   });
   readonly status = computed(() => {
     const trip = this.trip();
-    return trip ? describeSharedTrip(trip, 'El pasajero') : null;
+    this.language.currentLanguage();
+    return trip ? describeSharedTrip(trip, this.translate) : null;
   });
   // Abierto (confirmado o en curso): se ofrece el 112. En curso y con la
   // ruta: el mapa con el coche
@@ -98,12 +106,17 @@ export class SharedTripPage {
   readonly vehicleText = computed(() => describeSharedVehicle(this.trip()?.vehicle ?? null));
   readonly mapEnds = computed(() => {
     const trip = this.trip();
-    return trip?.route ? routeEnds(trip.route, trip.destinationName) : null;
+    this.language.currentLanguage();
+    return trip?.route ? routeEnds(trip.route, trip.destinationName, this.translate) : null;
   });
   readonly carPoint = computed(() => {
     const position = this.trip()?.position;
+    this.language.currentLanguage();
     return position
-      ? { coordinates: position.location.coordinates, label: 'el coche, ahora' }
+      ? {
+          coordinates: position.location.coordinates,
+          label: this.translate('sharedTrip.carNow'),
+        }
       : null;
   });
   readonly isStale = computed(() => {

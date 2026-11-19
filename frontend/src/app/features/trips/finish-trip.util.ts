@@ -1,3 +1,4 @@
+import { Translate } from '../../core/i18n/translate';
 import { ApiError } from '../../core/models/api-error.model';
 import { GeoPoint } from '../../core/models/place.model';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
@@ -18,6 +19,7 @@ export interface FinishTripDeps {
   tracking: DriverTrackingService;
   toast: ToastService;
   location: LocationService;
+  translate: Translate;
 }
 
 export interface FinishableTrip {
@@ -64,14 +66,14 @@ export async function checkFinish(
 // destino) y deja de compartir la ubicación. true si se ha terminado; si
 // falla, lo dice con un aviso
 export async function completeFinish(
-  deps: Pick<FinishTripDeps, 'driver' | 'tracking' | 'toast'>,
+  deps: Pick<FinishTripDeps, 'driver' | 'tracking' | 'toast' | 'translate'>,
   tripId: string,
   point: [number, number] | null,
 ): Promise<boolean> {
   try {
     await deps.driver.finishTrip(tripId, point);
     deps.tracking.stop();
-    void deps.toast.showSuccess('Viaje terminado. Gracias por compartir coche.');
+    void deps.toast.showSuccess(deps.translate('live.finish.done'));
     return true;
   } catch (error) {
     void deps.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
@@ -89,20 +91,21 @@ export async function finishTrip(
   icon: string,
 ): Promise<boolean> {
   const { point, distance, isFar } = await checkFinish(deps.location, trip);
+  const t = deps.translate;
   const accepted = await deps.confirm.ask(
     isFar && distance !== null
       ? {
-          header: '¿Terminar lejos del destino?',
-          message: `Aún estás a ${formatDistance(distance)} del destino. Si terminas ahora, tus pasajeros verán el viaje como finalizado.`,
-          confirmText: 'Terminar igualmente',
-          cancelText: 'Seguir en el viaje',
+          header: t('live.finish.farHeader'),
+          message: `${t('live.stillFar', { distance: formatDistance(distance) })} ${t('live.terminasAhoraTusPasajeros')}`,
+          confirmText: t('live.finishAnyway'),
+          cancelText: t('live.seguirViaje'),
           isWarning: true,
         }
       : {
-          header: '¿Terminar el viaje?',
-          message: 'Dejarás de compartir tu ubicación y el viaje pasará a finalizado.',
-          confirmText: 'Terminar',
-          cancelText: 'Seguir en el viaje',
+          header: t('live.terminarViaje'),
+          message: t('live.dejarasCompartirUbicacionViaje'),
+          confirmText: t('live.terminar'),
+          cancelText: t('live.seguirViaje'),
           icon,
         },
   );

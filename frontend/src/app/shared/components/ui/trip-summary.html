@@ -1,4 +1,4 @@
-<h2 class="visually-hidden">Recorrido y conductor</h2>
+<h2 class="visually-hidden">{{ 'ui.recorridoConductor' | transloco }}</h2>
 <app-route-timeline [stops]="summary().stops" />
 <div class="trip-summary__facts">
   <span class="trip-summary__seats">{{ summary().seatSummary }}</span>
@@ -7,7 +7,7 @@
   }
 </div>
 <div class="trip-summary__driver">
-  <h2 class="visually-hidden">Quién conduce</h2>
+  <h2 class="visually-hidden">{{ 'ui.quienConduce' | transloco }}</h2>
   <app-trip-driver [driver]="summary().driver" />
   @if (summary().vehicle; as vehicle) {
     <div class="trip-summary__vehicle">
@@ -30,7 +30,10 @@
   }
 </div>
 @if (summary().preferences?.length) {
-  <section class="trip-summary__preferences" aria-label="Preferencias del conductor">
+  <section
+    class="trip-summary__preferences"
+    [attr.aria-label]="'ui.preferenciasDelConductor' | transloco"
+  >
     @for (preference of summary().preferences; track preference) {
       <span class="trip-summary__preference">{{ preference }}</span>
     }

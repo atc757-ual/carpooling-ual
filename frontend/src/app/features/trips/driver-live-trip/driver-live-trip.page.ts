@@ -25,7 +25,9 @@ import {
   personRemoveOutline,
   walkOutline,
 } from 'ionicons/icons';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
+import { Translate } from '../../../core/i18n/translate';
 import { ApiError } from '../../../core/models/api-error.model';
 import { ChatContact } from '../../../core/models/chat.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
@@ -34,6 +36,7 @@ import { DriverService } from '../../../core/services/drivers/driver.service';
 import { LocationService } from '../../../core/services/location/location.service';
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
+import { LanguageService } from '../../../core/services/ui/language.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import {
   injectLiveSheet,
@@ -69,7 +72,7 @@ const PICKUP_GRACE_MS = 5 * 60 * 1000;
 const CLOCK_UPDATE_MS = 60_000;
 // Cada cuánto se vuelven a pedir las plazas (como en la pantalla del pasajero)
 const REFRESH_MS = 15_000;
-const DRIVER_STAGES = ['Recogidas', 'Al destino', 'Llegada'];
+const DRIVER_STAGES = ['live.stages.pickups', 'live.stages.toDestination', 'live.stages.arrival'];
 // La URL de esta pantalla: la hoja del móvil solo está abierta en ella
 const DRIVE_URL = /^\/tabs\/trips\/drive\//;
 
@@ -99,6 +102,7 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
     LiveTripSheet,
     TripReviewCard,
     RouterLink,
+    TranslocoPipe,
   ],
   templateUrl: './driver-live-trip.page.html',
   styleUrls: [
@@ -116,6 +120,9 @@ export class DriverLiveTripPage {
   private readonly tripCall = inject(TripCallService);
   private readonly location = inject(LocationService);
   private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
+  private readonly language = inject(LanguageService);
+  private readonly translate: Translate = (key, params) => this.transloco.translate(key, params);
 
   private readonly tripId = toSignal(
     inject(ActivatedRoute).paramMap.pipe(map((params) => params.get('id') ?? '')),
@@ -138,7 +145,8 @@ export class DriverLiveTripPage {
   // Para alguien de confianza: solo el trayecto (sin datos de los pasajeros)
   readonly safetyShareText = computed(() => {
     const trip = this.trip();
-    return trip ? buildLiveShareText(trip) : '';
+    this.language.currentLanguage();
+    return trip ? buildLiveShareText(trip, this.translate) : '';
   });
 
   // Los pasajeros aceptados (también los que ya se bajaron), por hora de recogida
@@ -237,14 +245,13 @@ export class DriverLiveTripPage {
   readonly isPageVisible = signal(true);
   // Lo que el mapa sabe en directo (minutos hasta la recogida y el destino)
   readonly liveStatus = signal<LiveTripStatus | null>(null);
-  readonly etaText = computed(() =>
-    liveEtaText(
-      this.liveStatus(),
-      Boolean(this.nextPickup()),
-      'En la recogida',
-      'Sin tu ubicación',
-    ),
-  );
+  readonly etaText = computed(() => {
+    this.language.currentLanguage();
+    return liveEtaText(this.liveStatus(), Boolean(this.nextPickup()), {
+      keys: { pickup: 'live.hero.atPickupIn', stale: 'live.hero.noOwnLocation' },
+      translate: this.translate,
+    });
+  });
   readonly isToCampus = computed(() => isCampusName(this.trip()?.destinationName));
   // Recogidas hechas y a menos de 300 m del campus: «Llegada» es la etapa actual
   readonly isNearDestination = computed(
@@ -255,13 +262,18 @@ export class DriverLiveTripPage {
   );
   readonly heroTitle = computed(() => {
     const next = this.nextPickup();
+    this.language.currentLanguage();
     return next
-      ? `Recoge a ${getFirstName(next.passenger.name)}`
-      : headingTo(this.isToCampus(), this.isNearDestination());
+      ? this.translate('live.hero.pickUp', { name: getFirstName(next.passenger.name) })
+      : this.translate(headingTo(this.isToCampus(), this.isNearDestination()));
   });
-  readonly stages = computed(() =>
-    journeyStages(DRIVER_STAGES, stageIndex(!this.arePickupsDone(), this.isNearDestination())),
-  );
+  readonly stages = computed(() => {
+    this.language.currentLanguage();
+    return journeyStages(
+      DRIVER_STAGES.map((key) => this.translate(key)),
+      stageIndex(!this.arePickupsDone(), this.isNearDestination()),
+    );
+  });
   readonly sheet = injectLiveSheet(DRIVE_URL);
   // Las acciones (terminar, compartir, reportar, SOS) en filas con su texto
   // solo si la columna de 4 tiene sitio; si no (móvil y tabletas), en la fila
@@ -317,7 +329,7 @@ export class DriverLiveTripPage {
       if (this.isInProgress() && !this.justFinished() && this.hasEveryoneGotOff()) {
         this.tracking.stop();
         this.justFinished.set(true);
-        void this.toast.showSuccess('Se han bajado todos: viaje terminado.');
+        void this.toast.showSuccess(this.translate('live.toast.allOff'));
       }
     });
     // Si se entra con el viaje en curso, su posición se sigue enviando
@@ -433,7 +445,7 @@ export class DriverLiveTripPage {
     this.validatingBoardMap.update((current) => ({ ...current, [requestId]: true }));
     try {
       await this.driver.boardPassenger(requestId, code);
-      void this.toast.showSuccess('¡Recogida validada! Pasajero a bordo.');
+      void this.toast.showSuccess(this.translate('live.toast.boarded'));
       this.requests.reload();
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
@@ -444,18 +456,17 @@ export class DriverLiveTripPage {
 
   async handleNoShow(requestId: string): Promise<void> {
     const confirmed = await this.confirm.ask({
-      header: '¿Marcar que no se presentó?',
-      message:
-        'Se liberará la plaza y se registrará como cancelación tardía del pasajero. Esta acción no se puede deshacer.',
-      confirmText: 'Marcar no presentado',
-      cancelText: 'Seguir esperando',
+      header: this.translate('live.noShow.header'),
+      message: this.translate('live.noShow.message'),
+      confirmText: this.translate('live.noShow.confirm'),
+      cancelText: this.translate('live.noShow.cancel'),
     });
     if (!confirmed) {
       return;
     }
     try {
       await this.driver.markNoShow(requestId);
-      void this.toast.showSuccess('Pasajero marcado como no presentado.');
+      void this.toast.showSuccess(this.translate('live.toast.noShow'));
       this.requests.reload();
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
@@ -493,9 +504,9 @@ export class DriverLiveTripPage {
   // Dónde recoger (sin hora por ahora: la estimada no suma las otras recogidas)
   protected pickupPlace(request: SeatRequest): string {
     if (request.direction === 'from-campus') {
-      return 'En tu salida';
+      return this.translate('live.atYourStart');
     }
-    return request.pickupName ?? 'Su punto de recogida';
+    return request.pickupName ?? this.translate('live.theirPickup');
   }
 
   dismissGap(): void {
@@ -521,7 +532,12 @@ export class DriverLiveTripPage {
       return;
     }
     this.isFinishing.set(true);
-    const deps = { driver: this.driver, tracking: this.tracking, toast: this.toast };
+    const deps = {
+      driver: this.driver,
+      tracking: this.tracking,
+      toast: this.toast,
+      translate: this.translate,
+    };
     if (await completeFinish(deps, trip.id, check.point)) {
       this.finishCheck.set(null);
       this.justFinished.set(true);
@@ -539,7 +555,7 @@ export class DriverLiveTripPage {
   // Compartir el viaje con alguien de confianza (el menú del sistema)
   async handleShareTrip(): Promise<void> {
     await this.tripShare.share({
-      title: 'Mi viaje en Carpooling UAL',
+      title: this.translate('share.liveTitle'),
       text: this.safetyShareText(),
     });
   }
@@ -548,7 +564,7 @@ export class DriverLiveTripPage {
   // enviarla se cancela el viaje (RF-23) y vuelve a Tus viajes
   readonly isReportingIncident = signal(false);
   async handleIncidentReported(): Promise<void> {
-    await this.toast.showSuccess('Incidencia registrada. El viaje se ha cancelado.');
+    await this.toast.showSuccess(this.translate('live.toast.incidentDriver'));
     await this.leaveFinished();
   }
 

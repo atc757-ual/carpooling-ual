@@ -1,5 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { paperPlaneOutline } from 'ionicons/icons';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
@@ -10,12 +11,13 @@ import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.direct
 // pastillas de cada pantalla
 @Component({
   selector: 'app-live-trip-safety',
-  imports: [IonCard, IonCardContent, IonIcon, RevealOnTouch],
+  imports: [IonCard, IonCardContent, IonIcon, RevealOnTouch, TranslocoPipe],
   templateUrl: './live-trip-safety.html',
   styleUrl: './live-trip-safety.scss',
 })
 export class LiveTripSafety {
   private readonly tripShare = inject(TripShareService);
+  private readonly transloco = inject(TranslocoService);
 
   // El mensaje para la persona de confianza (el trayecto y, del pasajero, con quién)
   readonly shareText = input.required<string>();
@@ -23,6 +25,9 @@ export class LiveTripSafety {
   protected readonly shareIcon = paperPlaneOutline;
 
   async handleShare(): Promise<void> {
-    await this.tripShare.share({ title: 'Mi viaje en Carpooling UAL', text: this.shareText() });
+    await this.tripShare.share({
+      title: this.transloco.translate('share.liveTitle'),
+      text: this.shareText(),
+    });
   }
 }

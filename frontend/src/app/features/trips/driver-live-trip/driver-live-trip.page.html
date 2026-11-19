@@ -3,25 +3,29 @@
     @if (tripResource.isLoading() && !tripResource.hasValue()) {
       <output class="driver-live-trip__loading" aria-live="polite">
         <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-caption text-color-muted">Cargando tu viaje…</span>
+        <span class="text-caption text-color-muted">{{ 'live.cargandoViaje' | transloco }}</span>
       </output>
     } @else if (tripResource.error()) {
       <ion-card>
         <ion-card-content class="driver-live-trip__state">
-          <div class="text-subtitle">No encontramos este viaje</div>
-          <p class="text-body-s text-color-muted">Puede que ya no esté disponible.</p>
-          <ion-button routerLink="/tabs/trips">Volver a Tus viajes</ion-button>
+          <div class="text-subtitle">{{ 'live.encontramosEsteViaje' | transloco }}</div>
+          <p class="text-body-s text-color-muted">
+            {{ 'live.puedeQueEsteDisponible' | transloco }}
+          </p>
+          <ion-button routerLink="/tabs/trips">{{ 'live.volverTusViajes' | transloco }}</ion-button>
         </ion-card-content>
       </ion-card>
     } @else if (trip(); as trip) {
       @if (!isInProgress()) {
         <ion-card>
           <ion-card-content class="driver-live-trip__state">
-            <div class="text-subtitle">Este viaje no está en curso</div>
+            <div class="text-subtitle">{{ 'live.esteViajeEstaCurso' | transloco }}</div>
             <p class="text-body-s text-color-muted">
-              Podrás seguirlo aquí cuando lo inicies desde Tus viajes.
+              {{ 'live.podrasSeguirloAquiCuando' | transloco }}
             </p>
-            <ion-button routerLink="/tabs/trips">Volver a Tus viajes</ion-button>
+            <ion-button routerLink="/tabs/trips">{{
+              'live.volverTusViajes' | transloco
+            }}</ion-button>
           </ion-card-content>
         </ion-card>
       } @else {
@@ -51,20 +55,24 @@
                   <!-- Mientras valora, el subtítulo dice qué toca y, a la
                        derecha, «1 de 2»; al acabar, los coches de menos -->
                   <div class="driver-live-trip__done-text">
-                    <h2 class="driver-live-trip__done-title">¡Viaje terminado!</h2>
+                    <h2 class="driver-live-trip__done-title">
+                      {{ 'live.viajeTerminado' | transloco }}
+                    </h2>
                     <p class="text-body-s text-color-muted">
                       @if (reviewStep()) {
-                        Valora a tus pasajeros
+                        {{ 'live.valoraTusPasajeros' | transloco }}
                       } @else {
-                        {{ boardedCount() }}
-                        {{ boardedCount() === 1 ? 'coche menos' : 'coches menos' }} en el campus
+                        {{
+                          (boardedCount() === 1 ? 'live.carsLess.one' : 'live.carsLess.other')
+                            | transloco: { count: boardedCount() }
+                        }}
                       }
                     </p>
                   </div>
                   @if (reviewStep(); as step) {
                     @if (step.total > 1) {
                       <span class="driver-live-trip__done-step text-caption text-color-muted">
-                        {{ step.number }} de {{ step.total }}
+                        {{ 'live.stepOf' | transloco: { number: step.number, total: step.total } }}
                       </span>
                     }
                   }
@@ -83,7 +91,7 @@
                 }
                 @if (reviewTargets().length === 0 || areReviewsDone()) {
                   <ion-button expand="block" (click)="leaveFinished()">
-                    Volver a Tus viajes
+                    {{ 'live.volverTusViajes' | transloco }}
                   </ion-button>
                 }
               </ion-card-content>
@@ -100,12 +108,14 @@
                     aria-hidden="true"
                   />
                   <h2 class="driver-live-trip__done-title">
-                    ¿Ha bajado {{ firstName(dropOff.passenger.name) }}?
+                    {{
+                      'live.dropOffQuestion'
+                        | transloco: { name: firstName(dropOff.passenger.name) }
+                    }}
                   </h2>
                 </div>
                 <p class="text-body-s text-color-muted">
-                  Su viaje terminará y podrá valorarte. Si ya lo marcó
-                  {{ firstName(dropOff.passenger.name) }}, no cambia nada.
+                  {{ 'live.dropOffHelp' | transloco: { name: firstName(dropOff.passenger.name) } }}
                 </p>
                 <div class="driver-live-trip__finish">
                   <ion-button
@@ -113,7 +123,7 @@
                     [disabled]="isDroppingOff(dropOff.id)"
                     (click)="confirmDropOff(dropOff)"
                   >
-                    Ha bajado
+                    {{ 'live.bajado' | transloco }}
                   </ion-button>
                   <ion-button
                     expand="block"
@@ -121,7 +131,7 @@
                     [disabled]="isDroppingOff(dropOff.id)"
                     (click)="pendingDropOff.set(null)"
                   >
-                    Todavía no
+                    {{ 'live.todavia' | transloco }}
                   </ion-button>
                 </div>
               </ion-card-content>
@@ -138,7 +148,9 @@
                     [icon]="confirmFinishIcon"
                     aria-hidden="true"
                   />
-                  <h2 class="driver-live-trip__done-title">¿Terminar el viaje?</h2>
+                  <h2 class="driver-live-trip__done-title">
+                    {{ 'live.terminarViaje' | transloco }}
+                  </h2>
                 </div>
                 <output
                   class="notice"
@@ -147,19 +159,21 @@
                 >
                   <span>
                     @if (check.isFar && check.distance !== null) {
-                      <b>Aún estás a {{ formatDistance(check.distance) }} del destino.</b>
-                      Si terminas ahora, tus pasajeros verán el viaje como finalizado.
+                      <b>{{
+                        'live.stillFar' | transloco: { distance: formatDistance(check.distance) }
+                      }}</b>
+                      {{ 'live.terminasAhoraTusPasajeros' | transloco }}
                     } @else {
-                      Dejarás de compartir tu ubicación y el viaje pasará a finalizado.
+                      {{ 'live.dejarasCompartirUbicacionViaje' | transloco }}
                     }
                   </span>
                 </output>
                 <div class="driver-live-trip__finish">
                   <ion-button expand="block" [disabled]="isFinishing()" (click)="confirmFinish()">
                     @if (isFinishing()) {
-                      Terminando…
+                      {{ 'live.terminando' | transloco }}
                     } @else {
-                      {{ check.isFar ? 'Terminar igualmente' : 'Terminar' }}
+                      {{ (check.isFar ? 'live.finishAnyway' : 'live.terminar') | transloco }}
                     }
                   </ion-button>
                   <ion-button
@@ -168,7 +182,7 @@
                     [disabled]="isFinishing()"
                     (click)="cancelFinish()"
                   >
-                    Seguir en el viaje
+                    {{ 'live.seguirViaje' | transloco }}
                   </ion-button>
                 </div>
               </ion-card-content>
@@ -206,10 +220,12 @@
                   <div class="live-alert__row">
                     <div class="live-alert__text">
                       <h2 id="finish-alert-title" class="text-subtitle">
-                        {{ isReadyToFinish() ? 'Ya no queda nadie por llevar' : '¿Has llegado?' }}
+                        {{
+                          (isReadyToFinish() ? 'live.nobodyLeft' : 'live.hasLlegado') | transloco
+                        }}
                       </h2>
                       <p class="text-caption text-color-muted">
-                        Termina el viaje para dejar de compartir tu ubicación.
+                        {{ 'live.terminaViajeParaDejar' | transloco }}
                       </p>
                     </div>
                     <ion-button
@@ -217,7 +233,7 @@
                       [disabled]="isFinishing()"
                       (click)="handleFinish()"
                     >
-                      {{ isFinishing() ? 'Comprobando…' : 'Terminar viaje' }}
+                      {{ (isFinishing() ? 'live.checking' : 'live.terminarViaje3') | transloco }}
                     </ion-button>
                   </div>
                 </ion-card-content>
@@ -233,13 +249,12 @@
                 <ion-card-content>
                   <output class="notice notice--warning driver-live-trip__gap">
                     <span>
-                      <b>Estuviste {{ minutes }} min sin compartir tu ubicación</b>
-                      Con la pantalla bloqueada o en otra app, tus pasajeros no ven dónde estás.
-                      Mantén esta pantalla abierta durante el viaje.
+                      <b>{{ 'live.gapTitle' | transloco: { minutes } }}</b>
+                      {{ 'live.conPantallaBloqueadaOtra' | transloco }}
                     </span>
-                    <ion-button fill="clear" size="small" (click)="dismissGap()"
-                      >Entendido</ion-button
-                    >
+                    <ion-button fill="clear" size="small" (click)="dismissGap()">{{
+                      'live.entendido' | transloco
+                    }}</ion-button>
                   </output>
                 </ion-card-content>
               </ion-card>
@@ -254,13 +269,23 @@
                   <!-- El título y, debajo, cuántos van; a la derecha, la etiqueta
                        de que se comparte la ubicación (y en escritorio, las flechas) -->
                   <div class="pickups-head__text">
-                    <h2 id="pickups-title" class="text-subtitle">Recogidas</h2>
+                    <h2 id="pickups-title" class="text-subtitle">
+                      {{ 'live.recogidas' | transloco }}
+                    </h2>
                     @if (passengers().length > 0) {
                       <p class="text-caption text-color-muted">
-                        {{ onBoardCount() }} de {{ passengers().length }} en el coche
+                        {{
+                          'live.onBoard'
+                            | transloco: { count: onBoardCount(), total: passengers().length }
+                        }}
                         @if (droppedOffCount() > 0) {
-                          · {{ droppedOffCount() }}
-                          {{ droppedOffCount() === 1 ? 'se ha bajado' : 'se han bajado' }}
+                          ·
+                          {{
+                            (droppedOffCount() === 1
+                              ? 'live.droppedOff.one'
+                              : 'live.droppedOff.other'
+                            ) | transloco: { count: droppedOffCount() }
+                          }}
                         }
                       </p>
                     }
@@ -268,7 +293,7 @@
                   @if (isSharing()) {
                     <span class="pickups-head__tag text-caption">
                       <ion-icon [icon]="locationIcon" aria-hidden="true" />
-                      Ubicación en directo
+                      {{ 'live.ubicacionDirecto' | transloco }}
                     </span>
                   }
                   @if (passengers().length > 1 && !hasCarouselArrows()) {
@@ -280,7 +305,7 @@
                     <button
                       type="button"
                       class="icon-btn pickup-arrow"
-                      aria-label="Pasajero anterior"
+                      [attr.aria-label]="'live.pasajeroAnterior' | transloco"
                       [disabled]="carouselIndex() === 0"
                       (click)="scrollToPickup(passengers()[carouselIndex() - 1].id)"
                     >
@@ -289,7 +314,7 @@
                     <button
                       type="button"
                       class="icon-btn pickup-arrow"
-                      aria-label="Pasajero siguiente"
+                      [attr.aria-label]="'live.pasajeroSiguiente' | transloco"
                       [disabled]="carouselIndex() >= passengers().length - 1"
                       (click)="scrollToPickup(passengers()[carouselIndex() + 1].id)"
                     >
@@ -298,9 +323,13 @@
                   </div>
                 </ng-template>
                 @if (requests.isLoading() && !requests.hasValue()) {
-                  <p class="text-caption text-color-muted">Cargando tus pasajeros…</p>
+                  <p class="text-caption text-color-muted">
+                    {{ 'live.cargandoTusPasajeros' | transloco }}
+                  </p>
                 } @else if (passengers().length === 0) {
-                  <p class="text-body-s text-color-muted">Viajas sin pasajeros.</p>
+                  <p class="text-body-s text-color-muted">
+                    {{ 'live.viajasSinPasajeros' | transloco }}
+                  </p>
                 } @else {
                   <!-- En tabletas, las flechas van sobre el carrusel, arriba a la
                        derecha de la tarjeta (en la línea del nombre) -->
@@ -314,8 +343,8 @@
                   <section
                     class="pickup-carousel"
                     appDragScroll
-                    aria-roledescription="carrusel"
-                    aria-label="Pasajeros por orden de recogida"
+                    [attr.aria-roledescription]="'live.carousel' | transloco"
+                    [attr.aria-label]="'live.pasajerosPorOrdenRecogida' | transloco"
                     (scroll)="handleCarouselScroll($event)"
                   >
                     @for (request of passengers(); track request.id) {
@@ -326,7 +355,7 @@
                         [class.pickup-slide--active]="request.id === focusPassengerId()"
                         [class.pickup-slide--done]="request.boardedAt"
                         [class.pickup-slide--off]="request.status === 'completed'"
-                        aria-roledescription="pasajero"
+                        [attr.aria-roledescription]="'live.passengerRole' | transloco"
                         [attr.aria-label]="firstName(request.passenger.name)"
                       >
                         <div class="pickup-slide__main">
@@ -336,9 +365,13 @@
                             </span>
                             <span class="text-caption text-color-muted">
                               @if (request.status === 'completed') {
-                                Se ha bajado
+                                {{ 'live.bajado2' | transloco }}
                               } @else {
-                                {{ request.boardedAt ? 'En el coche' : pickupPlace(request) }}
+                                {{
+                                  request.boardedAt
+                                    ? ('live.inCar' | transloco)
+                                    : pickupPlace(request)
+                                }}
                               }
                             </span>
                           </div>
@@ -350,12 +383,15 @@
                                 type="text"
                                 inputmode="numeric"
                                 maxlength="4"
-                                [placeholder]="isActive ? 'Código' : 'Después'"
+                                [placeholder]="
+                                  (isActive ? 'live.codePlaceholder' : 'live.codeLater') | transloco
+                                "
                                 [disabled]="!isActive"
                                 [value]="boardCode(request.id)"
                                 (input)="handleBoardCodeInput(request.id, $event)"
                                 [attr.aria-label]="
-                                  'Código de recogida de ' + firstName(request.passenger.name)
+                                  'live.codeAria'
+                                    | transloco: { name: firstName(request.passenger.name) }
                                 "
                               />
                               <ion-button
@@ -369,12 +405,15 @@
                                 @if (isValidatingBoard(request.id)) {
                                   <ion-spinner name="crescent" slot="start" aria-hidden="true" />
                                 }
-                                Validar
+                                {{ 'live.validate' | transloco }}
                               </ion-button>
                             </div>
                             @if (isActive && !canMarkNoShow(request)) {
                               <span class="text-caption text-color-muted">
-                                «No se presentó» en {{ noShowWaitMinutes(request) }} min
+                                {{
+                                  'live.noShowIn'
+                                    | transloco: { minutes: noShowWaitMinutes(request) }
+                                }}
                               </span>
                             }
                           }
@@ -389,7 +428,8 @@
                               class="icon-btn"
                               disabled
                               [attr.aria-label]="
-                                firstName(request.passenger.name) + ' ya se ha bajado: sin mensajes'
+                                'live.droppedNoChat'
+                                  | transloco: { name: firstName(request.passenger.name) }
                               "
                             >
                               <ion-icon [icon]="chatIcon" aria-hidden="true" />
@@ -400,11 +440,14 @@
                               appRevealOnTouch
                               [routerLink]="['/tabs/messages', trip.id, request.passenger.id]"
                               [attr.aria-label]="
-                                'Enviar un mensaje a ' + firstName(request.passenger.name)
+                                'live.messageTo'
+                                  | transloco: { name: firstName(request.passenger.name) }
                               "
                             >
                               <ion-icon [icon]="chatIcon" aria-hidden="true" />
-                              <span class="icon-btn__label" aria-hidden="true">Enviar mensaje</span>
+                              <span class="icon-btn__label" aria-hidden="true">{{
+                                'live.enviarMensaje' | transloco
+                              }}</span>
                             </a>
                           }
                           <button
@@ -422,7 +465,10 @@
                           >
                             <ion-icon [icon]="callIcon" aria-hidden="true" />
                             <span class="icon-btn__label" aria-hidden="true">
-                              Llamar a {{ firstName(request.passenger.name) }}
+                              {{
+                                'common.tripCall.callTo'
+                                  | transloco: { name: firstName(request.passenger.name) }
+                              }}
                             </span>
                           </button>
                           @if (!request.boardedAt) {
@@ -432,12 +478,15 @@
                               appRevealOnTouch
                               [disabled]="!isActive || !canMarkNoShow(request)"
                               [attr.aria-label]="
-                                firstName(request.passenger.name) + ' no se presentó'
+                                'live.noShowAria'
+                                  | transloco: { name: firstName(request.passenger.name) }
                               "
                               (click)="handleNoShow(request.id)"
                             >
                               <ion-icon [icon]="noShowIcon" aria-hidden="true" />
-                              <span class="icon-btn__label" aria-hidden="true">No se presentó</span>
+                              <span class="icon-btn__label" aria-hidden="true">{{
+                                'live.presento' | transloco
+                              }}</span>
                             </button>
                           } @else if (request.status === 'accepted') {
                             <!-- A bordo: «Ha bajado» cierra su plaza (con el coche
@@ -451,7 +500,10 @@
                               appRevealOnTouch
                               [class.icon-btn--busy]="isDroppingOff(request.id)"
                               [disabled]="isDroppingOff(request.id)"
-                              [attr.aria-label]="firstName(request.passenger.name) + ' ha bajado'"
+                              [attr.aria-label]="
+                                'live.droppedOffAria'
+                                  | transloco: { name: firstName(request.passenger.name) }
+                              "
                               (click)="handleDropOff(request)"
                             >
                               @if (isDroppingOff(request.id)) {
@@ -459,7 +511,9 @@
                               } @else {
                                 <ion-icon [icon]="dropOffIcon" aria-hidden="true" />
                               }
-                              <span class="icon-btn__label" aria-hidden="true"> Ha bajado </span>
+                              <span class="icon-btn__label" aria-hidden="true">
+                                {{ 'live.bajado' | transloco }}
+                              </span>
                             </button>
                           }
                         </div>
@@ -475,7 +529,9 @@
                           type="button"
                           class="pickup-dots__dot"
                           [class.pickup-dots__dot--current]="index === carouselIndex()"
-                          [attr.aria-label]="'Ver a ' + firstName(request.passenger.name)"
+                          [attr.aria-label]="
+                            'live.seeName' | transloco: { name: firstName(request.passenger.name) }
+                          "
                           [attr.aria-current]="index === carouselIndex() ? 'true' : null"
                           (click)="scrollToPickup(request.id)"
                         ></button>
@@ -507,9 +563,9 @@
                   <ion-card-content>
                     <div class="section-item">
                       <div class="section-item__text">
-                        <h2 class="section-item__title">Emergencia</h2>
+                        <h2 class="section-item__title">{{ 'live.emergencia' | transloco }}</h2>
                         <p class="section-item__subtitle">
-                          Si hay una emergencia, llama al 112: es gratis y atienden 24 h.
+                          {{ 'live.hayUnaEmergenciaLlama' | transloco }}
                         </p>
                       </div>
                       <ng-container [ngTemplateOutlet]="sosButton" />
@@ -521,7 +577,7 @@
                      los despliega y explica debajo qué hacen; el segundo actúa) -->
                 <div class="live-actions" [class.live-actions--compact]="sheet.isDesktop()">
                   <p class="live-actions__hint" aria-live="polite">
-                    {{ revealedHint() ?? 'Toca un botón para ver qué hace.' }}
+                    {{ revealedHint() ?? ('live.tapHint' | transloco) }}
                   </p>
                   <div class="live-actions__row">
                     @if (!showFinishAlert()) {
@@ -529,36 +585,42 @@
                         type="button"
                         class="icon-btn icon-btn--reveal"
                         appRevealOnTouch
-                        appRevealHint="Hazlo cuando se hayan bajado todos: dejarán de ver dónde estás."
-                        aria-label="Terminar el viaje"
+                        [appRevealHint]="'live.hazloCuandoHayanBajado' | transloco"
+                        [attr.aria-label]="'live.terminarViaje2' | transloco"
                         [disabled]="isFinishing()"
                         (click)="handleFinish()"
                       >
                         <ion-icon [icon]="confirmFinishIcon" aria-hidden="true" />
-                        <span class="icon-btn__label" aria-hidden="true">Terminar</span>
+                        <span class="icon-btn__label" aria-hidden="true">{{
+                          'live.terminar' | transloco
+                        }}</span>
                       </button>
                     }
                     <button
                       type="button"
                       class="icon-btn icon-btn--reveal"
                       appRevealOnTouch
-                      appRevealHint="Envía tu viaje a alguien de confianza."
-                      aria-label="Compartir el viaje con alguien de confianza"
+                      [appRevealHint]="'live.enviaViajeAlguienConfianza' | transloco"
+                      [attr.aria-label]="'live.compartirViajeConAlguien' | transloco"
                       (click)="handleShareTrip()"
                     >
                       <ion-icon [icon]="shareIcon" aria-hidden="true" />
-                      <span class="icon-btn__label" aria-hidden="true">Compartir</span>
+                      <span class="icon-btn__label" aria-hidden="true">{{
+                        'live.compartir' | transloco
+                      }}</span>
                     </button>
                     <button
                       type="button"
                       class="icon-btn icon-btn--reveal"
                       appRevealOnTouch
-                      appRevealHint="Si no puedes seguir, repórtalo: lo revisará un administrador."
-                      aria-label="Enviar un reporte: abre el formulario de la incidencia"
+                      [appRevealHint]="'live.puedesSeguirReportaloRevisara' | transloco"
+                      [attr.aria-label]="'live.enviarReporteAbreFormulario' | transloco"
                       (click)="isReportingIncident.set(true)"
                     >
                       <ion-icon [icon]="reportIcon" aria-hidden="true" />
-                      <span class="icon-btn__label" aria-hidden="true">Reportar</span>
+                      <span class="icon-btn__label" aria-hidden="true">{{
+                        'live.reportar' | transloco
+                      }}</span>
                     </button>
                     <ng-container [ngTemplateOutlet]="sosButton" />
                   </div>
@@ -574,9 +636,9 @@
                 <ion-card-content>
                   <div class="section-item">
                     <div class="section-item__text">
-                      <h2 class="section-item__title">Terminar viaje</h2>
+                      <h2 class="section-item__title">{{ 'live.terminarViaje3' | transloco }}</h2>
                       <p class="section-item__subtitle">
-                        Hazlo cuando se hayan bajado todos: dejarán de ver dónde estás.
+                        {{ 'live.hazloCuandoHayanBajado' | transloco }}
                       </p>
                     </div>
                     <ion-button
@@ -584,7 +646,7 @@
                       [disabled]="isFinishing()"
                       (click)="handleFinish()"
                     >
-                      {{ isFinishing() ? 'Comprobando…' : 'Terminar viaje' }}
+                      {{ (isFinishing() ? 'live.checking' : 'live.terminarViaje3') | transloco }}
                     </ion-button>
                   </div>
                 </ion-card-content>
@@ -596,20 +658,22 @@
                 <ion-card-content>
                   <div class="section-item">
                     <div class="section-item__text">
-                      <h2 class="section-item__title">¿Algo va mal?</h2>
+                      <h2 class="section-item__title">{{ 'live.algoMal' | transloco }}</h2>
                       <p class="section-item__subtitle">
-                        Si no puedes seguir, repórtalo: lo revisará un administrador.
+                        {{ 'live.puedesSeguirReportaloRevisara' | transloco }}
                       </p>
                     </div>
                     <button
                       type="button"
                       class="icon-btn icon-btn--reveal"
                       appRevealOnTouch
-                      aria-label="Enviar un reporte: abre el formulario de la incidencia"
+                      [attr.aria-label]="'live.enviarReporteAbreFormulario' | transloco"
                       (click)="isReportingIncident.set(true)"
                     >
                       <ion-icon [icon]="reportIcon" aria-hidden="true" />
-                      <span class="icon-btn__label" aria-hidden="true">Enviar reporte</span>
+                      <span class="icon-btn__label" aria-hidden="true">{{
+                        'live.enviarReporte' | transloco
+                      }}</span>
                     </button>
                   </div>
                 </ion-card-content>
@@ -620,13 +684,15 @@
               <a
                 class="icon-btn icon-btn--reveal icon-btn--danger"
                 appRevealOnTouch
-                appRevealHint="Si hay una emergencia, llama al 112: es gratis y atienden 24 h."
+                [appRevealHint]="'live.hayUnaEmergenciaLlama' | transloco"
                 href="tel:112"
-                aria-label="SOS: llamar al 112"
+                [attr.aria-label]="'live.sosLlamar112' | transloco"
               >
                 <ion-icon class="icon-btn__open-icon" [icon]="callIcon" aria-hidden="true" />
-                <span class="icon-btn__short" aria-hidden="true">SOS</span>
-                <span class="icon-btn__label" aria-hidden="true">Llamar al 112</span>
+                <span class="icon-btn__short" aria-hidden="true">{{ 'live.sos' | transloco }}</span>
+                <span class="icon-btn__label" aria-hidden="true">{{
+                  'live.llamar112' | transloco
+                }}</span>
               </a>
             </ng-template>
           }
@@ -640,8 +706,8 @@
             [icon]="nextPickup() ? locationIcon : destinationIcon()"
             [place]="
               nextPickup()
-                ? (nextPickup()?.pickupName ?? 'Su punto de recogida')
-                : (trip.destinationName ?? 'tu destino')
+                ? (nextPickup()?.pickupName ?? ('live.theirPickup' | transloco))
+                : (trip.destinationName ?? ('live.yourDestination' | transloco))
             "
             [stages]="stages()"
           />
@@ -660,7 +726,7 @@
                   [tripId]="trip.id"
                   [initialCenter]="trip.origin"
                   [pickupLocation]="nextPickup()?.pickupLocation ?? null"
-                  [pickupName]="nextPickup()?.pickupName ?? 'la recogida'"
+                  [pickupName]="nextPickup()?.pickupName ?? ('live.thePickup' | transloco)"
                   [active]="isPageVisible()"
                   [destination]="trip.destination"
                   [bottomInset]="sheet.mapInset()"
@@ -671,7 +737,7 @@
           </div>
 
           @if (sheet.isDesktop()) {
-            <aside class="driver-live-trip__side" aria-label="Tu viaje ahora">
+            <aside class="driver-live-trip__side" [attr.aria-label]="'live.viajeAhora' | transloco">
               <ng-container [ngTemplateOutlet]="liveDetails" />
             </aside>
           }

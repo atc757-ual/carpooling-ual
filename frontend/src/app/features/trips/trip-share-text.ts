@@ -1,3 +1,4 @@
+import { Translate } from '../../core/i18n/translate';
 import { formatTime } from '../matching/trip-results';
 
 // El día de un instante ISO en la zona del dispositivo: «lunes, 16 de noviembre»
@@ -21,32 +22,49 @@ export interface ShareDriver {
   plate: string | null;
 }
 
-function routeText({ originName, destinationName }: ShareRoute): string {
-  return `${originName ?? 'Origen'} → ${destinationName ?? 'Destino'}`;
+function routeText({ originName, destinationName }: ShareRoute, translate: Translate): string {
+  const origin = originName ?? translate('share.origin');
+  return `${origin} → ${destinationName ?? translate('share.destination')}`;
 }
 
 // Para las plazas libres (grupos de clase): el trayecto, el día y la hora, y
 // dónde pedir plaza. Sin enlace al viaje: su detalle se abre desde una
 // búsqueda, así que se invita a buscarlo en la app
-export function buildSeatsShareText(route: ShareRoute, availableSeats: number): string {
-  const seats = availableSeats === 1 ? '1 plaza libre' : `${availableSeats} plazas libres`;
-  const day = DAY_FORMAT.format(new Date(route.departureAt));
-  return (
-    `Tengo ${seats} en mi coche: ${routeText(route)}, el ${day} a las ` +
-    `${formatTime(route.departureAt)}. Búscalo en Carpooling UAL y pide tu plaza.`
-  );
+export function buildSeatsShareText(
+  route: ShareRoute,
+  availableSeats: number,
+  translate: Translate,
+): string {
+  const seats = translate(availableSeats === 1 ? 'share.seats.one' : 'share.seats.other', {
+    count: availableSeats,
+  });
+  return translate('share.seatsText', {
+    seats,
+    route: routeText(route, translate),
+    day: DAY_FORMAT.format(new Date(route.departureAt)),
+    time: formatTime(route.departureAt),
+  });
 }
 
 // Para alguien de confianza durante el viaje en curso. Del pasajero, quién
 // conduce, el coche y la matrícula; del conductor, solo el trayecto
-export function buildLiveShareText(route: ShareRoute, driver?: ShareDriver): string {
-  const trip = `${routeText(route)}, salida a las ${formatTime(route.departureAt)}`;
+export function buildLiveShareText(
+  route: ShareRoute,
+  translate: Translate,
+  driver?: ShareDriver,
+): string {
+  const trip = translate('share.liveTrip', {
+    route: routeText(route, translate),
+    time: formatTime(route.departureAt),
+  });
   if (!driver) {
-    return `Voy conduciendo un viaje compartido de la UAL: ${trip}.`;
+    return translate('share.liveDriver', { trip });
   }
-  const car = [driver.vehicleName, driver.plate && `matrícula ${driver.plate}`]
-    .filter(Boolean)
-    .join(', ');
-  const carText = car ? ` (${car})` : '';
-  return `Voy en un viaje compartido de la UAL: ${trip}. Conduce ${driver.name}${carText}.`;
+  const plate = driver.plate && translate('share.plate', { plate: driver.plate });
+  const car = [driver.vehicleName, plate].filter(Boolean).join(', ');
+  return translate('share.livePassenger', {
+    trip,
+    name: driver.name,
+    car: car ? ` (${car})` : '',
+  });
 }

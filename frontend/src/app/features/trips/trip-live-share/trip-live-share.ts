@@ -1,5 +1,6 @@
 import { Component, inject, input, linkedSignal, resource, signal } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { closeCircleOutline, radioOutline, shareSocialOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { TripLiveShareService } from '../../../core/services/trips/trip-live-share.service';
@@ -7,16 +8,13 @@ import { TripShareService } from '../../../core/services/trips/trip-share.servic
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 
-const SHARE_TITLE = 'Mi viaje en Carpooling UAL';
-const SHARE_TEXT = 'Sigue mi viaje en directo: dónde está el coche y cuándo llego.';
-
 // Compartir el viaje en directo (pasajero con la plaza aceptada): genera un
 // enlace secreto que abre, sin cuenta, alguien de confianza, y lo envía con el
 // menú del sistema o WhatsApp. Mientras se comparte, se puede reenviar o dejar
 // de compartir (el enlace deja de funcionar al momento)
 @Component({
   selector: 'app-trip-live-share',
-  imports: [IonButton, IonIcon],
+  imports: [IonButton, IonIcon, TranslocoPipe],
   templateUrl: './trip-live-share.html',
   styleUrl: './trip-live-share.scss',
 })
@@ -24,6 +22,7 @@ export class TripLiveShare {
   private readonly liveShare = inject(TripLiveShareService);
   private readonly tripShare = inject(TripShareService);
   private readonly toast = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
 
   readonly tripId = input.required<string>();
 
@@ -60,12 +59,16 @@ export class TripLiveShare {
     await this.run(async () => {
       await this.liveShare.stop(this.tripId());
       this.activeLink.set(null);
-      await this.toast.showSuccess('Has dejado de compartir el viaje: el enlace ya no funciona.');
+      await this.toast.showSuccess(this.transloco.translate('live.share.stopped'));
     });
   }
 
   private async send(url: string): Promise<void> {
-    await this.tripShare.share({ title: SHARE_TITLE, text: SHARE_TEXT, url });
+    await this.tripShare.share({
+      title: this.transloco.translate('share.liveTitle'),
+      text: this.transloco.translate('live.share.text'),
+      url,
+    });
   }
 
   // Un solo paso a la vez; los errores de la API, en un aviso

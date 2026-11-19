@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, inject, input } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 import { carOutline } from 'ionicons/icons';
@@ -21,7 +22,7 @@ export interface TripSummaryData {
 // solicitud del pasajero.
 @Component({
   selector: 'app-trip-summary',
-  imports: [IonIcon, RouteTimeline, TripDriverComponent],
+  imports: [IonIcon, RouteTimeline, TripDriverComponent, TranslocoPipe],
   templateUrl: './trip-summary.html',
   styleUrl: './trip-summary.scss',
 })

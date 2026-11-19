@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -45,6 +45,7 @@ import {
   freeCancellationUntil,
   isWithinLeadMinutes,
 } from '../late-cancellation';
+import { Translate } from '../../../core/i18n/translate';
 import { buildSeatsShareText } from '../trip-share-text';
 import { withDeclarations } from '../with-declarations';
 
@@ -99,6 +100,8 @@ export class DriverTripActions {
   private readonly router = inject(Router);
   private readonly modalController = inject(ModalController);
   private readonly tripShare = inject(TripShareService);
+  private readonly transloco = inject(TranslocoService);
+  private readonly translate: Translate = (key, params) => this.transloco.translate(key, params);
 
   readonly trip = input.required<DriverTrip>();
   readonly changed = output<void>();
@@ -165,8 +168,8 @@ export class DriverTripActions {
   async handleShareSeats(): Promise<void> {
     const trip = this.trip();
     await this.tripShare.share({
-      title: 'Plazas libres en Carpooling UAL',
-      text: buildSeatsShareText(trip, trip.availableSeats),
+      title: this.translate('share.seatsTitle'),
+      text: buildSeatsShareText(trip, trip.availableSeats, this.translate),
       // El enlace a la web: la dirección pública (en la app nativa sin ella,
       // ninguno: la WebView es localhost)
       url: publicWebOrigin() ?? undefined,
@@ -243,6 +246,7 @@ export class DriverTripActions {
       tracking: this.tracking,
       toast: this.toast,
       location: this.location,
+      translate: this.translate,
     };
     if (await finishTrip(deps, this.trip(), this.locationIcon)) {
       this.changed.emit();

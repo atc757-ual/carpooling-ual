@@ -4,16 +4,16 @@
     <output class="live-share__status">
       <span class="live-share__badge text-caption">
         <span class="live-share__dot" aria-hidden="true"></span>
-        En directo
+        {{ 'live.directo' | transloco }}
       </span>
       <span class="text-body-s text-color-muted">
-        Quien tenga el enlace ve tu viaje hasta que termine.
+        {{ 'live.quienTengaEnlaceViaje' | transloco }}
       </span>
     </output>
     <div class="live-share__actions">
       <ion-button expand="block" [disabled]="isBusy()" (click)="handleResend()">
         <ion-icon slot="start" [icon]="shareIcon" aria-hidden="true" />
-        Enviar el enlace
+        {{ 'live.enviarEnlace' | transloco }}
       </ion-button>
       <ion-button
         class="live-share__stop"
@@ -23,7 +23,7 @@
         (click)="handleStop()"
       >
         <ion-icon slot="start" [icon]="stopIcon" aria-hidden="true" />
-        Dejar de compartir
+        {{ 'live.dejarCompartir' | transloco }}
       </ion-button>
     </div>
   </div>
@@ -31,10 +31,10 @@
   <div class="live-share">
     <ion-button expand="block" fill="outline" [disabled]="isBusy()" (click)="handleStart()">
       <ion-icon slot="start" [icon]="liveIcon" aria-hidden="true" />
-      Compartir mi viaje en directo
+      {{ 'live.compartirViajeDirecto' | transloco }}
     </ion-button>
     <p class="text-caption text-color-muted">
-      Se abre sin cuenta: verá dónde está el coche, tu recogida y cuándo llegas.
+      {{ 'live.abreSinCuentaVera' | transloco }}
     </p>
   </div>
 }

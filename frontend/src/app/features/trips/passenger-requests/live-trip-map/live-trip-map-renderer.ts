@@ -21,6 +21,8 @@ export class LiveTripMapRenderer {
   private animationFrame: number | null = null;
   private hasInitialBounds = false;
   private bottomInset = 0;
+  // El título del marcador del coche [lo lee el lector de pantalla), ya traducido
+  private carTitle = '';
 
   constructor(private readonly leaflet: typeof Leaflet) {}
 
@@ -81,6 +83,10 @@ export class LiveTripMapRenderer {
     this.bottomInset = Math.max(0, pixels);
   }
 
+  setCarTitle(title: string): void {
+    this.carTitle = title;
+  }
+
   destroy(): void {
     this.resizeObserver?.disconnect();
     if (this.animationFrame !== null) cancelAnimationFrame(this.animationFrame);
@@ -118,7 +124,7 @@ export class LiveTripMapRenderer {
     if (!this.carMarker) {
       this.carMarker = this.leaflet
         .marker(target, {
-          title: 'Posición actual del coche',
+          title: this.carTitle,
           keyboard: true,
           icon: this.leaflet.divIcon({
             html: CAR_ICON_HTML,
