@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, inject, input, output, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -74,6 +75,7 @@ export function shiftTime(time: string, minutes: number): string {
     DatetimeField,
     RouteFields,
     SeatStepper,
+    TranslocoPipe,
   ],
   templateUrl: './trip-search-form.html',
   styleUrl: './trip-search-form.scss',

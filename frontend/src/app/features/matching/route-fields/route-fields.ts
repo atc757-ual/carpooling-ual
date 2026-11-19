@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, inject, input, OnInit, signal, viewChild } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -37,7 +38,15 @@ export interface RouteControls {
 // el campus, propone volver a casa
 @Component({
   selector: 'app-route-fields',
-  imports: [NgTemplateOutlet, ReactiveFormsModule, IonIcon, IonSelect, IonSelectOption, PlaceField],
+  imports: [
+    NgTemplateOutlet,
+    ReactiveFormsModule,
+    IonIcon,
+    IonSelect,
+    IonSelectOption,
+    PlaceField,
+    TranslocoPipe,
+  ],
   templateUrl: './route-fields.html',
   styleUrl: './route-fields.scss',
 })

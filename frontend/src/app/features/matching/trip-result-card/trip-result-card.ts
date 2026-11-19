@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, input } from '@angular/core';
 import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { MATCH_FIT_LABELS, MatchFit } from '../match-fit';
@@ -14,7 +15,7 @@ import { formatWalkingDistance } from '../../../shared/utils/distance.util';
 // tarjeta lleva al detalle del viaje
 @Component({
   selector: 'app-trip-result-card',
-  imports: [RouterLink, IonIcon],
+  imports: [RouterLink, IonIcon, TranslocoPipe],
   templateUrl: './trip-result-card.html',
   styleUrl: './trip-result-card.scss',
 })

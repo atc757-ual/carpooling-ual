@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { NextTripCard } from '../../trips/next-trip-card/next-trip-card';
 import { Component, computed, inject, resource, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -40,6 +41,7 @@ import { SectionHeading } from '../../tabs/section-heading/section-heading';
     IonIcon,
     TripSearchForm,
     NextTripCard,
+    TranslocoPipe,
   ],
   templateUrl: './trip-search.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './trip-search.page.scss'],

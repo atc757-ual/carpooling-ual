@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
 import { IonButton, IonIcon, IonSpinner, ModalController } from '@ionic/angular';
 import { thumbsDown, thumbsUp } from 'ionicons/icons';
@@ -37,7 +38,7 @@ export function barLabel(rating: number): string {
 // más recientes primero, de 10 en 10)
 @Component({
   selector: 'app-driver-reviews-modal',
-  imports: [ModalHeader, IonButton, IonIcon, IonSpinner, RatingBar],
+  imports: [ModalHeader, IonButton, IonIcon, IonSpinner, RatingBar, TranslocoPipe],
   templateUrl: './driver-reviews-modal.html',
   styleUrl: './driver-reviews-modal.scss',
 })

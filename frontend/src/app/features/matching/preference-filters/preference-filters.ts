@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, input, output, signal } from '@angular/core';
 import { IonButton, IonCheckbox, IonIcon, IonItem, IonList, IonModal } from '@ionic/angular';
 import {
@@ -26,7 +27,16 @@ const OPTIONS: readonly { value: PreferenceFilter; label: string; icon: string }
 // filtra al momento; «Ver N viajes» cierra y «Quitar filtros» los quita todos
 @Component({
   selector: 'app-preference-filters',
-  imports: [IonButton, IonCheckbox, IonIcon, IonItem, IonList, IonModal, ModalHeader],
+  imports: [
+    IonButton,
+    IonCheckbox,
+    IonIcon,
+    IonItem,
+    IonList,
+    IonModal,
+    ModalHeader,
+    TranslocoPipe,
+  ],
   templateUrl: './preference-filters.html',
   styleUrl: './preference-filters.scss',
 })

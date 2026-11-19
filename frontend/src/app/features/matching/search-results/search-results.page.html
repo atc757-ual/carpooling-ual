@@ -30,7 +30,9 @@
           <ion-card>
             <ion-card-content class="search-results__state" role="status">
               <ion-spinner name="dots" aria-hidden="true" />
-              <div class="search-results__state-title">{{ 'searchResults.searching' | transloco }}</div>
+              <div class="search-results__state-title">
+                {{ 'searchResults.searching' | transloco }}
+              </div>
               <div class="text-body-s text-color-muted">
                 {{ 'searchResults.searchingHint' | transloco }}
               </div>
@@ -43,7 +45,9 @@
               <div class="search-results__state-title">{{ 'searchResults.error' | transloco }}</div>
               <div class="text-body-s text-color-muted">{{ errorMessage() }}</div>
               <form (submit)="$event.preventDefault(); handleRetry()">
-                <ion-button type="submit" fill="outline">{{ 'messages.retry' | transloco }}</ion-button>
+                <ion-button type="submit" fill="outline">{{
+                  'messages.retry' | transloco
+                }}</ion-button>
               </form>
             </ion-card-content>
           </ion-card>
@@ -62,9 +66,9 @@
                       ) | transloco: { count: requestedCount() }
                     }}
                   </span>
-                  <a class="search-results__requested-link" routerLink="/tabs/trips"
-                    >{{ 'searchResults.myTripsLink' | transloco }}</a
-                  >
+                  <a class="search-results__requested-link" routerLink="/tabs/trips">{{
+                    'searchResults.myTripsLink' | transloco
+                  }}</a>
                 </div>
               }
               <ion-icon [icon]="emptyIcon" aria-hidden="true" />
@@ -79,9 +83,9 @@
                   </ion-button>
                 </form>
               }
-              <ion-button fill="clear" (click)="isEditing.set(true)"
-                >{{ 'searchResults.change' | transloco }}</ion-button
-              >
+              <ion-button fill="clear" (click)="isEditing.set(true)">{{
+                'searchResults.change' | transloco
+              }}</ion-button>
             </ion-card-content>
           </ion-card>
         } @else {
@@ -101,9 +105,9 @@
                       ) | transloco: { count: requestedCount() }
                     }}
                   </span>
-                  <a class="search-results__requested-link" routerLink="/tabs/trips"
-                    >{{ 'searchResults.myTripsLink' | transloco }}</a
-                  >
+                  <a class="search-results__requested-link" routerLink="/tabs/trips">{{
+                    'searchResults.myTripsLink' | transloco
+                  }}</a>
                 </div>
               }
               <div class="search-results__results-header">
@@ -172,7 +176,9 @@
         <ion-card>
           <ion-card-content class="search-results__state">
             <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-            <div class="search-results__state-title">{{ 'searchResults.noSearch' | transloco }}</div>
+            <div class="search-results__state-title">
+              {{ 'searchResults.noSearch' | transloco }}
+            </div>
             <ion-button routerLink="/tabs/search" routerDirection="back">{{
               'search.submit' | transloco
             }}</ion-button>
@@ -184,7 +190,10 @@
     <!-- Columna de 4 en escritorio (debajo en el móvil): «Tu trayecto» y el
          aviso sobre las horas y la confirmación -->
     @if (search()) {
-      <aside class="search-results__aside" [attr.aria-label]="'searchResults.summaryLabel' | transloco">
+      <aside
+        class="search-results__aside"
+        [attr.aria-label]="'searchResults.summaryLabel' | transloco"
+      >
         <ion-card class="ion-hide-md-down">
           <ion-card-header class="search-results__aside-header">
             <ion-card-title>{{ 'searchResults.yourRoute' | transloco }}</ion-card-title>

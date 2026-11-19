@@ -14,7 +14,10 @@
 
     @if (average(); as average) {
       <!-- Media (con la barra de 5 puntos) y reparto por nota -->
-      <section class="driver-reviews__summary" [attr.aria-label]="'driverReviews.summary' | transloco">
+      <section
+        class="driver-reviews__summary"
+        [attr.aria-label]="'driverReviews.summary' | transloco"
+      >
         <div class="driver-reviews__average">
           <span class="driver-reviews__average-value">{{ average }}</span>
           <ion-icon

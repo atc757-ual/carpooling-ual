@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -81,6 +82,7 @@ const CLOSED_REQUEST_STATUSES: ReadonlySet<SeatRequestStatus> = new Set([
     RouteTimeline,
     TripDriver,
     TripRouteMap,
+    TranslocoPipe,
   ],
   templateUrl: './trip-detail.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './trip-detail.page.scss'],

@@ -20,7 +20,12 @@
   <!-- Fecha, hora, margen y plazas: de dos en dos y, en pantallas
        anchas, los cuatro en una fila -->
   <div class="search-form__details">
-    <app-datetime-field formControlName="date" [label]="'search.date' | transloco" [min]="minDate" [max]="maxDate" />
+    <app-datetime-field
+      formControlName="date"
+      [label]="'search.date' | transloco"
+      [min]="minDate"
+      [max]="maxDate"
+    />
 
     <!-- Hora de llegada al campus o, al volver, de salida -->
     <app-datetime-field
@@ -31,8 +36,8 @@
 
     <div class="search-form__field">
       <span class="text-label text-label--strong" aria-hidden="true">{{
-      'search.margin' | transloco
-    }}</span>
+        'search.margin' | transloco
+      }}</span>
       <ion-select
         class="search-form__select"
         formControlName="margin"
@@ -47,14 +52,21 @@
     </div>
 
     <!-- Plazas que se necesitan (SeatStepper de la guía) -->
-    <app-seat-stepper formControlName="seats" [label]="'search.seats' | transloco" [min]="minSeats" [max]="maxSeats" />
+    <app-seat-stepper
+      formControlName="seats"
+      [label]="'search.seats' | transloco"
+      [min]="minSeats"
+      [max]="maxSeats"
+    />
   </div>
 
   <!-- «Nueva búsqueda» (solo en Buscar y con algo que borrar) a la izquierda
        y «Buscar viaje» a la derecha; en el móvil, uno debajo del otro -->
   <div class="search-form__actions">
     @if (canStartOver()) {
-      <button class="search-form__new" type="button" (click)="clear()">{{ 'search.newSearch' | transloco }}</button>
+      <button class="search-form__new" type="button" (click)="clear()">
+        {{ 'search.newSearch' | transloco }}
+      </button>
     }
     <!-- Se activa al elegir la dirección y el parking -->
     <ion-button type="submit" [disabled]="!isRouteComplete()">

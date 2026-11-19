@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   afterNextRender,
   Component,
@@ -53,7 +54,7 @@ export type LocationModalResult = [number, number] | Place;
   selector: 'app-location-modal',
   // ion-page: así Ionic reparte el alto entre la cabecera y el contenido
   host: { class: 'ion-page' },
-  imports: [ModalHeader, IonButton, IonIcon, IonSpinner, LegalDocumentText],
+  imports: [ModalHeader, IonButton, IonIcon, IonSpinner, LegalDocumentText, TranslocoPipe],
   templateUrl: './location-modal.html',
   styleUrl: './location-modal.scss',
 })
