@@ -13,6 +13,9 @@ export interface AdminLegalDocument {
   content: string;
   changeType: LegalChangeType;
   summary: string | null;
+  // La traducción al inglés; publicar la exige
+  contentEn: string | null;
+  summaryEn: string | null;
   status: 'draft' | 'published';
   publishedAt: string | null;
   updatedAt: string;
@@ -23,6 +26,8 @@ export interface LegalDraftChanges {
   content: string;
   changeType: LegalChangeType;
   summary: string;
+  contentEn: string;
+  summaryEn: string;
 }
 
 // Documentos legales en el panel: el historial de versiones y un borrador por

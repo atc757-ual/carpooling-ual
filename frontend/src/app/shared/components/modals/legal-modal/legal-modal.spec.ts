@@ -36,7 +36,7 @@ describe('LegalModal', () => {
   it('loads the current privacy policy from the API and shows it', async () => {
     const root = await open('privacy');
 
-    http.expectOne('/api/legal-documents/privacy').flush({
+    http.expectOne('/api/legal-documents/privacy?lang=es').flush({
       type: 'privacy',
       version: '1.1',
       content: '<h2>Responsable</h2><script>alert(1)</script>',
@@ -60,7 +60,7 @@ describe('LegalModal', () => {
   it('explains when the text cannot be loaded', async () => {
     const root = await open('terms');
 
-    http.expectOne('/api/legal-documents/terms').error(new ProgressEvent('error'));
+    http.expectOne('/api/legal-documents/terms?lang=es').error(new ProgressEvent('error'));
 
     await vi.waitFor(() => {
       fixture.detectChanges();
@@ -87,7 +87,7 @@ describe('LegalModal', () => {
     const root = await open('terms', onReachedEnd);
 
     http
-      .expectOne('/api/legal-documents/terms')
+      .expectOne('/api/legal-documents/terms?lang=es')
       .flush({ type: 'terms', version: '1.0', content: '<p>Texto</p>', publishedAt: null });
     await vi.waitFor(() => {
       fixture.detectChanges();
@@ -107,7 +107,7 @@ describe('LegalModal', () => {
   it('closes with «Entendido» at the end of the text, without the ✕', async () => {
     await open('terms');
     http
-      .expectOne('/api/legal-documents/terms')
+      .expectOne('/api/legal-documents/terms?lang=es')
       .flush({ type: 'terms', version: '1.0', content: '', publishedAt: null });
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;

@@ -18,6 +18,7 @@ const ACCEPTED: ConsentRecord = {
 const current = (version: string): LegalDocumentView => ({
   type: 'privacy',
   version,
+  lang: 'es',
   content: '<p>Texto</p>',
   changeType: 'minor',
   summary: 'Una aclaración.',

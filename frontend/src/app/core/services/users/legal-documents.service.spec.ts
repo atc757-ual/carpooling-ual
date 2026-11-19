@@ -2,6 +2,7 @@ import { provideAppTransloco } from '../../i18n/testing-transloco';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { ApiError } from '../../models/api-error.model';
 import { LegalDocumentsService } from './legal-documents.service';
 
@@ -22,9 +23,19 @@ describe('LegalDocumentsService', () => {
   it('gets the current version of a document', async () => {
     const terms = documents.getCurrent('terms');
     http
-      .expectOne('/api/legal-documents/terms')
+      .expectOne('/api/legal-documents/terms?lang=es')
       .flush({ type: 'terms', version: '1.1', content: '<p>Hola</p>', publishedAt: null });
     await expect(terms).resolves.toMatchObject({ version: '1.1', content: '<p>Hola</p>' });
+  });
+
+  it('asks for the text in the language of the app', async () => {
+    TestBed.inject(TranslocoService).setActiveLang('en');
+    const terms = documents.getCurrent('terms');
+    http
+      .expectOne('/api/legal-documents/terms?lang=en')
+      .flush({ type: 'terms', version: '1.1', lang: 'en', content: '<p>Hello</p>' });
+
+    await expect(terms).resolves.toMatchObject({ lang: 'en', content: '<p>Hello</p>' });
   });
 
   it('lists what is pending and accepts a version', async () => {
