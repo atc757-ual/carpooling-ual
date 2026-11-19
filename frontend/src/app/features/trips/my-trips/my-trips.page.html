@@ -6,7 +6,7 @@
          debajo de la lista en el móvil -->
     <app-my-trips-aside
       class="my-trips__aside"
-      [co2Kg]="aside().co2Kg"
+      [co2Kg]="co2Kg()"
       [rating]="rating()"
       [canDrive]="canDrive()"
       [canRide]="canRide()"
@@ -72,6 +72,19 @@
                 }
               }
             }
+          }
+          <!-- De 10 en 10 (los dos papeles juntos): «1–10 de 22» y Anterior /
+               Siguiente, solo si hay más de una página -->
+          @if (total() > pageSize) {
+            <app-pagination
+              class="my-trips__pagination"
+              [ariaLabel]="'myTrips.pagesAria' | transloco"
+              [offset]="offset()"
+              [limit]="pageSize"
+              [total]="total()"
+              [isLoading]="page.isLoading()"
+              (offsetChange)="handlePageChange($event)"
+            />
           }
         </ion-card-content>
       </ion-card>

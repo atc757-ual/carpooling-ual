@@ -1,3 +1,4 @@
+import { setAppLocale } from '../../core/i18n/app-locale';
 import { Component, signal, TemplateRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -55,6 +56,8 @@ const TABS_EN = {
 };
 
 describe('TabsPage', () => {
+  afterEach(() => setAppLocale('es'));
+
   const mode = signal<TravelMode | null>('passenger');
   const profiles = signal<Profile[]>(['passenger', 'driver']);
   const loggedIn = signal(true);

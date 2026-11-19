@@ -45,6 +45,15 @@ describe('UsersService', () => {
     await expect(activate).rejects.toMatchObject({ code: 'PROFILE_DEACTIVATED_BY_ADMIN' });
   });
 
+  it('gets what I saved sharing the car', async () => {
+    const impact = users.getImpact();
+    http
+      .expectOne('/api/users/me/impact')
+      .flush({ '@type': 'UserImpact', tripsDone: 3, carsAvoided: 4, co2Kg: 12.4 });
+
+    await expect(impact).resolves.toMatchObject({ tripsDone: 3, co2Kg: 12.4 });
+  });
+
   it('fetches current user profile with getMe', async () => {
     const mePromise = users.getMe();
     const req = http.expectOne('/api/users/me');

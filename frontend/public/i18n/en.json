@@ -628,6 +628,7 @@
     "riding": "You ride"
   },
   "myTrips": {
+    "pagesAria": "Pages of your trips",
     "cargandoTusViajes": "Loading your trips…",
     "hemosPodidoCargarTus": "We couldn't load your trips",
     "reintentar": "Try again",

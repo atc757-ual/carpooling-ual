@@ -56,11 +56,11 @@ function hasPending(entry: TripEntry): number {
   return entry.role === 'driver' && entry.pendingCount > 0 ? 1 : 0;
 }
 
-// Los del filtro: los próximos, del primero que sale al último (y en cada
-// día, antes los viajes con solicitudes por responder); los demás, del más
-// reciente al más antiguo
+// Una página de una pestaña (la API ya la filtra y la ordena): los próximos,
+// del primero que sale al último (y en cada día, antes los viajes con
+// solicitudes por responder); los demás, del más reciente al más antiguo
 export function tabEntries(entries: readonly TripEntry[], tab: TripsTab): TripEntry[] {
-  const inTab = entries.filter((entry) => entryTab(entry) === tab);
+  const inTab = [...entries];
   if (tab !== 'upcoming') {
     return inTab.sort((left, right) => right.departureAt.localeCompare(left.departureAt));
   }

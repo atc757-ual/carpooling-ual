@@ -1,3 +1,4 @@
+import { setAppLocale } from '../../i18n/app-locale';
 import { TestBed } from '@angular/core/testing';
 import { provideTestingTransloco } from '../../i18n/testing-transloco';
 import { LanguageService } from './language.service';
@@ -6,6 +7,7 @@ describe('LanguageService', () => {
   const originalLanguage = navigator.language;
 
   afterEach(() => {
+    setAppLocale('es');
     localStorage.clear();
     Object.defineProperty(navigator, 'language', {
       value: originalLanguage,

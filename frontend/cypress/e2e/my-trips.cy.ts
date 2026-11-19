@@ -51,6 +51,26 @@ function trip(availableSeats: number, status: string, minutesAhead?: number) {
   };
 }
 
+// Las pestañas de Tus viajes y los estados del viaje que van en cada una
+const TAB_STATUSES: Record<string, string[]> = {
+  upcoming: ['published', 'confirmed', 'in_progress'],
+  past: ['finished'],
+  cancelled: ['cancelled', 'expired'],
+};
+
+// Los viajes de la conductora: su lista (detalle y «En curso») y Tus viajes,
+// que pide cada pestaña ya filtrada y con el total
+function stubTrips(trips: ReturnType<typeof trip>[]): void {
+  cy.intercept('GET', '/api/users/me/trips*', trips);
+  cy.intercept('GET', '/api/users/me/trip-entries*', (req) => {
+    const statuses = TAB_STATUSES[String(req.query['tab'] ?? 'upcoming')];
+    const entries = trips
+      .filter(({ status }) => statuses.includes(status))
+      .map((driven) => ({ '@type': 'TripEntry', role: 'driver', trip: driven }));
+    req.reply({ headers: { 'X-Total-Count': String(entries.length) }, body: entries });
+  });
+}
+
 function seatRequest(status: string) {
   return {
     '@type': 'SeatRequest',
@@ -70,8 +90,14 @@ for (const viewport of VIEWPORTS) {
 
   describe(`My trips as a driver (${viewport.name})`, () => {
     // Entra como conductora y abre Tus viajes con estos viajes
-    function openMyTrips(trips: object[]): void {
-      cy.intercept('GET', '/api/users/me/trips*', trips).as('trips');
+    function openMyTrips(trips: ReturnType<typeof trip>[]): void {
+      stubTrips(trips);
+      cy.intercept('GET', '/api/users/me/impact', {
+        '@type': 'UserImpact',
+        tripsDone: 2,
+        carsAvoided: 3,
+        co2Kg: 6.2,
+      });
       cy.intercept('GET', '/api/trips/t1/requests', [seatRequest('pending')]).as('requests');
       cy.intercept('POST', '/api/auth/login', accessToken());
       cy.visit('/auth/login');
@@ -107,7 +133,7 @@ for (const viewport of VIEWPORTS) {
       );
 
       cy.intercept('POST', '/api/requests/r1/accept', seatRequest('accepted')).as('accept');
-      cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'confirmed')]);
+      stubTrips([trip(1, 'confirmed')]);
       cy.intercept('GET', '/api/trips/t1/requests', [seatRequest('accepted')]);
       cy.contains('app-driver-trip-detail ion-button', 'Aceptar').click();
 
@@ -178,7 +204,7 @@ for (const viewport of VIEWPORTS) {
       openTripDetail();
       // El detalle ya cargado con el viaje confirmado; a partir de aquí, en curso
       cy.contains('app-driver-trip-actions ion-button', 'Iniciar viaje').should('be.visible');
-      cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'in_progress', 5)]);
+      stubTrips([trip(1, 'in_progress', 5)]);
 
       cy.contains('app-driver-trip-actions ion-button', 'Iniciar viaje').click();
       cy.contains('app-confirm-modal', 'confirmas que sigues cumpliendo').should('be.visible');
@@ -197,7 +223,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains(live, 'Recogidas');
 
       cy.intercept('POST', '/api/trips/t1/finish', trip(1, 'finished', 5)).as('finish');
-      cy.intercept('GET', '/api/users/me/trips*', [trip(1, 'finished', 5)]);
+      stubTrips([trip(1, 'finished', 5)]);
       cy.intercept('GET', '/api/users/me/reviews*', []);
       cy.intercept('GET', '/api/users/me/pending-reviews', []);
       // Sin pasajeros que llevar, el aviso «Ya no queda nadie por llevar»

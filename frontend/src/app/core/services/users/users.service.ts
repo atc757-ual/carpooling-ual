@@ -4,6 +4,7 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
 import { RegisterProfile } from '../../models/auth.model';
+import { UserImpact } from '../../models/my-trips.model';
 import {
   ConsentAction,
   LocationConsentSource,
@@ -24,6 +25,11 @@ export class UsersService {
 
   updateMe(request: UpdateMeRequest): Promise<User> {
     return this.send(this.http.patch<User>(this.meUrl, request));
+  }
+
+  // Lo ahorrado compartiendo coche con los dos papeles (la columna de Tus viajes)
+  getImpact(): Promise<UserImpact> {
+    return this.send(this.http.get<UserImpact>(`${this.meUrl}/impact`));
   }
 
   requestPhoneVerification(): Promise<void> {
