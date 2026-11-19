@@ -38,7 +38,7 @@ import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { confirmLogout } from '../../core/services/auth/confirm-logout';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
-import { ApiError } from '../../core/models/api-error.model';
+import { ApiError, rethrowUnlessApiError } from '../../core/models/api-error.model';
 import { TripEntryResponse } from '../../core/models/my-trips.model';
 import { SeatRequest } from '../../core/models/seat-request.model';
 import { TripsService } from '../../core/services/trips/trips.service';
@@ -329,6 +329,7 @@ export class TabsPage implements OnInit {
   // Con el estado de este dispositivo ya leído, los permisos de la primera vez
   private async startPush(): Promise<void> {
     await this.push.start();
+    // Ofrecerlo es opcional: si el dispositivo falla, se ofrece otro día
     await this.permissionPrompts.offerOnEntry().catch(() => undefined);
   }
 
@@ -348,6 +349,6 @@ export class TabsPage implements OnInit {
     if (side === null || side === this.activeMode.mode() || !this.auth.hasProfile(side)) {
       return;
     }
-    await this.activeMode.setMode(side).catch(() => undefined);
+    await this.activeMode.setMode(side).catch(rethrowUnlessApiError);
   }
 }

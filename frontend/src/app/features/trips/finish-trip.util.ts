@@ -3,7 +3,7 @@ import { ApiError } from '../../core/models/api-error.model';
 import { GeoPoint } from '../../core/models/place.model';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../core/services/drivers/driver.service';
-import { LocationService } from '../../core/services/location/location.service';
+import { LocationError, LocationService } from '../../core/services/location/location.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { ToastService } from '../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../shared/utils/error-message.util';
@@ -41,8 +41,11 @@ export function formatDistance(meters: number): string {
 async function currentPoint(location: LocationService): Promise<[number, number] | null> {
   try {
     return await location.getCurrentPoint('driving');
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof LocationError) {
+      return null;
+    }
+    throw error;
   }
 }
 

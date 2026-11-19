@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { translateEs } from '../../core/i18n/testing-translate';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../core/services/drivers/driver.service';
-import { LocationService } from '../../core/services/location/location.service';
+import { LocationError, LocationService } from '../../core/services/location/location.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { ToastService } from '../../core/services/ui/toast.service';
 import { FinishableTrip, finishTrip, FinishTripDeps, formatDistance } from './finish-trip.util';
@@ -76,7 +76,7 @@ describe('finishTrip', () => {
   });
 
   it('asks as usual and finishes without a position when it is unknown', async () => {
-    getCurrentPoint.mockRejectedValue(new Error('no gps'));
+    getCurrentPoint.mockRejectedValue(new LocationError('unavailable'));
 
     await expect(finishTrip(deps, TRIP, 'icon')).resolves.toBe(true);
 

@@ -17,6 +17,7 @@ import {
   LegalDocumentView,
 } from '../../../../core/services/users/legal-documents.service';
 import { LegalChanges } from '../legal-changes/legal-changes';
+import { rethrowUnlessApiError } from '../../../../core/models/api-error.model';
 
 // La versión vigente de un texto legal (del backend), con «Qué ha cambiado»
 // encima: en su ventana (LegalModal) o como un paso dentro de otra (p. ej.
@@ -89,8 +90,9 @@ export class LegalDocumentText implements OnInit {
   private async loadContent(): Promise<void> {
     try {
       this.current.set(await this.legalDocuments.getCurrent(this.type()));
-    } catch {
+    } catch (error) {
       this.hasError.set(true);
+      rethrowUnlessApiError(error);
     }
   }
 }

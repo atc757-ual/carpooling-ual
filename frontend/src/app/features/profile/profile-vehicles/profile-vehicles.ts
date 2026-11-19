@@ -11,7 +11,7 @@ import {
 } from '@ionic/angular';
 import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { addOutline } from 'ionicons/icons';
-import { ApiError } from '../../../core/models/api-error.model';
+import { ApiError, rethrowUnlessApiError } from '../../../core/models/api-error.model';
 import { Vehicle } from '../../../core/models/driver.model';
 import { PreferencesPlugin } from '../../../core/plugins/preferences-plugin';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -76,6 +76,7 @@ export class ProfileVehicles implements OnInit {
   protected readonly addIcon = addOutline;
 
   ngOnInit(): void {
+    // Sin almacenamiento: sin predeterminado guardado
     void this.preferences
       .get(DEFAULT_VEHICLE_KEY)
       .then((id) => this.savedDefaultId.set(id))
@@ -84,6 +85,7 @@ export class ProfileVehicles implements OnInit {
 
   handleSetDefault(vehicle: Vehicle): void {
     this.savedDefaultId.set(vehicle.id);
+    // Sin almacenamiento: se elige, pero no se recuerda
     void this.preferences.set(DEFAULT_VEHICLE_KEY, vehicle.id).catch(() => undefined);
   }
 
@@ -118,7 +120,7 @@ export class ProfileVehicles implements OnInit {
     if (role === 'saved') {
       // El primero acaba de hacerle conductor: el token nuevo lo lleva
       if (!this.auth.hasProfile('driver')) {
-        await this.auth.refreshAccessToken().catch(() => undefined);
+        await this.auth.refreshAccessToken().catch(rethrowUnlessApiError);
       }
       this.vehicles.reload();
     }

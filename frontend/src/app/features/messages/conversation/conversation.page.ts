@@ -43,7 +43,7 @@ import {
   send,
 } from 'ionicons/icons';
 import { map } from 'rxjs';
-import { ApiError } from '../../../core/models/api-error.model';
+import { ApiError, rethrowUnlessApiError } from '../../../core/models/api-error.model';
 import {
   ChatContact,
   ChatMessage,
@@ -425,8 +425,9 @@ export class ConversationPage {
       void this.loadContacts(ref, version);
       this.scrollToBottom();
       await this.markRead(ref);
-    } catch {
+    } catch (error) {
       if (version === this.loadVersion) this.hasError.set(true);
+      rethrowUnlessApiError(error);
     } finally {
       if (version === this.loadVersion) this.isLoading.set(false);
     }
@@ -447,8 +448,9 @@ export class ConversationPage {
       }
       await this.refreshReceipts(ref);
       await this.refreshIsOpen(ref);
-    } catch {
+    } catch (error) {
       // Siguiente vuelta
+      rethrowUnlessApiError(error);
     } finally {
       this.pollInFlight = false;
     }
@@ -537,7 +539,7 @@ export class ConversationPage {
   }
 
   private async markRead(ref: ConversationRef): Promise<void> {
-    await this.chat.markRead(ref).catch(() => undefined);
+    await this.chat.markRead(ref).catch(rethrowUnlessApiError);
   }
 
   private stopPolling(): void {

@@ -31,6 +31,7 @@ import { messageText } from './chat-texts';
 import { ConversationPage } from './conversation/conversation.page';
 import { map } from 'rxjs';
 import { SectionHeading } from '../../shared/components/layout/section-heading/section-heading';
+import { rethrowUnlessApiError } from '../../core/models/api-error.model';
 
 // Mensajes: conversaciones recientes con filtro de no leídos y carga por lotes.
 // El chat es directo: el conductor tiene una conversación con cada pasajero y
@@ -230,7 +231,8 @@ export class MessagesPage implements OnInit {
       this.all.update((items) => (append ? [...items, ...page.items] : page.items));
       this.total.set(page.total);
       this.offset.set(offset + page.items.length);
-    } catch {
+    } catch (error) {
+      rethrowUnlessApiError(error);
       if (version !== this.requestVersion) return;
       if (append) this.loadMoreError.set(true);
       else this.error.set(true);

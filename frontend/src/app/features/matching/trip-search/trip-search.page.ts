@@ -17,6 +17,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { QuickFaqs } from '../../../shared/components/ui/quick-faqs/quick-faqs';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { SectionHeading } from '../../../shared/components/layout/section-heading/section-heading';
+import { fallbackOnApiError } from '../../../core/models/api-error.model';
 
 // Buscar (pasajero). La búsqueda es la última hecha, en Inicio o aquí
 // (TripSearchStateService, no va en la URL). Arriba en el móvil y en la
@@ -60,7 +61,7 @@ export class TripSearchPage {
   // Cuántas de sus solicitudes esperan respuesta (0: sin aviso). Si no se
   // pueden cargar, no se avisa: no es motivo para un error
   private readonly myRequests = resource({
-    loader: () => this.seatRequests.listMine().catch(() => []),
+    loader: () => this.seatRequests.listMine().catch(fallbackOnApiError([])),
   });
   readonly pendingRequests = computed(() =>
     this.myRequests.hasValue()

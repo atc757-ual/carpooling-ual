@@ -10,7 +10,7 @@ import { DriverTrip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../../core/services/drivers/driver.service';
-import { LocationService } from '../../../core/services/location/location.service';
+import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { TrackingService } from '../../../core/services/tracking/tracking.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -149,7 +149,13 @@ describe('DriverLiveTripPage', () => {
           provide: TrackingService,
           useValue: { getLatest: vi.fn().mockRejectedValue(new Error()) },
         },
-        { provide: LocationService, useValue: { checkPermission: vi.fn() } },
+        {
+          provide: LocationService,
+          useValue: {
+            checkPermission: vi.fn(),
+            getCurrentPoint: vi.fn().mockRejectedValue(new LocationError('unavailable')),
+          },
+        },
         { provide: LOAD_LEAFLET, useValue: vi.fn().mockResolvedValue({}) },
         { provide: LIVE_TRIP_MAP_RENDERER_FACTORY, useValue: () => RENDERER },
         {

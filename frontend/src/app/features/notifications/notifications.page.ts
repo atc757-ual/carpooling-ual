@@ -23,7 +23,7 @@ import {
   mailUnreadOutline,
   notificationsOutline,
 } from 'ionicons/icons';
-import { ApiError } from '../../core/models/api-error.model';
+import { ApiError, rethrowUnlessApiError } from '../../core/models/api-error.model';
 import { Trip } from '../../core/models/driver.model';
 import { AppNotification, NotificationCategory } from '../../core/models/notification.model';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -221,7 +221,8 @@ export class NotificationsPage implements OnInit {
           tripIds.map(async (id) => {
             try {
               return [id, await this.trips.getTrip(id)] as const;
-            } catch {
+            } catch (error) {
+              rethrowUnlessApiError(error);
               return [id, null] as const;
             }
           }),
@@ -233,10 +234,11 @@ export class NotificationsPage implements OnInit {
       }));
       this.total.set(page.total);
       this.all.update((items) => (replace ? mapped : [...items, ...mapped]));
-    } catch {
+    } catch (error) {
       this.error.set(true);
       if (replace) this.all.set([]);
       if (!replace) this.offset.update((offset) => Math.max(offset - NOTIFICATIONS_PAGE_SIZE, 0));
+      rethrowUnlessApiError(error);
     } finally {
       this.isLoading.set(false);
     }

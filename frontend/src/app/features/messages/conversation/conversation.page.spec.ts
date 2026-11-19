@@ -5,7 +5,7 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
-import { ApiError } from '../../../core/models/api-error.model';
+import { ApiError, NETWORK_ERROR } from '../../../core/models/api-error.model';
 import { ChatMessage, Conversation } from '../../../core/models/chat.model';
 import { User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -161,7 +161,7 @@ describe('ConversationPage', () => {
   });
 
   it('does not poll after a failed initial load and starts again after retry', async () => {
-    chat['listMessages'].mockRejectedValueOnce(new Error('offline'));
+    chat['listMessages'].mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
     await render();
     expect(page.hasError()).toBe(true);
 
@@ -200,7 +200,7 @@ describe('ConversationPage', () => {
 
   it('skips a failed poll and does not repeat the messages it already has', async () => {
     await render();
-    chat['listMessages'].mockRejectedValueOnce(new Error('offline'));
+    chat['listMessages'].mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
     await vi.advanceTimersByTimeAsync(CHAT_POLL_INTERVAL_MS);
     chat['listMessages'].mockResolvedValueOnce([message('m2', 'me')]);
     await vi.advanceTimersByTimeAsync(CHAT_POLL_INTERVAL_MS);
@@ -404,7 +404,7 @@ describe('ConversationPage', () => {
   });
 
   it('offers to retry when the conversation cannot be loaded', async () => {
-    chat['listMessages'].mockRejectedValueOnce(new Error('offline'));
+    chat['listMessages'].mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
     const root = await render();
     expect(root.textContent).toContain('No hemos podido cargar la conversación');
 
@@ -571,7 +571,7 @@ describe('ConversationPage', () => {
   });
 
   it('falls back to listConversations if getConversation fails', async () => {
-    chat['getConversation'].mockRejectedValueOnce(new Error('not found'));
+    chat['getConversation'].mockRejectedValueOnce(new ApiError('NOT_FOUND', 404));
     chat['listConversations'].mockResolvedValueOnce([CONVERSATION]);
 
     await render();
