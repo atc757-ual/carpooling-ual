@@ -1,15 +1,18 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon } from '@ionic/angular';
 import {
-  addCircleOutline,
-  chevronForwardOutline,
-  leafOutline,
-  searchOutline,
-  thumbsDown,
-  thumbsUp,
-} from 'ionicons/icons';
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonRouterLink,
+} from '@ionic/angular';
+import { addCircleOutline, leafOutline, searchOutline, thumbsDown, thumbsUp } from 'ionicons/icons';
 import { RoleRating } from '../../../../core/models/user.model';
 import { appLocale } from '../../../../core/i18n/app-locale';
 
@@ -28,11 +31,15 @@ interface Suggestion {
   selector: 'app-my-trips-aside',
   imports: [
     RouterLink,
+    IonRouterLink,
     IonCard,
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
     IonIcon,
+    IonItem,
+    IonLabel,
+    IonList,
     TranslocoPipe,
   ],
   templateUrl: './my-trips-aside.html',
@@ -91,5 +98,4 @@ export class MyTripsAside {
   protected readonly co2Icon = leafOutline;
   protected readonly upIcon = thumbsUp;
   protected readonly downIcon = thumbsDown;
-  protected readonly chevronIcon = chevronForwardOutline;
 }

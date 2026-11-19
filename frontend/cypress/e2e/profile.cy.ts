@@ -148,7 +148,7 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('GET', '/api/faqs/f1?*', margin);
       openProfile(['passenger']);
 
-      cy.contains('app-profile a', 'Ayuda y soporte').click();
+      cy.contains('app-profile ion-item', 'Ayuda y soporte').click();
       cy.location('pathname').should('eq', '/tabs/profile/help');
       // Las de pasajero; las de conductor, en su pestaña
       cy.contains('.help-topic-card', 'Buscar y pedir plaza').should('be.visible');

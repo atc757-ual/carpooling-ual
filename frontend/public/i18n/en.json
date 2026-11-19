@@ -1560,7 +1560,8 @@
       "departsAt": "{{ detour }} · leaves at {{ time }}",
       "alreadyRequested": ", already requested",
       "stopAt": "At the {{ stop }} stop ({{ walk }} away) · at {{ time }}",
-      "stop": "At the {{ stop }} stop ({{ walk }} away)"
+      "stop": "At the {{ stop }} stop ({{ walk }} away)",
+      "drives": "Driver: {{ name }}"
     },
     "conversation": {
       "masOpciones": "More options",
@@ -1683,7 +1684,8 @@
       "verSolicitudes": "See requests",
       "verViaje": "See trip",
       "oneRequest": "1 request to answer",
-      "freeOf": "{{ available }} of {{ offered }} free"
+      "freeOf": "{{ available }} of {{ offered }} free",
+      "linkLabel": "{{ action }}, you drive: {{ when }}, {{ route }}"
     },
     "myTrips": {
       "plazasOcupadas": "{{ value1 }} of {{ offeredSeats }} seats taken",

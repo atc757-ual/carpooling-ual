@@ -1560,7 +1560,8 @@
       "departsAt": "{{ detour }} · sale a las {{ time }}",
       "alreadyRequested": ", ya solicitado",
       "stopAt": "En la parada {{ stop }} (a {{ walk }}) · a las {{ time }}",
-      "stop": "En la parada {{ stop }} (a {{ walk }})"
+      "stop": "En la parada {{ stop }} (a {{ walk }})",
+      "drives": "Conduce: {{ name }}"
     },
     "conversation": {
       "masOpciones": "Más opciones",
@@ -1683,7 +1684,8 @@
       "verSolicitudes": "Ver solicitudes",
       "verViaje": "Ver viaje",
       "oneRequest": "1 solicitud por responder",
-      "freeOf": "{{ available }} de {{ offered }} libres"
+      "freeOf": "{{ available }} de {{ offered }} libres",
+      "linkLabel": "{{ action }}, conduces: {{ when }}, {{ route }}"
     },
     "myTrips": {
       "plazasOcupadas": "{{ value1 }} de {{ offeredSeats }} plazas ocupadas",

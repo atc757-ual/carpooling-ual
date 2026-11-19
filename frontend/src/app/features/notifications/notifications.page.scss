@@ -124,40 +124,44 @@
   }
 }
 
+// Sin el fondo ni el relleno de ion-list; 8px entre avisos
 .notifications__list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-s); // 8px entre notificaciones
-  margin: 0;
+  gap: var(--space-s);
   padding: 0;
-  list-style: none;
+  background: transparent;
 }
 
+// Cada aviso, un ion-item (button): la franja de la izquierda con el color de
+// su tipo (sin leer) y, debajo, la línea fina
 .notification {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-s);
-  width: 100%;
-  padding: var(--space-base) var(--space-s);
-  border: 0;
-  color: var(--color-text);
-  font: inherit;
-  text-align: start;
-  cursor: pointer;
-  border-bottom: var(--border-width-s) solid var(--color-surface-subtle);
-  border-inline-start: 0.3125rem solid transparent;
-  background: var(--color-surface);
-  transition:
-    background-color var(--motion-duration-fast) var(--motion-easing),
-    border-color var(--motion-duration-fast) var(--motion-easing);
+  --background: var(--color-surface);
+  --background-hover: var(--color-surface-subtle);
+  --background-hover-opacity: 1;
+  --padding-start: var(--space-s);
+  --padding-top: var(--space-base);
+  --padding-bottom: var(--space-base);
+  --inner-padding-end: var(--space-s);
+  --color: var(--color-text);
 
-  &:hover {
-    background: var(--color-surface-subtle);
-  }
-  &:focus-visible {
+  border-bottom: var(--border-width-s) solid var(--color-surface-subtle);
+  border-inline-start: 0.3125rem solid transparent; // 5px
+  transition: border-color var(--motion-duration-fast) var(--motion-easing);
+
+  &.ion-focused {
     outline: var(--border-width-m) solid var(--color-focus);
     outline-offset: calc(-1 * var(--border-width-m));
   }
+}
+
+// El icono, el texto y la hora en una fila, arriba
+.notification__row {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: var(--space-s);
+  min-width: 0;
 }
 
 .notification__read-icon {
@@ -177,7 +181,7 @@
 }
 
 .notification--unread {
-  background: var(--color-primary-subtle);
+  --background: var(--color-primary-subtle);
 
   .notification__read-icon--unread {
     color: var(--color-link);

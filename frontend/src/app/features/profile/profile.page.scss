@@ -31,7 +31,6 @@
 .profile__main,
 .profile__aside,
 .profile-card__content,
-.profile__reviews-list,
 .profile__center-info,
 .profile__bio-box,
 .profile__pref-list,
@@ -43,7 +42,6 @@
 .profile__main,
 .profile__aside,
 .profile-card__content,
-.profile__reviews-list,
 .profile__legal-list {
   gap: var(--space-base);
   form ion-button {
@@ -81,9 +79,7 @@
 .profile__review-row,
 .profile__setting-row,
 .profile__phone-row,
-.profile__pref-row,
-.profile__toggle-item,
-.profile__legal-row {
+.profile__pref-row {
   display: flex;
   align-items: center;
 }
@@ -91,16 +87,13 @@
 .profile__review-row,
 .profile__setting-row,
 .profile__phone-row,
-.profile__pref-row,
-.profile__toggle-item,
-.profile__legal-row {
+.profile__pref-row {
   justify-content: space-between;
 }
 
 .profile__review-row,
 .profile__setting-row,
 .profile__pref-row,
-.profile__toggle-item,
 app-profile-push-setting {
   // Separador a medio camino entre una fila y la siguiente (el hueco del
   // contenedor es --space-base): antes quedaba pegado al texto de arriba
@@ -243,27 +236,39 @@ app-profile-device-location {
   border-top: var(--border-width-s) solid var(--color-border-subtle);
 }
 
-// Documento legal: icono, título y si está aceptado (check verde y fecha)
+// Sin el fondo ni el relleno de ion-list
+ion-list.profile__legal-list {
+  padding: 0;
+  background: transparent;
+}
+
+// Cada fila (documento legal, contraseña, ayuda, eliminar cuenta), un ion-item
+// con borde: icono, título y detalle (en los documentos, si está aceptado) y la
+// flecha del ion-item (detail)
 .profile__legal-row {
-  gap: var(--space-s);
-  width: 100%;
-  padding: var(--space-s) var(--space-base);
-  border: 1px solid var(--color-border-subtle);
+  --background: var(--color-surface);
+  --background-hover: var(--color-primary-subtle);
+  --background-hover-opacity: 1;
+  --border-radius: var(--radius-base);
+  --padding-start: var(--space-base);
+  --padding-top: var(--space-s);
+  --padding-bottom: var(--space-s);
+  --inner-padding-end: var(--space-base);
+  --color: var(--color-text);
+  --detail-icon-color: var(--color-text-muted);
+  --detail-icon-opacity: 1;
+
+  border: var(--border-width-s) solid var(--color-border-subtle);
   border-radius: var(--radius-base);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-  text-align: left;
-  // También es un enlace (Preguntas frecuentes): sin subrayado
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    background var(--motion-duration-fast),
-    border-color var(--motion-duration-fast);
+  transition: border-color var(--motion-duration-fast);
 
   &:hover {
-    background: var(--color-primary-subtle);
     border-color: var(--color-primary-subtle);
+  }
+
+  &.ion-focused {
+    outline: var(--border-width-l) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
   }
 }
 
@@ -278,12 +283,9 @@ app-profile-device-location {
   --color: var(--color-on-primary);
 }
 
-.profile__action-link {
-  text-decoration: none;
-}
-
 .profile__legal-icon {
   flex: none;
+  margin-inline-end: var(--space-s);
   font-size: 1.5rem; // 24px
   color: var(--color-primary);
 }
@@ -294,6 +296,7 @@ app-profile-device-location {
   flex-direction: column;
   gap: 0.125rem;
   min-width: 0;
+  white-space: normal;
 }
 
 .profile__legal-status {
@@ -305,12 +308,6 @@ app-profile-device-location {
   ion-icon {
     flex: none;
   }
-}
-
-.profile__legal-chevron {
-  flex: none;
-  color: var(--color-text-muted);
-  font-size: 1.125rem;
 }
 
 // Editar: botón cuadrado de 32px con fondo azul suave e icono de 20px
@@ -355,21 +352,6 @@ app-profile-device-location {
   ion-icon {
     flex: none;
   }
-}
-
-// Compartir ubicación: el texto en columna y el interruptor a la derecha
-.profile__toggle-item {
-  gap: var(--space-base);
-}
-
-.profile__toggle-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
-.profile__device-permission {
-  margin-top: var(--space-xs);
 }
 
 // Verificar el teléfono: botón amarillo/ámbar de acción pendiente (como Notificaciones y Ubicación)

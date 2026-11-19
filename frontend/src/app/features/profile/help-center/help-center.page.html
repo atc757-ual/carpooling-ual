@@ -96,31 +96,34 @@
               {{ 'help.searching' | transloco }}
             </p>
           } @else {
-            <ul class="help-search__list" [attr.aria-label]="'help.resultsTitle' | transloco">
-              @for (item of searchItems(); track item.id) {
-                <li>
-                  <a
+            @if (searchItems().length > 0) {
+              <!-- Cada resultado, un ion-item que abre la pregunta (como los temas) -->
+              <ion-list
+                class="help-search__list"
+                lines="none"
+                [attr.aria-label]="'help.resultsTitle' | transloco"
+              >
+                @for (item of searchItems(); track item.id) {
+                  <ion-item
                     class="help-search__item"
+                    [button]="true"
+                    [detail]="false"
                     [routerLink]="[helpCenterPath, item.id]"
                     (click)="handleCloseSearch()"
                   >
-                    <span class="help-search__question">{{ item.question }}</span>
-                    <span class="help-search__topic">{{ item.topicName }}</span>
-                  </a>
-                </li>
-              } @empty {
-                <li class="help-search__status">
-                  <output>
-                    <span class="text-body text-body--strong">{{
-                      'help.emptyTitle' | transloco
-                    }}</span>
-                    <span class="text-body-s text-color-muted">{{
-                      'help.emptyText' | transloco
-                    }}</span>
-                  </output>
-                </li>
-              }
-            </ul>
+                    <ion-label class="help-search__text">
+                      <span class="help-search__question">{{ item.question }}</span>
+                      <span class="help-search__topic">{{ item.topicName }}</span>
+                    </ion-label>
+                  </ion-item>
+                }
+              </ion-list>
+            } @else {
+              <output class="help-search__status">
+                <span class="text-body text-body--strong">{{ 'help.emptyTitle' | transloco }}</span>
+                <span class="text-body-s text-color-muted">{{ 'help.emptyText' | transloco }}</span>
+              </output>
+            }
           }
         </div>
       }

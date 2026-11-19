@@ -189,39 +189,31 @@
 }
 
 .messages__list {
-  margin: 0;
   padding: 0;
-  list-style: none;
-
-  li + li {
-    border-top: var(--border-width-s) solid var(--color-border-subtle);
-  }
+  background: transparent;
 }
 
+// Cada conversación, un ion-item (button): fondo gris al pasar, azul claro la
+// abierta (escritorio), y la línea fina entre filas
 .conversation {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  gap: var(--space-s);
-  padding: var(--space-base);
-  border: 0;
-  background: transparent;
-  color: var(--color-text);
-  font: inherit;
-  text-align: left;
+  --background: transparent;
+  --background-hover: var(--color-surface-subtle);
+  --background-hover-opacity: 1;
+  --border-color: var(--color-border-subtle);
+  --padding-start: var(--space-base);
+  --padding-top: var(--space-base);
+  --padding-bottom: var(--space-base);
+  --inner-padding-end: var(--space-base);
+  --color: var(--color-text);
 
-  &:hover {
-    background: var(--color-surface-subtle);
-  }
-
-  &--selected {
-    background: var(--color-primary-subtle);
-  }
-
-  &:focus-visible {
+  &.ion-focused {
     outline: var(--border-width-m) solid var(--color-focus);
     outline-offset: calc(-1 * var(--border-width-m));
   }
+}
+
+.conversation--selected {
+  --background: var(--color-primary-subtle);
 }
 
 .conversation__body {

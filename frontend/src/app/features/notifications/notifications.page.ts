@@ -8,6 +8,8 @@ import {
   IonChip,
   IonContent,
   IonIcon,
+  IonItem,
+  IonList,
   IonSpinner,
   ModalController,
 } from '@ionic/angular';
@@ -61,6 +63,8 @@ const CATEGORIES: NotificationCategory[] = ['travel', 'account', 'incident'];
     IonChip,
     IonContent,
     IonIcon,
+    IonItem,
+    IonList,
     IonSpinner,
   ],
   templateUrl: './notifications.page.html',

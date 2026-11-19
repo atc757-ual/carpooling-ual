@@ -1,4 +1,9 @@
-<ion-card class="driver-summary role-card role-card--driver">
+<!-- Toda la tarjeta es un enlace (ion-card [routerLink]) al viaje -->
+<ion-card
+  class="driver-summary role-card role-card--driver"
+  [routerLink]="link()"
+  [attr.aria-label]="linkLabel()"
+>
   <ion-card-content>
     <div class="driver-summary__head">
       <!-- La hora y, a su lado, el papel -->
@@ -36,12 +41,6 @@
     @if (pendingLabel(); as label) {
       <div class="driver-summary__pending">{{ label }}</div>
     }
-    <!-- El enlace cubre toda la tarjeta (::after) -->
-    <a
-      class="driver-summary__link"
-      [routerLink]="link()"
-      [attr.aria-label]="action() + ', conduces: ' + when() + ', ' + route()"
-      >{{ action() }}</a
-    >
+    <span class="driver-summary__action">{{ action() }}</span>
   </ion-card-content>
 </ion-card>

@@ -1,7 +1,7 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
+import { IonCard, IonCardContent, IonIcon, IonRouterLink } from '@ionic/angular';
 import { carOutline } from 'ionicons/icons';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
@@ -15,11 +15,11 @@ const START_WINDOW_MS = 10 * 60 * 1000;
 
 // Un viaje del conductor en la lista de Mis viajes: cuándo, de dónde a dónde,
 // su estado y las plazas. Toda la tarjeta lleva a su detalle (solicitudes,
-// chat y cancelar) o, si está en curso, a la pantalla del viaje; el texto del
-// enlace es la acción principal
+// chat y cancelar) o, si está en curso, a la pantalla del viaje; abajo, la
+// acción principal
 @Component({
   selector: 'app-driver-trip-summary',
-  imports: [RouterLink, IonCard, IonCardContent, IonIcon, TranslocoPipe],
+  imports: [RouterLink, IonRouterLink, IonCard, IonCardContent, IonIcon, TranslocoPipe],
   templateUrl: './driver-trip-summary.html',
   styleUrl: './driver-trip-summary.scss',
 })
@@ -65,6 +65,14 @@ export class DriverTripSummary {
       offered: offeredSeats,
     });
   });
+  // Lo que lee el lector de pantalla del enlace (toda la tarjeta)
+  readonly linkLabel = computed(() =>
+    translate('screens.driverTripSummary.linkLabel', {
+      action: this.action(),
+      when: this.when(),
+      route: this.route(),
+    }),
+  );
   readonly action = computed(() => {
     const { status, departureAt } = this.trip();
     if (status === 'in_progress') {
