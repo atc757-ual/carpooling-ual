@@ -15,9 +15,9 @@
   margin: 0;
 }
 
-// «Ver todas las preguntas», separado de la última pregunta y con el texto
-// a 16px (Ionic lo deja en 14px y dentro de la tarjeta se veía pequeño)
+// «Ver todas las preguntas», a 8px de la última pregunta y con el texto a
+// 16px (Ionic lo deja en 14px y dentro de la tarjeta se veía pequeño)
 .quick-faqs__more {
-  margin: var(--space-base) 0 0;
+  margin: var(--space-s) 0 0;
   font-size: var(--font-size-body); // 16px
 }

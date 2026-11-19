@@ -99,7 +99,8 @@
   min-height: 23.4375rem;
 }
 
-// El próximo viaje dentro de la tarjeta: 16px hasta la búsqueda, solo si hay
+// El próximo viaje dentro de la tarjeta: 8px hasta el aviso del ahorro (dos
+// tarjetas de color seguidas), solo si hay
 .trip-search__next-trip:has(.next-trip, app-live-trip-banner) {
-  margin-bottom: var(--space-base);
+  margin-bottom: var(--space-s);
 }
