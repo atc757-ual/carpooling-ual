@@ -24,6 +24,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatSeats } from '../../../shared/utils/seats.util';
 import { getFirstName, getInitials } from '../../matching/trip-driver/trip-driver';
+import { formatTime } from '../../matching/trip-results';
 import { lazyLabels } from '../../../core/i18n/lazy-labels';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 
@@ -152,14 +153,22 @@ export class DriverTripPassengers {
     return this.travelPreferences.format(request.passenger.preferences);
   }
 
-  // Solo el lugar: la hora estimada no suma las otras recogidas (pendiente
-  // de decidir con el director)
+  // Dónde y, si ya está calculada, a qué hora: la API la recalcula con todas
+  // las recogidas aceptadas y sus paradas
   protected pickupSummary(request: SeatRequest): string | null {
     const place =
       request.direction === 'from-campus'
         ? translate('screens.driverTripPassengers.salida')
         : (request.pickupName ?? null);
-    return place ? `Recogida: ${place}` : null;
+    if (!place) {
+      return null;
+    }
+    return request.pickupAt
+      ? translate('screens.driverTripPassengers.pickupAt', {
+          place,
+          time: formatTime(request.pickupAt),
+        })
+      : translate('screens.driverTripPassengers.pickup', { place });
   }
 
   isDeciding(requestId: string, decision: RequestDecision): boolean {

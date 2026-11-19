@@ -1646,6 +1646,8 @@
     "driverTripPassengers": {
       "plazasOcupadas": "{{ value1 }} de {{ offeredSeats }} plazas ocupadas",
       "salida": "En tu salida",
+      "pickup": "Recogida: {{ place }}",
+      "pickupAt": "Recogida: {{ place }} · {{ time }}",
       "status": {
         "pending": "Pendiente",
         "accepted": "Aceptada",

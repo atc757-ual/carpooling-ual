@@ -4,6 +4,8 @@ import { SeatRequest } from '../../../core/models/seat-request.model';
 import { RouteStop } from '../../../shared/components/ui/route-timeline/route-timeline';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../matching/trip-results';
+import { TripRoute } from '../../../core/models/trip-route.model';
+import { formatRouteArrival } from '../route-arrival';
 
 // «Ana», «Ana y Leo», «Ana, Leo y Pía»
 function joinNames(names: readonly string[]): string {
@@ -16,12 +18,9 @@ function joinNames(names: readonly string[]): string {
 export function buildDriverRouteStops(
   trip: Pick<DriverTrip, 'departureAt' | 'originName' | 'destinationName' | 'stops'>,
   accepted: readonly SeatRequest[],
-  durationMin: number | undefined,
+  route: Pick<TripRoute, 'durationMin' | 'estimatedArrivalAt'> | null | undefined,
 ): RouteStop[] {
-  const arrival =
-    durationMin === undefined
-      ? undefined
-      : formatTime(new Date(Date.parse(trip.departureAt) + durationMin * 60_000).toISOString());
+  const arrival = formatRouteArrival(trip.departureAt, route);
   const pickups =
     trip.stops.length > 0
       ? trip.stops.map<RouteStop>((stop) => {
