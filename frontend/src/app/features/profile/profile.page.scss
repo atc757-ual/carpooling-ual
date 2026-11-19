@@ -31,7 +31,6 @@
 .profile__main,
 .profile__aside,
 .profile-card__content,
-.profile__reviews-list,
 .profile__center-info,
 .profile__bio-box,
 .profile__pref-list,
@@ -43,7 +42,6 @@
 .profile__main,
 .profile__aside,
 .profile-card__content,
-.profile__reviews-list,
 .profile__legal-list {
   gap: var(--space-base);
   form ion-button {
@@ -81,8 +79,7 @@
 .profile__review-row,
 .profile__setting-row,
 .profile__phone-row,
-.profile__pref-row,
-.profile__toggle-item {
+.profile__pref-row {
   display: flex;
   align-items: center;
 }
@@ -90,15 +87,13 @@
 .profile__review-row,
 .profile__setting-row,
 .profile__phone-row,
-.profile__pref-row,
-.profile__toggle-item {
+.profile__pref-row {
   justify-content: space-between;
 }
 
 .profile__review-row,
 .profile__setting-row,
 .profile__pref-row,
-.profile__toggle-item,
 app-profile-push-setting {
   // Separador a medio camino entre una fila y la siguiente (el hueco del
   // contenedor es --space-base): antes quedaba pegado al texto de arriba
@@ -288,10 +283,6 @@ ion-list.profile__legal-list {
   --color: var(--color-on-primary);
 }
 
-.profile__action-link {
-  text-decoration: none;
-}
-
 .profile__legal-icon {
   flex: none;
   margin-inline-end: var(--space-s);
@@ -361,21 +352,6 @@ ion-list.profile__legal-list {
   ion-icon {
     flex: none;
   }
-}
-
-// Compartir ubicación: el texto en columna y el interruptor a la derecha
-.profile__toggle-item {
-  gap: var(--space-base);
-}
-
-.profile__toggle-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
-.profile__device-permission {
-  margin-top: var(--space-xs);
 }
 
 // Verificar el teléfono: botón amarillo/ámbar de acción pendiente (como Notificaciones y Ubicación)
