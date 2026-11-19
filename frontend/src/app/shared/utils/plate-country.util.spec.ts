@@ -1,3 +1,4 @@
+import { setAppLocale } from '../../core/i18n/app-locale';
 import {
   isValidPlate,
   normalizePlate,
@@ -6,6 +7,8 @@ import {
 } from './plate-country.util';
 
 describe('plate country util', () => {
+  beforeEach(() => setAppLocale('es'));
+
   it('offers Spain first and the 31 countries of the API', () => {
     expect(PLATE_COUNTRY_OPTIONS[0]).toEqual({ code: 'ES', name: 'España', sign: 'E' });
     expect(PLATE_COUNTRY_OPTIONS).toHaveLength(31);
