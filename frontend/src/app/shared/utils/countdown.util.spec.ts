@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
 import { DestroyRef } from '@angular/core';
 import type { TranslocoService } from '@jsverse/transloco';
 import { vi } from 'vitest';
@@ -16,6 +17,8 @@ function fakeDestroyRef(): { ref: DestroyRef; destroy: () => void } {
 }
 
 describe('createCountdown', () => {
+  beforeEach(() => initAppTranslations());
+
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
@@ -62,6 +65,8 @@ describe('createCountdown', () => {
 });
 
 describe('getResendLabel', () => {
+  beforeEach(() => initAppTranslations());
+
   it('shows the time left, or that the code can be resent', () => {
     expect(getResendLabel(60)).toBe('Reenviar código en 01:00');
     expect(getResendLabel(42)).toBe('Reenviar código en 00:42');

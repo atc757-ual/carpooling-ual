@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../../core/i18n/testing-transloco';
 import {
   EMPTY_TRAVEL_PREFERENCES,
   TravelPreferences,
@@ -32,6 +33,8 @@ const ids = (filters: PreferenceFilter[]): string[] =>
   filterByPreferences(TRIPS, new Set(filters)).map(({ id }) => id);
 
 describe('preference filters', () => {
+  beforeEach(() => initAppTranslations());
+
   it('keeps every trip without filters', () => {
     expect(ids([])).toEqual(['lucia', 'sara', 'pablo', 'unknown']);
   });

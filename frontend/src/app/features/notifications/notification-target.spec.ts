@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
 import { Router } from '@angular/router';
 import { vi } from 'vitest';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -5,6 +6,8 @@ import { ActiveModeService } from '../../core/services/users/active-mode.service
 import { openNotificationTarget } from './notification-target';
 
 describe('openNotificationTarget', () => {
+  beforeEach(() => initAppTranslations());
+
   let navigateByUrl: ReturnType<typeof vi.fn>;
   let setMode: ReturnType<typeof vi.fn>;
   let mode: string | null;

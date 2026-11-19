@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../../core/i18n/testing-transloco';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { formatTime } from '../../matching/trip-results';
 import { buildDriverRouteStops } from './driver-route-stops';
@@ -19,6 +20,8 @@ function accepted(name: string, extra: Partial<SeatRequest> = {}): SeatRequest {
 }
 
 describe('buildDriverRouteStops', () => {
+  beforeEach(() => initAppTranslations());
+
   it('goes from the start to the campus through each pickup point, with its time', () => {
     const stops = buildDriverRouteStops(
       TRIP,

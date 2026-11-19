@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../i18n/testing-transloco';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
@@ -20,6 +21,7 @@ describe('legalAcceptanceGuard', () => {
     pending.mockReset();
     TestBed.configureTestingModule({
       providers: [
+        provideAppTransloco(),
         provideRouter([]),
         { provide: AuthService, useValue: { isLoggedIn } },
         { provide: LegalDocumentsService, useValue: { pending } },

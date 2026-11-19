@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../../core/i18n/testing-transloco';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { passengerTrip } from '../passenger-trip-card/passenger-trip.testing';
 import {
@@ -24,6 +25,8 @@ function passenger(id: string, departureAt: string): TripEntry {
 const ids = (entries: readonly TripEntry[]): string[] => entries.map(({ id }) => id);
 
 describe('trip entries', () => {
+  beforeEach(() => initAppTranslations());
+
   it('puts each role in its tab', () => {
     expect(entryTab(driverEntry(driverTrip('t1', 'finished', '2099-01-15T08:00:00Z')))).toBe(
       'past',

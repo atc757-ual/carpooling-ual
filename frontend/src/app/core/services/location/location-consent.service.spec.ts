@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../i18n/testing-transloco';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
@@ -42,6 +43,7 @@ describe('LocationConsentService', () => {
     currentUser.set({ id: 'user-1' });
     TestBed.configureTestingModule({
       providers: [
+        provideAppTransloco(),
         { provide: UsersService, useValue: users },
         { provide: AuthService, useValue: { currentUser } },
         { provide: LegalDocumentsService, useValue: { getCurrent } },
