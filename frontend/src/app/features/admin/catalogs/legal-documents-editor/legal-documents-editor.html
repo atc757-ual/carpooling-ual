@@ -32,6 +32,21 @@
       <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
     }
   </ion-select>
+  <!-- El idioma que se edita: «Qué ha cambiado» y el texto -->
+  <fieldset class="legal-editor__tabs">
+    <legend class="visually-hidden">Idioma</legend>
+    @for (option of langs; track option.value) {
+      <button
+        type="button"
+        class="legal-editor__tab"
+        [class.legal-editor__tab--selected]="lang() === option.value"
+        [attr.aria-pressed]="lang() === option.value"
+        (click)="handleLang(option.value)"
+      >
+        {{ option.label }}
+      </button>
+    }
+  </fieldset>
 </ion-card>
 
 @if (errorMessage(); as message) {
@@ -72,7 +87,7 @@
       }
     </fieldset>
     <ion-textarea
-      label="Qué ha cambiado"
+      [label]="lang() === 'es' ? 'Qué ha cambiado' : 'Qué ha cambiado (en inglés)'"
       label-placement="stacked"
       fill="outline"
       helperText="Se muestra encima del documento. Obligatorio para publicar."
@@ -80,7 +95,7 @@
       [rows]="2"
       [counter]="true"
       [maxlength]="1000"
-      [value]="summary()"
+      [value]="shownSummary()"
       (ionInput)="handleSummary($event.detail.value)"
     />
   </ion-card>
@@ -108,18 +123,18 @@
     @switch (view()) {
       @case ('edit') {
         <ion-textarea
-          label="Texto (HTML)"
+          [label]="lang() === 'es' ? 'Texto (HTML)' : 'Texto en inglés (HTML)'"
           label-placement="stacked"
           fill="outline"
           [autoGrow]="true"
           [rows]="14"
-          [value]="content()"
+          [value]="shownContent()"
           (ionInput)="handleInput($event.detail.value)"
         />
       }
       @case ('preview') {
         <section class="legal-editor__preview" aria-label="Vista previa">
-          <div class="legal" [innerHTML]="content()"></div>
+          <div class="legal" [innerHTML]="shownContent()"></div>
         </section>
       }
       @case ('compare') {
@@ -128,13 +143,13 @@
             <h3 id="legal-compare-current" class="text-label legal-editor__compare-title">
               Vigente · versión {{ current()?.version }}
             </h3>
-            <div class="legal" [innerHTML]="current()?.content"></div>
+            <div class="legal" [innerHTML]="shownCurrentContent()"></div>
           </section>
           <section class="legal-editor__preview" aria-labelledby="legal-compare-next">
             <h3 id="legal-compare-next" class="text-label legal-editor__compare-title">
               Nueva · versión {{ nextVersion() }}
             </h3>
-            <div class="legal" [innerHTML]="content()"></div>
+            <div class="legal" [innerHTML]="shownContent()"></div>
           </section>
         </div>
       }

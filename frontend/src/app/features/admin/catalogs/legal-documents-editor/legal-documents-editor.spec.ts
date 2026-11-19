@@ -17,6 +17,8 @@ const PUBLISHED: AdminLegalDocument = {
   content: '<p>Vigente</p>',
   changeType: 'major',
   summary: null,
+  contentEn: '<p>Current</p>',
+  summaryEn: null,
   status: 'published',
   publishedAt: '2026-10-30T10:00:00Z',
   updatedAt: '2026-10-30T10:00:00Z',
@@ -28,6 +30,8 @@ const DRAFT: AdminLegalDocument = {
   content: '<p>Borrador</p>',
   changeType: 'minor',
   summary: 'Una aclaración.',
+  contentEn: '<p>Draft</p>',
+  summaryEn: 'A clarification.',
   status: 'draft',
   publishedAt: null,
 };
@@ -111,7 +115,7 @@ describe('LegalDocumentsEditor', () => {
     const tabs = [...root.querySelectorAll('.legal-editor__tab')].map((tab) =>
       tab.textContent?.trim(),
     );
-    expect(tabs).toEqual(['Editar', 'Vista previa']);
+    expect(tabs).toEqual(['Español', 'Inglés', 'Editar', 'Vista previa']);
   });
 
   it('marks the unsaved changes', async () => {
@@ -152,11 +156,38 @@ describe('LegalDocumentsEditor', () => {
     expect(editor.canPublish()).toBe(false);
 
     editor.handleInput('<p>Nuevo</p>');
+    // Falta «Qué ha cambiado» en inglés (el texto lo trae de la vigente)
+    expect(editor.publishHint()).toContain('en inglés');
+    editor.handleLang('en');
+    editor.handleSummary('Changes.');
+    expect(editor.summary()).toBe('Cambios.');
     expect(editor.canPublish()).toBe(true);
+    editor.handleInput(' ');
+    expect(editor.publishHint()).toBe('Falta el texto en inglés.');
+    editor.handleLang('es');
     editor.handleSummary('');
     expect(editor.publishHint()).toContain('Qué ha cambiado');
     editor.handleInput('  ');
     expect(editor.publishHint()).toContain('Escribe el texto');
+  });
+
+  it('edits and previews the English translation apart from the Spanish text', async () => {
+    versions.mockResolvedValue([PUBLISHED, DRAFT]);
+    const root = await render();
+    const editor = fixture.componentInstance;
+
+    editor.handleLang('en');
+    editor.handleInput('<p>New draft</p>');
+    editor.handleView('preview');
+    fixture.detectChanges();
+
+    expect(editor.content()).toBe('<p>Borrador</p>');
+    expect(editor.contentEn()).toBe('<p>New draft</p>');
+    expect(root.querySelector('.legal-editor__preview')?.textContent).toContain('New draft');
+    expect(editor.isDirty()).toBe(true);
+    editor.handleView('compare');
+    fixture.detectChanges();
+    expect(root.querySelector('.legal-editor__compare')?.textContent).toContain('Current');
   });
 
   it('names the first version when nothing is published yet', async () => {
@@ -186,6 +217,8 @@ describe('LegalDocumentsEditor', () => {
       content: '<p>Nuevo</p>',
       changeType: 'major',
       summary: 'Nuevas normas.',
+      contentEn: '<p>Current</p>',
+      summaryEn: '',
     });
     expect(showSuccess).toHaveBeenCalledWith('Borrador 1.1 guardado.');
     await fixture.whenStable();
