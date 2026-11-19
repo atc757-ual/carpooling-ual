@@ -107,8 +107,8 @@ export const routes: Routes = [
         data: {
           heading: {
             // Lo que se ve en la franja fija (escritorio) y en la tarjeta (móvil)
-            title: '¿A dónde vamos hoy?',
-            subtitle: 'Encuentra a alguien de la UAL que haga tu mismo trayecto.',
+            title: 'routes.search.title',
+            subtitle: 'routes.search.subtitle',
             scrollsWithContent: true,
           } satisfies TabHeading,
         },
@@ -124,10 +124,10 @@ export const routes: Routes = [
           ),
         data: {
           heading: {
-            title: 'Tu búsqueda',
-            subtitle: 'Los viajes que encajan con tu ruta y tu horario.',
+            title: 'routes.searchResults.title',
+            subtitle: 'routes.searchResults.subtitle',
             backHref: '/tabs/search',
-            breadcrumbs: [{ label: 'Buscar viaje', href: '/tabs/search' }],
+            breadcrumbs: [{ label: 'routes.crumbs.searchTrip', href: '/tabs/search' }],
           } satisfies TabHeading,
         },
       },
@@ -140,8 +140,8 @@ export const routes: Routes = [
           import('./features/matching/trip-detail/trip-detail.page').then((m) => m.TripDetailPage),
         data: {
           heading: {
-            title: 'Detalle del viaje',
-            subtitle: 'El recorrido, quién conduce y las plazas libres.',
+            title: 'routes.tripDetail.title',
+            subtitle: 'routes.tripDetail.subtitle',
             backHref: '/tabs/search/results',
             // Sin breadcrumbs aquí: el detalle pone su cabecera con las migas
             // en escritorio y muestra la franja también en el móvil
@@ -156,8 +156,8 @@ export const routes: Routes = [
           import('./features/trips/publish-trip/publish-trip.page').then((m) => m.PublishTripPage),
         data: {
           heading: {
-            title: 'Publicar viaje',
-            subtitle: 'Comparte tu recorrido con la comunidad. Tú aceptas cada solicitud.',
+            title: 'routes.publish.title',
+            subtitle: 'routes.publish.subtitle',
           } satisfies TabHeading,
         },
       },
@@ -170,8 +170,8 @@ export const routes: Routes = [
           ),
         data: {
           heading: {
-            title: 'Tu solicitud',
-            subtitle: 'Consulta el estado y los datos de tu plaza.',
+            title: 'routes.request.title',
+            subtitle: 'routes.request.subtitle',
             backHref: '/tabs/trips',
             // Sin breadcrumbs aquí: el detalle pone su cabecera con las migas
             // en escritorio y muestra la franja también en el móvil
@@ -187,10 +187,10 @@ export const routes: Routes = [
           ),
         data: {
           heading: {
-            title: 'Viaje en curso',
-            subtitle: 'Sigue el coche en directo hasta que llegues.',
+            title: 'routes.ride.title',
+            subtitle: 'routes.ride.subtitle',
             backHref: '/tabs/trips',
-            breadcrumbs: [{ label: 'Tus viajes', href: '/tabs/trips' }],
+            breadcrumbs: [{ label: 'routes.crumbs.trips', href: '/tabs/trips' }],
           } satisfies TabHeading,
         },
       },
@@ -203,8 +203,8 @@ export const routes: Routes = [
           ),
         data: {
           heading: {
-            title: 'Tu viaje',
-            subtitle: 'Solicitudes, chat y estado del viaje.',
+            title: 'routes.driverTrip.title',
+            subtitle: 'routes.driverTrip.subtitle',
             backHref: '/tabs/trips',
             // Sin breadcrumbs aquí: la franja fija se vería solo en escritorio.
             // El detalle pone su propia cabecera (con las migas) en las dos
@@ -220,10 +220,10 @@ export const routes: Routes = [
           ),
         data: {
           heading: {
-            title: 'Viaje en curso',
-            subtitle: 'Tus pasajeros ven dónde estás hasta que lo termines.',
+            title: 'routes.drive.title',
+            subtitle: 'routes.drive.subtitle',
             backHref: '/tabs/trips',
-            breadcrumbs: [{ label: 'Tus viajes', href: '/tabs/trips' }],
+            breadcrumbs: [{ label: 'routes.crumbs.trips', href: '/tabs/trips' }],
           } satisfies TabHeading,
         },
       },
@@ -233,8 +233,8 @@ export const routes: Routes = [
           import('./features/trips/my-trips/my-trips.page').then((m) => m.MyTripsPage),
         data: {
           heading: {
-            title: 'Tus viajes',
-            subtitle: 'Tus viajes y las solicitudes de plaza.',
+            title: 'routes.trips.title',
+            subtitle: 'routes.trips.subtitle',
             scrollsWithContent: true,
           } satisfies TabHeading,
         },
@@ -245,8 +245,8 @@ export const routes: Routes = [
           import('./features/messages/messages.page').then((m) => m.MessagesPage),
         data: {
           heading: {
-            title: 'Mensajes',
-            subtitle: 'Habla con quien conduce o viaja contigo.',
+            title: 'routes.messages.title',
+            subtitle: 'routes.messages.subtitle',
             scrollsWithContent: true,
           } satisfies TabHeading,
         },
@@ -257,8 +257,8 @@ export const routes: Routes = [
           import('./features/messages/messages.page').then((m) => m.MessagesPage),
         data: {
           heading: {
-            title: 'Conversación',
-            subtitle: 'Con quien conduce el viaje.',
+            title: 'routes.conversation.title',
+            subtitle: 'routes.conversation.subtitle',
             backHref: '/tabs/messages',
           } satisfies TabHeading,
         },
@@ -270,8 +270,8 @@ export const routes: Routes = [
           import('./features/messages/messages.page').then((m) => m.MessagesPage),
         data: {
           heading: {
-            title: 'Conversación',
-            subtitle: 'Entre quien conduce y un pasajero del viaje.',
+            title: 'routes.driverConversation.title',
+            subtitle: 'routes.driverConversation.subtitle',
             backHref: '/tabs/messages',
           } satisfies TabHeading,
         },
@@ -281,8 +281,8 @@ export const routes: Routes = [
         loadComponent: () => import('./features/profile/profile.page').then((m) => m.ProfilePage),
         data: {
           heading: {
-            title: 'Mi perfil',
-            subtitle: 'Tu cuenta y tus vehículos.',
+            title: 'routes.profile.title',
+            subtitle: 'routes.profile.subtitle',
           } satisfies TabHeading,
         },
       },
@@ -294,8 +294,8 @@ export const routes: Routes = [
           import('./features/profile/help-center/help-center.page').then((m) => m.HelpCenterPage),
         data: {
           heading: {
-            title: 'Ayuda y soporte',
-            subtitle: 'Preguntas frecuentes y contacto con soporte.',
+            title: 'routes.help.title',
+            subtitle: 'routes.help.subtitle',
             backHref: '/tabs/profile',
             // Sin breadcrumbs aquí: la pantalla pone su franja con el buscador
             // (también en el móvil) y las migas en escritorio
@@ -311,14 +311,14 @@ export const routes: Routes = [
           ),
         data: {
           heading: {
-            title: 'Ayuda y soporte',
-            subtitle: 'Preguntas frecuentes y contacto con soporte.',
+            title: 'routes.help.title',
+            subtitle: 'routes.help.subtitle',
             backHref: '/tabs/profile/help',
             // Las migas ocultan la franja en el móvil (la flecha y el título
             // van en la cabecera); en escritorio la pantalla pone la suya
             breadcrumbs: [
-              { label: 'Mi perfil', href: '/tabs/profile' },
-              { label: 'Ayuda y soporte', href: '/tabs/profile/help' },
+              { label: 'routes.crumbs.profile', href: '/tabs/profile' },
+              { label: 'routes.crumbs.help', href: '/tabs/profile/help' },
             ],
           } satisfies TabHeading,
         },
@@ -330,8 +330,8 @@ export const routes: Routes = [
           import('./features/notifications/notifications.page').then((m) => m.NotificationsPage),
         data: {
           heading: {
-            title: 'Notificaciones',
-            subtitle: 'Lo que pasa con tus viajes, solicitudes y cuenta.',
+            title: 'routes.notifications.title',
+            subtitle: 'routes.notifications.subtitle',
             scrollsWithContent: true,
           } satisfies TabHeading,
         },

@@ -90,9 +90,7 @@ export class ReasonConfirmModal {
       await this.action(this.reason().trim());
       await this.modalController.dismiss(null, 'confirm');
     } catch (error) {
-      this.errorMessage.set(
-        getErrorMessage(ApiError.fromHttpError(error), this.transloco ?? undefined),
-      );
+      this.errorMessage.set(getErrorMessage(ApiError.fromHttpError(error)));
     } finally {
       this.isSaving.set(false);
     }
