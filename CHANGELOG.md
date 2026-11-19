@@ -7,6 +7,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Documentos legales en inglés:** `legal_documents` guarda la traducción de cada versión (`content_en` y `summary_en`, migración `AddLegalDocumentsEnglish`, con la de las vigentes y la del borrador de la política 1.2, solo si su texto en español es el de las migraciones). `GET /api/legal-documents/{type}?lang=en` la devuelve y, sin traducción, da el español; el recurso dice en qué idioma llega (`lang`). La versión española es la que vale: las aceptaciones guardan la huella de su texto. El panel edita el borrador en los dos idiomas (selector Español / Inglés) y publicar exige los dos (`422 LEGAL_TRANSLATION_REQUIRED`); el inglés de una versión publicada tampoco cambia una vez escrito. La app pide los textos en su idioma (#365).
+
 ### Changed
 
 - **Errores sin tragar en el resto del frontend:** los `catch` genéricos que tratan un fallo de la API (guards de los documentos legales, contadores del chat, de Avisos y de incidencias, Mensajes, Conversación, Avisos, Perfil, el texto legal, la ubicación, el cambio de modo, los contactos para llamar, cancelar la simulación, reenviar el código y renovar la sesión) siguen haciendo lo mismo, pero vuelven a lanzar cualquier otro error para que llegue al registro global. `rethrowUnlessApiError` acepta también el `HttpErrorResponse` de dentro de los servicios y hay un `fallbackOnApiError(valor)` para las promesas. Terminar el viaje sin posición solo se acepta ante un `LocationError`. Los que dependen del dispositivo o del navegador (almacenamiento, push, pantalla encendida, geolocalización) se quedan, con una línea que explica por qué. Traducido «No hemos podido desactivar las notificaciones». Tests nuevos de «Tu recorrido» del pasajero, el texto legal y el avatar de las conversaciones (#363).
