@@ -198,6 +198,9 @@ class TestingTranslocoLoader implements TranslocoLoader {
 export function provideTestingTransloco(
   translations: Record<string, Record<string, unknown>> = {},
 ): EnvironmentProviders {
+  // Cada spec empieza en español, también el formato de fechas y números
+  // (otro spec puede haberlo dejado en inglés)
+  setAppLocale('es');
   try {
     globalThis.localStorage?.setItem('carpooling_language', 'es');
   } catch {
