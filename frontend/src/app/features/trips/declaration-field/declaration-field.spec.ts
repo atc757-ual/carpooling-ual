@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { FormControl } from '@angular/forms';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
@@ -12,7 +13,7 @@ describe('DeclarationField', () => {
   ): Promise<{ control: FormControl<boolean>; create: ReturnType<typeof vi.spyOn>; text: string }> {
     TestBed.configureTestingModule({
       imports: [DeclarationField],
-      providers: [provideIonicAngular()],
+      providers: [provideAppTransloco(), provideIonicAngular()],
     });
     const create = vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
       present: vi.fn().mockResolvedValue(undefined),
@@ -50,7 +51,7 @@ describe('DeclarationField', () => {
   it('asks its host to show the declaration instead of opening another window inside one', async () => {
     TestBed.configureTestingModule({
       imports: [DeclarationField],
-      providers: [provideIonicAngular()],
+      providers: [provideAppTransloco(), provideIonicAngular()],
     });
     const create = vi.spyOn(TestBed.inject(ModalController), 'create');
     const fixture = TestBed.createComponent(DeclarationField);

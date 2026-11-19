@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl } from '@angular/forms';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
@@ -46,6 +47,7 @@ describe('VehiclePicker', () => {
     TestBed.configureTestingModule({
       imports: [VehiclePicker],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: PreferencesPlugin, useValue: preferences },
         { provide: AuthService, useValue: { hasProfile: () => false, refreshAccessToken } },

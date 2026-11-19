@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -118,6 +119,7 @@ describe('DriverLiveTripPage', () => {
     listContactsMock = vi.fn().mockResolvedValue(contacts);
     TestBed.configureTestingModule({
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([
           { path: 'tabs/trips/drive/:id', component: DriverLiveTripPage },

@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -10,7 +11,7 @@ describe('MyTripsAside', () => {
   function render(rating: RoleRating | null): HTMLElement {
     TestBed.configureTestingModule({
       imports: [MyTripsAside],
-      providers: [provideIonicAngular(), provideRouter([])],
+      providers: [provideAppTransloco(), provideIonicAngular(), provideRouter([])],
     });
     fixture = TestBed.createComponent(MyTripsAside);
     fixture.componentRef.setInput('co2Kg', 25.4);

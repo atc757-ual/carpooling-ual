@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -42,7 +43,11 @@ describe('PickupModeField', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [PickupModeField],
-      providers: [provideIonicAngular(), { provide: ModalController, useValue: modalController }],
+      providers: [
+        provideAppTransloco(),
+        provideIonicAngular(),
+        { provide: ModalController, useValue: modalController },
+      ],
     });
     // El buscador de direcciones llama a la API: aquí, uno que solo guarda
     TestBed.overrideComponent(PickupModeField, {
