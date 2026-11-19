@@ -14787,6 +14787,54 @@
           "admin catalogs"
         ]
       }
+    },
+    "/api/users/me/impact": {
+      "get": {
+        "description": "Trips done, cars avoided and estimated CO₂ saved with both profiles (finished trips as the driver and completed seats as a passenger).",
+        "operationId": "MetricsController_getMyImpact",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserImpactResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get my impact",
+        "tags": [
+          "metrics"
+        ]
+      }
     }
   },
   "info": {
@@ -22377,6 +22425,43 @@
             "description": "Closing it is not allowed while it has active trips"
           }
         }
+      },
+      "UserImpactResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "UserImpact"
+            ]
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/users/me/impact"
+          },
+          "tripsDone": {
+            "type": "number",
+            "example": 4,
+            "description": "Trips done: finished as the driver plus completed seats as a passenger"
+          },
+          "carsAvoided": {
+            "type": "number",
+            "example": 5,
+            "description": "Cars that stayed at home: one per passenger carried as the driver and one per trip done as a passenger"
+          },
+          "co2Kg": {
+            "type": "number",
+            "example": 34.2,
+            "description": "Estimated CO₂ saved, in kg (straight-line distance by a road factor and an average car)"
+          }
+        },
+        "required": [
+          "@type",
+          "href",
+          "tripsDone",
+          "carsAvoided",
+          "co2Kg"
+        ]
       }
     }
   }
