@@ -85,7 +85,6 @@
       "resendIn": "Resend code in {{ time }}",
       "resend": "Resend code"
     },
-    "tripChatLink": "Trip chat",
     "tripCall": {
       "call": "Call",
       "callTo": "Call {{ name }}",
@@ -1262,9 +1261,6 @@
     "filtrosAplicados": "Applied filters",
     "removeFilter": "Remove the {{ name }} filter",
     "quitarFiltros": "Clear filters",
-    "recorridoConductor": "Route and driver",
-    "quienConduce": "Who's driving",
-    "preferenciasDelConductor": "Driver's preferences",
     "marcaDelVehiculo": "Vehicle make",
     "typeBrand": "Type the make",
     "searchBrand": "Search make",
@@ -1840,12 +1836,6 @@
     "tripWay": {
       "toCampus": "To campus",
       "fromCampus": "Back home"
-    },
-    "tripProgress": {
-      "published": "Published",
-      "confirmed": "Confirmed",
-      "inProgress": "In progress",
-      "finished": "Finished"
     },
     "publishSteps": {
       "route": "Route",
