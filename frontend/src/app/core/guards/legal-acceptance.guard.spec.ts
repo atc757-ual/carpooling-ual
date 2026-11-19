@@ -11,6 +11,7 @@ import {
 import { AuthService } from '../services/auth/auth.service';
 import { LegalDocumentsService } from '../services/users/legal-documents.service';
 import { legalAcceptanceGuard } from './legal-acceptance.guard';
+import { ApiError, NETWORK_ERROR } from '../models/api-error.model';
 
 describe('legalAcceptanceGuard', () => {
   const isLoggedIn = signal(true);
@@ -54,7 +55,7 @@ describe('legalAcceptanceGuard', () => {
     expect(pending).not.toHaveBeenCalled();
 
     isLoggedIn.set(true);
-    pending.mockRejectedValue(new Error('offline'));
+    pending.mockRejectedValue(new ApiError(NETWORK_ERROR, 0));
     await expect(run()).resolves.toBe(true);
   });
 });

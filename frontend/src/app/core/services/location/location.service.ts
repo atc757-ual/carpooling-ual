@@ -5,6 +5,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { BackgroundLocationService } from './background-location.service';
 import { LocationConsentService } from './location-consent.service';
 import { ToastService } from '../ui/toast.service';
+import { rethrowUnlessApiError } from '../../models/api-error.model';
 
 // Hasta cuándo se espera a la ubicación, y con qué precisión (la de una
 // calle: para recoger a alguien)
@@ -97,8 +98,9 @@ export class LocationService {
   async recordDeviceWithdrawal(): Promise<void> {
     try {
       await this.consent.set('revoked', 'device');
-    } catch {
+    } catch (error) {
       void this.toast.showError(translate('screens.location.hemosPodidoGuardarHas'));
+      rethrowUnlessApiError(error);
     }
   }
 
@@ -154,6 +156,7 @@ export class LocationService {
       await this.background.stop();
       return;
     }
+    // El seguimiento ya terminó (o el plugin no responde): nada que limpiar
     await this.geolocation.clearWatch({ id }).catch(() => undefined);
   }
 

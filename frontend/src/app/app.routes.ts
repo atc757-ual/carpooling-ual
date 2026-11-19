@@ -11,6 +11,7 @@ import { AuthService } from './core/services/auth/auth.service';
 import { LegalDocumentsService } from './core/services/users/legal-documents.service';
 import { ADMIN_ROUTES } from './features/admin/admin.routes';
 import { TabHeading } from './core/models/tab-heading.model';
+import { rethrowUnlessApiError } from './core/models/api-error.model';
 
 // La pantalla del final del registro la abre la verificación del correo, que ya
 // ha iniciado la sesión. Sin sesión (una URL escrita a mano) no hay nada que
@@ -29,7 +30,8 @@ const pendingLegalOnly: CanActivateFn = async () => {
   try {
     const pending = await inject(LegalDocumentsService).pending();
     return pending.length > 0 ? true : router.createUrlTree([HOME_PATH]);
-  } catch {
+  } catch (error) {
+    rethrowUnlessApiError(error);
     return true;
   }
 };

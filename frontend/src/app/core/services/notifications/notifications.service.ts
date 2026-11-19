@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { ApiError } from '../../models/api-error.model';
+import { ApiError, rethrowUnlessApiError } from '../../models/api-error.model';
 import { AppNotification, NotificationCategory } from '../../models/notification.model';
 
 // Los más recientes: los de hace tiempo ya no ayudan
@@ -58,8 +58,9 @@ export class NotificationsService {
       }
       this.hasCountedOnce = true;
       this.unread.set(count);
-    } catch {
+    } catch (error) {
       // Se vuelve a intentar en la siguiente navegación
+      rethrowUnlessApiError(error);
     }
   }
 

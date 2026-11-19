@@ -7,6 +7,7 @@ import {
 import { AuthService } from '../auth/auth.service';
 import { LegalDocumentsService } from '../users/legal-documents.service';
 import { UsersService } from '../users/users.service';
+import { fallbackOnApiError } from '../../models/api-error.model';
 
 // Consentimiento de ubicación (RGPD) del usuario, guardado en el backend. Es
 // distinto del permiso del dispositivo, que solo el usuario puede quitar en
@@ -45,7 +46,10 @@ export class LocationConsentService {
       return Promise.resolve(null);
     }
     if (refresh || this.loaded?.userId !== userId) {
-      this.loaded = { userId, consents: this.users.getMyConsents().catch(() => null) };
+      this.loaded = {
+        userId,
+        consents: this.users.getMyConsents().catch(fallbackOnApiError(null)),
+      };
     }
     return this.loaded.consents;
   }

@@ -3,7 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AdminIncident, AdminIncidentQuery } from '../../models/admin-incident.model';
-import { ApiError } from '../../models/api-error.model';
+import { ApiError, rethrowUnlessApiError } from '../../models/api-error.model';
 
 export interface AdminIncidentPage {
   items: AdminIncident[];
@@ -32,8 +32,9 @@ export class AdminIncidentsService {
         }),
       );
       this.open.set(Number(response.headers.get('X-Total-Count') ?? 0));
-    } catch {
+    } catch (error) {
       // Se vuelve a intentar en la siguiente navegación
+      rethrowUnlessApiError(error);
     }
   }
 
