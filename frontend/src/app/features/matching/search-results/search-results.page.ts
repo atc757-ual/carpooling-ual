@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -58,19 +58,13 @@ export function describeResults(trips: TripResult[], direction: TripDirection): 
     .sort((left, right) => left.localeCompare(right));
   const first = times[0];
   const last = times.at(-1);
+  const base = `screens.searchResults.${isToCampus ? 'arrive' : 'depart'}`;
   if (times.length === 1) {
-    return `1 viaje ${isToCampus ? 'llega a destino' : 'sale'} a las ${first}`;
+    return translate(`${base}.one`, { time: first });
   }
-  const verb = isToCampus ? 'llegan a destino' : 'salen';
-  const when = first === last ? `a las ${first}` : `entre ${first} y ${last}`;
-  return `${times.length} viajes ${verb} ${when}`;
-}
-
-function resolveTimeVerb(isToCampus: boolean, isSingleTrip: boolean): string {
-  if (isToCampus) {
-    return isSingleTrip ? 'llega a destino' : 'llegan a destino';
-  }
-  return isSingleTrip ? 'sale' : 'salen';
+  return first === last
+    ? translate(`${base}.at`, { count: times.length, time: first })
+    : translate(`${base}.between`, { count: times.length, first, last });
 }
 
 export function timeWindowText(trips: TripResult[], direction: TripDirection): string {
@@ -81,11 +75,13 @@ export function timeWindowText(trips: TripResult[], direction: TripDirection): s
     .sort((left, right) => left.localeCompare(right));
   const first = times[0];
   const last = times.at(-1);
-  const verb = resolveTimeVerb(isToCampus, trips.length === 1);
-  if (first === last || trips.length === 1) {
-    return `${verb} a las ${first}`;
+  const base = `screens.searchResults.${isToCampus ? 'arriveWindow' : 'departWindow'}`;
+  if (trips.length === 1) {
+    return translate(`${base}.one`, { time: first });
   }
-  return `${verb} entre ${first} y ${last}`;
+  return first === last
+    ? translate(`${base}.at`, { time: first })
+    : translate(`${base}.between`, { first, last });
 }
 
 // «Tu búsqueda»: los viajes que encajan con la búsqueda hecha en Buscar. En
@@ -159,9 +155,15 @@ export class SearchResultsPage {
   readonly resultsCountLabel = computed(() => {
     const count = this.trips().length;
     if (this.hasFilters()) {
-      return `${this.filteredTrips().length} de ${count} ${count === 1 ? 'viaje' : 'viajes'}`;
+      return translate(
+        count === 1 ? 'screens.searchResults.shownOf.one' : 'screens.searchResults.shownOf.other',
+        { shown: this.filteredTrips().length, count },
+      );
     }
-    return `${count} ${count === 1 ? 'viaje encontrado' : 'viajes encontrados'}`;
+    return translate(
+      count === 1 ? 'screens.searchResults.found.one' : 'screens.searchResults.found.other',
+      { count },
+    );
   });
   readonly resultsTimeWindow = computed(() =>
     timeWindowText(this.trips(), this.search()?.direction ?? 'to-campus'),
@@ -229,7 +231,7 @@ export class SearchResultsPage {
     }
     const timeLabel = search.direction === 'to-campus' ? 'Llegada' : 'Salida';
     return [
-      { label: 'Día', value: formatDateLabel(search.date) },
+      { label: translate('screens.searchResults.dia'), value: formatDateLabel(search.date) },
       { label: timeLabel, value: `${search.time} ± ${search.margin} min` },
       { label: 'Plazas', value: formatSeats(search.seats) },
     ];

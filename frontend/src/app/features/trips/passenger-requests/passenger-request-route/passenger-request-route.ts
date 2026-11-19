@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -117,12 +117,12 @@ export class PassengerRequestRoute {
     return {
       origin: {
         coordinates: trip.origin.coordinates,
-        label: trip.originName ?? 'Salida del conductor',
+        label: trip.originName ?? translate('screens.passengerRequestRoute.salidaConductor'),
         isApproximate: isApproximate && isToCampus,
       },
       destination: {
         coordinates: trip.destination.coordinates,
-        label: trip.destinationName ?? 'Destino del viaje',
+        label: trip.destinationName ?? translate('screens.passengerRequestRoute.destinoViaje'),
         isApproximate: isApproximate && !isToCampus,
       },
     };
@@ -133,8 +133,10 @@ export class PassengerRequestRoute {
     const trip = this.trip();
     return (
       request.pickupName ??
-      (request.direction === 'from-campus' ? trip.originName : 'Tu punto de recogida') ??
-      'Tu punto de recogida'
+      (request.direction === 'from-campus'
+        ? trip.originName
+        : translate('screens.passengerRequestRoute.puntoRecogida')) ??
+      translate('screens.passengerRequestRoute.puntoRecogida')
     );
   });
 
@@ -148,19 +150,22 @@ export class PassengerRequestRoute {
         : formatTime(new Date(Date.parse(trip.departureAt) + durationMin * 60_000).toISOString());
     const result: RouteStop[] = [
       {
-        name: trip.originName ?? 'Salida del conductor',
-        detail: 'Salida del conductor',
+        name: trip.originName ?? translate('screens.passengerRequestRoute.salidaConductor'),
+        detail: translate('screens.passengerRequestRoute.salidaConductor'),
         time: formatTime(trip.departureAt),
       },
     ];
     // Sin hora: la estimada no suma las recogidas de otros pasajeros
     // (pendiente de decidir con el director)
     if (request.direction || request.pickupName || request.pickupLocation) {
-      result.push({ name: this.pickupName(), detail: 'Tu punto de recogida' });
+      result.push({
+        name: this.pickupName(),
+        detail: translate('screens.passengerRequestRoute.puntoRecogida'),
+      });
     }
     result.push({
-      name: trip.destinationName ?? 'Destino del viaje',
-      detail: 'Llegada aproximada',
+      name: trip.destinationName ?? translate('screens.passengerRequestRoute.destinoViaje'),
+      detail: translate('screens.passengerRequestRoute.llegadaAproximada'),
       time: arrival,
     });
     return result;
@@ -170,9 +175,12 @@ export class PassengerRequestRoute {
     const request = this.request();
     const trip = this.trip();
     return [
-      { label: 'Plazas que pides', value: formatSeats(request.seats) },
       {
-        label: 'Plazas libres',
+        label: translate('screens.passengerRequestRoute.plazasPides'),
+        value: formatSeats(request.seats),
+      },
+      {
+        label: translate('screens.passengerRequestRoute.plazasLibres'),
         value: formatAvailableSeats(trip.availableSeats, trip.offeredSeats),
       },
     ];

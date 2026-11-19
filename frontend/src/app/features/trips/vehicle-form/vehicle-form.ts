@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -80,7 +80,7 @@ export class VehicleForm {
 
   // El vehículo a editar; sin él, se registra uno nuevo
   readonly vehicle = input<Vehicle | null>(null);
-  readonly submitLabel = input('Guardar vehículo');
+  readonly submitLabel = input(translate('screens.vehicleForm.guardarVehiculo'));
   readonly saved = output<Vehicle>();
   // Al editar: el nombre y la matrícula, de solo lectura (null al registrar)
   readonly summary = computed(() => {
@@ -116,8 +116,8 @@ export class VehicleForm {
     label: string;
     icon: string;
   }[] = [
-    { value: 'electric', label: 'Eléctrico', icon: flashOutline },
-    { value: 'hybrid', label: 'Híbrido', icon: leafOutline },
+    { value: 'electric', label: translate('screens.vehicleForm.electrico'), icon: flashOutline },
+    { value: 'hybrid', label: translate('screens.vehicleForm.hibrido'), icon: leafOutline },
     { value: 'other', label: 'Otro', icon: ellipsisHorizontalCircleOutline },
   ];
   readonly form = inject(NonNullableFormBuilder).group({

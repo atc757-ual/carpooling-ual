@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../i18n/testing-transloco';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Capacitor } from '@capacitor/core';
@@ -56,6 +57,7 @@ describe('DriverTrackingService', () => {
     };
     TestBed.configureTestingModule({
       providers: [
+        provideAppTransloco(),
         { provide: DriverService, useValue: driver },
         { provide: LocationService, useValue: { getCurrentPoint, watchPoint, clearWatch } },
         { provide: ScreenWakeLockService, useValue: wakeLock },

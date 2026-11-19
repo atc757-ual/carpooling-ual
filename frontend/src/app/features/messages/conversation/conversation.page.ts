@@ -1,4 +1,9 @@
-import { TRANSLOCO_TRANSPILER, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import {
+  translate,
+  TRANSLOCO_TRANSPILER,
+  TranslocoPipe,
+  TranslocoService,
+} from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -190,7 +195,7 @@ export class ConversationPage {
   protected readonly sendIcon = send;
   protected readonly reportIcon = flagOutline;
   protected readonly optionsIcon = ellipsisVertical;
-  protected readonly optionsLabel = 'Más opciones';
+  protected readonly optionsLabel = translate('screens.conversation.masOpciones');
   protected readonly callIcon = callOutline;
   protected readonly originIcon = ellipseOutline;
   protected readonly destinationIcon = locationOutline;
@@ -363,9 +368,8 @@ export class ConversationPage {
   async handleReport(): Promise<void> {
     this.isOptionsOpen.set(false);
     const reported = await confirmWithReason(this.modalController, {
-      header: '¿Denunciar esta conversación?',
-      message:
-        'Lo revisará el equipo de Carpooling UAL con una copia de la conversación. Nadie del viaje sabrá que lo has denunciado.',
+      header: translate('screens.conversation.denunciarEstaConversacion'),
+      message: translate('screens.conversation.revisaraEquipoCarpoolingUal'),
       confirmText: 'Denunciar',
       action: (reason) => this.chat.reportChat(this.ref(), reason),
     });

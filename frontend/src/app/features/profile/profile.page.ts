@@ -28,7 +28,7 @@ import {
   trashOutline,
 } from 'ionicons/icons';
 import { RouterLink } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { LocationConsentService } from '../../core/services/location/location-consent.service';
@@ -144,8 +144,8 @@ export class ProfilePage implements OnInit {
   readonly reviewRows = computed<ReviewRow[]>(() => {
     const ratings = this.user()?.ratings;
     return [
-      { role: 'Como conductor', rating: ratings?.driver },
-      { role: 'Como pasajero', rating: ratings?.passenger },
+      { role: translate('screens.profile.comoConductor'), rating: ratings?.driver },
+      { role: translate('screens.profile.comoPasajero'), rating: ratings?.passenger },
     ]
       .filter(({ rating }) => (rating?.ratingCount ?? 0) > 0 && rating?.averageRating != null)
       .map(({ role, rating }) => ({
@@ -172,8 +172,18 @@ export class ProfilePage implements OnInit {
     const current = this.consents()?.current;
     const versions = this.legalVersions.hasValue() ? this.legalVersions.value() : undefined;
     return [
-      toLegalDocRow('terms', 'Condiciones de uso', current?.terms, versions?.terms),
-      toLegalDocRow('privacy', 'Política de privacidad', current?.privacy, versions?.privacy),
+      toLegalDocRow(
+        'terms',
+        translate('screens.profile.condicionesUso'),
+        current?.terms,
+        versions?.terms,
+      ),
+      toLegalDocRow(
+        'privacy',
+        translate('screens.profile.politicaPrivacidad'),
+        current?.privacy,
+        versions?.privacy,
+      ),
     ];
   });
 

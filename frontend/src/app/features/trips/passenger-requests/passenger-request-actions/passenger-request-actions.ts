@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -112,7 +112,9 @@ export class PassengerRequestActions {
   });
 
   readonly cancelLabel = computed(() =>
-    this.request().status === 'accepted' ? 'Cancelar mi plaza' : 'Cancelar solicitud',
+    this.request().status === 'accepted'
+      ? translate('screens.passengerRequestActions.cancelarPlaza')
+      : translate('screens.passengerRequestActions.cancelarSolicitud'),
   );
 
   readonly cancellationIsLate = computed(() => {
@@ -133,12 +135,15 @@ export class PassengerRequestActions {
       return null;
     }
     if (this.request().status !== 'accepted') {
-      return 'Puedes cancelarla sin coste.';
+      return translate('screens.passengerRequestActions.puedesCancelarlaSinCoste');
     }
     const freeUntil = formatTime(
       freeCancellationUntil(this.trip().departureAt, PASSENGER_LATE_CANCELLATION_LEAD_MIN),
     );
-    return `Sin coste hasta las ${freeUntil} (${PASSENGER_LATE_CANCELLATION_LEAD_MIN} min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder pedir plaza.`;
+    return translate('screens.passengerRequestActions.sinCosteHastaMin', {
+      freeUntil,
+      PASSENGER_LATE_CANCELLATION_LEAD_MIN,
+    });
   });
 
   readonly closedReason = computed(() => {
@@ -148,22 +153,22 @@ export class PassengerRequestActions {
     const request = this.request();
     const trip = this.trip();
     if (trip.status === 'cancelled') {
-      return 'El conductor canceló este viaje.';
+      return translate('screens.passengerRequestActions.conductorCanceloEsteViaje');
     }
     if (trip.status === 'finished') {
-      return 'Este viaje ya terminó.';
+      return translate('screens.passengerRequestActions.esteViajeYaTermino');
     }
     switch (request.status) {
       case 'rejected':
         return request.rejectionReason === 'trip_full'
-          ? 'El viaje completó todas sus plazas.'
-          : 'El conductor no aceptó esta solicitud.';
+          ? translate('screens.passengerRequestActions.viajeCompletoTodasSus')
+          : translate('screens.passengerRequestActions.conductorAceptoEstaSolicitud');
       case 'expired':
-        return 'Esta solicitud caducó antes de la salida.';
+        return translate('screens.passengerRequestActions.estaSolicitudCaducoAntes');
       case 'cancelled':
         return request.rejectionReason === 'no_show'
-          ? 'Se canceló porque no te presentaste a tiempo.'
-          : 'Ya cancelaste esta solicitud.';
+          ? translate('screens.passengerRequestActions.canceloPorqueTePresentaste')
+          : translate('screens.passengerRequestActions.yaCancelasteEstaSolicitud');
       default:
         return null;
     }
@@ -211,21 +216,27 @@ export class PassengerRequestActions {
     }
     const isAccepted = request.status === 'accepted';
     const isLate = this.cancellationIsLate();
-    const header = isAccepted ? '¿Cancelar tu plaza confirmada?' : '¿Cancelar la solicitud?';
-    const confirmText = 'Confirmar cancelación';
+    const header = isAccepted
+      ? translate('screens.passengerRequestActions.cancelarPlazaConfirmada')
+      : translate('screens.passengerRequestActions.cancelarSolicitud2');
+    const confirmText = translate('screens.passengerRequestActions.confirmarCancelacion');
     let message: string;
     if (isAccepted) {
       message = isLate
-        ? 'Faltan menos de 10 minutos para la salida. La plaza quedará libre para otra persona, pero contará como cancelación tardía.'
-        : 'La plaza volverá a estar disponible para otra persona. Puedes buscar otro viaje cuando quieras.';
+        ? translate('screens.passengerRequestActions.faltanMenos10Minutos')
+        : translate('screens.passengerRequestActions.plazaVolveraEstarDisponible');
     } else {
-      message = `${getFirstName(trip.driver.name)} dejará de verla. Puedes volver a solicitar si sigue habiendo plazas.`;
+      message = translate('screens.passengerRequestActions.dejaraVerlaPuedesVolver', {
+        value1: getFirstName(trip.driver.name),
+      });
     }
     const confirmed = await this.confirm.ask({
       header,
       message,
       confirmText,
-      cancelText: isAccepted ? 'Mantener mi plaza' : 'Mantener solicitud',
+      cancelText: isAccepted
+        ? translate('screens.passengerRequestActions.mantenerPlaza')
+        : translate('screens.passengerRequestActions.mantenerSolicitud'),
     });
     if (!confirmed) {
       return;
@@ -234,7 +245,11 @@ export class PassengerRequestActions {
     try {
       const updated = await this.requests.cancel(request.id);
       this.cancelled.emit(updated);
-      void this.toast.showSuccess(isAccepted ? 'Plaza cancelada.' : 'Solicitud cancelada.');
+      void this.toast.showSuccess(
+        isAccepted
+          ? translate('screens.passengerRequestActions.plazaCancelada')
+          : translate('screens.passengerRequestActions.solicitudCancelada'),
+      );
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     } finally {

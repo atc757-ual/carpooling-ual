@@ -1,3 +1,4 @@
+import { appLocale } from '../../core/i18n/app-locale';
 // Países de la matrícula, los mismos que la API (vehicle-plate.ts): la UE, el
 // EEE y Suiza. Cada uno con su nombre y la letra de la franja azul (el
 // distintivo del país en la placa: E, P, F, D…)
@@ -10,39 +11,50 @@ export interface PlateCountryOption {
 export const DEFAULT_PLATE_COUNTRY = 'ES';
 
 // España primero y el resto por orden alfabético
-export const PLATE_COUNTRY_OPTIONS: readonly PlateCountryOption[] = [
-  { code: 'ES', name: 'España', sign: 'E' },
-  { code: 'DE', name: 'Alemania', sign: 'D' },
-  { code: 'AT', name: 'Austria', sign: 'A' },
-  { code: 'BE', name: 'Bélgica', sign: 'B' },
-  { code: 'BG', name: 'Bulgaria', sign: 'BG' },
-  { code: 'CY', name: 'Chipre', sign: 'CY' },
-  { code: 'HR', name: 'Croacia', sign: 'HR' },
-  { code: 'DK', name: 'Dinamarca', sign: 'DK' },
-  { code: 'SK', name: 'Eslovaquia', sign: 'SK' },
-  { code: 'SI', name: 'Eslovenia', sign: 'SLO' },
-  { code: 'EE', name: 'Estonia', sign: 'EST' },
-  { code: 'FI', name: 'Finlandia', sign: 'FIN' },
-  { code: 'FR', name: 'Francia', sign: 'F' },
-  { code: 'GR', name: 'Grecia', sign: 'GR' },
-  { code: 'HU', name: 'Hungría', sign: 'H' },
-  { code: 'IE', name: 'Irlanda', sign: 'IRL' },
-  { code: 'IS', name: 'Islandia', sign: 'IS' },
-  { code: 'IT', name: 'Italia', sign: 'I' },
-  { code: 'LV', name: 'Letonia', sign: 'LV' },
-  { code: 'LI', name: 'Liechtenstein', sign: 'FL' },
-  { code: 'LT', name: 'Lituania', sign: 'LT' },
-  { code: 'LU', name: 'Luxemburgo', sign: 'L' },
-  { code: 'MT', name: 'Malta', sign: 'M' },
-  { code: 'NO', name: 'Noruega', sign: 'N' },
-  { code: 'NL', name: 'Países Bajos', sign: 'NL' },
-  { code: 'PL', name: 'Polonia', sign: 'PL' },
-  { code: 'PT', name: 'Portugal', sign: 'P' },
-  { code: 'CZ', name: 'República Checa', sign: 'CZ' },
-  { code: 'RO', name: 'Rumanía', sign: 'RO' },
-  { code: 'SE', name: 'Suecia', sign: 'S' },
-  { code: 'CH', name: 'Suiza', sign: 'CH' },
+const PLATE_COUNTRIES: readonly { code: string; sign: string }[] = [
+  { code: 'ES', sign: 'E' },
+  { code: 'DE', sign: 'D' },
+  { code: 'AT', sign: 'A' },
+  { code: 'BE', sign: 'B' },
+  { code: 'BG', sign: 'BG' },
+  { code: 'CY', sign: 'CY' },
+  { code: 'HR', sign: 'HR' },
+  { code: 'DK', sign: 'DK' },
+  { code: 'SK', sign: 'SK' },
+  { code: 'SI', sign: 'SLO' },
+  { code: 'EE', sign: 'EST' },
+  { code: 'FI', sign: 'FIN' },
+  { code: 'FR', sign: 'F' },
+  { code: 'GR', sign: 'GR' },
+  { code: 'HU', sign: 'H' },
+  { code: 'IE', sign: 'IRL' },
+  { code: 'IS', sign: 'IS' },
+  { code: 'IT', sign: 'I' },
+  { code: 'LV', sign: 'LV' },
+  { code: 'LI', sign: 'FL' },
+  { code: 'LT', sign: 'LT' },
+  { code: 'LU', sign: 'L' },
+  { code: 'MT', sign: 'M' },
+  { code: 'NO', sign: 'N' },
+  { code: 'NL', sign: 'NL' },
+  { code: 'PL', sign: 'PL' },
+  { code: 'PT', sign: 'P' },
+  { code: 'CZ', sign: 'CZ' },
+  { code: 'RO', sign: 'RO' },
+  { code: 'SE', sign: 'S' },
+  { code: 'CH', sign: 'CH' },
 ];
+
+// Con el nombre del país en el idioma activo (Intl), que se lee al mostrarlo
+export const PLATE_COUNTRY_OPTIONS: readonly PlateCountryOption[] = PLATE_COUNTRIES.map(
+  ({ code, sign }) => ({
+    code,
+    sign,
+    get name(): string {
+      return new Intl.DisplayNames([appLocale()], { type: 'region' }).of(code) ?? code;
+    },
+  }),
+);
 
 const SIGNS = new Map(PLATE_COUNTRY_OPTIONS.map(({ code, sign }) => [code, sign]));
 

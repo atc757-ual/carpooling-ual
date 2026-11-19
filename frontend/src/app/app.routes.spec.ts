@@ -1,3 +1,4 @@
+import { provideAppTransloco } from './core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { CanActivateFn, provideRouter, UrlTree } from '@angular/router';
 import { routes } from './app.routes';
@@ -11,7 +12,10 @@ describe('application routes', () => {
     const landingFor = (isPassenger: boolean): unknown => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
-        providers: [{ provide: AuthService, useValue: { hasProfile: () => isPassenger } }],
+        providers: [
+          provideAppTransloco(),
+          { provide: AuthService, useValue: { hasProfile: () => isPassenger } },
+        ],
       });
       return TestBed.runInInjectionContext(() =>
         typeof redirectTo === 'function' ? redirectTo({} as never) : redirectTo,
@@ -55,6 +59,7 @@ describe('application routes', () => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
+          provideAppTransloco(),
           provideRouter([]),
           { provide: AuthService, useValue: { isLoggedIn: () => isLoggedIn } },
           {

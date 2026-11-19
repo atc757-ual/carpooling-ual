@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular';
 import { locateOutline } from 'ionicons/icons';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import {
   LocationError,
   LocationFailure,
@@ -9,17 +9,17 @@ import {
   LocationService,
 } from '../../../core/services/location/location.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { lazyLabels } from '../../../core/i18n/lazy-labels';
 
 type DevicePermission = Exclude<LocationPermission, 'revoked'>;
 
 // Por qué no se ha podido dar el permiso (revoked no pasa aquí: el permiso
 // del dispositivo no depende del consentimiento de la app)
-const DEVICE_ERRORS: Record<LocationFailure, string> = {
-  denied: 'Has bloqueado la ubicación. Actívala en los ajustes del navegador o del móvil.',
-  unavailable:
-    'No hemos podido acceder a tu ubicación. Comprueba que esté activada en el dispositivo.',
-  revoked: 'No hemos podido acceder a tu ubicación. Inténtalo de nuevo.',
-};
+const DEVICE_ERRORS: Readonly<Record<LocationFailure, string>> = lazyLabels({
+  denied: 'screens.profileDeviceLocation.denied',
+  unavailable: 'screens.profileDeviceLocation.unavailable',
+  revoked: 'screens.profileDeviceLocation.revoked',
+});
 
 // Fila «Ubicación» de Configuración (Mi perfil): consulta y solicita el permiso
 // del GPS en este navegador o dispositivo
@@ -126,7 +126,9 @@ export class ProfileDeviceLocation implements OnInit {
       const updated = await this.location.requestDevicePermission();
       this.devicePermission.set(updated);
       if (updated === 'granted') {
-        void this.toast.showSuccess('Ubicación del dispositivo permitida.');
+        void this.toast.showSuccess(
+          translate('screens.profileDeviceLocation.ubicacionDispositivoPermitida'),
+        );
       }
     } catch (error) {
       if (!(error instanceof LocationError)) {

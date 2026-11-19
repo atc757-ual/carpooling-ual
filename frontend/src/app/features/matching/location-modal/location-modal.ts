@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import {
   afterNextRender,
   Component,
@@ -72,7 +72,7 @@ export class LocationModal implements OnInit, OnDestroy {
   @Input() viewPoint: [number, number] | null = null;
   @Input() viewTitle = '';
   // El título al ajustar en el mapa (p. ej. al elegir una parada)
-  @Input() adjustTitle = 'Ajustar en el mapa';
+  @Input() adjustTitle = translate('screens.locationModal.ajustarMapa');
   // Con adjustPoint: elegir un punto (el del pin), no una dirección
   @Input() pickPoint = false;
 
@@ -121,9 +121,9 @@ export class LocationModal implements OnInit, OnDestroy {
       return this.viewTitle;
     }
     if (this.pickPoint) {
-      return 'Elegir el punto';
+      return translate('screens.locationModal.elegirPunto');
     }
-    return this.adjustPoint ? this.adjustTitle : 'Usar mi ubicación';
+    return this.adjustPoint ? this.adjustTitle : translate('screens.locationModal.usarUbicacion');
   }
 
   // OnInit espera void: el arranque, asíncrono, va aparte
@@ -215,8 +215,8 @@ export class LocationModal implements OnInit, OnDestroy {
     } catch (error) {
       this.addressError.set(
         (error as { status?: unknown }).status === 404
-          ? 'No encontramos una dirección aquí. Mueve el punto a una calle cercana.'
-          : 'Ahora no podemos buscar la dirección. Inténtalo de nuevo en un momento.',
+          ? translate('screens.locationModal.encontramosDireccionAquiMueve')
+          : translate('screens.locationModal.ahoraPodemosBuscarDireccion'),
       );
     } finally {
       this.isResolving.set(false);
@@ -258,7 +258,9 @@ export class LocationModal implements OnInit, OnDestroy {
       .marker([lat, lon], {
         draggable: isEditable,
         keyboard: isEditable,
-        title: isEditable ? 'Tu ubicación (arrástrala para ajustarla)' : this.viewTitle,
+        title: isEditable
+          ? translate('screens.locationModal.ubicacionArrastralaAjustarla')
+          : this.viewTitle,
         icon: leaflet.divIcon({
           className: 'map-pin',
           iconSize: [PIN_SIZE, PIN_SIZE],

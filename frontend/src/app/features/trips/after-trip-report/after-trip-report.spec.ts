@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
@@ -19,6 +20,7 @@ describe('AfterTripReport', () => {
     TestBed.configureTestingModule({
       imports: [AfterTripReport],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: ModalController, useValue: { create } },
         { provide: ToastService, useValue: { showSuccess } },

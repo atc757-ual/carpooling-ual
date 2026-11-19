@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, DestroyRef, forwardRef, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -11,20 +11,18 @@ import { LocationError, LocationService } from '../../../core/services/location/
 import { PlacesService } from '../../../core/services/places/places.service';
 import { LocationModal, LocationModalResult } from '../location-modal/location-modal';
 import { Combobox, ComboboxState } from '../../../shared/components/ui/combobox/combobox';
+import { lazyLabels } from '../../../core/i18n/lazy-labels';
 
 // Letras a partir de las que se sugieren direcciones, y la espera tras la
 // última tecla (para no pedir una búsqueda por letra)
 const MIN_LETTERS = 3;
 const DEBOUNCE_MS = 300;
-const UNAVAILABLE_MESSAGE =
-  'Ahora no podemos buscar direcciones. Inténtalo de nuevo en un momento.';
-const LOCATION_MESSAGES: Readonly<Record<LocationError['reason'], string>> = {
-  denied:
-    'No tenemos permiso para ver tu ubicación. Actívalo en los ajustes o escribe la dirección.',
-  unavailable: 'No hemos podido saber dónde estás. Inténtalo de nuevo o escribe la dirección.',
-  revoked:
-    'Has dejado de compartir tu ubicación. Vuelve a compartirla en Perfil o escribe la dirección.',
-};
+const UNAVAILABLE_KEY = 'screens.placeField.unavailable';
+const LOCATION_MESSAGES: Readonly<Record<LocationError['reason'], string>> = lazyLabels({
+  denied: 'screens.placeField.locationDenied',
+  unavailable: 'screens.placeField.locationUnavailable',
+  revoked: 'screens.placeField.locationRevoked',
+});
 
 // Una dirección de la API como lugar elegido (también al añadir una parada en
 // el mapa)
@@ -110,7 +108,7 @@ export class PlaceField implements ControlValueAccessor {
             ? of([])
             : this.places.suggest(text).pipe(
                 catchError(() => {
-                  this.message.set(UNAVAILABLE_MESSAGE);
+                  this.message.set(translate(UNAVAILABLE_KEY));
                   return of([]);
                 }),
               ),
@@ -161,7 +159,7 @@ export class PlaceField implements ControlValueAccessor {
     this.suggestions.set([]);
     this.queries.next('');
     this.text.set(suggestion.name);
-    await this.resolve('Comprobando la dirección…', async () =>
+    await this.resolve(translate('screens.placeField.comprobandoDireccion'), async () =>
       this.applyPlace(await this.places.getPlace(suggestion.id)),
     );
   }
@@ -170,10 +168,12 @@ export class PlaceField implements ControlValueAccessor {
   // sin más; si no, primero la ventana que explica para qué y lo pide
   async handleUseLocation(): Promise<void> {
     this.message.set(null);
-    this.status.set('Buscando tu ubicación…');
+    this.status.set(translate('screens.placeField.buscandoUbicacion'));
     let point: [number, number] | null;
     if ((await this.location.checkPermission()) === 'granted') {
-      point = await this.resolve('Buscando tu ubicación…', () => this.location.getCurrentPoint());
+      point = await this.resolve(translate('screens.placeField.buscandoUbicacion'), () =>
+        this.location.getCurrentPoint(),
+      );
     } else {
       this.status.set(null);
       const { data, role } = await this.openLocationModal({});
@@ -221,7 +221,7 @@ export class PlaceField implements ControlValueAccessor {
 
   private async fillFromPoint(point: [number, number]): Promise<void> {
     this.suggestions.set([]);
-    await this.resolve('Buscando la dirección…', async () =>
+    await this.resolve(translate('screens.placeField.buscandoDireccion'), async () =>
       this.applyPlace(await this.places.reverse(point)),
     );
     // El botón pasa a «Usando tu ubicación actual» (si la dirección valió)
@@ -250,7 +250,9 @@ export class PlaceField implements ControlValueAccessor {
       return await action();
     } catch (error) {
       this.message.set(
-        error instanceof LocationError ? LOCATION_MESSAGES[error.reason] : UNAVAILABLE_MESSAGE,
+        error instanceof LocationError
+          ? LOCATION_MESSAGES[error.reason]
+          : translate(UNAVAILABLE_KEY),
       );
       return null;
     } finally {
@@ -266,7 +268,9 @@ export class PlaceField implements ControlValueAccessor {
       this.onChange(this.selected());
     } else {
       this.message.set(
-        `Aún no llegamos a ${place.municipality}. Esperamos tener cobertura allí pronto.`,
+        translate('screens.placeField.aunLlegamosEsperamosTener', {
+          municipality: place.municipality,
+        }),
       );
     }
   }

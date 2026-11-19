@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../i18n/testing-transloco';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -10,7 +11,7 @@ describe('LegalDocumentsService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideAppTransloco(), provideHttpClient(), provideHttpClientTesting()],
     });
     documents = TestBed.inject(LegalDocumentsService);
     http = TestBed.inject(HttpTestingController);

@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 
@@ -24,8 +25,8 @@ export function ualEmailValidator(
 // dominio (ualEmailValidator) o el formato
 export function getUalEmailErrorText(control: AbstractControl): string {
   return control.hasError('ualEmail')
-    ? 'Usa tu correo de la Universidad de Almería.'
-    : 'Introduce un correo válido.';
+    ? translate('screens.ualEmail.usaCorreoUniversidadAlmeria')
+    : translate('screens.ualEmail.introduceCorreoValido');
 }
 
 export function getUalEmailErrorKey(control: AbstractControl): string {

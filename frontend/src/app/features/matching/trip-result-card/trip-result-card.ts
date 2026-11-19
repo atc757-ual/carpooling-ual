@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, input } from '@angular/core';
 import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { MATCH_FIT_LABELS, MatchFit } from '../match-fit';
@@ -47,20 +47,38 @@ export class TripResultCard {
   readonly pickupMetaLabel = computed(() => {
     const { pickupDetourMinutes, departureTime, pickupTime, pickupStop } = this.trip();
     if (pickupStop) {
-      const at = pickupTime ? ` · a las ${pickupTime}` : '';
-      return `En la parada ${pickupStop.name} (a ${formatWalkingDistance(pickupStop.walkingDistanceM)})${at}`;
+      const walk = formatWalkingDistance(pickupStop.walkingDistanceM);
+      return pickupTime
+        ? translate('screens.tripResultCard.stopAt', {
+            stop: pickupStop.name,
+            walk,
+            time: pickupTime,
+          })
+        : translate('screens.tripResultCard.stop', { stop: pickupStop.name, walk });
     }
-    const detour = pickupDetourMinutes <= 0 ? 'En su ruta' : `Desvío de ${pickupDetourMinutes} min`;
+    const detour =
+      pickupDetourMinutes <= 0
+        ? translate('screens.tripResultCard.ruta')
+        : translate('screens.tripResultCard.desvioMin', { pickupDetourMinutes });
     return pickupTime
-      ? `${detour} · te recoge a las ${pickupTime}`
-      : `${detour} · sale a las ${departureTime}`;
+      ? translate('screens.tripResultCard.pickupAt', { detour, time: pickupTime })
+      : translate('screens.tripResultCard.departsAt', { detour, time: departureTime });
   });
 
   // Lo que lee el lector de pantalla del enlace (cubre toda la tarjeta)
   readonly linkLabel = computed(() => {
     const { driver, departureTime, arrivalTime, origin, destination } = this.trip();
-    const requested = this.isRequested() ? ', ya solicitado' : '';
-    return `Ver viaje de ${getFirstName(driver.name)}: ${departureTime} → ${arrivalTime}, ${origin} → ${destination}${requested}`;
+    const requested = this.isRequested()
+      ? translate('screens.tripResultCard.alreadyRequested')
+      : '';
+    return translate('screens.tripResultCard.verViaje', {
+      name: getFirstName(driver.name),
+      departureTime,
+      arrivalTime,
+      origin,
+      destination,
+      requested,
+    });
   });
 
   protected readonly timeIcon = timeOutline;

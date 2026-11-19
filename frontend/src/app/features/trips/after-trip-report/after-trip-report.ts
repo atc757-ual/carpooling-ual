@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { Component, inject, input, signal } from '@angular/core';
 import { IonIcon, ModalController } from '@ionic/angular';
 import { documentTextOutline } from 'ionicons/icons';
@@ -80,7 +81,9 @@ export class AfterTripReport {
     const { role } = await modal.onWillDismiss();
     if (role === 'confirm') {
       this.isSent.set(true);
-      void this.toast.showSuccess('Reporte enviado: lo revisará un administrador.');
+      void this.toast.showSuccess(
+        translate('screens.afterTripReport.reporteEnviadoRevisaraAdministrador'),
+      );
     }
   }
 }

@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -14,7 +15,7 @@ class HostForm {
 
 describe('PlateCountrySelect', () => {
   function render() {
-    TestBed.configureTestingModule({ providers: [provideIonicAngular()] });
+    TestBed.configureTestingModule({ providers: [provideAppTransloco(), provideIonicAngular()] });
     const fixture = TestBed.createComponent(HostForm);
     fixture.detectChanges();
     const select = fixture.debugElement.children[0].componentInstance as PlateCountrySelect;

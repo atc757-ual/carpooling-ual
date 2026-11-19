@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../../../core/i18n/testing-transloco';
 import type * as Leaflet from 'leaflet';
 import { vi } from 'vitest';
 import { GeoPoint } from '../../../../core/models/place.model';
@@ -19,6 +20,8 @@ const POSITION: TripPosition = {
 const PASSENGER: CurrentLocation = { coordinates: [-2.44, 36.84], accuracy: 12 };
 
 describe('LiveTripMapRenderer', () => {
+  beforeEach(() => initAppTranslations());
+
   const map = {
     setView: vi.fn(),
     fitBounds: vi.fn(),

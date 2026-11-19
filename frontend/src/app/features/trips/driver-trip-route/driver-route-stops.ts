@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { RouteStop } from '../../../shared/components/ui/route-timeline/route-timeline';
@@ -30,22 +31,28 @@ export function buildDriverRouteStops(
           return {
             name: stop.name,
             detail:
-              boarding.length > 0 ? `Recoges a ${joinNames(boarding)}` : 'Aún no sube nadie aquí',
+              boarding.length > 0
+                ? translate('screens.driverRouteStops.recoges', { value1: joinNames(boarding) })
+                : translate('screens.driverRouteStops.aunSubeNadieAqui'),
             time: formatTime(stop.estimatedAt),
           };
         })
       : accepted.map<RouteStop>((request) => ({
-          name: request.pickupName ?? 'Punto de recogida',
+          name: request.pickupName ?? translate('screens.driverRouteStops.puntoRecogida'),
           detail: `Recoges a ${getFirstName(request.passenger.name)}`,
           ...(request.pickupAt && { time: formatTime(request.pickupAt) }),
         }));
   return [
     {
       name: trip.originName ?? 'Salida',
-      detail: 'Sales de aquí',
+      detail: translate('screens.driverRouteStops.salesAqui'),
       time: formatTime(trip.departureAt),
     },
     ...pickups,
-    { name: trip.destinationName ?? 'Destino', detail: 'Llegada aproximada', time: arrival },
+    {
+      name: trip.destinationName ?? translate('screens.driverRouteStops.destino'),
+      detail: translate('screens.driverRouteStops.llegadaAproximada'),
+      time: arrival,
+    },
   ];
 }

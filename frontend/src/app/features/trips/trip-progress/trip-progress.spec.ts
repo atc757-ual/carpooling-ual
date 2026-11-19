@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { TripProgress } from './trip-progress';
@@ -6,7 +7,7 @@ describe('TripProgress', () => {
   function render(status: 'published' | 'confirmed' | 'in_progress' | 'finished'): HTMLElement {
     TestBed.configureTestingModule({
       imports: [TripProgress],
-      providers: [provideIonicAngular()],
+      providers: [provideAppTransloco(), provideIonicAngular()],
     });
     const fixture = TestBed.createComponent(TripProgress);
     fixture.componentRef.setInput('status', status);

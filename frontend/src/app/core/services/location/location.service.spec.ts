@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
@@ -27,6 +28,7 @@ describe('LocationService', () => {
     consent.set.mockResolvedValue({});
     TestBed.configureTestingModule({
       providers: [
+        provideAppTransloco(),
         { provide: GEOLOCATION, useValue: geolocation },
         { provide: LocationConsentService, useValue: consent },
         { provide: BackgroundLocationService, useValue: background },

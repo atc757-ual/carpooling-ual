@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -188,9 +188,12 @@ export class MessagesPage implements OnInit {
   protected preview(conversation: Conversation): string {
     const message = conversation.lastMessage;
     if (!message) {
-      return 'Escribe el primer mensaje';
+      return translate('screens.messages.escribePrimerMensaje');
     }
-    const author = message.author.id === this.auth.currentUser()?.id ? 'Tú' : message.author.name;
+    const author =
+      message.author.id === this.auth.currentUser()?.id
+        ? translate('screens.messages.you')
+        : message.author.name;
     return `${author}: ${messageText(message)}`;
   }
 

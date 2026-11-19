@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../i18n/testing-transloco';
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { LanguageService } from '../ui/language.service';
@@ -11,6 +12,7 @@ describe('TravelPreferencesStore', () => {
   async function create(options: TravelPreferenceOptionItem[]): Promise<TravelPreferencesStore> {
     TestBed.configureTestingModule({
       providers: [
+        provideAppTransloco(),
         {
           provide: CatalogsService,
           useValue: { travelPreferenceOptions: () => Promise.resolve(options) },

@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
@@ -55,7 +56,7 @@ export class PassengerTripCard {
     }
     const driverName = getFirstName(trip.driver.name);
     if (request.status === 'pending') {
-      return `Esperando respuesta de ${driverName}`;
+      return translate('screens.passengerTripCard.esperandoRespuesta', { driverName });
     }
     // Si ya está aceptada, la etiqueta superior y los detalles ya indican el estado
     // y con quién se viaja; se omite para evitar redundancias
@@ -65,9 +66,12 @@ export class PassengerTripCard {
   // «Conduce Lucía Cortés · 2 plazas · Matrícula 1234BCD» (la matrícula, al confirmarla)
   readonly details = computed(() => {
     const { request, trip } = this.item();
-    const parts = [`Conduce ${trip.driver.name}`, formatSeats(request.seats)];
+    const parts = [
+      translate('screens.passengerTripCard.drives', { name: trip.driver.name }),
+      formatSeats(request.seats),
+    ];
     if (request.vehiclePlate) {
-      parts.push(`Matrícula ${request.vehiclePlate}`);
+      parts.push(translate('screens.passengerTripCard.plate', { plate: request.vehiclePlate }));
     }
     return parts.join(' · ');
   });

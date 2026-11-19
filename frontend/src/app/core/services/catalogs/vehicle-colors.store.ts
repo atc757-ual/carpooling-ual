@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { computed, inject, Injectable, resource } from '@angular/core';
 import { ThemeService } from '../ui/theme.service';
 import { CatalogsService, VehicleColorItem } from './catalogs.service';
@@ -24,7 +25,7 @@ export class VehicleColorsStore {
   // «Azul»; sin color, «Color sin indicar»; uno que aún no ha llegado, nada
   label(key: string | null): string {
     if (key === null) {
-      return 'Color sin indicar';
+      return translate('screens.vehicleColors.colorSinIndicar');
     }
     return this.byKey().get(key)?.name ?? '';
   }

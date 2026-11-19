@@ -1,7 +1,10 @@
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
 import { homeOutline, schoolOutline } from 'ionicons/icons';
 import { tripWayOf } from './trip-way';
 
 describe('tripWayOf', () => {
+  beforeEach(() => initAppTranslations());
+
   it('tells the way to the campus from the way back home', () => {
     expect(
       tripWayOf({

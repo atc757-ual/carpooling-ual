@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TripRoute } from '../../../../core/models/trip-route.model';
 import { RoutePoint, TripRouteMap } from './trip-route-map';
@@ -23,6 +24,8 @@ const PICKUP: RoutePoint = { coordinates: [-2.55, 36.78], label: 'Aguadulce' };
 const DESTINATION: RoutePoint = { coordinates: [-2.4053, 36.8297], label: 'Campus UAL' };
 
 describe('TripRouteMap', () => {
+  beforeEach(() => initAppTranslations());
+
   let fixture: ComponentFixture<TripRouteMap>;
   const observe = vi.fn();
   const disconnect = vi.fn();

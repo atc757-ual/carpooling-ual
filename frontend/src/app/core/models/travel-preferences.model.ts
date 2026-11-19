@@ -1,3 +1,4 @@
+import { withLazyLabels } from '../i18n/lazy-labels';
 // Preferencias de viaje (como conductor y como pasajero) y margen horario por
 // defecto de las búsquedas (ver backend/src/modules/users/travel-preferences.ts)
 
@@ -46,8 +47,11 @@ export interface TravelPreferenceGroup {
 // catálogo (TravelPreferencesStore)
 export const TRAVEL_PREFERENCE_GROUPS: readonly { key: keyof TravelPreferences; title: string }[] =
   [
-    { key: 'conversation', title: 'Conversación' },
-    { key: 'music', title: 'Música' },
-    { key: 'smoking', title: 'Fumar' },
-    { key: 'pets', title: 'Mascotas' },
+    withLazyLabels(
+      { key: 'conversation' as const },
+      { title: 'screens.travelPreferences.conversation' },
+    ),
+    withLazyLabels({ key: 'music' as const }, { title: 'screens.travelPreferences.music' }),
+    withLazyLabels({ key: 'smoking' as const }, { title: 'screens.travelPreferences.smoking' }),
+    withLazyLabels({ key: 'pets' as const }, { title: 'screens.travelPreferences.pets' }),
   ];

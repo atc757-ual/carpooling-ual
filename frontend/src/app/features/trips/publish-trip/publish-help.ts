@@ -1,3 +1,5 @@
+import { translate } from '@jsverse/transloco';
+import { lazyList } from '../../../core/i18n/lazy-labels';
 // Ayuda de Publicar: qué pasa después de publicar (paso 3). Las preguntas
 // frecuentes vienen de la API (app-quick-faqs)
 export interface NextStep {
@@ -8,30 +10,28 @@ export interface NextStep {
 export function getNextSteps(autoAccept = false): readonly NextStep[] {
   return [
     {
-      title: 'Recibes solicitudes',
-      text: 'Te avisamos cuando alguien de la UAL pida plaza en tu viaje.',
+      title: translate('screens.publishHelp.requestsTitle'),
+      text: translate('screens.publishHelp.requestsText'),
     },
     autoAccept
       ? {
-          title: 'Aceptación automática',
-          text: 'Quien quepa en tu ruta y plazas se unirá al momento y te avisaremos; si no cabe, decidirás tú.',
+          title: translate('screens.publishHelp.autoAcceptTitle'),
+          text: translate('screens.publishHelp.autoAcceptText'),
         }
       : {
-          title: 'Tú decides',
-          text: 'Aceptas o rechazas cada solicitud: nadie tiene plaza sin tu visto bueno.',
+          title: translate('screens.publishHelp.youDecideTitle'),
+          text: translate('screens.publishHelp.youDecideText'),
         },
     {
-      title: 'El día del viaje',
-      text: 'Sal a tu hora y recoge a tus pasajeros. Si no puedes ir, cancélalo en Tus viajes hasta 20 minutos antes.',
+      title: translate('screens.publishHelp.tripDayTitle'),
+      text: translate('screens.publishHelp.tripDayText'),
     },
   ];
 }
 
-export const NEXT_STEPS: readonly NextStep[] = getNextSteps(false);
-
 // «Gracias por compartir tu coche» (al publicar): por qué ayuda a la UAL
-export const COMMUNITY_POINTS: readonly string[] = [
-  'Menos coches y menos atascos a la entrada del campus, y más sitio en los parkings.',
-  'Ayudas a que la UAL sea un campus más sostenible, con menos CO₂ en cada trayecto.',
-  'Y tú también ganas: conoces a gente de la UAL que hace tu camino y amplías tu red de contactos.',
-];
+export const COMMUNITY_POINTS: readonly string[] = lazyList([
+  'screens.publishHelp.fewerCars',
+  'screens.publishHelp.sustainable',
+  'screens.publishHelp.network',
+]);

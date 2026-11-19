@@ -1435,6 +1435,385 @@
       "help": "Help and support"
     }
   },
+  "screens": {
+    "vehicleColors": {
+      "colorSinIndicar": "Colour not given"
+    },
+    "backgroundLocation": {
+      "compartiendoUbicacion": "Sharing your location",
+      "pasajerosVenDondeEstas": "Your passengers can see where you are until you finish the trip."
+    },
+    "location": {
+      "hemosPodidoGuardarHas": "We couldn't save that you removed the location permission. We'll try again."
+    },
+    "tripCall": {
+      "nadieMasEsteViaje": "Nobody else on this trip has a verified phone.",
+      "soloPuedeLlamarViaje": "You can only call while the trip is confirmed or in progress."
+    },
+    "locationModal": {
+      "ajustarMapa": "Adjust on the map",
+      "elegirPunto": "Choose the point",
+      "usarUbicacion": "Use my location",
+      "encontramosDireccionAquiMueve": "We can't find an address here. Move the point to a nearby street.",
+      "ahoraPodemosBuscarDireccion": "We can't look up the address right now. Please try again in a moment.",
+      "ubicacionArrastralaAjustarla": "Your location (drag it to adjust it)"
+    },
+    "placeField": {
+      "comprobandoDireccion": "Checking the address…",
+      "buscandoUbicacion": "Finding your location…",
+      "buscandoDireccion": "Looking up the address…",
+      "aunLlegamosEsperamosTener": "We don't reach {{ municipality }} yet. We hope to cover it soon.",
+      "unavailable": "We can't search for addresses right now. Please try again in a moment.",
+      "locationDenied": "We don't have permission to see your location. Turn it on in the settings or type the address.",
+      "locationUnavailable": "We couldn't find out where you are. Try again or type the address.",
+      "locationRevoked": "You've stopped sharing your location. Share it again in Profile or type the address."
+    },
+    "searchResults": {
+      "dia": "Day",
+      "arrive": {
+        "one": "1 trip reaches the destination at {{ time }}",
+        "at": "{{ count }} trips reach the destination at {{ time }}",
+        "between": "{{ count }} trips reach the destination between {{ first }} and {{ last }}"
+      },
+      "depart": {
+        "one": "1 trip leaves at {{ time }}",
+        "at": "{{ count }} trips leave at {{ time }}",
+        "between": "{{ count }} trips leave between {{ first }} and {{ last }}"
+      },
+      "arriveWindow": {
+        "one": "reaches the destination at {{ time }}",
+        "at": "reach the destination at {{ time }}",
+        "between": "reach the destination between {{ first }} and {{ last }}"
+      },
+      "departWindow": {
+        "one": "leaves at {{ time }}",
+        "at": "leave at {{ time }}",
+        "between": "leave between {{ first }} and {{ last }}"
+      },
+      "shownOf": {
+        "one": "{{ shown }} of 1 trip",
+        "other": "{{ shown }} of {{ count }} trips"
+      },
+      "found": {
+        "one": "1 trip found",
+        "other": "{{ count }} trips found"
+      }
+    },
+    "tripDetail": {
+      "idaCampus": "To campus",
+      "vueltaCampus": "Back from campus",
+      "salidaConductor": "Driver's starting point",
+      "salidaConductorZonaAproximada": "Driver's starting point · approximate area",
+      "puntoSalidaConductor": "Driver's starting point",
+      "puntoRecogida": "Your pick-up point",
+      "destinoViajeBuscabas": "Trip destination · you searched for {{ searchedParking }}",
+      "destinoViaje": "Trip destination",
+      "salidaConductorPuntoRecogida": "Driver's starting point and your pick-up point",
+      "plazasLibres": "Free seats",
+      "minAprox": "approx. {{ tripMinutes }} min",
+      "duracion": "Duration",
+      "solicitudPendiente": "Request pending",
+      "plazaConfirmada": "Seat confirmed",
+      "cancelarSolicitud": "Cancel your request?",
+      "dejarasTenerEsteViaje": "You'll no longer have {{ value1 }} on this trip. You can request again while there are seats.",
+      "confirmarCancelacion": "Confirm cancellation",
+      "mantenerSolicitud": "Keep request",
+      "plazasLibres2": "{{ seats }} free seats",
+      "ultimaPlaza": "Last seat"
+    },
+    "tripResultCard": {
+      "desvioMin": "{{ pickupDetourMinutes }} min detour",
+      "ruta": "On their route",
+      "verViaje": "See {{ name }}'s trip: {{ departureTime }} → {{ arrivalTime }}, {{ origin }} → {{ destination }}{{ requested }}",
+      "pickupAt": "{{ detour }} · picks you up at {{ time }}",
+      "departsAt": "{{ detour }} · leaves at {{ time }}",
+      "alreadyRequested": ", already requested",
+      "stopAt": "At the {{ stop }} stop ({{ walk }} away) · at {{ time }}",
+      "stop": "At the {{ stop }} stop ({{ walk }} away)"
+    },
+    "conversation": {
+      "masOpciones": "More options",
+      "denunciarEstaConversacion": "Report this conversation?",
+      "revisaraEquipoCarpoolingUal": "The Carpooling UAL team will review it with a copy of the conversation. Nobody on the trip will know you reported it."
+    },
+    "messages": {
+      "escribePrimerMensaje": "Write the first message",
+      "you": "You"
+    },
+    "profileDeviceLocation": {
+      "ubicacionDispositivoPermitida": "Device location allowed.",
+      "denied": "You've blocked location. Turn it on in the browser or phone settings.",
+      "unavailable": "We couldn't access your location. Check that it's turned on on the device.",
+      "revoked": "We couldn't access your location. Please try again."
+    },
+    "profileLocation": {
+      "compartesUbicacion": "You're sharing your location.",
+      "hasDejadoCompartirUbicacion": "You've stopped sharing your location.",
+      "dejarUsarUbicacion": "Stop using your location?",
+      "siDesactivas": "If you turn it off:",
+      "usaremosRellenarDireccionesProponerte": "We won't use it to fill in addresses, suggest going home or show you on the live trip map. You can type the addresses.",
+      "borraremosUltimaBusquedaEste": "We'll delete your last search from this browser.",
+      "permisoNavegadorMovilSeguira": "The browser or phone permission will stay granted. If you want, remove it in their settings.",
+      "siConducesUbicacionDurante": "If you drive, your location during a trip in progress will still be used, because it's part of the service.",
+      "dejarUsarla": "Stop using it",
+      "seguirUsandola": "Keep using it"
+    },
+    "profilePhoneModal": {
+      "nuevoCodigoEnviadoSms": "New code sent by SMS.",
+      "telefonoVerificado": "Phone verified."
+    },
+    "profilePreferencesModal": {
+      "preferenciasActualizadas": "Preferences updated."
+    },
+    "profilePublicModal": {
+      "inicialesPersonales": "Personal initials",
+      "perfilActualizado": "Profile updated."
+    },
+    "profileVehicles": {
+      "dejaraSalirVehiculosPodras": "It will no longer appear in your vehicles and you won't be able to publish trips with it."
+    },
+    "profile": {
+      "comoConductor": "As a driver",
+      "comoPasajero": "As a passenger",
+      "condicionesUso": "Terms of use",
+      "politicaPrivacidad": "Privacy policy"
+    },
+    "afterTripReport": {
+      "reporteEnviadoRevisaraAdministrador": "Report sent: an administrator will review it."
+    },
+    "driverTripActions": {
+      "podrasIniciarloCuandoAceptes": "You'll be able to start it once you accept a passenger.",
+      "podrasIniciarlo10Min": "You'll be able to start it at {{ value1 }}, 10 min before leaving.",
+      "esteViajeCancelo": "This trip was cancelled.",
+      "esteViajeYaTermino": "This trip has already finished.",
+      "sinCosteHastaMin": "Free until {{ freeUntil }} ({{ DRIVER_LATE_CANCELLATION_LEAD_MIN }} min before departure). After that it counts as a late cancellation: 3 in 30 days means 7 days without publishing.",
+      "viajeIniciadoPasajerosYa": "Trip started. Your passengers can now see where you are.",
+      "iniciarViaje": "Start the trip?",
+      "compartirasUbicacion": "You'll share your location",
+      "iniciarViaje2": "Start trip",
+      "ahora": "Not now",
+      "sinPermisoUbicacionPuedes": "Without location permission you can't start the trip. Turn it on in the phone settings.",
+      "salidaEstaMenos20": "Departure is less than 20 minutes away (or has passed) and there are accepted passengers. This cancellation will count as late and can suspend your publishing once you reach 3 in 30 days. We'll let the passengers know.",
+      "avisaraPasajerosDejaranTener": "The passengers will be notified and will lose their seats. You can publish another trip whenever you like.",
+      "cancelarEsteViaje": "Cancel this trip?",
+      "confirmarCancelacion": "Confirm cancellation",
+      "mantenerViaje": "Keep trip",
+      "shareMessage": "To start the trip you need to share your location: your passengers will see where you are while it lasts, and you'll stop sharing it when you finish. It's part of the service (explained in the Privacy policy): we only ask for the device permission.",
+      "shareMessageNative": "To start the trip you need to share your location: your passengers will see where you are while it lasts, and you'll stop sharing it when you finish. It's part of the service (explained in the Privacy policy): we only ask for the device permission. It will keep being shared even if you lock the screen or use another app; you'll see it in a notification.",
+      "declarationMessage": "By starting, you confirm that you still meet your declaration and your vehicle's (licence, insurance and MOT)."
+    },
+    "driverTripDetail": {
+      "plazasOcupadas": "{{ value1 }} of {{ offeredSeats }} seats taken"
+    },
+    "driverTripPassengers": {
+      "plazasOcupadas": "{{ value1 }} of {{ offeredSeats }} seats taken",
+      "salida": "At your starting point",
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "rejected": "Not accepted",
+        "cancelled": "Cancelled",
+        "expired": "Expired",
+        "completed": "Got off"
+      },
+      "acceptedToast": "You've accepted {{ name }}'s request.",
+      "rejectedToast": "You've rejected {{ name }}'s request."
+    },
+    "driverRouteStops": {
+      "recoges": "You pick up {{ value1 }}",
+      "aunSubeNadieAqui": "Nobody gets on here yet",
+      "puntoRecogida": "Pick-up point",
+      "salesAqui": "You leave from here",
+      "destino": "Destination",
+      "llegadaAproximada": "Approximate arrival"
+    },
+    "driverTripRoute": {
+      "recogida": "{{ value1 }}'s pick-up",
+      "duracion": "Duration",
+      "desvioMaximo": "Maximum detour"
+    },
+    "driverTripSummary": {
+      "solicitudesResponder": "{{ count }} requests to answer",
+      "abrirViaje": "Open trip",
+      "iniciarViaje": "Start trip",
+      "verSolicitudes": "See requests",
+      "verViaje": "See trip",
+      "oneRequest": "1 request to answer",
+      "freeOf": "{{ available }} of {{ offered }} free"
+    },
+    "myTrips": {
+      "plazasOcupadas": "{{ value1 }} of {{ offeredSeats }} seats taken",
+      "buscaViajeEncajeRuta": "Find a trip that fits your route or publish yours.",
+      "publicaRecorridoAquiVeras": "Publish your route and you'll see here who requests a seat.",
+      "buscaViajeEncajeRuta2": "Find a trip that fits your route and request a seat from its details."
+    },
+    "nextTripCard": {
+      "plazasOcupadas": "{{ value1 }} of {{ offeredSeats }} seats taken",
+      "verViaje": "See your trip",
+      "verPlaza": "See your seat"
+    },
+    "nextTrip": {
+      "curso": "In progress"
+    },
+    "passengerIncidentModal": {
+      "enviarReporte": "Send report",
+      "cancelarViajeRegistrarIncidencia": "Cancel the trip and log an incident",
+      "bajarmeRegistrarIncidencia": "Get off and log an incident"
+    },
+    "passengerRequestActions": {
+      "cancelarPlaza": "Cancel my seat",
+      "cancelarSolicitud": "Cancel request",
+      "puedesCancelarlaSinCoste": "You can cancel it free of charge.",
+      "sinCosteHastaMin": "Free until {{ freeUntil }} ({{ PASSENGER_LATE_CANCELLATION_LEAD_MIN }} min before departure). After that it counts as a late cancellation: 3 in 30 days means 7 days without requesting seats.",
+      "conductorCanceloEsteViaje": "The driver cancelled this trip.",
+      "esteViajeYaTermino": "This trip has already finished.",
+      "viajeCompletoTodasSus": "The trip filled all its seats.",
+      "conductorAceptoEstaSolicitud": "The driver didn't accept this request.",
+      "estaSolicitudCaducoAntes": "This request expired before departure.",
+      "canceloPorqueTePresentaste": "It was cancelled because you didn't show up in time.",
+      "yaCancelasteEstaSolicitud": "You already cancelled this request.",
+      "cancelarPlazaConfirmada": "Cancel your confirmed seat?",
+      "cancelarSolicitud2": "Cancel the request?",
+      "confirmarCancelacion": "Confirm cancellation",
+      "faltanMenos10Minutos": "Departure is less than 10 minutes away. The seat will be freed for someone else, but it will count as a late cancellation.",
+      "plazaVolveraEstarDisponible": "The seat will be available again for someone else. You can look for another trip whenever you like.",
+      "dejaraVerlaPuedesVolver": "{{ value1 }} will no longer see it. You can request again if there are still seats.",
+      "mantenerPlaza": "Keep my seat",
+      "mantenerSolicitud": "Keep request",
+      "plazaCancelada": "Seat cancelled.",
+      "solicitudCancelada": "Request cancelled."
+    },
+    "passengerRequestRoute": {
+      "salidaConductor": "Driver's starting point",
+      "destinoViaje": "Trip destination",
+      "puntoRecogida": "Your pick-up point",
+      "llegadaAproximada": "Approximate arrival",
+      "plazasPides": "Seats requested",
+      "plazasLibres": "Free seats"
+    },
+    "passengerTripCard": {
+      "esperandoRespuesta": "Waiting for {{ driverName }}'s reply",
+      "drives": "Driver: {{ name }}",
+      "plate": "Plate {{ plate }}"
+    },
+    "pickupModeField": {
+      "elegirParadaMapa": "Choose a stop on the map"
+    },
+    "publishTrip": {
+      "viajePublicado": "Trip published.",
+      "returnSummary": {
+        "one": "Return: you leave campus at {{ time }} · 1 seat",
+        "other": "Return: you leave campus at {{ time }} · {{ count }} seats"
+      },
+      "stops": {
+        "one": "You pick up at 1 stop: {{ names }}",
+        "other": "You pick up at {{ count }} stops: {{ names }}"
+      },
+      "onRoute": "You pick up along the way, at most {{ meters }} m from your route"
+    },
+    "tripReviewCard": {
+      "valoracion": "Your rating"
+    },
+    "vehicleForm": {
+      "guardarVehiculo": "Save vehicle",
+      "electrico": "Electric",
+      "hibrido": "Hybrid"
+    },
+    "vehicleModal": {
+      "vehiculoActualizado": "Vehicle updated.",
+      "vehiculoRegistrado": "Vehicle registered."
+    },
+    "legalDocument": {
+      "haCambiadoVersion": "What's changed in version {{ version }}",
+      "hemosPodidoCargarTexto": "We couldn't load the text. Check your connection and try again.",
+      "cargandoTexto": "Loading the text"
+    },
+    "plateCountrySelect": {
+      "paisMatricula": "Plate country"
+    },
+    "tripRouteMap": {
+      "zonaAproximadaViaje": "Approximate area of the trip: {{ ends }}",
+      "rutaConductor": "Driver's route: {{ ends }}",
+      "recogida": "{{ route }}; pick-up at {{ value2 }}"
+    },
+    "countdown": {
+      "reenviarCodigo": "Resend code in {{ value1 }}",
+      "reenviarCodigo2": "Resend code"
+    },
+    "ualEmail": {
+      "usaCorreoUniversidadAlmeria": "Use your University of Almería email.",
+      "introduceCorreoValido": "Enter a valid email."
+    },
+    "matchFit": {
+      "good": "Very good fit",
+      "fair": "Good fit",
+      "tight": "Tight fit"
+    },
+    "incidentCategories": {
+      "technical": "Problem with the vehicle or a breakdown",
+      "technicalShort": "Breakdown",
+      "passenger": "Problem with a passenger",
+      "passengerShort": "A passenger",
+      "driver": "Problem with the driver or getting along",
+      "driverShort": "Driver",
+      "safety": "I felt in danger",
+      "safetyShort": "In danger",
+      "other": "Other reason",
+      "otherShort": "Other reason"
+    },
+    "travelPreferences": {
+      "conversation": "Conversation",
+      "music": "Music",
+      "smoking": "Smoking",
+      "pets": "Pets"
+    },
+    "legalDocuments": {
+      "terms": "Terms of use",
+      "privacy": "Privacy policy",
+      "driverDeclaration": "Driver's declaration",
+      "vehicleDeclaration": "Vehicle declaration",
+      "location": "Use of location"
+    },
+    "vehicleEngine": {
+      "electric": "Electric",
+      "hybrid": "Hybrid"
+    },
+    "tripWay": {
+      "toCampus": "To campus",
+      "fromCampus": "Back home"
+    },
+    "tripProgress": {
+      "published": "Published",
+      "confirmed": "Confirmed",
+      "inProgress": "In progress",
+      "finished": "Finished"
+    },
+    "publishSteps": {
+      "route": "Route",
+      "vehicle": "Vehicle",
+      "review": "Review",
+      "published": "Published"
+    },
+    "publishHelp": {
+      "requestsTitle": "You get requests",
+      "requestsText": "We'll let you know when someone from UAL requests a seat on your trip.",
+      "autoAcceptTitle": "Automatic acceptance",
+      "autoAcceptText": "Anyone who fits your route and seats will join right away and we'll let you know; if they don't fit, you decide.",
+      "youDecideTitle": "You decide",
+      "youDecideText": "You accept or reject each request: nobody gets a seat without your OK.",
+      "tripDayTitle": "On the day of the trip",
+      "tripDayText": "Leave on time and pick up your passengers. If you can't go, cancel it in Your trips up to 20 minutes before.",
+      "fewerCars": "Fewer cars and less traffic at the campus entrance, and more room in the car parks.",
+      "sustainable": "You help make UAL a more sustainable campus, with less CO₂ on every journey.",
+      "network": "And you win too: you meet people from UAL who make your journey and grow your network."
+    },
+    "tripPickup": {
+      "stopAt": "At the {{ stop }} stop at {{ time }} ({{ walk }} walk)",
+      "stop": "At the {{ stop }} stop ({{ walk }} walk)",
+      "at": "At {{ time }}",
+      "about": "about {{ minutes }} min"
+    }
+  },
   "permissions": {
     "title": "Permissions on this device",
     "description": "Your browser or phone will ask you about each one. You can turn them on now or later, and remove them anytime in its settings.",

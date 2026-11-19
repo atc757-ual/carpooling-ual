@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
 import { SearchPlace } from '../../core/models/trip-search.model';
 import { pickupFact, toRequestPickup } from './trip-pickup';
 
@@ -10,6 +11,8 @@ const PLACE: SearchPlace = {
 const STOP = { id: 's1', name: 'Av. Cabo de Gata', walkingDistanceM: 240 };
 
 describe('pickupFact', () => {
+  beforeEach(() => initAppTranslations());
+
   it('gives the stop, its time and the walk when the driver picks up at stops', () => {
     expect(pickupFact({ pickupDetourMinutes: 4, pickupTime: '07:52', pickupStop: STOP })).toBe(
       'En la parada Av. Cabo de Gata a las 07:52 (a 240 m andando)',
@@ -26,6 +29,8 @@ describe('pickupFact', () => {
 });
 
 describe('toRequestPickup', () => {
+  beforeEach(() => initAppTranslations());
+
   it('sends the stop of a trip that picks up at stops', () => {
     expect(toRequestPickup({ direction: 'to-campus', place: PLACE }, { pickupStop: STOP })).toEqual(
       { direction: 'to-campus', stopId: 's1' },

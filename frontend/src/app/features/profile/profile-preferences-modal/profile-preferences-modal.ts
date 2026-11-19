@@ -1,7 +1,7 @@
 import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
 import { IonButton, IonIcon, IonSpinner, ModalController } from '@ionic/angular';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 
 import { ApiError } from '../../../core/models/api-error.model';
 import {
@@ -108,7 +108,9 @@ export class ProfilePreferencesModal implements OnInit {
       };
       const updated = await this.usersService.updateMe(payload);
       this.auth.updateUser(updated);
-      void this.toast.showSuccess('Preferencias actualizadas.');
+      void this.toast.showSuccess(
+        translate('screens.profilePreferencesModal.preferenciasActualizadas'),
+      );
       await this.modalController.dismiss(null, 'saved');
     } catch (err: unknown) {
       const msg = getErrorMessage(err as ApiError);
