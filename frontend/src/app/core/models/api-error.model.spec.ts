@@ -1,5 +1,11 @@
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { ApiError, NETWORK_ERROR, rethrowUnlessApiError, UNKNOWN_ERROR } from './api-error.model';
+import {
+  ApiError,
+  fallbackOnApiError,
+  NETWORK_ERROR,
+  rethrowUnlessApiError,
+  UNKNOWN_ERROR,
+} from './api-error.model';
 
 describe('ApiError.fromHttpError', () => {
   it('reads the TMF630 error code, status, fields and request id', () => {
@@ -61,10 +67,25 @@ describe('ApiError.fromHttpError', () => {
 describe('rethrowUnlessApiError', () => {
   it('lets an API failure through', () => {
     expect(() => rethrowUnlessApiError(new ApiError(NETWORK_ERROR, 0))).not.toThrow();
+    expect(() => rethrowUnlessApiError(new HttpErrorResponse({ status: 503 }))).not.toThrow();
   });
 
   it('throws again any other error', () => {
     const bug = new TypeError('boom');
     expect(() => rethrowUnlessApiError(bug)).toThrow(bug);
+  });
+});
+
+describe('fallbackOnApiError', () => {
+  it('gives the fallback when the API fails', async () => {
+    const failed = Promise.reject(new ApiError(NETWORK_ERROR, 0));
+
+    await expect(failed.catch(fallbackOnApiError([]))).resolves.toEqual([]);
+  });
+
+  it('keeps any other error', async () => {
+    const bug = new TypeError('boom');
+
+    await expect(Promise.reject(bug).catch(fallbackOnApiError(null))).rejects.toBe(bug);
   });
 });

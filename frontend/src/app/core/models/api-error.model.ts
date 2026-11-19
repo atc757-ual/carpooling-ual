@@ -67,9 +67,19 @@ export class ApiError extends Error {
 
 // Para los catch que tratan un fallo de la API (p. ej. pintar «no se ha podido
 // cargar»): cualquier otro error (un fallo del código) se vuelve a lanzar y
-// llega al registro global en vez de perderse
+// llega al registro global en vez de perderse. Vale también dentro de los
+// servicios, donde el fallo llega aún sin convertir (HttpErrorResponse)
 export function rethrowUnlessApiError(error: unknown): void {
-  if (!(error instanceof ApiError)) {
+  if (!(error instanceof ApiError) && !(error instanceof HttpErrorResponse)) {
     throw error;
   }
+}
+
+// Lo mismo para promesas: si falla la API, el valor de respaldo
+// (p. ej. promise.catch(fallbackOnApiError([])))
+export function fallbackOnApiError<T>(fallback: T): (error: unknown) => T {
+  return (error) => {
+    rethrowUnlessApiError(error);
+    return fallback;
+  };
 }
