@@ -2795,8 +2795,22 @@
     },
     "/api/legal-documents/{type}": {
       "get": {
+        "description": "In the language asked for; in Spanish (the binding text) when there is no English translation.",
         "operationId": "LegalDocumentsController_getCurrent",
         "parameters": [
+          {
+            "name": "lang",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "es",
+              "type": "string",
+              "enum": [
+                "es",
+                "en"
+              ]
+            }
+          },
           {
             "name": "type",
             "required": true,
@@ -3329,7 +3343,7 @@
     },
     "/api/admin/legal-documents/{type}/draft/publish": {
       "post": {
-        "description": "It becomes the current version. After a major change every user must accept it the next time they sign in; after a minor one nothing is asked. The draft needs its summary of what changed.",
+        "description": "It becomes the current version. After a major change every user must accept it the next time they sign in; after a minor one nothing is asked. The draft needs its summary of what changed and the English text and summary.",
         "operationId": "AdminLegalDocumentsController_publish",
         "parameters": [
           {
@@ -3400,7 +3414,7 @@
             }
           },
           "422": {
-            "description": "TMF630 error: LEGAL_SUMMARY_REQUIRED",
+            "description": "TMF630 error: LEGAL_SUMMARY_REQUIRED, LEGAL_TRANSLATION_REQUIRED",
             "content": {
               "application/json": {
                 "schema": {
@@ -16208,6 +16222,14 @@
             "type": "string",
             "example": "1.1"
           },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "es",
+              "en"
+            ],
+            "description": "Language of content and summary: the one asked for, or es when there is no English translation (the Spanish text is the binding one)"
+          },
           "content": {
             "type": "string",
             "description": "Sanitized HTML: h2, h3, p, ul, ol, li, strong, b, em, i, br and links (http, https or mailto)",
@@ -16238,6 +16260,7 @@
           "href",
           "type",
           "version",
+          "lang",
           "content",
           "changeType",
           "summary",
@@ -16320,6 +16343,14 @@
             "type": "string",
             "example": "1.1"
           },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "es",
+              "en"
+            ],
+            "description": "Language of content and summary: the one asked for, or es when there is no English translation (the Spanish text is the binding one)"
+          },
           "content": {
             "type": "string",
             "description": "Sanitized HTML: h2, h3, p, ul, ol, li, strong, b, em, i, br and links (http, https or mailto)",
@@ -16348,6 +16379,16 @@
             "type": "string",
             "format": "uuid"
           },
+          "contentEn": {
+            "type": "string",
+            "nullable": true,
+            "description": "English translation of content; required to publish"
+          },
+          "summaryEn": {
+            "type": "string",
+            "nullable": true,
+            "description": "English translation of summary; required to publish"
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -16365,11 +16406,14 @@
           "href",
           "type",
           "version",
+          "lang",
           "content",
           "changeType",
           "summary",
           "publishedAt",
           "id",
+          "contentEn",
+          "summaryEn",
           "status",
           "updatedAt"
         ]
@@ -16396,6 +16440,16 @@
             "type": "string",
             "maxLength": 1000,
             "description": "What changed; required to publish"
+          },
+          "contentEn": {
+            "type": "string",
+            "maxLength": 200000,
+            "description": "The English translation, HTML; sanitized before saving. Required to publish"
+          },
+          "summaryEn": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "What changed, in English; required to publish"
           }
         },
         "required": [

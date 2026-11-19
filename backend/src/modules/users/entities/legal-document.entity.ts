@@ -22,6 +22,10 @@ export type LegalDocumentType = (typeof LEGAL_DOCUMENT_TYPES)[number];
 export const SIGNUP_DOCUMENT_TYPES = ['terms', 'privacy'] as const;
 export type SignupDocumentType = (typeof SIGNUP_DOCUMENT_TYPES)[number];
 
+// Idiomas en que se leen (el español es el que vale)
+export const LEGAL_LANGS = ['es', 'en'] as const;
+export type LegalLang = (typeof LEGAL_LANGS)[number];
+
 export const LEGAL_DOCUMENT_STATUSES = ['draft', 'published'] as const;
 export type LegalDocumentStatus = (typeof LEGAL_DOCUMENT_STATUSES)[number];
 
@@ -59,6 +63,14 @@ export class LegalDocument {
   // «Qué ha cambiado» (lo escribe quien publica; se muestra encima del texto)
   @Column({ type: 'text', nullable: true })
   summary: string | null;
+
+  // La traducción al inglés (de cortesía: la que vale es la española). Sin
+  // ella, la app en inglés muestra la española; publicar la exige
+  @Column({ name: 'content_en', type: 'text', nullable: true })
+  contentEn: string | null;
+
+  @Column({ name: 'summary_en', type: 'text', nullable: true })
+  summaryEn: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

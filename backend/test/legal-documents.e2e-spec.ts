@@ -31,6 +31,8 @@ interface DraftRow {
   content: string;
   change_type: string;
   summary: string | null;
+  content_en: string | null;
+  summary_en: string | null;
   created_at: Date;
 }
 
@@ -55,7 +57,8 @@ describe('Legal documents (e2e)', () => {
     // Los borradores que trae la base de datos (p. ej. el de la política que
     // añade una migración): los tests los cambian y se dejan como estaban
     originalDrafts = await dataSource.query<DraftRow[]>(
-      `SELECT id, type, version, content, change_type, summary, created_at
+      `SELECT id, type, version, content, change_type, summary, content_en,
+              summary_en, created_at
          FROM legal_documents WHERE status = 'draft'`,
     );
     const published = await dataSource.query<{ id: string }[]>(
@@ -87,8 +90,9 @@ describe('Legal documents (e2e)', () => {
       originalDrafts.map((draft) =>
         dataSource.query(
           `INSERT INTO legal_documents
-             (id, type, version, content, status, change_type, summary, created_at)
-           VALUES ($1, $2, $3, $4, 'draft', $5, $6, $7)`,
+             (id, type, version, content, status, change_type, summary,
+              content_en, summary_en, created_at)
+           VALUES ($1, $2, $3, $4, 'draft', $5, $6, $7, $8, $9)`,
           [
             draft.id,
             draft.type,
@@ -96,6 +100,8 @@ describe('Legal documents (e2e)', () => {
             draft.content,
             draft.change_type,
             draft.summary,
+            draft.content_en,
+            draft.summary_en,
             draft.created_at,
           ],
         ),
@@ -180,6 +186,18 @@ describe('Legal documents (e2e)', () => {
     await request(app.getHttpServer())
       .get('/api/legal-documents/cookies')
       .expect(400);
+
+    // En inglés, la traducción de su migración; un idioma que no hay, 400
+    const english = await request(app.getHttpServer())
+      .get('/api/legal-documents/privacy?lang=en')
+      .expect(200);
+    expect(english.body).toMatchObject({ version: '1.1', lang: 'en' });
+    expect((english.body as Document).content).toContain(
+      '<h2>In a nutshell</h2>',
+    );
+    await request(app.getHttpServer())
+      .get('/api/legal-documents/privacy?lang=fr')
+      .expect(400);
   });
 
   // Mientras una versión de prueba está publicada, nadie se registra (el
@@ -220,6 +238,24 @@ describe('Legal documents (e2e)', () => {
           summary: '  Nuevas normas de convivencia.  ',
         })
         .expect(200);
+      // Ni sin la traducción al inglés
+      const noEnglish = await admin('post', '/terms/draft/publish').expect(422);
+      expect((noEnglish.body as { code: string }).code).toBe(
+        'LEGAL_TRANSLATION_REQUIRED',
+      );
+      const translated = await admin('put', '/terms/draft')
+        .send({
+          content: '<h2>1. Nuevo</h2><p>Texto</p>',
+          changeType: 'major',
+          summary: '  Nuevas normas de convivencia.  ',
+          contentEn: '<h2 onclick="x()">1. New</h2><p>Text</p>',
+          summaryEn: '  New rules.  ',
+        })
+        .expect(200);
+      expect(translated.body).toMatchObject({
+        contentEn: '<h2>1. New</h2><p>Text</p>',
+        summaryEn: 'New rules.',
+      });
       await admin('post', '/terms/draft/publish').expect(200);
       try {
         expect((await pending().expect(200)).body).toEqual([
@@ -264,8 +300,18 @@ describe('Legal documents (e2e)', () => {
           .expect(200);
         expect(current.body).toMatchObject({
           version: '2.0',
+          lang: 'es',
           changeType: 'major',
           summary: 'Nuevas normas de convivencia.',
+        });
+        const english = await request(app.getHttpServer())
+          .get('/api/legal-documents/terms?lang=en')
+          .expect(200);
+        expect(english.body).toMatchObject({
+          version: '2.0',
+          lang: 'en',
+          content: '<h2>1. New</h2><p>Text</p>',
+          summary: 'New rules.',
         });
       } finally {
         // Antes de soltar el candado (legal-versions-lock.ts)
@@ -289,7 +335,12 @@ describe('Legal documents (e2e)', () => {
         .expect(200)
         .expect(({ body }) => expect((body as Document).version).toBe('2.0'));
       await admin('put', '/privacy/draft')
-        .send({ content: '<p>Aclaración</p>', summary: 'Una aclaración.' })
+        .send({
+          content: '<p>Aclaración</p>',
+          summary: 'Una aclaración.',
+          contentEn: '<p>Clarification</p>',
+          summaryEn: 'A clarification.',
+        })
         .expect(200);
 
       const published = await admin('post', '/privacy/draft/publish').expect(
@@ -329,6 +380,13 @@ describe('Legal documents (e2e)', () => {
         await expect(
           dataSource.query(
             "UPDATE legal_documents SET content = '<p>Otro</p>' WHERE id = $1",
+            [(published.body as { id: string }).id],
+          ),
+        ).rejects.toThrow('A published legal document cannot be changed');
+        // Tampoco su traducción, una vez escrita
+        await expect(
+          dataSource.query(
+            "UPDATE legal_documents SET content_en = '<p>Other</p>' WHERE id = $1",
             [(published.body as { id: string }).id],
           ),
         ).rejects.toThrow('A published legal document cannot be changed');

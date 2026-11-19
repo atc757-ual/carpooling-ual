@@ -35,6 +35,7 @@ import {
   AdminLegalDocumentResource,
   legalDocumentHref,
   LegalDocumentResource,
+  LegalLangQueryDto,
   ListLegalDocumentsQueryDto,
   PendingLegalDocumentResource,
   SaveLegalDraftDto,
@@ -69,7 +70,11 @@ export class LegalDocumentsController {
 
   @Public()
   @Get('legal-documents/:type')
-  @ApiOperation({ summary: 'Get the current version of a legal document' })
+  @ApiOperation({
+    summary: 'Get the current version of a legal document',
+    description:
+      'In the language asked for; in Spanish (the binding text) when there is no English translation.',
+  })
   @ApiParam(TYPE_PARAM)
   @ApiOkResponse({ type: LegalDocumentResource })
   @ApiErrorResponses({
@@ -77,9 +82,13 @@ export class LegalDocumentsController {
     [HttpStatus.NOT_FOUND]: ['LEGAL_DOCUMENT_NOT_FOUND'],
   })
   async getCurrent(
+    @Query() query: LegalLangQueryDto,
     @Param('type', typeParam()) type: LegalDocumentType,
   ): Promise<LegalDocumentResource> {
-    return toLegalDocumentResource(await this.documents.getCurrent(type));
+    return toLegalDocumentResource(
+      await this.documents.getCurrent(type),
+      query.lang,
+    );
   }
 
   @Get('users/me/legal-documents/pending')
@@ -189,6 +198,8 @@ export class AdminLegalDocumentsController {
         content: body.content,
         changeType: body.changeType ?? 'minor',
         summary: body.summary ?? null,
+        contentEn: body.contentEn ?? null,
+        summaryEn: body.summaryEn ?? null,
       }),
     );
   }
@@ -198,14 +209,17 @@ export class AdminLegalDocumentsController {
   @ApiOperation({
     summary: 'Publish the draft of a legal document',
     description:
-      'It becomes the current version. After a major change every user must accept it the next time they sign in; after a minor one nothing is asked. The draft needs its summary of what changed.',
+      'It becomes the current version. After a major change every user must accept it the next time they sign in; after a minor one nothing is asked. The draft needs its summary of what changed and the English text and summary.',
   })
   @ApiParam(TYPE_PARAM)
   @ApiOkResponse({ type: AdminLegalDocumentResource })
   @ApiErrorResponses({
     ...ADMIN_ERRORS,
     [HttpStatus.NOT_FOUND]: ['LEGAL_DRAFT_NOT_FOUND'],
-    [HttpStatus.UNPROCESSABLE_ENTITY]: ['LEGAL_SUMMARY_REQUIRED'],
+    [HttpStatus.UNPROCESSABLE_ENTITY]: [
+      'LEGAL_SUMMARY_REQUIRED',
+      'LEGAL_TRANSLATION_REQUIRED',
+    ],
   })
   async publish(
     @CurrentUser() admin: AccessTokenPayload,

@@ -15,6 +15,7 @@ import { User } from './entities/user.entity';
 import { LegalDocumentNotFoundError } from './errors/legal-document-not-found.error';
 import { LegalDraftNotFoundError } from './errors/legal-draft-not-found.error';
 import { LegalSummaryRequiredError } from './errors/legal-summary-required.error';
+import { LegalTranslationRequiredError } from './errors/legal-translation-required.error';
 import { sanitizeLegalHtml } from './legal-html';
 
 const SIGNUP_TYPES: ReadonlySet<LegalDocumentType> = new Set(
@@ -42,6 +43,15 @@ export interface LegalDraftChanges {
   content: string;
   changeType: LegalChangeType;
   summary: string | null;
+  // La traducción al inglés: se puede guardar a medias, publicar la exige
+  contentEn: string | null;
+  summaryEn: string | null;
+}
+
+// Un texto opcional: sin espacios alrededor y null si queda vacío
+function optionalText(text: string | null): string | null {
+  const trimmed = text?.trim() ?? '';
+  return trimmed === '' ? null : trimmed;
 }
 
 // Documentos legales con versiones: la vigente de cada uno (la publicada más
@@ -123,8 +133,10 @@ export class LegalDocumentsService {
     changes: LegalDraftChanges,
   ): Promise<LegalDocument> {
     const content = sanitizeLegalHtml(changes.content);
-    const trimmed = changes.summary?.trim() ?? '';
-    const summary = trimmed === '' ? null : trimmed;
+    const summary = optionalText(changes.summary);
+    const english = optionalText(changes.contentEn);
+    const contentEn = english === null ? null : sanitizeLegalHtml(english);
+    const summaryEn = optionalText(changes.summaryEn);
     return this.dataSource.transaction(async (manager) => {
       const current = await this.getCurrent(type);
       const version = nextLegalVersion(current.version, changes.changeType);
@@ -135,14 +147,22 @@ export class LegalDocumentsService {
       return manager.save(
         Object.assign(
           draft ?? manager.create(LegalDocument, { type, status: 'draft' }),
-          { content, version, changeType: changes.changeType, summary },
+          {
+            content,
+            version,
+            changeType: changes.changeType,
+            summary,
+            contentEn,
+            summaryEn,
+          },
         ),
       );
     });
   }
 
-  // Publica el borrador (con su «Qué ha cambiado»): pasa a ser la vigente. Si
-  // el cambio es importante, cada usuario tendrá que aceptarla al entrar
+  // Publica el borrador (con su «Qué ha cambiado» y en los dos idiomas):
+  // pasa a ser la vigente. Si el cambio es importante, cada usuario tendrá
+  // que aceptarla al entrar
   async publish(
     adminId: string,
     type: LegalDocumentType,
@@ -157,6 +177,9 @@ export class LegalDocumentsService {
       }
       if (draft.summary === null) {
         throw new LegalSummaryRequiredError(type);
+      }
+      if (draft.contentEn === null || draft.summaryEn === null) {
+        throw new LegalTranslationRequiredError(type);
       }
       draft.status = 'published';
       draft.publishedAt = new Date();
