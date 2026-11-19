@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, MoreThan, Repository } from 'typeorm';
+import { EntityManager, In, MoreThan, Repository } from 'typeorm';
+import type { Point } from 'typeorm';
 import { LateCancellation } from './entities/late-cancellation.entity';
 import { Trip } from './entities/trip.entity';
 import { Page, PageRequest } from '../../shared/pagination/page';
@@ -23,6 +24,13 @@ export interface AdminTripFilter {
   driverIds?: readonly string[];
 }
 
+// Un trayecto compartido: de dónde a dónde y cuántos coches dejaron de salir
+export interface SharedLeg {
+  origin: Point;
+  destination: Point;
+  carsAvoided: number;
+}
+
 export interface TripOverview {
   publishedToday: number;
   inProgress: number;
@@ -40,6 +48,42 @@ export class TripStatsService {
     @InjectRepository(LateCancellation)
     private readonly lateCancellationsRepository: Repository<LateCancellation>,
   ) {}
+
+  // Los viajes que el conductor terminó, con los pasajeros que llevó (cada
+  // uno, un coche menos), para su impacto
+  async finishedLegsByDriver(driverId: string): Promise<SharedLeg[]> {
+    const trips = await this.tripsRepository.find({
+      select: {
+        origin: true,
+        destination: true,
+        offeredSeats: true,
+        availableSeats: true,
+      },
+      where: { driverId, status: 'finished' },
+    });
+    return trips.map((trip) => ({
+      origin: trip.origin,
+      destination: trip.destination,
+      carsAvoided: trip.offeredSeats - trip.availableSeats,
+    }));
+  }
+
+  // De dónde a dónde fue cada uno de esos viajes (el pasajero que lo hizo
+  // evita su coche: uno por viaje)
+  async passengerLegs(tripIds: readonly string[]): Promise<SharedLeg[]> {
+    if (tripIds.length === 0) {
+      return [];
+    }
+    const trips = await this.tripsRepository.find({
+      select: { id: true, origin: true, destination: true },
+      where: { id: In([...new Set(tripIds)]) },
+    });
+    return trips.map(({ origin, destination }) => ({
+      origin,
+      destination,
+      carsAvoided: 1,
+    }));
+  }
 
   // Viajes publicados por cada conductor, sin contar los cancelados
   async countByDrivers(
