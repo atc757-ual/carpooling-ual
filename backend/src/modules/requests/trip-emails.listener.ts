@@ -110,7 +110,7 @@ export class TripEmailsListener
       this.usersService.findById(email.passengerId),
       this.tripsService.getById(email.tripId),
     ]);
-    if (passenger === null || passenger.deactivatedAt !== null) {
+    if (passenger?.deactivatedAt !== null) {
       return null;
     }
     const driverNames = await this.usersService.getNames([trip.driverId]);
