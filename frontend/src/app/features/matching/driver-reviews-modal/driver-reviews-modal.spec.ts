@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
@@ -37,6 +38,7 @@ describe('DriverReviewsModal', () => {
     TestBed.configureTestingModule({
       imports: [DriverReviewsModal],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: DriverReviewsService, useValue: { getRating, list } },
         { provide: ModalController, useValue: { dismiss } },

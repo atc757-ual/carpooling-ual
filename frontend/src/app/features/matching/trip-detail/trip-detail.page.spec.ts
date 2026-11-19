@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { PermissionPromptsService } from '../../../core/services/push/permission-prompts.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -121,6 +122,7 @@ describe('TripDetailPage', () => {
     TestBed.configureTestingModule({
       imports: [TripDetailPage],
       providers: [
+        provideAppTransloco(),
         provideCatalogsForTests(),
         provideIonicAngular(),
         { provide: PermissionPromptsService, useValue: { offerPush } },

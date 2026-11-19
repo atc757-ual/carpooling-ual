@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -38,6 +39,7 @@ describe('TripSearchForm', () => {
     TestBed.configureTestingModule({
       imports: [TripSearchForm],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
         { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
@@ -111,6 +113,7 @@ describe('TripSearchForm', () => {
     TestBed.configureTestingModule({
       imports: [TripSearchForm],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
         { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
@@ -140,6 +143,7 @@ describe('TripSearchForm', () => {
     TestBed.configureTestingModule({
       imports: [TripSearchForm],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
         { provide: PlacesService, useValue: PLACES_SERVICE_STUB },

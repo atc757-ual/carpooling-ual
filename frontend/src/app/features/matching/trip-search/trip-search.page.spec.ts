@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -50,6 +51,7 @@ describe('TripSearchPage', () => {
     TestBed.configureTestingModule({
       imports: [TripSearchPage],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
         { provide: PlacesService, useValue: PLACES_SERVICE_STUB },

@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { signal, TemplateRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
@@ -62,6 +63,7 @@ describe('ConversationPage', () => {
     TestBed.configureTestingModule({
       imports: [ConversationPage],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: ChatService, useValue: chat },
         { provide: AuthService, useValue: { currentUser: signal({ id: 'me' } as User) } },

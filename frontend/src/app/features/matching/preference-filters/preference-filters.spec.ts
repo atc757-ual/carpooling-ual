@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
@@ -6,7 +7,7 @@ import { PreferenceFilters } from './preference-filters';
 
 describe('PreferenceFilters', () => {
   function render(selected: PreferenceFilter[], resultCount = 3) {
-    TestBed.configureTestingModule({ providers: [provideIonicAngular()] });
+    TestBed.configureTestingModule({ providers: [provideAppTransloco(), provideIonicAngular()] });
     const fixture = TestBed.createComponent(PreferenceFilters);
     fixture.componentRef.setInput('selected', new Set(selected));
     fixture.componentRef.setInput('resultCount', resultCount);

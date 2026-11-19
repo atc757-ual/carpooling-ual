@@ -9,6 +9,8 @@ import {
 import { provideTransloco, TranslocoService } from '@jsverse/transloco';
 import type { TranslocoLoader } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import enDictionary from '../../../../public/i18n/en.json';
+import esDictionary from '../../../../public/i18n/es.json';
 
 const TEST_TRANSLATIONS = new InjectionToken<Record<string, Record<string, unknown>>>(
   'TEST_TRANSLATIONS',
@@ -230,4 +232,10 @@ export function provideTranslocoTestingSupport(
   translations: Record<string, Record<string, unknown>> = {},
 ): EnvironmentProviders {
   return provideTestingTransloco(translations);
+}
+
+// Con los diccionarios reales de la app: para los specs que comprueban los
+// textos de una pantalla ya traducida
+export function provideAppTransloco(): EnvironmentProviders {
+  return provideTestingTransloco({ es: esDictionary, en: enDictionary });
 }

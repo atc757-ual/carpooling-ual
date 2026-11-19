@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -113,6 +114,7 @@ describe('SearchResultsPage', () => {
     TestBed.configureTestingModule({
       imports: [SearchResultsPage],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
         { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
