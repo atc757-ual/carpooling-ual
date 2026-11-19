@@ -78,7 +78,7 @@
           @if (total() > pageSize) {
             <app-pagination
               class="my-trips__pagination"
-              ariaLabel="Páginas de tus viajes"
+              [ariaLabel]="'myTrips.pagesAria' | transloco"
               [offset]="offset()"
               [limit]="pageSize"
               [total]="total()"

@@ -628,6 +628,7 @@
     "riding": "Viajas"
   },
   "myTrips": {
+    "pagesAria": "Páginas de tus viajes",
     "cargandoTusViajes": "Cargando tus viajes…",
     "hemosPodidoCargarTus": "No hemos podido cargar tus viajes",
     "reintentar": "Reintentar",
