@@ -7,17 +7,17 @@
   <div class="trip-card__top">
     <div class="trip-card__tags">
       @if (isBestMatch()) {
-        <span class="trip-card__best">Mejor coincidencia</span>
+        <span class="trip-card__best">{{ 'searchResults.bestMatch' | transloco }}</span>
       }
       @if (isPreferenceMatch()) {
-        <span class="trip-card__match">Coincide con tus preferencias</span>
+        <span class="trip-card__match">{{ 'searchResults.preferenceMatch' | transloco }}</span>
       }
     </div>
     <div class="trip-card__status">
       @if (isRequested()) {
-        <span class="status status--info">Ya solicitado</span>
+        <span class="status status--info">{{ 'searchResults.requested' | transloco }}</span>
       } @else if (isLastSeat()) {
-        <span class="status status--pending">Última plaza</span>
+        <span class="status status--pending">{{ 'searchResults.lastSeat' | transloco }}</span>
       } @else {
         <span class="trip-card__seats">
           {{ trip().freeSeats }} {{ trip().freeSeats === 1 ? 'plaza' : 'plazas' }}
@@ -52,7 +52,7 @@
 
       <!-- Sus preferencias de viaje: en móvil las 3 primeras y +N; en escritorio todas -->
       @if (preferences().length > 0) {
-        <ul class="trip-card__preferences" aria-label="Preferencias del conductor">
+        <ul class="trip-card__preferences" [attr.aria-label]="'searchFilters.legend' | transloco">
           @for (preference of preferences(); track preference; let idx = $index) {
             <li
               class="trip-card__preference"

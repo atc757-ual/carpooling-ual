@@ -12,11 +12,11 @@ import { ModalHeader } from '../../../shared/components/modals/modal-header/moda
 import { PreferenceFilter } from './preference-filter';
 
 const OPTIONS: readonly { value: PreferenceFilter; label: string; icon: string }[] = [
-  { value: 'no_smoking', label: 'Sin humo', icon: leafOutline },
-  { value: 'pets', label: 'Admite mascotas', icon: pawOutline },
-  { value: 'music', label: 'Con música', icon: musicalNotesOutline },
-  { value: 'chatty', label: 'Con charla', icon: chatbubblesOutline },
-  { value: 'quiet', label: 'Tranquilo', icon: volumeMuteOutline },
+  { value: 'no_smoking', label: 'searchFilters.no_smoking', icon: leafOutline },
+  { value: 'pets', label: 'searchFilters.pets', icon: pawOutline },
+  { value: 'music', label: 'searchFilters.music', icon: musicalNotesOutline },
+  { value: 'chatty', label: 'searchFilters.chatty', icon: chatbubblesOutline },
+  { value: 'quiet', label: 'searchFilters.quiet', icon: volumeMuteOutline },
 ];
 
 // Filtros por las preferencias del conductor (19/11, decidido con el autor:

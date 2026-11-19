@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -43,6 +44,7 @@ import { SectionHeading } from '../tabs/section-heading/section-heading';
     IonIcon,
     IonSpinner,
     ConversationPage,
+    TranslocoPipe,
   ],
   templateUrl: './messages.page.html',
   styleUrls: ['../tabs/tab-page.scss', './messages.page.scss'],

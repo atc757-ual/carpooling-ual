@@ -2,9 +2,9 @@
   <!-- Está en el campus: lo más seguro es que vuelva a casa -->
   @if (isAtCampus() && isToCampus()) {
     <div class="notice notice--info route-fields__go-home">
-      <p>Estás en el campus. ¿Vuelves a casa?</p>
+      <p>{{ 'search.atCampus' | transloco }}</p>
       <button type="button" class="route-fields__go-home-button" (click)="handleGoHome()">
-        Cambiar sentido
+        {{ 'search.swap' | transloco }}
       </button>
     </div>
   }
@@ -14,12 +14,12 @@
   <div class="route-fields__field">
     <div class="route-fields__head">
       @if (showLabel()) {
-        <span class="text-label text-label--strong">Trayecto</span>
+        <span class="text-label text-label--strong">{{ 'search.route' | transloco }}</span>
       }
       <!-- En el móvil: enlace pequeño junto a la etiqueta -->
       <button class="route-fields__swap-link" type="button" (click)="handleSwap()">
         <ion-icon [icon]="swapIcon" aria-hidden="true" />
-        Cambiar sentido
+        {{ 'search.swap' | transloco }}
       </button>
     </div>
     <div class="route-fields__route">
@@ -38,7 +38,7 @@
       <button
         class="route-fields__swap"
         type="button"
-        aria-label="Cambiar el sentido del viaje"
+        [attr.aria-label]="'search.swapLabel' | transloco"
         (click)="handleSwap()"
       >
         <ion-icon [icon]="swapIcon" aria-hidden="true" />
@@ -78,7 +78,7 @@
         fill="outline"
         [label]="role"
         labelPlacement="floating"
-        placeholder="Elige un parking del campus"
+        [placeholder]="'search.parkingPlaceholder' | transloco"
       >
         <ion-icon
           slot="start"
@@ -95,7 +95,7 @@
          en el mapa y sin poder moverlo -->
       @if (hasParking()) {
         <button type="button" class="route-fields__map-link" (click)="handleViewParking()">
-          Ver en el mapa
+          {{ 'search.viewOnMap' | transloco }}
         </button>
       }
     </div>
