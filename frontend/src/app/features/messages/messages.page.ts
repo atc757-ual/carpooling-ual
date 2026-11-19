@@ -9,6 +9,8 @@ import {
   IonChip,
   IonContent,
   IonIcon,
+  IonItem,
+  IonList,
   IonSpinner,
 } from '@ionic/angular';
 import { alertCircleOutline, chatbubblesOutline } from 'ionicons/icons';
@@ -42,6 +44,8 @@ import { SectionHeading } from '../tabs/section-heading/section-heading';
     IonChip,
     IonContent,
     IonIcon,
+    IonItem,
+    IonList,
     IonSpinner,
     ConversationPage,
     TranslocoPipe,

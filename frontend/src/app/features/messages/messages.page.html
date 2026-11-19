@@ -80,51 +80,52 @@
                   </div>
                 </div>
               } @else {
-                <ul class="messages__list">
-                  @for (conversation of all(); track conversation.id) {
-                    <li>
-                      <button
-                        type="button"
-                        class="conversation"
-                        [class.conversation--unread]="conversation.unreadCount > 0"
-                        [class.conversation--selected]="isSelected(conversation)"
-                        (click)="handleSelectConversation($event, conversation)"
-                      >
-                        <span class="conversation__body">
-                          <!-- El viaje: a qué hora sale y adónde va y, al conductor,
+                <!-- ion-list (role="list"): cada conversación, un ion-item que la abre -->
+                <ion-list class="messages__list">
+                  @for (conversation of all(); track conversation.id; let isLast = $last) {
+                    <ion-item
+                      class="conversation"
+                      [button]="true"
+                      [detail]="false"
+                      [lines]="isLast ? 'none' : 'full'"
+                      [class.conversation--unread]="conversation.unreadCount > 0"
+                      [class.conversation--selected]="isSelected(conversation)"
+                      (click)="handleSelectConversation($event, conversation)"
+                    >
+                      <span class="conversation__body">
+                        <!-- El viaje: a qué hora sale y adónde va y, al conductor,
                                con qué pasajero (el origen se ve al abrir el chat) -->
-                          <span class="conversation__row">
-                            <span class="conversation__trip">{{ title(conversation) }}</span>
-                            <span class="conversation__date text-caption">{{
-                              elapsed(conversation)
-                            }}</span>
-                          </span>
-                          <span class="conversation__row">
-                            <span class="conversation__preview text-body-s">{{
-                              preview(conversation)
-                            }}</span>
-                            @if (conversation.unreadCount > 0) {
-                              <span class="conversation__unread">
-                                {{ conversation.unreadCount }}
-                                <span class="visually-hidden">{{
-                                  'messages.unreadSuffix' | transloco
-                                }}</span>
-                              </span>
-                            } @else {
-                              <!-- El estado del viaje, como en la cabecera del chat -->
-                              <span
-                                class="status"
-                                [class.status--accepted]="conversation.trip.status === 'confirmed'"
-                                [class.status--info]="conversation.trip.status === 'in_progress'"
-                                >{{ statusLabel(conversation) }}</span
-                              >
-                            }
-                          </span>
+                        <span class="conversation__row">
+                          <span class="conversation__trip">{{ title(conversation) }}</span>
+                          <span class="conversation__date text-caption">{{
+                            elapsed(conversation)
+                          }}</span>
                         </span>
-                      </button>
-                    </li>
+                        <span class="conversation__row">
+                          <span class="conversation__preview text-body-s">{{
+                            preview(conversation)
+                          }}</span>
+                          @if (conversation.unreadCount > 0) {
+                            <span class="conversation__unread">
+                              {{ conversation.unreadCount }}
+                              <span class="visually-hidden">{{
+                                'messages.unreadSuffix' | transloco
+                              }}</span>
+                            </span>
+                          } @else {
+                            <!-- El estado del viaje, como en la cabecera del chat -->
+                            <span
+                              class="status"
+                              [class.status--accepted]="conversation.trip.status === 'confirmed'"
+                              [class.status--info]="conversation.trip.status === 'in_progress'"
+                              >{{ statusLabel(conversation) }}</span
+                            >
+                          }
+                        </span>
+                      </span>
+                    </ion-item>
                   }
-                </ul>
+                </ion-list>
 
                 @if (isLoadingMore()) {
                   <div class="messages__more" aria-live="polite">

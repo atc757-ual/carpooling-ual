@@ -73,23 +73,24 @@
                   }}</ion-button>
                 </div>
               }
-              <ul class="notifications__list">
+              <!-- ion-list (role="list"): cada aviso, un ion-item que lo abre -->
+              <ion-list class="notifications__list">
                 @for (item of all(); track item.notification.id) {
-                  <li>
-                    <button
-                      type="button"
-                      class="notification"
-                      [class.notification--unread]="!item.notification.isRead"
-                      [class.notification--read]="item.notification.isRead"
-                      [class.notification--travel]="categoryOf(item.notification.type) === 'travel'"
-                      [class.notification--account]="
-                        categoryOf(item.notification.type) === 'account'
-                      "
-                      [class.notification--incident]="
-                        categoryOf(item.notification.type) === 'incident'
-                      "
-                      (click)="handleOpen(item)"
-                    >
+                  <ion-item
+                    class="notification"
+                    [button]="true"
+                    [detail]="false"
+                    lines="none"
+                    [class.notification--unread]="!item.notification.isRead"
+                    [class.notification--read]="item.notification.isRead"
+                    [class.notification--travel]="categoryOf(item.notification.type) === 'travel'"
+                    [class.notification--account]="categoryOf(item.notification.type) === 'account'"
+                    [class.notification--incident]="
+                      categoryOf(item.notification.type) === 'incident'
+                    "
+                    (click)="handleOpen(item)"
+                  >
+                    <span class="notification__row">
                       <span
                         class="notification__read-icon"
                         [class.notification__read-icon--unread]="!item.notification.isRead"
@@ -140,10 +141,10 @@
                       >
                         {{ elapsed(item.notification) }}
                       </time>
-                    </button>
-                  </li>
+                    </span>
+                  </ion-item>
                 }
-              </ul>
+              </ion-list>
               @if (isLoading()) {
                 <div class="notifications__more" aria-live="polite">
                   <ion-spinner name="crescent" aria-hidden="true" />

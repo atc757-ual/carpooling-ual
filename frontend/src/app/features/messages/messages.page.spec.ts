@@ -89,7 +89,10 @@ describe('MessagesPage', () => {
     const { root } = await render();
 
     const row = root.querySelector('.conversation');
-    expect(row?.tagName).toBe('BUTTON');
+    // Un ion-item que es un botón (button), dentro de un ion-list
+    expect(row?.tagName).toBe('ION-ITEM');
+    expect((row as HTMLIonItemElement | null)?.button).toBe(true);
+    expect(row?.closest('ion-list')).not.toBeNull();
     expect(row?.classList).toContain('conversation--unread');
     // La hora en la zona del navegador (el CI va en UTC)
     expect(row?.textContent).toContain(`${formatTime(CONVERSATION.trip.departureAt)} · Campus UAL`);
