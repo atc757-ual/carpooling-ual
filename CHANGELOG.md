@@ -297,7 +297,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - `GET /api/users/{id}`: datos del propio usuario, o de cualquiera para un administrador (#15)
 - Comando `npm run create-admin` para crear el primer administrador en el despliegue, y guía de despliegue en `docs/despliegue.md` (#15)
 - Vehículos de los conductores (RF-21): alta, consulta, lista paginada y baja en `/api/vehicles` (#16)
-- Ampliaci�n de los datos del veh�culo (marca, modelo, color y motor), migraci�n de los datos existentes y detalles para reconocer el coche en los resultados del matching (#107)
+- Ampliación de los datos del vehículo (marca, modelo, color y motor), migración de los datos existentes y detalles para reconocer el coche en los resultados del matching (#107)
 - Formulario del vehículo ampliado: la marca con buscador (lista local de marcas vendidas en España, generada desde la NHTSA, y «Otra»), el color en 8 opciones a la vista y el motor (eléctrico, híbrido u otro); el coche se muestra con su color en Publicar, en el perfil y en el detalle del viaje, sin la matrícula hasta tener la plaza aceptada (la búsqueda de la API ya no la envía) (#109)
 - Declaración responsable del conductor y su estado para publicar viajes: `PUT /api/users/me/driver-declaration` y `GET /api/users/me/driver-status` (#16)
 - Paginación TMF630 de listas (`offset`, `limit`, `X-Total-Count`, `X-Result-Count`) (#16)
@@ -373,10 +373,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
-- La cabecera del m�vil conserva la insignia �UAL� y su texto se da la vuelta cada 5 segundos entre �Carpool� y ��Hola, nombre!�; en escritorio el nombre va junto a la campana, en semibold (#105)
-- Los destinos pasan a llamarse �Tus viajes� y �Mi perfil�, tambi�n en el t�tulo de la franja y en las ayudas (#105)
-- Publicar ya no espera a los veh�culos para pintarse: el formulario sale al momento y la lista se pide al entrar en el paso 2, con su propia carga y un �Reintentar� si falla; las pantallas dejan de repetir el t�tulo, que va en la franja fija (#105)
-- El bot�n �A�adir veh�culo� lleva borde liso azul en vez de discontinuo (#105)
+- La cabecera del móvil conserva la insignia «UAL» y su texto se da la vuelta cada 5 segundos entre «Carpool» y «¡Hola, nombre!»; en escritorio el nombre va junto a la campana, en semibold (#105)
+- Los destinos pasan a llamarse «Tus viajes» y «Mi perfil», también en el título de la franja y en las ayudas (#105)
+- Publicar ya no espera a los vehículos para pintarse: el formulario sale al momento y la lista se pide al entrar en el paso 2, con su propia carga y un «Reintentar» si falla; las pantallas dejan de repetir el título, que va en la franja fija (#105)
+- El botón «Añadir vehículo» lleva borde liso azul en vez de discontinuo (#105)
 - El título y el subtítulo de cada pantalla pasan a la franja fija (también en el móvil, bajo la cabecera) y el saludo de Inicio queda debajo, en el contenido; las tarjetas de Buscar y Publicar empiezan por su formulario (#104)
 - El botón de cambiar el sentido del trayecto lleva el fondo azul muy claro y el icono en el color de los enlaces, con las flechas rellenas (#104)
 - El código de 6 cifras (verificar el correo y recuperar la contraseña) se envía solo al completar la última casilla, sin botón; si es incorrecto, además del aviso, las casillas tintinean (sin animación con «reducir movimiento»), el móvil vibra y el foco vuelve a la primera (#87)
@@ -433,7 +433,6 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ### Removed
 
 - Carpeta `database/` de la raíz: las migraciones y los datos de prueba viven ahora en `backend/src/database/` (#7)
-- **Documentación:** `docs/reglas-de-negocio.md` reúne todas las reglas de negocio de la plataforma (publicar, buscar y pedir plaza, antes de la salida, durante el viaje, cancelaciones, después del viaje, privacidad de la ubicación y cuentas), cada una con su valor y la constante o el servicio del código que la aplica, más las limitaciones conocidas por decidir. Se actualiza en cada PR que cambie una regla (#292).
 
 ### Fixed
 
