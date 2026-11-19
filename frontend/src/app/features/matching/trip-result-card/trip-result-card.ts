@@ -3,19 +3,20 @@ import { Component, computed, inject, input } from '@angular/core';
 import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { MATCH_FIT_LABELS, MatchFit } from '../match-fit';
 import { RouterLink } from '@angular/router';
-import { IonIcon } from '@ionic/angular';
-import { timeOutline, chevronForward } from 'ionicons/icons';
+import { IonIcon, IonItem, IonRouterLink } from '@ionic/angular';
+import { timeOutline } from 'ionicons/icons';
 import { TripResult } from '../../../core/models/trip-result.model';
 import { getFirstName } from '../trip-driver/trip-driver';
 import { formatWalkingDistance } from '../../../shared/utils/distance.util';
+import { formatSeats } from '../../../shared/utils/seats.util';
 
 // Un viaje de los resultados (SearchTripCard de la guía): horas de salida y
 // llegada con las plazas libres («Última plaza» en píldora ámbar si solo queda
 // una), el trayecto, quien conduce y el desvío con la hora de salida. Toda la
-// tarjeta lleva al detalle del viaje
+// tarjeta es un ion-item que lleva al detalle del viaje
 @Component({
   selector: 'app-trip-result-card',
-  imports: [RouterLink, IonIcon, TranslocoPipe],
+  imports: [RouterLink, IonRouterLink, IonItem, IonIcon, TranslocoPipe],
   templateUrl: './trip-result-card.html',
   styleUrl: './trip-result-card.scss',
 })
@@ -37,10 +38,11 @@ export class TripResultCard {
   readonly isPreferenceMatch = input(false);
   // Cómo encaja con la búsqueda: el color del borde de abajo
   readonly fit = input<MatchFit>('fair');
-  protected readonly chevronIcon = chevronForward;
   protected readonly fitLabel = computed(() => MATCH_FIT_LABELS[this.fit()]);
 
   readonly isLastSeat = computed(() => this.trip().freeSeats === 1);
+  // «3 plazas»
+  readonly seatsLabel = computed(() => formatSeats(this.trip().freeSeats));
 
   // Sin repetir la calle de la ruta: dónde y cuándo le recoge. En paradas, la
   // suya (andando); si no, el desvío y la hora de recogida (o de salida)

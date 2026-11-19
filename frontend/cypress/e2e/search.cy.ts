@@ -185,7 +185,7 @@ for (const viewport of VIEWPORTS) {
       // El detalle de la plaza recién pedida, por su id
       cy.intercept('GET', '/api/requests/r1', newRequest);
       searchTrips('Roquetas de Mar');
-      cy.get('app-search-results app-trip-result-card .trip-card__link').click();
+      cy.get('app-search-results app-trip-result-card ion-item.trip-card').click();
 
       cy.contains('app-trip-detail ion-button', 'Solicitar 1 plaza').click();
 
@@ -210,7 +210,7 @@ for (const viewport of VIEWPORTS) {
     it('opens a trip and comes back to the same search', () => {
       searchTrips('Roquetas de Mar');
 
-      cy.get('app-search-results app-trip-result-card .trip-card__link').click();
+      cy.get('app-search-results app-trip-result-card ion-item.trip-card').click();
 
       cy.location('pathname').should('eq', '/tabs/search/trips/t1');
       // El mismo viaje de la búsqueda, con quien conduce y cómo se pide plaza

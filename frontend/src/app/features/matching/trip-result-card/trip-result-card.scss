@@ -1,51 +1,27 @@
-// Enlace extendido: su ::after cubre la tarjeta, así toda ella lleva al
-// detalle sin meter el botón de la valoración dentro de un enlace
-.trip-card__link {
-  color: inherit;
-  text-decoration: none;
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: var(--radius-s);
-  }
-
-  &:focus-visible {
-    outline: none;
-  }
-
-  &:focus-visible::after {
-    outline: var(--border-width-l) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
-  }
-}
-
-// Una fila de la lista (dentro de la tarjeta de resultados): a la izquierda,
-// una franja del color de cómo encaja (verde, ámbar o rojo). Al pasar por encima,
-// el fondo y la mano: se abre
+// Una fila de la lista (dentro de la tarjeta de resultados): un ion-item con
+// borde y, a la izquierda, una franja del color de cómo encaja (verde, ámbar o
+// rojo). Al pasar por encima, el fondo; la flecha es la del ion-item (detail)
 .trip-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  padding: var(--space-s) var(--space-base);
+  --background: var(--color-surface);
+  --background-hover: var(--color-surface-subtle);
+  --background-hover-opacity: 1;
+  --border-radius: var(--radius-s);
+  --padding-start: var(--space-base);
+  --padding-top: var(--space-s);
+  --padding-bottom: var(--space-s);
+  --inner-padding-end: var(--space-s);
+  --detail-icon-color: var(--color-text-muted);
+  --detail-icon-opacity: 1;
+
   border: var(--border-width-s) solid var(--color-border-subtle);
   border-left: 0.25rem solid var(--color-border-subtle); // 4px
   border-radius: var(--radius-s);
-  background: var(--color-surface);
-  cursor: pointer;
-  transition:
-    background-color var(--transition-fast, 0.15s ease),
-    border-color var(--transition-fast, 0.15s ease);
 
-  &:hover {
-    background: var(--color-surface-subtle);
-
-    .trip-card__arrow ion-icon {
-      transform: translateX(3px);
-      color: var(--color-link);
-    }
+  // El foco del teclado, como en el resto de la app (Ionic lo marca con
+  // ion-focused en el host)
+  &.ion-focused {
+    outline: var(--border-width-l) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
   }
 }
 
@@ -61,49 +37,26 @@
   border-left-color: var(--color-danger);
 }
 
+.trip-card__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
 .trip-card__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-s);
-  min-height: 1.25rem;
+  min-height: 1.25rem; // 20px
 }
 
 .trip-card__status {
-  margin-left: auto;
   display: inline-flex;
   align-items: center;
-}
-
-.trip-card__main {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-s);
-}
-
-.trip-card__content {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.trip-card__arrow {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-  font-size: 1.25rem; // 20px
-  align-self: center; // centrado verticalmente respecto al contenido
-
-  ion-icon {
-    transition:
-      transform var(--transition-fast, 0.15s ease),
-      color var(--transition-fast, 0.15s ease);
-  }
+  margin-left: auto;
 }
 
 .trip-card__driver {
@@ -143,12 +96,6 @@
   @media (min-width: 768px) {
     display: none;
   }
-}
-
-.trip-card__foot {
-  display: flex;
-  align-items: center;
-  gap: var(--space-base);
 }
 
 .trip-card__times {

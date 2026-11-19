@@ -113,7 +113,7 @@ describe('TripResultCard', () => {
 
   it('links the row to the trip detail with a label that describes the trip', () => {
     const root = render(TRIP);
-    const link = root.querySelector<HTMLAnchorElement>('.trip-card__link');
+    const link = root.querySelector('ion-item.trip-card');
 
     expect(link?.getAttribute('href')).toBe('/tabs/search/trips/trip-1');
     expect(link?.getAttribute('aria-label')).toBe(
@@ -133,7 +133,7 @@ describe('TripResultCard', () => {
 
     expect(text(root, '.status--info')).toBe('Ya solicitado');
     expect(root.querySelector('.status--pending')).toBeNull();
-    expect(root.querySelector('.trip-card__link')?.getAttribute('aria-label')).toContain(
+    expect(root.querySelector('ion-item.trip-card')?.getAttribute('aria-label')).toContain(
       ', ya solicitado',
     );
   });

@@ -155,19 +155,18 @@
                   </form>
                 </div>
               } @else {
-                <ul class="search-results__items">
+                <!-- ion-list (role="list"): cada tarjeta es un ion-item (listitem) -->
+                <ion-list class="search-results__items" lines="none">
                   @for (trip of sortedTrips(); track trip.id) {
-                    <li>
-                      <app-trip-result-card
-                        [trip]="trip"
-                        [isRequested]="requestedTripIds().has(trip.id)"
-                        [isBestMatch]="trip.id === bestTripId()"
-                        [isPreferenceMatch]="isPreferenceMatch(trip)"
-                        [fit]="fitOf(trip)"
-                      />
-                    </li>
+                    <app-trip-result-card
+                      [trip]="trip"
+                      [isRequested]="requestedTripIds().has(trip.id)"
+                      [isBestMatch]="trip.id === bestTripId()"
+                      [isPreferenceMatch]="isPreferenceMatch(trip)"
+                      [fit]="fitOf(trip)"
+                    />
                   }
-                </ul>
+                </ion-list>
               }
             </ion-card-content>
           </ion-card>
