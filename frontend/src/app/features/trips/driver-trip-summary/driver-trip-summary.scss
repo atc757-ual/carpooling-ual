@@ -1,9 +1,14 @@
 .driver-summary {
-  position: relative;
   margin: 0;
 
   &:hover {
     --background: var(--color-surface-subtle);
+  }
+
+  // El foco del teclado (Ionic marca el host con ion-focused)
+  &.ion-focused {
+    outline: var(--border-width-l) solid var(--color-focus);
+    outline-offset: 0.125rem; // 2px
   }
 }
 
@@ -32,26 +37,10 @@
   font-weight: var(--font-weight-semibold);
 }
 
-// Enlace extendido: su ::after cubre toda la tarjeta
-.driver-summary__link {
+// Lo que se hace al abrirla («Revisar solicitudes», «Ver viaje»), en el azul
+// de los enlaces: toda la tarjeta es el enlace
+.driver-summary__action {
   color: var(--color-link);
   font-size: var(--font-size-body-s);
   font-weight: var(--font-weight-semibold);
-  text-decoration: none;
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: var(--radius-s);
-  }
-
-  &:focus-visible {
-    outline: none;
-  }
-
-  &:focus-visible::after {
-    outline: var(--border-width-l) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
-  }
 }

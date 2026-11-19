@@ -1,15 +1,14 @@
-<ion-card class="passenger-trip role-card role-card--passenger">
+<!-- Toda la tarjeta es un enlace (ion-card [routerLink]) a la solicitud -->
+<ion-card
+  class="passenger-trip role-card role-card--passenger"
+  [routerLink]="['/tabs/trips/requests', item().request.id]"
+  [attr.aria-label]="linkLabel()"
+>
   <ion-card-content>
     <div class="passenger-trip__head">
-      <!-- La hora (el enlace cubre toda la tarjeta con su ::after) y, a su
-           lado, el papel -->
+      <!-- La hora y, a su lado, el papel -->
       <div class="role-card__when">
-        <a
-          class="passenger-trip__link text-subtitle"
-          [routerLink]="['/tabs/trips/requests', item().request.id]"
-          [attr.aria-label]="linkLabel()"
-          >{{ time() }}</a
-        >
+        <span class="text-subtitle">{{ time() }}</span>
         <span class="role-tag role-tag--passenger">
           <ion-icon [icon]="roleIcon" aria-hidden="true" />{{ roleLabel() }}
         </span>

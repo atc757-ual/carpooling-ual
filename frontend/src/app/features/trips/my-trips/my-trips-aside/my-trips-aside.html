@@ -46,21 +46,29 @@
     </ion-card-header>
     <ion-card-content>
       <nav aria-labelledby="my-trips-suggestions-title">
-        <ul class="my-trips-aside__list">
-          @for (item of suggestions(); track item.link) {
-            <li>
-              <!-- Toda la fila se pinta de azul claro al pasar o pulsar -->
-              <a class="my-trips-aside__item" [routerLink]="item.link">
-                <ion-icon class="my-trips-aside__item-icon" [icon]="item.icon" aria-hidden="true" />
-                <span class="my-trips-aside__item-text">
-                  <span class="text-body text-body--strong">{{ item.title }}</span>
-                  <span class="text-body-s text-color-muted">{{ item.detail }}</span>
-                </span>
-                <ion-icon class="my-trips-aside__chevron" [icon]="chevronIcon" aria-hidden="true" />
-              </a>
-            </li>
+        <!-- Cada fila, un ion-item que lleva a su pantalla (la flecha es la suya,
+             detail); toda la fila se pinta de azul claro al pasar o pulsar -->
+        <ion-list class="my-trips-aside__list">
+          @for (item of suggestions(); track item.link; let isLast = $last) {
+            <ion-item
+              class="my-trips-aside__item"
+              [routerLink]="item.link"
+              [detail]="true"
+              [lines]="isLast ? 'none' : 'full'"
+            >
+              <ion-icon
+                slot="start"
+                class="my-trips-aside__item-icon"
+                [icon]="item.icon"
+                aria-hidden="true"
+              />
+              <ion-label class="my-trips-aside__item-text">
+                <span class="text-body text-body--strong">{{ item.title }}</span>
+                <span class="text-body-s text-color-muted">{{ item.detail }}</span>
+              </ion-label>
+            </ion-item>
           }
-        </ul>
+        </ion-list>
       </nav>
     </ion-card-content>
   </ion-card>

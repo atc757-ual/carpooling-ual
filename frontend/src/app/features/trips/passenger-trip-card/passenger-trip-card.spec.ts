@@ -36,7 +36,8 @@ describe('PassengerTripCard', () => {
 
   it('links to its request and leaves cancelling to the detail', () => {
     const root = render(passengerTrip('pending', 'published'));
-    const link = root.querySelector('.passenger-trip__link');
+    // Toda la tarjeta es el enlace (ion-card [routerLink])
+    const link = root.querySelector('ion-card.passenger-trip');
 
     expect(link?.getAttribute('href')).toBe('/tabs/trips/requests/r1');
     expect(link?.getAttribute('aria-label')).toContain('Ver solicitud, viajas:');

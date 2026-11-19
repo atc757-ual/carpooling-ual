@@ -1,7 +1,7 @@
 import { translate } from '@jsverse/transloco';
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
+import { IonCard, IonCardContent, IonIcon, IonRouterLink } from '@ionic/angular';
 import { personOutline } from 'ionicons/icons';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
@@ -17,7 +17,7 @@ import { tripWayOf } from '../trip-way';
 // No realizados, el estado es el motivo. Arriba, «Viajas» (su papel)
 @Component({
   selector: 'app-passenger-trip-card',
-  imports: [RouterLink, IonCard, IonCardContent, IonIcon],
+  imports: [RouterLink, IonRouterLink, IonCard, IonCardContent, IonIcon],
   templateUrl: './passenger-trip-card.html',
   styleUrl: './passenger-trip-card.scss',
 })
