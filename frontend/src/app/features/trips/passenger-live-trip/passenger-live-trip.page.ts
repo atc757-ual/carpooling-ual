@@ -291,7 +291,7 @@ export class PassengerLiveTripPage {
   readonly hasActionRows = computed(() => this.sheet.isDesktop() && this.isWideAside());
 
   // Al terminar, la hoja no se mueve: la valoración cabe a la altura que tenía
-  // durante el viaje (pidió el autor el 17/11 que no subiera sola)
+  // durante el viaje, para que no suba sola
   constructor() {
     const timer = setInterval(() => {
       if (this.isPageVisible() && this.isLive()) {

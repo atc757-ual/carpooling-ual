@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 // Compartir el viaje en directo en el borrador de la Política de privacidad
-// 1.1 (cambio menor, pendiente de revisar con el director): el pasajero puede
+// 1.1 (cambio menor, pendiente de revisar): el pasajero puede
 // enviar a alguien de su confianza un enlace con el viaje (y la posición del
 // conductor mientras está en curso). Base: interés legítimo en la seguridad
 // del pasajero (artículo 6.1.f del RGPD). Cambia las frases que decían que la

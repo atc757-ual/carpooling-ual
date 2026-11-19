@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 // Borrador de la Política de privacidad 1.1 (cambio menor), pendiente de
-// revisar con el director antes de publicarlo desde el panel (al publicarlo
+// revisar antes de publicarlo desde el panel (al publicarlo
 // se avisa a cada usuario en Avisos). Lo que cambia frente a la 1.0:
 // - La ubicación del conductor con el viaje en curso se trata por la
 //   ejecución del servicio (artículo 6.1.b del RGPD), no por consentimiento:

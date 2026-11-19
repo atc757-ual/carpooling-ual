@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-// Modos de recogida y presupuesto total de desvío (reunión con el director
-// del 12/11/2026; docs/diseno-modos-recogida-y-vuelta.md):
+// Modos de recogida y presupuesto total de desvío
+// (docs/diseno-modos-recogida-y-vuelta.md):
 // - trips.pickup_mode: en ruta o en puntos (los viajes que ya hay, en ruta)
 // - trips.max_detour_m: cuánto se aparta en ruta (300, 500 o 1000 m)
 // - routes.direct_duration_min: la ruta sin recogidas, para medir el desvío

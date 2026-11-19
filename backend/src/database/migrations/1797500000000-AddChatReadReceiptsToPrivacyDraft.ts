@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-// En el borrador de la Política de privacidad 1.1 (pendiente de revisar con el
-// director), se añade la confirmación de lectura en el chat del viaje (doble
+// En el borrador de la Política de privacidad 1.1 (pendiente de revisar), se
+// añade la confirmación de lectura en el chat del viaje (doble
 // check): al abrir el chat se registra la hora de lectura (chat_reads), lo que
 // permite a quien envió un mensaje saber si todos los demás participantes lo
 // han leído. Solo cambia el borrador (una versión publicada no se puede cambiar)

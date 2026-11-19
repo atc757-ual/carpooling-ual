@@ -8,7 +8,7 @@ import { configureApp } from '../src/app.setup';
 import { registerUser } from './support/accounts';
 import { deleteTestUsers } from './support/cleanup';
 
-// Aceptación automática (decidida con el autor el 15/11/2026): las
+// Aceptación automática: las
 // solicitudes que caben en un viaje que la tiene se aceptan solas; las que
 // no, quedan pendientes para el conductor
 const EMAIL_PREFIX = 'auto-accept-e2e-';

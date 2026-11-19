@@ -9,7 +9,7 @@ import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-l
 
 // Final del registro: el correo ya está verificado y la sesión abierta (la abre
 // la verificación). Desde aquí se entra en la app, siempre por Publicar, o se
-// cierra la sesión y se vuelve a la bienvenida (decisión del 30/10/2026).
+// cierra la sesión y se vuelve a la bienvenida.
 // Si el código venía de un login de una cuenta sin verificar, el mensaje habla
 // de correo verificado y no de cuenta creada
 @Component({

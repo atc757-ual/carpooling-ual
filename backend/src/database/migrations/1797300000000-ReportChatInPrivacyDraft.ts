@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-// En el borrador de la Política de privacidad 1.1 (pendiente de revisar con el
-// director), la denuncia pasa de un mensaje a la conversación del chat: la
+// En el borrador de la Política de privacidad 1.1 (pendiente de revisar), la
+// denuncia pasa de un mensaje a la conversación del chat: la
 // administración recibe una copia de la conversación y el motivo, y la copia
 // se conserva con su incidencia. Solo cambia el borrador (una versión
 // publicada no se puede cambiar) y solo donde encuentra el texto de la

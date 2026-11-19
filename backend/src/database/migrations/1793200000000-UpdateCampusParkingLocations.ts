@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-// Ubicaciones exactas de los parkings del campus (tomadas por el autor en la
-// entrada de cada uno) y un sexto parking, P6. El centro de la zona de servicio
+// Ubicaciones exactas de los parkings del campus (tomadas en la entrada
+// de cada uno) y un sexto parking, P6. El centro de la zona de servicio
 // sigue siendo la media de los parkings, así que se recalcula con ellos (y el
 // círculo de 30 km a su alrededor)
 const PARKINGS: readonly [id: string, lon: number, lat: number][] = [

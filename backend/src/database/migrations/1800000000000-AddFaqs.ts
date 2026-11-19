@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import { INITIAL_FAQ_TOPICS, INITIAL_FAQS } from './data/initial-faqs';
 
-// Centro de ayuda (pedido por el autor el 15/11/2026): las preguntas
+// Centro de ayuda: las preguntas
 // frecuentes pasan del frontend a la base de datos para gestionarlas desde el
 // panel.
 // - faq_topics: los temas, con su nombre en español e inglés

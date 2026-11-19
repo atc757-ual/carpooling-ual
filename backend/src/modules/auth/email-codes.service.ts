@@ -6,7 +6,7 @@ import { EmailCode, EmailCodePurpose } from './entities/email-code.entity';
 import { InvalidVerificationCodeError } from './errors/invalid-verification-code.error';
 import { TooManyAttemptsError } from './errors/too-many-attempts.error';
 
-// Reglas del código (decididas con el autor el 24/10/2026)
+// Reglas del código
 export const CODE_TTL_MINUTES = 15;
 export const MAX_FAILED_ATTEMPTS = 3;
 export const RESEND_COOLDOWN_SECONDS = 60;

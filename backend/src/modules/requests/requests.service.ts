@@ -150,7 +150,7 @@ export class RequestsService {
       : this.views.toView(request);
   }
 
-  // Aceptación automática (decidida con el autor el 15/11/2026): como si la
+  // Aceptación automática: como si la
   // aceptara el conductor; al conductor, «se ha unido a tu viaje». Si no cabe
   // (sin plazas, fuera del desvío o el viaje cambió a la vez), queda
   // pendiente y le llega como siempre, para que decida él

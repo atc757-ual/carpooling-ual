@@ -5,7 +5,7 @@ import { VehiclesService } from '../users/vehicles.service';
 import { AUTO_FINISH_AFTER_ARRIVAL_MIN } from './trip-timing';
 import { TripStatusService } from './trip-status.service';
 
-// Cierre automático (decidido con el autor el 17/11/2026): un viaje en curso
+// Cierre automático: un viaje en curso
 // que nadie termina pasa a finalizado 1 h después de su llegada estimada, con
 // la marca de que lo cerró el sistema (finished_by = system). No hay estado
 // nuevo. Las plazas que siguen abiertas las cierra el módulo de solicitudes al

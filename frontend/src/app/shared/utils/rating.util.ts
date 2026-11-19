@@ -2,7 +2,7 @@ import { translate } from '@jsverse/transloco';
 import { appLocale } from '../../core/i18n/app-locale';
 
 // Valoraciones de 1 a 5 (RF-22), en una escala de 5 puntos entre la manita
-// abajo y la manita arriba (decidido con el autor el 15/11): los mismos textos
+// abajo y la manita arriba: los mismos textos
 // al valorar y al mostrar la media
 export const RATING_MAX = 5;
 

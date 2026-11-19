@@ -30,7 +30,7 @@ const METRICS: ReplicaMetrics = {
 };
 
 describe('simulation result rows', () => {
-  // Causa de las ejecuciones que no terminaban (08/11): la columna
+  // Causa de las ejecuciones que no terminaban: la columna
   // matching_p95_ms es entera y el motor de agentes da decimales
   it('stores the matching p95 as whole milliseconds', () => {
     expect(toResultRow('run-1', 'scenario-1', METRICS).matchingP95Ms).toBe(1);

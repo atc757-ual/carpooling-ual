@@ -5,7 +5,7 @@ import { atMinute } from './twin-feed';
 
 // Distancia por carretera ≈ línea recta × 1,3 (como trip-impact.ts del
 // frontend) a 40 km/h de media. El desvío máximo es el presupuesto TOTAL del
-// viaje (reunión con el director del 12/11/2026): los desvíos y las paradas
+// viaje: los desvíos y las paradas
 // (STOP_TIME_MIN cada una) de todos sus pasajeros caben en 10 min, como en la
 // plataforma (trips/pickup-plan.ts)
 export const DETOUR_FACTOR = 1.3;
