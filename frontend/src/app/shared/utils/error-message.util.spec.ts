@@ -1,9 +1,12 @@
 import { TranslocoService } from '@jsverse/transloco';
-import { vi } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
 import { ApiError, NETWORK_ERROR } from '../../core/models/api-error.model';
 import { getErrorMessage } from './error-message.util';
 
 describe('getErrorMessage', () => {
+  beforeEach(() => initAppTranslations());
+
   it('returns the message of a known code', () => {
     expect(getErrorMessage(new ApiError('INVALID_CREDENTIALS', 401))).toBe(
       'Correo o contraseña incorrectos.',
@@ -38,33 +41,24 @@ describe('getErrorMessage', () => {
     );
   });
 
-  describe('with TranslocoService', () => {
-    const transloco = {
-      translate: vi.fn((key: string, params?: Record<string, unknown>) => {
-        if (key === 'errors.reference') return ` (reference: ${params?.['requestId']})`;
-        if (key === 'errors.INTERNAL_ERROR')
-          return `A server error occurred${params?.['reference']}. Please try again.`;
-        if (key === 'errors.INVALID_CREDENTIALS') return 'Incorrect email or password.';
-        if (key === 'errors.UNKNOWN_ERROR') return 'Something went wrong. Please try again.';
-        return key;
-      }),
-    } as unknown as TranslocoService;
+  describe('in English', () => {
+    beforeEach(() => TestBed.inject(TranslocoService).setActiveLang('en'));
 
-    it('translates known error codes into English', () => {
-      expect(getErrorMessage(new ApiError('INVALID_CREDENTIALS', 401), transloco)).toBe(
+    it('translates known error codes', () => {
+      expect(getErrorMessage(new ApiError('INVALID_CREDENTIALS', 401))).toBe(
         'Incorrect email or password.',
       );
     });
 
-    it('translates internal server errors with requestId into English', () => {
+    it('translates internal server errors with their reference', () => {
       const error = new ApiError('INTERNAL_ERROR', 500, { requestId: 'req-99' });
-      expect(getErrorMessage(error, transloco)).toBe(
+      expect(getErrorMessage(error)).toBe(
         'A server error occurred (reference: req-99). Please try again.',
       );
     });
 
-    it('falls back to UNKNOWN_ERROR translation when key is missing', () => {
-      expect(getErrorMessage(new ApiError('UNMAPPED_CODE', 400), transloco)).toBe(
+    it('falls back to the generic message when the code has none', () => {
+      expect(getErrorMessage(new ApiError('UNMAPPED_CODE', 400))).toBe(
         'Something went wrong. Please try again.',
       );
     });

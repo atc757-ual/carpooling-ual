@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { ApiError } from '../../../../core/models/api-error.model';
@@ -44,6 +45,7 @@ describe('LegalDocumentsEditor', () => {
     TestBed.configureTestingModule({
       imports: [LegalDocumentsEditor],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: AdminLegalDocumentsService, useValue: { versions, saveDraft, publish } },
         { provide: ConfirmService, useValue: { ask } },

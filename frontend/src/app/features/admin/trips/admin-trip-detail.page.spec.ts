@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { renderHeadingContent } from '../../../core/services/ui/heading-content.testing';
 import { Location } from '@angular/common';
 import { signal } from '@angular/core';
@@ -96,6 +97,7 @@ describe('AdminTripDetailPage', () => {
     TestBed.configureTestingModule({
       imports: [AdminTripDetailPage],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
         { provide: AdminTripsService, useValue: { get } },

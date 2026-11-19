@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { AdminFaq, AdminFaqTopic } from '../../../../core/models/admin-faq.model';
@@ -70,6 +71,7 @@ describe('FaqsEditor', () => {
     TestBed.configureTestingModule({
       imports: [FaqsEditor],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         {
           provide: AdminFaqsService,

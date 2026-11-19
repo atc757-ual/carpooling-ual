@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { ApiError } from '../../../../core/models/api-error.model';
@@ -17,7 +18,11 @@ describe('ReasonConfirmModal', () => {
     action.mockReset();
     TestBed.configureTestingModule({
       imports: [ReasonConfirmModal],
-      providers: [provideIonicAngular(), { provide: ModalController, useValue: { dismiss } }],
+      providers: [
+        provideAppTransloco(),
+        provideIonicAngular(),
+        { provide: ModalController, useValue: { dismiss } },
+      ],
     });
     fixture = TestBed.createComponent(ReasonConfirmModal);
     Object.assign(fixture.componentInstance, {

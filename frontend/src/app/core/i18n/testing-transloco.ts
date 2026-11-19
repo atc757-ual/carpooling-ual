@@ -204,7 +204,13 @@ export function provideTestingTransloco(
     // El almacenamiento puede no estar disponible en el entorno de pruebas
   }
 
-  const mergedTranslations = { ...DEFAULT_TEST_TRANSLATIONS };
+  // Los diccionarios reales de base: las etiquetas compartidas usan el
+  // `translate()` global, que traduce con la última instancia creada, sea del
+  // spec que sea; así no dependen del orden en que se ejecutan los specs
+  const mergedTranslations: Record<string, Record<string, unknown>> = {
+    es: mergeTranslations(esDictionary, DEFAULT_TEST_TRANSLATIONS['es'] ?? {}),
+    en: mergeTranslations(enDictionary, DEFAULT_TEST_TRANSLATIONS['en'] ?? {}),
+  };
   for (const [language, dictionary] of Object.entries(translations)) {
     mergedTranslations[language] = mergeTranslations(
       mergedTranslations[language] ?? {},
