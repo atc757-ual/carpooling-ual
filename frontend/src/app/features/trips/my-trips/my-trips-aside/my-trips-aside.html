@@ -1,20 +1,20 @@
 <ion-card class="my-trips-aside">
   <ion-card-header>
-    <ion-card-title>Tu impacto</ion-card-title>
+    <ion-card-title>{{ 'myTrips.impacto' | transloco }}</ion-card-title>
   </ion-card-header>
   <ion-card-content>
     <!-- Las cifras en una fila: el valor arriba y su nombre debajo (en el
          HTML el nombre va primero, como pide <dl>; el CSS los invierte) -->
     <dl class="my-trips-aside__stats">
       <div>
-        <dt class="text-caption">CO₂ ahorrado*</dt>
+        <dt class="text-caption">{{ 'myTrips.ahorrado' | transloco }}</dt>
         <dd class="text-subtitle my-trips-aside__value">
           <ion-icon class="my-trips-aside__leaf" [icon]="co2Icon" aria-hidden="true" />
           {{ co2Text() }}
         </dd>
       </div>
       <div>
-        <dt class="text-caption">Valoración</dt>
+        <dt class="text-caption">{{ 'myTrips.valoracion' | transloco }}</dt>
         <dd class="text-subtitle my-trips-aside__value">
           @if (ratingValue(); as value) {
             <ion-icon
@@ -32,7 +32,7 @@
       </div>
     </dl>
     <p class="text-caption my-trips-aside__note">
-      * Estimado: lo que habría emitido un coche más en cada viaje hecho.
+      {{ 'myTrips.estimadoQueHabriaEmitido' | transloco }}
     </p>
   </ion-card-content>
 </ion-card>
@@ -40,7 +40,9 @@
 @if (suggestions().length > 0) {
   <ion-card class="my-trips-aside">
     <ion-card-header>
-      <ion-card-title id="my-trips-suggestions-title">Te puede interesar</ion-card-title>
+      <ion-card-title id="my-trips-suggestions-title">{{
+        'myTrips.puedeInteresar' | transloco
+      }}</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <nav aria-labelledby="my-trips-suggestions-title">

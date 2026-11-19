@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon } from '@ionic/angular';
@@ -24,7 +25,15 @@ interface Suggestion {
 // Publicar y Buscar según los papeles del usuario
 @Component({
   selector: 'app-my-trips-aside',
-  imports: [RouterLink, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon],
+  imports: [
+    RouterLink,
+    IonCard,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonIcon,
+    TranslocoPipe,
+  ],
   templateUrl: './my-trips-aside.html',
   styleUrl: './my-trips-aside.scss',
 })

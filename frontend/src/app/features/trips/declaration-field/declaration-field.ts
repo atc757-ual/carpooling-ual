@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { IonCheckbox, ModalController } from '@ionic/angular';
@@ -8,7 +9,7 @@ import { DeclarationDocument, openDeclarationModal } from '../declaration-modal/
 // en una ventana; «Acepto la declaración» marca la casilla
 @Component({
   selector: 'app-declaration-field',
-  imports: [ReactiveFormsModule, IonCheckbox],
+  imports: [ReactiveFormsModule, IonCheckbox, TranslocoPipe],
   templateUrl: './declaration-field.html',
   styleUrl: './declaration-field.scss',
 })

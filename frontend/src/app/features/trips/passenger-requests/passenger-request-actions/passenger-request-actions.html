@@ -5,7 +5,7 @@
          sin «Buscar con prioridad», tampoco: solo queda el aviso -->
     @if (!inlineIncident() && (!closedReason() || canSearchAnother())) {
       <ion-card-header>
-        <ion-card-title>Acciones de tu solicitud</ion-card-title>
+        <ion-card-title>{{ 'request.accionesSolicitud' | transloco }}</ion-card-title>
       </ion-card-header>
     }
     <ion-card-content>
@@ -14,18 +14,22 @@
              el formulario de la incidencia -->
         <div class="section-item">
           <div class="section-item__text">
-            <h2 class="section-item__title">¿Algo va mal?</h2>
-            <p class="section-item__subtitle">Bájate en un sitio seguro y repórtalo.</p>
+            <h2 class="section-item__title">{{ 'request.algoMal' | transloco }}</h2>
+            <p class="section-item__subtitle">
+              {{ 'request.bajateSitioSeguroReportalo' | transloco }}
+            </p>
           </div>
           <button
             type="button"
             class="icon-btn icon-btn--reveal"
             appRevealOnTouch
-            aria-label="Enviar un reporte: abre el formulario de la incidencia"
+            [attr.aria-label]="'request.enviarReporteAbreFormulario' | transloco"
             (click)="openIncidentModal()"
           >
             <ion-icon [icon]="formIcon" aria-hidden="true" />
-            <span class="icon-btn__label" aria-hidden="true">Enviar reporte</span>
+            <span class="icon-btn__label" aria-hidden="true">{{
+              'request.enviarReporte' | transloco
+            }}</span>
           </button>
         </div>
       }
@@ -38,8 +42,8 @@
             <output class="notice notice--warning">
               <ion-icon [icon]="warningIcon" aria-hidden="true" />
               <span>
-                <b>Si cancelas ahora, contará como cancelación tardía</b>
-                Con 3 en 30 días, 7 días sin poder pedir plaza.
+                <b>{{ 'request.cancelasAhoraContaraComo' | transloco }}</b>
+                {{ 'request.con330Dias' | transloco }}
               </span>
             </output>
           } @else if (cancelCost(); as cost) {
@@ -52,9 +56,11 @@
               @if (isCancelling()) {
                 <ion-spinner slot="start" name="crescent" aria-hidden="true" />
               }
-              {{ isCancelling() ? 'Cancelando…' : cancelLabel() }}
+              {{ isCancelling() ? ('myTrips.cancelling' | transloco) : cancelLabel() }}
               @if (cancellationIsLate()) {
-                <span class="visually-hidden">. Contará como cancelación tardía</span>
+                <span class="visually-hidden">{{
+                  'request.contaraComoCancelacionTardia' | transloco
+                }}</span>
               }
             </ion-button>
           </form>
@@ -77,10 +83,10 @@
         <div class="passenger-actions__block">
           <ion-button type="button" expand="block" color="primary" (click)="handlePrioritySearch()">
             <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
-            Buscar con prioridad
+            {{ 'request.buscarConPrioridad' | transloco }}
           </ion-button>
           <p class="passenger-actions__hint text-caption">
-            Mantiene tu ruta y tu horario en Buscar.
+            {{ 'request.mantieneRutaHorarioBuscar' | transloco }}
           </p>
         </div>
       }

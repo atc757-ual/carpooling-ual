@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import {
   IonCard,
@@ -44,6 +45,7 @@ const STATUSES_WITH_PICKUPS = new Set<TripStatus>(['published', 'confirmed', 'in
     IonSpinner,
     RouteTimeline,
     TripRouteMap,
+    TranslocoPipe,
   ],
   templateUrl: './driver-trip-route.html',
   styleUrl: './driver-trip-route.scss',

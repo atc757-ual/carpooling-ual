@@ -6,17 +6,18 @@
       @case ('loading') {}
       @case ('error') {
         <div class="notice notice--danger publish__card" role="alert">
-          <p>No hemos podido preparar el formulario. Comprueba la conexión e inténtalo de nuevo.</p>
+          <p>{{ 'publish.hemosPodidoPrepararFormulario' | transloco }}</p>
         </div>
         <form (submit)="$event.preventDefault(); load()">
-          <ion-button type="submit" fill="outline">Reintentar</ion-button>
+          <ion-button type="submit" fill="outline">{{
+            'publish.reintentar' | transloco
+          }}</ion-button>
         </form>
       }
       @case ('suspended') {
         <div class="notice notice--danger publish__card" role="alert">
           <p>
-            No puedes publicar viajes hasta el
-            {{ publishingSuspendedUntilLabel() }} por cancelaciones tardías.
+            {{ 'publish.suspended' | transloco: { date: publishingSuspendedUntilLabel() } }}
           </p>
         </div>
       }
@@ -54,7 +55,7 @@
                       type="button"
                       (click)="goToStep(previous.number)"
                     >
-                      Volver a {{ previous.name }}
+                      {{ 'publish.backTo' | transloco: { step: previous.name } }}
                     </button>
                   }
                 </ng-template>
@@ -65,29 +66,35 @@
                        «Siguiente» -->
                     <app-route-fields [controls]="tripForm.controls" [showLabel]="false" />
                     <div class="publish__grid">
-                      <app-datetime-field formControlName="date" label="Fecha" [min]="minDate" />
+                      <app-datetime-field
+                        formControlName="date"
+                        [label]="'publish.fecha' | transloco"
+                        [min]="minDate"
+                      />
                       <app-datetime-field
                         formControlName="time"
                         presentation="time"
-                        [label]="isArrivalTime() ? 'Hora de llegada' : 'Hora de salida'"
+                        [label]="
+                          (isArrivalTime() ? 'publish.arrivalTime' : 'publish.departureTime')
+                            | transloco
+                        "
                       />
                     </div>
                     @if (departureTooSoon()) {
                       <p class="text-caption text-color-danger" role="alert">
                         @if (isArrivalTime()) {
-                          Para llegar a esa hora saldrías en menos de una hora: elige una llegada
-                          más tarde.
+                          {{ 'publish.paraLlegarEsaHora' | transloco }}
                         } @else {
-                          El viaje debe salir al menos dentro de una hora.
+                          {{ 'publish.viajeDebeSalirMenos' | transloco }}
                         }
                       </p>
                     } @else if (estimatedDepartureTime(); as departure) {
                       <!-- Hacia el campus: cuándo salir para llegar a tiempo aunque
                            recoja a alguien (la exacta, con la ruta, al publicar) -->
-                      <p class="text-caption text-color-muted">
-                        Saldrás hacia las <b>{{ departure }}</b> para llegar a tiempo aunque recojas
-                        a alguien.
-                      </p>
+                      <p
+                        class="text-caption text-color-muted"
+                        [innerHTML]="'publish.departureHint' | transloco: { time: departure }"
+                      ></p>
                     }
                     <!-- Hacia el campus, la vuelta (otro viaje, el mismo día) y
                          cómo recoge (desde él, cada pasajero sube en el parking) -->
@@ -114,7 +121,7 @@
                           isReturnTooEarly()
                         "
                       >
-                        Siguiente
+                        {{ 'publish.next' | transloco }}
                       </ion-button>
                     </div>
                   }
@@ -126,18 +133,21 @@
                       @case ('loading') {
                         <output class="publish__status">
                           <ion-spinner name="crescent" aria-hidden="true" />
-                          <span class="text-color-muted">Cargando tus vehículos…</span>
+                          <span class="text-color-muted">{{
+                            'publish.cargandoTusVehiculos' | transloco
+                          }}</span>
                         </output>
                       }
                       @case ('error') {
                         <div class="notice notice--danger" role="alert">
                           <p>
-                            No hemos podido cargar tus vehículos. Comprueba la conexión e inténtalo
-                            de nuevo.
+                            {{ 'publish.hemosPodidoCargarTus' | transloco }}
                           </p>
                         </div>
                         <form (submit)="$event.preventDefault(); loadVehicles()">
-                          <ion-button type="submit" fill="outline">Reintentar</ion-button>
+                          <ion-button type="submit" fill="outline">{{
+                            'publish.reintentar' | transloco
+                          }}</ion-button>
                         </form>
                       }
                       @default {
@@ -153,7 +163,7 @@
                               class="publish__next"
                               type="submit"
                               [disabled]="!selectedVehicle()"
-                              >Revisar detalle</ion-button
+                              >{{ 'publish.revisarDetalle' | transloco }}</ion-button
                             >
                           </div>
                         </app-vehicle-picker>
@@ -165,17 +175,17 @@
                     @if (impact(); as impact) {
                       <div class="notice notice--success publish__impact">
                         <ion-icon [icon]="icons.impact" aria-hidden="true" />
-                        <p>
-                          Llevando a
-                          <b
-                            >{{ impact.seats }}
-                            {{ impact.seats === 1 ? 'pasajero' : 'pasajeros' }}</b
-                          >
-                          evitáis hasta {{ impact.seats }}
-                          {{ impact.seats === 1 ? 'coche' : 'coches' }}: aproximadamente
-                          <b>{{ impact.km }} km</b> al volante y
-                          <b>{{ formatDecimal(impact.co2Kg) }} kg de CO₂</b> menos.
-                        </p>
+                        <p
+                          [innerHTML]="
+                            (impact.seats === 1 ? 'publish.impact.one' : 'publish.impact.other')
+                              | transloco
+                                : {
+                                    count: impact.seats,
+                                    km: impact.km,
+                                    co2: formatDecimal(impact.co2Kg),
+                                  }
+                          "
+                        ></p>
                       </div>
                     }
 
@@ -192,11 +202,10 @@
                         <ion-icon [icon]="icons.declared" aria-hidden="true" />
                         <div>
                           <p class="text-body-s text-body--strong">
-                            Declaración del conductor aceptada
+                            {{ 'publish.declaracionDelConductorAceptada' | transloco }}
                           </p>
                           <p class="text-caption">
-                            Tienes el permiso de conducir en vigor y el coche con seguro e ITV al
-                            día. Compartes gastos, no cobras por llevar a nadie.
+                            {{ 'publish.tienesPermisoConducirVigor' | transloco }}
                           </p>
                         </div>
                       </div>
@@ -212,7 +221,7 @@
                         @if (isSaving()) {
                           <ion-spinner slot="start" name="crescent" aria-hidden="true" />
                         }
-                        Publicar viaje
+                        {{ 'publish.publicarViaje' | transloco }}
                       </ion-button>
                     </div>
                   }
@@ -222,17 +231,20 @@
                       <output class="notice notice--success publish__impact">
                         <ion-icon [icon]="icons.published" aria-hidden="true" />
                         <span>
-                          <b>¡Enhorabuena! Has publicado un viaje.</b> Ofreces
-                          {{ trip.offeredSeats }}
-                          {{ trip.offeredSeats === 1 ? 'plaza' : 'plazas' }}, con
-                          {{ trip.maxDetourMin }} min de margen para recoger.
+                          <b>{{ 'publish.enhorabuenaHasPublicadoViaje' | transloco }}</b>
+                          {{
+                            (trip.offeredSeats === 1
+                              ? 'publish.offered.one'
+                              : 'publish.offered.other'
+                            ) | transloco: { count: trip.offeredSeats, margin: trip.maxDetourMin }
+                          }}
                           @if (trip.autoAccept) {
-                            Aceptaremos solas las solicitudes que quepan y te avisaremos.
+                            {{ 'publish.aceptaremosSolasLasSolicitudes' | transloco }}
                           } @else {
-                            Te avisaremos de cada solicitud para que la aceptes o la rechaces.
+                            {{ 'publish.avisaremosCadaSolicitudPara' | transloco }}
                           }
                           @if (trip.returnTrip) {
-                            También has publicado la vuelta: la ves aparte en Tus viajes.
+                            {{ 'publish.tambienHasPublicadoVuelta' | transloco }}
                           }
                         </span>
                       </output>
@@ -244,10 +256,10 @@
                         type="button"
                         (click)="handlePublishAnother()"
                       >
-                        Publicar otro viaje
+                        {{ 'publish.publicarOtroViaje' | transloco }}
                       </button>
                       <ion-button class="publish__next" routerLink="/tabs/trips">
-                        Ver tus viajes
+                        {{ 'publish.verTusViajes' | transloco }}
                       </ion-button>
                     </div>
                   }
@@ -276,7 +288,7 @@
         <!-- El resumen del viaje: para revisarlo (paso 3) y ya publicado (4) -->
         <ng-template #summary>
           <section class="publish__summary-body" aria-labelledby="detail-title">
-            <h2 id="detail-title" class="text-subtitle">Tu viaje</h2>
+            <h2 id="detail-title" class="text-subtitle">{{ 'publish.viaje' | transloco }}</h2>
             @if (previewRoute(); as route) {
               @if (originPoint(); as origin) {
                 @if (destinationPoint(); as destination) {
@@ -294,13 +306,18 @@
             <!-- Como la fila de un resultado (TripRow): una línea de
                         datos y el vehículo debajo -->
             <p class="publish__meta text-body-s">
-              {{ dateLabel() }} · {{ tripForm.controls.seats.value }}
-              {{ tripForm.controls.seats.value === 1 ? 'plaza' : 'plazas' }} ·
-              {{ detourBudget() }} min de margen para recoger
+              {{ dateLabel() }} ·
+              {{
+                (tripForm.controls.seats.value === 1 ? 'publish.meta.one' : 'publish.meta.other')
+                  | transloco: { count: tripForm.controls.seats.value, margin: detourBudget() }
+              }}
             </p>
             @if (publishedStops().length > 0) {
               <!-- Ya publicado: las paradas en orden, con su hora -->
-              <ol class="publish__stops text-body-s" aria-label="Tus paradas">
+              <ol
+                class="publish__stops text-body-s"
+                [attr.aria-label]="'publish.tusParadas' | transloco"
+              >
                 @for (stop of publishedStops(); track stop.id) {
                   <li>
                     <b>{{ stop.time }}</b> · {{ stop.name }}
@@ -321,15 +338,20 @@
             }
             <!-- Tus preferencias de viaje: las ven los pasajeros en Buscar -->
             <div class="publish__preferences">
-              <span class="text-caption text-color-muted">Tus preferencias</span>
+              <span class="text-caption text-color-muted">{{
+                'publish.tusPreferencias' | transloco
+              }}</span>
               @if (myPreferences().length > 0) {
-                <ul class="publish__preference-list" aria-label="Tus preferencias">
+                <ul
+                  class="publish__preference-list"
+                  [attr.aria-label]="'publish.tusPreferencias' | transloco"
+                >
                   @for (preference of myPreferences(); track preference) {
                     <li class="publish__preference">{{ preference }}</li>
                   }
                 </ul>
               } @else {
-                <span class="text-body-s">Sin indicar</span>
+                <span class="text-body-s">{{ 'publish.sinIndicar' | transloco }}</span>
               }
               @if (!published()) {
                 <button
@@ -337,20 +359,22 @@
                   class="publish__preferences-link text-body-s"
                   (click)="handleEditPreferences()"
                 >
-                  {{ myPreferences().length > 0 ? 'Cambiarlas' : 'Indicarlas' }}
+                  {{
+                    (myPreferences().length > 0 ? 'publish.changeThem' : 'publish.setThem')
+                      | transloco
+                  }}
                 </button>
               }
             </div>
             <p class="text-caption text-color-muted">
               @if (isArrivalTime()) {
                 @if (published()) {
-                  Sales a esta hora para llegar a tiempo aunque recojas a alguien.
+                  {{ 'publish.salesEstaHoraPara' | transloco }}
                 } @else {
-                  La salida es aproximada: al publicar la calculamos con tu ruta, contando el desvío
-                  máximo.
+                  {{ 'publish.salidaAproximadaPublicarCalculamos' | transloco }}
                 }
               } @else {
-                La hora de llegada es aproximada y no cuenta los desvíos.
+                {{ 'publish.horaLlegadaAproximadaCuenta' | transloco }}
               }
             </p>
           </section>

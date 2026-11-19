@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -44,6 +45,7 @@ export type TripReviewView =
     IonSpinner,
     RatingBar,
     TripReviewForm,
+    TranslocoPipe,
   ],
   templateUrl: './trip-review-card.html',
   styleUrl: './trip-review-card.scss',

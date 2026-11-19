@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -63,6 +64,7 @@ import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
     DriverTripRoute,
     LiveTripBanner,
     TripReviewCard,
+    TranslocoPipe,
   ],
   templateUrl: './driver-trip-detail.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './driver-trip-detail.page.scss'],

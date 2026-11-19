@@ -2,19 +2,21 @@
   <!-- Cancelado o terminado, sin título: ya no hay acciones, solo el aviso -->
   @if (!closedReason()) {
     <ion-card-header>
-      <ion-card-title>Acciones del viaje</ion-card-title>
+      <ion-card-title>{{ 'myTrips.accionesDelViaje' | transloco }}</ion-card-title>
     </ion-card-header>
   }
   <ion-card-content>
     @if (isInProgress()) {
       <div class="notice notice--info">
         <ion-icon [icon]="locationIcon" aria-hidden="true" />
-        <span>Compartiendo tu ubicación con tus pasajeros</span>
+        <span>{{ 'myTrips.compartiendoUbicacionConTus' | transloco }}</span>
       </div>
-      <ion-button expand="block" [routerLink]="livePath()">Abrir viaje</ion-button>
+      <ion-button expand="block" [routerLink]="livePath()">{{
+        'myTrips.abrirViaje' | transloco
+      }}</ion-button>
       <form (submit)="$event.preventDefault(); handleFinish()">
         <ion-button type="submit" expand="block" fill="outline" [disabled]="isChangingStatus()">
-          {{ isChangingStatus() ? 'Terminando…' : 'Terminar viaje' }}
+          {{ (isChangingStatus() ? 'myTrips.finishing' : 'myTrips.finish') | transloco }}
         </ion-button>
       </form>
     }
@@ -27,7 +29,7 @@
       <div class="driver-actions__block">
         <form (submit)="$event.preventDefault(); handleStart()">
           <ion-button type="submit" expand="block" [disabled]="!canStart() || isChangingStatus()">
-            {{ isChangingStatus() ? 'Iniciando…' : 'Iniciar viaje' }}
+            {{ (isChangingStatus() ? 'myTrips.starting' : 'myTrips.start') | transloco }}
             @if (startHint(); as hint) {
               <span class="visually-hidden">. {{ hint }}</span>
             }
@@ -46,7 +48,7 @@
       @if (canShareSeats()) {
         <ion-button type="button" expand="block" fill="outline" (click)="handleShareSeats()">
           <ion-icon slot="start" [icon]="shareIcon" aria-hidden="true" />
-          Compartir plazas libres
+          {{ 'myTrips.compartirPlazasLibres' | transloco }}
         </ion-button>
       }
 
@@ -56,7 +58,7 @@
         @if (cancellationIsLate()) {
           <output class="notice notice--warning">
             <ion-icon [icon]="warningIcon" aria-hidden="true" />
-            <span>Si cancelas ahora, contará como cancelación tardía.</span>
+            <span>{{ 'myTrips.cancelasAhoraContaraComo' | transloco }}</span>
           </output>
         } @else if (cancelCost(); as cost) {
           <div class="notice notice--info driver-actions__cancel-cost">
@@ -70,9 +72,11 @@
           [disabled]="isCancelling() || isChangingStatus()"
           (click)="handleCancel()"
         >
-          {{ isCancelling() ? 'Cancelando…' : 'Cancelar viaje' }}
+          {{ (isCancelling() ? 'myTrips.cancelling' : 'myTrips.cancelTrip') | transloco }}
           @if (cancellationIsLate()) {
-            <span class="visually-hidden">. Contará como cancelación tardía</span>
+            <span class="visually-hidden">{{
+              'myTrips.contaraComoCancelacionTardia' | transloco
+            }}</span>
           }
         </ion-button>
       </div>

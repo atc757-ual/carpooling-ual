@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, Input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonButton, IonIcon, IonSpinner, IonTextarea, ModalController } from '@ionic/angular';
@@ -35,7 +36,7 @@ export const PASSENGER_INCIDENT_CATEGORIES: readonly IncidentCategoryOption[] = 
 @Component({
   selector: 'app-passenger-incident-modal',
   standalone: true,
-  imports: [FormsModule, IonButton, IonIcon, IonSpinner, IonTextarea],
+  imports: [FormsModule, IonButton, IonIcon, IonSpinner, IonTextarea, TranslocoPipe],
   templateUrl: './passenger-incident-modal.html',
   styleUrls: ['./passenger-incident-modal.scss'],
 })

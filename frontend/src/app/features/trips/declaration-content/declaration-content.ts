@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, inject, input, output, resource } from '@angular/core';
 import { IonButton, IonSpinner } from '@ionic/angular';
 import { LegalDocumentsService } from '../../../core/services/users/legal-documents.service';
@@ -13,7 +14,7 @@ export type DeclarationDocument = 'driver_declaration' | 'vehicle_declaration';
 // propia ventana en lugar de abrir otra encima
 @Component({
   selector: 'app-declaration-content',
-  imports: [IonButton, IonSpinner, LegalChanges],
+  imports: [IonButton, IonSpinner, LegalChanges, TranslocoPipe],
   templateUrl: './declaration-content.html',
   styleUrl: './declaration-content.scss',
 })

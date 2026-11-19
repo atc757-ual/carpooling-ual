@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -72,6 +73,7 @@ const BOARD_CODE_LEAD_MS = 10 * 60_000;
     PassengerRequestRoute,
     PassengerRequestActions,
     TripReviewCard,
+    TranslocoPipe,
   ],
   templateUrl: './passenger-request-detail.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './passenger-request-detail.page.scss'],

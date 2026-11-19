@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -84,6 +85,7 @@ const DECLARATION_MESSAGE =
     IonCardTitle,
     IonIcon,
     RouterLink,
+    TranslocoPipe,
   ],
   templateUrl: './driver-trip-actions.html',
   styleUrl: './driver-trip-actions.scss',
