@@ -102,14 +102,24 @@ export class AddLegalDocumentsEnglish1800600000000 implements MigrationInterface
         ADD COLUMN summary_en text NULL;
     `);
     await queryRunner.query(PROTECT(true));
-    for (const { type, version, md5, content, summary } of TRANSLATIONS) {
-      await queryRunner.query(
-        `UPDATE legal_documents
-            SET content_en = $4, summary_en = $5
-          WHERE type = $1 AND version = $2 AND md5(content) = $3`,
-        [type, version, md5, content, summary],
-      );
-    }
+    // Todas en una sola sentencia: una fila de VALUES por traducción
+    const rows = TRANSLATIONS.map((_, index) => {
+      const first = index * 5;
+      return `($${first + 1}, $${first + 2}, $${first + 3}, $${first + 4}, $${first + 5})`;
+    });
+    await queryRunner.query(
+      `UPDATE legal_documents d
+          SET content_en = t.content, summary_en = t.summary
+         FROM (VALUES ${rows.join(', ')}) AS t (type, version, md5, content, summary)
+        WHERE d.type = t.type AND d.version = t.version AND md5(d.content) = t.md5`,
+      TRANSLATIONS.flatMap(({ type, version, md5, content, summary }) => [
+        type,
+        version,
+        md5,
+        content,
+        summary,
+      ]),
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
