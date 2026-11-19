@@ -1,3 +1,4 @@
+import { ApiError } from '../../../core/models/api-error.model';
 import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -83,7 +84,13 @@ describe('PassengerRequestDetailPage', () => {
     trip: Trip | Error = TRIP,
   ): Promise<HTMLElement> {
     requests = {
-      listMine: vi.fn().mockResolvedValue(request ? [request] : []),
+      getMine: vi
+        .fn()
+        .mockImplementation(() =>
+          request
+            ? Promise.resolve(request)
+            : Promise.reject(new ApiError('REQUEST_NOT_FOUND', 404)),
+        ),
       cancel: vi
         .fn()
         .mockResolvedValue(seatRequest('cancelled', { cancelledAt: '2099-01-14T21:10:00.000Z' })),
@@ -309,7 +316,7 @@ describe('PassengerRequestDetailPage', () => {
     const root = await render(seatRequest('pending'));
     expect(root.textContent).toContain('Cancelar solicitud');
 
-    requests['listMine'].mockResolvedValue([seatRequest('expired')]);
+    requests['getMine'].mockResolvedValue(seatRequest('expired'));
     fixture.componentInstance.ionViewWillEnter();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -326,12 +333,12 @@ describe('PassengerRequestDetailPage', () => {
       await render(seatRequest('pending'));
       // El último de 30 s (el primero es el reloj del código de recogida)
       const refresh = setIntervalSpy.mock.calls.filter(([, delay]) => delay === 30_000).at(-1)?.[0];
-      const calls = requests['listMine'].mock.calls.length;
+      const calls = requests['getMine'].mock.calls.length;
 
       (refresh as () => void)();
       await fixture.whenStable();
 
-      expect(requests['listMine'].mock.calls).toHaveLength(calls + 1);
+      expect(requests['getMine'].mock.calls).toHaveLength(calls + 1);
     } finally {
       setIntervalSpy.mockRestore();
     }

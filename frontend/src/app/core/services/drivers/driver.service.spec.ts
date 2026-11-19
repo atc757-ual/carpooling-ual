@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { ApiError } from '../../models/api-error.model';
 import { PublishTripRequest } from '../../models/driver.model';
+import { AuthService } from '../auth/auth.service';
 import { DriverService } from './driver.service';
 
 const TRIP: PublishTripRequest = {
@@ -23,7 +24,11 @@ describe('DriverService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: { currentUser: () => ({ id: 'me' }) } },
+      ],
     });
     driver = TestBed.inject(DriverService);
     http = TestBed.inject(HttpTestingController);
@@ -137,9 +142,17 @@ describe('DriverService', () => {
     expect(await updated).toEqual({ id: 'v1', color: 'red' });
   });
 
-  it('lists my trips and the requests of one, and decides a request', async () => {
-    const trips = driver.listMyTrips();
-    http.expectOne('/api/users/me/trips?limit=100').flush([{ id: 't1' }]);
+  it('gets one of my trips by its id, and not a trip of someone else', async () => {
+    const mine = driver.getMyTrip('t1');
+    http.expectOne('/api/trips/t1').flush({ id: 't1', driver: { id: 'me' } });
+    expect(await mine).toEqual({ id: 't1', driver: { id: 'me' } });
+
+    const other = driver.getMyTrip('t2');
+    http.expectOne('/api/trips/t2').flush({ id: 't2', driver: { id: 'someone' } });
+    await expect(other).rejects.toMatchObject({ code: 'TRIP_NOT_FOUND', status: 404 });
+  });
+
+  it('lists the requests of a trip and decides one', async () => {
     const requests = driver.listTripRequests('t1');
     http.expectOne('/api/trips/t1/requests').flush([{ id: 'r1' }]);
     const accepted = driver.decideRequest('r1', 'accept');
@@ -147,7 +160,6 @@ describe('DriverService', () => {
     expect(decision.request.method).toBe('POST');
     decision.flush({ id: 'r1', status: 'accepted' });
 
-    expect(await trips).toEqual([{ id: 't1' }]);
     expect(await requests).toEqual([{ id: 'r1' }]);
     expect(await accepted).toEqual({ id: 'r1', status: 'accepted' });
   });

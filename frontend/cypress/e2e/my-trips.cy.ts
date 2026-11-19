@@ -58,10 +58,18 @@ const TAB_STATUSES: Record<string, string[]> = {
   cancelled: ['cancelled', 'expired'],
 };
 
-// Los viajes de la conductora: su lista (detalle y «En curso») y Tus viajes,
-// que pide cada pestaña ya filtrada y con el total
+// Los viajes de la conductora: cada uno por su id (detalle y «En curso», con
+// ella de conductora) y Tus viajes, que pide cada pestaña ya filtrada y con el total
 function stubTrips(trips: ReturnType<typeof trip>[]): void {
-  cy.intercept('GET', '/api/users/me/trips*', trips);
+  cy.intercept('GET', /\/api\/trips\/[^/?]+$/, (req) => {
+    const id = new URL(req.url).pathname.split('/').at(-1);
+    const found = trips.find((candidate) => candidate.id === id);
+    req.reply(
+      found
+        ? { body: { ...found, driver: { id: 'user-1', name: 'Lucía Cortés', avatarKey: null } } }
+        : { statusCode: 404, body: { '@type': 'Error', code: 'TRIP_NOT_FOUND', status: '404' } },
+    );
+  });
   cy.intercept('GET', '/api/users/me/trip-entries*', (req) => {
     const statuses = TAB_STATUSES[String(req.query['tab'] ?? 'upcoming')];
     const entries = trips

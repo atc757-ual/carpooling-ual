@@ -1,3 +1,4 @@
+import { ApiError } from '../../../core/models/api-error.model';
 import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -73,6 +74,12 @@ function passenger(id: string, name: string, minutesFromNow: number | null): Sea
   };
 }
 
+// El viaje de la lista de prueba, o TRIP_NOT_FOUND como la API
+function findTrip<T extends { id: string }>(trips: readonly T[], id: string): Promise<T> {
+  const trip = trips.find((candidate) => candidate.id === id);
+  return trip ? Promise.resolve(trip) : Promise.reject(new ApiError('TRIP_NOT_FOUND', 404));
+}
+
 describe('DriverLiveTripPage', () => {
   let driver: Record<string, ReturnType<typeof vi.fn>>;
   let tracking: {
@@ -98,7 +105,7 @@ describe('DriverLiveTripPage', () => {
     ],
   ): Promise<HTMLElement> {
     driver = {
-      listMyTrips: vi.fn().mockResolvedValue(trips),
+      getMyTrip: vi.fn().mockImplementation((id: string) => findTrip(trips, id)),
       listTripRequests: vi.fn().mockResolvedValue(requests),
       finishTrip: vi.fn().mockResolvedValue({ ...TRIP, status: 'finished' }),
       boardPassenger: vi.fn().mockResolvedValue({ id: 'r1', boardedAt: new Date().toISOString() }),

@@ -58,6 +58,7 @@ describe('PublishTripPage', () => {
   let driver: Record<string, ReturnType<typeof vi.fn>>;
   let showError: ReturnType<typeof vi.fn>;
   let celebrate: ReturnType<typeof vi.fn>;
+  let listMyTripEntries: ReturnType<typeof vi.fn>;
   let currentUser: ReturnType<typeof signal<{ id: string; profiles: string[] } | null>>;
 
   async function openPage(
@@ -73,6 +74,7 @@ describe('PublishTripPage', () => {
     } = {},
   ): Promise<void> {
     stubIntersectionObserver();
+    listMyTripEntries = vi.fn().mockResolvedValue({ items: [], total: 0 });
     driver = {
       getStatus: vi.fn().mockResolvedValue({ hasLicenseDeclared }),
       getPublishingStatus: vi.fn().mockResolvedValue({
@@ -80,7 +82,6 @@ describe('PublishTripPage', () => {
         publishingSuspendedUntil,
       }),
       listVehicles: vi.fn().mockResolvedValue(vehicles),
-      listMyTrips: vi.fn().mockResolvedValue([]),
       acceptDeclaration: vi.fn().mockResolvedValue({ hasLicenseDeclared: true }),
       publishTrip: vi.fn().mockResolvedValue({ id: 't1', offeredSeats: 2, maxDetourMin: 10 }),
     };
@@ -123,6 +124,7 @@ describe('PublishTripPage', () => {
         {
           provide: TripsService,
           useValue: {
+            listMyTripEntries,
             planRoute: vi.fn().mockResolvedValue({
               tripId: 'preview',
               distanceKm: 15,
@@ -196,12 +198,12 @@ describe('PublishTripPage', () => {
 
   it('asks again for the next trip when coming back to the tab', async () => {
     await openPage();
-    expect(driver['listMyTrips']).toHaveBeenCalledTimes(1);
+    expect(listMyTripEntries).toHaveBeenCalledTimes(1);
 
     page.ionViewWillEnter();
     await harness.fixture.whenStable();
 
-    expect(driver['listMyTrips']).toHaveBeenCalledTimes(2);
+    expect(listMyTripEntries).toHaveBeenCalledTimes(2);
   });
 
   it('moves forward with the buttons and back to the previous step by its name', async () => {
