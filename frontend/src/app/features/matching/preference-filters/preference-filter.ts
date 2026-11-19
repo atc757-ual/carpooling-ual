@@ -4,8 +4,8 @@ import {
 } from '../../../core/models/travel-preferences.model';
 import { TripResult } from '../../../core/models/trip-result.model';
 
-// Filtros manuales de los resultados por las preferencias del conductor
-// (decidido con el autor el 17/11/2026): solo filtran la lista en el cliente;
+// Filtros manuales de los resultados por las preferencias del conductor:
+// solo filtran la lista en el cliente;
 // la puntuación del matching no cambia, para no bajar la cobertura ni alterar
 // la evaluación. Una preferencia sin indicar (null) no pasa ningún filtro
 export const PREFERENCE_FILTERS = ['no_smoking', 'pets', 'music', 'chatty', 'quiet'] as const;

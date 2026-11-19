@@ -32,7 +32,7 @@ interface PendingTripEmail {
   pickupAt: Date | null;
 }
 
-// Correos del viaje al pasajero (decidido con el autor el 17/11/2026): al
+// Correos del viaje al pasajero: al
 // confirmarse su plaza y al terminar su viaje (con el enlace para valorar).
 // Sin SMS: el inicio, la recogida y el fin ya van por push. Observa los
 // cambios de las solicitudes, apunta el correo en la transacción del cambio y

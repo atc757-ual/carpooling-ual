@@ -3,8 +3,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { IonToggle } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 
-// «Aceptar solicitudes automáticamente» (decidido con el autor el
-// 15/11/2026): en la revisión de Publicar, desactivado por defecto. Las que
+// «Aceptar solicitudes automáticamente»: en la revisión de Publicar, desactivado por defecto. Las que
 // caben (plazas y margen para recoger) se aceptan solas; las demás esperan al
 // conductor. La vuelta de un ida y vuelta lleva lo mismo
 @Component({

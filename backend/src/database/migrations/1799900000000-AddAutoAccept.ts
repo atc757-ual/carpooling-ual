@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-// Aceptación automática (decidida con el autor el 15/11/2026): el conductor la
+// Aceptación automática: el conductor la
 // elige al publicar y las solicitudes que caben se aceptan solas.
 // - trips.auto_accept: si el viaje acepta solo (no en los que ya existen)
 // - notification_type: passenger_joined («Pía se ha unido a tu viaje»), al

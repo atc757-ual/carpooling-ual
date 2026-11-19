@@ -20,7 +20,7 @@ import { estimateRouteVia } from './route-plan';
 import type { RoutePlan } from './route-plan';
 import { planStopPickups } from './stop-pickups';
 import { TripRoutesService } from './trip-routes.service';
-import { MINUTE_MS } from './trip-timing';
+import { MINUTE_MS, STOP_TIME_MIN } from './trip-timing';
 
 export type PickupTrip = Pick<
   Trip,
@@ -57,7 +57,7 @@ export interface PickupPlan {
   usedDetourMin: number;
 }
 
-// Recogidas de los viajes (presupuesto total de desvío, reunión del 12/11):
+// Recogidas de los viajes (presupuesto total de desvío):
 // dónde recoge el conductor a cada pasajero aceptado, la ruta que pasa por
 // todos y a qué hora llega a cada uno. Se planifica fuera de la transacción
 // (OSRM) y se aplica dentro, con el viaje bloqueado
@@ -72,6 +72,22 @@ export class TripPickupsService {
     private readonly stopsRepository: Repository<TripStop>,
     private readonly tripRoutes: TripRoutesService,
   ) {}
+
+  // Lo que suman al viaje sus paradas: STOP_TIME_MIN por cada una en la que
+  // sube alguien (como el presupuesto de desvío). La duración de la ruta ya
+  // pasa por las recogidas, pero no cuenta el tiempo parado
+  async stopTimeMin(
+    trip: Pick<Trip, 'id' | 'origin' | 'pickupMode'>,
+  ): Promise<number> {
+    const pickups = await this.pickupsRepository.find({
+      where: { tripId: trip.id },
+    });
+    const stops =
+      trip.pickupMode === 'stops'
+        ? new Set(pickups.map(({ stopId }) => stopId).filter(Boolean)).size
+        : stopCount(trip.origin, pickups);
+    return stops * STOP_TIME_MIN;
+  }
 
   // La ruta con una recogida más (added) o una menos (removedRequestId)
   async planWith(

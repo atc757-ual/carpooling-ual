@@ -7,8 +7,8 @@ export const DAY_MS = 24 * 60 * MINUTE_MS;
 // (la hora de recogida es un compromiso con el pasajero)
 export const START_WINDOW_MIN = 10;
 
-// Cancelar con la plaza aceptada a poco de la salida es tardío (decidido con
-// el autor el 15/11/2026): el conductor, a menos de 20 minutos, porque deja a
+// Cancelar con la plaza aceptada a poco de la salida es tardío: el
+// conductor, a menos de 20 minutos, porque deja a
 // sus pasajeros sin tiempo de buscar otro viaje; el pasajero, a menos de 10,
 // cuando su plaza ya no la puede pedir nadie (se cierran las solicitudes,
 // REQUEST_CUTOFF_MIN)
@@ -41,7 +41,7 @@ export const PENDING_REQUESTS_REMINDER_MIN = 30;
 // Margen de cortesía en el punto de recogida antes de poder marcar «No se presentó» (5 min)
 export const PICKUP_NO_SHOW_WAIT_MIN = 5;
 
-// Recogidas (reunión con el director del 12/11/2026): cada parada con alguien
+// Recogidas: cada parada con alguien
 // que sube suma este tiempo al viaje, y el desvío máximo (max_detour_min) es
 // el presupuesto total del viaje, con los desvíos y las paradas de todos
 export const STOP_TIME_MIN = 2;
@@ -49,8 +49,7 @@ export const STOP_TIME_MIN = 2;
 export const ALLOWED_MAX_DETOUR_M = [150, 300, 500] as const;
 export const DEFAULT_MAX_DETOUR_M = 300;
 
-// El desvío máximo del viaje lo calcula el sistema (decidido con el autor el
-// 15/11/2026; antes lo elegía el conductor entre 5 y 20 min, que no tenía
+// El desvío máximo del viaje lo calcula el sistema (antes lo elegía el conductor entre 5 y 20 min, que no tenía
 // sentido recogiendo a 150-500 m o en paradas). En ruta: cada plaza, su
 // parada y el rodeo de ir y volver a la ruta según cuánto se aparta (a unos
 // 20 km/h por ciudad); en paradas: el rodeo de la ruta por ellas y su parada
@@ -117,7 +116,7 @@ export function resolveDeparture(
   }
   return departureAt;
 }
-// Cierre automático (decidido con el autor el 17/11/2026): un viaje en curso
+// Cierre automático: un viaje en curso
 // que nadie termina pasa a finalizado 1 h después de su llegada estimada (la
 // salida, o el inicio si fue más tarde, más la duración de la ruta)
 export const AUTO_FINISH_AFTER_ARRIVAL_MIN = 60;

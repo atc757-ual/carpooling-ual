@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 // Borrador de la Política de privacidad 1.2 (cambio menor), pendiente de
-// revisar con el director antes de publicarlo desde el panel (al publicarlo
+// revisar antes de publicarlo desde el panel (al publicarlo
 // se avisa a cada usuario en Avisos). Copia la vigente (1.1) con dos cambios:
 // - Los correos del viaje al pasajero: al confirmarse su plaza y al terminar
 //   el viaje, con el enlace para valorar (#342). Parte del servicio

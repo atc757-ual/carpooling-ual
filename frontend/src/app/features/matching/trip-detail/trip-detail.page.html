@@ -2,8 +2,7 @@
   <div class="tab-page trip-detail">
     @if (trip(); as trip) {
       <!-- Columna de 8 en escritorio: «Tu recorrido» y, debajo, «Solicitar plaza»
-           (decidido con el autor el 19/11: en el móvil, la acción principal
-           ya no queda al final) -->
+           (en el móvil, la acción principal ya no queda al final) -->
       <div class="trip-detail__main">
         <ion-card>
           <ion-card-header>
@@ -109,7 +108,7 @@
             } @else if (canRequest()) {
               <div class="trip-detail__action-block">
                 <!-- Con el aviso de una solicitud anterior (rechazada, cancelada o
-                     caducada), solo ese: el de cómo funciona sobra (19/11) -->
+                     caducada), solo ese: el de cómo funciona sobra -->
                 @if (!hasClosedRequest()) {
                   @if (isAutoAccept()) {
                     <!-- Con aceptación automática: la plaza se asigna directamente -->

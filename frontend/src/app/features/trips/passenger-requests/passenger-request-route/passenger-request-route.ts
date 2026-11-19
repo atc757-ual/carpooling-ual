@@ -34,6 +34,7 @@ import {
   TripDriver as TripDriverComponent,
 } from '../../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../../matching/trip-results';
+import { formatRouteArrival } from '../../route-arrival';
 import { numberFormat } from '../../../../core/i18n/app-locale';
 import { LoadingState } from '../../../../shared/components/ui/loading-state/loading-state';
 
@@ -143,11 +144,7 @@ export class PassengerRequestRoute {
   readonly stops = computed<RouteStop[]>(() => {
     const request = this.request();
     const trip = this.trip();
-    const durationMin = this.route()?.durationMin;
-    const arrival =
-      durationMin === undefined
-        ? undefined
-        : formatTime(new Date(Date.parse(trip.departureAt) + durationMin * 60_000).toISOString());
+    const arrival = formatRouteArrival(trip.departureAt, this.route());
     const result: RouteStop[] = [
       {
         name: trip.originName ?? translate('screens.passengerRequestRoute.salidaConductor'),
@@ -155,12 +152,13 @@ export class PassengerRequestRoute {
         time: formatTime(trip.departureAt),
       },
     ];
-    // Sin hora: la estimada no suma las recogidas de otros pasajeros
-    // (pendiente de decidir con el director)
+    // Con la hora de su recogida, si ya está calculada: la API la recalcula
+    // con todas las recogidas aceptadas y sus paradas
     if (request.direction || request.pickupName || request.pickupLocation) {
       result.push({
         name: this.pickupName(),
         detail: translate('screens.passengerRequestRoute.puntoRecogida'),
+        ...(request.pickupAt && { time: formatTime(request.pickupAt) }),
       });
     }
     result.push({

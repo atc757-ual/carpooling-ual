@@ -26,7 +26,7 @@ describe('buildDriverRouteStops', () => {
     const stops = buildDriverRouteStops(
       TRIP,
       [accepted('Ana', { pickupName: 'Calle Real', pickupAt: '2099-01-15T07:12:00.000Z' })],
-      30,
+      { durationMin: 30, estimatedArrivalAt: null },
     );
 
     expect(stops).toEqual([
@@ -42,6 +42,16 @@ describe('buildDriverRouteStops', () => {
         time: formatTime('2099-01-15T07:30:00.000Z'),
       },
     ]);
+  });
+
+  it('arrives when the API says: with the real start and the time stopped at each pickup', () => {
+    const stops = buildDriverRouteStops(TRIP, [], {
+      durationMin: 30,
+      estimatedArrivalAt: '2099-01-15T07:34:00.000Z',
+    });
+
+    expect(stops.at(-1)?.time).toBe(formatTime('2099-01-15T07:34:00.000Z'));
+    expect(buildDriverRouteStops(TRIP, [], null).at(-1)?.time).toBeUndefined();
   });
 
   it('lists every stop with its time and who boards there', () => {

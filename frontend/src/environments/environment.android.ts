@@ -9,7 +9,7 @@ export const environment = {
   apiUrl: 'http://localhost:3000/api',
   // Dirección pública de la web para los enlaces que se comparten: en la app
   // el origen es el de la WebView (localhost), que no abre nada en otro móvil.
-  // Provisional (túnel de ngrok al ng serve del autor) hasta tener el servidor
+  // Provisional (túnel de ngrok al ng serve de desarrollo) hasta tener el servidor
   // con HTTPS (docs/despliegue.md)
   publicWebUrl: 'https://skydiver-splashed-snugness.ngrok-free.dev',
   allowedEmailDomains: ['ual.es', 'inlumine.ual.es'],

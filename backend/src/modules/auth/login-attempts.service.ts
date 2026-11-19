@@ -3,8 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { createHmac } from 'node:crypto';
 import { DataSource } from 'typeorm';
 
-// Reglas del límite de intentos en el login (decididas con el autor el
-// 10/11/2026; a revisar con el director): tras MAX_FAILED_LOGINS fallos
+// Reglas del límite de intentos en el login (cifras provisionales): tras MAX_FAILED_LOGINS fallos
 // seguidos, el correo queda bloqueado LOCK_MINUTES. Los fallos son «seguidos»
 // si entre uno y el siguiente pasan menos de FAILURE_WINDOW_MINUTES
 export const MAX_FAILED_LOGINS = 5;

@@ -1,8 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 // El tema «Buscar y pedir plaza» del centro de ayuda llevaba la lupa, la
-// misma del buscador de la pantalla, y se confundían (revisión del autor del
-// 16/11/2026): pasa a un billete (la plaza). Solo si sigue con la lupa: si se
+// misma del buscador de la pantalla, y se confundían: pasa a un billete (la plaza). Solo si sigue con la lupa: si se
 // cambió desde el panel, se deja
 export class ChangeSearchFaqTopicIcon1800100000000 implements MigrationInterface {
   name = 'ChangeSearchFaqTopicIcon1800100000000';

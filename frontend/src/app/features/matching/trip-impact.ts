@@ -2,8 +2,7 @@
 // coche propio. Valores de ejemplo (DATOS DE EJEMPLO, ver
 // pendientes-memoria.md): la distancia por carretera se aproxima con la línea
 // recta por un factor, y el CO₂ con la media de un coche normal. Solo km y
-// CO₂: es una plataforma colaborativa, sin enfoque económico (revisión del
-// 12/11/2026). Cuando haya rutas reales (OSRM) y métricas del Gemelo Digital,
+// CO₂: es una plataforma colaborativa, sin enfoque económico. Cuando haya rutas reales (OSRM) y métricas del Gemelo Digital,
 // se sustituye
 
 // Lo que se alarga la carretera frente a la línea recta

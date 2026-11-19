@@ -70,7 +70,7 @@ export class TripRouteResource {
     format: 'date-time',
     nullable: true,
     description:
-      'Start (or departure, if it has not started) plus the route duration; null once finished or cancelled',
+      'Start (or departure, if it has not started) plus the route duration and the time stopped at each pickup; null once finished or cancelled',
   })
   estimatedArrivalAt: string | null;
 }
@@ -78,6 +78,7 @@ export class TripRouteResource {
 export function toTripRouteResource({
   trip,
   route,
+  stopTimeMin,
   isGeometryHidden = false,
 }: TripRouteView): TripRouteResource {
   const isOver = trip.status === 'finished' || trip.status === 'cancelled';
@@ -94,6 +95,8 @@ export function toTripRouteResource({
     startedAt: trip.startedAt?.toISOString() ?? null,
     estimatedArrivalAt: isOver
       ? null
-      : new Date(start.getTime() + route.durationMin * MINUTE_MS).toISOString(),
+      : new Date(
+          start.getTime() + (route.durationMin + stopTimeMin) * MINUTE_MS,
+        ).toISOString(),
   };
 }

@@ -120,7 +120,7 @@ export class DriverTripRoute {
 
   // Sale a su hora y llega, más o menos, tras la duración de la ruta
   readonly stops = computed<RouteStop[]>(() =>
-    buildDriverRouteStops(this.trip(), this.acceptedPickups(), this.route()?.durationMin),
+    buildDriverRouteStops(this.trip(), this.acceptedPickups(), this.route()),
   );
 
   // «12,4 km», «18 min», «hasta 10 min»

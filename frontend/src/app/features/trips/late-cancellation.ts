@@ -1,5 +1,5 @@
 // Cuándo una cancelación con la plaza aceptada es tardía (como el backend,
-// trip-timing.ts; decidido con el autor el 15/11/2026): el conductor, a menos
+// trip-timing.ts): el conductor, a menos
 // de 20 min de la salida; el pasajero, a menos de 10, cuando ya nadie puede
 // pedir su plaza
 export const DRIVER_LATE_CANCELLATION_LEAD_MIN = 20;

@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-// Añade al borrador de la Política de privacidad 1.1, pendiente de revisar con
-// el director, el chat del viaje (#191-#196: qué se guarda, quién lo ve, que
+// Añade al borrador de la Política de privacidad 1.1, pendiente de revisar, el
+// chat del viaje (#191-#196: qué se guarda, quién lo ve, que
 // los mensajes se borran a los 30 días del viaje y que la copia de un mensaje
 // denunciado se conserva con su incidencia) y las notificaciones push
 // (opcionales, con Firebase Cloud Messaging de Google como encargado del

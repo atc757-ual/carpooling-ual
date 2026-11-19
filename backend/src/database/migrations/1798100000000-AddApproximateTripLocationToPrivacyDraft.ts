@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-// En el borrador de la Política de privacidad 1.1 (pendiente de revisar con el
-// director), «Quién los ve» añade que el origen y el destino de un viaje
+// En el borrador de la Política de privacidad 1.1 (pendiente de revisar),
+// «Quién los ve» añade que el origen y el destino de un viaje
 // (suelen ser la casa del conductor) solo los ven exactos su conductor, sus
 // pasajeros aceptados y la administración: quien busca viaje los ve a unos
 // 500 m y sin el recorrido, salvo los parkings del campus. Solo cambia el

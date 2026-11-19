@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-// Recogida en ruta: apartarse 1 km para recoger a alguien es demasiado
-// (decidido con el autor el 14/11/2026). Los metros pasan a 150, 300 o 500,
+// Recogida en ruta: apartarse 1 km para recoger a alguien es demasiado.
+// Los metros pasan a 150, 300 o 500,
 // con 300 por defecto; los viajes que tenían 1000 se quedan en 500, el máximo
 export class NarrowPickupDistances1799500000000 implements MigrationInterface {
   name = 'NarrowPickupDistances1799500000000';

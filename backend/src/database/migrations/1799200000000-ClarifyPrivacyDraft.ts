@@ -1,8 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 // Lenguaje claro en el borrador de la Política de privacidad 1.1, pendiente de
-// revisar con el director (revisión del 12/11/2026, con la estructura de las
-// políticas de otros servicios universitarios de carpooling):
+// revisar (con la estructura de las políticas de otros servicios universitarios de carpooling):
 // - Un resumen «En pocas palabras» al principio
 // - La finalidad, solo el carpooling de la comunidad UAL: sin publicidad ni
 //   perfiles comerciales
