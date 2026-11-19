@@ -39,7 +39,9 @@ export function buildDriverRouteStops(
         })
       : accepted.map<RouteStop>((request) => ({
           name: request.pickupName ?? translate('screens.driverRouteStops.puntoRecogida'),
-          detail: `Recoges a ${getFirstName(request.passenger.name)}`,
+          detail: translate('screens.driverRouteStops.recoges', {
+            value1: getFirstName(request.passenger.name),
+          }),
           ...(request.pickupAt && { time: formatTime(request.pickupAt) }),
         }));
   return [

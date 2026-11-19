@@ -10,6 +10,9 @@ import {
 } from '@ionic/angular';
 import { carOutline } from 'ionicons/icons';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
+import { numberFormat } from '../../../core/i18n/app-locale';
+
+const KM_FORMAT = () => numberFormat({ minimumFractionDigits: 1, maximumFractionDigits: 1 });
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colors.store';
 import { DriverService } from '../../../core/services/drivers/driver.service';
@@ -93,7 +96,7 @@ export class DriverTripRoute {
     this.trip().stops.length > 0
       ? this.trip().stops.map(({ location, name }) => ({
           coordinates: location.coordinates,
-          label: `Parada: ${name}`,
+          label: translate('screens.driverTripRoute.parada', { name }),
         }))
       : this.acceptedPickupPoints(),
   );
@@ -131,8 +134,8 @@ export class DriverTripRoute {
     const route = this.route();
     return [
       {
-        label: 'Distancia',
-        value: route ? `${route.distanceKm.toFixed(1).replace('.', ',')} km` : '—',
+        label: translate('screens.driverTripRoute.distancia'),
+        value: route ? `${KM_FORMAT().format(route.distanceKm)} km` : '—',
       },
       {
         label: translate('screens.driverTripRoute.duracion'),

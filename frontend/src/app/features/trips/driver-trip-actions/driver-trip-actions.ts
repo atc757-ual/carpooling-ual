@@ -205,7 +205,7 @@ export class DriverTripActions {
       return null;
     }
     if (trip.status !== 'confirmed') {
-      return 'Sin pasajeros aceptados, puedes cancelarlo sin coste.';
+      return translate('screens.driverTripActions.sinPasajerosSinCoste');
     }
     const freeUntil = formatTime(
       freeCancellationUntil(trip.departureAt, DRIVER_LATE_CANCELLATION_LEAD_MIN),
@@ -312,7 +312,7 @@ export class DriverTripActions {
     this.isCancelling.set(true);
     try {
       await this.driver.cancelTrip(trip.id);
-      void this.toast.showSuccess('Viaje cancelado. Hemos avisado a los pasajeros.');
+      void this.toast.showSuccess(translate('screens.driverTripActions.cancelledToast'));
       this.changed.emit();
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));

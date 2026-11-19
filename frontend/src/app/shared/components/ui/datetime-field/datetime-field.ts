@@ -13,6 +13,7 @@ import { IonDatetime, IonIcon, IonModal } from '@ionic/angular';
 import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { calendarOutline, timeOutline } from 'ionicons/icons';
 import { toIsoDate } from '../../../utils/date.util';
+import { appLanguage } from '../../../../core/i18n/app-locale';
 
 export type DatetimePresentation = 'date' | 'time';
 
@@ -25,11 +26,12 @@ const DESKTOP_QUERY = '(min-width: 768px)';
 // del otro)
 let nextId = 0;
 
-// «Hoy», «Mañana» o, desde el tercer día, «jue, 30 oct» (o «Thu, 30 Oct» en inglés)
+// «Hoy», «Mañana» o, desde el tercer día, «jue, 30 oct» (o «Thu, 30 Oct» en
+// inglés). Por defecto, en el idioma activo de la app
 export function formatDateLabel(
   isoDate: string,
   today = new Date(),
-  lang: 'es' | 'en' = 'es',
+  lang: 'es' | 'en' = appLanguage(),
 ): string {
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);

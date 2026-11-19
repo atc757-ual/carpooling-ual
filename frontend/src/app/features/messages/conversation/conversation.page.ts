@@ -301,7 +301,12 @@ export class ConversationPage {
   partnerLabel(): string {
     const name = this.partnerName();
     if (!name) return '';
-    return this.conversation()?.myRole === 'driver' ? `Con ${name}` : `Conduce ${name}`;
+    return translate(
+      this.conversation()?.myRole === 'driver'
+        ? 'screens.conversation.with'
+        : 'screens.passengerTripCard.drives',
+      { name },
+    );
   }
 
   // El estado del viaje, como etiqueta junto al título
@@ -318,7 +323,9 @@ export class ConversationPage {
   // «Llamar a Lucía»: la otra persona de la conversación
   callLabel(): string {
     const [contact] = this.contacts();
-    return contact ? `Llamar a ${contact.name}` : 'Llamar (no disponible)';
+    return contact
+      ? translate('common.tripCall.callTo', { name: contact.name })
+      : translate('common.tripCall.unavailable');
   }
 
   // Abre el teléfono de la otra persona. Sin él, el botón está deshabilitado
@@ -374,7 +381,7 @@ export class ConversationPage {
       action: (reason) => this.chat.reportChat(this.ref(), reason),
     });
     if (reported) {
-      void this.toast.showSuccess('Chat denunciado. Lo revisaremos.');
+      void this.toast.showSuccess(translate('screens.conversation.reported'));
     }
   }
 

@@ -26,7 +26,10 @@
           <span>{{ rating }}</span>
         </button>
       } @else {
-        <span class="trip-driver__rating" [attr.aria-label]="'Valoración ' + rating + ' de 5'">
+        <span
+          class="trip-driver__rating"
+          [attr.aria-label]="'driverReviews.ratingAria' | transloco: { rating }"
+        >
           <ion-icon
             class="trip-driver__thumb"
             [class.trip-driver__thumb--up]="(driver().rating ?? 0) >= 3"

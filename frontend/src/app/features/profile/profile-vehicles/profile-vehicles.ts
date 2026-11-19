@@ -90,9 +90,9 @@ export class ProfileVehicles implements OnInit {
   // Eliminar (darlo de baja), tras confirmarlo
   async handleRemove(vehicle: Vehicle): Promise<void> {
     const isConfirmed = await this.confirm.ask({
-      header: `¿Eliminar ${vehicle.plate}?`,
+      header: translate('profile.vehicles.deleteTitle', { plate: vehicle.plate }),
       message: translate('screens.profileVehicles.dejaraSalirVehiculosPodras'),
-      confirmText: 'Eliminar',
+      confirmText: translate('profile.vehicles.delete'),
       icon: CONFIRM_ICONS.remove,
     });
     if (!isConfirmed) {

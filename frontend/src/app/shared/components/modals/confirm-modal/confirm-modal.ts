@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { Component, inject, Input } from '@angular/core';
 import { IonButton, IonIcon, ModalController } from '@ionic/angular';
 
@@ -20,7 +21,7 @@ export class ConfirmModal {
   // Los efectos, uno por línea, debajo de la explicación
   @Input() points: readonly string[] = [];
   @Input({ required: true }) confirmText!: string;
-  @Input() cancelText = 'Cancelar';
+  @Input() cancelText = translate('common.cancel');
   @Input({ required: true }) icon!: string;
   // Aviso (ámbar): algo no cuadra, aunque se puede seguir
   @Input() isWarning = false;

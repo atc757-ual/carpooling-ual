@@ -44,8 +44,18 @@ export class PassengerTripCard {
   // Lo que lee el lector de pantalla del enlace (cubre toda la tarjeta)
   readonly linkLabel = computed(() => {
     const day = formatDateLabel(new Date(this.item().trip.departureAt).toLocaleDateString('sv-SE'));
-    return `Ver solicitud, viajas: ${day}, ${this.time()}, ${this.route()}, ${this.statusLabel()}`;
+    return translate('screens.passengerTripCard.linkLabel', {
+      day,
+      time: this.time(),
+      route: this.route(),
+      status: this.statusLabel(),
+    });
   });
+
+  // Su papel arriba: «Viajas» o, si terminó, «Viajaste»
+  readonly roleLabel = computed(() =>
+    translate(this.item().trip.status === 'finished' ? 'labels.role.rode' : 'labels.role.riding'),
+  );
 
   // Qué falta: «Esperando respuesta de Lucía», «Confirmada: te recoge a las
   // 08:10». Sin siguiente paso en las demás pestañas

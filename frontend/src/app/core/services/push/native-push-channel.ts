@@ -1,4 +1,5 @@
-import { PushNotifications } from '@capacitor/push-notifications';
+import { translate } from '@jsverse/transloco';
+import { type Channel, PushNotifications } from '@capacitor/push-notifications';
 import type { PushChannel, PushPermission, PushTarget } from './push-channel';
 
 // Lo que se usa del plugin (en los tests se sustituye)
@@ -14,12 +15,19 @@ export type NativePushPlugin = Pick<
 
 // El canal de Android de los avisos: el mismo id que manda el backend
 // (ANDROID_CHANNEL_ID en fcm-push-sender.ts)
-export const ANDROID_CHANNEL = {
-  id: 'trips',
-  name: 'Viajes y mensajes',
-  description: 'Solicitudes, plazas, cambios de tus viajes y mensajes del chat',
-  importance: 4,
-} as const;
+export const ANDROID_CHANNEL_ID = 'trips';
+
+// El nombre y la descripción van en el idioma activo: Android deja
+// cambiarlos al volver a crear el canal con el mismo id (no la importancia),
+// así que se actualizan la próxima vez que la app registra el token
+export function androidChannel(): Channel {
+  return {
+    id: ANDROID_CHANNEL_ID,
+    name: translate('permissions.pushChannel.name'),
+    description: translate('permissions.pushChannel.description'),
+    importance: 4,
+  };
+}
 
 // Hasta cuándo se espera el token tras registrarse
 const TOKEN_TIMEOUT_MS = 15_000;
@@ -47,7 +55,7 @@ export class NativePushChannel implements PushChannel {
   }
 
   async getToken(): Promise<string> {
-    await this.plugin.createChannel(ANDROID_CHANNEL);
+    await this.plugin.createChannel(androidChannel());
     const token = new Promise<string>((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('No push token')), TOKEN_TIMEOUT_MS);
       void this.plugin.addListener('registration', ({ value }) => {

@@ -118,7 +118,11 @@ export class VehicleForm {
   }[] = [
     { value: 'electric', label: translate('screens.vehicleForm.electrico'), icon: flashOutline },
     { value: 'hybrid', label: translate('screens.vehicleForm.hibrido'), icon: leafOutline },
-    { value: 'other', label: 'Otro', icon: ellipsisHorizontalCircleOutline },
+    {
+      value: 'other',
+      label: translate('screens.vehicleForm.otro'),
+      icon: ellipsisHorizontalCircleOutline,
+    },
   ];
   readonly form = inject(NonNullableFormBuilder).group({
     brand: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(29)]],

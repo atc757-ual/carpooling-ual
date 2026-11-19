@@ -178,7 +178,7 @@ export class TripDetailPage {
       {
         name: originName,
         detail: originDiffers
-          ? `Salida y recogida · buscabas ${searchedParking}`
+          ? translate('screens.tripDetail.salidaRecogidaBuscabas', { searchedParking })
           : translate('screens.tripDetail.salidaConductorPuntoRecogida'),
         time: formatTime(data.trip.departureAt),
       },
@@ -241,7 +241,7 @@ export class TripDetailPage {
     return [
       { label: translate('screens.tripDetail.plazasLibres'), value: this.seatSummary() },
       // Recogerte nunca es 0 min: el desvío más lo que se tarda en parar y subir
-      { label: 'Recogida', value: pickupFact(trip) },
+      { label: translate('screens.tripDetail.recogida'), value: pickupFact(trip) },
       {
         label: translate('screens.tripDetail.duracion'),
         value: translate('screens.tripDetail.minAprox', { tripMinutes: trip.tripMinutes }),

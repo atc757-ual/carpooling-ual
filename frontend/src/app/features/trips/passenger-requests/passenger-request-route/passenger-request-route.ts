@@ -239,7 +239,7 @@ export class PassengerRequestRoute {
 
   chatDriverLabel(): string {
     const name = getFirstName(this.trip().driver.name);
-    return `Escribir a ${name}`;
+    return translate('common.writeTo', { name });
   }
 
   canCallDriver(): boolean {

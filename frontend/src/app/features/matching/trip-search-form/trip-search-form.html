@@ -31,7 +31,9 @@
     <app-datetime-field
       formControlName="time"
       presentation="time"
-      [label]="timeType() === 'arrival' ? 'Hora de llegada' : 'Hora de salida'"
+      [label]="
+        (timeType() === 'arrival' ? 'search.arrivalTime' : 'search.departureTime') | transloco
+      "
     />
 
     <div class="search-form__field">

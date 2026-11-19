@@ -124,7 +124,7 @@ export class DriverTripPassengers {
 
   // «Escribir a Pía»: abre la conversación directa con ese pasajero
   chatPassengerLabel(name: string): string {
-    return `Escribir a ${getFirstName(name)}`;
+    return translate('common.writeTo', { name: getFirstName(name) });
   }
 
   callPassengerLabel(name: string, passengerId: string): string {
@@ -139,7 +139,7 @@ export class DriverTripPassengers {
 
   protected requestLabel(request: SeatRequest): string {
     if (request.status === 'accepted' && this.trip().autoAccept) {
-      return 'Autoaceptada';
+      return translate('screens.driverTripPassengers.status.autoAccepted');
     }
     return REQUEST_STATUS_LABELS[request.status];
   }

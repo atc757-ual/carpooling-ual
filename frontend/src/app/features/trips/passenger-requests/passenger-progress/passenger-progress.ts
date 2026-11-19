@@ -132,7 +132,7 @@ export function buildProgressSteps(request: SeatRequest, trip: Trip): ProgressSt
   selector: 'app-passenger-progress',
   imports: [IonIcon],
   template: `
-    <ol class="passenger-progress" aria-label="Progreso de tu solicitud">
+    <ol class="passenger-progress" [attr.aria-label]="progressLabel">
       @for (step of steps(); track step.label) {
         <li
           class="passenger-progress__step"
@@ -159,6 +159,7 @@ export function buildProgressSteps(request: SeatRequest, trip: Trip): ProgressSt
   styleUrl: './passenger-progress.scss',
 })
 export class PassengerProgress {
+  protected readonly progressLabel = translate('screens.passengerProgress.aria');
   readonly request = input.required<SeatRequest>();
   readonly trip = input.required<Trip>();
 

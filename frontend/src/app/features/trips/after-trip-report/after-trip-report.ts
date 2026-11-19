@@ -1,4 +1,4 @@
-import { translate } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, inject, input, signal } from '@angular/core';
 import { IonIcon, ModalController } from '@ionic/angular';
 import { documentTextOutline } from 'ionicons/icons';
@@ -27,16 +27,16 @@ export function isAfterTripReportOpen(
 // de la tarjeta de acciones, bajo «Este viaje ya terminó»
 @Component({
   selector: 'app-after-trip-report',
-  imports: [IonIcon, RevealOnTouch],
+  imports: [IonIcon, RevealOnTouch, TranslocoPipe],
   template: `
     <div class="section-item">
       <div class="section-item__text">
-        <h2 class="section-item__title">¿Algo fue mal?</h2>
+        <h2 class="section-item__title">{{ 'screens.afterTripReport.title' | transloco }}</h2>
         <p class="section-item__subtitle">
           @if (isSent()) {
-            Gracias: lo revisará un administrador.
+            {{ 'screens.afterTripReport.sent' | transloco }}
           } @else {
-            Repórtalo en los 7 días siguientes: lo revisará un administrador.
+            {{ 'screens.afterTripReport.hint' | transloco }}
           }
         </p>
       </div>
@@ -45,11 +45,13 @@ export function isAfterTripReportOpen(
           type="button"
           class="icon-btn icon-btn--reveal"
           appRevealOnTouch
-          aria-label="Reportar el viaje: abre el formulario"
+          [attr.aria-label]="'screens.afterTripReport.reportAria' | transloco"
           (click)="handleReport()"
         >
           <ion-icon [icon]="reportIcon" aria-hidden="true" />
-          <span class="icon-btn__label" aria-hidden="true">Reportar</span>
+          <span class="icon-btn__label" aria-hidden="true">{{
+            'screens.afterTripReport.report' | transloco
+          }}</span>
         </button>
       }
     </div>

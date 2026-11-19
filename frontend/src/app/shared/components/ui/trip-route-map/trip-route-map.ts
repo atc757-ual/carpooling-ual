@@ -1,4 +1,4 @@
-import { translate } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -44,19 +44,33 @@ interface RouteMarker {
 // los puntos. El alto lo fija quien lo usa con --trip-route-map-height
 @Component({
   selector: 'app-trip-route-map',
+  imports: [TranslocoPipe],
   template: `
     <div #map class="trip-route-map__canvas" role="img" [attr.aria-label]="label()"></div>
     <p class="trip-route-map__legend text-caption text-color-muted" aria-hidden="true">
-      <span class="trip-route-map__legend-item"><b>S</b> Salida</span>
+      <span class="trip-route-map__legend-item"
+        ><b>{{ 'screens.tripRouteMap.letters.start' | transloco }}</b>
+        {{ 'screens.tripRouteMap.legend.start' | transloco }}</span
+      >
       @if (pickups().length > 0) {
-        <span class="trip-route-map__legend-item"><b>R</b> Recogida</span>
+        <span class="trip-route-map__legend-item"
+          ><b>{{ 'screens.tripRouteMap.letters.pickup' | transloco }}</b>
+          {{ 'screens.tripRouteMap.legend.pickup' | transloco }}</span
+        >
       }
-      <span class="trip-route-map__legend-item"><b>D</b> Destino</span>
+      <span class="trip-route-map__legend-item"
+        ><b>{{ 'screens.tripRouteMap.letters.destination' | transloco }}</b>
+        {{ 'screens.tripRouteMap.legend.destination' | transloco }}</span
+      >
       @if (car()) {
-        <span class="trip-route-map__legend-item">Coche: dónde va ahora</span>
+        <span class="trip-route-map__legend-item">{{
+          'screens.tripRouteMap.legend.car' | transloco
+        }}</span>
       }
       @if (hasApproximatePoints()) {
-        <span class="trip-route-map__legend-item">Zona aproximada</span>
+        <span class="trip-route-map__legend-item">{{
+          'screens.tripRouteMap.legend.approximate' | transloco
+        }}</span>
       }
     </p>
   `,
@@ -90,9 +104,23 @@ export class TripRouteMap implements OnDestroy {
   private readonly markers = computed<RouteMarker[]>(() => {
     const car = this.car();
     return [
-      letterMarker(this.origin(), 'S', 'trip-route-map__marker--origin'),
-      ...this.pickups().map((point) => letterMarker(point, 'R', 'trip-route-map__marker--pickup')),
-      letterMarker(this.destination(), 'D', 'trip-route-map__marker--destination'),
+      letterMarker(
+        this.origin(),
+        translate('screens.tripRouteMap.letters.start'),
+        'trip-route-map__marker--origin',
+      ),
+      ...this.pickups().map((point) =>
+        letterMarker(
+          point,
+          translate('screens.tripRouteMap.letters.pickup'),
+          'trip-route-map__marker--pickup',
+        ),
+      ),
+      letterMarker(
+        this.destination(),
+        translate('screens.tripRouteMap.letters.destination'),
+        'trip-route-map__marker--destination',
+      ),
       ...(car
         ? [
             {

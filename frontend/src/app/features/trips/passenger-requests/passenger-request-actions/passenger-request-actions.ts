@@ -271,7 +271,7 @@ export class PassengerRequestActions {
     await modal.present();
     const { data } = await modal.onWillDismiss();
     if (data?.reported) {
-      void this.toast.showSuccess('Incidencia registrada. Tu plaza ha sido cancelada.');
+      void this.toast.showSuccess(translate('screens.passengerRequestActions.incidentReported'));
       await this.router.navigateByUrl('/tabs/trips');
     }
   }

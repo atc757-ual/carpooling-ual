@@ -1,6 +1,7 @@
 import { Component, input } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { IonToggle } from '@ionic/angular';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 // «Aceptar solicitudes automáticamente» (decidido con el autor el
 // 15/11/2026): en la revisión de Publicar, desactivado por defecto. Las que
@@ -8,15 +9,19 @@ import { IonToggle } from '@ionic/angular';
 // conductor. La vuelta de un ida y vuelta lleva lo mismo
 @Component({
   selector: 'app-auto-accept-field',
-  imports: [ReactiveFormsModule, IonToggle],
+  imports: [ReactiveFormsModule, IonToggle, TranslocoPipe],
   template: `
     <div class="auto-accept">
-      <ion-toggle mode="ios" [formControl]="control()" labelPlacement="start" justify="space-between">
-        Aceptar solicitudes automáticamente
+      <ion-toggle
+        mode="ios"
+        [formControl]="control()"
+        labelPlacement="start"
+        justify="space-between"
+      >
+        {{ 'screens.autoAccept.label' | transloco }}
       </ion-toggle>
       <p class="text-caption text-color-muted">
-        Quien quepa en tu coche y en tu margen para recoger tendrá la plaza al momento y te
-        avisaremos. Si no cabe, la solicitud te esperará para que decidas.
+        {{ 'screens.autoAccept.hint' | transloco }}
       </p>
     </div>
   `,

@@ -44,14 +44,19 @@ export function nextTripStatus(next: NextTrip): {
   kind: 'pending' | 'accepted' | 'info';
 } {
   if (next.role === 'passenger' && next.request.status === 'pending') {
-    return { label: 'Pendiente', kind: 'pending' };
+    return { label: translate('labels.requestStatus.pending'), kind: 'pending' };
   }
   switch (next.trip.status) {
     case 'in_progress':
       return { label: translate('screens.nextTrip.curso'), kind: 'accepted' };
     case 'confirmed':
-      return { label: next.role === 'driver' ? 'Confirmado' : 'Confirmada', kind: 'accepted' };
+      return {
+        label: translate(
+          next.role === 'driver' ? 'labels.tripStatus.confirmed' : 'labels.requestStatus.confirmed',
+        ),
+        kind: 'accepted',
+      };
     default:
-      return { label: 'Publicado', kind: 'info' };
+      return { label: translate('labels.tripStatus.published'), kind: 'info' };
   }
 }

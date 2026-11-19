@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent, IonSpinner } from '@ionic/angular';
+import { translate } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ActiveModeService } from '../../../core/services/users/active-mode.service';
 import { openNotificationTarget } from '../notification-target';
@@ -14,7 +15,7 @@ import { openNotificationTarget } from '../notification-target';
   template: `
     <ion-content>
       <div class="push-open">
-        <ion-spinner name="crescent" aria-label="Abriendo el aviso" />
+        <ion-spinner name="crescent" [attr.aria-label]="openingLabel" />
       </div>
     </ion-content>
   `,
@@ -27,6 +28,7 @@ import { openNotificationTarget } from '../notification-target';
   `,
 })
 export class PushOpenPage implements OnInit {
+  protected readonly openingLabel = translate('screens.pushOpen.opening');
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
