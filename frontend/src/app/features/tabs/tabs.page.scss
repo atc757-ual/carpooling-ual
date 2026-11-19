@@ -170,14 +170,14 @@ ion-tab-button {
 .greeting-bar__title {
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: 1.25rem; // 20px
+  font-size: var(--font-size-subtitle);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 }
 
 @media (min-width: 768px) {
   .greeting-bar__title {
-    font-size: 1.5rem; // 24px
+    font-size: var(--font-size-title);
   }
 }
 
@@ -198,7 +198,7 @@ ion-tab-button {
   padding-left: 0;
 
   ion-icon {
-    font-size: 1rem; // 16px
+    font-size: var(--icon-size-s);
   }
 
   ion-breadcrumb {
@@ -236,10 +236,10 @@ ion-tab-button {
   --background-activated: transparent;
 
   ion-icon {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: var(--icon-size-l);
+    height: var(--icon-size-l);
     margin: 0;
-    font-size: 1.5rem; // 24px
+    font-size: var(--icon-size-l);
   }
 
   &::part(native) {
@@ -287,22 +287,22 @@ ion-tab-button {
 
 .top-nav .header-action {
   width: auto;
-  height: 2.5rem; // 40px
-  min-height: 2.5rem;
+  height: var(--box-size-l);
+  min-height: var(--box-size-l);
   --padding-start: var(--space-s);
   --padding-end: var(--space-base);
   --border-radius: var(--radius-full);
 
   ion-icon {
-    width: 1.375rem;
-    height: 1.375rem;
-    font-size: 1.375rem; // 22px
+    width: var(--icon-size-l);
+    height: var(--icon-size-l);
+    font-size: var(--icon-size-l);
   }
 
   .header-action__label {
     display: inline;
     margin-inline-start: var(--space-s);
-    font-size: 1rem; // 16px
+    font-size: var(--font-size-body);
     font-weight: var(--font-weight-medium);
     letter-spacing: normal;
     text-transform: none;
@@ -318,17 +318,18 @@ ion-tab-button {
     position: absolute;
     top: -0.3125rem; // -5px
     right: -0.3125rem;
-    min-width: 1.125rem;
+    min-width: var(--icon-size-base); // La cifra de 12px, con aire dentro del borde
     width: auto;
-    height: 1.125rem;
+    height: var(--icon-size-base);
     padding-inline: 0.2rem;
     border: var(--border-width-s) solid var(--color-surface);
     border-radius: var(--radius-full);
-    background: var(--color-accent);
-    color: var(--color-text);
-    font-size: 0.6875rem;
+    background: var(--color-danger);
+    // Blanco sobre rojo en claro (5:1); en oscuro, oscuro sobre rojo claro
+    color: var(--color-on-danger);
+    font-size: var(--font-size-caption);
     font-weight: var(--font-weight-semibold);
-    line-height: 1rem;
+    line-height: 1;
     pointer-events: none;
   }
 }
@@ -381,7 +382,7 @@ ion-tab-button {
   background: var(--color-surface);
 
   ion-icon {
-    font-size: 1.5rem; // 24px
+    font-size: var(--icon-size-l);
   }
 }
 
@@ -416,11 +417,11 @@ ion-tab-button {
   border-bottom: 0.25rem solid transparent; // 4px
 
   .live-tab__circle {
-    width: 2rem; // 32px
-    height: 2rem;
+    width: var(--box-size-s);
+    height: var(--box-size-s);
 
     ion-icon {
-      font-size: 1.125rem; // 18px
+      font-size: var(--icon-size-m);
     }
   }
 }
@@ -476,7 +477,7 @@ ion-tab-button {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-base);
-  min-height: 3.5rem; // 56px
+  min-height: var(--control-height-l);
   padding: var(--space-base) var(--page-gutter);
   border-top: var(--border-width-s) solid var(--color-border);
   background: var(--color-border-subtle);
@@ -495,7 +496,7 @@ ion-tab-button {
 .app-footer__link {
   display: flex;
   color: var(--color-text-muted);
-  font-size: 1.25rem; // 20px
+  font-size: var(--icon-size-base);
 
   &:hover {
     color: var(--color-link);
@@ -511,8 +512,8 @@ ion-tab-button {
 // escritorio, junto al nombre; en el móvil, sobre el icono
 .tab-dot {
   display: inline-block;
-  width: 0.5rem; // 8px
-  height: 0.5rem;
+  width: var(--dot-size-s);
+  height: var(--dot-size-s);
   margin-inline-start: var(--space-xs);
   border-radius: var(--radius-full);
   background: var(--color-accent);
