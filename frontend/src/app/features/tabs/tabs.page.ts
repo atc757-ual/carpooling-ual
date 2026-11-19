@@ -45,6 +45,7 @@ import { TripsService } from '../../core/services/trips/trips.service';
 import { AppContextService } from '../../core/services/ui/app-context.service';
 import { HeadingContentService } from '../../core/services/ui/heading-content.service';
 import { LanguageService } from '../../core/services/ui/language.service';
+import { NavigationHistoryService } from '../../core/services/ui/navigation-history.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { ChatService } from '../../core/services/chat/chat.service';
 import { PermissionPromptsService } from '../../core/services/push/permission-prompts.service';
@@ -139,6 +140,7 @@ export class TabsPage implements OnInit {
   private readonly permissionPrompts = inject(PermissionPromptsService);
   private readonly driverTracking = inject(DriverTrackingService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly history = inject(NavigationHistoryService);
   private readonly transloco = inject(TranslocoService);
   private readonly language = inject(LanguageService);
 
@@ -258,6 +260,12 @@ export class TabsPage implements OnInit {
       }
     }
     return null;
+  }
+
+  // La flecha de volver: a la pantalla anterior de la app (también si es de
+  // otra pestaña) o, si no hay ninguna, a la sección de la ruta
+  handleBack(fallbackUrl: string): void {
+    this.history.back(fallbackUrl);
   }
 
   // Salir: siempre con la misma confirmación que en Mi perfil

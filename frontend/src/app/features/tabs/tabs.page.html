@@ -77,15 +77,17 @@
   <ion-toolbar>
     @if (heading()?.backHref; as backHref) {
       <ion-buttons slot="start">
-        <ion-button
-          class="back-button"
-          fill="clear"
-          [routerLink]="backHref"
-          routerDirection="back"
-          [attr.aria-label]="'common.back' | transloco"
-        >
-          <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
-        </ion-button>
+        <!-- En un formulario: el botón lo envía (sin click en ion-button) -->
+        <form (submit)="$event.preventDefault(); handleBack(backHref)">
+          <ion-button
+            class="back-button"
+            type="submit"
+            fill="clear"
+            [attr.aria-label]="'common.back' | transloco"
+          >
+            <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
+          </ion-button>
+        </form>
       </ion-buttons>
       <!-- Pantalla interna: solo volver y el título, sin campana ni salir -->
       <ion-title>{{ heading()?.title ?? '' | transloco }}</ion-title>
