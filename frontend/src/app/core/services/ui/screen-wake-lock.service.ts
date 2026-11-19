@@ -34,6 +34,7 @@ export class ScreenWakeLockService {
     const sentinel = this.sentinel;
     this.sentinel = null;
     this.isActive.set(false);
+    // El navegador ya la soltó (p. ej. al cambiar de pestaña)
     await sentinel?.release().catch(() => undefined);
   }
 

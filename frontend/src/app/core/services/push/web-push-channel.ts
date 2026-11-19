@@ -43,6 +43,7 @@ export class WebPushChannel implements PushChannel {
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
       return false;
     }
+    // Navegadores sin IndexedDB o en modo privado: sin push
     return this.firebase.isSupported().catch(() => false);
   }
 

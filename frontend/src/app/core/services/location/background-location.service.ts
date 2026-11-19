@@ -54,6 +54,7 @@ export class BackgroundLocationService {
   }
 
   async stop(): Promise<void> {
+    // Ya parado o sin el plugin (web): no hay nada que parar
     await this.plugin.stop().catch(() => undefined);
   }
 }

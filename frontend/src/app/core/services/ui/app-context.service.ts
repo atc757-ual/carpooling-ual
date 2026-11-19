@@ -38,10 +38,12 @@ export class AppContextService {
   private readonly preferences = inject(PreferencesPlugin);
 
   async remember(context: AppContext): Promise<void> {
+    // Sin almacenamiento (modo privado): no se recuerda, sin más
     await this.preferences.set(LAST_CONTEXT_KEY, context).catch(() => undefined);
   }
 
   async entryPath(): Promise<string> {
+    // Sin almacenamiento: se entra por la app
     const stored = await this.preferences.get(LAST_CONTEXT_KEY).catch(() => null);
     const lastContext = stored === 'admin' || stored === 'app' ? stored : null;
     return entryPathFor(this.auth.currentUser()?.profiles ?? [], lastContext);
