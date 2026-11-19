@@ -48,8 +48,8 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 1.75rem; // 28px
-  height: 1.75rem; // 28px
+  width: var(--box-size-xs);
+  height: var(--box-size-xs);
   border-radius: var(--radius-full);
   background: var(--color-primary-subtle);
   color: var(--color-link);
@@ -75,12 +75,12 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 2.5rem; // 40px
-  height: 2.5rem; // 40px
+  width: var(--box-size-l);
+  height: var(--box-size-l);
   border-radius: var(--radius-full);
   background: var(--color-success-subtle);
   color: var(--color-success);
-  font-size: 1.25rem; // 20px
+  font-size: var(--icon-size-base);
 }
 
 // Cada punto con su ✓ verde, sin viñeta
@@ -102,6 +102,6 @@
     flex: none;
     margin-top: var(--space-xxs); // 2px: a la altura de la primera línea
     color: var(--color-success);
-    font-size: 1rem; // 16px
+    font-size: var(--icon-size-s);
   }
 }

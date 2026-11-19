@@ -37,8 +37,8 @@
 // Las claves de la leyenda: punto hueco, punto relleno y línea discontinua
 .sweep-chart__key {
   display: inline-block;
-  width: 0.625rem; // 10px
-  height: 0.625rem;
+  width: var(--dot-size);
+  height: var(--dot-size);
   border: 0.125rem solid var(--color-admin); // 2px
   border-radius: var(--radius-full);
   background: var(--color-surface);
@@ -49,7 +49,7 @@
 }
 
 .sweep-chart__key--target {
-  width: 1rem; // 16px
+  width: var(--icon-size-s);
   height: 0;
   border: 0;
   border-top: 0.125rem dashed var(--color-text-muted); // 2px

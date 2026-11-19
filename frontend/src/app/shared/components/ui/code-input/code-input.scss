@@ -18,7 +18,7 @@ ion-input-otp.input-otp-size-medium {
   --border-radius: var(--radius-s);
 
   font-family: var(--font-family-heading);
-  font-size: 1.75rem; // 28px
+  font-size: var(--font-size-title);
   font-weight: var(--font-weight-semibold);
 }
 

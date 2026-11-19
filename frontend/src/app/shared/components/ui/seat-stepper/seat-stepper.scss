@@ -27,7 +27,7 @@
 
 .seat-stepper__icon {
   color: var(--color-link);
-  font-size: 1rem; // 16px
+  font-size: var(--icon-size-s);
 }
 
 // Como un campo más (el borde, las esquinas y el alto de los de al lado), a
@@ -58,7 +58,7 @@
   border-radius: var(--radius-s);
   background: none;
   color: var(--color-link);
-  font-size: 1.5rem; // 24px
+  font-size: var(--icon-size-l);
   cursor: pointer;
 
   &:hover:not(:disabled) {
@@ -77,10 +77,10 @@
 }
 
 .seat-stepper__value {
-  min-width: 1.5rem; // 24px
+  min-width: var(--icon-size-l);
   flex: 1;
   font-family: var(--font-family-heading);
-  font-size: 1.125rem; // 18px
+  font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-semibold);
   text-align: center;
 }

@@ -37,7 +37,7 @@
 }
 
 .driver-reviews__thumb {
-  font-size: 1.5rem; // 24px
+  font-size: var(--icon-size-l);
 
   &--up {
     color: var(--color-success);
@@ -55,7 +55,7 @@
 }
 
 .driver-reviews__item-thumb {
-  font-size: 1rem; // 16px
+  font-size: var(--icon-size-s);
 
   &--up {
     color: var(--color-success);
@@ -127,8 +127,8 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 2.25rem; // 36px
-  height: 2.25rem;
+  width: var(--box-size-m);
+  height: var(--box-size-m);
   border-radius: var(--radius-full);
   background: var(--color-primary-subtle);
   font-size: var(--font-size-caption);

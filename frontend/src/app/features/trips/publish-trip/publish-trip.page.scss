@@ -144,7 +144,7 @@
     flex: none;
     margin-top: var(--space-xxs); // 2px: a la altura de la primera línea
     color: var(--color-success);
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 
   p,
@@ -184,7 +184,7 @@
   gap: var(--space-xs);
 
   ion-icon {
-    font-size: 1rem; // 16px
+    font-size: var(--icon-size-s);
   }
 }
 
@@ -235,7 +235,7 @@
     flex: none;
     margin-top: var(--space-xxs);
     color: var(--color-success);
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 
   > div {

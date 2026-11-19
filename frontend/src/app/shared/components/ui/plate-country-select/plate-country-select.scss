@@ -10,7 +10,7 @@
   align-items: center;
   gap: var(--space-s);
   width: 100%;
-  min-height: 3.5rem; // 56px
+  min-height: var(--control-height-l);
   padding: 0 var(--space-base);
   border: var(--border-width-s) solid var(--color-border-strong);
   border-radius: var(--radius-s); // 8px
@@ -46,14 +46,14 @@
 .plate-country__caret {
   flex: none;
   color: var(--color-text-muted);
-  font-size: 0.75rem; // 12px
+  font-size: var(--icon-size-xs);
 }
 
 // Bandera de 24×18px con las esquinas un poco redondeadas (como el prefijo)
 .plate-country__flag {
   flex: 0 0 auto;
-  width: 1.5rem; // 24px
-  height: 1.125rem; // 18px
+  width: var(--icon-size-l);
+  height: var(--icon-size-m);
   border-radius: var(--radius-xs);
 }
 

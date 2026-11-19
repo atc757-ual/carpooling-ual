@@ -33,15 +33,15 @@
   z-index: var(--z-raised);
   display: grid;
   place-items: center;
-  width: 1.5rem; // 24px
-  height: 1.5rem;
+  width: var(--icon-size-l);
+  height: var(--icon-size-l);
   border: var(--border-width-m) solid var(--color-border-strong);
   border-radius: var(--radius-full);
   background: var(--color-surface);
   color: var(--color-surface);
 
   ion-icon {
-    font-size: 0.875rem; // 14px
+    font-size: var(--icon-size-xs);
   }
 }
 

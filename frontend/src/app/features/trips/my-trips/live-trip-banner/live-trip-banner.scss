@@ -42,8 +42,8 @@
 }
 
 .live-trip-banner__dot {
-  width: 0.5rem; // 8px
-  height: 0.5rem;
+  width: var(--dot-size-s);
+  height: var(--dot-size-s);
   border-radius: var(--radius-full);
   background: var(--color-link); // azul, como «Viaje en curso»
   animation: live-trip-pulse 1.6s ease-in-out infinite;

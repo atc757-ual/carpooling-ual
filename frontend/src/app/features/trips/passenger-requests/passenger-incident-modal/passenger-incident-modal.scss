@@ -31,7 +31,7 @@
   margin-top: var(--space-s);
 
   ion-icon {
-    font-size: 1.25rem;
+    font-size: var(--icon-size-base);
     color: var(--color-danger);
     flex-shrink: 0;
   }
@@ -60,7 +60,7 @@
 
   ion-icon {
     flex: none;
-    font-size: 1rem; // 16px
+    font-size: var(--icon-size-s);
   }
 }
 
@@ -89,7 +89,7 @@
   align-items: center;
   flex: none;
   white-space: nowrap;
-  min-height: 2rem; // 32px
+  min-height: var(--box-size-s);
   padding: 0 var(--space-s);
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-full);

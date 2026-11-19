@@ -72,7 +72,7 @@
     // Los títulos, como los de las tarjetas de la hoja: 16px en seminegrita
     // (fuera de una tarjeta, .text-subtitle los dejaría más grandes)
     h2 {
-      font-size: 1rem; // 16px
+      font-size: var(--font-size-body);
       font-weight: var(--font-weight-semibold);
     }
   }

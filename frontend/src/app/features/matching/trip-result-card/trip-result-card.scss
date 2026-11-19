@@ -50,7 +50,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-s);
-  min-height: 1.25rem; // 20px
+  min-height: var(--icon-size-base);
 }
 
 .trip-card__status {
@@ -130,7 +130,7 @@
 
   ion-icon {
     flex: 0 0 auto;
-    font-size: 1rem; // 16px
+    font-size: var(--icon-size-s);
   }
 }
 

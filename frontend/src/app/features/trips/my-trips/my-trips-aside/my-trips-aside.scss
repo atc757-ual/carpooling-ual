@@ -55,7 +55,7 @@ ion-card.my-trips-aside ion-card-content {
 
   ion-icon {
     flex: none;
-    font-size: 1rem; // 16px
+    font-size: var(--icon-size-s);
   }
 }
 
@@ -108,7 +108,7 @@ ion-card.my-trips-aside ion-card-content {
 .my-trips-aside__item-icon {
   margin-inline-end: var(--space-s);
   color: var(--color-primary);
-  font-size: 1.5rem; // 24px
+  font-size: var(--icon-size-l);
 }
 
 .my-trips-aside__item-text {

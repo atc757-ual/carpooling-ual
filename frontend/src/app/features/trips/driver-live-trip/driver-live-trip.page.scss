@@ -246,13 +246,13 @@
 // Anterior y siguiente: botones de icono de 32px. Con las dos clases, para
 // ganar a .icon-btn
 .icon-btn.pickup-arrow {
-  width: 2rem; // 32px
-  height: 2rem;
+  width: var(--box-size-s);
+  height: var(--box-size-s);
 }
 
 .pickup-dots__dot {
-  width: 0.5rem; // 8px
-  height: 0.5rem;
+  width: var(--dot-size-s);
+  height: var(--dot-size-s);
   padding: 0;
   border: 0;
   border-radius: var(--radius-full);
@@ -261,7 +261,7 @@
   transition: width var(--motion-duration-base) ease;
 
   &--current {
-    width: 1.25rem; // 20px
+    width: var(--icon-size-base);
     background: var(--color-primary);
   }
 
@@ -282,7 +282,7 @@
   background: var(--color-surface);
   color: var(--color-text);
   font-family: var(--font-family-heading);
-  font-size: 1.25rem; // 20px
+  font-size: var(--font-size-subtitle);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.3em;
   text-align: center;
@@ -389,7 +389,7 @@
 
 .driver-live-trip__confirm-icon {
   color: var(--color-link);
-  font-size: 2rem; // 32px
+  font-size: var(--icon-size-xl);
 
   // Lejos del destino, en ámbar como el aviso
   &--far {
@@ -410,12 +410,12 @@
 .driver-live-trip__done-icon {
   flex: none;
   color: var(--color-success);
-  font-size: 2rem; // 32px
+  font-size: var(--icon-size-xl);
 }
 
 .driver-live-trip__done-title {
   font-family: var(--font-family-heading);
-  font-size: 1.125rem; // 18px
+  font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-semibold);
 }
 

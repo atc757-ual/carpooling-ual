@@ -277,7 +277,7 @@
 .conversation__place-icon {
   flex: none;
   color: var(--color-text-muted);
-  font-size: 0.875rem; // 14px
+  font-size: var(--icon-size-xs);
 }
 
 // Si no cabe, con puntos suspensivos
@@ -303,7 +303,7 @@
     display: block;
     flex: none;
     color: var(--color-text-muted);
-    font-size: 1rem; // 16px
+    font-size: var(--icon-size-s);
   }
 }
 

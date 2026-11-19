@@ -41,8 +41,8 @@
 .live-share__dot {
   position: relative;
   flex: none;
-  width: 0.5rem; // 8px
-  height: 0.5rem; // 8px
+  width: var(--dot-size-s);
+  height: var(--dot-size-s);
   border-radius: var(--radius-full);
   background: var(--color-success);
 

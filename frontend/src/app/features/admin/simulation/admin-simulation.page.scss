@@ -55,7 +55,7 @@
   // Título de tarjeta: 18px siempre
   h2 {
     margin: 0;
-    font-size: 1.125rem; // 18px
+    font-size: var(--font-size-subtitle-s);
   }
 }
 

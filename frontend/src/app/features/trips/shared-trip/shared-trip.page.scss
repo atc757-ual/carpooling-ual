@@ -16,12 +16,12 @@
 .shared-trip__logo {
   display: grid;
   flex: none;
-  width: 2rem; // 32px
-  height: 2rem; // 32px
+  width: var(--box-size-s);
+  height: var(--box-size-s);
   border-radius: var(--radius-full);
   background: var(--color-link);
   color: var(--color-on-primary);
-  font-size: 1rem; // 16px
+  font-size: var(--icon-size-s);
   place-items: center;
 }
 
@@ -73,8 +73,8 @@
 
 .shared-trip__live-dot {
   flex: none;
-  width: 0.625rem; // 10px
-  height: 0.625rem; // 10px
+  width: var(--dot-size);
+  height: var(--dot-size);
   margin-top: 0.375rem; // 6px: centrado con la primera línea
   border-radius: var(--radius-full);
   background: var(--color-success);

@@ -109,7 +109,7 @@
 }
 
 .legal-editor__tab {
-  min-height: 2.25rem; // 36px
+  min-height: var(--box-size-m);
   padding: 0 var(--space-base);
   border: 0;
   border-radius: var(--radius-full);

@@ -81,7 +81,7 @@
 
 .audience-picker__icon {
   flex: none;
-  font-size: 1.25rem; // 20px
+  font-size: var(--icon-size-base);
 }
 
 .audience-picker__text {

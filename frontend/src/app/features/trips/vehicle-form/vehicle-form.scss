@@ -77,8 +77,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem; // 36px
-  height: 2.25rem;
+  width: var(--box-size-m);
+  height: var(--box-size-m);
   border: var(--border-width-s) solid var(--color-border-strong);
   border-radius: var(--radius-full);
   background: var(--color-surface);
@@ -107,7 +107,7 @@
   }
 
   ion-icon {
-    font-size: 1.125rem; // 18px
+    font-size: var(--icon-size-m);
   }
 }
 
@@ -118,8 +118,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem; // 36px
-  height: 2.25rem;
+  width: var(--box-size-m);
+  height: var(--box-size-m);
   border: var(--border-width-s) solid var(--color-border-strong);
   border-radius: var(--radius-full);
   background: var(--swatch-color);
@@ -148,7 +148,7 @@
 .vehicle-form__color-check {
   display: none;
   color: var(--color-on-backdrop); // blanco en los dos modos
-  font-size: 1.125rem; // 18px
+  font-size: var(--icon-size-m);
   filter: drop-shadow(0 0 1px rgb(0 0 0 / 80%));
   pointer-events: none;
 
@@ -250,7 +250,7 @@
 .vehicle-form__step-title {
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: 1.125rem; // 18px
+  font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 }

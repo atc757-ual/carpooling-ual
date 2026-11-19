@@ -64,7 +64,7 @@ ion-card.my-trips__panel ion-card-content {
 // (12px seminegrita), para que separe sin pesar
 .my-trips__day {
   margin: var(--space-s) 0 0;
-  font-size: 0.6875rem; // 11px
+  font-size: var(--font-size-caption);
   font-weight: var(--font-weight-bold);
 }
 

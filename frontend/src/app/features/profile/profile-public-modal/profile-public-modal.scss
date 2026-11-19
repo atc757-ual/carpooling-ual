@@ -65,8 +65,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 3.5rem; // 56px
-  height: 3.5rem;
+  width: var(--control-height-l);
+  height: var(--control-height-l);
   border-radius: var(--radius-full);
   background: var(--color-surface-subtle);
   color: var(--color-text);
@@ -80,8 +80,8 @@
 }
 
 .avatar-option__svg {
-  width: 2rem; // 32px
-  height: 2rem;
+  width: var(--box-size-s);
+  height: var(--box-size-s);
 }
 
 .profile-public-modal__field {
@@ -116,14 +116,14 @@ ion-textarea.has-focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem; // 20px
-  height: 1.25rem;
+  width: var(--icon-size-base);
+  height: var(--icon-size-base);
   border: var(--border-width-m) solid var(--color-surface);
   border-radius: var(--radius-full);
   background: var(--color-primary);
   color: var(--color-on-primary);
 
   ion-icon {
-    font-size: 0.75rem; // 12px
+    font-size: var(--icon-size-xs);
   }
 }

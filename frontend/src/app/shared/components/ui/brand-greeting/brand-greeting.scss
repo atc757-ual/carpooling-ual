@@ -16,7 +16,7 @@
 .brand-greeting__word {
   grid-area: 1 / 1;
   font-family: var(--font-family-heading);
-  font-size: 1.25rem; // 20px, el mismo que el logotipo compacto
+  font-size: var(--font-size-subtitle); // El mismo que el logotipo compacto
   line-height: var(--line-height-body);
   white-space: nowrap;
   backface-visibility: hidden;

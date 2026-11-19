@@ -15,7 +15,7 @@
   flex-direction: column;
   gap: var(--space-xs);
   min-width: 0;
-  font-size: 1.125rem; // 18px: dos líneas sin pasar del alto de la franja
+  font-size: var(--font-size-subtitle-s); // Dos líneas sin pasar del alto de la franja
 }
 
 .trip-heading__stop {
@@ -29,7 +29,7 @@
 .trip-heading__icon {
   flex: none;
   color: color-mix(in srgb, var(--color-on-admin) 80%, transparent);
-  font-size: 1rem; // 16px
+  font-size: var(--icon-size-s);
 }
 
 .trip-heading__arrow {
@@ -54,7 +54,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     gap: 0 var(--space-xs);
-    font-size: 1.5rem; // 24px, el del título de la franja
+    font-size: var(--font-size-title); // El del título de la franja
   }
 
   .trip-heading__icon {

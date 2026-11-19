@@ -40,14 +40,14 @@ ion-card.driver-route ion-card-content {
   ion-icon {
     flex: 0 0 auto;
     color: var(--color-text-muted);
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 }
 
 .driver-route__swatch {
   display: inline-block;
-  width: 0.7rem; // 11.2px
-  height: 0.7rem; // 11.2px
+  width: var(--dot-size);
+  height: var(--dot-size);
   margin-inline-end: var(--space-xs);
   border: var(--border-width-s) solid var(--color-border-strong);
   border-radius: var(--radius-full);
