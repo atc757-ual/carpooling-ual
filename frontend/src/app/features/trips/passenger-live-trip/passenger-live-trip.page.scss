@@ -57,6 +57,41 @@ ion-card.live-alert.live-alert[class] {
 
 @include live-column.alert-layout;
 
+// El código de recogida en el móvil: el título y, debajo, a quién decírselo,
+// a la izquierda; las cuatro casillas a la derecha, centradas en su alto
+@media (max-width: 767.98px) {
+  .ride__panel ion-card-content.ride__code {
+    display: grid;
+    grid-template-areas:
+      'title digits'
+      'hint digits';
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-base);
+    row-gap: var(--space-xs);
+    align-items: center;
+
+    h2 {
+      grid-area: title;
+      align-self: end;
+    }
+
+    p {
+      grid-area: hint;
+      align-self: start;
+    }
+
+    .ride__code-digits {
+      grid-area: digits;
+      grid-template-columns: repeat(4, var(--control-height-s)); // 44px
+      gap: var(--space-xs);
+
+      span {
+        height: var(--control-height-base); // 48px
+      }
+    }
+  }
+}
+
 // Cuatro cifras, una por casilla, fáciles de leer en voz alta
 .ride__code-digits {
   display: grid;
@@ -298,11 +333,6 @@ ion-card.live-alert.live-alert[class] {
   .ride__map-card ion-card-content[class] {
     padding-bottom: var(--space-base);
   }
-}
-
-// Las alertas de esta pantalla, con 8px de relleno por los cuatro lados
-.notice {
-  padding: var(--space-s);
 }
 
 // Escritorio: sin el hueco de 12px de las pastillas del móvil
