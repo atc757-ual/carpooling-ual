@@ -21,7 +21,7 @@ import {
   lockClosedOutline,
   mailOutline,
 } from 'ionicons/icons';
-import { ApiError } from '../../../core/models/api-error.model';
+import { ApiError, rethrowUnlessApiError } from '../../../core/models/api-error.model';
 import { AppContextService } from '../../../core/services/ui/app-context.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -124,7 +124,7 @@ export class LoginPage {
   // del registro puede haber caducado) y se lleva a la pantalla del código
   private async goToVerify(email: string): Promise<void> {
     this.auth.setPendingVerificationEmail(email, false);
-    await this.auth.resendVerificationCode(email).catch(() => undefined);
+    await this.auth.resendVerificationCode(email).catch(rethrowUnlessApiError);
     await this.router.navigateByUrl('/auth/verify');
   }
 

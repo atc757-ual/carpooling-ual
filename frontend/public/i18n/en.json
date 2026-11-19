@@ -538,6 +538,7 @@
     },
     "pushEnabledToast": "We'll notify you even when Carpooling UAL is closed.",
     "pushEnableError": "We couldn't turn on notifications. Please try again.",
+    "pushDisableError": "We couldn't turn off notifications. Please try again.",
     "bioHint": "Optional: 20 to 200 characters."
   },
   "publish": {

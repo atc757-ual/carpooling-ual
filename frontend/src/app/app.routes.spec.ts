@@ -4,6 +4,7 @@ import { CanActivateFn, provideRouter, UrlTree } from '@angular/router';
 import { routes } from './app.routes';
 import { AuthService } from './core/services/auth/auth.service';
 import { LegalDocumentsService } from './core/services/users/legal-documents.service';
+import { ApiError, NETWORK_ERROR } from './core/models/api-error.model';
 
 describe('application routes', () => {
   it('opens Search with a passenger profile, and Publish for a driver only', () => {
@@ -66,7 +67,7 @@ describe('application routes', () => {
             provide: LegalDocumentsService,
             useValue: {
               pending: throws
-                ? vi.fn().mockRejectedValue(new Error('fail'))
+                ? vi.fn().mockRejectedValue(new ApiError(NETWORK_ERROR, 0))
                 : vi.fn().mockResolvedValue(pending),
             },
           },

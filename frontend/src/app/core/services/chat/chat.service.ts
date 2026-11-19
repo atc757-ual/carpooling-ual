@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { ApiError } from '../../models/api-error.model';
+import { ApiError, rethrowUnlessApiError } from '../../models/api-error.model';
 import {
   ChatContact,
   ChatMessage,
@@ -88,8 +88,9 @@ export class ChatService {
         }),
       );
       this.unreadCountState.set(Number(response.headers.get('X-Total-Count') ?? 0));
-    } catch {
+    } catch (error) {
       // Se vuelve a intentar en la siguiente navegación
+      rethrowUnlessApiError(error);
     }
   }
 
@@ -104,8 +105,9 @@ export class ChatService {
       this.liveTripState.set(
         conversation ? { tripId: conversation.trip.id, myRole: conversation.myRole } : null,
       );
-    } catch {
+    } catch (error) {
       // Se vuelve a intentar en la siguiente navegación
+      rethrowUnlessApiError(error);
     }
   }
 

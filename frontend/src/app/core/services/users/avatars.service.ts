@@ -9,6 +9,7 @@ import {
   AvatarShape,
   AvatarSvgGraphic,
 } from '../../models/avatar.model';
+import { rethrowUnlessApiError } from '../../models/api-error.model';
 
 const AVATAR_PAGE_SIZE = 100;
 const ROOT_ATTRIBUTES = new Set([
@@ -85,8 +86,9 @@ export class AvatarsService {
     this.catalog ??= this.loadCatalog();
     try {
       return await this.catalog;
-    } catch {
+    } catch (error) {
       this.catalog = null;
+      rethrowUnlessApiError(error);
       return new Map();
     }
   }

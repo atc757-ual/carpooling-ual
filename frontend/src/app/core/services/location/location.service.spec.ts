@@ -7,6 +7,7 @@ import { BackgroundLocationService } from './background-location.service';
 import { LocationConsentService } from './location-consent.service';
 import { ToastService } from '../ui/toast.service';
 import { GEOLOCATION, LocationError, LocationService } from './location.service';
+import { ApiError, NETWORK_ERROR } from '../../models/api-error.model';
 
 describe('LocationService', () => {
   let location: LocationService;
@@ -151,7 +152,7 @@ describe('LocationService', () => {
 
   it('warns with a toast when the withdrawal cannot be recorded', async () => {
     geolocation.checkPermissions.mockResolvedValueOnce({ location: 'denied' });
-    consent.set.mockRejectedValue(new Error('offline'));
+    consent.set.mockRejectedValue(new ApiError(NETWORK_ERROR, 0));
 
     await expect(location.checkPermission()).resolves.toBe('denied');
     expect(toast.showError).toHaveBeenCalledWith(

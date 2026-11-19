@@ -3,6 +3,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth/auth.service';
 import { LegalDocumentsService } from '../services/users/legal-documents.service';
 import { LEGAL_UPDATE_PATH, RETURN_URL_PARAM } from './redirect-paths';
+import { rethrowUnlessApiError } from '../models/api-error.model';
 
 // Al entrar en la app o en el panel con sesión: si se ha publicado una versión
 // nueva de las condiciones o de la política que aún no ha aceptado, primero
@@ -20,7 +21,8 @@ export const legalAcceptanceGuard: CanActivateFn = async (_route, state) => {
       : router.createUrlTree([LEGAL_UPDATE_PATH], {
           queryParams: { [RETURN_URL_PARAM]: state.url },
         });
-  } catch {
+  } catch (error) {
+    rethrowUnlessApiError(error);
     return true;
   }
 };

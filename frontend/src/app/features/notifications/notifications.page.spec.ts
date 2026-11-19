@@ -15,6 +15,7 @@ import { TripsService } from '../../core/services/trips/trips.service';
 import { ToastService } from '../../core/services/ui/toast.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { NotificationsPage } from './notifications.page';
+import { ApiError, NETWORK_ERROR } from '../../core/models/api-error.model';
 
 const TRIP: Trip = {
   id: 't1',
@@ -288,7 +289,7 @@ describe('NotificationsPage', () => {
   });
 
   it('offers to retry when they cannot be loaded', async () => {
-    const root = await render(() => Promise.reject(new Error('down')));
+    const root = await render(() => Promise.reject(new ApiError(NETWORK_ERROR, 0)));
 
     expect(root.textContent).toContain('No hemos podido cargar tus notificaciones');
     service['list'].mockResolvedValue({ items: [], total: 0 });

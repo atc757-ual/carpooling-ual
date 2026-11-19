@@ -145,7 +145,7 @@ export class ProfilePushSetting {
     try {
       await this.push.disable();
     } catch {
-      void this.toast.showError('No hemos podido desactivar las notificaciones.');
+      void this.toast.showError(translate('profile.pushDisableError'));
     } finally {
       this.isBusy.set(false);
     }

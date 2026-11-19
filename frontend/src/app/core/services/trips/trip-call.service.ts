@@ -3,6 +3,7 @@ import { translate, TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/tran
 import { ChatContact } from '../../models/chat.model';
 import { ChatService } from '../chat/chat.service';
 import { ToastService } from '../ui/toast.service';
+import { fallbackOnApiError } from '../../models/api-error.model';
 
 export const CALLABLE_TRIP_STATUSES = new Set(['confirmed', 'in_progress']);
 
@@ -19,7 +20,7 @@ export class TripCallService {
 
   // Carga los contactos con teléfono verificado para este viaje
   async loadContacts(tripId: string, passengerId?: string | null): Promise<ChatContact[]> {
-    return this.chat.listContacts({ tripId, passengerId }).catch(() => []);
+    return this.chat.listContacts({ tripId, passengerId }).catch(fallbackOnApiError([]));
   }
 
   // Comprueba si se puede llamar al contacto

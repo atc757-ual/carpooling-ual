@@ -17,7 +17,7 @@ import { ModalHeader } from '../../../shared/components/modals/modal-header/moda
 import { locateOutline } from 'ionicons/icons';
 import type * as Leaflet from 'leaflet';
 import { Place } from '../../../core/models/place.model';
-import { ApiError } from '../../../core/models/api-error.model';
+import { ApiError, rethrowUnlessApiError } from '../../../core/models/api-error.model';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { PlacesService } from '../../../core/services/places/places.service';
@@ -203,8 +203,9 @@ export class LocationModal implements OnInit, OnDestroy {
     this.step.set('locating');
     try {
       await this.consent.set('granted', 'location_prompt');
-    } catch {
+    } catch (error) {
       this.step.set('unavailable');
+      rethrowUnlessApiError(error);
       return;
     }
     await this.handleLocate();

@@ -2,7 +2,7 @@ import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
-import { ApiError } from '../../../core/models/api-error.model';
+import { ApiError, NETWORK_ERROR } from '../../../core/models/api-error.model';
 import { Place } from '../../../core/models/place.model';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
@@ -253,7 +253,7 @@ describe('LocationModal', () => {
   });
 
   it('does not look for the location when the consent cannot be recorded', async () => {
-    consent.set.mockRejectedValue(new Error('offline'));
+    consent.set.mockRejectedValue(new ApiError(NETWORK_ERROR, 0));
 
     await modal.handleShare();
 

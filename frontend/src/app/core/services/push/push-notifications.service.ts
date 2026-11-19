@@ -51,6 +51,7 @@ export class PushNotificationsService {
     const token = await this.preferences.get(TOKEN_KEY);
     if (permission === 'granted' && token) {
       this.status.set('on');
+      // Sin red o sin servicio de push: se registra en el próximo arranque
       await this.register().catch(() => undefined);
       return;
     }
@@ -101,6 +102,7 @@ export class PushNotificationsService {
     await firstValueFrom(this.http.delete<void>(this.url, { params: { token } })).catch(
       () => undefined,
     );
+    // El token ya no existe en el dispositivo: no hay nada que borrar
     await this.channel.deleteToken().catch(() => undefined);
   }
 
@@ -121,6 +123,7 @@ export class PushNotificationsService {
   }
 
   private isAvailable(): Promise<boolean> {
+    // Si el navegador no sabe decirlo, se trata como sin push
     return this.channel.isAvailable().catch(() => false);
   }
 }

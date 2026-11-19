@@ -64,6 +64,7 @@ import { ProfilePreferencesModal } from './profile-preferences-modal/profile-pre
 import { ProfilePhoneModal } from './profile-phone-modal/profile-phone-modal';
 import { ProfilePasswordModal } from './profile-password-modal/profile-password-modal';
 import { ProfileDeleteModal } from './profile-delete-modal/profile-delete-modal';
+import { rethrowUnlessApiError } from '../../core/models/api-error.model';
 
 interface PreferenceRow {
   criterion: string;
@@ -222,8 +223,9 @@ export class ProfilePage implements OnInit {
     try {
       const refreshed = await this.usersService.getMe();
       this.auth.updateUser(refreshed);
-    } catch {
-      // Se conserva estado local
+    } catch (error) {
+      // Se conserva el estado local
+      rethrowUnlessApiError(error);
     }
 
     this.consents.set(await this.locationConsent.load(true));

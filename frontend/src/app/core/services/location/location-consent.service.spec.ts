@@ -7,6 +7,7 @@ import { AuthService } from '../auth/auth.service';
 import { LegalDocumentsService } from '../users/legal-documents.service';
 import { UsersService } from '../users/users.service';
 import { LocationConsentService } from './location-consent.service';
+import { ApiError, NETWORK_ERROR } from '../../models/api-error.model';
 
 function consentsWith(action: 'granted' | 'revoked' | null, isOutdated = false): UserConsents {
   return {
@@ -94,7 +95,7 @@ describe('LocationConsentService', () => {
   });
 
   it('does not block the location when the consents cannot be read', async () => {
-    users.getMyConsents.mockRejectedValue(new Error('offline'));
+    users.getMyConsents.mockRejectedValue(new ApiError(NETWORK_ERROR, 0));
 
     await expect(consent.getStatus()).resolves.toBe('none');
   });

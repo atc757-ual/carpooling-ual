@@ -8,6 +8,7 @@ import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripSearchStateService } from '../../matching/trip-search-state.service';
 import { ProfileLocation } from './profile-location';
+import { ApiError, NETWORK_ERROR } from '../../../core/models/api-error.model';
 
 function consents(action: 'granted' | 'revoked' | null, isOutdated = false): UserConsents {
   const location: ConsentRecord | null = action && {
@@ -114,7 +115,9 @@ describe('ProfileLocation', () => {
 
   it('revokes after confirming and undoes the toggle if saving fails', async () => {
     confirm.ask.mockResolvedValue(true);
-    consent.set.mockResolvedValueOnce(consents('revoked')).mockRejectedValueOnce(new Error());
+    consent.set
+      .mockResolvedValueOnce(consents('revoked'))
+      .mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
 
     await fixture.componentInstance.handleToggle(toggleEvent(false));
     expect(toast.showSuccess).toHaveBeenCalledWith('Has dejado de compartir tu ubicación.');

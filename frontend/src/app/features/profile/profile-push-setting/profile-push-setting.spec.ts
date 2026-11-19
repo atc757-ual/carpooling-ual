@@ -121,7 +121,9 @@ describe('ProfilePushSetting', () => {
     status.set('on');
     push.disable.mockRejectedValue(new Error('offline'));
     await component.handleDisable();
-    expect(toast.showError).toHaveBeenCalledWith('No hemos podido desactivar las notificaciones.');
+    expect(toast.showError).toHaveBeenCalledWith(
+      'No hemos podido desactivar las notificaciones. Inténtalo de nuevo.',
+    );
     expect(component.isBusy()).toBe(false);
   });
 

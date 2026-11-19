@@ -9,6 +9,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripSearchStateService } from '../../matching/trip-search-state.service';
 import { openLegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { toConsentStamp } from '../consent-stamp';
+import { rethrowUnlessApiError } from '../../../core/models/api-error.model';
 
 // «Ubicación» en Privacidad (Mi perfil): consentimiento voluntario del usuario
 // bajo el RGPD (art. 6.1.a) para rellenar paradas y sugerencias automáticas.
@@ -71,9 +72,10 @@ export class ProfileLocation implements OnInit {
           ? translate('screens.profileLocation.compartesUbicacion')
           : translate('screens.profileLocation.hasDejadoCompartirUbicacion'),
       );
-    } catch {
+    } catch (error) {
       (event.target as HTMLIonToggleElement).checked = action === 'revoked';
       void this.toast.showError(translate('screens.profileLocation.saveError'));
+      rethrowUnlessApiError(error);
     }
   }
 

@@ -20,7 +20,7 @@ import {
   IonRadioGroup,
 } from '@ionic/angular';
 import { SimulationRun } from '../../../core/models/admin-simulation.model';
-import { ApiError } from '../../../core/models/api-error.model';
+import { ApiError, rethrowUnlessApiError } from '../../../core/models/api-error.model';
 import { AdminSimulationsService } from '../../../core/services/admin/admin-simulations.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -194,7 +194,7 @@ export class AdminSimulationPage {
       cancelText: 'Seguir',
     });
     if (run && isConfirmed) {
-      await this.simulations.cancel(run.id).catch(() => undefined);
+      await this.simulations.cancel(run.id).catch(rethrowUnlessApiError);
       this.shownRun.reload();
     }
   }

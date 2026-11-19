@@ -22,6 +22,7 @@ import { SeatStepper } from '../../../shared/components/ui/seat-stepper/seat-ste
 import { VehicleCard } from '../../../shared/components/ui/vehicle-card/vehicle-card';
 import { RoundTripSeats } from '../round-trip-seats/round-trip-seats';
 import { VehicleModal } from '../vehicle-modal/vehicle-modal';
+import { rethrowUnlessApiError } from '../../../core/models/api-error.model';
 
 // Vehículos activos que puede tener un conductor (VEHICLE_LIMIT_REACHED)
 export const MAX_VEHICLES = 3;
@@ -124,6 +125,7 @@ export class VehiclePicker implements OnInit {
   // Elegir un vehículo lo deja como predeterminado
   handleSelect(vehicle: Vehicle): void {
     this.controls().vehicleId.setValue(vehicle.id);
+    // Sin almacenamiento: se elige, pero no se recuerda
     void this.preferences.set(DEFAULT_VEHICLE_KEY, vehicle.id).catch(() => undefined);
   }
 
@@ -136,7 +138,7 @@ export class VehiclePicker implements OnInit {
       return;
     }
     if (!this.auth.hasProfile('driver')) {
-      await this.auth.refreshAccessToken().catch(() => undefined);
+      await this.auth.refreshAccessToken().catch(rethrowUnlessApiError);
     }
     this.vehicles.set([...this.vehicles(), data]);
     this.handleSelect(data);

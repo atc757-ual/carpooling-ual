@@ -11,6 +11,7 @@ import { ChatService } from '../../core/services/chat/chat.service';
 import { HeadingContentService } from '../../core/services/ui/heading-content.service';
 import { formatTime } from '../matching/trip-results';
 import { MessagesPage } from './messages.page';
+import { ApiError, NETWORK_ERROR } from '../../core/models/api-error.model';
 
 const CONVERSATION: Conversation = {
   id: 't1:u2',
@@ -162,7 +163,7 @@ describe('MessagesPage', () => {
   });
 
   it('offers to retry when they cannot be loaded, and reloads on entering', async () => {
-    listConversationsPage.mockRejectedValueOnce(new Error('offline'));
+    listConversationsPage.mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
     const { root, page } = await render();
     expect(root.textContent).toContain('No hemos podido cargar tus mensajes');
 

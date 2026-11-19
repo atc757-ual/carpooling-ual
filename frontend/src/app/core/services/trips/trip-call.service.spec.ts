@@ -6,6 +6,7 @@ import { ChatService } from '../chat/chat.service';
 import { ToastService } from '../ui/toast.service';
 import { provideTranslocoTestingSupport } from '../../i18n/testing-transloco';
 import { TripCallService } from './trip-call.service';
+import { ApiError, NETWORK_ERROR } from '../../models/api-error.model';
 
 describe('TripCallService', () => {
   let service: TripCallService;
@@ -56,7 +57,7 @@ describe('TripCallService', () => {
   });
 
   it('returns empty array if loading contacts fails', async () => {
-    chatMock.listContacts.mockRejectedValueOnce(new Error('Network error'));
+    chatMock.listContacts.mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
     const contacts = await service.loadContacts('t1');
     expect(contacts).toEqual([]);
   });
