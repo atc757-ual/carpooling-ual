@@ -50,7 +50,7 @@
             fill="outline"
             [placeholder]="'publish.ibiza' | transloco"
             autocapitalize="words"
-            errorText="Escribe el modelo, como Ibiza."
+            [errorText]="'labels.forms.modelError' | transloco"
           />
         </div>
       </div>
@@ -127,8 +127,8 @@
               fill="outline"
               [placeholder]="'publish.t1234Bcd' | transloco"
               autocapitalize="characters"
-              helperText="Como 1234 BCD."
-              errorText="Escribe una matrícula española, como 1234 BCD."
+              [helperText]="'labels.forms.plateHelp' | transloco"
+              [errorText]="'labels.forms.plateError' | transloco"
             />
           } @else {
             <ion-input
@@ -137,8 +137,8 @@
               fill="outline"
               [placeholder]="'publish.t123' | transloco"
               autocapitalize="characters"
-              helperText="Letras y números, como en tu placa."
-              errorText="Escribe de 2 a 10 letras y números, como en tu placa."
+              [helperText]="'labels.forms.foreignPlateHelp' | transloco"
+              [errorText]="'labels.forms.foreignPlateError' | transloco"
             />
           }
         </div>

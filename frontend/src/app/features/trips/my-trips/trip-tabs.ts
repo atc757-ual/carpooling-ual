@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { DriverTrip, Trip, TripStatus } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 
@@ -6,11 +7,15 @@ import { SeatRequest } from '../../../core/models/seat-request.model';
 // rechazadas y caducadas, que no canceló nadie
 export type TripsTab = 'upcoming' | 'past' | 'cancelled';
 
-export const TRIPS_TABS: readonly { value: TripsTab; label: string }[] = [
-  { value: 'upcoming', label: 'Próximos' },
-  { value: 'past', label: 'Anteriores' },
-  { value: 'cancelled', label: 'No realizados' },
-];
+const TRIPS_TAB_VALUES: readonly TripsTab[] = ['upcoming', 'past', 'cancelled'];
+
+// Las pestañas con su texto en el idioma activo
+export function tripsTabs(): { value: TripsTab; label: string }[] {
+  return TRIPS_TAB_VALUES.map((value) => ({
+    value,
+    label: translate(`labels.tripsTabs.${value}`),
+  }));
+}
 
 // Viajes que aún no han terminado: publicados, confirmados y en curso
 const ACTIVE_TRIPS: ReadonlySet<TripStatus> = new Set(['published', 'confirmed', 'in_progress']);
@@ -49,29 +54,31 @@ export function passengerTripTab(request: SeatRequest, trip: Trip): TripsTab {
 
 // La etiqueta de una solicitud del pasajero, con el motivo en Cancelados
 export function passengerRequestLabel(request: SeatRequest, trip: Trip): string {
+  return translate(`labels.requestStatus.${passengerRequestState(request, trip)}`);
+}
+
+function passengerRequestState(request: SeatRequest, trip: Trip): string {
   if (request.status === 'completed') {
-    return 'Realizado';
+    return 'done';
   }
   if (trip.status === 'cancelled') {
-    return 'Viaje cancelado';
+    return 'tripCancelled';
   }
   switch (request.status) {
     case 'pending':
-      return 'Pendiente';
+      return 'pending';
     case 'accepted':
-      return trip.status === 'finished' ? 'Realizado' : 'Confirmada';
+      return trip.status === 'finished' ? 'done' : 'confirmed';
     case 'rejected':
-      return request.rejectionReason === 'trip_full' ? 'Viaje completo' : 'No aceptada';
+      return request.rejectionReason === 'trip_full' ? 'tripFull' : 'rejected';
     case 'expired':
-      return 'Caducada';
+      return 'expired';
     case 'cancelled':
-      return request.rejectionReason === 'no_show' ? 'No te presentaste' : 'Cancelada';
+      return request.rejectionReason === 'no_show' ? 'noShow' : 'cancelled';
   }
 }
 
-// El vacío de cada pestaña
-export const EMPTY_TEXTS: Readonly<Record<TripsTab, string>> = {
-  upcoming: 'No tienes viajes programados',
-  past: 'Aún no has hecho ningún viaje',
-  cancelled: 'Aquí verás los viajes que no se hayan realizado',
-};
+// La clave del vacío de cada pestaña
+export function emptyTextKey(tab: TripsTab): string {
+  return `labels.tripsEmpty.${tab}`;
+}

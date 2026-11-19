@@ -116,7 +116,7 @@
                   'profile.languageHint' | transloco
                 }}</span>
               </span>
-              <app-language-switch label="Idioma de la app" />
+              <app-language-switch [label]="'labels.forms.appLanguage' | transloco" />
             </div>
 
             <!-- Tema: selector pastilla solo con iconos, sin outline y del mismo ancho que idioma -->
@@ -127,7 +127,10 @@
                   'profile.themeHint' | transloco
                 }}</span>
               </span>
-              <fieldset class="theme-switch" aria-label="Tema de la app">
+              <fieldset
+                class="theme-switch"
+                [attr.aria-label]="'labels.forms.appTheme' | transloco"
+              >
                 <button
                   type="button"
                   class="theme-switch__option"

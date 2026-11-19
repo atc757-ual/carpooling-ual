@@ -26,7 +26,7 @@
             [legend]="'myTrips.tabsLegend' | transloco"
             [isLegendHidden]="true"
             [isSingleLine]="true"
-            [options]="tabs"
+            [options]="tabs()"
             [value]="tab()"
             [allLabel]="null"
             (valueChange)="handleTabChange($event)"
@@ -52,7 +52,7 @@
           } @else if (dayGroups().length === 0) {
             <div class="my-trips__state">
               <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-              <div class="my-trips__state-title">{{ emptyText() }}</div>
+              <div class="my-trips__state-title">{{ emptyText() | transloco }}</div>
               @if (isUpcomingView()) {
                 <!-- Sin botones: Buscar y Publicar ya están en «Te puede interesar» -->
                 <div class="text-body-s text-color-muted">{{ emptyHint() }}</div>

@@ -35,11 +35,13 @@ import {
   TripDriver as TripDriverComponent,
 } from '../../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../../matching/trip-results';
+import { numberFormat } from '../../../../core/i18n/app-locale';
 
-const RATING_FORMAT = new Intl.NumberFormat('es-ES', {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-});
+const RATING_FORMAT = () =>
+  numberFormat({
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
 
 // «Tu recorrido» y «Conductor y coche» en el detalle de la solicitud del
 // pasajero: el mapa con su punto de recogida, las paradas con sus horas,
@@ -194,7 +196,7 @@ export class PassengerRequestRoute {
 
   readonly rating = computed(() => {
     const { rating } = this.driver();
-    return rating === undefined ? null : RATING_FORMAT.format(rating);
+    return rating === undefined ? null : RATING_FORMAT().format(rating);
   });
 
   protected readonly upIcon = thumbsUp;

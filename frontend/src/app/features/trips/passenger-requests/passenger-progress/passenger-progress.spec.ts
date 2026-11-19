@@ -1,3 +1,4 @@
+import { initAppTranslations, provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { Trip } from '../../../../core/models/driver.model';
@@ -19,6 +20,8 @@ const states = (steps: ReturnType<typeof buildProgressSteps>) =>
   steps.map(({ label, state }) => `${label}:${state}`);
 
 describe('PassengerProgress', () => {
+  beforeEach(() => initAppTranslations());
+
   it('waits for the driver while pending, without marking a current step', () => {
     expect(states(buildProgressSteps(request('pending'), trip('published')))).toEqual([
       'Solicitada:done',
@@ -68,7 +71,8 @@ describe('PassengerProgress', () => {
   });
 
   it('renders each step with its time and the current one for screen readers', () => {
-    TestBed.configureTestingModule({ providers: [provideIonicAngular()] });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideIonicAngular(), provideAppTransloco()] });
     const fixture = TestBed.createComponent(PassengerProgress);
     fixture.componentRef.setInput('request', request('accepted'));
     fixture.componentRef.setInput('trip', trip('in_progress'));

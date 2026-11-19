@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
 import { translateEs } from '../../core/i18n/testing-translate';
 import { formatTime } from '../matching/trip-results';
 import { buildLiveShareText, buildSeatsShareText, ShareRoute } from './trip-share-text';
@@ -10,6 +11,8 @@ const ROUTE: ShareRoute = {
 const TIME = formatTime(ROUTE.departureAt);
 
 describe('trip share text', () => {
+  beforeEach(() => initAppTranslations());
+
   it('announces the free seats with the route, day and time', () => {
     const text = buildSeatsShareText(ROUTE, 2, translateEs);
 

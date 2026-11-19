@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
 import { ChatMessage } from '../../core/models/chat.model';
 import {
   groupMessagesByDay,
@@ -5,11 +6,13 @@ import {
   messageText,
   messageTime,
   QUICK_REPLIES,
-  QUICK_REPLY_TEXTS,
+  quickReplyText,
   quickRepliesForMoment,
 } from './chat-texts';
 
 describe('chat texts', () => {
+  beforeEach(() => initAppTranslations());
+
   it('reads a text message or the text of its quick reply', () => {
     expect(messageText({ text: 'Hola', quickReply: null })).toBe('Hola');
     expect(messageText({ text: null, quickReply: 'running_late' })).toBe('Llego 5 min tarde');
@@ -19,7 +22,7 @@ describe('chat texts', () => {
   it('has a text for every quick reply of the API', () => {
     expect(QUICK_REPLIES).toHaveLength(16);
     for (const quickReply of QUICK_REPLIES) {
-      expect(QUICK_REPLY_TEXTS[quickReply].length).toBeGreaterThan(0);
+      expect(quickReplyText(quickReply).length).toBeGreaterThan(0);
     }
   });
 

@@ -26,12 +26,12 @@
       @if (isToCampus()) {
         <ng-container
           [ngTemplateOutlet]="placeField"
-          [ngTemplateOutletContext]="{ role: 'Origen' }"
+          [ngTemplateOutletContext]="{ role: 'origin' }"
         />
       } @else {
         <ng-container
           [ngTemplateOutlet]="parkingField"
-          [ngTemplateOutletContext]="{ role: 'Origen' }"
+          [ngTemplateOutletContext]="{ role: 'origin' }"
         />
       }
       <!-- Con sitio (escritorio): el botón gris entre los dos campos -->
@@ -46,12 +46,12 @@
       @if (isToCampus()) {
         <ng-container
           [ngTemplateOutlet]="parkingField"
-          [ngTemplateOutletContext]="{ role: 'Destino' }"
+          [ngTemplateOutletContext]="{ role: 'destination' }"
         />
       } @else {
         <ng-container
           [ngTemplateOutlet]="placeField"
-          [ngTemplateOutletContext]="{ role: 'Destino' }"
+          [ngTemplateOutletContext]="{ role: 'destination' }"
         />
       }
     </div>
@@ -61,10 +61,12 @@
   <ng-template #placeField let-role="role">
     <app-place-field
       [formControl]="controls().place"
-      [label]="role"
-      [placeholder]="role === 'Origen' ? '¿Desde dónde sales?' : '¿A dónde vas?'"
-      [icon]="role === 'Origen' ? originIcon : destinationIcon"
-      [canLocate]="role === 'Origen'"
+      [label]="'labels.forms.' + role | transloco"
+      [placeholder]="
+        (role === 'origin' ? 'labels.forms.fromWhere' : 'labels.forms.toWhere') | transloco
+      "
+      [icon]="role === 'origin' ? originIcon : destinationIcon"
+      [canLocate]="role === 'origin'"
       [showError]="isPlaceInvalid()"
     />
   </ng-template>
@@ -76,13 +78,13 @@
         [formControl]="controls().parking"
         interface="popover"
         fill="outline"
-        [label]="role"
+        [label]="'labels.forms.' + role | transloco"
         labelPlacement="floating"
         [placeholder]="'search.parkingPlaceholder' | transloco"
       >
         <ion-icon
           slot="start"
-          [icon]="role === 'Origen' ? originIcon : destinationIcon"
+          [icon]="role === 'origin' ? originIcon : destinationIcon"
           aria-hidden="true"
         />
         @for (parking of parkings(); track parking.id) {

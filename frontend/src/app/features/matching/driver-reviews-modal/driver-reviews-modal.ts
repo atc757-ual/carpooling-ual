@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
 import { IonButton, IonIcon, IonSpinner, ModalController } from '@ionic/angular';
 import { thumbsDown, thumbsUp } from 'ionicons/icons';
@@ -10,21 +10,26 @@ import { RatingBar } from '../../../shared/components/ui/rating-bar/rating-bar';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { RATING_MAX, ratingName } from '../../../shared/utils/rating.util';
 import { getFirstName, getInitials } from '../trip-driver/trip-driver';
+import { dateTimeFormat, numberFormat } from '../../../core/i18n/app-locale';
 
 const PAGE_SIZE = 10;
-const RATING_FORMAT = new Intl.NumberFormat('es-ES', {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-});
-const DATE_FORMAT = new Intl.DateTimeFormat('es-ES', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-});
+const RATING_FORMAT = () =>
+  numberFormat({
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+const DATE_FORMAT = () =>
+  dateTimeFormat({
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
 
 // «1 valoración», «15 valoraciones»
 export function formatReviewCount(count: number): string {
-  return count === 1 ? '1 valoración' : `${count} valoraciones`;
+  return translate(count === 1 ? 'labels.rating.reviews.one' : 'labels.rating.reviews.other', {
+    count,
+  });
 }
 
 // La fila del reparto: «5 · Muy bien» y «1 · Muy mal» en los extremos; el
@@ -59,10 +64,12 @@ export class DriverReviewsModal implements OnInit {
   readonly isLoadingMore = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
-  readonly title = computed(() => `Valoraciones de ${getFirstName(this.driverName)}`);
+  readonly title = computed(() =>
+    translate('labels.reviewsOf', { name: getFirstName(this.driverName) }),
+  );
   readonly average = computed(() => {
     const average = this.rating()?.average;
-    return average === null || average === undefined ? null : RATING_FORMAT.format(average);
+    return average === null || average === undefined ? null : RATING_FORMAT().format(average);
   });
   readonly countText = computed(() => formatReviewCount(this.rating()?.count ?? 0));
   // Cada estrella con su parte de la barra (en % del total)
@@ -106,7 +113,7 @@ export class DriverReviewsModal implements OnInit {
   }
 
   date(isoDate: string): string {
-    return DATE_FORMAT.format(new Date(isoDate));
+    return DATE_FORMAT().format(new Date(isoDate));
   }
 
   private async load(): Promise<void> {

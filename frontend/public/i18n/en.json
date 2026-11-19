@@ -1253,6 +1253,120 @@
     "otherBrand": "Other",
     "buscarLista": "Search the list"
   },
+  "labels": {
+    "tripStatus": {
+      "published": "Published",
+      "confirmed": "Confirmed",
+      "in_progress": "In progress",
+      "finished": "Completed",
+      "cancelled": "Cancelled",
+      "expired": "No passengers"
+    },
+    "seats": {
+      "one": "1 seat",
+      "other": "{{ count }} seats",
+      "full": "Full",
+      "availableOf": "{{ available }} of {{ offered }}"
+    },
+    "trips": {
+      "one": "1 trip",
+      "other": "{{ count }} trips"
+    },
+    "newDriver": "New driver",
+    "reviewsOf": "{{ name }}'s ratings",
+    "rating": {
+      "name1": "Very bad",
+      "name2": "Bad",
+      "name3": "OK",
+      "name4": "Good",
+      "name5": "Very good",
+      "ofMax": "{{ value }} of {{ max }}",
+      "reviews": {
+        "one": "1 rating",
+        "other": "{{ count }} ratings"
+      }
+    },
+    "tripsTabs": {
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "cancelled": "Not completed"
+    },
+    "tripsEmpty": {
+      "upcoming": "You have no scheduled trips",
+      "past": "You haven't taken any trips yet",
+      "cancelled": "Trips that didn't go ahead will appear here"
+    },
+    "requestStatus": {
+      "done": "Completed",
+      "tripCancelled": "Trip cancelled",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "tripFull": "Trip full",
+      "rejected": "Not accepted",
+      "expired": "Expired",
+      "noShow": "You didn't show up",
+      "cancelled": "Cancelled"
+    },
+    "progress": {
+      "requested": "Requested",
+      "inProgress": "In progress",
+      "finished": "Finished"
+    },
+    "suggestions": {
+      "publishTitle": "Publish a trip",
+      "publishDetail": "Share your route to campus",
+      "searchTitle": "Find a trip",
+      "searchDetail": "Find someone heading your way"
+    },
+    "quickReplies": {
+      "at_pickup": "I'm at the pick-up point",
+      "running_late": "I'm 5 min late",
+      "on_my_way": "I'm on my way",
+      "where_are_you": "Where are you?",
+      "leaving_soon": "Leaving in 5 min",
+      "still_going": "Are you still going?",
+      "arriving_soon": "We'll arrive in a few minutes",
+      "stopping_here": "Stopping here for a moment",
+      "on_time": "Leaving on time",
+      "still_coming": "Are you still coming?",
+      "im_coming": "Yes, I'm coming",
+      "pickup_where": "Where will you pick me up?",
+      "waiting_for_you": "I'll wait 2 more min",
+      "heading_down": "On my way down",
+      "i_see_you": "I can see you",
+      "can_we_stop": "Can we stop for a moment?"
+    },
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "elapsed": {
+      "now": "Now",
+      "minutes": "{{ minutes }} min ago",
+      "hours": "{{ hours }} h ago"
+    },
+    "forms": {
+      "useLocation": "Use my location",
+      "usingLocation": "Using your current location",
+      "addressesFor": "Addresses for {{ label }}",
+      "pickAddress": "Choose an address from the list.",
+      "origin": "Origin",
+      "destination": "Destination",
+      "fromWhere": "Where are you leaving from?",
+      "toWhere": "Where are you going?",
+      "bioLength": "Write between 20 and 200 characters, or leave it empty.",
+      "editVehicle": "Edit vehicle",
+      "editPlate": "Edit {{ plate }}",
+      "deletePlate": "Delete {{ plate }}",
+      "timeMargin": "Search time margin",
+      "preferencesHelp": "They help you match with like-minded people, as a driver and as a passenger.",
+      "appLanguage": "App language",
+      "appTheme": "App theme",
+      "modelError": "Enter the model, such as Ibiza.",
+      "plateHelp": "Like 1234 BCD.",
+      "plateError": "Enter a Spanish plate, such as 1234 BCD.",
+      "foreignPlateHelp": "Letters and numbers, as on your plate.",
+      "foreignPlateError": "Enter 2 to 10 letters and numbers, as on your plate."
+    }
+  },
   "permissions": {
     "title": "Permissions on this device",
     "description": "Your browser or phone will ask you about each one. You can turn them on now or later, and remove them anytime in its settings.",

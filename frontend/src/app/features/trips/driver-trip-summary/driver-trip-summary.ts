@@ -6,7 +6,7 @@ import { carOutline } from 'ionicons/icons';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
-import { TRIP_STATUS_LABELS } from '../../../shared/utils/trip-status.util';
+import { tripStatusLabel } from '../../../shared/utils/trip-status.util';
 import { formatTime } from '../../matching/trip-results';
 import { tripWayOf } from '../trip-way';
 
@@ -55,7 +55,7 @@ export class DriverTripSummary {
     const { originName, destinationName } = this.trip();
     return `${originName ?? 'Origen'} → ${destinationName ?? 'Destino'}`;
   });
-  readonly statusLabel = computed(() => TRIP_STATUS_LABELS[this.trip().status]);
+  readonly statusLabel = computed(() => tripStatusLabel(this.trip().status));
   readonly seatsLabel = computed(() => {
     const { availableSeats, offeredSeats } = this.trip();
     return `${availableSeats} de ${offeredSeats} libres`;

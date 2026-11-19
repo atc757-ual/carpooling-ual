@@ -23,7 +23,7 @@ import {
 } from '../../core/services/chat/chat.service';
 import { formatTime } from '../matching/trip-results';
 import { formatElapsed } from '../notifications/notification-texts';
-import { TRIP_STATUS_LABELS } from '../../shared/utils/trip-status.util';
+import { tripStatusLabel } from '../../shared/utils/trip-status.util';
 import { messageText } from './chat-texts';
 import { ConversationPage } from './conversation/conversation.page';
 import { map } from 'rxjs';
@@ -176,7 +176,7 @@ export class MessagesPage implements OnInit {
   }
 
   protected statusLabel(conversation: Conversation): string {
-    return TRIP_STATUS_LABELS[conversation.trip.status];
+    return tripStatusLabel(conversation.trip.status);
   }
 
   // La hora de salida del viaje: «07:30»

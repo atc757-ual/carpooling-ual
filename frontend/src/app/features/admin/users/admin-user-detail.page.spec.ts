@@ -1,3 +1,4 @@
+import { initAppTranslations, provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { renderHeadingContent } from '../../../core/services/ui/heading-content.testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -43,6 +44,8 @@ const DETAIL: AdminUserDetail = {
 };
 
 describe('profileRows', () => {
+  beforeEach(() => initAppTranslations());
+
   it('offers activating or deactivating the own profiles and giving or removing admin', () => {
     expect(
       profileRows(DETAIL).map(({ profile, actionText, rating }) => [profile, actionText, rating]),
@@ -81,6 +84,7 @@ describe('AdminUserDetailPage', () => {
     TestBed.configureTestingModule({
       imports: [AdminUserDetailPage],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
         { provide: AdminUsersService, useValue: { get, setProfileActive, liftSuspension } },

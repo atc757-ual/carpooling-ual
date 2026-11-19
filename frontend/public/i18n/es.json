@@ -1253,6 +1253,120 @@
     "otherBrand": "Otra",
     "buscarLista": "Buscar en la lista"
   },
+  "labels": {
+    "tripStatus": {
+      "published": "Publicado",
+      "confirmed": "Confirmado",
+      "in_progress": "En curso",
+      "finished": "Realizado",
+      "cancelled": "Cancelado",
+      "expired": "Sin pasajeros"
+    },
+    "seats": {
+      "one": "1 plaza",
+      "other": "{{ count }} plazas",
+      "full": "Completo",
+      "availableOf": "{{ available }} de {{ offered }}"
+    },
+    "trips": {
+      "one": "1 viaje",
+      "other": "{{ count }} viajes"
+    },
+    "newDriver": "Nuevo conductor",
+    "reviewsOf": "Valoraciones de {{ name }}",
+    "rating": {
+      "name1": "Muy mal",
+      "name2": "Mal",
+      "name3": "Normal",
+      "name4": "Bien",
+      "name5": "Muy bien",
+      "ofMax": "{{ value }} de {{ max }}",
+      "reviews": {
+        "one": "1 valoración",
+        "other": "{{ count }} valoraciones"
+      }
+    },
+    "tripsTabs": {
+      "upcoming": "Próximos",
+      "past": "Anteriores",
+      "cancelled": "No realizados"
+    },
+    "tripsEmpty": {
+      "upcoming": "No tienes viajes programados",
+      "past": "Aún no has hecho ningún viaje",
+      "cancelled": "Aquí verás los viajes que no se hayan realizado"
+    },
+    "requestStatus": {
+      "done": "Realizado",
+      "tripCancelled": "Viaje cancelado",
+      "pending": "Pendiente",
+      "confirmed": "Confirmada",
+      "tripFull": "Viaje completo",
+      "rejected": "No aceptada",
+      "expired": "Caducada",
+      "noShow": "No te presentaste",
+      "cancelled": "Cancelada"
+    },
+    "progress": {
+      "requested": "Solicitada",
+      "inProgress": "En curso",
+      "finished": "Finalizado"
+    },
+    "suggestions": {
+      "publishTitle": "Publicar viaje",
+      "publishDetail": "Comparte tu recorrido al campus",
+      "searchTitle": "Buscar viaje",
+      "searchDetail": "Encuentra quien vaya hacia tu destino"
+    },
+    "quickReplies": {
+      "at_pickup": "Ya estoy en el punto",
+      "running_late": "Llego 5 min tarde",
+      "on_my_way": "Estoy en camino",
+      "where_are_you": "¿Dónde estás?",
+      "leaving_soon": "Salgo en 5 min",
+      "still_going": "¿Sigues yendo?",
+      "arriving_soon": "Llegamos en unos minutos",
+      "stopping_here": "Paro aquí un momento",
+      "on_time": "Salgo a la hora",
+      "still_coming": "¿Sigues viniendo?",
+      "im_coming": "Sí, voy",
+      "pickup_where": "¿Dónde me recoges?",
+      "waiting_for_you": "Te espero 2 min más",
+      "heading_down": "Ya voy para allá",
+      "i_see_you": "Te veo",
+      "can_we_stop": "¿Podemos parar un momento?"
+    },
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "elapsed": {
+      "now": "Ahora",
+      "minutes": "hace {{ minutes }} min",
+      "hours": "hace {{ hours }} h"
+    },
+    "forms": {
+      "useLocation": "Usar mi ubicación",
+      "usingLocation": "Usando tu ubicación actual",
+      "addressesFor": "Direcciones para {{ label }}",
+      "pickAddress": "Elige una dirección de la lista.",
+      "origin": "Origen",
+      "destination": "Destino",
+      "fromWhere": "¿Desde dónde sales?",
+      "toWhere": "¿A dónde vas?",
+      "bioLength": "Escribe entre 20 y 200 caracteres, o déjalo vacío.",
+      "editVehicle": "Editar vehículo",
+      "editPlate": "Editar {{ plate }}",
+      "deletePlate": "Eliminar {{ plate }}",
+      "timeMargin": "Margen horario de búsqueda",
+      "preferencesHelp": "Ayudan a coincidir con personas afines, como conductor y como pasajero.",
+      "appLanguage": "Idioma de la app",
+      "appTheme": "Tema de la app",
+      "modelError": "Escribe el modelo, como Ibiza.",
+      "plateHelp": "Como 1234 BCD.",
+      "plateError": "Escribe una matrícula española, como 1234 BCD.",
+      "foreignPlateHelp": "Letras y números, como en tu placa.",
+      "foreignPlateError": "Escribe de 2 a 10 letras y números, como en tu placa."
+    }
+  },
   "permissions": {
     "title": "Permisos de este dispositivo",
     "description": "Tu navegador o tu móvil te preguntarán por cada uno. Puedes activarlos ahora o más adelante, y quitarlos cuando quieras en sus ajustes.",

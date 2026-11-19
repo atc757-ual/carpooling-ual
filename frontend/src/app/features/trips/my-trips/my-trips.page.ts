@@ -30,7 +30,8 @@ import {
   passengerEntry,
   tabEntries,
 } from './trip-entries';
-import { EMPTY_TEXTS, isTripsTab, TRIPS_TABS, TripsTab } from './trip-tabs';
+import { emptyTextKey, isTripsTab, tripsTabs, TripsTab } from './trip-tabs';
+import { LanguageService } from '../../../core/services/ui/language.service';
 
 interface LiveBannerData {
   route: string;
@@ -100,7 +101,7 @@ export class MyTripsPage {
 
   // El filtro de estado: Próximos al entrar
   readonly tab = signal<TripsTab>('upcoming');
-  readonly emptyText = computed(() => EMPTY_TEXTS[this.tab()]);
+  readonly emptyText = computed(() => emptyTextKey(this.tab()));
   // Sin viajes por venir: invita a buscar o publicar
   readonly isUpcomingView = computed(() => this.tab() === 'upcoming');
   readonly isLoading = computed(
@@ -210,7 +211,11 @@ export class MyTripsPage {
       : 'Busca un viaje que encaje con tu ruta y pide plaza desde su detalle.';
   });
 
-  protected readonly tabs = TRIPS_TABS;
+  private readonly language = inject(LanguageService);
+  protected readonly tabs = computed(() => {
+    this.language.currentLanguage();
+    return tripsTabs();
+  });
   protected readonly entryTab = entryTab;
   protected readonly emptyIcon = carOutline;
   protected readonly errorIcon = alertCircleOutline;

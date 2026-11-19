@@ -12,7 +12,12 @@ export const translateEs: Translate = (key, params = {}) => {
       esDictionary,
     );
   if (typeof value !== 'string') {
-    throw new Error(`Missing translation key: ${key}`);
+    throw new TypeError(`Missing translation key: ${key}`);
   }
-  return value.replaceAll(/{{\s*(\w+)\s*}}/g, (_, name: string) => String(params[name] ?? ''));
+  return value.replaceAll(/{{\s*(\w+)\s*}}/g, (_, name: string) => paramText(params[name]));
 };
+
+// Los parámetros son textos o números; otra cosa (o ninguno) se deja vacía
+function paramText(param: unknown): string {
+  return typeof param === 'string' || typeof param === 'number' ? String(param) : '';
+}

@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 import {
@@ -19,7 +20,7 @@ import { plateSign } from '../../../utils/plate-country.util';
 // Publicar elige el vehículo del viaje; en el Perfil, el predeterminado
 @Component({
   selector: 'app-vehicle-card',
-  imports: [IonIcon, LicensePlate],
+  imports: [IonIcon, LicensePlate, TranslocoPipe],
   templateUrl: './vehicle-card.html',
   styleUrl: './vehicle-card.scss',
 })

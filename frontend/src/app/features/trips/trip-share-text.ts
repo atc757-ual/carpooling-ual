@@ -1,12 +1,14 @@
 import { Translate } from '../../core/i18n/translate';
 import { formatTime } from '../matching/trip-results';
+import { dateTimeFormat } from '../../core/i18n/app-locale';
 
 // El día de un instante ISO en la zona del dispositivo: «lunes, 16 de noviembre»
-const DAY_FORMAT = new Intl.DateTimeFormat('es-ES', {
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-});
+const DAY_FORMAT = () =>
+  dateTimeFormat({
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
 
 // El trayecto de un viaje, con los nombres que ya se muestran en la app
 export interface ShareRoute {
@@ -41,7 +43,7 @@ export function buildSeatsShareText(
   return translate('share.seatsText', {
     seats,
     route: routeText(route, translate),
-    day: DAY_FORMAT.format(new Date(route.departureAt)),
+    day: DAY_FORMAT().format(new Date(route.departureAt)),
     time: formatTime(route.departureAt),
   });
 }

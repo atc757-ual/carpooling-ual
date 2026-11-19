@@ -107,7 +107,7 @@
         maxlength="200"
         [placeholder]="'profile.bioPlaceholder' | transloco"
         [attr.aria-label]="'profile.aboutMe' | transloco"
-        [errorText]="isBioInvalid ? 'Escribe entre 20 y 200 caracteres, o déjalo vacío.' : ''"
+        [errorText]="isBioInvalid ? ('labels.forms.bioLength' | transloco) : ''"
       />
       <span class="text-body-s text-color-muted">Opcional: mínimo 20 y máximo 200 caracteres.</span>
     </div>

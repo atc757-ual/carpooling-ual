@@ -8,6 +8,7 @@ import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { ToastService } from '../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../shared/utils/error-message.util';
 import { distanceMeters } from './passenger-requests/live-trip-map/live-trip-map.utils';
+import { numberFormat } from '../../core/i18n/app-locale';
 
 // Más lejos que esto del destino, se avisa antes de terminar (no se impide:
 // el GPS puede fallar o el viaje acabar antes por algo justificado)
@@ -27,13 +28,13 @@ export interface FinishableTrip {
   destination: GeoPoint;
 }
 
-const DISTANCE_FORMAT = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 1 });
+const DISTANCE_FORMAT = () => numberFormat({ maximumFractionDigits: 1 });
 
 // «250 m», «2,3 km»
 export function formatDistance(meters: number): string {
   return meters < 1000
     ? `${Math.round(meters)} m`
-    : `${DISTANCE_FORMAT.format(Math.round(meters / 100) / 10)} km`;
+    : `${DISTANCE_FORMAT().format(Math.round(meters / 100) / 10)} km`;
 }
 
 // Dónde está el conductor; null si no se sabe (sin permiso, sin GPS…)

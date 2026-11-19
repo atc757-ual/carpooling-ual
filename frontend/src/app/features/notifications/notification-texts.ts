@@ -1,36 +1,13 @@
+import { translate } from '@jsverse/transloco';
 import { TravelMode } from '../../core/services/users/active-mode.service';
 import { NotificationType } from '../../core/models/notification.model';
 import { LegalDocumentType } from '../../core/services/users/legal-documents.service';
+import { appLanguage } from '../../core/i18n/app-locale';
 import { formatDateLabel } from '../../shared/components/ui/datetime-field/datetime-field';
 
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
 const DAY_MS = 24 * HOUR_MS;
-
-// La frase de cada aviso. Quién lo recibe lo decide el backend (RF-19): el
-// conductor, el pasajero o, en las incidencias, la administración
-const MESSAGES: Record<NotificationType, string> = {
-  request_received: 'Te han pedido plaza',
-  passenger_joined: 'Alguien se ha unido a tu viaje',
-  request_accepted: 'Han aceptado tu solicitud',
-  request_rejected: 'No han aceptado tu solicitud',
-  request_cancelled: 'Han cancelado una solicitud',
-  request_conflict_cancelled: 'Tu solicitud se canceló al aceptar otro viaje',
-  trip_cancelled: 'Han cancelado el viaje',
-  passenger_left: 'Un pasajero ha dejado el viaje',
-  trip_started: 'Tu conductor va de camino',
-  incident_reported: 'Hay una incidencia nueva',
-  review_requested: 'Valora el viaje',
-  request_expired: 'Tu solicitud ha caducado',
-  passenger_no_show: 'Un pasajero no se ha presentado',
-  trip_completed: 'Tu viaje ha terminado: valóralo',
-  trip_auto_finished: 'Hemos cerrado tu viaje: había pasado una hora de la llegada',
-  pending_requests_reminder: 'Tienes solicitudes por responder',
-  trip_start_reminder: 'Es la hora de tu viaje: inícialo',
-  trip_expired: 'Tu viaje se ha quedado sin pasajeros',
-  terms_updated: 'Hemos actualizado las Condiciones de uso',
-  privacy_updated: 'Hemos actualizado la Política de privacidad',
-};
 
 // Con qué modo se ve en Mis viajes; las incidencias son de la administración
 // y los avisos legales abren el documento
@@ -57,10 +34,6 @@ const MODES: Record<NotificationType, TravelMode | null> = {
   privacy_updated: null,
 };
 
-export function notificationMessage(type: NotificationType): string {
-  return MESSAGES[type];
-}
-
 export function notificationMode(type: NotificationType): TravelMode | null {
   return MODES[type];
 }
@@ -70,28 +43,24 @@ export function notificationCategory(type: NotificationType): 'travel' | 'accoun
   return type === 'incident_reported' ? 'incident' : 'travel';
 }
 
-export function notificationCategoryLabel(category: 'travel' | 'account' | 'incident'): string {
-  return { travel: 'Viajes', account: 'Cuenta', incident: 'Incidencias' }[category];
-}
-
 // «Ahora», «hace 5 min», «hace 3 h», «Ayer» y después la fecha («jue, 30 oct»)
 export function formatElapsed(isoDate: string, now: Date): string {
   const elapsed = now.getTime() - new Date(isoDate).getTime();
   if (elapsed < MINUTE_MS) {
-    return 'Ahora';
+    return translate('labels.elapsed.now');
   }
   if (elapsed < HOUR_MS) {
-    return `hace ${Math.floor(elapsed / MINUTE_MS)} min`;
+    return translate('labels.elapsed.minutes', { minutes: Math.floor(elapsed / MINUTE_MS) });
   }
   if (elapsed < DAY_MS) {
-    return `hace ${Math.floor(elapsed / HOUR_MS)} h`;
+    return translate('labels.elapsed.hours', { hours: Math.floor(elapsed / HOUR_MS) });
   }
   const day = new Date(isoDate).toLocaleDateString('sv-SE');
   const yesterday = new Date(now.getTime() - DAY_MS).toLocaleDateString('sv-SE');
   if (day === yesterday) {
-    return 'Ayer';
+    return translate('labels.yesterday');
   }
-  return formatDateLabel(day, now);
+  return formatDateLabel(day, now, appLanguage());
 }
 
 // El documento de un aviso legal (cambio menor), o null si es de un viaje

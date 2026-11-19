@@ -1,10 +1,13 @@
+import { translate } from '@jsverse/transloco';
+
 // «1 plaza», «3 plazas»
 export function formatSeats(seats: number): string {
-  return seats === 1 ? '1 plaza' : `${seats} plazas`;
+  return translate(seats === 1 ? 'labels.seats.one' : 'labels.seats.other', { count: seats });
 }
 
-// «1 plaza libre de 1», «2 plazas libres de 3», «Sin plazas libres de 2»
+// Corto, para la rejilla de datos (con la etiqueta «Plazas libres»): «2 de 3» o «Completo»
 export function formatAvailableSeats(available: number, offered: number): string {
-  // Corto, para la rejilla de datos (con la etiqueta «Plazas libres»)
-  return available <= 0 ? 'Completo' : `${available} de ${offered}`;
+  return available <= 0
+    ? translate('labels.seats.full')
+    : translate('labels.seats.availableOf', { available, offered });
 }
