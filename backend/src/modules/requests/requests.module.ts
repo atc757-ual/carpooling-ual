@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsModule } from '../../events/events.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { MailModule } from '../../shared/mail/mail.module';
 import { TripsModule } from '../trips/trips.module';
 import { UsersModule } from '../users/users.module';
 import { SeatRequest } from './entities/seat-request.entity';
@@ -16,6 +17,7 @@ import { RequestStatsService } from './request-stats.service';
 import { RequestsService } from './requests.service';
 import { RequestLifecycleScheduler } from './request-lifecycle.scheduler';
 import { TripChangesListener } from './trip-changes.listener';
+import { TripEmailsListener } from './trip-emails.listener';
 import { TripParticipantsRegistration } from './trip-participants.registration';
 
 // Solicitudes de plaza (RF-08 a RF-10). Depende de trips (plazas y estado del
@@ -29,6 +31,7 @@ import { TripParticipantsRegistration } from './trip-participants.registration';
     UsersModule,
     EventsModule,
     NotificationsModule,
+    MailModule,
   ],
   controllers: [RequestsController],
   providers: [
@@ -41,6 +44,7 @@ import { TripParticipantsRegistration } from './trip-participants.registration';
     RequestPickupsService,
     RequestDropOffService,
     TripChangesListener,
+    TripEmailsListener,
     RequestLifecycleScheduler,
     TripParticipantsRegistration,
   ],
