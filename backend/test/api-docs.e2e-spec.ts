@@ -168,6 +168,7 @@ describe('API docs (e2e)', () => {
       '/api/users/me/conversations',
       '/api/users/me/driver-declaration',
       '/api/users/me/driver-status',
+      '/api/users/me/impact',
       '/api/users/me/incidents',
       '/api/users/me/legal-acceptances',
       '/api/users/me/legal-documents/pending',

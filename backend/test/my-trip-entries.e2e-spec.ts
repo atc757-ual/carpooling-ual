@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import type { Point } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { savedCo2Kg } from '../src/modules/metrics/saved-co2';
 import { RequestsService } from '../src/modules/requests/requests.service';
 import { OsrmClient } from '../src/modules/trips/osrm.client';
 import type { RoutePlan } from '../src/modules/trips/route-plan';
@@ -17,8 +18,9 @@ import { deleteTestUsers } from './support/cleanup';
 import { publishableDeparture, setDepartureIn } from './support/trips';
 
 // «Tus viajes» por pestañas y páginas (los viajes que conduce y sus
-// solicitudes de pasajero, juntos). OSRM se sustituye por uno falso. Los
-// usuarios llevan el prefijo EMAIL_PREFIX y se borran con todo lo suyo
+// solicitudes de pasajero, juntos) y el impacto con los dos papeles. OSRM se
+// sustituye por uno falso. Los usuarios llevan el prefijo EMAIL_PREFIX y se
+// borran con todo lo suyo
 const EMAIL_PREFIX = 'trip-entries-e2e-';
 const PASSWORD = 'secret-password';
 const DAY_MIN = 24 * 60;
@@ -235,5 +237,47 @@ describe('My trip entries (e2e)', () => {
 
     const response = await list(dan, '?tab=all').expect(400);
     expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+  });
+
+  it('adds up the impact of both profiles', async () => {
+    const { dan, seatId, piaTripId } = await setUp();
+    await setTrip(piaTripId, { status: 'finished' });
+    await dataSource.query(
+      "UPDATE requests SET status = 'completed' WHERE id = $1",
+      [seatId],
+    );
+
+    const response = await request(app.getHttpServer())
+      .get('/api/users/me/impact')
+      .set('Authorization', `Bearer ${dan.accessToken}`)
+      .expect(200);
+
+    // Como conductor, dos pasajeros en el viaje hecho; como pasajero, uno
+    const leg = { origin: ALMERIA_CENTRE, destination: UAL_CAMPUS };
+    expect(response.body).toEqual({
+      '@type': 'UserImpact',
+      href: '/api/users/me/impact',
+      tripsDone: 2,
+      carsAvoided: 3,
+      co2Kg: savedCo2Kg([
+        { ...leg, carsAvoided: 2 },
+        { ...leg, carsAvoided: 1 },
+      ]),
+    });
+  });
+
+  it('starts at zero without trips', async () => {
+    const leo = await sessionFor('leo', ['passenger']);
+
+    const response = await request(app.getHttpServer())
+      .get('/api/users/me/impact')
+      .set('Authorization', `Bearer ${leo.accessToken}`)
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      tripsDone: 0,
+      carsAvoided: 0,
+      co2Kg: 0,
+    });
   });
 });
