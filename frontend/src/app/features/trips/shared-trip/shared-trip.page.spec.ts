@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { Component, input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Meta } from '@angular/platform-browser';
@@ -55,6 +56,7 @@ describe('SharedTripPage', () => {
     TestBed.configureTestingModule({
       imports: [SharedTripPage],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: TripLiveShareService, useValue: { getShared } },
       ],

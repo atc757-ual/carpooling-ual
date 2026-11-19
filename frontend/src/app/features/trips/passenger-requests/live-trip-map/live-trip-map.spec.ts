@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
@@ -14,6 +15,7 @@ const renderer = {
   render: vi.fn(),
   center: vi.fn(),
   setBottomInset: vi.fn(),
+  setCarTitle: vi.fn(),
   destroy: vi.fn(),
 };
 
@@ -50,6 +52,7 @@ describe('LiveTripMap', () => {
     TestBed.configureTestingModule({
       imports: [LiveTripMap],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: TrackingService, useValue: tracking },
         { provide: LocationService, useValue: location },
@@ -214,6 +217,15 @@ describe('LiveTripMap', () => {
 
       expect(stale.textContent).toContain('No estamos recibiendo tu ubicación.');
     });
+  });
+
+  it('names the car marker and the map in the current language', async () => {
+    const element = await render(true, { pickupLocation: PICKUP, viewer: 'driver' });
+
+    expect(renderer.setCarTitle).toHaveBeenCalledWith('Posición actual del coche');
+    expect(element.querySelector('.trip-live-map__canvas')?.getAttribute('aria-label')).toBe(
+      'Tu posición y la recogida',
+    );
   });
 
   it('destroys the map renderer with the screen', async () => {

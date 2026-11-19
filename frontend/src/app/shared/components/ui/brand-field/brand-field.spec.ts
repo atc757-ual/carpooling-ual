@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
@@ -17,6 +18,7 @@ describe('BrandField', () => {
     TestBed.configureTestingModule({
       imports: [BrandField],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: CatalogsService, useValue: { vehicleBrandNames } },
       ],
@@ -94,6 +96,7 @@ describe('BrandField', () => {
     TestBed.configureTestingModule({
       imports: [BrandField],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: CatalogsService, useValue: { vehicleBrandNames } },
       ],
@@ -119,6 +122,7 @@ describe('BrandField', () => {
     TestBed.configureTestingModule({
       imports: [BrandField],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: CatalogsService, useValue: { vehicleBrandNames } },
       ],

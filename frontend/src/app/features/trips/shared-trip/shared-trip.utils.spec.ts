@@ -1,3 +1,4 @@
+import { translateEs } from '../../../core/i18n/testing-translate';
 import { SharedTrip } from '../../../core/models/trip-share.model';
 import {
   describeSharedTrip,
@@ -44,12 +45,12 @@ describe('shared trip utils', () => {
       'neutral',
     ],
   ])('describes %o', (changes, title, tone) => {
-    expect(describeSharedTrip(sharedTrip(changes), 'Mario')).toMatchObject({ title, tone });
+    expect(describeSharedTrip(sharedTrip(changes), translateEs)).toMatchObject({ title, tone });
   });
 
   it('says the driver is on the way while in progress', () => {
     expect(
-      describeSharedTrip(sharedTrip({ tripStatus: 'in_progress' }), 'Mario').description,
+      describeSharedTrip(sharedTrip({ tripStatus: 'in_progress' }), translateEs).description,
     ).toContain('ya ha salido');
   });
 
@@ -78,11 +79,14 @@ describe('shared trip utils', () => {
         ],
       },
       'Parking P1',
+      translateEs,
     );
 
     expect(ends?.origin.coordinates).toEqual([-2.46, 36.84]);
     expect(ends?.destination).toEqual({ coordinates: [-2.4, 36.82], label: 'Parking P1' });
-    expect(routeEnds({ type: 'LineString', coordinates: [[-2.4, 36.8]] }, null)).toBeNull();
+    expect(
+      routeEnds({ type: 'LineString', coordinates: [[-2.4, 36.8]] }, null, translateEs),
+    ).toBeNull();
   });
 
   it('knows when the position is old', () => {

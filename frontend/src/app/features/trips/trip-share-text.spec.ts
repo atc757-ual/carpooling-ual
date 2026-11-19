@@ -1,3 +1,4 @@
+import { translateEs } from '../../core/i18n/testing-translate';
 import { formatTime } from '../matching/trip-results';
 import { buildLiveShareText, buildSeatsShareText, ShareRoute } from './trip-share-text';
 
@@ -10,7 +11,7 @@ const TIME = formatTime(ROUTE.departureAt);
 
 describe('trip share text', () => {
   it('announces the free seats with the route, day and time', () => {
-    const text = buildSeatsShareText(ROUTE, 2);
+    const text = buildSeatsShareText(ROUTE, 2, translateEs);
 
     expect(text).toContain(
       'Tengo 2 plazas libres en mi coche: Roquetas de Mar → Campus · Parking 1',
@@ -21,11 +22,14 @@ describe('trip share text', () => {
   });
 
   it('uses the singular for a single seat', () => {
-    expect(buildSeatsShareText(ROUTE, 1)).toContain('Tengo 1 plaza libre en mi coche');
+    expect(buildSeatsShareText(ROUTE, 1, translateEs)).toContain('Tengo 1 plaza libre en mi coche');
   });
 
   it('falls back to generic names when the trip has none', () => {
-    const text = buildLiveShareText({ ...ROUTE, originName: null, destinationName: null });
+    const text = buildLiveShareText(
+      { ...ROUTE, originName: null, destinationName: null },
+      translateEs,
+    );
 
     expect(text).toBe(
       `Voy conduciendo un viaje compartido de la UAL: Origen → Destino, salida a las ${TIME}.`,
@@ -33,7 +37,7 @@ describe('trip share text', () => {
   });
 
   it('tells who drives and the car when a passenger shares the trip', () => {
-    const text = buildLiveShareText(ROUTE, {
+    const text = buildLiveShareText(ROUTE, translateEs, {
       name: 'Lucía',
       vehicleName: 'Seat Ibiza',
       plate: '1234ABC',
@@ -46,7 +50,11 @@ describe('trip share text', () => {
   });
 
   it('leaves out the car when it is unknown', () => {
-    const text = buildLiveShareText(ROUTE, { name: 'Lucía', vehicleName: null, plate: null });
+    const text = buildLiveShareText(ROUTE, translateEs, {
+      name: 'Lucía',
+      vehicleName: null,
+      plate: null,
+    });
 
     expect(text.endsWith('Conduce Lucía.')).toBe(true);
   });

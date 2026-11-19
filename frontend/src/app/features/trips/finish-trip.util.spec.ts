@@ -1,4 +1,5 @@
 import { vi } from 'vitest';
+import { translateEs } from '../../core/i18n/testing-translate';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { DriverService } from '../../core/services/drivers/driver.service';
 import { LocationService } from '../../core/services/location/location.service';
@@ -35,6 +36,7 @@ describe('finishTrip', () => {
       tracking: { stop } as unknown as DriverTrackingService,
       toast: toast as unknown as ToastService,
       location: { getCurrentPoint } as unknown as LocationService,
+      translate: translateEs,
     };
   });
 

@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { FiltersCard } from './filters-card';
@@ -6,7 +7,7 @@ describe('FiltersCard', () => {
   let fixture: ComponentFixture<FiltersCard>;
 
   function render(inputs: Record<string, unknown> = {}): HTMLElement {
-    TestBed.configureTestingModule({ providers: [provideIonicAngular()] });
+    TestBed.configureTestingModule({ providers: [provideAppTransloco(), provideIonicAngular()] });
     fixture = TestBed.createComponent(FiltersCard);
     for (const [key, value] of Object.entries(inputs)) {
       fixture.componentRef.setInput(key, value);

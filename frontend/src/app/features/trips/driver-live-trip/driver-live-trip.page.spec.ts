@@ -33,6 +33,7 @@ const RENDERER = {
   render: vi.fn(),
   center: vi.fn(),
   setBottomInset: vi.fn(),
+  setCarTitle: vi.fn(),
   destroy: vi.fn(),
 };
 
