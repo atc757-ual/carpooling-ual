@@ -1,4 +1,4 @@
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { translate, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -61,13 +61,11 @@ const REQUEST_CUTOFF_MS = 10 * 60 * 1000;
 // un consentimiento (es parte del servicio, RGPD 6.1.b, como explica la
 // Política de privacidad). En la app nativa sigue con la pantalla bloqueada
 // (servicio en primer plano), y se dice antes de pedirla
-const SHARE_MESSAGE =
-  'Para iniciar el viaje hay que compartir tu ubicación: tus pasajeros verán dónde estás mientras dura y dejarás de compartirla al terminarlo. Es parte del servicio (lo explica la Política de privacidad): solo te pedimos el permiso del dispositivo.';
-const SHARE_MESSAGE_NATIVE = `${SHARE_MESSAGE} Seguirá compartiéndose aunque bloquees la pantalla o uses otra app; lo verás en una notificación.`;
+const SHARE_MESSAGE_KEY = 'screens.driverTripActions.shareMessage';
+const SHARE_MESSAGE_NATIVE_KEY = 'screens.driverTripActions.shareMessageNative';
 
 // RF-21: al iniciar se confirma la declaración, sin otra casilla
-const DECLARATION_MESSAGE =
-  'Al iniciar, confirmas que sigues cumpliendo tu declaración y la de tu vehículo (permiso, seguro e ITV).';
+const DECLARATION_MESSAGE_KEY = 'screens.driverTripActions.declarationMessage';
 
 // «Qué puedes hacer» en el detalle de un viaje del conductor: anunciar sus
 // plazas libres (compartir), iniciarlo
@@ -127,19 +125,21 @@ export class DriverTripActions {
   readonly startHint = computed(() => {
     const { status } = this.trip();
     if (status === 'published') {
-      return 'Podrás iniciarlo cuando aceptes a algún pasajero.';
+      return translate('screens.driverTripActions.podrasIniciarloCuandoAceptes');
     }
     return status === 'confirmed' && !this.canStart()
-      ? `Podrás iniciarlo a las ${formatTime(new Date(this.startableAt()).toISOString())}, 10 min antes de salir.`
+      ? translate('screens.driverTripActions.podrasIniciarlo10Min', {
+          value1: formatTime(new Date(this.startableAt()).toISOString()),
+        })
       : null;
   });
   // Cancelado o terminado: sin acciones, solo el motivo
   readonly closedReason = computed(() => {
     switch (this.trip().status) {
       case 'cancelled':
-        return 'Este viaje se canceló.';
+        return translate('screens.driverTripActions.esteViajeCancelo');
       case 'finished':
-        return 'Este viaje ya terminó.';
+        return translate('screens.driverTripActions.esteViajeYaTermino');
       default:
         return null;
     }
@@ -210,7 +210,10 @@ export class DriverTripActions {
     const freeUntil = formatTime(
       freeCancellationUntil(trip.departureAt, DRIVER_LATE_CANCELLATION_LEAD_MIN),
     );
-    return `Sin coste hasta las ${freeUntil} (${DRIVER_LATE_CANCELLATION_LEAD_MIN} min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder publicar.`;
+    return translate('screens.driverTripActions.sinCosteHastaMin', {
+      freeUntil,
+      DRIVER_LATE_CANCELLATION_LEAD_MIN,
+    });
   });
 
   async handleStart(): Promise<void> {
@@ -227,7 +230,7 @@ export class DriverTripActions {
         () => this.driver.startTrip(trip.id),
       );
       this.tracking.start(trip.id);
-      void this.toast.showSuccess('Viaje iniciado. Tus pasajeros ya ven dónde estás.');
+      void this.toast.showSuccess(translate('screens.driverTripActions.viajeIniciadoPasajerosYa'));
       this.changed.emit();
       // Directo a la pantalla del viaje en curso
       void this.router.navigateByUrl(this.livePath());
@@ -259,12 +262,17 @@ export class DriverTripActions {
   // explica y se pide el permiso. false si no se da
   private async ensureLocationShared(): Promise<boolean> {
     const hasPermission = (await this.location.checkDevicePermission()) === 'granted';
-    const shareMessage = Capacitor.isNativePlatform() ? SHARE_MESSAGE_NATIVE : SHARE_MESSAGE;
+    const shareMessage = translate(
+      Capacitor.isNativePlatform() ? SHARE_MESSAGE_NATIVE_KEY : SHARE_MESSAGE_KEY,
+    );
+    const declarationMessage = translate(DECLARATION_MESSAGE_KEY);
     const accepted = await this.confirm.ask({
-      header: hasPermission ? '¿Iniciar el viaje?' : 'Compartirás tu ubicación',
-      message: hasPermission ? DECLARATION_MESSAGE : `${shareMessage} ${DECLARATION_MESSAGE}`,
-      confirmText: 'Iniciar viaje',
-      cancelText: 'Ahora no',
+      header: hasPermission
+        ? translate('screens.driverTripActions.iniciarViaje')
+        : translate('screens.driverTripActions.compartirasUbicacion'),
+      message: hasPermission ? declarationMessage : `${shareMessage} ${declarationMessage}`,
+      confirmText: translate('screens.driverTripActions.iniciarViaje2'),
+      cancelText: translate('screens.driverTripActions.ahora'),
       icon: this.locationIcon,
     });
     if (!accepted || hasPermission) {
@@ -276,7 +284,7 @@ export class DriverTripActions {
     } catch (error) {
       const message =
         error instanceof LocationError
-          ? 'Sin permiso de ubicación no puedes iniciar el viaje. Actívalo en los ajustes del móvil.'
+          ? translate('screens.driverTripActions.sinPermisoUbicacionPuedes')
           : getErrorMessage(ApiError.fromHttpError(error));
       void this.toast.showError(message);
       return false;
@@ -290,13 +298,13 @@ export class DriverTripActions {
     }
     const isLate = this.cancellationIsLate();
     const message = isLate
-      ? 'La salida está a menos de 20 minutos (o ya pasó) y hay pasajeros aceptados. Esta cancelación contará como tardía y puede suspender tus publicaciones al llegar a 3 en 30 días. Avisaremos a los pasajeros.'
-      : 'Se avisará a los pasajeros y dejarán de tener sus plazas. Puedes publicar otro viaje cuando quieras.';
+      ? translate('screens.driverTripActions.salidaEstaMenos20')
+      : translate('screens.driverTripActions.avisaraPasajerosDejaranTener');
     const accepted = await this.confirm.ask({
-      header: '¿Cancelar este viaje?',
+      header: translate('screens.driverTripActions.cancelarEsteViaje'),
       message,
-      confirmText: 'Confirmar cancelación',
-      cancelText: 'Mantener viaje',
+      confirmText: translate('screens.driverTripActions.confirmarCancelacion'),
+      cancelText: translate('screens.driverTripActions.mantenerViaje'),
     });
     if (!accepted) {
       return;

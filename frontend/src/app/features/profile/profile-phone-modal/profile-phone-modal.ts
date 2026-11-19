@@ -13,7 +13,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { IonButton, IonIcon, IonInput, IonSpinner, IonText, ModalController } from '@ionic/angular';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { checkmarkCircle, shieldCheckmarkOutline } from 'ionicons/icons';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -189,7 +189,7 @@ export class ProfilePhoneModal implements OnInit {
       this.codeForm.reset();
       this.isLocked.set(false);
       this.resendCountdown.restart();
-      void this.toast.showSuccess('Nuevo código enviado por SMS.');
+      void this.toast.showSuccess(translate('screens.profilePhoneModal.nuevoCodigoEnviadoSms'));
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
     }
@@ -206,7 +206,7 @@ export class ProfilePhoneModal implements OnInit {
       );
       this.auth.updateUser(updated);
       this.user = updated;
-      void this.toast.showSuccess('Teléfono verificado.');
+      void this.toast.showSuccess(translate('screens.profilePhoneModal.telefonoVerificado'));
       await this.modalController.dismiss(updated, 'saved');
     } catch (error) {
       const apiError = ApiError.fromHttpError(error);

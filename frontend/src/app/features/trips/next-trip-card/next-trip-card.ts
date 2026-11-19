@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
@@ -88,11 +88,16 @@ export class NextTripCard {
       return '';
     }
     return next.role === 'driver'
-      ? `${occupiedSeats(next.trip)} de ${next.trip.offeredSeats} plazas ocupadas`
+      ? translate('screens.nextTripCard.plazasOcupadas', {
+          value1: occupiedSeats(next.trip),
+          offeredSeats: next.trip.offeredSeats,
+        })
       : `Conduce ${next.trip.driver.name}`;
   });
   readonly actionLabel = computed(() => {
-    return this.next()?.role === 'driver' ? 'Ver tu viaje' : 'Ver tu plaza';
+    return this.next()?.role === 'driver'
+      ? translate('screens.nextTripCard.verViaje')
+      : translate('screens.nextTripCard.verPlaza');
   });
 
   reload(): void {

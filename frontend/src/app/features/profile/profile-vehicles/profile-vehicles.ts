@@ -9,7 +9,7 @@ import {
   IonSpinner,
   ModalController,
 } from '@ionic/angular';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { addOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { Vehicle } from '../../../core/models/driver.model';
@@ -91,7 +91,7 @@ export class ProfileVehicles implements OnInit {
   async handleRemove(vehicle: Vehicle): Promise<void> {
     const isConfirmed = await this.confirm.ask({
       header: `¿Eliminar ${vehicle.plate}?`,
-      message: 'Dejará de salir en tus vehículos y no podrás publicar viajes con él.',
+      message: translate('screens.profileVehicles.dejaraSalirVehiculosPodras'),
       confirmText: 'Eliminar',
       icon: CONFIRM_ICONS.remove,
     });

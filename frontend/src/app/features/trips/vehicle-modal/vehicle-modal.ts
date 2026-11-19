@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, inject, Input, viewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
@@ -31,7 +31,11 @@ export class VehicleModal {
   }
 
   handleSaved(vehicle: Vehicle): Promise<boolean> {
-    void this.toast.showSuccess(this.vehicle ? 'Vehículo actualizado.' : 'Vehículo registrado.');
+    void this.toast.showSuccess(
+      this.vehicle
+        ? translate('screens.vehicleModal.vehiculoActualizado')
+        : translate('screens.vehicleModal.vehiculoRegistrado'),
+    );
     return this.modalController.dismiss(vehicle, 'saved');
   }
 }

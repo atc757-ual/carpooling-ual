@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
+import { lazyLabels } from '../../i18n/lazy-labels';
 
 export type LegalDocumentType =
   'terms' | 'privacy' | 'driver_declaration' | 'vehicle_declaration' | 'location';
@@ -26,13 +27,13 @@ export interface PendingLegalDocument {
   version: string;
 }
 
-export const LEGAL_DOCUMENT_TITLES: Readonly<Record<LegalDocumentType, string>> = {
-  terms: 'Condiciones de uso',
-  privacy: 'Política de privacidad',
-  driver_declaration: 'Declaración responsable',
-  vehicle_declaration: 'Declaración del vehículo',
-  location: 'Uso de la ubicación',
-};
+export const LEGAL_DOCUMENT_TITLES: Readonly<Record<LegalDocumentType, string>> = lazyLabels({
+  terms: 'screens.legalDocuments.terms',
+  privacy: 'screens.legalDocuments.privacy',
+  driver_declaration: 'screens.legalDocuments.driverDeclaration',
+  vehicle_declaration: 'screens.legalDocuments.vehicleDeclaration',
+  location: 'screens.legalDocuments.location',
+});
 
 // Documentos legales con versiones: el texto vigente (también sin sesión, al
 // registrarse) y las versiones nuevas que el usuario tiene que aceptar.

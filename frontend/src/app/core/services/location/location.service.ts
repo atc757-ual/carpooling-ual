@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { inject, Injectable, InjectionToken } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
@@ -97,9 +98,7 @@ export class LocationService {
     try {
       await this.consent.set('revoked', 'device');
     } catch {
-      void this.toast.showError(
-        'No hemos podido guardar que has quitado el permiso de ubicación. Lo intentaremos de nuevo.',
-      );
+      void this.toast.showError(translate('screens.location.hemosPodidoGuardarHas'));
     }
   }
 

@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -159,7 +159,10 @@ export class DriverTripDetailPage {
     }
     return {
       route: formatRoute(trip),
-      detail: `${occupiedSeats(trip)} de ${trip.offeredSeats} plazas ocupadas`,
+      detail: translate('screens.driverTripDetail.plazasOcupadas', {
+        value1: occupiedSeats(trip),
+        offeredSeats: trip.offeredSeats,
+      }),
       link: `/tabs/trips/drive/${trip.id}`,
     };
   });

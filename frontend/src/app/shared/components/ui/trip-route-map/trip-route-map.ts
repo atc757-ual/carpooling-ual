@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -75,10 +76,13 @@ export class TripRouteMap implements OnDestroy {
   protected readonly label = computed(() => {
     const ends = `${this.origin().label} a ${this.destination().label}`;
     const route = this.hasApproximatePoints()
-      ? `Zona aproximada del viaje: ${ends}`
-      : `Ruta del conductor: ${ends}`;
+      ? translate('screens.tripRouteMap.zonaAproximadaViaje', { ends })
+      : translate('screens.tripRouteMap.rutaConductor', { ends });
     const pickups = this.pickups().map(({ label }) => label);
-    const withPickups = pickups.length > 0 ? `${route}; recogida en ${pickups.join(', ')}` : route;
+    const withPickups =
+      pickups.length > 0
+        ? translate('screens.tripRouteMap.recogida', { route, value2: pickups.join(', ') })
+        : route;
     const car = this.car();
     return car ? `${withPickups}; ${car.label}` : withPickups;
   });

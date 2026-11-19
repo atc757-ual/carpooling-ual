@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
@@ -35,7 +35,9 @@ export class DriverTripSummary {
     if (count === 0) {
       return null;
     }
-    return count === 1 ? '1 solicitud por responder' : `${count} solicitudes por responder`;
+    return count === 1
+      ? translate('screens.driverTripSummary.oneRequest')
+      : translate('screens.driverTripSummary.solicitudesResponder', { count });
   });
 
   readonly isInProgress = computed(() => this.trip().status === 'in_progress');
@@ -58,17 +60,22 @@ export class DriverTripSummary {
   readonly statusLabel = computed(() => tripStatusLabel(this.trip().status));
   readonly seatsLabel = computed(() => {
     const { availableSeats, offeredSeats } = this.trip();
-    return `${availableSeats} de ${offeredSeats} libres`;
+    return translate('screens.driverTripSummary.freeOf', {
+      available: availableSeats,
+      offered: offeredSeats,
+    });
   });
   readonly action = computed(() => {
     const { status, departureAt } = this.trip();
     if (status === 'in_progress') {
-      return 'Abrir viaje';
+      return translate('screens.driverTripSummary.abrirViaje');
     }
     if (status === 'confirmed' && Date.now() >= Date.parse(departureAt) - START_WINDOW_MS) {
-      return 'Iniciar viaje';
+      return translate('screens.driverTripSummary.iniciarViaje');
     }
-    return status === 'published' || status === 'confirmed' ? 'Ver solicitudes' : 'Ver viaje';
+    return status === 'published' || status === 'confirmed'
+      ? translate('screens.driverTripSummary.verSolicitudes')
+      : translate('screens.driverTripSummary.verViaje');
   });
 
   constructor() {

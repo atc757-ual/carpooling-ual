@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { DestroyRef, WritableSignal, signal } from '@angular/core';
 import type { TranslocoService } from '@jsverse/transloco';
 
@@ -57,7 +58,9 @@ export function getResendLabel(seconds: number, transloco?: TranslocoService | n
       ? transloco.translate('common.countdown.resendIn', { time: formatMinutesSeconds(seconds) })
       : transloco.translate('common.countdown.resend');
   }
-  return seconds > 0 ? `Reenviar código en ${formatMinutesSeconds(seconds)}` : 'Reenviar código';
+  return seconds > 0
+    ? translate('screens.countdown.reenviarCodigo', { value1: formatMinutesSeconds(seconds) })
+    : translate('screens.countdown.reenviarCodigo2');
 }
 
 // 60 → «01:00», 42 → «00:42»

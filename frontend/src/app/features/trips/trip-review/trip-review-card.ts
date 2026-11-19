@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -56,7 +56,7 @@ export class TripReviewCard {
   readonly tripId = input.required<string>();
   readonly targets = input.required<ReviewTarget[]>();
   readonly targetRole = input.required<ReviewTargetRole>();
-  readonly title = input('Tu valoración');
+  readonly title = input(translate('screens.tripReviewCard.valoracion'));
   // De uno en uno (en la hoja de «En curso» del conductor): solo el primero
   // que falta, con «1 de 2» y «Ahora no»; al acabar, un resumen en una línea
   // por persona. Si no, todos a la vez (en el detalle del viaje)

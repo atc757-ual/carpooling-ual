@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -89,7 +89,10 @@ export class PickupModeField {
     const center = this.stops().at(-1)?.coordinates ?? this.mapCenter() ?? CAMPUS_POINT;
     const modal = await this.modalController.create({
       component: LocationModal,
-      componentProps: { adjustPoint: center, adjustTitle: 'Elegir parada en el mapa' },
+      componentProps: {
+        adjustPoint: center,
+        adjustTitle: translate('screens.pickupModeField.elegirParadaMapa'),
+      },
       cssClass: 'location-dialog',
     });
     await modal.present();

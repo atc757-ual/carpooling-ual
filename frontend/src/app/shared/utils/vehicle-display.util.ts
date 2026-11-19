@@ -1,4 +1,5 @@
 import { Vehicle, VehicleEngine } from '../../core/models/driver.model';
+import { lazyLabels } from '../../core/i18n/lazy-labels';
 
 export function vehicleDisplayName(
   vehicle: Pick<Vehicle, 'brand' | 'model'> & Partial<Pick<Vehicle, 'plate'>>,
@@ -8,10 +9,10 @@ export function vehicleDisplayName(
 
 const SPANISH_PLATE = /^(\d{4})\s?([A-Z]{3})$/;
 
-const ENGINE_LABELS: Partial<Record<VehicleEngine, string>> = {
-  electric: 'Eléctrico',
-  hybrid: 'Híbrido',
-};
+const ENGINE_LABELS: Partial<Record<VehicleEngine, string>> = lazyLabels({
+  electric: 'screens.vehicleEngine.electric',
+  hybrid: 'screens.vehicleEngine.hybrid',
+});
 
 // «1234BGG» → «1234 BGG», como se escribe la matrícula española actual; las
 // demás, tal cual

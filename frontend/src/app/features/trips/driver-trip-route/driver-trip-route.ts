@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import {
   IonCard,
@@ -103,7 +103,9 @@ export class DriverTripRoute {
         ? [
             {
               coordinates: pickupLocation.coordinates,
-              label: `Recogida de ${getFirstName(passenger.name)}`,
+              label: translate('screens.driverTripRoute.recogida', {
+                value1: getFirstName(passenger.name),
+              }),
             },
           ]
         : [],
@@ -132,8 +134,14 @@ export class DriverTripRoute {
         label: 'Distancia',
         value: route ? `${route.distanceKm.toFixed(1).replace('.', ',')} km` : '—',
       },
-      { label: 'Duración', value: route ? `${Math.round(route.durationMin)} min` : '—' },
-      { label: 'Desvío máximo', value: `${this.trip().maxDetourMin} min` },
+      {
+        label: translate('screens.driverTripRoute.duracion'),
+        value: route ? `${Math.round(route.durationMin)} min` : '—',
+      },
+      {
+        label: translate('screens.driverTripRoute.desvioMaximo'),
+        value: `${this.trip().maxDetourMin} min`,
+      },
     ];
   });
 

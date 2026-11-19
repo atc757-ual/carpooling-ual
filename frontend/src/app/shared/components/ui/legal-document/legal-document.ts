@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { IonSpinner } from '@ionic/angular';
-import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
+import { translate, TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import {
   LegalDocumentsService,
   LegalDocumentType,
@@ -64,21 +64,21 @@ export class LegalDocumentText implements OnInit {
     if (this.transloco) {
       return this.transloco.translate('common.legal.changesInVersion', { version });
     }
-    return `Qué ha cambiado en la versión ${version}`;
+    return translate('screens.legalDocument.haCambiadoVersion', { version });
   }
 
   get errorMessage(): string {
     if (this.transloco) {
       return this.transloco.translate('common.legal.loadError');
     }
-    return 'No hemos podido cargar el texto. Comprueba tu conexión e inténtalo de nuevo.';
+    return translate('screens.legalDocument.hemosPodidoCargarTexto');
   }
 
   get loadingAriaLabel(): string {
     if (this.transloco) {
       return this.transloco.translate('common.legal.loadingAria');
     }
-    return 'Cargando el texto';
+    return translate('screens.legalDocument.cargandoTexto');
   }
 
   ngOnInit(): void {

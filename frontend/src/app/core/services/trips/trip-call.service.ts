@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
+import { translate, TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { ChatContact } from '../../models/chat.model';
 import { ChatService } from '../chat/chat.service';
 import { ToastService } from '../ui/toast.service';
@@ -37,12 +37,12 @@ export class TripCallService {
     if (tripStatus && CALLABLE_TRIP_STATUSES.has(tripStatus)) {
       return (
         this.transloco?.translate('common.tripCall.noVerifiedPhone') ??
-        'Nadie más de este viaje tiene el teléfono verificado.'
+        translate('screens.tripCall.nadieMasEsteViaje')
       );
     }
     return (
       this.transloco?.translate('common.tripCall.onlyAllowed') ??
-      'Solo se puede llamar con el viaje confirmado o en curso.'
+      translate('screens.tripCall.soloPuedeLlamarViaje')
     );
   }
 

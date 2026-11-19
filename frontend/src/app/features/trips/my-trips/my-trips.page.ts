@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import {
   IonButton,
@@ -170,7 +170,10 @@ export class MyTripsPage {
     if (trip) {
       return {
         route: formatRoute(trip),
-        detail: `${occupiedSeats(trip)} de ${trip.offeredSeats} plazas ocupadas`,
+        detail: translate('screens.myTrips.plazasOcupadas', {
+          value1: occupiedSeats(trip),
+          offeredSeats: trip.offeredSeats,
+        }),
         link: `/tabs/trips/drive/${trip.id}`,
       };
     }
@@ -204,11 +207,11 @@ export class MyTripsPage {
   // Qué hacer cuando no hay próximos, según los papeles que tiene
   readonly emptyHint = computed(() => {
     if (this.canRide() && this.canDrive()) {
-      return 'Busca un viaje que encaje con tu ruta o publica tu recorrido.';
+      return translate('screens.myTrips.buscaViajeEncajeRuta');
     }
     return this.canDrive()
-      ? 'Publica tu recorrido y aquí verás quién te pide plaza.'
-      : 'Busca un viaje que encaje con tu ruta y pide plaza desde su detalle.';
+      ? translate('screens.myTrips.publicaRecorridoAquiVeras')
+      : translate('screens.myTrips.buscaViajeEncajeRuta2');
   });
 
   private readonly language = inject(LanguageService);

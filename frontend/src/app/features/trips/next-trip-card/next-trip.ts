@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { DriverTrip, Trip, TripStatus } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 
@@ -47,7 +48,7 @@ export function nextTripStatus(next: NextTrip): {
   }
   switch (next.trip.status) {
     case 'in_progress':
-      return { label: 'En curso', kind: 'accepted' };
+      return { label: translate('screens.nextTrip.curso'), kind: 'accepted' };
     case 'confirmed':
       return { label: next.role === 'driver' ? 'Confirmado' : 'Confirmada', kind: 'accepted' };
     default:

@@ -10,7 +10,7 @@ import {
 } from '@ionic/angular';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { checkmark } from 'ionicons/icons';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AvatarOption } from '../../../core/models/avatar.model';
 import { User } from '../../../core/models/user.model';
@@ -90,7 +90,7 @@ export class ProfilePublicModal implements OnInit {
 
   readonly selectedAvatarName = computed(() => {
     const key = this.selectedAvatarKey();
-    if (!key) return 'Iniciales personales';
+    if (!key) return translate('screens.profilePublicModal.inicialesPersonales');
     return this.avatarCatalog().find((a) => a.id === key)?.name ?? 'Avatar';
   });
 
@@ -158,7 +158,7 @@ export class ProfilePublicModal implements OnInit {
         bio: bio.trim() || null,
       });
       this.auth.updateUser(updated);
-      void this.toast.showSuccess('Perfil actualizado.');
+      void this.toast.showSuccess(translate('screens.profilePublicModal.perfilActualizado'));
       await this.modalController.dismiss(updated, 'saved');
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));

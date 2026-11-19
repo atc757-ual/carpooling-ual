@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { TripResult } from '../../core/models/trip-result.model';
 import { TripSearch } from '../../core/models/trip-search.model';
 import { SeatRequestPickup } from '../../core/services/requests/seat-requests.service';
@@ -14,13 +15,17 @@ export function pickupFact(
 ): string {
   const { pickupStop, pickupTime } = trip;
   if (pickupStop) {
-    const at = pickupTime ? ` a las ${pickupTime}` : '';
-    return `En la parada ${pickupStop.name}${at} (a ${formatWalkingDistance(pickupStop.walkingDistanceM)} andando)`;
+    const walk = formatWalkingDistance(pickupStop.walkingDistanceM);
+    return pickupTime
+      ? translate('screens.tripPickup.stopAt', { stop: pickupStop.name, time: pickupTime, walk })
+      : translate('screens.tripPickup.stop', { stop: pickupStop.name, walk });
   }
   if (pickupTime) {
-    return `A las ${pickupTime}`;
+    return translate('screens.tripPickup.at', { time: pickupTime });
   }
-  return `unos ${trip.pickupDetourMinutes + PICKUP_STOP_MIN} min`;
+  return translate('screens.tripPickup.about', {
+    minutes: trip.pickupDetourMinutes + PICKUP_STOP_MIN,
+  });
 }
 
 // Dónde pide que le recojan: al volver, en el campus (no se envía nada); al

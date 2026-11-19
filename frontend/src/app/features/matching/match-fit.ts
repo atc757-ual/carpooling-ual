@@ -1,15 +1,16 @@
 import { TripResult } from '../../core/models/trip-result.model';
 import { TripSearch } from '../../core/models/trip-search.model';
+import { lazyLabels } from '../../core/i18n/lazy-labels';
 
 // Cómo encaja un viaje con la búsqueda, para el color de su fila en los
 // resultados (siempre con texto: el color solo no basta)
 export type MatchFit = 'good' | 'fair' | 'tight';
 
-export const MATCH_FIT_LABELS: Readonly<Record<MatchFit, string>> = {
-  good: 'Encaja muy bien',
-  fair: 'Encaja bien',
-  tight: 'Encaja justo',
-};
+export const MATCH_FIT_LABELS: Readonly<Record<MatchFit, string>> = lazyLabels({
+  good: 'screens.matchFit.good',
+  fair: 'screens.matchFit.fair',
+  tight: 'screens.matchFit.tight',
+});
 
 // Hasta 5 minutos de desvío se nota poco; desde 10, bastante
 const SMALL_DETOUR_MIN = 5;

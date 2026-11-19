@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { inject, Injectable, InjectionToken } from '@angular/core';
 import { BackgroundGeolocation } from '@capgo/background-geolocation';
 import type { BackgroundGeolocationPlugin } from '@capgo/background-geolocation';
@@ -34,8 +35,8 @@ export class BackgroundLocationService {
     try {
       await this.plugin.start(
         {
-          backgroundTitle: 'Compartiendo tu ubicación',
-          backgroundMessage: 'Tus pasajeros ven dónde estás hasta que termines el viaje.',
+          backgroundTitle: translate('screens.backgroundLocation.compartiendoUbicacion'),
+          backgroundMessage: translate('screens.backgroundLocation.pasajerosVenDondeEstas'),
           requestPermissions: true,
           stale: false,
           distanceFilter: DISTANCE_FILTER_METERS,

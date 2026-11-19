@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, effect, inject, OnInit, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -80,12 +80,18 @@ import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-p
 import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colors.store';
 import { ProfilePreferencesModal } from '../../profile/profile-preferences-modal/profile-preferences-modal';
 import { appLocale } from '../../../core/i18n/app-locale';
+import { lazyList } from '../../../core/i18n/lazy-labels';
 
 // Plazo mínimo para publicar; el valor inicial se redondea al siguiente
 // intervalo de 5 min para mantener al menos una hora de antelación.
 const PUBLISH_LEAD_MINUTES = 60;
 const DEFAULT_TIME_STEP_MINUTES = 5;
-export const STEPS = ['Trayecto', 'Vehículo', 'Revisión', 'Publicado'] as const;
+export const STEPS: readonly string[] = lazyList([
+  'screens.publishSteps.route',
+  'screens.publishSteps.vehicle',
+  'screens.publishSteps.review',
+  'screens.publishSteps.published',
+]);
 const PUBLISHED_STEP = STEPS.length;
 
 type LoadState = 'loading' | 'error' | 'ready' | 'suspended';
@@ -288,8 +294,12 @@ export class PublishTripPage implements OnInit {
     if (!this.hasReturnTrip()) {
       return null;
     }
-    const seats = returnSeats === 1 ? 'plaza' : 'plazas';
-    return `Vuelta: sales del campus a las ${returnTime} · ${returnSeats} ${seats}`;
+    return translate(
+      returnSeats === 1
+        ? 'screens.publishTrip.returnSummary.one'
+        : 'screens.publishTrip.returnSummary.other',
+      { time: returnTime, count: returnSeats },
+    );
   });
   // Cómo recoge, en una línea del resumen (desde el campus todos suben allí)
   readonly pickupSummary = computed(() => {
@@ -298,10 +308,14 @@ export class PublishTripPage implements OnInit {
       return null;
     }
     if (pickupMode === 'stops') {
-      const count = stops.length === 1 ? '1 parada' : `${stops.length} paradas`;
-      return `Recoges en ${count}: ${stops.map(({ name }) => name).join(', ')}`;
+      return translate(
+        stops.length === 1 ? 'screens.publishTrip.stops.one' : 'screens.publishTrip.stops.other',
+        { count: stops.length, names: stops.map(({ name }) => name).join(', ') },
+      );
     }
-    return `Recoges en el camino, a ${maxDetourM ?? DEFAULT_PICKUP_DISTANCE_M} m de tu ruta como mucho`;
+    return translate('screens.publishTrip.onRoute', {
+      meters: maxDetourM ?? DEFAULT_PICKUP_DISTANCE_M,
+    });
   });
   // Ya publicado, las paradas con la hora que calculó el backend
   readonly publishedStops = computed(() =>
@@ -727,7 +741,7 @@ export class PublishTripPage implements OnInit {
       );
       this.published.set(trip);
       void this.celebration.celebrate().catch(() => undefined);
-      void this.toast.showSuccess('Viaje publicado.');
+      void this.toast.showSuccess(translate('screens.publishTrip.viajePublicado'));
       void this.permissionPrompts.offerPush('publish').catch(() => undefined);
     });
   }

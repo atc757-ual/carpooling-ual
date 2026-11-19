@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, input, output, resource, signal } from '@angular/core';
 import {
   IonButton,
@@ -22,15 +22,16 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatSeats } from '../../../shared/utils/seats.util';
 import { getFirstName, getInitials } from '../../matching/trip-driver/trip-driver';
+import { lazyLabels } from '../../../core/i18n/lazy-labels';
 
-const REQUEST_STATUS_LABELS: Record<SeatRequestStatus, string> = {
-  pending: 'Pendiente',
-  accepted: 'Aceptada',
-  rejected: 'No aceptada',
-  cancelled: 'Cancelada',
-  expired: 'Caducada',
-  completed: 'Se ha bajado',
-};
+const REQUEST_STATUS_LABELS: Readonly<Record<SeatRequestStatus, string>> = lazyLabels({
+  pending: 'screens.driverTripPassengers.status.pending',
+  accepted: 'screens.driverTripPassengers.status.accepted',
+  rejected: 'screens.driverTripPassengers.status.rejected',
+  cancelled: 'screens.driverTripPassengers.status.cancelled',
+  expired: 'screens.driverTripPassengers.status.expired',
+  completed: 'screens.driverTripPassengers.status.completed',
+});
 // Solo en estos se piden y deciden plazas
 const OPEN_STATUSES: ReadonlySet<TripStatus> = new Set(['published', 'confirmed']);
 const CHAT_STATUSES: ReadonlySet<TripStatus> = new Set(['confirmed', 'in_progress']);
@@ -80,7 +81,10 @@ export class DriverTripPassengers {
   });
   readonly seatsLabel = computed(() => {
     const { offeredSeats, availableSeats } = this.trip();
-    return `${offeredSeats - availableSeats} de ${offeredSeats} plazas ocupadas`;
+    return translate('screens.driverTripPassengers.plazasOcupadas', {
+      value1: offeredSeats - availableSeats,
+      offeredSeats,
+    });
   });
 
   // Las solicitudes, solo de los viajes abiertos
@@ -148,7 +152,9 @@ export class DriverTripPassengers {
   // de decidir con el director)
   protected pickupSummary(request: SeatRequest): string | null {
     const place =
-      request.direction === 'from-campus' ? 'En tu salida' : (request.pickupName ?? null);
+      request.direction === 'from-campus'
+        ? translate('screens.driverTripPassengers.salida')
+        : (request.pickupName ?? null);
     return place ? `Recogida: ${place}` : null;
   }
 
@@ -156,8 +162,10 @@ export class DriverTripPassengers {
     this.deciding.set(request.id);
     try {
       await this.driver.decideRequest(request.id, decision);
-      const verb = decision === 'accept' ? 'aceptado' : 'rechazado';
-      void this.toast.showSuccess(`Has ${verb} la solicitud de ${request.passenger.name}.`);
+      const key = decision === 'accept' ? 'acceptedToast' : 'rejectedToast';
+      void this.toast.showSuccess(
+        translate(`screens.driverTripPassengers.${key}`, { name: request.passenger.name }),
+      );
       this.requests.reload();
       this.changed.emit();
     } catch (error) {

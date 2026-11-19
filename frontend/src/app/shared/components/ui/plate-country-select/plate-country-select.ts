@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { Component, computed, forwardRef, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IonContent, IonIcon, IonPopover } from '@ionic/angular';
@@ -26,7 +27,7 @@ let nextId = 0;
 })
 export class PlateCountrySelect implements ControlValueAccessor {
   // Nombre del campo para el lector de pantalla
-  readonly label = input('País de la matrícula');
+  readonly label = input(translate('screens.plateCountrySelect.paisMatricula'));
 
   readonly value = signal(DEFAULT_PLATE_COUNTRY);
   readonly isOpen = signal(false);

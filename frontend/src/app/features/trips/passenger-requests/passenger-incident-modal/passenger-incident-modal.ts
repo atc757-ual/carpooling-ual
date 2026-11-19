@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, Input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonButton, IonIcon, IonSpinner, IonTextarea, ModalController } from '@ionic/angular';
@@ -7,6 +7,7 @@ import { IncidentCategory } from '../../../../core/models/admin-incident.model';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { IncidentsService } from '../../../../core/services/incidents/incidents.service';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
+import { withLazyLabels } from '../../../../core/i18n/lazy-labels';
 
 export const INCIDENT_MIN_LENGTH = 10;
 export const INCIDENT_MAX_LENGTH = 1000;
@@ -20,17 +21,65 @@ export interface IncidentCategoryOption {
 
 // El conductor: un problema con un pasajero en vez de con el conductor
 export const DRIVER_INCIDENT_CATEGORIES: readonly IncidentCategoryOption[] = [
-  { value: 'technical', label: 'Problema con el vehículo o avería', short: 'Avería' },
-  { value: 'passenger', label: 'Problema con un pasajero', short: 'Un pasajero' },
-  { value: 'safety', label: 'Me he sentido en peligro', short: 'En peligro' },
-  { value: 'other', label: 'Otro motivo', short: 'Otro motivo' },
+  withLazyLabels(
+    { value: 'technical' as const },
+    {
+      label: 'screens.incidentCategories.technical',
+      short: 'screens.incidentCategories.technicalShort',
+    },
+  ),
+  withLazyLabels(
+    { value: 'passenger' as const },
+    {
+      label: 'screens.incidentCategories.passenger',
+      short: 'screens.incidentCategories.passengerShort',
+    },
+  ),
+  withLazyLabels(
+    { value: 'safety' as const },
+    {
+      label: 'screens.incidentCategories.safety',
+      short: 'screens.incidentCategories.safetyShort',
+    },
+  ),
+  withLazyLabels(
+    { value: 'other' as const },
+    {
+      label: 'screens.incidentCategories.other',
+      short: 'screens.incidentCategories.otherShort',
+    },
+  ),
 ];
 
 export const PASSENGER_INCIDENT_CATEGORIES: readonly IncidentCategoryOption[] = [
-  { value: 'technical', label: 'Problema con el vehículo o avería', short: 'Avería' },
-  { value: 'driver', label: 'Problema con el conductor o convivencia', short: 'Conductor' },
-  { value: 'safety', label: 'Me he sentido en peligro', short: 'En peligro' },
-  { value: 'other', label: 'Otro motivo', short: 'Otro motivo' },
+  withLazyLabels(
+    { value: 'technical' as const },
+    {
+      label: 'screens.incidentCategories.technical',
+      short: 'screens.incidentCategories.technicalShort',
+    },
+  ),
+  withLazyLabels(
+    { value: 'driver' as const },
+    {
+      label: 'screens.incidentCategories.driver',
+      short: 'screens.incidentCategories.driverShort',
+    },
+  ),
+  withLazyLabels(
+    { value: 'safety' as const },
+    {
+      label: 'screens.incidentCategories.safety',
+      short: 'screens.incidentCategories.safetyShort',
+    },
+  ),
+  withLazyLabels(
+    { value: 'other' as const },
+    {
+      label: 'screens.incidentCategories.other',
+      short: 'screens.incidentCategories.otherShort',
+    },
+  ),
 ];
 
 @Component({
@@ -61,11 +110,11 @@ export class PassengerIncidentModal {
   }
   get submitLabel(): string {
     if (this.isAfterTrip) {
-      return 'Enviar reporte';
+      return translate('screens.passengerIncidentModal.enviarReporte');
     }
     return this.isDriver
-      ? 'Cancelar el viaje y registrar incidencia'
-      : 'Bajarme y registrar incidencia';
+      ? translate('screens.passengerIncidentModal.cancelarViajeRegistrarIncidencia')
+      : translate('screens.passengerIncidentModal.bajarmeRegistrarIncidencia');
   }
   readonly selectedCategory = signal<IncidentCategory>('technical');
   readonly description = signal('');

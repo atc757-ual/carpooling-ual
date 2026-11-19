@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { IonIcon, IonToggle, ModalController } from '@ionic/angular';
 import { checkmarkCircle, lockClosedOutline } from 'ionicons/icons';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { UserConsents } from '../../../core/models/user-consent.model';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
@@ -67,7 +67,9 @@ export class ProfileLocation implements OnInit {
         this.tripSearch.clear();
       }
       void this.toast.showSuccess(
-        action === 'granted' ? 'Compartes tu ubicación.' : 'Has dejado de compartir tu ubicación.',
+        action === 'granted'
+          ? translate('screens.profileLocation.compartesUbicacion')
+          : translate('screens.profileLocation.hasDejadoCompartirUbicacion'),
       );
     } catch {
       (event.target as HTMLIonToggleElement).checked = action === 'revoked';
@@ -82,16 +84,16 @@ export class ProfileLocation implements OnInit {
 
   private confirmRevoke(): Promise<boolean> {
     return this.confirm.ask({
-      header: '¿Dejar de usar tu ubicación?',
-      message: 'Si la desactivas:',
+      header: translate('screens.profileLocation.dejarUsarUbicacion'),
+      message: translate('screens.profileLocation.siDesactivas'),
       points: [
-        'No la usaremos para rellenar direcciones, proponerte volver a casa ni mostrarte en el mapa del viaje en curso. Podrás escribir las direcciones.',
-        'Borraremos tu última búsqueda de este navegador.',
-        'El permiso del navegador o del móvil seguirá concedido. Si quieres, quítalo en sus ajustes.',
-        'Si conduces, tu ubicación durante el viaje en curso se seguirá usando, porque forma parte del servicio.',
+        translate('screens.profileLocation.usaremosRellenarDireccionesProponerte'),
+        translate('screens.profileLocation.borraremosUltimaBusquedaEste'),
+        translate('screens.profileLocation.permisoNavegadorMovilSeguira'),
+        translate('screens.profileLocation.siConducesUbicacionDurante'),
       ],
-      confirmText: 'Dejar de usarla',
-      cancelText: 'Seguir usándola',
+      confirmText: translate('screens.profileLocation.dejarUsarla'),
+      cancelText: translate('screens.profileLocation.seguirUsandola'),
     });
   }
 }

@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -115,7 +115,10 @@ export class TripDetailPage {
     if (!trip) {
       return '';
     }
-    const way = trip.direction === 'to-campus' ? 'Ida al campus' : 'Vuelta del campus';
+    const way =
+      trip.direction === 'to-campus'
+        ? translate('screens.tripDetail.idaCampus')
+        : translate('screens.tripDetail.vueltaCampus');
     return `${formatDateLabel(trip.date)} · ${trip.departureTime} · ${way}`;
   });
 
@@ -138,14 +141,15 @@ export class TripDetailPage {
       return [];
     }
     const isToCampus = search.direction === 'to-campus';
-    const originName = data.trip.originName ?? 'Salida del conductor';
+    const originName =
+      data.trip.originName ?? translate<string>('screens.tripDetail.salidaConductor');
     const destinationName = data.trip.destinationName ?? trip.destination;
     const searchedParking = search.parking.name;
     // Sin plaza, la calle del conductor sin el portal (lo quita el backend) y
     // el punto, redondeado: se dice que es una zona, no su casa
     const originDetail = data.trip.isLocationApproximate
-      ? 'Salida del conductor · zona aproximada'
-      : 'Punto de salida del conductor';
+      ? translate('screens.tripDetail.salidaConductorZonaAproximada')
+      : translate('screens.tripDetail.puntoSalidaConductor');
 
     if (isToCampus) {
       const destDiffers = !destinationName.includes(searchedParking);
@@ -157,13 +161,13 @@ export class TripDetailPage {
         },
         {
           name: search.place.name,
-          detail: 'Tu punto de recogida',
+          detail: translate('screens.tripDetail.puntoRecogida'),
         },
         {
           name: destinationName,
           detail: destDiffers
-            ? `Destino del viaje · buscabas ${searchedParking}`
-            : 'Destino del viaje',
+            ? translate('screens.tripDetail.destinoViajeBuscabas', { searchedParking })
+            : translate('screens.tripDetail.destinoViaje'),
           time: trip.arrivalTime,
         },
       ];
@@ -175,12 +179,12 @@ export class TripDetailPage {
         name: originName,
         detail: originDiffers
           ? `Salida y recogida · buscabas ${searchedParking}`
-          : 'Salida del conductor y tu punto de recogida',
+          : translate('screens.tripDetail.salidaConductorPuntoRecogida'),
         time: formatTime(data.trip.departureAt),
       },
       {
         name: destinationName,
-        detail: search.place.locality || 'Destino del viaje',
+        detail: search.place.locality || translate('screens.tripDetail.destinoViaje'),
         time: trip.arrivalTime,
       },
     ];
@@ -207,12 +211,12 @@ export class TripDetailPage {
     return {
       origin: {
         coordinates: trip.origin.coordinates,
-        label: trip.originName ?? 'Salida del conductor',
+        label: trip.originName ?? translate('screens.tripDetail.salidaConductor'),
         isApproximate: trip.isLocationApproximate && isToCampus,
       },
       destination: {
         coordinates: trip.destination.coordinates,
-        label: trip.destinationName ?? 'Destino del viaje',
+        label: trip.destinationName ?? translate('screens.tripDetail.destinoViaje'),
         isApproximate: trip.isLocationApproximate && !isToCampus,
       },
     };
@@ -235,10 +239,13 @@ export class TripDetailPage {
       return [];
     }
     return [
-      { label: 'Plazas libres', value: this.seatSummary() },
+      { label: translate('screens.tripDetail.plazasLibres'), value: this.seatSummary() },
       // Recogerte nunca es 0 min: el desvío más lo que se tarda en parar y subir
       { label: 'Recogida', value: pickupFact(trip) },
-      { label: 'Duración', value: `${trip.tripMinutes} min aprox.` },
+      {
+        label: translate('screens.tripDetail.duracion'),
+        value: translate('screens.tripDetail.minAprox', { tripMinutes: trip.tripMinutes }),
+      },
     ];
   });
 
@@ -279,10 +286,13 @@ export class TripDetailPage {
   readonly headerBadge = computed(() => {
     const request = this.request();
     if (request?.status === 'pending') {
-      return { label: 'Solicitud pendiente', kind: 'pending' as const };
+      return {
+        label: translate('screens.tripDetail.solicitudPendiente'),
+        kind: 'pending' as const,
+      };
     }
     if (request?.status === 'accepted') {
-      return { label: 'Plaza confirmada', kind: 'accepted' as const };
+      return { label: translate('screens.tripDetail.plazaConfirmada'), kind: 'accepted' as const };
     }
     const free = this.trip()?.freeSeats ?? 0;
     return {
@@ -347,10 +357,12 @@ export class TripDetailPage {
       return;
     }
     const isConfirmed = await this.confirm.ask({
-      header: '¿Cancelar tu solicitud?',
-      message: `Dejarás de tener ${formatSeats(request.seats)} en este viaje. Podrás volver a pedirla mientras queden plazas.`,
-      confirmText: 'Confirmar cancelación',
-      cancelText: 'Mantener solicitud',
+      header: translate('screens.tripDetail.cancelarSolicitud'),
+      message: translate('screens.tripDetail.dejarasTenerEsteViaje', {
+        value1: formatSeats(request.seats),
+      }),
+      confirmText: translate('screens.tripDetail.confirmarCancelacion'),
+      cancelText: translate('screens.tripDetail.mantenerSolicitud'),
     });
     if (!isConfirmed) {
       return;
@@ -373,5 +385,7 @@ export class TripDetailPage {
 }
 
 function formatFreeSeats(seats: number): string {
-  return seats === 1 ? 'Última plaza' : `${seats} plazas libres`;
+  return seats === 1
+    ? translate('screens.tripDetail.ultimaPlaza')
+    : translate('screens.tripDetail.plazasLibres2', { seats });
 }

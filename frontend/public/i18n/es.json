@@ -1435,6 +1435,385 @@
       "help": "Ayuda y soporte"
     }
   },
+  "screens": {
+    "vehicleColors": {
+      "colorSinIndicar": "Color sin indicar"
+    },
+    "backgroundLocation": {
+      "compartiendoUbicacion": "Compartiendo tu ubicación",
+      "pasajerosVenDondeEstas": "Tus pasajeros ven dónde estás hasta que termines el viaje."
+    },
+    "location": {
+      "hemosPodidoGuardarHas": "No hemos podido guardar que has quitado el permiso de ubicación. Lo intentaremos de nuevo."
+    },
+    "tripCall": {
+      "nadieMasEsteViaje": "Nadie más de este viaje tiene el teléfono verificado.",
+      "soloPuedeLlamarViaje": "Solo se puede llamar con el viaje confirmado o en curso."
+    },
+    "locationModal": {
+      "ajustarMapa": "Ajustar en el mapa",
+      "elegirPunto": "Elegir el punto",
+      "usarUbicacion": "Usar mi ubicación",
+      "encontramosDireccionAquiMueve": "No encontramos una dirección aquí. Mueve el punto a una calle cercana.",
+      "ahoraPodemosBuscarDireccion": "Ahora no podemos buscar la dirección. Inténtalo de nuevo en un momento.",
+      "ubicacionArrastralaAjustarla": "Tu ubicación (arrástrala para ajustarla)"
+    },
+    "placeField": {
+      "comprobandoDireccion": "Comprobando la dirección…",
+      "buscandoUbicacion": "Buscando tu ubicación…",
+      "buscandoDireccion": "Buscando la dirección…",
+      "aunLlegamosEsperamosTener": "Aún no llegamos a {{ municipality }}. Esperamos tener cobertura allí pronto.",
+      "unavailable": "Ahora no podemos buscar direcciones. Inténtalo de nuevo en un momento.",
+      "locationDenied": "No tenemos permiso para ver tu ubicación. Actívalo en los ajustes o escribe la dirección.",
+      "locationUnavailable": "No hemos podido saber dónde estás. Inténtalo de nuevo o escribe la dirección.",
+      "locationRevoked": "Has dejado de compartir tu ubicación. Vuelve a compartirla en Perfil o escribe la dirección."
+    },
+    "searchResults": {
+      "dia": "Día",
+      "arrive": {
+        "one": "1 viaje llega a destino a las {{ time }}",
+        "at": "{{ count }} viajes llegan a destino a las {{ time }}",
+        "between": "{{ count }} viajes llegan a destino entre {{ first }} y {{ last }}"
+      },
+      "depart": {
+        "one": "1 viaje sale a las {{ time }}",
+        "at": "{{ count }} viajes salen a las {{ time }}",
+        "between": "{{ count }} viajes salen entre {{ first }} y {{ last }}"
+      },
+      "arriveWindow": {
+        "one": "llega a destino a las {{ time }}",
+        "at": "llegan a destino a las {{ time }}",
+        "between": "llegan a destino entre {{ first }} y {{ last }}"
+      },
+      "departWindow": {
+        "one": "sale a las {{ time }}",
+        "at": "salen a las {{ time }}",
+        "between": "salen entre {{ first }} y {{ last }}"
+      },
+      "shownOf": {
+        "one": "{{ shown }} de 1 viaje",
+        "other": "{{ shown }} de {{ count }} viajes"
+      },
+      "found": {
+        "one": "1 viaje encontrado",
+        "other": "{{ count }} viajes encontrados"
+      }
+    },
+    "tripDetail": {
+      "idaCampus": "Ida al campus",
+      "vueltaCampus": "Vuelta del campus",
+      "salidaConductor": "Salida del conductor",
+      "salidaConductorZonaAproximada": "Salida del conductor · zona aproximada",
+      "puntoSalidaConductor": "Punto de salida del conductor",
+      "puntoRecogida": "Tu punto de recogida",
+      "destinoViajeBuscabas": "Destino del viaje · buscabas {{ searchedParking }}",
+      "destinoViaje": "Destino del viaje",
+      "salidaConductorPuntoRecogida": "Salida del conductor y tu punto de recogida",
+      "plazasLibres": "Plazas libres",
+      "minAprox": "{{ tripMinutes }} min aprox.",
+      "duracion": "Duración",
+      "solicitudPendiente": "Solicitud pendiente",
+      "plazaConfirmada": "Plaza confirmada",
+      "cancelarSolicitud": "¿Cancelar tu solicitud?",
+      "dejarasTenerEsteViaje": "Dejarás de tener {{ value1 }} en este viaje. Podrás volver a pedirla mientras queden plazas.",
+      "confirmarCancelacion": "Confirmar cancelación",
+      "mantenerSolicitud": "Mantener solicitud",
+      "plazasLibres2": "{{ seats }} plazas libres",
+      "ultimaPlaza": "Última plaza"
+    },
+    "tripResultCard": {
+      "desvioMin": "Desvío de {{ pickupDetourMinutes }} min",
+      "ruta": "En su ruta",
+      "verViaje": "Ver viaje de {{ name }}: {{ departureTime }} → {{ arrivalTime }}, {{ origin }} → {{ destination }}{{ requested }}",
+      "pickupAt": "{{ detour }} · te recoge a las {{ time }}",
+      "departsAt": "{{ detour }} · sale a las {{ time }}",
+      "alreadyRequested": ", ya solicitado",
+      "stopAt": "En la parada {{ stop }} (a {{ walk }}) · a las {{ time }}",
+      "stop": "En la parada {{ stop }} (a {{ walk }})"
+    },
+    "conversation": {
+      "masOpciones": "Más opciones",
+      "denunciarEstaConversacion": "¿Denunciar esta conversación?",
+      "revisaraEquipoCarpoolingUal": "Lo revisará el equipo de Carpooling UAL con una copia de la conversación. Nadie del viaje sabrá que lo has denunciado."
+    },
+    "messages": {
+      "escribePrimerMensaje": "Escribe el primer mensaje",
+      "you": "Tú"
+    },
+    "profileDeviceLocation": {
+      "ubicacionDispositivoPermitida": "Ubicación del dispositivo permitida.",
+      "denied": "Has bloqueado la ubicación. Actívala en los ajustes del navegador o del móvil.",
+      "unavailable": "No hemos podido acceder a tu ubicación. Comprueba que esté activada en el dispositivo.",
+      "revoked": "No hemos podido acceder a tu ubicación. Inténtalo de nuevo."
+    },
+    "profileLocation": {
+      "compartesUbicacion": "Compartes tu ubicación.",
+      "hasDejadoCompartirUbicacion": "Has dejado de compartir tu ubicación.",
+      "dejarUsarUbicacion": "¿Dejar de usar tu ubicación?",
+      "siDesactivas": "Si la desactivas:",
+      "usaremosRellenarDireccionesProponerte": "No la usaremos para rellenar direcciones, proponerte volver a casa ni mostrarte en el mapa del viaje en curso. Podrás escribir las direcciones.",
+      "borraremosUltimaBusquedaEste": "Borraremos tu última búsqueda de este navegador.",
+      "permisoNavegadorMovilSeguira": "El permiso del navegador o del móvil seguirá concedido. Si quieres, quítalo en sus ajustes.",
+      "siConducesUbicacionDurante": "Si conduces, tu ubicación durante el viaje en curso se seguirá usando, porque forma parte del servicio.",
+      "dejarUsarla": "Dejar de usarla",
+      "seguirUsandola": "Seguir usándola"
+    },
+    "profilePhoneModal": {
+      "nuevoCodigoEnviadoSms": "Nuevo código enviado por SMS.",
+      "telefonoVerificado": "Teléfono verificado."
+    },
+    "profilePreferencesModal": {
+      "preferenciasActualizadas": "Preferencias actualizadas."
+    },
+    "profilePublicModal": {
+      "inicialesPersonales": "Iniciales personales",
+      "perfilActualizado": "Perfil actualizado."
+    },
+    "profileVehicles": {
+      "dejaraSalirVehiculosPodras": "Dejará de salir en tus vehículos y no podrás publicar viajes con él."
+    },
+    "profile": {
+      "comoConductor": "Como conductor",
+      "comoPasajero": "Como pasajero",
+      "condicionesUso": "Condiciones de uso",
+      "politicaPrivacidad": "Política de privacidad"
+    },
+    "afterTripReport": {
+      "reporteEnviadoRevisaraAdministrador": "Reporte enviado: lo revisará un administrador."
+    },
+    "driverTripActions": {
+      "podrasIniciarloCuandoAceptes": "Podrás iniciarlo cuando aceptes a algún pasajero.",
+      "podrasIniciarlo10Min": "Podrás iniciarlo a las {{ value1 }}, 10 min antes de salir.",
+      "esteViajeCancelo": "Este viaje se canceló.",
+      "esteViajeYaTermino": "Este viaje ya terminó.",
+      "sinCosteHastaMin": "Sin coste hasta las {{ freeUntil }} ({{ DRIVER_LATE_CANCELLATION_LEAD_MIN }} min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder publicar.",
+      "viajeIniciadoPasajerosYa": "Viaje iniciado. Tus pasajeros ya ven dónde estás.",
+      "iniciarViaje": "¿Iniciar el viaje?",
+      "compartirasUbicacion": "Compartirás tu ubicación",
+      "iniciarViaje2": "Iniciar viaje",
+      "ahora": "Ahora no",
+      "sinPermisoUbicacionPuedes": "Sin permiso de ubicación no puedes iniciar el viaje. Actívalo en los ajustes del móvil.",
+      "salidaEstaMenos20": "La salida está a menos de 20 minutos (o ya pasó) y hay pasajeros aceptados. Esta cancelación contará como tardía y puede suspender tus publicaciones al llegar a 3 en 30 días. Avisaremos a los pasajeros.",
+      "avisaraPasajerosDejaranTener": "Se avisará a los pasajeros y dejarán de tener sus plazas. Puedes publicar otro viaje cuando quieras.",
+      "cancelarEsteViaje": "¿Cancelar este viaje?",
+      "confirmarCancelacion": "Confirmar cancelación",
+      "mantenerViaje": "Mantener viaje",
+      "shareMessage": "Para iniciar el viaje hay que compartir tu ubicación: tus pasajeros verán dónde estás mientras dura y dejarás de compartirla al terminarlo. Es parte del servicio (lo explica la Política de privacidad): solo te pedimos el permiso del dispositivo.",
+      "shareMessageNative": "Para iniciar el viaje hay que compartir tu ubicación: tus pasajeros verán dónde estás mientras dura y dejarás de compartirla al terminarlo. Es parte del servicio (lo explica la Política de privacidad): solo te pedimos el permiso del dispositivo. Seguirá compartiéndose aunque bloquees la pantalla o uses otra app; lo verás en una notificación.",
+      "declarationMessage": "Al iniciar, confirmas que sigues cumpliendo tu declaración y la de tu vehículo (permiso, seguro e ITV)."
+    },
+    "driverTripDetail": {
+      "plazasOcupadas": "{{ value1 }} de {{ offeredSeats }} plazas ocupadas"
+    },
+    "driverTripPassengers": {
+      "plazasOcupadas": "{{ value1 }} de {{ offeredSeats }} plazas ocupadas",
+      "salida": "En tu salida",
+      "status": {
+        "pending": "Pendiente",
+        "accepted": "Aceptada",
+        "rejected": "No aceptada",
+        "cancelled": "Cancelada",
+        "expired": "Caducada",
+        "completed": "Se ha bajado"
+      },
+      "acceptedToast": "Has aceptado la solicitud de {{ name }}.",
+      "rejectedToast": "Has rechazado la solicitud de {{ name }}."
+    },
+    "driverRouteStops": {
+      "recoges": "Recoges a {{ value1 }}",
+      "aunSubeNadieAqui": "Aún no sube nadie aquí",
+      "puntoRecogida": "Punto de recogida",
+      "salesAqui": "Sales de aquí",
+      "destino": "Destino",
+      "llegadaAproximada": "Llegada aproximada"
+    },
+    "driverTripRoute": {
+      "recogida": "Recogida de {{ value1 }}",
+      "duracion": "Duración",
+      "desvioMaximo": "Desvío máximo"
+    },
+    "driverTripSummary": {
+      "solicitudesResponder": "{{ count }} solicitudes por responder",
+      "abrirViaje": "Abrir viaje",
+      "iniciarViaje": "Iniciar viaje",
+      "verSolicitudes": "Ver solicitudes",
+      "verViaje": "Ver viaje",
+      "oneRequest": "1 solicitud por responder",
+      "freeOf": "{{ available }} de {{ offered }} libres"
+    },
+    "myTrips": {
+      "plazasOcupadas": "{{ value1 }} de {{ offeredSeats }} plazas ocupadas",
+      "buscaViajeEncajeRuta": "Busca un viaje que encaje con tu ruta o publica tu recorrido.",
+      "publicaRecorridoAquiVeras": "Publica tu recorrido y aquí verás quién te pide plaza.",
+      "buscaViajeEncajeRuta2": "Busca un viaje que encaje con tu ruta y pide plaza desde su detalle."
+    },
+    "nextTripCard": {
+      "plazasOcupadas": "{{ value1 }} de {{ offeredSeats }} plazas ocupadas",
+      "verViaje": "Ver tu viaje",
+      "verPlaza": "Ver tu plaza"
+    },
+    "nextTrip": {
+      "curso": "En curso"
+    },
+    "passengerIncidentModal": {
+      "enviarReporte": "Enviar reporte",
+      "cancelarViajeRegistrarIncidencia": "Cancelar el viaje y registrar incidencia",
+      "bajarmeRegistrarIncidencia": "Bajarme y registrar incidencia"
+    },
+    "passengerRequestActions": {
+      "cancelarPlaza": "Cancelar mi plaza",
+      "cancelarSolicitud": "Cancelar solicitud",
+      "puedesCancelarlaSinCoste": "Puedes cancelarla sin coste.",
+      "sinCosteHastaMin": "Sin coste hasta las {{ freeUntil }} ({{ PASSENGER_LATE_CANCELLATION_LEAD_MIN }} min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder pedir plaza.",
+      "conductorCanceloEsteViaje": "El conductor canceló este viaje.",
+      "esteViajeYaTermino": "Este viaje ya terminó.",
+      "viajeCompletoTodasSus": "El viaje completó todas sus plazas.",
+      "conductorAceptoEstaSolicitud": "El conductor no aceptó esta solicitud.",
+      "estaSolicitudCaducoAntes": "Esta solicitud caducó antes de la salida.",
+      "canceloPorqueTePresentaste": "Se canceló porque no te presentaste a tiempo.",
+      "yaCancelasteEstaSolicitud": "Ya cancelaste esta solicitud.",
+      "cancelarPlazaConfirmada": "¿Cancelar tu plaza confirmada?",
+      "cancelarSolicitud2": "¿Cancelar la solicitud?",
+      "confirmarCancelacion": "Confirmar cancelación",
+      "faltanMenos10Minutos": "Faltan menos de 10 minutos para la salida. La plaza quedará libre para otra persona, pero contará como cancelación tardía.",
+      "plazaVolveraEstarDisponible": "La plaza volverá a estar disponible para otra persona. Puedes buscar otro viaje cuando quieras.",
+      "dejaraVerlaPuedesVolver": "{{ value1 }} dejará de verla. Puedes volver a solicitar si sigue habiendo plazas.",
+      "mantenerPlaza": "Mantener mi plaza",
+      "mantenerSolicitud": "Mantener solicitud",
+      "plazaCancelada": "Plaza cancelada.",
+      "solicitudCancelada": "Solicitud cancelada."
+    },
+    "passengerRequestRoute": {
+      "salidaConductor": "Salida del conductor",
+      "destinoViaje": "Destino del viaje",
+      "puntoRecogida": "Tu punto de recogida",
+      "llegadaAproximada": "Llegada aproximada",
+      "plazasPides": "Plazas que pides",
+      "plazasLibres": "Plazas libres"
+    },
+    "passengerTripCard": {
+      "esperandoRespuesta": "Esperando respuesta de {{ driverName }}",
+      "drives": "Conduce {{ name }}",
+      "plate": "Matrícula {{ plate }}"
+    },
+    "pickupModeField": {
+      "elegirParadaMapa": "Elegir parada en el mapa"
+    },
+    "publishTrip": {
+      "viajePublicado": "Viaje publicado.",
+      "returnSummary": {
+        "one": "Vuelta: sales del campus a las {{ time }} · 1 plaza",
+        "other": "Vuelta: sales del campus a las {{ time }} · {{ count }} plazas"
+      },
+      "stops": {
+        "one": "Recoges en 1 parada: {{ names }}",
+        "other": "Recoges en {{ count }} paradas: {{ names }}"
+      },
+      "onRoute": "Recoges en el camino, a {{ meters }} m de tu ruta como mucho"
+    },
+    "tripReviewCard": {
+      "valoracion": "Tu valoración"
+    },
+    "vehicleForm": {
+      "guardarVehiculo": "Guardar vehículo",
+      "electrico": "Eléctrico",
+      "hibrido": "Híbrido"
+    },
+    "vehicleModal": {
+      "vehiculoActualizado": "Vehículo actualizado.",
+      "vehiculoRegistrado": "Vehículo registrado."
+    },
+    "legalDocument": {
+      "haCambiadoVersion": "Qué ha cambiado en la versión {{ version }}",
+      "hemosPodidoCargarTexto": "No hemos podido cargar el texto. Comprueba tu conexión e inténtalo de nuevo.",
+      "cargandoTexto": "Cargando el texto"
+    },
+    "plateCountrySelect": {
+      "paisMatricula": "País de la matrícula"
+    },
+    "tripRouteMap": {
+      "zonaAproximadaViaje": "Zona aproximada del viaje: {{ ends }}",
+      "rutaConductor": "Ruta del conductor: {{ ends }}",
+      "recogida": "{{ route }}; recogida en {{ value2 }}"
+    },
+    "countdown": {
+      "reenviarCodigo": "Reenviar código en {{ value1 }}",
+      "reenviarCodigo2": "Reenviar código"
+    },
+    "ualEmail": {
+      "usaCorreoUniversidadAlmeria": "Usa tu correo de la Universidad de Almería.",
+      "introduceCorreoValido": "Introduce un correo válido."
+    },
+    "matchFit": {
+      "good": "Encaja muy bien",
+      "fair": "Encaja bien",
+      "tight": "Encaja justo"
+    },
+    "incidentCategories": {
+      "technical": "Problema con el vehículo o avería",
+      "technicalShort": "Avería",
+      "passenger": "Problema con un pasajero",
+      "passengerShort": "Un pasajero",
+      "driver": "Problema con el conductor o convivencia",
+      "driverShort": "Conductor",
+      "safety": "Me he sentido en peligro",
+      "safetyShort": "En peligro",
+      "other": "Otro motivo",
+      "otherShort": "Otro motivo"
+    },
+    "travelPreferences": {
+      "conversation": "Conversación",
+      "music": "Música",
+      "smoking": "Fumar",
+      "pets": "Mascotas"
+    },
+    "legalDocuments": {
+      "terms": "Condiciones de uso",
+      "privacy": "Política de privacidad",
+      "driverDeclaration": "Declaración responsable",
+      "vehicleDeclaration": "Declaración del vehículo",
+      "location": "Uso de la ubicación"
+    },
+    "vehicleEngine": {
+      "electric": "Eléctrico",
+      "hybrid": "Híbrido"
+    },
+    "tripWay": {
+      "toCampus": "Ida al campus",
+      "fromCampus": "Vuelta a casa"
+    },
+    "tripProgress": {
+      "published": "Publicado",
+      "confirmed": "Confirmado",
+      "inProgress": "En curso",
+      "finished": "Finalizado"
+    },
+    "publishSteps": {
+      "route": "Trayecto",
+      "vehicle": "Vehículo",
+      "review": "Revisión",
+      "published": "Publicado"
+    },
+    "publishHelp": {
+      "requestsTitle": "Recibes solicitudes",
+      "requestsText": "Te avisamos cuando alguien de la UAL pida plaza en tu viaje.",
+      "autoAcceptTitle": "Aceptación automática",
+      "autoAcceptText": "Quien quepa en tu ruta y plazas se unirá al momento y te avisaremos; si no cabe, decidirás tú.",
+      "youDecideTitle": "Tú decides",
+      "youDecideText": "Aceptas o rechazas cada solicitud: nadie tiene plaza sin tu visto bueno.",
+      "tripDayTitle": "El día del viaje",
+      "tripDayText": "Sal a tu hora y recoge a tus pasajeros. Si no puedes ir, cancélalo en Tus viajes hasta 20 minutos antes.",
+      "fewerCars": "Menos coches y menos atascos a la entrada del campus, y más sitio en los parkings.",
+      "sustainable": "Ayudas a que la UAL sea un campus más sostenible, con menos CO₂ en cada trayecto.",
+      "network": "Y tú también ganas: conoces a gente de la UAL que hace tu camino y amplías tu red de contactos."
+    },
+    "tripPickup": {
+      "stopAt": "En la parada {{ stop }} a las {{ time }} (a {{ walk }} andando)",
+      "stop": "En la parada {{ stop }} (a {{ walk }} andando)",
+      "at": "A las {{ time }}",
+      "about": "unos {{ minutes }} min"
+    }
+  },
   "permissions": {
     "title": "Permisos de este dispositivo",
     "description": "Tu navegador o tu móvil te preguntarán por cada uno. Puedes activarlos ahora o más adelante, y quitarlos cuando quieras en sus ajustes.",
