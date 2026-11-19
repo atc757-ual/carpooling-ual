@@ -7,6 +7,10 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added
+
+- **Documentos legales en inglés:** `legal_documents` guarda la traducción de cada versión (`content_en` y `summary_en`, migración `AddLegalDocumentsEnglish`, con la de las vigentes y la del borrador de la política 1.2, solo si su texto en español es el de las migraciones). `GET /api/legal-documents/{type}?lang=en` la devuelve y, sin traducción, da el español; el recurso dice en qué idioma llega (`lang`). La versión española es la que vale: las aceptaciones guardan la huella de su texto. El panel edita el borrador en los dos idiomas (selector Español / Inglés) y publicar exige los dos (`422 LEGAL_TRANSLATION_REQUIRED`); el inglés de una versión publicada tampoco cambia una vez escrito. La app pide los textos en su idioma (#365).
+
 ### Changed
 
 - **Tamaños con tokens:** nuevas escalas en el tema para los iconos (`--icon-size-xs` a `-xl`, 14 a 32 px), las cajas cuadradas (`--box-size-xs` a `-l`, 28 a 40 px), los puntos y muestras de color (`--dot-size-s` y `--dot-size`) y `--font-size-subtitle-s` (18 px). Unos 330 tamaños en `rem` de las pantallas pasan a esos tokens, a `--control-height-*` o al tamaño de letra de su papel; los sueltos se redondean al paso más cercano (1-4 px) y los títulos de los detalles usan los tamaños fluidos (crecen 2-4 px en escritorio). Las medidas propias de cada pantalla se quedan en `rem`. Los selectores de tema e idioma comparten su pastilla en `theme/_pill-switch.scss` (`profile.page.scss` volvía a pasar del límite de 8 kB). El contador de la campana pasa a rojo con la cifra en blanco (`--color-danger` / `--color-on-danger`): el negro sobre el naranja apenas se distinguía y en oscuro la cifra era blanca sobre naranja claro. Guía de estilos al día (#364).

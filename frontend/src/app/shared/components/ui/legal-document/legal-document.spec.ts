@@ -12,6 +12,7 @@ import { LegalDocumentText } from './legal-document';
 const TERMS: LegalDocumentView = {
   type: 'terms',
   version: '1.1',
+  lang: 'es',
   content: '<h2>Condiciones</h2><p>Texto de las condiciones.</p>',
   changeType: 'minor',
   summary: 'Se añade el chat directo.',

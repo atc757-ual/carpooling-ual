@@ -83,7 +83,7 @@ for (const viewport of VIEWPORTS) {
         outdated: [],
         history: [],
       });
-      cy.intercept('GET', '/api/legal-documents/terms', {
+      cy.intercept('GET', '/api/legal-documents/terms?*', {
         type: 'terms',
         version: '1.0',
         content: '<p>Condiciones</p>',
@@ -91,7 +91,7 @@ for (const viewport of VIEWPORTS) {
         summary: null,
         publishedAt: '2026-10-20T09:00:00.000Z',
       });
-      cy.intercept('GET', '/api/legal-documents/privacy', {
+      cy.intercept('GET', '/api/legal-documents/privacy?*', {
         type: 'privacy',
         version: '1.1',
         content: '<h2>Responsable</h2><p>Universidad de Almería.</p>',

@@ -11,6 +11,7 @@ import {
   LEGAL_DOCUMENT_TITLES,
   LegalChangeType,
   LegalDocumentType,
+  LegalLang,
 } from '../../../../core/services/users/legal-documents.service';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
 import { formatDateTime } from '../../users/admin-user-detail-labels';
@@ -48,6 +49,12 @@ export function nextLegalVersion(version: string, changeType: LegalChangeType): 
 }
 
 type EditorView = 'edit' | 'preview' | 'compare';
+
+// El español es el que vale; el inglés, su traducción (publicar exige los dos)
+const LANGS: readonly { value: LegalLang; label: string }[] = [
+  { value: 'es', label: 'Español' },
+  { value: 'en', label: 'Inglés' },
+];
 
 const EDITOR_VIEWS: readonly { value: EditorView; label: string }[] = [
   { value: 'edit', label: 'Editar' },
@@ -98,6 +105,23 @@ export class LegalDocumentsEditor {
   readonly content = linkedSignal(() => this.draft()?.content ?? this.current()?.content ?? '');
   readonly changeType = linkedSignal<LegalChangeType>(() => this.draft()?.changeType ?? 'minor');
   readonly summary = linkedSignal(() => this.draft()?.summary ?? '');
+  // Su traducción al inglés (del borrador o, si no hay, de la vigente)
+  readonly contentEn = linkedSignal(
+    () => this.draft()?.contentEn ?? this.current()?.contentEn ?? '',
+  );
+  readonly summaryEn = linkedSignal(() => this.draft()?.summaryEn ?? '');
+  // El idioma que se edita y se ve
+  readonly lang = signal<LegalLang>('es');
+  readonly shownContent = computed(() =>
+    this.lang() === 'es' ? this.content() : this.contentEn(),
+  );
+  readonly shownSummary = computed(() =>
+    this.lang() === 'es' ? this.summary() : this.summaryEn(),
+  );
+  readonly shownCurrentContent = computed(() => {
+    const current = this.current();
+    return this.lang() === 'es' ? current?.content : (current?.contentEn ?? '');
+  });
   // La versión con la que saldrá, si hay una vigente
   readonly nextVersion = computed(() => {
     const current = this.current();
@@ -109,7 +133,9 @@ export class LegalDocumentsEditor {
     return (
       this.content() !== (draft?.content ?? this.current()?.content ?? '') ||
       this.changeType() !== (draft?.changeType ?? 'minor') ||
-      this.summary() !== (draft?.summary ?? '')
+      this.summary() !== (draft?.summary ?? '') ||
+      this.contentEn() !== (draft?.contentEn ?? this.current()?.contentEn ?? '') ||
+      this.summaryEn() !== (draft?.summaryEn ?? '')
     );
   });
   // Lo que falta para poder publicar, o null si ya se puede
@@ -121,7 +147,10 @@ export class LegalDocumentsEditor {
     if (content === this.current()?.content.trim()) {
       return 'El texto es igual al de la versión vigente.';
     }
-    return this.summary().trim() === '' ? 'Falta explicar «Qué ha cambiado».' : null;
+    if (this.summary().trim() === '') {
+      return 'Falta explicar «Qué ha cambiado».';
+    }
+    return englishHint(this.contentEn(), this.summaryEn());
   });
   readonly canPublish = computed(() => this.publishHint() === null && !this.isBusy());
   readonly isBusy = signal(false);
@@ -131,6 +160,7 @@ export class LegalDocumentsEditor {
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : null;
   });
 
+  protected readonly langs = LANGS;
   protected readonly types = DOCUMENT_TYPES.map((value) => ({
     value,
     label: LEGAL_DOCUMENT_TITLES[value],
@@ -175,6 +205,10 @@ export class LegalDocumentsEditor {
     });
   }
 
+  handleLang(value: LegalLang): void {
+    this.lang.set(value);
+  }
+
   handleView(value: EditorView): void {
     this.view.set(value);
   }
@@ -186,11 +220,11 @@ export class LegalDocumentsEditor {
   }
 
   handleInput(value: string | null | undefined): void {
-    this.content.set(value ?? '');
+    (this.lang() === 'es' ? this.content : this.contentEn).set(value ?? '');
   }
 
   handleSummary(value: string | null | undefined): void {
-    this.summary.set(value ?? '');
+    (this.lang() === 'es' ? this.summary : this.summaryEn).set(value ?? '');
   }
 
   async handleSave(): Promise<void> {
@@ -225,6 +259,8 @@ export class LegalDocumentsEditor {
       content: this.content(),
       changeType: this.changeType(),
       summary: this.summary(),
+      contentEn: this.contentEn(),
+      summaryEn: this.summaryEn(),
     });
   }
 
@@ -243,6 +279,14 @@ export class LegalDocumentsEditor {
       this.isBusy.set(false);
     }
   }
+}
+
+// Lo que falta de la traducción para publicar, o null si está completa
+export function englishHint(contentEn: string, summaryEn: string): string | null {
+  if (contentEn.trim() === '') {
+    return 'Falta el texto en inglés.';
+  }
+  return summaryEn.trim() === '' ? 'Falta «Qué ha cambiado» en inglés.' : null;
 }
 
 // Qué pasará al publicar: tras un cambio importante hay que volver a aceptar

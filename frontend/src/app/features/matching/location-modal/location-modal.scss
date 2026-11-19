@@ -17,14 +17,14 @@
 }
 
 // Sin ubicación: el icono junto al título, como un aviso
-.location__error {
+.location__unavailable {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
   padding-block: var(--space-base);
 }
 
-.location__error-title {
+.location__unavailable-title {
   display: flex;
   align-items: center;
   gap: var(--space-s);

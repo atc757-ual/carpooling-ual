@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
@@ -7,6 +8,9 @@ import { lazyLabels } from '../../i18n/lazy-labels';
 
 export type LegalDocumentType =
   'terms' | 'privacy' | 'driver_declaration' | 'vehicle_declaration' | 'location';
+
+// El español es el que vale; el inglés es una traducción
+export type LegalLang = 'es' | 'en';
 
 // major: hay que volver a aceptarla; minor: solo se avisa
 export type LegalChangeType = 'major' | 'minor';
@@ -16,6 +20,8 @@ export type LegalChangeType = 'major' | 'minor';
 export interface LegalDocumentView {
   type: LegalDocumentType;
   version: string;
+  // El idioma del texto: el de la app o, si aún no está traducido, es
+  lang: LegalLang;
   content: string;
   changeType: LegalChangeType;
   summary: string | null;
@@ -42,9 +48,16 @@ export const LEGAL_DOCUMENT_TITLES: Readonly<Record<LegalDocumentType, string>> 
 export class LegalDocumentsService {
   private readonly http = inject(HttpClient);
   private readonly api = environment.apiUrl;
+  private readonly transloco = inject(TranslocoService, { optional: true });
 
+  // En el idioma de la app (el backend da el español si no hay traducción)
   getCurrent(type: LegalDocumentType): Promise<LegalDocumentView> {
-    return this.call(this.http.get<LegalDocumentView>(`${this.api}/legal-documents/${type}`));
+    const lang: LegalLang = this.transloco?.getActiveLang() === 'en' ? 'en' : 'es';
+    return this.call(
+      this.http.get<LegalDocumentView>(`${this.api}/legal-documents/${type}`, {
+        params: { lang },
+      }),
+    );
   }
 
   // Las vigentes que aún no ha aceptado (tras publicar una versión nueva)

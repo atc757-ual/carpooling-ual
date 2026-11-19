@@ -12,12 +12,14 @@ import {
   LEGAL_CHANGE_TYPES,
   LEGAL_DOCUMENT_STATUSES,
   LEGAL_DOCUMENT_TYPES,
+  LEGAL_LANGS,
   LegalDocument,
   SIGNUP_DOCUMENT_TYPES,
 } from '../entities/legal-document.entity';
 import type {
   LegalChangeType,
   LegalDocumentType,
+  LegalLang,
   SignupDocumentType,
 } from '../entities/legal-document.entity';
 
@@ -39,6 +41,13 @@ export class LegalDocumentResource {
 
   @ApiProperty({ example: '1.1' })
   version: string;
+
+  @ApiProperty({
+    enum: LEGAL_LANGS,
+    description:
+      'Language of content and summary: the one asked for, or es when there is no English translation (the Spanish text is the binding one)',
+  })
+  lang: LegalLang;
 
   @ApiProperty({
     description:
@@ -66,10 +75,25 @@ export class LegalDocumentResource {
   publishedAt: string | null;
 }
 
-// En el panel: cada versión, con los borradores
+// En el panel: cada versión, con los borradores y los dos idiomas (content
+// y summary, en español)
 export class AdminLegalDocumentResource extends LegalDocumentResource {
   @ApiProperty({ format: 'uuid' })
   id: string;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'English translation of content; required to publish',
+  })
+  contentEn: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'English translation of summary; required to publish',
+  })
+  summaryEn: string | null;
 
   @ApiProperty({ enum: LEGAL_DOCUMENT_STATUSES })
   status: string;
@@ -88,6 +112,13 @@ export class PendingLegalDocumentResource {
 
   @ApiProperty({ example: '/api/legal-documents/terms' })
   href: string;
+}
+
+// ?lang= al leer un documento: en qué idioma se devuelve
+export class LegalLangQueryDto {
+  @ApiPropertyOptional({ enum: LEGAL_LANGS, default: 'es' })
+  @IsIn(LEGAL_LANGS)
+  lang: LegalLang = 'es';
 }
 
 export class ListLegalDocumentsQueryDto extends PaginationQueryDto {
@@ -126,6 +157,25 @@ export class SaveLegalDraftDto {
   @IsString()
   @MaxLength(MAX_SUMMARY_LENGTH)
   summary?: string;
+
+  @ApiPropertyOptional({
+    maxLength: MAX_CONTENT_LENGTH,
+    description:
+      'The English translation, HTML; sanitized before saving. Required to publish',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(MAX_CONTENT_LENGTH)
+  contentEn?: string;
+
+  @ApiPropertyOptional({
+    maxLength: MAX_SUMMARY_LENGTH,
+    description: 'What changed, in English; required to publish',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(MAX_SUMMARY_LENGTH)
+  summaryEn?: string;
 }
 
 // Solo las condiciones y la política (la declaración del conductor se acepta
@@ -144,17 +194,23 @@ export function legalDocumentHref(type: LegalDocumentType): string {
   return `/${API_PREFIX}/legal-documents/${type}`;
 }
 
+// En inglés solo si está traducido; si no, el texto español (y lang: es)
 export function toLegalDocumentResource(
   document: LegalDocument,
+  lang: LegalLang = 'es',
 ): LegalDocumentResource {
+  const isEnglish = lang === 'en' && document.contentEn !== null;
   return {
     '@type': 'LegalDocument',
     href: legalDocumentHref(document.type),
     type: document.type,
     version: document.version,
-    content: document.content,
+    lang: isEnglish ? 'en' : 'es',
+    content: isEnglish ? (document.contentEn ?? '') : document.content,
     changeType: document.changeType,
-    summary: document.summary,
+    summary: isEnglish
+      ? (document.summaryEn ?? document.summary)
+      : document.summary,
     publishedAt: document.publishedAt?.toISOString() ?? null,
   };
 }
@@ -165,6 +221,8 @@ export function toAdminLegalDocumentResource(
   return {
     ...toLegalDocumentResource(document),
     id: document.id,
+    contentEn: document.contentEn,
+    summaryEn: document.summaryEn,
     status: document.status,
     updatedAt: document.updatedAt.toISOString(),
   };

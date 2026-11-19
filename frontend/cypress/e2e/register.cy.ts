@@ -115,7 +115,7 @@ for (const viewport of VIEWPORTS) {
 
     it('opens the privacy policy without checking the box', () => {
       // La versión vigente sale del backend
-      cy.intercept('GET', '/api/legal-documents/privacy', {
+      cy.intercept('GET', '/api/legal-documents/privacy?*', {
         type: 'privacy',
         version: '1.0',
         content: '<h2>Tus derechos</h2><p>Acceso, rectificación y supresión.</p>',

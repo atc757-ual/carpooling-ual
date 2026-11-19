@@ -190,6 +190,8 @@ for (const viewport of VIEWPORTS) {
           content: '<p>Texto vigente</p>',
           changeType: 'major',
           summary: null,
+          contentEn: '<p>Current text</p>',
+          summaryEn: null,
           status: 'published',
           publishedAt: '2026-10-30T10:00:00.000Z',
           updatedAt: '2026-10-30T10:00:00.000Z',
@@ -205,6 +207,10 @@ for (const viewport of VIEWPORTS) {
       cy.contains('Vigente: versión 1.0');
       cy.contains('.legal-editor__tab', 'Vista previa').click();
       cy.get('.legal-editor__preview .legal').should('contain', 'Texto vigente');
+      // En inglés, su traducción
+      cy.contains('.legal-editor__tab', 'Inglés').click();
+      cy.get('.legal-editor__preview .legal').should('contain', 'Current text');
+      cy.contains('.legal-editor__tab', 'Español').click();
       cy.contains('.legal-editor__tab', 'Editar').click();
       cy.contains('.legal-editor__option', 'Cambio menor').should('contain', 'Versión 1.1');
       cy.contains('ion-button', 'Publicar').should('have.attr', 'disabled');
@@ -223,6 +229,8 @@ for (const viewport of VIEWPORTS) {
         content: '<p>Texto vigente</p>',
         changeType: 'major',
         summary: 'Nuevas normas.',
+        contentEn: '<p>Current text</p>',
+        summaryEn: '',
       });
     });
 
