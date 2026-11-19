@@ -1,0 +1,57 @@
+<ion-button
+  class="preference-filters__open"
+  fill="outline"
+  [attr.aria-label]="selected().size > 0 ? 'Filtros, ' + selected().size + ' elegidos' : 'Filtros'"
+  (click)="isOpen.set(true)"
+>
+  <ion-icon slot="start" [icon]="filtersIcon" aria-hidden="true" />
+  Filtros
+  @if (selected().size > 0) {
+    <span class="preference-filters__count" aria-hidden="true">{{ selected().size }}</span>
+  }
+</ion-button>
+
+<!-- Montada desde el principio (keepContentsMounted): es pequeña y se abre al
+     instante -->
+<ion-modal
+  class="info-dialog"
+  [keepContentsMounted]="true"
+  [isOpen]="isOpen()"
+  (didDismiss)="isOpen.set(false)"
+>
+  <ng-template>
+    <app-modal-header title="Filtros" (closed)="isOpen.set(false)" />
+    <div class="modal-body preference-filters__body">
+      <!-- El patrón de Ionic para casillas: una fila (ion-item) por opción, con
+           la línea fina entre ellas, el alto táctil y el centrado de serie -->
+      <fieldset class="preference-filters__options">
+        <legend class="text-label text-label--strong">Preferencias del conductor</legend>
+        <ion-list lines="full">
+          @for (option of options; track option.value) {
+            <ion-item>
+              <ion-icon slot="start" [icon]="option.icon" aria-hidden="true" />
+              <ion-checkbox
+                justify="space-between"
+                [checked]="selected().has(option.value)"
+                (ionChange)="toggled.emit(option.value)"
+              >
+                {{ option.label }}
+              </ion-checkbox>
+            </ion-item>
+          }
+        </ion-list>
+      </fieldset>
+      <span class="text-body-s text-color-muted">
+        Solo filtran la lista: un conductor que no indicó esa preferencia no aparece.
+      </span>
+      <div class="preference-filters__actions">
+        <ion-button fill="outline" [disabled]="selected().size === 0" (click)="cleared.emit()">
+          Quitar filtros
+        </ion-button>
+        <ion-button (click)="isOpen.set(false)">
+          Ver {{ resultCount() }} {{ resultCount() === 1 ? 'viaje' : 'viajes' }}
+        </ion-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
