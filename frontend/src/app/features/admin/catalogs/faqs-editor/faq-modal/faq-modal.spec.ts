@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { AdminFaq, AdminFaqTopic } from '../../../../../core/models/admin-faq.model';
@@ -39,7 +40,11 @@ describe('FaqModal', () => {
   function render(inputs: Partial<FaqModal> = {}): FaqModal {
     TestBed.configureTestingModule({
       imports: [FaqModal],
-      providers: [provideIonicAngular(), { provide: ModalController, useValue: { dismiss } }],
+      providers: [
+        provideAppTransloco(),
+        provideIonicAngular(),
+        { provide: ModalController, useValue: { dismiss } },
+      ],
     });
     fixture = TestBed.createComponent(FaqModal);
     Object.assign(fixture.componentInstance, { topics: TOPICS, action, ...inputs });

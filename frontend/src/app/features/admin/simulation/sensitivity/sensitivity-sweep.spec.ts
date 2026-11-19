@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { ApiError } from '../../../../core/models/api-error.model';
@@ -13,6 +14,7 @@ describe('SensitivitySweep', () => {
     TestBed.configureTestingModule({
       imports: [SensitivitySweep],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: AdminSimulationSweepsService, useValue: sweeps },
       ],

@@ -80,10 +80,7 @@ describe('HelpFaqPage', () => {
     const host = TestBed.createComponent(HeadingHost);
     host.detectChanges();
     const heading = host.nativeElement as HTMLElement;
-    // Sin la traducción en los tests, sale la clave
-    expect(heading.querySelector('.help-heading__title')?.textContent).toContain(
-      'help.breadcrumbFaq',
-    );
+    expect(heading.querySelector('.help-heading__title')?.textContent).toContain('Pregunta');
     expect(heading.querySelectorAll('ion-breadcrumb')).toHaveLength(3);
 
     fixture.componentInstance.ionViewWillLeave();

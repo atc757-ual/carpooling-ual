@@ -86,7 +86,7 @@ describe('ProfileDeleteModal', () => {
     expect(dismiss).toHaveBeenCalledWith(null, 'deleted');
     expect(logout).toHaveBeenCalled();
     expect(navigateByUrl).toHaveBeenCalledWith('/auth/welcome');
-    expect(showSuccess).toHaveBeenCalledWith('profile.deleteModal.deleted');
+    expect(showSuccess).toHaveBeenCalledWith('Tu cuenta se ha eliminado.');
   });
 
   it('does nothing without a checked code', async () => {
@@ -123,7 +123,7 @@ describe('ProfileDeleteModal', () => {
     await component.handleKeep();
 
     expect(dismiss).toHaveBeenCalledWith(null, 'kept');
-    expect(showSuccess).toHaveBeenCalledWith('profile.deleteModal.kept');
+    expect(showSuccess).toHaveBeenCalledWith('¡Gracias por seguir con nosotros!');
     expect(celebrate).toHaveBeenCalled();
   });
 

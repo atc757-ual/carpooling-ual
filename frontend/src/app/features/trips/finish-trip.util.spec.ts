@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
 import { vi } from 'vitest';
 import { translateEs } from '../../core/i18n/testing-translate';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
@@ -17,6 +18,8 @@ const NEAR: [number, number] = [-2.4065, 36.8303];
 const FAR: [number, number] = [-2.4637, 36.8381];
 
 describe('finishTrip', () => {
+  beforeEach(() => initAppTranslations());
+
   let ask: ReturnType<typeof vi.fn>;
   let finish: ReturnType<typeof vi.fn>;
   let stop: ReturnType<typeof vi.fn>;
@@ -98,6 +101,8 @@ describe('finishTrip', () => {
 });
 
 describe('formatDistance', () => {
+  beforeEach(() => initAppTranslations());
+
   it.each([
     [250.4, '250 m'],
     [999, '999 m'],

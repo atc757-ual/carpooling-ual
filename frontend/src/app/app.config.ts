@@ -20,12 +20,14 @@ import {
   isPlatform,
   provideIonicAngular,
 } from '@ionic/angular';
-import { provideTransloco } from '@jsverse/transloco';
+import { provideTransloco, TranslocoService } from '@jsverse/transloco';
+import { firstValueFrom } from 'rxjs';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { AuthService } from './core/services/auth/auth.service';
 import { preventIosFocusZoom } from './shared/utils/ios-viewport.util';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
+import { LanguageService } from './core/services/ui/language.service';
 
 const IS_IOS = isPlatform('ios');
 
@@ -66,6 +68,12 @@ export const appConfig: ApplicationConfig = {
       },
       loader: TranslocoHttpLoader,
     }),
+    // Antes de la primera pantalla, el diccionario del idioma activo: los textos
+    // que se componen en TS (`translate()`, p. ej. los errores de la API) lo
+    // necesitan ya cargado, también en una página que falla al abrirse
+    provideAppInitializer(() =>
+      firstValueFrom(inject(TranslocoService).load(inject(LanguageService).currentLanguage())),
+    ),
     // Antes de mostrar la primera pantalla, recupera la sesión guardada (así
     // los guards ya saben si hay usuario)
     provideAppInitializer(() => inject(AuthService).restoreSession()),

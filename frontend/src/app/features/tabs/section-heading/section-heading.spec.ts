@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { SectionHeading } from './section-heading';
@@ -6,7 +7,10 @@ describe('SectionHeading', () => {
   function render(data: Record<string, unknown>): HTMLElement {
     TestBed.configureTestingModule({
       imports: [SectionHeading],
-      providers: [{ provide: ActivatedRoute, useValue: { snapshot: { data } } }],
+      providers: [
+        provideAppTransloco(),
+        { provide: ActivatedRoute, useValue: { snapshot: { data } } },
+      ],
     });
     const fixture = TestBed.createComponent(SectionHeading);
     fixture.detectChanges();

@@ -1,3 +1,4 @@
+import { setAppLocale } from '../../core/i18n/app-locale';
 import { ConsentRecord } from '../../core/models/user-consent.model';
 import { LegalDocumentView } from '../../core/services/users/legal-documents.service';
 import { toLegalDocRow } from './privacy-rows';
@@ -23,6 +24,8 @@ const current = (version: string): LegalDocumentView => ({
 });
 
 describe('privacy rows', () => {
+  beforeEach(() => setAppLocale('es'));
+
   it('shows the accepted version, its date and the start of its code', () => {
     expect(toLegalDocRow('privacy', 'Política', ACCEPTED, current('1.0'))).toEqual({
       id: 'privacy',

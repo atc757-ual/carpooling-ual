@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { ApiError } from '../../../../core/models/api-error.model';
@@ -11,7 +12,11 @@ describe('CatalogItemModal', () => {
   function render(inputs: Partial<CatalogItemModal> = {}): CatalogItemModal {
     TestBed.configureTestingModule({
       imports: [CatalogItemModal],
-      providers: [provideIonicAngular(), { provide: ModalController, useValue: { dismiss } }],
+      providers: [
+        provideAppTransloco(),
+        provideIonicAngular(),
+        { provide: ModalController, useValue: { dismiss } },
+      ],
     });
     fixture = TestBed.createComponent(CatalogItemModal);
     Object.assign(fixture.componentInstance, {

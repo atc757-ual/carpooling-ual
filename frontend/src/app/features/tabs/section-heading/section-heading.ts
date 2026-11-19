@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TabHeading } from '../tab-heading';
@@ -8,13 +9,14 @@ import { TabHeading } from '../tab-heading';
 // franja fija de las pestañas. Los toma del data de la ruta ({ heading })
 @Component({
   selector: 'app-section-heading',
+  imports: [TranslocoPipe],
   host: { class: 'ion-hide-md-up' },
   template: `
     @if (heading; as heading) {
-      <h1 class="section-heading__title">{{ heading.title }}</h1>
+      <h1 class="section-heading__title">{{ heading.title | transloco }}</h1>
       @if (heading.subtitle) {
         <p class="section-heading__subtitle text-body-s text-color-muted">
-          {{ heading.subtitle }}
+          {{ heading.subtitle | transloco }}
         </p>
       }
     }

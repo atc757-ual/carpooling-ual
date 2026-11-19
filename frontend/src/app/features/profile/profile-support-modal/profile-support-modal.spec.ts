@@ -71,7 +71,9 @@ describe('ProfileSupportModal', () => {
     await component.handleSubmit();
 
     expect(sendMessage).toHaveBeenCalledWith('trip', MESSAGE);
-    expect(showSuccess).toHaveBeenCalledWith('profile.supportModal.sent');
+    expect(showSuccess).toHaveBeenCalledWith(
+      'Hemos recibido tu mensaje. Te responderemos por correo.',
+    );
     expect(dismiss).toHaveBeenCalledWith(null, 'sent');
     expect(component.isSending()).toBe(false);
   });

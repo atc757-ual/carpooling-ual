@@ -198,13 +198,22 @@ class TestingTranslocoLoader implements TranslocoLoader {
 export function provideTestingTransloco(
   translations: Record<string, Record<string, unknown>> = {},
 ): EnvironmentProviders {
+  // Cada spec empieza en español, también el formato de fechas y números
+  // (otro spec puede haberlo dejado en inglés)
+  setAppLocale('es');
   try {
     globalThis.localStorage?.setItem('carpooling_language', 'es');
   } catch {
     // El almacenamiento puede no estar disponible en el entorno de pruebas
   }
 
-  const mergedTranslations = { ...DEFAULT_TEST_TRANSLATIONS };
+  // Los diccionarios reales de base: las etiquetas compartidas usan el
+  // `translate()` global, que traduce con la última instancia creada, sea del
+  // spec que sea; así no dependen del orden en que se ejecutan los specs
+  const mergedTranslations: Record<string, Record<string, unknown>> = {
+    es: mergeTranslations(esDictionary, DEFAULT_TEST_TRANSLATIONS['es'] ?? {}),
+    en: mergeTranslations(enDictionary, DEFAULT_TEST_TRANSLATIONS['en'] ?? {}),
+  };
   for (const [language, dictionary] of Object.entries(translations)) {
     mergedTranslations[language] = mergeTranslations(
       mergedTranslations[language] ?? {},

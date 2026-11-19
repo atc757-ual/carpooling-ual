@@ -82,11 +82,9 @@ describe('ProfileLocation', () => {
 
     expect(fixture.componentInstance.isGranted()).toBe(false);
     expect(fixture.componentInstance.isOutdated()).toBe(true);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Autorizada el');
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      'profile.location.authorizedOn',
-    );
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      'profile.location.outdated',
+      'Hemos actualizado cómo usamos tu ubicación',
     );
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({ componentProps: { document: 'location' } }),

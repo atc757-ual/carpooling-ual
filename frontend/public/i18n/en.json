@@ -1367,6 +1367,74 @@
       "foreignPlateError": "Enter 2 to 10 letters and numbers, as on your plate."
     }
   },
+  "routes": {
+    "search": {
+      "title": "Where are we going today?",
+      "subtitle": "Find someone from UAL who makes the same journey."
+    },
+    "searchResults": {
+      "title": "Your search",
+      "subtitle": "The trips that fit your route and schedule."
+    },
+    "tripDetail": {
+      "title": "Trip details",
+      "subtitle": "The route, who's driving and the free seats."
+    },
+    "publish": {
+      "title": "Publish a trip",
+      "subtitle": "Share your route with the community. You accept each request."
+    },
+    "request": {
+      "title": "Your request",
+      "subtitle": "Check the status and the details of your seat."
+    },
+    "ride": {
+      "title": "Trip in progress",
+      "subtitle": "Follow the car live until you arrive."
+    },
+    "driverTrip": {
+      "title": "Your trip",
+      "subtitle": "Requests, chat and trip status."
+    },
+    "drive": {
+      "title": "Trip in progress",
+      "subtitle": "Your passengers can see where you are until you finish it."
+    },
+    "trips": {
+      "title": "Your trips",
+      "subtitle": "Your trips and seat requests."
+    },
+    "messages": {
+      "title": "Messages",
+      "subtitle": "Talk to whoever is driving or travelling with you."
+    },
+    "conversation": {
+      "title": "Conversation",
+      "subtitle": "With the trip's driver."
+    },
+    "driverConversation": {
+      "title": "Conversation",
+      "subtitle": "Between the driver and a passenger of the trip."
+    },
+    "profile": {
+      "title": "My profile",
+      "subtitle": "Your account and your vehicles."
+    },
+    "help": {
+      "title": "Help and support",
+      "subtitle": "Frequently asked questions and contact with support."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "What's happening with your trips, requests and account."
+    },
+    "crumbs": {
+      "searchTrip": "Find a trip",
+      "trips": "Your trips",
+      "profile": "My profile",
+      "help": "Help and support"
+    }
+  },
   "permissions": {
     "title": "Permissions on this device",
     "description": "Your browser or phone will ask you about each one. You can turn them on now or later, and remove them anytime in its settings.",
@@ -1410,6 +1478,7 @@
     "INVALID_VERIFICATION_CODE": "That code isn't valid. Check the 6 digits or request a new one.",
     "PASSWORD_UNCHANGED": "Your new password must be different from your current one.",
     "TOO_MANY_ATTEMPTS": "Too many attempts. Please request a new code.",
+    "TOO_MANY_LOGIN_ATTEMPTS": "Too many failed attempts. Try again in 5 minutes.",
     "EMAIL_ALREADY_REGISTERED": "An account already exists with this email.",
     "EMAIL_DOMAIN_NOT_ALLOWED": "Use your University of Almería email address.",
     "INVALID_ACCESS_TOKEN": "Your session is invalid. Please sign in again.",

@@ -96,7 +96,7 @@ describe('ProfilePasswordModal', () => {
     await component.handleSubmit();
 
     expect(auth['changePassword']).toHaveBeenCalledWith('123456', 'long-enough');
-    expect(showSuccess).toHaveBeenCalledWith('profile.passwordModal.saved');
+    expect(showSuccess).toHaveBeenCalledWith('Contraseña actualizada.');
     expect(dismiss).toHaveBeenCalledWith(null, 'saved');
     expect(component.isSubmitting()).toBe(false);
   });
