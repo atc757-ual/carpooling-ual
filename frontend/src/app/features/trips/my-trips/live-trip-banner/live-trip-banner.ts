@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
@@ -10,7 +11,7 @@ import { RevealOnTouch } from '../../../../shared/directives/reveal-on-touch.dir
 // arriba de Buscar y Publicar (en la tarjeta del próximo viaje)
 @Component({
   selector: 'app-live-trip-banner',
-  imports: [RouterLink, IonIcon, RevealOnTouch],
+  imports: [RouterLink, IonIcon, RevealOnTouch, TranslocoPipe],
   templateUrl: './live-trip-banner.html',
   styleUrl: './live-trip-banner.scss',
 })

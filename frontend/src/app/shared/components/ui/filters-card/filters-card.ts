@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { IonButton, IonCard, IonChip, IonIcon } from '@ionic/angular';
 import { chevronDownOutline, closeOutline, optionsOutline } from 'ionicons/icons';
@@ -17,7 +18,7 @@ let nextId = 0;
 // como un chip que se quita con un toque. «Quitar filtros» con alguno puesto
 @Component({
   selector: 'app-filters-card',
-  imports: [IonButton, IonCard, IonChip, IonIcon],
+  imports: [IonButton, IonCard, IonChip, IonIcon, TranslocoPipe],
   templateUrl: './filters-card.html',
   styleUrl: './filters-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

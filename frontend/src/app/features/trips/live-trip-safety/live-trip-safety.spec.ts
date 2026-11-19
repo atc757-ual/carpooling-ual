@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
@@ -14,7 +15,11 @@ describe('LiveTripSafety', () => {
     share = vi.fn().mockResolvedValue('shared');
     TestBed.configureTestingModule({
       imports: [LiveTripSafety],
-      providers: [provideIonicAngular(), { provide: TripShareService, useValue: { share } }],
+      providers: [
+        provideAppTransloco(),
+        provideIonicAngular(),
+        { provide: TripShareService, useValue: { share } },
+      ],
     });
     fixture = TestBed.createComponent(LiveTripSafety);
   });

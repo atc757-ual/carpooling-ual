@@ -6,6 +6,12 @@ import {
   liveEtaText,
   stageIndex,
 } from './live-trip-hero.util';
+import { translateEs } from '../../core/i18n/testing-translate';
+
+const PASSENGER_KEYS = {
+  keys: { pickup: 'live.hero.arrivesIn', stale: 'live.hero.noPosition' },
+  translate: translateEs,
+};
 
 describe('live trip hero', () => {
   it('marks the stages done up to the current one', () => {
@@ -26,15 +32,15 @@ describe('live trip hero', () => {
   });
 
   it('heads to the campus or home, and arrives only at the campus', () => {
-    expect(headingTo(true, false)).toBe('Rumbo al campus');
-    expect(headingTo(true, true)).toBe('Llegando al campus');
-    expect(headingTo(false, true)).toBe('Rumbo a casa');
+    expect(translateEs(headingTo(true, false))).toBe('Rumbo al campus');
+    expect(translateEs(headingTo(true, true))).toBe('Llegando al campus');
+    expect(translateEs(headingTo(false, true))).toBe('Rumbo a casa');
   });
 
   it('says the minutes in words, and «Llegando» with one or less', () => {
-    expect(etaTag(9.6, 'En destino')).toBe('En destino en 10 min');
-    expect(etaTag(1, 'Llega')).toBe('Llegando');
-    expect(liveEtaText(null, true, 'Llega', 'Sin posición')).toBeNull();
+    expect(etaTag(9.6, 'live.hero.atDestinationIn', translateEs)).toBe('En destino en 10 min');
+    expect(etaTag(1, 'live.hero.arrivesIn', translateEs)).toBe('Llegando');
+    expect(liveEtaText(null, true, PASSENGER_KEYS)).toBeNull();
     expect(
       liveEtaText(
         {
@@ -45,8 +51,7 @@ describe('live trip hero', () => {
           isStale: true,
         },
         true,
-        'Llega',
-        'Sin posición',
+        PASSENGER_KEYS,
       ),
     ).toBe('Sin posición');
     expect(
@@ -59,8 +64,7 @@ describe('live trip hero', () => {
           isStale: false,
         },
         true,
-        'Llega',
-        'Sin posición',
+        PASSENGER_KEYS,
       ),
     ).toBe('Llega en 4 min');
     expect(
@@ -73,8 +77,7 @@ describe('live trip hero', () => {
           isStale: false,
         },
         false,
-        'Llega',
-        'Sin posición',
+        PASSENGER_KEYS,
       ),
     ).toBe('En destino en 8 min');
   });

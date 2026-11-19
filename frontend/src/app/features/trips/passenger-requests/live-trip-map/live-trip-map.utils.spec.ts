@@ -2,6 +2,7 @@ import {
   areTogether,
   distanceMeters,
   estimatePickupMinutes,
+  etaMinutes,
   interpolateLatLng,
   shouldRenderPassengerMarker,
 } from './live-trip-map.utils';
@@ -10,6 +11,11 @@ describe('live trip map utilities', () => {
   it('measures distance between GeoJSON points in meters', () => {
     expect(distanceMeters([-2.46, 36.84], [-2.46, 36.84])).toBe(0);
     expect(distanceMeters([0, 0], [0, 0.001])).toBeGreaterThan(100);
+  });
+
+  it('rounds the minutes, and gives none with one or less', () => {
+    expect(etaMinutes(9.6)).toBe(10);
+    expect(etaMinutes(1.4)).toBeNull();
   });
 
   it('estimates pickup time at 30 km/h with a one minute minimum', () => {

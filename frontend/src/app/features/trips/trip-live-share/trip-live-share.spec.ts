@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
@@ -45,6 +46,7 @@ describe('TripLiveShare', () => {
     TestBed.configureTestingModule({
       imports: [TripLiveShare],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: TripLiveShareService, useValue: liveShare },
         { provide: TripShareService, useValue: { share } },

@@ -38,11 +38,11 @@ export function shouldRenderPassengerMarker(
   return passenger !== null && (car === null || !areTogether(car, passenger));
 }
 
-// «en unos 3 min»; con 1 minuto o menos, null (quien llama dice «Está
-// llegando»). Sin «~», que se lee como un signo menos
-export function inAbout(minutes: number): string | null {
+// Los minutos redondeados para «en unos 3 min»; con 1 minuto o menos, null
+// (quien llama dice «Está llegando»)
+export function etaMinutes(minutes: number): number | null {
   const rounded = Math.round(minutes);
-  return rounded <= 1 ? null : `en unos ${rounded} min`;
+  return rounded <= 1 ? null : rounded;
 }
 
 // Corto, para la línea de la tarjeta «En directo»: «unos 3 min» o «llegando»

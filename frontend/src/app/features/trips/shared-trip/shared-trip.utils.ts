@@ -1,3 +1,4 @@
+import { Translate } from '../../../core/i18n/translate';
 import { SharedTrip } from '../../../core/models/trip-share.model';
 import { formatPlate } from '../../../shared/utils/vehicle-display.util';
 import { RoutePoint } from '../../../shared/components/ui/trip-route-map/trip-route-map';
@@ -14,34 +15,35 @@ export interface SharedTripStatus {
 }
 
 // El estado del pasajero en una frase, para quien sigue el viaje
-export function describeSharedTrip(trip: SharedTrip, firstName: string): SharedTripStatus {
+export function describeSharedTrip(trip: SharedTrip, translate: Translate): SharedTripStatus {
   if (trip.tripStatus === 'cancelled') {
     return {
-      title: 'El viaje se ha cancelado',
-      description: 'El viaje no se va a hacer: el pasajero buscará otra forma de llegar.',
+      title: translate('sharedTrip.status.cancelledTitle'),
+      description: translate('sharedTrip.status.cancelledText'),
       tone: 'neutral',
     };
   }
   if (trip.passengerState === 'finished') {
     return {
-      title: 'El viaje ha terminado',
-      description: `${firstName} ha llegado al destino.`,
+      title: translate('sharedTrip.status.finishedTitle'),
+      description: translate('sharedTrip.status.finishedText'),
       tone: 'success',
     };
   }
   if (trip.passengerState === 'on_board') {
     return {
-      title: 'En el coche',
-      description: 'El pasajero ya va en el coche, camino del destino.',
+      title: translate('sharedTrip.status.onBoardTitle'),
+      description: translate('sharedTrip.status.onBoardText'),
       tone: 'success',
     };
   }
   return {
-    title: 'Esperando la recogida',
-    description:
+    title: translate('sharedTrip.status.waitingTitle'),
+    description: translate(
       trip.tripStatus === 'in_progress'
-        ? 'El conductor ya ha salido y va hacia el punto de recogida.'
-        : 'El viaje aún no ha empezado. Verás el coche en el mapa cuando salga.',
+        ? 'sharedTrip.status.waitingStartedText'
+        : 'sharedTrip.status.waitingNotStartedText',
+    ),
     tone: 'info',
   };
 }
@@ -62,16 +64,17 @@ export function describeSharedVehicle(vehicle: SharedTrip['vehicle']): string | 
 export function routeEnds(
   route: NonNullable<SharedTrip['route']>,
   destinationName: string | null,
+  translate: Translate,
 ): { origin: RoutePoint; destination: RoutePoint } | null {
   const coordinates = route.coordinates;
   if (coordinates.length < 2) {
     return null;
   }
   return {
-    origin: { coordinates: coordinates[0], label: 'Salida' },
+    origin: { coordinates: coordinates[0], label: translate('sharedTrip.start') },
     destination: {
       coordinates: coordinates.at(-1) ?? coordinates[0],
-      label: destinationName ?? 'Destino',
+      label: destinationName ?? translate('sharedTrip.destino'),
     },
   };
 }

@@ -25,6 +25,8 @@ export interface LiveTripMapRendererPort {
   ): void;
   // Lo que tapa una hoja por abajo (px): al encuadrar, se deja libre
   setBottomInset(pixels: number): void;
+  // El título del marcador del coche, ya traducido
+  setCarTitle(title: string): void;
   destroy(): void;
 }
 

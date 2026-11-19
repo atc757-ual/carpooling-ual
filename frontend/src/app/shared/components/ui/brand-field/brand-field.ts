@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -21,7 +22,7 @@ const OTHER_BRAND = 'Otra';
 
 @Component({
   selector: 'app-brand-field',
-  imports: [Combobox, IonIcon, IonInput],
+  imports: [Combobox, IonIcon, IonInput, TranslocoPipe],
   templateUrl: './brand-field.html',
   styleUrl: './brand-field.scss',
   providers: [
@@ -38,6 +39,7 @@ export class BrandField implements ControlValueAccessor {
   protected readonly query = signal('');
   protected readonly searchActive = signal(false);
   protected readonly otherMode = signal(false);
+  protected readonly otherBrand = OTHER_BRAND;
   protected readonly disabled = signal(false);
   private readonly catalogs = inject(CatalogsService);
   private readonly catalog = resource({ loader: () => this.catalogs.vehicleBrandNames() });

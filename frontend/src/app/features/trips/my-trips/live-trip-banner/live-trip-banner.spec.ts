@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -7,7 +8,7 @@ describe('LiveTripBanner', () => {
   function render(detail?: string): HTMLElement {
     TestBed.configureTestingModule({
       imports: [LiveTripBanner],
-      providers: [provideIonicAngular(), provideRouter([])],
+      providers: [provideAppTransloco(), provideIonicAngular(), provideRouter([])],
     });
     const fixture = TestBed.createComponent(LiveTripBanner);
     fixture.componentRef.setInput('route', 'Roquetas de Mar → Campus UAL');

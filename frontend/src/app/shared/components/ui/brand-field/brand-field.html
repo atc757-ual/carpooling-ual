@@ -1,9 +1,9 @@
 <div class="brand-field__control">
   <ion-input
     [appCombobox]="combobox"
-    aria-label="Marca del vehículo"
+    [attr.aria-label]="'ui.marcaDelVehiculo' | transloco"
     fill="outline"
-    [placeholder]="otherMode() ? 'Escribe la marca' : 'Buscar marca'"
+    [placeholder]="(otherMode() ? 'ui.typeBrand' : 'ui.searchBrand') | transloco"
     autocapitalize="words"
     autocomplete="off"
     [value]="query()"
@@ -20,7 +20,7 @@
       class="brand-field__dropdown"
       role="listbox"
       [id]="combobox.listId"
-      aria-label="Marcas disponibles"
+      [attr.aria-label]="'ui.marcasDisponibles' | transloco"
     >
       @for (brand of filteredBrands(); track brand; let index = $index) {
         <button
@@ -34,7 +34,7 @@
           (mousedown)="$event.preventDefault()"
           (click)="chooseBrand(brand)"
         >
-          {{ brand }}
+          {{ brand === otherBrand ? ('ui.otherBrand' | transloco) : brand }}
         </button>
       }
     </div>
@@ -47,7 +47,7 @@
       [disabled]="disabled()"
       (click)="returnToBrandList()"
     >
-      Buscar en la lista
+      {{ 'ui.buscarLista' | transloco }}
     </button>
   }
 </div>

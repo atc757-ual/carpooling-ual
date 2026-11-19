@@ -1,5 +1,5 @@
 <ion-card class="filters-card">
-  <h2 class="filters-card__title ion-hide-md-down">Filtros</h2>
+  <h2 class="filters-card__title ion-hide-md-down">{{ 'ui.filtros' | transloco }}</h2>
 
   <!-- Móvil: «Más filtros» y, con él cerrado, lo aplicado para quitarlo sin
        abrirlo -->
@@ -13,10 +13,11 @@
       (click)="toggle()"
     >
       <ion-icon slot="start" [icon]="filtersIcon" aria-hidden="true" />
-      Más filtros
+      {{ 'ui.masFiltros' | transloco }}
       @if (activeFilters().length > 0) {
         <span class="filters-card__count">
-          {{ activeFilters().length }}<span class="visually-hidden"> aplicados</span>
+          {{ activeFilters().length
+          }}<span class="visually-hidden"> {{ 'ui.aplicados' | transloco }}</span>
         </span>
       }
       <ion-icon
@@ -28,12 +29,12 @@
       />
     </ion-button>
     @if (!isOpen() && activeFilters().length > 0) {
-      <ul class="filters-card__applied" aria-label="Filtros aplicados">
+      <ul class="filters-card__applied" [attr.aria-label]="'ui.filtrosAplicados' | transloco">
         @for (filter of activeFilters(); track filter.key) {
           <li>
             <ion-chip
               button="true"
-              [attr.aria-label]="'Quitar el filtro ' + filter.label"
+              [attr.aria-label]="'ui.removeFilter' | transloco: { name: filter.label }"
               (click)="removeFilter.emit(filter.key)"
             >
               {{ filter.label }}
@@ -54,7 +55,7 @@
         size="small"
         (click)="clearFilters.emit()"
       >
-        Quitar filtros
+        {{ 'ui.quitarFiltros' | transloco }}
       </ion-button>
     }
   </div>

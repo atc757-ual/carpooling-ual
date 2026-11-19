@@ -2,8 +2,10 @@
   <ion-toolbar>
     <div class="shared-trip__brand">
       <span class="shared-trip__logo" aria-hidden="true"><ion-icon [icon]="carIcon" /></span>
-      <span class="text-label">Carpooling UAL</span>
-      <span class="shared-trip__brand-title text-body-s text-color-muted">Viaje compartido</span>
+      <span class="text-label">{{ 'sharedTrip.carpoolingUal' | transloco }}</span>
+      <span class="shared-trip__brand-title text-body-s text-color-muted">{{
+        'sharedTrip.viajeCompartido' | transloco
+      }}</span>
     </div>
   </ion-toolbar>
 </ion-header>
@@ -11,7 +13,7 @@
 <ion-content [class.shared-trip-content--live]="isLive()">
   <main class="shared-trip" [class.shared-trip--live]="isLive()">
     @if (trip(); as trip) {
-      <h1 class="visually-hidden">Viaje en directo</h1>
+      <h1 class="visually-hidden">{{ 'sharedTrip.viajeDirecto' | transloco }}</h1>
 
       <!-- El detalle: en la columna de 4 o, en curso y en el móvil, en la hoja -->
       <ng-template #details>
@@ -26,20 +28,21 @@
           }
           @if (isLive() && isStale() && trip.position; as position) {
             <p class="notice notice--warning text-body-s">
-              Ubicación sin actualizar desde las {{ formatTime(position.recordedAt) }}: puede que el
-              móvil del conductor no tenga cobertura.
+              {{ 'sharedTrip.staleSince' | transloco: { time: formatTime(position.recordedAt) } }}
             </p>
           }
 
           <ion-card class="shared-trip__card">
             <ion-card-content>
-              <h2 class="text-subtitle">El viaje</h2>
+              <h2 class="text-subtitle">{{ 'sharedTrip.viaje' | transloco }}</h2>
               <dl class="shared-trip__details">
                 @if (trip.pickupName || trip.pickupAt) {
                   <div class="shared-trip__row">
-                    <dt class="text-caption text-color-muted">Recogida</dt>
+                    <dt class="text-caption text-color-muted">
+                      {{ 'sharedTrip.recogida' | transloco }}
+                    </dt>
                     <dd class="text-body">
-                      {{ trip.pickupName ?? 'Punto de recogida' }}
+                      {{ trip.pickupName ?? ('sharedTrip.pickupPoint' | transloco) }}
                       @if (trip.pickupAt) {
                         · {{ formatTime(trip.pickupAt) }}
                       }
@@ -47,12 +50,18 @@
                   </div>
                 }
                 <div class="shared-trip__row">
-                  <dt class="text-caption text-color-muted">Destino</dt>
-                  <dd class="text-body">{{ trip.destinationName ?? 'Destino del viaje' }}</dd>
+                  <dt class="text-caption text-color-muted">
+                    {{ 'sharedTrip.destino' | transloco }}
+                  </dt>
+                  <dd class="text-body">
+                    {{ trip.destinationName ?? ('sharedTrip.tripDestination' | transloco) }}
+                  </dd>
                 </div>
                 @if (trip.estimatedArrivalAt) {
                   <div class="shared-trip__row">
-                    <dt class="text-caption text-color-muted">Llegada estimada</dt>
+                    <dt class="text-caption text-color-muted">
+                      {{ 'sharedTrip.llegadaEstimada' | transloco }}
+                    </dt>
                     <dd class="text-body">
                       {{ formatTime(trip.estimatedArrivalAt) }}
                       @if (trip.position) {
@@ -64,12 +73,16 @@
                   </div>
                 }
                 <div class="shared-trip__row">
-                  <dt class="text-caption text-color-muted">Conduce</dt>
+                  <dt class="text-caption text-color-muted">
+                    {{ 'sharedTrip.conduce' | transloco }}
+                  </dt>
                   <dd class="text-body">{{ trip.driver.firstName }}</dd>
                 </div>
                 @if (vehicleText(); as vehicle) {
                   <div class="shared-trip__row">
-                    <dt class="text-caption text-color-muted">Coche</dt>
+                    <dt class="text-caption text-color-muted">
+                      {{ 'sharedTrip.coche' | transloco }}
+                    </dt>
                     <dd class="text-body">{{ vehicle }}</dd>
                   </div>
                 }
@@ -82,33 +95,36 @@
           @if (isOpen()) {
             <ion-card class="shared-trip__card">
               <ion-card-content>
-                <h2 class="text-subtitle">¿Algo va mal?</h2>
+                <h2 class="text-subtitle">{{ 'sharedTrip.algoMal' | transloco }}</h2>
                 <p class="text-body-s text-color-muted">
-                  Si ves algo raro, llama al 112
                   @if (trip.vehicle?.plate; as plate) {
-                    y di la matrícula <b class="shared-trip__plate">{{ plate }}</b>
+                    {{ 'sharedTrip.call112WithPlate' | transloco }}
+                    <b class="shared-trip__plate">{{ plate }}</b>
+                    {{ 'sharedTrip.call112WithPlateEnd' | transloco }}
+                  } @else {
+                    {{ 'sharedTrip.call112' | transloco }}
                   }
-                  y dónde está el coche.
                 </p>
                 <ion-button color="danger" expand="block" href="tel:112">
                   <ion-icon slot="start" [icon]="callIcon" aria-hidden="true" />
-                  Llamar al 112
+                  {{ 'sharedTrip.llamar112' | transloco }}
                 </ion-button>
               </ion-card-content>
             </ion-card>
           }
 
           <p class="text-caption text-color-muted">
-            Te lo ha enviado un pasajero de Carpooling UAL, la plataforma de coche compartido de la
-            comunidad universitaria. El enlace deja de funcionar cuando deja de compartirlo o al día
-            siguiente de terminar el viaje.
+            {{ 'sharedTrip.enviadoPasajeroCarpoolingUal' | transloco }}
           </p>
         </div>
       </ng-template>
 
       <div class="shared-trip__layout">
         <!-- Columna de 8: el mapa en curso o, si no, el estado del viaje -->
-        <section class="shared-trip__main" [attr.aria-label]="isLive() ? 'Mapa del viaje' : null">
+        <section
+          class="shared-trip__main"
+          [attr.aria-label]="isLive() ? ('sharedTrip.mapLabel' | transloco) : null"
+        >
           @if (isLive() && mapEnds(); as ends) {
             <ion-card class="shared-trip__map-card">
               <ion-card-content>
@@ -139,7 +155,10 @@
         </section>
 
         @if (!isLive() || sheet.isDesktop()) {
-          <aside class="shared-trip__aside" aria-label="Detalle del viaje">
+          <aside
+            class="shared-trip__aside"
+            [attr.aria-label]="'sharedTrip.detalleDelViaje' | transloco"
+          >
             <ng-container [ngTemplateOutlet]="details" />
           </aside>
         }
@@ -153,13 +172,15 @@
         <span class="shared-trip__empty-icon" aria-hidden="true"
           ><ion-icon [icon]="linkIcon"
         /></span>
-        <h1 class="text-title">Este enlace no está disponible</h1>
+        <h1 class="text-title">{{ 'sharedTrip.esteEnlaceEstaDisponible' | transloco }}</h1>
         <p class="text-body text-color-muted">{{ message }}</p>
       </section>
     } @else {
       <div class="shared-trip__loading" aria-busy="true">
         <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-body-s text-color-muted">Cargando el viaje…</span>
+        <span class="text-body-s text-color-muted">{{
+          'sharedTrip.cargandoViaje' | transloco
+        }}</span>
       </div>
     }
   </main>

@@ -2,18 +2,22 @@
   <ion-card-content>
     <div class="section-item">
       <div class="section-item__text">
-        <h2 id="live-safety-title" class="section-item__title">Viaje seguro</h2>
-        <p class="section-item__subtitle">Envía tu viaje a alguien de confianza.</p>
+        <h2 id="live-safety-title" class="section-item__title">
+          {{ 'live.viajeSeguro' | transloco }}
+        </h2>
+        <p class="section-item__subtitle">{{ 'live.enviaViajeAlguienConfianza' | transloco }}</p>
       </div>
       <button
         type="button"
         class="icon-btn icon-btn--reveal"
         appRevealOnTouch
-        aria-label="Compartir el viaje con alguien de confianza"
+        [attr.aria-label]="'live.compartirViajeConAlguien' | transloco"
         (click)="handleShare()"
       >
         <ion-icon [icon]="shareIcon" aria-hidden="true" />
-        <span class="icon-btn__label" aria-hidden="true">Compartir viaje</span>
+        <span class="icon-btn__label" aria-hidden="true">{{
+          'live.compartirViaje' | transloco
+        }}</span>
       </button>
     </div>
   </ion-card-content>

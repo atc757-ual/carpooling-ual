@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -46,6 +46,7 @@ import { PassengerRequestRoute } from './passenger-request-route/passenger-reque
 import { TripReviewCard } from '../trip-review/trip-review-card';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
+import { Translate } from '../../../core/i18n/translate';
 import { buildLiveShareText } from '../trip-share-text';
 import { Trip } from '../../../core/models/driver.model';
 
@@ -83,6 +84,8 @@ export class PassengerRequestDetailPage {
   private readonly trips = inject(TripsService);
   private readonly headingContent = inject(HeadingContentService);
   private readonly tripShare = inject(TripShareService);
+  private readonly transloco = inject(TranslocoService);
+  private readonly translate: Translate = (key, params) => this.transloco.translate(key, params);
 
   readonly id = input.required<string>();
   private readonly requestHeading = viewChild.required<TemplateRef<unknown>>('requestHeading');
@@ -219,12 +222,12 @@ export class PassengerRequestDetailPage {
   // Compartir el viaje con alguien de confianza (el menú del sistema): el
   // trayecto, quién conduce, el coche y la matrícula
   async handleShare(request: SeatRequest, trip: Trip): Promise<void> {
-    const text = buildLiveShareText(trip, {
+    const text = buildLiveShareText(trip, this.translate, {
       name: trip.driver.name,
       vehicleName: trip.vehicle ? vehicleDisplayName(trip.vehicle) : null,
       plate: request.vehiclePlate ?? null,
     });
-    await this.tripShare.share({ title: 'Mi viaje en Carpooling UAL', text });
+    await this.tripShare.share({ title: this.translate('share.liveTitle'), text });
   }
 
   protected readonly firstName = (name: string) => getFirstName(name);

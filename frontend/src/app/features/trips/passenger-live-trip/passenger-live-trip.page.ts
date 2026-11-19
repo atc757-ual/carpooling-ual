@@ -27,6 +27,9 @@ import { SeatRequest } from '../../../core/models/seat-request.model';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { Translate } from '../../../core/i18n/translate';
+import { LanguageService } from '../../../core/services/ui/language.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ApiError } from '../../../core/models/api-error.model';
 import {
@@ -73,7 +76,7 @@ interface RideConfirm {
 // La URL de esta pantalla: la hoja del móvil solo está abierta en ella
 const RIDE_URL = /^\/tabs\/trips\/ride\//;
 
-const PASSENGER_STAGES = ['Recogida', 'En el coche', 'Llegada'];
+const PASSENGER_STAGES = ['live.stages.pickup', 'live.stages.onBoard', 'live.stages.arrival'];
 
 export type RidePhase = 'waiting' | 'on_board' | 'finished';
 
@@ -85,15 +88,15 @@ export function ridePhase(request: SeatRequest, trip: Trip): RidePhase {
   return request.boardedAt ? 'on_board' : 'waiting';
 }
 
-// El mensaje de un «He llegado» que no se pudo marcar
-function arriveErrorMessage(code: string): string {
+// La clave del mensaje de un «He llegado» que no se pudo marcar
+function arriveErrorKey(code: string): string {
   if (code === 'PASSENGER_NOT_BOARDED') {
-    return 'Aún no consta que hayas subido: el conductor tiene que validar tu código.';
+    return 'live.arriveError.notBoarded';
   }
   if (code === 'TRIP_NOT_IN_PROGRESS') {
-    return 'El viaje ya no está en curso.';
+    return 'live.arriveError.notInProgress';
   }
-  return 'No hemos podido marcar tu llegada. Inténtalo de nuevo.';
+  return 'live.arriveError.generic';
 }
 
 // «En curso» del pasajero (/tabs/trips/ride/:id, con el id de su solicitud):
@@ -122,6 +125,7 @@ function arriveErrorMessage(code: string): string {
     RatingBar,
     RevealOnTouch,
     TripReviewForm,
+    TranslocoPipe,
   ],
   templateUrl: './passenger-live-trip.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './passenger-live-trip.page.scss'],
@@ -133,6 +137,9 @@ export class PassengerLiveTripPage {
   private readonly toast = inject(ToastService);
   private readonly tripShare = inject(TripShareService);
   private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
+  private readonly language = inject(LanguageService);
+  private readonly translate: Translate = (key, params) => this.transloco.translate(key, params);
 
   readonly id = input.required<string>();
 
@@ -161,7 +168,8 @@ export class PassengerLiveTripPage {
     if (!trip) {
       return '';
     }
-    return buildLiveShareText(trip, {
+    this.language.currentLanguage();
+    return buildLiveShareText(trip, this.translate, {
       name: trip.driver.name,
       vehicleName: trip.vehicle ? vehicleDisplayName(trip.vehicle) : null,
       plate: this.request()?.vehiclePlate ?? null,
@@ -178,14 +186,19 @@ export class PassengerLiveTripPage {
     const trip = this.trip();
     return request && trip ? ridePhase(request, trip) : null;
   });
-  readonly driverName = computed(() => getFirstName(this.trip()?.driver.name ?? 'El conductor'));
+  readonly driverName = computed(() => {
+    const name = this.trip()?.driver.name;
+    this.language.currentLanguage();
+    return name ? getFirstName(name) : this.translate('live.theDriver');
+  });
   readonly pickupName = computed(() => {
     const request = this.request();
     const trip = this.trip();
+    this.language.currentLanguage();
     return (
       request?.pickupName ??
       (request?.direction === 'from-campus' ? trip?.originName : null) ??
-      'tu punto de recogida'
+      this.translate('live.yourPickup')
     );
   });
   // Adónde va: al campus, un edificio; de vuelta, una casa
@@ -228,9 +241,13 @@ export class PassengerLiveTripPage {
   readonly isReportingIncident = signal(false);
   // Lo que el mapa sabe en directo (minutos hasta la recogida y el destino)
   readonly liveStatus = signal<LiveTripStatus | null>(null);
-  readonly etaText = computed(() =>
-    liveEtaText(this.liveStatus(), this.phase() === 'waiting', 'Llega', 'Sin posición'),
-  );
+  readonly etaText = computed(() => {
+    this.language.currentLanguage();
+    return liveEtaText(this.liveStatus(), this.phase() === 'waiting', {
+      keys: { pickup: 'live.hero.arrivesIn', stale: 'live.hero.noPosition' },
+      translate: this.translate,
+    });
+  });
   readonly isToCampus = computed(() => this.request()?.direction !== 'from-campus');
   // A bordo y a menos de 300 m del campus: «Llegada» pasa a ser la etapa actual
   readonly isNearDestination = computed(
@@ -255,21 +272,23 @@ export class PassengerLiveTripPage {
   // Compartir el viaje con alguien de confianza (el menú del sistema)
   async handleShareTrip(): Promise<void> {
     await this.tripShare.share({
-      title: 'Mi viaje en Carpooling UAL',
+      title: this.translate('share.liveTitle'),
       text: this.safetyShareText(),
     });
   }
-  readonly heroTitle = computed(() =>
-    this.phase() === 'waiting'
-      ? `Esperando a ${this.driverName()}`
-      : headingTo(this.isToCampus(), this.isNearDestination()),
-  );
-  readonly stages = computed(() =>
-    journeyStages(
-      PASSENGER_STAGES,
+  readonly heroTitle = computed(() => {
+    this.language.currentLanguage();
+    return this.phase() === 'waiting'
+      ? this.translate('live.hero.waitingFor', { name: this.driverName() })
+      : this.translate(headingTo(this.isToCampus(), this.isNearDestination()));
+  });
+  readonly stages = computed(() => {
+    this.language.currentLanguage();
+    return journeyStages(
+      PASSENGER_STAGES.map((key) => this.translate(key)),
       stageIndex(this.phase() === 'waiting', this.isNearDestination()),
-    ),
-  );
+    );
+  });
   readonly sheet = injectLiveSheet(RIDE_URL);
   // Las acciones (llegada, compartir, reportar, SOS) en filas con su texto
   // solo si la columna de 4 tiene sitio; si no (móvil y tabletas), en la fila
@@ -301,7 +320,7 @@ export class PassengerLiveTripPage {
 
   async handleIncidentReported(): Promise<void> {
     this.isReportingIncident.set(false);
-    void this.toast.showSuccess('Incidencia registrada. Tu plaza ha sido cancelada.');
+    void this.toast.showSuccess(this.translate('live.toast.incidentPassenger'));
     await this.sheet.close();
     await this.router.navigateByUrl('/tabs/trips');
   }
@@ -351,7 +370,7 @@ export class PassengerLiveTripPage {
       if (!(error instanceof ApiError)) {
         throw error;
       }
-      void this.toast.showError(arriveErrorMessage(error.code));
+      void this.toast.showError(this.translate(arriveErrorKey(error.code)));
     } finally {
       this.isArriving.set(false);
     }
