@@ -76,6 +76,9 @@
   <!-- Uno debajo del otro, de lado a lado: enviar y, si se puede, «Ahora no» -->
   <div class="trip-review__actions">
     <ion-button type="submit" expand="block" [disabled]="rating() === 0 || isSending()">
+      @if (isSending()) {
+        <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+      }
       {{ (isSending() ? 'tripReview.sending' : 'tripReview.send') | transloco }}
     </ion-button>
     @if (canSkip()) {

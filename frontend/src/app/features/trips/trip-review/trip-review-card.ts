@@ -10,7 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonSpinner } from '@ionic/angular';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle } from '@ionic/angular';
 import {
   GivenReview,
   ReviewTargetRole,
@@ -19,6 +19,7 @@ import {
 import { RatingBar } from '../../../shared/components/ui/rating-bar/rating-bar';
 import { ratingName } from '../../../shared/utils/rating.util';
 import { TripReviewForm } from './trip-review-form';
+import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 
 // A quién se valora: el conductor (lo hace el pasajero) o cada pasajero (lo
 // hace el conductor)
@@ -37,12 +38,12 @@ export type TripReviewView =
 @Component({
   selector: 'app-trip-review-card',
   imports: [
+    LoadingState,
     NgTemplateOutlet,
     IonCard,
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
-    IonSpinner,
     RatingBar,
     TripReviewForm,
     TranslocoPipe,

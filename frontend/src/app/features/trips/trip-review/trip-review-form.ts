@@ -1,6 +1,6 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, inject, input, output, signal } from '@angular/core';
-import { IonButton, IonIcon, IonTextarea } from '@ionic/angular';
+import { IonButton, IonIcon, IonSpinner, IonTextarea } from '@ionic/angular';
 import { addOutline, thumbsDownOutline, thumbsUpOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import {
@@ -18,7 +18,7 @@ import { RATING_MAX, ratingName } from '../../../shared/utils/rating.util';
 // En En curso al llegar y en el detalle del viaje terminado
 @Component({
   selector: 'app-trip-review-form',
-  imports: [IonButton, IonIcon, IonTextarea, TranslocoPipe],
+  imports: [IonButton, IonIcon, IonSpinner, IonTextarea, TranslocoPipe],
   templateUrl: './trip-review-form.html',
   styleUrl: './trip-review-form.scss',
 })

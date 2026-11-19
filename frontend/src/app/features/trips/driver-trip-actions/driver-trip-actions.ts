@@ -17,6 +17,7 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonIcon,
+  IonSpinner,
   ModalController,
 } from '@ionic/angular';
 import { Router, RouterLink } from '@angular/router';
@@ -83,6 +84,7 @@ const DECLARATION_MESSAGE_KEY = 'screens.driverTripActions.declarationMessage';
     IonCardHeader,
     IonCardTitle,
     IonIcon,
+    IonSpinner,
     RouterLink,
     TranslocoPipe,
   ],

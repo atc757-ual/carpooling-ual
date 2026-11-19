@@ -7,6 +7,7 @@ import {
   IonSegmentButton,
   IonSelect,
   IonSelectOption,
+  IonSpinner,
   IonTextarea,
   ModalController,
 } from '@ionic/angular';
@@ -56,6 +57,7 @@ export interface FaqModalOptions {
     IonSegmentButton,
     IonSelect,
     IonSelectOption,
+    IonSpinner,
     IonTextarea,
   ],
   templateUrl: './faq-modal.html',
