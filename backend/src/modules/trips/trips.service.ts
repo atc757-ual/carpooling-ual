@@ -32,6 +32,7 @@ import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
 import { orderPickups } from './pickup-plan';
 import { TripStopsService } from './trip-stops.service';
+import { TripPickupsService } from './trip-pickups.service';
 import type {
   PublishedRoute,
   StopInput,
@@ -108,6 +109,8 @@ export interface TripView {
 export interface TripRouteView {
   trip: Trip;
   route: TripRoute;
+  // Minutos parado en las recogidas, que suma la llegada estimada
+  stopTimeMin: number;
   // Sin el trazado para quien no tiene plaza (TripViewerAccessService)
   isGeometryHidden?: boolean;
 }
@@ -127,6 +130,7 @@ export class TripsService {
     private readonly lateCancellations: LateCancellationsService,
     private readonly publishingLimits: PublishingLimitsService,
     private readonly tripStops: TripStopsService,
+    private readonly tripPickups: TripPickupsService,
   ) {}
 
   // RF-04: publicar un viaje. Antes, RF-21: el conductor debe estar listo y
@@ -249,8 +253,11 @@ export class TripsService {
   // estimada). La ve quien puede ver el viaje
   async getRoute(tripId: string): Promise<TripRouteView> {
     const { trip } = await this.getById(tripId);
-    const route = await this.tripRoutes.getForTrip(trip);
-    return { trip, route };
+    const [route, stopTimeMin] = await Promise.all([
+      this.tripRoutes.getForTrip(trip),
+      this.tripPickups.stopTimeMin(trip),
+    ]);
+    return { trip, route, stopTimeMin };
   }
 
   // Previsualización de la ruta antes de publicar

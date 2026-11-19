@@ -17686,7 +17686,7 @@
             "type": "object",
             "format": "date-time",
             "nullable": true,
-            "description": "Start (or departure, if it has not started) plus the route duration; null once finished or cancelled"
+            "description": "Start (or departure, if it has not started) plus the route duration and the time stopped at each pickup; null once finished or cancelled"
           }
         },
         "required": [

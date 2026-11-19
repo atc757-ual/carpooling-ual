@@ -7,10 +7,11 @@ import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { deleteTestUsers } from './support/cleanup';
 import { registerUser } from './support/accounts';
+import { STOP_TIME_MIN } from '../src/modules/trips/trip-timing';
 
-// Presupuesto total de desvío (reunión con el director del 12/11/2026): al
-// aceptar, la ruta pasa por todas las recogidas, cada parada suma 2 min y el
-// total cabe en el desvío máximo del viaje. Las cifras valen igual con OSRM
+// Presupuesto total de desvío: al aceptar, la ruta pasa por todas las
+// recogidas, cada parada suma 2 min y el total cabe en el desvío máximo del
+// viaje; la llegada estimada también suma las paradas. Las cifras valen igual con OSRM
 // (en local) que con la ruta estimada (en el CI, sin OSRM)
 const EMAIL_PREFIX = 'pickup-budget-e2e-';
 const PASSWORD = 'secret-password';
@@ -184,6 +185,35 @@ describe('Detour budget of a trip (e2e)', () => {
     await api('post', `/requests/${pia.id}/accept`, driver).send().expect(200);
 
     expect(await pickupCount(tripId)).toBe(1);
+  });
+
+  it('estimates the arrival with the time stopped at each pickup', async () => {
+    const { driver, tripId } = await driverWithTrip(30);
+    const pia = await requestFrom('pia', tripId, NEAR_CAMPUS);
+    const leo = await requestFrom('leo', tripId, NEAR_START);
+    for (const { id } of [pia, leo]) {
+      await api('post', `/requests/${id}/accept`, driver).send().expect(200);
+    }
+
+    const trip = await api('get', `/trips/${tripId}`, driver).expect(200);
+    const route = await api('get', `/trips/${tripId}/route`, driver).expect(
+      200,
+    );
+    const { durationMin, estimatedArrivalAt } = route.body as {
+      durationMin: number;
+      estimatedArrivalAt: string;
+    };
+    const departure = Date.parse(
+      (trip.body as { departureAt: string }).departureAt,
+    );
+
+    // Dos paradas de verdad: la ruta (ya pasa por ellas) y 2 min por cada una
+    expect(Date.parse(estimatedArrivalAt)).toBe(
+      departure + (durationMin + 2 * STOP_TIME_MIN) * 60_000,
+    );
+    expect(Date.parse(estimatedArrivalAt)).toBeGreaterThan(
+      (await pickupAtOf(pia.passenger, pia.id)).getTime(),
+    );
   });
 
   it('moves a later pickup when an earlier one is accepted, and back when it leaves', async () => {
