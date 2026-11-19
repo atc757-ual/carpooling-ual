@@ -7,13 +7,16 @@ import {
   IonCardTitle,
   IonContent,
   IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonRouterLink,
   ModalController,
   NavController,
 } from '@ionic/angular';
 import {
   phonePortraitOutline,
   checkmarkCircle,
-  chevronForwardOutline,
   helpCircleOutline,
   keyOutline,
   createOutline,
@@ -89,6 +92,10 @@ interface ReviewRow {
     IonCardTitle,
     IonContent,
     IonIcon,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonRouterLink,
     ProfileLocation,
     ProfileVehicles,
     RouterLink,
@@ -195,7 +202,6 @@ export class ProfilePage implements OnInit {
   protected readonly checkmarkIcon = checkmarkCircle;
   protected readonly shieldIcon = shieldCheckmarkOutline;
   protected readonly docIcon = documentTextOutline;
-  protected readonly chevronIcon = chevronForwardOutline;
   protected readonly lockIcon = lockClosedOutline;
 
   protected readonly sunIcon = sunny;

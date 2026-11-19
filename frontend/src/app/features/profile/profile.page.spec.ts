@@ -252,7 +252,7 @@ describe('ProfilePage', () => {
   it('links to Help & support', () => {
     const { root } = render();
 
-    const link = root.querySelector<HTMLAnchorElement>('a.profile__legal-row');
+    const link = root.querySelector('ion-item.profile__legal-row[href]');
     expect(link?.getAttribute('href')).toBe('/tabs/profile/help');
   });
 });

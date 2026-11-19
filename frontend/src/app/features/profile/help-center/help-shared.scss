@@ -76,24 +76,31 @@
   box-shadow: var(--shadow-l);
 }
 
+// Sin el fondo de ion-list
 .help-search__list {
-  margin: 0;
   padding: var(--space-xs) 0;
-  list-style: none;
+  background: transparent;
 }
 
+// Cada resultado, un ion-item: azul claro al pasar o con el foco
 .help-search__item {
+  --background: transparent;
+  --background-hover: var(--color-primary-subtle);
+  --background-hover-opacity: 1;
+  --background-focused: var(--color-primary-subtle);
+  --background-focused-opacity: 1;
+  --padding-start: var(--space-base);
+  --padding-top: var(--space-s);
+  --padding-bottom: var(--space-s);
+  --inner-padding-end: var(--space-base);
+  --color: var(--color-text);
+}
+
+.help-search__text {
   display: flex;
   flex-direction: column;
   gap: 0.125rem; // 2px
-  padding: var(--space-s) var(--space-base);
-  color: var(--color-text);
-  text-decoration: none;
-
-  &:hover,
-  &:focus-visible {
-    background: var(--color-primary-subtle);
-  }
+  white-space: normal;
 }
 
 .help-search__question {
@@ -107,14 +114,10 @@
 }
 
 .help-search__status {
-  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
   padding: var(--space-base);
-
-  output {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
-  }
 }
 
 // Fuera del desplegable: transparente en escritorio (solo cierra al pulsar)
