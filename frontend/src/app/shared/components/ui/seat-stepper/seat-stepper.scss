@@ -51,8 +51,8 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 2.75rem; // 44px: objetivo táctil mínimo
-  height: 2.75rem;
+  width: var(--control-height-s); // 44px: objetivo táctil mínimo
+  height: var(--control-height-s);
   padding: 0;
   border: 0;
   border-radius: var(--radius-s);
@@ -71,8 +71,8 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 }
 

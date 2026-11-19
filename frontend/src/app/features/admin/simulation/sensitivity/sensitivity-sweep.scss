@@ -28,7 +28,7 @@
   --background: var(--color-surface-subtle);
 
   ion-segment-button {
-    min-height: 2.75rem; // 44px
+    min-height: var(--control-height-s);
     text-transform: none;
   }
 }

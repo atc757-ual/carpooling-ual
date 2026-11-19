@@ -35,21 +35,21 @@
 }
 
 .license-plate__country {
-  fill: #fff;
+  fill: var(--plate-background);
   font-family: var(--font-family-heading);
-  font-size: 6.5px;
-  font-weight: 700;
+  font-size: 6.5px; // unidades del viewBox del SVG: se escala con la placa
+  font-weight: var(--font-weight-bold);
 }
 
 // Letras de imprenta, algo separadas, como la tipografía de las placas
 .license-plate__number {
   display: inline-flex;
   align-items: center;
-  padding: 0 0.5rem; // 8px
+  padding: 0 var(--space-s);
   color: var(--plate-text);
   font-family: var(--font-family-heading);
   font-size: 0.9375rem; // 15px
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 0.08em;
   line-height: 1;
   text-transform: uppercase;

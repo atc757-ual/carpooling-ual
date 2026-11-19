@@ -88,7 +88,7 @@
 .bubble {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem; // 2px
+  gap: var(--space-xxs);
   max-width: 80%;
   align-self: flex-start;
   padding: var(--space-s) 0.75rem; // 8px 12px
@@ -206,7 +206,7 @@
 
 .quick-reply {
   flex: none;
-  min-height: 2.75rem; // 44px
+  min-height: var(--control-height-s);
   padding: 0 var(--space-base);
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-full);
@@ -222,7 +222,7 @@
 
   &:focus-visible {
     outline: var(--border-width-l) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
+    outline-offset: var(--focus-ring-offset);
   }
 
   &:disabled {
@@ -256,7 +256,7 @@
   min-width: 0;
   flex: 1;
   flex-direction: column;
-  gap: 0.125rem; // 2px
+  gap: var(--space-xxs);
 }
 
 // Móvil: origen y destino uno debajo del otro, cada uno con su icono
@@ -264,7 +264,7 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  gap: 0.125rem; // 2px
+  gap: var(--space-xxs);
 }
 
 .conversation__place {
@@ -311,7 +311,7 @@
 .conversation__day {
   align-self: center;
   margin-block: var(--space-xs);
-  padding: 0.125rem var(--space-s); // 2px 8px
+  padding: var(--space-xxs) var(--space-s); // 2px 8px
   border-radius: var(--radius-full);
   background: var(--color-surface);
   color: var(--color-text-muted);
@@ -339,8 +339,8 @@
   --color-hover: var(--color-danger);
 
   flex: none;
-  min-width: 2.75rem; // 44px
-  min-height: 2.75rem; // 44px
+  min-width: var(--control-height-s);
+  min-height: var(--control-height-s);
   margin: 0;
 }
 
@@ -349,8 +349,8 @@
   --color: var(--color-link);
 
   flex: none;
-  min-width: 2.75rem; // 44px
-  min-height: 2.75rem; // 44px
+  min-width: var(--control-height-s);
+  min-height: var(--control-height-s);
   margin: 0;
 }
 
@@ -360,8 +360,8 @@
   --color-hover: var(--color-text);
 
   flex: none;
-  min-width: 2.75rem; // 44px
-  min-height: 2.75rem; // 44px
+  min-width: var(--control-height-s);
+  min-height: var(--control-height-s);
   margin: 0;
 }
 
@@ -389,8 +389,8 @@
 }
 
 .conversation-heading-bar__avatar {
-  width: 2.75rem; // 44px, como el avatar
-  height: 2.75rem;
+  width: var(--control-height-s); // 44px, como el avatar
+  height: var(--control-height-s);
   flex: none;
   margin: 0;
   border-radius: 50%;

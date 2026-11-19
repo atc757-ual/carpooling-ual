@@ -522,6 +522,21 @@
         </div>
       </div>
     </div>
+    <h4>Tokens del tema que se usan siempre (nunca el valor a mano)</h4>
+    <div class="scroll"><table>
+      <thead><tr><th>Para</th><th>Token</th><th>Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Espacio mínimo (padding, margin, gap)</td><td><code>--space-xxs</code></td><td>0,125rem (2px); el resto, <code>--space-xs</code> a <code>--space-xxxl</code></td></tr>
+        <tr><td>Anillo del foco (<code>:focus-visible</code>)</td><td><code>--focus-ring</code></td><td>2px de <code>--color-focus</code></td></tr>
+        <tr><td>Separación del anillo</td><td><code>--focus-ring-offset</code> · <code>--focus-ring-offset-inset</code></td><td>2px por fuera · por dentro (filas y campos que llegan al borde)</td></tr>
+        <tr><td>Área táctil de 44px (botones de icono, filas)</td><td><code>--control-height-s</code></td><td>2,75rem</td></tr>
+        <tr><td>Capas (<code>z-index</code>)</td><td><code>--z-raised</code> · <code>--z-dropdown</code> · <code>--z-dropdown-anchor</code> · <code>--z-drawer-backdrop</code> · <code>--z-drawer</code> · <code>--z-map-control</code></td><td>1 · 10 · 11 · 30 · 40 · 1000</td></tr>
+        <tr><td>Opción elegida de un interruptor (tema, idioma)</td><td><code>--color-selected</code> · <code>--color-on-selected</code></td><td>Azul de la marca con blanco, en los dos modos</td></tr>
+        <tr><td>Sombra de la hoja inferior (hacia arriba)</td><td><code>--shadow-sheet</code></td><td>Más intensa en oscuro</td></tr>
+        <tr><td>Peso de letra</td><td><code>--font-weight-regular</code> … <code>--font-weight-bold</code></td><td>400 … 700</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">Sin <code>::ng-deep</code>: un componente que deja cambiar algo lo expone con una variable (p. ej. <code>--faq-card-shadow</code>, <code>--empty-state-padding</code>); lo que se aplica a los componentes de dentro de otro va en el tema con una clase global (<code>.live-sheet</code> y <code>.live-column</code>, en <code>theme/_live-trip.scss</code>). La única excepción, el campo del código: <code>ion-input-otp</code> no expone sus casillas.</p>
     <h4>Movimiento</h4>
     <p class="note"><code>--motion-duration-fast</code> 150ms (hover, foco) · <code>--motion-duration-base</code> 250ms (abrir y cerrar). Con «reducir movimiento» en el sistema pasan a 0ms; nada informa solo con movimiento.</p>
   </section>

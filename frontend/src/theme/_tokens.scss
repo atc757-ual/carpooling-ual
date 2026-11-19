@@ -13,6 +13,7 @@ $breakpoints: (
 
 :root {
   // Espaciado: padding, margin y gap
+  --space-xxs: 0.125rem; // 2px
   --space-xs: 0.25rem; // 4px
   --space-s: 0.5rem; // 8px
   --space-base: 1rem; // 16px
@@ -33,6 +34,21 @@ $breakpoints: (
   --border-width-s: 1px;
   --border-width-m: 2px;
   --border-width-l: 3px; // foco
+
+  // Anillo del foco con el teclado (:focus-visible): 2px del color de foco,
+  // 2px por fuera del control o, en filas y campos que llegan al borde, por
+  // dentro (inset)
+  --focus-ring: var(--border-width-m) solid var(--color-focus);
+  --focus-ring-offset: var(--space-xxs);
+  --focus-ring-offset-inset: calc(-1 * var(--border-width-m));
+
+  // Capas (z-index): lo que se apila dentro de un componente o una pantalla
+  --z-raised: 1; // encima de su vecino (una línea, un marcador)
+  --z-dropdown: 10; // la lista de sugerencias de un campo
+  --z-dropdown-anchor: 11; // el campo, por encima de su propia lista
+  --z-drawer-backdrop: 30; // el fondo del menú del panel en el móvil
+  --z-drawer: 40; // el menú del panel en el móvil
+  --z-map-control: 1000; // botones sobre el mapa (por encima de las capas de Leaflet)
 
   // Altura de botones y campos (mínimo táctil recomendado: 44-48px)
   --control-height-s: 2.75rem; // 44px

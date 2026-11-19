@@ -101,7 +101,7 @@ ion-card.my-trips-aside ion-card-content {
 
   &.ion-focused {
     outline: var(--border-width-l) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
+    outline-offset: var(--focus-ring-offset);
   }
 }
 

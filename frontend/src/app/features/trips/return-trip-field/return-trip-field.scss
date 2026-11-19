@@ -9,6 +9,6 @@
   }
 
   ion-checkbox {
-    min-height: 2.75rem; // 44px
+    min-height: var(--control-height-s);
   }
 }

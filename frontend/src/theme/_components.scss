@@ -200,7 +200,7 @@ ion-datetime {
   cursor: pointer;
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
+    outline: var(--focus-ring);
   }
 }
 
@@ -669,7 +669,7 @@ ion-card-header + ion-card-content[class] {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  padding: 0.125rem var(--space-s); // 2px 8px
+  padding: var(--space-xxs) var(--space-s); // 2px 8px
   // La neutra (cancelado, cerrada…) lleva borde: su fondo casi no se
   // distingue sobre una superficie blanca. Las de color no lo necesitan
   border: var(--border-width-s) solid var(--color-border);
@@ -687,7 +687,7 @@ ion-card-header + ion-card-content[class] {
 
 // En el encabezado de un detalle (junto al título), más grande: 14px
 .status--heading {
-  padding: 0.25rem var(--space-s); // 4px 8px
+  padding: var(--space-xs) var(--space-s); // 4px 8px
   font-size: 0.875rem; // 14px
 }
 
@@ -773,7 +773,7 @@ ion-card-header + ion-card-content[class] {
 }
 
 ion-card.role-card ion-card-content {
-  gap: 0.125rem; // 2px
+  gap: var(--space-xxs);
   padding: var(--space-s) var(--space-base);
 }
 
@@ -919,7 +919,7 @@ ion-card.role-card ion-card-content {
 // móvil, a todo el ancho; en escritorio, el de la columna de 8 (la de la lista).
 // Con la etiqueta en el selector, para ganar al ancho de Ionic (100 %)
 ion-searchbar.admin-heading__search {
-  min-height: 2.75rem; // 44px
+  min-height: var(--control-height-s);
   margin-block-start: calc(var(--space-base) - var(--space-xs));
   padding: 0;
   --background: var(--color-surface);
@@ -992,7 +992,7 @@ ion-searchbar.admin-heading__search {
   th {
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: var(--z-raised);
     border-bottom: var(--border-width-m) solid var(--color-admin);
     background: color-mix(in srgb, var(--color-admin) 10%, var(--color-surface));
     color: var(--color-admin);
@@ -1004,7 +1004,7 @@ ion-searchbar.admin-heading__search {
   }
 
   tbody tr {
-    transition: background-color 0.15s ease;
+    transition: background-color var(--motion-duration-fast) ease;
   }
 
   tbody tr:hover {
@@ -1176,8 +1176,8 @@ ion-toggle {
   display: grid;
   flex: none;
   box-sizing: border-box;
-  width: 2.75rem; // 44px
-  height: 2.75rem;
+  width: var(--control-height-s);
+  height: var(--control-height-s);
   padding: 0;
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s); // 8px
@@ -1186,7 +1186,7 @@ ion-toggle {
   cursor: pointer;
   place-items: center;
   text-decoration: none;
-  transition: background-color 120ms ease;
+  transition: background-color var(--motion-duration-fast) ease;
 
   ion-icon {
     font-size: 1.25rem; // 20px
@@ -1208,7 +1208,7 @@ ion-toggle {
 
   &:focus-visible {
     outline: var(--border-width-m) solid var(--color-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--focus-ring-offset);
   }
 
   &:disabled {
@@ -1262,7 +1262,7 @@ ion-toggle {
 .icon-btn.icon-btn--reveal {
   display: inline-flex;
   width: auto;
-  min-width: 2.75rem; // 44px
+  min-width: var(--control-height-s);
   align-items: center;
   justify-content: center;
   gap: 0;
@@ -1298,7 +1298,7 @@ ion-toggle {
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
   white-space: nowrap;
-  transition: max-width 160ms ease;
+  transition: max-width var(--motion-duration-fast) ease;
 
   @media (any-hover: hover) {
     .icon-btn--reveal:hover:not(:disabled) & {
@@ -1448,7 +1448,7 @@ ion-toggle {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.125rem; // 2px
+  gap: var(--space-xxs);
   min-width: 0;
 }
 

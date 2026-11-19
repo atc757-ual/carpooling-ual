@@ -4,7 +4,7 @@
 :host {
   display: block;
   position: relative;
-  z-index: 10;
+  z-index: var(--z-dropdown);
 }
 
 .email-suggestions {
@@ -50,8 +50,8 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: calc(-1 * var(--border-width-m));
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset-inset);
   }
 }
 

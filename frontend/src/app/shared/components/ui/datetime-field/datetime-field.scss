@@ -31,8 +31,8 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 
   &:disabled {
@@ -60,7 +60,7 @@
   position: absolute;
   top: 50%;
   left: var(--space-base);
-  z-index: 1;
+  z-index: var(--z-raised);
   color: var(--color-text-muted);
   font-size: 1.25rem; // 20px
   cursor: pointer;

@@ -38,6 +38,10 @@
   --color-link: #{$blue-500};
   --color-focus: #{$blue-500};
   --color-focus-ring: #{rgba($blue-300, 0.5)}; // halo alrededor del foco
+  // La opción elegida de un interruptor (tema, idioma): azul de la marca con
+  // blanco, igual en los dos modos
+  --color-selected: #{$blue-500};
+  --color-on-selected: #{$neutral-0};
 
   // Fondo semitransparente detrás de modales y hojas inferiores
   --color-backdrop: #{rgba($indigo-900, 0.7)}; // azul muy oscuro, tirando a morado
@@ -80,6 +84,8 @@
   --shadow-l: 0 12px 32px rgb(12 12 12 / 14%);
   // Tarjetas: un halo azulado muy suave, para separarlas del fondo gris
   --shadow-card: 0 2px 8px rgb(0 46 255 / 6%);
+  // Hoja inferior: la sombra hacia arriba
+  --shadow-sheet: 0 -4px 16px rgb(0 0 0 / 12%);
 }
 
 :root.theme-light {
@@ -141,4 +147,5 @@
   --shadow-base: 0 4px 12px rgb(0 0 0 / 50%);
   --shadow-l: 0 12px 32px rgb(0 0 0 / 60%);
   --shadow-card: none;
+  --shadow-sheet: 0 -4px 16px rgb(0 0 0 / 50%);
 }

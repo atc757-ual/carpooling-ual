@@ -26,7 +26,7 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
+    outline: var(--focus-ring);
   }
 }
 
@@ -40,7 +40,7 @@
 
 .place-field__tooltip {
   position: absolute;
-  z-index: 11;
+  z-index: var(--z-dropdown-anchor);
   right: calc(-1 * var(--space-s));
   bottom: calc(100% + var(--space-s));
   padding: var(--space-xs) var(--space-s);
@@ -52,7 +52,7 @@
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.15s ease-out;
+  transition: opacity var(--motion-duration-fast) ease-out;
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
@@ -79,7 +79,7 @@
 
 .place-field__dropdown {
   position: absolute;
-  z-index: 10;
+  z-index: var(--z-dropdown);
   top: calc(100% + var(--space-xs));
   right: 0;
   left: 0;
@@ -122,8 +122,8 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-primary);
-    outline-offset: calc(-1 * var(--border-width-m));
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset-inset);
   }
 }
 
@@ -173,7 +173,7 @@
   cursor: pointer;
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
+    outline: var(--focus-ring);
   }
 }
 

@@ -54,7 +54,7 @@
 // intermedias) y relleno el destino
 .route-timeline__dot {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-raised);
   display: block;
   width: 0.625rem;
   height: 0.625rem;

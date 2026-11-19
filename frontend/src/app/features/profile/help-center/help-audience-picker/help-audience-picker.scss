@@ -34,7 +34,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-s);
-  min-height: 2.75rem; // 44px
+  min-height: var(--control-height-s);
   padding: var(--space-s) var(--space-base); // 8px 16px
   border-radius: var(--radius-s); // 8px
   color: var(--color-text-muted);
@@ -50,7 +50,7 @@
   // El foco del teclado llega al radio oculto: se pinta en la pestaña
   &:has(.audience-picker__input:focus-visible) {
     outline: var(--border-width-l) solid var(--color-primary);
-    outline-offset: 2px;
+    outline-offset: var(--focus-ring-offset);
   }
 }
 

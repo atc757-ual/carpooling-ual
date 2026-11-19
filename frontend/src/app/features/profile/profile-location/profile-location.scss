@@ -22,7 +22,7 @@
 .profile-location__text {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: var(--space-xxs);
   min-width: 0;
 }
 
@@ -60,7 +60,7 @@
   cursor: pointer;
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: 2px;
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 }

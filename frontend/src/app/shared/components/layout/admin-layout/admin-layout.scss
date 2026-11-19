@@ -1,7 +1,7 @@
 // En móvil, la cabecera queda compacta y las secciones pasan al menú lateral.
 .admin-header {
   position: relative;
-  z-index: 40;
+  z-index: var(--z-drawer);
   // Sin la línea de abajo: la franja fija de una sección (p. ej. Usuarios)
   // continúa la cabecera como si fueran una sola
   border-bottom: 0;
@@ -25,8 +25,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: var(--control-height-s);
+  height: var(--control-height-s);
   padding: 0;
   border: 0;
   background: transparent;
@@ -40,8 +40,8 @@
   }
 
   &:focus-visible {
-    outline: 0.125rem solid var(--color-on-admin);
-    outline-offset: -0.125rem;
+    outline: var(--border-width-m) solid var(--color-on-admin);
+    outline-offset: var(--focus-ring-offset-inset);
   }
 }
 
@@ -72,7 +72,7 @@
 
 .admin-mobile-menu-layer {
   position: fixed;
-  z-index: 30;
+  z-index: var(--z-drawer-backdrop);
   inset: 3.5rem 0 0;
 }
 
@@ -83,7 +83,7 @@
   height: 100%;
   padding: 0;
   border: 0;
-  background: rgb(0 0 0 / 40%);
+  background: var(--color-backdrop);
 }
 
 .admin-mobile-menu {
@@ -157,8 +157,8 @@
   }
 
   &:focus-visible {
-    outline: 0.125rem solid var(--color-on-admin);
-    outline-offset: -0.125rem;
+    outline: var(--border-width-m) solid var(--color-on-admin);
+    outline-offset: var(--focus-ring-offset-inset);
   }
 }
 
@@ -219,8 +219,8 @@
     }
 
     &:focus-visible {
-      outline: 0.125rem solid var(--color-on-admin);
-      outline-offset: -0.125rem;
+      outline: var(--border-width-m) solid var(--color-on-admin);
+      outline-offset: var(--focus-ring-offset-inset);
     }
   }
 
@@ -246,7 +246,7 @@
     transition: background-color var(--motion-duration-fast);
 
     ion-icon {
-      transition: transform 0.3s ease;
+      transition: transform var(--motion-duration-base) ease;
     }
 
     &:hover {
@@ -291,8 +291,8 @@
   text-decoration: none;
 
   &:focus-visible {
-    outline: 0.125rem solid var(--color-on-admin);
-    outline-offset: -0.125rem;
+    outline: var(--border-width-m) solid var(--color-on-admin);
+    outline-offset: var(--focus-ring-offset-inset);
   }
 }
 

@@ -65,15 +65,15 @@
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s);
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--motion-duration-fast) ease;
 
   &:hover {
     background: var(--color-surface-subtle);
   }
 
   &:focus-within {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: var(--border-width-m);
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 }
 
@@ -102,7 +102,7 @@
   min-width: 0;
   max-width: 100%;
   margin: 0;
-  padding: 0.125rem; // 2px
+  padding: var(--space-xxs);
   border: 0;
   border-radius: var(--radius-full);
   background: var(--color-surface-subtle);
@@ -121,7 +121,7 @@
   cursor: pointer;
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
+    outline: var(--focus-ring);
   }
 }
 

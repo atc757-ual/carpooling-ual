@@ -21,7 +21,7 @@
   // ion-focused en el host)
   &.ion-focused {
     outline: var(--border-width-l) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
+    outline-offset: var(--focus-ring-offset);
   }
 }
 
@@ -75,7 +75,7 @@
 }
 
 .trip-card__preference {
-  padding: 0.125rem var(--space-s); // 2px arriba y abajo
+  padding: var(--space-xxs) var(--space-s); // 2px arriba y abajo
   border-radius: var(--radius-s);
   background: var(--color-primary-subtle);
   color: var(--color-text);

@@ -67,7 +67,7 @@
   // El anillo de foco solo con teclado (al tocar con el dedo, no)
   &:has(:focus-visible) {
     outline: var(--border-width-m) solid var(--color-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--focus-ring-offset);
   }
 }
 
@@ -84,7 +84,7 @@
   color: var(--color-text-muted);
   font-weight: var(--font-weight-semibold);
   place-items: center;
-  transition: background-color 120ms ease;
+  transition: background-color var(--motion-duration-fast) ease;
 }
 
 .trip-review__step--on .trip-review__button {

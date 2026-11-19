@@ -42,7 +42,7 @@
 
   // El foco del radio (oculto) se ve en la tarjeta
   &:has(input:focus-visible) {
-    outline: var(--border-width-m) solid var(--color-focus);
+    outline: var(--focus-ring);
   }
 }
 
@@ -56,7 +56,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: var(--space-xxs);
   min-width: 0;
 }
 
@@ -70,7 +70,7 @@
 
 .vehicle-card__plate {
   align-self: flex-start;
-  margin: 0.125rem 0; // 2px
+  margin: var(--space-xxs) 0;
 }
 
 // Color, plazas y motor en una línea; si no cabe, se corta con «…»
@@ -133,7 +133,7 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
+    outline: var(--focus-ring);
   }
 }
 

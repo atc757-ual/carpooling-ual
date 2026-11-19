@@ -4,8 +4,12 @@
   display: block;
 }
 
+// La sombra la puede quitar quien lo usa (--faq-card-shadow: none), sin
+// entrar en el componente
 ion-card {
   margin: 0;
+  box-shadow: var(--faq-card-shadow, var(--shadow-card));
+  text-align: start;
 }
 
 // Sin fondo al pasar el ratón ni al pulsar: la flecha ya dice que se abre

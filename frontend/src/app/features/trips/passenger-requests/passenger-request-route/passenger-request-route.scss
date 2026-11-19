@@ -66,7 +66,7 @@ ion-card.passenger-route ion-card-content {
     color: inherit;
     font-family: inherit;
     cursor: pointer;
-    transition: background-color 0.15s ease-in-out;
+    transition: background-color var(--motion-duration-fast) ease-in-out;
 
     &:hover {
       background: var(--color-surface-subtle);
@@ -74,7 +74,7 @@ ion-card.passenger-route ion-card-content {
 
     &:focus-visible {
       outline: var(--border-width-l) solid var(--color-focus);
-      outline-offset: 0.125rem; // 2px
+      outline-offset: var(--focus-ring-offset);
     }
   }
 }
@@ -116,9 +116,9 @@ ion-card.passenger-route ion-card-content {
   --background-hover: var(--color-primary-subtle);
   --border-radius: var(--radius-full);
   margin: 0;
-  min-width: 2.75rem; // 44px
-  min-height: 2.75rem;
-  transition: transform 0.12s ease-in-out;
+  min-width: var(--control-height-s);
+  min-height: var(--control-height-s);
+  transition: transform var(--motion-duration-fast) ease-in-out;
 
   ion-icon {
     font-size: 1.5rem; // 24px
@@ -142,7 +142,7 @@ ion-card.passenger-route ion-card-content {
 }
 
 .passenger-route__preference {
-  padding: 0.125rem var(--space-s);
+  padding: var(--space-xxs) var(--space-s);
   border-radius: var(--radius-s);
   background: var(--color-primary-subtle);
   color: var(--color-text);

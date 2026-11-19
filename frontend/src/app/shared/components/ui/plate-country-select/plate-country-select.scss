@@ -25,7 +25,7 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
+    outline: var(--focus-ring);
     outline-offset: calc(-1 * var(--border-width-s));
   }
 
@@ -83,8 +83,8 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: calc(-1 * var(--border-width-m));
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset-inset);
   }
 }
 

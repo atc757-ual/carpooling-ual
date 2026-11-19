@@ -177,8 +177,8 @@
   --color: var(--color-text);
 
   &.ion-focused {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: calc(-1 * var(--border-width-m));
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset-inset);
   }
 }
 
@@ -265,7 +265,7 @@
   padding-block: var(--space-s);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   .messages__filters {
     flex-wrap: nowrap;
     max-width: 100%;

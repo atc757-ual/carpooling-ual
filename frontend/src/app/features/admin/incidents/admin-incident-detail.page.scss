@@ -37,7 +37,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.125rem; // 2px
+  gap: var(--space-xxs);
   padding-inline-start: var(--moment-rail);
   padding-block-end: var(--space-base);
 

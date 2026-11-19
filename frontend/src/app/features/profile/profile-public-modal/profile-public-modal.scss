@@ -46,17 +46,17 @@
   transition: box-shadow var(--motion-duration-fast);
 
   &:hover {
-    box-shadow: 0 0 0 2px var(--color-border-strong);
+    box-shadow: 0 0 0 var(--border-width-m) var(--color-border-strong);
   }
 
   &--selected,
   &--selected:hover {
-    box-shadow: 0 0 0 3px var(--color-primary);
+    box-shadow: 0 0 0 var(--border-width-l) var(--color-primary);
   }
 
   &:focus-visible,
   &:focus-within {
-    outline: var(--border-width-m) solid var(--color-focus);
+    outline: var(--focus-ring);
     outline-offset: 0.25rem;
   }
 }
@@ -118,7 +118,7 @@ ion-textarea.has-focus {
   justify-content: center;
   width: 1.25rem; // 20px
   height: 1.25rem;
-  border: 2px solid var(--color-surface);
+  border: var(--border-width-m) solid var(--color-surface);
   border-radius: var(--radius-full);
   background: var(--color-primary);
   color: var(--color-on-primary);

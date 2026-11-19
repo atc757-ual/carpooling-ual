@@ -113,11 +113,6 @@ ion-card.trip-review-card ion-card-content {
   color: var(--color-text);
 }
 
-// Las alertas de esta pantalla, con 8px de relleno por los cuatro lados
-.notice {
-  padding: var(--space-s);
-}
-
 // El título y, a la derecha, «1 de 2»
 .trip-review-card__head {
   display: flex;

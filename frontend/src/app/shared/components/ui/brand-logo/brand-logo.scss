@@ -37,8 +37,8 @@
   gap: var(--space-s);
 
   .brand-logo__badge {
-    width: 2.75rem; // 44px
-    height: 2.75rem;
+    width: var(--control-height-s);
+    height: var(--control-height-s);
     padding: 0;
 
     ion-icon {

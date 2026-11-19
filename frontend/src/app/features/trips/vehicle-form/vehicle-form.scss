@@ -95,15 +95,15 @@
 
   &:has(input:checked) {
     border-color: var(--color-link);
-    outline: var(--border-width-m) solid var(--color-link);
-    outline-offset: 0.125rem; // 2px
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
     background: var(--color-primary-subtle);
     color: var(--color-link);
   }
 
   &:has(input:focus-visible) {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 
   ion-icon {
@@ -134,20 +134,20 @@
   }
 
   &:has(input:checked) {
-    outline: var(--border-width-m) solid var(--color-link);
-    outline-offset: 0.125rem; // 2px
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 
   &:has(input:focus-visible) {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 }
 
 // El ✓ del elegido: blanco con una sombra oscura, se ve sobre cualquier color
 .vehicle-form__color-check {
   display: none;
-  color: #fff;
+  color: var(--color-on-backdrop); // blanco en los dos modos
   font-size: 1.125rem; // 18px
   filter: drop-shadow(0 0 1px rgb(0 0 0 / 80%));
   pointer-events: none;

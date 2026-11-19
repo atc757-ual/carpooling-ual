@@ -98,8 +98,8 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 }
 
@@ -142,7 +142,7 @@
 
   ion-icon {
     flex: none;
-    margin-top: 0.125rem; // 2px: a la altura de la primera línea
+    margin-top: var(--space-xxs); // 2px: a la altura de la primera línea
     color: var(--color-success);
     font-size: 1.25rem; // 20px
   }
@@ -206,7 +206,7 @@
 }
 
 .publish__preference {
-  padding: 2px 4px;
+  padding: var(--space-xxs) var(--space-xs);
   border-radius: var(--radius-s);
   background: var(--color-primary-subtle);
   color: var(--color-text);
@@ -233,7 +233,7 @@
 
   ion-icon {
     flex: none;
-    margin-top: 0.125rem; // 2px
+    margin-top: var(--space-xxs);
     color: var(--color-success);
     font-size: 1.25rem; // 20px
   }
@@ -241,17 +241,11 @@
   > div {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem; // 2px
+    gap: var(--space-xxs);
   }
 }
 
 // El próximo viaje dentro de la tarjeta: 16px hasta los pasos, solo si hay
 .publish__next-trip:has(.next-trip, app-live-trip-banner) {
   margin-bottom: var(--space-base);
-}
-
-// Las alertas de Publicar (ahorro, declaración…), con 8px de relleno por los
-// cuatro lados
-.notice {
-  padding: var(--space-s);
 }

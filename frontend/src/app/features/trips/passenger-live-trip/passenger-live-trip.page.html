@@ -118,7 +118,7 @@
 
               @if (phase() === 'waiting' && request.boardCode) {
                 <ion-card class="ride__panel" role="region" aria-labelledby="ride-code-title">
-                  <ion-card-content>
+                  <ion-card-content class="ride__code">
                     <h2 id="ride-code-title" class="text-subtitle">
                       {{ 'live.codigoRecogida' | transloco }}
                     </h2>
@@ -434,7 +434,10 @@
 
           <div class="ride__layout">
             <!-- Columna de 8 (en el móvil, toda la pantalla): el mapa en vivo -->
-            <section class="ride__main" [attr.aria-label]="'live.mapaDirecto' | transloco">
+            <section
+              class="ride__main live-column"
+              [attr.aria-label]="'live.mapaDirecto' | transloco"
+            >
               @if (sheet.isDesktop() && phase() !== 'finished' && !isReportingIncident()) {
                 <ng-container [ngTemplateOutlet]="rideHero" />
               }
@@ -456,7 +459,10 @@
             </section>
 
             @if (sheet.isDesktop()) {
-              <aside class="ride__side" [attr.aria-label]="'live.viajeAhora' | transloco">
+              <aside
+                class="ride__side live-column"
+                [attr.aria-label]="'live.viajeAhora' | transloco"
+              >
                 <ng-container [ngTemplateOutlet]="rideDetails" />
               </aside>
             }

@@ -74,7 +74,7 @@
 // La nota se pulsa para ver las valoraciones
 .trip-driver__rating--button {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-raised);
   min-width: auto;
   min-height: auto;
   padding: 0 var(--space-xs);
@@ -91,6 +91,6 @@
 
   &:focus-visible {
     outline: var(--border-width-l) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
+    outline-offset: var(--focus-ring-offset);
   }
 }
