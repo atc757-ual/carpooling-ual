@@ -16,8 +16,8 @@
 
 .catalog-item__swatch {
   flex: none;
-  width: 2.25rem; // 36px
-  height: 2.25rem;
+  width: var(--box-size-m);
+  height: var(--box-size-m);
   margin-block-end: var(--space-xs);
   border: var(--border-width-s) solid var(--color-border-strong);
   border-radius: var(--radius-full);
@@ -63,7 +63,7 @@
   justify-content: center;
   background: var(--color-primary-subtle);
   color: var(--color-link);
-  font-size: 1.5rem; // 24px
+  font-size: var(--icon-size-l);
 }
 
 .catalog-item__upload-text {

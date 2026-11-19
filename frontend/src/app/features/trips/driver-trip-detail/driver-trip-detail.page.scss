@@ -40,7 +40,7 @@
   min-width: 0;
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: 1.25rem; // 20px
+  font-size: var(--font-size-subtitle);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 }
@@ -66,7 +66,7 @@
 
 @media (min-width: 768px) {
   .driver-detail__title {
-    font-size: 1.5rem; // 24px
+    font-size: var(--font-size-title);
   }
 }
 
@@ -116,7 +116,7 @@ ion-card.driver-detail__impact ion-card-content {
 
   ion-icon {
     color: var(--color-eco);
-    font-size: 1rem; // 16px
+    font-size: var(--icon-size-s);
   }
 }
 

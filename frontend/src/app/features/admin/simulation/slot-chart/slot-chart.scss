@@ -27,8 +27,8 @@
 
 .chart__key {
   display: inline-block;
-  width: 0.75rem; // 12px
-  height: 0.75rem;
+  width: var(--dot-size);
+  height: var(--dot-size);
   margin-inline-start: var(--space-s);
   border-radius: 0.125rem; // 2px
 }

@@ -101,7 +101,7 @@ ion-card.live-alert.live-alert[class] {
   span {
     display: grid;
     place-items: center;
-    height: 3.5rem; // 56px
+    height: var(--control-height-l);
     border: var(--border-width-s) solid var(--color-primary);
     border-radius: var(--radius-s);
     background: var(--color-primary-subtle);
@@ -253,7 +253,7 @@ ion-card.live-alert.live-alert[class] {
 
 .ride__confirm-icon {
   color: var(--color-link);
-  font-size: 2rem; // 32px
+  font-size: var(--icon-size-xl);
 }
 
 // Lo que ha votado, centrado bajo el título: la barra con la nota y, debajo,
@@ -292,12 +292,12 @@ ion-card.live-alert.live-alert[class] {
 .ride__done-icon {
   flex: none;
   color: var(--color-success);
-  font-size: 2rem; // 32px
+  font-size: var(--icon-size-xl);
 }
 
 .ride__done-title {
   font-family: var(--font-family-heading);
-  font-size: 1.125rem; // 18px
+  font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-semibold);
 }
 

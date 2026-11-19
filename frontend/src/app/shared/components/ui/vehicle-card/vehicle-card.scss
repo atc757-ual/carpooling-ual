@@ -49,7 +49,7 @@
 .vehicle-card__car {
   flex: none;
   color: var(--color-text-muted);
-  font-size: 1.5rem; // 24px
+  font-size: var(--icon-size-l);
 }
 
 .vehicle-card__body {
@@ -82,8 +82,8 @@
 
 .vehicle-card__swatch {
   display: inline-block;
-  width: 0.625rem; // 10px
-  height: 0.625rem;
+  width: var(--dot-size);
+  height: var(--dot-size);
   margin-inline-end: var(--space-xs);
   border: var(--border-width-s) solid var(--color-border-strong);
   border-radius: var(--radius-full);
@@ -95,7 +95,7 @@
 .vehicle-card__check {
   flex: none;
   color: var(--color-border-strong);
-  font-size: 1.5rem; // 24px
+  font-size: var(--icon-size-l);
 
   .vehicle-card--selected & {
     color: var(--color-primary);
@@ -108,15 +108,15 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 2rem; // 32px
-  height: 2rem;
+  width: var(--box-size-s);
+  height: var(--box-size-s);
   margin-inline-end: var(--space-xs);
   padding: 0;
   border: none;
   border-radius: var(--radius-s);
   background: var(--color-primary-subtle);
   color: var(--color-primary);
-  font-size: 1.25rem; // 20px
+  font-size: var(--icon-size-base);
   box-shadow: none;
   cursor: pointer;
   transition:
@@ -124,7 +124,7 @@
     color var(--motion-duration-fast);
 
   ion-icon {
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 
   &:hover {

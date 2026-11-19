@@ -130,7 +130,7 @@
   ion-chip {
     display: inline-flex;
     align-items: center;
-    min-height: 2.25rem;
+    min-height: var(--box-size-m);
     margin: 0;
     border-radius: var(--radius-full);
     font-size: var(--font-size-label);
@@ -240,8 +240,8 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  min-width: 1.25rem;
-  height: 1.25rem;
+  min-width: var(--icon-size-base);
+  height: var(--icon-size-base);
   padding: 0 0.375rem;
   border-radius: var(--radius-full);
   background: var(--color-accent);

@@ -1,68 +1,32 @@
-// Una pastilla con borde y dos partes; la activa, rellena de azul
+// La pastilla (borde, partes y la activa en azul) está en el tema
+// (theme/_pill-switch.scss), compartida con el selector del tema; aquí, el
+// texto de cada parte y la bandera
 :host {
   display: inline-flex;
 }
 
-.language-switch {
-  display: inline-flex;
-  width: 5.75rem; // ~92px
-  margin: 0;
-  padding: var(--space-xxs); // 2px: aire entre el borde y la parte activa
-  border: var(--border-width-s) solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
-}
-
 .language-switch__option {
-  display: inline-flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  min-height: 2rem; // 32px, como el selector del tema
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-full);
-  background: transparent;
   color: var(--color-text-muted);
   font-family: inherit;
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-semibold);
   line-height: 1;
-  cursor: pointer;
-  transition:
-    background-color var(--motion-duration-fast) var(--motion-easing),
-    color var(--motion-duration-fast) var(--motion-easing);
 
   &:hover:not(.language-switch__option--active) {
-    background: var(--color-surface-subtle);
     color: var(--color-text);
-  }
-
-  &:focus-visible {
-    outline: var(--focus-ring);
-    outline-offset: var(--focus-ring-offset);
   }
 }
 
 .language-switch__option--active {
-  background: var(--color-primary);
   color: var(--color-on-primary);
 }
 
-:host-context(.theme-dark) {
-  .language-switch {
-    background: var(--color-surface-subtle);
-    border-color: var(--color-border-subtle);
-  }
-
-  .language-switch__option--active {
-    background: var(--color-selected);
-    color: var(--color-on-selected);
-  }
+:host-context(.theme-dark) .language-switch__option--active {
+  color: var(--color-on-selected);
 }
 
 // 20px de ancho para bandera clara y bien definida
 .language-switch__flag {
-  width: 1.25rem;
+  width: var(--icon-size-base);
   border-radius: 0.125rem; // 2px
 }

@@ -66,7 +66,7 @@
   margin: 0;
   color: var(--color-text);
   font-family: var(--font-family-heading);
-  font-size: 1.125rem; // 18px
+  font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 }
@@ -181,12 +181,12 @@
   align-items: center;
   justify-content: center;
   grid-area: icon;
-  width: 2.25rem; // 36px
-  height: 2.25rem;
+  width: var(--box-size-m);
+  height: var(--box-size-m);
   border-radius: var(--radius-full);
   background: var(--color-primary-subtle);
   color: var(--color-link);
-  font-size: 1.125rem; // 18px
+  font-size: var(--icon-size-m);
 }
 
 .twin__kpi-label {
@@ -202,7 +202,7 @@
 .twin__value {
   grid-area: value;
   font-family: var(--font-family-heading);
-  font-size: 1.5rem; // 24px
+  font-size: var(--font-size-title);
   font-weight: var(--font-weight-semibold);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
@@ -214,13 +214,13 @@
 }
 
 .twin__skeleton-value {
-  width: 2.5rem; // 40px
-  height: 1.5rem; // 24px
+  width: var(--box-size-l);
+  height: var(--icon-size-l);
   grid-area: value;
 }
 
 .twin__skeleton-row {
-  height: 1.5rem; // 24px
+  height: var(--icon-size-l);
   margin: var(--space-s) var(--space-base);
 }
 

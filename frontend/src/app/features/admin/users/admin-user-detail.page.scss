@@ -12,13 +12,13 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 3.5rem; // 56px
-  height: 3.5rem;
+  width: var(--control-height-l);
+  height: var(--control-height-l);
   border-radius: 50%;
   background: var(--color-on-admin);
   color: var(--color-admin);
   font-family: var(--font-family-heading);
-  font-size: 1.25rem; // 20px
+  font-size: var(--font-size-subtitle);
   font-weight: var(--font-weight-bold);
 }
 
@@ -56,12 +56,12 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 2.25rem; // 36px
-  height: 2.25rem;
+  width: var(--box-size-m);
+  height: var(--box-size-m);
   border-radius: var(--radius-full);
   background: var(--color-primary-subtle);
   color: var(--color-link);
-  font-size: 1.125rem; // 18px
+  font-size: var(--icon-size-m);
 }
 
 .detail__profile-icon--off {

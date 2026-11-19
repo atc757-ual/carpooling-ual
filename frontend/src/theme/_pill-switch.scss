@@ -1,0 +1,58 @@
+// Pastilla con borde y dos partes, la activa rellena de azul: el selector del
+// tema (sol y luna, en el Perfil) y el del idioma (app-language-switch). Las
+// dos miden lo mismo (92px de ancho, 32px de alto) para ir alineadas
+.theme-switch,
+.language-switch {
+  display: inline-flex;
+  width: 5.75rem; // 92px
+  margin: 0;
+  padding: var(--space-xxs); // Aire entre el borde y la parte activa
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+}
+
+.theme-switch__option,
+.language-switch__option {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--box-size-s);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-easing),
+    color var(--motion-duration-fast) var(--motion-easing);
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+.theme-switch__option:hover:not(.theme-switch__option--active),
+.language-switch__option:hover:not(.language-switch__option--active) {
+  background: var(--color-surface-subtle);
+}
+
+.theme-switch__option--active,
+.language-switch__option--active {
+  background: var(--color-primary);
+}
+
+.theme-dark {
+  .theme-switch,
+  .language-switch {
+    border-color: var(--color-border-subtle);
+    background: var(--color-surface-subtle);
+  }
+
+  .theme-switch__option--active,
+  .language-switch__option--active {
+    background: var(--color-selected);
+  }
+}

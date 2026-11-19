@@ -16,7 +16,7 @@ ion-card-content {
   // Ionic da a los h2 de ion-card-content un peso normal, que gana a
   // .text-subtitle: 16px en seminegrita, como los demás títulos de la hoja
   h2 {
-    font-size: 1rem; // 16px
+    font-size: var(--font-size-body);
     font-weight: var(--font-weight-semibold);
   }
 }

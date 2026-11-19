@@ -64,13 +64,13 @@ ion-card {
   align-items: center;
   gap: var(--space-s);
   padding: var(--space-base) var(--space-base) var(--space-s);
-  min-height: 3.5rem;
+  min-height: var(--control-height-l);
 
   // 18px también en escritorio (el tema sube a 20px): en el Perfil, títulos
   // de 18px y ningún otro texto por encima de 16px
   ion-card-title {
     margin: 0;
-    font-size: 1.125rem; // 18px
+    font-size: var(--font-size-subtitle-s);
   }
 
   form {

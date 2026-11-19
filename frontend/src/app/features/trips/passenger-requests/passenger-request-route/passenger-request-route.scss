@@ -80,7 +80,7 @@ ion-card.passenger-route ion-card-content {
 }
 
 .trip-driver__thumb {
-  font-size: 1rem; // 16px
+  font-size: var(--icon-size-s);
 
   &--up {
     color: var(--color-success);
@@ -121,7 +121,7 @@ ion-card.passenger-route ion-card-content {
   transition: transform var(--motion-duration-fast) ease-in-out;
 
   ion-icon {
-    font-size: 1.5rem; // 24px
+    font-size: var(--icon-size-l);
   }
 
   &:hover:not(&--unavailable) {
@@ -159,14 +159,14 @@ ion-card.passenger-route ion-card-content {
   ion-icon {
     flex: 0 0 auto;
     color: var(--color-text-muted);
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 }
 
 .passenger-route__swatch {
   display: inline-block;
-  width: 0.7rem; // 11.2px
-  height: 0.7rem; // 11.2px
+  width: var(--dot-size);
+  height: var(--dot-size);
   margin-inline-end: var(--space-xs);
   border: var(--border-width-s) solid var(--color-border-strong);
   border-radius: var(--radius-full);

@@ -18,7 +18,7 @@
   margin: 0;
   color: var(--color-text);
   font-family: var(--font-family-heading);
-  font-size: 1.125rem; // 18px
+  font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 }
@@ -44,8 +44,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem; // 24px
-  height: 1.5rem;
+  width: var(--icon-size-l);
+  height: var(--icon-size-l);
   margin-inline-start: var(--space-s);
   border-radius: var(--radius-full);
   background: var(--color-primary);
@@ -80,7 +80,7 @@
 
   ion-icon {
     margin-inline: var(--space-xs) 0;
-    font-size: 1.125rem; // 18px
+    font-size: var(--icon-size-m);
   }
 }
 

@@ -11,8 +11,8 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 3rem; // 48px
-  height: 3rem;
+  width: var(--control-height-base);
+  height: var(--control-height-base);
   border-radius: var(--radius-full);
   background: var(--color-warning-subtle);
   font-size: var(--font-size-body);
@@ -60,7 +60,7 @@
 }
 
 .trip-driver__thumb {
-  font-size: 1rem; // 16px
+  font-size: var(--icon-size-s);
 
   &--up {
     color: var(--color-success);

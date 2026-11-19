@@ -13,8 +13,8 @@
 .preference-filters__count {
   display: inline-grid;
   place-items: center;
-  min-width: 1.25rem; // 20px
-  height: 1.25rem;
+  min-width: var(--icon-size-base);
+  height: var(--icon-size-base);
   margin-inline-start: var(--space-xs);
   padding-inline: var(--space-xs);
   border-radius: var(--radius-full);
@@ -57,7 +57,7 @@
 
   ion-icon {
     margin-inline-end: var(--space-s);
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
     color: var(--color-link);
   }
 }

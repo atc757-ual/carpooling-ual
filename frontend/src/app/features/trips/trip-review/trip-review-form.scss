@@ -38,7 +38,7 @@
 
 .trip-review__end {
   flex: none;
-  font-size: 1.375rem; // 22px
+  font-size: var(--icon-size-l);
 }
 
 .trip-review__end--down {
@@ -59,7 +59,7 @@
 // objetivo táctil de 44px)
 .trip-review__step {
   display: flex;
-  min-height: 3rem; // 48px
+  min-height: var(--control-height-base);
   align-items: center;
   border-radius: var(--radius-s);
   cursor: pointer;
@@ -75,8 +75,8 @@
 // claro hasta el elegido y el elegido en verde
 .trip-review__button {
   display: grid;
-  width: 3rem; // 48px: cuadrado
-  height: 3rem;
+  width: var(--control-height-base); // Cuadrado
+  height: var(--control-height-base);
   box-sizing: border-box;
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s); // 8px
