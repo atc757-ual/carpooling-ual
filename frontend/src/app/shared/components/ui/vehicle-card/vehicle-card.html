@@ -32,7 +32,7 @@
     <button
       class="vehicle-card__action"
       type="button"
-      [attr.aria-label]="'Editar ' + vehicle().plate"
+      [attr.aria-label]="'labels.forms.editPlate' | transloco: { plate: vehicle().plate }"
       (click)="edit.emit(vehicle())"
     >
       <ion-icon [icon]="icons.edit" aria-hidden="true" />
@@ -40,7 +40,7 @@
     <button
       class="vehicle-card__action vehicle-card__action--danger"
       type="button"
-      [attr.aria-label]="'Eliminar ' + vehicle().plate"
+      [attr.aria-label]="'labels.forms.deletePlate' | transloco: { plate: vehicle().plate }"
       (click)="remove.emit(vehicle())"
     >
       <ion-icon [icon]="icons.remove" aria-hidden="true" />

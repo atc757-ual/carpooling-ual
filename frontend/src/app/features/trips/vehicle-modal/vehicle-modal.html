@@ -1,7 +1,7 @@
 <!-- Leyendo la declaración (un paso dentro de esta ventana) no hay ✕: se sale
      con sus botones -->
 <app-modal-header
-  [title]="vehicle ? 'Editar vehículo' : 'Registrar vehículo'"
+  [title]="(vehicle ? 'labels.forms.editVehicle' : 'profile.vehicles.register') | transloco"
   [hasClose]="!form()?.isReadingDeclaration()"
   (closed)="close()"
 />
@@ -10,7 +10,7 @@
 <div class="modal-body vehicle-modal">
   <app-vehicle-form
     [vehicle]="vehicle"
-    [submitLabel]="vehicle ? 'Guardar cambios' : 'Registrar vehículo'"
+    [submitLabel]="(vehicle ? 'common.save' : 'profile.vehicles.register') | transloco"
     (saved)="handleSaved($event)"
   />
 </div>

@@ -5,12 +5,14 @@ import { RouteStop } from '../../../shared/components/ui/route-timeline/route-ti
 import { CAMPUS_NAME } from '../../matching/campus';
 import { estimateDurationMin, estimateTripImpact } from '../../matching/trip-impact';
 import { shiftTime } from '../../matching/trip-search-form/trip-search-form';
+import { dateTimeFormat } from '../../../core/i18n/app-locale';
 
-const DATE_LABEL = new Intl.DateTimeFormat('es-ES', {
-  weekday: 'short',
-  day: 'numeric',
-  month: 'short',
-});
+const DATE_LABEL = () =>
+  dateTimeFormat({
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
 
 // Lo que se ahorra si se llenan las plazas
 export interface DriverImpact {
@@ -26,7 +28,7 @@ export function toIsoDateTime(date: string, time: string): string {
 
 // «mié, 28 oct» para el resumen
 export function formatDateLabel(date: string): string {
-  return date ? DATE_LABEL.format(new Date(`${date}T00:00:00`)) : '';
+  return date ? DATE_LABEL().format(new Date(`${date}T00:00:00`)) : '';
 }
 
 // La hora que elige el conductor: hacia el campus, la de llegada (como muy

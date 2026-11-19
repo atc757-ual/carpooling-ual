@@ -3,16 +3,18 @@ import { TripMatch, TripSearchRequest } from '../../core/models/trip-match.model
 import { TripResult } from '../../core/models/trip-result.model';
 import { TripSearch } from '../../core/models/trip-search.model';
 import { CAMPUS_NAME } from './campus';
+import { dateTimeFormat } from '../../core/i18n/app-locale';
 
 // La hora de un instante ISO en la zona del dispositivo: «07:40»
-const TIME_FORMAT = new Intl.DateTimeFormat('es-ES', {
-  hour: '2-digit',
-  minute: '2-digit',
-  hourCycle: 'h23',
-});
+const TIME_FORMAT = () =>
+  dateTimeFormat({
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  });
 
 export function formatTime(isoDateTime: string): string {
-  return TIME_FORMAT.format(new Date(isoDateTime));
+  return TIME_FORMAT().format(new Date(isoDateTime));
 }
 
 // La búsqueda guardada (fecha y hora locales) como cuerpo de la API
@@ -95,10 +97,10 @@ export function toTripResult(match: TripMatch, search: TripSearch): TripResult {
   };
 }
 
-const SHORT_DATE_FORMAT = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' });
+const SHORT_DATE_FORMAT = () => dateTimeFormat({ day: 'numeric', month: 'short' });
 
 // «2026-10-27» → «27 oct» (en hora local: new Date('2026-10-27') sería UTC)
 export function formatShortDate(isoDate: string): string {
   const [year, month, day] = isoDate.split('-').map(Number);
-  return SHORT_DATE_FORMAT.format(new Date(year, month - 1, day));
+  return SHORT_DATE_FORMAT().format(new Date(year, month - 1, day));
 }

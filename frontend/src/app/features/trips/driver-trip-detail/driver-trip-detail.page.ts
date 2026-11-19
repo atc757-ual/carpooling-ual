@@ -30,7 +30,7 @@ import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { ReviewTarget, TripReviewCard } from '../trip-review/trip-review-card';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
-import { TRIP_STATUS_LABELS } from '../../../shared/utils/trip-status.util';
+import { tripStatusLabel } from '../../../shared/utils/trip-status.util';
 import { estimateTripImpact } from '../../matching/trip-impact';
 import { formatTime } from '../../matching/trip-results';
 import { DriverTripActions } from '../driver-trip-actions/driver-trip-actions';
@@ -129,7 +129,7 @@ export class DriverTripDetailPage {
   });
   readonly statusLabel = computed(() => {
     const trip = this.trip();
-    return trip ? TRIP_STATUS_LABELS[trip.status] : '';
+    return trip ? tripStatusLabel(trip.status) : '';
   });
 
   // Un coche menos por pasajero; el CO₂, el de un coche en ese trayecto por

@@ -1,5 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
+import { setAppLocale } from '../../i18n/app-locale';
 
 export type AppLanguage = 'es' | 'en';
 const LANGUAGE_STORAGE_KEY = 'carpooling_language';
@@ -59,6 +60,7 @@ export class LanguageService {
   }
 
   private applyLanguage(lang: AppLanguage): void {
+    setAppLocale(lang);
     this.transloco.setActiveLang(lang);
   }
 }

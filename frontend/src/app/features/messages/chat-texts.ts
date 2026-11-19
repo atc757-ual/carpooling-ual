@@ -1,26 +1,30 @@
+import { translate } from '@jsverse/transloco';
 import { ChatMessage, ChatRole, QuickReply } from '../../core/models/chat.model';
+import { dateTimeFormat } from '../../core/i18n/app-locale';
 
 // El texto de cada respuesta rápida (la API guarda solo la clave)
-export const QUICK_REPLY_TEXTS: Record<QuickReply, string> = {
-  at_pickup: 'Ya estoy en el punto',
-  running_late: 'Llego 5 min tarde',
-  on_my_way: 'Estoy en camino',
-  where_are_you: '¿Dónde estás?',
-  leaving_soon: 'Salgo en 5 min',
-  still_going: '¿Sigues yendo?',
-  arriving_soon: 'Llegamos en unos minutos',
-  stopping_here: 'Paro aquí un momento',
-  on_time: 'Salgo a la hora',
-  still_coming: '¿Sigues viniendo?',
-  im_coming: 'Sí, voy',
-  pickup_where: '¿Dónde me recoges?',
-  waiting_for_you: 'Te espero 2 min más',
-  heading_down: 'Ya voy para allá',
-  i_see_you: 'Te veo',
-  can_we_stop: '¿Podemos parar un momento?',
-};
+export const QUICK_REPLIES: readonly QuickReply[] = [
+  'at_pickup',
+  'running_late',
+  'on_my_way',
+  'where_are_you',
+  'leaving_soon',
+  'still_going',
+  'arriving_soon',
+  'stopping_here',
+  'on_time',
+  'still_coming',
+  'im_coming',
+  'pickup_where',
+  'waiting_for_you',
+  'heading_down',
+  'i_see_you',
+  'can_we_stop',
+];
 
-export const QUICK_REPLIES = Object.keys(QUICK_REPLY_TEXTS) as QuickReply[];
+export function quickReplyText(reply: QuickReply): string {
+  return translate(`labels.quickReplies.${reply}`);
+}
 
 // Desde cuánto antes de la salida se considera que va a recoger
 const PICKUP_WINDOW_MS = 15 * 60 * 1000;
@@ -78,33 +82,34 @@ export function quickRepliesForMoment(
 // Lo que se lee de un mensaje: su texto o el de su respuesta rápida
 export function messageText(message: Pick<ChatMessage, 'text' | 'quickReply'>): string {
   if (message.quickReply) {
-    return QUICK_REPLY_TEXTS[message.quickReply];
+    return quickReplyText(message.quickReply);
   }
   return message.text ?? '';
 }
 
-const TIME_FORMAT = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit' });
+const TIME_FORMAT = () => dateTimeFormat({ hour: '2-digit', minute: '2-digit' });
 
 // «07:40»
 export function messageTime(isoDate: string): string {
-  return TIME_FORMAT.format(new Date(isoDate));
+  return TIME_FORMAT().format(new Date(isoDate));
 }
 
-const DAY_FORMAT = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' });
-const DAY_WITH_YEAR_FORMAT = new Intl.DateTimeFormat('es-ES', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-});
+const DAY_FORMAT = () => dateTimeFormat({ day: 'numeric', month: 'short' });
+const DAY_WITH_YEAR_FORMAT = () =>
+  dateTimeFormat({
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
 
 // El separador de cada día de la conversación, como en las apps de
 // mensajería: «Hoy», «Ayer», «3 nov» o, de otro año, «3 nov 2025»
 export function messageDay(isoDate: string, now = new Date()): string {
   const date = new Date(isoDate);
   const daysAgo = Math.round((startOfDay(now) - startOfDay(date)) / 86_400_000);
-  if (daysAgo === 0) return 'Hoy';
-  if (daysAgo === 1) return 'Ayer';
-  return (date.getFullYear() === now.getFullYear() ? DAY_FORMAT : DAY_WITH_YEAR_FORMAT).format(
+  if (daysAgo === 0) return translate('labels.today');
+  if (daysAgo === 1) return translate('labels.yesterday');
+  return (date.getFullYear() === now.getFullYear() ? DAY_FORMAT : DAY_WITH_YEAR_FORMAT)().format(
     date,
   );
 }

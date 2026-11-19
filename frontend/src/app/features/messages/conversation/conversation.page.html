@@ -133,7 +133,7 @@
             [disabled]="isSending()"
             (click)="handleQuickReply(quickReply)"
           >
-            {{ quickReplyText[quickReply] }}
+            {{ quickReplyText(quickReply) }}
           </button>
         }
       </fieldset>

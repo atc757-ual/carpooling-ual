@@ -20,6 +20,7 @@ import { RouteFields } from '../route-fields/route-fields';
 import { MARGINS, MAX_SEATS, MIN_SEATS } from '../trip-search';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { estimateTripImpact } from '../trip-impact';
+import { appLocale } from '../../../core/i18n/app-locale';
 
 // La hora por defecto: dentro de media hora, de 5 en 5 minutos como el
 // selector
@@ -138,7 +139,7 @@ export class TripSearchForm {
 
   // «0,7»: con coma decimal, en español
   protected formatDecimal(value: number): string {
-    return value.toLocaleString('es-ES');
+    return value.toLocaleString(appLocale());
   }
 
   protected readonly minDate = toIsoDate(new Date());

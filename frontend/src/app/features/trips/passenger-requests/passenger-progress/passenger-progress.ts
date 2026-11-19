@@ -1,8 +1,10 @@
 import { Component, computed, input } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
+import { translate } from '@jsverse/transloco';
 import { checkmark, close } from 'ionicons/icons';
 import { Trip } from '../../../../core/models/driver.model';
 import { SeatRequest } from '../../../../core/models/seat-request.model';
+import { dateTimeFormat } from '../../../../core/i18n/app-locale';
 
 export type ProgressStepState = 'done' | 'current' | 'upcoming' | 'stopped';
 
@@ -12,37 +14,56 @@ export interface ProgressStep {
   state: ProgressStepState;
 }
 
-const TIME = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit' });
-const DAY_AND_TIME = new Intl.DateTimeFormat('es-ES', {
-  day: 'numeric',
-  month: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-});
+const TIME = () => dateTimeFormat({ hour: '2-digit', minute: '2-digit' });
+const DAY_AND_TIME = () =>
+  dateTimeFormat({
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
 // «13:03» si es de hoy; si no, «11 nov, 13:03»
 export function formatStepTime(iso: string, now = new Date()): string {
   const date = new Date(iso);
-  return date.toDateString() === now.toDateString() ? TIME.format(date) : DAY_AND_TIME.format(date);
+  return date.toDateString() === now.toDateString()
+    ? TIME().format(date)
+    : DAY_AND_TIME().format(date);
 }
 
 // El paso en que se cerró una solicitud sin viaje (o null si sigue su curso)
 function stoppedStep(request: SeatRequest, trip: Trip): ProgressStep | null {
   if (trip.status === 'cancelled' && request.status !== 'completed') {
-    return { label: 'Viaje cancelado', at: request.cancelledAt, state: 'stopped' };
+    return {
+      label: translate('labels.requestStatus.tripCancelled'),
+      at: request.cancelledAt,
+      state: 'stopped',
+    };
   }
   switch (request.status) {
     case 'rejected':
       return {
-        label: request.rejectionReason === 'trip_full' ? 'Viaje completo' : 'No aceptada',
+        label: translate(
+          request.rejectionReason === 'trip_full'
+            ? 'labels.requestStatus.tripFull'
+            : 'labels.requestStatus.rejected',
+        ),
         at: request.answeredAt,
         state: 'stopped',
       };
     case 'expired':
-      return { label: 'Caducada', at: request.answeredAt, state: 'stopped' };
+      return {
+        label: translate('labels.requestStatus.expired'),
+        at: request.answeredAt,
+        state: 'stopped',
+      };
     case 'cancelled':
       return {
-        label: request.rejectionReason === 'no_show' ? 'No te presentaste' : 'Cancelada',
+        label: translate(
+          request.rejectionReason === 'no_show'
+            ? 'labels.requestStatus.noShow'
+            : 'labels.requestStatus.cancelled',
+        ),
         at: request.cancelledAt,
         state: 'stopped',
       };
@@ -66,7 +87,11 @@ function reachedSteps(request: SeatRequest, trip: Trip): number {
 // Confirmada → En curso → Finalizado; si se cerró sin viaje, Solicitada y el
 // motivo (No aceptada, Caducada, Cancelada…)
 export function buildProgressSteps(request: SeatRequest, trip: Trip): ProgressStep[] {
-  const sent: ProgressStep = { label: 'Solicitada', at: request.requestedAt, state: 'done' };
+  const sent: ProgressStep = {
+    label: translate('labels.progress.requested'),
+    at: request.requestedAt,
+    state: 'done',
+  };
   const stopped = stoppedStep(request, trip);
   if (stopped) {
     return [sent, stopped];
@@ -84,12 +109,20 @@ export function buildProgressSteps(request: SeatRequest, trip: Trip): ProgressSt
   return [
     sent,
     {
-      label: 'Confirmada',
+      label: translate('labels.requestStatus.confirmed'),
       at: request.status === 'pending' ? null : request.answeredAt,
       state: stateOf(1),
     },
-    { label: 'En curso', at: request.boardedAt ?? null, state: stateOf(2) },
-    { label: 'Finalizado', at: request.droppedOffAt ?? null, state: stateOf(3) },
+    {
+      label: translate('labels.progress.inProgress'),
+      at: request.boardedAt ?? null,
+      state: stateOf(2),
+    },
+    {
+      label: translate('labels.progress.finished'),
+      at: request.droppedOffAt ?? null,
+      state: stateOf(3),
+    },
   ];
 }
 

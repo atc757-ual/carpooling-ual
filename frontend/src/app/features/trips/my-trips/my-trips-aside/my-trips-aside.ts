@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon } from '@ionic/angular';
@@ -11,6 +11,7 @@ import {
   thumbsUp,
 } from 'ionicons/icons';
 import { RoleRating } from '../../../../core/models/user.model';
+import { appLocale } from '../../../../core/i18n/app-locale';
 
 interface Suggestion {
   link: string;
@@ -58,29 +59,29 @@ export class MyTripsAside {
     if (!rating || value === null) {
       return '—';
     }
-    const formatted = value.toLocaleString('es-ES', {
+    const formatted = value.toLocaleString(appLocale(), {
       minimumFractionDigits: 1,
       maximumFractionDigits: 1,
     });
     return `${formatted} (${rating.ratingCount})`;
   });
-  readonly co2Text = computed(() => `${this.co2Kg().toString().replace('.', ',')} kg`);
+  readonly co2Text = computed(() => `${this.co2Kg().toLocaleString(appLocale())} kg`);
 
   readonly suggestions = computed(() => {
     const items: Suggestion[] = [];
     if (this.canDrive()) {
       items.push({
         link: '/tabs/publish',
-        title: 'Publicar viaje',
-        detail: 'Comparte tu recorrido al campus',
+        title: translate('labels.suggestions.publishTitle'),
+        detail: translate('labels.suggestions.publishDetail'),
         icon: addCircleOutline,
       });
     }
     if (this.canRide()) {
       items.push({
         link: '/tabs/search',
-        title: 'Buscar viaje',
-        detail: 'Encuentra quien vaya hacia tu destino',
+        title: translate('labels.suggestions.searchTitle'),
+        detail: translate('labels.suggestions.searchDetail'),
         icon: searchOutline,
       });
     }

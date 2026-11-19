@@ -7,7 +7,7 @@
 <div class="modal-body profile-preferences-modal">
   <form (submit)="$event.preventDefault(); handleSubmit()" novalidate>
     <p class="text-body-s text-color-muted">
-      Ayudan a coincidir con personas afines, como conductor y como pasajero.
+      {{ 'labels.forms.preferencesHelp' | transloco }}
     </p>
 
     @for (group of groups(); track group.key) {
@@ -33,7 +33,7 @@
     }
 
     @if (showTolerance) {
-      <fieldset class="preferences-group" aria-label="Margen horario de búsqueda">
+      <fieldset class="preferences-group" [attr.aria-label]="'labels.forms.timeMargin' | transloco">
         <span class="preferences-group__title text-label text-label--strong">
           <ion-icon [icon]="toleranceIcon" aria-hidden="true" />
           {{ 'profile.preferencesModal.searchTolerance' | transloco }}

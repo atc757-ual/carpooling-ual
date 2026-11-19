@@ -59,14 +59,14 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { confirmWithReason } from '../../../shared/components/modals/reason-confirm-modal/reason-confirm-modal';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { TRIP_STATUS_LABELS } from '../../../shared/utils/trip-status.util';
+import { tripStatusLabel } from '../../../shared/utils/trip-status.util';
 import { formatTime } from '../../matching/trip-results';
 import {
   groupMessagesByDay,
   messageText,
   messageTime,
   quickRepliesForMoment,
-  QUICK_REPLY_TEXTS,
+  quickReplyText,
 } from '../chat-texts';
 import { ConversationAvatar } from '../conversation-avatar/conversation-avatar';
 
@@ -185,7 +185,7 @@ export class ConversationPage {
     const conversation = this.conversation();
     return conversation ? quickRepliesForMoment(conversation.trip, conversation.myRole) : [];
   });
-  protected readonly quickReplyText = QUICK_REPLY_TEXTS;
+  protected readonly quickReplyText = quickReplyText;
   protected readonly maxLength = MAX_MESSAGE_LENGTH;
   protected readonly sendIcon = send;
   protected readonly reportIcon = flagOutline;
@@ -302,7 +302,7 @@ export class ConversationPage {
   // El estado del viaje, como etiqueta junto al título
   statusLabel(): string {
     const status = this.conversation()?.trip.status;
-    return status ? TRIP_STATUS_LABELS[status] : '';
+    return status ? tripStatusLabel(status) : '';
   }
 
   // Hay a quién llamar: viaje confirmado o en curso y teléfono verificado

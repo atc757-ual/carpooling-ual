@@ -79,6 +79,7 @@ import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
 import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colors.store';
 import { ProfilePreferencesModal } from '../../profile/profile-preferences-modal/profile-preferences-modal';
+import { appLocale } from '../../../core/i18n/app-locale';
 
 // Plazo mínimo para publicar; el valor inicial se redondea al siguiente
 // intervalo de 5 min para mantener al menos una hora de antelación.
@@ -328,7 +329,7 @@ export class PublishTripPage implements OnInit {
   });
   readonly publishingSuspendedUntilLabel = computed(() => {
     const until = this.publishingSuspendedUntil();
-    return until ? new Date(until).toLocaleDateString('es-ES') : '';
+    return until ? new Date(until).toLocaleDateString(appLocale()) : '';
   });
 
   // Con la llegada, sobre la salida aproximada (la que calculará el backend),
@@ -690,7 +691,7 @@ export class PublishTripPage implements OnInit {
 
   // «0,7»: con coma decimal, en español
   protected formatDecimal(value: number): string {
-    return value.toLocaleString('es-ES');
+    return value.toLocaleString(appLocale());
   }
 
   private async handlePublish(): Promise<void> {

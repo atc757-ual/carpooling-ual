@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, inject, Input, viewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
@@ -12,7 +13,7 @@ import { VehicleForm } from '../vehicle-form/vehicle-form';
 // guardar avisa en verde y cierra con el vehículo y el rol 'saved'
 @Component({
   selector: 'app-vehicle-modal',
-  imports: [ModalHeader, VehicleForm],
+  imports: [ModalHeader, VehicleForm, TranslocoPipe],
   templateUrl: './vehicle-modal.html',
 })
 export class VehicleModal {

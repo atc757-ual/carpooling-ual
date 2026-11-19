@@ -1,14 +1,17 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
+import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { TripDriver as Driver } from '../../../core/models/trip-result.model';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
 import { IonIcon, ModalController } from '@ionic/angular';
 import { thumbsDown, thumbsUp } from 'ionicons/icons';
 import { AvatarArt } from '../../../shared/components/ui/avatar-art/avatar-art';
+import { numberFormat } from '../../../core/i18n/app-locale';
 
-const RATING_FORMAT = new Intl.NumberFormat('es-ES', {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-});
+const RATING_FORMAT = () =>
+  numberFormat({
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
 
 // «Lucía Cortés» → «LC» (las iniciales hacen de foto)
 export function getInitials(name: string): string {
@@ -22,7 +25,7 @@ export function getInitials(name: string): string {
 
 // «1 viaje», «42 viajes»
 function formatTripCount(count: number): string {
-  return count === 1 ? '1 viaje' : `${count} viajes`;
+  return translate(count === 1 ? 'labels.trips.one' : 'labels.trips.other', { count });
 }
 
 // «Lucía Cortés» → «Lucía» («Ver viaje de Lucía», «Lucía decide»)
@@ -35,7 +38,7 @@ export function getFirstName(name: string): string {
 // En los resultados y en el detalle del viaje
 @Component({
   selector: 'app-trip-driver',
-  imports: [AvatarArt, IonIcon],
+  imports: [AvatarArt, IonIcon, TranslocoPipe],
   templateUrl: './trip-driver.html',
   styleUrl: './trip-driver.scss',
 })
@@ -56,14 +59,14 @@ export class TripDriver {
   // «4,8», o null si aún no tiene valoración
   readonly rating = computed(() => {
     const { rating } = this.driver();
-    return rating === undefined ? null : RATING_FORMAT.format(rating);
+    return rating === undefined ? null : RATING_FORMAT().format(rating);
   });
 
   // «42 viajes» o «Nuevo conductor»
   readonly details = computed(() => {
     const { tripCount, rating } = this.driver();
     if (rating === undefined) {
-      return 'Nuevo conductor';
+      return translate('labels.newDriver');
     }
     if (tripCount === undefined) {
       return null;

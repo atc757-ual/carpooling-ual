@@ -13,7 +13,7 @@
         <button
           class="trip-driver__rating trip-driver__rating--button"
           type="button"
-          [attr.aria-label]="'Valoración ' + rating + ' de 5. Ver valoraciones'"
+          [attr.aria-label]="'request.ratingLabel' | transloco: { rating }"
           (click)="openReviews()"
         >
           <ion-icon
