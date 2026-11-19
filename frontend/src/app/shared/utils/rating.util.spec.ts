@@ -1,6 +1,9 @@
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
 import { formatRating, formatRatingSummary, ratingName } from './rating.util';
 
 describe('rating.util', () => {
+  beforeEach(() => initAppTranslations());
+
   it('names each point of the scale, rounding and clamping', () => {
     expect(ratingName(1)).toBe('Muy mal');
     expect(ratingName(3)).toBe('Normal');

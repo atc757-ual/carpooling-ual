@@ -6,6 +6,8 @@ import {
   makeEnvironmentProviders,
   provideAppInitializer,
 } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { setAppLocale } from './app-locale';
 import { provideTransloco, TranslocoService } from '@jsverse/transloco';
 import type { TranslocoLoader } from '@jsverse/transloco';
 import { of } from 'rxjs';
@@ -238,4 +240,13 @@ export function provideTranslocoTestingSupport(
 // textos de una pantalla ya traducida
 export function provideAppTransloco(): EnvironmentProviders {
   return provideTestingTransloco({ es: esDictionary, en: enDictionary });
+}
+
+// Para los specs de funciones que usan el `translate()` global de Transloco
+// (etiquetas compartidas): lo deja listo en español con los diccionarios
+// reales. Se llama en un beforeEach
+export function initAppTranslations(): void {
+  TestBed.configureTestingModule({ providers: [provideAppTransloco()] });
+  TestBed.inject(TranslocoService).setActiveLang('es');
+  setAppLocale('es');
 }

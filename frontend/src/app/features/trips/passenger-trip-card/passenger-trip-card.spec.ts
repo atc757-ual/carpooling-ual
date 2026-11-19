@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -12,7 +13,7 @@ describe('PassengerTripCard', () => {
   function render(item: PassengerTrip, tab: TripsTab = 'upcoming'): HTMLElement {
     TestBed.configureTestingModule({
       imports: [PassengerTripCard],
-      providers: [provideIonicAngular(), provideRouter([])],
+      providers: [provideAppTransloco(), provideIonicAngular(), provideRouter([])],
     });
     fixture = TestBed.createComponent(PassengerTripCard);
     fixture.componentRef.setInput('item', item);

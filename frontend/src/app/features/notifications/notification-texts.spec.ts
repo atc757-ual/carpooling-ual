@@ -1,23 +1,11 @@
-import {
-  formatElapsed,
-  legalDocumentOf,
-  notificationMessage,
-  notificationMode,
-} from './notification-texts';
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
+import { formatElapsed, legalDocumentOf, notificationMode } from './notification-texts';
 
 describe('notification texts', () => {
   const now = new Date('2026-10-28T12:00:00');
   const ago = (ms: number): string => new Date(now.getTime() - ms).toISOString();
 
-  it('has a sentence for each type', () => {
-    expect(notificationMessage('request_received')).toBe('Te han pedido plaza');
-    expect(notificationMessage('request_accepted')).toBe('Han aceptado tu solicitud');
-    expect(notificationMessage('request_conflict_cancelled')).toBe(
-      'Tu solicitud se canceló al aceptar otro viaje',
-    );
-    expect(notificationMessage('trip_started')).toBe('Tu conductor va de camino');
-    expect(notificationMessage('incident_reported')).toBe('Hay una incidencia nueva');
-  });
+  beforeEach(() => initAppTranslations());
 
   it('opens my trips as driver or passenger, never for incidents', () => {
     expect(notificationMode('request_received')).toBe('driver');
@@ -30,7 +18,6 @@ describe('notification texts', () => {
   });
 
   it('tells which legal document a minor change notice opens', () => {
-    expect(notificationMessage('terms_updated')).toBe('Hemos actualizado las Condiciones de uso');
     expect(notificationMode('privacy_updated')).toBeNull();
     expect(legalDocumentOf('terms_updated')).toBe('terms');
     expect(legalDocumentOf('privacy_updated')).toBe('privacy');

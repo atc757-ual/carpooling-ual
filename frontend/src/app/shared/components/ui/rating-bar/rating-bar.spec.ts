@@ -1,7 +1,10 @@
+import { initAppTranslations } from '../../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { RatingBar } from './rating-bar';
 
 describe('RatingBar', () => {
+  beforeEach(() => initAppTranslations());
+
   function render(rating: number, size: 'default' | 'small' = 'default'): HTMLElement {
     const fixture = TestBed.createComponent(RatingBar);
     fixture.componentRef.setInput('rating', rating);

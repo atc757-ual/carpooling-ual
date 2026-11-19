@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../../core/i18n/testing-transloco';
 import {
   consentLabel,
   formatDate,
@@ -10,6 +11,8 @@ import {
 } from './admin-user-detail-labels';
 
 describe('admin user detail labels', () => {
+  beforeEach(() => initAppTranslations());
+
   it('writes the states in Spanish and keeps unknown ones', () => {
     expect(tripStatusLabel('in_progress')).toBe('En curso');
     expect(tripStatusLabel('teleported')).toBe('teleported');

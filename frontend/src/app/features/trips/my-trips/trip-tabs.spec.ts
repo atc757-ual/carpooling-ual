@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../../core/i18n/testing-transloco';
 import { DriverTrip, Trip, TripStatus } from '../../../core/models/driver.model';
 import { SeatRequest, SeatRequestStatus } from '../../../core/models/seat-request.model';
 import {
@@ -5,7 +6,7 @@ import {
   isTripsTab,
   passengerRequestLabel,
   passengerTripTab,
-  TRIPS_TABS,
+  tripsTabs,
 } from './trip-tabs';
 
 const trip = (status: TripStatus): Trip => ({ status }) as Trip;
@@ -13,8 +14,10 @@ const request = (status: SeatRequestStatus, rejectionReason?: string): SeatReque
   ({ status, rejectionReason }) as SeatRequest;
 
 describe('trip tabs', () => {
+  beforeEach(() => initAppTranslations());
+
   it('names the last tab for both roles: not only cancelled trips end there', () => {
-    expect(TRIPS_TABS.map(({ label }) => label)).toEqual([
+    expect(tripsTabs().map(({ label }) => label)).toEqual([
       'Próximos',
       'Anteriores',
       'No realizados',
