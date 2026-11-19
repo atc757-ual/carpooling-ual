@@ -800,6 +800,13 @@ ion-card.role-card ion-card-content {
   b {
     display: block;
   }
+
+  // Dentro de una frase (un párrafo), las cifras en negrita siguen en la
+  // línea; también las que llegan con [innerHTML] desde el diccionario, a las
+  // que no alcanzan los estilos encapsulados de cada pantalla
+  p b {
+    display: inline;
+  }
 }
 
 // Aviso con una acción (p. ej. «Reintentar»): el texto ocupa lo que queda y el

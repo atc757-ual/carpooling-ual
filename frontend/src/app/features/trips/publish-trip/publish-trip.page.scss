@@ -147,11 +147,6 @@
     font-size: 1.25rem; // 20px
   }
 
-  // Las cifras en negrita, seguidas del texto (el tema las pone en su línea)
-  b {
-    display: inline;
-  }
-
   p,
   > span {
     font-size: var(--font-size-body-s);
