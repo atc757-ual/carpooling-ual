@@ -172,7 +172,7 @@ describe('TripDetailPage', () => {
   it('requests the seats of the search and shows it pending', async () => {
     const root = await render('t1', SEARCH);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
-    const button = root.querySelector<HTMLIonButtonElement>('.trip-detail__aside ion-button');
+    const button = root.querySelector<HTMLIonButtonElement>('.trip-detail__actions ion-button');
     expect(button?.textContent?.trim()).toBe('Solicitar 2 plazas');
 
     await fixture.componentInstance.handleRequest();

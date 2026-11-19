@@ -143,107 +143,114 @@
         <!-- Columna de 4 en escritorio; debajo en el móvil: el conductor y su
              coche, el viaje y la seguridad, las acciones y la valoración -->
         <aside class="passenger-detail__aside" aria-label="Tu viaje y acciones">
-          <app-passenger-request-route [request]="request" [trip]="trip" part="driver" />
+          <!-- En escritorio, dos tarjetas (decidido con el autor el 19/11): el
+               conductor y el coche y, debajo, la seguridad y las acciones -->
+          <div class="passenger-detail__aside-card">
+            <app-passenger-request-route [request]="request" [trip]="trip" part="driver" />
+          </div>
 
-          <!-- Con la plaza aceptada y hasta que termine: una lista con cada
+          <div class="passenger-detail__aside-card">
+            <!-- Con la plaza aceptada y hasta que termine: una lista con cada
                opción a la vista (seguirlo, compartirlo y, en curso, reportar) -->
-          @if (
-            request.status === 'accepted' &&
-            (trip.status === 'confirmed' || trip.status === 'in_progress')
-          ) {
-            <ion-card class="passenger-detail__safety">
-              <ion-card-content>
-                <h2 class="text-subtitle">Viaje y seguridad</h2>
-                <ul class="passenger-detail__items">
-                  <li class="passenger-detail__item">
-                    <div class="passenger-detail__item-text">
-                      @if (trip.status === 'in_progress') {
-                        <span class="passenger-detail__item-title">
-                          {{ firstName(trip.driver.name) }} ha empezado el viaje
-                        </span>
-                        <span class="text-caption text-color-muted">
-                          Síguelo en directo: verás dónde está el coche y cuánto le falta.
-                        </span>
-                      } @else {
-                        <span class="passenger-detail__item-title">Aún no ha empezado</span>
-                        <span class="text-caption text-color-muted">
-                          Podrás seguirlo cuando {{ firstName(trip.driver.name) }} inicie el viaje.
-                        </span>
-                      }
-                    </div>
-                    @if (trip.status === 'in_progress') {
-                      <a
-                        class="icon-btn"
-                        aria-label="Seguir el viaje en directo"
-                        title="Seguir en directo"
-                        [routerLink]="['/tabs/trips/ride', request.id]"
-                      >
-                        <ion-icon [icon]="liveIcon" aria-hidden="true" />
-                      </a>
-                    }
-                  </li>
-                  <li class="passenger-detail__item">
-                    <div class="passenger-detail__item-text">
-                      <span class="passenger-detail__item-title">Comparte tu ubicación</span>
-                      <span class="text-caption text-color-muted">
-                        Envía tu viaje a alguien de confianza.
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      class="icon-btn"
-                      aria-label="Compartir el viaje con alguien de confianza"
-                      title="Compartir viaje"
-                      (click)="handleShare(request, trip)"
-                    >
-                      <ion-icon [icon]="shareIcon" aria-hidden="true" />
-                    </button>
-                  </li>
-                  @if (trip.status === 'in_progress') {
+            @if (
+              request.status === 'accepted' &&
+              (trip.status === 'confirmed' || trip.status === 'in_progress')
+            ) {
+              <ion-card class="passenger-detail__safety">
+                <ion-card-content>
+                  <h2 class="text-subtitle">Viaje y seguridad</h2>
+                  <ul class="passenger-detail__items">
                     <li class="passenger-detail__item">
                       <div class="passenger-detail__item-text">
-                        <span class="passenger-detail__item-title">¿Algo va mal?</span>
+                        @if (trip.status === 'in_progress') {
+                          <span class="passenger-detail__item-title">
+                            {{ firstName(trip.driver.name) }} ha empezado el viaje
+                          </span>
+                          <span class="text-caption text-color-muted">
+                            Síguelo en directo: verás dónde está el coche y cuánto le falta.
+                          </span>
+                        } @else {
+                          <span class="passenger-detail__item-title">Aún no ha empezado</span>
+                          <span class="text-caption text-color-muted">
+                            Podrás seguirlo cuando {{ firstName(trip.driver.name) }} inicie el
+                            viaje.
+                          </span>
+                        }
+                      </div>
+                      @if (trip.status === 'in_progress') {
+                        <a
+                          class="icon-btn"
+                          aria-label="Seguir el viaje en directo"
+                          title="Seguir en directo"
+                          [routerLink]="['/tabs/trips/ride', request.id]"
+                        >
+                          <ion-icon [icon]="liveIcon" aria-hidden="true" />
+                        </a>
+                      }
+                    </li>
+                    <li class="passenger-detail__item">
+                      <div class="passenger-detail__item-text">
+                        <span class="passenger-detail__item-title">Comparte tu ubicación</span>
                         <span class="text-caption text-color-muted">
-                          Bájate en un sitio seguro y repórtalo.
+                          Envía tu viaje a alguien de confianza.
                         </span>
                       </div>
                       <button
                         type="button"
                         class="icon-btn"
-                        aria-label="Reportar: bajarme y registrar una incidencia"
-                        title="Reportar"
-                        (click)="actions()?.openIncidentModal()"
+                        aria-label="Compartir el viaje con alguien de confianza"
+                        title="Compartir viaje"
+                        (click)="handleShare(request, trip)"
                       >
-                        <ion-icon [icon]="alertIcon" aria-hidden="true" />
+                        <ion-icon [icon]="shareIcon" aria-hidden="true" />
                       </button>
                     </li>
-                  }
-                </ul>
-              </ion-card-content>
-            </ion-card>
-          }
+                    @if (trip.status === 'in_progress') {
+                      <li class="passenger-detail__item">
+                        <div class="passenger-detail__item-text">
+                          <span class="passenger-detail__item-title">¿Algo va mal?</span>
+                          <span class="text-caption text-color-muted">
+                            Bájate en un sitio seguro y repórtalo.
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          class="icon-btn"
+                          aria-label="Reportar: bajarme y registrar una incidencia"
+                          title="Reportar"
+                          (click)="actions()?.openIncidentModal()"
+                        >
+                          <ion-icon [icon]="alertIcon" aria-hidden="true" />
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                </ion-card-content>
+              </ion-card>
+            }
 
-          <!-- En curso, «Reportar» ya está en la lista: la tarjeta de acciones
+            <!-- En curso, «Reportar» ya está en la lista: la tarjeta de acciones
                queda para cancelar, buscar otro o el motivo de cierre -->
-          <app-passenger-request-actions
-            [class.passenger-detail__hidden]="
-              request.status === 'accepted' && trip.status === 'in_progress'
-            "
-            [request]="request"
-            [trip]="trip"
-            (cancelled)="handleCancelled($event)"
-          />
-          <!-- Viaje terminado con plaza: valorar al conductor o ver la valoración -->
-          @if (
-            (trip.status === 'finished' && request.status === 'accepted') ||
-            request.status === 'completed'
-          ) {
-            <app-trip-review-card
-              [tripId]="trip.id"
-              [targets]="[{ id: trip.driver.id, name: firstName(trip.driver.name) }]"
-              targetRole="driver"
+            <app-passenger-request-actions
+              [class.passenger-detail__hidden]="
+                request.status === 'accepted' && trip.status === 'in_progress'
+              "
+              [request]="request"
+              [trip]="trip"
+              (cancelled)="handleCancelled($event)"
             />
-          }
+            <!-- Viaje terminado con plaza: valorar al conductor o ver la valoración -->
+            @if (
+              (trip.status === 'finished' && request.status === 'accepted') ||
+              request.status === 'completed'
+            ) {
+              <app-trip-review-card
+                [tripId]="trip.id"
+                [targets]="[{ id: trip.driver.id, name: firstName(trip.driver.name) }]"
+                targetRole="driver"
+              />
+            }
+          </div>
         </aside>
       }
     }

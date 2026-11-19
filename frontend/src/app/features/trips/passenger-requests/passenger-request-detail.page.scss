@@ -72,6 +72,14 @@
   min-width: 0;
 }
 
+// En el móvil, sin caja propia: sus tarjetas, como el resto de la columna
+.passenger-detail__aside-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  min-width: 0;
+}
+
 .passenger-detail__loading {
   display: flex;
   align-items: center;
@@ -246,9 +254,14 @@ ion-card-content.passenger-detail__state {
     gap: var(--space-l);
   }
 
-  // La columna de 4, una sola tarjeta con sus secciones separadas por una
-  // línea fina, como la de 8 y «En curso» (_live-desktop-column.scss)
+  // La columna de 4, en dos tarjetas (19/11): el conductor y el coche y,
+  // debajo, la seguridad y las acciones, cada una con sus secciones separadas
+  // por una línea fina (_live-desktop-column.scss)
   .passenger-detail__aside {
+    gap: var(--space-base);
+  }
+
+  .passenger-detail__aside-card {
     @include live-column.card;
   }
 }
