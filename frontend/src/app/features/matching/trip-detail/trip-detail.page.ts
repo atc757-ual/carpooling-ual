@@ -351,7 +351,8 @@ export class TripDetailPage {
       );
       this.myRequest.set(request);
       await this.router.navigateByUrl(`/tabs/trips/requests/${request.id}`);
-      void this.permissionPrompts.offerPush('request').catch(() => undefined);
+      // Si falla, el error llega al registro global; la plaza ya está pedida
+      void this.permissionPrompts.offerPush('request');
     });
   }
 

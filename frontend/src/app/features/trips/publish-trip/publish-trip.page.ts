@@ -20,7 +20,7 @@ import {
 } from '@ionic/angular';
 import { carOutline, checkmarkCircle, checkmarkCircleOutline, leafOutline } from 'ionicons/icons';
 import { map } from 'rxjs';
-import { ApiError } from '../../../core/models/api-error.model';
+import { ApiError, rethrowUnlessApiError } from '../../../core/models/api-error.model';
 import {
   PickupMode,
   PublishedTrip,
@@ -512,10 +512,12 @@ export class PublishTripPage implements OnInit {
             this.osrmRoute.set(route);
           }
         })
-        .catch(() => {
+        .catch((error: unknown) => {
+          // Sin ruta de la API: el mapa, sin línea
           if (request === this.routeRequest) {
             this.osrmRoute.set(null);
           }
+          rethrowUnlessApiError(error);
         });
     });
 
@@ -620,10 +622,11 @@ export class PublishTripPage implements OnInit {
       if (this.step() === 2) {
         await this.loadVehicles();
       }
-    } catch {
+    } catch (error) {
       if (generation === this.accountGeneration) {
         this.loadState.set('error');
       }
+      rethrowUnlessApiError(error);
     }
   }
 
@@ -650,10 +653,11 @@ export class PublishTripPage implements OnInit {
         this.vehicles.set(vehicles);
         this.vehiclesState.set('ready');
       }
-    } catch {
+    } catch (error) {
       if (generation === this.accountGeneration) {
         this.vehiclesState.set('error');
       }
+      rethrowUnlessApiError(error);
     } finally {
       if (this.loadingVehiclesGeneration === generation) {
         this.loadingVehiclesGeneration = null;
@@ -740,9 +744,11 @@ export class PublishTripPage implements OnInit {
         () => this.driver.publishTrip(request),
       );
       this.published.set(trip);
-      void this.celebration.celebrate().catch(() => undefined);
+      // El confeti y la oferta de avisos no paran nada: si fallan, el error
+      // llega al registro global (provideBrowserGlobalErrorListeners)
+      void this.celebration.celebrate();
       void this.toast.showSuccess(translate('screens.publishTrip.viajePublicado'));
-      void this.permissionPrompts.offerPush('publish').catch(() => undefined);
+      void this.permissionPrompts.offerPush('publish');
     });
   }
 
