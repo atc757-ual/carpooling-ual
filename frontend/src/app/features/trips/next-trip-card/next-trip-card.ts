@@ -4,8 +4,7 @@ import { RouterLink } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
 import { carOutline, chatbubblesOutline, personOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { DriverService } from '../../../core/services/drivers/driver.service';
-import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
+import { TripEntryResponse } from '../../../core/models/my-trips.model';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { formatTime } from '../../matching/trip-results';
@@ -28,8 +27,6 @@ import { isOpenRequest, NextTrip, nextTripLink, nextTripStatus, pickNextTrip } f
 })
 export class NextTripCard {
   private readonly auth = inject(AuthService);
-  private readonly driver = inject(DriverService);
-  private readonly seatRequests = inject(SeatRequestsService);
   private readonly trips = inject(TripsService);
 
   private readonly profiles = computed(() => {
@@ -43,11 +40,11 @@ export class NextTripCard {
   private readonly data = resource({
     params: () => this.profiles(),
     loader: async ({ params }): Promise<NextTrip | null> => {
-      const [driven, ridden] = await Promise.all([
-        params.canDrive ? this.loadDriven() : Promise.resolve([]),
-        params.canRide ? this.loadRidden() : Promise.resolve([]),
-      ]);
-      return pickNextTrip([...driven, ...ridden]);
+      // La primera página de «Próximos» ya va por la salida (la en curso,
+      // primero) y con los dos papeles: basta para el más cercano
+      const { items } = await this.trips.listMyTripEntries('upcoming', 0);
+      const candidates = await Promise.all(items.map((entry) => this.toCandidate(entry, params)));
+      return pickNextTrip(candidates.filter((candidate) => candidate !== null));
     },
   });
 
@@ -92,7 +89,7 @@ export class NextTripCard {
           value1: occupiedSeats(next.trip),
           offeredSeats: next.trip.offeredSeats,
         })
-      : `Conduce ${next.trip.driver.name}`;
+      : translate('screens.passengerTripCard.drives', { name: next.trip.driver.name });
   });
   readonly actionLabel = computed(() => {
     return this.next()?.role === 'driver'
@@ -104,21 +101,23 @@ export class NextTripCard {
     this.data.reload();
   }
 
-  private async loadDriven(): Promise<NextTrip[]> {
-    const trips = await this.driver.listMyTrips();
-    return trips.map((trip) => ({ role: 'driver' as const, trip }));
-  }
-
-  // Solo se pide el viaje de las plazas pendientes o aceptadas
-  private async loadRidden(): Promise<NextTrip[]> {
-    const requests = (await this.seatRequests.listMine()).filter(isOpenRequest);
-    return Promise.all(
-      requests.map(async (request) => ({
-        role: 'passenger' as const,
-        request,
-        trip: await this.trips.getTrip(request.trip.id),
-      })),
-    );
+  // Una fila de Tus viajes como candidata, con los papeles que tiene. Del
+  // pasajero, solo las plazas pendientes o aceptadas, y se pide su viaje
+  private async toCandidate(
+    entry: TripEntryResponse,
+    { canDrive, canRide }: { canDrive: boolean; canRide: boolean },
+  ): Promise<NextTrip | null> {
+    if (entry.role === 'driver') {
+      return canDrive ? { role: 'driver', trip: entry.trip } : null;
+    }
+    if (!canRide || !isOpenRequest(entry.request)) {
+      return null;
+    }
+    return {
+      role: 'passenger',
+      request: entry.request,
+      trip: await this.trips.getTrip(entry.request.trip.id),
+    };
   }
 
   protected readonly driverIcon = carOutline;

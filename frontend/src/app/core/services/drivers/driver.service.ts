@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
+import { AuthService } from '../auth/auth.service';
 import {
   DriverStatus,
   DriverTrip,
@@ -10,14 +11,12 @@ import {
   PublishedTrip,
   PublishTripRequest,
   RegisterVehicleRequest,
+  Trip,
   UpdateVehicleRequest,
   Vehicle,
 } from '../../models/driver.model';
 import { GeoPoint } from '../../models/place.model';
 import { SeatRequest } from '../../models/seat-request.model';
-
-// Como mucho una página: un conductor tiene pocos viajes a la vez
-const MY_TRIPS_LIMIT = 100;
 
 // Lo que hace el conductor: su estado (declaración y vehículos), sus
 // vehículos, publicar viajes y, en Mis viajes, verlos con sus solicitudes y
@@ -25,6 +24,7 @@ const MY_TRIPS_LIMIT = 100;
 @Injectable({ providedIn: 'root' })
 export class DriverService {
   private readonly http = inject(HttpClient);
+  private readonly auth = inject(AuthService);
   private readonly apiUrl = environment.apiUrl;
 
   getStatus(): Promise<DriverStatus> {
@@ -70,13 +70,14 @@ export class DriverService {
     );
   }
 
-  // Mis viajes como conductor, del más próximo al más lejano
-  listMyTrips(): Promise<DriverTrip[]> {
-    return this.request(
-      this.http.get<DriverTrip[]>(`${this.apiUrl}/users/me/trips`, {
-        params: { limit: MY_TRIPS_LIMIT },
-      }),
-    );
+  // Uno de mis viajes por su id. Si no lo conduce el usuario, como si no
+  // existiera (TRIP_NOT_FOUND): las pantallas del conductor son solo suyas
+  async getMyTrip(tripId: string): Promise<Trip> {
+    const trip = await this.request(this.http.get<Trip>(`${this.apiUrl}/trips/${tripId}`));
+    if (trip.driver.id !== this.auth.currentUser()?.id) {
+      throw new ApiError('TRIP_NOT_FOUND', 404);
+    }
+    return trip;
   }
 
   // Las solicitudes de uno de mis viajes (las prioritarias primero)

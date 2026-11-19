@@ -1,8 +1,10 @@
 import { DOCUMENT, effect, inject, Injectable, signal } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { ApiError } from '../../models/api-error.model';
+import { TripEntryResponse } from '../../models/my-trips.model';
 import { AuthService } from '../auth/auth.service';
 import { LocationService } from '../location/location.service';
+import { TripsService } from '../trips/trips.service';
 import { ScreenWakeLockService } from '../ui/screen-wake-lock.service';
 import { DriverService } from './driver.service';
 
@@ -27,6 +29,7 @@ export const SHARING_GAP_MS = 60_000;
 @Injectable({ providedIn: 'root' })
 export class DriverTrackingService {
   private readonly driver = inject(DriverService);
+  private readonly trips = inject(TripsService);
   private readonly location = inject(LocationService);
   private readonly auth = inject(AuthService);
   private readonly wakeLock = inject(ScreenWakeLockService);
@@ -78,15 +81,26 @@ export class DriverTrackingService {
   }
 
   // Al abrir la app: si el conductor tiene un viaje en curso, sigue enviando.
-  // Si falla, no pasa nada: se retomará al volver a Mis viajes
+  // Va el primero de «Próximos» (por la salida). Si la API falla, no pasa
+  // nada: se retomará al volver a Tus viajes
   async resume(): Promise<void> {
     if (!this.auth.hasProfile('driver')) {
       return;
     }
-    const trips = await this.driver.listMyTrips().catch(() => []);
-    const trip = trips.find(({ status }) => status === 'in_progress');
-    if (trip) {
-      this.start(trip.id);
+    let items: TripEntryResponse[];
+    try {
+      ({ items } = await this.trips.listMyTripEntries('upcoming', 0));
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return;
+      }
+      throw error;
+    }
+    const live = items.find(
+      (entry) => entry.role === 'driver' && entry.trip.status === 'in_progress',
+    );
+    if (live?.role === 'driver') {
+      this.start(live.trip.id);
     }
   }
 

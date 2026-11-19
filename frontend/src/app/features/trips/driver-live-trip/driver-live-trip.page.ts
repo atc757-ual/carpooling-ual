@@ -129,16 +129,10 @@ export class DriverLiveTripPage {
     { initialValue: '' },
   );
 
-  // El viaje sale de Mis viajes (el conductor solo ve los suyos)
+  // El viaje, por su id (el conductor solo ve los suyos)
   readonly tripResource = resource({
     params: () => this.tripId() || undefined,
-    loader: async ({ params: id }) => {
-      const trip = (await this.driver.listMyTrips()).find((candidate) => candidate.id === id);
-      if (!trip) {
-        throw new Error('Trip not found');
-      }
-      return trip;
-    },
+    loader: ({ params: id }) => this.driver.getMyTrip(id),
   });
   readonly trip = computed(() => (this.tripResource.hasValue() ? this.tripResource.value() : null));
   readonly isInProgress = computed(() => this.trip()?.status === 'in_progress');

@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
+import { AuthService } from '../auth/auth.service';
 import { SeatRequest } from '../../models/seat-request.model';
 
 // Dónde le recogen: su punto o, si el conductor recoge en paradas, la parada
@@ -21,6 +22,7 @@ const MY_REQUESTS_LIMIT = 100;
 @Injectable({ providedIn: 'root' })
 export class SeatRequestsService {
   private readonly http = inject(HttpClient);
+  private readonly auth = inject(AuthService);
   private readonly apiUrl = environment.apiUrl;
 
   request(tripId: string, seats: number, pickup?: SeatRequestPickup): Promise<SeatRequest> {
@@ -44,6 +46,18 @@ export class SeatRequestsService {
         params: { limit: MY_REQUESTS_LIMIT },
       }),
     );
+  }
+
+  // Una de mis solicitudes por su id. Si no es del usuario (p. ej. el
+  // conductor del viaje), como si no existiera (REQUEST_NOT_FOUND)
+  async getMine(requestId: string): Promise<SeatRequest> {
+    const request = await this.call(
+      this.http.get<SeatRequest>(`${this.apiUrl}/requests/${requestId}`),
+    );
+    if (request.passenger.id !== this.auth.currentUser()?.id) {
+      throw new ApiError('REQUEST_NOT_FOUND', 404);
+    }
+    return request;
   }
 
   cancel(requestId: string): Promise<SeatRequest> {

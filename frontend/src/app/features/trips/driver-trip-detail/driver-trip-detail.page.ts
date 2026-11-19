@@ -110,13 +110,11 @@ export class DriverTripDetailPage {
       .map((request) => ({ id: request.passenger.id, name: getFirstName(request.passenger.name) })),
   );
 
-  readonly trips = resource({
+  readonly tripResource = resource({
     params: () => this.id(),
-    loader: () => this.driver.listMyTrips(),
+    loader: ({ params: id }) => this.driver.getMyTrip(id),
   });
-  readonly trip = computed(() =>
-    this.trips.hasValue() ? (this.trips.value().find(({ id }) => id === this.id()) ?? null) : null,
-  );
+  readonly trip = computed(() => (this.tripResource.hasValue() ? this.tripResource.value() : null));
 
   // «Mañana · 08:00»
   readonly when = computed(() => {
@@ -168,6 +166,6 @@ export class DriverTripDetailPage {
   });
 
   handleReload(): void {
-    this.trips.reload();
+    this.tripResource.reload();
   }
 }

@@ -38,7 +38,10 @@ import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { confirmLogout } from '../../core/services/auth/confirm-logout';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
-import { SeatRequestsService } from '../../core/services/requests/seat-requests.service';
+import { ApiError } from '../../core/models/api-error.model';
+import { TripEntryResponse } from '../../core/models/my-trips.model';
+import { SeatRequest } from '../../core/models/seat-request.model';
+import { TripsService } from '../../core/services/trips/trips.service';
 import { AppContextService } from '../../core/services/ui/app-context.service';
 import { HeadingContentService } from '../../core/services/ui/heading-content.service';
 import { LanguageService } from '../../core/services/ui/language.service';
@@ -128,7 +131,7 @@ export class TabsPage implements OnInit {
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationsService);
   private readonly confirm = inject(ConfirmService);
-  private readonly seatRequests = inject(SeatRequestsService);
+  private readonly trips = inject(TripsService);
   private readonly navController = inject(NavController);
   private readonly chat = inject(ChatService);
   protected readonly headingContent = inject(HeadingContentService);
@@ -226,12 +229,35 @@ export class TabsPage implements OnInit {
       await this.router.navigateByUrl(`/tabs/trips/drive/${live.tripId}`);
       return;
     }
-    const requests = await this.seatRequests.listMine().catch(() => []);
-    const request = requests.find(
-      ({ trip, status }) =>
-        trip.id === live.tripId && (status === 'accepted' || status === 'completed'),
-    );
+    const request = await this.findLiveRequest(live.tripId);
     await this.router.navigateByUrl(request ? `/tabs/trips/ride/${request.id}` : '/tabs/trips');
+  }
+
+  // Su plaza en el viaje en curso: en «Próximos» o, si ya se bajó, en
+  // «Anteriores» (la primera página de cada una: van por la salida). Si la API
+  // falla, null y se abre Tus viajes
+  private async findLiveRequest(tripId: string): Promise<SeatRequest | null> {
+    for (const tab of ['upcoming', 'past'] as const) {
+      let items: TripEntryResponse[];
+      try {
+        ({ items } = await this.trips.listMyTripEntries(tab, 0));
+      } catch (error) {
+        if (error instanceof ApiError) {
+          return null;
+        }
+        throw error;
+      }
+      const found = items.find(
+        (entry) =>
+          entry.role === 'passenger' &&
+          entry.request.trip.id === tripId &&
+          (entry.request.status === 'accepted' || entry.request.status === 'completed'),
+      );
+      if (found?.role === 'passenger') {
+        return found.request;
+      }
+    }
+    return null;
   }
 
   // Salir: siempre con la misma confirmación que en Mi perfil

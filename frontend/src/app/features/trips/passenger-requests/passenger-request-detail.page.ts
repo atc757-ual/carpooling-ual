@@ -94,13 +94,7 @@ export class PassengerRequestDetailPage {
 
   readonly requestResource = resource({
     params: () => this.id(),
-    loader: async ({ params }): Promise<SeatRequest> => {
-      const request = (await this.requests.listMine()).find((item) => item.id === params);
-      if (!request) {
-        throw new Error('Request not found');
-      }
-      return request;
-    },
+    loader: ({ params }): Promise<SeatRequest> => this.requests.getMine(params),
   });
   private readonly requestOverride = signal<SeatRequest | null>(null);
   readonly request = computed(
