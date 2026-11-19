@@ -2,62 +2,53 @@
   <!-- En curso: la misma tarjeta que arriba de Tus viajes -->
   <app-live-trip-banner [route]="route()" [detail]="liveDetail()" [link]="link()" />
 } @else if (next(); as next) {
-  <section class="next-trip" aria-labelledby="next-trip-title">
-    <!-- Como «Viaje en curso»: el viaje a la izquierda y los accesos (botones
-         de icono que muestran su texto) a la derecha, también en el móvil -->
-    <div class="next-trip__text">
-      <span id="next-trip-title" class="text-eyebrow next-trip__eyebrow">
-        {{ 'nextTrip.proximoViaje' | transloco }}
-      </span>
-      <div class="next-trip__when">
-        <span class="text-subtitle">{{ when() }}</span>
-        @if (next.role === 'driver') {
-          <span class="role-tag role-tag--driver">
-            <ion-icon [icon]="driverIcon" aria-hidden="true" />{{ 'nextTrip.driving' | transloco }}
-          </span>
-        } @else {
-          <span class="role-tag role-tag--passenger">
-            <ion-icon [icon]="passengerIcon" aria-hidden="true" />{{
-              'nextTrip.riding' | transloco
-            }}
-          </span>
-        }
+  <section class="next-trip" [attr.aria-label]="'nextTrip.proximoViaje' | transloco">
+    <!-- Toda la tarjeta lleva al viaje (conductor) o a la plaza (pasajero):
+         arriba el día y la hora, con el papel debajo, y el estado en la
+         esquina derecha; después, el recorrido. El chat, si lo hay, va aparte -->
+    <a class="next-trip__link" [routerLink]="link()">
+      <span class="next-trip__head">
+        <span class="next-trip__when">
+          <span class="text-body next-trip__time">{{ when() }}</span>
+          @if (next.role === 'driver') {
+            <span class="role-tag role-tag--driver">
+              <ion-icon [icon]="driverIcon" aria-hidden="true" />{{
+                'nextTrip.driving' | transloco
+              }}
+            </span>
+          } @else {
+            <span class="role-tag role-tag--passenger">
+              <ion-icon [icon]="passengerIcon" aria-hidden="true" />{{
+                'nextTrip.riding' | transloco
+              }}
+            </span>
+          }
+        </span>
         @if (status(); as status) {
           <span
             class="status"
             [class.status--pending]="status.kind === 'pending'"
             [class.status--accepted]="status.kind === 'accepted'"
-            [class.status--info]="status.kind === 'info'"
+            [class.status--info-strong]="status.kind === 'info'"
           >
             {{ status.label }}
           </span>
         }
-      </div>
-      <span class="text-body next-trip__route">{{ route() }}</span>
-    </div>
-    <div class="next-trip__actions">
-      @if (chatLink(); as chat) {
-        <a
-          class="icon-btn icon-btn--reveal"
-          appRevealOnTouch
-          [attr.aria-label]="'nextTrip.chatConConductor' | transloco"
-          [routerLink]="chat"
-        >
-          <ion-icon [icon]="chatIcon" aria-hidden="true" />
-          <span class="icon-btn__label" aria-hidden="true">{{
-            'nextTrip.chatConConductor' | transloco
-          }}</span>
-        </a>
-      }
+      </span>
+      <span class="text-body-s next-trip__route">{{ route() }}</span>
+    </a>
+    @if (chatLink(); as chat) {
       <a
         class="icon-btn icon-btn--reveal"
         appRevealOnTouch
-        [attr.aria-label]="actionLabel()"
-        [routerLink]="link()"
+        [attr.aria-label]="'nextTrip.chatConConductor' | transloco"
+        [routerLink]="chat"
       >
-        <ion-icon [icon]="driverIcon" aria-hidden="true" />
-        <span class="icon-btn__label" aria-hidden="true">{{ actionLabel() }}</span>
+        <ion-icon [icon]="chatIcon" aria-hidden="true" />
+        <span class="icon-btn__label" aria-hidden="true">{{
+          'nextTrip.chatConConductor' | transloco
+        }}</span>
       </a>
-    </div>
+    }
   </section>
 }
