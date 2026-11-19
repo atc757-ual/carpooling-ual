@@ -109,6 +109,6 @@
   // El foco, en la pastilla (el radio está oculto)
   &:focus-within {
     outline: var(--border-width-m) solid var(--color-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--focus-ring-offset);
   }
 }

@@ -82,7 +82,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-s);
-  min-height: 2.75rem; // 44px: se puede tocar
+  min-height: var(--control-height-s); // 44px: se puede tocar
   padding: 0;
   border: 0;
   background: none;
@@ -94,8 +94,8 @@ button.steps__button {
   cursor: pointer;
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
     border-radius: var(--radius-s);
   }
 }

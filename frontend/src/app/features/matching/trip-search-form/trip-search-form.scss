@@ -73,7 +73,7 @@
 
   ion-icon {
     flex: none;
-    margin-top: 0.125rem; // 2px: a la altura de la primera línea
+    margin-top: var(--space-xxs); // 2px: a la altura de la primera línea
     color: var(--color-success);
     font-size: 1.25rem; // 20px
   }
@@ -111,7 +111,7 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
+    outline: var(--focus-ring);
   }
 }
 

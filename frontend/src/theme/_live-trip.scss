@@ -1,0 +1,94 @@
+// «En curso» (y las pantallas con su misma columna): estilos de las tarjetas
+// de los componentes que van dentro de la hoja del móvil y de cada columna de
+// escritorio. Van aquí, globales, porque un componente no puede dar estilo a
+// lo de otro componente sin ::ng-deep (obsoleto)
+
+// Hoja de «En curso» en el móvil: el mapa ocupa la pantalla y los detalles van
+// en esta hoja que se arrastra (casi cerrada, a media pantalla o abierta). Se
+// queda por encima de la barra de pestañas y sin oscurecer el mapa; dentro,
+// fondo blanco y las secciones planas
+// La clase dos veces: la misma prioridad que tenía en el componente (con su
+// atributo de Angular), para ganar a las tarjetas de los componentes de dentro
+ion-modal.live-sheet.live-sheet {
+  --border-radius: var(--radius-s);
+  --box-shadow: var(--shadow-sheet);
+
+  // Justo encima de la barra: sus 76px, el margen seguro de abajo (iPhone) y
+  // su borde de arriba
+  bottom: calc(var(--tab-bar-height) + var(--ion-safe-area-bottom, 0px) + var(--border-width-s));
+
+  // En escritorio no se ve nunca, ni mientras se cierra al pasar del móvil a
+  // escritorio: su contenido ya va en la columna de 4 y saldría dos veces
+  @media (min-width: 768px) {
+    display: none;
+  }
+
+  ion-content {
+    --background: var(--color-surface);
+    --padding-top: var(--space-s); // bajo el asa
+    --padding-bottom: var(--space-base);
+    --padding-start: var(--page-gutter);
+    --padding-end: var(--page-gutter);
+  }
+
+  // Dentro, las tarjetas sin marco ni relleno lateral: secciones separadas
+  // por una línea fina, para que la hoja se vea compacta
+  ion-card {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  // Con ion-card y [class] delante, para ganar al relleno general de las
+  // tarjetas (ion-card ion-card-content[class], más abajo en este fichero)
+  ion-card ion-card-header[class],
+  ion-card ion-card-content[class] {
+    padding-inline: 0;
+  }
+
+  // Compacta: 12 px arriba y abajo de cada sección, con la línea en medio
+  ion-card ion-card-content[class] {
+    padding-block: calc(var(--space-s) + var(--space-xs)); // 12px
+  }
+
+  // La línea entre secciones: aquí, para ganar al «border: 0» de las
+  // tarjetas de arriba (si no, solo la llevaban los componentes, no las
+  // tarjetas, y quedaba un hueco sin línea)
+  .live-sheet__body > * + * {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+
+  // Sin línea debajo de un aviso (.live-alert): ya va en su recuadro
+  .live-sheet__body > .live-alert + * {
+    border-top: 0;
+  }
+
+  // Con título: el título arriba y el contenido justo debajo
+  ion-card ion-card-header[class] {
+    padding-block: var(--space-base) 0;
+  }
+
+  ion-card ion-card-header[class] + ion-card-content[class] {
+    padding-top: var(--space-s);
+  }
+}
+
+// Escritorio: cada columna (.live-column, con el mixin card de
+// features/trips/_live-desktop-column.scss), una sola tarjeta con las de
+// dentro planas. La clase dos veces, como en la hoja
+@media (min-width: 768px) {
+  .live-column.live-column {
+    ion-card {
+      margin: 0;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    ion-card ion-card-header[class],
+    ion-card ion-card-content[class] {
+      padding-inline: 0;
+    }
+  }
+}

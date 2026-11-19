@@ -12,6 +12,7 @@
 // - _typography.scss: estilos de texto (.text-display, .text-body…).
 // - _utilities.scss: utilidades que Ionic no trae (.visually-hidden…).
 // - _map.scss: el CSS de Leaflet (mapas) y el pin del punto elegido.
+// - _live-trip.scss: la hoja y las columnas de «En curso» (tarjetas planas).
 // - _color-scheme.scss: cuándo se aplica el modo oscuro (sistema o clase).
 // - _flags.scss: banderas de los prefijos del teléfono (flag-icons).
 //
@@ -26,3 +27,4 @@
 @use 'typography';
 @use 'utilities';
 @use 'map';
+@use 'live-trip';

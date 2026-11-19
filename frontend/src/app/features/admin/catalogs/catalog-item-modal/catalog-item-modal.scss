@@ -33,15 +33,15 @@
   border: var(--border-width-s) dashed var(--color-border-strong);
   border-radius: var(--radius-s);
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--motion-duration-fast) ease;
 
   &:hover {
     background: var(--color-surface-subtle);
   }
 
   &:focus-within {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: var(--border-width-m);
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 }
 

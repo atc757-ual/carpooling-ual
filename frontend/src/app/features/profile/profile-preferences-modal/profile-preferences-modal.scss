@@ -60,8 +60,8 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: 0.125rem;
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 }
 

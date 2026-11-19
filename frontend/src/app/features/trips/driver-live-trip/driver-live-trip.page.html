@@ -711,7 +711,7 @@
 
         <div class="driver-live-trip__layout">
           <!-- Columna de 8 (en el móvil, toda la pantalla): el mapa en vivo -->
-          <div class="driver-live-trip__column">
+          <div class="driver-live-trip__column live-column">
             @if (sheet.isDesktop() && !justFinished() && !finishCheck()) {
               <ng-container [ngTemplateOutlet]="liveHero" />
             }
@@ -733,7 +733,10 @@
           </div>
 
           @if (sheet.isDesktop()) {
-            <aside class="driver-live-trip__side" [attr.aria-label]="'live.viajeAhora' | transloco">
+            <aside
+              class="driver-live-trip__side live-column"
+              [attr.aria-label]="'live.viajeAhora' | transloco"
+            >
               <ng-container [ngTemplateOutlet]="liveDetails" />
             </aside>
           }

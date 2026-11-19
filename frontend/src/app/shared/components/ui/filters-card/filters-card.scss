@@ -55,7 +55,7 @@
 }
 
 .filters-card__chevron {
-  transition: transform 0.2s ease;
+  transition: transform var(--motion-duration-base) ease;
 }
 
 .filters-card__chevron--open {
@@ -98,7 +98,7 @@
       // 16px arriba (tras la línea) y abajo (12px más los 4px de la tarjeta)
       padding-block: var(--space-base) calc(var(--space-base) - var(--space-xs));
       border-top: var(--border-width-s) solid var(--color-border-subtle);
-      animation: filters-card-reveal 0.2s ease;
+      animation: filters-card-reveal var(--motion-duration-base) ease;
     }
   }
 }

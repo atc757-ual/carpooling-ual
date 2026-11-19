@@ -31,7 +31,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  padding: 0.25rem 0.625rem; // 4px 10px
+  padding: var(--space-xs) 0.625rem; // 4px 10px
   border-radius: var(--radius-full);
   background: var(--color-success-subtle);
   color: var(--color-success);

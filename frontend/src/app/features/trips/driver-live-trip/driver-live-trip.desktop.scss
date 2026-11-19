@@ -103,7 +103,7 @@
 // el nombre deja su hueco
 .pickup-carousel__arrows {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-raised);
   height: 0;
 
   // 16px: el hueco de 8px entre el ancla y el carrusel y el relleno de 8px de

@@ -7,7 +7,7 @@
   display: inline-flex;
   width: 5.75rem; // ~92px
   margin: 0;
-  padding: 0.125rem; // 2px: aire entre el borde y la parte activa
+  padding: var(--space-xxs); // 2px: aire entre el borde y la parte activa
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-full);
   background: var(--color-surface);
@@ -39,8 +39,8 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: 0.125rem; // 2px
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 }
 
@@ -56,8 +56,8 @@
   }
 
   .language-switch__option--active {
-    background: #2563eb;
-    color: #ffffff;
+    background: var(--color-selected);
+    color: var(--color-on-selected);
   }
 }
 

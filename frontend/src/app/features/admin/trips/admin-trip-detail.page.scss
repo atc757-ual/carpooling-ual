@@ -38,7 +38,7 @@
 
 .trip-heading__status {
   flex: none;
-  margin-block-start: 0.125rem; // 2px: alineada con la primera línea
+  margin-block-start: var(--space-xxs); // 2px: alineada con la primera línea
 }
 
 // Escritorio: «Origen → Destino» en una línea (sin iconos) y el estado al lado

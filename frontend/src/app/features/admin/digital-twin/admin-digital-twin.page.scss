@@ -74,8 +74,8 @@
 // «Actualizar»: el icono de recargar, sin borde, con 44px de área
 .twin__refresh {
   flex: none;
-  width: 2.75rem; // 44px
-  height: 2.75rem;
+  width: var(--control-height-s);
+  height: var(--control-height-s);
   margin: 0;
   --border-radius: var(--radius-full);
   --color: var(--color-link);

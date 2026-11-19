@@ -31,7 +31,7 @@
   text-decoration: none;
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-primary);
+    outline: var(--focus-ring);
     outline-offset: var(--space-xs);
   }
 }

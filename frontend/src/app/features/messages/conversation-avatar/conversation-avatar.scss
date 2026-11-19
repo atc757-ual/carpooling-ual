@@ -1,8 +1,8 @@
 :host {
   display: block;
   flex: none;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: var(--control-height-s);
+  height: var(--control-height-s);
 }
 
 .conversation-avatar {

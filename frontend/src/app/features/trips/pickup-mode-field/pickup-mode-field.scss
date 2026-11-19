@@ -31,8 +31,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.125rem; // 2px
-  min-height: 2.75rem; // 44px
+  gap: var(--space-xxs);
+  min-height: var(--control-height-s);
   padding: var(--space-s);
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s);
@@ -58,8 +58,8 @@
   }
 
   &:has(input:focus-visible) {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: 2px;
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
   }
 }
 
@@ -159,8 +159,8 @@
   }
 
   &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: -2px;
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset-inset);
   }
 }
 

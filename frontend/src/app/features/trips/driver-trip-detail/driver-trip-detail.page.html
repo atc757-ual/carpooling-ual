@@ -1,7 +1,7 @@
 <ion-content>
   <div class="tab-page driver-detail">
     @if (trip(); as trip) {
-      <div class="driver-detail__main">
+      <div class="driver-detail__main live-column">
         <!-- En curso: el seguimiento y las recogidas están en su pantalla -->
         @if (liveBanner(); as live) {
           <app-live-trip-banner [route]="live.route" [detail]="live.detail" [link]="live.link" />
@@ -12,7 +12,7 @@
 
       <!-- Columna de 4 en escritorio; debajo en el móvil -->
       <aside
-        class="driver-detail__aside"
+        class="driver-detail__aside live-column"
         [attr.aria-label]="'myTrips.accionesImpactoDelViaje' | transloco"
       >
         <app-driver-trip-actions [trip]="trip" (changed)="handleReload()" />

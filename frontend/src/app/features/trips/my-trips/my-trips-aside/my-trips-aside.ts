@@ -29,6 +29,8 @@ interface Suggestion {
 // Publicar y Buscar según los papeles del usuario
 @Component({
   selector: 'app-my-trips-aside',
+  // En escritorio, una sola tarjeta con las de dentro planas (theme/_live-trip.scss)
+  host: { class: 'live-column' },
   imports: [
     RouterLink,
     IonRouterLink,

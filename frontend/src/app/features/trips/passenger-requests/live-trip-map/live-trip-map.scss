@@ -20,19 +20,19 @@
   position: absolute;
   top: var(--space-base);
   left: var(--space-base);
-  z-index: 1000; // por encima de las capas de Leaflet
+  z-index: var(--z-map-control); // por encima de las capas de Leaflet
 }
 
 .trip-live-map__center {
   display: grid;
   place-items: center;
-  width: 2.75rem; // 44px: lo mínimo para el dedo
-  height: 2.75rem;
+  width: var(--control-height-s); // 44px: lo mínimo para el dedo
+  height: var(--control-height-s);
   padding: 0;
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-full);
   background: var(--color-surface);
-  box-shadow: 0 0.125rem 0.5rem rgb(0 0 0 / 20%);
+  box-shadow: var(--shadow-base);
   color: var(--color-link);
   cursor: pointer;
 
@@ -48,7 +48,7 @@
 
   &:focus-visible {
     outline: var(--border-width-m) solid var(--color-focus-ring);
-    outline-offset: 2px;
+    outline-offset: var(--focus-ring-offset);
   }
 }
 
@@ -63,13 +63,13 @@
   position: absolute;
   right: var(--space-s);
   bottom: 1.5rem; // 24px: sobre la atribución
-  z-index: 1000; // por encima de las capas de Leaflet
+  z-index: var(--z-map-control); // por encima de las capas de Leaflet
   display: var(--live-trip-map-status-display, block);
   margin: 0;
-  padding: 0.125rem var(--space-s); // 2px 8px
+  padding: var(--space-xxs) var(--space-s); // 2px 8px
   border-radius: var(--radius-full);
   background: var(--color-surface);
-  box-shadow: 0 0.0625rem 0.25rem rgb(0 0 0 / 15%);
+  box-shadow: var(--shadow-s);
 }
 
 .trip-live-map__canvas {
@@ -104,7 +104,7 @@
   padding: var(--space-s);
 }
 
-@media (min-width: 48rem) {
+@media (min-width: 768px) {
   // El mapa y, encima, abajo a la derecha, «Actualizado hace…»
   .trip-live-map__frame {
     position: relative;
@@ -116,13 +116,13 @@
     position: absolute;
     right: var(--space-s);
     bottom: 1.5rem; // 24px: sobre la atribución
-    z-index: 1000; // por encima de las capas de Leaflet
+    z-index: var(--z-map-control); // por encima de las capas de Leaflet
     display: var(--live-trip-map-status-display, block);
     margin: 0;
-    padding: 0.125rem var(--space-s); // 2px 8px
+    padding: var(--space-xxs) var(--space-s); // 2px 8px
     border-radius: var(--radius-full);
     background: var(--color-surface);
-    box-shadow: 0 0.0625rem 0.25rem rgb(0 0 0 / 15%);
+    box-shadow: var(--shadow-s);
   }
 
   .trip-live-map__canvas {

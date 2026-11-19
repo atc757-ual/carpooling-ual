@@ -93,7 +93,7 @@
 
   &:focus-visible {
     border-radius: var(--radius-xs);
-    outline: var(--border-width-m) solid var(--color-focus);
+    outline: var(--focus-ring);
   }
 }
 
@@ -157,7 +157,7 @@
 
   &:focus-visible {
     border-radius: var(--radius-xs);
-    outline: var(--border-width-m) solid var(--color-focus);
+    outline: var(--focus-ring);
   }
 }
 

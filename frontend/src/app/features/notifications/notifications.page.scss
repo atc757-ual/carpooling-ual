@@ -150,8 +150,8 @@
   transition: border-color var(--motion-duration-fast) var(--motion-easing);
 
   &.ion-focused {
-    outline: var(--border-width-m) solid var(--color-focus);
-    outline-offset: calc(-1 * var(--border-width-m));
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset-inset);
   }
 }
 
@@ -171,7 +171,7 @@
   justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
-  margin-top: 0.125rem;
+  margin-top: var(--space-xxs);
   border-radius: var(--radius-full);
   color: var(--color-text-muted);
 
@@ -231,7 +231,7 @@
 .notifications__load-more {
   display: none;
   align-self: center;
-  min-height: 2.75rem;
+  min-height: var(--control-height-s);
   margin: 0;
   --border-color: var(--color-primary);
   --border-radius: var(--radius-base);
@@ -337,7 +337,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   .notifications__filters {
     flex-wrap: nowrap;
     max-width: 100%;

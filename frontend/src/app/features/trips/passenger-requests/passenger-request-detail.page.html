@@ -168,11 +168,11 @@
         >
           <!-- En escritorio, dos tarjetas: el
                conductor y el coche y, debajo, la seguridad y las acciones -->
-          <div class="passenger-detail__aside-card">
+          <div class="passenger-detail__aside-card live-column">
             <app-passenger-request-route [request]="request" [trip]="trip" part="driver" />
           </div>
 
-          <div class="passenger-detail__aside-card">
+          <div class="passenger-detail__aside-card live-column">
             <!-- Con la plaza aceptada y hasta que termine: una lista con cada
                opción a la vista (seguirlo, compartirlo y, en curso, reportar) -->
             @if (

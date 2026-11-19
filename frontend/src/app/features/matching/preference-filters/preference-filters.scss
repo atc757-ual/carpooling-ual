@@ -6,7 +6,7 @@
 
 .preference-filters__open {
   flex: none;
-  min-height: 2.75rem; // 44px, el mínimo táctil
+  min-height: var(--control-height-s); // 44px, el mínimo táctil
   margin: 0;
 }
 
