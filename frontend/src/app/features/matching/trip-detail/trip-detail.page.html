@@ -107,23 +107,27 @@
               </output>
             } @else if (canRequest()) {
               <div class="trip-detail__action-block">
-                @if (isAutoAccept()) {
-                  <!-- Con aceptación automática: la plaza se asigna directamente -->
-                  <div class="notice notice--success">
-                    <span>
-                      <b>Reserva directa (aceptación automática)</b>
-                      {{ driverFirstName() }} tiene activada la aceptación automática. Tu plaza se
-                      confirmará al instante sin esperar su respuesta.
-                    </span>
-                  </div>
-                } @else {
-                  <!-- Antes del botón: qué pasa al solicitar -->
-                  <div class="notice notice--info">
-                    <span>
-                      <b>Primero solicitas y {{ driverFirstName() }} decide</b>
-                      Verificamos el correo UAL, no la identidad ni el permiso de conducir.
-                    </span>
-                  </div>
+                <!-- Con el aviso de una solicitud anterior (rechazada, cancelada o
+                     caducada), solo ese: el de cómo funciona sobra (19/11) -->
+                @if (!hasClosedRequest()) {
+                  @if (isAutoAccept()) {
+                    <!-- Con aceptación automática: la plaza se asigna directamente -->
+                    <div class="notice notice--success">
+                      <span>
+                        <b>Reserva directa (aceptación automática)</b>
+                        {{ driverFirstName() }} tiene activada la aceptación automática. Tu plaza se
+                        confirmará al instante sin esperar su respuesta.
+                      </span>
+                    </div>
+                  } @else {
+                    <!-- Antes del botón: qué pasa al solicitar -->
+                    <div class="notice notice--info">
+                      <span>
+                        <b>Primero solicitas y {{ driverFirstName() }} decide</b>
+                        Verificamos el correo UAL, no la identidad ni el permiso de conducir.
+                      </span>
+                    </div>
+                  }
                 }
                 <form (submit)="$event.preventDefault(); handleRequest()">
                   <ion-button type="submit" expand="block" [disabled]="isSending()">
