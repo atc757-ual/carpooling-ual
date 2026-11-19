@@ -11,6 +11,7 @@ import {
   PreloadAllModules,
   provideRouter,
   RouteReuseStrategy,
+  TitleStrategy,
   withComponentInputBinding,
   withPreloading,
 } from '@angular/router';
@@ -27,6 +28,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { AuthService } from './core/services/auth/auth.service';
 import { preventIosFocusZoom } from './shared/utils/ios-viewport.util';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
+import { TranslatedTitleStrategy } from './core/i18n/translated-title.strategy';
 import { LanguageService } from './core/services/ui/language.service';
 
 const IS_IOS = isPlatform('ios');
@@ -55,6 +57,8 @@ export const appConfig: ApplicationConfig = {
     // withPreloading: tras arrancar, descarga en segundo plano el código de
     // todas las pantallas, así abrir una por primera vez no se queda en blanco
     provideRouter(routes, withComponentInputBinding(), withPreloading(PreloadAllModules)),
+    // El `title` de las rutas es una clave de traducción
+    { provide: TitleStrategy, useClass: TranslatedTitleStrategy },
     // HttpClient (en Angular 22 usa la API fetch del navegador por defecto),
     // con el token de acceso en cada petición a la API
     provideHttpClient(withInterceptors([authInterceptor])),
