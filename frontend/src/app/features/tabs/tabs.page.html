@@ -80,9 +80,8 @@
         <ion-button
           class="back-button"
           fill="clear"
-          [routerLink]="backHref"
-          routerDirection="back"
           [attr.aria-label]="'common.back' | transloco"
+          (click)="handleBack(backHref)"
         >
           <ion-icon slot="icon-only" [icon]="backIcon" aria-hidden="true" />
         </ion-button>
