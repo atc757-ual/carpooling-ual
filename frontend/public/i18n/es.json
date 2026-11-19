@@ -104,7 +104,8 @@
     "chatReceipt": {
       "sent": "Enviado",
       "read": "Leído"
-    }
+    },
+    "writeTo": "Escribir a {{ name }}"
   },
   "search": {
     "pending": {
@@ -128,7 +129,9 @@
     "parkingPlaceholder": "Elige un parking del campus",
     "viewOnMap": "Ver en el mapa",
     "cartoCredit": "CartoCiudad cedido por © Instituto Geográfico Nacional",
-    "adjustOnMap": "Ajustar en el mapa"
+    "adjustOnMap": "Ajustar en el mapa",
+    "arrivalTime": "Hora de llegada",
+    "departureTime": "Hora de salida"
   },
   "searchFilters": {
     "title": "Filtros",
@@ -172,7 +175,16 @@
     "yourRoute": "Tu trayecto",
     "preferenceMatch": "Coincide con tus preferencias",
     "requested": "Ya solicitado",
-    "lastSeat": "Última plaza"
+    "lastSeat": "Última plaza",
+    "facts": {
+      "arrival": "Llegada",
+      "departure": "Salida",
+      "seats": "Plazas"
+    },
+    "details": {
+      "arrival": "llegada",
+      "departure": "salida"
+    }
   },
   "location": {
     "gotIt": "Entendido",
@@ -207,7 +219,8 @@
     "summary": "Resumen de valoraciones",
     "more": "Ver más",
     "empty": "Aún no tiene valoraciones",
-    "emptyHint": "Las verás aquí cuando sus pasajeros lo valoren después de un viaje."
+    "emptyHint": "Las verás aquí cuando sus pasajeros lo valoren después de un viaje.",
+    "ratingAria": "Valoración {{ rating }} de 5"
   },
   "tripDetail": {
     "route": "Tu recorrido",
@@ -351,7 +364,7 @@
     "aboutMe": "Sobre mí",
     "emptyBio": "Sin presentación aún.",
     "bioPlaceholder": "Cuéntale a la comunidad quién eres, qué estudias o qué te gusta…",
-    "firstName": "Nombres",
+    "firstName": "Nombre",
     "lastName": "Apellidos",
     "avatar": "Elige tu avatar",
     "travelPreferences": "Preferencias de viaje",
@@ -408,7 +421,8 @@
       "passengers": "pasajeros",
       "upTo": "hasta",
       "edit": "Editar",
-      "delete": "Eliminar"
+      "delete": "Eliminar",
+      "deleteTitle": "¿Eliminar {{ plate }}?"
     },
     "location": {
       "title": "Ubicación",
@@ -522,7 +536,10 @@
       "messageError": "Escribe entre 20 y 1000 caracteres.",
       "send": "Enviar mensaje",
       "sent": "Hemos recibido tu mensaje. Te responderemos por correo."
-    }
+    },
+    "pushEnabledToast": "Te avisaremos aunque no tengas Carpooling UAL abierto.",
+    "pushEnableError": "No hemos podido activar las notificaciones. Inténtalo de nuevo.",
+    "bioHint": "Opcional: mínimo 20 y máximo 200 caracteres."
   },
   "publish": {
     "anadirVehiculo": "Añadir vehículo",
@@ -841,7 +858,7 @@
     "register": {
       "title": "Crear cuenta",
       "subtitle": "Únete a la red de coche compartido de la Universidad de Almería.",
-      "firstNameLabel": "Nombres",
+      "firstNameLabel": "Nombre",
       "firstNamePlaceholder": "Ana María",
       "lastNameLabel": "Apellidos",
       "lastNamePlaceholder": "Pérez García",
@@ -1235,7 +1252,8 @@
       "waitingTitle": "Esperando la recogida",
       "waitingStartedText": "El conductor ya ha salido y va hacia el punto de recogida.",
       "waitingNotStartedText": "El viaje aún no ha empezado. Verás el coche en el mapa cuando salga."
-    }
+    },
+    "remaining": "(faltan unos {{ min }} min)"
   },
   "ui": {
     "filtros": "Filtros",
@@ -1366,6 +1384,12 @@
       "plateError": "Escribe una matrícula española, como 1234 BCD.",
       "foreignPlateHelp": "Letras y números, como en tu placa.",
       "foreignPlateError": "Escribe de 2 a 10 letras y números, como en tu placa."
+    },
+    "role": {
+      "driving": "Conduces",
+      "drove": "Condujiste",
+      "riding": "Viajas",
+      "rode": "Viajaste"
     }
   },
   "routes": {
@@ -1434,6 +1458,10 @@
       "trips": "Tus viajes",
       "profile": "Mi perfil",
       "help": "Ayuda y soporte"
+    },
+    "pageTitles": {
+      "accountDisabled": "Cuenta sin perfiles activos",
+      "legalUpdate": "Documentos actualizados"
     }
   },
   "screens": {
@@ -1520,7 +1548,9 @@
       "confirmarCancelacion": "Confirmar cancelación",
       "mantenerSolicitud": "Mantener solicitud",
       "plazasLibres2": "{{ seats }} plazas libres",
-      "ultimaPlaza": "Última plaza"
+      "ultimaPlaza": "Última plaza",
+      "salidaRecogidaBuscabas": "Salida y recogida · buscabas {{ searchedParking }}",
+      "recogida": "Recogida"
     },
     "tripResultCard": {
       "desvioMin": "Desvío de {{ pickupDetourMinutes }} min",
@@ -1535,7 +1565,9 @@
     "conversation": {
       "masOpciones": "Más opciones",
       "denunciarEstaConversacion": "¿Denunciar esta conversación?",
-      "revisaraEquipoCarpoolingUal": "Lo revisará el equipo de Carpooling UAL con una copia de la conversación. Nadie del viaje sabrá que lo has denunciado."
+      "revisaraEquipoCarpoolingUal": "Lo revisará el equipo de Carpooling UAL con una copia de la conversación. Nadie del viaje sabrá que lo has denunciado.",
+      "with": "Con {{ name }}",
+      "reported": "Chat denunciado. Lo revisaremos."
     },
     "messages": {
       "escribePrimerMensaje": "Escribe el primer mensaje",
@@ -1557,7 +1589,8 @@
       "permisoNavegadorMovilSeguira": "El permiso del navegador o del móvil seguirá concedido. Si quieres, quítalo en sus ajustes.",
       "siConducesUbicacionDurante": "Si conduces, tu ubicación durante el viaje en curso se seguirá usando, porque forma parte del servicio.",
       "dejarUsarla": "Dejar de usarla",
-      "seguirUsandola": "Seguir usándola"
+      "seguirUsandola": "Seguir usándola",
+      "saveError": "No hemos podido guardar el cambio. Inténtalo de nuevo."
     },
     "profilePhoneModal": {
       "nuevoCodigoEnviadoSms": "Nuevo código enviado por SMS.",
@@ -1580,7 +1613,12 @@
       "politicaPrivacidad": "Política de privacidad"
     },
     "afterTripReport": {
-      "reporteEnviadoRevisaraAdministrador": "Reporte enviado: lo revisará un administrador."
+      "reporteEnviadoRevisaraAdministrador": "Reporte enviado: lo revisará un administrador.",
+      "title": "¿Algo fue mal?",
+      "sent": "Gracias: lo revisará un administrador.",
+      "hint": "Repórtalo en los 7 días siguientes: lo revisará un administrador.",
+      "reportAria": "Reportar el viaje: abre el formulario",
+      "report": "Reportar"
     },
     "driverTripActions": {
       "podrasIniciarloCuandoAceptes": "Podrás iniciarlo cuando aceptes a algún pasajero.",
@@ -1601,7 +1639,9 @@
       "mantenerViaje": "Mantener viaje",
       "shareMessage": "Para iniciar el viaje hay que compartir tu ubicación: tus pasajeros verán dónde estás mientras dura y dejarás de compartirla al terminarlo. Es parte del servicio (lo explica la Política de privacidad): solo te pedimos el permiso del dispositivo.",
       "shareMessageNative": "Para iniciar el viaje hay que compartir tu ubicación: tus pasajeros verán dónde estás mientras dura y dejarás de compartirla al terminarlo. Es parte del servicio (lo explica la Política de privacidad): solo te pedimos el permiso del dispositivo. Seguirá compartiéndose aunque bloquees la pantalla o uses otra app; lo verás en una notificación.",
-      "declarationMessage": "Al iniciar, confirmas que sigues cumpliendo tu declaración y la de tu vehículo (permiso, seguro e ITV)."
+      "declarationMessage": "Al iniciar, confirmas que sigues cumpliendo tu declaración y la de tu vehículo (permiso, seguro e ITV).",
+      "sinPasajerosSinCoste": "Sin pasajeros aceptados, puedes cancelarlo sin coste.",
+      "cancelledToast": "Viaje cancelado. Hemos avisado a los pasajeros."
     },
     "driverTripDetail": {
       "plazasOcupadas": "{{ value1 }} de {{ offeredSeats }} plazas ocupadas"
@@ -1615,7 +1655,8 @@
         "rejected": "No aceptada",
         "cancelled": "Cancelada",
         "expired": "Caducada",
-        "completed": "Se ha bajado"
+        "completed": "Se ha bajado",
+        "autoAccepted": "Autoaceptada"
       },
       "acceptedToast": "Has aceptado la solicitud de {{ name }}.",
       "rejectedToast": "Has rechazado la solicitud de {{ name }}."
@@ -1631,7 +1672,9 @@
     "driverTripRoute": {
       "recogida": "Recogida de {{ value1 }}",
       "duracion": "Duración",
-      "desvioMaximo": "Desvío máximo"
+      "desvioMaximo": "Desvío máximo",
+      "distancia": "Distancia",
+      "parada": "Parada: {{ name }}"
     },
     "driverTripSummary": {
       "solicitudesResponder": "{{ count }} solicitudes por responder",
@@ -1649,9 +1692,7 @@
       "buscaViajeEncajeRuta2": "Busca un viaje que encaje con tu ruta y pide plaza desde su detalle."
     },
     "nextTripCard": {
-      "plazasOcupadas": "{{ value1 }} de {{ offeredSeats }} plazas ocupadas",
-      "verViaje": "Ver tu viaje",
-      "verPlaza": "Ver tu plaza"
+      "plazasOcupadas": "{{ value1 }} de {{ offeredSeats }} plazas ocupadas"
     },
     "nextTrip": {
       "curso": "En curso"
@@ -1682,7 +1723,8 @@
       "mantenerPlaza": "Mantener mi plaza",
       "mantenerSolicitud": "Mantener solicitud",
       "plazaCancelada": "Plaza cancelada.",
-      "solicitudCancelada": "Solicitud cancelada."
+      "solicitudCancelada": "Solicitud cancelada.",
+      "incidentReported": "Incidencia registrada. Tu plaza ha sido cancelada."
     },
     "passengerRequestRoute": {
       "salidaConductor": "Salida del conductor",
@@ -1695,7 +1737,8 @@
     "passengerTripCard": {
       "esperandoRespuesta": "Esperando respuesta de {{ driverName }}",
       "drives": "Conduce {{ name }}",
-      "plate": "Matrícula {{ plate }}"
+      "plate": "Matrícula {{ plate }}",
+      "linkLabel": "Ver solicitud, viajas: {{ day }}, {{ time }}, {{ route }}, {{ status }}"
     },
     "pickupModeField": {
       "elegirParadaMapa": "Elegir parada en el mapa"
@@ -1718,7 +1761,8 @@
     "vehicleForm": {
       "guardarVehiculo": "Guardar vehículo",
       "electrico": "Eléctrico",
-      "hibrido": "Híbrido"
+      "hibrido": "Híbrido",
+      "otro": "Otro"
     },
     "vehicleModal": {
       "vehiculoActualizado": "Vehículo actualizado.",
@@ -1735,7 +1779,19 @@
     "tripRouteMap": {
       "zonaAproximadaViaje": "Zona aproximada del viaje: {{ ends }}",
       "rutaConductor": "Ruta del conductor: {{ ends }}",
-      "recogida": "{{ route }}; recogida en {{ value2 }}"
+      "recogida": "{{ route }}; recogida en {{ value2 }}",
+      "legend": {
+        "start": "Salida",
+        "pickup": "Recogida",
+        "destination": "Destino",
+        "car": "Coche: dónde va ahora",
+        "approximate": "Zona aproximada"
+      },
+      "letters": {
+        "start": "S",
+        "pickup": "R",
+        "destination": "D"
+      }
     },
     "countdown": {
       "reenviarCodigo": "Reenviar código en {{ value1 }}",
@@ -1813,6 +1869,16 @@
       "stop": "En la parada {{ stop }} (a {{ walk }} andando)",
       "at": "A las {{ time }}",
       "about": "unos {{ minutes }} min"
+    },
+    "autoAccept": {
+      "label": "Aceptar solicitudes automáticamente",
+      "hint": "Quien quepa en tu coche y en tu margen para recoger tendrá la plaza al momento y te avisaremos. Si no cabe, la solicitud te esperará para que decidas."
+    },
+    "pushOpen": {
+      "opening": "Abriendo el aviso"
+    },
+    "passengerProgress": {
+      "aria": "Progreso de tu solicitud"
     }
   },
   "permissions": {
@@ -1843,6 +1909,10 @@
         "title": "¿Te avisamos de la respuesta?",
         "message": "Activa las notificaciones para saber cuándo te respondan a tu solicitud."
       }
+    },
+    "pushChannel": {
+      "name": "Viajes y mensajes",
+      "description": "Solicitudes, plazas, cambios de tus viajes y mensajes del chat"
     }
   },
   "errors": {

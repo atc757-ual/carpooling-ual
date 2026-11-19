@@ -73,7 +73,7 @@ export class ProfileLocation implements OnInit {
       );
     } catch {
       (event.target as HTMLIonToggleElement).checked = action === 'revoked';
-      void this.toast.showError('No hemos podido guardar el cambio. Inténtalo de nuevo.');
+      void this.toast.showError(translate('screens.profileLocation.saveError'));
     }
   }
 

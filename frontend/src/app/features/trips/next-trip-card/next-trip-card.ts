@@ -91,12 +91,6 @@ export class NextTripCard {
         })
       : translate('screens.passengerTripCard.drives', { name: next.trip.driver.name });
   });
-  readonly actionLabel = computed(() => {
-    return this.next()?.role === 'driver'
-      ? translate('screens.nextTripCard.verViaje')
-      : translate('screens.nextTripCard.verPlaza');
-  });
-
   reload(): void {
     this.data.reload();
   }

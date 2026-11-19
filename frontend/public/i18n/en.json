@@ -104,7 +104,8 @@
     "chatReceipt": {
       "sent": "Sent",
       "read": "Read"
-    }
+    },
+    "writeTo": "Message {{ name }}"
   },
   "search": {
     "pending": {
@@ -113,11 +114,11 @@
     },
     "pendingLink": "See in Your trips",
     "carTitle": "Got a car?",
-    "carText": "Publish your route and share your car.",
-    "impact": "Sharing this route you save about <b>{{ km }} km</b> behind the wheel and <b>{{ co2 }} kg of CO₂</b>.",
+    "carText": "Driving to campus? Offer a ride and share your car.",
+    "impact": "Share this ride and save about <b>{{ km }} km</b> of driving and <b>{{ co2 }} kg of CO₂</b>.",
     "impactHint": "Choose where you leave from and we'll tell you how much you save by sharing the route.",
     "date": "Date",
-    "margin": "Time margin",
+    "margin": "Time flexibility",
     "seats": "Seats",
     "newSearch": "New search",
     "submit": "Find a ride",
@@ -128,7 +129,9 @@
     "parkingPlaceholder": "Choose a campus car park",
     "viewOnMap": "View on the map",
     "cartoCredit": "CartoCiudad courtesy of © Instituto Geográfico Nacional",
-    "adjustOnMap": "Adjust on the map"
+    "adjustOnMap": "Adjust on the map",
+    "arrivalTime": "Arrival time",
+    "departureTime": "Departure time"
   },
   "searchFilters": {
     "title": "Filters",
@@ -152,7 +155,7 @@
     "searching": "Finding rides…",
     "searchingHint": "We're looking for matches for your search.",
     "error": "We couldn't search for rides",
-    "alreadyRequested": "You already asked for a seat",
+    "alreadyRequested": "Seat requested",
     "alreadyRequestedIn": {
       "one": "On 1 ride from this search.",
       "other": "On {{ count }} rides from this search."
@@ -172,7 +175,16 @@
     "yourRoute": "Your route",
     "preferenceMatch": "Matches your preferences",
     "requested": "Already requested",
-    "lastSeat": "Last seat"
+    "lastSeat": "Last seat",
+    "facts": {
+      "arrival": "Arrive by",
+      "departure": "Leave at",
+      "seats": "Seats"
+    },
+    "details": {
+      "arrival": "arrive by",
+      "departure": "leave at"
+    }
   },
   "location": {
     "gotIt": "Got it",
@@ -207,7 +219,8 @@
     "summary": "Ratings summary",
     "more": "Show more",
     "empty": "No ratings yet",
-    "emptyHint": "You'll see them here when their passengers rate them after a trip."
+    "emptyHint": "You'll see them here when their passengers rate them after a trip.",
+    "ratingAria": "Rated {{ rating }} out of 5"
   },
   "tripDetail": {
     "route": "Your route",
@@ -236,7 +249,7 @@
     "closed": "Requests closed 10 minutes before departure.",
     "viewRequest": "View your request",
     "cancel": "Cancel request",
-    "cancelHint": "You'll free {{ seats }} on this trip.",
+    "cancelHint": "This frees up {{ seats }} for other riders.",
     "driverAndCar": "Driver and car",
     "plate": "Plate",
     "notFound": "We couldn't find this trip",
@@ -408,7 +421,8 @@
       "passengers": "passengers",
       "upTo": "up to",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "deleteTitle": "Delete {{ plate }}?"
     },
     "location": {
       "title": "Location",
@@ -522,7 +536,10 @@
       "messageError": "Write 20 to 1000 characters.",
       "send": "Send message",
       "sent": "We've received your message. We'll reply by email."
-    }
+    },
+    "pushEnabledToast": "We'll notify you even when Carpooling UAL is closed.",
+    "pushEnableError": "We couldn't turn on notifications. Please try again.",
+    "bioHint": "Optional: 20 to 200 characters."
   },
   "publish": {
     "anadirVehiculo": "Add vehicle",
@@ -628,7 +645,7 @@
     "riding": "You ride"
   },
   "myTrips": {
-    "pagesAria": "Pages of your trips",
+    "pagesAria": "Trip list pages",
     "cargandoTusViajes": "Loading your trips…",
     "hemosPodidoCargarTus": "We couldn't load your trips",
     "reintentar": "Try again",
@@ -1235,7 +1252,8 @@
       "waitingTitle": "Waiting for pick-up",
       "waitingStartedText": "The driver has set off and is heading to the pick-up point.",
       "waitingNotStartedText": "The trip hasn't started yet. You'll see the car on the map when it sets off."
-    }
+    },
+    "remaining": "(about {{ min }} min to go)"
   },
   "ui": {
     "filtros": "Filters",
@@ -1366,6 +1384,12 @@
       "plateError": "Enter a Spanish plate, such as 1234 BCD.",
       "foreignPlateHelp": "Letters and numbers, as on your plate.",
       "foreignPlateError": "Enter 2 to 10 letters and numbers, as on your plate."
+    },
+    "role": {
+      "driving": "You drive",
+      "drove": "You drove",
+      "riding": "You ride",
+      "rode": "You rode"
     }
   },
   "routes": {
@@ -1434,6 +1458,10 @@
       "trips": "Your trips",
       "profile": "My profile",
       "help": "Help and support"
+    },
+    "pageTitles": {
+      "accountDisabled": "Account without active profiles",
+      "legalUpdate": "Updated documents"
     }
   },
   "screens": {
@@ -1520,7 +1548,9 @@
       "confirmarCancelacion": "Confirm cancellation",
       "mantenerSolicitud": "Keep request",
       "plazasLibres2": "{{ seats }} free seats",
-      "ultimaPlaza": "Last seat"
+      "ultimaPlaza": "Last seat",
+      "salidaRecogidaBuscabas": "Departure and pickup · you searched for {{ searchedParking }}",
+      "recogida": "Pickup"
     },
     "tripResultCard": {
       "desvioMin": "{{ pickupDetourMinutes }} min detour",
@@ -1535,7 +1565,9 @@
     "conversation": {
       "masOpciones": "More options",
       "denunciarEstaConversacion": "Report this conversation?",
-      "revisaraEquipoCarpoolingUal": "The Carpooling UAL team will review it with a copy of the conversation. Nobody on the trip will know you reported it."
+      "revisaraEquipoCarpoolingUal": "The Carpooling UAL team will review it with a copy of the conversation. Nobody on the trip will know you reported it.",
+      "with": "With {{ name }}",
+      "reported": "Chat reported. We'll look into it."
     },
     "messages": {
       "escribePrimerMensaje": "Write the first message",
@@ -1557,7 +1589,8 @@
       "permisoNavegadorMovilSeguira": "The browser or phone permission will stay granted. If you want, remove it in their settings.",
       "siConducesUbicacionDurante": "If you drive, your location during a trip in progress will still be used, because it's part of the service.",
       "dejarUsarla": "Stop using it",
-      "seguirUsandola": "Keep using it"
+      "seguirUsandola": "Keep using it",
+      "saveError": "We couldn't save the change. Please try again."
     },
     "profilePhoneModal": {
       "nuevoCodigoEnviadoSms": "New code sent by SMS.",
@@ -1580,7 +1613,12 @@
       "politicaPrivacidad": "Privacy policy"
     },
     "afterTripReport": {
-      "reporteEnviadoRevisaraAdministrador": "Report sent: an administrator will review it."
+      "reporteEnviadoRevisaraAdministrador": "Report sent: an administrator will review it.",
+      "title": "Did something go wrong?",
+      "sent": "Thanks. An administrator will review it.",
+      "hint": "Report it within 7 days and an administrator will review it.",
+      "reportAria": "Report the trip: opens the form",
+      "report": "Report"
     },
     "driverTripActions": {
       "podrasIniciarloCuandoAceptes": "You'll be able to start it once you accept a passenger.",
@@ -1601,7 +1639,9 @@
       "mantenerViaje": "Keep trip",
       "shareMessage": "To start the trip you need to share your location: your passengers will see where you are while it lasts, and you'll stop sharing it when you finish. It's part of the service (explained in the Privacy policy): we only ask for the device permission.",
       "shareMessageNative": "To start the trip you need to share your location: your passengers will see where you are while it lasts, and you'll stop sharing it when you finish. It's part of the service (explained in the Privacy policy): we only ask for the device permission. It will keep being shared even if you lock the screen or use another app; you'll see it in a notification.",
-      "declarationMessage": "By starting, you confirm that you still meet your declaration and your vehicle's (licence, insurance and MOT)."
+      "declarationMessage": "By starting, you confirm that you still meet your declaration and your vehicle's (licence, insurance and MOT).",
+      "sinPasajerosSinCoste": "No one's booked yet, so you can cancel at no cost.",
+      "cancelledToast": "Trip cancelled. We've let your passengers know."
     },
     "driverTripDetail": {
       "plazasOcupadas": "{{ value1 }} of {{ offeredSeats }} seats taken"
@@ -1615,7 +1655,8 @@
         "rejected": "Not accepted",
         "cancelled": "Cancelled",
         "expired": "Expired",
-        "completed": "Got off"
+        "completed": "Got off",
+        "autoAccepted": "Auto-accepted"
       },
       "acceptedToast": "You've accepted {{ name }}'s request.",
       "rejectedToast": "You've rejected {{ name }}'s request."
@@ -1631,7 +1672,9 @@
     "driverTripRoute": {
       "recogida": "{{ value1 }}'s pick-up",
       "duracion": "Duration",
-      "desvioMaximo": "Maximum detour"
+      "desvioMaximo": "Maximum detour",
+      "distancia": "Distance",
+      "parada": "Stop: {{ name }}"
     },
     "driverTripSummary": {
       "solicitudesResponder": "{{ count }} requests to answer",
@@ -1649,9 +1692,7 @@
       "buscaViajeEncajeRuta2": "Find a trip that fits your route and request a seat from its details."
     },
     "nextTripCard": {
-      "plazasOcupadas": "{{ value1 }} of {{ offeredSeats }} seats taken",
-      "verViaje": "See your trip",
-      "verPlaza": "See your seat"
+      "plazasOcupadas": "{{ value1 }} of {{ offeredSeats }} seats taken"
     },
     "nextTrip": {
       "curso": "In progress"
@@ -1682,7 +1723,8 @@
       "mantenerPlaza": "Keep my seat",
       "mantenerSolicitud": "Keep request",
       "plazaCancelada": "Seat cancelled.",
-      "solicitudCancelada": "Request cancelled."
+      "solicitudCancelada": "Request cancelled.",
+      "incidentReported": "Issue reported. Your seat has been cancelled."
     },
     "passengerRequestRoute": {
       "salidaConductor": "Driver's starting point",
@@ -1695,7 +1737,8 @@
     "passengerTripCard": {
       "esperandoRespuesta": "Waiting for {{ driverName }}'s reply",
       "drives": "Driver: {{ name }}",
-      "plate": "Plate {{ plate }}"
+      "plate": "Plate {{ plate }}",
+      "linkLabel": "View request, you ride: {{ day }}, {{ time }}, {{ route }}, {{ status }}"
     },
     "pickupModeField": {
       "elegirParadaMapa": "Choose a stop on the map"
@@ -1718,7 +1761,8 @@
     "vehicleForm": {
       "guardarVehiculo": "Save vehicle",
       "electrico": "Electric",
-      "hibrido": "Hybrid"
+      "hibrido": "Hybrid",
+      "otro": "Other"
     },
     "vehicleModal": {
       "vehiculoActualizado": "Vehicle updated.",
@@ -1735,7 +1779,19 @@
     "tripRouteMap": {
       "zonaAproximadaViaje": "Approximate area of the trip: {{ ends }}",
       "rutaConductor": "Driver's route: {{ ends }}",
-      "recogida": "{{ route }}; pick-up at {{ value2 }}"
+      "recogida": "{{ route }}; pick-up at {{ value2 }}",
+      "legend": {
+        "start": "Start",
+        "pickup": "Pickup",
+        "destination": "Destination",
+        "car": "Car: where it is now",
+        "approximate": "Approximate area"
+      },
+      "letters": {
+        "start": "S",
+        "pickup": "P",
+        "destination": "D"
+      }
     },
     "countdown": {
       "reenviarCodigo": "Resend code in {{ value1 }}",
@@ -1813,6 +1869,16 @@
       "stop": "At the {{ stop }} stop ({{ walk }} walk)",
       "at": "At {{ time }}",
       "about": "about {{ minutes }} min"
+    },
+    "autoAccept": {
+      "label": "Accept requests automatically",
+      "hint": "Anyone who fits in your car and your pickup margin gets the seat right away, and we'll let you know. If not, the request waits for you to decide."
+    },
+    "pushOpen": {
+      "opening": "Opening the notification"
+    },
+    "passengerProgress": {
+      "aria": "Your request progress"
     }
   },
   "permissions": {
@@ -1843,6 +1909,10 @@
         "title": "Want to hear back?",
         "message": "Enable notifications to know when your request is answered."
       }
+    },
+    "pushChannel": {
+      "name": "Trips and messages",
+      "description": "Requests, seats, trip changes and chat messages"
     }
   },
   "errors": {

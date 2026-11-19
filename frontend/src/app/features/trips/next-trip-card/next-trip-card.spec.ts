@@ -57,23 +57,22 @@ describe('NextTripCard', () => {
       requests: [],
     }) as unknown as DriverTrip;
 
-  it('shows the passenger seat with the chat and the open buttons', async () => {
+  it('links the whole card to the passenger seat and offers the chat apart', async () => {
     const { root, listMyTripEntries } = await render({
       profiles: ['passenger'],
       requestStatus: 'accepted',
     });
 
     expect(listMyTripEntries).toHaveBeenCalledWith('upcoming', 0);
-    expect(root.textContent).toContain('Próximo viaje');
-    expect(root.textContent).toContain('Viajas');
-    expect(root.textContent).toContain('Confirmada');
-    const links = root.querySelectorAll<HTMLAnchorElement>('a.icon-btn--reveal');
-    expect([...links].map((link) => link.getAttribute('aria-label'))).toEqual([
-      'Chat con el conductor',
-      'Ver tu plaza',
-    ]);
-    expect(links[0].getAttribute('href')).toBe('/tabs/messages/t1');
-    expect(links[1].getAttribute('href')).toBe('/tabs/trips/requests/r1');
+    expect(root.querySelector('.next-trip')?.getAttribute('aria-label')).toBe('Próximo viaje');
+    expect(root.querySelector('.next-trip__link')?.getAttribute('href')).toBe(
+      '/tabs/trips/requests/r1',
+    );
+    expect(root.querySelector('.next-trip__when')?.textContent).toContain('Viajas');
+    expect(root.querySelector('.next-trip__head > .status')?.textContent).toContain('Confirmada');
+    const chat = root.querySelector<HTMLAnchorElement>('a.icon-btn--reveal');
+    expect(chat?.getAttribute('aria-label')).toBe('Chat con el conductor');
+    expect(chat?.getAttribute('href')).toBe('/tabs/messages/t1');
   });
 
   it('gives no chat while the seat is pending', async () => {
@@ -91,9 +90,10 @@ describe('NextTripCard', () => {
 
     expect(getTrip).not.toHaveBeenCalled();
     expect(root.textContent).toContain('Conduces');
-    expect(root.querySelector('a[aria-label="Ver tu viaje"]')?.getAttribute('href')).toBe(
+    expect(root.querySelector('.next-trip__link')?.getAttribute('href')).toBe(
       '/tabs/trips/published/t9',
     );
+    expect(root.querySelector('a.icon-btn--reveal')).toBeNull();
 
     fixture.componentInstance.reload();
     await fixture.whenStable();

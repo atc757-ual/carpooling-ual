@@ -5,6 +5,7 @@ import { Capacitor } from '@capacitor/core';
 import { provideIonicAngular } from '@ionic/angular';
 import { TranslocoService } from '@jsverse/transloco';
 import { vi } from 'vitest';
+import { setAppLocale } from '../../../../core/i18n/app-locale';
 import { provideTranslocoTestingSupport } from '../../../../core/i18n/testing-transloco';
 import { DatetimeField, DatetimePresentation, formatDateLabel } from './datetime-field';
 
@@ -69,6 +70,17 @@ describe('DatetimeField', () => {
     expect(formatDateLabel('2026-10-28', today, 'en')).toBe('Today');
     expect(formatDateLabel('2026-10-29', today, 'en')).toBe('Tomorrow');
     expect(formatDateLabel('2026-10-30', today, 'en')).toBe('Fri 30 Oct');
+  });
+
+  it('reads the date in the language of the app when none is given', () => {
+    const today = new Date('2026-10-28T10:00:00');
+    setAppLocale('en');
+    try {
+      expect(formatDateLabel('2026-10-29', today)).toBe('Tomorrow');
+    } finally {
+      setAppLocale('es');
+    }
+    expect(formatDateLabel('2026-10-29', today)).toBe('Mañana');
   });
 
   it('passes the value both ways', () => {

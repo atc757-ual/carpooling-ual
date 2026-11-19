@@ -220,7 +220,11 @@ export class SearchResultsPage {
     if (!search) {
       return '';
     }
-    const time = search.direction === 'to-campus' ? 'llegada' : 'salida';
+    const time = translate(
+      search.direction === 'to-campus'
+        ? 'searchResults.details.arrival'
+        : 'searchResults.details.departure',
+    );
     return `${formatDateLabel(search.date)} · ${time} ${search.time} ± ${search.margin} min · ${formatSeats(search.seats)}`;
   });
 
@@ -229,11 +233,15 @@ export class SearchResultsPage {
     if (!search) {
       return [];
     }
-    const timeLabel = search.direction === 'to-campus' ? 'Llegada' : 'Salida';
+    const timeLabel = translate(
+      search.direction === 'to-campus'
+        ? 'searchResults.facts.arrival'
+        : 'searchResults.facts.departure',
+    );
     return [
       { label: translate('screens.searchResults.dia'), value: formatDateLabel(search.date) },
       { label: timeLabel, value: `${search.time} ± ${search.margin} min` },
-      { label: 'Plazas', value: formatSeats(search.seats) },
+      { label: translate('searchResults.facts.seats'), value: formatSeats(search.seats) },
     ];
   });
 

@@ -1,5 +1,6 @@
 import { Vehicle, VehicleEngine } from '../../core/models/driver.model';
 import { lazyLabels } from '../../core/i18n/lazy-labels';
+import { formatSeats } from './seats.util';
 
 export function vehicleDisplayName(
   vehicle: Pick<Vehicle, 'brand' | 'model'> & Partial<Pick<Vehicle, 'plate'>>,
@@ -27,7 +28,7 @@ export function vehicleSpecs(
   vehicle: Pick<Vehicle, 'capacity' | 'engine'>,
   colorLabel: string,
 ): string {
-  const seats = `${vehicle.capacity} ${vehicle.capacity === 1 ? 'plaza' : 'plazas'}`;
+  const seats = formatSeats(vehicle.capacity);
   const engine = vehicle.engine ? ENGINE_LABELS[vehicle.engine] : undefined;
   return [colorLabel, seats, engine].filter(Boolean).join(' · ');
 }

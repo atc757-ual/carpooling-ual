@@ -262,7 +262,7 @@ export class TabsPage implements OnInit {
 
   // Salir: siempre con la misma confirmación que en Mi perfil
   async handleLogout(): Promise<void> {
-    if (!(await confirmLogout(this.confirm, this.transloco))) {
+    if (!(await confirmLogout(this.confirm))) {
       return;
     }
     await this.auth.logout();

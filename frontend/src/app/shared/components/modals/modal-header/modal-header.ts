@@ -1,3 +1,4 @@
+import { translate } from '@jsverse/transloco';
 import { Component, input, output } from '@angular/core';
 import { IonButton, IonButtons, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/angular';
 import { arrowBack, close } from 'ionicons/icons';
@@ -16,14 +17,14 @@ export class ModalHeader {
   readonly title = input.required<string>();
   // El texto de la ✕ para los lectores de pantalla (las pantallas traducidas
   // pasan el suyo)
-  readonly closeLabel = input('Cerrar');
+  readonly closeLabel = input(translate('common.close'));
   // Sin la ✕ cuando la ventana se cierra con su propio botón (p. ej.
   // «Entendido» en los textos legales)
   readonly hasClose = input(true);
   readonly closed = output<void>();
   // Con un paso anterior dentro de la ventana: la flecha a la izquierda
   readonly hasBack = input(false);
-  readonly backLabel = input('Volver');
+  readonly backLabel = input(translate('common.back'));
   readonly back = output<void>();
 
   protected readonly closeIcon = close;

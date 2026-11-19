@@ -89,7 +89,10 @@
       <div class="driver-detail__title-row">
         <h1 class="driver-detail__title">
           <ion-icon class="driver-detail__role-icon" [icon]="carIcon" aria-hidden="true" />
-          {{ trip.status === 'finished' ? 'Condujiste' : 'Conduces' }} · {{ when() }}
+          {{
+            (trip.status === 'finished' ? 'labels.role.drove' : 'labels.role.driving') | transloco
+          }}
+          · {{ when() }}
         </h1>
         <span
           class="status status--heading"

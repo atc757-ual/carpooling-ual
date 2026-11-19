@@ -368,7 +368,7 @@ export const routes: Routes = [
     // Un administrador ha desactivado todos los perfiles de la cuenta
     path: 'account-disabled',
     canActivate: [authGuard, accessRevokedOnlyGuard],
-    title: 'Cuenta sin perfiles activos',
+    title: 'routes.pageTitles.accountDisabled',
     loadComponent: () =>
       import('./features/auth/account-disabled/account-disabled.page').then(
         (m) => m.AccountDisabledPage,
@@ -379,7 +379,7 @@ export const routes: Routes = [
     // de seguir (o se cierra sesión o se elimina la cuenta). Solo si hay pendientes
     path: 'legal-update',
     canActivate: [pendingLegalOnly],
-    title: 'Documentos actualizados',
+    title: 'routes.pageTitles.legalUpdate',
     loadComponent: () =>
       import('./features/auth/legal-update/legal-update.page').then((m) => m.LegalUpdatePage),
   },
@@ -387,7 +387,7 @@ export const routes: Routes = [
     // El viaje compartido en directo por un pasajero: lo abre, sin cuenta,
     // alguien de su confianza. Sin guards: ni sesión ni documentos legales
     path: 'seguir/:token',
-    title: 'Viaje en directo',
+    title: 'sharedTrip.viajeDirecto',
     loadComponent: () =>
       import('./features/trips/shared-trip/shared-trip.page').then((m) => m.SharedTripPage),
   },

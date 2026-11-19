@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { IonButton, IonIcon } from '@ionic/angular';
 import { checkmarkCircle, notificationsOutline } from 'ionicons/icons';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { PushNotificationsService } from '../../../core/services/push/push-notifications.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 
@@ -130,10 +130,10 @@ export class ProfilePushSetting {
     this.isBusy.set(true);
     try {
       if (await this.push.enable()) {
-        void this.toast.showSuccess('Te avisaremos aunque no tengas Carpooling UAL abierto.');
+        void this.toast.showSuccess(translate('profile.pushEnabledToast'));
       }
     } catch {
-      void this.toast.showError('No hemos podido activar las notificaciones. Inténtalo de nuevo.');
+      void this.toast.showError(translate('profile.pushEnableError'));
     } finally {
       this.isBusy.set(false);
     }

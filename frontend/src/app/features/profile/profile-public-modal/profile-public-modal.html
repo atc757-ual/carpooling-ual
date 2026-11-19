@@ -109,7 +109,7 @@
         [attr.aria-label]="'profile.aboutMe' | transloco"
         [errorText]="isBioInvalid ? ('labels.forms.bioLength' | transloco) : ''"
       />
-      <span class="text-body-s text-color-muted">Opcional: mínimo 20 y máximo 200 caracteres.</span>
+      <span class="text-body-s text-color-muted">{{ 'profile.bioHint' | transloco }}</span>
     </div>
 
     <div class="profile-public-modal__actions">

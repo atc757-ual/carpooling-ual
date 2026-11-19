@@ -709,6 +709,14 @@ ion-card-header + ion-card-content[class] {
   color: var(--color-link);
 }
 
+// La informativa en sólido, para un fondo azul claro (p. ej. «Próximo viaje»),
+// donde la suave no se distinguiría
+.status--info-strong {
+  border-color: transparent;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
 // No se hizo: cancelado, rechazada, caducada, no se presentó
 .status--danger {
   border-color: transparent;
@@ -790,7 +798,7 @@ ion-card.role-card ion-card-content {
 .notice {
   display: flex;
   gap: var(--space-s);
-  padding: var(--space-s) var(--space-base); // 8px 16px (espaciado 8px vertical)
+  padding: var(--space-s); // 8px por los cuatro lados
   border: var(--border-width-s) solid transparent;
   border-radius: var(--radius-s); // 8px
   color: var(--color-text);

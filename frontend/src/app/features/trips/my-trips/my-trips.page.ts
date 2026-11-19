@@ -210,7 +210,7 @@ export class MyTripsPage {
     const { trip, request } = passengerLive.item;
     return {
       route: formatRoute(trip),
-      detail: `Conduce ${trip.driver.name}`,
+      detail: translate('screens.passengerTripCard.drives', { name: trip.driver.name }),
       link: `/tabs/trips/ride/${request.id}`,
     };
   });

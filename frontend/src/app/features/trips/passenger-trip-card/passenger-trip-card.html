@@ -11,9 +11,7 @@
           >{{ time() }}</a
         >
         <span class="role-tag role-tag--passenger">
-          <ion-icon [icon]="roleIcon" aria-hidden="true" />{{
-            item().trip.status === 'finished' ? 'Viajaste' : 'Viajas'
-          }}
+          <ion-icon [icon]="roleIcon" aria-hidden="true" />{{ roleLabel() }}
         </span>
       </div>
       <span

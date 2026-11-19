@@ -6,7 +6,7 @@
         <span class="text-subtitle">{{ time() }}</span>
         <span class="role-tag role-tag--driver">
           <ion-icon [icon]="roleIcon" aria-hidden="true" />{{
-            trip().status === 'finished' ? 'Condujiste' : 'Conduces'
+            (trip().status === 'finished' ? 'labels.role.drove' : 'labels.role.driving') | transloco
           }}
         </span>
       </div>
