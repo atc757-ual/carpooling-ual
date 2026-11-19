@@ -8,12 +8,6 @@ ion-card.driver-route ion-card-content {
   gap: var(--space-base);
 }
 
-.driver-route__loading {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-}
-
 // Distancia, duración y desvío máximo en una fila, separados por una línea
 .driver-route__facts {
   display: grid;

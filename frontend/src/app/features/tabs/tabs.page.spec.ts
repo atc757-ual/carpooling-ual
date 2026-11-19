@@ -18,7 +18,7 @@ import { TripsService } from '../../core/services/trips/trips.service';
 import { PushNotificationsService } from '../../core/services/push/push-notifications.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
-import { TabHeading } from './tab-heading';
+import { TabHeading } from '../../core/models/tab-heading.model';
 import { MESSAGES_REFRESH_MS, TabsPage } from './tabs.page';
 
 @Component({ template: '' })

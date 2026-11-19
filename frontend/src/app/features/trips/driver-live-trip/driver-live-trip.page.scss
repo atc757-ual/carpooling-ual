@@ -19,21 +19,9 @@
   }
 }
 
-.driver-live-trip__loading {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-}
-
-// No encontrado o no en curso: tarjeta con todo centrado
+// No encontrado o aún sin empezar (app-empty-state), del alto de la tarjeta
 .driver-live-trip__state {
-  display: flex;
-  min-height: 23.4375rem; // 375px
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-s);
-  text-align: center;
+  --empty-state-min-height: 23.4375rem; // 375px
 }
 
 .driver-live-trip__layout,

@@ -8,13 +8,14 @@ import {
   IonCardContent,
   IonChip,
   IonContent,
-  IonIcon,
   IonItem,
   IonList,
   IonSpinner,
 } from '@ionic/angular';
 import { alertCircleOutline, chatbubblesOutline } from 'ionicons/icons';
 import { Conversation } from '../../core/models/chat.model';
+import { EmptyState } from '../../shared/components/ui/empty-state/empty-state';
+import { LoadingState } from '../../shared/components/ui/loading-state/loading-state';
 import { AuthService } from '../../core/services/auth/auth.service';
 import {
   ChatService,
@@ -29,7 +30,7 @@ import { tripStatusLabel } from '../../shared/utils/trip-status.util';
 import { messageText } from './chat-texts';
 import { ConversationPage } from './conversation/conversation.page';
 import { map } from 'rxjs';
-import { SectionHeading } from '../tabs/section-heading/section-heading';
+import { SectionHeading } from '../../shared/components/layout/section-heading/section-heading';
 
 // Mensajes: conversaciones recientes con filtro de no leídos y carga por lotes.
 // El chat es directo: el conductor tiene una conversación con cada pasajero y
@@ -38,12 +39,13 @@ import { SectionHeading } from '../tabs/section-heading/section-heading';
   selector: 'app-messages',
   imports: [
     SectionHeading,
+    EmptyState,
+    LoadingState,
     IonButton,
     IonCard,
     IonCardContent,
     IonChip,
     IonContent,
-    IonIcon,
     IonItem,
     IonList,
     IonSpinner,

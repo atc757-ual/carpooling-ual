@@ -80,12 +80,6 @@
   min-width: 0;
 }
 
-.passenger-detail__loading {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-}
-
 // Estado, arriba de la tarjeta: el aviso y el progreso debajo
 .passenger-detail__status {
   display: flex;
@@ -119,33 +113,9 @@
   width: 100%;
 }
 
-ion-card-content.passenger-detail__state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-s);
-  min-height: 23.4375rem; // 375px
-  padding: var(--space-base);
-  text-align: center;
-
-  ion-icon {
-    box-sizing: content-box;
-    margin-bottom: var(--space-xs);
-    padding: var(--space-s);
-    border-radius: var(--radius-full);
-    background: var(--color-primary-subtle);
-    color: var(--color-link);
-    font-size: 1.5rem; // 24px
-  }
-
-  ion-button {
-    margin: var(--space-s) 0 0;
-  }
-}
-
-.passenger-detail__state-title {
-  font-weight: var(--font-weight-semibold);
+// No encontrado o error (app-empty-state), del alto de la tarjeta: 375px
+.passenger-detail__state {
+  --empty-state-min-height: 23.4375rem; // 375px
 }
 
 // «Viaje y seguridad»: una lista con el título de cada fila (14px), su

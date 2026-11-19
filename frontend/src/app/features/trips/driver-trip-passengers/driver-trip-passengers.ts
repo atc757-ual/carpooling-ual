@@ -10,6 +10,8 @@ import {
   IonSpinner,
 } from '@ionic/angular';
 import { RouterLink } from '@angular/router';
+
+type RequestDecision = 'accept' | 'reject';
 import { callOutline, chatbubblesOutline, locationOutline, sparklesOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { ChatContact } from '../../../core/models/chat.model';
@@ -23,6 +25,7 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatSeats } from '../../../shared/utils/seats.util';
 import { getFirstName, getInitials } from '../../matching/trip-driver/trip-driver';
 import { lazyLabels } from '../../../core/i18n/lazy-labels';
+import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 
 const REQUEST_STATUS_LABELS: Readonly<Record<SeatRequestStatus, string>> = lazyLabels({
   pending: 'screens.driverTripPassengers.status.pending',
@@ -44,6 +47,7 @@ const CHAT_STATUSES: ReadonlySet<TripStatus> = new Set(['confirmed', 'in_progres
 @Component({
   selector: 'app-driver-trip-passengers',
   imports: [
+    LoadingState,
     IonButton,
     IonCard,
     IonCardContent,
@@ -97,8 +101,8 @@ export class DriverTripPassengers {
       ({ status }) => status === 'pending' || status === 'accepted',
     ),
   );
-  // La solicitud que se está decidiendo
-  readonly deciding = signal<string | null>(null);
+  // La solicitud que se está decidiendo y cómo (el spinner va en ese botón)
+  readonly deciding = signal<{ id: string; decision: RequestDecision } | null>(null);
 
   // Los teléfonos para llamar, solo con el viaje abierto: resource y no
   // effect, para no pintar los de otro viaje si la respuesta llega tarde
@@ -158,8 +162,13 @@ export class DriverTripPassengers {
     return place ? `Recogida: ${place}` : null;
   }
 
-  async handleDecide(request: SeatRequest, decision: 'accept' | 'reject'): Promise<void> {
-    this.deciding.set(request.id);
+  isDeciding(requestId: string, decision: RequestDecision): boolean {
+    const current = this.deciding();
+    return current?.id === requestId && current.decision === decision;
+  }
+
+  async handleDecide(request: SeatRequest, decision: RequestDecision): Promise<void> {
+    this.deciding.set({ id: request.id, decision });
     try {
       await this.driver.decideRequest(request.id, decision);
       const key = decision === 'accept' ? 'acceptedToast' : 'rejectedToast';

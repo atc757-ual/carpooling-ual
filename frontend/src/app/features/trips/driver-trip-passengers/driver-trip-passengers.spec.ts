@@ -139,6 +139,27 @@ describe('DriverTripPassengers', () => {
     expect(fixture.componentInstance.deciding()).toBeNull();
   });
 
+  it('disables both buttons and spins only the one pressed while deciding', async () => {
+    const root = await render(TRIP, [request('pending')]);
+    let finish: () => void = () => undefined;
+    driver['decideRequest'].mockReturnValue(
+      new Promise<void>((resolve) => {
+        finish = resolve;
+      }),
+    );
+
+    const decision = fixture.componentInstance.handleDecide(request('pending'), 'reject');
+    fixture.detectChanges();
+
+    const buttons = root.querySelectorAll<HTMLIonButtonElement>('.driver-trip__actions ion-button');
+    expect([...buttons].every((button) => button.disabled)).toBe(true);
+    expect(buttons[0].querySelector('ion-spinner')).toBeNull();
+    expect(buttons[1].querySelector('ion-spinner')).not.toBeNull();
+
+    finish();
+    await decision;
+  });
+
   it('shows the API error when the decision fails', async () => {
     await render(TRIP, [request('pending')]);
     driver['decideRequest'].mockRejectedValue(new Error('down'));

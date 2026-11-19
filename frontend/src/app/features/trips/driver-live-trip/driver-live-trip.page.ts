@@ -24,6 +24,8 @@ import {
   locationOutline,
   personRemoveOutline,
   walkOutline,
+  alertCircleOutline,
+  timeOutline,
 } from 'ionicons/icons';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
@@ -65,6 +67,8 @@ import { RevealOnTouch, revealedHint } from '../../../shared/directives/reveal-o
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { buildLiveShareText } from '../trip-share-text';
 import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
+import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
+import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
 
 // Una recogida sigue siendo «la siguiente» hasta 5 min después de su hora
 // (lo que se espera al pasajero antes de poder marcar «No se presentó»)
@@ -86,6 +90,8 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
 @Component({
   selector: 'app-driver-live-trip',
   imports: [
+    EmptyState,
+    LoadingState,
     NgTemplateOutlet,
     IonButton,
     IonCard,
@@ -112,6 +118,8 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
   ],
 })
 export class DriverLiveTripPage {
+  protected readonly waitingIcon = timeOutline;
+  protected readonly alertIcon = alertCircleOutline;
   private readonly driver = inject(DriverService);
   private readonly tracking = inject(DriverTrackingService);
   private readonly confirm = inject(ConfirmService);

@@ -52,6 +52,8 @@ import { getFirstName, TripDriver } from '../trip-driver/trip-driver';
 import { formatTime, toTripDetail } from '../trip-results';
 import { pickupFact, toRequestPickup } from '../trip-pickup';
 import { TripSearchStateService } from '../trip-search-state.service';
+import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
+import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
 
 // Solicitudes que ya no siguen: se puede volver a pedir plaza
 const CLOSED_REQUEST_STATUSES: ReadonlySet<SeatRequestStatus> = new Set([
@@ -67,6 +69,8 @@ const CLOSED_REQUEST_STATUSES: ReadonlySet<SeatRequestStatus> = new Set([
 @Component({
   selector: 'app-trip-detail',
   imports: [
+    EmptyState,
+    LoadingState,
     RouterLink,
     IonBreadcrumb,
     IonBreadcrumbs,

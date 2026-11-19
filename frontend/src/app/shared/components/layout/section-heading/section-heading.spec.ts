@@ -1,4 +1,4 @@
-import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { SectionHeading } from './section-heading';

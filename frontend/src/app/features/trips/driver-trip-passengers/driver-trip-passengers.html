@@ -25,12 +25,7 @@
       <div class="driver-trip__requests">
         <h3 class="text-label text-label--strong">{{ 'myTrips.solicitudes' | transloco }}</h3>
         @if (requests.isLoading()) {
-          <output class="driver-trip__loading">
-            <ion-spinner name="crescent" aria-hidden="true" />
-            <span class="text-caption text-color-muted">{{
-              'myTrips.cargandoSolicitudes' | transloco
-            }}</span>
-          </output>
+          <app-loading-state [label]="'myTrips.cargandoSolicitudes' | transloco" />
         } @else if (requests.error()) {
           <p class="text-caption text-color-muted">
             {{ 'myTrips.hemosPodidoCargarLas' | transloco }}
@@ -131,6 +126,9 @@
                         expand="block"
                         [disabled]="deciding() !== null"
                       >
+                        @if (isDeciding(request.id, 'accept')) {
+                          <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+                        }
                         {{ 'myTrips.accept' | transloco }}
                       </ion-button>
                     </form>
@@ -142,6 +140,9 @@
                         expand="block"
                         [disabled]="deciding() !== null"
                       >
+                        @if (isDeciding(request.id, 'reject')) {
+                          <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+                        }
                         {{ 'myTrips.reject' | transloco }}
                       </ion-button>
                     </form>

@@ -1,13 +1,6 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, resource, signal, viewChild } from '@angular/core';
-import {
-  IonButton,
-  IonCard,
-  IonCardContent,
-  IonContent,
-  IonIcon,
-  IonSpinner,
-} from '@ionic/angular';
+import { IonButton, IonCard, IonCardContent, IonContent } from '@ionic/angular';
 import { alertCircleOutline, carOutline } from 'ionicons/icons';
 import { TRIP_ENTRIES_PAGE_SIZE, TripEntryResponse } from '../../../core/models/my-trips.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -17,7 +10,9 @@ import { ActiveModeService } from '../../../core/services/users/active-mode.serv
 import { UsersService } from '../../../core/services/users/users.service';
 import { FilterChips } from '../../../shared/components/ui/filter-chips/filter-chips';
 import { Pagination } from '../../../shared/components/ui/pagination/pagination';
-import { SectionHeading } from '../../tabs/section-heading/section-heading';
+import { SectionHeading } from '../../../shared/components/layout/section-heading/section-heading';
+import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
+import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 import { DriverTripSummary } from '../driver-trip-summary/driver-trip-summary';
 import { PassengerTripCard } from '../passenger-trip-card/passenger-trip-card';
 import { LiveTripBanner } from './live-trip-banner/live-trip-banner';
@@ -54,13 +49,13 @@ interface LoadedPage {
 @Component({
   selector: 'app-my-trips',
   imports: [
+    EmptyState,
+    LoadingState,
     SectionHeading,
     IonButton,
     IonCard,
     IonCardContent,
     IonContent,
-    IonIcon,
-    IonSpinner,
     DriverTripSummary,
     FilterChips,
     LiveTripBanner,

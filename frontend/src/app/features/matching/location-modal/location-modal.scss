@@ -10,26 +10,17 @@
   }
 }
 
-// Antes del mapa, o si falla: todo centrado, con el icono de 32px en un
-// círculo azul claro de 64px (como el estado vacío de Buscar)
+// Antes del mapa, o si falla (app-empty-state y app-loading-state): con aire
+// arriba; la lista de la explicación, a la izquierda
 .location__state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-s);
-  padding: var(--space-xl) 0 var(--space-base);
-  text-align: center;
-
-  > ion-icon {
-    box-sizing: content-box;
-    margin-bottom: var(--space-s);
-    padding: var(--space-base);
-    border-radius: var(--radius-full);
-    background: var(--color-primary-subtle);
-    color: var(--color-link);
-    font-size: 2rem; // 32px
-  }
+  --empty-state-padding: var(--space-xl) 0 var(--space-base);
 }
+
+.location__list {
+  align-self: stretch;
+  text-align: start;
+}
+
 // El mapa: cuadrado y a todo el ancho en el móvil; en la ventana de
 // escritorio, a todo el ancho y con el mismo alto (448px), para que quepa con
 // la dirección y el botón. Con el borde y las esquinas de las tarjetas

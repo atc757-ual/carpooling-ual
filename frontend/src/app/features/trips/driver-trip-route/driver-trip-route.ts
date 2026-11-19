@@ -1,16 +1,10 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, input, resource } from '@angular/core';
-import {
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonIcon,
-  IonSpinner,
-} from '@ionic/angular';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon } from '@ionic/angular';
 import { carOutline } from 'ionicons/icons';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
 import { numberFormat } from '../../../core/i18n/app-locale';
+import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 
 const KM_FORMAT = () => numberFormat({ minimumFractionDigits: 1, maximumFractionDigits: 1 });
 import { SeatRequest } from '../../../core/models/seat-request.model';
@@ -40,12 +34,12 @@ const STATUSES_WITH_PICKUPS = new Set<TripStatus>(['published', 'confirmed', 'in
 @Component({
   selector: 'app-driver-trip-route',
   imports: [
+    LoadingState,
     IonCard,
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
     IonIcon,
-    IonSpinner,
     RouteTimeline,
     TripRouteMap,
     TranslocoPipe,

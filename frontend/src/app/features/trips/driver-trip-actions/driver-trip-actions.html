@@ -16,6 +16,9 @@
       }}</ion-button>
       <form (submit)="$event.preventDefault(); handleFinish()">
         <ion-button type="submit" expand="block" fill="outline" [disabled]="isChangingStatus()">
+          @if (isChangingStatus()) {
+            <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+          }
           {{ (isChangingStatus() ? 'myTrips.finishing' : 'myTrips.finish') | transloco }}
         </ion-button>
       </form>
@@ -29,6 +32,9 @@
       <div class="driver-actions__block">
         <form (submit)="$event.preventDefault(); handleStart()">
           <ion-button type="submit" expand="block" [disabled]="!canStart() || isChangingStatus()">
+            @if (isChangingStatus()) {
+              <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+            }
             {{ (isChangingStatus() ? 'myTrips.starting' : 'myTrips.start') | transloco }}
             @if (startHint(); as hint) {
               <span class="visually-hidden">. {{ hint }}</span>

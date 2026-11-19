@@ -102,7 +102,6 @@ const DEFAULT_TEST_TRANSLATIONS: Record<string, Record<string, unknown>> = {
         resendIn: 'Reenviar código en {{ time }}',
         resend: 'Reenviar código',
       },
-      tripChatLink: 'Chat del viaje',
       routeTimeline: {
         aria: 'Trayecto',
       },

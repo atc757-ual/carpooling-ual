@@ -78,12 +78,6 @@
   min-width: 0;
 }
 
-.driver-detail__loading {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-}
-
 // Impacto: dos cifras en una fila, el valor encima de su nombre
 ion-card.driver-detail__impact ion-card-content {
   display: flex;

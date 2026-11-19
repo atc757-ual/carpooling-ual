@@ -1,12 +1,7 @@
 <!-- Mientras carga o si falla -->
 <ng-template #status>
   @if (isLoading()) {
-    <output class="trip-review-card__loading">
-      <ion-spinner name="crescent" aria-hidden="true" />
-      <span class="text-caption text-color-muted">{{
-        'tripReview.cargandoTusValoraciones' | transloco
-      }}</span>
-    </output>
+    <app-loading-state [label]="'tripReview.cargandoTusValoraciones' | transloco" />
   } @else if (hasError()) {
     <p class="text-caption text-color-muted">
       {{ 'tripReview.pudimosCargarTusValoraciones' | transloco }}

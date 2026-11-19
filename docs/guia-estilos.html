@@ -929,6 +929,16 @@
       <div class="state-card"><span class="text-body text-body--strong">Datos antiguos</span><span class="text-label muted">Simulación: progreso sin actualizar desde 07:41. Reconectar no lanza una ejecución nueva.</span><button class="btn btn--outline-neutral btn--block" type="button">Actualizar estado</button><div class="notice notice--success"><span><b>CSV exportado · s1-20261025.csv</b>Si falla: «No se pudo exportar. Reintentar»; los resultados se conservan.</span></div></div>
     </div>
 
+    <h3>Componentes de los estados (app de usuario)</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>Componente</th><th>Cuándo</th><th>Opciones</th></tr></thead>
+      <tbody>
+        <tr><td><code>app-loading-state</code></td><td>Algo que se está cargando: el spinner y el texto en gris, en una fila. Es un <code>&lt;output&gt;</code>, que el lector de pantalla anuncia solo</td><td><code>label</code> (obligatorio); <code>isCentered</code>, centrado en columna cuando ocupa el sitio de una lista; <code>heading</code>, un título en seminegrita encima del texto (también centrado, p. ej. «Buscando viajes»). Alto y relleno con <code>--loading-state-min-height</code> y <code>--loading-state-padding</code></td></tr>
+        <tr><td><code>app-empty-state</code></td><td>Una lista vacía, algo que no se encuentra o que no se ha podido cargar: el icono de 24px en un círculo azul claro, el título y la explicación en gris. Debajo, la acción proyectada (una o varias, en columna)</td><td><code>icon</code> y <code>heading</code> (obligatorios); <code>hint</code>; <code>role</code> (<code>alert</code> en los errores, <code>status</code> si cambia); <code>isCard</code>, dentro de su propia tarjeta; <code>tone="success"</code>, el icono en verde; <code>headingLevel</code> (1 o 2) cuando el título es el encabezado de la página; un aviso encima del icono con el atributo <code>emptyStateTop</code>. Alto y relleno con <code>--empty-state-min-height</code> y <code>--empty-state-padding</code></td></tr>
+        <tr><td>Botón de una acción que tarda</td><td>Publicar, pedir plaza, aceptar o rechazar, iniciar o finalizar, enviar, guardar</td><td>Desactivado mientras dura y con <code>&lt;ion-spinner slot="start" name="crescent" aria-hidden="true"&gt;</code> delante del texto; si hay dos botones (Aceptar y Rechazar), se desactivan los dos y el spinner va solo en el pulsado. Sin capas a pantalla completa: la carga, en el botón</td></tr>
+      </tbody>
+    </table></div>
+
     <h3>Cobertura por área</h3>
     <div class="scroll"><table>
       <thead><tr><th>Área</th><th>Cargando</th><th>Vacío</th><th>Error de red / recuperación</th><th>403 / recuperación autorizada</th></tr></thead>

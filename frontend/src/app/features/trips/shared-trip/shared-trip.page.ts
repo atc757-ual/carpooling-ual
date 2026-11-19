@@ -9,7 +9,6 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonSpinner,
   IonToolbar,
 } from '@ionic/angular';
 import {
@@ -26,6 +25,8 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { SharedTrip } from '../../../core/models/trip-share.model';
 import { TripLiveShareService } from '../../../core/services/trips/trip-live-share.service';
 import { LanguageService } from '../../../core/services/ui/language.service';
+import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
+import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 import { TripRouteMap } from '../../../shared/components/ui/trip-route-map/trip-route-map';
 import { injectLiveSheet } from '../../../shared/utils/desktop-query.util';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -51,6 +52,8 @@ const OPEN_STATUSES = new Set(['confirmed', 'in_progress']);
 @Component({
   selector: 'app-shared-trip-page',
   imports: [
+    EmptyState,
+    LoadingState,
     NgTemplateOutlet,
     IonButton,
     IonCard,
@@ -58,7 +61,6 @@ const OPEN_STATUSES = new Set(['confirmed', 'in_progress']);
     IonContent,
     IonHeader,
     IonIcon,
-    IonSpinner,
     IonToolbar,
     LiveTripSheet,
     TripRouteMap,

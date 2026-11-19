@@ -1,14 +1,7 @@
 import { Component, computed, DestroyRef, inject, input, resource, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import {
-  IonButton,
-  IonCard,
-  IonCardContent,
-  IonContent,
-  IonIcon,
-  IonSpinner,
-} from '@ionic/angular';
+import { IonButton, IonCard, IonCardContent, IonContent, IonIcon } from '@ionic/angular';
 import {
   businessOutline,
   callOutline,
@@ -20,6 +13,8 @@ import {
   paperPlaneOutline,
   personOutline,
   walkOutline,
+  alertCircleOutline,
+  timeOutline,
 } from 'ionicons/icons';
 import { ChatContact } from '../../../core/models/chat.model';
 import { Trip } from '../../../core/models/driver.model';
@@ -60,6 +55,8 @@ import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
 import { buildLiveShareText } from '../trip-share-text';
 import { RevealOnTouch, revealedHint } from '../../../shared/directives/reveal-on-touch.directive';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
+import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
+import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
 
 // Cada cuánto se revisa si ya subió (código validado) o si el viaje terminó
 const REFRESH_MS = 15_000;
@@ -107,6 +104,8 @@ function arriveErrorKey(code: string): string {
 @Component({
   selector: 'app-passenger-live-trip',
   imports: [
+    EmptyState,
+    LoadingState,
     NgTemplateOutlet,
     RouterLink,
     IonButton,
@@ -114,7 +113,6 @@ function arriveErrorKey(code: string): string {
     IonCardContent,
     IonContent,
     IonIcon,
-    IonSpinner,
     LicensePlate,
     LiveTripHero,
     LiveTripMap,
@@ -131,6 +129,8 @@ function arriveErrorKey(code: string): string {
   styleUrls: ['../../tabs/tab-page.scss', './passenger-live-trip.page.scss'],
 })
 export class PassengerLiveTripPage {
+  protected readonly waitingIcon = timeOutline;
+  protected readonly alertIcon = alertCircleOutline;
   private readonly requests = inject(SeatRequestsService);
   private readonly trips = inject(TripsService);
   private readonly tripCall = inject(TripCallService);

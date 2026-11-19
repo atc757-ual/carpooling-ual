@@ -113,12 +113,6 @@ ion-card.trip-review-card ion-card-content {
   color: var(--color-text);
 }
 
-.trip-review-card__loading {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-}
-
 // Las alertas de esta pantalla, con 8px de relleno por los cuatro lados
 .notice {
   padding: var(--space-s);

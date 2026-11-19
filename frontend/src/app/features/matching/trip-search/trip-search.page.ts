@@ -16,7 +16,7 @@ import { TripSearchForm } from '../trip-search-form/trip-search-form';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { QuickFaqs } from '../../../shared/components/ui/quick-faqs/quick-faqs';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
-import { SectionHeading } from '../../tabs/section-heading/section-heading';
+import { SectionHeading } from '../../../shared/components/layout/section-heading/section-heading';
 
 // Buscar (pasajero). La búsqueda es la última hecha, en Inicio o aquí
 // (TripSearchStateService, no va en la URL). Arriba en el móvil y en la

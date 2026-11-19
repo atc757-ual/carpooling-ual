@@ -16,12 +16,7 @@
           [destination]="mapEnds().destination"
         />
       } @else if (routeResource.isLoading()) {
-        <output class="passenger-route__loading">
-          <ion-spinner name="crescent" aria-hidden="true" />
-          <span class="text-caption text-color-muted">{{
-            'request.cargandoMapaDelViaje' | transloco
-          }}</span>
-        </output>
+        <app-loading-state [label]="'request.cargandoMapaDelViaje' | transloco" />
       } @else if (routeResource.error()) {
         <p class="text-caption text-color-muted">
           {{ 'request.pudimosCargarMapaRuta' | transloco }}

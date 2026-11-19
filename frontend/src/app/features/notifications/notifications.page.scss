@@ -290,43 +290,11 @@
   justify-content: center;
 }
 
+// Lista vacía, error o carga (app-empty-state, app-loading-state): de 240px,
+// porque la tarjeta incluye también los filtros
 .notifications__state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-s);
-  min-height: 15rem; // 240px; la tarjeta incluye también los filtros
-  padding: var(--space-base);
-  text-align: center;
-
-  ion-icon {
-    box-sizing: content-box;
-    margin-bottom: var(--space-xs);
-    padding: var(--space-s);
-    border-radius: var(--radius-full);
-    background: var(--color-primary-subtle);
-    color: var(--color-link);
-    font-size: 1.5rem;
-  }
-
-  ion-spinner {
-    width: 3rem;
-    height: 3rem;
-    color: var(--color-link);
-  }
-
-  form {
-    margin: var(--space-s) 0 0;
-  }
-
-  ion-button {
-    margin: 0;
-  }
-}
-
-.notifications__state-title {
-  font-weight: var(--font-weight-semibold);
+  --empty-state-min-height: 15rem; // 240px
+  --loading-state-min-height: 15rem;
 }
 
 .notifications__guide {

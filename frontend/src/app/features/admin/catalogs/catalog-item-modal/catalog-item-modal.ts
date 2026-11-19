@@ -1,5 +1,5 @@
 import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
-import { IonButton, IonIcon, IonInput, ModalController } from '@ionic/angular';
+import { IonButton, IonIcon, IonInput, IonSpinner, ModalController } from '@ionic/angular';
 import { cloudUploadOutline } from 'ionicons/icons';
 import { AdminCatalogChanges } from '../../../../core/models/admin-catalog.model';
 import { ApiError } from '../../../../core/models/api-error.model';
@@ -36,7 +36,7 @@ export interface CatalogItemModalOptions {
 // se elige en el mapa) y, para un avatar, la imagen
 @Component({
   selector: 'app-catalog-item-modal',
-  imports: [IonButton, IonIcon, IonInput],
+  imports: [IonButton, IonIcon, IonInput, IonSpinner],
   templateUrl: './catalog-item-modal.html',
   styleUrls: [
     '../../../../shared/components/modals/confirm-modal/confirm-modal.scss',

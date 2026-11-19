@@ -74,14 +74,6 @@
   }
 }
 
-ion-card-content.search-results__state > .search-results__requested {
-  margin-bottom: auto;
-}
-
-ion-card-content.search-results__state:has(> .search-results__requested) > :last-child {
-  margin-bottom: auto;
-}
-
 .search-results__results-header {
   display: flex;
   flex-direction: column;
@@ -241,35 +233,11 @@ ion-card-content.search-results__state:has(> .search-results__requested) > :last
   background: var(--color-surface);
 }
 
-ion-card-content.search-results__state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-s);
-  min-height: 23.4375rem; // 375px
-  padding: var(--space-base);
-  text-align: center;
-
-  ion-icon {
-    box-sizing: content-box;
-    margin-bottom: var(--space-xs);
-    padding: var(--space-s);
-    border-radius: var(--radius-full);
-    background: var(--color-primary-subtle);
-    color: var(--color-link);
-    font-size: 1.5rem; // 24px
-  }
-
-  ion-spinner {
-    width: 3rem; // 48px
-    height: 3rem;
-    color: var(--color-link);
-  }
-
-  ion-button {
-    margin: var(--space-s) 0 0;
-  }
+// Buscando, error, sin viajes y sin búsqueda (app-loading-state y
+// app-empty-state), del alto de la tarjeta
+.search-results__state {
+  --empty-state-min-height: 23.4375rem; // 375px
+  --loading-state-min-height: 23.4375rem;
 }
 
 .search-results__summary {
@@ -281,10 +249,6 @@ ion-card-content.search-results__state {
   p {
     margin: 0;
   }
-}
-
-.search-results__state-title {
-  font-weight: var(--font-weight-semibold);
 }
 
 // Filtros por preferencias, encima de la lista

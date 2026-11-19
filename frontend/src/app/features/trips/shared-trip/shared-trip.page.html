@@ -139,20 +139,15 @@
               </ion-card-content>
             </ion-card>
           } @else if (status(); as status) {
-            <ion-card class="shared-trip__card">
-              <ion-card-content class="shared-trip__state">
-                <span
-                  class="shared-trip__state-icon"
-                  [class.shared-trip__state-icon--success]="status.tone === 'success'"
-                  aria-hidden="true"
-                  ><ion-icon [icon]="status.tone === 'success' ? doneIcon : timeIcon"
-                /></span>
-                <output class="shared-trip__state-text">
-                  <span class="text-title">{{ status.title }}</span>
-                  <span class="text-body text-color-muted">{{ status.description }}</span>
-                </output>
-              </ion-card-content>
-            </ion-card>
+            <app-empty-state
+              class="shared-trip__card shared-trip__state"
+              role="status"
+              [isCard]="true"
+              [tone]="status.tone === 'success' ? 'success' : 'info'"
+              [icon]="status.tone === 'success' ? doneIcon : timeIcon"
+              [heading]="status.title"
+              [hint]="status.description"
+            />
           }
         </section>
 
@@ -170,20 +165,19 @@
         <app-live-trip-sheet [sheet]="sheet" [content]="details" />
       }
     } @else if (errorMessage(); as message) {
-      <section class="shared-trip__empty">
-        <span class="shared-trip__empty-icon" aria-hidden="true"
-          ><ion-icon [icon]="linkIcon"
-        /></span>
-        <h1 class="text-title">{{ 'sharedTrip.esteEnlaceEstaDisponible' | transloco }}</h1>
-        <p class="text-body text-color-muted">{{ message }}</p>
-      </section>
+      <app-empty-state
+        class="shared-trip__empty"
+        [icon]="linkIcon"
+        [heading]="'sharedTrip.esteEnlaceEstaDisponible' | transloco"
+        [headingLevel]="1"
+        [hint]="message"
+      />
     } @else {
-      <div class="shared-trip__loading" aria-busy="true">
-        <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-body-s text-color-muted">{{
-          'sharedTrip.cargandoViaje' | transloco
-        }}</span>
-      </div>
+      <app-loading-state
+        class="shared-trip__loading"
+        [label]="'sharedTrip.cargandoViaje' | transloco"
+        [isCentered]="true"
+      />
     }
   </main>
 </ion-content>

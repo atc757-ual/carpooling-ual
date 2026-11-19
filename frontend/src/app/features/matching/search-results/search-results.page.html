@@ -28,66 +28,63 @@
       @if (search(); as search) {
         @if (results.isLoading()) {
           <ion-card>
-            <ion-card-content class="search-results__state" role="status">
-              <ion-spinner name="dots" aria-hidden="true" />
-              <div class="search-results__state-title">
-                {{ 'searchResults.searching' | transloco }}
-              </div>
-              <div class="text-body-s text-color-muted">
-                {{ 'searchResults.searchingHint' | transloco }}
-              </div>
-            </ion-card-content>
+            <app-loading-state
+              class="search-results__state"
+              [heading]="'searchResults.searching' | transloco"
+              [label]="'searchResults.searchingHint' | transloco"
+            />
           </ion-card>
         } @else if (results.error()) {
-          <ion-card>
-            <ion-card-content class="search-results__state" role="alert">
-              <ion-icon [icon]="errorIcon" aria-hidden="true" />
-              <div class="search-results__state-title">{{ 'searchResults.error' | transloco }}</div>
-              <div class="text-body-s text-color-muted">{{ errorMessage() }}</div>
-              <form (submit)="$event.preventDefault(); handleRetry()">
-                <ion-button type="submit" fill="outline">{{
-                  'messages.retry' | transloco
-                }}</ion-button>
-              </form>
-            </ion-card-content>
-          </ion-card>
-        } @else if (trips().length === 0) {
-          <ion-card>
-            <ion-card-content class="search-results__state">
-              @if (requestedCount()) {
-                <!-- Los viajes que ya pediste no se repiten aquí: están en Tus viajes -->
-                <div class="notice notice--info search-results__requested">
-                  <span>
-                    <b>{{ 'searchResults.alreadyRequested' | transloco }}</b>
-                    {{
-                      (requestedCount() === 1
-                        ? 'searchResults.alreadyRequestedIn.one'
-                        : 'searchResults.alreadyRequestedIn.other'
-                      ) | transloco: { count: requestedCount() }
-                    }}
-                  </span>
-                  <a class="search-results__requested-link" routerLink="/tabs/trips">{{
-                    'searchResults.myTripsLink' | transloco
-                  }}</a>
-                </div>
-              }
-              <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-              <div class="search-results__state-title">{{ 'searchResults.empty' | transloco }}</div>
-              <div class="text-body-s text-color-muted">
-                {{ 'searchResults.emptyHint' | transloco }}
-              </div>
-              @if (widerMargin(); as margin) {
-                <form (submit)="$event.preventDefault(); handleWidenMargin()">
-                  <ion-button type="submit" fill="outline">
-                    {{ 'searchResults.widen' | transloco: { margin: margin } }}
-                  </ion-button>
-                </form>
-              }
-              <ion-button fill="clear" (click)="isEditing.set(true)">{{
-                'searchResults.change' | transloco
+          <app-empty-state
+            class="search-results__state"
+            role="alert"
+            [isCard]="true"
+            [icon]="errorIcon"
+            [heading]="'searchResults.error' | transloco"
+            [hint]="errorMessage()"
+          >
+            <form (submit)="$event.preventDefault(); handleRetry()">
+              <ion-button type="submit" fill="outline">{{
+                'messages.retry' | transloco
               }}</ion-button>
-            </ion-card-content>
-          </ion-card>
+            </form>
+          </app-empty-state>
+        } @else if (trips().length === 0) {
+          <app-empty-state
+            class="search-results__state"
+            [isCard]="true"
+            [icon]="emptyIcon"
+            [heading]="'searchResults.empty' | transloco"
+            [hint]="'searchResults.emptyHint' | transloco"
+          >
+            @if (requestedCount()) {
+              <!-- Los viajes que ya pediste no se repiten aquí: están en Tus viajes -->
+              <div emptyStateTop class="notice notice--info search-results__requested">
+                <span>
+                  <b>{{ 'searchResults.alreadyRequested' | transloco }}</b>
+                  {{
+                    (requestedCount() === 1
+                      ? 'searchResults.alreadyRequestedIn.one'
+                      : 'searchResults.alreadyRequestedIn.other'
+                    ) | transloco: { count: requestedCount() }
+                  }}
+                </span>
+                <a class="search-results__requested-link" routerLink="/tabs/trips">{{
+                  'searchResults.myTripsLink' | transloco
+                }}</a>
+              </div>
+            }
+            @if (widerMargin(); as margin) {
+              <form (submit)="$event.preventDefault(); handleWidenMargin()">
+                <ion-button type="submit" fill="outline">
+                  {{ 'searchResults.widen' | transloco: { margin: margin } }}
+                </ion-button>
+              </form>
+            }
+            <ion-button fill="clear" (click)="isEditing.set(true)">{{
+              'searchResults.change' | transloco
+            }}</ion-button>
+          </app-empty-state>
         } @else {
           <!-- En una sola tarjeta: el recuento con el orden y los filtros
                y, debajo, los viajes en una lista -->
@@ -172,17 +169,16 @@
           </ion-card>
         }
       } @else {
-        <ion-card>
-          <ion-card-content class="search-results__state">
-            <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-            <div class="search-results__state-title">
-              {{ 'searchResults.noSearch' | transloco }}
-            </div>
-            <ion-button routerLink="/tabs/search" routerDirection="back">{{
-              'search.submit' | transloco
-            }}</ion-button>
-          </ion-card-content>
-        </ion-card>
+        <app-empty-state
+          class="search-results__state"
+          [isCard]="true"
+          [icon]="emptyIcon"
+          [heading]="'searchResults.noSearch' | transloco"
+        >
+          <ion-button routerLink="/tabs/search" routerDirection="back">{{
+            'search.submit' | transloco
+          }}</ion-button>
+        </app-empty-state>
       }
     </div>
 
