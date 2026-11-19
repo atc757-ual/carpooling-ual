@@ -374,7 +374,26 @@ describe('Legal documents (e2e)', () => {
           AND d.version = '1.1'`,
     );
     expect(event.payload).toMatchObject({ version: '1.1', adminId: null });
-    await admin('get', '/privacy/draft').expect(404);
+  });
+
+  it('prepares the privacy policy 1.2 as a draft, with the trip emails and the direct chat', async () => {
+    const draft = await admin('get', '/privacy/draft').expect(200);
+    expect(draft.body).toMatchObject({
+      version: '1.2',
+      status: 'draft',
+      changeType: 'minor',
+    });
+    const { content, summary } = draft.body as {
+      content: string;
+      summary: string;
+    };
+    expect(summary).toContain('correos');
+    expect(content).toContain('<h2>Correos del viaje</h2>');
+    expect(content).toContain('un chat de los dos');
+    expect(content).toContain('el pasajero de esa conversación');
+    expect(content).not.toContain('saber si todos han leído');
+    // Lo demás, igual que la 1.1
+    expect(content).toContain('Compartir el viaje en directo');
   });
 
   it('lets only admins manage the documents', async () => {

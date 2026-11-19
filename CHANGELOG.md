@@ -23,6 +23,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- **Borrador de la Política de privacidad 1.2 (cambio menor):** copia la 1.1 vigente y añade los correos del viaje al pasajero (al confirmarse su plaza y al terminar, con el enlace para valorar; parte del servicio, sin publicidad) y que el chat del viaje es directo entre quien conduce y cada pasajero y queda solo para leer cuando el pasajero se baja. Migración `AddPrivacyPolicy12Draft`; queda en borrador hasta revisarla con el director y publicarla desde el panel (#354).
 - **Tus viajes por páginas (pantalla):** Tus viajes pide cada pestaña de 10 en 10 a la API (`trip-entries`) con el paginador debajo de la lista (`app-pagination`, «1–10 de 22», en todos los anchos), y cada pestaña recuerda su página. «Tu impacto» de la columna sale de la API (`impact`) en lugar de sumar la lista (#352).
 - **Tu impacto desde la API:** `GET /users/me/impact` da los viajes hechos, los coches evitados y el CO₂ ahorrado con los dos papeles (como conductor, un coche por pasajero; como pasajero, el suyo), con la misma estimación que la app. La pantalla llega en un PR siguiente (#351).
 - **Tus viajes por páginas (API):** `GET /users/me/trip-entries?tab=upcoming|past|cancelled` da cada pestaña con los viajes que conduce y las solicitudes de pasajero juntos, ordenados por la salida (por venir, del más próximo; el resto, del más reciente), paginados y con su total. La pantalla llega en un PR siguiente (#350).
