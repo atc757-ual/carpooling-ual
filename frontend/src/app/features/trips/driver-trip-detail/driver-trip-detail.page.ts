@@ -22,7 +22,6 @@ import {
   IonCardTitle,
   IonContent,
   IonIcon,
-  IonSpinner,
 } from '@ionic/angular';
 import { carOutline, leafOutline } from 'ionicons/icons';
 import { DriverService } from '../../../core/services/drivers/driver.service';
@@ -38,6 +37,7 @@ import { DriverTripPassengers } from '../driver-trip-passengers/driver-trip-pass
 import { DriverTripRoute } from '../driver-trip-route/driver-trip-route';
 import { LiveTripBanner } from '../my-trips/live-trip-banner/live-trip-banner';
 import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
+import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 
 // El detalle de un viaje publicado. En escritorio, columna de 8 con el
 // recorrido (mapa, paradas, datos y vehículo) y los pasajeros (plazas,
@@ -48,6 +48,7 @@ import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
 @Component({
   selector: 'app-driver-trip-detail',
   imports: [
+    LoadingState,
     RouterLink,
     IonBreadcrumb,
     IonBreadcrumbs,
@@ -58,7 +59,6 @@ import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
     IonCardTitle,
     IonContent,
     IonIcon,
-    IonSpinner,
     DriverTripActions,
     DriverTripPassengers,
     DriverTripRoute,

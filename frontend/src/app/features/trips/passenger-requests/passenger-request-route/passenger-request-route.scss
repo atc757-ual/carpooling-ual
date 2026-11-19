@@ -14,12 +14,6 @@ ion-card.passenger-route ion-card-content {
   gap: var(--space-s);
 }
 
-.passenger-route__loading {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-}
-
 // Plazas pedidas, hora de recogida y disponibilidad en una fila
 .passenger-route__facts {
   display: grid;

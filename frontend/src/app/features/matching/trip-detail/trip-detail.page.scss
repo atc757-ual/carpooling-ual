@@ -154,39 +154,9 @@ ion-card.trip-detail__actions ion-card-content {
   width: 100%;
 }
 
-ion-card-content.trip-detail__state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-s);
-  min-height: 23.4375rem; // 375px
-  padding: var(--space-base);
-  text-align: center;
-
-  ion-icon {
-    box-sizing: content-box;
-    margin-bottom: var(--space-xs);
-    padding: var(--space-s);
-    border-radius: var(--radius-full);
-    background: var(--color-primary-subtle);
-    color: var(--color-link);
-    font-size: 1.5rem; // 24px
-  }
-
-  ion-button {
-    margin: var(--space-s) 0 0;
-  }
-}
-
-.trip-detail__state-title {
-  font-weight: var(--font-weight-semibold);
-}
-
-.trip-detail__loading {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
+// No encontrado o error (app-empty-state), del alto de la tarjeta: 375px
+.trip-detail__state {
+  --empty-state-min-height: 23.4375rem; // 375px
 }
 
 @media (min-width: 768px) {

@@ -38,32 +38,31 @@
             </div>
 
             @if (isLoading() && all().length === 0) {
-              <output class="notifications__state" aria-live="polite">
-                <ion-spinner name="dots" aria-hidden="true" />
-                <span class="text-color-muted">{{ 'notifications.loading' | transloco }}</span>
-              </output>
+              <app-loading-state
+                class="notifications__state"
+                [label]="'notifications.loading' | transloco"
+                [isCentered]="true"
+              />
             } @else if (error() && all().length === 0) {
-              <div class="notifications__state" role="alert">
-                <ion-icon [icon]="errorIcon" aria-hidden="true" />
-                <div class="notifications__state-title">
-                  {{ 'notifications.loadError' | transloco }}
-                </div>
+              <app-empty-state
+                class="notifications__state"
+                role="alert"
+                [icon]="errorIcon"
+                [heading]="'notifications.loadError' | transloco"
+              >
                 <form (submit)="$event.preventDefault(); handleRetry()">
                   <ion-button type="submit" fill="outline" size="small">{{
                     'common.retry' | transloco
                   }}</ion-button>
                 </form>
-              </div>
+              </app-empty-state>
             } @else if (all().length === 0) {
-              <div class="notifications__state">
-                <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-                <div class="notifications__state-title">
-                  {{ 'notifications.empty' | transloco }}
-                </div>
-                <div class="text-body-s text-color-muted">
-                  {{ 'notifications.emptyHint' | transloco }}
-                </div>
-              </div>
+              <app-empty-state
+                class="notifications__state"
+                [icon]="emptyIcon"
+                [heading]="'notifications.empty' | transloco"
+                [hint]="'notifications.emptyHint' | transloco"
+              />
             } @else {
               @if (error()) {
                 <div class="notice notice--danger" role="alert">

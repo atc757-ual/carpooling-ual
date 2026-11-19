@@ -1,7 +1,7 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TabHeading } from '../tab-heading';
+import { TabHeading } from '../../../../core/models/tab-heading.model';
 
 // Título y subtítulo de una lista larga en el móvil (Buscar, Tus viajes,
 // Mensajes, Notificaciones), dentro de su ion-content: se desplaza con el

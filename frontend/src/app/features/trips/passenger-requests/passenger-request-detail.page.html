@@ -1,47 +1,35 @@
 <ion-content>
   <div class="tab-page passenger-detail">
     @if (requestResource.isLoading() && !requestResource.hasValue()) {
-      <output class="passenger-detail__loading" aria-live="polite">
-        <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-caption text-color-muted">{{
-          'request.cargandoSolicitud' | transloco
-        }}</span>
-      </output>
+      <app-loading-state [label]="'request.cargandoSolicitud' | transloco" />
     } @else if (requestResource.error()) {
-      <ion-card class="passenger-detail__missing">
-        <ion-card-content class="passenger-detail__state" role="alert">
-          <ion-icon [icon]="alertIcon" aria-hidden="true" />
-          <div class="passenger-detail__state-title">
-            {{ 'request.encontramosEstaSolicitud' | transloco }}
-          </div>
-          <p class="text-body-s text-color-muted">
-            {{ 'request.puedeQueEsteDisponible' | transloco }}
-          </p>
+      <app-empty-state
+        class="passenger-detail__missing passenger-detail__state"
+        [isCard]="true"
+        role="alert"
+        [icon]="alertIcon"
+        [heading]="'request.encontramosEstaSolicitud' | transloco"
+        [hint]="'request.puedeQueEsteDisponible' | transloco"
+      >
+        <ion-button routerLink="/tabs/trips">{{
+          'request.volverTusViajes' | transloco
+        }}</ion-button>
+      </app-empty-state>
+    } @else if (request(); as request) {
+      @if (tripResource.isLoading() && !tripResource.hasValue()) {
+        <app-loading-state [label]="'request.cargandoLosDatosDel' | transloco" />
+      } @else if (tripResource.error()) {
+        <app-empty-state
+          class="passenger-detail__missing passenger-detail__state"
+          [isCard]="true"
+          role="alert"
+          [icon]="alertIcon"
+          [heading]="'request.pudimosCargarViaje' | transloco"
+        >
           <ion-button routerLink="/tabs/trips">{{
             'request.volverTusViajes' | transloco
           }}</ion-button>
-        </ion-card-content>
-      </ion-card>
-    } @else if (request(); as request) {
-      @if (tripResource.isLoading() && !tripResource.hasValue()) {
-        <output class="passenger-detail__loading" aria-live="polite">
-          <ion-spinner name="crescent" aria-hidden="true" />
-          <span class="text-caption text-color-muted">{{
-            'request.cargandoLosDatosDel' | transloco
-          }}</span>
-        </output>
-      } @else if (tripResource.error()) {
-        <ion-card class="passenger-detail__missing">
-          <ion-card-content class="passenger-detail__state" role="alert">
-            <ion-icon [icon]="alertIcon" aria-hidden="true" />
-            <div class="passenger-detail__state-title">
-              {{ 'request.pudimosCargarViaje' | transloco }}
-            </div>
-            <ion-button routerLink="/tabs/trips">{{
-              'request.volverTusViajes' | transloco
-            }}</ion-button>
-          </ion-card-content>
-        </ion-card>
+        </app-empty-state>
       } @else if (trip(); as trip) {
         <div class="passenger-detail__main">
           <!-- Una sola tarjeta, en este orden: el estado (aviso y progreso con

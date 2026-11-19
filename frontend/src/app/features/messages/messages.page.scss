@@ -152,40 +152,10 @@
   }
 }
 
+// Lista vacía, error o carga (app-empty-state, app-loading-state): de 208px
 .messages__state {
-  display: flex;
-  min-height: 13rem;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-s);
-  padding: var(--space-base);
-  text-align: center;
-
-  ion-icon {
-    box-sizing: content-box;
-    margin-bottom: var(--space-xs);
-    padding: var(--space-s);
-    border-radius: var(--radius-full);
-    background: var(--color-primary-subtle);
-    color: var(--color-link);
-    font-size: 1.5rem;
-  }
-
-  ion-spinner {
-    width: 2rem;
-    height: 2rem;
-    color: var(--color-link);
-  }
-
-  ion-button {
-    margin: var(--space-xs) 0 0;
-  }
-}
-
-// El mismo título que el estado vacío de Notificaciones
-.messages__state-title {
-  font-weight: var(--font-weight-semibold);
+  --empty-state-min-height: 13rem; // 208px
+  --loading-state-min-height: 13rem;
 }
 
 .messages__list {

@@ -22,12 +22,7 @@
                 }
               }
             } @else if (tripData.isLoading()) {
-              <output class="trip-detail__loading" aria-live="polite">
-                <ion-spinner name="crescent" aria-hidden="true" />
-                <span class="text-caption text-color-muted">{{
-                  'tripDetail.mapLoading' | transloco
-                }}</span>
-              </output>
+              <app-loading-state [label]="'tripDetail.mapLoading' | transloco" />
             } @else if (tripData.error()) {
               <p class="text-caption text-color-muted">{{ 'tripDetail.mapError' | transloco }}</p>
             }
@@ -110,12 +105,7 @@
             }
 
             @if (myRequest.isLoading()) {
-              <output class="trip-detail__loading">
-                <ion-spinner name="crescent" aria-hidden="true" />
-                <span class="text-caption text-color-muted">{{
-                  'tripDetail.checking' | transloco
-                }}</span>
-              </output>
+              <app-loading-state [label]="'tripDetail.checking' | transloco" />
             } @else if (canRequest()) {
               <div class="trip-detail__action-block">
                 <!-- Con el aviso de una solicitud anterior (rechazada, cancelada o
@@ -238,18 +228,17 @@
         </ion-card>
       </aside>
     } @else {
-      <ion-card class="trip-detail__missing">
-        <ion-card-content class="trip-detail__state">
-          <ion-icon [icon]="notFoundIcon" aria-hidden="true" />
-          <div class="trip-detail__state-title">{{ 'tripDetail.notFound' | transloco }}</div>
-          <div class="text-body-s text-color-muted">
-            {{ 'tripDetail.notFoundHint' | transloco }}
-          </div>
-          <ion-button routerLink="/tabs/search" routerDirection="back">{{
-            'tripDetail.backToSearch' | transloco
-          }}</ion-button>
-        </ion-card-content>
-      </ion-card>
+      <app-empty-state
+        class="trip-detail__missing trip-detail__state"
+        [isCard]="true"
+        [icon]="notFoundIcon"
+        [heading]="'tripDetail.notFound' | transloco"
+        [hint]="'tripDetail.notFoundHint' | transloco"
+      >
+        <ion-button routerLink="/tabs/search" routerDirection="back">{{
+          'tripDetail.backToSearch' | transloco
+        }}</ion-button>
+      </app-empty-state>
     }
   </div>
 </ion-content>

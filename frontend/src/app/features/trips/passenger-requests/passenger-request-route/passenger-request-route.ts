@@ -8,7 +8,6 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonIcon,
-  IonSpinner,
   ModalController,
 } from '@ionic/angular';
 import { callOutline, carOutline, chatbubblesOutline, thumbsDown, thumbsUp } from 'ionicons/icons';
@@ -36,6 +35,7 @@ import {
 } from '../../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../../matching/trip-results';
 import { numberFormat } from '../../../../core/i18n/app-locale';
+import { LoadingState } from '../../../../shared/components/ui/loading-state/loading-state';
 
 const RATING_FORMAT = () =>
   numberFormat({
@@ -49,13 +49,13 @@ const RATING_FORMAT = () =>
 @Component({
   selector: 'app-passenger-request-route',
   imports: [
+    LoadingState,
     IonButton,
     IonCard,
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
     IonIcon,
-    IonSpinner,
     RouteTimeline,
     TripDriverComponent,
     TripRouteMap,

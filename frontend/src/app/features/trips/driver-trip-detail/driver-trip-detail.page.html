@@ -60,10 +60,7 @@
         </ion-card>
       </aside>
     } @else if (tripResource.isLoading()) {
-      <output class="driver-detail__loading">
-        <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-color-muted">{{ 'myTrips.cargandoViaje' | transloco }}</span>
-      </output>
+      <app-loading-state [label]="'myTrips.cargandoViaje' | transloco" />
     } @else {
       <ion-card>
         <ion-card-content role="alert">

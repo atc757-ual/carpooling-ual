@@ -18,29 +18,11 @@
   }
 }
 
-.ride__loading {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-}
+// No encontrado o aún sin empezar (app-empty-state), a todo el ancho
+.ride__state {
+  --empty-state-min-height: 20rem; // 320px
 
-.ride__state-card {
   width: 100%;
-}
-
-ion-card-content.ride__state {
-  display: flex;
-  min-height: 20rem; // 320px
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-s);
-  text-align: center;
-}
-
-.ride__state-icon {
-  font-size: 2.5rem; // 40px
-  color: var(--color-primary);
 }
 
 .ride__layout,

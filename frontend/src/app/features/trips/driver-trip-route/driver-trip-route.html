@@ -11,12 +11,7 @@
         [destination]="destination()"
       />
     } @else if (details.isLoading()) {
-      <output class="driver-route__loading">
-        <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-caption text-color-muted">{{
-          'myTrips.cargandoMapaDelViaje' | transloco
-        }}</span>
-      </output>
+      <app-loading-state [label]="'myTrips.cargandoMapaDelViaje' | transloco" />
     } @else if (details.error()) {
       <p class="text-caption text-color-muted">{{ 'myTrips.pudimosCargarMapaRuta' | transloco }}</p>
     }

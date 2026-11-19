@@ -54,7 +54,7 @@ import { openNotificationTarget } from '../notifications/notification-target';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { BrandGreeting } from '../../shared/components/ui/brand-greeting/brand-greeting';
-import { findTabHeading } from './tab-heading';
+import { findTabHeading } from '../../core/models/tab-heading.model';
 
 interface Tab {
   // Ruta bajo /tabs

@@ -10,7 +10,7 @@ import { HOME_PATH, PUBLISH_PATH, SEARCH_PATH, WELCOME_PATH } from './core/guard
 import { AuthService } from './core/services/auth/auth.service';
 import { LegalDocumentsService } from './core/services/users/legal-documents.service';
 import { ADMIN_ROUTES } from './features/admin/admin.routes';
-import { TabHeading } from './features/tabs/tab-heading';
+import { TabHeading } from './core/models/tab-heading.model';
 
 // La pantalla del final del registro la abre la verificación del correo, que ya
 // ha iniciado la sesión. Sin sesión (una URL escrita a mano) no hay nada que

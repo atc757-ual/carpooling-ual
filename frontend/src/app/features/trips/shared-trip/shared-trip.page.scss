@@ -13,24 +13,16 @@
   margin-left: auto;
 }
 
-.shared-trip__logo,
-.shared-trip__empty-icon,
-.shared-trip__state-icon {
+.shared-trip__logo {
   display: grid;
   flex: none;
-  width: 2.5rem; // 40px
-  height: 2.5rem; // 40px
+  width: 2rem; // 32px
+  height: 2rem; // 32px
   border-radius: var(--radius-full);
   background: var(--color-link);
   color: var(--color-on-primary);
-  font-size: 1.25rem; // 20px
-  place-items: center;
-}
-
-.shared-trip__logo {
-  width: 2rem; // 32px
-  height: 2rem; // 32px
   font-size: 1rem; // 16px
+  place-items: center;
 }
 
 .shared-trip {
@@ -70,29 +62,9 @@
   --trip-route-map-height: 34rem; // 544px
 }
 
-// El estado (antes de salir o terminado), como estado vacío de la columna de 8
-.shared-trip__card ion-card-content.shared-trip__state {
-  align-items: center;
-  gap: var(--space-base);
-  padding-block: var(--space-xxl);
-  text-align: center;
-}
-
-.shared-trip__state-icon {
-  width: 3.5rem; // 56px
-  height: 3.5rem; // 56px
-  font-size: 1.75rem; // 28px
-}
-
-.shared-trip__state-icon--success {
-  background: var(--color-success);
-  color: var(--color-on-success);
-}
-
-.shared-trip__state-text {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
+// El estado (antes de salir o terminado; app-empty-state), con mucho aire
+.shared-trip__state {
+  --empty-state-padding: var(--space-xxl) var(--space-base);
 }
 
 .shared-trip__status {
@@ -130,14 +102,14 @@
   white-space: nowrap;
 }
 
-.shared-trip__empty,
+// Enlace no disponible o cargando (app-empty-state y app-loading-state), con
+// aire arriba
+.shared-trip__empty {
+  --empty-state-padding: var(--space-xxxl) var(--space-base) var(--space-base);
+}
+
 .shared-trip__loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-s);
-  padding-top: var(--space-xxxl);
-  text-align: center;
+  --loading-state-padding: var(--space-xxxl) var(--space-base) var(--space-base);
 }
 
 @media (min-width: 768px) {

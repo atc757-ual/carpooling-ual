@@ -43,18 +43,22 @@
             }
 
             @if (isLoading() && all().length === 0) {
-              <output class="messages__state">
-                <ion-spinner name="crescent" aria-hidden="true" />
-                <span class="text-color-muted">{{ 'messages.loading' | transloco }}</span>
-              </output>
+              <app-loading-state
+                class="messages__state"
+                [label]="'messages.loading' | transloco"
+                [isCentered]="true"
+              />
             } @else if (error() && all().length === 0) {
-              <div class="messages__state" role="alert">
-                <ion-icon [icon]="errorIcon" aria-hidden="true" />
-                <div class="messages__state-title">{{ 'messages.loadError' | transloco }}</div>
+              <app-empty-state
+                class="messages__state"
+                role="alert"
+                [icon]="errorIcon"
+                [heading]="'messages.loadError' | transloco"
+              >
                 <ion-button type="button" fill="outline" size="small" (click)="handleRetry()">
                   {{ 'messages.retry' | transloco }}
                 </ion-button>
-              </div>
+              </app-empty-state>
             } @else {
               @if (error()) {
                 <div class="notice notice--danger" role="alert">
@@ -66,19 +70,14 @@
               }
 
               @if (all().length === 0) {
-                <div class="messages__state">
-                  <ion-icon [icon]="icon" aria-hidden="true" />
-                  <div class="messages__state-title">
-                    {{ (onlyUnread() ? 'messages.emptyUnread' : 'messages.empty') | transloco }}
-                  </div>
-                  <div class="text-body-s text-color-muted">
-                    @if (onlyUnread()) {
-                      {{ 'messages.emptyUnreadHint' | transloco }}
-                    } @else {
-                      {{ 'messages.emptyHint' | transloco }}
-                    }
-                  </div>
-                </div>
+                <app-empty-state
+                  class="messages__state"
+                  [icon]="icon"
+                  [heading]="(onlyUnread() ? 'messages.emptyUnread' : 'messages.empty') | transloco"
+                  [hint]="
+                    (onlyUnread() ? 'messages.emptyUnreadHint' : 'messages.emptyHint') | transloco
+                  "
+                />
               } @else {
                 <!-- ion-list (role="list"): cada conversación, un ion-item que la abre -->
                 <ion-list class="messages__list">
@@ -173,20 +172,22 @@
           </ion-card>
         } @else {
           <ion-card class="messages__empty-detail">
-            <ion-card-content class="messages__state">
-              <ion-icon [icon]="icon" aria-hidden="true" />
-              <div class="messages__state-title">{{ 'messages.pickTitle' | transloco }}</div>
-              <div class="text-body-s text-color-muted">
-                {{ 'messages.pickHint' | transloco }}
-              </div>
-              @if (unreadCount() > 0) {
-                <span class="text-caption text-color-muted">
-                  {{
-                    (unreadCount() === 1 ? 'messages.unread.one' : 'messages.unread.other')
-                      | transloco: { count: unreadCount() }
-                  }}
-                </span>
-              }
+            <ion-card-content>
+              <app-empty-state
+                class="messages__state"
+                [icon]="icon"
+                [heading]="'messages.pickTitle' | transloco"
+                [hint]="'messages.pickHint' | transloco"
+              >
+                @if (unreadCount() > 0) {
+                  <span class="text-caption text-color-muted">
+                    {{
+                      (unreadCount() === 1 ? 'messages.unread.one' : 'messages.unread.other')
+                        | transloco: { count: unreadCount() }
+                    }}
+                  </span>
+                }
+              </app-empty-state>
             </ion-card-content>
           </ion-card>
         }

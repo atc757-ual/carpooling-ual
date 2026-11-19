@@ -20,7 +20,6 @@ import {
   IonCardContent,
   IonContent,
   IonIcon,
-  IonSpinner,
 } from '@ionic/angular';
 import {
   alertCircleOutline,
@@ -49,6 +48,8 @@ import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
 import { Translate } from '../../../core/i18n/translate';
 import { buildLiveShareText } from '../trip-share-text';
 import { Trip } from '../../../core/models/driver.model';
+import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
+import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
 
 // Desde cuánto antes de la salida ve el pasajero su código de recogida
 const BOARD_CODE_LEAD_MS = 10 * 60_000;
@@ -61,6 +62,8 @@ const BOARD_CODE_LEAD_MS = 10 * 60_000;
 @Component({
   selector: 'app-passenger-request-detail',
   imports: [
+    EmptyState,
+    LoadingState,
     RouterLink,
     IonBreadcrumb,
     IonBreadcrumbs,
@@ -69,7 +72,6 @@ const BOARD_CODE_LEAD_MS = 10 * 60_000;
     IonCardContent,
     IonContent,
     IonIcon,
-    IonSpinner,
     PassengerProgress,
     PassengerRequestRoute,
     PassengerRequestActions,

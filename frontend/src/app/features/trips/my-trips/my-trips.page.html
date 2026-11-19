@@ -33,31 +33,28 @@
           />
 
           @if (isLoading()) {
-            <output class="my-trips__status">
-              <ion-spinner name="crescent" aria-hidden="true" />
-              <span class="text-color-muted">{{ 'myTrips.cargandoTusViajes' | transloco }}</span>
-            </output>
+            <app-loading-state [label]="'myTrips.cargandoTusViajes' | transloco" />
           } @else if (hasError()) {
-            <div class="my-trips__state" role="alert">
-              <ion-icon [icon]="errorIcon" aria-hidden="true" />
-              <div class="my-trips__state-title">
-                {{ 'myTrips.hemosPodidoCargarTus' | transloco }}
-              </div>
+            <app-empty-state
+              class="my-trips__state"
+              role="alert"
+              [icon]="errorIcon"
+              [heading]="'myTrips.hemosPodidoCargarTus' | transloco"
+            >
               <form (submit)="$event.preventDefault(); handleRetry()">
                 <ion-button type="submit" fill="outline">{{
                   'myTrips.reintentar' | transloco
                 }}</ion-button>
               </form>
-            </div>
+            </app-empty-state>
           } @else if (dayGroups().length === 0) {
-            <div class="my-trips__state">
-              <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-              <div class="my-trips__state-title">{{ emptyText() | transloco }}</div>
-              @if (isUpcomingView()) {
-                <!-- Sin botones: Buscar y Publicar ya están en «Te puede interesar» -->
-                <div class="text-body-s text-color-muted">{{ emptyHint() }}</div>
-              }
-            </div>
+            <!-- Sin botones: Buscar y Publicar ya están en «Te puede interesar» -->
+            <app-empty-state
+              class="my-trips__state"
+              [icon]="emptyIcon"
+              [heading]="emptyText() | transloco"
+              [hint]="isUpcomingView() ? emptyHint() : null"
+            />
           } @else {
             @for (group of dayGroups(); track group.id) {
               <h2 class="my-trips__day text-eyebrow text-color-muted">{{ group.day }}</h2>

@@ -1,34 +1,32 @@
 <ion-content>
   <main class="tab-page ride">
     @if (requestResource.isLoading() && !requestResource.hasValue()) {
-      <output class="ride__loading" aria-live="polite">
-        <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-caption text-color-muted">{{ 'live.cargandoViaje' | transloco }}</span>
-      </output>
+      <app-loading-state [label]="'live.cargandoViaje' | transloco" />
     } @else if (requestResource.error() || tripResource.error()) {
-      <ion-card class="ride__state-card">
-        <ion-card-content class="ride__state">
-          <div class="text-subtitle">{{ 'live.encontramosEsteViaje' | transloco }}</div>
-          <p class="text-body-s text-color-muted">
-            {{ 'live.puedeQueEsteDisponible' | transloco }}
-          </p>
-          <ion-button routerLink="/tabs/trips">{{ 'live.volverTusViajes' | transloco }}</ion-button>
-        </ion-card-content>
-      </ion-card>
+      <app-empty-state
+        class="ride__state"
+        role="alert"
+        [isCard]="true"
+        [icon]="alertIcon"
+        [heading]="'live.encontramosEsteViaje' | transloco"
+        [hint]="'live.puedeQueEsteDisponible' | transloco"
+      >
+        <ion-button routerLink="/tabs/trips">{{ 'live.volverTusViajes' | transloco }}</ion-button>
+      </app-empty-state>
     } @else if (request(); as request) {
       @if (trip(); as trip) {
         @if (!isLive() && phase() !== 'finished') {
-          <ion-card class="ride__state-card">
-            <ion-card-content class="ride__state">
-              <div class="text-subtitle">{{ 'live.esteViajeEstaCurso' | transloco }}</div>
-              <p class="text-body-s text-color-muted">
-                {{ 'live.followWhenStarts' | transloco: { name: driverName() } }}
-              </p>
-              <ion-button [routerLink]="['/tabs/trips/requests', request.id]">
-                {{ 'live.verSolicitud' | transloco }}
-              </ion-button>
-            </ion-card-content>
-          </ion-card>
+          <app-empty-state
+            class="ride__state"
+            [isCard]="true"
+            [icon]="waitingIcon"
+            [heading]="'live.esteViajeEstaCurso' | transloco"
+            [hint]="'live.followWhenStarts' | transloco: { name: driverName() }"
+          >
+            <ion-button [routerLink]="['/tabs/trips/requests', request.id]">
+              {{ 'live.verSolicitud' | transloco }}
+            </ion-button>
+          </app-empty-state>
         } @else {
           <!-- Lo que hay que hacer ahora: en la columna de 4 en escritorio y en
                la hoja inferior que se arrastra en el móvil -->

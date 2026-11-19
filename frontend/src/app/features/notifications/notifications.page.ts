@@ -1,6 +1,8 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { EmptyState } from '../../shared/components/ui/empty-state/empty-state';
+import { LoadingState } from '../../shared/components/ui/loading-state/loading-state';
 import {
   IonButton,
   IonCard,
@@ -43,7 +45,7 @@ import {
   notificationCategory,
   notificationMode,
 } from './notification-texts';
-import { SectionHeading } from '../tabs/section-heading/section-heading';
+import { SectionHeading } from '../../shared/components/layout/section-heading/section-heading';
 
 export interface NotificationItem {
   notification: AppNotification;
@@ -56,6 +58,8 @@ const CATEGORIES: NotificationCategory[] = ['travel', 'account', 'incident'];
   selector: 'app-notifications',
   imports: [
     SectionHeading,
+    EmptyState,
+    LoadingState,
     TranslocoPipe,
     IonButton,
     IonCard,

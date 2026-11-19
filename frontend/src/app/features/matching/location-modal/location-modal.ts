@@ -12,7 +12,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { IonButton, IonIcon, IonSpinner, ModalController } from '@ionic/angular';
+import { IonButton, IonIcon, ModalController } from '@ionic/angular';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { locateOutline } from 'ionicons/icons';
 import type * as Leaflet from 'leaflet';
@@ -22,6 +22,8 @@ import { LocationConsentService } from '../../../core/services/location/location
 import { PlacesService } from '../../../core/services/places/places.service';
 import { LEGAL_DOCUMENT_TITLES } from '../../../core/services/users/legal-documents.service';
 import { LegalDocumentText } from '../../../shared/components/ui/legal-document/legal-document';
+import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
+import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 
 // Acercamiento del mapa: el de una calle al ajustar un punto, y uno menos
 // al ver un lugar (para que se vea lo que tiene alrededor)
@@ -54,7 +56,15 @@ export type LocationModalResult = [number, number] | Place;
   selector: 'app-location-modal',
   // ion-page: así Ionic reparte el alto entre la cabecera y el contenido
   host: { class: 'ion-page' },
-  imports: [ModalHeader, IonButton, IonIcon, IonSpinner, LegalDocumentText, TranslocoPipe],
+  imports: [
+    LoadingState,
+    EmptyState,
+    ModalHeader,
+    IonButton,
+    IonIcon,
+    LegalDocumentText,
+    TranslocoPipe,
+  ],
   templateUrl: './location-modal.html',
   styleUrl: './location-modal.scss',
 })

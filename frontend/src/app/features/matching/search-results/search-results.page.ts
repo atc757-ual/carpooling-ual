@@ -15,7 +15,6 @@ import {
   IonRouterLink,
   IonSelect,
   IonSelectOption,
-  IonSpinner,
 } from '@ionic/angular';
 import { alertCircleOutline, createOutline, searchOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
@@ -46,6 +45,8 @@ import { toSearchRequest, toTripResult } from '../trip-results';
 import { MARGINS } from '../trip-search';
 import { TripSearchForm } from '../trip-search-form/trip-search-form';
 import { TripSearchStateService } from '../trip-search-state.service';
+import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
+import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 
 type SearchSortOrder = 'arrival' | 'detour';
 
@@ -91,6 +92,8 @@ export function timeWindowText(trips: TripResult[], direction: TripDirection): s
 @Component({
   selector: 'app-search-results',
   imports: [
+    EmptyState,
+    LoadingState,
     RouterLink,
     IonButton,
     IonCard,
@@ -105,7 +108,6 @@ export function timeWindowText(trips: TripResult[], direction: TripDirection): s
     IonRouterLink,
     IonSelect,
     IonSelectOption,
-    IonSpinner,
     ModalHeader,
     RouteTimeline,
     TripResultCard,

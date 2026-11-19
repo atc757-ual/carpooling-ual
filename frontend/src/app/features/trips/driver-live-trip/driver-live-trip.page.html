@@ -1,33 +1,29 @@
 <ion-content>
   <main class="tab-page driver-live-trip">
     @if (tripResource.isLoading() && !tripResource.hasValue()) {
-      <output class="driver-live-trip__loading" aria-live="polite">
-        <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-caption text-color-muted">{{ 'live.cargandoViaje' | transloco }}</span>
-      </output>
+      <app-loading-state [label]="'live.cargandoViaje' | transloco" />
     } @else if (tripResource.error()) {
-      <ion-card>
-        <ion-card-content class="driver-live-trip__state">
-          <div class="text-subtitle">{{ 'live.encontramosEsteViaje' | transloco }}</div>
-          <p class="text-body-s text-color-muted">
-            {{ 'live.puedeQueEsteDisponible' | transloco }}
-          </p>
-          <ion-button routerLink="/tabs/trips">{{ 'live.volverTusViajes' | transloco }}</ion-button>
-        </ion-card-content>
-      </ion-card>
+      <app-empty-state
+        class="driver-live-trip__state"
+        role="alert"
+        [isCard]="true"
+        [icon]="alertIcon"
+        [heading]="'live.encontramosEsteViaje' | transloco"
+        [hint]="'live.puedeQueEsteDisponible' | transloco"
+      >
+        <ion-button routerLink="/tabs/trips">{{ 'live.volverTusViajes' | transloco }}</ion-button>
+      </app-empty-state>
     } @else if (trip(); as trip) {
       @if (!isInProgress()) {
-        <ion-card>
-          <ion-card-content class="driver-live-trip__state">
-            <div class="text-subtitle">{{ 'live.esteViajeEstaCurso' | transloco }}</div>
-            <p class="text-body-s text-color-muted">
-              {{ 'live.podrasSeguirloAquiCuando' | transloco }}
-            </p>
-            <ion-button routerLink="/tabs/trips">{{
-              'live.volverTusViajes' | transloco
-            }}</ion-button>
-          </ion-card-content>
-        </ion-card>
+        <app-empty-state
+          class="driver-live-trip__state"
+          [isCard]="true"
+          [icon]="waitingIcon"
+          [heading]="'live.esteViajeEstaCurso' | transloco"
+          [hint]="'live.podrasSeguirloAquiCuando' | transloco"
+        >
+          <ion-button routerLink="/tabs/trips">{{ 'live.volverTusViajes' | transloco }}</ion-button>
+        </app-empty-state>
       } @else {
         <!-- Lo que hay que hacer ahora: en la columna de 4 en escritorio y en
              la hoja inferior que se arrastra en el móvil -->
