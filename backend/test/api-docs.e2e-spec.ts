@@ -182,6 +182,7 @@ describe('API docs (e2e)', () => {
       '/api/users/me/requesting-status',
       '/api/users/me/requests',
       '/api/users/me/reviews',
+      '/api/users/me/trip-entries',
       '/api/users/me/trips',
       '/api/users/{id}',
       '/api/users/{id}/driver-rating',
