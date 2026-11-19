@@ -91,7 +91,7 @@ export class TripLookupService {
   // de otro módulo que tiene el id del viaje en tripIdColumn (p. ej.
   // «request.trip_id»). Así la tabla de viajes solo la nombra este módulo
   departureAtSql(manager: EntityManager, tripIdColumn: string): string {
-    const { tableName } = manager.connection.getMetadata(Trip);
+    const { tableName } = manager.getRepository(Trip).metadata;
     return `(SELECT lookup_trip.departure_at FROM ${tableName} lookup_trip WHERE lookup_trip.id = ${tripIdColumn})`;
   }
 
