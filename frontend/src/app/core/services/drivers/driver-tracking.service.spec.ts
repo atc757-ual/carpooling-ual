@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { ApiError } from '../../models/api-error.model';
 import { AuthService } from '../auth/auth.service';
 import { LocationError, LocationService } from '../location/location.service';
+import { TripsService } from '../trips/trips.service';
 import { ScreenWakeLockService } from '../ui/screen-wake-lock.service';
 import { DriverService } from './driver.service';
 import {
@@ -30,6 +31,7 @@ describe('DriverTrackingService', () => {
   };
   let onPoint: (point: [number, number]) => void;
   let tracking: DriverTrackingService;
+  let listMyTripEntries: ReturnType<typeof vi.fn>;
 
   function setVisibility(state: DocumentVisibilityState): void {
     Object.defineProperty(document, 'visibilityState', { value: state, configurable: true });
@@ -42,8 +44,8 @@ describe('DriverTrackingService', () => {
     isDriver = true;
     driver = {
       reportPosition: vi.fn().mockResolvedValue(undefined),
-      listMyTrips: vi.fn().mockResolvedValue([]),
     };
+    listMyTripEntries = vi.fn().mockResolvedValue({ items: [], total: 0 });
     getCurrentPoint = vi.fn().mockResolvedValue(POINT);
     watchPoint = vi.fn().mockImplementation((callback: (point: [number, number]) => void) => {
       onPoint = callback;
@@ -59,6 +61,7 @@ describe('DriverTrackingService', () => {
       providers: [
         provideAppTransloco(),
         { provide: DriverService, useValue: driver },
+        { provide: TripsService, useValue: { listMyTripEntries } },
         { provide: LocationService, useValue: { getCurrentPoint, watchPoint, clearWatch } },
         { provide: ScreenWakeLockService, useValue: wakeLock },
         {
@@ -209,23 +212,28 @@ describe('DriverTrackingService', () => {
   });
 
   it('resumes the trip in progress of the driver', async () => {
-    driver['listMyTrips'].mockResolvedValue([
-      { id: 't0', status: 'confirmed' },
-      { id: 't1', status: 'in_progress' },
-    ]);
+    listMyTripEntries.mockResolvedValue({
+      items: [
+        { role: 'passenger', request: { id: 'r1' } },
+        { role: 'driver', trip: { id: 't0', status: 'confirmed' } },
+        { role: 'driver', trip: { id: 't1', status: 'in_progress' } },
+      ],
+      total: 3,
+    });
 
     await tracking.resume();
 
+    expect(listMyTripEntries).toHaveBeenCalledWith('upcoming', 0);
     expect(tracking.tripId()).toBe('t1');
   });
 
   it('does not resume without a trip in progress or as a passenger', async () => {
-    driver['listMyTrips'].mockRejectedValue(new Error('offline'));
+    listMyTripEntries.mockRejectedValue(new ApiError('NETWORK_ERROR', 0));
     await tracking.resume();
     expect(tracking.tripId()).toBeNull();
 
     isDriver = false;
     await tracking.resume();
-    expect(driver['listMyTrips']).toHaveBeenCalledTimes(1);
+    expect(listMyTripEntries).toHaveBeenCalledTimes(1);
   });
 });

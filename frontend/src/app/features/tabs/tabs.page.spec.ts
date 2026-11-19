@@ -13,7 +13,8 @@ import { provideTranslocoTestingSupport } from '../../core/i18n/testing-transloc
 import { LanguageService } from '../../core/services/ui/language.service';
 import { DriverTrackingService } from '../../core/services/drivers/driver-tracking.service';
 import { ChatService, LiveTrip } from '../../core/services/chat/chat.service';
-import { SeatRequestsService } from '../../core/services/requests/seat-requests.service';
+import { ApiError } from '../../core/models/api-error.model';
+import { TripsService } from '../../core/services/trips/trips.service';
 import { PushNotificationsService } from '../../core/services/push/push-notifications.service';
 import { NotificationsService } from '../../core/services/notifications/notifications.service';
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
@@ -71,7 +72,7 @@ describe('TabsPage', () => {
   const refreshUnreadMessages = vi.fn().mockResolvedValue(undefined);
   const liveTrip = signal<LiveTrip | null>(null);
   const refreshLiveTrip = vi.fn().mockResolvedValue(undefined);
-  const listMine = vi.fn();
+  const listMyTripEntries = vi.fn();
   const resume = vi.fn().mockResolvedValue(undefined);
   let fixture: ComponentFixture<TabsPage>;
 
@@ -124,8 +125,8 @@ describe('TabsPage', () => {
           },
         },
         {
-          provide: SeatRequestsService,
-          useValue: { listMine },
+          provide: TripsService,
+          useValue: { listMyTripEntries },
         },
         { provide: DriverTrackingService, useValue: { resume } },
         provideTranslocoTestingSupport({ en: TABS_EN }),
@@ -212,14 +213,37 @@ describe('TabsPage', () => {
     expect(navigate).toHaveBeenLastCalledWith('/tabs/trips/drive/t1');
 
     liveTrip.set({ tripId: 't1', myRole: 'passenger' });
-    listMine.mockResolvedValueOnce([
-      { id: 'r0', trip: { id: 't1' }, status: 'cancelled' },
-      { id: 'r1', trip: { id: 't1' }, status: 'accepted' },
-    ]);
+    // En «Próximos»: su plaza aceptada (no la que canceló)
+    listMyTripEntries.mockResolvedValueOnce({
+      items: [
+        { role: 'passenger', request: { id: 'r0', trip: { id: 't1' }, status: 'cancelled' } },
+        { role: 'passenger', request: { id: 'r1', trip: { id: 't1' }, status: 'accepted' } },
+      ],
+      total: 2,
+    });
     await page.openLiveTrip();
+    expect(listMyTripEntries).toHaveBeenLastCalledWith('upcoming', 0);
     expect(navigate).toHaveBeenLastCalledWith('/tabs/trips/ride/r1');
 
-    listMine.mockRejectedValueOnce(new Error('offline'));
+    // Ya se bajó: su plaza está en «Anteriores»
+    listMyTripEntries.mockResolvedValueOnce({ items: [], total: 0 }).mockResolvedValueOnce({
+      items: [
+        { role: 'passenger', request: { id: 'r2', trip: { id: 't1' }, status: 'completed' } },
+      ],
+      total: 1,
+    });
+    await page.openLiveTrip();
+    expect(listMyTripEntries).toHaveBeenLastCalledWith('past', 0);
+    expect(navigate).toHaveBeenLastCalledWith('/tabs/trips/ride/r2');
+
+    // Sin su plaza en ninguna, o si la API falla: Tus viajes
+    listMyTripEntries
+      .mockResolvedValueOnce({ items: [], total: 0 })
+      .mockResolvedValueOnce({ items: [], total: 0 });
+    await page.openLiveTrip();
+    expect(navigate).toHaveBeenLastCalledWith('/tabs/trips');
+
+    listMyTripEntries.mockRejectedValueOnce(new ApiError('NETWORK_ERROR', 0));
     await page.openLiveTrip();
     expect(navigate).toHaveBeenLastCalledWith('/tabs/trips');
   });

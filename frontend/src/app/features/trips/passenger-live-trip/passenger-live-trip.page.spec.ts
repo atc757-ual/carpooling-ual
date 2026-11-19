@@ -82,7 +82,7 @@ describe('PassengerLiveTripPage', () => {
         provideCatalogsForTests(),
         {
           provide: SeatRequestsService,
-          useValue: { listMine: vi.fn().mockResolvedValue([req]), arrive },
+          useValue: { getMine: vi.fn().mockResolvedValue(req), arrive },
         },
         { provide: TripsService, useValue: { getTrip } },
         {

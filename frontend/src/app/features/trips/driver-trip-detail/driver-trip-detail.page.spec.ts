@@ -1,3 +1,4 @@
+import { ApiError } from '../../../core/models/api-error.model';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -13,7 +14,7 @@ import {
   IonSpinner,
   provideIonicAngular,
 } from '@ionic/angular';
-import { vi } from 'vitest';
+import { Mock, vi } from 'vitest';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
@@ -39,18 +40,29 @@ function trip(id: string, extra: Partial<DriverTrip> = {}): DriverTrip {
   };
 }
 
+// El viaje de la lista de prueba, o TRIP_NOT_FOUND como la API
+function findTrip<T extends { id: string }>(trips: readonly T[], id: string): Promise<T> {
+  const trip = trips.find((candidate) => candidate.id === id);
+  return trip ? Promise.resolve(trip) : Promise.reject(new ApiError('TRIP_NOT_FOUND', 404));
+}
+
 describe('DriverTripDetailPage', () => {
   let fixture: ComponentFixture<DriverTripDetailPage>;
-  let listMyTrips: ReturnType<typeof vi.fn>;
+  let myTrips: Mock<() => Promise<DriverTrip[]>>;
 
   async function render(trips: () => Promise<DriverTrip[]>): Promise<HTMLElement> {
-    listMyTrips = vi.fn().mockImplementation(trips);
+    myTrips = vi.fn().mockImplementation(trips);
     TestBed.configureTestingModule({
       imports: [DriverTripDetailPage],
       providers: [
         provideAppTransloco(),
         provideIonicAngular(),
-        { provide: DriverService, useValue: { listMyTrips } },
+        {
+          provide: DriverService,
+          useValue: {
+            getMyTrip: async (id: string) => findTrip(await myTrips(), id),
+          },
+        },
       ],
     });
     // Las piezas (recorrido, pasajeros y acciones) tienen sus propios tests
@@ -97,7 +109,7 @@ describe('DriverTripDetailPage', () => {
     const root = await render(() => Promise.resolve([trip('t1')]));
     expect(fixture.componentInstance.impact()?.cars).toBe(2);
 
-    listMyTrips.mockResolvedValue([trip('t1', { status: 'cancelled' })]);
+    myTrips.mockResolvedValue([trip('t1', { status: 'cancelled' })]);
     fixture.componentInstance.handleReload();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -117,7 +129,7 @@ describe('DriverTripDetailPage', () => {
     const root = await render(() => Promise.reject(new Error('down')));
     expect(root.textContent).toContain('No hemos podido cargar este viaje');
 
-    listMyTrips.mockResolvedValue([trip('t1')]);
+    myTrips.mockResolvedValue([trip('t1')]);
     fixture.componentInstance.handleReload();
     await fixture.whenStable();
 

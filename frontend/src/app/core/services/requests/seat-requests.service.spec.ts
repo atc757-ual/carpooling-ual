@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ApiError } from '../../models/api-error.model';
+import { AuthService } from '../auth/auth.service';
 import { SeatRequestsService } from './seat-requests.service';
 
 describe('SeatRequestsService', () => {
@@ -10,7 +11,11 @@ describe('SeatRequestsService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: { currentUser: () => ({ id: 'me' }) } },
+      ],
     });
     requests = TestBed.inject(SeatRequestsService);
     http = TestBed.inject(HttpTestingController);
@@ -26,6 +31,16 @@ describe('SeatRequestsService', () => {
     request.flush({ id: 'r1', status: 'pending' });
 
     expect(await created).toEqual({ id: 'r1', status: 'pending' });
+  });
+
+  it('gets one of my requests by its id, and not a request of someone else', async () => {
+    const mine = requests.getMine('r1');
+    http.expectOne('/api/requests/r1').flush({ id: 'r1', passenger: { id: 'me' } });
+    expect(await mine).toEqual({ id: 'r1', passenger: { id: 'me' } });
+
+    const other = requests.getMine('r2');
+    http.expectOne('/api/requests/r2').flush({ id: 'r2', passenger: { id: 'someone' } });
+    await expect(other).rejects.toMatchObject({ code: 'REQUEST_NOT_FOUND', status: 404 });
   });
 
   it('lists my requests and cancels one', async () => {

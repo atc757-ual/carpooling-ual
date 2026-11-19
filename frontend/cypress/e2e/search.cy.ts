@@ -161,7 +161,7 @@ for (const viewport of VIEWPORTS) {
         '@type': 'SeatRequest',
         id: 'r1',
         trip: { id: 't1' },
-        passenger: { id: 'p1', name: 'Mario Pérez' },
+        passenger: { id: 'user-1', name: 'Mario Pérez' },
         status: 'pending',
         seats: 1,
         direction: 'to-campus',
@@ -182,6 +182,8 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('GET', '/api/users/me/requests*', (req) => {
         req.reply(requests);
       });
+      // El detalle de la plaza recién pedida, por su id
+      cy.intercept('GET', '/api/requests/r1', newRequest);
       searchTrips('Roquetas de Mar');
       cy.get('app-search-results app-trip-result-card .trip-card__link').click();
 
