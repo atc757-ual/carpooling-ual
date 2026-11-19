@@ -64,3 +64,12 @@ export class ApiError extends Error {
     return new ApiError(UNKNOWN_ERROR, error.status, { requestId });
   }
 }
+
+// Para los catch que tratan un fallo de la API (p. ej. pintar «no se ha podido
+// cargar»): cualquier otro error (un fallo del código) se vuelve a lanzar y
+// llega al registro global en vez de perderse
+export function rethrowUnlessApiError(error: unknown): void {
+  if (!(error instanceof ApiError)) {
+    throw error;
+  }
+}

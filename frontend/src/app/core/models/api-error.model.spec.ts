@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { ApiError, NETWORK_ERROR, UNKNOWN_ERROR } from './api-error.model';
+import { ApiError, NETWORK_ERROR, rethrowUnlessApiError, UNKNOWN_ERROR } from './api-error.model';
 
 describe('ApiError.fromHttpError', () => {
   it('reads the TMF630 error code, status, fields and request id', () => {
@@ -55,5 +55,16 @@ describe('ApiError.fromHttpError', () => {
 
   it('turns anything else into an unknown error', () => {
     expect(ApiError.fromHttpError(new Error('boom')).code).toBe(UNKNOWN_ERROR);
+  });
+});
+
+describe('rethrowUnlessApiError', () => {
+  it('lets an API failure through', () => {
+    expect(() => rethrowUnlessApiError(new ApiError(NETWORK_ERROR, 0))).not.toThrow();
+  });
+
+  it('throws again any other error', () => {
+    const bug = new TypeError('boom');
+    expect(() => rethrowUnlessApiError(bug)).toThrow(bug);
   });
 });

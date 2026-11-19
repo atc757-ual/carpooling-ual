@@ -7,7 +7,8 @@ import { IonIcon, IonSelect, IonSelectOption, ModalController } from '@ionic/ang
 import { ellipseOutline, locationOutline, swapHorizontal } from 'ionicons/icons';
 import { map, startWith, switchMap } from 'rxjs';
 import { SearchPlace } from '../../../core/models/trip-search.model';
-import { LocationService } from '../../../core/services/location/location.service';
+import { rethrowUnlessApiError } from '../../../core/models/api-error.model';
+import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { CAMPUS_NAME } from '../campus';
 import { LocationModal } from '../location-modal/location-modal';
@@ -96,7 +97,9 @@ export class RouteFields implements OnInit {
   // con la dirección del momento. Si está en el campus (a menos de 1 km de un
   // parking), no lo rellena: propone volver a casa. La ubicación no se guarda
   private async prefillOrigin(): Promise<void> {
-    await this.places.loadParkings();
+    // Sin los parkings (la API no responde) se sigue, sin mirar si está en el
+    // campus: se vuelven a pedir al abrir la lista
+    await this.places.loadParkings().catch(rethrowUnlessApiError);
     const saved = this.controls().place.value;
     const isToCampus = this.controls().isToCampus.value;
     // Con una dirección ya elegida solo se mira si es donde está ahora; sin
@@ -104,7 +107,13 @@ export class RouteFields implements OnInit {
     if ((!saved && !isToCampus) || (await this.location.checkPermission()) !== 'granted') {
       return;
     }
-    const point = await this.location.getCurrentPoint().catch(() => null);
+    // Sin ubicación (sin señal o el sistema no la da): el campo, vacío
+    const point = await this.location.getCurrentPoint().catch((error: unknown) => {
+      if (error instanceof LocationError) {
+        return null;
+      }
+      throw error;
+    });
     if (!point) {
       return;
     }

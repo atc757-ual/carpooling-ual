@@ -6,6 +6,7 @@ import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { ApiError, NETWORK_ERROR } from '../../../core/models/api-error.model';
 import { Vehicle } from '../../../core/models/driver.model';
 import { CampusParking } from '../../../core/models/place.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -441,7 +442,7 @@ describe('PublishTripPage', () => {
 
   it('offers to retry when the vehicles cannot be loaded', async () => {
     await openPage();
-    driver['listVehicles'].mockRejectedValue(new Error('down'));
+    driver['listVehicles'].mockRejectedValue(new ApiError(NETWORK_ERROR, 0));
 
     await page.loadVehicles();
 
@@ -507,7 +508,7 @@ describe('PublishTripPage', () => {
     ['driver status', (late: Promise<never>) => driver['getStatus'].mockReturnValueOnce(late)],
   ])('ignores the %s of the previous account that arrive late', async (_name, delay) => {
     await openPage();
-    let failLate: (error: Error) => void = () => undefined;
+    let failLate: (error: ApiError) => void = () => undefined;
     delay(
       new Promise<never>((_resolve, reject) => {
         failLate = reject;
@@ -519,7 +520,7 @@ describe('PublishTripPage', () => {
     await switchAccount({ id: 'user-2', profiles: ['driver'] });
     await switchAccount({ id: 'user-3', profiles: ['driver'] });
 
-    failLate(new Error('late'));
+    failLate(new ApiError(NETWORK_ERROR, 0));
     await harness.fixture.whenStable();
 
     expect(page.loadState()).toBe('ready');
@@ -574,7 +575,7 @@ describe('PublishTripPage', () => {
     await openPage();
     fillTrip();
     await page.goToStep(2);
-    driver['getStatus'].mockRejectedValueOnce(new Error('offline'));
+    driver['getStatus'].mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
 
     await page.load();
     expect(page.loadState()).toBe('error');
@@ -595,7 +596,7 @@ describe('PublishTripPage', () => {
   it('falls back to straight line when planRoute fails', async () => {
     await openPage();
     const tripsService = TestBed.inject(TripsService);
-    vi.spyOn(tripsService, 'planRoute').mockRejectedValueOnce(new Error('network error'));
+    vi.spyOn(tripsService, 'planRoute').mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
 
     fillTrip({ withVehicle: true });
     await harness.fixture.whenStable();

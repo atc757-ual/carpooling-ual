@@ -17,6 +17,7 @@ import { ModalHeader } from '../../../shared/components/modals/modal-header/moda
 import { locateOutline } from 'ionicons/icons';
 import type * as Leaflet from 'leaflet';
 import { Place } from '../../../core/models/place.model';
+import { ApiError } from '../../../core/models/api-error.model';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { PlacesService } from '../../../core/services/places/places.service';
@@ -224,7 +225,7 @@ export class LocationModal implements OnInit, OnDestroy {
       this.place.set(await this.places.reverse(point));
     } catch (error) {
       this.addressError.set(
-        (error as { status?: unknown }).status === 404
+        error instanceof ApiError && error.status === 404
           ? translate('screens.locationModal.encontramosDireccionAquiMueve')
           : translate('screens.locationModal.ahoraPodemosBuscarDireccion'),
       );

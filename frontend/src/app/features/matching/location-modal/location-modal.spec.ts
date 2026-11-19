@@ -2,6 +2,7 @@ import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { ApiError } from '../../../core/models/api-error.model';
 import { Place } from '../../../core/models/place.model';
 import { LocationConsentService } from '../../../core/services/location/location-consent.service';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
@@ -192,7 +193,9 @@ describe('LocationModal', () => {
   });
 
   it('moves the pin and looks for the new address', async () => {
-    places.reverse.mockRejectedValueOnce({ status: 404 }).mockResolvedValueOnce(PLACE);
+    places.reverse
+      .mockRejectedValueOnce(new ApiError('PLACE_NOT_FOUND', 404))
+      .mockResolvedValueOnce(PLACE);
 
     await modal.movePin([-2.5, 36.9]);
     expect(modal.addressError()).toContain('No encontramos una dirección aquí');

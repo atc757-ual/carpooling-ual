@@ -5,6 +5,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
+import { ApiError, NETWORK_ERROR } from '../../../core/models/api-error.model';
 import { Place } from '../../../core/models/place.model';
 import { SearchPlace } from '../../../core/models/trip-search.model';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
@@ -232,7 +233,7 @@ describe('PlaceField', () => {
     places.reverse.mockResolvedValueOnce({ ...PLACE, municipality: 'Vera', isCovered: false });
 
     await field.fillQuietly([-1.8, 37.2]);
-    places.reverse.mockRejectedValueOnce(new Error('down'));
+    places.reverse.mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
     await field.fillQuietly([-1.8, 37.2]);
 
     expect(fixture.componentInstance.place.value).toBeNull();

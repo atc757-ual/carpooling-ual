@@ -119,19 +119,26 @@ describe('AdminSimulationPage', () => {
   });
 
   it('polls a running run every 2 seconds until it finishes', async () => {
-    simulations.list.mockResolvedValue({ items: [RUN], total: 1 });
-    simulations.get.mockResolvedValue({ ...RUN, status: 'running', progress: 12 });
-    const root = await render();
-    expect(root.textContent).toContain('12/30 réplicas');
+    // Solo el intervalo, simulado: lo demás (whenStable, promesas) va con el
+    // reloj de verdad
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+    try {
+      simulations.list.mockResolvedValue({ items: [RUN], total: 1 });
+      simulations.get.mockResolvedValue({ ...RUN, status: 'running', progress: 12 });
+      const root = await render();
+      expect(root.textContent).toContain('12/30 réplicas');
 
-    simulations.get.mockResolvedValue(RUN);
-    await new Promise((resolve) => setTimeout(resolve, 2100));
-    await settle();
+      simulations.get.mockResolvedValue(RUN);
+      await vi.advanceTimersByTimeAsync(2100);
+      await settle();
 
-    expect(simulations.get).toHaveBeenCalledTimes(2);
-    expect(simulations.list).toHaveBeenCalledTimes(2);
-    expect(fixture.componentInstance.isRunning()).toBe(false);
-  }, 10_000);
+      expect(simulations.get).toHaveBeenCalledTimes(2);
+      expect(simulations.list).toHaveBeenCalledTimes(2);
+      expect(fixture.componentInstance.isRunning()).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 
   it('cancels a running run after confirming it', async () => {
     simulations.list.mockResolvedValue({ items: [RUN], total: 1 });
