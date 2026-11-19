@@ -1,7 +1,9 @@
 <ion-content>
   <div class="tab-page trip-detail">
     @if (trip(); as trip) {
-      <!-- Columna de 8 en escritorio: «Tu recorrido» y «Conductor y coche» -->
+      <!-- Columna de 8 en escritorio: «Tu recorrido» y, debajo, «Solicitar plaza»
+           (decidido con el autor el 19/11: en el móvil, la acción principal
+           ya no queda al final) -->
       <div class="trip-detail__main">
         <ion-card>
           <ion-card-header>
@@ -41,46 +43,6 @@
           </ion-card-content>
         </ion-card>
 
-        <ion-card>
-          <ion-card-header>
-            <ion-card-title>Conductor y coche</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <app-trip-driver [driver]="trip.driver" />
-
-            @if (trip.vehicle; as vehicle) {
-              <div class="trip-detail__vehicle">
-                <ion-icon [icon]="carIcon" aria-hidden="true" />
-                <div>
-                  <div class="text-body-s text-body--strong">{{ vehicleName(vehicle) }}</div>
-                  <div class="text-caption text-color-muted">
-                    <span
-                      class="trip-detail__swatch"
-                      [style.--swatch-color]="vehicleSwatch(vehicle.color)"
-                      aria-hidden="true"
-                    ></span>
-                    {{ vehicleColor(vehicle.color) }}
-                    @if (request()?.status === 'accepted' && request()?.vehiclePlate; as plate) {
-                      · Matrícula <b>{{ plate }}</b>
-                    }
-                  </div>
-                </div>
-              </div>
-            }
-
-            @if (driverPreferences().length > 0) {
-              <section class="trip-detail__preferences" aria-label="Preferencias del conductor">
-                @for (preference of driverPreferences(); track preference) {
-                  <span class="trip-detail__preference">{{ preference }}</span>
-                }
-              </section>
-            }
-          </ion-card-content>
-        </ion-card>
-      </div>
-
-      <!-- Columna de 4 en escritorio; debajo en el móvil -->
-      <aside class="trip-detail__aside" aria-label="Solicitar plaza en este viaje">
         <ion-card class="trip-detail__actions">
           <ion-card-header>
             <ion-card-title>
@@ -145,23 +107,27 @@
               </output>
             } @else if (canRequest()) {
               <div class="trip-detail__action-block">
-                @if (isAutoAccept()) {
-                  <!-- Con aceptación automática: la plaza se asigna directamente -->
-                  <div class="notice notice--success">
-                    <span>
-                      <b>Reserva directa (aceptación automática)</b>
-                      {{ driverFirstName() }} tiene activada la aceptación automática. Tu plaza se
-                      confirmará al instante sin esperar su respuesta.
-                    </span>
-                  </div>
-                } @else {
-                  <!-- Antes del botón: qué pasa al solicitar -->
-                  <div class="notice notice--info">
-                    <span>
-                      <b>Primero solicitas y {{ driverFirstName() }} decide</b>
-                      Verificamos el correo UAL, no la identidad ni el permiso de conducir.
-                    </span>
-                  </div>
+                <!-- Con el aviso de una solicitud anterior (rechazada, cancelada o
+                     caducada), solo ese: el de cómo funciona sobra (19/11) -->
+                @if (!hasClosedRequest()) {
+                  @if (isAutoAccept()) {
+                    <!-- Con aceptación automática: la plaza se asigna directamente -->
+                    <div class="notice notice--success">
+                      <span>
+                        <b>Reserva directa (aceptación automática)</b>
+                        {{ driverFirstName() }} tiene activada la aceptación automática. Tu plaza se
+                        confirmará al instante sin esperar su respuesta.
+                      </span>
+                    </div>
+                  } @else {
+                    <!-- Antes del botón: qué pasa al solicitar -->
+                    <div class="notice notice--info">
+                      <span>
+                        <b>Primero solicitas y {{ driverFirstName() }} decide</b>
+                        Verificamos el correo UAL, no la identidad ni el permiso de conducir.
+                      </span>
+                    </div>
+                  }
                 }
                 <form (submit)="$event.preventDefault(); handleRequest()">
                   <ion-button type="submit" expand="block" [disabled]="isSending()">
@@ -209,6 +175,46 @@
                   Dejarás libre {{ formatSeats(request()!.seats) }} en este viaje.
                 </p>
               </div>
+            }
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Columna de 4 en escritorio; debajo en el móvil: el conductor y el coche -->
+      <aside class="trip-detail__aside" aria-label="Conductor y coche">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Conductor y coche</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <app-trip-driver [driver]="trip.driver" />
+
+            @if (trip.vehicle; as vehicle) {
+              <div class="trip-detail__vehicle">
+                <ion-icon [icon]="carIcon" aria-hidden="true" />
+                <div>
+                  <div class="text-body-s text-body--strong">{{ vehicleName(vehicle) }}</div>
+                  <div class="text-caption text-color-muted">
+                    <span
+                      class="trip-detail__swatch"
+                      [style.--swatch-color]="vehicleSwatch(vehicle.color)"
+                      aria-hidden="true"
+                    ></span>
+                    {{ vehicleColor(vehicle.color) }}
+                    @if (request()?.status === 'accepted' && request()?.vehiclePlate; as plate) {
+                      · Matrícula <b>{{ plate }}</b>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (driverPreferences().length > 0) {
+              <section class="trip-detail__preferences" aria-label="Preferencias del conductor">
+                @for (preference of driverPreferences(); track preference) {
+                  <span class="trip-detail__preference">{{ preference }}</span>
+                }
+              </section>
             }
           </ion-card-content>
         </ion-card>

@@ -172,7 +172,7 @@ describe('TripDetailPage', () => {
   it('requests the seats of the search and shows it pending', async () => {
     const root = await render('t1', SEARCH);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
-    const button = root.querySelector<HTMLIonButtonElement>('.trip-detail__aside ion-button');
+    const button = root.querySelector<HTMLIonButtonElement>('.trip-detail__actions ion-button');
     expect(button?.textContent?.trim()).toBe('Solicitar 2 plazas');
 
     await fixture.componentInstance.handleRequest();
@@ -202,6 +202,22 @@ describe('TripDetailPage', () => {
 
     expect(root.textContent).toContain('Tu solicitud no se aceptó.');
     expect(fixture.componentInstance.canRequest()).toBe(true);
+    // Solo el aviso de la solicitud anterior, sin el de cómo funciona
+    expect(root.textContent).not.toContain('Primero solicitas');
+  });
+
+  it('explains how requesting works when there was no request before', async () => {
+    const root = await render('t1', SEARCH);
+
+    expect(fixture.componentInstance.hasClosedRequest()).toBe(false);
+    expect(root.textContent).toContain('Primero solicitas y Lucía decide');
+  });
+
+  it('puts the seat request under the route and the driver in the side column', async () => {
+    const root = await render('t1', SEARCH);
+
+    expect(root.querySelector('.trip-detail__main .trip-detail__actions')).not.toBeNull();
+    expect(root.querySelector('.trip-detail__aside app-trip-driver')).not.toBeNull();
   });
 
   it('cancels only after confirming it', async () => {

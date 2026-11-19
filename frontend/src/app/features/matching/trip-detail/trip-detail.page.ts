@@ -26,6 +26,7 @@ import {
 } from '@ionic/angular';
 import { carOutline, mapOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
+import { SeatRequestStatus } from '../../../core/models/seat-request.model';
 import { TravelPreferencesStore } from '../../../core/services/catalogs/travel-preferences.store';
 import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colors.store';
 import { PermissionPromptsService } from '../../../core/services/push/permission-prompts.service';
@@ -51,9 +52,17 @@ import { formatTime, toTripDetail } from '../trip-results';
 import { pickupFact, toRequestPickup } from '../trip-pickup';
 import { TripSearchStateService } from '../trip-search-state.service';
 
+// Solicitudes que ya no siguen: se puede volver a pedir plaza
+const CLOSED_REQUEST_STATUSES: ReadonlySet<SeatRequestStatus> = new Set([
+  'rejected',
+  'cancelled',
+  'expired',
+]);
+
 // Detalle de un viaje de los resultados de Buscar: cabecera fija con cuándo y
-// sentido; en escritorio, columna de 8 con «Tu recorrido» y «Conductor y coche»
-// y columna de 4 con la tarjeta para solicitar plaza o gestionar la solicitud
+// sentido; en escritorio, columna de 8 con «Tu recorrido» y, debajo, la tarjeta
+// para solicitar plaza o gestionar la solicitud, y columna de 4 con «Conductor y
+// coche»
 @Component({
   selector: 'app-trip-detail',
   imports: [
@@ -251,6 +260,11 @@ export class TripDetailPage {
       (await this.seatRequests.listMine()).find(({ trip }) => trip.id === tripId) ?? null,
   });
   readonly request = computed(() => (this.myRequest.hasValue() ? this.myRequest.value() : null));
+  // Una solicitud anterior que ya no sigue: su aviso sustituye al de cómo funciona
+  readonly hasClosedRequest = computed(() => {
+    const status = this.request()?.status;
+    return status !== undefined && CLOSED_REQUEST_STATUSES.has(status);
+  });
   readonly canRequest = computed(() => {
     const status = this.request()?.status;
     return (
