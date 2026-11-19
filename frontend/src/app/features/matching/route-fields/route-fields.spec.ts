@@ -4,7 +4,7 @@ import { FormControl } from '@angular/forms';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { SearchPlace } from '../../../core/models/trip-search.model';
-import { LocationService } from '../../../core/services/location/location.service';
+import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { PLACES_SERVICE_STUB, ROQUETAS, stubIntersectionObserver } from '../trip-search.testing';
 import { RouteControls, RouteFields } from './route-fields';
@@ -15,6 +15,8 @@ interface RenderOptions {
   point?: [number, number];
   permission?: string;
   place?: SearchPlace | null;
+  // Lo que lanza el dispositivo al pedir la ubicación
+  pointError?: Error;
 }
 
 describe('RouteFields', () => {
@@ -27,6 +29,7 @@ describe('RouteFields', () => {
     point = ROQUETAS.coordinates,
     permission = 'prompt',
     place = null,
+    pointError,
   }: RenderOptions = {}): Promise<HTMLElement> {
     stubIntersectionObserver();
     reverse.mockReset().mockResolvedValue({
@@ -47,7 +50,8 @@ describe('RouteFields', () => {
           provide: LocationService,
           useValue: {
             checkPermission: () => Promise.resolve(permission),
-            getCurrentPoint: () => Promise.resolve(point),
+            getCurrentPoint: () =>
+              pointError ? Promise.reject(pointError) : Promise.resolve(point),
           },
         },
       ],
@@ -124,6 +128,13 @@ describe('RouteFields', () => {
 
       await vi.waitFor(() => expect(reverse).toHaveBeenCalledWith(ROQUETAS.coordinates));
       expect(fields.isAtCampus()).toBe(false);
+    });
+
+    it('leaves the origin empty when the device cannot locate itself', async () => {
+      await render({ permission: 'granted', pointError: new LocationError('unavailable') });
+
+      expect(reverse).not.toHaveBeenCalled();
+      expect(controls.place.value).toBeNull();
     });
 
     it('does not ask for the location when it is not allowed yet', async () => {

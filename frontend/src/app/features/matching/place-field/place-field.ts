@@ -7,6 +7,7 @@ import { locateOutline, navigateCircleOutline } from 'ionicons/icons';
 import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
 import { Place, PlaceSuggestion } from '../../../core/models/place.model';
 import { SearchPlace } from '../../../core/models/trip-search.model';
+import { rethrowUnlessApiError } from '../../../core/models/api-error.model';
 import { LocationError, LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { LocationModal, LocationModalResult } from '../location-modal/location-modal';
@@ -207,8 +208,9 @@ export class PlaceField implements ControlValueAccessor {
         this.applyPlace(place);
         this.isFromLocation.set(true);
       }
-    } catch {
-      // Sin dirección: se escribe a mano
+    } catch (error) {
+      // Sin dirección (la API no la encuentra o no responde): se escribe a mano
+      rethrowUnlessApiError(error);
     }
   }
 

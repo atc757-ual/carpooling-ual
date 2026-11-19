@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { ApiError } from '../../models/api-error.model';
 import { CampusParking, Place, PlaceSuggestion } from '../../models/place.model';
 
 // Cuántas sugerencias se piden mientras se escribe
@@ -20,14 +21,16 @@ export class PlacesService {
   readonly parkings = this.parkingList.asReadonly();
   private parkingsRequest: Promise<void> | null = null;
 
-  // Pide los parkings la primera vez; las siguientes, nada
+  // Pide los parkings la primera vez; las siguientes, nada. Si fallan, lanza
+  // el error y la próxima llamada los vuelve a pedir
   loadParkings(): Promise<void> {
-    this.parkingsRequest ??= firstValueFrom(
+    this.parkingsRequest ??= this.call(
       this.http.get<CampusParking[]>(`${environment.apiUrl}/campus-parkings`),
     ).then(
       (parkings) => this.parkingList.set(parkings),
-      () => {
+      (error: unknown) => {
         this.parkingsRequest = null;
+        throw error;
       },
     );
     return this.parkingsRequest;
@@ -42,14 +45,20 @@ export class PlacesService {
 
   // La dirección de una sugerencia, con su punto y si hay cobertura
   getPlace(id: string): Promise<Place> {
-    return firstValueFrom(this.http.get<Place>(`${this.placesUrl}/${id}`));
+    return this.call(this.http.get<Place>(`${this.placesUrl}/${id}`));
   }
 
   // La dirección más cercana a un punto [longitud, latitud] (la ubicación
   // del dispositivo o el pin del mapa)
   reverse([lon, lat]: [number, number]): Promise<Place> {
-    return firstValueFrom(
-      this.http.get<Place>(`${this.placesUrl}/reverse`, { params: { lon, lat } }),
-    );
+    return this.call(this.http.get<Place>(`${this.placesUrl}/reverse`, { params: { lon, lat } }));
+  }
+
+  private async call<T>(request: Observable<T>): Promise<T> {
+    try {
+      return await firstValueFrom(request);
+    } catch (error) {
+      throw ApiError.fromHttpError(error);
+    }
   }
 }

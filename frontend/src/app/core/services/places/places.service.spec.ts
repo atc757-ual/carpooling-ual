@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
+import { ApiError } from '../../models/api-error.model';
 import { CampusParking } from '../../models/place.model';
 import { PlacesService } from './places.service';
 
@@ -34,10 +35,10 @@ describe('PlacesService', () => {
     expect(places.parkings()).toEqual([P1]);
   });
 
-  it('asks again for the parkings when they failed', async () => {
+  it('throws an ApiError and asks again for the parkings when they failed', async () => {
     const failed = places.loadParkings();
     http.expectOne('/api/campus-parkings').flush(null, { status: 503, statusText: 'Down' });
-    await failed;
+    await expect(failed).rejects.toMatchObject({ status: 503 });
     expect(places.parkings()).toEqual([]);
 
     const retry = places.loadParkings();
@@ -71,5 +72,15 @@ describe('PlacesService', () => {
     http.expectOne('/api/places/a1').flush({ id: 'a1', isCovered: true });
 
     await expect(place).resolves.toMatchObject({ isCovered: true });
+  });
+
+  it('throws an ApiError when an address fails', async () => {
+    const place = places.reverse([-2.4637, 36.8381]);
+    http
+      .expectOne((req) => req.url === '/api/places/reverse')
+      .flush({ code: 'PLACE_NOT_FOUND' }, { status: 404, statusText: 'Not Found' });
+
+    await expect(place).rejects.toBeInstanceOf(ApiError);
+    await expect(place).rejects.toMatchObject({ code: 'PLACE_NOT_FOUND', status: 404 });
   });
 });
