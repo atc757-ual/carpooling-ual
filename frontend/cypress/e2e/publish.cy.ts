@@ -54,7 +54,7 @@ function stubNewDriver(): void {
     isReady: false,
   });
   cy.intercept('GET', '/api/vehicles', []);
-  cy.intercept('GET', '/api/legal-documents/vehicle_declaration', {
+  cy.intercept('GET', '/api/legal-documents/vehicle_declaration?*', {
     type: 'vehicle_declaration',
     version: '1.0',
     content: '<p>Seguro e ITV</p>',
