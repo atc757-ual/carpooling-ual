@@ -7,7 +7,7 @@
       <div class="trip-detail__main">
         <ion-card>
           <ion-card-header>
-            <ion-card-title>Tu recorrido</ion-card-title>
+            <ion-card-title>{{ 'tripDetail.route' | transloco }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
             @if (tripData.value(); as data) {
@@ -24,10 +24,12 @@
             } @else if (tripData.isLoading()) {
               <output class="trip-detail__loading" aria-live="polite">
                 <ion-spinner name="crescent" aria-hidden="true" />
-                <span class="text-caption text-color-muted">Cargando el mapa del viaje…</span>
+                <span class="text-caption text-color-muted">{{
+                  'tripDetail.mapLoading' | transloco
+                }}</span>
               </output>
             } @else if (tripData.error()) {
-              <p class="text-caption text-color-muted">No pudimos cargar el mapa de la ruta.</p>
+              <p class="text-caption text-color-muted">{{ 'tripDetail.mapError' | transloco }}</p>
             }
 
             <app-route-timeline [stops]="stops()" />
@@ -47,11 +49,12 @@
           <ion-card-header>
             <ion-card-title>
               {{
-                request()?.status === 'pending' || request()?.status === 'accepted'
-                  ? 'Tu solicitud'
+                (request()?.status === 'pending' || request()?.status === 'accepted'
+                  ? 'tripDetail.yourRequest'
                   : isAutoAccept()
-                    ? 'Reservar plaza'
-                    : 'Solicitar plaza'
+                    ? 'tripDetail.book'
+                    : 'tripDetail.request'
+                ) | transloco
               }}
             </ion-card-title>
           </ion-card-header>
@@ -60,41 +63,47 @@
               @case ('pending') {
                 <output class="notice notice--warning">
                   <span>
-                    <b>Solicitud enviada. Falta la respuesta de {{ driverFirstName() }}.</b>
-                    Has pedido {{ formatSeats(request()!.seats) }}. Todavía no tienes plaza
-                    confirmada: te avisaremos cuando {{ driverFirstName() }} acepte o rechace.
+                    <b>{{ 'tripDetail.pending' | transloco: { driver: driverFirstName() } }}</b>
+                    {{
+                      'tripDetail.pendingHint'
+                        | transloco
+                          : { seats: formatSeats(request()!.seats), driver: driverFirstName() }
+                    }}
                   </span>
                 </output>
               }
               @case ('accepted') {
                 <output class="notice notice--success">
                   <span>
-                    <b>{{ driverFirstName() }} ha aceptado tu solicitud.</b>
-                    Tienes {{ formatSeats(request()!.seats) }} en este viaje.
+                    <b>{{ 'tripDetail.accepted' | transloco: { driver: driverFirstName() } }}</b>
+                    {{
+                      'tripDetail.acceptedHint'
+                        | transloco: { seats: formatSeats(request()!.seats) }
+                    }}
                   </span>
                 </output>
               }
               @case ('rejected') {
                 <output class="notice notice--info">
                   <span>
-                    <b>Tu solicitud no se aceptó.</b>
-                    Puedes buscar otro viaje o volver a pedir si quedan plazas.
+                    <b>{{ 'tripDetail.rejected' | transloco }}</b>
+                    {{ 'tripDetail.rejectedHint' | transloco }}
                   </span>
                 </output>
               }
               @case ('cancelled') {
                 <output class="notice notice--info">
                   <span>
-                    <b>Cancelaste tu solicitud.</b> Puedes volver a pedir si quedan plazas.
+                    <b>{{ 'tripDetail.cancelled' | transloco }}</b>
+                    {{ 'tripDetail.cancelledHint' | transloco }}
                   </span>
                 </output>
               }
               @case ('expired') {
                 <output class="notice notice--danger">
                   <span>
-                    <b>Tu solicitud caducó.</b>
-                    {{ driverFirstName() }} no respondió a tiempo: las solicitudes se cierran 10
-                    minutos antes de la salida.
+                    <b>{{ 'tripDetail.expired' | transloco }}</b>
+                    {{ 'tripDetail.expiredHint' | transloco: { driver: driverFirstName() } }}
                   </span>
                 </output>
               }
@@ -103,7 +112,9 @@
             @if (myRequest.isLoading()) {
               <output class="trip-detail__loading">
                 <ion-spinner name="crescent" aria-hidden="true" />
-                <span class="text-caption text-color-muted">Comprobando tus solicitudes…</span>
+                <span class="text-caption text-color-muted">{{
+                  'tripDetail.checking' | transloco
+                }}</span>
               </output>
             } @else if (canRequest()) {
               <div class="trip-detail__action-block">
@@ -114,17 +125,18 @@
                     <!-- Con aceptación automática: la plaza se asigna directamente -->
                     <div class="notice notice--success">
                       <span>
-                        <b>Reserva directa (aceptación automática)</b>
-                        {{ driverFirstName() }} tiene activada la aceptación automática. Tu plaza se
-                        confirmará al instante sin esperar su respuesta.
+                        <b>{{ 'tripDetail.autoAccept' | transloco }}</b>
+                        {{ 'tripDetail.autoAcceptHint' | transloco: { driver: driverFirstName() } }}
                       </span>
                     </div>
                   } @else {
                     <!-- Antes del botón: qué pasa al solicitar -->
                     <div class="notice notice--info">
                       <span>
-                        <b>Primero solicitas y {{ driverFirstName() }} decide</b>
-                        Verificamos el correo UAL, no la identidad ni el permiso de conducir.
+                        <b>{{
+                          'tripDetail.howItWorks' | transloco: { driver: driverFirstName() }
+                        }}</b>
+                        {{ 'tripDetail.howItWorksHint' | transloco }}
                       </span>
                     </div>
                   }
@@ -134,20 +146,21 @@
                     @if (isSending()) {
                       <ion-spinner slot="start" name="crescent" aria-hidden="true" />
                     }
-                    {{ isAutoAccept() ? 'Reservar' : 'Solicitar' }} {{ requestedSeats() }}
+                    {{
+                      (isAutoAccept() ? 'tripDetail.bookSeats' : 'tripDetail.requestSeats')
+                        | transloco: { seats: requestedSeats() }
+                    }}
                   </ion-button>
                 </form>
               </div>
             } @else if (request()?.status === 'expired') {
               <div class="trip-detail__action-block">
                 <ion-button expand="block" [disabled]="true">
-                  Solicitar {{ requestedSeats() }}
-                  <span class="visually-hidden">
-                    . Las solicitudes se cerraron 10 minutos antes de la salida.
-                  </span>
+                  {{ 'tripDetail.requestSeats' | transloco: { seats: requestedSeats() } }}
+                  <span class="visually-hidden">. {{ 'tripDetail.closed' | transloco }}</span>
                 </ion-button>
                 <p class="trip-detail__hint text-caption" aria-hidden="true">
-                  Las solicitudes se cerraron 10 minutos antes de la salida.
+                  {{ 'tripDetail.closed' | transloco }}
                 </p>
               </div>
             } @else {
@@ -156,7 +169,7 @@
                   expand="block"
                   [routerLink]="['/tabs/trips/requests', currentRequest.id]"
                 >
-                  Ver tu solicitud
+                  {{ 'tripDetail.viewRequest' | transloco }}
                 </ion-button>
               }
               <div class="trip-detail__action-block">
@@ -168,11 +181,13 @@
                     color="danger"
                     [disabled]="isSending()"
                   >
-                    Cancelar solicitud
+                    {{ 'tripDetail.cancel' | transloco }}
                   </ion-button>
                 </form>
                 <p class="trip-detail__hint text-caption">
-                  Dejarás libre {{ formatSeats(request()!.seats) }} en este viaje.
+                  {{
+                    'tripDetail.cancelHint' | transloco: { seats: formatSeats(request()!.seats) }
+                  }}
                 </p>
               </div>
             }
@@ -181,10 +196,10 @@
       </div>
 
       <!-- Columna de 4 en escritorio; debajo en el móvil: el conductor y el coche -->
-      <aside class="trip-detail__aside" aria-label="Conductor y coche">
+      <aside class="trip-detail__aside" [attr.aria-label]="'tripDetail.driverAndCar' | transloco">
         <ion-card>
           <ion-card-header>
-            <ion-card-title>Conductor y coche</ion-card-title>
+            <ion-card-title>{{ 'tripDetail.driverAndCar' | transloco }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
             <app-trip-driver [driver]="trip.driver" />
@@ -202,7 +217,7 @@
                     ></span>
                     {{ vehicleColor(vehicle.color) }}
                     @if (request()?.status === 'accepted' && request()?.vehiclePlate; as plate) {
-                      · Matrícula <b>{{ plate }}</b>
+                      · {{ 'tripDetail.plate' | transloco }} <b>{{ plate }}</b>
                     }
                   </div>
                 </div>
@@ -210,7 +225,10 @@
             }
 
             @if (driverPreferences().length > 0) {
-              <section class="trip-detail__preferences" aria-label="Preferencias del conductor">
+              <section
+                class="trip-detail__preferences"
+                [attr.aria-label]="'searchFilters.legend' | transloco"
+              >
                 @for (preference of driverPreferences(); track preference) {
                   <span class="trip-detail__preference">{{ preference }}</span>
                 }
@@ -223,12 +241,13 @@
       <ion-card class="trip-detail__missing">
         <ion-card-content class="trip-detail__state">
           <ion-icon [icon]="notFoundIcon" aria-hidden="true" />
-          <div class="trip-detail__state-title">No encontramos este viaje</div>
+          <div class="trip-detail__state-title">{{ 'tripDetail.notFound' | transloco }}</div>
           <div class="text-body-s text-color-muted">
-            Puede que ya no esté disponible. Vuelve a Buscar para ver los viajes que encajan con tu
-            ruta.
+            {{ 'tripDetail.notFoundHint' | transloco }}
           </div>
-          <ion-button routerLink="/tabs/search" routerDirection="back">Volver a Buscar</ion-button>
+          <ion-button routerLink="/tabs/search" routerDirection="back">{{
+            'tripDetail.backToSearch' | transloco
+          }}</ion-button>
         </ion-card-content>
       </ion-card>
     }
@@ -251,12 +270,12 @@
       </div>
       <ion-breadcrumbs class="trip-detail__breadcrumbs ion-hide-md-down">
         <ion-breadcrumb routerLink="/tabs/search" routerDirection="back">
-          Buscar viaje
+          {{ 'search.submit' | transloco }}
         </ion-breadcrumb>
         <ion-breadcrumb routerLink="/tabs/search/results" routerDirection="back">
-          Tu búsqueda
+          {{ 'searchResults.yourSearch' | transloco }}
         </ion-breadcrumb>
-        <ion-breadcrumb [active]="true">Detalle del viaje</ion-breadcrumb>
+        <ion-breadcrumb [active]="true">{{ 'tripDetail.breadcrumb' | transloco }}</ion-breadcrumb>
       </ion-breadcrumbs>
     </div>
   }

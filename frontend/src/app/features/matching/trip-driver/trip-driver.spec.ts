@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { TripDriver as Driver } from '../../../core/models/trip-result.model';
@@ -17,7 +18,11 @@ const DRIVER: Driver = {
 describe('TripDriver', () => {
   function render(driver: Driver, getGraphic = vi.fn().mockResolvedValue(null)): HTMLElement {
     TestBed.configureTestingModule({
-      providers: [provideIonicAngular(), { provide: AvatarsService, useValue: { getGraphic } }],
+      providers: [
+        provideAppTransloco(),
+        provideIonicAngular(),
+        { provide: AvatarsService, useValue: { getGraphic } },
+      ],
     });
     const fixture = TestBed.createComponent(TripDriver);
     fixture.componentRef.setInput('driver', driver);
@@ -57,6 +62,7 @@ describe('TripDriver', () => {
     const create = vi.fn().mockResolvedValue({ present });
     TestBed.configureTestingModule({
       providers: [
+        provideAppTransloco(),
         { provide: AvatarsService, useValue: { getGraphic: vi.fn().mockResolvedValue(null) } },
         { provide: ModalController, useValue: { create } },
       ],
@@ -100,7 +106,11 @@ describe('TripDriver', () => {
       shapes: [{ kind: 'circle', cx: '32', cy: '32', r: '20' }],
     });
     TestBed.configureTestingModule({
-      providers: [provideIonicAngular(), { provide: AvatarsService, useValue: { getGraphic } }],
+      providers: [
+        provideAppTransloco(),
+        provideIonicAngular(),
+        { provide: AvatarsService, useValue: { getGraphic } },
+      ],
     });
     const fixture = TestBed.createComponent(TripDriver);
     fixture.componentRef.setInput('driver', { ...DRIVER, avatarKey: 'sun' });

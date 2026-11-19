@@ -3,7 +3,7 @@
 <div class="modal-body driver-reviews">
   @if (isLoading()) {
     <div class="driver-reviews__loading">
-      <ion-spinner name="crescent" aria-label="Cargando valoraciones" />
+      <ion-spinner name="crescent" [attr.aria-label]="'driverReviews.loading' | transloco" />
     </div>
   } @else {
     @if (errorMessage(); as message) {
@@ -14,7 +14,10 @@
 
     @if (average(); as average) {
       <!-- Media (con la barra de 5 puntos) y reparto por nota -->
-      <section class="driver-reviews__summary" aria-label="Resumen de valoraciones">
+      <section
+        class="driver-reviews__summary"
+        [attr.aria-label]="'driverReviews.summary' | transloco"
+      >
         <div class="driver-reviews__average">
           <span class="driver-reviews__average-value">{{ average }}</span>
           <ion-icon
@@ -82,16 +85,16 @@
           @if (isLoadingMore()) {
             <ion-spinner name="crescent" aria-hidden="true" />
           } @else {
-            Ver más
+            {{ 'driverReviews.more' | transloco }}
           }
         </ion-button>
       }
     } @else if (!errorMessage()) {
       <div class="driver-reviews__empty">
         <app-rating-bar [rating]="0" />
-        <p class="text-body text-body--strong">Aún no tiene valoraciones</p>
+        <p class="text-body text-body--strong">{{ 'driverReviews.empty' | transloco }}</p>
         <p class="text-body-s text-color-muted">
-          Las verás aquí cuando sus pasajeros lo valoren después de un viaje.
+          {{ 'driverReviews.emptyHint' | transloco }}
         </p>
       </div>
     }

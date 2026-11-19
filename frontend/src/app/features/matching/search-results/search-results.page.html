@@ -12,7 +12,7 @@
         class="search-results__edit-icon"
         type="button"
         (click)="isEditing.set(true)"
-        aria-label="Editar búsqueda"
+        [attr.aria-label]="'searchResults.edit' | transloco"
       >
         <ion-icon [icon]="editIcon" aria-hidden="true" />
       </button>
@@ -22,7 +22,7 @@
 
 <ion-content>
   <div class="tab-page search-results">
-    <h1 class="visually-hidden">Tu búsqueda</h1>
+    <h1 class="visually-hidden">{{ 'searchResults.yourSearch' | transloco }}</h1>
 
     <div class="search-results__list">
       @if (search(); as search) {
@@ -30,9 +30,11 @@
           <ion-card>
             <ion-card-content class="search-results__state" role="status">
               <ion-spinner name="dots" aria-hidden="true" />
-              <div class="search-results__state-title">Buscando viajes…</div>
+              <div class="search-results__state-title">
+                {{ 'searchResults.searching' | transloco }}
+              </div>
               <div class="text-body-s text-color-muted">
-                Estamos buscando coincidencias con tu búsqueda.
+                {{ 'searchResults.searchingHint' | transloco }}
               </div>
             </ion-card-content>
           </ion-card>
@@ -40,10 +42,12 @@
           <ion-card>
             <ion-card-content class="search-results__state" role="alert">
               <ion-icon [icon]="errorIcon" aria-hidden="true" />
-              <div class="search-results__state-title">No hemos podido buscar viajes</div>
+              <div class="search-results__state-title">{{ 'searchResults.error' | transloco }}</div>
               <div class="text-body-s text-color-muted">{{ errorMessage() }}</div>
               <form (submit)="$event.preventDefault(); handleRetry()">
-                <ion-button type="submit" fill="outline">Reintentar</ion-button>
+                <ion-button type="submit" fill="outline">{{
+                  'messages.retry' | transloco
+                }}</ion-button>
               </form>
             </ion-card-content>
           </ion-card>
@@ -54,30 +58,34 @@
                 <!-- Los viajes que ya pediste no se repiten aquí: están en Tus viajes -->
                 <div class="notice notice--info search-results__requested">
                   <span>
-                    <b>Ya pediste plaza</b>
-                    En {{ requestedCount() }} {{ requestedCount() === 1 ? 'viaje' : 'viajes' }} de
-                    esta búsqueda.
+                    <b>{{ 'searchResults.alreadyRequested' | transloco }}</b>
+                    {{
+                      (requestedCount() === 1
+                        ? 'searchResults.alreadyRequestedIn.one'
+                        : 'searchResults.alreadyRequestedIn.other'
+                      ) | transloco: { count: requestedCount() }
+                    }}
                   </span>
-                  <a class="search-results__requested-link" routerLink="/tabs/trips"
-                    >Tus viajes ›</a
-                  >
+                  <a class="search-results__requested-link" routerLink="/tabs/trips">{{
+                    'searchResults.myTripsLink' | transloco
+                  }}</a>
                 </div>
               }
               <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-              <div class="search-results__state-title">Aún no hay viajes para esa hora</div>
+              <div class="search-results__state-title">{{ 'searchResults.empty' | transloco }}</div>
               <div class="text-body-s text-color-muted">
-                Prueba con otro horario o amplía el margen. No cambiaremos tu búsqueda sin avisarte.
+                {{ 'searchResults.emptyHint' | transloco }}
               </div>
               @if (widerMargin(); as margin) {
                 <form (submit)="$event.preventDefault(); handleWidenMargin()">
                   <ion-button type="submit" fill="outline">
-                    Ampliar margen a ± {{ margin }} min
+                    {{ 'searchResults.widen' | transloco: { margin: margin } }}
                   </ion-button>
                 </form>
               }
-              <ion-button fill="clear" (click)="isEditing.set(true)"
-                >Cambiar la búsqueda</ion-button
-              >
+              <ion-button fill="clear" (click)="isEditing.set(true)">{{
+                'searchResults.change' | transloco
+              }}</ion-button>
             </ion-card-content>
           </ion-card>
         } @else {
@@ -89,13 +97,17 @@
                 <!-- Los viajes que ya pediste no se repiten aquí: están en Tus viajes -->
                 <div class="notice notice--info search-results__requested">
                   <span>
-                    <b>Ya pediste plaza</b>
-                    En {{ requestedCount() }} {{ requestedCount() === 1 ? 'viaje' : 'viajes' }} de
-                    esta búsqueda.
+                    <b>{{ 'searchResults.alreadyRequested' | transloco }}</b>
+                    {{
+                      (requestedCount() === 1
+                        ? 'searchResults.alreadyRequestedIn.one'
+                        : 'searchResults.alreadyRequestedIn.other'
+                      ) | transloco: { count: requestedCount() }
+                    }}
                   </span>
-                  <a class="search-results__requested-link" routerLink="/tabs/trips"
-                    >Tus viajes ›</a
-                  >
+                  <a class="search-results__requested-link" routerLink="/tabs/trips">{{
+                    'searchResults.myTripsLink' | transloco
+                  }}</a>
                 </div>
               }
               <div class="search-results__results-header">
@@ -107,16 +119,20 @@
                 <div class="search-results__tools">
                   <ion-select
                     class="search-results__sort"
-                    aria-label="Ordenar viajes"
+                    [attr.aria-label]="'searchResults.sortLabel' | transloco"
                     interface="popover"
                     fill="outline"
-                    label="Ordenar por"
+                    [label]="'searchResults.sortBy' | transloco"
                     labelPlacement="floating"
                     [value]="sortOrder()"
                     (ionChange)="handleSortChange($event.detail.value)"
                   >
-                    <ion-select-option value="detour">Mejor coincidencia</ion-select-option>
-                    <ion-select-option value="arrival">Llegada más temprana</ion-select-option>
+                    <ion-select-option value="detour">{{
+                      'searchResults.bestMatch' | transloco
+                    }}</ion-select-option>
+                    <ion-select-option value="arrival">{{
+                      'searchResults.earliest' | transloco
+                    }}</ion-select-option>
                   </ion-select>
                   <app-preference-filters
                     [selected]="preferenceFilters()"
@@ -129,9 +145,13 @@
               @if (sortedTrips().length === 0) {
                 <!-- Ningún viaje pasa los filtros: se quitan aquí mismo -->
                 <div class="search-results__filtered-empty">
-                  <span class="text-body text-body--strong">Ningún viaje con esos filtros</span>
+                  <span class="text-body text-body--strong">{{
+                    'searchResults.filteredEmpty' | transloco
+                  }}</span>
                   <form (submit)="$event.preventDefault(); clearPreferenceFilters()">
-                    <ion-button type="submit" fill="outline">Quitar filtros</ion-button>
+                    <ion-button type="submit" fill="outline">{{
+                      'searchFilters.clear' | transloco
+                    }}</ion-button>
                   </form>
                 </div>
               } @else {
@@ -156,8 +176,12 @@
         <ion-card>
           <ion-card-content class="search-results__state">
             <ion-icon [icon]="emptyIcon" aria-hidden="true" />
-            <div class="search-results__state-title">Aún no has buscado ningún viaje</div>
-            <ion-button routerLink="/tabs/search" routerDirection="back">Buscar viaje</ion-button>
+            <div class="search-results__state-title">
+              {{ 'searchResults.noSearch' | transloco }}
+            </div>
+            <ion-button routerLink="/tabs/search" routerDirection="back">{{
+              'search.submit' | transloco
+            }}</ion-button>
           </ion-card-content>
         </ion-card>
       }
@@ -166,15 +190,18 @@
     <!-- Columna de 4 en escritorio (debajo en el móvil): «Tu trayecto» y el
          aviso sobre las horas y la confirmación -->
     @if (search()) {
-      <aside class="search-results__aside" aria-label="Resumen de tu búsqueda">
+      <aside
+        class="search-results__aside"
+        [attr.aria-label]="'searchResults.summaryLabel' | transloco"
+      >
         <ion-card class="ion-hide-md-down">
           <ion-card-header class="search-results__aside-header">
-            <ion-card-title>Tu trayecto</ion-card-title>
+            <ion-card-title>{{ 'searchResults.yourRoute' | transloco }}</ion-card-title>
             <button
               class="search-results__edit-icon"
               type="button"
               (click)="isEditing.set(true)"
-              aria-label="Editar búsqueda"
+              [attr.aria-label]="'searchResults.edit' | transloco"
             >
               <ion-icon [icon]="editIcon" aria-hidden="true" />
             </button>
@@ -198,7 +225,7 @@
 
 <ion-modal class="location-dialog" [isOpen]="isEditing()" (didDismiss)="isEditing.set(false)">
   <ng-template>
-    <app-modal-header title="Editar búsqueda" (closed)="isEditing.set(false)" />
+    <app-modal-header [title]="'searchResults.edit' | transloco" (closed)="isEditing.set(false)" />
     <div class="modal-body">
       <app-trip-search-form (searched)="isEditing.set(false)" />
     </div>

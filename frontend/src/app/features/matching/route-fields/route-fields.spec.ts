@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl } from '@angular/forms';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
@@ -39,6 +40,7 @@ describe('RouteFields', () => {
     TestBed.configureTestingModule({
       imports: [RouteFields],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: PlacesService, useValue: { ...PLACES_SERVICE_STUB, reverse } },
         {

@@ -1,6 +1,10 @@
 <div class="conversation">
   @if (isLoading() && messages().length === 0) {
-    <output class="conversation__loading" aria-label="Cargando conversación" aria-busy="true">
+    <output
+      class="conversation__loading"
+      [attr.aria-label]="'conversation.loading' | transloco"
+      aria-busy="true"
+    >
       <ion-skeleton-text
         class="conversation__skeleton-bubble conversation__skeleton-bubble--left"
         animated
@@ -17,9 +21,11 @@
   } @else if (hasError()) {
     <div class="conversation__status" role="alert">
       <ion-icon [icon]="errorIcon" aria-hidden="true" />
-      <span>No hemos podido cargar la conversación</span>
+      <span>{{ 'conversation.loadError' | transloco }}</span>
       <form (submit)="$event.preventDefault(); handleRetry()">
-        <ion-button type="submit" fill="outline" size="small">Reintentar</ion-button>
+        <ion-button type="submit" fill="outline" size="small">{{
+          'messages.retry' | transloco
+        }}</ion-button>
       </form>
     </div>
   } @else {
@@ -34,7 +40,7 @@
     <div #scrollContainer class="conversation__scroll">
       @if (messageGroups().length === 0) {
         <p class="conversation__empty text-body-s text-color-muted">
-          Aún no hay mensajes. Saluda o usa una respuesta rápida.
+          {{ 'conversation.empty' | transloco }}
         </p>
       }
       <!-- Historial del chat anterior del viaje (compartido): solo lectura, sin ✓ -->
@@ -42,9 +48,12 @@
         <section class="conversation__shared" aria-labelledby="conversation-shared-title">
           <h3 id="conversation-shared-title" class="conversation__shared-title text-caption">
             <ion-icon [icon]="closedIcon" aria-hidden="true" />
-            Chat común anterior (solo lectura)
+            {{ 'conversation.legacy' | transloco }}
           </h3>
-          <ol class="conversation__messages" aria-label="Mensajes del chat común anterior">
+          <ol
+            class="conversation__messages"
+            [attr.aria-label]="'conversation.legacyMessages' | transloco"
+          >
             @for (group of sharedGroups(); track group.day) {
               <li class="conversation__day text-caption">{{ group.day }}</li>
               @for (message of group.messages; track message.id) {
@@ -57,7 +66,7 @@
           </ol>
         </section>
       }
-      <ol class="conversation__messages" aria-label="Mensajes">
+      <ol class="conversation__messages" [attr.aria-label]="'conversation.messages' | transloco">
         @for (group of messageGroups(); track group.day) {
           <li class="conversation__day text-caption">{{ group.day }}</li>
           @for (message of group.messages; track message.id) {
@@ -83,7 +92,7 @@
       <span class="bubble__author text-caption">
         {{ message.author.name }}
         @if (message.authorRole === 'driver') {
-          · Conduce
+          · {{ 'conversation.drives' | transloco }}
         }
       </span>
     }
@@ -111,12 +120,12 @@
     @if (!canWrite()) {
       <output class="notice notice--info conversation-footer__closed">
         <ion-icon [icon]="closedIcon" aria-hidden="true" />
-        <span>La conversación está cerrada: se puede leer, pero ya no admite mensajes.</span>
+        <span>{{ 'conversation.closed' | transloco }}</span>
       </output>
     } @else {
       <!-- De un toque: útiles con el coche en marcha -->
       <fieldset class="conversation-footer__quick">
-        <legend class="visually-hidden">Respuestas rápidas</legend>
+        <legend class="visually-hidden">{{ 'conversation.quickReplies' | transloco }}</legend>
         @for (quickReply of quickReplies(); track quickReply) {
           <button
             type="button"
@@ -132,7 +141,7 @@
            viaje en marcha, se le recuerda que mejor las respuestas rápidas -->
       @if (isDriverOnTrip()) {
         <p class="conversation-footer__hint text-caption text-color-muted">
-          Si vas conduciendo, mejor una respuesta rápida.
+          {{ 'conversation.drivingHint' | transloco }}
         </p>
       }
       <form class="conversation-footer__form" (submit)="$event.preventDefault(); handleSendText()">
@@ -143,8 +152,8 @@
           [rows]="1"
           [maxlength]="maxLength"
           [counter]="true"
-          placeholder="Escribe un mensaje"
-          aria-label="Mensaje"
+          [placeholder]="'conversation.placeholder' | transloco"
+          [attr.aria-label]="'conversation.messageLabel' | transloco"
           [value]="draft()"
           (ionInput)="handleDraft($event.detail.value)"
           (keydown.enter)="handleEnter($event)"
@@ -153,7 +162,7 @@
           class="conversation-footer__send"
           type="submit"
           [disabled]="!canSendText()"
-          aria-label="Enviar"
+          [attr.aria-label]="'conversation.send' | transloco"
         >
           @if (isSending()) {
             <ion-spinner slot="icon-only" name="crescent" aria-hidden="true" />
@@ -177,7 +186,7 @@
         <span class="conversation__place-name">{{ originName() }}</span>
       </span>
       <ion-icon class="conversation__arrow" [icon]="arrowIcon" aria-hidden="true" />
-      <span class="visually-hidden">hasta</span>
+      <span class="visually-hidden">{{ 'conversation.to' | transloco }}</span>
       <span class="conversation__place">
         <ion-icon class="conversation__place-icon" [icon]="destinationIcon" aria-hidden="true" />
         <span class="conversation__place-name">{{ destinationName() }}</span>
@@ -259,7 +268,7 @@
     <ion-list lines="none">
       <ion-item button [detail]="false" (click)="handleReport()">
         <ion-icon slot="start" [icon]="reportIcon" aria-hidden="true" />
-        <ion-label>Denunciar la conversación</ion-label>
+        <ion-label>{{ 'conversation.report' | transloco }}</ion-label>
       </ion-item>
     </ion-list>
   </ng-template>
@@ -275,7 +284,10 @@
       <ng-container [ngTemplateOutlet]="tripTitle" />
       <ng-container [ngTemplateOutlet]="tripActions" />
     } @else {
-      <output class="conversation-heading-bar__loading" aria-label="Cargando conversación">
+      <output
+        class="conversation-heading-bar__loading"
+        [attr.aria-label]="'conversation.loading' | transloco"
+      >
         <ion-skeleton-text class="conversation-heading-bar__avatar" animated />
         <span class="conversation__heading-info">
           <ion-skeleton-text class="conversation-heading-bar__line" animated />

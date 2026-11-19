@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -48,6 +49,7 @@ describe('PlaceField', () => {
     TestBed.configureTestingModule({
       imports: [Host],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: PlacesService, useValue: places },
         { provide: LocationService, useValue: location },

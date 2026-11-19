@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { PermissionPromptsService } from '../../../core/services/push/permission-prompts.service';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -88,6 +89,7 @@ describe('PublishTripPage', () => {
     currentUser = signal({ id: 'user-1', profiles: ['driver'] });
     TestBed.configureTestingModule({
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: PermissionPromptsService, useValue: { offerPush } },
         provideRouter([

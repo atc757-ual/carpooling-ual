@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../core/i18n/testing-transloco';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -89,6 +90,7 @@ describe('NotificationsPage', () => {
     TestBed.configureTestingModule({
       imports: [NotificationsPage],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
         { provide: NotificationsService, useValue: { ...service, unreadCount } },
@@ -247,7 +249,11 @@ describe('NotificationsPage', () => {
 
     await fixture.componentInstance.handleSelectCategory('travel');
     expect(service['list']).toHaveBeenLastCalledWith({ offset: 0, category: 'travel' });
-    expect(fixture.componentInstance.pageRange()).toBe(`1–${NOTIFICATIONS_PAGE_SIZE} de 25`);
+    expect(fixture.componentInstance.pageRange()).toEqual({
+      from: 1,
+      to: NOTIFICATIONS_PAGE_SIZE,
+      total: 25,
+    });
     expect(fixture.componentInstance.pageCount()).toBe(3);
 
     await fixture.componentInstance.handleNextPage();
@@ -278,7 +284,7 @@ describe('NotificationsPage', () => {
     await fixture.componentInstance.handleNextPage();
     await fixture.componentInstance.handleLoadMore();
     expect(service['list']).not.toHaveBeenCalled();
-    expect(fixture.componentInstance.pageRange()).toBe('0 de 0');
+    expect(fixture.componentInstance.pageRange()).toEqual({ from: 0, to: 0, total: 0 });
   });
 
   it('offers to retry when they cannot be loaded', async () => {

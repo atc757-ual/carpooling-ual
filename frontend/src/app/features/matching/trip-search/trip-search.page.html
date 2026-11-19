@@ -9,11 +9,10 @@
         <ion-icon [icon]="pendingIcon" aria-hidden="true" />
         <span>
           {{
-            pending === 1
-              ? 'Tienes 1 solicitud esperando respuesta.'
-              : 'Tienes ' + pending + ' solicitudes esperando respuesta.'
+            (pending === 1 ? 'search.pending.one' : 'search.pending.other')
+              | transloco: { count: pending }
           }}
-          <span class="trip-search__pending-link">Ver en Tus viajes</span>
+          <span class="trip-search__pending-link">{{ 'search.pendingLink' | transloco }}</span>
         </span>
       </a>
     }
@@ -38,8 +37,8 @@
           <ion-item button detail routerLink="/tabs/publish" lines="none">
             <ion-icon slot="start" [icon]="carIcon" aria-hidden="true" />
             <ion-label>
-              <span class="trip-search__car-title">¿Tienes coche?</span>
-              <p>Publica tu trayecto y comparte tu coche.</p>
+              <span class="trip-search__car-title">{{ 'search.carTitle' | transloco }}</span>
+              <p>{{ 'search.carText' | transloco }}</p>
             </ion-label>
           </ion-item>
         </ion-card>

@@ -1,5 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   IonButton,
   IonCard,
@@ -38,8 +39,6 @@ import {
   formatElapsed,
   legalDocumentOf,
   notificationCategory,
-  notificationCategoryLabel,
-  notificationMessage,
   notificationMode,
 } from './notification-texts';
 import { SectionHeading } from '../tabs/section-heading/section-heading';
@@ -55,6 +54,7 @@ const CATEGORIES: NotificationCategory[] = ['travel', 'account', 'incident'];
   selector: 'app-notifications',
   imports: [
     SectionHeading,
+    TranslocoPipe,
     IonButton,
     IonCard,
     IonCardContent,
@@ -88,9 +88,14 @@ export class NotificationsPage implements OnInit {
   readonly pageCount = computed(() =>
     Math.max(1, Math.ceil(this.total() / NOTIFICATIONS_PAGE_SIZE)),
   );
+  // Los números de «1–10 de 23» (el texto lo pone la traducción)
   readonly pageRange = computed(() => {
-    if (this.total() === 0) return '0 de 0';
-    return `${this.offset() + 1}–${Math.min(this.offset() + NOTIFICATIONS_PAGE_SIZE, this.total())} de ${this.total()}`;
+    if (this.total() === 0) return { from: 0, to: 0, total: 0 };
+    return {
+      from: this.offset() + 1,
+      to: Math.min(this.offset() + NOTIFICATIONS_PAGE_SIZE, this.total()),
+      total: this.total(),
+    };
   });
 
   private hasEntered = false;
@@ -102,8 +107,6 @@ export class NotificationsPage implements OnInit {
   protected readonly unreadIcon = mailUnreadOutline;
   protected readonly previousIcon = chevronBackOutline;
   protected readonly nextIcon = chevronForwardOutline;
-  protected readonly message = notificationMessage;
-  protected readonly categoryName = notificationCategoryLabel;
   protected readonly categoryOf = notificationCategory;
 
   ngOnInit(): void {

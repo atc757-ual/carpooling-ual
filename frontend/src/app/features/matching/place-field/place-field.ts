@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, DestroyRef, forwardRef, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -46,7 +47,7 @@ export function toSearchPlace(place: Place): SearchPlace {
 // dirección elegida (en los dos), «Ajustar en el mapa» (LocationModal)
 @Component({
   selector: 'app-place-field',
-  imports: [IonIcon, IonInput, Combobox],
+  imports: [IonIcon, IonInput, Combobox, TranslocoPipe],
   templateUrl: './place-field.html',
   styleUrl: './place-field.scss',
   providers: [

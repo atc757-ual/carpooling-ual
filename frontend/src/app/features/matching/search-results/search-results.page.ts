@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, inject, resource, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -112,6 +113,7 @@ export function timeWindowText(trips: TripResult[], direction: TripDirection): s
     TripResultCard,
     PreferenceFilters,
     TripSearchForm,
+    TranslocoPipe,
   ],
   templateUrl: './search-results.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './search-results.page.scss'],

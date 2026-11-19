@@ -9,11 +9,11 @@
   }
   <div class="tab-page messages" [class.messages--mobile-detail]="mobileDetail()">
     <div class="messages__layout" [class.messages__layout--mobile-detail]="mobileDetail()">
-      <section class="messages__main" aria-label="Conversaciones">
+      <section class="messages__main" [attr.aria-label]="'messages.listLabel' | transloco">
         <ion-card class="messages__panel">
           <ion-card-content class="messages__panel-content">
             <fieldset class="messages__filters">
-              <legend class="visually-hidden">Filtrar conversaciones</legend>
+              <legend class="visually-hidden">{{ 'messages.filterLegend' | transloco }}</legend>
               <ion-chip
                 button="true"
                 [outline]="onlyUnread()"
@@ -21,7 +21,7 @@
                 [attr.aria-pressed]="!onlyUnread()"
                 (click)="handleFilter(false)"
               >
-                Todas
+                {{ 'messages.filterAll' | transloco }}
               </ion-chip>
               <ion-chip
                 button="true"
@@ -30,35 +30,37 @@
                 [attr.aria-pressed]="onlyUnread()"
                 (click)="handleFilter(true)"
               >
-                Sin leer
+                {{ 'messages.filterUnread' | transloco }}
               </ion-chip>
             </fieldset>
             @if (unreadCount() > 0) {
               <p class="messages__unread-summary text-caption text-color-muted">
-                {{ unreadCount() }}
-                {{ unreadCount() === 1 ? 'conversación sin leer' : 'conversaciones sin leer' }}
+                {{
+                  (unreadCount() === 1 ? 'messages.unread.one' : 'messages.unread.other')
+                    | transloco: { count: unreadCount() }
+                }}
               </p>
             }
 
             @if (isLoading() && all().length === 0) {
               <output class="messages__state">
                 <ion-spinner name="crescent" aria-hidden="true" />
-                <span class="text-color-muted">Cargando tus mensajes…</span>
+                <span class="text-color-muted">{{ 'messages.loading' | transloco }}</span>
               </output>
             } @else if (error() && all().length === 0) {
               <div class="messages__state" role="alert">
                 <ion-icon [icon]="errorIcon" aria-hidden="true" />
-                <div class="messages__state-title">No hemos podido cargar tus mensajes</div>
+                <div class="messages__state-title">{{ 'messages.loadError' | transloco }}</div>
                 <ion-button type="button" fill="outline" size="small" (click)="handleRetry()">
-                  Reintentar
+                  {{ 'messages.retry' | transloco }}
                 </ion-button>
               </div>
             } @else {
               @if (error()) {
                 <div class="notice notice--danger" role="alert">
-                  No hemos podido actualizar tus mensajes.
+                  {{ 'messages.refreshError' | transloco }}
                   <ion-button type="button" fill="outline" size="small" (click)="handleRetry()">
-                    Reintentar
+                    {{ 'messages.retry' | transloco }}
                   </ion-button>
                 </div>
               }
@@ -67,16 +69,13 @@
                 <div class="messages__state">
                   <ion-icon [icon]="icon" aria-hidden="true" />
                   <div class="messages__state-title">
-                    {{
-                      onlyUnread() ? 'No tienes mensajes sin leer' : 'Aún no tienes conversaciones'
-                    }}
+                    {{ (onlyUnread() ? 'messages.emptyUnread' : 'messages.empty') | transloco }}
                   </div>
                   <div class="text-body-s text-color-muted">
                     @if (onlyUnread()) {
-                      Todas tus conversaciones están al día.
+                      {{ 'messages.emptyUnreadHint' | transloco }}
                     } @else {
-                      Cuando te acepten en un viaje o aceptes a alguien en el tuyo, podréis hablar
-                      aquí para concretar la recogida.
+                      {{ 'messages.emptyHint' | transloco }}
                     }
                   </div>
                 </div>
@@ -107,7 +106,9 @@
                             @if (conversation.unreadCount > 0) {
                               <span class="conversation__unread">
                                 {{ conversation.unreadCount }}
-                                <span class="visually-hidden">sin leer</span>
+                                <span class="visually-hidden">{{
+                                  'messages.unreadSuffix' | transloco
+                                }}</span>
                               </span>
                             } @else {
                               <!-- El estado del viaje, como en la cabecera del chat -->
@@ -132,15 +133,15 @@
                 }
                 @if (loadMoreError()) {
                   <div class="notice notice--danger" role="alert">
-                    No se han podido cargar más conversaciones.
+                    {{ 'messages.loadMoreError' | transloco }}
                     <ion-button type="button" fill="outline" size="small" (click)="handleRetry()">
-                      Reintentar
+                      {{ 'messages.retry' | transloco }}
                     </ion-button>
                   </div>
                 }
                 <div class="messages__pagination">
                   <span class="messages__range text-caption text-color-muted" aria-live="polite">
-                    {{ all().length }} de {{ total() }} conversaciones
+                    {{ 'messages.range' | transloco: { shown: all().length, total: total() } }}
                   </span>
                   @if (hasMore()) {
                     <ion-button
@@ -150,7 +151,7 @@
                       [disabled]="isLoadingMore()"
                       (click)="handleLoadMore()"
                     >
-                      Ver más
+                      {{ 'messages.loadMore' | transloco }}
                     </ion-button>
                   }
                 </div>
@@ -160,7 +161,7 @@
         </ion-card>
       </section>
 
-      <section class="messages__detail" aria-label="Conversación seleccionada">
+      <section class="messages__detail" [attr.aria-label]="'messages.detailLabel' | transloco">
         @if (activeConversationId(); as conversationId) {
           <ion-card class="messages__conversation-card">
             <app-conversation
@@ -173,14 +174,16 @@
           <ion-card class="messages__empty-detail">
             <ion-card-content class="messages__state">
               <ion-icon [icon]="icon" aria-hidden="true" />
-              <div class="messages__state-title">Elige una conversación</div>
+              <div class="messages__state-title">{{ 'messages.pickTitle' | transloco }}</div>
               <div class="text-body-s text-color-muted">
-                Selecciona un chat de la lista para ver los mensajes.
+                {{ 'messages.pickHint' | transloco }}
               </div>
               @if (unreadCount() > 0) {
                 <span class="text-caption text-color-muted">
-                  {{ unreadCount() }}
-                  {{ unreadCount() === 1 ? 'conversación sin leer' : 'conversaciones sin leer' }}
+                  {{
+                    (unreadCount() === 1 ? 'messages.unread.one' : 'messages.unread.other')
+                      | transloco: { count: unreadCount() }
+                  }}
                 </span>
               }
             </ion-card-content>

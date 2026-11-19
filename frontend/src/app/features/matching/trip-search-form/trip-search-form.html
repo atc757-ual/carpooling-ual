@@ -4,12 +4,13 @@
   <div class="notice notice--success search-form__impact" aria-live="polite">
     <ion-icon [icon]="impactIcon" aria-hidden="true" />
     @if (impact(); as impact) {
-      <p>
-        Compartiendo este trayecto ahorras aproximadamente <b>{{ impact.km }} km</b> al volante y
-        <b>{{ formatDecimal(impact.co2Kg) }} kg de CO₂</b>.
-      </p>
+      <p
+        [innerHTML]="
+          'search.impact' | transloco: { km: impact.km, co2: formatDecimal(impact.co2Kg) }
+        "
+      ></p>
     } @else {
-      <p>Elige de dónde sales y te decimos cuánto ahorras compartiendo el trayecto.</p>
+      <p>{{ 'search.impactHint' | transloco }}</p>
     }
   </div>
 
@@ -19,7 +20,12 @@
   <!-- Fecha, hora, margen y plazas: de dos en dos y, en pantallas
        anchas, los cuatro en una fila -->
   <div class="search-form__details">
-    <app-datetime-field formControlName="date" label="Fecha" [min]="minDate" [max]="maxDate" />
+    <app-datetime-field
+      formControlName="date"
+      [label]="'search.date' | transloco"
+      [min]="minDate"
+      [max]="maxDate"
+    />
 
     <!-- Hora de llegada al campus o, al volver, de salida -->
     <app-datetime-field
@@ -29,13 +35,15 @@
     />
 
     <div class="search-form__field">
-      <span class="text-label text-label--strong" aria-hidden="true">Margen horario</span>
+      <span class="text-label text-label--strong" aria-hidden="true">{{
+        'search.margin' | transloco
+      }}</span>
       <ion-select
         class="search-form__select"
         formControlName="margin"
         interface="popover"
         fill="outline"
-        aria-label="Margen horario"
+        [attr.aria-label]="'search.margin' | transloco"
       >
         @for (margin of margins; track margin) {
           <ion-select-option [value]="margin">± {{ margin }} min</ion-select-option>
@@ -44,19 +52,26 @@
     </div>
 
     <!-- Plazas que se necesitan (SeatStepper de la guía) -->
-    <app-seat-stepper formControlName="seats" label="Plazas" [min]="minSeats" [max]="maxSeats" />
+    <app-seat-stepper
+      formControlName="seats"
+      [label]="'search.seats' | transloco"
+      [min]="minSeats"
+      [max]="maxSeats"
+    />
   </div>
 
   <!-- «Nueva búsqueda» (solo en Buscar y con algo que borrar) a la izquierda
        y «Buscar viaje» a la derecha; en el móvil, uno debajo del otro -->
   <div class="search-form__actions">
     @if (canStartOver()) {
-      <button class="search-form__new" type="button" (click)="clear()">Nueva búsqueda</button>
+      <button class="search-form__new" type="button" (click)="clear()">
+        {{ 'search.newSearch' | transloco }}
+      </button>
     }
     <!-- Se activa al elegir la dirección y el parking -->
     <ion-button type="submit" [disabled]="!isRouteComplete()">
       <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
-      Buscar viaje
+      {{ 'search.submit' | transloco }}
     </ion-button>
   </div>
 </form>

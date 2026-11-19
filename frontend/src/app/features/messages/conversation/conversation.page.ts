@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -97,6 +98,7 @@ export const MAX_MESSAGE_LENGTH = 500;
     IonTextarea,
     NgTemplateOutlet,
     ConversationAvatar,
+    TranslocoPipe,
   ],
   templateUrl: './conversation.page.html',
   styleUrl: './conversation.page.scss',

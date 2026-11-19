@@ -3,12 +3,14 @@
   <app-section-heading />
   <div class="tab-page notifications">
     <div class="notifications__layout">
-      <section class="notifications__main" aria-label="Lista de notificaciones">
+      <section class="notifications__main" [attr.aria-label]="'notifications.listAria' | transloco">
         <ion-card class="notifications__panel">
           <ion-card-content class="notifications__panel-content">
             <div class="notifications__toolbar">
               <fieldset class="notifications__filters">
-                <legend class="visually-hidden">Filtrar por categoría</legend>
+                <legend class="visually-hidden">
+                  {{ 'notifications.filterLegend' | transloco }}
+                </legend>
                 <ion-chip
                   button="true"
                   [outline]="category() !== null"
@@ -16,7 +18,7 @@
                   [attr.aria-pressed]="category() === null"
                   (click)="handleSelectCategory(null)"
                 >
-                  Todas
+                  {{ 'notifications.all' | transloco }}
                 </ion-chip>
                 @for (option of categoryOptions; track option) {
                   <ion-chip
@@ -29,7 +31,7 @@
                     [attr.aria-pressed]="category() === option"
                     (click)="handleSelectCategory(option)"
                   >
-                    <span>{{ categoryName(option) }}</span>
+                    <span>{{ 'notifications.categories.' + option | transloco }}</span>
                   </ion-chip>
                 }
               </fieldset>
@@ -38,35 +40,37 @@
             @if (isLoading() && all().length === 0) {
               <output class="notifications__state" aria-live="polite">
                 <ion-spinner name="dots" aria-hidden="true" />
-                <span class="text-color-muted">Cargando notificaciones…</span>
+                <span class="text-color-muted">{{ 'notifications.loading' | transloco }}</span>
               </output>
             } @else if (error() && all().length === 0) {
               <div class="notifications__state" role="alert">
                 <ion-icon [icon]="errorIcon" aria-hidden="true" />
                 <div class="notifications__state-title">
-                  No hemos podido cargar tus notificaciones
+                  {{ 'notifications.loadError' | transloco }}
                 </div>
                 <form (submit)="$event.preventDefault(); handleRetry()">
-                  <ion-button type="submit" fill="outline" size="small">Reintentar</ion-button>
+                  <ion-button type="submit" fill="outline" size="small">{{
+                    'common.retry' | transloco
+                  }}</ion-button>
                 </form>
               </div>
             } @else if (all().length === 0) {
               <div class="notifications__state">
                 <ion-icon [icon]="emptyIcon" aria-hidden="true" />
                 <div class="notifications__state-title">
-                  No tienes notificaciones en esta categoría
+                  {{ 'notifications.empty' | transloco }}
                 </div>
                 <div class="text-body-s text-color-muted">
-                  Aquí aparecerán los avisos importantes de tus viajes y tu cuenta.
+                  {{ 'notifications.emptyHint' | transloco }}
                 </div>
               </div>
             } @else {
               @if (error()) {
                 <div class="notice notice--danger" role="alert">
-                  No se han podido cargar más notificaciones.
-                  <ion-button fill="outline" size="small" (click)="handleRetry()"
-                    >Reintentar</ion-button
-                  >
+                  {{ 'notifications.loadMoreError' | transloco }}
+                  <ion-button fill="outline" size="small" (click)="handleRetry()">{{
+                    'common.retry' | transloco
+                  }}</ion-button>
                 </div>
               }
               <ul class="notifications__list">
@@ -89,30 +93,44 @@
                       <span
                         class="notification__read-icon"
                         [class.notification__read-icon--unread]="!item.notification.isRead"
-                        [attr.title]="item.notification.isRead ? 'Leída' : 'Sin leer'"
+                        [attr.title]="
+                          (item.notification.isRead ? 'notifications.read' : 'notifications.unread')
+                            | transloco
+                        "
                       >
                         <ion-icon
                           [icon]="item.notification.isRead ? readIcon : unreadIcon"
                           aria-hidden="true"
                         />
                         <span class="visually-hidden">
-                          {{ item.notification.isRead ? '(leída)' : '(sin leer)' }}
+                          {{
+                            (item.notification.isRead
+                              ? 'notifications.readHidden'
+                              : 'notifications.unreadHidden'
+                            ) | transloco
+                          }}
                         </span>
                       </span>
                       <span class="notification__body">
                         <span class="notification__message">
-                          {{ message(item.notification.type) }}
+                          {{ 'notifications.types.' + item.notification.type | transloco }}
                         </span>
                         <span class="notification__detail text-caption text-color-muted">
                           @if (item.trip; as trip) {
-                            <span class="notification__detail-label">Salida del viaje</span>
+                            <span class="notification__detail-label">{{
+                              'notifications.tripDeparture' | transloco
+                            }}</span>
                             <span>{{ tripLine(trip) }}</span>
                           } @else if (item.notification.type === 'incident_reported') {
-                            <span class="notification__detail-label">Incidencia registrada</span>
-                            <span>Requiere revisión del equipo administrador</span>
+                            <span class="notification__detail-label">{{
+                              'notifications.incidentLabel' | transloco
+                            }}</span>
+                            <span>{{ 'notifications.incidentDetail' | transloco }}</span>
                           } @else {
-                            <span class="notification__detail-label">Documento actualizado</span>
-                            <span>Toca para ver qué ha cambiado</span>
+                            <span class="notification__detail-label">{{
+                              'notifications.documentLabel' | transloco
+                            }}</span>
+                            <span>{{ 'notifications.documentDetail' | transloco }}</span>
                           }
                         </span>
                       </span>
@@ -139,22 +157,25 @@
                   [disabled]="isLoading()"
                   (click)="handleLoadMore()"
                 >
-                  Ver más
+                  {{ 'notifications.loadMore' | transloco }}
                 </ion-button>
               }
               @if (total() > 0) {
-                <nav class="notifications__pagination" aria-label="Paginación de notificaciones">
+                <nav
+                  class="notifications__pagination"
+                  [attr.aria-label]="'notifications.paginationAria' | transloco"
+                >
                   <span
                     class="notifications__page-range notifications__page-range--desktop"
                     aria-live="polite"
                   >
-                    {{ pageRange() }}
+                    {{ 'notifications.range' | transloco: pageRange() }}
                   </span>
                   <span
                     class="notifications__page-range notifications__page-range--mobile"
                     aria-live="polite"
                   >
-                    {{ all().length }} de {{ total() }}
+                    {{ 'notifications.shown' | transloco: { shown: all().length, total: total() } }}
                   </span>
                   @if (total() > pageSize) {
                     <div class="notifications__page-controls">
@@ -163,21 +184,26 @@
                         type="button"
                         fill="outline"
                         shape="round"
-                        aria-label="Página anterior"
+                        [attr.aria-label]="'notifications.previousPage' | transloco"
                         [disabled]="offset() === 0 || isLoading()"
                         (click)="handlePreviousPage()"
                       >
                         <ion-icon [icon]="previousIcon" aria-hidden="true" />
                       </ion-button>
-                      <span class="notifications__page-number" aria-label="Página actual"
-                        >{{ pageNumber() }} de {{ pageCount() }}</span
+                      <span
+                        class="notifications__page-number"
+                        [attr.aria-label]="'notifications.currentPage' | transloco"
+                        >{{
+                          'notifications.pageOf'
+                            | transloco: { page: pageNumber(), count: pageCount() }
+                        }}</span
                       >
                       <ion-button
                         class="notifications__page-arrow"
                         type="button"
                         fill="outline"
                         shape="round"
-                        aria-label="Página siguiente"
+                        [attr.aria-label]="'notifications.nextPage' | transloco"
                         [disabled]="offset() + pageSize >= total() || isLoading()"
                         (click)="handleNextPage()"
                       >
@@ -202,9 +228,9 @@
               <ion-icon [icon]="unreadCount() > 0 ? unreadIcon : readIcon" aria-hidden="true" />
               <p>
                 @if (unreadCount() > 0) {
-                  Tienes {{ unreadCount() }} sin leer
+                  {{ 'notifications.unreadSummary' | transloco: { count: unreadCount() } }}
                 } @else {
-                  Todo al día
+                  {{ 'notifications.allCaughtUp' | transloco }}
                 }
               </p>
             </div>

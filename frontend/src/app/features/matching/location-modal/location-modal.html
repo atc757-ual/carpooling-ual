@@ -20,7 +20,7 @@
         <app-legal-document type="location" />
       </section>
       <form (submit)="$event.preventDefault(); handleCloseTerms()">
-        <ion-button type="submit" expand="block">Entendido</ion-button>
+        <ion-button type="submit" expand="block">{{ 'location.gotIt' | transloco }}</ion-button>
       </form>
     } @else {
       @switch (step()) {
@@ -28,19 +28,16 @@
         @case ('intro') {
           <div class="location__state">
             <ion-icon [icon]="locateIcon" aria-hidden="true" />
-            <div class="text-subtitle">Rellenamos la dirección con tu ubicación</div>
+            <div class="text-subtitle">{{ 'location.introTitle' | transloco }}</div>
             <ul class="bullet-list text-body-s">
-              <li>
-                Al pulsar «Continuar», si aún no has dado permiso, tu navegador o el móvil te lo
-                pedirán.
-              </li>
-              <li>La usamos solo para encontrar la dirección: no guardamos tu posición.</li>
-              <li>Si publicas el viaje o solicitas plaza, guardamos la dirección elegida.</li>
-              <li>Puedes desactivarlo cuando quieras en Perfil.</li>
+              <li>{{ 'location.introPermission' | transloco }}</li>
+              <li>{{ 'location.introOnlyAddress' | transloco }}</li>
+              <li>{{ 'location.introSaved' | transloco }}</li>
+              <li>{{ 'location.introProfile' | transloco }}</li>
             </ul>
             @if (isOutdated()) {
               <div class="text-body-s">
-                Hemos actualizado cómo usamos tu ubicación: al continuar, aceptas el texto nuevo.
+                {{ 'location.outdated' | transloco }}
               </div>
             }
             <button
@@ -49,32 +46,36 @@
               class="location__link text-body-s"
               (click)="handleReadTerms()"
             >
-              Cómo usamos tu ubicación
+              {{ 'location.howWeUse' | transloco }}
             </button>
           </div>
           <form (submit)="$event.preventDefault(); handleShare()">
-            <ion-button type="submit" expand="block">Continuar</ion-button>
+            <ion-button type="submit" expand="block">{{
+              'location.continue' | transloco
+            }}</ion-button>
           </form>
         }
 
         @case ('locating') {
           <div class="location__state">
             <ion-spinner name="crescent" aria-hidden="true" />
-            <output class="text-body-s">Buscando tu ubicación…</output>
+            <output class="text-body-s">{{ 'location.locating' | transloco }}</output>
           </div>
         }
 
         <!-- El mapa con el pin, la dirección más cercana y usarla -->
         @case ('map') {
-          <div #map class="location__map" aria-label="Mapa con tu ubicación"></div>
+          <div #map class="location__map" [attr.aria-label]="'location.mapLabel' | transloco"></div>
           <p class="text-caption text-color-muted">
-            ¿No es justo tu sitio? Arrastra el punto o toca el mapa.
+            {{ 'location.mapHint' | transloco }}
           </p>
 
           @if (!pickPoint) {
             <output class="location__address">
               @if (isResolving()) {
-                <span class="text-body-s text-color-muted">Buscando la dirección…</span>
+                <span class="text-body-s text-color-muted">{{
+                  'location.resolving' | transloco
+                }}</span>
               } @else if (place(); as place) {
                 <span class="location__name">{{ place.name }}</span>
                 <span class="text-caption text-color-muted">{{ place.locality }}</span>
@@ -87,9 +88,10 @@
               @if (!place.isCovered) {
                 <div class="notice notice--warning">
                   <span>
-                    <b>Aún no llegamos a {{ place.municipality }}</b>
-                    Esperamos tener cobertura allí pronto. Mientras tanto, puedes elegir un punto
-                    más cercano al campus.
+                    <b>{{
+                      'location.notCovered' | transloco: { municipality: place.municipality }
+                    }}</b>
+                    {{ 'location.notCoveredHint' | transloco }}
                   </span>
                 </div>
               }
@@ -102,13 +104,13 @@
               expand="block"
               [disabled]="pickPoint ? !point() : !place()?.isCovered"
             >
-              {{ pickPoint ? 'Usar este punto' : 'Usar esta dirección' }}
+              {{ (pickPoint ? 'location.usePoint' : 'location.useAddress') | transloco }}
             </ion-button>
           </form>
           @if (pickPoint) {
             <form (submit)="$event.preventDefault(); close()">
               <ion-button class="location__cancel" type="submit" expand="block" fill="clear">
-                Cancelar
+                {{ 'location.cancel' | transloco }}
               </ion-button>
             </form>
           }
@@ -123,15 +125,15 @@
         @case ('denied') {
           <div class="location__state">
             <ion-icon [icon]="locateIcon" aria-hidden="true" />
-            <div class="text-subtitle">No tenemos permiso para ver tu ubicación</div>
+            <div class="text-subtitle">{{ 'location.deniedTitle' | transloco }}</div>
             <div class="text-body-s text-color-muted">
-              Actívalo en los ajustes del navegador o del móvil, o escribe la dirección.
+              {{ 'location.deniedHint' | transloco }}
             </div>
           </div>
           <form (submit)="$event.preventDefault(); close()">
-            <ion-button type="submit" expand="block" fill="outline"
-              >Escribir la dirección</ion-button
-            >
+            <ion-button type="submit" expand="block" fill="outline">{{
+              'location.typeAddress' | transloco
+            }}</ion-button>
           </form>
         }
 
@@ -139,10 +141,9 @@
         @case ('revoked') {
           <div class="location__state">
             <ion-icon [icon]="locateIcon" aria-hidden="true" />
-            <div class="text-subtitle">Has dejado de compartir tu ubicación</div>
+            <div class="text-subtitle">{{ 'location.revokedTitle' | transloco }}</div>
             <div class="text-body-s text-color-muted">
-              Puedes volver a compartirla para usarla aquí, o escribir la dirección. Si aún no has
-              dado permiso, tu navegador o el móvil te lo pedirán.
+              {{ 'location.revokedHint' | transloco }}
             </div>
             <button
               #termsLink
@@ -150,17 +151,19 @@
               class="location__link text-body-s"
               (click)="handleReadTerms()"
             >
-              Cómo usamos tu ubicación
+              {{ 'location.howWeUse' | transloco }}
             </button>
           </div>
           <div class="location__actions">
             <form (submit)="$event.preventDefault(); handleShare()">
-              <ion-button type="submit" expand="block">Volver a compartir</ion-button>
+              <ion-button type="submit" expand="block">{{
+                'location.shareAgain' | transloco
+              }}</ion-button>
             </form>
             <form (submit)="$event.preventDefault(); close()">
-              <ion-button type="submit" expand="block" fill="outline"
-                >Escribir la dirección</ion-button
-              >
+              <ion-button type="submit" expand="block" fill="outline">{{
+                'location.typeAddress' | transloco
+              }}</ion-button>
             </form>
           </div>
         }
@@ -168,13 +171,13 @@
         @case ('unavailable') {
           <div class="location__state">
             <ion-icon [icon]="locateIcon" aria-hidden="true" />
-            <div class="text-subtitle">No hemos podido saber dónde estás</div>
+            <div class="text-subtitle">{{ 'location.errorTitle' | transloco }}</div>
             <div class="text-body-s text-color-muted">
-              Comprueba que la ubicación esté activada e inténtalo de nuevo.
+              {{ 'location.errorHint' | transloco }}
             </div>
           </div>
           <form (submit)="$event.preventDefault(); handleLocate()">
-            <ion-button type="submit" expand="block">Reintentar</ion-button>
+            <ion-button type="submit" expand="block">{{ 'messages.retry' | transloco }}</ion-button>
           </form>
         }
       }

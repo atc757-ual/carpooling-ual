@@ -72,7 +72,7 @@
         }
       </div>
       <!-- Lo exige la licencia de los datos de CartoCiudad -->
-      <p class="place-field__credit">CartoCiudad cedido por © Instituto Geográfico Nacional</p>
+      <p class="place-field__credit">{{ 'search.cartoCredit' | transloco }}</p>
     </div>
   }
 </div>
@@ -92,7 +92,7 @@
      recojan, o te dejen, en la esquina) -->
   @if (selected() && !status()) {
     <button type="button" class="place-field__adjust" (click)="handleAdjust()">
-      Ajustar en el mapa
+      {{ 'search.adjustOnMap' | transloco }}
     </button>
   }
 </div>
