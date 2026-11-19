@@ -13,6 +13,8 @@ import { RequestDropOffService } from './request-drop-off.service';
 import { RequestOverlapService } from './request-overlap.service';
 import { RequestsController } from './requests.controller';
 import { RequestViewsService } from './request-views.service';
+import { MyTripEntriesController } from './my-trip-entries.controller';
+import { MyTripEntriesService } from './my-trip-entries.service';
 import { RequestStatsService } from './request-stats.service';
 import { RequestsService } from './requests.service';
 import { RequestLifecycleScheduler } from './request-lifecycle.scheduler';
@@ -33,10 +35,11 @@ import { TripParticipantsRegistration } from './trip-participants.registration';
     NotificationsModule,
     MailModule,
   ],
-  controllers: [RequestsController],
+  controllers: [RequestsController, MyTripEntriesController],
   providers: [
     RequestsService,
     RequestStatsService,
+    MyTripEntriesService,
     RequestViewsService,
     RequestChangesRecorder,
     RequestOverlapService,

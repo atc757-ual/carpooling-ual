@@ -288,6 +288,35 @@ export class TripsService {
       skip: page.offset,
       take: page.limit,
     });
+    return { items: await this.toDriverViews(driverId, trips), total };
+  }
+
+  // Esos viajes suyos, en el orden de ids (una página de «Tus viajes», que
+  // mezcla los dos papeles)
+  async listDriverViewsByIds(
+    driverId: string,
+    ids: readonly string[],
+  ): Promise<TripView[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+    const trips = await this.tripsRepository.findBy({
+      driverId,
+      id: In([...ids]),
+    });
+    const byId = new Map(trips.map((trip) => [trip.id, trip]));
+    const ordered = ids
+      .map((id) => byId.get(id))
+      .filter((trip): trip is Trip => trip !== undefined);
+    return this.toDriverViews(driverId, ordered);
+  }
+
+  // Cada viaje del conductor con su perfil, sus vehículos y sus paradas (cada
+  // dato en una sola consulta para todos)
+  private async toDriverViews(
+    driverId: string,
+    trips: Trip[],
+  ): Promise<TripView[]> {
     const { firstName, avatarKey, preferences, ratings } =
       await this.usersService.getSummary(driverId);
     const [driverTripCount, vehicles, stops] = await Promise.all([
@@ -297,20 +326,17 @@ export class TripsService {
       ),
       this.tripStops.getForTrips(trips),
     ]);
-    return {
-      items: trips.map((trip) =>
-        this.toViewWithProfile(trip, {
-          driverName: firstName,
-          driverAvatarKey: avatarKey,
-          driverPreferences: preferences,
-          driverTripCount,
-          driverRating: ratings.driver.averageRating,
-          vehicle: vehicles.get(trip.vehicleId) ?? null,
-          stops: stops.get(trip.id) ?? [],
-        }),
-      ),
-      total,
-    };
+    return trips.map((trip) =>
+      this.toViewWithProfile(trip, {
+        driverName: firstName,
+        driverAvatarKey: avatarKey,
+        driverPreferences: preferences,
+        driverTripCount,
+        driverRating: ratings.driver.averageRating,
+        vehicle: vehicles.get(trip.vehicleId) ?? null,
+        stops: stops.get(trip.id) ?? [],
+      }),
+    );
   }
 
   // RF-05: modificar, solo su conductor y solo mientras está publicado (aún

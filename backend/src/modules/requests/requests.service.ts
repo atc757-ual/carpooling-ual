@@ -3,9 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import { isUniqueViolation } from '../../shared/database/postgres-errors';
 import { Page, PageRequest } from '../../shared/pagination/page';
+import type { TripsTab } from '../../shared/pagination/trips-tab-query.dto';
+import { PASSENGER_TAB_STATUSES } from './passenger-request-tabs';
 import type { Trip } from '../trips/entities/trip.entity';
 import type { PickupPlan } from '../trips/trip-pickups.service';
 import { TripLookupService } from '../trips/trip-lookup.service';
+import type { TripEntryKey } from '../trips/trip-lookup.service';
 import { NotTripDriverError } from '../trips/errors/not-trip-driver.error';
 import { TripAlreadyStartedError } from '../trips/errors/trip-already-started.error';
 import { DetourBudgetExceededError } from '../trips/errors/detour-budget-exceeded.error';
@@ -248,6 +251,54 @@ export class RequestsService {
       take: page.limit,
     });
     return { items: await this.views.toViews(requests), total };
+  }
+
+  // Mis solicitudes de una pestaña de «Tus viajes», solo el id y la salida de
+  // su viaje (para mezclarlas con mis viajes de conductor y paginar)
+  async passengerTabKeys(
+    passengerId: string,
+    tab: TripsTab,
+  ): Promise<TripEntryKey[]> {
+    const rows: { id: string; departureAt: Date }[] =
+      await this.requestsRepository
+        .createQueryBuilder('request')
+        .select('request.id', 'id')
+        .addSelect(
+          this.tripLookup.departureAtSql(
+            this.dataSource.manager,
+            'request.trip_id',
+          ),
+          'departureAt',
+        )
+        .where('request.passengerId = :passengerId', { passengerId })
+        .andWhere('request.status IN (:...statuses)', {
+          statuses: PASSENGER_TAB_STATUSES[tab],
+        })
+        .getRawMany();
+    return rows.map(({ id, departureAt }) => ({
+      id,
+      departureAt: new Date(departureAt),
+    }));
+  }
+
+  // Esas solicitudes mías, en el orden de ids
+  async listViewsByIds(
+    passengerId: string,
+    ids: readonly string[],
+  ): Promise<RequestView[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+    const requests = await this.requestsRepository.findBy({
+      passengerId,
+      id: In([...ids]),
+    });
+    const byId = new Map(requests.map((request) => [request.id, request]));
+    return this.views.toViews(
+      ids
+        .map((id) => byId.get(id))
+        .filter((request): request is SeatRequest => request !== undefined),
+    );
   }
 
   // RF-23: el pasajero abandona un viaje EN CURSO (con una incidencia, que
