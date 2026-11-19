@@ -538,6 +538,7 @@
     },
     "pushEnabledToast": "Te avisaremos aunque no tengas Carpooling UAL abierto.",
     "pushEnableError": "No hemos podido activar las notificaciones. Inténtalo de nuevo.",
+    "pushDisableError": "No hemos podido desactivar las notificaciones. Inténtalo de nuevo.",
     "bioHint": "Opcional: mínimo 20 y máximo 200 caracteres."
   },
   "publish": {
