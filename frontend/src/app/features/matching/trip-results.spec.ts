@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
 import { TripMatch } from '../../core/models/trip-match.model';
 import { TripSearch } from '../../core/models/trip-search.model';
 import { PARKING_P1, ROQUETAS } from './trip-search.testing';
@@ -106,6 +107,9 @@ describe('trip results', () => {
 });
 
 describe('formatShortDate', () => {
+  // En español, sea cual sea el idioma que dejó el spec anterior
+  beforeEach(() => initAppTranslations());
+
   it('reads a day in local time', () => {
     expect(formatShortDate('2026-10-27')).toBe('27 oct');
   });
