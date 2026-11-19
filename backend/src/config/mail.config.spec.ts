@@ -6,6 +6,7 @@ describe('parseMailConfig', () => {
       transport: 'smtp',
       from: 'Carpooling UAL <no-reply@carpooling-ual.local>',
       supportTo: 'soporte@carpooling-ual.local',
+      publicWebUrl: 'http://localhost:4200',
       smtp: { host: 'localhost', port: 1025, secure: false, auth: null },
     });
   });
@@ -26,11 +27,14 @@ describe('parseMailConfig', () => {
         SMTP_USER: 'carpooling',
         SMTP_PASSWORD: 'test-only-password',
         SUPPORT_EMAIL: 'soporte@ual.es',
+        PUBLIC_WEB_URL: 'https://carpooling.ual.es//',
       }),
     ).toEqual({
       transport: 'smtp',
       from: 'Carpooling UAL <no-reply@ual.es>',
       supportTo: 'soporte@ual.es',
+      // Sin las barras del final
+      publicWebUrl: 'https://carpooling.ual.es',
       smtp: {
         host: 'smtp.ual.es',
         port: 465,
