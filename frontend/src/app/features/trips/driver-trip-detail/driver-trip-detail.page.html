@@ -11,13 +11,16 @@
       </div>
 
       <!-- Columna de 4 en escritorio; debajo en el móvil -->
-      <aside class="driver-detail__aside" aria-label="Acciones e impacto del viaje">
+      <aside
+        class="driver-detail__aside"
+        [attr.aria-label]="'myTrips.accionesImpactoDelViaje' | transloco"
+      >
         <app-driver-trip-actions [trip]="trip" (changed)="handleReload()" />
 
         <!-- Viaje terminado: valorar a cada pasajero o ver la valoración -->
         @if (reviewTargets().length > 0) {
           <app-trip-review-card
-            title="Valora a tus pasajeros"
+            [title]="'myTrips.valoraTusPasajeros' | transloco"
             [tripId]="trip.id"
             [targets]="reviewTargets()"
             targetRole="passenger"
@@ -28,29 +31,29 @@
 
         <ion-card class="driver-detail__impact">
           <ion-card-header>
-            <ion-card-title>Impacto de este viaje</ion-card-title>
+            <ion-card-title>{{ 'myTrips.impactoEsteViaje' | transloco }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
             @if (impact(); as impact) {
               <dl class="driver-detail__stats">
                 <div>
-                  <dt class="text-caption">Coches evitados</dt>
+                  <dt class="text-caption">{{ 'myTrips.cochesEvitados' | transloco }}</dt>
                   <dd class="text-subtitle">{{ impact.cars }}</dd>
                 </div>
                 <div>
-                  <dt class="text-caption">CO₂ ahorrado*</dt>
+                  <dt class="text-caption">{{ 'myTrips.ahorrado' | transloco }}</dt>
                   <dd class="text-subtitle driver-detail__value">
                     <ion-icon [icon]="leafIcon" aria-hidden="true" />{{ impact.co2 }}
                   </dd>
                 </div>
               </dl>
               <p class="text-caption text-color-muted">
-                * Estimado: un coche menos por cada pasajero que llevas.
+                {{ 'myTrips.estimadoCocheMenosPor' | transloco }}
               </p>
             } @else {
               <!-- Cancelado: no hubo viaje, ni coches evitados -->
               <p class="text-body-s text-color-muted">
-                Este viaje no se realizó, así que no evitó ningún coche.
+                {{ 'myTrips.esteViajeRealizoAsi' | transloco }}
               </p>
             }
           </ion-card-content>
@@ -59,14 +62,16 @@
     } @else if (trips.isLoading()) {
       <output class="driver-detail__loading">
         <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-color-muted">Cargando el viaje…</span>
+        <span class="text-color-muted">{{ 'myTrips.cargandoViaje' | transloco }}</span>
       </output>
     } @else {
       <ion-card>
         <ion-card-content role="alert">
-          <div class="text-subtitle">No hemos podido cargar este viaje</div>
+          <div class="text-subtitle">{{ 'myTrips.hemosPodidoCargarEste' | transloco }}</div>
           <form (submit)="$event.preventDefault(); handleReload()">
-            <ion-button type="submit" fill="outline">Reintentar</ion-button>
+            <ion-button type="submit" fill="outline">{{
+              'myTrips.reintentar' | transloco
+            }}</ion-button>
           </form>
         </ion-card-content>
       </ion-card>
@@ -101,12 +106,14 @@
       </div>
       @if (trip.finishedBy === 'system') {
         <span class="text-body-s text-color-muted">
-          Cerrado automáticamente: había pasado una hora de la llegada estimada
+          {{ 'myTrips.cerradoAutomaticamenteHabiaPasado' | transloco }}
         </span>
       }
       <ion-breadcrumbs class="driver-detail__breadcrumbs ion-hide-md-down">
-        <ion-breadcrumb routerLink="/tabs/trips" routerDirection="back">Tus viajes</ion-breadcrumb>
-        <ion-breadcrumb [active]="true">Tu viaje</ion-breadcrumb>
+        <ion-breadcrumb routerLink="/tabs/trips" routerDirection="back">{{
+          'myTrips.tusViajes' | transloco
+        }}</ion-breadcrumb>
+        <ion-breadcrumb [active]="true">{{ 'myTrips.viaje' | transloco }}</ion-breadcrumb>
       </ion-breadcrumbs>
     </div>
   }

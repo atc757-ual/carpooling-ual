@@ -6,16 +6,20 @@
     <!-- Como «Viaje en curso»: el viaje a la izquierda y los accesos (botones
          de icono que muestran su texto) a la derecha, también en el móvil -->
     <div class="next-trip__text">
-      <span id="next-trip-title" class="text-eyebrow next-trip__eyebrow"> Próximo viaje </span>
+      <span id="next-trip-title" class="text-eyebrow next-trip__eyebrow">
+        {{ 'nextTrip.proximoViaje' | transloco }}
+      </span>
       <div class="next-trip__when">
         <span class="text-subtitle">{{ when() }}</span>
         @if (next.role === 'driver') {
           <span class="role-tag role-tag--driver">
-            <ion-icon [icon]="driverIcon" aria-hidden="true" />Conduces
+            <ion-icon [icon]="driverIcon" aria-hidden="true" />{{ 'nextTrip.driving' | transloco }}
           </span>
         } @else {
           <span class="role-tag role-tag--passenger">
-            <ion-icon [icon]="passengerIcon" aria-hidden="true" />Viajas
+            <ion-icon [icon]="passengerIcon" aria-hidden="true" />{{
+              'nextTrip.riding' | transloco
+            }}
           </span>
         }
         @if (status(); as status) {
@@ -36,11 +40,13 @@
         <a
           class="icon-btn icon-btn--reveal"
           appRevealOnTouch
-          aria-label="Chat con el conductor"
+          [attr.aria-label]="'nextTrip.chatConConductor' | transloco"
           [routerLink]="chat"
         >
           <ion-icon [icon]="chatIcon" aria-hidden="true" />
-          <span class="icon-btn__label" aria-hidden="true">Chat con el conductor</span>
+          <span class="icon-btn__label" aria-hidden="true">{{
+            'nextTrip.chatConConductor' | transloco
+          }}</span>
         </a>
       }
       <a

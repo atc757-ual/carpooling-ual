@@ -3,31 +3,43 @@
     @if (requestResource.isLoading() && !requestResource.hasValue()) {
       <output class="passenger-detail__loading" aria-live="polite">
         <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-caption text-color-muted">Cargando tu solicitud…</span>
+        <span class="text-caption text-color-muted">{{
+          'request.cargandoSolicitud' | transloco
+        }}</span>
       </output>
     } @else if (requestResource.error()) {
       <ion-card class="passenger-detail__missing">
         <ion-card-content class="passenger-detail__state" role="alert">
           <ion-icon [icon]="alertIcon" aria-hidden="true" />
-          <div class="passenger-detail__state-title">No encontramos esta solicitud</div>
+          <div class="passenger-detail__state-title">
+            {{ 'request.encontramosEstaSolicitud' | transloco }}
+          </div>
           <p class="text-body-s text-color-muted">
-            Puede que ya no esté disponible. Puedes revisar tus viajes o buscar otro.
+            {{ 'request.puedeQueEsteDisponible' | transloco }}
           </p>
-          <ion-button routerLink="/tabs/trips">Volver a Tus viajes</ion-button>
+          <ion-button routerLink="/tabs/trips">{{
+            'request.volverTusViajes' | transloco
+          }}</ion-button>
         </ion-card-content>
       </ion-card>
     } @else if (request(); as request) {
       @if (tripResource.isLoading() && !tripResource.hasValue()) {
         <output class="passenger-detail__loading" aria-live="polite">
           <ion-spinner name="crescent" aria-hidden="true" />
-          <span class="text-caption text-color-muted">Cargando los datos del viaje…</span>
+          <span class="text-caption text-color-muted">{{
+            'request.cargandoLosDatosDel' | transloco
+          }}</span>
         </output>
       } @else if (tripResource.error()) {
         <ion-card class="passenger-detail__missing">
           <ion-card-content class="passenger-detail__state" role="alert">
             <ion-icon [icon]="alertIcon" aria-hidden="true" />
-            <div class="passenger-detail__state-title">No pudimos cargar el viaje</div>
-            <ion-button routerLink="/tabs/trips">Volver a Tus viajes</ion-button>
+            <div class="passenger-detail__state-title">
+              {{ 'request.pudimosCargarViaje' | transloco }}
+            </div>
+            <ion-button routerLink="/tabs/trips">{{
+              'request.volverTusViajes' | transloco
+            }}</ion-button>
           </ion-card-content>
         </ion-card>
       } @else if (trip(); as trip) {
@@ -59,49 +71,60 @@
                 />
                 <span>
                   @if (trip.status === 'cancelled' && request.status !== 'completed') {
-                    <b>{{ firstName(trip.driver.name) }} ha cancelado este viaje.</b>
-                    Puedes buscar otro viaje con prioridad manteniendo tu ruta y tu horario.
+                    <b>{{
+                      'request.driverCancelled' | transloco: { driver: firstName(trip.driver.name) }
+                    }}</b>
+                    {{ 'request.puedesBuscarOtroViaje' | transloco }}
                   } @else {
                     @switch (request.status) {
                       @case ('pending') {
-                        <b>Tu solicitud está en manos de {{ firstName(trip.driver.name) }}.</b>
-                        Aún no tienes plaza. Te avisaremos en Avisos cuando responda.
+                        <b>{{
+                          'request.pendingTitle'
+                            | transloco: { driver: firstName(trip.driver.name) }
+                        }}</b>
+                        {{ 'request.aunTienesPlazaAvisaremos' | transloco }}
                       }
                       @case ('accepted') {
-                        <b>Tienes plaza en el coche de {{ firstName(trip.driver.name) }}.</b>
-                        Tu solicitud ha sido aceptada.
+                        <b>{{
+                          'request.acceptedTitle'
+                            | transloco: { driver: firstName(trip.driver.name) }
+                        }}</b>
+                        {{ 'request.solicitudSidoAceptada' | transloco }}
                       }
                       @case ('completed') {
-                        <b>Tu viaje ha terminado.</b>
+                        <b>{{ 'request.viajeTerminado' | transloco }}</b>
                         @if (request.droppedOffBy === 'system') {
-                          Lo cerramos automáticamente una hora después de la llegada estimada.
+                          {{ 'request.cerramosAutomaticamenteUnaHora' | transloco }}
                         } @else {
-                          Has llegado a tu destino.
+                          {{ 'request.hasLlegadoDestino' | transloco }}
                         }
-                        Valora a {{ firstName(trip.driver.name) }}: ayuda a la comunidad.
+                        {{
+                          'request.rateDriver' | transloco: { driver: firstName(trip.driver.name) }
+                        }}
                       }
                       @case ('rejected') {
                         @if (request.rejectionReason === 'trip_full') {
-                          <b>Esta vez no ha podido ser: viaje completo.</b>
-                          El viaje ha completado todas sus plazas disponibles.
+                          <b>{{ 'request.estaVezPodidoSer' | transloco }}</b>
+                          {{ 'request.viajeCompletadoTodasSus' | transloco }}
                         } @else {
-                          <b>{{ firstName(trip.driver.name) }} no pudo aceptar tu solicitud.</b>
-                          No tienes plaza en este viaje.
+                          <b>{{
+                            'request.rejectedTitle'
+                              | transloco: { driver: firstName(trip.driver.name) }
+                          }}</b>
+                          {{ 'request.tienesPlazaEsteViaje' | transloco }}
                         }
                       }
                       @case ('expired') {
-                        <b>Esta vez no ha podido ser: solicitud caducada.</b>
-                        El conductor no respondió a tiempo: las solicitudes se cierran 10 minutos
-                        antes de la salida.
+                        <b>{{ 'request.estaVezPodidoSer2' | transloco }}</b>
+                        {{ 'request.conductorRespondioTiempoLas' | transloco }}
                       }
                       @case ('cancelled') {
                         @if (request.rejectionReason === 'no_show') {
-                          <b>Cancelada: no te presentaste a tiempo.</b>
-                          El conductor marcó que no te presentaste en el punto de recogida tras 5
-                          minutos de espera.
+                          <b>{{ 'request.canceladaPresentasteTiempo' | transloco }}</b>
+                          {{ 'request.conductorMarcoQuePresentaste' | transloco }}
                         } @else {
-                          <b>La solicitud está cancelada.</b>
-                          Puedes buscar otro viaje si todavía necesitas plaza.
+                          <b>{{ 'request.solicitudEstaCancelada' | transloco }}</b>
+                          {{ 'request.puedesBuscarOtroViaje2' | transloco }}
                         }
                       }
                     }
@@ -114,24 +137,33 @@
             <!-- Código de recogida de 4 cifras (solo con la plaza aceptada) -->
             @if (request.status === 'accepted') {
               <section class="passenger-detail__board-code" aria-labelledby="board-code-title">
-                <h2 id="board-code-title" class="text-subtitle">Código de recogida</h2>
+                <h2 id="board-code-title" class="text-subtitle">
+                  {{ 'request.codigoRecogida' | transloco }}
+                </h2>
                 <div class="passenger-detail__code-card">
                   @if (request.boardedAt) {
                     <div class="passenger-detail__boarded-badge">
-                      <span class="status status--accepted">¡Subida confirmada!</span>
-                      <p class="text-caption text-color-muted">Ya estás a bordo del vehículo.</p>
+                      <span class="status status--accepted">{{
+                        'request.subidaConfirmada' | transloco
+                      }}</span>
+                      <p class="text-caption text-color-muted">
+                        {{ 'request.estasBordoDelVehiculo' | transloco }}
+                      </p>
                     </div>
                   } @else if (!isBoardCodeVisible()) {
                     <!-- Hasta 10 min antes de la salida (o hasta que inicie), sin código -->
                     <p class="text-body-s text-color-muted">
-                      Verás el código 10 minutos antes de la salida, cuando
-                      {{ firstName(trip.driver.name) }} pueda iniciar el viaje.
+                      {{
+                        'request.boardCodeLater'
+                          | transloco: { driver: firstName(trip.driver.name) }
+                      }}
                     </p>
                   } @else if (request.boardCode) {
                     <div class="passenger-detail__code-digits">{{ request.boardCode }}</div>
                     <p class="text-caption text-color-muted">
-                      Indica este código de 4 cifras a {{ firstName(trip.driver.name) }} al subir al
-                      coche para validar tu recogida.
+                      {{
+                        'request.boardCodeHint' | transloco: { driver: firstName(trip.driver.name) }
+                      }}
                     </p>
                   }
                 </div>
@@ -142,7 +174,10 @@
 
         <!-- Columna de 4 en escritorio; debajo en el móvil: el conductor y su
              coche, el viaje y la seguridad, las acciones y la valoración -->
-        <aside class="passenger-detail__aside" aria-label="Tu viaje y acciones">
+        <aside
+          class="passenger-detail__aside"
+          [attr.aria-label]="'request.viajeAcciones' | transloco"
+        >
           <!-- En escritorio, dos tarjetas (decidido con el autor el 19/11): el
                conductor y el coche y, debajo, la seguridad y las acciones -->
           <div class="passenger-detail__aside-card">
@@ -158,30 +193,37 @@
             ) {
               <ion-card class="passenger-detail__safety">
                 <ion-card-content>
-                  <h2 class="text-subtitle">Viaje y seguridad</h2>
+                  <h2 class="text-subtitle">{{ 'request.viajeSeguridad' | transloco }}</h2>
                   <ul class="passenger-detail__items">
                     <li class="passenger-detail__item">
                       <div class="passenger-detail__item-text">
                         @if (trip.status === 'in_progress') {
                           <span class="passenger-detail__item-title">
-                            {{ firstName(trip.driver.name) }} ha empezado el viaje
+                            {{
+                              'request.driverStarted'
+                                | transloco: { driver: firstName(trip.driver.name) }
+                            }}
                           </span>
                           <span class="text-caption text-color-muted">
-                            Síguelo en directo: verás dónde está el coche y cuánto le falta.
+                            {{ 'request.sigueloDirectoVerasDonde' | transloco }}
                           </span>
                         } @else {
-                          <span class="passenger-detail__item-title">Aún no ha empezado</span>
+                          <span class="passenger-detail__item-title">{{
+                            'request.aunEmpezado' | transloco
+                          }}</span>
                           <span class="text-caption text-color-muted">
-                            Podrás seguirlo cuando {{ firstName(trip.driver.name) }} inicie el
-                            viaje.
+                            {{
+                              'request.followLater'
+                                | transloco: { driver: firstName(trip.driver.name) }
+                            }}
                           </span>
                         }
                       </div>
                       @if (trip.status === 'in_progress') {
                         <a
                           class="icon-btn"
-                          aria-label="Seguir el viaje en directo"
-                          title="Seguir en directo"
+                          [attr.aria-label]="'request.seguirViajeDirecto' | transloco"
+                          [title]="'request.seguirDirecto' | transloco"
                           [routerLink]="['/tabs/trips/ride', request.id]"
                         >
                           <ion-icon [icon]="liveIcon" aria-hidden="true" />
@@ -190,16 +232,18 @@
                     </li>
                     <li class="passenger-detail__item">
                       <div class="passenger-detail__item-text">
-                        <span class="passenger-detail__item-title">Comparte tu ubicación</span>
+                        <span class="passenger-detail__item-title">{{
+                          'request.comparteUbicacion' | transloco
+                        }}</span>
                         <span class="text-caption text-color-muted">
-                          Envía tu viaje a alguien de confianza.
+                          {{ 'request.enviaViajeAlguienConfianza' | transloco }}
                         </span>
                       </div>
                       <button
                         type="button"
                         class="icon-btn"
-                        aria-label="Compartir el viaje con alguien de confianza"
-                        title="Compartir viaje"
+                        [attr.aria-label]="'request.compartirViajeConAlguien' | transloco"
+                        [title]="'request.compartirViaje' | transloco"
                         (click)="handleShare(request, trip)"
                       >
                         <ion-icon [icon]="shareIcon" aria-hidden="true" />
@@ -208,16 +252,18 @@
                     @if (trip.status === 'in_progress') {
                       <li class="passenger-detail__item">
                         <div class="passenger-detail__item-text">
-                          <span class="passenger-detail__item-title">¿Algo va mal?</span>
+                          <span class="passenger-detail__item-title">{{
+                            'request.algoMal' | transloco
+                          }}</span>
                           <span class="text-caption text-color-muted">
-                            Bájate en un sitio seguro y repórtalo.
+                            {{ 'request.bajateSitioSeguroReportalo' | transloco }}
                           </span>
                         </div>
                         <button
                           type="button"
                           class="icon-btn"
-                          aria-label="Reportar: bajarme y registrar una incidencia"
-                          title="Reportar"
+                          [attr.aria-label]="'request.reportarBajarmeRegistrarUna' | transloco"
+                          [title]="'request.reportar' | transloco"
                           (click)="actions()?.openIncidentModal()"
                         >
                           <ion-icon [icon]="alertIcon" aria-hidden="true" />
@@ -264,7 +310,8 @@
       <div class="passenger-detail__title-row">
         <h1 class="passenger-detail__title">
           <ion-icon class="passenger-detail__role-icon" [icon]="personIcon" aria-hidden="true" />
-          {{ hasTravelled() ? 'Viajaste' : 'Viajas' }} · {{ when() }}
+          {{ (hasTravelled() ? 'request.travelled' : 'nextTrip.riding') | transloco }} ·
+          {{ when() }}
         </h1>
         <span
           class="status status--heading"
@@ -276,8 +323,10 @@
         </span>
       </div>
       <ion-breadcrumbs class="passenger-detail__breadcrumbs ion-hide-md-down">
-        <ion-breadcrumb routerLink="/tabs/trips" routerDirection="back">Tus viajes</ion-breadcrumb>
-        <ion-breadcrumb [active]="true">Tu solicitud</ion-breadcrumb>
+        <ion-breadcrumb routerLink="/tabs/trips" routerDirection="back">{{
+          'request.tusViajes' | transloco
+        }}</ion-breadcrumb>
+        <ion-breadcrumb [active]="true">{{ 'request.solicitud' | transloco }}</ion-breadcrumb>
       </ion-breadcrumbs>
     </div>
   }

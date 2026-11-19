@@ -1,3 +1,5 @@
+import { TranslocoPipe } from '@jsverse/transloco';
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
@@ -48,6 +50,7 @@ describe('DriverTripRoute', () => {
     TestBed.configureTestingModule({
       imports: [DriverTripRoute],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideCatalogsForTests(),
         {
@@ -65,7 +68,15 @@ describe('DriverTripRoute', () => {
     // El mapa (Leaflet) y la línea de paradas tienen sus propios tests
     TestBed.overrideComponent(DriverTripRoute, {
       set: {
-        imports: [IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon, IonSpinner],
+        imports: [
+          IonCard,
+          IonCardContent,
+          IonCardHeader,
+          IonCardTitle,
+          IonIcon,
+          IonSpinner,
+          TranslocoPipe,
+        ],
         schemas: [CUSTOM_ELEMENTS_SCHEMA],
       },
     });

@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
@@ -32,7 +33,11 @@ describe('TripReviewCard (de uno en uno)', () => {
       create: vi.fn(),
     };
     TestBed.configureTestingModule({
-      providers: [provideIonicAngular(), { provide: TripReviewsService, useValue: reviews }],
+      providers: [
+        provideAppTransloco(),
+        provideIonicAngular(),
+        { provide: TripReviewsService, useValue: reviews },
+      ],
     });
     const fixture = TestBed.createComponent(TripReviewCard);
     fixture.componentRef.setInput('tripId', 't1');

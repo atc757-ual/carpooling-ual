@@ -1,4 +1,4 @@
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TRANSLOCO_TRANSPILER, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -59,7 +59,6 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { confirmWithReason } from '../../../shared/components/modals/reason-confirm-modal/reason-confirm-modal';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { TRIP_STATUS_LABELS } from '../../../shared/utils/trip-status.util';
 import { formatTime } from '../../matching/trip-results';
 import {

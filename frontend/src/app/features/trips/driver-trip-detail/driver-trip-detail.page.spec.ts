@@ -1,3 +1,5 @@
+import { TranslocoPipe } from '@jsverse/transloco';
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
@@ -45,7 +47,11 @@ describe('DriverTripDetailPage', () => {
     listMyTrips = vi.fn().mockImplementation(trips);
     TestBed.configureTestingModule({
       imports: [DriverTripDetailPage],
-      providers: [provideIonicAngular(), { provide: DriverService, useValue: { listMyTrips } }],
+      providers: [
+        provideAppTransloco(),
+        provideIonicAngular(),
+        { provide: DriverService, useValue: { listMyTrips } },
+      ],
     });
     // Las piezas (recorrido, pasajeros y acciones) tienen sus propios tests
     TestBed.overrideComponent(DriverTripDetailPage, {
@@ -59,6 +65,7 @@ describe('DriverTripDetailPage', () => {
           IonContent,
           IonIcon,
           IonSpinner,
+          TranslocoPipe,
         ],
         schemas: [CUSTOM_ELEMENTS_SCHEMA],
       },

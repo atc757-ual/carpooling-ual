@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -30,7 +31,7 @@ export interface PickupModeControls {
 // cosa u otra
 @Component({
   selector: 'app-pickup-mode-field',
-  imports: [ReactiveFormsModule, IonIcon, IonSelect, IonSelectOption, PlaceField],
+  imports: [ReactiveFormsModule, IonIcon, IonSelect, IonSelectOption, PlaceField, TranslocoPipe],
   templateUrl: './pickup-mode-field.html',
   styleUrl: './pickup-mode-field.scss',
 })

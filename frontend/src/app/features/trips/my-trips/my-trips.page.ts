@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import {
   IonButton,
@@ -57,6 +58,7 @@ interface LiveBannerData {
     LiveTripBanner,
     MyTripsAside,
     PassengerTripCard,
+    TranslocoPipe,
   ],
   templateUrl: './my-trips.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './my-trips.page.scss'],

@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, input, output, resource, signal } from '@angular/core';
 import {
   IonButton,
@@ -50,6 +51,7 @@ const CHAT_STATUSES: ReadonlySet<TripStatus> = new Set(['confirmed', 'in_progres
     IonIcon,
     IonSpinner,
     RouterLink,
+    TranslocoPipe,
   ],
   templateUrl: './driver-trip-passengers.html',
   styleUrl: './driver-trip-passengers.scss',

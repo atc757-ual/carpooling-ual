@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -11,7 +12,7 @@ import { FROM_CAMPUS, TO_CAMPUS } from '../trip-way';
 // está marcada, la vuelta lleva las plazas de la ida
 @Component({
   selector: 'app-round-trip-seats',
-  imports: [ReactiveFormsModule, IonCheckbox, SeatStepper],
+  imports: [ReactiveFormsModule, IonCheckbox, SeatStepper, TranslocoPipe],
   templateUrl: './round-trip-seats.html',
   styleUrl: './round-trip-seats.scss',
 })

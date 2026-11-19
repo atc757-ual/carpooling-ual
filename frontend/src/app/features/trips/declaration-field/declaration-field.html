@@ -5,16 +5,17 @@
   <ion-checkbox [formControl]="control()" [attr.aria-labelledby]="labelId()" />
   <span [id]="labelId()" class="text-body-s">
     @if (document() === 'vehicle_declaration') {
-      Declaro haber leído la
+      {{ 'publish.declaroHaberLeido' | transloco }}
       <button type="button" class="declaration-field__link" (click)="handleRead()">
-        declaración del vehículo</button
-      >: tiene el seguro obligatorio en vigor y la ITV al día.
+        {{ 'publish.vehicleDeclaration' | transloco }}</button>{{
+        'publish.vehicleDeclarationTail' | transloco
+      }}
     } @else {
-      Declaro haber leído la
+      {{ 'publish.declaroHaberLeido' | transloco }}
       <button type="button" class="declaration-field__link" (click)="handleRead()">
-        declaración completa
+        {{ 'publish.declaracionCompleta' | transloco }}
       </button>
-      y que tengo el permiso de conducir en vigor.
+      {{ 'publish.queTengoPermisoConducir' | transloco }}
     }
   </span>
 </div>

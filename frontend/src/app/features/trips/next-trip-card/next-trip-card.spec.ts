@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -26,6 +27,7 @@ describe('NextTripCard', () => {
     const listMine = vi.fn().mockResolvedValue(options.requestStatus ? [ride.request] : []);
     TestBed.configureTestingModule({
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
         {

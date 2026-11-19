@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -24,6 +25,7 @@ describe('DriverTripSummary', () => {
     TestBed.configureTestingModule({
       imports: [DriverTripSummary],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
         { provide: DriverTrackingService, useValue: { start } },

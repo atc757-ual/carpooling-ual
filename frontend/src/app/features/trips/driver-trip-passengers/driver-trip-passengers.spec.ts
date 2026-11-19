@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -58,6 +59,7 @@ describe('DriverTripPassengers', () => {
     TestBed.configureTestingModule({
       imports: [DriverTripPassengers],
       providers: [
+        provideAppTransloco(),
         provideCatalogsForTests(),
         provideIonicAngular(),
         provideRouter([]),

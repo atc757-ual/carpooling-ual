@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, effect, inject, OnInit, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -148,6 +149,7 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
     PublishNextSteps,
     VehiclePicker,
     NextTripCard,
+    TranslocoPipe,
   ],
   templateUrl: './publish-trip.page.html',
   styleUrls: ['../../tabs/tab-page.scss', './publish-trip.page.scss'],

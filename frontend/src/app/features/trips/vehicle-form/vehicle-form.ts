@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -67,6 +68,7 @@ const DEFAULT_TOTAL_SEATS = 5;
     DeclarationContent,
     DeclarationField,
     PlateCountrySelect,
+    TranslocoPipe,
   ],
   templateUrl: './vehicle-form.html',
   styleUrl: './vehicle-form.scss',

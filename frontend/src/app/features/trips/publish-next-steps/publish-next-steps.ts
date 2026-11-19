@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, input } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 import { checkmarkOutline, peopleOutline } from 'ionicons/icons';
@@ -8,7 +9,7 @@ import { COMMUNITY_POINTS, getNextSteps } from '../publish-trip/publish-help';
 // qué ayuda a la comunidad de la UAL)
 @Component({
   selector: 'app-publish-next-steps',
-  imports: [IonIcon],
+  imports: [IonIcon, TranslocoPipe],
   templateUrl: './publish-next-steps.html',
   styleUrl: './publish-next-steps.scss',
 })

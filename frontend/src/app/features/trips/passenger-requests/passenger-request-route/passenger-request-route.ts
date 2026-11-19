@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -57,6 +58,7 @@ const RATING_FORMAT = new Intl.NumberFormat('es-ES', {
     TripDriverComponent,
     TripRouteMap,
     RouterLink,
+    TranslocoPipe,
   ],
   templateUrl: './passenger-request-route.html',
   styleUrl: './passenger-request-route.scss',

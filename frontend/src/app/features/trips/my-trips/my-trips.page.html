@@ -23,7 +23,7 @@
             <app-live-trip-banner [route]="live.route" [detail]="live.detail" [link]="live.link" />
           }
           <app-filter-chips
-            legend="Qué viajes ver"
+            [legend]="'myTrips.tabsLegend' | transloco"
             [isLegendHidden]="true"
             [isSingleLine]="true"
             [options]="tabs"
@@ -35,14 +35,18 @@
           @if (isLoading()) {
             <output class="my-trips__status">
               <ion-spinner name="crescent" aria-hidden="true" />
-              <span class="text-color-muted">Cargando tus viajes…</span>
+              <span class="text-color-muted">{{ 'myTrips.cargandoTusViajes' | transloco }}</span>
             </output>
           } @else if (hasError()) {
             <div class="my-trips__state" role="alert">
               <ion-icon [icon]="errorIcon" aria-hidden="true" />
-              <div class="my-trips__state-title">No hemos podido cargar tus viajes</div>
+              <div class="my-trips__state-title">
+                {{ 'myTrips.hemosPodidoCargarTus' | transloco }}
+              </div>
               <form (submit)="$event.preventDefault(); handleRetry()">
-                <ion-button type="submit" fill="outline">Reintentar</ion-button>
+                <ion-button type="submit" fill="outline">{{
+                  'myTrips.reintentar' | transloco
+                }}</ion-button>
               </form>
             </div>
           } @else if (dayGroups().length === 0) {

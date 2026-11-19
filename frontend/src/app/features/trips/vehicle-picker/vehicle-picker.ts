@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import {
   Component,
   computed,
@@ -41,7 +42,7 @@ export interface VehiclePickerControls {
 // proyecte (el botón para seguir)
 @Component({
   selector: 'app-vehicle-picker',
-  imports: [ReactiveFormsModule, IonIcon, RoundTripSeats, SeatStepper, VehicleCard],
+  imports: [ReactiveFormsModule, IonIcon, RoundTripSeats, SeatStepper, VehicleCard, TranslocoPipe],
   templateUrl: './vehicle-picker.html',
   styleUrl: './vehicle-picker.scss',
 })

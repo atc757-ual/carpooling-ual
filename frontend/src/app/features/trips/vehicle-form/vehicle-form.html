@@ -4,7 +4,7 @@
   @if (isReadingDeclaration()) {
     <section class="vehicle-form__declaration-step" aria-labelledby="vehicle-declaration-title">
       <h3 id="vehicle-declaration-title" class="vehicle-form__step-title">
-        Declaración del vehículo
+        {{ 'publish.declaracionDelVehiculo' | transloco }}
       </h3>
       <app-declaration-content
         document="vehicle_declaration"
@@ -16,7 +16,7 @@
         expand="block"
         (click)="isReadingDeclaration.set(false)"
       >
-        Volver
+        {{ 'publish.back' | transloco }}
       </ion-button>
     </section>
   }
@@ -35,16 +35,20 @@
          los de una fila queden a la misma altura. Marca y modelo, en una fila -->
       <div class="vehicle-form__row">
         <div class="vehicle-form__field">
-          <label class="text-label text-label--strong" for="vehicle-brand">Marca</label>
+          <label class="text-label text-label--strong" for="vehicle-brand">{{
+            'publish.marca' | transloco
+          }}</label>
           <app-brand-field id="vehicle-brand" formControlName="brand" />
         </div>
         <div class="vehicle-form__field">
-          <span class="text-label text-label--strong" aria-hidden="true">Modelo</span>
+          <span class="text-label text-label--strong" aria-hidden="true">{{
+            'publish.modelo' | transloco
+          }}</span>
           <ion-input
             formControlName="model"
-            aria-label="Modelo"
+            [attr.aria-label]="'publish.modelo' | transloco"
             fill="outline"
-            placeholder="Ibiza"
+            [placeholder]="'publish.ibiza' | transloco"
             autocapitalize="words"
             errorText="Escribe el modelo, como Ibiza."
           />
@@ -57,7 +61,7 @@
        de cada uno, para los lectores de pantalla -->
     <fieldset class="vehicle-form__choices">
       <legend class="text-label text-label--strong">
-        Color
+        {{ 'publish.color' | transloco }}
         @if (colorLabel(); as label) {
           <span class="vehicle-form__choice-name">· {{ label }}</span>
         }
@@ -84,7 +88,7 @@
         <!-- Como los colores: solo el icono en un círculo; el nombre del elegido,
            junto a la etiqueta -->
         <legend class="text-label text-label--strong">
-          Motor
+          {{ 'publish.engine' | transloco }}
           @if (engineLabel(); as label) {
             <span class="vehicle-form__choice-name">· {{ label }}</span>
           }
@@ -107,17 +111,21 @@
         <!-- País de la matrícula: España por defecto; el resto de la UE, el EEE
            y Suiza, que también circulan por España -->
         <div class="vehicle-form__field vehicle-form__area-country">
-          <span class="text-label text-label--strong" aria-hidden="true">País de la matrícula</span>
+          <span class="text-label text-label--strong" aria-hidden="true">{{
+            'publish.paisMatricula' | transloco
+          }}</span>
           <app-plate-country-select formControlName="plateCountry" />
         </div>
         <div class="vehicle-form__field vehicle-form__area-plate">
-          <span class="text-label text-label--strong" aria-hidden="true">Matrícula</span>
+          <span class="text-label text-label--strong" aria-hidden="true">{{
+            'publish.matricula' | transloco
+          }}</span>
           @if (isSpanishPlate()) {
             <ion-input
               formControlName="plate"
-              aria-label="Matrícula"
+              [attr.aria-label]="'publish.matricula' | transloco"
               fill="outline"
-              placeholder="1234 BCD"
+              [placeholder]="'publish.t1234Bcd' | transloco"
               autocapitalize="characters"
               helperText="Como 1234 BCD."
               errorText="Escribe una matrícula española, como 1234 BCD."
@@ -125,9 +133,9 @@
           } @else {
             <ion-input
               formControlName="plate"
-              aria-label="Matrícula"
+              [attr.aria-label]="'publish.matricula' | transloco"
               fill="outline"
-              placeholder="AB 123 CD"
+              [placeholder]="'publish.t123' | transloco"
               autocapitalize="characters"
               helperText="Letras y números, como en tu placa."
               errorText="Escribe de 2 a 10 letras y números, como en tu placa."
@@ -138,11 +146,11 @@
       <div class="vehicle-form__field vehicle-form__area-seats">
         <app-seat-stepper
           formControlName="totalSeats"
-          label="Asientos"
+          [label]="'publish.asientos' | transloco"
           [min]="minTotalSeats"
           [max]="maxTotalSeats"
         />
-        <p class="field-hint">Asientos totales del vehículo.</p>
+        <p class="field-hint">{{ 'publish.asientosTotalesDelVehiculo' | transloco }}</p>
       </div>
     </div>
     <!-- Al registrarlo: la declaración del vehículo (seguro e ITV) -->

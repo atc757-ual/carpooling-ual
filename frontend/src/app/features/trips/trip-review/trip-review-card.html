@@ -3,10 +3,14 @@
   @if (isLoading()) {
     <output class="trip-review-card__loading">
       <ion-spinner name="crescent" aria-hidden="true" />
-      <span class="text-caption text-color-muted">Cargando tus valoraciones…</span>
+      <span class="text-caption text-color-muted">{{
+        'tripReview.cargandoTusValoraciones' | transloco
+      }}</span>
     </output>
   } @else if (hasError()) {
-    <p class="text-caption text-color-muted">No pudimos cargar tus valoraciones.</p>
+    <p class="text-caption text-color-muted">
+      {{ 'tripReview.pudimosCargarTusValoraciones' | transloco }}
+    </p>
   }
 </ng-template>
 
@@ -35,7 +39,7 @@
            aquí, el agradecimiento -->
         <section class="trip-review-card__done" aria-labelledby="trip-review-done-title">
           <h3 id="trip-review-done-title" class="text-caption text-color-muted">
-            Tus valoraciones
+            {{ 'tripReview.tusValoraciones' | transloco }}
           </h3>
           <ul class="trip-review-card__summary">
             @for (section of sections(); track section.target.id) {
@@ -49,11 +53,17 @@
                     >
                   </span>
                 } @else if (skipped().has(section.target.id)) {
-                  <span class="text-caption text-color-muted">Más tarde, en el viaje</span>
+                  <span class="text-caption text-color-muted">{{
+                    'tripReview.masTardeViaje' | transloco
+                  }}</span>
                 } @else if (section.view.kind === 'given') {
-                  <span class="text-caption text-color-muted">Valorado</span>
+                  <span class="text-caption text-color-muted">{{
+                    'tripReview.valorado' | transloco
+                  }}</span>
                 } @else {
-                  <span class="text-caption text-color-muted">Fuera de plazo</span>
+                  <span class="text-caption text-color-muted">{{
+                    'tripReview.fueraPlazo' | transloco
+                  }}</span>
                 }
               </li>
             }
@@ -62,8 +72,8 @@
         @if (hasSentHere()) {
           <output class="notice notice--success">
             <span>
-              <b>¡Gracias por valorar!</b>
-              Se publicarán cuando también te valoren o en 7 días.
+              <b>{{ 'tripReview.graciasPorValorar' | transloco }}</b>
+              {{ 'tripReview.publicaranCuandoTambienValoren' | transloco }}
             </span>
           </output>
         }
@@ -82,7 +92,9 @@
         <ion-card-title>{{ title() }}</ion-card-title>
         @if (currentStep(); as step) {
           @if (step.total > 1) {
-            <span class="text-caption text-color-muted">{{ step.number }} de {{ step.total }}</span>
+            <span class="text-caption text-color-muted">{{
+              'tripReview.step' | transloco: { number: step.number, total: step.total }
+            }}</span>
           }
         }
       </div>
@@ -110,9 +122,9 @@
                   <!-- Arriba, en texto: publicada o a la espera del doble ciego -->
                   <p class="text-caption text-color-muted">
                     @if (review.isPublished) {
-                      Tu valoración de {{ section.target.name }} ya está publicada.
+                      {{ 'tripReview.published' | transloco: { name: section.target.name } }}
                     } @else {
-                      Se publicará cuando {{ section.target.name }} también valore o en 7 días.
+                      {{ 'tripReview.willPublish' | transloco: { name: section.target.name } }}
                     }
                   </p>
                   <!-- Debajo, solo para leer: el comentario a la izquierda y la
@@ -122,7 +134,9 @@
                       @if (review.comment) {
                         «{{ review.comment }}»
                       } @else {
-                        <span class="text-color-muted">Sin comentario</span>
+                        <span class="text-color-muted">{{
+                          'tripReview.sinComentario' | transloco
+                        }}</span>
                       }
                     </p>
                     <span class="trip-review-card__verdict">
@@ -134,7 +148,7 @@
                   </div>
                 } @else {
                   <p class="text-body-s text-color-muted">
-                    Ya valoraste a {{ section.target.name }}.
+                    {{ 'tripReview.alreadyRated' | transloco: { name: section.target.name } }}
                   </p>
                 }
               }
@@ -148,7 +162,7 @@
               }
               @case ('expired') {
                 <p class="text-body-s text-color-muted">
-                  El plazo para valorar a {{ section.target.name }} terminó (7 días tras llegar).
+                  {{ 'tripReview.expired' | transloco: { name: section.target.name } }}
                 </p>
               }
             }

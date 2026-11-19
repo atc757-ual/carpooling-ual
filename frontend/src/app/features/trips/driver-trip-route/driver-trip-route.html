@@ -1,6 +1,6 @@
 <ion-card class="driver-route">
   <ion-card-header>
-    <ion-card-title>Tu recorrido</ion-card-title>
+    <ion-card-title>{{ 'myTrips.recorrido' | transloco }}</ion-card-title>
   </ion-card-header>
   <ion-card-content>
     @if (route(); as route) {
@@ -13,10 +13,12 @@
     } @else if (details.isLoading()) {
       <output class="driver-route__loading">
         <ion-spinner name="crescent" aria-hidden="true" />
-        <span class="text-caption text-color-muted">Cargando el mapa del viaje…</span>
+        <span class="text-caption text-color-muted">{{
+          'myTrips.cargandoMapaDelViaje' | transloco
+        }}</span>
       </output>
     } @else if (details.error()) {
-      <p class="text-caption text-color-muted">No pudimos cargar el mapa de la ruta.</p>
+      <p class="text-caption text-color-muted">{{ 'myTrips.pudimosCargarMapaRuta' | transloco }}</p>
     }
 
     <app-route-timeline [stops]="stops()" />

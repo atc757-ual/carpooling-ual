@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, input, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { IonCheckbox } from '@ionic/angular';
@@ -15,7 +16,7 @@ export interface ReturnTripControls {
 // mismo día). Sus plazas se eligen con las de la ida, en el paso Vehículo
 @Component({
   selector: 'app-return-trip-field',
-  imports: [ReactiveFormsModule, IonCheckbox, DatetimeField],
+  imports: [ReactiveFormsModule, IonCheckbox, DatetimeField, TranslocoPipe],
   templateUrl: './return-trip-field.html',
   styleUrl: './return-trip-field.scss',
 })

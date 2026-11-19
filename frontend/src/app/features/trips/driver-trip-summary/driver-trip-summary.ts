@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
@@ -18,7 +19,7 @@ const START_WINDOW_MS = 10 * 60 * 1000;
 // enlace es la acción principal
 @Component({
   selector: 'app-driver-trip-summary',
-  imports: [RouterLink, IonCard, IonCardContent, IonIcon],
+  imports: [RouterLink, IonCard, IonCardContent, IonIcon, TranslocoPipe],
   templateUrl: './driver-trip-summary.html',
   styleUrl: './driver-trip-summary.scss',
 })

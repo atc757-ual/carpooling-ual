@@ -1,7 +1,7 @@
 <!-- Cómo recoge el conductor: dos opciones excluyentes y, debajo, lo de la
      elegida (los metros o las paradas) -->
 <fieldset class="pickup-mode">
-  <legend class="text-label text-label--strong">Cómo recoges</legend>
+  <legend class="text-label text-label--strong">{{ 'publish.comoRecoges' | transloco }}</legend>
   <!-- Dos tarjetas que se explican solas; la elegida, en azul. Cada una es
        la etiqueta de un radio nativo (oculto a la vista): el teclado y los
        lectores de pantalla lo tratan como un grupo de opciones -->
@@ -17,9 +17,11 @@
       />
       <span class="pickup-mode__choice-title">
         <ion-icon [icon]="icons.route" aria-hidden="true" />
-        En el camino
+        {{ 'publish.camino' | transloco }}
       </span>
-      <span class="pickup-mode__choice-detail">Recoges a cada uno en su punto</span>
+      <span class="pickup-mode__choice-detail">{{
+        'publish.recogesCadaUnoPunto' | transloco
+      }}</span>
     </label>
     <label class="pickup-mode__choice">
       <input
@@ -32,10 +34,10 @@
       />
       <span class="pickup-mode__choice-title">
         <ion-icon [icon]="icons.stop" aria-hidden="true" />
-        En paradas
+        {{ 'publish.paradas' | transloco }}
       </span>
       <span class="pickup-mode__choice-detail">
-        Eliges hasta {{ maxStops }} paradas y van andando
+        {{ 'publish.stopsChoiceDetail' | transloco: { max: maxStops } }}
       </span>
     </label>
   </div>
@@ -46,7 +48,7 @@
       [formControl]="controls().maxDetourM"
       interface="popover"
       fill="outline"
-      label="Hasta dónde te apartas de tu ruta"
+      [label]="'publish.hastaDondeApartasRuta' | transloco"
       labelPlacement="stacked"
     >
       @for (distance of distances; track distance) {
@@ -59,17 +61,17 @@
     <div class="pickup-mode__stops-block">
       <div class="pickup-mode__stops-head">
         <span class="text-caption text-color-muted">
-          {{ stops().length }} de {{ maxStops }} paradas
+          {{ 'publish.stopsCount' | transloco: { count: stops().length, max: maxStops } }}
         </span>
         @if (canAddStop()) {
           <button class="pickup-mode__map" type="button" (click)="handlePickOnMap()">
             <ion-icon [icon]="icons.map" aria-hidden="true" />
-            Elegir en el mapa
+            {{ 'publish.elegirMapa' | transloco }}
           </button>
         }
       </div>
       @if (stops().length > 0) {
-        <ul class="pickup-mode__stops" aria-label="Tus paradas">
+        <ul class="pickup-mode__stops" [attr.aria-label]="'publish.tusParadas' | transloco">
           @for (stop of stops(); track stop.id; let index = $index) {
             <li class="pickup-mode__stop" [attr.title]="stop.name + ', ' + stop.locality">
               <ion-icon [icon]="icons.stop" aria-hidden="true" />
@@ -77,7 +79,7 @@
               <button
                 class="pickup-mode__remove"
                 type="button"
-                [attr.aria-label]="'Quitar la parada ' + stop.name"
+                [attr.aria-label]="'publish.removeStop' | transloco: { name: stop.name }"
                 (click)="removeStop(index)"
               >
                 <ion-icon [icon]="icons.remove" aria-hidden="true" />
@@ -89,12 +91,14 @@
       @if (canAddStop()) {
         <app-place-field
           [formControl]="newStop"
-          label="Añadir parada"
-          placeholder="Busca una calle o un lugar de tu camino"
+          [label]="'publish.anadirParada' | transloco"
+          [placeholder]="'publish.buscaUnaCalleLugar' | transloco"
           [icon]="icons.stop"
         />
       } @else {
-        <p class="text-caption text-color-muted">Ya tienes {{ maxStops }} paradas, el máximo.</p>
+        <p class="text-caption text-color-muted">
+          {{ 'publish.stopsMax' | transloco: { max: maxStops } }}
+        </p>
       }
     </div>
   }

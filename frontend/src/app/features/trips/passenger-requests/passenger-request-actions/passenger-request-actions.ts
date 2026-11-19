@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -53,6 +54,7 @@ import {
     IonIcon,
     IonSpinner,
     RevealOnTouch,
+    TranslocoPipe,
   ],
   templateUrl: './passenger-request-actions.html',
   styleUrl: './passenger-request-actions.scss',

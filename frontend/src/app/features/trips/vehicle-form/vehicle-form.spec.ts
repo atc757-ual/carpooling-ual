@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
@@ -40,6 +41,7 @@ describe('VehicleForm', () => {
     TestBed.configureTestingModule({
       imports: [VehicleForm],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideCatalogsForTests(),
         { provide: DriverService, useValue: driver },

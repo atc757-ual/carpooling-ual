@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
@@ -23,6 +24,7 @@ describe('DeclarationModal', () => {
     TestBed.configureTestingModule({
       imports: [DeclarationModal],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: ModalController, useValue: { dismiss } },
         { provide: LegalDocumentsService, useValue: { getCurrent } },

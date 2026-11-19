@@ -4,7 +4,9 @@
        (teclado y lector de pantalla de serie) de 48 × 48px;
        en verde claro hasta el elegido y el elegido en verde -->
   <fieldset class="trip-review__fieldset">
-    <legend class="text-label text-label--strong">¿Qué tal con {{ targetName() }}?</legend>
+    <legend class="text-label text-label--strong">
+      {{ 'tripReview.question' | transloco: { name: targetName() } }}
+    </legend>
     <div class="trip-review__scale">
       <ion-icon
         class="trip-review__end trip-review__end--down"
@@ -35,9 +37,10 @@
     </div>
     <p class="trip-review__chosen" [class.text-color-muted]="rating() === 0" aria-hidden="true">
       @if (rating() === 0) {
-        Elige de 1 (muy mal) a 5 (muy bien)
+        {{ 'tripReview.elige1MuyMal' | transloco }}
       } @else {
-        <b>{{ rating() }} de 5</b> · {{ ratingName(rating()) }}
+        <b>{{ 'tripReview.ofFive' | transloco: { rating: rating() } }}</b> ·
+        {{ ratingName(rating()) }}
       }
     </p>
   </fieldset>
@@ -49,8 +52,8 @@
       [rows]="2"
       [maxlength]="maxComment"
       [counter]="true"
-      placeholder="Cuéntalo, si quieres (opcional)"
-      aria-label="Comentario"
+      [placeholder]="'tripReview.cuentaloQuieresOpcional' | transloco"
+      [attr.aria-label]="'tripReview.comentario' | transloco"
       [value]="comment()"
       (ionInput)="comment.set($event.detail.value ?? '')"
     />
@@ -63,7 +66,7 @@
       (click)="isCommentOpen.set(true)"
     >
       <ion-icon slot="start" [icon]="addIcon" aria-hidden="true" />
-      Añadir comentario
+      {{ 'tripReview.anadirComentario' | transloco }}
     </ion-button>
   }
 
@@ -73,7 +76,7 @@
   <!-- Uno debajo del otro, de lado a lado: enviar y, si se puede, «Ahora no» -->
   <div class="trip-review__actions">
     <ion-button type="submit" expand="block" [disabled]="rating() === 0 || isSending()">
-      {{ isSending() ? 'Enviando…' : 'Enviar valoración' }}
+      {{ (isSending() ? 'tripReview.sending' : 'tripReview.send') | transloco }}
     </ion-button>
     @if (canSkip()) {
       <ion-button
@@ -83,7 +86,7 @@
         [disabled]="isSending()"
         (click)="skipped.emit()"
       >
-        Ahora no
+        {{ 'tripReview.ahora' | transloco }}
       </ion-button>
     }
   </div>

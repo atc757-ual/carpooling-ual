@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
@@ -74,6 +75,7 @@ describe('PassengerLiveTripPage', () => {
     getTrip = vi.fn().mockResolvedValue(trip);
     TestBed.configureTestingModule({
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
         provideCatalogsForTests(),

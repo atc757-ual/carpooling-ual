@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl } from '@angular/forms';
 import { provideIonicAngular } from '@ionic/angular';
@@ -10,7 +11,7 @@ describe('ReturnTripField', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [ReturnTripField],
-      providers: [provideIonicAngular()],
+      providers: [provideAppTransloco(), provideIonicAngular()],
     });
     controls = {
       hasReturn: new FormControl(false, { nonNullable: true }),

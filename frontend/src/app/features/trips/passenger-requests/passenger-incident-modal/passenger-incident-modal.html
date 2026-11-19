@@ -12,12 +12,11 @@
     <ion-icon [icon]="reviewIcon" aria-hidden="true" />
     <span class="text-caption">
       @if (isAfterTrip) {
-        Tu reporte lo revisará un administrador. No cambia nada del viaje.
+        {{ 'request.reporteRevisaraAdministradorCambia' | transloco }}
       } @else if (isDriver) {
-        Se cancelará el viaje y tus pasajeros tendrán prioridad para buscar otro. Lo revisará un
-        administrador.
+        {{ 'request.cancelaraViajeTusPasajeros' | transloco }}
       } @else {
-        Tu incidencia la revisará un administrador.
+        {{ 'request.incidenciaRevisaraAdministrador' | transloco }}
       }
     </span>
   </output>
@@ -25,7 +24,9 @@
   <!-- Pastillas en lugar de una lista: ocupan menos alto. Cada una, un radio
        nativo oculto (teclado y lector de pantalla de serie) -->
   <fieldset class="incident-modal__section incident-modal__fieldset">
-    <legend class="text-label text-label--strong">Motivo principal</legend>
+    <legend class="text-label text-label--strong">
+      {{ 'request.motivoPrincipal' | transloco }}
+    </legend>
     <div class="incident-modal__chips">
       @for (cat of categories; track cat.value) {
         <label
@@ -49,14 +50,14 @@
   <div class="incident-modal__section">
     <ion-textarea
       class="incident-modal__textarea"
-      label="¿Qué ha ocurrido?"
+      [label]="'request.queOcurrido' | transloco"
       labelPlacement="stacked"
       fill="outline"
       rows="2"
       [maxlength]="maxLength"
       [counter]="true"
       [value]="description()"
-      [helperText]="'Mínimo ' + minLength + ' caracteres. Sé lo más claro posible.'"
+      [helperText]="'request.incidentHelper' | transloco: { min: minLength }"
       (ionInput)="handleDescriptionInput($event)"
     />
 
@@ -90,9 +91,9 @@
       (click)="handleCancel()"
     >
       @if (isAfterTrip) {
-        Ahora no
+        {{ 'request.ahora' | transloco }}
       } @else {
-        {{ isDriver ? 'Continuar el viaje' : 'Continuar en el viaje' }}
+        {{ (isDriver ? 'request.continueTrip' : 'request.continueInTrip') | transloco }}
       }
     </ion-button>
   </div>

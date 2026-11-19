@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { FormControl } from '@angular/forms';
 import { provideIonicAngular } from '@ionic/angular';
@@ -7,7 +8,7 @@ describe('RoundTripSeats', () => {
   function render(seats = 2, returnSeats = 2) {
     TestBed.configureTestingModule({
       imports: [RoundTripSeats],
-      providers: [provideIonicAngular()],
+      providers: [provideAppTransloco(), provideIonicAngular()],
     });
     const fixture = TestBed.createComponent(RoundTripSeats);
     const controls = {

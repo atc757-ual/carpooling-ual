@@ -4,13 +4,13 @@
   @if (canAdd()) {
     <button class="vehicle-picker__add" type="button" (click)="handleAdd()">
       <ion-icon [icon]="icons.add" aria-hidden="true" />
-      Añadir vehículo
+      {{ 'publish.anadirVehiculo' | transloco }}
     </button>
   }
   <!-- Una tarjeta por vehículo: pulsarla lo elige (editarlo o eliminarlo, en
        Mi perfil) -->
   <fieldset class="vehicle-picker__group">
-    <legend class="visually-hidden">Vehículo</legend>
+    <legend class="visually-hidden">{{ 'publish.vehiculo' | transloco }}</legend>
     <div class="vehicle-picker__grid">
       @for (vehicle of vehicles(); track vehicle.id) {
         <app-vehicle-card
@@ -24,8 +24,8 @@
         <!-- Sin vehículos: qué falta y, arriba a la derecha, «Añadir vehículo» -->
         <div class="vehicle-picker__empty">
           <ion-icon class="vehicle-picker__empty-icon" [icon]="icons.car" aria-hidden="true" />
-          <p class="vehicle-picker__empty-title">Aún no tienes vehículos</p>
-          <p class="text-body-s text-color-muted">Añade el tuyo para poder publicar el viaje.</p>
+          <p class="vehicle-picker__empty-title">{{ 'publish.aunTienesVehiculos' | transloco }}</p>
+          <p class="text-body-s text-color-muted">{{ 'publish.anadeTuyoParaPoder' | transloco }}</p>
         </div>
       }
     </div>
@@ -43,7 +43,7 @@
       } @else {
         <app-seat-stepper
           [formControl]="controls().seats"
-          label="Plazas ofrecidas"
+          [label]="'publish.plazasOfrecidas' | transloco"
           [max]="maxSeats()"
         />
       }

@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
@@ -11,7 +12,11 @@ describe('TripReviewForm', () => {
   function render(canSkip = false) {
     create = vi.fn().mockResolvedValue({ id: 'rev1' });
     TestBed.configureTestingModule({
-      providers: [provideIonicAngular(), { provide: TripReviewsService, useValue: { create } }],
+      providers: [
+        provideAppTransloco(),
+        provideIonicAngular(),
+        { provide: TripReviewsService, useValue: { create } },
+      ],
     });
     const fixture = TestBed.createComponent(TripReviewForm);
     fixture.componentRef.setInput('tripId', 't1');

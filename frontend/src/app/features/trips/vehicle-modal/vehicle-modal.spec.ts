@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
@@ -33,6 +34,7 @@ describe('VehicleModal', () => {
     TestBed.configureTestingModule({
       imports: [VehicleModal],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: ModalController, useValue: { dismiss } },
         { provide: ToastService, useValue: { showSuccess } },
@@ -65,6 +67,7 @@ describe('VehicleModal', () => {
     TestBed.configureTestingModule({
       imports: [VehicleModal],
       providers: [
+        provideAppTransloco(),
         provideIonicAngular(),
         provideCatalogsForTests(),
         { provide: ModalController, useValue: { dismiss: vi.fn() } },

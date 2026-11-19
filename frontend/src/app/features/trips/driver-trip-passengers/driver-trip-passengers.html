@@ -1,13 +1,13 @@
 <ion-card class="driver-trip">
   <ion-card-header>
-    <ion-card-title>Pasajeros</ion-card-title>
+    <ion-card-title>{{ 'myTrips.pasajeros' | transloco }}</ion-card-title>
   </ion-card-header>
   <ion-card-content>
     <!-- Con la aceptación automática, las que caben no pasan por aquí -->
     @if (trip().autoAccept && isOpen()) {
       <output class="notice notice--info driver-trip__auto-accept driver-trip__auto-accept-notice">
         <ion-icon [icon]="autoAcceptIcon" aria-hidden="true" />
-        <span>Aceptas solicitudes automáticamente</span>
+        <span>{{ 'myTrips.aceptasSolicitudesAutomaticamente' | transloco }}</span>
       </output>
     }
 
@@ -23,17 +23,21 @@
 
     @if (isOpen()) {
       <div class="driver-trip__requests">
-        <h3 class="text-label text-label--strong">Solicitudes</h3>
+        <h3 class="text-label text-label--strong">{{ 'myTrips.solicitudes' | transloco }}</h3>
         @if (requests.isLoading()) {
           <output class="driver-trip__loading">
             <ion-spinner name="crescent" aria-hidden="true" />
-            <span class="text-caption text-color-muted">Cargando solicitudes…</span>
+            <span class="text-caption text-color-muted">{{
+              'myTrips.cargandoSolicitudes' | transloco
+            }}</span>
           </output>
         } @else if (requests.error()) {
-          <p class="text-caption text-color-muted">No hemos podido cargar las solicitudes.</p>
+          <p class="text-caption text-color-muted">
+            {{ 'myTrips.hemosPodidoCargarLas' | transloco }}
+          </p>
         } @else if (visibleRequests().length === 0) {
           <p class="text-caption text-color-muted">
-            Aún no hay solicitudes. Te avisaremos cuando llegue una.
+            {{ 'myTrips.aunHaySolicitudesAvisaremos' | transloco }}
           </p>
         } @else {
           <ul class="driver-trip__list">
@@ -52,7 +56,9 @@
                             formatSeats(request.seats)
                           }}</span>
                           @if (request.isPriority) {
-                            <span class="status status--pending">Prioridad</span>
+                            <span class="status status--pending">{{
+                              'myTrips.prioridad' | transloco
+                            }}</span>
                           }
                         </div>
                       </div>
@@ -106,7 +112,10 @@
                   }
 
                   @if (passengerPreferences(request).length > 0) {
-                    <div class="driver-trip__preferences" aria-label="Preferencias del pasajero">
+                    <div
+                      class="driver-trip__preferences"
+                      [attr.aria-label]="'myTrips.preferenciasDelPasajero' | transloco"
+                    >
                       @for (pref of passengerPreferences(request); track pref) {
                         <span class="driver-trip__preference-tag">{{ pref }}</span>
                       }
@@ -122,7 +131,7 @@
                         expand="block"
                         [disabled]="deciding() !== null"
                       >
-                        Aceptar
+                        {{ 'myTrips.accept' | transloco }}
                       </ion-button>
                     </form>
                     <form (submit)="$event.preventDefault(); handleDecide(request, 'reject')">
@@ -133,7 +142,7 @@
                         expand="block"
                         [disabled]="deciding() !== null"
                       >
-                        Rechazar
+                        {{ 'myTrips.reject' | transloco }}
                       </ion-button>
                     </form>
                   </div>

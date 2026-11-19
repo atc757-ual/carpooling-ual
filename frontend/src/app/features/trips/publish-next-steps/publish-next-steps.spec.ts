@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { PublishNextSteps } from './publish-next-steps';
@@ -6,7 +7,7 @@ describe('PublishNextSteps', () => {
   function render(isPublished: boolean, autoAccept = false): HTMLElement {
     TestBed.configureTestingModule({
       imports: [PublishNextSteps],
-      providers: [provideIonicAngular()],
+      providers: [provideAppTransloco(), provideIonicAngular()],
     });
     const fixture = TestBed.createComponent(PublishNextSteps);
     fixture.componentRef.setInput('isPublished', isPublished);

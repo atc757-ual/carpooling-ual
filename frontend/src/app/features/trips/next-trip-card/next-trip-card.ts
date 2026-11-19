@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
@@ -21,7 +22,7 @@ import { isOpenRequest, NextTrip, nextTripLink, nextTripStatus, pickNextTrip } f
 // la pestaña (ionViewWillEnter)
 @Component({
   selector: 'app-next-trip-card',
-  imports: [RouterLink, IonIcon, LiveTripBanner, RevealOnTouch],
+  imports: [RouterLink, IonIcon, LiveTripBanner, RevealOnTouch, TranslocoPipe],
   templateUrl: './next-trip-card.html',
   styleUrl: './next-trip-card.scss',
 })

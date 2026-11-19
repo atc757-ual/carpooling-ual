@@ -4,7 +4,9 @@
       <!-- Lo que pone la página arriba: el estado, el código y el seguimiento -->
       <ng-content />
 
-      <ion-card-title role="heading" aria-level="2">Tu recorrido</ion-card-title>
+      <ion-card-title role="heading" aria-level="2">{{
+        'request.recorrido' | transloco
+      }}</ion-card-title>
 
       @if (route(); as route) {
         <app-trip-route-map
@@ -16,10 +18,14 @@
       } @else if (routeResource.isLoading()) {
         <output class="passenger-route__loading">
           <ion-spinner name="crescent" aria-hidden="true" />
-          <span class="text-caption text-color-muted">Cargando el mapa del viaje…</span>
+          <span class="text-caption text-color-muted">{{
+            'request.cargandoMapaDelViaje' | transloco
+          }}</span>
         </output>
       } @else if (routeResource.error()) {
-        <p class="text-caption text-color-muted">No pudimos cargar el mapa de la ruta.</p>
+        <p class="text-caption text-color-muted">
+          {{ 'request.pudimosCargarMapaRuta' | transloco }}
+        </p>
       }
 
       <app-route-timeline [stops]="stops()" />
@@ -41,12 +47,12 @@
   <ion-card class="passenger-route">
     <ion-card-header>
       <div class="passenger-route__driver-header">
-        <ion-card-title>Conductor y coche</ion-card-title>
+        <ion-card-title>{{ 'request.conductorCoche' | transloco }}</ion-card-title>
         @if (rating(); as ratingVal) {
           <button
             class="trip-driver__rating trip-driver__rating--button"
             type="button"
-            [attr.aria-label]="'Valoración ' + ratingVal + ' de 5. Ver valoraciones'"
+            [attr.aria-label]="'request.ratingLabel' | transloco: { rating: ratingVal }"
             (click)="openReviews()"
           >
             <ion-icon
@@ -94,7 +100,10 @@
       </div>
 
       @if (preferences().length > 0) {
-        <section class="passenger-route__preferences" aria-label="Preferencias del conductor">
+        <section
+          class="passenger-route__preferences"
+          [attr.aria-label]="'request.preferenciasDelConductor' | transloco"
+        >
           @for (preference of preferences(); track preference) {
             <span class="passenger-route__preference">{{ preference }}</span>
           }
@@ -114,7 +123,7 @@
               ></span>
               {{ vehicleColor(vehicle.color) }}
               @if (request().status === 'accepted' && request().vehiclePlate; as plate) {
-                · Matrícula <b>{{ plate }}</b>
+                · {{ 'tripDetail.plate' | transloco }} <b>{{ plate }}</b>
               }
             </div>
           </div>

@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { Capacitor } from '@capacitor/core';
@@ -78,6 +79,7 @@ describe('DriverTripActions', () => {
     TestBed.configureTestingModule({
       imports: [DriverTripActions],
       providers: [
+        provideAppTransloco(),
         provideCatalogsForTests(),
         provideIonicAngular(),
         provideRouter([{ path: 'tabs/trips/drive/:id', children: [] }]),
