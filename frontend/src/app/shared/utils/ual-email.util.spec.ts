@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
 import { FormControl } from '@angular/forms';
 import { getUalEmailErrorText, ualEmailValidator } from './ual-email.util';
 
@@ -30,6 +31,8 @@ describe('ualEmailValidator', () => {
 });
 
 describe('getUalEmailErrorText', () => {
+  beforeEach(() => initAppTranslations());
+
   it('explains the domain or the format', () => {
     expect(
       getUalEmailErrorText(new FormControl('ana@gmail.com', ualEmailValidator(['ual.es']))),

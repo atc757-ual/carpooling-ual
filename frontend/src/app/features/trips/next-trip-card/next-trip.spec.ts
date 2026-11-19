@@ -1,3 +1,4 @@
+import { initAppTranslations } from '../../../core/i18n/testing-transloco';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { passengerTrip } from '../passenger-trip-card/passenger-trip.testing';
 import { isOpenRequest, NextTrip, nextTripLink, nextTripStatus, pickNextTrip } from './next-trip';
@@ -14,6 +15,8 @@ function riding(
 }
 
 describe('next trip', () => {
+  beforeEach(() => initAppTranslations());
+
   it('keeps only pending or accepted seat requests', () => {
     expect(isOpenRequest(riding('pending').request)).toBe(true);
     expect(isOpenRequest(riding('accepted').request)).toBe(true);

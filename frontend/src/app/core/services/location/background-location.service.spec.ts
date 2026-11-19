@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
 import type { CallbackError, Location } from '@capgo/background-geolocation';
 import { vi } from 'vitest';
@@ -18,7 +19,10 @@ describe('BackgroundLocationService', () => {
     });
     stop = vi.fn().mockResolvedValue(undefined);
     TestBed.configureTestingModule({
-      providers: [{ provide: BACKGROUND_GEOLOCATION, useValue: { start, stop } }],
+      providers: [
+        provideAppTransloco(),
+        { provide: BACKGROUND_GEOLOCATION, useValue: { start, stop } },
+      ],
     });
     service = TestBed.inject(BackgroundLocationService);
   });

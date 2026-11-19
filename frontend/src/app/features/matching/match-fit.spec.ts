@@ -1,8 +1,11 @@
+import { initAppTranslations } from '../../core/i18n/testing-transloco';
 import { getMatchFit, MATCH_FIT_LABELS } from './match-fit';
 
 const SEARCH = { direction: 'to-campus' as const, time: '08:00', margin: 30 };
 
 describe('getMatchFit', () => {
+  beforeEach(() => initAppTranslations());
+
   it('fits well near the asked time with a small detour', () => {
     expect(
       getMatchFit({ arrivalTime: '08:05', departureTime: '07:30', pickupDetourMinutes: 3 }, SEARCH),

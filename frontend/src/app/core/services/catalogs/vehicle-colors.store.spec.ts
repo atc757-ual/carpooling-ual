@@ -1,3 +1,4 @@
+import { provideAppTransloco } from '../../i18n/testing-transloco';
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ThemeService } from '../ui/theme.service';
@@ -17,6 +18,7 @@ describe('VehicleColorsStore', () => {
   ): Promise<VehicleColorsStore> {
     TestBed.configureTestingModule({
       providers: [
+        provideAppTransloco(),
         { provide: CatalogsService, useValue: { vehicleColors } },
         { provide: ThemeService, useValue: { isDark } },
       ],

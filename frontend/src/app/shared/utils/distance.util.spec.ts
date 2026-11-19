@@ -1,6 +1,9 @@
+import { setAppLocale } from '../../core/i18n/app-locale';
 import { formatWalkingDistance } from './distance.util';
 
 describe('formatWalkingDistance', () => {
+  beforeEach(() => setAppLocale('es'));
+
   it('rounds short distances to tens of metres', () => {
     expect(formatWalkingDistance(347)).toBe('350 m');
     expect(formatWalkingDistance(0)).toBe('0 m');

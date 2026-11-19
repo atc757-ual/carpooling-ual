@@ -1,4 +1,4 @@
-import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
+import { initAppTranslations, provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -68,6 +68,8 @@ const LOWER_DETOUR_MATCH: TripMatch = {
 };
 
 describe('describeResults', () => {
+  beforeEach(() => initAppTranslations());
+
   const at = (arrivalTime: string, departureTime = '07:00') =>
     ({ arrivalTime, departureTime }) as TripResult;
 
