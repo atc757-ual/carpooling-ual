@@ -71,7 +71,7 @@
   ion-chip {
     display: inline-flex;
     align-items: center;
-    min-height: 2.25rem;
+    min-height: var(--box-size-m);
     margin: 0;
     border-radius: var(--radius-full);
     font-size: var(--font-size-label);
@@ -169,14 +169,14 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: var(--icon-size-l);
+  height: var(--icon-size-l);
   margin-top: var(--space-xxs);
   border-radius: var(--radius-full);
   color: var(--color-text-muted);
 
   ion-icon {
-    font-size: 1.125rem;
+    font-size: var(--icon-size-m);
   }
 }
 
@@ -264,8 +264,8 @@
 }
 
 .notifications__page-arrow {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: var(--box-size-l);
+  height: var(--box-size-l);
   margin: 0;
   --padding-start: 0;
   --padding-end: 0;
@@ -273,12 +273,12 @@
   --color: var(--color-link);
 
   ion-icon {
-    font-size: 1.25rem;
+    font-size: var(--icon-size-base);
   }
 }
 
 .notifications__page-number {
-  min-width: 3.5rem;
+  min-width: var(--control-height-l);
   color: var(--color-text-muted);
   font-size: var(--font-size-caption);
   font-variant-numeric: tabular-nums;
@@ -316,7 +316,7 @@
   ion-icon {
     flex: none;
     color: var(--color-text-muted);
-    font-size: 1.25rem;
+    font-size: var(--icon-size-base);
   }
 
   p {

@@ -171,9 +171,12 @@
         }
 
         @case ('unavailable') {
-          <div class="location__state">
-            <ion-icon [icon]="locateIcon" aria-hidden="true" />
-            <div class="text-subtitle">{{ 'location.errorTitle' | transloco }}</div>
+          <!-- El icono a la izquierda del título y, debajo, qué hacer -->
+          <div class="location__error" role="alert">
+            <div class="location__error-title">
+              <ion-icon [icon]="locateIcon" aria-hidden="true" />
+              <div class="text-subtitle">{{ 'location.errorTitle' | transloco }}</div>
+            </div>
             <div class="text-body-s text-color-muted">
               {{ 'location.errorHint' | transloco }}
             </div>

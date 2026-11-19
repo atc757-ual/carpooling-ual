@@ -56,8 +56,8 @@
   position: relative;
   z-index: var(--z-raised);
   display: block;
-  width: 0.625rem;
-  height: 0.625rem;
+  width: var(--dot-size);
+  height: var(--dot-size);
   margin-top: calc((var(--route-line) - 0.625rem) / 2);
   border: var(--border-width-m) solid var(--color-primary);
   border-radius: var(--radius-full);

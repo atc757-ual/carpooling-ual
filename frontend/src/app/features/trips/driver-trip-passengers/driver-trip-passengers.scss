@@ -21,8 +21,8 @@ ion-card.driver-trip ion-card-content {
 }
 
 .driver-trip__seat {
-  width: 1rem; // 16px
-  height: 1rem;
+  width: var(--icon-size-s);
+  height: var(--icon-size-s);
   border: var(--border-width-m) solid var(--color-primary);
   border-radius: var(--radius-full);
 }
@@ -90,8 +90,8 @@ ion-card.driver-trip ion-card-content {
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 2.5rem; // 40px
-  height: 2.5rem;
+  width: var(--box-size-l);
+  height: var(--box-size-l);
   border-radius: var(--radius-full);
   background: var(--color-warning-subtle);
   font-size: var(--font-size-body-s);
@@ -143,7 +143,7 @@ ion-card.driver-trip ion-card-content {
   margin-bottom: var(--space-xs);
 
   ion-icon {
-    font-size: 1.125rem;
+    font-size: var(--icon-size-m);
     flex-shrink: 0;
   }
 }
@@ -165,7 +165,7 @@ ion-card.driver-trip ion-card-content {
   color: var(--color-text-muted);
 
   ion-icon {
-    font-size: 0.875rem; // 14px
+    font-size: var(--icon-size-xs);
     flex-shrink: 0;
     color: var(--color-link);
   }
@@ -199,7 +199,7 @@ ion-card.driver-trip ion-card-content {
   transition: transform var(--motion-duration-fast) ease-in-out;
 
   ion-icon {
-    font-size: 1.5rem; // 24px
+    font-size: var(--icon-size-l);
   }
 
   &:hover:not(&--unavailable) {

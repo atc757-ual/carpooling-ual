@@ -10,7 +10,7 @@
 .help-heading__title {
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: 1.5rem; // 24px
+  font-size: var(--font-size-title);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 }
@@ -182,7 +182,7 @@
   margin: 0;
   color: var(--color-text);
   font-family: var(--font-family-heading);
-  font-size: 1.125rem; // 18px
+  font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 }
@@ -224,7 +224,7 @@
   border-bottom: var(--border-width-s) solid var(--color-border);
   color: var(--color-text);
   font-family: var(--font-family-heading);
-  font-size: 1.125rem; // 18px
+  font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 }
@@ -234,12 +234,12 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 2rem; // 32px
-  height: 2rem;
+  width: var(--box-size-s);
+  height: var(--box-size-s);
   border-radius: var(--radius-full);
   background: var(--color-primary-subtle);
   color: var(--color-link);
-  font-size: 1.125rem; // 18px
+  font-size: var(--icon-size-m);
 }
 
 .help-topic-card__list {
@@ -271,7 +271,7 @@
 }
 
 .help-page__skeleton {
-  height: 1.5rem; // 24px
+  height: var(--icon-size-l);
   margin: 0;
 }
 
@@ -286,6 +286,6 @@
 
   ion-icon {
     color: var(--color-text-muted);
-    font-size: 2rem; // 32px
+    font-size: var(--icon-size-xl);
   }
 }

@@ -12,7 +12,7 @@
   ion-icon {
     flex-shrink: 0;
     margin-top: var(--space-xxs);
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
     color: var(--color-danger);
   }
 }
@@ -36,13 +36,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 3.5rem; // 56px
-  height: 3.5rem;
+  width: var(--control-height-l);
+  height: var(--control-height-l);
   margin-bottom: var(--space-xs);
   border-radius: var(--radius-full);
   background: var(--color-primary-subtle);
   color: var(--color-primary);
-  font-size: 1.75rem; // 28px
+  font-size: var(--icon-size-xl);
 }
 
 // Eliminar en blanco con el texto y el borde en rojo; quedarse, en azul

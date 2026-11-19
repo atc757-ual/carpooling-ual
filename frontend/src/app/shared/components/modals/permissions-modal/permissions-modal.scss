@@ -26,12 +26,12 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 2.5rem; // 40px
-  height: 2.5rem;
+  width: var(--box-size-l);
+  height: var(--box-size-l);
   border-radius: var(--radius-full);
   background: var(--color-primary-subtle);
   color: var(--color-link);
-  font-size: 1.25rem; // 20px
+  font-size: var(--icon-size-base);
 }
 
 .permissions__text {

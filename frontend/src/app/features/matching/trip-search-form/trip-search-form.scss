@@ -75,7 +75,7 @@
     flex: none;
     margin-top: var(--space-xxs); // 2px: a la altura de la primera línea
     color: var(--color-success);
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 
   p {

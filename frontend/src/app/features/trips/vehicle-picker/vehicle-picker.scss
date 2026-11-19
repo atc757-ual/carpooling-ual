@@ -35,7 +35,7 @@
   align-items: center;
   align-self: flex-end;
   gap: var(--space-xs);
-  min-height: 2rem; // 32px
+  min-height: var(--box-size-s);
   padding: 0;
   border: 0;
   background: none;
@@ -46,7 +46,7 @@
   cursor: pointer;
 
   ion-icon {
-    font-size: 1.125rem; // 18px
+    font-size: var(--icon-size-m);
   }
 
   &:focus-visible {
@@ -75,7 +75,7 @@
   border-radius: var(--radius-full);
   background: var(--color-primary-subtle);
   color: var(--color-link);
-  font-size: 1.5rem; // 24px
+  font-size: var(--icon-size-l);
 }
 
 .vehicle-picker__empty-title {

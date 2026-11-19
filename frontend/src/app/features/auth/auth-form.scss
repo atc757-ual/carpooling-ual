@@ -20,13 +20,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 3.5rem; // 56px
-  height: 3.5rem;
+  width: var(--control-height-l);
+  height: var(--control-height-l);
   margin-bottom: var(--space-s);
   border-radius: var(--radius-base);
   background: var(--color-primary-subtle);
   color: var(--color-primary);
-  font-size: 1.75rem; // 28px
+  font-size: var(--icon-size-xl);
 }
 
 // La misma caja, en verde, para lo que ha salido bien (p. ej. la cuenta creada)
@@ -75,7 +75,7 @@
 
   ion-icon {
     margin: 0;
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 
   &:focus-visible {

@@ -130,7 +130,7 @@
 .incident-stops__icon {
   flex: none;
   color: var(--color-link);
-  font-size: 1rem; // 16px
+  font-size: var(--icon-size-s);
 }
 
 .incident-link {

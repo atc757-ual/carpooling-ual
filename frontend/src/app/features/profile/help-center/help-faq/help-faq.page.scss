@@ -28,7 +28,7 @@
 
   ion-icon {
     flex: none;
-    font-size: 1rem; // 16px
+    font-size: var(--icon-size-s);
   }
 }
 

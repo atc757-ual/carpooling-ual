@@ -59,13 +59,13 @@
   justify-content: space-between;
   gap: var(--space-s);
   padding: var(--space-base) var(--space-base) var(--space-s);
-  min-height: 3.5rem;
+  min-height: var(--control-height-l);
 
   // 18px también en escritorio (el tema sube a 20px): en el Perfil, títulos
   // de 18px y ningún otro texto por encima de 16px
   ion-card-title {
     margin: 0;
-    font-size: 1.125rem; // 18px
+    font-size: var(--font-size-subtitle-s);
   }
 
   form {
@@ -113,7 +113,7 @@ app-profile-push-setting {
 }
 
 .profile__review-thumb {
-  font-size: 1rem; // 16px
+  font-size: var(--icon-size-s);
 
   &--up {
     color: var(--color-success);
@@ -137,7 +137,7 @@ app-profile-device-location {
   gap: var(--space-s);
 
   .status ion-icon {
-    font-size: 1.125rem; // 18px
+    font-size: var(--icon-size-m);
   }
 }
 
@@ -147,7 +147,7 @@ app-profile-device-location {
   gap: var(--space-xs);
 
   ion-icon {
-    font-size: 1.125rem;
+    font-size: var(--icon-size-m);
     color: var(--color-text-muted);
   }
 }
@@ -181,8 +181,8 @@ app-profile-device-location {
 }
 
 .profile__avatar-svg {
-  width: 2.25rem; // 36px
-  height: 2.25rem;
+  width: var(--box-size-m);
+  height: var(--box-size-m);
 }
 
 .profile__center-info {
@@ -192,7 +192,7 @@ app-profile-device-location {
 }
 
 .profile__name {
-  font-size: 1.125rem;
+  font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-bold);
   color: var(--color-text);
 }
@@ -286,7 +286,7 @@ ion-list.profile__legal-list {
 .profile__legal-icon {
   flex: none;
   margin-inline-end: var(--space-s);
-  font-size: 1.5rem; // 24px
+  font-size: var(--icon-size-l);
   color: var(--color-primary);
 }
 
@@ -319,14 +319,14 @@ ion-list.profile__legal-list {
   --box-shadow: none;
   --padding-start: 0;
   --padding-end: 0;
-  width: 2rem; // 32px: icono de 20px con 6px alrededor
-  min-width: 2rem;
-  height: 2rem;
-  min-height: 2rem; // el tema da 48px a todos los ion-button
+  width: var(--box-size-s); // Icono de 20px con 6px alrededor
+  min-width: var(--box-size-s);
+  height: var(--box-size-s);
+  min-height: var(--box-size-s); // El tema da 48px a todos los ion-button
   margin: 0;
 
   ion-icon {
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 }
 
@@ -337,7 +337,7 @@ ion-list.profile__legal-list {
 
   ion-icon {
     flex: none;
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
     color: var(--color-primary);
   }
 }
@@ -361,13 +361,13 @@ ion-list.profile__legal-list {
   --color: var(--color-warning-text);
   --border-radius: var(--radius-s);
   --box-shadow: none;
-  height: 2rem; // 32px
-  min-height: 2rem; // el tema da 48px a todos los ion-button
+  height: var(--box-size-s);
+  min-height: var(--box-size-s); // El tema da 48px a todos los ion-button
   margin: 0;
   font-weight: var(--font-weight-semibold);
 
   ion-icon {
-    font-size: 1.125rem;
+    font-size: var(--icon-size-m);
   }
 
   &:hover {
@@ -384,33 +384,11 @@ ion-list.profile__legal-list {
   min-width: 0;
 }
 
-.theme-switch {
-  display: inline-flex;
-  width: 5.75rem; // Exactamente el mismo ancho que el selector de idioma (92px)
-  margin: 0;
-  padding: var(--space-xxs); // 2px de aire entre el borde y la parte activa
-  border: var(--border-width-s) solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
-}
-
+// El selector del tema: la pastilla, en el tema (theme/_pill-switch.scss);
+// aquí, los iconos
 .theme-switch__option {
-  display: inline-flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  min-height: 2rem; // 32px, como el selector de idioma
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-full);
-  background: transparent;
-  cursor: pointer;
-  transition:
-    background-color var(--motion-duration-fast) var(--motion-easing),
-    color var(--motion-duration-fast) var(--motion-easing);
-
   ion-icon {
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 
   // Sin elegir: sol naranja (acento) y luna azul oscuro (el azul pulsado);
@@ -422,20 +400,9 @@ ion-list.profile__legal-list {
   .icon-moon {
     color: var(--color-primary-pressed);
   }
-
-  &:hover:not(.theme-switch__option--active) {
-    background: var(--color-surface-subtle);
-  }
-
-  &:focus-visible {
-    outline: var(--focus-ring);
-    outline-offset: var(--focus-ring-offset);
-  }
 }
 
 .theme-switch__option--active {
-  background: var(--color-primary);
-
   .icon-sun,
   .icon-moon {
     color: var(--color-on-primary);
@@ -443,17 +410,8 @@ ion-list.profile__legal-list {
 }
 
 :host-context(.theme-dark) {
-  .theme-switch {
-    background: var(--color-surface-subtle);
-    border-color: var(--color-border-subtle);
-  }
-
-  .theme-switch__option--active {
-    background: var(--color-selected);
-
-    ion-icon {
-      color: var(--color-on-selected);
-    }
+  .theme-switch__option--active ion-icon {
+    color: var(--color-on-selected);
   }
 
   .theme-switch__option:not(.theme-switch__option--active) .icon-moon {

@@ -9,7 +9,7 @@
 
   // Como los chips de Mensajes: blancos con borde y, el elegido, en azul
   ion-chip {
-    min-height: 2.25rem; // 36px
+    min-height: var(--box-size-m);
     margin: 0;
     border: var(--border-width-s) solid var(--color-border);
     border-radius: var(--radius-full);
@@ -62,8 +62,8 @@
 
 // El punto acompaña al texto con el color de su etiqueta en la lista
 .filter-chips__dot {
-  width: 0.5rem; // 8px
-  height: 0.5rem;
+  width: var(--dot-size-s);
+  height: var(--dot-size-s);
   margin-inline-end: var(--space-xs);
   border-radius: var(--radius-full);
   background: var(--color-text-muted);

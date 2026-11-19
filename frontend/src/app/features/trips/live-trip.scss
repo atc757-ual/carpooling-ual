@@ -182,13 +182,13 @@
 .live-sheet__more-btn {
   display: grid;
   place-items: center;
-  width: 2rem; // 32px
-  height: 1rem; // 16px
+  width: var(--box-size-s);
+  height: var(--icon-size-s);
   padding: 0;
   border: 0;
   background: transparent;
   color: var(--color-border-strong); // gris claro: una pista, no un botón más
-  font-size: 1rem; // 16px: el icono
+  font-size: var(--icon-size-s); // El icono
   pointer-events: auto;
   cursor: pointer;
 

@@ -26,7 +26,7 @@
   min-width: 0;
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: 1.25rem; // 20px
+  font-size: var(--font-size-subtitle);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 }
@@ -50,7 +50,7 @@
 
 @media (min-width: 768px) {
   .trip-detail__title {
-    font-size: 1.5rem; // 24px
+    font-size: var(--font-size-title);
   }
 }
 
@@ -120,14 +120,14 @@ ion-card.trip-detail__actions ion-card-content {
   ion-icon {
     flex: 0 0 auto;
     color: var(--color-text-muted);
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 }
 
 .trip-detail__swatch {
   display: inline-block;
-  width: 0.7rem; // 11.2px
-  height: 0.7rem; // 11.2px
+  width: var(--dot-size);
+  height: var(--dot-size);
   margin-inline-end: var(--space-xs);
   border: var(--border-width-s) solid var(--color-border-strong);
   border-radius: var(--radius-full);

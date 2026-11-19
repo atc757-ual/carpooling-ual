@@ -107,8 +107,8 @@ button.steps__button {
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 1.75rem; // 28px
-  height: 1.75rem; // 28px
+  width: var(--box-size-xs);
+  height: var(--box-size-xs);
   border: var(--border-width-m) solid var(--color-border-strong);
   border-radius: var(--radius-full);
   font-size: var(--font-size-caption);
@@ -129,7 +129,7 @@ button.steps__button {
   }
 
   ion-icon {
-    font-size: 1rem; // 16px
+    font-size: var(--icon-size-s);
   }
 }
 

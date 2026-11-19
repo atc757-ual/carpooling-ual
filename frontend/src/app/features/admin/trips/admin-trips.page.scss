@@ -100,7 +100,7 @@
 // --- Estados de la lista ---
 
 .admin-trips__skeleton-row {
-  height: 1.5rem; // 24px
+  height: var(--icon-size-l);
   margin: var(--space-base);
 }
 
