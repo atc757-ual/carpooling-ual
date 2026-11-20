@@ -56,6 +56,7 @@ import { buildLiveShareText } from '../trip-share-text';
 import { RevealOnTouch, revealedHint } from '../../../shared/directives/reveal-on-touch.directive';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
+import { ParticipantLink } from '../../../shared/components/ui/participant-link/participant-link';
 import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
 
 // Cada cuánto se revisa si ya subió (código validado) o si el viaje terminó
@@ -104,6 +105,7 @@ function arriveErrorKey(code: string): string {
 @Component({
   selector: 'app-passenger-live-trip',
   imports: [
+    ParticipantLink,
     EmptyState,
     LoadingState,
     NgTemplateOutlet,

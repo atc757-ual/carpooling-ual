@@ -1,0 +1,83 @@
+// Separados del coche con una línea, como el coche del conductor
+.co-passengers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-top: var(--space-s);
+  padding-top: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+}
+
+// Discreto, como «Plazas que pides» (12px). El tamaño se repite porque
+// ion-card-content da 14px a sus h3 (.card-content-md h3) y gana a .text-caption
+.co-passengers__title {
+  margin: 0;
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+}
+
+.co-passengers__viewport {
+  position: relative;
+}
+
+// Todos en una fila; lo que no cabe se desliza, encajando en cada compañero
+.co-passengers__list {
+  display: flex;
+  margin: 0;
+  padding: var(--space-xxs) 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  list-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &:focus-visible {
+    border-radius: var(--radius-s);
+    outline: var(--border-width-m) solid var(--color-primary);
+    outline-offset: var(--space-xxs);
+  }
+}
+
+// «Mario · Ana · Pablo»: el punto medio entre nombres, en gris y sin leerse
+.co-passengers__item {
+  flex: 0 0 auto;
+  font-weight: var(--font-weight-medium);
+  scroll-snap-align: start;
+
+  & + &::before {
+    margin-inline: var(--space-s);
+    color: var(--color-text-muted);
+    content: '·' / '';
+  }
+}
+
+// La flecha sobre un degradado del color de la tarjeta: avisa de que hay más
+// a ese lado y, al pulsarla, avanza
+.co-passengers__arrow {
+  display: flex;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  align-items: center;
+  width: var(--space-xxl);
+  padding: 0;
+  border: 0;
+  color: var(--color-text-muted);
+  font-size: var(--icon-size-base);
+  cursor: pointer;
+
+  &--back {
+    left: 0;
+    justify-content: flex-start;
+    background: linear-gradient(to right, var(--color-surface) 40%, transparent);
+  }
+
+  &--forward {
+    right: 0;
+    justify-content: flex-end;
+    background: linear-gradient(to left, var(--color-surface) 40%, transparent);
+  }
+}

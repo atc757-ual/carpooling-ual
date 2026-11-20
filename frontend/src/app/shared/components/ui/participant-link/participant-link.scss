@@ -1,0 +1,25 @@
+:host {
+  display: inline-flex;
+  min-width: 0;
+}
+
+// Se lee como el texto de alrededor, en azul (sin subrayar): se nota que se pulsa
+.participant-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:focus-visible {
+    border-radius: var(--radius-s);
+    outline: var(--border-width-m) solid var(--color-primary);
+    outline-offset: var(--space-xxs);
+  }
+}

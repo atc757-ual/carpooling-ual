@@ -136,6 +136,25 @@ describe('PassengerRequestRoute', () => {
     expect(route.preferences()).toEqual(['Con música']);
   });
 
+  // Si tuvo plaza, su nombre abre el perfil del conductor (y no se repiten sus
+  // preferencias); sus compañeros, solo mientras la tiene
+  it.each<[SeatRequest['status'], string | null, boolean, boolean]>([
+    ['accepted', '2099-01-14T11:00:00.000Z', true, true],
+    ['completed', '2099-01-14T11:00:00.000Z', true, true],
+    ['cancelled', '2099-01-14T11:00:00.000Z', true, false],
+    ['cancelled', null, false, false],
+    ['pending', null, false, false],
+    ['rejected', '2099-01-14T11:00:00.000Z', false, false],
+  ])(
+    'with the request %s (answered at %s): had a seat %s, holds it %s',
+    (status, answeredAt, hadSeat, holdsSeat) => {
+      const route = create(request({ status, answeredAt }));
+
+      expect(route.hadSeat()).toBe(hadSeat);
+      expect(route.holdsSeat()).toBe(holdsSeat);
+    },
+  );
+
   it('offers the chat only with an accepted seat on a confirmed or started trip', () => {
     expect(create(request({ status: 'accepted' })).hasChat()).toBe(true);
     TestBed.resetTestingModule();

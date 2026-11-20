@@ -44,6 +44,25 @@ describe('TripDriver', () => {
     );
   });
 
+  it('turns the name into a link to the profile when they share a trip', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideAppTransloco(),
+        provideIonicAngular(),
+        { provide: AvatarsService, useValue: { getGraphic: vi.fn().mockResolvedValue(null) } },
+      ],
+    });
+    const fixture = TestBed.createComponent(TripDriver);
+    fixture.componentRef.setInput('driver', { id: 'd1', name: 'Lucía Martín' });
+    fixture.componentRef.setInput('profileTripId', 't1');
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+
+    const link = root.querySelector('app-participant-link button');
+    expect(link?.textContent?.trim()).toBe('Lucía Martín');
+    expect(link?.getAttribute('aria-label')).toBe('Ver el perfil de Lucía');
+  });
+
   it('speaks of one trip', () => {
     const root = render({ ...DRIVER, tripCount: 1, isEmailVerified: false });
 

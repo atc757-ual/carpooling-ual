@@ -27,6 +27,7 @@ import { getFirstName, getInitials } from '../../matching/trip-driver/trip-drive
 import { formatTime } from '../../matching/trip-results';
 import { lazyLabels } from '../../../core/i18n/lazy-labels';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
+import { ParticipantLink } from '../../../shared/components/ui/participant-link/participant-link';
 
 const REQUEST_STATUS_LABELS: Readonly<Record<SeatRequestStatus, string>> = lazyLabels({
   pending: 'screens.driverTripPassengers.status.pending',
@@ -48,6 +49,7 @@ const CHAT_STATUSES: ReadonlySet<TripStatus> = new Set(['confirmed', 'in_progres
 @Component({
   selector: 'app-driver-trip-passengers',
   imports: [
+    ParticipantLink,
     LoadingState,
     IonButton,
     IonCard,

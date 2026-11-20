@@ -34,6 +34,10 @@
           </div>
         }
       </dl>
+
+      <!-- Con quién se comparten las plazas: los demás pasajeros con plaza, avatar
+           y nombre de pila, sin perfil -->
+      <app-co-passengers [tripId]="holdsSeat() ? trip().id : null" />
     </ion-card-content>
   </ion-card>
 }
@@ -64,7 +68,12 @@
     </ion-card-header>
     <ion-card-content>
       <div class="passenger-route__driver-row">
-        <app-trip-driver [driver]="driver()" [showRating]="false" />
+        <!-- Con la plaza aceptada (también después), su nombre abre su perfil -->
+        <app-trip-driver
+          [driver]="driver()"
+          [showRating]="false"
+          [profileTripId]="hadSeat() ? trip().id : null"
+        />
         @if (request().status === 'accepted') {
           <div class="passenger-route__driver-actions">
             @if (hasChat()) {
@@ -94,7 +103,8 @@
         }
       </div>
 
-      @if (preferences().length > 0) {
+      <!-- Con plaza, las preferencias están en su perfil (su nombre lo abre) -->
+      @if (!hadSeat() && preferences().length > 0) {
         <section
           class="passenger-route__preferences"
           [attr.aria-label]="'request.preferenciasDelConductor' | transloco"

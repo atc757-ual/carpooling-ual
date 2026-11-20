@@ -221,6 +221,22 @@
     "emptyHint": "You'll see them here when their passengers rate them after a trip.",
     "ratingAria": "Rated {{ rating }} out of 5"
   },
+  "participantProfile": {
+    "title": "{{ name }}'s profile",
+    "loading": "Loading the profile",
+    "error": "We couldn't load the profile",
+    "noRatings": "No ratings yet",
+    "ratingAs": {
+      "driver": "As a driver",
+      "passenger": "As a passenger"
+    },
+    "preferences": "Travel preferences",
+    "contact": "Contact",
+    "open": "View {{ name }}'s profile",
+    "coPassengers": "Travelling with you",
+    "coPassengersBack": "Show previous",
+    "coPassengersForward": "Show more fellow passengers"
+  },
   "tripDetail": {
     "route": "Your route",
     "mapLoading": "Loading the trip map…",

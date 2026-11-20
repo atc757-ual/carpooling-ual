@@ -45,7 +45,18 @@
                         {{ passengerInitials(request.passenger.name) }}
                       </span>
                       <div class="driver-trip__user-info">
-                        <span class="driver-trip__name">{{ request.passenger.name }}</span>
+                        @if (request.status === 'accepted') {
+                          <app-participant-link
+                            class="driver-trip__name"
+                            role="passenger"
+                            [tripId]="trip().id"
+                            [userId]="request.passenger.id"
+                            [name]="request.passenger.name"
+                            >{{ request.passenger.name }}</app-participant-link
+                          >
+                        } @else {
+                          <span class="driver-trip__name">{{ request.passenger.name }}</span>
+                        }
                         <div class="driver-trip__sub">
                           <span class="text-caption text-color-muted">{{
                             formatSeats(request.seats)
@@ -106,7 +117,8 @@
                     </div>
                   }
 
-                  @if (passengerPreferences(request).length > 0) {
+                  <!-- Solo para decidir una pendiente: de los aceptados, en su perfil -->
+                  @if (request.status === 'pending' && passengerPreferences(request).length > 0) {
                     <div
                       class="driver-trip__preferences"
                       [attr.aria-label]="'myTrips.preferenciasDelPasajero' | transloco"

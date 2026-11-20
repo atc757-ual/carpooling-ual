@@ -221,6 +221,22 @@
     "emptyHint": "Las verás aquí cuando sus pasajeros lo valoren después de un viaje.",
     "ratingAria": "Valoración {{ rating }} de 5"
   },
+  "participantProfile": {
+    "title": "Perfil de {{ name }}",
+    "loading": "Cargando el perfil",
+    "error": "No pudimos cargar el perfil",
+    "noRatings": "Aún sin valoraciones",
+    "ratingAs": {
+      "driver": "Como conductor",
+      "passenger": "Como pasajero"
+    },
+    "preferences": "Preferencias de viaje",
+    "contact": "Contacto",
+    "open": "Ver el perfil de {{ name }}",
+    "coPassengers": "Viajan contigo",
+    "coPassengersBack": "Ver los anteriores",
+    "coPassengersForward": "Ver más compañeros"
+  },
   "tripDetail": {
     "route": "Tu recorrido",
     "mapLoading": "Cargando el mapa del viaje…",
