@@ -8,7 +8,11 @@ import { ParticipantLink } from './participant-link';
 
 @Component({
   imports: [ParticipantLink],
-  template: `<app-participant-link tripId="t1" userId="u1" name="Lucía Cortés" role="driver"
+  template: `<app-participant-link
+    tripId="t1"
+    userId="u1"
+    name="Lucía Cortés"
+    participantRole="driver"
     >Lucía</app-participant-link
   >`,
 })

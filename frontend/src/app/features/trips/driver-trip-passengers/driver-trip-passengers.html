@@ -48,7 +48,7 @@
                         @if (request.status === 'accepted') {
                           <app-participant-link
                             class="driver-trip__name"
-                            role="passenger"
+                            participantRole="passenger"
                             [tripId]="trip().id"
                             [userId]="request.passenger.id"
                             [name]="request.passenger.name"

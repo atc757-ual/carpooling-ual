@@ -10,7 +10,7 @@
     @if (profileTripId(); as tripId) {
       <app-participant-link
         class="trip-driver__name"
-        role="driver"
+        participantRole="driver"
         [tripId]="tripId"
         [userId]="driver().id ?? ''"
         [name]="driver().name"

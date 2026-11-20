@@ -7,7 +7,7 @@ import { thumbsDown, thumbsUp } from 'ionicons/icons';
 import { AvatarArt } from '../../../shared/components/ui/avatar-art/avatar-art';
 import { numberFormat } from '../../../core/i18n/app-locale';
 import { ParticipantLink } from '../../../shared/components/ui/participant-link/participant-link';
-import { getFirstName, getInitials } from '../../../shared/utils/person-name.util';
+import { getInitials } from '../../../shared/utils/person-name.util';
 
 const RATING_FORMAT = () =>
   numberFormat({
@@ -16,7 +16,7 @@ const RATING_FORMAT = () =>
   });
 
 // Viven en shared/utils; se reexportan aquí para quien ya los importaba
-export { getFirstName, getInitials };
+export { getFirstName, getInitials } from '../../../shared/utils/person-name.util';
 
 // «1 viaje», «42 viajes»
 function formatTripCount(count: number): string {
