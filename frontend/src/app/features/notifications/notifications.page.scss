@@ -71,63 +71,26 @@
   ion-chip {
     display: inline-flex;
     align-items: center;
+    gap: var(--space-xs);
     min-height: var(--box-size-m);
     margin: 0;
     border-radius: var(--radius-full);
     font-size: var(--font-size-label);
     font-weight: var(--font-weight-medium);
-    --background: var(--color-surface);
-    --color: var(--color-text-muted);
-    --border-color: transparent;
-    --border-width: 0;
-    --padding-top: 0;
-    --padding-bottom: 0;
-    --padding-start: var(--space-s);
-    --padding-end: var(--space-s);
-  }
-
-  ion-chip[color='primary'],
-  .notifications__filter-chip--selected {
-    font-weight: var(--font-weight-semibold);
-    --background: var(--color-primary);
-    --color: var(--color-on-primary);
-  }
-
-  .notifications__chip-count {
-    margin-inline-start: var(--space-xxs);
-  }
-}
-
-.notifications__filter-toggle {
-  --border-color: var(--color-border-subtle);
-  --border-width: 1px;
-}
-
-.notifications__category-filters {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-xs);
-  width: 100%;
-
-  ion-chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    min-height: var(--box-size-m);
-    margin: 0;
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-label);
-    font-weight: var(--font-weight-medium);
-    text-align: center;
     --background: var(--color-surface);
     --color: var(--color-text-muted);
     --border-color: var(--color-border-subtle);
     --border-width: 1px;
     --padding-top: 0;
     --padding-bottom: 0;
-    --padding-start: var(--space-xs);
-    --padding-end: var(--space-xs);
+    --padding-start: var(--space-s);
+    --padding-end: var(--space-s);
+
+    ion-icon {
+      font-size: var(--icon-size-s);
+      margin: 0;
+      color: inherit;
+    }
   }
 
   ion-chip[color='primary'],
@@ -136,16 +99,9 @@
     --background: var(--color-primary);
     --color: var(--color-on-primary);
     --border-color: transparent;
-  }
 
-  @media (min-width: 768px) {
-    display: flex;
-    flex-wrap: wrap;
-
-    ion-chip {
-      width: auto;
-      --padding-start: var(--space-s);
-      --padding-end: var(--space-s);
+    ion-icon {
+      color: var(--color-on-primary);
     }
   }
 }

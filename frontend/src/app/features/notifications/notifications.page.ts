@@ -17,11 +17,13 @@ import {
 } from '@ionic/angular';
 import {
   alertCircleOutline,
+  carOutline,
   chevronBackOutline,
   chevronForwardOutline,
   mailOpenOutline,
   mailUnreadOutline,
   notificationsOutline,
+  personOutline,
 } from 'ionicons/icons';
 import { ApiError, rethrowUnlessApiError } from '../../core/models/api-error.model';
 import { Trip } from '../../core/models/driver.model';
@@ -88,8 +90,6 @@ export class NotificationsPage implements OnInit {
   readonly category = signal<NotificationCategory | null>(null);
   readonly activeFilter = signal<NotificationFilter>('all');
   readonly readState = signal<boolean | undefined>(undefined);
-  readonly showCategoryFilters = signal(false);
-  readonly isCategoryActive = computed(() => this.category() !== null);
   readonly offset = signal(0);
   readonly total = signal(0);
   readonly all = signal<NotificationItem[]>([]);
@@ -98,6 +98,11 @@ export class NotificationsPage implements OnInit {
   readonly unreadCount = this.notifications.unreadCount;
   readonly hasMore = computed(() => this.all().length < this.total());
   readonly categoryOptions = CATEGORIES;
+  readonly categoryIcons: Record<NotificationCategory, string> = {
+    travel: carOutline,
+    account: personOutline,
+    incident: alertCircleOutline,
+  };
   readonly pageNumber = computed(() => Math.floor(this.offset() / NOTIFICATIONS_PAGE_SIZE) + 1);
   readonly pageCount = computed(() =>
     Math.max(1, Math.ceil(this.total() / NOTIFICATIONS_PAGE_SIZE)),
@@ -115,6 +120,7 @@ export class NotificationsPage implements OnInit {
   private hasEntered = false;
 
   protected readonly pageSize = NOTIFICATIONS_PAGE_SIZE;
+  protected readonly allIcon = notificationsOutline;
   protected readonly emptyIcon = notificationsOutline;
   protected readonly errorIcon = alertCircleOutline;
   protected readonly readIcon = mailOpenOutline;
@@ -136,10 +142,6 @@ export class NotificationsPage implements OnInit {
       void this.loadPage(true);
     }
     this.hasEntered = true;
-  }
-
-  toggleCategoryFilters(): void {
-    this.showCategoryFilters.update((open) => !open);
   }
 
   async handleFilter(filter: NotificationFilter): Promise<void> {
