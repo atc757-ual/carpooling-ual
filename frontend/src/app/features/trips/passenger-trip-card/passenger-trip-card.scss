@@ -1,26 +1,5 @@
-// Como la tarjeta del conductor (app-driver-trip-summary): toda ella es el
-// enlace a su detalle
-.passenger-trip {
-  margin: 0;
-
-  &:hover {
-    --background: var(--color-surface-subtle);
-  }
-
-  // El foco del teclado (Ionic marca el host con ion-focused)
-  &.ion-focused {
-    outline: var(--border-width-l) solid var(--color-focus);
-    outline-offset: var(--focus-ring-offset);
-  }
-}
-
-.passenger-trip ion-card-content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-xs);
-}
-
+// La fila es un ion-item (estilo en .role-card del tema). Lo siguiente que
+// toca, en el azul de los enlaces
 .passenger-trip__next {
   color: var(--color-link);
   font-size: var(--font-size-body-s);

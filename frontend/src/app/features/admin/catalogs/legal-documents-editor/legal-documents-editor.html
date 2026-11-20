@@ -59,32 +59,30 @@
   </div>
 } @else if (versions.hasValue()) {
   <!-- El tipo decide el número de versión y si hay que volver a aceptarla: toda
-       la tarjeta elige (radio nativo oculto, como en la guía de estilos) -->
+       la tarjeta elige (tarjetas de opción con ion-radio, como en la guía) -->
   <ion-card class="legal-editor__card legal-editor__change">
     <h2 class="admin-list__title">Preparar el cambio</h2>
-    <fieldset class="legal-editor__options">
+    <fieldset class="legal-editor__fieldset">
       <legend class="visually-hidden">Tipo de cambio</legend>
-      @for (option of changeOptions(); track option.value) {
-        <label
-          class="legal-editor__option"
-          [class.legal-editor__option--selected]="changeType() === option.value"
-        >
-          <input
-            class="visually-hidden"
-            type="radio"
-            name="legalChangeType"
-            [checked]="changeType() === option.value"
-            (change)="handleChangeType(option.value)"
-          />
-          <span class="legal-editor__option-head">
-            <span class="text-body legal-editor__option-title">{{ option.label }}</span>
-            @if (option.version; as version) {
-              <span class="status status--info">Versión {{ version }}</span>
-            }
-          </span>
-          <span class="text-body-s legal-editor__muted">{{ option.note }}</span>
-        </label>
-      }
+      <ion-radio-group
+        class="legal-editor__options"
+        [value]="changeType()"
+        (ionChange)="handleChangeType($event.detail.value)"
+      >
+        @for (option of changeOptions(); track option.value) {
+          <ion-item class="option-card" lines="none">
+            <ion-radio [value]="option.value" labelPlacement="end" justify="start">
+              <span class="legal-editor__option-head">
+                <span class="text-body legal-editor__option-title">{{ option.label }}</span>
+                @if (option.version; as version) {
+                  <span class="status status--info">Versión {{ version }}</span>
+                }
+              </span>
+              <span class="text-body-s legal-editor__muted">{{ option.note }}</span>
+            </ion-radio>
+          </ion-item>
+        }
+      </ion-radio-group>
     </fieldset>
     <ion-textarea
       [label]="lang() === 'es' ? 'Qué ha cambiado' : 'Qué ha cambiado (en inglés)'"

@@ -26,25 +26,25 @@
 >
   <ng-template>
     <ion-content>
-      <ul class="plate-country__list" [attr.aria-label]="label()">
+      <!-- ion-list da role="list"; cada país, un ion-item que se pulsa -->
+      <ion-list lines="none" [attr.aria-label]="label()">
         @for (country of countries; track country.code) {
-          <li>
-            <button
-              type="button"
-              class="plate-country__option"
-              [class.plate-country__option--selected]="country.code === value()"
-              [attr.aria-current]="country.code === value()"
-              (click)="handleChoose(country.code)"
-            >
-              <span
-                [class]="'plate-country__flag ' + flagOf(country.code)"
-                aria-hidden="true"
-              ></span>
-              {{ country.name }}
-            </button>
-          </li>
+          <ion-item
+            button
+            [detail]="false"
+            [class.select-option--selected]="country.code === value()"
+            [attr.aria-current]="country.code === value()"
+            (click)="handleChoose(country.code)"
+          >
+            <span
+              slot="start"
+              [class]="'plate-country__flag ' + flagOf(country.code)"
+              aria-hidden="true"
+            ></span>
+            <ion-label>{{ country.name }}</ion-label>
+          </ion-item>
         }
-      </ul>
+      </ion-list>
     </ion-content>
   </ng-template>
 </ion-popover>

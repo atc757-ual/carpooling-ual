@@ -36,7 +36,7 @@ import { DriverTripActions } from '../driver-trip-actions/driver-trip-actions';
 import { DriverTripPassengers } from '../driver-trip-passengers/driver-trip-passengers';
 import { DriverTripRoute } from '../driver-trip-route/driver-trip-route';
 import { LiveTripBanner } from '../my-trips/live-trip-banner/live-trip-banner';
-import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
+import { occupiedSeats } from '../my-trips/my-trips-summary';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 
 // El detalle de un viaje publicado. En escritorio, columna de 8 con el
@@ -156,7 +156,7 @@ export class DriverTripDetailPage {
       return null;
     }
     return {
-      route: formatRoute(trip),
+      trip,
       detail: translate('screens.driverTripDetail.plazasOcupadas', {
         value1: occupiedSeats(trip),
         offeredSeats: trip.offeredSeats,

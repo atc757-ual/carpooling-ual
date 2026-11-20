@@ -212,10 +212,13 @@ for (const viewport of VIEWPORTS) {
       cy.get('.legal-editor__preview .legal').should('contain', 'Current text');
       cy.contains('.legal-editor__tab', 'Español').click();
       cy.contains('.legal-editor__tab', 'Editar').click();
-      cy.contains('.legal-editor__option', 'Cambio menor').should('contain', 'Versión 1.1');
+      cy.contains('.legal-editor__options ion-item', 'Cambio menor').should(
+        'contain',
+        'Versión 1.1',
+      );
       cy.contains('ion-button', 'Publicar').should('have.attr', 'disabled');
 
-      cy.contains('.legal-editor__option', 'Cambio importante')
+      cy.contains('.legal-editor__options ion-item', 'Cambio importante')
         .should('contain', 'Versión 2.0')
         .click();
       cy.get('.legal-editor__change ion-textarea textarea')

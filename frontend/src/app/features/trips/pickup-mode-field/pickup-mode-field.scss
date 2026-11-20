@@ -19,54 +19,43 @@
   }
 }
 
-// Dos tarjetas que se explican solas: la elegida, rellena de azul con letra
-// blanca; la otra, blanca con borde gris, título azul y explicación gris
+// Dos tarjetas de opción (base en el tema, `.option-card`): aquí la elegida va
+// rellena de azul con letra blanca; la otra, blanca con borde gris, título
+// azul y explicación gris
 .pickup-mode__choices {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-s);
 }
 
+// En el móvil, 8px a los lados; con sitio (escritorio y tablet), los 16px de
+// la tarjeta de opción
 .pickup-mode__choice {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-xxs);
-  min-height: var(--control-height-s);
-  padding: var(--space-s);
-  border: var(--border-width-s) solid var(--color-border);
-  border-radius: var(--radius-s);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
+  --padding-start: var(--space-s);
+  --inner-padding-end: var(--space-s);
 
   .pickup-mode__choice-title {
     color: var(--color-primary);
   }
 
-  &:has(input:checked) {
-    border-color: var(--color-primary);
-    background: var(--color-primary);
-    color: var(--color-on-primary);
+  &:has(ion-radio.radio-checked) {
+    --background: var(--color-primary);
+    --background-hover: var(--color-primary);
+    --color: var(--color-on-primary);
+
+    box-shadow: none;
 
     .pickup-mode__choice-title,
     .pickup-mode__choice-detail {
       color: var(--color-on-primary);
     }
   }
-
-  &:has(input:focus-visible) {
-    outline: var(--focus-ring);
-    outline-offset: var(--focus-ring-offset);
-  }
 }
 
-// Con sitio (escritorio y tablet), 16px a los lados; en el móvil, 8px
 @container (min-width: 30rem) {
   .pickup-mode__choice {
-    padding: var(--space-s) var(--space-base);
+    --padding-start: var(--space-base);
+    --inner-padding-end: var(--space-base);
   }
 }
 

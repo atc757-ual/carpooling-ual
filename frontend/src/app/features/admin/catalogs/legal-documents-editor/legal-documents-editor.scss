@@ -46,46 +46,24 @@
   gap: var(--space-xs);
 }
 
-// Tarjetas de elección (guía de estilos): dos columnas si caben
-.legal-editor__options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); // 224px
-  gap: var(--space-s);
+.legal-editor__fieldset {
   min-width: 0;
   margin: 0;
   padding: 0;
   border: 0;
 }
 
-.legal-editor__option {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  padding: var(--space-s) var(--space-base);
-  border: var(--border-width-s) solid var(--color-border);
-  border-radius: var(--radius-s);
-  cursor: pointer;
-  transition: background-color var(--motion-duration-fast) ease;
-
-  &:hover {
-    background: var(--color-surface-subtle);
-  }
-
-  &:focus-within {
-    outline: var(--focus-ring);
-    outline-offset: var(--focus-ring-offset);
-  }
+// Tarjetas de opción (base en el tema, `.option-card`): dos columnas si caben
+.legal-editor__options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); // 224px
+  gap: var(--space-s);
 }
 
-.legal-editor__option--selected,
-.legal-editor__option--selected:hover {
-  border-color: var(--color-primary);
-  background: var(--color-primary-subtle);
-  box-shadow: 0 0 0 var(--border-width-s) var(--color-primary);
-}
-
+// El título a la izquierda y la versión a la derecha, a todo el ancho
 .legal-editor__option-head {
   display: flex;
+  align-self: stretch;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;

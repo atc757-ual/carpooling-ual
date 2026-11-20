@@ -68,6 +68,13 @@ ion-card.my-trips__panel ion-card-content {
   font-weight: var(--font-weight-bold);
 }
 
+// Los viajes de cada día: un ion-list sin relleno ni fondo propio, dentro
+// de la tarjeta (las filas, en .role-card del tema)
+.my-trips__list {
+  padding: 0;
+  background: transparent;
+}
+
 // El paginador, bajo la lista y separado de ella por una línea fina
 .my-trips__pagination {
   border-top: var(--border-width-s) solid var(--color-border-subtle);

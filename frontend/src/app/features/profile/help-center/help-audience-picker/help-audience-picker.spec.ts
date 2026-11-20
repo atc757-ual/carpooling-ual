@@ -25,20 +25,26 @@ describe('HelpAudiencePicker', () => {
     return { root: fixture.nativeElement as HTMLElement, audience };
   }
 
-  it('offers passenger and driver as radio buttons, with the chosen one marked', () => {
+  function segment(root: HTMLElement): HTMLIonSegmentElement {
+    return root.querySelector('ion-segment') as HTMLIonSegmentElement;
+  }
+
+  it('offers passenger and driver as a segment, with the chosen one marked', () => {
     const { root } = render();
 
-    const inputs = root.querySelectorAll<HTMLInputElement>('input[type="radio"]');
-    expect(inputs).toHaveLength(2);
-    expect(inputs[0].checked).toBe(true);
-    expect(root.querySelectorAll('.audience-picker__option--selected')).toHaveLength(1);
+    const buttons = root.querySelectorAll<HTMLIonSegmentButtonElement>('ion-segment-button');
+    expect([...buttons].map((button) => button.value)).toEqual(['passenger', 'driver']);
+    expect(segment(root).value).toBe('passenger');
+    expect(segment(root).getAttribute('aria-labelledby')).toBe('help-audience-legend');
   });
 
-  it('chooses the other one when it is picked', () => {
+  it('chooses the other one when it is picked and ignores anything else', () => {
     const { root, audience } = render();
 
-    root.querySelectorAll<HTMLInputElement>('input[type="radio"]')[1].click();
+    segment(root).dispatchEvent(new CustomEvent('ionChange', { detail: { value: 'driver' } }));
+    expect(audience()).toBe('driver');
 
+    segment(root).dispatchEvent(new CustomEvent('ionChange', { detail: { value: 'admin' } }));
     expect(audience()).toBe('driver');
   });
 });

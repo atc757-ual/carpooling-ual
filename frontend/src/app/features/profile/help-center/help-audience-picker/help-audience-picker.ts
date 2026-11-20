@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { IonIcon } from '@ionic/angular';
+import { IonIcon, IonLabel, IonSegment, IonSegmentButton } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { carOutline, personOutline } from 'ionicons/icons';
 import { HelpAudience } from '../../../../core/models/faq.model';
@@ -15,12 +15,11 @@ const OPTIONS: readonly AudienceOption[] = [
   { value: 'driver', icon: carOutline },
 ];
 
-// Elegir qué preguntas se ven en «Ayuda y soporte»: dos pestañas en línea
-// (pasajero y conductor) que funcionan como botones de opción. No cambia el
-// modo de la app
+// Elegir qué preguntas se ven en «Ayuda y soporte»: un ion-segment con dos
+// pestañas (pasajero y conductor). No cambia el modo de la app
 @Component({
   selector: 'app-help-audience-picker',
-  imports: [IonIcon, TranslocoPipe],
+  imports: [IonIcon, IonLabel, IonSegment, IonSegmentButton, TranslocoPipe],
   templateUrl: './help-audience-picker.html',
   styleUrl: './help-audience-picker.scss',
 })
@@ -30,7 +29,10 @@ export class HelpAudiencePicker {
   readonly audience = this.helpAudience.audience;
   protected readonly options = OPTIONS;
 
-  handleSelect(audience: HelpAudience): void {
-    this.helpAudience.select(audience);
+  // ion-segment da el valor como string | number | undefined
+  handleChange(value: unknown): void {
+    if (value === 'passenger' || value === 'driver') {
+      this.helpAudience.select(value);
+    }
   }
 }

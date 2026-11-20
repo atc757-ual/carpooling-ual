@@ -20,7 +20,7 @@
         <ion-card-content>
           <!-- El viaje en curso, dentro de la tarjeta y encima de las pastillas -->
           @if (liveBanner(); as live) {
-            <app-live-trip-banner [route]="live.route" [detail]="live.detail" [link]="live.link" />
+            <app-live-trip-banner [trip]="live.trip" [detail]="live.detail" [link]="live.link" />
           }
           <app-filter-chips
             [legend]="'myTrips.tabsLegend' | transloco"
@@ -58,16 +58,18 @@
           } @else {
             @for (group of dayGroups(); track group.id) {
               <h2 class="my-trips__day text-eyebrow text-color-muted">{{ group.day }}</h2>
-              @for (entry of group.entries; track entry.id) {
-                @if (entry.role === 'driver') {
-                  <app-driver-trip-summary
-                    [trip]="entry.trip"
-                    [pendingCount]="entry.pendingCount"
-                  />
-                } @else {
-                  <app-passenger-trip-card [item]="entry.item" [tab]="entryTab(entry)" />
+              <ion-list class="my-trips__list" lines="full">
+                @for (entry of group.entries; track entry.id) {
+                  @if (entry.role === 'driver') {
+                    <app-driver-trip-summary
+                      [trip]="entry.trip"
+                      [pendingCount]="entry.pendingCount"
+                    />
+                  } @else {
+                    <app-passenger-trip-card [item]="entry.item" [tab]="entryTab(entry)" />
+                  }
                 }
-              }
+              </ion-list>
             }
           }
           <!-- De 10 en 10 (los dos papeles juntos): «1–10 de 22» y Anterior /

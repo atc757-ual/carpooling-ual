@@ -1,7 +1,7 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IonCard, IonCardContent, IonIcon, IonRouterLink } from '@ionic/angular';
+import { IonIcon, IonItem, IonLabel, IonRouterLink } from '@ionic/angular';
 import { carOutline } from 'ionicons/icons';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
@@ -19,7 +19,7 @@ const START_WINDOW_MS = 10 * 60 * 1000;
 // acción principal
 @Component({
   selector: 'app-driver-trip-summary',
-  imports: [RouterLink, IonRouterLink, IonCard, IonCardContent, IonIcon, TranslocoPipe],
+  imports: [RouterLink, IonRouterLink, IonItem, IonLabel, IonIcon, TranslocoPipe],
   templateUrl: './driver-trip-summary.html',
   styleUrl: './driver-trip-summary.scss',
 })

@@ -1,23 +1,28 @@
-<section class="live-trip-banner" aria-labelledby="live-trip-title">
-  <div class="live-trip-banner__text">
-    <span id="live-trip-title" class="text-eyebrow live-trip-banner__eyebrow">
-      <span class="live-trip-banner__dot" aria-hidden="true"></span>
-      {{ 'live.viajeCurso' | transloco }}
-    </span>
+<!-- Todo el aviso es el enlace (ion-item, sin flecha): «Viaje en curso», el
+     trayecto y el detalle, que son también el nombre del enlace; a la derecha
+     el coche con el punto que late -->
+<ion-item class="live-trip-banner" lines="none" [routerLink]="link()" [detail]="false">
+  <ion-label class="live-trip-banner__text">
+    <span class="text-eyebrow live-trip-banner__eyebrow">{{ 'live.viajeCurso' | transloco }}</span>
+    <!-- En escritorio, en una línea: «Roquetas de Mar → Campus UAL» -->
     <span class="text-body text-body--strong live-trip-banner__route">{{ route() }}</span>
+    <!-- En el móvil, el origen y el destino uno debajo del otro, con su icono -->
+    <span class="live-trip-banner__ends">
+      <span class="live-trip-banner__end text-body text-body--strong">
+        <ion-icon [icon]="originIcon" aria-hidden="true" />
+        <span class="live-trip-banner__place">{{ ends().origin }}</span>
+      </span>
+      <span class="live-trip-banner__end text-body text-body--strong">
+        <ion-icon [icon]="destinationIcon" aria-hidden="true" />
+        <span class="live-trip-banner__place">{{ ends().destination }}</span>
+      </span>
+    </span>
     @if (detail()) {
       <span class="text-body-s live-trip-banner__detail">{{ detail() }}</span>
     }
-  </div>
-  <!-- El coche (el icono de «En curso»): lleva al viaje y muestra «Abrir
-       viaje» al pasar o con el primer toque -->
-  <a
-    class="icon-btn icon-btn--reveal live-trip-banner__open"
-    appRevealOnTouch
-    [attr.aria-label]="'live.abrirViajeCurso' | transloco"
-    [routerLink]="link()"
-  >
-    <ion-icon [icon]="liveIcon" aria-hidden="true" />
-    <span class="icon-btn__label" aria-hidden="true">{{ 'live.abrirViaje' | transloco }}</span>
-  </a>
-</section>
+  </ion-label>
+  <span slot="end" class="live-trip-banner__live" aria-hidden="true">
+    <span class="live-trip-banner__dot"></span>
+    <ion-icon class="live-trip-banner__car" [icon]="liveIcon" />
+  </span>
+</ion-item>

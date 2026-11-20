@@ -119,7 +119,7 @@ for (const viewport of VIEWPORTS) {
 
     // Abre el detalle del viaje desde su tarjeta resumida
     function openTripDetail(): void {
-      cy.get('app-driver-trip-summary ion-card.driver-summary').click();
+      cy.get('app-driver-trip-summary ion-item.driver-summary').click();
       cy.location('pathname').should('eq', '/tabs/trips/published/t1');
     }
 

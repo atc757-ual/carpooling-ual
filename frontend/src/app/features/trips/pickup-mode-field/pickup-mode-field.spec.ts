@@ -74,17 +74,18 @@ describe('PickupModeField', () => {
   });
 
   it('marks the chosen card and switches to stops without an error yet', () => {
-    const radios = root().querySelectorAll<HTMLInputElement>(
-      '.pickup-mode__choice input[type="radio"]',
-    );
-    expect(radios[0].checked).toBe(true);
+    const group = root().querySelector('ion-radio-group') as HTMLIonRadioGroupElement;
+    const values = [
+      ...root().querySelectorAll<HTMLIonRadioElement>('.pickup-mode__choice ion-radio'),
+    ];
+    expect(values.map((radio) => radio.value)).toEqual(['on_route', 'stops']);
+    expect(group.value).toBe('on_route');
 
-    radios[1].click();
+    group.dispatchEvent(new CustomEvent('ionChange', { detail: { value: 'stops' } }));
     fixture.detectChanges();
 
     expect(controls.pickupMode.value).toBe('stops');
-    expect(radios[1].checked).toBe(true);
-    expect(radios[0].checked).toBe(false);
+    expect(group.value).toBe('stops');
     expect(root().querySelector('.pickup-mode__distance')).toBeNull();
     expect(root().querySelector('.pickup-mode__stops-head')?.textContent).toContain(
       '0 de 5 paradas',

@@ -1,31 +1,24 @@
-<fieldset class="audience-picker">
-  <legend class="audience-picker__legend text-body-s text-color-muted">
-    {{ 'help.audience.legend' | transloco }}
-  </legend>
-  <div class="audience-picker__options">
-    @for (option of options; track option.value) {
-      <label
-        class="audience-picker__option"
-        [class.audience-picker__option--selected]="audience() === option.value"
-      >
-        <input
-          class="audience-picker__input"
-          type="radio"
-          name="help-audience"
-          [value]="option.value"
-          [checked]="audience() === option.value"
-          (change)="handleSelect(option.value)"
-        />
-        <ion-icon class="audience-picker__icon" [icon]="option.icon" aria-hidden="true" />
-        <span class="audience-picker__text">
-          <span class="audience-picker__name">{{
-            'help.audience.' + option.value + '.name' | transloco
-          }}</span>
-          <span class="audience-picker__hint">{{
-            'help.audience.' + option.value + '.hint' | transloco
-          }}</span>
-        </span>
-      </label>
-    }
-  </div>
-</fieldset>
+<p id="help-audience-legend" class="audience-picker__legend text-body-s text-color-muted">
+  {{ 'help.audience.legend' | transloco }}
+</p>
+<!-- ion-segment: se elige con el ratón, el dedo o las flechas del teclado -->
+<ion-segment
+  class="audience-picker"
+  aria-labelledby="help-audience-legend"
+  [value]="audience()"
+  (ionChange)="handleChange($event.detail.value)"
+>
+  @for (option of options; track option.value) {
+    <ion-segment-button class="audience-picker__option" layout="icon-start" [value]="option.value">
+      <ion-icon class="audience-picker__icon" [icon]="option.icon" aria-hidden="true" />
+      <ion-label class="audience-picker__text">
+        <span class="audience-picker__name">{{
+          'help.audience.' + option.value + '.name' | transloco
+        }}</span>
+        <span class="audience-picker__hint">{{
+          'help.audience.' + option.value + '.hint' | transloco
+        }}</span>
+      </ion-label>
+    </ion-segment-button>
+  }
+</ion-segment>

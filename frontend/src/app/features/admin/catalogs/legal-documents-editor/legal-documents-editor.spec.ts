@@ -81,10 +81,10 @@ describe('LegalDocumentsEditor', () => {
     expect(editor.summary()).toBe('Una aclaración.');
     expect(root.textContent).toContain('Vigente: versión 1.0');
     expect(root.textContent).toContain('Borrador 1.1 sin publicar');
-    const options = root.querySelectorAll('.legal-editor__option');
+    const options = root.querySelectorAll<HTMLIonRadioElement>('.legal-editor__options ion-radio');
     expect(options[0].textContent).toContain('Versión 1.1');
     expect(options[1].textContent).toContain('Versión 2.0');
-    expect(options[0].classList).toContain('legal-editor__option--selected');
+    expect(root.querySelector<HTMLIonRadioGroupElement>('ion-radio-group')?.value).toBe('minor');
     expect(root.textContent).not.toContain('Cambios sin guardar');
     expect(root.querySelector('.legal-editor__preview')).toBeNull();
     const history = root.querySelectorAll('.legal-editor__history li');
