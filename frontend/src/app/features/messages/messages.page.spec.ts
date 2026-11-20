@@ -1,8 +1,15 @@
 import { provideAppTransloco } from '../../core/i18n/testing-transloco';
 import { signal, TemplateRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import {
+  ActivatedRoute,
+  convertToParamMap,
+  ParamMap,
+  provideRouter,
+  Router,
+} from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
+import { BehaviorSubject } from 'rxjs';
 import { vi } from 'vitest';
 import { Conversation } from '../../core/models/chat.model';
 import { User } from '../../core/models/user.model';
@@ -44,7 +51,8 @@ describe('MessagesPage', () => {
   const unreadConversationCount = signal(2);
   const lastRead = signal<{ tripId: string } | null>(null);
 
-  async function render(): Promise<{
+  // Los parámetros de la ruta, para cambiar la conversación de la URL
+  async function render(params?: BehaviorSubject<ParamMap>): Promise<{
     root: HTMLElement;
     page: MessagesPage;
     fixture: ComponentFixture<MessagesPage>;
@@ -55,9 +63,18 @@ describe('MessagesPage', () => {
         provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
+        ...(params ? [{ provide: ActivatedRoute, useValue: { paramMap: params } }] : []),
         {
           provide: ChatService,
-          useValue: { listConversationsPage, unreadConversationCount, lastRead },
+          // La conversación abierta al lado se queda cargando: aquí solo
+          // importa cuál se abre
+          useValue: {
+            listConversationsPage,
+            unreadConversationCount,
+            lastRead,
+            getConversation: () => new Promise(() => undefined),
+            listMessages: () => new Promise(() => undefined),
+          },
         },
         { provide: AuthService, useValue: { currentUser: signal({ id: 'me' } as User) } },
       ],
@@ -237,6 +254,23 @@ describe('MessagesPage', () => {
     expect(event.defaultPrevented).toBe(true);
     expect(page.selectedConversationId()).toBe('t1:u2');
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('opens the conversation of the URL over the one chosen in the list (from a notice)', async () => {
+    const params = new BehaviorSubject(convertToParamMap({ tripId: 't9', passengerId: 'u9' }));
+    const { page } = await render(params);
+    page.isDesktop.set(true);
+    expect(page.activeConversationId()).toBe('t9:u9');
+
+    await page.handleSelectConversation(
+      new MouseEvent('click', { cancelable: true }),
+      CONVERSATION,
+    );
+    expect(page.activeConversationId()).toBe('t1:u2');
+
+    params.next(convertToParamMap({ tripId: 't5', passengerId: 'u5' }));
+    expect(page.selectedConversationId()).toBeNull();
+    expect(page.activeConversationId()).toBe('t5:u5');
   });
 
   it('clears the unread count of the conversation just read, without reloading', async () => {

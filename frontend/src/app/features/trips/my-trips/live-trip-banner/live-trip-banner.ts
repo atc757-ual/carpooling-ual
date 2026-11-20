@@ -7,7 +7,7 @@ import { formatRoute, routeEnds, TripEnds } from '../my-trips-summary';
 
 // El viaje en curso, destacado arriba de Tus viajes, del detalle del viaje y
 // de Buscar y Publicar (en lugar de la tarjeta del próximo viaje): de dónde a
-// dónde y un detalle (quién conduce o cuántos van). Todo el aviso es un
+// dónde y un detalle (quién conduce o cuántos van). El aviso entero es un
 // ion-item que lleva a su pantalla (la del conductor o la del pasajero)
 @Component({
   selector: 'app-live-trip-banner',
