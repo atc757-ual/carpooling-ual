@@ -23,7 +23,7 @@ import {
   IonContent,
   IonIcon,
 } from '@ionic/angular';
-import { carOutline, leafOutline } from 'ionicons/icons';
+import { carOutline, informationCircleOutline, leafOutline } from 'ionicons/icons';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { ReviewTarget, TripReviewCard } from '../trip-review/trip-review-card';
@@ -148,6 +148,11 @@ export class DriverTripDetailPage {
 
   protected readonly carIcon = carOutline;
   protected readonly leafIcon = leafOutline;
+  protected readonly infoIcon = informationCircleOutline;
+
+  readonly isAutoFinished = computed(
+    () => this.trip()?.status === 'finished' && this.trip()?.finishedBy === 'system',
+  );
 
   // Con el viaje en curso, el mismo aviso que en Tus viajes, que lleva a En curso
   readonly liveBanner = computed(() => {

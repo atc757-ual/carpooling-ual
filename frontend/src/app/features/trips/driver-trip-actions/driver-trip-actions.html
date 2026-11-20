@@ -1,6 +1,6 @@
 <ion-card class="driver-actions">
   <!-- Cancelado o terminado, sin título: ya no hay acciones, solo el aviso -->
-  @if (!closedReason()) {
+  @if (isOpen() || isInProgress()) {
     <ion-card-header>
       <ion-card-title>{{ 'myTrips.accionesDelViaje' | transloco }}</ion-card-title>
     </ion-card-header>
@@ -98,6 +98,8 @@
       @if (isReportOpen()) {
         <app-after-trip-report [tripId]="trip().id" [isDriver]="true" />
       }
+    } @else if (isReportOpen()) {
+      <app-after-trip-report [tripId]="trip().id" [isDriver]="true" />
     }
   </ion-card-content>
 </ion-card>
