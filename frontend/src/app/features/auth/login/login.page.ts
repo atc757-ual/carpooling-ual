@@ -31,7 +31,7 @@ import { EmailSuggestions } from '../../../shared/components/ui/email-suggestion
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
 import { getUalEmailErrorKey, ualEmailValidator } from '../../../shared/utils/ual-email.util';
-import { PASSWORD_MIN_LENGTH } from '../../../shared/utils/password.util';
+import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '../../../shared/utils/password.util';
 
 const EMAIL_NOT_VERIFIED = 'EMAIL_NOT_VERIFIED';
 
@@ -74,8 +74,15 @@ export class LoginPage {
   readonly form = inject(NonNullableFormBuilder).group({
     // Con el dominio también aquí: un correo de fuera no llega al servidor
     email: ['', [Validators.required, Validators.email, ualEmailValidator()]],
-    // Mínimo de 8 como en el registro: una más corta no puede ser correcta
-    password: ['', [Validators.required, Validators.minLength(PASSWORD_MIN_LENGTH)]],
+    // Entre 8 y 72 caracteres como exige el backend
+    password: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(PASSWORD_MIN_LENGTH),
+        Validators.maxLength(PASSWORD_MAX_LENGTH),
+      ],
+    ],
   });
   readonly isSubmitting = signal(false);
   readonly isPasswordVisible = signal(false);
