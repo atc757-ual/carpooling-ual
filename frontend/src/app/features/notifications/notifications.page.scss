@@ -186,6 +186,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
@@ -194,15 +196,18 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.25rem;
+  font-size: 0.875rem;
 }
 
 .notification__route {
   color: var(--color-text-muted);
+  font-size: 0.875rem;
 }
 .notification__time {
   flex: none;
   margin-inline-start: auto;
   white-space: nowrap;
+  font-size: 0.875rem;
 }
 
 .notifications__load-more {

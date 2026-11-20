@@ -111,7 +111,7 @@
                         <span class="notification__message">
                           {{ 'notifications.types.' + item.notification.type | transloco }}
                         </span>
-                        <span class="notification__detail text-caption text-color-muted">
+                        <span class="notification__detail text-body-s text-color-muted">
                           @if (item.trip; as trip) {
                             <span class="notification__departure">
                               <span class="notification__detail-label">{{
@@ -136,7 +136,7 @@
                         </span>
                       </span>
                       <time
-                        class="notification__time text-caption text-color-muted"
+                        class="notification__time text-body-s text-color-muted"
                         [attr.datetime]="item.notification.createdAt"
                       >
                         {{ elapsed(item.notification) }}

@@ -204,17 +204,16 @@ fieldset.profile__bio-box,
   padding: var(--space-s);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-s);
-  background: var(--color-surface);
+  background: var(--color-primary-subtle);
 
   legend.profile__bio-title,
   .profile__bio-title {
     padding: 0 var(--space-xs);
     margin-inline-start: var(--space-xs);
     font-size: var(--font-size-caption);
-    font-weight: var(--font-weight-bold);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--color-text-muted);
+    font-weight: var(--font-weight-semibold);
+    text-transform: none;
+    color: var(--color-primary);
     background: var(--color-surface);
     border-radius: var(--radius-xs);
   }
