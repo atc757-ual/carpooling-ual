@@ -20,6 +20,7 @@ import {
   carOutline,
   chevronBackOutline,
   chevronForwardOutline,
+  closeCircleOutline,
   mailOpenOutline,
   mailUnreadOutline,
   notificationsOutline,
@@ -127,6 +128,8 @@ export class NotificationsPage implements OnInit {
   protected readonly unreadIcon = mailUnreadOutline;
   protected readonly previousIcon = chevronBackOutline;
   protected readonly nextIcon = chevronForwardOutline;
+  protected readonly filterActionIcon = chevronForwardOutline;
+  protected readonly closeIcon = closeCircleOutline;
   protected readonly categoryOf = notificationCategory;
 
   ngOnInit(): void {
@@ -142,6 +145,14 @@ export class NotificationsPage implements OnInit {
       void this.loadPage(true);
     }
     this.hasEntered = true;
+  }
+
+  toggleUnreadFilter(): void {
+    if (this.readState() === false) {
+      void this.handleSelectCategory(null);
+    } else {
+      void this.handleFilter('unread');
+    }
   }
 
   async handleFilter(filter: NotificationFilter): Promise<void> {
@@ -200,9 +211,17 @@ export class NotificationsPage implements OnInit {
     void this.loadPage(true);
   }
 
-  protected tripLine(trip: Trip): string {
+  protected tripDepartureInfo(trip: Trip): string {
     const day = formatDateLabel(new Date(trip.departureAt).toLocaleDateString('sv-SE'));
-    return `${day} · ${formatTime(trip.departureAt)} · ${trip.originName ?? 'Origen'} → ${trip.destinationName ?? 'Destino'}`;
+    return `${day} · ${formatTime(trip.departureAt)}`;
+  }
+
+  protected tripRoute(trip: Trip): string {
+    return `${trip.originName ?? 'Origen'} → ${trip.destinationName ?? 'Destino'}`;
+  }
+
+  protected tripLine(trip: Trip): string {
+    return `${this.tripDepartureInfo(trip)} · ${this.tripRoute(trip)}`;
   }
 
   protected elapsed(notification: AppNotification): string {
