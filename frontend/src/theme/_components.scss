@@ -536,6 +536,91 @@ ion-toast.toast--floating {
   --border-radius: var(--radius-s); // 8px
 }
 
+// Las opciones de los dos desplegables (prefijo y país): un ion-list con un
+// ion-item por opción, la bandera delante y 44px de alto táctil. El elegido,
+// en azul claro y seminegrita (no solo por el color)
+.phone-prefix-popover,
+.plate-country-popover {
+  ion-list {
+    padding: var(--space-xs) 0;
+  }
+
+  ion-item {
+    --min-height: var(--control-height-s); // 44px
+    --padding-start: var(--space-base);
+    --inner-padding-end: var(--space-base);
+    --color: var(--color-text);
+    --background-hover: var(--color-surface-subtle);
+    --background-hover-opacity: 1;
+
+    [slot='start'] {
+      margin-inline-end: var(--space-s);
+    }
+
+    ion-label {
+      margin: 0;
+    }
+
+    &.select-option--selected {
+      --background: var(--color-primary-subtle);
+      --color: var(--color-link);
+
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+}
+
+// Tarjetas de opción (guía de estilos): un ion-radio-group con un ion-item por
+// opción y su ion-radio, que da el teclado (flechas) y el papel de grupo. Toda
+// la tarjeta elige; el círculo del radio no se ve: la elegida, con borde azul
+// de 2px y fondo azul claro. El texto del radio (título y explicación) puede
+// ocupar varias líneas
+ion-item.option-card {
+  --background: var(--color-surface);
+  --background-hover: var(--color-surface-subtle);
+  --background-hover-opacity: 1;
+  --color: var(--color-text);
+  --min-height: var(--control-height-s); // 44px
+  --padding-start: var(--space-base);
+  --inner-padding-end: var(--space-base);
+  --padding-top: var(--space-s);
+  --padding-bottom: var(--space-s);
+
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+
+  ion-radio {
+    width: 100%;
+
+    &::part(container) {
+      display: none;
+    }
+
+    &::part(label) {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-xxs);
+      margin: 0;
+      overflow: visible;
+      white-space: normal;
+    }
+  }
+
+  &:has(ion-radio.radio-checked) {
+    --background: var(--color-primary-subtle);
+    --background-hover: var(--color-primary-subtle);
+
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 var(--border-width-s) var(--color-primary);
+  }
+
+  &:has(ion-radio.ion-focused) {
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
 // Menú de opciones de la cabecera de conversación (tres puntos): flotante y compacto
 .conversation-options-popover {
   --width: auto;
@@ -765,16 +850,27 @@ ion-card-header + ion-card-content[class] {
   }
 }
 
-// Van dentro de la tarjeta de Tus viajes: filas con borde, sin sombra y
-// compactas (8px arriba y abajo, 16px a los lados y 2px entre líneas; con el
-// elemento en el selector, gana al relleno de Ionic)
-.role-card {
-  box-shadow: none;
-}
+// Los viajes de Tus viajes: filas de un ion-list (ion-item con la flecha y la
+// línea de Ionic entre ellas, sin tarjeta dentro de la tarjeta), compactas
+// (8px arriba y abajo, 16px a los lados y 2px entre líneas), con el borde
+// izquierdo del color del papel
+ion-item.role-card {
+  --background: transparent;
+  --border-color: var(--color-border-subtle);
+  --padding-start: var(--space-base);
+  --inner-padding-end: var(--space-s);
+  --padding-top: var(--space-s);
+  --padding-bottom: var(--space-s);
+  --detail-icon-color: var(--color-text-muted);
 
-ion-card.role-card ion-card-content {
-  gap: var(--space-xxs);
-  padding: var(--space-s) var(--space-base);
+  ion-label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xxs);
+    margin: 0;
+    white-space: normal;
+  }
 }
 
 // La hora y el papel, en la misma línea

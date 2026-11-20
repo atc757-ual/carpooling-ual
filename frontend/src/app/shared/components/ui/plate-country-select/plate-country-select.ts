@@ -1,7 +1,7 @@
 import { translate } from '@jsverse/transloco';
 import { Component, computed, forwardRef, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { IonContent, IonIcon, IonPopover } from '@ionic/angular';
+import { IonContent, IonIcon, IonItem, IonLabel, IonList, IonPopover } from '@ionic/angular';
 import { caretDownOutline } from 'ionicons/icons';
 import { DEFAULT_PLATE_COUNTRY, PLATE_COUNTRY_OPTIONS } from '../../../utils/plate-country.util';
 
@@ -14,7 +14,7 @@ let nextId = 0;
 // campo de un formulario reactivo: <app-plate-country-select formControlName="plateCountry" />
 @Component({
   selector: 'app-plate-country-select',
-  imports: [IonPopover, IonContent, IonIcon],
+  imports: [IonPopover, IonContent, IonIcon, IonItem, IonLabel, IonList],
   templateUrl: './plate-country-select.html',
   styleUrl: './plate-country-select.scss',
   providers: [

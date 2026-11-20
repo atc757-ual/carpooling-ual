@@ -1,6 +1,6 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, resource, signal, viewChild } from '@angular/core';
-import { IonButton, IonCard, IonCardContent, IonContent } from '@ionic/angular';
+import { IonButton, IonCard, IonCardContent, IonContent, IonList } from '@ionic/angular';
 import { alertCircleOutline, carOutline } from 'ionicons/icons';
 import { TRIP_ENTRIES_PAGE_SIZE, TripEntryResponse } from '../../../core/models/my-trips.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
@@ -17,7 +17,7 @@ import { DriverTripSummary } from '../driver-trip-summary/driver-trip-summary';
 import { PassengerTripCard } from '../passenger-trip-card/passenger-trip-card';
 import { LiveTripBanner } from './live-trip-banner/live-trip-banner';
 import { MyTripsAside } from './my-trips-aside/my-trips-aside';
-import { formatRoute, occupiedSeats } from './my-trips-summary';
+import { occupiedSeats, TripEnds } from './my-trips-summary';
 import {
   driverEntry,
   entryTab,
@@ -30,7 +30,7 @@ import { emptyTextKey, isTripsTab, tripsTabs, TripsTab } from './trip-tabs';
 import { LanguageService } from '../../../core/services/ui/language.service';
 
 interface LiveBannerData {
-  route: string;
+  trip: TripEnds;
   detail: string;
   link: string;
 }
@@ -56,6 +56,7 @@ interface LoadedPage {
     IonCard,
     IonCardContent,
     IonContent,
+    IonList,
     DriverTripSummary,
     FilterChips,
     LiveTripBanner,
@@ -190,7 +191,7 @@ export class MyTripsPage {
     if (driverLive) {
       const { trip } = driverLive;
       return {
-        route: formatRoute(trip),
+        trip,
         detail: translate('screens.myTrips.plazasOcupadas', {
           value1: occupiedSeats(trip),
           offeredSeats: trip.offeredSeats,
@@ -204,7 +205,7 @@ export class MyTripsPage {
     }
     const { trip, request } = passengerLive.item;
     return {
-      route: formatRoute(trip),
+      trip,
       detail: translate('screens.passengerTripCard.drives', { name: trip.driver.name }),
       link: `/tabs/trips/ride/${request.id}`,
     };

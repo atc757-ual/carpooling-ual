@@ -1,5 +1,14 @@
 import { Component, computed, inject, linkedSignal, resource, signal } from '@angular/core';
-import { IonButton, IonCard, IonSelect, IonSelectOption, IonTextarea } from '@ionic/angular';
+import {
+  IonButton,
+  IonCard,
+  IonItem,
+  IonRadio,
+  IonRadioGroup,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
+} from '@ionic/angular';
 import { ApiError } from '../../../../core/models/api-error.model';
 import {
   AdminLegalDocument,
@@ -69,7 +78,16 @@ const EDITOR_VIEWS: readonly { value: EditorView; label: string }[] = [
 // Lo que no se ha guardado no se pierde sin avisar
 @Component({
   selector: 'app-legal-documents-editor',
-  imports: [IonButton, IonCard, IonSelect, IonSelectOption, IonTextarea],
+  imports: [
+    IonButton,
+    IonCard,
+    IonItem,
+    IonRadio,
+    IonRadioGroup,
+    IonSelect,
+    IonSelectOption,
+    IonTextarea,
+  ],
   templateUrl: './legal-documents-editor.html',
   styleUrl: './legal-documents-editor.scss',
 })

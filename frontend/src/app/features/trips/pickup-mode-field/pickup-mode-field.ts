@@ -2,7 +2,15 @@ import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { IonIcon, IonSelect, IonSelectOption, ModalController } from '@ionic/angular';
+import {
+  IonIcon,
+  IonItem,
+  IonRadio,
+  IonRadioGroup,
+  IonSelect,
+  IonSelectOption,
+  ModalController,
+} from '@ionic/angular';
 import { closeOutline, locationOutline, mapOutline, navigateOutline } from 'ionicons/icons';
 import { merge } from 'rxjs';
 import { PickupMode } from '../../../core/models/driver.model';
@@ -31,7 +39,17 @@ export interface PickupModeControls {
 // cosa u otra
 @Component({
   selector: 'app-pickup-mode-field',
-  imports: [ReactiveFormsModule, IonIcon, IonSelect, IonSelectOption, PlaceField, TranslocoPipe],
+  imports: [
+    ReactiveFormsModule,
+    IonIcon,
+    IonItem,
+    IonRadio,
+    IonRadioGroup,
+    IonSelect,
+    IonSelectOption,
+    PlaceField,
+    TranslocoPipe,
+  ],
   templateUrl: './pickup-mode-field.html',
   styleUrl: './pickup-mode-field.scss',
 })

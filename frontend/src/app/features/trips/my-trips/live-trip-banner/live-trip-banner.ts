@@ -1,25 +1,32 @@
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IonIcon } from '@ionic/angular';
-import { carOutline } from 'ionicons/icons';
-import { RevealOnTouch } from '../../../../shared/directives/reveal-on-touch.directive';
+import { IonIcon, IonItem, IonLabel } from '@ionic/angular';
+import { carOutline, ellipseOutline, locationOutline } from 'ionicons/icons';
+import { formatRoute, routeEnds, TripEnds } from '../my-trips-summary';
 
-// El viaje en curso, destacado arriba de Mis viajes: de dónde a dónde, un
-// detalle (quién conduce o cuántos van) y el coche («Abrir viaje»), que lleva a su
-// pantalla (la del conductor o la del pasajero, con el mapa en vivo). También
-// arriba de Buscar y Publicar (en la tarjeta del próximo viaje)
+// El viaje en curso, destacado arriba de Tus viajes, del detalle del viaje y
+// de Buscar y Publicar (en lugar de la tarjeta del próximo viaje): de dónde a
+// dónde y un detalle (quién conduce o cuántos van). Todo el aviso es un
+// ion-item que lleva a su pantalla (la del conductor o la del pasajero)
 @Component({
   selector: 'app-live-trip-banner',
-  imports: [RouterLink, IonIcon, RevealOnTouch, TranslocoPipe],
+  imports: [RouterLink, IonIcon, IonItem, IonLabel, TranslocoPipe],
   templateUrl: './live-trip-banner.html',
   styleUrl: './live-trip-banner.scss',
 })
 export class LiveTripBanner {
-  readonly route = input.required<string>();
+  readonly trip = input.required<TripEnds>();
   readonly detail = input('');
   readonly link = input.required<string>();
 
-  // El coche, como la pestaña «En curso»
+  // En escritorio, en una línea; en el móvil, el origen y el destino por separado
+  readonly route = computed(() => formatRoute(this.trip()));
+  readonly ends = computed(() => routeEnds(this.trip()));
+
+  // El coche, como la pestaña «En curso»; el origen y el destino, como en el
+  // título de la conversación
   protected readonly liveIcon = carOutline;
+  protected readonly originIcon = ellipseOutline;
+  protected readonly destinationIcon = locationOutline;
 }

@@ -1,108 +1,73 @@
-// Dos pestañas en línea dentro de una misma caja (como un segmento): icono,
-// nombre y pista en una fila compacta
-.audience-picker {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  min-width: 0;
-}
-
 .audience-picker__legend {
-  margin-bottom: var(--space-s);
-  padding: 0;
+  margin: 0 0 var(--space-s);
 }
 
-.audience-picker__options {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+// ion-segment con el aspecto de antes: dos pestañas dentro de una caja con
+// borde; la elegida, en azul relleno con el texto en blanco (como el paso
+// actual de los formularios por pasos). Sin la raya de Material
+.audience-picker {
   gap: var(--space-xs);
   padding: var(--space-xs);
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-base); // 16px
-  background: var(--color-surface);
+  --background: var(--color-surface);
 
   // En escritorio, del ancho de su contenido (las dos iguales), no de toda
   // la tarjeta
   @media (min-width: 768px) {
     width: fit-content;
-    grid-template-columns: repeat(2, minmax(11rem, 1fr)); // 176px como mínimo
   }
 }
 
 .audience-picker__option {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-  min-height: var(--control-height-s);
-  padding: var(--space-s) var(--space-base); // 8px 16px
-  border-radius: var(--radius-s); // 8px
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition:
-    background-color var(--motion-duration-fast),
-    color var(--motion-duration-fast);
-
-  &:hover {
-    background: var(--color-surface-subtle);
-  }
-
-  // El foco del teclado llega al radio oculto: se pinta en la pestaña
-  &:has(.audience-picker__input:focus-visible) {
-    outline: var(--border-width-l) solid var(--color-primary);
-    outline-offset: var(--focus-ring-offset);
-  }
-}
-
-// La elegida, en azul relleno con el texto en blanco (como el paso actual de
-// los formularios por pasos)
-.audience-picker__option--selected {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-
-  // Ya elegida: no cambia al pasar el ratón
-  &:hover {
-    background: var(--color-primary);
-  }
-
-  .audience-picker__name {
-    color: var(--color-on-primary);
-  }
-}
-
-// Oculto a la vista, pero sigue en el orden del teclado y para el lector
-.audience-picker__input {
-  position: absolute;
-  opacity: 0;
-  width: 1px;
-  height: 1px;
+  min-height: var(--control-height-s); // 44px
   margin: 0;
+  text-transform: none;
+  letter-spacing: normal;
+  --border-radius: var(--radius-s); // 8px
+  --padding-top: var(--space-s);
+  --padding-bottom: var(--space-s);
+  --padding-start: var(--space-base);
+  --padding-end: var(--space-base);
+  --color: var(--color-text-muted);
+  --color-checked: var(--color-on-primary);
+  --background-checked: var(--color-primary);
+  --background-hover: var(--color-surface-subtle);
+  --background-hover-opacity: 1;
+  --indicator-height: 0;
+
+  @media (min-width: 768px) {
+    min-width: 11rem; // 176px: las dos iguales
+  }
 }
 
 .audience-picker__icon {
   flex: none;
+  margin: 0 var(--space-s) 0 0;
   font-size: var(--icon-size-base);
 }
 
 .audience-picker__text {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   min-width: 0;
+  margin: 0;
   line-height: 1.2;
+  text-align: start; // ion-segment-button lo centra
+  white-space: normal;
 }
 
 .audience-picker__name {
   color: var(--color-text);
   font-weight: var(--font-weight-semibold);
+
+  .segment-button-checked & {
+    color: var(--color-on-primary);
+  }
 }
 
 // En pantallas muy estrechas baja a otra línea en lugar de cortarse
 .audience-picker__hint {
   font-size: var(--font-size-caption);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .audience-picker__option {
-    transition: none;
-  }
 }

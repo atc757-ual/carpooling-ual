@@ -4,7 +4,7 @@
       <div class="driver-detail__main live-column">
         <!-- En curso: el seguimiento y las recogidas están en su pantalla -->
         @if (liveBanner(); as live) {
-          <app-live-trip-banner [route]="live.route" [detail]="live.detail" [link]="live.link" />
+          <app-live-trip-banner [trip]="live.trip" [detail]="live.detail" [link]="live.link" />
         }
         <app-driver-trip-route [trip]="trip" />
         <app-driver-trip-passengers [trip]="trip" (changed)="handleReload()" />
