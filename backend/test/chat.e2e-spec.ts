@@ -392,7 +392,7 @@ describe('Chat API (e2e)', () => {
     ]);
   });
 
-  it('gives the phones to call while the trip is confirmed or in progress: the driver to the passenger and the accepted passengers to the driver', async () => {
+  it('gives the phones to call only while the trip is in progress: the driver to the passenger and the accepted passengers to the driver', async () => {
     const { tripId, dan, pia, leo } = await confirmedTrip();
     const setPhone = (id: string, phone: string, isVerified: boolean) =>
       dataSource.query(
@@ -412,6 +412,14 @@ describe('Chat API (e2e)', () => {
     await setPhone(dan.id, '+34600111222', true);
     await setPhone(pia.id, '+34600333444', true);
     await setPhone(leo.id, '+34600555666', true);
+
+    // Confirmado, todavía no: hasta la recogida, el chat
+    expect(await contactsOf(pia)).toEqual([]);
+    expect(await contactsOf(dan)).toEqual([]);
+
+    await setDepartureIn(dataSource, tripId, 5);
+    const trips = app.get(TripsService);
+    await trips.start(dan.id, tripId);
 
     const forPia = await api('get', `/trips/${tripId}/contacts`, pia).expect(
       200,
@@ -452,11 +460,8 @@ describe('Chat API (e2e)', () => {
     await setPhone(dan.id, '+34600111222', false);
     expect(await contactsOf(pia)).toEqual([]);
 
-    // En curso, sí; con el viaje terminado, ya no
+    // Verificado otra vez, sí; con el viaje terminado, ya no
     await setPhone(dan.id, '+34600111222', true);
-    await setDepartureIn(dataSource, tripId, 5);
-    const trips = app.get(TripsService);
-    await trips.start(dan.id, tripId);
     expect(await contactsOf(pia)).toHaveLength(1);
     await trips.finish(dan.id, tripId);
     expect(await contactsOf(pia)).toEqual([]);

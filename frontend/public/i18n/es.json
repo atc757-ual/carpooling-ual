@@ -90,7 +90,7 @@
       "callTo": "Llamar a {{ name }}",
       "callPassenger": "Llamar a un pasajero",
       "unavailable": "Llamar (no disponible)",
-      "onlyAllowed": "Solo se puede llamar con el viaje confirmado o en curso.",
+      "onlyAllowed": "Solo se puede llamar con el viaje en curso.",
       "noVerifiedPhone": "Nadie más de este viaje tiene el teléfono verificado.",
       "whoToCall": "¿A quién llamas?"
     },
@@ -1474,7 +1474,7 @@
     },
     "tripCall": {
       "nadieMasEsteViaje": "Nadie más de este viaje tiene el teléfono verificado.",
-      "soloPuedeLlamarViaje": "Solo se puede llamar con el viaje confirmado o en curso."
+      "soloPuedeLlamarViaje": "Solo se puede llamar con el viaje en curso."
     },
     "locationModal": {
       "ajustarMapa": "Ajustar en el mapa",
