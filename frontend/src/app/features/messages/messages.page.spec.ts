@@ -66,7 +66,15 @@ describe('MessagesPage', () => {
         ...(params ? [{ provide: ActivatedRoute, useValue: { paramMap: params } }] : []),
         {
           provide: ChatService,
-          useValue: { listConversationsPage, unreadConversationCount, lastRead },
+          // La conversación abierta al lado se queda cargando: aquí solo
+          // importa cuál se abre
+          useValue: {
+            listConversationsPage,
+            unreadConversationCount,
+            lastRead,
+            getConversation: () => new Promise(() => undefined),
+            listMessages: () => new Promise(() => undefined),
+          },
         },
         { provide: AuthService, useValue: { currentUser: signal({ id: 'me' } as User) } },
       ],
