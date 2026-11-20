@@ -33,11 +33,9 @@ export interface ChatMessageView {
   readByAll: boolean;
 }
 
-// Con qué estados del viaje se puede llamar desde el chat
-const CALLABLE_TRIP_STATUSES: ReadonlySet<string> = new Set([
-  'confirmed',
-  'in_progress',
-]);
+// Con qué estados del viaje se puede llamar: solo en curso (la recogida y
+// el trayecto); antes y después, el chat
+const CALLABLE_TRIP_STATUSES: ReadonlySet<string> = new Set(['in_progress']);
 
 // Alguien del viaje a quien se puede llamar
 export interface ChatContactView {
@@ -127,7 +125,7 @@ export class ChatService {
   // A quién puede llamar el usuario: a la otra persona de la conversación o,
   // al conductor que no indica pasajero (las pantallas del viaje), a todos sus
   // pasajeros aceptados. Solo con el teléfono verificado y con el viaje
-  // confirmado o en curso, para la recogida (la Política de privacidad: el
+  // en curso, para la recogida (la Política de privacidad: el
   // teléfono solo lo ven el conductor y los pasajeros aceptados de un viaje)
   async contacts(
     userId: string,

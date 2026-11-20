@@ -13,11 +13,12 @@ import {
 import { callOutline, carOutline, chatbubblesOutline, thumbsDown, thumbsUp } from 'ionicons/icons';
 import { ChatContact } from '../../../../core/models/chat.model';
 import { Trip } from '../../../../core/models/driver.model';
-import { SeatRequest } from '../../../../core/models/seat-request.model';
+import { SeatRequest, SeatRequestStatus } from '../../../../core/models/seat-request.model';
 import { TripDriver } from '../../../../core/models/trip-result.model';
 import { TravelPreferencesStore } from '../../../../core/services/catalogs/travel-preferences.store';
 import { VehicleColorsStore } from '../../../../core/services/catalogs/vehicle-colors.store';
 import { TripCallService } from '../../../../core/services/trips/trip-call.service';
+import { CoPassengers } from '../co-passengers/co-passengers';
 import { TripsService } from '../../../../core/services/trips/trips.service';
 import {
   RouteStop,
@@ -38,6 +39,9 @@ import { formatRouteArrival } from '../../route-arrival';
 import { numberFormat } from '../../../../core/i18n/app-locale';
 import { LoadingState } from '../../../../shared/components/ui/loading-state/loading-state';
 
+// Con la plaza en curso o ya terminada (bajado)
+const SEAT_HOLDER_STATUSES: ReadonlySet<SeatRequestStatus> = new Set(['accepted', 'completed']);
+
 const RATING_FORMAT = () =>
   numberFormat({
     minimumFractionDigits: 1,
@@ -50,6 +54,7 @@ const RATING_FORMAT = () =>
 @Component({
   selector: 'app-passenger-request-route',
   imports: [
+    CoPassengers,
     LoadingState,
     IonButton,
     IonCard,
@@ -72,6 +77,8 @@ export class PassengerRequestRoute {
   private readonly travelPreferences = inject(TravelPreferencesStore);
   private readonly tripCall = inject(TripCallService);
   private readonly modalController = inject(ModalController);
+  // Con la plaza en curso o ya bajado (sus compañeros solo los ve quien tiene plaza)
+  readonly holdsSeat = computed(() => SEAT_HOLDER_STATUSES.has(this.request().status));
 
   readonly request = input.required<SeatRequest>();
   readonly trip = input.required<Trip>();
@@ -182,6 +189,13 @@ export class PassengerRequestRoute {
         value: formatAvailableSeats(trip.availableSeats, trip.offeredSeats),
       },
     ];
+  });
+
+  // Si tuvo plaza: aceptada, ya bajado o cancelada después de aceptarse (la
+  // misma regla que la API para ver el perfil del conductor)
+  readonly hadSeat = computed(() => {
+    const { status, answeredAt } = this.request();
+    return SEAT_HOLDER_STATUSES.has(status) || (status === 'cancelled' && answeredAt !== null);
   });
 
   readonly driver = computed<TripDriver>(() => {

@@ -256,7 +256,15 @@
                         <p class="ride__driver-name text-body">
                           <ion-icon [icon]="personIcon" aria-hidden="true" />
                           <span class="visually-hidden">{{ 'live.conduce' | transloco }}</span>
-                          <b class="ride__driver-text">{{ trip.driver.name }}</b>
+                          <app-participant-link
+                            role="driver"
+                            [tripId]="trip.id"
+                            [userId]="trip.driver.id"
+                            [name]="trip.driver.name"
+                            ><b class="ride__driver-text">{{
+                              trip.driver.name
+                            }}</b></app-participant-link
+                          >
                         </p>
                         <div class="ride__driver-car">
                           @if (request.vehiclePlate; as plate) {

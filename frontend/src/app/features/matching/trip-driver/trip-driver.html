@@ -7,7 +7,18 @@
 </span>
 <div class="trip-driver__person">
   <div class="trip-driver__head">
-    <span class="trip-driver__name">{{ driver().name }}</span>
+    @if (profileTripId(); as tripId) {
+      <app-participant-link
+        class="trip-driver__name"
+        role="driver"
+        [tripId]="tripId"
+        [userId]="driver().id ?? ''"
+        [name]="driver().name"
+        >{{ driver().name }}</app-participant-link
+      >
+    } @else {
+      <span class="trip-driver__name">{{ driver().name }}</span>
+    }
     @if (showRating() && rating(); as rating) {
       @if (driver().id) {
         <button

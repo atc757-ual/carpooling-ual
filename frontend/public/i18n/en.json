@@ -90,7 +90,7 @@
       "callTo": "Call {{ name }}",
       "callPassenger": "Call a passenger",
       "unavailable": "Call (unavailable)",
-      "onlyAllowed": "Calls are only available with the trip confirmed or in progress.",
+      "onlyAllowed": "Calls are only available while the trip is in progress.",
       "noVerifiedPhone": "Nobody else on this trip has a verified phone number.",
       "whoToCall": "Who are you calling?"
     },
@@ -220,6 +220,22 @@
     "empty": "No ratings yet",
     "emptyHint": "You'll see them here when their passengers rate them after a trip.",
     "ratingAria": "Rated {{ rating }} out of 5"
+  },
+  "participantProfile": {
+    "title": "{{ name }}'s profile",
+    "loading": "Loading the profile",
+    "error": "We couldn't load the profile",
+    "noRatings": "No ratings yet",
+    "ratingAs": {
+      "driver": "As a driver",
+      "passenger": "As a passenger"
+    },
+    "preferences": "Travel preferences",
+    "contact": "Contact",
+    "open": "View {{ name }}'s profile",
+    "coPassengers": "Travelling with you",
+    "coPassengersBack": "Show previous",
+    "coPassengersForward": "Show more fellow passengers"
   },
   "tripDetail": {
     "route": "Your route",
@@ -1474,7 +1490,7 @@
     },
     "tripCall": {
       "nadieMasEsteViaje": "Nobody else on this trip has a verified phone.",
-      "soloPuedeLlamarViaje": "You can only call while the trip is confirmed or in progress."
+      "soloPuedeLlamarViaje": "You can only call while the trip is in progress."
     },
     "locationModal": {
       "ajustarMapa": "Adjust on the map",

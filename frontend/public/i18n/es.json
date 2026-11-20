@@ -90,7 +90,7 @@
       "callTo": "Llamar a {{ name }}",
       "callPassenger": "Llamar a un pasajero",
       "unavailable": "Llamar (no disponible)",
-      "onlyAllowed": "Solo se puede llamar con el viaje confirmado o en curso.",
+      "onlyAllowed": "Solo se puede llamar con el viaje en curso.",
       "noVerifiedPhone": "Nadie más de este viaje tiene el teléfono verificado.",
       "whoToCall": "¿A quién llamas?"
     },
@@ -220,6 +220,22 @@
     "empty": "Aún no tiene valoraciones",
     "emptyHint": "Las verás aquí cuando sus pasajeros lo valoren después de un viaje.",
     "ratingAria": "Valoración {{ rating }} de 5"
+  },
+  "participantProfile": {
+    "title": "Perfil de {{ name }}",
+    "loading": "Cargando el perfil",
+    "error": "No pudimos cargar el perfil",
+    "noRatings": "Aún sin valoraciones",
+    "ratingAs": {
+      "driver": "Como conductor",
+      "passenger": "Como pasajero"
+    },
+    "preferences": "Preferencias de viaje",
+    "contact": "Contacto",
+    "open": "Ver el perfil de {{ name }}",
+    "coPassengers": "Viajan contigo",
+    "coPassengersBack": "Ver los anteriores",
+    "coPassengersForward": "Ver más compañeros"
   },
   "tripDetail": {
     "route": "Tu recorrido",
@@ -1474,7 +1490,7 @@
     },
     "tripCall": {
       "nadieMasEsteViaje": "Nadie más de este viaje tiene el teléfono verificado.",
-      "soloPuedeLlamarViaje": "Solo se puede llamar con el viaje confirmado o en curso."
+      "soloPuedeLlamarViaje": "Solo se puede llamar con el viaje en curso."
     },
     "locationModal": {
       "ajustarMapa": "Ajustar en el mapa",

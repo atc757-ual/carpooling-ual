@@ -68,6 +68,7 @@ import { TripShareService } from '../../../core/services/trips/trip-share.servic
 import { buildLiveShareText } from '../trip-share-text';
 import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
+import { ParticipantLink } from '../../../shared/components/ui/participant-link/participant-link';
 import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
 
 // Una recogida sigue siendo «la siguiente» hasta 5 min después de su hora
@@ -90,6 +91,7 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
 @Component({
   selector: 'app-driver-live-trip',
   imports: [
+    ParticipantLink,
     EmptyState,
     LoadingState,
     NgTemplateOutlet,

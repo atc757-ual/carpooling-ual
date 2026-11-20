@@ -111,6 +111,33 @@ describe('DriverTripPassengers', () => {
     expect(root.querySelector('.status--accepted')?.textContent).toContain('Autoaceptada');
   });
 
+  it('opens the profile of accepted passengers and keeps the preferences only to decide pending ones', async () => {
+    const withPreferences = (status: SeatRequest['status'], id: string, name: string) => ({
+      ...request(status),
+      passenger: {
+        id,
+        name,
+        preferences: { conversation: 'chatty' as const, music: null, smoking: null, pets: null },
+      },
+    });
+    const root = await render({ ...TRIP, status: 'confirmed' }, [
+      withPreferences('pending', 'p2', 'Ana Gil'),
+      withPreferences('accepted', 'p1', 'Mario Pérez'),
+    ]);
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(root.querySelector('.driver-trip__preference-tag')).not.toBeNull();
+    });
+    const [pending, accepted] = [...root.querySelectorAll('.driver-trip__request')];
+
+    expect(pending.querySelector('app-participant-link')).toBeNull();
+    expect(pending.querySelector('.driver-trip__preference-tag')?.textContent).toBe('Charlar');
+    expect(accepted.querySelector('app-participant-link button')?.getAttribute('aria-label')).toBe(
+      'Ver el perfil de Mario',
+    );
+    expect(accepted.querySelector('.driver-trip__preferences')).toBeNull();
+  });
+
   it('lists the pending and accepted requests, and hides the closed ones', async () => {
     const root = await render(TRIP, [
       request('pending', true),
@@ -177,17 +204,18 @@ describe('DriverTripPassengers', () => {
     expect(root.querySelector('.driver-trip__requests')).toBeNull();
   });
 
-  it('calls an accepted passenger once the trip is confirmed', async () => {
+  // Se llama desde «En curso»: aquí, también confirmado, el botón explica por qué no
+  it('shows the call button as unavailable with the trip confirmed: calls start with the trip', async () => {
     const root = await render({ ...TRIP, status: 'confirmed' }, [request('accepted')]);
     const tripCall = TestBed.inject(TripCallService);
     const openPhoneSpy = vi.spyOn(tripCall, 'openPhone').mockImplementation(() => undefined);
 
-    const callBtn = root.querySelector('.driver-trip__call-btn');
-    expect(callBtn?.getAttribute('title')).toBe('Llamar a Mario Pérez');
-    expect(callBtn?.classList).not.toContain('driver-trip__call-btn--unavailable');
-
+    expect(root.querySelector('.driver-trip__call-btn')?.classList).toContain(
+      'driver-trip__call-btn--unavailable',
+    );
     fixture.componentInstance.handleCallPassenger({ id: 'p1', name: 'Mario Pérez' });
-    expect(openPhoneSpy).toHaveBeenCalledWith('+34600111222');
+    expect(openPhoneSpy).not.toHaveBeenCalled();
+    expect(toast['showInfo']).toHaveBeenCalledWith('Solo se puede llamar con el viaje en curso.');
   });
 
   it('shows the call button as unavailable while the trip is only published', async () => {
@@ -197,8 +225,6 @@ describe('DriverTripPassengers', () => {
       'driver-trip__call-btn--unavailable',
     );
     fixture.componentInstance.handleCallPassenger({ id: 'p1', name: 'Mario Pérez' });
-    expect(toast['showInfo']).toHaveBeenCalledWith(
-      'Solo se puede llamar con el viaje confirmado o en curso.',
-    );
+    expect(toast['showInfo']).toHaveBeenCalledWith('Solo se puede llamar con el viaje en curso.');
   });
 });

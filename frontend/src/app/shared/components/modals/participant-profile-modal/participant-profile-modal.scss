@@ -1,0 +1,123 @@
+// Las filas de ion-item ocupan todo el ancho de la ventana, con su línea
+// separadora; 8px arriba y abajo de cada una y 4px entre el título y su dato
+.participant-profile__list {
+  padding: 0;
+  background: transparent;
+
+  ion-item {
+    --background: transparent;
+    --border-color: var(--color-border-subtle); // la línea, en gris muy claro
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    --padding-top: var(--space-s);
+    --padding-bottom: var(--space-s);
+  }
+
+  ion-label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin: 0;
+  }
+
+  p,
+  h3 {
+    margin: 0;
+  }
+}
+
+// Como el de quien conduce (trip-driver), un poco más grande
+.participant-profile__avatar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-l);
+  height: var(--control-height-l);
+  margin-inline-end: var(--space-base);
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--color-warning-subtle);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+}
+
+.participant-profile__avatar-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+// ion-label da su propio tamaño y color a h3 y p: se fijan los del tema
+.participant-profile__name {
+  color: var(--color-text);
+}
+
+// Títulos de 12px en seminegrita, en gris
+.participant-profile__title {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-caption);
+}
+
+// «Sobre mí» en un recuadro azul claro con borde, y su título encima del borde,
+// como la etiqueta de un campo con borde (ion-input fill="outline")
+.participant-profile__list .participant-profile__bio {
+  position: relative;
+  margin-top: var(--space-s); // sitio para la mitad del título que sobresale
+  padding: var(--space-base) var(--space-s) var(--space-s); // 16px arriba: el título
+  border: var(--border-width-s) solid var(--color-border-subtle);
+  border-radius: var(--radius-s);
+  background: var(--color-primary-subtle);
+  color: var(--color-text);
+}
+
+// Sobre el borde, con el fondo de la ventana para «cortarlo»
+.participant-profile__list .participant-profile__bio-label {
+  position: absolute;
+  top: 0;
+  left: var(--space-s);
+  padding: 0 var(--space-xs);
+  transform: translateY(-50%);
+  border-radius: var(--radius-xs);
+  background: var(--ion-background-color, var(--color-surface));
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-caption);
+}
+
+.participant-profile__preferences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// ion-chip sin acción, con el azul claro de las preferencias del detalle
+.participant-profile__preference {
+  min-height: auto;
+  margin: 0;
+  padding: var(--space-xxs) var(--space-s);
+  border-radius: var(--radius-s);
+  font-size: var(--font-size-caption);
+  cursor: default;
+  --background: var(--color-primary-subtle);
+  --color: var(--color-text);
+}
+
+// El correo en azul, con su icono delante
+.participant-profile__email {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  color: var(--color-primary);
+  overflow-wrap: anywhere;
+
+  ion-icon {
+    flex: 0 0 auto;
+    font-size: var(--font-size-body);
+  }
+}

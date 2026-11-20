@@ -6,6 +6,8 @@ import { IonIcon, ModalController } from '@ionic/angular';
 import { thumbsDown, thumbsUp } from 'ionicons/icons';
 import { AvatarArt } from '../../../shared/components/ui/avatar-art/avatar-art';
 import { numberFormat } from '../../../core/i18n/app-locale';
+import { ParticipantLink } from '../../../shared/components/ui/participant-link/participant-link';
+import { getFirstName, getInitials } from '../../../shared/utils/person-name.util';
 
 const RATING_FORMAT = () =>
   numberFormat({
@@ -13,24 +15,12 @@ const RATING_FORMAT = () =>
     maximumFractionDigits: 1,
   });
 
-// «Lucía Cortés» → «LC» (las iniciales hacen de foto)
-export function getInitials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0].toUpperCase())
-    .join('');
-}
+// Viven en shared/utils; se reexportan aquí para quien ya los importaba
+export { getFirstName, getInitials };
 
 // «1 viaje», «42 viajes»
 function formatTripCount(count: number): string {
   return translate(count === 1 ? 'labels.trips.one' : 'labels.trips.other', { count });
-}
-
-// «Lucía Cortés» → «Lucía» («Ver viaje de Lucía», «Lucía decide»)
-export function getFirstName(name: string): string {
-  return name.trim().split(/\s+/)[0];
 }
 
 // Quien conduce (person de la guía): las iniciales en un círculo, el nombre,
@@ -38,13 +28,16 @@ export function getFirstName(name: string): string {
 // En los resultados y en el detalle del viaje
 @Component({
   selector: 'app-trip-driver',
-  imports: [AvatarArt, IonIcon, TranslocoPipe],
+  imports: [AvatarArt, IonIcon, ParticipantLink, TranslocoPipe],
   templateUrl: './trip-driver.html',
   styleUrl: './trip-driver.scss',
 })
 export class TripDriver {
   readonly driver = input.required<Driver>();
   readonly showRating = input(true);
+  // El viaje en el que se comparte plaza con quien conduce: con él, su nombre
+  // abre su perfil (con la plaza aceptada, en el detalle de la solicitud)
+  readonly profileTripId = input<string | null>(null);
   private readonly avatars = inject(AvatarsService);
   private readonly modalController = inject(ModalController);
 

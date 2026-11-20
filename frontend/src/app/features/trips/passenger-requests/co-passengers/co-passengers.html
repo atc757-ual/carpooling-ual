@@ -1,0 +1,46 @@
+@if (coPassengers().length > 0) {
+  <section class="co-passengers" aria-labelledby="co-passengers-title">
+    <h3 id="co-passengers-title" class="co-passengers__title text-caption text-color-muted">
+      {{ 'participantProfile.coPassengers' | transloco }}
+    </h3>
+    <div class="co-passengers__viewport">
+      <!-- Una fila que se desliza; con el teclado, con las flechas al enfocarla -->
+      <ul
+        #edges="scrollEdges"
+        class="co-passengers__list"
+        appDragScroll
+        appScrollEdges
+        tabindex="0"
+        [attr.aria-label]="'participantProfile.coPassengers' | transloco"
+      >
+        @for (coPassenger of coPassengers(); track coPassenger.id) {
+          <li class="co-passengers__item text-body-s">{{ coPassenger.name }}</li>
+        }
+      </ul>
+
+      <!-- Si alguno no se ve: degradado y flecha a ese lado -->
+      @if (edges.canScrollBack()) {
+        <button
+          class="co-passengers__arrow co-passengers__arrow--back"
+          type="button"
+          tabindex="-1"
+          [attr.aria-label]="'participantProfile.coPassengersBack' | transloco"
+          (click)="edges.scrollStep(-1)"
+        >
+          <ion-icon [icon]="backIcon" aria-hidden="true" />
+        </button>
+      }
+      @if (edges.canScrollForward()) {
+        <button
+          class="co-passengers__arrow co-passengers__arrow--forward"
+          type="button"
+          tabindex="-1"
+          [attr.aria-label]="'participantProfile.coPassengersForward' | transloco"
+          (click)="edges.scrollStep(1)"
+        >
+          <ion-icon [icon]="forwardIcon" aria-hidden="true" />
+        </button>
+      }
+    </div>
+  </section>
+}

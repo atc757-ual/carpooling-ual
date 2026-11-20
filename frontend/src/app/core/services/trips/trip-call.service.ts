@@ -5,10 +5,12 @@ import { ChatService } from '../chat/chat.service';
 import { ToastService } from '../ui/toast.service';
 import { fallbackOnApiError } from '../../models/api-error.model';
 
-export const CALLABLE_TRIP_STATUSES = new Set(['confirmed', 'in_progress']);
+// Solo en curso (la recogida y el trayecto): antes y después, el chat. La
+// misma regla que la API (chat.service.ts) y la Política de privacidad
+export const CALLABLE_TRIP_STATUSES = new Set(['in_progress']);
 
 // Servicio compartido para gestionar llamadas desde el viaje o el chat:
-// solo con el viaje confirmado o en curso y teléfonos verificados por SMS.
+// solo con el viaje en curso y teléfonos verificados por SMS.
 @Injectable({ providedIn: 'root' })
 export class TripCallService {
   private readonly chat = inject(ChatService);

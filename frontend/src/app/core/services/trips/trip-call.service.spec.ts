@@ -35,7 +35,7 @@ describe('TripCallService', () => {
               tripCall: {
                 call: 'Call',
                 callTo: 'Call {{ name }}',
-                onlyAllowed: 'Calls are only available with the trip confirmed or in progress.',
+                onlyAllowed: 'Calls are only available while the trip is in progress.',
                 noVerifiedPhone: 'Nobody else on this trip has a verified phone number.',
               },
             },
@@ -63,12 +63,12 @@ describe('TripCallService', () => {
   });
 
   it('validates if calling is possible based on trip status and verified phone', () => {
-    expect(service.canCall('confirmed', CONTACT)).toBe(true);
     expect(service.canCall('in_progress', CONTACT)).toBe(true);
+    expect(service.canCall('confirmed', CONTACT)).toBe(false);
     expect(service.canCall('published', CONTACT)).toBe(false);
     expect(service.canCall('finished', CONTACT)).toBe(false);
-    expect(service.canCall('confirmed', { ...CONTACT, phone: '' })).toBe(false);
-    expect(service.canCall('confirmed', null)).toBe(false);
+    expect(service.canCall('in_progress', { ...CONTACT, phone: '' })).toBe(false);
+    expect(service.canCall('in_progress', null)).toBe(false);
   });
 
   it('opens phone URL on openPhone', () => {
@@ -94,10 +94,10 @@ describe('TripCallService', () => {
 
   it('returns explanatory reason when call is unavailable', () => {
     expect(service.getUnavailableReason('published')).toContain(
-      'Calls are only available with the trip confirmed or in progress.',
+      'Calls are only available while the trip is in progress.',
     );
     expect(service.getUnavailableReason('confirmed')).toContain(
-      'Nobody else on this trip has a verified phone number.',
+      'Calls are only available while the trip is in progress.',
     );
     expect(service.getUnavailableReason('in_progress')).toContain(
       'Nobody else on this trip has a verified phone number.',
@@ -106,7 +106,7 @@ describe('TripCallService', () => {
 
   it('calls openPhone when canCall is true', () => {
     const openPhoneSpy = vi.spyOn(service, 'openPhone').mockImplementation(() => undefined);
-    service.call(CONTACT, 'confirmed');
+    service.call(CONTACT, 'in_progress');
     expect(openPhoneSpy).toHaveBeenCalledWith('+34600111222');
     expect(toastMock.showInfo).not.toHaveBeenCalled();
   });
@@ -116,7 +116,7 @@ describe('TripCallService', () => {
     service.call(null, 'published');
     expect(openPhoneSpy).not.toHaveBeenCalled();
     expect(toastMock.showInfo).toHaveBeenCalledWith(
-      'Calls are only available with the trip confirmed or in progress.',
+      'Calls are only available while the trip is in progress.',
     );
   });
 

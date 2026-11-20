@@ -106,6 +106,14 @@ Las horas son de Madrid. «Salida» es la hora a la que sale el conductor (`trip
 | Quien abre el enlace ve el estado, la recogida, el destino, la llegada estimada, el nombre de pila del conductor y el coche con matrícula; la posición y la ruta, solo con el viaje en curso. Nunca teléfonos        | `toTripShareResource` (`tracking/dto/trip-share.resource.ts`)                    |
 | El enlace deja de funcionar al dejar de compartir, si el pasajero pierde la plaza o 24 h después de terminar o cancelarse el viaje (mientras, sin posición ni matrícula)                                             | `SHARE_TTL_AFTER_END_MS`, `isSharedTripVisible`                                  |
 
+### Con quién se viaja
+
+| Regla                                                                                                                                                                                                                                                                   | Código                                                                                         |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| El conductor y cada pasajero que tuvo plaza (aceptada, ya bajado o cancelada después de aceptarse) ven el perfil del otro en todos los estados del viaje: nombre completo, correo, «Sobre mí», avatar, preferencias y valoraciones. Los pasajeros no se ven entre ellos | `TripParticipantsService` (`requests/trip-participants.service.ts`), `RequestsService.hadSeat` |
+| El teléfono verificado, solo con el viaje en curso y solo para llamar (no sale en el perfil)                                                                                                                                                                            | `CALLABLE_TRIP_STATUSES` (`chat/chat.service.ts`)                                              |
+| Cada pasajero con plaza (aceptada o ya bajado) ve a sus compañeros de viaje (los demás pasajeros con plaza), solo con el nombre de pila y el avatar, sin abrir su perfil                                                                                                | `TripParticipantsService.listCoPassengers`                                                     |
+
 ## 8. Cuentas y acceso
 
 | Regla                                                                            | Valor           | Código                                                               |

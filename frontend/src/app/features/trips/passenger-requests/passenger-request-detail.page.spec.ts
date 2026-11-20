@@ -295,8 +295,8 @@ describe('PassengerRequestDetailPage', () => {
     expect(actions().isCancelling()).toBe(false);
   });
 
-  it('calls the driver with a confirmed trip, and explains why not before', async () => {
-    await render(seatRequest('accepted'), { ...TRIP, status: 'confirmed' });
+  it('calls the driver with the trip in progress, and explains why not before', async () => {
+    await render(seatRequest('accepted'), { ...TRIP, status: 'in_progress' });
     const openPhone = vi
       .spyOn(TestBed.inject(TripCallService), 'openPhone')
       .mockImplementation(() => undefined);
@@ -305,11 +305,9 @@ describe('PassengerRequestDetailPage', () => {
     expect(openPhone).toHaveBeenCalledWith('+34600111222');
 
     TestBed.resetTestingModule();
-    await render(seatRequest('accepted'), { ...TRIP, status: 'published' });
+    await render(seatRequest('accepted'), { ...TRIP, status: 'confirmed' });
     route().handleCallDriver();
-    expect(showInfo).toHaveBeenCalledWith(
-      'Solo se puede llamar con el viaje confirmado o en curso.',
-    );
+    expect(showInfo).toHaveBeenCalledWith('Solo se puede llamar con el viaje en curso.');
   });
 
   it('stops offering to cancel once the pending request expires (refreshed on enter)', async () => {
