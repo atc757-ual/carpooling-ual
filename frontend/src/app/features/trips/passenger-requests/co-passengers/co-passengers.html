@@ -4,13 +4,13 @@
       {{ 'participantProfile.coPassengers' | transloco }}
     </h3>
     <div class="co-passengers__viewport">
-      <!-- Una fila que se desliza; con el teclado, con las flechas al enfocarla -->
+      <!-- Una fila que se desliza con el dedo o arrastrando; con el teclado, con
+           las flechas de los lados -->
       <ul
         #edges="scrollEdges"
         class="co-passengers__list"
         appDragScroll
         appScrollEdges
-        tabindex="0"
         [attr.aria-label]="'participantProfile.coPassengers' | transloco"
       >
         @for (coPassenger of coPassengers(); track coPassenger.id) {
@@ -23,7 +23,6 @@
         <button
           class="co-passengers__arrow co-passengers__arrow--back"
           type="button"
-          tabindex="-1"
           [attr.aria-label]="'participantProfile.coPassengersBack' | transloco"
           (click)="edges.scrollStep(-1)"
         >
@@ -34,7 +33,6 @@
         <button
           class="co-passengers__arrow co-passengers__arrow--forward"
           type="button"
-          tabindex="-1"
           [attr.aria-label]="'participantProfile.coPassengersForward' | transloco"
           (click)="edges.scrollStep(1)"
         >

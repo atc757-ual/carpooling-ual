@@ -29,7 +29,8 @@ export class ParticipantLink {
   readonly tripId = input.required<string>();
   readonly userId = input.required<string>();
   readonly name = input.required<string>();
-  readonly role = input.required<ParticipantRole>();
+  // En qué papel viaja (no se llama role: sería el atributo ARIA del elemento)
+  readonly participantRole = input.required<ParticipantRole>();
 
   readonly firstName = computed(() => getFirstName(this.name()));
 
@@ -38,7 +39,7 @@ export class ParticipantLink {
       tripId: this.tripId(),
       userId: this.userId(),
       name: this.name(),
-      role: this.role(),
+      role: this.participantRole(),
     });
   }
 }

@@ -257,7 +257,7 @@
                           <ion-icon [icon]="personIcon" aria-hidden="true" />
                           <span class="visually-hidden">{{ 'live.conduce' | transloco }}</span>
                           <app-participant-link
-                            role="driver"
+                            participantRole="driver"
                             [tripId]="trip.id"
                             [userId]="trip.driver.id"
                             [name]="trip.driver.name"
