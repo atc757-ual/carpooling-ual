@@ -13,9 +13,8 @@
                 </legend>
                 <ion-chip
                   button="true"
-                  [outline]="category() !== null || readState() !== undefined"
-                  [class.notifications__filter-chip--selected]="category() === null && readState() === undefined"
-                  [attr.aria-pressed]="category() === null && readState() === undefined"
+                  [class.notifications__filter-chip--selected]="category() === null"
+                  [attr.aria-pressed]="category() === null"
                   (click)="handleSelectCategory(null)"
                 >
                   <span>{{ 'notifications.all' | transloco }}</span>
@@ -23,7 +22,6 @@
                 @for (option of categoryOptions; track option) {
                   <ion-chip
                     button="true"
-                    [outline]="category() !== option"
                     [class.notifications__filter-chip--selected]="category() === option"
                     [attr.aria-pressed]="category() === option"
                     (click)="handleSelectCategory(option)"
@@ -220,45 +218,6 @@
           </ion-card-content>
         </ion-card>
       </section>
-
-      <aside class="notifications__aside">
-        <ion-card>
-          <ion-card-content class="notifications__guide">
-            <div
-              class="notifications__unread-summary"
-              [class.notifications__unread-summary--active]="unreadCount() > 0"
-              [class.notifications__unread-summary--filtering]="readState() === false"
-            >
-              <div class="notifications__unread-info">
-                <ion-icon [icon]="unreadCount() > 0 ? unreadIcon : readIcon" aria-hidden="true" />
-                <p>
-                  @if (unreadCount() > 0) {
-                    {{ 'notifications.unreadSummary' | transloco: { count: unreadCount() } }}
-                  } @else {
-                    {{ 'notifications.allCaughtUp' | transloco }}
-                  }
-                </p>
-              </div>
-              @if (unreadCount() > 0) {
-                <ion-button
-                  class="notifications__unread-action"
-                  fill="clear"
-                  size="small"
-                  [attr.aria-label]="(readState() === false ? 'notifications.all' : 'notifications.unread') | transloco"
-                  [attr.title]="(readState() === false ? 'notifications.all' : 'notifications.unread') | transloco"
-                  (click)="toggleUnreadFilter()"
-                >
-                  <ion-icon
-                    slot="icon-only"
-                    [icon]="readState() === false ? closeIcon : filterActionIcon"
-                    aria-hidden="true"
-                  />
-                </ion-button>
-              }
-            </div>
-          </ion-card-content>
-        </ion-card>
-      </aside>
     </div>
   </div>
 </ion-content>

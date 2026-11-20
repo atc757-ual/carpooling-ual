@@ -3,20 +3,12 @@
 }
 
 .notifications__layout {
-  display: grid;
-  grid-template-areas: 'aside' 'main';
-  gap: var(--space-base);
+  display: flex;
+  flex-direction: column;
   width: 100%;
-
-  @media (min-width: 768px) {
-    grid-template-columns: minmax(0, 2fr) minmax(13rem, 1fr);
-    grid-template-areas: 'main aside';
-    align-items: start;
-  }
 }
 
-.notifications__main,
-.notifications__aside {
+.notifications__main {
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -25,6 +17,7 @@
 
 .notifications__panel {
   overflow: hidden;
+  margin: 0;
 }
 
 .notifications__panel-content {
@@ -32,18 +25,6 @@
   flex-direction: column;
   gap: var(--space-base);
   padding: var(--space-base);
-}
-
-.notifications__main {
-  grid-area: main;
-}
-.notifications__aside {
-  grid-area: aside;
-}
-
-.notifications__main ion-card,
-.notifications__aside ion-card {
-  margin: 0;
 }
 
 .notifications__toolbar {
@@ -72,36 +53,38 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    min-height: 1.75rem;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0.25rem 0.5rem !important;
     margin: 0;
     border-radius: var(--radius-full);
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
     font-size: var(--font-size-label);
     font-weight: var(--font-weight-medium);
     --background: var(--color-surface-subtle);
     --color: var(--color-text-muted);
-    --border-color: transparent;
-    --border-width: 0;
-    --padding-top: 0.25rem;
-    --padding-bottom: 0.25rem;
-    --padding-start: 0.5rem;
-    --padding-end: 0.5rem;
+    background: var(--color-surface-subtle) !important;
+    color: var(--color-text-muted) !important;
 
     ion-icon {
       font-size: var(--icon-size-s);
       margin: 0;
-      color: var(--color-text-muted);
+      color: var(--color-text-muted) !important;
     }
   }
 
-  .notifications__filter-chip--selected {
+  ion-chip.notifications__filter-chip--selected {
     font-weight: var(--font-weight-semibold);
     --background: var(--color-primary-subtle);
     --color: var(--color-primary);
-    --border-color: transparent;
-    --border-width: 0;
+    background: var(--color-primary-subtle) !important;
+    color: var(--color-primary) !important;
+    border: none !important;
 
     ion-icon {
-      color: var(--color-primary);
+      color: var(--color-primary) !important;
     }
   }
 }
@@ -291,75 +274,6 @@
   --loading-state-min-height: 15rem;
 }
 
-.notifications__guide {
-  display: flex;
-  flex-direction: column;
-  padding-top: var(--space-base);
-
-  h2,
-  p {
-    margin: 0;
-  }
-}
-
-.notifications__unread-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-s);
-}
-
-.notifications__unread-info {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-  min-width: 0;
-
-  ion-icon {
-    flex: none;
-    color: var(--color-text-muted);
-    font-size: var(--icon-size-base);
-  }
-
-  p {
-    margin: 0;
-    color: var(--color-text-muted);
-    font-size: var(--font-size-label);
-  }
-}
-
-.notifications__unread-action {
-  flex: none;
-  margin: 0;
-  --padding-start: var(--space-xs);
-  --padding-end: var(--space-xs);
-  --color: var(--color-link);
-  height: var(--control-height-s);
-  min-height: var(--control-height-s);
-
-  ion-icon {
-    font-size: var(--icon-size-base);
-    color: var(--color-link);
-  }
-}
-
-.notifications__unread-summary--active {
-  .notifications__unread-info ion-icon,
-  .notifications__unread-info p {
-    color: var(--color-link);
-  }
-
-  .notifications__unread-info p {
-    font-weight: var(--font-weight-semibold);
-  }
-}
-
-.notifications__unread-summary--filtering {
-  .notifications__unread-action {
-    --color: var(--color-primary);
-  }
-}
-
 @media (max-width: 767.98px) {
   .notifications__filters {
     flex-wrap: nowrap;
@@ -372,9 +286,6 @@
       flex: none;
       scroll-snap-align: start;
     }
-  }
-  .notifications__aside ion-card {
-    width: 100%;
   }
   .notifications__pagination {
     justify-content: flex-end;
