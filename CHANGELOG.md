@@ -14,6 +14,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Changed
 
+- **Tarjetas de viaje, vuelta en publicación y métricas de impacto (revisión del 21/11/2026):** tarjetas de Tus viajes con flecha de navegación integrada y badge «Finalizado automático» cuando el viaje es cerrado por expiración del sistema. En Publicar viaje, reordenación intuitiva de los campos de trayecto y vuelta. En la sección lateral de Tus viajes y resúmenes de viaje, enfoque exclusivo en métricas de sostenibilidad ambiental (CO₂ ahorrado y km compartidos) (#374).
+
 - **Cabecera de navegación, centro de ayuda, mensajes y notificaciones (revisión del 21/11/2026):** botón de ayuda en la cabecera móvil con icono oficial, cabecera fija de escritorio visible en pantallas de ayuda que se desmonta al salir a otras secciones, pestaña «En curso» deshabilitada con aviso explicativo cuando no hay viaje activo. En Mensajes, filtros «Todos» y «Sin leer» alineados a la izquierda con etiquetas y contadores centrados verticalmente y total general estable. En Notificaciones, selección inicial de «Sin leer» cuando existen avisos pendientes, filtrado real por estado de lectura y retirada interactiva de la lista al abrirlos. En Perfil, badge de estado de notificaciones push en segundo plano (#373).
 
 - **Validación de autenticación y ajuste de entradas (revisión del 21/11/2026):** placeholder dinámico en el teléfono según el país seleccionado, límite de 72 caracteres en contraseñas (`maxlength="72"` por el tope de bcrypt), eliminación de placeholders confusos en los campos de contraseña, indicación clara de correo institucional `@ual.es` en Registro y reducción a la mitad del espaciado del divisor «o» en Inicio de sesión (#372).

@@ -13,23 +13,6 @@
           {{ co2Text() }}
         </dd>
       </div>
-      <div>
-        <dt class="text-caption">{{ 'myTrips.valoracion' | transloco }}</dt>
-        <dd class="text-subtitle my-trips-aside__value">
-          @if (ratingValue(); as value) {
-            <ion-icon
-              class="my-trips-aside__thumb"
-              [class.my-trips-aside__thumb--up]="value >= 3"
-              [class.my-trips-aside__thumb--down]="value < 3"
-              [icon]="value >= 3 ? upIcon : downIcon"
-              aria-hidden="true"
-            />
-            {{ ratingText() }}
-          } @else {
-            —
-          }
-        </dd>
-      </div>
     </dl>
     <p class="text-caption my-trips-aside__note">
       {{ 'myTrips.estimadoQueHabriaEmitido' | transloco }}

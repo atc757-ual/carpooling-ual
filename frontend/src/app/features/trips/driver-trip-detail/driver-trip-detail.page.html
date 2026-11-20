@@ -6,6 +6,12 @@
         @if (liveBanner(); as live) {
           <app-live-trip-banner [trip]="live.trip" [detail]="live.detail" [link]="live.link" />
         }
+        @if (isAutoFinished()) {
+          <div class="notice notice--info driver-detail__auto-notice" role="alert">
+            <ion-icon [icon]="infoIcon" aria-hidden="true" />
+            <span>{{ 'screens.driverTripActions.esteViajeYaTermino' | transloco }} {{ 'myTrips.cerradoAutomaticamenteHabiaPasado' | transloco }}</span>
+          </div>
+        }
         <app-driver-trip-route [trip]="trip" />
         <app-driver-trip-passengers [trip]="trip" (changed)="handleReload()" />
       </div>
@@ -36,10 +42,6 @@
           <ion-card-content>
             @if (impact(); as impact) {
               <dl class="driver-detail__stats">
-                <div>
-                  <dt class="text-caption">{{ 'myTrips.cochesEvitados' | transloco }}</dt>
-                  <dd class="text-subtitle">{{ impact.cars }}</dd>
-                </div>
                 <div>
                   <dt class="text-caption">{{ 'myTrips.ahorrado' | transloco }}</dt>
                   <dd class="text-subtitle driver-detail__value">

@@ -141,6 +141,9 @@ export class DriverTripActions {
       case 'cancelled':
         return translate('screens.driverTripActions.esteViajeCancelo');
       case 'finished':
+        if (this.trip().finishedBy === 'system') {
+          return null;
+        }
         return translate('screens.driverTripActions.esteViajeYaTermino');
       default:
         return null;

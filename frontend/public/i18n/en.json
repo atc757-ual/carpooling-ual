@@ -628,8 +628,8 @@
     "backTo": "Back to {{ step }}",
     "departureHint": "You'll leave around <b>{{ time }}</b> to arrive on time even if you pick someone up.",
     "impact": {
-      "one": "Taking <b>1 passenger</b> you avoid up to 1 car: about <b>{{ km }} km</b> behind the wheel and <b>{{ co2 }} kg of CO₂</b> less.",
-      "other": "Taking <b>{{ count }} passengers</b> you avoid up to {{ count }} cars: about <b>{{ km }} km</b> behind the wheel and <b>{{ co2 }} kg of CO₂</b> less."
+      "one": "Sharing your trip with <b>1 passenger</b> saves about <b>{{ co2 }} kg of CO₂</b> on this <b>{{ km }} km</b> trip.",
+      "other": "Sharing your trip with <b>{{ count }} passengers</b> saves about <b>{{ co2 }} kg of CO₂</b> on this <b>{{ km }} km</b> trip."
     },
     "offered": {
       "one": "You offer 1 seat, with {{ margin }} min of margin for pickups.",
@@ -702,6 +702,7 @@
     "cargandoMapaDelViaje": "Loading the trip map…",
     "pudimosCargarMapaRuta": "We couldn't load the route map.",
     "cerradoAutomaticamente": "Closed automatically",
+    "finalizadoAutomatico": "Auto-finished",
     "accept": "Accept",
     "reject": "Decline",
     "tabsLegend": "Which trips to see",

@@ -34,14 +34,8 @@
     }
     <div class="driver-summary__route">{{ route() }}</div>
     <div class="text-caption text-color-muted">{{ seatsLabel() }}</div>
-    @if (trip().finishedBy === 'system') {
-      <div class="text-caption text-color-muted">
-        {{ 'myTrips.cerradoAutomaticamente' | transloco }}
-      </div>
-    }
     @if (pendingLabel(); as label) {
       <div class="driver-summary__pending">{{ label }}</div>
     }
-    <span class="driver-summary__action">{{ action() }}</span>
   </ion-label>
 </ion-item>
