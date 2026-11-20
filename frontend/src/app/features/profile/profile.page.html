@@ -37,15 +37,15 @@
                 </div>
               </div>
 
-              <!-- Sobre mí (corto si no hay) -->
+              <!-- Acerca de mí (corto si no hay) -->
               <div class="profile__bio-section">
                 @if (user.bio) {
-                  <div class="profile__bio-box">
-                    <span class="text-caption text-color-muted profile__bio-title">{{
+                  <fieldset class="profile__bio-box">
+                    <legend class="profile__bio-title">{{
                       'profile.aboutMe' | transloco
-                    }}</span>
+                    }}</legend>
                     <p class="profile__bio-text">{{ user.bio }}</p>
-                  </div>
+                  </fieldset>
                 } @else {
                   <p class="profile__bio-empty text-body text-color-muted">
                     {{ 'profile.emptyBio' | transloco }}

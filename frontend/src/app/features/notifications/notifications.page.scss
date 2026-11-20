@@ -86,41 +86,11 @@
     --padding-end: var(--space-s);
   }
 
-  ion-chip[color='primary'] {
+  ion-chip[color='primary'],
+  .notifications__filter-chip--selected {
     font-weight: var(--font-weight-semibold);
     --background: var(--color-primary);
     --color: var(--color-on-primary);
-  }
-
-  .notifications__filter-chip--travel {
-    --color: var(--color-text-muted);
-  }
-
-  .notifications__filter-chip--account {
-    --color: var(--color-text-muted);
-  }
-
-  .notifications__filter-chip--incident {
-    --color: var(--color-text-muted);
-  }
-
-  .notifications__filter-chip--selected.notifications__filter-chip--travel {
-    --color: var(--color-link);
-    --background: var(--color-primary-subtle);
-  }
-
-  .notifications__filter-chip--selected.notifications__filter-chip--account {
-    --color: var(--color-success);
-    --background: var(--color-success-subtle);
-  }
-
-  .notifications__filter-chip--selected.notifications__filter-chip--incident {
-    --color: var(--color-accent);
-    --background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
-  }
-
-  .notifications__filter-chip--selected {
-    font-weight: var(--font-weight-semibold);
   }
 }
 

@@ -279,6 +279,7 @@
     "listAria": "Notifications list",
     "filterLegend": "Filter by category",
     "all": "All",
+    "filterRead": "Read",
     "categories": {
       "travel": "Rides",
       "account": "Account",

@@ -279,6 +279,7 @@
     "listAria": "Lista de notificaciones",
     "filterLegend": "Filtrar por categoría",
     "all": "Todas",
+    "filterRead": "Leídas",
     "categories": {
       "travel": "Viajes",
       "account": "Cuenta",
@@ -376,7 +377,7 @@
   "profile": {
     "verifiedEmail": "Correo UAL verificado",
     "editInfo": "Editar mi información",
-    "aboutMe": "Sobre mí",
+    "aboutMe": "Acerca de mí",
     "emptyBio": "Sin presentación aún.",
     "bioPlaceholder": "Cuéntale a la comunidad quién eres, qué estudias o qué te gusta…",
     "firstName": "Nombre",

@@ -52,6 +52,8 @@ export interface NotificationItem {
   trip: Trip | null;
 }
 
+export type NotificationFilter = 'all' | 'unread' | 'read' | NotificationCategory;
+
 const CATEGORIES: NotificationCategory[] = ['travel', 'account', 'incident'];
 
 @Component({
@@ -84,6 +86,8 @@ export class NotificationsPage implements OnInit {
   private readonly modalController = inject(ModalController);
 
   readonly category = signal<NotificationCategory | null>(null);
+  readonly activeFilter = signal<NotificationFilter>('all');
+  readonly readState = signal<boolean | undefined>(undefined);
   readonly offset = signal(0);
   readonly total = signal(0);
   readonly all = signal<NotificationItem[]>([]);
@@ -132,18 +136,35 @@ export class NotificationsPage implements OnInit {
     this.hasEntered = true;
   }
 
+  async handleFilter(filter: NotificationFilter): Promise<void> {
+    this.activeFilter.set(filter);
+    if (CATEGORIES.includes(filter as NotificationCategory)) {
+      this.category.set(filter as NotificationCategory);
+      this.readState.set(undefined);
+    } else if (filter === 'unread') {
+      this.category.set(null);
+      this.readState.set(false);
+    } else if (filter === 'read') {
+      this.category.set(null);
+      this.readState.set(true);
+    } else {
+      this.category.set(null);
+      this.readState.set(undefined);
+    }
+    this.offset.set(0);
+    await this.loadPage(true);
+  }
+
   async handleCategory(value: unknown): Promise<void> {
     const selected =
       typeof value === 'string' && CATEGORIES.includes(value as NotificationCategory)
         ? (value as NotificationCategory)
         : null;
-    this.category.set(selected);
-    this.offset.set(0);
-    await this.loadPage(true);
+    await this.handleFilter(selected ?? 'all');
   }
 
   async handleSelectCategory(category: NotificationCategory | null): Promise<void> {
-    await this.handleCategory(category ?? 'all');
+    await this.handleFilter(category ?? 'all');
   }
 
   async handleOffset(offset: number): Promise<void> {
@@ -211,10 +232,14 @@ export class NotificationsPage implements OnInit {
     this.isLoading.set(true);
     this.error.set(false);
     try {
-      const page = await this.notifications.list({
+      const options: { offset: number; category?: NotificationCategory; isRead?: boolean } = {
         offset: this.offset(),
         category: this.category() ?? undefined,
-      });
+      };
+      if (this.readState() !== undefined) {
+        options.isRead = this.readState();
+      }
+      const page = await this.notifications.list(options);
       const tripIds = [...new Set(page.items.flatMap(({ trip }) => (trip ? [trip.id] : [])))];
       const trips = new Map(
         await Promise.all(

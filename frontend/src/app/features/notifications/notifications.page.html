@@ -13,23 +13,45 @@
                 </legend>
                 <ion-chip
                   button="true"
-                  [outline]="category() !== null"
-                  [color]="category() === null ? 'primary' : undefined"
-                  [attr.aria-pressed]="category() === null"
-                  (click)="handleSelectCategory(null)"
+                  [outline]="activeFilter() !== 'all'"
+                  [color]="activeFilter() === 'all' ? 'primary' : undefined"
+                  [class.notifications__filter-chip--selected]="activeFilter() === 'all'"
+                  [attr.aria-pressed]="activeFilter() === 'all'"
+                  (click)="handleFilter('all')"
                 >
                   {{ 'notifications.all' | transloco }}
+                </ion-chip>
+                <ion-chip
+                  button="true"
+                  [outline]="activeFilter() !== 'unread'"
+                  [color]="activeFilter() === 'unread' ? 'primary' : undefined"
+                  [class.notifications__filter-chip--selected]="activeFilter() === 'unread'"
+                  [attr.aria-pressed]="activeFilter() === 'unread'"
+                  (click)="handleFilter('unread')"
+                >
+                  {{ 'notifications.unread' | transloco }}
+                  @if (unreadCount() > 0) {
+                    <span class="notifications__chip-count">({{ unreadCount() }})</span>
+                  }
+                </ion-chip>
+                <ion-chip
+                  button="true"
+                  [outline]="activeFilter() !== 'read'"
+                  [color]="activeFilter() === 'read' ? 'primary' : undefined"
+                  [class.notifications__filter-chip--selected]="activeFilter() === 'read'"
+                  [attr.aria-pressed]="activeFilter() === 'read'"
+                  (click)="handleFilter('read')"
+                >
+                  {{ 'notifications.filterRead' | transloco }}
                 </ion-chip>
                 @for (option of categoryOptions; track option) {
                   <ion-chip
                     button="true"
-                    [outline]="category() !== option"
-                    [class.notifications__filter-chip--travel]="option === 'travel'"
-                    [class.notifications__filter-chip--account]="option === 'account'"
-                    [class.notifications__filter-chip--incident]="option === 'incident'"
-                    [class.notifications__filter-chip--selected]="category() === option"
-                    [attr.aria-pressed]="category() === option"
-                    (click)="handleSelectCategory(option)"
+                    [outline]="activeFilter() !== option"
+                    [color]="activeFilter() === option ? 'primary' : undefined"
+                    [class.notifications__filter-chip--selected]="activeFilter() === option"
+                    [attr.aria-pressed]="activeFilter() === option"
+                    (click)="handleFilter(option)"
                   >
                     <span>{{ 'notifications.categories.' + option | transloco }}</span>
                   </ion-chip>

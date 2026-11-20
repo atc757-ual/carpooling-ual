@@ -32,7 +32,6 @@
 .profile__aside,
 .profile-card__content,
 .profile__center-info,
-.profile__bio-box,
 .profile__pref-list,
 .profile__legal-list {
   display: flex;
@@ -197,22 +196,33 @@ app-profile-device-location {
   color: var(--color-text);
 }
 
+fieldset.profile__bio-box,
 .profile__bio-box {
-  gap: var(--space-xxs);
+  display: block;
+  box-sizing: border-box;
+  margin: var(--space-s) 0 0;
   padding: var(--space-s);
-  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-s);
+  background: transparent;
 
-  span {
-    text-transform: uppercase;
+  legend.profile__bio-title,
+  .profile__bio-title {
+    padding: 0 var(--space-xs);
+    margin-inline-start: var(--space-xs);
+    font-size: var(--font-size-caption);
     font-weight: var(--font-weight-bold);
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
   }
 
-  p {
+  p,
+  .profile__bio-text {
     margin: 0;
     white-space: pre-line;
     font-size: var(--font-size-body-s);
+    color: var(--color-text);
   }
 }
 
