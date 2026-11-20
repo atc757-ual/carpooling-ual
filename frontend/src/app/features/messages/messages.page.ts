@@ -1,5 +1,14 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
-import { Component, computed, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  linkedSignal,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -86,7 +95,12 @@ export class MessagesPage implements OnInit {
   readonly isLoadingMore = signal(false);
   readonly error = signal(false);
   readonly loadMoreError = signal(false);
-  readonly selectedConversationId = signal<string | null>(null);
+  // La elegida en la lista en escritorio, sin cambiar la URL. Si después la
+  // URL abre otra conversación (p. ej. desde un aviso), se vacía y manda la URL
+  readonly selectedConversationId = linkedSignal<string | null, string | null>({
+    source: this.routeConversationId,
+    computation: () => null,
+  });
   readonly pageActive = signal(true);
   readonly activeConversationId = computed(
     () => this.selectedConversationId() ?? this.routeConversationId(),
