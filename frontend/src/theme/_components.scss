@@ -1020,7 +1020,7 @@ ion-searchbar.admin-heading__search {
   padding: 0;
   --background: var(--color-surface);
   --color: var(--color-text);
-  --border-radius: var(--radius-base);
+  --border-radius: var(--radius-s);
 
   @media (min-width: 768px) {
     width: calc((100% - var(--space-base)) * 2 / 3);

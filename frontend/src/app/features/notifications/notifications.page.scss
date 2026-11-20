@@ -140,11 +140,13 @@
   --background-hover: var(--color-surface-subtle);
   --background-hover-opacity: 1;
   --padding-start: var(--space-s);
-  --padding-top: var(--space-base);
-  --padding-bottom: var(--space-base);
+  --padding-top: var(--space-s);
+  --padding-bottom: var(--space-s);
   --inner-padding-end: var(--space-s);
   --color: var(--color-text);
+  --border-radius: var(--radius-s);
 
+  border-radius: var(--radius-s);
   border-bottom: var(--border-width-s) solid var(--color-surface-subtle);
   border-inline-start: 0.3125rem solid transparent; // 5px
   transition: border-color var(--motion-duration-fast) var(--motion-easing);
@@ -234,7 +236,7 @@
   min-height: var(--control-height-s);
   margin: 0;
   --border-color: var(--color-primary);
-  --border-radius: var(--radius-base);
+  --border-radius: var(--radius-s);
   --color: var(--color-link);
 }
 
