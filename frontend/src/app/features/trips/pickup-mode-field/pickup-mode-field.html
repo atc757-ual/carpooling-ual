@@ -2,45 +2,37 @@
      elegida (los metros o las paradas) -->
 <fieldset class="pickup-mode">
   <legend class="text-label text-label--strong">{{ 'publish.comoRecoges' | transloco }}</legend>
-  <!-- Dos tarjetas que se explican solas; la elegida, en azul. Cada una es
-       la etiqueta de un radio nativo (oculto a la vista): el teclado y los
-       lectores de pantalla lo tratan como un grupo de opciones -->
-  <div class="pickup-mode__choices">
-    <label class="pickup-mode__choice">
-      <input
-        class="visually-hidden"
-        type="radio"
-        name="pickup-mode"
-        value="on_route"
-        [checked]="mode() === 'on_route'"
-        (change)="handleMode('on_route')"
-      />
-      <span class="pickup-mode__choice-title">
-        <ion-icon [icon]="icons.route" aria-hidden="true" />
-        {{ 'publish.camino' | transloco }}
-      </span>
-      <span class="pickup-mode__choice-detail">{{
-        'publish.recogesCadaUnoPunto' | transloco
-      }}</span>
-    </label>
-    <label class="pickup-mode__choice">
-      <input
-        class="visually-hidden"
-        type="radio"
-        name="pickup-mode"
-        value="stops"
-        [checked]="mode() === 'stops'"
-        (change)="handleMode('stops')"
-      />
-      <span class="pickup-mode__choice-title">
-        <ion-icon [icon]="icons.stop" aria-hidden="true" />
-        {{ 'publish.paradas' | transloco }}
-      </span>
-      <span class="pickup-mode__choice-detail">
-        {{ 'publish.stopsChoiceDetail' | transloco: { max: maxStops } }}
-      </span>
-    </label>
-  </div>
+  <!-- Dos tarjetas de opción (ion-radio-group) que se explican solas; la
+       elegida, rellena de azul. El grupo da el teclado (flechas) y el papel
+       de grupo de opciones a los lectores de pantalla -->
+  <ion-radio-group
+    class="pickup-mode__choices"
+    [value]="mode()"
+    (ionChange)="handleMode($event.detail.value)"
+  >
+    <ion-item class="option-card pickup-mode__choice" lines="none">
+      <ion-radio value="on_route" labelPlacement="end" justify="start">
+        <span class="pickup-mode__choice-title">
+          <ion-icon [icon]="icons.route" aria-hidden="true" />
+          {{ 'publish.camino' | transloco }}
+        </span>
+        <span class="pickup-mode__choice-detail">{{
+          'publish.recogesCadaUnoPunto' | transloco
+        }}</span>
+      </ion-radio>
+    </ion-item>
+    <ion-item class="option-card pickup-mode__choice" lines="none">
+      <ion-radio value="stops" labelPlacement="end" justify="start">
+        <span class="pickup-mode__choice-title">
+          <ion-icon [icon]="icons.stop" aria-hidden="true" />
+          {{ 'publish.paradas' | transloco }}
+        </span>
+        <span class="pickup-mode__choice-detail">
+          {{ 'publish.stopsChoiceDetail' | transloco: { max: maxStops } }}
+        </span>
+      </ion-radio>
+    </ion-item>
+  </ion-radio-group>
 
   @if (mode() === 'on_route') {
     <ion-select

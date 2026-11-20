@@ -38,8 +38,8 @@ describe('DriverTripSummary', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  // Toda la tarjeta es el enlace (ion-card [routerLink])
-  const link = (root: HTMLElement) => root.querySelector('ion-card.driver-summary');
+  // Toda la fila es el enlace (ion-item [routerLink])
+  const link = (root: HTMLElement) => root.querySelector('ion-item.driver-summary');
   // La acción principal, abajo, en el azul de los enlaces
   const action = (root: HTMLElement) => root.querySelector('.driver-summary__action');
 

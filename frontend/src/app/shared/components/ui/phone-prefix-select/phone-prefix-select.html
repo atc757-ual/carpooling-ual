@@ -25,25 +25,25 @@
 >
   <ng-template>
     <ion-content>
-      <ul class="prefix-select__list" [attr.aria-label]="'common.countryPrefixList' | transloco">
+      <!-- ion-list da role="list"; cada prefijo, un ion-item que se pulsa -->
+      <ion-list lines="none" [attr.aria-label]="'common.countryPrefixList' | transloco">
         @for (prefix of prefixes; track prefix) {
-          <li>
-            <button
-              type="button"
-              class="prefix-select__option"
-              [class.prefix-select__option--selected]="prefix === value()"
-              [attr.aria-current]="prefix === value()"
-              (click)="handleChoose(prefix)"
-            >
-              <span
-                class="prefix-select__flag fi fi-{{ getPrefixCountry(prefix) }}"
-                aria-hidden="true"
-              ></span>
-              {{ prefix }}
-            </button>
-          </li>
+          <ion-item
+            button
+            [detail]="false"
+            [class.select-option--selected]="prefix === value()"
+            [attr.aria-current]="prefix === value()"
+            (click)="handleChoose(prefix)"
+          >
+            <span
+              slot="start"
+              class="prefix-select__flag fi fi-{{ getPrefixCountry(prefix) }}"
+              aria-hidden="true"
+            ></span>
+            <ion-label>{{ prefix }}</ion-label>
+          </ion-item>
         }
-      </ul>
+      </ion-list>
     </ion-content>
   </ng-template>
 </ion-popover>

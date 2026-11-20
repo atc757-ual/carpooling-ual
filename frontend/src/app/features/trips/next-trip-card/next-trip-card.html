@@ -1,6 +1,8 @@
 @if (isLive()) {
   <!-- En curso: la misma tarjeta que arriba de Tus viajes -->
-  <app-live-trip-banner [route]="route()" [detail]="liveDetail()" [link]="link()" />
+  @if (next(); as live) {
+    <app-live-trip-banner [trip]="live.trip" [detail]="liveDetail()" [link]="link()" />
+  }
 } @else if (next(); as next) {
   <section class="next-trip" [attr.aria-label]="'nextTrip.proximoViaje' | transloco">
     <!-- Toda la tarjeta lleva al viaje (conductor) o a la plaza (pasajero):

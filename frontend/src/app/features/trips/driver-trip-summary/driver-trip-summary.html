@@ -1,10 +1,11 @@
-<!-- Toda la tarjeta es un enlace (ion-card [routerLink]) al viaje -->
-<ion-card
+<!-- Toda la fila es un enlace (ion-item [routerLink], con la flecha) al viaje -->
+<ion-item
   class="driver-summary role-card role-card--driver"
   [routerLink]="link()"
+  [detail]="true"
   [attr.aria-label]="linkLabel()"
 >
-  <ion-card-content>
+  <ion-label>
     <div class="driver-summary__head">
       <!-- La hora y, a su lado, el papel -->
       <div class="role-card__when">
@@ -42,5 +43,5 @@
       <div class="driver-summary__pending">{{ label }}</div>
     }
     <span class="driver-summary__action">{{ action() }}</span>
-  </ion-card-content>
-</ion-card>
+  </ion-label>
+</ion-item>

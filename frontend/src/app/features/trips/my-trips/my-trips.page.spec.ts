@@ -186,7 +186,7 @@ describe('MyTripsPage', () => {
     const page = fixture.componentInstance;
 
     expect(page.liveBanner()).toEqual({
-      route: 'Roquetas de Mar → Campus UAL · Parking P1 (Sur)',
+      trip: expect.objectContaining({ id: 't1', status: 'in_progress' }),
       detail: '2 de 3 plazas ocupadas',
       link: '/tabs/trips/drive/t1',
     });

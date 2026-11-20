@@ -54,8 +54,8 @@ for (const viewport of VIEWPORTS) {
 
       cy.get('app-phone-prefix-select .prefix-select__trigger').click();
       // Cada prefijo con su bandera
-      cy.get('ion-popover .prefix-select__option .fi-it').should('be.visible');
-      cy.contains('ion-popover .prefix-select__option', '+39').click();
+      cy.get('ion-popover.phone-prefix-popover ion-item .fi-it').should('be.visible');
+      cy.contains('ion-popover.phone-prefix-popover ion-item', '+39').click();
       // Se cierra al elegir (el popover se queda en la página, oculto)
       cy.get('ion-popover.phone-prefix-popover').should('have.class', 'overlay-hidden');
       cy.get('ion-input[formControlName="phone"] input.native-input').clear();

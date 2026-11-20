@@ -1,10 +1,11 @@
-<!-- Toda la tarjeta es un enlace (ion-card [routerLink]) a la solicitud -->
-<ion-card
+<!-- Toda la fila es un enlace (ion-item [routerLink], con la flecha) a la solicitud -->
+<ion-item
   class="passenger-trip role-card role-card--passenger"
   [routerLink]="['/tabs/trips/requests', item().request.id]"
+  [detail]="true"
   [attr.aria-label]="linkLabel()"
 >
-  <ion-card-content>
+  <ion-label>
     <div class="passenger-trip__head">
       <!-- La hora y, a su lado, el papel -->
       <div class="role-card__when">
@@ -32,5 +33,5 @@
       <div class="passenger-trip__next">{{ step }}</div>
     }
     <div class="text-caption text-color-muted">{{ details() }}</div>
-  </ion-card-content>
-</ion-card>
+  </ion-label>
+</ion-item>
