@@ -92,6 +92,10 @@
     --background: var(--color-primary);
     --color: var(--color-on-primary);
   }
+
+  .notifications__chip-count {
+    margin-inline-start: var(--space-xxs);
+  }
 }
 
 // Sin el fondo ni el relleno de ion-list; 8px entre avisos

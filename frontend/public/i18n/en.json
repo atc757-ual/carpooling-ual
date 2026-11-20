@@ -424,7 +424,7 @@
       "hashTitle": "Code confirming your acceptance",
       "hashHidden": "Code confirming your acceptance:",
       "acceptedVersion": "Accepted v{{version}} on {{date}}",
-      "currentMinor": "Current: v{{version}} · updated on {{date}} · See what changed"
+      "currentMinor": "Current v{{version}} · Review it"
     },
     "vehicles": {
       "title": "My vehicles",

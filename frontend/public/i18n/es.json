@@ -424,7 +424,7 @@
       "hashTitle": "Código que acredita tu aceptación",
       "hashHidden": "Código que acredita tu aceptación:",
       "acceptedVersion": "Aceptada la v{{version}} el {{date}}",
-      "currentMinor": "Vigente: v{{version}} · actualizada el {{date}} · Ver novedades"
+      "currentMinor": "v{{version}} vigente · Revísalo"
     },
     "vehicles": {
       "title": "Mis vehículos",

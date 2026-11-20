@@ -204,7 +204,7 @@ fieldset.profile__bio-box,
   padding: var(--space-s);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-s);
-  background: transparent;
+  background: var(--color-primary-subtle);
 
   legend.profile__bio-title,
   .profile__bio-title {
@@ -214,7 +214,9 @@ fieldset.profile__bio-box,
     font-weight: var(--font-weight-bold);
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--color-text-muted);
+    color: var(--color-primary);
+    background: var(--color-surface);
+    border-radius: var(--radius-xs);
   }
 
   p,
@@ -259,17 +261,18 @@ ion-list.profile__legal-list {
   --background: var(--color-surface);
   --background-hover: var(--color-primary-subtle);
   --background-hover-opacity: 1;
-  --border-radius: var(--radius-base);
-  --padding-start: var(--space-base);
-  --padding-top: var(--space-s);
-  --padding-bottom: var(--space-s);
-  --inner-padding-end: var(--space-base);
+  --border-radius: var(--radius-s);
+  --padding-start: var(--space-s);
+  --padding-top: var(--space-xs);
+  --padding-bottom: var(--space-xs);
+  --inner-padding-end: var(--space-s);
+  --min-height: 2.75rem;
   --color: var(--color-text);
   --detail-icon-color: var(--color-text-muted);
   --detail-icon-opacity: 1;
 
   border: var(--border-width-s) solid var(--color-border-subtle);
-  border-radius: var(--radius-base);
+  border-radius: var(--radius-s);
   transition: border-color var(--motion-duration-fast);
 
   &:hover {
@@ -358,6 +361,8 @@ ion-list.profile__legal-list {
   align-items: center;
   gap: var(--space-xs);
   font-family: monospace;
+  font-size: var(--font-size-caption);
+  line-height: 1.2;
 
   ion-icon {
     flex: none;
