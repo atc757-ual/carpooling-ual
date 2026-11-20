@@ -159,7 +159,7 @@ for (const viewport of VIEWPORTS) {
         .should('be.visible')
         .and('contain', 'Roquetas de Mar → Campus UAL · Parking P1 (Sur)')
         .and('contain', '2 de 3 plazas ocupadas');
-      // Todo el aviso (un ion-item con enlace) lleva al viaje en curso
+      // El aviso entero (un ion-item con enlace) lleva al viaje en curso
       cy.get('app-live-trip-banner ion-item.live-trip-banner').should(
         'have.attr',
         'href',
