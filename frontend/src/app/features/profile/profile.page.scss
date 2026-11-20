@@ -210,7 +210,7 @@ fieldset.profile__bio-box,
   .profile__bio-title {
     padding: 0 var(--space-xs);
     margin-inline-start: var(--space-xs);
-    font-size: var(--font-size-caption);
+    font-size: var(--font-size-body-s);
     font-weight: var(--font-weight-semibold);
     text-transform: none;
     color: var(--color-primary);
@@ -361,7 +361,7 @@ ion-list.profile__legal-list {
   align-items: center;
   gap: var(--space-xs);
   font-family: monospace;
-  font-size: var(--font-size-caption);
+  font-size: var(--font-size-body-s);
   line-height: 1.2;
 
   ion-icon {

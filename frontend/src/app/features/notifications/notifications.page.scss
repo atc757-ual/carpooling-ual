@@ -1,5 +1,18 @@
-.notifications {
+// Notificaciones
+ion-content {
+  --background: var(--color-surface-subtle);
+
+  &::part(scroll) {
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
+  }
+}
+
+.tab-page {
+  display: flex;
+  flex-direction: column;
   align-items: stretch;
+  padding: var(--space-l) var(--page-gutter);
 }
 
 .notifications__layout {
@@ -13,6 +26,7 @@
   min-width: 0;
   flex-direction: column;
   gap: var(--space-base);
+  min-height: 25rem;
 }
 
 .notifications__panel {
@@ -33,63 +47,125 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-s);
-
-  ion-button {
-    margin: 0;
-  }
 }
 
 .notifications__filters {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
+  gap: var(--space-xs);
+  width: 100%;
   margin: 0;
   padding: 0;
   border: 0;
 
   ion-chip {
+    flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    height: auto !important;
-    min-height: 0 !important;
-    padding: 0.25rem 0.5rem !important;
+    justify-content: center;
+    height: 2.125rem;
+    padding: 0.25rem 1rem; // 4px 16px en rem
     margin: 0;
     border-radius: var(--radius-full);
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
     font-size: var(--font-size-label);
     font-weight: var(--font-weight-medium);
     --background: var(--color-surface-subtle);
+    --background-hover: var(--color-surface-subtle) !important;
+    --background-focused: var(--color-surface-subtle) !important;
+    --background-activated: var(--color-surface-subtle) !important;
     --color: var(--color-text-muted);
-    background: var(--color-surface-subtle) !important;
-    color: var(--color-text-muted) !important;
+    --ripple-color: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: flex var(--motion-duration-medium) cubic-bezier(0.4, 0, 0.2, 1);
 
     ion-icon {
-      font-size: var(--icon-size-s);
+      flex: none;
+      font-size: var(--icon-size-base); // 20px
       margin: 0;
-      color: var(--color-text-muted) !important;
+      color: var(--color-text-muted);
     }
   }
 
-  ion-chip.notifications__filter-chip--selected {
+  .notifications__filter-chip--selected {
+    flex: 1 1 auto; // En móvil llena el ancho restante
+    min-width: 0;
     font-weight: var(--font-weight-semibold);
-    --background: var(--color-primary-subtle);
-    --color: var(--color-primary);
-    background: var(--color-primary-subtle) !important;
-    color: var(--color-primary) !important;
-    border: none !important;
+    --chip-bg: #f1f5f9; // Tono claro / tirando a blanco para Sin leer
+    --chip-hover: #e2e8f0;
+    --chip-color: #0f172a;
+
+    &.notifications__filter-chip--unread {
+      --chip-bg: #f1f5f9;
+      --chip-hover: #e2e8f0;
+      --chip-color: #0f172a;
+      border-color: var(--color-border);
+    }
+    &.notifications__filter-chip--travel {
+      --chip-bg: #002eff;
+      --chip-hover: #0026d9;
+      --chip-color: #ffffff;
+    }
+    &.notifications__filter-chip--account {
+      --chip-bg: #15803d;
+      --chip-hover: #166534;
+      --chip-color: #ffffff;
+    }
+    &.notifications__filter-chip--incident {
+      --chip-bg: #ea580c;
+      --chip-hover: #c2410c;
+      --chip-color: #ffffff;
+    }
+    &.notifications__filter-chip--all {
+      --chip-bg: #64748b;
+      --chip-hover: #475569;
+      --chip-color: #ffffff;
+    }
+
+    --background: var(--chip-bg) !important;
+    --background-hover: var(--chip-hover) !important;
+    --background-focused: var(--chip-hover) !important;
+    --background-activated: var(--chip-hover) !important;
+    --color: var(--chip-color) !important;
 
     ion-icon {
-      color: var(--color-primary) !important;
+      color: var(--chip-color) !important;
     }
   }
 }
 
-// Sin el fondo ni el relleno de ion-list; 8px entre avisos
+.notifications__chip-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: max-width var(--motion-duration-medium) cubic-bezier(0.4, 0, 0.2, 1),
+              opacity var(--motion-duration-fast) ease,
+              margin var(--motion-duration-medium) cubic-bezier(0.4, 0, 0.2, 1);
+
+  .notifications__filter-chip--selected & {
+    max-width: 100%;
+    opacity: 1;
+    margin-inline-start: 0.375rem;
+    pointer-events: auto;
+  }
+}
+
+.notifications__chip-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notifications__chip-count {
+  font-weight: var(--font-weight-bold);
+  margin-inline-start: 0.125rem;
+}
+
 .notifications__list {
   display: flex;
   flex-direction: column;
@@ -98,8 +174,6 @@
   background: transparent;
 }
 
-// Cada aviso, un ion-item (button): la franja de la izquierda con el color de
-// su tipo (sin leer) y, debajo, la línea fina
 .notification {
   --background: var(--color-surface);
   --background-hover: var(--color-surface-subtle);
@@ -122,7 +196,6 @@
   }
 }
 
-// El icono, el texto y la hora en una fila, arriba
 .notification__row {
   display: flex;
   flex: 1;
@@ -143,35 +216,67 @@
   color: var(--color-text-muted);
 
   ion-icon {
-    font-size: var(--icon-size-m);
+    font-size: var(--icon-size-base); // 20px
   }
 }
 
+// Aviso ya leído de cualquier categoría: borde gris suave y fondo neutro
+.notification--read {
+  border-inline-start-color: var(--color-border);
+  --background: var(--color-surface);
+  --background-hover: var(--color-surface-subtle);
+
+  .notification__read-icon {
+    color: var(--color-text-muted);
+  }
+}
+
+// Aviso sin leer: fondo en tono sutil y borde según la categoría real
 .notification--unread {
   --background: var(--color-primary-subtle);
+  --background-hover: color-mix(in srgb, var(--color-primary) 14%, var(--color-surface));
+  border-inline-start-color: var(--color-primary);
 
-  .notification__read-icon--unread {
-    color: var(--color-link);
-  }
   .notification__message {
     font-weight: var(--font-weight-semibold);
   }
-}
 
-.notification--read {
-  border-inline-start-color: var(--color-card-border);
-}
+  .notification__read-icon--unread {
+    color: var(--color-primary);
+  }
 
-.notification--unread.notification--travel {
-  border-inline-start-color: var(--color-primary);
-}
+  // Viajes: Azul eléctrico oficial de la app
+  &.notification--travel {
+    --background: var(--color-primary-subtle);
+    --background-hover: color-mix(in srgb, #002eff 14%, var(--color-surface));
+    border-inline-start-color: #002eff;
 
-.notification--unread.notification--account {
-  border-inline-start-color: var(--color-success);
-}
+    .notification__read-icon--unread {
+      color: #002eff;
+    }
+  }
 
-.notification--unread.notification--incident {
-  border-inline-start-color: var(--color-accent);
+  // Cuenta: Verde
+  &.notification--account {
+    --background: var(--color-success-subtle);
+    --background-hover: color-mix(in srgb, #15803d 14%, var(--color-surface));
+    border-inline-start-color: #15803d;
+
+    .notification__read-icon--unread {
+      color: #15803d;
+    }
+  }
+
+  // Incidencias: Naranja agradable con buen contraste
+  &.notification--incident {
+    --background: var(--color-warning-subtle);
+    --background-hover: color-mix(in srgb, #ea580c 14%, var(--color-surface));
+    border-inline-start-color: #ea580c;
+
+    .notification__read-icon--unread {
+      color: #ea580c;
+    }
+  }
 }
 
 .notification__body {
@@ -203,6 +308,7 @@
   color: var(--color-text-muted);
   font-size: 0.875rem;
 }
+
 .notification__time {
   flex: none;
   margin-inline-start: auto;
@@ -213,8 +319,11 @@
 .notifications__load-more {
   display: none;
   align-self: center;
-  min-height: var(--control-height-s);
+  height: 2rem;
+  min-height: 2rem;
+  --min-height: 2rem;
   margin: 0;
+  font-size: var(--font-size-label);
   --border-color: var(--color-primary);
   --border-radius: var(--radius-s);
   --color: var(--color-link);
@@ -237,6 +346,7 @@
 
 .notifications__page-range--mobile {
   display: none;
+  margin-inline-start: auto;
 }
 
 .notifications__page-controls {
@@ -272,32 +382,151 @@
   justify-content: center;
 }
 
-// Lista vacía, error o carga (app-empty-state, app-loading-state): de 240px,
-// porque la tarjeta incluye también los filtros
 .notifications__state {
-  --empty-state-min-height: 15rem; // 240px
+  --empty-state-min-height: 15rem;
   --loading-state-min-height: 15rem;
 }
 
-@media (max-width: 767.98px) {
-  .notifications__filters {
-    flex-wrap: nowrap;
-    max-width: 100%;
-    overflow-x: auto;
-    padding-block: var(--space-xs);
-    scroll-snap-type: x proximity;
+// Sidebar de escritorio
+.notifications__aside {
+  display: none;
+}
 
-    ion-chip {
-      flex: none;
-      scroll-snap-align: start;
+.notifications__sidebar-content {
+  padding-top: 0 !important;
+}
+
+.notifications__sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0;
+  background: transparent;
+}
+
+.notifications__sidebar-item {
+  --background: transparent;
+  --background-hover: var(--color-surface-subtle);
+  --color: var(--color-text);
+  --min-height: 2.75rem;
+  --padding-start: var(--space-s);
+  --padding-end: var(--space-s);
+  --inner-padding-end: 0;
+  margin: 0;
+  border-radius: var(--radius-s);
+  border: 1px solid transparent;
+  cursor: pointer;
+
+  ion-icon {
+    flex: none;
+    width: var(--icon-size-base);
+    font-size: var(--icon-size-base);
+    color: var(--color-text-muted);
+    margin-inline-end: var(--space-s);
+  }
+
+  ion-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  ion-badge {
+    --background: transparent;
+    --color: var(--color-text-muted);
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-label);
+    font-weight: var(--font-weight-medium);
+    padding: 0;
+    box-shadow: none;
+  }
+
+  &.notifications__sidebar-item--selected {
+    --item-bg: #f1f5f9;
+    --item-hover: #e2e8f0;
+    --item-color: #0f172a;
+
+    &.notifications__sidebar-item--unread {
+      --item-bg: #f1f5f9;
+      --item-hover: #e2e8f0;
+      --item-color: #0f172a;
+      border-color: var(--color-border);
+    }
+    &.notifications__sidebar-item--travel {
+      --item-bg: #002eff;
+      --item-hover: #0026d9;
+      --item-color: #ffffff;
+    }
+    &.notifications__sidebar-item--account {
+      --item-bg: #15803d;
+      --item-hover: #166534;
+      --item-color: #ffffff;
+    }
+    &.notifications__sidebar-item--incident {
+      --item-bg: #ea580c;
+      --item-hover: #c2410c;
+      --item-color: #ffffff;
+    }
+    &.notifications__sidebar-item--all {
+      --item-bg: #64748b;
+      --item-hover: #475569;
+      --item-color: #ffffff;
+    }
+
+    font-weight: var(--font-weight-semibold);
+    --background: var(--item-bg);
+    --background-hover: var(--item-hover);
+    --color: var(--item-color);
+
+    ion-icon {
+      color: var(--item-color);
+    }
+
+    ion-badge {
+      --background: var(--item-color);
+      --color: var(--item-bg);
+      background: var(--item-color);
+      color: var(--item-bg);
+      padding: 0.125rem 0.5rem;
+      border-radius: var(--radius-full);
+      font-weight: var(--font-weight-semibold);
     }
   }
+}
+
+@media (min-width: 768px) {
+  .notifications__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: var(--space-base);
+    align-items: start;
+  }
+
+  .notifications__toolbar {
+    display: none;
+  }
+
+  .notifications__aside {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 767.98px) {
   .notifications__pagination {
-    justify-content: flex-end;
-    padding-block: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: var(--space-s);
+    padding-bottom: 0;
   }
   .notifications__load-more {
     display: inline-flex;
+    height: 2rem;
+    min-height: 2rem;
+    --min-height: 2rem;
   }
   .notifications__page-range--desktop,
   .notifications__page-controls {

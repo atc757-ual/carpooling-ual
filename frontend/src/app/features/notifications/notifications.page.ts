@@ -4,13 +4,17 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { EmptyState } from '../../shared/components/ui/empty-state/empty-state';
 import { LoadingState } from '../../shared/components/ui/loading-state/loading-state';
 import {
+  IonBadge,
   IonButton,
   IonCard,
   IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
   IonChip,
   IonContent,
   IonIcon,
   IonItem,
+  IonLabel,
   IonList,
   IonSpinner,
   ModalController,
@@ -57,6 +61,20 @@ export interface NotificationItem {
 
 export type NotificationFilter = 'all' | 'unread' | 'read' | NotificationCategory;
 
+export interface FilterOption {
+  key: NotificationFilter;
+  icon: string;
+  labelKey: string;
+}
+
+export const NOTIFICATION_FILTERS: readonly FilterOption[] = [
+  { key: 'unread', icon: mailUnreadOutline, labelKey: 'notifications.unread' },
+  { key: 'travel', icon: carOutline, labelKey: 'notifications.categories.travel' },
+  { key: 'account', icon: personOutline, labelKey: 'notifications.categories.account' },
+  { key: 'incident', icon: alertCircleOutline, labelKey: 'notifications.categories.incident' },
+  { key: 'all', icon: mailUnreadOutline, labelKey: 'notifications.all' },
+];
+
 const CATEGORIES: NotificationCategory[] = ['travel', 'account', 'incident'];
 
 @Component({
@@ -66,18 +84,22 @@ const CATEGORIES: NotificationCategory[] = ['travel', 'account', 'incident'];
     EmptyState,
     LoadingState,
     TranslocoPipe,
+    IonBadge,
     IonButton,
     IonCard,
     IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
     IonChip,
     IonContent,
     IonIcon,
     IonItem,
+    IonLabel,
     IonList,
     IonSpinner,
   ],
   templateUrl: './notifications.page.html',
-  styleUrls: ['../tabs/tab-page.scss', './notifications.page.scss'],
+  styleUrls: ['./notifications.page.scss'],
 })
 export class NotificationsPage implements OnInit {
   private readonly notifications = inject(NotificationsService);
@@ -88,6 +110,7 @@ export class NotificationsPage implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly modalController = inject(ModalController);
 
+  readonly filterOptions = NOTIFICATION_FILTERS;
   readonly category = signal<NotificationCategory | null>(null);
   readonly activeFilter = signal<NotificationFilter>('all');
   readonly readState = signal<boolean | undefined>(undefined);

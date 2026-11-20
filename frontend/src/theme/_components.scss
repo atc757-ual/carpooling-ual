@@ -145,6 +145,14 @@ ion-button {
   font-weight: var(--font-weight-semibold);
   text-transform: none;
   letter-spacing: var(--letter-spacing-normal);
+
+  &[size='small'],
+  &.button-small {
+    min-height: 2rem;
+    --min-height: 2rem;
+    height: 2rem;
+    font-size: var(--font-size-label);
+  }
 }
 
 // «Datos de ejemplo» (Inicio y Buscar): que no se confunda con datos reales
