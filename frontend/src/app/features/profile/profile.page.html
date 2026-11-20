@@ -189,7 +189,7 @@
                   <div class="profile__pref-row">
                     <span class="profile__pref-label text-body">
                       <ion-icon [icon]="item.icon" aria-hidden="true" />
-                      {{ item.criterion }}
+                      {{ item.criterion | transloco }}
                     </span>
                     @if (item.value) {
                       <span class="profile__pref-badge">{{ item.value }}</span>
@@ -219,7 +219,7 @@
             <ion-card-content class="profile-card__content">
               @for (row of reviewRows(); track row.role) {
                 <div class="profile__review-row">
-                  <span class="text-body text-body--strong">{{ row.role }}</span>
+                  <span class="text-body text-body--strong">{{ row.role | transloco }}</span>
                   <span class="profile__review-score">
                     <ion-icon
                       class="profile__review-thumb"

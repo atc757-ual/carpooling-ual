@@ -88,6 +88,8 @@ export class NotificationsPage implements OnInit {
   readonly category = signal<NotificationCategory | null>(null);
   readonly activeFilter = signal<NotificationFilter>('all');
   readonly readState = signal<boolean | undefined>(undefined);
+  readonly showCategoryFilters = signal(false);
+  readonly isCategoryActive = computed(() => this.category() !== null);
   readonly offset = signal(0);
   readonly total = signal(0);
   readonly all = signal<NotificationItem[]>([]);
@@ -134,6 +136,10 @@ export class NotificationsPage implements OnInit {
       void this.loadPage(true);
     }
     this.hasEntered = true;
+  }
+
+  toggleCategoryFilters(): void {
+    this.showCategoryFilters.update((open) => !open);
   }
 
   async handleFilter(filter: NotificationFilter): Promise<void> {

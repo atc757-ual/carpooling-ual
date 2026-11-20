@@ -280,6 +280,8 @@
     "filterLegend": "Filter by category",
     "all": "All",
     "filterRead": "Read",
+    "moreFilters": "Other filters +",
+    "lessFilters": "Other filters −",
     "categories": {
       "travel": "Rides",
       "account": "Account",

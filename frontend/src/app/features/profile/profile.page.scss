@@ -204,7 +204,7 @@ fieldset.profile__bio-box,
   padding: var(--space-s);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-s);
-  background: var(--color-primary-subtle);
+  background: var(--color-surface);
 
   legend.profile__bio-title,
   .profile__bio-title {
@@ -214,7 +214,7 @@ fieldset.profile__bio-box,
     font-weight: var(--font-weight-bold);
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--color-primary);
+    color: var(--color-text-muted);
     background: var(--color-surface);
     border-radius: var(--radius-xs);
   }
@@ -252,6 +252,7 @@ fieldset.profile__bio-box,
 ion-list.profile__legal-list {
   padding: 0;
   background: transparent;
+  gap: var(--space-s);
 }
 
 // Cada fila (documento legal, contraseña, ayuda, eliminar cuenta), un ion-item
@@ -263,8 +264,8 @@ ion-list.profile__legal-list {
   --background-hover-opacity: 1;
   --border-radius: var(--radius-s);
   --padding-start: var(--space-s);
-  --padding-top: var(--space-xs);
-  --padding-bottom: var(--space-xs);
+  --padding-top: 0;
+  --padding-bottom: 0;
   --inner-padding-end: var(--space-s);
   --min-height: 2.75rem;
   --color: var(--color-text);

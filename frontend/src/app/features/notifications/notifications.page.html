@@ -44,6 +44,26 @@
                 >
                   {{ 'notifications.filterRead' | transloco }}
                 </ion-chip>
+                <ion-chip
+                  button="true"
+                  class="notifications__filter-toggle"
+                  [outline]="!showCategoryFilters() && !isCategoryActive()"
+                  [color]="showCategoryFilters() || isCategoryActive() ? 'primary' : undefined"
+                  [class.notifications__filter-chip--selected]="showCategoryFilters() || isCategoryActive()"
+                  [attr.aria-expanded]="showCategoryFilters() || isCategoryActive()"
+                  (click)="toggleCategoryFilters()"
+                >
+                  <span>{{ (showCategoryFilters() || isCategoryActive() ? 'notifications.lessFilters' : 'notifications.moreFilters') | transloco }}</span>
+                </ion-chip>
+              </fieldset>
+            </div>
+
+            @if (showCategoryFilters() || isCategoryActive()) {
+              <div
+                class="notifications__category-filters"
+                role="group"
+                [attr.aria-label]="'notifications.filterLegend' | transloco"
+              >
                 @for (option of categoryOptions; track option) {
                   <ion-chip
                     button="true"
@@ -56,8 +76,8 @@
                     <span>{{ 'notifications.categories.' + option | transloco }}</span>
                   </ion-chip>
                 }
-              </fieldset>
-            </div>
+              </div>
+            }
 
             @if (isLoading() && all().length === 0) {
               <app-loading-state

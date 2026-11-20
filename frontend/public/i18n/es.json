@@ -280,6 +280,8 @@
     "filterLegend": "Filtrar por categoría",
     "all": "Todas",
     "filterRead": "Leídas",
+    "moreFilters": "Otros filtros +",
+    "lessFilters": "Otros filtros −",
     "categories": {
       "travel": "Viajes",
       "account": "Cuenta",
