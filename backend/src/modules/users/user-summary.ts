@@ -55,6 +55,19 @@ export interface PublicUserProfile {
   driverRating: number | null;
 }
 
+// Lo que ven el uno del otro el conductor y cada pasajero aceptado de un
+// viaje (GET /api/trips/{id}/participants/{userId}): el nombre completo, el
+// correo y el «Sobre mí» (el teléfono no)
+export interface ParticipantProfile {
+  id: string;
+  name: string;
+  email: string;
+  avatarKey: string | null;
+  bio: string | null;
+  preferences: TravelPreferences;
+  ratings: UserRatingsSummary;
+}
+
 // Datos de la cuenta de un usuario (nunca el hash de la contraseña). Solo se
 // devuelven al propio usuario (registro, login, /me, su GET /api/users/{id})
 export interface UserSummary {

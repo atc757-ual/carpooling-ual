@@ -27,6 +27,7 @@ import { ProfileType } from './profile-type';
 import type { TravelPreferences } from './travel-preferences';
 import { FULL_NAME_SQL, fullName } from './user-name';
 import {
+  ParticipantProfile,
   PublicUserProfile,
   RoleRatingSummary,
   toRoleRatingSummary,
@@ -485,6 +486,25 @@ export class UsersService {
       where: { id: In(uniqueIds) },
     });
     return new Map(users.map((user) => [user.id, toPublicProfile(user)]));
+  }
+
+  // Lo que ve del otro el conductor o un pasajero aceptado de un viaje
+  // (quién puede verlo lo comprueba quien llama). UserNotFoundError si no
+  // existe o desactivó su cuenta
+  async getParticipantProfile(id: string): Promise<ParticipantProfile> {
+    const user = await this.findById(id);
+    if (user?.deactivatedAt !== null) {
+      throw new UserNotFoundError(id);
+    }
+    return {
+      id: user.id,
+      name: fullName(user),
+      email: user.email,
+      avatarKey: user.avatarKey ?? null,
+      bio: user.bio ?? null,
+      preferences: toTravelPreferences(user),
+      ratings: toUserRatingsSummary(user),
+    };
   }
 
   hasActiveAdmin(): Promise<boolean> {

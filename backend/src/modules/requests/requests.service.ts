@@ -561,6 +561,21 @@ export class RequestsService {
     return { items: await this.views.toViews(requests), total };
   }
 
+  // Si el pasajero tuvo plaza en el viaje: aceptada, ya bajado o cancelada
+  // después de aceptarse (también si se canceló el viaje). Una pendiente o
+  // rechazada no cuenta
+  hadSeat(tripId: string, passengerId: string): Promise<boolean> {
+    return this.requestsRepository
+      .createQueryBuilder('request')
+      .where('request.trip_id = :tripId', { tripId })
+      .andWhere('request.passenger_id = :passengerId', { passengerId })
+      .andWhere(
+        `(request.status IN (:...participant) OR (request.status = 'cancelled' AND request.answered_at IS NOT NULL))`,
+        { participant: [...PARTICIPANT_REQUEST_STATUSES] },
+      )
+      .getExists();
+  }
+
   // ¿Es pasajero aceptado del viaje? (p. ej. para ver la posición del
   // conductor durante el viaje, RF-12, o para dejar una reseña, RF-22)
   isAcceptedPassenger(

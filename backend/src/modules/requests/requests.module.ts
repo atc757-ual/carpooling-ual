@@ -20,7 +20,9 @@ import { RequestsService } from './requests.service';
 import { RequestLifecycleScheduler } from './request-lifecycle.scheduler';
 import { TripChangesListener } from './trip-changes.listener';
 import { TripEmailsListener } from './trip-emails.listener';
+import { TripParticipantsController } from './trip-participants.controller';
 import { TripParticipantsRegistration } from './trip-participants.registration';
+import { TripParticipantsService } from './trip-participants.service';
 
 // Solicitudes de plaza (RF-08 a RF-10). Depende de trips (plazas y estado del
 // viaje), de users (nombres, prioridad y matrícula) y de notifications (avisos
@@ -35,11 +37,16 @@ import { TripParticipantsRegistration } from './trip-participants.registration';
     NotificationsModule,
     MailModule,
   ],
-  controllers: [RequestsController, MyTripEntriesController],
+  controllers: [
+    RequestsController,
+    MyTripEntriesController,
+    TripParticipantsController,
+  ],
   providers: [
     RequestsService,
     RequestStatsService,
     MyTripEntriesService,
+    TripParticipantsService,
     RequestViewsService,
     RequestChangesRecorder,
     RequestOverlapService,
