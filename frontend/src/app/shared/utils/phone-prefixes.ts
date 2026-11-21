@@ -58,3 +58,22 @@ export const PHONE_PREFIXES: readonly string[] = PREFIX_COUNTRIES.map(([prefix])
 export function getPrefixCountry(prefix: string): string {
   return PREFIX_COUNTRIES.find(([code]) => code === prefix)?.[1] ?? '';
 }
+
+const PLACEHOLDERS_BY_PREFIX: Record<string, string> = {
+  '+34': '612 345 678',
+  '+1': '202 555 0123',
+  '+33': '6 12 34 56 78',
+  '+44': '7911 123456',
+  '+49': '151 23456789',
+  '+39': '312 345 6789',
+  '+351': '912 345 678',
+  '+212': '612 345 678',
+  '+52': '55 1234 5678',
+  '+54': '11 2345 6789',
+  '+57': '300 123 4567',
+};
+
+// Placeholder de ejemplo para el campo de teléfono según el prefijo seleccionado
+export function getPhonePlaceholder(prefix: string): string {
+  return PLACEHOLDERS_BY_PREFIX[prefix] ?? '612 345 678';
+}
