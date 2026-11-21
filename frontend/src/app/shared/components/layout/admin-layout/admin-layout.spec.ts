@@ -2,6 +2,7 @@ import { Component, signal, TemplateRef, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { NavController, provideIonicAngular } from '@ionic/angular';
+import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { AdminIncidentsService } from '../../../../core/services/admin/admin-incidents.service';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { AppContextService } from '../../../../core/services/ui/app-context.service';
@@ -41,6 +42,9 @@ describe('AdminLayout', () => {
     TestBed.configureTestingModule({
       imports: [AdminLayout],
       providers: [
+        // La confirmación de cerrar sesión usa translate(): sin Transloco, el
+        // test solo pasaba si otro spec lo había creado antes
+        provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([
           {
