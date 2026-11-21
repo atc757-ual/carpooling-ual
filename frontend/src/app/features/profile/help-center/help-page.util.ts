@@ -19,6 +19,7 @@ export interface HeadingVisibility {
 // pantalla, con su viewChild
 export function showHeadingWhileVisible(template: Signal<TemplateRef<unknown>>): HeadingVisibility {
   const headingContent = inject(HeadingContentService);
+  const router = inject(Router);
   const isVisible = signal(true);
   effect(() => {
     const current = template();
@@ -31,15 +32,20 @@ export function showHeadingWhileVisible(template: Signal<TemplateRef<unknown>>):
   const destroyRef = inject(DestroyRef);
   destroyRef.onDestroy(() => headingContent.clear(template()));
   // Las pestañas limpian la franja en cada navegación (también al abrir la
-  // app directamente en esta pantalla, después de crearla): se vuelve a poner.
-  // Las pestañas se suscribieron antes, así que limpian primero
-  inject(Router)
-    .events.pipe(
-      filter((event) => event instanceof NavigationEnd),
+  // app directamente en esta pantalla, después de crearla): se vuelve a poner
+  // solo mientras la ruta siga perteneciendo a la ayuda.
+  router.events
+    .pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
       takeUntilDestroyed(destroyRef),
     )
-    .subscribe(() => {
-      if (isVisible()) {
+    .subscribe((event) => {
+      const url = event.urlAfterRedirects || event.url;
+      const isHelpRoute = url.startsWith('/tabs/profile/help');
+      if (!isHelpRoute) {
+        isVisible.set(false);
+        headingContent.clear(template());
+      } else if (isVisible()) {
         headingContent.show(template());
       }
     });
@@ -48,7 +54,10 @@ export function showHeadingWhileVisible(template: Signal<TemplateRef<unknown>>):
       isVisible.set(true);
       headingContent.show(template());
     },
-    leave: () => isVisible.set(false),
+    leave: () => {
+      isVisible.set(false);
+      headingContent.clear(template());
+    },
   };
 }
 

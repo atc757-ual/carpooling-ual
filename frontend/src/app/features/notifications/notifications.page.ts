@@ -156,7 +156,20 @@ export class NotificationsPage implements OnInit {
   protected readonly categoryOf = notificationCategory;
 
   ngOnInit(): void {
-    void this.loadPage(true);
+    void this.initNotifications();
+  }
+
+  private async initNotifications(): Promise<void> {
+    try {
+      await this.notifications.refreshUnread?.();
+    } catch {
+      // Ignoramos error para permitir cargar la página
+    }
+    if (this.unreadCount() > 0) {
+      this.activeFilter.set('unread');
+      this.readState.set(false);
+    }
+    await this.loadPage(true);
   }
 
   // Ionic guarda la pantalla al salir: al volver (p. ej. desde la campana
@@ -243,13 +256,20 @@ export class NotificationsPage implements OnInit {
     try {
       if (!notification.isRead) {
         await this.notifications.markRead(notification.id);
-        this.all.update((items) =>
-          items.map((item) =>
-            item.notification.id === notification.id
-              ? { ...item, notification: { ...item.notification, isRead: true } }
-              : item,
-          ),
-        );
+        if (this.readState() === false) {
+          this.all.update((items) =>
+            items.filter((item) => item.notification.id !== notification.id),
+          );
+          this.total.update((total) => Math.max(total - 1, 0));
+        } else {
+          this.all.update((items) =>
+            items.map((item) =>
+              item.notification.id === notification.id
+                ? { ...item, notification: { ...item.notification, isRead: true } }
+                : item,
+            ),
+          );
+        }
       }
       const document = legalDocumentOf(notification.type);
       if (document !== null) {
