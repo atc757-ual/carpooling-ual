@@ -44,6 +44,15 @@ describe('NotificationsService', () => {
     expect(await list).toEqual({ items: [], total: 12 });
   });
 
+  it('filters by read state when requested', async () => {
+    const list = notifications.list({ isRead: false });
+    http
+      .expectOne('/api/users/me/notifications?offset=0&limit=10&isRead=false')
+      .flush([], { headers: { 'X-Total-Count': '0' } });
+
+    expect(await list).toEqual({ items: [], total: 0 });
+  });
+
   it('counts the unread ones and keeps the count if it fails', async () => {
     await countUnread('3');
     expect(notifications.unreadCount()).toBe(3);

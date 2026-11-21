@@ -90,6 +90,7 @@ export class MessagesPage implements OnInit {
   readonly onlyUnread = signal(false);
   readonly all = signal<Conversation[]>([]);
   readonly total = signal(0);
+  readonly allTotal = signal(0);
   readonly offset = signal(0);
   readonly isLoading = signal(true);
   readonly isLoadingMore = signal(false);
@@ -244,6 +245,9 @@ export class MessagesPage implements OnInit {
       if (version !== this.requestVersion) return;
       this.all.update((items) => (append ? [...items, ...page.items] : page.items));
       this.total.set(page.total);
+      if (!this.onlyUnread()) {
+        this.allTotal.set(page.total);
+      }
       this.offset.set(offset + page.items.length);
     } catch (error) {
       rethrowUnlessApiError(error);

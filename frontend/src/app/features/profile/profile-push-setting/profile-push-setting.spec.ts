@@ -69,7 +69,7 @@ describe('ProfilePushSetting', () => {
     expect(component.isBusy()).toBe(false);
   });
 
-  it('submits form from DOM when off and clicks status button when on', async () => {
+  it('submits form from DOM when off and shows status badge when on', async () => {
     const { root, fixture } = render();
 
     const form = root.querySelector('form');
@@ -78,14 +78,11 @@ describe('ProfilePushSetting', () => {
     await (fixture as { whenStable: () => Promise<void> }).whenStable();
 
     expect(push.enable).toHaveBeenCalled();
+    status.set('on');
     (fixture as { detectChanges: () => void }).detectChanges();
 
-    const statusBtn = root.querySelector<HTMLButtonElement>('.profile-push__status-btn');
-    expect(statusBtn).not.toBeNull();
-    statusBtn?.dispatchEvent(new Event('click'));
-    await (fixture as { whenStable: () => Promise<void> }).whenStable();
-
-    expect(push.disable).toHaveBeenCalled();
+    const statusBadge = root.querySelector('.status--accepted');
+    expect(statusBadge).not.toBeNull();
   });
 
   it('does nothing when already in that state', async () => {

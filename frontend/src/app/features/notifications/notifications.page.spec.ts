@@ -145,7 +145,11 @@ describe('NotificationsPage', () => {
     await vi.waitFor(() => expect(page.all()).toHaveLength(2));
     fixture.detectChanges();
 
-    expect(service['list']).toHaveBeenLastCalledWith({ offset: 0, category: undefined });
+    expect(service['list']).toHaveBeenLastCalledWith({
+      offset: 0,
+      category: undefined,
+      isRead: false,
+    });
     expect(root.querySelectorAll('.notification')).toHaveLength(2);
   });
 

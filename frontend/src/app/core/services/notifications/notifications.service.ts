@@ -24,13 +24,14 @@ export class NotificationsService {
 
   // Mis avisos, los más recientes primero
   list(
-    options: { offset?: number; category?: NotificationCategory } = {},
+    options: { offset?: number; category?: NotificationCategory; isRead?: boolean } = {},
   ): Promise<{ items: AppNotification[]; total: number }> {
-    const params: Record<string, string | number> = {
+    const params: Record<string, string | number | boolean> = {
       offset: options.offset ?? 0,
       limit: NOTIFICATIONS_PAGE_SIZE,
     };
     if (options.category) params['category'] = options.category;
+    if (options.isRead !== undefined) params['isRead'] = options.isRead;
     return this.call(
       this.http.get<AppNotification[]>(`${this.apiUrl}/users/me/notifications`, {
         params,

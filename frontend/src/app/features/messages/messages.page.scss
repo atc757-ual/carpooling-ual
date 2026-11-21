@@ -117,10 +117,19 @@
   justify-content: center;
 }
 
+.messages__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
 .messages__filters {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-start;
   gap: var(--space-xs);
   min-width: 0;
   margin: 0;
@@ -130,6 +139,7 @@
   ion-chip {
     display: inline-flex;
     align-items: center;
+    vertical-align: middle;
     min-height: var(--box-size-m);
     margin: 0;
     border-radius: var(--radius-full);
@@ -152,6 +162,19 @@
   }
 }
 
+.messages__chip-label,
+.messages__chip-count {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.messages__chip-count {
+  margin-inline-start: var(--space-xxs);
+  font-size: var(--font-size-caption);
+  opacity: 0.85;
+}
+
 // Lista vacía, error o carga (app-empty-state, app-loading-state): de 208px
 .messages__state {
   --empty-state-min-height: 13rem; // 208px
@@ -160,7 +183,10 @@
 
 .messages__list {
   padding: 0;
-  background: transparent;
+  background: var(--color-surface);
+  border: var(--border-width-s) solid var(--color-border);
+  border-radius: var(--radius-s);
+  overflow: hidden;
 }
 
 // Cada conversación, un ion-item (button): fondo gris al pasar, azul claro la
