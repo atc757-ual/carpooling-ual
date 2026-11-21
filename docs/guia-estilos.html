@@ -812,6 +812,50 @@
       <button class="btn btn--primary btn--block" type="button" style="margin-top:var(--space-base)">Terminar viaje</button>
     </div>
 
+    <h3>Hoja inferior de «En curso» (móvil)</h3>
+    <p class="note">En el móvil, el mapa ocupa la pantalla de borde a borde y el detalle va en una hoja que se arrastra desde abajo (<code>app-live-trip-sheet</code>, un <code>ion-modal</code> con paradas). La usan el conductor, el pasajero y la página pública del viaje compartido. En escritorio no hay hoja: el detalle va en la columna de 4.</p>
+    <div class="demo" style="max-width:20rem">
+      <div style="position:relative;height:16rem;border-radius:var(--radius-base);background:var(--color-surface-subtle);overflow:hidden">
+        <span class="text-meta" style="position:absolute;top:var(--space-s);left:var(--space-s)">Mapa</span>
+        <div style="position:absolute;inset:auto 0 0;height:45%;padding:var(--space-s) var(--space-base);border-radius:var(--radius-base) var(--radius-base) 0 0;background:var(--color-surface);box-shadow:var(--shadow-l)">
+          <div aria-hidden="true" style="width:2.25rem;height:0.25rem;margin:0 auto var(--space-s);border-radius:var(--radius-full);background:var(--color-border-strong)"></div>
+          <span class="text-label text-label--strong">Rumbo al campus</span>
+          <span class="text-meta" style="display:block">En destino en 10 min</span>
+        </div>
+      </div>
+    </div>
+    <ul class="note">
+      <li><b>Paradas:</b> 20 %, 45 %, 68 % y 92 % del alto de la pantalla (crece por tramos parecidos, sin saltar de la mitad a casi todo). Se abre a la mitad (45 %). La de dos tercios solo existe si la de arriba queda bastante más alta.</li>
+      <li><b>La parada de arriba sigue al contenido:</b> nunca pasa del 92 % y, si el contenido cabe en menos, se queda a su altura; si el contenido cambia de alto con la hoja arriba, la hoja sube o baja con él.</li>
+      <li><b>Asa:</b> la de Ionic, que al tocarla pasa a la siguiente parada (<code>handleBehavior="cycle"</code>). La hoja no se cierra ni con el fondo ni arrastrándola hasta abajo: solo se va al salir de la pantalla.</li>
+      <li><b>Ver más:</b> si el contenido sigue por debajo de lo que se ve, un degradado y una flecha gris hacia abajo (con <code>aria-label</code>) que sube la hoja a la siguiente parada. Mientras se toca la hoja la flecha se oculta, y vuelve cuando la hoja ha llegado a su parada.</li>
+      <li><b>El mapa encuadra lo que queda visible:</b> lo que tapa la hoja en cada parada se descuenta al centrar el mapa.</li>
+      <li><b>Confirmar en la hoja:</b> «He llegado», «Ha bajado» y «¿Terminar el viaje?» no abren una ventana: la pregunta ocupa el sitio de las tarjetas dentro de la hoja.</li>
+      <li>Sombra hacia arriba con <code>--shadow-sheet</code> (más intensa en modo oscuro).</li>
+    </ul>
+
+    <h3>Carrusel de recogidas (conductor, «En curso»)</h3>
+    <p class="note">En «Recogidas», un pasajero por tarjeta, en orden de recogida (<code>.pickup-carousel</code>, una <code>section</code> con <code>aria-roledescription</code> «carrusel» y cada tarjeta con el de «pasajero» y el nombre). Solo se valida al que toca: el primero que aún no ha subido.</p>
+    <div class="demo" style="max-width:20rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-xs)">
+        <span class="text-label text-label--strong">Recogidas</span>
+        <span aria-hidden="true" style="display:inline-flex;gap:var(--space-xs)"><span style="display:inline-grid;place-items:center;width:2rem;height:2rem;border:var(--border-width) solid var(--color-border);border-radius:var(--radius-s);color:var(--color-link)">‹</span><span style="display:inline-grid;place-items:center;width:2rem;height:2rem;border:var(--border-width) solid var(--color-border);border-radius:var(--radius-s);color:var(--color-link)">›</span></span>
+      </div>
+      <div style="padding:var(--space-s);border:var(--border-width) solid var(--color-primary);border-radius:var(--radius-s);background:var(--color-primary-subtle)">
+        <span class="text-label text-label--strong">Carlos</span>
+        <span class="text-meta" style="display:block">Recoger a las 09:12 · Av. del Mediterráneo</span>
+      </div>
+      <div aria-hidden="true" style="display:flex;justify-content:center;gap:var(--space-xs);margin-top:var(--space-s)">
+        <span style="width:0.5rem;height:0.5rem;border-radius:var(--radius-full);background:var(--color-primary)"></span>
+        <span style="width:0.5rem;height:0.5rem;border-radius:var(--radius-full);background:var(--color-border-strong)"></span>
+      </div>
+    </div>
+    <ul class="note">
+      <li><b>Desplazamiento:</b> una tarjeta a todo el ancho cada vez, encajando al soltar (<code>scroll-snap</code>), sin barra de desplazamiento. En escritorio también se arrastra con el ratón (directiva <code>appDragScroll</code>).</li>
+      <li><b>Dónde estás:</b> en el móvil, los puntos debajo (el actual, en azul). En escritorio, en su lugar, las flechas de anterior y siguiente (32&nbsp;px) arriba a la derecha del título «Recogidas»; en tabletas van sobre el carrusel, en la línea del nombre. Con un solo pasajero no hay ni puntos ni flechas.</li>
+      <li><b>Cada tarjeta:</b> 8&nbsp;px de relleno; en azul claro (<code>--color-primary-subtle</code>) quien va en el coche y en verde claro (<code>--color-success-subtle</code>) quien ya se bajó. Las acciones son botones de icono (<code>.icon-btn--reveal</code>): «Enviar mensaje», «Llamar a…» y «No se presentó».</li>
+    </ul>
+
     <h3 id="administracion">Administración</h3>
     <p class="note">Panel de escritorio con la cabecera índigo. Las cifras son el protagonista (Barlow 600); las tarjetas solo agrupan bloques. Los datos de ejemplo se marcan como tales.</p>
     <div class="kpis">
