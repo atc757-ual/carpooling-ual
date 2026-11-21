@@ -117,4 +117,71 @@ describe('Digital twin API (e2e)', () => {
     expect(body.vehicles.scheduled).toBeGreaterThanOrEqual(1);
     expect(Number.isInteger(body.lag.samples)).toBe(true);
   });
+
+  it('shows the twin of a trip with its planned route (RF-13)', async () => {
+    const sync = app.get(DigitalTwinSyncService);
+    const routeTripId = randomUUID();
+    const origin = { type: 'Point', coordinates: [-2.6, 36.75] };
+    const destination = { type: 'Point', coordinates: [-2.4048, 36.8295] };
+    try {
+      await dataSource.transaction((manager) =>
+        app.get(EventsService).record(manager, {
+          type: 'trip.published',
+          sourceEntityId: routeTripId,
+          payload: {
+            driverId: randomUUID(),
+            vehicleId,
+            status: 'published',
+            offeredSeats: 3,
+            availableSeats: 3,
+            origin,
+            destination,
+            stops: [],
+          },
+        }),
+      );
+      for (
+        let tries = 0;
+        !sync.twin.trips.has(routeTripId) && tries < 40;
+        tries++
+      ) {
+        await delay(POLL_INTERVAL_MS);
+      }
+      const accessToken = await token('eva', true);
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/admin/digital-twin/trips/${routeTripId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+      expect(response.body).toMatchObject({
+        '@type': 'TripTwin',
+        id: routeTripId,
+        href: `/api/admin/digital-twin/trips/${routeTripId}`,
+        status: 'published',
+        route: {
+          origin,
+          destination,
+          stops: [],
+          pickups: [],
+          track: null,
+          trackPoints: 0,
+          travelledKm: 0,
+        },
+      });
+
+      const missing = await request(app.getHttpServer())
+        .get(`/api/admin/digital-twin/trips/${randomUUID()}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(404);
+      expect(missing.body).toMatchObject({ code: 'TRIP_TWIN_NOT_FOUND' });
+      await request(app.getHttpServer())
+        .get('/api/admin/digital-twin/trips/not-a-uuid')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(400);
+    } finally {
+      await dataSource.query('DELETE FROM events WHERE source_entity_id = $1', [
+        routeTripId,
+      ]);
+    }
+  });
 });

@@ -12763,6 +12763,93 @@
         ]
       }
     },
+    "/api/admin/digital-twin/trips/{id}": {
+      "get": {
+        "description": "Status, seats and passengers on board of the trip, and its route as part of its state (RF-13): the planned one (origin, stops, pickups of the accepted passengers and destination) and, while it is in progress, the positions of the driver with the km travelled. Once the trip is closed, the origin, the pickup points and the track are forgotten.",
+        "operationId": "DigitalTwinController_getTrip",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripTwinResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_TWIN_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the twin of a trip with its route",
+        "tags": [
+          "digital twin"
+        ]
+      }
+    },
     "/api/admin/simulations/scenarios": {
       "get": {
         "description": "RF-16: users, adoption, modal split, time window and other parameters of each scenario (S0-S5).",
@@ -20827,6 +20914,236 @@
           "lastEventAt",
           "syncedAt",
           "lag"
+        ]
+      },
+      "RouteStopTwinResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order": {
+            "type": "number",
+            "example": 1,
+            "description": "Order of the stop in the route"
+          },
+          "name": {
+            "type": "string",
+            "example": "Rotonda de Aguadulce",
+            "nullable": true
+          },
+          "point": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "etaOffsetMin": {
+            "type": "number",
+            "example": 12,
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "order",
+          "name",
+          "point",
+          "etaOffsetMin"
+        ]
+      },
+      "RoutePickupTwinResource": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "point": {
+            "nullable": true,
+            "description": "Null once the trip is closed (data minimisation)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "stopId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "pickupAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isBoarded": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "requestId",
+          "point",
+          "stopId",
+          "pickupAt",
+          "isBoarded"
+        ]
+      },
+      "TripRouteTwinResource": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "nullable": true,
+            "description": "Null once the trip is closed (data minimisation)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "destination": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "stops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RouteStopTwinResource"
+            }
+          },
+          "pickups": {
+            "description": "Accepted passengers by pickup time",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutePickupTwinResource"
+            }
+          },
+          "track": {
+            "nullable": true,
+            "description": "Positions of the driver while the trip is in progress (at least two; the last 720). Null once the trip is closed",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoLineStringResource"
+              }
+            ]
+          },
+          "trackPoints": {
+            "type": "number",
+            "example": 42,
+            "description": "Positions received in the trip"
+          },
+          "travelledKm": {
+            "type": "number",
+            "example": 12.4,
+            "description": "Km travelled, in a straight line between positions"
+          }
+        },
+        "required": [
+          "origin",
+          "destination",
+          "stops",
+          "pickups",
+          "track",
+          "trackPoints",
+          "travelledKm"
+        ]
+      },
+      "TripTwinResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "enum": [
+              "TripTwin"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/admin/digital-twin/trips/3f1c…"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "published",
+              "confirmed",
+              "in_progress",
+              "finished",
+              "cancelled",
+              "expired"
+            ],
+            "nullable": true
+          },
+          "departureAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "offeredSeats": {
+            "type": "number",
+            "example": 3
+          },
+          "availableSeats": {
+            "type": "number",
+            "example": 1
+          },
+          "passengersOnBoard": {
+            "type": "number",
+            "example": 2
+          },
+          "position": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoPointDto"
+              }
+            ]
+          },
+          "positionAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "route": {
+            "$ref": "#/components/schemas/TripRouteTwinResource"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "@type",
+          "id",
+          "href",
+          "status",
+          "departureAt",
+          "offeredSeats",
+          "availableSeats",
+          "passengersOnBoard",
+          "position",
+          "positionAt",
+          "route",
+          "updatedAt"
         ]
       },
       "ScenarioResource": {
