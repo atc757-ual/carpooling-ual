@@ -166,7 +166,7 @@
 }
 
 <!-- Los temas: sus nombres, su icono y su orden (al cambiarlos, se recarga
-     todo para que las preguntas lleven ya el nombre nuevo) -->
+     el editor entero para que las preguntas lleven ya el nombre nuevo) -->
 @if (topics().length > 0) {
   <app-faq-topics-card [topics]="topics()" (changed)="handleRetry()" />
 }
