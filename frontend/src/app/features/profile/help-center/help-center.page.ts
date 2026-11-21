@@ -100,16 +100,11 @@ export class HelpCenterPage {
       ),
     ),
   );
-  // Las del desplegable, con el nombre de su tema
+  // Las del desplegable: solo la pregunta, sin su tema
   readonly searchItems = computed(() => {
-    const names = new Map(this.topicList().map((topic) => [topic.key, topic.name]));
     return (this.results.hasValue() ? this.results.value() : [])
       .slice(0, MAX_SEARCH_ITEMS)
-      .map((faq) => ({
-        id: faq.id,
-        question: faq.question,
-        topicName: names.get(faq.topic) ?? '',
-      }));
+      .map((faq) => ({ id: faq.id, question: faq.question }));
   });
   readonly isSearchLoading = computed(() => this.results.isLoading() && !this.results.hasValue());
   readonly isLoading = computed(
@@ -129,11 +124,11 @@ export class HelpCenterPage {
     this.heading.enter();
   }
 
-  // Al ir a una pregunta, el buscador se vacía para la vuelta
+  // Al ir a una pregunta, el desplegable se cierra pero lo buscado se queda:
+  // a la vuelta, tocar el buscador vuelve a mostrar los resultados
   ionViewWillLeave(): void {
     this.heading.leave();
     this.handleCloseSearch();
-    this.search.set('');
   }
 
   handleSearch(value: string | null | undefined): void {

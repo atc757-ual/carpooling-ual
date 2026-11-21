@@ -454,7 +454,7 @@
       "hashHidden": "Code confirming registration:",
       "devicePermission": "Location on this device",
       "devicePromptDesc": "Browser or device permission to see your location when you use it.",
-      "deviceGrantedDesc": "We only use it if «Use my location» is on in Privacy or while you drive a trip in progress. To remove it, go to your browser or device settings.",
+      "deviceGrantedDesc": "Only with «Use my location» on, or while driving a trip.",
       "deviceDeniedDesc": "Enable it in your browser or device settings.",
       "authorized": "Authorized",
       "blocked": "Blocked",

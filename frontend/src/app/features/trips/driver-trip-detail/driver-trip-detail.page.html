@@ -9,7 +9,10 @@
         @if (isAutoFinished()) {
           <div class="notice notice--info driver-detail__auto-notice" role="alert">
             <ion-icon [icon]="infoIcon" aria-hidden="true" />
-            <span>{{ 'screens.driverTripActions.esteViajeYaTermino' | transloco }} {{ 'myTrips.cerradoAutomaticamenteHabiaPasado' | transloco }}</span>
+            <span
+              >{{ 'screens.driverTripActions.esteViajeYaTermino' | transloco }}
+              {{ 'myTrips.cerradoAutomaticamenteHabiaPasado' | transloco }}</span
+            >
           </div>
         }
         <app-driver-trip-route [trip]="trip" />

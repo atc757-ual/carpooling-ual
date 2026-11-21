@@ -37,7 +37,6 @@ import {
   callOutline,
   ellipseOutline,
   ellipsisVertical,
-  flagOutline,
   locationOutline,
   lockClosedOutline,
   send,
@@ -193,7 +192,7 @@ export class ConversationPage {
   protected readonly quickReplyText = quickReplyText;
   protected readonly maxLength = MAX_MESSAGE_LENGTH;
   protected readonly sendIcon = send;
-  protected readonly reportIcon = flagOutline;
+  protected readonly reportIcon = alertCircleOutline;
   protected readonly optionsIcon = ellipsisVertical;
   protected readonly optionsLabel = translate('screens.conversation.masOpciones');
   protected readonly callIcon = callOutline;

@@ -87,12 +87,12 @@
               } @else {
                 <!-- ion-list (role="list"): cada conversación, un ion-item que la abre -->
                 <ion-list class="messages__list">
-                  @for (conversation of all(); track conversation.id; let isLast = $last) {
+                  @for (conversation of all(); track conversation.id) {
                     <ion-item
                       class="conversation"
                       [button]="true"
                       [detail]="false"
-                      [lines]="isLast ? 'none' : 'full'"
+                      lines="none"
                       [class.conversation--unread]="conversation.unreadCount > 0"
                       [class.conversation--selected]="isSelected(conversation)"
                       (click)="handleSelectConversation($event, conversation)"

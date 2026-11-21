@@ -357,6 +357,15 @@ describe('DriverTripActions', () => {
     expect(root.querySelector('.notice--warning')).toBeNull();
   });
 
+  it('says a finished trip ended, unless the system closed it (the detail explains that)', async () => {
+    const finished = await render({ ...TRIP, status: 'finished', finishedBy: 'driver' });
+    expect(finished.textContent).toContain('Este viaje ya terminó.');
+
+    TestBed.resetTestingModule();
+    const closed = await render({ ...TRIP, status: 'finished', finishedBy: 'system' });
+    expect(closed.textContent).not.toContain('Este viaje ya terminó.');
+  });
+
   it('warns about a late cancellation only with passengers and under 20 minutes', async () => {
     const root = await render({
       ...TRIP,

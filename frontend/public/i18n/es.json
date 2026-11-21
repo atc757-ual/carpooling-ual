@@ -454,7 +454,7 @@
       "hashHidden": "Código que acredita el registro:",
       "devicePermission": "Ubicación en este dispositivo",
       "devicePromptDesc": "Permiso del navegador o del móvil para ver tu ubicación cuando la uses.",
-      "deviceGrantedDesc": "Solo lo usamos si tienes activado «Usar mi ubicación» en Privacidad o si conduces un viaje en curso. Para quitarlo, ve a los ajustes del navegador o del móvil.",
+      "deviceGrantedDesc": "Solo con «Usar mi ubicación» activado o al conducir un viaje.",
       "deviceDeniedDesc": "Actívalo en los ajustes del navegador o del móvil.",
       "authorized": "Autorizado",
       "blocked": "Bloqueado",

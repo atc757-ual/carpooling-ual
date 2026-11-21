@@ -21,6 +21,7 @@ import {
 } from '@ionic/angular';
 import {
   alertCircleOutline,
+  archiveOutline,
   carOutline,
   chevronBackOutline,
   chevronForwardOutline,
@@ -68,11 +69,11 @@ export interface FilterOption {
 }
 
 export const NOTIFICATION_FILTERS: readonly FilterOption[] = [
+  { key: 'all', icon: archiveOutline, labelKey: 'notifications.all' },
   { key: 'unread', icon: mailUnreadOutline, labelKey: 'notifications.unread' },
   { key: 'travel', icon: carOutline, labelKey: 'notifications.categories.travel' },
   { key: 'account', icon: personOutline, labelKey: 'notifications.categories.account' },
   { key: 'incident', icon: alertCircleOutline, labelKey: 'notifications.categories.incident' },
-  { key: 'all', icon: mailUnreadOutline, labelKey: 'notifications.all' },
 ];
 
 const CATEGORIES: NotificationCategory[] = ['travel', 'account', 'incident'];
@@ -155,21 +156,10 @@ export class NotificationsPage implements OnInit {
   protected readonly closeIcon = closeCircleOutline;
   protected readonly categoryOf = notificationCategory;
 
+  // Siempre se entra en «Todas»: los no leídos ya destacan (fondo y borde
+  // azules) y van arriba, y no desaparecen de la lista al abrirlos
   ngOnInit(): void {
-    void this.initNotifications();
-  }
-
-  private async initNotifications(): Promise<void> {
-    try {
-      await this.notifications.refreshUnread?.();
-    } catch {
-      // Ignoramos error para permitir cargar la página
-    }
-    if (this.unreadCount() > 0) {
-      this.activeFilter.set('unread');
-      this.readState.set(false);
-    }
-    await this.loadPage(true);
+    void this.loadPage(true);
   }
 
   // Ionic guarda la pantalla al salir: al volver (p. ej. desde la campana

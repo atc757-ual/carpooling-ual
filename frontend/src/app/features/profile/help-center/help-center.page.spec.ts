@@ -111,8 +111,8 @@ describe('HelpCenterPage', () => {
     expect(list).toHaveBeenLastCalledWith({ lang: 'es', q: 'plaza' });
     expect(page.isSearchOpen()).toBe(true);
     expect(page.searchItems()).toEqual([
-      { id: 'margen', question: '¿margen?', topicName: 'Buscar y pedir plaza' },
-      { id: 'datos', question: '¿datos?', topicName: 'Privacidad y datos' },
+      { id: 'margen', question: '¿margen?' },
+      { id: 'datos', question: '¿datos?' },
     ]);
 
     page.handleCloseSearch();
@@ -134,7 +134,8 @@ describe('HelpCenterPage', () => {
     const items = heading.querySelectorAll('.help-search__item');
     expect(items).toHaveLength(2);
     expect(items[0].getAttribute('href')).toBe('/tabs/profile/help/margen');
-    expect(items[0].textContent).toContain('Buscar y pedir plaza');
+    // Solo la pregunta, sin el nombre de su tema
+    expect(items[0].textContent?.trim()).toBe('¿margen?');
 
     heading.querySelector<HTMLElement>('.help-search__backdrop')?.click();
     host.detectChanges();
@@ -155,14 +156,14 @@ describe('HelpCenterPage', () => {
     ).not.toBeNull();
   });
 
-  it('empties the search when it leaves for a question', async () => {
+  it('keeps the search but closes its results when it leaves for a question', async () => {
     const fixture = await render();
     const page = fixture.componentInstance;
     page.handleSearch('plaza');
 
     page.ionViewWillLeave();
 
-    expect(page.search()).toBe('');
+    expect(page.search()).toBe('plaza');
     expect(page.isSearchOpen()).toBe(false);
   });
 

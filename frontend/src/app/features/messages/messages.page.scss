@@ -184,23 +184,28 @@
 .messages__list {
   padding: 0;
   background: var(--color-surface);
-  border: var(--border-width-s) solid var(--color-border);
-  border-radius: var(--radius-s);
-  overflow: hidden;
 }
 
-// Cada conversación, un ion-item (button): fondo gris al pasar, azul claro la
-// abierta (escritorio), y la línea fina entre filas
+// Cada conversación, un ion-item (button), como los avisos: sin esquinas, el
+// borde izquierdo de 4px (gris; azul si tiene mensajes sin leer o está
+// abierta) y una línea entre filas (la de Ionic se quita con lines="none")
 .conversation {
   --background: transparent;
   --background-hover: var(--color-surface-subtle);
   --background-hover-opacity: 1;
-  --border-color: var(--color-border-subtle);
-  --padding-start: var(--space-base);
-  --padding-top: var(--space-base);
-  --padding-bottom: var(--space-base);
-  --inner-padding-end: var(--space-base);
+  --padding-start: var(--space-s);
+  --padding-top: var(--space-s);
+  --padding-bottom: var(--space-s);
+  --inner-padding-end: var(--space-s);
   --color: var(--color-text);
+
+  border-bottom: var(--border-width-s) solid var(--color-border);
+  border-inline-start: 0.25rem solid var(--color-border); // 4px, como los avisos
+  transition: border-color var(--motion-duration-fast) var(--motion-easing);
+
+  &:last-child {
+    border-bottom: 0;
+  }
 
   &.ion-focused {
     outline: var(--focus-ring);
@@ -210,6 +215,11 @@
 
 .conversation--selected {
   --background: var(--color-primary-subtle);
+}
+
+.conversation--unread,
+.conversation--selected {
+  border-inline-start-color: var(--color-primary);
 }
 
 .conversation__body {

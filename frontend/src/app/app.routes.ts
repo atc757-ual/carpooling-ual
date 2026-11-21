@@ -289,8 +289,8 @@ export const routes: Routes = [
         },
       },
       {
-        // Ayuda y soporte: desde Mi perfil y desde «¿Tienes más dudas?» de las
-        // preguntas rápidas
+        // Ayuda y soporte: desde la cabecera (botón Ayuda), Mi perfil y desde
+        // «¿Tienes más dudas?» de las preguntas rápidas
         path: 'profile/help',
         loadComponent: () =>
           import('./features/profile/help-center/help-center.page').then((m) => m.HelpCenterPage),
@@ -298,9 +298,6 @@ export const routes: Routes = [
           heading: {
             title: 'routes.help.title',
             subtitle: 'routes.help.subtitle',
-            backHref: '/tabs/profile',
-            // Sin breadcrumbs aquí: la pantalla pone su franja con el buscador
-            // (también en el móvil) y las migas en escritorio
           } satisfies TabHeading,
         },
       },

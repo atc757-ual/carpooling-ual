@@ -212,6 +212,12 @@ ion-tab-button {
     font-size: var(--icon-size-l);
   }
 
+  &.help-button ion-icon {
+    width: 1.625rem; // 26px para igualar el peso óptico con perfil y campana
+    height: 1.625rem;
+    font-size: 1.625rem;
+  }
+
   &::part(native) {
     width: 100%;
     height: 100%;

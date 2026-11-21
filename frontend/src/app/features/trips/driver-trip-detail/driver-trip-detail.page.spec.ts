@@ -105,6 +105,16 @@ describe('DriverTripDetailPage', () => {
     expect(fixture.componentInstance.when()).toContain('·');
   });
 
+  it('explains that the system closed a trip that had already passed', async () => {
+    const closed = { ...trip('t1'), status: 'finished' as const, finishedBy: 'system' as const };
+    const root = await render(() => Promise.resolve([closed]));
+
+    expect(fixture.componentInstance.isAutoFinished()).toBe(true);
+    expect(root.querySelector('.driver-detail__auto-notice')?.textContent).toContain(
+      'Este viaje ya terminó.',
+    );
+  });
+
   it('estimates the impact by passenger, and says a cancelled trip saved nothing', async () => {
     const root = await render(() => Promise.resolve([trip('t1')]));
     expect(fixture.componentInstance.impact()?.cars).toBe(2);

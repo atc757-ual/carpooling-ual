@@ -31,6 +31,7 @@ import { ProfileSupportModal } from '../../profile-support-modal/profile-support
       gap: var(--space-base);
       margin: 0;
       padding: var(--space-base);
+      border-radius: var(--radius-s);
       box-shadow: none;
 
       ion-button {

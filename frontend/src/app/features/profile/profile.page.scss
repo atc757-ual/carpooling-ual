@@ -40,8 +40,7 @@
 
 .profile__main,
 .profile__aside,
-.profile-card__content,
-.profile__legal-list {
+.profile-card__content {
   gap: var(--space-base);
   form ion-button {
     margin: 0;
@@ -102,6 +101,27 @@ app-profile-push-setting {
   &:last-child {
     border-bottom: none;
     padding-bottom: 0;
+  }
+}
+
+// Ajustes (idioma, tema, avisos y ubicación del dispositivo) y Privacidad
+// (compartir ubicación y los documentos): filas de lista, como las de los
+// documentos, sin hueco entre ellas, con 8px de relleno, 44px de alto mínimo
+// y la línea fina debajo de cada una salvo la última
+.profile-card__content--rows {
+  gap: 0;
+
+  > .profile__setting-row,
+  > .profile__location-row,
+  > app-profile-push-setting,
+  > app-profile-device-location {
+    min-height: 2.75rem; // 44px
+    padding: var(--space-s);
+    border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  }
+
+  > :last-child {
+    border-bottom: none;
   }
 }
 
@@ -198,24 +218,28 @@ app-profile-device-location {
 
 fieldset.profile__bio-box,
 .profile__bio-box {
+  position: relative;
   display: block;
   box-sizing: border-box;
-  margin: var(--space-s) 0 0;
-  padding: var(--space-s);
-  border: 1px solid var(--color-border);
+  margin: var(--space-base) 0 0;
+  padding: var(--space-s) var(--space-base);
+  border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s);
   background: var(--color-primary-subtle);
 
   legend.profile__bio-title,
   .profile__bio-title {
+    position: absolute;
+    top: 0;
+    left: var(--space-s);
+    transform: translateY(-50%);
     padding: 0 var(--space-xs);
-    margin-inline-start: var(--space-xs);
-    font-size: var(--font-size-body-s);
+    font-size: var(--font-size-caption);
     font-weight: var(--font-weight-semibold);
     text-transform: none;
-    color: var(--color-primary);
+    color: var(--color-text-muted);
     background: var(--color-surface);
-    border-radius: var(--radius-xs);
+    line-height: 1;
   }
 
   p,
@@ -239,44 +263,34 @@ fieldset.profile__bio-box,
   border: 1px solid var(--color-border-subtle);
 }
 
-// Separador entre el bloque de compartir ubicación y los documentos legales
-.profile__legal-divider {
-  border: 0;
-  height: 0;
-  margin: var(--space-s) 0;
-  border-top: var(--border-width-s) solid var(--color-border-subtle);
-}
-
 // Sin el fondo ni el relleno de ion-list
 ion-list.profile__legal-list {
   padding: 0;
   background: transparent;
-  gap: var(--space-s);
+  gap: 0;
 }
 
 // Cada fila (documento legal, contraseña, ayuda, eliminar cuenta), un ion-item
-// con borde: icono, título y detalle (en los documentos, si está aceptado) y la
-// flecha del ion-item (detail)
+// sin bordes en todos lados y solo con el separador inferior
 .profile__legal-row {
   --background: var(--color-surface);
-  --background-hover: var(--color-primary-subtle);
+  --background-hover: var(--color-surface-subtle);
   --background-hover-opacity: 1;
-  --border-radius: var(--radius-s);
+  --border-radius: 0;
   --padding-start: var(--space-s);
-  --padding-top: 0;
-  --padding-bottom: 0;
   --inner-padding-end: var(--space-s);
-  --min-height: 2.75rem;
+  --min-height: 2.75rem; // 44px
   --color: var(--color-text);
   --detail-icon-color: var(--color-text-muted);
   --detail-icon-opacity: 1;
 
-  border: var(--border-width-s) solid var(--color-border-subtle);
-  border-radius: var(--radius-s);
-  transition: border-color var(--motion-duration-fast);
+  border: none;
+  border-radius: 0;
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  transition: background var(--motion-duration-fast);
 
-  &:hover {
-    border-color: var(--color-primary-subtle);
+  &:last-child {
+    border-bottom: none;
   }
 
   &.ion-focused {

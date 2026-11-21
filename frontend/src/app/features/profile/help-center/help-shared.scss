@@ -42,6 +42,7 @@
   --background: var(--color-primary-subtle);
   --box-shadow: none;
   --border-radius: var(--radius-s); // 8px, como su desplegable
+  border-radius: var(--radius-s);
   --color: var(--color-text);
   --placeholder-color: var(--color-text-muted);
   --placeholder-opacity: 1;
@@ -55,6 +56,7 @@
 .help-search {
   position: relative;
   z-index: var(--z-dropdown-anchor);
+  margin-top: var(--space-s);
 
   @media (min-width: 768px) {
     width: calc((100% - var(--space-base)) * 2 / 3);
@@ -82,35 +84,31 @@
   background: transparent;
 }
 
-// Cada resultado, un ion-item: azul claro al pasar o con el foco
+// Cada resultado, un ion-item compacto con solo la pregunta (4px arriba y
+// abajo, 44px de alto táctil), su flecha gris y la línea fina entre filas:
+// azul claro al pasar o con el foco
 .help-search__item {
+  --border-color: var(--color-border-subtle);
+  --detail-icon-color: var(--color-text-muted);
+  --detail-icon-opacity: 1;
   --background: transparent;
   --background-hover: var(--color-primary-subtle);
   --background-hover-opacity: 1;
   --background-focused: var(--color-primary-subtle);
   --background-focused-opacity: 1;
+  --min-height: var(--control-height-s); // 44px
   --padding-start: var(--space-base);
-  --padding-top: var(--space-s);
-  --padding-bottom: var(--space-s);
+  --padding-top: var(--space-xs);
+  --padding-bottom: var(--space-xs);
   --inner-padding-end: var(--space-base);
   --color: var(--color-text);
 }
 
-.help-search__text {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xxs);
-  white-space: normal;
-}
-
 .help-search__question {
+  margin: 0;
   font-size: var(--font-size-body-s);
   font-weight: var(--font-weight-medium);
-}
-
-.help-search__topic {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-caption);
+  white-space: normal;
 }
 
 .help-search__status {
@@ -143,6 +141,7 @@
     margin: 0;
     box-shadow: none;
     text-align: left;
+    border-radius: var(--radius-s); // 8px
   }
 }
 
@@ -194,6 +193,7 @@
   flex-direction: column;
   gap: var(--space-base);
   padding: var(--space-base);
+  border-radius: var(--radius-s); // 8px
 }
 
 // Los temas: una tarjeta cada uno, con borde, dentro de la grande; en
@@ -212,6 +212,7 @@
 .help-page .help-topic-card {
   padding: var(--space-base) var(--space-base) var(--space-xs);
   border: var(--border-width-s) solid var(--color-border-subtle);
+  border-radius: var(--radius-s); // 8px
 }
 
 .help-topic-card__title {

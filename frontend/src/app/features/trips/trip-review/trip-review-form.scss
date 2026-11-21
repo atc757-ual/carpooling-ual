@@ -28,12 +28,15 @@
   }
 }
 
-// La manita abajo, los 5 botones y la manita arriba en una fila
+// La manita abajo, los 5 botones y la manita arriba en una fila. Sin sitio
+// (p. ej. la columna de 4 estrecha), los botones encogen con la tarjeta, no
+// con la ventana: nada de vw
 .trip-review__scale {
   display: flex;
+  min-width: 0;
   align-items: center;
   justify-content: center;
-  gap: var(--space-s);
+  gap: var(--space-xs);
 }
 
 .trip-review__end {
@@ -49,17 +52,21 @@
   color: var(--color-success);
 }
 
-// Los 5 botones juntos y centrados (no se estiran a lo ancho)
+// Los 5 botones juntos y centrados; encogen si no caben
 .trip-review__steps {
   display: flex;
-  gap: var(--space-s);
+  min-width: 0;
+  flex: 0 1 auto;
+  gap: var(--space-xs);
 }
 
-// Cada punto, el botón cuadrado con su número, de 48 × 48px (más que el
-// objetivo táctil de 44px)
+// Cada punto, el botón cuadrado con su número: 48 × 48px si cabe (más que el
+// objetivo táctil de 44px); si no, encoge a la vez que los demás
 .trip-review__step {
   display: flex;
-  min-height: var(--control-height-base);
+  width: var(--control-height-base); // 48px: el ancho que pide al grupo
+  min-width: 0;
+  flex: 0 1 auto;
   align-items: center;
   border-radius: var(--radius-s);
   cursor: pointer;
@@ -71,12 +78,12 @@
   }
 }
 
-// El botón: cuadrado (radio de 8px) con borde y el número en gris; en verde
-// claro hasta el elegido y el elegido en verde
+// El botón: cuadrado (radio de 8px) del ancho de su punto, con borde y el
+// número en gris; en verde claro hasta el elegido y el elegido en verde
 .trip-review__button {
   display: grid;
-  width: var(--control-height-base); // Cuadrado
-  height: var(--control-height-base);
+  width: 100%;
+  aspect-ratio: 1;
   box-sizing: border-box;
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s); // 8px
