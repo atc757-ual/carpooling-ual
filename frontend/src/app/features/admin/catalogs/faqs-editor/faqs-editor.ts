@@ -33,6 +33,7 @@ import {
   FilterChips,
 } from '../../../../shared/components/ui/filter-chips/filter-chips';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
+import { FaqTopicsCard } from './faq-topics-card/faq-topics-card';
 import { groupFaqs } from './faq-list.util';
 import { openFaqModal } from './faq-modal/faq-modal';
 
@@ -46,6 +47,7 @@ const ALL_TOPICS = 'all';
 @Component({
   selector: 'app-faqs-editor',
   imports: [
+    FaqTopicsCard,
     FilterChips,
     IonButton,
     IonCard,

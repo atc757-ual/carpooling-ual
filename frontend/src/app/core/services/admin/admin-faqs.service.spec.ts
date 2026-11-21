@@ -48,6 +48,22 @@ describe('AdminFaqsService', () => {
     await expect(topics).resolves.toEqual([{ key: 'ratings', nameEs: 'Valoraciones' }]);
   });
 
+  it('changes and moves a topic', async () => {
+    const updated = faqs.updateTopic('ratings', { nameEs: 'Reseñas', icon: 'star' });
+    const patch = http.expectOne('/api/admin/faq-topics/ratings');
+    expect(patch.request.method).toBe('PATCH');
+    expect(patch.request.body).toEqual({ nameEs: 'Reseñas', icon: 'star' });
+    patch.flush({ key: 'ratings', nameEs: 'Reseñas' });
+    await expect(updated).resolves.toMatchObject({ nameEs: 'Reseñas' });
+
+    const moved = faqs.moveTopic('ratings', 'up');
+    const move = http.expectOne('/api/admin/faq-topics/ratings/move');
+    expect(move.request.method).toBe('POST');
+    expect(move.request.body).toEqual({ direction: 'up' });
+    move.flush({ key: 'ratings', sortOrder: 1 });
+    await expect(moved).resolves.toMatchObject({ sortOrder: 1 });
+  });
+
   it('lists every FAQ, asking for as many pages as there are', async () => {
     const fullPage = Array.from({ length: 100 }, (_, index) => ({ ...FAQ, id: `faq-${index}` }));
 

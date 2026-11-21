@@ -1,0 +1,64 @@
+.faq-topic-modal {
+  gap: var(--space-base);
+  text-align: left;
+
+  ion-input {
+    width: 100%;
+  }
+}
+
+// Los dos nombres a la par (en el móvil, uno debajo del otro)
+.faq-topic-modal__names {
+  display: grid;
+  gap: var(--space-base);
+  width: 100%;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.faq-topic-modal__icons {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-block-end: var(--space-s);
+    padding: 0;
+  }
+}
+
+// Los iconos en una rejilla de cuadrados de 44px (el objetivo táctil)
+.faq-topic-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(2.75rem, 1fr)); // 44px
+  gap: var(--space-s);
+}
+
+// Cada icono, una tarjeta de opción (base en el tema, `.option-card`)
+// cuadrada y con el icono centrado
+.faq-topic-modal__icon {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+
+  aspect-ratio: 1;
+
+  ion-radio::part(label) {
+    align-items: center;
+    width: 100%;
+  }
+
+  ion-icon {
+    color: var(--color-link);
+    font-size: var(--icon-size-m);
+  }
+}
+
+.faq-topic-modal__error {
+  margin: 0;
+  color: var(--color-danger);
+}

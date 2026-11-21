@@ -3,8 +3,6 @@ import {
   IonButton,
   IonCheckbox,
   IonInput,
-  IonSegment,
-  IonSegmentButton,
   IonSelect,
   IonSelectOption,
   IonSpinner,
@@ -22,6 +20,7 @@ import {
 } from '../../../../../core/models/admin-faq.model';
 import { ApiError } from '../../../../../core/models/api-error.model';
 import { getErrorMessage } from '../../../../../shared/utils/error-message.util';
+import { ModalHeader } from '../../../../../shared/components/modals/modal-header/modal-header';
 import { toPoints } from '../faq-list.util';
 
 type Lang = 'es' | 'en';
@@ -53,12 +52,11 @@ export interface FaqModalOptions {
     IonButton,
     IonCheckbox,
     IonInput,
-    IonSegment,
-    IonSegmentButton,
     IonSelect,
     IonSelectOption,
     IonSpinner,
     IonTextarea,
+    ModalHeader,
   ],
   templateUrl: './faq-modal.html',
   styleUrls: [
@@ -103,6 +101,10 @@ export class FaqModal implements OnInit {
   protected readonly audienceLabels = FAQ_AUDIENCE_LABELS;
   protected readonly contextOptions = CONTEXTS;
   protected readonly contextLabels = FAQ_CONTEXT_LABELS;
+  protected readonly langs: readonly { value: Lang; label: string }[] = [
+    { value: 'es', label: 'Español' },
+    { value: 'en', label: 'Inglés' },
+  ];
   protected readonly maxQuestion = MAX_QUESTION;
   protected readonly maxAnswer = MAX_ANSWER;
 
