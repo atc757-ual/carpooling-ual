@@ -639,11 +639,17 @@ ion-item.option-card {
   }
 
   ion-item {
+    --background: var(--color-surface);
+    --background-hover: var(--color-danger-subtle);
+    --background-hover-opacity: 1;
+    --background-focused: var(--color-danger-subtle);
+    --background-focused-opacity: 1;
     --padding-start: var(--space-base);
     --inner-padding-end: var(--space-base);
     --min-height: 2.75rem; // 44px
     font-size: var(--font-size-body-s);
     color: var(--color-danger-text);
+    cursor: pointer;
 
     ion-icon {
       margin-inline-end: var(--space-s); // 8px en lugar de los 32px por defecto de Ionic

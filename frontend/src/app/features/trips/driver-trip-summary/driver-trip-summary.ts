@@ -53,11 +53,19 @@ export class DriverTripSummary {
   });
   // En la tarjeta, solo la hora: el día va en el título de su grupo
   readonly time = computed(() => formatTime(this.trip().departureAt));
+  readonly isAutoFinished = computed(
+    () => this.trip().status === 'finished' && this.trip().finishedBy === 'system',
+  );
   readonly route = computed(() => {
     const { originName, destinationName } = this.trip();
     return `${originName ?? 'Origen'} → ${destinationName ?? 'Destino'}`;
   });
-  readonly statusLabel = computed(() => tripStatusLabel(this.trip().status));
+  readonly statusLabel = computed(() => {
+    if (this.isAutoFinished()) {
+      return translate('myTrips.finalizadoAutomatico');
+    }
+    return tripStatusLabel(this.trip().status);
+  });
   readonly seatsLabel = computed(() => {
     const { availableSeats, offeredSeats } = this.trip();
     return translate('screens.driverTripSummary.freeOf', {

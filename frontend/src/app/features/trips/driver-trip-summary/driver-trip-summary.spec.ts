@@ -40,8 +40,6 @@ describe('DriverTripSummary', () => {
 
   // Toda la fila es el enlace (ion-item [routerLink])
   const link = (root: HTMLElement) => root.querySelector('ion-item.driver-summary');
-  // La acción principal, abajo, en el azul de los enlaces
-  const action = (root: HTMLElement) => root.querySelector('.driver-summary__action');
 
   it('shows the route, the free seats and links to the detail', () => {
     const root = render(TRIP);
@@ -51,7 +49,6 @@ describe('DriverTripSummary', () => {
     );
     expect(root.textContent).toContain('2 de 3 libres');
     expect(link(root)?.getAttribute('href')).toBe('/tabs/trips/published/t1');
-    expect(action(root)?.textContent).toBe('Ver solicitudes');
     expect(link(root)?.getAttribute('aria-label')).toContain('Ver solicitudes, conduces:');
     expect(root.querySelector('.role-tag')?.textContent).toContain('Conduces');
     expect(start).not.toHaveBeenCalled();
@@ -73,11 +70,11 @@ describe('DriverTripSummary', () => {
 
   it('says when the system closed the trip', () => {
     expect(render({ ...TRIP, status: 'finished', finishedBy: 'system' }).textContent).toContain(
-      'Cerrado automáticamente',
+      'Finalizado automático',
     );
     TestBed.resetTestingModule();
     expect(render({ ...TRIP, status: 'finished', finishedBy: 'driver' }).textContent).not.toContain(
-      'Cerrado automáticamente',
+      'Finalizado automático',
     );
   });
 
@@ -90,25 +87,29 @@ describe('DriverTripSummary', () => {
   it('offers to start when the departure is close', () => {
     const departureAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
-    expect(action(render({ ...TRIP, status: 'confirmed', departureAt }))?.textContent).toBe(
-      'Iniciar viaje',
-    );
+    expect(
+      link(render({ ...TRIP, status: 'confirmed', departureAt }))?.getAttribute('aria-label'),
+    ).toContain('Iniciar viaje');
   });
 
   it('keeps showing the requests while it is too early to start', () => {
-    expect(action(render({ ...TRIP, status: 'confirmed' }))?.textContent).toBe('Ver solicitudes');
+    expect(link(render({ ...TRIP, status: 'confirmed' }))?.getAttribute('aria-label')).toContain(
+      'Ver solicitudes',
+    );
   });
 
   it('opens the live screen of a trip in progress and keeps sharing the position', () => {
     const root = render({ ...TRIP, status: 'in_progress' });
 
     expect(link(root)?.getAttribute('href')).toBe('/tabs/trips/drive/t1');
-    expect(action(root)?.textContent).toBe('Abrir viaje');
+    expect(link(root)?.getAttribute('aria-label')).toContain('Abrir viaje');
     expect(start).toHaveBeenCalledWith('t1');
   });
 
   it('just opens the trip once it is over', () => {
-    expect(action(render({ ...TRIP, status: 'finished' }))?.textContent).toBe('Ver viaje');
+    expect(link(render({ ...TRIP, status: 'finished' }))?.getAttribute('aria-label')).toContain(
+      'Ver viaje',
+    );
   });
 
   it('counts the requests waiting for an answer', () => {

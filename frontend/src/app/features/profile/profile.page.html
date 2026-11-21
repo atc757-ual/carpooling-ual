@@ -40,12 +40,12 @@
               <!-- Sobre mí (corto si no hay) -->
               <div class="profile__bio-section">
                 @if (user.bio) {
-                  <div class="profile__bio-box">
-                    <span class="text-caption text-color-muted profile__bio-title">{{
-                      'profile.aboutMe' | transloco
-                    }}</span>
+                  <fieldset class="profile__bio-box">
+                    <legend class="profile__bio-title">
+                      {{ 'profile.aboutMe' | transloco }}
+                    </legend>
                     <p class="profile__bio-text">{{ user.bio }}</p>
-                  </div>
+                  </fieldset>
                 } @else {
                   <p class="profile__bio-empty text-body text-color-muted">
                     {{ 'profile.emptyBio' | transloco }}
@@ -107,7 +107,7 @@
           <ion-card-header class="profile-card__header">
             <ion-card-title>{{ 'profile.settings' | transloco }}</ion-card-title>
           </ion-card-header>
-          <ion-card-content class="profile-card__content">
+          <ion-card-content class="profile-card__content profile-card__content--rows">
             <!-- Idioma -->
             <div class="profile__setting-row">
               <span class="profile__setting-text">
@@ -247,11 +247,9 @@
           <ion-card-header class="profile-card__header">
             <ion-card-title>{{ 'profile.privacy.title' | transloco }}</ion-card-title>
           </ion-card-header>
-          <ion-card-content class="profile-card__content">
+          <ion-card-content class="profile-card__content profile-card__content--rows">
             <!-- Compartir ubicación (consentimiento y permiso del dispositivo) -->
-            <app-profile-location />
-
-            <hr class="profile__legal-divider" aria-hidden="true" />
+            <app-profile-location class="profile__location-row" />
 
             <!-- Cada documento, un ion-item que abre su texto (la flecha es la suya) -->
             <ion-list class="profile__legal-list" lines="none">

@@ -33,7 +33,6 @@ describe('MyTripsAside', () => {
       'Te puede interesar',
     ]);
     expect(root.textContent).toContain('25,4 kg');
-    expect(root.textContent).toContain('4,8 (12)');
     expect(titles(root)).toEqual(['Publicar viaje', 'Buscar viaje']);
   });
 

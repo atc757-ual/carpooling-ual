@@ -59,14 +59,14 @@
   </div>
 </ion-content>
 
-<!-- La franja fija del título: en escritorio, el título, las migas y debajo
-     el buscador (del ancho de la columna de 8); en el móvil, solo el
-     buscador (la cabecera ya lleva la flecha de volver y el título). Al
-     escribir, debajo del buscador se despliegan las preguntas que coinciden;
-     en el móvil, con el fondo oscurecido -->
+<!-- La franja fija del título: el título y el subtítulo (la cabecera no
+     lleva flecha de volver), en escritorio las migas, y debajo el buscador
+     (en escritorio, del ancho de la columna de 8). Al escribir, debajo del
+     buscador se despliegan las preguntas que coinciden; en el móvil, con el
+     fondo oscurecido -->
 <ng-template #helpHeading>
   <div class="help-heading">
-    <div class="ion-hide-md-down">
+    <div>
       <h1 class="help-heading__title">{{ 'help.title' | transloco }}</h1>
       <p class="help-heading__subtitle text-body-s text-color-muted">
         {{ 'help.subtitle' | transloco }}
@@ -97,24 +97,22 @@
             </p>
           } @else {
             @if (searchItems().length > 0) {
-              <!-- Cada resultado, un ion-item que abre la pregunta (como los temas) -->
+              <!-- Cada resultado, un ion-item con su flecha y la línea entre
+                   filas que abre la pregunta (como las de los temas) -->
               <ion-list
                 class="help-search__list"
-                lines="none"
                 [attr.aria-label]="'help.resultsTitle' | transloco"
               >
-                @for (item of searchItems(); track item.id) {
+                @for (item of searchItems(); track item.id; let last = $last) {
                   <ion-item
                     class="help-search__item"
                     [button]="true"
-                    [detail]="false"
+                    [detail]="true"
+                    [lines]="last ? 'none' : 'full'"
                     [routerLink]="[helpCenterPath, item.id]"
                     (click)="handleCloseSearch()"
                   >
-                    <ion-label class="help-search__text">
-                      <span class="help-search__question">{{ item.question }}</span>
-                      <span class="help-search__topic">{{ item.topicName }}</span>
-                    </ion-label>
+                    <ion-label class="help-search__question">{{ item.question }}</ion-label>
                   </ion-item>
                 }
               </ion-list>

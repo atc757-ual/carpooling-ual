@@ -4,20 +4,6 @@
      en los dos -->
 <ng-template #headerActions let-isDesktop>
   <ion-button
-    class="header-action profile-button"
-    fill="clear"
-    routerLink="/tabs/profile"
-    routerLinkActive="header-action--active"
-    [attr.aria-label]="'common.nav.profile' | transloco"
-  >
-    <span class="header-action__icon">
-      <ion-icon [icon]="profileIcon" aria-hidden="true" />
-    </span>
-    <span class="header-action__label" aria-hidden="true">{{
-      'common.nav.profile' | transloco
-    }}</span>
-  </ion-button>
-  <ion-button
     class="header-action help-button"
     fill="clear"
     routerLink="/tabs/profile/help"
@@ -29,6 +15,20 @@
     </span>
     <span class="header-action__label" aria-hidden="true">{{
       'common.nav.helpShort' | transloco
+    }}</span>
+  </ion-button>
+  <ion-button
+    class="header-action profile-button"
+    fill="clear"
+    routerLink="/tabs/profile"
+    routerLinkActive="header-action--active"
+    [attr.aria-label]="'common.nav.profile' | transloco"
+  >
+    <span class="header-action__icon">
+      <ion-icon [icon]="profileIcon" aria-hidden="true" />
+    </span>
+    <span class="header-action__label" aria-hidden="true">{{
+      'common.nav.profile' | transloco
     }}</span>
   </ion-button>
   <ion-button

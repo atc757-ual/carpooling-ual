@@ -170,7 +170,7 @@ ion-content {
 .notifications__list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-s);
+  gap: 0;
   padding: 0;
   background: transparent;
 }
@@ -184,11 +184,13 @@ ion-content {
   --padding-bottom: var(--space-s);
   --inner-padding-end: var(--space-s);
   --color: var(--color-text);
-  --border-radius: var(--radius-s);
+  --border-radius: 0;
 
-  border-radius: var(--radius-s);
-  border-bottom: var(--border-width-s) solid var(--color-surface-subtle);
-  border-inline-start: 0.3125rem solid transparent; // 5px
+  border-radius: 0;
+  border-top: none;
+  border-right: none;
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  border-inline-start: 4px solid transparent; // 4px de grosor
   transition: border-color var(--motion-duration-fast) var(--motion-easing);
 
   &.ion-focused {

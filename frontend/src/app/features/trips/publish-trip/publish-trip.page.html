@@ -103,13 +103,13 @@
                     <!-- Hacia el campus, la vuelta (otro viaje, el mismo día) y
                          cómo recoge (desde él, cada pasajero sube en el parking) -->
                     @if (isArrivalTime()) {
-                      <app-return-trip-field
-                        [controls]="returnControls"
-                        [arrivalTime]="arrivalTime()"
-                      />
                       <app-pickup-mode-field
                         [controls]="pickupControls"
                         [mapCenter]="tripValueStart()"
+                      />
+                      <app-return-trip-field
+                        [controls]="returnControls"
+                        [arrivalTime]="arrivalTime()"
                       />
                     }
                     <!-- El margen para recoger lo calcula el sistema (con las

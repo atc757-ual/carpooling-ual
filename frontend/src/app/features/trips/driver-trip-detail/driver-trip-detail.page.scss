@@ -89,9 +89,13 @@ ion-card.driver-detail__impact ion-card-content {
   }
 }
 
+.driver-detail__auto-notice {
+  margin-bottom: var(--space-s);
+}
+
 .driver-detail__stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: var(--space-s);
   margin: 0;
 
